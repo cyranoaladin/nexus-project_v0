@@ -190,22 +190,35 @@ export async function initiateStudentActivation(
   });
 
   if (trackMetadata) {
-    const isStmg =
-      trackMetadata.academicTrack === 'STMG' ||
-      trackMetadata.academicTrack === 'STMG_NON_LYCEEN';
+    const { gradeLevel, academicTrack, specialties, stmgPathway, survivalMode, survivalModeReason } = trackMetadata;
+    const isStmg = academicTrack === 'STMG' || academicTrack === 'STMG_NON_LYCEEN';
 
-    await prisma.student.update({
+    await prisma.student.upsert({
       where: { userId: studentUserId },
-      data: {
-        gradeLevel: trackMetadata.gradeLevel,
-        academicTrack: trackMetadata.academicTrack,
-        specialties: trackMetadata.specialties,
-        stmgPathway: isStmg ? (trackMetadata.stmgPathway ?? 'INDETERMINE') : null,
-        survivalMode: isStmg ? Boolean(trackMetadata.survivalMode) : false,
-        survivalModeReason: isStmg && trackMetadata.survivalMode ? (trackMetadata.survivalModeReason ?? null) : null,
-        survivalModeBy: isStmg && trackMetadata.survivalMode ? initiatorId : null,
-        survivalModeAt: isStmg && trackMetadata.survivalMode ? new Date() : null,
+      update: {
+        gradeLevel: gradeLevel as GradeLevel,
+        academicTrack: academicTrack as AcademicTrack,
+        specialties: specialties as Subject[],
+        stmgPathway: isStmg ? (stmgPathway ?? 'INDETERMINE') : null,
+        survivalMode: isStmg ? Boolean(survivalMode) : false,
+        survivalModeReason: isStmg && survivalMode ? (survivalModeReason ?? null) : null,
+        survivalModeBy: isStmg && survivalMode ? initiatorId : null,
+        survivalModeAt: isStmg && survivalMode ? new Date() : null,
         updatedTrackAt: new Date(),
+        grade: gradeLevel.toString(), // Sync legacy grade
+      },
+      create: {
+        userId: studentUserId,
+        gradeLevel: gradeLevel as GradeLevel,
+        academicTrack: academicTrack as AcademicTrack,
+        specialties: specialties as Subject[],
+        stmgPathway: isStmg ? (stmgPathway ?? 'INDETERMINE') : null,
+        survivalMode: isStmg ? Boolean(survivalMode) : false,
+        survivalModeReason: isStmg && survivalMode ? (survivalModeReason ?? null) : null,
+        survivalModeBy: isStmg && survivalMode ? initiatorId : null,
+        survivalModeAt: isStmg && survivalMode ? new Date() : null,
+        updatedTrackAt: new Date(),
+        grade: gradeLevel.toString(), // Sync legacy grade
       },
     });
   }

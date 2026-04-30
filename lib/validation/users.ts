@@ -82,7 +82,16 @@ export const createUserSchema = z.object({
   lastName: z.string().trim().min(1, 'Last name is required').max(100),
   phone: phoneSchema.optional(),
   ...studentTrackFields,
-}).superRefine(validateStudentTrackCombination);
+}).superRefine((data, ctx) => {
+  if (data.role === UserRole.ELEVE && !data.gradeLevel) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['gradeLevel'],
+      message: 'Le niveau scolaire est obligatoire pour un élève',
+    });
+  }
+  validateStudentTrackCombination(data, ctx);
+});
 
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 

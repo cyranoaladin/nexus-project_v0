@@ -59,7 +59,14 @@ describe('IDOR BDD Réelle — Predict Ownership', () => {
     parent = await prisma.parentProfile.create({ data: { userId: uP.id } });
     
     // Link Parent to Student 1
-    student1 = await prisma.student.create({ data: { userId: uS1.id, parentId: parent.id } });
+    student1 = await prisma.student.create({ 
+      data: { 
+        userId: uS1.id, 
+        parentId: parent.id,
+        gradeLevel: 'PREMIERE',
+        academicTrack: 'EDS_GENERALE'
+      } 
+    });
 
     // Coach 1 a une séance avec Student 1
     await prisma.sessionBooking.create({

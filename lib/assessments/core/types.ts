@@ -22,8 +22,12 @@ export enum Subject {
  * Grade levels (French education system)
  */
 export enum Grade {
+  TROISIEME = 'TROISIEME',
+  SECONDE = 'SECONDE',
   PREMIERE = 'PREMIERE',
   TERMINALE = 'TERMINALE',
+  POSTBAC = 'POSTBAC',
+  AUTRE = 'AUTRE',
 }
 
 /**

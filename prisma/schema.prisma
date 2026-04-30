@@ -51,13 +51,16 @@ enum Subject {
 }
 
 enum GradeLevel {
+  TROISIEME
   SECONDE
   PREMIERE
   TERMINALE
   POSTBAC
+  AUTRE
 }
 
 enum AcademicTrack {
+  COLLEGE
   EDS_GENERALE
   STMG
   STI2D
@@ -225,15 +228,15 @@ model ParentProfile {
 // Modèle Élève (entité métier — source de vérité unique pour les données élève)
 model Student {
   id       String        @id @default(cuid())
-  parentId String
-  parent   ParentProfile @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  parentId String?
+  parent   ParentProfile? @relation(fields: [parentId], references: [id], onDelete: Cascade)
 
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Informations scolaires
   grade          String? // Classe legacy, conservée pour compatibilité
-  gradeLevel     GradeLevel    @default(PREMIERE)
+  gradeLevel     GradeLevel
   academicTrack  AcademicTrack @default(EDS_GENERALE)
   specialties    Subject[]     @default([])
   stmgPathway    StmgPathway?
