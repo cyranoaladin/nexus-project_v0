@@ -47,7 +47,14 @@ if (realExports) {
           if (prop === '$executeRaw') return async () => 0;
           if (prop === '$executeRawUnsafe') return async () => 0;
           if (prop === '$transaction') return async (fn) => fn(target);
-          return {};
+          
+          // Return a mock object for models (e.g. prisma.user, prisma.student)
+          return new Proxy({}, {
+            get(t, method) {
+              // Return a mock function for any model method (findUnique, findFirst, create, etc.)
+              return async () => null;
+            }
+          });
         },
       });
     }

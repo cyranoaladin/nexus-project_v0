@@ -81,14 +81,24 @@ export const createUserSchema = z.object({
   firstName: z.string().trim().min(1, 'First name is required').max(100),
   lastName: z.string().trim().min(1, 'Last name is required').max(100),
   phone: phoneSchema.optional(),
+  parentId: z.string().optional(), // Mandatory for ELEVE, checked in superRefine
   ...studentTrackFields,
 }).superRefine((data, ctx) => {
-  if (data.role === UserRole.ELEVE && !data.gradeLevel) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ['gradeLevel'],
-      message: 'Le niveau scolaire est obligatoire pour un élève',
-    });
+  if (data.role === UserRole.ELEVE) {
+    if (!data.gradeLevel) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['gradeLevel'],
+        message: 'Le niveau scolaire est obligatoire pour un élève',
+      });
+    }
+    if (!data.parentId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['parentId'],
+        message: 'Le parent est obligatoire pour un élève',
+      });
+    }
   }
   validateStudentTrackCombination(data, ctx);
 });
@@ -106,6 +116,7 @@ export const updateUserSchema = z.object({
   lastName: optionalString,
   phone: phoneSchema.optional(),
   isActive: z.boolean().optional(),
+  parentId: z.string().optional(),
   ...studentTrackFields,
 }).superRefine(validateStudentTrackCombination);
 

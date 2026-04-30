@@ -97,9 +97,9 @@ export async function GET(request: NextRequest) {
         school: subscription.student.school
       },
       parent: {
-        firstName: subscription.student.parent?.user.firstName || 'Inconnu',
-        lastName: subscription.student.parent?.user.lastName || 'Inconnu',
-        email: subscription.student.parent?.user.email || 'Inconnu'
+        firstName: subscription.student.parent.user.firstName,
+        lastName: subscription.student.parent.user.lastName,
+        email: subscription.student.parent.user.email
       }
     }));
 

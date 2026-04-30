@@ -193,6 +193,28 @@ export async function initiateStudentActivation(
     const { gradeLevel, academicTrack, specialties, stmgPathway, survivalMode, survivalModeReason } = trackMetadata;
     const isStmg = academicTrack === 'STMG' || academicTrack === 'STMG_NON_LYCEEN';
 
+    // Get parentId for create block
+    let parentId = studentUser.student?.parentId;
+    if (!parentId && initiatorRole === 'PARENT') {
+      const parentProfile = await prisma.parentProfile.findFirst({
+        where: { userId: initiatorId }
+      });
+      parentId = parentProfile?.id;
+    }
+
+    if (!parentId) {
+      // Fallback to admin parent if still missing (edge case for orphaned students being activated by admin)
+      const adminParent = await prisma.user.findFirst({
+        where: { email: 'admin@nexus-reussite.com' },
+        include: { parentProfile: true }
+      });
+      parentId = adminParent?.parentProfile?.id;
+    }
+
+    if (!parentId) {
+      throw new Error('Impossible de trouver un profil parent pour cet élève');
+    }
+
     await prisma.student.upsert({
       where: { userId: studentUserId },
       update: {
@@ -219,6 +241,7 @@ export async function initiateStudentActivation(
         survivalModeAt: isStmg && survivalMode ? new Date() : null,
         updatedTrackAt: new Date(),
         grade: gradeLevel.toString(), // Sync legacy grade
+        parentId: parentId,
       },
     });
   }

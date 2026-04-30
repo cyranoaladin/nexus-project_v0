@@ -50,9 +50,9 @@ export async function GET(request: NextRequest) {
         school: request.student.school
       },
       parent: {
-        firstName: request.student.parent?.user.firstName || 'Inconnu',
-        lastName: request.student.parent?.user.lastName || 'Inconnu',
-        email: request.student.parent?.user.email || 'Inconnu'
+        firstName: request.student.parent.user.firstName,
+        lastName: request.student.parent.user.lastName,
+        email: request.student.parent.user.email
       }
     }));
 

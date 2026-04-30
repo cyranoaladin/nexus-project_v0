@@ -71,7 +71,12 @@ describe('createUserSchema', () => {
   it('should accept all valid roles', () => {
     const roles = ['ADMIN', 'ASSISTANTE', 'COACH', 'PARENT', 'ELEVE'];
     roles.forEach((role) => {
-      const result = createUserSchema.safeParse({ ...validUser, role });
+      const payload = { ...validUser, role } as any;
+      if (role === 'ELEVE') {
+        payload.gradeLevel = 'PREMIERE';
+        payload.parentId = 'parent-123';
+      }
+      const result = createUserSchema.safeParse(payload);
       expect(result.success).toBe(true);
     });
   });
@@ -116,6 +121,7 @@ describe('createUserSchema', () => {
       gradeLevel: 'PREMIERE',
       academicTrack: 'EDS_GENERALE',
       specialties: ['MATHEMATIQUES', 'NSI', 'PHYSIQUE_CHIMIE'],
+      parentId: 'parent-123',
     });
 
     expect(result.success).toBe(true);

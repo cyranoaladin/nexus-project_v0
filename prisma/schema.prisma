@@ -228,8 +228,8 @@ model ParentProfile {
 // Modèle Élève (entité métier — source de vérité unique pour les données élève)
 model Student {
   id       String        @id @default(cuid())
-  parentId String?
-  parent   ParentProfile? @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  parentId String
+  parent   ParentProfile @relation(fields: [parentId], references: [id], onDelete: Cascade)
 
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)

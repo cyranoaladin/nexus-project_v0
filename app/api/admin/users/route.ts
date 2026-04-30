@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { requireRole, isErrorResponse } from '@/lib/guards';
 import { createUserSchema, updateUserSchema, listUsersSchema } from '@/lib/validation';
 import { parseBody, parseSearchParams, getPagination, createPaginationMeta, assertExists } from '@/lib/api/helpers';
@@ -172,7 +172,8 @@ export async function POST(request: NextRequest) {
               academicTrack: data.academicTrack || (data.gradeLevel === GradeLevel.TROISIEME ? AcademicTrack.COLLEGE : AcademicTrack.EDS_GENERALE),
               specialties: data.specialties || [],
               stmgPathway: data.stmgPathway || null,
-              grade: data.gradeLevel.toString() // Sync legacy grade
+              grade: data.gradeLevel.toString(), // Sync legacy grade
+              parentId: data.parentId!
             }
           }
         } : {})
@@ -300,6 +301,24 @@ export async function PATCH(request: NextRequest) {
         updatedTrackAt: new Date(),
       };
 
+      // Need parentId for create block
+      let parentId = (data as any).parentId;
+      if (!parentId) {
+        const existingStudent = await prisma.student.findUnique({ where: { userId: id } });
+        parentId = existingStudent?.parentId;
+      }
+      if (!parentId) {
+        const adminParent = await prisma.user.findFirst({
+          where: { email: 'admin@nexus-reussite.com' },
+          include: { parentProfile: true }
+        });
+        parentId = adminParent?.parentProfile?.id;
+      }
+
+      if (!parentId) {
+        return NextResponse.json({ error: 'Un parentId est requis pour créer un profil élève' }, { status: 400 });
+      }
+
       await prisma.student.upsert({
         where: { userId: id },
         update: studentData,
@@ -311,6 +330,7 @@ export async function PATCH(request: NextRequest) {
           stmgPathway: isStmg ? (stmgPathway ?? 'INDETERMINE') : null,
           grade: (gradeLevel || GradeLevel.AUTRE).toString(),
           updatedTrackAt: new Date(),
+          parentId: parentId
         },
       });
     }

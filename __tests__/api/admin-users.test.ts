@@ -210,7 +210,9 @@ describe('POST /api/admin/users', () => {
         firstName: 'John',
         lastName: 'Doe',
         role: 'ELEVE',
-        password: 'password123'
+        password: 'password123',
+        gradeLevel: 'PREMIERE',
+        parentId: 'parent-123'
       })
     });
 
@@ -244,7 +246,9 @@ describe('POST /api/admin/users', () => {
         firstName: 'John',
         lastName: 'Doe',
         role: 'ELEVE',
-        password: 'password123'
+        password: 'password123',
+        gradeLevel: 'PREMIERE',
+        parentId: 'parent-123'
       })
     });
 
