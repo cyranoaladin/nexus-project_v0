@@ -13,6 +13,7 @@ import { AriaVerbatimsPanel, type AriaVerbatim } from "./AriaVerbatimsPanel";
 import { RagConsultedSources, type RagSource } from "./RagConsultedSources";
 import { BilanDiagMathsTerminaleCoach } from "./BilanDiagMathsTerminaleCoach";
 import { CoachDocumentsPanel } from "./CoachDocumentsPanel";
+import { EafPreparationReport } from "./EafPreparationReport";
 
 export interface DossierStudent {
   id: string;
@@ -153,6 +154,10 @@ export function StudentDossier({ data, children }: StudentDossierProps) {
               <BilanDiagMathsTerminaleCoach studentId={student.id} studentName={student.name} />
             )}
 
+          {/* Bilan de préparation à l'EAF — visible pour tous les élèves PREMIERE */}
+          {student.gradeLevel === 'PREMIERE' && (
+            <EafPreparationReport studentId={student.id} studentName={student.name} />
+          )}
 
           {/* Optional children (TrajectoryDesigner, etc.) */}
           {children}

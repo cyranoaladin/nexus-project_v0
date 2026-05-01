@@ -11,7 +11,8 @@ jest.mock('@/lib/prisma', () => ({
     coachProfile: { findUnique: jest.fn() },
     sessionBooking: { findMany: jest.fn() },
     user: { findUnique: jest.fn() },
-    student: { findFirst: jest.fn(), findMany: jest.fn() },
+    student: { findFirst: jest.fn(), findMany: jest.fn(), findUnique: jest.fn() },
+    coachStudentAssignment: { findMany: jest.fn() },
     mathsProgress: { findMany: jest.fn().mockResolvedValue([]) },
     bilan: { findMany: jest.fn().mockResolvedValue([]) },
   },
@@ -106,13 +107,29 @@ describe('GET /api/coach/dashboard', () => {
     (prisma.student.findFirst as jest.Mock).mockResolvedValue({
       id: 'student-entity-1',
       grade: 'Seconde',
+      gradeLevel: 'PREMIERE',
+      academicTrack: 'EDS_GENERALE',
       creditTransactions: [{ amount: 2 }],
     });
     (prisma.student.findMany as jest.Mock).mockResolvedValue([
       {
         id: 'student-entity-1',
         userId: 'student-1',
+        gradeLevel: 'PREMIERE',
+        academicTrack: 'EDS_GENERALE',
         creditTransactions: [{ amount: 2 }],
+      },
+    ]);
+    (prisma.student.findUnique as jest.Mock).mockResolvedValue({
+      id: 'student-entity-1',
+      gradeLevel: 'PREMIERE',
+      academicTrack: 'EDS_GENERALE',
+      credits: 2,
+    });
+    (prisma.coachStudentAssignment.findMany as jest.Mock).mockResolvedValue([
+      {
+        coachId: 'coach-profile-1',
+        studentId: 'student-entity-1',
       },
     ]);
 
