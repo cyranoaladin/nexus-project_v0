@@ -109,7 +109,6 @@ Les rubriques suivantes sont disponibles (champs texte, max 5000 caractères cha
 - Rendu du formulaire - ✅
 - Chargement des valeurs existantes - ✅
 - Modification d'un champ - ✅
-- Bouton enregistrer appelle l'API - ✅
 
 ### Tests recommandés (à ajouter)
 
@@ -132,18 +131,79 @@ La migration est non destructive et ne modifie pas les tables existantes.
 
 ### Prérequis
 
-- Le compte coach doit exister et avoir le rôle COACH
-- Les élèves doivent être assignés au coach via `CoachStudentAssignment`
+- Migration Prisma : `prisma/migrations/20260501120000_add_eaf_preparation_reports`
+- Docker Compose prod : `docker-compose.prod.yml`
+- Serveur production : `<PROD_SSH_TARGET>`
 
 ### Procédure de déploiement
 
-1. PR validée et CI verte
-2. Backup DB selon procédure production
-3. Git pull main sur serveur
-4. Build/restart app si nécessaire
-5. Exécution des migrations via `prisma migrate deploy` ou conteneur migrate officiel
-6. Healthchecks
-7. Smoke test
+1. Appliquer la migration Prisma sur la production :
+   ```bash
+   ssh <PROD_SSH_TARGET>
+   cd /opt/nexus
+   docker compose -f docker-compose.prod.yml run --rm migrate npx prisma migrate deploy
+   ```
+
+2. Vérifier que la table `eaf_preparation_reports` a été créée :
+   ```bash
+   docker exec nexus-postgres-prod psql -U nexus_admin -d nexus_prod -c "\d eaf_preparation_reports"
+   ```
+
+3. Rebuild et redémarrer l'application :
+   ```bash
+   docker compose -f docker-compose.prod.yml build nexus-app
+   docker compose -f docker-compose.prod.yml up -d nexus-app
+   ```
+
+4. Vérifier les healthchecks :
+   ```bash
+   docker compose -f docker-compose.prod.yml ps
+   curl http://localhost:3001/api/health
+   ```
+
+### Historique de déploiement
+
+#### 2026-05-01 - Déploiement PR #43 (EAF Coach Reports)
+
+**Statut : Déployé avec réserves**
+
+- **Migration** : Appliquée manuellement via psql (procédure officielle Prisma a échoué avec "No pending migrations")
+- **Audit migration** : Table créée, structure vérifiée, Prisma migrate status = "Database schema is up to date!"
+- **Backup** : nexus_prod_post_eaf_migration_20260501-191306.sql.gz (330K)
+- **App health** : OK
+- **Smoke test Raja** : Échec - Section EAF non visible dans l'UI pour les élèves Première
+- **DB** : 0 rapport créé (smoke test non réussi)
+- **RBAC** : Tests unitaires existants couvrant le cas coach non assigné (403)
+
+**Réserves** :
+- Smoke test UI non réussi - section EAF non visible dans le dashboard coach
+- Cause non identifiée : les données DB confirment que Raja a des élèves Première assignés
+- Fonctionnalité API non testée en production (tests unitaires OK)
+- Validation UI requise avant validation complète
+
+**Action requise** : Investigation UI pour comprendre pourquoi la section EAF ne s'affiche pas pour les élèves Première dans le dashboard coach.
+
+#### 2026-05-01 - Déploiement PR #44 (Fix visibilité EAF)
+
+**Statut : Déployé**
+
+- **Commit** : 92d7ef3d fix(coach): render EAF report for Premiere students (#44)
+- **Changements** :
+  - Ajout de `isPremiereLevel` helper pour vérification case-insensitive du niveau
+  - Mise à jour de StudentDossier pour utiliser le helper au lieu de `student.gradeLevel === 'PREMIERE'`
+  - Ajout de `data-testid="eaf-preparation-report"` au composant Card pour smoke test fiable
+  - Ajout de tests anti-régression pour le helper `isPremiereLevel`
+- **Déploiement** : Build Docker, restart nexus-app, container healthy
+- **Smoke test Raja** : Échec - Problème d'authentification Playwright (redirection vers signin page, non lié au fix)
+- **DB** : 0 rapport (smoke test non réussi, aucun doublon détecté)
+- **RBAC** : Tests unitaires existants couvrant le cas coach non assigné (403). Enforcement réel non testé en production (réserve).
+
+**Réserves** :
+- Smoke test Playwright échoue à cause de problèmes d'authentification (API-based auth redirige vers signin)
+- Fix UI déployé mais non validé manuellement en production
+- Validation manuelle requise pour confirmer que la section EAF s'affiche pour les élèves Première
+
+**Action requise** : Validation manuelle en production - connecter en tant que coach Raja, naviguer vers le dossier d'un élève Première, vérifier que la section "Bilan de préparation à l'EAF" est visible.
 
 ### Smoke test attendu
 
