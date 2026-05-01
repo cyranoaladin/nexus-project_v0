@@ -32,6 +32,10 @@ export function EafPreparationReport({ studentId, studentName }: EafPreparationR
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    setReport({});
+    setLastSavedAt(null);
+    setError(null);
+    setLoading(true);
     fetchReport();
   }, [studentId]);
 
@@ -112,7 +116,7 @@ export function EafPreparationReport({ studentId, studentName }: EafPreparationR
           Bilan de préparation à l'EAF
         </CardTitle>
         <p className="text-xs text-neutral-400 mt-1">
-          Notes pédagogiques du coach pour suivre la progression de l'élève dans la préparation à l'épreuve anticipée de français.
+          Suivi EAF de {studentName}
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -122,19 +126,23 @@ export function EafPreparationReport({ studentId, studentName }: EafPreparationR
           </div>
         )}
 
-        {fields.map((field) => (
-          <div key={field.key} className="space-y-2">
-            <label className="text-sm font-medium text-neutral-300">{field.label}</label>
-            <textarea
-              value={report[field.key] || ""}
-              onChange={(e) => handleChange(field.key, e.target.value)}
-              placeholder={field.placeholder}
-              rows={3}
-              maxLength={5000}
-              className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-transparent resize-y"
-            />
-          </div>
-        ))}
+        {fields.map((field) => {
+          const fieldId = `eaf-${studentId}-${field.key}`;
+          return (
+            <div key={field.key} className="space-y-2">
+              <label htmlFor={fieldId} className="text-sm font-medium text-neutral-300">{field.label}</label>
+              <textarea
+                id={fieldId}
+                value={report[field.key] || ""}
+                onChange={(e) => handleChange(field.key, e.target.value)}
+                placeholder={field.placeholder}
+                rows={3}
+                maxLength={5000}
+                className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-transparent resize-y"
+              />
+            </div>
+          );
+        })}
 
         <div className="flex items-center justify-between pt-4 border-t border-white/10">
           {lastSavedAt && (

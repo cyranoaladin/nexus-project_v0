@@ -56,13 +56,16 @@ export async function GET(_request: Request, { params }: RouteParams) {
     }
 
     const coachProfile = await getCoachProfileForUser(authSession.user.id);
+    if (!coachProfile) {
+      return NextResponse.json({ error: 'Coach profile not found' }, { status: 404 });
+    }
 
     // Get EAF preparation report
     const report = await prisma.eafPreparationReport.findUnique({
       where: {
         studentId_coachId: {
           studentId,
-          coachId: coachProfile?.id || '',
+          coachId: coachProfile.id,
         },
       },
     });

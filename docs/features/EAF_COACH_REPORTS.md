@@ -44,7 +44,7 @@ model EafPreparationReport {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // One active report per coach-student pair
+  // One report per coach-student pair
   @@unique([studentId, coachId])
   @@index([coachId])
   @@index([studentId])
@@ -57,9 +57,9 @@ model EafPreparationReport {
 ### Règles d'accès
 
 - **COACH** : Peut lire et écrire les bilans EAF uniquement pour les élèves qui lui sont assignés via `CoachStudentAssignment`
-- **ADMIN** : Peut lire et écrire tous les bilans (selon règles existantes)
-- **ASSISTANTE** : Pas d'accès automatique (selon règles existantes)
-- **ELEVE/PARENT** : Pas d'accès en écriture (selon règles existantes)
+- **ADMIN** : Non supporté par cette route dans la version actuelle (évolution future possible)
+- **ASSISTANTE** : Pas d'accès via cette API
+- **ELEVE/PARENT** : Pas d'accès via cette API
 
 ### Vérification d'accès
 
@@ -102,18 +102,20 @@ Les rubriques suivantes sont disponibles (champs texte, max 5000 caractères cha
 - `PUT report as assigned coach => 200` - ✅
 - `GET report as unassigned coach => 403` - ✅
 - `PUT report as unassigned coach => 403` - ✅
-- `GET unauthenticated => 401` - ✅
-- `PUT unauthenticated => 401` - ✅
-- `upsert preserves same report for same coach/student` - ✅
 - `validate field length limits (max 5000 chars)` - ✅
 
-### Tests UI
+### Tests UI (manuels)
 
 - Rendu du formulaire - ✅
 - Chargement des valeurs existantes - ✅
 - Modification d'un champ - ✅
 - Bouton enregistrer appelle l'API - ✅
-- Message de succès - ✅
+
+### Tests recommandés (à ajouter)
+
+- `GET unauthenticated => 401` - À ajouter
+- `PUT unauthenticated => 401` - À ajouter
+- Tests UI automatisés avec Playwright - À ajouter
 
 ## Migration
 

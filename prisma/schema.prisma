@@ -1852,7 +1852,7 @@ model EafPreparationReport {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // One active report per coach-student pair
+  // One report per coach-student pair
   @@unique([studentId, coachId])
   @@index([coachId])
   @@index([studentId])
