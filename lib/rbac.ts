@@ -31,7 +31,12 @@ export type Resource =
   | 'RESOURCE_CONTENT'
   | 'NOTIFICATION'
   | 'CONFIG'
-  | 'REPORT';
+  | 'REPORT'
+  // NPC - Nexus Pedagogy Cockpit
+  | 'COPY_SUBMISSION'
+  | 'PEDAGOGICAL_REPORT'
+  | 'AI_PROCESSING_JOB'
+  | 'REMEDIATION_ROADMAP';
 
 /** Actions that can be performed on resources */
 export type Action =
@@ -75,6 +80,11 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     { action: 'MANAGE', resource: 'NOTIFICATION' },
     { action: 'MANAGE', resource: 'CONFIG' },
     { action: 'MANAGE', resource: 'REPORT' },
+    // NPC - Nexus Pedagogy Cockpit
+    { action: 'MANAGE', resource: 'COPY_SUBMISSION' },
+    { action: 'MANAGE', resource: 'PEDAGOGICAL_REPORT' },
+    { action: 'MANAGE', resource: 'AI_PROCESSING_JOB' },
+    { action: 'MANAGE', resource: 'REMEDIATION_ROADMAP' },
   ],
   [UserRole.ASSISTANTE]: [
     { action: 'READ', resource: 'USER' },
@@ -97,6 +107,15 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     { action: 'READ', resource: 'SUBSCRIPTION' },
     { action: 'READ', resource: 'RESOURCE_CONTENT' },
     { action: 'READ', resource: 'REPORT' },
+    // NPC - Read/validate pedagogical reports
+    { action: 'READ', resource: 'COPY_SUBMISSION' },
+    { action: 'CREATE', resource: 'COPY_SUBMISSION' },
+    { action: 'READ', resource: 'PEDAGOGICAL_REPORT' },
+    { action: 'CREATE', resource: 'PEDAGOGICAL_REPORT' },
+    { action: 'UPDATE', resource: 'PEDAGOGICAL_REPORT' },
+    { action: 'VALIDATE', resource: 'PEDAGOGICAL_REPORT' },
+    { action: 'READ', resource: 'REMEDIATION_ROADMAP' },
+    { action: 'CREATE', resource: 'REMEDIATION_ROADMAP' },
   ],
   [UserRole.COACH]: [
     { action: 'READ', resource: 'USER' },
@@ -123,6 +142,10 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     { action: 'READ_OWN', resource: 'PAYMENT' },
     { action: 'READ', resource: 'SUBSCRIPTION' },
     { action: 'READ', resource: 'RESOURCE_CONTENT' },
+    // NPC - Parents can view reports for their children
+    { action: 'READ_OWN', resource: 'COPY_SUBMISSION' },
+    { action: 'READ_OWN', resource: 'PEDAGOGICAL_REPORT' },
+    { action: 'READ_OWN', resource: 'REMEDIATION_ROADMAP' },
   ],
   [UserRole.ELEVE]: [
     { action: 'READ_SELF', resource: 'USER' },
@@ -131,6 +154,10 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     { action: 'READ', resource: 'BILAN' },
     { action: 'READ_OWN', resource: 'SESSION' },
     { action: 'READ', resource: 'RESOURCE_CONTENT' },
+    // NPC - Students can view their own reports
+    { action: 'READ_SELF', resource: 'COPY_SUBMISSION' },
+    { action: 'READ_SELF', resource: 'PEDAGOGICAL_REPORT' },
+    { action: 'READ_SELF', resource: 'REMEDIATION_ROADMAP' },
   ],
 };
 
