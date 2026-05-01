@@ -20,8 +20,8 @@ export function ProgressEvolutionChart({ data }: ProgressEvolutionChartProps) {
       <CardHeader>
         <CardTitle className="text-white text-base">Évolution de la Progression</CardTitle>
       </CardHeader>
-      <CardContent className="h-[300px]">
-        <ResponsiveContainer width="100%" height="100%">
+      <CardContent className="h-[300px] w-full min-h-[300px] min-w-0">
+        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
           <LineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
             <XAxis 

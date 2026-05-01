@@ -65,7 +65,21 @@ export async function isCoachAssignedToStudent({
     select: { id: true },
   });
 
-  return Boolean(assignment);
+  if (assignment) return true;
+
+  // Fallback: Check if there's any completed or upcoming session booking for this student with this coach
+  const sessionBooking = await prisma.sessionBooking.findFirst({
+    where: {
+      studentId,
+      session: {
+        coachId: coachProfile.id,
+      },
+      status: { in: ['COMPLETED', 'CONFIRMED'] },
+    },
+    select: { id: true },
+  });
+
+  return Boolean(sessionBooking);
 }
 
 /**
