@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
-import { Loader2, BookOpen, Users, Zap } from "lucide-react";
+import { Loader2, BookOpen, Users, Zap, FileText } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -119,6 +119,19 @@ export default function DashboardCoach() {
               <div className="space-y-8">
                 <PriorityAlerts alerts={dashboardData?.alerts || []} />
                 
+                <Card className="bg-gradient-to-br from-brand-accent/10 to-surface-card border border-brand-accent/20 mb-6">
+                  <CardContent className="p-6">
+                    <FileText className="w-8 h-8 text-brand-accent mb-4" />
+                    <h3 className="text-lg font-bold text-white mb-2">Bilan EAF – Stage de printemps</h3>
+                    <p className="text-xs text-neutral-400 mb-4">
+                      Renseignez les bilans pédagogiques des élèves de Première suivis pendant le stage.
+                    </p>
+                    <Button variant="outline" className="w-full border-white/10" onClick={() => router.push('/dashboard/coach/eaf-stage-printemps')}>
+                      Gérer les bilans EAF
+                    </Button>
+                  </CardContent>
+                </Card>
+
                 <Card className="bg-gradient-to-br from-brand-accent/10 to-surface-card border border-brand-accent/20">
                   <CardContent className="p-6">
                     <Zap className="w-8 h-8 text-brand-accent mb-4" />
