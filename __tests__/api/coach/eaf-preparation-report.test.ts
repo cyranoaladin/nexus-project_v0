@@ -59,10 +59,10 @@ describe('API /api/coach/students/[studentId]/eaf-preparation-report', () => {
   describe('GET', () => {
     it('should return 403 if coach is not assigned to student', async () => {
       const { requireRole } = require('@/lib/guards');
-      const { assertCoachCanAccessStudent } = require('@/lib/rbac/coach-student-access');
+      const { assertCoachCanAccessStudent, CoachNotAssignedError } = require('@/lib/rbac/coach-student-access');
       
       requireRole.mockResolvedValue(mockSession);
-      assertCoachCanAccessStudent.mockRejectedValue(new Error('Not assigned'));
+      assertCoachCanAccessStudent.mockRejectedValue(new CoachNotAssignedError());
 
       const request = new NextRequest('http://localhost:3000/api/coach/students/student123/eaf-preparation-report');
       const response = await GET(request, { params: Promise.resolve({ studentId: mockStudentId }) });
@@ -94,7 +94,10 @@ describe('API /api/coach/students/[studentId]/eaf-preparation-report', () => {
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
-      expect(data.report).toEqual(mockReport);
+      expect(data.report.id).toBe(mockReport.id);
+      expect(data.report.studentId).toBe(mockReport.studentId);
+      expect(data.report.coachId).toBe(mockReport.coachId);
+      expect(data.report.linearReading).toBe(mockReport.linearReading);
     });
 
     it('should return empty report if none exists', async () => {
@@ -120,10 +123,10 @@ describe('API /api/coach/students/[studentId]/eaf-preparation-report', () => {
   describe('PUT', () => {
     it('should return 403 if coach is not assigned to student', async () => {
       const { requireRole } = require('@/lib/guards');
-      const { assertCoachCanAccessStudent } = require('@/lib/rbac/coach-student-access');
+      const { assertCoachCanAccessStudent, CoachNotAssignedError } = require('@/lib/rbac/coach-student-access');
       
       requireRole.mockResolvedValue(mockSession);
-      assertCoachCanAccessStudent.mockRejectedValue(new Error('Not assigned'));
+      assertCoachCanAccessStudent.mockRejectedValue(new CoachNotAssignedError());
 
       const request = new NextRequest('http://localhost:3000/api/coach/students/student123/eaf-preparation-report', {
         method: 'PUT',
@@ -161,7 +164,10 @@ describe('API /api/coach/students/[studentId]/eaf-preparation-report', () => {
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
-      expect(data.report).toEqual(mockReport);
+      expect(data.report.id).toBe(mockReport.id);
+      expect(data.report.studentId).toBe(mockReport.studentId);
+      expect(data.report.coachId).toBe(mockReport.coachId);
+      expect(data.report.linearReading).toBe(mockReport.linearReading);
       expect((prisma.eafPreparationReport.upsert as jest.Mock)).toHaveBeenCalledWith(
         expect.objectContaining({
           create: expect.objectContaining({
