@@ -17,7 +17,7 @@ if (realExports) {
   module.exports = realExports;
 } else {
   // ── Unit test path: provide stubs for enums and Prisma namespace ──
-  const { UserRole, SubscriptionStatus, ServiceType, Subject, SessionStatus, PaymentType, PaymentStatus, GradeLevel, AcademicTrack } = require('../types/enums');
+  const { UserRole, SubscriptionStatus, ServiceType, Subject, SessionStatus, PaymentType, PaymentStatus, GradeLevel, AcademicTrack } = require('../../types/enums');
 
   const NotificationType = {
     SESSION_BOOKED: 'SESSION_BOOKED',

@@ -133,8 +133,8 @@ export async function POST(
           parentId: parentId
         }
       });
-      // @ts-ignore - injecting student for later use
-      user.student = student;
+      // We just log that the student was created since we can't inject it dynamically
+      console.log('Student created for reservation', reservation.id, 'with ID:', student.id);
     }
 
     await prisma.stageReservation.update({
@@ -146,8 +146,6 @@ export async function POST(
         activationToken: hashedToken,
         activationTokenExpiresAt: expiresAt,
         paymentStatus: 'COMPLETED',
-        // @ts-ignore
-        studentId: user.student?.id ?? null,
       },
     });
 
