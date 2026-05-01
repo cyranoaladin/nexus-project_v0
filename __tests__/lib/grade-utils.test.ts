@@ -41,6 +41,14 @@ describe('normalizeGradeLevel', () => {
     expect(normalizeGradeLevel('   ')).toBe(null);
   });
 
+  test('should not confuse Bac+3 with Troisieme', () => {
+    expect(normalizeGradeLevel('Bac+3')).not.toBe(GradeLevel.TROISIEME);
+    expect(normalizeGradeLevel('bac+3')).not.toBe(GradeLevel.TROISIEME);
+    expect(normalizeGradeLevel('Bac+3')).toBe(GradeLevel.POSTBAC);
+    expect(normalizeGradeLevel('bac+3')).toBe(GradeLevel.POSTBAC);
+    expect(normalizeGradeLevel('3ème')).toBe(GradeLevel.TROISIEME);
+  });
+
   test('should handle unknown values', () => {
     expect(normalizeGradeLevel('unknown')).toBe(null);
     expect(normalizeGradeLevel('primaire')).toBe(null);
