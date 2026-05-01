@@ -115,7 +115,7 @@ export async function POST(
       // If user exists but has no student profile (shouldn't happen with new logic but for safety)
       const gTrack = normalizeStudentLevelAndTrack(reservation.classe) || { level: GradeLevel.AUTRE, track: AcademicTrack.EDS_GENERALE };
       
-      let parentUser = await prisma.user.findFirst({
+      const parentUser = await prisma.user.findFirst({
         where: { email: SYSTEM_PARENT_EMAIL },
         include: { parentProfile: true }
       });
