@@ -116,7 +116,7 @@ export async function POST(
       const gTrack = normalizeStudentLevelAndTrack(reservation.classe) || { level: GradeLevel.AUTRE, track: AcademicTrack.EDS_GENERALE };
       
       let parentUser = await prisma.user.findFirst({
-        where: { email: 'admin@nexus-reussite.com' },
+        where: { email: SYSTEM_PARENT_EMAIL },
         include: { parentProfile: true }
       });
       const parentId = parentUser?.parentProfile?.id;
