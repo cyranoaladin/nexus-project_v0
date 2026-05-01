@@ -142,20 +142,77 @@ export async function GET(request: NextRequest) {
             id: true,
             firstName: true,
             lastName: true,
-            student: { select: { grade: true } }
+            student: { select: { id: true, grade: true } }
           }
         }
       }
     });
 
-    // Define studentUserIds for lookups
-    const studentUserIds = recentBookings.map(rb => rb.studentId);
-
-    // Fetch student profile entities for credits and track info
-    const studentEntities = await prisma.student.findMany({
-      where: { userId: { in: studentUserIds } }
+    // Also fetch all assigned students via the CoachStudentAssignment system
+    const activeAssignments = await prisma.coachStudentAssignment.findMany({
+      where: {
+        coachId: coach.id,
+        status: 'ACTIVE',
+        startsAt: { lte: new Date() },
+        OR: [{ endsAt: null }, { endsAt: { gte: new Date() } }]
+      },
+      include: {
+        student: {
+          include: {
+            user: true
+          }
+        }
+      }
     });
-    const creditMap = new Map(studentEntities.map(se => [se.userId, se]));
+
+    const studentMap = new Map<string, any>();
+
+    // 1. Add assigned students
+    for (const a of activeAssignments) {
+      if (a.student && a.student.user) {
+        studentMap.set(a.student.id, {
+          id: a.student.id,
+          userId: a.student.userId,
+          name: `${a.student.user.firstName ?? ''} ${a.student.user.lastName ?? ''}`.trim(),
+          grade: a.student.grade || 'Général',
+          gradeLevel: a.student.gradeLevel,
+          academicTrack: a.student.academicTrack,
+          subject: a.subjects.join(', ') || 'Général',
+          lastSession: a.createdAt,
+          creditBalance: a.student.credits ?? 0,
+          isNew: a.createdAt > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+        });
+      }
+    }
+
+    // 2. Overlay with recent bookings
+    for (const rb of recentBookings) {
+      const entityId = rb.student?.student?.id || rb.studentId;
+      const existing = studentMap.get(entityId);
+      
+      if (existing) {
+        existing.subject = rb.subject || existing.subject;
+        existing.lastSession = rb.scheduledDate;
+        existing.isNew = rb.scheduledDate > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      } else if (rb.student) {
+        const studentProfile = await prisma.student.findUnique({ where: { userId: rb.studentId } });
+        studentMap.set(entityId, {
+          id: entityId,
+          userId: rb.studentId,
+          name: `${rb.student.firstName ?? ''} ${rb.student.lastName ?? ''}`.trim(),
+          grade: studentProfile?.grade || rb.student.student?.grade || 'Général',
+          gradeLevel: studentProfile?.gradeLevel || 'PREMIERE',
+          academicTrack: studentProfile?.academicTrack || 'EDS_GENERALE',
+          subject: rb.subject,
+          lastSession: rb.scheduledDate,
+          creditBalance: studentProfile?.credits ?? 0,
+          isNew: rb.scheduledDate > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+        });
+      }
+    }
+
+    const studentsMerged = Array.from(studentMap.values());
+    const studentUserIds = studentsMerged.map(s => s.userId);
 
     // Fetch MathsProgress for all students in one query
     const studentMathsProgress = await prisma.mathsProgress.findMany({
@@ -164,9 +221,8 @@ export async function GET(request: NextRequest) {
     });
     const mathsMap = new Map(studentMathsProgress.map(mp => [mp.userId, mp]));
 
-    const students = recentBookings.map(rb => {
-      const entity = creditMap.get(rb.studentId);
-      const mProgress = mathsMap.get(rb.studentId);
+    const students = studentsMerged.map(s => {
+      const mProgress = mathsMap.get(s.userId);
       const nexusIndex = mProgress ? Math.min(100, Math.round(mProgress.totalXp / 50)) : null;
 
       // Status logic
@@ -174,24 +230,19 @@ export async function GET(request: NextRequest) {
       if (nexusIndex && nexusIndex < 30) status = 'CRITICAL';
       else if (nexusIndex && nexusIndex < 50) status = 'WARNING';
       
-      const lastActivity = mProgress?.updatedAt || rb.scheduledDate;
-      const daysSinceLastActivity = Math.floor((Date.now() - lastActivity.getTime()) / (1000 * 60 * 60 * 24));
-      if (daysSinceLastActivity > 10) status = 'CRITICAL';
+      const lastActivity = mProgress?.updatedAt || s.lastSession;
+      if (lastActivity) {
+        const daysSinceLastActivity = Math.floor((Date.now() - lastActivity.getTime()) / (1000 * 60 * 60 * 24));
+        if (daysSinceLastActivity > 10) status = 'CRITICAL';
+      }
 
       return {
-        id: entity?.id ?? rb.studentId,
-        name: `${rb.student?.firstName ?? ''} ${rb.student?.lastName ?? ''}`.trim(),
-        grade: entity?.grade ?? rb.student?.student?.grade ?? null,
-        gradeLevel: studentEntities.find(se => se.userId === rb.studentId)?.gradeLevel || 'PREMIERE',
-        academicTrack: studentEntities.find(se => se.userId === rb.studentId)?.academicTrack || 'EDS_GENERALE',
-        subject: rb.subject,
-        lastSession: rb.scheduledDate,
-        creditBalance: entity?.credits ?? 0,
+        ...s,
         nexusIndex,
         status,
-        isNew: rb.scheduledDate > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
       };
     });
+
     // Fetch pending bilans for these students
     const pendingBilans = await prisma.bilan.findMany({
       where: {
