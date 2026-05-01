@@ -19,22 +19,29 @@
 ║     • Accès facturation : Vérifié pour ASSISTANTE                       ║
 ║     • Infrastructure : Stable, healthy, logs propres                    ║
 ║                                                                            ║
-║  ⚠️ SMOKE TEST FACTURATION (30 AVRIL 2026) :                           ║
-║     • PR #36 : ✅ Mergée (fix Helvetica.afm dans conteneur)              ║
-║     • Déploiement : ✅ Contrôlé, sans migration inattendue              ║
+║  ✅ SMOKE TEST FACTURATION POST-PR #40 (1 MAI 2026) :                  ║
+║     • PR #40 : ✅ Mergée (HT + label Ajustement dans PDF)                ║
+║     • Déploiement : ✅ Contrôlé, code PR #40 en production                ║
 ║     • Helvetica.afm : ✅ Présent dans /app/node_modules/pdfkit/js/data/  ║
-║     • pdfkit brut : ✅ Fonctionnel, PDF simple généré sans erreur       ║
 ║     • API authentifiée : ✅ Fonctionnelle (Playwright réussi)             ║
 ║     • Création facture : ✅ Via UI/API réelle (page.evaluate)             ║
-║     • PDF généré : ✅ Template Nexus réel avec tous détails              ║
+║     • Facture 202605-0001 : ✅ Créée, annulée, vérifiée                 ║
+║     • PDF généré : ✅ HT (1036.792 TND), TVA 6% (62.208 TND), Ajustement ║
 ║     • Flux réel UI/API/PDF : ✅ VALIDÉ                                   ║
 ║                                                                            ║
-║  📊 DÉCISIONS FINALES (30 AVRIL 2026) :                                  ║
-║     • Incident P0 DB : RÉSOLU TECHNIQUEMENT, EN OBSERVATION            ║
-║     • Incident P0 PDF : RÉSOLU TECHNIQUEMENT (fix déployé)                ║
-║     • Facturation production : ✅ VALIDÉE                                ║
-║     • Go-live initial : ✅ VALIDÉ (flux UI/API/PDF testé avec succès)     ║
-║     • Preuve : Test Playwright authentifié réussi ; PDF Nexus réel généré ║
+║  📊 DÉCISIONS FINALES (1 MAI 2026) :                                      ║
+║     • Incident P0 DB : RÉSOLU                                            ║
+║     • Incident PDF Helvetica.afm : RÉSOLU                                ║
+║     • Réserve PDF HT/Ajustement : RÉSOLUE                                ║
+║     • Facturation production : VALIDÉE                                   ║
+║     • Go-live initial : VALIDÉ                                           ║
+║     • Go-live premium : NON VALIDÉ                                        ║
+║                                                                            ║
+║  🔒 SÉCURITÉ :                                                            ║
+║     • Compte réel assistante@nexus-reussite.com : NON modifié            ║
+║     • validation-assistante@nexus.local : Neutralisé                     ║
+║     • Aucun secret dans les rapports                                      ║
+║     • Aucune IP production en clair                                      ║
 ║                                                                            ║
 ╚══════════════════════════════════════════════════════════════════════════╝
 ```
@@ -566,31 +573,26 @@ WHERE email = '"'"'validation-assistante@nexus.local'"'"';"'
 ║  ✅ Accès facturation vérifié (composant NexusInvoiceGenerator OK)    ║
 ║  ✅ Infrastructure stable (containers healthy, logs propres)            ║
 ║  ✅ Sécurité respectée (comptes réels intacts, base suspecte conservée) ║
+║  ✅ PR #40 mergée et déployée (HT + label Ajustement dans PDF)           ║
+║  ✅ Facture 202605-0001 créée via API authentifiée                       ║
+║  ✅ PDF vérifié : HT (1036.792 TND), TVA 6% (62.208 TND), Ajustement    ║
+║  ✅ Facture annulée et marquée                                           ║
+║  ✅ Logs propres post-test                                              ║
+║  ✅ validation-assistante@nexus.local neutralisé                        ║
 ║                                                                            ║
-║  POINT RESTANT :                                                          ║
-║  ⏳ Smoke test facturation : Script corrigé et prêt                   ║
-║     Nécessite exécution manuelle sur le serveur pour :                 ║
-║     1. Réactiver validation-assistante@nexus.local                     ║
-║     2. Créer facture test avec données documentées                    ║
-║     3. Vérifier PDF avec checklist 18 points                            ║
-║     4. Vérifier en DB (table invoices)                                  ║
-║     5. Marquer/annuler la facture                                       ║
-║     6. Surveiller logs 2-4h                                             ║
-║     7. Nettoyer et neutraliser le compte                                ║
+║  DÉCISIONS FINALES :                                                     ║
+║  • Incident P0 DB : RÉSOLU                                              ║
+║  • Incident PDF Helvetica.afm : RÉSOLU                                  ║
+║  • Réserve PDF HT/Ajustement : RÉSOLUE                                  ║
+║  • Facturation production : VALIDÉE                                     ║
+║  • Go-live initial : VALIDÉ                                             ║
+║  • Go-live premium : NON VALIDÉ                                          ║
 ║                                                                            ║
-║  DÉCISIONS :                                                             ║
-║  • Incident P0 : RÉSOLU TECHNIQUEMENT, EN OBSERVATION                  ║
-║  • Go-live initial : EN VALIDATION POST-CUTOVER (forte probabilité)    ║
-║  • Go-live métier : PARTIELLEMENT VALIDÉ (login+RBAC+dashboards OK)    ║
-║                                                                            ║
-║  PROCHAINES ÉTAPES SUGGÉRÉES :                                            ║
-║  1. Exécuter le script de réactivation sur le serveur                  ║
-║  2. Créer la facture test manuellement                                  ║
-║  3. Vérifier le PDF et la base de données                               ║
-║  4. Marquer/annuler la facture test                                     ║
-║  5. Surveiller les logs pendant 2-4h                                    ║
-║  6. Nettoyer les credentials                                            ║
-║  7. Si tout est OK : Clôturer incident P0 et valider go-live           ║
+║  PRÉOCCUPATIONS SÉCURITÉ :                                               ║
+║  • Compte réel assistante@nexus-reussite.com : NON modifié              ║
+║  • validation-assistante@nexus.local : Neutralisé (activatedAt = NULL)   ║
+║  • Aucun secret dans les rapports                                        ║
+║  • Aucune IP production en clair                                          ║
 ║                                                                            ║
 ╚══════════════════════════════════════════════════════════════════════════╝
 ```

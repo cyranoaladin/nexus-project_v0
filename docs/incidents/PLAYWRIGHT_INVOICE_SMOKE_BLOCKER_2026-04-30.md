@@ -87,5 +87,29 @@ Le flux réel UI/API/PDF n'a pas pu être validé car les tests Playwright ont �
 
 ---
 
+## RÉSOLUTION - 1 MAI 2026
+
+**Blocage RÉSOLU** - Smoke test facturation exécuté avec succès post-PR #40.
+
+### Réalisations
+- ✅ Login Playwright : Réussi (validation-assistante@nexus.local)
+- ✅ Création facture via API authentifiée : Réussie (facture 202605-0001)
+- ✅ PDF généré : HT (1036.792 TND), TVA 6% (62.208 TND), Ajustement (-50.000 TND)
+- ✅ Flux réel UI/API/PDF : VALIDÉ
+- ✅ Facture annulée et marquée
+- ✅ Logs propres post-test
+- ✅ validation-assistante@nexus.local : Neutralisé
+
+### Décisions finales
+- Incident P0 DB : RÉSOLU
+- Incident PDF Helvetica.afm : RÉSOLU
+- Réserve PDF HT/Ajustement : RÉSOLUE
+- Facturation production : VALIDÉE
+- Go-live initial : VALIDÉ
+- Go-live premium : NON VALIDÉ
+
+---
+
 *Document généré : 2026-04-30 20:32 UTC*
-*Statut : Blocage non documenté, test à relancer*
+*Mis à jour : 2026-05-01 08:00 UTC*
+*Statut final : Blocage résolu, smoke test validé*

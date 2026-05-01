@@ -20,21 +20,28 @@
 ║     • Infrastructure : Stable, healthy, logs propres                    ║
 ║     • Sécurité : Comptes réels intacts, base suspecte conservée          ║
 ║                                                                            ║
-║  ⚠️ SMOKE TEST FACTURATION :                                             ║
-║     • Script de réactivation : Prêt avec garde-fous renforcés           ║
-║     • Procédure documentée : Complète                                    ║
-║     • Exécution : ✅ Réussi - Playwright authentifié                    ║
-║     • API authentifiée : ✅ Fonctionnelle (page.evaluate)                ║
-║     • Facture créée : ✅ Via UI/API réelle (id: cmolwcxwv0000oc01av1ijrvy) ║
-║     • PDF généré : ✅ Template Nexus réel (facture_202604-0002.pdf)      ║
-║     • Incident PDF : ✅ RÉSOLU (fix Helvetica.afm déployé)                ║
+║  ✅ SMOKE TEST FACTURATION POST-PR #40 (1 MAI 2026) :                  ║
+║     • PR #40 : ✅ Mergée (HT + label Ajustement dans PDF)                ║
+║     • Déploiement : ✅ Contrôlé, code PR #40 en production                ║
+║     • Helvetica.afm : ✅ Présent dans /app/node_modules/pdfkit/js/data/  ║
+║     • API authentifiée : ✅ Fonctionnelle (Playwright réussi)             ║
+║     • Facture 202605-0001 : ✅ Créée, annulée, vérifiée                 ║
+║     • PDF généré : ✅ HT (1036.792 TND), TVA 6% (62.208 TND), Ajustement ║
+║     • Flux réel UI/API/PDF : ✅ VALIDÉ                                   ║
 ║                                                                            ║
-║  📊 DÉCISIONS FINALES (30 AVRIL 2026) :                                  ║
-║     • Incident P0 DB : RÉSOLU TECHNIQUEMENT, EN OBSERVATION            ║
-║     • Incident P0 PDF : RÉSOLU TECHNIQUEMENT (fix déployé)                ║
-║     • Facturation production : ✅ VALIDÉE                                ║
-║     • Go-live initial : ✅ VALIDÉ (flux UI/API/PDF testé avec succès)     ║
-║     • Preuve : Test Playwright authentifié réussi ; PDF Nexus réel généré ║
+║  📊 DÉCISIONS FINALES (1 MAI 2026) :                                      ║
+║     • Incident P0 DB : RÉSOLU                                            ║
+║     • Incident PDF Helvetica.afm : RÉSOLU                                ║
+║     • Réserve PDF HT/Ajustement : RÉSOLUE                                ║
+║     • Facturation production : VALIDÉE                                   ║
+║     • Go-live initial : VALIDÉ                                           ║
+║     • Go-live premium : NON VALIDÉ                                        ║
+║                                                                            ║
+║  🔒 SÉCURITÉ :                                                            ║
+║     • Compte réel assistante@nexus-reussite.com : NON modifié            ║
+║     • validation-assistante@nexus.local : Neutralisé                     ║
+║     • Aucun secret dans les rapports                                      ║
+║     • Aucune IP production en clair                                      ║
 ║                                                                            ║
 ╚══════════════════════════════════════════════════════════════════════════╝
 ```
@@ -391,22 +398,26 @@ PYEOF'
 ║  ✅ Accès facturation vérifié                                          ║
 ║  ✅ Infrastructure stable                                               ║
 ║  ✅ Sécurité respectée (comptes réels intacts)                          ║
+║  ✅ PR #40 mergée et déployée (HT + label Ajustement dans PDF)           ║
+║  ✅ Facture 202605-0001 créée via API authentifiée                       ║
+║  ✅ PDF vérifié : HT (1036.792 TND), TVA 6% (62.208 TND), Ajustement    ║
+║  ✅ Facture annulée et marquée                                           ║
+║  ✅ Logs propres post-test                                              ║
+║  ✅ validation-assistante@nexus.local neutralisé                        ║
 ║                                                                            ║
-║  POINT RESTANT :                                                          ║
-║  ⚠️ Smoke test facturation : Script prêt, exécution manuelle requise  ║
+║  DÉCISIONS FINALES :                                                     ║
+║  • Incident P0 DB : RÉSOLU                                              ║
+║  • Incident PDF Helvetica.afm : RÉSOLU                                  ║
+║  • Réserve PDF HT/Ajustement : RÉSOLUE                                  ║
+║  • Facturation production : VALIDÉE                                     ║
+║  • Go-live initial : VALIDÉ                                             ║
+║  • Go-live premium : NON VALIDÉ                                          ║
 ║                                                                            ║
-║  DÉCISIONS :                                                             ║
-║  • Incident P0 : RÉSOLU TECHNIQUEMENT, EN OBSERVATION                  ║
-║  • Go-live initial : EN VALIDATION POST-CUTOVER                        ║
-║  • Go-live métier : PARTIELLEMENT VALIDÉ                                ║
-║                                                                            ║
-║  PROCHAINES ÉTAPES :                                                      ║
-║  1. Exécuter /root/reactivate-validation-assistante-safe.py            ║
-║  2. Créer facture test via /dashboard/assistante/facturation             ║
-║  3. Vérifier PDF et DB                                                   ║
-║  4. Marquer/annuler la facture                                           ║
-║  5. Surveiller logs 2-4h                                                 ║
-║  6. Si OK : Clôturer incident P0 et valider go-live                      ║
+║  PRÉOCCUPATIONS SÉCURITÉ :                                               ║
+║  • Compte réel assistante@nexus-reussite.com : NON modifié              ║
+║  • validation-assistante@nexus.local : Neutralisé (activatedAt = NULL)   ║
+║  • Aucun secret dans les rapports                                        ║
+║  • Aucune IP production en clair                                          ║
 ║                                                                            ║
 ╚══════════════════════════════════════════════════════════════════════════╝
 ```

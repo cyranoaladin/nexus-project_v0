@@ -165,10 +165,23 @@ ssh root@<PROD_SSH_TARGET> 'cd /opt/nexus && docker compose -f docker-compose.pr
 
 Le cutover DB a été **techniquement réussi**. L'application fonctionne avec la base restaurée. Les healthchecks sont tous OK.
 
-**Statut validation métier (30 AVRIL 2026)** :
+**Statut validation métier (1 MAI 2026 - FINAL)** :
 - ✅ RBAC : Validé (13/13 tests Playwright)
 - ✅ Facturation : VALIDÉE (flux UI/API/PDF testé avec succès via Playwright authentifié)
-- ✅ Go-live initial : VALIDÉ (facturation validée)
+- ✅ PR #40 : Mergée et déployée (HT + label Ajustement dans PDF)
+- ✅ Facture 202605-0001 : Créée, annulée, vérifiée
+- ✅ PDF : HT (1036.792 TND), TVA 6% (62.208 TND), Ajustement visible
+- ✅ Go-live initial : VALIDÉ
+- ✅ Compte réel assistante@nexus-reussite.com : NON modifié
+- ✅ validation-assistante@nexus.local : Neutralisé
+
+**Décisions finales** :
+- Incident P0 DB : RÉSOLU
+- Incident PDF Helvetica.afm : RÉSOLU
+- Réserve PDF HT/Ajustement : RÉSOLUE
+- Facturation production : VALIDÉE
+- Go-live initial : VALIDÉ
+- Go-live premium : NON VALIDÉ
 
 **Ne pas supprimer** la base suspecte ni les backups avant validation métier complète.
 
