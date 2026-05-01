@@ -12,6 +12,7 @@ import { CoachNotesPanel, type CoachNote } from "./CoachNotesPanel";
 import { AriaVerbatimsPanel, type AriaVerbatim } from "./AriaVerbatimsPanel";
 import { RagConsultedSources, type RagSource } from "./RagConsultedSources";
 import { BilanDiagMathsTerminaleCoach } from "./BilanDiagMathsTerminaleCoach";
+import { CoachDocumentsPanel } from "./CoachDocumentsPanel";
 
 export interface DossierStudent {
   id: string;
@@ -142,22 +143,8 @@ export function StudentDossier({ data, children }: StudentDossierProps) {
             </CardContent>
           </Card>
 
-          {/* Ressources assignées — placeholder structuré */}
-          <Card className="bg-surface-card border-white/10 shadow-premium">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-white text-base flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-emerald-400" />
-                Ressources assignées
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-neutral-500 italic">
-                Les ressources pédagogiques (livrets, QCM, fiches) assignées par
-                le coach à cet élève seront listées ici une fois le système
-                d'assignation activé.
-              </p>
-            </CardContent>
-          </Card>
+          {/* Ressources assignées — Panel de dépôt et consultation */}
+          <CoachDocumentsPanel studentId={student.id} />
 
           {/* Bilan Diagnostic Maths Terminale — visible uniquement pour les élèves TERMINALE EDS MATHEMATIQUES */}
           {student.gradeLevel === 'TERMINALE' &&
