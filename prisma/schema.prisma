@@ -280,6 +280,9 @@ model Student {
   // Coach assignments (who can access this student)
   coachAssignments CoachStudentAssignment[]
 
+  // EAF preparation reports
+  eafPreparationReports EafPreparationReport[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -322,6 +325,9 @@ model CoachProfile {
 
   // Coach-student assignments (source of truth for "my students")
   studentAssignments CoachStudentAssignment[]
+
+  // EAF preparation reports
+  eafPreparationReports EafPreparationReport[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1819,3 +1825,36 @@ model SurvivalAttempt {
   @@map("survival_attempts")
 }
 
+// ─── EAF Preparation Report — Coach pedagogical reports for EAF preparation ───
+// Generic EAF preparation reports that coaches can fill for their assigned students
+// Separate from StageBilan (stage-specific) and Bilan (canonical assessment)
+model EafPreparationReport {
+  id        String   @id @default(cuid())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  coachId String
+  coach   CoachProfile @relation(fields: [coachId], references: [id], onDelete: Cascade)
+
+  // EAF rubrics (text fields, max 5000 chars each)
+  linearReading        String?  @db.Text
+  workPresentation     String?  @db.Text
+  interview            String?  @db.Text
+  oralExpression       String?  @db.Text
+  writingMethod        String?  @db.Text
+  languageMastery      String?  @db.Text
+  literaryCulture      String?  @db.Text
+  strengths            String?  @db.Text
+  areasToImprove       String?  @db.Text
+  nextSessionGoals     String?  @db.Text
+  coachFreeComment     String?  @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // One active report per coach-student pair
+  @@unique([studentId, coachId])
+  @@index([coachId])
+  @@index([studentId])
+  @@map("eaf_preparation_reports")
+}
