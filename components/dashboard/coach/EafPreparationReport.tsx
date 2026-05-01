@@ -109,7 +109,7 @@ export function EafPreparationReport({ studentId, studentName }: EafPreparationR
   }
 
   return (
-    <Card className="bg-surface-card border-white/10 shadow-premium">
+    <Card className="bg-surface-card border-white/10 shadow-premium" data-testid="eaf-preparation-report">
       <CardHeader>
         <CardTitle className="text-white text-base flex items-center gap-2">
           <FileText className="w-4 h-4 text-brand-accent" />
