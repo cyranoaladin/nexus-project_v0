@@ -71,9 +71,7 @@ export async function isCoachAssignedToStudent({
   const sessionBooking = await prisma.sessionBooking.findFirst({
     where: {
       studentId,
-      session: {
-        coachId: coachProfile.id,
-      },
+      coachId: coachUserId,
       status: { in: ['COMPLETED', 'CONFIRMED'] },
     },
     select: { id: true },
