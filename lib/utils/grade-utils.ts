@@ -16,9 +16,22 @@ export function normalizeGradeLevel(input: string | null | undefined): GradeLeve
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, ''); // Supprime les accents
 
+  // Post-bac (Vérifié en premier pour éviter que Bac+3 ne matche "3")
+  if (
+    normalized.includes('post') || 
+    normalized.includes('bac+') || 
+    normalized.includes('sup') ||
+    normalized.includes('licence') ||
+    normalized.includes('prepa')
+  ) {
+    return GradeLevel.POSTBAC;
+  }
+
   // 3ème / Troisième
   if (
-    normalized.includes('3') || 
+    normalized.includes('3eme') || 
+    normalized.includes('3ème') || 
+    normalized.includes('3e') || 
     normalized.includes('trois') || 
     normalized.includes('college')
   ) {
@@ -26,7 +39,7 @@ export function normalizeGradeLevel(input: string | null | undefined): GradeLeve
   }
 
   // Seconde
-  if (normalized.includes('2nd') || normalized.includes('seconde')) {
+  if (normalized.includes('2nd') || normalized.includes('seconde') || normalized.includes('2de')) {
     return GradeLevel.SECONDE;
   }
 
@@ -47,17 +60,6 @@ export function normalizeGradeLevel(input: string | null | undefined): GradeLeve
     normalized.includes('derniere')
   ) {
     return GradeLevel.TERMINALE;
-  }
-
-  // Post-bac
-  if (
-    normalized.includes('post') || 
-    normalized.includes('bac+') || 
-    normalized.includes('sup') ||
-    normalized.includes('licence') ||
-    normalized.includes('prepa')
-  ) {
-    return GradeLevel.POSTBAC;
   }
 
   // Fallback direct sur l'enum si match exact (case insensitive)
