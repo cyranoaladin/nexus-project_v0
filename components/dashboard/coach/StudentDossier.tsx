@@ -14,6 +14,7 @@ import { RagConsultedSources, type RagSource } from "./RagConsultedSources";
 import { BilanDiagMathsTerminaleCoach } from "./BilanDiagMathsTerminaleCoach";
 import { CoachDocumentsPanel } from "./CoachDocumentsPanel";
 import { EafPreparationReport } from "./EafPreparationReport";
+import { isPremiereLevel } from "@/lib/coach/gradeLevel";
 
 export interface DossierStudent {
   id: string;
@@ -155,7 +156,7 @@ export function StudentDossier({ data, children }: StudentDossierProps) {
             )}
 
           {/* Bilan de préparation à l'EAF — visible pour tous les élèves PREMIERE */}
-          {student.gradeLevel === 'PREMIERE' && (
+          {isPremiereLevel(student) && (
             <EafPreparationReport studentId={student.id} studentName={student.name} />
           )}
 
