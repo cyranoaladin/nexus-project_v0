@@ -7,7 +7,6 @@ const mockNextUrl = (pathname: string) => {
 };
 
 describe('Middleware Security Rules', () => {
-  // @ts-ignore
   const authorized = authConfig.callbacks!.authorized!;
 
   // Mock Response
@@ -27,7 +26,6 @@ describe('Middleware Security Rules', () => {
     const req = { nextUrl: mockNextUrl('/dashboard') } as any;
     const auth = null;
     
-    // @ts-ignore
     const result = await authorized({ auth, request: req });
     expect(result).toBe(false);
   });
@@ -36,7 +34,6 @@ describe('Middleware Security Rules', () => {
     const req = { nextUrl: mockNextUrl('/dashboard') } as any;
     const auth = { user: { role: 'ELEVE' } } as any;
     
-    // @ts-ignore
     const result = await authorized({ auth, request: req });
     expect(result).toBe(true);
   });
@@ -45,8 +42,7 @@ describe('Middleware Security Rules', () => {
       const req = { nextUrl: mockNextUrl('/auth/signin') } as any;
       const auth = { user: { role: 'ELEVE' } } as any;
       
-      // @ts-ignore
-      const result = await authorized({ auth, request: req });
+      await authorized({ auth, request: req });
       
       // Should have called redirect
       expect(global.Response.redirect).toHaveBeenCalled();
