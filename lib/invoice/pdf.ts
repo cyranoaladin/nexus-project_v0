@@ -380,12 +380,22 @@ export async function renderInvoicePDF(data: InvoiceData): Promise<Buffer> {
         .text(formatCurrency(data.subtotal, data.currency), totalsX + 80, y, { width: 100, align: 'right' });
       y += 16;
 
-      // Discount (if any)
+      // Discount/Adjustment (if any)
       if (data.discountTotal > 0) {
         doc.font(FONTS.regular).fontSize(9).fillColor(COLORS.textSecondary)
-          .text('Remise', totalsX, y);
+          .text('Ajustement', totalsX, y);
         doc.font(FONTS.regular).fontSize(9).fillColor(COLORS.success)
           .text(`-${formatCurrency(data.discountTotal, data.currency)}`, totalsX + 80, y, { width: 100, align: 'right' });
+        y += 16;
+      }
+
+      // HT (Hors Taxe) - calculated from total before tax
+      if (data.taxRegime === 'TVA_INCLUSE' && data.taxTotal > 0) {
+        const htAmount = data.total - data.taxTotal;
+        doc.font(FONTS.regular).fontSize(9).fillColor(COLORS.textSecondary)
+          .text('HT', totalsX, y);
+        doc.font(FONTS.regular).fontSize(9).fillColor(COLORS.text)
+          .text(formatCurrency(htAmount, data.currency), totalsX + 80, y, { width: 100, align: 'right' });
         y += 16;
       }
 
