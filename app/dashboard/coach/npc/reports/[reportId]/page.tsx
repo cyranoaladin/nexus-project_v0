@@ -188,8 +188,8 @@ export default async function ReportPage({ params }: ReportPageProps) {
           {report.competenceMatrix ? (
             <CompetenceMatrix
               matrix={report.competenceMatrix.matrixData as any}
-              globalScore={report.competenceMatrix.globalScore}
-              globalLevel={report.competenceMatrix.globalLevel}
+              globalScore={report.competenceMatrix.globalScore ?? 0}
+              globalLevel={(report.competenceMatrix.globalLevel as any) || 'beginner'}
             />
           ) : (
             <Card className="p-8 text-center">
