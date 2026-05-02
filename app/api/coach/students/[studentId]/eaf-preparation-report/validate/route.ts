@@ -1,0 +1,73 @@
+import { NextResponse } from 'next/server';
+import { requireRole, isErrorResponse } from '@/lib/guards';
+import {
+  assertCoachCanAccessStudent,
+  getCoachProfileForUser,
+  CoachNotAssignedError,
+} from '@/lib/rbac/coach-student-access';
+import { prisma } from '@/lib/prisma';
+import { maybeCreateGeneratedReportJob } from '@/lib/reports/stage/maybeCreateGeneratedReportJob';
+
+interface RouteParams {
+  params: Promise<{ studentId: string }>;
+}
+
+export async function POST(_request: Request, { params }: RouteParams) {
+  try {
+    const { studentId } = await params;
+
+    const sessionOrError = await requireRole('COACH');
+    if (isErrorResponse(sessionOrError)) return sessionOrError;
+    const authSession = sessionOrError;
+
+    // Verify coach assignment
+    try {
+      await assertCoachCanAccessStudent({ coachUserId: authSession.user.id, studentId });
+    } catch (error) {
+      if (error instanceof CoachNotAssignedError) {
+        return NextResponse.json(
+          { error: 'Forbidden', message: "Vous n'êtes pas assigné à cet élève" },
+          { status: 403 }
+        );
+      }
+      throw error;
+    }
+
+    const coachProfile = await getCoachProfileForUser(authSession.user.id);
+    if (!coachProfile) {
+      return NextResponse.json({ error: 'Coach profile not found' }, { status: 404 });
+    }
+
+    // Update EAF preparation report status to VALIDATED
+    const report = await prisma.eafPreparationReport.update({
+      where: {
+        studentId_coachId: {
+          studentId,
+          coachId: coachProfile.id,
+        },
+      },
+      data: {
+        status: 'VALIDATED',
+        validatedAt: new Date(),
+        validatedBy: coachProfile.id,
+      },
+    });
+
+    // Check if the report can now be created
+    const jobStatus = await maybeCreateGeneratedReportJob({
+      studentId,
+      subject: 'FRANCAIS',
+      kind: 'EAF_STAGE_POST',
+      stageSlug: 'printemps-2026',
+    });
+
+    return NextResponse.json({
+      success: true,
+      report,
+      jobStatus,
+    });
+  } catch (error) {
+    console.error('[API] Validate EAF report failed:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
