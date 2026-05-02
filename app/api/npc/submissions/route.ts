@@ -125,10 +125,11 @@ export async function POST(req: NextRequest) {
     // Create audit log
     await prisma.npcAuditLog.create({
       data: {
-        userId: session.user.id,
+        actorId: session.user.id,
+        actorRole: session.user.role,
         action: 'CREATE_SUBMISSION',
-        resourceType: 'CopySubmission',
-        resourceId: submission.id,
+        entityType: 'CopySubmission',
+        entityId: submission.id,
         details: JSON.stringify({
           studentId: body.studentId,
           title: body.title,
