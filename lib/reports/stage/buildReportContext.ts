@@ -21,14 +21,18 @@ export type StageReportContext = {
   studentBilan: {
     id: string;
     submittedAt: string;
-    answers: Record<string, any>;
+    answers: Record<string, unknown>;
   };
   coachReport: {
     id: string;
     validatedAt: string;
-    data: Record<string, any>;
+    data: Record<string, unknown>;
   };
 };
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
 
 export async function buildReportContext(
   studentId: string,
@@ -63,7 +67,7 @@ export async function buildReportContext(
     throw new Error(`Student Bilan not found for ${studentId} and ${subject}`);
   }
 
-  let coachReportData: any = {};
+  let coachReportData: Record<string, unknown> = {};
   let coachReportId = '';
   let coachReportValidatedAt = '';
 
@@ -107,11 +111,12 @@ export async function buildReportContext(
     if (r) {
       coachReportId = r.id;
       coachReportValidatedAt = r.updatedAt.toISOString();
-      coachReportData = r.sourceData || {};
+      coachReportData = isRecord(r.sourceData) ? r.sourceData : {};
     }
   }
 
-  const sData = studentBilan.sourceData as any;
+  const sData = isRecord(studentBilan.sourceData) ? studentBilan.sourceData : {};
+  const answers = isRecord(sData.answers) ? sData.answers : sData;
 
   return {
     meta: {
@@ -133,7 +138,7 @@ export async function buildReportContext(
     studentBilan: {
       id: studentBilan.id,
       submittedAt: studentBilan.updatedAt.toISOString(),
-      answers: sData?.answers || sData || {},
+      answers,
     },
     coachReport: {
       id: coachReportId,

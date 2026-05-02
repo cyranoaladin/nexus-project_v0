@@ -35,26 +35,22 @@ export default async function ParentNpcPage() {
   const parent = await prisma.parentProfile.findUnique({
     where: { userId: session.user.id },
     include: {
-      students: {
+      children: {
         include: {
-          student: {
-            include: {
-              user: {
-                select: { id: true, firstName: true, lastName: true },
-              },
-            },
+          user: {
+            select: { id: true, firstName: true, lastName: true },
           },
         },
       },
     },
   });
 
-  if (!parent || parent.students.length === 0) {
+  if (!parent || parent.children.length === 0) {
     redirect('/dashboard/parent');
   }
 
   // Get all children IDs
-  const childrenIds = parent.students.map((s: typeof parent.students[0]) => s.student.id);
+  const childrenIds = parent.children.map((student: typeof parent.children[0]) => student.id);
 
   // Fetch all submissions for all children
   const submissions = await prisma.copySubmission.findMany({
@@ -83,12 +79,12 @@ export default async function ParentNpcPage() {
   });
 
   // Group by child
-  const submissionsByChild = parent.students.map((ps: typeof parent.students[0]) => {
+  const submissionsByChild = parent.children.map((child: typeof parent.children[0]) => {
     const childSubmissions = submissions.filter(
-      (s: typeof submissions[0]) => s.studentId === ps.student.id
+      (s: typeof submissions[0]) => s.studentId === child.id
     );
     return {
-      child: ps.student,
+      child,
       submissions: childSubmissions,
       completedCount: childSubmissions.filter(
         (s: typeof submissions[0]) => s.report && s.status === 'COMPLETED'
@@ -180,7 +176,7 @@ export default async function ParentNpcPage() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-gray-900">
-              {parent.students.length}
+              {parent.children.length}
             </div>
           </CardContent>
         </Card>
