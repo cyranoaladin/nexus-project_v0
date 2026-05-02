@@ -1,8 +1,7 @@
-// @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { can } from '@/lib/rbac';
-import { UserRole, CopySubmissionStatus } from '@prisma/client';
+import { UserRole, CopySubmissionStatus, Subject } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import {
   validateUploadedFile,
@@ -186,7 +185,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                 })
               )?.id
             : null,
-        subject: subject as any,
+        subject: subject as Subject,
         title,
         description,
         status: CopySubmissionStatus.UPLOADED,

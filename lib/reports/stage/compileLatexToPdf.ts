@@ -27,7 +27,7 @@ export async function compileLatexToPdf(texSource: string): Promise<Buffer> {
     await fs.rm(workspaceTmp, { recursive: true, force: true });
 
     return pdfBuffer;
-  } catch (error) {
+  } catch {
     // Even on error, attempt cleanup
     try {
       await fs.rm(workspaceTmp, { recursive: true, force: true });

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { can } from '@/lib/rbac';
@@ -138,7 +137,7 @@ export async function GET(
     headers.set('Content-Security-Policy', "default-src 'none'");
     headers.set('X-Frame-Options', 'DENY');
 
-    return new NextResponse(fileBuffer as any, { status: 200, headers });
+    return new NextResponse(new Blob([new Uint8Array(fileBuffer)]), { status: 200, headers });
   } catch (error) {
     console.error('[NPC Files] Error serving file:', error);
     return NextResponse.json(

@@ -97,7 +97,7 @@ export function ParentReportList({ submissions }: ParentReportListProps) {
                     <>
                       {/* Level Badge */}
                       {(() => {
-                        const diagnostic = submission.report!.diagnosticData as {
+                        const diagnostic = submission.report!.diagnostic as {
                           overallLevel?: string;
                         } | null;
                         const level = diagnostic?.overallLevel || 'developing';
@@ -129,7 +129,7 @@ export function ParentReportList({ submissions }: ParentReportListProps) {
               <CardContent className="pt-0">
                 <div className="bg-gray-50 rounded-lg p-4">
                   {(() => {
-                    const diagnostic = submission.report.diagnosticData as {
+                    const diagnostic = submission.report.diagnostic as {
                       summary?: string;
                       strengths?: Array<{ title: string }>;
                       weaknesses?: Array<{ title: string }>;

@@ -5,6 +5,9 @@ type StageBilanLike = {
   sourceData?: unknown;
 };
 
+type AnswersRecord = Record<string, unknown>;
+type SourceDataWithAnswers = { answers?: AnswersRecord };
+
 type EafPreparationReportLike = {
   status?: string | null;
   writingMethod?: string | null;
@@ -14,6 +17,11 @@ type EafPreparationReportLike = {
   areasToImprove?: string | null;
   nextSessionGoals?: string | null;
   coachFreeComment?: string | null;
+};
+
+type MathsCoachReportLike = {
+  status?: string | null;
+  sourceData?: unknown;
 };
 
 export const EAF_REQUIRED_COACH_FIELDS = [
@@ -30,25 +38,30 @@ function hasText(value: unknown): boolean {
   return typeof value === 'string' && value.trim().length > 0;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
 export function isStudentBilanComplete(bilan: StageBilanLike): boolean {
   if (bilan.type !== 'STAGE_POST') return false;
   if (bilan.status !== 'COMPLETED') return false;
 
   // For both EAF and Math, we can check that sourceData exists and has some data
-  if (!bilan.sourceData || typeof bilan.sourceData !== 'object') return false;
+  if (!isRecord(bilan.sourceData)) return false;
   
-  const answers = (bilan.sourceData as Record<string, any>).answers;
-  if (!answers || typeof answers !== 'object') return false;
+  const sourceData = bilan.sourceData as SourceDataWithAnswers;
+  const answers = sourceData.answers;
+  if (!isRecord(answers)) return false;
 
   if (bilan.subject === 'FRANCAIS') {
     // EAF specific blocks
-    const requiredBlocks = ['profile', 'beforeStage', 'examMethod', 'commentary', 'dissertation', 'writing', 'support', 'finalReview'];
+    const requiredBlocks = ['profile', 'beforeStage', 'examMethod', 'commentary', 'dissertation', 'writing', 'support', 'finalReview'] as const;
     return requiredBlocks.every(block => !!answers[block]);
   }
 
   if (bilan.subject === 'MATHEMATIQUES') {
     // Maths specific blocks
-    const requiredBlocks = ['profile', 'beforeStage', 'automatismes', 'analysis', 'sequences', 'scalarProduct', 'probabilities', 'finalAssessment', 'finalReview'];
+    const requiredBlocks = ['profile', 'beforeStage', 'automatismes', 'analysis', 'sequences', 'scalarProduct', 'probabilities', 'finalAssessment', 'finalReview'] as const;
     return requiredBlocks.every(block => !!answers[block]);
   }
 
@@ -75,7 +88,7 @@ export function isEafCoachReportComplete(report: EafPreparationReportLike): bool
   return report.status === 'VALIDATED' && getEafCoachReportCompletion(report).isComplete;
 }
 
-export function isMathsCoachReportComplete(report: any): boolean {
+export function isMathsCoachReportComplete(report: MathsCoachReportLike): boolean {
   if (report.status !== 'VALIDATED') return false;
 
   const requiredFields = [
@@ -87,8 +100,13 @@ export function isMathsCoachReportComplete(report: any): boolean {
     'probabilities',
     'finalAssessment',
     'parentRecommendations',
-  ];
+  ] as const;
 
-  const sourceData = report.sourceData || {};
-  return requiredFields.every(field => !!sourceData[field] && Object.keys(sourceData[field]).length > 0);
+  const sourceData = report.sourceData ?? {};
+  if (!isRecord(sourceData)) return false;
+
+  return requiredFields.every((field) => {
+    const value = sourceData[field];
+    return isRecord(value) && Object.keys(value).length > 0;
+  });
 }

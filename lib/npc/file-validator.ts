@@ -49,7 +49,7 @@ export function sanitizeFilename(
     lastDot > 0 ? originalName.slice(lastDot + 1).toLowerCase() : '';
 
   // Sanitize: remove forbidden chars, replace spaces with underscores
-  let sanitized = baseName
+  const sanitized = baseName
     .replace(FORBIDDEN_FILENAME_CHARS, '')
     .replace(/\s+/g, '_')
     .slice(0, 50); // Limit base name length
