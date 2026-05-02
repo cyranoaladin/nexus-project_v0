@@ -5,8 +5,7 @@ import {
   CoachNotAssignedError,
 } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
-import fs from 'fs/promises';
-import path from 'path';
+import { readGeneratedReportPdf } from '@/lib/reports/stage/reportStorage';
 import { logger } from '@/lib/logger';
 
 interface RouteParams {
@@ -49,14 +48,18 @@ export async function GET(_request: Request, { params }: RouteParams) {
       );
     }
 
-    const pdfPath = path.join(process.cwd(), 'scratch', 'pdfs', `${report.id}.pdf`);
-    
+    // Read from durable storage (configurable via GENERATED_REPORTS_DIR)
     try {
-      const buffer = await fs.readFile(pdfPath);
-      return new Response(buffer, {
+      const buffer = await readGeneratedReportPdf({
+        reportId: report.id,
+        studentId: report.studentId,
+      });
+      return new NextResponse(new Uint8Array(buffer), {
+        status: 200,
         headers: {
           'Content-Type': 'application/pdf',
           'Content-Disposition': `attachment; filename="bilan-${studentId}-${reportId}.pdf"`,
+          'Cache-Control': 'private, no-store',
         },
       });
     } catch {
