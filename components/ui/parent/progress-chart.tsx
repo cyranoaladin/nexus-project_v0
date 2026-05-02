@@ -182,7 +182,7 @@ export function ProgressChart({ progressHistory, subjectProgressHistory }: Progr
         {chartType === "trend" ? (
           hasProgressData && formattedProgressData.length > 0 ? (
             <div role="img" aria-label="Graphique d'évolution de la progression au fil du temps">
-              <ResponsiveContainer width="100%" height={350}>
+              <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={350}>
                 <LineChart data={formattedProgressData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                   <XAxis 
@@ -230,7 +230,7 @@ export function ProgressChart({ progressHistory, subjectProgressHistory }: Progr
         ) : (
           hasSubjectData ? (
             <div role="img" aria-label="Graphique de progression par matière">
-              <ResponsiveContainer width="100%" height={350}>
+              <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={350}>
                 <BarChart 
                   data={subjectProgressHistory} 
                   margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
