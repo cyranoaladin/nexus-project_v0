@@ -64,15 +64,37 @@ export function EafPreparationReport({ studentId, studentName }: EafPreparationR
   };
 
   const handleSave = async () => {
+    // Prevent saving if already validated
+    if (report.status === "VALIDATED") {
+      setError("Ce bilan est déjà validé et ne peut plus être modifié.");
+      return;
+    }
+
     setSaving(true);
     setError(null);
     setMessage(null);
+
+    // Build payload with ONLY editable pedagogical fields
+    // Never send lifecycle fields (status, completionRatio, validatedAt, validatedBy, etc.)
+    const editablePayload = {
+      linearReading: report.linearReading,
+      workPresentation: report.workPresentation,
+      interview: report.interview,
+      oralExpression: report.oralExpression,
+      writingMethod: report.writingMethod,
+      languageMastery: report.languageMastery,
+      literaryCulture: report.literaryCulture,
+      strengths: report.strengths,
+      areasToImprove: report.areasToImprove,
+      nextSessionGoals: report.nextSessionGoals,
+      coachFreeComment: report.coachFreeComment,
+    };
 
     try {
       const res = await fetch(`/api/coach/students/${studentId}/eaf-preparation-report`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(report),
+        body: JSON.stringify(editablePayload),
       });
 
       if (!res.ok) {
@@ -206,7 +228,13 @@ export function EafPreparationReport({ studentId, studentName }: EafPreparationR
           )}
         </div>
 
-        {missingFields.length > 0 && (
+        {report.status === "VALIDATED" && (
+          <div className="p-3 rounded-lg bg-emerald-500/15 text-emerald-300 text-sm border border-emerald-500/20">
+            Ce bilan est validé. Il est verrouillé pour garantir la cohérence du PDF généré.
+          </div>
+        )}
+
+        {missingFields.length > 0 && report.status !== "VALIDATED" && (
           <p className="text-xs text-amber-300">
             Champs requis avant validation: {missingFields.length}.
           </p>
@@ -224,7 +252,13 @@ export function EafPreparationReport({ studentId, studentName }: EafPreparationR
                 placeholder={field.placeholder}
                 rows={3}
                 maxLength={5000}
-                className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-transparent resize-y"
+                disabled={report.status === "VALIDATED"}
+                readOnly={report.status === "VALIDATED"}
+                className={`w-full px-3 py-2 rounded-lg border text-neutral-100 placeholder:text-neutral-500 resize-y ${
+                  report.status === "VALIDATED"
+                    ? "bg-white/5 border-white/5 text-neutral-400 cursor-not-allowed"
+                    : "bg-white/5 border-white/10 focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-transparent"
+                }`}
               />
             </div>
           );
@@ -242,7 +276,7 @@ export function EafPreparationReport({ studentId, studentName }: EafPreparationR
           <div className="flex flex-wrap justify-end gap-2">
             <Button
               onClick={() => void handleSave().catch(() => undefined)}
-              disabled={saving || validating}
+              disabled={saving || validating || report.status === "VALIDATED"}
               className="bg-brand-accent hover:bg-brand-accent/90 text-white"
             >
               {saving ? (
