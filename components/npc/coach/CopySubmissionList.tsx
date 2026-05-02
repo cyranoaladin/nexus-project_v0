@@ -68,7 +68,7 @@ export function CopySubmissionList({ submissions }: CopySubmissionListProps) {
                   <div>
                     <h3 className="font-semibold text-lg">{submission.title}</h3>
                     <p className="text-sm text-gray-500">
-                      {submission.student.user.name || 'Élève'} • {submission.subject}
+                      {submission.student.user.firstName && submission.student.user.lastName ? `${submission.student.user.firstName} ${submission.student.user.lastName}` : 'Élève'} • {submission.subject}
                     </p>
                     <p className="text-xs text-gray-400 mt-1">
                       Créé le {new Date(submission.createdAt).toLocaleDateString('fr-FR')}
