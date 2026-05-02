@@ -87,7 +87,7 @@ export default async function UploadPage({ params }: UploadPageProps) {
           <FileText className="h-5 w-5" />
           <span>{submission.title}</span>
           <span className="text-gray-400">•</span>
-          <span>{submission.student.user.name || 'Élève'}</span>
+          <span>{submission.student.user.firstName && submission.student.user.lastName ? `${submission.student.user.firstName} ${submission.student.user.lastName}` : 'Élève'}</span>
           <span className="text-gray-400">•</span>
           <span>{submission.subject}</span>
         </div>
