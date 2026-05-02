@@ -1,6 +1,13 @@
 import { prisma } from '@/lib/prisma';
 import { computeInputChecksum } from './checksums';
-import type { GeneratedReportKind, Subject } from '@prisma/client';
+import { isEafCoachReportComplete, isMathsCoachReportComplete, isStudentBilanComplete } from './completeness';
+
+export const STAGE_REPORT_PROMPT_VERSION = 'stage_report_v1';
+export const STAGE_REPORT_TEMPLATE_VERSION = 'premium_latex_v1';
+export const EAF_STAGE_SOURCE_VERSION = 'eaf_stage_printemps_v1';
+
+export type StageGeneratedReportKind = 'EAF_STAGE_POST' | 'MATHS_PREMIERE_STAGE_POST';
+export type StageReportSubject = 'FRANCAIS' | 'MATHEMATIQUES';
 
 export async function maybeCreateGeneratedReportJob({
   studentId,
@@ -9,8 +16,8 @@ export async function maybeCreateGeneratedReportJob({
   stageSlug,
 }: {
   studentId: string;
-  subject: Subject;
-  kind: GeneratedReportKind;
+  subject: StageReportSubject;
+  kind: StageGeneratedReportKind;
   stageSlug: string;
 }) {
   // Find completed student auto-bilan
@@ -19,11 +26,13 @@ export async function maybeCreateGeneratedReportJob({
       studentId,
       type: 'STAGE_POST',
       subject,
+      status: 'COMPLETED',
+      ...(kind === 'EAF_STAGE_POST' ? { sourceVersion: EAF_STAGE_SOURCE_VERSION } : {}),
     },
     orderBy: { updatedAt: 'desc' },
   });
 
-  if (!studentBilan) {
+  if (!studentBilan || !isStudentBilanComplete(studentBilan)) {
     return { created: false, reason: 'WAITING_FOR_STUDENT_BILAN' };
   }
 
@@ -34,10 +43,10 @@ export async function maybeCreateGeneratedReportJob({
 
   if (kind === 'EAF_STAGE_POST') {
     const cr = await prisma.eafPreparationReport.findFirst({
-      where: { studentId },
+      where: { studentId, status: 'VALIDATED' },
       orderBy: { updatedAt: 'desc' },
     });
-    if (cr) {
+    if (cr && isEafCoachReportComplete(cr)) {
       coachReportId = cr.id;
       coachReportUpdatedAt = cr.updatedAt;
       coachId = cr.coachId;
@@ -50,10 +59,11 @@ export async function maybeCreateGeneratedReportJob({
         studentId,
         type: 'STAGE_POST',
         subject: 'MATHEMATIQUES',
+        status: 'COMPLETED',
       },
       orderBy: { updatedAt: 'desc' },
     });
-    if (cr) {
+    if (cr && isMathsCoachReportComplete(cr)) {
       coachReportId = cr.id;
       coachReportUpdatedAt = cr.updatedAt;
       coachId = cr.coachId;
@@ -64,8 +74,8 @@ export async function maybeCreateGeneratedReportJob({
     return { created: false, reason: 'WAITING_FOR_COACH_REPORT' };
   }
 
-  const promptVersion = 'stage_report_v1';
-  const templateVersion = 'premium_latex_v1';
+  const promptVersion = STAGE_REPORT_PROMPT_VERSION;
+  const templateVersion = STAGE_REPORT_TEMPLATE_VERSION;
 
   const inputChecksum = computeInputChecksum({
     studentBilanUpdatedAt: studentBilan.updatedAt,
