@@ -47,7 +47,7 @@ export default async function ReportPage({ params }: ReportPageProps) {
         },
       },
       competenceMatrix: true,
-      roadmap: {
+      remediationRoadmap: {
         include: { tasks: true },
       },
     },
@@ -202,10 +202,10 @@ export default async function ReportPage({ params }: ReportPageProps) {
         </TabsContent>
 
         <TabsContent value="roadmap" className="space-y-6">
-          {report.roadmap ? (
+          {report.remediationRoadmap ? (
             <RemediationRoadmap
-              roadmap={report.roadmap.roadmapData}
-              tasks={report.roadmap.tasks}
+              roadmap={report.remediationRoadmap.roadmapData}
+              tasks={report.remediationRoadmap.tasks}
             />
           ) : (
             <Card className="p-8 text-center">
