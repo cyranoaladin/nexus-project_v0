@@ -283,6 +283,10 @@ model Student {
   // EAF preparation reports
   eafPreparationReports EafPreparationReport[]
 
+  // NPC - Nexus Pedagogy Cockpit
+  copySubmissions    CopySubmission[]
+  pedagogicalReports PedagogicalReport[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -328,6 +332,10 @@ model CoachProfile {
 
   // EAF preparation reports
   eafPreparationReports EafPreparationReport[]
+
+  // NPC - Nexus Pedagogy Cockpit
+  coachedSubmissions CopySubmission[]
+  validatedReports   PedagogicalReport[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1857,4 +1865,367 @@ model EafPreparationReport {
   @@index([coachId])
   @@index([studentId])
   @@map("eaf_preparation_reports")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// NPC - NEXUS PEDAGOGY COCKPIT
+// ═══════════════════════════════════════════════════════════════════════════════
+
+enum CopySubmissionStatus {
+  PENDING_UPLOAD
+  UPLOADED
+  PROCESSING_OCR
+  OCR_FAILED
+  READY_FOR_AI
+  QUEUED_FOR_ANALYSIS
+  ANALYZING
+  ANALYSIS_FAILED
+  COMPLETED
+  ARCHIVED
+}
+
+enum AssessmentSourceType {
+  DS
+  DM
+  BILAN
+  STAGE
+  ANNALES
+  EXERCICE
+  COMPOSITION
+  AUTRE
+}
+
+enum CopyPageStatus {
+  UPLOADED
+  PENDING_CONVERSION
+  CONVERTING
+  CONVERSION_FAILED
+  READY
+  PROCESSING
+  ERROR
+}
+
+enum AiJobType {
+  VISION_OCR
+  PEDAGOGICAL_DIAGNOSIS
+  COMPETENCE_MATRIX
+  REMEDIATION_ROADMAP
+  MENTOR_ADVICE
+}
+
+enum AiJobStatus {
+  PENDING
+  QUEUED
+  CLAIMED
+  PROCESSING
+  RETRYING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum AiJobPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum PedagogicalReportStatus {
+  DRAFT
+  PENDING_VALIDATION
+  VALIDATED
+  SENT_TO_STUDENT
+  READ_BY_STUDENT
+  ARCHIVED
+}
+
+enum ReportVisibility {
+  COACH_ONLY
+  COACH_AND_STUDENT
+  STUDENT_SUMMARY_ONLY
+}
+
+enum FeedbackType {
+  TECHNICAL_ERROR
+  PEDAGOGICAL_INACCURACY
+  MISSING_REMEDIATION
+  OVERLY_GENERIC
+  STUDENT_MISUNDERSTOOD
+  COACH_DISAGREES
+  POSITIVE
+  OTHER
+}
+
+model CopySubmission {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  coachId String?
+  coach   CoachProfile? @relation(fields: [coachId], references: [id], onDelete: SetNull)
+
+  subject   Subject
+  gradeLevel GradeLevel?
+
+  title       String
+  description String?
+
+  sourceType AssessmentSourceType @default(AUTRE)
+  sourceId   String?
+  source     AssessmentSource? @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+
+  status CopySubmissionStatus @default(PENDING_UPLOAD)
+
+  pages CopyPage[]
+
+  ocrText  String? @db.Text
+  ocrError String?
+
+  aiJob   AiProcessingJob?
+  aiJobId String? @unique
+
+  report  PedagogicalReport?
+
+  storedFilePath String?
+  fileSizeBytes  Int?
+  mimeType       String?
+
+  @@index([studentId, status])
+  @@index([coachId, status])
+  @@index([sourceId])
+  @@index([subject, status])
+  @@index([createdAt])
+  @@map("copy_submissions")
+}
+
+model AssessmentSource {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name        String
+  description String?
+  type        AssessmentSourceType
+
+  isOfficialAnnale Boolean @default(false)
+  year            Int?
+  examType        String?
+
+  subject      Subject
+  gradeLevel   GradeLevel?
+  academicTrack  AcademicTrack?
+
+  submittedCopies CopySubmission[]
+
+  @@index([type, subject])
+  @@index([year])
+  @@map("assessment_sources")
+}
+
+model CopyPage {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  submissionId String
+  submission   CopySubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  pageNumber Int
+
+  status CopyPageStatus @default(UPLOADED)
+
+  originalFilePath    String
+  convertedFilePaths  String[]
+  ocrText             String? @db.Text
+  ocrConfidence       Float?
+
+  width  Int?
+  height Int?
+
+  @@unique([submissionId, pageNumber])
+  @@index([submissionId, pageNumber])
+  @@map("copy_pages")
+}
+
+model AiProcessingJob {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  type     AiJobType
+  status   AiJobStatus   @default(PENDING)
+  priority AiJobPriority @default(NORMAL)
+
+  copySubmissionId String?        @unique
+  copySubmission   CopySubmission? @relation(fields: [copySubmissionId], references: [id], onDelete: SetNull)
+
+  inputData  Json?
+  outputData Json?
+
+  errorMessage String?
+  retryCount   Int     @default(0)
+  maxRetries   Int     @default(3)
+
+  claimedAt      DateTime?
+  claimedBy      String?
+  startedAt      DateTime?
+  completedAt    DateTime?
+  nextRetryAt    DateTime?
+
+  processingDurationMs Int?
+
+  chutesRequestId String?
+  tokensUsed      Int?
+  modelVersion    String?
+
+  @@index([status, priority, createdAt])
+  @@index([status, nextRetryAt])
+  @@index([claimedBy, status])
+  @@map("ai_processing_jobs")
+}
+
+model PedagogicalReport {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  copySubmissionId String?         @unique
+  copySubmission   CopySubmission? @relation(fields: [copySubmissionId], references: [id], onDelete: SetNull)
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  coachId String?
+  coach   CoachProfile? @relation(fields: [coachId], references: [id], onDelete: SetNull)
+
+  status     PedagogicalReportStatus @default(DRAFT)
+  visibility ReportVisibility        @default(COACH_ONLY)
+
+  diagnostic Json
+  strengths  String[]
+  weaknesses String[]
+
+  rawAiOutput Json?
+  validatedAiOutput Json?
+
+  competenceMatrix   CompetenceMatrix?
+  remediationRoadmap RemediationRoadmap?
+
+  sentToStudentAt DateTime?
+  readByStudentAt DateTime?
+
+  coachNotes      String? @db.Text
+  studentSummary  String? @db.Text
+
+  feedback ReportFeedback[]
+  auditLogs NpcAuditLog[]
+
+  @@index([studentId, status])
+  @@index([coachId, status])
+  @@index([createdAt])
+  @@map("pedagogical_reports")
+}
+
+model CompetenceMatrix {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reportId String  @unique
+  report   PedagogicalReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  matrixData Json
+
+  globalScore     Float?
+  confidenceLevel Float?
+
+  @@map("competence_matrices")
+}
+
+model RemediationRoadmap {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reportId String  @unique
+  report   PedagogicalReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?
+
+  estimatedDuration String?
+  difficultyLevel   String?
+
+  tasks RoadmapTask[]
+
+  @@map("remediation_roadmaps")
+}
+
+model RoadmapTask {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  roadmapId String
+  roadmap   RemediationRoadmap @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String
+  order       Int
+
+  type        String
+  resourceIds   String[]
+  externalUrls  String[]
+
+  isCompleted Boolean @default(false)
+  completedAt DateTime?
+
+  @@index([roadmapId, order])
+  @@map("roadmap_tasks")
+}
+
+model ReportFeedback {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  reportId String
+  report   PedagogicalReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  submittedById String
+
+  type        FeedbackType
+  comment     String?
+  severity    Int?        @default(1)
+
+  isResolved Boolean  @default(false)
+  resolvedAt DateTime?
+  resolutionNote String?
+
+  @@index([reportId, type])
+  @@index([submittedById])
+  @@map("report_feedback")
+}
+
+model NpcAuditLog {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  reportId String?
+  report   PedagogicalReport? @relation(fields: [reportId], references: [id], onDelete: SetNull)
+
+  action     String
+  actorId    String
+  actorRole  String
+  entityType String
+  entityId   String
+  details    Json?
+
+  @@index([reportId, createdAt])
+  @@index([actorId, createdAt])
+  @@index([action, createdAt])
+  @@map("npc_audit_logs")
 }
