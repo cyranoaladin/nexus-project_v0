@@ -235,7 +235,7 @@ export async function GET(req: NextRequest) {
       where,
       include: {
         student: {
-          include: { user: { select: { name: true, email: true } } },
+          include: { user: { select: { firstName: true, lastName: true, email: true } } },
         },
         report: true,
         aiJob: true,
