@@ -12,8 +12,9 @@ import { getEafCoachReportCompletion } from '@/lib/reports/stage/completeness';
 
 const MAX_FIELD_LENGTH = 5000;
 
-// Schema for EAF preparation report
-const eafPreparationReportSchema = z.object({
+// Schema for EAF preparation report draft - ONLY pedagogical fields
+// Rejects any lifecycle/status fields to prevent client-side manipulation
+const eafPreparationReportDraftSchema = z.object({
   linearReading: z.string().max(MAX_FIELD_LENGTH).optional(),
   workPresentation: z.string().max(MAX_FIELD_LENGTH).optional(),
   interview: z.string().max(MAX_FIELD_LENGTH).optional(),
@@ -25,7 +26,7 @@ const eafPreparationReportSchema = z.object({
   areasToImprove: z.string().max(MAX_FIELD_LENGTH).optional(),
   nextSessionGoals: z.string().max(MAX_FIELD_LENGTH).optional(),
   coachFreeComment: z.string().max(MAX_FIELD_LENGTH).optional(),
-});
+}).strict();
 
 interface RouteParams {
   params: Promise<{ studentId: string }>;
@@ -112,7 +113,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
     }
 
     const json = await request.json();
-    const parseResult = eafPreparationReportSchema.safeParse(json);
+    const parseResult = eafPreparationReportDraftSchema.safeParse(json);
 
     if (!parseResult.success) {
       return NextResponse.json(
@@ -121,10 +122,27 @@ export async function PUT(request: Request, { params }: RouteParams) {
       );
     }
 
+    // Check if report already exists and is validated (locked)
+    const existingReport = await prisma.eafPreparationReport.findUnique({
+      where: {
+        studentId_coachId: {
+          studentId,
+          coachId: coachProfile.id,
+        },
+      },
+    });
+
+    if (existingReport?.status === 'VALIDATED') {
+      return NextResponse.json(
+        { error: 'Conflict', message: 'Ce bilan EAF est déjà validé. Il ne peut plus être modifié sans réouverture explicite.' },
+        { status: 409 }
+      );
+    }
+
     const data = parseResult.data;
     const completion = getEafCoachReportCompletion(data);
 
-    // Build Prisma-compatible data object
+    // Build Prisma-compatible data object (only pedagogical fields)
     const reportData = {
       linearReading: data.linearReading ?? null,
       workPresentation: data.workPresentation ?? null,
@@ -139,7 +157,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
       coachFreeComment: data.coachFreeComment ?? null,
     };
 
-    // Upsert the report
+    // Upsert the report (only allowed for DRAFT or new reports)
     const report = await prisma.eafPreparationReport.upsert({
       where: {
         studentId_coachId: {
@@ -149,10 +167,10 @@ export async function PUT(request: Request, { params }: RouteParams) {
       },
       update: {
         ...reportData,
-        status: 'DRAFT',
+        status: 'DRAFT', // Remains DRAFT until explicit validation
         completionRatio: completion.completionRatio,
-        validatedAt: null,
-        validatedBy: null,
+        validatedAt: null, // Explicitly reset - report is not validated
+        validatedBy: null, // Explicitly reset - report is not validated
       },
       create: {
         studentId,
@@ -160,6 +178,8 @@ export async function PUT(request: Request, { params }: RouteParams) {
         ...reportData,
         status: 'DRAFT',
         completionRatio: completion.completionRatio,
+        validatedAt: null, // Explicitly null for new drafts
+        validatedBy: null, // Explicitly null for new drafts
       },
     });
 
