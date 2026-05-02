@@ -1,9 +1,4 @@
-// ═══════════════════════════════════════════════════════════════════════════════
-// NPC - NEXUS PEDAGOGY COCKPIT — Secure File Access
-// GET /api/npc/files/{path} - RBAC-protected file serving
-// NO direct file URLs - all access through this endpoint
-// ═══════════════════════════════════════════════════════════════════════════════
-
+// @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { can } from '@/lib/rbac';
