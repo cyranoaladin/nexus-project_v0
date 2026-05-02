@@ -187,9 +187,9 @@ export default async function ReportPage({ params }: ReportPageProps) {
         <TabsContent value="competences" className="space-y-6">
           {report.competenceMatrix ? (
             <CompetenceMatrix
-              matrix={report.competenceMatrix.matrixData as any}
-              globalScore={report.competenceMatrix.globalScore ?? 0}
-              globalLevel={String(report.competenceMatrix.globalLevel || 'partially_acquired')}
+              matrix={(report.competenceMatrix as any).matrixData}
+              globalScore={Number((report.competenceMatrix as any).globalScore || 0)}
+              globalLevel={String((report.competenceMatrix as any).globalLevel || 'partially_acquired')}
             />
           ) : (
             <Card className="p-8 text-center">
