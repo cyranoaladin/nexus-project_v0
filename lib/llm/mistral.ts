@@ -107,8 +107,6 @@ export async function createMistralJsonCompletion(
       signal: controller.signal,
     });
 
-    clearTimeout(timeoutId);
-
     if (!response.ok) {
       logger.error({ status: response.status, statusText: response.statusText }, '[Mistral] HTTP error');
       throw new MistralGenerationError(
@@ -133,8 +131,9 @@ export async function createMistralJsonCompletion(
       logger.info({ model, jsonLength: content.length }, '[Mistral] JSON completion successful');
       return { json, model };
     } catch (parseError) {
+      // Log only safe metadata - never log the content which may contain sensitive data
       logger.error(
-        { error: (parseError as Error).message, contentSnippet: content.slice(0, 100) },
+        { model, contentLength: content.length, error: (parseError as Error).message },
         '[Mistral] Invalid JSON response'
       );
       throw new MistralGenerationError(
@@ -143,8 +142,6 @@ export async function createMistralJsonCompletion(
       );
     }
   } catch (error) {
-    clearTimeout(timeoutId);
-
     // Handle timeout specifically
     if (error instanceof Error && error.name === 'AbortError') {
       logger.error({ timeoutMs }, '[Mistral] Request timeout');
@@ -165,5 +162,8 @@ export async function createMistralJsonCompletion(
       MISTRAL_ERROR_CODES.MISTRAL_HTTP_ERROR,
       'Unexpected error calling Mistral API'
     );
+  } finally {
+    // Always clear the timeout to prevent memory leaks
+    clearTimeout(timeoutId);
   }
 }
