@@ -138,7 +138,6 @@ export async function PUT(request: Request, { params }: RouteParams) {
         completionRatio: completion.completionRatio,
         validatedAt: null,
         validatedBy: null,
-        updatedAt: new Date(),
       },
       create: {
         studentId,
