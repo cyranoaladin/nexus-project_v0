@@ -80,7 +80,7 @@ export default async function ReportPage({ params }: ReportPageProps) {
     redirect('/dashboard/coach/npc');
   }
 
-  const diagnosticData = report.diagnosticData as {
+  const diagnosticData = ((report.diagnostic as any)?.diagnosticData || report.diagnostic || {}) as {
     summary: string;
     overallLevel: string;
     confidenceScore: number;
@@ -98,7 +98,7 @@ export default async function ReportPage({ params }: ReportPageProps) {
     keyRecommendations: string[];
   };
 
-  const mentorAdvice = report.mentorAdviceData as {
+  const mentorAdvice = ((report.diagnostic as any)?.mentorAdviceData || report.diagnostic || {}) as {
     personalizedAdvice: string;
     motivationMessage: string;
     studyTips: string[];
@@ -145,13 +145,13 @@ export default async function ReportPage({ params }: ReportPageProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Badge
-                variant={report.visibility === 'PRIVATE' ? 'destructive' : 'outline'}
+                variant={report.visibility === 'COACH_ONLY' ? 'destructive' : 'outline'}
                 className="text-sm"
               >
                 {report.visibility}
               </Badge>
               <span className="text-sm text-gray-600">
-                Généré le {new Date(report.generatedAt).toLocaleDateString('fr-FR', {
+                Généré le {new Date(report.createdAt).toLocaleDateString('fr-FR', {
                   day: 'numeric',
                   month: 'long',
                   year: 'numeric',
@@ -159,9 +159,6 @@ export default async function ReportPage({ params }: ReportPageProps) {
                   minute: '2-digit',
                 })}
               </span>
-            </div>
-            <div className="text-sm text-gray-600">
-              {report.tokensUsed ? `${report.tokensUsed.toLocaleString()} tokens utilisés` : ''}
             </div>
           </div>
         </CardContent>
