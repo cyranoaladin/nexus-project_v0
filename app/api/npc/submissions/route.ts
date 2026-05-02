@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { Subject, GradeLevel, CopySubmissionStatus } from '@prisma/client';
-import { checkPermission } from '@/lib/rbac';
+// No checkPermission import
 
 const VALID_SUBJECTS = Object.values(Subject);
 const VALID_GRADE_LEVELS = Object.values(GradeLevel);
@@ -33,7 +33,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Check permission
-    if (!checkPermission(session.user.role, 'npc', 'create')) {
+    const allowedRoles = ['COACH', 'ADMIN', 'ASSISTANTE'];
+    if (!allowedRoles.includes(session.user.role)) {
       return NextResponse.json(
         { error: 'Forbidden' },
         { status: 403 }
@@ -161,7 +162,8 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    if (!checkPermission(session.user.role, 'npc', 'read')) {
+    const allowedRoles = ['COACH', 'ADMIN', 'ASSISTANTE', 'ELEVE', 'PARENT'];
+    if (!allowedRoles.includes(session.user.role)) {
       return NextResponse.json(
         { error: 'Forbidden' },
         { status: 403 }
