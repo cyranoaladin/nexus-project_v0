@@ -23,11 +23,13 @@ describe('mistral', () => {
   let originalApiKey: string | undefined;
   let originalTimeout: string | undefined;
   let originalModel: string | undefined;
+  let originalBaseUrl: string | undefined;
 
   beforeEach(() => {
     originalApiKey = process.env.MISTRAL_API_KEY;
     originalTimeout = process.env.MISTRAL_TIMEOUT_MS;
     originalModel = process.env.MISTRAL_MODEL;
+    originalBaseUrl = process.env.MISTRAL_BASE_URL;
     jest.clearAllMocks();
   });
 
@@ -47,6 +49,93 @@ describe('mistral', () => {
     } else {
       process.env.MISTRAL_MODEL = originalModel;
     }
+    if (originalBaseUrl === undefined) {
+      delete process.env.MISTRAL_BASE_URL;
+    } else {
+      process.env.MISTRAL_BASE_URL = originalBaseUrl;
+    }
+  });
+
+  describe('MISTRAL_BASE_URL configuration', () => {
+    beforeEach(() => {
+      process.env.MISTRAL_API_KEY = 'test-api-key';
+    });
+
+    it('uses https://api.mistral.ai/v1/chat/completions by default', async () => {
+      delete process.env.MISTRAL_BASE_URL;
+
+      let capturedUrl: string | undefined;
+      mockFetch.mockImplementationOnce((url: string) => {
+        capturedUrl = url;
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            choices: [{ message: { content: '{"result": "test"}' } }],
+          }),
+        });
+      });
+
+      await createMistralJsonCompletion([{ role: 'user', content: 'test' }]);
+
+      expect(capturedUrl).toBe('https://api.mistral.ai/v1/chat/completions');
+    });
+
+    it('uses MISTRAL_BASE_URL when defined', async () => {
+      process.env.MISTRAL_BASE_URL = 'https://custom.mistral.proxy';
+
+      let capturedUrl: string | undefined;
+      mockFetch.mockImplementationOnce((url: string) => {
+        capturedUrl = url;
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            choices: [{ message: { content: '{"result": "test"}' } }],
+          }),
+        });
+      });
+
+      await createMistralJsonCompletion([{ role: 'user', content: 'test' }]);
+
+      expect(capturedUrl).toBe('https://custom.mistral.proxy/v1/chat/completions');
+    });
+
+    it('strips trailing slashes from MISTRAL_BASE_URL', async () => {
+      process.env.MISTRAL_BASE_URL = 'https://proxy.example.com///';
+
+      let capturedUrl: string | undefined;
+      mockFetch.mockImplementationOnce((url: string) => {
+        capturedUrl = url;
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            choices: [{ message: { content: '{"result": "test"}' } }],
+          }),
+        });
+      });
+
+      await createMistralJsonCompletion([{ role: 'user', content: 'test' }]);
+
+      expect(capturedUrl).toBe('https://proxy.example.com/v1/chat/completions');
+    });
+
+    it('handles single trailing slash in MISTRAL_BASE_URL', async () => {
+      process.env.MISTRAL_BASE_URL = 'https://api.internal/';
+
+      let capturedUrl: string | undefined;
+      mockFetch.mockImplementationOnce((url: string) => {
+        capturedUrl = url;
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            choices: [{ message: { content: '{"result": "test"}' } }],
+          }),
+        });
+      });
+
+      await createMistralJsonCompletion([{ role: 'user', content: 'test' }]);
+
+      expect(capturedUrl).toBe('https://api.internal/v1/chat/completions');
+    });
   });
 
   describe('MISTRAL_API_KEY missing', () => {
