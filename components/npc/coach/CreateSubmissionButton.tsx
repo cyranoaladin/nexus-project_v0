@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Plus, Loader2 } from 'lucide-react';
-import { Subject, GradeLevel } from '@prisma/client';
+import { Subject, GradeLevel } from '@/types/enums';
 
 interface CreateSubmissionButtonProps {
   students: Array<{ id: string; name: string }>;
@@ -41,15 +41,39 @@ export function CreateSubmissionButton({ students }: CreateSubmissionButtonProps
   const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
-    studentId: '',
+    studentId: students && students.length === 1 ? students[0].id : '',
     title: '',
     description: '',
     subject: '',
     gradeLevel: '',
   });
 
+  const isFormValid = formData.studentId && formData.title && formData.subject;
+
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
+      setFormData({
+        studentId: students && students.length === 1 ? students[0].id : '',
+        title: '',
+        description: '',
+        subject: '',
+        gradeLevel: '',
+      });
+      setError(null);
+    } else {
+      if (students && students.length === 1) {
+        setFormData(prev => ({ ...prev, studentId: students[0].id }));
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isFormValid) {
+      setError('Veuillez remplir tous les champs obligatoires : élève, titre et matière.');
+      return;
+    }
     setLoading(true);
     setError(null);
 
@@ -70,6 +94,11 @@ export function CreateSubmissionButton({ students }: CreateSubmissionButtonProps
       }
 
       const { submission } = await response.json();
+      
+      if (!submission || !submission.id) {
+        throw new Error('Réponse API invalide');
+      }
+      
       setOpen(false);
       router.push(`/dashboard/coach/npc/submissions/${submission.id}/upload`);
     } catch (err) {
@@ -80,7 +109,7 @@ export function CreateSubmissionButton({ students }: CreateSubmissionButtonProps
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button>
           <Plus className="h-4 w-4 mr-2" />
@@ -153,7 +182,7 @@ export function CreateSubmissionButton({ students }: CreateSubmissionButtonProps
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="gradeLevel">Niveau</Label>
+                <Label htmlFor="gradeLevel">Niveau (optionnel)</Label>
                 <Select
                   value={formData.gradeLevel}
                   onValueChange={(value) =>
@@ -195,12 +224,12 @@ export function CreateSubmissionButton({ students }: CreateSubmissionButtonProps
             <Button
               type="button"
               variant="outline"
-              onClick={() => setOpen(false)}
+              onClick={() => handleOpenChange(false)}
               disabled={loading}
             >
               Annuler
             </Button>
-            <Button type="submit" disabled={loading || !formData.studentId}>
+            <Button type="submit" disabled={loading || !isFormValid}>
               {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Créer et uploader
             </Button>
