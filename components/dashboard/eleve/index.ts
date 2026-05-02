@@ -1,5 +1,6 @@
 export * from './EleveAria';
 export * from './EafStageQuestionnaireCard';
+export * from './MathsPremiereStageQuestionnaireCard';
 export * from './EleveBilans';
 export * from './EleveCockpit';
 export * from './EleveHubRessources';

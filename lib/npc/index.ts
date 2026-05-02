@@ -63,3 +63,6 @@ export {
   type PdfConversionResult,
   type PageInfo,
 } from './pdf-converter';
+
+// AI Services (Chutes.ai integration)
+export * from './ai';

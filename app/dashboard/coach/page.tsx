@@ -132,6 +132,19 @@ export default function DashboardCoach() {
                   </CardContent>
                 </Card>
 
+                <Card className="bg-gradient-to-br from-indigo-500/10 to-surface-card border border-indigo-500/20 mb-6">
+                  <CardContent className="p-6">
+                    <Zap className="w-8 h-8 text-indigo-400 mb-4" />
+                    <h3 className="text-lg font-bold text-white mb-2">Bilan Maths – Stage de printemps</h3>
+                    <p className="text-xs text-neutral-400 mb-4">
+                      Renseignez les bilans de spécialité mathématiques pour les élèves de Première.
+                    </p>
+                    <Button variant="outline" className="w-full border-white/10" onClick={() => router.push('/dashboard/coach/maths-premiere-stage-printemps')}>
+                      Gérer les bilans Maths
+                    </Button>
+                  </CardContent>
+                </Card>
+
                 <Card className="bg-gradient-to-br from-brand-accent/10 to-surface-card border border-brand-accent/20">
                   <CardContent className="p-6">
                     <Zap className="w-8 h-8 text-brand-accent mb-4" />
