@@ -107,15 +107,10 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     { action: 'READ', resource: 'SUBSCRIPTION' },
     { action: 'READ', resource: 'RESOURCE_CONTENT' },
     { action: 'READ', resource: 'REPORT' },
-    // NPC - Read/validate pedagogical reports
+    // NPC - Read-only access for support purposes
     { action: 'READ', resource: 'COPY_SUBMISSION' },
-    { action: 'CREATE', resource: 'COPY_SUBMISSION' },
     { action: 'READ', resource: 'PEDAGOGICAL_REPORT' },
-    { action: 'CREATE', resource: 'PEDAGOGICAL_REPORT' },
-    { action: 'UPDATE', resource: 'PEDAGOGICAL_REPORT' },
-    { action: 'VALIDATE', resource: 'PEDAGOGICAL_REPORT' },
     { action: 'READ', resource: 'REMEDIATION_ROADMAP' },
-    { action: 'CREATE', resource: 'REMEDIATION_ROADMAP' },
   ],
   [UserRole.COACH]: [
     { action: 'READ', resource: 'USER' },
@@ -130,6 +125,15 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     { action: 'READ', resource: 'RESOURCE_CONTENT' },
     { action: 'CREATE', resource: 'REPORT' },
     { action: 'READ', resource: 'REPORT' },
+    // NPC - Coach manages pedagogical reports for their students
+    { action: 'READ', resource: 'COPY_SUBMISSION' },
+    { action: 'CREATE', resource: 'COPY_SUBMISSION' },
+    { action: 'READ', resource: 'PEDAGOGICAL_REPORT' },
+    { action: 'CREATE', resource: 'PEDAGOGICAL_REPORT' },
+    { action: 'UPDATE', resource: 'PEDAGOGICAL_REPORT' },
+    { action: 'VALIDATE', resource: 'PEDAGOGICAL_REPORT' },
+    { action: 'READ', resource: 'REMEDIATION_ROADMAP' },
+    { action: 'CREATE', resource: 'REMEDIATION_ROADMAP' },
   ],
   [UserRole.PARENT]: [
     { action: 'READ_SELF', resource: 'USER' },
