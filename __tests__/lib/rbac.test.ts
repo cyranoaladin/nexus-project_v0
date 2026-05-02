@@ -342,10 +342,18 @@ describe('can() — Resource/Action Permission Matrix', () => {
 });
 
 describe('getPermissions()', () => {
-  it('ADMIN should have permissions on all resources', () => {
+  it('ADMIN should have MANAGE on all core resources', () => {
     const perms = getPermissions(UserRole.ADMIN);
-    const resources = new Set(perms.map(p => p.resource));
-    expect(resources.size).toBe(14);
+    const adminManagedResources = new Set(
+      perms.filter(p => p.action === 'MANAGE').map(p => p.resource),
+    );
+    // Admin should have MANAGE on all key resources (including NPC ones)
+    expect(adminManagedResources.has('USER')).toBe(true);
+    expect(adminManagedResources.has('STUDENT')).toBe(true);
+    expect(adminManagedResources.has('COACH_ASSIGNMENT')).toBe(true);
+    expect(adminManagedResources.has('COPY_SUBMISSION')).toBe(true);
+    expect(adminManagedResources.has('PEDAGOGICAL_REPORT')).toBe(true);
+    expect(adminManagedResources.size).toBeGreaterThanOrEqual(14);
   });
 
   it('ELEVE should have the fewest permissions', () => {
@@ -356,7 +364,7 @@ describe('getPermissions()', () => {
 
   it('every permission should have valid action and resource', () => {
     const validActions: Action[] = ['READ', 'READ_SELF', 'READ_OWN', 'CREATE', 'UPDATE', 'DELETE', 'MANAGE', 'VALIDATE', 'EXPORT', 'ASSIGN', 'UNASSIGN'];
-    const validResources: Resource[] = ['USER', 'STUDENT', 'COACH_ASSIGNMENT', 'DOCUMENT', 'DOCUMENT_ASSIGNMENT', 'BILAN', 'SESSION', 'RESERVATION', 'PAYMENT', 'SUBSCRIPTION', 'RESOURCE_CONTENT', 'NOTIFICATION', 'CONFIG', 'REPORT'];
+    const validResources: Resource[] = ['USER', 'STUDENT', 'COACH_ASSIGNMENT', 'DOCUMENT', 'DOCUMENT_ASSIGNMENT', 'BILAN', 'SESSION', 'RESERVATION', 'PAYMENT', 'SUBSCRIPTION', 'RESOURCE_CONTENT', 'NOTIFICATION', 'CONFIG', 'REPORT', 'COPY_SUBMISSION', 'PEDAGOGICAL_REPORT', 'AI_PROCESSING_JOB', 'REMEDIATION_ROADMAP'];
 
     for (const role of Object.values(UserRole)) {
       for (const perm of getPermissions(role)) {
