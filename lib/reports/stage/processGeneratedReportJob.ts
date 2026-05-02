@@ -5,7 +5,7 @@ import { buildReportContext } from './buildReportContext';
 import { generateStructuredReportWithMistral } from './generateStructuredReportWithMistral';
 import { validatePedagogicalReportJson } from './schema';
 import { renderLatexPremiumReport } from './renderLatexPremiumReport';
-import { compileLatexToPdf } from './compileLatexToPdf';
+import { compileLatexToPdf, LatexCompilationError, LATEX_ERROR_CODES } from './compileLatexToPdf';
 import { writeGeneratedReportPdf } from './reportStorage';
 import { ZodError } from 'zod';
 import type { Prisma } from '@prisma/client';
@@ -145,10 +145,18 @@ function classifyGenerationError(error: unknown): {
     };
   }
 
+  if (error instanceof LatexCompilationError) {
+    return {
+      status: 'FAILED',
+      errorCode: error.code,
+      errorMessage: error.message,
+    };
+  }
+
   if (error instanceof Error && error.message.includes('La compilation du document LaTeX')) {
     return {
       status: 'FAILED',
-      errorCode: 'PDF_COMPILATION_FAILED',
+      errorCode: LATEX_ERROR_CODES.PDF_COMPILATION_FAILED,
       errorMessage: error.message,
     };
   }
