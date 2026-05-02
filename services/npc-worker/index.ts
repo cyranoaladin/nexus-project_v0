@@ -10,6 +10,13 @@ import {
   NPC_MAX_RETRY_ATTEMPTS,
   NPC_LLM_MODE,
 } from '../../lib/npc';
+import {
+  processVisionOcr,
+  processPedagogicalDiagnosis,
+  processCompetenceMatrix,
+  processRemediationRoadmap,
+  processMentorAdvice,
+} from './processors/ai-service';
 
 // Initialize Prisma
 const prisma = new PrismaClient();
@@ -33,55 +40,36 @@ interface JobProcessor {
 const processors: Record<AiJobType, JobProcessor> = {
   [AiJobType.VISION_OCR]: async (jobId, input) => {
     console.log(`[${jobId}] Processing VISION_OCR...`);
-    // Stub implementation - replace with actual Chutes.ai vision call
-    return {
-      success: true,
-      output: { ocrText: 'Stub OCR text', confidence: 0.95 },
-      tokensUsed: 100,
-    };
+    const { imageBase64, mimeType } = input as { imageBase64: string; mimeType: string };
+    return processVisionOcr(jobId, imageBase64, mimeType);
   },
   [AiJobType.PEDAGOGICAL_DIAGNOSIS]: async (jobId, input) => {
     console.log(`[${jobId}] Processing PEDAGOGICAL_DIAGNOSIS...`);
-    if (NPC_LLM_MODE === 'off') {
-      return { success: false, error: 'LLM_MODE_OFF' };
-    }
-    if (NPC_LLM_MODE === 'stub') {
-      return {
-        success: true,
-        output: {
-          diagnostic: 'Stub diagnostic',
-          strengths: ['Strength 1'],
-          weaknesses: ['Weakness 1'],
-        },
-        tokensUsed: 500,
-      };
-    }
-    // Live mode - Chutes.ai call would go here
-    return { success: false, error: 'LIVE_MODE_NOT_IMPLEMENTED' };
+    const { submissionId } = input as { submissionId: string };
+    return processPedagogicalDiagnosis(jobId, submissionId);
   },
   [AiJobType.COMPETENCE_MATRIX]: async (jobId, input) => {
     console.log(`[${jobId}] Processing COMPETENCE_MATRIX...`);
-    return {
-      success: true,
-      output: { matrix: {}, globalScore: 75 },
-      tokensUsed: 200,
-    };
+    const { submissionId, diagnostic } = input as { submissionId: string; diagnostic: unknown };
+    return processCompetenceMatrix(jobId, submissionId, diagnostic as any);
   },
   [AiJobType.REMEDIATION_ROADMAP]: async (jobId, input) => {
     console.log(`[${jobId}] Processing REMEDIATION_ROADMAP...`);
-    return {
-      success: true,
-      output: { tasks: [] },
-      tokensUsed: 300,
+    const { submissionId, diagnostic, matrix } = input as {
+      submissionId: string;
+      diagnostic: unknown;
+      matrix: unknown;
     };
+    return processRemediationRoadmap(jobId, submissionId, diagnostic as any, matrix as any);
   },
   [AiJobType.MENTOR_ADVICE]: async (jobId, input) => {
     console.log(`[${jobId}] Processing MENTOR_ADVICE...`);
-    return {
-      success: true,
-      output: { advice: 'Stub mentor advice' },
-      tokensUsed: 150,
+    const { submissionId, diagnostic, matrix } = input as {
+      submissionId: string;
+      diagnostic: unknown;
+      matrix: unknown;
     };
+    return processMentorAdvice(jobId, submissionId, diagnostic as any, matrix as any);
   },
 };
 
