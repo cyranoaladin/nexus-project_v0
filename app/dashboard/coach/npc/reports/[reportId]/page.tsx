@@ -187,7 +187,7 @@ export default async function ReportPage({ params }: ReportPageProps) {
         <TabsContent value="competences" className="space-y-6">
           {report.competenceMatrix ? (
             <CompetenceMatrix
-              matrix={report.competenceMatrix.matrixData}
+              matrix={report.competenceMatrix.matrixData as any}
               globalScore={report.competenceMatrix.globalScore}
               globalLevel={report.competenceMatrix.globalLevel}
             />
@@ -201,8 +201,8 @@ export default async function ReportPage({ params }: ReportPageProps) {
         <TabsContent value="roadmap" className="space-y-6">
           {report.remediationRoadmap ? (
             <RemediationRoadmap
-              roadmap={report.remediationRoadmap.roadmapData}
-              tasks={report.remediationRoadmap.tasks}
+              roadmap={report.remediationRoadmap.roadmapData as any}
+              tasks={report.remediationRoadmap.tasks as any}
             />
           ) : (
             <Card className="p-8 text-center">
