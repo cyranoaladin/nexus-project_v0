@@ -56,6 +56,18 @@ function getMistralTimeoutMs(): number {
 }
 
 /**
+ * Get the configured base URL for Mistral API.
+ * Uses MISTRAL_BASE_URL env var if defined, defaults to https://api.mistral.ai.
+ * Trailing slashes are normalized to prevent double slashes.
+ * Never logs the full URL to avoid exposing sensitive proxy information.
+ */
+function getMistralBaseUrl(): string {
+  const envBaseUrl = process.env.MISTRAL_BASE_URL;
+  const baseUrl = envBaseUrl ? envBaseUrl.replace(/\/+$/, '') : 'https://api.mistral.ai';
+  return baseUrl;
+}
+
+/**
  * Create a JSON completion using Mistral API with timeout and error handling.
  *
  * Security features:
@@ -90,9 +102,10 @@ export async function createMistralJsonCompletion(
   }, timeoutMs);
 
   try {
+    const baseUrl = getMistralBaseUrl();
     logger.debug({ model, timeoutMs }, '[Mistral] Starting API call');
 
-    const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
+    const response = await fetch(`${baseUrl}/v1/chat/completions`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${apiKey}`,
