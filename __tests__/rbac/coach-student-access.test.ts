@@ -61,8 +61,11 @@ describe('RBAC / CoachStudentAccess', () => {
         expect.objectContaining({
           where: expect.objectContaining({
             coachId: 'coach-1',
-            studentId: 'student-1',
             status: AssignmentStatus.ACTIVE,
+            OR: expect.arrayContaining([
+              expect.objectContaining({ studentId: 'student-1' }),
+              expect.objectContaining({ student: { userId: 'student-1' } }),
+            ]),
           }),
         })
       );

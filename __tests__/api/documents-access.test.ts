@@ -88,7 +88,7 @@ function coachSession() {
   setSession({ user: { id: COACH_USER_ID, email: 'coach@example.com', role: 'COACH' } });
 }
 function studentSession() {
-  setSession({ user: { id: STUDENT_USER_ID, email: 'student@example.com', role: 'STUDENT' } });
+  setSession({ user: { id: STUDENT_USER_ID, email: 'student@example.com', role: 'ELEVE' } });
 }
 function assistanteSession() {
   setSession({ user: { id: ASSISTANTE_USER_ID, email: 'assistante@example.com', role: 'ASSISTANTE' } });
