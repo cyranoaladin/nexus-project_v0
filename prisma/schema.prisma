@@ -287,6 +287,9 @@ model Student {
   copySubmissions    CopySubmission[]
   pedagogicalReports PedagogicalReport[]
 
+  // Generated Reports (Legacy EAF/Premium)
+  generatedReports GeneratedPedagogicalReport[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -336,6 +339,9 @@ model CoachProfile {
   // NPC - Nexus Pedagogy Cockpit
   coachedSubmissions CopySubmission[]
   validatedReports   PedagogicalReport[]
+
+  // Generated Reports (Legacy EAF/Premium)
+  generatedReports GeneratedPedagogicalReport[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1857,6 +1863,11 @@ model EafPreparationReport {
   nextSessionGoals     String?  @db.Text
   coachFreeComment     String?  @db.Text
 
+  status          String    @default("DRAFT")
+  completionRatio Int       @default(0)
+  validatedAt     DateTime?
+  validatedBy     String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -2233,4 +2244,61 @@ model NpcAuditLog {
   @@index([actorId, createdAt])
   @@index([action, createdAt])
   @@map("npc_audit_logs")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Generated Reports (Legacy) - Reports EAF/Premium avec LaTeX
+// ═══════════════════════════════════════════════════════════════════════════════
+
+enum GeneratedReportStatus {
+  PENDING
+  BUILDING_CONTEXT
+  LLM_GENERATING
+  LLM_VALIDATED
+  LATEX_RENDERING
+  PDF_READY
+  FAILED
+  NEEDS_REVIEW
+}
+
+model GeneratedPedagogicalReport {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  coachId String?
+  coach   CoachProfile? @relation(fields: [coachId], references: [id], onDelete: SetNull)
+
+  subject     String
+  stageSlug   String?
+  studentBilanId String?
+  coachReportId  String?
+  kind        String
+  promptVersion   String
+  templateVersion String
+
+  status GeneratedReportStatus @default(PENDING)
+
+  errorCode    String?
+  errorMessage String?
+  retryCount   Int     @default(0)
+  inputChecksum String?
+
+  contextJson    Json?
+  llmJson        Json?
+  validatedJson  Json?
+  modelUsed      String?
+  validatedAt    DateTime?
+
+  latexSource  String?  @db.Text
+  generatedAt  DateTime?
+  pdfUrl       String?
+
+  @@index([studentId, status])
+  @@index([status, createdAt])
+  @@unique([studentId, stageSlug, subject, kind, inputChecksum])
+  @@map("generated_pedagogical_reports")
 }

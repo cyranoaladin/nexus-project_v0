@@ -10,6 +10,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { ZodError } from 'zod';
 import type { Prisma } from '@prisma/client';
+import type { StageGeneratedReportKind } from './maybeCreateGeneratedReportJob';
 
 export async function processGeneratedReportJob({
   studentId,
@@ -40,8 +41,8 @@ export async function processGeneratedReportJob({
     const context = await buildReportContext(
       studentId,
       report.subject,
-      report.stageSlug,
-      report.kind,
+      report.stageSlug ?? '',
+      report.kind as StageGeneratedReportKind,
       report.promptVersion,
       report.templateVersion,
     );

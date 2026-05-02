@@ -66,7 +66,7 @@ describe('GET /api/coach/students/[studentId]/generated-reports', () => {
   it('returns reports and EAF readiness for assigned coaches', async () => {
     (requireRole as jest.Mock).mockResolvedValue({ user: { id: 'coach-user-1', role: 'COACH' } });
     (assertCoachCanAccessStudent as jest.Mock).mockResolvedValue(undefined);
-    (prisma.generatedPedagogicalReport.findMany as jest.Mock).mockResolvedValue([
+    (prisma.pedagogicalReport.findMany as jest.Mock).mockResolvedValue([
       { id: 'report-1', kind: 'EAF_STAGE_POST', status: 'PENDING' },
     ]);
     (prisma.bilan.findFirst as jest.Mock).mockResolvedValue({ id: 'student-bilan-1' });
