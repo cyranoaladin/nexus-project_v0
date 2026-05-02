@@ -108,11 +108,11 @@ export function StudentReportList({ submissions, showStatus = false }: StudentRe
                 <div className="bg-gray-50 rounded-lg p-4">
                   {/* Extract summary preview from diagnostic data */}
                   {(() => {
-                    const diagnostic = submission.report.diagnosticData as {
+                    const diagnostic = ((submission.report as any).diagnostic?.diagnosticData || (submission.report as any).diagnostic || {}) as {
                       summary?: string;
                       overallLevel?: string;
                       confidenceScore?: number;
-                    } | null;
+                    };
 
                     if (!diagnostic) return null;
 
