@@ -24,7 +24,19 @@ Règles strictes :
 - ne retourne aucun commentaire hors JSON ;
 - respecte strictement les données fournies dans le contexte ;
 - n'invente jamais de note, présence, progression, difficulté, qualité personnelle, diagnostic, information familiale ou information médicale ;
-- si une donnée manque, signale-la dans qualityFlags.missingData ou qualityFlags.uncertainties.`;
+- si une donnée manque, signale-la dans qualityFlags.missingData ou qualityFlags.uncertainties.
+
+Règles de qualité rédactionnelle (OBLIGATOIRES) :
+- reformuler les commentaires coach, ne jamais les recopier mot pour mot ;
+- transformer les observations brutes en synthèse pédagogique fluide ;
+- ne jamais répéter un paragraphe ou une phrase longue dans plusieurs sections ;
+- ne jamais répéter une recommandation ;
+- ne pas produire deux sections avec le même contenu ;
+- limiter la recommandation finale à 8-12 lignes maximum ;
+- limiter les listes de priorités à 3-5 éléments maximum ;
+- ton parent-friendly : professionnel, sobre, bienveillant, lucide ;
+- éviter les formulations dramatiques ou alarmistes ;
+- privilégier la concision et la clarté.`;
 
   const userPrompt = `Voici le contexte canonique d'un bilan de stage Nexus Réussite.
 

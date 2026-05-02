@@ -8,6 +8,7 @@ import {
 import { buildReportContext } from './buildReportContext';
 import { generateStructuredReportWithMistral } from './generateStructuredReportWithMistral';
 import { validatePedagogicalReportJson } from './schema';
+import { validateReportWritingQuality, ReportQualityError } from './reportQuality';
 import { renderLatexPremiumReport } from './renderLatexPremiumReport';
 import { compileLatexToPdf, LatexCompilationError, LATEX_ERROR_CODES } from './compileLatexToPdf';
 import { writeGeneratedReportPdf } from './reportStorage';
@@ -58,6 +59,12 @@ export async function processGeneratedReportJob({
     const { json: llmJson, modelUsed } = await generateStructuredReportWithMistral(context);
 
     const validatedJson = validatePedagogicalReportJson(llmJson);
+
+    // Quality check: prevent repetitions, copy-paste, oversized sections
+    const quality = validateReportWritingQuality(validatedJson);
+    if (!quality.ok) {
+      throw new ReportQualityError(quality.issues);
+    }
 
     await prisma.generatedPedagogicalReport.update({
       where: { id: reportId },
@@ -146,6 +153,14 @@ function classifyGenerationError(error: unknown): {
       status: 'FAILED',
       errorCode: error.code,
       errorMessage: errorMessages[error.code] || 'La génération LLM a échoué.',
+    };
+  }
+
+  if (error instanceof ReportQualityError) {
+    return {
+      status: 'FAILED',
+      errorCode: error.code,
+      errorMessage: 'Le bilan généré contient des répétitions ou des sections trop longues. Une nouvelle génération est nécessaire.',
     };
   }
 
