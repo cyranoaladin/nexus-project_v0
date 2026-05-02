@@ -3,6 +3,7 @@ import { requireRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { z } from 'zod';
+import { maybeCreateGeneratedReportJob } from '@/lib/reports/stage/maybeCreateGeneratedReportJob';
 
 const SOURCE_VERSION = 'eaf_stage_printemps_v1';
 const BILAN_TYPE = 'STAGE_POST' as const;
@@ -274,7 +275,17 @@ export async function POST(request: Request) {
       '[API] questionnaire-eaf-stage-printemps saved',
     );
 
-    return NextResponse.json({ success: true, bilan });
+    let generatedReportJobStatus = null;
+    if (isSubmission) {
+      generatedReportJobStatus = await maybeCreateGeneratedReportJob({
+        studentId: student.id,
+        subject: 'FRANCAIS',
+        kind: 'EAF_STAGE_POST',
+        stageSlug: QUESTIONNAIRE_META.stageSlug,
+      });
+    }
+
+    return NextResponse.json({ success: true, bilan, generatedReportJobStatus });
   } catch (error) {
     logger.error({ err: error }, '[API] questionnaire-eaf-stage-printemps POST failed');
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

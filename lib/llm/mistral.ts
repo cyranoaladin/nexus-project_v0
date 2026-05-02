@@ -1,82 +1,68 @@
-import OpenAI from 'openai';
+export class MistralConfigurationError extends Error {
+  code = 'MISTRAL_API_KEY_MISSING';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || 'ollama',
-  baseURL: process.env.OPENAI_BASE_URL || undefined,
-});
+  constructor() {
+    super('MISTRAL_API_KEY is missing');
+    this.name = 'MistralConfigurationError';
+  }
+}
 
-export async function generateStructuredReportWithMistral(contextJson: string, schemaDescription: string): Promise<any> {
-  const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+export class MistralGenerationError extends Error {
+  code = 'MISTRAL_GENERATION_FAILED';
 
-  const systemPrompt = `Tu es un expert en ingénierie pédagogique, en évaluation formative et en rédaction de bilans scolaires premium pour élèves de lycée.
+  constructor(message: string) {
+    super(message);
+    this.name = 'MistralGenerationError';
+  }
+}
 
-Tu dois produire un bilan pédagogique structuré, bienveillant, précis, professionnel et utile pour trois publics :
-1. l'élève ;
-2. les parents ;
-3. le coach pédagogique.
+export type MistralChatMessage = {
+  role: 'system' | 'user';
+  content: string;
+};
 
-Tu dois respecter strictement les données fournies dans le contexte.
-Tu ne dois jamais inventer :
-- une note ;
-- une présence ;
-- une progression ;
-- une difficulté ;
-- une qualité personnelle ;
-- un diagnostic ;
-- une information familiale ;
-- une information médicale ;
-- une information absente du contexte.
+export type MistralJsonCompletion = {
+  json: unknown;
+  model: string;
+};
 
-Tu peux reformuler, synthétiser, hiérarchiser et interpréter pédagogiquement les données, mais chaque interprétation doit rester raisonnable et explicitement liée aux éléments fournis.
+export async function createMistralJsonCompletion(
+  messages: MistralChatMessage[],
+  options: { model?: string; temperature?: number } = {},
+): Promise<MistralJsonCompletion> {
+  const apiKey = process.env.MISTRAL_API_KEY;
+  if (!apiKey) {
+    throw new MistralConfigurationError();
+  }
 
-Le style attendu est :
-- premium ;
-- clair ;
-- nuancé ;
-- bienveillant ;
-- exigeant ;
-- sans flatterie excessive ;
-- sans dramatisation ;
-- orienté action.
+  const model = options.model || process.env.MISTRAL_MODEL || 'mistral-large-latest';
+  const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model,
+      messages,
+      temperature: options.temperature ?? 0.2,
+      response_format: { type: 'json_object' },
+    }),
+  });
 
-Tu dois retourner uniquement un JSON valide conforme au schéma demandé.
-Aucun Markdown.
-Aucun LaTeX.
-Aucun commentaire hors JSON.`;
+  if (!response.ok) {
+    throw new MistralGenerationError(`Mistral API returned HTTP ${response.status}`);
+  }
 
-  const userPrompt = `Voici le contexte canonique d'un bilan de stage Nexus Réussite.
-
-Tu dois produire un JSON structuré pour générer ensuite un PDF LaTeX premium.
-
-Contraintes :
-- ne jamais inventer d'information ;
-- distinguer les faits, les observations et les recommandations ;
-- produire un document utile pour l'élève et lisible par les parents ;
-- inclure un plan d'action concret ;
-- signaler les données manquantes ;
-- signaler si une relecture coach est nécessaire.
-
-Contexte :
-${contextJson}
-
-Schéma de sortie obligatoire :
-${schemaDescription}`;
+  const payload = await response.json();
+  const content = payload?.choices?.[0]?.message?.content;
+  if (typeof content !== 'string' || content.trim().length === 0) {
+    throw new MistralGenerationError('Mistral API returned an empty response');
+  }
 
   try {
-    const completion = await openai.chat.completions.create({
-      model,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
-      ],
-      response_format: { type: 'json_object' },
-      temperature: 0.2,
-    });
-
-    const output = completion.choices[0]?.message?.content || '{}';
-    return JSON.parse(output);
-  } catch (error) {
-    console.error('Error generating structured report with LLM:', error);
-    throw error;
+    return { json: JSON.parse(content), model };
+  } catch {
+    throw new MistralGenerationError('Mistral API returned invalid JSON');
   }
 }

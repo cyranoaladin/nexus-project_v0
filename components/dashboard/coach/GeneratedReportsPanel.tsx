@@ -15,6 +15,16 @@ interface Report {
   errorMessage?: string;
   createdAt: string;
   updatedAt: string;
+  generatedAt?: string | null;
+}
+
+interface Readiness {
+  eafStagePost?: {
+    studentBilanReady: boolean;
+    coachReportValidated: boolean;
+    coachCompletionRatio: number;
+    missingCoachFields: string[];
+  };
 }
 
 interface GeneratedReportsPanelProps {
@@ -23,6 +33,7 @@ interface GeneratedReportsPanelProps {
 
 export function GeneratedReportsPanel({ studentId }: GeneratedReportsPanelProps) {
   const [reports, setReports] = useState<Report[]>([]);
+  const [readiness, setReadiness] = useState<Readiness>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,6 +44,7 @@ export function GeneratedReportsPanel({ studentId }: GeneratedReportsPanelProps)
       const data = await res.json();
       if (data.success) {
         setReports(data.reports);
+        setReadiness(data.readiness || {});
       } else {
         setError(data.message || 'Impossible de charger les bilans.');
       }
@@ -47,23 +59,21 @@ export function GeneratedReportsPanel({ studentId }: GeneratedReportsPanelProps)
     fetchReports();
   }, [studentId]);
 
-  const handleGenerate = async (subject: string, kind: string, stageSlug: string) => {
+  const handleCreateJob = async () => {
     try {
       setLoading(true);
       setError(null);
       const res = await fetch(`/api/coach/students/${studentId}/generated-reports`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subject, kind, stageSlug }),
+        body: JSON.stringify({
+          subject: 'FRANCAIS',
+          kind: 'EAF_STAGE_POST',
+          stageSlug: 'stage-printemps-2026',
+        }),
       });
       const data = await res.json();
       if (data.success) {
-        if (data.jobStatus && data.jobStatus.reportId) {
-          // Trigger generation
-          await fetch(`/api/coach/students/${studentId}/generated-reports/${data.jobStatus.reportId}/generate`, {
-            method: 'POST',
-          });
-        }
         await fetchReports();
       } else {
         setError(data.message || 'Impossible de créer la demande de génération.');
@@ -75,13 +85,17 @@ export function GeneratedReportsPanel({ studentId }: GeneratedReportsPanelProps)
     }
   };
 
-  const handleProcess = async (reportId: string) => {
+  const handleRegenerate = async (reportId: string) => {
     try {
       setLoading(true);
       setError(null);
-      await fetch(`/api/coach/students/${studentId}/generated-reports/${reportId}/generate`, {
+      const res = await fetch(`/api/coach/students/${studentId}/generated-reports/${reportId}/regenerate`, {
         method: 'POST',
       });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || `HTTP ${res.status}`);
+      }
       await fetchReports();
     } catch (err: any) {
       setError(err.message || 'Erreur lors de la génération.');
@@ -89,6 +103,10 @@ export function GeneratedReportsPanel({ studentId }: GeneratedReportsPanelProps)
       setLoading(false);
     }
   };
+
+  const eafReady = readiness.eafStagePost;
+  const canCreateEafJob = Boolean(eafReady?.studentBilanReady && eafReady?.coachReportValidated);
+  const hasEafReport = reports.some((report) => report.kind === 'EAF_STAGE_POST');
 
   return (
     <Card className="bg-surface-card border-white/10 shadow-premium">
@@ -115,24 +133,25 @@ export function GeneratedReportsPanel({ studentId }: GeneratedReportsPanelProps)
           </div>
         )}
 
-        <div className="flex flex-wrap gap-2">
+        {eafReady && (!eafReady.studentBilanReady || !eafReady.coachReportValidated) && (
+          <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-xs text-amber-200">
+            {!eafReady.studentBilanReady && <p>En attente du questionnaire élève EAF complété.</p>}
+            {!eafReady.coachReportValidated && (
+              <p>En attente de validation du bilan coach EAF ({eafReady.coachCompletionRatio}% complété).</p>
+            )}
+          </div>
+        )}
+
+        {canCreateEafJob && !hasEafReport && (
           <Button
             size="sm"
-            onClick={() => handleGenerate('FRANCAIS', 'EAF_STAGE_POST', 'printemps-2026')}
+            onClick={handleCreateJob}
             disabled={loading}
             className="bg-brand-accent text-neutral-900 hover:bg-brand-accent/90 text-xs font-semibold"
           >
-            Générer Bilan EAF
+            Créer la demande EAF
           </Button>
-          <Button
-            size="sm"
-            onClick={() => handleGenerate('MATHEMATIQUES', 'MATHS_PREMIERE_STAGE_POST', 'printemps-2026')}
-            disabled={loading}
-            className="bg-violet-600 text-white hover:bg-violet-700 text-xs font-semibold"
-          >
-            Générer Bilan Maths
-          </Button>
-        </div>
+        )}
 
         {reports.length === 0 ? (
           <p className="text-xs text-neutral-500 italic">Aucun bilan généré pour le moment.</p>
@@ -143,7 +162,7 @@ export function GeneratedReportsPanel({ studentId }: GeneratedReportsPanelProps)
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-neutral-200">
-                      {report.kind === 'EAF_STAGE_POST' ? 'EAF' : 'Mathématiques'} ({report.stageSlug})
+                      {report.kind === 'EAF_STAGE_POST' ? 'EAF post-stage' : 'Mathématiques post-stage'} · {report.subject}
                     </span>
                     <span
                       className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase border ${
@@ -163,20 +182,22 @@ export function GeneratedReportsPanel({ studentId }: GeneratedReportsPanelProps)
                     </p>
                   )}
                   <p className="text-[10px] text-neutral-500">
-                    Mis à jour le : {new Date(report.updatedAt).toLocaleDateString('fr-FR')}
+                    {report.generatedAt
+                      ? `Généré le : ${new Date(report.generatedAt).toLocaleDateString('fr-FR')}`
+                      : `Mis à jour le : ${new Date(report.updatedAt).toLocaleDateString('fr-FR')}`}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  {(report.status === 'PENDING' || report.status === 'FAILED') && (
+                  {['PENDING', 'FAILED', 'NEEDS_REVIEW'].includes(report.status) && (
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => handleProcess(report.id)}
+                      onClick={() => handleRegenerate(report.id)}
                       disabled={loading}
                       className="text-neutral-300 border-white/10 hover:bg-white/5 hover:text-white px-2 py-1 text-[10px]"
                     >
                       <RefreshCw className={`w-3 h-3 mr-1 ${loading ? 'animate-spin' : ''}`} />
-                      Générer
+                      {report.status === 'PENDING' ? 'Générer' : 'Relancer'}
                     </Button>
                   )}
                   {report.status === 'PDF_READY' && report.pdfUrl && (
@@ -186,7 +207,7 @@ export function GeneratedReportsPanel({ studentId }: GeneratedReportsPanelProps)
                       asChild
                       className="text-brand-accent border-brand-accent/20 hover:bg-brand-accent/5 px-2 py-1 text-[10px]"
                     >
-                      <a href={report.pdfUrl} target="_blank" rel="noopener noreferrer">
+                      <a href={report.pdfUrl}>
                         <Download className="w-3 h-3 mr-1" />
                         Télécharger
                       </a>

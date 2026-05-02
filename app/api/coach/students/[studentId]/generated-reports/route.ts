@@ -2,11 +2,19 @@ import { NextResponse } from 'next/server';
 import { requireRole, isErrorResponse } from '@/lib/guards';
 import {
   assertCoachCanAccessStudent,
-  getCoachProfileForUser,
   CoachNotAssignedError,
 } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
 import { maybeCreateGeneratedReportJob } from '@/lib/reports/stage/maybeCreateGeneratedReportJob';
+import { getEafCoachReportCompletion } from '@/lib/reports/stage/completeness';
+import { logger } from '@/lib/logger';
+import { z } from 'zod';
+
+const createGeneratedReportSchema = z.object({
+  subject: z.enum(['FRANCAIS', 'MATHEMATIQUES']),
+  kind: z.enum(['EAF_STAGE_POST', 'MATHS_PREMIERE_STAGE_POST']),
+  stageSlug: z.string().min(1).max(100),
+});
 
 interface RouteParams {
   params: Promise<{ studentId: string }>;
@@ -33,11 +41,6 @@ export async function GET(_request: Request, { params }: RouteParams) {
       throw error;
     }
 
-    const coachProfile = await getCoachProfileForUser(authSession.user.id);
-    if (!coachProfile) {
-      return NextResponse.json({ error: 'Coach profile not found' }, { status: 404 });
-    }
-
     const reports = await prisma.generatedPedagogicalReport.findMany({
       where: {
         studentId,
@@ -45,12 +48,39 @@ export async function GET(_request: Request, { params }: RouteParams) {
       orderBy: { createdAt: 'desc' },
     });
 
+    const [studentBilan, eafReport] = await Promise.all([
+      prisma.bilan.findFirst({
+        where: {
+          studentId,
+          type: 'STAGE_POST',
+          subject: 'FRANCAIS',
+          sourceVersion: 'eaf_stage_printemps_v1',
+          status: 'COMPLETED',
+        },
+        select: { id: true },
+      }),
+      prisma.eafPreparationReport.findFirst({
+        where: { studentId },
+        orderBy: { updatedAt: 'desc' },
+      }),
+    ]);
+
+    const eafCompletion = eafReport ? getEafCoachReportCompletion(eafReport) : null;
+
     return NextResponse.json({
       success: true,
       reports,
+      readiness: {
+        eafStagePost: {
+          studentBilanReady: Boolean(studentBilan),
+          coachReportValidated: Boolean(eafReport?.status === 'VALIDATED' && eafCompletion?.isComplete),
+          coachCompletionRatio: eafCompletion?.completionRatio ?? 0,
+          missingCoachFields: eafCompletion?.missingFields ?? [],
+        },
+      },
     });
   } catch (error) {
-    console.error('[API] Get generated reports failed:', error);
+    logger.error({ err: error }, '[API] Get generated reports failed');
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
@@ -76,25 +106,19 @@ export async function POST(request: Request, { params }: RouteParams) {
       throw error;
     }
 
-    const coachProfile = await getCoachProfileForUser(authSession.user.id);
-    if (!coachProfile) {
-      return NextResponse.json({ error: 'Coach profile not found' }, { status: 404 });
-    }
-
-    const { subject, kind, stageSlug } = await request.json();
-
-    if (!subject || !kind || !stageSlug) {
+    const parseResult = createGeneratedReportSchema.safeParse(await request.json());
+    if (!parseResult.success) {
       return NextResponse.json(
-        { error: 'Bad Request', message: 'Subject, kind and stageSlug are required.' },
+        { error: 'Bad Request', message: 'Payload invalide.', details: parseResult.error.format() },
         { status: 400 }
       );
     }
 
     const jobStatus = await maybeCreateGeneratedReportJob({
       studentId,
-      subject,
-      kind,
-      stageSlug,
+      subject: parseResult.data.subject,
+      kind: parseResult.data.kind,
+      stageSlug: parseResult.data.stageSlug,
     });
 
     return NextResponse.json({
@@ -102,7 +126,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       jobStatus,
     });
   } catch (error) {
-    console.error('[API] Request generated report failed:', error);
+    logger.error({ err: error }, '[API] Request generated report failed');
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
