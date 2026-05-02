@@ -5,14 +5,11 @@ import { motion } from "framer-motion";
 import {
   ArrowLeft,
   ArrowRight,
-  BookOpen,
   CheckCircle2,
   Clock,
   FileText,
   GraduationCap,
-  PenLine,
   Sparkles,
-  Star,
   Target,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -351,7 +348,7 @@ export default function QuestionnaireMathsPremiereStagePrintempsPage() {
           if (data.bilan.status === 'COMPLETED') setSubmitted(true);
           setLastSaved(new Date(data.bilan.updatedAt));
         }
-      } catch (err) {
+      } catch (_err) {
         // Ignored
       } finally {
         setIsLoading(false);
