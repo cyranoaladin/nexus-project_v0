@@ -283,8 +283,6 @@ model Student {
   // EAF preparation reports
   eafPreparationReports EafPreparationReport[]
 
-  generatedReports GeneratedPedagogicalReport[]
-
   // NPC - Nexus Pedagogy Cockpit
   copySubmissions    CopySubmission[]
   pedagogicalReports PedagogicalReport[]
@@ -334,8 +332,6 @@ model CoachProfile {
 
   // EAF preparation reports
   eafPreparationReports EafPreparationReport[]
-
-  generatedReports GeneratedPedagogicalReport[]
 
   // NPC - Nexus Pedagogy Cockpit
   coachedSubmissions CopySubmission[]
@@ -1861,11 +1857,6 @@ model EafPreparationReport {
   nextSessionGoals     String?  @db.Text
   coachFreeComment     String?  @db.Text
 
-  status          String    @default("DRAFT")
-  completionRatio Int       @default(0)
-  validatedAt     DateTime?
-  validatedBy     String?
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -1876,73 +1867,12 @@ model EafPreparationReport {
   @@map("eaf_preparation_reports")
 }
 
-enum GeneratedReportStatus {
-  PENDING
-  BUILDING_CONTEXT
-  LLM_GENERATING
-  LLM_VALIDATED
-  LATEX_RENDERING
-  PDF_READY
-  FAILED
-  NEEDS_REVIEW
-}
-
-enum GeneratedReportKind {
-  EAF_STAGE_POST
-  MATHS_PREMIERE_STAGE_POST
-}
-
-model GeneratedPedagogicalReport {
-  id String @id @default(cuid())
-
-  studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
-
-  coachId String?
-  coach   CoachProfile? @relation(fields: [coachId], references: [id], onDelete: SetNull)
-
-  stageSlug String
-  subject   Subject
-  kind      GeneratedReportKind
-
-  studentBilanId String?
-  coachReportId  String?
-
-  status GeneratedReportStatus @default(PENDING)
-
-  inputChecksum String
-  promptVersion String
-  templateVersion String
-  modelUsed String?
-
-  contextJson Json?
-  llmJson Json?
-  validatedJson Json?
-
-  latexSource String? @db.Text
-  pdfDocumentId String?
-  pdfUrl String?
-
-  errorCode String?
-  errorMessage String? @db.Text
-  retryCount Int @default(0)
-
-  generatedAt DateTime?
-  validatedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([studentId, stageSlug, subject, kind, inputChecksum])
-  @@index([studentId])
-  @@index([coachId])
-  @@index([status])
-  @@index([stageSlug, subject])
-  @@map("generated_pedagogical_reports")
-}
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // NPC - NEXUS PEDAGOGY COCKPIT
+// AI-driven pedagogical diagnostics and remediation
 // ═══════════════════════════════════════════════════════════════════════════════
+
+// ─── Enums NPC ───
 
 enum CopySubmissionStatus {
   PENDING_UPLOAD
@@ -1958,14 +1888,14 @@ enum CopySubmissionStatus {
 }
 
 enum AssessmentSourceType {
-  DS
-  DM
-  BILAN
-  STAGE
-  ANNALES
-  EXERCICE
-  COMPOSITION
-  AUTRE
+  DS          // Devoir surveillé
+  DM          // Devoir maison
+  BILAN       // Bilan périodique
+  STAGE       // Stage intensif
+  ANNALES     // Annales
+  EXERCICE    // Exercice
+  COMPOSITION // Composition
+  AUTRE       // Autre type
 }
 
 enum CopyPageStatus {
@@ -1979,11 +1909,11 @@ enum CopyPageStatus {
 }
 
 enum AiJobType {
-  VISION_OCR
-  PEDAGOGICAL_DIAGNOSIS
-  COMPETENCE_MATRIX
-  REMEDIATION_ROADMAP
-  MENTOR_ADVICE
+  VISION_OCR            // Extraction texte/image
+  PEDAGOGICAL_DIAGNOSIS // Analyse pédagogique
+  COMPETENCE_MATRIX     // Matrice de compétences
+  REMEDIATION_ROADMAP   // Plan de remédiation
+  MENTOR_ADVICE         // Conseils mentor
 }
 
 enum AiJobStatus {
@@ -2029,6 +1959,8 @@ enum FeedbackType {
   POSITIVE
   OTHER
 }
+
+// ─── Models NPC ───
 
 model CopySubmission {
   id        String   @id @default(cuid())
