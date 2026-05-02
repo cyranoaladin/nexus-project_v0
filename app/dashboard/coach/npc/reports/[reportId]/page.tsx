@@ -201,8 +201,8 @@ export default async function ReportPage({ params }: ReportPageProps) {
         <TabsContent value="roadmap" className="space-y-6">
           {report.remediationRoadmap ? (
             <RemediationRoadmap
-              roadmap={report.remediationRoadmap.roadmapData as any}
-              tasks={report.remediationRoadmap.tasks as any}
+              roadmap={((report.remediationRoadmap as any).roadmapData || {}) as any}
+              tasks={((report.remediationRoadmap as any).tasks || []) as any}
             />
           ) : (
             <Card className="p-8 text-center">
