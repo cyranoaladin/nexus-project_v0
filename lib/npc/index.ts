@@ -21,6 +21,7 @@ export {
   ALLOWED_MIME_TYPES,
   ALLOWED_EXTENSIONS,
   MIME_TO_EXT,
+  SECURE_FILE_ID_LENGTH,
 } from './config';
 
 // File Validation

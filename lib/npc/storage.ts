@@ -203,6 +203,11 @@ export async function deleteSubmissionFiles(
   submissionId: string
 ): Promise<boolean> {
   try {
+    // Validate inputs
+    if (!studentId || !submissionId || studentId.length < 8 || submissionId.length < 12) {
+      return false;
+    }
+
     const baseDir = NPC_UPLOAD_DIR;
     const studentDir = path.join(baseDir, studentId.slice(0, 8));
     const submissionDir = path.join(studentDir, submissionId.slice(0, 12));
