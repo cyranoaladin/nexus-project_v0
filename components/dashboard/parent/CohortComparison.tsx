@@ -21,7 +21,7 @@ export function CohortComparison({ data, studentName }: CohortComparisonProps) {
         <CardTitle className="text-white text-sm">Positionnement Cohorte Nexus</CardTitle>
       </CardHeader>
       <CardContent className="h-[220px]">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="100%">
           <BarChart data={data} layout="vertical" margin={{ left: 0, right: 30 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#333" horizontal={false} />
             <XAxis type="number" hide domain={[0, 100]} />

@@ -58,7 +58,7 @@ export function ScoreChart({ childrenData }: { childrenData: ChildWithScores[] }
             </CardHeader>
             <CardContent>
                 <div className="h-[300px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height="100%">
                         <LineChart
                             data={chartData}
                             margin={{
