@@ -53,6 +53,13 @@ export {
   type FileMetadata,
 } from './storage';
 
+export {
+  CORRECTION_DOCUMENT_TYPES,
+  CORRECTION_DOCUMENT_TYPE_LABELS,
+  isCorrectionDocumentType,
+  type CorrectionDocumentTypeValue,
+} from './document-types';
+
 // PDF Conversion
 export {
   getPdfPageCount,

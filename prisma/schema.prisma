@@ -1919,6 +1919,15 @@ enum CopyPageStatus {
   ERROR
 }
 
+enum CorrectionDocumentType {
+  STUDENT_COPY
+  SUBJECT
+  OFFICIAL_CORRECTION
+  GRADING_RUBRIC
+  GRADING_INSTRUCTIONS
+  SUPPORTING_DOCUMENT
+}
+
 enum AiJobType {
   VISION_OCR            // Extraction texte/image
   PEDAGOGICAL_DIAGNOSIS // Analyse pédagogique
@@ -2053,8 +2062,13 @@ model CopyPage {
   pageNumber Int
 
   status CopyPageStatus @default(UPLOADED)
+  documentType CorrectionDocumentType @default(STUDENT_COPY)
 
   originalFilePath    String
+  originalFilename    String?
+  mimeType            String?
+  sizeBytes           Int?
+  uploadedById        String?
   convertedFilePaths  String[]
   ocrText             String? @db.Text
   ocrConfidence       Float?
@@ -2064,6 +2078,8 @@ model CopyPage {
 
   @@unique([submissionId, pageNumber])
   @@index([submissionId, pageNumber])
+  @@index([submissionId, documentType])
+  @@index([uploadedById])
   @@map("copy_pages")
 }
 

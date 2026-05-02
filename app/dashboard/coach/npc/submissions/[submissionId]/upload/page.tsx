@@ -65,11 +65,6 @@ export default async function UploadPage({ params }: UploadPageProps) {
     redirect('/dashboard/coach/npc');
   }
 
-  // Check if already uploaded
-  if (submission.pages.length > 0) {
-    redirect(`/dashboard/coach/npc/submissions/${submissionId}`);
-  }
-
   return (
     <div className="container mx-auto py-8 px-4 max-w-4xl">
       <div className="mb-6">
@@ -99,7 +94,17 @@ export default async function UploadPage({ params }: UploadPageProps) {
           <FileUploadZone
             submissionId={submissionId}
             maxFiles={10}
-            maxSizeMB={20}
+            maxSizeMB={10}
+            existingDocuments={submission.pages.map((page) => ({
+              id: page.id,
+              documentType: page.documentType,
+              originalFilename: page.originalFilename,
+              originalFilePath: page.originalFilePath,
+              mimeType: page.mimeType,
+              sizeBytes: page.sizeBytes,
+              status: page.status,
+              createdAt: page.createdAt.toISOString(),
+            }))}
           />
         </div>
 
@@ -134,15 +139,15 @@ export default async function UploadPage({ params }: UploadPageProps) {
                 <p className="font-medium text-gray-900 mb-2">Limites</p>
                 <ul className="list-disc list-inside space-y-1">
                   <li>Max 10 fichiers</li>
-                  <li>Max 20 Mo par fichier</li>
+                  <li>Max 10 Mo par fichier</li>
                   <li>Max 20 pages par copie</li>
                 </ul>
               </div>
 
               <div className="pt-4 border-t">
                 <p className="text-xs text-gray-500">
-                  L&apos;upload déclenchera automatiquement l&apos;OCR
-                  et l&apos;analyse IA. Temps estimé : 2-5 minutes.
+                  Ajoutez au moins une copie élève. Sujet, corrigé et barème
+                  améliorent fortement la qualité de la correction IA.
                 </p>
               </div>
             </CardContent>

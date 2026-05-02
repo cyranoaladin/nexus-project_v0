@@ -80,11 +80,13 @@ export function CopySubmissionList({ submissions }: CopySubmissionListProps) {
             </CardHeader>
             <CardContent className="pt-0">
               <div className="flex items-center gap-2 mt-2">
-                {submission.status === 'PENDING_UPLOAD' && (
+                {(submission.status === 'PENDING_UPLOAD' ||
+                  submission.status === 'UPLOADED' ||
+                  submission.status === 'READY_FOR_AI') && (
                   <Link href={`/dashboard/coach/npc/submissions/${submission.id}/upload`}>
                     <Button size="sm">
                       <Upload className="h-4 w-4 mr-2" />
-                      Uploader la copie
+                      Gérer les documents
                     </Button>
                   </Link>
                 )}
