@@ -124,6 +124,21 @@ export async function PUT(request: Request, { params }: RouteParams) {
     const data = parseResult.data;
     const completion = getEafCoachReportCompletion(data);
 
+    // Build Prisma-compatible data object
+    const reportData = {
+      linearReading: data.linearReading ?? null,
+      workPresentation: data.workPresentation ?? null,
+      interview: data.interview ?? null,
+      oralExpression: data.oralExpression ?? null,
+      writingMethod: data.writingMethod ?? null,
+      languageMastery: data.languageMastery ?? null,
+      literaryCulture: data.literaryCulture ?? null,
+      strengths: data.strengths ?? null,
+      areasToImprove: data.areasToImprove ?? null,
+      nextSessionGoals: data.nextSessionGoals ?? null,
+      coachFreeComment: data.coachFreeComment ?? null,
+    };
+
     // Upsert the report
     const report = await prisma.eafPreparationReport.upsert({
       where: {
@@ -133,7 +148,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
         },
       },
       update: {
-        ...data,
+        ...reportData,
         status: 'DRAFT',
         completionRatio: completion.completionRatio,
         validatedAt: null,
@@ -142,7 +157,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
       create: {
         studentId,
         coachId: coachProfile.id,
-        ...data,
+        ...reportData,
         status: 'DRAFT',
         completionRatio: completion.completionRatio,
       },
