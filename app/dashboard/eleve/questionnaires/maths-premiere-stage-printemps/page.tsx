@@ -156,53 +156,7 @@ function SelectField({
   );
 }
 
-function RadioCards({
-  label,
-  name,
-  value,
-  onChange,
-  options,
-}: {
-  label: string;
-  name: string;
-  value: string;
-  onChange: (name: string, value: string) => void;
-  options: string[];
-}) {
-  return (
-    <div className="space-y-3">
-      <p className="text-sm font-semibold text-slate-100">{label}</p>
-      <div className="grid gap-3 md:grid-cols-2">
-        {options.map((option) => {
-          const selected = value === option;
-          return (
-            <button
-              key={option}
-              type="button"
-              onClick={() => onChange(name, option)}
-              className={cx(
-                "rounded-2xl border px-4 py-3 text-left text-sm transition",
-                selected
-                  ? "border-indigo-300 bg-indigo-400/15 text-indigo-50 shadow-[0_0_0_4px_rgba(99,102,241,0.10)]"
-                  : "border-slate-700 bg-slate-950/60 text-slate-300 hover:border-slate-500 hover:bg-slate-900/80",
-              )}
-            >
-              <span className="flex items-start gap-3">
-                <span
-                  className={cx(
-                    "mt-0.5 h-4 w-4 rounded-full border",
-                    selected ? "border-indigo-200 bg-indigo-300" : "border-slate-500",
-                  )}
-                />
-                {option}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
+
 
 function MultiChoice({
   label,
@@ -320,7 +274,6 @@ export default function QuestionnaireMathsPremiereStagePrintempsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [answers, setAnswers] = useState<Answers>({
     fullName: "",
     classLevel: "",
@@ -339,14 +292,24 @@ export default function QuestionnaireMathsPremiereStagePrintempsPage() {
       try {
         const res = await fetch('/api/eleve/questionnaire-maths-premiere-stage-printemps');
         if (!res.ok) { setIsLoading(false); return; }
-        const data = await res.json();
+        const data = (await res.json()) as {
+          bilan?: {
+            status?: string;
+            updatedAt?: string;
+            sourceData?: {
+              rawAnswers?: Answers;
+              answers?: Answers;
+              step?: number;
+            };
+          };
+        };
         if (data.bilan) {
-          const src = data.bilan.sourceData as { rawAnswers?: Answers; answers?: Answers; step?: number };
+          const src = data.bilan.sourceData;
           const savedAnswers = src?.rawAnswers || src?.answers;
           if (savedAnswers) setAnswers((prev) => ({ ...prev, ...savedAnswers }));
           if (typeof src?.step === 'number') setStep(src.step);
           if (data.bilan.status === 'COMPLETED') setSubmitted(true);
-          setLastSaved(new Date(data.bilan.updatedAt));
+          if (data.bilan.updatedAt) setLastSaved(new Date(data.bilan.updatedAt));
         }
       } catch (_err) {
         // Ignored
@@ -421,8 +384,8 @@ export default function QuestionnaireMathsPremiereStagePrintempsPage() {
 
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Une erreur est survenue.');
+    } catch (_err) {
+      // ignored
     } finally {
       setIsSubmitting(false);
     }
