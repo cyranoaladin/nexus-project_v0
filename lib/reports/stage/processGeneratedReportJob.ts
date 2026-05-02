@@ -9,6 +9,7 @@ import { compileLatexToPdf } from './compileLatexToPdf';
 import fs from 'fs/promises';
 import path from 'path';
 import { ZodError } from 'zod';
+import type { Prisma } from '@prisma/client';
 
 export async function processGeneratedReportJob({
   studentId,
@@ -47,7 +48,7 @@ export async function processGeneratedReportJob({
 
     await prisma.generatedPedagogicalReport.update({
       where: { id: reportId },
-      data: { status: 'LLM_GENERATING', contextJson: context as any },
+      data: { status: 'LLM_GENERATING', contextJson: context as unknown as Prisma.InputJsonValue },
     });
 
     const { json: llmJson, modelUsed } = await generateStructuredReportWithMistral(context);
@@ -58,8 +59,8 @@ export async function processGeneratedReportJob({
       where: { id: reportId },
       data: {
         status: 'LLM_VALIDATED',
-        llmJson: llmJson as any,
-        validatedJson: validatedJson as any,
+        llmJson: llmJson as Prisma.InputJsonValue,
+        validatedJson: validatedJson as unknown as Prisma.InputJsonValue,
         modelUsed,
         validatedAt: new Date(),
       },

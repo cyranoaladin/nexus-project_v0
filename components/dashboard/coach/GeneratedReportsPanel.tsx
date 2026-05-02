@@ -48,7 +48,7 @@ export function GeneratedReportsPanel({ studentId }: GeneratedReportsPanelProps)
       } else {
         setError(data.message || 'Impossible de charger les bilans.');
       }
-    } catch (err) {
+    } catch {
       setError('Erreur lors du chargement des bilans.');
     } finally {
       setLoading(false);
@@ -78,8 +78,8 @@ export function GeneratedReportsPanel({ studentId }: GeneratedReportsPanelProps)
       } else {
         setError(data.message || 'Impossible de créer la demande de génération.');
       }
-    } catch (err: any) {
-      setError(err.message || 'Erreur lors de la création du bilan.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur lors de la création du bilan.');
     } finally {
       setLoading(false);
     }
@@ -97,8 +97,8 @@ export function GeneratedReportsPanel({ studentId }: GeneratedReportsPanelProps)
         throw new Error(data.message || `HTTP ${res.status}`);
       }
       await fetchReports();
-    } catch (err: any) {
-      setError(err.message || 'Erreur lors de la génération.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur lors de la génération.');
     } finally {
       setLoading(false);
     }
