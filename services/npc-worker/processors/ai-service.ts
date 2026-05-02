@@ -53,7 +53,7 @@ export async function processPedagogicalDiagnosis(
     // Build prompt
     const prompt = buildDiagnosisPrompt({
       subject: submission.subject,
-      gradeLevel: submission.gradeLevel,
+      gradeLevel: submission.gradeLevel || 'PREMIERE',
       ocrText,
       pageCount: submission.pages.length,
       title: submission.title,
@@ -123,7 +123,7 @@ export async function processCompetenceMatrix(
 
     const prompt = buildMatrixPrompt({
       subject: submission.subject,
-      gradeLevel: submission.gradeLevel,
+      gradeLevel: submission.gradeLevel || 'PREMIERE',
       ocrText,
       diagnostic: {
         strengths: diagnostic.strengths,
@@ -191,7 +191,7 @@ export async function processRemediationRoadmap(
 
     const prompt = buildRoadmapPrompt({
       subject: submission.subject,
-      gradeLevel: submission.gradeLevel,
+      gradeLevel: submission.gradeLevel || 'PREMIERE',
       diagnostic: {
         weaknesses: diagnostic.weaknesses,
         keyRecommendations: diagnostic.keyRecommendations,
