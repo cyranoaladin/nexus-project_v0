@@ -216,7 +216,7 @@ export default function DirecteurDashboardPage() {
               Distribution SSN
               {isLowSample && <span className="ml-2 text-xs font-normal text-blue-300 bg-blue-500/10 px-2 py-0.5 rounded-full">N&lt;30 — indicatif</span>}
             </h3>
-            <ResponsiveContainer width="100%" height={280}>
+            <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={280}>
               <BarChart data={distData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                 <XAxis dataKey="name" tick={{ fill: '#94a3b8', fontSize: 11 }} />
@@ -245,7 +245,7 @@ export default function DirecteurDashboardPage() {
               {isLowSample && <span className="ml-2 text-xs font-normal text-blue-300 bg-blue-500/10 px-2 py-0.5 rounded-full">N&lt;30 — indicatif</span>}
             </h3>
             {monthlyProgression.length > 0 ? (
-              <ResponsiveContainer width="100%" height={280}>
+              <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={280}>
                 <LineChart data={monthlyProgression}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                   <XAxis dataKey="month" tick={{ fill: '#94a3b8', fontSize: 11 }} />
@@ -285,7 +285,7 @@ export default function DirecteurDashboardPage() {
               {isLowSample && <span className="ml-2 text-xs font-normal text-blue-300 bg-blue-500/10 px-2 py-0.5 rounded-full">N&lt;30 — indicatif</span>}
             </h3>
             {radarData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={300}>
                 <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="75%">
                   <PolarGrid stroke="#334155" />
                   <PolarAngleAxis dataKey="subject" tick={{ fill: '#94a3b8', fontSize: 12 }} />
