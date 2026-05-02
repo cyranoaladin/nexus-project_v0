@@ -8,6 +8,7 @@ import {
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { z } from 'zod';
+import { getEafCoachReportCompletion } from '@/lib/reports/stage/completeness';
 
 const MAX_FIELD_LENGTH = 5000;
 
@@ -121,6 +122,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
     }
 
     const data = parseResult.data;
+    const completion = getEafCoachReportCompletion(data);
 
     // Upsert the report
     const report = await prisma.eafPreparationReport.upsert({
@@ -132,12 +134,18 @@ export async function PUT(request: Request, { params }: RouteParams) {
       },
       update: {
         ...data,
+        status: 'DRAFT',
+        completionRatio: completion.completionRatio,
+        validatedAt: null,
+        validatedBy: null,
         updatedAt: new Date(),
       },
       create: {
         studentId,
         coachId: coachProfile.id,
         ...data,
+        status: 'DRAFT',
+        completionRatio: completion.completionRatio,
       },
     });
 

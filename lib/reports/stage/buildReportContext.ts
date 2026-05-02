@@ -1,9 +1,9 @@
 import { prisma } from '@/lib/prisma';
-import type { GeneratedReportKind } from '@prisma/client';
+import { EAF_STAGE_SOURCE_VERSION, type StageGeneratedReportKind } from './maybeCreateGeneratedReportJob';
 
 export type StageReportContext = {
   meta: {
-    reportKind: GeneratedReportKind;
+    reportKind: StageGeneratedReportKind;
     stageSlug: string;
     subject: string;
     generatedAt: string;
@@ -34,7 +34,7 @@ export async function buildReportContext(
   studentId: string,
   subject: string,
   stageSlug: string,
-  kind: GeneratedReportKind,
+  kind: StageGeneratedReportKind,
   promptVersion: string,
   templateVersion: string
 ): Promise<StageReportContext> {
@@ -53,6 +53,8 @@ export async function buildReportContext(
       studentId,
       type: 'STAGE_POST',
       subject,
+      status: 'COMPLETED',
+      ...(kind === 'EAF_STAGE_POST' ? { sourceVersion: EAF_STAGE_SOURCE_VERSION } : {}),
     },
     orderBy: { updatedAt: 'desc' },
   });
@@ -67,7 +69,7 @@ export async function buildReportContext(
 
   if (kind === 'EAF_STAGE_POST') {
     const r = await prisma.eafPreparationReport.findFirst({
-      where: { studentId },
+      where: { studentId, status: 'VALIDATED' },
       orderBy: { updatedAt: 'desc' },
     });
     if (r) {

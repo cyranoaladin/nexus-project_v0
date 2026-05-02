@@ -1,6 +1,6 @@
-import type { PremiumPedagogicalReportJson } from './validateGeneratedReportJson';
+import type { PremiumPedagogicalReportJson } from './schema';
 
-function escapeLatex(text: string | null | undefined): string {
+export function escapeLatex(text: string | null | undefined): string {
   if (!text) return '';
   return text
     .replace(/\\/g, '\\textbackslash{}')
@@ -12,7 +12,8 @@ function escapeLatex(text: string | null | undefined): string {
     .replace(/\}/g, '\\}')
     .replace(/\$/g, '\\$')
     .replace(/\^/g, '\\textasciicircum{}')
-    .replace(/~/g, '\\textasciitilde{}');
+    .replace(/~/g, '\\textasciitilde{}')
+    .replace(/\n/g, '\\\\ ');
 }
 
 export function renderLatexPremiumReport(data: PremiumPedagogicalReportJson): string {
@@ -23,6 +24,7 @@ export function renderLatexPremiumReport(data: PremiumPedagogicalReportJson): st
     studentPosture,
     actionPlan,
     parentSection,
+    coachSection,
   } = data;
 
   const header = `\\documentclass[11pt,a4paper]{article}
@@ -188,6 +190,18 @@ ${compLines}
   \\vspace{0.2cm}
   \\begin{itemize}[leftmargin=*,noitemsep]
     ${parentSection.concreteSupportAdvice.map(a => `\\item ${escapeLatex(a)}`).join('\n')}
+  \\end{itemize}
+  \\vspace{0.2cm}
+  \\textbf{Point de vigilance :} ${escapeLatex(parentSection.warningWithoutAlarmism)}
+\\end{tcolorbox}
+
+\\vspace{0.5cm}
+
+\\begin{tcolorbox}[colback=NexusSoft,colframe=NexusBlue,title=\\textbf{Prochaines étapes coach},arc=5pt]
+  ${escapeLatex(coachSection.syntheticReading)}
+  \\vspace{0.2cm}
+  \\begin{itemize}[leftmargin=*,noitemsep]
+    ${coachSection.nextSessionPriorities.map(a => `\\item ${escapeLatex(a)}`).join('\n')}
   \\end{itemize}
 \\end{tcolorbox}
 

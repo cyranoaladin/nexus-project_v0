@@ -7,6 +7,8 @@ import {
 } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
 import { maybeCreateGeneratedReportJob } from '@/lib/reports/stage/maybeCreateGeneratedReportJob';
+import { getEafCoachReportCompletion } from '@/lib/reports/stage/completeness';
+import { logger } from '@/lib/logger';
 
 interface RouteParams {
   params: Promise<{ studentId: string }>;
@@ -38,6 +40,35 @@ export async function POST(_request: Request, { params }: RouteParams) {
       return NextResponse.json({ error: 'Coach profile not found' }, { status: 404 });
     }
 
+    const existingReport = await prisma.eafPreparationReport.findUnique({
+      where: {
+        studentId_coachId: {
+          studentId,
+          coachId: coachProfile.id,
+        },
+      },
+    });
+
+    if (!existingReport) {
+      return NextResponse.json(
+        { error: 'Not Found', message: 'Aucun bilan coach EAF à valider.' },
+        { status: 404 }
+      );
+    }
+
+    const completion = getEafCoachReportCompletion(existingReport);
+    if (!completion.isComplete) {
+      return NextResponse.json(
+        {
+          error: 'Bad Request',
+          message: 'Le bilan coach EAF est incomplet.',
+          completionRatio: completion.completionRatio,
+          missingFields: completion.missingFields,
+        },
+        { status: 400 }
+      );
+    }
+
     // Update EAF preparation report status to VALIDATED
     const report = await prisma.eafPreparationReport.update({
       where: {
@@ -48,6 +79,7 @@ export async function POST(_request: Request, { params }: RouteParams) {
       },
       data: {
         status: 'VALIDATED',
+        completionRatio: completion.completionRatio,
         validatedAt: new Date(),
         validatedBy: coachProfile.id,
       },
@@ -58,7 +90,7 @@ export async function POST(_request: Request, { params }: RouteParams) {
       studentId,
       subject: 'FRANCAIS',
       kind: 'EAF_STAGE_POST',
-      stageSlug: 'printemps-2026',
+      stageSlug: 'stage-printemps-2026',
     });
 
     return NextResponse.json({
@@ -67,7 +99,7 @@ export async function POST(_request: Request, { params }: RouteParams) {
       jobStatus,
     });
   } catch (error) {
-    console.error('[API] Validate EAF report failed:', error);
+    logger.error({ err: error }, '[API] Validate EAF report failed');
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

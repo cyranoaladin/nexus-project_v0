@@ -1,7 +1,38 @@
-import type { Bilan, EafPreparationReport } from '@prisma/client';
+type StageBilanLike = {
+  type: string;
+  status: string;
+  subject: string;
+  sourceData?: unknown;
+};
 
-export function isStudentBilanComplete(bilan: Bilan): boolean {
+type EafPreparationReportLike = {
+  status?: string | null;
+  writingMethod?: string | null;
+  languageMastery?: string | null;
+  literaryCulture?: string | null;
+  strengths?: string | null;
+  areasToImprove?: string | null;
+  nextSessionGoals?: string | null;
+  coachFreeComment?: string | null;
+};
+
+export const EAF_REQUIRED_COACH_FIELDS = [
+  'writingMethod',
+  'languageMastery',
+  'literaryCulture',
+  'strengths',
+  'areasToImprove',
+  'nextSessionGoals',
+  'coachFreeComment',
+] as const satisfies readonly (keyof EafPreparationReportLike)[];
+
+function hasText(value: unknown): boolean {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+export function isStudentBilanComplete(bilan: StageBilanLike): boolean {
   if (bilan.type !== 'STAGE_POST') return false;
+  if (bilan.status !== 'COMPLETED') return false;
 
   // For both EAF and Math, we can check that sourceData exists and has some data
   if (!bilan.sourceData || typeof bilan.sourceData !== 'object') return false;
@@ -24,20 +55,24 @@ export function isStudentBilanComplete(bilan: Bilan): boolean {
   return true;
 }
 
-export function isEafCoachReportComplete(report: EafPreparationReport): boolean {
-  if (report.status !== 'VALIDATED') return false;
+export function getEafCoachReportCompletion(report: Partial<EafPreparationReportLike>): {
+  completionRatio: number;
+  missingFields: string[];
+  isComplete: boolean;
+} {
+  const missingFields = EAF_REQUIRED_COACH_FIELDS.filter((field) => !hasText(report[field]));
+  const completedCount = EAF_REQUIRED_COACH_FIELDS.length - missingFields.length;
+  const completionRatio = Math.round((completedCount / EAF_REQUIRED_COACH_FIELDS.length) * 100);
 
-  const requiredFields: (keyof EafPreparationReport)[] = [
-    'writingMethod',
-    'languageMastery',
-    'literaryCulture',
-    'strengths',
-    'areasToImprove',
-    'nextSessionGoals',
-    'coachFreeComment',
-  ];
+  return {
+    completionRatio,
+    missingFields,
+    isComplete: missingFields.length === 0,
+  };
+}
 
-  return requiredFields.every(field => !!report[field]);
+export function isEafCoachReportComplete(report: EafPreparationReportLike): boolean {
+  return report.status === 'VALIDATED' && getEafCoachReportCompletion(report).isComplete;
 }
 
 export function isMathsCoachReportComplete(report: any): boolean {

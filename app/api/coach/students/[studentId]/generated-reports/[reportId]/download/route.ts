@@ -2,12 +2,12 @@ import { NextResponse } from 'next/server';
 import { requireRole, isErrorResponse } from '@/lib/guards';
 import {
   assertCoachCanAccessStudent,
-  getCoachProfileForUser,
   CoachNotAssignedError,
 } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
 import fs from 'fs/promises';
 import path from 'path';
+import { logger } from '@/lib/logger';
 
 interface RouteParams {
   params: Promise<{ studentId: string; reportId: string }>;
@@ -42,6 +42,13 @@ export async function GET(_request: Request, { params }: RouteParams) {
       return NextResponse.json({ error: 'Report not found' }, { status: 404 });
     }
 
+    if (report.status !== 'PDF_READY') {
+      return NextResponse.json(
+        { error: 'Not Ready', message: "Le PDF n'est pas encore disponible." },
+        { status: 409 },
+      );
+    }
+
     const pdfPath = path.join(process.cwd(), 'scratch', 'pdfs', `${report.id}.pdf`);
     
     try {
@@ -56,7 +63,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
       return NextResponse.json({ error: 'PDF file not generated or not available' }, { status: 404 });
     }
   } catch (error) {
-    console.error('[API] Download PDF failed:', error);
+    logger.error({ err: error }, '[API] Download PDF failed');
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

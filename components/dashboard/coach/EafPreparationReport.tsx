@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, Save, FileText } from "lucide-react";
+import { CheckCircle2, Loader2, Save, FileText } from "lucide-react";
 
 interface EafReportData {
   linearReading?: string;
@@ -17,6 +17,10 @@ interface EafReportData {
   areasToImprove?: string;
   nextSessionGoals?: string;
   coachFreeComment?: string;
+  status?: "DRAFT" | "VALIDATED";
+  completionRatio?: number;
+  updatedAt?: string;
+  validatedAt?: string | null;
 }
 
 interface EafPreparationReportProps {
@@ -28,13 +32,16 @@ export function EafPreparationReport({ studentId, studentName }: EafPreparationR
   const [report, setReport] = useState<EafReportData>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [validating, setValidating] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
     setReport({});
     setLastSavedAt(null);
     setError(null);
+    setMessage(null);
     setLoading(true);
     fetchReport();
   }, [studentId]);
@@ -59,6 +66,7 @@ export function EafPreparationReport({ studentId, studentName }: EafPreparationR
   const handleSave = async () => {
     setSaving(true);
     setError(null);
+    setMessage(null);
 
     try {
       const res = await fetch(`/api/coach/students/${studentId}/eaf-preparation-report`, {
@@ -72,9 +80,14 @@ export function EafPreparationReport({ studentId, studentName }: EafPreparationR
       }
 
       const data = await res.json();
+      setReport(data.report);
       setLastSavedAt(data.report.updatedAt);
+      setMessage("Brouillon sauvegardé.");
+      return data.report as EafReportData;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur lors de la sauvegarde");
+      const message = err instanceof Error ? err.message : "Erreur lors de la sauvegarde";
+      setError(message);
+      throw new Error(message);
     } finally {
       setSaving(false);
     }
@@ -82,6 +95,51 @@ export function EafPreparationReport({ studentId, studentName }: EafPreparationR
 
   const handleChange = (field: keyof EafReportData, value: string) => {
     setReport((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const requiredFields: (keyof EafReportData)[] = [
+    "writingMethod",
+    "languageMastery",
+    "literaryCulture",
+    "strengths",
+    "areasToImprove",
+    "nextSessionGoals",
+    "coachFreeComment",
+  ];
+
+  const missingFields = requiredFields.filter((field) => !(report[field] || "").toString().trim());
+  const completionRatio = Math.round(((requiredFields.length - missingFields.length) / requiredFields.length) * 100);
+  const canValidate = missingFields.length === 0 && report.status !== "VALIDATED";
+
+  const handleValidate = async () => {
+    setValidating(true);
+    setError(null);
+    setMessage(null);
+
+    try {
+      await handleSave();
+
+      const res = await fetch(`/api/coach/students/${studentId}/eaf-preparation-report/validate`, {
+        method: "POST",
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || `HTTP ${res.status}`);
+      }
+
+      setReport(data.report);
+      setLastSavedAt(data.report.updatedAt);
+      setMessage(
+        data.jobStatus?.created
+          ? "Bilan validé. La demande de génération a été créée."
+          : "Bilan validé. Le PDF sera généré lorsque les deux bilans seront prêts."
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erreur lors de la validation");
+    } finally {
+      setValidating(false);
+    }
   };
 
   const fields: { key: keyof EafReportData; label: string; placeholder: string }[] = [
@@ -125,6 +183,34 @@ export function EafPreparationReport({ studentId, studentName }: EafPreparationR
             {error}
           </div>
         )}
+        {message && (
+          <div className="p-3 rounded-lg bg-emerald-500/15 text-emerald-300 text-sm border border-emerald-500/20">
+            {message}
+          </div>
+        )}
+
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+          <div>
+            <p className="text-xs font-medium text-neutral-200">
+              Complétude requise: {completionRatio}%
+            </p>
+            <p className="text-[11px] text-neutral-500">
+              Statut: {report.status === "VALIDATED" ? "validé" : "brouillon"}
+            </p>
+          </div>
+          {report.status === "VALIDATED" && (
+            <span className="inline-flex items-center gap-1 rounded border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 text-[11px] text-emerald-300">
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              Validé
+            </span>
+          )}
+        </div>
+
+        {missingFields.length > 0 && (
+          <p className="text-xs text-amber-300">
+            Champs requis avant validation: {missingFields.length}.
+          </p>
+        )}
 
         {fields.map((field) => {
           const fieldId = `eaf-${studentId}-${field.key}`;
@@ -153,23 +239,38 @@ export function EafPreparationReport({ studentId, studentName }: EafPreparationR
           {!lastSavedAt && (
             <p className="text-xs text-neutral-500">Aucune donnée sauvegardée</p>
           )}
-          <Button
-            onClick={handleSave}
-            disabled={saving}
-            className="bg-brand-accent hover:bg-brand-accent/90 text-white"
-          >
-            {saving ? (
-              <>
+          <div className="flex flex-wrap justify-end gap-2">
+            <Button
+              onClick={() => void handleSave().catch(() => undefined)}
+              disabled={saving || validating}
+              className="bg-brand-accent hover:bg-brand-accent/90 text-white"
+            >
+              {saving ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Sauvegarde...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4 mr-2" />
+                  Enregistrer
+                </>
+              )}
+            </Button>
+            <Button
+              onClick={handleValidate}
+              disabled={!canValidate || saving || validating}
+              variant="outline"
+              className="border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
+            >
+              {validating ? (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Sauvegarde...
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4 mr-2" />
-                Enregistrer le bilan
-              </>
-            )}
-          </Button>
+              ) : (
+                <CheckCircle2 className="w-4 h-4 mr-2" />
+              )}
+              Valider
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>
