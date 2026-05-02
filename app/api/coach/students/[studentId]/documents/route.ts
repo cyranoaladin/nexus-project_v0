@@ -48,10 +48,15 @@ export async function GET(request: Request, { params }: RouteParams) {
       );
     }
 
-    // Get student with userId for UserDocument lookup
-    const student = await prisma.student.findUnique({
-      where: { id: studentId },
-      select: { userId: true },
+    // Get student with userId for UserDocument lookup defensively
+    const student = await prisma.student.findFirst({
+      where: {
+        OR: [
+          { id: studentId },
+          { userId: studentId }
+        ]
+      },
+      select: { id: true, userId: true },
     });
 
     if (!student) {
@@ -118,9 +123,14 @@ export async function POST(request: Request, { params }: RouteParams) {
     const body = await request.json();
     const validated = createDocumentSchema.parse(body);
 
-    // Verify student exists with userId
-    const student = await prisma.student.findUnique({
-      where: { id: studentId },
+    // Verify student exists with userId defensively
+    const student = await prisma.student.findFirst({
+      where: {
+        OR: [
+          { id: studentId },
+          { userId: studentId }
+        ]
+      },
       select: { id: true, userId: true },
     });
 

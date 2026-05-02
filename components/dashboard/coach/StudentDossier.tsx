@@ -15,6 +15,7 @@ import { BilanDiagMathsTerminaleCoach } from "./BilanDiagMathsTerminaleCoach";
 import { CoachDocumentsPanel } from "./CoachDocumentsPanel";
 import { EafPreparationReport } from "./EafPreparationReport";
 import { isPremiereLevel } from "@/lib/coach/gradeLevel";
+import { GeneratedReportsPanel } from "./GeneratedReportsPanel";
 
 export interface DossierStudent {
   id: string;
@@ -159,6 +160,9 @@ export function StudentDossier({ data, children }: StudentDossierProps) {
           {isPremiereLevel(student) && (
             <EafPreparationReport studentId={student.id} studentName={student.name} />
           )}
+
+          {/* Bilans Générés Premium PDF */}
+          <GeneratedReportsPanel studentId={student.id} />
 
           {/* Optional children (TrajectoryDesigner, etc.) */}
           {children}

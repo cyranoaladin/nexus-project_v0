@@ -100,7 +100,7 @@ export default function ResultRadar({ data, title = 'Profil par domaine' }: Resu
   return (
     <div className="p-6 bg-slate-800/50 rounded-xl border border-slate-700">
       <h3 className="text-lg font-semibold mb-4">{title}</h3>
-      <ResponsiveContainer width="100%" height={320}>
+      <ResponsiveContainer minWidth={0} minHeight={0} width="100%" height={320}>
         <RadarChart data={chartData} cx="50%" cy="50%" outerRadius="75%">
           <PolarGrid stroke="#334155" />
           <PolarAngleAxis
