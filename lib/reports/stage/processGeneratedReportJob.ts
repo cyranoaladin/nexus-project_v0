@@ -6,8 +6,7 @@ import { generateStructuredReportWithMistral } from './generateStructuredReportW
 import { validatePedagogicalReportJson } from './schema';
 import { renderLatexPremiumReport } from './renderLatexPremiumReport';
 import { compileLatexToPdf } from './compileLatexToPdf';
-import fs from 'fs/promises';
-import path from 'path';
+import { writeGeneratedReportPdf } from './reportStorage';
 import { ZodError } from 'zod';
 import type { Prisma } from '@prisma/client';
 import type { StageGeneratedReportKind } from './maybeCreateGeneratedReportJob';
@@ -75,9 +74,12 @@ export async function processGeneratedReportJob({
     });
 
     const pdfBuffer = await compileLatexToPdf(latexSource);
-    const pdfDir = path.join(process.cwd(), 'scratch', 'pdfs');
-    await fs.mkdir(pdfDir, { recursive: true });
-    await fs.writeFile(path.join(pdfDir, `${reportId}.pdf`), pdfBuffer);
+    // Write to durable storage (configurable via GENERATED_REPORTS_DIR)
+    await writeGeneratedReportPdf({
+      reportId,
+      studentId,
+      pdfBuffer,
+    });
 
     const finalReport = await prisma.generatedPedagogicalReport.update({
       where: { id: reportId },
