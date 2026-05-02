@@ -38,7 +38,7 @@ export default async function ReportPage({ params }: ReportPageProps) {
   const report = await prisma.pedagogicalReport.findUnique({
     where: { id: reportId },
     include: {
-      submission: {
+      copySubmission: {
         include: {
           student: {
             include: { user: true },
@@ -53,9 +53,11 @@ export default async function ReportPage({ params }: ReportPageProps) {
     },
   });
 
-  if (!report) {
+  if (!report || !report.copySubmission) {
     redirect('/dashboard/coach/npc');
   }
+
+  const submission = report.copySubmission;
 
   // Verify coach access
   const coach = await prisma.coachProfile.findUnique({
@@ -66,11 +68,11 @@ export default async function ReportPage({ params }: ReportPageProps) {
     redirect('/dashboard');
   }
 
-  const isOwner = report.submission.coachId === coach.id;
+  const isOwner = submission.coachId === coach.id;
   const isAssigned = await prisma.coachStudentAssignment.findFirst({
     where: {
       coachId: coach.id,
-      studentId: report.submission.studentId,
+      studentId: submission.studentId,
     },
   });
 
@@ -119,9 +121,9 @@ export default async function ReportPage({ params }: ReportPageProps) {
             <h1 className="text-3xl font-bold text-gray-900">Diagnostic Pédagogique</h1>
             <div className="flex items-center gap-2 mt-1 text-gray-600">
               <FileText className="h-4 w-4" />
-              <span>{report.submission.title}</span>
+              <span>{submission.title}</span>
               <span className="text-gray-400">•</span>
-              <span>{report.submission.student.user.firstName && report.submission.student.user.lastName ? `${report.submission.student.user.firstName} ${report.submission.student.user.lastName}` : 'Élève'}</span>
+              <span>{submission.student.user.firstName && submission.student.user.lastName ? `${submission.student.user.firstName} ${submission.student.user.lastName}` : 'Élève'}</span>
             </div>
           </div>
         </div>
