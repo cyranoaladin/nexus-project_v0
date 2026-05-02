@@ -18,6 +18,9 @@ import type {
   Probabilities,
   FinalAssessment,
   ParentRecommendations,
+  GlobalDiagnostic,
+  ChapterDiagnostics,
+  ChapterDiagnostic,
 } from '@/lib/coach/maths-premiere-stage-printemps/types';
 
 type StudentInfo = {
@@ -221,6 +224,15 @@ export default function CoachMathsIndividualReportPage() {
   const [finalAssessment, setFinalAssessment] = useState<FinalAssessment>({});
   const [parentRec, setParentRec] = useState<ParentRecommendations>({});
 
+  // New P0 structured diagnostic states
+  const [globalDiag, setGlobalDiag] = useState<GlobalDiagnostic>({});
+  const [chapterDiags, setChapterDiags] = useState<ChapterDiagnostics>({});
+
+  // Helper to update chapter diagnostic
+  const setChapterDiag = (chapter: keyof ChapterDiagnostics, data: Partial<ChapterDiagnostic>) => {
+    setChapterDiags(prev => ({ ...prev, [chapter]: { ...prev[chapter], ...data } }));
+  };
+
   const [bilanStatus, setBilanStatus] = useState<BilanStatus>('NOT_STARTED');
   const [previewMarkdown, setPreviewMarkdown] = useState<string | null>(null);
 
@@ -254,6 +266,9 @@ export default function CoachMathsIndividualReportPage() {
         setProbabilities(sd.probabilities ?? {});
         setFinalAssessment(sd.finalAssessment ?? {});
         setParentRec(sd.parentRecommendations ?? {});
+        // Load new P0 fields if present
+        setGlobalDiag(sd.globalDiagnostic ?? {});
+        setChapterDiags(sd.chapterDiagnostics ?? {});
 
         if (data.coachBilan.status === 'COMPLETED' && data.coachBilan.isPublished) {
           setBilanStatus('VALIDATED');
@@ -289,6 +304,8 @@ export default function CoachMathsIndividualReportPage() {
         probabilities,
         finalAssessment,
         parentRecommendations: parentRec,
+        globalDiagnostic: globalDiag,
+        chapterDiagnostics: chapterDiags,
       };
 
       const res = await fetch(`/api/coach/maths-premiere-stage-printemps/students/${studentId}/report`, {
@@ -347,6 +364,8 @@ export default function CoachMathsIndividualReportPage() {
       probabilities,
       finalAssessment,
       parentRecommendations: parentRec,
+      globalDiagnostic: globalDiag,
+      chapterDiagnostics: chapterDiags,
     };
     const markdown = generateParentMathsStageReport(sourceData, {
       firstName: student?.firstName,
@@ -439,7 +458,7 @@ export default function CoachMathsIndividualReportPage() {
 
       {/* Main forms */}
       <form onSubmit={e => e.preventDefault()} className="space-y-4">
-        {/* Section 1 */}
+        {/* Section 1 — Présence et implication */}
         <AccordionSection title="1. Présence et implication" icon={<FileText className="h-4 w-4" />}>
           <div className="grid gap-5 sm:grid-cols-2">
             <SelectInput
@@ -487,8 +506,87 @@ export default function CoachMathsIndividualReportPage() {
           />
         </AccordionSection>
 
-        {/* Section 2 */}
-        <AccordionSection title="2. Automatismes et calculs" icon={<FileText className="h-4 w-4" />}>
+        {/* Section 2 — Diagnostic global (P0) */}
+        <AccordionSection title="2. Diagnostic global" icon={<FileText className="h-4 w-4" />}>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <SelectInput
+              label="Profil global"
+              value={globalDiag.overallProfile}
+              onChange={v => setGlobalDiag({ ...globalDiag, overallProfile: v as any })}
+              disabled={isLocked}
+              options={[
+                { value: 'RAPID_PROGRESS', label: 'Progression rapide' },
+                { value: 'STEADY_PROGRESS', label: 'Progression régulière' },
+                { value: 'UNEVEN_PROGRESS', label: 'Progression inégale' },
+                { value: 'FRAGILE_BUT_MOTIVATED', label: 'Fragile mais motivé' },
+                { value: 'FRAGILE_AND_DISCOURAGED', label: 'Fragile et découragé' },
+              ]}
+            />
+            <SelectInput
+              label="Rythme de travail"
+              value={globalDiag.workPace}
+              onChange={v => setGlobalDiag({ ...globalDiag, workPace: v as any })}
+              disabled={isLocked}
+              options={[
+                { value: 'FAST_AND_ACCURATE', label: 'Rapide et précis' },
+                { value: 'FAST_BUT_CARELESS', label: 'Rapide mais imprécis' },
+                { value: 'SLOW_BUT_ACCURATE', label: 'Lent mais précis' },
+                { value: 'SLOW_AND_UNCERTAIN', label: 'Lent et hésitant' },
+                { value: 'IRREGULAR', label: 'Irrégulier' },
+              ]}
+            />
+            <SelectInput
+              label="Gestion des erreurs"
+              value={globalDiag.errorManagement}
+              onChange={v => setGlobalDiag({ ...globalDiag, errorManagement: v as any })}
+              disabled={isLocked}
+              options={[
+                { value: 'SELF_CORRECTING', label: 'Auto-correctif' },
+                { value: 'ACCEPTS_HELP', label: 'Accepte l\'aide' },
+                { value: 'IGNORES_ERRORS', label: 'Ignore les erreurs' },
+                { value: 'REPEATS_ERRORS', label: 'Répète les erreurs' },
+                { value: 'ANXIOUS_ABOUT_MISTAKES', label: 'Anxieux face aux erreurs' },
+              ]}
+            />
+            <SelectInput
+              label="Niveau d'autonomie"
+              value={globalDiag.autonomyLevel}
+              onChange={v => setGlobalDiag({ ...globalDiag, autonomyLevel: v as any })}
+              disabled={isLocked}
+              options={[
+                { value: 'FULLY_AUTONOMOUS', label: 'Complètement autonome' },
+                { value: 'NEEDS_PROMPTS', label: 'Besoin d\'amorces' },
+                { value: 'NEEDS_GUIDANCE', label: 'Besoin d\'accompagnement' },
+                { value: 'DEPENDENT', label: 'Dépendant' },
+                { value: 'AVOIDS_EFFORT', label: 'Évite l\'effort' },
+              ]}
+            />
+            <SelectInput
+              label="Niveau de confiance"
+              value={globalDiag.confidenceLevel}
+              onChange={v => setGlobalDiag({ ...globalDiag, confidenceLevel: v as any })}
+              disabled={isLocked}
+              options={[
+                { value: 'OVER_CONFIDENT', label: 'Trop confiant' },
+                { value: 'CONFIDENT', label: 'Confiant' },
+                { value: 'HESITANT', label: 'Hésitant' },
+                { value: 'LACKS_CONFIDENCE', label: 'Manque de confiance' },
+                { value: 'ANXIOUS', label: 'Anxieux' },
+              ]}
+            />
+          </div>
+          <TextareaInput
+            label="Message principal du coach (max 300 caractères)"
+            value={globalDiag.mainCoachMessage}
+            onChange={v => setGlobalDiag({ ...globalDiag, mainCoachMessage: v })}
+            disabled={isLocked}
+            max={300}
+            placeholder="En une phrase, quel est votre message principal à l'élève et aux parents ?"
+          />
+        </AccordionSection>
+
+        {/* Section 3 — Automatismes et calculs */}
+        <AccordionSection title="3. Automatismes et calculs" icon={<FileText className="h-4 w-4" />}>
           <div className="grid gap-5 sm:grid-cols-2">
             <RatingInput
               label="Fluidité des calculs"
@@ -529,8 +627,8 @@ export default function CoachMathsIndividualReportPage() {
           />
         </AccordionSection>
 
-        {/* Section 3 */}
-        <AccordionSection title="3. Analyse et Dérivation" icon={<FileText className="h-4 w-4" />}>
+        {/* Section 4 — Analyse et Dérivation */}
+        <AccordionSection title="4. Analyse et Dérivation" icon={<FileText className="h-4 w-4" />}>
           <div className="grid gap-5 sm:grid-cols-2">
             <RatingInput
               label="Dérivation produit"
@@ -559,8 +657,8 @@ export default function CoachMathsIndividualReportPage() {
           </div>
         </AccordionSection>
 
-        {/* Section 4 */}
-        <AccordionSection title="4. Suites numériques" icon={<FileText className="h-4 w-4" />}>
+        {/* Section 5 — Suites numériques */}
+        <AccordionSection title="5. Suites numériques" icon={<FileText className="h-4 w-4" />}>
           <div className="grid gap-5 sm:grid-cols-2">
             <RatingInput
               label="Formule explicite"
@@ -589,8 +687,8 @@ export default function CoachMathsIndividualReportPage() {
           />
         </AccordionSection>
 
-        {/* Section 5 */}
-        <AccordionSection title="5. Produit scalaire" icon={<FileText className="h-4 w-4" />}>
+        {/* Section 6 — Produit scalaire */}
+        <AccordionSection title="6. Produit scalaire" icon={<FileText className="h-4 w-4" />}>
           <div className="grid gap-5 sm:grid-cols-2">
             <RatingInput
               label="Par coordonnées"
@@ -607,17 +705,250 @@ export default function CoachMathsIndividualReportPage() {
           </div>
         </AccordionSection>
 
-        {/* Section 6 */}
-        <AccordionSection title="6. Recommandations aux parents" icon={<FileText className="h-4 w-4" />}>
+        {/* Section 7 — Probabilités conditionnelles (P0) */}
+        <AccordionSection title="7. Probabilités conditionnelles" icon={<FileText className="h-4 w-4" />}>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <RatingInput
+              label="Arbre pondéré"
+              value={probabilities.weightedTree}
+              onChange={v => setProbabilities({ ...probabilities, weightedTree: v })}
+              disabled={isLocked}
+            />
+            <RatingInput
+              label="Probabilités totales"
+              value={probabilities.totalProbability}
+              onChange={v => setProbabilities({ ...probabilities, totalProbability: v })}
+              disabled={isLocked}
+            />
+            <RatingInput
+              label="Formule de Bayes"
+              value={probabilities.bayes}
+              onChange={v => setProbabilities({ ...probabilities, bayes: v })}
+              disabled={isLocked}
+            />
+            <RatingInput
+              label="Indépendance vs incompatibilité"
+              value={probabilities.independenceVsIncompatibility}
+              onChange={v => setProbabilities({ ...probabilities, independenceVsIncompatibility: v })}
+              disabled={isLocked}
+            />
+            <RatingInput
+              label="Formule P(A|B)"
+              value={probabilities.conditionalProbabilityFormula}
+              onChange={v => setProbabilities({ ...probabilities, conditionalProbabilityFormula: v })}
+              disabled={isLocked}
+            />
+          </div>
+        </AccordionSection>
+
+        {/* Section 8 — Épreuve finale (P0 enhanced) */}
+        <AccordionSection title="8. Épreuve finale" icon={<FileText className="h-4 w-4" />}>
           <div className="grid gap-5 sm:grid-cols-2">
             <SelectInput
-              label="Niveau actuel estimé"
-              value={parentRec.estimatedCurrentLevel}
-              onChange={v => setParentRec({ ...parentRec, estimatedCurrentLevel: v as any })}
+              label="Épreuve réalisée"
+              value={finalAssessment.finalTestDone}
+              onChange={v => setFinalAssessment({ ...finalAssessment, finalTestDone: v as any })}
               disabled={isLocked}
               options={[
-                { value: 'tres-solide', label: 'Très solide' },
-                { value: 'satisfaisant', label: 'Satisfaisant' },
+                { value: 'NOT_DONE', label: 'Non réalisée' },
+                { value: 'PARTIAL', label: 'Partiellement réalisée' },
+                { value: 'DONE', label: 'Réalisée complètement' },
+              ]}
+            />
+            <SelectInput
+              label="Score approximatif"
+              value={finalAssessment.approximateScore?.toString()}
+              onChange={v => setFinalAssessment({ ...finalAssessment, approximateScore: v ? parseInt(v) : undefined })}
+              disabled={isLocked}
+              options={[
+                { value: '', label: '—' },
+                ...Array.from({ length: 21 }, (_, i) => ({ value: i.toString(), label: `${i}/20` })),
+              ]}
+            />
+            <RatingInput
+              label="Gestion du temps"
+              value={finalAssessment.timeManagement}
+              onChange={v => setFinalAssessment({ ...finalAssessment, timeManagement: v })}
+              disabled={isLocked}
+            />
+            <RatingInput
+              label="Compréhension des consignes"
+              value={finalAssessment.instructionUnderstanding}
+              onChange={v => setFinalAssessment({ ...finalAssessment, instructionUnderstanding: v })}
+              disabled={isLocked}
+            />
+            <RatingInput
+              label="Rédaction et justification"
+              value={finalAssessment.writtenJustification}
+              onChange={v => setFinalAssessment({ ...finalAssessment, writtenJustification: v })}
+              disabled={isLocked}
+            />
+            <RatingInput
+              label="Choix des méthodes"
+              value={finalAssessment.methodSelection}
+              onChange={v => setFinalAssessment({ ...finalAssessment, methodSelection: v })}
+              disabled={isLocked}
+            />
+            <RatingInput
+              label="Résilience (rattrapage d'erreurs)"
+              value={finalAssessment.resilience}
+              onChange={v => setFinalAssessment({ ...finalAssessment, resilience: v })}
+              disabled={isLocked}
+            />
+          </div>
+          <TextareaInput
+            label="Erreur la plus évitable"
+            value={finalAssessment.mostAvoidableMistake}
+            onChange={v => setFinalAssessment({ ...finalAssessment, mostAvoidableMistake: v })}
+            disabled={isLocked}
+            max={250}
+            placeholder="Quelle erreur aurait pu être facilement évitée ?"
+          />
+          <TextareaInput
+            label="Point positif marquant"
+            value={finalAssessment.strongestFinalTestPoint}
+            onChange={v => setFinalAssessment({ ...finalAssessment, strongestFinalTestPoint: v })}
+            disabled={isLocked}
+            max={250}
+            placeholder="Quel a été le point fort de l'épreuve ?"
+          />
+          <TextareaInput
+            label="Priorité absolue avant le bac"
+            value={finalAssessment.priorityBeforeExam}
+            onChange={v => setFinalAssessment({ ...finalAssessment, priorityBeforeExam: v })}
+            disabled={isLocked}
+            max={250}
+            placeholder="Que faut-il absolument travailler avant l'épreuve ?"
+          />
+        </AccordionSection>
+
+        {/* Section 9 — Diagnostic par chapitre (P0) */}
+        <AccordionSection title="9. Diagnostic par chapitre" icon={<FileText className="h-4 w-4" />}>
+          {(
+            [
+              { key: 'secondDegree', label: 'Second degré' },
+              { key: 'derivation', label: 'Dérivation' },
+              { key: 'sequences', label: 'Suites numériques' },
+              { key: 'exponential', label: 'Fonction exponentielle' },
+              { key: 'scalarProduct', label: 'Produit scalaire' },
+              { key: 'probabilities', label: 'Probabilités conditionnelles' },
+            ] as const
+          ).map(chapter => (
+            <div key={chapter.key} className="border-t border-white/10 pt-4 first:border-t-0 first:pt-0">
+              <h4 className="text-sm font-semibold text-indigo-300 mb-3">{chapter.label}</h4>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <RatingInput
+                  label="Maîtrise"
+                  value={chapterDiags[chapter.key]?.mastery}
+                  onChange={v => setChapterDiag(chapter.key, { mastery: v })}
+                  disabled={isLocked}
+                />
+              </div>
+              <TextareaInput
+                label="Méthodes acquises (séparées par des virgules)"
+                value={chapterDiags[chapter.key]?.methodsAcquired?.join(', ')}
+                onChange={v => setChapterDiag(chapter.key, { methodsAcquired: v.split(',').map(s => s.trim()).filter(Boolean) })}
+                disabled={isLocked}
+                placeholder="Ex: Factorisation, Delta, Formule du produit..."
+              />
+              <TextareaInput
+                label="Points de vigilance"
+                value={chapterDiags[chapter.key]?.vigilancePoints?.join(', ')}
+                onChange={v => setChapterDiag(chapter.key, { vigilancePoints: v.split(',').map(s => s.trim()).filter(Boolean) })}
+                disabled={isLocked}
+                placeholder="Ex: Signe de a dans les tableaux de signes..."
+              />
+              <TextareaInput
+                label="Erreurs récurrentes"
+                value={chapterDiags[chapter.key]?.recurringErrors?.join(', ')}
+                onChange={v => setChapterDiag(chapter.key, { recurringErrors: v.split(',').map(s => s.trim()).filter(Boolean) })}
+                disabled={isLocked}
+                placeholder="Ex: Oublie de vérifier les conditions d'application..."
+              />
+              <TextareaInput
+                label="Exercice révélateur (optionnel, max 250 car)"
+                value={chapterDiags[chapter.key]?.revealingExercise}
+                onChange={v => setChapterDiag(chapter.key, { revealingExercise: v })}
+                disabled={isLocked}
+                max={250}
+                placeholder="Un exercice qui a particulièrement révélé le niveau"
+              />
+              <TextareaInput
+                label="Point fort spécifique (optionnel, max 250 car)"
+                value={chapterDiags[chapter.key]?.strength}
+                onChange={v => setChapterDiag(chapter.key, { strength: v })}
+                disabled={isLocked}
+                max={250}
+                placeholder="Un point fort remarquable sur ce chapitre"
+              />
+              <TextareaInput
+                label="Remediation prioritaire (optionnel, max 250 car)"
+                value={chapterDiags[chapter.key]?.priorityRemediation}
+                onChange={v => setChapterDiag(chapter.key, { priorityRemediation: v })}
+                disabled={isLocked}
+                max={250}
+                placeholder="Ce qu'il faut absolument travailler sur ce chapitre"
+              />
+            </div>
+          ))}
+        </AccordionSection>
+
+        {/* Section 10 — Message aux parents (P0 guided) */}
+        <AccordionSection title="10. Message aux parents" icon={<FileText className="h-4 w-4" />}>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <SelectInput
+              label="Ton du message"
+              value={parentRec.parentTone}
+              onChange={v => setParentRec({ ...parentRec, parentTone: v as any })}
+              disabled={isLocked}
+              options={[
+                { value: 'REASSURING', label: 'Rassurant' },
+                { value: 'BALANCED', label: 'Équilibré' },
+                { value: 'FIRM_BUT_SUPPORTIVE', label: 'Ferme mais bienveillant' },
+              ]}
+            />
+            <SelectInput
+              label="Niveau d'urgence"
+              value={parentRec.parentUrgency}
+              onChange={v => setParentRec({ ...parentRec, parentUrgency: v as any })}
+              disabled={isLocked}
+              options={[
+                { value: 'NORMAL', label: 'Normal - Pas d\'inquiétude' },
+                { value: 'WATCH', label: 'À surveiller' },
+                { value: 'IMPORTANT', label: 'Important - Action nécessaire' },
+                { value: 'PRIORITY', label: 'Prioritaire - Intervention rapide' },
+              ]}
+            />
+          </div>
+          <TextareaInput
+            label="Message principal aux parents (max 300 caractères)"
+            value={parentRec.parentMainMessage}
+            onChange={v => setParentRec({ ...parentRec, parentMainMessage: v })}
+            disabled={isLocked}
+            max={300}
+            placeholder="Votre message principal, concis et structuré, qui sera repris dans la synthèse."
+          />
+          <TextareaInput
+            label="Ce qu'il ne faut PAS dire aux parents (max 200 caractères)"
+            value={parentRec.parentDoNotSay}
+            onChange={v => setParentRec({ ...parentRec, parentDoNotSay: v })}
+            disabled={isLocked}
+            max={200}
+            placeholder="Ex: 'Il est nul en maths' - formulations à éviter absolument"
+          />
+
+          {/* Legacy fields (kept for compatibility, displayed as secondary) */}
+          <div className="border-t border-white/10 pt-4 mt-4">
+            <h4 className="text-xs text-neutral-500 mb-3">Anciens champs (compatibilité)</h4>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <SelectInput
+                label="Niveau actuel estimé (legacy)"
+                value={parentRec.estimatedCurrentLevel}
+                onChange={v => setParentRec({ ...parentRec, estimatedCurrentLevel: v as any })}
+                disabled={isLocked}
+                options={[
+                  { value: 'tres-solide', label: 'Très solide' },
+                  { value: 'satisfaisant', label: 'Satisfaisant' },
                 { value: 'fragile-mais-en-progres', label: 'Fragile mais en progrès' },
                 { value: 'fragile', label: 'Fragile' },
                 { value: 'preoccupant', label: 'Préoccupant' },
@@ -684,12 +1015,13 @@ export default function CoachMathsIndividualReportPage() {
             </div>
           </div>
           <TextareaInput
-            label="Synthèse et observations générales pour les parents"
+            label="Synthèse legacy (optionnel, ne sera pas recopiée telle quelle)"
             value={parentRec.parentSummaryMessage}
             onChange={v => setParentRec({ ...parentRec, parentSummaryMessage: v })}
             disabled={isLocked}
-            placeholder="Quelles sont les forces et les pistes d'amélioration concrètes ?"
+            placeholder="Note coach interne, ne sera pas transmise aux parents telle quelle"
           />
+          </div>
         </AccordionSection>
 
         {/* Global actions */}
