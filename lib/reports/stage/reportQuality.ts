@@ -171,7 +171,7 @@ export function detectRepeatedSentences(value: unknown, minWords = 12): string[]
 
         if (current + 1 > 1) {
           // Issue message without content - privacy protection
-          issues.push(`Repeated long sentence detected (>12 words)`);
+          issues.push(`Repeated long sentence detected (>15 words)`);
         }
       }
     }
@@ -180,13 +180,27 @@ export function detectRepeatedSentences(value: unknown, minWords = 12): string[]
   return issues;
 }
 
+type DetectOversizedArraysOptions = {
+  ignoredPathPrefixes?: string[];
+};
+
 /**
- * Detect oversized arrays
+ * Detect oversized arrays with configurable exclusions
  */
-export function detectOversizedArrays(value: unknown, maxItems = 6): string[] {
+export function detectOversizedArrays(
+  value: unknown,
+  maxItems = 8,
+  options?: DetectOversizedArraysOptions,
+): string[] {
   const issues: string[] = [];
+  const ignoredPrefixes = options?.ignoredPathPrefixes ?? [];
 
   function scan(path: string, v: unknown) {
+    // Check if path should be ignored
+    if (ignoredPrefixes.some(prefix => path.startsWith(prefix))) {
+      return;
+    }
+
     if (Array.isArray(v) && v.length > maxItems) {
       // Issue message with path but no content - privacy protection
       issues.push(`Oversized array detected at path: ${path}`);
@@ -213,12 +227,14 @@ export function validateReportWritingQuality(value: unknown): { ok: boolean; iss
   const repeatedBlocks = detectRepeatedLongTextBlocks(value, 25);
   issues.push(...repeatedBlocks);
 
-  // Check for repeated long sentences (>12 words)
-  const repeatedSentences = detectRepeatedSentences(value, 12);
+  // Check for repeated long sentences (>15 words)
+  const repeatedSentences = detectRepeatedSentences(value, 15);
   issues.push(...repeatedSentences);
 
-  // Check for oversized arrays (>6 items)
-  const oversizedArrays = detectOversizedArrays(value, 6);
+  // Check for oversized arrays (>8 items), ignoring functional paths
+  const oversizedArrays = detectOversizedArrays(value, 8, {
+    ignoredPathPrefixes: ['qualityFlags'],
+  });
   issues.push(...oversizedArrays);
 
   // Limit total issues to avoid log flooding

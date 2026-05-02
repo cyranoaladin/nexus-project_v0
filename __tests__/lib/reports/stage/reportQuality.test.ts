@@ -101,13 +101,13 @@ describe('reportQuality', () => {
   });
 
   describe('detectRepeatedSentences', () => {
-    it('detects same long sentence >12 words in two sections', () => {
-      const sentence = "L'élève montre une progression constante dans la maîtrise des concepts mathématiques abordés.";
+    it('detects same long sentence >15 words in two sections', () => {
+      const sentence = "L'élève montre une progression constante et remarquable dans la maîtrise complète des concepts mathématiques abordés durant le stage.";
       const obj = {
         summary: `Début. ${sentence} Fin.`,
         analysis: `Autre texte. ${sentence} Suite.`,
       };
-      const issues = detectRepeatedSentences(obj, 12);
+      const issues = detectRepeatedSentences(obj, 15);
       expect(issues.length).toBeGreaterThan(0);
     });
 
@@ -116,28 +116,67 @@ describe('reportQuality', () => {
         field1: "C'est satisfaisant.",
         field2: "C'est satisfaisant.",
       };
-      const issues = detectRepeatedSentences(obj, 12);
+      const issues = detectRepeatedSentences(obj, 15);
       expect(issues).toHaveLength(0);
+    });
+
+    it('does not block sentences between 12 and 14 words (threshold now 15)', () => {
+      const sentence = "L'élève montre une progression constante dans la maîtrise des concepts abordés."; // 12 mots
+      const obj = {
+        field1: sentence,
+        field2: sentence,
+      };
+      const issues = detectRepeatedSentences(obj, 15);
+      expect(issues).toHaveLength(0); // Ne bloque plus (seuil 15)
     });
   });
 
   describe('detectOversizedArrays', () => {
-    it('detects array with more than 6 items', () => {
+    it('detects array with more than 8 items', () => {
       const obj = {
-        items: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l'],
+        items: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'],
       };
-      const issues = detectOversizedArrays(obj, 6);
+      const issues = detectOversizedArrays(obj, 8);
       expect(issues.length).toBeGreaterThan(0);
       // Issue message contains path but not item count (privacy)
       expect(issues[0]).toContain('Oversized array detected at path: items');
     });
 
-    it('does not flag arrays with 6 or fewer items', () => {
+    it('does not flag arrays with 8 or fewer items', () => {
       const obj = {
-        items: ['a', 'b', 'c', 'd', 'e', 'f'],
+        items: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
       };
-      const issues = detectOversizedArrays(obj, 6);
+      const issues = detectOversizedArrays(obj, 8);
       expect(issues).toHaveLength(0);
+    });
+
+    it('ignores qualityFlags paths when configured', () => {
+      const obj = {
+        executiveSummary: {
+          keyStrengths: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'], // 9 items, should be flagged
+        },
+        qualityFlags: {
+          missingData: Array(30).fill('missing'), // 30 items, should be ignored
+          uncertainties: Array(25).fill('uncertain'), // 25 items, should be ignored
+        },
+      };
+      const issues = detectOversizedArrays(obj, 8, {
+        ignoredPathPrefixes: ['qualityFlags'],
+      });
+      // Should only flag executiveSummary.keyStrengths, not qualityFlags
+      expect(issues.length).toBe(1);
+      expect(issues[0]).toContain('executiveSummary.keyStrengths');
+    });
+
+    it('flags qualityFlags paths when not configured to ignore', () => {
+      const obj = {
+        qualityFlags: {
+          missingData: Array(30).fill('missing'),
+        },
+      };
+      const issues = detectOversizedArrays(obj, 8);
+      // Without ignoredPathPrefixes, qualityFlags is scanned
+      expect(issues.length).toBeGreaterThan(0);
     });
   });
 
@@ -203,12 +242,12 @@ describe('reportQuality', () => {
     });
 
     it('does not expose repeated sentence content', () => {
-      const sensitiveSentence = "Melik ZAYANE montre une progression constante dans la maîtrise des concepts mathématiques abordés.";
+      const sensitiveSentence = "Melik ZAYANE montre une progression constante et remarquable dans la maîtrise complète des concepts mathématiques abordés durant le stage.";
       const obj = {
         summary: `Début. ${sensitiveSentence} Fin.`,
         analysis: `Autre texte. ${sensitiveSentence} Suite.`,
       };
-      const issues = detectRepeatedSentences(obj, 12);
+      const issues = detectRepeatedSentences(obj, 15);
       expect(issues.length).toBeGreaterThan(0);
 
       const issuesJson = JSON.stringify(issues);
@@ -331,12 +370,38 @@ describe('Schema backward compatibility', () => {
     expect(result.success).toBe(true);
   });
 
-  it('reportQuality detects arrays >6 even if schema accepts up to 12', () => {
+  it('reportQuality detects arrays >8 even if schema accepts up to 12', () => {
     const obj = {
-      strengths: Array(8).fill('Point fort'), // 8 > 6, detected by reportQuality
+      strengths: Array(9).fill('Point fort'), // 9 > 8, detected by reportQuality
     };
-    const issues = detectOversizedArrays(obj, 6);
+    const issues = detectOversizedArrays(obj, 8);
     expect(issues.length).toBeGreaterThan(0);
     expect(issues[0]).toContain('Oversized array detected at path: strengths');
+  });
+
+  it('reportQuality ignores qualityFlags arrays even with 30 elements', () => {
+    const obj = {
+      qualityFlags: {
+        missingData: Array(30).fill('data'),
+        uncertainties: Array(30).fill('uncertainty'),
+      },
+    };
+    const result = validateReportWritingQuality(obj);
+    // qualityFlags should be ignored, so ok should be true
+    expect(result.ok).toBe(true);
+    expect(result.issues).toHaveLength(0);
+  });
+
+  it('reportQuality flags executiveSummary arrays with 9 elements', () => {
+    const obj = {
+      executiveSummary: {
+        keyStrengths: Array(9).fill('Force'), // 9 > 8, should be flagged
+      },
+    };
+    const issues = detectOversizedArrays(obj, 8, {
+      ignoredPathPrefixes: ['qualityFlags'],
+    });
+    expect(issues.length).toBeGreaterThan(0);
+    expect(issues[0]).toContain('executiveSummary.keyStrengths');
   });
 });
