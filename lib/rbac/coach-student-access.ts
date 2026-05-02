@@ -59,11 +59,15 @@ export async function isCoachAssignedToStudent({
   const assignment = await prisma.coachStudentAssignment.findFirst({
     where: {
       coachId: coachProfile.id,
-      OR: [
-        { studentId: studentId },
-        { student: { userId: studentId } }
+      AND: [
+        {
+          OR: [
+            { studentId: studentId },
+            { student: { userId: studentId } }
+          ],
+        },
+        activeAssignmentWhere(now),
       ],
-      ...activeAssignmentWhere(now),
     },
     select: { id: true },
   });

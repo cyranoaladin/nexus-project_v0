@@ -57,18 +57,28 @@ describe('RBAC / CoachStudentAccess', () => {
 
       const result = await isCoachAssignedToStudent({ coachUserId, studentId });
       expect(result).toBe(true);
-      expect(prisma.coachStudentAssignment.findFirst).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: expect.objectContaining({
-            coachId: 'coach-1',
-            status: AssignmentStatus.ACTIVE,
-            OR: expect.arrayContaining([
-              expect.objectContaining({ studentId: 'student-1' }),
-              expect.objectContaining({ student: { userId: 'student-1' } }),
-            ]),
-          }),
-        })
-      );
+      expect(prisma.coachStudentAssignment.findFirst).toHaveBeenCalledWith({
+        where: {
+          coachId: 'coach-1',
+          AND: [
+            {
+              OR: [
+                { studentId: 'student-1' },
+                { student: { userId: 'student-1' } },
+              ],
+            },
+            {
+              status: AssignmentStatus.ACTIVE,
+              startsAt: { lte: expect.any(Date) },
+              OR: [
+                { endsAt: null },
+                { endsAt: { gte: expect.any(Date) } },
+              ],
+            },
+          ],
+        },
+        select: { id: true },
+      });
     });
 
     it('2. Coach non assigné - accès refusé', async () => {
@@ -215,16 +225,17 @@ describe('RBAC / CoachStudentAccess', () => {
       (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-1' } as any);
       (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 'student-1' } as any);
       (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
-      (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue({ id: 'sb-1' } as any);
+      (prisma.sessionBooking.findFirst as jest.Mock)
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({ id: 'sb-1' } as any);
 
       const result = await isCoachRattachedToStudent('coach-user-1', 'student-user-1');
 
       expect(result).toBe(true);
-      expect(prisma.sessionBooking.findFirst).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: { coachId: 'coach-user-1', studentId: 'student-user-1' },
-        })
-      );
+      expect(prisma.sessionBooking.findFirst).toHaveBeenLastCalledWith({
+        where: { coachId: 'coach-user-1', studentId: 'student-user-1' },
+        select: { id: true },
+      });
     });
 
     it('returns false when no link exists', async () => {
