@@ -45,6 +45,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       href: '/dashboard/eleve#stages',
       icon: 'GraduationCap',
       match: 'exact'
+    },
+    {
+      label: 'Mes Diagnostics',
+      href: '/dashboard/eleve/npc',
+      icon: 'ClipboardCheck',
+      match: 'prefix'
     }
   ],
   [UserRole.PARENT]: [
@@ -83,6 +89,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       href: '/dashboard/parent/stages',
       icon: 'GraduationCap',
       match: 'prefix'
+    },
+    {
+      label: 'Diagnostics',
+      href: '/dashboard/parent/npc',
+      icon: 'ClipboardCheck',
+      match: 'prefix'
     }
   ],
   [UserRole.COACH]: [
@@ -114,6 +126,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       label: 'Mes Stages',
       href: '/dashboard/coach/stages',
       icon: 'GraduationCap',
+      match: 'prefix'
+    },
+    {
+      label: 'Pédagogie',
+      href: '/dashboard/coach/npc',
+      icon: 'ClipboardCheck',
       match: 'prefix'
     }
   ],
