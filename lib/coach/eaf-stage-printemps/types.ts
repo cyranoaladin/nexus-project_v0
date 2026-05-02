@@ -162,7 +162,7 @@ export const parentRecommendationsSchema = z.object({
     'methode-de-revision',
     'confiance-a-lecrit',
   ])).optional(),
-  parentSummaryMessage: z.string().max(3000).optional(),
+  parentSummaryMessage: z.string().optional(),
   finalRecommendation: z.string().max(2000).optional(),
 });
 

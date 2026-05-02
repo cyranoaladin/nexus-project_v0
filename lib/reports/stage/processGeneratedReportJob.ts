@@ -1,6 +1,10 @@
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
-import { MistralConfigurationError, MistralGenerationError } from '@/lib/llm/mistral';
+import {
+  MistralConfigurationError,
+  MistralGenerationError,
+  MISTRAL_ERROR_CODES,
+} from '@/lib/llm/mistral';
 import { buildReportContext } from './buildReportContext';
 import { generateStructuredReportWithMistral } from './generateStructuredReportWithMistral';
 import { validatePedagogicalReportJson } from './schema';
@@ -130,10 +134,18 @@ function classifyGenerationError(error: unknown): {
   }
 
   if (error instanceof MistralGenerationError) {
+    // Map specific Mistral error codes to user-friendly messages
+    const errorMessages: Record<string, string> = {
+      [MISTRAL_ERROR_CODES.MISTRAL_TIMEOUT]: 'Le service de génération LLM a dépassé le temps imparti.',
+      [MISTRAL_ERROR_CODES.MISTRAL_HTTP_ERROR]: 'Le service de génération LLM a rencontré une erreur HTTP.',
+      [MISTRAL_ERROR_CODES.MISTRAL_INVALID_JSON]: 'Le service de génération LLM a retourné un JSON invalide.',
+      [MISTRAL_ERROR_CODES.MISTRAL_EMPTY_RESPONSE]: 'Le service de génération LLM a retourné une réponse vide.',
+    };
+
     return {
       status: 'FAILED',
       errorCode: error.code,
-      errorMessage: 'La génération LLM a échoué.',
+      errorMessage: errorMessages[error.code] || 'La génération LLM a échoué.',
     };
   }
 

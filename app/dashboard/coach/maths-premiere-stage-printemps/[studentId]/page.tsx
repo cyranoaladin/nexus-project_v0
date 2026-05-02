@@ -134,7 +134,7 @@ function TextareaInput({
   value,
   onChange,
   placeholder,
-  max = 2000,
+  max,
   disabled,
 }: {
   label: string;
@@ -148,7 +148,7 @@ function TextareaInput({
     <div className="flex flex-col gap-1.5">
       <div className="flex justify-between text-xs text-neutral-400">
         <label>{label}</label>
-        {value && value.length > 0 && (
+        {max && value && value.length > 0 && (
           <span>{value.length} / {max}</span>
         )}
       </div>
@@ -689,7 +689,6 @@ export default function CoachMathsIndividualReportPage() {
             onChange={v => setParentRec({ ...parentRec, parentSummaryMessage: v })}
             disabled={isLocked}
             placeholder="Quelles sont les forces et les pistes d'amélioration concrètes ?"
-            max={3000}
           />
         </AccordionSection>
 
