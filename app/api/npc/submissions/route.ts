@@ -221,14 +221,14 @@ export async function GET(req: NextRequest) {
       // Parents see their children's submissions
       const parent = await prisma.parentProfile.findUnique({
         where: { userId: session.user.id },
-        include: { students: { select: { studentId: true } } },
+        include: { children: { select: { id: true } } },
       });
 
       if (!parent) {
         return NextResponse.json({ submissions: [] });
       }
 
-      where.studentId = { in: parent.students.map(s => s.studentId) };
+      where.studentId = { in: parent.children.map(s => s.id) };
     }
 
     const submissions = await prisma.copySubmission.findMany({
