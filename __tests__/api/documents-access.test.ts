@@ -41,7 +41,7 @@ jest.mock('@/lib/guards', () => ({
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {
-    student: { findUnique: jest.fn() },
+    student: { findFirst: jest.fn(), findUnique: jest.fn() },
     userDocument: { findMany: jest.fn(), create: jest.fn() },
     coachStudentAssignment: { findFirst: jest.fn() },
     coachProfile: { findUnique: jest.fn() },
@@ -59,7 +59,7 @@ import { assertCoachCanAccessStudent } from '@/lib/rbac/coach-student-access';
 import { prisma as prismaMock } from '@/lib/prisma';
 
 const mockPrisma = prismaMock as unknown as {
-  student: { findUnique: jest.Mock };
+  student: { findFirst: jest.Mock; findUnique: jest.Mock };
   userDocument: { findMany: jest.Mock; create: jest.Mock };
   coachStudentAssignment: { findFirst: jest.Mock };
   coachProfile: { findUnique: jest.Mock };
@@ -109,7 +109,7 @@ describe('Documents Access Control', () => {
     it('should allow assigned coach to GET documents for their student', async () => {
       coachSession();
       (assertCoachCanAccessStudent as jest.Mock).mockResolvedValue(undefined);
-      mockPrisma.student.findUnique.mockResolvedValue(mockStudent);
+      mockPrisma.student.findFirst.mockResolvedValue(mockStudent);
       mockPrisma.userDocument.findMany.mockResolvedValue([mockDocument]);
 
       const request = new NextRequest(
@@ -189,7 +189,7 @@ describe('Documents Access Control', () => {
     it('should allow assigned coach to POST document', async () => {
       coachSession();
       (assertCoachCanAccessStudent as jest.Mock).mockResolvedValue(undefined);
-      mockPrisma.student.findUnique.mockResolvedValue(mockStudent);
+      mockPrisma.student.findFirst.mockResolvedValue(mockStudent);
       const createdDoc = { ...mockDocument, title: 'New Exercise', documentType: 'EXERCICE' };
       mockPrisma.userDocument.create.mockResolvedValue(createdDoc);
 
@@ -218,7 +218,7 @@ describe('Documents Access Control', () => {
     it('should validate documentType enum (400)', async () => {
       coachSession();
       (assertCoachCanAccessStudent as jest.Mock).mockResolvedValue(undefined);
-      mockPrisma.student.findUnique.mockResolvedValue(mockStudent);
+      mockPrisma.student.findFirst.mockResolvedValue(mockStudent);
 
       const request = new NextRequest(
         `http://localhost/api/coach/students/${STUDENT_ID}/documents`,
@@ -241,7 +241,7 @@ describe('Documents Access Control', () => {
     it('should require url or localPath (400)', async () => {
       coachSession();
       (assertCoachCanAccessStudent as jest.Mock).mockResolvedValue(undefined);
-      mockPrisma.student.findUnique.mockResolvedValue(mockStudent);
+      mockPrisma.student.findFirst.mockResolvedValue(mockStudent);
 
       const request = new NextRequest(
         `http://localhost/api/coach/students/${STUDENT_ID}/documents`,
