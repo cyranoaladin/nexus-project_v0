@@ -368,7 +368,6 @@ export default function QuestionnaireMathsPremiereStagePrintempsPage() {
     event.preventDefault();
     if (isSubmitting) return;
     setIsSubmitting(true);
-    setError(null);
 
     try {
       const res = await fetch('/api/eleve/questionnaire-maths-premiere-stage-printemps', {
