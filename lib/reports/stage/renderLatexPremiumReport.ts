@@ -23,7 +23,6 @@ export function renderLatexPremiumReport(data: PremiumPedagogicalReportJson): st
     studentPosture,
     actionPlan,
     parentSection,
-    coachSection,
   } = data;
 
   const header = `\\documentclass[11pt,a4paper]{article}
