@@ -83,7 +83,7 @@ export default async function CoachNpcPage() {
         </div>
         <CreateSubmissionButton students={assignedStudents.map((a: typeof assignedStudents[0]) => ({
           id: a.student.id,
-          name: a.student.user.name || 'Élève',
+          name: a.student.user.firstName && a.student.user.lastName ? `${a.student.user.firstName} ${a.student.user.lastName}` : 'Élève',
         }))} />
       </div>
 
