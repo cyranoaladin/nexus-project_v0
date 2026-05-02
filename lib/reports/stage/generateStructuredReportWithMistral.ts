@@ -1,10 +1,18 @@
 import { createMistralJsonCompletion } from '@/lib/llm/mistral';
+import { logger } from '@/lib/logger';
 import type { StageReportContext } from './buildReportContext';
 import { premiumPedagogicalReportSchemaDescription } from './schema';
 
 export async function generateStructuredReportWithMistral(
   context: StageReportContext,
 ): Promise<{ json: unknown; modelUsed: string }> {
+  // Log start of generation with context size only (no content)
+  const contextJson = JSON.stringify(context);
+  logger.debug(
+    { contextSize: contextJson.length },
+    '[Reports] Starting structured report generation with Mistral'
+  );
+
   const systemPrompt = `Tu es un expert en ingénierie pédagogique, en évaluation formative et en rédaction de bilans scolaires premium pour élèves de lycée.
 
 Tu dois produire un bilan pédagogique structuré, bienveillant, précis, professionnel et utile pour trois publics : l'élève, les parents et le coach pédagogique.
@@ -34,6 +42,11 @@ Réponds avec le JSON seulement.`;
       { role: 'user', content: userPrompt },
     ],
     { temperature: 0.2 },
+  );
+
+  logger.info(
+    { modelUsed: completion.model },
+    '[Reports] Structured report generation completed'
   );
 
   return { json: completion.json, modelUsed: completion.model };
