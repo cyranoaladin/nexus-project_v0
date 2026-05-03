@@ -316,15 +316,17 @@ describe('CoachMathsBilanSchema validation', () => {
     expect(result.success).toBe(false);
   });
 
-  it('rejects too many priority axes', () => {
-    const invalidData = {
+  it('deduplicates repeated priority axes instead of rejecting', () => {
+    const data = {
       action: 'draft' as const,
       parentRecommendations: {
-        priorityAxes: Array(10).fill('derivation'), // Exceeds updated max of 9
+        priorityAxes: Array(20).fill('derivation'), // Many duplicates — should pass after dedup
       },
     };
-    const result = coachMathsBilanSchema.safeParse(invalidData);
-    expect(result.success).toBe(false);
+    const result = coachMathsBilanSchema.safeParse(data);
+    expect(result.success).toBe(true);
+    const axes = (result.data as any)?.parentRecommendations?.priorityAxes;
+    expect(axes).toEqual(['derivation']); // Deduped to 1
   });
 
   it('accepts legacy data without new P0 fields (backward compatibility)', () => {
