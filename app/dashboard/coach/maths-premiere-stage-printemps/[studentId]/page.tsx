@@ -320,6 +320,7 @@ export default function CoachMathsIndividualReportPage() {
 
       if (!res.ok) {
         const d = await res.json().catch(() => ({}));
+        if (d.details) console.error('[REPORT 400] Zod details:', JSON.stringify(d.details, null, 2));
         throw new Error(d.message || 'Une erreur est survenue lors de la sauvegarde.');
       }
 
