@@ -21,17 +21,22 @@ const BILAN_SUBJECT = 'MATHEMATIQUES';
  * Regenerate parent summary using Mistral AI
  */
 export async function POST(request: Request, { params }: RouteParams) {
+  console.log('[POST regenerate-parent] Starting request');
   try {
     const { studentId } = await params;
+    console.log('[POST regenerate-parent] studentId:', studentId);
 
     const sessionOrError = await requireRole('COACH');
     if (isErrorResponse(sessionOrError)) return sessionOrError;
     const authSession = sessionOrError;
+    console.log('[POST regenerate-parent] Authenticated coach:', authSession.user.id);
 
     // Verify coach assignment
     try {
       await assertCoachCanAccessStudent({ coachUserId: authSession.user.id, studentId });
+      console.log('[POST regenerate-parent] Coach access verified');
     } catch {
+      console.error('[POST regenerate-parent] Coach access denied');
       return NextResponse.json(
         { error: 'Forbidden', message: "Vous n'êtes pas assigné à cet élève" },
         { status: 403 }
@@ -48,12 +53,15 @@ export async function POST(request: Request, { params }: RouteParams) {
       },
       orderBy: { createdAt: 'desc' },
     });
+    console.log('[POST regenerate-parent] Bilan found:', bilan?.id);
 
     if (!bilan) {
+      console.error('[POST regenerate-parent] Bilan not found');
       return NextResponse.json({ error: 'Bilan not found' }, { status: 404 });
     }
 
     if (!bilan.sourceData) {
+      console.error('[POST regenerate-parent] Source data not found');
       return NextResponse.json({ error: 'Source data not found' }, { status: 400 });
     }
 
