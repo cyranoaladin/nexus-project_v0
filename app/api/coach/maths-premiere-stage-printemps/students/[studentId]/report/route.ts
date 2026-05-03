@@ -154,6 +154,7 @@ export async function POST(request: Request, { params }: RouteParams) {
     const parseResult = coachMathsBilanSchema.safeParse(json);
 
     if (!parseResult.success) {
+      logger.error({ zodErrors: parseResult.error.flatten(), payloadKeys: Object.keys(json ?? {}) }, '[API] coach/maths-premiere/report POST — Zod validation failed');
       return NextResponse.json(
         { error: 'Bad Request', message: 'Validation échouée', details: parseResult.error.format() },
         { status: 400 }
@@ -195,6 +196,8 @@ export async function POST(request: Request, { params }: RouteParams) {
       probabilities: formData.probabilities ?? {},
       finalAssessment: formData.finalAssessment ?? {},
       parentRecommendations: formData.parentRecommendations ?? {},
+      globalDiagnostic: formData.globalDiagnostic ?? {},
+      chapterDiagnostics: formData.chapterDiagnostics ?? {},
     };
 
     const existingBilan = await prisma.bilan.findFirst({
