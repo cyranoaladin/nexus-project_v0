@@ -22,6 +22,7 @@ import type {
   ChapterDiagnostics,
   ChapterDiagnostic,
 } from '@/lib/coach/maths-premiere-stage-printemps/types';
+import BilanParentPreview from '@/components/bilan/BilanParentPreview';
 
 type StudentInfo = {
   id: string;
@@ -354,24 +355,19 @@ export default function CoachMathsIndividualReportPage() {
       setPreviewMarkdown(null);
       return;
     }
-    const { generateParentMathsStageReport } = await import('@/lib/coach/maths-premiere-stage-printemps/generate-parent-report');
-    const sourceData = {
-      attendanceAndEngagement: attendance,
-      automatismes,
-      analysis,
-      sequences,
-      scalarProduct,
-      probabilities,
-      finalAssessment,
-      parentRecommendations: parentRec,
-      globalDiagnostic: globalDiag,
-      chapterDiagnostics: chapterDiags,
-    };
-    const markdown = generateParentMathsStageReport(sourceData, {
-      firstName: student?.firstName,
-      lastName: student?.lastName,
-    });
-    setPreviewMarkdown(markdown);
+    try {
+      const res = await fetch(`/api/coach/maths-premiere-stage-printemps/students/${studentId}/regenerate-parent`, {
+        method: 'POST',
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setPreviewMarkdown(data.parentsMarkdown);
+      } else {
+        console.error('Failed to generate parent summary');
+      }
+    } catch (error) {
+      console.error('Error generating parent summary:', error);
+    }
   };
 
   if (status === 'loading' || loading) {
@@ -1089,12 +1085,7 @@ export default function CoachMathsIndividualReportPage() {
 
       {/* Markdown Preview */}
       {previewMarkdown && (
-        <div className="rounded-[24px] border border-white/10 bg-white/5 p-6 space-y-4">
-          <h3 className="font-semibold text-white text-base">Prévisualisation de la synthèse adressée aux parents</h3>
-          <div className="prose prose-invert prose-sm max-w-none border-t border-white/10 pt-4 whitespace-pre-wrap font-mono text-neutral-300">
-            {previewMarkdown}
-          </div>
-        </div>
+        <BilanParentPreview bilanText={previewMarkdown} />
       )}
     </div>
   );
