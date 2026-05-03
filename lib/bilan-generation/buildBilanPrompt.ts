@@ -24,7 +24,6 @@ Tu dois produire uniquement du Markdown propre avec des titres ## (pas des titre
 
 Interdictions strictes de formulation :
 - "ton ferme"
-- "séquences" (utiliser "suites numériques")
 - "données brutes"
 - "le coach indique"
 - "selon les données"
@@ -32,7 +31,7 @@ Interdictions strictes de formulation :
 - "l'élève doit simplement"
 - tout jugement blessant ou définitif.
 
-Structure Markdown attendue :
+Structure Markdown attendue (utilise OBLIGATOIREMENT des titres ## et non des titres en gras **) :
 
 ## 1. Synthèse générale
 Texte fluide, 2 à 3 paragraphes.
@@ -52,7 +51,7 @@ Conseils précis, actionnables, hebdomadaires si possible : entraînement, méth
 ## 6. Message final
 Conclusion bienveillante et exigeante, orientée confiance et progression.
 
-Contraintes de longueur : entre 700 et 1100 mots.
+Contraintes de longueur : entre 700 et 2000 mots.
 Au minimum : 4 conseils actionnables, 2 axes de progrès explicites, 2 points d'appui.`;
 
 function formatCompetencies(competencies: Record<string, unknown>): string {
