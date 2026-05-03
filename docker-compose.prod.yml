@@ -162,6 +162,10 @@ services:
       NPC_WORKER_POLL_INTERVAL_MS: ${NPC_WORKER_POLL_INTERVAL_MS:-5000}
       NPC_WORKER_LOCK_DURATION_MS: ${NPC_WORKER_LOCK_DURATION_MS:-300000}
       NPC_MAX_RETRY_ATTEMPTS: ${NPC_MAX_RETRY_ATTEMPTS:-3}
+      UPLOAD_DIR: /app/uploads/copies
+
+    volumes:
+      - uploads_data:/app/uploads
 
     depends_on:
       postgres:
