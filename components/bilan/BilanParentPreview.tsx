@@ -13,18 +13,22 @@ type Block =
 type Inline =
   | { type: 'text'; value: string }
   | { type: 'bold'; value: string }
-  | { type: 'italic'; value: string };
+  | { type: 'italic'; value: string }
+  | { type: 'math_inline'; value: string }
+  | { type: 'math_block'; value: string };
 
 function parseInlines(raw: string): Inline[] {
   const result: Inline[] = [];
-  // Match **bold** or *italic*
-  const re = /(\*\*(.+?)\*\*|\*(.+?)\*)/g;
+  // Match \[...\] (block math), \(...\) (inline math), **bold**, *italic*
+  const re = /\\\[([\s\S]+?)\\\]|\\\(([\s\S]+?)\\\)|(\*\*(.+?)\*\*)|(\*(.+?)\*)/g;
   let last = 0;
   let m: RegExpExecArray | null;
   while ((m = re.exec(raw)) !== null) {
     if (m.index > last) result.push({ type: 'text', value: raw.slice(last, m.index) });
-    if (m[0].startsWith('**')) result.push({ type: 'bold', value: m[2] });
-    else result.push({ type: 'italic', value: m[3] });
+    if (m[1] !== undefined) result.push({ type: 'math_block', value: m[1].trim() });
+    else if (m[2] !== undefined) result.push({ type: 'math_inline', value: m[2].trim() });
+    else if (m[3] !== undefined) result.push({ type: 'bold', value: m[4] });
+    else result.push({ type: 'italic', value: m[6] });
     last = m.index + m[0].length;
   }
   if (last < raw.length) result.push({ type: 'text', value: raw.slice(last) });
@@ -54,6 +58,17 @@ function parseBlocks(text: string): Block[] {
     if (/^\*\*\d+\.\s+.+\*\*$/.test(trimmed)) {
       blocks.push({ type: 'heading', text: trimmed.replace(/^\*\*|\*\*$/g, '') });
       i++; continue;
+    }
+
+    // Numbered list: treat as bullet
+    if (/^\d+\. /.test(trimmed)) {
+      const items: Inline[][] = [];
+      while (i < lines.length && /^\d+\. /.test(lines[i].trim())) {
+        items.push(parseInlines(lines[i].trim().replace(/^\d+\. /, '')));
+        i++;
+      }
+      blocks.push({ type: 'bullet', items });
+      continue;
     }
 
     // Bullet list: collect consecutive bullet lines
@@ -92,6 +107,16 @@ function renderInlines(inlines: Inline[], key?: string): React.ReactNode {
     const k = `${key ?? ''}-${idx}`;
     if (node.type === 'bold') return <strong key={k} style={{ fontWeight: 700, color: '#1e1b4b' }}>{node.value}</strong>;
     if (node.type === 'italic') return <em key={k} style={{ fontStyle: 'italic', color: '#4338ca' }}>{node.value}</em>;
+    if (node.type === 'math_inline') return (
+      <code key={k} style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', background: '#f0f4ff', padding: '0.05em 0.3em', borderRadius: '0.25em', fontSize: '0.95em', color: '#312e81' }}>
+        {node.value}
+      </code>
+    );
+    if (node.type === 'math_block') return (
+      <div key={k} style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', background: '#f0f4ff', padding: '0.5em 1em', borderRadius: '0.375em', margin: '0.75em 0', textAlign: 'center', fontSize: '1em', color: '#312e81', overflowX: 'auto' }}>
+        {node.value}
+      </div>
+    );
     return <React.Fragment key={k}>{node.value}</React.Fragment>;
   });
 }
