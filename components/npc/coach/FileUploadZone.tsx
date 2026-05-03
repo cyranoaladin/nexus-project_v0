@@ -75,6 +75,7 @@ export function FileUploadZone({
   const [uploadedDocuments, setUploadedDocuments] = useState<ExistingDocument[]>(existingDocuments);
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [globalError, setGlobalError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -236,6 +237,40 @@ export function FileUploadZone({
     }
   };
 
+  const handleGenerate = async () => {
+    if (!hasStudentCopy) {
+      setGlobalError('Ajoutez au moins une copie élève avant de lancer la correction IA.');
+      return;
+    }
+
+    setIsGenerating(true);
+    setGlobalError(null);
+    setSuccessMessage(null);
+
+    try {
+      const response = await fetch(`/api/npc/submissions/${submissionId}/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to generate correction');
+      }
+
+      const data = await response.json();
+      setSuccessMessage('Correction IA mise en file d\'attente. Le rapport apparaîtra ici lorsque l\'analyse sera terminée.');
+
+      if (data.reportId) {
+        window.location.href = `/dashboard/coach/npc/reports/${data.reportId}`;
+      }
+    } catch (error) {
+      setGlobalError(error instanceof Error ? error.message : 'Erreur lors du lancement de la correction');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const formatFileSize = (bytes: number): string => {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} Ko`;
@@ -352,11 +387,49 @@ export function FileUploadZone({
                       {document.originalFilename || document.originalFilePath}
                     </p>
                     <p className="text-xs text-gray-500">
-                      {CORRECTION_DOCUMENT_TYPE_LABELS[document.documentType as CorrectionDocumentTypeValue] || document.documentType}
                       {document.sizeBytes ? ` • ${formatFileSize(document.sizeBytes)}` : ''}
                       {' • '}
                       {document.status}
                     </p>
+                    <div className="mt-2 max-w-xs">
+                      <Label htmlFor={`existing-document-type-${document.id}`} className="sr-only">
+                        Type documentaire
+                      </Label>
+                      <select
+                        id={`existing-document-type-${document.id}`}
+                        aria-label="Type documentaire"
+                        className="h-9 w-full rounded-md border border-gray-300 bg-white px-3 text-sm"
+                        value={document.documentType}
+                        disabled={isUploading}
+                        onChange={async (event) => {
+                          const newType = event.target.value as CorrectionDocumentTypeValue;
+                          try {
+                            const response = await fetch(`/api/npc/submissions/${submissionId}/documents/${document.id}`, {
+                              method: 'PATCH',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ documentType: newType }),
+                            });
+                            if (response.ok) {
+                              setUploadedDocuments((prev) =>
+                                prev.map((doc) =>
+                                  doc.id === document.id ? { ...doc, documentType: newType } : doc
+                                )
+                              );
+                            } else {
+                              setGlobalError('Erreur lors de la modification du type');
+                            }
+                          } catch (error) {
+                            setGlobalError('Erreur lors de la modification du type');
+                          }
+                        }}
+                      >
+                        {CORRECTION_DOCUMENT_TYPES.map((type) => (
+                          <option key={type} value={type}>
+                            {CORRECTION_DOCUMENT_TYPE_LABELS[type]}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                   <CheckCircle className="h-5 w-5 text-green-500" />
                 </div>
@@ -444,6 +517,43 @@ export function FileUploadZone({
                 </div>
               </Card>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Generate AI Correction Button */}
+      {uploadedDocuments.length > 0 && (
+        <div className="space-y-4 pt-4 border-t">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-900">
+                Lancer la correction IA
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                {hasStudentCopy && hasSubject && hasRubric
+                  ? 'Tous les éléments nécessaires sont attachés.'
+                  : hasStudentCopy
+                  ? 'Sujet et barème sont fortement recommandés pour une correction fiable.'
+                  : 'Ajoutez au moins une copie élève avant de lancer la correction.'}
+              </p>
+            </div>
+            <Button
+              onClick={handleGenerate}
+              disabled={!hasStudentCopy || isGenerating || isUploading}
+              size="lg"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Lancement en cours...
+                </>
+              ) : (
+                <>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Lancer la correction IA
+                </>
+              )}
+            </Button>
           </div>
         </div>
       )}

@@ -19,7 +19,7 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Install dependencies
+# Install dependencies (tsx is already in dependencies, not devDependencies)
 RUN npm ci --omit=dev
 
 # Generate Prisma client
@@ -43,5 +43,5 @@ ENV NPC_UPLOAD_DIR=/var/lib/nexus/uploads/copies
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD node -e "console.log('healthy')" || exit 1
 
-# Run worker
-CMD ["node", "services/npc-worker/index.js"]
+# Run worker (use tsx to execute TypeScript)
+CMD ["npx", "tsx", "services/npc-worker/index.ts"]

@@ -3,7 +3,7 @@
 // Asynchronous AI job processor for Nexus Pedagogy Cockpit
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { PrismaClient, AiJobStatus, AiJobType } from '@prisma/client';
+import { PrismaClient, AiJobStatus, AiJobType, CopySubmissionStatus, PedagogicalReportStatus } from '@prisma/client';
 import {
   NPC_WORKER_POLL_INTERVAL_MS,
   NPC_WORKER_LOCK_DURATION_MS,
@@ -126,6 +126,60 @@ async function claimNextJob(): Promise<string | null> {
 // Job Processing
 // ═══════════════════════════════════════════════════════════════════════════════
 
+async function handlePedagogicalDiagnosisSuccess(
+  jobId: string,
+  inputData: unknown,
+  diagnosticOutput: unknown
+): Promise<void> {
+  try {
+    // Extract submissionId from inputData
+    const { submissionId } = inputData as { submissionId: string };
+    if (!submissionId) {
+      throw new Error('Missing submissionId in inputData');
+    }
+
+    // Fetch submission with student and coach
+    const submission = await prisma.copySubmission.findUnique({
+      where: { id: submissionId },
+      include: { student: true },
+    });
+
+    if (!submission) {
+      throw new Error(`Submission not found: ${submissionId}`);
+    }
+
+    // Create PedagogicalReport in a transaction
+    await prisma.$transaction(async (tx) => {
+      // Create the report
+      const report = await tx.pedagogicalReport.create({
+        data: {
+          studentId: submission.studentId,
+          coachId: submission.coachId,
+          copySubmissionId: submission.id,
+          status: PedagogicalReportStatus.DRAFT,
+          visibility: 'COACH_ONLY',
+          diagnostic: diagnosticOutput as any,
+          strengths: (diagnosticOutput as any)?.strengths || [],
+          weaknesses: (diagnosticOutput as any)?.weaknesses || [],
+        },
+      });
+
+      // Update submission status to COMPLETED
+      await tx.copySubmission.update({
+        where: { id: submissionId },
+        data: {
+          status: CopySubmissionStatus.COMPLETED,
+        },
+      });
+
+      console.log(`[${jobId}] Created PedagogicalReport ${report.id} for submission ${submissionId}`);
+    });
+  } catch (error) {
+    console.error(`[${jobId}] Error in handlePedagogicalDiagnosisSuccess:`, error);
+    throw error; // Re-throw to trigger job failure handling
+  }
+}
+
 async function processJob(jobId: string): Promise<void> {
   const startTime = Date.now();
 
@@ -165,6 +219,11 @@ async function processJob(jobId: string): Promise<void> {
 
     // Update job status
     if (result.success) {
+      // Special post-processing for PEDAGOGICAL_DIAGNOSIS
+      if (job.type === AiJobType.PEDAGOGICAL_DIAGNOSIS) {
+        await handlePedagogicalDiagnosisSuccess(jobId, job.inputData, result.output as any);
+      }
+
       await prisma.aiProcessingJob.update({
         where: { id: jobId },
         data: {
@@ -189,7 +248,7 @@ async function handleJobFailure(jobId: string, errorMessage: string): Promise<vo
   try {
     const job = await prisma.aiProcessingJob.findUnique({
       where: { id: jobId },
-      select: { retryCount: true, maxRetries: true },
+      select: { retryCount: true, maxRetries: true, type: true, inputData: true },
     });
 
     if (!job) return;
@@ -218,6 +277,21 @@ async function handleJobFailure(jobId: string, errorMessage: string): Promise<vo
           completedAt: new Date(),
         },
       });
+
+      // If this was a PEDAGOGICAL_DIAGNOSIS job, also update submission status
+      if (job.type === AiJobType.PEDAGOGICAL_DIAGNOSIS) {
+        const { submissionId } = job.inputData as { submissionId: string };
+        if (submissionId) {
+          await prisma.copySubmission.update({
+            where: { id: submissionId },
+            data: {
+              status: CopySubmissionStatus.ANALYSIS_FAILED,
+            },
+          });
+          console.log(`[${jobId}] Updated submission ${submissionId} to ANALYSIS_FAILED`);
+        }
+      }
+
       console.log(`[${jobId}] Failed after ${job.maxRetries} retries`);
     }
   } catch (error) {

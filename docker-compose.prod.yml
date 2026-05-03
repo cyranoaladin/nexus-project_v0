@@ -137,6 +137,52 @@ services:
       start_period: 40s
 
   # ========================================
+  # NPC Worker - AI Job Processor
+  # ========================================
+  npc-worker:
+    build:
+      context: .
+      dockerfile: services/npc-worker/Dockerfile
+    container_name: nexus-npc-worker-prod
+    restart: unless-stopped
+    environment:
+      # Node
+      NODE_ENV: production
+
+      # Database
+      DATABASE_URL: postgresql://${POSTGRES_USER:-nexus_user}:${POSTGRES_PASSWORD}@nexus-postgres-prod:5432/${POSTGRES_DB:-nexus_reussite_prod}?schema=public
+
+      # AI Services (Chutes.ai for NPC)
+      CHUTES_API_KEY: ${CHUTES_API_KEY:-}
+      CHUTES_BASE_URL: ${CHUTES_BASE_URL:-https://api.chutes.ai}
+
+      # NPC Worker Configuration
+      NPC_LLM_MODE: ${NPC_LLM_MODE:-stub}
+      NPC_WORKER_POLL_INTERVAL_MS: ${NPC_WORKER_POLL_INTERVAL_MS:-5000}
+      NPC_WORKER_LOCK_DURATION_MS: ${NPC_WORKER_LOCK_DURATION_MS:-300000}
+      NPC_MAX_RETRY_ATTEMPTS: ${NPC_MAX_RETRY_ATTEMPTS:-3}
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    networks:
+      - nexus-network
+
+    healthcheck:
+      test: ["CMD", "node", "-e", "console.log('healthy')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ========================================
   # Nginx Reverse Proxy (DISABLED - Managed by Host Nginx)
   # ========================================
   # nginx:
