@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import { CopySubmissionStatus, UserRole, AiJobType, AiJobStatus } from '@prisma/client';
+import { CopySubmissionStatus, UserRole, AiJobType, AiJobStatus, AiJobPriority } from '@prisma/client';
 import {
   FILE_VALIDATION_ERRORS,
   validateUploadedFile,
@@ -214,7 +214,7 @@ export async function POST(
           data: {
             type: AiJobType.VISION_OCR,
             status: AiJobStatus.PENDING,
-            priority: 10,
+            priority: AiJobPriority.HIGH,
             maxRetries: 3,
             inputData: JSON.stringify({
               pageId: document.id,
