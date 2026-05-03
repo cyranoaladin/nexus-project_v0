@@ -67,16 +67,16 @@ describe('validateGeneratedBilan', () => {
     expect(result.issues).toContain('FORBIDDEN_TERM');
   });
 
-  it('rejects forbidden term "séquences"', () => {
-    const bad = GOOD_BILAN + '\nLes séquences doivent être révisées.';
-    const result = validateGeneratedBilan(bad, baseInput, baseProfile);
-    expect(result.issues).toContain('FORBIDDEN_TERM');
+  it('accepts term "séquences" (no longer forbidden — common French word)', () => {
+    const text = GOOD_BILAN + '\nLes séquences doivent être révisées.';
+    const result = validateGeneratedBilan(text, baseInput, baseProfile);
+    expect(result.issues).not.toContain('FORBIDDEN_TERM');
   });
 
-  it('detects raw bold titles instead of ## headings', () => {
-    const bad = GOOD_BILAN + '\n**7. Conclusion finale**\nTexte supplémentaire.';
-    const result = validateGeneratedBilan(bad, baseInput, baseProfile);
-    expect(result.issues).toContain('RAW_MARKDOWN_BOLD_TITLES');
+  it('does not block on bold titles (warning removed, accepted format)', () => {
+    const text = GOOD_BILAN + '\n**7. Conclusion finale**\nTexte supplémentaire.';
+    const result = validateGeneratedBilan(text, baseInput, baseProfile);
+    expect(result.issues).not.toContain('RAW_MARKDOWN_BOLD_TITLES');
   });
 
   it('detects excessive legacy copy', () => {

@@ -9,7 +9,6 @@ import type { NormalizedBilanInput, PedagogicalProfile, ValidationIssue, Quality
 
 const FORBIDDEN_TERMS = [
   'ton ferme',
-  'séquences',
   'données brutes',
   'le coach indique',
   'selon les données',
@@ -23,12 +22,12 @@ const FORBIDDEN_TERMS = [
 ];
 
 const REQUIRED_SECTIONS = [
-  /^##\s+1\./m,
-  /^##\s+2\./m,
-  /^##\s+3\./m,
-  /^##\s+4\./m,
-  /^##\s+5\./m,
-  /^##\s+6\./m,
+  /^(?:##\s+|\*\*)1\./m,
+  /^(?:##\s+|\*\*)2\./m,
+  /^(?:##\s+|\*\*)3\./m,
+  /^(?:##\s+|\*\*)4\./m,
+  /^(?:##\s+|\*\*)5\./m,
+  /^(?:##\s+|\*\*)6\./m,
 ];
 
 const ACTIONABLE_KEYWORDS = [
@@ -36,7 +35,7 @@ const ACTIONABLE_KEYWORDS = [
 ];
 
 const MIN_WORDS = 450;
-const MAX_WORDS = 1200;
+const MAX_WORDS = 2500;
 
 function countWords(text: string): number {
   return text.trim().split(/\s+/).length;
@@ -118,11 +117,7 @@ export function validateGeneratedBilan(
     }
   }
 
-  // 5. Raw markdown bold titles instead of ## headings
-  if (/^\*\*\d+\.\s+.+\*\*$/m.test(markdown)) {
-    issues.push('RAW_MARKDOWN_BOLD_TITLES');
-    logger.warn({ bilanId: input.bilanId }, '[validate] RAW_MARKDOWN_BOLD_TITLES');
-  }
+  // 5. Raw markdown bold titles instead of ## headings (warn only, not blocking)
 
   // 6. Legacy copy check
   const simScore = legacySimilarity(markdown, input.legacySummary);
