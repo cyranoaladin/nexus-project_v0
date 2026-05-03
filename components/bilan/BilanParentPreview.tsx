@@ -1,64 +1,160 @@
-import React from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import type { Components } from 'react-markdown';
+'use client';
 
-const markdownComponents: Components = {
-  h1: ({ children }) => (
-    <h1 style={{ fontSize: '1.375rem', fontWeight: 700, color: '#1e1b4b', marginTop: '2rem', marginBottom: '0.75rem', lineHeight: 1.3 }}>
-      {children}
-    </h1>
-  ),
-  h2: ({ children }) => (
-    <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#312e81', marginTop: '1.75rem', marginBottom: '0.5rem', lineHeight: 1.4, borderBottom: '1px solid #e0e7ff', paddingBottom: '0.375rem' }}>
-      {children}
-    </h2>
-  ),
-  h3: ({ children }) => (
-    <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#3730a3', marginTop: '1.25rem', marginBottom: '0.4rem' }}>
-      {children}
-    </h3>
-  ),
-  p: ({ children }) => (
-    <p style={{ fontSize: '0.9375rem', color: '#374151', lineHeight: 1.8, marginBottom: '0.875rem', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
-      {children}
-    </p>
-  ),
-  strong: ({ children }) => (
-    <strong style={{ fontWeight: 700, color: '#1e1b4b' }}>{children}</strong>
-  ),
-  em: ({ children }) => (
-    <em style={{ fontStyle: 'italic', color: '#4338ca' }}>{children}</em>
-  ),
-  ul: ({ children }) => (
-    <ul style={{ paddingLeft: '1.5rem', marginBottom: '0.875rem', listStyleType: 'disc' }}>
-      {children}
-    </ul>
-  ),
-  ol: ({ children }) => (
-    <ol style={{ paddingLeft: '1.5rem', marginBottom: '0.875rem', listStyleType: 'decimal' }}>
-      {children}
-    </ol>
-  ),
-  li: ({ children }) => (
-    <li style={{ fontSize: '0.9375rem', color: '#374151', lineHeight: 1.75, marginBottom: '0.25rem', wordBreak: 'break-word' }}>
-      {children}
-    </li>
-  ),
-  hr: () => (
-    <hr style={{ border: 'none', borderTop: '1px solid #e0e7ff', margin: '1.5rem 0' }} />
-  ),
-  blockquote: ({ children }) => (
-    <blockquote style={{ borderLeft: '3px solid #6366f1', paddingLeft: '1rem', marginLeft: 0, color: '#4338ca', fontStyle: 'italic', margin: '1rem 0' }}>
-      {children}
-    </blockquote>
-  ),
-  code: ({ children }) => (
-    <code style={{ background: '#f1f5f9', padding: '0.1em 0.4em', borderRadius: '4px', fontSize: '0.875em', color: '#1e293b' }}>
-      {children}
-    </code>
-  ),
-};
+import React from 'react';
+
+// --- Inline markdown renderer (no external dependency) ---
+
+type Block =
+  | { type: 'heading'; text: string }
+  | { type: 'hr' }
+  | { type: 'bullet'; items: Inline[][] }
+  | { type: 'paragraph'; inlines: Inline[] };
+
+type Inline =
+  | { type: 'text'; value: string }
+  | { type: 'bold'; value: string }
+  | { type: 'italic'; value: string };
+
+function parseInlines(raw: string): Inline[] {
+  const result: Inline[] = [];
+  // Match **bold** or *italic*
+  const re = /(\*\*(.+?)\*\*|\*(.+?)\*)/g;
+  let last = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(raw)) !== null) {
+    if (m.index > last) result.push({ type: 'text', value: raw.slice(last, m.index) });
+    if (m[0].startsWith('**')) result.push({ type: 'bold', value: m[2] });
+    else result.push({ type: 'italic', value: m[3] });
+    last = m.index + m[0].length;
+  }
+  if (last < raw.length) result.push({ type: 'text', value: raw.slice(last) });
+  return result;
+}
+
+function parseBlocks(text: string): Block[] {
+  const blocks: Block[] = [];
+  const lines = text.split('\n');
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    // Skip empty lines
+    if (!trimmed) { i++; continue; }
+
+    // HR
+    if (/^---+$/.test(trimmed)) { blocks.push({ type: 'hr' }); i++; continue; }
+
+    // Heading: ## or ### or **N. Title** pattern
+    if (/^#{1,3} /.test(trimmed)) {
+      blocks.push({ type: 'heading', text: trimmed.replace(/^#{1,3} /, '') });
+      i++; continue;
+    }
+    // Bold-only line used as heading by Mistral: **1. Synthèse générale**
+    if (/^\*\*\d+\.\s+.+\*\*$/.test(trimmed)) {
+      blocks.push({ type: 'heading', text: trimmed.replace(/^\*\*|\*\*$/g, '') });
+      i++; continue;
+    }
+
+    // Bullet list: collect consecutive bullet lines
+    if (/^[-*] /.test(trimmed)) {
+      const items: Inline[][] = [];
+      while (i < lines.length && /^[-*] /.test(lines[i].trim())) {
+        items.push(parseInlines(lines[i].trim().replace(/^[-*] /, '')));
+        i++;
+      }
+      blocks.push({ type: 'bullet', items });
+      continue;
+    }
+
+    // Paragraph: collect consecutive non-empty, non-special lines
+    const paraLines: string[] = [];
+    while (
+      i < lines.length &&
+      lines[i].trim() &&
+      !/^---+$/.test(lines[i].trim()) &&
+      !/^#{1,3} /.test(lines[i].trim()) &&
+      !/^\*\*\d+\.\s+.+\*\*$/.test(lines[i].trim()) &&
+      !/^[-*] /.test(lines[i].trim())
+    ) {
+      paraLines.push(lines[i].trim());
+      i++;
+    }
+    if (paraLines.length > 0) {
+      blocks.push({ type: 'paragraph', inlines: parseInlines(paraLines.join(' ')) });
+    }
+  }
+  return blocks;
+}
+
+function renderInlines(inlines: Inline[], key?: string): React.ReactNode {
+  return inlines.map((node, idx) => {
+    const k = `${key ?? ''}-${idx}`;
+    if (node.type === 'bold') return <strong key={k} style={{ fontWeight: 700, color: '#1e1b4b' }}>{node.value}</strong>;
+    if (node.type === 'italic') return <em key={k} style={{ fontStyle: 'italic', color: '#4338ca' }}>{node.value}</em>;
+    return <React.Fragment key={k}>{node.value}</React.Fragment>;
+  });
+}
+
+function renderBlocks(blocks: Block[]): React.ReactNode {
+  return blocks.map((block, idx) => {
+    if (block.type === 'hr') {
+      return <hr key={idx} style={{ border: 'none', borderTop: '1px solid #e0e7ff', margin: '1.5rem 0' }} />;
+    }
+    if (block.type === 'heading') {
+      return (
+        <div key={idx} style={{
+          fontSize: '1.0625rem',
+          fontWeight: 700,
+          color: '#312e81',
+          marginTop: '1.75rem',
+          marginBottom: '0.75rem',
+          paddingBottom: '0.5rem',
+          borderBottom: '2px solid #e0e7ff',
+          lineHeight: 1.4,
+        }}>
+          {renderInlines(parseInlines(block.text), `h-${idx}`)}
+        </div>
+      );
+    }
+    if (block.type === 'bullet') {
+      return (
+        <ul key={idx} style={{ paddingLeft: '1.5rem', marginBottom: '1rem', marginTop: '0.25rem' }}>
+          {block.items.map((item, j) => (
+            <li key={j} style={{
+              fontSize: '0.9375rem',
+              color: '#374151',
+              lineHeight: 1.8,
+              marginBottom: '0.375rem',
+              listStyleType: 'disc',
+              overflowWrap: 'break-word',
+              wordBreak: 'break-word',
+            }}>
+              {renderInlines(item, `li-${idx}-${j}`)}
+            </li>
+          ))}
+        </ul>
+      );
+    }
+    if (block.type === 'paragraph') {
+      return (
+        <p key={idx} style={{
+          fontSize: '0.9375rem',
+          color: '#374151',
+          lineHeight: 1.85,
+          marginBottom: '0.875rem',
+          overflowWrap: 'break-word',
+          wordBreak: 'break-word',
+        }}>
+          {renderInlines(block.inlines, `p-${idx}`)}
+        </p>
+      );
+    }
+    return null;
+  });
+}
+
+// --- Component ---
 
 export default function BilanParentPreview({ bilanText }: { bilanText: string }) {
   if (!bilanText) return (
@@ -66,6 +162,8 @@ export default function BilanParentPreview({ bilanText }: { bilanText: string })
       Aucune synthèse générée pour le moment.
     </div>
   );
+
+  const blocks = parseBlocks(bilanText);
 
   return (
     <div style={{
@@ -77,6 +175,9 @@ export default function BilanParentPreview({ bilanText }: { bilanText: string })
       width: '100%',
       boxSizing: 'border-box',
       fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
+      overflowWrap: 'break-word',
+      wordBreak: 'break-word',
+      minWidth: 0,
     }}>
 
       {/* Header */}
@@ -86,17 +187,15 @@ export default function BilanParentPreview({ bilanText }: { bilanText: string })
           alt="Nexus Réussite"
           style={{ height: '48px', width: 'auto', objectFit: 'contain' }}
         />
-        <span style={{ padding: '0.3rem 1rem', background: '#fffbeb', color: '#92400e', fontSize: '0.8125rem', fontWeight: 600, borderRadius: '999px', border: '1px solid #fcd34d', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+        <span style={{ padding: '0.3rem 1rem', background: '#fffbeb', color: '#92400e', fontSize: '0.8125rem', fontWeight: 600, borderRadius: '999px', border: '1px solid #fcd34d', display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
           <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#f59e0b', display: 'inline-block' }} />
           Confidentiel
         </span>
       </div>
 
-      {/* Markdown content */}
-      <div style={{ width: '100%', overflowWrap: 'break-word', wordBreak: 'break-word', minWidth: 0 }}>
-        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-          {bilanText}
-        </ReactMarkdown>
+      {/* Rendered content */}
+      <div style={{ width: '100%', minWidth: 0 }}>
+        {renderBlocks(blocks)}
       </div>
 
       {/* Footer */}
