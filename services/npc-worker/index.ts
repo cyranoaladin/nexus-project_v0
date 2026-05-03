@@ -195,8 +195,12 @@ async function handlePedagogicalDiagnosisSuccess(
           status: PedagogicalReportStatus.DRAFT,
           visibility: 'COACH_ONLY',
           diagnostic: diagnosticOutput as any,
-          strengths: (diagnosticOutput as any)?.strengths || [],
-          weaknesses: (diagnosticOutput as any)?.weaknesses || [],
+          strengths: ((diagnosticOutput as any)?.strengths || []).map((s: any) =>
+            typeof s === 'string' ? s : s?.skill || s?.description || JSON.stringify(s)
+          ),
+          weaknesses: ((diagnosticOutput as any)?.weaknesses || []).map((w: any) =>
+            typeof w === 'string' ? w : w?.skill || w?.description || JSON.stringify(w)
+          ),
         },
       });
 
