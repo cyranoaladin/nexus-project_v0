@@ -237,6 +237,8 @@ export default function CoachMathsIndividualReportPage() {
 
   const [bilanStatus, setBilanStatus] = useState<BilanStatus>('NOT_STARTED');
   const [previewMarkdown, setPreviewMarkdown] = useState<string | null>(null);
+  const [generationMeta, setGenerationMeta] = useState<{ qualityStatus?: string; model?: string; workflowVersion?: string; qualityIssues?: string[] } | null>(null);
+  const [generating, setGenerating] = useState(false);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -354,9 +356,11 @@ export default function CoachMathsIndividualReportPage() {
   const previewParentMessage = async () => {
     if (previewMarkdown) {
       setPreviewMarkdown(null);
+      setGenerationMeta(null);
       return;
     }
     setError(null);
+    setGenerating(true);
     try {
       const res = await fetch(`/api/coach/maths-premiere-stage-printemps/students/${studentId}/regenerate-parent`, {
         method: 'POST',
@@ -364,8 +368,17 @@ export default function CoachMathsIndividualReportPage() {
       if (res.ok) {
         const data = await res.json();
         setPreviewMarkdown(data.parentsMarkdown);
+        setGenerationMeta({
+          qualityStatus: data.qualityStatus,
+          model: data.model,
+          workflowVersion: data.workflowVersion,
+          qualityIssues: data.qualityIssues,
+        });
       } else if (res.status === 429) {
         setError('Limite d\'appels Mistral atteinte. Veuillez patienter quelques secondes avant de réessayer.');
+      } else if (res.status === 422) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.message || 'La génération n\'a pas passé le contrôle qualité. Veuillez réessayer.');
       } else {
         const data = await res.json().catch(() => ({}));
         setError(data.message || data.error || 'Échec de la génération du bilan parent.');
@@ -373,6 +386,8 @@ export default function CoachMathsIndividualReportPage() {
     } catch (err) {
       console.error('Error generating parent summary:', err);
       setError('Erreur réseau lors de la génération.');
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -1067,10 +1082,17 @@ export default function CoachMathsIndividualReportPage() {
           <button
             type="button"
             onClick={previewParentMessage}
-            className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-medium text-neutral-300 transition hover:bg-white/10"
+            disabled={generating}
+            className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-medium text-neutral-300 transition hover:bg-white/10 disabled:opacity-40"
           >
-            {previewMarkdown ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            {previewMarkdown ? 'Masquer la prévisualisation' : 'Prévisualiser la synthèse parent'}
+            {generating ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : previewMarkdown ? (
+              <EyeOff className="h-4 w-4" />
+            ) : (
+              <Eye className="h-4 w-4" />
+            )}
+            {generating ? 'Génération en cours…' : previewMarkdown ? 'Masquer la prévisualisation' : 'Générer la synthèse parent'}
           </button>
         </div>
       </form>
@@ -1086,6 +1108,26 @@ export default function CoachMathsIndividualReportPage() {
         <div className="flex items-center gap-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-300">
           <CheckCircle2 className="h-4 w-4 shrink-0" />
           {success}
+        </div>
+      )}
+
+      {/* Generation quality badge */}
+      {generationMeta && (
+        <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-neutral-400">
+          <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-semibold ${
+            generationMeta.qualityStatus === 'PASS'
+              ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20'
+              : generationMeta.qualityStatus === 'WARN'
+              ? 'bg-amber-500/10 text-amber-300 border border-amber-500/20'
+              : 'bg-red-500/10 text-red-300 border border-red-500/20'
+          }`}>
+            {generationMeta.qualityStatus === 'PASS' ? '✓ Qualité validée' : generationMeta.qualityStatus === 'WARN' ? '⚠ Qualité acceptable' : '✗ Qualité insuffisante'}
+          </span>
+          {generationMeta.model && <span>Modèle : {generationMeta.model}</span>}
+          {generationMeta.workflowVersion && <span>Workflow v{generationMeta.workflowVersion}</span>}
+          {generationMeta.qualityIssues && generationMeta.qualityIssues.length > 0 && (
+            <span className="text-amber-400">Issues : {generationMeta.qualityIssues.join(', ')}</span>
+          )}
         </div>
       )}
 
