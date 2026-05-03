@@ -309,7 +309,7 @@ describe('CoachMathsBilanSchema validation', () => {
     const invalidData = {
       action: 'draft' as const,
       globalDiagnostic: {
-        mainCoachMessage: 'A'.repeat(301), // Exceeds 300 char limit
+        mainCoachMessage: 'A'.repeat(601), // Exceeds updated 600 char limit
       },
     };
     const result = coachMathsBilanSchema.safeParse(invalidData);

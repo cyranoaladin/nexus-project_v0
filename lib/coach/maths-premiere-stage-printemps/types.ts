@@ -66,9 +66,9 @@ export const finalAssessmentSchema = z.object({
   writtenJustification: z.number().min(1).max(5).optional(),
   methodSelection: z.number().min(1).max(5).optional(),
   resilience: z.number().min(1).max(5).optional(),
-  mostAvoidableMistake: z.string().max(250).optional(),
-  strongestFinalTestPoint: z.string().max(250).optional(),
-  priorityBeforeExam: z.string().max(250).optional(),
+  mostAvoidableMistake: z.string().max(500).optional(),
+  strongestFinalTestPoint: z.string().max(500).optional(),
+  priorityBeforeExam: z.string().max(500).optional(),
 });
 
 // Guided parent message schema (P0 restructuring)
@@ -83,19 +83,28 @@ export const parentRecommendationsSchema = z.object({
   // New guided fields (P0)
   parentTone: z.enum(['REASSURING', 'BALANCED', 'FIRM_BUT_SUPPORTIVE']).optional(),
   parentUrgency: z.enum(['NORMAL', 'WATCH', 'IMPORTANT', 'PRIORITY']).optional(),
-  parentMainMessage: z.string().max(300).optional(),
-  parentDoNotSay: z.string().max(200).optional(),
+  parentMainMessage: z.string().max(600).optional(),
+  parentDoNotSay: z.string().max(400).optional(),
 });
 
 // Chapter diagnostic item schema (P0 restructuring)
 export const chapterDiagnosticSchema = z.object({
   mastery: z.number().min(1).max(5).optional(),
-  methodsAcquired: z.array(z.string().max(100)).max(10).optional(),
-  vigilancePoints: z.array(z.string().max(100)).max(10).optional(),
-  recurringErrors: z.array(z.string().max(100)).max(10).optional(),
-  revealingExercise: z.string().max(250).optional(),
-  strength: z.string().max(250).optional(),
-  priorityRemediation: z.string().max(250).optional(),
+  methodsAcquired: z.preprocess(
+    (v) => Array.isArray(v) ? v.map((s: unknown) => typeof s === 'string' ? s.slice(0, 300) : s) : v,
+    z.array(z.string().max(300)).max(10).optional()
+  ),
+  vigilancePoints: z.preprocess(
+    (v) => Array.isArray(v) ? v.map((s: unknown) => typeof s === 'string' ? s.slice(0, 300) : s) : v,
+    z.array(z.string().max(300)).max(10).optional()
+  ),
+  recurringErrors: z.preprocess(
+    (v) => Array.isArray(v) ? v.map((s: unknown) => typeof s === 'string' ? s.slice(0, 300) : s) : v,
+    z.array(z.string().max(300)).max(10).optional()
+  ),
+  revealingExercise: z.string().max(500).optional(),
+  strength: z.string().max(500).optional(),
+  priorityRemediation: z.string().max(500).optional(),
 });
 
 // Global diagnostic schema (P0 restructuring)
@@ -105,7 +114,7 @@ export const globalDiagnosticSchema = z.object({
   errorManagement: z.enum(['SELF_CORRECTING', 'ACCEPTS_HELP', 'IGNORES_ERRORS', 'REPEATS_ERRORS', 'ANXIOUS_ABOUT_MISTAKES']).optional(),
   autonomyLevel: z.enum(['FULLY_AUTONOMOUS', 'NEEDS_PROMPTS', 'NEEDS_GUIDANCE', 'DEPENDENT', 'AVOIDS_EFFORT']).optional(),
   confidenceLevel: z.enum(['OVER_CONFIDENT', 'CONFIDENT', 'HESITANT', 'LACKS_CONFIDENCE', 'ANXIOUS']).optional(),
-  mainCoachMessage: z.string().max(300).optional(),
+  mainCoachMessage: z.string().max(600).optional(),
 });
 
 // Chapter diagnostics collection (P0 restructuring)
