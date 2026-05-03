@@ -8,9 +8,11 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { FileUploadZone } from '@/components/npc/coach/FileUploadZone';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, ArrowLeft } from 'lucide-react';
+import { FileText, ArrowLeft, RefreshCw, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { CopySubmissionStatus } from '@prisma/client';
 
 interface UploadPageProps {
   params: Promise<{ submissionId: string }>;
@@ -37,6 +39,7 @@ export default async function UploadPage({ params }: UploadPageProps) {
         include: { user: true },
       },
       pages: true,
+      report: true,
     },
   });
 
@@ -87,6 +90,75 @@ export default async function UploadPage({ params }: UploadPageProps) {
           <span>{submission.subject}</span>
         </div>
       </div>
+
+      {/* Status Banner */}
+      <Card className={`mb-6 ${
+        submission.status === CopySubmissionStatus.COMPLETED
+          ? 'bg-green-50 border-green-200'
+          : submission.status === CopySubmissionStatus.QUEUED_FOR_ANALYSIS ||
+            submission.status === CopySubmissionStatus.ANALYZING
+          ? 'bg-blue-50 border-blue-200'
+          : submission.status === CopySubmissionStatus.ANALYSIS_FAILED
+          ? 'bg-red-50 border-red-200'
+          : 'bg-gray-50 border-gray-200'
+      }`}>
+        <CardContent className="py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {submission.status === CopySubmissionStatus.COMPLETED ? (
+                <CheckCircle className="h-5 w-5 text-green-600" />
+              ) : submission.status === CopySubmissionStatus.QUEUED_FOR_ANALYSIS ||
+                submission.status === CopySubmissionStatus.ANALYZING ? (
+                <Clock className="h-5 w-5 text-blue-600 animate-spin" />
+              ) : submission.status === CopySubmissionStatus.ANALYSIS_FAILED ? (
+                <AlertTriangle className="h-5 w-5 text-red-600" />
+              ) : (
+                <FileText className="h-5 w-5 text-gray-600" />
+              )}
+              <div>
+                <p className="text-sm font-medium">
+                  {submission.status === CopySubmissionStatus.COMPLETED
+                    ? 'Correction terminée'
+                    : submission.status === CopySubmissionStatus.QUEUED_FOR_ANALYSIS
+                    ? 'Correction en file d\'attente'
+                    : submission.status === CopySubmissionStatus.ANALYZING
+                    ? 'Analyse en cours'
+                    : submission.status === CopySubmissionStatus.ANALYSIS_FAILED
+                    ? 'Analyse échouée'
+                    : 'Documents à uploader'}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {submission.pages.length} document(s) attaché(s)
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline">{submission.status}</Badge>
+              {submission.status === CopySubmissionStatus.COMPLETED && submission.report && (
+                <Link href={`/dashboard/coach/npc/reports/${submission.report.id}`}>
+                  <Button size="sm">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Voir le rapport
+                  </Button>
+                </Link>
+              )}
+              {(submission.status === CopySubmissionStatus.QUEUED_FOR_ANALYSIS ||
+                submission.status === CopySubmissionStatus.ANALYZING) && (
+                <Button size="sm" variant="outline" onClick={() => window.location.reload()}>
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Rafraîchir
+                </Button>
+              )}
+              {submission.status === CopySubmissionStatus.ANALYSIS_FAILED && (
+                <Button size="sm" variant="outline" onClick={() => window.location.reload()}>
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Réessayer
+                </Button>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Upload Zone */}
