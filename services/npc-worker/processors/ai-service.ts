@@ -311,6 +311,18 @@ export async function processVisionOcr(
   mimeType: string = 'image/png'
 ): Promise<{ success: true; output: unknown; tokensUsed: number } | { success: false; error: string }> {
   try {
+    if (NPC_LLM_MODE === 'off') {
+      return { success: false, error: 'LLM_MODE_OFF' };
+    }
+
+    if (NPC_LLM_MODE === 'stub') {
+      return {
+        success: true,
+        output: { text: '[OCR STUB] Texte extrait simulé pour les tests.', confidence: 0.99 },
+        tokensUsed: 100,
+      };
+    }
+
     const result = await chutesClient.visionOcr(imageBase64, mimeType);
 
     if (!result.success) {
