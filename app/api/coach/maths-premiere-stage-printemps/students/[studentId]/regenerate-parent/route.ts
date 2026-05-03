@@ -53,7 +53,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       },
       orderBy: { createdAt: 'desc' },
     });
-    console.log('[POST regenerate-parent] Bilan found:', bilan?.id);
+    console.log('[POST regenerate-parent] Bilan found:', bilan?.id, 'has sourceData:', !!bilan?.sourceData);
 
     if (!bilan) {
       console.error('[POST regenerate-parent] Bilan not found');
@@ -66,6 +66,7 @@ export async function POST(request: Request, { params }: RouteParams) {
     }
 
     const sourceData = bilan.sourceData as Record<string, unknown>;
+    console.log('[POST regenerate-parent] Source data keys:', Object.keys(sourceData));
 
     // Extract data from sourceData for the prompt (Stage Printemps structure)
     const studentName = bilan.studentName;
