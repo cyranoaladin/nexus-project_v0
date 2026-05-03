@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import { CopySubmissionStatus, UserRole } from '@prisma/client';
+import { CopySubmissionStatus, UserRole, AiJobType, AiJobStatus } from '@prisma/client';
 import {
   FILE_VALIDATION_ERRORS,
   validateUploadedFile,
@@ -206,6 +206,25 @@ export async function POST(
       });
 
       documents.push(document);
+
+      // Create VISION_OCR job for each STUDENT_COPY page
+      if (documentType === 'STUDENT_COPY') {
+        const filePath = storageResult.relativePath!;
+        await prisma.aiProcessingJob.create({
+          data: {
+            type: AiJobType.VISION_OCR,
+            status: AiJobStatus.PENDING,
+            priority: 10,
+            maxRetries: 3,
+            inputData: JSON.stringify({
+              pageId: document.id,
+              submissionId,
+              filePath,
+              mimeType: file.type,
+            }),
+          },
+        });
+      }
     }
 
     const documentTypes = [

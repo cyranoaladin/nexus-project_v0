@@ -3,7 +3,7 @@
 // Asynchronous AI job processor for Nexus Pedagogy Cockpit
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { PrismaClient, AiJobStatus, AiJobType, CopySubmissionStatus, PedagogicalReportStatus } from '@prisma/client';
+import { PrismaClient, AiJobStatus, AiJobType, CopySubmissionStatus, CopyPageStatus, PedagogicalReportStatus } from '@prisma/client';
 import {
   NPC_WORKER_POLL_INTERVAL_MS,
   NPC_WORKER_LOCK_DURATION_MS,
@@ -40,8 +40,16 @@ interface JobProcessor {
 const processors: Record<AiJobType, JobProcessor> = {
   [AiJobType.VISION_OCR]: async (jobId, input) => {
     console.log(`[${jobId}] Processing VISION_OCR...`);
-    const { imageBase64, mimeType } = input as { imageBase64: string; mimeType: string };
-    return processVisionOcr(jobId, imageBase64, mimeType);
+    const parsed = typeof input === 'string' ? JSON.parse(input) : input;
+    const { filePath, mimeType } = parsed as { pageId: string; submissionId: string; filePath: string; mimeType: string };
+    // Read file from disk and convert to base64
+    const fs = await import('fs/promises');
+    const path = await import('path');
+    const UPLOAD_DIR = process.env.UPLOAD_DIR || '/var/lib/nexus/uploads';
+    const absolutePath = path.join(UPLOAD_DIR, filePath);
+    const fileBuffer = await fs.readFile(absolutePath);
+    const imageBase64 = fileBuffer.toString('base64');
+    return processVisionOcr(jobId, imageBase64, mimeType || 'image/jpeg');
   },
   [AiJobType.PEDAGOGICAL_DIAGNOSIS]: async (jobId, input) => {
     console.log(`[${jobId}] Processing PEDAGOGICAL_DIAGNOSIS...`);
@@ -126,6 +134,32 @@ async function claimNextJob(): Promise<string | null> {
 // ═══════════════════════════════════════════════════════════════════════════════
 // Job Processing
 // ═══════════════════════════════════════════════════════════════════════════════
+
+async function handleVisionOcrSuccess(
+  jobId: string,
+  inputData: unknown,
+  ocrOutput: { text: string; confidence?: number }
+): Promise<void> {
+  try {
+    const parsed = typeof inputData === 'string' ? JSON.parse(inputData) : inputData;
+    const { pageId } = parsed as { pageId: string };
+    if (!pageId) {
+      throw new Error('Missing pageId in VISION_OCR inputData');
+    }
+
+    await prisma.copyPage.update({
+      where: { id: pageId },
+      data: {
+        ocrText: ocrOutput.text,
+        status: CopyPageStatus.READY,
+      },
+    });
+    console.log(`[${jobId}] Saved OCR text for page ${pageId} (${ocrOutput.text?.length ?? 0} chars)`);
+  } catch (error) {
+    console.error(`[${jobId}] Error in handleVisionOcrSuccess:`, error);
+    throw error;
+  }
+}
 
 async function handlePedagogicalDiagnosisSuccess(
   jobId: string,
@@ -221,8 +255,10 @@ async function processJob(jobId: string): Promise<void> {
 
     // Update job status
     if (result.success) {
-      // Special post-processing for PEDAGOGICAL_DIAGNOSIS
-      if (job.type === AiJobType.PEDAGOGICAL_DIAGNOSIS) {
+      // Special post-processing
+      if (job.type === AiJobType.VISION_OCR) {
+        await handleVisionOcrSuccess(jobId, job.inputData, result.output as any);
+      } else if (job.type === AiJobType.PEDAGOGICAL_DIAGNOSIS) {
         await handlePedagogicalDiagnosisSuccess(jobId, job.inputData, result.output as any);
       }
 
