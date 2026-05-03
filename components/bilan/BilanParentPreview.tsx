@@ -75,8 +75,7 @@ export default function BilanParentPreview({ bilanText }: { bilanText: string })
       border: '1px solid #e0e7ff',
       padding: '2.5rem 3rem',
       width: '100%',
-      maxWidth: '860px',
-      margin: '1.5rem auto',
+      boxSizing: 'border-box',
       fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
     }}>
 
