@@ -77,7 +77,7 @@ export const parentRecommendationsSchema = z.object({
   // Legacy fields (kept for retrocompatibility)
   estimatedCurrentLevel: z.enum(['tres-solide', 'satisfaisant', 'fragile-mais-en-progres', 'fragile', 'preoccupant']).optional(),
   recommendedFollowUp: z.enum(['autonomie-sufficient', 'consolidation-ponctuelle', 'accompagnement-regulier', 'entrainement-intensif']).optional(),
-  priorityAxes: z.array(z.string()).max(6).optional(), // Limited to 6, display max 3
+  priorityAxes: z.array(z.string()).max(9).optional(), // All 9 frontend options can be selected; display max 3
   parentSummaryMessage: z.string().optional(), // Kept but treated as secondary note
 
   // New guided fields (P0)

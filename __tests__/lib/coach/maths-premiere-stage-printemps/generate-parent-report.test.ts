@@ -320,7 +320,7 @@ describe('CoachMathsBilanSchema validation', () => {
     const invalidData = {
       action: 'draft' as const,
       parentRecommendations: {
-        priorityAxes: Array(7).fill('derivation'), // Exceeds max 6
+        priorityAxes: Array(10).fill('derivation'), // Exceeds updated max of 9
       },
     };
     const result = coachMathsBilanSchema.safeParse(invalidData);

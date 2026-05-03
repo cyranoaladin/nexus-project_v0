@@ -65,7 +65,7 @@ export async function generateBilanMarkdownWithMistral(
         model,
         messages,
         temperature,
-        max_tokens: 2200,
+        max_tokens: 4096,
       }),
       signal: controller.signal,
     });
