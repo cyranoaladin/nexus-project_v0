@@ -8,6 +8,7 @@ type Block =
   | { type: 'heading'; text: string }
   | { type: 'hr' }
   | { type: 'bullet'; items: Inline[][] }
+  | { type: 'sub_heading'; label: string; rest: Inline[] }
   | { type: 'paragraph'; inlines: Inline[] };
 
 type Inline =
@@ -90,13 +91,48 @@ function parseBlocks(text: string): Block[] {
       !/^---+$/.test(lines[i].trim()) &&
       !/^#{1,3} /.test(lines[i].trim()) &&
       !/^\*\*\d+\.\s+.+\*\*$/.test(lines[i].trim()) &&
-      !/^[-*] /.test(lines[i].trim())
+      !/^[-*] /.test(lines[i].trim()) &&
+      !/^\d+\. /.test(lines[i].trim())
     ) {
       paraLines.push(lines[i].trim());
       i++;
     }
     if (paraLines.length > 0) {
-      blocks.push({ type: 'paragraph', inlines: parseInlines(paraLines.join(' ')) });
+      const joined = paraLines.join(' ');
+
+      // 1. Split inline numbered list: '1. foo 2. bar 3. baz' on a single paragraph line
+      if (/\d+\. .+ \d+\. /.test(joined)) {
+        const parts = joined.split(/ (?=\d+\. )/);
+        const items = parts
+          .map(p => p.replace(/^\d+\. /, '').trim())
+          .filter(Boolean)
+          .map(p => parseInlines(p));
+        if (items.length > 1) {
+          blocks.push({ type: 'bullet', items });
+          continue;
+        }
+      }
+
+      // 2. Split on inline bold sub-heading labels: **Difficulté observée :** text **Conséquence :** text
+      const subParts = joined.split(/(\*\*[^*]+:\s*\*\*)/);
+      if (subParts.length > 1) {
+        let labelPending: string | null = null;
+        for (const part of subParts) {
+          if (!part.trim()) continue;
+          const labelMatch = part.match(/^\*\*([^*]+:\s*)\*\*$/);
+          if (labelMatch) {
+            labelPending = labelMatch[1].trim();
+          } else if (labelPending !== null) {
+            blocks.push({ type: 'sub_heading', label: labelPending, rest: parseInlines(part.trim()) });
+            labelPending = null;
+          } else {
+            blocks.push({ type: 'paragraph', inlines: parseInlines(part.trim()) });
+          }
+        }
+        continue;
+      }
+
+      blocks.push({ type: 'paragraph', inlines: parseInlines(joined) });
     }
   }
   return blocks;
@@ -139,6 +175,17 @@ function renderBlocks(blocks: Block[]): React.ReactNode {
           lineHeight: 1.4,
         }}>
           {renderInlines(parseInlines(block.text), `h-${idx}`)}
+        </div>
+      );
+    }
+    if (block.type === 'sub_heading') {
+      return (
+        <div key={idx} style={{ marginBottom: '0.625rem', marginTop: idx > 0 ? '0.75rem' : 0 }}>
+          <span style={{ fontWeight: 700, color: '#4338ca', fontSize: '0.9375rem' }}>{block.label}</span>
+          {' '}
+          <span style={{ fontSize: '0.9375rem', color: '#374151', lineHeight: 1.8 }}>
+            {renderInlines(block.rest, `sh-${idx}`)}
+          </span>
         </div>
       );
     }
