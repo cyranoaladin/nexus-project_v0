@@ -61,12 +61,6 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       match: 'exact'
     },
     {
-      label: 'Mes Enfants',
-      href: '/dashboard/parent/children',
-      icon: 'Users',
-      match: 'prefix'
-    },
-    {
       label: 'Abonnements',
       href: '/dashboard/parent/abonnements',
       icon: 'CreditCard',
