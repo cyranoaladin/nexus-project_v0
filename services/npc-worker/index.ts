@@ -45,7 +45,8 @@ const processors: Record<AiJobType, JobProcessor> = {
   },
   [AiJobType.PEDAGOGICAL_DIAGNOSIS]: async (jobId, input) => {
     console.log(`[${jobId}] Processing PEDAGOGICAL_DIAGNOSIS...`);
-    const { submissionId } = input as { submissionId: string };
+    const parsed = typeof input === 'string' ? JSON.parse(input) : input;
+    const { submissionId } = parsed as { submissionId: string };
     return processPedagogicalDiagnosis(jobId, submissionId);
   },
   [AiJobType.COMPETENCE_MATRIX]: async (jobId, input) => {
@@ -132,8 +133,9 @@ async function handlePedagogicalDiagnosisSuccess(
   diagnosticOutput: unknown
 ): Promise<void> {
   try {
-    // Extract submissionId from inputData
-    const { submissionId } = inputData as { submissionId: string };
+    // Extract submissionId from inputData (may be a JSON string)
+    const parsedInput = typeof inputData === 'string' ? JSON.parse(inputData) : inputData;
+    const { submissionId } = parsedInput as { submissionId: string };
     if (!submissionId) {
       throw new Error('Missing submissionId in inputData');
     }
