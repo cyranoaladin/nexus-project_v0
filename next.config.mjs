@@ -32,6 +32,32 @@ const nextConfig = {
     unoptimized: true, // Désactiver l'optimisation d'images Next.js
   },
 
+  // Prevent ChunkLoadError after deploys: HTML pages must never be served from cache
+  // (static chunks are fine — they have content-hash filenames)
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
+          },
+        ],
+      },
+      {
+        // But static hashed chunks CAN be cached long-term
+        source: '/_next/static/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+    ];
+  },
+
   // Redirections pour restructuration navigation
   async redirects() {
     return [
