@@ -92,6 +92,7 @@ services:
       OPENAI_EMBEDDINGS_MODEL: ${OPENAI_EMBEDDINGS_MODEL:-text-embedding-3-large}
       VECTOR_DIM: ${VECTOR_DIM:-3072}
       EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-openai}
+      MISTRAL_API_KEY: ${MISTRAL_API_KEY:-}
 
       # Payments Konnect (Optional - Tunisia)
       KONNECT_API_KEY: ${KONNECT_API_KEY:-}
