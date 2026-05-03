@@ -184,7 +184,13 @@ Exigences rédactionnelles :
     if (!mistralResponse.ok) {
       const errorText = await mistralResponse.text();
       console.error('[Mistral API Error]', errorText);
-      return NextResponse.json({ error: 'Mistral API call failed', details: errorText }, { status: 500 });
+      if (mistralResponse.status === 429) {
+        return NextResponse.json(
+          { error: 'Rate limit exceeded', message: 'Limite d\'appels Mistral atteinte. Veuillez patienter quelques secondes avant de réessayer.' },
+          { status: 429 }
+        );
+      }
+      return NextResponse.json({ error: 'Mistral API call failed', details: errorText }, { status: 502 });
     }
 
     const mistralData = await mistralResponse.json();

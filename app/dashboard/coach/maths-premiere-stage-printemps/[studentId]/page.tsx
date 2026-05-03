@@ -356,6 +356,7 @@ export default function CoachMathsIndividualReportPage() {
       setPreviewMarkdown(null);
       return;
     }
+    setError(null);
     try {
       const res = await fetch(`/api/coach/maths-premiere-stage-printemps/students/${studentId}/regenerate-parent`, {
         method: 'POST',
@@ -363,11 +364,15 @@ export default function CoachMathsIndividualReportPage() {
       if (res.ok) {
         const data = await res.json();
         setPreviewMarkdown(data.parentsMarkdown);
+      } else if (res.status === 429) {
+        setError('Limite d\'appels Mistral atteinte. Veuillez patienter quelques secondes avant de réessayer.');
       } else {
-        console.error('Failed to generate parent summary');
+        const data = await res.json().catch(() => ({}));
+        setError(data.message || data.error || 'Échec de la génération du bilan parent.');
       }
-    } catch (error) {
-      console.error('Error generating parent summary:', error);
+    } catch (err) {
+      console.error('Error generating parent summary:', err);
+      setError('Erreur réseau lors de la génération.');
     }
   };
 
@@ -1086,7 +1091,9 @@ export default function CoachMathsIndividualReportPage() {
 
       {/* Markdown Preview */}
       {previewMarkdown && (
-        <BilanParentPreview bilanText={previewMarkdown} />
+        <div className="w-full overflow-hidden rounded-2xl">
+          <BilanParentPreview bilanText={previewMarkdown} />
+        </div>
       )}
     </div>
   );
