@@ -67,6 +67,7 @@ export async function POST(request: Request, { params }: RouteParams) {
 
     const sourceData = bilan.sourceData as Record<string, unknown>;
     console.log('[POST regenerate-parent] Source data keys:', Object.keys(sourceData));
+    console.log('[POST regenerate-parent] Calling Mistral...');
 
     // Extract data from sourceData for the prompt (Stage Printemps structure)
     const studentName = bilan.studentName;
@@ -116,11 +117,14 @@ Rédige le bilan en Markdown avec exactement ces titres :
 
     // Call Mistral API
     const mistralApiKey = process.env.MISTRAL_API_KEY;
+    console.log('[POST regenerate-parent] MISTRAL_API_KEY present:', !!mistralApiKey);
     if (!mistralApiKey) {
       return NextResponse.json({ error: 'MISTRAL_API_KEY not configured' }, { status: 500 });
     }
 
-    const mistralResponse = await fetch('https://api.mistral.ai/v1/chat/completions', {
+    let mistralResponse: Response;
+    try {
+      mistralResponse = await fetch('https://api.mistral.ai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -171,6 +175,11 @@ Exigences rédactionnelles :
         max_tokens: 2000,
       }),
     });
+    } catch (fetchErr) {
+      console.error('[POST regenerate-parent] Mistral fetch threw:', fetchErr);
+      return NextResponse.json({ error: 'Mistral fetch failed', details: String(fetchErr) }, { status: 500 });
+    }
+    console.log('[POST regenerate-parent] Mistral response status:', mistralResponse.status);
 
     if (!mistralResponse.ok) {
       const errorText = await mistralResponse.text();
@@ -200,7 +209,7 @@ Exigences rédactionnelles :
       parentsMarkdown: generatedMarkdown,
     });
   } catch (error) {
-    console.error('[POST /api/coach/maths-premiere-stage-printemps/students/[studentId]/regenerate-parent]', error);
+    console.error('[POST regenerate-parent] Unhandled error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
