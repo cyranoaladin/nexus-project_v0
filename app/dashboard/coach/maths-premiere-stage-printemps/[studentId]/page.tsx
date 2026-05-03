@@ -22,7 +22,8 @@ import type {
   ChapterDiagnostics,
   ChapterDiagnostic,
 } from '@/lib/coach/maths-premiere-stage-printemps/types';
-import BilanParentPreview from '@/components/bilan/BilanParentPreview';
+import dynamic from 'next/dynamic';
+const BilanParentPreview = dynamic(() => import('@/components/bilan/BilanParentPreview'), { ssr: false });
 
 type StudentInfo = {
   id: string;
