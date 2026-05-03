@@ -73,6 +73,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       match: 'prefix'
     },
     {
+      label: 'Factures',
+      href: '/dashboard/parent/factures',
+      icon: 'Receipt',
+      match: 'prefix'
+    },
+    {
       label: 'Mes Ressources',
       href: '/dashboard/parent/ressources',
       icon: 'FileText',

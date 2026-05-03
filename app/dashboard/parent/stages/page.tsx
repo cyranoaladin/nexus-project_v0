@@ -13,6 +13,7 @@ import {
   AlertCircle,
   BookOpen,
   Calculator,
+  Download,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -197,9 +198,26 @@ export default function ParentStagesPage() {
                             </p>
                           </div>
                         </div>
-                        <Button variant="ghost" size="sm" className="text-brand-accent shrink-0">
-                          {isExpanded ? 'Replier' : 'Lire le bilan'}
-                        </Button>
+                        <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
+                          <a
+                            href={`/api/parent/bilans/${bilan.id}/pdf`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium border border-white/10 text-neutral-200 hover:bg-white/5 transition"
+                            title="Télécharger le bilan en PDF"
+                          >
+                            <Download className="w-4 h-4" />
+                            PDF
+                          </a>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-brand-accent"
+                            onClick={() => setExpandedBilanId(isExpanded ? null : bilan.id)}
+                          >
+                            {isExpanded ? 'Replier' : 'Lire le bilan'}
+                          </Button>
+                        </div>
                       </div>
                     </CardHeader>
                     {isExpanded && bilan.parentsMarkdown && (
