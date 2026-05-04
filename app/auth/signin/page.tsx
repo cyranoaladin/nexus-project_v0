@@ -4,6 +4,8 @@ import { SignInForm } from "./SignInForm";
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 export default function SignInPage() {
   return (
     <div className="min-h-screen bg-surface-darker">
