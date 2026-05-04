@@ -162,50 +162,52 @@ export default function DashboardEleve() {
       {/* Header */}
       <header className="bg-surface-card shadow-sm border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <User className="w-8 h-8 text-brand-accent" aria-hidden="true" />
-                <div>
-                  <h1 className="font-semibold text-white">
-                    {session?.user.firstName} {session?.user.lastName}
-                  </h1>
-                  <p className="text-sm text-neutral-400">Espace Élève</p>
-                </div>
+          {/* Row 1: user + actions */}
+          <div className="flex items-center justify-between h-14 sm:h-16 gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <User className="w-7 h-7 sm:w-8 sm:h-8 text-brand-accent shrink-0" aria-hidden="true" />
+              <div className="min-w-0">
+                <h1 className="font-semibold text-white text-sm sm:text-base truncate">
+                  {session?.user.firstName} {session?.user.lastName}
+                </h1>
+                <p className="text-xs sm:text-sm text-neutral-400 hidden sm:block">Espace Élève</p>
               </div>
-
-              {/* Navigation Tabs */}
-              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'dashboard' | 'booking')} className="ml-8">
-                <TabsList className="bg-white/5 border border-white/10">
-                  <TabsTrigger value="dashboard" className="data-[state=active]:bg-white/10 data-[state=active]:text-white">
-                    Tableau de Bord
-                  </TabsTrigger>
-                  <TabsTrigger value="booking" className="data-[state=active]:bg-white/10 data-[state=active]:text-white">
-                    Réserver Session
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
               <Button
                 variant="outline"
+                size="sm"
                 onClick={() => openAriaWithSubject()}
-                className="border-brand-accent/30 text-brand-accent hover:text-white hover:bg-brand-accent/10"
+                className="border-brand-accent/30 text-brand-accent hover:text-white hover:bg-brand-accent/10 h-8 sm:h-9 px-2 sm:px-3"
                 aria-label="Ouvrir ARIA"
               >
-                <Sparkles className="w-4 h-4 mr-2" />
-                ARIA
+                <Sparkles className="w-4 h-4 sm:mr-1.5" />
+                <span className="hidden sm:inline">ARIA</span>
               </Button>
               <Button
                 variant="ghost"
+                size="sm"
                 onClick={() => signOut({ callbackUrl: '/' })}
-                className="text-neutral-300 hover:text-white"
+                className="text-neutral-300 hover:text-white h-8 sm:h-9 px-2 sm:px-3"
                 aria-label="Se déconnecter"
               >
-                <LogOut className="w-4 h-4 mr-2" aria-hidden="true" />
-                Déconnexion
+                <LogOut className="w-4 h-4 sm:mr-1.5" aria-hidden="true" />
+                <span className="hidden sm:inline">Déconnexion</span>
               </Button>
             </div>
+          </div>
+          {/* Row 2: navigation tabs */}
+          <div className="pb-2 -mx-1 overflow-x-auto scrollbar-none">
+            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'dashboard' | 'booking')}>
+              <TabsList className="bg-white/5 border border-white/10 w-full sm:w-auto">
+                <TabsTrigger value="dashboard" className="flex-1 sm:flex-none text-xs sm:text-sm data-[state=active]:bg-white/10 data-[state=active]:text-white">
+                  Tableau de Bord
+                </TabsTrigger>
+                <TabsTrigger value="booking" className="flex-1 sm:flex-none text-xs sm:text-sm data-[state=active]:bg-white/10 data-[state=active]:text-white">
+                  Réserver Session
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
           </div>
         </div>
       </header>
@@ -217,29 +219,31 @@ export default function DashboardEleve() {
             {dashboardData && (
               <div className="space-y-6">
                 {/* Rubriques Navigation */}
-                <div className="flex flex-wrap gap-2 mb-6 p-1 bg-white/5 border border-white/10 rounded-xl">
-                  {[
-                    { id: 'cockpit', label: 'Cockpit' },
-                    { id: 'parcours', label: 'Mon Parcours' },
-                    { id: 'sessions', label: 'Sessions' },
-                    { id: 'matières', label: 'Mes Matières' },
-                    { id: 'bilans', label: 'Bilans & Retours' },
-                    { id: 'stages', label: 'Stages' },
-                  ].map((tab) => (
-                    <Button
-                      key={tab.id}
-                      onClick={() => setActiveRubrique(tab.id as any)}
-                      variant={activeRubrique === tab.id ? 'default' : 'ghost'}
-                      className={`flex-1 min-w-[120px] rounded-lg transition-all ${
-                        activeRubrique === tab.id
-                          ? 'bg-brand-accent text-white shadow-premium font-bold'
-                          : 'text-neutral-400 hover:text-white hover:bg-white/5'
-                      }`}
-                      size="sm"
-                    >
-                      {tab.label}
-                    </Button>
-                  ))}
+                <div className="mb-6 -mx-4 sm:mx-0">
+                  <div className="flex gap-1.5 sm:gap-2 p-1 bg-white/5 border-y sm:border border-white/10 sm:rounded-xl overflow-x-auto scrollbar-none px-4 sm:px-1">
+                    {[
+                      { id: 'cockpit', label: 'Cockpit' },
+                      { id: 'parcours', label: 'Parcours' },
+                      { id: 'sessions', label: 'Sessions' },
+                      { id: 'matières', label: 'Matières' },
+                      { id: 'bilans', label: 'Bilans' },
+                      { id: 'stages', label: 'Stages' },
+                    ].map((tab) => (
+                      <Button
+                        key={tab.id}
+                        onClick={() => setActiveRubrique(tab.id as any)}
+                        variant={activeRubrique === tab.id ? 'default' : 'ghost'}
+                        className={`whitespace-nowrap rounded-lg transition-all text-xs sm:text-sm px-3 sm:px-4 shrink-0 sm:flex-1 ${
+                          activeRubrique === tab.id
+                            ? 'bg-brand-accent text-white shadow-premium font-bold'
+                            : 'text-neutral-400 hover:text-white hover:bg-white/5'
+                        }`}
+                        size="sm"
+                      >
+                        {tab.label}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
 
                 {activeRubrique === 'cockpit' && (
