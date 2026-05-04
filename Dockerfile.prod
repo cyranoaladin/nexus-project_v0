@@ -27,6 +27,7 @@ RUN npx prisma generate
 # Variables d'environnement pour le build
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 # Build de l'application Next.js
 RUN npm run build
