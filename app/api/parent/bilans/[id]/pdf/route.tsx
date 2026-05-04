@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import React from 'react';
 import { renderToBuffer } from '@react-pdf/renderer';
-import { requireRole } from '@/lib/guards';
+import { requireRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
 import { BilanParentPDFDocument, type BilanParentPDFData } from '@/lib/pdf/bilan-parent-template';
 
@@ -24,7 +24,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const sessionOrError = await requireRole('PARENT');
-  if (sessionOrError instanceof NextResponse) return sessionOrError;
+  if (isErrorResponse(sessionOrError)) return sessionOrError;
 
   try {
     const { id } = await params;
@@ -75,12 +75,14 @@ export async function GET(
       stageTitle: bilan.stage?.title ?? 'Stage',
       subjectLabel: SUBJECT_LABEL[bilan.subject] ?? bilan.subject,
       coachName: bilan.coach?.pseudonym ?? null,
-      publishedAt: (bilan.publishedAt ?? bilan.createdAt).toISOString(),
+      publishedAt: (bilan.publishedAt ?? bilan.createdAt ?? new Date()).toISOString(),
       globalScore: bilan.globalScore,
       parentsMarkdown: bilan.parentsMarkdown,
     };
 
-    const pdfBuffer = await renderToBuffer(<BilanParentPDFDocument data={pdfData} />);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const pdfElement = React.createElement(BilanParentPDFDocument, { data: pdfData }) as any;
+    const pdfBuffer = await renderToBuffer(pdfElement);
 
     const safeChild = (childName || 'eleve')
       .normalize('NFD')
@@ -99,6 +101,9 @@ export async function GET(
     });
   } catch (error) {
     console.error('[GET /api/parent/bilans/:id/pdf]', error);
-    return NextResponse.json({ error: 'Erreur lors de la génération du PDF' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Erreur lors de la génération du PDF', details: error instanceof Error ? error.message : String(error) },
+      { status: 500 }
+    );
   }
 }

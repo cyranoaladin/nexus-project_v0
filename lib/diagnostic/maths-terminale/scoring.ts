@@ -2,7 +2,7 @@ import {
   CHAPTERS, DOMAINS, QUESTIONS_QCM, QUESTIONS_OPEN, DISCOVERY_CLUSTERS
 } from './data';
 import type {
-  ChapterProgress, OpenAnswer, TeacherGrade, DiagnosticResult,
+  ChapterProgress, TeacherGrade, DiagnosticResult,
   ChapterResult, PedagogicalStatus, SessionPlan, WeekPlan, Recommendation
 } from './types';
 
@@ -308,7 +308,7 @@ export function generatePostStagePlan(
   evaluatedData: DiagnosticResult,
   teacherGrades: Record<string, TeacherGrade>
 ): WeekPlan[] {
-  const { calculatedProfile, chapterResults, domainScores } = evaluatedData;
+  const { chapterResults, domainScores } = evaluatedData;
   const topErrors = aggregateTeacherErrors(teacherGrades || {}).slice(0, 2);
   const urgencies = chapterResults
     .filter(c => c.pedagogicalStatus === 'Lacune critique' || c.pedagogicalStatus === 'Très fragile')

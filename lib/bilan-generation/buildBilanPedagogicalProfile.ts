@@ -30,7 +30,7 @@ function scoreInterpretation(score?: number): string {
 export function buildBilanPedagogicalProfile(
   input: NormalizedBilanInput,
 ): PedagogicalProfile {
-  const { student, coachInputs, chapters, finalAssessment, priorityAxes, attendanceAndEngagement } = input;
+  const { coachInputs, chapters, finalAssessment, priorityAxes, attendanceAndEngagement } = input;
 
   // ── Executive diagnosis ──────────────────────────────────────────────────
 
