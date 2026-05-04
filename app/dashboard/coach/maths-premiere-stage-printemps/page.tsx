@@ -58,6 +58,36 @@ const FILTERS: { key: FilterOption; label: string }[] = [
   { key: 'VALIDATED', label: 'Validés' },
 ];
 
+const ACADEMIC_TRACK_LABELS: Record<string, string> = {
+  EDS_GENERALE: 'Spécialité Maths',
+  STMG: 'STMG',
+  S: 'Scientifique',
+  L: 'Littéraire',
+  ES: 'Économique & Social',
+  STI2D: 'STI2D',
+  STD2A: 'STD2A',
+  STAV: 'STAV',
+  ST2S: 'ST2S',
+};
+
+const GRADE_LEVEL_LABELS: Record<string, string> = {
+  PREMIERE: 'Première',
+  TERMINALE: 'Terminale',
+  SECONDE: 'Seconde',
+  TROISIEME: '3ème',
+  QUATRIEME: '4ème',
+};
+
+function formatAcademicTrack(track?: string | null): string | null {
+  if (!track) return null;
+  return ACADEMIC_TRACK_LABELS[track] ?? track;
+}
+
+function formatGradeLevel(level?: string | null): string | null {
+  if (!level) return null;
+  return GRADE_LEVEL_LABELS[level] ?? level;
+}
+
 function getActionButton(student: StudentRow) {
   const base = `/dashboard/coach/maths-premiere-stage-printemps/${student.id}`;
   switch (student.bilanStatus) {
@@ -250,22 +280,29 @@ export default function CoachMathsStageListPage() {
                       </span>
                     </div>
                     <div className="mt-1 flex flex-wrap gap-3 text-xs text-neutral-500">
-                      {student.gradeLevel && <span>{student.gradeLevel}</span>}
-                      {student.academicTrack && <span>{student.academicTrack}</span>}
-                      {student.school && <span>{student.school}</span>}
-                      {student.lastSavedAt && (
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          Sauvegardé le {formatDate(student.lastSavedAt)}
-                        </span>
-                      )}
-                      {student.completedAt && student.bilanStatus !== 'DRAFT' && (
-                        <span className="flex items-center gap-1 text-blue-400">
-                          <CheckCircle2 className="h-3 w-3" />
-                          Complété le {formatDate(student.completedAt)}
-                        </span>
-                      )}
-                    </div>
+                       {formatGradeLevel(student.gradeLevel) && (
+                         <span className="rounded-md bg-white/5 px-1.5 py-0.5 font-medium">
+                           {formatGradeLevel(student.gradeLevel)}
+                         </span>
+                       )}
+                       {formatAcademicTrack(student.academicTrack) && (
+                         <span className="rounded-md bg-indigo-500/10 px-1.5 py-0.5 font-medium text-indigo-300">
+                           {formatAcademicTrack(student.academicTrack)}
+                         </span>
+                       )}
+                       {student.lastSavedAt && (
+                         <span className="flex items-center gap-1">
+                           <Clock className="h-3 w-3" />
+                           Sauvegardé le {formatDate(student.lastSavedAt)}
+                         </span>
+                       )}
+                       {student.completedAt && student.bilanStatus !== 'DRAFT' && (
+                         <span className="flex items-center gap-1 text-blue-400">
+                           <CheckCircle2 className="h-3 w-3" />
+                           Complété le {formatDate(student.completedAt)}
+                         </span>
+                       )}
+                     </div>
                   </div>
                 </div>
 
