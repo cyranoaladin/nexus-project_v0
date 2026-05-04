@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import { CorporateFooter } from "@/components/layout/CorporateFooter";
 import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
 import { Button } from "@/components/ui/button";
