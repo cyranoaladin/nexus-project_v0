@@ -35,6 +35,7 @@ export default function DashboardCoach() {
   const [loading, setLoading] = useState(true);
   const [_error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'availability'>('dashboard');
+  const [activeRubrique, setActiveRubrique] = useState<'cohorte' | 'planning' | 'alertes' | 'bilans'>('cohorte');
 
   const fetchDashboardData = async () => {
     try {
@@ -80,82 +81,121 @@ export default function DashboardCoach() {
       <main className="max-w-7xl mx-auto p-8">
         {activeTab === 'dashboard' && (
           <DashboardPilotage role="COACH">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-              <div className="lg:col-span-3 space-y-8">
-                {/* Cohorte */}
-                <div>
-                  <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                    <Users className="w-5 h-5 text-brand-accent" />
-                    Pilotage de Cohorte
-                  </h2>
-                  <CohortTable students={dashboardData?.students || []} />
+            <div className="space-y-6">
+              {/* Rubriques Switcher */}
+              <div className="flex flex-wrap gap-2 p-1 bg-white/5 border border-white/10 rounded-xl mb-6">
+                {[
+                  { id: 'cohorte', label: 'Cohorte' },
+                  { id: 'planning', label: 'Planning du Jour' },
+                  { id: 'alertes', label: 'Alertes' },
+                  { id: 'bilans', label: 'Bilans de Stages' },
+                ].map((tab) => (
+                  <Button
+                    key={tab.id}
+                    onClick={() => setActiveRubrique(tab.id as any)}
+                    variant={activeRubrique === tab.id ? 'default' : 'ghost'}
+                    className={`flex-1 min-w-[120px] rounded-lg transition-all ${
+                      activeRubrique === tab.id
+                        ? 'bg-brand-accent text-white shadow-premium font-bold'
+                        : 'text-neutral-400 hover:text-white hover:bg-white/5'
+                    }`}
+                    size="sm"
+                  >
+                    {tab.label}
+                  </Button>
+                ))}
+              </div>
+
+              {activeRubrique === 'cohorte' && (
+                <div className="space-y-6 animate-fadeIn">
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-2">
+                      <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                        <Users className="w-5 h-5 text-brand-accent" />
+                        Pilotage de Cohorte
+                      </h2>
+                      <CohortTable students={dashboardData?.students || []} />
+                    </div>
+                    <div>
+                      <Card className="bg-gradient-to-br from-brand-accent/10 to-surface-card border border-brand-accent/20">
+                        <CardContent className="p-6">
+                          <Zap className="w-8 h-8 text-brand-accent mb-4" />
+                          <h3 className="text-lg font-bold text-white mb-2">Performance Coach</h3>
+                          <p className="text-xs text-neutral-400 mb-4">
+                            Vous avez accompagné {dashboardData?.uniqueStudentsCount ?? 0} élèves ce mois-ci.
+                          </p>
+                          <Button variant="outline" className="w-full border-white/10">Statistiques mensuelles</Button>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
                 </div>
+              )}
 
-                {/* Planning */}
-                <Card className="bg-surface-card border-white/10 shadow-premium">
-                  <CardHeader>
-                    <CardTitle className="text-white text-base">Planning du Jour</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {(dashboardData?.todaySessions?.length ?? 0) > 0 ? (
-                      <div className="space-y-4">
-                        {dashboardData?.todaySessions.map((s) => (
-                          <div key={s.id} className="p-4 bg-white/5 border border-white/10 rounded-lg flex items-center justify-between">
-                            <div>
-                              <p className="font-bold text-white">{s.studentName}</p>
-                              <p className="text-xs text-neutral-400">{s.subject} • {s.time}</p>
+              {activeRubrique === 'planning' && (
+                <div className="space-y-6 animate-fadeIn">
+                  <Card className="bg-surface-card border-white/10 shadow-premium">
+                    <CardHeader>
+                      <CardTitle className="text-white text-base">Planning du Jour</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {(dashboardData?.todaySessions?.length ?? 0) > 0 ? (
+                        <div className="space-y-4">
+                          {dashboardData?.todaySessions.map((s) => (
+                            <div key={s.id} className="p-4 bg-white/5 border border-white/10 rounded-lg flex items-center justify-between">
+                              <div>
+                                <p className="font-bold text-white">{s.studentName}</p>
+                                <p className="text-xs text-neutral-400">{s.subject} • {s.time}</p>
+                              </div>
+                              <Button size="sm">Rapport</Button>
                             </div>
-                            <Button size="sm">Rapport</Button>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-center text-neutral-500 py-8 italic">Aucun cours aujourd'hui.</p>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-center text-neutral-500 py-8 italic">Aucun cours aujourd'hui.</p>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
 
-              <div className="space-y-8">
-                <PriorityAlerts alerts={dashboardData?.alerts || []} />
-                
-                <Card className="bg-gradient-to-br from-brand-accent/10 to-surface-card border border-brand-accent/20 mb-6">
-                  <CardContent className="p-6">
-                    <FileText className="w-8 h-8 text-brand-accent mb-4" />
-                    <h3 className="text-lg font-bold text-white mb-2">Bilan EAF – Stage de printemps</h3>
-                    <p className="text-xs text-neutral-400 mb-4">
-                      Renseignez les bilans pédagogiques des élèves de Première suivis pendant le stage.
-                    </p>
-                    <Button variant="outline" className="w-full border-white/10" onClick={() => router.push('/dashboard/coach/eaf-stage-printemps')}>
-                      Gérer les bilans EAF
-                    </Button>
-                  </CardContent>
-                </Card>
+              {activeRubrique === 'alertes' && (
+                <div className="space-y-6 animate-fadeIn">
+                  <PriorityAlerts alerts={dashboardData?.alerts || []} />
+                </div>
+              )}
 
-                <Card className="bg-gradient-to-br from-indigo-500/10 to-surface-card border border-indigo-500/20 mb-6">
-                  <CardContent className="p-6">
-                    <Zap className="w-8 h-8 text-indigo-400 mb-4" />
-                    <h3 className="text-lg font-bold text-white mb-2">Bilan Maths – Stage de printemps</h3>
-                    <p className="text-xs text-neutral-400 mb-4">
-                      Renseignez les bilans de spécialité mathématiques pour les élèves de Première.
-                    </p>
-                    <Button variant="outline" className="w-full border-white/10" onClick={() => router.push('/dashboard/coach/maths-premiere-stage-printemps')}>
-                      Gérer les bilans Maths
-                    </Button>
-                  </CardContent>
-                </Card>
+              {activeRubrique === 'bilans' && (
+                <div className="space-y-6 animate-fadeIn">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Card className="bg-gradient-to-br from-brand-accent/10 to-surface-card border border-brand-accent/20">
+                      <CardContent className="p-6">
+                        <FileText className="w-8 h-8 text-brand-accent mb-4" />
+                        <h3 className="text-lg font-bold text-white mb-2">Bilan EAF – Stage de printemps</h3>
+                        <p className="text-xs text-neutral-400 mb-4">
+                          Renseignez les bilans pédagogiques des élèves de Première suivis pendant le stage.
+                        </p>
+                        <Button variant="outline" className="w-full border-white/10" onClick={() => router.push('/dashboard/coach/eaf-stage-printemps')}>
+                          Gérer les bilans EAF
+                        </Button>
+                      </CardContent>
+                    </Card>
 
-                <Card className="bg-gradient-to-br from-brand-accent/10 to-surface-card border border-brand-accent/20">
-                  <CardContent className="p-6">
-                    <Zap className="w-8 h-8 text-brand-accent mb-4" />
-                    <h3 className="text-lg font-bold text-white mb-2">Performance Coach</h3>
-                    <p className="text-xs text-neutral-400 mb-4">
-                      Vous avez accompagné {dashboardData?.uniqueStudentsCount ?? 0} élèves ce mois-ci.
-                    </p>
-                    <Button variant="outline" className="w-full border-white/10">Statistiques mensuelles</Button>
-                  </CardContent>
-                </Card>
-              </div>
+                    <Card className="bg-gradient-to-br from-indigo-500/10 to-surface-card border border-indigo-500/20">
+                      <CardContent className="p-6">
+                        <Zap className="w-8 h-8 text-indigo-400 mb-4" />
+                        <h3 className="text-lg font-bold text-white mb-2">Bilan Maths – Stage de printemps</h3>
+                        <p className="text-xs text-neutral-400 mb-4">
+                          Renseignez les bilans de spécialité mathématiques pour les élèves de Première.
+                        </p>
+                        <Button variant="outline" className="w-full border-white/10" onClick={() => router.push('/dashboard/coach/maths-premiere-stage-printemps')}>
+                          Gérer les bilans Maths
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              )}
             </div>
           </DashboardPilotage>
         )}

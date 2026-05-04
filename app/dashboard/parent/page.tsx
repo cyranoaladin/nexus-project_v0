@@ -22,7 +22,7 @@ export default function DashboardParent() {
   const [dashboardData, setDashboardData] = useState<ParentDashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'booking'>('dashboard')
+  const [activeRubrique, setActiveRubrique] = useState<'enfants' | 'facturation' | 'alertes'>('enfants');
 
   const refreshDashboardData = useCallback(async () => {
     try {
@@ -107,62 +107,96 @@ export default function DashboardParent() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Left Column: Children Grid */}
-          <div className="lg:col-span-3 space-y-8">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                Mes Enfants
-                <Badge variant="outline" className="ml-2 border-white/10 text-neutral-400">
-                  {dashboardData?.children.length || 0}
-                </Badge>
-              </h2>
-              <AddChildDialog onChildAdded={refreshDashboardData} />
-            </div>
+        <div className="space-y-6">
+          {/* Rubriques Switcher */}
+          <div className="flex flex-wrap gap-2 p-1 bg-white/5 border border-white/10 rounded-xl">
+            {[
+              { id: 'enfants', label: 'Mes Enfants' },
+              { id: 'facturation', label: 'Facturation' },
+              { id: 'alertes', label: 'Alertes' },
+            ].map((tab) => (
+              <Button
+                key={tab.id}
+                onClick={() => setActiveRubrique(tab.id as any)}
+                variant={activeRubrique === tab.id ? 'default' : 'ghost'}
+                className={`flex-1 min-w-[120px] rounded-lg transition-all ${
+                  activeRubrique === tab.id
+                    ? 'bg-brand-accent text-white shadow-premium font-bold'
+                    : 'text-neutral-400 hover:text-white hover:bg-white/5'
+                }`}
+                size="sm"
+              >
+                {tab.label}
+              </Button>
+            ))}
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {dashboardData?.children.map((child) => (
-                <ChildCard key={child.id} child={child as any} />
-              ))}
-            </div>
+          {activeRubrique === 'enfants' && (
+            <div className="space-y-8 animate-fadeIn">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  Mes Enfants
+                  <Badge variant="outline" className="ml-2 border-white/10 text-neutral-400">
+                    {dashboardData?.children.length || 0}
+                  </Badge>
+                </h2>
+                <AddChildDialog onChildAdded={refreshDashboardData} />
+              </div>
 
-            {/* Facturation summary */}
-            <Card className="bg-surface-card border border-white/10 shadow-premium">
-              <CardHeader>
-                <CardTitle className="text-white text-base flex items-center gap-2">
-                  <CreditCard className="w-4 h-4 text-emerald-400" />
-                  Facturation Groupée
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
-                  <div>
-                    <p className="text-xs text-neutral-400">Total Mensuel</p>
-                    <p className="text-2xl font-bold text-white">
-                      {(dashboardData?.children || []).reduce((sum, c) => sum + (c.subscriptionDetails?.monthlyPrice || 0), 0)} TND
-                    </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {dashboardData?.children.map((child) => (
+                  <ChildCard key={child.id} child={child as any} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeRubrique === 'facturation' && (
+            <div className="space-y-8 animate-fadeIn">
+              {/* Facturation summary */}
+              <Card className="bg-surface-card border border-white/10 shadow-premium">
+                <CardHeader>
+                  <CardTitle className="text-white text-base flex items-center gap-2">
+                    <CreditCard className="w-4 h-4 text-emerald-400" />
+                    Facturation Groupée
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
+                    <div>
+                      <p className="text-xs text-neutral-400">Total Mensuel</p>
+                      <p className="text-2xl font-bold text-white">
+                        {(dashboardData?.children || []).reduce((sum, c) => sum + (c.subscriptionDetails?.monthlyPrice || 0), 0)} TND
+                      </p>
+                    </div>
+                    <Button variant="outline" className="border-white/10">Gérer mes abonnements</Button>
                   </div>
-                  <Button variant="outline" className="border-white/10">Gérer mes abonnements</Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
-          {/* Right Column: Alerts & Side info */}
-          <div className="space-y-8">
-            <AlertsConsolidated alerts={allAlerts} />
-            
-            <Card className="bg-gradient-to-br from-brand-accent/20 to-surface-card border border-brand-accent/20">
-              <CardContent className="p-6">
-                <TrendingUp className="w-8 h-8 text-brand-accent mb-4" />
-                <h3 className="text-lg font-bold text-white mb-2">Nexus Performance</h3>
-                <p className="text-sm text-neutral-400 mb-4">
-                  Les trajectoires de vos enfants sont optimisées par l'IA pour garantir les meilleurs résultats au Bac.
-                </p>
-                <Button className="w-full bg-brand-accent">Voir le rapport annuel</Button>
-              </CardContent>
-            </Card>
-          </div>
+          {activeRubrique === 'alertes' && (
+            <div className="space-y-8 animate-fadeIn">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2">
+                  <AlertsConsolidated alerts={allAlerts} />
+                </div>
+                <div>
+                  <Card className="bg-gradient-to-br from-brand-accent/20 to-surface-card border border-brand-accent/20">
+                    <CardContent className="p-6">
+                      <TrendingUp className="w-8 h-8 text-brand-accent mb-4" />
+                      <h3 className="text-lg font-bold text-white mb-2">Nexus Performance</h3>
+                      <p className="text-sm text-neutral-400 mb-4">
+                        Les trajectoires de vos enfants sont optimisées par l'IA pour garantir les meilleurs résultats au Bac.
+                      </p>
+                      <Button className="w-full bg-brand-accent">Voir le rapport annuel</Button>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </main>
     </div>
