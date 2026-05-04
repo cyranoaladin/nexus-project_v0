@@ -103,7 +103,9 @@ fi
 EOF
 )
 
-if [[ $BACKUP_EXISTS == *"NO_BACKUP"* ]]; then
+if [ "$ALLOW_STALE_BACKUP" = "yes" ]; then
+  print_warning "Bypassing DB backup check since ALLOW_STALE_BACKUP=yes"
+elif [[ $BACKUP_EXISTS == *"NO_BACKUP"* ]]; then
   print_error "No recent DB backup found (last 24h). Deployment aborted."
   echo "To deploy without recent backup, take a backup first or use ALLOW_STALE_BACKUP=yes"
   exit 1
