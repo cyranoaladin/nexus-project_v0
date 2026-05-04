@@ -31,6 +31,7 @@ export function CoachDocumentsPanel({ studentId, className }: CoachDocumentsPane
   const [documentType, setDocumentType] = useState("COURS");
   const [subject, setSubject] = useState("MATHEMATIQUES");
   const [url, setUrl] = useState("");
+  const [file, setFile] = useState<File | null>(null);
   const [visibilityScope, setVisibilityScope] = useState("STUDENT_AND_COACH");
 
   // Fetch coach's assigned students for multi-selection
@@ -73,7 +74,11 @@ export function CoachDocumentsPanel({ studentId, className }: CoachDocumentsPane
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!title.trim() || !url.trim()) return;
+    if (!title.trim()) return;
+    if (!url.trim() && !file) {
+      setError("Veuillez fournir une URL ou sélectionner un fichier.");
+      return;
+    }
     if (selectedRecipientIds.length === 0) {
       setError("Veuillez sélectionner au moins un élève destinataire.");
       return;
@@ -85,21 +90,42 @@ export function CoachDocumentsPanel({ studentId, className }: CoachDocumentsPane
     try {
       // Upload for each selected student
       for (const targetStudentId of selectedRecipientIds) {
-        const res = await fetch(`/api/coach/students/${targetStudentId}/documents`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            title,
-            documentType,
-            subject,
-            url,
-            visibilityScope,
-          }),
-        });
+        if (file) {
+          // Upload file using FormData
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("title", title);
+          formData.append("documentType", documentType);
+          formData.append("subject", subject);
+          formData.append("visibilityScope", visibilityScope);
 
-        if (!res.ok) {
-          const payload = await res.json().catch(() => ({}));
-          throw new Error(payload.error || payload.message || `HTTP ${res.status}`);
+          const res = await fetch(`/api/coach/students/${targetStudentId}/documents`, {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!res.ok) {
+            const payload = await res.json().catch(() => ({}));
+            throw new Error(payload.error || payload.message || `HTTP ${res.status}`);
+          }
+        } else {
+          // Upload using URL
+          const res = await fetch(`/api/coach/students/${targetStudentId}/documents`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title,
+              documentType,
+              subject,
+              url,
+              visibilityScope,
+            }),
+          });
+
+          if (!res.ok) {
+            const payload = await res.json().catch(() => ({}));
+            throw new Error(payload.error || payload.message || `HTTP ${res.status}`);
+          }
         }
       }
 
@@ -109,6 +135,7 @@ export function CoachDocumentsPanel({ studentId, className }: CoachDocumentsPane
       // Reset fields but keep recipients
       setTitle("");
       setUrl("");
+      setFile(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur d'enregistrement");
     } finally {
@@ -147,15 +174,24 @@ export function CoachDocumentsPanel({ studentId, className }: CoachDocumentsPane
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs text-neutral-400">URL du document</label>
+              <label className="text-xs text-neutral-400">URL du document (optionnel)</label>
               <input
                 type="url"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="Lien externe ou hébergé (Google Drive, Dropbox...)"
                 className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-xs text-neutral-100 placeholder:text-neutral-600 focus:outline-none focus:border-brand-accent/40"
-                required
-                disabled={submitting}
+                disabled={submitting || !!file}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs text-neutral-400">Ou importer depuis votre machine</label>
+              <input
+                type="file"
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-xs text-neutral-100 focus:outline-none focus:border-brand-accent/40"
+                disabled={submitting || !!url}
               />
             </div>
 
@@ -240,7 +276,7 @@ export function CoachDocumentsPanel({ studentId, className }: CoachDocumentsPane
             )}
 
             <div className="md:col-span-2 flex justify-end mt-2">
-              <Button type="submit" disabled={submitting || !title.trim() || !url.trim()}>
+              <Button type="submit" disabled={submitting}>
                 {submitting ? (
                   <>
                     <Loader2 className="w-3 h-3 animate-spin mr-2" />
