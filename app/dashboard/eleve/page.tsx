@@ -223,7 +223,7 @@ export default function DashboardEleve() {
                     { id: 'parcours', label: 'Mon Parcours' },
                     { id: 'sessions', label: 'Sessions' },
                     { id: 'matières', label: 'Mes Matières' },
-                    { id: 'bilans', label: 'Mes Bilans' },
+                    { id: 'bilans', label: 'Bilans & Retours' },
                     { id: 'stages', label: 'Stages' },
                   ].map((tab) => (
                     <Button

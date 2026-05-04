@@ -63,7 +63,7 @@ export function EafStageQuestionnaireCard() {
             <div className="w-16 h-16 rounded-2xl bg-cyan-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <FileText className="w-8 h-8 text-cyan-300" />
             </div>
-            <h3 className="font-bold text-white tracking-tight">Bilan EAF</h3>
+            <h3 className="font-bold text-white tracking-tight">Auto-évaluation EAF</h3>
             <p className="text-[10px] uppercase tracking-widest text-cyan-300/70 font-bold mt-1">
               Stage de printemps
             </p>
@@ -84,7 +84,7 @@ export function EafStageQuestionnaireCard() {
             </div>
 
             <h4 className="text-lg font-bold text-white mb-2">
-              Bilan du stage de printemps – Écrit de français
+              Mon retour d'expérience – Écrit de français
             </h4>
             <p className="text-sm text-neutral-400 mb-4 line-clamp-2">
               Évalue ta progression sur le commentaire, la dissertation, la méthode, l&apos;expression écrite et la suite de ton travail après les 16h de préparation à l&apos;EAF.
@@ -93,7 +93,7 @@ export function EafStageQuestionnaireCard() {
             <div className="flex items-center gap-3 flex-wrap">
               <Link href="/dashboard/eleve/questionnaires/eaf-stage-printemps" className="w-full sm:w-fit">
                 <Button className="w-full sm:w-auto bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-8 shadow-lg shadow-cyan-600/20">
-                  {status === 'submitted' ? 'Voir mon bilan' : 'Compléter le questionnaire'}
+                  {status === 'submitted' ? 'Voir mes réponses' : 'Compléter le questionnaire'}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
