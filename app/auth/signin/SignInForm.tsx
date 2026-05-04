@@ -1,0 +1,311 @@
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { signIn, getSession } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { Eye, EyeOff, Loader2, LogIn } from "lucide-react";
+import Link from "next/link";
+import { track } from "@/lib/analytics";
+
+export function SignInForm() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showResendActivation, setShowResendActivation] = useState(false);
+  const [resendEmail, setResendEmail] = useState("");
+  const [isResendingActivation, setIsResendingActivation] = useState(false);
+  const [resendMessage, setResendMessage] = useState("");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
+
+  const getSafeRedirectUrl = (role?: string): string => {
+    const roleRoutes: Record<string, string> = {
+      ADMIN: '/dashboard/admin',
+      ASSISTANTE: '/dashboard/assistante',
+      COACH: '/dashboard/coach',
+      PARENT: '/dashboard/parent',
+      ELEVE: '/dashboard/eleve',
+    };
+    const defaultRoute = roleRoutes[role ?? ''] ?? '/dashboard/parent';
+
+    if (callbackUrl && callbackUrl.startsWith('/')) {
+      return callbackUrl;
+    }
+    return defaultRoute;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+
+    try {
+      track.signinAttempt();
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false
+      });
+
+      if (result?.error) {
+        track.signinError('invalid_credentials');
+        setError("Email ou mot de passe incorrect.");
+        setShowResendActivation(true);
+        setResendEmail(email);
+      } else {
+        const session = await getSession();
+        const role = (session?.user as { role?: string })?.role;
+        track.signinSuccess(role ?? 'unknown');
+        router.push(getSafeRedirectUrl(role));
+      }
+    } catch {
+      track.signinError('network_error');
+      setError("Une erreur est survenue lors de la connexion");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendActivation = async () => {
+    const targetEmail = resendEmail || email;
+    if (!targetEmail) {
+      setResendMessage("Saisissez votre email pour recevoir un nouveau lien.");
+      return;
+    }
+
+    setIsResendingActivation(true);
+    setResendMessage("");
+
+    try {
+      const response = await fetch('/api/auth/resend-activation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: targetEmail }),
+      });
+
+      const data = await response.json() as { success?: boolean; message?: string; error?: string };
+
+      if (!response.ok) {
+        setResendMessage(data.error || 'Impossible de renvoyer le lien pour le moment.');
+        return;
+      }
+
+      setResendMessage(data.message || 'Si ce compte existe, un nouveau lien a été envoyé.');
+    } catch {
+      setResendMessage('Impossible de renvoyer le lien pour le moment.');
+    } finally {
+      setIsResendingActivation(false);
+    }
+  };
+
+  return (
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-md">
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-accent/10 rounded-full mb-6">
+          <LogIn className="w-8 h-8 text-brand-accent" aria-hidden="true" />
+        </div>
+        <h1 className="font-display text-3xl font-bold text-white mb-4">
+          Accédez à Votre Espace
+        </h1>
+        <p className="text-neutral-300">
+          Connectez-vous pour accéder à votre espace personnalisé et continuer
+          votre parcours vers l'excellence.
+        </p>
+      </div>
+
+      <div className="mb-8">
+        <Card
+          className="border border-white/10 shadow-lg bg-surface-card"
+          style={{ backgroundColor: "rgb(var(--color-surface-card))" }}
+        >
+          <CardHeader className="text-center pb-6">
+            <CardTitle className="text-2xl font-bold text-white">
+              Connexion à Votre Espace
+            </CardTitle>
+            <p className="text-neutral-400 text-sm mt-2">
+              Saisissez vos identifiants pour accéder à votre tableau de bord
+            </p>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <Label htmlFor="email" className="text-neutral-200 font-medium">
+                  Adresse Email
+                </Label>
+                <Input
+                  id="email"
+                  data-testid="input-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="votre.email@exemple.com"
+                  required
+                  className="mt-2 h-12 bg-surface-elevated text-neutral-100 placeholder:text-neutral-400 border-white/15"
+                  style={{
+                    backgroundColor: "rgb(var(--color-surface-elevated))",
+                    color: "rgb(var(--color-neutral-100))",
+                  }}
+                />
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center">
+                  <Label htmlFor="password" className="text-neutral-200 font-medium">
+                    Mot de Passe
+                  </Label>
+                  <Link
+                    href="/auth/mot-de-passe-oublie"
+                    className="text-sm text-brand-accent-dark hover:underline"
+                  >
+                    Mot de passe oublié ?
+                  </Link>
+                </div>
+                <div className="relative mt-2">
+                  <Input
+                    id="password"
+                    data-testid="input-password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Votre mot de passe"
+                    required
+                    className="h-12 pr-12 bg-surface-elevated text-neutral-100 placeholder:text-neutral-400 border-white/15"
+                    style={{
+                      backgroundColor: "rgb(var(--color-surface-elevated))",
+                      color: "rgb(var(--color-neutral-100))",
+                    }}
+                  />
+                  <button
+                    type="button"
+                    data-testid="btn-toggle-password"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-300 hover:text-neutral-100 transition-colors"
+                    aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5" aria-hidden="true" />
+                    ) : (
+                      <Eye className="w-5 h-5" aria-hidden="true" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {error && (
+                <div className="bg-error/10 border border-error/20 rounded-lg p-4" role="alert">
+                  <p className="text-error text-sm font-medium">{error}</p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowResendActivation((value) => !value);
+                      setResendEmail((current) => current || email);
+                    }}
+                    className="mt-2 text-sm text-brand-accent hover:underline"
+                  >
+                    Compte non activé ? Demandez un nouveau lien →
+                  </button>
+                </div>
+              )}
+
+              {showResendActivation && (
+                <div className="rounded-lg border border-white/10 bg-white/5 p-4 space-y-3">
+                  <div>
+                    <Label htmlFor="resend-email" className="text-neutral-200 font-medium">
+                      Renvoyer le lien d'activation
+                    </Label>
+                    <Input
+                      id="resend-email"
+                      type="email"
+                      value={resendEmail}
+                      onChange={(e) => setResendEmail(e.target.value)}
+                      placeholder="votre.email@exemple.com"
+                      className="mt-2 h-11 bg-surface-elevated text-neutral-100 placeholder:text-neutral-400 border-white/15"
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full border-white/20 text-neutral-100 hover:bg-white/10"
+                    disabled={isResendingActivation}
+                    onClick={handleResendActivation}
+                  >
+                    {isResendingActivation ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" aria-label="Chargement" />
+                        Envoi en cours...
+                      </>
+                    ) : (
+                      "Renvoyer le lien d'activation"
+                    )}
+                  </Button>
+                  {resendMessage && (
+                    <p className="text-sm text-neutral-300">{resendMessage}</p>
+                  )}
+                </div>
+              )}
+
+              <Button
+                type="submit"
+                data-testid="btn-signin"
+                className="w-full h-12 font-semibold"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" aria-label="Chargement" />
+                    Connexion en cours...
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="w-5 h-5 mr-2" aria-hidden="true" />
+                    Accéder à Mon Espace
+                  </>
+                )}
+              </Button>
+            </form>
+
+            <div className="mt-6 rounded-lg border border-white/10 bg-white/5 p-4 space-y-2">
+              <p className="text-sm text-neutral-300">
+                <span className="font-semibold text-brand-accent">Parent ?</span>{" "}
+                Connectez-vous avec votre adresse email personnelle.
+              </p>
+              <p className="text-sm text-neutral-300">
+                <span className="font-semibold text-emerald-400">Élève ?</span>{" "}
+                Connectez-vous avec l'email élève reçu lors de votre inscription.
+              </p>
+            </div>
+
+            <div className="mt-6 pt-6 border-t border-white/10">
+              <div className="text-center space-y-4">
+                <p className="text-sm text-neutral-300">
+                  Pas encore de compte ?
+                </p>
+                <Button asChild variant="outline" className="w-full border-white/20 text-neutral-100 hover:bg-white/10">
+                  <Link href="/bilan-gratuit">
+                    Créer mon Compte Gratuit
+                  </Link>
+                </Button>
+              </div>
+            </div>
+
+            <div className="mt-6 text-center">
+              <p className="text-xs text-neutral-400">
+                En vous connectant, vous acceptez nos{" "}
+                <Link href="/conditions" className="text-brand-accent hover:underline">
+                  conditions d'utilisation
+                </Link>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
