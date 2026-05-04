@@ -824,10 +824,12 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
     }),
 
     // Q3: Recent bilans — studentMarkdown IS NOT NULL excludes nexus-only renders
+    // Only return published bilans
     prisma.bilan.findMany({
       where: {
         studentId: student.id,
         studentMarkdown: { not: null },
+        isPublished: true,
       },
       orderBy: { createdAt: 'desc' },
       take: 4,
@@ -938,6 +940,7 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
         stageId: { in: stageIds },
         type: 'STAGE_POST',
         studentMarkdown: { not: null },
+        isPublished: true,
       },
       select: { stageId: true, publicShareId: true },
     });
