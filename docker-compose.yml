@@ -2,6 +2,7 @@
 
 services:
   postgres-db:
+    profiles: ["legacy"]
     image: pgvector/pgvector:pg15
     container_name: nexus-postgres-db
     restart: always
@@ -22,6 +23,7 @@ services:
       retries: 5
 
   next-app:
+    profiles: ["legacy"]
     build: .
     container_name: nexus-next-app
     restart: always
