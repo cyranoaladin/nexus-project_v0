@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { mkdir, writeFile } from 'fs/promises';
+import path from 'path';
 import { requireRole, isErrorResponse } from '@/lib/guards';
 import { assertCoachCanAccessStudent } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
@@ -163,16 +165,11 @@ export async function POST(request: Request, { params }: RouteParams) {
       const localPath = `/app/storage/documents/${student.userId}/${filename}`;
 
       // Save file to disk
-      const fs = require('fs');
-      const path = require('path');
-      
       const uploadDir = path.join(process.cwd(), 'storage', 'documents', student.userId);
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-      }
+      await mkdir(uploadDir, { recursive: true });
 
       const buffer = Buffer.from(await file.arrayBuffer());
-      fs.writeFileSync(path.join(uploadDir, filename), buffer);
+      await writeFile(path.join(uploadDir, filename), buffer);
 
       documentData = {
         title: formData.get('title') as string,
