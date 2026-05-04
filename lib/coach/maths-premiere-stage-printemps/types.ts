@@ -1,10 +1,11 @@
 import { z } from 'zod';
 
 export const COACH_MATHS_META = {
-  version: '1.0.0',
+  version: '1.1.0',
   subject: 'MATHEMATIQUES',
   gradeLevel: 'PREMIERE',
   stage: 'printemps',
+  supportsStmg: true,
 };
 
 // Sub-schemas
@@ -122,18 +123,55 @@ export const globalDiagnosticSchema = z.object({
 
 // Chapter diagnostics collection (P0 restructuring)
 export const chapterDiagnosticsSchema = z.object({
+  // General Maths chapters
   secondDegree: chapterDiagnosticSchema.optional(),
   derivation: chapterDiagnosticSchema.optional(),
   sequences: chapterDiagnosticSchema.optional(),
   exponential: chapterDiagnosticSchema.optional(),
   scalarProduct: chapterDiagnosticSchema.optional(),
   probabilities: chapterDiagnosticSchema.optional(),
+  // STMG-specific chapters
+  automatismesTauxEvolution: chapterDiagnosticSchema.optional(),
+  suitesNumeriques: chapterDiagnosticSchema.optional(),
+  fonctionsDegre2_3: chapterDiagnosticSchema.optional(),
+  derivationVariations: chapterDiagnosticSchema.optional(),
+  probabilitesTableaux: chapterDiagnosticSchema.optional(),
 });
 
-// Full Bilan form schema (extended P0)
+// STMG-specific schemas
+export const automatismesStmgSchema = z.object({
+  calculsBaseDecimaux: z.number().min(1).max(5).optional(),
+  tauxEvolutionCm: z.number().min(1).max(5).optional(),
+  lectureGraphique: z.number().min(1).max(5).optional(),
+  plusGrandPointFort: z.string().optional(),
+  plusGrandPointFaible: z.string().optional(),
+});
+
+export const suitesStmgSchema = z.object({
+  reconnaissanceArithGeom: z.number().min(1).max(5).optional(),
+  calculTermeTableur: z.number().min(1).max(5).optional(),
+  modelisationEvolution: z.number().min(1).max(5).optional(),
+  observationsSuites: z.string().optional(),
+});
+
+export const fonctionsDerivationStmgSchema = z.object({
+  secondDegreAllure: z.number().min(1).max(5).optional(),
+  troisiemeDegre: z.number().min(1).max(5).optional(),
+  derivationUsuelle: z.number().min(1).max(5).optional(),
+  lienSigneVariation: z.number().min(1).max(5).optional(),
+});
+
+export const statistiquesProbabilitesStmgSchema = z.object({
+  tableauxCroises: z.number().min(1).max(5).optional(),
+  probabilitesSimples: z.number().min(1).max(5).optional(),
+  arbrePondere: z.number().min(1).max(5).optional(),
+});
+
+// Full Bilan form schema (extended P0 with STMG support)
 export const coachMathsBilanSchema = z.object({
   action: z.enum(['draft', 'complete']),
-  // Legacy sections (kept for retrocompatibility)
+  subject: z.enum(['MATHEMATIQUES', 'STMG']).optional(),
+  // Legacy sections (kept for retrocompatibility - General Maths)
   attendanceAndEngagement: attendanceAndEngagementSchema.optional(),
   automatismes: automatismesSchema.optional(),
   analysis: analysisSchema.optional(),
@@ -142,6 +180,12 @@ export const coachMathsBilanSchema = z.object({
   probabilities: probabilitiesSchema.optional(),
   finalAssessment: finalAssessmentSchema.optional(),
   parentRecommendations: parentRecommendationsSchema.optional(),
+
+  // STMG-specific sections
+  automatismesStmg: automatismesStmgSchema.optional(),
+  suitesStmg: suitesStmgSchema.optional(),
+  fonctionsDerivationStmg: fonctionsDerivationStmgSchema.optional(),
+  statistiquesProbabilitesStmg: statistiquesProbabilitesStmgSchema.optional(),
 
   // New structured sections (P0)
   globalDiagnostic: globalDiagnosticSchema.optional(),
@@ -163,9 +207,15 @@ export type ChapterDiagnostic = z.infer<typeof chapterDiagnosticSchema>;
 export type GlobalDiagnostic = z.infer<typeof globalDiagnosticSchema>;
 export type ChapterDiagnostics = z.infer<typeof chapterDiagnosticsSchema>;
 
+export type AutomatismesStmg = z.infer<typeof automatismesStmgSchema>;
+export type SuitesStmg = z.infer<typeof suitesStmgSchema>;
+export type FonctionsDerivationStmg = z.infer<typeof fonctionsDerivationStmgSchema>;
+export type StatistiquesProbabilitesStmg = z.infer<typeof statistiquesProbabilitesStmgSchema>;
+
 export type CoachMathsSourceData = {
   meta: Record<string, unknown>;
-  // Legacy sections (optional for retrocompatibility)
+  subject?: 'MATHEMATIQUES' | 'STMG';
+  // Legacy sections (optional for retrocompatibility - General Maths)
   attendanceAndEngagement?: AttendanceAndEngagement;
   automatismes?: Automatismes;
   analysis?: Analysis;
@@ -174,6 +224,12 @@ export type CoachMathsSourceData = {
   probabilities?: Probabilities;
   finalAssessment?: FinalAssessment;
   parentRecommendations?: ParentRecommendations;
+
+  // STMG-specific sections
+  automatismesStmg?: AutomatismesStmg;
+  suitesStmg?: SuitesStmg;
+  fonctionsDerivationStmg?: FonctionsDerivationStmg;
+  statistiquesProbabilitesStmg?: StatistiquesProbabilitesStmg;
 
   // New structured sections (P0)
   globalDiagnostic?: GlobalDiagnostic;

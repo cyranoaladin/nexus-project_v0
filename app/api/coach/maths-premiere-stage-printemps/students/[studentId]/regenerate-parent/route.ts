@@ -17,7 +17,7 @@ interface RouteParams {
 
 const COACH_SOURCE_VERSION = 'coach_maths_premiere_stage_printemps_v1';
 const BILAN_TYPE = 'STAGE_POST' as const;
-const BILAN_SUBJECT = 'MATHEMATIQUES';
+const BILAN_SUBJECT_DEFAULT = 'MATHEMATIQUES';
 
 export async function POST(_request: Request, { params }: RouteParams) {
   try {
@@ -38,9 +38,21 @@ export async function POST(_request: Request, { params }: RouteParams) {
       );
     }
 
+    // Load student to determine subject based on academic track
+    const student = await prisma.student.findUnique({
+      where: { id: studentId },
+      select: { academicTrack: true },
+    });
+
+    if (!student) {
+      return NextResponse.json({ error: 'Student not found' }, { status: 404 });
+    }
+
+    const bilanSubject = student.academicTrack === 'STMG' ? 'STMG' : BILAN_SUBJECT_DEFAULT;
+
     // Load bilan
     const bilan = await prisma.bilan.findFirst({
-      where: { studentId, type: BILAN_TYPE, subject: BILAN_SUBJECT, sourceVersion: COACH_SOURCE_VERSION },
+      where: { studentId, type: BILAN_TYPE, subject: bilanSubject, sourceVersion: COACH_SOURCE_VERSION },
       orderBy: { createdAt: 'desc' },
     });
 

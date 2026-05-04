@@ -21,6 +21,10 @@ import type {
   GlobalDiagnostic,
   ChapterDiagnostics,
   ChapterDiagnostic,
+  AutomatismesStmg,
+  SuitesStmg,
+  FonctionsDerivationStmg,
+  StatistiquesProbabilitesStmg,
 } from '@/lib/coach/maths-premiere-stage-printemps/types';
 import dynamic from 'next/dynamic';
 const BilanParentPreview = dynamic(() => import('@/components/bilan/BilanParentPreview'), { ssr: false });
@@ -226,6 +230,12 @@ export default function CoachMathsIndividualReportPage() {
   const [finalAssessment, setFinalAssessment] = useState<FinalAssessment>({});
   const [parentRec, setParentRec] = useState<ParentRecommendations>({});
 
+  // STMG-specific states
+  const [automatismesStmg, setAutomatismesStmg] = useState<AutomatismesStmg>({});
+  const [suitesStmg, setSuitesStmg] = useState<SuitesStmg>({});
+  const [fonctionsDerivationStmg, setFonctionsDerivationStmg] = useState<FonctionsDerivationStmg>({});
+  const [statistiquesProbabilitesStmg, setStatistiquesProbabilitesStmg] = useState<StatistiquesProbabilitesStmg>({});
+
   // New P0 structured diagnostic states
   const [globalDiag, setGlobalDiag] = useState<GlobalDiagnostic>({});
   const [chapterDiags, setChapterDiags] = useState<ChapterDiagnostics>({});
@@ -270,6 +280,11 @@ export default function CoachMathsIndividualReportPage() {
         setProbabilities(sd.probabilities ?? {});
         setFinalAssessment(sd.finalAssessment ?? {});
         setParentRec(sd.parentRecommendations ?? {});
+        // Load STMG-specific fields if present
+        setAutomatismesStmg(sd.automatismesStmg ?? {});
+        setSuitesStmg(sd.suitesStmg ?? {});
+        setFonctionsDerivationStmg(sd.fonctionsDerivationStmg ?? {});
+        setStatistiquesProbabilitesStmg(sd.statistiquesProbabilitesStmg ?? {});
         // Load new P0 fields if present
         setGlobalDiag(sd.globalDiagnostic ?? {});
         setChapterDiags(sd.chapterDiagnostics ?? {});
@@ -298,8 +313,10 @@ export default function CoachMathsIndividualReportPage() {
     setError(null);
     setSuccess(null);
     try {
+      const isStmg = student?.academicTrack === 'STMG';
       const payload: CoachMathsBilanFormData = {
         action,
+        subject: isStmg ? 'STMG' : 'MATHEMATIQUES',
         attendanceAndEngagement: attendance,
         automatismes,
         analysis,
@@ -308,6 +325,11 @@ export default function CoachMathsIndividualReportPage() {
         probabilities,
         finalAssessment,
         parentRecommendations: parentRec,
+        // STMG-specific fields
+        automatismesStmg: isStmg ? automatismesStmg : undefined,
+        suitesStmg: isStmg ? suitesStmg : undefined,
+        fonctionsDerivationStmg: isStmg ? fonctionsDerivationStmg : undefined,
+        statistiquesProbabilitesStmg: isStmg ? statistiquesProbabilitesStmg : undefined,
         globalDiagnostic: globalDiag,
         chapterDiagnostics: chapterDiags,
       };
@@ -401,6 +423,7 @@ export default function CoachMathsIndividualReportPage() {
   }
 
   const isLocked = bilanStatus === 'VALIDATED';
+  const isStmg = student?.academicTrack === 'STMG';
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 px-4 py-10">
@@ -603,254 +626,306 @@ export default function CoachMathsIndividualReportPage() {
           />
         </AccordionSection>
 
-        {/* Section 3 — Automatismes et calculs */}
-        <AccordionSection title="3. Automatismes et calculs" icon={<FileText className="h-4 w-4" />}>
-          <div className="grid gap-5 sm:grid-cols-2">
-            <RatingInput
-              label="Fluidité des calculs"
-              value={automatismes.calculationFluency}
-              onChange={v => setAutomatismes({ ...automatismes, calculationFluency: v })}
+        {/* Section 3 — Automatismes (conditional: STMG vs General) */}
+        {isStmg ? (
+          <AccordionSection title="3. Automatismes et information chiffrée" icon={<FileText className="h-4 w-4" />}>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <RatingInput
+                label="Calculs de base décimaux"
+                value={automatismesStmg.calculsBaseDecimaux}
+                onChange={v => setAutomatismesStmg({ ...automatismesStmg, calculsBaseDecimaux: v })}
+                disabled={isLocked}
+              />
+              <RatingInput
+                label="Taux d'évolution (CM)"
+                value={automatismesStmg.tauxEvolutionCm}
+                onChange={v => setAutomatismesStmg({ ...automatismesStmg, tauxEvolutionCm: v })}
+                disabled={isLocked}
+              />
+              <RatingInput
+                label="Lecture graphique"
+                value={automatismesStmg.lectureGraphique}
+                onChange={v => setAutomatismesStmg({ ...automatismesStmg, lectureGraphique: v })}
+                disabled={isLocked}
+              />
+            </div>
+            <TextareaInput
+              label="Plus grand point fort"
+              value={automatismesStmg.plusGrandPointFort}
+              onChange={v => setAutomatismesStmg({ ...automatismesStmg, plusGrandPointFort: v })}
               disabled={isLocked}
             />
-            <RatingInput
-              label="Identités et factorisation"
-              value={automatismes.identities}
-              onChange={v => setAutomatismes({ ...automatismes, identities: v })}
+            <TextareaInput
+              label="Plus grand point faible"
+              value={automatismesStmg.plusGrandPointFaible}
+              onChange={v => setAutomatismesStmg({ ...automatismesStmg, plusGrandPointFaible: v })}
               disabled={isLocked}
             />
-            <RatingInput
-              label="Résolution d'équations"
-              value={automatismes.linearEquation}
-              onChange={v => setAutomatismes({ ...automatismes, linearEquation: v })}
+          </AccordionSection>
+        ) : (
+          <AccordionSection title="3. Automatismes et calculs" icon={<FileText className="h-4 w-4" />}>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <RatingInput
+                label="Fluidité des calculs"
+                value={automatismes.calculationFluency}
+                onChange={v => setAutomatismes({ ...automatismes, calculationFluency: v })}
+                disabled={isLocked}
+              />
+              <RatingInput
+                label="Identités et factorisation"
+                value={automatismes.identities}
+                onChange={v => setAutomatismes({ ...automatismes, identities: v })}
+                disabled={isLocked}
+              />
+              <RatingInput
+                label="Résolution d'équations"
+                value={automatismes.linearEquation}
+                onChange={v => setAutomatismes({ ...automatismes, linearEquation: v })}
+                disabled={isLocked}
+              />
+              <RatingInput
+                label="Dérivation usuelle"
+                value={automatismes.derivatives}
+                onChange={v => setAutomatismes({ ...automatismes, derivatives: v })}
+                disabled={isLocked}
+              />
+            </div>
+            <TextareaInput
+              label="Plus grand point fort d'automatismes"
+              value={automatismes.strongestAutomation}
+              onChange={v => setAutomatismes({ ...automatismes, strongestAutomation: v })}
               disabled={isLocked}
             />
-            <RatingInput
-              label="Dérivation usuelle"
-              value={automatismes.derivatives}
-              onChange={v => setAutomatismes({ ...automatismes, derivatives: v })}
+            <TextareaInput
+              label="Plus grand point faible"
+              value={automatismes.weakestAutomation}
+              onChange={v => setAutomatismes({ ...automatismes, weakestAutomation: v })}
               disabled={isLocked}
             />
-          </div>
-          <TextareaInput
-            label="Plus grand point fort d'automatismes"
-            value={automatismes.strongestAutomation}
-            onChange={v => setAutomatismes({ ...automatismes, strongestAutomation: v })}
-            disabled={isLocked}
-          />
-          <TextareaInput
-            label="Plus grand point faible"
-            value={automatismes.weakestAutomation}
-            onChange={v => setAutomatismes({ ...automatismes, weakestAutomation: v })}
-            disabled={isLocked}
-          />
-        </AccordionSection>
+          </AccordionSection>
+        )}
 
-        {/* Section 4 — Analyse et Dérivation */}
-        <AccordionSection title="4. Analyse et Dérivation" icon={<FileText className="h-4 w-4" />}>
-          <div className="grid gap-5 sm:grid-cols-2">
-            <RatingInput
-              label="Dérivation produit"
-              value={analysis.productDerivative}
-              onChange={v => setAnalysis({ ...analysis, productDerivative: v })}
+        {/* Section 4 — Suites numériques (STMG) or Analyse et Dérivation (General) */}
+        {isStmg ? (
+          <AccordionSection title="4. Suites numériques" icon={<FileText className="h-4 w-4" />}>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <RatingInput
+                label="Reconnaissance arithmétique/géométrique"
+                value={suitesStmg.reconnaissanceArithGeom}
+                onChange={v => setSuitesStmg({ ...suitesStmg, reconnaissanceArithGeom: v })}
+                disabled={isLocked}
+              />
+              <RatingInput
+                label="Calcul terme avec tableur"
+                value={suitesStmg.calculTermeTableur}
+                onChange={v => setSuitesStmg({ ...suitesStmg, calculTermeTableur: v })}
+                disabled={isLocked}
+              />
+              <RatingInput
+                label="Modélisation d'évolution"
+                value={suitesStmg.modelisationEvolution}
+                onChange={v => setSuitesStmg({ ...suitesStmg, modelisationEvolution: v })}
+                disabled={isLocked}
+              />
+            </div>
+            <TextareaInput
+              label="Observations sur les suites"
+              value={suitesStmg.observationsSuites}
+              onChange={v => setSuitesStmg({ ...suitesStmg, observationsSuites: v })}
               disabled={isLocked}
             />
-            <RatingInput
-              label="Dérivation quotient"
-              value={analysis.quotientDerivative}
-              onChange={v => setAnalysis({ ...analysis, quotientDerivative: v })}
-              disabled={isLocked}
-            />
-            <RatingInput
-              label="Tableau de variations"
-              value={analysis.variationTable}
-              onChange={v => setAnalysis({ ...analysis, variationTable: v })}
-              disabled={isLocked}
-            />
-            <RatingInput
-              label="Exponentielle"
-              value={analysis.exponentialPositivity}
-              onChange={v => setAnalysis({ ...analysis, exponentialPositivity: v })}
-              disabled={isLocked}
-            />
-          </div>
-        </AccordionSection>
+          </AccordionSection>
+        ) : (
+          <>
+            <AccordionSection title="4. Analyse et Dérivation" icon={<FileText className="h-4 w-4" />}>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <RatingInput
+                  label="Dérivation produit"
+                  value={analysis.productDerivative}
+                  onChange={v => setAnalysis({ ...analysis, productDerivative: v })}
+                  disabled={isLocked}
+                />
+                <RatingInput
+                  label="Dérivation quotient"
+                  value={analysis.quotientDerivative}
+                  onChange={v => setAnalysis({ ...analysis, quotientDerivative: v })}
+                  disabled={isLocked}
+                />
+                <RatingInput
+                  label="Tableau de variations"
+                  value={analysis.variationTable}
+                  onChange={v => setAnalysis({ ...analysis, variationTable: v })}
+                  disabled={isLocked}
+                />
+                <RatingInput
+                  label="Exponentielle"
+                  value={analysis.exponentialPositivity}
+                  onChange={v => setAnalysis({ ...analysis, exponentialPositivity: v })}
+                  disabled={isLocked}
+                />
+              </div>
+            </AccordionSection>
 
-        {/* Section 5 — Suites numériques */}
-        <AccordionSection title="5. Suites numériques" icon={<FileText className="h-4 w-4" />}>
-          <div className="grid gap-5 sm:grid-cols-2">
-            <RatingInput
-              label="Formule explicite"
-              value={sequences.explicitFormula}
-              onChange={v => setSequences({ ...sequences, explicitFormula: v })}
-              disabled={isLocked}
-            />
-            <RatingInput
-              label="Suites auxiliaires"
-              value={sequences.auxiliarySequence}
-              onChange={v => setSequences({ ...sequences, auxiliarySequence: v })}
-              disabled={isLocked}
-            />
-            <RatingInput
-              label="Calcul de sommes"
-              value={sequences.sums}
-              onChange={v => setSequences({ ...sequences, sums: v })}
-              disabled={isLocked}
-            />
-          </div>
-          <TextareaInput
-            label="Observations sur les suites"
-            value={sequences.progressReflection}
-            onChange={v => setSequences({ ...sequences, progressReflection: v })}
-            disabled={isLocked}
-          />
-        </AccordionSection>
+            <AccordionSection title="5. Suites numériques" icon={<FileText className="h-4 w-4" />}>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <RatingInput
+                  label="Formule explicite"
+                  value={sequences.explicitFormula}
+                  onChange={v => setSequences({ ...sequences, explicitFormula: v })}
+                  disabled={isLocked}
+                />
+                <RatingInput
+                  label="Suites auxiliaires"
+                  value={sequences.auxiliarySequence}
+                  onChange={v => setSequences({ ...sequences, auxiliarySequence: v })}
+                  disabled={isLocked}
+                />
+                <RatingInput
+                  label="Calcul de sommes"
+                  value={sequences.sums}
+                  onChange={v => setSequences({ ...sequences, sums: v })}
+                  disabled={isLocked}
+                />
+              </div>
+              <TextareaInput
+                label="Observations sur les suites"
+                value={sequences.progressReflection}
+                onChange={v => setSequences({ ...sequences, progressReflection: v })}
+                disabled={isLocked}
+              />
+            </AccordionSection>
 
-        {/* Section 6 — Produit scalaire */}
-        <AccordionSection title="6. Produit scalaire" icon={<FileText className="h-4 w-4" />}>
-          <div className="grid gap-5 sm:grid-cols-2">
-            <RatingInput
-              label="Par coordonnées"
-              value={scalarProduct.coordinates}
-              onChange={v => setScalarProduct({ ...scalarProduct, coordinates: v })}
-              disabled={isLocked}
-            />
-            <RatingInput
-              label="Par Al-Kashi"
-              value={scalarProduct.alKashi}
-              onChange={v => setScalarProduct({ ...scalarProduct, alKashi: v })}
-              disabled={isLocked}
-            />
-          </div>
-        </AccordionSection>
+            <AccordionSection title="6. Produit scalaire" icon={<FileText className="h-4 w-4" />}>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <RatingInput
+                  label="Par coordonnées"
+                  value={scalarProduct.coordinates}
+                  onChange={v => setScalarProduct({ ...scalarProduct, coordinates: v })}
+                  disabled={isLocked}
+                />
+                <RatingInput
+                  label="Par Al-Kashi"
+                  value={scalarProduct.alKashi}
+                  onChange={v => setScalarProduct({ ...scalarProduct, alKashi: v })}
+                  disabled={isLocked}
+                />
+              </div>
+            </AccordionSection>
 
-        {/* Section 7 — Probabilités conditionnelles (P0) */}
-        <AccordionSection title="7. Probabilités conditionnelles" icon={<FileText className="h-4 w-4" />}>
-          <div className="grid gap-5 sm:grid-cols-2">
-            <RatingInput
-              label="Arbre pondéré"
-              value={probabilities.weightedTree}
-              onChange={v => setProbabilities({ ...probabilities, weightedTree: v })}
-              disabled={isLocked}
-            />
-            <RatingInput
-              label="Probabilités totales"
-              value={probabilities.totalProbability}
-              onChange={v => setProbabilities({ ...probabilities, totalProbability: v })}
-              disabled={isLocked}
-            />
-            <RatingInput
-              label="Formule de Bayes"
-              value={probabilities.bayes}
-              onChange={v => setProbabilities({ ...probabilities, bayes: v })}
-              disabled={isLocked}
-            />
-            <RatingInput
-              label="Indépendance vs incompatibilité"
-              value={probabilities.independenceVsIncompatibility}
-              onChange={v => setProbabilities({ ...probabilities, independenceVsIncompatibility: v })}
-              disabled={isLocked}
-            />
-            <RatingInput
-              label="Formule P(A|B)"
-              value={probabilities.conditionalProbabilityFormula}
-              onChange={v => setProbabilities({ ...probabilities, conditionalProbabilityFormula: v })}
-              disabled={isLocked}
-            />
-          </div>
-        </AccordionSection>
+            <AccordionSection title="7. Probabilités conditionnelles (P0)" icon={<FileText className="h-4 w-4" />}>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <RatingInput
+                  label="Arbre pondéré"
+                  value={probabilities.weightedTree}
+                  onChange={v => setProbabilities({ ...probabilities, weightedTree: v })}
+                  disabled={isLocked}
+                />
+                <RatingInput
+                  label="Probabilités totales"
+                  value={probabilities.totalProbability}
+                  onChange={v => setProbabilities({ ...probabilities, totalProbability: v })}
+                  disabled={isLocked}
+                />
+                <RatingInput
+                  label="Formule de Bayes"
+                  value={probabilities.bayes}
+                  onChange={v => setProbabilities({ ...probabilities, bayes: v })}
+                  disabled={isLocked}
+                />
+                <RatingInput
+                  label="Indépendance vs incompatibilité"
+                  value={probabilities.independenceVsIncompatibility}
+                  onChange={v => setProbabilities({ ...probabilities, independenceVsIncompatibility: v })}
+                  disabled={isLocked}
+                />
+                <RatingInput
+                  label="Formule P(A|B)"
+                  value={probabilities.conditionalProbabilityFormula}
+                  onChange={v => setProbabilities({ ...probabilities, conditionalProbabilityFormula: v })}
+                  disabled={isLocked}
+                />
+              </div>
+            </AccordionSection>
+          </>
+        )}
 
-        {/* Section 8 — Épreuve finale (P0 enhanced) */}
-        <AccordionSection title="8. Épreuve finale" icon={<FileText className="h-4 w-4" />}>
-          <div className="grid gap-5 sm:grid-cols-2">
-            <SelectInput
-              label="Épreuve réalisée"
-              value={finalAssessment.finalTestDone}
-              onChange={v => setFinalAssessment({ ...finalAssessment, finalTestDone: v as any })}
-              disabled={isLocked}
-              options={[
-                { value: 'NOT_DONE', label: 'Non réalisée' },
-                { value: 'PARTIAL', label: 'Partiellement réalisée' },
-                { value: 'DONE', label: 'Réalisée complètement' },
-              ]}
-            />
-            <SelectInput
-              label="Score approximatif"
-              value={finalAssessment.approximateScore?.toString()}
-              onChange={v => setFinalAssessment({ ...finalAssessment, approximateScore: v ? parseInt(v) : undefined })}
-              disabled={isLocked}
-              options={[
-                { value: '', label: '—' },
-                ...Array.from({ length: 21 }, (_, i) => ({ value: i.toString(), label: `${i}/20` })),
-              ]}
-            />
-            <RatingInput
-              label="Gestion du temps"
-              value={finalAssessment.timeManagement}
-              onChange={v => setFinalAssessment({ ...finalAssessment, timeManagement: v })}
-              disabled={isLocked}
-            />
-            <RatingInput
-              label="Compréhension des consignes"
-              value={finalAssessment.instructionUnderstanding}
-              onChange={v => setFinalAssessment({ ...finalAssessment, instructionUnderstanding: v })}
-              disabled={isLocked}
-            />
-            <RatingInput
-              label="Rédaction et justification"
-              value={finalAssessment.writtenJustification}
-              onChange={v => setFinalAssessment({ ...finalAssessment, writtenJustification: v })}
-              disabled={isLocked}
-            />
-            <RatingInput
-              label="Choix des méthodes"
-              value={finalAssessment.methodSelection}
-              onChange={v => setFinalAssessment({ ...finalAssessment, methodSelection: v })}
-              disabled={isLocked}
-            />
-            <RatingInput
-              label="Résilience (rattrapage d'erreurs)"
-              value={finalAssessment.resilience}
-              onChange={v => setFinalAssessment({ ...finalAssessment, resilience: v })}
-              disabled={isLocked}
-            />
-          </div>
-          <TextareaInput
-            label="Erreur la plus évitable"
-            value={finalAssessment.mostAvoidableMistake}
-            onChange={v => setFinalAssessment({ ...finalAssessment, mostAvoidableMistake: v })}
-            disabled={isLocked}
-            max={250}
-            placeholder="Quelle erreur aurait pu être facilement évitée ?"
-          />
-          <TextareaInput
-            label="Point positif marquant"
-            value={finalAssessment.strongestFinalTestPoint}
-            onChange={v => setFinalAssessment({ ...finalAssessment, strongestFinalTestPoint: v })}
-            disabled={isLocked}
-            max={250}
-            placeholder="Quel a été le point fort de l'épreuve ?"
-          />
-          <TextareaInput
-            label="Priorité absolue avant le bac"
-            value={finalAssessment.priorityBeforeExam}
-            onChange={v => setFinalAssessment({ ...finalAssessment, priorityBeforeExam: v })}
-            disabled={isLocked}
-            max={250}
-            placeholder="Que faut-il absolument travailler avant l'épreuve ?"
-          />
-        </AccordionSection>
+        {/* Section 5 — Fonctions et Dérivation (STMG only) */}
+        {isStmg && (
+          <AccordionSection title="5. Fonctions et Dérivation" icon={<FileText className="h-4 w-4" />}>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <RatingInput
+                label="Second degré (allure)"
+                value={fonctionsDerivationStmg.secondDegreAllure}
+                onChange={v => setFonctionsDerivationStmg({ ...fonctionsDerivationStmg, secondDegreAllure: v })}
+                disabled={isLocked}
+              />
+              <RatingInput
+                label="Troisième degré"
+                value={fonctionsDerivationStmg.troisiemeDegre}
+                onChange={v => setFonctionsDerivationStmg({ ...fonctionsDerivationStmg, troisiemeDegre: v })}
+                disabled={isLocked}
+              />
+              <RatingInput
+                label="Dérivation usuelle"
+                value={fonctionsDerivationStmg.derivationUsuelle}
+                onChange={v => setFonctionsDerivationStmg({ ...fonctionsDerivationStmg, derivationUsuelle: v })}
+                disabled={isLocked}
+              />
+              <RatingInput
+                label="Lien signe/variation"
+                value={fonctionsDerivationStmg.lienSigneVariation}
+                onChange={v => setFonctionsDerivationStmg({ ...fonctionsDerivationStmg, lienSigneVariation: v })}
+                disabled={isLocked}
+              />
+            </div>
+          </AccordionSection>
+        )}
+
+        {/* Section 6 — Statistiques et Probabilités (STMG only) */}
+        {isStmg && (
+          <AccordionSection title="6. Statistiques et Probabilités" icon={<FileText className="h-4 w-4" />}>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <RatingInput
+                label="Tableaux croisés"
+                value={statistiquesProbabilitesStmg.tableauxCroises}
+                onChange={v => setStatistiquesProbabilitesStmg({ ...statistiquesProbabilitesStmg, tableauxCroises: v })}
+                disabled={isLocked}
+              />
+              <RatingInput
+                label="Probabilités simples"
+                value={statistiquesProbabilitesStmg.probabilitesSimples}
+                onChange={v => setStatistiquesProbabilitesStmg({ ...statistiquesProbabilitesStmg, probabilitesSimples: v })}
+                disabled={isLocked}
+              />
+              <RatingInput
+                label="Arbre pondéré"
+                value={statistiquesProbabilitesStmg.arbrePondere}
+                onChange={v => setStatistiquesProbabilitesStmg({ ...statistiquesProbabilitesStmg, arbrePondere: v })}
+                disabled={isLocked}
+              />
+            </div>
+          </AccordionSection>
+        )}
 
         {/* Section 9 — Diagnostic par chapitre (P0) */}
         <AccordionSection title="9. Diagnostic par chapitre" icon={<FileText className="h-4 w-4" />}>
           {(
-            [
-              { key: 'secondDegree', label: 'Second degré' },
-              { key: 'derivation', label: 'Dérivation' },
-              { key: 'sequences', label: 'Suites numériques' },
-              { key: 'exponential', label: 'Fonction exponentielle' },
-              { key: 'scalarProduct', label: 'Produit scalaire' },
-              { key: 'probabilities', label: 'Probabilités conditionnelles' },
-            ] as const
+            isStmg
+              ? [
+                  { key: 'automatismesTauxEvolution', label: 'Automatismes et Taux d\'évolution' },
+                  { key: 'suitesNumeriques', label: 'Suites numériques' },
+                  { key: 'fonctionsDegre2_3', label: 'Fonctions de degré 2 et 3' },
+                  { key: 'derivationVariations', label: 'Dérivation et Variations' },
+                  { key: 'probabilitesTableaux', label: 'Probabilités et Tableaux croisés' },
+                ] as const
+              : [
+                  { key: 'secondDegree', label: 'Second degré' },
+                  { key: 'derivation', label: 'Dérivation' },
+                  { key: 'sequences', label: 'Suites numériques' },
+                  { key: 'exponential', label: 'Fonction exponentielle' },
+                  { key: 'scalarProduct', label: 'Produit scalaire' },
+                  { key: 'probabilities', label: 'Probabilités conditionnelles' },
+                ] as const
           ).map(chapter => (
             <div key={chapter.key} className="border-t border-white/10 pt-4 first:border-t-0 first:pt-0">
               <h4 className="text-sm font-semibold text-indigo-300 mb-3">{chapter.label}</h4>
@@ -864,21 +939,39 @@ export default function CoachMathsIndividualReportPage() {
               </div>
               <TextareaInput
                 label="Méthodes acquises (séparées par des virgules)"
-                value={chapterDiags[chapter.key]?.methodsAcquired?.join(', ')}
+                value={(() => {
+                  const chapterData = chapterDiags[chapter.key];
+                  if (chapterData && Array.isArray(chapterData.methodsAcquired)) {
+                    return chapterData.methodsAcquired.join(', ');
+                  }
+                  return '';
+                })()}
                 onChange={v => setChapterDiag(chapter.key, { methodsAcquired: v.split(',').map(s => s.trim()).filter(Boolean) })}
                 disabled={isLocked}
                 placeholder="Ex: Factorisation, Delta, Formule du produit..."
               />
               <TextareaInput
                 label="Points de vigilance"
-                value={chapterDiags[chapter.key]?.vigilancePoints?.join(', ')}
+                value={(() => {
+                  const chapterData = chapterDiags[chapter.key];
+                  if (chapterData && Array.isArray(chapterData.vigilancePoints)) {
+                    return chapterData.vigilancePoints.join(', ');
+                  }
+                  return '';
+                })()}
                 onChange={v => setChapterDiag(chapter.key, { vigilancePoints: v.split(',').map(s => s.trim()).filter(Boolean) })}
                 disabled={isLocked}
                 placeholder="Ex: Signe de a dans les tableaux de signes..."
               />
               <TextareaInput
                 label="Erreurs récurrentes"
-                value={chapterDiags[chapter.key]?.recurringErrors?.join(', ')}
+                value={(() => {
+                  const chapterData = chapterDiags[chapter.key];
+                  if (chapterData && Array.isArray(chapterData.recurringErrors)) {
+                    return chapterData.recurringErrors.join(', ');
+                  }
+                  return '';
+                })()}
                 onChange={v => setChapterDiag(chapter.key, { recurringErrors: v.split(',').map(s => s.trim()).filter(Boolean) })}
                 disabled={isLocked}
                 placeholder="Ex: Oublie de vérifier les conditions d'application..."
@@ -989,17 +1082,27 @@ export default function CoachMathsIndividualReportPage() {
             <label className="text-xs text-neutral-400">Axes prioritaires à travailler (plusieurs choix possibles)</label>
             <div className="grid gap-2 sm:grid-cols-2">
               {(
-                [
-                  { value: 'second-degre', label: 'Second degré' },
-                  { value: 'derivation', label: 'Dérivation' },
-                  { value: 'suites', label: 'Suites numériques' },
-                  { value: 'exponentielle', label: 'Fonction exponentielle' },
-                  { value: 'produit-scalaire', label: 'Produit scalaire' },
-                  { value: 'probabilites-conditionnelles', label: 'Probabilités conditionnelles' },
-                  { value: 'automatismes', label: 'Automatismes et calculs' },
-                  { value: 'redaction-justification', label: 'Rédaction et rigueur' },
-                  { value: 'gestion-du-temps', label: 'Gestion du temps' },
-                ] as const
+                isStmg
+                  ? [
+                      { value: 'automatismes-taux-evolution', label: 'Automatismes et Taux d\'évolution' },
+                      { value: 'suites-numeriques', label: 'Suites numériques' },
+                      { value: 'fonctions-degre-2-3', label: 'Fonctions de degré 2 et 3' },
+                      { value: 'derivation-variations', label: 'Dérivation et Variations' },
+                      { value: 'probabilites-tableaux', label: 'Probabilités et Tableaux croisés' },
+                      { value: 'redaction-justification', label: 'Rédaction et rigueur' },
+                      { value: 'gestion-du-temps', label: 'Gestion du temps' },
+                    ] as const
+                  : [
+                      { value: 'second-degre', label: 'Second degré' },
+                      { value: 'derivation', label: 'Dérivation' },
+                      { value: 'suites', label: 'Suites numériques' },
+                      { value: 'exponentielle', label: 'Fonction exponentielle' },
+                      { value: 'produit-scalaire', label: 'Produit scalaire' },
+                      { value: 'probabilites-conditionnelles', label: 'Probabilités conditionnelles' },
+                      { value: 'automatismes', label: 'Automatismes et calculs' },
+                      { value: 'redaction-justification', label: 'Rédaction et rigueur' },
+                      { value: 'gestion-du-temps', label: 'Gestion du temps' },
+                    ] as const
               ).map(axis => {
                 const checked = (parentRec.priorityAxes ?? []).includes(axis.value);
                 return (
@@ -1126,7 +1229,7 @@ export default function CoachMathsIndividualReportPage() {
           </span>
           {generationMeta.model && <span>Modèle : {generationMeta.model}</span>}
           {generationMeta.workflowVersion && <span>Workflow v{generationMeta.workflowVersion}</span>}
-          {generationMeta.qualityIssues && generationMeta.qualityIssues.length > 0 && (
+          {generationMeta.qualityIssues && Array.isArray(generationMeta.qualityIssues) && generationMeta.qualityIssues.length > 0 && (
             <span className="text-amber-400">Issues : {generationMeta.qualityIssues.join(', ')}</span>
           )}
         </div>

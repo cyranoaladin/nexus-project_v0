@@ -97,6 +97,7 @@ export async function GET(request: Request, { params }: RouteParams) {
  *
  * Creates a document metadata for a student.
  * Requires: COACH role and active assignment to the student
+ * Supports both JSON (for URL-based documents) and FormData (for file uploads)
  */
 export async function POST(request: Request, { params }: RouteParams) {
   try {
@@ -120,9 +121,6 @@ export async function POST(request: Request, { params }: RouteParams) {
       );
     }
 
-    const body = await request.json();
-    const validated = createDocumentSchema.parse(body);
-
     // Verify student exists with userId defensively
     const student = await prisma.student.findFirst({
       where: {
@@ -141,30 +139,93 @@ export async function POST(request: Request, { params }: RouteParams) {
       );
     }
 
-    // Require either url or localPath
-    if (!validated.url && !validated.localPath) {
-      return NextResponse.json(
-        { error: 'Bad Request', message: 'URL ou chemin local requis' },
-        { status: 400 }
-      );
-    }
+    // Check if request is FormData (file upload) or JSON (URL)
+    const contentType = request.headers.get('content-type');
+    let documentData: any;
 
-    // Build data ensuring localPath is always provided (required by Prisma schema)
-    const localPath = validated.localPath || validated.url || `/app/storage/documents/${student.userId}/${Date.now()}-${validated.title.replace(/[^a-zA-Z0-9]/g, '_')}`;
-    
-    const document = await prisma.userDocument.create({
-      data: {
-        userId: student.userId,
-        uploadedById: session.user.id,
+    if (contentType?.includes('multipart/form-data')) {
+      // Handle file upload
+      const formData = await request.formData();
+      const file = formData.get('file') as File | null;
+      
+      if (!file) {
+        return NextResponse.json(
+          { error: 'Bad Request', message: 'Fichier requis' },
+          { status: 400 }
+        );
+      }
+
+      // Generate a unique filename
+      const timestamp = Date.now();
+      const sanitizedTitle = (formData.get('title') as string || 'document').replace(/[^a-zA-Z0-9]/g, '_');
+      const extension = file.name.split('.').pop() || 'pdf';
+      const filename = `${sanitizedTitle}-${timestamp}.${extension}`;
+      const localPath = `/app/storage/documents/${student.userId}/${filename}`;
+
+      // Save file to disk
+      const fs = require('fs');
+      const path = require('path');
+      
+      const uploadDir = path.join(process.cwd(), 'storage', 'documents', student.userId);
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+
+      const buffer = Buffer.from(await file.arrayBuffer());
+      fs.writeFileSync(path.join(uploadDir, filename), buffer);
+
+      documentData = {
+        title: formData.get('title') as string,
+        documentType: formData.get('documentType') as string,
+        subject: formData.get('subject') as string,
+        visibilityScope: formData.get('visibilityScope') as string,
+        localPath,
+        originalName: file.name,
+        mimeType: file.type,
+        sizeBytes: file.size,
+      };
+    } else {
+      // Handle JSON (URL-based)
+      const body = await request.json();
+      const validated = createDocumentSchema.parse(body);
+
+      // Require either url or localPath
+      if (!validated.url && !validated.localPath) {
+        return NextResponse.json(
+          { error: 'Bad Request', message: 'URL ou chemin local requis' },
+          { status: 400 }
+        );
+      }
+
+      // Build data ensuring localPath is always provided (required by Prisma schema)
+      const localPath = validated.localPath || validated.url || `/app/storage/documents/${student.userId}/${Date.now()}-${validated.title.replace(/[^a-zA-Z0-9]/g, '_')}`;
+      
+      documentData = {
+        title: validated.title,
         documentType: validated.documentType,
         subject: validated.subject ?? null,
-        title: validated.title,
         description: validated.description ?? null,
         localPath,
         originalName: validated.title,
         mimeType: 'application/octet-stream',
         sizeBytes: 0,
         visibilityScope: validated.visibilityScope,
+      };
+    }
+
+    const document = await prisma.userDocument.create({
+      data: {
+        userId: student.userId,
+        uploadedById: session.user.id,
+        documentType: documentData.documentType,
+        subject: documentData.subject,
+        title: documentData.title,
+        description: documentData.description ?? null,
+        localPath: documentData.localPath,
+        originalName: documentData.originalName,
+        mimeType: documentData.mimeType,
+        sizeBytes: documentData.sizeBytes,
+        visibilityScope: documentData.visibilityScope,
       },
     });
 
