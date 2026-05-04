@@ -57,6 +57,7 @@ export async function GET() {
         studentId: true,
         status: true,
         isPublished: true,
+        subject: true,
         updatedAt: true,
         createdAt: true,
       },
