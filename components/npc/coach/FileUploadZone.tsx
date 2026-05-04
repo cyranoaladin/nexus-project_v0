@@ -418,7 +418,7 @@ export function FileUploadZone({
                             } else {
                               setGlobalError('Erreur lors de la modification du type');
                             }
-                          } catch (error) {
+                          } catch {
                             setGlobalError('Erreur lors de la modification du type');
                           }
                         }}
