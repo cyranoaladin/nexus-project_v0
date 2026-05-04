@@ -41,6 +41,7 @@ export default function DashboardEleve() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'booking'>('dashboard');
+  const [activeRubrique, setActiveRubrique] = useState<'cockpit' | 'parcours' | 'sessions' | 'matières' | 'bilans' | 'stages'>('cockpit');
   const [isAriaOpen, setIsAriaOpen] = useState(false);
   const [ariaSubject, setAriaSubject] = useState<string | undefined>(undefined);
 
@@ -214,307 +215,302 @@ export default function DashboardEleve() {
         {activeTab === 'dashboard' && (
           <DashboardPilotage role="ELEVE" trajectoryData={dashboardData?.trajectory}>
             {dashboardData && (
-              <>
-                <EleveCockpit
-                  data={dashboardData}
-                  onBookSession={() => setActiveTab('booking')}
-                  onOpenAria={() => openAriaWithSubject()}
-                />
-
-                {isSurvivalMode ? (
-                  <SurvivalDashboard progress={dashboardData.survivalProgress} />
-                ) : isStmgTrack ? (
-                  <TrackContentSTMG modules={stmgModules} />
-                ) : (
-                  <TrackContentEDS specialties={edsSpecialties} />
-                )}
-
-                <EleveSessions
-                  sessions={dashboardData.recentSessions}
-                  onBookSession={() => setActiveTab('booking')}
-                />
-                {!isSurvivalMode && <EleveHubRessources hub={dashboardData.hub} />}
-                {!isSurvivalMode && (
-                  <EleveBilans
-                    recentBilans={dashboardData.recentBilans}
-                    lastBilan={dashboardData.lastBilan}
-                  />
-                )}
-                <EleveAria
-                  totalConversations={dashboardData.ariaStats.totalConversations}
-                  messagesToday={dashboardData.ariaStats.messagesToday}
-                  onOpenAria={() => openAriaWithSubject()}
-                />
-                {!isSurvivalMode && (
-                  <EleveStages
-                    upcomingStages={dashboardData.upcomingStages}
-                    pastStages={dashboardData.pastStages}
-                  />
-                )}
-              </>
-            )}
-
-            {/* Parcours de Réussite — Accès direct au programme interactif (PRIORITY) */}
-            {shouldShowEdsParcours({
-              isStmgTrack,
-              grade: dashboardData?.student.grade,
-              gradeLevel: studentGradeLevel,
-            }) && (
-              <Card className="bg-gradient-to-br from-indigo-500/10 via-brand-accent/5 to-surface-card border border-indigo-500/20 shadow-lg overflow-hidden group mb-6">
-                <CardContent className="p-0">
-                  <div className="flex flex-col md:flex-row items-stretch">
-                    <div className="md:w-1/3 bg-indigo-500/10 p-6 flex flex-col items-center justify-center text-center border-b md:border-b-0 md:border-r border-indigo-500/20">
-                      <div className="w-16 h-16 rounded-2xl bg-indigo-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <BookOpen className="w-8 h-8 text-indigo-300" />
-                      </div>
-                      <h3 className="font-bold text-white tracking-tight">Mon Parcours</h3>
-                      <p className="text-[10px] uppercase tracking-widest text-indigo-300/70 font-bold mt-1">Spécialité Maths</p>
-                    </div>
-                    <div className="flex-1 p-6 flex flex-col justify-center">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Sparkles className="w-4 h-4 text-brand-accent animate-pulse" />
-                        <span className="text-xs font-semibold text-indigo-200">Programme Interactif Nexus</span>
-                      </div>
-                      <h4 className="text-lg font-bold text-white mb-2">
-                        Mathématiques — {studentGradeLevel === 'PREMIERE' ? 'Première EDS' : 'Terminale EDS'}
-                      </h4>
-                      <p className="text-sm text-neutral-400 mb-6 line-clamp-2">
-                        Accédez à vos fiches de cours, exercices interactifs et quiz de révision pour maîtriser le programme officiel.
-                      </p>
-                      <Link href={studentGradeLevel === 'PREMIERE' ? "/dashboard/eleve/programme/maths" : "/programme/maths-terminale"} className="w-full sm:w-fit">
-                        <Button className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-8 shadow-lg shadow-indigo-600/20">
-                          Continuer mon parcours
-                          <ArrowRight className="w-4 h-4 ml-2" />
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Nouveau : Livret STMG Interactif (Gamifié) */}
-            {shouldShowStmgLivret({
-              isStmgTrack,
-              isSurvivalMode,
-              grade: dashboardData?.student.grade,
-              gradeLevel: studentGradeLevel,
-            }) && (
-              <Card className="bg-gradient-to-br from-orange-500/10 via-brand-accent/5 to-surface-card border border-orange-500/20 shadow-lg overflow-hidden group mb-6">
-                <CardContent className="p-0">
-                  <div className="flex flex-col md:flex-row items-stretch">
-                    <div className="md:w-1/3 bg-orange-500/10 p-6 flex flex-col items-center justify-center text-center border-b md:border-b-0 md:border-r border-orange-500/20">
-                      <div className="w-16 h-16 rounded-2xl bg-orange-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <Calculator className="w-8 h-8 text-orange-300" />
-                      </div>
-                      <h3 className="font-bold text-white tracking-tight">Livret STMG</h3>
-                      <p className="text-[10px] uppercase tracking-widest text-orange-300/70 font-bold mt-1">Objectif Bac 2026</p>
-                    </div>
-                    <div className="flex-1 p-6 flex flex-col justify-center">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Zap className="w-4 h-4 text-orange-400 animate-pulse" />
-                        <span className="text-xs font-semibold text-orange-200">Mode Gamifié — Sauve les meubles !</span>
-                      </div>
-                      <h4 className="text-lg font-bold text-white mb-2">
-                        Révisions Mathématiques Interactives
-                      </h4>
-                      <p className="text-sm text-neutral-400 mb-6 line-clamp-2">
-                        Entraînez-vous avec notre nouveau livret gamifié : calculs de base, pourcentages, suites et QCM Chrono.
-                      </p>
-                      <Link href="/dashboard/eleve/programme/maths" className="w-full sm:w-fit">
-                        <Button className="w-full sm:w-auto bg-orange-600 hover:bg-orange-500 text-white font-bold px-8 shadow-lg shadow-orange-600/20">
-                          Ouvrir le Livret
-                          <ArrowRight className="w-4 h-4 ml-2" />
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Bilan Diagnostic Maths Terminale — TERMINALE EDS MATHEMATIQUES only */}
-            {!isStmgTrack &&
-              !isSurvivalMode &&
-              dashboardData?.student.gradeLevel === 'TERMINALE' &&
-              dashboardData?.student.academicTrack === 'EDS_GENERALE' &&
-              dashboardData?.student.specialties?.includes('MATHEMATIQUES') && (
-                <BilanDiagMathsTerminale />
-              )}
-
-            {/* Questionnaire EAF — Stage de printemps (Première uniquement) */}
-            {studentGradeLevel === 'PREMIERE' && (
-              <EafStageQuestionnaireCard />
-            )}
-
-            {/* Questionnaire Maths — Stage de printemps (Première EDS Maths uniquement) */}
-            {studentGradeLevel === 'PREMIERE' && (
-              <MathsPremiereStageQuestionnaireCard />
-            )}
-
-            {/* Automatismes — Épreuve Anticipée (EDS Première uniquement, pas STMG) */}
-            {!isSurvivalMode && !isStmgTrack && (
-              <AutomatismesDashboardCard
-                grade={dashboardData?.student.grade || ""}
-                automatismes={dashboardData?.automatismes}
-              />
-            )}
-
-            {/* Sessions Récentes */}
-
-            {!isSurvivalMode && (
-            <Card className="bg-surface-card border border-white/10 shadow-premium">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Calendar className="w-5 h-5 mr-2 text-brand-accent" />
-                  Sessions récentes
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {dashboardData?.recentSessions && dashboardData.recentSessions.length > 0 ? (
-                  <div className="space-y-4">
-                    {dashboardData.recentSessions.map((session) => (
-                      <div
-                        key={session.id}
-                        className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10"
-                      >
-                        <div className="flex-1">
-                          <h4 className="font-medium text-white">{session.title}</h4>
-                          <p className="text-sm text-neutral-300">{session.subject}</p>
-                          <p className="text-sm font-medium text-brand-accent">
-                            {new Date(session.scheduledAt).toLocaleDateString('fr-FR')}
-                          </p>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <span className={`px-2 py-1 text-xs rounded-full ${session.status === 'completed'
-                              ? 'bg-emerald-500/15 text-emerald-200 border border-emerald-500/20'
-                              : 'bg-blue-500/15 text-slate-200 border border-blue-500/20'
-                            }`}>
-                            {session.status}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Calendar className="w-12 h-12 text-neutral-500 mx-auto mb-3" />
-                    <p className="text-neutral-400 text-sm">
-                      Vos sessions apparaîtront ici une fois programmées.
-                    </p>
+              <div className="space-y-6">
+                {/* Rubriques Navigation */}
+                <div className="flex flex-wrap gap-2 mb-6 p-1 bg-white/5 border border-white/10 rounded-xl">
+                  {[
+                    { id: 'cockpit', label: 'Cockpit' },
+                    { id: 'parcours', label: 'Mon Parcours' },
+                    { id: 'sessions', label: 'Sessions' },
+                    { id: 'matières', label: 'Mes Matières' },
+                    { id: 'bilans', label: 'Mes Bilans' },
+                    { id: 'stages', label: 'Stages' },
+                  ].map((tab) => (
                     <Button
-                      onClick={() => setActiveTab('booking')}
-                      className="btn-primary mt-3"
+                      key={tab.id}
+                      onClick={() => setActiveRubrique(tab.id as any)}
+                      variant={activeRubrique === tab.id ? 'default' : 'ghost'}
+                      className={`flex-1 min-w-[120px] rounded-lg transition-all ${
+                        activeRubrique === tab.id
+                          ? 'bg-brand-accent text-white shadow-premium font-bold'
+                          : 'text-neutral-400 hover:text-white hover:bg-white/5'
+                      }`}
                       size="sm"
                     >
-                      Réserver une séance
+                      {tab.label}
                     </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-            )}
-
-            {/* Mes Matières — ARIA contextuel */}
-            <Card className="bg-surface-card border border-white/10 shadow-premium">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span className="flex items-center">
-                    <BookOpen className="w-5 h-5 mr-2 text-brand-accent" />
-                    Mes Matières
-                  </span>
-                  <span className="text-xs font-normal text-neutral-500">
-                    Clique sur une matière pour poser une question à ARIA
-                  </span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {ariaSubjectLinks.map((subject) => (
-                    (() => {
-                      const SubjectIcon = resolveSubjectIcon(subject.value);
-                      return (
-                        <button
-                          key={subject.value}
-                          onClick={() => openAriaWithSubject(subject.value)}
-                          className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl hover:border-brand-accent/40 hover:bg-brand-accent/5 transition-all text-left group"
-                        >
-                          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/5 text-brand-accent">
-                            <SubjectIcon className="h-4.5 w-4.5" aria-hidden="true" />
-                          </span>
-                          <div className="flex-1 min-w-0">
-                            <span className={`text-sm font-medium ${subject.color} group-hover:text-white transition-colors`}>
-                              {subject.label}
-                            </span>
-                            <div className="flex items-center gap-1 mt-0.5">
-                              <Sparkles className="w-3 h-3 text-brand-accent/50" />
-                              <span className="text-[10px] text-neutral-500">ARIA</span>
-                            </div>
-                          </div>
-                        </button>
-                      );
-                    })()
                   ))}
                 </div>
-              </CardContent>
-            </Card>
 
-            {/* ARIA Stats + Actions Rapides */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* ARIA Stats */}
-              <Card className="bg-gradient-to-br from-brand-accent/10 to-brand-primary/5 border border-brand-accent/20">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-neutral-400 mb-1">ARIA — IA Pédagogique</p>
-                      <div className="flex items-baseline gap-3">
-                        <span className="text-2xl font-bold text-brand-accent">
-                          {dashboardData?.ariaStats.totalConversations ?? 0}
-                        </span>
-                        <span className="text-xs text-neutral-400">conversations</span>
-                      </div>
-                      {(dashboardData?.ariaStats.messagesToday ?? 0) > 0 && (
-                        <p className="text-xs text-emerald-400 mt-1">
-                          {dashboardData?.ariaStats.messagesToday} message{(dashboardData?.ariaStats.messagesToday ?? 0) > 1 ? 's' : ''} aujourd&apos;hui
-                        </p>
-                      )}
-                    </div>
-                    <Button
-                      size="sm"
-                      onClick={() => openAriaWithSubject()}
-                      className="bg-brand-accent hover:bg-brand-accent/90"
-                    >
-                      <MessageSquare className="w-4 h-4 mr-1" />
-                      Ouvrir ARIA
-                    </Button>
+                {activeRubrique === 'cockpit' && (
+                  <div className="space-y-6">
+                    <EleveCockpit
+                      data={dashboardData}
+                      onBookSession={() => setActiveTab('booking')}
+                      onOpenAria={() => openAriaWithSubject()}
+                    />
+                    <EleveAria
+                      totalConversations={dashboardData.ariaStats.totalConversations}
+                      messagesToday={dashboardData.ariaStats.messagesToday}
+                      onOpenAria={() => openAriaWithSubject()}
+                    />
                   </div>
-                </CardContent>
-              </Card>
+                )}
 
-              {/* Actions Rapides */}
-              <div className="grid grid-cols-3 gap-3">
-                <Button
-                  variant="outline"
-                  className="h-auto p-3 flex flex-col items-center space-y-1.5 border-white/10 text-neutral-200 hover:text-white"
-                  onClick={() => setActiveTab('booking')}
-                >
-                  <Calendar className="w-5 h-5 text-brand-accent" />
-                  <span className="text-[10px]">Réserver</span>
-                </Button>
-                <Link href="/dashboard/eleve/mes-sessions">
-                  <Button variant="outline" className="w-full h-auto p-3 flex flex-col items-center space-y-1.5 border-white/10 text-neutral-200 hover:text-white">
-                    <Video className="w-5 h-5 text-blue-300" />
-                    <span className="text-[10px]">Sessions</span>
-                  </Button>
-                </Link>
-                <Link href="/dashboard/eleve/ressources">
-                  <Button variant="outline" className="w-full h-auto p-3 flex flex-col items-center space-y-1.5 border-white/10 text-neutral-200 hover:text-white">
-                    <HardDrive className="w-5 h-5 text-emerald-300" />
-                    <span className="text-[10px]">Ressources</span>
-                  </Button>
-                </Link>
+                {activeRubrique === 'parcours' && (
+                  <div className="space-y-6">
+                    {isSurvivalMode ? (
+                      <SurvivalDashboard progress={dashboardData.survivalProgress} />
+                    ) : isStmgTrack ? (
+                      <TrackContentSTMG modules={stmgModules} />
+                    ) : (
+                      <TrackContentEDS specialties={edsSpecialties} />
+                    )}
+
+                    {/* Parcours de Réussite — Accès direct au programme interactif (PRIORITY) */}
+                    {shouldShowEdsParcours({
+                      isStmgTrack,
+                      grade: dashboardData?.student.grade,
+                      gradeLevel: studentGradeLevel,
+                    }) && (
+                      <Card className="bg-gradient-to-br from-indigo-500/10 via-brand-accent/5 to-surface-card border border-indigo-500/20 shadow-lg overflow-hidden group">
+                        <CardContent className="p-0">
+                          <div className="flex flex-col md:flex-row items-stretch">
+                            <div className="md:w-1/3 bg-indigo-500/10 p-6 flex flex-col items-center justify-center text-center border-b md:border-b-0 md:border-r border-indigo-500/20">
+                              <div className="w-16 h-16 rounded-2xl bg-indigo-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <BookOpen className="w-8 h-8 text-indigo-300" />
+                              </div>
+                              <h3 className="font-bold text-white tracking-tight">Mon Parcours</h3>
+                              <p className="text-[10px] uppercase tracking-widest text-indigo-300/70 font-bold mt-1">Spécialité Maths</p>
+                            </div>
+                            <div className="flex-1 p-6 flex flex-col justify-center">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Sparkles className="w-4 h-4 text-brand-accent animate-pulse" />
+                                <span className="text-xs font-semibold text-indigo-200">Programme Interactif Nexus</span>
+                              </div>
+                              <h4 className="text-lg font-bold text-white mb-2">
+                                Mathématiques — {studentGradeLevel === 'PREMIERE' ? 'Première EDS' : 'Terminale EDS'}
+                              </h4>
+                              <p className="text-sm text-neutral-400 mb-6 line-clamp-2">
+                                Accédez à vos fiches de cours, exercices interactifs et quiz de révision pour maîtriser le programme officiel.
+                              </p>
+                              <Link href={studentGradeLevel === 'PREMIERE' ? "/dashboard/eleve/programme/maths" : "/programme/maths-terminale"} className="w-full sm:w-fit">
+                                <Button className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-8 shadow-lg shadow-indigo-600/20">
+                                  Continuer mon parcours
+                                  <ArrowRight className="w-4 h-4 ml-2" />
+                                </Button>
+                              </Link>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Nouveau : Livret STMG Interactif (Gamifié) */}
+                    {shouldShowStmgLivret({
+                      isStmgTrack,
+                      isSurvivalMode,
+                      grade: dashboardData?.student.grade,
+                      gradeLevel: studentGradeLevel,
+                    }) && (
+                      <Card className="bg-gradient-to-br from-orange-500/10 via-brand-accent/5 to-surface-card border border-orange-500/20 shadow-lg overflow-hidden group">
+                        <CardContent className="p-0">
+                          <div className="flex flex-col md:flex-row items-stretch">
+                            <div className="md:w-1/3 bg-orange-500/10 p-6 flex flex-col items-center justify-center text-center border-b md:border-b-0 md:border-r border-orange-500/20">
+                              <div className="w-16 h-16 rounded-2xl bg-orange-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <Calculator className="w-8 h-8 text-orange-300" />
+                              </div>
+                              <h3 className="font-bold text-white tracking-tight">Livret STMG</h3>
+                              <p className="text-[10px] uppercase tracking-widest text-orange-300/70 font-bold mt-1">Objectif Bac 2026</p>
+                            </div>
+                            <div className="flex-1 p-6 flex flex-col justify-center">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Zap className="w-4 h-4 text-orange-400 animate-pulse" />
+                                <span className="text-xs font-semibold text-orange-200">Mode Gamifié — Sauve les meubles !</span>
+                              </div>
+                              <h4 className="text-lg font-bold text-white mb-2">
+                                Révisions Mathématiques Interactives
+                              </h4>
+                              <p className="text-sm text-neutral-400 mb-6 line-clamp-2">
+                                Entraînez-vous avec notre nouveau livret gamifié : calculs de base, pourcentages, suites et QCM Chrono.
+                              </p>
+                              <Link href="/dashboard/eleve/programme/maths" className="w-full sm:w-fit">
+                                <Button className="w-full sm:w-auto bg-orange-600 hover:bg-orange-500 text-white font-bold px-8 shadow-lg shadow-orange-600/20">
+                                  Ouvrir le Livret
+                                  <ArrowRight className="w-4 h-4 ml-2" />
+                                </Button>
+                              </Link>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Automatismes — Épreuve Anticipée (EDS Première uniquement, pas STMG) */}
+                    {!isSurvivalMode && !isStmgTrack && (
+                      <AutomatismesDashboardCard
+                        grade={dashboardData?.student.grade || ""}
+                        automatismes={dashboardData?.automatismes}
+                      />
+                    )}
+                  </div>
+                )}
+
+                {activeRubrique === 'sessions' && (
+                  <div className="space-y-6">
+                    <EleveSessions
+                      sessions={dashboardData.recentSessions}
+                      onBookSession={() => setActiveTab('booking')}
+                    />
+
+                    {/* Sessions Récentes */}
+                    {!isSurvivalMode && (
+                      <Card className="bg-surface-card border border-white/10 shadow-premium">
+                        <CardHeader>
+                          <CardTitle className="flex items-center">
+                            <Calendar className="w-5 h-5 mr-2 text-brand-accent" />
+                            Sessions récentes
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          {dashboardData?.recentSessions && dashboardData.recentSessions.length > 0 ? (
+                            <div className="space-y-4">
+                              {dashboardData.recentSessions.map((session) => (
+                                <div
+                                  key={session.id}
+                                  className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10"
+                                >
+                                  <div className="flex-1">
+                                    <h4 className="font-medium text-white">{session.title}</h4>
+                                    <p className="text-sm text-neutral-300">{session.subject}</p>
+                                    <p className="text-sm font-medium text-brand-accent">
+                                      {new Date(session.scheduledAt).toLocaleDateString('fr-FR')}
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center space-x-2">
+                                    <span className={`px-2 py-1 text-xs rounded-full ${session.status === 'completed'
+                                        ? 'bg-emerald-500/15 text-emerald-200 border border-emerald-500/20'
+                                        : 'bg-blue-500/15 text-slate-200 border border-blue-500/20'
+                                      }`}>
+                                      {session.status}
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-center py-8">
+                              <Calendar className="w-12 h-12 text-neutral-500 mx-auto mb-3" />
+                              <p className="text-neutral-400 text-sm">
+                                Vos sessions apparaîtront ici une fois programmées.
+                              </p>
+                              <Button
+                                onClick={() => setActiveTab('booking')}
+                                className="btn-primary mt-3"
+                                size="sm"
+                              >
+                                Réserver une séance
+                              </Button>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                )}
+
+                {activeRubrique === 'matières' && (
+                  <div className="space-y-6">
+                    {!isSurvivalMode && <EleveHubRessources hub={dashboardData.hub} />}
+
+                    {/* Mes Matières — ARIA contextuel */}
+                    <Card className="bg-surface-card border border-white/10 shadow-premium">
+                      <CardHeader>
+                        <CardTitle className="flex items-center justify-between">
+                          <span className="flex items-center">
+                            <BookOpen className="w-5 h-5 mr-2 text-brand-accent" />
+                            Mes Matières
+                          </span>
+                          <span className="text-xs font-normal text-neutral-500">
+                            Clique sur une matière pour poser une question à ARIA
+                          </span>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                          {ariaSubjectLinks.map((subject) => (
+                            (() => {
+                              const SubjectIcon = resolveSubjectIcon(subject.value);
+                              return (
+                                <button
+                                  key={subject.value}
+                                  onClick={() => openAriaWithSubject(subject.value)}
+                                  className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl hover:border-brand-accent/40 hover:bg-brand-accent/5 transition-all text-left group"
+                                >
+                                  <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/5 text-brand-accent">
+                                    <SubjectIcon className="h-4.5 w-4.5" aria-hidden="true" />
+                                  </span>
+                                  <div className="flex-1 min-w-0">
+                                    <span className={`text-sm font-medium ${subject.color} group-hover:text-white transition-colors`}>
+                                      {subject.label}
+                                    </span>
+                                    <div className="flex items-center gap-1 mt-0.5">
+                                      <Sparkles className="w-3 h-3 text-brand-accent/50" />
+                                      <span className="text-[10px] text-neutral-500">ARIA</span>
+                                    </div>
+                                  </div>
+                                </button>
+                              );
+                            })()
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+
+                {activeRubrique === 'bilans' && (
+                  <div className="space-y-6">
+                    {!isSurvivalMode && (
+                      <EleveBilans
+                        recentBilans={dashboardData.recentBilans}
+                        lastBilan={dashboardData.lastBilan}
+                      />
+                    )}
+
+                    {/* Bilan Diagnostic Maths Terminale — TERMINALE EDS MATHEMATIQUES only */}
+                    {!isStmgTrack &&
+                      !isSurvivalMode &&
+                      dashboardData?.student.gradeLevel === 'TERMINALE' &&
+                      dashboardData?.student.academicTrack === 'EDS_GENERALE' &&
+                      dashboardData?.student.specialties?.includes('MATHEMATIQUES') && (
+                        <BilanDiagMathsTerminale />
+                      )}
+
+                    {/* Questionnaire EAF — Stage de printemps (Première uniquement) */}
+                    {studentGradeLevel === 'PREMIERE' && (
+                      <EafStageQuestionnaireCard />
+                    )}
+
+                    {/* Questionnaire Maths — Stage de printemps (Première EDS Maths uniquement) */}
+                    {studentGradeLevel === 'PREMIERE' && (
+                      <MathsPremiereStageQuestionnaireCard />
+                    )}
+                  </div>
+                )}
+
+                {activeRubrique === 'stages' && (
+                  <div className="space-y-6">
+                    {!isSurvivalMode && (
+                      <EleveStages
+                        upcomingStages={dashboardData.upcomingStages}
+                        pastStages={dashboardData.pastStages}
+                      />
+                    )}
+                  </div>
+                )}
               </div>
-            </div>
+            )}
           </DashboardPilotage>
         )}
 
