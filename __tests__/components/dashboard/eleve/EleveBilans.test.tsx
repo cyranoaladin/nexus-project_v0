@@ -24,7 +24,7 @@ const makeBilan = (overrides: Partial<EleveBilan> = {}): EleveBilan => ({
 describe('EleveBilans', () => {
   it('renders empty state when no bilans', () => {
     render(<EleveBilans recentBilans={[]} lastBilan={null} />);
-    expect(screen.getByText(/Aucun bilan disponible/i)).toBeInTheDocument();
+    expect(screen.getByText(/Aucun rapport de stage disponible/i)).toBeInTheDocument();
   });
 
   it('renders lastBilan with score and subject label', () => {
@@ -70,7 +70,7 @@ describe('EleveBilans', () => {
   it('renders result link pointing to resultUrl', () => {
     const bilan = makeBilan();
     render(<EleveBilans recentBilans={[bilan]} lastBilan={bilan} />);
-    const link = screen.getByRole('link', { name: /Voir le bilan/i });
+    const link = screen.getByRole('link', { name: /Voir le rapport/i });
     expect(link).toHaveAttribute('href', '/bilan-pallier2-maths/resultat/share-1');
   });
 
@@ -79,6 +79,6 @@ describe('EleveBilans', () => {
     const b2 = makeBilan({ id: 'b2', subjectLabel: 'NSI', subject: 'NSI', publicShareId: 'share-2', resultUrl: '/bilan/share-2' });
     render(<EleveBilans recentBilans={[b1, b2]} lastBilan={b1} />);
     expect(screen.getByText(/Historique/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Voir le bilan/i)).toHaveLength(2);
+    expect(screen.getAllByText(/Voir le rapport/i)).toHaveLength(2);
   });
 });
