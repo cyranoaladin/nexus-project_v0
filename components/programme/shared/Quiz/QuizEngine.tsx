@@ -3,7 +3,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Zap,
   Target,
   CheckCircle2,
   XCircle,
@@ -12,7 +11,6 @@ import {
   RefreshCw,
   PenSquare,
   ChevronRight,
-  ChevronLeft,
   AlertTriangle
 } from 'lucide-react';
 import { type QuizQuestion } from '@/components/programme/shared/types/programme';
@@ -304,7 +302,7 @@ export const QuizEngine: React.FC<QuizEngineProps> = ({ onSwitchTab, store, quiz
   }
 
   if (phase === 'result') {
-    const pct = Math.round((score / questions.length) * 100);
+    const _pct = Math.round((score / questions.length) * 100);
     return (
       <div className="max-w-2xl mx-auto text-center">
         <div className="bg-slate-800/40 border border-slate-700/30 rounded-3xl p-10 shadow-2xl relative overflow-hidden">

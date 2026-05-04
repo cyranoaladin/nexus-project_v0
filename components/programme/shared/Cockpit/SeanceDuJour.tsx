@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Calendar, BookOpen, Target, ChevronRight } from 'lucide-react';
+import { Sparkles, BookOpen, Target, ChevronRight } from 'lucide-react';
 
 interface SeanceDuJourProps {
   onNavigateToChap: (catKey: string, chapId: string) => void;

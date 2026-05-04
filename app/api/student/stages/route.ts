@@ -51,7 +51,33 @@ export async function GET() {
         })
       : [];
 
-    return NextResponse.json({ reservations, bilans });
+    // Unified Bilan model (maths-premiere-stage-printemps + eaf-stage-printemps)
+    const coachBilans = student
+      ? await prisma.bilan.findMany({
+          where: {
+            studentId: student.id,
+            type: 'STAGE_POST',
+            isPublished: true,
+          },
+          select: {
+            id: true,
+            type: true,
+            subject: true,
+            studentId: true,
+            studentName: true,
+            globalScore: true,
+            domainScores: true,
+            studentMarkdown: true,
+            publishedAt: true,
+            createdAt: true,
+            stage: { select: { title: true, slug: true } },
+            coach: { select: { pseudonym: true } },
+          },
+          orderBy: { publishedAt: 'desc' },
+        })
+      : [];
+
+    return NextResponse.json({ reservations, bilans, coachBilans });
   } catch (error) {
     console.error('[GET /api/student/stages]', error instanceof Error ? error.message : 'unknown');
     return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });

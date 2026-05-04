@@ -6,20 +6,20 @@ type StudentInfo = {
   gradeLevel?: string;
 };
 
-const ATTENDANCE_LABELS: Record<string, string> = {
+const _ATTENDANCE_LABELS: Record<string, string> = {
   'excellente': 'excellente',
   'reguliere': 'régulière',
   'irreguliere': 'irrégulière',
   'insuffisante': 'insuffisante',
 };
 
-const PUNCTUALITY_LABELS: Record<string, string> = {
+const _PUNCTUALITY_LABELS: Record<string, string> = {
   'tres-satisfaisante': 'très satisfaisante',
   'satisfaisante': 'satisfaisante',
   'a-ameliorer': 'à améliorer',
 };
 
-const ATTITUDE_LABELS: Record<string, string> = {
+const _ATTITUDE_LABELS: Record<string, string> = {
   'perseverant': 'persévérant(e)',
   'volontaire-mais-hesitant': 'volontaire mais parfois hésitant(e)',
   'manque-de-confiance': 'manquant encore de confiance en ses capacités',
@@ -27,7 +27,7 @@ const ATTITUDE_LABELS: Record<string, string> = {
   'besoin-detre-guide': "ayant besoin d'être davantage guidé(e)",
 };
 
-const LEVEL_LABELS: Record<string, string> = {
+const _LEVEL_LABELS: Record<string, string> = {
   'tres-solide': 'très solide',
   'satisfaisant': 'satisfaisant',
   'fragile-mais-en-progres': 'fragile mais en progression',
@@ -344,7 +344,7 @@ export function generateParentMathsStageReport(
   const allPriorities: string[] = [];
 
   // From chapter diagnostics
-  for (const [key, chapter] of Object.entries(chapterDiags)) {
+  for (const [_key, chapter] of Object.entries(chapterDiags)) {
     if (chapter?.priorityRemediation && !isRedundant(chapter.priorityRemediation, allPriorities)) {
       allPriorities.push(chapter.priorityRemediation);
     }

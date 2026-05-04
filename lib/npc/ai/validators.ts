@@ -3,12 +3,7 @@
 // Post-processing and validation of AI outputs
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { z } from 'zod';
 import {
-  PedagogicalDiagnosticSchema,
-  CompetenceMatrixSchema,
-  RemediationRoadmapSchema,
-  MentorAdviceSchema,
   OcrResultSchema,
   validateDiagnostic,
   validateCompetenceMatrix,

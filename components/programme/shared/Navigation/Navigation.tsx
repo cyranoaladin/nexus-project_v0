@@ -7,7 +7,6 @@ import {
   Target,
   Calculator,
   ChevronRight,
-  ChevronDown,
   Menu,
   X,
   Search,

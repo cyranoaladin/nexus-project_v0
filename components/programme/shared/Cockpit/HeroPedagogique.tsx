@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, Target, TrendingUp, Zap, AlertTriangle, CheckCircle2, BookOpen } from 'lucide-react';
+import { Calendar, Clock, Target, TrendingUp, Zap, AlertTriangle, CheckCircle2 } from 'lucide-react';
 
 interface HeroPedagogiqueProps {
   displayName: string;
@@ -30,7 +30,7 @@ export const HeroPedagogique: React.FC<HeroPedagogiqueProps> = ({ displayName, o
   const daysUntilExam = stageConfig.getDaysUntilExam(now);
   const todaySession = stageConfig.getTodaySession(now, 'Mathématiques');
   const nextSession = stageConfig.getNextSession(now, 'Mathématiques');
-  const niveau = store.getNiveau();
+  const _niveau = store.getNiveau();
 
   const completedCount = store.completedChapters.length;
   const dueReviews = store.getDueReviews().length;

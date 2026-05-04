@@ -7,7 +7,6 @@ import fs from 'fs/promises';
 import path from 'path';
 import { randomBytes } from 'crypto';
 import { NPC_UPLOAD_DIR, SECURE_FILE_ID_LENGTH } from './config';
-import { sanitizeFilename } from './file-validator';
 
 // ─── Types ───
 

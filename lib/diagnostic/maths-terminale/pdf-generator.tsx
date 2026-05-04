@@ -7,8 +7,6 @@ import {
   Text,
   View,
   StyleSheet,
-  Font,
-  PDFDownloadLink,
 } from '@react-pdf/renderer';
 import type { SessionPlan, WeekPlan, DiagnosticResult } from './types';
 
