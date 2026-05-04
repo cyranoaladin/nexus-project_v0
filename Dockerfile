@@ -64,6 +64,9 @@ COPY --from=builder /app/node_modules/pdfkit/js/data ./node_modules/pdfkit/js/da
 COPY --from=builder /app/node_modules/.prisma ./.prisma
 COPY --from=builder /app/prisma ./prisma
 
+# Générer le client Prisma au runtime pour s'assurer qu'il est correctement initialisé
+RUN npx prisma generate
+
 # On copie les scripts pour les tests E2E et maintenance
 COPY --from=builder /app/scripts ./scripts
 COPY --from=builder /app/lib ./lib
