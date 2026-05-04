@@ -13,7 +13,7 @@ import type { CoachMathsSourceData } from '@/lib/coach/maths-premiere-stage-prin
 const COACH_SOURCE_VERSION = 'coach_maths_premiere_stage_printemps_v1';
 const STUDENT_SOURCE_VERSION = 'maths_premiere_stage_printemps_v1';
 const BILAN_TYPE = 'STAGE_POST' as const;
-const BILAN_SUBJECT = 'MATHEMATIQUES';
+const BILAN_SUBJECT_DEFAULT = 'MATHEMATIQUES';
 const MAX_PAYLOAD_SIZE = 120_000;
 
 interface RouteParams {
@@ -57,11 +57,13 @@ export async function GET(_request: Request, { params }: RouteParams) {
 
     const coachProfile = await getCoachProfileForUser(authSession.user.id);
 
+    const bilanSubject = student.academicTrack === 'STMG' ? 'STMG' : BILAN_SUBJECT_DEFAULT;
+
     const coachBilan = await prisma.bilan.findFirst({
       where: {
         studentId,
         type: BILAN_TYPE,
-        subject: BILAN_SUBJECT,
+        subject: bilanSubject,
         sourceVersion: COACH_SOURCE_VERSION,
         ...(coachProfile ? { coachId: coachProfile.id } : {}),
       },
@@ -72,7 +74,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
       where: {
         studentId,
         type: BILAN_TYPE,
-        subject: BILAN_SUBJECT,
+        subject: bilanSubject,
         sourceVersion: STUDENT_SOURCE_VERSION,
       },
       select: {
@@ -161,7 +163,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       );
     }
 
-    const { action, ...formData } = parseResult.data;
+    const { action, subject, ...formData } = parseResult.data;
     const isCompletion = action === 'complete';
 
     const coachProfile = await getCoachProfileForUser(authSession.user.id);
@@ -170,6 +172,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       where: { id: studentId },
       select: {
         id: true,
+        academicTrack: true,
         user: { select: { email: true, firstName: true, lastName: true } },
       },
     });
@@ -179,6 +182,7 @@ export async function POST(request: Request, { params }: RouteParams) {
     }
 
     const studentName = [student.user?.firstName, student.user?.lastName].filter(Boolean).join(' ') || student.user?.email || 'Élève';
+    const bilanSubject = subject || (student.academicTrack === 'STMG' ? 'STMG' : BILAN_SUBJECT_DEFAULT);
 
     const sourceData: CoachMathsSourceData = {
       meta: {
@@ -188,6 +192,7 @@ export async function POST(request: Request, { params }: RouteParams) {
         savedAt: new Date().toISOString(),
         ...(isCompletion ? { completedAt: new Date().toISOString() } : {}),
       },
+      subject: bilanSubject,
       attendanceAndEngagement: formData.attendanceAndEngagement ?? {},
       automatismes: formData.automatismes ?? {},
       analysis: formData.analysis ?? {},
@@ -196,6 +201,11 @@ export async function POST(request: Request, { params }: RouteParams) {
       probabilities: formData.probabilities ?? {},
       finalAssessment: formData.finalAssessment ?? {},
       parentRecommendations: formData.parentRecommendations ?? {},
+      // STMG-specific fields
+      automatismesStmg: formData.automatismesStmg ?? {},
+      suitesStmg: formData.suitesStmg ?? {},
+      fonctionsDerivationStmg: formData.fonctionsDerivationStmg ?? {},
+      statistiquesProbabilitesStmg: formData.statistiquesProbabilitesStmg ?? {},
       globalDiagnostic: formData.globalDiagnostic ?? {},
       chapterDiagnostics: formData.chapterDiagnostics ?? {},
     };
@@ -204,7 +214,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       where: {
         studentId,
         type: BILAN_TYPE,
-        subject: BILAN_SUBJECT,
+        subject: bilanSubject,
         sourceVersion: COACH_SOURCE_VERSION,
         ...(coachProfile ? { coachId: coachProfile.id } : {}),
       },
@@ -233,7 +243,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       bilan = await prisma.bilan.create({
         data: {
           type: BILAN_TYPE,
-          subject: BILAN_SUBJECT,
+          subject: bilanSubject,
           studentId,
           studentEmail: student.user?.email ?? '',
           studentName,
@@ -281,11 +291,22 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 
     const coachProfile = await getCoachProfileForUser(authSession.user.id);
 
+    const student = await prisma.student.findUnique({
+      where: { id: studentId },
+      select: { academicTrack: true },
+    });
+
+    if (!student) {
+      return NextResponse.json({ error: 'Student not found' }, { status: 404 });
+    }
+
+    const bilanSubject = student.academicTrack === 'STMG' ? 'STMG' : BILAN_SUBJECT_DEFAULT;
+
     const existingBilan = await prisma.bilan.findFirst({
       where: {
         studentId,
         type: BILAN_TYPE,
-        subject: BILAN_SUBJECT,
+        subject: bilanSubject,
         sourceVersion: COACH_SOURCE_VERSION,
         ...(coachProfile ? { coachId: coachProfile.id } : {}),
       },
