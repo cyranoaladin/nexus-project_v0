@@ -6,7 +6,7 @@ import { logger } from '@/lib/logger';
 
 const COACH_SOURCE_VERSION = 'coach_maths_premiere_stage_printemps_v1';
 const BILAN_TYPE = 'STAGE_POST' as const;
-const BILAN_SUBJECT = 'MATHEMATIQUES';
+const BILAN_SUBJECT_DEFAULT = 'MATHEMATIQUES';
 
 function getBilanStatus(bilan: { status: string; isPublished: boolean } | null): 'NOT_STARTED' | 'DRAFT' | 'COMPLETED' | 'VALIDATED' {
   if (!bilan) return 'NOT_STARTED';
@@ -36,11 +36,19 @@ export async function GET() {
 
     const coachProfile = await getCoachProfileForUser(authSession.user.id);
 
+    // Build a map of studentId -> appropriate subject based on academicTrack
+    const subjectByStudentId = new Map<string, string>();
+    for (const a of premiereStudents) {
+      const subject = a.student.academicTrack === 'STMG' ? 'STMG' : BILAN_SUBJECT_DEFAULT;
+      subjectByStudentId.set(a.student.id, subject);
+    }
+
+    // Fetch all bilans for these students with either MATHEMATIQUES or STMG subject
     const bilans = await prisma.bilan.findMany({
       where: {
         studentId: { in: studentIds },
         type: BILAN_TYPE,
-        subject: BILAN_SUBJECT,
+        subject: { in: [BILAN_SUBJECT_DEFAULT, 'STMG'] },
         sourceVersion: COACH_SOURCE_VERSION,
         ...(coachProfile ? { coachId: coachProfile.id } : {}),
       },
@@ -57,7 +65,10 @@ export async function GET() {
 
     const bilanByStudentId = new Map<string, (typeof bilans)[0]>();
     for (const bilan of bilans) {
-      if (bilan.studentId && !bilanByStudentId.has(bilan.studentId)) {
+      if (!bilan.studentId) continue;
+      const expectedSubject = subjectByStudentId.get(bilan.studentId);
+      // Only include the bilan if its subject matches the student's academic track
+      if (bilan.subject === expectedSubject && !bilanByStudentId.has(bilan.studentId)) {
         bilanByStudentId.set(bilan.studentId, bilan);
       }
     }
