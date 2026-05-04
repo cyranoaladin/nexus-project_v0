@@ -105,7 +105,7 @@ export function validateFilename(
   }
 
   const ext = filename.slice(lastDot + 1).toLowerCase();
-  if (!ALLOWED_EXTENSIONS.includes(ext as any)) {
+  if (!(ALLOWED_EXTENSIONS as readonly string[]).includes(ext)) {
     return { valid: false, error: 'EXTENSION_NOT_ALLOWED' };
   }
 
@@ -127,7 +127,7 @@ export function validateMimeType(
 ): FileValidationResult {
   const normalizedMime = mimeType.toLowerCase().trim();
 
-  if (!ALLOWED_MIME_TYPES.includes(normalizedMime as any)) {
+  if (!(ALLOWED_MIME_TYPES as readonly string[]).includes(normalizedMime)) {
     return { valid: false, error: 'MIME_TYPE_NOT_ALLOWED' };
   }
 
