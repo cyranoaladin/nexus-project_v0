@@ -361,13 +361,26 @@ export function CorporateNavbar() {
               <span>Bilan gratuit</span>
             </Link>
 
+            {/* Sign-in Button - Mobile */}
+            <Link
+              href="/auth/signin"
+              className={`md:hidden inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold transition-colors border ${
+                isHomePage
+                  ? 'border-[#0f3d73]/30 bg-[#0f3d73] text-white'
+                  : 'border-brand-accent/50 bg-brand-accent text-white'
+              }`}
+              aria-label="Se connecter"
+            >
+              <LogIn className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>Connexion</span>
+            </Link>
+
             {/* Menu Button - Mobile */}
             <button
               onClick={() => setIsOpen(true)}
               className={`md:hidden flex items-center gap-2 transition-colors duration-300 group ${
                 isHomePage ? 'text-[#0f3d73] hover:text-[#9f1239]' : 'text-white hover:text-brand-accent'
-              }
-                         `}
+              }`}
               aria-label="Ouvrir le menu"
               aria-expanded={isOpen}
               aria-controls="primary-menu"

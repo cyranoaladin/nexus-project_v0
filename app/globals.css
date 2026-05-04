@@ -880,6 +880,16 @@ html {
   background: #2a2f38;
 }
 
+/* Hide scrollbar utility for horizontal scroll containers */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 /* Selection - muted blue theme */
 ::selection {
   background: rgba(37, 99, 235, 0.28);

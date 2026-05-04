@@ -64,46 +64,61 @@ export default function DashboardCoach() {
 
   return (
     <div className="min-h-screen bg-surface-darker text-neutral-100">
-      <header className="bg-surface-card border-b border-white/10 h-16 flex items-center justify-between px-8">
-        <div className="flex items-center gap-4">
-          <BookOpen className="w-8 h-8 text-brand-accent" />
-          <h1 className="font-bold text-white">Espace Coach — {dashboardData?.coach?.pseudonym ?? '...'}</h1>
+      <header className="bg-surface-card border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Row 1: user + logout */}
+          <div className="flex items-center justify-between h-14 sm:h-16 gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <BookOpen className="w-7 h-7 sm:w-8 sm:h-8 text-brand-accent shrink-0" />
+              <h1 className="font-bold text-white text-sm sm:text-base truncate">
+                Coach — {dashboardData?.coach?.pseudonym ?? '...'}
+              </h1>
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => signOut()} className="h-8 sm:h-9 px-2 sm:px-3 text-neutral-300 hover:text-white">
+              <FileText className="w-4 h-4 sm:mr-1.5" />
+              <span className="hidden sm:inline">Déconnexion</span>
+            </Button>
+          </div>
+          {/* Row 2: tabs */}
+          <div className="pb-2 -mx-1 overflow-x-auto scrollbar-none">
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
+              <TabsList className="bg-white/5 border-white/10 w-full sm:w-auto">
+                <TabsTrigger value="dashboard" className="flex-1 sm:flex-none text-xs sm:text-sm">Pilotage</TabsTrigger>
+                <TabsTrigger value="availability" className="flex-1 sm:flex-none text-xs sm:text-sm">Agenda</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
         </div>
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
-          <TabsList className="bg-white/5 border-white/10">
-            <TabsTrigger value="dashboard">Pilotage</TabsTrigger>
-            <TabsTrigger value="availability">Agenda</TabsTrigger>
-          </TabsList>
-        </Tabs>
-        <Button variant="ghost" onClick={() => signOut()}>Déconnexion</Button>
       </header>
 
-      <main className="max-w-7xl mx-auto p-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'dashboard' && (
           <DashboardPilotage role="COACH">
             <div className="space-y-6">
               {/* Rubriques Switcher */}
-              <div className="flex flex-wrap gap-2 p-1 bg-white/5 border border-white/10 rounded-xl mb-6">
-                {[
-                  { id: 'cohorte', label: 'Cohorte' },
-                  { id: 'planning', label: 'Planning du Jour' },
-                  { id: 'alertes', label: 'Alertes' },
-                  { id: 'bilans', label: 'Bilans de Stages' },
-                ].map((tab) => (
-                  <Button
-                    key={tab.id}
-                    onClick={() => setActiveRubrique(tab.id as any)}
-                    variant={activeRubrique === tab.id ? 'default' : 'ghost'}
-                    className={`flex-1 min-w-[120px] rounded-lg transition-all ${
-                      activeRubrique === tab.id
-                        ? 'bg-brand-accent text-white shadow-premium font-bold'
-                        : 'text-neutral-400 hover:text-white hover:bg-white/5'
-                    }`}
-                    size="sm"
-                  >
-                    {tab.label}
-                  </Button>
-                ))}
+              <div className="mb-6 -mx-4 sm:mx-0">
+                <div className="flex gap-1.5 sm:gap-2 p-1 bg-white/5 border-y sm:border border-white/10 sm:rounded-xl overflow-x-auto scrollbar-none px-4 sm:px-1">
+                  {[
+                    { id: 'cohorte', label: 'Cohorte' },
+                    { id: 'planning', label: 'Planning' },
+                    { id: 'alertes', label: 'Alertes' },
+                    { id: 'bilans', label: 'Bilans' },
+                  ].map((tab) => (
+                    <Button
+                      key={tab.id}
+                      onClick={() => setActiveRubrique(tab.id as any)}
+                      variant={activeRubrique === tab.id ? 'default' : 'ghost'}
+                      className={`whitespace-nowrap rounded-lg transition-all text-xs sm:text-sm px-3 sm:px-4 shrink-0 sm:flex-1 ${
+                        activeRubrique === tab.id
+                          ? 'bg-brand-accent text-white shadow-premium font-bold'
+                          : 'text-neutral-400 hover:text-white hover:bg-white/5'
+                      }`}
+                      size="sm"
+                    >
+                      {tab.label}
+                    </Button>
+                  ))}
+                </div>
               </div>
 
               {activeRubrique === 'cohorte' && (
