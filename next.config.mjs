@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Activer l'output standalone pour la compatibilité avec Docker
-  output: 'standalone',
+  // Config update to force restart
+  // Désactivé standalone mode car /auth/signin ne fonctionne pas avec
+  // output: 'standalone',
 
   // Fix workspace root warning from multiple lockfiles
   outputFileTracingRoot: process.cwd(),
