@@ -59,7 +59,7 @@ export function MathsPremiereStageQuestionnaireCard() {
             <div className="w-16 h-16 rounded-2xl bg-indigo-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <FileText className="w-8 h-8 text-indigo-300" />
             </div>
-            <h3 className="font-bold text-white tracking-tight">Bilan Maths</h3>
+            <h3 className="font-bold text-white tracking-tight">Auto-évaluation Maths</h3>
             <p className="text-[10px] uppercase tracking-widest text-indigo-300/70 font-bold mt-1">
               Stage de printemps
             </p>
@@ -80,7 +80,7 @@ export function MathsPremiereStageQuestionnaireCard() {
             </div>
 
             <h4 className="text-lg font-bold text-white mb-2">
-              Bilan du stage de printemps – Mathématiques
+              Mon retour d'expérience – Mathématiques
             </h4>
             <p className="text-sm text-neutral-400 mb-4 line-clamp-2">
               Évalue ta progression sur les automatismes, l&apos;analyse, les suites, la géométrie, l&apos;expression et la suite de ton travail après le stage de printemps de maths.
@@ -89,7 +89,7 @@ export function MathsPremiereStageQuestionnaireCard() {
             <div className="flex items-center gap-3 flex-wrap">
               <Link href="/dashboard/eleve/questionnaires/maths-premiere-stage-printemps" className="w-full sm:w-fit">
                 <Button className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-8 shadow-lg shadow-indigo-600/20">
-                  {status === 'submitted' ? 'Voir mon bilan' : 'Compléter le questionnaire'}
+                  {status === 'submitted' ? 'Voir mes réponses' : 'Compléter le questionnaire'}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
