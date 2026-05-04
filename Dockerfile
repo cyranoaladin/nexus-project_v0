@@ -45,10 +45,10 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
 
-# [CORRECTION IMPORTANTE] On réinstalle UNIQUEMENT les dépendances de production
-# pour ne pas inclure les outils de build (comme le CLI Prisma, TypeScript, etc.) dans l'image finale.
+# [CORRECTION IMPORTANTE] On réinstalle TOUTES les dépendances (incluant devDependencies)
+# car sans standalone mode, Prisma CLI est nécessaire au runtime
 COPY --from=builder /app/package.json /app/package-lock.json* ./
-RUN npm ci --omit=dev
+RUN npm ci
 
 # On copie les artefacts de build depuis l'étape "builder".
 COPY --from=builder /app/public ./public
