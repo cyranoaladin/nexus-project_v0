@@ -362,6 +362,7 @@ describe('PATCH /api/coach/maths-premiere-stage-printemps/students/[studentId]/r
     mockIsErrorResponse.mockImplementation(() => false);
     mockAssertCoach.mockResolvedValue(undefined);
     mockGetCoachProfile.mockResolvedValue({ id: 'coach-1' });
+    (prisma as any).student.findUnique.mockResolvedValue({ academicTrack: 'EDS_GENERALE' });
     (prisma as any).bilan.findFirst.mockResolvedValue({ id: 'bilan-1', status: 'COMPLETED', isPublished: false });
     (prisma as any).bilan.update.mockResolvedValue({ id: 'bilan-1', isPublished: true });
 
@@ -379,6 +380,7 @@ describe('PATCH /api/coach/maths-premiere-stage-printemps/students/[studentId]/r
     mockIsErrorResponse.mockImplementation(() => false);
     mockAssertCoach.mockResolvedValue(undefined);
     mockGetCoachProfile.mockResolvedValue({ id: 'coach-1' });
+    (prisma as any).student.findUnique.mockResolvedValue({ academicTrack: 'EDS_GENERALE' });
     (prisma as any).bilan.findFirst.mockResolvedValue({ id: 'bilan-1', status: 'PENDING', isPublished: false });
 
     const res = await PATCH(new Request('http://localhost/', { method: 'PATCH' }), makeParams('student-1'));
@@ -390,6 +392,7 @@ describe('PATCH /api/coach/maths-premiere-stage-printemps/students/[studentId]/r
     mockIsErrorResponse.mockImplementation(() => false);
     mockAssertCoach.mockResolvedValue(undefined);
     mockGetCoachProfile.mockResolvedValue({ id: 'coach-1' });
+    (prisma as any).student.findUnique.mockResolvedValue({ academicTrack: 'EDS_GENERALE' });
     (prisma as any).bilan.findFirst.mockResolvedValue(null);
 
     const res = await PATCH(new Request('http://localhost/', { method: 'PATCH' }), makeParams('student-1'));
