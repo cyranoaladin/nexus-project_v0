@@ -60,9 +60,9 @@ function BilanCard({ bilan }: { bilan: EleveBilan }) {
       <a
         href={bilan.resultUrl}
         className="mt-1 inline-flex items-center gap-1 text-xs text-brand-accent hover:underline"
-        aria-label={`Voir le bilan ${bilan.subjectLabel}`}
+        aria-label={`Voir le rapport ${bilan.subjectLabel}`}
       >
-        Voir le bilan
+        Voir le rapport
         <ExternalLink className="h-3 w-3" aria-hidden="true" />
       </a>
     </article>
@@ -76,7 +76,7 @@ export function EleveBilans({ recentBilans, lastBilan }: EleveBilansProps) {
         <CardHeader>
           <CardTitle id="eleve-bilans-title" className="flex items-center gap-2 text-white">
             <FileText className="h-5 w-5 text-brand-accent" aria-hidden="true" />
-            Mes bilans
+            Rapports de stage
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -84,14 +84,14 @@ export function EleveBilans({ recentBilans, lastBilan }: EleveBilansProps) {
             <div className="flex flex-col items-center gap-2 py-6 text-center">
               <FileText className="h-10 w-10 text-neutral-500" aria-hidden="true" />
               <p className="text-sm text-neutral-400">
-                Aucun bilan disponible pour le moment.
+                Aucun rapport de stage disponible pour le moment.
               </p>
             </div>
           ) : (
             <div className="space-y-3">
               {lastBilan && recentBilans.length > 1 && (
                 <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
-                  Dernier bilan
+                  Dernier rapport
                 </p>
               )}
               {lastBilan && <BilanCard bilan={lastBilan} />}
