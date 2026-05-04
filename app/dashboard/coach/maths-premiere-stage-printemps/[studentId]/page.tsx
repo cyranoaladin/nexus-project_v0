@@ -249,6 +249,8 @@ export default function CoachMathsIndividualReportPage() {
   const [previewMarkdown, setPreviewMarkdown] = useState<string | null>(null);
   const [generationMeta, setGenerationMeta] = useState<{ qualityStatus?: string; model?: string; workflowVersion?: string; qualityIssues?: string[] } | null>(null);
   const [generating, setGenerating] = useState(false);
+  const [previewStudentMarkdown, setPreviewStudentMarkdown] = useState<string | null>(null);
+  const [generatingStudent, setGeneratingStudent] = useState(false);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -411,6 +413,38 @@ export default function CoachMathsIndividualReportPage() {
       setError('Erreur réseau lors de la génération.');
     } finally {
       setGenerating(false);
+    }
+  };
+
+  const regenerateStudentMarkdown = async () => {
+    if (previewStudentMarkdown) {
+      setPreviewStudentMarkdown(null);
+      return;
+    }
+    setError(null);
+    setGeneratingStudent(true);
+    try {
+      const res = await fetch(`/api/coach/maths-premiere-stage-printemps/students/${studentId}/regenerate-student`, {
+        method: 'POST',
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setPreviewStudentMarkdown(data.studentMarkdown);
+        setSuccess('Bilan élève généré avec succès !');
+      } else if (res.status === 429) {
+        setError('Limite d\'appels Mistral atteinte. Veuillez patienter quelques secondes avant de réessayer.');
+      } else if (res.status === 422) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.message || 'La génération n\'a pas passé le contrôle qualité. Veuillez réessayer.');
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setError(data.message || data.error || 'Échec de la génération du bilan élève.');
+      }
+    } catch (err) {
+      console.error('Error generating student markdown:', err);
+      setError('Erreur réseau lors de la génération.');
+    } finally {
+      setGeneratingStudent(false);
     }
   };
 
@@ -1197,6 +1231,22 @@ export default function CoachMathsIndividualReportPage() {
               <Eye className="h-4 w-4" />
             )}
             {generating ? 'Génération en cours…' : previewMarkdown ? 'Masquer la prévisualisation' : 'Générer la synthèse parent'}
+          </button>
+
+          <button
+            type="button"
+            onClick={regenerateStudentMarkdown}
+            disabled={generatingStudent}
+            className="flex items-center justify-center gap-2 rounded-xl border border-indigo-500/30 bg-indigo-500/10 px-4 py-2.5 text-sm font-medium text-indigo-300 transition hover:bg-indigo-500/20 disabled:opacity-40"
+          >
+            {generatingStudent ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : previewStudentMarkdown ? (
+              <EyeOff className="h-4 w-4" />
+            ) : (
+              <FileText className="h-4 w-4" />
+            )}
+            {generatingStudent ? 'Génération en cours…' : previewStudentMarkdown ? 'Masquer le bilan élève' : 'Générer le bilan élève'}
           </button>
         </div>
       </form>
