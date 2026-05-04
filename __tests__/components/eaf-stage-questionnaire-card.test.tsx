@@ -47,7 +47,7 @@ describe('EafStageQuestionnaireCard', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Envoyé')).toBeInTheDocument();
-      expect(screen.getByText('Voir mon bilan')).toBeInTheDocument();
+      expect(screen.getByText('Voir mes réponses')).toBeInTheDocument();
     });
   });
 });
