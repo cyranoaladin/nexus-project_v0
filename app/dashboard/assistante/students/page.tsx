@@ -3,7 +3,9 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { AlertCircle, Loader2, LogOut, Search, Settings, Users } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
@@ -27,6 +29,20 @@ export default function StudentsManagement() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [createForm, setCreateForm] = useState({
+    parentEmail: "",
+    parentFirstName: "",
+    parentLastName: "",
+    parentPhone: "",
+    studentFirstName: "",
+    studentLastName: "",
+    studentEmail: "",
+    studentGrade: "",
+    studentSchool: "",
+  });
 
   useEffect(() => {
     if (status === "loading") return;
@@ -56,6 +72,51 @@ export default function StudentsManagement() {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCreate = async () => {
+    setCreateError(null);
+
+    if (!createForm.parentEmail || !createForm.parentFirstName || !createForm.parentLastName) {
+      setCreateError("Renseignez au minimum l'email + prénom/nom du parent.");
+      return;
+    }
+    if (!createForm.studentFirstName || !createForm.studentLastName || !createForm.studentEmail || !createForm.studentGrade) {
+      setCreateError("Renseignez au minimum l'email + prénom/nom + niveau de l'élève.");
+      return;
+    }
+
+    try {
+      setIsCreating(true);
+      const res = await fetch("/api/assistante/students", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(createForm),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data?.message || data?.error || "Création impossible");
+      }
+
+      setIsCreateOpen(false);
+      setCreateForm({
+        parentEmail: "",
+        parentFirstName: "",
+        parentLastName: "",
+        parentPhone: "",
+        studentFirstName: "",
+        studentLastName: "",
+        studentEmail: "",
+        studentGrade: "",
+        studentSchool: "",
+      });
+      fetchStudents();
+    } catch (err) {
+      setCreateError(err instanceof Error ? err.message : "Erreur lors de la création");
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -143,6 +204,137 @@ export default function StudentsManagement() {
                   Gérer les Crédits
                 </Button>
               </Link>
+              <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+                <DialogTrigger asChild>
+                  <Button className="btn-primary">
+                    + Créer parent + élève
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="bg-surface-card border border-white/10 text-neutral-100 max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Créer un parent et un élève</DialogTitle>
+                  </DialogHeader>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-3">
+                      <p className="text-sm text-neutral-400">Parent</p>
+                      <div>
+                        <Label htmlFor="parentEmail">Email *</Label>
+                        <Input
+                          id="parentEmail"
+                          value={createForm.parentEmail}
+                          onChange={(e) => setCreateForm({ ...createForm, parentEmail: e.target.value })}
+                          className="bg-surface-elevated border-white/10 text-neutral-100"
+                          placeholder="parent@email.com"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label htmlFor="parentFirstName">Prénom *</Label>
+                          <Input
+                            id="parentFirstName"
+                            value={createForm.parentFirstName}
+                            onChange={(e) => setCreateForm({ ...createForm, parentFirstName: e.target.value })}
+                            className="bg-surface-elevated border-white/10 text-neutral-100"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="parentLastName">Nom *</Label>
+                          <Input
+                            id="parentLastName"
+                            value={createForm.parentLastName}
+                            onChange={(e) => setCreateForm({ ...createForm, parentLastName: e.target.value })}
+                            className="bg-surface-elevated border-white/10 text-neutral-100"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <Label htmlFor="parentPhone">Téléphone</Label>
+                        <Input
+                          id="parentPhone"
+                          value={createForm.parentPhone}
+                          onChange={(e) => setCreateForm({ ...createForm, parentPhone: e.target.value })}
+                          className="bg-surface-elevated border-white/10 text-neutral-100"
+                          placeholder="+216 ..."
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <p className="text-sm text-neutral-400">Élève</p>
+                      <div>
+                        <Label htmlFor="studentEmail">Email élève *</Label>
+                        <Input
+                          id="studentEmail"
+                          value={createForm.studentEmail}
+                          onChange={(e) => setCreateForm({ ...createForm, studentEmail: e.target.value })}
+                          className="bg-surface-elevated border-white/10 text-neutral-100"
+                          placeholder="eleve@email.com"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label htmlFor="studentFirstName">Prénom *</Label>
+                          <Input
+                            id="studentFirstName"
+                            value={createForm.studentFirstName}
+                            onChange={(e) => setCreateForm({ ...createForm, studentFirstName: e.target.value })}
+                            className="bg-surface-elevated border-white/10 text-neutral-100"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="studentLastName">Nom *</Label>
+                          <Input
+                            id="studentLastName"
+                            value={createForm.studentLastName}
+                            onChange={(e) => setCreateForm({ ...createForm, studentLastName: e.target.value })}
+                            className="bg-surface-elevated border-white/10 text-neutral-100"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <Label htmlFor="studentGrade">Niveau (ex: Première, Terminale STMG) *</Label>
+                        <Input
+                          id="studentGrade"
+                          value={createForm.studentGrade}
+                          onChange={(e) => setCreateForm({ ...createForm, studentGrade: e.target.value })}
+                          className="bg-surface-elevated border-white/10 text-neutral-100"
+                          placeholder="Première"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="studentSchool">École</Label>
+                        <Input
+                          id="studentSchool"
+                          value={createForm.studentSchool}
+                          onChange={(e) => setCreateForm({ ...createForm, studentSchool: e.target.value })}
+                          className="bg-surface-elevated border-white/10 text-neutral-100"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {createError && (
+                    <div className="rounded border border-rose-500/20 bg-rose-500/10 p-3 text-sm text-rose-200">
+                      {createError}
+                    </div>
+                  )}
+
+                  <div className="flex justify-end gap-2 pt-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsCreateOpen(false)}
+                      className="border-white/10 text-neutral-200 hover:text-white"
+                      disabled={isCreating}
+                    >
+                      Annuler
+                    </Button>
+                    <Button className="btn-primary" onClick={handleCreate} disabled={isCreating}>
+                      {isCreating ? "Création..." : "Créer"}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
         </div>
@@ -217,7 +409,12 @@ export default function StudentsManagement() {
                     <tr key={student.id} className="border-b border-white/10 hover:bg-white/5">
                       <td className="p-3">
                         <div>
-                          <div className="font-medium text-white">{student.firstName} {student.lastName}</div>
+                          <Link
+                            href={`/dashboard/assistante/students/${student.id}`}
+                            className="font-medium text-white hover:text-brand-accent"
+                          >
+                            {student.firstName} {student.lastName}
+                          </Link>
                         </div>
                       </td>
                       <td className="p-3 text-sm text-neutral-300">{student.email}</td>
@@ -234,6 +431,11 @@ export default function StudentsManagement() {
                       </td>
                       <td className="p-3">
                         <div className="flex space-x-2">
+                          <Link href={`/dashboard/assistante/students/${student.id}`}>
+                            <Button variant="outline" size="sm" className="border-white/10 text-neutral-200 hover:text-white">
+                              Fiche
+                            </Button>
+                          </Link>
                           <Link href={`/dashboard/assistante/credits?studentId=${student.id}`}>
                             <Button variant="outline" size="sm" className="border-white/10 text-neutral-200 hover:text-white">
                               Gérer Crédits

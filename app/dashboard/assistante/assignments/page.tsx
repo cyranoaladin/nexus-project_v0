@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { 
   Card, 
   CardContent, 
@@ -96,6 +96,7 @@ interface Stats {
 export default function AssistanteAssignmentsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
   
   // Data states
   const [students, setStudents] = useState<Student[]>([]);
@@ -113,6 +114,7 @@ export default function AssistanteAssignmentsPage() {
   const [gradeLevelFilter, setGradeLevelFilter] = useState<string>('ALL');
   const [trackFilter, setTrackFilter] = useState<string>('ALL');
   const [coachStatusFilter, setCoachStatusFilter] = useState<string>('ALL');
+  const [studentIdFilter, setStudentIdFilter] = useState<string | null>(null);
   
   // Create modal state
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -136,9 +138,21 @@ export default function AssistanteAssignmentsPage() {
       setIsLoading(true);
       
       // Fetch students with their coach status
-      const studentsRes = await fetch('/api/assistante/students?includeCoachStatus=true');
+      const studentsRes = await fetch('/api/assistante/students?limit=100');
       if (!studentsRes.ok) throw new Error('Failed to fetch students');
       const studentsData = await studentsRes.json();
+      const mappedStudents: Student[] = (studentsData.students || []).map((s: any) => ({
+        id: s.id,
+        userId: s.userId,
+        firstName: s.user?.firstName ?? '',
+        lastName: s.user?.lastName ?? '',
+        email: s.user?.email ?? '',
+        gradeLevel: s.gradeLevel ?? null,
+        academicTrack: s.academicTrack ?? null,
+        specialties: s.specialties ?? null,
+        stmgPathway: s.stmgPathway ?? null,
+        hasActiveCoach: Array.isArray(s.coachAssignments) && s.coachAssignments.length > 0,
+      }));
       
       // Fetch coaches
       const coachesRes = await fetch('/api/assistante/coaches');
@@ -146,20 +160,24 @@ export default function AssistanteAssignmentsPage() {
       const coachesData = await coachesRes.json();
       
       // Fetch assignments
-      const assignmentsRes = await fetch('/api/assistante/assignments?status=ACTIVE');
+      const assignmentsUrl = new URL('/api/assistante/assignments', window.location.origin);
+      assignmentsUrl.searchParams.set('status', 'ACTIVE');
+      if (studentIdFilter) assignmentsUrl.searchParams.set('studentId', studentIdFilter);
+
+      const assignmentsRes = await fetch(assignmentsUrl.toString());
       if (!assignmentsRes.ok) throw new Error('Failed to fetch assignments');
       const assignmentsData = await assignmentsRes.json();
       
-      setStudents(studentsData.students || []);
+      setStudents(mappedStudents);
       setCoaches(coachesData.coaches || []);
       setAssignments(assignmentsData.assignments || []);
       
       // Calculate stats
       const activeAssignments = assignmentsData.assignments?.filter((a: Assignment) => a.status === AssignmentStatus.ACTIVE).length || 0;
-      const studentsWithoutCoach = studentsData.students?.filter((s: Student) => !s.hasActiveCoach).length || 0;
+      const studentsWithoutCoach = mappedStudents.filter((s) => !s.hasActiveCoach).length || 0;
       
       setStats({
-        totalStudents: studentsData.students?.length || 0,
+        totalStudents: studentsData.pagination?.total ?? mappedStudents.length,
         totalCoaches: coachesData.coaches?.length || 0,
         activeAssignments,
         studentsWithoutCoach,
@@ -170,13 +188,18 @@ export default function AssistanteAssignmentsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [studentIdFilter]);
 
   useEffect(() => {
     if (status === 'authenticated') {
       fetchData();
     }
   }, [status, fetchData]);
+
+  useEffect(() => {
+    const raw = searchParams.get('studentId');
+    setStudentIdFilter(raw && raw.trim() ? raw : null);
+  }, [searchParams]);
 
   // Create assignment
   const handleCreateAssignment = async () => {
@@ -286,6 +309,18 @@ export default function AssistanteAssignmentsPage() {
         <p className="text-muted-foreground">
           Associez les coachs aux élèves et gérez les relations pédagogiques
         </p>
+        {studentIdFilter && (
+          <div className="mt-3 flex items-center gap-2">
+            <Badge variant="outline">Filtre élève actif</Badge>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push('/dashboard/assistante/assignments')}
+            >
+              Effacer filtre
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Stats */}

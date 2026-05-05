@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { AlertCircle, Loader2, LogOut, Plus, Search, Settings, CreditCard } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface Student {
@@ -27,6 +27,7 @@ interface Student {
 export default function CreditsManagement() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -62,6 +63,15 @@ export default function CreditsManagement() {
       
       const data = await response.json();
       setStudents(data);
+
+      const studentId = searchParams.get("studentId");
+      if (studentId) {
+        const match = (data as Student[]).find((s) => s.id === studentId);
+        if (match) {
+          setSelectedStudent(match);
+          setSearchTerm(`${match.firstName} ${match.lastName}`.trim());
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

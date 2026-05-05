@@ -4,37 +4,33 @@ import { useEffect, useState, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import {
-  ArrowLeft, RefreshCw, ChevronLeft, ChevronRight, CalendarDays,
-  MapPin, Video, Users, Clock,
+  ArrowLeft,
+  RefreshCw,
+  ChevronLeft,
+  ChevronRight,
+  CalendarDays,
+  MapPin,
+  Video,
+  Users,
+  Clock,
+  Plus,
 } from 'lucide-react';
 import Link from 'next/link';
 
-interface SessionItem {
+type PlanningEventSource = 'SESSION_BOOKING' | 'STAGE_SESSION';
+
+interface PlanningEvent {
   id: string;
+  source: PlanningEventSource;
   title: string;
   subject: string;
   startAt: string;
   endAt: string;
   location: string | null;
-  stageTitle: string;
-  stageSlug: string;
-  coach: { pseudonym: string } | null;
-}
-
-interface StageData {
-  id: string;
-  slug: string;
-  title: string;
-  sessions: Array<{
-    id: string;
-    title: string;
-    subject: string;
-    startAt: string;
-    endAt: string;
-    location: string | null;
-    coach: { pseudonym: string } | null;
-  }>;
-  reservations: Array<{ richStatus: string | null; status: string }>;
+  status?: string;
+  stage?: { id: string; title: string; slug: string } | null;
+  student?: { id: string; firstName: string | null; lastName: string | null } | null;
+  coach?: { id: string; firstName: string | null; lastName: string | null; pseudonym: string | null } | null;
 }
 
 const SUBJECT_COLORS: Record<string, string> = {
@@ -73,14 +69,76 @@ function isSameDay(a: Date, b: Date) {
     && a.getDate() === b.getDate();
 }
 
+function toLocalDateParam(d: Date): string {
+  const yyyy = String(d.getFullYear());
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function fullName(p?: { firstName: string | null; lastName: string | null } | null) {
+  return `${p?.firstName ?? ''} ${p?.lastName ?? ''}`.trim();
+}
+
+type StudentOption = {
+  studentEntityId: string;
+  userId: string;
+  firstName: string | null;
+  lastName: string | null;
+  email: string | null;
+};
+
+type CoachOption = {
+  userId: string;
+  pseudonym: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  email: string | null;
+};
+
+function durationMinutes(startTime: string, endTime: string): number {
+  const [sh, sm] = startTime.split(':').map(Number);
+  const [eh, em] = endTime.split(':').map(Number);
+  const start = (Number.isNaN(sh) ? 0 : sh) * 60 + (Number.isNaN(sm) ? 0 : sm);
+  const end = (Number.isNaN(eh) ? 0 : eh) * 60 + (Number.isNaN(em) ? 0 : em);
+  return end - start;
+}
+
 export default function AssistantePlanningPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  const [allSessions, setAllSessions] = useState<SessionItem[]>([]);
+  const [events, setEvents] = useState<PlanningEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentWeek, setCurrentWeek] = useState(new Date());
-  const [selected, setSelected] = useState<SessionItem | null>(null);
+  const [selected, setSelected] = useState<PlanningEvent | null>(null);
+  const [showStages, setShowStages] = useState(true);
+  const [showSessions, setShowSessions] = useState(true);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [createBusy, setCreateBusy] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+
+  const [studentSearch, setStudentSearch] = useState('');
+  const [studentOptions, setStudentOptions] = useState<StudentOption[]>([]);
+  const [selectedStudent, setSelectedStudent] = useState<StudentOption | null>(null);
+
+  const [coachSearch, setCoachSearch] = useState('');
+  const [coachOptions, setCoachOptions] = useState<CoachOption[]>([]);
+  const [selectedCoach, setSelectedCoach] = useState<CoachOption | null>(null);
+
+  const [formSubject, setFormSubject] = useState<keyof typeof SUBJECT_LABELS>('MATHEMATIQUES');
+  const [formTitle, setFormTitle] = useState('');
+  const [formDescription, setFormDescription] = useState('');
+  const [formLocation, setFormLocation] = useState('');
+  const [formDate, setFormDate] = useState(() => toLocalDateParam(new Date()));
+  const [formStartTime, setFormStartTime] = useState('17:00');
+  const [formEndTime, setFormEndTime] = useState('18:00');
+  const [formType, setFormType] = useState<'INDIVIDUAL' | 'GROUP' | 'MASTERCLASS'>('INDIVIDUAL');
+  const [formModality, setFormModality] = useState<'ONLINE' | 'IN_PERSON' | 'HYBRID'>('ONLINE');
+  const [formOverride, setFormOverride] = useState(false);
+  const [formRecurEnabled, setFormRecurEnabled] = useState(false);
+  const [formRecurCount, setFormRecurCount] = useState(8);
+  const [formRecurInterval, setFormRecurInterval] = useState(1);
 
   useEffect(() => {
     if (status === 'unauthenticated') router.push('/auth/signin');
@@ -92,40 +150,202 @@ export default function AssistantePlanningPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/assistante/stages');
-      if (!res.ok) throw new Error('Erreur chargement');
-      const data = await res.json() as { stages: StageData[] };
-      const flat: SessionItem[] = (data.stages ?? []).flatMap(stage =>
-        (stage.sessions ?? []).map(s => ({
-          ...s,
-          stageTitle: stage.title,
-          stageSlug: stage.slug,
-        }))
+      const weekDates = getWeekDates(currentWeek);
+      const from = toLocalDateParam(weekDates[0]);
+      const to = toLocalDateParam(weekDates[6]);
+
+      const res = await fetch(
+        `/api/assistante/planning?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&includeStages=${showStages ? 'true' : 'false'}&includeSessions=${showSessions ? 'true' : 'false'}`
       );
-      setAllSessions(flat);
+      if (!res.ok) throw new Error('Erreur chargement');
+      const data = await res.json() as { events: PlanningEvent[] };
+      setEvents(data.events ?? []);
     } catch {
-      setAllSessions([]);
+      setEvents([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [currentWeek, showStages, showSessions]);
 
   useEffect(() => { load(); }, [load]);
+
+  useEffect(() => {
+    let ignore = false;
+    const q = studentSearch.trim();
+    const t = setTimeout(async () => {
+      if (q.length < 2) {
+        if (!ignore) setStudentOptions([]);
+        return;
+      }
+      try {
+        const res = await fetch(`/api/assistante/students?search=${encodeURIComponent(q)}&limit=10&page=1`);
+        const data = await res.json() as { students?: any[] };
+        if (!res.ok) throw new Error('fetch');
+        const opts: StudentOption[] = (data.students ?? []).map((s) => ({
+          studentEntityId: s.id,
+          userId: s.user?.id,
+          firstName: s.user?.firstName ?? null,
+          lastName: s.user?.lastName ?? null,
+          email: s.user?.email ?? null,
+        })).filter((s) => Boolean(s.userId));
+        if (!ignore) setStudentOptions(opts);
+      } catch {
+        if (!ignore) setStudentOptions([]);
+      }
+    }, 250);
+    return () => { ignore = true; clearTimeout(t); };
+  }, [studentSearch]);
+
+  useEffect(() => {
+    let ignore = false;
+    const q = coachSearch.trim();
+    const t = setTimeout(async () => {
+      if (q.length < 2) {
+        if (!ignore) setCoachOptions([]);
+        return;
+      }
+      try {
+        const res = await fetch(`/api/assistante/coaches?search=${encodeURIComponent(q)}&limit=10&page=1`);
+        const data = await res.json() as { coaches?: any[] };
+        if (!res.ok) throw new Error('fetch');
+        const opts: CoachOption[] = (data.coaches ?? []).map((c) => ({
+          userId: c.userId,
+          pseudonym: c.pseudonym ?? null,
+          firstName: c.firstName ?? null,
+          lastName: c.lastName ?? null,
+          email: c.email ?? null,
+        })).filter((c) => Boolean(c.userId));
+        if (!ignore) setCoachOptions(opts);
+      } catch {
+        if (!ignore) setCoachOptions([]);
+      }
+    }, 250);
+    return () => { ignore = true; clearTimeout(t); };
+  }, [coachSearch]);
+
+  const openCreate = () => {
+    setCreateError(null);
+    setCreateOpen(true);
+  };
+
+  const closeCreate = () => {
+    if (createBusy) return;
+    setCreateOpen(false);
+    setCreateError(null);
+  };
+
+  const submitCreate = async () => {
+    setCreateError(null);
+    if (!selectedStudent) return setCreateError('Sélectionnez un élève.');
+    if (!selectedCoach) return setCreateError('Sélectionnez un coach.');
+    if (!formTitle.trim()) return setCreateError('Titre requis.');
+
+    const dur = durationMinutes(formStartTime, formEndTime);
+    if (dur <= 0) return setCreateError('Créneau invalide (fin avant début).');
+
+    try {
+      setCreateBusy(true);
+      const payload: any = {
+        studentId: selectedStudent.userId,
+        coachId: selectedCoach.userId,
+        subject: formSubject,
+        title: formTitle.trim(),
+        description: formDescription.trim() || undefined,
+        location: formLocation.trim() || undefined,
+        scheduledDate: formDate,
+        startTime: formStartTime,
+        endTime: formEndTime,
+        duration: dur,
+        type: formType,
+        modality: formModality,
+        override: formOverride,
+      };
+
+      if (formRecurEnabled) {
+        payload.recurrence = {
+          frequency: 'WEEKLY',
+          intervalWeeks: Math.max(1, formRecurInterval || 1),
+          count: Math.max(1, formRecurCount || 1),
+        };
+      }
+
+      const res = await fetch('/api/assistante/sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setCreateError(data?.message || 'Erreur création séance.');
+        return;
+      }
+
+      await load();
+      setCreateOpen(false);
+      setFormTitle('');
+      setFormDescription('');
+      setFormLocation('');
+      setFormOverride(false);
+      setFormRecurEnabled(false);
+      setSelectedStudent(null);
+      setSelectedCoach(null);
+      setStudentSearch('');
+      setCoachSearch('');
+      setStudentOptions([]);
+      setCoachOptions([]);
+    } catch {
+      setCreateError('Erreur création séance.');
+    } finally {
+      setCreateBusy(false);
+    }
+  };
+
+  const cancelSelectedSession = async () => {
+    if (!selected || selected.source !== 'SESSION_BOOKING') return;
+    const id = selected.id.startsWith('sessionBooking:') ? selected.id.replace('sessionBooking:', '') : selected.id;
+    const ok = window.confirm('Annuler cette séance ?');
+    if (!ok) return;
+    try {
+      const res = await fetch('/api/sessions/cancel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: id,
+          reason: 'Annulé par assistante (planning)',
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert(data?.message || 'Annulation impossible.');
+        return;
+      }
+      setSelected(null);
+      await load();
+    } catch {
+      alert('Annulation impossible.');
+    }
+  };
 
   const weekDates = getWeekDates(currentWeek);
   const prevWeek = () => { const d = new Date(currentWeek); d.setDate(d.getDate() - 7); setCurrentWeek(d); };
   const nextWeek = () => { const d = new Date(currentWeek); d.setDate(d.getDate() + 7); setCurrentWeek(d); };
   const goToday = () => setCurrentWeek(new Date());
 
-  const sessionsByDay = weekDates.map(date =>
-    allSessions.filter(s => isSameDay(new Date(s.startAt), date))
+  const visibleEvents = events.filter((e) => {
+    if (e.source === 'STAGE_SESSION') return showStages;
+    if (e.source === 'SESSION_BOOKING') return showSessions;
+    return true;
+  });
+
+  const eventsByDay = weekDates.map(date =>
+    visibleEvents.filter(e => isSameDay(new Date(e.startAt), date))
       .sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime())
   );
 
   const weekLabel = `${weekDates[0].toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} – ${weekDates[6].toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}`;
 
-  const subjectCounts = allSessions.reduce<Record<string, number>>((acc, s) => {
-    acc[s.subject] = (acc[s.subject] ?? 0) + 1;
+  const subjectCounts = visibleEvents.reduce<Record<string, number>>((acc, e) => {
+    acc[e.subject] = (acc[e.subject] ?? 0) + 1;
     return acc;
   }, {});
 
@@ -150,15 +370,51 @@ export default function AssistantePlanningPage() {
             </Link>
             <div>
               <p className="text-xs uppercase tracking-[0.16em] text-neutral-500">Assistante</p>
-              <h1 className="text-2xl font-semibold text-white">Planning global des stages</h1>
+              <h1 className="text-2xl font-semibold text-white">Planning global</h1>
+              <p className="text-xs text-neutral-400 mt-1">Stages + séances régulières</p>
             </div>
           </div>
-          <button
-            onClick={load}
-            className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-neutral-300 hover:bg-white/10"
-          >
-            <RefreshCw className="h-4 w-4" /> Actualiser
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={load}
+              className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-neutral-300 hover:bg-white/10"
+            >
+              <RefreshCw className="h-4 w-4" /> Actualiser
+            </button>
+            <button
+              type="button"
+              onClick={openCreate}
+              className="flex items-center gap-2 rounded-xl border border-brand-accent/40 bg-brand-accent/10 px-3 py-2 text-sm font-medium text-brand-accent hover:bg-brand-accent/20"
+            >
+              <Plus className="h-4 w-4" /> Nouvelle séance
+            </button>
+          </div>
+        </div>
+
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-[24px] border border-white/10 bg-white/5 px-5 py-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowSessions((v) => !v)}
+              className={`rounded-xl border px-3 py-2 text-sm font-medium transition ${
+                showSessions ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200' : 'border-white/10 bg-white/5 text-neutral-300 hover:bg-white/10'
+              }`}
+            >
+              Séances
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowStages((v) => !v)}
+              className={`rounded-xl border px-3 py-2 text-sm font-medium transition ${
+                showStages ? 'border-violet-500/30 bg-violet-500/10 text-violet-200' : 'border-white/10 bg-white/5 text-neutral-300 hover:bg-white/10'
+              }`}
+            >
+              Stages
+            </button>
+          </div>
+          <div className="text-xs text-neutral-400">
+            {visibleEvents.length} événement{visibleEvents.length > 1 ? 's' : ''}
+          </div>
         </div>
 
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-[24px] border border-white/10 bg-white/5 px-5 py-4">
@@ -190,7 +446,7 @@ export default function AssistantePlanningPage() {
         <div className="grid grid-cols-7 gap-2">
           {weekDates.map((date, idx) => {
             const isToday = isSameDay(date, new Date());
-            const sessions = sessionsByDay[idx];
+            const dayEvents = eventsByDay[idx];
             return (
               <div key={idx} className={`rounded-[20px] border p-3 ${isToday ? 'border-brand-accent/40 bg-brand-accent/5' : 'border-white/10 bg-white/5'}`}>
                 <div className="mb-3 text-center">
@@ -200,17 +456,28 @@ export default function AssistantePlanningPage() {
                   </p>
                 </div>
                 <div className="space-y-1.5">
-                  {sessions.length === 0 ? (
+                  {dayEvents.length === 0 ? (
                     <p className="text-center text-[10px] text-neutral-700">—</p>
-                  ) : sessions.map(s => (
+                  ) : dayEvents.map((e) => (
                     <button
-                      key={s.id}
-                      onClick={() => setSelected(s)}
-                      className={`w-full rounded-xl border px-2 py-1.5 text-left text-[10px] leading-tight transition hover:brightness-125 ${SUBJECT_COLORS[s.subject] ?? SUBJECT_COLORS.DEFAULT}`}
+                      key={e.id}
+                      onClick={() => setSelected(e)}
+                      className={`w-full rounded-xl border px-2 py-1.5 text-left text-[10px] leading-tight transition hover:brightness-125 ${SUBJECT_COLORS[e.subject] ?? SUBJECT_COLORS.DEFAULT}`}
                     >
-                      <p className="font-semibold truncate">{s.title}</p>
-                      <p className="mt-0.5 text-[9px] opacity-80">
-                        {new Date(s.startAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="font-semibold truncate">{e.title}</p>
+                        <span className={`shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
+                          e.source === 'SESSION_BOOKING'
+                            ? 'bg-emerald-500/15 text-emerald-200'
+                            : 'bg-violet-500/15 text-violet-200'
+                        }`}>
+                          {e.source === 'SESSION_BOOKING' ? 'Séance' : 'Stage'}
+                        </span>
+                      </div>
+                      <p className="mt-0.5 text-[9px] opacity-80 truncate">
+                        {new Date(e.startAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                        {e.source === 'SESSION_BOOKING' && e.student ? ` • ${fullName(e.student)}` : ''}
+                        {e.source === 'STAGE_SESSION' && e.stage ? ` • ${e.stage.title}` : ''}
                       </p>
                     </button>
                   ))}
@@ -220,10 +487,10 @@ export default function AssistantePlanningPage() {
           })}
         </div>
 
-        {allSessions.length === 0 && (
+        {visibleEvents.length === 0 && (
           <div className="mt-10 rounded-[24px] border border-white/10 bg-white/5 py-16 text-center">
             <CalendarDays className="mx-auto h-10 w-10 text-neutral-600" />
-            <p className="mt-4 text-sm text-neutral-400">Aucune séance planifiée</p>
+            <p className="mt-4 text-sm text-neutral-400">Aucun événement planifié</p>
           </div>
         )}
       </div>
@@ -244,7 +511,12 @@ export default function AssistantePlanningPage() {
             </div>
 
             <h2 className="text-xl font-semibold text-white">{selected.title}</h2>
-            <p className="mt-1 text-sm text-brand-accent">{selected.stageTitle}</p>
+            {selected.source === 'STAGE_SESSION' && selected.stage && (
+              <p className="mt-1 text-sm text-brand-accent">{selected.stage.title}</p>
+            )}
+            {selected.source === 'SESSION_BOOKING' && selected.student && (
+              <p className="mt-1 text-sm text-brand-accent">{fullName(selected.student) || 'Élève'}</p>
+            )}
 
             <div className="mt-5 space-y-3 text-sm text-neutral-300">
               <div className="flex items-center gap-2">
@@ -264,22 +536,341 @@ export default function AssistantePlanningPage() {
                   {selected.location}
                 </div>
               )}
-              {selected.coach && (
+              {selected.coach && (selected.coach.pseudonym || fullName(selected.coach)) && (
                 <div className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-neutral-500" />
-                  Coach&nbsp;: {selected.coach.pseudonym}
+                  Coach&nbsp;: {selected.coach.pseudonym ?? fullName(selected.coach)}
+                </div>
+              )}
+              {selected.source === 'SESSION_BOOKING' && selected.status && (
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-neutral-500" />
+                  Statut&nbsp;: {selected.status}
                 </div>
               )}
             </div>
 
             <div className="mt-6">
-              <Link
-                href={`/dashboard/assistante/stages`}
-                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-neutral-200 hover:bg-white/10"
-                onClick={() => setSelected(null)}
-              >
-                Voir les réservations de ce stage
-              </Link>
+              {selected.source === 'STAGE_SESSION' ? (
+                <Link
+                  href={`/dashboard/assistante/stages`}
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-neutral-200 hover:bg-white/10"
+                  onClick={() => setSelected(null)}
+                >
+                  Ouvrir l&apos;espace Stages
+                </Link>
+              ) : (
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    onClick={cancelSelectedSession}
+                    className="flex w-full items-center justify-center gap-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm font-medium text-rose-200 hover:bg-rose-500/20"
+                  >
+                    Annuler la séance
+                  </button>
+                  <Link
+                    href={`/dashboard/assistante/students`}
+                    className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-neutral-200 hover:bg-white/10"
+                    onClick={() => setSelected(null)}
+                  >
+                    Ouvrir l&apos;espace Élèves
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {createOpen && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 sm:items-center" onClick={closeCreate}>
+          <div
+            className="w-full max-w-lg rounded-t-[32px] border border-white/10 bg-surface-dark p-6 sm:rounded-[32px]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-semibold text-white">Nouvelle séance</h2>
+                <p className="mt-1 text-xs text-neutral-400">
+                  Les conflits sont toujours bloqués. Le mode “forcer” ignore uniquement les validations non-conflit (disponibilité/matière/crédits).
+                </p>
+              </div>
+              <button onClick={closeCreate} className="rounded-xl border border-white/10 bg-white/5 p-1.5 text-neutral-400 hover:text-neutral-200">
+                ✕
+              </button>
+            </div>
+
+            {createError && (
+              <div className="mb-4 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+                {createError}
+              </div>
+            )}
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="text-xs font-medium text-neutral-400">Élève</label>
+                  {selectedStudent ? (
+                    <div className="mt-2 flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-3 py-2">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium text-white">{fullName(selectedStudent)}</p>
+                        <p className="truncate text-xs text-neutral-500">{selectedStudent.email ?? ''}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedStudent(null)}
+                        className="rounded-xl border border-white/10 bg-white/5 px-2 py-1 text-xs text-neutral-300 hover:bg-white/10"
+                      >
+                        Changer
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="mt-2">
+                      <input
+                        value={studentSearch}
+                        onChange={(e) => setStudentSearch(e.target.value)}
+                        placeholder="Rechercher… (nom/email)"
+                        className="w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-600 outline-none focus:border-brand-accent/40"
+                      />
+                      {studentOptions.length > 0 && (
+                        <div className="mt-2 max-h-44 overflow-auto rounded-2xl border border-white/10 bg-surface-darker p-1">
+                          {studentOptions.map((s) => (
+                            <button
+                              key={s.userId}
+                              type="button"
+                              onClick={() => { setSelectedStudent(s); setStudentSearch(''); setStudentOptions([]); }}
+                              className="w-full rounded-xl px-3 py-2 text-left text-sm text-neutral-200 hover:bg-white/10"
+                            >
+                              <div className="truncate font-medium text-white">{fullName(s) || 'Élève'}</div>
+                              <div className="truncate text-xs text-neutral-500">{s.email ?? ''}</div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium text-neutral-400">Coach</label>
+                  {selectedCoach ? (
+                    <div className="mt-2 flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-3 py-2">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium text-white">
+                          {selectedCoach.pseudonym ?? (fullName(selectedCoach) || 'Coach')}
+                        </p>
+                        <p className="truncate text-xs text-neutral-500">{selectedCoach.email ?? ''}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedCoach(null)}
+                        className="rounded-xl border border-white/10 bg-white/5 px-2 py-1 text-xs text-neutral-300 hover:bg-white/10"
+                      >
+                        Changer
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="mt-2">
+                      <input
+                        value={coachSearch}
+                        onChange={(e) => setCoachSearch(e.target.value)}
+                        placeholder="Rechercher… (pseudo/email)"
+                        className="w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-600 outline-none focus:border-brand-accent/40"
+                      />
+                      {coachOptions.length > 0 && (
+                        <div className="mt-2 max-h-44 overflow-auto rounded-2xl border border-white/10 bg-surface-darker p-1">
+                          {coachOptions.map((c) => (
+                            <button
+                              key={c.userId}
+                              type="button"
+                              onClick={() => { setSelectedCoach(c); setCoachSearch(''); setCoachOptions([]); }}
+                              className="w-full rounded-xl px-3 py-2 text-left text-sm text-neutral-200 hover:bg-white/10"
+                            >
+                              <div className="truncate font-medium text-white">{c.pseudonym ?? (fullName(c) || 'Coach')}</div>
+                              <div className="truncate text-xs text-neutral-500">{c.email ?? ''}</div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="text-xs font-medium text-neutral-400">Matière</label>
+                  <select
+                    value={formSubject}
+                    onChange={(e) => setFormSubject(e.target.value as any)}
+                    className="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-neutral-100 outline-none focus:border-brand-accent/40"
+                  >
+                    {Object.keys(SUBJECT_LABELS).map((s) => (
+                      <option key={s} value={s}>{SUBJECT_LABELS[s] ?? s}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-neutral-400">Date</label>
+                  <input
+                    type="date"
+                    value={formDate}
+                    onChange={(e) => setFormDate(e.target.value)}
+                    className="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-neutral-100 outline-none focus:border-brand-accent/40"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div>
+                  <label className="text-xs font-medium text-neutral-400">Début</label>
+                  <input
+                    type="time"
+                    value={formStartTime}
+                    onChange={(e) => setFormStartTime(e.target.value)}
+                    className="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-neutral-100 outline-none focus:border-brand-accent/40"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-neutral-400">Fin</label>
+                  <input
+                    type="time"
+                    value={formEndTime}
+                    onChange={(e) => setFormEndTime(e.target.value)}
+                    className="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-neutral-100 outline-none focus:border-brand-accent/40"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-neutral-400">Durée</label>
+                  <div className="mt-2 rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-neutral-200">
+                    {Math.max(0, durationMinutes(formStartTime, formEndTime))} min
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="text-xs font-medium text-neutral-400">Type</label>
+                  <select
+                    value={formType}
+                    onChange={(e) => setFormType(e.target.value as any)}
+                    className="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-neutral-100 outline-none focus:border-brand-accent/40"
+                  >
+                    <option value="INDIVIDUAL">Individuel</option>
+                    <option value="GROUP">Groupe</option>
+                    <option value="MASTERCLASS">Masterclass</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-neutral-400">Modalité</label>
+                  <select
+                    value={formModality}
+                    onChange={(e) => setFormModality(e.target.value as any)}
+                    className="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-neutral-100 outline-none focus:border-brand-accent/40"
+                  >
+                    <option value="ONLINE">En ligne</option>
+                    <option value="IN_PERSON">Présentiel</option>
+                    <option value="HYBRID">Hybride</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-neutral-400">Titre</label>
+                <input
+                  value={formTitle}
+                  onChange={(e) => setFormTitle(e.target.value)}
+                  placeholder="Ex: Maths — dérivation"
+                  className="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-600 outline-none focus:border-brand-accent/40"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="text-xs font-medium text-neutral-400">Lieu / lien</label>
+                  <input
+                    value={formLocation}
+                    onChange={(e) => setFormLocation(e.target.value)}
+                    placeholder="Zoom / Adresse"
+                    className="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-600 outline-none focus:border-brand-accent/40"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-neutral-400">Description (optionnel)</label>
+                  <input
+                    value={formDescription}
+                    onChange={(e) => setFormDescription(e.target.value)}
+                    placeholder="Notes"
+                    className="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-600 outline-none focus:border-brand-accent/40"
+                  />
+                </div>
+              </div>
+
+              <div className="rounded-[24px] border border-white/10 bg-white/5 p-4">
+                <label className="flex items-center justify-between gap-3 text-sm text-neutral-200">
+                  <span>Récurrence hebdomadaire</span>
+                  <input
+                    type="checkbox"
+                    checked={formRecurEnabled}
+                    onChange={(e) => setFormRecurEnabled(e.target.checked)}
+                    className="h-4 w-4 accent-brand-accent"
+                  />
+                </label>
+                {formRecurEnabled && (
+                  <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className="text-xs font-medium text-neutral-400">Nombre de semaines</label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={104}
+                        value={formRecurCount}
+                        onChange={(e) => setFormRecurCount(parseInt(e.target.value || '1', 10))}
+                        className="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-neutral-100 outline-none focus:border-brand-accent/40"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-neutral-400">Intervalle (semaines)</label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={52}
+                        value={formRecurInterval}
+                        onChange={(e) => setFormRecurInterval(parseInt(e.target.value || '1', 10))}
+                        className="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-neutral-100 outline-none focus:border-brand-accent/40"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <label className="flex items-center justify-between gap-3 rounded-[24px] border border-white/10 bg-white/5 p-4 text-sm text-neutral-200">
+                <span>Mode “forcer”</span>
+                <input
+                  type="checkbox"
+                  checked={formOverride}
+                  onChange={(e) => setFormOverride(e.target.checked)}
+                  className="h-4 w-4 accent-brand-accent"
+                />
+              </label>
+
+              <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={closeCreate}
+                  className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-neutral-200 hover:bg-white/10"
+                >
+                  Fermer
+                </button>
+                <button
+                  type="button"
+                  onClick={submitCreate}
+                  disabled={createBusy}
+                  className="rounded-2xl border border-brand-accent/40 bg-brand-accent/10 px-4 py-3 text-sm font-medium text-brand-accent hover:bg-brand-accent/20 disabled:opacity-50"
+                >
+                  {createBusy ? 'Création…' : 'Créer'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

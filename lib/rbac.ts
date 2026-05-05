@@ -99,6 +99,7 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     { action: 'ASSIGN', resource: 'DOCUMENT_ASSIGNMENT' },
     { action: 'VALIDATE', resource: 'BILAN' },
     { action: 'READ', resource: 'BILAN' },
+    { action: 'CREATE', resource: 'SESSION' },
     { action: 'UPDATE', resource: 'SESSION' },
     { action: 'READ', resource: 'SESSION' },
     { action: 'MANAGE', resource: 'RESERVATION' },
