@@ -83,7 +83,10 @@ function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
   if (lastIndex < text.length) {
     parts.push(<Text key={`${keyPrefix}-t-${i++}`}>{text.slice(lastIndex)}</Text>);
   }
-  return parts.length > 0 ? parts : [<Text key={`${keyPrefix}-t-0`}>{text}</Text>];
+  if (parts.length === 0) {
+    parts.push(<Text key={`${keyPrefix}-t-0`}>{text}</Text>);
+  }
+  return parts;
 }
 
 /**
