@@ -45,27 +45,20 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
 
-# [CORRECTION IMPORTANTE] On réinstalle TOUTES les dépendances (incluant devDependencies)
-# car sans standalone mode, Prisma CLI est nécessaire au runtime
+# [CORRECTION IMPORTANTE] On réinstalle UNIQUEMENT les dépendances de production
+# pour ne pas inclure les outils de build (comme le CLI Prisma, TypeScript, etc.) dans l'image finale.
 COPY --from=builder /app/package.json /app/package-lock.json* ./
-RUN npm ci
+RUN npm ci --omit=dev
 
 # On copie les artefacts de build depuis l'étape "builder".
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 
-# [FIX P0] Copy pdfkit font assets to standalone build for PDF generation
-# pdfkit expects Helvetica.afm and other font files to be available at runtime
-COPY --from=builder /app/node_modules/pdfkit/js/data ./node_modules/pdfkit/js/data
-
-# [LA CORRECTION QUE VOUS ATTENDIEZ]
 # On copie le client Prisma généré ET le dossier prisma contenant le schéma.
 # Ces deux éléments sont nécessaires au runtime pour que Prisma fonctionne.
 COPY --from=builder /app/node_modules/.prisma ./.prisma
 COPY --from=builder /app/prisma ./prisma
-
-# Générer le client Prisma au runtime pour s'assurer qu'il est correctement initialisé
-RUN npx prisma generate
 
 # On copie les scripts pour les tests E2E et maintenance
 COPY --from=builder /app/scripts ./scripts
@@ -74,4 +67,4 @@ COPY --from=builder /app/lib ./lib
 # On expose le port sur lequel le serveur Next.js écoute à l'intérieur du conteneur.
 EXPOSE 3000
 # La commande qui sera exécutée lorsque le conteneur démarrera.
-CMD ["npm", "start"]
+CMD ["node", "server.js"]
