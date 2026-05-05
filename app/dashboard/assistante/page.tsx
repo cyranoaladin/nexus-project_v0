@@ -180,7 +180,7 @@ export default function DashboardAssistante() {
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-4">
               <NotificationBell />
-              <Link href="/dashboard/assistante/subscription-requests">
+              <Link href="/dashboard/assistante/subscriptions?tab=requests">
                 <Button variant="ghost" className="text-neutral-300 hover:text-white relative">
                   <CreditCard className="w-4 h-4 mr-2" />
                   Demandes d'Abonnement
@@ -232,7 +232,7 @@ export default function DashboardAssistante() {
           {/* Mobile Navigation */}
           {isMobileMenuOpen && (
             <div className="md:hidden border-t border-white/10 py-4 space-y-2">
-              <Link href="/dashboard/assistante/subscription-requests">
+              <Link href="/dashboard/assistante/subscriptions?tab=requests">
                 <Button variant="ghost" className="w-full justify-start text-neutral-300 hover:text-white relative">
                   <CreditCard className="w-4 h-4 mr-2" />
                   Demandes d'Abonnement
@@ -314,7 +314,7 @@ export default function DashboardAssistante() {
                         <Badge variant="destructive">
                           {dashboardData?.stats?.pendingSubscriptionRequests || 0}
                         </Badge>
-                        <Link href="/dashboard/assistante/subscription-requests">
+                        <Link href="/dashboard/assistante/subscriptions?tab=requests">
                           <Button variant="outline" size="sm" className="text-xs border-white/10 text-neutral-200 hover:text-white">
                             Voir
                           </Button>

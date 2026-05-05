@@ -148,12 +148,13 @@ interface RoadmapPDFProps {
   studentName: string;
 }
 
-export const RoadmapPDFDocument: React.FC<RoadmapPDFProps> = ({
+export function RoadmapPDFDocument({
   evaluatedData,
   sessions,
   postStagePlan,
   studentName
-}) => (
+}: RoadmapPDFProps) {
+  return (
   <Document>
     <Page size="A4" style={styles.page}>
       <View style={styles.header}>
@@ -198,4 +199,5 @@ export const RoadmapPDFDocument: React.FC<RoadmapPDFProps> = ({
       </View>
     </Page>
   </Document>
-);
+  );
+}
