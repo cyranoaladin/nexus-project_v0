@@ -1,5 +1,5 @@
 import { auth } from '@/auth';
-import { GET, POST } from '@/app/api/assistant/coaches/route';
+import { GET, POST } from '@/app/api/assistante/coaches/manage/route';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 

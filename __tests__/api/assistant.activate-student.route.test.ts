@@ -14,7 +14,7 @@ jest.mock('@/lib/services/student-activation.service', () => ({
   initiateStudentActivation: jest.fn(),
 }));
 
-import { POST } from '@/app/api/assistant/activate-student/route';
+import { POST } from '@/app/api/assistante/activate-student/route';
 import { auth } from '@/auth';
 import { initiateStudentActivation } from '@/lib/services/student-activation.service';
 import { NextRequest } from 'next/server';

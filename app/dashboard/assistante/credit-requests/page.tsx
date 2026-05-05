@@ -56,7 +56,7 @@ export default function CreditRequestsPage() {
       setLoading(true);
       setError(null);
       
-      const response = await fetch('/api/assistant/credit-requests');
+      const response = await fetch('/api/assistante/credit-requests');
       
       if (!response.ok) {
         throw new Error('Failed to fetch credit requests');
@@ -76,7 +76,7 @@ export default function CreditRequestsPage() {
 
     setIsProcessing(true);
     try {
-      const response = await fetch('/api/assistant/credit-requests', {
+      const response = await fetch('/api/assistante/credit-requests', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

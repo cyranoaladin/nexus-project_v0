@@ -1,4 +1,4 @@
-import { PUT, DELETE } from '@/app/api/assistant/coaches/[id]/route';
+import { PUT, DELETE } from '@/app/api/assistante/coaches/manage/[id]/route';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 import bcrypt from 'bcryptjs';

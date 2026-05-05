@@ -1,10 +1,13 @@
 import { z } from 'zod';
 
+export const STAGE_SLUG = 'stage-printemps-2026';
+
 export const COACH_MATHS_META = {
   version: '1.1.0',
   subject: 'MATHEMATIQUES',
   gradeLevel: 'PREMIERE',
   stage: 'printemps',
+  stageSlug: STAGE_SLUG,
   supportsStmg: true,
 };
 

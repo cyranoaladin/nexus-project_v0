@@ -44,7 +44,7 @@ export default function StudentsManagement() {
       setLoading(true);
       setError(null);
       
-      const response = await fetch('/api/assistant/students/credits');
+      const response = await fetch('/api/assistante/students/credits');
       
       if (!response.ok) {
         throw new Error('Failed to fetch students');

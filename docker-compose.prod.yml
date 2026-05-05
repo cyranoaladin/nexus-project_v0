@@ -31,7 +31,7 @@ services:
     # ports:
     #   - "5432:5432"  # DISABLED FOR SECURITY
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nexus_user} -d ${POSTGRES_DB:-nexus_prod}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nexus_user} -d ${POSTGRES_DB:-nexus_reussite_prod}"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -100,6 +100,16 @@ services:
       KONNECT_BASE_URL: ${KONNECT_BASE_URL:-https://api.konnect.network}
       KONNECT_WEBHOOK_SECRET: ${KONNECT_WEBHOOK_SECRET:-}
       NEXT_PUBLIC_KONNECT_PUBLIC_KEY: ${NEXT_PUBLIC_KONNECT_PUBLIC_KEY:-}
+
+      # Payments ClicToPay / Banque Zitouna (Optional - Tunisia)
+      CLICTOPAY_USERNAME: ${CLICTOPAY_USERNAME:-}
+      CLICTOPAY_PASSWORD: ${CLICTOPAY_PASSWORD:-}
+      CLICTOPAY_BASE_URL: ${CLICTOPAY_BASE_URL:-}
+      CLICTOPAY_WEBHOOK_SECRET: ${CLICTOPAY_WEBHOOK_SECRET:-}
+
+      # Rate Limiting - Upstash Redis (Optional - falls back to in-memory)
+      UPSTASH_REDIS_REST_URL: ${UPSTASH_REDIS_REST_URL:-}
+      UPSTASH_REDIS_REST_TOKEN: ${UPSTASH_REDIS_REST_TOKEN:-}
 
       # Jitsi Video Conferencing
       NEXT_PUBLIC_JITSI_SERVER_URL: ${NEXT_PUBLIC_JITSI_SERVER_URL:-https://meet.jit.si}

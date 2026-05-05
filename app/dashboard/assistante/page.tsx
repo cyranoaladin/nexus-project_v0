@@ -64,7 +64,7 @@ export default function DashboardAssistante() {
         setLoading(true);
         setError(null);
         
-        const response = await fetch('/api/assistant/dashboard');
+        const response = await fetch('/api/assistante/dashboard');
         
         if (!response.ok) {
           throw new Error('Failed to fetch dashboard data');

@@ -288,8 +288,10 @@ export default function CoachEafBilanPage() {
   const [bilanStatus, setBilanStatus] = useState<BilanStatus>('NOT_STARTED');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [validating, setValidating] = useState(false);
   const [lastSaved, setLastSaved] = useState<string | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [previewText, setPreviewText] = useState('');
   const [showStudentSummary, setShowStudentSummary] = useState(false);
@@ -419,6 +421,27 @@ export default function CoachEafBilanPage() {
     setShowPreview(true);
   }, [formData, student]);
 
+  const validateBilan = useCallback(async () => {
+    setValidating(true);
+    setApiError(null);
+    setSuccessMessage(null);
+    try {
+      const res = await fetch(`/api/coach/eaf-stage-printemps/students/${studentId}/report`, {
+        method: 'PATCH',
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.message || 'Validation échouée.');
+      }
+      setSuccessMessage('Le bilan a été validé et publié à l\'élève.');
+      setBilanStatus('VALIDATED');
+    } catch (e) {
+      setApiError(e instanceof Error ? e.message : 'Erreur de validation.');
+    } finally {
+      setValidating(false);
+    }
+  }, [studentId]);
+
   const isReadOnly = bilanStatus === 'VALIDATED';
 
   // Helpers to update nested form sections
@@ -507,6 +530,14 @@ export default function CoachEafBilanPage() {
         <div className="flex items-center gap-3 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-300">
           <AlertCircle className="h-4 w-4 shrink-0" />
           {apiError}
+        </div>
+      )}
+
+      {/* Success message */}
+      {successMessage && (
+        <div className="flex items-center gap-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-300">
+          <CheckCircle2 className="h-4 w-4 shrink-0" />
+          {successMessage}
         </div>
       )}
 
@@ -817,12 +848,13 @@ export default function CoachEafBilanPage() {
         <div className="sticky bottom-6 rounded-[24px] border border-white/10 bg-surface-darker/95 p-4 backdrop-blur">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
-              {saving && (
+              {(saving || validating) && (
                 <span className="flex items-center gap-2 text-xs text-neutral-400">
-                  <Loader2 className="h-3 w-3 animate-spin" /> Sauvegarde…
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  {validating ? 'Publication…' : 'Sauvegarde…'}
                 </span>
               )}
-              {!saving && lastSaved && (
+              {!saving && !validating && lastSaved && (
                 <span className="flex items-center gap-1.5 text-xs text-neutral-500">
                   <Clock className="h-3 w-3" /> Sauvegardé à {lastSaved}
                 </span>
@@ -837,24 +869,39 @@ export default function CoachEafBilanPage() {
                 <Eye className="h-4 w-4" />
                 Prévisualiser
               </button>
-              <button
-                type="button"
-                onClick={() => save('draft')}
-                disabled={saving}
-                className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-neutral-200 hover:bg-white/10 disabled:opacity-40"
-              >
-                <Save className="h-4 w-4" />
-                Enregistrer le brouillon
-              </button>
-              <button
-                type="button"
-                onClick={() => setConfirmComplete(true)}
-                disabled={saving}
-                className="flex items-center gap-2 rounded-xl bg-brand-accent px-4 py-2 text-sm font-semibold text-white hover:bg-brand-accent/90 disabled:opacity-40"
-              >
-                <CheckCircle2 className="h-4 w-4" />
-                Marquer comme complété
-              </button>
+              {bilanStatus !== 'COMPLETED' && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => save('draft')}
+                    disabled={saving}
+                    className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-neutral-200 hover:bg-white/10 disabled:opacity-40"
+                  >
+                    <Save className="h-4 w-4" />
+                    Enregistrer le brouillon
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmComplete(true)}
+                    disabled={saving}
+                    className="flex items-center gap-2 rounded-xl bg-brand-accent px-4 py-2 text-sm font-semibold text-white hover:bg-brand-accent/90 disabled:opacity-40"
+                  >
+                    <CheckCircle2 className="h-4 w-4" />
+                    Marquer comme complété
+                  </button>
+                </>
+              )}
+              {bilanStatus === 'COMPLETED' && (
+                <button
+                  type="button"
+                  onClick={validateBilan}
+                  disabled={validating}
+                  className="flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500 disabled:opacity-40"
+                >
+                  {validating ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                  Valider et Publier
+                </button>
+              )}
             </div>
           </div>
         </div>

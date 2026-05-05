@@ -12,7 +12,7 @@ jest.mock('@/lib/email', () => ({
   sendStudentActivationEmail: jest.fn(),
 }));
 
-import { POST } from '@/app/api/assistant/activate-student/route';
+import { POST } from '@/app/api/assistante/activate-student/route';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 import { NextRequest } from 'next/server';

@@ -8,8 +8,6 @@ import { Redis } from '@upstash/redis';
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 
-console.log("DEBUG: RATE LIMIT LOADED - MEMORY FALLBACK ENABLED");
-
 // Initialize Redis client
 const redis = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
     ? new Redis({

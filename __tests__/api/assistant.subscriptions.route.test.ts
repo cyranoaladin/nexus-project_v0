@@ -1,5 +1,5 @@
 import { auth } from '@/auth';
-import { GET, POST } from '@/app/api/assistant/subscriptions/route';
+import { GET, POST } from '@/app/api/assistante/subscriptions/route';
 import { prisma } from '@/lib/prisma';
 
 jest.mock('@/auth', () => ({

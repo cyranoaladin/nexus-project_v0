@@ -63,7 +63,7 @@ export default function SubscriptionsManagement() {
       setLoading(true);
       setError(null);
       
-      const response = await fetch('/api/assistant/subscriptions');
+      const response = await fetch('/api/assistante/subscriptions');
       
       if (!response.ok) {
         throw new Error('Failed to fetch subscriptions');
@@ -83,7 +83,7 @@ export default function SubscriptionsManagement() {
 
     setIsProcessing(true);
     try {
-      const response = await fetch('/api/assistant/subscriptions', {
+      const response = await fetch('/api/assistante/subscriptions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

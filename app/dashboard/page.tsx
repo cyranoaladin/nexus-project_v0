@@ -1,50 +1,25 @@
-"use client"
+import { auth } from '@/auth';
+import { redirect } from 'next/navigation';
 
-import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { useEffect } from "react"
-import { Loader2 } from "lucide-react"
+export default async function DashboardRedirect() {
+  const session = await auth();
 
-export default function DashboardRedirect() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
+  if (!session?.user) {
+    redirect('/auth/signin');
+  }
 
-  useEffect(() => {
-    if (status === "loading") return
-
-    if (!session) {
-      router.push("/auth/signin")
-      return
-    }
-
-    // Redirection selon le rôle
-    switch (session.user.role) {
-      case 'ELEVE':
-        router.push('/dashboard/eleve')
-        break
-      case 'PARENT':
-        router.push('/dashboard/parent')
-        break
-      case 'COACH':
-        router.push('/dashboard/coach')
-        break
-      case 'ASSISTANTE':
-        router.push('/dashboard/assistante')
-        break
-      case 'ADMIN':
-        router.push('/dashboard/admin')
-        break
-      default:
-        router.push('/auth/signin')
-    }
-  }, [session, status, router])
-
-  return (
-    <div className="min-h-screen bg-surface-darker flex items-center justify-center">
-      <div className="text-center">
-        <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-accent" />
-        <p className="text-neutral-400">Redirection vers votre espace...</p>
-      </div>
-    </div>
-  )
+  switch (session.user.role) {
+    case 'ELEVE':
+      redirect('/dashboard/eleve');
+    case 'PARENT':
+      redirect('/dashboard/parent');
+    case 'COACH':
+      redirect('/dashboard/coach');
+    case 'ASSISTANTE':
+      redirect('/dashboard/assistante');
+    case 'ADMIN':
+      redirect('/dashboard/admin');
+    default:
+      redirect('/auth/signin');
+  }
 }

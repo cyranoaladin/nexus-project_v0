@@ -63,7 +63,7 @@ function ResetPasswordForm() {
     return (
       <div className="min-h-screen bg-surface-darker text-neutral-100">
         <CorporateNavbar />
-        <main className="py-20">
+        <main className="py-12 sm:py-20">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-md text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-error/15 rounded-full mb-4">
               <Lock className="w-8 h-8 text-error" />
@@ -92,7 +92,7 @@ function ResetPasswordForm() {
     return (
       <div className="min-h-screen bg-surface-darker text-neutral-100">
         <CorporateNavbar />
-        <main className="py-20">
+        <main className="py-12 sm:py-20">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-md text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-500/15 rounded-full mb-4">
               <CheckCircle className="w-8 h-8 text-emerald-400" />
@@ -119,7 +119,7 @@ function ResetPasswordForm() {
   return (
     <div className="min-h-screen bg-surface-darker text-neutral-100">
       <CorporateNavbar />
-      <main className="py-20">
+      <main className="py-12 sm:py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-md">
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-accent/10 rounded-full mb-6">
