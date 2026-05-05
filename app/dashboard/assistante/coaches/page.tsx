@@ -101,7 +101,7 @@ export default function CoachManagement() {
   const fetchCoaches = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/assistant/coaches');
+      const response = await fetch('/api/assistante/coaches/manage');
 
       if (!response.ok) {
         throw new Error('Failed to fetch coaches');
@@ -136,7 +136,7 @@ export default function CoachManagement() {
   const handleAddCoach = async () => {
     try {
       setSubmitting(true);
-      const response = await fetch('/api/assistant/coaches', {
+      const response = await fetch('/api/assistante/coaches/manage', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -164,7 +164,7 @@ export default function CoachManagement() {
 
     try {
       setSubmitting(true);
-      const response = await fetch(`/api/assistant/coaches/${editingCoach.id}`, {
+      const response = await fetch(`/api/assistante/coaches/manage/${editingCoach.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -192,7 +192,7 @@ export default function CoachManagement() {
     if (!confirm('Êtes-vous sûr de vouloir supprimer ce coach ?')) return;
 
     try {
-      const response = await fetch(`/api/assistant/coaches/${coachId}`, {
+      const response = await fetch(`/api/assistante/coaches/manage/${coachId}`, {
         method: 'DELETE',
       });
 

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk, IBM_Plex_Mono, Fraunces, DM_Sans } from "next/font/google";
 import { Providers } from "@/components/providers";
 import PromoBanner from "@/components/layout/PromoBanner";
@@ -29,6 +29,12 @@ const dmSans = DM_Sans({
   subsets: ["latin"],
   variable: "--font-body",
 });
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  // Do NOT set maximumScale=1 — that breaks accessibility (user zoom)
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXTAUTH_URL || 'https://nexusreussite.academy'),

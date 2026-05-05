@@ -72,7 +72,7 @@ export default function AssistanteStagesPage() {
   const loadStages = useCallback(async () => {
     setLoadingStages(true);
     try {
-      const res = await fetch('/api/assistant/stages');
+      const res = await fetch('/api/assistante/stages');
       const data = await res.json() as { stages: StageData[]; kpis: Kpis };
       setStages(data.stages ?? []);
       setKpis(data.kpis ?? null);

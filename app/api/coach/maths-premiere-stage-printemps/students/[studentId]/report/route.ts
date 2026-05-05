@@ -7,8 +7,9 @@ import {
 } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
-import { coachMathsBilanSchema, COACH_MATHS_META } from '@/lib/coach/maths-premiere-stage-printemps/types';
+import { coachMathsBilanSchema, COACH_MATHS_META, STAGE_SLUG as MATHS_STAGE_SLUG } from '@/lib/coach/maths-premiere-stage-printemps/types';
 import type { CoachMathsSourceData } from '@/lib/coach/maths-premiere-stage-printemps/types';
+import { generateParentMathsStageReport } from '@/lib/coach/maths-premiere-stage-printemps/generate-parent-report';
 
 const COACH_SOURCE_VERSION = 'coach_maths_premiere_stage_printemps_v1';
 const STUDENT_SOURCE_VERSION = 'maths_premiere_stage_printemps_v1';
@@ -228,6 +229,14 @@ export async function POST(request: Request, { params }: RouteParams) {
       );
     }
 
+    // Generate markdown renderings on completion
+    const reportMarkdown = isCompletion
+      ? generateParentMathsStageReport(sourceData, {
+          firstName: student.user?.firstName ?? undefined,
+          lastName: student.user?.lastName ?? undefined,
+        })
+      : null;
+
     let bilan;
     if (existingBilan) {
       bilan = await prisma.bilan.update({
@@ -236,6 +245,7 @@ export async function POST(request: Request, { params }: RouteParams) {
           sourceData: sourceData as any,
           status: isCompletion ? 'COMPLETED' : 'PENDING',
           progress: isCompletion ? 100 : 50,
+          ...(reportMarkdown ? { studentMarkdown: reportMarkdown, parentsMarkdown: reportMarkdown } : {}),
           updatedAt: new Date(),
         },
       });
@@ -253,6 +263,7 @@ export async function POST(request: Request, { params }: RouteParams) {
           progress: isCompletion ? 100 : 50,
           coachId: coachProfile?.id,
           engineVersion: 'manual_coach',
+          ...(reportMarkdown ? { studentMarkdown: reportMarkdown, parentsMarkdown: reportMarkdown } : {}),
         },
       });
     }
@@ -324,12 +335,19 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       );
     }
 
+    // Look up stageId for linking the bilan to its stage in the student dashboard
+    const stage = await prisma.stage.findUnique({
+      where: { slug: MATHS_STAGE_SLUG },
+      select: { id: true },
+    });
+
     const bilan = await prisma.bilan.update({
       where: { id: existingBilan.id },
       data: {
         isPublished: true,
         publishedAt: new Date(),
         updatedAt: new Date(),
+        ...(stage ? { stageId: stage.id } : {}),
       },
     });
 

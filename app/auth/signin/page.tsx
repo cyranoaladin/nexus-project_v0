@@ -8,7 +8,7 @@ export default function SignInPage() {
   return (
     <div className="min-h-screen bg-surface-darker">
       <CorporateNavbar />
-      <main className="py-20">
+      <main className="py-12 sm:py-20">
         <SignInForm />
       </main>
       <CorporateFooter />

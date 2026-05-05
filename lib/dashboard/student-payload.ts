@@ -41,6 +41,7 @@ const SUBJECT_TO_BILAN_SUBJECT: Record<string, EleveBilanSubject> = {
   DROIT_ECO: 'DROIT_ECO',
   MANAGEMENT: 'MANAGEMENT',
   SGN: 'SGN',
+  FRANCAIS: 'FRANCAIS',
 };
 
 const SUBJECT_LABELS: Record<EleveBilanSubject, string> = {
@@ -50,6 +51,7 @@ const SUBJECT_LABELS: Record<EleveBilanSubject, string> = {
   DROIT_ECO: 'Droit-Économie',
   MANAGEMENT: 'Management',
   SGN: 'Sciences de gestion et numérique',
+  FRANCAIS: 'Français',
   MIXTE: 'Multi-matières',
 };
 
@@ -419,7 +421,7 @@ function toBilan(bilan: {
     topPriorities,
     hasParentsRender: bilan.parentsMarkdown !== null,
     createdAt: bilan.createdAt.toISOString(),
-    resultUrl: `/bilan-pallier2-maths/resultat/${bilan.publicShareId}`,
+    resultUrl: `/dashboard/eleve/bilans/${bilan.publicShareId}`,
   };
 }
 
@@ -490,7 +492,7 @@ function toStageItem(
     reservationStatus,
     hasBilan: bilanPublicShareId !== null,
     bilanUrl: bilanPublicShareId
-      ? `/bilan-pallier2-maths/resultat/${bilanPublicShareId}`
+      ? `/dashboard/eleve/bilans/${bilanPublicShareId}`
       : null,
   };
 }

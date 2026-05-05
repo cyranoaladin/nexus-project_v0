@@ -57,7 +57,7 @@ export default function SubscriptionRequestsPage() {
       setLoading(true);
       setError(null);
       
-      const response = await fetch(`/api/assistant/subscription-requests?status=${statusFilter}`);
+      const response = await fetch(`/api/assistante/subscription-requests?status=${statusFilter}`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch requests');
@@ -86,7 +86,7 @@ export default function SubscriptionRequestsPage() {
   const handleAction = async (requestId: string, action: 'APPROVED' | 'REJECTED') => {
     setProcessing(true);
     try {
-      const response = await fetch('/api/assistant/subscription-requests', {
+      const response = await fetch('/api/assistante/subscription-requests', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

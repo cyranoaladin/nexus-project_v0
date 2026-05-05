@@ -186,7 +186,7 @@ export function SignInForm() {
                     type="button"
                     data-testid="btn-toggle-password"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-300 hover:text-neutral-100 transition-colors"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 p-2 text-neutral-300 hover:text-neutral-100 transition-colors"
                     aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
                   >
                     {showPassword ? (

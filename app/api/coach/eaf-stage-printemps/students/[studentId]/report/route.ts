@@ -7,8 +7,9 @@ import {
 } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
-import { coachEafBilanSchema, COACH_EAF_META } from '@/lib/coach/eaf-stage-printemps/types';
+import { coachEafBilanSchema, COACH_EAF_META, STAGE_SLUG as EAF_STAGE_SLUG } from '@/lib/coach/eaf-stage-printemps/types';
 import type { CoachEafSourceData } from '@/lib/coach/eaf-stage-printemps/types';
+import { generateParentEafStageReport } from '@/lib/coach/eaf-stage-printemps/generate-parent-report';
 
 const COACH_SOURCE_VERSION = 'coach_eaf_stage_printemps_v1';
 const STUDENT_SOURCE_VERSION = 'eaf_stage_printemps_v1';
@@ -235,6 +236,14 @@ export async function POST(request: Request, { params }: RouteParams) {
       );
     }
 
+    // Generate markdown renderings on completion
+    const reportMarkdown = isCompletion
+      ? generateParentEafStageReport(sourceData, {
+          firstName: student.user?.firstName ?? undefined,
+          lastName: student.user?.lastName ?? undefined,
+        })
+      : null;
+
     let bilan;
     if (existingBilan) {
       bilan = await prisma.bilan.update({
@@ -244,6 +253,7 @@ export async function POST(request: Request, { params }: RouteParams) {
           sourceData: sourceData as any,
           status: isCompletion ? 'COMPLETED' : 'PENDING',
           progress: isCompletion ? 100 : 50,
+          ...(reportMarkdown ? { studentMarkdown: reportMarkdown, parentsMarkdown: reportMarkdown } : {}),
           updatedAt: new Date(),
         },
       });
@@ -262,6 +272,7 @@ export async function POST(request: Request, { params }: RouteParams) {
           progress: isCompletion ? 100 : 50,
           coachId: coachProfile?.id,
           engineVersion: 'manual_coach',
+          ...(reportMarkdown ? { studentMarkdown: reportMarkdown, parentsMarkdown: reportMarkdown } : {}),
         },
       });
     }
@@ -327,12 +338,19 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       );
     }
 
+    // Look up stageId for linking the bilan to its stage in the student dashboard
+    const stage = await prisma.stage.findUnique({
+      where: { slug: EAF_STAGE_SLUG },
+      select: { id: true },
+    });
+
     const bilan = await prisma.bilan.update({
       where: { id: existingBilan.id },
       data: {
         isPublished: true,
         publishedAt: new Date(),
         updatedAt: new Date(),
+        ...(stage ? { stageId: stage.id } : {}),
       },
     });
 

@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { authConfig } from './auth.config';
 import { UserRole } from '@prisma/client';
+import { logger } from '@/lib/logger';
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -20,7 +21,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         const email = credentials.email as string;
         const password = credentials.password as string;
         
-        console.log(`[AUTH] Attempt for email: ${email}`);
+        logger.info('[AUTH] Login attempt');
 
         const user = await prisma.user.findUnique({
           where: { email },
@@ -31,25 +32,25 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         });
 
         if (!user) {
-          console.log(`[AUTH] User not found: ${email}`);
+          logger.info('[AUTH] User not found');
           return null;
         }
 
         if (!user.password) {
-          console.log(`[AUTH] User has no password set: ${email}`);
+          logger.info('[AUTH] User has no password set');
           return null;
         }
 
         // Block unactivated students
         if (user.role === UserRole.ELEVE && !user.activatedAt) {
-           console.log(`[AUTH] Student account not activated: ${email}`);
+           logger.info('[AUTH] Student account not activated');
            throw new Error("Compte élève non activé. Veuillez contacter l'administration.");
         }
 
         const passwordsMatch = await bcrypt.compare(password, user.password);
         
         if (passwordsMatch) {
-            console.log(`[AUTH] Success for: ${email} (${user.role})`);
+            logger.info({ role: user.role }, '[AUTH] Login success');
             // Return user object safe for JWT
             return {
                 id: user.id,
@@ -60,7 +61,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             };
         }
         
-        console.log(`[AUTH] Password mismatch for: ${email}`);
+        logger.info('[AUTH] Password mismatch');
         return null;
       },
     }),

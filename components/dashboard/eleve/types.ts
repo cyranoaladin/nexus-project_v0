@@ -106,6 +106,7 @@ export type EleveBilanSubject =
   | 'DROIT_ECO'
   | 'MANAGEMENT'
   | 'SGN'
+  | 'FRANCAIS'
   | 'MIXTE';
 
 export type EleveBilan = {

@@ -5,6 +5,8 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 
+// Production pool tuning: append ?connection_limit=10&pool_timeout=30 to DATABASE_URL
+// or use Prisma Accelerate / PgBouncer for connection pooling in high-traffic environments.
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
