@@ -7,6 +7,12 @@ const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
   const pathname = req.nextUrl.pathname;
+  
+  // Bypass middleware for /auth/signin to fix mobile 404
+  if (pathname === '/auth/signin') {
+    return NextResponse.next();
+  }
+  
   const isLoggedIn = !!req.auth?.user;
   const role = (req.auth?.user as any)?.role;
 
@@ -76,5 +82,5 @@ export default auth((req) => {
 
 export const config = {
   // https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|.*\\.png$|auth/signin).*)'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|.*\\.png$).*)'],
 };
