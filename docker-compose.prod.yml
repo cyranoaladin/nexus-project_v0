@@ -88,7 +88,8 @@ services:
 
       # AI Services (Optional - disable if not used)
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-deepseek-ai/DeepSeek-V3.2-TEE}
       OPENAI_EMBEDDINGS_MODEL: ${OPENAI_EMBEDDINGS_MODEL:-text-embedding-3-large}
       VECTOR_DIM: ${VECTOR_DIM:-3072}
       EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-openai}
@@ -163,9 +164,13 @@ services:
       # Database
       DATABASE_URL: postgresql://${POSTGRES_USER:-nexus_user}:${POSTGRES_PASSWORD}@nexus-postgres-prod:5432/${POSTGRES_DB:-nexus_reussite_prod}?schema=public
 
-      # AI Services (Chutes.ai for NPC)
+      # AI Services (Chutes.ai for NPC + ARIA LLM)
       CHUTES_API_KEY: ${CHUTES_API_KEY:-}
       CHUTES_BASE_URL: ${CHUTES_BASE_URL:-https://api.chutes.ai}
+
+      # RAG Service
+      RAG_INGESTOR_URL: ${RAG_INGESTOR_URL:-http://ingestor:8001}
+      RAG_API_TOKEN: ${RAG_API_TOKEN:-}
 
       # NPC Worker Configuration
       NPC_LLM_MODE: ${NPC_LLM_MODE:-stub}
