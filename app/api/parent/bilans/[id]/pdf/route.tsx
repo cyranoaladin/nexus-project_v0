@@ -8,7 +8,6 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
-import React from 'react';
 import { renderToBuffer } from '@react-pdf/renderer';
 import { requireRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
@@ -80,9 +79,7 @@ export async function GET(
       parentsMarkdown: bilan.parentsMarkdown,
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pdfElement = React.createElement(BilanParentPDFDocument, { data: pdfData }) as any;
-    const pdfBuffer = await renderToBuffer(pdfElement);
+    const pdfBuffer = await renderToBuffer(<BilanParentPDFDocument data={pdfData} />);
 
     const safeChild = (childName || 'eleve')
       .normalize('NFD')
