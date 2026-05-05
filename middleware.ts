@@ -7,12 +7,6 @@ const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
   const pathname = req.nextUrl.pathname;
-  
-  // Bypass middleware for /auth/signin to fix mobile 404
-  if (pathname === '/auth/signin') {
-    return NextResponse.next();
-  }
-  
   const isLoggedIn = !!req.auth?.user;
   const role = (req.auth?.user as any)?.role;
 
