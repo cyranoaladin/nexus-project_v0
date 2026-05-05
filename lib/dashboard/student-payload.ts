@@ -421,7 +421,7 @@ function toBilan(bilan: {
     topPriorities,
     hasParentsRender: bilan.parentsMarkdown !== null,
     createdAt: bilan.createdAt.toISOString(),
-    resultUrl: `/dashboard/eleve/bilans/${bilan.publicShareId}`,
+    resultUrl: `/bilan-pallier2-maths/resultat/${bilan.publicShareId}`,
   };
 }
 

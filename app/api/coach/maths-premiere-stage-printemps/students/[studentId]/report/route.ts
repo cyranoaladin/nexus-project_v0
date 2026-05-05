@@ -336,10 +336,12 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     }
 
     // Look up stageId for linking the bilan to its stage in the student dashboard
-    const stage = await prisma.stage.findUnique({
-      where: { slug: MATHS_STAGE_SLUG },
-      select: { id: true },
-    });
+    const stage = (prisma as any).stage
+      ? await (prisma as any).stage.findUnique({
+          where: { slug: MATHS_STAGE_SLUG },
+          select: { id: true },
+        })
+      : null;
 
     const bilan = await prisma.bilan.update({
       where: { id: existingBilan.id },
