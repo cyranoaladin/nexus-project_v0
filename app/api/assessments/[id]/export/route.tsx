@@ -12,7 +12,6 @@ import { prisma } from '@/lib/prisma';
 import { renderToBuffer } from '@react-pdf/renderer';
 import { AssessmentPDFDocument, type AssessmentPDFData } from '@/lib/pdf/assessment-template';
 import { getSSNLabel, computePercentile } from '@/lib/core/statistics/normalize';
-import React from 'react';
 
 export async function GET(
   request: NextRequest,
@@ -118,9 +117,7 @@ export async function GET(
     };
 
     // Render PDF to buffer
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pdfElement = React.createElement(AssessmentPDFDocument, { data: pdfData }) as any;
-    const pdfBuffer = await renderToBuffer(pdfElement);
+    const pdfBuffer = await renderToBuffer(<AssessmentPDFDocument data={pdfData} />);
 
     // Return PDF response
     const fileName = `bilan-nexus-${assessment.studentName.replace(/\s+/g, '-').toLowerCase()}-${assessment.subject.toLowerCase()}.pdf`;

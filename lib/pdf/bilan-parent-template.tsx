@@ -185,7 +185,7 @@ function MarkdownBody({ markdown }: { markdown: string }) {
   return <View>{blocks}</View>;
 }
 
-export const BilanParentPDFDocument: React.FC<{ data: BilanParentPDFData }> = ({ data }) => {
+export function BilanParentPDFDocument({ data }: { data: BilanParentPDFData }) {
   const publishedDateLabel = new Date(data.publishedAt).toLocaleDateString('fr-FR', {
     day: '2-digit',
     month: 'long',
