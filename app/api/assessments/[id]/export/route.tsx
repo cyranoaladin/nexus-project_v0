@@ -8,6 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import React from 'react';
 import { prisma } from '@/lib/prisma';
 import { renderToBuffer } from '@react-pdf/renderer';
 import { AssessmentPDFDocument, type AssessmentPDFData } from '@/lib/pdf/assessment-template';
@@ -117,7 +118,9 @@ export async function GET(
     };
 
     // Render PDF to buffer
-    const pdfBuffer = await renderToBuffer(<AssessmentPDFDocument data={pdfData} />);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const pdfElement = React.createElement(AssessmentPDFDocument, { data: pdfData }) as any;
+    const pdfBuffer = await renderToBuffer(pdfElement);
 
     // Return PDF response
     const fileName = `bilan-nexus-${assessment.studentName.replace(/\s+/g, '-').toLowerCase()}-${assessment.subject.toLowerCase()}.pdf`;
