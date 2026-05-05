@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable standalone output for production builds
-  output: 'standalone',
+  // Temporarily disable standalone to test mobile 404 fix
+  // output: 'standalone',
 
   // Fix workspace root warning from multiple lockfiles
   outputFileTracingRoot: process.cwd(),
