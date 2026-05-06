@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
 import { renderBilanParentPDF } from '@/lib/pdf/bilan-parent-pdfkit';
+import { type BilanParentPDFData } from '@/lib/pdf/bilan-parent-template';
 
 const SUBJECT_LABEL: Record<string, string> = {
   MATHEMATIQUES: 'Mathématiques',
