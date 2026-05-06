@@ -194,10 +194,7 @@ export function generateParentEafStageReport(
     lines.push('');
   }
 
-  if (ae.coachComment) {
-    lines.push(ae.coachComment.replace(/%{3,}/g, '').trim());
-    lines.push('');
-  }
+  // ae.coachComment is internal coach note — never exposed to parents in deterministic template
 
   // ── Section 2 — Compréhension des attentes de l'épreuve ───────────────────
   const ee = sourceData.examExpectations ?? {};
@@ -239,10 +236,7 @@ export function generateParentEafStageReport(
   }
   lines.push('');
 
-  if (ee.coachComment) {
-    lines.push(ee.coachComment.replace(/%{3,}/g, '').trim());
-    lines.push('');
-  }
+  // ee.coachComment is internal coach note — never exposed to parents
 
   // ── Section 3 — Commentaire de texte ──────────────────────────────────────
   const com = sourceData.commentary ?? {};
@@ -270,9 +264,7 @@ export function generateParentEafStageReport(
   if (comPositive.length > 0)  lines.push(`**Points forts :** ${comPositive.join(', ')}.`);
   if (comDifficult.length > 0) lines.push(`**Points à renforcer :** ${comDifficult.join(', ')}.`);
 
-  if (com.strengths)   { lines.push(''); lines.push(`*Forces observées par le coach :* ${com.strengths}`); }
-  if (com.difficulties){ lines.push(`*Difficultés restantes :* ${com.difficulties}`); }
-  if (com.priority)    { lines.push(''); lines.push(`**Priorité de travail identifiée :** ${com.priority}`); }
+  // com.strengths/difficulties/priority are internal coach notes — not exposed in deterministic output
   lines.push('');
 
   // ── Section 4 — Dissertation ───────────────────────────────────────────────
@@ -300,9 +292,7 @@ export function generateParentEafStageReport(
   if (disPositive.length > 0)  lines.push(`**Points forts :** ${disPositive.join(', ')}.`);
   if (disDifficult.length > 0) lines.push(`**Points à renforcer :** ${disDifficult.join(', ')}.`);
 
-  if (dis.strengths)   { lines.push(''); lines.push(`*Forces observées :* ${dis.strengths}`); }
-  if (dis.difficulties){ lines.push(`*Difficultés restantes :* ${dis.difficulties}`); }
-  if (dis.priority)    { lines.push(''); lines.push(`**Priorité de travail :** ${dis.priority}`); }
+  // dis.strengths/difficulties/priority are internal coach notes — not exposed in deterministic output
   lines.push('');
 
   // ── Section 5 — Expression écrite ─────────────────────────────────────────
@@ -326,9 +316,7 @@ export function generateParentEafStageReport(
 
   for (const item of writingItems) lines.push(`- ${item}`);
 
-  if (wr.observations)    { lines.push(''); lines.push(wr.observations.replace(/%{3,}/g, '').trim()); }
-  if (wr.frequentErrors)  { lines.push(''); lines.push(`**Erreurs fréquemment observées :** ${wr.frequentErrors}`); }
-  if (wr.recommendations) { lines.push(''); lines.push(`**Recommandations du coach :** ${wr.recommendations}`); }
+  // wr.observations/frequentErrors/recommendations are internal coach notes — not exposed
   lines.push('');
 
   // ── Section 6 — Progrès observés ──────────────────────────────────────────
@@ -354,10 +342,7 @@ export function generateParentEafStageReport(
     lines.push('');
   }
 
-  if (pr.observedProgressComment) {
-    lines.push(pr.observedProgressComment.replace(/%{3,}/g, '').trim());
-    lines.push('');
-  }
+  // pr.observedProgressComment is internal coach note — not exposed
 
   // ── Section 7 — Priorités de travail ──────────────────────────────────────
   const am  = sourceData.autonomyAndMethod ?? {};
@@ -381,10 +366,7 @@ export function generateParentEafStageReport(
   const uniqueAxes = [...new Set(axes)];
   for (const ax of uniqueAxes) lines.push(`- **${ax.charAt(0).toUpperCase() + ax.slice(1)}**`);
 
-  if (am.advice) {
-    lines.push('');
-    lines.push(am.advice.replace(/%{3,}/g, '').trim());
-  }
+  // am.advice is internal coach note — not exposed
   lines.push('');
 
   // ── Section 8 — Recommandation finale ─────────────────────────────────────

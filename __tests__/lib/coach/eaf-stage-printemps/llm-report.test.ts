@@ -132,7 +132,7 @@ La progression de Lamis au cours de ce stage a été nette et encourageante.
 
 Un accompagnement régulier est vivement recommandé pour ancrer les acquis du stage.`;
 
-const RAG_HIT = { id: 'hit-1', document: 'Méthode commentaire composé lycée.', score: 0.9 };
+const RAG_HIT = { id: 'hit-1', document: 'Méthode commentaire composé lycée.', metadata: {}, distance: 0.1, score: 0.9 };
 
 // ─── Setup ────────────────────────────────────────────────────────────────────
 
