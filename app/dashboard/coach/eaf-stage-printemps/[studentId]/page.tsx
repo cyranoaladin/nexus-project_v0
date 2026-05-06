@@ -296,6 +296,7 @@ export default function CoachEafBilanPage() {
   const [previewText, setPreviewText] = useState('');
   const [showStudentSummary, setShowStudentSummary] = useState(false);
   const [confirmComplete, setConfirmComplete] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
 
   const autosaveTimer = useRef<NodeJS.Timeout | null>(null);
 
@@ -439,6 +440,31 @@ export default function CoachEafBilanPage() {
       setApiError(e instanceof Error ? e.message : 'Erreur de validation.');
     } finally {
       setValidating(false);
+    }
+  }, [studentId]);
+
+  const regenerateBilan = useCallback(async () => {
+    setRegenerating(true);
+    setApiError(null);
+    setSuccessMessage(null);
+    try {
+      const res = await fetch(`/api/coach/eaf-stage-printemps/students/${studentId}/report/regenerate`, {
+        method: 'POST',
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.message || 'Régénération échouée.');
+      }
+      const d = await res.json();
+      setSuccessMessage(
+        d.llmUsed
+          ? 'Le bilan a été régénéré avec l\'IA (RAG + LLM). Le PDF mis à jour sera disponible immédiatement.'
+          : 'Le bilan a été régénéré (template — IA indisponible).'
+      );
+    } catch (e) {
+      setApiError(e instanceof Error ? e.message : 'Erreur de régénération.');
+    } finally {
+      setRegenerating(false);
     }
   }, [studentId]);
 
@@ -904,6 +930,21 @@ export default function CoachEafBilanPage() {
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ── Régénérer le bilan (IA) — visible sur bilans complétés ou validés ── */}
+      {(bilanStatus === 'COMPLETED' || bilanStatus === 'VALIDATED') && (
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={regenerateBilan}
+            disabled={regenerating}
+            className="flex items-center gap-2 rounded-xl border border-violet-500/30 bg-violet-500/10 px-4 py-2 text-sm font-medium text-violet-300 hover:bg-violet-500/20 disabled:opacity-40"
+          >
+            {regenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+            {regenerating ? 'Génération IA en cours…' : 'Régénérer le bilan (IA)'}
+          </button>
         </div>
       )}
 
