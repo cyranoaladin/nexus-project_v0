@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { renderAssessmentPDF } from '@/lib/pdf/assessment-pdfkit';
 import { getSSNLabel, computePercentile } from '@/lib/core/statistics/normalize';
+import { type AssessmentPDFData } from '@/lib/pdf/assessment-template';
 
 export async function GET(
   request: NextRequest,
