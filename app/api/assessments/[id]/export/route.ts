@@ -2,16 +2,14 @@
  * GET /api/assessments/[id]/export
  *
  * Server-side PDF generation for assessment results.
- * Uses @react-pdf/renderer to produce an institutional-quality PDF.
+ * Uses PDFKit to produce an institutional-quality PDF.
  *
  * Returns: application/pdf stream
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import React from 'react';
 import { prisma } from '@/lib/prisma';
-import { renderToBuffer } from '@react-pdf/renderer';
-import { AssessmentPDFDocument, type AssessmentPDFData } from '@/lib/pdf/assessment-template';
+import { renderAssessmentPDF } from '@/lib/pdf/assessment-pdfkit';
 import { getSSNLabel, computePercentile } from '@/lib/core/statistics/normalize';
 
 export async function GET(
@@ -118,9 +116,7 @@ export async function GET(
     };
 
     // Render PDF to buffer
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pdfElement = React.createElement(AssessmentPDFDocument, { data: pdfData }) as any;
-    const pdfBuffer = await renderToBuffer(pdfElement);
+    const pdfBuffer = await renderAssessmentPDF(pdfData);
 
     // Return PDF response
     const fileName = `bilan-nexus-${assessment.studentName.replace(/\s+/g, '-').toLowerCase()}-${assessment.subject.toLowerCase()}.pdf`;
