@@ -117,14 +117,14 @@ describe('generateParentEafStageReport', () => {
   it('2. Contient toutes les sections attendues', () => {
     const result = generateParentEafStageReport(FULL_SOURCE_DATA, STUDENT, FIXED_DATE);
 
-    expect(result).toContain('1. ATTITUDE ET IMPLICATION');
-    expect(result).toContain("2. COMPRÉHENSION DES ATTENTES DE L'ÉPREUVE");
-    expect(result).toContain('3. COMMENTAIRE DE TEXTE');
-    expect(result).toContain('4. DISSERTATION');
-    expect(result).toContain('5. EXPRESSION ÉCRITE');
-    expect(result).toContain('6. PROGRÈS OBSERVÉS');
-    expect(result).toContain('7. PRIORITÉS DE TRAVAIL');
-    expect(result).toContain('8. RECOMMANDATION FINALE');
+    expect(result).toContain('1. Attitude et implication');
+    expect(result).toContain("2. Compréhension des attentes de l'épreuve");
+    expect(result).toContain('3. Commentaire de texte');
+    expect(result).toContain('4. Dissertation');
+    expect(result).toContain('5. Expression écrite');
+    expect(result).toContain('6. Progrès observés');
+    expect(result).toContain('7. Priorités de travail');
+    expect(result).toContain('8. Recommandation finale');
   });
 
   it('3. Contient le nom de l\'élève', () => {
@@ -148,7 +148,7 @@ describe('generateParentEafStageReport', () => {
 
     expect(typeof result).toBe('string');
     expect(result.length).toBeGreaterThan(50);
-    expect(result).toContain('1. ATTITUDE ET IMPLICATION');
+    expect(result).toContain('1. Attitude et implication');
   });
 
   it('6. Génère un texte même avec sourceData complètement vide', () => {
@@ -181,7 +181,7 @@ describe('generateParentEafStageReport', () => {
 
   it('11. Contient la recommandation de suivi', () => {
     const result = generateParentEafStageReport(FULL_SOURCE_DATA, STUDENT, FIXED_DATE);
-    expect(result).toContain('accompagnement régulier est recommandé');
+    expect(result).toContain('accompagnement régulier est vivement recommandé');
   });
 
   it('12. Ne contient pas de texte marketing ("meilleur", "garantissons")', () => {
