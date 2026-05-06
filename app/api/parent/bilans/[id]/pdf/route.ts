@@ -78,7 +78,7 @@ export async function GET(
       parentsMarkdown: bilan.parentsMarkdown,
     };
 
-    const pdfBuffer = await renderToBuffer(<BilanParentPDFDocument data={pdfData} />);
+    const pdfBuffer = await renderBilanParentPDF(pdfData);
 
     const safeChild = (childName || 'eleve')
       .normalize('NFD')
