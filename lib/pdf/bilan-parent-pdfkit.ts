@@ -300,7 +300,7 @@ export async function renderBilanParentPDF(data: BilanParentPDFData): Promise<Bu
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({
       size: 'A4',
-      margin: MX,
+      margin: 0,          // margin:0 → auto-wrap at PH (841pt), not PH-margin
       bufferPages: true,
       info: {
         Title:   `Bilan de stage — ${data.subjectLabel} — ${data.studentName}`,
