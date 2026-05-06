@@ -9,7 +9,9 @@ import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { coachEafBilanSchema, COACH_EAF_META, STAGE_SLUG as EAF_STAGE_SLUG } from '@/lib/coach/eaf-stage-printemps/types';
 import type { CoachEafSourceData } from '@/lib/coach/eaf-stage-printemps/types';
-import { generateParentEafStageReport } from '@/lib/coach/eaf-stage-printemps/generate-parent-report';
+import { generateLLMParentEafReport } from '@/lib/coach/eaf-stage-printemps/llm-report';
+
+export const maxDuration = 200; // seconds — allows up to ~3 min for LLM generation
 
 const COACH_SOURCE_VERSION = 'coach_eaf_stage_printemps_v1';
 const STUDENT_SOURCE_VERSION = 'eaf_stage_printemps_v1';
@@ -236,13 +238,16 @@ export async function POST(request: Request, { params }: RouteParams) {
       );
     }
 
-    // Generate markdown renderings on completion
-    const reportMarkdown = isCompletion
-      ? generateParentEafStageReport(sourceData, {
-          firstName: student.user?.firstName ?? undefined,
-          lastName: student.user?.lastName ?? undefined,
-        })
-      : null;
+    // Generate markdown renderings on completion (LLM-powered, with deterministic fallback)
+    let reportMarkdown: string | null = null;
+    if (isCompletion) {
+      const { markdown, llmUsed, ragHitCount } = await generateLLMParentEafReport(sourceData, {
+        firstName: student.user?.firstName ?? undefined,
+        lastName: student.user?.lastName ?? undefined,
+      });
+      reportMarkdown = markdown;
+      logger.info({ studentId, llmUsed, ragHitCount }, '[EAF] parent report generated');
+    }
 
     let bilan;
     if (existingBilan) {
