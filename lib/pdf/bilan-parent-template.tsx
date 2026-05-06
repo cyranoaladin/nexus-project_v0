@@ -113,7 +113,7 @@ function MarkdownBody({ markdown }: { markdown: string }) {
       if (text) {
         blocks.push(
           <Text key={`p-${key++}`} style={styles.paragraph}>
-            {renderInline(text, `p${key}`)}
+            {text}
           </Text>
         );
       }
@@ -129,7 +129,7 @@ function MarkdownBody({ markdown }: { markdown: string }) {
           {listBuffer.items.map((item, idx) => (
             <View key={`li-${key}-${idx}`} style={styles.listItem}>
               <Text style={styles.bullet}>{isOrdered ? `${idx + 1}.` : '•'}</Text>
-              <Text style={styles.listText}>{renderInline(item, `li${key}-${idx}`)}</Text>
+              <Text style={styles.listText}>{item}</Text>
             </View>
           ))}
         </View>
