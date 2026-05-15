@@ -47,6 +47,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       match: 'exact'
     },
     {
+      label: 'NSI Pratique',
+      href: '/dashboard/eleve/nsi-pratique-2026',
+      icon: 'Code2',
+      match: 'prefix'
+    },
+    {
       label: 'Mes Diagnostics',
       href: '/dashboard/eleve/npc',
       icon: 'ClipboardCheck',
