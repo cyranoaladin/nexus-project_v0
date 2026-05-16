@@ -1,0 +1,33 @@
+
+Attendu :
+- `nexus-app-prod`, `nexus-postgres-prod`, `nexus-npc-worker-prod` au statut `Up` (healthy).
+- Pas d'erreur Prisma critique répétée.
+- Pas de panic PostgreSQL.
+
+## 8. Test synchro élève
+Procédure manuelle ou automatisée :
+1. Se connecter avec un compte de rôle `ELEVE`.
+2. Naviguer vers `/dashboard/eleve/nsi-pratique-2026`.
+3. Modifier une auto-évaluation ou cocher une case de sujet.
+4. Attendre la confirmation visuelle : `Progression synchronisée avec le serveur.`
+5. Rafraîchir la page (`F5`).
+6. Vérifier que la modification est conservée (source de vérité = serveur).
+7. Pour vérification base (accès DBA uniquement) :
+   ```sql
+   SELECT "userId", "lastSyncedAt"
+   FROM nsi_practice_progress
+   WHERE "userId" = '<UUID_ELEVE>';
+   ```
+
+## 9. Test suivi coach
+1. Se connecter avec un compte de rôle `COACH`.
+2. Naviguer vers `/dashboard/coach/nsi-pratique-2026`.
+3. Vérifier la présence des élèves attendus dans la cohorte.
+4. Cliquer sur un élève pour visualiser son détail de progression.
+5. S'assurer qu'aucun élève hors périmètre n'est visible.
+
+## 10. Restauration backup DB
+Backup de référence existant :
+`/root/backup_before_nsi_progress_20260516_091750.sql`
+
+Procédure (downtime requis) :

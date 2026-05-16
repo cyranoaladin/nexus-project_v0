@@ -1,0 +1,13 @@
+
+Opérations envisageables :
+- Suppression des images dangling (`<none>:<none>`) si elles ne sont pas des images de rollback.
+- Suppression des conteneurs arrêtés obsolètes.
+- `docker system prune -f` uniquement après sauvegarde des volumes critiques.
+
+> Interdiction formelle : ne pas supprimer les backups de base de données, les images de rollback ni les archives de logs sans validation écrite.
+
+## 14. Limites actuelles
+- Le compte tiers identifié comme `cyranoaladin` n'a pas été testé directement en l'absence de mot de passe disponible dans ce document ; un test manuel est requis si le périmètre l'exige.
+- Le feature gating par abonnement spécifique NSI n'est pas activé si la politique produit actuelle ne l'impose pas ; l'accès est régulé par le RBAC existant.
+- Les backups Docker (images et volumes) doivent faire l'objet d'une purge manuelle programmée après la période de stabilisation.
+- Aucun mot de passe, hash, token, `DATABASE_URL` complète ou secret n'est stocké dans ce runbook.

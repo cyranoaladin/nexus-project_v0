@@ -1,0 +1,1 @@
+Error: shell execution environment not available in this context (no local tty, no ssh client, no filesystem access bound to agent session)
