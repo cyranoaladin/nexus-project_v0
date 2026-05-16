@@ -35,6 +35,7 @@ export function useNsiProgress() {
   const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const canSyncServerRef = useRef(false);
 
   // --- Server fetch ---
   const fetchServerProgress = useCallback(async (): Promise<{ data: NsiProgress | null; updatedAt: string | null }> => {
@@ -69,7 +70,7 @@ export function useNsiProgress() {
 
   // --- Debounced server sync ---
   const debouncedServerSave = useCallback((data: NsiProgress) => {
-    if (authStatus !== 'authenticated') return;
+    if (authStatus === 'unauthenticated' && !canSyncServerRef.current) return;
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => saveToServer(data), DEBOUNCE_MS);
   }, [authStatus, saveToServer]);
@@ -85,9 +86,12 @@ export function useNsiProgress() {
     }
 
     if (authStatus !== 'authenticated') {
+      canSyncServerRef.current = false;
       setSyncStatus('local-only');
       return;
     }
+
+    canSyncServerRef.current = true;
 
     // Fetch server data and merge with local
     fetchServerProgress()
