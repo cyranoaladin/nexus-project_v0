@@ -36,6 +36,7 @@ export function useNsiProgress() {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const canSyncServerRef = useRef(false);
+  const dirtyRef = useRef(false);
 
   // --- Server fetch ---
   const fetchServerProgress = useCallback(async (): Promise<{ data: NsiProgress | null; updatedAt: string | null }> => {
@@ -72,8 +73,16 @@ export function useNsiProgress() {
   const debouncedServerSave = useCallback((data: NsiProgress) => {
     if (authStatus === 'unauthenticated' && !canSyncServerRef.current) return;
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => saveToServer(data), DEBOUNCE_MS);
+    debounceRef.current = setTimeout(() => {
+      dirtyRef.current = false;
+      void saveToServer(data);
+    }, DEBOUNCE_MS);
   }, [authStatus, saveToServer]);
+
+  useEffect(() => {
+    if (!progress || !dirtyRef.current) return;
+    debouncedServerSave(progress);
+  }, [progress, debouncedServerSave]);
 
   // --- Initial load: localStorage + server hydration ---
   useEffect(() => {
@@ -153,9 +162,9 @@ export function useNsiProgress() {
 
   // --- Wrapper: update localStorage + trigger server sync ---
   const withSync = useCallback((updatedProgress: NsiProgress) => {
+    dirtyRef.current = true;
     setProgress({ ...updatedProgress });
-    debouncedServerSave(updatedProgress);
-  }, [debouncedServerSave]);
+  }, []);
 
   const setSubjectProgress = useCallback((subjectId: number, update: Partial<SubjectProgress>) => {
     withSync(updateSubjectProgress(subjectId, update));
