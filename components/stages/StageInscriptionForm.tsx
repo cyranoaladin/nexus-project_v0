@@ -251,7 +251,7 @@ export function StageInscriptionForm({ stage }: { stage: StageSummary }) {
                 className="w-full rounded-2xl border border-white/10 bg-surface-elevated px-4 py-3 text-sm text-white outline-none transition focus:border-brand-accent/50"
               >
                 {['Première', 'Terminale', '3ème', 'Autre'].map((level) => (
-                  <option key={level} value={level}>{level}</option>
+                  <option key={level} value={level} style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>{level}</option>
                 ))}
               </select>
             </div>

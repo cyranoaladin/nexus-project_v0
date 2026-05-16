@@ -568,7 +568,7 @@ export default function AdminStagesFevrier2026Page() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2.5 text-sm border border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none bg-white"
+              className="select-light px-4 py-2.5 text-sm border border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none bg-white"
             >
               <option value="all">Tous les statuts</option>
               {uniqueStatuses.map((s) => (
@@ -580,7 +580,7 @@ export default function AdminStagesFevrier2026Page() {
             <select
               value={academyFilter}
               onChange={(e) => setAcademyFilter(e.target.value)}
-              className="px-4 py-2.5 text-sm border border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none bg-white"
+              className="select-light px-4 py-2.5 text-sm border border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none bg-white"
             >
               <option value="all">Toutes les académies</option>
               {uniqueAcademies.map((a) => (

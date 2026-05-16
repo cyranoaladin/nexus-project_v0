@@ -143,11 +143,11 @@ function SelectField({
         name={name}
         value={value}
         onChange={(event) => onChange(name, event.target.value)}
-        className="w-full rounded-2xl border border-slate-700 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition focus:border-indigo-300 focus:shadow-[0_0_0_4px_rgba(99,102,241,0.12)]"
+        className="w-full rounded-2xl border border-slate-700 bg-neutral-800 px-4 py-3 text-sm text-white outline-none transition focus:border-indigo-300 focus:shadow-[0_0_0_4px_rgba(99,102,241,0.12)]"
       >
-        <option value="">Sélectionner une réponse</option>
+        <option value="" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Sélectionner une réponse</option>
         {options.map((option) => (
-          <option key={option} value={option}>
+          <option key={option} value={option} style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>
             {option}
           </option>
         ))}

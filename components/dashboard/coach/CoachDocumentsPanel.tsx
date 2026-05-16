@@ -3,6 +3,13 @@
 import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Loader2, BookOpen, Plus, FileText, Globe, Eye } from "lucide-react";
 
 export interface UserDocument {
@@ -19,6 +26,36 @@ interface CoachDocumentsPanelProps {
   studentId: string;
   className?: string;
 }
+
+const DOCUMENT_TYPES = [
+  { value: "COURS", label: "Cours" },
+  { value: "EXERCICE", label: "Exercice" },
+  { value: "BILAN", label: "Bilan" },
+  { value: "CORRECTION", label: "Correction" },
+  { value: "PLANNING", label: "Planning" },
+  { value: "ANNEXE", label: "Annexe" },
+  { value: "AUTRE", label: "Autre" },
+] as const;
+
+const SUBJECTS = [
+  { value: "MATHEMATIQUES", label: "Mathématiques" },
+  { value: "FRANCAIS", label: "Français" },
+  { value: "NSI", label: "NSI" },
+  { value: "PHYSIQUE_CHIMIE", label: "Physique-Chimie" },
+  { value: "SVT", label: "SVT" },
+  { value: "HISTOIRE_GEO", label: "Histoire-Géo" },
+  { value: "PHILOSOPHIE", label: "Philosophie" },
+  { value: "ANGLAIS", label: "Anglais" },
+  { value: "ESPAGNOL", label: "Espagnol" },
+  { value: "SES", label: "SES" },
+] as const;
+
+const VISIBILITY_SCOPES = [
+  { value: "STUDENT_ONLY", label: "Élève uniquement" },
+  { value: "STUDENT_AND_PARENT", label: "Élève & Parent" },
+  { value: "STUDENT_AND_COACH", label: "Élève & Coach" },
+  { value: "STUDENT_PARENT_COACH", label: "Élève, Parent & Coach" },
+] as const;
 
 export function CoachDocumentsPanel({ studentId, className }: CoachDocumentsPanelProps) {
   const [documents, setDocuments] = useState<UserDocument[]>([]);
@@ -143,6 +180,8 @@ export function CoachDocumentsPanel({ studentId, className }: CoachDocumentsPane
     }
   }
 
+  const selectTriggerClass = "h-9 bg-neutral-800 border-white/10 text-xs text-white focus:ring-brand-accent/40";
+
   return (
     <Card className={`bg-surface-card border-white/10 shadow-premium ${className ?? ""}`}>
       <CardHeader className="pb-2">
@@ -167,7 +206,7 @@ export function CoachDocumentsPanel({ studentId, className }: CoachDocumentsPane
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Ex: Corrigé Épreuve 2026, Fiche de révision"
-                className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-xs text-neutral-100 placeholder:text-neutral-600 focus:outline-none focus:border-brand-accent/40"
+                className="w-full bg-neutral-800 border border-white/10 rounded-lg p-2 text-xs text-white placeholder:text-neutral-500 focus:outline-none focus:border-brand-accent/40"
                 required
                 disabled={submitting}
               />
@@ -180,7 +219,7 @@ export function CoachDocumentsPanel({ studentId, className }: CoachDocumentsPane
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="Lien externe ou hébergé (Google Drive, Dropbox...)"
-                className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-xs text-neutral-100 placeholder:text-neutral-600 focus:outline-none focus:border-brand-accent/40"
+                className="w-full bg-neutral-800 border border-white/10 rounded-lg p-2 text-xs text-white placeholder:text-neutral-500 focus:outline-none focus:border-brand-accent/40"
                 disabled={submitting || !!file}
               />
             </div>
@@ -190,63 +229,51 @@ export function CoachDocumentsPanel({ studentId, className }: CoachDocumentsPane
               <input
                 type="file"
                 onChange={(e) => setFile(e.target.files?.[0] || null)}
-                className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-xs text-neutral-100 focus:outline-none focus:border-brand-accent/40"
+                className="w-full bg-neutral-800 border border-white/10 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-brand-accent/40"
                 disabled={submitting || !!url}
               />
             </div>
 
             <div className="space-y-1.5">
               <label className="text-xs text-neutral-400">Type de document</label>
-              <select
-                value={documentType}
-                onChange={(e) => setDocumentType(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-xs text-neutral-100 focus:outline-none focus:border-brand-accent/40 cursor-pointer"
-                disabled={submitting}
-              >
-                <option value="COURS">Cours</option>
-                <option value="EXERCICE">Exercice</option>
-                <option value="BILAN">Bilan</option>
-                <option value="CORRECTION">Correction</option>
-                <option value="PLANNING">Planning</option>
-                <option value="ANNEXE">Annexe</option>
-                <option value="AUTRE">Autre</option>
-              </select>
+              <Select value={documentType} onValueChange={setDocumentType} disabled={submitting}>
+                <SelectTrigger className={selectTriggerClass}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {DOCUMENT_TYPES.map((dt) => (
+                    <SelectItem key={dt.value} value={dt.value}>{dt.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-1.5">
               <label className="text-xs text-neutral-400">Matière</label>
-              <select
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-xs text-neutral-100 focus:outline-none focus:border-brand-accent/40 cursor-pointer"
-                disabled={submitting}
-              >
-                <option value="MATHEMATIQUES">Mathématiques</option>
-                <option value="FRANCAIS">Français</option>
-                <option value="NSI">NSI</option>
-                <option value="PHYSIQUE_CHIMIE">Physique-Chimie</option>
-                <option value="SVT">SVT</option>
-                <option value="HISTOIRE_GEO">Histoire-Géo</option>
-                <option value="PHILOSOPHIE">Philosophie</option>
-                <option value="ANGLAIS">Anglais</option>
-                <option value="ESPAGNOL">Espagnol</option>
-                <option value="SES">SES</option>
-              </select>
+              <Select value={subject} onValueChange={setSubject} disabled={submitting}>
+                <SelectTrigger className={selectTriggerClass}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {SUBJECTS.map((s) => (
+                    <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-1.5 md:col-span-2">
               <label className="text-xs text-neutral-400">Visibilité</label>
-              <select
-                value={visibilityScope}
-                onChange={(e) => setVisibilityScope(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-xs text-neutral-100 focus:outline-none focus:border-brand-accent/40 cursor-pointer"
-                disabled={submitting}
-              >
-                <option value="STUDENT_ONLY">Élève uniquement</option>
-                <option value="STUDENT_AND_PARENT">Élève & Parent</option>
-                <option value="STUDENT_AND_COACH">Élève & Coach</option>
-                <option value="STUDENT_PARENT_COACH">Élève, Parent & Coach</option>
-              </select>
+              <Select value={visibilityScope} onValueChange={setVisibilityScope} disabled={submitting}>
+                <SelectTrigger className={selectTriggerClass}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {VISIBILITY_SCOPES.map((vs) => (
+                    <SelectItem key={vs.value} value={vs.value}>{vs.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Recipients Multi-select Section */}

@@ -703,10 +703,10 @@ export default function AssistantePlanningPage() {
                   <select
                     value={formSubject}
                     onChange={(e) => setFormSubject(e.target.value as any)}
-                    className="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-neutral-100 outline-none focus:border-brand-accent/40"
+                    className="mt-2 w-full rounded-2xl border border-white/10 bg-neutral-800 px-3 py-2 text-sm text-white outline-none focus:border-brand-accent/40"
                   >
                     {Object.keys(SUBJECT_LABELS).map((s) => (
-                      <option key={s} value={s}>{SUBJECT_LABELS[s] ?? s}</option>
+                      <option key={s} value={s} style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>{SUBJECT_LABELS[s] ?? s}</option>
                     ))}
                   </select>
                 </div>
@@ -754,11 +754,11 @@ export default function AssistantePlanningPage() {
                   <select
                     value={formType}
                     onChange={(e) => setFormType(e.target.value as any)}
-                    className="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-neutral-100 outline-none focus:border-brand-accent/40"
+                    className="mt-2 w-full rounded-2xl border border-white/10 bg-neutral-800 px-3 py-2 text-sm text-white outline-none focus:border-brand-accent/40"
                   >
-                    <option value="INDIVIDUAL">Individuel</option>
-                    <option value="GROUP">Groupe</option>
-                    <option value="MASTERCLASS">Masterclass</option>
+                    <option value="INDIVIDUAL" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Individuel</option>
+                    <option value="GROUP" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Groupe</option>
+                    <option value="MASTERCLASS" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Masterclass</option>
                   </select>
                 </div>
                 <div>
@@ -766,11 +766,11 @@ export default function AssistantePlanningPage() {
                   <select
                     value={formModality}
                     onChange={(e) => setFormModality(e.target.value as any)}
-                    className="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-neutral-100 outline-none focus:border-brand-accent/40"
+                    className="mt-2 w-full rounded-2xl border border-white/10 bg-neutral-800 px-3 py-2 text-sm text-white outline-none focus:border-brand-accent/40"
                   >
-                    <option value="ONLINE">En ligne</option>
-                    <option value="IN_PERSON">Présentiel</option>
-                    <option value="HYBRID">Hybride</option>
+                    <option value="ONLINE" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>En ligne</option>
+                    <option value="IN_PERSON" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Présentiel</option>
+                    <option value="HYBRID" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Hybride</option>
                   </select>
                 </div>
               </div>

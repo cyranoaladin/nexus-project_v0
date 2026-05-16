@@ -255,13 +255,13 @@ export default function StageReservationModal({
                   required
                   value={form.classe}
                   onChange={handleField("classe")}
-                  className={cn(inputClass, !form.classe && "text-white/30")}
+                  className={cn(inputClass, "bg-neutral-800 text-white", !form.classe && "text-white/30")}
                 >
-                  <option value="" disabled>
+                  <option value="" disabled style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>
                     Sélectionnez la classe
                   </option>
-                  <option value="Première">Première</option>
-                  <option value="Terminale">Terminale</option>
+                  <option value="Première" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Première</option>
+                  <option value="Terminale" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Terminale</option>
                 </select>
               </div>
             </div>

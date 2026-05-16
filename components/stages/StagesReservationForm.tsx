@@ -183,7 +183,7 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
             id="academyId"
             value={formData.academyId}
             onChange={(e) => handleInputChange('academyId', e.target.value)}
-            className={`w-full px-4 py-3 rounded-lg border-2 ${
+            className={`select-light w-full px-4 py-3 rounded-lg border-2 ${
               errors.academyId ? 'border-blue-500' : 'border-slate-300'
             } focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all text-slate-900 placeholder:text-slate-500`}
           >

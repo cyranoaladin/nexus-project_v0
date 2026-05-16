@@ -398,7 +398,7 @@ export function FileUploadZone({
                       <select
                         id={`existing-document-type-${document.id}`}
                         aria-label="Type documentaire"
-                        className="h-9 w-full rounded-md border border-gray-300 bg-white px-3 text-sm"
+                        className="select-light h-9 w-full rounded-md border border-gray-300 bg-white px-3 text-sm"
                         value={document.documentType}
                         disabled={isUploading}
                         onChange={async (event) => {
@@ -469,7 +469,7 @@ export function FileUploadZone({
                       <select
                         id={`document-type-${file.id}`}
                         aria-label="Type documentaire"
-                        className="h-9 w-full rounded-md border border-gray-300 bg-white px-3 text-sm"
+                        className="select-light h-9 w-full rounded-md border border-gray-300 bg-white px-3 text-sm"
                         value={file.documentType}
                         disabled={isUploading || file.status === 'uploading' || file.status === 'success'}
                         onChange={(event) =>

@@ -478,6 +478,11 @@ h1, h2, h3 {
     color: rgb(var(--color-neutral-500)) !important;
   }
 
+  .stages-dark .bg-gradient-to-br select option {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+  }
+
   .dashboard-soft {
     background-color: rgb(var(--color-surface-darker));
     color: rgb(var(--color-neutral-100));
@@ -603,6 +608,29 @@ body {
 @layer base {
   * {
     @apply border-border;
+  }
+
+  /* Fix native <option> contrast on dark backgrounds.
+     Browsers ignore Tailwind classes on <option> elements.
+     color-scheme: dark forces the browser to render native dropdowns
+     with dark backgrounds and light text. */
+  select {
+    color-scheme: dark;
+  }
+
+  select option {
+    background-color: #1e1e2e;
+    color: #f5f5f5;
+  }
+
+  /* Light-themed selects keep browser default light rendering */
+  select.select-light {
+    color-scheme: light;
+  }
+
+  select.select-light option {
+    background-color: #ffffff;
+    color: #0f172a;
   }
 
   /* Accessibility: focus-visible ring for keyboard navigation */
