@@ -193,6 +193,9 @@ model User {
   // Maths progression (Première and Terminale)
   mathsProgress MathsProgress[]
 
+  // NSI Pratique 2026 progression
+  nsiPracticeProgress NsiPracticeProgress?
+
   // Coach private notes
   coachNotesAuthored CoachNote[] @relation("CoachNoteAuthor")
   coachNotesAbout    CoachNote[] @relation("CoachNoteSubject")
@@ -1735,6 +1738,20 @@ model MathsProgress {
   @@index([userId])
   @@index([track])
   @@map("maths_progress")
+}
+
+// NSI Pratique 2026 — Server-side progression (hybrid with localStorage)
+model NsiPracticeProgress {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  data      Json     // Full NsiProgress object (same structure as localStorage)
+  version   Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("nsi_practice_progress")
 }
 
 // Phase 6 — Coach private notes about a student.
