@@ -72,14 +72,14 @@ export function TrajectoryDesigner({ studentId, onSave }: TrajectoryDesignerProp
           </div>
           <div>
             <label className="text-[10px] uppercase text-neutral-500 font-bold mb-1.5 block">Horizon</label>
-            <select 
-              className="w-full h-10 px-3 rounded-md bg-white/5 border border-white/10 text-sm text-white outline-none focus:ring-1 focus:ring-brand-accent"
+            <select
+              className="w-full h-10 px-3 rounded-md bg-neutral-800 border border-white/10 text-sm text-white outline-none focus:ring-1 focus:ring-brand-accent"
               value={horizon}
               onChange={(e) => setHorizon(e.target.value)}
             >
-              <option value="3_MONTHS">3 Mois</option>
-              <option value="6_MONTHS">6 Mois</option>
-              <option value="12_MONTHS">12 Mois</option>
+              <option value="3_MONTHS" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>3 Mois</option>
+              <option value="6_MONTHS" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>6 Mois</option>
+              <option value="12_MONTHS" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>12 Mois</option>
             </select>
           </div>
         </div>

@@ -189,7 +189,7 @@ export function NexusInvoiceGenerator() {
                 className={`${inputClass} w-full`}
               >
                 {NEXUS_INVOICE_PACKAGES.map((pack) => (
-                  <option key={pack.id} value={pack.id}>{pack.label}</option>
+                  <option key={pack.id} value={pack.id} style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>{pack.label}</option>
                 ))}
               </select>
 
@@ -239,9 +239,9 @@ export function NexusInvoiceGenerator() {
               {payments.map((payment, index) => (
                 <div key={`${payment.method}-${index}`} className="grid grid-cols-[1fr_100px_32px] gap-2 rounded-lg border border-white/10 p-2">
                   <select value={payment.method} onChange={(event) => updatePayment(index, { method: event.target.value as PaymentFormRow['method'] })} className={inputClass}>
-                    <option value="BANK_TRANSFER">Virement bancaire</option>
-                    <option value="CHEQUE">Chèque</option>
-                    <option value="CASH">Espèces</option>
+                    <option value="BANK_TRANSFER" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Virement bancaire</option>
+                    <option value="CHEQUE" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Chèque</option>
+                    <option value="CASH" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Espèces</option>
                   </select>
                   <input type="number" value={millimesToTnd(payment.amount)} onChange={(event) => updatePayment(index, { amount: tndToMillimes(Number(event.target.value)) })} className={`${inputClass} text-right`} />
                   <button type="button" onClick={() => removePayment(index)} className="rounded-lg border border-white/10 text-neutral-400 hover:text-white" aria-label="Supprimer paiement">

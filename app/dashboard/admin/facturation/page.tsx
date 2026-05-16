@@ -411,13 +411,13 @@ export default function FacturationPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="pl-10 pr-8 py-2 text-sm rounded-lg border border-neutral-700 bg-surface-card text-neutral-200 focus:outline-none focus:ring-1 focus:ring-brand-primary/50 appearance-none"
+            className="pl-10 pr-8 py-2 text-sm rounded-lg border border-neutral-700 bg-neutral-800 text-neutral-200 focus:outline-none focus:ring-1 focus:ring-brand-primary/50 appearance-none"
           >
-            <option value="">Tous les statuts</option>
-            <option value="DRAFT">Brouillon</option>
-            <option value="SENT">Envoyée</option>
-            <option value="PAID">Payée</option>
-            <option value="CANCELLED">Annulée</option>
+            <option value="" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Tous les statuts</option>
+            <option value="DRAFT" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Brouillon</option>
+            <option value="SENT" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Envoyée</option>
+            <option value="PAID" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Payée</option>
+            <option value="CANCELLED" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Annulée</option>
           </select>
         </div>
       </div>
@@ -742,14 +742,14 @@ export default function FacturationPage() {
                   <select
                     value={paymentMethod}
                     onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-neutral-700 bg-neutral-800/50 text-neutral-200 focus:outline-none focus:ring-1 focus:ring-brand-primary/50"
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-neutral-700 bg-neutral-800 text-neutral-200 focus:outline-none focus:ring-1 focus:ring-brand-primary/50"
                   >
-                    <option value="">Non spécifié</option>
-                    <option value="CASH">Espèces</option>
-                    <option value="BANK_TRANSFER">Virement bancaire</option>
-                    <option value="CLICTOPAY">ClicToPay</option>
-                    <option value="CHECK">Chèque</option>
-                    <option value="OTHER">Autre</option>
+                    <option value="" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Non spécifié</option>
+                    <option value="CASH" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Espèces</option>
+                    <option value="BANK_TRANSFER" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Virement bancaire</option>
+                    <option value="CLICTOPAY" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>ClicToPay</option>
+                    <option value="CHECK" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Chèque</option>
+                    <option value="OTHER" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Autre</option>
                   </select>
                 </div>
                 <div className="sm:col-span-2">
@@ -886,7 +886,7 @@ export default function FacturationPage() {
                 className="w-full px-3 py-2 rounded-lg bg-neutral-800 border border-neutral-700/50 text-sm text-neutral-200 focus:outline-none focus:ring-1 focus:ring-brand-primary/50"
               >
                 {PAYMENT_METHODS.map(({ value, label }) => (
-                  <option key={value} value={value}>{label}</option>
+                  <option key={value} value={value} style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>{label}</option>
                 ))}
               </select>
             </div>

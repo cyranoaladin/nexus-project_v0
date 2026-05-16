@@ -200,13 +200,13 @@ function ProgressStep({
                       value={isMissing ? '' : String(p.declared)}
                       onChange={e => updateProg(chap.id, 'declared', parseInt(e.target.value, 10))}
                     >
-                      <option value="" disabled>Choisir...</option>
-                      <option value="0">Pas encore vu</option>
-                      <option value="1">Vu rapidement</option>
-                      <option value="2">Vu mais peu exercé</option>
-                      <option value="3">Vu et exercé</option>
-                      <option value="4">Vu, exercé, évalué</option>
-                      <option value="5">Je pense maîtriser</option>
+                      <option value="" disabled style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Choisir...</option>
+                      <option value="0" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Pas encore vu</option>
+                      <option value="1" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Vu rapidement</option>
+                      <option value="2" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Vu mais peu exercé</option>
+                      <option value="3" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Vu et exercé</option>
+                      <option value="4" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Vu, exercé, évalué</option>
+                      <option value="5" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Je pense maîtriser</option>
                     </select>
                   </div>
                   {!isMissing && (p.declared ?? 0) > 0 && (

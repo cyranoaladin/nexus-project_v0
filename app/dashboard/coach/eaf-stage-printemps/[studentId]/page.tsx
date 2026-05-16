@@ -125,9 +125,9 @@ function SelectInput({
         disabled={disabled}
         className="rounded-xl border border-white/10 bg-surface-darker px-3 py-2 text-sm text-neutral-200 focus:border-brand-accent/50 focus:outline-none disabled:opacity-40"
       >
-        <option value="">— Sélectionner —</option>
+        <option value="" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>— Sélectionner —</option>
         {options.map(o => (
-          <option key={o.value} value={o.value}>{o.label}</option>
+          <option key={o.value} value={o.value} style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>{o.label}</option>
         ))}
       </select>
     </div>

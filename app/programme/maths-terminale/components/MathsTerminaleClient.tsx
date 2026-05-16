@@ -768,20 +768,20 @@ function BacView({
 
         <div className="grid gap-3 md:grid-cols-4">
           <label className="text-sm">Durée
-            <select value={duration} onChange={(e) => setDuration(Number(e.target.value) as 30 | 60 | 120 | 240)} className="mt-1 w-full rounded-lg border border-white/20 bg-black/30 px-3 py-2">
-              {[30, 60, 120, 240].map((d) => <option key={d} value={d}>{d} min</option>)}
+            <select value={duration} onChange={(e) => setDuration(Number(e.target.value) as 30 | 60 | 120 | 240)} className="mt-1 w-full rounded-lg border border-white/20 bg-neutral-800 px-3 py-2 text-white">
+              {[30, 60, 120, 240].map((d) => <option key={d} value={d} style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>{d} min</option>)}
             </select>
           </label>
           <label className="text-sm">Difficulté
-            <select value={difficulty} onChange={(e) => setDifficulty(e.target.value === 'all' ? 'all' : Number(e.target.value) as 1 | 2 | 3 | 4 | 5)} className="mt-1 w-full rounded-lg border border-white/20 bg-black/30 px-3 py-2">
-              <option value="all">Toutes</option>
-              {[1, 2, 3, 4, 5].map((d) => <option key={d} value={d}>Niveau {d}</option>)}
+            <select value={difficulty} onChange={(e) => setDifficulty(e.target.value === 'all' ? 'all' : Number(e.target.value) as 1 | 2 | 3 | 4 | 5)} className="mt-1 w-full rounded-lg border border-white/20 bg-neutral-800 px-3 py-2 text-white">
+              <option value="all" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Toutes</option>
+              {[1, 2, 3, 4, 5].map((d) => <option key={d} value={d} style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Niveau {d}</option>)}
             </select>
           </label>
           <label className="text-sm">Thème
-            <select value={theme} onChange={(e) => setTheme(e.target.value)} className="mt-1 w-full rounded-lg border border-white/20 bg-black/30 px-3 py-2">
-              <option value="all">Mix complet</option>
-              {allThemes.map((t) => <option key={t} value={t}>{t}</option>)}
+            <select value={theme} onChange={(e) => setTheme(e.target.value)} className="mt-1 w-full rounded-lg border border-white/20 bg-neutral-800 px-3 py-2 text-white">
+              <option value="all" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Mix complet</option>
+              {allThemes.map((t) => <option key={t} value={t} style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>{t}</option>)}
             </select>
           </label>
           <label className="flex items-end gap-2 text-sm">

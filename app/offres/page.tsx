@@ -713,11 +713,11 @@ export default function OffresPage() {
                       id="current-solution"
                       value={currentSolution}
                       onChange={(e) => setCurrentSolution(e.target.value)}
-                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white"
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-neutral-800 px-4 py-3 text-sm text-white"
                     >
-                      <option value="rien">Pas d'accompagnement</option>
-                      <option value="prof">Professeur particulier (60 TND/h)</option>
-                      <option value="groupe">Cours en groupe (40 TND/h)</option>
+                      <option value="rien" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Pas d'accompagnement</option>
+                      <option value="prof" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Professeur particulier (60 TND/h)</option>
+                      <option value="groupe" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Cours en groupe (40 TND/h)</option>
                     </select>
                   </div>
 
@@ -747,11 +747,11 @@ export default function OffresPage() {
                       id="goal"
                       value={goal}
                       onChange={(e) => setGoal(e.target.value)}
-                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white"
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-neutral-800 px-4 py-3 text-sm text-white"
                     >
-                      <option value="bac">Réussir le Bac</option>
-                      <option value="mention">Obtenir une mention</option>
-                      <option value="parcoursup">Réussir Parcoursup</option>
+                      <option value="bac" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Réussir le Bac</option>
+                      <option value="mention" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Obtenir une mention</option>
+                      <option value="parcoursup" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Réussir Parcoursup</option>
                     </select>
                   </div>
                 </div>

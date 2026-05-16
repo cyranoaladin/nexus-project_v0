@@ -242,14 +242,14 @@ export default function ContactSection() {
                       Taille de l&apos;établissement
                     </label>
                     <select
-                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-neutral-800 px-4 py-3 text-sm text-white transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
                       value={urgency}
                       onChange={(event) => setUrgency(event.target.value)}
                     >
-                      <option value="">Sélectionner</option>
-                      <option value="moins-300">Moins de 300 élèves</option>
-                      <option value="300-800">300 à 800 élèves</option>
-                      <option value="plus-800">Plus de 800 élèves</option>
+                      <option value="" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Sélectionner</option>
+                      <option value="moins-300" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Moins de 300 élèves</option>
+                      <option value="300-800" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>300 à 800 élèves</option>
+                      <option value="plus-800" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Plus de 800 élèves</option>
                     </select>
                   </div>
                   <div>
@@ -257,15 +257,15 @@ export default function ContactSection() {
                       Priorité
                     </label>
                     <select
-                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-neutral-800 px-4 py-3 text-sm text-white transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
                       value={interest}
                       onChange={(event) => setInterest(event.target.value)}
                     >
-                      <option value="">Sélectionner</option>
-                      <option value="demo">Démo plateforme</option>
-                      <option value="audit">Audit & diagnostic</option>
-                      <option value="ia">IA & automatisation</option>
-                      <option value="formation">Formation des équipes</option>
+                      <option value="" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Sélectionner</option>
+                      <option value="demo" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Démo plateforme</option>
+                      <option value="audit" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Audit & diagnostic</option>
+                      <option value="ia" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>IA & automatisation</option>
+                      <option value="formation" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Formation des équipes</option>
                     </select>
                   </div>
                 </div>
@@ -298,15 +298,15 @@ export default function ContactSection() {
                       Objectif principal
                     </label>
                     <select
-                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-neutral-800 px-4 py-3 text-sm text-white transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
                       value={interest}
                       onChange={(event) => setInterest(event.target.value)}
                     >
-                      <option value="">Sélectionner</option>
-                      <option value="bac">Réussir le Bac</option>
-                      <option value="mention">Viser une mention</option>
-                      <option value="parcoursup">Parcoursup & orientation</option>
-                      <option value="remise-a-niveau">Remise à niveau</option>
+                      <option value="" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Sélectionner</option>
+                      <option value="bac" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Réussir le Bac</option>
+                      <option value="mention" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Viser une mention</option>
+                      <option value="parcoursup" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Parcoursup & orientation</option>
+                      <option value="remise-a-niveau" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Remise à niveau</option>
                     </select>
                   </div>
                   <div>
@@ -314,14 +314,14 @@ export default function ContactSection() {
                       Délai de démarrage
                     </label>
                     <select
-                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-neutral-800 px-4 py-3 text-sm text-white transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
                       value={urgency}
                       onChange={(event) => setUrgency(event.target.value)}
                     >
-                      <option value="">Sélectionner</option>
-                      <option value="urgent">Cette semaine</option>
-                      <option value="2-4sem">Dans 2 à 4 semaines</option>
-                      <option value="plus">Plus tard</option>
+                      <option value="" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Sélectionner</option>
+                      <option value="urgent" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Cette semaine</option>
+                      <option value="2-4sem" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Dans 2 à 4 semaines</option>
+                      <option value="plus" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Plus tard</option>
                     </select>
                   </div>
                 </div>
@@ -355,15 +355,15 @@ export default function ContactSection() {
                       Objectif
                     </label>
                     <select
-                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-neutral-800 px-4 py-3 text-sm text-white transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
                       value={interest}
                       onChange={(event) => setInterest(event.target.value)}
                     >
-                      <option value="">Sélectionner</option>
-                      <option value="ia">IA & automatisation</option>
-                      <option value="web3">Web3 & blockchain</option>
-                      <option value="reconversion">Reconversion</option>
-                      <option value="upskill">Upskilling équipe</option>
+                      <option value="" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Sélectionner</option>
+                      <option value="ia" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>IA & automatisation</option>
+                      <option value="web3" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Web3 & blockchain</option>
+                      <option value="reconversion" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Reconversion</option>
+                      <option value="upskill" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Upskilling équipe</option>
                     </select>
                   </div>
                   <div>
@@ -371,14 +371,14 @@ export default function ContactSection() {
                       Délai de démarrage
                     </label>
                     <select
-                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-neutral-800 px-4 py-3 text-sm text-white transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none"
                       value={urgency}
                       onChange={(event) => setUrgency(event.target.value)}
                     >
-                      <option value="">Sélectionner</option>
-                      <option value="urgent">Ce mois‑ci</option>
-                      <option value="next">Le mois prochain</option>
-                      <option value="later">Plus tard</option>
+                      <option value="" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Sélectionner</option>
+                      <option value="urgent" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Ce mois‑ci</option>
+                      <option value="next" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Le mois prochain</option>
+                      <option value="later" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Plus tard</option>
                     </select>
                   </div>
                 </div>
@@ -392,42 +392,42 @@ export default function ContactSection() {
                     ? "Je cherche"
                     : "Programme"}
                 </label>
-                <select className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none">
+                <select className="mt-2 w-full rounded-xl border border-white/10 bg-neutral-800 px-4 py-3 text-sm text-white transition-colors focus:border-brand-accent/60 focus:ring-1 focus:ring-brand-accent/30 focus:outline-none">
                   {active === "schools" && (
                     <>
-                      <option>Nexus Digital Campus (LMS & pilotage)</option>
-                      <option>Solutions IA pour établissements</option>
-                      <option>Activer ARIA (tuteur IA & suivi)</option>
-                      <option>Studio IA / Agents autonomes</option>
-                      <option>IA sécurisée avec vos données</option>
-                      <option>Audit Stratégique & Digital (360°)</option>
-                      <option>Déploiement Dashboard & pilotage</option>
-                      <option>Certification sécurisée des diplômes</option>
-                      <option>Formation des équipes (IA & Web3)</option>
-                      <option>Autre besoin</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Nexus Digital Campus (LMS & pilotage)</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Solutions IA pour établissements</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Activer ARIA (tuteur IA & suivi)</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Studio IA / Agents autonomes</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>IA sécurisée avec vos données</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Audit Stratégique & Digital (360°)</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Déploiement Dashboard & pilotage</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Certification sécurisée des diplômes</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Formation des équipes (IA & Web3)</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Autre besoin</option>
                     </>
                   )}
                   {active === "families" && (
                     <>
-                      <option>Programme Odyssée (annuel)</option>
-                      <option>Académies Nexus (stages intensifs)</option>
-                      <option>Studio Flex (cours à la carte)</option>
-                      <option>Nexus Cortex (tuteur IA 24/7)</option>
-                      <option>Soutien cycle Terminal (Maths/NSI)</option>
-                      <option>Coaching Orientation & Grand Oral</option>
-                      <option>Découvrir ARIA (tuteur IA)</option>
-                      <option>Autre besoin</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Programme Odyssée (annuel)</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Académies Nexus (stages intensifs)</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Studio Flex (cours à la carte)</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Nexus Cortex (tuteur IA 24/7)</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Soutien cycle Terminal (Maths/NSI)</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Coaching Orientation & Grand Oral</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Découvrir ARIA (tuteur IA)</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Autre besoin</option>
                     </>
                   )}
                   {active === "pros" && (
                     <>
-                      <option>Bootcamp Développement Blockchain</option>
-                      <option>Masterclass Assistants Intelligents</option>
-                      <option>Nexus Labs (marque blanche)</option>
-                      <option>Atelier IA sécurisée avec vos données</option>
-                      <option>Studio IA / Agents autonomes</option>
-                      <option>Audit & conseil tech</option>
-                      <option>Autre besoin</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Bootcamp Développement Blockchain</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Masterclass Assistants Intelligents</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Nexus Labs (marque blanche)</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Atelier IA sécurisée avec vos données</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Studio IA / Agents autonomes</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Audit & conseil tech</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Autre besoin</option>
                     </>
                   )}
                 </select>

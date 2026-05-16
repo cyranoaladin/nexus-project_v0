@@ -160,13 +160,13 @@ export const QuizEngine: React.FC<QuizEngineProps> = ({ onSwitchTab, store, quiz
             <div className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-300">
               <div>
                 <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Choisir un thème</label>
-                <select 
-                  value={themeFilter} 
+                <select
+                  value={themeFilter}
                   onChange={(e) => setThemeFilter(e.target.value)}
                   className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition-colors"
                 >
-                  <option value="all">Tous les thèmes</option>
-                  {categoryList.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                  <option value="all" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Tous les thèmes</option>
+                  {categoryList.map(cat => <option key={cat} value={cat} style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>{cat}</option>)}
                 </select>
               </div>
               <div>
