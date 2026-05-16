@@ -27,7 +27,8 @@ export function loadProgress(): NsiProgress {
       saveProgress(fresh);
       return fresh;
     }
-    return { ...getDefaultProgress(), ...parsed };
+    const { _version: _storedVersion, ...progress } = parsed;
+    return { ...getDefaultProgress(), ...progress };
   } catch {
     return getDefaultProgress();
   }
@@ -50,7 +51,8 @@ export function exportProgress(): string {
 /** Import progress from JSON string */
 export function importProgress(json: string): NsiProgress {
   const parsed = JSON.parse(json);
-  const progress: NsiProgress = { ...getDefaultProgress(), ...parsed };
+  const { _version: _storedVersion, ...importedProgress } = parsed;
+  const progress: NsiProgress = { ...getDefaultProgress(), ...importedProgress };
   saveProgress(progress);
   return progress;
 }
