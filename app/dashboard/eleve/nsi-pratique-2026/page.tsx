@@ -32,6 +32,8 @@ export default function NsiPratique2026Page() {
     progress,
     stats,
     recommendation,
+    syncStatus,
+    lastSyncedAt: _lastSyncedAt,
     setSubjectProgress,
     setPatternProgress,
     setFlashcardProgress,
@@ -130,8 +132,25 @@ export default function NsiPratique2026Page() {
           </button>
         ))}
       </nav>
+      {/* Getting started hint (visible only when no progress) */}
+      {stats.subjectsSeen === 0 && activeSection === 'overview' && (
+        <div className="rounded-xl border border-brand-primary/20 bg-brand-primary/5 p-4 space-y-2">
+          <p className="text-sm font-medium text-brand-primary">Comment utiliser cette page ?</p>
+          <ol className="text-xs text-neutral-300 list-decimal list-inside space-y-1">
+            <li>Suis le <button className="underline text-brand-primary" onClick={() => setActiveSection('plan')}>Plan 5 jours</button> pour organiser tes révisions.</li>
+            <li>Travaille chaque <button className="underline text-brand-primary" onClick={() => setActiveSection('subjects')}>Sujet</button> en 55 minutes chrono, puis coche ce que tu maîtrises.</li>
+            <li>Révise avec les <button className="underline text-brand-primary" onClick={() => setActiveSection('flashcards')}>Flashcards</button> pour ancrer les concepts.</li>
+            <li>Fais un <button className="underline text-brand-primary" onClick={() => setActiveSection('mock')}>Sujet blanc</button> chronométré pour simuler l&apos;épreuve.</li>
+          </ol>
+        </div>
+      )}
+
       <p className="text-xs text-neutral-500 mt-1">
-        Progression sauvegardée sur cet appareil uniquement.
+        {syncStatus === 'synced' && '✅ Progression synchronisée avec le serveur.'}
+        {syncStatus === 'saving' && '⏳ Synchronisation en cours...'}
+        {syncStatus === 'error' && '⚠️ Erreur de synchronisation — progression sauvegardée localement.'}
+        {syncStatus === 'local-only' && '💾 Progression sauvegardée sur cet appareil uniquement.'}
+        {syncStatus === 'idle' && '💾 Chargement...'}
       </p>
 
       {/* Content */}

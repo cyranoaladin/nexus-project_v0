@@ -135,6 +135,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       match: 'prefix'
     },
     {
+      label: 'NSI Pratique',
+      href: '/dashboard/coach/nsi-pratique-2026',
+      icon: 'Code2',
+      match: 'prefix'
+    },
+    {
       label: 'Pédagogie',
       href: '/dashboard/coach/npc',
       icon: 'ClipboardCheck',
