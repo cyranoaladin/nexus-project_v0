@@ -223,6 +223,14 @@ export function CoachDocumentsPanel({ studentId, className }: CoachDocumentsPane
               >
                 <option value="MATHEMATIQUES">Mathématiques</option>
                 <option value="FRANCAIS">Français</option>
+                <option value="NSI">NSI</option>
+                <option value="PHYSIQUE_CHIMIE">Physique-Chimie</option>
+                <option value="SVT">SVT</option>
+                <option value="HISTOIRE_GEO">Histoire-Géo</option>
+                <option value="PHILOSOPHIE">Philosophie</option>
+                <option value="ANGLAIS">Anglais</option>
+                <option value="ESPAGNOL">Espagnol</option>
+                <option value="SES">SES</option>
               </select>
             </div>
 
