@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { getAssignedStudentsForCoach } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
+import { computeCoachStudentSummary } from '@/lib/nsi-pratique-2026/coach-summary';
+import type { NsiProgress } from '@/data/nsi-pratique-2026/types';
 
 type AssignmentStudent = {
   id: string;
@@ -17,7 +19,7 @@ type CoachAssignment = {
 
 /**
  * GET /api/coach/nsi-pratique-2026/students
- * Returns list of NSI students assigned to the coach with their progress summary.
+ * Returns list of NSI students assigned to the coach with enriched progress summary.
  */
 export async function GET() {
   try {
@@ -50,31 +52,18 @@ export async function GET() {
 
     const students = nsiAssignments.map((a) => {
       const prog = progressByUserId.get(a.student.userId);
-      const data = prog?.data as Record<string, unknown> | null;
+      const progressData = prog?.data as unknown as NsiProgress | null;
 
-      // Compute summary from progress data
-      let subjectsMastered = 0;
-      let subjectsTotal = 0;
-      if (data?.subjects && typeof data.subjects === 'object') {
-        const subjects = data.subjects as Record<string, { status?: string }>;
-        subjectsTotal = Object.keys(subjects).length;
-        subjectsMastered = Object.values(subjects).filter(
-          (s) => s.status === 'mastered'
-        ).length;
-      }
-
-      return {
-        studentId: a.student.id,
-        userId: a.student.userId,
-        firstName: a.student.firstName,
-        lastName: a.student.lastName,
-        hasProgress: !!prog,
-        lastUpdated: prog?.updatedAt?.toISOString() ?? null,
-        summary: {
-          subjectsMastered,
-          subjectsTotal,
+      return computeCoachStudentSummary(
+        {
+          studentId: a.student.id,
+          userId: a.student.userId,
+          firstName: a.student.firstName,
+          lastName: a.student.lastName,
         },
-      };
+        progressData,
+        prog?.updatedAt?.toISOString() ?? null,
+      );
     });
 
     return NextResponse.json({ students, count: students.length });
