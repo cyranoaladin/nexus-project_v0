@@ -30,7 +30,7 @@ export const WHATSAPP_URL =
 export const WHATSAPP_URL_FINISH =
   "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20le%20Pack%20Premi%C3%A8re%20%E2%80%94%20Finish%208%20juin.%20Mon%20enfant%20est%20en%20Premi%C3%A8re.";
 export const WHATSAPP_URL_SELECT =
-  "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20les%20stages%20Nexus%20Select%20post-%C3%A9preuves%20et%20les%20groupes%20de%20math%C3%A9matiques.";
+  "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20les%20informations%20sur%20le%20stage%20Nexus%20Select%2040%C2%A0h.%20Mon%20enfant%20est%20admis%20ou%20candidat%20%C3%A0%20une%20fili%C3%A8re%20s%C3%A9lective%20et%20je%20souhaite%20v%C3%A9rifier%20si%20ce%20stage%20est%20adapt%C3%A9%20%C3%A0%20son%20profil.";
 export const WHATSAPP_URL_FORFAITS =
   "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20conna%C3%AEtre%20les%20forfaits%20Nexus%20R%C3%A9ussite%20adapt%C3%A9s%20au%20profil%20de%20mon%20enfant.";
 
@@ -193,77 +193,95 @@ export const PREMIERE_FINISH = {
 
 // ── Nexus Select — post-épreuves ────────────────────────────────────────────
 
+// Nexus Select business model:
+// Format: 40 h / student, group of 4 students max.
+// Price: 1 800 TND / student.
+// Group revenue: 4 × 1 800 = 7 200 TND.
+// Teacher cost estimate: 40 h × 100 TND = 4 000 TND.
+// Gross margin before fixed costs: 3 200 TND.
+// This stage is a premium high-intensity program and should not be priced like standard weekly support.
+
 export const NEXUS_SELECT = {
-  eyebrow: "Nexus Select",
-  title: "Stages intensifs post-épreuves",
+  eyebrow: "Nexus Select · Post-épreuves",
+  title: "40 h pour entrer dans le rythme du supérieur scientifique",
   headline:
-    "Après les épreuves, le travail change de nature : il ne s'agit plus seulement de réviser, mais de préparer le niveau supérieur.",
+    "Après les épreuves, les élèves admis dans les filières sélectives doivent changer de rythme.",
   description:
-    "Nexus Select prépare les élèves ambitieux à l'entrée dans un environnement beaucoup plus exigeant. Une transition progressive vers les attentes du supérieur, en mathématiques et au-delà.",
+    "En deux semaines, Nexus Select installe un cadre intensif : 40 h de mathématiques, 4 h par jour, en groupe de 4 élèves maximum, pour préparer l'entrée en CPGE, EPFL, doubles licences maths-info et parcours scientifiques exigeants.",
+  pedagogy:
+    "Le stage est conçu par un enseignant maîtrisant les programmes, les méthodes et les attentes des classes préparatoires et des parcours scientifiques exigeants. Le travail ne se limite pas à refaire des exercices : il apprend à chercher, rédiger, structurer une preuve, tenir un raisonnement long et adopter une méthode de travail compatible avec le supérieur.",
   disclaimer:
-    "Nexus Select n'est pas une aide au dossier Parcoursup : c'est une préparation au niveau attendu après l'admission.",
+    "Nexus Select ne prépare pas un dossier Parcoursup : il prépare l'élève au niveau qui l'attend après l'admission.",
   audience: [
-    "Élèves visant CPGE scientifiques",
-    "Doubles licences maths-info",
-    "EPFL et écoles polytechniques",
-    "Écoles d'ingénieurs sélectives",
-    "Parcours universitaires scientifiques exigeants",
+    "Admis en CPGE scientifique",
+    "Admis en double licence maths-info",
+    "Admis dans une filière scientifique sélective",
+    "Admis ou en attente d'admission à l'EPFL",
+    "Élèves solides visant le passage Terminale → supérieur sans décrochage",
+    "Élèves motivés, prêts à accepter un rythme intensif",
   ],
+  audienceFilter:
+    "Ce stage n'est pas un stage de remise à niveau généraliste. Il s'adresse à des élèves motivés, déjà solides, qui veulent aborder le supérieur avec une vraie avance méthodologique.",
+  format: [
+    { value: "40 h", label: "de mathématiques intensives", detail: "Un volume conséquent pour installer un vrai changement de rythme." },
+    { value: "4 h / jour", label: "pendant deux semaines", detail: "Un entraînement quotidien pour développer endurance et concentration." },
+    { value: "2 semaines", label: "après les épreuves du bac", detail: "Un format court, dense et structurant après les épreuves." },
+    { value: "4 élèves max", label: "pour un suivi précis", detail: "Un groupe restreint pour garder un suivi précis et des corrections individualisées." },
+  ],
+  expertiseTitle: "Un stage conçu par un enseignant qui connaît les exigences du supérieur",
+  expertiseBullets: [
+    "Maîtrise des attendus de CPGE",
+    "Connaissance des écarts entre Terminale et supérieur",
+    "Identification des faiblesses qui deviennent bloquantes après la rentrée",
+    "Entraînement à la rédaction mathématique",
+    "Travail sur les raisonnements longs",
+    "Exigence de clarté, de méthode et de rigueur",
+    "Progression vers une posture d'étudiant scientifique",
+  ],
+  expertiseNote:
+    "L'un des enjeux majeurs de l'entrée en CPGE ou en filière sélective n'est pas seulement le niveau des notions : c'est le changement de rythme, de profondeur et de rigueur. Nexus Select prépare précisément cette bascule.",
   objectives: [
-    "Reprendre les bases importantes avec rigueur",
-    "Renforcer la rédaction mathématique",
-    "Travailler des exercices plus longs et progressifs",
-    "Apprendre à chercher et structurer un raisonnement",
-    "S'habituer à un rythme de travail soutenu",
-    "Combler l'écart avec les lycées très sélectifs",
+    "Changer de rythme — tenir 4 h de travail mathématique exigeant par jour",
+    "Renforcer les fondamentaux utiles au supérieur — fonctions, suites, calcul, raisonnement, logique, rédaction",
+    "Passer des exercices courts aux problèmes longs — rester mobilisé, sans abandonner trop vite",
+    "Améliorer la rédaction mathématique — structurer une solution, justifier chaque étape",
+    "Développer une vraie capacité de recherche — explorer, tester, comparer plusieurs méthodes",
+    "Installer une méthode de travail compatible avec CPGE / EPFL / doubles licences",
+    "Identifier les fragilités avant la rentrée — repérer les lacunes qui deviennent bloquantes",
+    "Construire un plan de progression post-stage — repartir avec des priorités claires",
   ],
   pricing: {
-    label: "À partir de 120 DT* / séance de 2 h",
-    // 120 DT / student → group 480 DT − 200 DT teacher = 280 DT margin / session (premium)
-    note: "*Tarif par élève, en groupe Select de 4 élèves maximum. Forfait communiqué selon le groupe, le niveau et le volume horaire.",
+    label: "Forfait unique",
+    price: "1 800 TND*",
+    details: "40 h · 4 h/jour · 2 semaines · groupe de 4 élèves maximum",
+    note: "*Tarif par élève, pour un groupe de 4 élèves maximum. Le tarif inclut les 40 h de stage, les supports de travail, le livret Select, les corrections et le bilan de fin de stage.",
   },
+  pricingIncludes: [
+    "40 h de stage",
+    "4 h par jour",
+    "2 semaines",
+    "Groupe de 4 élèves maximum",
+    "Livret Select inclus",
+    "Corrections individualisées",
+    "Bilan de fin de stage",
+    "Plan de travail post-stage",
+  ],
   features: [
-    "Positionnement initial obligatoire",
-    "Groupe de niveau (4 élèves max)",
-    "Exercices avancés et progressifs",
-    "Rédaction mathématique exigeante",
+    "40 h de mathématiques intensives",
     "Livret Select personnalisé",
-    "Bilan de progression",
-    "Transition vers les exigences du supérieur",
+    "Exercices progressifs et exigeants",
+    "Problèmes longs et raisonnements structurés",
+    "Corrections individualisées",
+    "Entraînement à la rédaction mathématique",
+    "Bilan de fin de stage",
+    "Plan de travail pour l'été",
+    "Conseils méthodologiques pour la rentrée",
+    "Suivi en groupe restreint de 4 élèves maximum",
   ],
-  groups: [
-    {
-      name: "Consolidation sélective",
-      level: "Groupe 1",
-      description:
-        "Pour les élèves qui ont un niveau correct mais qui doivent solidifier les bases avant d'aller plus loin.",
-      tags: ["Bases solides", "Progression méthodique"],
-    },
-    {
-      name: "Prépa scientifique",
-      level: "Groupe 2",
-      description:
-        "Pour les élèves visant CPGE, écoles d'ingénieurs, doubles licences ou parcours scientifiques exigeants.",
-      tags: ["CPGE", "Écoles d'ingénieurs", "Doubles licences"],
-    },
-    {
-      name: "Maths avancées",
-      level: "Groupe 3",
-      description:
-        "Pour les élèves déjà solides souhaitant travailler des raisonnements plus ambitieux, des exercices longs et une rédaction plus exigeante.",
-      tags: ["Raisonnement avancé", "Rédaction exigeante"],
-    },
-    {
-      name: "Excellence & transition supérieur",
-      level: "Groupe 4",
-      description:
-        "Pour les élèves très motivés souhaitant se confronter à des méthodes proches du supérieur, sans prétendre reproduire un programme officiel de CPGE.",
-      tags: ["Transition supérieur", "Exigence maximale"],
-    },
-  ],
-  ctaLabel: "Demander le positionnement Select",
-  groupsNote:
-    "Effectifs limités par groupe. Positionnement possible après entretien ou évaluation.",
+  admissionNote:
+    "Admission au stage après échange sur le profil de l'élève.",
+  ctaLabel: "Candidater au stage Nexus Select",
+  ctaSecondary: "Échanger sur le profil de l'élève",
 };
 
 // ── Nos accompagnements ─────────────────────────────────────────────────────
@@ -304,8 +322,8 @@ export const ACCOMPAGNEMENTS = [
     icon: "trophy",
     title: "Nexus Select",
     description:
-      "Pour les élèves ambitieux visant des parcours sélectifs : mathématiques exigeantes, groupes de niveau, livret Select et transition vers le supérieur.",
-    bullets: ["Niveau avancé", "Filières sélectives", "Groupes de niveau", "Livret Select"],
+      "Stage intensif de 40 h pour les élèves admis en CPGE, EPFL, doubles licences maths-info et filières sélectives. Préparer le choc de niveau avant la rentrée.",
+    bullets: ["40 h intensives", "CPGE / EPFL", "Livret Select", "Bilan fin de stage"],
   },
 ];
 
