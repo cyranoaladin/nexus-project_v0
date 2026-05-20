@@ -15,9 +15,9 @@ import HomepageFinalCTA from '@/components/sections/homepage/HomepageFinalCTA';
 export const metadata: Metadata = {
   title: 'Nexus Réussite — Centre d\'entraînement académique premium | Mutuelleville, Tunis',
   description:
-    "Stages intensifs, cours hebdomadaires, préparation EAF et mathématiques, Nexus Select post-bac, groupes de niveau et suivi personnalisé à Mutuelleville.",
+    "Stages intensifs, cours hebdomadaires, préparation EAF et mathématiques, Nexus Select 40 h post-épreuves pour CPGE et filières sélectives, suivi personnalisé à Mutuelleville.",
   keywords:
-    'nexus réussite, accompagnement scolaire premium, stages intensifs, préparation EAF, mathématiques, CPGE, Mutuelleville, Tunis, Nexus Select, groupes de niveau',
+    'nexus réussite, accompagnement scolaire premium, stages intensifs, préparation EAF, mathématiques, CPGE, EPFL, Mutuelleville, Tunis, Nexus Select, stage 40h',
   openGraph: {
     title: 'Nexus Réussite — Centre d\'entraînement académique premium',
     description:
