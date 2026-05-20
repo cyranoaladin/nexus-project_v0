@@ -1,7 +1,6 @@
 "use client";
 
 import { ArrowRight, Check, Clock3, MessageCircle } from "lucide-react";
-import CTAButton from "@/components/sections/homepage/CTAButton";
 import TrackedCTAButton from "@/components/sections/homepage/TrackedCTAButton";
 import CountdownChip from "@/components/sections/homepage/CountdownChip";
 import LandingIllustration from "@/components/sections/homepage/LandingIllustration";
@@ -183,7 +182,7 @@ export default function UrgencyFinish() {
                 </ul>
 
                 <div className="mt-auto pt-6">
-                  <CTAButton
+                  <TrackedCTAButton
                     href={WHATSAPP_URL_FINISH}
                     variant={formula.highlighted ? "eaf-outline" : "eaf"}
                     fullWidth
@@ -192,10 +191,11 @@ export default function UrgencyFinish() {
                         ? "border-white bg-white text-[#0f3d73] hover:bg-blue-50"
                         : undefined
                     }
+                    trackingLocation={`finish_formula_${formula.name.toLowerCase().replace(/\s+/g, '_')}`}
                   >
                     {PREMIERE_FINISH.ctaLabel}
                     <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                  </CTAButton>
+                  </TrackedCTAButton>
                 </div>
               </article>
             ))}
