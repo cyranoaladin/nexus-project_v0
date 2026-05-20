@@ -91,7 +91,7 @@ export default function UrgencyFinish() {
               <p className="mt-4 text-base leading-8 text-slate-700">
                 {PREMIERE_FINISH.subtitle}
               </p>
-              <p className="mt-2 text-sm text-slate-500">
+              <p className="mt-2 text-sm text-slate-600">
                 {PREMIERE_FINISH.audience}
               </p>
             </div>
@@ -100,9 +100,9 @@ export default function UrgencyFinish() {
             <LandingIllustration
               src={LANDING_IMAGES.premiereFinish.src}
               alt={LANDING_IMAGES.premiereFinish.alt}
-              aspect="4/3"
+              aspect="3/2"
               variant="light"
-              overlay
+              contain
               className="hidden lg:block"
             />
           </div>
@@ -128,7 +128,7 @@ export default function UrgencyFinish() {
                         "mt-1 text-sm",
                         formula.highlighted
                           ? "text-blue-100"
-                          : "text-slate-500"
+                          : "text-slate-600"
                       )}
                     >
                       {formula.sessions}
@@ -201,7 +201,7 @@ export default function UrgencyFinish() {
             ))}
           </div>
 
-          <p className="mt-6 text-center text-sm text-slate-500">
+          <p className="mt-6 text-center text-sm text-slate-600">
             {PREMIERE_FINISH.priceNote}
           </p>
         </div>

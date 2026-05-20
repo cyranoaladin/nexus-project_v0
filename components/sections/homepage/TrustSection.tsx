@@ -8,7 +8,7 @@ import { resolveUiIcon } from "@/lib/ui-icons";
 
 export default function TrustSection() {
   return (
-    <section className="bg-[#f7fbff] px-6 py-20 sm:px-8 lg:px-12">
+    <section className="bg-gradient-to-b from-[#edf3ff] to-[#f5f8ff] px-6 py-20 sm:px-8 lg:px-12">
       <div className="mx-auto max-w-7xl space-y-16">
         {/* ─── Méthode Nexus ─── */}
         <div>
@@ -36,7 +36,7 @@ export default function TrustSection() {
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#eff6ff] text-[#0f3d73]">
                       <StepIcon className="h-4 w-4" aria-hidden="true" />
                     </div>
-                    <span className="font-mono text-xs text-slate-400">
+                    <span className="font-mono text-xs font-medium text-[#0f3d73]">
                       {step.step}
                     </span>
                   </div>
@@ -85,7 +85,7 @@ export default function TrustSection() {
               <div className="font-display text-2xl font-bold text-[#0f3d73]">
                 {point.value}
               </div>
-              <div className="mt-2 text-xs uppercase tracking-[0.14em] text-slate-500">
+              <div className="mt-2 text-xs uppercase tracking-[0.14em] text-slate-600">
                 {point.label}
               </div>
             </div>
