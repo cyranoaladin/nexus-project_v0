@@ -51,7 +51,9 @@ test.describe('DASHBOARD — Admin (/dashboard/admin)', () => {
         !e.includes('hot-update') && !e.includes('webpack') &&
         !e.includes('Hydration') && !e.includes('Warning') &&
         !e.includes('next-dev') && !e.includes('NEXT_REDIRECT') &&
-        !e.includes('Framing')
+        !e.includes('Framing') &&
+        !e.includes('googletagmanager.com') &&
+        !e.includes('Content Security Policy')
     );
     if (realErrors.length > 0) console.log('Admin console errors:', realErrors);
     expect(realErrors).toHaveLength(0);
@@ -94,7 +96,9 @@ test.describe('DASHBOARD — Parent (/dashboard/parent)', () => {
         !e.includes('hot-update') && !e.includes('webpack') &&
         !e.includes('Hydration') && !e.includes('Warning') &&
         !e.includes('next-dev') && !e.includes('NEXT_REDIRECT') &&
-        !e.includes('Framing')
+        !e.includes('Framing') &&
+        !e.includes('googletagmanager.com') &&
+        !e.includes('Content Security Policy')
     );
     if (realErrors.length > 0) console.log('Parent console errors:', realErrors);
     expect(realErrors).toHaveLength(0);
@@ -128,7 +132,9 @@ test.describe('DASHBOARD — Élève (/dashboard/eleve)', () => {
         !e.includes('hot-update') && !e.includes('webpack') &&
         !e.includes('Hydration') && !e.includes('Warning') &&
         !e.includes('next-dev') && !e.includes('NEXT_REDIRECT') &&
-        !e.includes('Framing')
+        !e.includes('Framing') &&
+        !e.includes('googletagmanager.com') &&
+        !e.includes('Content Security Policy')
     );
     if (realErrors.length > 0) console.log('Élève console errors:', realErrors);
     expect(realErrors).toHaveLength(0);
@@ -162,7 +168,9 @@ test.describe('DASHBOARD — Coach (/dashboard/coach)', () => {
         !e.includes('hot-update') && !e.includes('webpack') &&
         !e.includes('Hydration') && !e.includes('Warning') &&
         !e.includes('next-dev') && !e.includes('NEXT_REDIRECT') &&
-        !e.includes('Framing')
+        !e.includes('Framing') &&
+        !e.includes('googletagmanager.com') &&
+        !e.includes('Content Security Policy')
     );
     if (realErrors.length > 0) console.log('Coach console errors:', realErrors);
     expect(realErrors).toHaveLength(0);

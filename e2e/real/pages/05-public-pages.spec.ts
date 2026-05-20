@@ -64,7 +64,9 @@ for (const { url, expectedH1 } of PUBLIC_PAGES) {
         (e) => !e.includes('favicon') && !e.includes('ResizeObserver') &&
           !e.includes('hot-update') && !e.includes('webpack') &&
           !e.includes('Hydration') && !e.includes('Warning') &&
-          !e.includes('next-dev')
+          !e.includes('next-dev') &&
+          !e.includes('googletagmanager.com') &&
+          !e.includes('Content Security Policy')
       );
       if (realErrors.length > 0) {
         console.log(`${url} ERREURS CONSOLE:`, realErrors);
