@@ -59,7 +59,7 @@ function FAQItem({
 
 export default function HomepageFinalCTA() {
   return (
-    <section id="contact" className="bg-white px-6 py-20 sm:px-8 lg:px-12">
+    <section id="contact" className="bg-gradient-to-b from-[#f0f5ff] to-white px-6 py-20 sm:px-8 lg:px-12">
       <div className="mx-auto max-w-7xl space-y-16">
         {/* ─── FAQ ─── */}
         <div className="mx-auto max-w-3xl">
@@ -134,7 +134,7 @@ export default function HomepageFinalCTA() {
               >
                 {PHONE_LABEL}
               </a>
-              <span className="text-slate-400">·</span>
+              <span className="text-slate-500">·</span>
               <span>{CONTACT_ADDRESS}</span>
             </p>
             <p className="flex items-center gap-2">

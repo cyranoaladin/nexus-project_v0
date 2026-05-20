@@ -8,6 +8,7 @@ type LandingIllustrationProps = {
   aspect?: "16/9" | "4/3" | "3/2" | "1/1";
   variant?: "light" | "dark" | "card";
   overlay?: boolean;
+  contain?: boolean;
   className?: string;
   sizes?: string;
 };
@@ -32,6 +33,7 @@ export default function LandingIllustration({
   aspect = "3/2",
   variant = "light",
   overlay = false,
+  contain = false,
   className,
   sizes = "(min-width: 1024px) 44vw, 100vw",
 }: LandingIllustrationProps) {
@@ -49,7 +51,7 @@ export default function LandingIllustration({
         alt={alt}
         fill
         sizes={sizes}
-        className="object-cover"
+        className={contain ? "object-contain p-4" : "object-cover"}
         priority={priority}
       />
       {overlay && (
