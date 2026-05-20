@@ -4,30 +4,32 @@ import { Toaster } from 'sonner';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import HomeHero from '@/components/sections/homepage/HomeHero';
+import UrgencyFinish from '@/components/sections/homepage/UrgencyFinish';
+import NexusSelect from '@/components/sections/homepage/NexusSelect';
 import FlagshipOffers from '@/components/sections/homepage/FlagshipOffers';
+import Forfaits from '@/components/sections/homepage/Forfaits';
 import TrustSection from '@/components/sections/homepage/TrustSection';
-import DecisionHelper from '@/components/sections/homepage/DecisionHelper';
 import HomepageTestimonials from '@/components/sections/homepage/HomepageTestimonials';
 import HomepageFinalCTA from '@/components/sections/homepage/HomepageFinalCTA';
 
 export const metadata: Metadata = {
-  title: 'Nexus Réussite — Académie premium d’accompagnement scolaire | Tunis',
+  title: 'Nexus Réussite — Centre d\'entraînement académique premium | Mutuelleville, Tunis',
   description:
-    "Cours hebdomadaires, stages intensifs, packs par objectif, préparation EAF, mathématiques, NSI, Grand Oral, plateforme numérique et suivi personnalisé toute l’année.",
+    "Stages intensifs, cours hebdomadaires, préparation EAF et mathématiques, Nexus Select post-bac, groupes de niveau et suivi personnalisé à Mutuelleville.",
   keywords:
-    'nexus réussite, accompagnement scolaire, cours hebdomadaires, stages intensifs, préparation EAF, mathématiques première terminale, NSI, grand oral, Mutuelleville',
+    'nexus réussite, accompagnement scolaire premium, stages intensifs, préparation EAF, mathématiques, CPGE, Mutuelleville, Tunis, Nexus Select, groupes de niveau',
   openGraph: {
-    title: 'Nexus Réussite — Académie premium d’accompagnement scolaire',
+    title: 'Nexus Réussite — Centre d\'entraînement académique premium',
     description:
-      "Une académie qui accompagne les élèves toute l’année avec cours, stages, packs ciblés, plateforme numérique et suivi personnalisé.",
+      "Stages intensifs, cours hebdomadaires, préparation examens, Nexus Select post-bac et suivi personnalisé à Mutuelleville.",
     type: 'website',
     url: 'https://nexusreussite.academy',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Nexus Réussite — Académie premium d’accompagnement scolaire',
+    title: 'Nexus Réussite — Centre d\'entraînement académique premium',
     description:
-      "Cours, stages, packs objectif, préparation EAF, mathématiques, NSI, Grand Oral et suivi individualisé.",
+      "Stages intensifs, cours hebdomadaires, préparation EAF, mathématiques, Nexus Select et suivi personnalisé.",
   },
 };
 
@@ -55,19 +57,31 @@ export default function HomePage() {
       {/* SEO fallback for crawlers that don't execute JS */}
       <noscript>
         <div className="sr-only">
-          <h1>Nexus Réussite, académie premium d’accompagnement scolaire à Tunis.</h1>
-          <p>Nexus Réussite accompagne les élèves toute l’année vers la réussite, avec des cours, des stages, des packs ciblés, une plateforme numérique et un suivi personnalisé.</p>
-          <a href="/stages">Découvrir les Stages Printemps</a>
-          <a href="https://eaf.nexusreussite.academy">Accéder à la plateforme numérique EAF</a>
+          <h1>Nexus Réussite, centre d&apos;entraînement académique premium à Mutuelleville, Tunis.</h1>
+          <p>Stages intensifs, cours hebdomadaires, préparation EAF et mathématiques, Nexus Select post-bac et suivi personnalisé.</p>
+          <a href="/stages">Découvrir les stages intensifs</a>
         </div>
       </noscript>
 
-      {/* Main Content */}
+      {/* Main Content — 7 blocs */}
       <main id="main-content" className="relative z-10 w-full overflow-hidden">
+        {/* 1. Hero premium orienté urgence */}
         <HomeHero />
+
+        {/* 2-3. Dernière ligne droite 8 juin + Offre Première Finish */}
+        <UrgencyFinish />
+
+        {/* 4. Nexus Select + 4 groupes maths */}
+        <NexusSelect />
+
+        {/* 5. Nos accompagnements */}
         <FlagshipOffers />
+
+        {/* 6. Forfaits et formules */}
+        <Forfaits />
+
+        {/* 7. Méthode Nexus + Confiance + Témoignages + FAQ + CTA final */}
         <TrustSection />
-        <DecisionHelper />
         <HomepageTestimonials />
         <HomepageFinalCTA />
       </main>

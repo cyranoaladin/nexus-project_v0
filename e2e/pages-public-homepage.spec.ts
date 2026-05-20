@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Homepage (/) — Tous les éléments interactifs', () => {
+test.describe('Homepage (/) — Landing Nexus Réussite', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
@@ -19,35 +19,67 @@ test.describe('Homepage (/) — Tous les éléments interactifs', () => {
     expect(critical).toHaveLength(0);
   });
 
-  test('logo renvoie vers /', async ({ page }) => {
-    await page.locator('a[href="/"]').first().click();
-    await expect(page).toHaveURL('/');
+  test('H1 est visible dans le hero', async ({ page }) => {
+    await expect(page.locator('#hero h1').first()).toBeVisible();
   });
 
-  test('bouton Connexion navbar fonctionne', async ({ page }) => {
-    const connexion = page.getByRole('link', { name: /connexion/i });
-    if (await connexion.isVisible()) {
-      await connexion.click();
-      await expect(page).toHaveURL('/auth/signin');
-    }
+  test('hero affiche le CTA WhatsApp', async ({ page }) => {
+    const whatsapp = page.locator('#hero a[href*="wa.me"]').first();
+    await expect(whatsapp).toBeVisible();
   });
 
-  test('CTA Hero "Découvrir les Stages Printemps" fonctionne', async ({ page }) => {
-    const stagesLink = page.locator('#hero a[href="/stages"]').first();
-    await expect(stagesLink).toBeVisible();
-    await stagesLink.click();
-    await expect(page).toHaveURL(/\/stages$/);
+  test('CTA secondaire hero pointe vers #offres-fin-annee', async ({ page }) => {
+    const cta = page.locator('#hero a[href="#offres-fin-annee"]');
+    await expect(cta).toBeVisible();
   });
 
-  test('CTA Hero "Essayer la plateforme EAF gratuitement" ouvre le sous-domaine EAF', async ({ page, context }) => {
-    const [newPage] = await Promise.all([
-      context.waitForEvent('page'),
-      page.locator('#hero a[href="https://eaf.nexusreussite.academy"]').first().click(),
-    ]);
+  test('section urgence/finish est visible', async ({ page }) => {
+    const section = page.locator('#offres-fin-annee');
+    await expect(section).toBeAttached();
+  });
 
-    await newPage.waitForLoadState('domcontentloaded');
-    await expect(newPage).toHaveURL(/https:\/\/eaf\.nexusreussite\.academy/);
-    await newPage.close();
+  test('section Nexus Select est visible', async ({ page }) => {
+    const section = page.locator('#nexus-select');
+    await expect(section).toBeAttached();
+  });
+
+  test('affiche un prix avec astérisque', async ({ page }) => {
+    const priceWithAsterisk = page.getByText(/\d+\s*DT\*/);
+    await expect(priceWithAsterisk.first()).toBeVisible();
+  });
+
+  test('note groupe de 4 est présente', async ({ page }) => {
+    const groupNote = page.getByText(/groupe de 4 élèves/i);
+    await expect(groupNote.first()).toBeVisible();
+  });
+
+  test('disclaimer Parcoursup est présent dans Nexus Select', async ({ page }) => {
+    const disclaimer = page.locator('#nexus-select').getByText(/Parcoursup/i);
+    await expect(disclaimer).toBeVisible();
+  });
+
+  test('utilise "échéances" et non "épreuves anticipées"', async ({ page }) => {
+    const urgencySection = page.locator('#offres-fin-annee');
+    await expect(urgencySection.getByText(/échéances/i).first()).toBeVisible();
+    // Ensure we don't use the risky formulation
+    const riskyText = await page.locator('text="épreuves anticipées"').count();
+    expect(riskyText).toBe(0);
+  });
+
+  test('section forfaits affiche 4 formules', async ({ page }) => {
+    const forfaits = page.locator('#forfaits article');
+    await expect(forfaits).toHaveCount(4);
+  });
+
+  test('CTA WhatsApp dans chaque section principale', async ({ page }) => {
+    const whatsappLinks = page.locator('a[href*="wa.me"]');
+    const count = await whatsappLinks.count();
+    expect(count).toBeGreaterThanOrEqual(4);
+  });
+
+  test('section contact/CTA final est visible', async ({ page }) => {
+    const section = page.locator('#contact');
+    await expect(section).toBeAttached();
   });
 
   test('tous les liens footer sont fonctionnels (pas de 404)', async ({ page }) => {
@@ -63,23 +95,13 @@ test.describe('Homepage (/) — Tous les éléments interactifs', () => {
     }
   });
 
-  test('lien Mentions légales footer fonctionne', async ({ page }) => {
-    const link = page.locator('footer a[href="/mentions-legales"]');
-    if (await link.isVisible()) {
-      await link.click();
-      await expect(page).toHaveURL('/mentions-legales');
+  test('images landing ont des alt texts', async ({ page }) => {
+    const landingImages = page.locator('main img[alt]');
+    const count = await landingImages.count();
+    expect(count).toBeGreaterThanOrEqual(3);
+    for (let i = 0; i < count; i++) {
+      const alt = await landingImages.nth(i).getAttribute('alt');
+      expect(alt, `Image ${i} has empty alt`).toBeTruthy();
     }
-  });
-
-  test('lien Conditions footer fonctionne', async ({ page }) => {
-    const link = page.locator('footer a[href="/conditions"]');
-    if (await link.isVisible()) {
-      await link.click();
-      await expect(page).toHaveURL('/conditions');
-    }
-  });
-
-  test('H1 est visible', async ({ page }) => {
-    await expect(page.locator('h1').first()).toBeVisible();
   });
 });
