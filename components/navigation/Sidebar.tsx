@@ -4,6 +4,7 @@ import { navigationConfig } from './navigation-config';
 import { NavigationItem } from './NavigationItem';
 import UserProfile from './UserProfile';
 import { LogoutButton } from './LogoutButton';
+import { filterNsiPratiqueNavigation } from '@/lib/nsi-pratique-2026/access';
 
 export async function Sidebar() {
   const session = await auth();
@@ -12,7 +13,14 @@ export async function Sidebar() {
     redirect('/auth/signin');
   }
 
-  const navigationItems = navigationConfig[session.user.role];
+  const navigationItems = await filterNsiPratiqueNavigation(
+    navigationConfig[session.user.role],
+    {
+      userId: session.user.id,
+      email: session.user.email,
+      role: session.user.role,
+    },
+  );
 
   return (
     <aside className="hidden lg:flex lg:fixed lg:inset-y-0 lg:left-0 w-[280px] bg-surface-card border-r border-neutral-800 flex-col z-50">

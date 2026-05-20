@@ -17,6 +17,11 @@ jest.mock('@/lib/prisma', () => ({
   },
 }));
 
+const mockCanAccessNsiPratique = jest.fn();
+jest.mock('@/lib/nsi-pratique-2026/access', () => ({
+  canAccessNsiPratique: (...args: unknown[]) => mockCanAccessNsiPratique(...args),
+}));
+
 function makePutRequest(body: unknown, contentLength?: string): NextRequest {
   const headers = new Headers({ 'Content-Type': 'application/json' });
   if (contentLength) headers.set('content-length', contentLength);
@@ -30,7 +35,10 @@ function makePutRequest(body: unknown, contentLength?: string): NextRequest {
 const eleveSession = { user: { id: 'u1', role: 'ELEVE' } };
 
 describe('GET /api/eleve/nsi-pratique-2026/progress', () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockCanAccessNsiPratique.mockResolvedValue(true);
+  });
 
   it('returns 401 when not authenticated', async () => {
     mockRequireRole.mockResolvedValue(
@@ -46,6 +54,18 @@ describe('GET /api/eleve/nsi-pratique-2026/progress', () => {
     );
     const res = await GET();
     expect(res.status).toBe(403);
+  });
+
+  it('returns 403 when ELEVE is outside NSI pratique access scope', async () => {
+    mockRequireRole.mockResolvedValue(eleveSession);
+    mockCanAccessNsiPratique.mockResolvedValue(false);
+
+    const res = await GET();
+    const body = await res.json();
+
+    expect(res.status).toBe(403);
+    expect(body.error).toContain('NSI pratique');
+    expect(prisma.nsiPracticeProgress.findUnique).not.toHaveBeenCalled();
   });
 
   it('returns null data when no progress exists', async () => {
@@ -80,7 +100,10 @@ describe('GET /api/eleve/nsi-pratique-2026/progress', () => {
 });
 
 describe('GET /api/eleve/nsi-pratique-2026/progress — RBAC', () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockCanAccessNsiPratique.mockResolvedValue(true);
+  });
 
   it('coach cannot access student progress route', async () => {
     mockRequireRole.mockResolvedValue(
@@ -104,7 +127,10 @@ describe('GET /api/eleve/nsi-pratique-2026/progress — RBAC', () => {
 });
 
 describe('PUT /api/eleve/nsi-pratique-2026/progress', () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockCanAccessNsiPratique.mockResolvedValue(true);
+  });
 
   it('returns 401 when not authenticated', async () => {
     mockRequireRole.mockResolvedValue(
@@ -118,6 +144,16 @@ describe('PUT /api/eleve/nsi-pratique-2026/progress', () => {
     mockRequireRole.mockResolvedValue(eleveSession);
     const res = await PUT(makePutRequest({ data: {} }, '300000'));
     expect(res.status).toBe(413);
+  });
+
+  it('returns 403 on save when ELEVE is outside NSI pratique access scope', async () => {
+    mockRequireRole.mockResolvedValue(eleveSession);
+    mockCanAccessNsiPratique.mockResolvedValue(false);
+
+    const res = await PUT(makePutRequest({ data: { subjects: {} } }));
+
+    expect(res.status).toBe(403);
+    expect(prisma.nsiPracticeProgress.upsert).not.toHaveBeenCalled();
   });
 
   it('returns 400 when data is missing', async () => {
