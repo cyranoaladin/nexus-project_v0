@@ -10,7 +10,7 @@ import { test, expect } from '@playwright/test';
  * - "Connexion" dropdown → Se connecter, S'inscrire
  * - CTA "Bilan gratuit" (lien direct desktop)
  *
- * Hero CTA : Button asChild → Link href="/stages" et lien externe EAF
+ * Hero CTA : WhatsApp + ancre #offres-fin-annee
  */
 
 test.describe('REAL — Homepage (/)', () => {
@@ -145,20 +145,18 @@ test.describe('REAL — Homepage (/)', () => {
     }
   });
 
-  // HERO — CTA stages
-  test('Hero CTA "Découvrir les Stages Printemps" navigue vers /stages', async ({ page }) => {
-    const heroCTA = page.locator('#hero a[href="/stages"]').first();
-    await expect(heroCTA, 'CTA Stages absent du Hero').toBeVisible();
-    await heroCTA.click();
-    await page.waitForURL('**/stages**', { timeout: 10000 });
-    expect(page.url()).toContain('/stages');
+  // HERO — CTA WhatsApp principal
+  test('Hero CTA WhatsApp est visible et pointe vers wa.me', async ({ page }) => {
+    const heroCTA = page.locator('#hero a[href*="wa.me"]').first();
+    await expect(heroCTA, 'CTA WhatsApp absent du Hero').toBeVisible();
+    const href = await heroCTA.getAttribute('href');
+    expect(href).toContain('wa.me/21699192829');
   });
 
-  // HERO — CTA EAF externe
-  test('Hero CTA "Essayer la plateforme EAF gratuitement" pointe vers le sous-domaine EAF', async ({ page }) => {
-    const eafCTA = page.locator('#hero a[href="https://eaf.nexusreussite.academy"]').first();
-    await expect(eafCTA, 'CTA EAF absent du Hero').toBeVisible();
-    await expect(eafCTA).toHaveAttribute('href', 'https://eaf.nexusreussite.academy');
+  // HERO — CTA secondaire vers offres
+  test('Hero CTA secondaire pointe vers #offres-fin-annee', async ({ page }) => {
+    const secondaryCTA = page.locator('#hero a[href="#offres-fin-annee"]');
+    await expect(secondaryCTA, 'CTA offres absent du Hero').toBeVisible();
   });
 
   // FOOTER — Tous les liens internes

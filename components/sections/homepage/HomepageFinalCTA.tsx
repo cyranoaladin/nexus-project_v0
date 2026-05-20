@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, Mail, MessageCircle, Phone } from "lucide-react";
 import CTAButton from "@/components/sections/homepage/CTAButton";
+import TrackedCTAButton from "@/components/sections/homepage/TrackedCTAButton";
 import LandingIllustration from "@/components/sections/homepage/LandingIllustration";
 import {
   CONTACT_ADDRESS,
@@ -96,10 +97,10 @@ export default function HomepageFinalCTA() {
           </div>
 
           <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-            <CTAButton href={WHATSAPP_URL} variant="eaf">
+            <TrackedCTAButton href={WHATSAPP_URL} variant="eaf" trackingLocation="final_cta">
               <MessageCircle className="h-4 w-4" aria-hidden="true" />
               Réserver une place sur WhatsApp
-            </CTAButton>
+            </TrackedCTAButton>
             <CTAButton href={`mailto:${CONTACT_EMAIL}`} variant="eaf-outline">
               <Mail className="h-4 w-4" aria-hidden="true" />
               Écrire par email
