@@ -364,7 +364,7 @@ export function CorporateNavbar() {
             {/* Sign-in Button - Mobile */}
             <Link
               href="/auth/signin"
-              className={`md:hidden inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold transition-colors border ${
+              className={`md:hidden inline-flex items-center gap-1.5 rounded-full px-4 py-2.5 text-xs font-semibold transition-colors border min-h-[44px] ${
                 isHomePage
                   ? 'border-[#0f3d73]/30 bg-[#0f3d73] text-white'
                   : 'border-brand-accent/50 bg-brand-accent text-white'

@@ -28,7 +28,7 @@ export default function CTAButton({
   fullWidth = false,
 }: CTAButtonProps) {
   const classes = cn(
-    "inline-flex cursor-pointer items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-display font-bold tracking-tight transition-all duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f3d73] focus-visible:ring-offset-2 focus-visible:ring-offset-white",
+    "inline-flex cursor-pointer items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-display font-bold tracking-tight transition-all duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0f3d73] focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:py-3",
     fullWidth && "w-full",
     variantClasses[variant],
     className

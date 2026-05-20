@@ -11,6 +11,7 @@ import Forfaits from '@/components/sections/homepage/Forfaits';
 import TrustSection from '@/components/sections/homepage/TrustSection';
 import HomepageTestimonials from '@/components/sections/homepage/HomepageTestimonials';
 import HomepageFinalCTA from '@/components/sections/homepage/HomepageFinalCTA';
+import MobileStickyWhatsApp from '@/components/sections/homepage/MobileStickyWhatsApp';
 
 export const metadata: Metadata = {
   title: 'Nexus Réussite — Centre d\'entraînement académique premium | Mutuelleville, Tunis',
@@ -95,6 +96,9 @@ export default function HomePage() {
       </main>
 
       <CorporateFooter />
+
+      {/* Sticky WhatsApp CTA — mobile only, appears after scrolling past hero */}
+      <MobileStickyWhatsApp />
     </div>
   );
 }
