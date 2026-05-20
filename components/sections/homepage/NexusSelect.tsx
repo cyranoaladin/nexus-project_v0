@@ -1,5 +1,6 @@
 import { ArrowRight, Check, Info, MessageCircle, Users } from "lucide-react";
 import CTAButton from "@/components/sections/homepage/CTAButton";
+import TrackedCTAButton from "@/components/sections/homepage/TrackedCTAButton";
 import LandingIllustration from "@/components/sections/homepage/LandingIllustration";
 import {
   LANDING_IMAGES,
@@ -40,14 +41,15 @@ export default function NexusSelect() {
             </p>
 
             <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-              <CTAButton
+              <TrackedCTAButton
                 href={WHATSAPP_URL_SELECT}
                 variant="eaf-outline"
                 className="border-white bg-white text-[#0f3d73] hover:bg-blue-50"
+                trackingLocation="select"
               >
                 <MessageCircle className="h-4 w-4" aria-hidden="true" />
                 {NEXUS_SELECT.ctaLabel}
-              </CTAButton>
+              </TrackedCTAButton>
             </div>
           </div>
 
@@ -187,14 +189,15 @@ export default function NexusSelect() {
               Contactez-nous pour un entretien de positionnement et connaître les groupes disponibles.
             </p>
           </div>
-          <CTAButton
+          <TrackedCTAButton
             href={WHATSAPP_URL_SELECT}
             variant="eaf-outline"
             className="shrink-0 border-white bg-white text-[#0f3d73] hover:bg-blue-50"
+            trackingLocation="select_bottom"
           >
             WhatsApp : 99 19 28 29
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </CTAButton>
+          </TrackedCTAButton>
         </div>
       </div>
     </section>

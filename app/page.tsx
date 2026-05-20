@@ -24,6 +24,14 @@ export const metadata: Metadata = {
       "Stages intensifs, cours hebdomadaires, préparation examens, Nexus Select post-bac et suivi personnalisé à Mutuelleville.",
     type: 'website',
     url: 'https://nexusreussite.academy',
+    images: [
+      {
+        url: 'https://nexusreussite.academy/images/og/nexus-homepage-og.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Nexus Réussite — Centre d\'entraînement académique premium à Mutuelleville',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',

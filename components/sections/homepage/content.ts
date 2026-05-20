@@ -58,17 +58,9 @@ export const LANDING_IMAGES = {
     src: "/images/nexus-select.webp",
     alt: "Groupe d'élèves travaillant des mathématiques exigeantes avec un enseignant.",
   },
-  selectGroups: {
-    src: "/images/select-groups.webp",
-    alt: "Parcours de groupes de niveau en mathématiques Nexus Select.",
-  },
   personalizedSupport: {
     src: "/images/accompagnement-personnalise.webp",
     alt: "Suivi individualisé avec livret de travail et tableau de progression.",
-  },
-  platform: {
-    src: "/images/plateforme-eleve-parent.webp",
-    alt: "Plateforme élève-parent avec tableau de progression et objectifs de travail.",
   },
   value: {
     src: "/images/bilans-livrets-personnalises.webp",

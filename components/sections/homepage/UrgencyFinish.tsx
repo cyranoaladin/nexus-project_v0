@@ -2,6 +2,7 @@
 
 import { ArrowRight, Check, Clock3, MessageCircle } from "lucide-react";
 import CTAButton from "@/components/sections/homepage/CTAButton";
+import TrackedCTAButton from "@/components/sections/homepage/TrackedCTAButton";
 import CountdownChip from "@/components/sections/homepage/CountdownChip";
 import LandingIllustration from "@/components/sections/homepage/LandingIllustration";
 import {
@@ -44,10 +45,10 @@ export default function UrgencyFinish() {
               </p>
 
               <div className="mt-6">
-                <CTAButton href={WHATSAPP_URL_FINISH} variant="stage">
+                <TrackedCTAButton href={WHATSAPP_URL_FINISH} variant="stage" trackingLocation="finish_urgency">
                   <MessageCircle className="h-4 w-4" aria-hidden="true" />
                   Réserver avant le 8 juin
-                </CTAButton>
+                </TrackedCTAButton>
               </div>
             </div>
 

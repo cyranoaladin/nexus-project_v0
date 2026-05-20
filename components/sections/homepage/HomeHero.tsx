@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { ArrowRight, MapPin, MessageCircle } from "lucide-react";
 import CTAButton from "@/components/sections/homepage/CTAButton";
+import TrackedCTAButton from "@/components/sections/homepage/TrackedCTAButton";
 import CountdownChip from "@/components/sections/homepage/CountdownChip";
 import {
   EAF_EXAM_DATE,
@@ -41,10 +42,10 @@ export default function HomeHero() {
 
           {/* CTA */}
           <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-            <CTAButton href={WHATSAPP_URL} variant="eaf">
+            <TrackedCTAButton href={WHATSAPP_URL} variant="eaf" trackingLocation="hero">
               <MessageCircle className="h-4 w-4" aria-hidden="true" />
               {HERO.ctaPrimary}
-            </CTAButton>
+            </TrackedCTAButton>
             <CTAButton href="#offres-fin-annee" variant="eaf-outline">
               {HERO.ctaSecondary}
               <ArrowRight className="h-4 w-4" aria-hidden="true" />

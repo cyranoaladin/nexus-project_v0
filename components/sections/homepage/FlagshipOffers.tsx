@@ -1,5 +1,5 @@
 import { ArrowRight } from "lucide-react";
-import CTAButton from "@/components/sections/homepage/CTAButton";
+import TrackedCTAButton from "@/components/sections/homepage/TrackedCTAButton";
 import LandingIllustration from "@/components/sections/homepage/LandingIllustration";
 import {
   ACCOMPAGNEMENTS,
@@ -72,10 +72,10 @@ export default function FlagshipOffers() {
         </div>
 
         <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-          <CTAButton href={WHATSAPP_URL_FORFAITS} variant="eaf">
+          <TrackedCTAButton href={WHATSAPP_URL_FORFAITS} variant="eaf" trackingLocation="accompagnements">
             Choisir ma formule sur WhatsApp
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </CTAButton>
+          </TrackedCTAButton>
         </div>
       </div>
     </section>
