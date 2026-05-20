@@ -59,7 +59,7 @@ function FAQItem({
 
 export default function HomepageFinalCTA() {
   return (
-    <section id="contact" className="bg-gradient-to-b from-[#f0f5ff] to-white px-6 py-20 sm:px-8 lg:px-12">
+    <section id="contact" className="bg-gradient-to-b from-[#f0f5ff] to-white px-6 py-16 sm:px-8 sm:py-20 lg:px-12">
       <div className="mx-auto max-w-7xl space-y-16">
         {/* ─── FAQ ─── */}
         <div className="mx-auto max-w-3xl">

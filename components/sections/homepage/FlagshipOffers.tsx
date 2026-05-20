@@ -11,7 +11,7 @@ import { resolveUiIcon } from "@/lib/ui-icons";
 
 export default function FlagshipOffers() {
   return (
-    <section id="accompagnements" className="bg-gradient-to-b from-[#eaf1ff] to-[#dfe9fb] px-6 py-20 sm:px-8 lg:px-12">
+    <section id="accompagnements" className="bg-gradient-to-b from-[#eaf1ff] to-[#dfe9fb] px-6 py-16 sm:px-8 sm:py-20 lg:px-12">
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <div className="max-w-3xl">

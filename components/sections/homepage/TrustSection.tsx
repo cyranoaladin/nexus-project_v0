@@ -8,7 +8,7 @@ import { resolveUiIcon } from "@/lib/ui-icons";
 
 export default function TrustSection() {
   return (
-    <section className="bg-gradient-to-b from-[#edf3ff] to-[#f5f8ff] px-6 py-20 sm:px-8 lg:px-12">
+    <section className="bg-gradient-to-b from-[#edf3ff] to-[#f5f8ff] px-6 py-16 sm:px-8 sm:py-20 lg:px-12">
       <div className="mx-auto max-w-7xl space-y-16">
         {/* ─── Méthode Nexus ─── */}
         <div>

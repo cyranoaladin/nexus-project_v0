@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 
 export default function Forfaits() {
   return (
-    <section id="forfaits" className="bg-[#f8faff] px-6 py-20 sm:px-8 lg:px-12">
+    <section id="forfaits" className="bg-[#f8faff] px-6 py-16 sm:px-8 sm:py-20 lg:px-12">
       <div className="mx-auto max-w-7xl">
         <div className="max-w-3xl">
           <p className="font-mono text-xs uppercase tracking-[0.18em] text-[#0f3d73]">
@@ -132,7 +132,7 @@ export default function Forfaits() {
           <p className="text-sm leading-7 text-slate-600">
             {FORFAITS.groupNote}
           </p>
-          <p className="text-xs leading-6 text-slate-600">
+          <p className="text-sm leading-6 text-slate-600">
             {FORFAITS.note}
           </p>
         </div>

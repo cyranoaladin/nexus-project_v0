@@ -11,7 +11,7 @@ function tagClass(tag: string) {
 
 export default function HomepageTestimonials() {
   return (
-    <section className="bg-[#0f2f57] px-6 py-20 sm:px-8 lg:px-12">
+    <section className="bg-[#0f2f57] px-6 py-16 sm:px-8 sm:py-20 lg:px-12">
       <div className="mx-auto max-w-7xl">
         <div className="max-w-3xl">
           <p className="font-mono text-xs uppercase tracking-[0.18em] text-blue-300">
