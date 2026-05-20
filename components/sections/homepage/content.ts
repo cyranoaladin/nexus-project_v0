@@ -38,6 +38,7 @@ export const PHONE_URL = "tel:+21699192829";
 export const PHONE_LABEL = "+216 99 19 28 29";
 export const CONTACT_EMAIL = "contact@nexusreussite.academy";
 export const CONTACT_ADDRESS = "Mutuelleville, Tunis";
+export const CENTRE_ADDRESS = "3 rue Jaafar Al Barmaki, Mutuelleville 1082";
 
 // ── Landing images (centralized paths & alt texts) ──────────────────────────
 
@@ -101,10 +102,10 @@ export const HERO = {
     "Finish avant le 8 juin",
     "Nexus Select post-épreuves",
     "Groupes de 4 élèves",
-    "Bilans personnalisés",
     "Mutuelleville",
+    "Bilans personnalisés",
   ],
-  ctaPrimary: "Réserver une place sur WhatsApp",
+  ctaPrimary: "Être conseillé sur WhatsApp",
   ctaSecondary: "Voir les offres",
 };
 
@@ -112,9 +113,9 @@ export const HERO = {
 
 export const URGENCY = {
   eyebrow: "Échéances de juin 2026",
-  title: "Dernière ligne droite avant les échéances du 8 juin",
+  title: "Dernière ligne droite : chaque séance doit compter.",
   description:
-    "Les dernières semaines ne servent pas à tout refaire. Elles servent à cibler les priorités, corriger les erreurs récurrentes, consolider les méthodes et s'entraîner dans les conditions de l'épreuve.",
+    "Avant les échéances de juin, l'objectif n'est plus de tout reprendre : il faut cibler les priorités, corriger les erreurs récurrentes et s'entraîner dans les conditions de l'épreuve.",
   bullets: [
     "Sujets types et entraînement guidé",
     "Automatismes essentiels",
@@ -188,6 +189,7 @@ export const PREMIERE_FINISH = {
     },
   ],
   ctaLabel: "Réserver un pack Finish",
+  pricePerStudent: "par élève · groupe de 4",
   priceNote: PRICING_FOOTNOTE,
 };
 
@@ -406,6 +408,8 @@ export const FORFAITS = {
   ],
   note: PRICING_FOOTNOTE,
   groupNote: PRICING_GROUP_NOTE,
+  selectNote:
+    "Ces formules concernent l'accompagnement standard en petit groupe. Nexus Select est un stage intensif premium distinct, avec un format unique de 40 h.",
 };
 
 // ── Méthode Nexus ───────────────────────────────────────────────────────────
@@ -449,7 +453,7 @@ export const TRUST_POINTS = [
   { value: "Groupes de 4 élèves", label: "tarifs accessibles, suivi réel" },
   { value: "Bilans personnalisés", label: "priorités visibles pour chaque élève" },
   { value: "Livrets de travail", label: "méthode, révision et progression" },
-  { value: "Plateforme élève-parent", label: "progression lisible à tout moment" },
+  { value: "Suivi élève-parent", label: "bilans, livrets et retours structurés aux familles" },
   { value: "Mutuelleville", label: "cadre présentiel rassurant" },
 ];
 
@@ -457,32 +461,32 @@ export const TRUST_POINTS = [
 
 export const TESTIMONIALS = [
   {
-    name: "Mehdi K.",
-    school: "Lycée PMF Tunis",
+    name: "Élève de Terminale",
+    school: "Lycée français de Tunis",
     result: "8/20 → 16/20 · Mention Bien",
     quote:
       "Le suivi m'a aidé à reprendre une méthode de travail. Les stages ont ensuite sécurisé les points faibles avant les épreuves.",
     tags: ["Suivi", "Stage"],
   },
   {
-    name: "Yassine R.",
-    school: "Terminale · Grand Oral",
+    name: "Élève de Terminale",
+    school: "Préparation Grand Oral",
     result: "Oral structuré",
     quote:
       "Je savais enfin comment construire mon propos, tenir mon temps et répondre aux questions sans réciter.",
     tags: ["Grand Oral"],
   },
   {
-    name: "Sarah L.",
-    school: "Lycée International Lyon",
+    name: "Élève de Première",
+    school: "Lycée français à l'étranger",
     result: "9/20 → 14/20 · Mention AB",
     quote:
-      "ChatGPT me donnait des réponses génériques. Nexus corrige avec le barème réel et mes parents suivent tout depuis leur tableau de bord.",
-    tags: ["Plateforme EAF"],
+      "Les corrections avec le barème réel et le suivi structuré ont fait la différence. Mes parents suivent tout depuis le tableau de bord.",
+    tags: ["Suivi structuré"],
   },
   {
-    name: "Lina M.",
-    school: "Première · Suivi parent",
+    name: "Parent d'élève",
+    school: "Première · Suivi famille",
     result: "Travail régulier",
     quote:
       "Le suivi nous a permis de voir les progrès et de relancer au bon moment, sans transformer la maison en salle de classe.",

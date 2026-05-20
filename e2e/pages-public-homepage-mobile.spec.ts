@@ -120,6 +120,57 @@ test.describe('Homepage Mobile (375×812) — Landing Nexus Réussite', () => {
     const disclaimer = page.locator('#nexus-select').getByText(/Parcoursup/i);
     await expect(disclaimer).toBeVisible();
   });
+
+  test('Nexus Select affiche 40 h', async ({ page }) => {
+    const text = page.locator('#nexus-select').getByText('40 h');
+    await expect(text.first()).toBeVisible();
+  });
+
+  test('Nexus Select affiche CPGE', async ({ page }) => {
+    const text = page.locator('#nexus-select').getByText(/CPGE/);
+    await expect(text.first()).toBeVisible();
+  });
+
+  test('no 120 DT on page', async ({ page }) => {
+    const content = await page.textContent('body');
+    expect(content).not.toContain('120 DT');
+  });
+
+  test('no "groupes de niveau" on page', async ({ page }) => {
+    const content = await page.textContent('body');
+    expect(content).not.toContain('groupes de niveau');
+  });
+
+  test('ancre #nexus-select ne masque pas le titre', async ({ page }) => {
+    await page.goto('/#nexus-select');
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForTimeout(500);
+    const heading = page.locator('#nexus-select h2').first();
+    const box = await heading.boundingBox();
+    expect(box, 'Titre Nexus Select non visible après ancre').not.toBeNull();
+    // Title should not be hidden behind navbar (top > 0)
+    expect(box!.y, 'Titre masqué par la navbar').toBeGreaterThanOrEqual(0);
+  });
+
+  test('ancre #forfaits ne masque pas le titre', async ({ page }) => {
+    await page.goto('/#forfaits');
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForTimeout(500);
+    const heading = page.locator('#forfaits h2').first();
+    const box = await heading.boundingBox();
+    expect(box, 'Titre Forfaits non visible après ancre').not.toBeNull();
+    expect(box!.y, 'Titre masqué par la navbar').toBeGreaterThanOrEqual(0);
+  });
+
+  test('ancre #contact ne masque pas le titre', async ({ page }) => {
+    await page.goto('/#contact');
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForTimeout(500);
+    const heading = page.locator('#contact h2').first();
+    const box = await heading.boundingBox();
+    expect(box, 'Titre Contact non visible après ancre').not.toBeNull();
+    expect(box!.y, 'Titre masqué par la navbar').toBeGreaterThanOrEqual(0);
+  });
 });
 
 test.describe('Homepage responsive — multi-viewport', () => {

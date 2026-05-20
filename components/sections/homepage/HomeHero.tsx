@@ -14,7 +14,7 @@ export default function HomeHero() {
   return (
     <section
       id="hero"
-      className="relative overflow-hidden bg-[#f8fbff] px-6 pb-16 pt-24 sm:px-8 sm:pb-20 sm:pt-32 lg:px-12 lg:pb-28"
+      className="scroll-mt-28 relative overflow-hidden bg-[#f8fbff] px-6 pb-16 pt-24 sm:px-8 sm:pb-20 sm:pt-32 lg:px-12 lg:pb-28"
     >
       {/* Gradient background */}
       <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(239,246,255,0.95),rgba(255,255,255,0.98)_48%,rgba(219,234,254,0.45))]" />
@@ -62,7 +62,7 @@ export default function HomeHero() {
             {HERO.chips.map((chip, i) => (
               <span
                 key={chip}
-                className={`inline-flex items-center rounded-full border border-slate-200 bg-white/80 px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm ${i >= 3 ? "hidden sm:inline-flex" : ""}`}
+                className={`inline-flex items-center rounded-full border border-slate-200 bg-white/80 px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm ${i >= 4 ? "hidden sm:inline-flex" : ""}`}
               >
                 {chip}
               </span>

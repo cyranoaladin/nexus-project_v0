@@ -80,7 +80,7 @@ export default function HomePage() {
         {/* 2-3. Dernière ligne droite 8 juin + Offre Première Finish */}
         <UrgencyFinish />
 
-        {/* 4. Nexus Select + 4 groupes maths */}
+        {/* 4. Nexus Select — stage 40 h post-épreuves */}
         <NexusSelect />
 
         {/* 5. Nos accompagnements */}

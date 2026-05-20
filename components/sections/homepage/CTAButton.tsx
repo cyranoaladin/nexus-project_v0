@@ -34,7 +34,7 @@ export default function CTAButton({
     className
   );
 
-  if (href.startsWith("/")) {
+  if (href.startsWith("/") || href.startsWith("#")) {
     return (
       <Link href={href} className={classes}>
         {children}
