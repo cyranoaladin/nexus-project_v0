@@ -94,7 +94,7 @@ export const HERO = {
   badge: "Centre d'entraînement académique · Mutuelleville",
   title: "Le finish avant les épreuves, l'avance pour la suite.",
   subtitle:
-    "À Mutuelleville, Nexus Réussite accompagne les élèves de Première et de Terminale avec des stages intensifs, des groupes de niveau, des cours hebdomadaires, des bilans personnalisés et un suivi structuré pour progresser avec méthode, rigueur et confiance.",
+    "À Mutuelleville, Nexus Réussite accompagne les élèves de Première et de Terminale avec des stages intensifs, des cours hebdomadaires, des bilans personnalisés et un suivi structuré pour progresser avec méthode, rigueur et confiance.",
   transition:
     "Deux temps forts : finaliser l'année avec méthode, puis préparer l'entrée dans un niveau d'exigence supérieur.",
   chips: [
@@ -501,7 +501,7 @@ export const FAQ_ITEMS = [
   {
     question: "Quelle est la différence entre un stage classique et Nexus Select ?",
     answer:
-      "Un stage classique consolide le programme en cours. Nexus Select va plus loin : il prépare la transition vers le supérieur avec un rythme soutenu, des exercices plus exigeants, un livret Select personnalisé et des groupes de niveau pour les élèves visant CPGE, EPFL ou des parcours sélectifs.",
+      "Un stage classique consolide le programme en cours. Nexus Select va plus loin : 40 h de mathématiques intensives en 2 semaines, en groupe de 4 élèves maximum, pour préparer l'entrée en CPGE, EPFL, doubles licences maths-info et filières sélectives. Livret Select personnalisé, corrections individualisées et bilan de fin de stage inclus.",
   },
   {
     question: "Les tarifs affichés correspondent-ils à des cours individuels ?",
