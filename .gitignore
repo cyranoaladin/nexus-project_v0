@@ -95,3 +95,16 @@ nginx/ssl/*
 # Certificats SSL (ne jamais committer)
 arborescence*.txt
 .aider*
+
+# NSI exam subjects (large PDFs, not versioned)
+Sujets-EP-NSI-2026/
+
+# PNG source files for landing WebP images (large, not used at runtime)
+public/images/accompagnement-personnalise.png
+public/images/bilans-livrets-personnalises.png
+public/images/cta-final-whatsapp.png
+public/images/finish-8-juin.png
+public/images/forfaits-formules.png
+public/images/hero-study-session.png
+public/images/nexus-select.png
+public/images/premiere-finish-pack.png
