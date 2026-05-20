@@ -1,5 +1,5 @@
 import { ArrowRight, Check } from "lucide-react";
-import CTAButton from "@/components/sections/homepage/CTAButton";
+import TrackedCTAButton from "@/components/sections/homepage/TrackedCTAButton";
 import LandingIllustration from "@/components/sections/homepage/LandingIllustration";
 import {
   FORFAITS,
@@ -109,7 +109,7 @@ export default function Forfaits() {
               </ul>
 
               <div className="mt-auto pt-6">
-                <CTAButton
+                <TrackedCTAButton
                   href={WHATSAPP_URL_FORFAITS}
                   variant={plan.highlighted ? "eaf-outline" : "eaf"}
                   fullWidth
@@ -118,10 +118,11 @@ export default function Forfaits() {
                       ? "border-white bg-white text-[#0f3d73] hover:bg-blue-50"
                       : undefined
                   }
+                  trackingLocation={`forfait_${plan.name.toLowerCase().replace(/\s+/g, '_')}`}
                 >
                   Choisir cette formule
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </CTAButton>
+                </TrackedCTAButton>
               </div>
             </article>
           ))}
