@@ -1,8 +1,11 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Inter, Space_Grotesk, IBM_Plex_Mono, Fraunces, DM_Sans } from "next/font/google";
 import { Providers } from "@/components/providers";
 import PromoBanner from "@/components/layout/PromoBanner";
 import "./globals.css";
+
+const GA_MEASUREMENT_ID = "G-3XPB54QL5N";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -90,6 +93,18 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <head>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_MEASUREMENT_ID}');
+          `}
+        </Script>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
