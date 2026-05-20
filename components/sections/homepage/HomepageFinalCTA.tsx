@@ -59,7 +59,7 @@ function FAQItem({
 
 export default function HomepageFinalCTA() {
   return (
-    <section id="contact" className="bg-gradient-to-b from-[#f0f5ff] to-white px-6 py-16 sm:px-8 sm:py-20 lg:px-12">
+    <section id="contact" className="scroll-mt-28 bg-gradient-to-b from-[#f0f5ff] to-white px-6 py-16 sm:px-8 sm:py-20 lg:px-12">
       <div className="mx-auto max-w-7xl space-y-16">
         {/* ─── FAQ ─── */}
         <div className="mx-auto max-w-3xl">
@@ -99,7 +99,7 @@ export default function HomepageFinalCTA() {
           <div className="mt-8 flex flex-col gap-4 sm:flex-row">
             <TrackedCTAButton href={WHATSAPP_URL} variant="eaf" trackingLocation="final_cta">
               <MessageCircle className="h-4 w-4" aria-hidden="true" />
-              Réserver une place sur WhatsApp
+              Échanger sur le profil de l'élève
             </TrackedCTAButton>
             <CTAButton href={`mailto:${CONTACT_EMAIL}`} variant="eaf-outline">
               <Mail className="h-4 w-4" aria-hidden="true" />

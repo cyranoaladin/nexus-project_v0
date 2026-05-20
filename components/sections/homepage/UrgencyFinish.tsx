@@ -17,7 +17,7 @@ export default function UrgencyFinish() {
   return (
     <section
       id="offres-fin-annee"
-      className="bg-white px-6 py-20 sm:px-8 lg:px-12"
+      className="scroll-mt-28 bg-white px-6 py-20 sm:px-8 lg:px-12"
     >
       <div className="mx-auto max-w-7xl space-y-16">
         {/* ─── Bloc urgence ─── */}
@@ -46,7 +46,7 @@ export default function UrgencyFinish() {
               <div className="mt-6">
                 <TrackedCTAButton href={WHATSAPP_URL_FINISH} variant="stage" trackingLocation="finish_urgency">
                   <MessageCircle className="h-4 w-4" aria-hidden="true" />
-                  Réserver avant le 8 juin
+                  Être conseillé pour le Finish 8 juin
                 </TrackedCTAButton>
               </div>
             </div>
@@ -152,6 +152,14 @@ export default function UrgencyFinish() {
                     )}
                   >
                     {formula.price}
+                  </p>
+                  <p
+                    className={cn(
+                      "mt-0.5 text-xs",
+                      formula.highlighted ? "text-blue-200/80" : "text-slate-500"
+                    )}
+                  >
+                    {PREMIERE_FINISH.pricePerStudent}
                   </p>
                 </div>
 

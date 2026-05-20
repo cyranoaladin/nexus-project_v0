@@ -2,11 +2,14 @@ import {
   ACCOMPAGNEMENTS,
   FAQ_ITEMS,
   FORFAITS,
+  HERO,
   LANDING_IMAGES,
   NEXUS_SELECT,
   PREMIERE_FINISH,
   PRICING_FOOTNOTE,
   PRICING_GROUP_NOTE,
+  TESTIMONIALS,
+  TRUST_POINTS,
   URGENCY,
   WHATSAPP_URL,
   WHATSAPP_URL_FINISH,
@@ -118,13 +121,70 @@ describe("Landing content — business invariants", () => {
       expect(allText).not.toContain("groupes de niveau");
       expect(allText).not.toContain("4 groupes de mathématiques");
     });
+
+    it("displays 2 semaines format", () => {
+      expect(NEXUS_SELECT.format[2].value).toBe("2 semaines");
+    });
+
+    it("mentions filière sélective", () => {
+      const allText = JSON.stringify(NEXUS_SELECT);
+      expect(allText).toContain("sélective");
+    });
+
+    it("mentions livret Select", () => {
+      const allText = JSON.stringify(NEXUS_SELECT);
+      expect(allText).toContain("Livret Select");
+    });
+
+    it("mentions bilan de fin de stage", () => {
+      const allText = JSON.stringify(NEXUS_SELECT);
+      expect(allText).toContain("Bilan de fin de stage");
+    });
+
+    it("mentions plan de travail post-stage", () => {
+      const allText = JSON.stringify(NEXUS_SELECT);
+      expect(allText).toContain("Plan de travail post-stage");
+    });
+  });
+
+  describe("forfaits vs Select distinction", () => {
+    it("forfaits have a Select clarification note", () => {
+      expect(FORFAITS.selectNote).toContain("Nexus Select");
+      expect(FORFAITS.selectNote).toContain("40 h");
+    });
+  });
+
+  describe("testimonials anonymization", () => {
+    it("testimonials do NOT use personal names (initial + dot pattern)", () => {
+      for (const t of TESTIMONIALS) {
+        expect(t.name).not.toMatch(/\w+\s[A-Z]\.$/);
+      }
+    });
+  });
+
+  describe("trust points", () => {
+    it('uses "Suivi élève-parent" not "Plateforme élève-parent"', () => {
+      const allText = JSON.stringify(TRUST_POINTS);
+      expect(allText).toContain("Suivi élève-parent");
+      expect(allText).not.toContain("Plateforme élève-parent");
+    });
+  });
+
+  describe("hero", () => {
+    it("hero CTA uses premium tone", () => {
+      expect(HERO.ctaPrimary).toContain("conseillé");
+    });
   });
 
   describe("urgency wording", () => {
-    it('uses "échéances" not "épreuves anticipées"', () => {
+    it('uses "échéances" in eyebrow or description', () => {
       const allText = [URGENCY.eyebrow, URGENCY.title, URGENCY.description].join(" ");
       expect(allText).toContain("échéances");
       expect(allText).not.toContain("épreuves anticipées");
+    });
+
+    it("urgency title is action-oriented", () => {
+      expect(URGENCY.title).toContain("chaque séance doit compter");
     });
   });
 

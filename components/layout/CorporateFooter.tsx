@@ -90,6 +90,16 @@ const CorporateFooter = () => {
                                 </div>
                             </div>
 
+                            <div className="p-4 rounded-xl bg-white/5 border border-white/5 flex items-start gap-3">
+                                <MapPin className="w-5 h-5 text-cyan-400 mt-1" />
+                                <div>
+                                    <span className="block text-white text-sm font-medium">Centre d&apos;accompagnement</span>
+                                    <span className="block text-neutral-300 text-xs mt-1">
+                                        3 rue Jaafar Al Barmaki<br />Mutuelleville 1082
+                                    </span>
+                                </div>
+                            </div>
+
                             <div className="space-y-3">
                                 <div className="flex items-center gap-3 text-neutral-300 hover:text-white transition-colors">
                                     <Mail className="w-4 h-4 text-cyan-400" />

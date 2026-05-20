@@ -12,7 +12,7 @@ export default function NexusSelect() {
   return (
     <section
       id="nexus-select"
-      className="bg-[#0f2f57] px-6 py-16 sm:px-8 sm:py-20 lg:px-12"
+      className="scroll-mt-28 bg-[#0f2f57] px-6 py-16 sm:px-8 sm:py-20 lg:px-12"
     >
       <div className="mx-auto max-w-7xl space-y-12 sm:space-y-16">
         {/* ─── 1. Header ─── */}
