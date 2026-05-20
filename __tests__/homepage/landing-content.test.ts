@@ -41,7 +41,21 @@ describe("Landing content — business invariants", () => {
     });
 
     it("Nexus Select pricing has asterisk", () => {
-      expect(NEXUS_SELECT.pricing.label).toContain("*");
+      expect(NEXUS_SELECT.pricing.price).toContain("*");
+    });
+
+    it("Nexus Select pricing is 1 800 TND", () => {
+      expect(NEXUS_SELECT.pricing.price).toContain("1 800");
+    });
+
+    it("Nexus Select does NOT mention 120 DT", () => {
+      const allText = JSON.stringify(NEXUS_SELECT);
+      expect(allText).not.toContain("120 DT");
+    });
+
+    it("Nexus Select does NOT have groups", () => {
+      expect((NEXUS_SELECT as Record<string, unknown>).groups).toBeUndefined();
+      expect((NEXUS_SELECT as Record<string, unknown>).groupsNote).toBeUndefined();
     });
 
     it('footnote mentions "groupe de 4 élèves"', () => {
@@ -65,7 +79,44 @@ describe("Landing content — business invariants", () => {
     });
 
     it("disclaimer says Select is NOT Parcoursup help", () => {
-      expect(NEXUS_SELECT.disclaimer).toMatch(/n.est pas/i);
+      expect(NEXUS_SELECT.disclaimer).toMatch(/ne prépare pas/i);
+    });
+
+    it("displays 40 h format", () => {
+      expect(NEXUS_SELECT.format[0].value).toBe("40 h");
+    });
+
+    it("displays 4 h / jour format", () => {
+      expect(NEXUS_SELECT.format[1].value).toBe("4 h / jour");
+    });
+
+    it("displays group of 4 students max", () => {
+      const allText = JSON.stringify(NEXUS_SELECT);
+      expect(allText).toContain("4 élèves max");
+    });
+
+    it("mentions CPGE in audience", () => {
+      expect(NEXUS_SELECT.audience.join(" ")).toContain("CPGE");
+    });
+
+    it("mentions EPFL in audience", () => {
+      expect(NEXUS_SELECT.audience.join(" ")).toContain("EPFL");
+    });
+
+    it("mentions doubles licences maths-info in audience", () => {
+      expect(NEXUS_SELECT.audience.join(" ")).toContain("double licence maths-info");
+    });
+
+    it("WhatsApp Select URL contains stage 40 h message", () => {
+      expect(WHATSAPP_URL_SELECT).toContain("Select");
+    });
+
+    it("does NOT mention groupes de niveau", () => {
+      const allText = JSON.stringify(NEXUS_SELECT);
+      expect(allText).not.toContain("Groupe 1");
+      expect(allText).not.toContain("Groupe 2");
+      expect(allText).not.toContain("groupes de niveau");
+      expect(allText).not.toContain("4 groupes de mathématiques");
     });
   });
 
