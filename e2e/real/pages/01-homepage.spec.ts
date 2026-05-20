@@ -95,10 +95,15 @@ test.describe('REAL — Homepage (/)', () => {
   // NAVBAR — Dropdown "Essentiel" → Bilan Gratuit
   test('Navbar dropdown Essentiel → lien Bilan Gratuit navigue vers /bilan-gratuit', async ({ page }) => {
     const essentielBtn = page.locator('button').filter({ hasText: /essentiel/i }).first();
+    await expect(essentielBtn).toBeVisible();
     await essentielBtn.hover();
     await page.waitForTimeout(600);
 
-    const bilanLink = page.locator('[role="menu"] a[href="/bilan-gratuit"]');
+    // Wait for the dropdown menu to appear
+    const dropdownMenu = page.locator('[role="menu"]');
+    await expect(dropdownMenu, 'Dropdown Essentiel ne s\'ouvre pas').toBeVisible({ timeout: 5000 });
+
+    const bilanLink = dropdownMenu.locator('a[href="/bilan-gratuit"]');
     await expect(bilanLink, 'Lien Bilan Gratuit absent du dropdown').toBeVisible();
     await bilanLink.click();
     await page.waitForURL('**/bilan-gratuit**', { timeout: 10000 });
