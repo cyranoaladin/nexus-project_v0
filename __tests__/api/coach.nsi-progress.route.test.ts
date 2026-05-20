@@ -28,10 +28,19 @@ jest.mock('@/lib/prisma', () => ({
   },
 }));
 
+const mockCanAccessNsiPratique = jest.fn();
+jest.mock('@/lib/nsi-pratique-2026/access', () => ({
+  NSI_PRACTICE_STUDENT_EMAILS: ['channoufieya5@gmail.com', 'raniachannoufi02@gmail.com'],
+  canAccessNsiPratique: (...args: unknown[]) => mockCanAccessNsiPratique(...args),
+}));
+
 const coachSession = { user: { id: 'c1', role: 'COACH' } };
 
 describe('GET /api/coach/nsi-pratique-2026/students', () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockCanAccessNsiPratique.mockResolvedValue(true);
+  });
 
   it('returns 401 when not authenticated', async () => {
     mockRequireRole.mockResolvedValue(
@@ -69,6 +78,18 @@ describe('GET /api/coach/nsi-pratique-2026/students', () => {
     expect(res.status).toBe(403);
   });
 
+  it('returns 403 when coach is not assigned to the requested NSI students', async () => {
+    mockRequireRole.mockResolvedValue(coachSession);
+    mockCanAccessNsiPratique.mockResolvedValue(false);
+
+    const res = await GET();
+    const body = await res.json();
+
+    expect(res.status).toBe(403);
+    expect(body.error).toContain('NSI pratique');
+    expect(mockGetAssignedStudents).not.toHaveBeenCalled();
+  });
+
   it('returns empty list when no NSI assignments', async () => {
     mockRequireRole.mockResolvedValue(coachSession);
     mockGetAssignedStudents.mockResolvedValue([
@@ -86,8 +107,9 @@ describe('GET /api/coach/nsi-pratique-2026/students', () => {
   it('returns NSI students with enriched progress summary', async () => {
     mockRequireRole.mockResolvedValue(coachSession);
     mockGetAssignedStudents.mockResolvedValue([
-      { subjects: ['NSI'], student: { id: 's1', userId: 'u1', firstName: 'Rania', lastName: 'Chanoufi' } },
-      { subjects: ['NSI'], student: { id: 's2', userId: 'u2', firstName: 'Eya', lastName: 'Chanoufi' } },
+      { subjects: ['NSI'], student: { id: 's1', userId: 'u1', firstName: 'Rania', lastName: 'Chanoufi', email: 'raniachannoufi02@gmail.com' } },
+      { subjects: ['NSI'], student: { id: 's2', userId: 'u2', firstName: 'Eya', lastName: 'Chanoufi', email: 'channoufieya5@gmail.com' } },
+      { subjects: ['NSI'], student: { id: 's3', userId: 'u3', firstName: 'Other', lastName: 'Student', email: 'other@example.com' } },
     ]);
     (prisma.nsiPracticeProgress.findMany as jest.Mock).mockResolvedValue([
       {
@@ -125,7 +147,10 @@ describe('GET /api/coach/nsi-pratique-2026/students', () => {
 });
 
 describe('GET /api/coach/nsi-pratique-2026/students/[studentId]/progress', () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockCanAccessNsiPratique.mockResolvedValue(true);
+  });
 
   it('returns 401 when not authenticated', async () => {
     mockRequireRole.mockResolvedValue(

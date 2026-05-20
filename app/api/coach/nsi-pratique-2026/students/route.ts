@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { getAssignedStudentsForCoach } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
+import { NSI_PRACTICE_STUDENT_EMAILS, canAccessNsiPratique } from '@/lib/nsi-pratique-2026/access';
 import { computeCoachStudentSummary } from '@/lib/nsi-pratique-2026/coach-summary';
 import type { NsiProgress } from '@/data/nsi-pratique-2026/types';
 
@@ -10,6 +11,7 @@ type AssignmentStudent = {
   userId: string;
   firstName: string;
   lastName: string;
+  email?: string | null;
 };
 
 type CoachAssignment = {
@@ -27,11 +29,18 @@ export async function GET() {
     if (isErrorResponse(sessionOrError)) return sessionOrError;
     const session = sessionOrError;
 
+    if (!(await canAccessNsiPratique(session.user))) {
+      return NextResponse.json({ error: 'Accès NSI pratique non autorisé' }, { status: 403 });
+    }
+
     const assignments = await getAssignedStudentsForCoach({ coachUserId: session.user.id });
 
     // Filter to assignments that include NSI subject
     const nsiAssignments = (assignments as CoachAssignment[]).filter(
-      (a) => a.subjects?.includes('NSI')
+      (a) => a.subjects?.includes('NSI') &&
+        NSI_PRACTICE_STUDENT_EMAILS.includes(
+          (a.student.email ?? '').toLowerCase() as typeof NSI_PRACTICE_STUDENT_EMAILS[number]
+        )
     );
 
     if (nsiAssignments.length === 0) {

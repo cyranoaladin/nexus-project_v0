@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { navigationConfig } from './navigation-config';
 import { MobileMenuWrapper } from './MobileMenuWrapper';
+import { filterNsiPratiqueNavigation } from '@/lib/nsi-pratique-2026/access';
 
 export async function Navbar() {
   const session = await auth();
@@ -10,7 +11,14 @@ export async function Navbar() {
     redirect('/auth/signin');
   }
 
-  const navigationItems = navigationConfig[session.user.role];
+  const navigationItems = await filterNsiPratiqueNavigation(
+    navigationConfig[session.user.role],
+    {
+      userId: session.user.id,
+      email: session.user.email,
+      role: session.user.role,
+    },
+  );
 
   return (
     <header className="sticky top-0 z-50 h-16 bg-surface-card border-b border-neutral-800 lg:pl-[280px]" role="banner">

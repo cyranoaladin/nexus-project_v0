@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
+import { canAccessNsiPratique } from '@/lib/nsi-pratique-2026/access';
 import { validateNsiProgressPayload } from '@/lib/nsi-pratique-2026/progress-validation';
 import type { Prisma } from '@prisma/client';
 
@@ -15,6 +16,10 @@ export async function GET() {
     const sessionOrError = await requireRole('ELEVE');
     if (isErrorResponse(sessionOrError)) return sessionOrError;
     const session = sessionOrError;
+
+    if (!(await canAccessNsiPratique(session.user))) {
+      return NextResponse.json({ error: 'Accès NSI pratique non autorisé' }, { status: 403 });
+    }
 
     const record = await prisma.nsiPracticeProgress.findUnique({
       where: { userId: session.user.id },
@@ -45,6 +50,10 @@ export async function PUT(request: NextRequest) {
     const sessionOrError = await requireRole('ELEVE');
     if (isErrorResponse(sessionOrError)) return sessionOrError;
     const session = sessionOrError;
+
+    if (!(await canAccessNsiPratique(session.user))) {
+      return NextResponse.json({ error: 'Accès NSI pratique non autorisé' }, { status: 403 });
+    }
 
     // Check content length header
     const contentLength = request.headers.get('content-length');
