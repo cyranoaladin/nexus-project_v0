@@ -68,6 +68,8 @@ backup_*.sql
 backup_*.sql.gz
 # But keep Prisma migration SQL files
 !prisma/migrations/**/*.sql
+n# Incident / forensic dumps with real DB data
+incident-forensics/
 e2e/.credentials.json
 
 # ─── Sécurité / RGPD ───────────────────────────────────────────────────────
