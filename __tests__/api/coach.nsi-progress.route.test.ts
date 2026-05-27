@@ -30,7 +30,6 @@ jest.mock('@/lib/prisma', () => ({
 
 const mockCanAccessNsiPratique = jest.fn();
 jest.mock('@/lib/nsi-pratique-2026/access', () => ({
-  NSI_PRACTICE_STUDENT_EMAILS: ['channoufieya5@gmail.com', 'raniachannoufi02@gmail.com'],
   canAccessNsiPratique: (...args: unknown[]) => mockCanAccessNsiPratique(...args),
 }));
 
@@ -78,7 +77,7 @@ describe('GET /api/coach/nsi-pratique-2026/students', () => {
     expect(res.status).toBe(403);
   });
 
-  it('returns 403 when coach is not assigned to the requested NSI students', async () => {
+  it('returns 403 when coach is not assigned to any NSI students', async () => {
     mockRequireRole.mockResolvedValue(coachSession);
     mockCanAccessNsiPratique.mockResolvedValue(false);
 
@@ -93,7 +92,7 @@ describe('GET /api/coach/nsi-pratique-2026/students', () => {
   it('returns empty list when no NSI assignments', async () => {
     mockRequireRole.mockResolvedValue(coachSession);
     mockGetAssignedStudents.mockResolvedValue([
-      { subjects: ['MATHEMATIQUES'], student: { id: 's1', userId: 'u1', firstName: 'Test', lastName: 'Student' } },
+      { subjects: ['MATHEMATIQUES'], student: { id: 's1', userId: 'u1', firstName: 'Alice', lastName: 'Dupont' } },
     ]);
 
     const res = await GET();
@@ -107,9 +106,9 @@ describe('GET /api/coach/nsi-pratique-2026/students', () => {
   it('returns NSI students with enriched progress summary', async () => {
     mockRequireRole.mockResolvedValue(coachSession);
     mockGetAssignedStudents.mockResolvedValue([
-      { subjects: ['NSI'], student: { id: 's1', userId: 'u1', firstName: 'Rania', lastName: 'Chanoufi', email: 'raniachannoufi02@gmail.com' } },
-      { subjects: ['NSI'], student: { id: 's2', userId: 'u2', firstName: 'Eya', lastName: 'Chanoufi', email: 'channoufieya5@gmail.com' } },
-      { subjects: ['NSI'], student: { id: 's3', userId: 'u3', firstName: 'Other', lastName: 'Student', email: 'other@example.com' } },
+      { subjects: ['NSI'], student: { id: 's1', userId: 'u1', firstName: 'Alice', lastName: 'Dupont', email: 'student1.nsi@example.test' } },
+      { subjects: ['NSI'], student: { id: 's2', userId: 'u2', firstName: 'Bob', lastName: 'Martin', email: 'student2.nsi@example.test' } },
+      { subjects: ['NSI'], student: { id: 's3', userId: 'u3', firstName: 'Charlie', lastName: 'Bernard', email: 'student3.nsi@example.test' } },
     ]);
     (prisma.nsiPracticeProgress.findMany as jest.Mock).mockResolvedValue([
       {
@@ -131,9 +130,9 @@ describe('GET /api/coach/nsi-pratique-2026/students', () => {
     const body = await res.json();
 
     expect(res.status).toBe(200);
-    expect(body.count).toBe(2);
+    expect(body.count).toBe(3);
     // First student: has progress
-    expect(body.students[0].firstName).toBe('Rania');
+    expect(body.students[0].firstName).toBe('Alice');
     expect(body.students[0].hasProgress).toBe(true);
     expect(body.students[0].subjectsMastered).toBe(1);
     expect(body.students[0].subjectsSeen).toBe(2);
@@ -169,7 +168,7 @@ describe('GET /api/coach/nsi-pratique-2026/students/[studentId]/progress', () =>
       userId: 'u1',
       gradeLevel: 'TERMINALE',
       academicTrack: 'EDS_GENERALE',
-      user: { firstName: 'Test', lastName: 'Student', email: 'test@test.com' },
+      user: { firstName: 'Alice', lastName: 'Dupont', email: 'student1.nsi@example.test' },
     });
     mockIsCoachAssigned.mockResolvedValue(false);
 
@@ -202,7 +201,7 @@ describe('GET /api/coach/nsi-pratique-2026/students/[studentId]/progress', () =>
       userId: 'u1',
       gradeLevel: 'TERMINALE',
       academicTrack: 'EDS_GENERALE',
-      user: { firstName: 'Rania', lastName: 'CHANNOUFI', email: 'rania@test.com' },
+      user: { firstName: 'Alice', lastName: 'DUPONT', email: 'student1.nsi@example.test' },
     });
     (prisma.nsiPracticeProgress.findUnique as jest.Mock).mockResolvedValue({
       data: {
@@ -225,7 +224,7 @@ describe('GET /api/coach/nsi-pratique-2026/students/[studentId]/progress', () =>
     const body = await res.json();
 
     expect(res.status).toBe(200);
-    expect(body.student.firstName).toBe('Rania');
+    expect(body.student.firstName).toBe('Alice');
     expect(body.summary.subjectsMastered).toBe(1);
     expect(body.summary.readiness).toBe('consolidate');
     expect(body.details).toBeDefined();
@@ -242,7 +241,7 @@ describe('GET /api/coach/nsi-pratique-2026/students/[studentId]/progress', () =>
       userId: 'u1',
       gradeLevel: 'TERMINALE',
       academicTrack: 'EDS_GENERALE',
-      user: { firstName: 'Eya', lastName: 'CHANNOUFI', email: 'eya@test.com' },
+      user: { firstName: 'Bob', lastName: 'MARTIN', email: 'student2.nsi@example.test' },
     });
     (prisma.nsiPracticeProgress.findUnique as jest.Mock).mockResolvedValue(null);
 

@@ -83,20 +83,12 @@ export function NsiHero({ stats, recommendation, onNavigate }: NsiHeroProps) {
           transition={{ delay: 0.1, duration: 0.4 }}
           className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white"
         >
-          Épreuve pratique NSI 2026
+          Opération commando NSI 2026
         </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.4 }}
-          className="text-lg sm:text-xl text-neutral-300"
-        >
-          23 sujets. 5 jours. Une méthode.
-        </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.4 }}
+          transition={{ delay: 0.2, duration: 0.4 }}
           className="flex flex-wrap justify-center gap-2"
         >
           <Badge variant="default">

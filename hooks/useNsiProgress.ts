@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import type { NsiProgress, SubjectProgress, PatternProgress, FlashcardProgress, SelfAssessmentProgress, MockExamResult, OralFourPhrases, FiveDayTaskProgress } from '@/data/nsi-pratique-2026/types';
 import {
+  setProgressStorageOwner,
   loadProgress,
   saveProgress,
   updateSubjectProgress,
@@ -29,7 +30,7 @@ const DEBOUNCE_MS = 1500;
  * - Migration: if server is empty but local has data, auto-upload.
  */
 export function useNsiProgress() {
-  const { status: authStatus } = useSession();
+  const { data: session, status: authStatus } = useSession();
   const [progress, setProgress] = useState<NsiProgress | null>(null);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('idle');
   const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
@@ -86,6 +87,10 @@ export function useNsiProgress() {
 
   // --- Initial load: localStorage + server hydration ---
   useEffect(() => {
+    const storageOwner = authStatus === 'authenticated'
+      ? session?.user?.email ?? session?.user?.id ?? null
+      : null;
+    setProgressStorageOwner(storageOwner);
     const localData = loadProgress();
     setProgress(localData);
 
@@ -136,7 +141,7 @@ export function useNsiProgress() {
         // Network error — keep localStorage, mark error, don't lose data
         setSyncStatus('error');
       });
-  }, [authStatus, fetchServerProgress, saveToServer]);
+  }, [authStatus, session?.user?.email, session?.user?.id, fetchServerProgress, saveToServer]);
 
   // Flush pending save on tab close/navigation
   useEffect(() => {
