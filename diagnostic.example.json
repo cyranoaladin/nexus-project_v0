@@ -1,0 +1,50 @@
+{
+  "version": "1.0.0",
+  "timestamp": 1777280095294,
+  "step": "results",
+  "profile": {
+    "firstName": "Prénom",
+    "lastName": "NOM",
+    "targetGrade": "14"
+  },
+  "progress": {
+    "C1": { "declared": 4, "confidence": 3 },
+    "C2": { "declared": 4, "confidence": 3 },
+    "C3": { "declared": 5, "confidence": 3 },
+    "C4": { "declared": 2, "confidence": 3 },
+    "C5": { "declared": 2, "confidence": 3 },
+    "C6": { "declared": 3, "confidence": 3 },
+    "C7": { "declared": 4, "confidence": 3 },
+    "C8": { "declared": 3, "confidence": 3 },
+    "C9": { "declared": 4, "confidence": 3 },
+    "C10": { "declared": 3, "confidence": 3 }
+  },
+  "qcmAnswers": {
+    "C1": [1, 2, 0, 1],
+    "C2": [2, 0, 1, 2],
+    "C3": [1, 1, 2, 0],
+    "C4": [0, 2, 1, 1],
+    "C5": [2, 1, 0, 2]
+  },
+  "openAnswers": {},
+  "teacherGrades": {},
+  "isTeacherGraded": false,
+  "evaluatedData": {
+    "qcmRawScore": 13,
+    "qcmMaxScore": 20,
+    "qcmPercentage": 65,
+    "domainScores": {
+      "C1": 75,
+      "C2": 60,
+      "C3": 80,
+      "C4": 40,
+      "C5": 50,
+      "C6": 65,
+      "C7": 70,
+      "C8": 55,
+      "C9": 75,
+      "C10": 60
+    }
+  },
+  "_comment": "Fichier exemple anonymisé. Ne jamais commiter de données élèves réelles."
+}

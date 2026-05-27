@@ -102,12 +102,9 @@ chokidar, commander, pg, pino-http, tar, uuid, winston, winston-daily-rotate-fil
 | `production_tree.txt` | 0 ref productive (ne se référence que lui-même + ancien snapshot) |
 | `nexus_prod_tree_20260425.txt` | 0 ref productive |
 | `task.md` (racine) | 0 ref productive (1 mention dans `production_tree.txt` qui est lui-même supprimé) |
-| `prisma/seed-zakaria.js` | doublon de `seed-zakaria.ts` |
-| `prisma/seed-zakaria-minimal.js` | variante orpheline |
-| `prisma/seed-zakaria-prod.js` | doublon de `seed-zakaria-prod.ts` |
-| `prisma/seed-zakaria-prod.ts` | redondant avec `seed-zakaria.ts` typé fort |
+| Seeds nominatifs | interdits en versionné, remplacés par fixtures anonymisées |
 
-**Canonique conservé** : `prisma/seed-zakaria.ts` (8 870 octets, le plus complet et typé). Documenté dans `docs/seed-data.md` (à créer à la suite).
+**Règle de sécurité** : aucun seed nominatif ni diagnostic élève réel ne doit être conservé dans Git.
 
 ### 2.4 À déplacer
 
@@ -161,7 +158,7 @@ Voir commits sur la branche `chore/cleanup-and-baseline-2026-04-27` :
 1. `chore(cleanup): add baseline audit report` — ce document
 2. `chore(cleanup): move official PDFs to programmes/ with kebab-case names`
 3. `chore(cleanup): remove orphan root files (snapshots, bilan jsx, task.md)`
-4. `chore(cleanup): consolidate seed-zakaria scripts to single typed source`
+4. `chore(cleanup): remove nominative seed scripts`
 5. `chore(cleanup): relocate orphan shell scripts to scripts/legacy/`
 6. `feat(programme): add lib/programme/official-pdfs.ts stub + test`
 7. `docs(seed): add docs/seed-data.md inventory`
