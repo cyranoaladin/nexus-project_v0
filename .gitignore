@@ -83,23 +83,45 @@ e2e/fixtures/*.json
 # Données stages locales JSON (source de vérité : DB Prisma)
 data/stages/*.json
 
-# Artefacts d'analyse serveur
-prod-tree*.txt
-.codex
-get-users-temp.mjs
+# ─── PII / Données nominatives ────────────────────────────────────────────
+diagnostic_*.json
+!diagnostic.example.json
+diagnostic_maths_*.json
+prisma/seed-zakaria*
+*.csv
+!examples/**/*.csv
+!fixtures/**/*.csv
 
-# Certificats SSL (ne jamais committer)
+# ─── Scratch / Temp ──────────────────────────────────────────────────────
+scratch/
+
+# ─── Artefacts d'analyse serveur ─────────────────────────────────────────
+prod-tree*.txt
+get-users-temp.*
+
+# ─── Éditeurs IA / Outils ────────────────────────────────────────────────
+.aider*
+.codex
+.cline/
+.windsurf/
+.claude/
+
+# ─── Dumps / Backups locaux ──────────────────────────────────────────────
+*.dump
+backups/
+
+# ─── Logs runtime ────────────────────────────────────────────────────────
+.pm2/
+
+# ─── Certificats SSL (ne jamais committer) ───────────────────────────────
 nginx/ssl/*
 !nginx/ssl/.gitkeep
-
-# Certificats SSL (ne jamais committer)
 arborescence*.txt
-.aider*
 
-# NSI exam subjects (large PDFs, not versioned)
+# ─── NSI exam subjects (large PDFs, not versioned) ───────────────────────
 Sujets-EP-NSI-2026/
 
-# PNG source files for landing WebP images (large, not used at runtime)
+# ─── PNG source files for landing WebP images (large, not used at runtime)
 public/images/accompagnement-personnalise.png
 public/images/bilans-livrets-personnalises.png
 public/images/cta-final-whatsapp.png

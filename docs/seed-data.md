@@ -12,23 +12,16 @@ Ce document recense les scripts de seed Prisma, leur scope d'utilisation et les 
 | Script | Scope | Utilisation |
 |---|---|---|
 | `prisma/seed.ts` | seed principal (catégories : EDS, STMG, comptes coachs, parents, admin, etc.) | invoqué par `prisma db seed` (script `package.json`), Prisma migrate, CI |
-| `prisma/seed-zakaria.ts` | profil de recette unique élève EDS Première Maths "Zakaria Amaimia" — données diagnostiques + bilan exemple | invocation manuelle — `npx tsx prisma/seed-zakaria.ts` (staging/local uniquement) |
 | `scripts/seed-e2e-db.ts` | seed dédié e2e Playwright | invoqué dans `npm run test:e2e:setup` et CI Playwright |
 | `scripts/seed-parent-dashboard-e2e.ts` | seed parent multi-enfants pour le dashboard parent | manuel ou CI E2E parent |
 | `scripts/seed-qa-profiles.ts` | comptes de recette généralistes (admin, assistante, coach, parent, élève par track/level) | manuel staging/recette |
+| `prisma/seed-demo-student.ts` | profil de recette anonymisé — élève EDS Terminale Maths + coach + bilan diagnostic exemple | `SEED_PASSWORD=changeme npx tsx prisma/seed-demo-student.ts` (local/staging uniquement) |
 
 ---
 
-## 2. Variantes legacy supprimées (Lot A — 2026-04-27)
+## 2. Seeds nominatifs supprimés
 
-Les fichiers suivants ont été retirés car redondants ou non typés :
-
-- `prisma/seed-zakaria.js` — variante JS du `.ts` canonique
-- `prisma/seed-zakaria-minimal.js` — variante allégée jamais référencée
-- `prisma/seed-zakaria-prod.js` — duplicate du `.ts` prod
-- `prisma/seed-zakaria-prod.ts` — variante prod redondante (le `.ts` canonique gère les deux environnements via `process.env.NODE_ENV`)
-
-**Source canonique** : `prisma/seed-zakaria.ts` uniquement.
+Les seeds et diagnostics nominatifs ne doivent pas être versionnés. Les jeux de recette doivent utiliser uniquement des profils fictifs et anonymisés.
 
 ---
 
@@ -55,7 +48,7 @@ Provenance : `scripts/seed-e2e-db.ts` + `prisma/seed.ts`.
 | `eleve.stmg.survival@nexus-reussite.com` | ELEVE | STMG Première + survivalMode | `password123` |
 | `helios@nexus-reussite.com` | COACH | — | `password123` |
 | `parent@example.com` | PARENT | — | `password123` |
-| `admin@nexus-reussite.com` | ADMIN | — | `admin123` |
+| `admin@nexus-reussite.com` | ADMIN | — | e2e uniquement : `admin123` ; prod : `SEED_PASSWORD` obligatoire |
 | `student46-1@nexus.local` | ELEVE | STMG Première (compte STMG de recette prod) | (cf. secrets manager) |
 
 À enrichir au Lot E (Terminale EDS) et au Lot F (STMG Première complet).
