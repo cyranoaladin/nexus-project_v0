@@ -3,12 +3,6 @@ import type { NavigationItem } from '@/components/navigation/navigation-config';
 import { prisma } from '@/lib/prisma';
 import { activeAssignmentWhere } from '@/lib/rbac/coach-student-access';
 
-export const NSI_PRACTICE_STUDENT_EMAILS = [
-  'channoufieya5@gmail.com',
-  'raniachannoufi02@gmail.com',
-  'walid.meziane-e@ert.tn',
-] as const;
-
 const NSI_PRACTICE_PATH_SEGMENT = '/nsi-pratique-2026';
 
 type AccessUser = {
@@ -18,12 +12,14 @@ type AccessUser = {
   role?: UserRole | string | null;
 };
 
-export function isNsiPracticeStudentEmail(email?: string | null): boolean {
-  if (!email) return false;
-  const normalized = email.trim().toLowerCase();
-  return (NSI_PRACTICE_STUDENT_EMAILS as readonly string[]).includes(normalized);
-}
-
+/**
+ * Determines whether a user can access the NSI Pratique 2026 module.
+ * Access is DB-driven — no hardcoded email allowlists.
+ *
+ * - ADMIN: always allowed.
+ * - ELEVE: allowed if Student.specialties includes NSI.
+ * - COACH: allowed if assigned to at least one NSI student with an active assignment.
+ */
 export async function canAccessNsiPratique(user: AccessUser): Promise<boolean> {
   const userId = user.userId ?? user.id;
   if (!userId || !user.role) return false;
@@ -31,8 +27,6 @@ export async function canAccessNsiPratique(user: AccessUser): Promise<boolean> {
   if (user.role === 'ADMIN') return true;
 
   if (user.role === 'ELEVE') {
-    if (!isNsiPracticeStudentEmail(user.email)) return false;
-
     const student = await prisma.student.findFirst({
       where: {
         userId,
@@ -40,7 +34,6 @@ export async function canAccessNsiPratique(user: AccessUser): Promise<boolean> {
       },
       select: { id: true },
     });
-
     return Boolean(student);
   }
 
@@ -49,7 +42,6 @@ export async function canAccessNsiPratique(user: AccessUser): Promise<boolean> {
       where: { userId },
       select: { id: true },
     });
-
     if (!coach) return false;
 
     const assignment = await prisma.coachStudentAssignment.findFirst({
@@ -57,21 +49,21 @@ export async function canAccessNsiPratique(user: AccessUser): Promise<boolean> {
         coachId: coach.id,
         subjects: { has: 'NSI' },
         student: {
-          user: {
-            email: { in: [...NSI_PRACTICE_STUDENT_EMAILS], mode: 'insensitive' },
-          },
+          specialties: { has: 'NSI' },
         },
         ...activeAssignmentWhere(),
       },
       select: { id: true },
     });
-
     return Boolean(assignment);
   }
 
   return false;
 }
 
+/**
+ * Filters navigation items: hides NSI entry when the user has no access.
+ */
 export async function filterNsiPratiqueNavigation(
   items: NavigationItem[],
   user: AccessUser,

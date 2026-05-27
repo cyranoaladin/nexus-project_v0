@@ -2,6 +2,13 @@ import type { NsiProgress, SubjectProgress, PatternProgress, FlashcardProgress, 
 
 const STORAGE_KEY = 'nsi-pratique-2026-progress';
 const STORAGE_VERSION = 1;
+let activeStorageKey = STORAGE_KEY;
+
+export function setProgressStorageOwner(ownerId?: string | null): void {
+  activeStorageKey = ownerId
+    ? `${STORAGE_KEY}:${ownerId.trim().toLowerCase()}`
+    : STORAGE_KEY;
+}
 
 function getDefaultProgress(): NsiProgress {
   return {
@@ -18,7 +25,7 @@ function getDefaultProgress(): NsiProgress {
 export function loadProgress(): NsiProgress {
   if (typeof window === 'undefined') return getDefaultProgress();
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(activeStorageKey);
     if (!stored) return getDefaultProgress();
     const parsed = JSON.parse(stored);
     // Version migration: reset if incompatible
@@ -37,7 +44,7 @@ export function loadProgress(): NsiProgress {
 export function saveProgress(progress: NsiProgress): void {
   if (typeof window === 'undefined') return;
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...progress, _version: STORAGE_VERSION }));
+    localStorage.setItem(activeStorageKey, JSON.stringify({ ...progress, _version: STORAGE_VERSION }));
   } catch {
     // Storage full or unavailable — silently fail
   }
