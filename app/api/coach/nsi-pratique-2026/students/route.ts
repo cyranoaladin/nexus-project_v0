@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { getAssignedStudentsForCoach } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
-import { NSI_PRACTICE_STUDENT_EMAILS, canAccessNsiPratique } from '@/lib/nsi-pratique-2026/access';
+import { canAccessNsiPratique } from '@/lib/nsi-pratique-2026/access';
 import { computeCoachStudentSummary } from '@/lib/nsi-pratique-2026/coach-summary';
 import type { NsiProgress } from '@/data/nsi-pratique-2026/types';
 
@@ -37,10 +37,7 @@ export async function GET() {
 
     // Filter to assignments that include NSI subject
     const nsiAssignments = (assignments as CoachAssignment[]).filter(
-      (a) => a.subjects?.includes('NSI') &&
-        NSI_PRACTICE_STUDENT_EMAILS.includes(
-          (a.student.email ?? '').toLowerCase() as typeof NSI_PRACTICE_STUDENT_EMAILS[number]
-        )
+      (a) => a.subjects?.includes('NSI'),
     );
 
     if (nsiAssignments.length === 0) {
