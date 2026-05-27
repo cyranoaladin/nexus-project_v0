@@ -14,7 +14,7 @@ import { generateBilanToken, verifyBilanToken } from '@/lib/diagnostics/signed-t
 import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { createHash } from 'crypto';
-import { checkRateLimit } from '@/lib/rate-limit';
+import { guardRateLimit } from '@/lib/rate-limit';
 import { checkCsrf, checkBodySize } from '@/lib/csrf';
 
 /**
@@ -33,9 +33,9 @@ export async function POST(request: NextRequest) {
     const bodySizeResponse = checkBodySize(request);
     if (bodySizeResponse) return bodySizeResponse;
 
-    // Rate limiting (100 req/min per IP)
-    const rateLimitResponse = await checkRateLimit(request, 'api');
-    if (rateLimitResponse) return rateLimitResponse;
+    // Rate limiting
+    const blocked = guardRateLimit(request, { preset: 'api' });
+    if (blocked) return blocked;
 
     const body = await request.json();
 

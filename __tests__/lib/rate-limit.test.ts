@@ -1,91 +1,84 @@
-const limitMock = jest.fn();
+/**
+ * Rate Limiting — Unit Tests
+ *
+ * Tests the unified rate-limit module (lib/rate-limit/).
+ * No Upstash/Redis mocks needed — the unified system uses in-memory only.
+ */
 
-jest.mock('@upstash/redis', () => ({
-  Redis: class Redis {
-    constructor() {}
-  },
-}));
+import { NextRequest } from 'next/server';
+import {
+  checkRateLimit,
+  rateLimitResponse,
+  guardRateLimit,
+  _resetStoreForTests,
+} from '@/lib/rate-limit';
 
-jest.mock('@upstash/ratelimit', () => ({
-  Ratelimit: class Ratelimit {
-    static slidingWindow() {
-      return { type: 'sliding' };
-    }
-    limit = limitMock;
-    constructor() {}
-  },
-}));
-
-jest.mock('next/server', () => ({
-  NextResponse: {
-    json: (body: any, init?: { status?: number }) => ({
-      status: init?.status,
-      body,
-      headers: new Map<string, string>(),
-    }),
-  },
-}));
-
-jest.mock('@/lib/logger', () => ({
-  logger: {
-    warn: jest.fn(),
-    error: jest.fn(),
-  },
-}));
+function makeRequest(ip: string): NextRequest {
+  return new NextRequest('http://localhost:3000/api/test', {
+    headers: { 'x-forwarded-for': ip },
+  });
+}
 
 describe('rate-limit', () => {
-  const originalEnv = process.env;
-
   beforeEach(() => {
-    jest.resetModules();
-    process.env = { ...originalEnv };
-    limitMock.mockReset();
+    _resetStoreForTests();
   });
 
-  afterAll(() => {
-    process.env = originalEnv;
+  it('allows first request (success=true)', () => {
+    const req = makeRequest('1.2.3.4');
+    const result = checkRateLimit(req, { preset: 'api' });
+    expect(result.success).toBe(true);
+    expect(result.remaining).toBe(59);
   });
 
-  it('disables rate limiters when Redis is not configured', async () => {
-    delete process.env.UPSTASH_REDIS_REST_URL;
-    delete process.env.UPSTASH_REDIS_REST_TOKEN;
-
-    const mod = await import('@/lib/rate-limit');
-    expect(mod.rateLimiters.auth).toBeNull();
-
-    const request = {
-      headers: new Map<string, string>(),
-      nextUrl: { pathname: '/api/test' },
-    } as any;
-
-    const result = await mod.applyRateLimit(request, null);
-    expect(result).toMatchObject({ success: true });
+  it('returns limit metadata on every request', () => {
+    const req = makeRequest('1.2.3.5');
+    const result = checkRateLimit(req, { preset: 'api' });
+    expect(result.limit).toBe(60);
+    expect(result.remaining).toBeDefined();
+    expect(result.resetAt).toBeGreaterThan(0);
+    expect(result.retryAfter).toBe(0);
   });
 
-  it('returns limit metadata when limiter is active', async () => {
-    process.env.UPSTASH_REDIS_REST_URL = 'https://example.com';
-    process.env.UPSTASH_REDIS_REST_TOKEN = 'token';
-
-    limitMock.mockResolvedValue({
-      success: true,
-      limit: 5,
-      remaining: 4,
-      reset: 100,
-    });
-
-    const mod = await import('@/lib/rate-limit');
-    const request = {
-      headers: new Map([['x-forwarded-for', '1.2.3.4']]),
-      nextUrl: { pathname: '/api/test' },
-    } as any;
-
-    const result = await mod.applyRateLimit(request, mod.rateLimiters.api, 'user-1');
-    expect(result).toEqual({ success: true, limit: 5, remaining: 4, reset: 100 });
+  it('blocks after limit is exceeded', () => {
+    const req = makeRequest('1.2.3.6');
+    for (let i = 0; i < 5; i++) {
+      const r = checkRateLimit(req, { preset: 'auth' });
+      expect(r.success).toBe(true);
+    }
+    const blocked = checkRateLimit(req, { preset: 'auth' });
+    expect(blocked.success).toBe(false);
+    expect(blocked.remaining).toBe(0);
+    expect(blocked.retryAfter).toBeGreaterThan(0);
   });
 
-  it('creates rate limit response with headers', async () => {
-    const mod = await import('@/lib/rate-limit');
-    const response = mod.createRateLimitResponse(10, 0, 123);
+  it('creates 429 response with headers', async () => {
+    const result = {
+      success: false as const,
+      limit: 10,
+      remaining: 0,
+      resetAt: Date.now() + 60_000,
+      retryAfter: 60,
+    };
+    const response = rateLimitResponse(result);
     expect(response.status).toBe(429);
+    expect(response.headers.get('X-RateLimit-Limit')).toBe('10');
+    expect(response.headers.get('X-RateLimit-Remaining')).toBe('0');
+    expect(response.headers.get('Retry-After')).toBe('60');
+  });
+
+  it('guardRateLimit returns null when allowed', () => {
+    const req = makeRequest('1.2.3.7');
+    expect(guardRateLimit(req, { preset: 'api' })).toBeNull();
+  });
+
+  it('guardRateLimit returns 429 when blocked', () => {
+    const req = makeRequest('1.2.3.8');
+    for (let i = 0; i < 5; i++) {
+      guardRateLimit(req, { preset: 'auth' });
+    }
+    const result = guardRateLimit(req, { preset: 'auth' });
+    expect(result).not.toBeNull();
+    expect(result!.status).toBe(429);
   });
 });

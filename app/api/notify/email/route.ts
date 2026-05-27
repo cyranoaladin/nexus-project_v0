@@ -18,7 +18,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { checkCsrf } from '@/lib/csrf';
-import { checkRateLimit } from '@/lib/rate-limit';
+import { guardRateLimit } from '@/lib/rate-limit';
 import { sendMail } from '@/lib/email/mailer';
 import { bilanAcknowledgement, internalNotification } from '@/lib/email/templates';
 
@@ -98,9 +98,9 @@ export async function POST(request: NextRequest) {
   const csrfResponse = checkCsrf(request);
   if (csrfResponse) return csrfResponse;
 
-  // 2. Dedicated rate limiting — 5 req/min/IP (fail-closed in prod if Redis absent)
-  const rateLimitResponse = await checkRateLimit(request, 'notifyEmail');
-  if (rateLimitResponse) return rateLimitResponse;
+  // 2. Dedicated rate limiting — 5 req/hour/IP
+  const blocked = guardRateLimit(request, { preset: 'notifyEmail' });
+  if (blocked) return blocked;
 
   // 3. Read & parse body with stream-enforced size limit (64KB)
   let body: unknown;
