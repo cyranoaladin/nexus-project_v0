@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { stageReservationSchema } from '@/lib/validations';
 import { sendStageDiagnosticInvitation, sendStageBankTransferConfirmation } from '@/lib/email';
 import { auth } from '@/auth';
-import { checkRateLimit } from '@/lib/rate-limit';
+import { guardRateLimit } from '@/lib/rate-limit';
 import { checkCsrf, checkBodySize } from '@/lib/csrf';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -87,11 +87,9 @@ export async function POST(request: NextRequest) {
     const bodySizeResponse = checkBodySize(request);
     if (bodySizeResponse) return bodySizeResponse;
 
-    // 1. Rate Limiting (10 requests per minute per IP)
-    const rateLimitResponse = await checkRateLimit(request, 'api');
-    if (rateLimitResponse) {
-      return rateLimitResponse;
-    }
+    // 1. Rate Limiting
+    const blocked = guardRateLimit(request, { preset: 'api' });
+    if (blocked) return blocked;
 
     const body = await request.json();
 

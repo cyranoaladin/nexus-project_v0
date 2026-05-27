@@ -1,45 +1,55 @@
-jest.mock('next/server', () => ({
-  NextResponse: {
-    json: (body: any, init?: { status?: number; headers?: HeadersInit }) => ({
-      status: init?.status,
-      body,
-      headers: init?.headers,
-    }),
-  },
-}));
+/**
+ * Facade compatibility tests for lib/middleware/rateLimit.ts
+ *
+ * Verifies the deprecated facade still works for existing routes
+ * that import RateLimitPresets from '@/lib/middleware/rateLimit'.
+ */
 
-import { rateLimit, clearRateLimit, getRateLimitStatus } from '@/lib/middleware/rateLimit';
+import { NextRequest } from 'next/server';
+import { rateLimit, RateLimitPresets } from '@/lib/middleware/rateLimit';
+import { _resetStoreForTests } from '@/lib/rate-limit';
 
-describe('middleware rateLimit', () => {
-  const request = {
-    headers: new Headers({ 'x-forwarded-for': '1.2.3.4' }),
-  } as any;
+function makeRequest(ip: string): NextRequest {
+  return new NextRequest('http://localhost:3000/api/test', {
+    headers: { 'x-forwarded-for': ip },
+  });
+}
 
+describe('middleware rateLimit facade', () => {
   beforeEach(() => {
-    clearRateLimit(request);
+    _resetStoreForTests();
+  });
+
+  it('rateLimit() factory returns a function', () => {
+    const limiter = rateLimit({ windowMs: 1000, maxRequests: 2 });
+    expect(typeof limiter).toBe('function');
   });
 
   it('allows requests under the limit', () => {
-    const limiter = rateLimit({ windowMs: 1000, maxRequests: 2 });
-    const res1 = limiter(request);
-    const res2 = limiter(request);
+    const request = makeRequest('1.2.3.4');
+    const res1 = RateLimitPresets.api(request, 'test');
     expect(res1).toBeNull();
-    expect(res2).toBeNull();
   });
 
-  it('blocks when limit exceeded', () => {
-    const limiter = rateLimit({ windowMs: 1000, maxRequests: 1 });
-    const res1 = limiter(request);
-    const res2 = limiter(request) as any;
-    expect(res1).toBeNull();
-    expect(res2.status).toBe(429);
-    expect(res2.body.error).toBe('RATE_LIMIT_EXCEEDED');
+  it('RateLimitPresets.auth blocks after 5 requests', () => {
+    const request = makeRequest('1.2.3.5');
+    for (let i = 0; i < 5; i++) {
+      const res = RateLimitPresets.auth(request, 'facade-auth');
+      expect(res).toBeNull();
+    }
+    const blocked = RateLimitPresets.auth(request, 'facade-auth');
+    expect(blocked).not.toBeNull();
+    expect(blocked!.status).toBe(429);
   });
 
-  it('getRateLimitStatus reports remaining', () => {
-    const limiter = rateLimit({ windowMs: 1000, maxRequests: 2 });
-    limiter(request);
-    const status = getRateLimitStatus(request, { windowMs: 1000, maxRequests: 2 });
-    expect(status.remaining).toBe(1);
+  it('different key prefixes are independent', () => {
+    const request = makeRequest('1.2.3.6');
+    // Exhaust auth with prefix A
+    for (let i = 0; i < 5; i++) {
+      RateLimitPresets.auth(request, 'routeA');
+    }
+    expect(RateLimitPresets.auth(request, 'routeA')).not.toBeNull();
+    // Prefix B should still work
+    expect(RateLimitPresets.auth(request, 'routeB')).toBeNull();
   });
 });
