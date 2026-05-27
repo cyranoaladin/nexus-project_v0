@@ -88,6 +88,8 @@ diagnostic_*.json
 !diagnostic.example.json
 diagnostic_maths_*.json
 prisma/seed-zakaria*
+prisma/seed-demo-student.ts
+storage/documents/
 *.csv
 !examples/**/*.csv
 !fixtures/**/*.csv
@@ -99,12 +101,12 @@ scratch/
 prod-tree*.txt
 get-users-temp.*
 
-# ─── Éditeurs IA / Outils ────────────────────────────────────────────────
+# ─── Éditeurs IA / Outils (personnel, pas projet) ───────────────────────
 .aider*
 .codex
-.cline/
-.windsurf/
 .claude/
+# Note: .cline/, .clinerules/, .windsurf/ sont versionnés volontairement
+# (skills et workflows métier du projet)
 
 # ─── Dumps / Backups locaux ──────────────────────────────────────────────
 *.dump
