@@ -9,7 +9,7 @@ jest.mock('bcryptjs', () => ({
 
 // Mock rate limiting (always allow)
 jest.mock('../../lib/rate-limit', () => ({
-  checkRateLimit: jest.fn().mockResolvedValue(null)
+  guardRateLimit: jest.fn().mockReturnValue(null)
 }));
 
 // Mock CSRF (always allow)

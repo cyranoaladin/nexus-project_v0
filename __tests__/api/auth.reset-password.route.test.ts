@@ -10,7 +10,7 @@
  */
 
 jest.mock('@/lib/rate-limit', () => ({
-  checkRateLimit: jest.fn().mockResolvedValue(null),
+  guardRateLimit: jest.fn().mockReturnValue(null),
 }));
 
 jest.mock('@/lib/email', () => ({

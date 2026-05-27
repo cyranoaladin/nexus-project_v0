@@ -5,6 +5,7 @@ import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
+import { guardRateLimit } from '@/lib/rate-limit';
 import { sendMail } from '@/lib/email/mailer';
 import { prisma } from '@/lib/prisma';
 
@@ -76,6 +77,10 @@ function buildActivationEmailHtml(firstName: string, activationUrl: string) {
 }
 
 export async function POST(request: NextRequest) {
+  // IP-based rate limiting: 3 req/15min (resendActivation preset)
+  const blocked = guardRateLimit(request, { preset: 'resendActivation' });
+  if (blocked) return blocked;
+
   let body: unknown;
 
   try {

@@ -24,7 +24,7 @@ jest.mock('@/lib/prisma', () => ({
 }));
 
 jest.mock('@/lib/rate-limit', () => ({
-  checkRateLimit: jest.fn().mockResolvedValue(null),
+  guardRateLimit: jest.fn().mockReturnValue(null),
 }));
 
 jest.mock('@/lib/csrf', () => ({

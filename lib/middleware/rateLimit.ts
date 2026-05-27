@@ -1,233 +1,100 @@
 /**
- * Rate Limiting Middleware
+ * Rate Limiting Middleware — Compatibility Facade
  *
- * Simple in-memory rate limiter using sliding window algorithm.
- * For production, consider Redis-based solution (upstash/ratelimit, etc.)
+ * Delegates to the unified rate-limit system in `@/lib/rate-limit`.
+ * Existing routes can keep their `RateLimitPresets.api(request, 'prefix')` calls
+ * without modification; under the hood, a single MemoryStore is used.
+ *
+ * New routes should import directly from `@/lib/rate-limit` instead.
+ *
+ * @deprecated Import from `@/lib/rate-limit` for new code.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { errorResponse, HttpStatus, ErrorCode } from './errors';
+import {
+  guardRateLimit,
+  type PresetName,
+} from '@/lib/rate-limit';
 
-interface RateLimitConfig {
-  windowMs: number;  // Time window in milliseconds
-  maxRequests: number;  // Max requests per window
-  message?: string;
-  skipSuccessfulRequests?: boolean;
-}
+// ── Preset mapping ────────────────────────────────────────────────────
+// Maps old System B preset names to unified preset names.
+// NOTE: "expensive" changed from 10 req/min → 10 req/hour (intentional
+// tightening for sensitive operations like session booking/cancellation).
+// "api" changed from 100 req/min → 60 req/min.
 
-interface RateLimitStore {
-  [key: string]: {
-    count: number;
-    resetTime: number;
-  };
-}
-
-// In-memory store (use Redis in production for multi-instance deployments)
-const store: RateLimitStore = {};
-
-// Cleanup old entries every 10 minutes
-// NOTE: Commented out to prevent hanging in test environment
-// Uncomment for production or implement Redis-based solution
-// setInterval(() => {
-//   const now = Date.now();
-//   Object.keys(store).forEach(key => {
-//     if (store[key].resetTime < now) {
-//       delete store[key];
-//     }
-//   });
-// }, 10 * 60 * 1000);
-
-/**
- * Generate rate limit key from request
- * Uses IP address or authenticated user ID
- */
-function getRateLimitKey(request: NextRequest, prefix: string = 'rl'): string {
-  // Try to get user ID from session (if authenticated)
-  // For now, use IP address
-  const forwarded = request.headers.get('x-forwarded-for');
-  const ip = forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip') || 'unknown';
-
-  return `${prefix}:${ip}`;
-}
-
-/**
- * Check if request should be rate limited
- */
-function checkRateLimit(key: string, config: RateLimitConfig): {
-  allowed: boolean;
-  remaining: number;
-  resetTime: number;
-} {
-  const now = Date.now();
-  const record = store[key];
-
-  // No record or expired window - allow and create new
-  if (!record || record.resetTime < now) {
-    store[key] = {
-      count: 1,
-      resetTime: now + config.windowMs
-    };
-
-    return {
-      allowed: true,
-      remaining: config.maxRequests - 1,
-      resetTime: store[key].resetTime
-    };
-  }
-
-  // Within window - check count
-  if (record.count < config.maxRequests) {
-    record.count++;
-    return {
-      allowed: true,
-      remaining: config.maxRequests - record.count,
-      resetTime: record.resetTime
-    };
-  }
-
-  // Limit exceeded
-  return {
-    allowed: false,
-    remaining: 0,
-    resetTime: record.resetTime
-  };
-}
-
-/**
- * Rate limit middleware factory
- *
- * @param config - Rate limit configuration
- * @returns Middleware function
- *
- * @example
- * ```ts
- * import { rateLimit } from '@/lib/middleware/rateLimit';
- *
- * // In API route
- * export async function POST(request: NextRequest) {
- *   const rateLimitResult = rateLimit({
- *     windowMs: 60 * 1000, // 1 minute
- *     maxRequests: 10
- *   })(request);
- *
- *   if (rateLimitResult) return rateLimitResult;
- *
- *   // ... route logic
- * }
- * ```
- */
-export function rateLimit(config: RateLimitConfig) {
-  const {
-    windowMs,
-    maxRequests,
-    message = 'Too many requests, please try again later',
-  } = config;
-
-  return (request: NextRequest, keyPrefix?: string): NextResponse | null => {
-    // Explicit CI/E2E bypass — never set in production
-    if (process.env.RATE_LIMIT_DISABLE === '1') return null;
-
-    const key = getRateLimitKey(request, keyPrefix);
-    const result = checkRateLimit(key, { windowMs, maxRequests });
-
-    // Add rate limit headers
-    const headers = new Headers();
-    headers.set('X-RateLimit-Limit', maxRequests.toString());
-    headers.set('X-RateLimit-Remaining', result.remaining.toString());
-    headers.set('X-RateLimit-Reset', Math.ceil(result.resetTime / 1000).toString());
-
-    if (!result.allowed) {
-      headers.set('Retry-After', Math.ceil((result.resetTime - Date.now()) / 1000).toString());
-
-      return errorResponse(
-        HttpStatus.TOO_MANY_REQUESTS,
-        ErrorCode.RATE_LIMIT_EXCEEDED,
-        message,
-        {
-          retryAfter: Math.ceil((result.resetTime - Date.now()) / 1000)
-        },
-        headers
-      );
-    }
-
-    // Request allowed
-    return null;
-  };
-}
-
-/**
- * Preset rate limiters for common scenarios
- */
-export const RateLimitPresets = {
-  /**
-   * Strict rate limit for authentication endpoints
-   * 5 requests per 15 minutes
-   */
-  auth: rateLimit({
-    windowMs: 15 * 60 * 1000,
-    maxRequests: 5,
-    message: 'Too many login attempts, please try again later'
-  }),
-
-  /**
-   * Moderate rate limit for API endpoints
-   * 100 requests per minute
-   */
-  api: rateLimit({
-    windowMs: 60 * 1000,
-    maxRequests: 100,
-    message: 'API rate limit exceeded'
-  }),
-
-  /**
-   * Strict rate limit for expensive operations
-   * 10 requests per minute
-   */
-  expensive: rateLimit({
-    windowMs: 60 * 1000,
-    maxRequests: 10,
-    message: 'Rate limit exceeded for this operation'
-  }),
-
-  /**
-   * Lenient rate limit for public endpoints
-   * 300 requests per minute
-   */
-  public: rateLimit({
-    windowMs: 60 * 1000,
-    maxRequests: 300,
-    message: 'Rate limit exceeded'
-  }),
+const PRESET_MAP: Record<string, PresetName> = {
+  auth: 'auth',
+  api: 'api',
+  expensive: 'expensive',
+  public: 'public',
 };
 
 /**
- * Helper to clear rate limit for a specific IP/user (for testing or admin actions)
+ * Build a facade function that matches the old `rateLimit(config)(request, prefix)` signature.
+ * Returns `NextResponse | null` — null means "allowed".
  */
-export function clearRateLimit(request: NextRequest, prefix: string = 'rl'): void {
-  const key = getRateLimitKey(request, prefix);
-  delete store[key];
+function buildPreset(presetKey: string): (request: NextRequest, keyPrefix?: string) => NextResponse | null {
+  const preset = PRESET_MAP[presetKey] ?? 'api';
+
+  return (request: NextRequest, keyPrefix?: string): NextResponse | null => {
+    return guardRateLimit(request, {
+      preset,
+      keySuffix: keyPrefix,
+    });
+  };
 }
 
 /**
- * Get current rate limit status without incrementing
+ * Preset rate limiters for common scenarios.
+ *
+ * @deprecated Use `guardRateLimit(request, { preset: '...' })` from `@/lib/rate-limit`.
  */
-export function getRateLimitStatus(request: NextRequest, config: RateLimitConfig, prefix: string = 'rl'): {
-  remaining: number;
-  resetTime: number;
-} {
-  const key = getRateLimitKey(request, prefix);
-  const record = store[key];
-  const now = Date.now();
+export const RateLimitPresets = {
+  auth: buildPreset('auth'),
+  api: buildPreset('api'),
+  expensive: buildPreset('expensive'),
+  public: buildPreset('public'),
+};
 
-  if (!record || record.resetTime < now) {
-    return {
-      remaining: config.maxRequests,
-      resetTime: now + config.windowMs
-    };
-  }
+/**
+ * Rate limit middleware factory — compatibility wrapper.
+ *
+ * @deprecated Use `guardRateLimit` from `@/lib/rate-limit`.
+ */
+export function rateLimit(config: { windowMs: number; maxRequests: number; message?: string }) {
+  // Find the closest matching preset, or fall back to 'api'
+  let matchedPreset: PresetName = 'api';
+  if (config.maxRequests <= 5 && config.windowMs >= 10 * 60 * 1000) matchedPreset = 'auth';
+  else if (config.maxRequests <= 10 && config.windowMs >= 30 * 60 * 1000) matchedPreset = 'expensive';
+  else if (config.maxRequests >= 200) matchedPreset = 'public';
 
+  return (request: NextRequest, keyPrefix?: string): NextResponse | null => {
+    return guardRateLimit(request, {
+      preset: matchedPreset,
+      keySuffix: keyPrefix,
+    });
+  };
+}
+
+/**
+ * @deprecated No-op in the unified system. Use `_resetStoreForTests()` from `@/lib/rate-limit`.
+ */
+export function clearRateLimit(_request: NextRequest, _prefix: string = 'rl'): void {
+  // No-op — the unified store doesn't support per-key clearing.
+  // Tests should use _resetStoreForTests() to reset the full store.
+}
+
+/**
+ * @deprecated Use `checkRateLimit()` from `@/lib/rate-limit` instead.
+ */
+export function getRateLimitStatus(
+  _request: NextRequest,
+  config: { windowMs: number; maxRequests: number },
+  _prefix: string = 'rl',
+): { remaining: number; resetTime: number } {
+  // Approximate: return max capacity (no state inspection in unified store)
   return {
-    remaining: Math.max(0, config.maxRequests - record.count),
-    resetTime: record.resetTime
+    remaining: config.maxRequests,
+    resetTime: Date.now() + config.windowMs,
   };
 }
