@@ -27,7 +27,7 @@ const { prisma } = jest.requireMock('@/lib/prisma') as {
   prisma: {
     ariaConversation: {
       create: jest.Mock;
-      findUnique: jest.Mock;
+      findFirst: jest.Mock;
     };
     ariaMessage: {
       create: jest.Mock;
@@ -81,29 +81,31 @@ describe('saveAriaConversation', () => {
   });
 
   it('reuses existing conversation when conversationId provided and found', async () => {
-    prisma.ariaConversation.findUnique.mockResolvedValue({ id: 'conv-existing' });
+    prisma.ariaConversation.findFirst.mockResolvedValue({ id: 'conv-existing' });
     prisma.ariaMessage.create
       .mockResolvedValueOnce({ id: 'msg-user' })
       .mockResolvedValueOnce({ id: 'msg-aria' });
 
     const result = await saveAriaConversation('s1', 'MATHEMATIQUES' as any, 'Question', 'Réponse', 'conv-existing');
 
-    expect(prisma.ariaConversation.findUnique).toHaveBeenCalledWith({ where: { id: 'conv-existing' } });
+    expect(prisma.ariaConversation.findFirst).toHaveBeenCalledWith({
+      where: { id: 'conv-existing', studentId: 's1' },
+    });
     expect(prisma.ariaConversation.create).not.toHaveBeenCalled();
     expect(result.conversation.id).toBe('conv-existing');
   });
 
-  it('creates new conversation when conversationId not found', async () => {
-    prisma.ariaConversation.findUnique.mockResolvedValue(null);
-    prisma.ariaConversation.create.mockResolvedValue({ id: 'conv-fallback' });
-    prisma.ariaMessage.create
-      .mockResolvedValueOnce({ id: 'msg-user' })
-      .mockResolvedValueOnce({ id: 'msg-aria' });
+  it('rejects an unknown or non-owned conversationId', async () => {
+    prisma.ariaConversation.findFirst.mockResolvedValue(null);
 
-    const result = await saveAriaConversation('s1', 'NSI' as any, 'Python help', 'Voici...', 'nonexistent');
+    await expect(
+      saveAriaConversation('s1', 'NSI' as any, 'Python help', 'Voici...', 'nonexistent')
+    ).rejects.toThrow('ARIA_CONVERSATION_NOT_FOUND');
 
-    expect(prisma.ariaConversation.findUnique).toHaveBeenCalled();
-    expect(prisma.ariaConversation.create).toHaveBeenCalledTimes(1);
-    expect(result.conversation.id).toBe('conv-fallback');
+    expect(prisma.ariaConversation.findFirst).toHaveBeenCalledWith({
+      where: { id: 'nonexistent', studentId: 's1' },
+    });
+    expect(prisma.ariaConversation.create).not.toHaveBeenCalled();
+    expect(prisma.ariaMessage.create).not.toHaveBeenCalled();
   });
 });

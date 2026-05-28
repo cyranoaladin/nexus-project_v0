@@ -47,7 +47,7 @@ jest.mock('openai', () => ({
 jest.mock('@/lib/prisma', () => ({
   prisma: {
     ariaConversation: {
-      findUnique: jest.fn(),
+      findFirst: jest.fn(),
       create: jest.fn(),
     },
     ariaMessage: {
@@ -89,7 +89,7 @@ async function readStream(stream: ReadableStream): Promise<string> {
 
 function resetPrismaMocks() {
   (ragSearch as jest.Mock).mockClear();
-  (prisma.ariaConversation.findUnique as jest.Mock).mockClear();
+  (prisma.ariaConversation.findFirst as jest.Mock).mockClear();
   (prisma.ariaConversation.create as jest.Mock).mockClear();
   (prisma.ariaMessage.create as jest.Mock).mockClear();
   (prisma.ariaMessage.update as jest.Mock).mockClear();
@@ -227,7 +227,7 @@ describe('saveAriaConversation', () => {
 
   it('should create new conversation on first message', async () => {
     // Arrange
-    (prisma.ariaConversation.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.ariaConversation.findFirst as jest.Mock).mockResolvedValue(null);
     (prisma.ariaConversation.create as jest.Mock).mockResolvedValue({ id: 'conv-new' });
     (prisma.ariaMessage.create as jest.Mock).mockResolvedValue({ id: 'msg-1' });
 
@@ -243,7 +243,7 @@ describe('saveAriaConversation', () => {
 
   it('should append to existing conversation on follow-up', async () => {
     // Arrange
-    (prisma.ariaConversation.findUnique as jest.Mock).mockResolvedValue({ id: 'conv-existing' });
+    (prisma.ariaConversation.findFirst as jest.Mock).mockResolvedValue({ id: 'conv-existing' });
     (prisma.ariaMessage.create as jest.Mock).mockResolvedValue({ id: 'msg-2' });
 
     // Act
@@ -258,7 +258,7 @@ describe('saveAriaConversation', () => {
 
   it('should save both user message and assistant response', async () => {
     // Arrange
-    (prisma.ariaConversation.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.ariaConversation.findFirst as jest.Mock).mockResolvedValue(null);
     (prisma.ariaConversation.create as jest.Mock).mockResolvedValue({ id: 'conv-1' });
     (prisma.ariaMessage.create as jest.Mock).mockResolvedValue({ id: 'msg-1' });
 
@@ -274,7 +274,7 @@ describe('saveAriaConversation', () => {
 
   it('should truncate conversation title to 50 chars + ellipsis', async () => {
     // Arrange
-    (prisma.ariaConversation.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.ariaConversation.findFirst as jest.Mock).mockResolvedValue(null);
     (prisma.ariaConversation.create as jest.Mock).mockResolvedValue({ id: 'conv-1' });
     (prisma.ariaMessage.create as jest.Mock).mockResolvedValue({ id: 'msg-1' });
     const longMessage = 'A'.repeat(100);

@@ -94,9 +94,16 @@ export async function saveAriaConversation(
   let conversation;
 
   if (conversationId) {
-    conversation = await prisma.ariaConversation.findUnique({
-      where: { id: conversationId }
+    conversation = await prisma.ariaConversation.findFirst({
+      where: {
+        id: conversationId,
+        studentId
+      }
     });
+
+    if (!conversation) {
+      throw new Error('ARIA_CONVERSATION_NOT_FOUND');
+    }
   }
 
   if (!conversation) {

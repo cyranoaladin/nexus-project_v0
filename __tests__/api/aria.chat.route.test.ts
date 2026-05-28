@@ -12,6 +12,7 @@ jest.mock('@/auth', () => ({
 jest.mock('@/lib/prisma', () => ({
   prisma: {
     student: { findUnique: jest.fn() },
+    ariaConversation: { findFirst: jest.fn() },
     ariaMessage: { findMany: jest.fn() },
   },
 }));
@@ -33,6 +34,10 @@ jest.mock('@/lib/aria-streaming', () => ({
   streamAriaResponse: jest.fn(),
 }));
 
+jest.mock('@/lib/access', () => ({
+  requireFeatureApi: jest.fn().mockResolvedValue(null),
+}));
+
 jest.mock('@/lib/entitlement', () => ({
   getUserEntitlements: jest.fn().mockResolvedValue([
     { id: 'ent-1', productCode: 'ARIA_MATHS', label: 'ARIA Maths', status: 'ACTIVE', startsAt: new Date(), endsAt: null, features: ['aria_maths', 'aria_nsi'] },
@@ -43,6 +48,7 @@ const loggerMock = {
   logSecurityEvent: jest.fn(),
   logRequest: jest.fn(),
   info: jest.fn(),
+  warn: jest.fn(),
   error: jest.fn(),
 };
 
@@ -133,5 +139,40 @@ describe('POST /api/aria/chat', () => {
     expect(body.conversation.id).toBe('conv-1');
     expect(body.message.id).toBe('msg-1');
     expect(body.newBadges).toHaveLength(1);
+  });
+
+  it('returns 404 and does not load history when conversation belongs to another student', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'student-2-user', role: 'ELEVE' },
+    });
+    (prisma.student.findUnique as jest.Mock).mockResolvedValue({
+      id: 'student-2',
+      subscriptions: [
+        {
+          ariaSubjects: ['MATHEMATIQUES'],
+        },
+      ],
+    });
+    (prisma.ariaConversation.findFirst as jest.Mock).mockResolvedValue(null);
+
+    const response = await POST(makeRequest({
+      conversationId: 'student-1-conversation',
+      subject: 'MATHEMATIQUES',
+      content: 'Continue la conversation',
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(404);
+    expect(body.error).toContain('Conversation');
+    expect(prisma.ariaConversation.findFirst).toHaveBeenCalledWith({
+      where: {
+        id: 'student-1-conversation',
+        studentId: 'student-2',
+      },
+      select: { id: true },
+    });
+    expect(prisma.ariaMessage.findMany).not.toHaveBeenCalled();
+    expect(generateAriaResponse).not.toHaveBeenCalled();
+    expect(saveAriaConversation).not.toHaveBeenCalled();
   });
 });
