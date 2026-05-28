@@ -101,6 +101,8 @@ scratch/
 
 # ─── Artefacts d'analyse serveur ─────────────────────────────────────────
 prod-tree*.txt
+nexus-prod-tree-*.txt
+nexus-server-*.txt
 get-users-temp.*
 
 # ─── Éditeurs IA / Outils (personnel, pas projet) ───────────────────────
