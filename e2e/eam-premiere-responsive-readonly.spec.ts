@@ -59,9 +59,12 @@ test.describe('EAM Première responsive read-only', () => {
       await expectNoHorizontalOverflow(page);
 
       await page.getByRole('button', { name: 'Sujet blanc', exact: true }).click();
-      await expect(page.getByText('Sujet blanc C — plateforme premium')).toBeVisible();
+      await expect(page.getByRole('heading', { name: /^Sujet blanc$/ })).toBeVisible();
       await expect(page.getByText('Première spécialité mathématiques')).toBeVisible();
       await expect(page.getByText('Calculatrice interdite', { exact: true })).toBeVisible();
+      await expect(page.getByText(/Sujet blanc\s+C/i)).toHaveCount(0);
+      await expect(page.getByText(/Sujet\s+C/i)).toHaveCount(0);
+      await expect(page.getByText(/plateforme\s+premium/i)).toHaveCount(0);
       await expect(page.getByText('Partie 1 — Automatismes, QCM')).toBeVisible();
       await expect(page.getByText('Probabilités conditionnelles')).toBeVisible();
       await expect(page.getByText('Suites et algorithmique')).toBeVisible();

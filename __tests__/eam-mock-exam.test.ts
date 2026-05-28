@@ -28,9 +28,9 @@ function pointValue(points: string) {
   return Number(points.replace(",", ".").match(/\d+(?:\.\d+)?/)?.[0] ?? 0);
 }
 
-describe("EAM mock exam premium subject C", () => {
+describe("EAM dashboard mock exam", () => {
   it("contains the expected 20-point structure", () => {
-    expect(MOCK_EXAM.title).toBe("Sujet blanc C — plateforme premium");
+    expect(MOCK_EXAM.title).toBe("Sujet blanc");
     expect(MOCK_EXAM.subtitle).toContain("Première spécialité mathématiques");
     expect(MOCK_EXAM.calculator).toBe("Calculatrice interdite");
     expect(MOCK_EXAM.duration).toBe("2 heures");
@@ -84,6 +84,9 @@ describe("EAM mock exam premium subject C", () => {
     expect(MOCK_EXAM.qcm.questions.every((question) => question.correctAnswer)).toBe(true);
     expect(visibleText).not.toContain("Réponse correcte");
     expect(visibleText).not.toContain("correctAnswer");
+    expect(visibleText).not.toMatch(/Sujet blanc\s+C/i);
+    expect(visibleText).not.toMatch(/Sujet\s+C/i);
+    expect(visibleText).not.toMatch(/plateforme\s+premium/i);
   });
 
   it("defines print classes for starting part 2 on a new page", () => {
