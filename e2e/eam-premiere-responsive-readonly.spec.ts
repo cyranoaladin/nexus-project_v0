@@ -66,7 +66,8 @@ test.describe('EAM Première responsive read-only', () => {
       await expect(page.getByText('Probabilités conditionnelles')).toBeVisible();
       await expect(page.getByText('Suites et algorithmique')).toBeVisible();
       await expect(page.getByText('Analyse et exponentielle')).toBeVisible();
-      await expect(page.getByText('def seuil()')).toBeVisible();
+      await expect(page.locator('code').filter({ hasText: 'p = 1' })).toBeVisible();
+      await expect(page.locator('code').filter({ hasText: 'u = 5' })).toBeVisible();
       await expect(page.locator('.eam-mock-exam .katex').first()).toBeVisible();
       await expect(page.locator('body')).not.toContainText('NexusFlix');
       await expect(page.locator('body')).not.toContainText('9500');
