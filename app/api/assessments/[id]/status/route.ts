@@ -9,6 +9,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { assessmentStatusSchema, type AssessmentStatus } from '../../submit/types';
+import { auth } from '@/auth';
+import { buildAssessmentAccessWhere } from '@/lib/security/ownership';
 
 export async function GET(
   request: NextRequest,
@@ -16,10 +18,19 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const where = buildAssessmentAccessWhere(id, session.user);
+    if (!where) {
+      return NextResponse.json({ error: 'Assessment not found' }, { status: 404 });
+    }
 
     // Fetch assessment from database
-    const assessment = await prisma.assessment.findUnique({
-      where: { id },
+    const assessment = await prisma.assessment.findFirst({
+      where,
       select: {
         id: true,
         status: true,
@@ -27,7 +38,6 @@ export async function GET(
         globalScore: true,
         confidenceIndex: true,
         errorCode: true,
-        errorDetails: true,
       },
     });
 
@@ -67,7 +77,6 @@ export async function GET(
     return NextResponse.json(
       {
         error: 'Internal server error',
-        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );

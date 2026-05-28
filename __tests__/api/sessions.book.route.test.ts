@@ -55,7 +55,7 @@ jest.mock('@/lib/access', () => ({
 
 const mockSession = {
   user: {
-    id: 'user-1',
+    id: 'student-1',
     email: 'student@nexus.com',
     role: 'ELEVE' as const,
     firstName: 'Student',
@@ -191,6 +191,17 @@ describe('POST /api/sessions/book', () => {
     const response = await POST(createMockRequest('http://localhost:3000/api/sessions/book'));
 
     expect(response.status).toBe(401);
+  });
+
+  it('denies an ELEVE booking a session for another student user', async () => {
+    (parseBody as jest.Mock).mockResolvedValue(buildPayload({ studentId: 'student-2' }));
+
+    const response = await POST(createMockRequest('http://localhost:3000/api/sessions/book'));
+    const body = await response.json();
+
+    expect(response.status).toBe(403);
+    expect(body.error).toBe('FORBIDDEN');
+    expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 
   it('rejects bookings more than 3 months in advance', async () => {

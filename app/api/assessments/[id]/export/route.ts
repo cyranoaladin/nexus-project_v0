@@ -12,6 +12,8 @@ import { prisma } from '@/lib/prisma';
 import { renderAssessmentPDF } from '@/lib/pdf/assessment-pdfkit';
 import { getSSNLabel, computePercentile } from '@/lib/core/statistics/normalize';
 import { type AssessmentPDFData } from '@/lib/pdf/assessment-template';
+import { auth } from '@/auth';
+import { buildAssessmentAccessWhere } from '@/lib/security/ownership';
 
 export async function GET(
   request: NextRequest,
@@ -19,10 +21,19 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const where = buildAssessmentAccessWhere(id, session.user);
+    if (!where) {
+      return NextResponse.json({ error: 'Assessment not found' }, { status: 404 });
+    }
 
     // Fetch assessment
-    const assessment = await prisma.assessment.findUnique({
-      where: { id },
+    const assessment = await prisma.assessment.findFirst({
+      where,
       select: {
         id: true,
         subject: true,
@@ -133,7 +144,7 @@ export async function GET(
   } catch (error) {
     console.error('[Assessment Export] Error:', error);
     return NextResponse.json(
-      { error: 'Erreur lors de la génération du PDF', details: error instanceof Error ? error.message : 'unknown' },
+      { error: 'Erreur lors de la génération du PDF' },
       { status: 500 }
     );
   }

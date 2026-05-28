@@ -9,6 +9,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import type { BilanStatus } from '@/lib/bilan/types';
+import {
+  buildBilanReadWhere,
+  buildBilanWriteWhere,
+  sanitizeBilanForRole,
+} from '@/lib/security/ownership';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,9 +31,16 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
   try {
     const { id } = await params;
+    const where = buildBilanReadWhere(id, authResponse.user);
+    if (!where) {
+      return NextResponse.json(
+        { success: false, error: 'Bilan not found' },
+        { status: 404 }
+      );
+    }
 
-    const bilan = await prisma.bilan.findUnique({
-      where: { id },
+    const bilan = await prisma.bilan.findFirst({
+      where,
       include: {
         student: {
           select: {
@@ -50,7 +62,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    return NextResponse.json({ success: true, data: bilan });
+    return NextResponse.json({
+      success: true,
+      data: sanitizeBilanForRole(bilan, authResponse.user.role),
+    });
   } catch (error) {
     console.error('[GET /api/bilans/[id]] Error:', error);
     return NextResponse.json(
@@ -72,9 +87,16 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
     const body = await request.json();
+    const where = buildBilanWriteWhere(id, authResponse.user);
+    if (!where) {
+      return NextResponse.json(
+        { success: false, error: 'Bilan not found' },
+        { status: 404 }
+      );
+    }
 
     // Check bilan exists
-    const existing = await prisma.bilan.findUnique({ where: { id } });
+    const existing = await prisma.bilan.findFirst({ where });
     if (!existing) {
       return NextResponse.json(
         { success: false, error: 'Bilan not found' },

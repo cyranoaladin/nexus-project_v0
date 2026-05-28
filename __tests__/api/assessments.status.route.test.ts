@@ -12,15 +12,22 @@ jest.mock('@/app/api/assessments/submit/types', () => ({
   },
 }));
 
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
+}));
+
 import { GET } from '@/app/api/assessments/[id]/status/route';
+import { auth } from '@/auth';
 import { NextRequest } from 'next/server';
 
+const mockAuth = auth as jest.Mock;
 let prisma: any;
 
 beforeEach(async () => {
   const mod = await import('@/lib/prisma');
   prisma = (mod as any).prisma;
   jest.clearAllMocks();
+  mockAuth.mockResolvedValue({ user: { id: 'student-user-1', role: 'ELEVE', email: 'ahmed@test.com' } });
 });
 
 function makeRequest(id: string): [NextRequest, { params: Promise<{ id: string }> }] {
@@ -30,7 +37,7 @@ function makeRequest(id: string): [NextRequest, { params: Promise<{ id: string }
 
 describe('GET /api/assessments/[id]/status', () => {
   it('should return 404 when assessment not found', async () => {
-    prisma.assessment.findUnique.mockResolvedValue(null);
+    prisma.assessment.findFirst.mockResolvedValue(null);
 
     const res = await GET(...makeRequest('nonexistent'));
     const body = await res.json();
@@ -40,14 +47,13 @@ describe('GET /api/assessments/[id]/status', () => {
   });
 
   it('should return PENDING status', async () => {
-    prisma.assessment.findUnique.mockResolvedValue({
+    prisma.assessment.findFirst.mockResolvedValue({
       id: 'a1',
       status: 'PENDING',
       progress: 0,
       globalScore: null,
       confidenceIndex: null,
       errorCode: null,
-      errorDetails: null,
     });
 
     const res = await GET(...makeRequest('a1'));
@@ -59,14 +65,13 @@ describe('GET /api/assessments/[id]/status', () => {
   });
 
   it('should return COMPLETED status with result', async () => {
-    prisma.assessment.findUnique.mockResolvedValue({
+    prisma.assessment.findFirst.mockResolvedValue({
       id: 'a1',
       status: 'COMPLETED',
       progress: 100,
       globalScore: 72,
       confidenceIndex: 85,
       errorCode: null,
-      errorDetails: null,
     });
 
     const res = await GET(...makeRequest('a1'));
@@ -80,14 +85,13 @@ describe('GET /api/assessments/[id]/status', () => {
   });
 
   it('should return SCORING status', async () => {
-    prisma.assessment.findUnique.mockResolvedValue({
+    prisma.assessment.findFirst.mockResolvedValue({
       id: 'a1',
       status: 'SCORING',
       progress: 50,
       globalScore: null,
       confidenceIndex: null,
       errorCode: null,
-      errorDetails: null,
     });
 
     const res = await GET(...makeRequest('a1'));
@@ -98,14 +102,13 @@ describe('GET /api/assessments/[id]/status', () => {
   });
 
   it('should return GENERATING status', async () => {
-    prisma.assessment.findUnique.mockResolvedValue({
+    prisma.assessment.findFirst.mockResolvedValue({
       id: 'a1',
       status: 'GENERATING',
       progress: 75,
       globalScore: null,
       confidenceIndex: null,
       errorCode: null,
-      errorDetails: null,
     });
 
     const res = await GET(...makeRequest('a1'));
@@ -116,14 +119,13 @@ describe('GET /api/assessments/[id]/status', () => {
   });
 
   it('should return FAILED status', async () => {
-    prisma.assessment.findUnique.mockResolvedValue({
+    prisma.assessment.findFirst.mockResolvedValue({
       id: 'a1',
       status: 'FAILED',
       progress: 0,
       globalScore: null,
       confidenceIndex: null,
       errorCode: 'LLM_TIMEOUT',
-      errorDetails: 'Ollama timeout',
     });
 
     const res = await GET(...makeRequest('a1'));
@@ -134,9 +136,35 @@ describe('GET /api/assessments/[id]/status', () => {
   });
 
   it('should return 500 on DB error', async () => {
-    prisma.assessment.findUnique.mockRejectedValue(new Error('DB error'));
+    prisma.assessment.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await GET(...makeRequest('a1'));
     expect(res.status).toBe(500);
+  });
+
+  it('denies unauthenticated polling before reading assessment status', async () => {
+    mockAuth.mockResolvedValue(null);
+
+    const res = await GET(...makeRequest('a1'));
+
+    expect(res.status).toBe(401);
+    expect(prisma.assessment.findFirst).not.toHaveBeenCalled();
+  });
+
+  it('does not select internal errorDetails when polling status', async () => {
+    prisma.assessment.findFirst.mockResolvedValue({
+      id: 'a1',
+      status: 'FAILED',
+      progress: 0,
+      globalScore: null,
+      confidenceIndex: null,
+      errorCode: 'LLM_TIMEOUT',
+    });
+
+    await GET(...makeRequest('a1'));
+
+    expect(prisma.assessment.findFirst).toHaveBeenCalledWith(expect.objectContaining({
+      select: expect.not.objectContaining({ errorDetails: true }),
+    }));
   });
 });

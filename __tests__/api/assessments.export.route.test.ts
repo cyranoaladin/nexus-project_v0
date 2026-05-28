@@ -19,15 +19,22 @@ jest.mock('@/lib/core/statistics/normalize', () => ({
   computePercentile: jest.fn().mockReturnValue(75),
 }));
 
+jest.mock('@/auth', () => ({
+  auth: jest.fn(),
+}));
+
 import { GET } from '@/app/api/assessments/[id]/export/route';
+import { auth } from '@/auth';
 import { NextRequest } from 'next/server';
 
+const mockAuth = auth as jest.Mock;
 let prisma: any;
 
 beforeEach(async () => {
   const mod = await import('@/lib/prisma');
   prisma = (mod as any).prisma;
   jest.clearAllMocks();
+  mockAuth.mockResolvedValue({ user: { id: 'student-user-1', role: 'ELEVE', email: 'ahmed@test.com' } });
 });
 
 function makeRequest(id: string): [NextRequest, { params: Promise<{ id: string }> }] {
@@ -37,7 +44,7 @@ function makeRequest(id: string): [NextRequest, { params: Promise<{ id: string }
 
 describe('GET /api/assessments/[id]/export', () => {
   it('should return 404 when assessment not found', async () => {
-    prisma.assessment.findUnique.mockResolvedValue(null);
+    prisma.assessment.findFirst.mockResolvedValue(null);
 
     const res = await GET(...makeRequest('nonexistent'));
     const body = await res.json();
@@ -47,7 +54,7 @@ describe('GET /api/assessments/[id]/export', () => {
   });
 
   it('should return 400 when assessment not completed', async () => {
-    prisma.assessment.findUnique.mockResolvedValue({
+    prisma.assessment.findFirst.mockResolvedValue({
       id: 'a1', status: 'PENDING', subject: 'MATHS',
     });
 
@@ -59,7 +66,7 @@ describe('GET /api/assessments/[id]/export', () => {
   });
 
   it('should generate PDF for completed assessment', async () => {
-    prisma.assessment.findUnique.mockResolvedValue({
+    prisma.assessment.findFirst.mockResolvedValue({
       id: 'a1',
       subject: 'MATHS',
       grade: 'Terminale',
@@ -70,12 +77,11 @@ describe('GET /api/assessments/[id]/export', () => {
       scoringResult: { strengths: ['Analyse'], weaknesses: ['Géométrie'], recommendations: ['Pratiquer'] },
       status: 'COMPLETED',
       createdAt: new Date('2026-02-15'),
+      ssn: 68.5,
     });
-    prisma.$queryRawUnsafe
-      .mockResolvedValueOnce([{ ssn: 68.5 }]) // SSN
-      .mockResolvedValueOnce([{ domain: 'analysis', score: 80 }]) // domain scores
-      .mockResolvedValueOnce([{ skillTag: 'suites', score: 40 }]) // skill scores
-      .mockResolvedValueOnce([{ ssn: 50 }, { ssn: 60 }]); // cohort SSNs
+    prisma.domainScore.findMany.mockResolvedValue([{ domain: 'analysis', score: 80 }]);
+    prisma.skillScore.findMany.mockResolvedValue([{ skillTag: 'suites', score: 40 }]);
+    prisma.assessment.findMany.mockResolvedValue([{ ssn: 50 }, { ssn: 60 }]);
 
     const res = await GET(...makeRequest('a1'));
 
@@ -85,7 +91,7 @@ describe('GET /api/assessments/[id]/export', () => {
   });
 
   it('should handle null SSN gracefully', async () => {
-    prisma.assessment.findUnique.mockResolvedValue({
+    prisma.assessment.findFirst.mockResolvedValue({
       id: 'a1',
       subject: 'MATHS',
       grade: 'Terminale',
@@ -96,11 +102,10 @@ describe('GET /api/assessments/[id]/export', () => {
       scoringResult: null,
       status: 'COMPLETED',
       createdAt: new Date(),
+      ssn: null,
     });
-    prisma.$queryRawUnsafe
-      .mockResolvedValueOnce([{ ssn: null }]) // no SSN
-      .mockResolvedValueOnce([]) // no domain scores
-      .mockResolvedValueOnce([]); // no skill scores
+    prisma.domainScore.findMany.mockResolvedValue([]);
+    prisma.skillScore.findMany.mockResolvedValue([]);
 
     const res = await GET(...makeRequest('a1'));
 
@@ -109,9 +114,28 @@ describe('GET /api/assessments/[id]/export', () => {
   });
 
   it('should return 500 on DB error', async () => {
-    prisma.assessment.findUnique.mockRejectedValue(new Error('DB error'));
+    prisma.assessment.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await GET(...makeRequest('a1'));
     expect(res.status).toBe(500);
+  });
+
+  it('denies unauthenticated export before fetching assessment', async () => {
+    mockAuth.mockResolvedValue(null);
+
+    const res = await GET(...makeRequest('a1'));
+
+    expect(res.status).toBe(401);
+    expect(prisma.assessment.findFirst).not.toHaveBeenCalled();
+  });
+
+  it('scopes export lookup to the authenticated user to prevent IDOR', async () => {
+    prisma.assessment.findFirst.mockResolvedValue(null);
+
+    await GET(...makeRequest('a-other'));
+
+    expect(prisma.assessment.findFirst).toHaveBeenCalledWith(expect.objectContaining({
+      where: expect.objectContaining({ id: 'a-other' }),
+    }));
   });
 });

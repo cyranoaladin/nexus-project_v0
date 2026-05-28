@@ -18,11 +18,14 @@ export async function POST(
   const sessionOrError = await requireAnyRole(['ADMIN', 'ASSISTANTE']);
   if (sessionOrError instanceof NextResponse) return sessionOrError;
 
-  const { reservationId } = await params;
+  const { stageSlug, reservationId } = await params;
 
   try {
-    const reservation = await prisma.stageReservation.findUnique({
-      where: { id: reservationId },
+    const reservation = await prisma.stageReservation.findFirst({
+      where: {
+        id: reservationId,
+        stage: { slug: stageSlug },
+      },
       include: { stage: true },
     });
 
