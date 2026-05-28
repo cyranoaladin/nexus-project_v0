@@ -59,14 +59,18 @@ test.describe('EAM Première responsive read-only', () => {
       await expectNoHorizontalOverflow(page);
 
       await page.getByRole('button', { name: 'Sujet blanc', exact: true }).click();
-      await expect(page.getByText('Sujet blanc inédit')).toBeVisible();
+      await expect(page.getByText('Sujet blanc C — plateforme premium')).toBeVisible();
+      await expect(page.getByText('Première spécialité mathématiques')).toBeVisible();
       await expect(page.getByText('Calculatrice interdite', { exact: true })).toBeVisible();
-      await expect(page.getByText('Automatismes – QCM')).toBeVisible();
-      await expect(page.getByText('Suites et modélisation')).toBeVisible();
+      await expect(page.getByText('Partie 1 — Automatismes, QCM')).toBeVisible();
+      await expect(page.getByText('Probabilités conditionnelles')).toBeVisible();
+      await expect(page.getByText('Suites et algorithmique')).toBeVisible();
       await expect(page.getByText('Analyse et exponentielle')).toBeVisible();
-      await expect(page.getByText('NexusFlix')).toBeVisible();
       await expect(page.getByText('def seuil()')).toBeVisible();
       await expect(page.locator('.eam-mock-exam .katex').first()).toBeVisible();
+      await expect(page.locator('body')).not.toContainText('NexusFlix');
+      await expect(page.locator('body')).not.toContainText('9500');
+      await expect(page.locator('body')).not.toContainText('f(x)=(2x-1)e^{-x}+2');
       await expect(page.locator('body')).not.toContainText('racine(Delta)');
       await expect(page.locator('body')).not.toContainText('u_(n+1)');
       await expect(page.locator('body')).not.toContainText('tau =');

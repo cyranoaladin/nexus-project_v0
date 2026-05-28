@@ -39,7 +39,7 @@ export function MockExam() {
               <h3 className="mt-2 break-words text-2xl font-black tracking-tight text-white sm:text-3xl">{MOCK_EXAM.title}</h3>
               <p className="mt-2 break-words text-sm font-semibold text-neutral-200">{MOCK_EXAM.subtitle}</p>
               <p className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-300">
-                À faire en conditions réelles : 2 heures, sans calculatrice. Commencer par les automatismes, puis traiter les deux exercices rédigés.
+                {MOCK_EXAM.instructions}
               </p>
             </div>
             <Button
@@ -53,16 +53,24 @@ export function MockExam() {
             </Button>
           </div>
           <div className="mt-5 grid min-w-0 gap-3 sm:grid-cols-3">
-            {[MOCK_EXAM.duration, MOCK_EXAM.calculator, "Total : 20 points"].map((item) => (
+            {[`Durée : ${MOCK_EXAM.duration}`, MOCK_EXAM.calculator, `Total : ${MOCK_EXAM.total}`].map((item) => (
               <div key={item} className="min-w-0 rounded-xl border border-white/10 bg-white/5 p-3 text-sm font-semibold text-neutral-100">
                 {item}
+              </div>
+            ))}
+          </div>
+          <div className="mt-5 grid min-w-0 gap-2 md:grid-cols-5">
+            {MOCK_EXAM.timePlan.map((step) => (
+              <div key={step.label} className="min-w-0 rounded-lg border border-white/10 bg-surface-darker/60 p-3">
+                <p className="text-xs font-black text-brand-accent">{step.label}</p>
+                <p className="mt-1 break-words text-xs leading-relaxed text-neutral-300">{step.task}</p>
               </div>
             ))}
           </div>
         </CardContent>
       </Card>
 
-      <section className="min-w-0 overflow-hidden rounded-xl border border-white/10 bg-surface-card">
+      <section className="qcm-section min-w-0 overflow-hidden rounded-xl border border-white/10 bg-surface-card">
         <div className="border-b border-white/10 p-4 sm:p-5">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
@@ -115,8 +123,8 @@ export function MockExam() {
       <section className="space-y-4">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0">
-            <h4 className="text-lg font-black text-white">Partie 2 — Exercices</h4>
-            <p className="text-sm text-neutral-400">Rédiger les raisonnements, justifier les variations et conclure dans le contexte.</p>
+            <h4 className="print-page-break text-lg font-black text-white">Partie 2 — Exercices rédigés indépendants</h4>
+            <p className="text-sm text-neutral-400">Rédiger les raisonnements, justifier les calculs et conclure dans le contexte.</p>
           </div>
           <span className="w-fit rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-neutral-200">14 points</span>
         </div>
