@@ -145,7 +145,7 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - Matrice route/méthode/guard/ownership mise à jour.
   - Tests IDOR verts pour chaque ressource propriétaire.
 - Rollback : non applicable pour l'inventaire; chaque patch route doit avoir son propre rollback Git.
-- Statut : inventaire initial produit; Lot 1 partiellement fermé le 2026-05-28 sur assessments/bilans/sessions/stages reservations. Les routes documents et factures critiques du lot ont été auditées et confirmées par tests existants, mais restent classées P0 par l'inventaire statique lorsque le script ne détecte pas leurs guards manuels.
+- Statut : inventaire initial produit; Lot 1 corrigé, testé et déployé en production le 2026-05-28 au commit `1f37eeb0e`. Les routes documents et factures critiques du lot ont été auditées et confirmées par tests existants, mais restent classées P0 par l'inventaire statique lorsque le script ne détecte pas leurs guards manuels. P0-004 global reste ouvert tant que le Lot 2 n'est pas traité.
 - Propriétaire proposé : Backend sécurité.
 
 #### P0-004 Lot 1 — API IDOR routes propriétaires
@@ -158,6 +158,28 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
 | Coach-students | Audité, tests existants OK | Les routes coach lues dans ce lot utilisent `assertCoachCanAccessStudent` ou un check participant/session. | `__tests__/api/coach.sessions.report.route.test.ts` et tests coach-student existants | Le fallback session legacy dans `isCoachAssignedToStudent` doit être revu en Lot 2. |
 | Sessions | Corrigé | `sessions/book` interdit désormais à un élève de réserver pour un autre `studentId`; cancel/video restent scoped participant/staff. | `__tests__/api/sessions.book.route.test.ts`, `__tests__/api/sessions.cancel.route.test.ts`, `__tests__/api/sessions.video.route.test.ts` | Les routes parent sessions additionnelles restent à balayer en Lot 2 si présentes. |
 | Stages reservations | Corrigé partiellement | Confirmation staff-only conservée; la réservation confirmée est maintenant contrainte au `stageSlug` de l'URL. | `__tests__/api/stages/confirm.test.ts` | Les routes admin stages dynamiques restent dans le prochain lot P0/P1 selon exposition. |
+
+#### Déploiement production Lot 1 — 2026-05-28
+
+- Commit déployé : `1f37eeb0e fix(security): enforce API ownership checks lot 1`.
+- Commit précédent production : `5c1f6c031 docs(security): close P0 infrastructure hardening`.
+- Backup pré-déploiement : `/root/nexus-backups/p0-004-lot1-deploy-20260528233125`.
+- Validation serveur avant reload :
+  - `npm run typecheck` : OK.
+  - Tests ciblés API sécurité : 7 suites, 57 tests OK sur serveur.
+  - `npm run build` : OK.
+- Validation production après reload :
+  - PM2 `nexus-prod` : online.
+  - Port applicatif : `127.0.0.1:3001`.
+  - `site` : 200.
+  - `dashboard_no_auth` : 307.
+  - `api_health` : 200.
+  - `aria_no_auth` : 401.
+  - `assessment_result_no_auth`, `assessment_status_no_auth`, `assessment_export_no_auth` : 401.
+  - `sessions_book_no_auth` : 401.
+  - `/.env`, `/.git/config`, `/.next/standalone/.env`, `/docker-compose.prod.yml`, `/prisma/schema.prisma` : 404.
+- Rollback documenté : retour Git au commit `5c1f6c031`, rebuild, puis `pm2 startOrReload ecosystem.config.js --env production --update-env`.
+- Décision : bêta contrôlée maintenue; go-live large toujours non autorisé tant que P0-004 global reste ouvert.
 
 ## P1 — Durcissement court terme
 
