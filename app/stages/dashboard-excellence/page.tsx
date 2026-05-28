@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { Outfit, Space_Grotesk } from "next/font/google";
+import localFont from "next/font/local";
 import Image from "next/image";
 import {
   Check,
@@ -35,16 +35,18 @@ type Html2PdfApi = {
   };
 };
 
-const outfit = Outfit({
-  subsets: ["latin"],
+const outfit = localFont({
+  src: "../../fonts/Outfit-Variable.woff2",
   variable: "--font-outfit",
-  weight: ["300", "400", "600", "800"],
+  weight: "300 800",
+  display: "swap",
 });
 
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
+const spaceGrotesk = localFont({
+  src: "../../fonts/SpaceGrotesk-Variable.woff2",
   variable: "--font-space-grotesk",
-  weight: ["300", "500", "700"],
+  weight: "300 700",
+  display: "swap",
 });
 
 const PROGRAM_DAYS: ProgramDay[] = [

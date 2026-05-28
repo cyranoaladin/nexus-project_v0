@@ -1,36 +1,48 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { Inter, Space_Grotesk, IBM_Plex_Mono, Fraunces, DM_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import { Providers } from "@/components/providers";
 import PromoBanner from "@/components/layout/PromoBanner";
 import "./globals.css";
 
 const GA_MEASUREMENT_ID = "G-3XPB54QL5N";
 
-const inter = Inter({
-  subsets: ["latin"],
+const inter = localFont({
+  src: "./fonts/Inter-Variable.woff2",
   variable: "--font-inter",
+  weight: "100 900",
+  display: "swap",
 });
 
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
+const spaceGrotesk = localFont({
+  src: "./fonts/SpaceGrotesk-Variable.woff2",
   variable: "--font-space",
+  weight: "300 700",
+  display: "swap",
 });
 
-const ibmPlexMono = IBM_Plex_Mono({
-  weight: ['400', '500', '600'],
-  subsets: ["latin"],
+const ibmPlexMono = localFont({
+  src: [
+    { path: "./fonts/IBMPlexMono-Regular.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/IBMPlexMono-Medium.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/IBMPlexMono-SemiBold.woff2", weight: "600", style: "normal" },
+  ],
   variable: "--font-mono",
+  display: "swap",
 });
 
-const fraunces = Fraunces({
-  subsets: ["latin"],
+const fraunces = localFont({
+  src: "./fonts/Fraunces-Variable.woff2",
   variable: "--font-display",
+  weight: "100 900",
+  display: "swap",
 });
 
-const dmSans = DM_Sans({
-  subsets: ["latin"],
+const dmSans = localFont({
+  src: "./fonts/DMSans-Variable.woff2",
   variable: "--font-body",
+  weight: "100 1000",
+  display: "swap",
 });
 
 export const viewport: Viewport = {
