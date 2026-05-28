@@ -17,6 +17,7 @@ jest.mock('@/lib/prisma', () => ({
   prisma: {
     bilan: {
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
     },
@@ -28,6 +29,7 @@ import { prisma } from '@/lib/prisma';
 const mockPrisma = prisma as unknown as {
   bilan: {
     findUnique: jest.Mock;
+    findFirst: jest.Mock;
     update: jest.Mock;
     delete: jest.Mock;
   };
@@ -63,7 +65,7 @@ describe('F50: /api/bilans/[id]', () => {
 
   describe('GET /api/bilans/[id]', () => {
     it('should return a single bilan', async () => {
-      mockPrisma.bilan.findUnique.mockResolvedValue(mockBilan);
+      mockPrisma.bilan.findFirst.mockResolvedValue(mockBilan);
 
       const request = new NextRequest('http://localhost:3000/api/bilans/bilan-123');
       const response = await GET(request, { params: Promise.resolve({ id: 'bilan-123' }) });
@@ -76,7 +78,7 @@ describe('F50: /api/bilans/[id]', () => {
     });
 
     it('should return 404 for non-existent bilan', async () => {
-      mockPrisma.bilan.findUnique.mockResolvedValue(null);
+      mockPrisma.bilan.findFirst.mockResolvedValue(null);
 
       const request = new NextRequest('http://localhost:3000/api/bilans/nonexistent');
       const response = await GET(request, { params: Promise.resolve({ id: 'nonexistent' }) });
@@ -91,7 +93,7 @@ describe('F50: /api/bilans/[id]', () => {
   describe('PUT /api/bilans/[id]', () => {
     it('should update bilan status and scores', async () => {
       const updatedBilan = { ...mockBilan, status: 'GENERATING', progress: 50 };
-      mockPrisma.bilan.findUnique.mockResolvedValue(mockBilan);
+      mockPrisma.bilan.findFirst.mockResolvedValue(mockBilan);
       mockPrisma.bilan.update.mockResolvedValue(updatedBilan);
 
       const request = new NextRequest('http://localhost:3000/api/bilans/bilan-123', {
@@ -109,7 +111,7 @@ describe('F50: /api/bilans/[id]', () => {
 
     it('should update markdown content', async () => {
       const updatedBilan = { ...mockBilan, studentMarkdown: '# Nouveau bilan' };
-      mockPrisma.bilan.findUnique.mockResolvedValue(mockBilan);
+      mockPrisma.bilan.findFirst.mockResolvedValue(mockBilan);
       mockPrisma.bilan.update.mockResolvedValue(updatedBilan);
 
       const request = new NextRequest('http://localhost:3000/api/bilans/bilan-123', {
@@ -126,7 +128,7 @@ describe('F50: /api/bilans/[id]', () => {
 
     it('should handle publish with publishedAt', async () => {
       const publishedBilan = { ...mockBilan, isPublished: true, publishedAt: new Date() };
-      mockPrisma.bilan.findUnique.mockResolvedValue(mockBilan);
+      mockPrisma.bilan.findFirst.mockResolvedValue(mockBilan);
       mockPrisma.bilan.update.mockResolvedValue(publishedBilan);
 
       const request = new NextRequest('http://localhost:3000/api/bilans/bilan-123', {

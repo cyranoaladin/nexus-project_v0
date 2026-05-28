@@ -1,14 +1,14 @@
 # Inventaire initial des guards API
 
-Généré le : 2026-05-28T20:19:06.088Z
+Généré le : 2026-05-28T21:06:06.195Z
 
 Lecture statique uniquement. La colonne `Ownership explicit` signale des indices de filtrage propriétaire dans le fichier; elle ne remplace pas un audit manuel IDOR.
 
 ## Synthèse
 
-- P0 : 48
-- P1 : 38
-- P2 : 56
+- P0 : 43
+- P1 : 40
+- P2 : 59
 - OK : 22
 - Total routes : 164
 
@@ -22,10 +22,10 @@ Lecture statique uniquement. La colonne `Ownership explicit` signale des indices
 | `app/api/admin/stages/[stageId]/route.ts` | GET, PATCH, DELETE | P0 | staff/admin; audit manuel prioritaire |
 | `app/api/admin/stages/[stageId]/sessions/[sessionId]/route.ts` | PATCH, DELETE | P0 | staff/admin; audit manuel prioritaire |
 | `app/api/admin/stages/[stageId]/sessions/route.ts` | GET, POST | P0 | staff/admin; audit manuel prioritaire |
-| `app/api/assessments/[id]/export/route.ts` | GET | P0 | pédagogique sensible; audit manuel prioritaire |
-| `app/api/assessments/[id]/result/route.ts` | GET | P0 | pédagogique sensible; audit manuel prioritaire |
-| `app/api/assessments/[id]/status/route.ts` | GET | P0 | pédagogique sensible; audit manuel prioritaire |
 | `app/api/assessments/submit/route.ts` | POST | P0 | pédagogique sensible; audit manuel prioritaire |
+| `app/api/assessments/test/route.ts` | GET | P0 | pédagogique sensible; audit manuel prioritaire |
+| `app/api/assistante/assignments/[id]/route.ts` | GET, PATCH | P0 | assistante; audit manuel prioritaire |
+| `app/api/assistante/coaches/manage/[id]/route.ts` | PUT, DELETE | P0 | assistante; audit manuel prioritaire; guard manuel |
 
 ## Inventaire complet
 
@@ -53,9 +53,9 @@ Lecture statique uniquement. La colonne `Ownership explicit` signale des indices
 | `app/api/aria/chat/route.ts` | POST | no | yes | yes | yes | yes | yes | P2 | ARIA |
 | `app/api/aria/conversations/route.ts` | GET | no | yes | yes | no | no | yes | P2 | ARIA; guard manuel |
 | `app/api/aria/feedback/route.ts` | POST | no | yes | yes | no | yes | yes | P2 | ARIA; guard manuel |
-| `app/api/assessments/[id]/export/route.ts` | GET | yes | no | no | no | no | no | P0 | pédagogique sensible; audit manuel prioritaire |
-| `app/api/assessments/[id]/result/route.ts` | GET | yes | no | no | no | no | no | P0 | pédagogique sensible; audit manuel prioritaire |
-| `app/api/assessments/[id]/status/route.ts` | GET | yes | no | no | no | yes | no | P0 | pédagogique sensible; audit manuel prioritaire |
+| `app/api/assessments/[id]/export/route.ts` | GET | yes | yes | no | no | no | yes | P2 | pédagogique sensible; guard manuel |
+| `app/api/assessments/[id]/result/route.ts` | GET | yes | yes | no | no | no | yes | P2 | pédagogique sensible; guard manuel |
+| `app/api/assessments/[id]/status/route.ts` | GET | yes | yes | no | no | yes | yes | P2 | pédagogique sensible; guard manuel |
 | `app/api/assessments/predict/route.ts` | POST | no | yes | yes | no | no | yes | P1 | pédagogique sensible; guard manuel |
 | `app/api/assessments/submit/route.ts` | POST | no | no | no | no | yes | no | P0 | pédagogique sensible; audit manuel prioritaire |
 | `app/api/assessments/test/route.ts` | GET | no | no | no | no | no | no | P0 | pédagogique sensible; audit manuel prioritaire |
@@ -84,8 +84,8 @@ Lecture statique uniquement. La colonne `Ownership explicit` signale des indices
 | `app/api/bilan-gratuit/status/route.ts` | GET | no | yes | no | no | no | yes | P2 | pédagogique sensible; guard manuel |
 | `app/api/bilan-pallier2-maths/retry/route.ts` | POST | no | yes | yes | no | yes | no | P2 | pédagogique sensible |
 | `app/api/bilan-pallier2-maths/route.ts` | POST, GET | no | yes | yes | no | yes | no | P2 | pédagogique sensible |
-| `app/api/bilans/[id]/export/route.ts` | GET, POST | yes | yes | yes | no | no | no | P0 | pédagogique sensible; audit manuel prioritaire |
-| `app/api/bilans/[id]/route.ts` | GET, PUT, DELETE | yes | yes | yes | no | no | no | P0 | pédagogique sensible; audit manuel prioritaire |
+| `app/api/bilans/[id]/export/route.ts` | GET, POST | yes | yes | yes | no | no | yes | P1 | pédagogique sensible |
+| `app/api/bilans/[id]/route.ts` | GET, PUT, DELETE | yes | yes | yes | no | no | yes | P1 | pédagogique sensible |
 | `app/api/bilans/generate/route.ts` | POST, GET | no | yes | yes | no | no | no | P1 | pédagogique sensible |
 | `app/api/bilans/route.ts` | GET, POST | no | yes | yes | no | no | no | P1 | pédagogique sensible |
 | `app/api/coach/dashboard/route.ts` | GET | no | yes | yes | no | no | no | P2 | coach; guard manuel |

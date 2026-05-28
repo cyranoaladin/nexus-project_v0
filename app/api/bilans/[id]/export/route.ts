@@ -7,6 +7,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
+import {
+  buildBilanReadWhere,
+  buildBilanWriteWhere,
+  canSeeInternalBilan,
+} from '@/lib/security/ownership';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,10 +33,17 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const { searchParams } = new URL(request.url);
     const format = searchParams.get('format') || 'markdown';
     const audience = searchParams.get('audience') || 'all';
+    const where = buildBilanReadWhere(id, authResponse.user);
+    if (!where) {
+      return NextResponse.json(
+        { success: false, error: 'Bilan not found' },
+        { status: 404 }
+      );
+    }
 
     // Fetch bilan
-    const bilan = await prisma.bilan.findUnique({
-      where: { id },
+    const bilan = await prisma.bilan.findFirst({
+      where,
       select: {
         id: true,
         publicShareId: true,
@@ -58,18 +70,15 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Check published status for non-staff
-    const user = (request as unknown as { user?: { role: string } }).user;
-    const isStaff = ['ADMIN', 'ASSISTANTE', 'COACH'].includes(user?.role || '');
-    if (!isStaff && !bilan.isPublished) {
-      return NextResponse.json(
-        { success: false, error: 'Bilan not published' },
-        { status: 403 }
-      );
-    }
-
     // Build export content based on audience
     let content: Record<string, string> = {};
+    const canSeeInternal = canSeeInternalBilan(authResponse.user.role);
+    if (audience === 'nexus' && !canSeeInternal) {
+      return NextResponse.json(
+        { success: false, error: 'Bilan not found' },
+        { status: 404 }
+      );
+    }
 
     switch (audience) {
       case 'student':
@@ -83,11 +92,17 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         break;
       case 'all':
       default:
-        content = {
-          student: bilan.studentMarkdown || '',
-          parents: bilan.parentsMarkdown || '',
-          nexus: bilan.nexusMarkdown || '',
-        };
+        if (canSeeInternal) {
+          content = {
+            student: bilan.studentMarkdown || '',
+            parents: bilan.parentsMarkdown || '',
+            nexus: bilan.nexusMarkdown || '',
+          };
+        } else if (authResponse.user.role === 'PARENT') {
+          content = { parents: bilan.parentsMarkdown || '' };
+        } else {
+          content = { student: bilan.studentMarkdown || '' };
+        }
     }
 
     // Return based on format
@@ -147,10 +162,17 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const { id } = await params;
     const body = await request.json();
     const { format = 'pdf' } = body;
+    const where = buildBilanWriteWhere(id, authResponse.user);
+    if (!where) {
+      return NextResponse.json(
+        { success: false, error: 'Bilan not found' },
+        { status: 404 }
+      );
+    }
 
     // Check bilan exists
-    const bilan = await prisma.bilan.findUnique({
-      where: { id },
+    const bilan = await prisma.bilan.findFirst({
+      where,
       select: { id: true, status: true, isPublished: true },
     });
 

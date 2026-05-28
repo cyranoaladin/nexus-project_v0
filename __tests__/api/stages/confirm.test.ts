@@ -75,16 +75,22 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
 
   it('retourne 404 si réservation introuvable', async () => {
     mockAuth.mockResolvedValue(session('ASSISTANTE'));
-    prisma.stageReservation.findUnique.mockResolvedValue(null);
+    prisma.stageReservation.findFirst.mockResolvedValue(null);
 
     const res = await POST(makeRequest(), { params });
 
     expect(res.status).toBe(404);
+    expect(prisma.stageReservation.findFirst).toHaveBeenCalledWith(expect.objectContaining({
+      where: {
+        id: 'res-1',
+        stage: { slug: 'printemps-2026' },
+      },
+    }));
   });
 
   it('retourne 409 si réservation déjà CONFIRMED', async () => {
     mockAuth.mockResolvedValue(session('ADMIN'));
-    prisma.stageReservation.findUnique.mockResolvedValue({
+    prisma.stageReservation.findFirst.mockResolvedValue({
       ...baseReservation,
       richStatus: 'CONFIRMED',
     });
@@ -96,7 +102,7 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
 
   it('confirme la réservation et met à jour le statut', async () => {
     mockAuth.mockResolvedValue(session('ASSISTANTE'));
-    prisma.stageReservation.findUnique.mockResolvedValue(baseReservation);
+    prisma.stageReservation.findFirst.mockResolvedValue(baseReservation);
     prisma.user.findUnique.mockResolvedValue({
       id: 'user-existing',
       email: 'eleve@example.com',
@@ -123,7 +129,7 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
 
   it('crée un User ELEVE si email inexistant', async () => {
     mockAuth.mockResolvedValue(session('ADMIN'));
-    prisma.stageReservation.findUnique.mockResolvedValue(baseReservation);
+    prisma.stageReservation.findFirst.mockResolvedValue(baseReservation);
     prisma.user.findUnique.mockResolvedValue(null);
     prisma.user.findFirst.mockResolvedValue({
       id: 'admin-id',
@@ -154,7 +160,7 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
 
   it('ne crée pas de doublon User si email déjà existant', async () => {
     mockAuth.mockResolvedValue(session('ADMIN'));
-    prisma.stageReservation.findUnique.mockResolvedValue(baseReservation);
+    prisma.stageReservation.findFirst.mockResolvedValue(baseReservation);
     prisma.user.findUnique.mockResolvedValue({
       id: 'user-existing',
       email: 'eleve@example.com',
@@ -168,7 +174,7 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
 
   it('génère un activationToken + expiry 72h', async () => {
     mockAuth.mockResolvedValue(session('ADMIN'));
-    prisma.stageReservation.findUnique.mockResolvedValue(baseReservation);
+    prisma.stageReservation.findFirst.mockResolvedValue(baseReservation);
     prisma.user.findUnique.mockResolvedValue({
       id: 'user-existing',
       email: 'eleve@example.com',
@@ -185,7 +191,7 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
 
   it("envoie l'email de confirmation avec lien d'activation", async () => {
     mockAuth.mockResolvedValue(session('ASSISTANTE'));
-    prisma.stageReservation.findUnique.mockResolvedValue(baseReservation);
+    prisma.stageReservation.findFirst.mockResolvedValue(baseReservation);
     prisma.user.findUnique.mockResolvedValue({
       id: 'user-existing',
       email: 'eleve@example.com',

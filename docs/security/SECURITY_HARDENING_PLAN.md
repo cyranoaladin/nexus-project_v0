@@ -145,8 +145,19 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - Matrice route/méthode/guard/ownership mise à jour.
   - Tests IDOR verts pour chaque ressource propriétaire.
 - Rollback : non applicable pour l'inventaire; chaque patch route doit avoir son propre rollback Git.
-- Statut : inventaire initial produit; correction route par route à faire.
+- Statut : inventaire initial produit; Lot 1 partiellement fermé le 2026-05-28 sur assessments/bilans/sessions/stages reservations. Les routes documents et factures critiques du lot ont été auditées et confirmées par tests existants, mais restent classées P0 par l'inventaire statique lorsque le script ne détecte pas leurs guards manuels.
 - Propriétaire proposé : Backend sécurité.
+
+#### P0-004 Lot 1 — API IDOR routes propriétaires
+
+| Groupe | Statut | Action | Test attendu | Risque résiduel |
+|---|---|---|---|---|
+| Documents | Audité, tests existants OK | `app/api/documents/[id]` lit le fichier seulement après owner/staff; `student/documents` est scoped élève; `coach/students/[studentId]/documents` vérifie l'assignation coach. | `__tests__/api/documents.id.route.test.ts`, `__tests__/api/student.documents.download.test.ts` | Le modèle `DocumentVisibilityScope` n'est pas encore centralisé pour un helper unique multi-rôle. |
+| Factures | Audité, tests existants OK | Admin routes staff-only; endpoints PDF/receipt utilisent token ou scope parent par email via `buildInvoiceScopeWhere`. | `__tests__/api/admin.invoices.id.route.test.ts`, `__tests__/api/admin.invoices.send.route.test.ts`, `__tests__/api/invoices.pdf.route.test.ts`, `__tests__/api/invoices.receipt.pdf.route.test.ts` | Relation parent/facture reste basée sur `customerEmail`; un futur modèle bénéficiaire explicite serait plus robuste. |
+| Bilans/Assessments | Corrigé | Ajout d'ownership sur `assessments/[id]/result`, `status`, `export`; ajout d'ownership et sanitization sur `bilans/[id]` et `bilans/[id]/export`. | `__tests__/api/assessments.*.route.test.ts`, `__tests__/api/bilans.id.route.test.ts` | `assessments/submit` et `assessments/test` restent à auditer hors Lot 1. |
+| Coach-students | Audité, tests existants OK | Les routes coach lues dans ce lot utilisent `assertCoachCanAccessStudent` ou un check participant/session. | `__tests__/api/coach.sessions.report.route.test.ts` et tests coach-student existants | Le fallback session legacy dans `isCoachAssignedToStudent` doit être revu en Lot 2. |
+| Sessions | Corrigé | `sessions/book` interdit désormais à un élève de réserver pour un autre `studentId`; cancel/video restent scoped participant/staff. | `__tests__/api/sessions.book.route.test.ts`, `__tests__/api/sessions.cancel.route.test.ts`, `__tests__/api/sessions.video.route.test.ts` | Les routes parent sessions additionnelles restent à balayer en Lot 2 si présentes. |
+| Stages reservations | Corrigé partiellement | Confirmation staff-only conservée; la réservation confirmée est maintenant contrainte au `stageSlug` de l'URL. | `__tests__/api/stages/confirm.test.ts` | Les routes admin stages dynamiques restent dans le prochain lot P0/P1 selon exposition. |
 
 ## P1 — Durcissement court terme
 

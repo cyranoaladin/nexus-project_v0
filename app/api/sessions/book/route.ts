@@ -50,6 +50,9 @@ export async function POST(req: NextRequest) {
 
     // Parse and validate input
     const validatedData = await parseBody(req, bookFullSessionSchema);
+    if (session.user.role === 'ELEVE' && validatedData.studentId !== session.user.id) {
+      throw ApiError.forbidden('You can only book sessions for your own account');
+    }
 
     // Normalize times to HH:MM to ensure correct string comparisons in DB
     const requestStartTime = normalizeTime(validatedData.startTime);
