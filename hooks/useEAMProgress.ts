@@ -43,7 +43,7 @@ export function useEAMProgress() {
   const storageKey = useMemo(() => getStorageKey(userId), [userId]);
   const [state, setState] = useState<EAMProgressData>(() => createEmptyEAMProgress());
   const mountedRef = useRef(false);
-  const syncTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  const syncTimerRef = useRef<number | null>(null);
   const pendingSyncRef = useRef<EAMProgressData | null>(null);
 
   const totalItems = useMemo(() => MODULES.reduce((sum, module) => sum + module.checklist.length, 0), []);
