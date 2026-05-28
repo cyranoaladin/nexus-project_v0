@@ -183,7 +183,9 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
 
 #### P0-004 Lot 2A — Payments / Webhooks / Subscriptions
 
-- Statut : corrigé et testé localement le 2026-05-28; non déployé production.
+- Statut : corrigé, testé et déployé en production le 2026-05-28 UTC (serveur : 2026-05-29 00:xx +02).
+- Commit déployé : `e3c07144b fix(security): enforce payment and subscription ownership`.
+- Backup pré-déploiement : `/root/nexus-backups/p0-004-lot2a-deploy-20260529001813`.
 - Routes :
   - `app/api/payments/bank-transfer/confirm/route.ts`
   - `app/api/payments/validate/route.ts`
@@ -202,12 +204,22 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - montants/types crédits bornés;
   - webhook ClicToPay confirmé non product-ready (`501`) et signature invalide testée (`401` si secret configuré).
 - Tests :
-  - 17 suites ciblées, 98 tests OK.
-  - `npm run typecheck` : OK.
+  - Serveur production : `npm run typecheck` OK.
+  - Serveur production : 17 suites ciblées Lot 2A, 98 tests OK.
+  - Serveur production : `npm run build` OK.
+  - Local avant déploiement : `npm run typecheck` OK.
   - `npm run test:unit -- --runInBand` : 443 suites, 5888 tests OK.
-  - `npm run build` : OK.
   - `npm run test:integration -- --runInBand` : non relancé, DB test `127.0.0.1:5435` indisponible.
-- Déploiement : à planifier séparément avec backup, build serveur et PM2 reload contrôlé.
+- Validation production :
+  - PM2 `nexus-prod` online après reload applicatif contrôlé.
+  - Port applicatif maintenu sur `127.0.0.1:3001`, sans retour à `0.0.0.0:3001`.
+  - Smoke public : `/`, `/offres`, `/stages` en 200; `/dashboard/eleve` sans auth en 307.
+  - Santé locale : `/api/health` en 200.
+  - Routes financières sans auth : refusées (`401`) ou méthode non autorisée contrôlée (`405` sur POST `check-pending`), jamais 200.
+  - ClicToPay : webhook vide et signature invalide en `501`; aucun paiement carte validé.
+  - Chemins sensibles : `/.env`, `/.git/config`, `/.next/standalone/.env`, `/docker-compose.prod.yml`, `/prisma/schema.prisma` en 404.
+  - Logs PM2 filtrés : aucune erreur critique applicative nouvelle.
+- Rollback prévu, non exécuté : retour Git au commit `207382f19`, rebuild, puis `pm2 startOrReload ecosystem.config.js --env production --update-env`.
 - Risque résiduel :
   - ClicToPay réel non implémenté; activation commerciale paiement carte interdite tant que provider/signature/idempotence/montant/devise ne sont pas complets.
   - P0-004 global reste ouvert hors Lot 2A.

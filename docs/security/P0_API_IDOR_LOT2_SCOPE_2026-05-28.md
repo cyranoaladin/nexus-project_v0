@@ -30,8 +30,8 @@ Le Lot 2 doit traiter les routes encore sensibles après le déploiement du Lot 
 
 ## Priorité recommandée
 
-1. Payments/webhooks/subscriptions. Statut 2026-05-28 : Lot 2A corrigé et testé localement, non déployé production.
-2. Admin users et assistante students/credits.
+1. Payments/webhooks/subscriptions. Statut 2026-05-28 : Lot 2A corrigé, testé, déployé et validé en production au commit `e3c07144b`.
+2. Admin users et assistante students/coaches. Cadrage détaillé : `docs/security/P0_API_IDOR_LOT2B_SCOPE_2026-05-28.md`.
 3. NPC reports/submissions/documents.
 4. Messages/conversations.
 5. Assessments submit/test.

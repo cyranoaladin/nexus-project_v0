@@ -14,7 +14,7 @@ Date : 2026-05-28
 | Credits parent/staff | Corrigé | OK | Types de crédit staff bornés; modèle d'audit financier plus riche à prévoir en P1/P2. |
 | Admin/assistante subscriptions | Corrigé/audité | OK | Routes staff-only; l'inventaire statique les garde P1 faute de reconnaissance complète des guards manuels. |
 
-Lot 2A est fermé côté code et tests locaux. Non déployé en production dans ce cycle.
+Lot 2A est fermé côté code, tests locaux et déploiement production.
 
 Go-live large : toujours non autorisé tant que P0-004 global reste ouvert.
 Bêta contrôlée : maintenue sous surveillance.
@@ -202,17 +202,82 @@ Puis :
 - Lot 2D : messages/conversations.
 - Lot 2E : assessments submit/test.
 
-## Déploiement
+## Déploiement production
 
-Non déployé en production dans ce cycle.
+Date :
+- UTC : 2026-05-28 22:xx.
+- Serveur : 2026-05-29 00:xx +02.
 
-Déploiement recommandé après validation :
+Commit déployé :
+- `e3c07144b fix(security): enforce payment and subscription ownership`.
 
-1. Préflight prod Git/PM2/health.
-2. Backup applicatif minimal.
-3. `git pull --ff-only origin main`.
-4. `npm run typecheck`.
-5. Tests ciblés Lot 2A.
-6. `npm run build`.
-7. `pm2 startOrReload ecosystem.config.js --env production --update-env`.
-8. Smoke : public, `/api/health`, routes financières sans auth, ClicToPay webhook non signé/signature invalide, chemins sensibles.
+État avant déploiement :
+- Production avant pull : `1f37eeb0 fix(security): enforce API ownership checks lot 1`.
+- Branche : `main`.
+- Worktree production : propre.
+- PM2 `nexus-prod` : online.
+- Port applicatif : `127.0.0.1:3001`.
+- Santé locale `/api/health` : 200.
+- Site public `/` : 200.
+- Chemins sensibles pré-déploiement : 404.
+
+Backup :
+- Chemin : `/root/nexus-backups/p0-004-lot2a-deploy-20260529001813`.
+- Contenu : HEAD Git avant déploiement, status Git, PM2 jlist/describe, état `ss`, copies de `ecosystem.config.js`, `package.json`, `package-lock.json`.
+- Aucun secret copié volontairement.
+
+Commandes principales :
+
+```bash
+git fetch origin main
+git pull --ff-only origin main
+npm run typecheck
+npm test -- --runInBand <17 tests Lot 2A>
+npm run build
+pm2 startOrReload ecosystem.config.js --env production --update-env
+pm2 save
+```
+
+Vérifications serveur :
+- `npm run typecheck` : OK.
+- Tests ciblés Lot 2A : 17 suites, 98 tests OK.
+- `npm run build` : OK.
+- PM2 `nexus-prod` : online après reload.
+- Port : `127.0.0.1:3001`, pas de retour à `0.0.0.0:3001`.
+
+Smoke production :
+
+| Check | Résultat |
+|---|---|
+| `/` | 200 |
+| `/offres` | 200 |
+| `/stages` | 200 |
+| `/dashboard/eleve` sans auth | 307 |
+| `/api/health` local | 200 |
+| `POST /api/payments/bank-transfer/confirm` sans auth | 401 |
+| `POST /api/payments/validate` sans auth | 401 |
+| `POST /api/payments/check-pending` sans auth | 405 |
+| `POST /api/parent/credit-request` sans auth | 401 |
+| `GET /api/parent/subscriptions` sans auth | 401 |
+| `POST /api/parent/subscription-requests` sans auth | 401 |
+| `POST /api/subscriptions/change` sans auth | 401 |
+| `POST /api/subscriptions/aria-addon` sans auth | 401 |
+| `POST /api/payments/clictopay/webhook` payload vide | 501 |
+| `POST /api/payments/clictopay/webhook` signature invalide | 501 |
+| `/.env` | 404 |
+| `/.git/config` | 404 |
+| `/.next/standalone/.env` | 404 |
+| `/docker-compose.prod.yml` | 404 |
+| `/prisma/schema.prisma` | 404 |
+
+Logs :
+- `pm2 logs nexus-prod --lines 160 --nostream` filtré : aucune erreur critique applicative nouvelle.
+
+ClicToPay :
+- Le paiement carte n'est pas product-ready.
+- Le webhook retourne `501` et ne valide aucun paiement.
+- L'activation commerciale ClicToPay reste interdite tant que provider réel, signature, montant/devise et idempotence ne sont pas implémentés et testés.
+
+Rollback :
+- Prévu : retour au commit `207382f19`, rebuild, puis `pm2 startOrReload ecosystem.config.js --env production --update-env`.
+- Non exécuté : aucune condition critique de rollback rencontrée.
