@@ -57,8 +57,8 @@ export const metadata: Metadata = {
   description: "La plateforme de référence pour l'excellence éducative en Tunisie. Accompagnement humain d'élite, plateforme numérique intelligente et assistance IA révolutionnaire.",
   keywords: ["soutien scolaire", "Tunisie", "lycée", "baccalauréat", "cours particuliers", "IA", "pédagogie"],
   icons: [
-    { rel: "icon", url: "/favicon.ico" },
-    { rel: "shortcut icon", url: "/favicon.ico" },
+    { rel: "icon", url: "/web-app-manifest-192x192.png", type: "image/png", sizes: "192x192" },
+    { rel: "shortcut icon", url: "/web-app-manifest-192x192.png", type: "image/png", sizes: "192x192" },
   ],
   openGraph: {
     title: "Nexus Réussite - Pédagogie Augmentée",
