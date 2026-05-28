@@ -41,7 +41,7 @@ export default function DashboardEleve() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'booking'>('dashboard');
-  const [activeRubrique, setActiveRubrique] = useState<'cockpit' | 'parcours' | 'sessions' | 'matières' | 'bilans' | 'stages'>('cockpit');
+  const [activeRubrique, setActiveRubrique] = useState<'cockpit' | 'eam' | 'parcours' | 'sessions' | 'matières' | 'bilans' | 'stages'>('cockpit');
   const [isAriaOpen, setIsAriaOpen] = useState(false);
   const [ariaSubject, setAriaSubject] = useState<string | undefined>(undefined);
 
@@ -151,6 +151,7 @@ export default function DashboardEleve() {
   const edsSpecialties = dashboardData?.trackContent?.specialties ?? [];
   const stmgModules = dashboardData?.trackContent?.stmgModules ?? [];
   const studentGradeLevel = dashboardData?.student.gradeLevel;
+  const isPremiereStudent = studentGradeLevel === 'PREMIERE' || dashboardData?.student.grade === 'PREMIERE';
   const ariaSubjectLinks = buildAriaSubjectLinks({
     isStmgTrack,
     specialties: edsSpecialties,
@@ -223,6 +224,7 @@ export default function DashboardEleve() {
                   <div className="flex gap-1.5 sm:gap-2 p-1 bg-white/5 border-y sm:border border-white/10 sm:rounded-xl overflow-x-auto scrollbar-none px-4 sm:px-1">
                     {[
                       { id: 'cockpit', label: 'Cockpit' },
+                      { id: 'eam', label: isPremiereStudent ? 'EAM Maths' : 'EAM Maths 1re' },
                       { id: 'parcours', label: 'Parcours' },
                       { id: 'sessions', label: 'Sessions' },
                       { id: 'matières', label: 'Matières' },
@@ -259,6 +261,32 @@ export default function DashboardEleve() {
                       onOpenAria={() => openAriaWithSubject()}
                     />
                   </div>
+                )}
+
+                {activeRubrique === 'eam' && (
+                  <Card className="overflow-hidden border-brand-accent/20 bg-gradient-to-br from-brand-accent/10 via-surface-card to-surface-card shadow-premium">
+                    <CardContent className="p-5 sm:p-6">
+                      <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                        <div className="min-w-0">
+                          <p className="text-xs font-black uppercase tracking-[0.16em] text-brand-accent">
+                            Préparation Première — spécialité mathématiques
+                          </p>
+                          <h2 className="mt-2 text-xl font-black tracking-tight text-white sm:text-2xl">
+                            Épreuve Anticipée de Mathématiques
+                          </h2>
+                          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-300">
+                            Accédez au parcours EAM complet : plan J-11, modules, fiches express, quiz et progression sauvegardée.
+                          </p>
+                        </div>
+                        <Link href="/dashboard/eleve/eam" className="w-full sm:w-fit">
+                          <Button className="w-full bg-brand-accent text-surface-darker hover:bg-brand-accent/90 sm:w-auto">
+                            Ouvrir EAM Maths
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
                 )}
 
                 {activeRubrique === 'parcours' && (

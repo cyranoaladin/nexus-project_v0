@@ -7,6 +7,7 @@
 
 @config "../tailwind.config.mjs";
 @import "tailwindcss";
+@import "katex/dist/katex.min.css";
 
 :root {
   --promo-banner-offset: 0px;
@@ -1297,5 +1298,54 @@ html {
   .text-cyan-400,
   .text-blue-400 {
     color: #0369a1 !important;
+  }
+}
+
+.eam-shell {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.eam-shell *,
+.eam-shell *::before,
+.eam-shell *::after {
+  min-width: 0;
+}
+
+.eam-shell .katex-display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.eam-shell .katex {
+  white-space: normal;
+}
+
+.eam-shell .eam-mock-exam {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.eam-shell .eam-mock-exam pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+@media print {
+  .eam-shell .eam-no-print,
+  .eam-no-print {
+    display: none !important;
+  }
+
+  .eam-shell,
+  .eam-shell .eam-mock-exam {
+    background: #fff !important;
+    color: #000 !important;
+    overflow: visible !important;
+  }
+
+  .eam-shell .eam-mock-exam * {
+    box-shadow: none !important;
   }
 }
