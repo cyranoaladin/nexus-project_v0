@@ -91,7 +91,27 @@ describe('assistant coaches', () => {
     const body = await response.json();
 
     expect(response.status).toBe(400);
-    expect(body.error).toBe('Missing required fields');
+    expect(body.error).toBe('Invalid coach payload');
+  });
+
+  it('POST rejects invalid subject values', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'assistant-1', role: 'ASSISTANTE' },
+    });
+
+    const response = await POST(
+      makeRequest({
+        firstName: 'A',
+        lastName: 'B',
+        email: 'c@test.com',
+        password: 'password123',
+        pseudonym: 'CoachX',
+        subjects: ['NOT_A_SUBJECT'],
+      })
+    );
+
+    expect(response.status).toBe(400);
+    expect(prisma.user.findUnique).not.toHaveBeenCalled();
   });
 
   it('POST rejects existing email', async () => {
@@ -101,7 +121,7 @@ describe('assistant coaches', () => {
     (prisma.user.findUnique as jest.Mock).mockResolvedValue({ id: 'user-1' });
 
     const response = await POST(
-      makeRequest({ firstName: 'A', lastName: 'B', email: 'c@test.com', password: 'pw', pseudonym: 'CoachX' })
+      makeRequest({ firstName: 'A', lastName: 'B', email: 'c@test.com', password: 'password123', pseudonym: 'CoachX' })
     );
     const body = await response.json();
 
@@ -139,7 +159,7 @@ describe('assistant coaches', () => {
         firstName: 'A',
         lastName: 'B',
         email: 'c@test.com',
-        password: 'pw',
+        password: 'password123',
         pseudonym: 'CoachX',
         tag: 'Math',
       })

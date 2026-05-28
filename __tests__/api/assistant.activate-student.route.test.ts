@@ -102,7 +102,7 @@ describe('POST /api/assistant/activate-student', () => {
 
     expect(res.status).toBe(200);
     expect(body.success).toBe(true);
-    expect(body.activationUrl).toContain('token=abc');
+    expect(body.activationUrl).toBeUndefined();
     expect(body.studentName).toBe('Ahmed');
     expect(mockInitiate).toHaveBeenCalledWith(
       'u1',
@@ -116,6 +116,26 @@ describe('POST /api/assistant/activate-student', () => {
         stmgPathway: undefined,
       }
     );
+  });
+
+  it('should not return raw activation tokens in successful responses', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'a1', role: 'ASSISTANTE' } } as any);
+    mockInitiate.mockResolvedValue({
+      success: true,
+      activationUrl: 'http://localhost:3000/auth/activate?token=raw-token',
+      studentName: 'Ahmed',
+    } as any);
+
+    const res = await POST(makeRequest({
+      studentUserId: 'u1',
+      studentEmail: 'ahmed@test.com',
+      ...validTrackMetadata,
+    }));
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(JSON.stringify(body)).not.toContain('raw-token');
+    expect(body.activationUrl).toBeUndefined();
   });
 
   it('should activate student for ASSISTANTE', async () => {

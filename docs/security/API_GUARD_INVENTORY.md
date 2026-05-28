@@ -1,6 +1,6 @@
 # Inventaire initial des guards API
 
-Généré le : 2026-05-28T22:00:49.714Z
+Généré le : 2026-05-28T22:39:12.332Z
 
 Lecture statique uniquement. La colonne `Ownership explicit` signale des indices de filtrage propriétaire dans le fichier; elle ne remplace pas un audit manuel IDOR.
 

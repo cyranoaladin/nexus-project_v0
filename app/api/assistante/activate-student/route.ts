@@ -2,10 +2,10 @@
  * POST /api/assistant/activate-student
  *
  * Initiates student account activation.
- * Called by ADMIN, ASSISTANTE, or PARENT.
+ * Called by ADMIN, ASSISTANTE, or owner-scoped PARENT.
  *
  * Body: { studentUserId: string, studentEmail: string }
- * Returns: { success, activationUrl?, studentName?, error? }
+ * Returns: { success, studentName?, error? }
  */
 
 export const dynamic = 'force-dynamic';
@@ -89,7 +89,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      activationUrl: result.activationUrl,
       studentName: result.studentName,
       message: `Lien d'activation envoyé à ${parsed.data.studentEmail}`,
     });

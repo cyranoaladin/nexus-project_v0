@@ -15,6 +15,28 @@ const createDocumentSchema = z.object({
   visibilityScope: z.nativeEnum(DocumentVisibilityScope).default(DocumentVisibilityScope.STUDENT_AND_COACH),
 });
 
+const documentSafeSelect = {
+  id: true,
+  title: true,
+  originalName: true,
+  mimeType: true,
+  sizeBytes: true,
+  documentType: true,
+  visibilityScope: true,
+  subject: true,
+  description: true,
+  expiresAt: true,
+  createdAt: true,
+  updatedAt: true,
+  userId: true,
+  uploadedById: true,
+} as const;
+
+function sanitizeDocument(document: Record<string, unknown>) {
+  const { localPath: _localPath, ...safeDocument } = document;
+  return safeDocument;
+}
+
 interface RouteParams {
   params: Promise<{ studentId: string }>;
 }
@@ -58,12 +80,13 @@ export async function GET(request: Request, { params }: RouteParams) {
     const documents = await prisma.userDocument.findMany({
       where: { userId: student.userId },
       orderBy: { createdAt: 'desc' },
+      select: documentSafeSelect,
     });
 
     return NextResponse.json({
       success: true,
       student,
-      documents,
+      documents: documents.map((document) => sanitizeDocument(document)),
     });
   } catch (error) {
     console.error('[API Assistante Documents GET] Error:', error);
@@ -130,12 +153,13 @@ export async function POST(request: Request, { params }: RouteParams) {
         sizeBytes: 0,
         visibilityScope: validated.visibilityScope,
       },
+      select: documentSafeSelect,
     });
 
     return NextResponse.json({
       success: true,
       message: 'Document créé',
-      document,
+      document: sanitizeDocument(document),
     }, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {

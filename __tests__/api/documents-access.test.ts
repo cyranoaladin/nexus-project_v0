@@ -267,7 +267,7 @@ describe('Documents Access Control', () => {
     it('should allow ASSISTANTE to GET any student documents', async () => {
       assistanteSession();
       mockPrisma.student.findUnique.mockResolvedValue(mockStudent);
-      mockPrisma.userDocument.findMany.mockResolvedValue([mockDocument]);
+      mockPrisma.userDocument.findMany.mockResolvedValue([{ ...mockDocument, localPath: '/srv/private/doc.pdf' }]);
 
       const request = new NextRequest(
         `http://localhost/api/assistante/students/${STUDENT_ID}/documents`,
@@ -281,6 +281,7 @@ describe('Documents Access Control', () => {
       const data = await response.json();
       expect(data.success).toBe(true);
       expect(data.documents).toHaveLength(1);
+      expect(data.documents[0].localPath).toBeUndefined();
     });
 
     it('should allow ADMIN to GET any student documents', async () => {

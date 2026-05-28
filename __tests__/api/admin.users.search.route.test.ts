@@ -43,6 +43,17 @@ describe('GET /api/admin/users/search', () => {
     expect(res.status).toBe(403);
   });
 
+  it('should reject ASSISTANTE because admin user search is admin-only', async () => {
+    const errorRes = NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    mockRequireAnyRole.mockResolvedValue(errorRes as any);
+    mockIsErrorResponse.mockReturnValue(true);
+
+    const res = await GET(makeRequest('ahmed'));
+
+    expect(res.status).toBe(403);
+    expect(mockRequireAnyRole).toHaveBeenCalledWith(['ADMIN']);
+  });
+
   it('should return empty array for short query', async () => {
     mockRequireAnyRole.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN' } } as any);
     mockIsErrorResponse.mockReturnValue(false);

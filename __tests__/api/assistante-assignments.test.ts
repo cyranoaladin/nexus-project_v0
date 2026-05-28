@@ -187,6 +187,23 @@ describe('API Assistante Assignments', () => {
       expect(body.error).toBe('Conflict');
     });
 
+    it('POST refuse tout doublon actif même si assignmentType secondaire', async () => {
+      mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-1', user: { firstName: 'Coach', lastName: 'X' } } as any);
+      (prisma.student.findMany as jest.Mock).mockResolvedValue([{ id: 'student-1', user: { firstName: 'Ahmed', lastName: 'B' } }] as any);
+      (prisma.coachStudentAssignment.findMany as jest.Mock).mockResolvedValue([{ id: 'existing-1', studentId: 'student-1' }] as any);
+
+      const res = await postAssignments(makeRequest({
+        coachId: 'coach-1',
+        studentIds: ['student-1'],
+        assignmentType: AssignmentType.SECONDARY,
+      }));
+      const body = await res.json();
+
+      expect(res.status).toBe(409);
+      expect(body.error).toBe('Conflict');
+    });
+
     it('POST avec P2002 database conflict => 409', async () => {
       mockRequireAnyRole.mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
       (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-1', user: { firstName: 'Coach', lastName: 'X' } } as any);

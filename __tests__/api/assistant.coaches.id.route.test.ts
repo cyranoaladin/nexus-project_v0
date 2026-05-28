@@ -56,6 +56,44 @@ describe('assistant coaches id', () => {
     expect(body.error).toBe('Unauthorized');
   });
 
+  it('PUT allows ADMIN staff role', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'admin-1', role: 'ADMIN' },
+    });
+    (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({
+      userId: 'coach-1',
+      pseudonym: 'CoachX',
+      user: { email: 'old@test.com' },
+    });
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+    (bcrypt.hash as jest.Mock).mockResolvedValue('hashed');
+    (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => {
+      const tx = {
+        user: { update: jest.fn().mockResolvedValue({ id: 'coach-1', firstName: 'Coach', lastName: 'One', email: 'c@test.com' }) },
+        coachProfile: { update: jest.fn().mockResolvedValue({ pseudonym: 'CoachX' }) },
+      };
+      return cb(tx);
+    });
+
+    const response = await PUT(makeRequest(validPayload), { params: Promise.resolve({ id: 'coach-1' }) });
+
+    expect(response.status).toBe(200);
+  });
+
+  it('PUT rejects invalid subject values', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'assistant-1', role: 'ASSISTANTE' },
+    });
+
+    const response = await PUT(
+      makeRequest({ ...validPayload, subjects: ['NOT_A_SUBJECT'] }),
+      { params: Promise.resolve({ id: 'coach-1' }) }
+    );
+
+    expect(response.status).toBe(400);
+    expect(prisma.coachProfile.findUnique).not.toHaveBeenCalled();
+  });
+
   it('PUT updates coach when valid', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
