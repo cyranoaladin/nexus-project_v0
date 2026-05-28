@@ -4,6 +4,7 @@ import { can } from '@/lib/rbac';
 import { UserRole } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { readSecureFile, MIME_TO_EXT } from '@/lib/npc';
+import { canReadSubmission } from '@/lib/npc/access';
 
 // ─── Route Params ───
 
@@ -13,53 +14,24 @@ interface RouteParams {
 
 // ─── Auth Helper ───
 
-async function canAccessFile(
-  userId: string,
-  role: UserRole,
-  relativePath: string
-): Promise<boolean> {
-  // Extract studentId from path (format: {studentId}/{submissionId}/...)
-  const pathParts = relativePath.split('/');
-  const studentIdPrefix = pathParts[0];
+function decodePathSegments(pathSegments: string[]): string | null {
+  try {
+    return pathSegments.map((segment) => decodeURIComponent(segment)).join('/');
+  } catch {
+    return null;
+  }
+}
 
-  if (!studentIdPrefix) return false;
-
-  // Find student by matching the prefix
-  const student = await prisma.student.findFirst({
-    where: {
-      id: { startsWith: studentIdPrefix },
-    },
-    include: {
-      user: true,
-      parent: { include: { user: true } },
-      coachAssignments: { include: { coach: { include: { user: true } } } },
-    },
-  });
-
-  if (!student) return false;
-
-  // Role-based access check
-  if (role === UserRole.ADMIN) return true;
-
-  if (role === UserRole.ELEVE) {
-    return student.userId === userId;
+function isSafeRelativeStoragePath(relativePath: string): boolean {
+  if (!relativePath || relativePath.startsWith('/') || relativePath.includes('//')) {
+    return false;
   }
 
-  if (role === UserRole.PARENT) {
-    return student.parent.userId === userId;
+  if (relativePath.includes('\\')) {
+    return false;
   }
 
-  if (role === UserRole.COACH) {
-    const coachIds = student.coachAssignments.map((a) => a.coach.userId);
-    return coachIds.includes(userId);
-  }
-
-  if (role === UserRole.ASSISTANTE) {
-    // Assistente can view but we track access
-    return true;
-  }
-
-  return false;
+  return !relativePath.split('/').some((segment) => segment === '..' || segment === '');
 }
 
 // ─── GET Handler ───
@@ -87,23 +59,45 @@ export async function GET(
 
     // Build relative path from route params
     const { path } = await params;
-    const relativePath = path.join('/');
+    const relativePath = decodePathSegments(path);
 
     // Validate path format (prevent directory traversal)
-    if (
-      relativePath.includes('..') ||
-      relativePath.startsWith('/') ||
-      relativePath.includes('//')
-    ) {
-      console.warn('[NPC Files] Path traversal attempt:', relativePath);
+    if (!relativePath || !isSafeRelativeStoragePath(relativePath)) {
+      console.warn('[NPC Files] Invalid storage path requested');
       return NextResponse.json(
         { error: 'Invalid path' },
         { status: 400 }
       );
     }
 
-    // Authorize access to this specific file
-    const hasAccess = await canAccessFile(userId, role, relativePath);
+    const document = await prisma.copyPage.findFirst({
+      where: {
+        OR: [
+          { originalFilePath: relativePath },
+          { convertedFilePaths: { has: relativePath } },
+        ],
+      },
+      select: {
+        id: true,
+        mimeType: true,
+        submission: {
+          select: {
+            id: true,
+            studentId: true,
+            coachId: true,
+          },
+        },
+      },
+    });
+
+    if (!document) {
+      return NextResponse.json(
+        { error: 'File not found' },
+        { status: 404 }
+      );
+    }
+
+    const hasAccess = await canReadSubmission({ userId, role }, document.submission);
     if (!hasAccess) {
       return NextResponse.json(
         { error: 'Forbidden - Access denied to this file' },
@@ -122,7 +116,7 @@ export async function GET(
 
     // Determine content type from extension
     const ext = relativePath.split('.').pop()?.toLowerCase() || '';
-    const contentType = Object.entries(MIME_TO_EXT).find(
+    const contentType = document.mimeType || Object.entries(MIME_TO_EXT).find(
       ([, e]) => e === ext
     )?.[0];
 

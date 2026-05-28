@@ -8,6 +8,8 @@ Ce document cadre le prochain sous-lot P0-004 après le déploiement production 
 
 Le Lot 2C doit auditer et corriger les routes NPC qui exposent ou manipulent copies élèves, documents, fichiers disque, rapports pédagogiques générés, sorties IA et jobs de traitement. Le go-live large reste non autorisé tant que ce lot et les lots P0-004 restants ne sont pas triés.
 
+Statut 2026-05-29 : Lot 2C corrigé et testé localement. Rapport détaillé : `docs/security/P0_API_IDOR_LOT2C_NPC_REPORTS_SUBMISSIONS_2026-05-29.md`. Non déployé production dans ce cycle.
+
 ## Tableau préparatoire
 
 | Groupe | Route | Méthodes | Données sensibles | Guard actuel | Ownership attendu | Risque | Priorité |

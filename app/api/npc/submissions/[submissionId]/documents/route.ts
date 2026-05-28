@@ -20,6 +20,17 @@ interface RouteParams {
 
 const MAX_FILES_PER_SUBMISSION = 20;
 
+function sanitizeCopyPage(page: Record<string, unknown>) {
+  const {
+    originalFilePath: _originalFilePath,
+    convertedFilePaths: _convertedFilePaths,
+    ocrText: _ocrText,
+    ...safePage
+  } = page;
+
+  return safePage;
+}
+
 async function getActor() {
   const session = await auth();
   if (!session?.user) {
@@ -101,7 +112,11 @@ export async function GET(
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  return NextResponse.json({ documents: submission.pages });
+  return NextResponse.json({
+    documents: submission.pages.map((page) =>
+      sanitizeCopyPage(page as unknown as Record<string, unknown>)
+    ),
+  });
 }
 
 export async function POST(
@@ -265,7 +280,13 @@ export async function POST(
     });
 
     return NextResponse.json(
-      { success: true, document: documents[0], documents },
+      {
+        success: true,
+        document: sanitizeCopyPage(documents[0] as unknown as Record<string, unknown>),
+        documents: documents.map((document) =>
+          sanitizeCopyPage(document as unknown as Record<string, unknown>)
+        ),
+      },
       { status: 201 }
     );
   } catch (error) {

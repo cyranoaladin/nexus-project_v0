@@ -18,10 +18,18 @@ jest.mock('@/lib/rbac/coach-student-access', () => {
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {
-    generatedPedagogicalReport: { findMany: jest.fn() },
+    generatedPedagogicalReport: { findMany: jest.fn(), findUnique: jest.fn() },
     bilan: { findFirst: jest.fn() },
     eafPreparationReport: { findFirst: jest.fn() },
   },
+}));
+
+jest.mock('@/lib/reports/stage/processGeneratedReportJob', () => ({
+  processGeneratedReportJob: jest.fn(),
+}));
+
+jest.mock('@/lib/reports/stage/reportStorage', () => ({
+  readGeneratedReportPdf: jest.fn(),
 }));
 
 jest.mock('@/lib/logger', () => ({
@@ -29,9 +37,13 @@ jest.mock('@/lib/logger', () => ({
 }));
 
 import { GET } from '@/app/api/coach/students/[studentId]/generated-reports/route';
+import { POST as REGENERATE } from '@/app/api/coach/students/[studentId]/generated-reports/[reportId]/regenerate/route';
+import { GET as DOWNLOAD } from '@/app/api/coach/students/[studentId]/generated-reports/[reportId]/download/route';
 import { requireRole } from '@/lib/guards';
 import { assertCoachCanAccessStudent, CoachNotAssignedError } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
+import { processGeneratedReportJob } from '@/lib/reports/stage/processGeneratedReportJob';
+import { readGeneratedReportPdf } from '@/lib/reports/stage/reportStorage';
 
 function params(studentId = 'student-1') {
   return { params: Promise.resolve({ studentId }) };
@@ -89,5 +101,90 @@ describe('GET /api/coach/students/[studentId]/generated-reports', () => {
     expect(body.reports).toHaveLength(1);
     expect(body.readiness.eafStagePost.studentBilanReady).toBe(true);
     expect(body.readiness.eafStagePost.coachReportValidated).toBe(true);
+  });
+
+  it('does not expose internal generated report payloads in list responses', async () => {
+    (requireRole as jest.Mock).mockResolvedValue({ user: { id: 'coach-user-1', role: 'COACH' } });
+    (assertCoachCanAccessStudent as jest.Mock).mockResolvedValue(undefined);
+    (prisma.generatedPedagogicalReport.findMany as jest.Mock).mockResolvedValue([
+      {
+        id: 'report-1',
+        kind: 'EAF_STAGE_POST',
+        status: 'PDF_READY',
+        contextJson: { private: true },
+        llmJson: { raw: true },
+        validatedJson: { internal: true },
+        latexSource: '\\\\secret',
+        pdfUrl: '/api/coach/students/student-1/generated-reports/report-1/download',
+      },
+    ]);
+    (prisma.bilan.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.eafPreparationReport.findFirst as jest.Mock).mockResolvedValue(null);
+
+    const res = await GET(new Request('http://localhost/'), params());
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body.reports[0]).not.toHaveProperty('contextJson');
+    expect(body.reports[0]).not.toHaveProperty('llmJson');
+    expect(body.reports[0]).not.toHaveProperty('validatedJson');
+    expect(body.reports[0]).not.toHaveProperty('latexSource');
+  });
+});
+
+describe('POST /api/coach/students/[studentId]/generated-reports/[reportId]/regenerate', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('does not expose internal generated report payloads after regeneration', async () => {
+    (requireRole as jest.Mock).mockResolvedValue({ user: { id: 'coach-user-1', role: 'COACH' } });
+    (assertCoachCanAccessStudent as jest.Mock).mockResolvedValue(undefined);
+    (processGeneratedReportJob as jest.Mock).mockResolvedValue({
+      ok: true,
+      report: {
+        id: 'report-1',
+        studentId: 'student-1',
+        status: 'PDF_READY',
+        contextJson: { private: true },
+        llmJson: { raw: true },
+        validatedJson: { internal: true },
+        latexSource: '\\\\secret',
+      },
+    });
+
+    const res = await REGENERATE(new Request('http://localhost/', { method: 'POST' }), {
+      params: Promise.resolve({ studentId: 'student-1', reportId: 'report-1' }),
+    });
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body.report).not.toHaveProperty('contextJson');
+    expect(body.report).not.toHaveProperty('llmJson');
+    expect(body.report).not.toHaveProperty('validatedJson');
+    expect(body.report).not.toHaveProperty('latexSource');
+  });
+});
+
+describe('GET /api/coach/students/[studentId]/generated-reports/[reportId]/download', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('does not read a PDF when reportId belongs to another student', async () => {
+    (requireRole as jest.Mock).mockResolvedValue({ user: { id: 'coach-user-1', role: 'COACH' } });
+    (assertCoachCanAccessStudent as jest.Mock).mockResolvedValue(undefined);
+    (prisma.generatedPedagogicalReport.findUnique as jest.Mock).mockResolvedValue({
+      id: 'report-1',
+      studentId: 'other-student',
+      status: 'PDF_READY',
+    });
+
+    const res = await DOWNLOAD(new Request('http://localhost/'), {
+      params: Promise.resolve({ studentId: 'student-1', reportId: 'report-1' }),
+    });
+
+    expect(res.status).toBe(404);
+    expect(readGeneratedReportPdf).not.toHaveBeenCalled();
   });
 });

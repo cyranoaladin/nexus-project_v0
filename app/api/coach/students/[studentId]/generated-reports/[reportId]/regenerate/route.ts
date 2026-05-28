@@ -11,6 +11,18 @@ interface RouteParams {
   params: Promise<{ studentId: string; reportId: string }>;
 }
 
+function projectGeneratedReport(report: Record<string, unknown>) {
+  const {
+    contextJson: _contextJson,
+    llmJson: _llmJson,
+    validatedJson: _validatedJson,
+    latexSource: _latexSource,
+    ...safeReport
+  } = report;
+
+  return safeReport;
+}
+
 export async function POST(_request: Request, { params }: RouteParams) {
   try {
     const { studentId, reportId } = await params;
@@ -36,7 +48,10 @@ export async function POST(_request: Request, { params }: RouteParams) {
       return NextResponse.json(result.body, { status: result.status });
     }
 
-    return NextResponse.json({ success: true, report: result.report });
+    return NextResponse.json({
+      success: true,
+      report: projectGeneratedReport(result.report as unknown as Record<string, unknown>),
+    });
   } catch (error) {
     logger.error({ err: error }, '[API] Regenerate generated report failed');
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

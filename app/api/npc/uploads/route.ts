@@ -18,22 +18,13 @@ const MAX_REQUEST_SIZE = 11 * 1024 * 1024; // 11MB (slightly above file limit fo
 // ─── Auth Helper ───
 
 async function authenticateAndAuthorize(
-  request: NextRequest,
+  sessionUser: { id: string; role: UserRole },
   studentId: string
 ): Promise<
   | { authorized: false; response: NextResponse }
   | { authorized: true; userId: string; role: UserRole }
 > {
-  const session = await auth();
-
-  if (!session?.user) {
-    return {
-      authorized: false,
-      response: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }),
-    };
-  }
-
-  const { id: userId, role } = session.user as { id: string; role: UserRole };
+  const { id: userId, role } = sessionUser;
 
   // Check base permission
   if (!can(role, 'CREATE', 'COPY_SUBMISSION')) {
@@ -111,6 +102,19 @@ async function authenticateAndAuthorize(
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const sessionUser = session.user as { id: string; role: UserRole };
+    if (!can(sessionUser.role, 'CREATE', 'COPY_SUBMISSION')) {
+      return NextResponse.json(
+        { error: 'Forbidden - Insufficient permissions' },
+        { status: 403 }
+      );
+    }
+
     // Parse multipart form data
     const formData = await request.formData();
 
@@ -128,9 +132,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // Authenticate and authorize
-    const auth = await authenticateAndAuthorize(request, studentId);
-    if (!auth.authorized) {
-      return auth.response;
+    const authorization = await authenticateAndAuthorize(sessionUser, studentId);
+    if (!authorization.authorized) {
+      return authorization.response;
     }
 
     // Get uploaded file
@@ -177,10 +181,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       data: {
         studentId,
         coachId:
-          auth.role === UserRole.COACH
+          authorization.role === UserRole.COACH
             ? (
                 await prisma.coachProfile.findFirst({
-                  where: { userId: auth.userId },
+                  where: { userId: authorization.userId },
                   select: { id: true },
                 })
               )?.id
@@ -196,7 +200,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     });
 
     // Read file buffer
-    const fileBuffer = Buffer.from(await file.arrayBuffer());
+    const fileBuffer = Buffer.from(await new Response(file).arrayBuffer());
 
     // Prepare metadata for storage
     const metadata: FileMetadata = {
@@ -245,7 +249,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       {
         success: true,
         submissionId: submission.id,
-        filePath: storageResult.relativePath,
         message: 'File uploaded successfully',
       },
       { status: 201 }

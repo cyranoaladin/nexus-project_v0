@@ -1,4 +1,4 @@
-import { POST } from '@/app/api/npc/submissions/[submissionId]/documents/route';
+import { GET, POST } from '@/app/api/npc/submissions/[submissionId]/documents/route';
 import { DELETE } from '@/app/api/npc/submissions/[submissionId]/documents/[documentId]/route';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
@@ -26,6 +26,9 @@ jest.mock('@/lib/prisma', () => ({
       create: jest.fn(),
       findFirst: jest.fn(),
       delete: jest.fn(),
+    },
+    aiProcessingJob: {
+      create: jest.fn(),
     },
     npcAuditLog: {
       create: jest.fn(),
@@ -152,6 +155,67 @@ describe('NPC correction documents API', () => {
         }),
       })
     );
+  });
+
+  it('does not expose storage paths or OCR text when listing documents', async () => {
+    (prisma.copySubmission.findUnique as jest.Mock).mockResolvedValue({
+      id: 'submission-1',
+      studentId: 'student-1',
+      coachId: 'coach-1',
+      pages: [
+        {
+          id: 'doc-1',
+          pageNumber: 1,
+          documentType: 'STUDENT_COPY',
+          status: 'UPLOADED',
+          originalFilePath: 'student/sub/page_1/copie.pdf',
+          convertedFilePaths: ['student/sub/page_1/copie.png'],
+          ocrText: 'texte OCR interne',
+          originalFilename: 'copie.pdf',
+          mimeType: 'application/pdf',
+          sizeBytes: 8,
+        },
+      ],
+    });
+
+    const response = await GET(
+      new NextRequest('http://localhost/api/npc/submissions/submission-1/documents'),
+      params()
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.documents[0]).not.toHaveProperty('originalFilePath');
+    expect(body.documents[0]).not.toHaveProperty('convertedFilePaths');
+    expect(body.documents[0]).not.toHaveProperty('ocrText');
+  });
+
+  it('does not expose storage paths after uploading documents', async () => {
+    (prisma.copyPage.create as jest.Mock).mockResolvedValue({
+      id: 'doc-1',
+      documentType: 'STUDENT_COPY',
+      originalFilename: 'copie.pdf',
+      originalFilePath: 'student/sub/page_1/copie.pdf',
+      convertedFilePaths: [],
+      ocrText: 'texte OCR interne',
+      mimeType: 'application/pdf',
+      sizeBytes: 8,
+    });
+
+    const response = await POST(
+      makeUploadRequest({
+        documentType: 'STUDENT_COPY',
+        file: new File(['%PDF-1.4'], 'copie.pdf', { type: 'application/pdf' }),
+      }),
+      params()
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(201);
+    expect(body.document).not.toHaveProperty('originalFilePath');
+    expect(body.document).not.toHaveProperty('convertedFilePaths');
+    expect(body.document).not.toHaveProperty('ocrText');
+    expect(body.documents[0]).not.toHaveProperty('originalFilePath');
   });
 
   it('does not overwrite existing student copy metadata when attaching a rubric', async () => {

@@ -20,6 +20,27 @@ interface CreateSubmissionBody {
   gradeLevel?: GradeLevel;
 }
 
+function sanitizeSubmission(submission: Record<string, unknown>) {
+  const {
+    storedFilePath: _storedFilePath,
+    ocrText: _ocrText,
+    ocrError: _ocrError,
+    aiJob: _aiJob,
+    report: _report,
+    ...safeSubmission
+  } = submission;
+
+  if (safeSubmission.student && typeof safeSubmission.student === 'object') {
+    const student = safeSubmission.student as Record<string, unknown>;
+    safeSubmission.student = {
+      id: student.id,
+      user: student.user,
+    };
+  }
+
+  return safeSubmission;
+}
+
 // POST /api/npc/submissions - Create new submission
 export async function POST(req: NextRequest) {
   try {
@@ -139,7 +160,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(
-      { submission },
+      { submission: sanitizeSubmission(submission as unknown as Record<string, unknown>) },
       { status: 201 }
     );
   } catch (error) {
@@ -233,18 +254,37 @@ export async function GET(req: NextRequest) {
 
     const submissions = await prisma.copySubmission.findMany({
       where,
-      include: {
+      select: {
+        id: true,
+        createdAt: true,
+        updatedAt: true,
+        studentId: true,
+        coachId: true,
+        subject: true,
+        gradeLevel: true,
+        title: true,
+        description: true,
+        sourceType: true,
+        sourceId: true,
+        status: true,
+        fileSizeBytes: true,
+        mimeType: true,
         student: {
-          include: { user: { select: { firstName: true, lastName: true, email: true } } },
+          select: {
+            id: true,
+            user: { select: { firstName: true, lastName: true, email: true } },
+          },
         },
-        report: true,
-        aiJob: true,
       },
       orderBy: { createdAt: 'desc' },
       take: 100,
     });
 
-    return NextResponse.json({ submissions });
+    return NextResponse.json({
+      submissions: submissions.map((submission) =>
+        sanitizeSubmission(submission as unknown as Record<string, unknown>)
+      ),
+    });
   } catch (error) {
     console.error('NPC submissions API error:', error);
     return NextResponse.json(

@@ -10,6 +10,17 @@ interface RouteParams {
   params: Promise<{ submissionId: string; documentId: string }>;
 }
 
+function sanitizeCopyPage(page: Record<string, unknown>) {
+  const {
+    originalFilePath: _originalFilePath,
+    convertedFilePaths: _convertedFilePaths,
+    ocrText: _ocrText,
+    ...safePage
+  } = page;
+
+  return safePage;
+}
+
 async function getActor() {
   const session = await auth();
   if (!session?.user) {
@@ -105,7 +116,9 @@ export async function PATCH(
       },
     });
 
-    return NextResponse.json({ document: updatedDocument });
+    return NextResponse.json({
+      document: sanitizeCopyPage(updatedDocument as unknown as Record<string, unknown>),
+    });
   } catch (error) {
     console.error('[NPC Documents] PATCH error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

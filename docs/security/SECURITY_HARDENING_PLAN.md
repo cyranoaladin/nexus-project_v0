@@ -274,6 +274,39 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - logs admin users à revoir en P1 logs/PII;
   - P0-004 global reste ouvert hors Lot 2B : NPC, messages/conversations, assessments submit/test.
 
+#### P0-004 Lot 2C — NPC reports/submissions/documents
+
+- Statut : corrigé et testé localement le 2026-05-29; non déployé production.
+- Routes :
+  - `app/api/npc/submissions/route.ts`
+  - `app/api/npc/submissions/[submissionId]/documents/route.ts`
+  - `app/api/npc/submissions/[submissionId]/documents/[documentId]/route.ts`
+  - `app/api/npc/submissions/[submissionId]/generate/route.ts`
+  - `app/api/npc/uploads/route.ts`
+  - `app/api/npc/files/[...path]/route.ts`
+  - `app/api/coach/students/[studentId]/generated-reports/route.ts`
+  - `app/api/coach/students/[studentId]/generated-reports/[reportId]/download/route.ts`
+  - `app/api/coach/students/[studentId]/generated-reports/[reportId]/regenerate/route.ts`
+- Corrections :
+  - projections submissions/documents sans chemins disque, OCR, jobs IA ou payloads internes;
+  - upload legacy avec auth/RBAC avant parsing multipart et réponse sans `filePath`;
+  - route `/api/npc/files/[...path]` liée à `CopyPage` exact avant lecture disque;
+  - durcissement path traversal dans `readSecureFile`;
+  - generated reports coach sans `contextJson`, `llmJson`, `validatedJson` ni `latexSource`;
+  - test download : aucun PDF lu si `reportId` n'appartient pas au `studentId`.
+- Tests :
+  - 9 suites ciblées, 104 tests OK.
+  - `npm run typecheck` : OK.
+  - `npm run test:unit -- --runInBand` : 445 suites, 5904 tests OK.
+  - `npm run build` : OK.
+  - `node scripts/security/audit-api-guards.mjs` : inventaire régénéré, 164 routes.
+  - `npm run test:integration -- --runInBand` : non lancé, DB test `127.0.0.1:5435` fermée.
+- Déploiement : à planifier séparément avec backup, build serveur et PM2 reload contrôlé.
+- Risque résiduel :
+  - antivirus upload et inspection contenu réel en P1;
+  - centralisation projections NPC/report en P1;
+  - P0-004 global reste ouvert hors Lot 2C : messages/conversations, assessments submit/test.
+
 ## P1 — Durcissement court terme
 
 ### P1-001 — CSP

@@ -1,6 +1,6 @@
 # Inventaire initial des guards API
 
-Généré le : 2026-05-28T22:39:12.332Z
+Généré le : 2026-05-28T23:14:56.635Z
 
 Lecture statique uniquement. La colonne `Ownership explicit` signale des indices de filtrage propriétaire dans le fichier; elle ne remplace pas un audit manuel IDOR.
 
@@ -134,7 +134,7 @@ Lecture statique uniquement. La colonne `Ownership explicit` signale des indices
 | `app/api/messages/send/route.ts` | POST | no | yes | yes | no | yes | no | OK | guard manuel |
 | `app/api/notifications/route.ts` | GET, PATCH | no | yes | no | no | no | yes | OK | guard manuel |
 | `app/api/notify/email/route.ts` | POST | no | no | no | no | yes | no | OK | - |
-| `app/api/npc/files/[...path]/route.ts` | GET | yes | yes | yes | no | no | no | P0 | audit manuel prioritaire; guard manuel |
+| `app/api/npc/files/[...path]/route.ts` | GET | yes | yes | no | no | no | no | P0 | audit manuel prioritaire; guard manuel |
 | `app/api/npc/submissions/[submissionId]/documents/[documentId]/route.ts` | PATCH, DELETE | yes | yes | yes | no | no | yes | P1 | documents/PII; pédagogique sensible; guard manuel |
 | `app/api/npc/submissions/[submissionId]/documents/route.ts` | GET, POST | yes | yes | yes | no | no | yes | P1 | documents/PII; pédagogique sensible; guard manuel |
 | `app/api/npc/submissions/[submissionId]/generate/route.ts` | POST | yes | yes | yes | no | no | yes | P1 | pédagogique sensible; guard manuel |

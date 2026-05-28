@@ -135,9 +135,12 @@ export async function readSecureFile(
     // Prevent path traversal: ensure path is within upload dir
     const absolutePath = path.resolve(NPC_UPLOAD_DIR, relativePath);
     const resolvedUploadDir = path.resolve(NPC_UPLOAD_DIR);
+    const allowedPrefix = resolvedUploadDir.endsWith(path.sep)
+      ? resolvedUploadDir
+      : `${resolvedUploadDir}${path.sep}`;
 
-    if (!absolutePath.startsWith(resolvedUploadDir)) {
-      console.error('[NPC Storage] Path traversal attempt:', relativePath);
+    if (absolutePath !== resolvedUploadDir && !absolutePath.startsWith(allowedPrefix)) {
+      console.error('[NPC Storage] Path traversal attempt');
       return null;
     }
 
@@ -158,9 +161,12 @@ export async function deleteSecureFile(
     // Prevent path traversal
     const absolutePath = path.resolve(NPC_UPLOAD_DIR, relativePath);
     const resolvedUploadDir = path.resolve(NPC_UPLOAD_DIR);
+    const allowedPrefix = resolvedUploadDir.endsWith(path.sep)
+      ? resolvedUploadDir
+      : `${resolvedUploadDir}${path.sep}`;
 
-    if (!absolutePath.startsWith(resolvedUploadDir)) {
-      console.error('[NPC Storage] Path traversal attempt:', relativePath);
+    if (absolutePath !== resolvedUploadDir && !absolutePath.startsWith(allowedPrefix)) {
+      console.error('[NPC Storage] Path traversal attempt');
       return false;
     }
 
@@ -180,8 +186,11 @@ export async function fileExists(relativePath: string): Promise<boolean> {
     // Prevent path traversal
     const absolutePath = path.resolve(NPC_UPLOAD_DIR, relativePath);
     const resolvedUploadDir = path.resolve(NPC_UPLOAD_DIR);
+    const allowedPrefix = resolvedUploadDir.endsWith(path.sep)
+      ? resolvedUploadDir
+      : `${resolvedUploadDir}${path.sep}`;
 
-    if (!absolutePath.startsWith(resolvedUploadDir)) {
+    if (absolutePath !== resolvedUploadDir && !absolutePath.startsWith(allowedPrefix)) {
       return false;
     }
 
