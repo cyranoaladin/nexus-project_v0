@@ -8,7 +8,7 @@ Ce document cadre le prochain sous-lot P0-004 après le déploiement production 
 
 Le Lot 2B doit auditer et corriger les routes capables d'exposer ou modifier des comptes, rôles, activations, données mineurs, relations parent/enfant, profils coachs et affectations. Le go-live large reste non autorisé tant que ce lot et les lots P0-004 restants ne sont pas triés.
 
-Statut 2026-05-29 : Lot 2B corrigé et testé localement. Rapport détaillé : `docs/security/P0_API_IDOR_LOT2B_ADMIN_ASSISTANTE_2026-05-29.md`. Non déployé production dans ce cycle.
+Statut 2026-05-29 : Lot 2B corrigé, testé et déployé en production. Rapport détaillé : `docs/security/P0_API_IDOR_LOT2B_ADMIN_ASSISTANTE_2026-05-29.md`. Commit sécurité : `8ce959366`; runtime validé : `9ffdcb46`.
 
 ## Tableau préparatoire
 

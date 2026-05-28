@@ -226,7 +226,10 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
 
 #### P0-004 Lot 2B — Admin users / Assistante students-coaches
 
-- Statut : corrigé et testé localement le 2026-05-29; non déployé production.
+- Statut : corrigé, testé et déployé en production le 2026-05-29.
+- Commit sécurité déployé : `8ce959366 fix(security): harden admin and assistante ownership checks`.
+- Runtime production validé : `9ffdcb46`, qui contient `8ce959366` plus deux commits homepage déjà présents sur `main` avant cette validation.
+- Backup pré-déploiement : `/root/nexus-backups/p0-004-lot2b-deploy-20260529005132`.
 - Routes :
   - `app/api/admin/users/route.ts`
   - `app/api/admin/users/search/route.ts`
@@ -247,13 +250,25 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - routes coach manage `[id]` ouvertes à ADMIN/ASSISTANTE au lieu d'ASSISTANTE seule;
   - doublons actifs coach/élève refusés pour tout type d'affectation.
 - Tests :
-  - 7 suites ciblées, 93 tests OK.
-  - `npm run typecheck` : OK.
-  - `npm run test:unit -- --runInBand` : 443 suites, 5894 tests OK.
-  - `npm run build` : OK.
+  - Serveur production : `npm run typecheck` OK.
+  - Serveur production : 7 suites ciblées Lot 2B, 93 tests OK.
+  - Serveur production : `npm run build` OK.
+  - Serveur production : tests de non-exposition champs sensibles, 3 suites, 36 tests OK.
+  - Local avant déploiement : `npm run typecheck` OK.
+  - Local avant déploiement : `npm run test:unit -- --runInBand` : 443 suites, 5894 tests OK.
+  - Local avant déploiement : `npm run build` OK.
   - `node scripts/security/audit-api-guards.mjs` : inventaire régénéré, 164 routes.
   - `npm run test:integration -- --runInBand` : non lancé, DB test `127.0.0.1:5435` fermée.
-- Déploiement : à planifier séparément avec backup, build serveur et PM2 reload contrôlé.
+- Validation production :
+  - PM2 `nexus-prod` online après reload applicatif contrôlé.
+  - Port applicatif maintenu sur `127.0.0.1:3001`.
+  - Smoke public : `/`, `/offres`, `/stages` en 200; `/dashboard/eleve` sans auth en 307.
+  - Santé locale : `/api/health` en 200.
+  - Routes admin/assistante sans auth : refusées en `401` ou méthode non autorisée contrôlée en `405`, jamais 200.
+  - Champs sensibles vérifiés par tests : `password`, `activationToken`, `activationUrl`, `localPath` et tokens bruts absents.
+  - Chemins sensibles : `/.env`, `/.git/config`, `/.next/standalone/.env`, `/docker-compose.prod.yml`, `/prisma/schema.prisma` en 404.
+  - Logs PM2 filtrés : aucune erreur critique applicative nouvelle.
+- Rollback prévu, non exécuté : retour Git au commit `e3c07144b`, rebuild, puis `pm2 startOrReload ecosystem.config.js --env production --update-env`.
 - Risque résiduel :
   - consolidation `assistant`/`assistante` à planifier en P1;
   - logs admin users à revoir en P1 logs/PII;
