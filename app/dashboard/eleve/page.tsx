@@ -34,6 +34,7 @@ import { BilanDiagMathsTerminale } from "@/components/dashboard/eleve/BilanDiagM
 import { EafStageQuestionnaireCard } from "@/components/dashboard/eleve/EafStageQuestionnaireCard";
 import { EAMCockpitSummary } from "@/components/dashboard/eleve/EAMCockpitSummary";
 import { AutomatismesCockpitCard } from "@/components/dashboard/eleve/AutomatismesCockpitCard";
+import { NsiCockpitCard } from "@/components/dashboard/eleve/NsiCockpitCard";
 import { MathsPremiereStageQuestionnaireCard } from "@/components/dashboard/eleve/MathsPremiereStageQuestionnaireCard";
 
 export default function DashboardEleve() {
@@ -154,6 +155,7 @@ export default function DashboardEleve() {
   const stmgModules = dashboardData?.trackContent?.stmgModules ?? [];
   const studentGradeLevel = dashboardData?.student.gradeLevel;
   const isPremiereStudent = studentGradeLevel === 'PREMIERE' || dashboardData?.student.grade === 'PREMIERE';
+  const showNSI = edsSpecialties.some((item) => String(item.subject ?? '').toUpperCase() === 'NSI');
   const ariaSubjectLinks = buildAriaSubjectLinks({
     isStmgTrack,
     specialties: edsSpecialties,
@@ -253,6 +255,7 @@ export default function DashboardEleve() {
                 {activeRubrique === 'cockpit' && (
                   <div className="space-y-6">
                     {isPremiereStudent && !isStmgTrack && <EAMCockpitSummary />}
+                    {isPremiereStudent && !isStmgTrack && showNSI && <NsiCockpitCard />}
                     {isPremiereStudent && !isStmgTrack && <AutomatismesCockpitCard />}
                     <EleveCockpit
                       data={dashboardData}
