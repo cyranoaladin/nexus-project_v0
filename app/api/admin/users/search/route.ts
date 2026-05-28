@@ -5,12 +5,12 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
-    // RBAC: Only Staff can search users for document upload
-    const sessionOrResponse = await requireAnyRole([UserRole.ADMIN, UserRole.ASSISTANTE]);
+    // RBAC: admin user search is intentionally admin-only to limit PII enumeration.
+    const sessionOrResponse = await requireAnyRole([UserRole.ADMIN]);
     if (isErrorResponse(sessionOrResponse)) return sessionOrResponse;
 
     const { searchParams } = new URL(request.url);
-    const query = searchParams.get('q');
+    const query = searchParams.get('q')?.trim();
 
     if (!query || query.length < 2) {
       return NextResponse.json([]);

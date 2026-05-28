@@ -4,6 +4,23 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 import bcrypt from 'bcryptjs';
+import { z } from 'zod';
+import { Subject } from '@/types/enums';
+
+const coachCreateSchema = z.object({
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
+  email: z.string().email(),
+  password: z.string().min(8),
+  pseudonym: z.string().min(1),
+  tag: z.string().optional(),
+  description: z.string().optional(),
+  philosophy: z.string().optional(),
+  expertise: z.string().optional(),
+  subjects: z.array(z.nativeEnum(Subject)).optional().default([]),
+  availableOnline: z.boolean().optional(),
+  availableInPerson: z.boolean().optional(),
+});
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,7 +35,14 @@ export async function GET(request: NextRequest) {
 
     const coaches = await prisma.coachProfile.findMany({
       include: {
-        user: true,
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
         sessions: {
           where: {
             scheduledAt: {
@@ -72,7 +96,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const parsed = coachCreateSchema.safeParse(await request.json());
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Invalid coach payload', details: parsed.error.flatten().fieldErrors },
+        { status: 400 }
+      );
+    }
     const {
       firstName,
       lastName,
@@ -86,15 +116,7 @@ export async function POST(request: NextRequest) {
       subjects,
       availableOnline,
       availableInPerson
-    } = body;
-
-    // Validate required fields
-    if (!firstName || !lastName || !email || !password || !pseudonym) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
-    }
+    } = parsed.data;
 
     // Check if email already exists
     const existingUser = await prisma.user.findUnique({
@@ -150,7 +172,14 @@ export async function POST(request: NextRequest) {
           availableInPerson: availableInPerson ?? true
         },
         include: {
-          user: true
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+            },
+          },
         }
       });
 

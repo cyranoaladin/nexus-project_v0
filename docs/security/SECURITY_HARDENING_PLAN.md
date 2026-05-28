@@ -224,6 +224,41 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - ClicToPay réel non implémenté; activation commerciale paiement carte interdite tant que provider/signature/idempotence/montant/devise ne sont pas complets.
   - P0-004 global reste ouvert hors Lot 2A.
 
+#### P0-004 Lot 2B — Admin users / Assistante students-coaches
+
+- Statut : corrigé et testé localement le 2026-05-29; non déployé production.
+- Routes :
+  - `app/api/admin/users/route.ts`
+  - `app/api/admin/users/search/route.ts`
+  - `app/api/assistante/students/route.ts`
+  - `app/api/assistante/students/[studentId]/route.ts`
+  - `app/api/assistante/students/[studentId]/documents/route.ts`
+  - `app/api/assistante/activate-student/route.ts`
+  - `app/api/assistante/coaches/route.ts`
+  - `app/api/assistante/coaches/manage/route.ts`
+  - `app/api/assistante/coaches/manage/[id]/route.ts`
+  - `app/api/assistante/assignments/route.ts`
+  - `app/api/assistante/assignments/[id]/route.ts`
+- Corrections :
+  - recherche admin users limitée à ADMIN uniquement;
+  - `activationUrl` tokenisée retirée de la réponse activation élève;
+  - `localPath` retiré des réponses documents assistante;
+  - création/update coach validés par Zod et enum `Subject`;
+  - routes coach manage `[id]` ouvertes à ADMIN/ASSISTANTE au lieu d'ASSISTANTE seule;
+  - doublons actifs coach/élève refusés pour tout type d'affectation.
+- Tests :
+  - 7 suites ciblées, 93 tests OK.
+  - `npm run typecheck` : OK.
+  - `npm run test:unit -- --runInBand` : 443 suites, 5894 tests OK.
+  - `npm run build` : OK.
+  - `node scripts/security/audit-api-guards.mjs` : inventaire régénéré, 164 routes.
+  - `npm run test:integration -- --runInBand` : non lancé, DB test `127.0.0.1:5435` fermée.
+- Déploiement : à planifier séparément avec backup, build serveur et PM2 reload contrôlé.
+- Risque résiduel :
+  - consolidation `assistant`/`assistante` à planifier en P1;
+  - logs admin users à revoir en P1 logs/PII;
+  - P0-004 global reste ouvert hors Lot 2B : NPC, messages/conversations, assessments submit/test.
+
 ## P1 — Durcissement court terme
 
 ### P1-001 — CSP

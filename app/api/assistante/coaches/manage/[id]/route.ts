@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { Subject } from '@/types/enums';
 
 // Validation schema for coach update
 const coachUpdateSchema = z.object({
@@ -17,7 +18,7 @@ const coachUpdateSchema = z.object({
   description: z.string().min(10, 'Description doit contenir au moins 10 caractères'),
   philosophy: z.string().min(10, 'Philosophie doit contenir au moins 10 caractères'),
   expertise: z.string().min(10, 'Expertise doit contenir au moins 10 caractères'),
-  subjects: z.array(z.string()).min(1, 'Au moins une matière requise'),
+  subjects: z.array(z.nativeEnum(Subject)).min(1, 'Au moins une matière requise'),
   availableOnline: z.boolean(),
   availableInPerson: z.boolean()
 });
@@ -29,7 +30,7 @@ export async function PUT(
   try {
     const session = await auth();
 
-    if (!session?.user || session.user.role !== 'ASSISTANTE') {
+    if (!session?.user || !['ADMIN', 'ASSISTANTE'].includes(session.user.role)) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -132,8 +133,6 @@ export async function PUT(
     });
 
   } catch (error) {
-    console.error('Error updating coach:', error);
-
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         {
@@ -144,6 +143,8 @@ export async function PUT(
         { status: 400 }
       );
     }
+
+    console.error('Error updating coach:', error);
 
     return NextResponse.json(
       {
@@ -162,7 +163,7 @@ export async function DELETE(
   try {
     const session = await auth();
 
-    if (!session?.user || session.user.role !== 'ASSISTANTE') {
+    if (!session?.user || !['ADMIN', 'ASSISTANTE'].includes(session.user.role)) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }

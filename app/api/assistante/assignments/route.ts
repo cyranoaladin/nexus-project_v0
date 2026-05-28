@@ -182,8 +182,8 @@ export async function POST(request: Request) {
 
     const existingStudentIds = existingAssignments.map((a) => a.studentId);
 
-    // If trying to create PRIMARY assignment where one already exists, reject
-    if (validated.assignmentType === AssignmentType.PRIMARY && existingStudentIds.length > 0) {
+    // Any active coach/student assignment duplicate widens access unnecessarily.
+    if (existingStudentIds.length > 0) {
       const existingStudents = students.filter((s) => existingStudentIds.includes(s.id));
       return NextResponse.json(
         {
