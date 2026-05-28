@@ -33,6 +33,17 @@ test.describe('EAM Première responsive read-only', () => {
     await login(page);
 
     await page.goto('/dashboard/eleve', { waitUntil: 'networkidle' });
+    const cockpitSummary = page.getByRole('region', {
+      name: /préparation épreuve anticipée de mathématiques/i,
+    });
+    await expect(cockpitSummary).toBeVisible();
+    const cockpitCta = cockpitSummary.getByRole('link', { name: /commencer|continuer/i });
+    await expect(cockpitCta).toBeVisible();
+    await expect(cockpitCta).toHaveAttribute('href', '/dashboard/eleve/eam');
+    const ctaHeight = await cockpitCta.evaluate((element) => element.getBoundingClientRect().height);
+    expect(ctaHeight).toBeGreaterThanOrEqual(44);
+    await expectNoHorizontalOverflow(page);
+
     await page.getByRole('button', { name: /EAM Maths/ }).click();
     await page.getByRole('link', { name: /Ouvrir EAM Maths/ }).click();
     await expect(page).toHaveURL(/\/dashboard\/eleve\/eam/);
