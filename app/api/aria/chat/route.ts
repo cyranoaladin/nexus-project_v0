@@ -99,12 +99,40 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    // Récupérer l'historique de conversation si fourni
+    // Récupérer l'historique de conversation si fourni.
+    // Le conversationId est toujours contraint au student courant pour éviter
+    // qu'un élève injecte ou lise le contexte ARIA d'un autre élève.
     let conversationHistory: Array<{ role: string; content: string }> = []
+    let ownedConversationId: string | undefined
     
     if (validatedData.conversationId) {
+      const conversation = await prisma.ariaConversation.findFirst({
+        where: {
+          id: validatedData.conversationId,
+          studentId: student.id
+        },
+        select: { id: true }
+      })
+
+      if (!conversation) {
+        logger.warn('ARIA conversation ownership mismatch', {
+          userId: session.user.id,
+          studentId: student.id,
+          conversationId: validatedData.conversationId
+        })
+
+        logger.logRequest(404)
+
+        return NextResponse.json(
+          { error: 'Conversation introuvable' },
+          { status: 404 }
+        )
+      }
+
+      ownedConversationId = conversation.id
+
       const messages = await prisma.ariaMessage.findMany({
-        where: { conversationId: validatedData.conversationId },
+        where: { conversationId: conversation.id },
         orderBy: { createdAt: 'asc' },
         take: 10
       })
@@ -119,7 +147,7 @@ export async function POST(request: NextRequest) {
       userId: session.user.id,
       studentId: student.id,
       subject: validatedData.subject,
-      conversationId: validatedData.conversationId,
+      conversationId: ownedConversationId,
       hasHistory: conversationHistory.length > 0,
       streaming: isStreamingRequest
     })
@@ -133,7 +161,7 @@ export async function POST(request: NextRequest) {
         conversationHistory
       )
       
-      const conversationId = validatedData.conversationId || crypto.randomUUID()
+      const conversationId = ownedConversationId || crypto.randomUUID()
       
       const responseStream = new ReadableStream({
         async start(controller) {
@@ -176,7 +204,7 @@ export async function POST(request: NextRequest) {
               validatedData.subject,
               validatedData.content,
               fullResponse,
-              validatedData.conversationId
+              ownedConversationId
             )
             
             // Check and award badges
@@ -243,7 +271,7 @@ export async function POST(request: NextRequest) {
       validatedData.subject,
       validatedData.content,
       ariaResponse,
-      validatedData.conversationId
+      ownedConversationId
     )
     
     const newBadges = await checkAndAwardBadges(student.id, 'first_aria_question')

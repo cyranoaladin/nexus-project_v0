@@ -34,7 +34,7 @@ jest.mock('@/lib/prisma', () => ({
   prisma: {
     pedagogicalContent: { findMany: jest.fn() },
     ariaConversation: {
-      findUnique: jest.fn(),
+      findFirst: jest.fn(),
       create: jest.fn(),
     },
     ariaMessage: {
@@ -97,7 +97,7 @@ describe('aria', () => {
   });
 
   it('saves conversation and messages', async () => {
-    (prisma.ariaConversation.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.ariaConversation.findFirst as jest.Mock).mockResolvedValue(null);
     (prisma.ariaConversation.create as jest.Mock).mockResolvedValue({ id: 'conv-1' });
     (prisma.ariaMessage.create as jest.Mock).mockResolvedValue({ id: 'msg-2' });
 
