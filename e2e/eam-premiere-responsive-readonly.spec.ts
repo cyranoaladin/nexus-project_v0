@@ -59,7 +59,7 @@ test.describe('EAM Première responsive read-only', () => {
       await expectNoHorizontalOverflow(page);
 
       await page.getByRole('button', { name: 'Sujet blanc', exact: true }).click();
-      await expect(page.getByRole('heading', { name: /^Sujet blanc$/ })).toBeVisible();
+      await expect(page.locator('.eam-mock-exam').getByRole('heading', { name: /^Sujet blanc$/ })).toBeVisible();
       await expect(page.getByText('Première spécialité mathématiques')).toBeVisible();
       await expect(page.getByText('Calculatrice interdite', { exact: true })).toBeVisible();
       await expect(page.getByText(/Sujet blanc\s+C/i)).toHaveCount(0);
