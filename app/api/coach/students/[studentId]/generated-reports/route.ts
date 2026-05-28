@@ -20,6 +20,18 @@ interface RouteParams {
   params: Promise<{ studentId: string }>;
 }
 
+function projectGeneratedReport(report: Record<string, unknown>) {
+  const {
+    contextJson: _contextJson,
+    llmJson: _llmJson,
+    validatedJson: _validatedJson,
+    latexSource: _latexSource,
+    ...safeReport
+  } = report;
+
+  return safeReport;
+}
+
 export async function GET(_request: Request, { params }: RouteParams) {
   try {
     const { studentId } = await params;
@@ -69,7 +81,9 @@ export async function GET(_request: Request, { params }: RouteParams) {
 
     return NextResponse.json({
       success: true,
-      reports,
+      reports: reports.map((report) =>
+        projectGeneratedReport(report as unknown as Record<string, unknown>)
+      ),
       readiness: {
         eafStagePost: {
           studentBilanReady: Boolean(studentBilan),
