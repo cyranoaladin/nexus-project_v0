@@ -1332,6 +1332,16 @@ html {
   overflow-x: auto;
 }
 
+.eam-shell .qcm-section {
+  break-after: page;
+  page-break-after: always;
+}
+
+.eam-shell .print-page-break {
+  break-before: page;
+  page-break-before: always;
+}
+
 @media print {
   .eam-shell .eam-no-print,
   .eam-no-print {
@@ -1347,5 +1357,16 @@ html {
 
   .eam-shell .eam-mock-exam * {
     box-shadow: none !important;
+  }
+
+  .eam-shell .eam-mock-exam article,
+  .eam-shell .eam-mock-exam .qcm-section,
+  .eam-shell .eam-mock-exam [data-print-keep] {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .eam-shell .katex-display {
+    overflow: visible !important;
   }
 }

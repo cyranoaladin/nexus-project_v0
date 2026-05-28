@@ -10,6 +10,7 @@ export interface MockExamQuestion {
   math?: string;
   code?: string;
   choices: MockExamChoice[];
+  correctAnswer: MockExamChoice["label"];
   points?: string;
 }
 
@@ -33,11 +34,19 @@ export interface MockExamExercise {
   questions: MockExamExerciseQuestion[];
 }
 
+export interface MockExamTimeStep {
+  label: string;
+  task: string;
+}
+
 export interface MockExam {
   title: string;
   subtitle: string;
   duration: string;
   calculator: string;
+  total: string;
+  instructions: string;
+  timePlan: MockExamTimeStep[];
   qcm: {
     title: string;
     points: string;
@@ -48,258 +57,322 @@ export interface MockExam {
 }
 
 export const MOCK_EXAM: MockExam = {
-  title: "Sujet blanc inédit — Nexus Réussite",
-  subtitle: "Durée : 2 heures · Calculatrice interdite",
+  title: "Sujet blanc C — plateforme premium",
+  subtitle: "Première spécialité mathématiques",
   duration: "2 heures",
   calculator: "Calculatrice interdite",
+  total: "20 points",
+  instructions:
+    "À faire en conditions réelles : 2 heures, sans calculatrice. Commencer par les automatismes, puis traiter les trois exercices rédigés indépendants.",
+  timePlan: [
+    { label: "0-20 min", task: "QCM et automatismes" },
+    { label: "20-45 min", task: "Exercice 1" },
+    { label: "45-80 min", task: "Exercice 2" },
+    { label: "80-112 min", task: "Exercice 3" },
+    { label: "112-120 min", task: "Relecture, unités, cohérence et questions laissées" },
+  ],
   qcm: {
-    title: "Partie 1 — Automatismes – QCM",
+    title: "Partie 1 — Automatismes, QCM",
     points: "6 points",
-    instruction: "Une seule réponse exacte par question. Aucune justification demandée.",
+    instruction: "Une seule réponse exacte par question. Aucune justification demandée. Chaque question vaut 0,5 point.",
     questions: [
       {
         id: "q1",
-        statement: "Le prix d'un abonnement baisse de 20 % puis augmente de 25 %. L'évolution globale est :",
+        statement: "Une quantité augmente de 15 %, puis diminue de 10 %. L'évolution globale est :",
         choices: [
-          { label: "a", content: "Une hausse de 5 %" },
-          { label: "b", content: "Aucune évolution (0 %)" },
-          { label: "c", content: "Une baisse de 5 %" },
-          { label: "d", content: "Une hausse de 45 %" },
+          { label: "a", content: "une hausse de 5 %" },
+          { label: "b", content: "une hausse de 3,5 %" },
+          { label: "c", content: "une baisse de 3,5 %" },
+          { label: "d", content: "aucune évolution" },
         ],
+        correctAnswer: "b",
       },
       {
         id: "q2",
-        statement: "Le calcul suivant donne :",
-        math: String.raw`\frac{3}{4}-\frac{1}{2}\times\frac{5}{2}`,
+        statement: "Le calcul suivant est égal à :",
+        math: String.raw`\frac{5}{6}-\frac{3}{4}\times\frac{2}{3}`,
         choices: [
-          { label: "a", content: String.raw`-\frac{1}{2}`, math: true },
-          { label: "b", content: String.raw`\frac{5}{4}`, math: true },
-          { label: "c", content: String.raw`-\frac{1}{4}`, math: true },
-          { label: "d", content: String.raw`\frac{1}{4}`, math: true },
+          { label: "a", content: String.raw`\frac{1}{3}`, math: true },
+          { label: "b", content: String.raw`-\frac{1}{3}`, math: true },
+          { label: "c", content: String.raw`\frac{5}{12}`, math: true },
+          { label: "d", content: String.raw`\frac{1}{6}`, math: true },
         ],
+        correctAnswer: "a",
       },
       {
         id: "q3",
         statement: "L'ensemble des solutions de l'équation suivante est :",
-        math: String.raw`(2x-3)(x+4)=0`,
+        math: String.raw`(3x+2)(x-5)=0`,
         choices: [
-          { label: "a", content: String.raw`\{-1,5\ ;\ -4\}`, math: true },
-          { label: "b", content: String.raw`\{-1,5\ ;\ 4\}`, math: true },
-          { label: "c", content: String.raw`\left\{\frac{3}{2}\ ;\ 4\right\}`, math: true },
-          { label: "d", content: String.raw`\left\{\frac{3}{2}\ ;\ -4\right\}`, math: true },
+          { label: "a", content: String.raw`\{-2\ ;\ 5\}`, math: true },
+          { label: "b", content: String.raw`\left\{-\frac{2}{3}\ ;\ 5\right\}`, math: true },
+          { label: "c", content: String.raw`\left\{\frac{2}{3}\ ;\ -5\right\}`, math: true },
+          { label: "d", content: String.raw`\left\{\frac{3}{2}\ ;\ 5\right\}`, math: true },
         ],
+        correctAnswer: "b",
       },
       {
         id: "q4",
-        statement: "Le taux de variation de la fonction suivante entre x = 1 et x = 1 + h, avec h non nul, est :",
-        math: String.raw`f(x)=x^2`,
+        statement: "Le taux de variation de la fonction entre x = 2 et x = 2 + h, avec h non nul, est :",
+        math: String.raw`f(x)=x^2+1`,
         choices: [
-          { label: "a", content: String.raw`2+h`, math: true },
-          { label: "b", content: String.raw`2h`, math: true },
-          { label: "c", content: String.raw`h^2`, math: true },
-          { label: "d", content: String.raw`2`, math: true },
+          { label: "a", content: String.raw`4+h`, math: true },
+          { label: "b", content: String.raw`2+h`, math: true },
+          { label: "c", content: String.raw`h`, math: true },
+          { label: "d", content: String.raw`4`, math: true },
         ],
+        correctAnswer: "a",
       },
       {
         id: "q5",
-        statement: "On considère un arbre de probabilités où :",
-        math: String.raw`P(A)=0,6,\quad P_A(B)=0,5,\quad P_{\overline A}(B)=0,2`,
+        statement: "On considère deux événements A et B tels que :",
+        math: String.raw`P(A)=0{,}4,\quad P_A(B)=0{,}7,\quad P_{\overline A}(B)=0{,}25`,
         choices: [
-          { label: "a", content: String.raw`0,38`, math: true },
-          { label: "b", content: String.raw`0,42`, math: true },
-          { label: "c", content: String.raw`0,30`, math: true },
-          { label: "d", content: String.raw`0,50`, math: true },
+          { label: "a", content: String.raw`0{,}28`, math: true },
+          { label: "b", content: String.raw`0{,}43`, math: true },
+          { label: "c", content: String.raw`0{,}55`, math: true },
+          { label: "d", content: String.raw`0{,}70`, math: true },
         ],
+        correctAnswer: "b",
       },
       {
         id: "q6",
         statement: "La valeur exacte suivante est :",
-        math: String.raw`\cos\left(\frac{\pi}{3}\right)`,
+        math: String.raw`\sin\left(\frac{\pi}{6}\right)`,
         choices: [
           { label: "a", content: String.raw`\frac{1}{2}`, math: true },
-          { label: "b", content: String.raw`\frac{\sqrt3}{2}`, math: true },
-          { label: "c", content: String.raw`\frac{\sqrt2}{2}`, math: true },
+          { label: "b", content: String.raw`\frac{\sqrt{2}}{2}`, math: true },
+          { label: "c", content: String.raw`\frac{\sqrt{3}}{2}`, math: true },
           { label: "d", content: String.raw`-\frac{1}{2}`, math: true },
         ],
+        correctAnswer: "a",
       },
       {
         id: "q7",
-        statement: "Dans un repère orthonormé, on donne :",
-        math: String.raw`\vec u(2\ ;\ -3)\quad\text{et}\quad \vec v(6\ ;\ 4)`,
+        statement: "Dans un repère orthonormé, on donne les vecteurs :",
+        math: String.raw`\vec u(1\ ;\ 4)\quad\text{et}\quad \vec v(8\ ;\ -2)`,
         choices: [
-          { label: "a", content: String.raw`24`, math: true },
+          { label: "a", content: String.raw`-8`, math: true },
           { label: "b", content: String.raw`0`, math: true },
-          { label: "c", content: String.raw`-6`, math: true },
-          { label: "d", content: String.raw`12`, math: true },
+          { label: "c", content: String.raw`8`, math: true },
+          { label: "d", content: String.raw`16`, math: true },
         ],
+        correctAnswer: "b",
       },
       {
         id: "q8",
-        statement: "La somme des 5 premiers termes d'une suite géométrique de premier terme u0 = 2 et de raison q = 3 est :",
+        statement: "La somme des quatre premiers termes d'une suite géométrique de premier terme et de raison donnés est :",
+        math: String.raw`u_0=3,\quad q=2,\quad u_0+u_1+u_2+u_3`,
         choices: [
-          { label: "a", content: "242" },
-          { label: "b", content: "240" },
-          { label: "c", content: "121" },
-          { label: "d", content: "484" },
+          { label: "a", content: "24" },
+          { label: "b", content: "30" },
+          { label: "c", content: "45" },
+          { label: "d", content: "48" },
         ],
+        correctAnswer: "c",
       },
       {
         id: "q9",
         statement: "Le cercle d'équation suivante a pour centre et rayon :",
-        math: String.raw`x^2+y^2-4x+6y-12=0`,
+        math: String.raw`x^2+y^2+2x-8y+8=0`,
         choices: [
-          { label: "a", content: String.raw`C(2\ ;\ -3)\ \text{et}\ R=5`, math: true },
-          { label: "b", content: String.raw`C(-2\ ;\ 3)\ \text{et}\ R=5`, math: true },
-          { label: "c", content: String.raw`C(2\ ;\ -3)\ \text{et}\ R=25`, math: true },
-          { label: "d", content: String.raw`C(4\ ;\ -6)\ \text{et}\ R=\sqrt{12}`, math: true },
+          { label: "a", content: String.raw`C(1\ ;\ -4),\ R=3`, math: true },
+          { label: "b", content: String.raw`C(-1\ ;\ 4),\ R=3`, math: true },
+          { label: "c", content: String.raw`C(-1\ ;\ 4),\ R=9`, math: true },
+          { label: "d", content: String.raw`C(2\ ;\ -8),\ R=8`, math: true },
         ],
+        correctAnswer: "b",
       },
       {
         id: "q10",
-        statement: "La moyenne de la série statistique suivante est :",
-        math: String.raw`\{10\ ;\ 12\ ;\ 14\ ;\ 14\ ;\ 20\}`,
+        statement: "La médiane de la série statistique suivante est :",
+        math: String.raw`\{3\ ;\ 7\ ;\ 8\ ;\ 10\ ;\ 12\}`,
         choices: [
-          { label: "a", content: "12" },
-          { label: "b", content: "13" },
-          { label: "c", content: "14" },
-          { label: "d", content: "15" },
+          { label: "a", content: "7" },
+          { label: "b", content: "8" },
+          { label: "c", content: "10" },
+          { label: "d", content: "40" },
         ],
+        correctAnswer: "b",
       },
       {
         id: "q11",
-        statement:
-          "On exécute le script Python suivant. Aide : on fournit les premières valeurs de u, arrondies à l'unité : u_0 = 8000, u_1 = 8400, u_2 = 8720, u_3 = 8976, u_4 = 9181, u_5 = 9345, u_6 = 9476, u_7 = 9581. Quelle valeur de n est renvoyée ?",
+        statement: "On exécute le script Python suivant. La valeur renvoyée est :",
         code: `def seuil():
-    u = 8000
+    p = 1
     n = 0
-    while u < 9500:
-        u = 0.8 * u + 2000
+    while p < 100:
+        p = 3 * p
         n = n + 1
     return n`,
         choices: [
-          { label: "a", content: "5" },
-          { label: "b", content: "6" },
-          { label: "c", content: "7" },
-          { label: "d", content: "8" },
+          { label: "a", content: "4" },
+          { label: "b", content: "5" },
+          { label: "c", content: "6" },
+          { label: "d", content: "100" },
         ],
+        correctAnswer: "b",
       },
       {
         id: "q12",
-        statement: "Le polynôme suivant est :",
-        math: String.raw`P(x)=-x^2+4x-4`,
+        statement: "On considère le polynôme suivant. Pour tout réel x, on peut affirmer que :",
+        math: String.raw`P(x)=2(x-1)^2+3`,
         choices: [
-          { label: "a", content: "Toujours positif" },
-          { label: "b", content: "Toujours négatif ou nul" },
-          { label: "c", content: "Positif entre ses racines" },
-          { label: "d", content: "Négatif entre ses racines" },
+          { label: "a", content: "P(x) est toujours négatif" },
+          { label: "b", content: "P(x) est toujours strictement positif" },
+          { label: "c", content: "P(x) s'annule pour x = 1" },
+          { label: "d", content: "P(x) est positif seulement si x > 1" },
         ],
+        correctAnswer: "b",
       },
     ],
   },
   exercises: [
     {
       id: "ex1",
-      title: "Exercice 1 — Suites et modélisation",
-      points: "7 points",
+      title: "Exercice 1 — Probabilités conditionnelles",
+      points: "4 points",
       intro: [
         {
           type: "text",
           content:
-            "La plateforme de streaming « NexusFlix » compte 8 000 abonnés au 1er janvier 2026. Chaque mois, on observe que 80 % des abonnés renouvellent leur abonnement, et que 2 000 nouveaux abonnés s'inscrivent.",
+            "Dans une promotion d'élèves inscrits sur une plateforme de préparation, 30 % suivent un module « Projet ». Parmi les élèves qui suivent ce module, 70 % valident l'évaluation finale. Parmi les élèves qui ne suivent pas ce module, 40 % valident l'évaluation finale.",
         },
-        { type: "text", content: "On modélise le nombre d'abonnés, en milliers, au bout de n mois par la suite définie par :" },
-        { type: "math", content: String.raw`u_0=8\quad\text{et}\quad u_{n+1}=0,8u_n+2` },
+        { type: "text", content: "On choisit un élève au hasard. On note :" },
+        { type: "math", content: String.raw`P:\ \text{« l'élève suit le module Projet »}\quad;\quad C:\ \text{« l'élève valide l'évaluation finale »}` },
       ],
       questions: [
         {
           id: "ex1-q1",
           label: "1.",
-          content: [{ type: "text", content: "Calculer u1 et u2. Interpréter u1 dans le contexte de l'exercice." }],
+          content: [{ type: "text", content: "Recopier et compléter l'arbre pondéré correspondant à la situation." }],
           points: "1 point",
         },
         {
-          id: "ex1-q2a",
-          label: "2.a.",
-          content: [
-            { type: "text", content: "On considère la suite définie par :" },
-            { type: "math", content: String.raw`v_n=u_n-10` },
-            { type: "text", content: "Démontrer que cette suite est géométrique, puis préciser sa raison et son premier terme." },
-          ],
-          points: "1,5 point",
-        },
-        {
-          id: "ex1-q2b",
-          label: "2.b.",
-          content: [{ type: "text", content: "En déduire l'expression de vn, puis de un, en fonction de n." }],
+          id: "ex1-q2",
+          label: "2.",
+          content: [{ type: "text", content: "Calculer la probabilité suivante :" }, { type: "math", content: String.raw`P(P\cap C)` }],
           points: "1 point",
         },
         {
           id: "ex1-q3",
           label: "3.",
-          content: [{ type: "text", content: "Déterminer la limite de la suite (un) et interpréter ce résultat pour l'entreprise." }],
+          content: [{ type: "text", content: "Montrer que :" }, { type: "math", content: String.raw`P(C)=0{,}49` }],
           points: "1 point",
         },
         {
-          id: "ex1-q4a",
-          label: "4.a.",
-          content: [
-            { type: "text", content: "Résoudre algébriquement l'inéquation :" },
-            { type: "math", content: String.raw`10-2\times 0,8^n\geq 9,5` },
-            { type: "text", content: "On rappelle que :" },
-            { type: "math", content: String.raw`\ln(0,25)\approx -1,38\quad\text{et}\quad \ln(0,8)\approx -0,22` },
-          ],
-          points: "1,5 point",
-        },
-        {
-          id: "ex1-q4b",
-          label: "4.b.",
-          content: [{ type: "text", content: "Conclure." }],
+          id: "ex1-q4",
+          label: "4.",
+          content: [{ type: "text", content: "Calculer la probabilité conditionnelle, puis interpréter le résultat dans le contexte :" }, { type: "math", content: String.raw`P_C(P)` }],
           points: "1 point",
         },
       ],
     },
     {
       id: "ex2",
-      title: "Exercice 2 — Analyse et exponentielle",
-      points: "7 points",
+      title: "Exercice 2 — Suites et algorithmique",
+      points: "5 points",
       intro: [
-        { type: "text", content: "On considère la fonction f définie sur l'intervalle [-1 ; 4] par :" },
-        { type: "math", content: String.raw`f(x)=(2x-1)e^{-x}+2` },
-        { type: "text", content: "On note Cf sa courbe représentative dans un repère orthogonal." },
+        {
+          type: "text",
+          content:
+            "Lors d'un entraînement hebdomadaire sur la plateforme Nexus Réussite, on modélise le score moyen de maîtrise d'un groupe d'élèves, noté sur 10, après n semaines.",
+        },
+        { type: "text", content: "Au départ, le score moyen est :" },
+        { type: "math", content: String.raw`u_0=5` },
+        { type: "text", content: "Chaque semaine, le score est modélisé par la relation :" },
+        { type: "math", content: String.raw`u_{n+1}=0{,}6u_n+4` },
       ],
       questions: [
         {
-          id: "ex2-q1a",
-          label: "1.a.",
-          content: [
-            { type: "text", content: "Démontrer que, pour tout réel x de l'intervalle [-1 ; 4], la dérivée est :" },
-            { type: "math", content: String.raw`f'(x)=(3-2x)e^{-x}` },
-          ],
-          points: "1,5 point",
-        },
-        {
-          id: "ex2-q1b",
-          label: "1.b.",
-          content: [{ type: "text", content: "Étudier le signe de f'(x) sur [-1 ; 4] et dresser le tableau de variations de f." }],
-          points: "1,5 point",
+          id: "ex2-q1",
+          label: "1.",
+          content: [{ type: "text", content: "Calculer u1 et u2. Interpréter u1 dans le contexte." }],
+          points: "1 point",
         },
         {
           id: "ex2-q2",
           label: "2.",
-          content: [{ type: "text", content: "Déterminer l'équation réduite de la tangente T à la courbe Cf au point d'abscisse 0." }],
+          content: [
+            { type: "text", content: "On pose :" },
+            { type: "math", content: String.raw`v_n=u_n-10` },
+            { type: "text", content: "Montrer que la suite est géométrique. Préciser sa raison et son premier terme." },
+          ],
           points: "1,5 point",
         },
         {
           id: "ex2-q3",
           label: "3.",
-          content: [{ type: "text", content: "Résoudre l'équation f(x) = 2 sur [-1 ; 4]." }],
+          content: [{ type: "text", content: "En déduire l'expression de vn, puis celle de un, en fonction de n." }],
           points: "1 point",
         },
         {
           id: "ex2-q4",
           label: "4.",
-          content: [{ type: "text", content: "Étudier la position relative de la courbe Cf et de la droite d'équation y = 2 sur l'intervalle [-1 ; 4]." }],
-          points: "1,5 point",
+          content: [{ type: "text", content: "Que peut-on conjecturer sur le comportement du score moyen à long terme ? Interpréter." }],
+          points: "0,5 point",
+        },
+        {
+          id: "ex2-q5",
+          label: "5.",
+          content: [
+            { type: "text", content: "On souhaite déterminer à partir de quelle semaine le score moyen atteint au moins 9,5. Compléter ou choisir le bon algorithme Python permettant de déterminer ce rang. On donne :" },
+            { type: "math", content: String.raw`0{,}6^4=0{,}1296\quad\text{et}\quad 0{,}6^5=0{,}07776` },
+            {
+              type: "code",
+              content: `def seuil():
+    u = 5
+    n = 0
+    while u < 9.5:
+        u = 0.6*u + 4
+        n = n + 1
+    return n`,
+            },
+            { type: "text", content: "Conclure." },
+          ],
+          points: "1 point",
+        },
+      ],
+    },
+    {
+      id: "ex3",
+      title: "Exercice 3 — Analyse et exponentielle",
+      points: "5 points",
+      intro: [
+        { type: "text", content: "On considère la fonction f définie sur l'intervalle [0 ; 5] par :" },
+        { type: "math", content: String.raw`f(x)=(3-x)e^x+1` },
+        { type: "text", content: "On note Cf sa courbe représentative dans un repère." },
+      ],
+      questions: [
+        {
+          id: "ex3-q1",
+          label: "1.",
+          content: [{ type: "text", content: "Montrer que, pour tout x de l'intervalle [0 ; 5], on a :" }, { type: "math", content: String.raw`f'(x)=(2-x)e^x` }],
+          points: "1,25 point",
+        },
+        {
+          id: "ex3-q2",
+          label: "2.",
+          content: [{ type: "text", content: "Étudier le signe de f'(x) sur [0 ; 5] et dresser le tableau de variations de f." }],
+          points: "1,25 point",
+        },
+        {
+          id: "ex3-q3",
+          label: "3.",
+          content: [{ type: "text", content: "Déterminer l'équation réduite de la tangente à Cf au point d'abscisse 0." }],
+          points: "1 point",
+        },
+        {
+          id: "ex3-q4",
+          label: "4.",
+          content: [{ type: "text", content: "Résoudre l'équation suivante sur [0 ; 5] :" }, { type: "math", content: String.raw`f(x)=1` }],
+          points: "0,75 point",
+        },
+        {
+          id: "ex3-q5",
+          label: "5.",
+          content: [{ type: "text", content: "En déduire la position relative de la courbe Cf et de la droite d'équation y = 1 sur [0 ; 5]." }],
+          points: "0,75 point",
         },
       ],
     },
