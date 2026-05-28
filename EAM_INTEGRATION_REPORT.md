@@ -55,3 +55,53 @@
 
 ## Conclusion
 `GO-LIVE READY` pour le module EAM Première : production stable, GitHub synchronisé, API protégée, progression préservée, sujet blanc intégré, responsive maintenu.
+
+---
+
+## Mise à jour go-live — 28 mai 2026
+
+### HEAD final
+- `027078841 feat(coach): show student EAM progress in cohort view`
+
+### Commits additionnels
+- `92035e78d feat(cockpit): add automatismes progress card`
+- `867918cbb feat(cockpit): add NSI progress card for NSI students`
+- `cd75f1c8e fix(ux): improve loading skeleton and dashboard error state`
+- `027078841 feat(coach): show student EAM progress in cohort view`
+
+### Spine de progression cockpit élève EDS
+- `EAMCockpitSummary` : J-X, priorité du jour, `N/59` objectifs, `N/7` modules, sujet blanc si complété.
+- `NsiCockpitCard` : progression NSI conditionnelle à la spécialité NSI.
+- `AutomatismesCockpitCard` : séries d'automatismes tentées et réussies, masquée si aucun démarrage.
+- Ordre d'affichage : EAM, NSI, Automatismes.
+
+### Loading / Error states
+- `app/dashboard/eleve/loading.tsx` : skeleton cohérent avec le cockpit.
+- `app/dashboard/eleve/error.tsx` : état d'erreur accessible, bouton réessayer, retour accueil, digest affiché si présent.
+- Label NPC : déjà affiché comme `Mes Diagnostics` côté navigation élève, aucun renommage nécessaire.
+
+### Coach — visibilité EAM
+- Endpoint ajouté : `GET /api/coach/students/eam-summary`.
+- Réponse sans session : HTTP `401`.
+- Données exposées : agrégats uniquement (`pct`, objectifs cochés, quiz faits, sujet blanc fait/non), pas de JSON brut `checks`/`quiz`.
+- Vue Cohorte coach : affichage EAM par élève si une progression existe.
+
+### Infrastructure
+- Remote GitHub serveur : SSH (`git@github.com:cyranoaladin/nexus-project_v0.git`).
+- DB user effectif : `nexus_admin`.
+- Schéma DB réel : table utilisateurs `users` en minuscule ; `eam_progress` présent.
+- Route `nsi-pratique-2026` : renommage différé au backlog après examens.
+
+### Certifications go-live
+- Tests EAM : `16/16`.
+- TypeScript : `0` erreur.
+- Build production : exit `0`.
+- Off-limits serveur : intacts.
+- PM2 : `nexus-prod` online après reload.
+- HTTPS prod : HTTP `200`.
+- Dashboard sans auth : HTTP `307`.
+- API EAM sans auth : HTTP `401`.
+- API Coach EAM sans auth : HTTP `401`.
+- DB : `users = 218`, `eam_progress = 1`.
+- Mobile non authentifié : aucun overflow à `375px` et `768px`; CTA cockpit non mesurable sans session, mais les CTA cockpit utilisent `min-h-11` (44px).
+- Logs PM2 filtrés EAM/NSI/automatismes : aucune nouvelle erreur applicative relevée.
