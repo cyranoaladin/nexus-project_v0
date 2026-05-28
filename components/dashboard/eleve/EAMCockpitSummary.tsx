@@ -4,10 +4,12 @@ import Link from "next/link";
 import { ArrowRight, Clock3, Target } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useEAMProgress } from "@/hooks/useEAMProgress";
+import { MODULES } from "@/components/EAMPrep/data";
 
 const EXAM_DATE = new Date("2026-06-08T08:00:00+02:00");
 const EXAM_GRACE_DAYS = 30;
 const TOTAL_MODULES = 7;
+const MOCK_EXAM_KEY = "mock_exam_1";
 
 function getDaysRemaining() {
   return Math.ceil((EXAM_DATE.getTime() - Date.now()) / 86_400_000);
@@ -73,9 +75,11 @@ export function EAMCockpitSummary() {
   }, []);
 
   const quizDone = useMemo(
-    () => Object.values(state.quiz).filter((result) => result.done).length,
+    () => MODULES.filter((module) => state.quiz[module.id]?.done).length,
     [state.quiz],
   );
+  const mockExam = state.quiz[MOCK_EXAM_KEY];
+  const mockExamDone = Boolean(mockExam?.done);
 
   if (daysLeft < -EXAM_GRACE_DAYS) return null;
 
@@ -145,6 +149,16 @@ export function EAMCockpitSummary() {
                 </span>
               </div>
             </div>
+            {mockExamDone && (
+              <div className="mt-2 flex items-center gap-1 text-xs font-semibold text-emerald-300">
+                <span aria-hidden="true">✓</span>
+                <span>
+                  {mockExam.score === 1 && mockExam.total === 1
+                    ? "Sujet blanc complété"
+                    : `Sujet blanc complété — ${mockExam.score}/${mockExam.total}`}
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
