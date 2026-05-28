@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 type CTAButtonProps = {
   href: string;
   children: React.ReactNode;
-  variant?: "stage" | "stage-outline" | "eaf" | "eaf-outline";
+  variant?: "stage" | "stage-outline" | "eaf" | "eaf-outline" | "eaf-dark-outline";
   className?: string;
   fullWidth?: boolean;
 };
@@ -18,6 +18,8 @@ const variantClasses: Record<NonNullable<CTAButtonProps["variant"]>, string> = {
     "border border-[#0f3d73] bg-[#0f3d73] text-white shadow-sm hover:bg-[#0b2f59]",
   "eaf-outline":
     "border border-[#0f3d73]/30 bg-white text-[#0f3d73] shadow-sm hover:bg-[#eff6ff]",
+  "eaf-dark-outline":
+    "border border-white/30 bg-transparent text-white shadow-sm hover:bg-white/10",
 };
 
 export default function CTAButton({

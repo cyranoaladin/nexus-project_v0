@@ -100,8 +100,7 @@ export default function NexusSelect() {
           </TrackedCTAButton>
           <CTAButton
             href={WHATSAPP_URL_SELECT}
-            variant="eaf-outline"
-            className="border-white/30 text-white hover:bg-white/10"
+            variant="eaf-dark-outline"
             fullWidth
           >
             {NEXUS_SELECT.ctaSecondary}
