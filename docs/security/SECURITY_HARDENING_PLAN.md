@@ -70,11 +70,14 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - `nginx -t`
   - `curl -skI` sur les chemins sensibles : 403 ou 404 uniquement.
   - `curl -I https://nexusreussite.academy/` : 200.
+  - 2026-05-28 : `/.env`, `/.git/config`, `/.next/standalone/.env`, `/docker-compose.prod.yml`, `/prisma/schema.prisma`, `/docs/00_INDEX.md` et `/scripts/security/audit-api-guards.mjs` répondent tous `HTTP/2 404` via Nginx.
+  - 2026-05-28 : un asset réel `/_next/static/chunks/1667-e1552476365e08c8.js` répond `HTTP/2 200`.
 - Backup :
-  - `cp /etc/nginx/sites-enabled/nexusreussite.academy /etc/nginx/sites-enabled/nexusreussite.academy.bak.$(date +%Y%m%d%H%M%S)`
+  - `/root/nexus-backups/p0-001-20260528223857/nexusreussite.academy.before`
+  - `/root/nexus-backups/p0-001-20260528223857/nginx-T-before.txt`
 - Rollback :
-  - Restaurer le fichier `.bak`, exécuter `nginx -t`, puis `systemctl reload nginx`.
-- Statut : à corriger, non appliqué pendant cette phase.
+  - Restaurer `/root/nexus-backups/p0-001-20260528223857/nexusreussite.academy.before` vers `/etc/nginx/sites-enabled/nexusreussite.academy`, exécuter `nginx -t`, puis `systemctl reload nginx`.
+- Statut : corrigé côté Nginx le 2026-05-28. Risque résiduel accepté temporairement : les artefacts sensibles existent encore physiquement dans `/var/www/nexus-project_v0`; la migration vers un artefact runtime minimal reste à planifier hors P0 infra immédiat.
 - Propriétaire proposé : DevOps.
 
 ### P0-002 — Port applicatif 3001 bind sur toutes interfaces
@@ -95,11 +98,17 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - `ss -ltnp` doit montrer `127.0.0.1:3001`.
   - `curl -sI http://127.0.0.1:3001/api/health` doit rester 200.
   - Le domaine public doit rester 200 via Nginx.
+  - 2026-05-28 : `ss -ltnp` montre `127.0.0.1:3001` et ne montre plus `0.0.0.0:3001` ni `:::3001`.
+  - 2026-05-28 : `/api/health` local répond `200`, `/` public répond `200`, `/dashboard/eleve` sans auth répond `307`, `POST /api/aria/chat` sans auth répond `401`, `/api/eam/progress` sans auth répond `401`.
 - Backup :
-  - Sauvegarder le fichier PM2 ecosystem ou compose réellement utilisé avant changement.
+  - `/root/nexus-backups/p0-002-20260528223728/ecosystem.config.js`
+  - `/root/nexus-backups/p0-002-20260528223728/ecosystem.config.standalone.js`
+  - `/root/nexus-backups/p0-002-20260528223728/pm2-jlist-before.json`
+  - `/root/nexus-backups/p0-002-20260528223728/pm2-describe-before.txt`
+  - `/root/nexus-backups/p0-002-20260528223728/ss-before.txt`
 - Rollback :
-  - Restaurer l'ancien fichier, relancer/reload le service concerné.
-- Statut : à corriger, non appliqué pendant cette phase.
+  - Restaurer l'ancien `ecosystem.config.js`, exécuter `pm2 startOrReload ecosystem.config.js --env production --update-env`, puis vérifier `pm2 status`, `ss -ltnp` et `curl -sI https://nexusreussite.academy/`.
+- Statut : corrigé le 2026-05-28 par `e9ea6d64 fix(security): bind production PM2 app to localhost`.
 - Propriétaire proposé : DevOps.
 
 ### P0-003 — ARIA conversationId IDOR
