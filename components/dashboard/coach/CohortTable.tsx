@@ -8,6 +8,7 @@ import Link from "next/link";
 
 interface StudentRow {
   id: string;
+  userId?: string;
   name: string;
   gradeLevel: string;
   academicTrack: string;
@@ -16,11 +17,23 @@ interface StudentRow {
   status: 'STABLE' | 'WARNING' | 'CRITICAL';
 }
 
-interface CohortTableProps {
-  students: StudentRow[];
+export interface StudentEAMSummary {
+  userId: string;
+  pct: number;
+  totalChecked: number;
+  quizDone: number;
+  mockExamDone: boolean;
+  mockExamScore: number | null;
+  mockExamTotal: number | null;
+  lastUpdated: string | null;
 }
 
-export function CohortTable({ students }: CohortTableProps) {
+interface CohortTableProps {
+  students: StudentRow[];
+  eamSummaries?: Record<string, StudentEAMSummary>;
+}
+
+export function CohortTable({ students, eamSummaries = {} }: CohortTableProps) {
   return (
     <div className="bg-surface-card border border-white/10 rounded-xl overflow-hidden">
       <Table>
@@ -34,44 +47,69 @@ export function CohortTable({ students }: CohortTableProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {students.map((student) => (
-            <TableRow key={student.id} className="border-white/10 hover:bg-white/5 transition-colors">
-              <TableCell>
-                <div className="font-medium text-white">{student.name}</div>
-                <div className="text-[10px] text-neutral-500">
-                  Dernier cours: {new Date(student.lastSession).toLocaleDateString('fr-FR')}
-                </div>
-              </TableCell>
-              <TableCell>
-                <Badge variant="outline" className="text-[10px] border-white/10 text-neutral-400">
-                  {student.gradeLevel} {student.academicTrack === 'STMG' ? 'STMG' : 'EDS'}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  <div className="text-sm font-bold text-brand-accent">{student.nexusIndex ?? '--'}</div>
-                  <TrendingUp className="w-3 h-3 text-emerald-500/50" />
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center gap-1.5">
-                  <div className={`w-2 h-2 rounded-full ${
-                    student.status === 'CRITICAL' ? 'bg-rose-500 animate-pulse' : 
-                    student.status === 'WARNING' ? 'bg-amber-500' : 'bg-emerald-500'
-                  }`} />
-                  <span className="text-xs text-neutral-400 capitalize">{student.status.toLowerCase()}</span>
-                </div>
-              </TableCell>
-              <TableCell className="text-right">
-                <Link href={`/dashboard/coach/eleve/${student.id}`}>
-                  <Button variant="ghost" size="sm" className="hover:bg-brand-accent/10 hover:text-brand-accent">
-                    <Eye className="w-4 h-4 mr-2" />
-                    Dossier
-                  </Button>
-                </Link>
-              </TableCell>
-            </TableRow>
-          ))}
+          {students.map((student) => {
+            const eamSummary = student.userId ? eamSummaries[student.userId] : undefined;
+            const showEamSummary = Boolean(
+              eamSummary &&
+                (eamSummary.pct > 0 ||
+                  eamSummary.totalChecked > 0 ||
+                  eamSummary.quizDone > 0 ||
+                  eamSummary.mockExamDone),
+            );
+
+            return (
+              <TableRow key={student.id} className="border-white/10 hover:bg-white/5 transition-colors">
+                <TableCell>
+                  <div className="font-medium text-white">{student.name}</div>
+                  <div className="text-[10px] text-neutral-500">
+                    Dernier cours: {new Date(student.lastSession).toLocaleDateString('fr-FR')}
+                  </div>
+                  {showEamSummary && eamSummary && (
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <div className="h-1.5 w-24 overflow-hidden rounded-full bg-white/10" aria-hidden="true">
+                        <div
+                          className="h-full rounded-full bg-cyan-400/70"
+                          style={{ width: `${eamSummary.pct}%` }}
+                        />
+                      </div>
+                      <span className="text-[10px] font-medium text-neutral-400">
+                        EAM {eamSummary.pct}% · {eamSummary.quizDone}/7 modules
+                        {eamSummary.mockExamDone ? ' · ✓ Sujet blanc' : ''}
+                      </span>
+                    </div>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <Badge variant="outline" className="text-[10px] border-white/10 text-neutral-400">
+                    {student.gradeLevel} {student.academicTrack === 'STMG' ? 'STMG' : 'EDS'}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <div className="text-sm font-bold text-brand-accent">{student.nexusIndex ?? '--'}</div>
+                    <TrendingUp className="w-3 h-3 text-emerald-500/50" />
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-1.5">
+                    <div className={`w-2 h-2 rounded-full ${
+                      student.status === 'CRITICAL' ? 'bg-rose-500 animate-pulse' : 
+                      student.status === 'WARNING' ? 'bg-amber-500' : 'bg-emerald-500'
+                    }`} />
+                    <span className="text-xs text-neutral-400 capitalize">{student.status.toLowerCase()}</span>
+                  </div>
+                </TableCell>
+                <TableCell className="text-right">
+                  <Link href={`/dashboard/coach/eleve/${student.id}`}>
+                    <Button variant="ghost" size="sm" className="hover:bg-brand-accent/10 hover:text-brand-accent">
+                      <Eye className="w-4 h-4 mr-2" />
+                      Dossier
+                    </Button>
+                  </Link>
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </div>

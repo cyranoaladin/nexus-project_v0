@@ -10,7 +10,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { DashboardPilotage } from "@/components/dashboard/DashboardPilotage";
 import CoachAvailability from "@/components/ui/coach-availability";
-import { CohortTable } from "@/components/dashboard/coach/CohortTable";
+import { CohortTable, type StudentEAMSummary } from "@/components/dashboard/coach/CohortTable";
 import { PriorityAlerts } from "@/components/dashboard/coach/PriorityAlerts";
 
 interface TodaySession {
@@ -32,6 +32,7 @@ export default function DashboardCoach() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [dashboardData, setDashboardData] = useState<CoachDashboardData | null>(null);
+  const [eamSummaries, setEamSummaries] = useState<Record<string, StudentEAMSummary>>({});
   const [loading, setLoading] = useState(true);
   const [_error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'availability'>('dashboard');
@@ -40,10 +41,20 @@ export default function DashboardCoach() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/coach/dashboard');
+      const [response, eamResponse] = await Promise.all([
+        fetch('/api/coach/dashboard'),
+        fetch('/api/coach/students/eam-summary'),
+      ]);
       if (!response.ok) throw new Error('Failed to fetch');
       const data = await response.json();
       setDashboardData(data);
+      if (eamResponse.ok) {
+        const eamPayload = await eamResponse.json();
+        const summaries = Array.isArray(eamPayload?.data) ? eamPayload.data as StudentEAMSummary[] : [];
+        setEamSummaries(Object.fromEntries(summaries.map((summary) => [summary.userId, summary])));
+      } else {
+        setEamSummaries({});
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error');
     } finally {
@@ -129,7 +140,7 @@ export default function DashboardCoach() {
                         <Users className="w-5 h-5 text-brand-accent" />
                         Pilotage de Cohorte
                       </h2>
-                      <CohortTable students={dashboardData?.students || []} />
+                      <CohortTable students={dashboardData?.students || []} eamSummaries={eamSummaries} />
                     </div>
                     <div>
                       <Card className="bg-gradient-to-br from-brand-accent/10 to-surface-card border border-brand-accent/20">
