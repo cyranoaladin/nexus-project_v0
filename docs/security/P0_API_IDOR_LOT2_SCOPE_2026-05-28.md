@@ -30,7 +30,7 @@ Le Lot 2 doit traiter les routes encore sensibles après le déploiement du Lot 
 
 ## Priorité recommandée
 
-1. Payments/webhooks/subscriptions.
+1. Payments/webhooks/subscriptions. Statut 2026-05-28 : Lot 2A corrigé et testé localement, non déployé production.
 2. Admin users et assistante students/credits.
 3. NPC reports/submissions/documents.
 4. Messages/conversations.

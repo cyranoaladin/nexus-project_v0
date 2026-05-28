@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { PaymentType } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { resolvePaymentCatalogItem } from '@/lib/security/payment-catalog';
 
 /**
  * POST /api/payments/bank-transfer/confirm
@@ -17,8 +18,8 @@ const confirmBankTransferSchema = z.object({
   type: z.enum(['subscription', 'addon', 'pack']),
   key: z.string().trim().min(1),
   studentId: z.string().trim().optional().nullable(),
-  amount: z.number().positive(),
-  description: z.string().trim().min(1).max(500),
+  amount: z.number().positive().optional(),
+  description: z.string().trim().min(1).max(500).optional(),
   termsAccepted: z.literal(true, {
     errorMap: () => ({ message: 'L\'acceptation des CGV est obligatoire avant paiement.' }),
   }),
@@ -39,6 +40,50 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const data = confirmBankTransferSchema.parse(body);
+    const catalogItem = resolvePaymentCatalogItem(data.type, data.key);
+
+    if (!catalogItem) {
+      return NextResponse.json(
+        { error: 'Produit ou formule invalide' },
+        { status: 400 }
+      );
+    }
+
+    if ((data.type === 'subscription' || data.type === 'addon') && !data.studentId) {
+      return NextResponse.json(
+        { error: 'Élève requis pour ce paiement' },
+        { status: 400 }
+      );
+    }
+
+    if (data.studentId) {
+      const parentProfile = await prisma.parentProfile.findUnique({
+        where: { userId: session.user.id },
+        select: { id: true },
+      });
+
+      if (!parentProfile) {
+        return NextResponse.json(
+          { error: 'Profil parent introuvable' },
+          { status: 404 }
+        );
+      }
+
+      const student = await prisma.student.findFirst({
+        where: {
+          id: data.studentId,
+          parentId: parentProfile.id,
+        },
+        select: { id: true },
+      });
+
+      if (!student) {
+        return NextResponse.json(
+          { error: 'Élève introuvable ou non autorisé' },
+          { status: 404 }
+        );
+      }
+    }
 
     // Map frontend type to Prisma PaymentType
     const paymentType: PaymentType =
@@ -55,8 +100,8 @@ export async function POST(request: NextRequest) {
         method: 'bank_transfer',
         status: 'PENDING',
         type: paymentType,
-        amount: data.amount,
-        description: data.description,
+        amount: catalogItem.amount,
+        description: catalogItem.description,
       },
     });
 
@@ -78,9 +123,9 @@ export async function POST(request: NextRequest) {
       data: {
         userId: session.user.id,
         type: paymentType,
-        amount: data.amount,
+        amount: catalogItem.amount,
         currency: 'TND',
-        description: data.description,
+        description: catalogItem.description,
         status: 'PENDING',
         method: 'bank_transfer',
         termsVersion: data.termsVersion,
@@ -114,13 +159,13 @@ export async function POST(request: NextRequest) {
           userRole: staff.role,
           type: 'BANK_TRANSFER_DECLARED',
           title: 'Nouveau virement déclaré',
-          message: `${parentName} a déclaré un virement de ${data.amount} TND pour « ${data.description} ». En attente de validation.`,
-          data: {
-            paymentId: payment.id,
-            parentId: session.user.id,
-            parentName,
-            amount: data.amount,
-            description: data.description,
+        message: `${parentName} a déclaré un virement de ${catalogItem.amount} TND pour « ${catalogItem.description} ». En attente de validation.`,
+        data: {
+          paymentId: payment.id,
+          parentId: session.user.id,
+          parentName,
+            amount: catalogItem.amount,
+            description: catalogItem.description,
           },
         })),
       });

@@ -181,6 +181,37 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
 - Rollback documenté : retour Git au commit `5c1f6c031`, rebuild, puis `pm2 startOrReload ecosystem.config.js --env production --update-env`.
 - Décision : bêta contrôlée maintenue; go-live large toujours non autorisé tant que P0-004 global reste ouvert.
 
+#### P0-004 Lot 2A — Payments / Webhooks / Subscriptions
+
+- Statut : corrigé et testé localement le 2026-05-28; non déployé production.
+- Routes :
+  - `app/api/payments/bank-transfer/confirm/route.ts`
+  - `app/api/payments/validate/route.ts`
+  - `app/api/payments/clictopay/webhook/route.ts`
+  - `app/api/parent/credit-request/route.ts`
+  - `app/api/parent/subscriptions/route.ts`
+  - `app/api/parent/subscription-requests/route.ts`
+  - `app/api/assistante/credit-requests/route.ts`
+  - `app/api/assistante/students/credits/route.ts`
+  - `app/api/assistante/subscriptions/route.ts`
+- Corrections :
+  - prix et descriptions paiement résolus côté serveur via catalogue;
+  - ownership parent/enfant ajouté pour déclaration de virement avec `studentId`;
+  - validation paiement staff atomique sur `status=PENDING`;
+  - approbations crédits/abonnements staff rendues idempotentes par update conditionnel;
+  - montants/types crédits bornés;
+  - webhook ClicToPay confirmé non product-ready (`501`) et signature invalide testée (`401` si secret configuré).
+- Tests :
+  - 17 suites ciblées, 98 tests OK.
+  - `npm run typecheck` : OK.
+  - `npm run test:unit -- --runInBand` : 443 suites, 5888 tests OK.
+  - `npm run build` : OK.
+  - `npm run test:integration -- --runInBand` : non relancé, DB test `127.0.0.1:5435` indisponible.
+- Déploiement : à planifier séparément avec backup, build serveur et PM2 reload contrôlé.
+- Risque résiduel :
+  - ClicToPay réel non implémenté; activation commerciale paiement carte interdite tant que provider/signature/idempotence/montant/devise ne sont pas complets.
+  - P0-004 global reste ouvert hors Lot 2A.
+
 ## P1 — Durcissement court terme
 
 ### P1-001 — CSP

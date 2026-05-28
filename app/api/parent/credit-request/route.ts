@@ -3,6 +3,13 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
+import { z } from 'zod';
+
+const creditRequestSchema = z.object({
+  studentId: z.string().trim().min(1),
+  creditAmount: z.coerce.number().int().min(1).max(100),
+  reason: z.string().trim().max(500).optional(),
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,15 +22,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
-    const { studentId, creditAmount, reason } = body;
-
-    if (!studentId || !creditAmount) {
+    const parsed = creditRequestSchema.safeParse(await request.json());
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Invalid credit amount or missing required fields' },
         { status: 400 }
       );
     }
+    const { studentId, creditAmount, reason } = parsed.data;
 
     // Verify student belongs to parent
     const userId = session.user.id;
@@ -78,4 +84,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

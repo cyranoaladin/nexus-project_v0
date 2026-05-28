@@ -102,7 +102,7 @@ describe('assistant credit-requests', () => {
     (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => {
       const tx = {
         creditTransaction: {
-          update: jest.fn().mockResolvedValue({}),
+          updateMany: jest.fn().mockResolvedValue({ count: 1 }),
           create: jest.fn().mockResolvedValue({}),
         },
       };
@@ -114,6 +114,35 @@ describe('assistant credit-requests', () => {
 
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
+  });
+
+  it('POST does not add credits when a request was already processed concurrently', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'assistant-1', role: 'ASSISTANTE', firstName: 'A', lastName: 'S' },
+    });
+    (prisma.creditTransaction.findUnique as jest.Mock).mockResolvedValue({
+      id: 'req-1',
+      type: 'CREDIT_REQUEST',
+      amount: 2,
+      studentId: 'student-1',
+    });
+    let txCreate: jest.Mock | undefined;
+    (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => {
+      txCreate = jest.fn();
+      return cb({
+        creditTransaction: {
+          updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+          create: txCreate,
+        },
+      });
+    });
+
+    const response = await POST(makeRequest({ requestId: 'req-1', action: 'approve' }));
+    const body = await response.json();
+
+    expect(response.status).toBe(409);
+    expect(body.error).toContain('déjà');
+    expect(txCreate).not.toHaveBeenCalled();
   });
 
   it('POST rejects credit request', async () => {

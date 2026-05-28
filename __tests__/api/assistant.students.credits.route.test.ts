@@ -99,6 +99,32 @@ describe('assistant students credits', () => {
     expect(body.error).toBe('Missing required fields');
   });
 
+  it('POST rejects unsupported credit transaction type', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'assistant-1', role: 'ASSISTANTE', firstName: 'A', lastName: 'S' },
+    });
+
+    const response = await POST(makeRequest({ studentId: 'student-1', amount: 2, type: 'ADMIN_ROLE_GRANT', description: 'Bad' }));
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toContain('Invalid credit type');
+    expect(prisma.creditTransaction.create).not.toHaveBeenCalled();
+  });
+
+  it('POST rejects non-finite or zero credit amount', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'assistant-1', role: 'ASSISTANTE', firstName: 'A', lastName: 'S' },
+    });
+
+    const response = await POST(makeRequest({ studentId: 'student-1', amount: 0, type: 'CREDIT_ADD', description: 'Bad' }));
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toContain('Invalid credit amount');
+    expect(prisma.creditTransaction.create).not.toHaveBeenCalled();
+  });
+
   it('POST returns 404 when student missing', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE', firstName: 'A', lastName: 'S' },

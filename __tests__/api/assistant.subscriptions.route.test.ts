@@ -8,8 +8,9 @@ jest.mock('@/auth', () => ({
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {
-    subscription: { findMany: jest.fn(), findUnique: jest.fn(), update: jest.fn() },
+    subscription: { findMany: jest.fn(), findUnique: jest.fn(), update: jest.fn(), updateMany: jest.fn() },
     creditTransaction: { create: jest.fn() },
+    $transaction: jest.fn(),
   },
 }));
 
@@ -97,13 +98,43 @@ describe('assistant subscriptions', () => {
       planName: 'Plan A',
       studentId: 'student-1',
     });
-    (prisma.subscription.update as jest.Mock).mockResolvedValue({ id: 'sub-1', status: 'ACTIVE' });
+    (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => cb({
+      subscription: { updateMany: jest.fn().mockResolvedValue({ count: 1 }), update: jest.fn().mockResolvedValue({ id: 'sub-1', status: 'ACTIVE' }) },
+      creditTransaction: { create: jest.fn() },
+    }));
 
     const response = await POST(makeRequest({ subscriptionId: 'sub-1', action: 'approve' }));
     const body = await response.json();
 
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
-    expect(prisma.creditTransaction.create).toHaveBeenCalled();
+  });
+
+  it('POST does not add credits when approval was already processed concurrently', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'assistant-1', role: 'ASSISTANTE', firstName: 'A', lastName: 'S' },
+    });
+    (prisma.subscription.findUnique as jest.Mock).mockResolvedValue({
+      id: 'sub-1',
+      status: 'INACTIVE',
+      creditsPerMonth: 3,
+      planName: 'Plan A',
+      studentId: 'student-1',
+    });
+    let txCreditCreate: jest.Mock | undefined;
+    (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => {
+      txCreditCreate = jest.fn();
+      return cb({
+        subscription: { updateMany: jest.fn().mockResolvedValue({ count: 0 }), update: jest.fn() },
+        creditTransaction: { create: txCreditCreate },
+      });
+    });
+
+    const response = await POST(makeRequest({ subscriptionId: 'sub-1', action: 'approve' }));
+    const body = await response.json();
+
+    expect(response.status).toBe(409);
+    expect(body.error).toContain('déjà');
+    expect(txCreditCreate).not.toHaveBeenCalled();
   });
 });

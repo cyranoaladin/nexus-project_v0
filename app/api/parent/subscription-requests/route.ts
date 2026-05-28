@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
+import { ARIA_ADDONS, SUBSCRIPTION_PLANS } from '@/lib/constants';
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,13 +23,50 @@ export async function POST(request: NextRequest) {
       monthlyPrice?: number;
       reason?: string;
     };
-    const { studentId, requestType, planName, monthlyPrice, reason } = body;
+    const { studentId, requestType, planName, reason } = body;
 
     if (!studentId || !requestType) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       );
+    }
+
+    let safePlanName = planName || null;
+    let safeMonthlyPrice = 0;
+
+    if (requestType === 'PLAN_CHANGE') {
+      if (!planName) {
+        return NextResponse.json(
+          { error: 'Plan requis' },
+          { status: 400 }
+        );
+      }
+      const plan = SUBSCRIPTION_PLANS[planName as keyof typeof SUBSCRIPTION_PLANS];
+      if (!plan) {
+        return NextResponse.json(
+          { error: 'Plan d’abonnement invalide' },
+          { status: 400 }
+        );
+      }
+      safePlanName = planName;
+      safeMonthlyPrice = plan.price;
+    } else if (requestType === 'ARIA_ADDON') {
+      if (!planName) {
+        return NextResponse.json(
+          { error: 'Add-on ARIA requis' },
+          { status: 400 }
+        );
+      }
+      const addon = ARIA_ADDONS[planName as keyof typeof ARIA_ADDONS];
+      if (!addon) {
+        return NextResponse.json(
+          { error: 'Add-on ARIA invalide' },
+          { status: 400 }
+        );
+      }
+      safePlanName = planName;
+      safeMonthlyPrice = addon.price;
     }
 
     // Verify student belongs to parent
@@ -66,8 +104,8 @@ export async function POST(request: NextRequest) {
       data: {
         studentId: studentId,
         requestType: requestType, // PLAN_CHANGE, ARIA_ADDON, INVOICE_DETAILS
-        planName: planName || null,
-        monthlyPrice: monthlyPrice || 0,
+        planName: safePlanName,
+        monthlyPrice: safeMonthlyPrice,
         reason: reason || '',
         status: 'PENDING',
         requestedBy: `${session.user.firstName} ${session.user.lastName}`,
@@ -95,8 +133,8 @@ export async function POST(request: NextRequest) {
             studentId: studentId,
             studentName: `${student.user.firstName} ${student.user.lastName}`,
             requestType: requestType,
-            planName: planName,
-            monthlyPrice: monthlyPrice
+            planName: safePlanName,
+            monthlyPrice: safeMonthlyPrice
           })
         }
       })

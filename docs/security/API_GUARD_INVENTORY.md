@@ -1,14 +1,14 @@
 # Inventaire initial des guards API
 
-Généré le : 2026-05-28T21:06:06.195Z
+Généré le : 2026-05-28T22:00:49.714Z
 
 Lecture statique uniquement. La colonne `Ownership explicit` signale des indices de filtrage propriétaire dans le fichier; elle ne remplace pas un audit manuel IDOR.
 
 ## Synthèse
 
 - P0 : 43
-- P1 : 40
-- P2 : 59
+- P1 : 39
+- P2 : 60
 - OK : 22
 - Total routes : 164
 
@@ -142,7 +142,7 @@ Lecture statique uniquement. La colonne `Ownership explicit` signale des indices
 | `app/api/npc/uploads/route.ts` | POST | no | yes | yes | no | no | yes | P1 | guard manuel |
 | `app/api/parent/bilans/[id]/pdf/route.ts` | GET | yes | yes | yes | no | no | no | P0 | pédagogique sensible; audit manuel prioritaire |
 | `app/api/parent/children/route.ts` | GET, POST | no | yes | yes | no | no | yes | P1 | guard manuel |
-| `app/api/parent/credit-request/route.ts` | POST | no | yes | yes | no | no | no | P1 | guard manuel |
+| `app/api/parent/credit-request/route.ts` | POST | no | yes | yes | no | yes | no | P2 | guard manuel |
 | `app/api/parent/dashboard/route.ts` | GET | no | yes | yes | no | no | yes | P2 | guard manuel |
 | `app/api/parent/stages/route.ts` | GET | no | yes | yes | no | no | no | P2 | - |
 | `app/api/parent/subscription-requests/route.ts` | POST, GET | no | yes | yes | no | no | no | P1 | guard manuel |

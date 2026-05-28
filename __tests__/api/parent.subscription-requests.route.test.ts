@@ -50,7 +50,27 @@ describe('parent subscription-requests', () => {
     expect(body.error).toBe('Missing required fields');
   });
 
-  it('POST creates subscription request and notifications', async () => {
+  it('POST rejects a plan change with an unknown plan key', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'parent-1', role: 'PARENT', firstName: 'P', lastName: 'One', email: 'p@test.com' },
+    });
+
+    const response = await POST(
+      makeRequest({
+        studentId: 'student-1',
+        requestType: 'PLAN_CHANGE',
+        planName: 'Plan A',
+        monthlyPrice: 1,
+      })
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toContain('Plan');
+    expect(prisma.subscriptionRequest.create).not.toHaveBeenCalled();
+  });
+
+  it('POST creates subscription request and notifications using catalog pricing', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'parent-1', role: 'PARENT', firstName: 'P', lastName: 'One', email: 'p@test.com' },
     });
@@ -67,8 +87,8 @@ describe('parent subscription-requests', () => {
       makeRequest({
         studentId: 'student-1',
         requestType: 'PLAN_CHANGE',
-        planName: 'Plan A',
-        monthlyPrice: 100,
+        planName: 'HYBRIDE',
+        monthlyPrice: 1,
         reason: 'Upgrade',
       })
     );
@@ -76,6 +96,14 @@ describe('parent subscription-requests', () => {
 
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
+    expect(prisma.subscriptionRequest.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          planName: 'HYBRIDE',
+          monthlyPrice: 450,
+        }),
+      })
+    );
     expect(prisma.notification.create).toHaveBeenCalled();
   });
 

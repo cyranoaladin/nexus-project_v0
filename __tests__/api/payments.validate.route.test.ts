@@ -86,11 +86,11 @@ describe('POST /api/payments/validate', () => {
       status: 'PENDING',
       type: 'SUBSCRIPTION',
       metadata: { studentId: 'student-1', itemKey: 'PLAN' },
-      user: { parentProfile: { children: [] } },
+      user: { parentProfile: { children: [{ id: 'student-1' }] } },
     });
     (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => {
       const tx = {
-        payment: { update: jest.fn().mockResolvedValue({}) },
+        payment: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
         student: { findUnique: jest.fn().mockResolvedValue({ id: 'student-1' }) },
         subscription: { updateMany: jest.fn(), findFirst: jest.fn().mockResolvedValue({ creditsPerMonth: 0 }) },
         creditTransaction: { create: jest.fn() },
@@ -114,12 +114,12 @@ describe('POST /api/payments/validate', () => {
       status: 'PENDING',
       type: 'SUBSCRIPTION',
       metadata: { studentId: 'student-1', itemKey: 'PLAN' },
-      user: { parentProfile: { children: [] } },
+      user: { parentProfile: { children: [{ id: 'student-1' }] } },
     });
     let capturedTx: any = null;
     (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => {
       const tx = {
-        payment: { update: jest.fn().mockResolvedValue({}) },
+        payment: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
         student: { findUnique: jest.fn().mockResolvedValue({ id: 'student-1' }) },
         subscription: { updateMany: jest.fn(), findFirst: jest.fn().mockResolvedValue({ creditsPerMonth: 4 }) },
         creditTransaction: { create: jest.fn() },
@@ -144,6 +144,39 @@ describe('POST /api/payments/validate', () => {
     );
   });
 
+  it('does not activate subscription or credits when payment was already processed concurrently', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'assistant-1', role: 'ASSISTANTE' },
+    });
+    (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
+      id: 'pay-race',
+      status: 'PENDING',
+      type: 'SUBSCRIPTION',
+      metadata: { studentId: 'student-1', itemKey: 'PLAN' },
+      user: { parentProfile: { children: [{ id: 'student-1' }] } },
+    });
+    let txSubscriptionUpdate: jest.Mock | undefined;
+    let txCreditCreate: jest.Mock | undefined;
+    (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => {
+      txSubscriptionUpdate = jest.fn();
+      txCreditCreate = jest.fn();
+      return cb({
+        payment: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
+        student: { findUnique: jest.fn().mockResolvedValue({ id: 'student-1' }) },
+        subscription: { updateMany: txSubscriptionUpdate, findFirst: jest.fn() },
+        creditTransaction: { create: txCreditCreate },
+      });
+    });
+
+    const response = await POST(makeRequest({ paymentId: 'pay-race', action: 'approve' }));
+    const body = await response.json();
+
+    expect(response.status).toBe(409);
+    expect(body.error).toContain('déjà');
+    expect(txSubscriptionUpdate).not.toHaveBeenCalled();
+    expect(txCreditCreate).not.toHaveBeenCalled();
+  });
+
   it('rejects payment and updates status', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
@@ -153,7 +186,7 @@ describe('POST /api/payments/validate', () => {
       status: 'PENDING',
       type: 'SUBSCRIPTION',
       metadata: { studentId: 'student-1' },
-      user: { parentProfile: { children: [] } },
+      user: { parentProfile: { children: [{ id: 'student-1' }] } },
     });
 
     const response = await POST(makeRequest({ paymentId: 'pay-3', action: 'reject', note: 'Nope' }));
@@ -180,7 +213,7 @@ describe('POST /api/payments/validate', () => {
       status: 'PENDING',
       type: 'SUBSCRIPTION',
       metadata: { studentId: 'student-1', itemKey: 'PLAN' },
-      user: { parentProfile: { children: [] } },
+      user: { parentProfile: { children: [{ id: 'student-1' }] } },
     });
     const prismaError = new Error('Transaction conflict');
     (prismaError as any).code = 'P2034';
@@ -202,7 +235,7 @@ describe('POST /api/payments/validate', () => {
       status: 'PENDING',
       type: 'SUBSCRIPTION',
       metadata: { studentId: 'student-1', itemKey: 'PLAN' },
-      user: { parentProfile: { children: [] } },
+      user: { parentProfile: { children: [{ id: 'student-1' }] } },
     });
     const prismaError = new Error('Record not found');
     (prismaError as any).code = 'P2025';
