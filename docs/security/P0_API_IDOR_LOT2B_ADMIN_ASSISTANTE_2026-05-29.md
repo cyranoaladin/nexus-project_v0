@@ -14,7 +14,7 @@ Date : 2026-05-29
 | Assistante coaches/manage | Corrigé | OK | Gestion coach autorisée ADMIN/ASSISTANTE; subjects validés par enum. |
 | Assignments coach-élève | Corrigé | OK | Doublon actif coach/élève refusé pour tout type d'affectation. |
 
-Lot 2B est corrigé et testé localement. Non déployé en production dans ce cycle.
+Lot 2B est corrigé, testé et déployé en production le 2026-05-29.
 
 Go-live large : toujours non autorisé tant que P0-004 global reste ouvert.
 Bêta contrôlée : maintenue sous surveillance.
@@ -182,17 +182,80 @@ Puis :
 - Lot 2D : messages/conversations.
 - Lot 2E : assessments submit/test.
 
-## Déploiement
+## Déploiement production
 
-Non déployé en production dans ce cycle.
+- Date serveur : 2026-05-29.
+- Commit sécurité Lot 2B : `8ce959366 fix(security): harden admin and assistante ownership checks`.
+- Runtime production validé : `9ffdcb46 Fix homepage CTA contrast`, déjà présent sur `main` et contenant `8ce959366`.
+- Commit runtime avant validation : `9ffdcb46`.
+- Commit runtime après validation : `9ffdcb46`.
+- Backup pré-déploiement : `/root/nexus-backups/p0-004-lot2b-deploy-20260529005132`.
+- Rollback prévu, non exécuté : retour Git à `e3c07144b`, rebuild, puis `pm2 startOrReload ecosystem.config.js --env production --update-env`.
 
-Déploiement recommandé après validation :
+### Commandes exécutées
 
-1. Préflight prod Git/PM2/health.
-2. Backup applicatif minimal.
-3. `git pull --ff-only origin main`.
-4. `npm run typecheck`.
-5. Tests ciblés Lot 2B.
-6. `npm run build`.
-7. `pm2 startOrReload ecosystem.config.js --env production --update-env`.
-8. Smoke : public, `/api/health`, routes admin/assistante sans auth, routes staff avec non-auth refusé, chemins sensibles.
+```bash
+git fetch origin main
+git pull --ff-only origin main
+npm run typecheck
+npm test -- --runInBand \
+  __tests__/api/admin.users.search.route.test.ts \
+  __tests__/api/assistant.activate-student.route.test.ts \
+  __tests__/api/assistant.coaches.route.test.ts \
+  __tests__/api/assistant.coaches.id.route.test.ts \
+  __tests__/api/assistante-assignments.test.ts \
+  __tests__/api/documents-access.test.ts \
+  __tests__/api/admin-users.test.ts
+npm run build
+pm2 startOrReload ecosystem.config.js --env production --update-env
+pm2 save
+```
+
+### Résultats serveur
+
+- `npm run typecheck` : OK.
+- Tests ciblés Lot 2B : 7 suites, 93 tests OK.
+- `npm run build` : OK.
+- PM2 `nexus-prod` : online.
+- Port applicatif : `127.0.0.1:3001`.
+- Smoke public : `site:200`, `offres:200`, `stages:200`, `dashboard_no_auth:307`.
+- Santé locale : `api_health:200`.
+- Routes admin/assistante sans auth :
+  - `admin_users_no_auth:401`
+  - `admin_users_search_no_auth:401`
+  - `assistante_students_no_auth:401`
+  - `assistante_student_detail_no_auth:401`
+  - `assistante_student_documents_no_auth:401`
+  - `assistante_activate_student_no_auth:401`
+  - `assistante_coaches_no_auth:401`
+  - `assistante_coaches_manage_no_auth:401`
+  - `assistante_coach_manage_id_no_auth:405`
+  - `assistante_assignments_no_auth:401`
+  - `assistante_assignment_id_no_auth:401`
+- Chemins sensibles : `/.env`, `/.git/config`, `/.next/standalone/.env`, `/docker-compose.prod.yml`, `/prisma/schema.prisma` en 404.
+- Logs PM2 filtrés : aucune erreur critique applicative nouvelle.
+
+### Vérification champs sensibles après reload
+
+```bash
+npm test -- --runInBand \
+  __tests__/api/admin.users.search.route.test.ts \
+  __tests__/api/assistant.activate-student.route.test.ts \
+  __tests__/api/documents-access.test.ts
+```
+
+Résultat : 3 suites, 36 tests OK.
+
+Statut confirmé par tests :
+
+- `password` : absent.
+- `activationToken` : absent.
+- `activationUrl` : absent.
+- `localPath` : absent.
+- Tokens bruts/reset/secrets : non retournés par les routes auditées.
+
+### Notes
+
+- Les warnings Jest de mocks dupliqués sous `.next/standalone` restent un bruit connu lié à la présence d'artefacts runtime dans le dépôt de production.
+- Certains tests simulent volontairement des erreurs DB; les logs correspondants sont attendus et les suites restent vertes.
+- La DB test d'intégration `127.0.0.1:5435` reste indisponible; les tests d'intégration n'ont pas été lancés.
