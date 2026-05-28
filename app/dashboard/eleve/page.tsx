@@ -32,6 +32,7 @@ import { SurvivalDashboard } from "@/components/dashboard/eleve/survival";
 import { resolveSubjectIcon } from "@/lib/ui-icons";
 import { BilanDiagMathsTerminale } from "@/components/dashboard/eleve/BilanDiagMathsTerminale";
 import { EafStageQuestionnaireCard } from "@/components/dashboard/eleve/EafStageQuestionnaireCard";
+import { EAMCockpitSummary } from "@/components/dashboard/eleve/EAMCockpitSummary";
 import { MathsPremiereStageQuestionnaireCard } from "@/components/dashboard/eleve/MathsPremiereStageQuestionnaireCard";
 
 export default function DashboardEleve() {
@@ -250,6 +251,7 @@ export default function DashboardEleve() {
 
                 {activeRubrique === 'cockpit' && (
                   <div className="space-y-6">
+                    {isPremiereStudent && !isStmgTrack && <EAMCockpitSummary />}
                     <EleveCockpit
                       data={dashboardData}
                       onBookSession={() => setActiveTab('booking')}
