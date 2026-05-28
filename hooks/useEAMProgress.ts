@@ -43,24 +43,51 @@ export function useEAMProgress() {
   const storageKey = useMemo(() => getStorageKey(userId), [userId]);
   const [state, setState] = useState<EAMProgressData>(() => createEmptyEAMProgress());
   const mountedRef = useRef(false);
+  const syncTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  const pendingSyncRef = useRef<EAMProgressData | null>(null);
 
   const totalItems = useMemo(() => MODULES.reduce((sum, module) => sum + module.checklist.length, 0), []);
   const totalChecked = useMemo(() => Object.values(state.checks).filter(Boolean).length, [state.checks]);
   const quizDone = useMemo(() => Object.values(state.quiz).filter((result) => result.done).length, [state.quiz]);
   const pct = calculateProgressPercent(totalChecked, totalItems);
 
-  const persist = useCallback(
-    (next: EAMProgressData) => {
-      writeLocalProgress(storageKey, next);
+  const syncToAPI = useCallback((next: EAMProgressData) => {
+    pendingSyncRef.current = next;
+
+    if (syncTimerRef.current) {
+      window.clearTimeout(syncTimerRef.current);
+    }
+
+    syncTimerRef.current = window.setTimeout(() => {
+      const payload = pendingSyncRef.current;
+      pendingSyncRef.current = null;
+      syncTimerRef.current = null;
+      if (!payload) return;
+
       void fetch("/api/eam/progress", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(next),
+        body: JSON.stringify(payload),
         keepalive: true,
       }).catch(() => undefined);
+    }, 600);
+  }, []);
+
+  const persist = useCallback(
+    (next: EAMProgressData) => {
+      writeLocalProgress(storageKey, next);
+      syncToAPI(next);
     },
-    [storageKey]
+    [storageKey, syncToAPI]
   );
+
+  useEffect(() => {
+    return () => {
+      if (syncTimerRef.current) {
+        window.clearTimeout(syncTimerRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     mountedRef.current = false;
