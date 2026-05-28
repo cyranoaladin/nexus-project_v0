@@ -8,6 +8,10 @@ export async function GET() {
     const session = await auth();
     const userId = (session?.user as { id?: string } | undefined)?.id;
 
+    if (!session?.user || session.user.role !== "ELEVE" || !userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     if (userId) {
       const student = await prisma.student.findUnique({
         where: { userId },
