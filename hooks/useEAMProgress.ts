@@ -48,7 +48,10 @@ export function useEAMProgress() {
 
   const totalItems = useMemo(() => MODULES.reduce((sum, module) => sum + module.checklist.length, 0), []);
   const totalChecked = useMemo(() => Object.values(state.checks).filter(Boolean).length, [state.checks]);
-  const quizDone = useMemo(() => Object.values(state.quiz).filter((result) => result.done).length, [state.quiz]);
+  const quizDone = useMemo(
+    () => MODULES.filter((module) => state.quiz[module.id]?.done).length,
+    [state.quiz],
+  );
   const pct = calculateProgressPercent(totalChecked, totalItems);
 
   const syncToAPI = useCallback((next: EAMProgressData) => {

@@ -1,10 +1,13 @@
 "use client";
 
-import { Printer } from "lucide-react";
+import { CheckCircle2, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEAMProgress } from "@/hooks/useEAMProgress";
 import { MathFormula } from "./MathFormula";
 import { MOCK_EXAM, type MockExamBlock } from "./mockExamData";
+
+const MOCK_EXAM_KEY = "mock_exam_1";
 
 function ExamBlock({ block }: { block: MockExamBlock }) {
   if (block.type === "math") {
@@ -27,7 +30,13 @@ function ExamBlock({ block }: { block: MockExamBlock }) {
 }
 
 export function MockExam() {
+  const progress = useEAMProgress();
+  const mockExamResult = progress.state.quiz[MOCK_EXAM_KEY];
+  const mockExamDone = Boolean(mockExamResult?.done);
   const handlePrint = () => window.print();
+  const handleComplete = () => {
+    progress.saveQuizResult(MOCK_EXAM_KEY, 1, 1);
+  };
 
   return (
     <div className="eam-mock-exam w-full min-w-0 max-w-full space-y-5 overflow-hidden">
@@ -175,6 +184,31 @@ export function MockExam() {
           </Card>
         ))}
       </section>
+
+      <Card className="eam-no-print min-w-0 overflow-hidden border-emerald-400/20 bg-emerald-500/10">
+        <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-emerald-100">Suivi de progression</p>
+            <p className="mt-1 text-sm leading-relaxed text-emerald-50/80">
+              Une fois le sujet blanc réalisé en conditions réelles, marquez-le comme fait pour l’afficher dans votre cockpit.
+            </p>
+          </div>
+          {mockExamDone ? (
+            <div className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-lg border border-emerald-300/30 bg-emerald-300/10 px-4 text-sm font-bold text-emerald-200">
+              <CheckCircle2 className="mr-2 h-4 w-4" aria-hidden="true" />
+              Sujet blanc complété
+            </div>
+          ) : (
+            <Button
+              type="button"
+              className="min-h-11 shrink-0 bg-emerald-400 text-surface-darker hover:bg-emerald-300"
+              onClick={handleComplete}
+            >
+              Marquer comme fait
+            </Button>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

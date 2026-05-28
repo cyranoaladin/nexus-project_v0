@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import type { Prisma } from "@prisma/client";
+import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { normalizeProgress, type EAMProgressData } from "@/hooks/eamProgressCore";
@@ -13,17 +14,22 @@ type EamProgressRow = {
   updated_at: Date;
 };
 
-function isValidProgress(value: unknown): value is EAMProgressData {
-  const normalized = normalizeProgress(value);
-  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
-  const input = value as Partial<EAMProgressData>;
-  return (
-    input.checks !== undefined &&
-    input.quiz !== undefined &&
-    typeof input.lastUpdated === "string" &&
-    Date.parse(normalized.lastUpdated) > 0
-  );
-}
+const EAMProgressBodySchema = z.object({
+  checks: z.record(z.string(), z.boolean()).optional().default({}),
+  quiz: z
+    .record(
+      z.string(),
+      z.object({
+        score: z.number().int().min(0).max(100),
+        total: z.number().int().min(1).max(100),
+        done: z.boolean(),
+        completedAt: z.string().datetime().optional(),
+      }),
+    )
+    .optional()
+    .default({}),
+  lastUpdated: z.string().datetime().optional(),
+});
 
 async function getSessionUserId() {
   const session = await auth();
@@ -75,11 +81,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON payload" }, { status: 400 });
   }
 
-  if (!isValidProgress(body)) {
-    return NextResponse.json({ error: "Invalid EAM progress payload" }, { status: 400 });
+  const parsed = EAMProgressBodySchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Invalid EAM progress payload", details: parsed.error.flatten() },
+      { status: 400 },
+    );
   }
 
-  const data = normalizeProgress(body);
+  const data = normalizeProgress({
+    ...parsed.data,
+    lastUpdated: parsed.data.lastUpdated ?? new Date().toISOString(),
+  } satisfies EAMProgressData);
   const updatedAt = new Date(data.lastUpdated);
   const checksJson = JSON.stringify(data.checks);
   const quizJson = JSON.stringify(data.quiz);
