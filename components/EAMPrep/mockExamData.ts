@@ -57,7 +57,7 @@ export interface MockExam {
 }
 
 export const MOCK_EXAM: MockExam = {
-  title: "Sujet blanc C — plateforme premium",
+  title: "Sujet blanc",
   subtitle: "Première spécialité mathématiques",
   duration: "2 heures",
   calculator: "Calculatrice interdite",

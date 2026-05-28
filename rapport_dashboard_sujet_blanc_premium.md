@@ -1,9 +1,9 @@
-# Rapport dashboard — Sujet blanc C plateforme premium
+# Rapport dashboard — Sujet blanc premium
 
 ## Changements de contenu
 - Remplacement complet de l'ancien sujet blanc proche du Sujet A.
 - Suppression de l'ancien contexte NexusFlix, de la suite `u_{n+1}=0,8u_n+2`, du seuil 9500, des rappels logarithmiques et de l'analyse avec `f(x)=(2x-1)e^{-x}+2`.
-- Nouveau sujet inédit : `Sujet blanc C — plateforme premium`, première spécialité mathématiques, 2 heures, calculatrice interdite, 20 points.
+- Nouveau sujet blanc inédit du dashboard : première spécialité mathématiques, 2 heures, calculatrice interdite, 20 points.
 
 ## Ancienne structure / nouvelle structure
 - Ancienne structure : QCM 6 points + 2 exercices longs de 7 points.
@@ -62,3 +62,10 @@ La grille est stockée dans `correctAnswer` côté données, mais elle n'est pas
 - Aucun ancien contenu NexusFlix, seuil 9500, `0,8u_n+2` ou `f(x)=(2x-1)e^{-x}+2` ne subsiste dans les données du sujet.
 - Sujet distinct des sujets A et B.
 - Partie 2 forcée sur une nouvelle page à l'impression.
+
+## Correction d'intitulé
+- Ancien titre affiché : intitulé interne avec lettre de version et mention de plateforme.
+- Nouveau titre affiché : `Sujet blanc`.
+- Les mentions de lettre de version interne ont été supprimées des textes visibles côté élève.
+- Les tests unitaires et E2E ont été mis à jour.
+- Le sujet reste distinct des sujets A et B produits en LaTeX, mais cette distinction n'est pas affichée aux élèves.
