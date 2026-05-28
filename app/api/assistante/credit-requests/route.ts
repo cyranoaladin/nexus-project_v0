@@ -4,6 +4,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 
+class AlreadyProcessedError extends Error {}
+
 export async function GET(request: NextRequest) {
   try {
     const session = await auth();
@@ -120,13 +122,17 @@ export async function POST(request: NextRequest) {
       // Update the credit request status and add credits to student
       await prisma.$transaction(async (tx) => {
         // Update the credit request
-        await tx.creditTransaction.update({
-          where: { id: requestId },
+        const updated = await tx.creditTransaction.updateMany({
+          where: { id: requestId, type: 'CREDIT_REQUEST' },
           data: {
             type: 'CREDIT_ADD',
             description: `Crédits approuvés par ${session.user.firstName} ${session.user.lastName}. ${reason ? `Raison: ${reason}` : ''}`
           }
         });
+
+        if (updated.count !== 1) {
+          throw new AlreadyProcessedError('Credit request already processed');
+        }
 
         // Add credits to student
         await tx.creditTransaction.create({
@@ -167,6 +173,13 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
+    if (error instanceof AlreadyProcessedError) {
+      return NextResponse.json(
+        { error: 'Demande déjà traitée' },
+        { status: 409 }
+      );
+    }
+
     console.error('Error processing credit request:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

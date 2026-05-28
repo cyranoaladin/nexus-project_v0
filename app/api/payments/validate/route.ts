@@ -25,6 +25,8 @@ type PaymentMetadata = {
   itemType?: string;
 };
 
+class AlreadyProcessedPaymentError extends Error {}
+
 function buildMinimalPdfBuffer(message: string): Buffer {
   const safe = message.replace(/[()\\]/g, '\\$&');
   const stream = `BT /F1 12 Tf 72 770 Td (${safe}) Tj ET`;
@@ -260,6 +262,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const metadata = parsePaymentMetadata(payment.metadata) as Partial<PaymentMetadata>;
+    if (action === 'approve' && payment.type === 'SUBSCRIPTION') {
+      const studentId = metadata.studentId;
+      const parentChildren = payment.user?.parentProfile?.children ?? [];
+      const isParentChild = !!studentId && parentChildren.some((child) => child.id === studentId);
+
+      if (!isParentChild) {
+        return NextResponse.json(
+          { error: 'Paiement hors périmètre parent/élève' },
+          { status: 404 }
+        );
+      }
+    }
+
     if (action === 'approve') {
       // CRITICAL: Wrap payment validation in atomic transaction to ensure all-or-nothing behavior
       // Without this transaction, payment could be marked COMPLETED but credits never allocated
@@ -271,38 +287,45 @@ export async function POST(request: NextRequest) {
           validatedAt: new Date().toISOString(),
           validationNote: note
         });
-        await tx.payment.update({
-          where: { id: paymentId },
+        const paymentUpdate = await tx.payment.updateMany({
+          where: { id: paymentId, status: 'PENDING' },
           data: {
             status: 'COMPLETED',
             metadata: merged.value
           }
         });
 
-        // Activer le service selon le type
-        const metadata = parsePaymentMetadata(payment.metadata) as PaymentMetadata;
+        if (paymentUpdate.count !== 1) {
+          throw new AlreadyProcessedPaymentError('Payment already processed');
+        }
 
+        // Activer le service selon le type
         if (payment.type === 'SUBSCRIPTION') {
+          const subscriptionStudentId = metadata.studentId;
+          if (!subscriptionStudentId) {
+            throw new AlreadyProcessedPaymentError('Payment metadata missing studentId');
+          }
+
           // Activer l'abonnement
           const student = await tx.student.findUnique({
-            where: { id: metadata.studentId }
+            where: { id: subscriptionStudentId }
           });
 
           if (student) {
             // Désactiver l'ancien abonnement
-            await tx.subscription.updateMany({
-              where: {
-                studentId: metadata.studentId,
-                status: 'ACTIVE'
-              },
+	            await tx.subscription.updateMany({
+	              where: {
+	                studentId: subscriptionStudentId,
+	                status: 'ACTIVE'
+	              },
               data: { status: 'CANCELLED' }
             });
 
             // Activer le nouvel abonnement
-            await tx.subscription.updateMany({
-              where: {
-                studentId: metadata.studentId,
-                planName: metadata.itemKey,
+	            await tx.subscription.updateMany({
+	              where: {
+	                studentId: subscriptionStudentId,
+	                planName: metadata.itemKey,
                 status: 'INACTIVE'
               },
               data: {
@@ -313,9 +336,9 @@ export async function POST(request: NextRequest) {
 
             // Allouer les crédits mensuels
             const subscription = await tx.subscription.findFirst({
-              where: {
-                studentId: metadata.studentId,
-                status: 'ACTIVE'
+	              where: {
+	                studentId: subscriptionStudentId,
+	                status: 'ACTIVE'
               }
             });
 
@@ -324,8 +347,8 @@ export async function POST(request: NextRequest) {
               nextMonth.setMonth(nextMonth.getMonth() + 2);
 
               await tx.creditTransaction.create({
-                data: {
-                  studentId: metadata.studentId,
+	                data: {
+	                  studentId: subscriptionStudentId,
                   type: 'MONTHLY_ALLOCATION',
                   amount: subscription.creditsPerMonth,
                   description: `Allocation mensuelle de ${subscription.creditsPerMonth} crédits`,
@@ -388,6 +411,13 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
+    if (error instanceof AlreadyProcessedPaymentError) {
+      return NextResponse.json(
+        { error: 'Paiement déjà traité' },
+        { status: 409 }
+      );
+    }
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Données invalides', details: error.errors },

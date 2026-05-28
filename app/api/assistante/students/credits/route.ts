@@ -5,6 +5,13 @@ import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 import type { CreditTransaction } from '@prisma/client';
 
+const ALLOWED_STAFF_CREDIT_TYPES = new Set([
+  'CREDIT_ADD',
+  'CREDIT_REFUND',
+  'MANUAL_ADJUSTMENT',
+  'MONTHLY_ALLOCATION',
+]);
+
 export async function GET(request: NextRequest) {
   try {
     const session = await auth();
@@ -113,9 +120,24 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { studentId, amount, type, description } = body;
 
-    if (!studentId || !amount || !type || !description) {
+    if (!studentId || amount === undefined || amount === null || !type || !description) {
       return NextResponse.json(
         { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+
+    if (!ALLOWED_STAFF_CREDIT_TYPES.has(type)) {
+      return NextResponse.json(
+        { error: 'Invalid credit type' },
+        { status: 400 }
+      );
+    }
+
+    const parsedAmount = Number(amount);
+    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+      return NextResponse.json(
+        { error: 'Invalid credit amount' },
         { status: 400 }
       );
     }
@@ -137,7 +159,7 @@ export async function POST(request: NextRequest) {
       data: {
         studentId,
         type,
-        amount: parseFloat(amount),
+        amount: parsedAmount,
         description: `${description} (par ${session.user.firstName} ${session.user.lastName})`
       },
       include: {

@@ -94,7 +94,7 @@ describe('parent subscriptions', () => {
     const body = await response.json();
 
     expect(response.status).toBe(400);
-    expect(body.error).toBe('Missing required fields: studentId, planName, monthlyPrice');
+    expect(body.error).toContain('Missing required fields');
   });
 
   it('POST returns 404 when parent profile missing', async () => {
@@ -104,7 +104,7 @@ describe('parent subscriptions', () => {
     (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue(null);
 
     const response = await POST(
-      makeRequest({ studentId: 'student-1', planName: 'Plan A', monthlyPrice: 100 })
+      makeRequest({ studentId: 'student-1', planName: 'HYBRIDE', monthlyPrice: 100 })
     );
     const body = await response.json();
 
@@ -120,7 +120,7 @@ describe('parent subscriptions', () => {
     (prisma.student.findFirst as jest.Mock).mockResolvedValue(null);
 
     const response = await POST(
-      makeRequest({ studentId: 'student-1', planName: 'Plan A', monthlyPrice: 100 })
+      makeRequest({ studentId: 'student-1', planName: 'HYBRIDE', monthlyPrice: 100 })
     );
     const body = await response.json();
 
@@ -128,7 +128,22 @@ describe('parent subscriptions', () => {
     expect(body.error).toBe('Student not found or unauthorized');
   });
 
-  it('POST creates subscription request', async () => {
+  it('POST rejects an unknown plan instead of trusting client supplied pricing', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'parent-1', role: 'PARENT' },
+    });
+
+    const response = await POST(
+      makeRequest({ studentId: 'student-1', planName: 'Plan A', monthlyPrice: 1, creditsPerMonth: 99 })
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toContain('Plan');
+    expect(prisma.subscription.create).not.toHaveBeenCalled();
+  });
+
+  it('POST creates subscription request with server-side catalog price and credits', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'parent-1', role: 'PARENT' },
     });
@@ -136,18 +151,27 @@ describe('parent subscriptions', () => {
     (prisma.student.findFirst as jest.Mock).mockResolvedValue({ id: 'student-1' });
     (prisma.subscription.create as jest.Mock).mockResolvedValue({
       id: 'sub-1',
-      planName: 'Plan A',
+      planName: 'HYBRIDE',
       status: 'INACTIVE',
       student: { user: { firstName: 'Student', lastName: 'One' } },
     });
 
     const response = await POST(
-      makeRequest({ studentId: 'student-1', planName: 'Plan A', monthlyPrice: 100 })
+      makeRequest({ studentId: 'student-1', planName: 'HYBRIDE', monthlyPrice: 1, creditsPerMonth: 99 })
     );
     const body = await response.json();
 
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
     expect(body.subscription.id).toBe('sub-1');
+    expect(prisma.subscription.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          planName: 'HYBRIDE',
+          monthlyPrice: 450,
+          creditsPerMonth: 4,
+        }),
+      })
+    );
   });
 });

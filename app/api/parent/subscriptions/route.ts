@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
+import { SUBSCRIPTION_PLANS } from '@/lib/constants';
 
 export async function GET(request: NextRequest) {
   try {
@@ -100,11 +101,19 @@ export async function POST(request: NextRequest) {
       monthlyPrice?: number;
       creditsPerMonth?: number;
     };
-    const { studentId, planName, monthlyPrice, creditsPerMonth } = body;
+    const { studentId, planName } = body;
 
-    if (!studentId || !planName || !monthlyPrice) {
+    if (!studentId || !planName) {
       return NextResponse.json(
-        { error: 'Missing required fields: studentId, planName, monthlyPrice' },
+        { error: 'Missing required fields: studentId, planName' },
+        { status: 400 }
+      );
+    }
+
+    const plan = SUBSCRIPTION_PLANS[planName as keyof typeof SUBSCRIPTION_PLANS];
+    if (!plan) {
+      return NextResponse.json(
+        { error: 'Plan d’abonnement invalide' },
         { status: 400 }
       );
     }
@@ -141,8 +150,8 @@ export async function POST(request: NextRequest) {
       data: {
         studentId: studentId,
         planName: planName,
-        monthlyPrice: monthlyPrice,
-        creditsPerMonth: creditsPerMonth || 0,
+        monthlyPrice: plan.price,
+        creditsPerMonth: plan.credits,
         status: 'INACTIVE', // Will be activated by assistant
         startDate: new Date(),
         endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days

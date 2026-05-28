@@ -4,6 +4,8 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
+class AlreadyProcessedError extends Error {}
+
 export async function GET(request: NextRequest) {
   try {
     const session = await auth();
@@ -175,31 +177,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Update subscription status
-    const updatedSubscription = await prisma.subscription.update({
-      where: { id: subscriptionId },
-      data: {
-        status: newStatus
+    await prisma.$transaction(async (tx) => {
+      const updated = await tx.subscription.updateMany({
+        where: { id: subscriptionId, status: 'INACTIVE' },
+        data: { status: newStatus },
+      });
+
+      if (updated.count !== 1) {
+        throw new AlreadyProcessedError('Subscription already processed');
+      }
+
+      // If approved, add credits to student once, only after the guarded state change.
+      if (action === 'approve' && creditAmount > 0) {
+        await tx.creditTransaction.create({
+          data: {
+            studentId: subscription.studentId,
+            type: 'CREDIT_ADD',
+            amount: creditAmount,
+            description: `Crédits inclus dans l'abonnement ${subscription.planName} (approuvé par ${session.user.firstName} ${session.user.lastName})`
+          }
+        });
       }
     });
-
-    // If approved, add credits to student
-    if (action === 'approve' && creditAmount > 0) {
-      await prisma.creditTransaction.create({
-        data: {
-          studentId: subscription.studentId,
-          type: 'CREDIT_ADD',
-          amount: creditAmount,
-          description: `Crédits inclus dans l'abonnement ${subscription.planName} (approuvé par ${session.user.firstName} ${session.user.lastName})`
-        }
-      });
-    }
 
     return NextResponse.json({
       success: true,
       subscription: {
-        id: updatedSubscription.id,
-        status: updatedSubscription.status,
+        id: subscription.id,
+        status: newStatus,
         message: action === 'approve'
           ? 'Abonnement approuvé et crédits ajoutés'
           : 'Abonnement rejeté'
@@ -207,6 +212,13 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
+    if (error instanceof AlreadyProcessedError) {
+      return NextResponse.json(
+        { error: 'Subscription déjà traitée' },
+        { status: 409 }
+      );
+    }
+
     console.error('Error processing subscription request:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

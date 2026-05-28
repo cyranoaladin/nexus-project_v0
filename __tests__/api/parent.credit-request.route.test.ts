@@ -44,7 +44,20 @@ describe('POST /api/parent/credit-request', () => {
     const body = await response.json();
 
     expect(response.status).toBe(400);
-    expect(body.error).toBe('Missing required fields');
+    expect(body.error).toContain('missing required fields');
+  });
+
+  it('returns 400 for non-positive credit amount', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'parent-1', role: 'PARENT', firstName: 'P', lastName: 'One' },
+    });
+
+    const response = await POST(makeRequest({ studentId: 'student-1', creditAmount: -10 }));
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toContain('Invalid credit amount');
+    expect(prisma.creditTransaction.create).not.toHaveBeenCalled();
   });
 
   it('returns 404 when parent profile missing', async () => {
