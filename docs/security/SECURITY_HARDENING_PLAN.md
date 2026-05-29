@@ -402,6 +402,7 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
 - Tests :
   - tests ciblés Lot 2E : 6 suites, 56 tests OK.
   - `node scripts/security/audit-api-guards.mjs` : inventaire régénéré, 164 routes.
+  - CI `26627488455` : bloquée sur `__tests__/integration/predict-ownership.real.test.ts`, test d'intégration aligné ensuite sur le contrat durci `Student.id` + `CoachStudentAssignment` active.
   - `test:integration` non lancé si DB test `127.0.0.1:5435` fermée.
 - Risques résiduels :
   - `assessments/submit` reste public par design; anti-abus additionnel type CAPTCHA/rate limit distribué à traiter en P1 si nécessaire;
