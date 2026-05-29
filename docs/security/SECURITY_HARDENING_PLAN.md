@@ -460,7 +460,14 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
 
 #### Lot 2G — Bilans/reports visibility
 
-- Statut : corrigé/testé localement, non déployé production.
+- Statut : corrigé, testé, CI verte et déployé production le 2026-05-29.
+- Déploiement :
+  - commit déployé : `dd1e519b6 fix(security): harden bilan and report visibility`;
+  - CI GitHub : run `26654623489`, conclusion `success`;
+  - backup : `/root/nexus-backups/deploy-p0-004-lot2g-bilans-reports-20260529203030`;
+  - HEAD avant : `6237a6be3c8c166eab425e5faac61bd8996d565f`;
+  - HEAD après : `dd1e519b661e581555f92fedf1f2c414be726f15`;
+  - PM2 : `nexus-prod` online après reload.
 - Routes :
   - `app/api/parent/bilans/[id]/pdf/route.ts`
   - `app/api/coach/sessions/[sessionId]/report/route.ts`
@@ -477,12 +484,15 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - `node scripts/security/audit-api-guards.mjs` : inventaire régénéré, 164 routes;
   - `npm run typecheck` : OK;
   - `npm run build` : OK;
+  - validations serveur avant reload : `npm run typecheck` OK, tests ciblés Lot 2G OK, régressions bilans/reports OK, `NODE_ENV=production npm run build` OK (`BUILD_EXIT=0`);
+  - smoke production : `site=200`, `dashboard_no_auth=307`, `api_health=200`, `parent_bilan_pdf_no_auth=401`, `coach_session_report_no_auth=401`, `eaf_stage_report_no_auth=401`, `maths_stage_report_no_auth=401`;
+  - invalid POST session report no-auth : `Unauthorized`;
   - `npm run test:unit -- --runInBand` : 449 suites, 5940 tests OK;
   - `test:integration` non lancé : DB test `127.0.0.1:5435` fermée.
 - Risques résiduels :
   - `app/api/admin/stages/[stageId]/**` à traiter en Lot 2F-bis;
   - centralisation des projections bilans/reports à planifier en P1 si nécessaire.
-- Déploiement : à planifier après push et CI verte. Ne pas marquer déployé avant validation production.
+- Déploiement : terminé. Rollback prévu, non exécuté.
 
 ## P1 — Durcissement court terme
 
