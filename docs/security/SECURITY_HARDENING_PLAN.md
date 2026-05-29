@@ -586,7 +586,9 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
 - Limite : bêta élargie encore conditionnelle tant que le backend distribué Upstash n'est pas configuré et validé en production.
 - Runbook configuration Upstash : `docs/security/P1_A_UPSTASH_CONFIGURATION_RUNBOOK_2026-05-29.md`.
 - Vérification opérationnelle post-déploiement : runtime `69f0e143`, `UPSTASH_REDIS_REST_URL=missing`, `UPSTASH_REDIS_REST_TOKEN=missing`, `RATE_LIMIT_DISABLE_1=absent`, `api_health=200`; aucun secret lu ou modifié.
-- Action suivante : ajout humain des variables Upstash, reload PM2 contrôlé, validation health/logs/smoke, puis décision humaine sur bêta élargie.
+- Action suivante actualisée : P1-A-bis ajoute le backend Redis local VPS via `REDIS_URL`, gratuit et prioritaire sur Upstash. Upstash reste une option future.
+- P1-A-bis : corrigé/testé localement, non déployé production. Document : `docs/security/P1_A_BIS_REDIS_LOCAL_RATE_LIMITING_2026-05-29.md`.
+- Condition bêta élargie : installer/configurer Redis local sur le VPS, ajouter `REDIS_URL`, reload PM2 contrôlé et valider le mode `redis`; tant que cette validation n'est pas faite, l'anti-abus distribué reste non actif en production.
 
 ### P1-005 — Logs sans PII excessive
 - Risque : données élèves/parents dans logs.
