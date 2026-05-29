@@ -610,6 +610,16 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
 - Propriétaire proposé : Backend/DevOps.
 - Rollback : revenir au healthcheck actuel.
 
+## Audit go-live global post P0-004
+
+- Document : `docs/security/GO_LIVE_READINESS_AUDIT_2026-05-29.md`.
+- Statut : audit documentaire terminé après clôture P0-004 API/IDOR.
+- Décision : go-live large NON recommandé automatiquement.
+- Bêta contrôlée : maintenue.
+- Bêta élargie : envisageable uniquement après validation humaine produit/ops/RGPD/monitoring et traitement des conditions minimales P1.
+- Premier lot P1 recommandé : `P1-A — Anti-abus public et rate limiting distribué`.
+- Bloquants principaux avant go-live large : rate limiting distribué/CAPTCHA, logs sans PII excessive, backup/restore drill, monitoring/alerting, RGPD mineurs, décision paiement carte, runtime minimal.
+
 ## P2 — Product-ready
 
 ### P2-001 — Canonicalisation SessionBooking

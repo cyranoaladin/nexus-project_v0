@@ -1,0 +1,149 @@
+# Audit global de préparation go-live — Nexus Réussite
+
+## Résumé exécutif
+- Date : 2026-05-29.
+- P0 API/IDOR : clôturable côté API/IDOR sous réserve de validation humaine, après inventaire final de 164 routes, 42 P0 statiques et 0 vrai P0 API/IDOR ouvert identifié.
+- Go-live large : NON recommandé à ce stade.
+- Bêta contrôlée : maintenue.
+- Bêta élargie : envisageable uniquement après validation humaine produit/ops/RGPD/monitoring et traitement des conditions minimales ci-dessous.
+- Décision recommandée : passer en phase P1 de préparation go-live, sans réouvrir P0-004 API/IDOR.
+
+## Matrice de décision
+| Domaine | Statut | Risque | Priorité | Décision |
+|---|---|---|---|---|
+| API / IDOR | P0 clôturable sous réserve humaine | Régression future | P1 suivi | Conserver CI, inventaire et tests IDOR ciblés |
+| Anti-abus public | Partiel | Spam formulaires, email/Telegram, IA ou DB writes | P1 bloquant go-live large | Premier lot P1 recommandé |
+| RGPD / mineurs / PII | Incomplet | Gouvernance insuffisante des données élèves, IA, documents | P1 bloquant go-live large | Documenter politiques et procédures |
+| Logs / PII | Incomplet | Emails, payloads, chemins locaux ou contenus pédagogiques possibles dans logs | P1 bloquant go-live large | Redaction centralisée et audit logs |
+| Monitoring / alerting | Partiel | Incidents non détectés | P1 bloquant go-live large | Alerting 5xx, DB, disque, SMTP, RAG/NPC |
+| Backups / restauration | Partiel | Restauration non prouvée | P1 bloquant go-live large | Backup DB/uploads + restore drill |
+| Paiement / facturation | Partiel | Carte non prête, source financière à cadrer | P1/P2 | Garder carte désactivée tant que ClicToPay/Konnect non finalisé |
+| Headers / CORS / runtime | Partiel | CSP permissive, CORS wildcard helper, artefacts sensibles présents physiquement | P1 | Durcir CSP/CORS et plan runtime minimal |
+| Emails transactionnels | Partiel | Deliverability, bounce, logs email | P1/P2 | Test SMTP, redaction et suivi d'échec |
+| UX critique / support / ops | Non audité fonctionnellement ici | Support insuffisant en bêta élargie | P1 | Runbook support et parcours critiques |
+
+## Détails par domaine
+
+### Anti-abus public
+| Route | Public | Écrit DB | Déclenche email/IA | Rate limit | Distribué | CAPTCHA | Risque | Décision |
+|---|---|---:|---:|---|---|---|---|---|
+| `/api/bilan-gratuit` | Oui | Oui | Email | Présent | Mémoire locale | Non observé | Spam création compte/enfant | P1 |
+| `/api/stages/[stageSlug]/inscrire` | Oui | Oui | Email + Telegram | Présent | Mémoire locale | Non observé | Spam inscriptions | P1 |
+| `/api/stages/submit-diagnostic` | Oui | Oui | Email | Présent | Mémoire locale | Non observé | Spam diagnostic | P1 |
+| `/api/assessments/submit` | Oui | Oui | Calcul/IA selon mode | Présent, preset expensive | Mémoire locale | Non observé | Coût calcul et données bruitées | P1 |
+| `/api/contact` | Oui | Non direct observé | Placeholder log | Non observé | Non | Non observé | PII loggée et spam futur | P1 |
+| `/api/auth/reset-password` | Oui | Token reset | Email | Présent | Mémoire locale | Non observé | Brute force/email abuse | P1 suivi |
+
+Constat : le helper de rate limit est centralisé, mais l'implémentation active est `MemoryStore`, donc non distribuée, perdue au redémarrage et multipliée si plusieurs workers PM2. `RATE_LIMIT_DISABLE=1` est documenté comme interdit en production, mais aucune vérification runtime n'a été faite dans cette mission.
+
+### RGPD / mineurs / PII
+| Sujet | État actuel | Risque | Priorité | Action recommandée |
+|---|---|---|---|---|
+| Politique confidentialité | Mentions légales/CGV présentes, procédure RGPD complète non prouvée | Information incomplète | P1 | Publier politique confidentialité et DPO/processus droits |
+| Données mineurs | Données élèves, parents, bilans, conversations, documents | Sensibilité élevée | P1 | Cartographier finalités, bases légales, accès et durées |
+| Export/suppression | Procédure DSAR non prouvée | Non conformité opérationnelle | P1 | Runbook export/suppression/rectification |
+| Conversations IA / RAG | Données pédagogiques potentiellement persistées ou envoyées à providers | Exposition fournisseur | P1/P2 | ADR IA/RAG, clauses provider, minimisation |
+| Documents et PDFs | Stockage hors public renforcé côté IDOR | Conservation/chiffrement non audités | P2 | Politique rétention et purge |
+
+### Logs / PII
+| Zone | Risque | Preuve | Priorité | Action |
+|---|---|---|---|---|
+| Logs API anciens | Erreurs complètes ou messages internes possibles | `console.error(..., error)` encore présent dans plusieurs routes | P1 | Normaliser logger + redaction |
+| Formulaire contact | PII complète loggée | `console.log("[contact]", { name, email, phone, message })` | P1 | Ne jamais logger le payload public |
+| Bilan gratuit | Payload reçu loggé | `console.log('Received request body:', body)` | P1 | Supprimer ou sanitiser |
+| Documents | Chemin local possible en log | `[File Read Error] File missing on disk: document.localPath` | P1 | Remplacer par id/code opaque |
+| Emails | Adresses email loggées dans plusieurs helpers | `lib/email.ts`, `lib/invoice/send-email.ts` | P1 | Masquage systématique |
+| Worker NPC | Erreurs et job ids loggés | `services/npc-worker/index.ts` | P2 | Redaction du contenu OCR/LLM |
+
+### Monitoring / alerting
+| Élément | État | Risque | Priorité | Action |
+|---|---|---|---|---|
+| `/api/health` | Vérifie app + `SELECT 1` DB | Pas SMTP/RAG/NPC/disk | P1 | Ajouter health détaillé interne |
+| Sentry | Variable `SENTRY_DSN` optionnelle, intégration runtime non prouvée | 500 non alertés | P1 | Activer ou alternative alerting |
+| PM2 | Déploiements vérifient `pm2 status` manuellement | Crash hors fenêtre non notifié | P1 | Alerting process/restart |
+| RAG/LLM | Fonctions health présentes côté libs | Non intégrées à health opérationnel | P1/P2 | Endpoint interne et alerte |
+| Worker NPC | Healthcheck Docker stub observé dans docs/grep | Worker silencieux possible | P1 | Health DB/queue/provider |
+| Disk/uploads | Pas de preuve d'alerte | Saturation stockage | P1 | Alerte disque et croissance uploads |
+
+### Backups / restauration
+| Élément | État | Risque | Priorité | Action |
+|---|---|---|---|---|
+| Backups déploiement | Présents par lot P0 | Rollback applicatif seulement | P1 suivi | Conserver procédure |
+| Backup DB quotidien | Documenté dans anciens guides/scripts, non prouvé dans cet audit | Perte de données | P1 bloquant | Vérifier cron réel et récence |
+| Restore drill | Non prouvé | Backup inutilisable | P1 bloquant | Restaurer sur DB temporaire et documenter |
+| Uploads/documents/PDF | Backup non prouvé | Perte documents élèves/factures | P1 | Sauvegarde fichiers + test restauration |
+| RPO/RTO | Non définis | Décision incident lente | P1 | Définir objectifs et responsable |
+
+### Paiement / facturation
+| Sujet | État | Risque | Priorité | Action |
+|---|---|---|---|---|
+| ClicToPay init | Endpoint `501 CLICTOPAY_NOT_CONFIGURED` | Carte non prête | P1 si bêta payante carte | Garder désactivé ou finaliser |
+| ClicToPay webhook | Signature prévue si secret présent, traitement TODO/501 | Paiements carte non reconciliés | P1 | Implémenter idempotence + tests sandbox |
+| Konnect | Références documentaires, état non prouvé | Ambiguïté provider | P2 | ADR paiement |
+| Virement manuel | Flux assistante existant | Abus opérationnel/erreur humaine | P1/P2 | Runbook validation et double contrôle selon montant |
+| Factures PDF | IDOR traité en P0 | Ledger financier non canonique | P2 | Source de vérité financière |
+
+### Headers / CORS / runtime
+| Sujet | État | Risque | Priorité | Action |
+|---|---|---|---|---|
+| CSP | Active mais contient `unsafe-inline` et `unsafe-eval` | Impact XSS augmenté | P1 | Plan nonce/hash par étapes |
+| Permissions-Policy | `camera=(), microphone=()` alors que Jitsi existe | Parcours vidéo cassable | P1 | Politique par route ou exception Jitsi |
+| CORS helper | Défaut `Access-Control-Allow-Origin: *` si aucune origine fournie | Mauvaise réutilisation future | P1 | Origine explicite obligatoire |
+| Dotfiles/webroot | Nginx protège en 404 | Artefacts `.env`, `.git`, `.next/standalone/.env` encore physiques en prod selon rapport P0 infra | P1 | Runtime minimal sans dépôt/secrets physiques |
+| Bind applicatif | Corrigé sur `127.0.0.1:3001` en P0 infra | Régression config | P1 suivi | Smoke systématique |
+
+### Emails transactionnels
+| Sujet | État | Risque | Priorité | Action |
+|---|---|---|---|---|
+| SMTP | Helpers et route admin test-email présents | Config/deliverability non prouvées ici | P1 | Test contrôlé + alerte échec |
+| Reset password | Anti-enumeration côté UI/API et rate limit observés | Email abuse résiduel | P1 suivi | Rate limit distribué |
+| Activation élève/stage | Emails contenant tokens | Logs et bounce à contrôler | P1 | Masquage + expiration + runbook |
+| Factures email | Envoi facture présent | PII dans logs possibles | P1/P2 | Redaction et tracking d'échec |
+| Bounce monitoring | Non prouvé | Emails critiques perdus | P2 | Suivi bounce/retour SMTP |
+
+### UX critique / support / ops
+| Sujet | État | Risque | Priorité | Action |
+|---|---|---|---|---|
+| Parcours parent/élève post-auth | Tests API forts, UX non réauditée dans cette mission | Blocage utilisateur | P1 | Smoke Playwright parcours critiques |
+| Support bêta | Runbooks incidents partiels | Support lent | P1 | Procédure support + escalade |
+| Paiement/support | Carte non prête; virement manuel | Confusion commerciale | P1 | Message produit et protocole ops |
+| Monitoring humain | Non prouvé | Incidents hors heures ouvrées | P1 | Responsable et canal alerte |
+
+## Bloquants avant go-live large
+| ID | Sujet | Risque | Action | Priorité |
+|---|---|---|---|---|
+| GL-P1-001 | Anti-abus distribué des routes publiques | Spam, coût IA/email, pollution DB | Redis/Upstash ou équivalent + contrôle prod + CAPTCHA/Turnstile sur formulaires publics à risque | P1 |
+| GL-P1-002 | Logs sans PII excessive | Fuite emails, payloads, contenus élèves | Redaction centralisée + suppression logs payload/localPath/email brut | P1 |
+| GL-P1-003 | Backups et restauration | Perte DB/documents | Backup DB/uploads automatisé + restore drill daté | P1 |
+| GL-P1-004 | Monitoring/alerting | Incidents non détectés | Alerting 5xx, PM2, DB, disk, SMTP, RAG/NPC | P1 |
+| GL-P1-005 | RGPD mineurs | Non conformité opérationnelle | Politique confidentialité + DSAR export/suppression + rétention | P1 |
+| GL-P1-006 | Paiement carte | Encaissement non fiable | Garder carte désactivée ou finaliser ClicToPay/Konnect sandbox + idempotence | P1 |
+| GL-P1-007 | Runtime minimal | Secrets physiquement présents en prod | Déployer artefact sans `.git`, `.env`, sources inutiles | P1 |
+
+## Conditions pour bêta élargie
+| Condition | Statut | Action |
+|---|---|---|
+| P0 API/IDOR validé humainement | Prêt côté audit | Validation humaine formelle |
+| Rate limit prod confirmé non désactivé | Non vérifié ici | Vérifier `RATE_LIMIT_DISABLE` absent et backend distribué ou limitation de trafic |
+| Backups récents et restore drill | Non prouvé | Exécuter un test restauration |
+| Alerting minimal | Non prouvé | Configurer alerte 5xx/PM2/DB/disk |
+| Paiement carte | Non prêt | Désactiver explicitement en bêta ou finaliser sandbox |
+| RGPD/support | Incomplet | Procédure droits utilisateurs + support bêta |
+| Logs PII | Incomplet | Redaction des points P1 les plus évidents |
+
+## Backlog P1/P2 recommandé
+| Priorité | Sujet | Action |
+|---|---|---|
+| P1-A | Anti-abus public et rate limiting distribué | Redis/Upstash, CAPTCHA/Turnstile, couverture `/api/contact`, validation prod |
+| P1-B | Logs/PII | Redaction logger, suppression payloads publics, tests snapshot |
+| P1-C | Backup/restore + monitoring | Restore drill, alerting, health détaillé |
+| P1-D | RGPD mineurs | Politique confidentialité, rétention, DSAR |
+| P1-E | Headers/runtime | CSP progressive, CORS explicite, runtime minimal |
+| P1-F | Paiement carte | Décision produit : désactivé ou intégration sandbox complète |
+| P2 | Ledger financier, ADR RAG, accessibilité | Backlog product-ready |
+
+## Verdict final
+- Go-live large : NON recommandé et non autorisé automatiquement.
+- Bêta élargie : envisageable seulement après traitement des conditions minimales P1 et validation humaine produit/ops/RGPD/monitoring.
+- Bêta contrôlée : maintenue.
+- Premier lot P1 recommandé : `P1-A — Anti-abus public et rate limiting distribué`, car il protège immédiatement les surfaces publiques qui écrivent en base, envoient des emails/Telegram ou peuvent déclencher du calcul.
