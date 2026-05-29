@@ -48,7 +48,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
         gradeLevel: true,
         academicTrack: true,
         school: true,
-        user: { select: { firstName: true, lastName: true, email: true } },
+        user: { select: { firstName: true, lastName: true } },
       },
     });
 
@@ -111,7 +111,6 @@ export async function GET(_request: Request, { params }: RouteParams) {
         id: student.id,
         firstName: student.user?.firstName,
         lastName: student.user?.lastName,
-        email: student.user?.email,
         gradeLevel: student.gradeLevel,
         academicTrack: student.academicTrack,
         school: student.school,

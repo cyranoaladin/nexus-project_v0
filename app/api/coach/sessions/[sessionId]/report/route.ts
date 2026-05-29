@@ -6,6 +6,17 @@ import { prisma } from '@/lib/prisma';
 import { reportSubmissionSchema } from '@/lib/validation/session-report';
 import { NotificationType, SessionStatus } from '@prisma/client';
 
+function sanitizeSessionReport(report: Record<string, unknown>) {
+  const {
+    student: _student,
+    coach: _coach,
+    session: _session,
+    ...safeReport
+  } = report;
+
+  return safeReport;
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ sessionId: string }> }
@@ -181,7 +192,7 @@ export async function POST(
     );
 
   } catch (error) {
-    console.error('Error submitting session report:', error);
+    console.error('Error submitting session report:', error instanceof Error ? error.name : 'unknown');
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -246,12 +257,12 @@ export async function GET(
     }
 
     return NextResponse.json(
-      { report },
+      { report: sanitizeSessionReport(report as unknown as Record<string, unknown>) },
       { status: 200 }
     );
 
   } catch (error) {
-    console.error('Error fetching session report:', error);
+    console.error('Error fetching session report:', error instanceof Error ? error.name : 'unknown');
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -97,9 +97,9 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error('[GET /api/parent/bilans/:id/pdf]', error);
+    console.error('[GET /api/parent/bilans/:id/pdf]', error instanceof Error ? error.name : 'unknown');
     return NextResponse.json(
-      { error: 'Erreur lors de la génération du PDF', details: error instanceof Error ? error.message : String(error) },
+      { error: 'Erreur lors de la génération du PDF' },
       { status: 500 }
     );
   }

@@ -217,6 +217,59 @@ describe('GET /api/coach/sessions/[sessionId]/report', () => {
     expect(body.report.summary).toBe('Good session');
   });
 
+  it('sanitizes nested user/session data for an authorized participant', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH' } } as any);
+    prisma.sessionReport.findUnique.mockResolvedValue({
+      id: 'r1',
+      summary: 'Good session',
+      progressNotes: 'Progress',
+      student: {
+        id: 'student-entity-1',
+        userId: 'student-user-1',
+        email: 'student@example.com',
+        phone: '+216000',
+        password: 'hash',
+      },
+      coach: {
+        id: 'coach-profile-1',
+        userId: 'c1',
+        email: 'coach@example.com',
+        phone: '+216111',
+      },
+      session: {
+        id: 's1',
+        coachNotes: 'private coach note',
+        internalNotes: 'internal',
+        parent: { email: 'parent@example.com' },
+      },
+    });
+    prisma.sessionBooking.findUnique.mockResolvedValue({
+      id: 's1',
+      coachId: 'c1',
+      studentId: 'student-user-1',
+      parentId: 'parent-user-1',
+    });
+
+    const res = await GET(...makeGetRequest('s1'));
+    const body = await res.json();
+    const serialized = JSON.stringify(body);
+
+    expect(res.status).toBe(200);
+    expect(body.report).toEqual(expect.objectContaining({
+      id: 'r1',
+      summary: 'Good session',
+      progressNotes: 'Progress',
+    }));
+    expect(body.report).not.toHaveProperty('student');
+    expect(body.report).not.toHaveProperty('coach');
+    expect(body.report).not.toHaveProperty('session');
+    expect(serialized).not.toContain('student@example.com');
+    expect(serialized).not.toContain('parent@example.com');
+    expect(serialized).not.toContain('password');
+    expect(serialized).not.toContain('coachNotes');
+    expect(serialized).not.toContain('internalNotes');
+  });
+
   it('should return report for ADMIN', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'admin-1', role: 'ADMIN' } } as any);
     prisma.sessionReport.findUnique.mockResolvedValue({ id: 'r1' });
