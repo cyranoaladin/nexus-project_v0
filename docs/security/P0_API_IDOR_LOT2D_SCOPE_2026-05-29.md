@@ -8,6 +8,8 @@ Ce document cadre le prochain sous-lot P0-004 après le déploiement production 
 
 Le Lot 2D doit auditer les routes de messagerie, conversations et éventuelles pièces jointes. Le go-live large reste non autorisé tant que Lot 2D et Lot 2E ne sont pas triés.
 
+Statut 2026-05-29 : Lot 2D corrigé et testé localement. Rapport détaillé : `docs/security/P0_API_IDOR_LOT2D_MESSAGES_CONVERSATIONS_2026-05-29.md`. Non déployé production dans ce cycle.
+
 ## Tableau préparatoire
 
 | Groupe | Route | Méthodes | Données sensibles | Guard actuel | Ownership attendu | Risque | Priorité |

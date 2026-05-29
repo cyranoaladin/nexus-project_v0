@@ -3,13 +3,14 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { canSendMessageToReceiver, sanitizeMessage } from '@/lib/security/message-access'
 import { z } from 'zod'
 
 const sendMessageSchema = z.object({
-  receiverId: z.string(),
+  receiverId: z.string().min(1).max(128),
   content: z.string().min(1, 'Message requis').max(1000, 'Message trop long'),
-  fileUrl: z.string().optional(),
-  fileName: z.string().optional()
+  fileUrl: z.undefined().optional(),
+  fileName: z.undefined().optional()
 })
 
 export async function POST(request: NextRequest) {
@@ -28,7 +29,13 @@ export async function POST(request: NextRequest) {
     
     // Vérifier que le destinataire existe
     const receiver = await prisma.user.findUnique({
-      where: { id: validatedData.receiverId }
+      where: { id: validatedData.receiverId },
+      select: {
+        id: true,
+        role: true,
+        firstName: true,
+        lastName: true,
+      },
     })
     
     if (!receiver) {
@@ -38,20 +45,18 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    // Vérifier les permissions de communication
-    // Élèves peuvent écrire à leurs coachs
-    // Coachs peuvent écrire à leurs élèves
-    // Assistante peut écrire à tout le monde
-    // Parents peuvent écrire aux coachs de leurs enfants
-    
-    if (session.user.role === 'ELEVE') {
-      // Vérifier que le destinataire est un coach ou l'assistante
-      if (!['COACH', 'ASSISTANTE'].includes(receiver.role)) {
-        return NextResponse.json(
-          { error: 'Communication non autorisée' },
-          { status: 403 }
-        )
-      }
+    const canSend = await canSendMessageToReceiver({
+      senderUserId: session.user.id,
+      senderRole: session.user.role,
+      receiverUserId: receiver.id,
+      receiverRole: receiver.role,
+    });
+
+    if (!canSend) {
+      return NextResponse.json(
+        { error: 'Communication non autorisée' },
+        { status: 403 }
+      )
     }
     
     // Créer le message
@@ -60,8 +65,8 @@ export async function POST(request: NextRequest) {
         senderId: session.user.id,
         receiverId: validatedData.receiverId,
         content: validatedData.content,
-        fileUrl: validatedData.fileUrl,
-        fileName: validatedData.fileName
+        fileUrl: null,
+        fileName: null
       },
       include: {
         sender: {
@@ -85,15 +90,7 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({
       success: true,
-      message: {
-        id: message.id,
-        content: message.content,
-        fileUrl: message.fileUrl,
-        fileName: message.fileName,
-        createdAt: message.createdAt,
-        sender: message.sender,
-        receiver: message.receiver
-      }
+      message: sanitizeMessage(message)
     })
     
   } catch (error) {
@@ -104,7 +101,7 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    console.error('Erreur envoi message:', error)
+    console.error('Erreur envoi message:', error instanceof Error ? error.message : 'unknown')
     
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },

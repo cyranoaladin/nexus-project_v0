@@ -1,5 +1,6 @@
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { sanitizeMessage, sanitizeMessageUser } from '@/lib/security/message-access';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic'; // Marquer comme dynamique
@@ -61,8 +62,8 @@ export async function GET(request: NextRequest) {
       if (!conversationMap.has(otherUserId)) {
         conversationMap.set(otherUserId, {
           userId: otherUserId,
-          user: otherUser,
-          lastMessage: message,
+          user: sanitizeMessageUser(otherUser),
+          lastMessage: sanitizeMessage(message),
           unreadCount: 0
         });
       }
@@ -81,7 +82,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Erreur récupération conversations:', error);
+    console.error('Erreur récupération conversations:', error instanceof Error ? error.message : 'unknown');
 
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
