@@ -56,7 +56,6 @@ export function buildAdaptivePlanning(priorities: DomainId[]): PlanningDay[] {
     if (day.id === "j2") return { ...day, domainIds: [ordered[1]], objective: `Domaine prioritaire #2 : ${labelOf(ordered[1])}.` };
     if (day.id === "j3") return { ...day, domainIds: [ordered[2]], objective: `Domaine #3 : ${labelOf(ordered[2])} + automatismes intensifs.` };
     if (day.id === "j4") return { ...day, domainIds: [ordered[3], ordered[4]], objective: `Domaines #4/#5 : ${labelOf(ordered[3])} et ${labelOf(ordered[4])} + sujet zéro.` };
-    if (day.id === "j5") return { ...day, domainIds: [ordered[5]], objective: `Domaine restant : ${labelOf(ordered[5])} + reprise des erreurs + sujet en conditions.` };
     return day;
   });
 }

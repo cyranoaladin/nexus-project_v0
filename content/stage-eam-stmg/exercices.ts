@@ -6,13 +6,13 @@ const exerciseSeed: Record<DomainId, TrainingExercise[]> = {
     {
       id: "fonctions-marge",
       domainId: "fonctions",
-      title: "Marge d’une boutique — forme factorisée",
-      statement: ["Une boutique modélise sa marge par $M(x)=20(x-1)(5-x)$, où $x$ est un nombre de lots promotionnels."],
-      questions: ["Donner les deux seuils où la marge est nulle.", "Déterminer l’axe de symétrie.", "Indiquer sur quel intervalle la marge est positive."],
+      title: "Marge d’une boutique et second degré",
+      statement: ["Une boutique modélise sa marge journalière par $M(x)=-2x^2+40x+120$, où $x$ est le nombre de remises de 5 € accordées."],
+      questions: ["Calculer $M(0)$ et $M(10)$.", "Déterminer l’abscisse du sommet.", "Interpréter le maximum dans le contexte."],
       correction: [
-        { title: "Rappel de cours", details: ["La forme $a(x-x_1)(x-x_2)$ donne directement les zéros $x_1$ et $x_2$.", "L’axe de symétrie est au milieu des deux racines quand la courbe est une parabole."] },
-        { title: "Résolution", details: ["$M(x)=0$ pour $x=1$ ou $x=5$.", "Le milieu de $1$ et $5$ est $3$ : l’axe est $x=3$.", "La marge est positive entre les deux seuils, donc sur $]1;5[$."] },
-        { title: "Méthode", details: ["On exploite la forme donnée, sans discriminant.", "Sans calculatrice, le tableau de signes d’un produit suffit."] },
+        { title: "Rappel de cours", details: ["Pour un trinôme $ax^2+bx+c$, l’abscisse du sommet est $-\\frac{b}{2a}$.", "Si $a<0$, le sommet correspond à un maximum."] },
+        { title: "Résolution", details: ["$M(0)=120$.", "$M(10)=-2\\times100+400+120=320$.", "$\\alpha=-\\frac{40}{2\\times(-2)}=10$."] },
+        { title: "Méthode", details: ["La marge maximale est atteinte pour 10 remises et vaut 320 €.", "Sans calculatrice, on pose les carrés simples et on contrôle le signe de $a$."] },
       ],
     },
     {
@@ -27,55 +27,17 @@ const exerciseSeed: Record<DomainId, TrainingExercise[]> = {
         { title: "Méthode", details: ["Avant tout calcul, identifier les axes, les unités et les valeurs lues.", "Une lecture graphique donne souvent une réponse approchée : le préciser si nécessaire."] },
       ],
     },
-    {
-      id: "fonctions-cubique",
-      domainId: "fonctions",
-      title: "Fonction de degré 3 et racine cubique",
-      statement: ["On considère $f(x)=0{,}5x^3-4$ dans un contexte de volume produit."],
-      questions: ["Calculer $f(2)$.", "Résoudre $f(x)=0$.", "Interpréter l’équation $x^3=8$."],
-      correction: [
-        { title: "Rappel de cours", details: ["Une équation $x^3=c$ se résout avec la racine cubique $\\sqrt[3]{c}$.", "$2^3=8$ est un automatisme utile sans calculatrice."] },
-        { title: "Résolution", details: ["$f(2)=0{,}5\\times8-4=0$.", "$f(x)=0$ donne $0{,}5x^3=4$, donc $x^3=8$.", "Ainsi $x=2$."] },
-        { title: "Méthode", details: ["Identifier d’abord la puissance cubique.", "Vérifier mentalement avec les cubes usuels : $1,8,27,64$."] },
-      ],
-    },
-  ],
-  derivation: [
-    {
-      id: "derivation-tangente",
-      domainId: "derivation",
-      title: "Tangente et coût marginal",
-      statement: ["Une entreprise a un coût $C$ tel que $C(2)=9$ et $C'(2)=4$."],
-      questions: ["Donner le coefficient directeur de la tangente au point d’abscisse $2$.", "Écrire une équation de cette tangente.", "Interpréter $C'(2)$ dans le contexte."],
-      correction: [
-        { title: "Rappel de cours", details: ["$f'(a)$ est le coefficient directeur de la tangente en $a$.", "La tangente s’écrit $y=f'(a)(x-a)+f(a)$."] },
-        { title: "Résolution", details: ["Le coefficient directeur vaut $4$.", "Une équation est $y=4(x-2)+9$.", "$C'(2)=4$ représente le coût marginal autour de $2$ unités."] },
-        { title: "Méthode", details: ["Toujours relever $f(a)$ et $f'(a)$ séparément.", "Ne pas confondre coût total et coût marginal."] },
-      ],
-    },
-    {
-      id: "derivation-variations",
-      domainId: "derivation",
-      title: "Signe de la dérivée et variations",
-      statement: ["On donne $f'(x)=3(x-1)(x-5)$ pour $x$ entre $0$ et $6$."],
-      questions: ["Donner le signe de $f'$ sur $[0;1]$, $[1;5]$, $[5;6]$.", "En déduire les variations de $f$.", "Repérer la nature de l’extremum en $x=5$."],
-      correction: [
-        { title: "Rappel de cours", details: ["Le signe de $f'$ pilote les variations de $f$.", "Produit de deux facteurs : on repère les zéros puis les signes."] },
-        { title: "Résolution", details: ["$f'$ est positive avant $1$, négative entre $1$ et $5$, positive après $5$.", "$f$ croît, puis décroît, puis croît.", "En $x=5$, $f'$ passe de $-$ à $+$ : minimum local."] },
-        { title: "Méthode", details: ["Séparer l’étude du signe et la conclusion sur $f$.", "Écrire une phrase d’interprétation pour l’extremum."] },
-      ],
-    },
   ],
   suites: [
     {
       id: "suites-epargne",
       domainId: "suites",
-      title: "Épargne par récurrence",
+      title: "Épargne et intérêts composés",
       statement: ["Un élève place 800 € à un taux annuel de $5\\%$. On note $C_n$ le capital après $n$ années."],
-      questions: ["Écrire la relation de récurrence.", "Calculer $C_1$ puis $C_2$ sans calculatrice.", "Dire pourquoi la suite est croissante."],
+      questions: ["Donner la nature de la suite.", "Écrire $C_n$ en fonction de $n$.", "Calculer $C_2$ sans calculatrice."],
       correction: [
-        { title: "Rappel de cours", details: ["Une hausse de $5\\%$ correspond à une multiplication par $1{,}05$.", "En Première STMG, la relation de récurrence suffit pour modéliser."] },
-        { title: "Résolution", details: ["$C_{n+1}=1{,}05C_n$ et $C_0=800$.", "$C_1=840$ puis $C_2=840\\times1{,}05=882$.", "La suite est croissante car on multiplie par un coefficient supérieur à $1$."] },
+        { title: "Rappel de cours", details: ["Une hausse de $5\\%$ correspond à une multiplication par $1{,}05$.", "Répéter la même évolution crée une suite géométrique."] },
+        { title: "Résolution", details: ["$C_{n+1}=1{,}05C_n$, donc la suite est géométrique de raison $1{,}05$.", "$C_n=800\\times1{,}05^n$.", "$C_2=800\\times1{,}1025=882$ €."] },
         { title: "Méthode", details: ["Toujours convertir le pourcentage en coefficient.", "Contrôler que le capital augmente : 882 est cohérent car supérieur à 800."] },
       ],
     },
@@ -106,15 +68,15 @@ const exerciseSeed: Record<DomainId, TrainingExercise[]> = {
       ],
     },
     {
-      id: "statistiques-tableau-croise",
+      id: "statistiques-ajustement",
       domainId: "statistiques",
-      title: "Tableau croisé et fréquences conditionnelles",
-      statement: ["Dans une enquête, 40 clients sont en ligne, 60 en magasin. 30 clients en ligne et 42 en magasin sont satisfaits."],
-      questions: ["Compléter les totaux du tableau.", "Calculer la fréquence de satisfaction parmi les clients en ligne.", "Comparer avec la fréquence parmi les clients en magasin."],
+      title: "Ajustement affine d’un chiffre d’affaires",
+      statement: ["Une droite d’ajustement du chiffre d’affaires mensuel est $y=4x+32$, avec $y$ en milliers d’euros et $x$ le rang du mois."],
+      questions: ["Interpréter $4$ et $32$.", "Prévoir le chiffre d’affaires au mois $6$.", "Dire pourquoi il faut rester prudent."],
       correction: [
-        { title: "Rappel de cours", details: ["Une fréquence conditionnelle se calcule avec le total de la catégorie condition.", "Ici on conditionne par le canal d’achat."] },
-        { title: "Résolution", details: ["Le total est $100$ clients, dont $72$ satisfaits.", "En ligne : $30/40=0{,}75$, soit $75\\%$.", "En magasin : $42/60=0{,}70$, soit $70\\%$."] },
-        { title: "Méthode", details: ["Identifier le bon dénominateur avant de calculer.", "Écrire une phrase de comparaison, pas seulement un nombre."] },
+        { title: "Rappel de cours", details: ["Dans $y=ax+b$, $a$ est la pente et $b$ l’ordonnée à l’origine.", "Une droite d’ajustement donne une tendance, pas une certitude."] },
+        { title: "Résolution", details: ["$4$ signifie environ +4 milliers d’euros par mois.", "$32$ est la valeur modélisée au rang $0$.", "Pour $x=6$, $y=4\\times6+32=56$, soit 56 000 €."] },
+        { title: "Méthode", details: ["Toujours rappeler l’unité.", "Une prévision hors des données observées doit être formulée avec prudence."] },
       ],
     },
   ],
@@ -132,18 +94,6 @@ const exerciseSeed: Record<DomainId, TrainingExercise[]> = {
       ],
     },
     {
-      id: "probabilites-bernoulli",
-      domainId: "probabilites",
-      title: "Deux épreuves indépendantes et Bernoulli",
-      statement: ["Un service a une probabilité de succès $0{,}1$ à chaque appel. On observe deux appels indépendants."],
-      questions: ["Calculer la probabilité d’un succès puis un échec.", "Calculer la probabilité d’exactement un succès.", "Expliquer pourquoi on additionne deux cas."],
-      correction: [
-        { title: "Rappel de cours", details: ["Indépendance : on multiplie sur un chemin.", "Exactement un succès sur deux appels correspond à deux chemins : succès-échec ou échec-succès."] },
-        { title: "Résolution", details: ["$P(S puis \\bar S)=0{,}1\\times0{,}9=0{,}09$.", "$P(\\bar S puis S)=0{,}9\\times0{,}1=0{,}09$.", "Donc exactement un succès vaut $0{,}18$."] },
-        { title: "Méthode", details: ["Lister les chemins avant de calculer.", "Les chemins sont incompatibles, donc on additionne."] },
-      ],
-    },
-    {
       id: "probabilites-jeu",
       domainId: "probabilites",
       title: "Variable aléatoire et gain",
@@ -156,10 +106,10 @@ const exerciseSeed: Record<DomainId, TrainingExercise[]> = {
       ],
     },
   ],
-  "algorithmique-tableur": [
+  "algorithmique-information": [
     {
       id: "algo-prix",
-      domainId: "algorithmique-tableur",
+      domainId: "algorithmique-information",
       title: "Prix, indice et algorithme",
       statement: ["Un prix de 120 € augmente de $8\\%$, puis on applique une remise de $15\\%$."],
       questions: ["Calculer le prix final.", "Calculer le taux global.", "Expliquer comment suivre les variables d’une boucle `while`."],
@@ -171,7 +121,7 @@ const exerciseSeed: Record<DomainId, TrainingExercise[]> = {
     },
     {
       id: "algo-indices",
-      domainId: "algorithmique-tableur",
+      domainId: "algorithmique-information",
       title: "Indices base 100",
       statement: ["Le chiffre d’affaires d’une PME passe de 80 000 € à 92 000 €. On utilise un indice base 100."],
       questions: ["Calculer l’indice final.", "Déduire le taux d’évolution.", "Écrire la formule tableur correspondante."],

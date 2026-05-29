@@ -1,10 +1,9 @@
 export type DomainId =
   | "fonctions"
-  | "derivation"
   | "suites"
   | "statistiques"
   | "probabilites"
-  | "algorithmique-tableur";
+  | "algorithmique-information";
 
 export type ExerciseEvaluation = "acquired" | "partial" | "not_acquired";
 
