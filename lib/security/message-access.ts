@@ -33,7 +33,7 @@ export function sanitizeMessageUser(user: UserLike | null | undefined) {
     id: user.id,
     firstName: user.firstName ?? null,
     lastName: user.lastName ?? null,
-    role: user.role ?? null,
+    role: user.role ?? '',
   };
 }
 
@@ -43,11 +43,18 @@ export function sanitizeMessage(message: MessageLike) {
     content: message.content,
     createdAt: message.createdAt ?? null,
     readAt: message.readAt ?? null,
-    fileName: message.fileName ?? null,
     hasAttachment: Boolean(message.fileUrl || message.fileName),
     sender: sanitizeMessageUser(message.sender),
     receiver: sanitizeMessageUser(message.receiver),
   };
+}
+
+async function roleForUser(userId: string): Promise<string | null> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true },
+  });
+  return user?.role ?? null;
 }
 
 async function coachProfileIdForUser(userId: string): Promise<string | null> {
@@ -119,29 +126,34 @@ export async function canSendMessageToReceiver({
   senderUserId: string;
   senderRole: string;
   receiverUserId: string;
-  receiverRole: string;
+  receiverRole?: string;
 }): Promise<boolean> {
   if (!senderUserId || !receiverUserId || senderUserId === receiverUserId) {
     return false;
   }
 
-  if (isStaffRole(senderRole) || isStaffRole(receiverRole)) {
+  const resolvedReceiverRole = receiverRole ?? await roleForUser(receiverUserId);
+  if (!resolvedReceiverRole) {
+    return false;
+  }
+
+  if (isStaffRole(senderRole) || isStaffRole(resolvedReceiverRole)) {
     return true;
   }
 
-  if (senderRole === 'COACH' && receiverRole === 'ELEVE') {
+  if (senderRole === 'COACH' && resolvedReceiverRole === 'ELEVE') {
     return coachAssignedToStudentUser(senderUserId, receiverUserId);
   }
 
-  if (senderRole === 'COACH' && receiverRole === 'PARENT') {
+  if (senderRole === 'COACH' && resolvedReceiverRole === 'PARENT') {
     return coachAssignedToParentChild(senderUserId, receiverUserId);
   }
 
-  if (senderRole === 'ELEVE' && receiverRole === 'COACH') {
+  if (senderRole === 'ELEVE' && resolvedReceiverRole === 'COACH') {
     return coachAssignedToStudentUser(receiverUserId, senderUserId);
   }
 
-  if (senderRole === 'PARENT' && receiverRole === 'COACH') {
+  if (senderRole === 'PARENT' && resolvedReceiverRole === 'COACH') {
     return coachAssignedToParentChild(receiverUserId, senderUserId);
   }
 
