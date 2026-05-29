@@ -527,6 +527,15 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - réduction supplémentaire des projections admin à planifier en P1 si nécessaire.
 - Déploiement : terminé. Rollback prévu, non exécuté.
 
+#### Audit global de clôture P0-004 — API / IDOR
+
+- Statut : audit documentaire produit le 2026-05-29, sans changement applicatif ni déploiement.
+- Rapport : `docs/security/P0_API_CLOSURE_AUDIT_2026-05-29.md`.
+- Résultat : 164 routes inventoriées, 42 P0 statiques, 0 vrai P0 API/IDOR ouvert identifié après croisement avec les lots déployés.
+- Décision recommandée : P0-004 clôturable côté API/IDOR sous réserve de validation humaine.
+- Go-live large : toujours NON autorisé automatiquement; validation produit/ops/RGPD/monitoring requise.
+- Bêta contrôlée : maintenue; bêta élargie possible seulement après validation humaine.
+
 ## P1 — Durcissement court terme
 
 ### P1-001 — CSP
