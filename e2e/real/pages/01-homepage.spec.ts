@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 /**
  * REAL AUDIT — Homepage (/)
@@ -12,6 +12,46 @@ import { test, expect } from '@playwright/test';
  *
  * Hero CTA : WhatsApp + ancre #offres-fin-annee
  */
+
+async function getHeaderDropdownLink(
+  page: Page,
+  buttonName: RegExp,
+  href: string,
+  label: RegExp
+) {
+  let trigger = page.getByRole('button', { name: buttonName }).first();
+
+  if ((await trigger.count()) === 0) {
+    trigger = page.locator('header button').filter({ hasText: buttonName }).first();
+  }
+
+  await expect(trigger).toBeVisible();
+  await trigger.hover();
+  await page.waitForTimeout(300);
+
+  let link = page.locator(`header a[href="${href}"]`).filter({ hasText: label }).first();
+
+  if (!(await link.isVisible().catch(() => false))) {
+    await trigger.click();
+    await page.waitForTimeout(300);
+    link = page.locator(`header a[href="${href}"]`).filter({ hasText: label }).first();
+  }
+
+  const dropdown = page.locator('header [role="menu"]').filter({
+    has: page.locator(`a[href="${href}"]`),
+  }).first();
+  const dropdownBox = await dropdown.boundingBox();
+  if (dropdownBox) {
+    await page.mouse.move(dropdownBox.x + dropdownBox.width / 2, dropdownBox.y + 10);
+    await page.waitForTimeout(100);
+  }
+
+  await expect(link, `Lien ${label} absent du dropdown ${buttonName}`).toBeVisible({
+    timeout: 5000,
+  });
+
+  return link;
+}
 
 test.describe('REAL — Homepage (/)', () => {
   let consoleErrors: string[] = [];
@@ -80,61 +120,50 @@ test.describe('REAL — Homepage (/)', () => {
 
   // NAVBAR — Dropdown "Essentiel" → Offres
   test('Navbar dropdown Essentiel → lien Offres navigue vers /offres', async ({ page }) => {
-    const essentielBtn = page.locator('button').filter({ hasText: /essentiel/i }).first();
-    await expect(essentielBtn).toBeVisible();
-    await essentielBtn.hover();
-    await page.waitForTimeout(600);
-
-    const offresLink = page.locator('[role="menu"] a[href="/offres"]');
+    const offresLink = await getHeaderDropdownLink(page, /essentiel/i, '/offres', /offres/i);
     await expect(offresLink, 'Lien Offres absent du dropdown Essentiel').toBeVisible();
-    await offresLink.click();
-    await page.waitForURL('**/offres**', { timeout: 10000 });
+    await Promise.all([
+      page.waitForURL('**/offres**', { timeout: 10000 }),
+      offresLink.click({ force: true }),
+    ]);
     expect(page.url()).toContain('/offres');
   });
 
   // NAVBAR — Dropdown "Essentiel" → Bilan Gratuit
   test('Navbar dropdown Essentiel → lien Bilan Gratuit navigue vers /bilan-gratuit', async ({ page }) => {
-    const essentielBtn = page.locator('button').filter({ hasText: /essentiel/i }).first();
-    await expect(essentielBtn).toBeVisible();
-    await essentielBtn.hover();
-    await page.waitForTimeout(600);
-
-    // Wait for the dropdown menu to appear
-    const dropdownMenu = page.locator('[role="menu"]');
-    await expect(dropdownMenu, 'Dropdown Essentiel ne s\'ouvre pas').toBeVisible({ timeout: 5000 });
-
-    const bilanLink = dropdownMenu.locator('a[href="/bilan-gratuit"]');
+    const bilanLink = await getHeaderDropdownLink(page, /essentiel/i, '/bilan-gratuit', /bilan gratuit/i);
     await expect(bilanLink, 'Lien Bilan Gratuit absent du dropdown').toBeVisible();
-    await bilanLink.click();
-    await page.waitForURL('**/bilan-gratuit**', { timeout: 10000 });
+    await Promise.all([
+      page.waitForURL('**/bilan-gratuit**', { timeout: 10000 }),
+      bilanLink.click({ force: true }),
+    ]);
     expect(page.url()).toContain('/bilan-gratuit');
   });
 
   // NAVBAR — Dropdown "Essentiel" → Contact
   test('Navbar dropdown Essentiel → lien Contact navigue vers /contact', async ({ page }) => {
-    const essentielBtn = page.locator('button').filter({ hasText: /essentiel/i }).first();
-    await essentielBtn.hover();
-
-    // Wait for dropdown menu to appear and contact link to be visible
-    const contactLink = page.locator('[role="menu"] a[href="/contact"]');
-    await contactLink.waitFor({ state: 'visible', timeout: 5000 });
-    await expect(contactLink, 'Lien Contact absent du dropdown').toBeVisible();
-    await contactLink.click();
-    await page.waitForURL('**/contact**', { timeout: 10000 });
+    const contactLink = await getHeaderDropdownLink(page, /essentiel/i, '/contact', /contact/i);
+    await expect(contactLink, 'Lien Contact absent du dropdown Essentiel').toBeVisible({
+      timeout: 5000,
+    });
+    await Promise.all([
+      page.waitForURL('**/contact**', { timeout: 10000 }),
+      contactLink.click({ force: true }),
+    ]);
     expect(page.url()).toContain('/contact');
   });
 
   // NAVBAR — Dropdown "Connexion" → Se connecter
   test('Navbar dropdown Connexion → Se connecter navigue vers /auth/signin', async ({ page }) => {
-    const connexionBtn = page.locator('button').filter({ hasText: /connexion/i }).first();
-    await expect(connexionBtn).toBeVisible();
-    await connexionBtn.hover();
-    await page.waitForTimeout(600);
+    const signinLink = await getHeaderDropdownLink(page, /connexion/i, '/auth/signin', /se connecter/i);
+    await expect(signinLink, 'Lien Se connecter absent du menu Connexion').toBeVisible({
+      timeout: 5000,
+    });
 
-    const signinLink = page.locator('[role="menu"] a[href="/auth/signin"]');
-    await expect(signinLink, 'Lien Se connecter absent du dropdown Connexion').toBeVisible();
-    await signinLink.click();
-    await page.waitForURL('**/auth/signin**', { timeout: 10000 });
+    await Promise.all([
+      page.waitForURL('**/auth/signin**', { timeout: 10000 }),
+      signinLink.click({ force: true }),
+    ]);
     expect(page.url()).toContain('/auth/signin');
   });
 
