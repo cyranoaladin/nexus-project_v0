@@ -570,13 +570,20 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
 - Fichiers concernés : `lib/rate-limit/**`, routes API publiques et mutations sensibles.
 - Action : rate limit centralisé avec garde async distribuée optionnelle Upstash, fallback mémoire dev/test, et bypass `RATE_LIMIT_DISABLE=1` ignoré en production.
 - Test attendu : seuils 429 couverts par tests; couverture des routes publiques sensibles.
-- Statut : P1-A corrigé/testé localement, non déployé production.
+- Statut : P1-A corrigé, testé, CI verte et déployé production le 2026-05-29.
 - Propriétaire proposé : Backend.
 - Rollback : revert du commit P1-A; la variable `RATE_LIMIT_DISABLE` ne désactive plus la production.
 - Document : `docs/security/P1_A_ANTI_ABUSE_RATE_LIMITING_2026-05-29.md`.
+- Déploiement : `docs/security/P1_A_DEPLOYMENT_REPORT_2026-05-29.md`.
+- CI : run `26659083757`, SHA `69f0e1435a07a96495b8c918dd8c4b4b56cf69b2`, conclusion `success`.
+- Backup : `/root/nexus-backups/deploy-p1-a-anti-abuse-rate-limit-20260529221733`.
+- HEAD prod : `802acb9112d90ddcd04adb8699367da2ac664ae3` -> `69f0e1435a07a96495b8c918dd8c4b4b56cf69b2`.
+- Validations serveur : typecheck OK; tests ciblés P1-A OK, 9 suites / 50 tests; build production OK; PM2 reload OK.
+- Smoke production : `site=200`, `dashboard_no_auth=307`, `api_health=200`, routes publiques GET en 405, payloads invalides refusés proprement.
 - Routes couvertes P1-A : `/api/bilan-gratuit`, `/api/stages/[stageSlug]/inscrire`, `/api/stages/submit-diagnostic`, `/api/assessments/submit`, `/api/contact`, `/api/auth/reset-password`.
-- Variables production attendues : `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`.
-- Limite : bêta élargie encore conditionnelle tant que le backend distribué n'est pas configuré et validé en production.
+- Variables production attendues : `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`; état au déploiement : missing/missing.
+- Mode production observé : fallback mémoire, avec warning attendu en logs; `RATE_LIMIT_DISABLE=1` absent.
+- Limite : bêta élargie encore conditionnelle tant que le backend distribué Upstash n'est pas configuré et validé en production.
 
 ### P1-005 — Logs sans PII excessive
 - Risque : données élèves/parents dans logs.
