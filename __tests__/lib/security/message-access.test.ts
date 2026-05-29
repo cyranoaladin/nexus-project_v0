@@ -7,6 +7,7 @@ import { prisma } from '@/lib/prisma';
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {
+    user: { findUnique: jest.fn() },
     coachProfile: { findUnique: jest.fn() },
     student: { findUnique: jest.fn() },
     parentProfile: { findFirst: jest.fn() },
@@ -37,6 +38,23 @@ describe('message-access security helpers', () => {
         receiverRole: 'ADMIN',
       })
     ).resolves.toBe(false);
+  });
+
+  it('can resolve receiver role with a minimal lookup when not provided', async () => {
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({ role: 'PARENT' });
+
+    await expect(
+      canSendMessageToReceiver({
+        senderUserId: 'admin-1',
+        senderRole: 'ADMIN',
+        receiverUserId: 'parent-1',
+      })
+    ).resolves.toBe(true);
+
+    expect(prisma.user.findUnique).toHaveBeenCalledWith({
+      where: { id: 'parent-1' },
+      select: { role: true },
+    });
   });
 
   it('requires active assignment for student to coach messages', async () => {
@@ -129,6 +147,7 @@ describe('message-access security helpers', () => {
     } as any);
 
     expect(message).not.toHaveProperty('fileUrl');
+    expect(message).not.toHaveProperty('fileName');
     expect(message.hasAttachment).toBe(true);
     expect(message.sender).not.toHaveProperty('password');
     expect(message.receiver).not.toHaveProperty('resetToken');

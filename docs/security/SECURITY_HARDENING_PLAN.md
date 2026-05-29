@@ -332,11 +332,11 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - parent limité aux coachs assignés à ses enfants;
   - élève limité au staff ou à ses coachs assignés;
   - `fileUrl` / `fileName` arbitraires refusés tant qu'aucun endpoint attachment autorisé n'existe;
-  - projections messages/participants sans `password`, tokens, email, téléphone, `fileUrl` ou chemins disque.
+  - projections messages/participants sans `password`, tokens, email, téléphone, `fileUrl`, `fileName` ou chemins disque.
 - Tests :
-  - 3 suites ciblées, 15 tests OK.
+  - 3 suites ciblées, 16 tests OK.
   - `npm run typecheck` : OK.
-  - `npm run test:unit -- --runInBand` : 446 suites, 5910 tests OK.
+  - `npm run test:unit -- --runInBand` : 446 suites, 5911 tests OK.
   - `npm run build` : OK.
   - `node scripts/security/audit-api-guards.mjs` : inventaire régénéré, 164 routes.
   - `npm run test:integration -- --runInBand` : non lancé, DB test `127.0.0.1:5435` fermée.

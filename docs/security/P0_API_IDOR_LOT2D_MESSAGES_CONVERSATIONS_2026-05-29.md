@@ -30,6 +30,7 @@ Date : 2026-05-29
   - élève vers coach assigné ou staff.
 - Auto-message refusé.
 - `fileUrl` / `fileName` arbitraires refusés tant qu'aucune surface attachment autorisée n'existe.
+- `fileName` n'est pas retourné dans les projections message; seul `hasAttachment` reste exposé pour éviter les chemins ou noms de fichiers privés.
 - Projection message minimale via `sanitizeMessage`.
 - Projection participant minimale via `sanitizeMessageUser`.
 - Logs d'erreur sans contenu de message.
@@ -61,7 +62,7 @@ Après :
 
 - Conversations toujours participant-scoped.
 - `user` et `lastMessage` sont projetés explicitement.
-- `fileUrl`, chemins disque, password, tokens et champs internes ne sont pas retournés.
+- `fileUrl`, `fileName`, chemins disque, password, tokens et champs internes ne sont pas retournés.
 
 ## Conversations / threads
 
@@ -84,6 +85,7 @@ Aucune route attachment/download message n'a été trouvée. Par sécurité, `PO
 - `activationToken` : non retourné par projections.
 - reset tokens : non retournés par projections.
 - `fileUrl` : non retourné; refusé à l'envoi.
+- `fileName` : non retourné; refusé à l'envoi.
 - chemins disque : non retournés.
 - emails/phones : non retournés par projections messaging.
 - profils complets : non retournés.
@@ -99,7 +101,7 @@ npm test -- --runInBand \
 
 Résultat initial RED : échec attendu sur `receiverId` relationnel, `fileUrl` arbitraire et projections.
 
-Résultat après patch : 3 suites, 15 tests OK.
+Résultat après patch : 3 suites, 16 tests OK.
 
 ```bash
 npm run typecheck
@@ -111,7 +113,7 @@ Résultat : OK.
 npm run test:unit -- --runInBand
 ```
 
-Résultat : 446 suites, 5910 tests OK.
+Résultat : 446 suites, 5911 tests OK.
 
 ```bash
 npm run build
