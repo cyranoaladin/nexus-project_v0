@@ -458,6 +458,32 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - anti-abus distribué/CAPTCHA pour endpoints publics à planifier en P1 si nécessaire.
 - Déploiement : terminé. Rollback prévu, non exécuté.
 
+#### Lot 2G — Bilans/reports visibility
+
+- Statut : corrigé/testé localement, non déployé production.
+- Routes :
+  - `app/api/parent/bilans/[id]/pdf/route.ts`
+  - `app/api/coach/sessions/[sessionId]/report/route.ts`
+  - `app/api/coach/eaf-stage-printemps/students/[studentId]/report/route.ts`
+  - `app/api/coach/maths-premiere-stage-printemps/students/[studentId]/report/route.ts`
+- Corrections :
+  - PDF parent : conservation des contrôles parent/ownership/publication existants, mais suppression du champ `details` en erreur 500 et log réduit au type d'erreur;
+  - rapport session coach : réponse GET nettoyée des relations imbriquées `student`, `coach` et `session`;
+  - rapports stage coach EAF et Maths première : retrait de `student.email` du `select` Prisma et de la réponse JSON;
+  - logs d'erreur des rapports réduits, sans stack ni payload complet.
+- Tests :
+  - tests ciblés Lot 2G : 4 suites, 57 tests OK;
+  - régressions bilans/reports : 4 suites, 31 tests OK;
+  - `node scripts/security/audit-api-guards.mjs` : inventaire régénéré, 164 routes;
+  - `npm run typecheck` : OK;
+  - `npm run build` : OK;
+  - `npm run test:unit -- --runInBand` : 449 suites, 5940 tests OK;
+  - `test:integration` non lancé : DB test `127.0.0.1:5435` fermée.
+- Risques résiduels :
+  - `app/api/admin/stages/[stageId]/**` à traiter en Lot 2F-bis;
+  - centralisation des projections bilans/reports à planifier en P1 si nécessaire.
+- Déploiement : à planifier après push et CI verte. Ne pas marquer déployé avant validation production.
+
 ## P1 — Durcissement court terme
 
 ### P1-001 — CSP

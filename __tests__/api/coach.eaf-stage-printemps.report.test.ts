@@ -140,6 +140,7 @@ describe('GET /api/coach/eaf-stage-printemps/students/[studentId]/report', () =>
     expect(res.status).toBe(200);
     expect(body.coachBilan).toBeNull();
     expect(body.student.id).toBe('student-1');
+    expect(body.student).not.toHaveProperty('email');
   });
 
   it('6. Retourne le résumé du questionnaire élève si disponible', async () => {
@@ -175,6 +176,22 @@ describe('GET /api/coach/eaf-stage-printemps/students/[studentId]/report', () =>
     expect(body.studentSummary.beforeConfidence).toBe('3');
     expect(body.studentSummary.afterConfidence).toBe('4');
     expect(body.studentSummary.finalMessage).toBe('Merci pour le stage !');
+  });
+
+  it('ne retourne pas l’email élève dans la projection coach', async () => {
+    mockRequireRole.mockResolvedValue(SESSION_COACH);
+    mockAssertCoach.mockResolvedValue(undefined);
+    mockGetCoachProfile.mockResolvedValue({ id: 'coach-1' });
+    (prisma as any).student.findUnique.mockResolvedValue(MOCK_STUDENT);
+    (prisma as any).bilan.findFirst.mockResolvedValue(null);
+
+    const res = await GET(new Request('http://localhost/'), makeParams('student-1'));
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body.student.firstName).toBe('Ahmed');
+    expect(body.student).not.toHaveProperty('email');
+    expect(JSON.stringify(body)).not.toContain('ahmed@test.com');
   });
 });
 

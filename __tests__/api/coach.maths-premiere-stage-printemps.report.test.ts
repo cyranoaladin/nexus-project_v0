@@ -335,8 +335,22 @@ describe('GET /api/coach/maths-premiere-stage-printemps/students/[studentId]/rep
     expect(res.status).toBe(200);
     expect(body.student).toBeDefined();
     expect(body.student.firstName).toBe('Melik');
+    expect(body.student).not.toHaveProperty('email');
     expect(body.coachBilan).toBeDefined();
     expect(body.studentSummary).toBeNull();
+  });
+
+  it('ne retourne pas l’email élève dans la projection coach', async () => {
+    setupMocks(null);
+    (prisma as any).bilan.findFirst.mockResolvedValue(null);
+
+    const res = await GET(new Request('http://localhost/'), makeParams('student-1'));
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body.student.firstName).toBe('Melik');
+    expect(body.student).not.toHaveProperty('email');
+    expect(JSON.stringify(body)).not.toContain('melik@test.com');
   });
 
   it('returns 404 when student not found', async () => {
