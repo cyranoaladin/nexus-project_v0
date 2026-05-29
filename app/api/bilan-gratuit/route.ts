@@ -5,7 +5,7 @@ import { GradeLevel } from '@prisma/client';
 import { bilanGratuitSchema } from '@/lib/validations';
 import { normalizeGradeLevel, getDefaultTrackForLevel, normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
 import { UserRole } from '@/types/enums';
-import { guardRateLimit } from '@/lib/rate-limit';
+import { guardRateLimitAsync } from '@/lib/rate-limit';
 import { checkCsrf, checkBodySize } from '@/lib/csrf';
 import { createId } from '@paralleldrive/cuid2';
 import bcrypt from 'bcryptjs';
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     if (bodySizeResponse) return bodySizeResponse;
 
     // Rate limiting
-    const blocked = guardRateLimit(request, { preset: 'api' });
+    const blocked = await guardRateLimitAsync(request, { preset: 'api', keySuffix: 'bilan-gratuit' });
     if (blocked) return blocked;
 
     const body = await request.json();

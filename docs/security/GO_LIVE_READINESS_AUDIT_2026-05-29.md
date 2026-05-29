@@ -12,7 +12,7 @@
 | Domaine | Statut | Risque | Priorité | Décision |
 |---|---|---|---|---|
 | API / IDOR | P0 clôturable sous réserve humaine | Régression future | P1 suivi | Conserver CI, inventaire et tests IDOR ciblés |
-| Anti-abus public | Partiel | Spam formulaires, email/Telegram, IA ou DB writes | P1 bloquant go-live large | Premier lot P1 recommandé |
+| Anti-abus public | P1-A corrigé localement, non déployé | Spam formulaires, email/Telegram, IA ou DB writes si backend prod non configuré | P1 bloquant go-live large | Déployer après CI verte puis configurer Upstash/validation prod |
 | RGPD / mineurs / PII | Incomplet | Gouvernance insuffisante des données élèves, IA, documents | P1 bloquant go-live large | Documenter politiques et procédures |
 | Logs / PII | Incomplet | Emails, payloads, chemins locaux ou contenus pédagogiques possibles dans logs | P1 bloquant go-live large | Redaction centralisée et audit logs |
 | Monitoring / alerting | Partiel | Incidents non détectés | P1 bloquant go-live large | Alerting 5xx, DB, disque, SMTP, RAG/NPC |
@@ -27,14 +27,14 @@
 ### Anti-abus public
 | Route | Public | Écrit DB | Déclenche email/IA | Rate limit | Distribué | CAPTCHA | Risque | Décision |
 |---|---|---:|---:|---|---|---|---|---|
-| `/api/bilan-gratuit` | Oui | Oui | Email | Présent | Mémoire locale | Non observé | Spam création compte/enfant | P1 |
-| `/api/stages/[stageSlug]/inscrire` | Oui | Oui | Email + Telegram | Présent | Mémoire locale | Non observé | Spam inscriptions | P1 |
-| `/api/stages/submit-diagnostic` | Oui | Oui | Email | Présent | Mémoire locale | Non observé | Spam diagnostic | P1 |
-| `/api/assessments/submit` | Oui | Oui | Calcul/IA selon mode | Présent, preset expensive | Mémoire locale | Non observé | Coût calcul et données bruitées | P1 |
-| `/api/contact` | Oui | Non direct observé | Placeholder log | Non observé | Non | Non observé | PII loggée et spam futur | P1 |
-| `/api/auth/reset-password` | Oui | Token reset | Email | Présent | Mémoire locale | Non observé | Brute force/email abuse | P1 suivi |
+| `/api/bilan-gratuit` | Oui | Oui | Email | `guardRateLimitAsync` | Upstash si env, sinon mémoire | Non observé | Spam création compte/enfant | Corrigé localement P1-A |
+| `/api/stages/[stageSlug]/inscrire` | Oui | Oui | Email + Telegram | `guardRateLimitAsync` | Upstash si env, sinon mémoire | Non observé | Spam inscriptions | Corrigé localement P1-A |
+| `/api/stages/submit-diagnostic` | Oui | Oui | Email | `guardRateLimitAsync` | Upstash si env, sinon mémoire | Non observé | Spam diagnostic | Corrigé localement P1-A |
+| `/api/assessments/submit` | Oui | Oui | Calcul/IA selon mode | `guardRateLimitAsync`, preset expensive | Upstash si env, sinon mémoire | Non observé | Coût calcul et données bruitées | Corrigé localement P1-A |
+| `/api/contact` | Oui | Non direct observé | Placeholder log | `guardRateLimitAsync` | Upstash si env, sinon mémoire | Non observé | Spam futur | Corrigé localement P1-A |
+| `/api/auth/reset-password` | Oui | Token reset | Email | `guardRateLimitAsync`, preset auth | Upstash si env, sinon mémoire | Non observé | Brute force/email abuse | Corrigé localement P1-A |
 
-Constat : le helper de rate limit est centralisé, mais l'implémentation active est `MemoryStore`, donc non distribuée, perdue au redémarrage et multipliée si plusieurs workers PM2. `RATE_LIMIT_DISABLE=1` est documenté comme interdit en production, mais aucune vérification runtime n'a été faite dans cette mission.
+Constat P1-A : le helper de rate limit dispose désormais d'un mode async compatible Upstash REST, avec fallback mémoire pour dev/test et absence d'env. `RATE_LIMIT_DISABLE=1` ne désactive plus les protections en production. Le code est corrigé localement, mais la production doit encore être déployée et configurée avec `UPSTASH_REDIS_REST_URL` et `UPSTASH_REDIS_REST_TOKEN` pour une bêta élargie non conditionnelle.
 
 ### RGPD / mineurs / PII
 | Sujet | État actuel | Risque | Priorité | Action recommandée |
@@ -49,7 +49,7 @@ Constat : le helper de rate limit est centralisé, mais l'implémentation active
 | Zone | Risque | Preuve | Priorité | Action |
 |---|---|---|---|---|
 | Logs API anciens | Erreurs complètes ou messages internes possibles | `console.error(..., error)` encore présent dans plusieurs routes | P1 | Normaliser logger + redaction |
-| Formulaire contact | PII complète loggée | `console.log("[contact]", { name, email, phone, message })` | P1 | Ne jamais logger le payload public |
+| Formulaire contact | Corrigé localement P1-A | Le log ne contient plus nom, email, téléphone ou message | P1 suivi | Déployer P1-A puis poursuivre audit logs global |
 | Bilan gratuit | Payload reçu loggé | `console.log('Received request body:', body)` | P1 | Supprimer ou sanitiser |
 | Documents | Chemin local possible en log | `[File Read Error] File missing on disk: document.localPath` | P1 | Remplacer par id/code opaque |
 | Emails | Adresses email loggées dans plusieurs helpers | `lib/email.ts`, `lib/invoice/send-email.ts` | P1 | Masquage systématique |
@@ -112,7 +112,7 @@ Constat : le helper de rate limit est centralisé, mais l'implémentation active
 ## Bloquants avant go-live large
 | ID | Sujet | Risque | Action | Priorité |
 |---|---|---|---|---|
-| GL-P1-001 | Anti-abus distribué des routes publiques | Spam, coût IA/email, pollution DB | Redis/Upstash ou équivalent + contrôle prod + CAPTCHA/Turnstile sur formulaires publics à risque | P1 |
+| GL-P1-001 | Anti-abus distribué des routes publiques | Spam, coût IA/email, pollution DB si non déployé/configuré | Déployer P1-A, configurer Upstash, vérifier prod, puis décider CAPTCHA/Turnstile sur formulaires publics à risque | P1 |
 | GL-P1-002 | Logs sans PII excessive | Fuite emails, payloads, contenus élèves | Redaction centralisée + suppression logs payload/localPath/email brut | P1 |
 | GL-P1-003 | Backups et restauration | Perte DB/documents | Backup DB/uploads automatisé + restore drill daté | P1 |
 | GL-P1-004 | Monitoring/alerting | Incidents non détectés | Alerting 5xx, PM2, DB, disk, SMTP, RAG/NPC | P1 |
@@ -124,7 +124,7 @@ Constat : le helper de rate limit est centralisé, mais l'implémentation active
 | Condition | Statut | Action |
 |---|---|---|
 | P0 API/IDOR validé humainement | Prêt côté audit | Validation humaine formelle |
-| Rate limit prod confirmé non désactivé | Non vérifié ici | Vérifier `RATE_LIMIT_DISABLE` absent et backend distribué ou limitation de trafic |
+| Rate limit prod confirmé non désactivé | Corrigé localement, non déployé | Déployer P1-A puis vérifier `RATE_LIMIT_DISABLE` ignoré/absent et backend distribué configuré |
 | Backups récents et restore drill | Non prouvé | Exécuter un test restauration |
 | Alerting minimal | Non prouvé | Configurer alerte 5xx/PM2/DB/disk |
 | Paiement carte | Non prêt | Désactiver explicitement en bêta ou finaliser sandbox |
@@ -134,7 +134,7 @@ Constat : le helper de rate limit est centralisé, mais l'implémentation active
 ## Backlog P1/P2 recommandé
 | Priorité | Sujet | Action |
 |---|---|---|
-| P1-A | Anti-abus public et rate limiting distribué | Redis/Upstash, CAPTCHA/Turnstile, couverture `/api/contact`, validation prod |
+| P1-A | Anti-abus public et rate limiting distribué | Code corrigé localement; attendre CI, déploiement contrôlé, configuration Upstash et validation prod; CAPTCHA/Turnstile reste à décider |
 | P1-B | Logs/PII | Redaction logger, suppression payloads publics, tests snapshot |
 | P1-C | Backup/restore + monitoring | Restore drill, alerting, health détaillé |
 | P1-D | RGPD mineurs | Politique confidentialité, rétention, DSAR |

@@ -6,13 +6,24 @@ All rate limiting uses a single unified system in `lib/rate-limit/`.
 
 ```
 lib/rate-limit/
-  index.ts          # Public API: checkRateLimit, guardRateLimit, rateLimitResponse
+  index.ts          # Public API: checkRateLimit, guardRateLimit, async distributed guard, rateLimitResponse
   presets.ts        # Named preset configurations
   keys.ts           # Key generation (IP, userId, hash)
   memory-store.ts   # Bounded in-memory store with TTL cleanup
+  upstash-store.ts  # Optional Upstash REST backend for distributed limits
 ```
 
 The legacy `lib/middleware/rateLimit.ts` is a **compatibility facade** that delegates to the unified system. New code should import directly from `@/lib/rate-limit`.
+
+## Runtime modes
+
+| Environment | Backend | Behavior |
+|---|---|---|
+| Development/test | `MemoryStore` by default | Local counters, `_resetStoreForTests()` supported |
+| Development/test with `RATE_LIMIT_DISABLE=1` | Bypass | Allowed only outside production |
+| Production with `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` | Upstash REST | Distributed counters shared by app processes |
+| Production without Upstash env | `MemoryStore` fallback | Functional but not distributed; acceptable only for controlled beta until prod env is configured |
+| Production with `RATE_LIMIT_DISABLE=1` | Protection remains active | The disable flag is ignored in production |
 
 ## Usage
 
@@ -24,6 +35,24 @@ import { guardRateLimit } from '@/lib/rate-limit';
 export async function POST(request: NextRequest) {
   const blocked = guardRateLimit(request, { preset: 'api' });
   if (blocked) return blocked; // 429 response
+
+  // ... route logic
+}
+```
+
+### Public write guard (distributed when configured)
+
+Public routes that write data, send email/Telegram, or trigger expensive work should use the async guard:
+
+```ts
+import { guardRateLimitAsync } from '@/lib/rate-limit';
+
+export async function POST(request: NextRequest) {
+  const blocked = await guardRateLimitAsync(request, {
+    preset: 'api',
+    keySuffix: 'contact',
+  });
+  if (blocked) return blocked;
 
   // ... route logic
 }
@@ -101,15 +130,16 @@ During unification, two presets were tightened:
 
 ## Limitations
 
-- **In-memory store**: Each PM2 worker has its own store. Effective limits are multiplied by worker count. Acceptable for current scale; Redis can be added later.
+- **In-memory fallback**: Each PM2 worker has its own store. Effective limits are multiplied by worker count. This remains acceptable for development/test and controlled beta fallback only.
+- **Distributed production**: Configure `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` to make async guards process-wide.
 - **Process restart**: Counters reset on restart (by design for rate limiting).
 - **No per-key clearing**: Tests use `_resetStoreForTests()` to reset the full store.
 
 ## CI/E2E bypass
 
-Set `RATE_LIMIT_DISABLE=1` to bypass all rate limiting.
+Set `RATE_LIMIT_DISABLE=1` to bypass all rate limiting in development/test.
 
-**WARNING**: `RATE_LIMIT_DISABLE=1` is strictly reserved for CI/E2E test environments. It must NEVER be set in production `.env` files. If active in production, all rate limiting is silently disabled.
+**WARNING**: `RATE_LIMIT_DISABLE=1` is strictly reserved for CI/E2E test environments. In production the flag is ignored and protections remain active.
 
 ## Testing
 

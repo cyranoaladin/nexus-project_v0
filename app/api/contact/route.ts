@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
+import { guardRateLimitAsync } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
   try {
+    const blocked = await guardRateLimitAsync(request, { preset: "api", keySuffix: "contact" });
+    if (blocked) return blocked;
+
     const payload = await request.json();
     const name = String(payload?.name ?? "").trim();
     const email = String(payload?.email ?? "").trim();
@@ -13,17 +17,14 @@ export async function POST(request: Request) {
       );
     }
 
-    // Placeholder: wire to email/CRM provider.
-    console.log("[contact]", {
-      profile: payload?.profile,
-      interest: payload?.interest,
-      urgency: payload?.urgency,
-      name,
-      email,
-      phone: payload?.phone,
-      message: payload?.message,
-      source: payload?.source,
-    });
+    if (process.env.CONTACT_DEBUG === "1") {
+      console.log("[contact]", {
+        profile: payload?.profile,
+        interest: payload?.interest,
+        urgency: payload?.urgency,
+        source: payload?.source,
+      });
+    }
 
     return NextResponse.json({ ok: true });
   } catch (error) {

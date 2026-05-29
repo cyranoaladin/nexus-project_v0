@@ -8,11 +8,12 @@ jest.mock('@/lib/telegram/client', () => ({
 
 jest.mock('@/lib/rate-limit', () => ({
   guardRateLimit: jest.fn().mockReturnValue(null),
+  guardRateLimitAsync: jest.fn().mockResolvedValue(null),
 }));
 
 import { NextRequest, NextResponse } from 'next/server';
 import { POST } from '@/app/api/stages/[stageSlug]/inscrire/route';
-import { guardRateLimit } from '@/lib/rate-limit';
+import { guardRateLimitAsync } from '@/lib/rate-limit';
 
 let prisma: any;
 
@@ -20,7 +21,7 @@ beforeEach(async () => {
   const mod = await import('@/lib/prisma');
   prisma = (mod as any).prisma;
   jest.clearAllMocks();
-  (guardRateLimit as jest.Mock).mockReturnValue(null);
+  (guardRateLimitAsync as jest.Mock).mockResolvedValue(null);
 });
 
 function makeRequest(body: Record<string, unknown>) {
@@ -70,7 +71,7 @@ describe('POST /api/stages/[stageSlug]/inscrire security', () => {
   });
 
   it('applique le rate limit avant création de réservation', async () => {
-    (guardRateLimit as jest.Mock).mockReturnValueOnce(
+    (guardRateLimitAsync as jest.Mock).mockResolvedValueOnce(
       NextResponse.json({ error: 'rate limited' }, { status: 429 })
     );
 

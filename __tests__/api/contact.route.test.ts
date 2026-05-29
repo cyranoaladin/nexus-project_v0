@@ -1,9 +1,11 @@
 import { POST } from '@/app/api/contact/route';
 
 function makeRequest(body: any) {
-  return {
-    json: async () => body,
-  } as Request;
+  return new Request('http://localhost:3000/api/contact', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
 }
 
 describe('contact route', () => {
