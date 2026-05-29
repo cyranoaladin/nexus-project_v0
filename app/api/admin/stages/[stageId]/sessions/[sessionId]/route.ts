@@ -45,10 +45,27 @@ export async function PATCH(
       return NextResponse.json({ error: 'Séance introuvable' }, { status: 404 });
     }
 
+    const nextStartAt = payload.startAt ? new Date(payload.startAt) : new Date(existingSession.startAt);
+    const nextEndAt = payload.endAt ? new Date(payload.endAt) : new Date(existingSession.endAt);
+    if (nextEndAt <= nextStartAt) {
+      return NextResponse.json({ error: 'L’heure de fin doit être postérieure à l’heure de début' }, { status: 400 });
+    }
+
     if (payload.coachId) {
-      const coach = await prisma.coachProfile.findUnique({ where: { id: payload.coachId } });
+      const [coach, stageCoach] = await Promise.all([
+        prisma.coachProfile.findUnique({ where: { id: payload.coachId } }),
+        prisma.stageCoach.findFirst({
+          where: {
+            stageId,
+            coachId: payload.coachId,
+          },
+        }),
+      ]);
       if (!coach) {
         return NextResponse.json({ error: 'Coach introuvable' }, { status: 400 });
+      }
+      if (!stageCoach) {
+        return NextResponse.json({ error: 'Coach non assigné à ce stage' }, { status: 400 });
       }
     }
 
@@ -72,7 +89,7 @@ export async function PATCH(
 
     return NextResponse.json({ session: updatedSession });
   } catch (error) {
-    console.error('[PATCH /api/admin/stages/[stageId]/sessions/[sessionId]]', error instanceof Error ? error.message : 'unknown');
+    console.error('[PATCH /api/admin/stages/[stageId]/sessions/[sessionId]]', error instanceof Error ? error.name : 'unknown');
     return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }
@@ -104,7 +121,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('[DELETE /api/admin/stages/[stageId]/sessions/[sessionId]]', error instanceof Error ? error.message : 'unknown');
+    console.error('[DELETE /api/admin/stages/[stageId]/sessions/[sessionId]]', error instanceof Error ? error.name : 'unknown');
     return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }

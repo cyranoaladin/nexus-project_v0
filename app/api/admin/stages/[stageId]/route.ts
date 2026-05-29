@@ -91,7 +91,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error('[GET /api/admin/stages/[stageId]]', error instanceof Error ? error.message : 'unknown');
+    console.error('[GET /api/admin/stages/[stageId]]', error instanceof Error ? error.name : 'unknown');
     return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }
@@ -151,7 +151,7 @@ export async function PATCH(
       },
     });
   } catch (error) {
-    console.error('[PATCH /api/admin/stages/[stageId]]', error instanceof Error ? error.message : 'unknown');
+    console.error('[PATCH /api/admin/stages/[stageId]]', error instanceof Error ? error.name : 'unknown');
     return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }
@@ -166,6 +166,11 @@ export async function DELETE(
   const { stageId } = await params;
 
   try {
+    const existingStage = await prisma.stage.findUnique({ where: { id: stageId } });
+    if (!existingStage) {
+      return NextResponse.json({ error: 'Stage introuvable' }, { status: 404 });
+    }
+
     const confirmedReservations = await prisma.stageReservation.count({
       where: {
         stageId,
@@ -198,7 +203,7 @@ export async function DELETE(
       },
     });
   } catch (error) {
-    console.error('[DELETE /api/admin/stages/[stageId]]', error instanceof Error ? error.message : 'unknown');
+    console.error('[DELETE /api/admin/stages/[stageId]]', error instanceof Error ? error.name : 'unknown');
     return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }

@@ -17,6 +17,11 @@ export async function GET(
   const { stageId } = await params;
 
   try {
+    const stage = await prisma.stage.findUnique({ where: { id: stageId } });
+    if (!stage) {
+      return NextResponse.json({ error: 'Stage introuvable' }, { status: 404 });
+    }
+
     const coaches = await prisma.stageCoach.findMany({
       where: { stageId },
       include: {
@@ -34,7 +39,7 @@ export async function GET(
 
     return NextResponse.json({ coaches });
   } catch (error) {
-    console.error('[GET /api/admin/stages/[stageId]/coaches]', error instanceof Error ? error.message : 'unknown');
+    console.error('[GET /api/admin/stages/[stageId]/coaches]', error instanceof Error ? error.name : 'unknown');
     return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }
@@ -104,7 +109,7 @@ export async function POST(
 
     return NextResponse.json({ coach: assignment }, { status: 201 });
   } catch (error) {
-    console.error('[POST /api/admin/stages/[stageId]/coaches]', error instanceof Error ? error.message : 'unknown');
+    console.error('[POST /api/admin/stages/[stageId]/coaches]', error instanceof Error ? error.name : 'unknown');
     return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }
@@ -131,16 +136,25 @@ export async function DELETE(
   }
 
   try {
-    await prisma.stageCoach.deleteMany({
+    const stage = await prisma.stage.findUnique({ where: { id: stageId } });
+    if (!stage) {
+      return NextResponse.json({ error: 'Stage introuvable' }, { status: 404 });
+    }
+
+    const deleted = await prisma.stageCoach.deleteMany({
       where: {
         stageId,
         coachId: parsed.data.coachId,
       },
     });
 
+    if (deleted.count === 0) {
+      return NextResponse.json({ error: 'Association coach introuvable' }, { status: 404 });
+    }
+
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('[DELETE /api/admin/stages/[stageId]/coaches]', error instanceof Error ? error.message : 'unknown');
+    console.error('[DELETE /api/admin/stages/[stageId]/coaches]', error instanceof Error ? error.name : 'unknown');
     return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }
