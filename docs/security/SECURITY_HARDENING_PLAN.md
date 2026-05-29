@@ -319,6 +319,32 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - centralisation projections NPC/report en P1;
   - P0-004 global reste ouvert hors Lot 2C : messages/conversations, assessments submit/test.
 
+#### P0-004 Lot 2D — Messages / conversations
+
+- Statut : corrigé et testé localement le 2026-05-29; non déployé production.
+- Routes :
+  - `app/api/messages/send/route.ts`
+  - `app/api/messages/conversations/route.ts`
+- Corrections :
+  - `senderId` imposé par la session, jamais par le body client;
+  - autorisation relationnelle du `receiverId` selon rôle et relation métier;
+  - coach limité aux élèves assignés et parents d'élèves assignés;
+  - parent limité aux coachs assignés à ses enfants;
+  - élève limité au staff ou à ses coachs assignés;
+  - `fileUrl` / `fileName` arbitraires refusés tant qu'aucun endpoint attachment autorisé n'existe;
+  - projections messages/participants sans `password`, tokens, email, téléphone, `fileUrl` ou chemins disque.
+- Tests :
+  - 3 suites ciblées, 15 tests OK.
+  - `npm run typecheck` : OK.
+  - `npm run test:unit -- --runInBand` : 446 suites, 5910 tests OK.
+  - `npm run build` : OK.
+  - `node scripts/security/audit-api-guards.mjs` : inventaire régénéré, 164 routes.
+  - `npm run test:integration -- --runInBand` : non lancé, DB test `127.0.0.1:5435` fermée.
+- Déploiement : à planifier séparément avec backup, build serveur et PM2 reload contrôlé.
+- Risque résiduel :
+  - rate limit messaging, modération contenu, audit trail et attachments signés en P1;
+  - P0-004 global reste ouvert hors Lot 2D : assessments submit/test.
+
 ## P1 — Durcissement court terme
 
 ### P1-001 — CSP

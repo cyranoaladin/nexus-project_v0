@@ -9,6 +9,10 @@ jest.mock('@/auth', () => ({
 jest.mock('@/lib/prisma', () => ({
   prisma: {
     user: { findUnique: jest.fn() },
+    student: { findUnique: jest.fn() },
+    coachProfile: { findUnique: jest.fn() },
+    parentProfile: { findFirst: jest.fn() },
+    coachStudentAssignment: { findFirst: jest.fn() },
     message: { create: jest.fn() },
   },
 }));
@@ -75,6 +79,52 @@ describe('POST /api/messages/send', () => {
     expect(body.error).toContain('Communication');
   });
 
+  it('ignores body senderId and blocks coach to unassigned student', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'coach-user-1', role: 'COACH' },
+    });
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+      id: 'student-user-2',
+      role: 'ELEVE',
+    });
+    (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-1' });
+    (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 'student-2' });
+    (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
+
+    const response = await POST(
+      makeRequest({
+        senderId: 'admin-user',
+        receiverId: 'student-user-2',
+        content: 'Hi',
+      })
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(403);
+    expect(body.error).toContain('Communication');
+    expect(prisma.message.create).not.toHaveBeenCalled();
+  });
+
+  it('rejects arbitrary fileUrl attachments', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'user-1', role: 'ASSISTANTE' },
+    });
+
+    const response = await POST(
+      makeRequest({
+        receiverId: 'user-2',
+        content: 'File',
+        fileUrl: 'https://attacker.test/file.pdf',
+        fileName: 'file.pdf',
+      })
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toContain('Données invalides');
+    expect(prisma.message.create).not.toHaveBeenCalled();
+  });
+
   it('creates message when allowed', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'user-1', role: 'ELEVE' },
@@ -83,6 +133,9 @@ describe('POST /api/messages/send', () => {
       id: 'user-2',
       role: 'COACH',
     });
+    (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-2' });
+    (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 'student-1' });
+    (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue({ id: 'assignment-1' });
     (prisma.message.create as jest.Mock).mockResolvedValue({
       id: 'm1',
       content: 'Hi',
@@ -99,9 +152,17 @@ describe('POST /api/messages/send', () => {
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
     expect(body.message.id).toBe('m1');
+    expect(prisma.message.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          senderId: 'user-1',
+          receiverId: 'user-2',
+        }),
+      })
+    );
   });
 
-  it('allows coach to send with attachment fields', async () => {
+  it('allows coach to send to parent of assigned student without returning sensitive user fields', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'user-3', role: 'COACH' },
     });
@@ -109,31 +170,35 @@ describe('POST /api/messages/send', () => {
       id: 'user-4',
       role: 'PARENT',
     });
+    (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-3' });
+    (prisma.parentProfile.findFirst as jest.Mock).mockResolvedValue({ id: 'parent-profile-4' });
     (prisma.message.create as jest.Mock).mockResolvedValue({
       id: 'm2',
-      content: 'File',
-      fileUrl: 'https://files.local/f.pdf',
-      fileName: 'f.pdf',
+      content: 'Bonjour',
+      fileUrl: null,
+      fileName: null,
       createdAt: new Date(),
-      sender: { id: 'user-3', firstName: 'E', lastName: 'F', role: 'COACH' },
-      receiver: { id: 'user-4', firstName: 'G', lastName: 'H', role: 'PARENT' },
+      sender: { id: 'user-3', firstName: 'E', lastName: 'F', role: 'COACH', password: 'hash' },
+      receiver: { id: 'user-4', firstName: 'G', lastName: 'H', role: 'PARENT', activationToken: 'token' },
     });
 
     const response = await POST(
-      makeRequest({ receiverId: 'user-4', content: 'File', fileUrl: 'https://files.local/f.pdf', fileName: 'f.pdf' })
+      makeRequest({ receiverId: 'user-4', content: 'Bonjour' })
     );
     const body = await response.json();
 
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
-    expect(body.message.fileUrl).toBe('https://files.local/f.pdf');
+    expect(body.message.sender).not.toHaveProperty('password');
+    expect(body.message.receiver).not.toHaveProperty('activationToken');
+    expect(JSON.stringify(body)).not.toContain('fileUrl');
     expect(prisma.message.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           senderId: 'user-3',
           receiverId: 'user-4',
-          fileUrl: 'https://files.local/f.pdf',
-          fileName: 'f.pdf',
+          fileUrl: null,
+          fileName: null,
         }),
       })
     );

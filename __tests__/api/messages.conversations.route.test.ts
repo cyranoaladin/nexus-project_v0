@@ -41,8 +41,12 @@ describe('GET /api/messages/conversations', () => {
         senderId: 'user-1',
         receiverId: 'user-2',
         readAt: null,
-        sender: { id: 'user-1', firstName: 'A', lastName: 'B', role: 'ELEVE' },
-        receiver: { id: 'user-2', firstName: 'C', lastName: 'D', role: 'COACH' },
+        content: 'Salut',
+        fileUrl: '/var/www/private.pdf',
+        fileName: 'private.pdf',
+        createdAt: new Date('2024-01-01T10:00:00.000Z'),
+        sender: { id: 'user-1', firstName: 'A', lastName: 'B', role: 'ELEVE', password: 'hash' },
+        receiver: { id: 'user-2', firstName: 'C', lastName: 'D', role: 'COACH', activationToken: 'token' },
       },
     ]);
 
@@ -52,6 +56,10 @@ describe('GET /api/messages/conversations', () => {
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
     expect(body.conversations).toHaveLength(1);
+    expect(body.conversations[0].user).not.toHaveProperty('activationToken');
+    expect(body.conversations[0].lastMessage).not.toHaveProperty('fileUrl');
+    expect(body.conversations[0].lastMessage.sender).not.toHaveProperty('password');
+    expect(JSON.stringify(body)).not.toContain('/var/www');
   });
 
   it('tracks unread counts and last message', async () => {
