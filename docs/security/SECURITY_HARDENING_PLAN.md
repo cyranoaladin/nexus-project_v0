@@ -321,7 +321,16 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
 
 #### P0-004 Lot 2D — Messages / conversations
 
-- Statut : corrigé et testé localement le 2026-05-29; non déployé production.
+- Statut : corrigé, testé, CI verte et déployé production le 2026-05-29.
+- Commits déployés :
+  - `fa4355b61 fix(security): harden message and conversation access`
+  - `ae31a8a77 fix(security): tighten message projection hardening`
+  - `499d5d3bb test(e2e): harden homepage navbar dropdown checks`
+- CI GitHub :
+  - Run : `26625334072` (`CI Pipeline`)
+  - SHA : `499d5d3bbcb1a5593efe61a30d090fdc302b78ed`
+  - Conclusion : `success`
+  - URL : `https://github.com/cyranoaladin/nexus-project_v0/actions/runs/26625334072`
 - Routes :
   - `app/api/messages/send/route.ts`
   - `app/api/messages/conversations/route.ts`
@@ -340,10 +349,40 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - `npm run build` : OK.
   - `node scripts/security/audit-api-guards.mjs` : inventaire régénéré, 164 routes.
   - `npm run test:integration -- --runInBand` : non lancé, DB test `127.0.0.1:5435` fermée.
-- Déploiement : à planifier séparément avec backup, build serveur et PM2 reload contrôlé.
+- Validation production :
+  - backup : `/root/nexus-backups/deploy-p0-004-lot2d-navbar-20260529102234`;
+  - HEAD avant : `6d7677ba6c5fd5f6bccc276e5c27290b5b79c5af`;
+  - HEAD après : `499d5d3bbcb1a5593efe61a30d090fdc302b78ed`;
+  - typecheck serveur : OK;
+  - tests ciblés serveur demandés : 2 suites, 13 tests OK;
+  - tests ciblés serveur complémentaires Lot 2D : 2 suites, 8 tests OK;
+  - build serveur : OK (`BUILD_EXIT=0`);
+  - PM2 `nexus-prod` online après reload;
+  - port : `127.0.0.1:3001`;
+  - smoke public : `site=200`, `dashboard_no_auth=307`, `api_health=200`;
+  - smoke sans auth : `aria_no_auth=405`, `messages_no_auth=405`;
+  - smoke spécifique : `GET /api/messages/send=405`, `GET /api/aria/conversations=401`, `GET /api/aria/chat=405`;
+  - logs filtrés : aucune nouvelle erreur critique applicative détectée.
+- Déploiement : terminé. Rollback prévu, non exécuté.
 - Risque résiduel :
   - rate limit messaging, modération contenu, audit trail et attachments signés en P1;
   - P0-004 global reste ouvert hors Lot 2D : assessments submit/test.
+
+#### CI E2E Navbar Stabilization — Homepage
+
+- Statut : corrigé, CI verte et inclus dans le déploiement production du 2026-05-29.
+- Commit : `499d5d3bb test(e2e): harden homepage navbar dropdown checks`.
+- Cause : tests Playwright homepage trop dépendants de `[role="menu"]` et du hover seul; le produit n'était pas cassé.
+- Correction : tests orientés comportement utilisateur, avec ouverture hover puis click fallback et ciblage du lien par `href` + texte dans le header.
+- Validation locale avant push :
+  - `npx playwright test e2e/real/pages/01-homepage.spec.ts --config=playwright.ci.config.ts --project=chromium` : 14 tests OK.
+  - `npm run typecheck` : OK.
+  - `npm run build` : OK.
+  - `npm run test:unit -- --runInBand` : 446 suites, 5911 tests OK.
+- CI GitHub :
+  - Run : `26625334072`
+  - Conclusion : `success`
+- Déploiement : commit inclus dans HEAD production `499d5d3bb`.
 
 ## P1 — Durcissement court terme
 
