@@ -386,7 +386,12 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
 
 #### Lot 2E — Assessments submit/test
 
-- Statut : corrigé/testé localement, non déployé production.
+- Statut : corrigé, testé, CI verte et déployé production le 2026-05-29.
+- Commit déployé : `5f1d25965 fix(security): harden assessment access controls`.
+- Commit CI/test inclus : `9e00e27ce test(integration): align predict ownership with hardened contract`.
+- CI GitHub :
+  - Run : `26628271864`
+  - Conclusion : `success`
 - Routes :
   - `app/api/assessments/submit/route.ts`
   - `app/api/assessments/test/route.ts`
@@ -403,11 +408,16 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - tests ciblés Lot 2E : 6 suites, 56 tests OK.
   - `node scripts/security/audit-api-guards.mjs` : inventaire régénéré, 164 routes.
   - CI `26627488455` : bloquée sur `__tests__/integration/predict-ownership.real.test.ts`, test d'intégration aligné ensuite sur le contrat durci `Student.id` + `CoachStudentAssignment` active.
-  - `test:integration` non lancé si DB test `127.0.0.1:5435` fermée.
+  - CI post-fix `26628271864` : `success`.
+  - validations serveur avant reload : `npm run typecheck` OK, tests ciblés Lot 2E OK, `NODE_ENV=production npm run build` OK (`BUILD_EXIT=0`).
+  - smoke production après reload : `site=200`, `dashboard_no_auth=307`, `api_health=200`, `assessments_test_no_auth=401`, `assessments_predict_no_auth=405`, `assessments_submit_get=405`, `predict POST no-auth=401`.
+  - payload `assessmentVersion="../secret"` : refus contrôlé `Validation failed`, sans 500 ni message interne.
+  - backup : `/root/nexus-backups/deploy-p0-004-lot2e-assessments-20260529165122`.
+  - `test:integration` local non lancé si DB test `127.0.0.1:5435` fermée; CI intégration post-fix verte.
 - Risques résiduels :
   - `assessments/submit` reste public par design; anti-abus additionnel type CAPTCHA/rate limit distribué à traiter en P1 si nécessaire;
   - consolidation de l'inventaire statique documents/factures/bilans à prévoir si le bruit P0 persiste.
-- Déploiement : à planifier séparément après CI verte.
+- Déploiement : terminé. Rollback prévu, non exécuté.
 
 ## P1 — Durcissement court terme
 
