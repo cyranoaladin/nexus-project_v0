@@ -82,19 +82,20 @@ export async function POST(request: NextRequest) {
     }
 
     const { email, reservationId, answers } = parsed.data;
+    const normalizedEmail = email.toLowerCase();
 
     // 2. Find the reservation
     let reservation;
     if (reservationId) {
-      reservation = await prisma.stageReservation.findUnique({
-        where: { id: reservationId },
+      reservation = await prisma.stageReservation.findFirst({
+        where: { id: reservationId, email: normalizedEmail },
       });
     }
 
-    if (!reservation) {
+    if (!reservation && !reservationId) {
       // Fallback: find by email (most recent reservation)
       reservation = await prisma.stageReservation.findFirst({
-        where: { email: email.toLowerCase() },
+        where: { email: normalizedEmail },
         orderBy: { createdAt: 'desc' },
       });
     }
@@ -185,7 +186,7 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('[submit-diagnostic] Error:', error instanceof Error ? error.message : 'Unknown');
+    console.error('[submit-diagnostic] Error:', error instanceof Error ? error.name : 'Unknown');
     return NextResponse.json(
       { success: false, error: 'Erreur serveur. Réessaie dans quelques instants.' },
       { status: 500 }

@@ -51,31 +51,6 @@ const publicStageInclude = {
       },
     },
   },
-  bilans: {
-    select: {
-      id: true,
-      scoreGlobal: true,
-      isPublished: true,
-      pdfUrl: true,
-      publishedAt: true,
-      createdAt: true,
-      student: {
-        select: {
-          user: {
-            select: {
-              firstName: true,
-              lastName: true,
-            },
-          },
-        },
-      },
-      coach: {
-        select: {
-          pseudonym: true,
-        },
-      },
-    },
-  },
 } satisfies Prisma.StageInclude;
 
 type PublicStageRecord = Prisma.StageGetPayload<{
@@ -241,21 +216,6 @@ function serializePublicStage(stage: PublicStageRecord) {
         description: assignment.coach.description,
         expertise: assignment.coach.expertise,
         subjects: (assignment.coach.subjects as string[]) ?? [],
-      },
-    })),
-    bilans: stage.bilans.map((bilan) => ({
-      id: bilan.id,
-      scoreGlobal: bilan.scoreGlobal,
-      isPublished: bilan.isPublished,
-      pdfUrl: bilan.pdfUrl,
-      publishedAt: bilan.publishedAt?.toISOString() ?? null,
-      createdAt: bilan.createdAt.toISOString(),
-      student: {
-        firstName: bilan.student.user.firstName,
-        lastName: bilan.student.user.lastName,
-      },
-      coach: {
-        pseudonym: bilan.coach.pseudonym,
       },
     })),
   };

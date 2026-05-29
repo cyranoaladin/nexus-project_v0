@@ -419,6 +419,34 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - consolidation de l'inventaire statique documents/factures/bilans à prévoir si le bruit P0 persiste.
 - Déploiement : terminé. Rollback prévu, non exécuté.
 
+#### Lot 2F — Stages reservations public hardening
+
+- Statut : corrigé/testé localement, non déployé production.
+- Routes :
+  - `app/api/stages/[stageSlug]/inscrire/route.ts`
+  - `app/api/stages/[stageSlug]/reservations/route.ts`
+  - `app/api/stages/[stageSlug]/reservations/[reservationId]/confirm/route.ts`
+  - `app/api/stages/submit-diagnostic/route.ts`
+  - `app/api/stages/[stageSlug]/bilans/route.ts`
+  - `app/api/stages/route.ts`
+  - `app/api/stages/[stageSlug]/route.ts`
+- Corrections :
+  - inscription publique : schema Zod strict, rate limit, réponse minimale sans id reservation ni token;
+  - listing reservations : projection staff explicite sans `activationToken`, notes internes, User complet ou champs stage internes;
+  - diagnostic public : `reservationId` corrélé à l'email soumis avant mutation;
+  - catalogue public stages : retrait des bilans, noms élèves et `pdfUrl` de la réponse publique;
+  - logs erreur inscription/diagnostic réduits au type d'erreur.
+- Tests :
+  - tests ciblés stages/reservations : 8 suites, 61 tests OK;
+  - `npm run typecheck` : OK;
+  - `npm run build` : OK;
+  - `node scripts/security/audit-api-guards.mjs` : inventaire régénéré, 164 routes.
+- Risques résiduels :
+  - `app/api/admin/stages/[stageId]/**` à traiter en Lot 2F-bis;
+  - coach stage reports, parent bilans PDF et bilans spécialisés à traiter en Lot 2G;
+  - anti-abus distribué/CAPTCHA pour endpoints publics à planifier en P1 si nécessaire.
+- Déploiement : à planifier après CI verte.
+
 ## P1 — Durcissement court terme
 
 ### P1-001 — CSP

@@ -134,7 +134,7 @@ describe('POST /api/stages/submit-diagnostic', () => {
   });
 
   it('should find reservation by reservationId first', async () => {
-    prisma.stageReservation.findUnique.mockResolvedValue({
+    prisma.stageReservation.findFirst.mockResolvedValue({
       id: 'res-2',
       email: 'student@test.com',
       scoringResult: null,
@@ -146,9 +146,18 @@ describe('POST /api/stages/submit-diagnostic', () => {
 
     const res = await POST(makeRequest({ ...validBody, reservationId: 'res-2' }));
     expect(res.status).toBe(200);
-    expect(prisma.stageReservation.findUnique).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { id: 'res-2' } })
+    expect(prisma.stageReservation.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'res-2', email: 'student@test.com' } })
     );
+  });
+
+  it('refuse un reservationId qui ne correspond pas à l’email soumis', async () => {
+    prisma.stageReservation.findFirst.mockResolvedValue(null);
+
+    const res = await POST(makeRequest({ ...validBody, reservationId: 'res-other' }));
+
+    expect(res.status).toBe(404);
+    expect(prisma.stageReservation.update).not.toHaveBeenCalled();
   });
 
   it('should handle NSP answers', async () => {
