@@ -285,12 +285,12 @@ export default function DashboardEleve() {
                               Épreuve Anticipée de Mathématiques
                             </h2>
                             <p className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-300">
-                              Accédez au cockpit premium du sprint : plan 10h, mission du jour, livret imprimable, automatismes et stratégie d'épreuve.
+                              Accédez au parcours EAM complet : plan J-11, modules, fiches express, quiz et progression sauvegardée.
                             </p>
                           </div>
                           <Link href="/dashboard/eleve/eam" className="w-full sm:w-fit">
                             <Button className="w-full bg-brand-accent text-surface-darker hover:bg-brand-accent/90 sm:w-auto">
-                              Ouvrir le sprint EAM
+                              Ouvrir EAM Maths
                               <ArrowRight className="ml-2 h-4 w-4" />
                             </Button>
                           </Link>

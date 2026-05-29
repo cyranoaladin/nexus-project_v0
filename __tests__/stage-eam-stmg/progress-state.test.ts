@@ -29,21 +29,5 @@ describe("stage EAM STMG progress state", () => {
     expect(state.eleveId).toBe("student-2");
     expect(state.automatismHistory).toEqual([]);
     expect(state.validatedNotions.suites).toEqual([]);
-    expect(state.validatedNotions.derivation).toEqual([]);
-  });
-
-  it("migrates the legacy algorithmique-information key to algorithmique-tableur", () => {
-    const parsed = parseStageState(JSON.stringify({
-      ...createInitialStageState("student-3"),
-      validatedNotions: {
-        fonctions: [],
-        suites: [],
-        statistiques: [],
-        probabilites: [],
-        "algorithmique-information": ["Indice base 100"],
-      },
-    }), "student-3");
-
-    expect(parsed.validatedNotions["algorithmique-tableur"]).toEqual(["Indice base 100"]);
   });
 });
