@@ -14,8 +14,18 @@ function makeRequest(body: Record<string, unknown>, ip = '198.51.100.20') {
 
 describe('POST /api/contact rate limiting', () => {
   beforeEach(() => {
-    _resetStoreForTests();
     delete process.env.RATE_LIMIT_DISABLE;
+    delete process.env.REDIS_URL;
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    _resetStoreForTests();
+  });
+
+  afterEach(() => {
+    delete process.env.REDIS_URL;
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    _resetStoreForTests();
   });
 
   it('returns 429 after the public API limit is exceeded', async () => {
