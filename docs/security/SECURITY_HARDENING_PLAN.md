@@ -584,6 +584,9 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
 - Variables production attendues : `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`; état au déploiement : missing/missing.
 - Mode production observé : fallback mémoire, avec warning attendu en logs; `RATE_LIMIT_DISABLE=1` absent.
 - Limite : bêta élargie encore conditionnelle tant que le backend distribué Upstash n'est pas configuré et validé en production.
+- Runbook configuration Upstash : `docs/security/P1_A_UPSTASH_CONFIGURATION_RUNBOOK_2026-05-29.md`.
+- Vérification opérationnelle post-déploiement : runtime `69f0e143`, `UPSTASH_REDIS_REST_URL=missing`, `UPSTASH_REDIS_REST_TOKEN=missing`, `RATE_LIMIT_DISABLE_1=absent`, `api_health=200`; aucun secret lu ou modifié.
+- Action suivante : ajout humain des variables Upstash, reload PM2 contrôlé, validation health/logs/smoke, puis décision humaine sur bêta élargie.
 
 ### P1-005 — Logs sans PII excessive
 - Risque : données élèves/parents dans logs.
