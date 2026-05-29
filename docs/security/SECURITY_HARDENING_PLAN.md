@@ -421,7 +421,14 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
 
 #### Lot 2F — Stages reservations public hardening
 
-- Statut : corrigé/testé localement, non déployé production.
+- Statut : corrigé, testé, CI verte et déployé production le 2026-05-29.
+- Déploiement :
+  - commit déployé : `6237a6be3 fix(security): harden stage reservation access`;
+  - CI GitHub : run `26651571313`, conclusion `success`;
+  - backup : `/root/nexus-backups/deploy-p0-004-lot2f-stages-20260529195031`;
+  - HEAD avant : `9e00e27cecdc22b6aa82264ee293e6ef873501f4`;
+  - HEAD après : `6237a6be3c8c166eab425e5faac61bd8996d565f`;
+  - PM2 : `nexus-prod` online après reload.
 - Routes :
   - `app/api/stages/[stageSlug]/inscrire/route.ts`
   - `app/api/stages/[stageSlug]/reservations/route.ts`
@@ -440,12 +447,16 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - tests ciblés stages/reservations : 8 suites, 61 tests OK;
   - `npm run typecheck` : OK;
   - `npm run build` : OK;
+  - `NODE_ENV=production npm run build` serveur : OK, `BUILD_EXIT=0`;
+  - smoke production : `site=200`, `api_health=200`, `stages_public=200`, `reservations_no_auth=401`, `inscrire_get=405`, `submit_diagnostic_get=405`;
+  - payload inscription avec champs interdits : refusé par validation;
+  - diagnostic malformé : refus contrôlé sans 500 bavard;
   - `node scripts/security/audit-api-guards.mjs` : inventaire régénéré, 164 routes.
 - Risques résiduels :
   - `app/api/admin/stages/[stageId]/**` à traiter en Lot 2F-bis;
   - coach stage reports, parent bilans PDF et bilans spécialisés à traiter en Lot 2G;
   - anti-abus distribué/CAPTCHA pour endpoints publics à planifier en P1 si nécessaire.
-- Déploiement : à planifier après CI verte.
+- Déploiement : terminé. Rollback prévu, non exécuté.
 
 ## P1 — Durcissement court terme
 
