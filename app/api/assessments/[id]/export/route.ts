@@ -142,7 +142,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error('[Assessment Export] Error:', error);
+    console.error('[Assessment Export] Error:', error instanceof Error ? error.name : 'unknown');
     return NextResponse.json(
       { error: 'Erreur lors de la génération du PDF' },
       { status: 500 }

@@ -18,6 +18,7 @@ jest.mock('@/lib/prisma', () => ({
   prisma: {
     parentProfile: { findFirst: jest.fn() },
     coachProfile: { findUnique: jest.fn() },
+    coachStudentAssignment: { findFirst: jest.fn() },
     sessionBooking: { findFirst: jest.fn() },
   },
 }));
@@ -33,6 +34,7 @@ const mockPredict = predictSSNForStudent as jest.Mock;
 const mockPrisma = prisma as unknown as {
   parentProfile: { findFirst: jest.Mock };
   coachProfile: { findUnique: jest.Mock };
+  coachStudentAssignment: { findFirst: jest.Mock };
   sessionBooking: { findFirst: jest.Mock };
 };
 
@@ -74,6 +76,15 @@ describe('POST /api/assessments/predict', () => {
 
     const res = await POST(makeRequest({ studentId: 123 }));
     expect(res.status).toBe(400);
+  });
+
+  it('should return 400 when weeklyHours is outside allowed bounds', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'u1', role: 'ADMIN' } } as any);
+
+    const res = await POST(makeRequest({ studentId: 'stu-1', weeklyHours: -1 }));
+
+    expect(res.status).toBe(400);
+    expect(mockPredict).not.toHaveBeenCalled();
   });
 
   it('should return prediction for valid request', async () => {
@@ -155,7 +166,6 @@ describe('POST /api/assessments/predict', () => {
       mockPrisma.parentProfile.findFirst.mockResolvedValue({
         id: 'pp-1',
         userId: 'parent-1',
-        children: [{ userId: 'stu-1' }],
       });
       mockPredict.mockResolvedValue({ ssnProjected: 70 } as any);
 
@@ -164,15 +174,17 @@ describe('POST /api/assessments/predict', () => {
 
       expect(res.status).toBe(200);
       expect(body.success).toBe(true);
+      expect(mockPrisma.parentProfile.findFirst).toHaveBeenCalledWith(expect.objectContaining({
+        where: {
+          userId: 'parent-1',
+          children: { some: { id: 'stu-1' } },
+        },
+      }));
     });
 
     it('PARENT sans lien parental -> 403', async () => {
       mockAuth.mockResolvedValue({ user: { id: 'parent-1', role: 'PARENT' } } as any);
-      mockPrisma.parentProfile.findFirst.mockResolvedValue({
-        id: 'pp-1',
-        userId: 'parent-1',
-        children: [],
-      });
+      mockPrisma.parentProfile.findFirst.mockResolvedValue(null);
 
       const res = await POST(makeRequest({ studentId: 'stu-autre' }));
       const body = await res.json();
@@ -187,8 +199,8 @@ describe('POST /api/assessments/predict', () => {
         id: 'cp-1',
         userId: 'coach-1',
       });
-      mockPrisma.sessionBooking.findFirst.mockResolvedValue({
-        id: 'sb-1',
+      mockPrisma.coachStudentAssignment.findFirst.mockResolvedValue({
+        id: 'assignment-1',
         studentId: 'stu-1',
         coachId: 'cp-1',
       });
@@ -199,6 +211,13 @@ describe('POST /api/assessments/predict', () => {
 
       expect(res.status).toBe(200);
       expect(body.success).toBe(true);
+      expect(mockPrisma.coachStudentAssignment.findFirst).toHaveBeenCalledWith(expect.objectContaining({
+        where: expect.objectContaining({
+          studentId: 'stu-1',
+          coachId: 'cp-1',
+          status: 'ACTIVE',
+        }),
+      }));
     });
 
     it('COACH sans séance avec élève -> 403', async () => {
@@ -207,13 +226,13 @@ describe('POST /api/assessments/predict', () => {
         id: 'cp-1',
         userId: 'coach-1',
       });
-      mockPrisma.sessionBooking.findFirst.mockResolvedValue(null);
+      mockPrisma.coachStudentAssignment.findFirst.mockResolvedValue(null);
 
       const res = await POST(makeRequest({ studentId: 'stu-autre' }));
       const body = await res.json();
 
       expect(res.status).toBe(403);
-      expect(body.error).toContain('Aucune séance');
+      expect(body.error).toContain('Accès refusé');
     });
 
     it('ELEVE -> 403', async () => {

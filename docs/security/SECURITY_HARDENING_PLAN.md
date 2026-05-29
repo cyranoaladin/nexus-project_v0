@@ -384,6 +384,30 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - Conclusion : `success`
 - Déploiement : commit inclus dans HEAD production `499d5d3bb`.
 
+#### Lot 2E — Assessments submit/test
+
+- Statut : corrigé/testé localement, non déployé production.
+- Routes :
+  - `app/api/assessments/submit/route.ts`
+  - `app/api/assessments/test/route.ts`
+  - `app/api/assessments/predict/route.ts`
+  - `app/api/assessments/[id]/result/route.ts`
+  - `app/api/assessments/[id]/status/route.ts`
+  - `app/api/assessments/[id]/export/route.ts`
+- Corrections :
+  - endpoint `assessments/test` réservé `ADMIN`, avec refus 401/403 avant accès Prisma;
+  - `assessments/submit` conserve son caractère public produit, mais avec rate limit `expensive`, `assessmentVersion` validé par Zod, `studentId` client ignoré et erreurs internes non exposées;
+  - `assessments/predict` valide le payload par Zod et vérifie l'ownership via `Student.id`, parent/enfant et assignation coach active;
+  - logs d'erreur assessment réduits au type d'erreur, sans payload ni exception complète.
+- Tests :
+  - tests ciblés Lot 2E : 6 suites, 56 tests OK.
+  - `node scripts/security/audit-api-guards.mjs` : inventaire régénéré, 164 routes.
+  - `test:integration` non lancé si DB test `127.0.0.1:5435` fermée.
+- Risques résiduels :
+  - `assessments/submit` reste public par design; anti-abus additionnel type CAPTCHA/rate limit distribué à traiter en P1 si nécessaire;
+  - consolidation de l'inventaire statique documents/factures/bilans à prévoir si le bruit P0 persiste.
+- Déploiement : à planifier séparément après CI verte.
+
 ## P1 — Durcissement court terme
 
 ### P1-001 — CSP

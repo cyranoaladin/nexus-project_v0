@@ -72,7 +72,7 @@ export async function GET(
 
     return NextResponse.json(validatedResponse);
   } catch (error) {
-    console.error('[Assessment Status] Error:', error);
+    console.error('[Assessment Status] Error:', error instanceof Error ? error.name : 'unknown');
 
     return NextResponse.json(
       {

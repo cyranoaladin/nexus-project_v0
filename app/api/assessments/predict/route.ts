@@ -11,6 +11,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { predictSSNForStudent } from '@/lib/core/ml/predictSSN';
+import { z } from 'zod';
+
+const predictAssessmentSchema = z.object({
+  studentId: z.string().min(1).max(128),
+  weeklyHours: z.number().min(0).max(40).optional(),
+  methodologyScore: z.number().min(0).max(100).optional(),
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,23 +39,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
-    const { studentId, weeklyHours, methodologyScore } = body;
-
-    if (!studentId || typeof studentId !== 'string') {
+    const parsed = predictAssessmentSchema.safeParse(await request.json());
+    if (!parsed.success) {
+      const firstIssue = parsed.error.issues[0];
+      const field = firstIssue?.path.join('.') || 'payload';
       return NextResponse.json(
-        { success: false, error: 'studentId requis (string).' },
+        { success: false, error: `Payload invalide: ${field}` },
         { status: 400 }
       );
     }
 
+    const { studentId, weeklyHours, methodologyScore } = parsed.data;
+
     // Ownership verification
     if (session.user.role === 'PARENT') {
       const parentProfile = await prisma.parentProfile.findFirst({
-        where: { userId: session.user.id },
-        include: { children: { where: { userId: studentId } } },
+        where: {
+          userId: session.user.id,
+          children: { some: { id: studentId } },
+        },
+        select: { id: true },
       });
-      if (!parentProfile || parentProfile.children.length === 0) {
+      if (!parentProfile) {
         return NextResponse.json(
           { success: false, error: 'Accès refusé à cet élève.' },
           { status: 403 }
@@ -66,23 +78,27 @@ export async function POST(request: NextRequest) {
           { status: 403 }
         );
       }
-      // Check if coach has any session with this student
-      const hasSession = await prisma.sessionBooking.findFirst({
+      const now = new Date();
+      const hasAssignment = await prisma.coachStudentAssignment.findFirst({
         where: {
-          studentId: studentId,
-          coachId: session.user.id,
+          studentId,
+          coachId: coachProfile.id,
+          status: 'ACTIVE',
+          startsAt: { lte: now },
+          OR: [{ endsAt: null }, { endsAt: { gte: now } }],
         },
+        select: { id: true },
       });
-      if (!hasSession) {
+      if (!hasAssignment) {
         return NextResponse.json(
-          { success: false, error: 'Aucune séance avec cet élève.' },
+          { success: false, error: 'Accès refusé à cet élève.' },
           { status: 403 }
         );
       }
     }
 
-    const hours = typeof weeklyHours === 'number' ? weeklyHours : 3;
-    const methScore = typeof methodologyScore === 'number' ? methodologyScore : undefined;
+    const hours = weeklyHours ?? 3;
+    const methScore = methodologyScore;
 
     const result = await predictSSNForStudent(studentId, hours, methScore);
 
@@ -101,7 +117,7 @@ export async function POST(request: NextRequest) {
       ...result,
     });
   } catch (error) {
-    console.error('[predict] Error:', error instanceof Error ? error.message : 'unknown');
+    console.error('[predict] Error:', error instanceof Error ? error.name : 'unknown');
     return NextResponse.json(
       { success: false, error: 'Erreur interne du serveur' },
       { status: 500 }
