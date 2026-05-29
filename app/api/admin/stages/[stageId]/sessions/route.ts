@@ -17,6 +17,11 @@ export async function GET(
   const { stageId } = await params;
 
   try {
+    const stage = await prisma.stage.findUnique({ where: { id: stageId } });
+    if (!stage) {
+      return NextResponse.json({ error: 'Stage introuvable' }, { status: 404 });
+    }
+
     const sessions = await prisma.stageSession.findMany({
       where: { stageId },
       orderBy: { startAt: 'asc' },
@@ -33,7 +38,7 @@ export async function GET(
 
     return NextResponse.json({ sessions });
   } catch (error) {
-    console.error('[GET /api/admin/stages/[stageId]/sessions]', error instanceof Error ? error.message : 'unknown');
+    console.error('[GET /api/admin/stages/[stageId]/sessions]', error instanceof Error ? error.name : 'unknown');
     return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }
@@ -70,9 +75,20 @@ export async function POST(
     }
 
     if (parsed.data.coachId) {
-      const coach = await prisma.coachProfile.findUnique({ where: { id: parsed.data.coachId } });
+      const [coach, stageCoach] = await Promise.all([
+        prisma.coachProfile.findUnique({ where: { id: parsed.data.coachId } }),
+        prisma.stageCoach.findFirst({
+          where: {
+            stageId,
+            coachId: parsed.data.coachId,
+          },
+        }),
+      ]);
       if (!coach) {
         return NextResponse.json({ error: 'Coach introuvable' }, { status: 400 });
+      }
+      if (!stageCoach) {
+        return NextResponse.json({ error: 'Coach non assigné à ce stage' }, { status: 400 });
       }
     }
 
@@ -96,7 +112,7 @@ export async function POST(
 
     return NextResponse.json({ session: createdSession }, { status: 201 });
   } catch (error) {
-    console.error('[POST /api/admin/stages/[stageId]/sessions]', error instanceof Error ? error.message : 'unknown');
+    console.error('[POST /api/admin/stages/[stageId]/sessions]', error instanceof Error ? error.name : 'unknown');
     return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }

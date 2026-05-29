@@ -190,6 +190,7 @@ describe('GET/POST /api/admin/stages/[stageId]/sessions', () => {
 
   it('lists sessions for ADMIN', async () => {
     mockAuth.mockResolvedValue(adminSession());
+    prisma.stage.findUnique.mockResolvedValue({ id: 'stage-1' });
     prisma.stageSession.findMany.mockResolvedValue([{ id: 'session-1' }]);
 
     const res = await listSessions(makeRequest('http://localhost:3000/api/admin/stages/stage-1/sessions'), { params });
@@ -220,6 +221,7 @@ describe('GET/POST/DELETE /api/admin/stages/[stageId]/coaches', () => {
 
   it('lists assigned coaches', async () => {
     mockAuth.mockResolvedValue(adminSession());
+    prisma.stage.findUnique.mockResolvedValue({ id: 'stage-1' });
     prisma.stageCoach.findMany.mockResolvedValue([{ id: 'assignment-1' }]);
 
     const res = await listCoaches(makeRequest('http://localhost:3000/api/admin/stages/stage-1/coaches'), { params });
@@ -231,7 +233,7 @@ describe('GET/POST/DELETE /api/admin/stages/[stageId]/coaches', () => {
     mockAuth.mockResolvedValue(adminSession());
     prisma.stage.findUnique.mockResolvedValue({ id: 'stage-1' });
     prisma.coachProfile.findUnique.mockResolvedValue({ id: 'coach-1' });
-    prisma.stageCoach.findUnique.mockResolvedValue(null);
+    prisma.stageCoach.findFirst.mockResolvedValue(null);
     prisma.stageCoach.create.mockResolvedValue({ id: 'assignment-1', coachId: 'coach-1' });
 
     const res = await assignCoach(makeRequest('http://localhost:3000/api/admin/stages/stage-1/coaches', {
@@ -245,6 +247,7 @@ describe('GET/POST/DELETE /api/admin/stages/[stageId]/coaches', () => {
 
   it('unassigns a coach', async () => {
     mockAuth.mockResolvedValue(adminSession());
+    prisma.stage.findUnique.mockResolvedValue({ id: 'stage-1' });
     prisma.stageCoach.deleteMany.mockResolvedValue({ count: 1 });
 
     const res = await unassignCoach(makeRequest('http://localhost:3000/api/admin/stages/stage-1/coaches', {

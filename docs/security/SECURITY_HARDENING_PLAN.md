@@ -494,6 +494,32 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - centralisation des projections bilans/reports à planifier en P1 si nécessaire.
 - Déploiement : terminé. Rollback prévu, non exécuté.
 
+#### Lot 2F-bis — Admin stages
+
+- Statut : corrigé/testé localement, non déployé production.
+- Routes :
+  - `app/api/admin/stages/[stageId]/route.ts`
+  - `app/api/admin/stages/[stageId]/coaches/route.ts`
+  - `app/api/admin/stages/[stageId]/sessions/route.ts`
+  - `app/api/admin/stages/[stageId]/sessions/[sessionId]/route.ts`
+- Règle métier :
+  - `ADMIN` only pour stage detail/PATCH/DELETE et assignation/retrait coach;
+  - `ADMIN` + `ASSISTANTE` pour la gestion des séances de stage.
+- Corrections :
+  - vérification explicite du stage avant listing/mutation dynamique;
+  - suppression coach refusée si aucune association `stageId + coachId` n'existe;
+  - création/mise à jour de séance refusée si le coach fourni n'est pas assigné au stage;
+  - PATCH session valide la chronologie finale complète, y compris quand seul `startAt` ou `endAt` est modifié;
+  - logs d'erreur admin stages réduits au type d'erreur.
+- Tests :
+  - tests ciblés Lot 2F-bis : 4 suites, 22 tests OK;
+  - régression admin stages existante : 1 suite, 13 tests OK;
+  - `node scripts/security/audit-api-guards.mjs` : inventaire régénéré, 164 routes.
+- Risques résiduels :
+  - audit global final P0-004 à produire après déploiement;
+  - réduction supplémentaire des projections admin à planifier en P1 si nécessaire.
+- Déploiement : à planifier après push et CI verte. Ne pas marquer déployé avant validation production.
+
 ## P1 — Durcissement court terme
 
 ### P1-001 — CSP
