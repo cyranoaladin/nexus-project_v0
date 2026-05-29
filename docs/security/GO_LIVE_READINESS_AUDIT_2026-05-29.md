@@ -12,7 +12,7 @@
 | Domaine | Statut | Risque | Priorité | Décision |
 |---|---|---|---|---|
 | API / IDOR | P0 clôturable sous réserve humaine | Régression future | P1 suivi | Conserver CI, inventaire et tests IDOR ciblés |
-| Anti-abus public | P1-A déployé production en fallback mémoire | Spam formulaires, email/Telegram, IA ou DB writes si backend distribué prod non configuré | P1 bloquant go-live large | Configurer Upstash/validation prod puis décider CAPTCHA/Turnstile |
+| Anti-abus public | P1-A déployé production en fallback mémoire; P1-A-bis Redis local corrigé localement | Spam formulaires, email/Telegram, IA ou DB writes si backend distribué prod non configuré | P1 bloquant go-live large | Déployer P1-A-bis puis configurer Redis local VPS via `REDIS_URL`; CAPTCHA/Turnstile à décider |
 | RGPD / mineurs / PII | Incomplet | Gouvernance insuffisante des données élèves, IA, documents | P1 bloquant go-live large | Documenter politiques et procédures |
 | Logs / PII | Incomplet | Emails, payloads, chemins locaux ou contenus pédagogiques possibles dans logs | P1 bloquant go-live large | Redaction centralisée et audit logs |
 | Monitoring / alerting | Partiel | Incidents non détectés | P1 bloquant go-live large | Alerting 5xx, DB, disque, SMTP, RAG/NPC |
@@ -34,7 +34,7 @@
 | `/api/contact` | Oui | Non direct observé | Placeholder log | `guardRateLimitAsync` | Upstash si env, sinon mémoire | Non observé | Spam futur | Corrigé localement P1-A |
 | `/api/auth/reset-password` | Oui | Token reset | Email | `guardRateLimitAsync`, preset auth | Upstash si env, sinon mémoire | Non observé | Brute force/email abuse | Corrigé localement P1-A |
 
-Constat P1-A : le helper de rate limit dispose désormais d'un mode async compatible Upstash REST, avec fallback mémoire pour dev/test et absence d'env. `RATE_LIMIT_DISABLE=1` ne désactive plus les protections en production. Le code est déployé en production depuis le commit `69f0e1435`; au déploiement et lors de la vérification opérationnelle suivante, `UPSTASH_REDIS_REST_URL` et `UPSTASH_REDIS_REST_TOKEN` étaient absentes, donc le mode attendu reste le fallback mémoire. Le runbook `docs/security/P1_A_UPSTASH_CONFIGURATION_RUNBOOK_2026-05-29.md` décrit l'ajout manuel, la validation et le rollback. Une bêta élargie non conditionnelle nécessite encore la configuration et la validation du backend distribué Upstash.
+Constat P1-A : le helper de rate limit dispose désormais d'un mode async compatible Redis local VPS et Upstash REST, avec fallback mémoire pour dev/test et absence d'env. `RATE_LIMIT_DISABLE=1` ne désactive plus les protections en production. Le code déployé en production depuis le commit `69f0e1435` reste en fallback mémoire; P1-A-bis ajoute localement la priorité `REDIS_URL` avant Upstash pour une option gratuite. Une bêta élargie non conditionnelle nécessite encore le déploiement P1-A-bis, l'installation/configuration Redis local sur le VPS et la validation du mode distribué.
 
 ### RGPD / mineurs / PII
 | Sujet | État actuel | Risque | Priorité | Action recommandée |
@@ -112,7 +112,7 @@ Constat P1-A : le helper de rate limit dispose désormais d'un mode async compat
 ## Bloquants avant go-live large
 | ID | Sujet | Risque | Action | Priorité |
 |---|---|---|---|---|
-| GL-P1-001 | Anti-abus distribué des routes publiques | Spam, coût IA/email, pollution DB si backend distribué non configuré | P1-A est déployé; appliquer le runbook Upstash, vérifier prod, puis décider CAPTCHA/Turnstile sur formulaires publics à risque | P1 |
+| GL-P1-001 | Anti-abus distribué des routes publiques | Spam, coût IA/email, pollution DB si backend distribué non configuré | Déployer P1-A-bis, configurer Redis local VPS via `REDIS_URL`, valider prod, puis décider CAPTCHA/Turnstile sur formulaires publics à risque | P1 |
 | GL-P1-002 | Logs sans PII excessive | Fuite emails, payloads, contenus élèves | Redaction centralisée + suppression logs payload/localPath/email brut | P1 |
 | GL-P1-003 | Backups et restauration | Perte DB/documents | Backup DB/uploads automatisé + restore drill daté | P1 |
 | GL-P1-004 | Monitoring/alerting | Incidents non détectés | Alerting 5xx, PM2, DB, disk, SMTP, RAG/NPC | P1 |
@@ -124,7 +124,7 @@ Constat P1-A : le helper de rate limit dispose désormais d'un mode async compat
 | Condition | Statut | Action |
 |---|---|---|
 | P0 API/IDOR validé humainement | Prêt côté audit | Validation humaine formelle |
-| Rate limit prod confirmé non désactivé | Déployé; `RATE_LIMIT_DISABLE=1` absent; fallback mémoire actif; runbook Upstash créé | Configurer `UPSTASH_REDIS_REST_URL` et `UPSTASH_REDIS_REST_TOKEN`, puis valider le mode distribué |
+| Rate limit prod confirmé non désactivé | Déployé; `RATE_LIMIT_DISABLE=1` absent; fallback mémoire actif; P1-A-bis Redis local corrigé localement | Déployer P1-A-bis, configurer `REDIS_URL`, puis valider le mode distribué |
 | Backups récents et restore drill | Non prouvé | Exécuter un test restauration |
 | Alerting minimal | Non prouvé | Configurer alerte 5xx/PM2/DB/disk |
 | Paiement carte | Non prêt | Désactiver explicitement en bêta ou finaliser sandbox |
@@ -134,7 +134,7 @@ Constat P1-A : le helper de rate limit dispose désormais d'un mode async compat
 ## Backlog P1/P2 recommandé
 | Priorité | Sujet | Action |
 |---|---|---|
-| P1-A | Anti-abus public et rate limiting distribué | Code déployé production; runbook Upstash créé; configurer Upstash et valider le mode distribué; CAPTCHA/Turnstile reste à décider |
+| P1-A/P1-A-bis | Anti-abus public et rate limiting distribué | P1-A déployé; P1-A-bis Redis local corrigé localement; déployer puis configurer `REDIS_URL`; CAPTCHA/Turnstile reste à décider |
 | P1-B | Logs/PII | Redaction logger, suppression payloads publics, tests snapshot |
 | P1-C | Backup/restore + monitoring | Restore drill, alerting, health détaillé |
 | P1-D | RGPD mineurs | Politique confidentialité, rétention, DSAR |
