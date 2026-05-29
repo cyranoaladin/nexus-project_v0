@@ -12,7 +12,7 @@ import { COURSE_SHEETS, DOMAINS } from "@/content/stage-eam-stmg/domains";
 import { TRAINING_EXERCISES } from "@/content/stage-eam-stmg/exercices";
 import type { DiagnosticAnswers, DomainId, ExerciseEvaluation } from "@/content/stage-eam-stmg/types";
 import { useStageProgress } from "@/hooks/stage-eam-stmg/useStageProgress";
-import { MathToken } from "./MathToken";
+import { MathInline } from "./MathInline";
 import { ProfileRadar } from "./ProfileRadar";
 
 const examDate = new Date("2026-06-08T08:00:00+01:00");
@@ -22,7 +22,7 @@ function Panel({ children, className = "" }: { children: React.ReactNode; classN
   return <section className={`rounded-card border border-neutral-700 bg-surface-card p-4 shadow-sm sm:p-5 ${className}`}>{children}</section>;
 }
 
-function TokenButton({ children, onClick, href }: { children: React.ReactNode; onClick?: () => void; href?: string }) {
+function ActionButton({ children, onClick, href }: { children: React.ReactNode; onClick?: () => void; href?: string }) {
   const className = "inline-flex items-center justify-center gap-2 rounded-card-sm border border-neutral-600 bg-surface-elevated px-3 py-2 text-sm font-semibold text-neutral-100 transition hover:border-brand-accent hover:text-brand-accent focus:outline-none focus:ring-2 focus:ring-brand-accent";
   if (href) return <Link className={className} href={href}>{children}</Link>;
   return <button type="button" onClick={onClick} className={className}>{children}</button>;
@@ -195,7 +195,7 @@ export function StageEamStmgDashboard({ eleveId }: { eleveId: string }) {
             </select>
             <div className="mt-3 rounded-card-sm border border-neutral-700 bg-surface-elevated p-4">
               {runStartedAt === null ? (
-                <TokenButton onClick={startRun}><Play className="h-4 w-4" />Démarrer une série de {selectedItems.length} items</TokenButton>
+                <ActionButton onClick={startRun}><Play className="h-4 w-4" />Démarrer une série de {selectedItems.length} items</ActionButton>
               ) : (
                 <div className="space-y-3">
                   <p className="text-xs font-bold uppercase text-brand-accent">Item {runIndex + 1}/{selectedItems.length} · sans calculatrice</p>
@@ -211,7 +211,7 @@ export function StageEamStmgDashboard({ eleveId }: { eleveId: string }) {
                     <div className="rounded-card-sm border border-neutral-700 bg-surface-darker p-3 text-sm">
                       <p className="font-bold text-brand-accent">{runChoice === currentRunItem.answerIndex ? "Correct." : "À reprendre."}</p>
                       <RichMath content={currentRunItem.correction} />
-                      {runIndex + 1 < selectedItems.length ? <TokenButton onClick={nextRunItem}>Item suivant</TokenButton> : <p className="mt-2 text-neutral-300">Série enregistrée dans l’historique.</p>}
+                      {runIndex + 1 < selectedItems.length ? <ActionButton onClick={nextRunItem}>Item suivant</ActionButton> : <p className="mt-2 text-neutral-300">Série enregistrée dans l’historique.</p>}
                     </div>
                   )}
                 </div>
@@ -237,7 +237,7 @@ export function StageEamStmgDashboard({ eleveId }: { eleveId: string }) {
           <div className="grid gap-4 lg:grid-cols-2">
             <div>
               <h3 className="font-bold">Formules</h3>
-              {selectedDomainData.formulas.map((formula) => <p key={formula.label} className="mt-2 text-sm">{formula.label} : <MathToken latex={formula.latex} /></p>)}
+              {selectedDomainData.formulas.map((formula) => <p key={formula.label} className="mt-2 text-sm">{formula.label} : <MathInline latex={formula.latex} /></p>)}
             </div>
             <div>
               <h3 className="font-bold">Notions</h3>
@@ -255,9 +255,9 @@ export function StageEamStmgDashboard({ eleveId }: { eleveId: string }) {
                 <h3 className="font-bold">{exercise.title}</h3>
                 {exercise.statement.map((line) => <RichMath key={line} content={line} />)}
                 <ul className="mt-3 list-inside list-disc text-sm text-neutral-300">{exercise.questions.map((question) => <li key={question}><RichMath content={question} inline /></li>)}</ul>
-                <TokenButton onClick={() => setRevealedCorrections((current) => ({ ...current, [exercise.id]: !current[exercise.id] }))}>
+                <ActionButton onClick={() => setRevealedCorrections((current) => ({ ...current, [exercise.id]: !current[exercise.id] }))}>
                   {revealedCorrections[exercise.id] ? "Masquer la correction" : "Afficher la correction"}
-                </TokenButton>
+                </ActionButton>
                 {revealedCorrections[exercise.id] && (
                   <div className="mt-3 space-y-3 rounded-card-sm bg-surface-darker p-3">
                     {exercise.correction.map((block) => <div key={block.title}><h4 className="font-bold text-brand-accent">{block.title}</h4>{block.details.map((detail) => <RichMath key={detail} content={detail} />)}</div>)}
@@ -275,37 +275,37 @@ export function StageEamStmgDashboard({ eleveId }: { eleveId: string }) {
             <p className="text-3xl font-black text-brand-accent">{new Date(examSeconds * 1000).toISOString().slice(11, 19)}</p>
             <p className="text-xs text-neutral-400">Minuteur de référence à lancer au début du sujet.</p>
             <div className="mt-3 flex justify-center gap-2">
-              <TokenButton onClick={() => setExamTimerRunning((value) => !value)}>{examTimerRunning ? "Mettre en pause" : "Lancer le minuteur"}</TokenButton>
-              <TokenButton onClick={() => { setExamTimerRunning(false); setExamSeconds(2 * 60 * 60); }}>Réinitialiser</TokenButton>
+              <ActionButton onClick={() => setExamTimerRunning((value) => !value)}>{examTimerRunning ? "Mettre en pause" : "Lancer le minuteur"}</ActionButton>
+              <ActionButton onClick={() => { setExamTimerRunning(false); setExamSeconds(2 * 60 * 60); }}>Réinitialiser</ActionButton>
             </div>
           </div>
           <div className="mt-3 flex flex-wrap gap-2 text-sm">
             {/* SOURCE: Drive EAM_entraienemnt + sujets zéro Éduscol voie technologique. */}
-            <TokenButton href="https://drive.google.com/file/d/1lgWeP15vi4FSTW9HEBCpXT1F9pv6un4r/view">Sujet d’entraînement Nexus</TokenButton>
-            <TokenButton href="https://drive.google.com/file/d/1aNFBm3Llhk79Y0ZZdWUBkO0nbSW7GNbD/view">Corrigé Nexus</TokenButton>
-            <TokenButton href="https://eduscol.education.fr/4230/epreuve-anticipee-de-mathematiques-aux-baccalaureats-general-et-technologique">Sujets zéro Éduscol</TokenButton>
+            <ActionButton href="https://drive.google.com/file/d/1lgWeP15vi4FSTW9HEBCpXT1F9pv6un4r/view">Sujet d’entraînement Nexus</ActionButton>
+            <ActionButton href="https://drive.google.com/file/d/1aNFBm3Llhk79Y0ZZdWUBkO0nbSW7GNbD/view">Corrigé Nexus</ActionButton>
+            <ActionButton href="https://eduscol.education.fr/4230/epreuve-anticipee-de-mathematiques-aux-baccalaureats-general-et-technologique">Sujets zéro Éduscol</ActionButton>
           </div>
         </Panel>
 
         <Panel>
           <h2 className="mb-3 text-xl font-black">Accès livret & contrôles</h2>
           <div className="flex flex-wrap gap-2">
-            <TokenButton href="/dashboard/eleve/stage-eam-stmg/livret"><FileText className="h-4 w-4" />Livret imprimable</TokenButton>
-            <TokenButton href="/dashboard/eleve/stage-eam-stmg/diagnostic"><CheckCircle2 className="h-4 w-4" />Diagnostic J0</TokenButton>
-            <TokenButton onClick={() => {
+            <ActionButton href="/dashboard/eleve/stage-eam-stmg/livret"><FileText className="h-4 w-4" />Livret imprimable</ActionButton>
+            <ActionButton href="/dashboard/eleve/stage-eam-stmg/diagnostic"><CheckCircle2 className="h-4 w-4" />Diagnostic J0</ActionButton>
+            <ActionButton onClick={() => {
               const data = progress.exportJson();
               if (navigator.clipboard) navigator.clipboard.writeText(data);
               else setImportText(data);
               setImportStatus("Export JSON prêt.");
-            }}><Download className="h-4 w-4" />Exporter JSON</TokenButton>
-            <TokenButton onClick={() => progress.reset()}><RotateCcw className="h-4 w-4" />Réinitialiser</TokenButton>
+            }}><Download className="h-4 w-4" />Exporter JSON</ActionButton>
+            <ActionButton onClick={() => progress.reset()}><RotateCcw className="h-4 w-4" />Réinitialiser</ActionButton>
           </div>
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={progress.state.settings.countdownEnabled} onChange={(e) => progress.setSetting("countdownEnabled", e.target.checked)} />Compte à rebours activé</label>
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={progress.state.settings.gamificationEnabled} onChange={(e) => progress.setSetting("gamificationEnabled", e.target.checked)} />Gamification activée</label>
           </div>
           <textarea value={importText} onChange={(e) => setImportText(e.target.value)} placeholder="Coller un export JSON ici" className="mt-4 min-h-24 w-full rounded-card-sm border border-neutral-700 bg-surface-elevated p-3 text-sm" />
-          <TokenButton onClick={() => {
+          <ActionButton onClick={() => {
             try {
               JSON.parse(importText);
               progress.importJson(importText);
@@ -313,7 +313,7 @@ export function StageEamStmgDashboard({ eleveId }: { eleveId: string }) {
             } catch {
               setImportStatus("Import impossible : JSON invalide.");
             }
-          }}><Import className="h-4 w-4" />Importer</TokenButton>
+          }}><Import className="h-4 w-4" />Importer</ActionButton>
           {importStatus && <p className="mt-2 text-sm text-neutral-300" role="status">{importStatus}</p>}
         </Panel>
       </div>
@@ -374,12 +374,12 @@ export function StageEamStmgDiagnostic({ eleveId }: { eleveId: string }) {
               </div>
             </fieldset>
           ))}
-          <TokenButton onClick={() => progress.saveDiagnostic(answers, profile)}><CheckCircle2 className="h-4 w-4" />Enregistrer le profil</TokenButton>
+          <ActionButton onClick={() => progress.saveDiagnostic(answers, profile)}><CheckCircle2 className="h-4 w-4" />Enregistrer le profil</ActionButton>
         </Panel>
         <Panel>
           <h2 className="mb-3 text-xl font-black">Sortie diagnostic</h2>
           <ProfileRadar scores={profile.domainScores} />
-          <TokenButton href="/dashboard/eleve/stage-eam-stmg">Retour dashboard</TokenButton>
+          <ActionButton href="/dashboard/eleve/stage-eam-stmg">Retour dashboard</ActionButton>
         </Panel>
       </div>
     </main>
