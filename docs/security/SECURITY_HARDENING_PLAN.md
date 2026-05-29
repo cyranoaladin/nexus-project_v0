@@ -496,7 +496,7 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
 
 #### Lot 2F-bis — Admin stages
 
-- Statut : corrigé/testé localement, non déployé production.
+- Statut : corrigé, testé, CI verte et déployé production le 2026-05-29.
 - Routes :
   - `app/api/admin/stages/[stageId]/route.ts`
   - `app/api/admin/stages/[stageId]/coaches/route.ts`
@@ -514,11 +514,18 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
 - Tests :
   - tests ciblés Lot 2F-bis : 4 suites, 22 tests OK;
   - régression admin stages existante : 1 suite, 13 tests OK;
+  - validations serveur avant reload : `npm run typecheck` OK, tests ciblés + régression admin stages 5 suites, 35 tests OK, `NODE_ENV=production npm run build` OK (`BUILD_EXIT=0`);
   - `node scripts/security/audit-api-guards.mjs` : inventaire régénéré, 164 routes.
+- Déploiement production :
+  - CI GitHub : run `26656051489`, `completed/success`, SHA `802acb9112d90ddcd04adb8699367da2ac664ae3`;
+  - backup : `/root/nexus-backups/deploy-p0-004-lot2f-bis-admin-stages-20260529210803`;
+  - HEAD avant : `dd1e519b661e581555f92fedf1f2c414be726f15`;
+  - HEAD après : `802acb91`;
+  - smoke après reload : site 200, dashboard no-auth 307, api health 200, routes admin stages sans auth jamais 200, POST/PATCH invalides sans auth refusés sans mutation.
 - Risques résiduels :
   - audit global final P0-004 à produire après déploiement;
   - réduction supplémentaire des projections admin à planifier en P1 si nécessaire.
-- Déploiement : à planifier après push et CI verte. Ne pas marquer déployé avant validation production.
+- Déploiement : terminé. Rollback prévu, non exécuté.
 
 ## P1 — Durcissement court terme
 
