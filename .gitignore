@@ -84,6 +84,8 @@ e2e/fixtures/*.json
 
 # Données stages locales JSON (source de vérité : DB Prisma)
 data/stages/*.json
+scripts/data/*.real.json
+scripts/data/*students*.json
 
 # ─── PII / Données nominatives ────────────────────────────────────────────
 diagnostic_*.json
