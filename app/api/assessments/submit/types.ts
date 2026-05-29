@@ -12,6 +12,10 @@ import { Subject } from '@/lib/assessments/core/types';
 export const submitAssessmentSchema = z.object({
   subject: z.nativeEnum(Subject),
   grade: z.enum(['PREMIERE', 'TERMINALE']),
+  assessmentVersion: z
+    .string()
+    .regex(/^[a-z0-9_:-]{1,80}$/i, 'Version assessment invalide')
+    .optional(),
   studentData: z.object({
     email: z.string().email('Email invalide'),
     name: z.string().min(2, 'Nom trop court'),

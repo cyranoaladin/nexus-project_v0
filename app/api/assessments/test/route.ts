@@ -9,9 +9,19 @@
 
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { auth } from '@/auth';
 
 export async function GET() {
   try {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (session.user.role !== 'ADMIN') {
+      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
+    }
+
     // Test 1: Count assessments
     const count = await prisma.assessment.count();
 
@@ -38,15 +48,12 @@ export async function GET() {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.error('[Assessment Test] Error:', message);
+    console.error('[Assessment Test] Error:', error instanceof Error ? error.name : 'unknown');
 
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to access Assessment model',
-        message,
-        hint: 'Make sure to run: npx prisma migrate deploy && npx prisma generate',
+        error: 'Internal server error',
       },
       { status: 500 }
     );

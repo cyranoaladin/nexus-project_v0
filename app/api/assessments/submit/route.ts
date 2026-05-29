@@ -22,9 +22,13 @@ import { scoringResultSchema } from '@/lib/assessments/core/schemas';
 import { submitAssessmentSchema, type SubmitAssessmentResponse } from './types';
 import { headers } from 'next/headers';
 import { backfillCanonicalDomains } from '@/lib/assessments/core/config';
+import { guardRateLimit } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   try {
+    const blocked = guardRateLimit(request, { preset: 'expensive', keySuffix: 'assessments-submit' });
+    if (blocked) return blocked;
+
     // Parse and validate request
     const body = await request.json();
     const validationResult = submitAssessmentSchema.safeParse(body);
@@ -40,20 +44,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { subject, grade, studentData, answers, duration, metadata } = validationResult.data;
+    const { subject, grade, assessmentVersion, studentData, answers, duration, metadata } = validationResult.data;
 
     // Get user agent and IP for tracking
     const headersList = await headers();
     const userAgent = headersList.get('user-agent') || undefined;
     const ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || undefined;
 
-    console.log(`[Assessment Submit] ${subject} ${grade} - ${studentData.email}`);
+    console.log(`[Assessment Submit] ${subject} ${grade}`);
 
     // ─── Step 1: Load Questions (version-aware) ─────────────────────────────
 
-    const requestedVersion = (body as Record<string, unknown>)?.assessmentVersion as string | undefined;
     const { questions, resolvedVersion } = await QuestionBank.loadByVersion(
-      requestedVersion,
+      assessmentVersion,
       subject as Subject,
       grade as Grade
     );
@@ -198,16 +201,14 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(response, { status: 201 });
   } catch (error) {
-    console.error('[Assessment Submit] Error:', error);
+    console.error('[Assessment Submit] Error:', error instanceof Error ? error.name : 'unknown');
 
     return NextResponse.json(
       {
         success: false,
         error: 'Internal server error',
-        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );
   }
 }
-

@@ -145,7 +145,7 @@ export async function GET(
       ...(llmFailed && !hasBilans ? { llmUnavailableMessage: 'L\'analyse IA personnalisée est temporairement indisponible. Vos scores et résultats sont disponibles.' } : {}),
     });
   } catch (error) {
-    console.error('[Assessment Result] Error:', error);
+    console.error('[Assessment Result] Error:', error instanceof Error ? error.name : 'unknown');
 
     return NextResponse.json(
       {

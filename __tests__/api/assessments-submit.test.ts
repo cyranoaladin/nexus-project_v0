@@ -6,12 +6,18 @@
 
 import { POST } from '@/app/api/assessments/submit/route';
 import { prisma } from '@/lib/prisma';
+import { guardRateLimit } from '@/lib/rate-limit';
+import { QuestionBank } from '@/lib/assessments/questions';
 
 // Mock next/headers
 jest.mock('next/headers', () => ({
   headers: jest.fn().mockResolvedValue({
     get: jest.fn().mockReturnValue(null),
   }),
+}));
+
+jest.mock('@/lib/rate-limit', () => ({
+  guardRateLimit: jest.fn().mockReturnValue(null),
 }));
 
 // Mock QuestionBank
@@ -97,6 +103,28 @@ describe('POST /api/assessments/submit', () => {
       globalScore: 50,
     });
     (prisma.$executeRawUnsafe as jest.Mock).mockResolvedValue(1);
+  });
+
+  it('returns 429 when public submission rate limit is exceeded', async () => {
+    (guardRateLimit as jest.Mock).mockReturnValueOnce(
+      Response.json({ error: 'RATE_LIMIT' }, { status: 429 })
+    );
+
+    const request = new Request('http://localhost/api/assessments/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        subject: 'MATHS',
+        grade: 'TERMINALE',
+        studentData: { email: 'test@example.com', name: 'Test Student' },
+        answers: { 'MATH-COMB-01': 'a' },
+      }),
+    });
+
+    const response = await POST(request as any);
+
+    expect(response.status).toBe(429);
+    expect(prisma.assessment.create).not.toHaveBeenCalled();
   });
 
   it('returns 201 with valid payload', async () => {
@@ -217,5 +245,82 @@ describe('POST /api/assessments/submit', () => {
     expect(createCall.data.grade).toBe('TERMINALE');
     expect(createCall.data.studentEmail).toBe('test@example.com');
     expect(createCall.data.globalScore).toBe(50);
+  });
+
+  it('does not persist a client-supplied studentId on public submissions', async () => {
+    const request = new Request('http://localhost/api/assessments/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        subject: 'MATHS',
+        grade: 'TERMINALE',
+        studentData: {
+          email: 'test@example.com',
+          name: 'Test Student',
+        },
+        studentId: 'student-owned-by-someone-else',
+        answers: {
+          'MATH-COMB-01': 'a',
+        },
+      }),
+    });
+
+    await POST(request as any);
+
+    const createCall = (prisma.assessment.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data).not.toHaveProperty('studentId');
+  });
+
+  it('rejects malformed assessmentVersion before loading questions', async () => {
+    const request = new Request('http://localhost/api/assessments/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        subject: 'MATHS',
+        grade: 'TERMINALE',
+        studentData: {
+          email: 'test@example.com',
+          name: 'Test Student',
+        },
+        assessmentVersion: '../secret',
+        answers: {
+          'MATH-COMB-01': 'a',
+        },
+      }),
+    });
+
+    const response = await POST(request as any);
+
+    expect(response.status).toBe(400);
+    expect(QuestionBank.loadByVersion).not.toHaveBeenCalled();
+  });
+
+  it('does not expose internal exception messages in 500 responses', async () => {
+    (prisma.assessment.create as jest.Mock).mockRejectedValueOnce(
+      new Error('postgres://secret-db-internal')
+    );
+
+    const request = new Request('http://localhost/api/assessments/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        subject: 'MATHS',
+        grade: 'TERMINALE',
+        studentData: {
+          email: 'test@example.com',
+          name: 'Test Student',
+        },
+        answers: {
+          'MATH-COMB-01': 'a',
+        },
+      }),
+    });
+
+    const response = await POST(request as any);
+    const body = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(JSON.stringify(body)).not.toContain('postgres://secret-db-internal');
+    expect(body.message).toBeUndefined();
   });
 });
