@@ -6,12 +6,16 @@ import { sendMail } from '@/lib/email/mailer';
 import { telegramSendMessage } from '@/lib/telegram/client';
 import { computeReservationStatus } from '@/lib/stages/capacity';
 import { publicStageInscriptionSchema } from '@/lib/stages/inscription-schema';
+import { guardRateLimit } from '@/lib/rate-limit';
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ stageSlug: string }> }
 ) {
   const { stageSlug } = await params;
+
+  const blocked = guardRateLimit(req, { preset: 'api', keySuffix: `stage-inscrire:${stageSlug}` });
+  if (blocked) return blocked;
 
   let body: unknown;
   try {
@@ -109,11 +113,11 @@ export async function POST(
     ).catch(() => {});
 
     return NextResponse.json(
-      { reservation: { id: reservation.id, status: richStatus }, message: 'Inscription enregistrée.' },
+      { reservation: { status: richStatus }, message: 'Inscription enregistrée.' },
       { status: 201 }
     );
   } catch (error) {
-    console.error('[POST /api/stages/[slug]/inscrire]', error instanceof Error ? error.message : 'unknown');
+    console.error('[POST /api/stages/[slug]/inscrire]', error instanceof Error ? error.name : 'unknown');
     return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }

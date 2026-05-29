@@ -142,6 +142,46 @@ describe('GET /api/stages', () => {
     expect(body.stages[0]._count.reservations).toBe(2);
   });
 
+  it('ne retourne aucune PII ou bilan nominatif dans le catalogue public', async () => {
+    prisma.stage.findMany.mockResolvedValue([
+      stageRecord({
+        bilans: [
+          {
+            id: 'bilan-1',
+            scoreGlobal: 17,
+            isPublished: true,
+            pdfUrl: '/private/bilan.pdf',
+            publishedAt: new Date('2026-04-26T10:00:00.000Z'),
+            createdAt: new Date('2026-04-25T10:00:00.000Z'),
+            student: {
+              user: {
+                firstName: 'Ahmed',
+                lastName: 'Ben Ali',
+              },
+            },
+            coach: {
+              pseudonym: 'Helios',
+            },
+          },
+        ],
+      }),
+    ]);
+
+    const res = await getStages(listRequest());
+    const body = await res.json();
+    const serialized = JSON.stringify(body);
+
+    expect(res.status).toBe(200);
+    expect(serialized).not.toContain('Ahmed');
+    expect(serialized).not.toContain('Ben Ali');
+    expect(serialized).not.toContain('pdfUrl');
+    expect(serialized).not.toContain('/private/bilan.pdf');
+    expect(serialized).not.toContain('email');
+    expect(serialized).not.toContain('phone');
+    expect(serialized).not.toContain('activationToken');
+    expect(body.stages[0]).not.toHaveProperty('bilans');
+  });
+
   it('ne retourne pas les stages isVisible=false', async () => {
     prisma.stage.findMany.mockResolvedValue([]);
 
@@ -214,5 +254,40 @@ describe('GET /api/stages/[slug]', () => {
     const body = await res.json();
 
     expect(body.stage.coaches[0].coach.pseudonym).toBe('Helios');
+  });
+
+  it('ne retourne pas de bilan nominatif dans le détail public', async () => {
+    prisma.stage.findFirst.mockResolvedValue(stageRecord({
+      bilans: [
+        {
+          id: 'bilan-1',
+          scoreGlobal: 15,
+          isPublished: true,
+          pdfUrl: '/private/bilan.pdf',
+          publishedAt: new Date('2026-04-26T10:00:00.000Z'),
+          createdAt: new Date('2026-04-25T10:00:00.000Z'),
+          student: {
+            user: {
+              firstName: 'Sara',
+              lastName: 'Trabelsi',
+            },
+          },
+          coach: {
+            pseudonym: 'Helios',
+          },
+        },
+      ],
+    }));
+
+    const res = await getStageDetail(detailRequest(), { params });
+    const body = await res.json();
+    const serialized = JSON.stringify(body);
+
+    expect(res.status).toBe(200);
+    expect(serialized).not.toContain('Sara');
+    expect(serialized).not.toContain('Trabelsi');
+    expect(serialized).not.toContain('pdfUrl');
+    expect(serialized).not.toContain('/private/bilan.pdf');
+    expect(body.stage).not.toHaveProperty('bilans');
   });
 });

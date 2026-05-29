@@ -96,7 +96,8 @@ describe('POST /api/stages/[slug]/inscrire', () => {
     const body = await res.json();
 
     expect(res.status).toBe(201);
-    expect(body.reservation).toEqual({ id: 'res-1', status: 'PENDING' });
+    expect(body.reservation).toEqual({ status: 'PENDING' });
+    expect(body.reservation).not.toHaveProperty('id');
     expect(prisma.stageReservation.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
@@ -124,7 +125,8 @@ describe('POST /api/stages/[slug]/inscrire', () => {
     const body = await res.json();
 
     expect(res.status).toBe(201);
-    expect(body.reservation).toEqual({ id: 'res-2', status: 'WAITLISTED' });
+    expect(body.reservation).toEqual({ status: 'WAITLISTED' });
+    expect(body.reservation).not.toHaveProperty('id');
   });
 
   it('envoie un email de confirmation', async () => {
@@ -173,7 +175,7 @@ describe('POST /api/stages/[slug]/inscrire', () => {
     );
   });
 
-  it('retourne 201 avec { reservation: { id, status } }', async () => {
+  it('retourne 201 avec une réponse publique minimale sans id interne', async () => {
     prisma.stage.findUnique.mockResolvedValue({
       id: 'stage-1',
       slug: 'printemps-2026',
@@ -192,8 +194,9 @@ describe('POST /api/stages/[slug]/inscrire', () => {
 
     expect(res.status).toBe(201);
     expect(body).toEqual({
-      reservation: { id: 'res-5', status: 'PENDING' },
+      reservation: { status: 'PENDING' },
       message: 'Inscription enregistrée.',
     });
+    expect(JSON.stringify(body)).not.toContain('res-5');
   });
 });
