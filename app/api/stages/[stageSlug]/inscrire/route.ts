@@ -6,7 +6,7 @@ import { sendMail } from '@/lib/email/mailer';
 import { telegramSendMessage } from '@/lib/telegram/client';
 import { computeReservationStatus } from '@/lib/stages/capacity';
 import { publicStageInscriptionSchema } from '@/lib/stages/inscription-schema';
-import { guardRateLimit } from '@/lib/rate-limit';
+import { guardRateLimitAsync } from '@/lib/rate-limit';
 
 export async function POST(
   req: NextRequest,
@@ -14,7 +14,7 @@ export async function POST(
 ) {
   const { stageSlug } = await params;
 
-  const blocked = guardRateLimit(req, { preset: 'api', keySuffix: `stage-inscrire:${stageSlug}` });
+  const blocked = await guardRateLimitAsync(req, { preset: 'api', keySuffix: `stage-inscrire:${stageSlug}` });
   if (blocked) return blocked;
 
   let body: unknown;

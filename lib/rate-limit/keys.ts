@@ -7,13 +7,11 @@
  */
 
 import { createHash } from 'crypto';
-import { NextRequest } from 'next/server';
-
 /**
  * Extract client IP from request headers.
  * Respects x-forwarded-for (first entry) and x-real-ip set by nginx.
  */
-export function getClientIp(request: NextRequest): string {
+export function getClientIp(request: Request): string {
   const forwarded = request.headers.get('x-forwarded-for');
   if (forwarded) return forwarded.split(',')[0].trim();
   return request.headers.get('x-real-ip') || 'anonymous';
@@ -27,7 +25,7 @@ export function getClientIp(request: NextRequest): string {
  * @param userId  - If available, use userId instead of IP for fairness
  */
 export function buildKey(
-  request: NextRequest,
+  request: Request,
   prefix: string,
   userId?: string | null,
 ): string {

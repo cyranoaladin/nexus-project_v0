@@ -22,11 +22,11 @@ import { scoringResultSchema } from '@/lib/assessments/core/schemas';
 import { submitAssessmentSchema, type SubmitAssessmentResponse } from './types';
 import { headers } from 'next/headers';
 import { backfillCanonicalDomains } from '@/lib/assessments/core/config';
-import { guardRateLimit } from '@/lib/rate-limit';
+import { guardRateLimitAsync } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   try {
-    const blocked = guardRateLimit(request, { preset: 'expensive', keySuffix: 'assessments-submit' });
+    const blocked = await guardRateLimitAsync(request, { preset: 'expensive', keySuffix: 'assessments-submit' });
     if (blocked) return blocked;
 
     // Parse and validate request

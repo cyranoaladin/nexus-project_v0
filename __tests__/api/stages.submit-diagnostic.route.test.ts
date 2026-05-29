@@ -8,6 +8,7 @@
 
 jest.mock('@/lib/rate-limit', () => ({
   guardRateLimit: jest.fn().mockReturnValue(null),
+  guardRateLimitAsync: jest.fn().mockResolvedValue(null),
 }));
 
 jest.mock('@/lib/scoring-engine', () => ({

@@ -14,13 +14,16 @@
  *   if (!rl.success) return rateLimitResponse(rl);
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { MemoryStore } from './memory-store';
+import { UpstashStore } from './upstash-store';
 import { PRESETS, type PresetName, type RateLimitPresetConfig } from './presets';
 import { buildKey } from './keys';
 
 // ── Singleton store ────────────────────────────────────────────────
 let _store: MemoryStore | null = null;
+let _distributedStore: UpstashStore | null = null;
+let _distributedWarned = false;
 
 function getStore(): MemoryStore {
   if (!_store) {
@@ -34,7 +37,35 @@ function getStore(): MemoryStore {
 export function _resetStoreForTests(): MemoryStore {
   _store?.destroy();
   _store = new MemoryStore();
+  _distributedStore = null;
+  _distributedWarned = false;
   return _store;
+}
+
+export type RateLimitRuntimeMode = 'memory' | 'upstash';
+
+function canBypassRateLimit(): boolean {
+  return process.env.RATE_LIMIT_DISABLE === '1' && process.env.NODE_ENV !== 'production';
+}
+
+export function getRateLimitRuntimeMode(): RateLimitRuntimeMode {
+  if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+    return 'upstash';
+  }
+  return 'memory';
+}
+
+function getDistributedStore(): UpstashStore | null {
+  if (getRateLimitRuntimeMode() !== 'upstash') return null;
+
+  if (!_distributedStore) {
+    _distributedStore = new UpstashStore({
+      url: process.env.UPSTASH_REDIS_REST_URL!,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+    });
+  }
+
+  return _distributedStore;
 }
 
 // ── Public API ─────────────────────────────────────────────────────
@@ -63,11 +94,11 @@ export interface CheckRateLimitOptions {
  * Always returns a result — never throws.
  */
 export function checkRateLimit(
-  request: NextRequest,
+  request: Request,
   options: CheckRateLimitOptions,
 ): RateLimitResult {
   // CI/E2E bypass
-  if (process.env.RATE_LIMIT_DISABLE === '1') {
+  if (canBypassRateLimit()) {
     return { success: true, limit: Infinity, remaining: Infinity, resetAt: 0, retryAfter: 0 };
   }
 
@@ -82,6 +113,45 @@ export function checkRateLimit(
   const retryAfter = success ? 0 : Math.max(0, Math.ceil((resetAt - Date.now()) / 1000));
 
   return { success, limit, remaining, resetAt, retryAfter };
+}
+
+/**
+ * Async variant used by public write routes. It uses Upstash REST when
+ * configured and falls back to MemoryStore otherwise.
+ */
+export async function checkRateLimitAsync(
+  request: Request,
+  options: CheckRateLimitOptions,
+): Promise<RateLimitResult> {
+  if (canBypassRateLimit()) {
+    return { success: true, limit: Infinity, remaining: Infinity, resetAt: 0, retryAfter: 0 };
+  }
+
+  const config: RateLimitPresetConfig = PRESETS[options.preset];
+  const prefix = options.keySuffix
+    ? `${options.preset}:${options.keySuffix}`
+    : options.preset;
+  const key = buildKey(request, prefix, options.userId);
+
+  const distributedStore = getDistributedStore();
+  if (distributedStore) {
+    try {
+      const { success, limit, remaining, resetAt } = await distributedStore.increment(
+        key,
+        config.limit,
+        config.windowMs,
+      );
+      const retryAfter = success ? 0 : Math.max(0, Math.ceil((resetAt - Date.now()) / 1000));
+      return { success, limit, remaining, resetAt, retryAfter };
+    } catch (error) {
+      if (!_distributedWarned && process.env.NODE_ENV !== 'test') {
+        _distributedWarned = true;
+        console.warn('[rate-limit] Distributed store unavailable, falling back to memory store:', error instanceof Error ? error.name : 'unknown');
+      }
+    }
+  }
+
+  return checkRateLimit(request, options);
 }
 
 /**
@@ -116,10 +186,19 @@ export function rateLimitResponse(result: RateLimitResult): NextResponse {
  *   if (blocked) return blocked;
  */
 export function guardRateLimit(
-  request: NextRequest,
+  request: Request,
   options: CheckRateLimitOptions,
 ): NextResponse | null {
   const result = checkRateLimit(request, options);
+  if (!result.success) return rateLimitResponse(result);
+  return null;
+}
+
+export async function guardRateLimitAsync(
+  request: Request,
+  options: CheckRateLimitOptions,
+): Promise<NextResponse | null> {
+  const result = await checkRateLimitAsync(request, options);
   if (!result.success) return rateLimitResponse(result);
   return null;
 }
@@ -128,3 +207,4 @@ export function guardRateLimit(
 export { PRESETS, type PresetName } from './presets';
 export { buildKey, getClientIp, hashForKey } from './keys';
 export { MemoryStore } from './memory-store';
+export { UpstashStore } from './upstash-store';

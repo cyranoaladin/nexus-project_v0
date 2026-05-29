@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { prisma } from '@/lib/prisma';
-import { guardRateLimit } from '@/lib/rate-limit';
+import { guardRateLimitAsync } from '@/lib/rate-limit';
 import { checkCsrf, checkBodySize } from '@/lib/csrf';
 import { generateResetToken, verifyResetToken } from '@/lib/password-reset-token';
 import bcrypt from 'bcryptjs';
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     if (bodySizeResponse) return bodySizeResponse;
 
     // Rate limiting: strict for password reset (5 req/15min)
-    const blocked = guardRateLimit(request, { preset: 'auth' });
+    const blocked = await guardRateLimitAsync(request, { preset: 'auth' });
     if (blocked) return blocked;
 
     const body = await request.json();

@@ -567,12 +567,16 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
 
 ### P1-004 — Rate limiting
 - Risque : brute force et spam sur auth, reset, ARIA, contact, paiement.
-- Fichiers concernés : routes API publiques et mutations sensibles.
-- Action : appliquer rate limit centralisé.
-- Test attendu : seuils 429 couverts par tests.
-- Statut : à faire.
+- Fichiers concernés : `lib/rate-limit/**`, routes API publiques et mutations sensibles.
+- Action : rate limit centralisé avec garde async distribuée optionnelle Upstash, fallback mémoire dev/test, et bypass `RATE_LIMIT_DISABLE=1` ignoré en production.
+- Test attendu : seuils 429 couverts par tests; couverture des routes publiques sensibles.
+- Statut : P1-A corrigé/testé localement, non déployé production.
 - Propriétaire proposé : Backend.
-- Rollback : désactiver par variable env.
+- Rollback : revert du commit P1-A; la variable `RATE_LIMIT_DISABLE` ne désactive plus la production.
+- Document : `docs/security/P1_A_ANTI_ABUSE_RATE_LIMITING_2026-05-29.md`.
+- Routes couvertes P1-A : `/api/bilan-gratuit`, `/api/stages/[stageSlug]/inscrire`, `/api/stages/submit-diagnostic`, `/api/assessments/submit`, `/api/contact`, `/api/auth/reset-password`.
+- Variables production attendues : `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`.
+- Limite : bêta élargie encore conditionnelle tant que le backend distribué n'est pas configuré et validé en production.
 
 ### P1-005 — Logs sans PII excessive
 - Risque : données élèves/parents dans logs.
