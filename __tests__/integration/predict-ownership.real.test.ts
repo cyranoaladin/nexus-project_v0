@@ -19,6 +19,7 @@ import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 import { predictSSNForStudent } from '@/lib/core/ml/predictSSN';
 import { NextRequest } from 'next/server';
+import { AssignmentStatus, AssignmentType, Subject } from '@prisma/client';
 
 const mockAuth = auth as jest.Mock;
 const mockPredict = predictSSNForStudent as jest.Mock;
@@ -40,6 +41,7 @@ describe('IDOR BDD Réelle — Predict Ownership', () => {
   beforeAll(async () => {
     // Nettoyage initial
     await prisma.sessionBooking.deleteMany();
+    await prisma.coachStudentAssignment.deleteMany();
     await prisma.coachProfile.deleteMany();
     await prisma.parentProfile.deleteMany();
     await prisma.student.deleteMany();
@@ -68,24 +70,22 @@ describe('IDOR BDD Réelle — Predict Ownership', () => {
       } 
     });
 
-    // Coach 1 a une séance avec Student 1
-    await prisma.sessionBooking.create({
+    // Coach 1 est assigné activement à Student 1.
+    await prisma.coachStudentAssignment.create({
       data: {
-        studentId: uS1.id,
-        coachId: uC1.id,
-        scheduledDate: new Date(),
-        startTime: '14:00',
-        endTime: '15:00',
-        duration: 60,
-        subject: 'MATHEMATIQUES',
-        title: 'Séance de test',
-        status: 'SCHEDULED',
+        coachId: coach1.id,
+        studentId: student1.id,
+        status: AssignmentStatus.ACTIVE,
+        assignmentType: AssignmentType.PRIMARY,
+        subjects: [Subject.MATHEMATIQUES],
+        startsAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
       },
     });
   });
 
   afterAll(async () => {
     await prisma.sessionBooking.deleteMany();
+    await prisma.coachStudentAssignment.deleteMany();
     await prisma.coachProfile.deleteMany();
     await prisma.parentProfile.deleteMany();
     await prisma.student.deleteMany();
@@ -105,7 +105,7 @@ describe('IDOR BDD Réelle — Predict Ownership', () => {
       user: { id: coach1.userId, role: 'COACH', email: 'predict-real-c1@test.com' },
     });
 
-    const res = await POST(makePostRequest({ studentId: student1.userId }));
+    const res = await POST(makePostRequest({ studentId: student1.id }));
     expect(res.status).toBe(200);
   });
 
@@ -114,10 +114,10 @@ describe('IDOR BDD Réelle — Predict Ownership', () => {
       user: { id: coach2.userId, role: 'COACH', email: 'predict-real-c2@test.com' },
     });
 
-    const res = await POST(makePostRequest({ studentId: student1.userId }));
+    const res = await POST(makePostRequest({ studentId: student1.id }));
     expect(res.status).toBe(403);
     const body = await res.json();
-    expect(body.error).toContain('Aucune séance');
+    expect(body.error).toContain('Accès refusé');
   });
 
   it('✅ PARENT avec lien valide → 200', async () => {
@@ -125,7 +125,7 @@ describe('IDOR BDD Réelle — Predict Ownership', () => {
       user: { id: parent.userId, role: 'PARENT', email: 'predict-real-p@test.com' },
     });
 
-    const res = await POST(makePostRequest({ studentId: student1.userId }));
+    const res = await POST(makePostRequest({ studentId: student1.id }));
     expect(res.status).toBe(200);
   });
 
@@ -146,7 +146,7 @@ describe('IDOR BDD Réelle — Predict Ownership', () => {
       user: { id: student1.userId, role: 'ELEVE', email: 'predict-real-s1@test.com' },
     });
 
-    const res = await POST(makePostRequest({ studentId: student1.userId }));
+    const res = await POST(makePostRequest({ studentId: student1.id }));
     expect(res.status).toBe(403);
   });
 });
