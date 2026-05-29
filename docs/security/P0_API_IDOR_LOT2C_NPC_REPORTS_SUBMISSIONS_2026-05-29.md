@@ -172,17 +172,33 @@ Résultat : `docs/security/API_GUARD_INVENTORY.md` régénéré, 164 routes scan
 - Lot 2E : assessments submit/test.
 - P1 : antivirus upload, centralisation report visibility, audit trail IA, consolidation `assistant`/`assistante`.
 
-## Déploiement
+## Déploiement production
 
-Non déployé en production dans ce cycle.
+Date : 2026-05-29.
 
-Déploiement recommandé après validation :
+Commit déployé : `6d7677ba6 fix(security): harden NPC reports and submissions access`.
 
-1. Préflight prod Git/PM2/health.
-2. Backup applicatif minimal.
-3. `git pull --ff-only origin main`.
-4. `npm run typecheck`.
-5. Tests ciblés Lot 2C.
-6. `npm run build`.
-7. `pm2 startOrReload ecosystem.config.js --env production --update-env`.
-8. Smoke : public, `/api/health`, routes NPC sans auth, traversal sur `/api/npc/files`, chemins sensibles, logs.
+Backup pré-déploiement :
+
+```text
+/root/nexus-backups/p0-004-lot2c-deploy-20260529080839
+```
+
+Commandes et validations :
+
+- Préflight prod Git/PM2/health : OK.
+- `git pull --ff-only origin main` : OK, `HEAD=6d7677ba`.
+- `npm run typecheck` serveur : OK.
+- Tests ciblés Lot 2C serveur : 9 suites, 104 tests OK.
+- `npm run build` serveur : OK.
+- `pm2 startOrReload ecosystem.config.js --env production --update-env` : OK.
+- PM2 `nexus-prod` : online.
+- Port applicatif : `127.0.0.1:3001`.
+- Public smoke : `/`, `/offres`, `/stages` en 200; `/dashboard/eleve` sans auth en 307.
+- `/api/health` local : 200.
+- Routes NPC/coach generated reports sans auth : 401/405 selon méthode, jamais 200.
+- Path traversal `/api/npc/files/*` : aucun 200; `/etc/passwd` redirige en 308 puis finit en 401 après suivi.
+- Chemins sensibles web : `/.env`, `/.git/config`, `/.next/standalone/.env`, `/docker-compose.prod.yml`, `/prisma/schema.prisma` en 404.
+- Tests post-reload champs sensibles : 6 suites, 51 tests OK.
+
+Rollback prévu, non exécuté : retour Git au dernier commit runtime stable avant Lot 2C, rebuild, puis `pm2 startOrReload ecosystem.config.js --env production --update-env`.

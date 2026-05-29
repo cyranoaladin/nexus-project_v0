@@ -276,7 +276,8 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
 
 #### P0-004 Lot 2C — NPC reports/submissions/documents
 
-- Statut : corrigé et testé localement le 2026-05-29; non déployé production.
+- Statut : déployé en production le 2026-05-29.
+- Commit déployé : `6d7677ba6 fix(security): harden NPC reports and submissions access`.
 - Routes :
   - `app/api/npc/submissions/route.ts`
   - `app/api/npc/submissions/[submissionId]/documents/route.ts`
@@ -301,7 +302,18 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - `npm run build` : OK.
   - `node scripts/security/audit-api-guards.mjs` : inventaire régénéré, 164 routes.
   - `npm run test:integration -- --runInBand` : non lancé, DB test `127.0.0.1:5435` fermée.
-- Déploiement : à planifier séparément avec backup, build serveur et PM2 reload contrôlé.
+- Validation production :
+  - backup : `/root/nexus-backups/p0-004-lot2c-deploy-20260529080839`;
+  - typecheck serveur : OK;
+  - tests ciblés Lot 2C serveur : 9 suites, 104 tests OK;
+  - build serveur : OK;
+  - PM2 `nexus-prod` online;
+  - port : `127.0.0.1:3001`;
+  - smoke routes NPC sans auth : 401/405, jamais 200;
+  - path traversal `/api/npc/files/*` : aucun 200;
+  - champs sensibles vérifiés par tests post-reload : 6 suites, 51 tests OK;
+  - chemins sensibles web : 404.
+- Déploiement : terminé. Rollback prévu, non exécuté.
 - Risque résiduel :
   - antivirus upload et inspection contenu réel en P1;
   - centralisation projections NPC/report en P1;
