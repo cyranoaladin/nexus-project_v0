@@ -591,6 +591,7 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
 - Tentative déploiement P1-A-bis du 2026-05-30 : bloquée avant build/reload par timeouts des tests 429 quand `REDIS_URL` est présent sur le serveur; disque rollbacké vers `69f0e143`, PM2 non rechargé, health OK. Rapport : `docs/security/P1_A_BIS_DEPLOYMENT_BLOCKER_2026-05-30.md`.
 - Correctif tests P1-A-bis poussé : `024721f92f9aebfe833f90bae5a80ee2ba3dfc0e`; validations locales OK, mais CI GitHub bloquée par un problème externe Actions/billing. Rapport : `docs/security/P1_A_BIS_CI_BILLING_BLOCKER_2026-05-30.md`.
 - Reprise P1-A-bis : attendre résolution GitHub billing puis CI `CI Pipeline` et `Data Invariants` vertes sur `024721f92` avant toute nouvelle tentative de déploiement.
+- État de gel P1-A-bis : production stable sur `69f0e143`, worktree propre conservé pour reprise, repo principal dirty hors déploiement, P1-B suspendu. Rapport : `docs/security/P1_A_BIS_RECOVERY_STATE_2026-05-30.md`.
 - Condition bêta élargie : installer/configurer Redis local sur le VPS, ajouter `REDIS_URL`, reload PM2 contrôlé et valider le mode `redis`; tant que cette validation n'est pas faite, l'anti-abus distribué reste non actif en production.
 
 ### P1-005 — Logs sans PII excessive
