@@ -1,0 +1,88 @@
+import type { AutomatismItem, DomainId } from "./types";
+
+type AutomatismRow = [string, string, string, string[], number, string];
+
+const domainItems: Record<DomainId, AutomatismRow[]> = {
+  fonctions: [
+    ["fon-q1", "Lecture graphique", "Si $f(2)=5$, alors $5$ est :", ["l’image de $2$", "un antécédent de $2$", "la pente", "un maximum certain"], 0, "$f(2)=5$ signifie que l’image de $2$ par $f$ est $5$."],
+    ["fon-q2", "Second degré", "Pour $f(x)=x^2-4$, les solutions de $f(x)=0$ sont :", ["$-4$ et $4$", "$-2$ et $2$", "$0$ et $4$", "aucune"], 1, "$x^2=4$ donne deux solutions : $-2$ et $2$."],
+    ["fon-q3", "Affine", "La fonction $f(x)=3x-1$ a pour coefficient directeur :", ["$-1$", "$1$", "$3$", "$x$"], 2, "Dans $ax+b$, le coefficient directeur est $a$."],
+    ["fon-q4", "Variations", "Si une fonction est décroissante sur $[1;4]$, alors :", ["$f(1)\\le f(4)$", "$f(1)\\ge f(4)$", "$f(1)=f(4)$", "on ne peut rien lire"], 1, "Quand $x$ augmente, les images diminuent ou restent égales."],
+    ["fon-q5", "Exponentielle", "La fonction exponentielle est toujours :", ["négative", "nulle en $0$", "positive", "décroissante"], 2, "Pour tout réel $x$, $e^x>0$."],
+    ["fon-q6", "Inéquation", "Résoudre $2x+6>0$ revient à :", ["$x>-3$", "$x<3$", "$x>3$", "$x<-3$"], 0, "$2x>-6$, donc $x>-3$."],
+    ["fon-q7", "Racine carrée", "$\\sqrt{49}$ vaut :", ["$6$", "$7$", "$14$", "$49$"], 1, "$7^2=49$, donc $\\sqrt{49}=7$."],
+    ["fon-q8", "Inverse", "L’inverse de $4$ est :", ["$-4$", "$0{,}4$", "$\\frac14$", "$4^2$"], 2, "L’inverse de $a$ est $\\frac1a$ si $a\\ne0$."],
+    ["fon-q9", "Sommet", "Pour $f(x)=-x^2+6x+1$, l’abscisse du sommet est :", ["$-3$", "$3$", "$6$", "$1$"], 1, "$\\alpha=-\\frac{b}{2a}=-\\frac{6}{-2}=3$."],
+    ["fon-q10", "Signe", "Si $x>2$, alors $x-2$ est :", ["négatif", "nul", "positif", "impossible à dire"], 2, "Soustraire $2$ à un nombre strictement supérieur à $2$ donne un résultat positif."],
+    ["fon-q11", "Équation", "$5x=20$ donne :", ["$x=4$", "$x=15$", "$x=25$", "$x=100$"], 0, "On divise par $5$ : $x=4$."],
+    ["fon-q12", "Lecture graphique", "Un antécédent de $3$ est une valeur de :", ["$x$", "$f(x)$", "la pente", "l’axe vertical"], 0, "Un antécédent se lit sur l’axe des abscisses."],
+  ],
+  suites: [
+    ["sui-q1", "Suite arithmétique", "$u_0=120$ et raison $15$. $u_3$ vaut :", ["$135$", "$150$", "$165$", "$180$"], 2, "$u_3=120+3\\times15=165$."],
+    ["sui-q2", "Suite géométrique", "Un capital augmente de $4\\%$ par an. Le coefficient est :", ["$0{,}04$", "$1{,}04$", "$1{,}4$", "$0{,}96$"], 1, "Augmenter de $4\\%$ revient à multiplier par $1{,}04$."],
+    ["sui-q3", "Terme général", "$v_0=500$, $q=1{,}02$. $v_n$ vaut :", ["$500+1{,}02n$", "$500\\times1{,}02^n$", "$1{,}02+500n$", "$\\frac{500}{1{,}02^n}$"], 1, "Suite géométrique : premier terme fois raison puissance $n$."],
+    ["sui-q4", "Intérêts simples", "$1000$ € à $3\\%$ d’intérêts simples sur $2$ ans rapportent :", ["$30$ €", "$60$ €", "$90$ €", "$1060$ € d’intérêts"], 1, "L’intérêt annuel est $30$ €, donc $60$ € en deux ans."],
+    ["sui-q5", "Raison", "La suite $12,18,24,30$ est :", ["géométrique de raison $6$", "arithmétique de raison $6$", "géométrique de raison $1{,}5$", "ni l’une ni l’autre"], 1, "On ajoute $6$ à chaque étape."],
+    ["sui-q6", "Seuil", "Si $u_n=10+5n$, le premier $n$ tel que $u_n\\ge30$ est :", ["$3$", "$4$", "$5$", "$6$"], 1, "$10+5n\\ge30$, donc $n\\ge4$."],
+    ["sui-q7", "Somme", "$1+2+3+4$ vaut :", ["$8$", "$10$", "$12$", "$24$"], 1, "On additionne progressivement : $1+2+3+4=10$."],
+    ["sui-q8", "Coefficient", "Une baisse de $8\\%$ répétée donne une raison :", ["$0{,}08$", "$0{,}92$", "$1{,}08$", "$8$"], 1, "On conserve $92\\%$, donc le coefficient est $0{,}92$."],
+    ["sui-q9", "Arithmétique", "Pour $u_n=7+3n$, la raison est :", ["$7$", "$3$", "$10$", "$n$"], 1, "La forme $u_0+nr$ montre $r=3$."],
+    ["sui-q10", "Géométrique", "Si $u_{n+1}=0{,}5u_n$, la raison est :", ["$0{,}5$", "$1{,}5$", "$2$", "$n$"], 0, "Chaque terme est multiplié par $0{,}5$."],
+    ["sui-q11", "Capital", "$200\\times1{,}1$ vaut :", ["$201{,}1$", "$210$", "$220$", "$2{,}2$"], 2, "$10\\%$ de $200$ vaut $20$, donc $220$."],
+    ["sui-q12", "Rang", "Dans $u_n=u_0+nr$, $u_0$ désigne :", ["la raison", "le premier terme", "le dernier terme", "la somme"], 1, "$u_0$ est le terme de rang $0$."],
+  ],
+  statistiques: [
+    ["sta-q1", "Médiane", "Médiane de $4,7,9,12,18$ :", ["$7$", "$9$", "$10$", "$12$"], 1, "La valeur centrale de cinq valeurs ordonnées est $9$."],
+    ["sta-q2", "Étendue", "Étendue de $6,8,8,15,20$ :", ["$8$", "$12$", "$14$", "$20$"], 2, "$20-6=14$."],
+    ["sta-q3", "Moyenne", "Moyenne de $10,12,14$ :", ["$11$", "$12$", "$13$", "$36$"], 1, "$\\frac{10+12+14}{3}=12$."],
+    ["sta-q4", "Quartiles", "L’écart interquartile se calcule par :", ["$Q_3-Q_1$", "$Q_1+Q_3$", "$\\max-\\min$", "moyenne - médiane"], 0, "Il mesure la dispersion de la moitié centrale."],
+    ["sta-q5", "Fréquence", "$18$ élèves sur $30$ représentent :", ["$18\\%$", "$30\\%$", "$60\\%$", "$90\\%$"], 2, "$18/30=0{,}6$, soit $60\\%$."],
+    ["sta-q6", "Ajustement", "Dans $y=2x+5$, quand $x$ augmente de $1$, $y$ augmente de :", ["$1$", "$2$", "$5$", "$7$"], 1, "La pente vaut $2$."],
+    ["sta-q7", "Effectif", "Si la fréquence est $0{,}25$ sur $80$ personnes, l’effectif est :", ["$10$", "$20$", "$25$", "$40$"], 1, "$0{,}25\\times80=20$."],
+    ["sta-q8", "Boîte", "Dans une boîte à moustaches, la boîte va de :", ["min à max", "$Q_1$ à $Q_3$", "moyenne à médiane", "$0$ à $100$"], 1, "La boîte représente l’intervalle interquartile."],
+    ["sta-q9", "Médiane", "Avec $6$ valeurs ordonnées, la médiane est :", ["la 3e valeur", "la 4e valeur", "la moyenne des 3e et 4e valeurs", "le maximum"], 2, "Pour un effectif pair, on moyenne les deux valeurs centrales."],
+    ["sta-q10", "Nuage", "Une droite d’ajustement sert à :", ["prévoir une tendance", "calculer une racine", "prouver une probabilité", "trier les données"], 0, "Elle modélise une tendance approximative."],
+    ["sta-q11", "Écart-type", "Un écart-type faible signifie des données :", ["très dispersées", "plutôt regroupées", "toujours nulles", "négatives"], 1, "Il mesure la dispersion autour de la moyenne."],
+    ["sta-q12", "Pourcentage", "$12$ ventes sur $48$ représentent :", ["$20\\%$", "$25\\%$", "$30\\%$", "$40\\%$"], 1, "$12/48=1/4=25\\%$."],
+  ],
+  probabilites: [
+    ["pro-q1", "Intersection", "$P(A)=0{,}6$ et $P_A(B)=0{,}5$. $P(A\\cap B)$ vaut :", ["$0{,}1$", "$0{,}3$", "$0{,}5$", "$1{,}1$"], 1, "$P(A\\cap B)=0{,}6\\times0{,}5=0{,}3$."],
+    ["pro-q2", "Complémentaire", "Si $P(A)=0{,}35$, alors $P(\\overline A)$ vaut :", ["$0{,}35$", "$0{,}65$", "$1{,}35$", "$35$"], 1, "$1-0{,}35=0{,}65$."],
+    ["pro-q3", "Univers", "La somme des probabilités d’une loi vaut :", ["$0$", "$0{,}5$", "$1$", "$100$"], 2, "Toutes les issues couvrent l’univers."],
+    ["pro-q4", "Espérance", "$X$ vaut $0$ ou $10$ avec probabilités $0{,}7$ et $0{,}3$. $E(X)$ vaut :", ["$3$", "$5$", "$7$", "$10$"], 0, "$0\\times0{,}7+10\\times0{,}3=3$."],
+    ["pro-q5", "Indépendance", "$A$ et $B$ sont indépendants si :", ["$P(A\\cap B)=P(A)+P(B)$", "$P(A\\cap B)=P(A)P(B)$", "$P(A)=P(B)$", "$P(A)=0$"], 1, "C’est le test opératoire de l’indépendance."],
+    ["pro-q6", "Arbre", "Sur un chemin d’arbre, les probabilités se :", ["additionnent", "soustraient", "multiplient", "ignorent"], 2, "Chaque branche conditionnelle multiplie la précédente."],
+    ["pro-q7", "Conditionnelle", "$P_A(B)$ se lit :", ["$P(B)$ sachant $A$", "$P(A)$ sachant $B$", "$P(A\\cup B)$", "$P(\\overline A)$"], 0, "L’indice indique la condition."],
+    ["pro-q8", "Loi", "Si $P(X=1)=0{,}2$ et $P(X=2)=0{,}8$, la somme vaut :", ["$0{,}6$", "$1$", "$1{,}2$", "$2$"], 1, "Une loi complète totalise $1$."],
+    ["pro-q9", "Événement certain", "La probabilité d’un événement certain est :", ["$0$", "$0{,}5$", "$1$", "$100$"], 2, "Un événement certain a probabilité $1$."],
+    ["pro-q10", "Chemins", "Deux chemins incompatibles vers $S$ se :", ["additionnent", "multiplient", "divisent", "ignorent"], 0, "On additionne les probabilités des chemins disjoints."],
+    ["pro-q11", "Gain", "Un jeu est favorable si l’espérance du gain net est :", ["négative", "nulle", "positive", "impossible"], 2, "Une espérance positive indique un gain moyen positif."],
+    ["pro-q12", "Complément", "$P(A)=\\frac14$. $P(\\overline A)$ vaut :", ["$\\frac14$", "$\\frac34$", "$1$", "$4$"], 1, "$1-\\frac14=\\frac34$."],
+  ],
+  "algorithmique-information": [
+    ["alg-q1", "Pourcentage", "Une baisse de $20\\%$ correspond au coefficient :", ["$0{,}8$", "$1{,}2$", "$20$", "$0{,}2$"], 0, "On conserve $80\\%$, donc coefficient $0{,}8$."],
+    ["alg-q2", "Évolution", "Une hausse de $10\\%$ puis une baisse de $10\\%$ donne globalement :", ["$0\\%$", "$-1\\%$", "$+1\\%$", "$-10\\%$"], 1, "$1{,}10\\times0{,}90=0{,}99$, soit $-1\\%$."],
+    ["alg-q3", "Indice", "Indice $125$ base $100$ signifie une évolution de :", ["$+12{,}5\\%$", "$+25\\%$", "$-25\\%$", "$+125\\%$"], 1, "$125$ est $25$ points au-dessus de $100$."],
+    ["alg-q4", "Python", "Après `x=3` puis `x=x+2`, $x$ vaut :", ["$2$", "$3$", "$5$", "$6$"], 2, "La nouvelle valeur ajoute $2$ à l’ancienne."],
+    ["alg-q5", "Proportion", "$15\\%$ de $80$ vaut :", ["$8$", "$10$", "$12$", "$15$"], 2, "$10\\%$ vaut $8$ et $5\\%$ vaut $4$, total $12$."],
+    ["alg-q6", "Ordre de grandeur", "$49\\%$ de $202$ est proche de :", ["$50$", "$100$", "$150$", "$200$"], 1, "C’est proche de la moitié de $200$, donc $100$."],
+    ["alg-q7", "Taux réciproque", "Après une hausse de $25\\%$, le coefficient réciproque est :", ["$0{,}75$", "$0{,}8$", "$1{,}25$", "$1{,}5$"], 1, "Il faut multiplier par $1/1{,}25=0{,}8$."],
+    ["alg-q8", "Indice", "Une valeur passe de $50$ à $60$. L’indice base $100$ vaut :", ["$110$", "$120$", "$150$", "$160$"], 1, "$60/50\\times100=120$."],
+    ["alg-q9", "Tableur", "La formule `=A1*1,2` applique :", ["une baisse de $20\\%$", "une hausse de $20\\%$", "une division par $1{,}2$", "une hausse de $2\\%$"], 1, "Multiplier par $1{,}2$ revient à augmenter de $20\\%$."],
+    ["alg-q10", "Boucle", "Une boucle `while` continue tant que la condition est :", ["vraie", "fausse", "nulle", "négative"], 0, "La boucle s’arrête quand la condition devient fausse."],
+    ["alg-q11", "Proportion", "$7$ sur $20$ représente :", ["$14\\%$", "$28\\%$", "$35\\%$", "$70\\%$"], 2, "$7/20=35/100=35\\%$."],
+    ["alg-q12", "Calcul posé", "$1{,}2\\times30$ vaut :", ["$31{,}2$", "$32$", "$36$", "$360$"], 2, "$12\\times3=36$, donc $1{,}2\\times30=36$."],
+  ],
+};
+
+export const AUTOMATISMS: AutomatismItem[] = Object.entries(domainItems).flatMap(([domainId, items]) =>
+  items.map(([id, notion, question, choices, answerIndex, correction]) => ({
+    id,
+    domainId: domainId as DomainId,
+    notion,
+    question,
+    choices,
+    answerIndex,
+    correction,
+  }))
+);

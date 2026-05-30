@@ -36,6 +36,7 @@ import { EAMCockpitSummary } from "@/components/dashboard/eleve/EAMCockpitSummar
 import { AutomatismesCockpitCard } from "@/components/dashboard/eleve/AutomatismesCockpitCard";
 import { NsiCockpitCard } from "@/components/dashboard/eleve/NsiCockpitCard";
 import { MathsPremiereStageQuestionnaireCard } from "@/components/dashboard/eleve/MathsPremiereStageQuestionnaireCard";
+import { StageEntryCard } from "@/components/stage-eam-stmg/StageEntryCard";
 
 export default function DashboardEleve() {
   const { data: session, status } = useSession();
@@ -254,6 +255,7 @@ export default function DashboardEleve() {
 
                 {activeRubrique === 'cockpit' && (
                   <div className="space-y-6">
+                    {isPremiereStudent && isStmgTrack && <StageEntryCard student={dashboardData.student} />}
                     {isPremiereStudent && !isStmgTrack && <EAMCockpitSummary />}
                     {isPremiereStudent && !isStmgTrack && showNSI && <NsiCockpitCard />}
                     {isPremiereStudent && !isStmgTrack && <AutomatismesCockpitCard />}
@@ -271,29 +273,31 @@ export default function DashboardEleve() {
                 )}
 
                 {activeRubrique === 'eam' && (
-                  <Card className="overflow-hidden border-brand-accent/20 bg-gradient-to-br from-brand-accent/10 via-surface-card to-surface-card shadow-premium">
-                    <CardContent className="p-5 sm:p-6">
-                      <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-                        <div className="min-w-0">
-                          <p className="text-xs font-black uppercase tracking-[0.16em] text-brand-accent">
-                            Préparation Première — spécialité mathématiques
-                          </p>
-                          <h2 className="mt-2 text-xl font-black tracking-tight text-white sm:text-2xl">
-                            Épreuve Anticipée de Mathématiques
-                          </h2>
-                          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-300">
-                            Accédez au parcours EAM complet : plan J-11, modules, fiches express, quiz et progression sauvegardée.
-                          </p>
+                  isPremiereStudent && !isStmgTrack ? (
+                    <Card className="overflow-hidden border-brand-accent/20 bg-gradient-to-br from-brand-accent/10 via-surface-card to-surface-card shadow-premium">
+                      <CardContent className="p-5 sm:p-6">
+                        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                          <div className="min-w-0">
+                            <p className="text-xs font-black uppercase tracking-[0.16em] text-brand-accent">
+                              Préparation Première — spécialité mathématiques
+                            </p>
+                            <h2 className="mt-2 text-xl font-black tracking-tight text-white sm:text-2xl">
+                              Épreuve Anticipée de Mathématiques
+                            </h2>
+                            <p className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-300">
+                              Accédez au cockpit premium du sprint : plan 10h, mission du jour, livret imprimable, automatismes et stratégie d'épreuve.
+                            </p>
+                          </div>
+                          <Link href="/dashboard/eleve/eam" className="w-full sm:w-fit">
+                            <Button className="w-full bg-brand-accent text-surface-darker hover:bg-brand-accent/90 sm:w-auto">
+                              Ouvrir le sprint EAM
+                              <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                          </Link>
                         </div>
-                        <Link href="/dashboard/eleve/eam" className="w-full sm:w-fit">
-                          <Button className="w-full bg-brand-accent text-surface-darker hover:bg-brand-accent/90 sm:w-auto">
-                            Ouvrir EAM Maths
-                            <ArrowRight className="ml-2 h-4 w-4" />
-                          </Button>
-                        </Link>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
+                  ) : null
                 )}
 
                 {activeRubrique === 'parcours' && (
