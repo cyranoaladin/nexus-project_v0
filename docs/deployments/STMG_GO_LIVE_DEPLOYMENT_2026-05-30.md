@@ -29,12 +29,14 @@
 - Tests unitaires complets : OK, 467 suites, 6021 tests.
 
 ## Déploiement production
-- HEAD avant : à compléter au préflight.
-- HEAD après : à compléter après cherry-pick.
-- Backup : à compléter avant intégration.
-- PM2 : à vérifier après reload.
-- Smoke : à exécuter après reload.
-- E2E production : à exécuter après reload avec comptes STMG existants, sans afficher les mots de passe.
+- Statut : non effectué dans cette passe.
+- Motif : les variables temporaires `FARES_PW` et `LAMIS_PW` ne sont pas présentes dans l’environnement local ; l’e2e connecté production ne peut donc pas être exécuté sans modifier ou réinitialiser des comptes, ce qui est interdit.
+- HEAD production au préflight : `f1bfbcc3f8d737cabedfbbd353c317cbf2d50292`.
+- PM2 au préflight : `nexus-prod` online.
+- Smoke préflight : `site=200`, `dashboard_no_auth=307`, `stmg_no_auth=307`, `api_health=200`.
+- HEAD après : non applicable.
+- Backup : non créé, car aucun cherry-pick production n’a été lancé.
+- E2E production : non exécuté faute de mots de passe temporaires disponibles.
 
 ## Rollback
 - Revenir au HEAD sauvegardé dans le backup de déploiement :
