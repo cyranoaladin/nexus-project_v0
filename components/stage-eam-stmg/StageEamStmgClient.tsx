@@ -10,6 +10,7 @@ import { computeDiagnosticProfile, labelOf } from "@/content/stage-eam-stmg/core
 import { DIAGNOSTIC_EXERCISES, DIAGNOSTIC_QCM } from "@/content/stage-eam-stmg/diagnostic";
 import { COURSE_SHEETS, DOMAINS } from "@/content/stage-eam-stmg/domains";
 import { TRAINING_EXERCISES } from "@/content/stage-eam-stmg/exercices";
+import { STMG_MOCK_EXAM } from "@/content/stage-eam-stmg/sujet-blanc";
 import type { DiagnosticAnswers, DomainId, ExerciseEvaluation } from "@/content/stage-eam-stmg/types";
 import { useStageProgress } from "@/hooks/stage-eam-stmg/useStageProgress";
 import { MathInline } from "./MathInline";
@@ -70,9 +71,17 @@ export function StageEamStmgDashboard({ eleveId }: { eleveId: string }) {
   const [revealedCorrections, setRevealedCorrections] = useState<Record<string, boolean>>({});
   const [examSeconds, setExamSeconds] = useState(2 * 60 * 60);
   const [examTimerRunning, setExamTimerRunning] = useState(false);
+  const [mockQcmAnswers, setMockQcmAnswers] = useState<Record<string, number>>(progress.state.mockExam.qcmAnswers);
+  const [mockPart2Score, setMockPart2Score] = useState(progress.state.mockExam.part2Score);
 
   const scoreMap = Object.fromEntries(progress.state.profile.domainScores.map((entry) => [entry.domainId, entry.score])) as Record<DomainId, number>;
-  const selectedItems = AUTOMATISMS.filter((item) => item.domainId === selectedDomain);
+  const retryItems = progress.state.retryQueue
+    .map((id) => AUTOMATISMS.find((item) => item.id === id))
+    .filter((item): item is NonNullable<typeof item> => Boolean(item));
+  const selectedItems = [
+    ...retryItems.filter((item) => item.domainId === selectedDomain),
+    ...AUTOMATISMS.filter((item) => item.domainId === selectedDomain && !progress.state.retryQueue.includes(item.id)),
+  ];
   const selectedDomainData = DOMAINS.find((domain) => domain.id === selectedDomain) ?? DOMAINS[0];
   const note = Math.min(20, Math.max(0, Number(simPart1) + Number(simPart2)));
   const currentRunItem = selectedItems[runIndex] ?? selectedItems[0];
@@ -89,6 +98,8 @@ export function StageEamStmgDashboard({ eleveId }: { eleveId: string }) {
     if (!currentRunItem || runStartedAt === null) return;
     const seconds = Math.max(1, Math.round((Date.now() - runStartedAt) / 1000));
     const nextAnswers = [...runAnswers, { correct: choiceIndex === currentRunItem.answerIndex, seconds }];
+    if (choiceIndex !== currentRunItem.answerIndex) progress.addRetryItems([currentRunItem.id]);
+    else progress.clearRetryItem(currentRunItem.id);
     setRunAnswers(nextAnswers);
     setRunChoice(choiceIndex);
     if (runIndex + 1 >= selectedItems.length) {
@@ -109,6 +120,15 @@ export function StageEamStmgDashboard({ eleveId }: { eleveId: string }) {
     setRunAnswers([]);
     setRunChoice(null);
     setRunStartedAt(Date.now());
+  };
+
+  const submitMockExam = () => {
+    const qcmScore = STMG_MOCK_EXAM.qcm.filter((item) => mockQcmAnswers[item.id] === item.answerIndex).length * 0.5;
+    const missed = STMG_MOCK_EXAM.qcm
+      .filter((item) => mockQcmAnswers[item.id] !== item.answerIndex)
+      .map((item) => item.id);
+    progress.addRetryItems(missed);
+    progress.saveMockExam(mockQcmAnswers, qcmScore, Math.min(14, Math.max(0, Number(mockPart2Score))));
   };
 
   return (
@@ -182,6 +202,10 @@ export function StageEamStmgDashboard({ eleveId }: { eleveId: string }) {
                 <p className="mt-2 text-xs text-neutral-300">Domaines : {day.domainIds.length ? day.domainIds.map(labelOf).join(", ") : "transversal"}</p>
                 <p className="mt-2 text-xs text-neutral-400">Automatismes : {day.automatismes}</p>
                 <p className="mt-1 text-xs text-neutral-400">Inter-séance : {day.homework}</p>
+                <label className="mt-3 flex min-h-11 items-center gap-2 text-xs text-neutral-200">
+                  <input type="checkbox" checked={progress.state.sessionChecklist[day.id] === true} onChange={() => progress.toggleSessionItem(day.id)} />
+                  Séance / objectif validé
+                </label>
               </article>
             ))}
           </div>
@@ -190,6 +214,11 @@ export function StageEamStmgDashboard({ eleveId }: { eleveId: string }) {
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <Panel>
             <h2 className="mb-3 flex items-center gap-2 text-xl font-black"><Timer className="h-5 w-5 text-brand-accent" />Entraîneur d’automatismes</h2>
+            {progress.state.retryQueue.length > 0 && (
+              <p className="mb-3 rounded-card-sm border border-amber-400/30 bg-amber-400/10 p-3 text-xs text-amber-100">
+                Reprise active : {progress.state.retryQueue.length} item(s) raté(s) reviennent en priorité.
+              </p>
+            )}
             <select value={selectedDomain} onChange={(event) => setSelectedDomain(event.target.value as DomainId)} className="w-full rounded-card-sm border border-neutral-700 bg-surface-elevated p-2 text-neutral-100">
               {DOMAINS.map((domain) => <option key={domain.id} value={domain.id}>{domain.label}</option>)}
             </select>
@@ -270,7 +299,7 @@ export function StageEamStmgDashboard({ eleveId }: { eleveId: string }) {
 
         <Panel>
           <h2 className="mb-3 text-xl font-black">Sujet en conditions</h2>
-          <p className="text-sm text-neutral-300">Minuteur 2 h, sans calculatrice. Utiliser cette section en J4/J5 pour simuler l’épreuve complète.</p>
+          <p className="text-sm text-neutral-300">Sujet complet : 12 QCM pour 6 points, puis 3 exercices pour 14 points. Durée 2 h, sans calculatrice.</p>
           <div className="mt-3 rounded-card-sm border border-brand-accent/30 bg-surface-elevated p-4 text-center">
             <p className="text-3xl font-black text-brand-accent">{new Date(examSeconds * 1000).toISOString().slice(11, 19)}</p>
             <p className="text-xs text-neutral-400">Minuteur de référence à lancer au début du sujet.</p>
@@ -284,6 +313,51 @@ export function StageEamStmgDashboard({ eleveId }: { eleveId: string }) {
             <ActionButton href="https://drive.google.com/file/d/1lgWeP15vi4FSTW9HEBCpXT1F9pv6un4r/view">Sujet d’entraînement Nexus</ActionButton>
             <ActionButton href="https://drive.google.com/file/d/1aNFBm3Llhk79Y0ZZdWUBkO0nbSW7GNbD/view">Corrigé Nexus</ActionButton>
             <ActionButton href="https://eduscol.education.fr/4230/epreuve-anticipee-de-mathematiques-aux-baccalaureats-general-et-technologique">Sujets zéro Éduscol</ActionButton>
+          </div>
+          <div className="mt-5 space-y-3">
+            <h3 className="font-black text-brand-accent">Partie 1 — QCM /6</h3>
+            {STMG_MOCK_EXAM.qcm.map((item, index) => (
+              <fieldset key={item.id} className="rounded-card-sm border border-neutral-700 bg-surface-elevated p-3">
+                <legend className="text-sm font-bold">{index + 1}. <RichMath content={item.question} inline /></legend>
+                <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                  {item.choices.map((choice, choiceIndex) => (
+                    <label key={choice} className="flex min-h-11 items-center gap-2 rounded-card-sm border border-neutral-700 bg-surface-darker p-2 text-sm">
+                      <input type="radio" name={item.id} checked={mockQcmAnswers[item.id] === choiceIndex} onChange={() => setMockQcmAnswers((current) => ({ ...current, [item.id]: choiceIndex }))} />
+                      <RichMath content={choice} inline />
+                    </label>
+                  ))}
+                </div>
+                {progress.state.mockExam.submitted && (
+                  <div className="mt-2 rounded-card-sm bg-surface-darker p-2 text-sm">
+                    <p className="font-bold text-brand-accent">{mockQcmAnswers[item.id] === item.answerIndex ? "Correct." : "À reprendre."}</p>
+                    <RichMath content={item.correction} />
+                  </div>
+                )}
+              </fieldset>
+            ))}
+            <h3 className="font-black text-brand-accent">Partie 2 — Exercices /14</h3>
+            {STMG_MOCK_EXAM.exercises.map((exercise) => (
+              <article key={exercise.id} className="rounded-card-sm border border-neutral-700 bg-surface-elevated p-4">
+                <h4 className="font-bold">{exercise.title} — {exercise.points} pts</h4>
+                {exercise.statement.map((line) => <RichMath key={line} content={line} />)}
+                <ul className="mt-2 list-inside list-disc text-sm text-neutral-300">{exercise.questions.map((question) => <li key={question}><RichMath content={question} inline /></li>)}</ul>
+                {progress.state.mockExam.submitted && (
+                  <details className="mt-3 rounded-card-sm bg-surface-darker p-3 text-sm">
+                    <summary className="cursor-pointer font-bold text-brand-accent">Correction détaillée</summary>
+                    {exercise.correction.map((block) => <div key={block.title} className="mt-2"><h5 className="font-bold">{block.title}</h5>{block.details.map((detail) => <RichMath key={detail} content={detail} />)}</div>)}
+                  </details>
+                )}
+              </article>
+            ))}
+            <label className="block text-sm">Score auto-évalué Partie 2 /14
+              <input type="number" min={0} max={14} value={mockPart2Score} onChange={(event) => setMockPart2Score(Number(event.target.value))} className="mt-1 w-full rounded-card-sm border border-neutral-700 bg-surface-elevated p-2" />
+            </label>
+            <ActionButton onClick={submitMockExam}>J’ai terminé / je m’auto-évalue</ActionButton>
+            {progress.state.mockExam.submitted && (
+              <p className="text-sm font-bold text-brand-accent">
+                Score enregistré : {progress.state.mockExam.qcmScore + progress.state.mockExam.part2Score}/20.
+              </p>
+            )}
           </div>
         </Panel>
 
@@ -315,6 +389,9 @@ export function StageEamStmgDashboard({ eleveId }: { eleveId: string }) {
             }
           }}><Import className="h-4 w-4" />Importer</ActionButton>
           {importStatus && <p className="mt-2 text-sm text-neutral-300" role="status">{importStatus}</p>}
+          <p className="mt-3 text-xs text-neutral-400" role="status">
+            Synchronisation : {progress.serverSyncStatus === "ok" ? "serveur actif" : progress.serverSyncStatus === "pending" ? "chargement" : "cache local uniquement, nouvelle tentative au prochain chargement"}.
+          </p>
         </Panel>
       </div>
     </main>

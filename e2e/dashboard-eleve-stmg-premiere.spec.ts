@@ -20,7 +20,7 @@ import { loginAsUser } from './helpers/auth';
 test.describe('Dashboard élève — STMG Première (Mode Survie)', () => {
   test.beforeEach(async ({ page }) => {
     await loginAsUser(page, 'studentSurvival');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
   });
 
   test('charge le dashboard sans erreur', async ({ page }) => {
@@ -30,10 +30,12 @@ test.describe('Dashboard élève — STMG Première (Mode Survie)', () => {
   });
 
   test('affiche le SurvivalDashboard (Mode Survie STMG)', async ({ page }) => {
+    await page.getByRole('button', { name: 'Parcours' }).click();
     await expect(page.getByLabel(/Mode Survie STMG/i)).toBeVisible({ timeout: 20_000 });
   });
 
   test('masque EleveResources, EleveBilans et EleveStages en mode survie', async ({ page }) => {
+    await page.getByRole('button', { name: 'Parcours' }).click();
     // Les sections utilisent des id CSS définis dans les composants
     await expect(page.locator('#resources')).not.toBeVisible();
     await expect(page.locator('#bilans')).not.toBeVisible();

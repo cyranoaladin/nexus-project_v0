@@ -22,7 +22,7 @@ test.describe('Parcours élève STMG Première', () => {
 
   test('le dashboard élève charge et expose le track via l’API', async ({ page }) => {
     await page.goto('/dashboard/eleve');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     expect(page.url()).toContain('/dashboard/eleve');
 
     // L'API doit renvoyer un payload track-aware (gradeLevel + academicTrack).
@@ -44,5 +44,18 @@ test.describe('Parcours élève STMG Première', () => {
     const response = await page.request.get('/api/programme/maths-1ere-stmg/progress');
     // 200 si seed STMG complète, 401/404/405 sinon — on ne doit JAMAIS avoir 500.
     expect(response.status()).toBeLessThan(500);
+  });
+
+  test('ouvre le cockpit commando STMG depuis le dashboard', async ({ page }) => {
+    await page.goto('/dashboard/eleve');
+    await page.waitForLoadState('domcontentloaded');
+
+    await expect(page.getByText('Stage Commando — Épreuve Anticipée de Mathématiques')).toBeVisible({ timeout: 20_000 });
+    await page.getByRole('link', { name: /Ouvrir le stage/i }).click();
+    await expect(page).toHaveURL(/\/dashboard\/eleve\/stage-eam-stmg$/);
+    await expect(page.getByText('Stage Commando — Épreuve Anticipée de Mathématiques')).toBeVisible();
+    await expect(page.getByText(/sans calculatrice/i).first()).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Sujet en conditions', exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Livret imprimable/i })).toBeVisible();
   });
 });
