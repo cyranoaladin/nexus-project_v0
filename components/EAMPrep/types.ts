@@ -25,11 +25,34 @@ export interface EAMModule {
 }
 
 export interface PlanDay {
-  date: string;
-  label: string;
+  date: string; // ISO YYYY-MM-DD, utilisé pour recalculer J-X et "aujourd'hui".
+  label?: string;
   focus: string;
   tip: string;
   color: string;
-  today?: boolean;
   final?: boolean;
+}
+
+export interface StageSession {
+  id: string;
+  date: string; // ISO YYYY-MM-DD, éditable par l'enseignant.
+  title: string;
+  durationMin: 120;
+  objectifs: string[];
+  deroule: Array<{
+    tranche: string;
+    activite: string;
+    moduleIds: string[];
+  }>;
+  moduleIds: string[];
+  livrables: string[];
+  interSeance: string[];
+}
+
+export interface WeekendProtocolDay {
+  id: "J-2" | "J-1" | "J-0";
+  date: string;
+  title: string;
+  intention: string;
+  actions: string[];
 }
