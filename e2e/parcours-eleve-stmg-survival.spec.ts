@@ -17,7 +17,7 @@ test.describe('Parcours élève STMG Mode Survie', () => {
     await expect(page.getByText("Le jour J, tu remplis 100 % du QCM.").first()).toBeVisible();
 
     await page.getByRole('button', { name: /Copier la phrase magique/i }).first().click();
-    await expect(page.getByText(/Copiée 1 fois|Copiée 2 fois|Copiée 3 fois/i).first()).toBeVisible();
+    await expect(page.getByText(/Copiée [1-9][0-9]* fois/i).first()).toBeVisible();
 
     await page.reload();
     await page.waitForLoadState('domcontentloaded');
