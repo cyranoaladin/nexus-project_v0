@@ -1,6 +1,47 @@
-import type { EAMModule, PlanDay } from "./types";
+import type { EAMModule, PlanDay, StageSession, WeekendProtocolDay } from "./types";
 
 export const EXAM_DATE = new Date("2026-06-08T08:00:00+02:00");
+
+const DAY_MS = 86_400_000;
+
+function toLocalDateKey(date: Date) {
+  const parts = new Intl.DateTimeFormat("fr-FR", {
+    timeZone: "Europe/Paris",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+  const byType = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${byType.year}-${byType.month}-${byType.day}`;
+}
+
+function formatShortDate(isoDate: string) {
+  const [year, month, day] = isoDate.split("-").map(Number);
+  return new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long" }).format(
+    new Date(year, month - 1, day)
+  );
+}
+
+export function getDaysUntilExam(baseDate = new Date()): number {
+  return Math.ceil((EXAM_DATE.getTime() - baseDate.getTime()) / DAY_MS);
+}
+
+export function isToday(isoDate: string, baseDate = new Date()): boolean {
+  return isoDate === toLocalDateKey(baseDate);
+}
+
+export function getPlanDayMeta(day: PlanDay, baseDate = new Date()) {
+  const target = new Date(`${day.date}T08:00:00+02:00`);
+  const daysUntilExam = getDaysUntilExam(target);
+  const isFinalDay = Boolean(day.final) || daysUntilExam === 0;
+
+  return {
+    displayDate: formatShortDate(day.date),
+    isCurrentDay: isToday(day.date, baseDate),
+    isFinalDay,
+    jLabel: isFinalDay ? "EXAMEN" : `J-${daysUntilExam}`,
+  };
+}
 
 export const MODULES: EAMModule[] = [
   {
@@ -201,16 +242,149 @@ export const MODULES: EAMModule[] = [
 ];
 
 export const PLAN: PlanDay[] = [
-  { date: "28 mai", label: "Lancement", focus: "Format + automatismes QCM", tip: "Lire la structure complète. Faire les QCM d'automatismes. Objectif : zéro erreur sur taux et variations.", color: "#00e5ff", today: true },
-  { date: "29 mai", label: "J-10", focus: "Suites numériques", tip: "Revoir la suite auxiliaire et les exercices de modélisation.", color: "#8b5cf6" },
-  { date: "30 mai", label: "J-9", focus: "Second degré + dérivation", tip: "Maîtriser discriminant, formes canonique/factorisée, dérivées de base et produit.", color: "#10b981" },
-  { date: "31 mai", label: "J-8", focus: "Dérivation + exponentielle", tip: "Dériver produit, exponentielle composée, tangente et variations.", color: "#10b981" },
-  { date: "1 juin", label: "J-7", focus: "Produit scalaire + géométrie", tip: "Produit scalaire, droite par vecteur normal et équation de cercle.", color: "#3b82f6" },
-  { date: "2 juin", label: "J-6", focus: "Probabilités + variables aléatoires", tip: "Arbre pondéré, probabilités totales, Bayes, espérance et variance.", color: "#a78bfa" },
-  { date: "3 juin", label: "J-5", focus: "Sujet blanc 1 - conditions réelles", tip: "2h chrono, sans calculatrice. Simuler l'examen complet.", color: "#ff6b6b" },
-  { date: "4 juin", label: "J-4", focus: "Correction + ciblage", tip: "Analyser les erreurs et cibler deux ou trois points fragiles.", color: "#ffab00" },
-  { date: "5 juin", label: "J-3", focus: "Sujet blanc 2 - conditions réelles", tip: "Deuxième simulation : 15 min QCM + deux exercices.", color: "#ff6b6b" },
-  { date: "6 juin", label: "J-2", focus: "Correction + fiches méthodes", tip: "Rédiger ses fiches sur les points encore fragiles.", color: "#ffab00" },
-  { date: "7 juin", label: "J-1", focus: "QCM flash + fiches express", tip: "Révision légère, matériel prêt, sommeil prioritaire.", color: "#06d6a0" },
-  { date: "8 juin", label: "EXAMEN", focus: "Épreuve anticipée de mathématiques", tip: "Lire tout le sujet, QCM en 15 min, ne pas rester bloqué.", color: "#ffb800", final: true },
+  { date: "2026-05-28", focus: "Format + automatismes QCM", tip: "Lire la structure complète. Faire les QCM d'automatismes. Objectif : zéro erreur sur taux et variations.", color: "#00e5ff" },
+  { date: "2026-05-29", focus: "Suites numériques", tip: "Revoir la suite auxiliaire et les exercices de modélisation.", color: "#8b5cf6" },
+  { date: "2026-05-30", focus: "Second degré + dérivation", tip: "Maîtriser discriminant, formes canonique/factorisée, dérivées de base et produit.", color: "#10b981" },
+  { date: "2026-05-31", focus: "Dérivation + exponentielle", tip: "Dériver produit, exponentielle composée, tangente et variations.", color: "#10b981" },
+  { date: "2026-06-01", focus: "Produit scalaire + géométrie", tip: "Produit scalaire, droite par vecteur normal et équation de cercle.", color: "#3b82f6" },
+  { date: "2026-06-02", focus: "Probabilités + variables aléatoires", tip: "Arbre pondéré, probabilités totales, Bayes, espérance et variance.", color: "#a78bfa" },
+  { date: "2026-06-03", focus: "Sujet blanc 1 - conditions réelles", tip: "2h chrono, sans calculatrice. Simuler l'examen complet.", color: "#ff6b6b" },
+  { date: "2026-06-04", focus: "Correction + ciblage", tip: "Analyser les erreurs et cibler deux ou trois points fragiles.", color: "#ffab00" },
+  { date: "2026-06-05", focus: "Sujet blanc 2 - conditions réelles", tip: "Deuxième simulation : 15 min QCM + deux exercices.", color: "#ff6b6b" },
+  { date: "2026-06-06", focus: "Correction + fiches méthodes", tip: "Rédiger ses fiches sur les points encore fragiles.", color: "#ffab00" },
+  { date: "2026-06-07", focus: "QCM flash + fiches express", tip: "Révision légère, matériel prêt, sommeil prioritaire.", color: "#06d6a0" },
+  { date: "2026-06-08", focus: "Épreuve anticipée de mathématiques", tip: "Lire tout le sujet, QCM en 15 min, ne pas rester bloqué.", color: "#ffb800", final: true },
+];
+
+// Dates éditables par l'enseignant : tout le rendu Stage Commando et J-X se recalcule depuis ces ISO dates.
+export const STAGE_SESSIONS: StageSession[] = [
+  {
+    id: "S1",
+    date: "2026-05-30",
+    title: "Séance 1 — Automatismes & suites",
+    durationMin: 120,
+    objectifs: [
+      "Installer le format EAM et les priorités de points rapides.",
+      "Sécuriser les automatismes de QCM sans calculatrice.",
+      "Reprendre les suites arithmétiques, géométriques et les seuils.",
+      "Construire le plan individuel des 48 premières heures.",
+    ],
+    deroule: [
+      { tranche: "0-15", activite: "Brief format d'épreuve, barème, stratégie sans calculatrice.", moduleIds: ["auto"] },
+      { tranche: "15-45", activite: "QCM flash diagnostique : taux, équations, lectures graphiques.", moduleIds: ["auto"] },
+      { tranche: "45-90", activite: "Atelier suites : nature, terme général, seuil et algorithme.", moduleIds: ["suites"] },
+      { tranche: "90-120", activite: "Correction active et fiche personnelle des points à sécuriser.", moduleIds: ["auto", "suites"] },
+    ],
+    moduleIds: ["auto", "suites"],
+    livrables: ["Score QCM initial", "Fiche 48h des automatismes fragiles", "Deux exercices de suites corrigés"],
+    interSeance: ["Refaire 10 automatismes ciblés", "Reprendre un exercice de suite avec seuil", "Noter trois erreurs à ne plus refaire"],
+  },
+  {
+    id: "S2",
+    date: "2026-06-01",
+    title: "Séance 2 — Second degré & dérivation",
+    durationMin: 120,
+    objectifs: [
+      "Automatiser discriminant, factorisation et tableau de signes.",
+      "Relier dérivée, signe et variations.",
+      "Rédiger une justification courte mais complète.",
+      "Traiter une question d'optimisation sans perdre de temps.",
+    ],
+    deroule: [
+      { tranche: "0-20", activite: "Réactivation : discriminant, racines, signe du trinôme.", moduleIds: ["second"] },
+      { tranche: "20-60", activite: "Dérivation ciblée : produit, tangente, variations.", moduleIds: ["deriv"] },
+      { tranche: "60-100", activite: "Problème guidé d'optimisation avec tableau de variations.", moduleIds: ["second", "deriv"] },
+      { tranche: "100-120", activite: "Relecture méthode : phrases minimales attendues.", moduleIds: ["deriv"] },
+    ],
+    moduleIds: ["second", "deriv"],
+    livrables: ["Tableau de signes propre", "Tableau de variations justifié", "Fiche phrases de rédaction"],
+    interSeance: ["Refaire une dérivée de produit", "Résoudre une inéquation du second degré", "Relire la fiche tangente/variations"],
+  },
+  {
+    id: "S3",
+    date: "2026-06-03",
+    title: "Séance 3 — Exponentielle & géométrie repérée",
+    durationMin: 120,
+    objectifs: [
+      "Dériver une expression avec exponentielle sans développer inutilement.",
+      "Utiliser la positivité de l'exponentielle dans un signe.",
+      "Sécuriser produit scalaire, droites et cercles.",
+      "Choisir la méthode la plus courte selon la question.",
+    ],
+    deroule: [
+      { tranche: "0-25", activite: "Calcul mental exponentiel et règles d'exposants.", moduleIds: ["expo"] },
+      { tranche: "25-65", activite: "Dérivée avec exponentielle : factorisation et signe.", moduleIds: ["expo", "deriv"] },
+      { tranche: "65-105", activite: "Géométrie repérée : produit scalaire, normale, cercle.", moduleIds: ["geom"] },
+      { tranche: "105-120", activite: "Synthèse choix de méthode et pièges de notation.", moduleIds: ["expo", "geom"] },
+    ],
+    moduleIds: ["expo", "geom"],
+    livrables: ["Dérivée exponentielle factorisée", "Exercice géométrie repérée corrigé", "Liste des raccourcis sans calculatrice"],
+    interSeance: ["Reprendre trois simplifications d'exponentielles", "Refaire une équation de cercle", "Préparer deux questions à poser sur la géométrie"],
+  },
+  {
+    id: "S4",
+    date: "2026-06-05",
+    title: "Séance 4 — Probabilités & sujet blanc #1",
+    durationMin: 120,
+    objectifs: [
+      "Stabiliser conditionnelles, intersections et probabilités totales.",
+      "Calculer une espérance à partir d'une loi.",
+      "Faire un sujet blanc en conditions réalistes.",
+      "Identifier les pertes de points prioritaires avant le week-end.",
+    ],
+    deroule: [
+      { tranche: "0-25", activite: "Arbres pondérés et traductions de vocabulaire.", moduleIds: ["proba"] },
+      { tranche: "25-45", activite: "Variable aléatoire : loi, espérance, interprétation.", moduleIds: ["proba"] },
+      { tranche: "45-110", activite: "Sujet blanc #1 en conditions raccourcies et ciblées.", moduleIds: ["auto", "proba", "suites", "deriv"] },
+      { tranche: "110-120", activite: "Auto-bilan : points sûrs, points fragiles, plan week-end.", moduleIds: ["proba"] },
+    ],
+    moduleIds: ["auto", "proba", "suites", "deriv"],
+    livrables: ["Arbre pondéré annoté", "Score sujet blanc #1", "Liste des trois corrections prioritaires"],
+    interSeance: ["Corriger les erreurs du sujet blanc #1", "Relire les fiches express concernées", "Faire 15 minutes de QCM flash"],
+  },
+  {
+    id: "S5",
+    date: "2026-06-07",
+    title: "Séance 5 — Correction ciblée & kit jour J",
+    durationMin: 120,
+    objectifs: [
+      "Corriger les erreurs à fort rendement sans surcharge.",
+      "Faire le sujet blanc #2 ou sa version ciblée.",
+      "Finaliser les fiches express personnelles.",
+      "Préparer la stratégie du matin d'épreuve.",
+    ],
+    deroule: [
+      { tranche: "0-25", activite: "Reprise des erreurs communes : signes, lecture, probabilités.", moduleIds: ["auto", "proba", "deriv"] },
+      { tranche: "25-90", activite: "Sujet blanc #2 ciblé : QCM puis exercices prioritaires.", moduleIds: ["auto", "second", "expo", "geom"] },
+      { tranche: "90-110", activite: "Correction active et choix des derniers rappels.", moduleIds: ["auto", "deriv", "proba"] },
+      { tranche: "110-120", activite: "Kit jour J : matériel, ordre des questions, relecture.", moduleIds: ["auto"] },
+    ],
+    moduleIds: ["auto", "second", "deriv", "expo", "geom", "proba"],
+    livrables: ["Score sujet blanc #2", "Checklist jour J validée", "Fiche finale des erreurs à éviter"],
+    interSeance: ["Révision légère uniquement", "Préparer matériel et pièce d'identité", "Dormir sans surcharge de travail"],
+  },
+];
+
+export const WEEKEND_PROTOCOL: WeekendProtocolDay[] = [
+  {
+    id: "J-2",
+    date: "2026-06-06",
+    title: "Samedi 6 juin — Réactivation ciblée",
+    intention: "Consolider les points fragiles sans refaire tout le programme.",
+    actions: ["QCM flash 15 minutes", "Correction des erreurs du sujet blanc #1", "Relecture de trois fiches express prioritaires"],
+  },
+  {
+    id: "J-1",
+    date: "2026-06-07",
+    title: "Dimanche 7 juin — Allègement et stratégie",
+    intention: "Stabiliser la confiance et éviter la surcharge cognitive.",
+    actions: ["Sujet blanc #2 ciblé ou correction guidée", "Checklist matériel", "Sommeil prioritaire et arrêt des révisions lourdes"],
+  },
+  {
+    id: "J-0",
+    date: "2026-06-08",
+    title: "Lundi 8 juin — Jour J",
+    intention: "Sécuriser les points accessibles et gérer le temps.",
+    actions: ["QCM en premier, 15 minutes maximum", "Questions rédigées dans l'ordre des points sûrs", "Relecture finale des unités, signes et conclusions"],
+  },
 ];

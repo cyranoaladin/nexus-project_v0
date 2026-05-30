@@ -4,15 +4,14 @@ import Link from "next/link";
 import { ArrowRight, Clock3, Target } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useEAMProgress } from "@/hooks/useEAMProgress";
-import { MODULES } from "@/components/EAMPrep/data";
+import { MODULES, getDaysUntilExam } from "@/components/EAMPrep/data";
 
-const EXAM_DATE = new Date("2026-06-08T08:00:00+02:00");
 const EXAM_GRACE_DAYS = 30;
 const TOTAL_MODULES = 7;
 const MOCK_EXAM_KEY = "mock_exam_1";
 
 function getDaysRemaining() {
-  return Math.ceil((EXAM_DATE.getTime() - Date.now()) / 86_400_000);
+  return getDaysUntilExam(new Date());
 }
 
 function getDayPriority(pct: number, daysLeft: number) {
@@ -163,7 +162,7 @@ export function EAMCockpitSummary() {
         </div>
 
         <Link
-          href="/dashboard/eleve/eam-premiere"
+          href="/dashboard/eleve/eam"
           className={`inline-flex min-h-11 shrink-0 items-center justify-center rounded-lg border px-4 text-sm font-bold no-underline transition-colors ${urgency.border} ${urgency.bg} ${urgency.text} hover:bg-white/10`}
         >
           {pct === 0 ? "Commencer" : "Continuer"}

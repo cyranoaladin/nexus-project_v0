@@ -285,7 +285,7 @@ export default function DashboardEleve() {
                             Accédez au cockpit premium du sprint : plan 10h, mission du jour, livret imprimable, automatismes et stratégie d'épreuve.
                           </p>
                         </div>
-                        <Link href="/dashboard/eleve/eam-premiere" className="w-full sm:w-fit">
+                        <Link href="/dashboard/eleve/eam" className="w-full sm:w-fit">
                           <Button className="w-full bg-brand-accent text-surface-darker hover:bg-brand-accent/90 sm:w-auto">
                             Ouvrir le sprint EAM
                             <ArrowRight className="ml-2 h-4 w-4" />
