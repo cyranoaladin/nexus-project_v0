@@ -163,7 +163,7 @@ export function EAMCockpitSummary() {
         </div>
 
         <Link
-          href="/dashboard/eleve/eam"
+          href="/dashboard/eleve/eam-premiere"
           className={`inline-flex min-h-11 shrink-0 items-center justify-center rounded-lg border px-4 text-sm font-bold no-underline transition-colors ${urgency.border} ${urgency.bg} ${urgency.text} hover:bg-white/10`}
         >
           {pct === 0 ? "Commencer" : "Continuer"}
