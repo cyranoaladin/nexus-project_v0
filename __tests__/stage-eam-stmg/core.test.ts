@@ -3,6 +3,7 @@ import {
   computeDiagnosticProfile,
   getDomainPriorities,
 } from "@/content/stage-eam-stmg/core";
+import { STMG_MOCK_EXAM } from "@/content/stage-eam-stmg/sujet-blanc";
 import type { DiagnosticAnswers } from "@/content/stage-eam-stmg/types";
 
 describe("stage EAM STMG core", () => {
@@ -72,6 +73,24 @@ describe("stage EAM STMG core", () => {
     expect(planning.find((day) => day.id === "j2")?.domainIds).toContain("probabilites");
   });
 
+  it("covers all six domains across the adaptive five-session plan", () => {
+    const priorities = [
+      "suites",
+      "probabilites",
+      "fonctions",
+      "statistiques",
+      "algorithmique-tableur",
+      "derivation",
+    ] as const;
+    const planning = buildAdaptivePlanning([...priorities]);
+    const covered = planning
+      .filter((day) => ["j1", "j2", "j3", "j4", "j5"].includes(day.id))
+      .flatMap((day) => day.domainIds);
+
+    expect(new Set(covered)).toEqual(new Set(priorities));
+    expect(planning.find((day) => day.id === "j5")?.domainIds).toEqual(["derivation"]);
+  });
+
   it("computes a complete realistic profile from 30 QCM answers and 4 exercises", () => {
     const qcm = Object.fromEntries(
       Array.from({ length: 36 }, (_, index) => [`diag-q${index + 1}`, index % 4])
@@ -105,5 +124,15 @@ describe("stage EAM STMG core", () => {
       "probabilites",
       "algorithmique-tableur",
     ]);
+  });
+
+  it("provides a complete STMG mock exam in the official format", () => {
+    expect(STMG_MOCK_EXAM.durationMin).toBe(120);
+    expect(STMG_MOCK_EXAM.qcm).toHaveLength(12);
+    expect(STMG_MOCK_EXAM.qcmPoints).toBe(6);
+    expect(STMG_MOCK_EXAM.part2Points).toBe(14);
+    expect(STMG_MOCK_EXAM.exercises.reduce((sum, exercise) => sum + exercise.points, 0)).toBe(14);
+    expect(STMG_MOCK_EXAM.qcm.every((item) => item.choices.length === 4)).toBe(true);
+    expect(STMG_MOCK_EXAM.qcm.every((item) => item.answerIndex >= 0 && item.answerIndex < item.choices.length)).toBe(true);
   });
 });

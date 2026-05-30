@@ -19,6 +19,15 @@ export interface StageProgressState {
   profile: DiagnosticProfile;
   validatedNotions: Record<DomainId, string[]>;
   automatismHistory: AutomatismRun[];
+  retryQueue: string[];
+  sessionChecklist: Record<string, boolean>;
+  mockExam: {
+    qcmAnswers: Record<string, number>;
+    qcmScore: number;
+    part2Score: number;
+    submitted: boolean;
+    updatedAt: string | null;
+  };
   settings: {
     countdownEnabled: boolean;
     gamificationEnabled: boolean;
@@ -26,30 +35,7 @@ export interface StageProgressState {
   updatedAt: string;
 }
 
-interface ProgrammeProgressPayload {
-  completed_chapters: string[];
-  mastered_chapters: string[];
-  total_xp: number;
-  quiz_score: number;
-  combo_count: number;
-  best_combo: number;
-  streak: number;
-  streak_freezes: number;
-  last_activity_date: string | null;
-  daily_challenge: Record<string, unknown>;
-  exercise_results: Record<string, number[]>;
-  hint_usage: Record<string, number>;
-  badges: string[];
-  srs_queue: Record<string, unknown>;
-  diagnostic_results?: Record<string, unknown>;
-  time_per_chapter?: Record<string, number>;
-  formulaire_viewed?: boolean;
-  grand_oral_seen?: number;
-  lab_archimede_opened?: boolean;
-  euler_max_steps?: number;
-  newton_best_iterations?: number | null;
-  printed_fiche?: boolean;
-}
+type ServerSyncStatus = "pending" | "ok" | "failed";
 
 const domainIds: DomainId[] = ["fonctions", "derivation", "suites", "statistiques", "probabilites", "algorithmique-tableur"];
 
@@ -75,6 +61,9 @@ export function createInitialStageState(eleveId: string): StageProgressState {
     profile: getDefaultProfile(),
     validatedNotions: emptyValidatedNotions(),
     automatismHistory: [],
+    retryQueue: [],
+    sessionChecklist: {},
+    mockExam: { qcmAnswers: {}, qcmScore: 0, part2Score: 0, submitted: false, updatedAt: null },
     settings: { countdownEnabled: true, gamificationEnabled: true },
     updatedAt: new Date().toISOString(),
   };
@@ -84,12 +73,27 @@ export function parseStageState(raw: string | null, eleveId: string): StageProgr
   if (!raw) return createInitialStageState(eleveId);
   try {
     const parsed = JSON.parse(raw) as Partial<StageProgressState>;
+    const validatedNotions = { ...emptyValidatedNotions(), ...(parsed.validatedNotions ?? {}) };
+    const legacyAlgorithmique = (parsed.validatedNotions as Record<string, string[]> | undefined)?.["algorithmique-information"];
+    if (Array.isArray(legacyAlgorithmique) && validatedNotions["algorithmique-tableur"].length === 0) {
+      validatedNotions["algorithmique-tableur"] = legacyAlgorithmique;
+    }
     return {
       ...createInitialStageState(eleveId),
       ...parsed,
       eleveId,
       diagnosticAnswers: parsed.diagnosticAnswers ?? { qcm: {}, exercises: {} },
-      validatedNotions: { ...emptyValidatedNotions(), ...(parsed.validatedNotions ?? {}) },
+      validatedNotions,
+      retryQueue: Array.isArray(parsed.retryQueue) ? parsed.retryQueue : [],
+      sessionChecklist: { ...(parsed.sessionChecklist ?? {}) },
+      mockExam: {
+        qcmAnswers: {},
+        qcmScore: 0,
+        part2Score: 0,
+        submitted: false,
+        updatedAt: null,
+        ...(parsed.mockExam ?? {}),
+      },
       settings: { countdownEnabled: true, gamificationEnabled: true, ...(parsed.settings ?? {}) },
     };
   } catch {
@@ -101,86 +105,37 @@ export function serializeStageState(state: StageProgressState): string {
   return JSON.stringify(state, null, 2);
 }
 
-export function createEmptyProgrammeProgress(): ProgrammeProgressPayload {
-  return {
-    completed_chapters: [],
-    mastered_chapters: [],
-    total_xp: 0,
-    quiz_score: 0,
-    combo_count: 0,
-    best_combo: 0,
-    streak: 0,
-    streak_freezes: 0,
-    last_activity_date: null,
-    daily_challenge: {},
-    exercise_results: {},
-    hint_usage: {},
-    badges: [],
-    srs_queue: {},
-    diagnostic_results: {},
-    time_per_chapter: {},
-    formulaire_viewed: false,
-    grand_oral_seen: 0,
-    lab_archimede_opened: false,
-    euler_max_steps: 0,
-    newton_best_iterations: null,
-    printed_fiche: false,
-  };
-}
-
-function asRecord(value: unknown): Record<string, unknown> {
-  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
-}
-
-export function extractStageStateFromProgrammeProgress(raw: unknown, eleveId: string): StageProgressState | null {
-  const data = asRecord(raw);
-  const diagnostics = asRecord(data.diagnostic_results);
-  const stage = diagnostics.stage_eam_stmg;
-  if (!stage || typeof stage !== "object") return null;
-  return parseStageState(JSON.stringify(stage), eleveId);
-}
-
-export function mergeStageStateIntoProgrammeProgress(raw: unknown, stageState: StageProgressState): ProgrammeProgressPayload {
-  const current = { ...createEmptyProgrammeProgress(), ...asRecord(raw) } as ProgrammeProgressPayload;
-  return {
-    ...current,
-    diagnostic_results: {
-      ...asRecord(current.diagnostic_results),
-      stage_eam_stmg: stageState,
-    },
-  };
-}
-
 export function useStageProgress(eleveId: string) {
   const [state, setState] = useState<StageProgressState>(() => createInitialStageState(eleveId));
   const [hydrated, setHydrated] = useState(false);
-  const serverPayloadRef = useRef<unknown>(null);
-  const loadedServerRef = useRef(false);
+  const [serverSyncStatus, setServerSyncStatus] = useState<ServerSyncStatus>("pending");
+  const serverSyncStatusRef = useRef<ServerSyncStatus>("pending");
   const saveTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    loadedServerRef.current = false;
+    serverSyncStatusRef.current = "pending";
+    setServerSyncStatus("pending");
     const localState = parseStageState(window.localStorage.getItem(storageKey(eleveId)), eleveId);
     setState(localState);
     setHydrated(true);
 
-    fetch("/api/programme/maths-1ere-stmg/progress")
-      .then((response) => response.ok ? response.json() : null)
+    fetch("/api/programme/maths-1ere-stmg/stage-progress")
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error("stage-progress-load-failed")))
       .then((payload) => {
-        if (cancelled || !payload?.data) return;
-        serverPayloadRef.current = payload.data;
-        const serverStageState = extractStageStateFromProgrammeProgress(payload.data, eleveId);
+        if (cancelled || payload?.ok !== true) return;
+        serverSyncStatusRef.current = "ok";
+        setServerSyncStatus("ok");
+        const serverStageState = payload.data ? parseStageState(JSON.stringify(payload.data), eleveId) : null;
         if (serverStageState && serverStageState.updatedAt >= localState.updatedAt) {
           setState(serverStageState);
           window.localStorage.setItem(storageKey(eleveId), JSON.stringify(serverStageState));
         }
       })
       .catch(() => {
-        // Local cache remains the immediate fallback if server progress is unavailable.
-      })
-      .finally(() => {
-        loadedServerRef.current = true;
+        if (cancelled) return;
+        serverSyncStatusRef.current = "failed";
+        setServerSyncStatus("failed");
       });
 
     return () => {
@@ -191,15 +146,13 @@ export function useStageProgress(eleveId: string) {
   useEffect(() => {
     if (!hydrated) return;
     window.localStorage.setItem(storageKey(eleveId), JSON.stringify(state));
-    if (!loadedServerRef.current) return;
+    if (serverSyncStatusRef.current !== "ok") return;
     if (saveTimerRef.current) window.clearTimeout(saveTimerRef.current);
     saveTimerRef.current = window.setTimeout(() => {
-      const payload = mergeStageStateIntoProgrammeProgress(serverPayloadRef.current, state);
-      serverPayloadRef.current = payload;
-      void fetch("/api/programme/maths-1ere-stmg/progress", {
+      void fetch("/api/programme/maths-1ere-stmg/stage-progress", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(state),
       }).catch(() => undefined);
     }, 700);
     return () => {
@@ -233,6 +186,43 @@ export function useStageProgress(eleveId: string) {
     }));
   }, [update]);
 
+  const addRetryItems = useCallback((itemIds: string[]) => {
+    update((current) => ({
+      ...current,
+      retryQueue: [...itemIds, ...current.retryQueue.filter((id) => !itemIds.includes(id))].slice(0, 36),
+    }));
+  }, [update]);
+
+  const clearRetryItem = useCallback((itemId: string) => {
+    update((current) => ({
+      ...current,
+      retryQueue: current.retryQueue.filter((id) => id !== itemId),
+    }));
+  }, [update]);
+
+  const toggleSessionItem = useCallback((itemId: string) => {
+    update((current) => ({
+      ...current,
+      sessionChecklist: {
+        ...current.sessionChecklist,
+        [itemId]: !current.sessionChecklist[itemId],
+      },
+    }));
+  }, [update]);
+
+  const saveMockExam = useCallback((qcmAnswers: Record<string, number>, qcmScore: number, part2Score: number) => {
+    update((current) => ({
+      ...current,
+      mockExam: {
+        qcmAnswers,
+        qcmScore,
+        part2Score,
+        submitted: true,
+        updatedAt: new Date().toISOString(),
+      },
+    }));
+  }, [update]);
+
   const setSetting = useCallback((key: keyof StageProgressState["settings"], value: boolean) => {
     update((current) => ({ ...current, settings: { ...current.settings, [key]: value } }));
   }, [update]);
@@ -254,11 +244,16 @@ export function useStageProgress(eleveId: string) {
 
   return {
     hydrated,
+    serverSyncStatus,
     state,
     planning,
     saveDiagnostic,
     toggleNotion,
     addAutomatismRun,
+    addRetryItems,
+    clearRetryItem,
+    toggleSessionItem,
+    saveMockExam,
     setSetting,
     exportJson,
     importJson,
