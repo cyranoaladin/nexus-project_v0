@@ -6,7 +6,7 @@ Date : 2026-05-30
 
 | Route | Role | Etat |
 |---|---|---|
-| `/dashboard/eleve/eam` | Module EAM historique avec progression locale/API | A garder, mais trop large pour le sprint 10h |
+| `/dashboard/eleve/eam` | Module EAM canonique avec progression locale/API | A garder et enrichir avec le sprint 10h |
 | `/api/eam/progress` | Sauvegarde progression EAM | Reutilisable, non modifie dans ce lot |
 | `/api/coach/students/eam-summary` | Synthese coach EAM | Hors scope dashboard eleve |
 | `/dashboard/eleve/automatismes` | Cockpit automatismes | Complement utile, non modifie |
@@ -16,8 +16,8 @@ Date : 2026-05-30
 
 | Composant | Role | A garder | A ameliorer |
 |---|---|---|---|
-| `components/EAMPrep/*` | Preparation EAM J-11, modules et sujet blanc | Oui | Ne pas casser, ajouter un cockpit sprint dedie |
-| `components/dashboard/eleve/EAMCockpitSummary.tsx` | Carte resume EAM dans le dashboard | Oui | Pointer vers le nouveau cockpit sprint |
+| `components/EAMPrep/*` | Preparation EAM J-11, modules, sujet blanc et progression | Oui | Enrichir sans creer de second dashboard |
+| `components/dashboard/eleve/EAMCockpitSummary.tsx` | Carte resume EAM dans le dashboard | Oui | Pointer vers `/dashboard/eleve/eam` |
 | `components/automatismes/*` | Entrainement automatismes | Oui | Utiliser comme ressource annexe |
 | `hooks/useEAMProgress.ts` | Progression EAM persistante | Oui | Non modifie pour eviter risque |
 
@@ -39,7 +39,7 @@ Date : 2026-05-30
 
 ## Problemes identifies
 
-- doublons : risque de superposer le module J-11 historique et le nouveau sprint sans clarifier les routes.
+- doublons : risque de superposer le module J-11 historique et un second dashboard ; decision : route canonique unique `/dashboard/eleve/eam`.
 - zombies : anciens documents de stage et sujets blancs archives dans Drive, non a importer dans le code.
 - orphelins : aucun orphelin code EAM critique identifie, mais les contenus EAM sont disperses entre programme, automatismes et dashboard.
 - hardcoding : ne pas integrer de donnees nominatives issues des bilans.
@@ -48,4 +48,4 @@ Date : 2026-05-30
 
 ## Decision d'architecture
 
-Creer un flux dedie `/dashboard/eleve/eam-premiere` avec donnees statiques versionnees dans `content/eam-premiere-generale/`. Le module historique reste accessible et non casse. Le dashboard eleve pointe vers le sprint premium pour les eleves de Premiere generale.
+Enrichir le flux existant `/dashboard/eleve/eam` avec le sprint 10h, le stage Commando, la mission du jour, le protocole week-end et le livret. Les routes paralleles `/dashboard/eleve/eam-premiere/**` ne doivent pas subsister comme second dashboard.

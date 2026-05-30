@@ -1,25 +1,25 @@
 import { render, screen } from "@testing-library/react";
 
-import { EamPremiereDashboard } from "@/components/eam-premiere-generale/EamPremiereDashboard";
+import { StagePanel } from "@/components/EAMPrep/StagePanel";
 
-describe("EAM Premiere generale dashboard", () => {
-  it("renders the premium sprint cockpit", () => {
-    render(<EamPremiereDashboard />);
+describe("EAM canonical Stage Commando panel", () => {
+  it("renders the sprint inside the existing EAM module", () => {
+    render(<StagePanel checks={{}} onToggleCheck={jest.fn()} onOpenModule={jest.fn()} />);
 
-    expect(screen.getByRole("heading", { name: /Sprint EAM Maths — Première générale/i })).toBeInTheDocument();
-    expect(screen.getByText(/Objectif : prêt pour le 8 juin/i)).toBeInTheDocument();
-    expect(screen.getByText(/Plan de mission 10h/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Mission du jour/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/Baromètre de compétences/i)).toBeInTheDocument();
-    expect(screen.getByText(/Banque anti-erreurs/i)).toBeInTheDocument();
-    expect(screen.getByText(/Week-end final/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Stage Commando 10h/i })).toBeInTheDocument();
+    expect(screen.getByText(/Mission du jour/i)).toBeInTheDocument();
+    expect(screen.getByText(/Protocole week-end/i)).toBeInTheDocument();
+    expect(screen.getAllByTestId("eam-stage-session-card")).toHaveLength(5);
   });
 
-  it("shows exactly five session cards without duplicated track entries", () => {
-    render(<EamPremiereDashboard />);
-    const excludedTrack = ["S", "T", "M", "G"].join("");
+  it("stores stage validation with additive progress keys", () => {
+    const onToggleCheck = jest.fn();
+    render(<StagePanel checks={{}} onToggleCheck={onToggleCheck} onOpenModule={jest.fn()} />);
 
-    expect(screen.getAllByTestId("eam-premiere-session-card")).toHaveLength(5);
-    expect(screen.queryByText(new RegExp(excludedTrack, "i"))).not.toBeInTheDocument();
+    screen.getByRole("checkbox", { name: /Séance S1 faite/i }).click();
+    screen.getByRole("checkbox", { name: /Inter-séance S1 fait/i }).click();
+
+    expect(onToggleCheck).toHaveBeenCalledWith("stage_S1_done");
+    expect(onToggleCheck).toHaveBeenCalledWith("stage_S1_inter");
   });
 });

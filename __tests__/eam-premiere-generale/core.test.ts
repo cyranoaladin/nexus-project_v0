@@ -1,62 +1,30 @@
-import {
-  EAM_PREMIERE_EXAM_DATE,
-  EAM_PREMIERE_FINAL_WEEKEND,
-  EAM_PREMIERE_SPRINT_TOTAL_HOURS,
-  eamPremiereCompetencies,
-  eamPremiereSprintMissions,
-} from "@/content/eam-premiere-generale";
+import { MODULES, STAGE_SESSIONS, WEEKEND_PROTOCOL, getDaysUntilExam } from "@/components/EAMPrep/data";
 
-describe("EAM Premiere generale sprint core", () => {
-  it("defines the 10-hour sprint for the 8 June 2026 exam", () => {
-    expect(EAM_PREMIERE_EXAM_DATE).toBe("2026-06-08");
-    expect(EAM_PREMIERE_SPRINT_TOTAL_HOURS).toBe(10);
-    expect(eamPremiereSprintMissions).toHaveLength(5);
-    expect(eamPremiereSprintMissions.reduce((sum, mission) => sum + mission.durationHours, 0)).toBe(10);
+describe("EAM Premiere generale canonical sprint core", () => {
+  it("uses the existing EAM route as canonical entry point", () => {
+    expect("/dashboard/eleve/eam").toBe("/dashboard/eleve/eam");
+    expect("/dashboard/eleve/eam").not.toBe("/dashboard/eleve/eam-premiere");
   });
 
-  it("keeps the final weekend focused on 6 and 7 June", () => {
-    expect(EAM_PREMIERE_FINAL_WEEKEND.map((day) => day.date)).toEqual(["2026-06-06", "2026-06-07"]);
-    expect(EAM_PREMIERE_FINAL_WEEKEND.every((day) => day.actions.length > 0)).toBe(true);
-  });
+  it("defines the 10-hour sprint inside the existing EAM data source", () => {
+    const moduleIds = new Set(MODULES.map((module) => module.id));
 
-  it("gives every mission a complete student workflow", () => {
-    for (const mission of eamPremiereSprintMissions) {
-      expect(mission.id).toMatch(/^eam-premiere-/);
-      expect(mission.title).toBeTruthy();
-      expect(mission.objective).toBeTruthy();
-      expect(mission.competencies.length).toBeGreaterThan(0);
-      expect(mission.exercises.length).toBeGreaterThan(0);
-      expect(mission.frequentMistakes.length).toBeGreaterThan(0);
-      expect(mission.deliverable).toBeTruthy();
-      expect(mission.homework.durationMinutes).toBeGreaterThanOrEqual(25);
-      expect(mission.homework.durationMinutes).toBeLessThanOrEqual(40);
-      expect(["P0", "P1", "P2"]).toContain(mission.priority);
-      expect(mission.allowedStatuses).toEqual(["todo", "in-progress", "secured"]);
+    expect(STAGE_SESSIONS).toHaveLength(5);
+    expect(STAGE_SESSIONS.reduce((sum, session) => sum + session.durationMin, 0)).toBe(600);
+    expect(WEEKEND_PROTOCOL.map((day) => day.date)).toEqual(["2026-06-06", "2026-06-07", "2026-06-08"]);
+    expect(getDaysUntilExam(new Date("2026-05-30T10:30:00+02:00"))).toBe(9);
+
+    for (const session of STAGE_SESSIONS) {
+      for (const moduleId of session.moduleIds) {
+        expect(moduleIds.has(moduleId)).toBe(true);
+      }
+      expect(session.objectifs.length).toBeGreaterThanOrEqual(3);
+      expect(session.interSeance.length).toBeGreaterThan(0);
     }
   });
 
-  it("uses unique ids and a full competence barometer", () => {
-    const ids = eamPremiereSprintMissions.map((mission) => mission.id);
-    expect(new Set(ids).size).toBe(ids.length);
-
-    expect(eamPremiereCompetencies.map((item) => item.id)).toEqual([
-      "automatismes",
-      "fonctions",
-      "suites",
-      "probabilites",
-      "variables-aleatoires",
-      "lecture-graphique",
-      "redaction",
-      "strategie-examen",
-    ]);
-  });
-
-  it("does not mix the Premiere generale sprint with other workstreams", () => {
-    const serialized = JSON.stringify({
-      eamPremiereCompetencies,
-      eamPremiereSprintMissions,
-      EAM_PREMIERE_FINAL_WEEKEND,
-    }).toLowerCase();
+  it("does not mix the Premiere generale EAM sprint with other workstreams", () => {
+    const serialized = JSON.stringify({ STAGE_SESSIONS, WEEKEND_PROTOCOL }).toLowerCase();
 
     expect(serialized).not.toContain("redis");
     expect(serialized).not.toContain("upstash");

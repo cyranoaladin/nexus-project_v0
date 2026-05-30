@@ -7,7 +7,7 @@
 - Epreuve : 2h, sans calculatrice, QCM + exercices.
 - Duree : 10h d'accompagnement, 5 seances de 2h.
 - Date : lancement samedi 30 mai 2026, 10h30.
-- Dashboard : `/dashboard/eleve/eam-premiere`.
+- Dashboard : `/dashboard/eleve/eam` (route canonique existante).
 
 ## Sources analysees
 
@@ -28,24 +28,20 @@
 
 ## Dashboard
 
-- Routes :
-  - `/dashboard/eleve/eam-premiere`
-  - `/dashboard/eleve/eam-premiere/mission-du-jour`
-  - `/dashboard/eleve/eam-premiere/automatismes`
-  - `/dashboard/eleve/eam-premiere/sujet-blanc`
-  - `/dashboard/eleve/eam-premiere/livret`
-  - `/dashboard/eleve/eam-premiere/weekend-final`
+- Route :
+  - `/dashboard/eleve/eam`
 - Composants :
-  - `EamPremiereDashboard`
-  - `EamPremiereLivret`
-  - `EamPremiereRouteShell`
+  - `components/EAMPrep/index.tsx`
+  - `components/EAMPrep/StagePanel.tsx`
+  - `components/EAMPrep/Livret.tsx`
+  - `components/EAMPrep/PlanTimeline.tsx`
 - Contenus :
-  - plan 10h ;
-  - missions quotidiennes ;
-  - banque anti-erreurs ;
-  - methode d'epreuve ;
-  - automatismes ;
-  - week-end final.
+  - plan dynamique J-X ;
+  - stage 10h ;
+  - mission du jour ;
+  - travail inter-seances ;
+  - protocole week-end ;
+  - livret imprime depuis les donnees EAM partagees.
 
 ## Livret
 

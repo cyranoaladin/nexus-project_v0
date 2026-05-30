@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { BookOpenCheck, CalendarDays, ClipboardCheck, FileText, Flag, ListChecks, PlayCircle, Target, Timer, Trophy } from "lucide-react";
+import { BookOpenCheck, CalendarDays, ClipboardCheck, FileText, Flag, ListChecks, PlayCircle, Printer, Target, Timer, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -13,8 +13,10 @@ import { ModuleGrid } from "./ModuleGrid";
 import { MockExam } from "./MockExam";
 import { PlanTimeline } from "./PlanTimeline";
 import { RefsSheet } from "./RefsSheet";
+import { StagePanel } from "./StagePanel";
+import { Livret } from "./Livret";
 
-type EAMTab = "accueil" | "diagnostic" | "plan" | "modules" | "refs" | "sujet";
+type EAMTab = "accueil" | "diagnostic" | "plan" | "stage" | "modules" | "refs" | "livret" | "sujet";
 
 function shouldHideAfterExam() {
   const now = new Date();
@@ -49,8 +51,10 @@ export default function EAMPrep() {
     { id: "accueil", label: "Accueil", icon: Target },
     { id: "diagnostic", label: "Faire le point", icon: ClipboardCheck },
     { id: "plan", label: "Plan J-11", icon: CalendarDays },
+    { id: "stage", label: "Stage Commando", icon: Flag },
     { id: "modules", label: "Modules", icon: BookOpenCheck },
     { id: "refs", label: "Fiches express", icon: FileText },
+    { id: "livret", label: "Livret", icon: Printer },
     { id: "sujet", label: "Sujet blanc", icon: Timer },
   ];
 
@@ -150,6 +154,9 @@ export default function EAMPrep() {
                 <Button variant="outline" className="border-white/15 text-white hover:bg-white/10" onClick={() => setTab("plan")}>
                   Voir le plan J-11
                 </Button>
+                <Button variant="outline" className="border-white/15 text-white hover:bg-white/10" onClick={() => setTab("stage")}>
+                  Stage Commando
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -169,6 +176,29 @@ export default function EAMPrep() {
               <Button variant="outline" className="border-amber-200/30 text-amber-100 hover:bg-amber-100/10" onClick={() => setTab("refs")}>
                 Ouvrir les fiches express
               </Button>
+            </CardContent>
+          </Card>
+          <Card className="min-w-0 overflow-hidden border-white/10 bg-surface-card xl:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-white">
+                <Target className="h-5 w-5 text-brand-accent" />
+                Baromètre de compétences
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              {MODULES.map((module) => {
+                const moduleProgress = progress.getModuleProgress(module.id);
+                return (
+                  <div key={module.id} className="rounded-xl border border-white/10 bg-white/5 p-4">
+                    <p className="text-xs font-bold uppercase tracking-wider" style={{ color: module.color }}>{module.tag}</p>
+                    <div className="mt-2 flex items-center justify-between gap-3 text-sm">
+                      <span className="font-semibold text-white">{module.title}</span>
+                      <span className="text-neutral-400">{moduleProgress.pct}%</span>
+                    </div>
+                    <Progress value={moduleProgress.pct} className="mt-2" />
+                  </div>
+                );
+              })}
             </CardContent>
           </Card>
         </div>
@@ -225,6 +255,17 @@ export default function EAMPrep() {
 
       {tab === "plan" && <PlanTimeline />}
 
+      {tab === "stage" && (
+        <StagePanel
+          checks={progress.state.checks}
+          onToggleCheck={progress.toggleCheck}
+          onOpenModule={(moduleId) => {
+            setSelectedModuleId(moduleId);
+            setTab("modules");
+          }}
+        />
+      )}
+
       {tab === "modules" && (
         selectedModule ? (
           <Card className="min-w-0 overflow-hidden border-white/10 bg-surface-card">
@@ -251,6 +292,17 @@ export default function EAMPrep() {
       )}
 
       {tab === "refs" && <RefsSheet />}
+
+      {tab === "livret" && (
+        <div className="space-y-4">
+          <div className="eam-no-print flex justify-end">
+            <Button className="bg-brand-accent text-surface-darker hover:bg-brand-accent/90" onClick={() => window.print()}>
+              Imprimer / exporter en PDF
+            </Button>
+          </div>
+          <Livret />
+        </div>
+      )}
 
       {tab === "sujet" && (
         <div className="space-y-4">
