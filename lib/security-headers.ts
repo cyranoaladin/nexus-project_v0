@@ -30,7 +30,7 @@ export function applySecurityHeaders(response: NextResponse): NextResponse {
         "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
         "img-src 'self' data: https: blob:",
         "connect-src 'self' https://api.openai.com https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://www.google.com wss: data:",
-        "frame-src 'self' https://meet.jit.si https://*.jitsi.net https://www.google.com https://maps.google.com",
+        "frame-src https://meet.jit.si https://*.jitsi.net https://www.google.com https://maps.google.com",
         "frame-ancestors 'none'",
         "base-uri 'self'",
         "form-action 'self'",
