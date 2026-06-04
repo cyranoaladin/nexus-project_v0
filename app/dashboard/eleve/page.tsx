@@ -4,7 +4,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, Calendar, HardDrive, Loader2, LogOut, MessageSquare, Sparkles, User, Video, AlertCircle, ArrowRight, Calculator, Zap } from "lucide-react";
+import { BookOpen, Calendar, HardDrive, Loader2, LogOut, MessageSquare, Sparkles, User, Video, AlertCircle, ArrowRight, Calculator, Zap, Target } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -340,6 +340,40 @@ export default function DashboardEleve() {
                               <Link href={studentGradeLevel === 'PREMIERE' ? "/dashboard/eleve/programme/maths" : "/programme/maths-terminale"} className="w-full sm:w-fit">
                                 <Button className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-8 shadow-lg shadow-indigo-600/20">
                                   Continuer mon parcours
+                                  <ArrowRight className="w-4 h-4 ml-2" />
+                                </Button>
+                              </Link>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {isStmgTrack && !isSurvivalMode && studentGradeLevel === 'PREMIERE' && (
+                      <Card className="bg-gradient-to-br from-emerald-500/10 via-brand-accent/5 to-surface-card border border-emerald-500/20 shadow-lg overflow-hidden group">
+                        <CardContent className="p-0">
+                          <div className="flex flex-col md:flex-row items-stretch">
+                            <div className="md:w-1/3 bg-emerald-500/10 p-6 flex flex-col items-center justify-center text-center border-b md:border-b-0 md:border-r border-emerald-500/20">
+                              <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <Target className="w-8 h-8 text-emerald-300" />
+                              </div>
+                              <h3 className="font-bold text-white tracking-tight">Mission Lamis</h3>
+                              <p className="text-[10px] uppercase tracking-widest text-emerald-300/70 font-bold mt-1">Objectif 8 juin</p>
+                            </div>
+                            <div className="flex-1 p-6 flex flex-col justify-center">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
+                                <span className="text-xs font-semibold text-emerald-200">Parcours guidé — Maths STMG</span>
+                              </div>
+                              <h4 className="text-lg font-bold text-white mb-2">
+                                Objectif Bac Maths STMG
+                              </h4>
+                              <p className="text-sm text-neutral-400 mb-6 line-clamp-2">
+                                Deux journées de mission avec réponses obligatoires, aides graduées, correction immédiate et questions à refaire.
+                              </p>
+                              <Link href="/lamis" className="w-full sm:w-fit">
+                                <Button className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-8 shadow-lg shadow-emerald-600/20">
+                                  Ouvrir la mission
                                   <ArrowRight className="w-4 h-4 ml-2" />
                                 </Button>
                               </Link>
