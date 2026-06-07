@@ -1,9 +1,17 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import PromoBanner from '@/components/layout/PromoBanner';
+import { usePathname } from 'next/navigation';
+
+jest.mock('next/navigation', () => ({
+  usePathname: jest.fn(),
+}));
+
+const mockUsePathname = usePathname as jest.Mock;
 
 describe('PromoBanner', () => {
   beforeEach(() => {
     jest.useFakeTimers();
+    mockUsePathname.mockReturnValue('/offres');
   });
 
   afterEach(() => {
@@ -11,6 +19,15 @@ describe('PromoBanner', () => {
       jest.runOnlyPendingTimers();
     });
     jest.useRealTimers();
+    mockUsePathname.mockReset();
+  });
+
+  it('does not render on the homepage', () => {
+    mockUsePathname.mockReturnValue('/');
+
+    const { container } = render(<PromoBanner />);
+
+    expect(container.firstChild).toBeNull();
   });
 
   it('renders both offer links on desktop', () => {
