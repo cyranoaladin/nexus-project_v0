@@ -251,7 +251,7 @@ function BilanGratuitForm() {
       <Toaster position="top-right" richColors theme="dark" />
       <CorporateNavbar />
 
-      <main className="py-8 md:py-12">
+      <main id="main-content" className="py-8 md:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
           {/* Breadcrumb */}
           <Breadcrumb
@@ -655,7 +655,11 @@ function BilanGratuitForm() {
 
 export default function BilanGratuitPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-surface-darker" />}>
+    <Suspense
+      fallback={
+        <main id="main-content" className="min-h-screen bg-surface-darker" aria-busy="true" />
+      }
+    >
       <BilanGratuitForm />
     </Suspense>
   );
