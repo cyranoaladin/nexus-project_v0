@@ -111,6 +111,7 @@ get-users-temp.*
 .aider*
 .codex
 .claude/
+.superpowers/
 # Note: .cline/, .clinerules/, .windsurf/ sont versionnés volontairement
 # (skills et workflows métier du projet)
 
