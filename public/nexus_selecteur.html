@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus Réussite — Trouver la formule adaptée</title>
+<link rel="stylesheet" href="/styles/nexus-tokens.css">
+<style>
+  :root{
+    --ink:var(--nx-night); --ink-soft:var(--nx-muted); --muted:var(--nx-muted);
+    --cream:var(--nx-ivory); --paper:var(--nx-white); --line:var(--nx-line);
+    --gold:var(--nx-red); --gold-deep:var(--nx-red-dark); --gold-soft:var(--nx-red-soft); --gold-tint:var(--nx-red-soft);
+    --shadow:var(--nx-shadow);
+    --radius:var(--nx-radius);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Mulish',-apple-system,BlinkMacSystemFont,sans-serif;
+    color:var(--ink); line-height:1.55;
+    background:var(--cream);
+    min-height:100vh; padding:0 18px 80px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1040px;margin:0 auto}
+  h1,h2,h3,.serif,.price{font-family:'Mulish',-apple-system,BlinkMacSystemFont,sans-serif}
+
+  /* Header */
+  header{padding:44px 0 26px;text-align:center}
+  .brand{
+    display:flex;align-items:center;justify-content:center;gap:12px;
+    font-weight:900;letter-spacing:0;font-size:15px;text-transform:none;color:var(--ink);
+  }
+  .brand img{width:150px;height:auto;display:block}
+  .rule{width:46px;height:3px;background:var(--gold);margin:14px auto 16px;border-radius:2px}
+  header .sub{font-size:13px;color:var(--muted);letter-spacing:.04em}
+  h1{font-size:clamp(30px,4.8vw,46px);font-weight:900;line-height:1.08;margin-top:26px}
+  h1 em{font-style:normal;color:var(--gold)}
+  .lead{color:var(--ink-soft);max-width:560px;margin:14px auto 0;font-size:15.5px}
+  .header-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:22px}
+  .catalogue-link{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    min-height:44px;padding:11px 18px;border-radius:var(--radius);
+    background:var(--gold);color:#fff;text-decoration:none;font-weight:800;
+    box-shadow:0 12px 24px -16px rgba(169,128,43,.9);transition:.15s;
+  }
+  .catalogue-link:hover{background:var(--gold-deep);transform:translateY(-1px)}
+  .catalogue-link.secondary{background:var(--paper);color:var(--gold-deep);border:1.5px solid var(--gold-soft);box-shadow:none}
+
+  /* Card shell */
+  .panel{
+    background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:30px;margin-top:26px;
+  }
+
+  /* Breadcrumb */
+  .crumbs{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:22px;font-size:13px}
+  .crumb{
+    background:var(--gold-tint);border:1px solid var(--gold-soft);color:var(--gold-deep);
+    padding:5px 12px;border-radius:999px;cursor:pointer;font-weight:800;transition:.15s;
+  }
+  .crumb:hover{background:var(--gold-soft)}
+  .crumb .x{opacity:.5;margin-left:6px;font-weight:600}
+  .crumb-sep{color:var(--line);font-weight:700}
+
+  .step-q{font-size:13px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:800;margin-bottom:16px}
+
+  /* Choice grid */
+  .choices{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .choice{
+    text-align:left;background:var(--paper);border:1.5px solid var(--line);border-radius:var(--radius);
+    padding:18px 18px 16px;cursor:pointer;transition:.18s ease;position:relative;font-family:inherit;
+  }
+  .choice:hover{border-color:var(--gold);transform:translateY(-3px);box-shadow:0 14px 30px -20px rgba(21,35,59,.4)}
+  .choice .t{font-family:'Mulish',sans-serif;font-weight:900;font-size:19px;color:var(--ink)}
+  .choice .d{font-size:13.5px;color:var(--ink-soft);margin-top:5px}
+  .choice .arrow{position:absolute;right:16px;top:50%;transform:translateY(-50%);color:var(--gold);opacity:0;transition:.18s}
+  .choice:hover .arrow{opacity:1;right:13px}
+
+  /* Mini pack choice cards */
+  .packlist{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .pcard{
+    text-align:left;background:var(--paper);border:1.5px solid var(--line);border-radius:var(--radius);
+    padding:20px;cursor:pointer;transition:.18s;position:relative;font-family:inherit;
+  }
+  .pcard:hover{border-color:var(--gold);transform:translateY(-3px);box-shadow:0 16px 34px -22px rgba(21,35,59,.45)}
+  .pcard .t{font-family:'Mulish',sans-serif;font-weight:900;font-size:20px}
+  .pcard .s{font-size:13px;color:var(--ink-soft);margin-top:3px;min-height:18px}
+  .pcard .pm{margin-top:14px;font-family:'Mulish',sans-serif;color:var(--gold-deep);font-size:15px}
+  .pcard .pm b{font-size:26px;font-weight:600}
+  .pcard .see{margin-top:12px;font-size:12.5px;font-weight:800;letter-spacing:.04em;color:var(--gold-deep);text-transform:uppercase}
+  .badge{
+    position:absolute;top:-11px;left:18px;background:var(--gold);color:#fff;
+    font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+    padding:4px 11px;border-radius:20px;box-shadow:0 4px 12px -4px rgba(215,25,32,.7);
+  }
+
+  /* combo chips */
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+  .chip{
+    background:var(--paper);border:1.5px solid var(--line);border-radius:999px;padding:9px 16px;
+    cursor:pointer;font-size:14px;font-weight:600;transition:.15s;font-family:inherit;color:var(--ink)
+  }
+  .chip:hover{border-color:var(--gold)}
+  .chip.on{background:var(--gold);border-color:var(--gold);color:#fff}
+
+  /* Result */
+  #result{animation:rise .5s cubic-bezier(.2,.7,.3,1) both}
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  .res-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:22px;align-items:flex-start;border-bottom:1px solid var(--line);padding-bottom:24px}
+  .res-title{font-size:clamp(24px,3.4vw,32px);font-weight:600;line-height:1.1}
+  .res-sub{color:var(--ink-soft);margin-top:6px;font-size:15px}
+  .res-tag{display:inline-block;margin-top:12px;background:var(--gold-tint);border:1px solid var(--gold-soft);
+    color:var(--gold-deep);font-size:12px;font-weight:800;letter-spacing:.05em;padding:5px 12px;border-radius:20px}
+  .res-reason{margin-top:16px;background:#f5f7fb;border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:var(--radius);padding:14px;color:var(--ink-soft);font-size:14.5px}
+  .res-reason b{display:block;color:var(--ink);margin-bottom:4px}
+  .result-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+  .result-actions a{text-decoration:none}
+  .priceblock{text-align:right;min-width:210px;padding:14px;border:1px solid var(--line);border-radius:var(--radius);background:#fff}
+  .price-label{font-size:13px;font-weight:900;color:var(--gold-deep);margin-bottom:8px}
+  .price{font-size:30px;font-weight:600;color:var(--ink);line-height:1}
+  .price span{font-size:15px;color:var(--ink-soft)}
+  .price-cap{font-size:13.5px;color:var(--ink-soft);margin-top:8px}
+  .price-cap b{color:var(--gold-deep)}
+  .strike{text-decoration:line-through;color:var(--muted)}
+
+  .grid2{display:grid;gap:30px;grid-template-columns:1.15fr .85fr;margin-top:26px}
+  .mobile-sticky-cta{display:none}
+  @media(max-width:720px){
+    .grid2{grid-template-columns:1fr}.priceblock{text-align:left}.res-head{flex-direction:column}
+    body{padding-bottom:92px}
+    .mobile-sticky-cta{
+      position:fixed;left:14px;right:14px;bottom:14px;z-index:60;
+      display:flex;align-items:center;justify-content:center;min-height:52px;
+      border-radius:var(--radius);background:var(--gold);color:#fff;
+      font-weight:900;text-decoration:none;box-shadow:0 14px 34px rgba(215,25,32,.28);
+    }
+  }
+
+  .block-label{font-size:13px;letter-spacing:0;text-transform:none;color:var(--ink);font-weight:900;margin-bottom:14px}
+  ul.incl{list-style:none;display:grid;gap:11px}
+  ul.incl li{display:flex;gap:11px;font-size:14.5px;color:var(--ink);align-items:flex-start;
+    opacity:0;animation:fadein .4s ease forwards}
+  @keyframes fadein{to{opacity:1}}
+  ul.incl li svg{flex:none;margin-top:2px}
+  ul.incl li.star{font-weight:700}
+
+  .ech{background:var(--gold-tint);border:1px solid var(--gold-soft);border-radius:14px;padding:18px}
+  .ech .row{display:flex;justify-content:space-between;font-size:14.5px;padding:7px 0;border-bottom:1px dashed #E4D6B4}
+  .ech .row:last-of-type{border-bottom:none}
+  .ech .row .v{font-family:'Fraunces',serif;font-weight:600}
+  .ech .row.total{margin-top:6px;border-top:2px solid var(--gold-soft);border-bottom:none;padding-top:11px}
+  .ech .row.total .lbl{font-weight:800}
+  .ech-note{font-size:12.5px;color:var(--gold-deep);margin-top:12px;line-height:1.5}
+
+  .note{margin-top:24px;background:#F3F6F4;border-left:3px solid #3C7A4E;border-radius:6px;padding:13px 16px;font-size:14px;color:#2E4738}
+
+  .tools{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}
+  .tools.center{justify-content:center}
+  .btn{font-family:inherit;font-size:14px;font-weight:700;border-radius:30px;padding:11px 22px;cursor:pointer;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);transition:.15s}
+  .btn:hover{border-color:var(--gold);color:var(--gold-deep)}
+  .btn.ghost{border-color:transparent;background:transparent;color:var(--ink-soft)}
+  .btn.ghost:hover{color:var(--gold-deep)}
+
+  .footnote{text-align:center;font-size:13.5px;color:var(--ink-soft);margin-top:30px;line-height:1.6}
+  .footnote b{color:var(--gold-deep)}
+
+  /* Catalogue view */
+  .cat-section{margin-top:34px}
+  .cat-section h3{font-size:22px;font-weight:600;margin-bottom:4px}
+  .cat-section .h-sub{color:var(--ink-soft);font-size:14px;margin-bottom:16px}
+  .cat-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+  .mini{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:17px;cursor:pointer;transition:.16s}
+  .mini:hover{border-color:var(--gold);transform:translateY(-2px)}
+  .mini .mt{font-family:'Fraunces',serif;font-size:17px;font-weight:600}
+  .mini .ms{font-size:12.5px;color:var(--ink-soft);margin:3px 0 9px;min-height:16px}
+  .mini .mp{font-family:'Fraunces',serif;color:var(--gold-deep);font-weight:600;font-size:15px}
+  .hidden{display:none}
+
+  /* Premium Nexus 2026/2027 */
+  :root{
+    --night:#06172F;
+    --ink:#101C2F;
+    --ink-soft:#5B6472;
+    --muted:#5B6472;
+    --cream:#F7F4EE;
+    --paper:#FFFFFF;
+    --line:#E5E0D6;
+    --gold:#D71920;
+    --gold-deep:#A91218;
+    --gold-soft:#F8D7DA;
+    --gold-tint:#FFF1F2;
+    --accent-gold:#C9A24D;
+    --shadow:0 20px 58px rgba(6,23,47,.13);
+    --radius:10px;
+  }
+  body{background:radial-gradient(circle at 80px 40px,rgba(201,162,77,.16),transparent 260px),var(--cream)}
+  h1,h2,h3,.price,.res-title{font-family:'Fraunces',serif;letter-spacing:0}
+  header{
+    margin:0 -18px 0;
+    padding:38px 18px 34px;
+    color:#fff;
+    background:radial-gradient(circle at 70% 0,rgba(201,162,77,.17),transparent 30%),linear-gradient(135deg,var(--night),var(--nx-navy));
+    border-bottom:1px solid rgba(201,162,77,.24);
+  }
+  .brand{color:#fff}
+  .rule{background:var(--accent-gold)}
+  header .sub,.lead{color:rgba(255,255,255,.76)}
+  h1{font-weight:700}
+  h1 em{color:#fff;text-decoration:underline;text-decoration-color:var(--accent-gold);text-underline-offset:8px}
+  .diagnostic-steps{
+    max-width:720px;
+    margin:24px auto 0;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    padding:0;
+    list-style:none;
+  }
+  .diagnostic-steps li{
+    min-height:48px;
+    border:1px solid rgba(255,255,255,.16);
+    background:rgba(255,255,255,.08);
+    border-radius:var(--radius);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:10px;
+    font-size:12px;
+    font-weight:900;
+    color:#fff;
+  }
+  .panel{border-color:rgba(201,162,77,.28);box-shadow:var(--shadow);background:#fff}
+  .choice,.pcard,.mini{border-color:rgba(6,23,47,.10);box-shadow:0 12px 28px rgba(6,23,47,.06)}
+  .choice:hover,.pcard:hover,.mini:hover{border-color:var(--accent-gold);box-shadow:0 22px 50px rgba(6,23,47,.13)}
+  .step-q{color:var(--night);letter-spacing:.11em}
+  .catalogue-link{border-radius:var(--radius);background:var(--gold);box-shadow:0 16px 30px rgba(215,25,32,.22)}
+  .catalogue-link.secondary{background:#fff;color:var(--night);border-color:rgba(201,162,77,.35)}
+  .res-tag{border-color:rgba(201,162,77,.4);background:#FFF8E7;color:var(--night)}
+  .res-reason{border-left-color:var(--accent-gold);background:#FBF8F1}
+  .ech{background:#FBF8F1;border-color:rgba(201,162,77,.35)}
+  .mobile-sticky-cta{box-shadow:0 16px 42px rgba(6,23,47,.22)}
+  @media(max-width:720px){
+    header{padding-top:28px}
+    .diagnostic-steps{grid-template-columns:1fr;gap:8px;margin-top:18px}
+    .mobile-sticky-cta{
+      left:22px;
+      right:22px;
+      bottom:12px;
+      min-height:48px;
+      border-radius:14px;
+      font-size:14px;
+    }
+  }
+  .legal-footer{
+    margin:28px 0 92px;
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:16px;
+    color:var(--ink-soft);
+    font-size:13px;
+  }
+  .legal-footer a{color:var(--navy);font-weight:800;text-decoration:none}
+  .legal-footer a:hover{color:var(--red)}
+  body.result-active .mobile-sticky-cta{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><img src="/images/logo_slogan_nexus.webp" alt="Nexus Réussite" width="220" height="79"><span>Nexus Réussite</span></div>
+    <div class="rule"></div>
+    <div class="sub">Accompagnement scolaire d’excellence · Tunis — réseau AEFE</div>
+    <h1>Trouver la formule <em>adaptée</em></h1>
+    <p class="lead">Répondez à quelques questions : nous vous orientons vers le parcours Nexus le plus cohérent.</p>
+    <div class="header-actions">
+      <a class="catalogue-link secondary" href="/">Retour à l’accueil</a>
+      <a class="catalogue-link" href="catalogue-nexus-reussite-2026-2027.html">Voir toutes les offres</a>
+      <a class="catalogue-link secondary" aria-label="Recevoir une recommandation — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20une%20recommandation%20Nexus%20pour%20mon%20enfant.%20Voici%20son%20niveau%20et%20son%20besoin%20%3A">Recevoir une recommandation</a>
+    </div>
+    <ol class="diagnostic-steps">
+      <li>1. Profil de l’élève</li>
+      <li>2. Niveau et besoin</li>
+      <li>3. Recommandation</li>
+    </ol>
+  </header>
+
+  <div class="panel" id="selector"></div>
+
+  <div class="tools center">
+    <button class="btn ghost" id="toggleCat" type="button">Voir tout le catalogue</button>
+  </div>
+
+  <div class="footnote">
+    <b>Tout commence par un bilan de positionnement</b> — offert pendant la campagne (ou 100&nbsp;TND déductibles de l’inscription).<br>
+    Groupes réduits selon formule · Tarifs en dinars tunisiens · Bilans réguliers et espace parent inclus.
+  </div>
+
+  <div class="panel hidden" id="catalogue"></div>
+</div>
+
+<script>
+const CHECK = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="#F4E9CF"/><path d="M7 12.4l3.2 3.2L17 8.8" stroke="#A9802B" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const ARROW = '<span class="arrow">→</span>';
+const CATALOGUE_URL = "catalogue-nexus-reussite-2026-2027.html";
+const CATALOGUE_ANCHORS = {
+  "t-spe":"terminale",
+  "t-duo":"terminale",
+  "t-exc":"terminale",
+  "p-maths":"premiere-scolarises",
+  "p-eaf":"premiere-scolarises",
+  "p-duo":"premiere-scolarises",
+  "s-maths":"seconde",
+  "s-sci":"seconde",
+  "b-maths":"brevet",
+  "b-comp":"brevet",
+  "l-t-on":"terminale-libre",
+  "l-t-mx":"terminale-libre",
+  "l-t-pr":"terminale-libre",
+  "l-p-ac":"premiere-libre",
+  "l-p-on":"premiere-libre",
+  "d-au":"plateforme",
+  "d-su":"plateforme",
+  "d-ac":"plateforme"
+};
+
+const SOCLE = [
+  "Bilan de positionnement initial, avant de commencer",
+  "Groupe de 5 élèves maximum, niveaux homogènes",
+  "Accès illimité à la plateforme Nexus + espace parent dédié",
+  "Bilans de progression réguliers communiqués aux parents",
+  "Examens blancs en conditions réelles + correction détaillée",
+  "Coaching scolaire & méthodologie de travail",
+  "Accompagnement à l’orientation & à Parcoursup",
+];
+const EX = {
+  stages:"Stages inclus pendant les vacances de la Toussaint, d’hiver/février et de printemps selon calendrier AEFE rythme nord",
+  grandOral:"Préparation complète au Grand Oral",
+  grandOralSci:"Préparation au Grand Oral scientifique",
+  urgence2:"2 h d’accompagnement en ligne d’urgence incluses",
+  urgence6:"6 h d’accompagnement en ligne d’urgence incluses",
+  bulletin:"★ Bulletin trimestriel Nexus + conseil de classe individuel",
+  admin:"Accompagnement aux démarches (carte d’examen, calendrier)",
+};
+const ECH_NOTE = "Règlement en réservation + versements trimestriels. La remise fidélité est portée sur le dernier versement : elle est acquise au terme du parcours. En cas d’arrêt, seules les prestations suivies sont dues, au tarif réel.";
+const TEACHER_NOTE = "Enseignants certifiés de l’enseignement français à l’étranger.";
+const TARIF_CAMPAGNE_NOTE = "Le tarif campagne / fidélité ne dépend pas d’une échéance fixe, mais des places disponibles. Les groupes sont constitués par niveaux homogènes (5 élèves maximum). Une fois un groupe complet, le tarif et la place ne sont plus garantis : réserver tôt sécurise le créneau et le tarif.";
+const STAGE_PERIODS_COMMON = "prérentrée, Toussaint, hiver/février, printemps et sprint final";
+const STAGE_PERIODS_AEFE = "Toussaint, hiver/février, printemps selon calendrier AEFE rythme nord.";
+const STAGE_PERIODS_LIBRE = "Calendrier adapté au statut candidat libre et aux échéances d’examen.";
+
+const COMBOS = ["Maths + Physique-Chimie","Maths + NSI","Physique-Chimie + Maths compl.","Maths + 2ᵉ EDS"];
+
+const DATA = {
+  scolarise:{
+    label:"Élève scolarisé (réseau AEFE)",
+    levels:{
+      Terminale:[
+        {id:"t-spe",name:"Terminale Spécialité Simple",sub:"1 enseignement (Maths, PC, NSI…)",monthly:390,fid:3900,hours:60,extras:[],
+         ech:[["Parcours annuel",3900]],
+         note:"Pour renforcer une matière précise avec un suivi complet."},
+        {id:"t-duo",name:"Duo Terminale Nexus",sub:"2 enseignements de spécialité",badge:"Le plus choisi",monthly:720,fid:7175,pub:7900,hours:175,combo:true,extras:["stages","grandOral"],
+         ech:[["Réservation",1775],["Trimestre 1",1800],["Trimestre 2",1800],["Trimestre 3",1800]],
+         note:"Le parcours intégral des deux spécialités, stages et Grand Oral compris."},
+        {id:"t-exc",name:"Excellence Terminale",sub:"2 spécialités + Mathématiques expertes",monthly:960,fid:9594,pub:10500,hours:246,extras:["stages","grandOralSci","urgence2"],
+         ech:[["Réservation",2394],["Trimestre 1",2400],["Trimestre 2",2400],["Trimestre 3",2400]],
+         note:"Pour les profils scientifiques ambitieux visant les meilleures filières."},
+      ],
+      Première:[
+        {id:"p-maths",name:"Maths anticipées (EAM)",sub:"épreuve anticipée de mathématiques",monthly:290,fid:2900,pub:3000,hours:60,extras:[],
+         ech:[["Réservation",700],["Trimestre 1",700],["Trimestre 2",700],["Trimestre 3",800]],
+         note:"Automatismes, méthode et entraînement sur sujets type."},
+        {id:"p-eaf",name:"Français EAF",sub:"écrit + oral",monthly:290,fid:2900,pub:3000,hours:60,extras:[],
+         ech:[["Réservation",700],["Trimestre 1",700],["Trimestre 2",700],["Trimestre 3",800]],
+         note:"Méthodes de l’écrit et préparation de l’oral, oraux blancs inclus."},
+        {id:"p-duo",name:"Double Sécurité",sub:"Français + Mathématiques",badge:"Recommandé",monthly:490,fid:4900,pub:5400,hours:120,extras:[],
+         ech:[["Réservation",1200],["Trimestre 1",1200],["Trimestre 2",1200],["Trimestre 3",1300]],
+         note:"Sécurise les deux épreuves anticipées et prépare le Duo de Terminale."},
+      ],
+      Seconde:[
+        {id:"s-maths",name:"Maths & méthode",sub:"2 h / semaine",monthly:250,simple:true,extras:[],
+         note:"Des bases solides et de bonnes habitudes avant le cycle terminal."},
+        {id:"s-sci",name:"Sciences",sub:"Maths + Physique-Chimie · 4 h / semaine",monthly:430,simple:true,extras:[],
+         note:"Pour les élèves qui s’orientent vers les spécialités scientifiques."},
+      ],
+      Troisième:[
+        {id:"b-maths",name:"Brevet Maths",sub:"2 h / semaine",monthly:220,simple:true,extras:[],
+         note:"Cours, exercices et sujets du brevet."},
+        {id:"b-comp",name:"Brevet Complet",sub:"Maths + Français · 4 h / semaine",badge:"Recommandé",monthly:390,simple:true,extras:[],
+         note:"Préparation complète au DNB, examens blancs inclus."},
+      ],
+    }
+  },
+  libre:{
+    label:"Candidat libre",
+    levels:{
+      Terminale:[
+        {id:"l-t-on",name:"Terminale Libre — En ligne",sub:"100 % en ligne",monthly:290,fid:2900,online:true,libre:true,extras:["bulletin"],
+         ech:[["Réservation",700],["Trimestre 1",700],["Trimestre 2",700],["Trimestre 3",800]],
+         note:"Préparer la Terminale candidat libre partout en Tunisie."},
+        {id:"l-t-mx",name:"Terminale Libre — Mixte",sub:"présentiel + plateforme",badge:"Référence",monthly:790,fid:7900,pub:8750,libre:true,extras:["grandOral","bulletin","admin"],
+         ech:[["Réservation",1900],["Trimestre 1",2000],["Trimestre 2",2000],["Trimestre 3",2000]],
+         note:"Le parcours complet : 2 spécialités, tronc commun, Grand Oral."},
+        {id:"l-t-pr",name:"Terminale Libre — Premium",sub:"suivi renforcé",monthly:990,fid:9900,libre:true,extras:["grandOral","bulletin","admin","urgence6"],
+         ech:[["Réservation",2400],["Trimestre 1",2500],["Trimestre 2",2500],["Trimestre 3",2500]],
+         note:"Un suivi rapproché, sans improvisation."},
+      ],
+      Première:[
+        {id:"l-p-ac",name:"Première Libre — Accompagnée",sub:"présentiel + plateforme",badge:"Référence",monthly:490,fid:4900,libre:true,extras:["bulletin","admin"],
+         ech:[["Réservation",1200],["Trimestre 1",1200],["Trimestre 2",1200],["Trimestre 3",1300]],
+         note:"Parcours complet Première candidat libre."},
+        {id:"l-p-on",name:"Première Libre — En ligne",sub:"plateforme + ateliers",monthly:190,fid:1900,online:true,libre:true,extras:["bulletin"],
+         ech:[["Réservation",475],["Trimestre 1",475],["Trimestre 2",475],["Trimestre 3",475]],
+         note:"Structurer la Première en candidat libre."},
+      ],
+    }
+  },
+  distance:{
+    label:"À distance (hors Tunis)",
+    direct:[
+      {id:"d-au",name:"Plateforme Autonomie",sub:"élève autonome",monthly:69,fid:590,online:true,
+       custom:["Ressources, fiches, exercices et sujets corrigés","Parcours personnalisé en autonomie","Accès illimité 24/7"],
+       note:"Le cadre Nexus pour travailler seul, à son rythme."},
+      {id:"d-su",name:"Plateforme Suivi",sub:"cadre léger",badge:"Populaire",monthly:160,fid:1490,online:true,
+       custom:["Tout l’abonnement Autonomie","Compte parent + bilans réguliers","1 atelier collectif en ligne / mois"],
+       note:"Un cadre structurant avec visibilité parents."},
+      {id:"d-ac",name:"Plateforme Accompagnée",sub:"vrai suivi à distance",monthly:290,fid:2900,online:true,
+       custom:["Tout l’abonnement Suivi","1 séance live en groupe / semaine","Corrections personnalisées ponctuelles"],
+       note:"Pour les familles hors Tunis voulant un véritable suivi."},
+    ]
+  }
+};
+
+const STAGES = [
+  {name:"Prérentrée — Maths Terminale",sub:"20 h · porte d’entrée",price:"800 TND",extra:"positionné selon calendrier et groupe ouvert"},
+  {name:"Stage petites vacances — 1 matière",sub:"10 à 12 h",price:"490 à 590 TND"},
+  {name:"Stage Duo — 2 matières",sub:"18 à 20 h",price:"790 à 990 TND"},
+  {name:"Stage Grand Oral",sub:"10 h",price:"490 TND"},
+  {name:"Sprint final",sub:"20 à 30 h",price:"990 à 1 490 TND"},
+];
+
+// ---- State & helpers
+let state={profile:null,level:null,pack:null,combo:null};
+const fmt=n=>n.toLocaleString('fr-FR').replace(/\u202f/g,'\u00a0');
+const el=document.getElementById('selector');
+
+function findPack(){
+  if(!state.profile||!state.pack) return null;
+  const p=DATA[state.profile];
+  const arr = p.direct ? p.direct : (state.level? p.levels[state.level]:[]);
+  return arr.find(x=>x.id===state.pack);
+}
+
+function crumbs(){
+  let c=[];
+  c.push({t:DATA[state.profile].label,act:()=>{state.level=null;state.pack=null;state.combo=null;render();}});
+  if(state.level) c.push({t:state.level,act:()=>{state.pack=null;state.combo=null;render();}});
+  const pk=findPack(); if(pk) c.push({t:pk.name+(state.combo?" · "+state.combo:""),act:()=>{}});
+  let h='<div class="crumbs">';
+  c.forEach((x,i)=>{
+    h+=`<span class="crumb" data-ci="${i}">${x.t}<span class="x">✕</span></span>`;
+    if(i<c.length-1) h+='<span class="crumb-sep">▸</span>';
+  });
+  h+='</div>';
+  setTimeout(()=>{document.querySelectorAll('.crumb').forEach((node,i)=>node.onclick=c[i].act);},0);
+  return c.length?h:'';
+}
+
+function render(){
+  document.body.classList.remove('result-active');
+  // Step 0: profile
+  if(!state.profile){
+    el.innerHTML=`<div class="step-q">Qui est concerné&nbsp;?</div>
+    <div class="choices">
+      ${Object.entries(DATA).map(([k,v])=>`
+        <button class="choice" data-p="${k}">
+          <div class="t">${v.label}</div>
+          <div class="d">${k==='scolarise'?'Scolarisé en établissement, en complément des cours.':k==='libre'?'Préparation des épreuves du bac en candidat libre.':'Accompagnement 100 % en ligne, où que vous soyez.'}</div>
+          ${ARROW}
+        </button>`).join('')}
+    </div>`;
+    document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{state.profile=b.dataset.p;render();});
+    return;
+  }
+  // distance -> packs directly
+  if(state.profile==='distance' && !state.pack){
+    el.innerHTML=crumbs()+`<div class="step-q">Choisissez votre abonnement</div>${packGrid(DATA.distance.direct)}`;
+    bindPacks(); return;
+  }
+  // Step 1: level
+  if(state.profile!=='distance' && !state.level){
+    const lv=Object.keys(DATA[state.profile].levels);
+    el.innerHTML=crumbs()+`<div class="step-q">Quel niveau&nbsp;?</div>
+    <div class="choices">
+      ${lv.map(l=>`<button class="choice" data-l="${l}"><div class="t">${l}</div><div class="d">${lvlDesc(l)}</div>${ARROW}</button>`).join('')}
+    </div>`;
+    document.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{state.level=b.dataset.l;render();});
+    return;
+  }
+  // Step 2: choose pack
+  if(!state.pack){
+    const arr=DATA[state.profile].levels[state.level];
+    el.innerHTML=crumbs()+`<div class="step-q">Quel besoin&nbsp;?</div>${packGrid(arr)}`;
+    bindPacks(); return;
+  }
+  // combo step for Duo
+  const pk=findPack();
+  if(pk.combo && !state.combo){
+    el.innerHTML=crumbs()+`<div class="step-q">Quelle combinaison de spécialités&nbsp;?</div>
+      <div class="chips">${COMBOS.map(c=>`<button class="chip" data-c="${c}">${c}</button>`).join('')}</div>`;
+    document.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{state.combo=b.dataset.c;render();});
+    return;
+  }
+  // Result
+  document.body.classList.add('result-active');
+  el.innerHTML=crumbs()+resultHTML(pk);
+  document.getElementById('again').onclick=()=>{state={profile:null,level:null,pack:null,combo:null};render();};
+  if(pk.combo){document.getElementById('chcombo').onclick=()=>{state.combo=null;render();};}
+}
+
+function lvlDesc(l){return {Terminale:"Spécialités, Grand Oral, expertes.",Première:"Épreuves anticipées de maths et de français.",Seconde:"Méthode et bases avant le cycle terminal.",Troisième:"Préparation au brevet."}[l]||"";}
+
+function packGrid(arr){
+  return `<div class="packlist">${arr.map(p=>`
+    <button class="pcard" data-pk="${p.id}">
+      ${p.badge?`<span class="badge">${p.badge}</span>`:''}
+      <div class="t">${p.name}</div>
+      <div class="s">${p.sub}</div>
+      <div class="pm"><b>${fmt(p.monthly)}</b> TND<span style="font-size:13px"> / mois${p.simple?'':' env.'}</span></div>
+      <div class="see">Voir le détail →</div>
+    </button>`).join('')}</div>`;
+}
+function bindPacks(){document.querySelectorAll('[data-pk]').forEach(b=>b.onclick=()=>{state.pack=b.dataset.pk;render();});}
+
+function inclList(pk){
+  let items;
+  if(pk.custom){items=pk.custom;}
+  else{
+    items=[...SOCLE];
+    if(pk.simple){items=SOCLE.slice(0,6);}
+    (pk.extras||[]).forEach(k=>items.push(EX[k]));
+    if(pk.online){items=items.filter(x=>!x.includes("Groupe de 5"));}
+  }
+  return items.map((t,i)=>`<li class="${t.startsWith('★')?'star':''}" style="animation-delay:${i*45}ms">${CHECK}<span>${t.replace('★ ','')}</span></li>`).join('');
+}
+
+function stagePeriodText(pk){
+  if(state.profile === "scolarise"){
+    return `${STAGE_PERIODS_AEFE} Les stages sont positionnés sur les grandes périodes du calendrier scolaire : ${STAGE_PERIODS_COMMON}. les dates précises communiquées avec la recommandation.`;
+  }
+  if(state.profile === "libre"){
+    return `${STAGE_PERIODS_LIBRE} Les stages sont positionnés sur les grandes périodes du calendrier scolaire : ${STAGE_PERIODS_COMMON}. les dates précises communiquées avec la recommandation.`;
+  }
+  return `Les périodes utiles sont la ${STAGE_PERIODS_COMMON}. Les dates précises sont communiquées avec la recommandation selon le niveau, l’établissement et la formule retenue.`;
+}
+
+function resultHTML(pk){
+  const title=pk.name+(state.combo?`<span style="color:var(--gold-deep)"> · ${state.combo}</span>`:'');
+  const plainTitle=pk.name+(state.combo?` · ${state.combo}`:'');
+  const catalogueHref = CATALOGUE_URL + (CATALOGUE_ANCHORS[pk.id] ? "#" + CATALOGUE_ANCHORS[pk.id] : "");
+  const annual = pk.fid ? `${fmt(pk.fid)} TND/an` : `${fmt(pk.monthly*10)} TND/an`;
+  let cap;
+  if(pk.simple){cap=`Facturation mensuelle · ${fmt(pk.monthly)} TND/mois`;}
+  else if(pk.pub){const eco=pk.pub-pk.fid;cap=`soit <b>${annual}</b> en tarif fidélité <span class="strike">(${fmt(pk.pub)} TND public)</span><br>Vous économisez ${fmt(eco)} TND.`;}
+  else{cap=`soit <b>${annual}</b> tout compris.`;}
+
+  let ech='';
+  if(pk.ech){
+    const numeric=pk.ech.filter(r=>typeof r[1]==='number');
+    const total=numeric.reduce((s,r)=>s+r[1],0);
+    ech=`<div class="ech">
+      ${pk.ech.map(r=>`<div class="row"><span class="lbl">${r[0]}</span><span class="v">${typeof r[1]==='number'?fmt(r[1])+' TND':r[1]}</span></div>`).join('')}
+      ${numeric.length>1?`<div class="row total"><span class="lbl">Total tarif fidélité</span><span class="v">${fmt(pk.fid||total)} TND</span></div>`:''}
+      <div class="ech-note">${ECH_NOTE}</div>
+    </div>`;
+  }
+
+  return `<div id="result">
+    <div class="res-head">
+      <div>
+        <div class="res-title">${title}</div>
+        <div class="res-sub">${pk.sub}</div>
+        <span class="res-tag">Formule recommandée</span>
+        <div class="res-reason"><b>Pourquoi cette formule ?</b>${pk.note}</div>
+      </div>
+      <div class="priceblock">
+        <div class="price-label">Repère tarifaire</div>
+        <div class="price">≈ ${fmt(pk.monthly)}<span> TND/mois</span></div>
+        <div class="price-cap">${cap}</div>
+      </div>
+    </div>
+    <div class="grid2">
+      <div>
+        <div class="block-label">Ce qui est inclus</div>
+        <ul class="incl">${inclList(pk)}</ul>
+      </div>
+      <div>
+        ${ech?`<div class="block-label">Échéancier de paiement</div>${ech}`:`<div class="block-label">Abonnement</div><div class="ech"><div class="row"><span class="lbl">Mensuel</span><span class="v">${fmt(pk.monthly)} TND</span></div>${pk.fid?`<div class="row"><span class="lbl">ou à l’année</span><span class="v">${fmt(pk.fid)} TND</span></div>`:''}<div class="ech-note">Sans engagement de durée ; résiliable de mois en mois.</div></div>`}
+      </div>
+    </div>
+    <div class="note"><b>Périodes de stages selon calendrier :</b> ${stagePeriodText(pk)}</div>
+    <div class="note"><b>Prochaine étape :</b> envoyez cette recommandation sur WhatsApp avec le niveau, le statut, l’établissement et le besoin principal de votre enfant. L’équipe confirme le groupe possible et l’échéancier.</div>
+    <div class="note"><b>Socle Nexus :</b> ${TEACHER_NOTE} ${TARIF_CAMPAGNE_NOTE}</div>
+    <div class="result-actions">
+      <a class="catalogue-link" aria-label="Recevoir cette recommandation sur WhatsApp — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=${encodeURIComponent('Bonjour, je souhaite recevoir cette recommandation Nexus : '+plainTitle+'. Voici le niveau, le statut et le besoin de mon enfant :')}">Recevoir cette recommandation sur WhatsApp</a>
+      <a class="catalogue-link secondary" href="${catalogueHref}">Voir toutes les offres</a>
+      <a class="catalogue-link secondary" href="/">Retour à l’accueil</a>
+    </div>
+    <div class="tools">
+      <button class="btn" id="again">Recommencer</button>
+      ${pk.combo?`<button class="btn ghost" id="chcombo">Changer de combinaison</button>`:''}
+    </div>
+  </div>`;
+}
+
+// ---- Catalogue complet
+const cat=document.getElementById('catalogue');
+function buildCatalogue(){
+  let h=`<h2 style="font-size:26px;font-weight:600;margin-bottom:4px">Catalogue complet</h2>
+  <div class="h-sub" style="color:var(--ink-soft);margin-bottom:8px">Cliquez sur une formule pour ouvrir sa fiche détaillée.</div>`;
+  const sec=(title,sub,arr)=>{
+    h+=`<div class="cat-section"><h3>${title}</h3><div class="h-sub">${sub}</div><div class="cat-grid">`;
+    arr.forEach(([p,prof,lvl])=>{
+      h+=`<div class="mini" data-go="${prof}|${lvl}|${p.id}">
+        <div class="mt">${p.name}</div><div class="ms">${p.sub}</div>
+        <div class="mp">≈ ${fmt(p.monthly)} TND/mois</div></div>`;
+    });
+    h+=`</div></div>`;
+  };
+  sec("Terminale — élèves scolarisés","Le cœur de l’accompagnement bac.",DATA.scolarise.levels.Terminale.map(p=>[p,'scolarise','Terminale']));
+  sec("Première — élèves scolarisés","Sécuriser les épreuves anticipées.",DATA.scolarise.levels.Première.map(p=>[p,'scolarise','Première']));
+  sec("Seconde & Troisième","La porte d’entrée vers le lycée.",[...DATA.scolarise.levels.Seconde,...DATA.scolarise.levels.Troisième].map(p=>[p,'scolarise',DATA.scolarise.levels.Seconde.includes(p)?'Seconde':'Troisième']));
+  sec("Candidats libres","Bulletin et conseil de classe Nexus inclus.",[...DATA.libre.levels.Terminale.map(p=>[p,'libre','Terminale']),...DATA.libre.levels.Première.map(p=>[p,'libre','Première'])]);
+  sec("À distance — plateforme","Pour les familles hors Tunis.",DATA.distance.direct.map(p=>[p,'distance',null]));
+
+  h+=`<div class="cat-section"><h3>Stages</h3><div class="h-sub">À l’unité, en complément des parcours.</div><div class="cat-grid">`;
+  STAGES.forEach(s=>{h+=`<div class="mini" style="cursor:default"><div class="mt">${s.name}</div><div class="ms">${s.sub}</div><div class="mp">${s.price}</div>${s.extra?`<div style="font-size:12px;color:var(--gold-deep);margin-top:6px">${s.extra}</div>`:''}</div>`;});
+  h+=`</div></div>`;
+  cat.innerHTML=h;
+  cat.querySelectorAll('[data-go]').forEach(n=>n.onclick=()=>{
+    const [pr,lv,id]=n.dataset.go.split('|');
+    state={profile:pr,level:lv==='null'?null:lv,pack:id,combo:null};
+    cat.classList.add('hidden');document.getElementById('toggleCat').textContent='Voir tout le catalogue';
+    render();window.scrollTo({top:0,behavior:'smooth'});
+  });
+}
+document.getElementById('toggleCat').onclick=function(){
+  const open=cat.classList.toggle('hidden')===false;
+  this.textContent=open?'Masquer le catalogue':'Voir tout le catalogue';
+  if(open){buildCatalogue();cat.scrollIntoView({behavior:'smooth'});}
+};
+
+render();
+</script>
+<footer class="legal-footer" aria-label="Liens légaux">
+  <a href="/">Accueil</a>
+  <a href="/catalogue-nexus-reussite-2026-2027.html">Offres &amp; tarifs</a>
+  <a href="/mentions-legales.html">Mentions légales</a>
+  <a href="/confidentialite.html">Confidentialité</a>
+</footer>
+<a class="mobile-sticky-cta" aria-label="Recevoir sur WhatsApp — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20une%20recommandation%20Nexus%20pour%20mon%20enfant.%20Voici%20son%20niveau%2C%20son%20statut%20et%20son%20besoin%20%3A">Recevoir sur WhatsApp</a>
+</body>
+</html>
