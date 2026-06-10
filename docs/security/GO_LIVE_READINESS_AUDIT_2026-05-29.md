@@ -12,7 +12,7 @@
 | Domaine | Statut | Risque | Priorité | Décision |
 |---|---|---|---|---|
 | API / IDOR | P0 clôturable sous réserve humaine | Régression future | P1 suivi | Conserver CI, inventaire et tests IDOR ciblés |
-| Anti-abus public | P1-A corrigé localement, non déployé | Spam formulaires, email/Telegram, IA ou DB writes si backend prod non configuré | P1 bloquant go-live large | Déployer après CI verte puis configurer Upstash/validation prod |
+| Anti-abus public | P1-A déployé production en fallback mémoire; P1-A-bis Redis local corrigé localement mais bloqué CI GitHub Actions/billing | Spam formulaires, email/Telegram, IA ou DB writes si backend distribué prod non configuré | P1 bloquant go-live large | Résoudre GitHub billing, obtenir CI verte sur `024721f92`, déployer P1-A-bis puis valider Redis local VPS via `REDIS_URL`; CAPTCHA/Turnstile à décider |
 | RGPD / mineurs / PII | Incomplet | Gouvernance insuffisante des données élèves, IA, documents | P1 bloquant go-live large | Documenter politiques et procédures |
 | Logs / PII | Incomplet | Emails, payloads, chemins locaux ou contenus pédagogiques possibles dans logs | P1 bloquant go-live large | Redaction centralisée et audit logs |
 | Monitoring / alerting | Partiel | Incidents non détectés | P1 bloquant go-live large | Alerting 5xx, DB, disque, SMTP, RAG/NPC |
@@ -34,7 +34,7 @@
 | `/api/contact` | Oui | Non direct observé | Placeholder log | `guardRateLimitAsync` | Upstash si env, sinon mémoire | Non observé | Spam futur | Corrigé localement P1-A |
 | `/api/auth/reset-password` | Oui | Token reset | Email | `guardRateLimitAsync`, preset auth | Upstash si env, sinon mémoire | Non observé | Brute force/email abuse | Corrigé localement P1-A |
 
-Constat P1-A : le helper de rate limit dispose désormais d'un mode async compatible Upstash REST, avec fallback mémoire pour dev/test et absence d'env. `RATE_LIMIT_DISABLE=1` ne désactive plus les protections en production. Le code est corrigé localement, mais la production doit encore être déployée et configurée avec `UPSTASH_REDIS_REST_URL` et `UPSTASH_REDIS_REST_TOKEN` pour une bêta élargie non conditionnelle.
+Constat P1-A : le helper de rate limit dispose désormais d'un mode async compatible Redis local VPS et Upstash REST, avec fallback mémoire pour dev/test et absence d'env. `RATE_LIMIT_DISABLE=1` ne désactive plus les protections en production. Le code déployé en production depuis le commit `69f0e1435` reste en fallback mémoire; P1-A-bis ajoute localement la priorité `REDIS_URL` avant Upstash pour une option gratuite. Le correctif de stabilisation tests `024721f92` est validé localement, mais la CI GitHub est bloquée par un problème Actions/billing sans jobs exécutés. L'état de gel du 2026-05-30 maintient P1-A-bis non déployé, conserve le worktree propre de reprise et suspend P1-B tant que P1-A-bis n'est pas déployé ou formellement reporté. Le document de gouvernance `docs/security/PROJECT_STATE_AND_WORKSTREAMS_2026-05-30.md` interdit aussi tout déploiement sécurité depuis le repo principal dirty, où STMG et Prisma/TOTP doivent rester des flux séparés. Une bêta élargie non conditionnelle nécessite encore la résolution CI, le déploiement P1-A-bis, l'installation/configuration Redis local sur le VPS et la validation du mode distribué.
 
 ### RGPD / mineurs / PII
 | Sujet | État actuel | Risque | Priorité | Action recommandée |
@@ -49,7 +49,7 @@ Constat P1-A : le helper de rate limit dispose désormais d'un mode async compat
 | Zone | Risque | Preuve | Priorité | Action |
 |---|---|---|---|---|
 | Logs API anciens | Erreurs complètes ou messages internes possibles | `console.error(..., error)` encore présent dans plusieurs routes | P1 | Normaliser logger + redaction |
-| Formulaire contact | Corrigé localement P1-A | Le log ne contient plus nom, email, téléphone ou message | P1 suivi | Déployer P1-A puis poursuivre audit logs global |
+| Formulaire contact | Déployé P1-A | Le log ne contient plus nom, email, téléphone ou message | P1 suivi | Poursuivre audit logs global |
 | Bilan gratuit | Payload reçu loggé | `console.log('Received request body:', body)` | P1 | Supprimer ou sanitiser |
 | Documents | Chemin local possible en log | `[File Read Error] File missing on disk: document.localPath` | P1 | Remplacer par id/code opaque |
 | Emails | Adresses email loggées dans plusieurs helpers | `lib/email.ts`, `lib/invoice/send-email.ts` | P1 | Masquage systématique |
@@ -112,7 +112,7 @@ Constat P1-A : le helper de rate limit dispose désormais d'un mode async compat
 ## Bloquants avant go-live large
 | ID | Sujet | Risque | Action | Priorité |
 |---|---|---|---|---|
-| GL-P1-001 | Anti-abus distribué des routes publiques | Spam, coût IA/email, pollution DB si non déployé/configuré | Déployer P1-A, configurer Upstash, vérifier prod, puis décider CAPTCHA/Turnstile sur formulaires publics à risque | P1 |
+| GL-P1-001 | Anti-abus distribué des routes publiques | Spam, coût IA/email, pollution DB si backend distribué non configuré | Résoudre GitHub billing, relancer CI sur `024721f92`, déployer P1-A-bis, configurer Redis local VPS via `REDIS_URL`, valider prod, puis décider CAPTCHA/Turnstile sur formulaires publics à risque | P1 |
 | GL-P1-002 | Logs sans PII excessive | Fuite emails, payloads, contenus élèves | Redaction centralisée + suppression logs payload/localPath/email brut | P1 |
 | GL-P1-003 | Backups et restauration | Perte DB/documents | Backup DB/uploads automatisé + restore drill daté | P1 |
 | GL-P1-004 | Monitoring/alerting | Incidents non détectés | Alerting 5xx, PM2, DB, disk, SMTP, RAG/NPC | P1 |
@@ -124,7 +124,7 @@ Constat P1-A : le helper de rate limit dispose désormais d'un mode async compat
 | Condition | Statut | Action |
 |---|---|---|
 | P0 API/IDOR validé humainement | Prêt côté audit | Validation humaine formelle |
-| Rate limit prod confirmé non désactivé | Corrigé localement, non déployé | Déployer P1-A puis vérifier `RATE_LIMIT_DISABLE` ignoré/absent et backend distribué configuré |
+| Rate limit prod confirmé non désactivé | Déployé; `RATE_LIMIT_DISABLE=1` absent; fallback mémoire actif; P1-A-bis Redis local corrigé localement mais CI bloquée Actions/billing | Résoudre GitHub billing, obtenir CI verte, déployer P1-A-bis, configurer `REDIS_URL`, puis valider le mode distribué |
 | Backups récents et restore drill | Non prouvé | Exécuter un test restauration |
 | Alerting minimal | Non prouvé | Configurer alerte 5xx/PM2/DB/disk |
 | Paiement carte | Non prêt | Désactiver explicitement en bêta ou finaliser sandbox |
@@ -134,7 +134,7 @@ Constat P1-A : le helper de rate limit dispose désormais d'un mode async compat
 ## Backlog P1/P2 recommandé
 | Priorité | Sujet | Action |
 |---|---|---|
-| P1-A | Anti-abus public et rate limiting distribué | Code corrigé localement; attendre CI, déploiement contrôlé, configuration Upstash et validation prod; CAPTCHA/Turnstile reste à décider |
+| P1-A/P1-A-bis | Anti-abus public et rate limiting distribué | P1-A déployé; P1-A-bis Redis local corrigé localement mais bloqué par CI GitHub Actions/billing; résoudre CI, déployer puis configurer `REDIS_URL`; CAPTCHA/Turnstile reste à décider |
 | P1-B | Logs/PII | Redaction logger, suppression payloads publics, tests snapshot |
 | P1-C | Backup/restore + monitoring | Restore drill, alerting, health détaillé |
 | P1-D | RGPD mineurs | Politique confidentialité, rétention, DSAR |
