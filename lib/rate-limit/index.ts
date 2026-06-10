@@ -16,13 +16,15 @@
 
 import { NextResponse } from 'next/server';
 import { MemoryStore } from './memory-store';
+import { RedisStore } from './redis-store';
 import { UpstashStore } from './upstash-store';
 import { PRESETS, type PresetName, type RateLimitPresetConfig } from './presets';
 import { buildKey } from './keys';
 
 // ── Singleton store ────────────────────────────────────────────────
 let _store: MemoryStore | null = null;
-let _distributedStore: UpstashStore | null = null;
+let _redisStore: RedisStore | null = null;
+let _upstashStore: UpstashStore | null = null;
 let _distributedWarned = false;
 
 function getStore(): MemoryStore {
@@ -37,35 +39,49 @@ function getStore(): MemoryStore {
 export function _resetStoreForTests(): MemoryStore {
   _store?.destroy();
   _store = new MemoryStore();
-  _distributedStore = null;
+  void _redisStore?.destroy();
+  _redisStore = null;
+  _upstashStore = null;
   _distributedWarned = false;
   return _store;
 }
 
-export type RateLimitRuntimeMode = 'memory' | 'upstash';
+export type RateLimitRuntimeMode = 'memory' | 'redis' | 'upstash';
 
 function canBypassRateLimit(): boolean {
   return process.env.RATE_LIMIT_DISABLE === '1' && process.env.NODE_ENV !== 'production';
 }
 
 export function getRateLimitRuntimeMode(): RateLimitRuntimeMode {
+  if (process.env.REDIS_URL) {
+    return 'redis';
+  }
   if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
     return 'upstash';
   }
   return 'memory';
 }
 
-function getDistributedStore(): UpstashStore | null {
-  if (getRateLimitRuntimeMode() !== 'upstash') return null;
+function getDistributedStore(): RedisStore | UpstashStore | null {
+  const mode = getRateLimitRuntimeMode();
 
-  if (!_distributedStore) {
-    _distributedStore = new UpstashStore({
+  if (mode === 'redis') {
+    if (!_redisStore) {
+      _redisStore = new RedisStore(process.env.REDIS_URL!);
+    }
+    return _redisStore;
+  }
+
+  if (mode !== 'upstash') return null;
+
+  if (!_upstashStore) {
+    _upstashStore = new UpstashStore({
       url: process.env.UPSTASH_REDIS_REST_URL!,
       token: process.env.UPSTASH_REDIS_REST_TOKEN!,
     });
   }
 
-  return _distributedStore;
+  return _upstashStore;
 }
 
 // ── Public API ─────────────────────────────────────────────────────
@@ -207,4 +223,5 @@ export async function guardRateLimitAsync(
 export { PRESETS, type PresetName } from './presets';
 export { buildKey, getClientIp, hashForKey } from './keys';
 export { MemoryStore } from './memory-store';
+export { RedisStore } from './redis-store';
 export { UpstashStore } from './upstash-store';

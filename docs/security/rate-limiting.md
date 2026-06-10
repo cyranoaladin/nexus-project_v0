@@ -10,6 +10,7 @@ lib/rate-limit/
   presets.ts        # Named preset configurations
   keys.ts           # Key generation (IP, userId, hash)
   memory-store.ts   # Bounded in-memory store with TTL cleanup
+  redis-store.ts    # Optional Redis backend for local VPS distributed limits
   upstash-store.ts  # Optional Upstash REST backend for distributed limits
 ```
 
@@ -21,9 +22,12 @@ The legacy `lib/middleware/rateLimit.ts` is a **compatibility facade** that dele
 |---|---|---|
 | Development/test | `MemoryStore` by default | Local counters, `_resetStoreForTests()` supported |
 | Development/test with `RATE_LIMIT_DISABLE=1` | Bypass | Allowed only outside production |
+| Production with `REDIS_URL` | Redis | Preferred free product-ready backend for VPS-local distributed counters |
 | Production with `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` | Upstash REST | Distributed counters shared by app processes |
-| Production without Upstash env | `MemoryStore` fallback | Functional but not distributed; acceptable only for controlled beta until prod env is configured |
+| Production without Redis/Upstash env | `MemoryStore` fallback | Functional but not distributed; acceptable only for controlled beta until prod env is configured |
 | Production with `RATE_LIMIT_DISABLE=1` | Protection remains active | The disable flag is ignored in production |
+
+Runtime priority is `REDIS_URL` first, then Upstash REST, then memory fallback.
 
 ## Usage
 
@@ -131,7 +135,7 @@ During unification, two presets were tightened:
 ## Limitations
 
 - **In-memory fallback**: Each PM2 worker has its own store. Effective limits are multiplied by worker count. This remains acceptable for development/test and controlled beta fallback only.
-- **Distributed production**: Configure `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` to make async guards process-wide.
+- **Distributed production**: configure `REDIS_URL` for local VPS Redis, or `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` for Upstash REST. `REDIS_URL` takes priority when both are present.
 - **Process restart**: Counters reset on restart (by design for rate limiting).
 - **No per-key clearing**: Tests use `_resetStoreForTests()` to reset the full store.
 

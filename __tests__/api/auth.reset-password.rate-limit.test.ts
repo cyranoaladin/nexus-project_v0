@@ -29,9 +29,19 @@ function makeRequest(ip = '198.51.100.30'): NextRequest {
 
 describe('POST /api/auth/reset-password rate limiting', () => {
   beforeEach(() => {
-    _resetStoreForTests();
     delete process.env.RATE_LIMIT_DISABLE;
+    delete process.env.REDIS_URL;
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
     Object.assign(process.env, { NODE_ENV: 'test' });
+    _resetStoreForTests();
+  });
+
+  afterEach(() => {
+    delete process.env.REDIS_URL;
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    _resetStoreForTests();
   });
 
   it('returns 429 after the auth limit is exceeded', async () => {
