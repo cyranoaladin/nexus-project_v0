@@ -3,7 +3,7 @@ import Script from 'next/script';
 
 export const metadata: Metadata = {
   title: 'Stages Février 2026 - Le Boost Décisif (Maths & NSI) | Nexus Réussite',
-  description: 'Stages intensifs février 2026 en Maths et NSI. Deux paliers (Prépa Bac / Excellence). Maîtrise, progression mesurée, trajectoire. 6 élèves max. Enseignants Agrégés et Certifiés. Centre Urbain Nord, Tunis.',
+  description: 'Stages intensifs février 2026 en Maths et NSI. Deux paliers (Prépa Bac / Excellence). Maîtrise, progression mesurée, trajectoire. 5 élèves max. Enseignants Agrégés et Certifiés. Centre Urbain Nord, Tunis.',
   keywords: [
     'stage février 2026',
     'stage maths terminale',
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     title: 'Stages Février 2026 - Le Boost Décisif (Maths & NSI)',
-    description: 'Maîtrise, progression mesurée, trajectoire. Deux paliers adaptés à chaque profil. 6 élèves max, enseignants Agrégés et Certifiés.',
+    description: 'Maîtrise, progression mesurée, trajectoire. Deux paliers adaptés à chaque profil. 5 élèves max, enseignants Agrégés et Certifiés.',
     type: 'website',
     locale: 'fr_TN',
     url: 'https://nexusreussite.tn/stages/fevrier-2026',
@@ -53,7 +53,7 @@ export default function StagesFevrier2026Layout({
             '@context': 'https://schema.org',
             '@type': 'Event',
             name: 'Stages Février 2026 - Maths & NSI',
-            description: 'Stages intensifs février 2026 en Mathématiques et NSI. Deux paliers : Prépa Bac (consolider) et Excellence (approfondir). Groupes de 6 élèves maximum.',
+            description: 'Stages intensifs février 2026 en Mathématiques et NSI. Deux paliers : Prépa Bac (consolider) et Excellence (approfondir). Groupes de 5 élèves maximum.',
             startDate: '2026-02-16',
             endDate: '2026-02-26',
             eventStatus: 'https://schema.org/EventScheduled',

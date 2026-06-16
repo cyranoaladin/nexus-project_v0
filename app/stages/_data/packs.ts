@@ -255,10 +255,10 @@ export const FAQS: FAQItem[] = [
   {
     question: "Comment se déroule une journée type ?",
     answer:
-      "Matin (9h–12h30) : cours structuré + exercices avec correction immédiate. Après-midi (14h–17h30) : consolidation, simulations ou coaching oral selon le stage. Les groupes sont petits — 6 élèves maximum — ce qui permet un rythme soutenu et des interventions individualisées tout au long de la journée.",
+      "Matin (9h–12h30) : cours structuré + exercices avec correction immédiate. Après-midi (14h–17h30) : consolidation, simulations ou coaching oral selon le stage. Les groupes sont petits — 5 élèves maximum — ce qui permet un rythme soutenu et des interventions individualisées tout au long de la journée.",
   },
   {
-    question: "Les groupes sont-ils vraiment limités à 6 élèves ?",
+    question: "Les groupes sont-ils vraiment limités à 5 élèves ?",
     answer:
       "Oui, sans exception. C'est un choix structurant : au-delà de 6, la correction individuelle devient symbolique. En dessous, chaque élève reçoit de l'attention, du feedback et des corrections sur ses propres erreurs, pas des corrections génériques.",
   },

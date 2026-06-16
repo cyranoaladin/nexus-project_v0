@@ -3,7 +3,7 @@ import { Award, BookOpenCheck, ClipboardList, Users } from "lucide-react";
 const signals = [
   {
     icon: Users,
-    title: "6 élèves maximum",
+    title: "5 élèves maximum",
     copy: "Chaque correction est individuelle. Chaque erreur est travaillée. Pas un groupe où on écoute sans être vu.",
   },
   {

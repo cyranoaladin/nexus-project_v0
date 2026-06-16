@@ -105,7 +105,7 @@ export function StagesHero({ stats }: StagesHeroProps) {
           <div className="flex flex-wrap justify-center gap-4 text-sm">
             <div className="pill-stage">
               <CheckCircle2 className="h-4 w-4 text-green-400" aria-hidden="true" />
-              <span>6 élèves max par groupe</span>
+              <span>5 élèves max par groupe</span>
             </div>
             <div className="pill-stage">
               <CheckCircle2 className="h-4 w-4 text-green-400" aria-hidden="true" />

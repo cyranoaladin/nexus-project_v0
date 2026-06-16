@@ -60,7 +60,7 @@ const scheduleWindows = [
   },
   {
     title: "Effectif",
-    value: "2 à 6 élèves",
+    value: "2 à 5 élèves",
     icon: Users,
     note: "Selon la formule et le seuil d'ouverture retenu.",
     color: "from-violet-500 to-fuchsia-500",
@@ -546,7 +546,7 @@ export default function NexusStagesPage() {
                     Préparez les échéances de mai et juin avec méthode, exigence et un cadre qui fait vraiment travailler.
                   </motion.h1>
                   <motion.p className="max-w-2xl text-base leading-7 text-white/55 sm:text-lg sm:leading-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-                    Des groupes de 6 élèves maximum. Des intervenants du système français. Des entraînements corrigés, des épreuves blanches et un plan de révision final.
+                    Des groupes de 5 élèves maximum. Des intervenants du système français. Des entraînements corrigés, des épreuves blanches et un plan de révision final.
                   </motion.p>
                 </div>
 
@@ -923,7 +923,7 @@ export default function NexusStagesPage() {
                     <h3 className="text-lg font-bold text-white">Nos engagements</h3>
                     <div className="mt-4 space-y-4">
                       {[
-                        { icon: Users, label: "Groupes limités à 6 élèves", color: "from-blue-500 to-cyan-500" },
+                        { icon: Users, label: "Groupes limités à 5 élèves", color: "from-blue-500 to-cyan-500" },
                         { icon: BadgeCheck, label: "Cadre structuré et suivi clair", color: "from-emerald-500 to-teal-500" },
                         { icon: GraduationCap, label: "Formules progressives", color: "from-violet-500 to-purple-500" },
                         { icon: Sparkles, label: "Bonus pédagogiques inclus", color: "from-amber-500 to-orange-500" },
@@ -955,7 +955,7 @@ export default function NexusStagesPage() {
             Le 2 mai, vous repartez avec une méthode posée, des points faibles identifiés et un plan de révision prêt à exécuter.
           </h2>
           <p className="mt-5 text-base leading-8 text-white/55">
-            Les semaines qui suivent servent à capitaliser sur ce travail — pas à recommencer de zéro. Les groupes sont à 6 élèves maximum. Les inscriptions se ferment quand les places sont pleines.
+            Les semaines qui suivent servent à capitaliser sur ce travail — pas à recommencer de zéro. Les groupes sont à 5 élèves maximum. Les inscriptions se ferment quand les places sont pleines.
           </p>
           <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <a href="#offres" className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-nexus-green to-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition-all duration-200 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nexus-green/50 sm:w-auto sm:min-w-[260px]">

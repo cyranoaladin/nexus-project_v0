@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Planning Stages Printemps 2026 — Nexus Réussite",
     description:
-      "Choisissez la formule adaptée : mono, duo ou parcours complet. 6 élèves max, bilans transmis aux familles.",
+      "Choisissez la formule adaptée : mono, duo ou parcours complet. 5 élèves max, bilans transmis aux familles.",
     type: "website",
   },
 };
