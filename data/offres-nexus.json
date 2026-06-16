@@ -1,29 +1,17 @@
 {
   "premiereLibreEssentiel": {
     "label": "Première Libre Essentiel",
-    "monthly": 190,
-    "annual": 1900,
+    "monthly": 190, "annual": 1900,
     "sub": "1 900 TND / an",
-    "echeancier": [
-      475,
-      475,
-      475,
-      475
-    ],
+    "echeancier": [475, 475, 475, 475],
     "paiement": "475 TND réservation + 3 x 475 TND"
   },
   "premiereLibreAccompagnee": {
     "label": "Première Libre Accompagnée",
-    "monthly": 490,
-    "annual": 4900,
+    "monthly": 490, "annual": 4900,
     "sub": "4 900 TND / an",
-    "echeancier": [
-      1200,
-      1200,
-      1200,
-      1300
-    ],
-    "paiement": "1 200 TND réservation + 3 traites (1 200 + 1 200 + 1 300 TND)"
+    "echeancier": [900, 500, 500, 500, 500, 500, 500, 500, 500],
+    "paiement": "900 TND réservation + 8 versements de 500 TND"
   },
   "premiereLibreIntensif": {
     "label": "Première Libre Intensif",
@@ -32,162 +20,101 @@
   },
   "terminaleLibreOnline": {
     "label": "Terminale Libre Online",
-    "monthly": 290,
-    "annual": 2900,
+    "monthly": 290, "annual": 2900,
     "sub": "2 900 TND / an",
-    "echeancier": [
-      700,
-      700,
-      700,
-      800
-    ],
+    "echeancier": [700, 700, 700, 800],
     "paiement": "700 TND réservation + 3 traites (700 + 700 + 800 TND)"
   },
   "terminaleLibreMixte": {
     "label": "Terminale Libre Mixte",
-    "monthly": 790,
-    "annual": 7900,
-    "publicAnnual": 8750,
-    "approx": true,
+    "monthly": 790, "annual": 7900, "publicAnnual": 8750, "approx": true,
     "sub": "parcours complet candidat libre",
-    "echeancier": [
-      1900,
-      2000,
-      2000,
-      2000
-    ],
+    "echeancier": [1900, 2000, 2000, 2000],
     "paiement": "1 900 TND réservation + 3 traites de 2 000 TND",
     "detailTarif": "Tarif public : 8 750 TND / an. Tarif campagne / fidélité : 7 900 TND / an."
   },
   "terminaleLibrePremium": {
     "label": "Terminale Libre Premium",
-    "monthly": 990,
-    "annual": 9900,
+    "monthly": 990, "annual": 9900,
     "sub": "9 900 TND / an",
-    "echeancier": [
-      2400,
-      2500,
-      2500,
-      2500
-    ],
-    "paiement": "2 400 TND réservation + 3 traites de 2 500 TND"
+    "echeancier": [1500, 2100, 2100, 2100, 2100],
+    "paiement": "1 500 TND réservation + 4 versements de 2 100 TND"
   },
   "plateformeAutonomie": {
     "label": "Plateforme Autonomie",
-    "display": "590 TND / an",
-    "annual": 590,
-    "monthlyAlt": 69,
-    "sub": "ou 69 TND / mois"
+    "display": "590 TND / an", "annual": 590, "monthlyAlt": 69,
+    "sub": "ou 69 TND / mois, soit 238 TND économisés en annuel"
   },
   "plateformeSuivi": {
     "label": "Plateforme Suivi",
-    "display": "1 490 TND / an",
-    "annual": 1490,
-    "monthlyAlt": 160,
-    "sub": "ou 160 TND / mois"
+    "display": "1 490 TND / an", "annual": 1490, "monthlyAlt": 160,
+    "sub": "ou 160 TND / mois, soit 430 TND économisés en annuel"
   },
   "plateformeAccompagnee": {
     "label": "Plateforme Accompagnée",
-    "display": "2 900 TND / an",
-    "annual": 2900,
-    "monthlyAlt": 290,
-    "sub": "ou 290 TND / mois"
+    "display": "2 900 TND / an", "annual": 2900, "monthlyAlt": 290,
+    "sub": "ou 290 TND / mois, soit 580 TND économisés en annuel"
   },
   "premiereEafFrancais": {
     "label": "Première EAF Français",
-    "monthly": 290,
-    "annual": 2900,
-    "publicAnnual": 3000,
-    "echeancier": [
-      700,
-      700,
-      700,
-      800
-    ],
+    "monthly": 290, "annual": 2900, "publicAnnual": 3000,
+    "echeancier": [700, 700, 700, 800],
     "annualDisplay": "2 900 TND / an"
   },
   "premiereMathsAnticipees": {
     "label": "Première Maths Anticipées",
-    "monthly": 290,
-    "annual": 2900,
-    "publicAnnual": 3000,
-    "echeancier": [
-      700,
-      700,
-      700,
-      800
-    ],
+    "monthly": 290, "annual": 2900, "publicAnnual": 3000,
+    "echeancier": [700, 700, 700, 800],
     "annualDisplay": "2 900 TND / an"
   },
   "premiereDoubleSecurite": {
     "label": "Première Double Sécurité",
-    "monthly": 490,
-    "annual": 4900,
-    "publicAnnual": 5400,
-    "echeancier": [
-      1200,
-      1200,
-      1200,
-      1300
-    ],
+    "monthly": 490, "annual": 4900, "publicAnnual": 5400,
+    "echeancier": [1200, 1200, 1200, 1300],
     "annualDisplay": "4 900 TND / an"
   },
   "premiereSciences": {
     "label": "Première Sciences",
-    "monthly": 590,
-    "annual": 5900,
+    "monthly": 590, "annual": 5900,
     "annualDisplay": "5 900 TND / an"
   },
   "terminaleSpecialiteSimple": {
     "label": "Terminale Spécialité Simple",
-    "monthly": 390,
-    "annual": 3900,
+    "monthly": 390, "annual": 3900,
     "sub": "2 h / semaine",
     "annualDisplay": "3 900 TND / an"
   },
   "duoTerminaleNexus": {
     "label": "Duo Terminale Nexus",
-    "monthly": 720,
-    "annual": 7175,
-    "publicAnnual": 7900,
-    "approx": true,
+    "monthly": 720, "annual": 7175, "publicAnnual": 7900, "approx": true,
     "sub": "stages + Grand Oral inclus",
-    "echeancier": [
-      1775,
-      1800,
-      1800,
-      1800
-    ],
-    "paiement": "1 775 TND réservation + 3 traites de 1 800 TND",
+    "echeancier": [1200, 1550, 2750, 1675],
+    "paiement": "1 200 TND réservation + 3 versements (1 550 + 2 750 + 1 675 TND)",
     "annualDisplay": "7 175 TND / an",
     "detailTarif": "Tarif campagne / fidélité : référence actuelle : 7 175 TND / an."
   },
   "excellenceTerminale": {
     "label": "Excellence Terminale",
-    "monthly": 960,
-    "annual": 9594,
-    "publicAnnual": 10500,
-    "approx": true,
+    "monthly": 960, "annual": 9594, "publicAnnual": 10500, "approx": true,
     "sub": "Maths expertes + urgence incluses",
-    "echeancier": [
-      2394,
-      2400,
-      2400,
-      2400
-    ],
-    "paiement": "2 394 TND réservation + 3 traites de 2 400 TND",
+    "echeancier": [1500, 2100, 3300, 2694],
+    "paiement": "1 500 TND réservation + 3 versements (2 100 + 3 300 + 2 694 TND)",
     "annualDisplay": "9 594 TND / an",
     "detailTarif": "Tarif campagne / fidélité : référence actuelle : 9 594 TND / an."
   },
   "secondeMathsMethode": {
     "label": "Seconde Maths Méthode",
     "monthly": 250,
-    "annual": 2500
+    "annual": 2500,
+    "echeancier": [625, 625, 625, 625],
+    "paiement": "625 TND réservation + 3 versements de 625 TND"
   },
   "secondeSciences": {
     "label": "Seconde Sciences",
     "monthly": 430,
-    "annual": 4300
+    "annual": 4300,
+    "echeancier": [1075, 1075, 1075, 1075],
+    "paiement": "1 075 TND réservation + 3 versements de 1 075 TND"
   },
   "secondeCoachingOrientation": {
     "label": "Seconde Coaching + Orientation",
@@ -196,99 +123,52 @@
   "brevetMaths": {
     "label": "Brevet Maths",
     "monthly": 220,
-    "annual": 2200
+    "annual": 2200,
+    "echeancier": [550, 550, 550, 550],
+    "paiement": "550 TND réservation + 3 versements de 550 TND"
   },
   "brevetComplet": {
     "label": "Brevet Complet",
     "monthly": 390,
-    "annual": 3900
+    "annual": 3900,
+    "echeancier": [975, 975, 975, 975],
+    "paiement": "975 TND réservation + 3 versements de 975 TND"
   },
   "stageBrevet": {
     "label": "Stage Brevet",
     "display": "390 à 590 TND"
   },
-  "stagePrerentreeTroisieme": {
-    "label": "Troisième — Prépa Brevet rentrée",
-    "display": "350 TND"
-  },
-  "stagePrerentreeSeconde": {
-    "label": "Seconde — Maths & méthode",
-    "display": "450 TND"
-  },
-  "stagePrerentreePremiere": {
-    "label": "Première — Français ou Maths",
-    "display": "600 TND"
-  },
-  "stagePrerentreeTerminale": {
-    "label": "Terminale — Maths prérentrée",
-    "display": "600 / 800 / 1 000 TND"
-  },
-  "stagePrerentreeCandidatsLibres": {
-    "label": "Candidats libres — Bilan + remise à niveau",
-    "display": "790 à 1 200 TND"
-  },
-  "stagePrerentreeMathsTerminale": {
-    "label": "Prérentrée août — Maths Terminale",
-    "display": "800 TND"
-  },
-  "vacancesUneMatiere": {
-    "label": "1 matière — 10 à 12 h",
-    "display": "490 à 590 TND"
-  },
-  "vacancesDuoMatieres": {
-    "label": "Duo matières — 18 à 20 h",
-    "display": "790 à 990 TND"
-  },
-  "vacancesGrandOral": {
-    "label": "Grand Oral — 10 h",
-    "display": "490 TND"
-  },
-  "packGrandOralSeul": {
-    "label": "Pack Grand Oral seul",
-    "display": "490 TND"
-  },
-  "vacancesBacBlanc": {
-    "label": "Bac blanc + correction",
-    "display": "120 à 180 TND"
-  },
-  "vacancesSprintFinal": {
-    "label": "Sprint final — 20 à 30 h",
-    "display": "990 à 1 490 TND"
-  },
-  "urgenceMembre": {
-    "label": "Heure d'urgence en ligne — membre",
-    "display": "150 TND / h",
-    "hourly": 150
-  },
-  "urgenceNonMembre": {
-    "label": "Heure d'urgence en ligne — non-membre",
-    "display": "200 TND / h",
-    "hourly": 200,
-    "_note": "Tarif non-membre à valider par la direction"
-  },
-  "urgencePack5Membre": {
-    "label": "Pack 5 h urgence en ligne — membre",
-    "display": "650 TND",
-    "annual": 650
-  },
-  "urgencePack10Membre": {
-    "label": "Pack 10 h urgence en ligne — membre",
-    "display": "1 200 TND",
-    "annual": 1200
-  },
+  "stagePrerentreeTroisieme": { "label": "Troisième — Prépa Brevet rentrée", "display": "350 TND" },
+  "stagePrerentreeSeconde": { "label": "Seconde — Maths & méthode", "display": "450 TND" },
+  "stagePrerentreePremiere": { "label": "Première — Français ou Maths", "display": "600 TND" },
+  "stagePrerentreeTerminale": { "label": "Terminale — Maths prérentrée", "display": "600 / 800 / 1 000 TND" },
+  "stagePrerentreeCandidatsLibres": { "label": "Candidats libres — Bilan + remise à niveau", "display": "790 à 1 200 TND" },
+  "stagePrerentreeMathsTerminale": { "label": "Prérentrée août — Maths Terminale", "display": "800 TND" },
+  "vacancesUneMatiere": { "label": "1 matière — 10 à 12 h", "display": "490 à 590 TND" },
+  "vacancesDuoMatieres": { "label": "Duo matières — 18 à 20 h", "display": "790 à 990 TND" },
+  "vacancesGrandOral": { "label": "Grand Oral — 10 h", "display": "490 TND" },
+  "packGrandOralSeul": { "label": "Pack Grand Oral seul", "display": "490 TND" },
+  "vacancesBacBlanc": { "label": "Bac blanc + correction", "display": "120 à 180 TND" },
+  "vacancesSprintFinal": { "label": "Sprint final — 20 à 30 h", "display": "990 à 1 490 TND" },
+  "urgenceMembre": { "label": "Heure d'urgence en ligne — membre", "display": "150 TND / h", "hourly": 150 },
+  "urgenceNonMembre": { "label": "Heure d'urgence en ligne — non-membre", "display": "200 TND / h", "hourly": 200, "_note": "Tarif non-membre à valider par la direction" },
+  "urgencePack5Membre": { "label": "Pack 5 h urgence en ligne — membre", "display": "650 TND", "annual": 650 },
+  "urgencePack10Membre": { "label": "Pack 10 h urgence en ligne — membre", "display": "1 200 TND", "annual": 1200 },
+
   "_notes": {
     "tarifCampagne": {
       "long": "Le tarif campagne / fidélité ne dépend pas d’une échéance fixe, mais des places disponibles. Les groupes sont constitués par niveaux homogènes (5 élèves maximum). Une fois un groupe complet, le tarif et la place ne sont plus garantis : réserver tôt sécurise le créneau et le tarif.",
       "short": "Pas d’échéance fixe — des places limitées. Une fois les groupes constitués, les inscriptions à ce tarif peuvent être closes faute de place."
     }
   },
+
   "_reperes": {
     "brevetMois": "à partir de 220 TND / mois",
     "secondeMois": "à partir de 250 TND / mois",
     "premiereSimpleMois": "à partir de 290 TND / mois",
     "premiereDuoMois": "à partir de 490 TND / mois",
     "terminaleSimpleMois": "à partir de 390 TND / mois",
-    "terminaleDuoMois": "≈ 720 TND / mois",
+    "terminaleDuoMois": "≈ 720 TND / mois (tarif fidélité)",
     "plateformeAn": "à partir de 590 TND / an",
     "stagesBase": "dès 350 TND",
     "parrainage": "150 à 300 TND"
