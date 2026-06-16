@@ -16,7 +16,7 @@ const CONFIG = {
   autoSaveDelay: 1000,
   validationPatterns: {
     email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-    phone: /^\+216[\s.]?[0-9]{2}[\s.]?[0-9]{3}[\s.]?[0-9]{3}$/
+    phone: /^\+[0-9]{1,4}[\s.]?[0-9\s.]{6,14}$/
   }
 };
 
@@ -43,6 +43,7 @@ async function initializeApp() {
   loadTheme();
 
   await loadCanonicalOffers();
+  populateManualOfferSelect();
 
   // Initialize event listeners
   initializeEventListeners();
@@ -779,32 +780,165 @@ function throttle(func, limit) {
 function updateReductions() {
   const checkboxes = document.querySelectorAll('[data-rate]');
   let totalReduction = 0;
-  
-  checkboxes.forEach(cb => {
-    if (cb.checked) {
-      totalReduction += parseInt(cb.dataset.rate);
-    }
-  });
-  
+
+  // Parrainage is exclusive (non-cumulable) — if checked, uncheck others
+  const parrainageCb = document.querySelector('[data-rate][data-exclusive="true"]');
+  const otherCbs = [...checkboxes].filter(cb => cb !== parrainageCb);
+
+  if (parrainageCb?.checked) {
+    otherCbs.forEach(cb => { cb.checked = false; cb.disabled = true; });
+    totalReduction = parseInt(parrainageCb.dataset.rate) || 0;
+  } else {
+    otherCbs.forEach(cb => { cb.disabled = false; });
+    checkboxes.forEach(cb => {
+      if (cb.checked) {
+        totalReduction += parseInt(cb.dataset.rate);
+      }
+    });
+  }
+
   const warning = document.getElementById('reducCapWarning');
   const derogation = document.getElementById('cumulDir');
   const capNotice = document.getElementById('reductionCapNotice');
-  
+
   // Check if we need to apply the cap
   if (totalReduction > 10 && !derogation.checked) {
     if (warning) warning.classList.remove('hidden');
     if (capNotice) capNotice.classList.remove('hidden');
-    // Apply the cap for display
     document.getElementById('totalReduction').textContent = '10%*';
   } else {
     if (warning) warning.classList.add('hidden');
     if (capNotice) capNotice.classList.add('hidden');
     document.getElementById('totalReduction').textContent = totalReduction + '%';
   }
-  
+
   // Update sidebar stat
   const appliedReduction = (totalReduction > 10 && !derogation.checked) ? 10 : totalReduction;
   document.getElementById('statReduction').textContent = appliedReduction + '%';
+
+  // Refresh reduced prices in recommendation display
+  refreshReducedPrices();
+}
+
+function getEffectiveReduction() {
+  const text = document.getElementById('totalReduction')?.textContent?.trim() || '0%';
+  return parseInt(text.replace('%', '').replace('*', '')) || 0;
+}
+
+function applyReduction(amount, percent) {
+  if (!amount || !percent) return amount;
+  return Math.round(amount * (1 - percent / 100));
+}
+
+function reduceInstallments(echArray, percent) {
+  if (!echArray || !percent) return echArray;
+  return echArray.map(e => ({
+    ...e,
+    amount: applyReduction(e.amount, percent)
+  }));
+}
+
+function refreshReducedPrices() {
+  const reduction = getEffectiveReduction();
+  const priceEl = document.getElementById('offerPrice');
+  const originalPrice = priceEl?.dataset?.original;
+  if (priceEl && originalPrice && reduction > 0) {
+    const original = parseInt(originalPrice.replace(/\s/g, ''));
+    if (!isNaN(original)) {
+      const reduced = applyReduction(original, reduction);
+      priceEl.textContent = reduced.toLocaleString('fr-FR') + ' TND / an';
+    }
+  } else if (priceEl && originalPrice && reduction === 0) {
+    priceEl.textContent = originalPrice;
+  }
+}
+
+function updateTarifMode() {
+  const mode = document.querySelector('input[name="tarifMode"]:checked')?.value || 'campagne';
+  const priceEl = document.getElementById('offerPrice');
+  if (!currentRecommendation?.offer) return;
+
+  const offer = currentRecommendation.offer;
+  if (mode === 'public' && offer.publicAnnual) {
+    const display = offer.publicAnnual.toLocaleString('fr-FR') + ' TND / an';
+    if (priceEl) {
+      priceEl.dataset.original = display;
+      priceEl.textContent = display;
+    }
+  } else {
+    const annual = offer.annual || offer.publicAnnual;
+    if (annual && priceEl) {
+      const display = annual.toLocaleString('fr-FR') + ' TND / an';
+      priceEl.dataset.original = display;
+      priceEl.textContent = display;
+    }
+  }
+  refreshReducedPrices();
+}
+
+function populateManualOfferSelect() {
+  const select = document.getElementById('manualOfferSelect');
+  if (!select) return;
+
+  // Clear existing options except the first
+  while (select.options.length > 1) select.remove(1);
+
+  // Add all offers from OFFERS
+  for (const [key, offer] of Object.entries(OFFERS)) {
+    if (key.startsWith('_')) continue; // skip metadata
+    const opt = document.createElement('option');
+    opt.value = key;
+    const price = offer.annualDisplay || offer.display || (offer.annual ? offer.annual.toLocaleString('fr-FR') + ' TND' : '');
+    opt.textContent = `${offer.label}${price ? ' — ' + price : ''}`;
+    select.appendChild(opt);
+  }
+
+  select.addEventListener('change', function() {
+    if (this.value) {
+      applyManualOffer(this.value);
+    }
+  });
+}
+
+function applyManualOffer(key) {
+  const offer = OFFERS[key];
+  if (!offer) return;
+
+  const meta = OFFER_META[key] || {};
+  currentRecommendation = {
+    key,
+    offer,
+    alternatives: []
+  };
+
+  // Update display
+  const labelEl = document.getElementById('offerLabel');
+  const descEl = document.getElementById('offerDesc');
+  const priceEl = document.getElementById('offerPrice');
+
+  if (labelEl) labelEl.textContent = offer.label;
+  if (descEl) descEl.textContent = meta.desc || '';
+  if (priceEl) {
+    const annual = offer.annual || offer.publicAnnual;
+    const display = annual ? annual.toLocaleString('fr-FR') + ' TND / an' : (offer.display || 'Tarif à valider');
+    priceEl.dataset.original = display;
+    priceEl.textContent = display;
+  }
+
+  // Update inclusions display
+  const incEl = document.getElementById('offerInclusions');
+  if (incEl && meta.inc) {
+    incEl.innerHTML = meta.inc.map(item => `<li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-1 text-xs"></i><span>${escapeHtml(item)}</span></li>`).join('');
+  }
+
+  // Update installments display
+  const echEl = document.getElementById('offerInstallments');
+  if (echEl && offer.echeancier) {
+    echEl.innerHTML = offer.echeancier.map((amt, i) => `<div class="flex justify-between text-sm"><span>Versement ${i + 1}</span><span class="font-medium">${amt.toLocaleString('fr-FR')} TND</span></div>`).join('');
+  }
+
+  refreshReducedPrices();
+  showNotification(`Offre "${offer.label}" sélectionnée manuellement`, 'success');
 }
 
 // ============================================
@@ -1480,15 +1614,48 @@ function getQuoteNumber() {
 
 function collectQuoteData() {
   const offer = currentRecommendation?.offer || getOfferFromUi();
+  const reduction = getEffectiveReduction();
   const publicAnnual = offer?.publicAnnual || null;
   const monthly = offer?.monthly || null;
   const economie = (publicAnnual && offer?.annual) ? publicAnnual - offer.annual : 0;
   const monthlyDisplay = monthly ? `≈ ${monthly.toLocaleString('fr-FR')} TND / mois` : null;
   const alternatives = currentRecommendation?.alternatives || [];
-  const reduction = document.getElementById('totalReduction')?.textContent?.trim() || '0%';
+  const reductionText = document.getElementById('totalReduction')?.textContent?.trim() || '0%';
   const reductionLabels = getActiveReductionLabels();
   const validUntil = new Date();
   validUntil.setDate(validUntil.getDate() + 7);
+
+  // Apply reduction to offer prices
+  let finalOffer;
+  if (offer) {
+    const adjustedAnnual = reduction > 0 && offer.annual
+      ? applyReduction(offer.annual, reduction)
+      : offer.annual;
+    const adjustedEch = reduction > 0 && offer.echeancier
+      ? reduceInstallments(
+          offer.echeancier.map((amt, i) => ({ label: `Versement ${i + 1}`, amount: amt })),
+          reduction
+        )
+      : (offer.ech || (offer.echeancier || []).map((amt, i) => ({ label: `Versement ${i + 1}`, amount: amt })));
+
+    finalOffer = {
+      label: offer.label || 'Offre à valider',
+      desc: OFFER_META[currentRecommendation?.key]?.desc || offer.desc || '',
+      annualDisplay: adjustedAnnual
+        ? adjustedAnnual.toLocaleString('fr-FR') + ' TND / an'
+        : (offer.annualDisplay || offer.display || 'Tarif à valider'),
+      inc: OFFER_META[currentRecommendation?.key]?.inc || offer.inc || [],
+      ech: adjustedEch
+    };
+  } else {
+    finalOffer = {
+      label: document.getElementById('offerLabel')?.textContent || 'Offre à valider',
+      desc: document.getElementById('offerDesc')?.textContent || '',
+      annualDisplay: document.getElementById('offerPrice')?.textContent || 'Tarif à valider',
+      inc: [],
+      ech: []
+    };
+  }
 
   return {
     quoteNumber: getQuoteNumber(),
@@ -1511,19 +1678,13 @@ function collectQuoteData() {
     budget: getCheckedRadioText('budget'),
     mode: getCheckedRadioText('mode'),
     internalNotes: getFieldValue('notesInternes', ''),
-    reduction,
+    reduction: reductionText,
     reductionLabels,
     publicAnnual,
     monthlyDisplay,
     economie,
     hasDirectionOverride: Boolean(document.getElementById('cumulDir')?.checked),
-    offer: offer || {
-      label: document.getElementById('offerLabel')?.textContent || 'Offre à valider',
-      desc: document.getElementById('offerDesc')?.textContent || '',
-      annualDisplay: document.getElementById('offerPrice')?.textContent || 'Tarif à valider',
-      inc: [],
-      ech: []
-    },
+    offer: finalOffer,
     alternatives
   };
 }
@@ -1565,173 +1726,6 @@ function buildAlternativeCards(alternatives) {
       <p>${escapeHtml(alt.desc)}</p>
     </div>
   `).join('');
-}
-
-function buildPremiumQuoteHtml(data) {
-  const offer = data.offer;
-  const reductionCopy = data.reductionLabels.length
-    ? `${data.reduction} — ${data.reductionLabels.join(', ')}${data.hasDirectionOverride ? ' avec validation direction' : ''}`
-    : 'Aucune réduction appliquée à ce stade';
-  const formatLabel = [data.level, data.status].filter(Boolean).join(' · ');
-  const specialtyLabel = data.specialites.length ? data.specialites.join(', ') : 'À préciser';
-
-  return `
-    <article class="pdf-document">
-      <div class="pdf-brand-bar"></div>
-
-      <header class="pdf-invoice-header">
-        <section class="pdf-issuer-block" aria-label="ÉMETTEUR">
-          <p class="pdf-kicker">ÉMETTEUR</p>
-          <h1>M&M ACADEMY (NEXUS RÉUSSITE)</h1>
-          <p>Établissement d’accompagnement pédagogique</p>
-          <p>Centre Urbain Nord, Immeuble VENUS, Appt C13, 1082 Tunis</p>
-          <p>MF : 1948837 N/A/M/000</p>
-          <p>+216 99 19 28 29 · contact@nexusreussite.academy</p>
-        </section>
-
-        <section class="pdf-title-block">
-          <p class="pdf-document-type">PROPOSITION</p>
-          <h2>Devis personnalisé</h2>
-          <p class="pdf-document-subtitle">Nexus Réussite — Proposition d’accompagnement 2026/2027</p>
-          <dl>
-            <div><dt>Référence</dt><dd>${escapeHtml(data.quoteNumber)}</dd></div>
-            <div><dt>Date</dt><dd>${escapeHtml(data.generatedAt)}</dd></div>
-            <div><dt>Validité</dt><dd>${escapeHtml(data.validUntil)}</dd></div>
-          </dl>
-        </section>
-      </header>
-
-      <section class="pdf-party-row">
-        <div class="pdf-party-box">
-          <p class="pdf-kicker">PROPOSITION POUR</p>
-          <strong>${escapeHtml(data.parentName)}</strong>
-          <span>${escapeHtml(data.email)}</span>
-          <span>${escapeHtml(data.whatsapp)}</span>
-        </div>
-        <div class="pdf-party-box">
-          <p class="pdf-kicker">ÉLÈVE ET PROFIL</p>
-          <strong>${escapeHtml(data.studentName)}</strong>
-          <span>${escapeHtml(formatLabel)}</span>
-          <span>${escapeHtml(data.establishment)}</span>
-        </div>
-      </section>
-
-      <section class="pdf-status-strip">
-        <div>
-          <p class="pdf-section-eyebrow">Synthèse de la recommandation</p>
-          <h2>${escapeHtml(offer.label)}</h2>
-          <p>${escapeHtml(offer.desc)}</p>
-        </div>
-        <div class="pdf-total-box">
-          <span>TOTAL INDICATIF</span>
-          <strong>${escapeHtml(offer.annualDisplay)}</strong>
-          <small>${escapeHtml(reductionCopy)}</small>
-        </div>
-      </section>
-
-      <section class="pdf-section">
-        <h3>TABLEAU DE SYNTHÈSE</h3>
-        <table class="pdf-summary-table">
-          <thead>
-            <tr>
-              <th>DÉSIGNATION</th>
-              <th>FORMAT</th>
-              <th>REPÈRE</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                <strong>${escapeHtml(offer.label)}</strong>
-                <span>${escapeHtml(offer.desc)}</span>
-              </td>
-              <td>${escapeHtml(data.mode)}<br><span>${escapeHtml(data.objectif)}</span></td>
-              <td class="pdf-money">${escapeHtml(offer.annualDisplay)}</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
-
-      <section class="pdf-grid pdf-section">
-        <div>
-          <h3>Profil élève et famille</h3>
-          <dl class="pdf-definition-list">
-            <div><dt>Élève</dt><dd>${escapeHtml(data.studentName)}</dd></div>
-            <div><dt>Responsable</dt><dd>${escapeHtml(data.parentName)}</dd></div>
-            <div><dt>WhatsApp</dt><dd>${escapeHtml(data.whatsapp)}</dd></div>
-            <div><dt>E-mail</dt><dd>${escapeHtml(data.email)}</dd></div>
-            <div><dt>Niveau</dt><dd>${escapeHtml(data.level)}</dd></div>
-            <div><dt>Statut</dt><dd>${escapeHtml(data.status)}</dd></div>
-            <div><dt>Établissement</dt><dd>${escapeHtml(data.establishment)}</dd></div>
-            <div><dt>Langues</dt><dd>${escapeHtml(data.languages)}</dd></div>
-          </dl>
-        </div>
-        <div>
-          <h3>Besoin pédagogique</h3>
-          <dl class="pdf-definition-list">
-            <div><dt>Objectif</dt><dd>${escapeHtml(data.objectif)}</dd></div>
-            <div><dt>Sensibilité budget</dt><dd>${escapeHtml(data.budget)}</dd></div>
-            <div><dt>Mode privilégié</dt><dd>${escapeHtml(data.mode)}</dd></div>
-            <div><dt>Niveau ressenti</dt><dd>${escapeHtml(data.currentLevel)}</dd></div>
-            <div><dt>Spécialités</dt><dd>${escapeHtml(specialtyLabel)}</dd></div>
-            <div><dt>Options</dt><dd>${escapeHtml(data.options.join(', ') || 'Non renseigné')}</dd></div>
-            <div><dt>Modalité candidat libre</dt><dd>${escapeHtml(data.modalite)}</dd></div>
-          </dl>
-        </div>
-      </section>
-
-      <section class="pdf-section pdf-two-columns">
-        <div>
-          <h3>Échéancier indicatif</h3>
-          <table class="pdf-table premium">
-            <tbody>${buildInstallmentRows(offer.ech)}</tbody>
-          </table>
-        </div>
-        <div>
-          <h3>Ce qui est inclus dans le parcours</h3>
-          <ul class="pdf-check-list compact">${buildList(offer.inc)}</ul>
-        </div>
-      </section>
-
-      <section class="pdf-section pdf-two-columns">
-        <div>
-          <h3>Alternatives étudiées</h3>
-          <div class="pdf-mini-card-list">${buildAlternativeCards(data.alternatives)}</div>
-        </div>
-        <div class="pdf-conditions-box">
-          <h3>CONDITIONS DE VALIDATION</h3>
-          <p>Validation pédagogique, disponibilité du groupe, pièces administratives et règlement de la réservation.</p>
-          <p>Le tarif et l’échéancier restent indicatifs jusqu’à inscription définitive.</p>
-        </div>
-      </section>
-
-      <section class="pdf-section">
-        <h3>Prochaines étapes</h3>
-        <ol class="pdf-timeline">
-          <li><strong>Validation pédagogique</strong><span>Confirmer le niveau, le statut, les spécialités et les disponibilités.</span></li>
-          <li><strong>Validation administrative</strong><span>Contrôler les pièces utiles, la carte d’examen et le calendrier Cyclades si candidat libre.</span></li>
-          <li><strong>Réservation</strong><span>Bloquer la place dans le groupe sous réserve de disponibilité et de paiement de la réservation.</span></li>
-        </ol>
-      </section>
-
-      <section class="pdf-section pdf-legal">
-        <h3>Cadre et réserves</h3>
-        <p>Cette proposition non contractuelle est un repère d’accompagnement établi à partir des informations communiquées pendant l’entretien. L’inscription définitive dépend de la validation pédagogique, des places disponibles, des pièces administratives et du calendrier officiel.</p>
-        <p>Nexus Réussite formalise un engagement de moyens : accompagnement structuré, suivi, entraînement et cadre de travail. Aucune progression, mention ou réussite à l’examen ne peut être garantie.</p>
-      </section>
-
-      <footer class="pdf-signature pdf-footer">
-        <div>
-          <strong>Nexus Réussite</strong>
-          <span>nexusreussite.academy · +216 99 192 829 · contact@nexusreussite.academy</span>
-        </div>
-        <div>
-          <strong>Conseiller</strong>
-          <span>${escapeHtml(data.advisor)}</span>
-        </div>
-      </footer>
-    </article>
-  `;
 }
 
 function updatePdfPreview(data) {
@@ -1832,14 +1826,7 @@ Pour réserver votre place ou poser des questions :
     showNotification('Message WhatsApp copié !', 'success');
   }).catch(err => {
     console.error('Clipboard error:', err);
-    // Fallback
-    const textarea = document.createElement('textarea');
-    textarea.value = message;
-    document.body.appendChild(textarea);
-    textarea.select();
-    document.execCommand('copy');
-    document.body.removeChild(textarea);
-    showNotification('Message WhatsApp copié !', 'success');
+    showNotification('Impossible de copier le message', 'error');
   });
 }
 

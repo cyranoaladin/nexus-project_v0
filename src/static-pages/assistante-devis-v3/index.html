@@ -303,8 +303,8 @@
         name="whatsapp" 
         required
         class="input-field"
-        placeholder="+216 99 192 829"
-        pattern="\+216[\s.]?[0-9]{2}[\s.]?[0-9]{3}[\s.]?[0-9]{3}"
+        placeholder="+216 99 123 456"
+        pattern="^\+[0-9]{1,4}[\s.]?[0-9\s.]{6,14}$"
         onblur="validatePhone(this)"
         autocomplete="tel">
       <p class="validation-message" id="whatsapp-validation"></p>
@@ -794,6 +794,24 @@
     </div>
   </div>
   
+  <!-- Mode tarifaire -->
+  <div class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+      <i class="fas fa-tag mr-1"></i> Mode tarifaire
+    </label>
+    <div class="flex gap-3">
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input type="radio" name="tarifMode" value="campagne" checked onchange="updateTarifMode()" class="text-nexus-navy">
+        <span class="text-sm">Campagne / fidélité</span>
+      </label>
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input type="radio" name="tarifMode" value="public" onchange="updateTarifMode()" class="text-nexus-navy">
+        <span class="text-sm">Tarif public</span>
+      </label>
+    </div>
+    <p class="text-xs text-gray-500 mt-1">Certaines offres ont un tarif public plus élevé (ex: Mixte 8 750 vs 7 900 TND).</p>
+  </div>
+
   <!-- Liste des réductions -->
   <div class="checkbox-list mb-6">
     <label class="checkbox-row">
@@ -824,7 +842,7 @@
     </label>
     
     <label class="checkbox-row">
-      <input type="checkbox" id="reducParrainage" name="reducParrainage" data-rate="5" onchange="updateReductions(); autoSave();">
+      <input type="checkbox" id="reducParrainage" name="reducParrainage" data-rate="5" data-exclusive="true" onchange="updateReductions(); autoSave();">
       <div class="flex-1">
         <span class="font-semibold">Parrainage</span>
         <p class="text-sm text-slate-500">Recommandé par une famille Nexus</p>
@@ -835,8 +853,8 @@
     <label class="checkbox-row">
       <input type="checkbox" id="reducEarlyBird" name="reducEarlyBird" data-rate="5" onchange="updateReductions(); autoSave();">
       <div class="flex-1">
-        <span class="font-semibold">Validation direction</span>
-        <p class="text-sm text-slate-500">Geste exceptionnel validé par la direction</p>
+        <span class="font-semibold">Inscription anticipée (Early Bird)</span>
+        <p class="text-sm text-slate-500">Inscription avant la date limite de la campagne</p>
       </div>
       <span class="badge badge-gold">-5%</span>
     </label>
@@ -910,6 +928,17 @@
               </header>
               
               <div id="step-5-content" class="step-content">
+  <!-- Sélection manuelle d'offre -->
+  <div class="mb-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-dashed border-gray-300 dark:border-gray-600">
+    <label for="manualOfferSelect" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+      <i class="fas fa-hand-pointer mr-1"></i> Sélection manuelle (optionnel)
+    </label>
+    <select id="manualOfferSelect" class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-sm">
+      <option value="">— Utiliser la recommandation automatique —</option>
+    </select>
+    <p class="text-xs text-gray-500 mt-1">Remplace la recommandation algorithmique par l'offre choisie.</p>
+  </div>
+
   <!-- Bouton générer -->
   <div class="text-center mb-8">
     <button 
