@@ -86,7 +86,7 @@ export default function HomeHero() {
 
               <div className="absolute bottom-5 left-5 right-5 rounded-3xl border border-white/20 bg-white/92 p-5 shadow-xl backdrop-blur-md">
                 <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-[#0f3d73]">
-                  Nexus Réussite · Mutuelleville
+                  Nexus Réussite · Tunis
                 </p>
                 <p className="mt-2 text-sm leading-6 text-slate-700">
                   Stages intensifs · Cours hebdomadaires · Bilans personnalisés · Livrets de travail · Suivi élève-parent

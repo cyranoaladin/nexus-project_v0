@@ -81,7 +81,7 @@ export default function NotreCentrePage() {
               {[
                 {
                   title: "Salles Premium",
-                  desc: "6 élèves max, écrans interactifs.",
+                  desc: "5 élèves max, écrans interactifs.",
                   icon: MonitorPlay,
                 },
                 {

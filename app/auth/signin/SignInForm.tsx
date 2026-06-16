@@ -56,8 +56,8 @@ export function SignInForm() {
 
       if (result?.error) {
         track.signinError('invalid_credentials');
-        setError("Email ou mot de passe incorrect.");
-        setShowResendActivation(true);
+        setError("Email ou mot de passe incorrect. Vérifiez vos identifiants ou réinitialisez votre mot de passe.");
+        setShowResendActivation(false);
         setResendEmail(email);
       } else {
         const session = await getSession();
@@ -201,16 +201,24 @@ export function SignInForm() {
               {error && (
                 <div className="bg-error/10 border border-error/20 rounded-lg p-4" role="alert">
                   <p className="text-error text-sm font-medium">{error}</p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowResendActivation((value) => !value);
-                      setResendEmail((current) => current || email);
-                    }}
-                    className="mt-2 text-sm text-brand-accent hover:underline"
-                  >
-                    Compte non activé ? Demandez un nouveau lien →
-                  </button>
+                  <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <Link
+                      href="/auth/mot-de-passe-oublie"
+                      className="text-sm font-medium text-brand-accent hover:underline"
+                    >
+                      Réinitialiser le mot de passe
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowResendActivation((value) => !value);
+                        setResendEmail((current) => current || email);
+                      }}
+                      className="text-left text-sm text-neutral-300 hover:text-neutral-100 hover:underline"
+                    >
+                      Renvoyer un lien d'activation
+                    </button>
+                  </div>
                 </div>
               )}
 

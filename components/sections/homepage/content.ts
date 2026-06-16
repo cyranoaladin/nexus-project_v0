@@ -37,8 +37,8 @@ export const WHATSAPP_URL_FORFAITS =
 export const PHONE_URL = "tel:+21699192829";
 export const PHONE_LABEL = "+216 99 19 28 29";
 export const CONTACT_EMAIL = "contact@nexusreussite.academy";
-export const CONTACT_ADDRESS = "Mutuelleville, Tunis";
-export const CENTRE_ADDRESS = "3 rue Jaafar Al Barmaki, Mutuelleville 1082";
+export const CONTACT_ADDRESS = "Centre Urbain Nord, Tunis";
+export const CENTRE_ADDRESS = "Centre Urbain Nord, Tunis — Accompagnement : Mutuelleville, Tunis";
 
 // ── Landing images (centralized paths & alt texts) ──────────────────────────
 
@@ -92,7 +92,7 @@ export const PRICING_GROUP_NOTE =
 // ── Hero ────────────────────────────────────────────────────────────────────
 
 export const HERO = {
-  badge: "Centre d'entraînement académique · Mutuelleville",
+  badge: "Centre d'entraînement académique · Tunis",
   title: "Le finish avant les épreuves, l'avance pour la suite.",
   subtitle:
     "À Mutuelleville, Nexus Réussite accompagne les élèves de Première et de Terminale avec des stages intensifs, des cours hebdomadaires, des bilans personnalisés et un suivi structuré pour progresser avec méthode, rigueur et confiance.",
@@ -102,7 +102,7 @@ export const HERO = {
     "Finish avant le 8 juin",
     "Nexus Select post-épreuves",
     "Groupes de 4 élèves",
-    "Mutuelleville",
+    "Tunis — Mutuelleville",
     "Bilans personnalisés",
   ],
   ctaPrimary: "Être conseillé sur WhatsApp",
@@ -332,10 +332,10 @@ export const ACCOMPAGNEMENTS = [
 // ── Forfaits ────────────────────────────────────────────────────────────────
 
 export const FORFAITS = {
-  eyebrow: "Forfaits et formules",
-  title: "Des formules claires, adaptées à chaque objectif.",
+  eyebrow: "Forfaits courts et accompagnements ciblés",
+  title: "Forfaits courts et accompagnements ciblés",
   description:
-    "Chaque forfait est conçu autour d'un volume horaire et d'un objectif précis. Les forfaits incluent un accompagnement structuré, des corrections individualisées et un suivi de progression.",
+    "Ces forfaits répondent à des besoins ponctuels. Pour un parcours annuel complet, consultez les offres 2026/2027.",
   plans: [
     {
       name: "Déclic",
@@ -388,7 +388,7 @@ export const FORFAITS = {
       badge: null as string | null,
     },
     {
-      name: "Excellence",
+      name: "Forfait Complet 16 h",
       hours: "16 h",
       sessions: "8 séances de 2 h",
       price: "640 DT*",
@@ -409,7 +409,7 @@ export const FORFAITS = {
   note: PRICING_FOOTNOTE,
   groupNote: PRICING_GROUP_NOTE,
   selectNote:
-    "Ces formules concernent l'accompagnement standard en petit groupe. Nexus Select est un stage intensif premium distinct, avec un format unique de 40 h.",
+    "Ces formules concernent l'accompagnement standard en petit groupe. Pour un parcours annuel, consultez les offres 2026/2027.",
 };
 
 // ── Méthode Nexus ───────────────────────────────────────────────────────────
@@ -454,7 +454,7 @@ export const TRUST_POINTS = [
   { value: "Bilans personnalisés", label: "priorités visibles pour chaque élève" },
   { value: "Livrets de travail", label: "méthode, révision et progression" },
   { value: "Suivi élève-parent", label: "bilans, livrets et retours structurés aux familles" },
-  { value: "Mutuelleville", label: "cadre présentiel rassurant" },
+  { value: "Tunis — Mutuelleville", label: "cadre présentiel rassurant" },
 ];
 
 // ── Témoignages ─────────────────────────────────────────────────────────────
@@ -523,8 +523,13 @@ export const FAQ_ITEMS = [
       "Le groupe restreint de 4 élèves crée une émulation de travail, permet des corrections individualisées et réduit le coût par rapport à un cours particulier classique. Chaque élève dispose d'un livret personnalisé, d'un suivi famille et d'un bilan de progression, comme en cours individuel — mais dans un cadre plus stimulant.",
   },
   {
+    question: "Pourquoi les tailles de groupes varient-elles ?",
+    answer:
+      "Les effectifs dépendent du format : forfait court, stage, parcours annuel, niveau, matière et intensité du suivi. L'objectif reste toujours de garder un groupe suffisamment réduit pour permettre un vrai suivi.",
+  },
+  {
     question: "Comment réserver une place ?",
     answer:
-      "Contactez-nous directement sur WhatsApp au 99 19 28 29. Nous échangeons sur le profil de l'élève, ses objectifs et la formule la plus adaptée avant de confirmer l'inscription. Les groupes sont limités à 4 élèves.",
+      "Contactez-nous directement sur WhatsApp au 99 19 28 29. Nous échangeons sur le profil de l'élève, ses objectifs et la formule la plus adaptée avant de confirmer l'inscription. Les groupes restent réduits et varient selon le format retenu.",
   },
 ];

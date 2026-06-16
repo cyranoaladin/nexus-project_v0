@@ -197,6 +197,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       match: 'prefix'
     },
     {
+      label: 'Assistant devis',
+      href: '/dashboard/assistante/devis',
+      icon: 'Calculator',
+      match: 'prefix'
+    },
+    {
       label: 'Stages',
       href: '/dashboard/assistante/stages',
       icon: 'GraduationCap',

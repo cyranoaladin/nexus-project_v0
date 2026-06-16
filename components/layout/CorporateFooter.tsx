@@ -95,7 +95,7 @@ const CorporateFooter = () => {
                                 <div>
                                     <span className="block text-white text-sm font-medium">Centre d&apos;accompagnement</span>
                                     <span className="block text-neutral-300 text-xs mt-1">
-                                        3 rue Jaafar Al Barmaki<br />Mutuelleville 1082
+                                        Siège : Centre Urbain Nord, Tunis<br />Centre : Mutuelleville, Tunis
                                     </span>
                                 </div>
                             </div>
