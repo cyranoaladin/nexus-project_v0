@@ -138,6 +138,16 @@ export default function Forfaits() {
           <p className="text-sm leading-6 font-medium text-[#0f3d73]">
             {FORFAITS.selectNote}
           </p>
+          <div className="pt-2">
+            <TrackedCTAButton
+              href="/catalogue-nexus-reussite-2026-2027.html"
+              variant="eaf-outline"
+              trackingLocation="forfaits_parcours_annuels"
+            >
+              Voir les parcours annuels
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </TrackedCTAButton>
+          </div>
         </div>
       </div>
     </section>

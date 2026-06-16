@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Bell, CalendarRange, Check, ClipboardList, CreditCard } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface Notification {
   id: string;
@@ -26,22 +26,35 @@ export default function NotificationBell() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const mountedRef = useRef(false);
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async (signal?: AbortSignal) => {
     try {
+      if (!mountedRef.current) return;
+
       setLoading(true);
-      const response = await fetch('/api/notifications?limit=20');
+      const response = await fetch('/api/notifications?limit=20', { signal });
+
+      if (signal?.aborted || !mountedRef.current) return;
+
       if (response.ok) {
         const data = await response.json();
+
+        if (signal?.aborted || !mountedRef.current) return;
+
         setNotifications(data.notifications);
         setUnreadCount(data.unreadCount);
       }
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
+    } catch {
+      if (signal?.aborted || !mountedRef.current) return;
+      setNotifications([]);
+      setUnreadCount(0);
     } finally {
-      setLoading(false);
+      if (!signal?.aborted && mountedRef.current) {
+        setLoading(false);
+      }
     }
-  };
+  }, []);
 
   const markAsRead = async (notificationId: string) => {
     try {
@@ -119,13 +132,20 @@ export default function NotificationBell() {
   };
 
   useEffect(() => {
-    fetchNotifications();
+    mountedRef.current = true;
+
+    const controller = new AbortController();
+    fetchNotifications(controller.signal);
 
     // Poll for new notifications every 30 seconds
     const interval = setInterval(fetchNotifications, 30000);
 
-    return () => clearInterval(interval);
-  }, []);
+    return () => {
+      mountedRef.current = false;
+      controller.abort();
+      clearInterval(interval);
+    };
+  }, [fetchNotifications]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

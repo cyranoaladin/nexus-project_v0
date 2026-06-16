@@ -1,104 +1,59 @@
-import type { Metadata } from 'next';
-import { Toaster } from 'sonner';
+import fs from 'node:fs';
+import path from 'node:path';
 
-import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
-import { CorporateFooter } from '@/components/layout/CorporateFooter';
-import HomeHero from '@/components/sections/homepage/HomeHero';
-import UrgencyFinish from '@/components/sections/homepage/UrgencyFinish';
-import NexusSelect from '@/components/sections/homepage/NexusSelect';
-import FlagshipOffers from '@/components/sections/homepage/FlagshipOffers';
-import Forfaits from '@/components/sections/homepage/Forfaits';
-import TrustSection from '@/components/sections/homepage/TrustSection';
-import HomepageTestimonials from '@/components/sections/homepage/HomepageTestimonials';
-import HomepageFinalCTA from '@/components/sections/homepage/HomepageFinalCTA';
-import MobileStickyWhatsApp from '@/components/sections/homepage/MobileStickyWhatsApp';
+import type { Metadata } from 'next';
+import Script from 'next/script';
 
 export const metadata: Metadata = {
-  title: 'Nexus Réussite — Centre d\'entraînement académique premium | Mutuelleville, Tunis',
+  title: 'Nexus Réussite — Accompagnement Bac français, candidats libres et double cursus',
   description:
-    "Stages intensifs, cours hebdomadaires, préparation EAF et mathématiques, Nexus Select 40 h post-épreuves pour CPGE et filières sélectives, suivi personnalisé à Mutuelleville.",
+    "Nexus Réussite accompagne les élèves de Première et Terminale comme un établissement d’accompagnement : carte d’examen, bacs blancs, bulletins, référent, Masterium et suivi parents.",
   keywords:
-    'nexus réussite, accompagnement scolaire premium, stages intensifs, préparation EAF, mathématiques, CPGE, EPFL, Mutuelleville, Tunis, Nexus Select, stage 40h',
+    "Nexus Réussite, Bac français, candidats libres, double cursus, Première, Terminale, carte d’examen, bacs blancs, Masterium, suivi parents, Tunis",
   openGraph: {
-    title: 'Nexus Réussite — Centre d\'entraînement académique premium',
+    title: 'Nexus Réussite — Accompagnement Bac français, candidats libres et double cursus',
     description:
-      "Stages intensifs, cours hebdomadaires, préparation examens, Nexus Select post-bac et suivi personnalisé à Mutuelleville.",
+      "Un parcours complet jusqu’au bac : carte d’examen, groupes réduits selon format, bacs blancs, bulletins, référent pédagogique, Masterium et suivi parents.",
     type: 'website',
     url: 'https://nexusreussite.academy',
-    images: [
-      {
-        url: 'https://nexusreussite.academy/images/og/nexus-homepage-og.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'Nexus Réussite — Centre d\'entraînement académique premium à Mutuelleville',
-      },
-    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Nexus Réussite — Centre d\'entraînement académique premium',
+    title: 'Nexus Réussite — Accompagnement Bac français, candidats libres et double cursus',
     description:
-      "Stages intensifs, cours hebdomadaires, préparation EAF, mathématiques, Nexus Select et suivi personnalisé.",
+      "Pas seulement des cours : un cadre, une méthode et un suivi humain pour piloter la trajectoire jusqu’au bac.",
   },
 };
 
+const homepageSourcePath = path.join(process.cwd(), 'Nexus_Reussite_Accueil.html');
+
+function getHomepageSource() {
+  const html = fs.readFileSync(homepageSourcePath, 'utf8');
+  const style = html.match(/<style>([\s\S]*?)<\/style>/i)?.[1] ?? '';
+  const body = html.match(/<body>([\s\S]*?)<\/body>/i)?.[1] ?? '';
+  const script = body.match(/<script>([\s\S]*?)<\/script>/i)?.[1] ?? '';
+  const bodyWithoutScript = body.replace(/<script>[\s\S]*?<\/script>/i, '');
+
+  return {
+    style,
+    script,
+    body: bodyWithoutScript,
+  };
+}
+
 export default function HomePage() {
+  const source = getHomepageSource();
+
   return (
-    <div className="relative min-h-screen bg-[#f7fbff] font-sans text-slate-950 selection:bg-[#dbeafe] selection:text-[#0f2f57]">
-      {/* Grain Overlay */}
-      <div className="grain-overlay fixed inset-0 pointer-events-none opacity-[0.025] z-[9999] mix-blend-multiply"
-        style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E\")" }}
+    <>
+      <link rel="stylesheet" href="/styles/nexus-tokens.css" />
+      <style dangerouslySetInnerHTML={{ __html: source.style }} />
+      <div dangerouslySetInnerHTML={{ __html: source.body }} />
+      <Script
+        id="nexus-homepage-interactions"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{ __html: source.script }}
       />
-
-      {/* Toast notifications */}
-      <Toaster
-        position="top-right"
-        richColors
-        theme="light"
-        toastOptions={{
-          className: 'bg-white border-slate-200 text-slate-950',
-        }}
-      />
-
-      {/* Navigation */}
-      <CorporateNavbar />
-
-      {/* SEO fallback for crawlers that don't execute JS */}
-      <noscript>
-        <div className="sr-only">
-          <h1>Nexus Réussite, centre d&apos;entraînement académique premium à Mutuelleville, Tunis.</h1>
-          <p>Stages intensifs, cours hebdomadaires, préparation EAF et mathématiques, Nexus Select post-bac et suivi personnalisé.</p>
-          <a href="/stages">Découvrir les stages intensifs</a>
-        </div>
-      </noscript>
-
-      {/* Main Content — 7 blocs */}
-      <main id="main-content" className="relative z-10 w-full overflow-hidden">
-        {/* 1. Hero premium orienté urgence */}
-        <HomeHero />
-
-        {/* 2-3. Dernière ligne droite 8 juin + Offre Première Finish */}
-        <UrgencyFinish />
-
-        {/* 4. Nexus Select — stage 40 h post-épreuves */}
-        <NexusSelect />
-
-        {/* 5. Nos accompagnements */}
-        <FlagshipOffers />
-
-        {/* 6. Forfaits et formules */}
-        <Forfaits />
-
-        {/* 7. Méthode Nexus + Confiance + Témoignages + FAQ + CTA final */}
-        <TrustSection />
-        <HomepageTestimonials />
-        <HomepageFinalCTA />
-      </main>
-
-      <CorporateFooter />
-
-      {/* Sticky WhatsApp CTA — mobile only, appears after scrolling past hero */}
-      <MobileStickyWhatsApp />
-    </div>
+    </>
   );
 }

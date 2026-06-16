@@ -62,7 +62,7 @@ export default function TrustSection() {
               Un cadre sérieux, exigeant et humain.
             </h2>
             <p className="mt-4 max-w-2xl text-base leading-8 text-slate-700">
-              Nexus Réussite accompagne les élèves qui veulent travailler sérieusement, comprendre leurs erreurs et progresser avec méthode. Le présentiel à Mutuelleville rassure les familles. Le suivi individualisé rend la progression visible.
+              Nexus Réussite accompagne les élèves qui veulent travailler sérieusement, comprendre leurs erreurs et progresser avec méthode. Le présentiel à Tunis rassure les familles. Le suivi individualisé rend la progression visible.
             </p>
           </div>
 

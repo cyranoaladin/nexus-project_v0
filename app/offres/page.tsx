@@ -62,7 +62,7 @@ const packs = [
     duration: "15 heures en vacances",
     features: [
       "Stage pendant vacances scolaires",
-      "Maximum 6 élèves par groupe",
+      "Maximum 5 élèves par groupe",
       "Focus sur chapitres clés",
       "Examens blancs corrigés",
       "Suivi post-stage inclus",

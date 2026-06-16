@@ -493,7 +493,7 @@ h1, h2, h3 {
     background-color: rgb(var(--color-surface-darker));
   }
 
-  .dashboard-soft .bg-gray-50\\/50 {
+  .dashboard-soft .bg-gray-50\/50 {
     background-color: rgba(var(--color-surface-darker), 0.6);
   }
 
@@ -509,11 +509,11 @@ h1, h2, h3 {
     background-color: rgb(var(--color-surface-card));
   }
 
-  .dashboard-soft .bg-white\\/70 {
+  .dashboard-soft .bg-white\/70 {
     background-color: rgba(var(--color-surface-card), 0.8);
   }
 
-  .dashboard-soft .bg-white\\/80 {
+  .dashboard-soft .bg-white\/80 {
     background-color: rgba(var(--color-surface-card), 0.9);
   }
 
