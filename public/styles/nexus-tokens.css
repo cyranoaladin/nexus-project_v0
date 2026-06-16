@@ -1,0 +1,205 @@
+/* ============================================================
+   NEXUS RÉUSSITE — Design Tokens (source unique de la charte)
+   Fichier : /public/styles/nexus-tokens.css
+   Toutes les pages importent ce fichier. Aucune page ne doit
+   définir sa propre palette concurrente.
+   ============================================================ */
+
+/* ── Palette ─────────────────────────────────────────────── */
+:root {
+  /* Nuit / Navy */
+  --nx-night:       #06172F;
+  --nx-navy:        #0B2A66;
+  --nx-navy-mid:    #102A56;
+  --nx-night-deep:  #081225;
+
+  /* Rouge Nexus */
+  --nx-red:         #D71920;
+  --nx-red-dark:    #A91218;
+  --nx-red-soft:    #FFF1F2;
+
+  /* Or accent */
+  --nx-gold:        #C9A24D;
+  --nx-gold-deep:   #A9802B;
+  --nx-gold-soft:   rgba(201,162,77,.12);
+
+  /* Crème / Ivoire (fond de page) */
+  --nx-ivory:       #F7F4EE;
+
+  /* Encre & gris */
+  --nx-ink:         #101C2F;
+  --nx-muted:       #5B6472;
+
+  /* Ligne & bordure */
+  --nx-line:        #E5E0D6;
+
+  /* Blanc */
+  --nx-white:       #FFFFFF;
+
+  /* Surfaces douces */
+  --nx-soft-blue:   #EEF3FB;
+
+  /* Vert (WhatsApp / succès) */
+  --nx-green:       #1FAF5B;
+  --nx-green-deep:  #176246;
+
+  /* Catégories (catalogue) */
+  --nx-cat-platform: #147E91;
+  --nx-cat-stage:    #C46A13;
+  --nx-cat-seconde:  #4B4AA3;
+
+  /* ── Typographie ───────────────────────────────────────── */
+  --nx-font-display: 'Fraunces', Georgia, serif;
+  --nx-font-body:    'Mulish', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Échelle typographique (clamp pour fluidité) */
+  --nx-text-xs:    11.5px;
+  --nx-text-sm:    13px;
+  --nx-text-base:  15px;
+  --nx-text-md:    16px;
+  --nx-text-lg:    18px;
+  --nx-text-xl:    22px;
+  --nx-text-2xl:   clamp(26px, 3.2vw, 36px);
+  --nx-text-3xl:   clamp(30px, 4vw, 48px);
+  --nx-text-hero:  clamp(34px, 5vw, 56px);
+  --nx-text-jumbo: clamp(40px, 6vw, 72px);
+
+  /* ── Rayons ────────────────────────────────────────────── */
+  --nx-radius-sm:   6px;
+  --nx-radius:      10px;
+  --nx-radius-lg:   16px;
+  --nx-radius-xl:   22px;
+  --nx-radius-pill: 999px;
+
+  /* ── Ombres (subtiles, premium) ────────────────────────── */
+  --nx-shadow-sm:   0 4px 14px rgba(6,23,47,.06);
+  --nx-shadow:      0 18px 48px rgba(6,23,47,.10);
+  --nx-shadow-lg:   0 28px 70px rgba(6,23,47,.18);
+  --nx-shadow-red:  0 16px 32px rgba(215,25,32,.22);
+  --nx-shadow-green:0 14px 30px rgba(31,175,91,.22);
+  --nx-shadow-gold: 0 12px 26px rgba(201,162,77,.18);
+
+  /* ── Espacement vertical généreux (premium = retenue) ──── */
+  --nx-space-section: 78px;
+  --nx-space-block:   44px;
+  --nx-space-card:    24px;
+  --nx-maxw:          1180px;
+
+  /* ── Transitions ───────────────────────────────────────── */
+  --nx-ease:        cubic-bezier(.2,.7,.3,1);
+  --nx-duration:    .18s;
+}
+
+/* ── Typographie de base ─────────────────────────────────── */
+body {
+  font-family: var(--nx-font-body);
+  color: var(--nx-ink);
+  background: var(--nx-ivory);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: var(--nx-font-display);
+  letter-spacing: 0;
+  line-height: 1.1;
+}
+
+/* ── Boutons unifiés ─────────────────────────────────────── */
+.nx-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 12px 20px;
+  border-radius: var(--nx-radius);
+  border: 1.5px solid transparent;
+  font-family: var(--nx-font-body);
+  font-weight: 900;
+  font-size: var(--nx-text-base);
+  line-height: 1;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform var(--nx-duration) var(--nx-ease),
+              box-shadow var(--nx-duration) var(--nx-ease),
+              background var(--nx-duration) var(--nx-ease),
+              border-color var(--nx-duration) var(--nx-ease);
+}
+.nx-btn:hover { transform: translateY(-2px); }
+
+/* Primaire (CTA principal) — rouge Nexus */
+.nx-btn-primary {
+  background: var(--nx-red);
+  color: var(--nx-white);
+  box-shadow: var(--nx-shadow-red);
+}
+.nx-btn-primary:hover { background: var(--nx-red-dark); }
+
+/* Secondaire (contour) */
+.nx-btn-secondary {
+  background: var(--nx-white);
+  color: var(--nx-navy);
+  border-color: var(--nx-line);
+  box-shadow: var(--nx-shadow-sm);
+}
+.nx-btn-secondary:hover { border-color: var(--nx-gold); }
+
+/* WhatsApp */
+.nx-btn-wa {
+  background: var(--nx-green);
+  color: var(--nx-white);
+  box-shadow: var(--nx-shadow-green);
+}
+.nx-btn-wa:hover { background: #17a34a; }
+
+/* Tertiaire (texte/lien) */
+.nx-btn-tertiary {
+  background: transparent;
+  color: var(--nx-red);
+  border: 0;
+  padding: 8px 4px;
+  min-height: auto;
+  font-size: var(--nx-text-sm);
+}
+.nx-btn-tertiary:hover { transform: none; text-decoration: underline; }
+
+/* Ghost (sur fond sombre) */
+.nx-btn-ghost {
+  background: transparent;
+  color: var(--nx-white);
+  border-color: rgba(255,255,255,.4);
+}
+.nx-btn-ghost:hover { background: rgba(255,255,255,.1); }
+
+/* Navy */
+.nx-btn-navy {
+  background: var(--nx-navy);
+  color: var(--nx-white);
+  box-shadow: 0 12px 24px rgba(7,26,58,.22);
+}
+.nx-btn-navy:hover { background: var(--nx-navy-mid); }
+
+/* ── Focus visible (accessibilité) ───────────────────────── */
+.nx-btn:focus-visible,
+a:focus-visible,
+summary:focus-visible,
+button:focus-visible {
+  outline: 3px solid rgba(215,25,32,.5);
+  outline-offset: 3px;
+}
+
+/* ── Utilitaires ─────────────────────────────────────────── */
+.nx-wrap {
+  width: min(var(--nx-maxw), calc(100% - 32px));
+  margin: 0 auto;
+}
+
+/* ── Micro-réassurance (LOT H) ───────────────────────────── */
+.nx-reassurance {
+  display: block;
+  margin-top: 8px;
+  font-size: var(--nx-text-xs);
+  color: var(--nx-muted);
+  font-weight: 600;
+}
