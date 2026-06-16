@@ -75,22 +75,43 @@ export interface QuotePDFData {
   reduction: string;
   reductionLabels: string[];
   hasDirectionOverride: boolean;
+  publicAnnual?: number | null;
+  monthlyDisplay?: string | null;
+  economie?: number | null;
+  internalNotes?: string;
   offer: QuoteOfferData;
   alternatives: QuoteAlternativeData[];
 }
 
-function text(value: unknown, fallback = 'À préciser'): string {
+/**
+ * Sanitize text for Helvetica rendering in PDFKit.
+ * - Replace narrow no-break space (U+202F) and no-break space (U+00A0) with regular space
+ * - Replace ≈ (U+2248) with ~ (Helvetica lacks ≈)
+ * - Replace — (em dash) with - if needed (Helvetica has it, but be safe)
+ * - Strip other non-Latin-1 characters that Helvetica cannot render
+ */
+function sanitize(str: string): string {
+  return str
+    .replace(/[\u202F\u00A0]/g, ' ')   // non-breaking spaces → regular space
+    .replace(/\u2248/g, '~')            // ≈ → ~
+    .replace(/'/g, "'")            // right single quote → apostrophe
+    .replace(/[\u201C\u201D]/g, '"')    // smart double quotes → straight
+    .replace(/\u2026/g, '...');         // … → ...
+}
+
+function text(value: unknown, fallback = 'A preciser'): string {
   if (typeof value !== 'string') return fallback;
-  const trimmed = value.trim();
+  const trimmed = sanitize(value.trim());
   return trimmed || fallback;
 }
 
 function clamp(value: string, max = 120): string {
-  return value.length > max ? `${value.slice(0, max - 1).trimEnd()}…` : value;
+  const s = sanitize(value);
+  return s.length > max ? `${s.slice(0, max - 1).trimEnd()}...` : s;
 }
 
-function money(value: number): string {
-  if (!Number.isFinite(value)) return 'À valider';
+function fmtMoney(value: number): string {
+  if (!Number.isFinite(value)) return 'A valider';
   return `${String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} TND`;
 }
 
@@ -252,33 +273,34 @@ function drawPartyBoxes(doc: PDFKit.PDFDocument, data: QuotePDFData, y: number):
 }
 
 function drawRecommendation(doc: PDFKit.PDFDocument, data: QuotePDFData, y: number): number {
-  const recoBoxH = (data as unknown as Record<string, unknown>).publicAnnual ? 96 : 88;
+  const pubAnnual = data.publicAnnual ?? undefined;
+  const eco = data.economie ?? undefined;
+  const monthlyRef = data.monthlyDisplay ? sanitize(data.monthlyDisplay) : undefined;
+  const hasSavings = pubAnnual && eco && eco > 0;
+
+  const recoBoxH = hasSavings ? 96 : 88;
   roundedBox(doc, PAGE.marginLeft, y, CONTENT_WIDTH, recoBoxH, COLORS.white);
-  label(doc, 'Synthèse de la recommandation', PAGE.marginLeft + 14, y + 15, 280);
+  label(doc, 'Synthese de la recommandation', PAGE.marginLeft + 14, y + 15, 280);
   doc.font(FONTS.bold).fontSize(18).fillColor(COLORS.navy)
     .text(data.offer.label, PAGE.marginLeft + 14, y + 31, { width: 310 });
   doc.font(FONTS.regular).fontSize(8.5).fillColor(COLORS.secondary)
     .text(clamp(data.offer.desc, 155), PAGE.marginLeft + 14, y + 57, { width: 310, lineGap: 2 });
 
   const totalX = PAGE.width - PAGE.marginRight - 170;
-  const pubAnnual = (data as unknown as Record<string, unknown>).publicAnnual as number | undefined;
-  const eco = (data as unknown as Record<string, unknown>).economie as number | undefined;
-  const monthlyRef = (data as unknown as Record<string, unknown>).monthlyDisplay as string | undefined;
-  const hasSavings = pubAnnual && eco && eco > 0;
   const navyH = hasSavings ? 72 : 60;
   doc.roundedRect(totalX, y + 14, 156, navyH, 5).fill(COLORS.navy);
   label(doc, 'Total indicatif', totalX + 12, y + 22, 132);
   doc.font(FONTS.bold).fontSize(14).fillColor(COLORS.white)
-    .text(data.offer.annualDisplay, totalX + 12, y + 34, { width: 132 });
+    .text(sanitize(data.offer.annualDisplay), totalX + 12, y + 34, { width: 132 });
   if (hasSavings) {
     doc.font(FONTS.regular).fontSize(6.2).fillColor('#B0C4DE')
-      .text(`Public ${money(pubAnnual!)} | Économie ${money(eco!)}`, totalX + 12, y + 52, { width: 132 });
+      .text(`Public ${fmtMoney(pubAnnual!)} | Economie ${fmtMoney(eco!)}`, totalX + 12, y + 52, { width: 132 });
     if (monthlyRef) {
       doc.font(FONTS.oblique).fontSize(6.2).fillColor('#DDE7F6')
         .text(monthlyRef, totalX + 12, y + 63, { width: 132 });
     }
     const reduction = data.reductionLabels.length
-      ? `${data.reduction} — ${data.reductionLabels.join(', ')}${data.hasDirectionOverride ? ' · validation direction' : ''}`
+      ? `${data.reduction} - ${data.reductionLabels.join(', ')}${data.hasDirectionOverride ? ' - validation direction' : ''}`
       : '';
     if (reduction) {
       doc.font(FONTS.regular).fontSize(6).fillColor('#DDE7F6')
@@ -286,8 +308,8 @@ function drawRecommendation(doc: PDFKit.PDFDocument, data: QuotePDFData, y: numb
     }
   } else {
     const fallbackText = monthlyRef || (data.reductionLabels.length
-      ? `${data.reduction} — ${data.reductionLabels.join(', ')}${data.hasDirectionOverride ? ' · validation direction' : ''}`
-      : 'Aucune réduction appliquée');
+      ? `${data.reduction} - ${data.reductionLabels.join(', ')}${data.hasDirectionOverride ? ' - validation direction' : ''}`
+      : 'Aucune reduction appliquee');
     doc.font(FONTS.regular).fontSize(6.5).fillColor('#DDE7F6')
       .text(clamp(fallbackText, 92), totalX + 12, y + 52, { width: 132 });
   }
@@ -342,7 +364,7 @@ function drawInstallmentsAndInclusions(doc: PDFKit.PDFDocument, data: QuotePDFDa
     doc.font(FONTS.regular).fontSize(8).fillColor(COLORS.text)
       .text(item.label, PAGE.marginLeft + 18, rowY, { width: 118 });
     doc.font(FONTS.bold).fontSize(8).fillColor(COLORS.navy)
-      .text(money(item.amount), PAGE.marginLeft + 120, rowY, { width: w - 142, align: 'right' });
+      .text(fmtMoney(item.amount), PAGE.marginLeft + 120, rowY, { width: w - 142, align: 'right' });
     rowY += 20;
   });
   if (installments.length === 1) {
@@ -356,7 +378,7 @@ function drawInstallmentsAndInclusions(doc: PDFKit.PDFDocument, data: QuotePDFDa
     doc.font(FONTS.bold).fontSize(8.5).fillColor(COLORS.navy)
       .text('TOTAL', PAGE.marginLeft + 18, rowY + 2, { width: 118 });
     doc.font(FONTS.bold).fontSize(9).fillColor(COLORS.navy)
-      .text(money(total), PAGE.marginLeft + 120, rowY + 2, { width: w - 142, align: 'right' });
+      .text(fmtMoney(total), PAGE.marginLeft + 120, rowY + 2, { width: w - 142, align: 'right' });
   }
 
   const x2 = PAGE.marginLeft + w + gap;
@@ -458,7 +480,7 @@ function drawPageTwo(doc: PDFKit.PDFDocument, data: QuotePDFData) {
     .text('Conditions de validation', condX + 12, y + 14);
   doc.font(FONTS.regular).fontSize(7.5).fillColor(COLORS.text)
     .text('Validation pédagogique, disponibilité du groupe, pièces administratives et règlement de la réservation.', condX + 12, y + 36, { width: w - 24, lineGap: 2 })
-    { const pubA = (data as unknown as Record<string, unknown>).publicAnnual as number | undefined;
+    { const pubA = data.publicAnnual;
     const condLine2 = pubA
       ? 'Le tarif et l\'échéancier restent indicatifs jusqu\'à inscription définitive. Le tarif fidélité dépend des places disponibles, pas d\'une échéance fixe.'
       : 'Le tarif et l\'échéancier restent indicatifs jusqu\'à inscription définitive.';
