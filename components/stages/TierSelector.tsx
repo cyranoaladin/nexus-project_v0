@@ -30,7 +30,7 @@ export function TierSelector() {
           average < 13 ? 'Renforcement des bases recommandé pour votre niveau actuel' :
           'Budget orienté vers l\'essentiel',
           'Méthodes fiables et exercices types Bac',
-          'Groupes de 6 élèves maximum avec bilan individualisé',
+          'Groupes de 5 élèves maximum avec bilan individualisé',
           'Épreuves blanches pour mesurer la progression'
         ],
         ctaText: 'Voir les académies Pallier 1',

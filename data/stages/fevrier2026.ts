@@ -330,7 +330,7 @@ export const faq: FAQ[] = [
   },
   {
     question: "Quel est le rythme pendant la semaine ?",
-    answer: "Pallier 1 : ~22h (5h/jour sur 4 jours + révisions + tests). Pallier 2 : ~30h (6h/jour sur 4 jours + exposé + tests). Adaptation possible au rythme Ramadan (organisation matin/après-midi). Groupes de 6 élèves maximum."
+    answer: "Pallier 1 : ~22h (5h/jour sur 4 jours + révisions + tests). Pallier 2 : ~30h (6h/jour sur 4 jours + exposé + tests). Adaptation possible au rythme Ramadan (organisation matin/après-midi). Groupes de 5 élèves maximum."
   },
   {
     question: "Qui encadre les stages ?",

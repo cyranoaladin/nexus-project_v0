@@ -19,7 +19,7 @@ const ACADEMIES = [
     tier: "essentielle",
     audience: "Terminale EDS Maths",
     duration: "24h (20h Maths + 4h Python)",
-    group: "6 élèves max",
+    group: "5 élèves max",
     expert: "Agrégés et Certifiés",
     category: ["terminale", "maths", "essentielle", "budget"],
     description: "Ne jouez pas à la roulette russe avec votre moyenne. Verrouillez le 14/20.",
@@ -43,7 +43,7 @@ const ACADEMIES = [
     tier: "premium",
     audience: "Terminale Maths Expertes + Prépas",
     duration: "32h",
-    group: "6 élèves max",
+    group: "5 élèves max",
     expert: "Agrégés et Certifiés & Jury Concours",
     category: ["terminale", "maths", "premium"],
     description: "Le programme des Prépas d'élite. Pour ceux qui trouvent le 16/20 banal.",
@@ -67,7 +67,7 @@ const ACADEMIES = [
     tier: "essentielle",
     audience: "Terminale EDS NSI",
     duration: "24h",
-    group: "6 élèves max",
+    group: "5 élèves max",
     expert: "Expert NSI & Jury ECE",
     category: ["terminale", "nsi", "essentielle", "budget"],
     description: "L'épreuve pratique est un champ de mines. Nous vous donnons le démineur.",
@@ -93,7 +93,7 @@ const ACADEMIES = [
     tier: "essentielle",
     audience: "Première EDS Maths",
     duration: "20h",
-    group: "6 élèves max",
+    group: "5 élèves max",
     expert: "Professeur Lycée",
     category: ["premiere", "maths", "essentielle", "budget"],
     description: "Stoppez l'hémorragie. Transformez vos lacunes en socle solide.",
@@ -117,7 +117,7 @@ const ACADEMIES = [
     tier: "premium",
     audience: "Première VIsant Maths Expertes",
     duration: "30h",
-    group: "6 élèves max",
+    group: "5 élèves max",
     expert: "Agrégés et Certifiés de Mathématiques",
     category: ["premiere", "maths", "premium"],
     description: "Pourquoi attendre la Terminale ? Prenez 6 mois d'avance sur la concurrence.",
@@ -141,7 +141,7 @@ const ACADEMIES = [
     tier: "essentielle",
     audience: "Première Spé NSI",
     duration: "20h",
-    group: "6 élèves max",
+    group: "5 élèves max",
     expert: "Professeur NSI",
     category: ["premiere", "nsi", "essentielle", "budget"],
     description: "Passez de l'autre côté de l'écran. Comprenez (enfin) ce que vous codez.",
@@ -165,7 +165,7 @@ const ACADEMIES = [
     tier: "premium",
     audience: "Première NSI Passionnés",
     duration: "30h",
-    group: "6 élèves max",
+    group: "5 élèves max",
     expert: "Ingénieur & Professeur",
     category: ["premiere", "nsi", "premium"],
     description: "Ne soyez pas utilisateur. Soyez Créateur. Le niveau ingénieur dès la Première.",
@@ -672,7 +672,7 @@ export default function AcademiesHiverPage() {
               <div className="text-center mb-12">
                 <span className="text-blue-400 font-bold tracking-[0.2em] text-xs uppercase mb-3 block">L'Obsession de la Qualité</span>
                 <h3 className="text-3xl md:text-4xl font-black text-white">LA PÉDAGOGIE DE <span className="text-blue-500">PRÉCISION</span></h3>
-                <p className="text-slate-300 mt-4 text-lg">Pourquoi nous limitons nos groupes à <strong className="text-white">6 élèves</strong> (et pas un de plus).</p>
+                <p className="text-slate-300 mt-4 text-lg">Pourquoi nous limitons nos groupes à <strong className="text-white">5 élèves</strong> (et pas un de plus).</p>
               </div>
 
               <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">

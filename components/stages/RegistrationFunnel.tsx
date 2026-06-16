@@ -34,7 +34,7 @@ export function RegistrationFunnel({ academies }: RegistrationFunnelProps) {
     'Bilan individualisé (20-30 min)',
     'Plan de travail personnalisé jusqu\'au Bac',
     'Accès ressources numériques',
-    'Suivi personnalisé (6 élèves max)'
+    'Suivi personnalisé (5 élèves max)'
   ];
 
   const badges = [
