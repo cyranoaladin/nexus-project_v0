@@ -124,6 +124,52 @@
     }
     .button.navy:hover { background: var(--navy-2); }
 
+    .lead-capture {
+      margin-top: 24px;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      padding: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.08);
+      text-align: left;
+    }
+    .lead-capture label {
+      display: grid;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 900;
+      color: rgba(255, 255, 255, 0.82);
+    }
+    .lead-capture input,
+    .lead-capture select {
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 9px 10px;
+      font: inherit;
+      font-size: 13px;
+      color: var(--ink);
+      background: var(--white);
+    }
+    .lead-capture button {
+      grid-column: 1 / -1;
+      min-height: 42px;
+      border: 0;
+      border-radius: var(--radius);
+      background: var(--red);
+      color: var(--white);
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .lead-capture-status {
+      grid-column: 1 / -1;
+      min-height: 18px;
+      color: rgba(255, 255, 255, 0.82);
+      font-size: 13px;
+    }
+
     .hero {
       color: var(--white);
       background:
@@ -525,6 +571,15 @@
       box-shadow: 0 10px 24px rgba(7, 26, 58, 0.08);
     }
     details.offer-detail[open] summary::after { transform: rotate(180deg); }
+    .card.offer details.offer-detail[data-controlled-detail]:not([open]) {
+      display: none;
+    }
+    .card.offer details.offer-detail[data-controlled-detail] summary {
+      display: none;
+    }
+    .card.offer details.offer-detail[data-controlled-detail] .offer-detail-body {
+      margin-top: 0;
+    }
     .offer-detail-body {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -565,6 +620,13 @@
       cursor: pointer;
       font-family: inherit;
       text-decoration: none;
+    }
+    .offer-actions .detail-link:hover,
+    .offer-actions .detail-link:focus-visible,
+    .offer-actions .detail-link[aria-expanded="true"] {
+      color: var(--navy);
+      text-decoration: underline;
+      text-underline-offset: 4px;
     }
 
     .table-wrap {
@@ -712,6 +774,7 @@
       .mini-columns {
         grid-template-columns: 1fr;
       }
+      .lead-capture { grid-template-columns: 1fr; }
       .hero { padding-top: 54px; }
     }
 
@@ -883,8 +946,59 @@
       flex-wrap: wrap;
       font-size: 14px;
     }
-  .offer-detail > summary { display: none; }
-</style>
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "name": "Nexus Réussite",
+        "url": "https://nexusreussite.academy",
+        "logo": "https://nexusreussite.academy/images/logo_slogan_nexus.webp",
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "telephone": "+21699192829",
+          "contactType": "admissions",
+          "availableLanguage": ["fr"]
+        }
+      },
+      {
+        "@type": "Course",
+        "name": "Parcours Nexus Réussite 2026/2027",
+        "description": "Catalogue des parcours candidats libres, élèves scolarisés, plateforme en ligne et stages Nexus Réussite.",
+        "provider": {
+          "@type": "Organization",
+          "name": "Nexus Réussite",
+          "sameAs": "https://nexusreussite.academy"
+        },
+        "educationalLevel": ["Troisième", "Seconde", "Première", "Terminale"],
+        "inLanguage": "fr"
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Comment savoir quelle offre choisir ?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "La recommandation Nexus se fait selon le niveau, le statut, l'établissement, les spécialités et le besoin principal de l'élève."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Peut-on payer en plusieurs fois ?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Oui. Les parcours annuels peuvent prévoir une réservation puis un échéancier transmis avec la recommandation."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
   <header class="topbar">
@@ -1027,8 +1141,8 @@
               <li>1 bilan de départ + 2 points de suivi</li>
               <li>1 atelier collectif en ligne / mois</li>
             </ul>
-            <details id="detail-premiere-libre-essentiel" class="offer-detail"><summary>Voir le détail</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Plateforme + suivi en ligne.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>EAF, mathématiques, tronc commun, calendrier, ressources · 1 bilan de départ + 2 points de suivi · 1 atelier collectif en ligne / mois</div><div class="detail-cell"><strong>Format</strong>Candidats libres. Plateforme + suivi en ligne.</div><div class="detail-cell"><strong>Paiement</strong>Paiement 475 TND réservation + 3 x 475 TND.</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details>
-          <div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Première Libre Essentiel — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Premi%C3%A8re%20Libre%20Essentiel.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-premiere-libre-essentiel">Voir le détail</button></div></article>
+            <details id="detail-premiere-libre-essentiel" class="offer-detail" data-controlled-detail><summary>Détails de la formule</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Plateforme + suivi en ligne.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>EAF, mathématiques, tronc commun, calendrier, ressources · 1 bilan de départ + 2 points de suivi · 1 atelier collectif en ligne / mois</div><div class="detail-cell"><strong>Format</strong>Candidats libres. Plateforme + suivi en ligne.</div><div class="detail-cell"><strong>Paiement</strong>475 TND réservation + 3 x 475 TND.</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details>
+          <div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Première Libre Essentiel — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Premi%C3%A8re%20Libre%20Essentiel.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-premiere-libre-essentiel" aria-controls="detail-premiere-libre-essentiel" aria-expanded="false">Détails et paiement</button></div></article>
           <article class="card offer redline featured">
             <span class="offer-category">Candidats libres</span>
             <div class="offer-top"><div><h3>Première Libre Accompagnée</h3><p class="offer-for"><strong>Pour qui ?</strong> Présentiel + plateforme.</p><p class="muted">Présentiel + plateforme.</p></div><span class="pill">Recommandé</span></div>
@@ -1038,8 +1152,8 @@
               <li>Plateforme, compte parent, bilans</li>
               <li>Carte d’examen + rappels</li>
             </ul>
-            <details id="detail-premiere-libre-accompagnee" class="offer-detail"><summary>Voir le détail</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Présentiel + plateforme.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Français écrit/oral, mathématiques, tronc commun, bacs blancs · Plateforme, compte parent, bilans · Carte d’examen + rappels</div><div class="detail-cell"><strong>Format</strong>Candidats libres. Présentiel + plateforme.</div><div class="detail-cell"><strong>Paiement</strong>Paiement 1 200 TND réservation + 3 traites (1 200 + 1 200 + 1 300 TND).</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details>
-          <div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Première Libre Accompagnée — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Premi%C3%A8re%20Libre%20Accompagn%C3%A9e.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-premiere-libre-accompagnee">Voir le détail</button></div></article>
+            <details id="detail-premiere-libre-accompagnee" class="offer-detail" data-controlled-detail><summary>Détails de la formule</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Présentiel + plateforme.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Français écrit/oral, mathématiques, tronc commun, bacs blancs · Plateforme, compte parent, bilans · Carte d’examen + rappels</div><div class="detail-cell"><strong>Format</strong>Candidats libres. Présentiel + plateforme.</div><div class="detail-cell"><strong>Paiement</strong>900 TND réservation + 8 versements de 500 TND.</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details>
+          <div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Première Libre Accompagnée — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Premi%C3%A8re%20Libre%20Accompagn%C3%A9e.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-premiere-libre-accompagnee" aria-controls="detail-premiere-libre-accompagnee" aria-expanded="false">Détails et paiement</button></div></article>
           <article class="card offer redline">
             <span class="offer-category">Candidats libres</span>
             <div class="offer-top"><div><h3>Première Libre Intensif</h3><p class="offer-for"><strong>Pour qui ?</strong> Pour arrivée tardive ou épreuve à repasser.</p><p class="muted">Pour arrivée tardive ou épreuve à repasser.</p></div><span class="pill">Prépa intensive</span></div>
@@ -1049,7 +1163,7 @@
               <li>Groupe de 6 élèves maximum</li>
               <li>Feuille de route priorisée</li>
             </ul>
-          <details id="detail-premiere-libre-intensif" class="offer-detail"><summary>Voir le détail</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Pour arrivée tardive ou épreuve à repasser.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Stage intensif + plateforme · Groupe de 6 élèves maximum · Feuille de route priorisée</div><div class="detail-cell"><strong>Format</strong>Candidats libres. Pour arrivée tardive ou épreuve à repasser.</div><div class="detail-cell"><strong>Paiement</strong>990 à 1 490 TND</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Première Libre Intensif — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Premi%C3%A8re%20Libre%20Intensif.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-premiere-libre-intensif">Voir le détail</button></div></article>
+          <details id="detail-premiere-libre-intensif" class="offer-detail" data-controlled-detail><summary>Détails de la formule</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Pour arrivée tardive ou épreuve à repasser.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Stage intensif + plateforme · Groupe de 6 élèves maximum · Feuille de route priorisée</div><div class="detail-cell"><strong>Format</strong>Candidats libres. Pour arrivée tardive ou épreuve à repasser.</div><div class="detail-cell"><strong>Paiement</strong>990 à 1 490 TND</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Première Libre Intensif — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Premi%C3%A8re%20Libre%20Intensif.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-premiere-libre-intensif" aria-controls="detail-premiere-libre-intensif" aria-expanded="false">Détails et paiement</button></div></article>
         </div>
 
         <div id="terminale-libre" class="section-head offset-top">
@@ -1074,8 +1188,8 @@
               <li>Spécialités, tronc commun, Grand Oral</li>
               <li>3 bilans parents</li>
             </ul>
-            <details id="detail-terminale-libre-online" class="offer-detail"><summary>Voir le détail</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>100 % en ligne.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Plateforme + lives collectifs + suivi · Spécialités, tronc commun, Grand Oral · 3 bilans parents</div><div class="detail-cell"><strong>Format</strong>Candidats libres. 100 % en ligne.</div><div class="detail-cell"><strong>Paiement</strong>Paiement 700 TND réservation + 3 traites (700 + 700 + 800 TND).</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details>
-          <div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Terminale Libre Online — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Terminale%20Libre%20Online.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-terminale-libre-online">Voir le détail</button></div></article>
+            <details id="detail-terminale-libre-online" class="offer-detail" data-controlled-detail><summary>Détails de la formule</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>100 % en ligne.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Plateforme + lives collectifs + suivi · Spécialités, tronc commun, Grand Oral · 3 bilans parents</div><div class="detail-cell"><strong>Format</strong>Candidats libres. 100 % en ligne.</div><div class="detail-cell"><strong>Paiement</strong>700 TND réservation + 3 traites (700 + 700 + 800 TND).</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details>
+          <div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Terminale Libre Online — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Terminale%20Libre%20Online.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-terminale-libre-online" aria-controls="detail-terminale-libre-online" aria-expanded="false">Détails et paiement</button></div></article>
           <article class="card offer redline featured">
             <span class="offer-category">Candidats libres</span>
             <div class="offer-top"><div><h3>Terminale Libre Mixte</h3><p class="offer-for"><strong>Pour qui ?</strong> Présentiel + plateforme.</p><p class="muted">Présentiel + plateforme.</p></div><span class="pill">Parcours complet</span></div>
@@ -1085,8 +1199,8 @@
               <li>Bacs blancs, plateforme, compte parent, bilans</li>
               <li>Carte d’examen + feuille de route</li>
             </ul>
-            <details id="detail-terminale-libre-mixte" class="offer-detail"><summary>Voir le détail</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Présentiel + plateforme.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>2 spécialités, Grand Oral, tronc commun, option éventuelle · Bacs blancs, plateforme, compte parent, bilans · Carte d’examen + feuille de route</div><div class="detail-cell"><strong>Format</strong>Candidats libres. Présentiel + plateforme.</div><div class="detail-cell"><strong>Paiement</strong>Tarif et paiement Tarif public : 8 750 TND / an. Tarif campagne / fidélité : référence actuelle : 7 900 TND / an. Paiement : 1 900 TND réservation + 3 traites de 2 000 TND. Pas d’échéance fixe — des places limitées. Une fois les groupes constitués, les inscriptions à ce tarif peuvent être closes faute de place.</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details>
-          <div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Terminale Libre Mixte — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Terminale%20Libre%20Mixte.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-terminale-libre-mixte">Voir le détail</button></div></article>
+            <details id="detail-terminale-libre-mixte" class="offer-detail" data-controlled-detail><summary>Détails de la formule</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Présentiel + plateforme.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>2 spécialités, Grand Oral, tronc commun, option éventuelle · Bacs blancs, plateforme, compte parent, bilans · Carte d’examen + feuille de route</div><div class="detail-cell"><strong>Format</strong>Candidats libres. Présentiel + plateforme.</div><div class="detail-cell"><strong>Paiement</strong>Tarif public : 8 750 TND / an. Tarif campagne / fidélité : 7 900 TND / an. Paiement : 1 900 TND réservation + 3 traites de 2 000 TND. Pas d’échéance fixe — des places limitées. Une fois les groupes constitués, les inscriptions à ce tarif peuvent être closes faute de place.</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details>
+          <div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Terminale Libre Mixte — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Terminale%20Libre%20Mixte.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-terminale-libre-mixte" aria-controls="detail-terminale-libre-mixte" aria-expanded="false">Détails et paiement</button></div></article>
           <article class="card offer redline featured">
             <span class="offer-category">Candidats libres</span>
             <div class="offer-top"><div><h3>Terminale Libre Premium</h3><p class="offer-for"><strong>Pour qui ?</strong> Présentiel + plateforme + coaching.</p><p class="muted">Présentiel + plateforme + coaching.</p></div><span class="pill">Suivi renforcé</span></div>
@@ -1096,8 +1210,8 @@
               <li>Suivi parents renforcé, bacs blancs renforcés</li>
               <li>6 h urgence en ligne incluses</li>
             </ul>
-            <details id="detail-terminale-libre-premium" class="offer-detail"><summary>Voir le détail</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Présentiel + plateforme + coaching.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>2 spécialités, tronc commun, Grand Oral, option · Suivi parents renforcé, bacs blancs renforcés · 6 h urgence en ligne incluses</div><div class="detail-cell"><strong>Format</strong>Candidats libres. Présentiel + plateforme + coaching.</div><div class="detail-cell"><strong>Paiement</strong>Paiement 2 400 TND réservation + 3 traites de 2 500 TND.</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details>
-          <div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Terminale Libre Premium — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Terminale%20Libre%20Premium.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-terminale-libre-premium">Voir le détail</button></div></article>
+            <details id="detail-terminale-libre-premium" class="offer-detail" data-controlled-detail><summary>Détails de la formule</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Présentiel + plateforme + coaching.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>2 spécialités, tronc commun, Grand Oral, option · Suivi parents renforcé, bacs blancs renforcés · 6 h urgence en ligne incluses</div><div class="detail-cell"><strong>Format</strong>Candidats libres. Présentiel + plateforme + coaching.</div><div class="detail-cell"><strong>Paiement</strong>1 500 TND réservation + 4 versements de 2 100 TND.</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details>
+          <div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Terminale Libre Premium — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Terminale%20Libre%20Premium.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-terminale-libre-premium" aria-controls="detail-terminale-libre-premium" aria-expanded="false">Détails et paiement</button></div></article>
         </div>
       </div>
     </section>
@@ -1113,33 +1227,33 @@
           <article class="card offer">
             <span class="offer-category">Plateforme</span>
             <div class="offer-top"><div><h3>Plateforme Autonomie</h3><p class="offer-for"><strong>Pour qui ?</strong> Ressources, fiches, exercices, sujets, parcours.</p><p class="muted">Ressources, fiches, exercices, sujets, parcours.</p></div><span class="pill">Autonome</span></div>
-            <div><div class="price-main">590 TND / an</div><div class="price-sub">ou 69 TND / mois</div></div>
+            <div><div class="price-main">590 TND / an</div><div class="price-sub">ou 69 TND / mois, soit 238 TND économisés en annuel</div></div>
             <ul class="list"><li>Ressources structurées</li><li>Compte parent et bilans selon formule</li><li>Cadre Nexus à distance</li></ul>
             <div class="mini-columns">
               <div class="mini-note"><strong>Ce que c’est</strong><span class="muted">Ressources, parcours, fiches, exercices et sujets pour travailler avec un cadre.</span></div>
               <div class="mini-note"><strong>Ce que ce n’est pas</strong><span class="muted">Un suivi individualisé ou un cours hebdomadaire.</span></div>
             </div>
-          <details id="detail-plateforme-autonomie" class="offer-detail"><summary>Voir le détail</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Ressources, fiches, exercices, sujets, parcours.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Ressources structurées · Compte parent et bilans selon formule · Cadre Nexus à distance</div><div class="detail-cell"><strong>Format</strong>Plateforme. Ressources, fiches, exercices, sujets, parcours.</div><div class="detail-cell"><strong>Paiement</strong>590 TND / an</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Plateforme Autonomie — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Plateforme%20Autonomie.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-plateforme-autonomie">Voir le détail</button></div></article>
+          <details id="detail-plateforme-autonomie" class="offer-detail" data-controlled-detail><summary>Détails de la formule</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Ressources, fiches, exercices, sujets, parcours.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Ressources structurées · Compte parent et bilans selon formule · Cadre Nexus à distance</div><div class="detail-cell"><strong>Format</strong>Plateforme. Ressources, fiches, exercices, sujets, parcours.</div><div class="detail-cell"><strong>Paiement</strong>590 TND / an</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Plateforme Autonomie — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Plateforme%20Autonomie.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-plateforme-autonomie" aria-controls="detail-plateforme-autonomie" aria-expanded="false">Détails et paiement</button></div></article>
           <article class="card offer">
             <span class="offer-category">Plateforme</span>
             <div class="offer-top"><div><h3>Plateforme Suivi</h3><p class="offer-for"><strong>Pour qui ?</strong> Plateforme + compte parent + bilans.</p><p class="muted">Plateforme + compte parent + bilans.</p></div><span class="pill">1 live / mois</span></div>
-            <div><div class="price-main">1 490 TND / an</div><div class="price-sub">ou 160 TND / mois</div></div>
+            <div><div class="price-main">1 490 TND / an</div><div class="price-sub">ou 160 TND / mois, soit 430 TND économisés en annuel</div></div>
             <ul class="list"><li>Ressources structurées</li><li>Compte parent et bilans selon formule</li><li>Cadre Nexus à distance</li></ul>
             <div class="mini-columns">
               <div class="mini-note"><strong>Ce que c’est</strong><span class="muted">Plateforme, compte parent, bilans et live collectif mensuel.</span></div>
               <div class="mini-note"><strong>Ce que ce n’est pas</strong><span class="muted">Un cours particulier hebdomadaire.</span></div>
             </div>
-          <details id="detail-plateforme-suivi" class="offer-detail"><summary>Voir le détail</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Plateforme + compte parent + bilans.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Ressources structurées · Compte parent et bilans selon formule · Cadre Nexus à distance</div><div class="detail-cell"><strong>Format</strong>Plateforme. Plateforme + compte parent + bilans.</div><div class="detail-cell"><strong>Paiement</strong>1 490 TND / an</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Plateforme Suivi — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Plateforme%20Suivi.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-plateforme-suivi">Voir le détail</button></div></article>
+          <details id="detail-plateforme-suivi" class="offer-detail" data-controlled-detail><summary>Détails de la formule</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Plateforme + compte parent + bilans.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Ressources structurées · Compte parent et bilans selon formule · Cadre Nexus à distance</div><div class="detail-cell"><strong>Format</strong>Plateforme. Plateforme + compte parent + bilans.</div><div class="detail-cell"><strong>Paiement</strong>1 490 TND / an</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Plateforme Suivi — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Plateforme%20Suivi.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-plateforme-suivi" aria-controls="detail-plateforme-suivi" aria-expanded="false">Détails et paiement</button></div></article>
           <article class="card offer featured">
             <span class="offer-category">Plateforme</span>
             <div class="offer-top"><div><h3>Plateforme Accompagnée</h3><p class="offer-for"><strong>Pour qui ?</strong> Lives + bilans + correction ponctuelle.</p><p class="muted">Lives + bilans + correction ponctuelle.</p></div><span class="pill">Idéal hors Tunis</span></div>
-            <div><div class="price-main">2 900 TND / an</div><div class="price-sub">ou 290 TND / mois</div></div>
+            <div><div class="price-main">2 900 TND / an</div><div class="price-sub">ou 290 TND / mois, soit 580 TND économisés en annuel</div></div>
             <ul class="list"><li>Ressources structurées</li><li>Compte parent et bilans selon formule</li><li>Cadre Nexus à distance</li></ul>
             <div class="mini-columns">
               <div class="mini-note"><strong>Ce que c’est</strong><span class="muted">Plateforme + live hebdomadaire en groupe de 10 élèves maximum + suivi.</span></div>
               <div class="mini-note"><strong>Ce que ce n’est pas</strong><span class="muted">Un accompagnement individuel illimité.</span></div>
             </div>
-          <details id="detail-plateforme-accompagnee" class="offer-detail"><summary>Voir le détail</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Lives + bilans + correction ponctuelle.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Ressources structurées · Compte parent et bilans selon formule · Cadre Nexus à distance</div><div class="detail-cell"><strong>Format</strong>Plateforme. Lives + bilans + correction ponctuelle.</div><div class="detail-cell"><strong>Paiement</strong>2 900 TND / an</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Plateforme Accompagnée — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Plateforme%20Accompagn%C3%A9e.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-plateforme-accompagnee">Voir le détail</button></div></article>
+          <details id="detail-plateforme-accompagnee" class="offer-detail" data-controlled-detail><summary>Détails de la formule</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Lives + bilans + correction ponctuelle.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Ressources structurées · Compte parent et bilans selon formule · Cadre Nexus à distance</div><div class="detail-cell"><strong>Format</strong>Plateforme. Lives + bilans + correction ponctuelle.</div><div class="detail-cell"><strong>Paiement</strong>2 900 TND / an</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Plateforme Accompagnée — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Plateforme%20Accompagn%C3%A9e.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-plateforme-accompagnee" aria-controls="detail-plateforme-accompagnee" aria-expanded="false">Détails et paiement</button></div></article>
         </div>
         <div class="action-row">
           <a class="button" aria-label="Recevoir l’offre en ligne adaptée — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%27offre%20Nexus%20en%20ligne%20adapt%C3%A9e%20%C3%A0%20mon%20enfant.">Recevoir l’offre en ligne adaptée</a>
@@ -1156,7 +1270,7 @@
         <div class="info-box">
           <h3>Nexus complète le lycée</h3>
           <p class="muted">Pour les élèves scolarisés, Nexus renforce le travail de l’établissement : méthode, entraînement, régularité, groupes réduits, plateforme, bilans parents et stages selon la formule.</p>
-          <p class="muted">Enseignants certifiés de l’enseignement français à l’étranger.</p>
+          <p class="muted">Enseignants certifiés et agrégés de l’enseignement français à l’étranger.</p>
           <p class="muted">Stages positionnés sur les périodes de vacances scolaires selon le calendrier de l’établissement. Dates précises communiquées avec la recommandation.</p>
           <p class="muted">Toussaint, hiver/février, printemps selon calendrier AEFE rythme nord.</p>
           <div class="action-row compact">
@@ -1171,16 +1285,16 @@
         <div class="grid four">
           <article class="card offer blueline">
             <span class="offer-category">Élèves scolarisés</span><h3>Première EAF Français</h3><p class="offer-for"><strong>Pour qui ?</strong> Français écrit + oral. Groupe : 6 élèves maximum. Rythme : 2 h / semaine.</p><p class="muted">Français écrit + oral. Groupe : 6 élèves maximum. Rythme : 2 h / semaine.</p><div class="price-main">dès 290 TND / mois</div>
-            <ul class="list"><li>Groupe réduit</li><li>Plateforme selon formule</li><li>Bilans parents et suivi</li></ul><details id="detail-premiere-eaf-francais" class="offer-detail"><summary>Voir le détail</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Français écrit + oral. Groupe : 6 élèves maximum. Rythme : 2 h / semaine.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Groupe réduit · Plateforme selon formule · Bilans parents et suivi</div><div class="detail-cell"><strong>Format</strong>Élèves scolarisés. Français écrit + oral. Groupe : 6 élèves maximum. Rythme : 2 h / semaine.</div><div class="detail-cell"><strong>Paiement</strong>Inclus Méthodes, textes, entraînements, oraux blancs, plateforme incluse. Annuel indicatif : 2 900 TND / an.</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Première EAF Français — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Premi%C3%A8re%20EAF%20Fran%C3%A7ais.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-premiere-eaf-francais">Voir le détail</button></div></article>
+            <ul class="list"><li>Groupe réduit</li><li>Plateforme selon formule</li><li>Bilans parents et suivi</li></ul><details id="detail-premiere-eaf-francais" class="offer-detail" data-controlled-detail><summary>Détails de la formule</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Français écrit + oral. Groupe : 6 élèves maximum. Rythme : 2 h / semaine.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Groupe réduit · Plateforme selon formule · Bilans parents et suivi</div><div class="detail-cell"><strong>Format</strong>Élèves scolarisés. Français écrit + oral. Groupe : 6 élèves maximum. Rythme : 2 h / semaine.</div><div class="detail-cell"><strong>Paiement</strong>Méthodes, textes, entraînements, oraux blancs, plateforme incluse. Annuel indicatif : 2 900 TND / an.</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Première EAF Français — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Premi%C3%A8re%20EAF%20Fran%C3%A7ais.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-premiere-eaf-francais" aria-controls="detail-premiere-eaf-francais" aria-expanded="false">Détails et paiement</button></div></article>
           <article class="card offer blueline">
             <span class="offer-category">Élèves scolarisés</span><h3>Première Maths Anticipées</h3><p class="offer-for"><strong>Pour qui ?</strong> Mathématiques épreuve anticipée. Groupe : 6 élèves maximum. Rythme : 2 h / semaine.</p><p class="muted">Mathématiques épreuve anticipée. Groupe : 6 élèves maximum. Rythme : 2 h / semaine.</p><div class="price-main">dès 290 TND / mois</div>
-            <ul class="list"><li>Groupe réduit</li><li>Plateforme selon formule</li><li>Bilans parents et suivi</li></ul><details id="detail-premiere-maths-anticipees" class="offer-detail"><summary>Voir le détail</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Mathématiques épreuve anticipée. Groupe : 6 élèves maximum. Rythme : 2 h / semaine.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Groupe réduit · Plateforme selon formule · Bilans parents et suivi</div><div class="detail-cell"><strong>Format</strong>Élèves scolarisés. Mathématiques épreuve anticipée. Groupe : 6 élèves maximum. Rythme : 2 h / semaine.</div><div class="detail-cell"><strong>Paiement</strong>Inclus Automatismes, QCM, exercices types, sujets blancs. Annuel indicatif : 2 900 TND / an.</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Première Maths Anticipées — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Premi%C3%A8re%20Maths%20Anticip%C3%A9es.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-premiere-maths-anticipees">Voir le détail</button></div></article>
+            <ul class="list"><li>Groupe réduit</li><li>Plateforme selon formule</li><li>Bilans parents et suivi</li></ul><details id="detail-premiere-maths-anticipees" class="offer-detail" data-controlled-detail><summary>Détails de la formule</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Mathématiques épreuve anticipée. Groupe : 6 élèves maximum. Rythme : 2 h / semaine.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Groupe réduit · Plateforme selon formule · Bilans parents et suivi</div><div class="detail-cell"><strong>Format</strong>Élèves scolarisés. Mathématiques épreuve anticipée. Groupe : 6 élèves maximum. Rythme : 2 h / semaine.</div><div class="detail-cell"><strong>Paiement</strong>Automatismes, QCM, exercices types, sujets blancs. Annuel indicatif : 2 900 TND / an.</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Première Maths Anticipées — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Premi%C3%A8re%20Maths%20Anticip%C3%A9es.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-premiere-maths-anticipees" aria-controls="detail-premiere-maths-anticipees" aria-expanded="false">Détails et paiement</button></div></article>
           <article class="card offer blueline featured">
             <span class="offer-category">Élèves scolarisés</span><div class="offer-top"><h3>Première Double Sécurité</h3><p class="offer-for"><strong>Pour qui ?</strong> Français + Mathématiques. Groupe : 6 élèves maximum. Rythme : 4 h / semaine.</p><span class="pill">Recommandé</span></div><p class="muted">Français + Mathématiques. Groupe : 6 élèves maximum. Rythme : 4 h / semaine.</p><div class="price-main">dès 490 TND / mois</div>
-            <ul class="list"><li>Groupe réduit</li><li>Plateforme selon formule</li><li>Bilans parents et suivi</li></ul><details id="detail-premiere-double-securite" class="offer-detail"><summary>Voir le détail</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Français + Mathématiques. Groupe : 6 élèves maximum. Rythme : 4 h / semaine.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Groupe réduit · Plateforme selon formule · Bilans parents et suivi</div><div class="detail-cell"><strong>Format</strong>Élèves scolarisés. Français + Mathématiques. Groupe : 6 élèves maximum. Rythme : 4 h / semaine.</div><div class="detail-cell"><strong>Paiement</strong>Inclus Plateforme et bilans parents inclus. Annuel indicatif : 4 900 TND / an.</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Première Double Sécurité — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Premi%C3%A8re%20Double%20S%C3%A9curit%C3%A9.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-premiere-double-securite">Voir le détail</button></div></article>
+            <ul class="list"><li>Groupe réduit</li><li>Plateforme selon formule</li><li>Bilans parents et suivi</li></ul><details id="detail-premiere-double-securite" class="offer-detail" data-controlled-detail><summary>Détails de la formule</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Français + Mathématiques. Groupe : 6 élèves maximum. Rythme : 4 h / semaine.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Groupe réduit · Plateforme selon formule · Bilans parents et suivi</div><div class="detail-cell"><strong>Format</strong>Élèves scolarisés. Français + Mathématiques. Groupe : 6 élèves maximum. Rythme : 4 h / semaine.</div><div class="detail-cell"><strong>Paiement</strong>Plateforme et bilans parents inclus. Annuel indicatif : 4 900 TND / an.</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Première Double Sécurité — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Premi%C3%A8re%20Double%20S%C3%A9curit%C3%A9.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-premiere-double-securite" aria-controls="detail-premiere-double-securite" aria-expanded="false">Détails et paiement</button></div></article>
           <article class="card offer blueline">
             <span class="offer-category">Élèves scolarisés</span><h3>Première Sciences</h3><p class="offer-for"><strong>Pour qui ?</strong> Maths + PC ou Maths + NSI. Groupe : 5 à 6 élèves. Rythme : 4 h / semaine.</p><p class="muted">Maths + PC ou Maths + NSI. Groupe : 5 à 6 élèves. Rythme : 4 h / semaine.</p><div class="price-main">dès 590 TND / mois</div>
-            <ul class="list"><li>Groupe réduit</li><li>Plateforme selon formule</li><li>Bilans parents et suivi</li></ul><details id="detail-premiere-sciences" class="offer-detail"><summary>Voir le détail</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Maths + PC ou Maths + NSI. Groupe : 5 à 6 élèves. Rythme : 4 h / semaine.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Groupe réduit · Plateforme selon formule · Bilans parents et suivi</div><div class="detail-cell"><strong>Format</strong>Élèves scolarisés. Maths + PC ou Maths + NSI. Groupe : 5 à 6 élèves. Rythme : 4 h / semaine.</div><div class="detail-cell"><strong>Paiement</strong>Tarif Annuel indicatif : 5 900 TND / an.</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Première Sciences — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Premi%C3%A8re%20Sciences.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-premiere-sciences">Voir le détail</button></div></article>
+            <ul class="list"><li>Groupe réduit</li><li>Plateforme selon formule</li><li>Bilans parents et suivi</li></ul><details id="detail-premiere-sciences" class="offer-detail" data-controlled-detail><summary>Détails de la formule</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Maths + PC ou Maths + NSI. Groupe : 5 à 6 élèves. Rythme : 4 h / semaine.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Groupe réduit · Plateforme selon formule · Bilans parents et suivi</div><div class="detail-cell"><strong>Format</strong>Élèves scolarisés. Maths + PC ou Maths + NSI. Groupe : 5 à 6 élèves. Rythme : 4 h / semaine.</div><div class="detail-cell"><strong>Paiement</strong>indicatif : 5 900 TND / an.</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Première Sciences — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Premi%C3%A8re%20Sciences.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-premiere-sciences" aria-controls="detail-premiere-sciences" aria-expanded="false">Détails et paiement</button></div></article>
         </div>
 
         <div id="terminale" class="section-head offset-top">
@@ -1193,22 +1307,22 @@
             <div class="offer-top"><div><h3>Terminale Spécialité Simple</h3><p class="offer-for"><strong>Pour qui ?</strong> Maths, PC, NSI ou autre selon demande.</p><p class="muted">Maths, PC, NSI ou autre selon demande.</p></div><span class="pill">5 élèves max</span></div>
             <div><div class="price-main">dès 390 TND / mois</div><div class="price-sub">2 h / semaine</div></div>
             <ul class="list"><li>Plateforme incluse</li><li>Bilans inclus</li><li>Échéancier transmis avec la recommandation</li></ul>
-            <details id="detail-terminale-specialite-simple" class="offer-detail"><summary>Voir le détail</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Maths, PC, NSI ou autre selon demande.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Plateforme incluse · Bilans inclus · Échéancier transmis avec la recommandation</div><div class="detail-cell"><strong>Format</strong>Élèves scolarisés. Maths, PC, NSI ou autre selon demande.</div><div class="detail-cell"><strong>Paiement</strong>Tarif annuel 3 900 TND / an.</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details>
-          <div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Terminale Spécialité Simple — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Terminale%20Sp%C3%A9cialit%C3%A9%20Simple.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-terminale-specialite-simple">Voir le détail</button></div></article>
+            <details id="detail-terminale-specialite-simple" class="offer-detail" data-controlled-detail><summary>Détails de la formule</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Maths, PC, NSI ou autre selon demande.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Plateforme incluse · Bilans inclus · Échéancier transmis avec la recommandation</div><div class="detail-cell"><strong>Format</strong>Élèves scolarisés. Maths, PC, NSI ou autre selon demande.</div><div class="detail-cell"><strong>Paiement</strong>3 900 TND / an.</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details>
+          <div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Terminale Spécialité Simple — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Terminale%20Sp%C3%A9cialit%C3%A9%20Simple.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-terminale-specialite-simple" aria-controls="detail-terminale-specialite-simple" aria-expanded="false">Détails et paiement</button></div></article>
           <article class="card offer blueline featured">
             <span class="offer-category">Élèves scolarisés</span>
             <div class="offer-top"><div><h3>Duo Terminale Nexus</h3><p class="offer-for"><strong>Pour qui ?</strong> Deux enseignements : Maths + PC, Maths + NSI, PC + Maths complémentaires, Maths + deuxième EDS.</p><p class="muted">Deux enseignements : Maths + PC, Maths + NSI, PC + Maths complémentaires, Maths + deuxième EDS.</p></div><span class="pill">Parcours complet</span></div>
             <div><div class="price-main">≈ 720 TND / mois</div><div class="price-sub">stages + Grand Oral inclus</div></div>
             <ul class="list"><li>Groupe de 5 élèves maximum</li><li>Stages Toussaint, hiver/février et printemps inclus selon calendrier AEFE rythme nord</li><li>Plateforme, compte parent, bilans</li></ul>
-            <details id="detail-duo-terminale-nexus" class="offer-detail"><summary>Voir le détail</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Deux enseignements : Maths + PC, Maths + NSI, PC + Maths complémentaires, Maths + deuxième EDS.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Groupe de 5 élèves maximum · Stages Toussaint, hiver/février et printemps inclus selon calendrier AEFE rythme nord · Plateforme, compte parent, bilans</div><div class="detail-cell"><strong>Format</strong>Élèves scolarisés. Deux enseignements : Maths + PC, Maths + NSI, PC + Maths complémentaires, Maths + deuxième EDS.</div><div class="detail-cell"><strong>Paiement</strong>Tarif et paiement Tarif campagne / fidélité : référence actuelle : 7 175 TND / an. Paiement : 1 775 TND réservation + 3 traites de 1 800 TND. Pas d’échéance fixe — des places limitées. Une fois les groupes constitués, les inscriptions à ce tarif peuvent être closes faute de place.</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details>
-          <div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Duo Terminale Nexus — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Duo%20Terminale%20Nexus.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-duo-terminale-nexus">Voir le détail</button></div></article>
+            <details id="detail-duo-terminale-nexus" class="offer-detail" data-controlled-detail><summary>Détails de la formule</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Deux enseignements : Maths + PC, Maths + NSI, PC + Maths complémentaires, Maths + deuxième EDS.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Groupe de 5 élèves maximum · Stages Toussaint, hiver/février et printemps inclus selon calendrier AEFE rythme nord · Plateforme, compte parent, bilans</div><div class="detail-cell"><strong>Format</strong>Élèves scolarisés. Deux enseignements : Maths + PC, Maths + NSI, PC + Maths complémentaires, Maths + deuxième EDS.</div><div class="detail-cell"><strong>Paiement</strong>Tarif campagne / fidélité : référence actuelle : 7 175 TND / an. Paiement : 1 200 TND réservation + 3 versements (1 550 + 2 750 + 1 675 TND). Pas d’échéance fixe — des places limitées. Une fois les groupes constitués, les inscriptions à ce tarif peuvent être closes faute de place.</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details>
+          <div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Duo Terminale Nexus — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Duo%20Terminale%20Nexus.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-duo-terminale-nexus" aria-controls="detail-duo-terminale-nexus" aria-expanded="false">Détails et paiement</button></div></article>
           <article class="card offer blueline featured">
             <span class="offer-category">Élèves scolarisés</span>
             <div class="offer-top"><div><h3>Excellence Terminale</h3><p class="offer-for"><strong>Pour qui ?</strong> Deux spécialités + Mathématiques expertes.</p><p class="muted">Deux spécialités + Mathématiques expertes.</p></div><span class="pill">Fidélité</span></div>
             <div><div class="price-main">≈ 960 TND / mois</div><div class="price-sub">Maths expertes + urgence incluses</div></div>
             <ul class="list"><li>Groupe de 5 élèves maximum</li><li>Stages Toussaint, hiver/février, printemps et Grand Oral scientifique inclus selon calendrier AEFE rythme nord</li><li>6 h urgence en ligne incluses</li></ul>
-            <details id="detail-excellence-terminale" class="offer-detail"><summary>Voir le détail</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Deux spécialités + Mathématiques expertes.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Groupe de 5 élèves maximum · Stages Toussaint, hiver/février, printemps et Grand Oral scientifique inclus selon calendrier AEFE rythme nord · 6 h urgence en ligne incluses</div><div class="detail-cell"><strong>Format</strong>Élèves scolarisés. Deux spécialités + Mathématiques expertes.</div><div class="detail-cell"><strong>Paiement</strong>Tarif et paiement Tarif campagne / fidélité : référence actuelle : 9 594 TND / an. Paiement : 2 394 TND réservation + 3 traites de 2 400 TND. Pas d’échéance fixe — des places limitées. Une fois les groupes constitués, les inscriptions à ce tarif peuvent être closes faute de place.</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details>
-          <div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Excellence Terminale — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Excellence%20Terminale.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-excellence-terminale">Voir le détail</button></div></article>
+            <details id="detail-excellence-terminale" class="offer-detail" data-controlled-detail><summary>Détails de la formule</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Deux spécialités + Mathématiques expertes.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Groupe de 5 élèves maximum · Stages Toussaint, hiver/février, printemps et Grand Oral scientifique inclus selon calendrier AEFE rythme nord · 6 h urgence en ligne incluses</div><div class="detail-cell"><strong>Format</strong>Élèves scolarisés. Deux spécialités + Mathématiques expertes.</div><div class="detail-cell"><strong>Paiement</strong>Tarif campagne / fidélité : référence actuelle : 9 594 TND / an. Paiement : 1 500 TND réservation + 3 versements (2 100 + 3 300 + 2 694 TND). Pas d’échéance fixe — des places limitées. Une fois les groupes constitués, les inscriptions à ce tarif peuvent être closes faute de place.</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details>
+          <div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Excellence Terminale — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Excellence%20Terminale.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-excellence-terminale" aria-controls="detail-excellence-terminale" aria-expanded="false">Détails et paiement</button></div></article>
         </div>
         <div class="action-row">
           <a class="button" aria-label="Recevoir la recommandation Terminale — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20une%20recommandation%20Nexus%20pour%20une%20Terminale.%20Voici%20les%20sp%C3%A9cialit%C3%A9s%20et%20le%20besoin%20%3A">Recevoir la recommandation Terminale</a>
@@ -1225,13 +1339,13 @@
         <div class="grid three">
           <article class="card offer">
             <span class="offer-category">Seconde / orientation</span><h3>Seconde Maths Méthode</h3><p class="offer-for"><strong>Pour qui ?</strong> Groupe : 6 élèves maximum. Rythme : 2 h / semaine. Maths, méthode, organisation, devoirs.</p><p class="muted">Groupe : 6 élèves maximum. Rythme : 2 h / semaine. Maths, méthode, organisation, devoirs.</p><div class="price-main">dès 250 TND / mois</div>
-            <ul class="list"><li>Méthode de travail</li><li>Consolidation scientifique</li><li>Orientation progressive</li></ul><details id="detail-seconde-maths-methode" class="offer-detail"><summary>Voir le détail</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Groupe : 6 élèves maximum. Rythme : 2 h / semaine. Maths, méthode, organisation, devoirs.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Méthode de travail · Consolidation scientifique · Orientation progressive</div><div class="detail-cell"><strong>Format</strong>Seconde / orientation. Groupe : 6 élèves maximum. Rythme : 2 h / semaine. Maths, méthode, organisation, devoirs.</div><div class="detail-cell"><strong>Paiement</strong>dès 250 TND / mois</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Seconde Maths Méthode — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Seconde%20Maths%20M%C3%A9thode.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-seconde-maths-methode">Voir le détail</button></div></article>
+            <ul class="list"><li>Méthode de travail</li><li>Consolidation scientifique</li><li>Orientation progressive</li></ul><details id="detail-seconde-maths-methode" class="offer-detail" data-controlled-detail><summary>Détails de la formule</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Groupe : 6 élèves maximum. Rythme : 2 h / semaine. Maths, méthode, organisation, devoirs.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Méthode de travail · Consolidation scientifique · Orientation progressive</div><div class="detail-cell"><strong>Format</strong>Seconde / orientation. Groupe : 6 élèves maximum. Rythme : 2 h / semaine. Maths, méthode, organisation, devoirs.</div><div class="detail-cell"><strong>Paiement</strong>dès 250 TND / mois</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Seconde Maths Méthode — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Seconde%20Maths%20M%C3%A9thode.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-seconde-maths-methode" aria-controls="detail-seconde-maths-methode" aria-expanded="false">Détails et paiement</button></div></article>
           <article class="card offer">
             <span class="offer-category">Seconde / orientation</span><h3>Seconde Sciences</h3><p class="offer-for"><strong>Pour qui ?</strong> Maths + physique-chimie. Groupe : 6 élèves maximum. Rythme : 4 h / semaine.</p><p class="muted">Maths + physique-chimie. Groupe : 6 élèves maximum. Rythme : 4 h / semaine.</p><div class="price-main">dès 430 TND / mois</div>
-            <ul class="list"><li>Méthode de travail</li><li>Consolidation scientifique</li><li>Orientation progressive</li></ul><details id="detail-seconde-sciences" class="offer-detail"><summary>Voir le détail</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Maths + physique-chimie. Groupe : 6 élèves maximum. Rythme : 4 h / semaine.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Méthode de travail · Consolidation scientifique · Orientation progressive</div><div class="detail-cell"><strong>Format</strong>Seconde / orientation. Maths + physique-chimie. Groupe : 6 élèves maximum. Rythme : 4 h / semaine.</div><div class="detail-cell"><strong>Paiement</strong>dès 430 TND / mois</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Seconde Sciences — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Seconde%20Sciences.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-seconde-sciences">Voir le détail</button></div></article>
+            <ul class="list"><li>Méthode de travail</li><li>Consolidation scientifique</li><li>Orientation progressive</li></ul><details id="detail-seconde-sciences" class="offer-detail" data-controlled-detail><summary>Détails de la formule</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Maths + physique-chimie. Groupe : 6 élèves maximum. Rythme : 4 h / semaine.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Méthode de travail · Consolidation scientifique · Orientation progressive</div><div class="detail-cell"><strong>Format</strong>Seconde / orientation. Maths + physique-chimie. Groupe : 6 élèves maximum. Rythme : 4 h / semaine.</div><div class="detail-cell"><strong>Paiement</strong>dès 430 TND / mois</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Seconde Sciences — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Seconde%20Sciences.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-seconde-sciences" aria-controls="detail-seconde-sciences" aria-expanded="false">Détails et paiement</button></div></article>
           <article class="card offer">
             <span class="offer-category">Seconde / orientation</span><h3>Seconde Coaching + Orientation</h3><p class="offer-for"><strong>Pour qui ?</strong> 3 rendez-vous dans l’année : choix des spécialités, méthode, bilan.</p><p class="muted">3 rendez-vous dans l’année : choix des spécialités, méthode, bilan.</p><div class="price-main">450 TND / cycle</div>
-            <ul class="list"><li>Méthode de travail</li><li>Consolidation scientifique</li><li>Orientation progressive</li></ul><details id="detail-seconde-coaching-orientation" class="offer-detail"><summary>Voir le détail</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>3 rendez-vous dans l’année : choix des spécialités, méthode, bilan.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Méthode de travail · Consolidation scientifique · Orientation progressive</div><div class="detail-cell"><strong>Format</strong>Seconde / orientation. 3 rendez-vous dans l’année : choix des spécialités, méthode, bilan.</div><div class="detail-cell"><strong>Paiement</strong>450 TND / cycle</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Seconde Coaching + Orientation — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Seconde%20Coaching%20%2B%20Orientation.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-seconde-coaching-orientation">Voir le détail</button></div></article>
+            <ul class="list"><li>Méthode de travail</li><li>Consolidation scientifique</li><li>Orientation progressive</li></ul><details id="detail-seconde-coaching-orientation" class="offer-detail" data-controlled-detail><summary>Détails de la formule</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>3 rendez-vous dans l’année : choix des spécialités, méthode, bilan.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Méthode de travail · Consolidation scientifique · Orientation progressive</div><div class="detail-cell"><strong>Format</strong>Seconde / orientation. 3 rendez-vous dans l’année : choix des spécialités, méthode, bilan.</div><div class="detail-cell"><strong>Paiement</strong>450 TND / cycle</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Seconde Coaching + Orientation — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Seconde%20Coaching%20%2B%20Orientation.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-seconde-coaching-orientation" aria-controls="detail-seconde-coaching-orientation" aria-expanded="false">Détails et paiement</button></div></article>
         </div>
       </div>
     </section>
@@ -1245,13 +1359,13 @@
         <div class="grid three">
           <article class="card offer">
             <span class="offer-category">Troisième / Brevet</span><h3>Brevet Maths</h3><p class="offer-for"><strong>Pour qui ?</strong> Groupe : 6 à 8 élèves maximum. Rythme : 2 h / semaine. Cours, exercices, sujets brevet.</p><p class="muted">Groupe : 6 à 8 élèves maximum. Rythme : 2 h / semaine. Cours, exercices, sujets brevet.</p><div class="price-main">dès 220 TND / mois</div>
-            <ul class="list"><li>Bases consolidées</li><li>Sujets types et méthode</li><li>Groupe réduit</li></ul><details id="detail-brevet-maths" class="offer-detail"><summary>Voir le détail</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Groupe : 6 à 8 élèves maximum. Rythme : 2 h / semaine. Cours, exercices, sujets brevet.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Bases consolidées · Sujets types et méthode · Groupe réduit</div><div class="detail-cell"><strong>Format</strong>Troisième / Brevet. Groupe : 6 à 8 élèves maximum. Rythme : 2 h / semaine. Cours, exercices, sujets brevet.</div><div class="detail-cell"><strong>Paiement</strong>dès 220 TND / mois</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Brevet Maths — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Brevet%20Maths.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-brevet-maths">Voir le détail</button></div></article>
+            <ul class="list"><li>Bases consolidées</li><li>Sujets types et méthode</li><li>Groupe réduit</li></ul><details id="detail-brevet-maths" class="offer-detail" data-controlled-detail><summary>Détails de la formule</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Groupe : 6 à 8 élèves maximum. Rythme : 2 h / semaine. Cours, exercices, sujets brevet.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Bases consolidées · Sujets types et méthode · Groupe réduit</div><div class="detail-cell"><strong>Format</strong>Troisième / Brevet. Groupe : 6 à 8 élèves maximum. Rythme : 2 h / semaine. Cours, exercices, sujets brevet.</div><div class="detail-cell"><strong>Paiement</strong>dès 220 TND / mois</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Brevet Maths — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Brevet%20Maths.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-brevet-maths" aria-controls="detail-brevet-maths" aria-expanded="false">Détails et paiement</button></div></article>
           <article class="card offer">
             <span class="offer-category">Troisième / Brevet</span><h3>Brevet Complet</h3><p class="offer-for"><strong>Pour qui ?</strong> Maths + Français + méthode. Groupe : 6 à 8 élèves. Rythme : 4 h / semaine. Examens blancs inclus.</p><p class="muted">Maths + Français + méthode. Groupe : 6 à 8 élèves. Rythme : 4 h / semaine. Examens blancs inclus.</p><div class="price-main">dès 390 TND / mois</div>
-            <ul class="list"><li>Bases consolidées</li><li>Sujets types et méthode</li><li>Groupe réduit</li></ul><details id="detail-brevet-complet" class="offer-detail"><summary>Voir le détail</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Maths + Français + méthode. Groupe : 6 à 8 élèves. Rythme : 4 h / semaine. Examens blancs inclus.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Bases consolidées · Sujets types et méthode · Groupe réduit</div><div class="detail-cell"><strong>Format</strong>Troisième / Brevet. Maths + Français + méthode. Groupe : 6 à 8 élèves. Rythme : 4 h / semaine. Examens blancs inclus.</div><div class="detail-cell"><strong>Paiement</strong>dès 390 TND / mois</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Brevet Complet — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Brevet%20Complet.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-brevet-complet">Voir le détail</button></div></article>
+            <ul class="list"><li>Bases consolidées</li><li>Sujets types et méthode</li><li>Groupe réduit</li></ul><details id="detail-brevet-complet" class="offer-detail" data-controlled-detail><summary>Détails de la formule</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Maths + Français + méthode. Groupe : 6 à 8 élèves. Rythme : 4 h / semaine. Examens blancs inclus.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Bases consolidées · Sujets types et méthode · Groupe réduit</div><div class="detail-cell"><strong>Format</strong>Troisième / Brevet. Maths + Français + méthode. Groupe : 6 à 8 élèves. Rythme : 4 h / semaine. Examens blancs inclus.</div><div class="detail-cell"><strong>Paiement</strong>dès 390 TND / mois</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Brevet Complet — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Brevet%20Complet.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-brevet-complet" aria-controls="detail-brevet-complet" aria-expanded="false">Détails et paiement</button></div></article>
           <article class="card offer">
             <span class="offer-category">Troisième / Brevet</span><h3>Stage Brevet</h3><p class="offer-for"><strong>Pour qui ?</strong> Volume : 15 à 20 h. Groupe : 8 élèves maximum.</p><p class="muted">Volume : 15 à 20 h. Groupe : 8 élèves maximum.</p><div class="price-main">390 à 590 TND</div>
-            <ul class="list"><li>Objectif ciblé</li><li>Groupe réduit</li><li>Dates précises communiquées avec la recommandation</li></ul><a class="button secondary" aria-label="Recevoir la recommandation Brevet — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20une%20recommandation%20Nexus%20pour%20la%20Troisi%C3%A8me%20%2F%20Brevet.%20Voici%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir la recommandation Brevet</a><details id="detail-stage-brevet" class="offer-detail"><summary>Voir le détail</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Volume : 15 à 20 h. Groupe : 8 élèves maximum.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Objectif ciblé · Groupe réduit · Dates précises communiquées avec la recommandation</div><div class="detail-cell"><strong>Format</strong>Troisième / Brevet. Volume : 15 à 20 h. Groupe : 8 élèves maximum.</div><div class="detail-cell"><strong>Paiement</strong>390 à 590 TND</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Stage Brevet — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Stage%20Brevet.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-stage-brevet">Voir le détail</button></div></article>
+            <ul class="list"><li>Objectif ciblé</li><li>Groupe réduit</li><li>Dates précises communiquées avec la recommandation</li></ul><a class="button secondary" aria-label="Recevoir la recommandation Brevet — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20une%20recommandation%20Nexus%20pour%20la%20Troisi%C3%A8me%20%2F%20Brevet.%20Voici%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir la recommandation Brevet</a><details id="detail-stage-brevet" class="offer-detail" data-controlled-detail><summary>Détails de la formule</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Volume : 15 à 20 h. Groupe : 8 élèves maximum.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Objectif ciblé · Groupe réduit · Dates précises communiquées avec la recommandation</div><div class="detail-cell"><strong>Format</strong>Troisième / Brevet. Volume : 15 à 20 h. Groupe : 8 élèves maximum.</div><div class="detail-cell"><strong>Paiement</strong>390 à 590 TND</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details><div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Stage Brevet — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Stage%20Brevet.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-stage-brevet" aria-controls="detail-stage-brevet" aria-expanded="false">Détails et paiement</button></div></article>
         </div>
       </div>
     </section>
@@ -1269,8 +1383,8 @@
             <div class="offer-top"><div><h3>Stage de prérentrée</h3><p class="offer-for"><strong>Pour qui ?</strong> Avant la reprise : remise à niveau, méthode et premiers chapitres selon le niveau.</p><p class="muted">Avant la reprise : remise à niveau, méthode et premiers chapitres selon le niveau.</p></div><span class="pill">Prépa intensive</span></div>
             <div><div class="price-main">dès 350 TND</div><div class="price-sub">selon niveau et volume</div></div>
             <ul class="list"><li>Objectif clair avant septembre</li><li>Groupe réduit et entraînement ciblé</li><li>Dates précises communiquées avec la recommandation</li></ul>
-            <details id="detail-stage-de-prerentree" class="offer-detail"><summary>Voir le détail</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Avant la reprise : remise à niveau, méthode et premiers chapitres selon le niveau.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Objectif clair avant septembre · Groupe réduit et entraînement ciblé · Dates précises communiquées avec la recommandation</div><div class="detail-cell"><strong>Format</strong>Stages. Avant la reprise : remise à niveau, méthode et premiers chapitres selon le niveau.</div><div class="detail-cell"><strong>Paiement</strong>Formats de prérentrée par niveau, avec tarif indiqué dans le tableau ci-dessous.</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details>
-          <div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Stage de prérentrée — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Stage%20de%20pr%C3%A9rentr%C3%A9e.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-stage-de-prerentree">Voir le détail</button></div></article>
+            <details id="detail-stage-de-prerentree" class="offer-detail" data-controlled-detail><summary>Détails de la formule</summary><div class="offer-detail-body"><div class="detail-cell"><strong>Pour qui ?</strong>Avant la reprise : remise à niveau, méthode et premiers chapitres selon le niveau.</div><div class="detail-cell"><strong>Ce qui est inclus</strong>Objectif clair avant septembre · Groupe réduit et entraînement ciblé · Dates précises communiquées avec la recommandation</div><div class="detail-cell"><strong>Format</strong>Stages. Avant la reprise : remise à niveau, méthode et premiers chapitres selon le niveau.</div><div class="detail-cell"><strong>Paiement</strong>et format du stage Formats de prérentrée par niveau, avec tarif indiqué dans le tableau ci-dessous.</div><div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div></div></details>
+          <div class="offer-actions"><a class="button" aria-label="Recevoir l’échéancier Stage de prérentrée — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20l%E2%80%99%C3%A9ch%C3%A9ancier%20Nexus%20pour%20l%E2%80%99offre%20Stage%20de%20pr%C3%A9rentr%C3%A9e.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir l’échéancier</a><button class="detail-link" type="button" data-target="detail-stage-de-prerentree" aria-controls="detail-stage-de-prerentree" aria-expanded="false">Détails et paiement</button></div></article>
         </div>
         <h3>Stages de prérentrée <span class="pill">Prépa intensive</span></h3>
         <div class="table-wrap">
@@ -1299,14 +1413,14 @@
           </table>
         </div>
         <details class="offer-detail stage-detail">
-          <summary>Voir le détail des stages</summary>
+          <summary>Calendrier et formats des stages</summary>
           <div class="offer-detail-body">
             <div class="detail-cell"><strong>Pour qui ?</strong>Élèves qui veulent préparer la rentrée, consolider une matière ou travailler une échéance précise pendant les vacances.</div>
             <div class="detail-cell"><strong>Ce qui est inclus</strong>Volume encadré, groupe réduit, entraînement ciblé, correction ou bilan selon le format retenu.</div>
             <div class="detail-cell"><strong>Format</strong>Prérentrée, Toussaint, hiver/février, printemps, Grand Oral, bac blanc ou sprint final selon le calendrier de l’établissement.</div>
             <div class="detail-cell"><strong>Paiement</strong>Tarif selon le niveau, le volume et le format du stage indiqué dans les repères ci-dessus.</div>
             <div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, matière, objectif du stage, groupe ouvert, créneau disponible et éventuelle déduction si inscription annuelle confirmée.</div>
-            
+            <div class="detail-cell full"><strong>Prochaine étape</strong><a class="button" aria-label="Recevoir le calendrier des stages — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le%20calendrier%20des%20stages%20Nexus%202026%2F2027.%20Voici%20le%20niveau%20et%20le%20besoin%20de%20mon%20enfant%20%3A">Recevoir le calendrier des stages</a></div>
           </div>
         </details>
         <div class="action-row">
@@ -1345,7 +1459,7 @@
               <li>Grand Oral intégré selon niveau</li>
               <li>Recommandation personnalisée</li>
             </ul>
-            <p class="muted">Enseignants certifiés de l’enseignement français à l’étranger.</p>
+            <p class="muted">Enseignants certifiés et agrégés de l’enseignement français à l’étranger.</p>
           </article>
         </div>
         <div class="callout">Le cours classique peut répondre à un besoin ponctuel. Nexus organise un parcours.</div>
@@ -1425,6 +1539,15 @@
           <a class="button" aria-label="Recevoir la recommandation — WhatsApp Nexus Réussite" href="https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20une%20recommandation%20Nexus%20pour%20mon%20enfant.%20Voici%20son%20niveau%20et%20son%20besoin%20%3A">Recevoir la recommandation</a>
           <a class="button secondary" href="#stages">Voir les stages</a>
         </div>
+        <form class="lead-capture" data-lead-capture data-source="catalogue-final" action="mailto:contact@nexusreussite.academy" method="post" enctype="text/plain">
+          <label>Parent<input name="name" autocomplete="name" required placeholder="Nom du parent"></label>
+          <label>Niveau<input name="level" required placeholder="Ex. Terminale"></label>
+          <label>Statut<select name="status" required><option value="">Choisir</option><option>Candidat libre</option><option>Élève scolarisé</option><option>Hors Tunis / en ligne</option></select></label>
+          <label>WhatsApp<input name="phone" type="tel" autocomplete="tel" required placeholder="99 19 28 29"></label>
+          <label>Email<input name="email" type="email" autocomplete="email" required placeholder="parent@email.com"></label>
+          <button type="submit">Recevoir un rappel</button>
+          <p class="lead-capture-status" aria-live="polite"></p>
+        </form>
       </div>
     </section>
   </main>
@@ -1467,6 +1590,16 @@
         return node ? node.textContent.trim() : fallback;
       }
 
+      function slugify(value) {
+        return String(value)
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-|-$/g, "")
+          .slice(0, 80) || "offre";
+      }
+
       document.querySelectorAll(".card.offer").forEach(function (card) {
         var title = firstText(card, "h3", "Offre Nexus");
         var category = closestCategory(card);
@@ -1495,12 +1628,15 @@
         if (!details) {
           details = document.createElement("details");
           details.className = "offer-detail";
-          details.innerHTML = "<summary>Voir le détail</summary>";
+          details.setAttribute("data-controlled-detail", "");
+          details.innerHTML = "<summary>Détails de la formule</summary>";
           card.appendChild(details);
         } else {
+          details.setAttribute("data-controlled-detail", "");
           var summary = details.querySelector("summary");
-          if (summary) summary.textContent = "Voir le détail";
+          if (summary) summary.textContent = "Détails de la formule";
         }
+        if (!details.id) details.id = "detail-" + slugify(title);
 
         if (!details.querySelector(".offer-detail-body")) {
           var original = Array.from(details.childNodes).filter(function (node) {
@@ -1518,9 +1654,14 @@
             '<div class="detail-cell"><strong>Ce qui est inclus</strong>' + (benefits.length ? benefits.join(" · ") : "Ressources, suivi et cadre Nexus selon formule.") + '</div>' +
             '<div class="detail-cell"><strong>Format</strong>' + (sub || "Présentiel, en ligne ou mixte selon l’offre.") + '</div>' +
             '<div class="detail-cell"><strong>Paiement</strong>' + (original || price) + '</div>' +
-            '<div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div>' +
-            '<div class="detail-cell full"><a class="button" aria-label="Recevoir l’échéancier ' + title + ' — WhatsApp Nexus Réussite" href="' + whatsapp + encodeURIComponent("Bonjour, je souhaite recevoir l’échéancier Nexus pour l’offre " + title + ". Voici le niveau et le besoin de mon enfant :") + '">Recevoir l’échéancier</a></div>';
+            '<div class="detail-cell full"><strong>Points à valider avant inscription</strong>Niveau, statut, établissement, spécialités, groupe ouvert, créneau disponible et échéancier.</div>';
           details.appendChild(body);
+        }
+
+        function syncDetailLink(link) {
+          link.setAttribute("aria-controls", details.id || "");
+          link.setAttribute("aria-expanded", details.open ? "true" : "false");
+          link.textContent = details.open ? "Masquer les détails" : "Détails et paiement";
         }
 
         if (!card.querySelector(".offer-actions")) {
@@ -1528,20 +1669,24 @@
           actions.className = "offer-actions";
           actions.innerHTML =
             '<a class="button" aria-label="Recevoir l’échéancier ' + title + ' — WhatsApp Nexus Réussite" href="' + whatsapp + encodeURIComponent("Bonjour, je souhaite recevoir l’échéancier Nexus pour l’offre " + title + ". Voici le niveau et le besoin de mon enfant :") + '">Recevoir l’échéancier</a>' +
-            '<button class="detail-link" type="button">Voir le détail</button>';
+            '<button class="detail-link" type="button">Détails et paiement</button>';
           card.appendChild(actions);
           actions.querySelector(".detail-link").dataset.bound = "true";
+          syncDetailLink(actions.querySelector(".detail-link"));
           actions.querySelector(".detail-link").addEventListener("click", function () {
             details.open = !details.open;
+            syncDetailLink(this);
             if (details.open) details.scrollIntoView({ block: "nearest", behavior: "smooth" });
           });
         }
         card.querySelectorAll(".detail-link").forEach(function (link) {
+          syncDetailLink(link);
           if (link.dataset.bound === "true") return;
           link.dataset.bound = "true";
           link.addEventListener("click", function (event) {
             event.preventDefault();
             details.open = !details.open;
+            syncDetailLink(link);
             if (details.open) details.scrollIntoView({ block: "nearest", behavior: "smooth" });
           });
         });
@@ -1555,6 +1700,37 @@
       window.addEventListener("scroll", syncSticky, { passive: true });
       window.addEventListener("resize", syncSticky);
       syncSticky();
+      document.querySelectorAll("[data-lead-capture]").forEach(function (form) {
+        form.addEventListener("submit", function (event) {
+          event.preventDefault();
+          var status = form.querySelector(".lead-capture-status");
+          var data = new FormData(form);
+          var payload = {
+            name: data.get("name"),
+            email: data.get("email"),
+            phone: data.get("phone"),
+            profile: data.get("status"),
+            interest: data.get("level"),
+            urgency: "recommandation",
+            source: form.getAttribute("data-source") || "catalogue",
+            message: "Demande de recommandation depuis le catalogue 2026/2027"
+          };
+          if (status) status.textContent = "Envoi en cours...";
+          fetch("/api/contact", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          })
+            .then(function (response) {
+              if (!response.ok) throw new Error("contact_failed");
+              if (status) status.textContent = "Demande reçue. Un conseiller Nexus vous recontacte.";
+              form.reset();
+            })
+            .catch(function () {
+              if (status) status.textContent = "Formulaire indisponible : écrivez-nous sur WhatsApp ou à contact@nexusreussite.academy.";
+            });
+        });
+      });
     })();
   </script>
 </body>
