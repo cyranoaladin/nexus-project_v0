@@ -1,19 +1,16 @@
 import { render, screen } from '@testing-library/react';
 import HomePage, { metadata } from '@/app/page';
 
-jest.mock('@/components/layout/CorporateNavbar', () => ({
-  CorporateNavbar: () => <div data-testid="navbar">Navbar</div>,
-}));
-jest.mock('@/components/layout/CorporateFooter', () => ({
-  CorporateFooter: () => <div data-testid="footer">Footer</div>,
-}));
-
 describe('HomePage', () => {
-  it('renders the homepage without crashing', () => {
+  it('renders the static marketing homepage without crashing', () => {
     const { container } = render(<HomePage />);
-    expect(screen.getByTestId('navbar')).toBeInTheDocument();
-    expect(screen.getByTestId('footer')).toBeInTheDocument();
+
     expect(container.firstChild).not.toBeNull();
+    expect(container.querySelector('header#top')).toBeInTheDocument();
+    expect(container.querySelector('footer')).toBeInTheDocument();
+    expect(screen.getAllByAltText('Nexus Réussite').length).toBeGreaterThan(0);
+    expect(screen.getByRole('heading', { name: /cadre premium pour préparer le bac français/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /forfaits courts et accompagnements ciblés/i })).toBeInTheDocument();
   });
 
   it('exports homepage metadata', () => {

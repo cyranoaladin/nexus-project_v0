@@ -118,6 +118,10 @@ describe('RBAC Matrix', () => {
   });
 
   afterAll(async () => {
+    if (!dbAvailable) {
+      return;
+    }
+
     console.log('🧹 Cleaning up RBAC test fixtures...');
 
     try {

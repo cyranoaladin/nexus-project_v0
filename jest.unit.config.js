@@ -5,6 +5,12 @@ const createJestConfig = nextJest({
 });
 
 const customJestConfig = {
+  roots: [
+    '<rootDir>/__tests__',
+    '<rootDir>/app',
+    '<rootDir>/components',
+    '<rootDir>/lib',
+  ],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: '<rootDir>/jest-environment-jsdom-with-fetch.js',
   transformIgnorePatterns: [
@@ -13,8 +19,12 @@ const customJestConfig = {
     '^.+\\.module\\.(css|sass|scss)$',
   ],
   moduleNameMapper: {
+    '^@prisma/client$': '<rootDir>/__mocks__/@prisma/client.js',
     '^@/(.*)$': '<rootDir>/$1',
   },
+  modulePathIgnorePatterns: [
+    '<rootDir>/.next/',
+  ],
   testMatch: [
     '**/__tests__/**/*.test.(js|ts|tsx)',
     '**/*.test.(js|ts|tsx)',

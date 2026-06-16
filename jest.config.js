@@ -7,6 +7,12 @@ const createJestConfig = nextJest({
 
 // Add any custom config to be passed to Jest
 const customJestConfig = {
+  roots: [
+    '<rootDir>/__tests__',
+    '<rootDir>/app',
+    '<rootDir>/components',
+    '<rootDir>/lib',
+  ],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: '<rootDir>/jest-environment-jsdom-with-fetch.js',
   transformIgnorePatterns: [
@@ -22,6 +28,7 @@ const customJestConfig = {
     '!**/node_modules/**',
   ],
   moduleNameMapper: {
+    '^@prisma/client$': '<rootDir>/__mocks__/@prisma/client.js',
     '^@/(.*)$': '<rootDir>/$1',
   },
   testMatch: [
