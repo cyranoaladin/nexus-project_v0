@@ -18,7 +18,27 @@ jest.mock('@/lib/prisma', () => ({
   prisma: {
     user: {
       findUnique: jest.fn().mockResolvedValue(null),
+      findFirst: jest.fn().mockResolvedValue(null),
       update: jest.fn(),
+    },
+    stageReservation: {
+      findFirst: jest.fn().mockResolvedValue(null),
+    },
+    contactLead: {
+      create: jest.fn().mockResolvedValue({
+        id: 'lead-test-1',
+        name: 'QA Tester',
+        email: 'qa@test.local',
+        phone: null,
+        profile: null,
+        interest: null,
+        urgency: null,
+        source: null,
+        notes: null,
+        status: 'NEW',
+        createdAt: new Date('2026-06-14T00:00:00.000Z'),
+        updatedAt: new Date('2026-06-14T00:00:00.000Z'),
+      }),
     },
   },
 }));
@@ -40,6 +60,10 @@ jest.mock('@/lib/password-reset-token', () => ({
 
 jest.mock('@/lib/email', () => ({
   sendPasswordResetEmail: jest.fn().mockResolvedValue(undefined),
+}));
+
+jest.mock('@/lib/email/mailer', () => ({
+  sendMail: jest.fn().mockResolvedValue({ ok: true, messageId: 'test-message-id' }),
 }));
 
 // ─── Helpers ────────────────────────────────────────────────────────────────

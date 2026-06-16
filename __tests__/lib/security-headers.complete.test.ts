@@ -31,6 +31,18 @@ describe('applySecurityHeaders', () => {
     expect(csp).toContain('script-src');
   });
 
+  it('should keep assistant quote tool CDN exceptions out of the global CSP', () => {
+    applySecurityHeaders(response);
+    const csp = response.headers.get('Content-Security-Policy') || '';
+    const scriptSrc = csp
+      .split(';')
+      .map((directive) => directive.trim())
+      .find((directive) => directive.startsWith('script-src')) || '';
+
+    expect(scriptSrc).not.toContain('https://cdn.tailwindcss.com');
+    expect(scriptSrc).not.toContain('https://cdnjs.cloudflare.com');
+  });
+
   it('should include frame-ancestors none in CSP', () => {
     applySecurityHeaders(response);
     const csp = response.headers.get('Content-Security-Policy');

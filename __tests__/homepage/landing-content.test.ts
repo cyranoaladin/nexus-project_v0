@@ -148,9 +148,9 @@ describe("Landing content — business invariants", () => {
   });
 
   describe("forfaits vs Select distinction", () => {
-    it("forfaits have a Select clarification note", () => {
-      expect(FORFAITS.selectNote).toContain("Nexus Select");
-      expect(FORFAITS.selectNote).toContain("40 h");
+    it("forfaits clarify they are short standard support, not annual catalogue offers", () => {
+      expect(FORFAITS.selectNote).toContain("accompagnement standard en petit groupe");
+      expect(FORFAITS.selectNote).toContain("offres 2026/2027");
     });
   });
 
