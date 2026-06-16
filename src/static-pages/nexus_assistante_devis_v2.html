@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Nexus Réussite — Conseil & devis interne 2026/2027</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Mulish:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#06172F;--navy:#0B2A66;--gold:#C9A24D;--gold-deep:#A07E2E;
+  --ivory:#FBF8F1;--paper:#fff;--ink:#1C2533;--muted:#5A6678;
+  --red:#B42318;--soft-red:#FBEAEA;--green:#1E7A46;--soft-green:#E8F4ED;
+  --line:rgba(6,23,47,.13);--shadow:0 10px 26px rgba(6,23,47,.07);--radius:12px;
+  --fd:"Fraunces",serif;--fb:"Mulish",sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ivory);color:var(--ink);font-family:var(--fb);font-size:15px;line-height:1.55}
+.wrap{max-width:1240px;margin:0 auto;padding:0 20px}
+h1,h2,h3,h4,legend{font-family:var(--fd);font-weight:600;color:var(--night)}
+a{color:var(--navy)}
+
+/* Header */
+header.app{background:linear-gradient(135deg,var(--night),var(--navy));color:#fff;border-bottom:3px solid var(--gold);padding:22px 0}
+header.app .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px}
+.brand img{height:46px;background:#fff;border-radius:8px;padding:4px 8px}
+.brand .fb{font-family:var(--fd);font-weight:700;font-size:21px;color:#fff}
+.brand .fb span{color:var(--gold)}
+.brand h1{font-size:20px;color:#fff;margin:0}
+.brand p{margin:2px 0 0;color:rgba(255,255,255,.75);font-size:13px}
+.pill{border:1px solid rgba(201,162,77,.5);border-radius:999px;padding:6px 13px;color:var(--gold);font-weight:800;text-transform:uppercase;font-size:11.5px;letter-spacing:.1em}
+.intbar{background:#FFF3CD;border-bottom:1px solid #E3BC51;color:#3a2c00;font-weight:700;font-size:13px}
+.intbar .wrap{display:flex;gap:14px;justify-content:space-between;flex-wrap:wrap;padding:9px 20px}
+.intbar span{font-weight:600}
+
+/* Layout */
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:22px;margin:22px auto 60px}
+@media(max-width:1000px){.layout{grid-template-columns:1fr}.summary{position:static!important}}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+form{padding:24px}
+fieldset{border:none;margin:0 0 24px;padding:0}
+legend{font-size:18px;margin-bottom:4px}
+.fnote{font-size:13px;color:var(--muted);margin-bottom:14px}
+.grid{display:grid;gap:13px}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr 1fr}
+@media(max-width:760px){.g2,.g3{grid-template-columns:1fr}}
+label.f{display:block;font-size:11.5px;text-transform:uppercase;font-weight:800;letter-spacing:.05em;color:var(--muted);margin-bottom:5px}
+input,select,textarea{width:100%;border:1.5px solid var(--line);border-radius:9px;padding:10px 12px;font:inherit;background:#fff;color:var(--ink)}
+input:focus,select:focus,textarea:focus{outline:2px solid rgba(201,162,77,.4);border-color:var(--gold)}
+textarea{min-height:66px;resize:vertical}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{position:relative}
+.chip input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.chip span{display:inline-flex;align-items:center;min-height:36px;border:1.5px solid var(--line);border-radius:999px;padding:7px 13px;background:#fff;color:var(--muted);font-weight:700;font-size:13.5px;cursor:pointer}
+.chip input:checked+span{background:var(--navy);border-color:var(--navy);color:#fff}
+.chip input:focus-visible+span{outline:2px solid var(--gold);outline-offset:2px}
+.sub{font-size:12.5px;color:var(--muted);margin-top:6px}
+.cond{display:none}
+.cond.on{display:block}
+.note-box{border:1px dashed var(--line);border-radius:9px;padding:10px 12px;background:#fff;color:var(--muted);font-size:13px;margin-top:10px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:4px}
+.btn{border:1.5px solid var(--line);border-radius:999px;padding:11px 18px;background:#fff;color:var(--navy);font-weight:800;font-size:14.5px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:7px}
+.btn.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn.gold{background:var(--gold);color:var(--night);border-color:var(--gold)}
+.btn.danger{color:var(--red)}
+.btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.formerr{display:none;color:var(--red);font-weight:800;font-size:14px}
+
+/* Examens fiche */
+details.fiche{margin-top:14px;border:1px solid var(--line);border-radius:10px;background:#fff}
+details.fiche>summary{cursor:pointer;padding:12px 14px;font-weight:800;color:var(--navy);font-size:14px}
+details.fiche .body{padding:0 14px 14px;font-size:13.5px;color:var(--ink)}
+details.fiche table{width:100%;border-collapse:collapse;margin:6px 0 12px}
+details.fiche th,details.fiche td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;font-size:13px}
+details.fiche th{color:var(--gold-deep);text-transform:uppercase;font-size:11px;letter-spacing:.06em}
+details.fiche td:last-child,details.fiche th:last-child{text-align:right}
+
+/* Summary aside */
+.summary{position:sticky;top:16px;align-self:start;padding:18px}
+.summary h2{font-size:16px;margin:0 0 10px}
+.sline{border-bottom:1px solid var(--line);padding:7px 0;font-size:13.5px}
+.sline b{display:block;color:var(--night);font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.scope{margin-top:12px}
+.scope h3{font-size:13px;margin:0 0 6px;color:var(--gold-deep);text-transform:uppercase;letter-spacing:.06em}
+.scope ul{margin:0;padding-left:16px;font-size:13px;display:grid;gap:3px}
+.alerts{display:grid;gap:7px;margin-top:12px}
+.alert{background:#FFF7ED;border:1px solid #FED7AA;border-radius:8px;padding:8px 10px;color:#7C2D12;font-size:12.5px}
+.alert.ok{background:var(--soft-green);border-color:#BBE6C9;color:#14532D}
+
+/* Results */
+#results{display:none;margin-top:18px}
+#results>h2{margin:6px 0}
+.intro{font-size:13.5px;color:var(--muted);margin-bottom:8px}
+.offers{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:820px){.offers{grid-template-columns:1fr}}
+.offer{padding:20px;border-top:4px solid var(--gold);display:flex;flex-direction:column;gap:11px;position:relative}
+.offer.alt{border-top-color:var(--navy)}
+.offer .badge{position:absolute;top:-12px;left:18px;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:4px 11px;background:var(--gold);color:var(--night)}
+.offer.alt .badge{background:var(--navy);color:#fff}
+.offer .ocat{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--gold-deep);margin-top:4px}
+.offer h3{font-size:19px;margin:0}
+.why{background:var(--ivory);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:13px}
+.why b{color:var(--navy)}
+.price{font-family:var(--fd);font-weight:700;font-size:27px;color:var(--night)}
+.price small{font-size:14px;color:var(--muted);font-weight:600;font-family:var(--fb)}
+.pub{font-size:12.5px;color:var(--muted)}
+.pub s{color:var(--red)}
+.inc{list-style:none;padding:0;margin:0;display:grid;gap:6px;font-size:13.5px}
+.inc li{padding-left:20px;position:relative}
+.inc li::before{content:"";position:absolute;left:0;top:5px;width:11px;height:11px;border-radius:3px;background:var(--soft-green);border:1.5px solid var(--green)}
+.ech{font-size:12.5px;color:var(--muted);border-left:3px solid var(--gold);padding:3px 0 3px 11px}
+.scarce{font-size:12px;color:var(--muted);background:var(--soft-red);border:1px solid rgba(180,35,24,.2);border-radius:8px;padding:7px 11px}
+.offer .foot{margin-top:auto}
+.compare{overflow:auto;margin-top:14px}
+.compare table{width:100%;border-collapse:collapse;font-size:13.5px}
+.compare th,.compare td{border-bottom:1px solid var(--line);padding:9px 10px;text-align:left}
+.compare th{background:var(--night);color:#fff;font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+.extras{margin-top:14px;padding:15px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.extras h3{font-size:14px;margin:0 0 9px}
+.team{margin-top:14px;font-size:12.5px;color:var(--muted);border:1px dashed var(--line);border-radius:9px;padding:10px 13px;background:#fff}
+
+/* Devis */
+#devisWrap{display:none;margin-top:18px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:12px}
+.devis{background:#fff;border:1px solid var(--line);border-radius:6px;box-shadow:var(--shadow);padding:42px 48px;max-width:880px;margin:0 auto}
+.dh{display:flex;justify-content:space-between;gap:18px;border-bottom:2.5px solid var(--night);padding-bottom:16px}
+.dh .fb{font-family:var(--fd);font-weight:700;font-size:23px;color:var(--night)}
+.dh .fb span{color:var(--gold-deep)}
+.dh .s{font-size:11.5px;color:var(--muted)}
+.dh .meta{text-align:right;font-size:12.5px;color:var(--muted)}
+.dh .meta .t{font-family:var(--fd);font-weight:700;font-size:25px;color:var(--night)}
+.dcols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+.dbox{border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.dbox h4{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--gold-deep);margin:0 0 7px}
+.dbox p{margin:2px 0;font-size:13.5px}
+.dbox p b{color:var(--night)}
+.doffer h3{font-size:20px;margin:4px 0 2px}
+.doffer .cat{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--gold-deep)}
+.doffer .desc{font-size:13.5px;color:var(--muted);margin-top:5px}
+table.dt{width:100%;border-collapse:collapse;margin:14px 0 4px;font-size:13.5px}
+table.dt th{background:var(--night);color:#fff;text-align:left;padding:9px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+table.dt th:last-child,table.dt td:last-child{text-align:right}
+table.dt td{padding:9px 12px;border-bottom:1px solid var(--line)}
+table.dt tr.tot td{font-weight:800;color:var(--night);border-top:2px solid var(--night);border-bottom:none}
+table.dt tr.ref td{color:var(--muted);font-size:12.5px;border-bottom:none}
+.dsec{margin-top:16px}
+.dsec h4{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--gold-deep);margin:0 0 7px}
+.dsec ul,.dsec ol{margin:0;padding-left:17px;font-size:12.5px;color:var(--muted);display:grid;gap:4px}
+.dscope{border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:8px;padding:11px 14px;margin-top:14px;font-size:13px}
+.dscope b{color:var(--night)}
+.dsign{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:24px}
+.dsign .b{border:1px solid var(--line);border-radius:8px;height:90px;padding:9px 12px;font-size:12px;color:var(--muted)}
+.dfoot{margin-top:20px;text-align:center;font-size:11px;color:var(--muted);border-top:1px solid var(--line);padding-top:11px}
+.deploy{margin:16px 0;padding:13px 15px;background:#fff;border:1px solid var(--line);border-radius:9px;color:var(--muted);font-size:12.5px}
+
+@page{size:A4 portrait;margin:15mm 13mm}
+@media print{
+  header.app,.intbar,form,.summary,#results,.toolbar,.deploy,.noprint,#basketWrap{display:none!important}
+  body{background:#fff;font-size:10.5pt;line-height:1.5}.layout{display:block;margin:0}
+  #devisWrap{display:block!important}
+  .devis{border:none;box-shadow:none;border-radius:0;padding:0;max-width:none}
+  .dh,.dcols,.doffer,.dscope{page-break-inside:avoid;break-inside:avoid}
+  .dsec{page-break-inside:avoid;break-inside:avoid;margin-bottom:4mm}
+  table.dt{page-break-inside:avoid;break-inside:avoid;width:100%}
+  table.dt tr{page-break-inside:avoid;break-inside:avoid}
+  table.dt th{-webkit-print-color-adjust:exact;print-color-adjust:exact;background:var(--night)!important;color:#fff!important}
+  .dsign{page-break-inside:avoid;margin-top:10mm}
+  .dfoot{margin-top:6mm;font-size:9pt;color:#666}
+  h3{font-size:13pt;color:var(--night)!important}
+  h4{font-size:11pt;margin:4mm 0 2mm;color:var(--night)!important}
+  a{color:inherit;text-decoration:none}
+}
+@media(max-width:720px){.devis{padding:24px 20px}.dcols,.dsign{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.econ-panel{border:1px solid var(--line);border-radius:10px;background:#fff;margin-bottom:24px}
+.econ-panel>summary{cursor:pointer;padding:12px 14px;font-weight:800;color:var(--night);font-size:14px;list-style:none}
+.econ-panel>summary::before{content:"▶ ";font-size:11px}
+details[open].econ-panel>summary::before{content:"▼ "}
+.econ-body{padding:0 14px 14px}
+.econ-table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13.5px}
+.econ-table th,.econ-table td{border-bottom:1px solid var(--line);padding:7px 9px;text-align:left}
+.econ-table th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--gold-deep)}
+.ev-vert{color:var(--green);font-weight:700}.ev-orange{color:#B45309;font-weight:700}.ev-rouge{color:var(--red);font-weight:700}
+.basket-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.basket-item:last-child{border-bottom:none}
+.basket-item input[type=radio],.basket-item input[type=checkbox]{width:18px;height:18px;accent-color:var(--navy)}
+.basket-label{flex:1;min-width:200px}
+.basket-label b{display:block;font-size:14px;color:var(--night)}
+.basket-label span{font-size:12.5px;color:var(--muted)}
+.basket-price{font-weight:800;color:var(--navy);font-size:14.5px;white-space:nowrap}
+.basket-totals-row{display:flex;justify-content:space-between;padding:6px 0;font-size:14px;border-bottom:1px solid var(--line)}
+.basket-totals-row.grand{font-weight:800;font-size:16px;color:var(--night);border-bottom:none;margin-top:6px}
+.basket-totals-row.reduc{color:var(--red)}
+</style>
+<script type="application/json" id="nexus-offers-json" data-checksum="077a6a7e52dd8e37">
+{
+  "premiereLibreEssentiel": {
+    "label": "Première Libre Essentiel",
+    "monthly": 190,
+    "annual": 1900,
+    "sub": "1 900 TND / an",
+    "echeancier": [
+      500,
+      350,
+      350,
+      350,
+      350
+    ],
+    "paiement": "500 TND réservation + 4 x 350 TND"
+  },
+  "premiereLibreAccompagnee": {
+    "label": "Première Libre Accompagnée",
+    "monthly": 490,
+    "annual": 4900,
+    "sub": "4 900 TND / an",
+    "echeancier": [
+      900,
+      500,
+      500,
+      500,
+      500,
+      500,
+      500,
+      500,
+      500
+    ],
+    "paiement": "900 TND réservation + 8 x 500 TND"
+  },
+  "premiereLibreIntensif": {
+    "label": "Première Libre Intensif",
+    "display": "990 à 1 490 TND",
+    "sub": "20 à 30 h"
+  },
+  "terminaleLibreOnline": {
+    "label": "Terminale Libre Online",
+    "monthly": 290,
+    "annual": 2900,
+    "sub": "2 900 TND / an",
+    "echeancier": [
+      500,
+      300,
+      300,
+      300,
+      300,
+      300,
+      300,
+      300,
+      300
+    ],
+    "paiement": "500 TND réservation + 8 x 300 TND"
+  },
+  "terminaleLibreMixte": {
+    "label": "Terminale Libre Mixte",
+    "monthly": 790,
+    "annual": 7900,
+    "publicAnnual": 8750,
+    "approx": true,
+    "sub": "parcours complet candidat libre",
+    "echeancier": [
+      1200,
+      1800,
+      3000,
+      1900
+    ],
+    "paiement": "1 200 TND réservation + 3 tranches",
+    "detailTarif": "Tarif public : 8 750 TND / an. Tarif campagne / fidélité : référence actuelle : 7 900 TND / an."
+  },
+  "terminaleLibrePremium": {
+    "label": "Terminale Libre Premium",
+    "monthly": 990,
+    "annual": 9900,
+    "sub": "9 900 TND / an",
+    "echeancier": [
+      1500,
+      2100,
+      3150,
+      3150
+    ],
+    "paiement": "1 500 TND réservation + 4 versements de 2 100 TND"
+  },
+  "plateformeAutonomie": {
+    "label": "Plateforme Autonomie",
+    "display": "590 TND / an",
+    "annual": 590,
+    "monthlyAlt": 69,
+    "sub": "ou 69 TND / mois"
+  },
+  "plateformeSuivi": {
+    "label": "Plateforme Suivi",
+    "display": "1 490 TND / an",
+    "annual": 1490,
+    "monthlyAlt": 160,
+    "sub": "ou 160 TND / mois"
+  },
+  "plateformeAccompagnee": {
+    "label": "Plateforme Accompagnée",
+    "display": "2 900 TND / an",
+    "annual": 2900,
+    "monthlyAlt": 290,
+    "sub": "ou 290 TND / mois"
+  },
+  "premiereEafFrancais": {
+    "label": "Première EAF Français",
+    "monthly": 290,
+    "annual": 2900,
+    "publicAnnual": 3000,
+    "echeancier": [
+      600,
+      400,
+      1000,
+      900
+    ],
+    "annualDisplay": "2 900 TND / an"
+  },
+  "premiereMathsAnticipees": {
+    "label": "Première Maths Anticipées",
+    "monthly": 290,
+    "annual": 2900,
+    "publicAnnual": 3000,
+    "echeancier": [
+      600,
+      400,
+      1000,
+      900
+    ],
+    "annualDisplay": "2 900 TND / an"
+  },
+  "premiereDoubleSecurite": {
+    "label": "Première Double Sécurité",
+    "monthly": 490,
+    "annual": 4900,
+    "publicAnnual": 6000,
+    "echeancier": [
+      900,
+      1100,
+      2000,
+      900
+    ],
+    "annualDisplay": "4 900 TND / an"
+  },
+  "premiereSciences": {
+    "label": "Première Sciences",
+    "monthly": 590,
+    "annual": 5900,
+    "annualDisplay": "5 900 TND / an"
+  },
+  "terminaleSpecialiteSimple": {
+    "label": "Terminale Spécialité Simple",
+    "monthly": 390,
+    "annual": 3900,
+    "sub": "2 h / semaine",
+    "annualDisplay": "3 900 TND / an"
+  },
+  "duoTerminaleNexus": {
+    "label": "Duo Terminale Nexus",
+    "monthly": 720,
+    "annual": 7175,
+    "publicAnnual": 8750,
+    "approx": true,
+    "sub": "stages + Grand Oral inclus",
+    "echeancier": [
+      1200,
+      1550,
+      2750,
+      1675
+    ],
+    "paiement": "1 200 + 1 550 + 2 750 + 1 675 TND",
+    "annualDisplay": "7 175 TND / an",
+    "detailTarif": "Tarif campagne / fidélité : référence actuelle : 7 175 TND / an."
+  },
+  "excellenceTerminale": {
+    "label": "Excellence Terminale",
+    "monthly": 960,
+    "annual": 9594,
+    "publicAnnual": 12300,
+    "approx": true,
+    "sub": "Maths expertes + urgence incluses",
+    "echeancier": [
+      1500,
+      2100,
+      3300,
+      2694
+    ],
+    "paiement": "1 500 + 2 100 + 3 300 + 2 694 TND",
+    "annualDisplay": "9 594 TND / an",
+    "detailTarif": "Tarif campagne / fidélité : référence actuelle : 9 594 TND / an."
+  },
+  "secondeMathsMethode": {
+    "label": "Seconde Maths Méthode",
+    "monthly": 250
+  },
+  "secondeSciences": {
+    "label": "Seconde Sciences",
+    "monthly": 430
+  },
+  "secondeCoachingOrientation": {
+    "label": "Seconde Coaching + Orientation",
+    "display": "450 TND / cycle"
+  },
+  "brevetMaths": {
+    "label": "Brevet Maths",
+    "monthly": 220
+  },
+  "brevetComplet": {
+    "label": "Brevet Complet",
+    "monthly": 390
+  },
+  "stageBrevet": {
+    "label": "Stage Brevet",
+    "display": "390 à 590 TND"
+  },
+  "stagePrerentreeTroisieme": {
+    "label": "Troisième — Prépa Brevet rentrée",
+    "display": "350 TND"
+  },
+  "stagePrerentreeSeconde": {
+    "label": "Seconde — Maths & méthode",
+    "display": "450 TND"
+  },
+  "stagePrerentreePremiere": {
+    "label": "Première — Français ou Maths",
+    "display": "600 TND"
+  },
+  "stagePrerentreeTerminale": {
+    "label": "Terminale — Maths prérentrée",
+    "display": "600 / 800 / 1 000 TND"
+  },
+  "stagePrerentreeCandidatsLibres": {
+    "label": "Candidats libres — Bilan + remise à niveau",
+    "display": "790 à 1 200 TND"
+  },
+  "stagePrerentreeMathsTerminale": {
+    "label": "Prérentrée août — Maths Terminale",
+    "display": "800 TND"
+  },
+  "vacancesUneMatiere": {
+    "label": "1 matière — 10 à 12 h",
+    "display": "490 à 590 TND"
+  },
+  "vacancesDuoMatieres": {
+    "label": "Duo matières — 18 à 20 h",
+    "display": "790 à 990 TND"
+  },
+  "vacancesGrandOral": {
+    "label": "Grand Oral — 10 h",
+    "display": "490 TND"
+  },
+  "vacancesBacBlanc": {
+    "label": "Bac blanc + correction",
+    "display": "120 à 180 TND"
+  },
+  "vacancesSprintFinal": {
+    "label": "Sprint final — 20 à 30 h",
+    "display": "990 à 1 490 TND"
+  },
+  "urgenceMembreHeure": {
+    "label": "Heure urgence — membre",
+    "display": "80 TND / h",
+    "annual": 80
+  },
+  "urgenceNonMembreHeure": {
+    "label": "Heure urgence — non-membre",
+    "display": "120 TND / h",
+    "annual": 120
+  },
+  "urgencePackCinq": {
+    "label": "Pack 5 h urgence membre",
+    "display": "350 TND",
+    "annual": 350
+  },
+  "urgencePackDix": {
+    "label": "Pack 10 h urgence membre",
+    "display": "650 TND",
+    "annual": 650
+  },
+  "pontParcoursup": {
+    "label": "Pont Parcoursup",
+    "display": "900 TND",
+    "annual": 900
+  },
+  "celluleCandidatLibre": {
+    "label": "Cellule Candidat Libre seule",
+    "display": "500 TND",
+    "annual": 500
+  },
+  "_notes": {
+    "tarifCampagne": {
+      "long": "Le tarif campagne / fidélité ne dépend pas d’une échéance fixe, mais des places disponibles. Les groupes sont constitués par niveaux homogènes (5 élèves maximum). Une fois un groupe complet, le tarif et la place ne sont plus garantis : réserver tôt sécurise le créneau et le tarif.",
+      "short": "Pas d’échéance fixe — des places limitées. Une fois les groupes constitués, les inscriptions à ce tarif peuvent être closes faute de place."
+    }
+  },
+  "_reperes": {
+    "brevetMois": "à partir de 220 TND / mois",
+    "secondeMois": "à partir de 250 TND / mois",
+    "premiereSimpleMois": "à partir de 290 TND / mois",
+    "premiereDuoMois": "à partir de 490 TND / mois",
+    "terminaleSimpleMois": "à partir de 390 TND / mois",
+    "terminaleDuoMois": "≈ 720 TND / mois",
+    "plateformeAn": "à partir de 590 TND / an",
+    "stagesBase": "dès 350 TND",
+    "parrainage": "150 à 300 TND"
+  }
+}
+</script>
+</head>
+<body>
+
+<header class="app">
+  <div class="wrap">
+    <div class="brand">
+      <img src="https://nexusreussite.academy/images/logo_slogan_nexus.webp" alt="Nexus Réussite" onerror="this.outerHTML='&lt;div class=&quot;fb&quot;&gt;NEXUS &lt;span&gt;RÉUSSITE&lt;/span&gt;&lt;/div&gt;'">
+      <div><h1>Conseil &amp; devis 2026/2027</h1><p>Assistant de qualification, recommandation et devis pour les entretiens familles.</p></div>
+    </div>
+    <span class="pill">Usage interne</span>
+  </div>
+</header>
+<div class="intbar"><div class="wrap"><span>Outil interne — ne pas partager aux familles.</span><span>Les données saisies restent dans le navigateur ; aucun envoi serveur.</span></div></div>
+
+<main class="wrap layout">
+<div>
+  <form id="quiz" class="card" autocomplete="off">
+
+    <fieldset>
+      <legend>Identité</legend>
+      <div class="grid g3">
+        <div><label class="f" for="eleve">Élève *</label><input id="eleve" type="text" required></div>
+        <div><label class="f" for="parent">Parent / responsable *</label><input id="parent" type="text" required></div>
+        <div><label class="f" for="advisor">Conseiller / assistante</label><input id="advisor" type="text" placeholder="Nexus Réussite"></div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Profil scolaire</legend>
+      <div class="grid g3">
+        <div><label class="f" for="level">Niveau à la rentrée 2026 *</label>
+          <select id="level">
+            <option value="troisieme">Troisième (DNB)</option>
+            <option value="seconde">Seconde</option>
+            <option value="premiere">Première</option>
+            <option value="terminale" selected>Terminale</option>
+          </select></div>
+        <div><label class="f" for="status">Statut *</label>
+          <select id="status">
+            <option value="scolarise">Scolarisé — lycée homologué AEFE</option>
+            <option value="libre">Candidat libre (individuel)</option>
+            <option value="double">Double cursus (lycée tunisien + bac fr.)</option>
+          </select></div>
+        <div><label class="f" for="school">Établissement</label><input id="school" type="text" placeholder="ex. PMF, autre, CNED, sans"></div>
+      </div>
+      <p class="note-box" id="statusNote"></p>
+
+      <details class="fiche" id="ficheExam"><summary>Fiche examens 2026/2027 — repère pour l'entretien</summary><div class="body" id="ficheBody"><p style="font-size:12px;color:#B45309;font-style:italic;margin:0 0 8px">Repère pédagogique — les textes officiels et convocations font foi. Les modalités EAM, DNB candidat libre et tronc commun ponctuel doivent être vérifiées selon la session et les textes applicables.</p></div></details>
+    </fieldset>
+
+    <!-- Matières / spécialités, conditionnel -->
+    <fieldset>
+      <legend id="subjLegend">Matières &amp; spécialités</legend>
+      <p class="fnote" id="subjNote"></p>
+
+      <div class="cond" id="block-spes">
+        <label class="f">Spécialités suivies</label>
+        <div class="chips" id="spes"></div>
+        <div class="cond" id="block-drop" style="margin-top:12px">
+          <label class="f" for="dropSpe">Spécialité abandonnée en fin de Première (évaluée en ponctuel / contrôle continu)</label>
+          <select id="dropSpe"></select>
+          <p class="sub">Pour un candidat libre, cette spécialité est passée en <b>épreuve ponctuelle sur le programme de Première</b>.</p>
+        </div>
+      </div>
+
+      <div class="cond" id="block-options" style="margin-top:14px">
+        <label class="f">Options du cycle terminal</label>
+        <div class="chips" id="options"></div>
+      </div>
+
+      <div class="cond" id="block-matieres">
+        <label class="f">Matières prioritaires</label>
+        <div class="chips" id="matieres"></div>
+      </div>
+
+      <div class="cond" id="block-projet" style="margin-top:14px">
+        <label class="f">Spécialités envisagées pour la Première</label>
+        <div class="chips" id="projet"></div>
+        <p class="sub">Sert à orienter le travail de Seconde et le choix des trois spécialités.</p>
+      </div>
+
+      <div class="grid g2" style="margin-top:14px">
+        <div class="cond" id="block-lva"><label class="f" for="lva">LVA / LVB</label><input id="lva" type="text" placeholder="ex. Anglais / Espagnol"></div>
+        <div><label class="f" for="niveauMat">Niveau actuel ressenti</label>
+          <select id="niveauMat">
+            <option value="fragile">Fragile / lacunes</option>
+            <option value="moyen" selected>Moyen, à consolider</option>
+            <option value="solide">Solide, vise l'excellence</option>
+          </select></div>
+      </div>
+    </fieldset>
+
+    <!-- Candidat libre : carte d'examen -->
+    <fieldset class="cond" id="block-libre">
+      <legend>Carte d'examen — candidat libre</legend>
+      <p class="fnote">Le candidat libre n'a pas de contrôle continu : il passe en plus des épreuves ponctuelles sur le tronc commun. Ces choix conditionnent la recommandation.</p>
+      <div class="grid g2">
+        <div><label class="f" for="modalite">Modalité de passation des ponctuelles</label>
+          <select id="modalite">
+            <option value="A">A — étalée (ponctuelles fin de 1re + fin de Tle)</option>
+            <option value="B">B — groupée (toutes les ponctuelles en fin de Tle)</option>
+            <option value="indecis">À déterminer avec la famille</option>
+          </select>
+          <p class="sub">Choix définitif à l'inscription Cyclades. Étalée = charge répartie ; groupée = tout en terminale.</p>
+        </div>
+        <div><label class="f" for="repasse">Épreuves déjà passées / à repasser</label>
+          <select id="repasse">
+            <option value="aucune">Première inscription — rien de passé</option>
+            <option value="anticipees">Anticipées (français/maths) déjà passées</option>
+            <option value="ameliorer">Souhaite repasser pour améliorer</option>
+          </select></div>
+      </div>
+      <div style="margin-top:13px"><label class="f">Tronc commun à préparer en ponctuel</label>
+        <div class="chips" id="troncCommun"></div>
+        <p class="sub">Histoire-géo, langues, enseignement scientifique, EMC, EPS : souvent sous-estimées et pourtant 40 % de la note.</p>
+      </div>
+      <div class="grid g2" style="margin-top:13px">
+        <div><label class="f">Statut administratif</label>
+          <div class="chips" style="margin-top:5px">
+            <label class="chip"><input type="checkbox" id="inscriptionFaite"><span>Inscription Cyclades faite</span></label>
+            <label class="chip"><input type="checkbox" id="convocationRecue"><span>Convocation reçue</span></label>
+          </div>
+        </div>
+        <div><label class="f" for="notesConnues">Notes déjà obtenues / à repasser (optionnel)</label>
+          <textarea id="notesConnues" placeholder="ex. Français 12/20 — à conserver ; EAM 8/20 — à repasser" style="min-height:50px"></textarea>
+        </div>
+      </div>
+      <div class="note-box">Procédure à vérifier chaque année : inscription sur le portail officiel indiqué par le centre d'examen, dépôt éventuel du dossier et règlement selon les consignes locales. <b>Les dates, pièces exigées et modalités doivent être confirmées avec les sources officielles et la convocation.</b> Nexus accompagne la constitution du dossier sans se substituer à l'inscription officielle.</div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Besoin &amp; contexte</legend>
+      <div class="grid g3">
+        <div><label class="f" for="objective">Objectif principal</label>
+          <select id="objective">
+            <option value="consolidation">Consolider / sécuriser l'année</option>
+            <option value="mention">Viser une mention</option>
+            <option value="selectif">Dossier sélectif (CPGE, médecine, écoles)</option>
+            <option value="rattrapage">Rattraper un retard</option>
+            <option value="ponctuel">Besoin ponctuel / une épreuve</option>
+          </select></div>
+        <div><label class="f" for="mode">Mode</label>
+          <select id="mode">
+            <option value="presentiel">Présentiel (Tunis)</option>
+            <option value="mixte">Mixte (présentiel + plateforme)</option>
+            <option value="enligne">En ligne / hors Tunis</option>
+          </select></div>
+        <div><label class="f" for="budget">Sensibilité budget</label>
+          <select id="budget">
+            <option value="standard">Standard — le besoin d'abord</option>
+            <option value="serre">Budget serré</option>
+            <option value="premium">Veut le maximum d'encadrement</option>
+          </select></div>
+      </div>
+      <div class="chips" style="margin-top:13px">
+        <label class="chip"><input type="checkbox" id="ancien"><span>Ancien élève Nexus</span></label>
+        <label class="chip"><input type="checkbox" id="fratrie"><span>Fratrie inscrite</span></label>
+        <label class="chip"><input type="checkbox" id="horsTunis"><span>Hors Tunis</span></label>
+        <label class="chip"><input type="checkbox" id="stageDeja"><span>Stage de prérentrée déjà suivi</span></label>
+        <label class="chip"><input type="checkbox" id="urgent"><span>Besoin urgent / proche échéance</span></label>
+      </div>
+      <div style="margin-top:13px"><label class="f" for="notes">Notes internes (entretien)</label><textarea id="notes" placeholder="contexte, difficultés, disponibilités, historique…"></textarea></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Contact &amp; devis</legend>
+      <div class="grid g3">
+        <div><label class="f" for="phone">WhatsApp</label><input id="phone" type="tel" placeholder="+216 …"></div>
+        <div><label class="f" for="email">E-mail</label><input id="email" type="email"></div>
+        <div><label class="f" for="validity">Validité du devis</label><input id="validity" type="text" value="Sous réserve de places disponibles"></div>
+      </div>
+      <div class="grid g3" style="margin-top:13px">
+        <div><label class="f" for="groupeStatut">Statut groupe</label>
+          <select id="groupeStatut">
+            <option value="conditionnel">Conditionnel — en cours</option>
+            <option value="ouvert">Ouvert — places disponibles</option>
+            <option value="prevu">Prévu — lancement sous réserve</option>
+            <option value="complet">Complet — liste d'attente</option>
+          </select></div>
+        <div><label class="f" for="enseignantStatut">Enseignant</label>
+          <select id="enseignantStatut">
+            <option value="a_confirmer">À confirmer</option>
+            <option value="confirme">Confirmé ✓</option>
+            <option value="recherche">En recherche</option>
+          </select></div>
+        <div><label class="f" for="creneauInfo">Créneau envisagé</label>
+          <input id="creneauInfo" type="text" placeholder="ex. Sam 10h–12h, jeudi soir"></div>
+      </div>
+    </fieldset>
+
+    <div class="actions">
+      <button type="submit" class="btn primary">Générer recommandation &amp; périmètre</button>
+      <button type="button" class="btn" id="compareBtn">Comparer les deux offres</button>
+      <button type="reset" class="btn danger" id="resetBtn">Réinitialiser</button>
+      <button type="button" class="btn gold" id="showBasketBtn">Configurer le panier</button>
+      <button type="button" class="btn" id="copyResumeBtn">Copier résumé interne</button>
+      <button type="button" class="btn" id="exportJsonBtn">Exporter JSON</button>
+      <span class="formerr" id="formerr">Renseignez au minimum l'élève et le parent.</span>
+    </div>
+  
+    <!-- panneau économie interne — noprint -->
+    <details class="econ-panel noprint" id="econPanel">
+      <summary>📊 Économie du groupe — usage interne (non imprimé)</summary>
+      <div class="econ-body">
+        <p class="fnote">Coût enseignant = <b>120 TND / h</b> quel que soit l'effectif. Groupe idéal = 5 élèves max.</p>
+        <table class="econ-table">
+          <thead><tr><th>Effectif</th><th>Coût enseignant / élève / h</th><th>Indicateur</th></tr></thead>
+          <tbody>
+            <tr><td>5</td><td>24 TND</td><td class="ev-vert">● Viabilité optimale</td></tr>
+            <tr><td>4</td><td>30 TND</td><td class="ev-orange">● Acceptable</td></tr>
+            <tr><td>3</td><td>40 TND</td><td class="ev-rouge">● Valider direction</td></tr>
+            <tr><td>2</td><td>60 TND</td><td class="ev-rouge">● Semi-individuel</td></tr>
+            <tr><td>1</td><td>120 TND</td><td class="ev-rouge">● Individuel</td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:14px;display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end">
+          <div><label class="f" for="econEffectif">Effectif groupe estimé</label>
+            <select id="econEffectif" style="width:90px">
+              <option value="5" selected>5</option><option value="4">4</option>
+              <option value="3">3</option><option value="2">2</option><option value="1">1</option>
+            </select></div>
+          <div id="econResult" style="font-size:13.5px;padding-bottom:4px"></div>
+        </div>
+        <p class="fnote" style="margin-top:10px">⚠️ À valider direction : live « Plateforme Accompagnée » en ligne (historiquement 10 élèves — exception à confirmer).</p>
+      </div>
+    </details>
+</form>
+
+  <section id="results" aria-live="polite">
+    <h2>Recommandation</h2>
+    <p class="intro" id="intro"></p>
+    <div class="offers" id="offers"></div>
+    <div class="compare" id="compare" hidden></div>
+    <div class="extras"><h3>Compléments utiles en entretien</h3><div class="chips" id="extras"></div></div>
+    <p class="team"><b>À rappeler aux parents :</b> les cours sont assurés par des enseignants certifiés et agrégés de l'enseignement français à l'étranger, qui maîtrisent les programmes officiels, les attendus des épreuves et la pédagogie de l'Éducation nationale française.</p>
+  </section>
+
+  
+  <section id="basketWrap" style="display:none;margin-top:18px">
+    <div class="card" style="padding:22px">
+      <h2 style="margin:0 0 14px">Panier de services</h2>
+      <p class="fnote">Offre principale (radio) + compléments cumulables. Total et échéancier consolidés.</p>
+      <div id="basketItems"></div>
+      <div class="noprint" id="reducPanel" style="margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:10px;background:#fffdf5">
+        <h3 style="font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--gold-deep);margin:0 0 8px">Réductions &amp; avantages — usage interne</h3>
+        <p class="fnote" style="margin-bottom:9px">⚠️ <b>Règle Nexus : non cumulables par défaut</b> — la réduction la plus favorable s'applique seule. Cocher « Cumul validé direction » pour en appliquer plusieurs.</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+          <label class="chip"><input type="checkbox" id="reduc-ancien"><span>Ancien élève Nexus</span></label>
+          <select id="reduc-ancien-taux" style="width:72px;padding:5px 8px"><option value="5">5 %</option><option value="10" selected>10 %</option><option value="15">15 %</option></select>
+          <label class="chip"><input type="checkbox" id="reduc-fratrie"><span>Fratrie inscrite (10 %)</span></label>
+          <label class="chip"><input type="checkbox" id="reduc-comptant"><span>Paiement comptant (5 %)</span></label>
+        </div>
+        <div style="margin-top:9px;padding:9px 12px;border:1px dashed #C9A24D;border-radius:8px;background:rgba(201,162,77,.06)">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13.5px"><input type="checkbox" id="cumul-dir" style="width:17px;height:17px;accent-color:var(--navy)"><b>Cumul validé direction</b> — le devis affichera « Réduction validée par la direction »</label>
+        </div>
+        <div style="margin-top:9px;padding:9px 12px;background:#fff3cd;border-radius:8px;border:1px solid #E3BC51;font-size:13px">
+          <b>Prime parrainage :</b> 150 à 300 TND après inscription effective — <em>non déduite du total</em>, affichée en note.
+          <div style="margin-top:6px;display:flex;align-items:center;gap:8px">
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px"><input type="checkbox" id="reduc-parrainage" style="width:16px;height:16px;accent-color:var(--navy)"> Mentionner le parrainage</label>
+            <select id="reduc-parrainage-montant" style="width:100px;padding:5px 8px"><option value="150">150 TND</option><option value="200">200 TND</option><option value="300">300 TND</option></select>
+          </div>
+        </div>
+      </div>
+      <div id="basketTotals" style="margin-top:14px;padding:14px;border:2px solid var(--gold);border-radius:10px;background:rgba(201,162,77,.05)"></div>
+    </div>
+  </section>
+  <section id="devisWrap">
+    <div class="toolbar noprint">
+      <span class="sub">Vérifiez puis imprimez / enregistrez en PDF (seul le devis est imprimé).</span>
+      <div style="display:flex;gap:9px;flex-wrap:wrap">
+        <button class="btn" id="backBtn" type="button">← Offres</button>
+        <button class="btn" id="copyWa" type="button">Copier message WhatsApp</button>
+        <button class="btn gold" id="printBtn" type="button">Imprimer / PDF</button>
+      </div>
+    </div>
+    <div class="devis" id="devis"></div>
+  </section>
+
+  <div class="deploy noprint"><b>Déploiement :</b> ne pas lier cette page publiquement. Protéger par identifiant interne, basic auth ou restriction IP. Aucune donnée famille n'est envoyée à un serveur ; tout reste dans le navigateur.</div>
+</div>
+
+<aside class="summary card">
+  <h2>Récapitulatif</h2>
+  <div class="sline"><b>Élève</b><span id="sEleve">—</span></div>
+  <div class="sline"><b>Niveau · statut</b><span id="sNiveau">Terminale · scolarisé</span></div>
+  <div class="sline"><b>Matières / spécialités</b><span id="sSpes">—</span></div>
+  <div class="sline"><b>Objectif</b><span id="sObj">—</span></div>
+  <div class="sline"><b>Formule recommandée</b><span id="sReco">—</span></div>
+  <div class="sline"><b>Score de risque</b><span id="sRisk">—</span></div>
+  <div class="scope"><h3>Périmètre d'épreuves</h3><ul id="sScope"><li>À générer après qualification.</li></ul></div>
+  <div class="alerts" id="alerts"><div class="alert ok">Les alertes internes s'afficheront après qualification.</div></div>
+</aside>
+</main>
+
+<script>
+/* META généré automatiquement — ne pas modifier manuellement. */
+/* effectifMax selon grille équipe : Terminale 5 · Première 6 · Seconde 6 · Brevet 8 · Stages 6 · Urgences 1 · Plateforme live 10 */
+const META={
+terminaleSpecialiteSimple:{cat:"Scolarisé · Terminale",vol:"60 h · 2 h/sem · 5 élèves max",h:60,effectifMax:5,eligibleReduction:true,typeOffre:"annuel",desc:"Une spécialité ciblée pour sécuriser l'année.",inc:["Une spécialité au choix","Groupe de 5 maximum","Entraînement régulier + bilans"],ech:[{l:"10 mensualités sept.→juin",m:true,n:10}]},
+duoTerminaleNexus:{cat:"Scolarisé · Terminale",vol:"175 h · 2 spécialités · 5 élèves max",h:175,effectifMax:5,eligibleReduction:true,typeOffre:"annuel",desc:"Deux spécialités, stages vacances, Grand Oral, plateforme.",inc:["Deux spécialités (coef 16+16)","Stages Toussaint/hiver/printemps inclus","Bacs blancs corrigés","Préparation Grand Oral (coef 10)","Plateforme + compte parent"],ech:[{l:"Réservation"},{l:"1er versement — sept."},{l:"2e versement — déc."},{l:"Solde fidélité — mars"}]},
+excellenceTerminale:{cat:"Scolarisé · Terminale",vol:"246 h · 2 spés + Maths expertes · 5 élèves max",h:246,effectifMax:5,eligibleReduction:true,typeOffre:"annuel",desc:"Deux spécialités + Maths expertes pour dossiers sélectifs (CPGE, médecine, écoles).",inc:["Deux spécialités + Maths expertes","Stages + bacs blancs","Grand Oral scientifique","Préparation Parcoursup","6 h d'urgence en ligne incluses"],ech:[{l:"Réservation"},{l:"1er versement — sept."},{l:"2e versement — déc."},{l:"Solde fidélité — mars"}]},
+terminaleLibreOnline:{cat:"Candidat libre · Terminale",vol:"Année · 2 lives/mois · en ligne · jusqu'à 10",h:24,effectifMax:10,eligibleReduction:true,typeOffre:"plateforme",desc:"Préparation 100 % en ligne, plateforme + lives bimensuels.",inc:["Plateforme complète","2 lives/mois + corrections","Cadrage de la carte d'examen","Suivi de progression"],ech:[{l:"Réservation"},{l:"Mensualités × 8",m:true,n:8}]},
+terminaleLibreMixte:{cat:"Candidat libre · Terminale",vol:"Année · présentiel + plateforme · 5 élèves max",h:120,effectifMax:5,eligibleReduction:true,typeOffre:"annuel",desc:"Parcours candidat libre complet : 2 spés, Grand Oral, tronc commun en ponctuel, accompagnement administratif.",inc:["Toutes les épreuves terminales + ponctuelles","Carte d'examen personnalisée","Groupe de 5 maximum","Bacs blancs en conditions réelles","Plateforme + compte parent + bulletins"],ech:[{l:"Réservation"},{l:"1er versement"},{l:"2e versement"},{l:"Solde fidélité"}]},
+terminaleLibrePremium:{cat:"Candidat libre · Terminale",vol:"Année · suivi renforcé · 5 élèves max",h:150,effectifMax:5,eligibleReduction:true,typeOffre:"annuel",desc:"Le parcours candidat libre le plus encadré : coaching individuel et suivi renforcé.",inc:["Tout le parcours Mixte","Coaching individuel","Points parents mensuels","Oraux renforcés (français, Grand Oral)","Pont Parcoursup inclus"],ech:[{l:"Réservation"},{l:"1er versement"},{l:"2e versement"},{l:"Solde"}]},
+premiereEafFrancais:{cat:"Scolarisé · Première",vol:"2 h/sem · 5 à 6 élèves",h:60,effectifMax:6,eligibleReduction:true,typeOffre:"annuel",desc:"Épreuve anticipée de français : écrit (coef 5) + oral (coef 5).",inc:["Méthode écrit + oral","Étude des textes au programme","Oraux blancs","Plateforme incluse"],ech:[{l:"Réservation"},{l:"versement"},{l:"versement"},{l:"solde"}]},
+premiereMathsAnticipees:{cat:"Scolarisé · Première",vol:"2 h/sem · 5 à 6 élèves",h:60,effectifMax:6,eligibleReduction:true,typeOffre:"annuel",desc:"Nouvelle épreuve anticipée de maths (EAM, session 2027) : automatismes + exercices.",inc:["Automatismes et QCM","Exercices types EAM","Sujets blancs","Plateforme incluse"],ech:[{l:"Réservation"},{l:"versement"},{l:"versement"},{l:"solde"}]},
+premiereDoubleSecurite:{cat:"Scolarisé · Première",vol:"4 h/sem · 5 à 6 élèves",h:120,effectifMax:6,eligibleReduction:true,typeOffre:"annuel",desc:"EAF + EAM : les deux épreuves anticipées de Première sécurisées ensemble.",inc:["EAF (écrit+oral) et EAM couverts","Oraux et sujets blancs","Plateforme + bilans parents","Continuité vers la Terminale"],ech:[{l:"Réservation"},{l:"versement"},{l:"versement"},{l:"solde"}]},
+premiereSciences:{cat:"Scolarisé · Première",vol:"4 h/sem · 5 à 6 élèves",h:120,effectifMax:6,eligibleReduction:true,typeOffre:"annuel",desc:"Deux spécialités scientifiques consolidées dès la Première, avec EAM approfondie.",inc:["Deux spécialités scientifiques","Préparation EAM approfondie","Bilans parents","Plateforme incluse"],ech:[{l:"10 mensualités",m:true,n:10}]},
+premiereLibreEssentiel:{cat:"Candidat libre · Première",vol:"Année en ligne · 5 à 6 élèves",h:40,effectifMax:6,eligibleReduction:true,typeOffre:"annuel",desc:"Socle candidat libre : cadrer EAF, EAM et le tronc commun en autonomie encadrée.",inc:["EAF + EAM cadrés","Carte d'examen et calendrier","Plateforme + sujets types","Points d'étape"],ech:[{l:"Réservation"},{l:"Mensualités × 4",m:true,n:4}]},
+premiereLibreAccompagnee:{cat:"Candidat libre · Première",vol:"Année · présentiel + plateforme · 5 à 6 élèves",h:80,effectifMax:6,eligibleReduction:true,typeOffre:"annuel",desc:"Préparation accompagnée des anticipées et du tronc commun en ponctuel.",inc:["EAF, EAM et ponctuelles préparés","Accompagnement administratif","Oraux et sujets blancs","Plateforme incluse"],ech:[{l:"Réservation"},{l:"Mensualités × 8",m:true,n:8}]},
+premiereLibreIntensif:{cat:"Candidat libre · Première",vol:"Stage 20-30 h · 6 élèves max",h:25,effectifMax:6,eligibleReduction:false,typeOffre:"stage",desc:"Format intensif pour élève arrivant tard ou devant rattraper.",inc:["Stage intensif + plateforme","Cadrage de la carte d'examen","Sujets types"],ech:[{l:"Réservation"},{l:"solde"}]},
+plateformeAutonomie:{cat:"Plateforme en ligne",vol:"Année · ressources · accès individuel",h:0,effectifMax:null,eligibleReduction:false,typeOffre:"plateforme",desc:"Ressources et parcours pour travailler seul.",inc:["Cours, exercices, sujets","Accès permanent","Suivi non individualisé"],ech:[{l:"Annuel"}]},
+plateformeSuivi:{cat:"Plateforme en ligne",vol:"Année · suivi régulier",h:12,effectifMax:null,eligibleReduction:true,typeOffre:"plateforme",desc:"Plateforme + compte parent + bilans + 1 live/mois.",inc:["Plateforme complète","Compte parent + bilans","1 live collectif/mois"],ech:[{l:"Réservation"},{l:"versement"},{l:"solde"}]},
+plateformeAccompagnee:{cat:"Plateforme en ligne",vol:"Année · live hebdo · jusqu'à 10 (direction)",h:36,effectifMax:10,eligibleReduction:true,typeOffre:"plateforme",desc:"Cadre Nexus à distance : séances hebdomadaires en groupe.",inc:["Plateforme + lives hebdomadaires","Référent dédié","Bilans parents"],ech:[{l:"Réservation"},{l:"versement"},{l:"solde"}]},
+secondeMathsMethode:{cat:"Seconde",vol:"2 h/sem · 5 à 6 élèves",h:60,effectifMax:6,eligibleReduction:true,typeOffre:"annuel",desc:"Maths, méthode et préparation du choix des spécialités.",inc:["Maths + méthode","Organisation et régularité","Orientation spécialités"],ech:[{l:"10 mensualités",m:true,n:10}]},
+secondeSciences:{cat:"Seconde",vol:"4 h/sem · 5 à 6 élèves",h:120,effectifMax:6,eligibleReduction:true,typeOffre:"annuel",desc:"Maths + Physique-Chimie et orientation vers les spécialités.",inc:["Maths + Physique-Chimie","Méthode","Orientation spécialités"],ech:[{l:"10 mensualités",m:true,n:10}]},
+secondeCoachingOrientation:{cat:"Seconde",vol:"3 rendez-vous · individuel",h:6,effectifMax:1,eligibleReduction:false,typeOffre:"coaching",desc:"Choix des spécialités, méthode et bilan d'orientation.",inc:["3 rendez-vous dans l'année","Choix des spécialités","Bilan d'orientation"],ech:[{l:"Cycle"}]},
+brevetMaths:{cat:"Troisième",vol:"2 h/sem · 6 à 8 élèves",h:60,effectifMax:8,eligibleReduction:true,typeOffre:"annuel",desc:"Préparation DNB sur une matière clé.",inc:["Maths ou Français","Sujets types DNB","Méthode"],ech:[{l:"10 mensualités",m:true,n:10}]},
+brevetComplet:{cat:"Troisième",vol:"4 h/sem · 6 à 8 élèves",h:120,effectifMax:8,eligibleReduction:true,typeOffre:"annuel",desc:"Maths + Français + méthode, brevet blanc (DNB : 60 % épreuves finales).",inc:["Maths + Français","Brevets blancs corrigés","Méthode + oral / langue (candidat libre)","Préparation de la Seconde"],ech:[{l:"10 mensualités",m:true,n:10}]},
+stagePrerentreeMathsTerminale:{cat:"Stage prérentrée",vol:"Août · avant la rentrée · 5 élèves max",h:20,effectifMax:5,eligibleReduction:false,typeOffre:"stage",desc:"Remise à niveau et premiers chapitres. 600 TND si inscription annuelle confirmée.",inc:["Objectif clair avant septembre","Groupe réduit (5 max)","Déductible si parcours annuel confirmé"],ech:[{l:"Stage"}]},
+stagePrerentreeTerminale:{cat:"Stage prérentrée",vol:"Août · avant la rentrée · 6 élèves max",h:20,effectifMax:6,eligibleReduction:false,typeOffre:"stage",desc:"Prérentrée Terminale (tarif variable selon formule).",inc:["Remise à niveau","Groupe (6 max)"],ech:[{l:"Stage"}]},
+stagePrerentreePremiere:{cat:"Stage prérentrée",vol:"Août · avant la rentrée · 6 élèves max",h:15,effectifMax:6,eligibleReduction:false,typeOffre:"stage",desc:"Prérentrée Première — Français ou Maths.",inc:["Remise à niveau","Groupe (6 max)"],ech:[{l:"Stage"}]},
+stagePrerentreeSeconde:{cat:"Stage prérentrée",vol:"Août · avant la rentrée · 6 élèves max",h:15,effectifMax:6,eligibleReduction:false,typeOffre:"stage",desc:"Prérentrée Seconde — Maths & méthode.",inc:["Remise à niveau","Groupe (6 max)"],ech:[{l:"Stage"}]},
+stagePrerentreeTroisieme:{cat:"Stage prérentrée",vol:"Août · avant la rentrée · 6 à 8 élèves",h:12,effectifMax:8,eligibleReduction:false,typeOffre:"stage",desc:"Prérentrée Troisième — Prépa Brevet.",inc:["Remise à niveau","Groupe (8 max)"],ech:[{l:"Stage"}]},
+stagePrerentreeCandidatsLibres:{cat:"Stage candidat libre",vol:"Bilan + remise à niveau · 6 élèves max",h:20,effectifMax:6,eligibleReduction:false,typeOffre:"stage",desc:"Bilan d'entrée + remise à niveau candidats libres.",inc:["Bilan de positionnement","Remise à niveau ciblée","Carte d'examen préliminaire"],ech:[{l:"Stage"}]},
+stageBrevet:{cat:"Stage",vol:"Stage brevet · 6 à 8 élèves",h:15,effectifMax:8,eligibleReduction:false,typeOffre:"stage",desc:"Préparation intensive du Brevet.",inc:["Maths + Français","Sujets blancs","Méthode"],ech:[{l:"Stage"}]},
+vacancesUneMatiere:{cat:"Stage vacances",vol:"10-12 h · 6 élèves max",h:11,effectifMax:6,eligibleReduction:false,typeOffre:"stage",desc:"Renfort ciblé sur une matière pendant les vacances.",inc:["Une matière","Groupe (6 max)","Sujets types"],ech:[{l:"Stage"}]},
+vacancesDuoMatieres:{cat:"Stage vacances",vol:"18-20 h · 6 élèves max",h:19,effectifMax:6,eligibleReduction:false,typeOffre:"stage",desc:"Deux matières pendant les vacances.",inc:["Deux matières","Groupe (6 max)","Sujets types"],ech:[{l:"Stage"}]},
+vacancesGrandOral:{cat:"Stage vacances",vol:"10 h · 6 élèves max",h:10,effectifMax:6,eligibleReduction:false,typeOffre:"stage",desc:"Préparation ciblée du Grand Oral (coef 10).",inc:["Construction des deux questions","Entraînement à l'oral","Gestion du stress"],ech:[{l:"Stage"}]},
+vacancesBacBlanc:{cat:"Stage vacances",vol:"1-2 jours · en conditions réelles",h:8,effectifMax:8,eligibleReduction:false,typeOffre:"stage",desc:"Bac blanc en conditions d'examen avec correction détaillée.",inc:["Conditions d'examen réelles","Correction annotée","Bilan personnalisé"],ech:[{l:"Session"}]},
+vacancesSprintFinal:{cat:"Stage vacances",vol:"20-30 h · 6 élèves max",h:25,effectifMax:6,eligibleReduction:false,typeOffre:"stage",desc:"Sprint intensif avant les épreuves.",inc:["Intensif grande surface","Sujets types + méthodes","Groupe (6 max)"],ech:[{l:"Stage"}]},
+urgenceMembreHeure:{cat:"Urgence en ligne",vol:"À la séance · individuel",h:1,effectifMax:1,eligibleReduction:false,typeOffre:"urgence",desc:"Aide ponctuelle en ligne avant une évaluation (membre Nexus).",inc:["Sur réservation","Selon disponibilité"],ech:[{l:"Par heure"}]},
+urgenceNonMembreHeure:{cat:"Urgence en ligne",vol:"À la séance · individuel",h:1,effectifMax:1,eligibleReduction:false,typeOffre:"urgence",desc:"Aide ponctuelle en ligne (hors abonnement).",inc:["Sur réservation","Tarif non-membre"],ech:[{l:"Par heure"}]},
+urgencePackCinq:{cat:"Urgence en ligne",vol:"5 h · individuel",h:5,effectifMax:1,eligibleReduction:false,typeOffre:"urgence",desc:"Pack 5 h d'urgence membre — économie sur le tarif horaire.",inc:["5 h à planifier dans l'année","Tarif préférentiel membre"],ech:[{l:"Pack"}]},
+urgencePackDix:{cat:"Urgence en ligne",vol:"10 h · individuel",h:10,effectifMax:1,eligibleReduction:false,typeOffre:"urgence",desc:"Pack 10 h d'urgence membre — meilleure économie.",inc:["10 h à planifier dans l'année","Tarif préférentiel membre"],ech:[{l:"Pack"}]},
+pontParcoursup:{cat:"Orientation",vol:"Accompagnement ponctuel · individuel",h:8,effectifMax:1,eligibleReduction:false,typeOffre:"coaching",desc:"Stratégie Parcoursup sans contrôle continu d'établissement (candidats libres).",inc:["Bilan et stratégie de vœux","Aide à la rédaction","Choix des filières"],ech:[{l:"Accompagnement"}]},
+celluleCandidatLibre:{cat:"Candidat libre",vol:"Accompagnement administratif · individuel",h:6,effectifMax:1,eligibleReduction:false,typeOffre:"coaching",desc:"Cellule Candidat Libre seule : inscription officielle, pièces, calendrier (sans cours).",inc:["Accompagnement inscription officielle","Constitution du dossier","Calendrier et convocations"],ech:[{l:"Accompagnement"}]}
+};
+/* Fusionner prix JSON + méta pédagogique — AUCUN montant en dur dans ce fichier */
+const OFFERS_JSON=JSON.parse(document.getElementById('nexus-offers-json').textContent);
+const OFFERS={};
+Object.entries(OFFERS_JSON).forEach(([k,jd])=>{
+  if(k.startsWith('_'))return;
+  const m=META[k]||{};
+  let ech=[];
+  if(jd.echeancier&&jd.echeancier.length&&m.ech&&m.ech.length){
+    ech=jd.echeancier.map((a,i)=>({l:(m.ech[i]&&m.ech[i].l)||('Tranche '+(i+1)),a,m:m.ech[i]&&m.ech[i].m,n:m.ech[i]&&m.ech[i].n}));
+  }else if(m.ech){ech=m.ech.map(e=>({...e,a:e.a||0}));}
+  OFFERS[k]={label:jd.label,cat:m.cat||'',monthly:jd.monthly,annual:jd.annual||0,
+    publicAnnual:jd.publicAnnual,approx:jd.approx,monthlyAlt:jd.monthlyAlt,
+    range:jd.display||null,vol:m.vol||jd.sub||'',desc:m.desc||'',
+    inc:m.inc||[],ech,h:m.h||0};
+});
+
+/* ===================== RÉFÉRENTIEL NIVEAUX ===================== */
+const SPECIALITES=[["maths","Mathématiques"],["pc","Physique-Chimie"],["svt","SVT"],["nsi","NSI"],["si","Sc. de l'ingénieur"],["ses","SES"],["hggsp","HGGSP"],["hlp","HLP"],["llcer","LLCER"],["amc","Anglais monde contemp."],["arts","Arts"],["autre","Autre"]];
+const OPTIONS_TLE=[["expertes","Maths expertes"],["complementaires","Maths complémentaires"],["dgemc","Droit (DGEMC)"],["lv3","LV3"],["arts","Arts"],["aucune","Aucune"]];
+const TRONC_LIBRE=[["hg","Histoire-géo"],["lva","LVA"],["lvb","LVB"],["enssci","Ens. scientifique"],["emc","EMC"],["eps","EPS"],["specab","Spé abandonnée (1re)"]];
+const MAT_3E=[["maths","Maths"],["francais","Français"],["hgemc","HG-EMC"],["sciences","Sciences"],["anglais","Anglais"],["methode","Méthode"]];
+const MAT_2DE=[["maths","Maths"],["francais","Français"],["pc","Physique-Chimie"],["svt","SVT"],["ses","SES"],["methode","Méthode"]];
+
+/* ===================== FICHES EXAMENS ===================== */
+const FICHES={
+ troisieme:`<p><b>DNB 2026 — note /20.</b> 60 % épreuves finales + 40 % contrôle continu (candidat scolaire).</p>
+   <table><tr><th>Épreuve finale</th><th>Coef.</th></tr><tr><td>Français</td><td>2</td></tr><tr><td>Mathématiques</td><td>2</td></tr><tr><td>Histoire-géo</td><td>1,5</td></tr><tr><td>EMC</td><td>0,5</td></tr><tr><td>Sciences (PC + SVT)</td><td>2</td></tr><tr><td>Oral de projet</td><td>2</td></tr></table>
+   <p><b>Candidat libre :</b> 100 % épreuves finales ; une <b>langue vivante (coef 2)</b> remplace l'oral de projet.</p>`,
+ seconde:`<p><b>Seconde générale.</b> Tronc commun (maths inclus), test de positionnement en début d'année, puis choix de <b>3 spécialités</b> pour la Première. Pas d'épreuve du bac, mais l'année prépare l'EAF, l'EAM et l'orientation.</p>`,
+ premiere:`<p><b>Épreuves anticipées (fin de 1re) — comptent pour la session 2027 :</b></p>
+   <table><tr><th>Épreuve</th><th>Coef.</th></tr><tr><td>Français écrit</td><td>5</td></tr><tr><td>Français oral</td><td>5</td></tr><tr><td>Maths anticipée (EAM) — nouveauté</td><td>2 (tronc commun)</td></tr></table>
+   <p>L'EAM concerne tous les élèves ; version approfondie pour la spé maths. La <b>spécialité abandonnée</b> en fin de 1re est évaluée (coef 8) au contrôle continu — en <b>ponctuel</b> pour les candidats libres.</p>`,
+ terminale:`<p><b>Cycle terminal — 60 % épreuves terminales / 40 % contrôle continu.</b></p>
+   <table><tr><th>Épreuve terminale</th><th>Coef.</th></tr><tr><td>Spécialité 1</td><td>16</td></tr><tr><td>Spécialité 2</td><td>16</td></tr><tr><td>Philosophie</td><td>8</td></tr><tr><td>Grand Oral</td><td>10</td></tr><tr><td>Français écrit + oral (anticipées)</td><td>5 + 5</td></tr></table>
+   <p><b>Contrôle continu (40 %) :</b> spé abandonnée (coef 8), histoire-géo, LVA, LVB, enseignement scientifique, EPS, EMC, options (maths expertes / complémentaires…).</p>
+   <p><b>Candidat libre :</b> tout le contrôle continu est passé en <b>épreuves ponctuelles</b> (modalité A étalée ou B groupée, choix définitif à l'inscription).</p>`
+};
+
+/* ===================== UTILITAIRES ===================== */
+const $=s=>document.querySelector(s);
+const fmt=n=>(Number(n)||0).toLocaleString("fr-FR").replace(/\u202f|\u00a0/g," ");
+function chips(container,list,name,opts={}){
+  $(container).innerHTML=list.map(([v,l],i)=>`<label class="chip"><input type="${opts.radio?'radio':'checkbox'}" name="${name}" value="${v}" ${opts.checkFirst&&i===0?'checked':''}><span>${l}</span></label>`).join("");
+}
+function checked(name){return [...document.querySelectorAll(`input[name=${name}]:checked`)].map(x=>x.value);}
+function annual(o){return typeof o.annual==="number"?o.annual:(o.monthly?o.monthly*10:0);}
+function priceLabel(o){
+  if(o.range) return o.range;
+  if(o.monthly) return `${o.approx?"≈ ":""}${fmt(o.monthly)} <small>TND / mois</small>`;
+  if(o.monthlyAlt) return `${fmt(o.annual)} <small>TND / an · ${o.monthlyAlt}/mois</small>`;
+  return `${fmt(o.annual)} <small>TND / an</small>`;
+}
+function echLine(o){
+  const e=o.ech||[];
+  if(!e.length) return "à définir";
+  if(e[0].m) return `${fmt(e[0].a)} TND × ${e[0].n||10}${e.length>1?" (après réservation)":""}`;
+  return e.map(x=>fmt(x.a)).join(" + ")+" = "+fmt(e.reduce((s,x)=>s+(x.m?x.a*(x.n||1):x.a),0))+" TND";
+}
+
+/* ===================== UI CONDITIONNELLE ===================== */
+function profileLevel(){return $("#level").value;}
+function profileStatus(){return $("#status").value;}
+function syncUI(){
+  const lvl=profileLevel(), st=profileStatus();
+  const show=(id,on)=>$(id).classList.toggle("on",!!on);
+
+  // Statut note
+  const notes={
+    scolarise:"Élève d'un lycée homologué AEFE : Nexus complète l'établissement (contrôle continu assuré par le lycée).",
+    libre:"Candidat individuel : aucun contrôle continu — l'élève passe des épreuves ponctuelles sur le tronc commun en plus des épreuves terminales.",
+    double:"Élève en lycée tunisien préparant le bac français : statut candidat libre pour le bac français, double charge de travail à organiser."
+  };
+  $("#statusNote").textContent=notes[st]||"";
+  $("#ficheBody").innerHTML=FICHES[lvl]||"";
+
+  const isLycee = lvl==="premiere"||lvl==="terminale";
+  const isLibre = (st==="libre"||st==="double") && isLycee;
+
+  // spécialités (1re/Tle)
+  show("#block-spes", isLycee);
+  show("#block-drop", lvl==="premiere");
+  show("#block-options", lvl==="terminale");
+  show("#block-matieres", lvl==="troisieme");
+  show("#block-projet", lvl==="seconde");
+  show("#block-lva", isLycee);
+  show("#block-libre", isLibre);
+
+  // légende + note matières
+  const L={troisieme:"Matières (DNB)",seconde:"Matières & projet",premiere:"Spécialités de Première",terminale:"Spécialités de Terminale"};
+  $("#subjLegend").textContent=L[lvl];
+  const SN={troisieme:"Sélectionnez les matières prioritaires pour le brevet.",seconde:"Matières à renforcer et spécialités envisagées pour la Première.",premiere:"Trois spécialités en Première ; indiquez celle qui sera abandonnée en fin d'année.",terminale:"Deux spécialités conservées + options éventuelles."};
+  $("#subjNote").textContent=SN[lvl];
+
+  // remplir les chips selon le niveau
+  if(isLycee){
+    chips("#spes",SPECIALITES,"spe");
+    const sel=$("#dropSpe");
+    sel.innerHTML='<option value="">— aucune / non concerné —</option>'+SPECIALITES.map(([v,l])=>`<option value="${v}">${l}</option>`).join("");
+    if(lvl==="terminale") chips("#options",OPTIONS_TLE,"opt");
+  }
+  if(lvl==="troisieme") chips("#matieres",MAT_3E,"mat",{});
+  if(lvl==="seconde") chips("#projet",SPECIALITES,"proj");
+  if(isLibre) chips("#troncCommun",TRONC_LIBRE,"tronc");
+
+  syncSummary();
+}
+
+/* ===================== LECTURE PROFIL ===================== */
+function readProfile(){
+  const lvl=profileLevel(), st=profileStatus();
+  return {
+    eleve:$("#eleve").value.trim(), parent:$("#parent").value.trim(),
+    advisor:$("#advisor").value.trim()||"Nexus Réussite",
+    level:lvl, status:st, school:$("#school").value.trim(),
+    spes:checked("spe"), dropSpe:$("#dropSpe")?$("#dropSpe").value:"",
+    options:checked("opt"), matieres:checked("mat"), projet:checked("proj"),
+    tronc:checked("tronc"), lva:$("#lva").value.trim(),
+    niveauMat:$("#niveauMat").value,
+    modalite: $("#modalite")?$("#modalite").value:"", repasse:$("#repasse")?$("#repasse").value:"",
+    objective:$("#objective").value, mode:$("#mode").value, budget:$("#budget").value,
+    ancien:$("#ancien").checked, fratrie:$("#fratrie").checked,
+    horsTunis:$("#horsTunis").checked||$("#mode").value==="enligne",
+    stageDeja:$("#stageDeja").checked, urgent:$("#urgent").checked,
+    notes:$("#notes").value.trim(), phone:$("#phone").value.trim(),
+    email:$("#email").value.trim(), validity:$("#validity").value.trim(),
+    groupeStatut:$("#groupeStatut")?$("#groupeStatut").value:"conditionnel",
+    enseignantStatut:$("#enseignantStatut")?$("#enseignantStatut").value:"a_confirmer",
+    creneauInfo:$("#creneauInfo")?$("#creneauInfo").value.trim():""
+  };
+}
+const has=(p,s)=>p.spes.includes(s);
+const sciCount=p=>["maths","pc","svt","nsi","si"].filter(s=>has(p,s)).length;
+
+/* ===================== PÉRIMÈTRE D'ÉPREUVES ===================== */
+function examScope(p){
+  const sp=k=>SPECIALITES.find(s=>s[0]===k); const speName=k=>{const x=sp(k);return x?x[1]:k;};
+  const out=[];
+  if(p.level==="troisieme"){
+    out.push("DNB : français, maths, histoire-géo, EMC, sciences"+(p.status==="scolarise"?", oral de projet":", langue vivante (candidat libre)"));
+    if(p.status!=="scolarise") out.push("Candidat libre : 100 % épreuves finales (pas de contrôle continu)");
+    return out;
+  }
+  if(p.level==="seconde"){
+    out.push("Pas d'épreuve du bac en Seconde");
+    out.push("Objectif : test de positionnement, maths du tronc commun, choix des 3 spécialités");
+    if(p.projet.length) out.push("Spécialités envisagées : "+p.projet.map(speName).join(", "));
+    return out;
+  }
+  // Première / Terminale
+  if(p.level==="premiere"){
+    out.push("Anticipées (fin de 1re) : Français écrit (5) + oral (5), Maths anticipée EAM (2)");
+    if(p.dropSpe) out.push("Spé abandonnée — "+speName(p.dropSpe)+" (coef 8, programme de 1re)");
+  } else {
+    const two=p.spes.slice(0,2).map(speName).join(" + ")||"2 spécialités";
+    out.push("Terminales : "+two+" (16+16), Philosophie (8), Grand Oral (10)");
+    if(p.options.length&&!p.options.includes("aucune")) out.push("Options : "+p.options.map(o=>(OPTIONS_TLE.find(x=>x[0]===o)||[,o])[1]).join(", "));
+  }
+  if(p.status==="scolarise"){
+    out.push("Contrôle continu assuré par le lycée (40 %)");
+  } else {
+    out.push("Candidat libre — ponctuelles tronc commun (40 %) : "+(p.tronc.length?p.tronc.map(t=>(TRONC_LIBRE.find(x=>x[0]===t)||[,t])[1]).join(", "):"histoire-géo, LVA, LVB, ens. scientifique, EMC, EPS"));
+    if(p.modalite==="A") out.push("Modalité A : ponctuelles étalées (fin 1re + fin Tle)");
+    else if(p.modalite==="B") out.push("Modalité B : toutes les ponctuelles en fin de Terminale");
+    out.push("Inscription Cyclades + Institut français de Tunisie");
+  }
+  return out;
+}
+
+/* ===================== MOTEUR DE RECOMMANDATION ===================== */
+function recommend(p){
+  const alerts=[], reasons=[], comp=[];
+  const libre = p.status==="libre"||p.status==="double";
+  if(libre){ alerts.push("Carte d'examen à construire (épreuves + modalité A/B + Cyclades/IFT)"); }
+  if(p.horsTunis){ alerts.push("Hors Tunis → Plateforme Accompagnée"); comp.push("plateformeAccompagnee"); }
+  if(p.urgent){ alerts.push("Urgent → stage + heures d'urgence"); comp.push("urgenceMembreHeure","vacancesUneMatiere"); }
+  if(p.stageDeja) alerts.push("Stage déjà suivi : déduction possible si inscription annuelle confirmée");
+  if(p.budget==="serre"){ alerts.push("Budget serré → envisager plateforme"); comp.push("plateformeAutonomie","plateformeSuivi"); }
+
+  let pri,alt;
+
+  if(p.level==="troisieme"){
+    pri = (p.budget==="serre" && p.matieres.length<=1) ? "brevetMaths":"brevetComplet";
+    alt = pri==="brevetComplet"?"brevetMaths":"brevetComplet";
+    reasons.push("Le DNB 2026 se joue à 60 % sur les épreuves finales ; la formule complète couvre maths + français + méthode.");
+    if(libre) reasons.push("Candidat libre : prévoir l'épreuve de langue vivante à la place de l'oral.");
+    comp.push("brevetMaths");
+  }
+  else if(p.level==="seconde"){
+    pri = (sciCount(p)>=1 && (p.objective==="selectif"||p.objective==="mention")) || p.niveauMat==="solide" ? "secondeSciences":"secondeMathsMethode";
+    alt = pri==="secondeSciences"?"secondeMathsMethode":"secondeSciences";
+    reasons.push("En Seconde, l'enjeu est la méthode, les maths du tronc commun et le choix éclairé des spécialités.");
+    comp.push("secondeCoachingOrientation");
+  }
+  else if(p.level==="premiere"){
+    if(libre){
+      pri = p.budget==="serre" ? "premiereLibreEssentiel":"premiereLibreAccompagnee";
+      alt = pri==="premiereLibreEssentiel"?"premiereLibreAccompagnee":"premiereLibreEssentiel";
+      reasons.push("Candidat libre en Première : il faut cadrer EAF, la nouvelle EAM, la spé abandonnée et le tronc commun en ponctuel.");
+      comp.push("premiereLibreIntensif");
+    } else if(sciCount(p)>=2 && !has(p,"francais")){
+      pri="premiereSciences"; alt="premiereDoubleSecurite";
+      reasons.push("Profil scientifique : consolider deux spécialités dès la Première, avec l'EAM approfondie.");
+    } else {
+      pri="premiereDoubleSecurite"; alt="premiereSciences";
+      reasons.push("Les deux épreuves anticipées de Première — français (EAF) et maths (EAM) — sécurisées ensemble.");
+      comp.push("premiereEafFrancais","premiereMathsAnticipees");
+    }
+  }
+  else { // terminale
+    if(libre){
+      pri = (p.objective==="selectif"||p.budget==="premium") ? "terminaleLibrePremium" : (p.mode==="enligne"?"terminaleLibreOnline":"terminaleLibreMixte");
+      alt = pri==="terminaleLibrePremium"?"terminaleLibreMixte":"terminaleLibrePremium";
+      reasons.push("Candidat libre en Terminale : 2 spés, philo, Grand Oral + tronc commun en ponctuel. La carte d'examen et l'accompagnement administratif sont décisifs.");
+      comp.push("vacancesGrandOral","stagePrerentreeTerminale");
+    } else if(p.horsTunis){
+      pri="plateformeAccompagnee"; alt="plateformeSuivi";
+      reasons.push("Élève hors Tunis : cadre Nexus complet à distance.");
+    } else if(p.options.includes("expertes") || (has(p,"maths") && p.objective==="selectif")){
+      pri="excellenceTerminale"; alt="duoTerminaleNexus";
+      reasons.push("Maths expertes / dossier sélectif : Excellence couvre 2 spés + l'option et la préparation Parcoursup.");
+      comp.push("vacancesGrandOral");
+    } else if(sciCount(p)>=2){
+      pri="duoTerminaleNexus"; alt="excellenceTerminale";
+      reasons.push("Deux spécialités à préparer pour les épreuves de mars : le Duo les couvre avec stages et Grand Oral.");
+      comp.push("stagePrerentreeTerminale");
+    } else {
+      pri="terminaleSpecialiteSimple"; alt="duoTerminaleNexus";
+      reasons.push("Une seule matière à renforcer : la Spécialité Simple cible le besoin ; Duo si la 2e spé doit aussi être sécurisée.");
+    }
+  }
+  if(p.objective==="ponctuel"){ alerts.push("Besoin ponctuel → heures d'urgence ou stage court"); comp.push("urgenceMembreHeure"); }
+  // Alertes EDS / options / cursus
+  if((p.level==="terminale"||p.level==="premiere")&&p.status==="scolarise"){
+    if(p.level==="terminale"&&p.spes.length<2) alerts.push("⚠ Terminale : renseigner au moins 2 EDS (coef 32 aux épreuves) — à vérifier avec la famille");
+    if(p.level==="premiere"&&p.spes.length<2) alerts.push("⚠ Première : renseigner au moins 2 EDS pour orienter la recommandation");
+  }
+  if(p.options.includes("expertes")&&!has(p,"maths")) alerts.push("⚠ Maths expertes requiert Maths comme EDS — à vérifier avec la famille / l'établissement");
+  if(p.options.includes("complementaires")&&has(p,"maths")&&p.level==="terminale") alerts.push("⚠ Maths complémentaires incompatible avec Maths EDS conservée en Terminale — à vérifier avec l'établissement");
+  if((p.status==="libre"||p.status==="double")&&(p.level==="terminale"||p.level==="premiere")){
+    if(!p.modalite||p.modalite==="indecis") alerts.push("⚠ Candidat libre : modalité A/B non arrêtée — à déterminer avant l'inscription Cyclades");
+    if(!(p.tronc&&p.tronc.length)) alerts.push("⚠ Candidat libre : tronc commun ponctuel non renseigné (40 % de la note) — à préciser");
+  }
+  if(p.status==="double") alerts.push("⚠ Double cursus : charge horaire élevée — valider la faisabilité avec la famille et l'établissement");
+  if(p.options.includes("complementaires")) alerts.push("Maths complémentaires : à intégrer au planning (option, contrôle continu)");
+
+  const uniq=a=>{const v=[...new Set(a)];v.filter(k=>!OFFERS[k]).forEach(k=>console.warn('[Nexus devis] Clé de complément invalide (absente de OFFERS) :',k));return v.filter(k=>OFFERS[k]);}
+  // Score de risque pédagogique (indicatif interne)
+  let riskScore=0;
+  if(p.status==="libre")riskScore+=3;
+  if(p.status==="double")riskScore+=4;
+  if(p.urgent)riskScore+=3;
+  if(p.niveauMat==="fragile")riskScore+=2;
+  if(p.budget==="serre")riskScore+=1;
+  if(p.objective==="selectif")riskScore+=2;
+  if(p.objective==="rattrapage")riskScore+=3;
+  if(p.level==="terminale")riskScore+=1;
+  if(p.repasse==="ameliorer")riskScore+=2;
+  const riskLevel=riskScore>=8?"élevé":riskScore>=4?"moyen":"faible";
+  const riskMsg=riskLevel==="élevé"?"Suivi renforcé recommandé — stage prérentrée et rendez-vous direction":riskLevel==="moyen"?"Parcours standard — vigilance sur les étapes clés":"Formule ciblée suffisante — renforcement ponctuel";
+  return {pri,alt,reasons,alerts:[...new Set(alerts)],comp:uniq(comp),riskScore,riskLevel,riskMsg};
+}
+
+/* ===================== ÉTAT & RENDU ===================== */
+let CUR=null, RECO=null, CUROFFER=null, LASTQUOTE=null;
+
+function syncSummary(){
+  const p=readProfile();
+  const ST={scolarise:"scolarisé",libre:"candidat libre",double:"double cursus"};
+  const NV={troisieme:"Troisième",seconde:"Seconde",premiere:"Première",terminale:"Terminale"};
+  $("#sEleve").textContent=p.eleve||"—";
+  $("#sNiveau").textContent=`${NV[p.level]} · ${ST[p.status]}`;
+  const subj = p.level==="troisieme"?p.matieres:(p.level==="seconde"?p.projet:p.spes);
+  $("#sSpes").textContent=subj.length?subj.join(", "):"—";
+  $("#sObj").textContent=p.objective;
+  $("#sReco").textContent=RECO?OFFERS[RECO.pri].label:"—";
+  if($("#sRisk")&&RECO){const rl=RECO.riskLevel,colors={faible:"#1E7A46",moyen:"#B45309","élevé":"#B42318"};$("#sRisk").innerHTML=`<span style="font-weight:800;color:${colors[rl]}">▲ ${rl.toUpperCase()}</span> <span style="font-size:12px;color:var(--muted)">— ${RECO.riskMsg}</span>`;}
+  else if($("#sRisk")&&!RECO){$("#sRisk").textContent="—";}
+  $("#sScope").innerHTML=examScope(p).map(x=>`<li>${x}</li>`).join("");
+  const al=(RECO&&RECO.alerts.length)?RECO.alerts:["Les alertes internes s'afficheront après qualification."];
+  $("#alerts").innerHTML=al.map((a,i)=>`<div class="alert ${(!RECO&&i===0)?'ok':''}">${a}</div>`).join("");
+}
+
+function offerCard(key,role,reason){
+  const o=OFFERS[key];
+  const pub=o.publicAnnual?`<div class="pub">Fidélité <b>${fmt(o.annual)} TND</b> · public <s>${fmt(o.publicAnnual)} TND</s></div>`:(o.monthly?`<div class="pub">soit ${fmt(o.annual)} TND / an</div>`:"");
+  return `<article class="card offer ${role==='alt'?'alt':''}">
+    <span class="badge">${role==='alt'?'Alternative':'Recommandée'}</span>
+    <span class="ocat">${o.cat}</span>
+    <h3>${o.label}</h3>
+    <div class="why"><b>Pourquoi :</b> ${reason}</div>
+    <div class="price">${priceLabel(o)}</div>${pub}
+    <div class="sub">${o.vol}</div>
+    <ul class="inc">${o.inc.map(i=>`<li>${i}</li>`).join("")}</ul>
+    <div class="ech"><b>Échéancier :</b> ${echLine(o)}</div>
+    <div class="scarce">Pas de date limite — places limitées : groupes par niveaux homogènes (5 à 6 max). Une fois un groupe complet, la place et le tarif ne sont plus garantis.</div>
+    <div class="foot"><button type="button" class="btn primary" onclick="makeDevis('${key}')">Préparer le devis</button></div>
+  </article>`;
+}
+
+function render(){
+  CUR=readProfile(); RECO=recommend(CUR);
+  const NV={troisieme:"Troisième",seconde:"Seconde",premiere:"Première",terminale:"Terminale"};
+  const ST={scolarise:"scolarisé",libre:"candidat libre",double:"double cursus"};
+  $("#intro").textContent=`Profil : ${CUR.eleve} — ${NV[CUR.level]}, ${ST[CUR.status]}. La recommandation est expliquée pour présenter la logique, pas seulement le prix.`;
+  $("#offers").innerHTML=offerCard(RECO.pri,"pri",RECO.reasons.join(" "))+offerCard(RECO.alt,"alt","Seconde option cohérente si le budget, le rythme ou le périmètre doit être ajusté.");
+  $("#extras").innerHTML=RECO.comp.length?RECO.comp.map(k=>`<span class="chip"><span>${OFFERS[k].label} · ${OFFERS[k].range||(OFFERS[k].monthly?fmt(OFFERS[k].monthly)+" /mois":fmt(OFFERS[k].annual)+" /an")}</span></span>`).join(""):"<span class='sub'>Aucun complément prioritaire.</span>";
+  $("#compare").hidden=true;
+  $("#results").style.display="block";
+  $("#devisWrap").style.display="none";
+  syncSummary();
+  $("#results").scrollIntoView({behavior:"smooth"});
+}
+
+function comparison(){
+  if(!RECO) return;
+  const a=OFFERS[RECO.pri], b=OFFERS[RECO.alt];
+  const row=(k,va,vb)=>`<tr><td>${k}</td><td>${va||"—"}</td><td>${vb||"—"}</td></tr>`;
+  $("#compare").innerHTML=`<table><thead><tr><th>Critère</th><th>${a.label}</th><th>${b.label}</th></tr></thead><tbody>
+    ${row("Prix",a.range||((a.monthly?(a.approx?"≈ ":"")+fmt(a.monthly)+" /mois":fmt(a.annual)+" /an")),b.range||((b.monthly?(b.approx?"≈ ":"")+fmt(b.monthly)+" /mois":fmt(b.annual)+" /an")))}
+    ${row("Volume",a.vol,b.vol)}
+    ${row("Périmètre",a.desc,b.desc)}
+    ${row("Échéancier",echLine(a),echLine(b))}
+  </tbody></table>`;
+  $("#compare").hidden=false;
+}
+
+/* ===================== DEVIS ===================== */
+function quoteNumber(){
+  const d=new Date(),p2=n=>String(n).padStart(2,"0");
+  const buf=new Uint16Array(1); crypto.getRandomValues(buf);
+  return `NX-${d.getFullYear()}${p2(d.getMonth()+1)}${p2(d.getDate())}-${p2(d.getHours())}${p2(d.getMinutes())}-${String(buf[0]%10000).padStart(4,"0")}`;
+}
+function calendarText(p){
+  if(p.status==="double") return "Calendrier adapté à la double contrainte établissement tunisien + épreuves du bac français. Les stages et points d'étape sont coordonnés avec les deux agendas. Les dates précises sont définies à la constitution du groupe.";
+  if(p.status==="libre") return "Calendrier centré sur les échéances d'examen : épreuves anticipées en fin de Première si modalité A, épreuves de spécialité au printemps, épreuves ponctuelles selon convocation. Le rythme de travail est défini avec la famille — pas de calendrier scolaire imposé.";
+  return "Stages positionnés sur les vacances de la Toussaint, d'hiver (février) et de printemps, selon le calendrier AEFE (rythme nord). Les dates précises sont communiquées à la constitution du groupe.";
+}
+function whatsappMsg(p,o){
+  const NV={troisieme:"Troisième",seconde:"Seconde",premiere:"Première",terminale:"Terminale"};
+  return `Bonjour, suite à notre échange, voici la formule recommandée pour ${p.eleve||"votre enfant"} (${NV[p.level]}) : ${o.label}. Repère tarifaire : ${o.range||fmt(annual(o))+" TND"}. Les dates, le groupe et l'échéancier seront confirmés selon les places disponibles.`;
+}
+
+function makeDevis(key){
+  CUROFFER=key; const p=CUR||readProfile(); const o=OFFERS[key];
+  const dn=quoteNumber(), today=new Date().toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"});
+  const NV={troisieme:"Troisième (DNB)",seconde:"Seconde",premiere:"Première",terminale:"Terminale"};
+  const ST={scolarise:"Élève scolarisé (AEFE)",libre:"Candidat libre",double:"Double cursus (lycée tunisien + bac fr.)"};
+
+  // échéancier rows — aucune ligne à 0 TND
+  let rows="", total=0;
+  const isReconst=!(OFFERS_JSON[key]&&OFFERS_JSON[key].echeancier&&OFFERS_JSON[key].echeancier.length);
+  const indTag=isReconst?'<em style="font-size:10.5px;color:#B45309"> (indicatif)</em>':'';
+  const hasRealEch=(o.ech||[]).some(e=>e.a>0);
+  if(o.range&&!hasRealEch){
+    rows=`<tr><td colspan="2">Tarif</td><td>${o.range}</td></tr>`;
+    total=o.annual||0;
+  }else if(o.monthly&&!hasRealEch){
+    rows=`<tr><td>10 mensualités</td><td>2026/2027</td><td>${fmt(o.monthly)} TND × 10</td></tr>`;
+    total=o.monthly*10;
+  }else{
+    (o.ech||[]).filter(e=>e.a>0).forEach((e,i,arr)=>{
+      if(e.m){const n=e.n||10;total+=e.a*n;rows+=`<tr><td>${e.l}${indTag}</td><td>2026/2027</td><td>${fmt(e.a)} TND × ${n}</td></tr>`;}
+      else{total+=e.a;rows+=`<tr><td>${i===0&&arr.length>1?"Réservation":e.l}${indTag}</td><td>2026/2027</td><td>${fmt(e.a)} TND</td></tr>`;}
+    });
+    if(!rows&&o.monthly){rows=`<tr><td>10 mensualités</td><td>2026/2027</td><td>${fmt(o.monthly)} TND × 10</td></tr>`;total=o.monthly*10;}
+  }
+  const pubRow=o.publicAnnual?`<tr class="ref"><td colspan="2">Valeur au tarif public (référence anti-désistement)</td><td>${fmt(o.publicAnnual)} TND</td></tr>`:"";
+  const totLabel=o.range?o.range:`${fmt(total)} TND`+(o.publicAnnual?" (tarif fidélité)":"");
+
+  const scope=examScope(p).map(x=>`<li>${x}</li>`).join("");
+  const isLibre=p.status!=="scolarise";
+
+  // Statut commercial du devis
+  const gs=p.groupeStatut||"conditionnel",es=p.enseignantStatut||"a_confirmer";
+  const isListeAttente=gs==="complet";
+  const isConditional=isListeAttente||gs==="conditionnel"||gs==="prevu"||es==="recherche"||es==="a_confirmer";
+  const statutLabel=isListeAttente?"Liste d'attente — groupe complet":gs==="conditionnel"||es==="recherche"?"Conditionnel — groupe en cours":es==="a_confirmer"?"Conditionnel — enseignant à confirmer":gs==="prevu"?"Pré-devis — lancement sous réserve":"Confirmable — sous réserve de places";
+  const statutColor=isListeAttente?"background:#FBEAEA;color:#B42318;border-color:#FECACA":isConditional?"background:#FFF3CD;color:#92400E;border-color:#F59E0B":"background:#D1FAE5;color:#065F46;border-color:#34D399";
+  const statutBadge=`<span style="display:inline-block;${statutColor};border:1px solid;border-radius:6px;padding:3px 10px;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em">${statutLabel}</span>`;
+  const groupeLabel=gs==="ouvert"?"Ouvert — places disponibles":gs==="conditionnel"?"En cours de constitution":gs==="prevu"?"Prévu (lancement sous réserve)":"Complet — liste d'attente";
+  const ensLabel=es==="confirme"?"Confirmé ✓":es==="recherche"?"En recherche":"À confirmer";
+  // effectifMax dynamique
+  const effMax=o.effectifMax===1?"Individuel":o.effectifMax?`${o.effectifMax} élèves max`:(o.typeOffre==="plateforme"?"Plateforme (selon format)":"Selon groupe");
+
+  $("#devis").innerHTML=`
+    <div class="dh">
+      <div>
+        <img src="https://nexusreussite.academy/images/logo_slogan_nexus.webp" alt="Nexus Réussite" style="height:48px" onerror="this.outerHTML='&lt;div class=&quot;fb&quot;&gt;NEXUS &lt;span&gt;RÉUSSITE&lt;/span&gt;&lt;/div&gt;'">
+        <div class="s">Accompagnement scolaire — système français · Tunis · nexusreussite.academy</div>
+      </div>
+      <div class="meta"><div class="t">DEVIS</div><div>N° <b>${dn}</b></div><div>Établi le ${today}</div><div>Année 2026/2027 · proposition non contractuelle</div><div style="margin-top:5px">${statutBadge}</div></div>
+    </div>
+
+    <div class="dcols">
+      <div class="dbox"><h4>Famille</h4><p><b>${p.parent||"—"}</b></p>${p.phone?`<p>WhatsApp : ${p.phone}</p>`:""}${p.email?`<p>${p.email}</p>`:""}</div>
+      <div class="dbox"><h4>Élève</h4><p><b>${p.eleve||"—"}</b></p><p>${NV[p.level]} — ${ST[p.status]}</p>${p.school?`<p>${p.school}</p>`:""}</div>
+    </div>
+
+    <div class="doffer">
+      <span class="cat">${o.cat}</span>
+      <h3>${o.label}</h3>
+      <p class="desc">${o.desc} Volume : ${o.vol}.</p>
+    </div>
+
+    <table class="dt"><thead><tr><th>Échéance</th><th>Période</th><th>Montant</th></tr></thead><tbody>
+      ${rows}${pubRow}
+      <tr class="tot"><td colspan="2">Total annuel</td><td>${totLabel}</td></tr>
+    </tbody></table>
+
+    <div class="dscope"><b>Périmètre d'épreuves 2026/2027 ${isLibre?"(carte d'examen candidat libre)":""}</b><ul style="margin:7px 0 0;padding-left:17px">${scope}</ul></div>
+
+    <div class="dsec"><h4>Ce qui est inclus</h4><ul style="grid-template-columns:1fr 1fr;display:grid">${o.inc.map(i=>`<li>${i}</li>`).join("")}</ul></div>
+
+    <div class="dsec"><h4>Calendrier pédagogique</h4><p style="font-size:12.5px;color:var(--muted)">${calendarText(p)}</p></div>
+
+    <div class="dsec" style="font-size:12.5px"><h4>Groupe &amp; organisation</h4>
+      <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+        <tr><td style="padding:4px 0;color:var(--muted);width:40%">Statut groupe</td><td style="padding:4px 0;font-weight:700">${groupeLabel}</td></tr>
+        <tr><td style="padding:4px 0;color:var(--muted)">Enseignant</td><td style="padding:4px 0;font-weight:700">${ensLabel}</td></tr>
+        ${p.creneauInfo?`<tr><td style="padding:4px 0;color:var(--muted)">Créneau envisagé</td><td style="padding:4px 0;font-weight:700">${p.creneauInfo}</td></tr>`:""}
+        <tr><td style="padding:4px 0;color:var(--muted)">Effectif maximum</td><td style="padding:4px 0;font-weight:700">${effMax}</td></tr>
+      </table>
+    </div>
+    ${isListeAttente?`<div class="dsec" style="background:#FBEAEA;border:1px solid #FECACA;border-radius:8px;padding:10px 14px;font-size:12.5px"><b style="color:#B42318">⚠ Groupe complet — liste d'attente</b><br>Ce devis est indicatif. L'inscription ne sera confirmée qu'en cas de désistement ou d'ouverture d'un nouveau groupe. Contacter Nexus Réussite pour vérifier la disponibilité.</div>`:""}
+    ${ !isLibre && p.level!=="troisieme" && p.level!=="seconde" ?`<div class="dsec" style="font-size:12.5px"><h4>Documents à prévoir (recommandés pour l'inscription)</h4><ul style="margin:4px 0;padding-left:16px;display:grid;gap:3px"><li>Dernier bulletin scolaire</li><li>Emploi du temps actuel</li><li>Spécialités et options</li>${p.objective==="selectif"||p.objective==="mention"?"<li>Objectifs Parcoursup / résultats récents</li>":""}<li>Dates de bacs blancs de l'établissement</li></ul></div>`:""}
+    ${p.level==="seconde"?`<div class="dsec" style="font-size:12.5px"><h4>Documents à prévoir (recommandés pour l'inscription)</h4><ul style="margin:4px 0;padding-left:16px;display:grid;gap:3px"><li>Bulletin de Seconde (ou dernier bulletin de Troisième)</li><li>Spécialités envisagées</li><li>Projet de Première</li></ul></div>`:""}
+    ${p.level==="troisieme"?`<div class="dsec" style="font-size:12.5px"><h4>Documents à prévoir (recommandés pour l'inscription)</h4><ul style="margin:4px 0;padding-left:16px;display:grid;gap:3px"><li>Dernier bulletin</li><li>Résultat(s) de brevet blanc si disponible</li><li>Orientation envisagée (Seconde générale, technologique, professionnelle)</li></ul></div>`:""}
+    ${isLibre?`<div class="dsec" style="font-size:12.5px"><h4>Documents à fournir (candidat libre)</h4><ul style="margin:4px 0;padding-left:16px;display:grid;gap:3px"><li>Pièce d’identité en cours de validité</li><li>Dossier d’inscription Cyclades (fourni par l’élève)</li><li>Attestation de non-scolarisation ou certificat de radiation</li><li>Formulaire IFT + règlement des frais d’inscription</li><li>Photo d’identité</li>${p.repasse==="anticipees"?"<li>Relevé de notes épreuves anticipées obtenu</li>":""}</ul><p style="margin:6px 0 0;font-size:11.5px;color:var(--muted)">Repères réglementaires à vérifier selon les textes officiels et la convocation. Nexus accompagne la constitution du dossier sans se substituer à l’inscription officielle.</p></div>`:""}
+    <div class="dsec"><h4>Conditions</h4><ol>
+      <li>L'acompte de réservation bloque la place dans un groupe (${effMax.toLowerCase()}, niveaux homogènes) et n'est pas remboursable, sauf si Nexus n'ouvre pas le groupe sans solution acceptée.</li>
+      <li>Un groupe n'ouvre que dans une matière où Nexus dispose d'un enseignant confirmé, et selon l'effectif et l'homogénéité du niveau.</li>
+      ${o.publicAnnual?'<li>Facturation au tarif public par période consommée ; la remise fidélité est acquise en fin de parcours. En cas d\'arrêt, les prestations consommées restent dues au tarif public.</li>':'<li>La remise fidélité est acquise lorsque le parcours annuel est mené à son terme.</li>'}
+      <li>Devis sans date limite : valable sous réserve de places disponibles. Une fois les groupes constitués, l'inscription peut être close faute de place.</li>
+      ${isLibre?'<li>Inscription à l\'examen sous la responsabilité de la famille via Cyclades et l\'Institut français de Tunisie ; Nexus accompagne la constitution du dossier et de la carte d\'examen.</li>':''}
+      <li>Cours assurés par des enseignants certifiés et agrégés de l'enseignement français à l'étranger, maîtrisant programmes, attendus et pédagogie.</li>
+    </ol></div>
+
+    <div class="dsign"><div class="b">Pour Nexus Réussite — date et signature</div><div class="b">Le parent — « bon pour accord », date et signature</div></div>
+    <div class="dfoot">Nexus Réussite · nexusreussite.academy · WhatsApp +216 99 192 829 · Devis ${dn} — page 1/1</div>
+  `;
+  LASTQUOTE={numero:dn,offer:key,profile:p};
+  $("#devisWrap").style.display="block";
+  $("#devisWrap").scrollIntoView({behavior:"smooth"});
+}
+
+/* ===================== ÉVÉNEMENTS ===================== */
+$("#quiz").addEventListener("submit",e=>{
+  e.preventDefault();
+  const p=readProfile();
+  if(!p.eleve||!p.parent){$("#formerr").style.display="inline";return;}
+  $("#formerr").style.display="none";
+  render();
+});
+$("#level").addEventListener("change",syncUI);
+$("#status").addEventListener("change",syncUI);
+document.addEventListener("input",e=>{ if(["eleve","level","status"].includes(e.target.id)||e.target.name) syncSummary(); });
+$("#compareBtn").addEventListener("click",comparison);
+$("#printBtn").addEventListener("click",()=>window.print());
+$("#backBtn").addEventListener("click",()=>{$("#devisWrap").style.display="none";$("#results").scrollIntoView({behavior:"smooth"});});
+$("#copyWa").addEventListener("click",async()=>{
+  const p=CUR||readProfile(), o=OFFERS[CUROFFER||(RECO&&RECO.pri)||"duoTerminaleNexus"];
+  try{await navigator.clipboard.writeText(whatsappMsg(p,o));$("#copyWa").textContent="Copié ✓";setTimeout(()=>$("#copyWa").textContent="Copier message WhatsApp",1500);}catch(_){}
+});
+$("#resetBtn").addEventListener("click",()=>{CUR=RECO=CUROFFER=null;$("#results").style.display="none";$("#devisWrap").style.display="none";setTimeout(syncUI,0);});
+
+syncUI();
+
+/* ===================== ÉCONOMIE DU GROUPE ===================== */
+const COUT_ENSEIGNANT=120;
+function econCalc(){
+  const key=RECO&&RECO.pri;
+  if(!key||!OFFERS[key])return;
+  const o=OFFERS[key];
+  const eff=parseInt(document.getElementById('econEffectif').value)||5;
+  const h=o.h||0;
+  const heuresLabel=h?h+' h documentées':'volume indicatif (rythme × 30 sem)';
+  const heuresCalc=h||30*2;
+  const coutTotal=COUT_ENSEIGNANT*heuresCalc;
+  const revenue=annual(o)*eff;
+  const marge=revenue-coutTotal;
+  const pct=revenue>0?Math.round(marge/revenue*100):0;
+  const indic=eff>=5?'<span class="ev-vert">● Viable</span>':eff===4?'<span class="ev-orange">● Acceptable</span>':'<span class="ev-rouge">● Valider direction</span>';
+  document.getElementById('econResult').innerHTML=
+    '<b>Offre : '+o.label+'</b><br>'+
+    'Heures : '+heuresLabel+' · Coût enseignant : <b>'+fmt(coutTotal)+' TND</b><br>'+
+    'Revenu groupe ('+eff+' élèves) : <b>'+fmt(revenue)+' TND</b> · '+
+    'Marge brute : <b>'+fmt(marge)+' TND</b> ('+pct+'%) '+indic;
+}
+document.addEventListener('change',e=>{if(e.target.id==='econEffectif')econCalc();});
+
+/* ===================== PANIER ===================== */
+const BASKET_MAIN_KEYS=['terminaleSpecialiteSimple','duoTerminaleNexus','excellenceTerminale','terminaleLibreOnline','terminaleLibreMixte','terminaleLibrePremium','premiereEafFrancais','premiereMathsAnticipees','premiereDoubleSecurite','premiereSciences','premiereLibreEssentiel','premiereLibreAccompagnee','premiereLibreIntensif','secondeMathsMethode','secondeSciences','brevetMaths','brevetComplet'];
+const BASKET_COMP_KEYS=['plateformeAutonomie','plateformeSuivi','plateformeAccompagnee','vacancesUneMatiere','vacancesDuoMatieres','vacancesGrandOral','vacancesBacBlanc','vacancesSprintFinal','stagePrerentreeTerminale','stagePrerentreeMathsTerminale','secondeCoachingOrientation','urgenceMembreHeure','urgencePackCinq','urgencePackDix','pontParcoursup','celluleCandidatLibre'];
+
+function priceNum(o){return o.annual||(o.monthly?o.monthly*10:0);}
+function annualOf(key){return priceNum(OFFERS[key]||{});}
+
+function renderBasket(){
+  const p=CUR||readProfile();
+  const libre=p.status!=='scolarise';
+  // filter main keys by level
+  const levelMap={troisieme:['brevetMaths','brevetComplet'],seconde:['secondeMathsMethode','secondeSciences','secondeCoachingOrientation'],premiere:libre?['premiereLibreEssentiel','premiereLibreAccompagnee','premiereLibreIntensif']:['premiereEafFrancais','premiereMathsAnticipees','premiereDoubleSecurite','premiereSciences'],terminale:libre?['terminaleLibreOnline','terminaleLibreMixte','terminaleLibrePremium']:['terminaleSpecialiteSimple','duoTerminaleNexus','excellenceTerminale']};
+  const mainKeys=levelMap[p.level]||[];
+  const defaultMain=RECO?RECO.pri:mainKeys[0];
+
+  const wrapB=document.getElementById('basketItems');
+  let html='<h3 style="font-size:14px;margin:0 0 8px;color:var(--gold-deep);text-transform:uppercase;letter-spacing:.05em">Offre principale</h3>';
+  mainKeys.forEach(k=>{
+    if(!OFFERS[k])return;
+    const o=OFFERS[k];
+    const price=o.range||((o.monthly?(o.approx?'≈ ':'')+fmt(o.monthly)+' TND/mois':fmt(annual(o))+' TND/an'));
+    html+='<div class="basket-item"><input type="radio" name="bMain" value="'+k+'"'+(k===defaultMain?' checked':'')+' id="bm_'+k+'"><label for="bm_'+k+'" class="basket-label"><b>'+o.label+'</b><span>'+o.cat+' · '+o.vol+'</span></label><span class="basket-price">'+price+'</span></div>';
+  });
+  html+='<h3 style="font-size:14px;margin:14px 0 8px;color:var(--gold-deep);text-transform:uppercase;letter-spacing:.05em">Compléments cumulables</h3>';
+  BASKET_COMP_KEYS.forEach(k=>{
+    if(!OFFERS[k])return;
+    const o=OFFERS[k];
+    const price=o.range||(fmt(annual(o))+' TND');
+    const chk=RECO&&RECO.comp&&RECO.comp.includes(k)?' checked':'';
+    html+='<div class="basket-item"><input type="checkbox" name="bComp" value="'+k+'"'+chk+' id="bc_'+k+'"><label for="bc_'+k+'" class="basket-label"><b>'+o.label+'</b><span>'+o.cat+' · '+o.vol+'</span></label><span class="basket-price">'+price+'</span></div>';
+  });
+  wrapB.innerHTML=html;
+  document.querySelectorAll('input[name=bMain],input[name=bComp]').forEach(el=>el.addEventListener('change',calcBasket));
+  calcBasket();
+}
+
+function calcBasket(){
+  const mainEl=document.querySelector('input[name=bMain]:checked');
+  if(!mainEl)return;
+  const mainKey=mainEl.value;
+  const compKeys=[...document.querySelectorAll('input[name=bComp]:checked')].map(x=>x.value);
+  const mainPrice=annualOf(mainKey);
+  let compTotal=compKeys.reduce((s,k)=>s+annualOf(k),0);
+
+  // Réductions — NON CUMULABLES par défaut (règle commerciale Nexus)
+  const redAncien=document.getElementById('reduc-ancien')?.checked||false;
+  const tauxAncien=parseInt(document.getElementById('reduc-ancien-taux')?.value||'10')||10;
+  const redFratrie=document.getElementById('reduc-fratrie')?.checked||false;
+  const redComptant=document.getElementById('reduc-comptant')?.checked||false;
+  const cumulDir=document.getElementById('cumul-dir')?.checked||false;
+  const redParrainage=document.getElementById('reduc-parrainage')?.checked||false;
+  const montantParrainage=parseInt(document.getElementById('reduc-parrainage-montant')?.value||'150')||150;
+
+  // Offres non éligibles aux réductions automatiques (stages, urgences, plateforme autonomie)
+  const REDUC_EXCLU=['urgenceMembreHeure','urgenceNonMembreHeure','urgencePackCinq','urgencePackDix',
+    'stagePrerentreeTroisieme','stagePrerentreeSeconde','stagePrerentreePremiere','stagePrerentreeTerminale',
+    'stagePrerentreeMathsTerminale','stagePrerentreeCandidatsLibres','plateformeAutonomie',
+    'vacancesUneMatiere','vacancesDuoMatieres','vacancesGrandOral','vacancesBacBlanc','vacancesSprintFinal'];
+  const mainExcluded=REDUC_EXCLU.includes(mainKey);
+  // Comptant uniquement sur formules annuelles
+  const mainIsAnnual=!!(OFFERS_JSON[mainKey]&&(OFFERS_JSON[mainKey].echeancier||OFFERS_JSON[mainKey].annual))&&!mainExcluded;
+  // Par défaut : meilleure réduction unique (uniquement si offre éligible)
+  let reducPct=0,reducLabel='';
+  if(!mainExcluded){
+    if(redAncien&&tauxAncien>reducPct){reducPct=tauxAncien;reducLabel='Ancien élève Nexus ('+tauxAncien+'%)'}
+    if(redFratrie&&10>reducPct){reducPct=10;reducLabel='Fratrie inscrite (10%)'}
+    if(redComptant&&mainIsAnnual&&5>reducPct&&!redAncien&&!redFratrie){reducPct=5;reducLabel='Paiement comptant (5%)'}
+  }
+  // Réduction > 10 % sans autorisation direction : plafonnée à 10 %
+  if(reducPct>10&&!cumulDir){reducPct=10;reducLabel=(reducLabel||'Réduction')+' — plafonnée à 10 % (> 10 % = validation direction)';}
+  let reduc=Math.round(mainPrice*reducPct/100);
+
+  if(cumulDir){
+    // Cumul explicitement autorisé direction : toutes les réductions s'additionnent (BUG FIX: if pas else if)
+    let cumul=0; const labels=[];
+    if(redAncien){cumul+=Math.round(mainPrice*tauxAncien/100);labels.push('Ancien élève ('+tauxAncien+'%)');}
+    if(redFratrie){cumul+=Math.round(mainPrice*0.10);labels.push('Fratrie (10%)');}
+    if(redComptant&&mainIsAnnual){cumul+=Math.round(mainPrice*0.05);labels.push('Comptant (5%)');}
+    reduc=cumul;
+    reducLabel=labels.length?labels.join(' + '):'Réductions cumulées';
+  }
+  reduc=Math.min(reduc,mainPrice);
+
+  const total=Math.max(0,mainPrice+compTotal-reduc);
+  const mainO=OFFERS[mainKey]||{};
+  const pub=mainO.publicAnnual;
+  let html='';
+  html+='<div class="basket-totals-row"><span>Offre principale — '+mainO.label+'</span><span>'+fmt(mainPrice)+' TND</span></div>';
+  if(compTotal>0)html+='<div class="basket-totals-row"><span>Compléments ('+compKeys.length+')</span><span>'+fmt(compTotal)+' TND</span></div>';
+  if(reduc>0)html+='<div class="basket-totals-row reduc"><span>Réduction — '+reducLabel+'</span><span>− '+fmt(reduc)+' TND</span></div>';
+  if(cumulDir&&reduc>0)html+='<div style="margin:4px 0 8px;padding:7px 10px;border-radius:7px;background:#FFF3CD;border:1px solid #E3BC51;font-size:12.5px;color:#3a2c00">⚠️ <b>Réduction cumulée — À valider par la direction avant remise du devis.</b></div>';
+  if(mainExcluded&&(redAncien||redFratrie||redComptant))html+='<div style="margin:4px 0 8px;padding:7px 10px;border-radius:7px;background:#fff3cd;border:1px solid #E3BC51;font-size:12.5px;color:#3a2c00">ℹ️ Réductions non applicables aux stages/urgences/plateforme autonomie sans décision direction.</div>';
+  if(redComptant&&!mainIsAnnual&&!mainExcluded)html+='<div style="margin:4px 0 8px;padding:7px 10px;border-radius:7px;background:#fff3cd;border:1px solid #E3BC51;font-size:12.5px;color:#3a2c00">ℹ️ Paiement comptant applicable uniquement sur les formules annuelles.</div>';
+  if(pub)html+='<div class="basket-totals-row" style="color:var(--muted);font-size:12.5px"><span>Valeur tarif public (anti-désistement)</span><span>'+fmt(pub+compTotal)+' TND</span></div>';
+  html+='<div class="basket-totals-row grand"><span>TOTAL ANNUEL</span><span>'+fmt(total)+' TND</span></div>';
+  if(redParrainage)html+='<div style="margin-top:8px;padding:7px 10px;border-radius:7px;background:#fff3cd;border:1px solid #E3BC51;font-size:12.5px">🤝 <b>Prime parrainage :</b> '+fmt(montantParrainage)+' TND après inscription effective — non déduite du total.</div>';
+
+  // Echéancier consolidé
+  const echMain=buildEchancier(mainKey,mainPrice-reduc);
+  const hasRealEch=echMain.length&&echMain.some(e=>e.a>0);
+  const isReconstructed=!(OFFERS_JSON[mainKey]&&OFFERS_JSON[mainKey].echeancier&&OFFERS_JSON[mainKey].echeancier.length);
+  if(hasRealEch){
+    html+='<div style="margin-top:12px"><b style="font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">Échéancier indicatif</b>';
+    if(isReconstructed)html+='<span style="font-size:11.5px;color:#B45309"> — indicatif, à valider direction</span>';
+    html+='<table style="width:100%;border-collapse:collapse;margin-top:6px;font-size:13px">';
+    echMain.filter(e=>e.a>0).forEach(e=>{html+='<tr><td style="padding:5px 8px;border-bottom:1px solid var(--line)">'+e.l+'</td><td style="padding:5px 8px;border-bottom:1px solid var(--line);text-align:right;font-weight:700">'+fmt(e.a)+' TND</td></tr>';});
+    html+='<tr><td style="padding:7px 8px;font-weight:800">Total</td><td style="padding:7px 8px;font-weight:800;text-align:right">'+fmt(echMain.filter(e=>e.a>0).reduce((s,e)=>s+e.a,0))+' TND</td></tr></table></div>';
+  }else if(mainO.monthly){
+    html+='<div style="margin-top:12px;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:13.5px">💳 <b>Mensualisation :</b> '+fmt(mainO.monthly)+' TND × 10 = '+fmt(mainO.monthly*10)+' TND — <span style="color:#B45309">indicatif, à valider direction</span></div>';
+  }else if(mainO.range){
+    html+='<div style="margin-top:12px;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:13.5px">💳 <b>Tarif :</b> '+mainO.range+' — à préciser avec la direction</div>';
+  }
+  document.getElementById('basketTotals').innerHTML=html;
+  document.getElementById('reducPanel').querySelectorAll('input,select').forEach(el=>el.addEventListener('change',calcBasket));
+  document.getElementById('basketWrap').style.display='block';
+}
+
+function buildEchancier(key,totalAdjusted){
+  const o=OFFERS[key];if(!o||!o.ech||!o.ech.length)return[];
+  const orig=annual(o)||0;const ratio=orig>0?totalAdjusted/orig:1;
+  return o.ech.map(e=>{
+    const base=e.m?e.a*(e.n||10):e.a;
+    return{l:e.l,a:Math.round(base*ratio)};
+  });
+}
+
+/* ===================== RÉSUMÉ INTERNE ===================== */
+function buildInternalResume(){
+  if(!CUR||!RECO)return'G\u00E9n\u00E9rer une recommandation d\u2019abord.';
+  const p=CUR,r=RECO;
+  const ST={scolarise:'scolarisé',libre:'candidat libre',double:'double cursus'};
+  const NV={troisieme:'Troisième',seconde:'Seconde',premiere:'Première',terminale:'Terminale'};
+  const pri=OFFERS[r.pri]||{},alt=OFFERS[r.alt]||{};
+  const mainEl=document.querySelector('input[name=bMain]:checked');
+  const mainKey=mainEl?mainEl.value:r.pri;
+  const compKeys=[...document.querySelectorAll('input[name=bComp]:checked')].map(x=>x.value);
+  let txt='=== RÉSUMÉ INTERNE NEXUS ===\n';
+  txt+='Élève : '+p.eleve+' | Parent : '+p.parent+'\n';
+  txt+='Niveau : '+NV[p.level]+' | Statut : '+ST[p.status]+(p.school?' | Étab : '+p.school:'')+'\n';
+  txt+='Objectif : '+p.objective+' | Mode : '+p.mode+' | Budget : '+p.budget+'\n';
+  if(p.spes&&p.spes.length)txt+='Spécialités : '+p.spes.join(', ')+'\n';
+  if(p.status!=='scolarise'&&p.modalite)txt+='Modalité A/B : '+p.modalite+'\n';
+  txt+='---\n';
+  txt+='Recommandée : '+pri.label+' ('+fmt(annual(pri))+' TND)\n';
+  txt+='Alternative : '+alt.label+' ('+fmt(annual(alt))+' TND)\n';
+  txt+='Sélectionné panier : '+((OFFERS[mainKey]&&OFFERS[mainKey].label)||mainKey)+'\n';
+  if(compKeys.length)txt+='Compléments : '+compKeys.map(k=>OFFERS[k]&&OFFERS[k].label||k).join(', ')+'\n';
+  if(RECO.alerts&&RECO.alerts.length)txt+='Alertes : '+RECO.alerts.join(' | ')+'\n';
+  txt+='\nNotes entretien : '+p.notes+'\n';
+  txt+='=== FIN RÉSUMÉ ===';
+  return txt;
+}
+
+/* ===================== EXPORT JSON ===================== */
+function exportQuoteJSON(){
+  if(!CUR||!RECO)return;
+  const p=CUR,r=RECO;
+  const mainEl=document.querySelector('input[name=bMain]:checked');
+  const mainKey=mainEl?mainEl.value:r.pri;
+  const compKeys=[...document.querySelectorAll('input[name=bComp]:checked')].map(x=>x.value);
+  const data={
+    meta:{tool:'nexus-assistante-devis-v2',version:'2.1',generated:new Date().toISOString(),numero:LASTQUOTE&&LASTQUOTE.numero},
+    profil:{eleve:p.eleve,parent:p.parent,level:p.level,status:p.status,school:p.school,objective:p.objective,mode:p.mode,budget:p.budget,spes:p.spes,modalite:p.modalite,repasse:p.repasse,lva:p.lva,notes:p.notes,phone:p.phone,email:p.email},
+    recommandation:{principale:r.pri,alternative:r.alt,alertes:r.alerts,complements:r.comp},
+    panier:{offre:mainKey,complements:compKeys,reducs:{ancien:document.getElementById('reduc-ancien')&&document.getElementById('reduc-ancien').checked,fratrie:document.getElementById('reduc-fratrie')&&document.getElementById('reduc-fratrie').checked,comptant:document.getElementById('reduc-comptant')&&document.getElementById('reduc-comptant').checked,parrainage:document.getElementById('reduc-parrainage')&&document.getElementById('reduc-parrainage').checked}},
+    examens:examScope(p)
+  };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='devis-nexus-'+(LASTQUOTE&&LASTQUOTE.numero||new Date().toISOString().slice(0,10))+'.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+}
+
+/* ===================== ÉVÉNEMENTS SUPPLÉMENTAIRES ===================== */
+document.getElementById('showBasketBtn').addEventListener('click',()=>{
+  if(!CUR){const p=readProfile();if(!p.eleve||!p.parent)return;}
+  if(!RECO){render();}
+  else{renderBasket();}
+  document.getElementById('basketWrap').scrollIntoView({behavior:'smooth'});
+});
+document.getElementById('copyResumeBtn').addEventListener('click',async()=>{
+  const txt=buildInternalResume();
+  try{await navigator.clipboard.writeText(txt);
+    document.getElementById('copyResumeBtn').textContent='Copié ✓';
+    setTimeout(()=>document.getElementById('copyResumeBtn').textContent='Copier résumé interne',1500);
+  }catch(_){alert(txt);}
+});
+document.getElementById('exportJsonBtn').addEventListener('click',exportQuoteJSON);
+
+/* Déclencher le calcul éco après soumission du formulaire */
+document.getElementById('quiz').addEventListener('submit',()=>{setTimeout(()=>{econCalc();renderBasket();},0);});
+</script>
+</body>
+</html>

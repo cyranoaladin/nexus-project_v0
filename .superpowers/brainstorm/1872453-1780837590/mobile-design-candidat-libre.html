@@ -1,0 +1,85 @@
+<h2>Design mobile retenu: candidat libre / double cursus</h2>
+<p class="subtitle">Objectif: en moins de 10 secondes, le parent comprend le risque, voit que Nexus a un cadre complet, et peut écrire sur WhatsApp.</p>
+
+<div class="split">
+  <div class="mockup">
+    <div class="mockup-header">Premier écran mobile</div>
+    <div class="mockup-body">
+      <div style="width:245px;max-width:100%;margin:auto;border:1px solid #d7deea;border-radius:28px;padding:12px;background:#fff;box-shadow:0 18px 45px rgba(11,42,102,.16)">
+        <div style="height:36px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #edf1f7;margin-bottom:14px">
+          <strong style="font-size:11px;color:#0B2A66">Nexus Réussite</strong>
+          <span style="font-size:11px;color:#0B2A66;font-weight:700">☰</span>
+        </div>
+        <div style="font-size:10px;font-weight:800;color:#E0211E;margin-bottom:8px;letter-spacing:.08em">CANDIDAT LIBRE · DOUBLE CURSUS</div>
+        <div style="font-size:22px;line-height:1.04;font-weight:800;color:#0B2A66;margin-bottom:10px">Ne laissez pas le bac français sans cadre.</div>
+        <div style="font-size:12px;line-height:1.35;color:#40516d;margin-bottom:12px">Carte d'examen, Cyclades, bacs blancs, bulletins et suivi parents pour avancer sans flou.</div>
+        <div style="display:grid;gap:8px;margin-bottom:10px">
+          <div style="background:#E0211E;color:#fff;text-align:center;border-radius:13px;padding:13px 10px;font-size:12px;font-weight:800">Réserver le bilan offert</div>
+          <div style="background:#fff;color:#0B2A66;text-align:center;border:1px solid #d7deea;border-radius:13px;padding:12px 10px;font-size:12px;font-weight:800">Voir l'accompagnement</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:12px">
+          <span style="background:#f2f5fb;border-radius:9px;padding:7px 5px;font-size:9px;text-align:center;color:#0B2A66;font-weight:700">Cyclades</span>
+          <span style="background:#f2f5fb;border-radius:9px;padding:7px 5px;font-size:9px;text-align:center;color:#0B2A66;font-weight:700">Bacs blancs</span>
+          <span style="background:#f2f5fb;border-radius:9px;padding:7px 5px;font-size:9px;text-align:center;color:#0B2A66;font-weight:700">Parents</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup">
+    <div class="mockup-header">Juste après le hero</div>
+    <div class="mockup-body">
+      <div style="width:245px;max-width:100%;margin:auto;border:1px solid #d7deea;border-radius:28px;padding:12px;background:#f3f6fc;box-shadow:0 18px 45px rgba(11,42,102,.12)">
+        <div style="background:#fff;border:1px solid #dfe7f3;border-radius:16px;padding:13px;margin-bottom:10px">
+          <strong style="display:block;color:#0B2A66;font-size:13px;margin-bottom:5px">Le vrai problème</strong>
+          <span style="font-size:11px;color:#55677f;line-height:1.35">Sans établissement, la famille doit piloter seule les épreuves, le dossier et le rythme.</span>
+        </div>
+        <div style="display:grid;gap:8px">
+          <div style="background:#fff;border-radius:13px;padding:11px;font-size:11px;color:#40516d"><b style="color:#0B2A66">1. Carte d'examen</b><br>Coefficients, modalités, calendrier.</div>
+          <div style="background:#fff;border-radius:13px;padding:11px;font-size:11px;color:#40516d"><b style="color:#0B2A66">2. Cadre pédagogique</b><br>Groupes limités, référent, bulletins.</div>
+          <div style="background:#fff;border-radius:13px;padding:11px;font-size:11px;color:#40516d"><b style="color:#0B2A66">3. Entraînement officiel</b><br>Bacs blancs et corrections exploitées.</div>
+        </div>
+        <div style="position:relative;margin-top:12px;background:#25D366;color:#fff;text-align:center;border-radius:14px;padding:12px;font-size:12px;font-weight:800">WhatsApp 99 19 28 29</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Structure de page mobile</h3>
+  <div class="options" data-multiselect>
+    <div class="option" data-choice="hero" onclick="toggleSelect(this)">
+      <div class="letter">1</div>
+      <div class="content">
+        <h3>Hero court et ciblé</h3>
+        <p>Logo compact, promesse candidat libre/double cursus, CTA WhatsApp, preuve en 3 chips.</p>
+      </div>
+    </div>
+    <div class="option" data-choice="problem" onclick="toggleSelect(this)">
+      <div class="letter">2</div>
+      <div class="content">
+        <h3>Problème puis solution</h3>
+        <p>La section “Le vrai problème” remonte juste après le hero, mais en version plus courte.</p>
+      </div>
+    </div>
+    <div class="option" data-choice="proof" onclick="toggleSelect(this)">
+      <div class="letter">3</div>
+      <div class="content">
+        <h3>Preuves avant catalogue</h3>
+        <p>Carte d'examen, Cyclades, bacs blancs, référent parents avant les offres longues.</p>
+      </div>
+    </div>
+    <div class="option" data-choice="sticky" onclick="toggleSelect(this)">
+      <div class="letter">4</div>
+      <div class="content">
+        <h3>CTA sticky mobile</h3>
+        <p>Bouton WhatsApp fixé en bas après le premier scroll, sans couvrir le contenu important.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Ce qui ne change pas</h3>
+  <p>Le desktop peut rester proche de la page actuelle. Les sections existantes sont conservées, mais leur ordre et leur densité sont optimisés pour mobile. Les liens WhatsApp restent sur le même numéro.</p>
+</div>
