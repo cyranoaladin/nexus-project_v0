@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { isErrorResponse, requireAnyRole } from '@/lib/guards';
 import { renderQuotePDF, type QuotePDFData } from '@/lib/quote/pdf';
+import { guardRateLimit } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,6 +41,9 @@ function validateQuotePayload(value: unknown): QuotePDFData | NextResponse {
 export async function POST(request: NextRequest) {
   const sessionOrError = await requireAnyRole([UserRole.ADMIN, UserRole.ASSISTANTE]);
   if (isErrorResponse(sessionOrError)) return sessionOrError;
+
+  const blocked = guardRateLimit(request, { preset: 'expensive', keySuffix: 'quotes-pdf' });
+  if (blocked) return blocked;
 
   let payload: unknown;
   try {

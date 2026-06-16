@@ -226,11 +226,12 @@ function drawHeader(doc: PDFKit.PDFDocument, data: QuotePDFData) {
     .strokeColor(COLORS.border).lineWidth(0.7).stroke();
 }
 
-function drawPartyBoxes(doc: PDFKit.PDFDocument, data: QuotePDFData, y: number) {
+function drawPartyBoxes(doc: PDFKit.PDFDocument, data: QuotePDFData, y: number): number {
   const gap = 14;
   const w = (CONTENT_WIDTH - gap) / 2;
-  roundedBox(doc, PAGE.marginLeft, y, w, 72);
-  roundedBox(doc, PAGE.marginLeft + w + gap, y, w, 72);
+  const boxH = 72;
+  roundedBox(doc, PAGE.marginLeft, y, w, boxH);
+  roundedBox(doc, PAGE.marginLeft + w + gap, y, w, boxH);
 
   label(doc, 'Proposition pour', PAGE.marginLeft + 12, y + 13, w - 24);
   doc.font(FONTS.bold).fontSize(10).fillColor(COLORS.text)
@@ -246,9 +247,11 @@ function drawPartyBoxes(doc: PDFKit.PDFDocument, data: QuotePDFData, y: number) 
   doc.font(FONTS.regular).fontSize(7.6).fillColor(COLORS.secondary)
     .text(clamp(`${data.level} · ${data.status}`, 74), x2 + 12, y + 47, { width: w - 24 })
     .text(clamp(data.establishment, 74), x2 + 12, y + 59, { width: w - 24 });
+
+  return y + boxH;
 }
 
-function drawRecommendation(doc: PDFKit.PDFDocument, data: QuotePDFData, y: number) {
+function drawRecommendation(doc: PDFKit.PDFDocument, data: QuotePDFData, y: number): number {
   const recoBoxH = (data as unknown as Record<string, unknown>).publicAnnual ? 96 : 88;
   roundedBox(doc, PAGE.marginLeft, y, CONTENT_WIDTH, recoBoxH, COLORS.white);
   label(doc, 'Synthèse de la recommandation', PAGE.marginLeft + 14, y + 15, 280);
@@ -288,9 +291,11 @@ function drawRecommendation(doc: PDFKit.PDFDocument, data: QuotePDFData, y: numb
     doc.font(FONTS.regular).fontSize(6.5).fillColor('#DDE7F6')
       .text(clamp(fallbackText, 92), totalX + 12, y + 52, { width: 132 });
   }
+
+  return y + recoBoxH;
 }
 
-function drawSummaryTable(doc: PDFKit.PDFDocument, data: QuotePDFData, y: number) {
+function drawSummaryTable(doc: PDFKit.PDFDocument, data: QuotePDFData, y: number): number {
   doc.font(FONTS.bold).fontSize(11).fillColor(COLORS.navy)
     .text('Tableau de synthèse', PAGE.marginLeft, y);
   y += 20;
@@ -301,7 +306,8 @@ function drawSummaryTable(doc: PDFKit.PDFDocument, data: QuotePDFData, y: number
       .text(title, PAGE.marginLeft + cols[index] + 8, y + 9, { width: cols[index + 1] - cols[index] - 16 });
   });
   y += 24;
-  doc.rect(PAGE.marginLeft, y, CONTENT_WIDTH, 52).fillAndStroke(COLORS.white, COLORS.border);
+  const rowH = 52;
+  doc.rect(PAGE.marginLeft, y, CONTENT_WIDTH, rowH).fillAndStroke(COLORS.white, COLORS.border);
   doc.font(FONTS.bold).fontSize(8.8).fillColor(COLORS.text)
     .text(data.offer.label, PAGE.marginLeft + 8, y + 10, { width: 248 });
   doc.font(FONTS.regular).fontSize(7.4).fillColor(COLORS.secondary)
@@ -312,13 +318,15 @@ function drawSummaryTable(doc: PDFKit.PDFDocument, data: QuotePDFData, y: number
     .text(clamp(data.objectif, 100), PAGE.marginLeft + 278, y + 24, { width: 100 });
   doc.font(FONTS.bold).fontSize(9).fillColor(COLORS.navy)
     .text(data.offer.annualDisplay, PAGE.marginLeft + 398, y + 18, { width: CONTENT_WIDTH - 406, align: 'right' });
+
+  return y + rowH;
 }
 
 function drawInstallmentsAndInclusions(doc: PDFKit.PDFDocument, data: QuotePDFData, y: number) {
   const gap = 14;
   const w = (CONTENT_WIDTH - gap) / 2;
   const echCount = Math.min(data.offer.ech.length, 9);
-  const incCount = Math.min(data.offer.inc.length, 10);
+  const incCount = Math.min(data.offer.inc.length, 9);
   const echH = 38 + echCount * 20 + (echCount > 1 ? 24 : 0);
   const incH = 39 + incCount * 18;
   const h = Math.max(echH, incH, 142);
@@ -356,7 +364,7 @@ function drawInstallmentsAndInclusions(doc: PDFKit.PDFDocument, data: QuotePDFDa
     .text('Inclus dans le parcours', x2 + 12, y + 14);
   let itemY = y + 39;
   const inclusions = data.offer.inc.length ? data.offer.inc : ['Détails confirmés pendant la validation pédagogique.'];
-  inclusions.slice(0, 10).forEach(item => {
+  inclusions.slice(0, 9).forEach(item => {
     doc.circle(x2 + 17, itemY + 3.5, 2.8).fill(COLORS.gold);
     doc.font(FONTS.regular).fontSize(7.7).fillColor(COLORS.text)
       .text(clamp(item, 80), x2 + 28, itemY, { width: w - 42, lineGap: 1 });
@@ -504,7 +512,7 @@ export async function renderQuotePDF(input: QuotePDFData): Promise<Buffer> {
     try {
       const doc = new PDFDocument({
         size: 'A4',
-        compress: false,
+        compress: true,
         margins: {
           top: PAGE.marginTop,
           bottom: PAGE.marginBottom,
@@ -526,10 +534,12 @@ export async function renderQuotePDF(input: QuotePDFData): Promise<Buffer> {
       doc.on('error', reject);
 
       drawHeader(doc, data);
-      drawPartyBoxes(doc, data, 148);
-      drawRecommendation(doc, data, 238);
-      drawSummaryTable(doc, data, 348);
-      drawInstallmentsAndInclusions(doc, data, 448);
+      const GAP = 18;
+      let curY = 148;
+      curY = drawPartyBoxes(doc, data, curY) + GAP;
+      curY = drawRecommendation(doc, data, curY) + GAP;
+      curY = drawSummaryTable(doc, data, curY) + GAP;
+      drawInstallmentsAndInclusions(doc, data, curY);
       drawFooter(doc, 1);
       drawPageTwo(doc, data);
 

@@ -105,12 +105,16 @@
   "secondeMathsMethode": {
     "label": "Seconde Maths Méthode",
     "monthly": 250,
-    "annual": 2500
+    "annual": 2500,
+    "echeancier": [625, 625, 625, 625],
+    "paiement": "625 TND réservation + 3 versements de 625 TND"
   },
   "secondeSciences": {
     "label": "Seconde Sciences",
     "monthly": 430,
-    "annual": 4300
+    "annual": 4300,
+    "echeancier": [1075, 1075, 1075, 1075],
+    "paiement": "1 075 TND réservation + 3 versements de 1 075 TND"
   },
   "secondeCoachingOrientation": {
     "label": "Seconde Coaching + Orientation",
@@ -119,12 +123,16 @@
   "brevetMaths": {
     "label": "Brevet Maths",
     "monthly": 220,
-    "annual": 2200
+    "annual": 2200,
+    "echeancier": [550, 550, 550, 550],
+    "paiement": "550 TND réservation + 3 versements de 550 TND"
   },
   "brevetComplet": {
     "label": "Brevet Complet",
     "monthly": 390,
-    "annual": 3900
+    "annual": 3900,
+    "echeancier": [975, 975, 975, 975],
+    "paiement": "975 TND réservation + 3 versements de 975 TND"
   },
   "stageBrevet": {
     "label": "Stage Brevet",
