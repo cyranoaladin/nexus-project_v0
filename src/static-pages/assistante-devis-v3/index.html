@@ -127,14 +127,14 @@
   <!-- ============================================ -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8" role="main">
     
-    <!-- Pedagogical Alert -->
-    <div class="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-l-4 border-nexus-gold p-4 mb-8 rounded-r-xl shadow-soft animate-fade-in" role="alert">
+    <!-- Pedagogical Alert (dynamic per level) -->
+    <div id="pedagogicalAlert" class="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-l-4 border-nexus-gold p-4 mb-8 rounded-r-xl shadow-soft animate-fade-in" role="alert">
       <div class="flex items-start">
         <i class="fas fa-exclamation-triangle text-nexus-gold mt-1 mr-3" aria-hidden="true"></i>
         <div>
           <h2 class="font-semibold text-nexus-navy dark:text-slate-200 mb-1">Repère pédagogique important</h2>
-          <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-            Les textes officiels et convocations font foi. Les modalités EAM, DNB candidat libre et tronc commun ponctuel doivent être vérifiés selon la session et les textes applicables.
+          <p id="pedagogicalText" class="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+            Les textes officiels et convocations font foi. Sélectionnez le niveau de l'élève pour afficher le repère adapté.
           </p>
         </div>
       </div>
@@ -580,35 +580,113 @@
     
   </div>
   
-  <!-- Fiche examens (collapsible) -->
-  <details class="mt-6 border border-slate-200 rounded-xl overflow-hidden">
-    <summary class="p-4 bg-slate-50 cursor-pointer font-semibold flex items-center gap-2 hover:bg-slate-100 transition-colors">
+  <!-- Fiche examens (collapsible, dynamic per level) -->
+  <details class="mt-6 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
+    <summary class="p-4 bg-slate-50 dark:bg-slate-800 cursor-pointer font-semibold flex items-center gap-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
       <i class="fas fa-file-alt text-nexus-gold"></i>
       Fiche examens 2026/2027 — repère pour l'entretien
     </summary>
-    <div class="p-4 text-sm">
-      <p class="text-amber-700 italic mb-4">
+    <div id="ficheExamensContent" class="p-4 text-sm">
+      <p class="text-amber-700 dark:text-amber-400 italic mb-4">
         <i class="fas fa-exclamation-triangle mr-1"></i>
         Repère pédagogique — les textes officiels et convocations font foi.
       </p>
-      
-      <div class="grid md:grid-cols-2 gap-4">
-        <div>
-          <h4 class="font-bold text-nexus-navy mb-2">Terminale — Contrôle continu</h4>
-          <ul class="list-disc list-inside space-y-1 text-slate-600">
-            <li>2 spécialités (coef 16 chacune)</li>
-            <li>Grand Oral (coef 10)</li>
-          </ul>
+
+      <!-- Troisième -->
+      <div data-fiche-level="troisieme" class="hidden">
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <h4 class="font-bold text-nexus-navy dark:text-slate-200 mb-2">DNB — Épreuves écrites</h4>
+            <ul class="list-disc list-inside space-y-1 text-slate-600 dark:text-slate-400">
+              <li>Français (3 h, coef 2)</li>
+              <li>Mathématiques (2 h, coef 2)</li>
+              <li>Histoire-Géographie-EMC (2 h, coef 2)</li>
+              <li>Sciences : 2 parmi PC, SVT, Techno (1 h, coef 1)</li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-bold text-nexus-navy dark:text-slate-200 mb-2">DNB — Épreuve orale + contrôle continu</h4>
+            <ul class="list-disc list-inside space-y-1 text-slate-600 dark:text-slate-400">
+              <li>Oral de projet (coef 2)</li>
+              <li>Contrôle continu : 400 pts sur 8 compétences</li>
+              <li>DNB candidat libre : toutes épreuves ponctuelles</li>
+            </ul>
+          </div>
         </div>
-        <div>
-          <h4 class="font-bold text-nexus-navy mb-2">Terminale — Ponctuelles candidat libre</h4>
-          <ul class="list-disc list-inside space-y-1 text-slate-600">
-            <li>Français (écrit + oral)</li>
-            <li>Philosophie</li>
-            <li>Spécialité abandonnée (prog. 1re)</li>
-            <li>Tronc commun: HG, LV, PC/SVT, EPS</li>
-          </ul>
+      </div>
+
+      <!-- Seconde -->
+      <div data-fiche-level="seconde" class="hidden">
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <h4 class="font-bold text-nexus-navy dark:text-slate-200 mb-2">Seconde — Pas d'examen national</h4>
+            <ul class="list-disc list-inside space-y-1 text-slate-600 dark:text-slate-400">
+              <li>Année de détermination, pas d'épreuve officielle</li>
+              <li>Contrôle continu pour le passage en Première</li>
+              <li>Choix des spécialités en fin d'année (3 parmi le menu)</li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-bold text-nexus-navy dark:text-slate-200 mb-2">Seconde — Points de vigilance</h4>
+            <ul class="list-disc list-inside space-y-1 text-slate-600 dark:text-slate-400">
+              <li>Moyennes de maths et sciences déterminantes pour les spé</li>
+              <li>Test de positionnement national (septembre)</li>
+              <li>Aide à l'orientation : conseil de classe du 3e trimestre</li>
+            </ul>
+          </div>
         </div>
+      </div>
+
+      <!-- Première -->
+      <div data-fiche-level="premiere" class="hidden">
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <h4 class="font-bold text-nexus-navy dark:text-slate-200 mb-2">Première — Épreuves anticipées (EAF)</h4>
+            <ul class="list-disc list-inside space-y-1 text-slate-600 dark:text-slate-400">
+              <li>Français écrit (4 h, coef 5)</li>
+              <li>Français oral (20 min, coef 5)</li>
+              <li>Spécialité abandonnée évaluée en contrôle continu</li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-bold text-nexus-navy dark:text-slate-200 mb-2">Première — EAM candidat libre</h4>
+            <ul class="list-disc list-inside space-y-1 text-slate-600 dark:text-slate-400">
+              <li>EAF : écrit + oral en fin de Première</li>
+              <li>Spécialité abandonnée : épreuve ponctuelle</li>
+              <li>Tronc commun 1re : contrôle continu ou ponctuel selon modalité</li>
+              <li>Vérifier la modalité A (étalée) ou B (groupée)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Terminale -->
+      <div data-fiche-level="terminale" class="hidden">
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <h4 class="font-bold text-nexus-navy dark:text-slate-200 mb-2">Terminale — Épreuves terminales</h4>
+            <ul class="list-disc list-inside space-y-1 text-slate-600 dark:text-slate-400">
+              <li>2 spécialités (coef 16 chacune)</li>
+              <li>Philosophie (coef 8)</li>
+              <li>Grand Oral (coef 10)</li>
+              <li>Contrôle continu : 40% de la note finale</li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-bold text-nexus-navy dark:text-slate-200 mb-2">Terminale — Ponctuelles candidat libre</h4>
+            <ul class="list-disc list-inside space-y-1 text-slate-600 dark:text-slate-400">
+              <li>Français (écrit + oral, épreuves anticipées)</li>
+              <li>Philosophie</li>
+              <li>Spécialité abandonnée (programme de 1re)</li>
+              <li>Tronc commun : HG, LV, enseignement scientifique, EPS</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Default (no level selected) -->
+      <div data-fiche-level="default">
+        <p class="text-slate-500 dark:text-slate-400 italic">Sélectionnez un niveau pour afficher la fiche examens correspondante.</p>
       </div>
     </div>
   </details>
@@ -654,7 +732,7 @@
   <!-- Objectif principal -->
   <div class="form-group mb-8">
     <label class="form-label mb-4">Objectif principal</label>
-    <div class="card-grid">
+    <div class="card-grid" id="objectifGrid">
       <label class="option-card">
         <input type="radio" name="objectif" value="consolider" onchange="autoSave()">
         <div class="card-content">
@@ -663,17 +741,17 @@
           <p>Renforcer les bases et passer sereinement</p>
         </div>
       </label>
-      
-      <label class="option-card">
+
+      <label class="option-card" data-objectif-level="troisieme,premiere,terminale">
         <input type="radio" name="objectif" value="mention" onchange="autoSave()">
         <div class="card-content">
           <i class="fas fa-star"></i>
           <h4>Viser une mention</h4>
-          <p>Excellence et distinction au bac</p>
+          <p id="mentionDesc">Excellence et distinction au bac</p>
         </div>
       </label>
-      
-      <label class="option-card">
+
+      <label class="option-card" data-objectif-level="premiere,terminale">
         <input type="radio" name="objectif" value="selectif" onchange="autoSave()">
         <div class="card-content">
           <i class="fas fa-graduation-cap"></i>
@@ -681,7 +759,7 @@
           <p>CPGE, médecine, écoles d'ingénieurs</p>
         </div>
       </label>
-      
+
       <label class="option-card">
         <input type="radio" name="objectif" value="rattrapage" onchange="autoSave()">
         <div class="card-content">

@@ -359,6 +359,7 @@ function updateDynamicFields() {
   const level = document.getElementById('level')?.value;
   const status = document.getElementById('status')?.value;
 
+  // Standard dynamic fields (.dynamic-field with data-show-if-level / data-show-if)
   document.querySelectorAll('.dynamic-field').forEach(field => {
     let visible = true;
     const levels = field.dataset.showIfLevel;
@@ -379,6 +380,65 @@ function updateDynamicFields() {
     field.querySelectorAll('input, select, textarea').forEach(input => {
       input.disabled = !visible;
     });
+  });
+
+  // Objectif cards — conditional per level
+  updateObjectifVisibility(level);
+
+  // Pedagogical alert — dynamic per level
+  updatePedagogicalAlert(level);
+
+  // Fiche examens — dynamic per level
+  updateFicheExamens(level);
+}
+
+function updateObjectifVisibility(level) {
+  document.querySelectorAll('#objectifGrid [data-objectif-level]').forEach(card => {
+    const allowed = card.dataset.objectifLevel.split(',');
+    const visible = !level || allowed.includes(level);
+    card.classList.toggle('hidden', !visible);
+    const radio = card.querySelector('input[type="radio"]');
+    if (radio) {
+      radio.disabled = !visible;
+      // If hiding a selected radio, uncheck it
+      if (!visible && radio.checked) {
+        radio.checked = false;
+      }
+    }
+  });
+
+  // Update "Viser une mention" description based on level
+  const mentionDesc = document.getElementById('mentionDesc');
+  if (mentionDesc) {
+    if (level === 'troisieme') {
+      mentionDesc.textContent = 'Excellence et distinction au brevet';
+    } else {
+      mentionDesc.textContent = 'Excellence et distinction au bac';
+    }
+  }
+}
+
+const PEDAGOGICAL_TEXTS = {
+  troisieme: 'Les textes officiels et convocations font foi. Les épreuves du DNB (français, maths, HG-EMC, sciences, oral) et les modalités candidat libre doivent être vérifiés selon la session.',
+  seconde: 'La Seconde est une année de détermination sans examen national. Les résultats conditionnent le choix des spécialités et le passage en Première.',
+  premiere: 'Les textes officiels et convocations font foi. Les épreuves anticipées de français (EAF écrit + oral), la spécialité abandonnée et les modalités EAM candidat libre doivent être vérifiés.',
+  terminale: 'Les textes officiels et convocations font foi. Les épreuves de spécialités, le Grand Oral, la philosophie et les modalités candidat libre (tronc commun ponctuel) doivent être vérifiés.',
+};
+
+function updatePedagogicalAlert(level) {
+  const textEl = document.getElementById('pedagogicalText');
+  if (!textEl) return;
+  textEl.textContent = PEDAGOGICAL_TEXTS[level] || 'Les textes officiels et convocations font foi. Sélectionnez le niveau de l\'élève pour afficher le repère adapté.';
+}
+
+function updateFicheExamens(level) {
+  document.querySelectorAll('[data-fiche-level]').forEach(section => {
+    const target = section.dataset.ficheLevel;
+    if (target === 'default') {
+      section.classList.toggle('hidden', !!level);
+    } else {
+      section.classList.toggle('hidden', target !== level);
+    }
   });
 }
 
@@ -1295,15 +1355,18 @@ function generateRecommendation() {
   let recommended = null;
   let alternatives = [];
   
-  // Decision tree
+  // Decision tree — uses level, status, objectif, budget, mode
   if (level === 'terminale') {
     if (status === 'libre' || status === 'double') {
       if (objectif === 'selectif' || budget === 'confort') {
         recommended = getOffer(RECOMMENDATION_KEYS.terminaleLibrePremium);
         alternatives = [getOffer(RECOMMENDATION_KEYS.terminaleLibreMixte), getOffer(RECOMMENDATION_KEYS.terminaleLibreOnline)];
-      } else if (mode === 'online' || budget === 'serre') {
+      } else if (objectif === 'rattrapage' || mode === 'online' || budget === 'serre') {
         recommended = getOffer(RECOMMENDATION_KEYS.terminaleLibreOnline);
-        alternatives = [getOffer(RECOMMENDATION_KEYS.terminaleLibreMixte)];
+        alternatives = [getOffer(RECOMMENDATION_KEYS.terminaleLibreMixte), getOffer(RECOMMENDATION_KEYS.plateformeAccompagnee)];
+      } else if (objectif === 'mention') {
+        recommended = getOffer(RECOMMENDATION_KEYS.terminaleLibreMixte);
+        alternatives = [getOffer(RECOMMENDATION_KEYS.terminaleLibrePremium), getOffer(RECOMMENDATION_KEYS.terminaleLibreOnline)];
       } else {
         recommended = getOffer(RECOMMENDATION_KEYS.terminaleLibreMixte);
         alternatives = [getOffer(RECOMMENDATION_KEYS.terminaleLibrePremium), getOffer(RECOMMENDATION_KEYS.terminaleLibreOnline)];
@@ -1313,9 +1376,12 @@ function generateRecommendation() {
       if (objectif === 'selectif') {
         recommended = getOffer(RECOMMENDATION_KEYS.excellenceTerminale);
         alternatives = [getOffer(RECOMMENDATION_KEYS.duoTerminaleNexus), getOffer(RECOMMENDATION_KEYS.terminaleSpecialiteSimple)];
-      } else if (budget === 'serre') {
+      } else if (objectif === 'mention') {
+        recommended = getOffer(RECOMMENDATION_KEYS.duoTerminaleNexus);
+        alternatives = [getOffer(RECOMMENDATION_KEYS.excellenceTerminale), getOffer(RECOMMENDATION_KEYS.terminaleSpecialiteSimple)];
+      } else if (objectif === 'rattrapage' || budget === 'serre') {
         recommended = getOffer(RECOMMENDATION_KEYS.terminaleSpecialiteSimple);
-        alternatives = [getOffer(RECOMMENDATION_KEYS.duoTerminaleNexus)];
+        alternatives = [getOffer(RECOMMENDATION_KEYS.duoTerminaleNexus), getOffer(RECOMMENDATION_KEYS.plateformeSuivi)];
       } else {
         recommended = getOffer(RECOMMENDATION_KEYS.duoTerminaleNexus);
         alternatives = [getOffer(RECOMMENDATION_KEYS.excellenceTerminale), getOffer(RECOMMENDATION_KEYS.terminaleSpecialiteSimple)];
@@ -1325,17 +1391,24 @@ function generateRecommendation() {
     if (status === 'libre' || status === 'double') {
       if (budget === 'serre' || mode === 'online') {
         recommended = getOffer(RECOMMENDATION_KEYS.premiereLibreEssentiel);
-        alternatives = [getOffer(RECOMMENDATION_KEYS.premiereLibreAccompagnee)];
+        alternatives = [getOffer(RECOMMENDATION_KEYS.premiereLibreAccompagnee), getOffer(RECOMMENDATION_KEYS.plateformeSuivi)];
       } else {
         recommended = getOffer(RECOMMENDATION_KEYS.premiereLibreAccompagnee);
         alternatives = [getOffer(RECOMMENDATION_KEYS.premiereLibreEssentiel)];
       }
     } else {
-      // Scolarisé
-      if (budget === 'serre') {
+      // Scolarisé — objectif drives recommendation
+      if (objectif === 'selectif') {
+        recommended = getOffer(RECOMMENDATION_KEYS.premiereSciences);
+        alternatives = [getOffer(RECOMMENDATION_KEYS.premiereDoubleSecurite), getOffer(RECOMMENDATION_KEYS.premiereMathsAnticipees)];
+      } else if (objectif === 'mention') {
+        recommended = getOffer(RECOMMENDATION_KEYS.premiereDoubleSecurite);
+        alternatives = [getOffer(RECOMMENDATION_KEYS.premiereSciences), getOffer(RECOMMENDATION_KEYS.premiereEafFrancais)];
+      } else if (objectif === 'rattrapage' || budget === 'serre') {
         recommended = getOffer(RECOMMENDATION_KEYS.premiereEafFrancais);
-        alternatives = [getOffer(RECOMMENDATION_KEYS.premiereMathsAnticipees), getOffer(RECOMMENDATION_KEYS.premiereDoubleSecurite)];
+        alternatives = [getOffer(RECOMMENDATION_KEYS.premiereMathsAnticipees), getOffer(RECOMMENDATION_KEYS.plateformeSuivi)];
       } else {
+        // consolider (default)
         recommended = getOffer(RECOMMENDATION_KEYS.premiereDoubleSecurite);
         alternatives = [getOffer(RECOMMENDATION_KEYS.premiereEafFrancais), getOffer(RECOMMENDATION_KEYS.premiereMathsAnticipees)];
       }
@@ -1343,15 +1416,21 @@ function generateRecommendation() {
   } else if (level === 'seconde') {
     if (objectif === 'selectif' || budget === 'confort') {
       recommended = getOffer(RECOMMENDATION_KEYS.secondeSciences);
-      alternatives = [getOffer(RECOMMENDATION_KEYS.secondeMathsMethode)];
+      alternatives = [getOffer(RECOMMENDATION_KEYS.secondeMathsMethode), getOffer(RECOMMENDATION_KEYS.plateformeAutonomie)];
+    } else if (objectif === 'rattrapage') {
+      recommended = getOffer(RECOMMENDATION_KEYS.secondeMathsMethode);
+      alternatives = [getOffer(RECOMMENDATION_KEYS.secondeSciences), getOffer(RECOMMENDATION_KEYS.plateformeSuivi)];
     } else {
       recommended = getOffer(RECOMMENDATION_KEYS.secondeMathsMethode);
       alternatives = [getOffer(RECOMMENDATION_KEYS.secondeSciences)];
     }
   } else if (level === 'troisieme') {
-    if (objectif === 'mention' || objectif === 'selectif') {
+    if (objectif === 'mention') {
       recommended = getOffer(RECOMMENDATION_KEYS.brevetComplet);
       alternatives = [getOffer(RECOMMENDATION_KEYS.brevetMaths)];
+    } else if (objectif === 'rattrapage') {
+      recommended = getOffer(RECOMMENDATION_KEYS.brevetMaths);
+      alternatives = [getOffer(RECOMMENDATION_KEYS.brevetComplet), getOffer(RECOMMENDATION_KEYS.plateformeAutonomie)];
     } else {
       recommended = getOffer(RECOMMENDATION_KEYS.brevetMaths);
       alternatives = [getOffer(RECOMMENDATION_KEYS.brevetComplet)];
