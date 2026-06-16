@@ -67,6 +67,25 @@ export default auth((req) => {
   const response = NextResponse.next();
   applySecurityHeaders(response);
 
+  if (pathname.startsWith('/dashboard/assistante/devis/app')) {
+    response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+    response.headers.set(
+      'Content-Security-Policy',
+      [
+        "default-src 'self'",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
+        "font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com",
+        "img-src 'self' data: https: blob:",
+        "connect-src 'self'",
+        "frame-ancestors 'self'",
+        "base-uri 'self'",
+        "form-action 'self'",
+        "object-src 'none'",
+      ].join('; ')
+    );
+  }
+
   if (isProtectedPath) {
     response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
   }

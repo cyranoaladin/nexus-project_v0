@@ -5,6 +5,13 @@ const nextConfig = {
 
   // Fix workspace root warning from multiple lockfiles
   outputFileTracingRoot: process.cwd(),
+  outputFileTracingIncludes: {
+    '/': [
+      './Nexus_Reussite_Accueil.html',
+      './data/offres-nexus.json',
+      './src/static-pages/assistante-devis-v3/**/*',
+    ],
+  },
 
   // Ne pas bloquer le build sur les erreurs ESLint (on traitera via `npm run lint` séparé)
   eslint: {

@@ -157,3 +157,60 @@ export function internalNotification(data: InternalNotificationData): EmailTempl
 
   return { subject, html, text };
 }
+
+export interface ContactLeadNotificationData {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+  profile?: string | null;
+  interest?: string | null;
+  urgency?: string | null;
+  source?: string | null;
+  createdAt: Date | string;
+}
+
+export function contactLeadNotification(data: ContactLeadNotificationData): EmailTemplate {
+  const subject = `[Nexus] Nouveau prospect - ${data.name}`;
+  const createdAt = new Date(data.createdAt).toLocaleString('fr-FR', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  });
+  const fields: Record<string, string> = {
+    'ID CRM': data.id,
+    Nom: data.name,
+    Email: data.email,
+    WhatsApp: data.phone || 'Non renseigné',
+    Profil: data.profile || 'Non renseigné',
+    Niveau: data.interest || 'Non renseigné',
+    Urgence: data.urgency || 'Non renseigné',
+    Source: data.source || 'Non renseignée',
+    'Date de capture': createdAt,
+  };
+
+  const fieldRows = Object.entries(fields)
+    .map(([key, value]) => `<li><strong>${escapeHtml(key)} :</strong> ${escapeHtml(value)}</li>`)
+    .join('');
+
+  const html = wrapLayout(
+    'Nouveau prospect',
+    '#111827',
+    `
+<p style="color:#333;line-height:1.6;">Une demande de bilan vient d'être capturée depuis le site Nexus Réussite.</p>
+<div style="background:#f8f9fa;padding:20px;border-radius:8px;margin:20px 0;">
+  <ul style="list-style:none;padding:0;margin:0;font-size:14px;line-height:2;">${fieldRows}</ul>
+</div>
+<p style="color:#333;line-height:1.6;">Répondre directement à cet email pour contacter le prospect.</p>
+`
+  );
+
+  const text = [
+    '[Nexus] Nouveau prospect',
+    '',
+    ...Object.entries(fields).map(([key, value]) => `${key}: ${value}`),
+    '',
+    'Répondre directement à cet email pour contacter le prospect.',
+  ].join('\n');
+
+  return { subject, html, text };
+}

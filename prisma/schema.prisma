@@ -137,6 +137,14 @@ enum PaymentStatus {
   REFUNDED
 }
 
+enum ContactLeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  ENROLLED
+  LOST
+}
+
 // Modèle Utilisateur principal
 model User {
   id        String   @id @default(cuid())
@@ -202,6 +210,12 @@ model User {
 
   // Coach-student assignments created by this user (assistant/admin)
   coachStudentAssignmentsCreated CoachStudentAssignment[] @relation("CoachStudentAssignmentAssignedBy")
+
+  // 2FA TOTP (Admin only)
+  totpSecret      String?   // AES-256-GCM encrypted, format: v1:iv:tag:ciphertext
+  totpEnabledAt   DateTime? // non-null = 2FA active (canonical check)
+  totpBackupCodes String?   // JSON array of hashed backup codes
+  totpLastUsedAt  DateTime? // last successful TOTP verification
 
   @@index([role])
   @@map("users")
@@ -1191,6 +1205,27 @@ model StageReservation {
   @@index([stageId])
   @@index([studentId])
   @@map("stage_reservations")
+}
+
+model ContactLead {
+  id        String            @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  profile   String?
+  interest  String?
+  urgency   String?
+  source    String?
+  status    ContactLeadStatus @default(NEW)
+  notes     String?           @db.Text
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@index([email])
+  @@index([status])
+  @@index([source])
+  @@index([createdAt])
+  @@map("contact_leads")
 }
 
 // Assessment Model — Universal evaluation system (multi-subject, multi-grade)

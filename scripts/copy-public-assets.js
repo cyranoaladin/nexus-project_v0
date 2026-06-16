@@ -80,7 +80,7 @@ function main() {
     const keyImages = [
       'images/hero-image.png',
       'images/BackgroundImage_EquipeStrategique.png',
-      'images/logo_slogan_nexus_x3.png'
+      'images/logo_slogan_nexus.webp'
     ];
 
     keyImages.forEach(img => {
