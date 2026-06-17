@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nexus Réussite — Trouver la formule adaptée</title>
+<meta name="description" content="Sélecteur de formule Nexus Réussite 2026/2027 : trouvez le parcours adapté à votre enfant, scolarisé, candidat libre ou à distance. Bilan offert.">
+<meta property="og:title" content="Nexus Réussite — Trouver la formule adaptée">
+<meta property="og:description" content="Questionnaire d'orientation vers les parcours Nexus Réussite pour élèves scolarisés, candidats libres et familles hors Tunis.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nexusreussite.academy/nexus_selecteur.html">
+<meta property="og:image" content="https://nexusreussite.academy/images/logo_slogan_nexus.webp">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="/styles/nexus-tokens.css">
 <style>
   :root{
@@ -365,7 +372,7 @@
     Groupes réduits selon formule · Tarifs en dinars tunisiens · Bilans réguliers et espace parent inclus.
   </div>
 
-  <form class="lead-capture" data-lead-capture data-source="selector" action="mailto:contact@nexusreussite.academy" method="post" enctype="text/plain">
+  <form class="lead-capture" data-lead-capture data-source="selector">
     <label>Parent<input name="name" autocomplete="name" required placeholder="Nom du parent"></label>
     <label>Niveau<input name="level" required placeholder="Ex. Première"></label>
     <label>Statut<select name="status" required><option value="">Choisir</option><option>Candidat libre</option><option>Élève scolarisé</option><option>Hors Tunis / en ligne</option></select></label>
@@ -423,7 +430,7 @@ const EX = {
 };
 const ECH_NOTE = "Règlement en réservation + versements selon échéancier. La remise fidélité est portée sur le dernier versement : elle est acquise au terme du parcours. En cas d’arrêt, les prestations consommées sont valorisées au tarif public de référence prévu au contrat d’inscription.";
 const TEACHER_NOTE = "Enseignants certifiés et agrégés de l’enseignement français à l’étranger.";
-const TARIF_CAMPAGNE_NOTE = /*TEXT:tarifCampagne.long*/;
+const TARIF_CAMPAGNE_NOTE = "Tarif campagne 2026/2027 selon les places disponibles. Acompte verrouillant le tarif campagne. Groupes de 5 élèves maximum.";
 const STAGE_PERIODS_COMMON = "prérentrée, Toussaint, hiver/février, printemps et sprint final";
 const STAGE_PERIODS_AEFE = "Toussaint, hiver/février, printemps selon calendrier AEFE rythme nord.";
 const STAGE_PERIODS_LIBRE = "Calendrier adapté au statut candidat libre et aux échéances d’examen.";
@@ -435,37 +442,37 @@ const DATA = {
     label:"Élève scolarisé (réseau AEFE)",
     levels:{
       Terminale:[
-        {id:"t-spe",name:"Terminale Spécialité Simple",sub:"1 enseignement (Maths, PC, NSI…)",monthly:/*NUM:terminaleSpecialiteSimple.monthly*/,fid:/*NUM:terminaleSpecialiteSimple.annual*/,hours:60,extras:[],
-         ech:[["Parcours annuel",/*NUM:terminaleSpecialiteSimple.annual*/]],
+        {id:"t-spe",name:"Terminale Spécialité Simple",sub:"1 enseignement (Maths, PC, NSI…)",monthly:390,fid:3900,hours:60,extras:[],
+         ech:[["Parcours annuel",3900]],
          note:"Pour renforcer une matière précise avec un suivi complet."},
-        {id:"t-duo",name:"Duo Terminale Nexus",sub:"2 enseignements de spécialité",badge:"Le plus choisi",monthly:/*NUM:duoTerminaleNexus.monthly*/,fid:/*NUM:duoTerminaleNexus.annual*/,pub:/*NUM:duoTerminaleNexus.publicAnnual*/,hours:175,combo:true,extras:["stages","grandOral"],
-         ech:/*ECHEANCIER:duoTerminaleNexus*/,
+        {id:"t-duo",name:"Duo Terminale Nexus",sub:"2 enseignements de spécialité",badge:"Le plus choisi",monthly:720,fid:7175,pub:8750,hours:175,combo:true,extras:["stages","grandOral"],
+         ech:[["Parcours annuel",7175],["Réservation",2150],["Mensualité 1",560],["Mensualité 2",560],["Mensualité 3",560],["Mensualité 4",560],["Mensualité 5",560],["Mensualité 6",560],["Mensualité 7",560],["Mensualité 8",560],["Solde",545]],
          note:"Le parcours intégral des deux spécialités, stages et Grand Oral compris."},
-        {id:"t-exc",name:"Excellence Terminale",sub:"2 spécialités + Mathématiques expertes",monthly:/*NUM:excellenceTerminale.monthly*/,fid:/*NUM:excellenceTerminale.annual*/,pub:/*NUM:excellenceTerminale.publicAnnual*/,hours:246,extras:["stages","grandOralSci","urgence2"],
-         ech:/*ECHEANCIER:excellenceTerminale*/,
+        {id:"t-exc",name:"Excellence Terminale",sub:"2 spécialités + Mathématiques expertes",monthly:960,fid:9594,pub:10700,hours:246,extras:["stages","grandOralSci","urgence2"],
+         ech:[["Parcours annuel",9594],["Réservation",2880],["Mensualité 1",750],["Mensualité 2",750],["Mensualité 3",750],["Mensualité 4",750],["Mensualité 5",750],["Mensualité 6",750],["Mensualité 7",750],["Mensualité 8",750],["Solde",714]],
          note:"Pour les profils scientifiques ambitieux visant les meilleures filières."},
       ],
       Première:[
-        {id:"p-maths",name:"Maths anticipées (EAM)",sub:"épreuve anticipée de mathématiques",monthly:/*NUM:premiereMathsAnticipees.monthly*/,fid:/*NUM:premiereMathsAnticipees.annual*/,pub:/*NUM:premiereMathsAnticipees.publicAnnual*/,hours:60,extras:[],
-         ech:/*ECHEANCIER:premiereMathsAnticipees*/,
+        {id:"p-maths",name:"Maths anticipées (EAM)",sub:"épreuve anticipée de mathématiques",monthly:300,fid:3000,pub:3000,hours:60,extras:[],
+         ech:[["Parcours annuel",3000],["Réservation",900],["Mensualité 1",233],["Mensualité 2",233],["Mensualité 3",233],["Mensualité 4",233],["Mensualité 5",233],["Mensualité 6",233],["Mensualité 7",233],["Mensualité 8",233],["Solde",236]],
          note:"Automatismes, méthode et entraînement sur sujets type."},
-        {id:"p-eaf",name:"Français EAF",sub:"écrit + oral",monthly:/*NUM:premiereEafFrancais.monthly*/,fid:/*NUM:premiereEafFrancais.annual*/,pub:/*NUM:premiereEafFrancais.publicAnnual*/,hours:60,extras:[],
-         ech:/*ECHEANCIER:premiereEafFrancais*/,
+        {id:"p-eaf",name:"Français EAF",sub:"écrit + oral",monthly:300,fid:3000,pub:3000,hours:60,extras:[],
+         ech:[["Parcours annuel",3000],["Réservation",900],["Mensualité 1",233],["Mensualité 2",233],["Mensualité 3",233],["Mensualité 4",233],["Mensualité 5",233],["Mensualité 6",233],["Mensualité 7",233],["Mensualité 8",233],["Solde",236]],
          note:"Méthodes de l’écrit et préparation de l’oral, oraux blancs inclus."},
-        {id:"p-duo",name:"Double Sécurité",sub:"Français + Mathématiques",badge:"Recommandé",monthly:/*NUM:premiereDoubleSecurite.monthly*/,fid:/*NUM:premiereDoubleSecurite.annual*/,pub:/*NUM:premiereDoubleSecurite.publicAnnual*/,hours:120,extras:[],
-         ech:/*ECHEANCIER:premiereDoubleSecurite*/,
+        {id:"p-duo",name:"Double Sécurité",sub:"Français + Mathématiques",badge:"Recommandé",monthly:540,fid:5400,pub:5400,hours:120,extras:[],
+         ech:[["Parcours annuel",5400],["Réservation",1620],["Mensualité 1",420],["Mensualité 2",420],["Mensualité 3",420],["Mensualité 4",420],["Mensualité 5",420],["Mensualité 6",420],["Mensualité 7",420],["Mensualité 8",420],["Solde",420]],
          note:"Sécurise les deux épreuves anticipées et prépare le Duo de Terminale."},
       ],
       Seconde:[
-        {id:"s-maths",name:"Maths & méthode",sub:"2 h / semaine",monthly:/*NUM:secondeMathsMethode.monthly*/,simple:true,extras:[],
+        {id:"s-maths",name:"Maths & méthode",sub:"2 h / semaine",monthly:270,simple:true,extras:[],
          note:"Des bases solides et de bonnes habitudes avant le cycle terminal."},
-        {id:"s-sci",name:"Sciences",sub:"Maths + Physique-Chimie · 4 h / semaine",monthly:/*NUM:secondeSciences.monthly*/,simple:true,extras:[],
+        {id:"s-sci",name:"Sciences",sub:"Maths + Physique-Chimie · 4 h / semaine",monthly:540,simple:true,extras:[],
          note:"Pour les élèves qui s’orientent vers les spécialités scientifiques."},
       ],
       Troisième:[
-        {id:"b-maths",name:"Brevet Maths",sub:"2 h / semaine",monthly:/*NUM:brevetMaths.monthly*/,simple:true,extras:[],
+        {id:"b-maths",name:"Brevet Maths",sub:"2 h / semaine",monthly:240,simple:true,extras:[],
          note:"Cours, exercices et sujets du brevet."},
-        {id:"b-comp",name:"Brevet Complet",sub:"Maths + Français · 4 h / semaine",badge:"Recommandé",monthly:/*NUM:brevetComplet.monthly*/,simple:true,extras:[],
+        {id:"b-comp",name:"Brevet Complet",sub:"Maths + Français · 4 h / semaine",badge:"Recommandé",monthly:480,simple:true,extras:[],
          note:"Préparation complète au DNB, examens blancs inclus."},
       ],
     }
@@ -474,22 +481,22 @@ const DATA = {
     label:"Candidat libre",
     levels:{
       Terminale:[
-        {id:"l-t-on",name:"Terminale Libre — En ligne",sub:"100 % en ligne",monthly:/*NUM:terminaleLibreOnline.monthly*/,fid:/*NUM:terminaleLibreOnline.annual*/,online:true,libre:true,extras:["bulletin"],
-         ech:/*ECHEANCIER:terminaleLibreOnline*/,
+        {id:"l-t-on",name:"Terminale Libre — En ligne",sub:"100 % en ligne",monthly:290,fid:2900,online:true,libre:true,extras:["bulletin"],
+         ech:[["Parcours annuel",2900],["Réservation",870],["Mensualité 1",225],["Mensualité 2",225],["Mensualité 3",225],["Mensualité 4",225],["Mensualité 5",225],["Mensualité 6",225],["Mensualité 7",225],["Mensualité 8",225],["Solde",230]],
          note:"Préparer la Terminale candidat libre partout en Tunisie."},
-        {id:"l-t-mx",name:"Terminale Libre — Mixte",sub:"présentiel + plateforme",badge:"Référence",monthly:/*NUM:terminaleLibreMixte.monthly*/,fid:/*NUM:terminaleLibreMixte.annual*/,pub:/*NUM:terminaleLibreMixte.publicAnnual*/,libre:true,extras:["grandOral","bulletin","admin"],
-         ech:/*ECHEANCIER:terminaleLibreMixte*/,
+        {id:"l-t-mx",name:"Terminale Libre — Mixte",sub:"présentiel + plateforme",badge:"Référence",monthly:790,fid:7900,pub:8750,libre:true,extras:["grandOral","bulletin","admin"],
+         ech:[["Parcours annuel",7900],["Réservation",2370],["Mensualité 1",614],["Mensualité 2",614],["Mensualité 3",614],["Mensualité 4",614],["Mensualité 5",614],["Mensualité 6",614],["Mensualité 7",614],["Mensualité 8",614],["Solde",618]],
          note:"Le parcours complet : 2 spécialités, tronc commun, Grand Oral."},
-        {id:"l-t-pr",name:"Terminale Libre — Premium",sub:"suivi renforcé",monthly:/*NUM:terminaleLibrePremium.monthly*/,fid:/*NUM:terminaleLibrePremium.annual*/,libre:true,extras:["grandOral","bulletin","admin","urgence6"],
-         ech:/*ECHEANCIER:terminaleLibrePremium*/,
+        {id:"l-t-pr",name:"Terminale Libre — Premium",sub:"suivi renforcé",monthly:990,fid:9900,libre:true,extras:["grandOral","bulletin","admin","urgence6"],
+         ech:[["Parcours annuel",9900],["Réservation",2970],["Mensualité 1",770],["Mensualité 2",770],["Mensualité 3",770],["Mensualité 4",770],["Mensualité 5",770],["Mensualité 6",770],["Mensualité 7",770],["Mensualité 8",770],["Solde",770]],
          note:"Un suivi rapproché, sans improvisation."},
       ],
       Première:[
-        {id:"l-p-ac",name:"Première Libre — Accompagnée",sub:"présentiel + plateforme",badge:"Référence",monthly:/*NUM:premiereLibreAccompagnee.monthly*/,fid:/*NUM:premiereLibreAccompagnee.annual*/,libre:true,extras:["bulletin","admin"],
-         ech:/*ECHEANCIER:premiereLibreAccompagnee*/,
+        {id:"l-p-ac",name:"Première Libre — Accompagnée",sub:"présentiel + plateforme",badge:"Référence",monthly:490,fid:4900,libre:true,extras:["bulletin","admin"],
+         ech:[["Parcours annuel",4900],["Réservation",1470],["Mensualité 1",380],["Mensualité 2",380],["Mensualité 3",380],["Mensualité 4",380],["Mensualité 5",380],["Mensualité 6",380],["Mensualité 7",380],["Mensualité 8",380],["Solde",390]],
          note:"Parcours complet Première candidat libre."},
-        {id:"l-p-on",name:"Première Libre — En ligne",sub:"plateforme + ateliers",monthly:/*NUM:premiereLibreEssentiel.monthly*/,fid:/*NUM:premiereLibreEssentiel.annual*/,online:true,libre:true,extras:["bulletin"],
-         ech:/*ECHEANCIER:premiereLibreEssentiel*/,
+        {id:"l-p-on",name:"Première Libre — En ligne",sub:"plateforme + ateliers",monthly:190,fid:1900,online:true,libre:true,extras:["bulletin"],
+         ech:[["Parcours annuel",1900],["Réservation",570],["Mensualité 1",150],["Mensualité 2",150],["Mensualité 3",150],["Mensualité 4",150],["Mensualité 5",150],["Mensualité 6",150],["Mensualité 7",150],["Mensualité 8",150],["Solde",130]],
          note:"Structurer la Première en candidat libre."},
       ],
     }
@@ -497,13 +504,13 @@ const DATA = {
   distance:{
     label:"À distance (hors Tunis)",
     direct:[
-      {id:"d-au",name:"Plateforme Autonomie",sub:"élève autonome",monthly:/*NUM:plateformeAutonomie.monthlyAlt*/,fid:/*NUM:plateformeAutonomie.annual*/,online:true,
+      {id:"d-au",name:"Plateforme Autonomie",sub:"élève autonome",monthly:69,fid:590,online:true,
        custom:["Ressources, fiches, exercices et sujets corrigés","Parcours personnalisé en autonomie","Accès illimité 24/7"],
        note:"Le cadre Nexus pour travailler seul, à son rythme."},
-      {id:"d-su",name:"Plateforme Suivi",sub:"cadre léger",badge:"Populaire",monthly:/*NUM:plateformeSuivi.monthlyAlt*/,fid:/*NUM:plateformeSuivi.annual*/,online:true,
+      {id:"d-su",name:"Plateforme Suivi",sub:"cadre léger",badge:"Populaire",monthly:160,fid:1490,online:true,
        custom:["Tout l’abonnement Autonomie","Compte parent + bilans réguliers","1 atelier collectif en ligne / mois"],
        note:"Un cadre structurant avec visibilité parents."},
-      {id:"d-ac",name:"Plateforme Accompagnée",sub:"vrai suivi à distance",monthly:/*NUM:plateformeAccompagnee.monthlyAlt*/,fid:/*NUM:plateformeAccompagnee.annual*/,online:true,
+      {id:"d-ac",name:"Plateforme Accompagnée",sub:"vrai suivi à distance",monthly:290,fid:2900,online:true,
        custom:["Tout l’abonnement Suivi","1 séance live en groupe / semaine","Corrections personnalisées ponctuelles"],
        note:"Pour les familles hors Tunis voulant un véritable suivi."},
     ]
@@ -511,11 +518,11 @@ const DATA = {
 };
 
 const STAGES = [
-  {name:"Prérentrée — Maths Terminale",sub:"20 h · porte d’entrée",price:"/*PRICE:stagePrerentreeMathsTerminale*/",extra:"positionné selon calendrier et groupe ouvert"},
-  {name:"Stage petites vacances — 1 matière",sub:"10 à 12 h",price:"/*PRICE:vacancesUneMatiere*/"},
-  {name:"Stage Duo — 2 matières",sub:"18 à 20 h",price:"/*PRICE:vacancesDuoMatieres*/"},
-  {name:"Stage Grand Oral",sub:"10 h",price:"/*PRICE:vacancesGrandOral*/"},
-  {name:"Sprint final",sub:"20 à 30 h",price:"/*PRICE:vacancesSprintFinal*/"},
+  {name:"Prérentrée — Maths Terminale",sub:"20 h · porte d’entrée",price:"580 TND",extra:"positionné selon calendrier et groupe ouvert"},
+  {name:"Stage petites vacances — 1 matière",sub:"10 à 12 h",price:"490 à 580 TND"},
+  {name:"Stage Duo — 2 matières",sub:"18 à 20 h",price:"850 à 950 TND"},
+  {name:"Stage Grand Oral",sub:"10 h",price:"490 TND"},
+  {name:"Sprint final",sub:"20 à 30 h",price:"950 à 1 450 TND"},
 ];
 
 // ---- State & helpers
