@@ -31,9 +31,9 @@ header.app .wrap{display:flex;justify-content:space-between;align-items:center;g
 .brand h1{font-size:20px;color:#fff;margin:0}
 .brand p{margin:2px 0 0;color:rgba(255,255,255,.75);font-size:13px}
 .pill{border:1px solid rgba(201,162,77,.5);border-radius:999px;padding:6px 13px;color:var(--gold);font-weight:800;text-transform:uppercase;font-size:11.5px;letter-spacing:.1em}
-.intbar{background:#FFF3CD;border-bottom:1px solid #E3BC51;color:#3a2c00;font-weight:700;font-size:13px}
-.intbar .wrap{display:flex;gap:14px;justify-content:space-between;flex-wrap:wrap;padding:9px 20px}
-.intbar span{font-weight:600}
+.intbar{background:#B42318;border-bottom:2px solid #7f190f;color:#fff;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:.06em}
+.intbar .wrap{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;padding:10px 20px}
+.intbar span{font-weight:800}
 
 /* Layout */
 .layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:22px;margin:22px auto 60px}
@@ -195,7 +195,7 @@ details[open].econ-panel>summary::before{content:"▼ "}
 .basket-totals-row.grand{font-weight:800;font-size:16px;color:var(--night);border-bottom:none;margin-top:6px}
 .basket-totals-row.reduc{color:var(--red)}
 </style>
-<script type="application/json" id="nexus-offers-json" data-checksum="077a6a7e52dd8e37">
+<script type="application/json" id="nexus-offers-json" data-checksum="78abe39e6234cb82">
 {
   "premiereLibreEssentiel": {
     "label": "Première Libre Essentiel",
@@ -203,13 +203,18 @@ details[open].econ-panel>summary::before{content:"▼ "}
     "annual": 1900,
     "sub": "1 900 TND / an",
     "echeancier": [
-      500,
-      350,
-      350,
-      350,
-      350
+      570,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      150,
+      130
     ],
-    "paiement": "500 TND réservation + 4 x 350 TND"
+    "paiement": "570 TND réservation + 9 mensualités"
   },
   "premiereLibreAccompagnee": {
     "label": "Première Libre Accompagnée",
@@ -217,17 +222,18 @@ details[open].econ-panel>summary::before{content:"▼ "}
     "annual": 4900,
     "sub": "4 900 TND / an",
     "echeancier": [
-      900,
-      500,
-      500,
-      500,
-      500,
-      500,
-      500,
-      500,
-      500
+      1470,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      380,
+      390
     ],
-    "paiement": "900 TND réservation + 8 x 500 TND"
+    "paiement": "1 470 TND réservation + 9 mensualités"
   },
   "premiereLibreIntensif": {
     "label": "Première Libre Intensif",
@@ -240,17 +246,18 @@ details[open].econ-panel>summary::before{content:"▼ "}
     "annual": 2900,
     "sub": "2 900 TND / an",
     "echeancier": [
-      500,
-      300,
-      300,
-      300,
-      300,
-      300,
-      300,
-      300,
-      300
+      870,
+      225,
+      225,
+      225,
+      225,
+      225,
+      225,
+      225,
+      225,
+      230
     ],
-    "paiement": "500 TND réservation + 8 x 300 TND"
+    "paiement": "870 TND réservation + 9 mensualités"
   },
   "terminaleLibreMixte": {
     "label": "Terminale Libre Mixte",
@@ -260,13 +267,19 @@ details[open].econ-panel>summary::before{content:"▼ "}
     "approx": true,
     "sub": "parcours complet candidat libre",
     "echeancier": [
-      1200,
-      1800,
-      3000,
-      1900
+      2370,
+      614,
+      614,
+      614,
+      614,
+      614,
+      614,
+      614,
+      614,
+      618
     ],
-    "paiement": "1 200 TND réservation + 3 tranches",
-    "detailTarif": "Tarif public : 8 750 TND / an. Tarif campagne / fidélité : référence actuelle : 7 900 TND / an."
+    "paiement": "2 370 TND réservation + 9 mensualités",
+    "detailTarif": "Tarif public : 8 750 TND / an. Tarif campagne / fidélité : 7 900 TND / an."
   },
   "terminaleLibrePremium": {
     "label": "Terminale Libre Premium",
@@ -274,12 +287,18 @@ details[open].econ-panel>summary::before{content:"▼ "}
     "annual": 9900,
     "sub": "9 900 TND / an",
     "echeancier": [
-      1500,
-      2100,
-      3150,
-      3150
+      2970,
+      770,
+      770,
+      770,
+      770,
+      770,
+      770,
+      770,
+      770,
+      770
     ],
-    "paiement": "1 500 TND réservation + 4 versements de 2 100 TND"
+    "paiement": "2 970 TND réservation + 9 mensualités de 770 TND"
   },
   "plateformeAutonomie": {
     "label": "Plateforme Autonomie",
@@ -304,47 +323,81 @@ details[open].econ-panel>summary::before{content:"▼ "}
   },
   "premiereEafFrancais": {
     "label": "Première EAF Français",
-    "monthly": 290,
-    "annual": 2900,
+    "monthly": 300,
+    "annual": 3000,
     "publicAnnual": 3000,
     "echeancier": [
-      600,
-      400,
-      1000,
-      900
+      900,
+      233,
+      233,
+      233,
+      233,
+      233,
+      233,
+      233,
+      233,
+      236
     ],
-    "annualDisplay": "2 900 TND / an"
+    "paiement": "900 TND réservation + 9 mensualités",
+    "annualDisplay": "3 000 TND / an"
   },
   "premiereMathsAnticipees": {
     "label": "Première Maths Anticipées",
-    "monthly": 290,
-    "annual": 2900,
+    "monthly": 300,
+    "annual": 3000,
     "publicAnnual": 3000,
     "echeancier": [
-      600,
-      400,
-      1000,
-      900
+      900,
+      233,
+      233,
+      233,
+      233,
+      233,
+      233,
+      233,
+      233,
+      236
     ],
-    "annualDisplay": "2 900 TND / an"
+    "paiement": "900 TND réservation + 9 mensualités",
+    "annualDisplay": "3 000 TND / an"
   },
   "premiereDoubleSecurite": {
     "label": "Première Double Sécurité",
-    "monthly": 490,
-    "annual": 4900,
-    "publicAnnual": 6000,
+    "monthly": 540,
+    "annual": 5400,
+    "publicAnnual": 5400,
     "echeancier": [
-      900,
-      1100,
-      2000,
-      900
+      1620,
+      420,
+      420,
+      420,
+      420,
+      420,
+      420,
+      420,
+      420,
+      420
     ],
-    "annualDisplay": "4 900 TND / an"
+    "paiement": "1 620 TND réservation + 9 mensualités de 420 TND",
+    "annualDisplay": "5 400 TND / an"
   },
   "premiereSciences": {
     "label": "Première Sciences",
     "monthly": 590,
     "annual": 5900,
+    "echeancier": [
+      1770,
+      460,
+      460,
+      460,
+      460,
+      460,
+      460,
+      460,
+      460,
+      450
+    ],
+    "paiement": "1 770 TND réservation + 9 mensualités",
     "annualDisplay": "5 900 TND / an"
   },
   "terminaleSpecialiteSimple": {
@@ -352,6 +405,19 @@ details[open].econ-panel>summary::before{content:"▼ "}
     "monthly": 390,
     "annual": 3900,
     "sub": "2 h / semaine",
+    "echeancier": [
+      1170,
+      300,
+      300,
+      300,
+      300,
+      300,
+      300,
+      300,
+      300,
+      330
+    ],
+    "paiement": "1 170 TND réservation + 9 mensualités",
     "annualDisplay": "3 900 TND / an"
   },
   "duoTerminaleNexus": {
@@ -362,39 +428,81 @@ details[open].econ-panel>summary::before{content:"▼ "}
     "approx": true,
     "sub": "stages + Grand Oral inclus",
     "echeancier": [
-      1200,
-      1550,
-      2750,
-      1675
+      2150,
+      560,
+      560,
+      560,
+      560,
+      560,
+      560,
+      560,
+      560,
+      545
     ],
-    "paiement": "1 200 + 1 550 + 2 750 + 1 675 TND",
+    "paiement": "2 150 TND réservation + 9 mensualités",
     "annualDisplay": "7 175 TND / an",
-    "detailTarif": "Tarif campagne / fidélité : référence actuelle : 7 175 TND / an."
+    "detailTarif": "Tarif public : 8 750 TND / an. Tarif campagne / fidélité : 7 175 TND / an."
   },
   "excellenceTerminale": {
     "label": "Excellence Terminale",
     "monthly": 960,
     "annual": 9594,
-    "publicAnnual": 12300,
+    "publicAnnual": 10700,
     "approx": true,
     "sub": "Maths expertes + urgence incluses",
     "echeancier": [
-      1500,
-      2100,
-      3300,
-      2694
+      2880,
+      750,
+      750,
+      750,
+      750,
+      750,
+      750,
+      750,
+      750,
+      714
     ],
-    "paiement": "1 500 + 2 100 + 3 300 + 2 694 TND",
+    "paiement": "2 880 TND réservation + 8 mensualités + solde 714 TND",
     "annualDisplay": "9 594 TND / an",
-    "detailTarif": "Tarif campagne / fidélité : référence actuelle : 9 594 TND / an."
+    "detailTarif": "Tarif public : 10 700 TND / an. Tarif campagne / fidélité : 9 594 TND / an."
   },
   "secondeMathsMethode": {
     "label": "Seconde Maths Méthode",
-    "monthly": 250
+    "monthly": 270,
+    "annual": 2700,
+    "echeancier": [
+      810,
+      210,
+      210,
+      210,
+      210,
+      210,
+      210,
+      210,
+      210,
+      210
+    ],
+    "paiement": "810 TND réservation + 9 mensualités de 210 TND",
+    "annualDisplay": "2 700 TND / an"
   },
   "secondeSciences": {
     "label": "Seconde Sciences",
-    "monthly": 430
+    "monthly": 540,
+    "annual": 5400,
+    "echeancier": [
+      1620,
+      420,
+      420,
+      420,
+      420,
+      420,
+      420,
+      420,
+      420,
+      420
+    ],
+    "paiement": "1 620 TND réservation + 9 mensualités de 420 TND",
+    "annualDisplay": "5 400 TND / an"
   },
   "secondeCoachingOrientation": {
     "label": "Seconde Coaching + Orientation",
@@ -402,15 +510,45 @@ details[open].econ-panel>summary::before{content:"▼ "}
   },
   "brevetMaths": {
     "label": "Brevet Maths",
-    "monthly": 220
+    "monthly": 240,
+    "annual": 2400,
+    "echeancier": [
+      720,
+      186,
+      186,
+      186,
+      186,
+      186,
+      186,
+      186,
+      186,
+      192
+    ],
+    "paiement": "720 TND réservation + 8 mensualités + solde 192 TND",
+    "annualDisplay": "2 400 TND / an"
   },
   "brevetComplet": {
     "label": "Brevet Complet",
-    "monthly": 390
+    "monthly": 480,
+    "annual": 4800,
+    "echeancier": [
+      1440,
+      373,
+      373,
+      373,
+      373,
+      373,
+      373,
+      373,
+      373,
+      376
+    ],
+    "paiement": "1 440 TND réservation + 8 mensualités + solde 376 TND",
+    "annualDisplay": "4 800 TND / an"
   },
   "stageBrevet": {
     "label": "Stage Brevet",
-    "display": "390 à 590 TND"
+    "display": "490 à 580 TND"
   },
   "stagePrerentreeTroisieme": {
     "label": "Troisième — Prépa Brevet rentrée",
@@ -422,85 +560,79 @@ details[open].econ-panel>summary::before{content:"▼ "}
   },
   "stagePrerentreePremiere": {
     "label": "Première — Français ou Maths",
-    "display": "600 TND"
+    "display": "580 TND"
   },
   "stagePrerentreeTerminale": {
     "label": "Terminale — Maths prérentrée",
-    "display": "600 / 800 / 1 000 TND"
+    "display": "580 à 950 TND"
   },
   "stagePrerentreeCandidatsLibres": {
     "label": "Candidats libres — Bilan + remise à niveau",
-    "display": "790 à 1 200 TND"
+    "display": "720 à 950 TND"
   },
   "stagePrerentreeMathsTerminale": {
     "label": "Prérentrée août — Maths Terminale",
-    "display": "800 TND"
+    "display": "580 TND"
   },
   "vacancesUneMatiere": {
     "label": "1 matière — 10 à 12 h",
-    "display": "490 à 590 TND"
+    "display": "490 à 580 TND"
   },
   "vacancesDuoMatieres": {
     "label": "Duo matières — 18 à 20 h",
-    "display": "790 à 990 TND"
+    "display": "850 à 950 TND"
   },
   "vacancesGrandOral": {
     "label": "Grand Oral — 10 h",
     "display": "490 TND"
   },
+  "packGrandOralSeul": {
+    "label": "Pack Grand Oral seul",
+    "display": "490 TND"
+  },
   "vacancesBacBlanc": {
-    "label": "Bac blanc + correction",
-    "display": "120 à 180 TND"
+    "label": "Épreuve blanche + correction",
+    "display": "150 TND"
   },
   "vacancesSprintFinal": {
     "label": "Sprint final — 20 à 30 h",
-    "display": "990 à 1 490 TND"
+    "display": "950 à 1 450 TND"
   },
-  "urgenceMembreHeure": {
-    "label": "Heure urgence — membre",
-    "display": "80 TND / h",
-    "annual": 80
+  "urgenceMembre": {
+    "label": "Heure d'urgence en ligne — membre",
+    "display": "150 TND / h",
+    "hourly": 150
   },
-  "urgenceNonMembreHeure": {
-    "label": "Heure urgence — non-membre",
-    "display": "120 TND / h",
-    "annual": 120
+  "urgenceNonMembre": {
+    "label": "Heure d'urgence en ligne — non-membre",
+    "display": "200 TND / h",
+    "hourly": 200
   },
-  "urgencePackCinq": {
-    "label": "Pack 5 h urgence membre",
-    "display": "350 TND",
-    "annual": 350
-  },
-  "urgencePackDix": {
-    "label": "Pack 10 h urgence membre",
+  "urgencePack5Membre": {
+    "label": "Pack 5 h urgence en ligne — membre",
     "display": "650 TND",
     "annual": 650
   },
-  "pontParcoursup": {
-    "label": "Pont Parcoursup",
-    "display": "900 TND",
-    "annual": 900
-  },
-  "celluleCandidatLibre": {
-    "label": "Cellule Candidat Libre seule",
-    "display": "500 TND",
-    "annual": 500
+  "urgencePack10Membre": {
+    "label": "Pack 10 h urgence en ligne — membre",
+    "display": "1 200 TND",
+    "annual": 1200
   },
   "_notes": {
     "tarifCampagne": {
-      "long": "Le tarif campagne / fidélité ne dépend pas d’une échéance fixe, mais des places disponibles. Les groupes sont constitués par niveaux homogènes (5 élèves maximum). Une fois un groupe complet, le tarif et la place ne sont plus garantis : réserver tôt sécurise le créneau et le tarif.",
-      "short": "Pas d’échéance fixe — des places limitées. Une fois les groupes constitués, les inscriptions à ce tarif peuvent être closes faute de place."
+      "long": "Le tarif campagne 2026/2027 est valable jusqu'au 31 août 2026. Acompte verrouillant le tarif campagne. Groupes de 5 élèves maximum.",
+      "short": "Tarif campagne jusqu'au 31 août 2026 — acompte verrouillant."
     }
   },
   "_reperes": {
-    "brevetMois": "à partir de 220 TND / mois",
-    "secondeMois": "à partir de 250 TND / mois",
-    "premiereSimpleMois": "à partir de 290 TND / mois",
-    "premiereDuoMois": "à partir de 490 TND / mois",
+    "brevetMois": "à partir de 240 TND / mois",
+    "secondeMois": "à partir de 270 TND / mois",
+    "premiereSimpleMois": "à partir de 300 TND / mois",
+    "premiereDuoMois": "à partir de 540 TND / mois",
     "terminaleSimpleMois": "à partir de 390 TND / mois",
-    "terminaleDuoMois": "≈ 720 TND / mois",
+    "terminaleDuoMois": "~ 720 TND / mois (tarif campagne)",
     "plateformeAn": "à partir de 590 TND / an",
-    "stagesBase": "dès 350 TND",
+    "stagesBase": "dès 490 TND",
     "parrainage": "150 à 300 TND"
   }
 }
@@ -514,10 +646,10 @@ details[open].econ-panel>summary::before{content:"▼ "}
       <img src="https://nexusreussite.academy/images/logo_slogan_nexus.webp" alt="Nexus Réussite" onerror="this.outerHTML='&lt;div class=&quot;fb&quot;&gt;NEXUS &lt;span&gt;RÉUSSITE&lt;/span&gt;&lt;/div&gt;'">
       <div><h1>Conseil &amp; devis 2026/2027</h1><p>Assistant de qualification, recommandation et devis pour les entretiens familles.</p></div>
     </div>
-    <span class="pill">Usage interne</span>
+    <span class="pill">Outil interne</span>
   </div>
 </header>
-<div class="intbar"><div class="wrap"><span>Outil interne — ne pas partager aux familles.</span><span>Les données saisies restent dans le navigateur ; aucun envoi serveur.</span></div></div>
+<div class="intbar"><div class="wrap"><span>⚠️ DOCUMENT INTERNE — NE PAS PARTAGER AUX FAMILLES ⚠️</span></div></div>
 
 <main class="wrap layout">
 <div>
@@ -693,6 +825,14 @@ details[open].econ-panel>summary::before{content:"▼ "}
         <div><label class="f" for="creneauInfo">Créneau envisagé</label>
           <input id="creneauInfo" type="text" placeholder="ex. Sam 10h–12h, jeudi soir"></div>
       </div>
+      <div class="grid g3" style="margin-top:13px">
+        <div><label class="f" for="effectifEstime">Effectif estimé du groupe</label>
+          <select id="effectifEstime">
+            <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+            <option value="4">4</option><option value="5" selected>5</option><option value="6">6</option>
+            <option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option>
+          </select></div>
+      </div>
     </fieldset>
 
     <div class="actions">
@@ -713,7 +853,10 @@ details[open].econ-panel>summary::before{content:"▼ "}
         <table class="econ-table">
           <thead><tr><th>Effectif</th><th>Coût enseignant / élève / h</th><th>Indicateur</th></tr></thead>
           <tbody>
-            <tr><td>5</td><td>24 TND</td><td class="ev-vert">● Viabilité optimale</td></tr>
+            <tr><td>10</td><td>12 TND</td><td class="ev-vert">● Plateforme live</td></tr>
+            <tr><td>8</td><td>15 TND</td><td class="ev-vert">● Brevet optimal</td></tr>
+            <tr><td>6</td><td>20 TND</td><td class="ev-vert">● Première/Seconde optimal</td></tr>
+            <tr><td>5</td><td>24 TND</td><td class="ev-vert">● Terminale optimal</td></tr>
             <tr><td>4</td><td>30 TND</td><td class="ev-orange">● Acceptable</td></tr>
             <tr><td>3</td><td>40 TND</td><td class="ev-rouge">● Valider direction</td></tr>
             <tr><td>2</td><td>60 TND</td><td class="ev-rouge">● Semi-individuel</td></tr>
@@ -723,6 +866,7 @@ details[open].econ-panel>summary::before{content:"▼ "}
         <div style="margin-top:14px;display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end">
           <div><label class="f" for="econEffectif">Effectif groupe estimé</label>
             <select id="econEffectif" style="width:90px">
+              <option value="10">10</option><option value="8">8</option><option value="6">6</option>
               <option value="5" selected>5</option><option value="4">4</option>
               <option value="3">3</option><option value="2">2</option><option value="1">1</option>
             </select></div>
@@ -739,7 +883,7 @@ details[open].econ-panel>summary::before{content:"▼ "}
     <div class="offers" id="offers"></div>
     <div class="compare" id="compare" hidden></div>
     <div class="extras"><h3>Compléments utiles en entretien</h3><div class="chips" id="extras"></div></div>
-    <p class="team"><b>À rappeler aux parents :</b> les cours sont assurés par des enseignants certifiés et agrégés de l'enseignement français à l'étranger, qui maîtrisent les programmes officiels, les attendus des épreuves et la pédagogie de l'Éducation nationale française.</p>
+    <p class="team"><b>À rappeler aux parents :</b> les cours sont assurés par des enseignants qualifiés — certifiés de l'enseignement français, maîtrisant les programmes officiels et les attendus du bac.</p>
   </section>
 
   
@@ -750,22 +894,16 @@ details[open].econ-panel>summary::before{content:"▼ "}
       <div id="basketItems"></div>
       <div class="noprint" id="reducPanel" style="margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:10px;background:#fffdf5">
         <h3 style="font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--gold-deep);margin:0 0 8px">Réductions &amp; avantages — usage interne</h3>
-        <p class="fnote" style="margin-bottom:9px">⚠️ <b>Règle Nexus : non cumulables par défaut</b> — la réduction la plus favorable s'applique seule. Cocher « Cumul validé direction » pour en appliquer plusieurs.</p>
+        <p class="fnote" style="margin-bottom:9px">⚠️ <b>Règle Nexus : cumul PLAFONNÉ à 10 % maximum.</b> Remises non cumulables au-delà du plafond sans validation direction. Au-delà, cocher la dérogation direction.</p>
         <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
-          <label class="chip"><input type="checkbox" id="reduc-ancien"><span>Ancien élève Nexus</span></label>
-          <select id="reduc-ancien-taux" style="width:72px;padding:5px 8px"><option value="5">5 %</option><option value="10" selected>10 %</option><option value="15">15 %</option></select>
+          <label class="chip"><input type="checkbox" id="reduc-ancien"><span>Ancien élève Nexus (10 %)</span></label>
           <label class="chip"><input type="checkbox" id="reduc-fratrie"><span>Fratrie inscrite (10 %)</span></label>
           <label class="chip"><input type="checkbox" id="reduc-comptant"><span>Paiement comptant (5 %)</span></label>
+          <label class="chip"><input type="checkbox" id="reduc-parrainage"><span>Parrainage (5 %)</span></label>
         </div>
-        <div style="margin-top:9px;padding:9px 12px;border:1px dashed #C9A24D;border-radius:8px;background:rgba(201,162,77,.06)">
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13.5px"><input type="checkbox" id="cumul-dir" style="width:17px;height:17px;accent-color:var(--navy)"><b>Cumul validé direction</b> — le devis affichera « Réduction validée par la direction »</label>
-        </div>
-        <div style="margin-top:9px;padding:9px 12px;background:#fff3cd;border-radius:8px;border:1px solid #E3BC51;font-size:13px">
-          <b>Prime parrainage :</b> 150 à 300 TND après inscription effective — <em>non déduite du total</em>, affichée en note.
-          <div style="margin-top:6px;display:flex;align-items:center;gap:8px">
-            <label style="display:flex;align-items:center;gap:6px;font-size:13px"><input type="checkbox" id="reduc-parrainage" style="width:16px;height:16px;accent-color:var(--navy)"> Mentionner le parrainage</label>
-            <select id="reduc-parrainage-montant" style="width:100px;padding:5px 8px"><option value="150">150 TND</option><option value="200">200 TND</option><option value="300">300 TND</option></select>
-          </div>
+        <div id="reducCapWarning" style="display:none;margin-top:9px;padding:9px 12px;border-radius:8px;background:#FBEAEA;border:1px solid #FECACA;font-size:13px;color:#B42318;font-weight:700">⚠️ Cumul des réductions plafonné à 10 %. Cochez la dérogation direction ci-dessous pour dépasser.</div>
+        <div style="margin-top:9px;padding:9px 12px;border:2px dashed #B42318;border-radius:8px;background:rgba(180,35,24,.05)">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13.5px"><input type="checkbox" id="cumul-dir" style="width:17px;height:17px;accent-color:var(--red)"><b style="color:#B42318">⚠️ Dérogation direction : autoriser cumul &gt; 10 %</b></label>
         </div>
       </div>
       <div id="basketTotals" style="margin-top:14px;padding:14px;border:2px solid var(--gold);border-radius:10px;background:rgba(201,162,77,.05)"></div>
@@ -783,7 +921,7 @@ details[open].econ-panel>summary::before{content:"▼ "}
     <div class="devis" id="devis"></div>
   </section>
 
-  <div class="deploy noprint"><b>Déploiement :</b> ne pas lier cette page publiquement. Protéger par identifiant interne, basic auth ou restriction IP. Aucune donnée famille n'est envoyée à un serveur ; tout reste dans le navigateur.</div>
+  <div class="deploy noprint"><b>Déploiement :</b> ne pas lier cette page publiquement. Protéger par identifiant interne, basic auth ou restriction IP. Les données saisies restent dans le navigateur ; aucune donnée famille n'est envoyée à un serveur.</div>
 </div>
 
 <aside class="summary card">
@@ -836,10 +974,10 @@ vacancesDuoMatieres:{cat:"Stage vacances",vol:"18-20 h · 6 élèves max",h:19,e
 vacancesGrandOral:{cat:"Stage vacances",vol:"10 h · 6 élèves max",h:10,effectifMax:6,eligibleReduction:false,typeOffre:"stage",desc:"Préparation ciblée du Grand Oral (coef 10).",inc:["Construction des deux questions","Entraînement à l'oral","Gestion du stress"],ech:[{l:"Stage"}]},
 vacancesBacBlanc:{cat:"Stage vacances",vol:"1-2 jours · en conditions réelles",h:8,effectifMax:8,eligibleReduction:false,typeOffre:"stage",desc:"Bac blanc en conditions d'examen avec correction détaillée.",inc:["Conditions d'examen réelles","Correction annotée","Bilan personnalisé"],ech:[{l:"Session"}]},
 vacancesSprintFinal:{cat:"Stage vacances",vol:"20-30 h · 6 élèves max",h:25,effectifMax:6,eligibleReduction:false,typeOffre:"stage",desc:"Sprint intensif avant les épreuves.",inc:["Intensif grande surface","Sujets types + méthodes","Groupe (6 max)"],ech:[{l:"Stage"}]},
-urgenceMembreHeure:{cat:"Urgence en ligne",vol:"À la séance · individuel",h:1,effectifMax:1,eligibleReduction:false,typeOffre:"urgence",desc:"Aide ponctuelle en ligne avant une évaluation (membre Nexus).",inc:["Sur réservation","Selon disponibilité"],ech:[{l:"Par heure"}]},
-urgenceNonMembreHeure:{cat:"Urgence en ligne",vol:"À la séance · individuel",h:1,effectifMax:1,eligibleReduction:false,typeOffre:"urgence",desc:"Aide ponctuelle en ligne (hors abonnement).",inc:["Sur réservation","Tarif non-membre"],ech:[{l:"Par heure"}]},
-urgencePackCinq:{cat:"Urgence en ligne",vol:"5 h · individuel",h:5,effectifMax:1,eligibleReduction:false,typeOffre:"urgence",desc:"Pack 5 h d'urgence membre — économie sur le tarif horaire.",inc:["5 h à planifier dans l'année","Tarif préférentiel membre"],ech:[{l:"Pack"}]},
-urgencePackDix:{cat:"Urgence en ligne",vol:"10 h · individuel",h:10,effectifMax:1,eligibleReduction:false,typeOffre:"urgence",desc:"Pack 10 h d'urgence membre — meilleure économie.",inc:["10 h à planifier dans l'année","Tarif préférentiel membre"],ech:[{l:"Pack"}]},
+urgenceMembre:{cat:"Urgence en ligne",vol:"À la séance · individuel",h:1,effectifMax:1,eligibleReduction:false,typeOffre:"urgence",desc:"Aide ponctuelle en ligne avant une évaluation (membre Nexus).",inc:["Sur réservation","Selon disponibilité"],ech:[{l:"Par heure"}]},
+urgenceNonMembre:{cat:"Urgence en ligne",vol:"À la séance · individuel",h:1,effectifMax:1,eligibleReduction:false,typeOffre:"urgence",desc:"Aide ponctuelle en ligne (hors abonnement).",inc:["Sur réservation","Tarif non-membre"],ech:[{l:"Par heure"}]},
+urgencePack5Membre:{cat:"Urgence en ligne",vol:"5 h · individuel",h:5,effectifMax:1,eligibleReduction:false,typeOffre:"urgence",desc:"Pack 5 h d'urgence membre — économie sur le tarif horaire.",inc:["5 h à planifier dans l'année","Tarif préférentiel membre"],ech:[{l:"Pack"}]},
+urgencePack10Membre:{cat:"Urgence en ligne",vol:"10 h · individuel",h:10,effectifMax:1,eligibleReduction:false,typeOffre:"urgence",desc:"Pack 10 h d'urgence membre — meilleure économie.",inc:["10 h à planifier dans l'année","Tarif préférentiel membre"],ech:[{l:"Pack"}]},
 pontParcoursup:{cat:"Orientation",vol:"Accompagnement ponctuel · individuel",h:8,effectifMax:1,eligibleReduction:false,typeOffre:"coaching",desc:"Stratégie Parcoursup sans contrôle continu d'établissement (candidats libres).",inc:["Bilan et stratégie de vœux","Aide à la rédaction","Choix des filières"],ech:[{l:"Accompagnement"}]},
 celluleCandidatLibre:{cat:"Candidat libre",vol:"Accompagnement administratif · individuel",h:6,effectifMax:1,eligibleReduction:false,typeOffre:"coaching",desc:"Cellule Candidat Libre seule : inscription officielle, pièces, calendrier (sans cours).",inc:["Accompagnement inscription officielle","Constitution du dossier","Calendrier et convocations"],ech:[{l:"Accompagnement"}]}
 };
@@ -976,6 +1114,21 @@ function readProfile(){
 const has=(p,s)=>p.spes.includes(s);
 const sciCount=p=>["maths","pc","svt","nsi","si"].filter(s=>has(p,s)).length;
 
+/* ===================== ARGUMENTS CLÉS PAR OFFRE ===================== */
+const ARGUMENTS_CLES={
+  terminaleLibreMixte:["7 700 TND à la carte vs 7 900 TND Nexus tout inclus (spés + Grand Oral + bacs blancs + plateforme + carte d'examen)","Pas de contrôle continu → tout se joue sur les épreuves : chaque point compte","Groupe de 5 max : suivi individualisé impossible en cours à la carte","Carte d'examen personnalisée : zéro risque d'oubli administratif"],
+  terminaleLibrePremium:["Coaching individuel + suivi renforcé pour les profils exigeants","6h d'urgence en ligne incluses : filet de sécurité avant chaque épreuve","Pont Parcoursup inclus : stratégie de vœux sans contrôle continu","Points parents mensuels : visibilité totale sur la progression"],
+  terminaleLibreOnline:["100 % en ligne : idéal hors Tunis ou emploi du temps contraint","290 TND/mois : le meilleur rapport qualité-prix pour un candidat libre","Plateforme complète + 2 lives/mois avec corrections personnalisées"],
+  duoTerminaleNexus:["Stages vacances INCLUS (Toussaint, hiver, printemps) — pas de surcoût","2 spécialités coef 32 sécurisées + Grand Oral coef 10","Bacs blancs en conditions réelles : plus de surprises le jour J","Groupe de 5 max : chaque élève est suivi individuellement"],
+  excellenceTerminale:["Maths expertes incluses : indispensable pour CPGE/médecine/ingénieur","6h d'urgence + préparation Parcoursup intégrée","Le parcours le plus complet pour les dossiers sélectifs"],
+  premiereLibreAccompagnee:["EAF (coef 10) + EAM (nouveauté 2027) : deux épreuves décisives sécurisées","Accompagnement administratif complet : inscription, dossier, calendrier","Oraux blancs et sujets types : pas d'improvisation le jour J"],
+  premiereLibreEssentiel:["190 TND/mois : l'entrée la plus accessible pour un candidat libre","Plateforme + suivi : autonomie encadrée sans être livré à soi-même","Passerelle vers l'offre Accompagnée si le besoin évolue"],
+  premiereDoubleSecurite:["EAF + EAM sécurisées ensemble : les deux anticipées de Première","Continuité garantie vers la Terminale Nexus","Oraux blancs + plateforme + bilans parents inclus"],
+  plateformeAccompagnee:["Le meilleur des deux mondes : suivi humain + flexibilité en ligne","1 live hebdo en petit groupe (10 max) + 3 bilans parents","2 900 TND/an : cadre Nexus complet à distance"],
+  plateformeAutonomie:["590 TND : prix plancher, paiement unique, zéro engagement mensuel","Accès illimité aux ressources, annales corrigées (10 ans)","Parcours d'exercices progressifs pour travailler en autonomie"]
+};
+function getArgumentsCles(key){return ARGUMENTS_CLES[key]||[];}
+
 /* ===================== PÉRIMÈTRE D'ÉPREUVES ===================== */
 function examScope(p){
   const sp=k=>SPECIALITES.find(s=>s[0]===k); const speName=k=>{const x=sp(k);return x?x[1]:k;};
@@ -1017,7 +1170,7 @@ function recommend(p){
   const libre = p.status==="libre"||p.status==="double";
   if(libre){ alerts.push("Carte d'examen à construire (épreuves + modalité A/B + Cyclades/IFT)"); }
   if(p.horsTunis){ alerts.push("Hors Tunis → Plateforme Accompagnée"); comp.push("plateformeAccompagnee"); }
-  if(p.urgent){ alerts.push("Urgent → stage + heures d'urgence"); comp.push("urgenceMembreHeure","vacancesUneMatiere"); }
+  if(p.urgent){ alerts.push("Urgent → stage + heures d'urgence"); comp.push("urgenceMembre","vacancesUneMatiere"); }
   if(p.stageDeja) alerts.push("Stage déjà suivi : déduction possible si inscription annuelle confirmée");
   if(p.budget==="serre"){ alerts.push("Budget serré → envisager plateforme"); comp.push("plateformeAutonomie","plateformeSuivi"); }
 
@@ -1073,7 +1226,7 @@ function recommend(p){
       reasons.push("Une seule matière à renforcer : la Spécialité Simple cible le besoin ; Duo si la 2e spé doit aussi être sécurisée.");
     }
   }
-  if(p.objective==="ponctuel"){ alerts.push("Besoin ponctuel → heures d'urgence ou stage court"); comp.push("urgenceMembreHeure"); }
+  if(p.objective==="ponctuel"){ alerts.push("Besoin ponctuel → heures d'urgence ou stage court"); comp.push("urgenceMembre"); }
   // Alertes EDS / options / cursus
   if((p.level==="terminale"||p.level==="premiere")&&p.status==="scolarise"){
     if(p.level==="terminale"&&p.spes.length<2) alerts.push("⚠ Terminale : renseigner au moins 2 EDS (coef 32 aux épreuves) — à vérifier avec la famille");
@@ -1136,6 +1289,7 @@ function offerCard(key,role,reason){
     <div class="price">${priceLabel(o)}</div>${pub}
     <div class="sub">${o.vol}</div>
     <ul class="inc">${o.inc.map(i=>`<li>${i}</li>`).join("")}</ul>
+    ${getArgumentsCles(key).length?`<div style="margin-top:8px;padding:10px 12px;background:#E8F4ED;border:1px solid #BBE6C9;border-radius:9px"><b style="color:#14532D;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em">Arguments clés</b><ul style="margin:6px 0 0;padding-left:16px;font-size:13px;display:grid;gap:4px">${getArgumentsCles(key).map(a=>`<li>${a}</li>`).join('')}</ul></div>`:''}
     <div class="ech"><b>Échéancier :</b> ${echLine(o)}</div>
     <div class="scarce">Pas de date limite — places limitées : groupes par niveaux homogènes (5 à 6 max). Une fois un groupe complet, la place et le tarif ne sont plus garantis.</div>
     <div class="foot"><button type="button" class="btn primary" onclick="makeDevis('${key}')">Préparer le devis</button></div>
@@ -1256,6 +1410,8 @@ function makeDevis(key){
 
     <div class="dsec"><h4>Ce qui est inclus</h4><ul style="grid-template-columns:1fr 1fr;display:grid">${o.inc.map(i=>`<li>${i}</li>`).join("")}</ul></div>
 
+    ${getArgumentsCles(key).length?`<div class="dsec"><h4>Arguments clés</h4><ul>${getArgumentsCles(key).map(a=>`<li>${a}</li>`).join('')}</ul></div>`:''}
+
     <div class="dsec"><h4>Calendrier pédagogique</h4><p style="font-size:12.5px;color:var(--muted)">${calendarText(p)}</p></div>
 
     <div class="dsec" style="font-size:12.5px"><h4>Groupe &amp; organisation</h4>
@@ -1277,7 +1433,7 @@ function makeDevis(key){
       ${o.publicAnnual?'<li>Facturation au tarif public par période consommée ; la remise fidélité est acquise en fin de parcours. En cas d\'arrêt, les prestations consommées restent dues au tarif public.</li>':'<li>La remise fidélité est acquise lorsque le parcours annuel est mené à son terme.</li>'}
       <li>Devis sans date limite : valable sous réserve de places disponibles. Une fois les groupes constitués, l'inscription peut être close faute de place.</li>
       ${isLibre?'<li>Inscription à l\'examen sous la responsabilité de la famille via Cyclades et l\'Institut français de Tunisie ; Nexus accompagne la constitution du dossier et de la carte d\'examen.</li>':''}
-      <li>Cours assurés par des enseignants certifiés et agrégés de l'enseignement français à l'étranger, maîtrisant programmes, attendus et pédagogie.</li>
+      <li>Cours assurés par des enseignants qualifiés — certifiés de l'enseignement français, maîtrisant les programmes et attendus du bac.</li>
     </ol></div>
 
     <div class="dsign"><div class="b">Pour Nexus Réussite — date et signature</div><div class="b">Le parent — « bon pour accord », date et signature</div></div>
@@ -1331,11 +1487,14 @@ function econCalc(){
     'Revenu groupe ('+eff+' élèves) : <b>'+fmt(revenue)+' TND</b> · '+
     'Marge brute : <b>'+fmt(marge)+' TND</b> ('+pct+'%) '+indic;
 }
-document.addEventListener('change',e=>{if(e.target.id==='econEffectif')econCalc();});
+document.addEventListener('change',e=>{
+  if(e.target.id==='econEffectif'){document.getElementById('effectifEstime').value=e.target.value;econCalc();}
+  if(e.target.id==='effectifEstime'){document.getElementById('econEffectif').value=e.target.value;econCalc();}
+});
 
 /* ===================== PANIER ===================== */
 const BASKET_MAIN_KEYS=['terminaleSpecialiteSimple','duoTerminaleNexus','excellenceTerminale','terminaleLibreOnline','terminaleLibreMixte','terminaleLibrePremium','premiereEafFrancais','premiereMathsAnticipees','premiereDoubleSecurite','premiereSciences','premiereLibreEssentiel','premiereLibreAccompagnee','premiereLibreIntensif','secondeMathsMethode','secondeSciences','brevetMaths','brevetComplet'];
-const BASKET_COMP_KEYS=['plateformeAutonomie','plateformeSuivi','plateformeAccompagnee','vacancesUneMatiere','vacancesDuoMatieres','vacancesGrandOral','vacancesBacBlanc','vacancesSprintFinal','stagePrerentreeTerminale','stagePrerentreeMathsTerminale','secondeCoachingOrientation','urgenceMembreHeure','urgencePackCinq','urgencePackDix','pontParcoursup','celluleCandidatLibre'];
+const BASKET_COMP_KEYS=['plateformeAutonomie','plateformeSuivi','plateformeAccompagnee','vacancesUneMatiere','vacancesDuoMatieres','vacancesGrandOral','vacancesBacBlanc','vacancesSprintFinal','stagePrerentreeTerminale','stagePrerentreeMathsTerminale','secondeCoachingOrientation','urgenceMembre','urgencePack5Membre','urgencePack10Membre','pontParcoursup','celluleCandidatLibre'];
 
 function priceNum(o){return o.annual||(o.monthly?o.monthly*10:0);}
 function annualOf(key){return priceNum(OFFERS[key]||{});}
@@ -1377,44 +1536,47 @@ function calcBasket(){
   const mainPrice=annualOf(mainKey);
   let compTotal=compKeys.reduce((s,k)=>s+annualOf(k),0);
 
-  // Réductions — NON CUMULABLES par défaut (règle commerciale Nexus)
+  // Réductions — PLAFONNÉES à 10 % sans dérogation direction
   const redAncien=document.getElementById('reduc-ancien')?.checked||false;
-  const tauxAncien=parseInt(document.getElementById('reduc-ancien-taux')?.value||'10')||10;
   const redFratrie=document.getElementById('reduc-fratrie')?.checked||false;
   const redComptant=document.getElementById('reduc-comptant')?.checked||false;
-  const cumulDir=document.getElementById('cumul-dir')?.checked||false;
   const redParrainage=document.getElementById('reduc-parrainage')?.checked||false;
-  const montantParrainage=parseInt(document.getElementById('reduc-parrainage-montant')?.value||'150')||150;
+  const cumulDir=document.getElementById('cumul-dir')?.checked||false;
 
-  // Offres non éligibles aux réductions automatiques (stages, urgences, plateforme autonomie)
-  const REDUC_EXCLU=['urgenceMembreHeure','urgenceNonMembreHeure','urgencePackCinq','urgencePackDix',
+  // Offres non éligibles aux réductions (stages, urgences, plateforme autonomie)
+  const REDUC_EXCLU=['urgenceMembre','urgenceNonMembre','urgencePack5Membre','urgencePack10Membre',
     'stagePrerentreeTroisieme','stagePrerentreeSeconde','stagePrerentreePremiere','stagePrerentreeTerminale',
     'stagePrerentreeMathsTerminale','stagePrerentreeCandidatsLibres','plateformeAutonomie',
     'vacancesUneMatiere','vacancesDuoMatieres','vacancesGrandOral','vacancesBacBlanc','vacancesSprintFinal'];
   const mainExcluded=REDUC_EXCLU.includes(mainKey);
-  // Comptant uniquement sur formules annuelles
   const mainIsAnnual=!!(OFFERS_JSON[mainKey]&&(OFFERS_JSON[mainKey].echeancier||OFFERS_JSON[mainKey].annual))&&!mainExcluded;
-  // Par défaut : meilleure réduction unique (uniquement si offre éligible)
-  let reducPct=0,reducLabel='';
-  if(!mainExcluded){
-    if(redAncien&&tauxAncien>reducPct){reducPct=tauxAncien;reducLabel='Ancien élève Nexus ('+tauxAncien+'%)'}
-    if(redFratrie&&10>reducPct){reducPct=10;reducLabel='Fratrie inscrite (10%)'}
-    if(redComptant&&mainIsAnnual&&5>reducPct&&!redAncien&&!redFratrie){reducPct=5;reducLabel='Paiement comptant (5%)'}
-  }
-  // Réduction > 10 % sans autorisation direction : plafonnée à 10 %
-  if(reducPct>10&&!cumulDir){reducPct=10;reducLabel=(reducLabel||'Réduction')+' — plafonnée à 10 % (> 10 % = validation direction)';}
-  let reduc=Math.round(mainPrice*reducPct/100);
 
-  if(cumulDir){
-    // Cumul explicitement autorisé direction : toutes les réductions s'additionnent (BUG FIX: if pas else if)
-    let cumul=0; const labels=[];
-    if(redAncien){cumul+=Math.round(mainPrice*tauxAncien/100);labels.push('Ancien élève ('+tauxAncien+'%)');}
-    if(redFratrie){cumul+=Math.round(mainPrice*0.10);labels.push('Fratrie (10%)');}
-    if(redComptant&&mainIsAnnual){cumul+=Math.round(mainPrice*0.05);labels.push('Comptant (5%)');}
-    reduc=cumul;
-    reducLabel=labels.length?labels.join(' + '):'Réductions cumulées';
+  // Calcul cumul brut des réductions cochées
+  let reducPctBrut=0; const reducLabels=[];
+  if(!mainExcluded){
+    if(redAncien){reducPctBrut+=10;reducLabels.push('Ancien élève (10%)');}
+    if(redFratrie){reducPctBrut+=10;reducLabels.push('Fratrie (10%)');}
+    if(redComptant&&mainIsAnnual){reducPctBrut+=5;reducLabels.push('Comptant (5%)');}
+    if(redParrainage){reducPctBrut+=5;reducLabels.push('Parrainage (5%)');}
   }
+
+  // Plafond 10 % sans dérogation direction
+  let reducPct=reducPctBrut;
+  let reducLabel=reducLabels.join(' + ');
+  const capW=document.getElementById('reducCapWarning');
+  if(reducPct>10&&!cumulDir){
+    reducPct=10;
+    reducLabel=reducLabels.join(' + ')+' — PLAFONNÉ à 10 %';
+    if(capW)capW.style.display='block';
+  }else{
+    if(capW)capW.style.display='none';
+  }
+  if(cumulDir&&reducPctBrut>10){
+    reducLabel=reducLabels.join(' + ')+' (dérogation direction)';
+  }
+  let reduc=Math.round(mainPrice*reducPct/100);
   reduc=Math.min(reduc,mainPrice);
+
 
   const total=Math.max(0,mainPrice+compTotal-reduc);
   const mainO=OFFERS[mainKey]||{};
@@ -1428,7 +1590,7 @@ function calcBasket(){
   if(redComptant&&!mainIsAnnual&&!mainExcluded)html+='<div style="margin:4px 0 8px;padding:7px 10px;border-radius:7px;background:#fff3cd;border:1px solid #E3BC51;font-size:12.5px;color:#3a2c00">ℹ️ Paiement comptant applicable uniquement sur les formules annuelles.</div>';
   if(pub)html+='<div class="basket-totals-row" style="color:var(--muted);font-size:12.5px"><span>Valeur tarif public (anti-désistement)</span><span>'+fmt(pub+compTotal)+' TND</span></div>';
   html+='<div class="basket-totals-row grand"><span>TOTAL ANNUEL</span><span>'+fmt(total)+' TND</span></div>';
-  if(redParrainage)html+='<div style="margin-top:8px;padding:7px 10px;border-radius:7px;background:#fff3cd;border:1px solid #E3BC51;font-size:12.5px">🤝 <b>Prime parrainage :</b> '+fmt(montantParrainage)+' TND après inscription effective — non déduite du total.</div>';
+
 
   // Echéancier consolidé
   const echMain=buildEchancier(mainKey,mainPrice-reduc);
