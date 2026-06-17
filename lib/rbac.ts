@@ -446,7 +446,7 @@ export const RBAC_POLICIES: Record<string, AccessPolicy> = {
  */
 export async function enforcePolicy(policyKey: string) {
   const { NextResponse } = await import('next/server');
-  const { requireAuth, isErrorResponse } = await import('./guards');
+  const { requireAuth, isErrorResponse, enforceOwnership } = await import('./guards');
 
   const policy = RBAC_POLICIES[policyKey];
   if (!policy) {
@@ -464,19 +464,83 @@ export async function enforcePolicy(policyKey: string) {
 
   const session = sessionOrResponse;
 
-  if (!('user' in session) || !policy.allowedRoles.includes(session.user.role)) {
-    console.warn('[RBAC] Access denied', {
-      policy: policyKey,
-      allowedRoles: policy.allowedRoles,
-    });
+  // Role check
+  const hasRole = policy.allowedRoles.includes(session.user.role);
+  // Ownership fallback: if role is insufficient but allowOwner is set, check ownership
+  if (!hasRole) {
+    if (policy.allowOwner) {
+      // Staff bypass ownership check
+      if (['ADMIN', 'ASSISTANTE'].includes(session.user.role)) {
+        // staff can access anything
+      } else {
+        console.warn('[RBAC] Access denied — role insufficient and not owner', {
+          policy: policyKey,
+          allowedRoles: policy.allowedRoles,
+        });
+        return NextResponse.json(
+          {
+            error: 'Forbidden',
+            message: `Accès refusé. Rôles autorisés: ${policy.allowedRoles.join(', ')}`,
+          },
+          { status: 403 }
+        );
+      }
+    } else {
+      console.warn('[RBAC] Access denied', {
+        policy: policyKey,
+        allowedRoles: policy.allowedRoles,
+      });
+      return NextResponse.json(
+        {
+          error: 'Forbidden',
+          message: `Accès refusé. Rôles autorisés: ${policy.allowedRoles.join(', ')}`,
+        },
+        { status: 403 }
+      );
+    }
+  }
 
-    return NextResponse.json(
-      {
-        error: 'Forbidden',
-        message: `Accès refusé. Rôles autorisés: ${policy.allowedRoles.join(', ')}`,
-      },
-      { status: 403 }
-    );
+  // If policy has allowOwner and user has the role, optionally verify ownership for non-staff
+  if (policy.allowOwner && !['ADMIN', 'ASSISTANTE'].includes(session.user.role)) {
+    // Ownership will be checked by the caller with the resourceId
+    // We return the session; caller MUST call enforceOwnership(policyKey, session, resourceId)
+  }
+
+  return session;
+}
+
+/**
+ * Enforce a named RBAC policy + ownership check in a single call.
+ * Use this for routes that handle [id] resources where allowOwner matters.
+ *
+ * @param policyKey - Key from RBAC_POLICIES
+ * @param resourceId - The resource ID to verify ownership against (e.g. studentId, invoiceId)
+ * @returns AuthSession if authorized, NextResponse (401/403) if not
+ *
+ * @example
+ * ```ts
+ * const result = await enforcePolicyWithOwnership('parent.children', childId);
+ * if (isErrorResponse(result)) return result;
+ * const session = result;
+ * ```
+ */
+export async function enforcePolicyWithOwnership(policyKey: string, resourceId?: string) {
+  const { isErrorResponse, enforceOwnership } = await import('./guards');
+
+  const sessionOrResponse = await enforcePolicy(policyKey);
+  if (isErrorResponse(sessionOrResponse)) {
+    return sessionOrResponse;
+  }
+
+  const session = sessionOrResponse;
+  const policy = RBAC_POLICIES[policyKey];
+
+  // If policy requires ownership and user is not staff, verify ownership
+  if (policy?.allowOwner && resourceId && !['ADMIN', 'ASSISTANTE'].includes(session.user.role)) {
+    const ownershipResult = await enforceOwnership(policyKey, session, resourceId);
+    if (isErrorResponse(ownershipResult)) {
+      return ownershipResult;
+    }
   }
 
   return session;

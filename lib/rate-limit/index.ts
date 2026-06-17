@@ -31,6 +31,10 @@ function getStore(): MemoryStore {
   if (!_store) {
     _store = new MemoryStore();
     MemoryStore.warnFallbackOnce();
+    // P1-02 hardening: production MUST use distributed rate limiting
+    if (process.env.NODE_ENV === 'production' && getRateLimitRuntimeMode() === 'memory') {
+      console.error('[CRITICAL] Rate limiting runs in memory mode in production. Configure REDIS_URL or UPSTASH_REDIS_REST_URL.');
+    }
   }
   return _store;
 }
