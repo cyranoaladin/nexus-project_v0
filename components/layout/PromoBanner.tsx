@@ -48,9 +48,9 @@ export default function PromoBanner() {
   const mobileSlides = useMemo(
     () => [
       {
-        copy: "Stages Printemps — 18 avr au 2 mai",
-        cta: "Réserver →",
-        href: STAGES_URL,
+        copy: "Rentrée 2026 — Groupes de 5 élèves maximum",
+        cta: "Voir les offres →",
+        href: "/offres",
         external: false,
         icon: CalendarRange,
       },
@@ -115,10 +115,10 @@ export default function PromoBanner() {
           <div className="flex flex-wrap items-center justify-center gap-3 pr-8 text-center text-neutral-200">
             <span className="inline-flex items-center gap-2">
               <CalendarRange className="h-3.5 w-3.5 text-nexus-green" aria-hidden="true" />
-              Stages Printemps (18 avr – 2 mai) : places limitées à 6
+              Rentrée 2026 — Tarif campagne selon les places disponibles
             </span>
-            <Link href={STAGES_URL} className="font-display font-bold text-white hover:text-nexus-green">
-              Réserver →
+            <Link href="/offres" className="font-display font-bold text-white hover:text-nexus-green">
+              Voir les offres →
             </Link>
             <span className="text-white/25">|</span>
             <span className="inline-flex items-center gap-2">

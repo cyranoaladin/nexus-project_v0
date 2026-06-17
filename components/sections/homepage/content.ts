@@ -5,10 +5,10 @@
 
 // ── Business model (internal — never displayed to clients) ──────────────────
 //
-// Standard group = 4 élèves.
+// Standard group = 5 élèves.
 // Teacher cost ≈ 100 DT / h → 200 DT / session of 2 h.
 //
-// Pricing per student (group of 4):
+// Pricing per student (group of 5):
 //   Déclic   4 h → 180 DT  → 90.0 DT / session → group revenue 360 DT → margin 160 DT / session
 //   Méthode  8 h → 340 DT  → 85.0 DT / session → group revenue 1360 DT → margin 560 DT total
 //   Intensif 12 h → 495 DT → 82.5 DT / session → group revenue 1980 DT → margin 780 DT total
@@ -84,10 +84,10 @@ export const EAF_EXAM_DATE = new Date("2026-06-08T08:00:00");
 // ── Pricing footnote (shared across all pricing sections) ───────────────────
 
 export const PRICING_FOOTNOTE =
-  "*Tarifs indiqués par élève, pour un groupe de 4 élèves. Les cours individuels, binômes, groupes réduits et accompagnements sur mesure font l'objet d'un tarif spécifique.";
+  "*Tarifs indiqués par élève, pour un groupe de 5 élèves. Les cours individuels, binômes, groupes réduits et accompagnements sur mesure font l'objet d'un tarif spécifique.";
 
 export const PRICING_GROUP_NOTE =
-  "Le format en groupe de 4 élèves permet de maintenir un tarif accessible tout en garantissant des corrections individualisées et un suivi précis de chaque élève.";
+  "Le format en groupe de 5 élèves permet de maintenir un tarif accessible tout en garantissant des corrections individualisées et un suivi précis de chaque élève.";
 
 // ── Hero ────────────────────────────────────────────────────────────────────
 
@@ -101,7 +101,7 @@ export const HERO = {
   chips: [
     "Finish avant le 8 juin",
     "Nexus Select post-épreuves",
-    "Groupes de 4 élèves",
+    "Groupes de 5 élèves",
     "Tunis — Mutuelleville",
     "Bilans personnalisés",
   ],
@@ -189,14 +189,14 @@ export const PREMIERE_FINISH = {
     },
   ],
   ctaLabel: "Réserver un pack Finish",
-  pricePerStudent: "par élève · groupe de 4",
+  pricePerStudent: "par élève · groupe de 5",
   priceNote: PRICING_FOOTNOTE,
 };
 
 // ── Nexus Select — post-épreuves ────────────────────────────────────────────
 
 // Nexus Select business model:
-// Format: 40 h / student, group of 4 students max.
+// Format: 40 h / student, group of 5 students max.
 // Price: 1 800 TND / student.
 // Group revenue: 4 × 1 800 = 7 200 TND.
 // Teacher cost estimate: 40 h × 100 TND = 4 000 TND.
@@ -209,7 +209,7 @@ export const NEXUS_SELECT = {
   headline:
     "Après les épreuves, les élèves admis dans les filières sélectives doivent changer de rythme.",
   description:
-    "En deux semaines, Nexus Select installe un cadre intensif : 40 h de mathématiques, 4 h par jour, en groupe de 4 élèves maximum, pour préparer l'entrée en CPGE, EPFL, doubles licences maths-info et parcours scientifiques exigeants.",
+    "En deux semaines, Nexus Select installe un cadre intensif : 40 h de mathématiques, 4 h par jour, en groupe de 5 élèves maximum, pour préparer l'entrée en CPGE, EPFL, doubles licences maths-info et parcours scientifiques exigeants.",
   pedagogy:
     "Le stage est conçu par un enseignant maîtrisant les programmes, les méthodes et les attentes des classes préparatoires et des parcours scientifiques exigeants. Le travail ne se limite pas à refaire des exercices : il apprend à chercher, rédiger, structurer une preuve, tenir un raisonnement long et adopter une méthode de travail compatible avec le supérieur.",
   disclaimer:
@@ -255,14 +255,14 @@ export const NEXUS_SELECT = {
   pricing: {
     label: "Forfait unique",
     price: "1 800 TND*",
-    details: "40 h · 4 h/jour · 2 semaines · groupe de 4 élèves maximum",
-    note: "*Tarif par élève, pour un groupe de 4 élèves maximum. Le tarif inclut les 40 h de stage, les supports de travail, le livret Select, les corrections et le bilan de fin de stage.",
+    details: "40 h · 4 h/jour · 2 semaines · groupe de 5 élèves maximum",
+    note: "*Tarif par élève, pour un groupe de 5 élèves maximum. Le tarif inclut les 40 h de stage, les supports de travail, le livret Select, les corrections et le bilan de fin de stage.",
   },
   pricingIncludes: [
     "40 h de stage",
     "4 h par jour",
     "2 semaines",
-    "Groupe de 4 élèves maximum",
+    "Groupe de 5 élèves maximum",
     "Livret Select inclus",
     "Corrections individualisées",
     "Bilan de fin de stage",
@@ -278,7 +278,7 @@ export const NEXUS_SELECT = {
     "Bilan de fin de stage",
     "Plan de travail pour l'été",
     "Conseils méthodologiques pour la rentrée",
-    "Suivi en groupe restreint de 4 élèves maximum",
+    "Suivi en groupe restreint de 5 élèves maximum",
   ],
   admissionNote:
     "Admission au stage après échange sur le profil de l'élève.",
@@ -450,7 +450,7 @@ export const METHODE_STEPS = [
 // ── Trust / confiance ───────────────────────────────────────────────────────
 
 export const TRUST_POINTS = [
-  { value: "Groupes de 4 élèves", label: "tarifs accessibles, suivi réel" },
+  { value: "Groupes de 5 élèves", label: "tarifs accessibles, suivi réel" },
   { value: "Bilans personnalisés", label: "priorités visibles pour chaque élève" },
   { value: "Livrets de travail", label: "méthode, révision et progression" },
   { value: "Suivi élève-parent", label: "bilans, livrets et retours structurés aux familles" },
@@ -505,12 +505,12 @@ export const FAQ_ITEMS = [
   {
     question: "Quelle est la différence entre un stage classique et Nexus Select ?",
     answer:
-      "Un stage classique consolide le programme en cours. Nexus Select va plus loin : 40 h de mathématiques intensives en 2 semaines, en groupe de 4 élèves maximum, pour préparer l'entrée en CPGE, EPFL, doubles licences maths-info et filières sélectives. Livret Select personnalisé, corrections individualisées et bilan de fin de stage inclus.",
+      "Un stage classique consolide le programme en cours. Nexus Select va plus loin : 40 h de mathématiques intensives en 2 semaines, en groupe de 5 élèves maximum, pour préparer l'entrée en CPGE, EPFL, doubles licences maths-info et filières sélectives. Livret Select personnalisé, corrections individualisées et bilan de fin de stage inclus.",
   },
   {
     question: "Les tarifs affichés correspondent-ils à des cours individuels ?",
     answer:
-      "Non. Les tarifs avec astérisque (*) correspondent à un tarif par élève dans un groupe de 4 élèves. Les cours individuels, binômes ou groupes réduits font l'objet d'un tarif spécifique, communiqué selon le besoin, le niveau et le volume horaire.",
+      "Non. Les tarifs avec astérisque (*) correspondent à un tarif par élève dans un groupe de 5 élèves. Les cours individuels, binômes ou groupes réduits font l'objet d'un tarif spécifique, communiqué selon le besoin, le niveau et le volume horaire.",
   },
   {
     question: "Qu'est-ce qui est inclus dans un forfait Nexus ?",
@@ -518,9 +518,9 @@ export const FAQ_ITEMS = [
       "Selon la formule, un forfait inclut un bilan initial, des séances structurées, des corrections individualisées, un livret personnalisé de travail et de révision, un accès aux supports numériques, un suivi de progression et un retour structuré aux familles.",
   },
   {
-    question: "Pourquoi un groupe de 4 plutôt que des cours particuliers ?",
+    question: "Pourquoi un groupe de 5 plutôt que des cours particuliers ?",
     answer:
-      "Le groupe restreint de 4 élèves crée une émulation de travail, permet des corrections individualisées et réduit le coût par rapport à un cours particulier classique. Chaque élève dispose d'un livret personnalisé, d'un suivi famille et d'un bilan de progression, comme en cours individuel — mais dans un cadre plus stimulant.",
+      "Le groupe restreint de 5 élèves crée une émulation de travail, permet des corrections individualisées et réduit le coût par rapport à un cours particulier classique. Chaque élève dispose d'un livret personnalisé, d'un suivi famille et d'un bilan de progression, comme en cours individuel — mais dans un cadre plus stimulant.",
   },
   {
     question: "Pourquoi les tailles de groupes varient-elles ?",
