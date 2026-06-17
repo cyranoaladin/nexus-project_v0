@@ -1,29 +1,14 @@
 import { Subject } from '@/types/enums';
 import OpenAI from 'openai';
 import { ragSearch, buildRAGContext } from '@/lib/rag-client';
+import { ARIA_SYSTEM_PROMPT, ARIA_MAX_MESSAGE_LENGTH, getAriaModel } from '@/lib/aria/prompt';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || 'ollama',
   baseURL: process.env.OPENAI_BASE_URL || undefined,
 });
 
-const ARIA_SYSTEM_PROMPT = `Tu es ARIA, l'assistant IA pédagogique de Nexus Réussite, spécialisé dans l'accompagnement des lycéens du système français en Tunisie.
-
-RÈGLES IMPORTANTES :
-1. Tu ne réponds QUE sur la matière demandée par l'élève
-2. Tes réponses sont basées sur la base de connaissances Nexus Réussite
-3. Tu adaptes ton niveau au lycée (Seconde, Première, Terminale)
-4. Tu es bienveillant, encourageant et pédagogue
-5. Tu proposes toujours des exemples concrets
-6. Si tu ne sais pas, tu le dis et suggères de contacter un coach
-
-STYLE :
-- Utilise un ton amical mais professionnel
-- Structure tes réponses clairement
-- Utilise des émojis avec parcimonie
-- Propose des exercices ou des méthodes pratiques
-
-Tu représentes l'excellence de Nexus Réussite.`;
+// ARIA_SYSTEM_PROMPT imported from '@/lib/aria/prompt' — single source of truth
 
 async function searchKnowledgeBase(query: string, subject: Subject, limit: number = 3) {
   // F26: Use canonical RAG circuit (ChromaDB via ragSearch)
@@ -60,9 +45,9 @@ export async function generateAriaResponseStream(
   ];
 
   const stream = await openai.chat.completions.create({
-    model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+    model: getAriaModel(),
     messages,
-    max_tokens: 1000,
+    max_tokens: ARIA_MAX_MESSAGE_LENGTH,
     temperature: 0.7,
     stream: true
   });

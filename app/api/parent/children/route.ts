@@ -5,7 +5,9 @@ import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import type { CreditTransaction } from '@prisma/client';
 import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
-// bcrypt inutilisé ici
+import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
+import { createId } from '@paralleldrive/cuid2';
 
 export async function GET(_request: NextRequest) {
   try {
@@ -146,18 +148,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get parent's password to use for the child
-    const parentUser = await prisma.user.findUnique({
-      where: { id: userId }
-    });
-
-    if (!parentUser || !parentUser.password) {
-      return NextResponse.json(
-        { error: 'Parent password not found' },
-        { status: 404 }
-      );
-    }
-
     // Normaliser le niveau scolaire
     const gTrack = normalizeStudentLevelAndTrack(grade);
     if (!gTrack) {
@@ -167,16 +157,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Générer un mot de passe aléatoire fort pour l'enfant (sera écrasé lors de l'activation)
+    const temporaryPassword = `${crypto.randomBytes(32).toString('hex')}_${createId()}`;
+    const hashedPassword = await bcrypt.hash(temporaryPassword, 12);
+
+    // Générer un token d'activation unique (validité 72h)
+    const rawActivationToken = `act_${createId()}_${crypto.randomBytes(16).toString('hex')}`;
+    const hashedActivationToken = crypto.createHash('sha256').update(rawActivationToken).digest('hex');
+    const activationExpiry = new Date(Date.now() + 72 * 60 * 60 * 1000);
+
     // Create child in transaction
     const result = await prisma.$transaction(async (tx) => {
-      // Create user with parent's password
+      // Create user with random hashed password — NOT the parent's password
       const user = await tx.user.create({
         data: {
           email,
-          password: parentUser.password, // Use parent's password
+          password: hashedPassword,
           firstName,
           lastName,
-          role: 'ELEVE'
+          role: 'ELEVE',
+          activatedAt: null,
+          activationToken: hashedActivationToken,
+          activationExpiry: activationExpiry,
         }
       });
 
@@ -207,6 +209,11 @@ export async function POST(request: NextRequest) {
         email: result.user.email,
         grade: result.grade,
         school: result.school
+      },
+      activation: {
+        token: rawActivationToken,
+        expiresAt: activationExpiry.toISOString(),
+        message: "Ce token permet à l'élève d'activer son compte et de choisir son propre mot de passe. Partagez-le de manière sécurisée."
       }
     });
 

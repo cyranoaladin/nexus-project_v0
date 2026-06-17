@@ -18,6 +18,8 @@ import {
   tndToMillimes,
 } from '@/lib/invoice';
 import type { InvoiceData, TaxRegime } from '@/lib/invoice';
+import { activateEntitlements } from '@/lib/entitlement/engine';
+import type { ProductCode } from '@/lib/entitlement/types';
 
 type PaymentMetadata = {
   studentId: string;
@@ -26,6 +28,44 @@ type PaymentMetadata = {
 };
 
 class AlreadyProcessedPaymentError extends Error {}
+
+/**
+ * Resolve a payment metadata itemKey to a canonical ProductCode.
+ * This bridges the legacy subscription model to the entitlement registry.
+ */
+function resolveProductCode(itemKey?: string, itemType?: string): ProductCode | null {
+  const key = itemKey?.toUpperCase();
+  const type = itemType?.toUpperCase();
+
+  // Subscription plans
+  if (key === 'ESSENTIEL' || key === 'ACCES_PLATEFORME' || key === 'PLAN') {
+    if (type === 'IMMERSION' || key?.includes('IMMERSION')) return 'ABONNEMENT_IMMERSION';
+    if (type === 'HYBRIDE' || key?.includes('HYBRIDE')) return 'ABONNEMENT_HYBRIDE';
+    return 'ABONNEMENT_ESSENTIEL';
+  }
+  if (key === 'HYBRIDE') return 'ABONNEMENT_HYBRIDE';
+  if (key === 'IMMERSION') return 'ABONNEMENT_IMMERSION';
+  if (key === 'ESSENTIEL') return 'ABONNEMENT_ESSENTIEL';
+
+  // ARIA addons
+  if (key?.startsWith('ARIA_') || type?.startsWith('ARIA_')) {
+    if (key?.includes('MATHS') || type?.includes('MATHS')) return 'ARIA_ADDON_MATHS';
+    if (key?.includes('NSI') || type?.includes('NSI')) return 'ARIA_ADDON_NSI';
+  }
+
+  // Stages (examples — extend as catalogue grows)
+  if (key?.includes('STAGE_MATHS_P1')) return 'STAGE_MATHS_P1';
+  if (key?.includes('STAGE_MATHS_P2')) return 'STAGE_MATHS_P2';
+  if (key?.includes('STAGE_NSI_P1')) return 'STAGE_NSI_P1';
+  if (key?.includes('STAGE_NSI_P2')) return 'STAGE_NSI_P2';
+
+  // Credit packs
+  if (key?.includes('CREDIT_PACK_5')) return 'CREDIT_PACK_5';
+  if (key?.includes('CREDIT_PACK_10')) return 'CREDIT_PACK_10';
+  if (key?.includes('CREDIT_PACK_20')) return 'CREDIT_PACK_20';
+
+  return null;
+}
 
 function buildMinimalPdfBuffer(message: string): Buffer {
   const safe = message.replace(/[()\\]/g, '\\$&');
@@ -70,64 +110,19 @@ const validatePaymentSchema = z.object({
  * Runs OUTSIDE the serializable transaction (PDF I/O is slow and non-transactional).
  * If this fails, the payment is still COMPLETED — the invoice can be regenerated.
  */
-async function generateInvoiceAndDocument(
-  payment: {
-    id: string;
-    userId: string | null;
-    amount: number;
-    description: string;
-    method: string | null;
-    user: { firstName: string | null; lastName: string | null; email: string } | null;
-  },
+async function generateInvoicePDFAndDocument(
+  invoiceId: string,
+  paymentUserId: string,
   validatorUserId: string,
 ): Promise<{ invoiceId: string; documentId: string } | null> {
   try {
-    if (!payment.userId || !payment.user) return null;
-
-    const parentName = [payment.user.firstName, payment.user.lastName]
-      .filter(Boolean).join(' ') || payment.user.email;
-
-    // 1. Generate atomic invoice number
-    const invoiceNumber = await generateInvoiceNumber();
-
-    // 2. Create Invoice in DB
-    const amountMillimes = tndToMillimes(payment.amount);
-    const invoice = await prisma.invoice.create({
-      data: {
-        number: invoiceNumber,
-        status: 'PAID',
-        issuedAt: new Date(),
-        customerName: parentName,
-        customerEmail: payment.user.email,
-        currency: 'TND',
-        subtotal: amountMillimes,
-        discountTotal: 0,
-        taxTotal: 0,
-        total: amountMillimes,
-        taxRegime: 'TVA_NON_APPLICABLE',
-        paymentMethod: payment.method === 'bank_transfer' ? 'BANK_TRANSFER' : 'CASH',
-        paidAt: new Date(),
-        paidAmount: amountMillimes,
-        createdByUserId: validatorUserId,
-        beneficiaryUserId: payment.userId,
-        events: JSON.parse(JSON.stringify([
-          createInvoiceEvent('INVOICE_CREATED', validatorUserId, `Facture auto-générée pour paiement ${payment.id}`),
-          createInvoiceEvent('INVOICE_PAID', validatorUserId, `Paiement validé — virement bancaire`),
-        ])) as Prisma.InputJsonValue,
-        items: {
-          create: [{
-            label: payment.description,
-            qty: 1,
-            unitPrice: amountMillimes,
-            total: amountMillimes,
-            sortOrder: 0,
-          }],
-        },
-      },
+    const invoice = await prisma.invoice.findUnique({
+      where: { id: invoiceId },
       include: { items: true },
     });
+    if (!invoice) return null;
 
-    // 3. Build InvoiceData for PDF rendering
+    // Build InvoiceData for PDF rendering
     const pdfData: InvoiceData = {
       number: invoice.number,
       status: 'PAID',
@@ -159,7 +154,7 @@ async function generateInvoiceAndDocument(
       paymentMethod: 'BANK_TRANSFER',
     };
 
-    // 4. Render PDF (fallback to minimal PDF if PDFKit runtime assets are unavailable)
+    // Render PDF (fallback to minimal PDF if PDFKit runtime assets are unavailable)
     let pdfBuffer: Buffer;
     try {
       pdfBuffer = await renderInvoicePDF(pdfData);
@@ -168,7 +163,7 @@ async function generateInvoiceAndDocument(
       pdfBuffer = buildMinimalPdfBuffer(`Facture ${invoice.number}`);
     }
 
-    // 5. Store in invoice storage (data/invoices/)
+    // Store in invoice storage (data/invoices/)
     const invoicePdfPath = await storeInvoicePDF(invoice.number, pdfBuffer);
     const pdfUrl = getInvoiceUrl(invoice.id);
 
@@ -185,26 +180,26 @@ async function generateInvoiceAndDocument(
       data: { pdfPath: invoicePdfPath, pdfUrl, events: updatedEvents },
     });
 
-    // 6. Store in coffre-fort (storage/documents/) + create UserDocument
+    // Store in coffre-fort (storage/documents/) + create UserDocument
     await mkdir(DOCUMENTS_DIR, { recursive: true });
-    const sanitizedNumber = invoiceNumber.replace(/[^a-zA-Z0-9-]/g, '_');
+    const sanitizedNumber = invoice.number.replace(/[^a-zA-Z0-9-]/g, '_');
     const uniqueFileName = `facture-${sanitizedNumber}-${invoice.id}.pdf`;
     const documentPath = path.join(DOCUMENTS_DIR, uniqueFileName);
     await writeFile(documentPath, pdfBuffer);
 
     const userDocument = await prisma.userDocument.create({
       data: {
-        title: `Facture ${invoiceNumber}`,
-        originalName: `facture-${invoiceNumber}.pdf`,
+        title: `Facture ${invoice.number}`,
+        originalName: `facture-${invoice.number}.pdf`,
         mimeType: 'application/pdf',
         sizeBytes: pdfBuffer.length,
         localPath: documentPath,
-        userId: payment.userId,
+        userId: paymentUserId,
         uploadedById: validatorUserId,
       },
     });
 
-    console.log(`[Validate] Facture ${invoiceNumber} générée → UserDocument ${userDocument.id} pour parent ${payment.userId}`);
+    console.log(`[Validate] Facture ${invoice.number} PDF généré → UserDocument ${userDocument.id}`);
     return { invoiceId: invoice.id, documentId: userDocument.id };
   } catch (err) {
     // Non-blocking: log error but don't fail the payment validation
@@ -277,15 +272,22 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'approve') {
+      // Resolve canonical product code before the transaction
+      const productCode = resolveProductCode(metadata.itemKey, metadata.itemType);
+      const beneficiaryUserId = metadata.studentId ?? payment.userId;
+
       // CRITICAL: Wrap payment validation in atomic transaction to ensure all-or-nothing behavior
       // Without this transaction, payment could be marked COMPLETED but credits never allocated
       // if crash occurs between operations (INV-PAY-2)
+      let invoiceIdForEntitlements: string | null = null;
       await prisma.$transaction(async (tx) => {
         // Valider le paiement
         const merged = mergePaymentMetadata(payment.metadata, {
           validatedBy: session.user.id,
           validatedAt: new Date().toISOString(),
-          validationNote: note
+          validationNote: note,
+          productCode: productCode ?? undefined,
+          beneficiaryUserId: beneficiaryUserId ?? undefined,
         });
         const paymentUpdate = await tx.payment.updateMany({
           where: { id: paymentId, status: 'PENDING' },
@@ -299,33 +301,90 @@ export async function POST(request: NextRequest) {
           throw new AlreadyProcessedPaymentError('Payment already processed');
         }
 
-        // Activer le service selon le type
+        // Create invoice WITHIN the transaction so activateEntitlements can run atomically
+        const parentName = [payment.user?.firstName, payment.user?.lastName]
+          .filter(Boolean).join(' ') || payment.user?.email || '';
+        const amountMillimes = tndToMillimes(payment.amount);
+        const invoiceNumber = await generateInvoiceNumber();
+
+        const invoice = await tx.invoice.create({
+          data: {
+            number: invoiceNumber,
+            status: 'PAID',
+            issuedAt: new Date(),
+            customerName: parentName,
+            customerEmail: payment.user?.email || '',
+            currency: 'TND',
+            subtotal: amountMillimes,
+            discountTotal: 0,
+            taxTotal: 0,
+            total: amountMillimes,
+            taxRegime: 'TVA_NON_APPLICABLE',
+            paymentMethod: payment.method === 'bank_transfer' ? 'BANK_TRANSFER' : 'CASH',
+            paidAt: new Date(),
+            paidAmount: amountMillimes,
+            createdByUserId: session.user.id,
+            beneficiaryUserId: beneficiaryUserId,
+            events: JSON.parse(JSON.stringify([
+              createInvoiceEvent('INVOICE_CREATED', session.user.id, `Facture auto-générée pour paiement ${payment.id}`),
+              createInvoiceEvent('INVOICE_PAID', session.user.id, `Paiement validé — virement bancaire`),
+            ])) as Prisma.InputJsonValue,
+            items: {
+              create: [{
+                label: payment.description,
+                productCode: productCode ?? undefined,
+                qty: 1,
+                unitPrice: amountMillimes,
+                total: amountMillimes,
+                sortOrder: 0,
+              }],
+            },
+          },
+          include: { items: true },
+        });
+        invoiceIdForEntitlements = invoice.id;
+
+        // Activate entitlements atomically (P0-04)
+        if (productCode && beneficiaryUserId) {
+          const entitlementResult = await activateEntitlements(invoice.id, tx);
+          if (entitlementResult.noBeneficiary || entitlementResult.skippedItems > 0) {
+            console.warn('[Validate] Entitlement activation incomplete:', {
+              noBeneficiary: entitlementResult.noBeneficiary,
+              skippedItems: entitlementResult.skippedItems,
+              activatedCodes: entitlementResult.activatedCodes,
+            });
+            // Do NOT throw here — the payment is valid, the invoice is created,
+            // entitlements can be retried manually by staff if needed.
+            // Log the failure for alerting.
+          }
+        }
+
+        // Legacy subscription activation (kept as derived projection)
         if (payment.type === 'SUBSCRIPTION') {
           const subscriptionStudentId = metadata.studentId;
           if (!subscriptionStudentId) {
             throw new AlreadyProcessedPaymentError('Payment metadata missing studentId');
           }
 
-          // Activer l'abonnement
           const student = await tx.student.findUnique({
             where: { id: subscriptionStudentId }
           });
 
           if (student) {
             // Désactiver l'ancien abonnement
-	            await tx.subscription.updateMany({
-	              where: {
-	                studentId: subscriptionStudentId,
-	                status: 'ACTIVE'
-	              },
+            await tx.subscription.updateMany({
+              where: {
+                studentId: subscriptionStudentId,
+                status: 'ACTIVE'
+              },
               data: { status: 'CANCELLED' }
             });
 
             // Activer le nouvel abonnement
-	            await tx.subscription.updateMany({
-	              where: {
-	                studentId: subscriptionStudentId,
-	                planName: metadata.itemKey,
+            await tx.subscription.updateMany({
+              where: {
+                studentId: subscriptionStudentId,
+                planName: metadata.itemKey,
                 status: 'INACTIVE'
               },
               data: {
@@ -336,9 +395,9 @@ export async function POST(request: NextRequest) {
 
             // Allouer les crédits mensuels
             const subscription = await tx.subscription.findFirst({
-	              where: {
-	                studentId: subscriptionStudentId,
-	                status: 'ACTIVE'
+              where: {
+                studentId: subscriptionStudentId,
+                status: 'ACTIVE'
               }
             });
 
@@ -347,8 +406,8 @@ export async function POST(request: NextRequest) {
               nextMonth.setMonth(nextMonth.getMonth() + 2);
 
               await tx.creditTransaction.create({
-	                data: {
-	                  studentId: subscriptionStudentId,
+                data: {
+                  studentId: subscriptionStudentId,
                   type: 'MONTHLY_ALLOCATION',
                   amount: subscription.creditsPerMonth,
                   description: `Allocation mensuelle de ${subscription.creditsPerMonth} crédits`,
@@ -364,21 +423,13 @@ export async function POST(request: NextRequest) {
       });
 
       // Post-transaction: Generate Invoice PDF + store in coffre-fort (non-blocking)
-      const invoiceResult = await generateInvoiceAndDocument(
-        {
-          id: payment.id,
-          userId: payment.userId,
-          amount: payment.amount,
-          description: payment.description,
-          method: payment.method,
-          user: payment.user ? {
-            firstName: payment.user.firstName,
-            lastName: payment.user.lastName,
-            email: payment.user.email,
-          } : null,
-        },
-        session.user.id,
-      );
+      const invoiceResult = invoiceIdForEntitlements
+        ? await generateInvoicePDFAndDocument(
+            invoiceIdForEntitlements,
+            payment.userId ?? '',
+            session.user.id,
+          )
+        : null;
 
       return NextResponse.json({
         success: true,
