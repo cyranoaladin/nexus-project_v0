@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nexus Réussite — Trouver la formule adaptée</title>
+<meta name="description" content="Sélecteur de formule Nexus Réussite 2026/2027 : trouvez le parcours adapté à votre enfant, scolarisé, candidat libre ou à distance. Bilan offert.">
+<meta property="og:title" content="Nexus Réussite — Trouver la formule adaptée">
+<meta property="og:description" content="Questionnaire d'orientation vers les parcours Nexus Réussite pour élèves scolarisés, candidats libres et familles hors Tunis.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nexusreussite.academy/nexus_selecteur.html">
+<meta property="og:image" content="https://nexusreussite.academy/images/logo_slogan_nexus.webp">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="/styles/nexus-tokens.css">
 <style>
   :root{
@@ -423,7 +430,7 @@ const EX = {
 };
 const ECH_NOTE = "Règlement en réservation + versements selon échéancier. La remise fidélité est portée sur le dernier versement : elle est acquise au terme du parcours. En cas d’arrêt, les prestations consommées sont valorisées au tarif public de référence prévu au contrat d’inscription.";
 const TEACHER_NOTE = "Enseignants certifiés et agrégés de l’enseignement français à l’étranger.";
-const TARIF_CAMPAGNE_NOTE = "Le tarif campagne 2026/2027 est valable jusqu'au 31 août 2026. Acompte verrouillant le tarif campagne. Groupes de 5 élèves maximum.";
+const TARIF_CAMPAGNE_NOTE = "Tarif campagne 2026/2027 selon les places disponibles. Acompte verrouillant le tarif campagne. Groupes de 5 élèves maximum.";
 const STAGE_PERIODS_COMMON = "prérentrée, Toussaint, hiver/février, printemps et sprint final";
 const STAGE_PERIODS_AEFE = "Toussaint, hiver/février, printemps selon calendrier AEFE rythme nord.";
 const STAGE_PERIODS_LIBRE = "Calendrier adapté au statut candidat libre et aux échéances d’examen.";
@@ -439,21 +446,21 @@ const DATA = {
          ech:[["Parcours annuel",3900]],
          note:"Pour renforcer une matière précise avec un suivi complet."},
         {id:"t-duo",name:"Duo Terminale Nexus",sub:"2 enseignements de spécialité",badge:"Le plus choisi",monthly:720,fid:7175,pub:8750,hours:175,combo:true,extras:["stages","grandOral"],
-         ech:[["Réservation",2150],["Versement 1",560],["Versement 2",560],["Versement 3",560],["Versement 4",560],["Versement 5",560],["Versement 6",560],["Versement 7",560],["Versement 8",560],["Versement 9",545]],
+         ech:[["Parcours annuel",7175],["Réservation",2150],["Mensualité 1",560],["Mensualité 2",560],["Mensualité 3",560],["Mensualité 4",560],["Mensualité 5",560],["Mensualité 6",560],["Mensualité 7",560],["Mensualité 8",560],["Solde",545]],
          note:"Le parcours intégral des deux spécialités, stages et Grand Oral compris."},
         {id:"t-exc",name:"Excellence Terminale",sub:"2 spécialités + Mathématiques expertes",monthly:960,fid:9594,pub:10700,hours:246,extras:["stages","grandOralSci","urgence2"],
-         ech:[["Réservation",2880],["Versement 1",750],["Versement 2",750],["Versement 3",750],["Versement 4",750],["Versement 5",750],["Versement 6",750],["Versement 7",750],["Versement 8",750],["Versement 9",714]],
+         ech:[["Parcours annuel",9594],["Réservation",2880],["Mensualité 1",750],["Mensualité 2",750],["Mensualité 3",750],["Mensualité 4",750],["Mensualité 5",750],["Mensualité 6",750],["Mensualité 7",750],["Mensualité 8",750],["Solde",714]],
          note:"Pour les profils scientifiques ambitieux visant les meilleures filières."},
       ],
       Première:[
         {id:"p-maths",name:"Maths anticipées (EAM)",sub:"épreuve anticipée de mathématiques",monthly:300,fid:3000,pub:3000,hours:60,extras:[],
-         ech:[["Réservation",900],["Versement 1",233],["Versement 2",233],["Versement 3",233],["Versement 4",233],["Versement 5",233],["Versement 6",233],["Versement 7",233],["Versement 8",233],["Versement 9",236]],
+         ech:[["Parcours annuel",3000],["Réservation",900],["Mensualité 1",233],["Mensualité 2",233],["Mensualité 3",233],["Mensualité 4",233],["Mensualité 5",233],["Mensualité 6",233],["Mensualité 7",233],["Mensualité 8",233],["Solde",236]],
          note:"Automatismes, méthode et entraînement sur sujets type."},
         {id:"p-eaf",name:"Français EAF",sub:"écrit + oral",monthly:300,fid:3000,pub:3000,hours:60,extras:[],
-         ech:[["Réservation",900],["Versement 1",233],["Versement 2",233],["Versement 3",233],["Versement 4",233],["Versement 5",233],["Versement 6",233],["Versement 7",233],["Versement 8",233],["Versement 9",236]],
+         ech:[["Parcours annuel",3000],["Réservation",900],["Mensualité 1",233],["Mensualité 2",233],["Mensualité 3",233],["Mensualité 4",233],["Mensualité 5",233],["Mensualité 6",233],["Mensualité 7",233],["Mensualité 8",233],["Solde",236]],
          note:"Méthodes de l’écrit et préparation de l’oral, oraux blancs inclus."},
         {id:"p-duo",name:"Double Sécurité",sub:"Français + Mathématiques",badge:"Recommandé",monthly:540,fid:5400,pub:5400,hours:120,extras:[],
-         ech:[["Réservation",1620],["Versement 1",420],["Versement 2",420],["Versement 3",420],["Versement 4",420],["Versement 5",420],["Versement 6",420],["Versement 7",420],["Versement 8",420],["Versement 9",420]],
+         ech:[["Parcours annuel",5400],["Réservation",1620],["Mensualité 1",420],["Mensualité 2",420],["Mensualité 3",420],["Mensualité 4",420],["Mensualité 5",420],["Mensualité 6",420],["Mensualité 7",420],["Mensualité 8",420],["Solde",420]],
          note:"Sécurise les deux épreuves anticipées et prépare le Duo de Terminale."},
       ],
       Seconde:[
@@ -475,21 +482,21 @@ const DATA = {
     levels:{
       Terminale:[
         {id:"l-t-on",name:"Terminale Libre — En ligne",sub:"100 % en ligne",monthly:290,fid:2900,online:true,libre:true,extras:["bulletin"],
-         ech:[["Réservation",870],["Versement 1",225],["Versement 2",225],["Versement 3",225],["Versement 4",225],["Versement 5",225],["Versement 6",225],["Versement 7",225],["Versement 8",225],["Versement 9",230]],
+         ech:[["Parcours annuel",2900],["Réservation",870],["Mensualité 1",225],["Mensualité 2",225],["Mensualité 3",225],["Mensualité 4",225],["Mensualité 5",225],["Mensualité 6",225],["Mensualité 7",225],["Mensualité 8",225],["Solde",230]],
          note:"Préparer la Terminale candidat libre partout en Tunisie."},
         {id:"l-t-mx",name:"Terminale Libre — Mixte",sub:"présentiel + plateforme",badge:"Référence",monthly:790,fid:7900,pub:8750,libre:true,extras:["grandOral","bulletin","admin"],
-         ech:[["Réservation",2370],["Versement 1",614],["Versement 2",614],["Versement 3",614],["Versement 4",614],["Versement 5",614],["Versement 6",614],["Versement 7",614],["Versement 8",614],["Versement 9",618]],
+         ech:[["Parcours annuel",7900],["Réservation",2370],["Mensualité 1",614],["Mensualité 2",614],["Mensualité 3",614],["Mensualité 4",614],["Mensualité 5",614],["Mensualité 6",614],["Mensualité 7",614],["Mensualité 8",614],["Solde",618]],
          note:"Le parcours complet : 2 spécialités, tronc commun, Grand Oral."},
         {id:"l-t-pr",name:"Terminale Libre — Premium",sub:"suivi renforcé",monthly:990,fid:9900,libre:true,extras:["grandOral","bulletin","admin","urgence6"],
-         ech:[["Réservation",2970],["Versement 1",770],["Versement 2",770],["Versement 3",770],["Versement 4",770],["Versement 5",770],["Versement 6",770],["Versement 7",770],["Versement 8",770],["Versement 9",770]],
+         ech:[["Parcours annuel",9900],["Réservation",2970],["Mensualité 1",770],["Mensualité 2",770],["Mensualité 3",770],["Mensualité 4",770],["Mensualité 5",770],["Mensualité 6",770],["Mensualité 7",770],["Mensualité 8",770],["Solde",770]],
          note:"Un suivi rapproché, sans improvisation."},
       ],
       Première:[
         {id:"l-p-ac",name:"Première Libre — Accompagnée",sub:"présentiel + plateforme",badge:"Référence",monthly:490,fid:4900,libre:true,extras:["bulletin","admin"],
-         ech:[["Réservation",1470],["Versement 1",380],["Versement 2",380],["Versement 3",380],["Versement 4",380],["Versement 5",380],["Versement 6",380],["Versement 7",380],["Versement 8",380],["Versement 9",390]],
+         ech:[["Parcours annuel",4900],["Réservation",1470],["Mensualité 1",380],["Mensualité 2",380],["Mensualité 3",380],["Mensualité 4",380],["Mensualité 5",380],["Mensualité 6",380],["Mensualité 7",380],["Mensualité 8",380],["Solde",390]],
          note:"Parcours complet Première candidat libre."},
         {id:"l-p-on",name:"Première Libre — En ligne",sub:"plateforme + ateliers",monthly:190,fid:1900,online:true,libre:true,extras:["bulletin"],
-         ech:[["Réservation",570],["Versement 1",150],["Versement 2",150],["Versement 3",150],["Versement 4",150],["Versement 5",150],["Versement 6",150],["Versement 7",150],["Versement 8",150],["Versement 9",130]],
+         ech:[["Parcours annuel",1900],["Réservation",570],["Mensualité 1",150],["Mensualité 2",150],["Mensualité 3",150],["Mensualité 4",150],["Mensualité 5",150],["Mensualité 6",150],["Mensualité 7",150],["Mensualité 8",150],["Solde",130]],
          note:"Structurer la Première en candidat libre."},
       ],
     }
