@@ -210,6 +210,7 @@ export function AriaChat() {
       >
         <Button
           onClick={() => setIsOpen(true)}
+          aria-label="Ouvrir ARIA"
           className="w-16 h-16 rounded-full shadow-xl bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 group"
         >
           <MessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform" />
@@ -266,13 +267,14 @@ export function AriaChat() {
                     </div>
                   </div>
                   <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setIsOpen(false)}
-                    className="text-white hover:bg-white/20"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsOpen(false)}
+                  aria-label="Fermer le chat ARIA"
+                  className="text-white hover:bg-white/20"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
                 </div>
               </CardHeader>
 
@@ -351,6 +353,7 @@ export function AriaChat() {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleFeedback(message.id, true)}
+                              aria-label="Marquer la réponse comme utile"
                               className={`h-6 w-6 p-0 ${message.feedback === true ? 'text-green-600' : 'text-slate-300'}`}
                             >
                               <ThumbsUp className="w-3 h-3" />
@@ -359,6 +362,7 @@ export function AriaChat() {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleFeedback(message.id, false)}
+                              aria-label="Marquer la réponse comme non utile"
                               className={`h-6 w-6 p-0 ${message.feedback === false ? 'text-slate-600' : 'text-slate-300'}`}
                             >
                               <ThumbsDown className="w-3 h-3" />
@@ -438,6 +442,7 @@ export function AriaChat() {
                         onClick={handleSendMessage}
                         disabled={!input.trim() || isLoading}
                         size="default"
+                        aria-label="Envoyer la question"
                         className="h-12 px-4 bg-blue-600 hover:bg-blue-700"
                       >
                         <Send className="w-5 h-5" />
