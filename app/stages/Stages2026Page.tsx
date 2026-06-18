@@ -80,7 +80,7 @@ export default function Stages2026Page() {
                     <CalendarDays className="h-4 w-4" />
                     <span className="text-xs font-semibold uppercase tracking-[0.2em]">Période</span>
                   </div>
-                  <h2 className="mt-3 text-xl font-fraunces text-lux-ivory">{period.title}</h2>
+                  <h2 className="mt-3 text-xl font-fraunces !text-lux-ivory">{period.title}</h2>
                   <p className="mt-2 text-sm text-lux-ivory/75">{period.description}</p>
                 </CardContent>
               </Card>
@@ -93,7 +93,7 @@ export default function Stages2026Page() {
         <div className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-[1fr_0.9fr]">
           <Card className="border-lux-line bg-lux-ink text-lux-ivory">
             <CardContent className="p-6 md:p-8">
-              <h2 className="text-2xl md:text-3xl font-fraunces text-lux-ivory">Ce que couvrent les stages</h2>
+              <h2 className="text-2xl md:text-3xl font-fraunces !text-lux-ivory">Ce que couvrent les stages</h2>
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 {pillars.map((pillar) => (
                   <div key={pillar} className="flex items-center gap-3 rounded-lg border border-lux-line/50 px-4 py-3">
@@ -111,7 +111,7 @@ export default function Stages2026Page() {
                 <MapPin className="h-4 w-4" />
                 <span className="text-xs font-semibold uppercase tracking-[0.2em]">Format</span>
               </div>
-              <h2 className="mt-3 text-2xl font-fraunces">Mutuelleville ou en ligne</h2>
+              <h2 className="mt-3 text-2xl font-fraunces !text-lux-ivory">Mutuelleville ou en ligne</h2>
               <p className="mt-3 text-sm text-lux-ivory/75">
                 Les stages sont pensés pour fonctionner en présentiel à Mutuelleville ou à distance selon la formule recommandée.
               </p>
