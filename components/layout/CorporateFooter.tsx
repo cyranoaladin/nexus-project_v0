@@ -18,7 +18,7 @@ const CorporateFooter = () => {
         { label: 'Accompagnement Scolaire', href: '/accompagnement-scolaire', isPage: true },
         { label: 'Offres', href: '/offres', isPage: true },
         { label: 'Stages', href: '/stages', isPage: true },
-        { label: 'Plateforme ARIA', href: '/plateforme-aria', isPage: true },
+        { label: 'Plateforme Masterium', href: '/plateforme-aria', isPage: true },
         { label: 'Notre Équipe', href: '/equipe', isPage: true },
         { label: 'Notre Centre', href: '/notre-centre', isPage: true },
         { label: 'Bilan Gratuit', href: '/bilan-gratuit', isPage: true },

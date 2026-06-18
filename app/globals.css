@@ -263,6 +263,24 @@ h1, h2, h3 {
   --font-display: var(--font-space), "Space Grotesk", sans-serif;
   --font-mono: var(--font-mono), "IBM Plex Mono", monospace;
 
+  /* Luxury Public Theme Colors — palette corrigée §4.1 */
+  --color-lux-ink: #071A3A;
+  --color-lux-ink-700: #0E2547;
+  --color-lux-ivory: #F7F4ED;
+  --color-lux-paper: #FBFAF5;
+  --color-lux-gold: #BFA06A;
+  --color-lux-gold-deep: #8C7340;
+  --color-lux-gold-bright: #D4B978;
+  --color-lux-gold-wash: #EBDFC4;
+  --color-lux-slate: #5A6B82;
+  --color-lux-evergreen: #1E5F4B;
+  --color-lux-line: rgba(11, 37, 71, 0.12);
+  --color-lux-white: #FFFFFF;
+
+  /* Font aliases for luxury Fraunces + DM Sans */
+  --font-fraunces: var(--font-display), 'Fraunces', serif;
+  --font-dm-sans: var(--font-body), 'DM Sans', sans-serif;
+
   /* Legacy colors (backward compatibility) */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -1368,5 +1386,141 @@ html {
 
   .eam-shell .katex-display {
     overflow: visible !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+ * LUXURY PUBLIC THEME — Pages d'accueil, catalogue, recommandation
+ * Palette marque corrigée: ink/ivory/gold/evergreen
+ * PAS de tan #D4A574, PAS de navy #0F1F3C
+ * ═══════════════════════════════════════════════════════════════ */
+
+.luxury {
+  background-color: var(--color-lux-ivory);
+  color: var(--color-lux-ink);
+  font-family: var(--font-dm-sans);
+}
+
+/* Headings: Fraunces allégé (300-500, pas tout en 700) */
+.luxury h1,
+.luxury h2,
+.luxury h3,
+.luxury h4 {
+  font-family: var(--font-fraunces);
+  color: var(--color-lux-ink);
+  letter-spacing: -0.02em;
+}
+
+.luxury h1 { font-weight: 300; line-height: 1.08; }
+.luxury h2 { font-weight: 400; line-height: 1.15; }
+.luxury h3 { font-weight: 500; line-height: 1.2; }
+.luxury h4 { font-weight: 500; line-height: 1.25; }
+
+/* Override dark-surface heading white for luxury pages */
+.luxury .bg-surface-darker h1, .luxury .bg-surface-darker h2,
+.luxury .bg-surface-darker h3, .luxury .bg-surface-dark h1,
+.luxury .bg-surface-dark h2, .luxury .bg-surface-dark h3 {
+  color: var(--color-lux-ink);
+}
+
+/* Luxury utility classes */
+@layer components {
+  .lux-eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--color-lux-gold-deep);
+    font-family: var(--font-dm-sans);
+  }
+
+  .lux-price {
+    font-family: var(--font-fraunces);
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+  }
+
+  .lux-filet-gold {
+    border-bottom: 1.5px solid var(--color-lux-gold);
+  }
+
+  /* CTA hierarchy §4.7 */
+  .lux-cta-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-7 py-3.5 text-sm font-semibold transition-all;
+    background-color: var(--color-lux-ink);
+    color: var(--color-lux-ivory);
+    border: 1.5px solid var(--color-lux-gold);
+    min-height: 44px;
+  }
+  .lux-cta-primary:hover { background-color: var(--color-lux-ink-700); }
+  .lux-cta-primary:focus-visible {
+    outline: 2px solid var(--color-lux-gold);
+    outline-offset: 2px;
+  }
+
+  /* Gold plein = SEULEMENT « Réserver ma place » */
+  .lux-cta-reserve {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-7 py-3.5 text-sm font-semibold transition-all;
+    background-color: var(--color-lux-gold);
+    color: var(--color-lux-ink);
+    min-height: 44px;
+  }
+  .lux-cta-reserve:hover { background-color: var(--color-lux-gold-bright); }
+
+  .lux-cta-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-7 py-3.5 text-sm font-semibold transition-all;
+    background-color: transparent;
+    color: var(--color-lux-ink);
+    border: 1.5px solid var(--color-lux-ink);
+    min-height: 44px;
+  }
+  .lux-cta-secondary:hover { background-color: rgba(7, 26, 58, 0.04); }
+
+  .lux-cta-whatsapp {
+    @apply inline-flex items-center justify-center gap-2 text-sm font-medium transition-all;
+    color: var(--color-lux-evergreen);
+    min-height: 44px;
+  }
+  .lux-cta-whatsapp:hover { text-decoration: underline; }
+
+  /* Card shadows for light theme */
+  .lux-shadow {
+    box-shadow: 0 4px 14px rgba(7, 26, 58, 0.06);
+  }
+  .lux-shadow-hover {
+    box-shadow: 0 8px 28px rgba(7, 26, 58, 0.10);
+  }
+
+  /* Focus ring for luxury */
+  .lux-focus:focus-visible {
+    outline: 2px solid var(--color-lux-gold);
+    outline-offset: 2px;
+  }
+}
+
+/* Luxury scrollbar override */
+.luxury::-webkit-scrollbar-track { background: var(--color-lux-ivory); }
+.luxury::-webkit-scrollbar-thumb { background: var(--color-lux-gold-wash); border-radius: 4px; }
+.luxury::-webkit-scrollbar-thumb:hover { background: var(--color-lux-gold); }
+
+/* Luxury selection */
+.luxury ::selection {
+  background: rgba(191, 160, 106, 0.25);
+  color: var(--color-lux-ink);
+}
+
+/* Reduced motion for luxury animations */
+@media (prefers-reduced-motion: reduce) {
+  .luxury [data-lux-animate] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .luxury *,
+  .luxury *::before,
+  .luxury *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }

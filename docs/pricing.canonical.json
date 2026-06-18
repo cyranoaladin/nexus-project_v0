@@ -1,0 +1,1170 @@
+{
+  "_note": "SOURCE DE VERITE UNIQUE des prix/effectifs/acomptes/echeanciers Nexus Reussite. Aucun montant ne doit etre code en dur ailleurs. Genere et valide automatiquement. Toute modification doit repasser le validateur (voir prompt d'integration).",
+  "version": "2026-2027.1",
+  "currency": "TND",
+  "campaign": {
+    "label": "Campagne 2026/2027",
+    "deadline_iso": "2026-08-31",
+    "deadline_display": "31 aout 2026",
+    "public_label": "Tarif public",
+    "campaign_label": "Tarif campagne 2026/2027",
+    "fidelity_label": "Tarif fidelite",
+    "fidelity_condition": "Reserve aux familles deja accompagnees par Nexus en 2025/2026 (statut, sans date limite)."
+  },
+  "rules": {
+    "weeks_per_year": 30,
+    "group_max": 5,
+    "group_min_open": {
+      "lycee": 3,
+      "college": 4,
+      "online_live": 3,
+      "stage": 3,
+      "stage_college": 4
+    },
+    "semi_individual_surcharge_pct": 50,
+    "price_floor_per_student_hour_tnd": {
+      "single": 50,
+      "multi": 45,
+      "college": 40,
+      "stage": 45,
+      "pack": 40,
+      "coaching_1to1": 180
+    },
+    "pack_max_discount_pct": 20,
+    "payment": {
+      "deposit_pct_annual": 30,
+      "installments_annual_default": 9,
+      "deposit_pct_stage": 30,
+      "rounding_tnd": 10,
+      "deposit_non_refundable_except_group_not_opened": true,
+      "deposit_deductible_to_annual": true,
+      "deposit_carryover": true
+    },
+    "discounts": {
+      "comptant_pct": 5,
+      "fratrie_2nd_child_pct": 10,
+      "ancien_eleve_min_pct": 10,
+      "ancien_eleve_max_pct": 18,
+      "parrainage_min_tnd": 150,
+      "parrainage_max_tnd": 300,
+      "carte_nexus_pct": 10,
+      "cumulable": false,
+      "global_cap_pct": 20,
+      "note": "Non cumulables sauf decision direction; plafond global 20%; jamais sous plancher; remise Carte sur unites uniquement (pas sur Pass)."
+    }
+  },
+  "annual_offers": [
+    {
+      "id": "term-spe-simple",
+      "category": "parcours_presentiel",
+      "level": "Terminale",
+      "track": "scolarise",
+      "title": "Terminale Specialite simple",
+      "subjects": "1 specialite",
+      "hours_per_week": 2,
+      "hours_per_year": 60,
+      "floor_type": "single",
+      "group_max": 5,
+      "group_min_open": 3,
+      "price_annual_public": 3900,
+      "price_annual_campaign": 3900,
+      "price_per_student_hour": 65.0,
+      "equiv_per_2h_session": 130,
+      "monthly_display": 390,
+      "payment": {
+        "deposit": 1170,
+        "installments": [
+          300,
+          300,
+          300,
+          300,
+          300,
+          300,
+          300,
+          300,
+          330
+        ],
+        "n_installments": 9
+      },
+      "note": ""
+    },
+    {
+      "id": "term-duo",
+      "category": "parcours_presentiel",
+      "level": "Terminale",
+      "track": "scolarise",
+      "title": "Terminale Duo",
+      "subjects": "2 EDS",
+      "hours_per_week": 4,
+      "hours_per_year": 120,
+      "floor_type": "multi",
+      "group_max": 5,
+      "group_min_open": 3,
+      "price_annual_public": 8750,
+      "price_annual_campaign": 7175,
+      "price_per_student_hour": 59.8,
+      "equiv_per_2h_session": 120,
+      "monthly_display": 720,
+      "payment": {
+        "deposit": 2150,
+        "installments": [
+          560,
+          560,
+          560,
+          560,
+          560,
+          560,
+          560,
+          560,
+          545
+        ],
+        "n_installments": 9
+      },
+      "note": ""
+    },
+    {
+      "id": "term-excellence",
+      "category": "parcours_presentiel",
+      "level": "Terminale",
+      "track": "scolarise",
+      "title": "Terminale Excellence",
+      "subjects": "2 EDS + Maths expertes",
+      "hours_per_week": 6,
+      "hours_per_year": 180,
+      "floor_type": "multi",
+      "group_max": 5,
+      "group_min_open": 3,
+      "price_annual_public": 10700,
+      "price_annual_campaign": 9594,
+      "price_per_student_hour": 53.3,
+      "equiv_per_2h_session": 110,
+      "monthly_display": 960,
+      "payment": {
+        "deposit": 2880,
+        "installments": [
+          750,
+          750,
+          750,
+          750,
+          750,
+          750,
+          750,
+          750,
+          714
+        ],
+        "n_installments": 9
+      },
+      "note": ""
+    },
+    {
+      "id": "1re-eaf",
+      "category": "parcours_presentiel",
+      "level": "Premiere",
+      "track": "scolarise",
+      "title": "Premiere EAF Francais",
+      "subjects": "Francais ecrit + oral",
+      "hours_per_week": 2,
+      "hours_per_year": 60,
+      "floor_type": "single",
+      "group_max": 5,
+      "group_min_open": 3,
+      "price_annual_public": 3000,
+      "price_annual_campaign": 3000,
+      "price_per_student_hour": 50.0,
+      "equiv_per_2h_session": 100,
+      "monthly_display": 300,
+      "payment": {
+        "deposit": 900,
+        "installments": [
+          230,
+          230,
+          230,
+          230,
+          230,
+          230,
+          230,
+          230,
+          260
+        ],
+        "n_installments": 9
+      },
+      "note": "290->300"
+    },
+    {
+      "id": "1re-maths-antic",
+      "category": "parcours_presentiel",
+      "level": "Premiere",
+      "track": "scolarise",
+      "title": "Premiere Maths anticipees",
+      "subjects": "Maths",
+      "hours_per_week": 2,
+      "hours_per_year": 60,
+      "floor_type": "single",
+      "group_max": 5,
+      "group_min_open": 3,
+      "price_annual_public": 3000,
+      "price_annual_campaign": 3000,
+      "price_per_student_hour": 50.0,
+      "equiv_per_2h_session": 100,
+      "monthly_display": 300,
+      "payment": {
+        "deposit": 900,
+        "installments": [
+          230,
+          230,
+          230,
+          230,
+          230,
+          230,
+          230,
+          230,
+          260
+        ],
+        "n_installments": 9
+      },
+      "note": "290->300"
+    },
+    {
+      "id": "1re-double-secu",
+      "category": "parcours_presentiel",
+      "level": "Premiere",
+      "track": "scolarise",
+      "title": "Premiere Double Securite",
+      "subjects": "Francais + Maths",
+      "hours_per_week": 4,
+      "hours_per_year": 120,
+      "floor_type": "multi",
+      "group_max": 5,
+      "group_min_open": 3,
+      "price_annual_public": 5400,
+      "price_annual_campaign": 5400,
+      "price_per_student_hour": 45.0,
+      "equiv_per_2h_session": 90,
+      "monthly_display": 540,
+      "payment": {
+        "deposit": 1620,
+        "installments": [
+          420,
+          420,
+          420,
+          420,
+          420,
+          420,
+          420,
+          420,
+          420
+        ],
+        "n_installments": 9
+      },
+      "note": "4900->5400"
+    },
+    {
+      "id": "1re-sciences",
+      "category": "parcours_presentiel",
+      "level": "Premiere",
+      "track": "scolarise",
+      "title": "Premiere Sciences",
+      "subjects": "Maths + PC ou Maths + NSI",
+      "hours_per_week": 4,
+      "hours_per_year": 120,
+      "floor_type": "multi",
+      "group_max": 5,
+      "group_min_open": 3,
+      "price_annual_public": 5900,
+      "price_annual_campaign": 5900,
+      "price_per_student_hour": 49.2,
+      "equiv_per_2h_session": 100,
+      "monthly_display": 590,
+      "payment": {
+        "deposit": 1770,
+        "installments": [
+          460,
+          460,
+          460,
+          460,
+          460,
+          460,
+          460,
+          460,
+          450
+        ],
+        "n_installments": 9
+      },
+      "note": ""
+    },
+    {
+      "id": "2nde-maths",
+      "category": "parcours_presentiel",
+      "level": "Seconde",
+      "track": "scolarise",
+      "title": "Seconde Maths & methode",
+      "subjects": "Maths + methode",
+      "hours_per_week": 2,
+      "hours_per_year": 60,
+      "floor_type": "multi",
+      "group_max": 5,
+      "group_min_open": 3,
+      "price_annual_public": 2700,
+      "price_annual_campaign": 2700,
+      "price_per_student_hour": 45.0,
+      "equiv_per_2h_session": 90,
+      "monthly_display": 270,
+      "payment": {
+        "deposit": 810,
+        "installments": [
+          210,
+          210,
+          210,
+          210,
+          210,
+          210,
+          210,
+          210,
+          210
+        ],
+        "n_installments": 9
+      },
+      "note": "2500->2700; floor_type=multi (maths+methode)"
+    },
+    {
+      "id": "2nde-sciences",
+      "category": "parcours_presentiel",
+      "level": "Seconde",
+      "track": "scolarise",
+      "title": "Seconde Sciences",
+      "subjects": "Maths + PC",
+      "hours_per_week": 4,
+      "hours_per_year": 120,
+      "floor_type": "multi",
+      "group_max": 5,
+      "group_min_open": 3,
+      "price_annual_public": 5400,
+      "price_annual_campaign": 5400,
+      "price_per_student_hour": 45.0,
+      "equiv_per_2h_session": 90,
+      "monthly_display": 540,
+      "payment": {
+        "deposit": 1620,
+        "installments": [
+          420,
+          420,
+          420,
+          420,
+          420,
+          420,
+          420,
+          420,
+          420
+        ],
+        "n_installments": 9
+      },
+      "note": "4300->5400"
+    },
+    {
+      "id": "brevet-maths",
+      "category": "parcours_presentiel",
+      "level": "Troisieme",
+      "track": "scolarise",
+      "title": "Troisieme Brevet Maths",
+      "subjects": "Maths",
+      "hours_per_week": 2,
+      "hours_per_year": 60,
+      "floor_type": "college",
+      "group_max": 5,
+      "group_min_open": 4,
+      "price_annual_public": 2400,
+      "price_annual_campaign": 2400,
+      "price_per_student_hour": 40.0,
+      "equiv_per_2h_session": 80,
+      "monthly_display": 240,
+      "payment": {
+        "deposit": 720,
+        "installments": [
+          190,
+          190,
+          190,
+          190,
+          190,
+          190,
+          190,
+          190,
+          160
+        ],
+        "n_installments": 9
+      },
+      "note": "2200->2400"
+    },
+    {
+      "id": "brevet-complet",
+      "category": "parcours_presentiel",
+      "level": "Troisieme",
+      "track": "scolarise",
+      "title": "Troisieme Brevet Complet",
+      "subjects": "Maths + Francais + methode",
+      "hours_per_week": 4,
+      "hours_per_year": 120,
+      "floor_type": "college",
+      "group_max": 5,
+      "group_min_open": 4,
+      "price_annual_public": 4800,
+      "price_annual_campaign": 4800,
+      "price_per_student_hour": 40.0,
+      "equiv_per_2h_session": 80,
+      "monthly_display": 480,
+      "payment": {
+        "deposit": 1440,
+        "installments": [
+          370,
+          370,
+          370,
+          370,
+          370,
+          370,
+          370,
+          370,
+          400
+        ],
+        "n_installments": 9
+      },
+      "note": "3900->4800"
+    }
+  ],
+  "libre_offers": [
+    {
+      "id": "1re-libre-essentiel",
+      "category": "parcours_libre",
+      "level": "Premiere",
+      "track": "libre",
+      "title": "Premiere Libre Essentiel",
+      "subjects": "EAF+Maths+tronc, en ligne",
+      "group_max": 5,
+      "group_min_open": 5,
+      "price_annual": 1900,
+      "monthly_display": 190,
+      "payment": {
+        "deposit": 500,
+        "installments": [
+          350,
+          350,
+          350,
+          350
+        ],
+        "n_installments": 4
+      },
+      "floor_type": "na"
+    },
+    {
+      "id": "1re-libre-accomp",
+      "category": "parcours_libre",
+      "level": "Premiere",
+      "track": "libre",
+      "title": "Premiere Libre Accompagnee",
+      "subjects": "Presentiel + plateforme",
+      "group_max": 5,
+      "group_min_open": 3,
+      "price_annual": 4900,
+      "monthly_display": 490,
+      "payment": {
+        "deposit": 900,
+        "installments": [
+          500,
+          500,
+          500,
+          500,
+          500,
+          500,
+          500,
+          500
+        ],
+        "n_installments": 8
+      },
+      "floor_type": "na"
+    },
+    {
+      "id": "term-libre-online",
+      "category": "parcours_libre",
+      "level": "Terminale",
+      "track": "libre",
+      "title": "Terminale Libre Online",
+      "subjects": "100% en ligne",
+      "group_max": 5,
+      "group_min_open": 3,
+      "price_annual": 2900,
+      "monthly_display": 290,
+      "payment": {
+        "deposit": 500,
+        "installments": [
+          300,
+          300,
+          300,
+          300,
+          300,
+          300,
+          300,
+          300
+        ],
+        "n_installments": 8
+      },
+      "floor_type": "na"
+    },
+    {
+      "id": "term-libre-premium",
+      "category": "parcours_libre",
+      "level": "Terminale",
+      "track": "libre",
+      "title": "Terminale Libre Premium",
+      "subjects": "2 spe + tronc + GO + option + coaching",
+      "group_max": 5,
+      "group_min_open": 3,
+      "price_annual": 9900,
+      "monthly_display": 990,
+      "payment": {
+        "deposit": 1500,
+        "installments": [
+          2100,
+          2100,
+          2100,
+          2100
+        ],
+        "n_installments": 4
+      },
+      "floor_type": "na"
+    },
+    {
+      "id": "term-libre-mixte",
+      "category": "parcours_libre",
+      "level": "Terminale",
+      "track": "libre",
+      "title": "Terminale Libre Mixte",
+      "subjects": "Presentiel + plateforme",
+      "group_max": 5,
+      "group_min_open": 3,
+      "price_annual_public": 8750,
+      "price_annual_campaign": 7900,
+      "monthly_display": 790,
+      "payment": {
+        "deposit": 1200,
+        "installments": [
+          2230,
+          2230,
+          2240
+        ],
+        "n_installments": 3
+      },
+      "floor_type": "na"
+    }
+  ],
+  "plateforme_offers": [
+    {
+      "id": "plateforme-autonomie",
+      "title": "Plateforme Autonomie",
+      "price_annual": 590,
+      "monthly_display": 69,
+      "live_group_max": null,
+      "billing": "subscription",
+      "floor_type": "na",
+      "is": "Ressources, parcours, fiches, exercices, sujets.",
+      "is_not": "Un suivi individualise ou un cours hebdomadaire."
+    },
+    {
+      "id": "plateforme-suivi",
+      "title": "Plateforme Suivi",
+      "price_annual": 1490,
+      "monthly_display": 160,
+      "live_group_max": 5,
+      "billing": "subscription",
+      "floor_type": "na",
+      "is": "Plateforme + compte parent + bilans + live collectif mensuel.",
+      "is_not": "Un cours particulier hebdomadaire."
+    },
+    {
+      "id": "plateforme-accomp",
+      "title": "Plateforme Accompagnee",
+      "price_annual": 2900,
+      "monthly_display": 290,
+      "live_group_max": 5,
+      "billing": "subscription",
+      "floor_type": "na",
+      "is": "Plateforme + live hebdomadaire en petit groupe (5 max) + suivi.",
+      "is_not": "Un accompagnement individuel illimite.",
+      "note": "live 10->5"
+    }
+  ],
+  "stage_formats": [
+    {
+      "format_id": "intensif-express",
+      "name": "Intensif Express",
+      "hours": 10,
+      "price_per_student": 490,
+      "price_per_student_hour": 49.0,
+      "equiv_per_2h_session": 100,
+      "group_max": 5,
+      "group_min_open": 3,
+      "floor_type": "stage",
+      "payment": {
+        "deposit": 150,
+        "solde": 340
+      }
+    },
+    {
+      "format_id": "intensif-solo",
+      "name": "Intensif Solo (1 matiere)",
+      "hours": 12,
+      "price_per_student": 580,
+      "price_per_student_hour": 48.3,
+      "equiv_per_2h_session": 100,
+      "group_max": 5,
+      "group_min_open": 3,
+      "floor_type": "stage",
+      "payment": {
+        "deposit": 170,
+        "solde": 410
+      }
+    },
+    {
+      "format_id": "intensif-renfort",
+      "name": "Intensif Renfort",
+      "hours": 15,
+      "price_per_student": 720,
+      "price_per_student_hour": 48.0,
+      "equiv_per_2h_session": 100,
+      "group_max": 5,
+      "group_min_open": 3,
+      "floor_type": "stage",
+      "payment": {
+        "deposit": 220,
+        "solde": 500
+      }
+    },
+    {
+      "format_id": "intensif-duo",
+      "name": "Intensif Duo (2 matieres)",
+      "hours": 18,
+      "price_per_student": 850,
+      "price_per_student_hour": 47.2,
+      "equiv_per_2h_session": 90,
+      "group_max": 5,
+      "group_min_open": 3,
+      "floor_type": "stage",
+      "payment": {
+        "deposit": 260,
+        "solde": 590
+      }
+    },
+    {
+      "format_id": "intensif-duo-plus",
+      "name": "Intensif Duo+",
+      "hours": 20,
+      "price_per_student": 950,
+      "price_per_student_hour": 47.5,
+      "equiv_per_2h_session": 100,
+      "group_max": 5,
+      "group_min_open": 3,
+      "floor_type": "stage",
+      "payment": {
+        "deposit": 280,
+        "solde": 670
+      }
+    },
+    {
+      "format_id": "sprint-final",
+      "name": "Sprint Final",
+      "hours": 20,
+      "price_per_student": 950,
+      "price_per_student_hour": 47.5,
+      "equiv_per_2h_session": 100,
+      "group_max": 5,
+      "group_min_open": 3,
+      "floor_type": "stage",
+      "payment": {
+        "deposit": 280,
+        "solde": 670
+      }
+    },
+    {
+      "format_id": "sprint-final-max",
+      "name": "Sprint Final Max",
+      "hours": 30,
+      "price_per_student": 1450,
+      "price_per_student_hour": 48.3,
+      "equiv_per_2h_session": 100,
+      "group_max": 5,
+      "group_min_open": 3,
+      "floor_type": "stage",
+      "payment": {
+        "deposit": 440,
+        "solde": 1010
+      }
+    }
+  ],
+  "stage_editions": [
+    {
+      "edition_id": "cap-rentree",
+      "name": "Cap Rentree",
+      "period": "Aout-septembre",
+      "formats": [
+        "intensif-solo",
+        "intensif-renfort",
+        "intensif-duo",
+        "intensif-duo-plus"
+      ],
+      "dates_display": "communiquees avec la recommandation"
+    },
+    {
+      "edition_id": "toussaint",
+      "name": "Intensif Toussaint",
+      "period": "Octobre-novembre",
+      "formats": [
+        "intensif-solo",
+        "intensif-renfort",
+        "intensif-duo"
+      ],
+      "dates_display": "communiquees avec la recommandation"
+    },
+    {
+      "edition_id": "noel",
+      "name": "Intensif Noel",
+      "period": "Decembre",
+      "formats": [
+        "intensif-solo",
+        "intensif-renfort",
+        "intensif-duo"
+      ],
+      "dates_display": "communiquees avec la recommandation"
+    },
+    {
+      "edition_id": "fevrier",
+      "name": "Intensif Fevrier",
+      "period": "Fevrier",
+      "formats": [
+        "intensif-solo",
+        "intensif-renfort",
+        "intensif-duo-plus"
+      ],
+      "dates_display": "communiquees avec la recommandation"
+    },
+    {
+      "edition_id": "printemps",
+      "name": "Intensif Printemps",
+      "period": "Avril",
+      "formats": [
+        "intensif-solo",
+        "intensif-renfort",
+        "intensif-duo-plus"
+      ],
+      "dates_display": "communiquees avec la recommandation"
+    },
+    {
+      "edition_id": "sprint",
+      "name": "Sprint Final",
+      "period": "Mai-juin",
+      "formats": [
+        "sprint-final",
+        "sprint-final-max"
+      ],
+      "dates_display": "communiquees avec la recommandation"
+    }
+  ],
+  "ponctuel_offers": [
+    {
+      "id": "cap-eaf",
+      "name": "Cap EAF",
+      "level": "Premiere",
+      "description": "Francais ecrit + oral, textes, methode",
+      "hours": 15,
+      "price_per_student": 720,
+      "price_per_student_hour": 48.0,
+      "equiv_per_2h_session": 100,
+      "group_max": 5,
+      "group_min_open": 3,
+      "floor_type": "stage",
+      "payment": {
+        "deposit": 220,
+        "solde": 500
+      }
+    },
+    {
+      "id": "cap-maths-1re",
+      "name": "Cap Maths Premiere",
+      "level": "Premiere",
+      "description": "Epreuve anticipee de maths",
+      "hours": 12,
+      "price_per_student": 580,
+      "price_per_student_hour": 48.3,
+      "equiv_per_2h_session": 100,
+      "group_max": 5,
+      "group_min_open": 3,
+      "floor_type": "stage",
+      "payment": {
+        "deposit": 170,
+        "solde": 410
+      }
+    },
+    {
+      "id": "studio-grand-oral",
+      "name": "Studio Grand Oral",
+      "level": "Terminale",
+      "description": "Posture, structuration, simulations filmees",
+      "hours": 10,
+      "price_per_student": 490,
+      "price_per_student_hour": 49.0,
+      "equiv_per_2h_session": 100,
+      "group_max": 5,
+      "group_min_open": 3,
+      "floor_type": "stage",
+      "payment": {
+        "deposit": 150,
+        "solde": 340
+      }
+    },
+    {
+      "id": "epreuve-blanche",
+      "name": "Epreuve Blanche",
+      "level": "Tous",
+      "description": "Bac blanc en conditions reelles + correction commentee sur grille officielle",
+      "hours": null,
+      "price_per_student": 150,
+      "price_per_student_hour": null,
+      "equiv_per_2h_session": null,
+      "group_max": 5,
+      "group_min_open": 3,
+      "floor_type": "na",
+      "payment": {
+        "deposit": 150,
+        "solde": 0,
+        "full_at_booking": true
+      }
+    }
+  ],
+  "coaching": [
+    {
+      "id": "diagnostic",
+      "name": "Diagnostic Strategique",
+      "format": "Bilan + carte d'examen",
+      "group": "individuel",
+      "price": 0,
+      "price_label": "Offert en campagne / 100 deductible",
+      "value_if_paid": 100,
+      "floor_type": "na",
+      "payment": {
+        "deposit": 0,
+        "solde": 0
+      }
+    },
+    {
+      "id": "boussole-methode",
+      "name": "Boussole Methode",
+      "format": "Atelier methodo, 3 seances",
+      "group": "5 max (des 3)",
+      "price": 390,
+      "group_max": 5,
+      "group_min_open": 3,
+      "floor_type": "na",
+      "payment": {
+        "deposit": 120,
+        "solde": 270
+      }
+    },
+    {
+      "id": "boussole-orientation",
+      "name": "Boussole Orientation & Parcoursup",
+      "format": "3 RDV (individuel + atelier)",
+      "group": "mixte",
+      "price": 540,
+      "floor_type": "na",
+      "payment": {
+        "deposit": 160,
+        "solde": 380
+      }
+    },
+    {
+      "id": "boussole-individuel",
+      "name": "Boussole Individuel",
+      "format": "Coaching 1:1 a la seance",
+      "group": "individuel",
+      "price_per_hour": 190,
+      "hours": 1,
+      "floor_type": "coaching_1to1",
+      "payment": {
+        "per_session": true
+      }
+    },
+    {
+      "id": "boussole-individuel-pack3",
+      "name": "Boussole Individuel - Pack 3",
+      "format": "3 seances 1:1",
+      "group": "individuel",
+      "price": 540,
+      "sessions": 3,
+      "price_per_hour": 180,
+      "floor_type": "coaching_1to1",
+      "payment": {
+        "deposit": 160,
+        "installments": [
+          190,
+          190
+        ]
+      }
+    },
+    {
+      "id": "boussole-individuel-pack5",
+      "name": "Boussole Individuel - Pack 5",
+      "format": "5 seances 1:1",
+      "group": "individuel",
+      "price": 900,
+      "sessions": 5,
+      "price_per_hour": 180,
+      "floor_type": "coaching_1to1",
+      "payment": {
+        "deposit": 270,
+        "solde": 630
+      }
+    }
+  ],
+  "packs": [
+    {
+      "id": "pass-intensifs-1re",
+      "name": "Pass Intensifs Annee",
+      "level": "Premiere",
+      "price": 1990,
+      "deposit": 250,
+      "components": [
+        {
+          "type": "stage",
+          "format_id": "intensif-solo",
+          "edition_id": "toussaint",
+          "qty": 1
+        },
+        {
+          "type": "stage",
+          "format_id": "intensif-solo",
+          "edition_id": "noel",
+          "qty": 1
+        },
+        {
+          "type": "stage",
+          "format_id": "intensif-solo",
+          "edition_id": "fevrier",
+          "qty": 1
+        },
+        {
+          "type": "stage",
+          "format_id": "intensif-solo",
+          "edition_id": "printemps",
+          "qty": 1
+        }
+      ],
+      "solde_schedule": [
+        435,
+        435,
+        435,
+        435
+      ],
+      "value": 2320,
+      "discount_pct": 14.2
+    },
+    {
+      "id": "pass-intensifs-term",
+      "name": "Pass Intensifs Annee",
+      "level": "Terminale",
+      "price": 2490,
+      "deposit": 290,
+      "components": [
+        {
+          "type": "stage",
+          "format_id": "intensif-renfort",
+          "edition_id": "toussaint",
+          "qty": 1
+        },
+        {
+          "type": "stage",
+          "format_id": "intensif-renfort",
+          "edition_id": "noel",
+          "qty": 1
+        },
+        {
+          "type": "stage",
+          "format_id": "intensif-renfort",
+          "edition_id": "fevrier",
+          "qty": 1
+        },
+        {
+          "type": "stage",
+          "format_id": "intensif-renfort",
+          "edition_id": "printemps",
+          "qty": 1
+        }
+      ],
+      "solde_schedule": [
+        550,
+        550,
+        550,
+        550
+      ],
+      "value": 2880,
+      "discount_pct": 13.5
+    },
+    {
+      "id": "pass-cap-bac-1re",
+      "name": "Cap Bac Premiere",
+      "level": "Premiere",
+      "price": 1390,
+      "deposit": 200,
+      "components": [
+        {
+          "type": "ponctuel",
+          "offer_id": "cap-eaf",
+          "qty": 1
+        },
+        {
+          "type": "ponctuel",
+          "offer_id": "cap-maths-1re",
+          "qty": 1
+        },
+        {
+          "type": "ponctuel",
+          "offer_id": "epreuve-blanche",
+          "qty": 2
+        }
+      ],
+      "solde_schedule": [
+        300,
+        300,
+        300,
+        290
+      ],
+      "value": 1600,
+      "discount_pct": 13.1
+    },
+    {
+      "id": "pass-go-sprint",
+      "name": "Pass Grand Oral & Sprint",
+      "level": "Terminale",
+      "price": 1290,
+      "deposit": 200,
+      "components": [
+        {
+          "type": "ponctuel",
+          "offer_id": "studio-grand-oral",
+          "qty": 1
+        },
+        {
+          "type": "stage",
+          "format_id": "sprint-final",
+          "edition_id": "sprint",
+          "qty": 1
+        }
+      ],
+      "solde_schedule": [
+        545,
+        545
+      ],
+      "value": 1440,
+      "discount_pct": 10.4
+    },
+    {
+      "id": "pass-excellence-ponctuel",
+      "name": "Pass Excellence Ponctuel",
+      "level": "Terminale",
+      "price": 2390,
+      "deposit": 290,
+      "components": [
+        {
+          "type": "stage",
+          "format_id": "intensif-renfort",
+          "edition_id": "toussaint",
+          "qty": 1
+        },
+        {
+          "type": "stage",
+          "format_id": "intensif-renfort",
+          "edition_id": "fevrier",
+          "qty": 1
+        },
+        {
+          "type": "ponctuel",
+          "offer_id": "studio-grand-oral",
+          "qty": 1
+        },
+        {
+          "type": "stage",
+          "format_id": "sprint-final",
+          "edition_id": "sprint",
+          "qty": 1
+        }
+      ],
+      "solde_schedule": [
+        525,
+        525,
+        525,
+        525
+      ],
+      "value": 2880,
+      "discount_pct": 17.0
+    },
+    {
+      "id": "pass-candidat-libre",
+      "name": "Pass Candidat Libre",
+      "level": "Libre",
+      "price": 1690,
+      "deposit": 290,
+      "components": [
+        {
+          "type": "coaching",
+          "offer_id": "diagnostic",
+          "qty": 1,
+          "value_override": 100
+        },
+        {
+          "type": "stage",
+          "format_id": "intensif-renfort",
+          "edition_id": "toussaint",
+          "qty": 1
+        },
+        {
+          "type": "stage",
+          "format_id": "intensif-renfort",
+          "edition_id": "fevrier",
+          "qty": 1
+        },
+        {
+          "type": "ponctuel",
+          "offer_id": "epreuve-blanche",
+          "qty": 3
+        },
+        {
+          "type": "service",
+          "name": "Cellule Cyclades",
+          "qty": 1,
+          "value_override": 0
+        }
+      ],
+      "solde_schedule": [
+        350,
+        350,
+        350,
+        350
+      ],
+      "value": 1990,
+      "discount_pct": 15.1
+    }
+  ],
+  "carte_nexus": {
+    "id": "carte-nexus",
+    "name": "Carte Nexus",
+    "price_annual": 290,
+    "benefits": [
+      "Acces plateforme Autonomie",
+      "Remise -10% sur stages unitaires & coaching (HORS Pass)",
+      "Reservation prioritaire",
+      "1 Diagnostic Strategique"
+    ],
+    "discount_pct": 10,
+    "discount_scope": "unites_uniquement",
+    "stackable_on_pass": false,
+    "member_floor_per_student_hour_tnd": 40,
+    "payment": {
+      "full_at_purchase": true
+    }
+  }
+}

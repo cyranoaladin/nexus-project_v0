@@ -1,0 +1,59 @@
+'use client';
+
+import { Check, CreditCard } from 'lucide-react';
+import { fmtTND } from './format';
+import type { CarteNexus } from '@/lib/pricing';
+
+interface CarteNexusCardProps {
+  carte: CarteNexus;
+  onCta?: () => void;
+}
+
+export function CarteNexusCard({ carte, onCta }: CarteNexusCardProps) {
+  return (
+    <div className="relative overflow-hidden rounded-xl border-2 border-lux-gold bg-gradient-to-br from-lux-ink to-lux-ink-700 p-6 text-lux-ivory lux-shadow-hover">
+      {/* Filigrane */}
+      <div
+        className="pointer-events-none absolute right-4 top-4 select-none font-fraunces text-[100px] font-light leading-none opacity-[0.05]"
+        aria-hidden="true"
+      >
+        N
+      </div>
+
+      <div className="flex items-center gap-3 mb-4">
+        <CreditCard className="h-6 w-6 text-lux-gold" />
+        <h3 className="font-fraunces text-xl font-medium text-lux-ivory">
+          {carte.title}
+        </h3>
+      </div>
+
+      <div className="mb-5">
+        <span className="lux-price text-3xl text-lux-gold">
+          {fmtTND(carte.price_annual)}
+        </span>
+        <span className="ml-2 text-sm text-lux-ivory/60">/&nbsp;an</span>
+      </div>
+
+      <ul className="mb-6 space-y-2.5">
+        {carte.includes.map((benefit, i) => (
+          <li key={i} className="flex items-start gap-2">
+            <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-lux-gold" />
+            <span className="text-sm text-lux-ivory/80">{benefit}</span>
+          </li>
+        ))}
+      </ul>
+
+      <p className="mb-4 text-xs text-lux-ivory/50">
+        Remise −{carte.discount_pct}% sur stages & coaching unitaires (hors Pass).
+        Non cumulable. Plancher {fmtTND(carte.member_floor_per_student_hour)}/h.
+      </p>
+
+      <button
+        onClick={onCta}
+        className="w-full rounded-lg bg-lux-gold py-3 text-sm font-semibold text-lux-ink transition-all hover:bg-lux-gold-bright lux-focus"
+      >
+        Prendre la Carte Nexus
+      </button>
+    </div>
+  );
+}

@@ -1,0 +1,51 @@
+{
+  "generatedAt": "2026-06-09T11:54:13.237Z",
+  "base": "https://nexusreussite.academy",
+  "pages": {
+    "/": {
+      "status200": true,
+      "forbiddenAbsent": true
+    },
+    "/catalogue-nexus-reussite-2026-2027.html": {
+      "status200": true,
+      "forbiddenAbsent": true
+    },
+    "/nexus_selecteur.html": {
+      "status200": true,
+      "forbiddenAbsent": true
+    },
+    "/mentions-legales.html": {
+      "status200": true,
+      "forbiddenAbsent": true
+    },
+    "/confidentialite.html": {
+      "status200": true,
+      "forbiddenAbsent": true
+    }
+  },
+  "checks": {
+    "homeExpectedPresent": true,
+    "homePricesInHtml": true,
+    "tokensCss": true,
+    "noGoogleFonts": true,
+    "noWoffPreload": true,
+    "waOk:/": true,
+    "deadAnchors:/": [],
+    "noOverflow:/": true,
+    "waOk:/catalogue-nexus-reussite-2026-2027.html": true,
+    "deadAnchors:/catalogue-nexus-reussite-2026-2027.html": [],
+    "noOverflow:/catalogue-nexus-reussite-2026-2027.html": true,
+    "waOk:/nexus_selecteur.html": true,
+    "deadAnchors:/nexus_selecteur.html": [],
+    "noOverflow:/nexus_selecteur.html": true,
+    "asset404": [],
+    "jsOffHomePrices": true,
+    "jsOffCatalogueHeadPrice": true,
+    "jsOffCatalogueCtas": true,
+    "selectorDynamic": {
+      "whatsappIncludesFormula": true,
+      "catalogueDeepLink": true
+    }
+  },
+  "allTrue": true
+}

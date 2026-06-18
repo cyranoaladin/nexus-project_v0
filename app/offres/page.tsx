@@ -1,451 +1,490 @@
-"use client";
+'use client';
 
-import React, { useEffect } from "react";
-import Link from "next/link";
+import { useState, useMemo } from 'react';
+import Link from 'next/link';
+import { ArrowRight, Filter, X, MessageCircle } from 'lucide-react';
+import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
+import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import {
-  Check,
-  ChevronRight,
-  Clock,
-  GraduationCap,
-  Monitor,
-  Users,
-  Calendar,
-  BookOpen,
-  MessageCircle,
-  ArrowRight,
-} from "lucide-react";
-import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
-import { CorporateFooter } from "@/components/layout/CorporateFooter";
-import { BackToTop } from "@/components/ui/back-to-top";
-import { track } from "@/lib/analytics";
+  ExamCard,
+  PassCard,
+  CarteNexusCard,
+  FAQAccordion,
+  fmtTND,
+  fmtGroup,
+  fmtDiscount,
+  type FAQItem,
+} from '@/components/premium';
 import {
+  getAllOffers,
   getOffersByLevel,
   getOffersByTrack,
   getStageFormats,
   getStageEditions,
-  getReperes,
+  getPonctuelOffers,
+  getCoachingOffers,
+  getPacks,
+  getCarte,
   getRules,
   getCampaign,
+  getEffectivePrice,
+  resolvePackValue,
+  getStageFormat,
+  getPonctuelOffer,
+  getCoachingOffer,
   type AnnualOffer,
   type StageFormat,
-  type StageEdition,
-} from "@/lib/pricing";
+  type PonctuelOffer,
+  type CoachingOffer,
+  type Pack,
+} from '@/lib/pricing';
 
-// ── Helpers ──
+const WHATSAPP_URL = 'https://wa.me/21699192829';
 
-const WHATSAPP_URL = "https://wa.me/21699192829";
+// ── Payment builder — reads flat fields from AnnualOffer, never recalculates ──
 
-function fmtPrice(amount: number): string {
-  return amount.toLocaleString("fr-FR").replace(/\u202F/g, " ");
+function buildPayment(o: AnnualOffer): { deposit: number; installments?: number[] } | undefined {
+  if (o.deposit == null) return undefined;
+  if (o.n_installments == null || o.installment_amount == null) {
+    return { deposit: o.deposit };
+  }
+  // Build installments array: (n-1) × installment_amount + last_installment
+  const regular = o.n_installments - 1;
+  const last = o.last_installment ?? o.installment_amount;
+  const installments = [...Array(regular).fill(o.installment_amount), last];
+  return { deposit: o.deposit, installments };
 }
 
-function fmtTND(amount: number): string {
-  return `${fmtPrice(amount)} TND`;
+// ── Category filter ──
+
+type Category = 'all' | 'annual' | 'libre' | 'plateforme' | 'intensifs' | 'ponctuel' | 'coaching' | 'pass' | 'carte';
+
+const categories: { id: Category; label: string }[] = [
+  { id: 'all', label: 'Tout voir' },
+  { id: 'annual', label: 'Parcours annuels' },
+  { id: 'libre', label: 'Candidat libre' },
+  { id: 'plateforme', label: 'Plateforme' },
+  { id: 'intensifs', label: 'Les Intensifs' },
+  { id: 'ponctuel', label: 'Prépa épreuves' },
+  { id: 'coaching', label: 'Boussole' },
+  { id: 'pass', label: 'Pass' },
+  { id: 'carte', label: 'Carte Nexus' },
+];
+
+// ── Helpers for Pack component labels ──
+
+function resolvePackComponentLabels(pack: Pack): string[] {
+  return pack.components.map((c) => {
+    if (c.type === 'stage' && c.format_id) {
+      const fmt = getStageFormat(c.format_id);
+      const edLabel = c.edition_id ? ` (${c.edition_id})` : '';
+      return `${c.qty}× ${fmt?.title || c.format_id}${edLabel}`;
+    }
+    if (c.type === 'ponctuel' && c.id) {
+      const p = getPonctuelOffer(c.id);
+      return `${c.qty}× ${p?.title || c.id}`;
+    }
+    if (c.type === 'coaching' && c.id) {
+      const co = getCoachingOffer(c.id);
+      return `${c.qty}× ${co?.title || c.id}`;
+    }
+    if (c.type === 'service' && c.label) {
+      return c.label;
+    }
+    return `${c.qty}× ${c.type}`;
+  });
 }
 
-// ── Reusable components ──
+// ── FAQ ──
 
-function SectionTitle({
-  title,
-  subtitle,
-  icon: Icon,
-}: {
-  title: string;
-  subtitle?: string;
-  icon?: React.ElementType;
-}) {
-  return (
-    <div className="mb-10 text-center">
-      {Icon && (
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-500/10">
-          <Icon className="h-7 w-7 text-brand-400" />
-        </div>
-      )}
-      <h2 className="text-3xl font-bold text-neutral-100">{title}</h2>
-      {subtitle && (
-        <p className="mx-auto mt-3 max-w-2xl text-neutral-400">{subtitle}</p>
-      )}
-    </div>
-  );
-}
+const catalogueFAQ: FAQItem[] = [
+  {
+    question: 'Les tarifs sont-ils en TND ?',
+    answer: 'Oui, tous nos tarifs sont en dinars tunisiens (TND). Aucun paiement en euros.',
+  },
+  {
+    question: 'Comment fonctionne le modèle places-based ?',
+    answer:
+      'Les groupes se remplissent progressivement. Il n\'y a pas de date limite artificielle — la rareté est réelle : un groupe de 5 se remplit naturellement. Réservez tôt pour garantir votre place.',
+  },
+  {
+    question: 'L\'acompte est-il remboursable ?',
+    answer:
+      'L\'acompte n\'est pas remboursable sauf si le groupe n\'atteint pas le seuil d\'ouverture (3 ou 4 inscrits). Dans ce cas, remboursement intégral.',
+  },
+  {
+    question: 'Puis-je déduire l\'acompte d\'un stage si je prends un parcours annuel ?',
+    answer:
+      'Oui. L\'acompte versé pour un stage ou un Pass est déductible du parcours annuel. Il est aussi reportable sur l\'année suivante.',
+  },
+  {
+    question: 'Les remises sont-elles cumulables ?',
+    answer:
+      'Non. Les remises (fratrie, ancien élève, parrainage, Carte Nexus) ne sont pas cumulables sauf décision de la direction. Le plafond global est de 20 %, et aucun tarif ne descend sous le plancher horaire.',
+  },
+];
 
-function OfferCard({ offer }: { offer: AnnualOffer }) {
-  const campaign = getCampaign();
-  const hasCampaignDiscount =
-    offer.price_annual_campaign != null &&
-    offer.price_annual_public != null &&
-    offer.price_annual_campaign < offer.price_annual_public;
-
-  const effectivePrice =
-    offer.price_annual_campaign ?? offer.price_annual_public;
-
-  return (
-    <div className="relative flex flex-col rounded-2xl border border-neutral-700/50 bg-surface-dark p-6 transition-all hover:border-brand-500/30 hover:shadow-lg hover:shadow-brand-500/5">
-      {offer.badge === "campagne" && (
-        <span className="absolute -top-3 left-6 rounded-full bg-brand-500 px-3 py-1 text-xs font-semibold text-white">
-          {campaign.campaign_label}
-        </span>
-      )}
-
-      <div className="mb-4">
-        <h3 className="text-xl font-bold text-neutral-100">{offer.title}</h3>
-        <p className="mt-1 text-sm text-neutral-400">{offer.subjects}</p>
-      </div>
-
-      {offer.hours_per_week != null && (
-        <div className="mb-4 flex items-center gap-2 text-sm text-neutral-400">
-          <Clock className="h-4 w-4" />
-          <span>{offer.hours_per_week} h / semaine</span>
-        </div>
-      )}
-
-      <div className="mb-4">
-        {hasCampaignDiscount && offer.price_annual_public != null && (
-          <p className="text-sm text-neutral-500 line-through">
-            {campaign.public_label} : {fmtTND(offer.price_annual_public)}
-          </p>
-        )}
-        {effectivePrice != null ? (
-          <>
-            <p className="text-2xl font-bold text-brand-400">
-              {fmtTND(effectivePrice)}
-              <span className="text-sm font-normal text-neutral-400">
-                {" "}
-                / an
-              </span>
-            </p>
-            {offer.monthly_display != null && (
-              <p className="mt-1 text-sm text-neutral-400">
-                soit {fmtTND(offer.monthly_display)} / mois
-              </p>
-            )}
-          </>
-        ) : offer.display ? (
-          <p className="text-2xl font-bold text-brand-400">{offer.display}</p>
-        ) : null}
-      </div>
-
-      {offer.deposit != null && offer.n_installments != null && (
-        <p className="mb-4 text-xs text-neutral-500">
-          Acompte {fmtTND(offer.deposit)} + {offer.n_installments} mensualites
-        </p>
-      )}
-
-      <ul className="mt-auto space-y-2">
-        {offer.included.map((item, i) => (
-          <li key={i} className="flex items-start gap-2 text-sm text-neutral-300">
-            <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-400" />
-            <span>{item}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function OfferGrid({
-  offers,
-  columns = 3,
-}: {
-  offers: AnnualOffer[];
-  columns?: number;
-}) {
-  const gridCols =
-    columns === 2
-      ? "md:grid-cols-2"
-      : columns === 4
-        ? "md:grid-cols-2 lg:grid-cols-4"
-        : "md:grid-cols-2 lg:grid-cols-3";
-
-  return (
-    <div className={`grid gap-6 ${gridCols}`}>
-      {offers.map((offer) => (
-        <OfferCard key={offer.id} offer={offer} />
-      ))}
-    </div>
-  );
-}
-
-function StageFormatCard({ format }: { format: StageFormat }) {
-  return (
-    <div className="rounded-xl border border-neutral-700/50 bg-surface-dark p-5">
-      <h4 className="font-semibold text-neutral-100">{format.title}</h4>
-      <div className="mt-2 flex items-baseline gap-2">
-        <span className="text-xl font-bold text-brand-400">
-          {fmtTND(format.price_per_student)}
-        </span>
-        <span className="text-sm text-neutral-500">
-          / {format.hours} h
-        </span>
-      </div>
-      <p className="mt-1 text-xs text-neutral-500">
-        {fmtTND(format.price_per_student_hour)} / h / eleve
-      </p>
-      <div className="mt-3 flex items-center gap-2 text-sm text-neutral-400">
-        <Users className="h-4 w-4" />
-        <span>{format.group_max} max</span>
-      </div>
-      <p className="mt-2 text-xs text-neutral-500">
-        Acompte {fmtTND(format.payment.deposit)} — solde{" "}
-        {fmtTND(format.payment.solde)}
-      </p>
-    </div>
-  );
-}
-
-function StageEditionRow({ edition }: { edition: StageEdition }) {
-  return (
-    <div className="flex flex-col gap-1 rounded-lg border border-neutral-700/30 bg-surface-darker px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <span className="font-medium text-neutral-200">{edition.title}</span>
-        <span className="ml-2 text-sm text-neutral-500">{edition.period}</span>
-      </div>
-      <div className="flex flex-wrap gap-2">
-        {edition.formats.map((fid) => (
-          <span
-            key={fid}
-            className="rounded-full bg-brand-500/10 px-2 py-0.5 text-xs text-brand-400"
-          >
-            {fid}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function RepereCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-lg border border-neutral-700/30 bg-surface-dark p-4 text-center">
-      <p className="text-sm text-neutral-400">{label}</p>
-      <p className="mt-1 font-semibold text-brand-400">{value}</p>
-    </div>
-  );
-}
-
-// ── Label mapping for reperes ──
-
-const repereLabels: Record<string, string> = {
-  brevetMois: "Brevet",
-  secondeMois: "Seconde",
-  premiereSimpleMois: "Premiere (1 matiere)",
-  premiereDuoMois: "Premiere (duo)",
-  terminaleSimpleMois: "Terminale (1 spe)",
-  terminaleDuoMois: "Terminale (duo)",
-  plateformeAn: "Plateforme",
-  stagesBase: "Stages",
-  parrainage: "Parrainage",
-};
-
-// ── Page ──
+// ── Main component ──
 
 export default function OffresPage() {
-  useEffect(() => {
-    track.offerView();
-  }, []);
-
+  const [activeCategory, setActiveCategory] = useState<Category>('all');
   const rules = getRules();
   const campaign = getCampaign();
-
-  const terminaleOffers = getOffersByLevel("terminale").filter(
-    (o) => o.track === "scolarise"
-  );
-  const premiereOffers = getOffersByLevel("premiere").filter(
-    (o) => o.track === "scolarise"
-  );
-  const secondeOffers = getOffersByLevel("seconde").filter(
-    (o) => o.track === "scolarise"
-  );
-  const troisiemeOffers = getOffersByLevel("troisieme").filter(
-    (o) => o.track === "scolarise"
-  );
-  const libreOffers = getOffersByTrack("libre");
-  const plateformeOffers = getOffersByTrack("plateforme");
+  const allOffers = getAllOffers();
+  const libreOffers = getOffersByTrack('libre');
   const stageFormats = getStageFormats();
   const stageEditions = getStageEditions();
-  const reperes = getReperes();
+  const ponctuelOffers = getPonctuelOffers();
+  const coachingOffers = getCoachingOffers();
+  const packs = getPacks();
+  const carte = getCarte();
+
+  const showSection = (cat: Category) => activeCategory === 'all' || activeCategory === cat;
 
   return (
-    <>
+    <main className="luxury" id="main-content">
       <CorporateNavbar />
-      <main className="min-h-screen bg-surface-darker">
-        {/* ── Hero ── */}
-        <section className="relative overflow-hidden pb-16 pt-32">
-          <div className="absolute inset-0 bg-gradient-to-b from-brand-500/5 to-transparent" />
-          <div className="relative mx-auto max-w-5xl px-4 text-center">
-            <h1 className="text-4xl font-extrabold leading-tight text-neutral-100 sm:text-5xl">
-              Nos Offres & Tarifs 2026/2027
-            </h1>
-            <p className="mx-auto mt-6 max-w-3xl text-lg text-neutral-400">
-              Parcours annuels en groupes de {rules.group_max} eleves maximum,
-              enseignants agreges et certifies. Tarif campagne{" "}
-              {campaign.availability}.
-            </p>
-            <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <a
-                href={WHATSAPP_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-6 py-3 font-semibold text-white transition-colors hover:bg-brand-600"
+
+      {/* Header */}
+      <section className="bg-lux-ink py-14 px-4 md:px-6 pt-28">
+        <div className="mx-auto max-w-6xl">
+          <span className="lux-eyebrow text-lux-gold-wash">Catalogue 2026/2027</span>
+          <h1 className="mt-3 text-4xl md:text-5xl font-fraunces font-light text-lux-ivory">
+            Offres & tarifs
+          </h1>
+          <p className="mt-3 max-w-2xl text-base text-lux-ivory/70 font-dm-sans">
+            Tous les parcours, stages, Pass et formules. Groupes de {rules.group_max} max,
+            tarifs en TND, échéanciers transparents.
+          </p>
+        </div>
+      </section>
+
+      {/* Filter bar */}
+      <div className="sticky top-0 z-20 border-b border-lux-line bg-lux-ivory/95 backdrop-blur-sm">
+        <div className="mx-auto max-w-6xl overflow-x-auto px-4 md:px-6">
+          <div className="flex gap-1 py-3">
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setActiveCategory(cat.id)}
+                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-all lux-focus min-h-[44px] ${
+                  activeCategory === cat.id
+                    ? 'bg-lux-ink text-lux-ivory'
+                    : 'text-lux-ink hover:bg-lux-paper'
+                }`}
               >
-                <MessageCircle className="h-5 w-5" />
-                Etre conseille sur WhatsApp
-              </a>
-              <Link
-                href="/bilan-gratuit"
-                className="inline-flex items-center gap-2 rounded-xl border border-brand-500/30 px-6 py-3 font-semibold text-brand-400 transition-colors hover:bg-brand-500/10"
-              >
-                Bilan gratuit
-                <ArrowRight className="h-4 w-4" />
-              </Link>
+                {cat.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-6xl px-4 md:px-6 py-12 space-y-16">
+
+        {/* Parcours annuels (scolarisé) */}
+        {showSection('annual') && (
+          <section>
+            <div className="mb-8">
+              <span className="lux-eyebrow">Parcours présentiel</span>
+              <h2 className="mt-2 text-2xl md:text-3xl">Accompagnement annuel — scolarisés</h2>
+              <p className="mt-2 text-sm text-lux-slate">
+                {rules.group_max} élèves max, garanti dès {rules.group_min_open.lycee}. Acompte 30 % + mensualités.
+              </p>
             </div>
-          </div>
-        </section>
-
-        {/* ── Terminale ── */}
-        <section className="mx-auto max-w-7xl px-4 py-16">
-          <SectionTitle
-            title="Parcours annuels — Terminale"
-            subtitle="Preparation au Bac en groupe de 5 maximum"
-            icon={GraduationCap}
-          />
-          <OfferGrid offers={terminaleOffers} />
-        </section>
-
-        {/* ── Premiere ── */}
-        <section className="mx-auto max-w-7xl px-4 py-16">
-          <SectionTitle
-            title="Parcours annuels — Premiere"
-            subtitle="EAF, mathematiques et renforcement scientifique"
-            icon={BookOpen}
-          />
-          <OfferGrid offers={premiereOffers} />
-        </section>
-
-        {/* ── Seconde ── */}
-        <section className="mx-auto max-w-7xl px-4 py-16">
-          <SectionTitle
-            title="Parcours annuels — Seconde"
-            subtitle="Construction des bases et choix des specialites"
-            icon={BookOpen}
-          />
-          <OfferGrid offers={secondeOffers} />
-        </section>
-
-        {/* ── Troisieme (Brevet) ── */}
-        {troisiemeOffers.length > 0 && (
-          <section className="mx-auto max-w-7xl px-4 py-16">
-            <SectionTitle
-              title="Parcours annuels — Troisieme (Brevet)"
-              subtitle="Preparation au Diplome National du Brevet"
-              icon={BookOpen}
-            />
-            <OfferGrid offers={troisiemeOffers} columns={2} />
+            {(['terminale', 'premiere', 'seconde', 'troisieme'] as const).map((level) => {
+              const offers = getOffersByLevel(level).filter(o => o.track === 'scolarise');
+              if (offers.length === 0) return null;
+              const displayLevel = { terminale: 'Terminale', premiere: 'Première', seconde: 'Seconde', troisieme: 'Troisième' }[level];
+              return (
+                <div key={level} className="mb-10">
+                  <h3 className="mb-4 text-lg text-lux-ink/80">{displayLevel}</h3>
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {offers.map((o) => {
+                      const price = getEffectivePrice(o);
+                      if (price == null) return null;
+                      return (
+                        <ExamCard
+                          key={o.id}
+                          eyebrow={`${displayLevel} · Présentiel`}
+                          title={o.title}
+                          subtitle={o.subjects}
+                          price={price}
+                          originalPrice={o.price_annual_public !== price ? (o.price_annual_public ?? undefined) : undefined}
+                          monthlyDisplay={o.monthly_display ?? undefined}
+                          hoursPerWeek={o.hours_per_week ?? undefined}
+                          totalHours={o.hours_per_year ?? undefined}
+                          groupMax={o.group_max ?? rules.group_max}
+                          groupMinOpen={o.group_min_open ?? rules.group_min_open.lycee}
+                          effectifType="groupe"
+                          payment={buildPayment(o)}
+                          campaignBadge={o.badge === 'campagne' ? campaign.campaign_label : undefined}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
           </section>
         )}
 
-        {/* ── Candidats libres ── */}
-        {libreOffers.length > 0 && (
-          <section className="mx-auto max-w-7xl px-4 py-16">
-            <SectionTitle
-              title="Candidats libres"
-              subtitle="Accompagnement sur mesure pour les candidats qui passent le Bac en candidat libre"
-              icon={GraduationCap}
-            />
-            <OfferGrid offers={libreOffers} />
-          </section>
-        )}
-
-        {/* ── Plateforme ── */}
-        {plateformeOffers.length > 0 && (
-          <section className="mx-auto max-w-7xl px-4 py-16">
-            <SectionTitle
-              title="Plateforme Nexus"
-              subtitle="Acces en ligne, en autonomie ou avec suivi"
-              icon={Monitor}
-            />
-            <OfferGrid offers={plateformeOffers} />
-          </section>
-        )}
-
-        {/* ── Stages intensifs ── */}
-        <section className="mx-auto max-w-7xl px-4 py-16">
-          <SectionTitle
-            title="Stages intensifs"
-            subtitle="Pendant les vacances scolaires, en groupe de 5 maximum"
-            icon={Calendar}
-          />
-
-          <h3 className="mb-6 text-xl font-semibold text-neutral-200">
-            Formats disponibles
-          </h3>
-          <div className="mb-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {stageFormats.map((fmt) => (
-              <StageFormatCard key={fmt.format_id} format={fmt} />
-            ))}
-          </div>
-
-          <h3 className="mb-4 text-xl font-semibold text-neutral-200">
-            Editions {campaign.label.replace("Campagne ", "")}
-          </h3>
-          <div className="space-y-3">
-            {stageEditions.map((ed) => (
-              <StageEditionRow key={ed.edition_id} edition={ed} />
-            ))}
-          </div>
-        </section>
-
-        {/* ── Reperes tarifaires ── */}
-        <section className="mx-auto max-w-7xl px-4 py-16">
-          <SectionTitle
-            title="Reperes tarifaires"
-            subtitle="Fourchettes indicatives pour situer nos tarifs"
-          />
-          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {Object.entries(reperes).map(([key, value]) => (
-              <RepereCard
-                key={key}
-                label={repereLabels[key] ?? key}
-                value={value}
-              />
-            ))}
-          </div>
-        </section>
-
-        {/* ── CTA final ── */}
-        <section className="mx-auto max-w-4xl px-4 pb-24 pt-8">
-          <div className="rounded-2xl border border-brand-500/20 bg-surface-dark p-8 text-center sm:p-12">
-            <h2 className="text-2xl font-bold text-neutral-100 sm:text-3xl">
-              Pret a construire le parcours de votre enfant ?
-            </h2>
-            <p className="mx-auto mt-4 max-w-xl text-neutral-400">
-              Echangez avec notre equipe pour definir la formule la plus adaptee
-              au profil et aux objectifs de votre enfant.
-            </p>
-            <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <a
-                href={WHATSAPP_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-6 py-3 font-semibold text-white transition-colors hover:bg-brand-600"
-              >
-                <MessageCircle className="h-5 w-5" />
-                Etre conseille sur WhatsApp
-              </a>
-              <Link
-                href="/bilan-gratuit"
-                className="inline-flex items-center gap-2 rounded-xl border border-brand-500/30 px-6 py-3 font-semibold text-brand-400 transition-colors hover:bg-brand-500/10"
-              >
-                Bilan gratuit
-                <ChevronRight className="h-4 w-4" />
-              </Link>
+        {/* Candidat libre */}
+        {showSection('libre') && libreOffers.length > 0 && (
+          <section>
+            <div className="mb-8">
+              <span className="lux-eyebrow">Candidat libre</span>
+              <h2 className="mt-2 text-2xl md:text-3xl">Parcours candidats libres</h2>
+              <p className="mt-2 text-sm text-lux-slate">
+                Cellule Cyclades intégrée. Formules en ligne, mixte ou avec coaching.
+              </p>
             </div>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {libreOffers.map((o) => {
+                const price = getEffectivePrice(o);
+                if (price == null) return null;
+                const displayLevel = o.level === 'premiere' ? 'Première' : o.level === 'terminale' ? 'Terminale' : o.level;
+                return (
+                  <ExamCard
+                    key={o.id}
+                    eyebrow={`${displayLevel} · Libre`}
+                    title={o.title}
+                    subtitle={o.subjects}
+                    price={price}
+                    originalPrice={o.price_annual_public !== price ? (o.price_annual_public ?? undefined) : undefined}
+                    monthlyDisplay={o.monthly_display ?? undefined}
+                    groupMax={o.group_max ?? rules.group_max}
+                    groupMinOpen={o.group_min_open ?? rules.group_min_open.online_live}
+                    effectifType="groupe"
+                    payment={buildPayment(o)}
+                  />
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* Plateforme Masterium */}
+        {showSection('plateforme') && (
+          <section>
+            <div className="mb-8">
+              <span className="lux-eyebrow">Plateforme Masterium</span>
+              <h2 className="mt-2 text-2xl md:text-3xl">Trois paliers numériques</h2>
+              <p className="mt-2 text-sm text-lux-slate">
+                Ressources, parcours, fiches, exercices — avec ou sans accompagnement live.
+              </p>
+            </div>
+            <div className="grid gap-6 md:grid-cols-3">
+              {getAllOffers()
+                .filter(o => o.id.startsWith('plateforme'))
+                .map((o) => {
+                  const price = o.price_annual_campaign ?? o.price_annual_public ?? 0;
+                  return (
+                    <ExamCard
+                      key={o.id}
+                      eyebrow="Masterium"
+                      title={o.title}
+                      subtitle={o.subjects}
+                      price={price}
+                      monthlyDisplay={o.monthly_display ?? undefined}
+                      features={o.included}
+                      effectifType={o.group_max ? 'groupe' : 'none'}
+                      groupMax={o.group_max ?? undefined}
+                      groupMinOpen={o.group_min_open ?? undefined}
+                    />
+                  );
+                })}
+            </div>
+          </section>
+        )}
+
+        {/* Les Intensifs */}
+        {showSection('intensifs') && (
+          <section>
+            <div className="mb-8">
+              <span className="lux-eyebrow">Les Intensifs</span>
+              <h2 className="mt-2 text-2xl md:text-3xl">Stages intensifs — toutes les vacances</h2>
+              <p className="mt-2 text-sm text-lux-slate">
+                {stageEditions.length} éditions par an, {stageFormats.length} formats. Groupes de {rules.group_max} max.
+              </p>
+            </div>
+
+            {/* Formats grid */}
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mb-10">
+              {stageFormats.map((f) => (
+                <ExamCard
+                  key={f.format_id}
+                  eyebrow={`Intensif · ${f.hours}h`}
+                  title={f.title}
+                  subtitle={`${f.hours}h de travail concentré`}
+                  price={f.price_per_student}
+                  groupMax={f.group_max}
+                  groupMinOpen={f.group_min_open}
+                  effectifType="groupe"
+                  payment={{ deposit: f.payment.deposit, solde: f.payment.solde }}
+                />
+              ))}
+            </div>
+
+            {/* Editions calendar */}
+            <div className="rounded-xl border border-lux-line bg-lux-white p-6 lux-shadow">
+              <h3 className="mb-4 text-lg">Calendrier des éditions</h3>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {stageEditions.map((ed) => (
+                  <div key={ed.edition_id} className="rounded-lg border border-lux-line/50 p-4">
+                    <p className="font-semibold text-lux-ink">{ed.title}</p>
+                    <p className="text-sm text-lux-slate">{ed.period}</p>
+                    <p className="mt-1 text-xs text-lux-slate">
+                      Formats&nbsp;: {ed.formats.join(', ')}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Prépa épreuves (ponctuel) */}
+        {showSection('ponctuel') && ponctuelOffers.length > 0 && (
+          <section>
+            <div className="mb-8">
+              <span className="lux-eyebrow">Prépa épreuves</span>
+              <h2 className="mt-2 text-2xl md:text-3xl">Cap EAF, Cap Maths, Grand Oral, Épreuve Blanche</h2>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {ponctuelOffers.map((p) => (
+                <ExamCard
+                  key={p.id}
+                  eyebrow={`Prépa · ${p.public}`}
+                  title={p.title}
+                  subtitle={p.description}
+                  price={p.price_per_student}
+                  totalHours={p.hours ?? undefined}
+                  groupMax={p.group_max ?? rules.group_max}
+                  groupMinOpen={p.group_min_open ?? rules.group_min_open.lycee}
+                  effectifType="groupe"
+                  payment={
+                    p.payment.full_at_booking
+                      ? undefined
+                      : { deposit: p.payment.deposit, solde: p.payment.solde }
+                  }
+                  ctaText={p.payment.full_at_booking ? `Réserver · ${fmtTND(p.price_per_student)}` : undefined}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Boussole (coaching) */}
+        {showSection('coaching') && coachingOffers.length > 0 && (
+          <section>
+            <div className="mb-8">
+              <span className="lux-eyebrow">Boussole</span>
+              <h2 className="mt-2 text-2xl md:text-3xl">Coaching méthode, orientation & individuel</h2>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {coachingOffers.map((c) => (
+                <ExamCard
+                  key={c.id}
+                  eyebrow={`Boussole · ${c.effectif}`}
+                  title={c.title}
+                  subtitle={c.format}
+                  price={c.price}
+                  effectifType={c.effectif === 'individuel' ? 'individuel' : 'groupe'}
+                  groupMax={c.group_max ?? undefined}
+                  groupMinOpen={c.group_min_open ?? undefined}
+                  payment={
+                    c.payment.full_at_booking
+                      ? undefined
+                      : {
+                          deposit: c.payment.deposit,
+                          solde: c.payment.solde,
+                          installments: c.payment.solde_schedule,
+                        }
+                  }
+                  features={
+                    c.campaign_free
+                      ? ['Offert en campagne', c.deductible ? 'Déductible du parcours annuel' : ''].filter(Boolean)
+                      : undefined
+                  }
+                  ctaText={c.campaign_free ? 'Demander un diagnostic gratuit' : undefined}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Pass */}
+        {showSection('pass') && packs.length > 0 && (
+          <section>
+            <div className="mb-8">
+              <span className="lux-eyebrow">Les Pass</span>
+              <h2 className="mt-2 text-2xl md:text-3xl">Packs fidélité — économisez en regroupant</h2>
+              <p className="mt-2 text-sm text-lux-slate">
+                Acompte déductible du parcours annuel. Solde avant chaque prestation.
+              </p>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {packs.map((p, i) => (
+                <PassCard
+                  key={p.id}
+                  pack={p}
+                  componentLabels={resolvePackComponentLabels(p)}
+                  highlighted={i === 0}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Carte Nexus */}
+        {showSection('carte') && (
+          <section>
+            <div className="mb-8">
+              <span className="lux-eyebrow">Carte Nexus</span>
+              <h2 className="mt-2 text-2xl md:text-3xl">La carte membre</h2>
+            </div>
+            <div className="max-w-md">
+              <CarteNexusCard carte={carte} />
+            </div>
+          </section>
+        )}
+
+      </div>
+
+      <FAQAccordion items={catalogueFAQ} title="Questions sur les tarifs" />
+
+      {/* CTA */}
+      <section className="bg-lux-ink py-16 px-4 md:px-6">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="text-2xl md:text-3xl font-fraunces font-light text-lux-ivory">
+            Besoin d&apos;aide pour choisir ?
+          </h2>
+          <p className="mt-3 text-base text-lux-ivory/70 font-dm-sans">
+            Notre diagnostic gratuit identifie la formule adaptée en 3 questions.
+          </p>
+          <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+            <Link
+              href="/recommandation"
+              className="lux-cta-reserve rounded-lg px-8 py-3.5 text-sm font-semibold"
+            >
+              Trouver ma formule
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+            <a
+              href={WHATSAPP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm font-medium text-lux-gold-wash hover:underline min-h-[44px]"
+            >
+              <MessageCircle className="h-4 w-4" />
+              WhatsApp
+            </a>
           </div>
-        </section>
-      </main>
+        </div>
+      </section>
 
       <CorporateFooter />
-      <BackToTop />
-    </>
+    </main>
   );
 }
