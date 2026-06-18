@@ -371,8 +371,11 @@ export function BilanStrategiqueClient() {
                   >
                     {isSubmitting ? 'Envoi...' : 'Demander mon bilan stratégique gratuit'}
                   </button>
-                  <Link href="/contact" className="lux-cta-secondary rounded-lg px-6 py-3.5 text-sm font-semibold text-lux-ink border-lux-line/40">
-                    Être conseillé
+                  <Link
+                    href="/contact"
+                    className="inline-flex items-center justify-center rounded-lg border border-white/10 bg-white/5 px-6 py-3.5 text-sm font-semibold text-lux-ivory transition-colors hover:border-lux-gold/40 hover:bg-white/10"
+                  >
+                    Poser une question
                   </Link>
                 </div>
               </form>

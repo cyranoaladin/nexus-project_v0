@@ -95,7 +95,7 @@ export function HeroSection() {
             </span>
 
             <h1 className="text-4xl md:text-5xl lg:text-[3.5rem] font-fraunces font-light leading-[1.08] text-lux-ivory text-balance">
-              VISER. ATTEINDRE. DÉPASSER.
+              Préparer le bac français avec méthode, suivi et exigence.
             </h1>
 
             <p className="max-w-lg text-base leading-relaxed text-lux-ivory/80 font-dm-sans">
