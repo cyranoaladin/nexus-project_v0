@@ -66,11 +66,11 @@ export default function AccompagnementScolairePage() {
       <section className="bg-lux-paper py-14 px-4 md:px-6">
         <div className="mx-auto max-w-6xl grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {pillars.map((pillar) => (
-            <Card key={pillar} className="border-lux-line bg-lux-white lux-shadow">
+            <Card key={pillar} className="border-lux-line !bg-lux-white !text-lux-ink lux-shadow">
               <CardContent className="p-5">
                 <div className="flex items-center gap-3">
                   <CheckCircle2 className="h-5 w-5 text-lux-evergreen" />
-                  <p className="text-sm font-semibold text-lux-ink">{pillar}</p>
+                  <p className="text-sm font-semibold !text-lux-ink">{pillar}</p>
                 </div>
               </CardContent>
             </Card>
