@@ -38,6 +38,11 @@ e2e/.auth/*.json
 # Archives
 *.tgz
 
+# Local audit artifacts
+audit-public-front-*/
+*.local-audit.html
+nexus_prod_tree_*.txt
+
 # Build artifacts
 .next/
 out/

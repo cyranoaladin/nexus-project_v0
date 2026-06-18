@@ -171,6 +171,8 @@ export interface PricingData {
   reperes_tarifaires: Record<string, string>;
 }
 
+export type PricingLevel = 'terminale' | 'premiere' | 'seconde' | 'troisieme';
+
 // ── Data ──
 
 const data = pricingData as unknown as PricingData;
@@ -189,12 +191,67 @@ export function getAllOffers(): AnnualOffer[] {
   return data.offers;
 }
 
+function normalizePricingToken(input: string | null | undefined): string | null {
+  if (!input) return null;
+  return input
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '');
+}
+
+export function normalizePricingLevel(input: string | null | undefined): PricingLevel | null {
+  const normalized = normalizePricingToken(input);
+  if (!normalized) return null;
+
+  if (
+    normalized === 'terminale' ||
+    normalized === 'tle' ||
+    normalized === 'term'
+  ) {
+    return 'terminale';
+  }
+
+  if (
+    normalized === 'premiere' ||
+    normalized === '1ere' ||
+    normalized === '1re' ||
+    normalized === '1erepremiere' ||
+    normalized === 'premiere1'
+  ) {
+    return 'premiere';
+  }
+
+  if (
+    normalized === 'seconde' ||
+    normalized === '2de' ||
+    normalized === '2nde' ||
+    normalized === '2eme'
+  ) {
+    return 'seconde';
+  }
+
+  if (
+    normalized === 'troisieme' ||
+    normalized === '3eme' ||
+    normalized === '3e' ||
+    normalized === 'troiseme'
+  ) {
+    return 'troisieme';
+  }
+
+  return null;
+}
+
 export function getAnnualOffer(id: string): AnnualOffer | undefined {
   return data.offers.find((o) => o.id === id);
 }
 
 export function getOffersByLevel(level: string): AnnualOffer[] {
-  return data.offers.filter((o) => o.level === level);
+  const normalized = normalizePricingLevel(level);
+  if (!normalized) return [];
+  return data.offers.filter((o) => normalizePricingLevel(o.level) === normalized);
 }
 
 export function getOffersByTrack(track: string): AnnualOffer[] {
@@ -277,6 +334,21 @@ export function computeSchedule(price: number, nInstallments?: number): { deposi
     deposit,
     installments: Array(n - 1).fill(installment).concat([last]),
     lastInstallment: last,
+  };
+}
+
+/** Build the displayed annual offer payment schedule from canonical fields. */
+export function getAnnualOfferPaymentSchedule(offer: AnnualOffer): { deposit: number; installments: number[]; lastInstallment: number } | null {
+  if (offer.deposit == null || offer.n_installments == null || offer.installment_amount == null) {
+    return null;
+  }
+
+  const regularInstallments = Math.max(offer.n_installments - 1, 0);
+  const lastInstallment = offer.last_installment ?? offer.installment_amount;
+  return {
+    deposit: offer.deposit,
+    installments: [...Array(regularInstallments).fill(offer.installment_amount), lastInstallment],
+    lastInstallment,
   };
 }
 

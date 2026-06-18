@@ -131,38 +131,17 @@ describe('parent children routes', () => {
       expect(body.error).toBe('Parent profile not found');
     });
 
-    it('returns 404 when parent password missing', async () => {
+    it('ignores an injected parentPassword and creates an inactive child', async () => {
       (auth as jest.Mock).mockResolvedValue({
         user: { id: 'parent-1', role: 'PARENT' },
       });
       (prisma.user.findUnique as jest.Mock).mockResolvedValueOnce(null);
       (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
-      (prisma.user.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'parent-1', password: null });
-
-      const response = await POST(
-        makeRequest({ firstName: 'A', lastName: 'B', grade: 'Seconde' })
-      );
-      const body = await response.json();
-
-      expect(response.status).toBe(404);
-      expect(body.error).toBe('Parent password not found');
-    });
-
-    it('creates child via transaction', async () => {
-      (auth as jest.Mock).mockResolvedValue({
-        user: { id: 'parent-1', role: 'PARENT' },
-      });
-      (prisma.user.findUnique as jest.Mock).mockResolvedValueOnce(null);
-      (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
-      (prisma.user.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'parent-1',
-        password: 'secret',
-      });
 
       (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => {
         const tx = {
           user: {
-            create: jest.fn().mockResolvedValue({ id: 'child-user-1' }),
+            create: jest.fn().mockResolvedValue({ id: 'child-user-1', email: 'a.b@nexus-student.local' }),
           },
           student: {
             create: jest.fn().mockResolvedValue({
@@ -177,13 +156,20 @@ describe('parent children routes', () => {
       });
 
       const response = await POST(
-        makeRequest({ firstName: 'A', lastName: 'B', grade: 'Seconde', school: '' })
+        makeRequest({
+          firstName: 'A',
+          lastName: 'B',
+          grade: 'Seconde',
+          school: '',
+          parentPassword: 'secret-should-be-ignored',
+        })
       );
       const body = await response.json();
 
       expect(response.status).toBe(200);
       expect(body.success).toBe(true);
       expect(body.child.email).toContain('@nexus-student.local');
+      expect(body.activation.token).toMatch(/^act_/);
     });
   });
 });

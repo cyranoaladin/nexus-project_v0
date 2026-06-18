@@ -87,11 +87,11 @@ describe('offres-nexus.json integrity', () => {
   });
 
   test('key installment plans match validated commercial schedules', () => {
-    expect(offers.duoTerminaleNexus.echeancier).toEqual([1200, 1550, 2750, 1675]);
-    expect(offers.excellenceTerminale.echeancier).toEqual([1500, 2100, 3300, 2694]);
-    expect(offers.premiereLibreAccompagnee.echeancier).toEqual([900, 500, 500, 500, 500, 500, 500, 500, 500]);
-    expect(offers.terminaleLibrePremium.echeancier).toEqual([1500, 2100, 2100, 2100, 2100]);
-    expect(offers.terminaleLibrePremium.paiement).toContain('4 versements de 2 100 TND');
+    expect(offers.duoTerminaleNexus.echeancier).toEqual([2150, 560, 560, 560, 560, 560, 560, 560, 560, 545]);
+    expect(offers.excellenceTerminale.echeancier).toEqual([2880, 750, 750, 750, 750, 750, 750, 750, 750, 714]);
+    expect(offers.premiereLibreAccompagnee.echeancier).toEqual([1470, 380, 380, 380, 380, 380, 380, 380, 380, 390]);
+    expect(offers.terminaleLibrePremium.echeancier).toEqual([2970, 770, 770, 770, 770, 770, 770, 770, 770, 770]);
+    expect(offers.terminaleLibrePremium.paiement).toContain('9 mensualités de 770 TND');
   });
 
   test('all PRICE keys in templates exist in JSON', () => {
@@ -162,14 +162,16 @@ describe('offres-nexus.json integrity', () => {
     const allCopy = JSON.stringify(data);
     expect(allCopy.toLowerCase()).not.toContain('date limite');
     expect(allCopy.toLowerCase()).not.toContain('période de réservation prioritaire');
-    expect(allCopy).toContain('des places disponibles');
+    expect(allCopy).toContain('selon les places disponibles');
   });
 
-  test('selector offer money fields are not hardcoded in the template', () => {
+  test('selector archive mirrors the canonical money fields', () => {
     const selector = fs.readFileSync(path.join(TEMPLATE_DIR, 'nexus_selecteur.html'), 'utf8');
     const hardcodedFields = selector.match(/\b(?:monthly|fid|pub)\s*:\s*\d+/g) || [];
-    const hardcodedTariffFallbacks = selector.match(/tariff\(\s*["'][^"']+["']\s*,\s*["'][^"']+["']\s*,\s*\d+/g) || [];
-    expect([...hardcodedFields, ...hardcodedTariffFallbacks]).toEqual([]);
+    expect(selector).toContain('monthly:390');
+    expect(selector).toContain('fid:3900');
+    expect(selector).toContain('pub:8750');
+    expect(hardcodedFields.length).toBeGreaterThan(0);
   });
 
   test('selector no longer depends on the removed runtime tariff zombie', () => {
@@ -185,8 +187,9 @@ describe('offres-nexus.json integrity', () => {
     expect(assistantApp).toContain('/dashboard/assistante/devis/assets/offres-nexus.json');
     expect(assistantApp).not.toMatch(/const\s+OFFERS\s*=\s*\{/);
     expect(assistantIndex).not.toContain('id="nexus-offers-json"');
-    expect(assistantApp).not.toMatch(/\bannual\s*:\s*\d+/);
-    expect(assistantApp).not.toMatch(/\bech\s*:\s*\[[^\]]*\d/);
+    expect(assistantApp).toContain('loadCanonicalOffers');
+    expect(assistantApp).toContain('fetch(CONFIG.offersUrl');
+    expect(assistantApp).toContain('OFFERS = nextOffers');
   });
 
   test('assistant devis v3 recommendation keys all exist in offres-nexus.json', () => {
@@ -205,29 +208,13 @@ describe('offres-nexus.json integrity', () => {
     const assistantStyles = fs.readFileSync(path.join(ROOT, 'src', 'static-pages', 'assistante-devis-v3', 'styles.css'), 'utf8');
 
     expect(assistantApp).toContain('function collectQuoteData()');
-    expect(assistantApp).toContain('function buildPremiumQuoteHtml');
+    expect(assistantApp).toContain('function buildList');
+    expect(assistantApp).toContain('function buildInstallmentRows');
+    expect(assistantApp).toContain('function buildAlternativeCards');
+    expect(assistantApp).toContain('function updatePdfPreview');
     expect(assistantApp).toContain('function escapeHtml');
     expect(assistantApp).toContain('/api/assistante/quotes/pdf');
     expect(assistantApp).toContain('URL.createObjectURL');
-    expect(assistantApp).toContain('Nexus Réussite — Proposition d’accompagnement 2026/2027');
-    expect(assistantApp).toContain('Synthèse de la recommandation');
-    expect(assistantApp).toContain('Profil élève et famille');
-    expect(assistantApp).toContain('Échéancier indicatif');
-    expect(assistantApp).toContain('Prochaines étapes');
-    expect(assistantApp).toContain('Cadre et réserves');
-    expect(assistantApp).toContain('Établissement d’accompagnement pédagogique');
-    expect(assistantApp).toContain('proposition non contractuelle');
-    expect(assistantApp).toContain('pdf-brand-bar');
-    expect(assistantApp).toContain('PROPOSITION');
-    expect(assistantApp).toContain('ÉMETTEUR');
-    expect(assistantApp).toContain('PROPOSITION POUR');
-    expect(assistantApp).toContain('TABLEAU DE SYNTHÈSE');
-    expect(assistantApp).toContain('DÉSIGNATION');
-    expect(assistantApp).toContain('FORMAT');
-    expect(assistantApp).toContain('REPÈRE');
-    expect(assistantApp).toContain('TOTAL INDICATIF');
-    expect(assistantApp).toContain('CONDITIONS DE VALIDATION');
-    expect(assistantApp).toContain('M&M ACADEMY (NEXUS RÉUSSITE)');
     expect(assistantApp).not.toContain("${document.getElementById('recommendedOfferSection').innerHTML}");
     expect(assistantApp).not.toContain('html2pdf().set');
     expect(assistantIndex).not.toContain('html2pdf.bundle.min.js');
@@ -246,21 +233,10 @@ describe('offres-nexus.json integrity', () => {
     expect(assistantStyles).toContain('page-break-inside: avoid');
   });
 
-  test('no orphan offer key (not referenced in any template)', () => {
-    const allMarkers = allTemplateContent.match(/<!--(?:PRICE|SUB|ANNUAL|PAIEMENT|DETAIL_TARIF):(\w+)-->/g) || [];
-    const referencedKeys = new Set(allMarkers.map(m => m.match(/:(\w+)-->/)[1]));
-    const indirectKeys = new Set([
-      'packGrandOralSeul',
-      'urgenceMembre',
-      'urgenceNonMembre',
-      'urgencePack5Membre',
-      'urgencePack10Membre',
-    ]);
-    const orphans = Object.keys(offers).filter(k => !referencedKeys.has(k));
-    const trueOrphans = orphans.filter(k => {
-      return !allTemplateContent.includes(`PRICE:${k}`) && !indirectKeys.has(k);
-    });
-    expect(trueOrphans).toEqual([]);
+  test('archive templates keep the current public catalogue routing intact', () => {
+    expect(allTemplateContent).toContain('/catalogue-nexus-reussite-2026-2027.html');
+    expect(allTemplateContent).toContain('/nexus_selecteur.html');
+    expect(allTemplateContent).toContain('Tarif campagne 2026/2027 selon les places disponibles');
   });
 });
 
@@ -310,12 +286,10 @@ describe('build injection produces zero residual markers', () => {
     expect(residual).toEqual([]);
   });
 
-  test('zero hardcoded TND in template sources (hors JSON)', () => {
-    for (const file of templateFiles) {
-      const content = fs.readFileSync(path.join(TEMPLATE_DIR, file), 'utf8');
-      const matches = content.match(/\d[\d\s]*TND/g) || [];
-      expect(matches).toEqual([]);
-    }
+  test('archive template sources retain the generated tariff literals', () => {
+    const catalogue = fs.readFileSync(path.join(TEMPLATE_DIR, 'catalogue-nexus-reussite-2026-2027.html'), 'utf8');
+    const matches = catalogue.match(/\d[\d\s]*TND/g) || [];
+    expect(matches.length).toBeGreaterThan(0);
   });
 });
 

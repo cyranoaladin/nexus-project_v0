@@ -1,196 +1,49 @@
-"use client";
+'use client';
 
-import React from "react";
-import Link from "next/link";
-import {
-  MapPin,
-  Clock,
-  Phone,
-  Mail,
-  MonitorPlay,
-  Cpu,
-  Coffee,
-  Mic,
-  Wifi,
-} from "lucide-react";
-import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
-import { CorporateFooter } from "@/components/layout/CorporateFooter";
+import Link from 'next/link';
+import { ArrowRight, MapPin, Phone, Mail, Clock, CheckCircle2 } from 'lucide-react';
+import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
+import { CorporateFooter } from '@/components/layout/CorporateFooter';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+
+const PEDA_ADDRESS = 'Mutuelleville, Tunis';
+const WHATSAPP_URL = 'https://wa.me/21699192829';
 
 export default function NotreCentrePage() {
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "EducationalOrganization",
-    name: "Nexus Réussite",
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: "Immeuble VENUS, Apt. C13, Centre Urbain Nord",
-      postalCode: "1082",
-      addressLocality: "Tunis",
-      addressCountry: "TN",
-    },
-    telephone: "+216 99 19 28 29",
-    email: "contact@nexusreussite.academy",
-  };
-
   return (
-    <div className="min-h-screen bg-surface-darker text-slate-200">
+    <div className="min-h-screen bg-surface-darker text-neutral-100">
       <CorporateNavbar />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-      />
 
-      <main>
-        {/* HERO */}
-        <section className="relative overflow-hidden bg-surface-darker py-24">
-          <div className="absolute inset-0 bg-gradient-to-b from-surface-darker via-surface-darker/70 to-surface-darker" />
-          <div className="absolute right-10 top-8 h-64 w-64 rounded-full bg-brand-accent/10 blur-[120px]" />
-          <div className="container mx-auto px-4 md:px-6 relative z-10">
-            <div className="grid gap-10 lg:grid-cols-2 items-center">
-              <div>
-                <h1 className="marketing-hero-title">
-                  Votre Campus d&apos;Excellence à Tunis.
-                </h1>
-                <p className="marketing-hero-copy mt-5">
-                  Le seul centre qui combine salles de classe premium, Lab IA
-                  et espace parents. Venez voir la différence.
-                </p>
-                <a
-                  href="#visite"
-                  className="mt-8 inline-flex items-center justify-center rounded-full bg-brand-accent px-8 py-3 text-sm font-semibold text-black hover:bg-brand-accent transition"
-                >
-                  Réserver ma visite guidée
-                </a>
-              </div>
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-md">
-                <div className="aspect-[16/9] rounded-2xl bg-gradient-to-br from-white/10 via-black/30 to-black/60 flex items-center justify-center text-slate-300">
-                  Architecture Moderne · Classe Premium
-                </div>
-              </div>
-            </div>
+      <main className="py-20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-3xl text-center">
+            <Badge className="mb-4 border border-brand-accent/20 bg-brand-accent/10 text-brand-accent">
+              Centre pédagogique
+            </Badge>
+            <h1 className="font-display text-4xl font-semibold tracking-tight text-white md:text-5xl">
+              Mutuelleville, le centre d’accompagnement pédagogique
+            </h1>
+            <p className="mx-auto mt-4 max-w-2xl text-lg text-neutral-300">
+              Les rendez-vous pédagogiques et cours en présentiel se déroulent à Mutuelleville, sur confirmation.
+            </p>
           </div>
-        </section>
 
-        {/* EXPÉRIENCE */}
-        <section className="bg-surface-darker py-20">
-          <div className="container mx-auto px-4 md:px-6">
-            <h2 className="marketing-section-title text-center">
-              L&apos;Expérience Nexus
-            </h2>
-            <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {[
-                {
-                  title: "Salles Premium",
-                  desc: "5 élèves max, écrans interactifs.",
-                  icon: MonitorPlay,
-                },
-                {
-                  title: "Lab IA ARIA",
-                  desc: "Stations dédiées pour l'apprentissage assisté.",
-                  icon: Cpu,
-                },
-                {
-                  title: "Espace Parents",
-                  desc: "Café & Wifi pour travailler pendant son cours.",
-                  icon: Coffee,
-                },
-                {
-                  title: "Studio Grand Oral",
-                  desc: "Entraînement en conditions réelles.",
-                  icon: Mic,
-                },
-              ].map((item) => {
-                const Icon = item.icon;
-                return (
-                  <div
-                    key={item.title}
-                    className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md"
-                  >
-                    <Icon className="h-6 w-6 text-brand-accent" />
-                    <h3 className="mt-4 text-lg font-semibold text-white">
-                      {item.title}
-                    </h3>
-                    <p className="mt-2 text-sm text-slate-300">{item.desc}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        {/* VISITE VIRTUELLE */}
-        <section className="bg-surface-darker py-20">
-          <div className="container mx-auto px-4 md:px-6">
-            <h2 className="marketing-section-title text-center">
-              Entrez dans l&apos;excellence.
-            </h2>
-            <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {["L'Accueil", "La Salle Turing", "Le Labo", "L'Espace Détente"].map(
-                (label) => (
-                  <div
-                    key={label}
-                    className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md"
-                  >
-                    <div className="aspect-video rounded-xl bg-gradient-to-br from-white/10 via-black/30 to-black/60" />
-                    <p className="mt-3 text-sm text-slate-300">{label}</p>
-                  </div>
-                )
-              )}
-            </div>
-          </div>
-        </section>
-
-        {/* POURQUOI LE CENTRE */}
-        <section className="bg-surface-darker py-20">
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="grid gap-6 md:grid-cols-3">
-              {[
-                {
-                  title: "Focus Total",
-                  desc: "Un environnement sans distraction.",
-                },
-                {
-                  title: "Matériel Pro",
-                  desc: "Tablettes et écrans fournis.",
-                },
-                {
-                  title: "Émulation",
-                  desc: "Travailler avec d'autres élèves motivés.",
-                },
-              ].map((item) => (
-                <div
-                  key={item.title}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-6 text-center backdrop-blur-md"
-                >
-                  <h3 className="text-lg font-semibold text-white">
-                    {item.title}
-                  </h3>
-                  <p className="mt-2 text-sm text-slate-300">{item.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* NOUS TROUVER */}
-        <section className="bg-surface-darker py-20">
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="grid gap-8 lg:grid-cols-2">
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-md">
-                <h2 className="text-2xl font-bold text-white font-display">
-                  Nous trouver
-                </h2>
-                <div className="mt-6 space-y-4 text-slate-300 text-sm">
+          <section className="mt-14 grid gap-6 lg:grid-cols-[1fr_1.1fr]">
+            <Card className="border-white/10 bg-white/5 backdrop-blur">
+              <CardContent className="p-6 md:p-8">
+                <h2 className="text-2xl font-semibold text-white">Informations pratiques</h2>
+                <div className="mt-6 space-y-4 text-sm text-neutral-300">
                   <div className="flex items-start gap-3">
-                    <MapPin className="h-4 w-4 text-brand-accent mt-0.5" />
+                    <MapPin className="mt-0.5 h-4 w-4 text-brand-accent" />
                     <div>
-                      Immeuble VENUS, Apt. C13<br />
-                      Centre Urbain Nord, 1082 Tunis
+                      <p className="font-semibold text-white">Centre d’accompagnement pédagogique</p>
+                      <p className="mt-1">{PEDA_ADDRESS}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <Clock className="h-4 w-4 text-brand-accent" />
-                    <span>Lun-Sam : 09h - 20h</span>
+                    <span>Sur confirmation, selon le créneau recommandé</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <Phone className="h-4 w-4 text-brand-accent" />
@@ -200,49 +53,46 @@ export default function NotreCentrePage() {
                     <Mail className="h-4 w-4 text-brand-accent" />
                     <span>contact@nexusreussite.academy</span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Wifi className="h-4 w-4 text-brand-accent" />
-                    <span>Wifi haut débit pour les familles</span>
-                  </div>
                 </div>
-              </div>
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
-                <div className="aspect-[16/9] rounded-2xl bg-gradient-to-br from-white/10 via-black/30 to-black/60 flex items-center justify-center text-slate-300">
-                  Carte interactive (Google Maps)
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+              </CardContent>
+            </Card>
 
-        {/* CTA FINAL */}
-        <section id="visite" className="py-16">
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-8 md:p-10">
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                <div>
-                  <p className="marketing-eyebrow">
-                    Prochaine étape
-                  </p>
-                  <h2 className="marketing-cta-title">
-                    La confiance se gagne sur place
-                  </h2>
-                  <p className="marketing-cta-copy">
-                    Planifiez une visite ou posez vos questions à un conseiller.
-                  </p>
+            <Card className="border-white/10 bg-white/5 backdrop-blur">
+              <CardContent className="p-6 md:p-8">
+                <h2 className="text-2xl font-semibold text-white">Ce que vous trouvez sur place</h2>
+                <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                  {[
+                    'Salles adaptées aux groupes réduits',
+                    'Espace de travail calme et structuré',
+                    'Suivi pédagogique clair',
+                    'Orientation avant inscription',
+                  ].map((item) => (
+                    <div key={item} className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-4 py-3">
+                      <CheckCircle2 className="h-4 w-4 text-green-400" />
+                      <span className="text-sm text-white">{item}</span>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex flex-col sm:flex-row gap-3">
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                   <Link href="/contact" className="btn-primary">
-                    Prendre rendez-vous
+                    Contacter l’équipe
+                    <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
-                  <Link href="/contact" className="btn-outline">
-                    Poser une question
-                  </Link>
+                  <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="btn-outline">
+                    Écrire sur WhatsApp
+                  </a>
                 </div>
-              </div>
-            </div>
-          </div>
-        </section>
+              </CardContent>
+            </Card>
+          </section>
+
+          <section className="mt-10 rounded-2xl border border-white/10 bg-white/5 p-6 md:p-8 backdrop-blur">
+            <h2 className="text-2xl font-semibold text-white">Accès et confirmation</h2>
+            <p className="mt-2 max-w-3xl text-sm text-neutral-300">
+              Les rendez-vous sont confirmés au préalable afin d’assurer un cadre de travail calme et adapté au niveau de l’élève.
+            </p>
+          </section>
+        </div>
       </main>
 
       <CorporateFooter />

@@ -12,16 +12,16 @@ describe('CorporateNavbar', () => {
     usePathnameMock.mockReturnValue('/offres');
   });
 
-  it('opens the overlay menu and shows grouped sections', async () => {
+  it('opens the mobile overlay menu and shows the public navigation groups', async () => {
     render(<CorporateNavbar />);
 
     const openButton = screen.getByRole('button', { name: /ouvrir le menu/i });
     fireEvent.click(openButton);
 
     await waitFor(() => {
-      expect(screen.getAllByText('Essentiel').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Offres & tarifs').length).toBeGreaterThan(0);
       expect(screen.getAllByText('Programmes').length).toBeGreaterThan(0);
-      expect(screen.getAllByText('À propos').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Contact').length).toBeGreaterThan(0);
     });
   });
 

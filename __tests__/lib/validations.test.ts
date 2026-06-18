@@ -44,6 +44,12 @@ describe('Validation Schemas', () => {
       expect(result.success).toBe(true);
     });
 
+    it('should pass validation without a parent password', () => {
+      const { parentPassword, ...data } = validData;
+      const result = bilanGratuitSchema.safeParse(data);
+      expect(result.success).toBe(true);
+    });
+
     it('should fail validation with invalid parent email', () => {
       const invalidData = { ...validData, parentEmail: 'invalid-email' };
       const result = bilanGratuitSchema.safeParse(invalidData);

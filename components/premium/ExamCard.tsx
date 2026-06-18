@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Check } from 'lucide-react';
 import { fmtTND, fmtGroup, fmtHoursWeek, fmtDiscount, fmtPrice } from './format';
 
@@ -11,7 +12,7 @@ interface ExamCardPayment {
   full_at_booking?: boolean;
 }
 
-export interface ExamCardProps {
+interface ExamCardBaseProps {
   /** Tab eyebrow — e.g. "Terminale · Spécialité simple" */
   eyebrow: string;
   title: string;
@@ -42,8 +43,6 @@ export interface ExamCardProps {
   placesLeft?: number;
   /** CTA text */
   ctaText?: string;
-  /** CTA action */
-  onCta?: () => void;
   /** Highlighted / featured */
   featured?: boolean;
   /** Campaign badge label */
@@ -52,28 +51,50 @@ export interface ExamCardProps {
   depositDeductible?: boolean;
 }
 
-export function ExamCard({
-  eyebrow,
-  title,
-  subtitle,
-  price,
-  originalPrice,
-  discountPct,
-  payment,
-  monthlyDisplay,
-  hoursPerWeek,
-  totalHours,
-  effectifType = 'groupe',
-  groupMax = 5,
-  groupMinOpen = 3,
-  features,
-  placesLeft,
-  ctaText = 'Réserver ma place',
-  onCta,
-  featured = false,
-  campaignBadge,
-  depositDeductible,
-}: ExamCardProps) {
+type ExamCardActionProps =
+  | {
+      ctaHref: string;
+      onCta?: never;
+      hideCta?: never;
+    }
+  | {
+      onCta: () => void;
+      ctaHref?: never;
+      hideCta?: never;
+    }
+  | {
+      hideCta: true;
+      ctaHref?: never;
+      onCta?: never;
+    };
+
+export type ExamCardProps = ExamCardBaseProps & ExamCardActionProps;
+
+export function ExamCard(props: ExamCardProps) {
+  const {
+    eyebrow,
+    title,
+    subtitle,
+    price,
+    originalPrice,
+    discountPct,
+    payment,
+    monthlyDisplay,
+    hoursPerWeek,
+    totalHours,
+    effectifType = 'groupe',
+    groupMax = 5,
+    groupMinOpen = 3,
+    features,
+    placesLeft,
+    ctaText = 'Réserver ma place',
+    featured = false,
+    campaignBadge,
+    depositDeductible,
+  } = props;
+  const ctaHref = 'ctaHref' in props ? props.ctaHref : undefined;
+  const ctaAction = 'onCta' in props ? props.onCta : undefined;
+  const hideCta = 'hideCta' in props && props.hideCta;
   return (
     <div
       className={`relative flex flex-col overflow-hidden rounded-xl transition-all duration-300 ${
@@ -240,18 +261,31 @@ export function ExamCard({
       )}
 
       {/* CTA */}
-      <div className="mt-auto border-t border-lux-line/50 p-5">
-        <button
-          onClick={onCta}
-          className={`w-full rounded-lg py-3 text-sm font-semibold transition-all lux-focus ${
-            featured
-              ? 'lux-cta-reserve'
-              : 'lux-cta-primary'
-          }`}
-        >
-          {ctaText}
-        </button>
-      </div>
+      {hideCta ? null : (
+        <div className="mt-auto border-t border-lux-line/50 p-5">
+          {ctaHref ? (
+          <Link
+            href={ctaHref}
+            className={`flex w-full items-center justify-center rounded-lg py-3 text-sm font-semibold transition-all lux-focus ${
+              featured ? 'lux-cta-reserve' : 'lux-cta-primary'
+            }`}
+          >
+            {ctaText}
+          </Link>
+          ) : ctaAction ? (
+          <button
+            onClick={ctaAction}
+            className={`w-full rounded-lg py-3 text-sm font-semibold transition-all lux-focus ${
+              featured
+                ? 'lux-cta-reserve'
+                : 'lux-cta-primary'
+            }`}
+          >
+            {ctaText}
+          </button>
+          ) : null}
+        </div>
+      )}
     </div>
   );
 }

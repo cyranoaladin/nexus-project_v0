@@ -149,7 +149,7 @@ export function CorporateNavbar() {
       title: 'Programmes',
       items: [
         { label: 'Stages intensifs', href: '/stages', desc: 'Toutes les vacances', isPage: true },
-        { label: 'Plateforme Masterium', href: '/plateforme-aria', desc: 'Ressources & parcours en ligne', isPage: true },
+        { label: 'Plateforme ARIA', href: '/plateforme-aria', desc: 'Ressources & parcours en ligne', isPage: true },
         { label: 'Accompagnement scolaire', href: '/accompagnement-scolaire', desc: 'Suivi personnalisé', isPage: true },
       ]
     },
@@ -157,7 +157,7 @@ export function CorporateNavbar() {
       title: 'Contact',
       items: [
         { label: 'Contact', href: '/contact', desc: 'Nous joindre', isPage: true },
-        { label: 'Notre Centre', href: '/notre-centre', desc: 'Centre Urbain Nord, Tunis', isPage: true },
+        { label: 'Notre Centre', href: '/notre-centre', desc: 'Mutuelleville, Tunis', isPage: true },
       ]
     },
   ];

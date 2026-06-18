@@ -1,538 +1,147 @@
-"use client";
+'use client';
 
-import React from "react";
-import Link from "next/link";
-import {
-  Award,
-  Bot,
-  Check,
-  ChevronRight,
-  GraduationCap,
-  LineChart,
-  MessageCircle,
-  ShieldCheck,
-  Sparkles,
-  Star,
-  TrendingUp,
-  Users,
-} from "lucide-react";
-import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
-import { CorporateFooter } from "@/components/layout/CorporateFooter";
+import Link from 'next/link';
+import { ArrowRight, CheckCircle2, BookOpen, Users, MessageCircle, ShieldCheck } from 'lucide-react';
+import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
+import { CorporateFooter } from '@/components/layout/CorporateFooter';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+
+const WHATSAPP_URL = 'https://wa.me/21699192829';
+
+const pillars = [
+  'Groupes réduits',
+  'Enseignants qualifiés',
+  'Bilans individualisés',
+  'Progression mesurable',
+  'Suivi parent clair',
+  'Présentiel à Mutuelleville ou en ligne',
+];
+
+const offers = [
+  {
+    title: 'Accompagnement annuel',
+    description: 'Pour les familles qui veulent un cadre régulier, une méthode structurée et des bilans de progression.',
+  },
+  {
+    title: 'Stages et remises à niveau',
+    description: 'Pour reprendre de l’avance, combler les lacunes et préparer les échéances importantes.',
+  },
+  {
+    title: 'Plateforme et ARIA',
+    description: 'Un complément numérique utile, à relire et travailler avec méthode, sans remplacer l’encadrement humain.',
+  },
+];
 
 export default function AccompagnementScolairePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-surface-darker via-surface-dark to-surface-darker">
+    <div className="min-h-screen bg-surface-darker text-neutral-100">
       <CorporateNavbar />
 
-      {/* Hero Section */}
-      <section className="relative pt-28 md:pt-32 pb-16 md:pb-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 text-sm text-slate-200 mb-8">
-            <Link href="/" className="hover:text-brand-accent transition-colors">
-              Accueil
-            </Link>
-            <ChevronRight className="w-4 h-4" />
-            <span className="text-white">Accompagnement Scolaire</span>
-          </nav>
-
-          {/* Hero Content */}
-          <div className="text-center max-w-4xl mx-auto">
-            <div className="marketing-badge bg-brand-accent/10 border border-brand-accent/30 mb-6">
-              <Sparkles className="w-4 h-4 text-brand-accent" />
-              <span className="text-brand-accent text-sm font-medium normal-case">
-                Service Principal
-              </span>
-            </div>
-
-            <h1 className="marketing-hero-title mb-6">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300">
-                Accompagnement{" "}
-              </span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-accent to-brand-primary">
-                Scolaire
-              </span>
+      <main className="py-20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-3xl text-center">
+            <Badge className="mb-4 border border-brand-accent/20 bg-brand-accent/10 text-brand-accent">
+              Accompagnement scolaire
+            </Badge>
+            <h1 className="font-display text-4xl font-semibold tracking-tight text-white md:text-5xl">
+              Un cadre exigeant pour progresser avec méthode
             </h1>
-
-            <p className="marketing-hero-copy mb-8">
-              Des programmes sur-mesure avec des experts Agrégés et Certifiés pour
-              transformer l'angoisse du Bac en excellence académique
+            <p className="mx-auto mt-4 max-w-2xl text-lg text-neutral-300">
+              Nexus Réussite accompagne les élèves du système français à Tunis avec des groupes réduits,
+              des bilans individualisés et un suivi parent lisible.
             </p>
-
-            {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
-              <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                <div className="text-3xl font-bold text-brand-accent mb-1">
-                  98%
-                </div>
-                <div className="text-sm text-slate-200">Taux de réussite</div>
-              </div>
-              <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                <div className="text-3xl font-bold text-brand-accent mb-1">
-                  150+
-                </div>
-                <div className="text-sm text-slate-200">Mentions TB/B</div>
-              </div>
-              <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                <div className="text-3xl font-bold text-brand-accent mb-1">
-                  500+
-                </div>
-                <div className="text-sm text-slate-200">Élèves suivis</div>
-              </div>
-              <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                <div className="text-3xl font-bold text-brand-accent mb-1">
-                  24/7
-                </div>
-                <div className="text-sm text-slate-200">Support IA ARIA</div>
-              </div>
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Link href="/bilan-gratuit" className="btn-primary">
+                Demander un bilan gratuit
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+              <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="btn-outline">
+                <MessageCircle className="mr-2 h-4 w-4" />
+                Écrire sur WhatsApp
+              </a>
             </div>
-
-            {/* Quick CTA */}
-            <Link
-              href="#programmes"
-              className="btn-primary-lg"
-            >
-              Découvrir nos programmes
-              <ChevronRight className="w-5 h-5" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Programmes Section */}
-      <section id="programmes" className="relative py-16 md:py-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="marketing-section-title text-center mb-4">
-              Nos Programmes d'Accompagnement
-            </h2>
-            <p className="marketing-section-copy text-center">
-              Choisissez la formule adaptée à votre profil et vos objectifs
-            </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Programme Excellence */}
-            <div className="relative bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-3xl p-8 hover:border-brand-accent/40 transition-all">
-              {/* Badge Popular */}
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                <div className="bg-gradient-to-r from-blue-700 to-slate-700 text-white px-6 py-2 rounded-full text-sm font-semibold flex items-center gap-2">
-                  <Star className="w-4 h-4 fill-current" />
-                  PLUS POPULAIRE
-                </div>
-              </div>
-
-              <div className="mt-8">
-                <div className="flex items-center gap-3 mb-6">
-                  <GraduationCap className="w-8 h-8 text-brand-accent" />
-                  <h3 className="text-3xl font-bold text-white">
-                    Programme Excellence
-                  </h3>
-                </div>
-
-                <div className="mb-6">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-5xl font-bold text-white">299</span>
-                    <span className="text-2xl text-slate-200">TND</span>
-                    <span className="text-slate-200">/mois</span>
+          <section className="mt-14 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {pillars.map((pillar) => (
+              <Card key={pillar} className="border-white/10 bg-white/5 backdrop-blur">
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-green-400" />
+                    <p className="text-sm font-semibold text-white">{pillar}</p>
                   </div>
-                  <p className="text-brand-accent text-sm mt-2">
-                    Idéal pour élèves scolarisés (2nde-Terminale)
-                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </section>
+
+          <section className="mt-14 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+            <Card className="border-white/10 bg-white/5 backdrop-blur">
+              <CardContent className="p-6 md:p-8">
+                <div className="flex items-center gap-3">
+                  <BookOpen className="h-5 w-5 text-brand-accent" />
+                  <h2 className="text-2xl font-semibold text-white">Ce que couvre le service</h2>
                 </div>
+                <div className="mt-6 space-y-4">
+                  {offers.map((offer) => (
+                    <div key={offer.title} className="rounded-xl border border-white/10 bg-white/5 p-4">
+                      <h3 className="font-semibold text-white">{offer.title}</h3>
+                      <p className="mt-1 text-sm text-neutral-300">{offer.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
 
-                <ul className="space-y-4 mb-8">
-                  <li className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-brand-accent flex-shrink-0 mt-1" />
-                    <span className="text-slate-200">
-                      <strong className="text-white">8h/mois</strong> avec
-                      experts Agrégés et Certifiés
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-brand-accent flex-shrink-0 mt-1" />
-                    <span className="text-slate-200">
-                      <strong className="text-white">IA ARIA Premium</strong>{" "}
-                      24/7 (correction exercices avancée)
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-brand-accent flex-shrink-0 mt-1" />
-                    <span className="text-slate-200">
-                      <strong className="text-white">
-                        Dashboard parent temps réel
-                      </strong>{" "}
-                      (progression + présence)
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-brand-accent flex-shrink-0 mt-1" />
-                    <span className="text-slate-200">
-                      <strong className="text-white">
-                        Garantie mention ou 3 mois offerts
-                      </strong>
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-brand-accent flex-shrink-0 mt-1" />
-                    <span className="text-slate-200">
-                      <strong className="text-white">
-                        Coaching Parcoursup inclus
-                      </strong>{" "}
-                      (pour Terminale)
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-brand-accent flex-shrink-0 mt-1" />
-                    <span className="text-slate-200">
-                      <strong className="text-white">
-                        Cours en ligne ou présentiel
-                      </strong>
-                    </span>
-                  </li>
-                </ul>
-
-                <div className="space-y-3">
-                  <Link
-                    href="/bilan-gratuit?programme=excellence"
-                    className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-blue-700 to-slate-700 text-white py-4 rounded-xl font-semibold hover:scale-105 transition-transform"
-                  >
-                    Choisir l'Excellence
-                    <ChevronRight className="w-5 h-5" />
+            <Card className="border-white/10 bg-white/5 backdrop-blur">
+              <CardContent className="p-6 md:p-8">
+                <div className="flex items-center gap-3">
+                  <ShieldCheck className="h-5 w-5 text-brand-accent" />
+                  <h2 className="text-2xl font-semibold text-white">ARIA en complément</h2>
+                </div>
+                <p className="mt-4 text-sm text-neutral-300">
+                  ARIA complète l’accompagnement humain. Elle ne remplace ni l’enseignant ni les bilans.
+                  Les réponses doivent être relues et travaillées avec méthode.
+                </p>
+                <div className="mt-6 space-y-3 text-sm text-neutral-300">
+                  <div>Accès selon formule ou add-on.</div>
+                  <div>Utilisation utile pour réviser, s’entraîner et structurer le travail.</div>
+                  <div>Le suivi humain reste la référence principale.</div>
+                </div>
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                  <Link href="/plateforme-aria" className="btn-outline">
+                    Découvrir ARIA
                   </Link>
-                  <Link
-                    href="/contact"
-                    className="flex items-center justify-center gap-2 w-full border border-white/20 text-white py-3 rounded-xl font-medium hover:bg-white/5 transition-colors"
-                  >
-                    <MessageCircle className="w-5 h-5" />
-                    Parler à un conseiller
+                  <Link href="/offres" className="btn-primary">
+                    Voir les offres
                   </Link>
                 </div>
-              </div>
+              </CardContent>
+            </Card>
+          </section>
+
+          <section className="mt-14 rounded-2xl border border-white/10 bg-white/5 p-6 md:p-8 backdrop-blur">
+            <div className="flex items-center gap-3">
+              <Users className="h-5 w-5 text-brand-accent" />
+              <h2 className="text-2xl font-semibold text-white">Pour qui ?</h2>
             </div>
-
-            {/* Pack Bac Garanti */}
-            <div className="relative bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-3xl p-8 hover:border-blue-500/50 transition-all">
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                <div className="bg-gradient-to-r from-blue-700 to-slate-700 text-white px-6 py-2 rounded-full text-sm font-semibold flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4" />
-                  100% GARANTI
-                </div>
-              </div>
-
-              <div className="mt-8">
-                <div className="flex items-center gap-3 mb-6">
-                  <Award className="w-8 h-8 text-blue-400" />
-                  <h3 className="text-3xl font-bold text-white">
-                    Pack Bac Garanti
-                  </h3>
-                </div>
-
-                <div className="mb-6">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-5xl font-bold text-white">1990</span>
-                    <span className="text-2xl text-slate-200">TND</span>
-                    <span className="text-slate-200">/an</span>
-                  </div>
-                  <p className="text-blue-400 text-sm mt-2">
-                    Spécial candidats libres (passage du Bac en 1 an)
-                  </p>
-                </div>
-
-                <ul className="space-y-4 mb-8">
-                  <li className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-blue-400 flex-shrink-0 mt-1" />
-                    <span className="text-slate-200">
-                      <strong className="text-white">
-                        100h annuelles programme complet
-                      </strong>{" "}
-                      (toutes matières)
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-blue-400 flex-shrink-0 mt-1" />
-                    <span className="text-slate-200">
-                      <strong className="text-white">
-                        Inscription Aix-Marseille gérée
-                      </strong>{" "}
-                      (académie de référence)
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-blue-400 flex-shrink-0 mt-1" />
-                    <span className="text-slate-200">
-                      <strong className="text-white">
-                        IA ARIA Premium illimitée
-                      </strong>
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-blue-400 flex-shrink-0 mt-1" />
-                    <span className="text-slate-200">
-                      <strong className="text-white">4 examens blancs</strong>{" "}
-                      en conditions réelles
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-blue-400 flex-shrink-0 mt-1" />
-                    <span className="text-slate-200">
-                      <strong className="text-white">
-                        Garantie 100% Bac ou remboursé
-                      </strong>
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-blue-400 flex-shrink-0 mt-1" />
-                    <span className="text-slate-200">
-                      <strong className="text-white">
-                        Suivi administratif complet
-                      </strong>
-                    </span>
-                  </li>
-                </ul>
-
-                <div className="space-y-3">
-                  <Link
-                    href="/bilan-gratuit?programme=bac-garanti"
-                    className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-blue-700 to-slate-700 text-white py-4 rounded-xl font-semibold hover:scale-105 transition-transform"
-                  >
-                    Sécuriser mon Bac
-                    <ChevronRight className="w-5 h-5" />
-                  </Link>
-                  <Link
-                    href="/contact"
-                    className="flex items-center justify-center gap-2 w-full border border-white/20 text-white py-3 rounded-xl font-medium hover:bg-white/5 transition-colors"
-                  >
-                    <MessageCircle className="w-5 h-5" />
-                    Parler à un conseiller
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Comparaison */}
-          <div className="mt-16 text-center">
-            <Link
-              href="/offres"
-              className="inline-flex items-center gap-2 text-brand-accent hover:text-brand-accent-dark transition-colors text-lg"
-            >
-              Voir tous les tarifs et packs complémentaires
-              <ChevronRight className="w-5 h-5" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Garanties Section */}
-      <section className="relative py-20 px-6 bg-gradient-to-b from-transparent via-slate-800/20 to-transparent">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="marketing-section-title text-center mb-4">
-              Nos Garanties
-            </h2>
-            <p className="marketing-section-copy text-center">
-              Votre réussite est notre seule métrique
+            <p className="mt-4 max-w-3xl text-sm text-neutral-300">
+              Familles, élèves scolarisés, candidats libres et double cursus: nous cadrons le besoin, nous orientons vers
+              la bonne formule et nous gardons un langage clair pour les parents.
             </p>
-          </div>
-
-          <div className="grid md:grid-cols-4 gap-6">
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-center">
-              <ShieldCheck className="w-12 h-12 text-brand-accent mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">
-                Satisfait ou Remboursé
-              </h3>
-              <p className="text-slate-200 text-sm">
-                30 jours pour tester sans risque
-              </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link href="/bilan-gratuit" className="btn-primary">
+                Être conseillé
+              </Link>
+              <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="btn-outline">
+                <MessageCircle className="mr-2 h-4 w-4" />
+                WhatsApp
+              </a>
             </div>
-
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-center">
-              <Award className="w-12 h-12 text-brand-accent mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">
-                Garantie Bac Obtenu
-              </h3>
-              <p className="text-slate-200 text-sm">
-                Ou remboursement intégral (Pack Bac Garanti)
-              </p>
-            </div>
-
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-center">
-              <TrendingUp className="w-12 h-12 text-brand-accent mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">
-                Garantie Mention
-              </h3>
-              <p className="text-slate-200 text-sm">
-                Ou 3 mois offerts (Programme Excellence)
-              </p>
-            </div>
-
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-center">
-              <LineChart className="w-12 h-12 text-brand-accent mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">
-                Garantie Progression
-              </h3>
-              <p className="text-slate-200 text-sm">
-                +3 points de moyenne ou cours supplémentaires
-              </p>
-            </div>
-          </div>
+          </section>
         </div>
-      </section>
-
-      {/* Comment ça marche */}
-      <section className="relative py-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="marketing-section-title text-center mb-4">
-              Comment ça marche ?
-            </h2>
-            <p className="marketing-section-copy text-center">
-              Un parcours simple en 3 étapes
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="relative">
-              <div className="bg-gradient-to-br from-brand-accent/20 to-brand-primary/20 border border-brand-accent/35 rounded-2xl p-8">
-                <div className="w-12 h-12 bg-brand-secondary rounded-xl flex items-center justify-center text-white text-2xl font-bold mb-6">
-                  1
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-4">
-                  Bilan Gratuit
-                </h3>
-                <p className="text-slate-200">
-                  Remplissez notre formulaire pour évaluer les besoins de votre
-                  enfant. Un conseiller vous contacte sous 24h pour affiner le
-                  diagnostic.
-                </p>
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="bg-gradient-to-br from-brand-accent/20 to-brand-primary/20 border border-brand-accent/35 rounded-2xl p-8">
-                <div className="w-12 h-12 bg-brand-secondary rounded-xl flex items-center justify-center text-white text-2xl font-bold mb-6">
-                  2
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-4">
-                  Matching Expert
-                </h3>
-                <p className="text-slate-200">
-                  Nous sélectionnons le mentor idéal selon le profil, la
-                  matière et les objectifs. Vous rencontrez votre expert lors
-                  d'une session découverte.
-                </p>
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="bg-gradient-to-br from-brand-accent/20 to-brand-primary/20 border border-brand-accent/35 rounded-2xl p-8">
-                <div className="w-12 h-12 bg-brand-secondary rounded-xl flex items-center justify-center text-white text-2xl font-bold mb-6">
-                  3
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-4">
-                  Accompagnement Personnalisé
-                </h3>
-                <p className="text-slate-200">
-                  Démarrage immédiat avec planning adapté, suivi en temps réel
-                  sur le dashboard parent, et support IA ARIA 24/7.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="text-center mt-12">
-            <Link
-              href="/bilan-gratuit"
-              className="btn-primary-lg"
-            >
-              Commencer mon bilan gratuit
-              <ChevronRight className="w-5 h-5" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Notre Différence */}
-      <section className="relative py-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="marketing-section-title text-center mb-4">
-              Pourquoi Nexus Réussite ?
-            </h2>
-            <p className="marketing-section-copy text-center">
-              Ce qui nous distingue des autres
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
-              <Users className="w-12 h-12 text-brand-accent mb-6" />
-              <h3 className="text-2xl font-bold text-white mb-4">
-                Experts 100% Agrégés et Certifiés
-              </h3>
-              <p className="text-slate-200">
-                Aucun étudiant, aucun amateur. Uniquement des enseignants
-                des enseignants Agrégés et Certifiés avec 10+ ans d'expérience.
-              </p>
-            </div>
-
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
-              <Bot className="w-12 h-12 text-brand-accent mb-6" />
-              <h3 className="text-2xl font-bold text-white mb-4">
-                IA ARIA 24/7
-              </h3>
-              <p className="text-slate-200">
-                Un assistant IA avancé disponible en permanence pour corriger
-                les exercices, préparer l'oral, et analyser les textes.
-              </p>
-            </div>
-
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
-              <LineChart className="w-12 h-12 text-brand-accent mb-6" />
-              <h3 className="text-2xl font-bold text-white mb-4">
-                Suivi Temps Réel
-              </h3>
-              <p className="text-slate-200">
-                Dashboard parent avec progression en direct, présence aux cours,
-                et alertes automatiques.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Final */}
-      <section className="py-16 px-6">
-        <div className="max-w-5xl mx-auto">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-8 md:p-10">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-              <div>
-                <p className="marketing-eyebrow">
-                  Prochaine étape
-                </p>
-                <h2 className="marketing-cta-title">
-                  Démarrer un plan sur-mesure
-                </h2>
-                <p className="marketing-cta-copy">
-                  Bilan gratuit + recommandation personnalisée par nos experts.
-                </p>
-              </div>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                <Link href="/bilan-gratuit" className="btn-primary">
-                  Démarrer un bilan gratuit
-                </Link>
-                <Link href="/contact" className="btn-outline">
-                  Parler à un expert
-                </Link>
-              </div>
-            </div>
-            <p className="mt-6 text-xs text-neutral-400">
-              Satisfait ou remboursé sous 30 jours • Sans engagement
-            </p>
-          </div>
-        </div>
-      </section>
+      </main>
 
       <CorporateFooter />
     </div>

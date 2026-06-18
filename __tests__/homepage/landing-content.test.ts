@@ -61,8 +61,8 @@ describe("Landing content — business invariants", () => {
       expect((NEXUS_SELECT as Record<string, unknown>).groupsNote).toBeUndefined();
     });
 
-    it('footnote mentions "groupe de 4 élèves"', () => {
-      expect(PRICING_FOOTNOTE).toContain("groupe de 4 élèves");
+    it('footnote mentions "groupe de 5 élèves"', () => {
+      expect(PRICING_FOOTNOTE).toContain("groupe de 5 élèves");
     });
 
     it('footnote mentions "cours individuels, binômes, groupes réduits"', () => {
@@ -71,8 +71,8 @@ describe("Landing content — business invariants", () => {
       expect(PRICING_FOOTNOTE).toContain("groupes réduits");
     });
 
-    it('group note mentions "groupe de 4"', () => {
-      expect(PRICING_GROUP_NOTE).toContain("groupe de 4");
+    it('group note mentions "groupe de 5"', () => {
+      expect(PRICING_GROUP_NOTE).toContain("groupe de 5");
     });
   });
 

@@ -3,23 +3,23 @@ import type { Metadata } from 'next';
 import { HomePageClient } from './HomePageClient';
 
 export const metadata: Metadata = {
-  title: 'Nexus Réussite — Accompagnement Bac français · Tunis',
+  title: 'Nexus Réussite | Accompagnement académique premium à Tunis',
   description:
-    "Établissement d'accompagnement pour le bac français à Tunis : enseignants agrégés, groupes de 5 max, bacs blancs, carte d'examen, plateforme Masterium et suivi parents.",
+    "Accompagnement académique premium pour les élèves du système français à Tunis : groupes réduits, méthode structurée, bilans individualisés et suivi parent clair.",
   keywords:
-    'Nexus Réussite, Bac français, Tunis, accompagnement scolaire, candidats libres, Première, Terminale, bacs blancs, Masterium',
+    'Nexus Réussite, bac français, Tunis, accompagnement scolaire, candidats libres, Première, Terminale, ARIA',
   openGraph: {
-    title: 'Nexus Réussite — Accompagnement Bac français · Tunis',
+    title: 'Nexus Réussite | Accompagnement académique premium à Tunis',
     description:
-      "VISER. ATTEINDRE. DÉPASSER. Un cadre structurant jusqu'au bac : carte d'examen, groupes de 5 max, bacs blancs sur grilles officielles, plateforme Masterium.",
+      "Un cadre exigeant pour progresser avec méthode, suivi clair et groupes réduits.",
     type: 'website',
     url: 'https://nexusreussite.academy',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Nexus Réussite — Accompagnement Bac français · Tunis',
+    title: 'Nexus Réussite | Accompagnement académique premium à Tunis',
     description:
-      "Pas seulement des cours : un cadre, une méthode et un suivi humain pour piloter la trajectoire jusqu'au bac.",
+      "Groupes réduits, méthode structurée, bilans individualisés et suivi parent clair pour les élèves du système français à Tunis.",
   },
   robots: { index: true, follow: true },
 };

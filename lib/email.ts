@@ -36,45 +36,43 @@ export async function sendWelcomeParentEmail(
   parentEmail: string,
   parentName: string,
   studentName: string,
-  tempPassword?: string
+  activationUrl?: string
 ) {
   const mailOptions = {
     from: process.env.SMTP_FROM || 'Nexus Réussite <contact@nexusreussite.academy>',
     to: parentEmail,
-    subject: '🎉 Bienvenue chez Nexus Réussite !',
+    subject: 'Votre demande de bilan a été enregistrée',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: linear-gradient(135deg, #2563EB, #2EE9F6); padding: 30px; text-align: center;">
-          <h1 style="color: white; margin: 0;">Bienvenue chez Nexus Réussite !</h1>
+        <div style="background: linear-gradient(135deg, #0f172a, #2563EB); padding: 30px; text-align: center;">
+          <h1 style="color: white; margin: 0;">Votre demande de bilan a bien été enregistrée</h1>
         </div>
 
         <div style="padding: 30px; background: #f9f9f9;">
           <h2>Bonjour ${parentName},</h2>
 
-          <p>Nous sommes ravis de vous accueillir dans la famille Nexus Réussite !</p>
-
-          <p>Votre demande de bilan stratégique gratuit pour <strong>${studentName}</strong> a été enregistrée avec succès.</p>
+          <p>Votre demande de bilan stratégique gratuit pour <strong>${studentName}</strong> a été enregistrée.</p>
+          <p>Notre équipe pédagogique va l’examiner et vous orienter vers la formule la plus adaptée.</p>
 
           <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h3>📋 Prochaines étapes :</h3>
             <ol>
               <li><strong>Sous 24h :</strong> Notre équipe analyse le profil de ${studentName}</li>
-              <li><strong>Appel découverte :</strong> Un échange de 30 minutes pour comprendre vos besoins</li>
-              <li><strong>Plan d'action :</strong> Nous vous proposons un accompagnement personnalisé</li>
+              <li><strong>Échange découverte :</strong> Un retour humain pour préciser les priorités</li>
+              <li><strong>Orientation :</strong> Nous vous proposons la solution la plus adaptée</li>
             </ol>
           </div>
 
-          ${tempPassword ? `
+          ${activationUrl ? `
           <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3>🔐 Vos identifiants de connexion :</h3>
-            <p><strong>Email :</strong> ${parentEmail}</p>
-            <p><strong>Mot de passe temporaire :</strong> ${tempPassword}</p>
-            <p><em>Vous pourrez modifier ce mot de passe lors de votre première connexion.</em></p>
+            <h3>🔐 Activation de votre espace parent :</h3>
+            <p>Pour finaliser l’accès à votre espace, utilisez le lien d’activation ci-dessous.</p>
+            <p><a href="${activationUrl}" style="color:#2563EB; word-break:break-all;">Activer mon espace parent</a></p>
           </div>
           ` : ''}
 
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${process.env.NEXTAUTH_URL}"
+            <a href="${process.env.NEXTAUTH_URL || 'https://nexusreussite.academy'}"
                style="background: #2563EB; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block;">
               Accéder à mon Espace
             </a>
@@ -95,7 +93,6 @@ export async function sendWelcomeParentEmail(
   try {
     const transporter = createTransporter();
     await transporter.sendMail(mailOptions);
-    console.log('Email de bienvenue envoyé à:', parentEmail);
   } catch (error) {
     console.error('Erreur envoi email:', error);
     // En développement, ne pas faire échouer l'application si l'email ne part pas

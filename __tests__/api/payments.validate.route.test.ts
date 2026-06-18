@@ -1,9 +1,18 @@
 import { auth } from '@/auth';
 import { POST } from '@/app/api/payments/validate/route';
 import { prisma } from '@/lib/prisma';
+import { activateEntitlements } from '@/lib/entitlement/engine';
 
 jest.mock('@/auth', () => ({
   auth: jest.fn(),
+}));
+
+jest.mock('@/lib/entitlement/engine', () => ({
+  activateEntitlements: jest.fn().mockResolvedValue({
+    activatedCodes: ['ABONNEMENT_ESSENTIEL'],
+    skippedItems: 0,
+    noBeneficiary: false,
+  }),
 }));
 
 jest.mock('@/lib/utils', () => ({
@@ -26,6 +35,8 @@ jest.mock('@/lib/prisma', () => ({
     payment: { findUnique: jest.fn(), update: jest.fn() },
     student: { findUnique: jest.fn() },
     subscription: { updateMany: jest.fn(), findFirst: jest.fn() },
+    invoice: { findUnique: jest.fn(), update: jest.fn() },
+    userDocument: { create: jest.fn() },
     creditTransaction: { create: jest.fn() },
     $transaction: jest.fn(),
   },
@@ -86,23 +97,77 @@ describe('POST /api/payments/validate', () => {
       status: 'PENDING',
       type: 'SUBSCRIPTION',
       metadata: { studentId: 'student-1', itemKey: 'PLAN' },
-      user: { parentProfile: { children: [{ id: 'student-1' }] } },
+      amount: 450,
+      description: 'Abonnement Hybride',
+      method: 'bank_transfer',
+      userId: 'parent-1',
+      user: {
+        id: 'parent-1',
+        email: 'parent@example.com',
+        firstName: 'Parent',
+        lastName: 'Nexus',
+        parentProfile: { children: [{ id: 'student-1' }] },
+      },
     });
     (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => {
       const tx = {
         payment: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
+        invoice: {
+          create: jest.fn().mockResolvedValue({
+            id: 'invoice-1',
+            number: 'INV-001',
+            issuedAt: new Date(),
+            issuerName: 'Nexus Réussite',
+            issuerAddress: 'Mutuelleville, Tunis',
+            issuerMF: 'MF-1',
+            issuerRNE: 'RNE-1',
+            items: [{ label: 'Abonnement Hybride', description: null, qty: 1, unitPrice: 450000, total: 450000 }],
+            currency: 'TND',
+            subtotal: 450000,
+            discountTotal: 0,
+            taxTotal: 0,
+            total: 450000,
+            taxRegime: 'TVA_NON_APPLICABLE',
+            customerName: 'Parent Nexus',
+            customerEmail: 'parent@example.com',
+            beneficiaryUserId: 'student-1',
+            events: [],
+          }),
+        },
         student: { findUnique: jest.fn().mockResolvedValue({ id: 'student-1' }) },
         subscription: { updateMany: jest.fn(), findFirst: jest.fn().mockResolvedValue({ creditsPerMonth: 0 }) },
         creditTransaction: { create: jest.fn() },
       };
       return cb(tx);
     });
+    (prisma.invoice.findUnique as jest.Mock).mockResolvedValue({
+      id: 'invoice-1',
+      number: 'INV-001',
+      issuedAt: new Date(),
+      issuerName: 'Nexus Réussite',
+      issuerAddress: 'Mutuelleville, Tunis',
+      issuerMF: 'MF-1',
+      issuerRNE: 'RNE-1',
+      items: [{ label: 'Abonnement Hybride', description: null, qty: 1, unitPrice: 450000, total: 450000 }],
+      currency: 'TND',
+      subtotal: 450000,
+      discountTotal: 0,
+      taxTotal: 0,
+      total: 450000,
+      taxRegime: 'TVA_NON_APPLICABLE',
+      customerName: 'Parent Nexus',
+      customerEmail: 'parent@example.com',
+      events: [],
+    });
+    (prisma.invoice.update as jest.Mock).mockResolvedValue({});
+    (prisma.userDocument.create as jest.Mock).mockResolvedValue({ id: 'doc-1' });
 
     const response = await POST(makeRequest({ paymentId: 'pay-1', action: 'approve' }));
     const body = await response.json();
 
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
+    expect(activateEntitlements).toHaveBeenCalledWith('invoice-1', expect.any(Object));
   });
 
   it('allocates credits when subscription has credits', async () => {
@@ -114,12 +179,44 @@ describe('POST /api/payments/validate', () => {
       status: 'PENDING',
       type: 'SUBSCRIPTION',
       metadata: { studentId: 'student-1', itemKey: 'PLAN' },
-      user: { parentProfile: { children: [{ id: 'student-1' }] } },
+      amount: 450,
+      description: 'Abonnement Hybride',
+      method: 'bank_transfer',
+      userId: 'parent-1',
+      user: {
+        id: 'parent-1',
+        email: 'parent@example.com',
+        firstName: 'Parent',
+        lastName: 'Nexus',
+        parentProfile: { children: [{ id: 'student-1' }] },
+      },
     });
     let capturedTx: any = null;
     (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => {
       const tx = {
         payment: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
+        invoice: {
+          create: jest.fn().mockResolvedValue({
+            id: 'invoice-2',
+            number: 'INV-002',
+            issuedAt: new Date(),
+            issuerName: 'Nexus Réussite',
+            issuerAddress: 'Mutuelleville, Tunis',
+            issuerMF: 'MF-1',
+            issuerRNE: 'RNE-1',
+            items: [{ label: 'Abonnement Hybride', description: null, qty: 1, unitPrice: 450000, total: 450000 }],
+            currency: 'TND',
+            subtotal: 450000,
+            discountTotal: 0,
+            taxTotal: 0,
+            total: 450000,
+            taxRegime: 'TVA_NON_APPLICABLE',
+            customerName: 'Parent Nexus',
+            customerEmail: 'parent@example.com',
+            beneficiaryUserId: 'student-1',
+            events: [],
+          }),
+        },
         student: { findUnique: jest.fn().mockResolvedValue({ id: 'student-1' }) },
         subscription: { updateMany: jest.fn(), findFirst: jest.fn().mockResolvedValue({ creditsPerMonth: 4 }) },
         creditTransaction: { create: jest.fn() },
@@ -127,6 +224,27 @@ describe('POST /api/payments/validate', () => {
       capturedTx = tx;
       return cb(tx);
     });
+    (prisma.invoice.findUnique as jest.Mock).mockResolvedValue({
+      id: 'invoice-2',
+      number: 'INV-002',
+      issuedAt: new Date(),
+      issuerName: 'Nexus Réussite',
+      issuerAddress: 'Mutuelleville, Tunis',
+      issuerMF: 'MF-1',
+      issuerRNE: 'RNE-1',
+      items: [{ label: 'Abonnement Hybride', description: null, qty: 1, unitPrice: 450000, total: 450000 }],
+      currency: 'TND',
+      subtotal: 450000,
+      discountTotal: 0,
+      taxTotal: 0,
+      total: 450000,
+      taxRegime: 'TVA_NON_APPLICABLE',
+      customerName: 'Parent Nexus',
+      customerEmail: 'parent@example.com',
+      events: [],
+    });
+    (prisma.invoice.update as jest.Mock).mockResolvedValue({});
+    (prisma.userDocument.create as jest.Mock).mockResolvedValue({ id: 'doc-2' });
 
     const response = await POST(makeRequest({ paymentId: 'pay-2', action: 'approve' }));
     const body = await response.json();

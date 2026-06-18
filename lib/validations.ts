@@ -21,18 +21,18 @@ export const bilanGratuitSchema = z.object({
   parentLastName: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
   parentEmail: z.string().email('Email invalide'),
   parentPhone: z.string().min(8, 'Numéro de téléphone invalide'),
-  parentPassword: z.string().min(8, 'Le mot de passe doit contenir au moins 8 caractères'),
+  parentPassword: z.string().min(8, 'Le mot de passe doit contenir au moins 8 caractères').optional(),
 
   // Informations Élève
   studentFirstName: z.string().min(2, 'Le prénom doit contenir au moins 2 caractères'),
-  studentLastName: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
+  studentLastName: z.string().min(2, 'Le nom doit contenir au moins 2 caractères').optional(),
   studentGrade: z.string().min(1, 'Veuillez sélectionner une classe'),
   studentSchool: z.string().optional(),
   studentBirthDate: z.string().optional(),
 
   // Besoins et objectifs
   subjects: z.array(z.enum(Object.values(Subject) as [string, ...string[]])).min(1, 'Sélectionnez au moins une matière'),
-  currentLevel: z.string().min(1, 'Veuillez indiquer le niveau actuel'),
+  currentLevel: z.string().min(1, 'Veuillez indiquer le niveau actuel').optional(),
   objectives: z.string().min(10, 'Décrivez vos objectifs (minimum 10 caractères)').optional(),
   difficulties: z.string().optional(),
 

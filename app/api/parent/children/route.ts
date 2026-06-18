@@ -5,9 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import type { CreditTransaction } from '@prisma/client';
 import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
-import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import { createId } from '@paralleldrive/cuid2';
 
 export async function GET(_request: NextRequest) {
   try {
@@ -157,22 +155,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Générer un mot de passe aléatoire fort pour l'enfant (sera écrasé lors de l'activation)
-    const temporaryPassword = `${crypto.randomBytes(32).toString('hex')}_${createId()}`;
-    const hashedPassword = await bcrypt.hash(temporaryPassword, 12);
-
     // Générer un token d'activation unique (validité 72h)
-    const rawActivationToken = `act_${createId()}_${crypto.randomBytes(16).toString('hex')}`;
+    const rawActivationToken = `act_${crypto.randomBytes(16).toString('hex')}`;
     const hashedActivationToken = crypto.createHash('sha256').update(rawActivationToken).digest('hex');
     const activationExpiry = new Date(Date.now() + 72 * 60 * 60 * 1000);
 
     // Create child in transaction
     const result = await prisma.$transaction(async (tx) => {
-      // Create user with random hashed password — NOT the parent's password
+      // Create user in inactive state. The student chooses a password later via activation.
       const user = await tx.user.create({
         data: {
           email,
-          password: hashedPassword,
+          password: null,
           firstName,
           lastName,
           role: 'ELEVE',
