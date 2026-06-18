@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
-import { MessageCircle, Phone, Mail, ArrowRight } from 'lucide-react';
+import { MessageCircle, Phone, Mail, ArrowRight, MapPin } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
@@ -248,14 +248,46 @@ export default function ContactPage() {
             </CardContent>
           </Card>
 
-          <div className="overflow-hidden rounded-2xl border border-lux-line bg-lux-white lux-shadow">
-            <iframe
-              title="Centre d’accompagnement pédagogique - Mutuelleville"
-              src={`https://www.google.com/maps?q=${encodeURIComponent(PEDA_ADDRESS)}&output=embed`}
-              className="h-[320px] w-full border-0"
-              loading="lazy"
-            />
-          </div>
+          <Card className="border-lux-line bg-lux-white lux-shadow">
+            <CardContent className="flex h-full min-h-[320px] flex-col justify-between p-6 md:p-8">
+              <div>
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-lux-gold/12">
+                    <MapPin className="h-5 w-5 text-lux-gold" aria-hidden="true" />
+                  </div>
+                  <h2 className="text-2xl font-fraunces text-lux-ink">Plan d’accès</h2>
+                </div>
+                <p className="mt-4 text-sm text-lux-slate">
+                  Les rendez-vous pédagogiques et cours en présentiel sont confirmés à Mutuelleville.
+                </p>
+                <p className="mt-3 text-lg font-medium text-lux-ink">{PEDA_ADDRESS}</p>
+                <p className="mt-2 max-w-md text-sm leading-6 text-lux-slate">
+                  Centre d’accompagnement pédagogique : accès simple, cadre calme et rendez-vous sur confirmation.
+                </p>
+              </div>
+
+              <div className="mt-8 grid gap-3 rounded-2xl border border-lux-line/60 bg-lux-paper/70 p-4 sm:grid-cols-2">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.22em] text-lux-gold-deep">Siège social</p>
+                  <p className="mt-1 text-sm text-lux-ink">{ADMIN_ADDRESS}</p>
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.22em] text-lux-gold-deep">Centre pédagogique</p>
+                  <p className="mt-1 text-sm text-lux-ink">{PEDA_ADDRESS}</p>
+                </div>
+              </div>
+
+              <a
+                href={`https://www.google.com/maps?q=${encodeURIComponent(PEDA_ADDRESS)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 inline-flex items-center text-sm font-semibold text-lux-gold-deep transition-colors hover:text-lux-ink"
+              >
+                Ouvrir sur Google Maps
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </a>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
