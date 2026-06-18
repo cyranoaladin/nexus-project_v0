@@ -74,14 +74,14 @@ export default function Stages2026Page() {
         <div className="mx-auto max-w-5xl">
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {periods.map((period) => (
-              <Card key={period.title} className="border-lux-line bg-lux-white">
+              <Card key={period.title} className="border-lux-line bg-lux-ink text-lux-ivory">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-2 text-lux-gold">
                     <CalendarDays className="h-4 w-4" />
                     <span className="text-xs font-semibold uppercase tracking-[0.2em]">Période</span>
                   </div>
-                  <h2 className="mt-3 text-xl font-fraunces text-lux-ink">{period.title}</h2>
-                  <p className="mt-2 text-sm text-lux-slate">{period.description}</p>
+                  <h2 className="mt-3 text-xl font-fraunces text-lux-ivory">{period.title}</h2>
+                  <p className="mt-2 text-sm text-lux-ivory/75">{period.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -91,14 +91,14 @@ export default function Stages2026Page() {
 
       <section className="py-14 px-4 md:px-6">
         <div className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-[1fr_0.9fr]">
-          <Card className="border-lux-line bg-lux-white">
+          <Card className="border-lux-line bg-lux-ink text-lux-ivory">
             <CardContent className="p-6 md:p-8">
-              <h2 className="text-2xl md:text-3xl font-fraunces text-lux-ink">Ce que couvrent les stages</h2>
+              <h2 className="text-2xl md:text-3xl font-fraunces text-lux-ivory">Ce que couvrent les stages</h2>
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 {pillars.map((pillar) => (
                   <div key={pillar} className="flex items-center gap-3 rounded-lg border border-lux-line/50 px-4 py-3">
                     <CheckCircle2 className="h-4 w-4 text-lux-evergreen" />
-                    <span className="text-sm text-lux-ink">{pillar}</span>
+                    <span className="text-sm text-lux-ivory/80">{pillar}</span>
                   </div>
                 ))}
               </div>
