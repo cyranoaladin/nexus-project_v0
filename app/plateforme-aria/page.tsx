@@ -147,7 +147,7 @@ export default function PlateformeAriaPage() {
 
       <section className="bg-lux-paper px-4 py-14 md:px-6">
         <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-          <Card className="border-lux-line bg-lux-white lux-shadow">
+          <Card className="!bg-lux-white !text-lux-ink border-lux-line lux-shadow">
             <CardContent className="p-6 md:p-8">
               <Badge variant="outline" className="mb-4 border-lux-line/70 text-lux-slate">
                 <Sparkles className="mr-2 h-4 w-4 text-lux-gold" />
