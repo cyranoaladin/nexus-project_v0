@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 
 const PDF_URL = '/documents/Corrige_DNB_Maths_2026_Nexus_Reussite.pdf';
+const PREVIEW_URL = '/api/public-documents/corrige-dnb-maths-2026';
 
 export const metadata: Metadata = {
   title: 'Corrigé DNB Maths 2026 | Nexus Réussite',
@@ -72,60 +73,33 @@ export default function CorrigeDnbMaths2026Page() {
               </div>
 
               <div className="overflow-hidden rounded-2xl border border-dashed border-lux-line bg-lux-paper">
-                <div className="flex min-h-[760px] flex-col items-center justify-center px-6 py-10 text-center sm:px-10">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-lux-white text-lux-gold shadow-sm">
-                    <FileText className="h-8 w-8" />
-                  </div>
-                  <p className="mt-6 text-xs font-black uppercase tracking-[0.18em] text-lux-gold-deep">
-                    PDF public
-                  </p>
-                  <h3 className="mt-3 max-w-lg font-fraunces text-2xl text-lux-ink md:text-3xl">
-                    Corrige_DNB_Maths_2026_Nexus_Reussite.pdf
-                  </h3>
-                  <p className="mt-4 max-w-xl text-sm leading-7 text-lux-slate">
-                    Le document est servi directement par le site. Les protections de sécurité du
-                    navigateur peuvent limiter l’aperçu embarqué, mais le PDF reste ouvert et
-                    téléchargeable sans friction.
-                  </p>
-                  <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                    <div className="rounded-2xl border border-lux-line/70 bg-lux-white px-4 py-3 text-left">
-                      <p className="text-xs font-black uppercase tracking-[0.14em] text-lux-gold-deep">
-                        Accès
+                <div className="border-b border-lux-line/70 bg-lux-ink px-5 py-4 sm:px-6">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-[0.18em] text-lux-gold-wash">
+                        Aperçu du document
                       </p>
-                      <p className="mt-1 text-sm text-lux-ink">Ouvrir ou télécharger en un clic.</p>
+                      <h3 className="mt-1 text-2xl font-fraunces text-lux-ivory">
+                        Visionneuse PDF intégrée
+                      </h3>
                     </div>
-                    <div className="rounded-2xl border border-lux-line/70 bg-lux-white px-4 py-3 text-left">
-                      <p className="text-xs font-black uppercase tracking-[0.14em] text-lux-gold-deep">
-                        Source
-                      </p>
-                      <p className="mt-1 text-sm text-lux-ink">Fichier public hébergé par le site.</p>
-                    </div>
-                    <div className="rounded-2xl border border-lux-line/70 bg-lux-white px-4 py-3 text-left">
-                      <p className="text-xs font-black uppercase tracking-[0.14em] text-lux-gold-deep">
-                        Format
-                      </p>
-                      <p className="mt-1 text-sm text-lux-ink">PDF lisible sur ordinateur et mobile.</p>
-                    </div>
-                  </div>
-                  <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                     <a
                       href={PDF_URL}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="lux-cta-reserve inline-flex items-center justify-center rounded-lg px-5 py-3 text-sm font-semibold"
+                      className="inline-flex items-center justify-center rounded-lg border border-lux-gold/30 bg-lux-gold px-4 py-3 text-sm font-semibold text-lux-ink transition hover:bg-lux-gold-deep"
                     >
                       <Download className="mr-2 h-4 w-4" />
-                      Ouvrir le PDF
-                    </a>
-                    <a
-                      href={PDF_URL}
-                      download
-                      className="lux-cta-secondary inline-flex items-center justify-center rounded-lg px-5 py-3 text-sm font-semibold text-lux-ink border-lux-line/40"
-                    >
-                      Enregistrer sur l’appareil
+                      Télécharger le PDF
                     </a>
                   </div>
                 </div>
+
+                <iframe
+                  title="Aperçu intégré du corrigé DNB Maths 2026"
+                  src={PREVIEW_URL}
+                  className="h-[82vh] min-h-[760px] w-full bg-lux-white"
+                />
               </div>
             </CardContent>
           </Card>
@@ -140,7 +114,7 @@ export default function CorrigeDnbMaths2026Page() {
                 <ul className="mt-4 space-y-3 text-sm text-lux-ivory/80">
                   <li className="flex gap-2">
                     <ShieldCheck className="mt-0.5 h-4 w-4 text-lux-evergreen" />
-                    Un accès direct au PDF depuis le site.
+                    Une visionneuse PDF intégrée au site.
                   </li>
                   <li className="flex gap-2">
                     <ShieldCheck className="mt-0.5 h-4 w-4 text-lux-evergreen" />
