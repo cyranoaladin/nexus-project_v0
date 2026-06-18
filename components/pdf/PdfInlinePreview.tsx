@@ -8,82 +8,7 @@ type PdfInlinePreviewProps = {
   title: string;
 };
 
-type PdfRenderMode = 'pdfjs' | 'native';
-
 export function PdfInlinePreview({ src, title }: PdfInlinePreviewProps) {
-  const [renderMode, setRenderMode] = useState<PdfRenderMode | null>(null);
-
-  useEffect(() => {
-    const updateRenderMode = () => {
-      const mobileViewport = window.innerWidth < 768;
-      setRenderMode(mobileViewport ? 'native' : 'pdfjs');
-    };
-
-    updateRenderMode();
-    window.addEventListener('resize', updateRenderMode);
-
-    return () => {
-      window.removeEventListener('resize', updateRenderMode);
-    };
-  }, []);
-
-  if (renderMode === null) {
-    return (
-      <div className="rounded-2xl border border-dashed border-lux-line/70 bg-lux-white px-6 py-20 text-center">
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-lux-gold-deep">
-          Chargement
-        </p>
-        <p className="mt-3 text-sm leading-7 text-lux-slate">
-          L’aperçu PDF se prépare. Le chargement peut prendre quelques secondes.
-        </p>
-      </div>
-    );
-  }
-
-  return renderMode === 'native' ? (
-    <NativePdfPreview src={src} title={title} />
-  ) : (
-    <PdfJsPreview src={src} title={title} />
-  );
-}
-
-function NativePdfPreview({ src, title }: PdfInlinePreviewProps) {
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-t-2xl border-b border-lux-line/70 bg-lux-ink px-4 py-3 text-lux-ivory sm:px-6">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-lux-gold-wash">
-            Aperçu du document
-          </p>
-          <p className="mt-1 text-sm text-lux-ivory/70">
-            {title} - aperçu natif mobile
-          </p>
-        </div>
-        <a
-          href={src}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center rounded-lg border border-lux-line/30 bg-white/5 px-3 py-2 text-sm font-semibold text-lux-ivory transition hover:bg-white/10"
-        >
-          Ouvrir le PDF
-        </a>
-      </div>
-
-      <div className="overflow-hidden rounded-b-2xl border border-lux-line/70 bg-lux-paper">
-        <div className="h-[78vh] min-h-[620px] bg-lux-white sm:h-[80vh] sm:min-h-[760px]">
-          <iframe
-            src={`${src}#view=FitH&page=1`}
-            title={`Aperçu mobile de ${title}`}
-            className="h-full w-full border-0 bg-lux-white"
-            loading="eager"
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function PdfJsPreview({ src, title }: PdfInlinePreviewProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const pdfRef = useRef<any>(null);
@@ -108,11 +33,15 @@ function PdfJsPreview({ src, title }: PdfInlinePreviewProps) {
 
     void (async () => {
       try {
-        const pdfjs = await import('pdfjs-dist');
+        const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
         pdfjs.GlobalWorkerOptions.workerSrc =
-          'https://cdn.jsdelivr.net/npm/pdfjs-dist@6.0.227/build/pdf.worker.min.mjs';
+          'https://cdn.jsdelivr.net/npm/pdfjs-dist@6.0.227/legacy/build/pdf.worker.min.mjs';
 
-        loadingTask = pdfjs.getDocument({ url: src });
+        loadingTask = pdfjs.getDocument({
+          url: src,
+          isOffscreenCanvasSupported: false,
+          useWorkerFetch: false,
+        });
         const pdf = await loadingTask.promise;
 
         if (cancelled) {
@@ -164,7 +93,8 @@ function PdfJsPreview({ src, title }: PdfInlinePreviewProps) {
         if (cancelled) return;
 
         const viewport = page.getViewport({ scale: 1 });
-        const availableWidth = Math.max(320, container.clientWidth - 32);
+        const horizontalPadding = window.innerWidth < 640 ? 16 : 32;
+        const availableWidth = Math.max(280, container.clientWidth - horizontalPadding);
         const scale = Math.min(1.6, availableWidth / viewport.width);
         const renderedViewport = page.getViewport({ scale });
         const outputScale = window.devicePixelRatio || 1;
@@ -266,9 +196,9 @@ function PdfJsPreview({ src, title }: PdfInlinePreviewProps) {
         </div>
       </div>
 
-      <div className="rounded-b-2xl bg-lux-paper p-4">
+      <div className="rounded-b-2xl bg-lux-paper p-2 sm:p-4">
         {status === 'loading' ? (
-          <div className="flex min-h-[760px] items-center justify-center rounded-2xl border border-dashed border-lux-line/70 bg-lux-white px-6 text-center">
+          <div className="flex min-h-[520px] items-center justify-center rounded-2xl border border-dashed border-lux-line/70 bg-lux-white px-6 text-center sm:min-h-[760px]">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.18em] text-lux-gold-deep">
                 Chargement
@@ -293,7 +223,7 @@ function PdfJsPreview({ src, title }: PdfInlinePreviewProps) {
               </div>
             </div>
             <div className="overflow-hidden rounded-2xl border border-lux-line/70 bg-lux-white">
-              <div className="h-[78vh] min-h-[620px] sm:min-h-[760px]">
+              <div className="h-[78vh] min-h-[520px] sm:min-h-[760px]">
                 <iframe
                   src={`${src}#view=FitH&page=1`}
                   title={`Aperçu de secours de ${title}`}
@@ -310,7 +240,7 @@ function PdfJsPreview({ src, title }: PdfInlinePreviewProps) {
             status !== 'ready' ? 'hidden' : ''
           }`}
         >
-          <div className="flex min-h-[760px] justify-center px-4 py-6 sm:px-6">
+          <div className="flex min-h-[520px] justify-center px-2 py-4 sm:min-h-[760px] sm:px-6 sm:py-6">
             <canvas
               ref={canvasRef}
               aria-label={`Aperçu rendu de ${title}`}
