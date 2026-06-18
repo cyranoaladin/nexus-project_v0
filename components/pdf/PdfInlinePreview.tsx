@@ -34,10 +34,8 @@ export function PdfInlinePreview({ src, title }: PdfInlinePreviewProps) {
     void (async () => {
       try {
         const pdfjs = await import('pdfjs-dist');
-        pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-          'pdfjs-dist/build/pdf.worker.mjs',
-          import.meta.url
-        ).toString();
+        pdfjs.GlobalWorkerOptions.workerSrc =
+          'https://cdn.jsdelivr.net/npm/pdfjs-dist@6.0.227/build/pdf.worker.min.mjs';
 
         loadingTask = pdfjs.getDocument({ url: src });
         const pdf = await loadingTask.promise;
