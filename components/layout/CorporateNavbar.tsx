@@ -8,9 +8,7 @@ import { usePathname } from "next/navigation";
 
 export function CorporateNavbar() {
   const pathname = usePathname();
-  const isHomePage = pathname === '/';
   const [isOpen, setIsOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const [openDesktopGroup, setOpenDesktopGroup] = useState<string | null>(null);
   const [isConnexionOpen, setIsConnexionOpen] = useState(false);
   const desktopMenuRef = useRef<HTMLDivElement | null>(null);
@@ -80,14 +78,6 @@ export function CorporateNavbar() {
   }, []);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 100);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
     if (!isOpen) return;
 
     const onKeyDown = (event: KeyboardEvent) => {
@@ -109,6 +99,16 @@ export function CorporateNavbar() {
     setOpenDesktopGroup(null);
     setIsConnexionOpen(false);
   }, [pathname]);
+
+  const chromePillBase =
+    'inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-xs font-mono uppercase tracking-[0.12em] transition-colors text-neutral-300 hover:border-lux-gold/40 hover:bg-white/10 hover:text-white';
+  const chromePillActive = 'border-lux-gold/40 bg-white/10 text-white';
+  const chromeMenuItem = 'group/item flex items-start gap-3 rounded-xl px-4 py-3.5 transition-colors text-neutral-300 hover:bg-white/10 hover:text-white';
+  const chromeMenuItemActive = 'bg-white/10 text-white';
+  const chromeHeader = 'fixed top-0 left-0 right-0 z-50 bg-surface-darker/88 backdrop-blur-md border-b border-white/10 shadow-[0_12px_40px_rgba(7,26,58,0.18)] transition-all duration-500';
+  const chromeCta = 'hidden md:flex items-center gap-2 rounded-full bg-lux-gold px-5 py-2.5 text-xs font-semibold text-lux-ink transition-all hover:bg-lux-gold-bright shadow-[0_12px_30px_rgba(191,160,106,0.18)]';
+  const chromeMobileCta = 'md:hidden inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-xs font-semibold text-white transition-colors hover:border-lux-gold/40 hover:bg-white/10 min-h-[44px]';
+  const chromeMenuButton = 'md:hidden flex items-center gap-2 text-white transition-colors duration-300 hover:text-lux-gold-wash group';
 
   useEffect(() => {
     const onMouseDown = (event: MouseEvent) => {
@@ -174,14 +174,7 @@ export function CorporateNavbar() {
     <>
       {/* Fixed Header */}
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isHomePage
-          ? isScrolled
-            ? 'bg-white/94 backdrop-blur-md border-b border-slate-200/80 shadow-sm'
-            : 'bg-white/82 backdrop-blur-md border-b border-white/40'
-          : isScrolled
-            ? 'bg-surface-darker/90 backdrop-blur-md border-b border-white/5'
-            : 'bg-surface-darker/80 backdrop-blur-sm'
-          }`}
+        className={chromeHeader}
       >
         <div className="flex items-center justify-between px-6 lg:px-12 py-4">
           {/* Logo */}
@@ -209,24 +202,16 @@ export function CorporateNavbar() {
                   onMouseEnter={() => openGroup(group.title)}
                   onMouseLeave={scheduleClose}
                 >
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (isOpenGroup) {
-                        setOpenDesktopGroup(null);
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isOpenGroup) {
+                      setOpenDesktopGroup(null);
                       } else {
                         openGroup(group.title);
-                      }
-                    }}
-                    className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-xs font-mono uppercase tracking-[0.12em] transition-colors border ${
-                      isGroupActive || isOpenGroup
-                        ? isHomePage
-                          ? "border-[#0f3d73]/30 bg-[#eff6ff] text-[#0f3d73]"
-                          : "text-white border-brand-accent/50 bg-white/10"
-                        : isHomePage
-                          ? "border-slate-200/80 text-slate-700 hover:border-[#0f3d73]/30 hover:bg-white hover:text-[#0f3d73]"
-                          : "text-neutral-300 border-white/10 hover:text-white hover:border-white/30"
-                    }`}
+                    }
+                  }}
+                  className={`${chromePillBase} ${isGroupActive || isOpenGroup ? chromePillActive : ''}`}
                     aria-expanded={isOpenGroup}
                     aria-haspopup="menu"
                   >
@@ -254,11 +239,7 @@ export function CorporateNavbar() {
                           key={item.href}
                           href={item.href}
                           onClick={() => setOpenDesktopGroup(null)}
-                          className={`group/item flex flex-col rounded-xl px-4 py-3.5 transition-colors ${
-                            pathname === item.href
-                              ? "bg-brand-accent/10 text-white"
-                              : "text-neutral-300 hover:bg-white/10 hover:text-white"
-                          }`}
+                          className={`${chromeMenuItem} ${pathname === item.href ? chromeMenuItemActive : ''}`}
                           role="menuitem"
                         >
                           <span className="text-sm font-medium">{item.label}</span>
@@ -286,15 +267,7 @@ export function CorporateNavbar() {
               <button
                 type="button"
                 onClick={() => setIsConnexionOpen((prev) => !prev)}
-                className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-xs font-mono uppercase tracking-[0.12em] transition-colors border ${
-                  isConnexionOpen
-                    ? isHomePage
-                      ? "border-[#0f3d73]/30 bg-[#eff6ff] text-[#0f3d73]"
-                      : "text-white border-brand-accent/50 bg-white/10"
-                    : isHomePage
-                      ? "border-slate-200/80 text-slate-700 hover:border-[#0f3d73]/30 hover:bg-white hover:text-[#0f3d73]"
-                      : "text-neutral-300 border-white/10 hover:text-white hover:border-white/30"
-                }`}
+                className={`${chromePillBase} ${isConnexionOpen ? chromePillActive : ''}`}
                 aria-expanded={isConnexionOpen}
                 aria-haspopup="menu"
               >
@@ -321,10 +294,10 @@ export function CorporateNavbar() {
                   <Link
                     href="/auth/signin"
                     onClick={() => setIsConnexionOpen(false)}
-                    className="group/item flex items-start gap-3 rounded-xl px-4 py-3.5 transition-colors text-neutral-300 hover:bg-white/10 hover:text-white"
+                    className={chromeMenuItem}
                     role="menuitem"
                   >
-                    <LogIn className="w-5 h-5 mt-0.5 text-brand-accent flex-shrink-0" aria-hidden="true" />
+                    <LogIn className="w-5 h-5 mt-0.5 text-lux-gold-wash flex-shrink-0" aria-hidden="true" />
                     <div className="flex flex-col">
                       <span className="text-sm font-medium">Se connecter</span>
                       <span className="text-xs text-neutral-500 group-hover/item:text-neutral-400 mt-0.5 transition-colors">
@@ -335,12 +308,12 @@ export function CorporateNavbar() {
                   <Link
                     href="/bilan-gratuit"
                     onClick={() => setIsConnexionOpen(false)}
-                    className="group/item flex items-start gap-3 rounded-xl px-4 py-3.5 transition-colors text-neutral-300 hover:bg-white/10 hover:text-white"
+                    className={chromeMenuItem}
                     role="menuitem"
                   >
-                    <UserPlus className="w-5 h-5 mt-0.5 text-emerald-400 flex-shrink-0" aria-hidden="true" />
+                    <UserPlus className="w-5 h-5 mt-0.5 text-lux-evergreen flex-shrink-0" aria-hidden="true" />
                     <div className="flex flex-col">
-                      <span className="text-sm font-medium">S'inscrire</span>
+                      <span className="text-sm font-medium">Demander un bilan</span>
                       <span className="text-xs text-neutral-500 group-hover/item:text-neutral-400 mt-0.5 transition-colors">
                         Nouveau parent ou élève
                       </span>
@@ -353,7 +326,7 @@ export function CorporateNavbar() {
             {/* CTA Button - Desktop */}
             <Link
               href="/bilan-gratuit"
-              className="hidden md:flex items-center gap-2 btn-primary shadow-[0_12px_30px_rgba(79,209,233,0.2)] hover:shadow-[0_16px_40px_rgba(79,209,233,0.25)]"
+              className={chromeCta}
               aria-label="Démarrer un bilan gratuit"
             >
               <Phone className="w-4 h-4" aria-hidden="true" />
@@ -363,11 +336,7 @@ export function CorporateNavbar() {
             {/* Sign-in Button - Mobile */}
             <Link
               href="/auth/signin"
-              className={`md:hidden inline-flex items-center gap-1.5 rounded-full px-4 py-2.5 text-xs font-semibold transition-colors border min-h-[44px] ${
-                isHomePage
-                  ? 'border-[#0f3d73]/30 bg-[#0f3d73] text-white'
-                  : 'border-brand-accent/50 bg-brand-accent text-white'
-              }`}
+              className={chromeMobileCta}
               aria-label="Se connecter"
             >
               <LogIn className="w-3.5 h-3.5" aria-hidden="true" />
@@ -377,16 +346,12 @@ export function CorporateNavbar() {
             {/* Menu Button - Mobile */}
             <button
               onClick={() => setIsOpen(true)}
-              className={`md:hidden flex items-center gap-2 transition-colors duration-300 group ${
-                isHomePage ? 'text-[#0f3d73] hover:text-[#9f1239]' : 'text-white hover:text-brand-accent'
-              }`}
+              className={chromeMenuButton}
               aria-label="Ouvrir le menu"
               aria-expanded={isOpen}
               aria-controls="primary-menu"
             >
-              <span className={`font-mono text-xs uppercase tracking-[0.14em] group-hover:tracking-[0.2em] transition-all ${
-                isHomePage ? 'text-slate-700' : 'text-neutral-300'
-              }`}>Menu</span>
+              <span className="font-mono text-xs uppercase tracking-[0.14em] group-hover:tracking-[0.2em] transition-all text-neutral-300">Menu</span>
               <Menu className="w-6 h-6" aria-hidden="true" />
             </button>
           </div>
@@ -415,7 +380,7 @@ export function CorporateNavbar() {
               <button
                 id="close-menu"
                 onClick={() => setIsOpen(false)}
-                className="text-white hover:text-brand-accent transition-colors duration-300"
+                className="text-white hover:text-lux-gold-wash transition-colors duration-300"
                 aria-label="Fermer le menu"
               >
                 <X className="w-8 h-8" aria-hidden="true" />
@@ -442,7 +407,7 @@ export function CorporateNavbar() {
                                 onClick={() => setIsOpen(false)}
                                 aria-current={pathname === item.href ? "page" : undefined}
                                 className="font-display text-3xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-400
-                                            hover:to-brand-accent transition-all duration-300
+                                            hover:to-lux-gold-wash transition-all duration-300
                                             relative group"
                                 style={{
                                   transform: isOpen ? 'translateY(0)' : 'translateY(20px)',
@@ -452,7 +417,7 @@ export function CorporateNavbar() {
                               >
                                 {item.label}
                                 <span
-                                  className={`absolute -left-8 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-brand-accent transition-opacity ${pathname === item.href ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                                  className={`absolute -left-8 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-lux-gold transition-opacity ${pathname === item.href ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
                                   aria-hidden="true"
                                 />
                               </Link>
@@ -461,7 +426,7 @@ export function CorporateNavbar() {
                                 key={item.href}
                                 onClick={() => scrollToSection(item.href.replace('/', ''))}
                                 className="font-display text-3xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-400
-                                            hover:to-brand-accent transition-all duration-300
+                                            hover:to-lux-gold-wash transition-all duration-300
                                             relative group text-left"
                                 style={{
                                   transform: isOpen ? 'translateY(0)' : 'translateY(20px)',
@@ -470,7 +435,7 @@ export function CorporateNavbar() {
                                 }}
                               >
                                 {item.label}
-                                <span className="absolute -left-8 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-brand-accent opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
+                                <span className="absolute -left-8 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-lux-gold opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
                               </button>
                             );
                           })}
@@ -500,7 +465,7 @@ export function CorporateNavbar() {
                     <Link
                       href="/auth/signin"
                       onClick={() => setIsOpen(false)}
-                      className="btn-primary flex items-center gap-2"
+                      className="flex items-center gap-2 rounded-lg bg-lux-gold px-5 py-3 text-sm font-semibold text-lux-ink transition-all hover:bg-lux-gold-bright"
                     >
                       <LogIn className="w-4 h-4" aria-hidden="true" />
                       Se connecter
@@ -508,10 +473,10 @@ export function CorporateNavbar() {
                     <Link
                       href="/bilan-gratuit"
                       onClick={() => setIsOpen(false)}
-                      className="btn-outline flex items-center gap-2"
+                      className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition-all hover:border-lux-gold/40 hover:bg-white/10"
                     >
                       <UserPlus className="w-4 h-4" aria-hidden="true" />
-                      S'inscrire
+                      Demander un bilan
                     </Link>
                   </div>
                 </div>
@@ -522,7 +487,7 @@ export function CorporateNavbar() {
             <div className="px-6 lg:px-12 py-8 flex flex-col md:flex-row items-center justify-between gap-4
                                 text-neutral-500 text-sm font-mono border-t border-white/5">
               <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-brand-accent" aria-hidden="true" />
+                <Phone className="w-4 h-4 text-lux-gold-wash" aria-hidden="true" />
                 <span>+216 99 19 28 29</span>
               </div>
               <div>contact@nexusreussite.academy</div>

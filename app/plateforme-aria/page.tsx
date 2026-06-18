@@ -1,28 +1,25 @@
 "use client";
 
+import Link from "next/link";
+import { motion } from "framer-motion";
+import {
+  ArrowRight,
+  BookOpen,
+  BrainCircuit,
+  GraduationCap,
+  MessageCircle,
+  Shield,
+  Sparkles,
+  Star,
+  Target,
+  Zap,
+  Clock,
+} from "lucide-react";
 import { CorporateFooter } from "@/components/layout/CorporateFooter";
 import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
 import { AriaChat } from "@/components/ui/aria-chat";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-import React from "react";
-import {
-  BrainCircuit,
-  MessageCircle,
-  BookOpen,
-  Clock,
-  Shield,
-  Sparkles,
-  ArrowRight,
-  CheckCircle2,
-  GraduationCap,
-  Zap,
-  Target,
-  Star,
-} from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/card";
 import { resolveSubjectIcon } from "@/lib/ui-icons";
 
 const ARIA_SUBJECTS = [
@@ -42,349 +39,281 @@ const ARIA_FEATURES = [
   {
     icon: Clock,
     title: "Accès selon formule",
-    description: "ARIA peut compléter votre parcours ou votre add-on selon la formule choisie.",
+    description: "ARIA complète certains parcours ou add-ons selon la formule choisie.",
   },
   {
     icon: Target,
-    title: "Réponses adaptées à votre niveau",
-    description: "Seconde, Première ou Terminale — ARIA adapte ses explications à votre programme exact.",
+    title: "Réponses adaptées au niveau",
+    description: "Seconde, Première ou Terminale: les explications restent alignées sur le programme.",
   },
   {
     icon: BookOpen,
     title: "Basée sur les programmes officiels",
-    description: "Entraînée sur les programmes de l'Éducation Nationale française et nos contenus exclusifs.",
+    description: "ARIA s’appuie sur les contenus pédagogiques validés par Nexus Réussite.",
   },
   {
     icon: Zap,
     title: "Réponses instantanées",
-    description: "Pas d'attente. Posez votre question, obtenez une explication claire en quelques secondes.",
+    description: "Posez votre question et obtenez une explication claire sans attendre un créneau.",
   },
   {
     icon: Shield,
-    title: "Pédagogie bienveillante",
-    description: "ARIA encourage, ne juge pas. Les réponses doivent être relues et travaillées avec méthode.",
+    title: "Complément de l’humain",
+    description: "ARIA aide à clarifier, pas à remplacer le travail pédagogique ni la relecture.",
   },
   {
     icon: Star,
-    title: "Feedback et amélioration continue",
-    description: "Évaluez chaque réponse. ARIA s'améliore grâce à vos retours.",
+    title: "Amélioration continue",
+    description: "Chaque retour aide à rendre l’outil plus utile et plus précis.",
   },
 ];
 
 const ARIA_STEPS = [
   {
     step: "1",
-    title: "Choisissez votre matière",
-    description: "Sélectionnez parmi les 10 matières du lycée français disponibles.",
+    title: "Choisissez la matière",
+    description: "Sélectionnez la discipline concernée parmi les matières du lycée français.",
   },
   {
     step: "2",
-    title: "Posez votre question",
-    description: "Tapez votre question comme vous la poseriez à un assistant pédagogique, puis relisez la réponse.",
+    title: "Posez une question",
+    description: "Formulez votre besoin comme vous le feriez avec un assistant pédagogique.",
   },
   {
     step: "3",
-    title: "Recevez une explication claire",
-    description: "ARIA vous répond avec des explications structurées, des exemples et des méthodes.",
+    title: "Lisez la réponse",
+    description: "ARIA propose une explication structurée, puis un exemple ou une méthode.",
   },
   {
     step: "4",
-    title: "Approfondissez si besoin",
-    description: "Continuez la conversation pour approfondir, demander un exercice ou une autre méthode.",
+    title: "Travaillez avec méthode",
+    description: "Reprenez la réponse avec un cadre clair et l’appui de l’accompagnement humain.",
   },
 ];
 
 export default function PlateformeAriaPage() {
   return (
-    <div className="min-h-screen bg-white text-slate-900">
+    <main className="luxury min-h-screen" id="main-content">
       <CorporateNavbar />
-      <main>
-        {/* Hero ARIA */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 py-14 md:py-24">
-          <div className="absolute inset-0 opacity-20">
-            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-400 rounded-full blur-3xl" />
-            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-300 rounded-full blur-3xl" />
-          </div>
 
-          <div className="relative container mx-auto max-w-6xl px-4 text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <Badge className="bg-white/10 text-white border-white/20 mb-6">
-                <BrainCircuit className="w-4 h-4 mr-2" />
-                Intelligence Artificielle Pédagogique
+      <section className="bg-lux-ink px-4 py-16 pt-28 md:px-6">
+        <div className="mx-auto max-w-6xl text-center">
+          <Badge className="mb-4 border border-lux-line/40 bg-white/5 text-lux-gold-wash">
+            <BrainCircuit className="mr-2 h-4 w-4" />
+            Intelligence artificielle pédagogique
+          </Badge>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="font-fraunces text-4xl font-light tracking-tight text-lux-ivory md:text-6xl"
+          >
+            Rencontrez <span className="text-lux-gold-wash">ARIA</span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.08 }}
+            className="mx-auto mt-5 max-w-3xl text-lg text-lux-ivory/75 md:text-xl"
+          >
+            ARIA complète l’accompagnement humain avec une aide pédagogique structurée,
+            disponible selon formule pour réviser, s’entraîner et clarifier les méthodes.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.16 }}
+            className="mt-8 flex flex-col justify-center gap-3 sm:flex-row"
+          >
+            <Link href="/bilan-gratuit" className="lux-cta-reserve rounded-lg px-6 py-3.5 text-sm font-semibold">
+              Demander un bilan
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+            <Link href="/offres" className="lux-cta-secondary rounded-lg px-6 py-3.5 text-sm font-semibold text-lux-ivory border-lux-line/40">
+              Voir les offres ARIA
+            </Link>
+          </motion.div>
+
+          <div className="mt-10 flex flex-wrap justify-center gap-3 text-sm text-lux-ivory/80">
+            <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2">Complément de l’humain</span>
+            <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2">Relu et travaillé avec méthode</span>
+            <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2">Programmes officiels</span>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-lux-paper px-4 py-14 md:px-6">
+        <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+          <Card className="border-lux-line bg-lux-white lux-shadow">
+            <CardContent className="p-6 md:p-8">
+              <Badge variant="outline" className="mb-4 border-lux-line/70 text-lux-slate">
+                <Sparkles className="mr-2 h-4 w-4 text-lux-gold" />
+                Qu’est-ce qu’ARIA ?
               </Badge>
-            </motion.div>
+              <h2 className="text-3xl font-fraunces text-lux-ink md:text-4xl">
+                Un assistant pédagogique <span className="text-lux-gold-deep">propulsé par l’IA</span>
+              </h2>
+              <p className="mt-5 max-w-2xl text-sm leading-7 text-lux-slate md:text-base">
+                ARIA, pour Assistant de Révision Intelligent et Adaptatif, est conçue pour
+                compléter le travail humain. Elle aide à reformuler, expliquer et structurer,
+                mais les réponses doivent toujours être relues et retravaillées avec méthode.
+              </p>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="font-heading text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight"
-            >
-              Rencontrez <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-slate-200">ARIA</span>
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto mb-8 leading-relaxed"
-            >
-              Votre assistante IA pédagogique personnelle pour compléter le travail humain,
-              vous aider dans <strong className="text-white">10 matières du lycée</strong> et structurer les révisions.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center mb-12"
-            >
-              <Button asChild size="lg" className="h-14 px-8 text-lg bg-white text-slate-900 hover:bg-slate-100 font-semibold group">
-                <Link href="/bilan-gratuit">
-                  Demander un bilan
-                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="h-14 px-8 text-lg border-white/40 text-white hover:bg-white/15">
-                <Link href="/offres">
-                  Voir les offres ARIA
-                </Link>
-              </Button>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="flex flex-wrap justify-center gap-4 sm:gap-8 text-white/90 text-sm"
-            >
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-green-400" />
-                <span>Complément de l’accompagnement humain</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-green-400" />
-                <span>Relu et travaillé avec méthode</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-green-400" />
-                <span>Programmes officiels</span>
-              </div>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Qu'est-ce qu'ARIA */}
-        <section className="py-14 md:py-20 bg-white">
-          <div className="container mx-auto max-w-6xl px-4">
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
-              <div>
-                <Badge variant="outline" className="mb-4 text-blue-700 border-blue-200 bg-blue-50">
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  Qu'est-ce qu'ARIA ?
-                </Badge>
-                <h2 className="font-heading text-3xl md:text-4xl font-bold text-slate-900 mb-6">
-                  Un assistant pédagogique <span className="text-blue-600">propulsé par l'IA</span>
-                </h2>
-                <p className="text-lg text-slate-700 mb-6 leading-relaxed">
-                  ARIA (<strong>A</strong>ssistant de <strong>R</strong>évision <strong>I</strong>ntelligent et <strong>A</strong>daptatif) est l'intelligence artificielle
-                  pédagogique développée par Nexus Réussite. Elle est entraînée spécifiquement sur les programmes
-                  du lycée français et nos contenus pédagogiques exclusifs.
-                </p>
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                    <p className="text-slate-700">Répond à vos questions dans <strong>10 matières</strong> du lycée</p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                    <p className="text-slate-700">Explications <strong>adaptées à votre niveau</strong> (2nde, 1ère, Tle)</p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                    <p className="text-slate-700">Basée sur les <strong>programmes officiels</strong> de l'Éducation Nationale</p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                    <p className="text-slate-700">Enrichie par notre <strong>base de connaissances RAG</strong> exclusive</p>
-                  </div>
+              <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                <div className="rounded-2xl border border-lux-line/60 bg-lux-paper/70 p-4">
+                  <p className="text-sm font-semibold text-lux-ink">Rôle</p>
+                  <p className="mt-1 text-sm text-lux-slate">Outil d’aide à la révision, pas remplacement de l’encadrement humain.</p>
+                </div>
+                <div className="rounded-2xl border border-lux-line/60 bg-lux-paper/70 p-4">
+                  <p className="text-sm font-semibold text-lux-ink">Accès</p>
+                  <p className="mt-1 text-sm text-lux-slate">Disponible selon la formule ou l’add-on retenu.</p>
                 </div>
               </div>
+            </CardContent>
+          </Card>
 
-              <div className="relative">
-                <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl p-8 border border-blue-100">
-                  <div className="bg-white rounded-xl shadow-lg p-6 border border-slate-100">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-slate-600 rounded-full flex items-center justify-center">
-                        <BrainCircuit className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-slate-900">ARIA</p>
-                        <p className="text-xs text-slate-600">Assistant IA pédagogique</p>
-                      </div>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="bg-blue-50 rounded-lg p-3 text-sm text-slate-700">
-                        <p className="font-medium text-blue-800 mb-1">Élève :</p>
-                        Comment résoudre une équation du second degré ?
-                      </div>
-                      <div className="bg-slate-50 rounded-lg p-3 text-sm text-slate-700">
-                        <p className="font-medium text-slate-800 mb-1">ARIA :</p>
-                        Pour résoudre ax² + bx + c = 0, on calcule le discriminant Δ = b² - 4ac.
-                        <br />• Si Δ &gt; 0 : deux solutions x₁ = (-b-√Δ)/2a et x₂ = (-b+√Δ)/2a
-                        <br />• Si Δ = 0 : une solution double x = -b/2a
-                        <br />· Si Δ &lt; 0 : pas de solution réelle
-                        <br /><br />Voulez-vous un exemple concret ?
-                      </div>
-                    </div>
-                  </div>
+          <Card className="border-lux-line bg-lux-ink text-lux-ivory lux-shadow">
+            <CardContent className="p-6 md:p-8">
+              <div className="flex items-center gap-3">
+                <MessageCircle className="h-5 w-5 text-lux-gold-wash" />
+                <h2 className="text-2xl font-fraunces text-lux-ivory">Exemple de dialogue</h2>
+              </div>
+              <div className="mt-6 space-y-3">
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-lux-ivory/90">
+                  <p className="mb-1 font-semibold text-lux-gold-wash">Élève</p>
+                  Comment résoudre une équation du second degré ?
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-lux-ivory/90">
+                  <p className="mb-1 font-semibold text-lux-gold-wash">ARIA</p>
+                  On calcule le discriminant Δ = b² - 4ac. Si Δ &gt; 0, il y a deux solutions;
+                  si Δ = 0, une solution double; si Δ &lt; 0, pas de solution réelle.
+                  Voulez-vous un exemple ?
                 </div>
               </div>
-            </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      <section className="bg-lux-paper px-4 py-14 md:px-6">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-12 text-center">
+            <Badge variant="outline" className="mb-4 border-lux-line/70 text-lux-slate">
+              <Zap className="mr-2 h-4 w-4 text-lux-gold" />
+              Fonctionnalités
+            </Badge>
+            <h2 className="text-3xl font-fraunces text-lux-ink md:text-4xl">
+              Pourquoi ARIA apporte un cadre utile
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-sm text-lux-slate md:text-base">
+              L’outil reste lisible, sobre et orienté méthode, avec un rôle précis dans le parcours d’accompagnement.
+            </p>
           </div>
-        </section>
 
-        {/* Fonctionnalités ARIA */}
-        <section className="py-14 md:py-20 bg-slate-50">
-          <div className="container mx-auto max-w-6xl px-4">
-            <div className="text-center mb-16">
-              <Badge variant="outline" className="mb-4 text-blue-700 border-blue-200 bg-blue-50">
-                <Zap className="w-4 h-4 mr-2" />
-                Fonctionnalités
-              </Badge>
-              <h2 className="font-heading text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-                Pourquoi ARIA est <span className="text-blue-600">différente</span>
-              </h2>
-              <p className="text-lg text-slate-700 max-w-2xl mx-auto">
-                ARIA n'est pas un chatbot générique. C'est une IA spécialisée dans l'accompagnement scolaire du lycée français.
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {ARIA_FEATURES.map((feature) => {
-                const Icon = feature.icon;
-                return (
-                  <div
-                    key={feature.title}
-                    className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-shadow"
-                  >
-                    <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center mb-4">
-                      <Icon className="w-6 h-6 text-blue-600" />
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {ARIA_FEATURES.map((feature) => {
+              const Icon = feature.icon;
+              return (
+                <Card key={feature.title} className="border-lux-line bg-lux-white lux-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-lux-gold/12">
+                      <Icon className="h-6 w-6 text-lux-gold" />
                     </div>
-                    <h3 className="font-heading text-lg font-bold text-slate-900 mb-2">{feature.title}</h3>
-                    <p className="text-slate-700 text-sm leading-relaxed">{feature.description}</p>
-                  </div>
-                );
-              })}
-            </div>
+                    <h3 className="mt-4 text-xl font-fraunces text-lux-ink">{feature.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-lux-slate">{feature.description}</p>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Matières couvertes */}
-        <section className="py-14 md:py-20 bg-white">
-          <div className="container mx-auto max-w-6xl px-4">
-            <div className="text-center mb-16">
-              <Badge variant="outline" className="mb-4 text-blue-700 border-blue-200 bg-blue-50">
-                <GraduationCap className="w-4 h-4 mr-2" />
-                10 Matières
-              </Badge>
-              <h2 className="font-heading text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-                Toutes les matières du <span className="text-blue-600">lycée français</span>
-              </h2>
-              <p className="text-lg text-slate-700 max-w-2xl mx-auto">
-                ARIA couvre l'ensemble des matières du tronc commun et des spécialités les plus demandées.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-              {ARIA_SUBJECTS.map((subject) => (
-                (() => {
-                  const SubjectIcon = resolveSubjectIcon(subject.value);
-                  return (
-                    <div
-                      key={subject.name}
-                      className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl p-4 border border-blue-100 text-center hover:shadow-md transition-shadow"
-                    >
-                      <span className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-blue-600 shadow-sm">
-                        <SubjectIcon className="h-5 w-5" aria-hidden="true" />
-                      </span>
-                      <h3 className="font-semibold text-slate-900 text-sm mb-1">{subject.name}</h3>
-                      <p className="text-xs text-slate-700 leading-relaxed">{subject.desc}</p>
-                    </div>
-                  );
-                })()
-              ))}
-            </div>
+      <section className="bg-lux-paper px-4 py-14 md:px-6">
+        <div className="mx-auto max-w-6xl rounded-3xl border border-lux-line bg-lux-white p-6 md:p-8 lux-shadow">
+          <div className="text-center">
+            <Badge variant="outline" className="mb-4 border-lux-line/70 text-lux-slate">
+              <GraduationCap className="mr-2 h-4 w-4 text-lux-gold" />
+              10 matières
+            </Badge>
+            <h2 className="text-3xl font-fraunces text-lux-ink md:text-4xl">
+              Toutes les matières du lycée français
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-sm text-lux-slate md:text-base">
+              Mathématiques, français, NSI, physique-chimie, philosophie, histoire-géographie, SVT, SES, anglais et espagnol.
+            </p>
           </div>
-        </section>
 
-        {/* Comment ça marche */}
-        <section className="py-14 md:py-20 bg-gradient-to-br from-blue-900 to-slate-800 text-white">
-          <div className="container mx-auto max-w-6xl px-4">
-            <div className="text-center mb-16">
-              <Badge className="bg-white/10 text-white border-white/20 mb-4">
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Comment ça marche
-              </Badge>
-              <h2 className="font-heading text-3xl md:text-4xl font-bold mb-4">
-                Simple comme une conversation
-              </h2>
-              <p className="text-lg text-slate-200 max-w-2xl mx-auto">
-                Pas de configuration compliquée. Ouvrez le chat, choisissez votre matière, posez votre question.
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {ARIA_STEPS.map((step) => (
+          <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+            {ARIA_SUBJECTS.map((subject) => {
+              const SubjectIcon = resolveSubjectIcon(subject.value);
+              return (
                 <div
-                  key={step.step}
-                  className="text-center"
+                  key={subject.name}
+                  className="rounded-2xl border border-lux-line/60 bg-lux-paper/70 p-4 text-center transition-transform hover:-translate-y-0.5 hover:shadow-lg"
                 >
-                  <div className="w-14 h-14 bg-white/10 border border-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl font-bold text-blue-300">{step.step}</span>
-                  </div>
-                  <h3 className="font-heading text-lg font-bold mb-2">{step.title}</h3>
-                  <p className="text-slate-200 text-sm leading-relaxed">{step.description}</p>
+                  <span className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-lux-white text-lux-gold shadow-sm">
+                    <SubjectIcon className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <h3 className="text-sm font-semibold text-lux-ink">{subject.name}</h3>
+                  <p className="mt-1 text-xs leading-5 text-lux-slate">{subject.desc}</p>
                 </div>
-              ))}
-            </div>
+              );
+            })}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* CTA Final */}
-        <section className="py-14 md:py-20 bg-white">
-          <div className="container mx-auto max-w-4xl px-4 text-center">
-            <div>
-              <h2 className="font-heading text-3xl md:text-4xl font-bold text-slate-900 mb-6">
-                Prêt à utiliser <span className="text-blue-600">ARIA</span> dans un cadre clair ?
-              </h2>
-              <p className="text-lg text-slate-700 mb-8 max-w-2xl mx-auto">
-                ARIA complète l’accompagnement humain, elle ne le remplace pas. Demandez un bilan pour
-                savoir si l’accès doit passer par une formule ou un add-on.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button asChild size="lg" className="h-14 px-8 text-lg bg-brand-primary hover:bg-brand-primary-dark font-semibold group">
-                  <Link href="/bilan-gratuit">
-                    Demander un bilan
-                    <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" size="lg" className="h-14 px-8 text-lg">
-                  <Link href="/offres">
-                    Voir les offres avec ARIA
-                  </Link>
-                </Button>
+      <section className="bg-lux-ink px-4 py-14 md:px-6">
+        <div className="mx-auto max-w-6xl text-center">
+          <Badge className="mb-4 border border-lux-line/40 bg-white/5 text-lux-gold-wash">
+            <MessageCircle className="mr-2 h-4 w-4" />
+            Comment ça marche
+          </Badge>
+          <h2 className="text-3xl font-fraunces text-lux-ivory md:text-4xl">Simple comme une conversation</h2>
+          <p className="mx-auto mt-4 max-w-2xl text-sm text-lux-ivory/75 md:text-base">
+            Pas de configuration compliquée. Choisissez la matière, posez votre question, puis travaillez la réponse avec méthode.
+          </p>
+
+          <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+            {ARIA_STEPS.map((step) => (
+              <div key={step.step} className="rounded-3xl border border-white/10 bg-white/5 p-6 text-left backdrop-blur">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full border border-lux-gold/30 bg-lux-gold/10 text-lg font-semibold text-lux-gold-wash">
+                  {step.step}
+                </div>
+                <h3 className="mt-4 text-xl font-fraunces text-lux-ivory">{step.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-lux-ivory/75">{step.description}</p>
               </div>
-            </div>
+            ))}
           </div>
-        </section>
-      </main>
+        </div>
+      </section>
+
+      <section className="bg-lux-paper px-4 py-14 md:px-6">
+        <div className="mx-auto max-w-4xl rounded-3xl border border-lux-line bg-lux-white p-6 md:p-8 text-center lux-shadow">
+          <h2 className="text-3xl font-fraunces text-lux-ink md:text-4xl">
+            Prêt à utiliser <span className="text-lux-gold-deep">ARIA</span> dans un cadre clair ?
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-sm text-lux-slate md:text-base">
+            ARIA complète l’accompagnement humain, elle ne le remplace pas. Demandez un bilan pour savoir si l’accès doit passer par une formule ou un add-on.
+          </p>
+          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+            <Link href="/bilan-gratuit" className="lux-cta-reserve rounded-lg px-6 py-3.5 text-sm font-semibold">
+              Demander un bilan
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+            <Link href="/offres" className="lux-cta-secondary rounded-lg px-6 py-3.5 text-sm font-semibold text-lux-ink border-lux-line/40">
+              Voir les offres avec ARIA
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <CorporateFooter />
       <AriaChat />
-    </div>
+    </main>
   );
 }

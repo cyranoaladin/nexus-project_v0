@@ -26,7 +26,7 @@ const CorporateFooter = () => {
     ];
 
     return (
-        <footer className="relative bg-surface-darker pt-24 pb-20 overflow-hidden z-20 border-t border-white/5 lg:pb-8">
+        <footer className="relative bg-surface-darker pt-24 pb-20 overflow-hidden z-20 border-t border-white/10 lg:pb-8">
             <div className="max-w-7xl mx-auto px-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
 
@@ -42,21 +42,22 @@ const CorporateFooter = () => {
                             />
                         </div>
                         <p className="text-neutral-300 text-sm leading-relaxed mb-6">
-                            L'excellence pédagogique augmentée par l'Intelligence Artificielle. <br />Pour ceux qui visent l'exceptionnel.
+                            L&apos;excellence pédagogique augmentée par l&apos;Intelligence Artificielle.
+                            <br />
+                            Pour les familles qui recherchent un cadre sérieux, sobre et cohérent.
                         </p>
                     </div>
 
                     {/* Links */}
                     <div>
-                        <h4 className="text-white font-medium text-sm mb-6">Exploration</h4>
+                        <h4 className="font-fraunces text-lg font-medium text-lux-ivory mb-6">Exploration</h4>
                         <ul className="space-y-4">
                             {links.map((item, index) => (
                                 <li key={index}>
                                     {item.isPage ? (
                                         <Link
                                             href={item.href}
-                                            className="inline-flex items-center gap-2 text-neutral-300 text-sm
-                                 hover:text-cyan-400 hover:gap-3 transition-all duration-300"
+                                            className="inline-flex items-center gap-2 text-neutral-300 text-sm hover:text-lux-gold-wash hover:gap-3 transition-all duration-300"
                                         >
                                             <span>{item.label}</span>
                                             <ArrowRight className="w-3 h-3 opacity-0 hover:opacity-100" />
@@ -64,8 +65,7 @@ const CorporateFooter = () => {
                                     ) : (
                                         <button
                                             onClick={() => scrollToSection(item.href)}
-                                            className="inline-flex items-center gap-2 text-neutral-300 text-sm
-                                 hover:text-cyan-400 hover:gap-3 transition-all duration-300"
+                                            className="inline-flex items-center gap-2 text-neutral-300 text-sm hover:text-lux-gold-wash hover:gap-3 transition-all duration-300"
                                         >
                                             <span>{item.label}</span>
                                             <ArrowRight className="w-3 h-3 opacity-0 hover:opacity-100" />
@@ -78,22 +78,22 @@ const CorporateFooter = () => {
 
                     {/* Contact */}
                     <div className="lg:col-span-2">
-                        <h4 className="text-white font-medium text-sm mb-6">Coordonnées</h4>
+                        <h4 className="font-fraunces text-lg font-medium text-lux-ivory mb-6">Coordonnées</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="p-4 rounded-xl bg-white/5 border border-white/5 flex items-start gap-3">
-                                <MapPin className="w-5 h-5 text-cyan-400 mt-1" />
+                            <div className="p-4 rounded-xl bg-white/5 border border-white/10 flex items-start gap-3">
+                                <MapPin className="w-5 h-5 text-lux-gold-wash mt-1" />
                                 <div>
-                                    <span className="block text-white text-sm font-medium">Siège social administratif</span>
+                                    <span className="block text-lux-ivory text-sm font-medium">Siège social administratif</span>
                                     <span className="block text-neutral-300 text-xs mt-1">
                                         Centre Urbain Nord, Immeuble VENUS<br />Appt C13, 1082 – Tunis
                                     </span>
                                 </div>
                             </div>
 
-                            <div className="p-4 rounded-xl bg-white/5 border border-white/5 flex items-start gap-3">
-                                <MapPin className="w-5 h-5 text-cyan-400 mt-1" />
+                            <div className="p-4 rounded-xl bg-white/5 border border-white/10 flex items-start gap-3">
+                                <MapPin className="w-5 h-5 text-lux-gold-wash mt-1" />
                                 <div>
-                                    <span className="block text-white text-sm font-medium">Centre d&apos;accompagnement pédagogique</span>
+                                    <span className="block text-lux-ivory text-sm font-medium">Centre d&apos;accompagnement pédagogique</span>
                                     <span className="block text-neutral-300 text-xs mt-1">
                                         Mutuelleville, Tunis
                                     </span>
@@ -102,11 +102,11 @@ const CorporateFooter = () => {
 
                             <div className="space-y-3">
                                 <div className="flex items-center gap-3 text-neutral-300 hover:text-white transition-colors">
-                                    <Mail className="w-4 h-4 text-cyan-400" />
+                                    <Mail className="w-4 h-4 text-lux-gold-wash" />
                                     <span className="text-sm">contact@nexusreussite.academy</span>
                                 </div>
                                 <div className="flex items-center gap-3 text-neutral-300 hover:text-white transition-colors">
-                                    <Phone className="w-4 h-4 text-cyan-400" />
+                                    <Phone className="w-4 h-4 text-lux-gold-wash" />
                                     <span className="text-sm">+216 99 19 28 29</span>
                                 </div>
                             </div>
@@ -115,18 +115,18 @@ const CorporateFooter = () => {
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
                     <p className="max-w-3xl text-center md:text-left text-neutral-400 text-xs leading-relaxed">
                         © 2026 Nexus Réussite - Une marque exploitée par la société STE M&amp;M ACADEMY SUARL. Le site nexusreussite.academy est la propriété exclusive de M&amp;M ACADEMY SUARL.
                     </p>
                     <div className="flex items-center gap-6">
-                        <Link href="/mentions-legales" className="text-neutral-400 text-xs hover:text-white transition-colors">
+                        <Link href="/mentions-legales" className="text-neutral-400 text-xs hover:text-lux-gold-wash transition-colors">
                             Mentions Légales
                         </Link>
-                        <Link href="/conditions-generales" className="text-neutral-400 text-xs hover:text-white transition-colors">
+                        <Link href="/conditions-generales" className="text-neutral-400 text-xs hover:text-lux-gold-wash transition-colors">
                             Conditions Générales
                         </Link>
-                        <Link href="/contact" className="text-neutral-400 text-xs hover:text-white transition-colors">
+                        <Link href="/contact" className="text-neutral-400 text-xs hover:text-lux-gold-wash transition-colors">
                             Contact
                         </Link>
                     </div>
