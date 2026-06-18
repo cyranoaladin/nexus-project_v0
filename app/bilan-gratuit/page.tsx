@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 export default function BilanGratuitPage() {
   return (
-    <Suspense fallback={<div className="min-h-[60vh] bg-surface-darker" />}>
+    <Suspense fallback={<div className="min-h-[60vh] bg-lux-ink" />}>
       <BilanStrategiqueClient />
     </Suspense>
   );

@@ -17,7 +17,7 @@ const pillars = [
   },
   {
     icon: BookOpen,
-    title: 'Plateforme Masterium',
+    title: 'Plateforme ARIA',
     description:
       'Ressources, parcours de révision, fiches et exercices en accès continu — trois paliers adaptés.',
   },

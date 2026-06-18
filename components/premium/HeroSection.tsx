@@ -101,7 +101,7 @@ export function HeroSection() {
             <p className="max-w-lg text-base leading-relaxed text-lux-ivory/80 font-dm-sans">
               Un cadre structurant pour préparer le bac français&nbsp;:
               enseignants agrégés, groupes de 5, bacs blancs,
-              carte d&apos;examen et plateforme Masterium.
+              carte d&apos;examen et plateforme ARIA.
             </p>
 
             {/* CTA group */}

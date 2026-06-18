@@ -5,8 +5,8 @@ import { defineConfig, devices } from '@playwright/test';
  */
 const baseURL =
   process.env.BASE_URL ??
-  process.env.NEXTAUTH_URL ??
-  'http://localhost:3000';
+  process.env.PLAYWRIGHT_TEST_BASE_URL ??
+  'http://127.0.0.1:3002';
 
 const e2eDatabaseUrl =
   process.env.E2E_DATABASE_URL ??
@@ -44,11 +44,11 @@ export default defineConfig({
     ? {}
     : {
         webServer: {
-          command: 'npm run dev',
+          command: 'node .next/standalone/server.js',
           env: {
             HOSTNAME: '127.0.0.1',
-            PORT: '3000',
-            NEXTAUTH_URL: 'http://localhost:3000',
+            PORT: '3002',
+            NEXTAUTH_URL: 'http://127.0.0.1:3002',
             DATABASE_URL: e2eDatabaseUrl,
             TEST_DATABASE_URL: e2eDatabaseUrl,
           },
