@@ -1,14 +1,23 @@
-import { Metadata } from "next";
+import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "Nos Offres & Tarifs - Accompagnement Scolaire | Nexus Réussite",
-  description: "Découvrez nos formules d'accompagnement scolaire: Programme Excellence (299 TND/mois), Pack Bac Garanti (1990 TND/an). Coaching personnalisé avec IA ARIA.",
-  keywords: ["tarifs soutien scolaire", "prix cours particuliers", "formules accompagnement", "abonnement scolaire Tunisie", "pack bac"],
+  title: 'Offres & Tarifs — Catalogue 2026/2027 | Nexus Réussite',
+  description:
+    'Tous les parcours, stages intensifs, Pass et formules Nexus Réussite. Groupes de 5 max, tarifs en TND, échéanciers transparents. Enseignants agrégés, plateforme Masterium.',
+  keywords: [
+    'tarifs accompagnement scolaire Tunis',
+    'prix bac français',
+    'stages intensifs',
+    'soutien scolaire Tunisie',
+    'Nexus Réussite offres',
+  ],
   openGraph: {
-    title: "Nos Offres & Tarifs | Nexus Réussite",
-    description: "Formules d'accompagnement de 299 TND/mois. Programme Excellence et Pack Bac Garanti avec garantie résultats.",
-    type: "website",
+    title: 'Offres & Tarifs — Catalogue 2026/2027 | Nexus Réussite',
+    description:
+      'Parcours annuels, stages intensifs, Pass fidélité et Carte Nexus. Groupes de 5 max, tarifs en TND.',
+    type: 'website',
   },
+  robots: { index: true, follow: true },
 };
 
 export default function OffresLayout({

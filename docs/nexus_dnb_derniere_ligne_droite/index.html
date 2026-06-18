@@ -1,0 +1,1250 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nexus Réussite — DNB Maths : Dernière ligne droite</title>
+  <meta name="description" content="Parcours interactif de dernière préparation au DNB de mathématiques : automatismes, flashcards, autocorrection, stratégies de copie et réponses à rédiger sur feuille.">
+  <meta name="theme-color" content="#10263f">
+  <meta property="og:title" content="DNB Maths — Dernière ligne droite | Nexus Réussite">
+  <meta property="og:description" content="Parcours interactif élève pour optimiser les points accessibles la veille du DNB de mathématiques.">
+  <meta property="og:type" content="website">
+  <style>
+    :root{
+      --navy:#10263f;
+      --navy-2:#173a5f;
+      --cream:#f7f1e6;
+      --paper:#fffdf8;
+      --gold:#c79a3b;
+      --gold-2:#f2d28a;
+      --green:#1f7a5b;
+      --red:#b84d4d;
+      --orange:#bd6b21;
+      --blue-soft:#e9f0f7;
+      --gray:#6a7280;
+      --ink:#152033;
+      --line:#d8d2c7;
+      --shadow:0 18px 45px rgba(16,38,63,.14);
+      --radius:22px;
+      --radius-sm:14px;
+      --focus:0 0 0 3px rgba(199,154,59,.35);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(199,154,59,.18), transparent 24rem),
+        radial-gradient(circle at 90% 15%, rgba(23,58,95,.15), transparent 28rem),
+        linear-gradient(180deg, #fbf7ef 0%, #f5efe4 100%);
+      line-height:1.5;
+    }
+    a{color:inherit}
+    button,input,textarea,select{font:inherit}
+    button{cursor:pointer}
+    button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible{outline:none;box-shadow:var(--focus)}
+    .app-shell{min-height:100vh}
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:50;
+      background:rgba(16,38,63,.96);
+      color:white;
+      backdrop-filter: blur(12px);
+      border-bottom:1px solid rgba(255,255,255,.12);
+    }
+    .topbar-inner{
+      max-width:1180px;
+      margin:0 auto;
+      padding:12px 18px;
+      display:flex;
+      align-items:center;
+      gap:16px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:220px;
+    }
+    .brand-mark{
+      width:42px;height:42px;border-radius:14px;
+      display:grid;place-items:center;
+      background:linear-gradient(135deg,var(--gold),#f4d997);
+      color:var(--navy);
+      font-weight:900;
+      box-shadow:0 8px 18px rgba(0,0,0,.18);
+    }
+    .brand-text strong{display:block;font-size:1rem;letter-spacing:.02em}
+    .brand-text span{display:block;font-size:.75rem;opacity:.78}
+    .nav-scroller{
+      display:flex;
+      gap:8px;
+      overflow:auto;
+      flex:1;
+      padding-bottom:2px;
+      scrollbar-width:thin;
+    }
+    .nav-link{
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.08);
+      color:white;
+      text-decoration:none;
+      padding:9px 12px;
+      border-radius:999px;
+      white-space:nowrap;
+      font-size:.86rem;
+      transition:.2s ease;
+    }
+    .nav-link:hover,.nav-link.active{background:var(--gold);color:var(--navy);border-color:var(--gold)}
+    .status-pill{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.16);
+      border-radius:999px;
+      white-space:nowrap;
+      font-size:.88rem;
+    }
+    .hero{
+      max-width:1180px;
+      margin:0 auto;
+      padding:34px 18px 18px;
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:22px;
+      align-items:stretch;
+    }
+    .hero-card,.panel,.mission-card,.flashcard,.paper-task,.score-card{
+      background:rgba(255,253,248,.92);
+      border:1px solid rgba(216,210,199,.9);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    .hero-card{padding:32px;position:relative;overflow:hidden}
+    .hero-card::after{
+      content:"";
+      position:absolute;inset:auto -80px -110px auto;
+      width:260px;height:260px;border-radius:50%;
+      background:rgba(199,154,59,.12);
+    }
+    .eyebrow{
+      display:inline-flex;align-items:center;gap:8px;
+      color:var(--navy);
+      font-weight:800;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      font-size:.78rem;
+      margin-bottom:12px;
+    }
+    .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);display:inline-block}
+    h1{font-size:clamp(2rem,5vw,4rem);line-height:.98;margin:0 0 16px;color:var(--navy);letter-spacing:-.04em}
+    h2{font-size:clamp(1.45rem,3vw,2.25rem);line-height:1.1;margin:0 0 10px;color:var(--navy);letter-spacing:-.025em}
+    h3{font-size:1.15rem;margin:0 0 8px;color:var(--navy)}
+    h4{margin:.5rem 0;color:var(--navy)}
+    .lead{font-size:1.08rem;color:#33415a;max-width:68ch;margin:0 0 20px}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+    .btn{
+      border:0;
+      border-radius:999px;
+      padding:11px 16px;
+      background:var(--navy);
+      color:white;
+      font-weight:800;
+      box-shadow:0 10px 22px rgba(16,38,63,.18);
+      transition:.2s ease;
+      text-decoration:none;
+      display:inline-flex;align-items:center;gap:8px;
+    }
+    .btn:hover{transform:translateY(-1px);background:var(--navy-2)}
+    .btn.secondary{background:white;color:var(--navy);border:1px solid var(--line);box-shadow:none}
+    .btn.ghost{background:transparent;color:var(--navy);border:1px solid var(--line);box-shadow:none}
+    .btn.gold{background:var(--gold);color:var(--navy)}
+    .btn.small{padding:8px 12px;font-size:.88rem}
+    .btn.danger{background:var(--red)}
+    .dashboard{padding:20px;display:grid;gap:14px}
+    .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .metric{
+      background:linear-gradient(180deg,#fff,#fbf7ef);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+    }
+    .metric .num{display:block;font-size:2rem;font-weight:900;color:var(--navy);line-height:1}
+    .metric .label{color:var(--gray);font-size:.84rem;margin-top:4px}
+    .progress-wrap{height:14px;background:#e8dfd0;border-radius:999px;overflow:hidden;border:1px solid rgba(16,38,63,.08)}
+    .progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--gold),#f1cf7b);transition:width .4s ease}
+    .badge-list{display:flex;flex-wrap:wrap;gap:8px}
+    .badge{
+      display:inline-flex;align-items:center;gap:6px;
+      border:1px solid var(--line);
+      background:white;
+      border-radius:999px;
+      padding:7px 10px;
+      color:#4a5365;
+      font-size:.85rem;
+    }
+    .badge.earned{background:#edf7f2;color:var(--green);border-color:#b7ddcc;font-weight:800}
+    main{max-width:1180px;margin:0 auto;padding:10px 18px 70px;display:grid;gap:22px}
+    .section{scroll-margin-top:82px}
+    .panel{padding:24px}
+    .section-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:16px}
+    .section-head p{margin:0;color:#44506a;max-width:72ch}
+    .tag{
+      display:inline-flex;align-items:center;gap:7px;
+      border-radius:999px;
+      padding:7px 10px;
+      font-size:.8rem;
+      font-weight:800;
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--navy);
+      white-space:nowrap;
+    }
+    .tag.warn{background:#fff6e7;color:var(--orange);border-color:#f1d5ad}
+    .tag.ok{background:#edf7f2;color:var(--green);border-color:#b7ddcc}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .callout{
+      padding:16px 18px;
+      border-radius:18px;
+      background:var(--blue-soft);
+      border:1px solid #d0dbe8;
+      margin:14px 0;
+    }
+    .callout strong{color:var(--navy)}
+    /* Aide à la saisie */
+    .input-help-box{margin:0 0 18px;border-radius:14px;border:1px solid #b8cfe8;background:#eef5fb;padding:14px 18px}
+    .input-help-box-title{font-size:.82rem;font-weight:800;color:var(--navy);letter-spacing:.06em;text-transform:uppercase;margin:0 0 10px;display:flex;align-items:center;gap:7px}
+    .input-help-box-title::before{content:'📋';font-style:normal}
+    .input-help-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:6px 20px;margin:0;padding:0;list-style:none}
+    .input-help-grid li{font-size:.84rem;color:#2d3f5a;padding:5px 0;border-bottom:1px solid #d0e2f0;display:flex;align-items:baseline;gap:8px}
+    .input-help-grid li:last-child{border:none}
+    .input-help-grid .fmt-label{font-weight:700;min-width:120px;flex-shrink:0}
+    .input-help-grid code{background:#d5e8f6;border-radius:4px;padding:1px 6px;font-family:monospace;font-size:.82rem;color:#0a2540;white-space:nowrap}
+    .input-help-note{margin:10px 0 0;font-size:.81rem;color:#5a6a7e;font-style:italic;border-top:1px solid #cfdce8;padding-top:8px}
+    .input-help{margin:10px 0 14px;border-radius:12px;border:1px solid #d0dbe8;background:#f8fafc;overflow:hidden}
+    .input-help summary{cursor:pointer;padding:9px 14px;font-size:.85rem;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:7px;user-select:none;list-style:none}
+    .input-help summary::-webkit-details-marker{display:none}
+    .input-help summary::before{content:'▸';font-size:.9rem;transition:transform .2s;display:inline-block}
+    .input-help[open] summary::before{transform:rotate(90deg)}
+    .input-help summary:hover{background:#eef2f7}
+    .input-help .input-help-body{padding:10px 14px 12px;border-top:1px solid #e5ecf3}
+    .callout.gold{background:#fff6df;border-color:#edd18b}
+    .callout.green{background:#edf7f2;border-color:#b7ddcc}
+    .callout.red{background:#fff0f0;border-color:#e6b9b9}
+    .timer-card{
+      display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;
+      padding:16px;border-radius:18px;border:1px solid var(--line);background:#fff;
+    }
+    .timer-display{font-size:2.2rem;font-weight:900;color:var(--navy);font-variant-numeric:tabular-nums}
+    .checklist{display:grid;gap:10px;margin:12px 0}
+    label.check-item{
+      display:flex;align-items:flex-start;gap:10px;
+      padding:12px;border:1px solid var(--line);border-radius:14px;background:white;
+    }
+    .check-item input{width:18px;height:18px;margin-top:2px;accent-color:var(--gold)}
+    .quiz{display:grid;gap:14px}
+    .question{
+      background:white;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:15px;
+      position:relative;
+    }
+    .question.correct{border-color:#9dd0ba;background:#f3fbf7}
+    .question.incorrect{border-color:#e7b0b0;background:#fff6f6}
+    .q-title{display:flex;justify-content:space-between;gap:12px;font-weight:800;color:var(--navy);margin-bottom:10px}
+    .q-body{margin:0 0 10px;color:#26344b}
+    .answer-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .answer-row input,.answer-row select,.paper-task textarea{
+      width:100%;
+      border:1px solid #cfc7b9;
+      border-radius:12px;
+      padding:10px 12px;
+      background:#fffdfa;
+      color:var(--ink);
+    }
+    .answer-row input{max-width:260px}
+    .feedback{font-size:.92rem;margin-top:9px;color:#4b5568;display:none}
+    .question.correct .feedback,.question.incorrect .feedback{display:block}
+    .formula{
+      display:inline-block;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      background:#f4f1eb;
+      border:1px solid #ded6c8;
+      border-radius:10px;
+      padding:2px 7px;
+    }
+    .cards-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    .flashcard{
+      min-height:210px;
+      perspective:1200px;
+      background:transparent;
+      box-shadow:none;
+      border:0;
+    }
+    .flash-inner{position:relative;width:100%;height:100%;min-height:210px;transition:transform .55s;transform-style:preserve-3d}
+    .flashcard.flipped .flash-inner{transform:rotateY(180deg)}
+    .flash-face{
+      position:absolute;inset:0;
+      backface-visibility:hidden;
+      background:var(--paper);
+      border:1px solid var(--line);
+      border-radius:20px;
+      box-shadow:var(--shadow);
+      padding:18px;
+      display:flex;flex-direction:column;justify-content:space-between;
+    }
+    .flash-back{transform:rotateY(180deg);background:#fffaf0}
+    .flash-face p{margin:0;color:#3b465d}
+    .flash-kicker{font-size:.77rem;text-transform:uppercase;letter-spacing:.08em;font-weight:900;color:var(--gold)}
+    .flash-title{font-size:1.3rem;font-weight:900;color:var(--navy);line-height:1.1;margin:8px 0}
+    .flash-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .mission-card{padding:18px;display:grid;gap:12px}
+    .mission-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+    .mission-title{margin:0;font-size:1.05rem;color:var(--navy)}
+    .steps{counter-reset:step;display:grid;gap:10px}
+    .step{padding:12px;border:1px solid var(--line);border-radius:14px;background:white;display:grid;gap:9px}
+    .step::before{counter-increment:step;content:"Étape " counter(step);font-weight:900;color:var(--gold);font-size:.78rem;text-transform:uppercase;letter-spacing:.07em}
+    .paper-task{padding:18px;display:grid;gap:12px;background:#fff}
+    .paper-task .paper-line{
+      min-height:84px;
+      border:1px dashed #cabfae;
+      border-radius:14px;
+      background:repeating-linear-gradient(0deg,#fffdf8,#fffdf8 26px,#f0e8dc 27px);
+      padding:12px;
+      color:#6a7280;
+      font-style:italic;
+    }
+    .model-answer{display:none;padding:13px;border-radius:14px;background:#edf7f2;border:1px solid #b7ddcc;color:#1f5d47}
+    .model-answer.open{display:block}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+    .tab-btn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 12px;color:var(--navy);font-weight:800}
+    .tab-btn.active{background:var(--navy);color:white}
+    .tab-panel{display:none}.tab-panel.active{display:block}
+    .route-map{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin:14px 0}
+    .route-node{position:relative;border:1px solid var(--line);background:white;border-radius:18px;padding:13px;min-height:100px}
+    .route-node.done{background:#edf7f2;border-color:#a8d8c3}
+    .route-node strong{display:block;color:var(--navy);font-size:.92rem}
+    .route-node span{display:block;color:var(--gray);font-size:.8rem;margin-top:4px}
+    .route-node .node-num{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--navy);color:white;font-weight:900;margin-bottom:8px}
+    .leaderboard{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .rank-card{padding:14px;border-radius:16px;border:1px solid var(--line);background:#fff}
+    .rank-card strong{display:block;color:var(--navy)}
+    .rank-card span{color:var(--gray);font-size:.82rem}
+    .print-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px}
+    .summary-box{background:var(--navy);color:white;border-radius:20px;padding:20px}
+    .summary-box h3{color:white}.summary-box .formula{color:var(--navy)}
+    .toast{position:fixed;right:18px;bottom:18px;z-index:100;display:grid;gap:8px;max-width:360px}
+    .toast-item{background:var(--navy);color:#fff;padding:12px 14px;border-radius:14px;box-shadow:var(--shadow);animation:toast-in .25s ease}
+    @keyframes toast-in{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:120}
+    .confetti span{position:absolute;width:9px;height:14px;background:var(--gold);top:-20px;animation:fall 1.8s linear forwards;opacity:.85}
+    @keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:0}}
+    .hidden{display:none!important}
+    .only-print{display:none}
+
+    /* ── Modal overlay ── */
+    .modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(10,20,40,.72);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:18px}
+    .modal-card{background:var(--paper);border-radius:var(--radius);padding:34px 32px;max-width:420px;width:100%;box-shadow:0 32px 80px rgba(0,0,0,.3);text-align:left}
+    .save-pill{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:5px 10px;font-size:.78rem;color:rgba(255,255,255,.0);transition:color .3s}
+    .save-pill.visible{color:white}
+    .student-zone{position:relative;flex-shrink:0}
+    .student-chip{background:var(--gold);color:var(--navy);border-radius:999px;padding:5px 12px 5px 14px;font-size:.82rem;font-weight:800;white-space:nowrap;border:0;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:.2s ease}
+    .student-chip:hover{filter:brightness(.93)}
+    .student-chip-caret{font-size:.7rem;opacity:.7;transition:transform .2s}
+    .student-zone.open .student-chip-caret{transform:rotate(180deg)}
+    .student-dropdown{position:absolute;top:calc(100% + 6px);right:0;min-width:200px;background:white;border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(16,38,63,.18);padding:6px;z-index:300;display:none;flex-direction:column;gap:2px}
+    .student-zone.open .student-dropdown{display:flex}
+    .student-dropdown-name{padding:8px 12px 6px;font-size:.78rem;color:#6b7a99;border-bottom:1px solid var(--line);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px}
+    .student-dropdown button{background:none;border:0;text-align:left;padding:9px 12px;border-radius:10px;cursor:pointer;font-size:.86rem;font-weight:600;color:var(--navy);display:flex;align-items:center;gap:8px;width:100%;transition:.15s}
+    .student-dropdown button:hover{background:var(--blue-soft)}
+    .student-dropdown button.danger{color:#c0392b}
+    .student-dropdown button.danger:hover{background:#fff0f0}
+    .student-dropdown hr{border:none;border-top:1px solid var(--line);margin:2px 0}
+    .storage-banner{background:#fff0f0;border:1px solid #e6b9b9;border-radius:14px;padding:12px 16px;margin:10px 18px 0;max-width:1144px;font-size:.88rem}
+    #bilanBlock{background:#f7f3eb;border:1px solid var(--line);border-radius:18px;padding:18px;margin-top:16px}
+    #bilanBlock pre{white-space:pre-wrap;font-size:.8rem;color:var(--ink);max-height:300px;overflow-y:auto;margin:10px 0 0}
+    @media (max-width:980px){
+      .hero{grid-template-columns:1fr}.cards-grid{grid-template-columns:repeat(2,1fr)}.route-map{grid-template-columns:repeat(3,1fr)}.grid-3{grid-template-columns:1fr}.leaderboard{grid-template-columns:repeat(2,1fr)}
+    }
+    @media (max-width:720px){
+      .topbar-inner{flex-wrap:wrap}.brand{min-width:0}.status-pill{display:none}.grid-2{grid-template-columns:1fr}.dash-grid{grid-template-columns:1fr}.cards-grid{grid-template-columns:1fr}.route-map{grid-template-columns:1fr}.leaderboard{grid-template-columns:1fr}.hero-card{padding:24px}.panel{padding:18px}.section-head{display:block}.tag{margin-top:10px}.answer-row input{max-width:none}
+    }
+    @media print{
+      body{background:white;color:#000}.topbar,.hero,.toast,.confetti,.no-print,.btn,.tabs,.timer-card{display:none!important}main{max-width:none;padding:0}.panel,.paper-task,.mission-card,.print-card{box-shadow:none;border:1px solid #999;break-inside:avoid}.section{page-break-after:auto}.only-print{display:block}.model-answer{display:block!important;background:white;border:1px solid #999;color:#000}.paper-line{min-height:110px}.cards-grid,.grid-2,.grid-3{display:block}.flashcard{min-height:auto;margin-bottom:12px}.flash-inner,.flashcard.flipped .flash-inner{transform:none}.flash-face{position:relative;min-height:auto;box-shadow:none}.flash-back{transform:none;margin-top:8px}.flash-actions{display:none}
+    }
+  </style>
+</head>
+<body>
+<div class="modal-overlay hidden" id="nameModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-card">
+    <div class="brand-mark" style="width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--gold),#f4d997);color:var(--navy);font-weight:900;font-size:1.2rem;margin:0 auto 18px">NR</div>
+    <h2 id="modalTitle" style="text-align:center;margin-bottom:6px;font-size:1.5rem">Bienvenue !</h2>
+    <p style="text-align:center;color:var(--gray);margin-bottom:22px">Saisis ton prénom pour commencer (ou retrouver ta progression) le parcours DNB et sauvegarder ta progression.</p>
+    <form id="nameForm" novalidate>
+      <label for="nameInput" style="font-weight:800;display:block;margin-bottom:7px">Ton prénom ou nom complet</label>
+      <input id="nameInput" type="text" placeholder="Ex : Neil, Élève Test, Ben Rhouma…" autocomplete="given-name" style="width:100%;border:1.5px solid var(--line);border-radius:12px;padding:11px 14px;font-size:1rem;background:#fffdfa">
+      <div id="nameError" role="alert" style="color:var(--red);font-size:.88rem;min-height:22px;margin:6px 0 14px"></div>
+      <button type="submit" class="btn gold" style="width:100%;justify-content:center;font-size:1rem">Commencer le parcours →</button>
+    </form>
+    <p style="font-size:.77rem;color:var(--gray);margin-top:14px;text-align:center">Tes données restent sur cet appareil et ce navigateur.<br>Rien n'est envoyé à un serveur.</p>
+  </div>
+</div>
+<div class="storage-banner hidden" id="storageBanner">⚠ <strong>Sauvegarde automatique indisponible.</strong> Exporte ton bilan avant de fermer la page.</div>
+<div class="app-shell">
+  <header class="topbar" aria-label="Navigation principale">
+    <div class="topbar-inner">
+      <div class="brand" aria-label="Nexus Réussite">
+        <div class="brand-mark">NR</div>
+        <div class="brand-text">
+          <strong>Nexus Réussite</strong>
+          <span>DNB maths — Dernière ligne droite</span>
+        </div>
+      </div>
+      <nav class="nav-scroller" id="navScroller" aria-label="Parcours">
+        <a class="nav-link" href="#accueil">Accueil</a>
+        <a class="nav-link" href="#parcours">Parcours</a>
+        <a class="nav-link" href="#automatismes">Automatismes</a>
+        <a class="nav-link" href="#flashcards">Flashcards</a>
+        <a class="nav-link" href="#missions">Missions</a>
+        <a class="nav-link" href="#redaction">Rédaction papier</a>
+        <a class="nav-link" href="#strategie">Stratégie</a>
+        <a class="nav-link" href="#bilan">Bilan</a>
+      </nav>
+      <div class="student-zone hidden" id="studentZone" role="region" aria-label="Compte élève">
+        <button class="student-chip" id="studentChip" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="studentDropdown" data-action="toggle-student-menu">
+          <span id="studentChipName">—</span><span class="student-chip-caret">▾</span>
+        </button>
+        <div class="student-dropdown" id="studentDropdown" role="menu">
+          <div class="student-dropdown-name" id="studentDropdownLabel"></div>
+          <button type="button" data-action="switch-student" role="menuitem">
+            <span>👤</span> Changer d'élève
+          </button>
+          <button type="button" data-action="new-student" role="menuitem">
+            <span>➕</span> Nouvel élève
+          </button>
+          <hr>
+          <button type="button" data-action="logout" role="menuitem" class="danger">
+            <span>⏸</span> Se déconnecter
+          </button>
+        </div>
+      </div><span class="save-pill" id="savedPill">✓ Sauvegardé</span><div class="status-pill" aria-live="polite"><strong id="xpTop">0 XP</strong><span>•</span><span id="progressTop">0%</span></div>
+    </div>
+  </header>
+
+  <section class="hero section" id="accueil">
+    <div class="hero-card">
+      <div class="eyebrow"><span class="dot"></span>Parcours élève — veille du brevet</div>
+      <h1>Optimiser les points accessibles demain.</h1>
+      <p class="lead">Un parcours interactif de 45 à 70 minutes pour consolider les automatismes, les méthodes de copie, les rédactions-types et les réflexes à forte valeur au DNB de mathématiques.</p>
+      <div class="callout gold">
+        <strong>Principe :</strong> on ne révise pas tout. On sécurise ce qui rapporte : formule visible, calcul propre, unité, conclusion, et aucune question entièrement vide.
+      </div>
+      <div class="hero-actions no-print">
+        <a href="#parcours" class="btn gold">Commencer le parcours</a>
+        <button class="btn secondary" type="button" data-action="print">Imprimer la fiche papier</button>
+        <button class="btn ghost" type="button" data-action="reset">Réinitialiser</button>
+      </div>
+    </div>
+    <aside class="dashboard" aria-label="Tableau de bord">
+      <div class="dash-grid">
+        <div class="metric"><span class="num" id="xpMetric">0</span><span class="label">XP gagnés</span></div>
+        <div class="metric"><span class="num" id="scoreMetric">0/0</span><span class="label">Réponses corrigées</span></div>
+      </div>
+      <div>
+        <div class="section-head" style="margin-bottom:8px"><h3 style="margin:0">Progression</h3><span class="tag" id="rankTag">Départ</span></div>
+        <div class="progress-wrap" aria-label="Progression globale"><div class="progress-bar" id="progressBar"></div></div>
+      </div>
+      <div>
+        <h3>Badges</h3>
+        <div class="badge-list" id="badgeList"></div>
+      </div>
+      <div class="callout green" style="margin:0">
+        <strong>Mode professeur :</strong> les modèles de réponse peuvent être révélés progressivement. Le corrigé n’est pas affiché d’emblée.
+      </div>
+    </aside>
+  </section>
+
+  <main>
+    <section class="section panel" id="parcours">
+      <div class="section-head">
+        <div>
+          <h2>1. Parcours gamifié</h2>
+          <p>Chaque étape rapporte des XP. Le but n’est pas de “tout finir”, mais de repartir avec des réflexes prêts pour demain.</p>
+        </div>
+        <span class="tag warn">Durée conseillée : 45–70 min</span>
+      </div>
+      <div class="route-map" id="routeMap">
+        <div class="route-node" data-node="brief"><div class="node-num">1</div><strong>Brief</strong><span>Règle anti-copie-blanche</span></div>
+        <div class="route-node" data-node="auto"><div class="node-num">2</div><strong>Automatismes</strong><span>10 questions courtes</span></div>
+        <div class="route-node" data-node="cards"><div class="node-num">3</div><strong>Flashcards</strong><span>Méthodes à déclencher</span></div>
+        <div class="route-node" data-node="missions"><div class="node-num">4</div><strong>Missions</strong><span>Exercices rentables</span></div>
+        <div class="route-node" data-node="paper"><div class="node-num">5</div><strong>Rédaction</strong><span>À faire sur feuille</span></div>
+        <div class="route-node" data-node="strategy"><div class="node-num">6</div><strong>Stratégie</strong><span>Gestion des 2h</span></div>
+      </div>
+      <div class="grid-2">
+        <div class="timer-card">
+          <div>
+            <strong>Minuteur de séance</strong><br>
+            <span style="color:var(--gray)">Utilisez-le pour éviter la surcharge.</span>
+          </div>
+          <div class="timer-display" id="sessionTimer">45:00</div>
+          <div class="hero-actions" style="margin:0">
+            <button class="btn small" type="button" data-timer="45">45 min</button>
+            <button class="btn small secondary" type="button" data-timer="70">70 min</button>
+            <button class="btn small ghost" type="button" data-timer-action="toggle">Démarrer</button>
+          </div>
+        </div>
+        <div class="callout red" style="margin:0">
+          <strong>Ce soir :</strong> pas de sujet complet, pas de vidéo longue, pas de révision jusqu’à minuit. On relit les cartes, on prépare le matériel, on dort.
+        </div>
+      </div>
+    </section>
+
+    <section class="section panel" id="automatismes">
+      <div class="section-head">
+        <div>
+          <h2>2. Mini-rituel d’automatismes</h2>
+          <p>Répondre sans calculatrice. L’autocorrection accepte les écritures usuelles : fractions, décimales, unités simples.</p>
+        </div>
+        <span class="tag">10 questions • 100 XP</span>
+      </div>
+      <div class="input-help-box no-print" role="note" aria-label="Aide à la saisie des réponses">
+        <p class="input-help-box-title">Comment écrire tes réponses</p>
+        <ul class="input-help-grid">
+          <li><span class="fmt-label">Fraction</span> <code>1/2</code>&ensp;(barre oblique)</li>
+          <li><span class="fmt-label">Décimale</span> <code>0,5</code> ou <code>0.5</code>&ensp;(virgule ou point)</li>
+          <li><span class="fmt-label">Pourcentage</span> <code>28</code> ou <code>28%</code> ou <code>28 %</code></li>
+          <li><span class="fmt-label">Unité</span> <code>40</code> ou <code>40 km</code>&ensp;(facultative)</li>
+          <li><span class="fmt-label">Équation</span> <code>x=7</code> ou <code>7</code>&ensp;(espaces ignorés)</li>
+          <li><span class="fmt-label">Puissance</span> <code>10^4</code> ou <code>10⁴</code>&ensp;(caret ou ²)</li>
+          <li><span class="fmt-label">Notif. scientif.</span> <code>4,2×10^4</code> ou <code>4.2x10^4</code></li>
+          <li><span class="fmt-label">Pi / π</span> <code>48pi</code> ou <code>48π</code>&ensp;(les deux OK)</li>
+          <li><span class="fmt-label">Pythagore</span> <code>bc2=ab2+ac2</code> ou <code>BC²=AB²+AC²</code></li>
+          <li><span class="fmt-label">Sélecteur</span> Choisir dans la liste déroulante</li>
+        </ul>
+        <p class="input-help-note">⚠ Les questions <em>sur feuille</em> (Pythagore réciproque, Thalès, Scratch) ne sont pas autocorrigées — montre ta copie au professeur.</p>
+      </div>
+      <div class="quiz" id="autoQuiz"></div>
+      <div class="hero-actions no-print">
+        <button class="btn gold" type="button" data-action="check-auto">Corriger les automatismes</button>
+        <button class="btn secondary" type="button" data-action="show-auto-hints">Afficher les méthodes</button>
+      </div>
+    </section>
+
+    <section class="section panel" id="flashcards">
+      <div class="section-head">
+        <div>
+          <h2>3. Flashcards méthodes</h2>
+          <p>Retourner la carte, réciter la phrase de départ, puis marquer la carte comme maîtrisée.</p>
+        </div>
+        <span class="tag">8 cartes • 80 XP</span>
+      </div>
+      <div class="cards-grid" id="flashGrid"></div>
+    </section>
+
+    <section class="section panel" id="missions">
+      <div class="section-head">
+        <div>
+          <h2>4. Missions DNB à forte rentabilité</h2>
+          <p>Des exercices courts, autocorrigés ou semi-guidés, centrés sur les points accessibles : pourcentages, arithmétique, algèbre, fonctions, Scratch et volumes.</p>
+        </div>
+        <span class="tag warn">Objectif : écrire une méthode visible</span>
+      </div>
+      <details class="input-help no-print" open aria-label="Rappel des formats de saisie">
+        <summary>Rappel des formats de saisie acceptés</summary>
+        <div class="input-help-body">
+          <ul class="input-help-grid">
+            <li><span class="fmt-label">Décimale</span> <code>57,6</code> ou <code>57.6</code></li>
+            <li><span class="fmt-label">Pourcentage</span> <code>28</code> ou <code>28%</code></li>
+            <li><span class="fmt-label">Unité</span> <code>10</code> ou <code>10 cm</code> (facultative)</li>
+            <li><span class="fmt-label">Équation</span> <code>7</code> ou <code>x=7</code></li>
+            <li><span class="fmt-label">Expression</span> <code>2(x+6)</code> ou <code>2x+12</code></li>
+            <li><span class="fmt-label">Pi</span> <code>48pi</code> ou <code>48π</code></li>
+            <li><span class="fmt-label">Sélecteur</span> PGCD / PPCM / sinus → liste déroulante</li>
+          </ul>
+        </div>
+      </details>
+      <div class="tabs no-print" role="tablist" aria-label="Missions">
+        <button class="tab-btn active" type="button" data-tab="m1">Mission 1</button>
+        <button class="tab-btn" type="button" data-tab="m2">Mission 2</button>
+        <button class="tab-btn" type="button" data-tab="m3">Mission 3</button>
+        <button class="tab-btn" type="button" data-tab="m4">Mission 4</button>
+      </div>
+      <div class="tab-panel active" id="m1">
+        <article class="mission-card">
+          <div class="mission-header"><h3 class="mission-title">Mission 1 — Pourcentages successifs</h3><span class="tag">30 XP</span></div>
+          <p>Un pantalon coûte 80 €. Il baisse de 20 %, puis de 10 % sur le prix déjà soldé.</p>
+          <div class="quiz" data-mission="percent"></div>
+          <div class="callout gold"><strong>À retenir :</strong> deux pourcentages successifs se multiplient. Ils ne s’additionnent pas.</div>
+          <button class="btn gold small" type="button" data-action="check-mission" data-target="percent">Corriger la mission</button>
+        </article>
+      </div>
+      <div class="tab-panel" id="m2">
+        <article class="mission-card">
+          <div class="mission-header"><h3 class="mission-title">Mission 2 — PGCD ou PPCM ?</h3><span class="tag">40 XP</span></div>
+          <p>On dispose de 72 chocolats noirs et 90 chocolats au lait. On veut faire le plus grand nombre possible de sachets identiques en utilisant tout.</p>
+          <div class="quiz" data-mission="arith"></div>
+          <button class="btn gold small" type="button" data-action="check-mission" data-target="arith">Corriger la mission</button>
+        </article>
+      </div>
+      <div class="tab-panel" id="m3">
+        <article class="mission-card">
+          <div class="mission-header"><h3 class="mission-title">Mission 3 — Programme, fonction, Scratch</h3><span class="tag">50 XP</span></div>
+          <div class="grid-2">
+            <div class="callout"><strong>Programme B :</strong> choisir un nombre, ajouter 6, multiplier le résultat par 2.</div>
+            <div class="callout"><strong>Scratch :</strong> mettre A à réponse + 4, puis mettre A à A × 3.</div>
+          </div>
+          <div class="quiz" data-mission="algebra"></div>
+          <button class="btn gold small" type="button" data-action="check-mission" data-target="algebra">Corriger la mission</button>
+        </article>
+      </div>
+      <div class="tab-panel" id="m4">
+        <article class="mission-card">
+          <div class="mission-header"><h3 class="mission-title">Mission 4 — Géométrie et volume</h3><span class="tag">50 XP</span></div>
+          <p>On vise les points récupérables : égalité de Pythagore, rayon d’un cylindre, formule, unité, conclusion.</p>
+          <div class="quiz" data-mission="geo"></div>
+          <button class="btn gold small" type="button" data-action="check-mission" data-target="geo">Corriger la mission</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="section panel" id="redaction">
+      <div class="section-head">
+        <div>
+          <h2>5. Réponses à rédiger sur feuille</h2>
+          <p>Ces tâches ne sont pas faites pour être tapées. L’élève doit écrire sur papier, puis comparer avec un modèle court.</p>
+        </div>
+        <span class="tag ok">Trace écrite = points possibles</span>
+      </div>
+      <div class="grid-2">
+        <article class="paper-task" data-paper="pythagore">
+          <h3>Rédaction 1 — Pythagore</h3>
+          <p>ABC est rectangle en A, AB = 6 cm, AC = 8 cm. Rédiger le calcul de BC.</p>
+          <div class="paper-line">À rédiger sur feuille : formule, calcul, unité, conclusion.</div>
+          <label class="check-item"><input type="checkbox" data-paper-check="pythagore"> J’ai rédigé une réponse complète sur feuille.</label>
+          <button class="btn secondary small" type="button" data-model="pythagore">Voir un modèle</button>
+          <div class="model-answer" id="model-pythagore">Dans le triangle ABC rectangle en A, d’après le théorème de Pythagore : BC² = AB² + AC² = 6² + 8² = 100. Donc BC = 10 cm.</div>
+        </article>
+        <article class="paper-task" data-paper="reciproque">
+          <h3>Rédaction 2 — Réciproque</h3>
+          <p>Un triangle a pour longueurs 5 cm, 12 cm et 13 cm. Montrer qu’il est rectangle.</p>
+          <div class="paper-line">À rédiger sur feuille : plus grand côté, deux calculs, comparaison, conclusion.</div>
+          <label class="check-item"><input type="checkbox" data-paper-check="reciproque"> J’ai rédigé une réponse complète sur feuille.</label>
+          <button class="btn secondary small" type="button" data-model="reciproque">Voir un modèle</button>
+          <div class="model-answer" id="model-reciproque">Le plus grand côté mesure 13 cm. D’une part, 13² = 169. D’autre part, 5² + 12² = 25 + 144 = 169. Les deux résultats sont égaux, donc le triangle est rectangle d’après la réciproque de Pythagore.</div>
+        </article>
+        <article class="paper-task" data-paper="thales">
+          <h3>Rédaction 3 — Thalès</h3>
+          <p>Dans une configuration de Thalès, A, M, B sont alignés ; A, N, C sont alignés ; (MN)//(BC). Écrire les rapports.</p>
+          <div class="paper-line">À rédiger sur feuille : conditions + égalité des rapports.</div>
+          <label class="check-item"><input type="checkbox" data-paper-check="thales"> J’ai rédigé les conditions et les rapports.</label>
+          <button class="btn secondary small" type="button" data-model="thales">Voir un modèle</button>
+          <div class="model-answer" id="model-thales">Les points A, M, B sont alignés ; les points A, N, C sont alignés ; les droites (MN) et (BC) sont parallèles. D’après le théorème de Thalès : AM/AB = AN/AC = MN/BC.</div>
+        </article>
+        <article class="paper-task" data-paper="scratch">
+          <h3>Rédaction 4 — Scratch</h3>
+          <p>Un programme ajoute 4 au nombre choisi puis multiplie le résultat par 3. Exprimer le résultat en fonction de x.</p>
+          <div class="paper-line">À rédiger sur feuille : phrase + expression avec parenthèses.</div>
+          <label class="check-item"><input type="checkbox" data-paper-check="scratch"> J’ai rédigé l’expression et l’erreur à éviter.</label>
+          <button class="btn secondary small" type="button" data-model="scratch">Voir un modèle</button>
+          <div class="model-answer" id="model-scratch">Si le nombre choisi est x, on ajoute 4 : x + 4, puis on multiplie tout le résultat par 3. L’expression est donc 3(x + 4). L’erreur serait d’écrire x + 4 × 3.</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section panel" id="strategie">
+      <div class="section-head">
+        <div>
+          <h2>6. Stratégie de copie pour demain</h2>
+          <p>Le gain se fait souvent sur la gestion du temps, les unités, les conclusions et la capacité à ne pas laisser une question vide.</p>
+        </div>
+        <span class="tag">À lire en fin de parcours</span>
+      </div>
+      <div class="grid-2">
+        <div class="summary-box">
+          <h3>Règle anti-blocage</h3>
+          <p>Si je bloque plus de 3 minutes :</p>
+          <ol>
+            <li>j’écris ce que je cherche ;</li>
+            <li>j’écris la formule ou la méthode possible ;</li>
+            <li>je fais un essai ;</li>
+            <li>je passe.</li>
+          </ol>
+        </div>
+        <div class="summary-box">
+          <h3>Relecture en 4 passages</h3>
+          <ol>
+            <li>Ai-je répondu à la question ?</li>
+            <li>Ai-je mis les unités ?</li>
+            <li>Les signes et calculs sont-ils cohérents ?</li>
+            <li>Ai-je conclu par une phrase ?</li>
+          </ol>
+        </div>
+      </div>
+      <div class="checklist" id="strategyChecks">
+        <label class="check-item"><input type="checkbox" data-strategy="noempty"> Je ne laisse aucun exercice entièrement vide.</label>
+        <label class="check-item"><input type="checkbox" data-strategy="easyfirst"> Je commence par les questions accessibles.</label>
+        <label class="check-item"><input type="checkbox" data-strategy="units"> Je vérifie les unités : cm, cm², cm³, m³, L, km/h.</label>
+        <label class="check-item"><input type="checkbox" data-strategy="conclusion"> J’écris des phrases courtes de conclusion.</label>
+        <label class="check-item"><input type="checkbox" data-strategy="sleep"> Ce soir : pas de sujet complet, préparation du matériel, sommeil.</label>
+      </div>
+    </section>
+
+    <section class="section panel" id="bilan">
+      <div class="section-head">
+        <div>
+          <h2>7. Bilan final</h2>
+          <p>Le bilan sert à savoir quoi relire ce soir et quoi éviter demain. Il reste enregistré sur l’appareil.</p>
+        </div>
+        <span class="tag ok" id="finalRank">Départ</span>
+      </div>
+      <div class="leaderboard">
+        <div class="rank-card"><strong id="finalXP">0 XP</strong><span>Score global</span></div>
+        <div class="rank-card"><strong id="finalAuto">0/10</strong><span>Automatismes</span></div>
+        <div class="rank-card"><strong id="finalCards">0/8</strong><span>Flashcards maîtrisées</span></div>
+        <div class="rank-card"><strong id="finalPaper">0/4</strong><span>Rédactions papier cochées</span></div>
+      </div>
+      <div class="grid-2" style="margin-top:16px">
+        <div class="print-card">
+          <h3>Ma phrase de copie</h3>
+          <textarea id="studentPledge" rows="4" placeholder="Exemple : demain, je ne laisse aucun exercice vide ; j’écris les formules et les unités."></textarea>
+        </div>
+        <div class="print-card">
+          <h3>Mes 3 points à vérifier demain</h3>
+          <textarea id="studentChecklist" rows="4" placeholder="Unités ; parenthèses ; conclusion ; rayon/diamètre ; pourcentages successifs..."></textarea>
+        </div>
+      </div>
+      <div class="hero-actions no-print" style="margin-top:16px">
+        <button class="btn gold" type="button" data-action="save-text">Enregistrer mon bilan</button>
+        <button class="btn secondary" type="button" data-action="print">Imprimer</button>
+        <button class="btn danger" type="button" data-action="reset">Réinitialiser</button>
+      </div>
+      <div id="bilanBlock" class="hidden">
+        <h3 style="margin:0 0 8px">Bilan nominatif</h3>
+        <pre id="bilanPre"></pre>
+      </div>
+      <div class="hero-actions no-print" style="margin-top:12px">
+        <button class="btn gold" type="button" data-action="show-bilan">Générer le bilan</button>
+        <button class="btn secondary" type="button" data-action="export-json">Exporter JSON</button>
+        <button class="btn secondary" type="button" data-action="export-csv">Exporter CSV</button>
+        <button class="btn secondary" type="button" data-action="copy-bilan">Copier pour le prof</button>
+      </div>
+      <p style="font-size:.8rem;color:var(--gray);margin:8px 0 0">Le professeur récupère le bilan si tu l'exportes ou le copies. Aucun envoi automatique.</p>
+      <div class="only-print">
+        <h3>Fiche de révision — <span id="printStudentName"></span></h3>
+        <p>Formule / calcul / unité / conclusion. Ne pas laisser de question vide.</p>
+      </div>
+    </section>
+  </main>
+</div>
+<div class="toast" id="toast" aria-live="polite"></div>
+<div class="confetti" id="confetti" aria-hidden="true"></div>
+<script>
+(() => {
+  'use strict';
+
+  const SCHEMA_VERSION = 2;
+  const ROOT_KEY = 'nexusDnbRoot';
+  const XP = { autoCorrect:10, missionStep:10, flashMaster:10, paperDone:15, strategyDone:8, textSave:10 };
+
+  const autoQuestions = [
+    {id:'a1',label:'1',prompt:'Calculer 1/3 + 1/6.',answer:['1/2','0.5','0,5'],hint:'Mettre au même dénominateur : 1/3 = 2/6.'},
+    {id:'a2',label:'2',prompt:'Calculer 25\u202f% de 80.',answer:['20'],hint:'25\u202f% = un quart, donc 80 \xf7 4.'},
+    {id:'a3',label:'3',prompt:'Enlever 20\u202f% \xe0 80.',answer:['64'],hint:'Enlever 20\u202f%, c\u2019est multiplier par 0,80.'},
+    {id:'a4',label:'4',prompt:'Convertir 30 min en heures.',answer:['0.5','0,5','1/2'],hint:'30 min = 30/60 h = 0,5 h.'},
+    {id:'a5',label:'5',prompt:'\xc0 80 km/h pendant 30 min, quelle distance\u202f?',answer:['40','40 km'],hint:'30 min = 0,5 h ; distance = 80 \xd7 0,5.'},
+    {id:'a6',label:'6',prompt:'R\xe9soudre 3x = 24.',answer:['8','x=8','x = 8'],hint:'Diviser les deux membres par 3.'},
+    {id:'a7',label:'7',prompt:'\xc9crire 42\u202f000 en \xe9criture scientifique.',answer:['4.2x10^4','4,2x10^4','4.2*10^4','4,2*10^4','4.2 \xd7 10^4','4,2 \xd7 10^4','4.2 10^4','4,2 10^4'],hint:'On \xe9crit un nombre entre 1 et 10, puis une puissance de 10.'},
+    {id:'a8',label:'8',prompt:'Moyenne de 8\u202f; 10\u202f; 12\u202f; 14.',answer:['11'],hint:'Somme des valeurs \xf7 nombre de valeurs.'},
+    {id:'a9',label:'9',prompt:'3 boules bleues et 7 rouges\u202f: probabilit\xe9 de tirer une bleue.',answer:['3/10','0.3','0,3','30%','30 %'],hint:'Cas favorables / cas possibles = 3 / 10.'},
+    {id:'a10',label:'10',prompt:'ABC rectangle en A\u202f: \xe9crire l\u2019\xe9galit\xe9 de Pythagore.',answer:['bc2=ab2+ac2','bc^2=ab^2+ac^2','bc\xb2=ab\xb2+ac\xb2','BC\xb2=AB\xb2+AC\xb2'],hint:'L\u2019hypot\xe9nuse est BC car le triangle est rectangle en A.',normalize:'pythagore'}
+  ];
+
+  const missions = {
+    percent:[
+      {id:'p1',prompt:'Prix apr\xe8s la baisse de 20\u202f%.',answer:['64','64\u202f\u20ac','64 \u20ac','64 euros'],hint:'80 \xd7 0,80 = 64.'},
+      {id:'p2',prompt:'Prix final apr\xe8s la baisse suppl\xe9mentaire de 10\u202f%.',answer:['57.6','57,6','57.60','57,60','57,60\u202f\u20ac','57.6\u202f\u20ac','57,60 \u20ac','57.6 \u20ac'],hint:'64 \xd7 0,90 = 57,60.'},
+      {id:'p3',prompt:'Baisse r\xe9elle en pourcentage.',answer:['28','28%','28\u202f%'],hint:'Il reste 72\u202f% du prix initial, donc la baisse est 28\u202f%.'}
+    ],
+    arith:[
+      {id:'ar1',prompt:'Ce probl\xe8me rel\xe8ve-t-il du PGCD ou du PPCM\u202f?',type:'select',options:['','PGCD','PPCM'],answer:['PGCD'],hint:'On cherche le plus grand nombre de groupes identiques sans reste.'},
+      {id:'ar2',prompt:'Nombre maximal de sachets.',answer:['18'],hint:'PGCD(72\u202f; 90) = 18.'},
+      {id:'ar3',prompt:'Nombre de chocolats noirs par sachet.',answer:['4'],hint:'72 \xf7 18 = 4.'},
+      {id:'ar4',prompt:'Nombre de chocolats au lait par sachet.',answer:['5'],hint:'90 \xf7 18 = 5.'}
+    ],
+    algebra:[
+      {id:'al1',prompt:'Expression du programme \u00ab\u202fajouter 6 puis multiplier le r\xe9sultat par 2\u202f\u00bb.',answer:['2(x+6)','2*(x+6)','2 \xd7 (x+6)','2x+12'],hint:'On multiplie tout le r\xe9sultat pr\xe9c\xe9dent\u202f: 2(x + 6).'},
+      {id:'al2',prompt:'R\xe9soudre 3x + 5 = 2(x + 6). Valeur de x\u202f?',answer:['7','x=7','x = 7'],hint:'3x + 5 = 2x + 12, donc x = 7.'},
+      {id:'al3',prompt:'Pour f(x)=4x\u22123, ant\xe9c\xe9dent de 21.',answer:['6','x=6','x = 6'],hint:'4x \u2212 3 = 21, donc 4x = 24.'},
+      {id:'al4',prompt:'Scratch\u202f: r\xe9ponse + 4 puis \xd73. Expression obtenue.',answer:['3(x+4)','3*(x+4)','3 \xd7 (x+4)','3x+12'],hint:'On ajoute 4, puis on multiplie tout par 3.'}
+    ],
+    geo:[
+      {id:'g1',prompt:'ABC rectangle en A, AB=6, AC=8. Longueur BC.',answer:['10','10 cm'],hint:'BC\xb2 = 6\xb2 + 8\xb2 = 100.'},
+      {id:'g2',prompt:'Cylindre de diam\xe8tre 4\u202fm\u202f: rayon.',answer:['2','2 m'],hint:'Rayon = diam\xe8tre \xf7 2.'},
+      {id:'g3',prompt:'Cylindre r=2\u202fm et h=12\u202fm\u202f: volume exact.',answer:['48pi','48\u03c0','48 pi','48\u03c0 m3','48\u03c0 m^3','48pi m3','48pi m^3'],hint:'V = \u03c0 \xd7 2\xb2 \xd7 12 = 48\u03c0.'},
+      {id:'g4',prompt:'1\u202fm\xb3 correspond \xe0 combien de litres\u202f?',answer:['1000','1000 l','1000 L','1000 litres'],hint:'1\u202fm\xb3 = 1000\u202fL.'},
+      {id:'g5',prompt:'Trigonom\xe9trie\u202f: oppos\xe9 / hypot\xe9nuse correspond \xe0\u202f?',type:'select',options:['','sinus','cosinus','tangente'],answer:['sinus'],hint:'sin(angle) = oppos\xe9 / hypot\xe9nuse.'}
+    ]
+  };
+
+  const flashcards = [
+    {id:'fc1',title:'Pourcentages',front:'Deux \xe9volutions successives\u202f?',back:'On multiplie les coefficients. Exemple\u202f: \u221220\u202f% puis \u221210\u202f% donne 0,80 \xd7 0,90 = 0,72.'},
+    {id:'fc2',title:'Pythagore',front:'Quand utiliser le th\xe9or\xe8me\u202f?',back:'Triangle rectangle connu + longueur \xe0 calculer. Phrase\u202f: \u00ab\u202fDans le triangle\u2026, rectangle en\u2026, d\u2019apr\xe8s Pythagore\u2026\u202f\u00bb'},
+    {id:'fc3',title:'R\xe9ciproque',front:'Quand utiliser la r\xe9ciproque\u202f?',back:'Pour prouver qu\u2019un triangle est rectangle. Comparer le carr\xe9 du plus grand c\xf4t\xe9 et la somme des carr\xe9s des deux autres.'},
+    {id:'fc4',title:'Thal\xe8s',front:'Conditions avant formule\u202f?',back:'Points align\xe9s + droites parall\xe8les. Puis \xe9crire les rapports dans le m\xeame ordre.'},
+    {id:'fc5',title:'Trigonom\xe9trie',front:'SOH / CAH / TOA',back:'sin\u202f= oppos\xe9/hypot\xe9nuse\u202f; cos\u202f= adjacent/hypot\xe9nuse\u202f; tan\u202f= oppos\xe9/adjacent.'},
+    {id:'fc6',title:'Scratch',front:'Comment lire un script\u202f?',back:'Dans l\u2019ordre. Attention \xe0 \u00ab\u202fmettre A \xe0 A \xd7 3\u202f\u00bb\u202f: on multiplie la valeur d\xe9j\xe0 obtenue.'},
+    {id:'fc7',title:'Fonctions',front:'Image ou ant\xe9c\xe9dent\u202f?',back:'Image\u202f: je remplace x. Ant\xe9c\xe9dent\u202f: je r\xe9sous une \xe9quation.'},
+    {id:'fc8',title:'Volume',front:'Cylindre et unit\xe9s',back:'V\u202f= \u03c0 \xd7 r\xb2 \xd7 h. Si on donne le diam\xe8tre, diviser par 2. 1\u202fm\xb3 = 1000\u202fL.'}
+  ];
+
+  /* ── localStorage ── */
+  function checkStorage(){try{localStorage.setItem('__nx__','1');localStorage.removeItem('__nx__');return true;}catch(e){return false;}}
+  const storageAvailable=checkStorage();
+
+  /* ── Student ID ── */
+  function makeStudentId(name){
+    return String(name||'').trim()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/\s+/g,'-').replace(/[^a-z0-9-]/gi,'')
+      .replace(/-+/g,'-').replace(/^-|-$/g,'').toLowerCase()||'eleve';
+  }
+
+  /* ── Student record factory ── */
+  function makeStudentRecord(name){
+    const trimmed=String(name||'').trim();
+    return {
+      id:makeStudentId(trimmed),
+      name:trimmed,
+      createdAt:new Date().toISOString(),
+      updatedAt:new Date().toISOString(),
+      xp:0,
+      badges:[],
+      completedModules:[],
+      answers:{auto:{},missions:{}},
+      paperTasks:{},
+      strategy:{},
+      flash:{},
+      text:{pledge:'',checklist:''},
+      awarded:{},
+      autoHints:false,
+      history:[],
+    };
+  }
+
+  /* ── Root factory ── */
+  function makeRoot(){return{schemaVersion:SCHEMA_VERSION,activeStudentId:null,students:{}};}
+
+  let root, student, savedTid;
+
+  /* ── Load / Save ── */
+  function loadRoot(){
+    if(!storageAvailable)return makeRoot();
+    try{
+      const raw=localStorage.getItem(ROOT_KEY);
+      if(!raw)return makeRoot();
+      const parsed=JSON.parse(raw);
+      if(!parsed||typeof parsed!=='object'||parsed.schemaVersion!==SCHEMA_VERSION)return makeRoot();
+      if(!parsed.students||typeof parsed.students!=='object')return makeRoot();
+      return parsed;
+    }catch{return makeRoot();}
+  }
+
+  function saveRoot(){
+    if(!storageAvailable||!student)return;
+    try{
+      student.updatedAt=new Date().toISOString();
+      _updateCompletedModules();
+      _updateBadges();
+      root.activeStudentId=student.id;
+      localStorage.setItem(ROOT_KEY,JSON.stringify(root));
+      const pill=document.getElementById('savedPill');
+      if(pill){pill.classList.add('visible');clearTimeout(savedTid);savedTid=setTimeout(()=>pill.classList.remove('visible'),2500);}
+    }catch(e){
+      if(e.name==='QuotaExceededError')toast('Stockage plein. Exporte ton bilan avant de continuer.');
+    }
+  }
+
+  function _updateCompletedModules(){
+    const mods=[];
+    if(countCorrectAuto()===autoQuestions.length) mods.push('auto');
+    if(countMasteredCards()===flashcards.length) mods.push('flashcards');
+    Object.entries(missions).forEach(([ns,qs])=>{if(qs.every(q=>student.answers.missions[ns]?.[q.id]?.correct)) mods.push(ns);});
+    if(countPaper()>=4) mods.push('redaction');
+    if(countStrategy()>=5) mods.push('strategy');
+    student.completedModules=[...new Set(mods)];
+  }
+
+  function _updateBadges(){
+    const ids=_getBadgeIds();
+    student.badges=[...new Set([...(student.badges||[]),...ids])];
+  }
+
+  function _getBadgeIds(){
+    const out=[];
+    if(student.xp>0) out.push('starter');
+    if(countCorrectAuto()>=7) out.push('auto');
+    if(countMasteredCards()>=5) out.push('cards');
+    if(countPaper()>=3) out.push('paper');
+    if(getProgress()>=80) out.push('ready');
+    return out;
+  }
+
+  /* ── Validate name ── */
+  function validateName(raw){
+    const name=String(raw||'').trim();
+    if(!name)return{valid:false,error:'Saisis ton prénom pour commencer.'};
+    return{valid:true,name};
+  }
+
+  /* ── Name modal ── */
+  function showModal(){
+    document.getElementById('nameModal').classList.remove('hidden');
+    setTimeout(()=>document.getElementById('nameInput')?.focus(),60);
+  }
+  function hideModal(){document.getElementById('nameModal').classList.add('hidden');_closeStudentMenu&&_closeStudentMenu();}
+
+  function submitName(){
+    const raw=document.getElementById('nameInput').value;
+    const {valid,name,error}=validateName(raw);
+    if(!valid){document.getElementById('nameError').textContent=error;return;}
+    document.getElementById('nameError').textContent='';
+    const id=makeStudentId(name);
+    if(!root.students[id]) root.students[id]=makeStudentRecord(name);
+    else root.students[id].name=name;
+    student=root.students[id];
+    sessionStorage.setItem('nexusDnbCurrent',id);
+    if(!Array.isArray(student.history)) student.history=[];
+    student.history.push({action:'session_start',detail:'Session démarrée',timestamp:new Date().toISOString()});
+    saveRoot();
+    _updateStudentChip();
+    hideModal();
+    renderAll();
+  }
+
+  function _updateStudentChip(){
+    const zone=document.getElementById('studentZone');
+    const nameEl=document.getElementById('studentChipName');
+    const label=document.getElementById('studentDropdownLabel');
+    if(zone&&student){
+      zone.classList.remove('hidden');
+      if(nameEl) nameEl.textContent=student.name;
+      if(label) label.textContent=student.name;
+      const chip=document.getElementById('studentChip');
+      if(chip) chip.setAttribute('aria-expanded','false');
+    }
+    const pn=document.getElementById('printStudentName');
+    if(pn&&student) pn.textContent=student.name;
+  }
+
+  function _closeStudentMenu(){
+    document.getElementById('studentZone')?.classList.remove('open');
+    document.getElementById('studentChip')?.setAttribute('aria-expanded','false');
+  }
+  function _clearSession(){
+    try{sessionStorage.removeItem('nexusDnbCurrent');}catch(e){}
+    root.activeStudentId=null;
+    if(storageAvailable&&root){try{localStorage.setItem(ROOT_KEY,JSON.stringify(root));}catch(e){}}
+    student=null;
+    document.getElementById('studentZone')?.classList.add('hidden');
+    document.getElementById('nameInput').value='';
+    document.getElementById('nameError').textContent='';
+  }
+  function changeStudent(){
+    _closeStudentMenu();
+    if(!confirm('Changer d\'élève\u202f? La progression actuelle est sauvegardée.'))return;
+    _clearSession();
+    showModal();
+  }
+  function logoutStudent(){
+    _closeStudentMenu();
+    _clearSession();
+    showModal();
+    toast('Déconnecté — retape ton prénom pour retrouver ta progression.');
+  }
+  function newStudent(){
+    _closeStudentMenu();
+    if(student&&!confirm('Créer un nouvel élève\u202f? Ta progression actuelle est sauvegardée.'))return;
+    _clearSession();
+    showModal();
+  }
+
+  /* ── Utils ── */
+  const cssEscape=v=>(window.CSS?.escape??(s=>String(s).replace(/[^a-zA-Z0-9_-]/g,ch=>`\\${ch}`)))(v);
+  function escapeAttr(v){return String(v??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+  function normalize(v,mode){
+    let s=String(v||'').trim().replace(/\s+/g,'').replace(/€/g,'').replace(/euros?/gi,'').replace(/,/g,'.').replace(/×/g,'x').replace(/\*/g,'x');
+    if(mode==='pythagore') s=s.toLowerCase().replace(/\^2/g,'2').replace(/²/g,'2');
+    return s.toLowerCase();
+  }
+  function isCorrect(q,v){const nv=normalize(v,q.normalize);return q.answer.some(a=>normalize(a,q.normalize)===nv);}
+
+  /* ── XP / Toast / Confetti ── */
+  function award(key,amount,msg){
+    if(student.awarded[key])return;
+    student.awarded[key]=true;
+    student.xp+=amount;
+    if(!Array.isArray(student.history)) student.history=[];
+    student.history.push({action:'xp',detail:msg||`+${amount} XP`,xp:amount,timestamp:new Date().toISOString()});
+    toast(msg||`+${amount} XP`);
+    saveRoot();updateDashboard();
+  }
+  function toast(msg){const box=document.getElementById('toast');const item=document.createElement('div');item.className='toast-item';item.textContent=msg;box.appendChild(item);setTimeout(()=>item.remove(),3300);}
+  function confetti(){const l=document.getElementById('confetti');for(let i=0;i<34;i++){const p=document.createElement('span');p.style.left=`${Math.random()*100}%`;p.style.animationDelay=`${Math.random()*.5}s`;p.style.background=['#c79a3b','#173a5f','#1f7a5b','#f2d28a'][Math.floor(Math.random()*4)];l.appendChild(p);setTimeout(()=>p.remove(),2300);}}
+
+  /* ── Quiz ── */
+  function renderQuiz(container,questions,ns){
+    if(!container)return;
+    container.innerHTML=questions.map((q,idx)=>{
+      const saved=getAnswer(ns,q.id);
+      const ctrl=q.type==='select'
+        ?`<select data-answer="${ns}:${q.id}" aria-label="${escapeAttr(q.prompt)}">${(q.options||[]).map(o=>`<option value="${escapeAttr(o)}" ${saved===o?'selected':''}>${o||'Choisir'}</option>`).join('')}</select>`
+        :`<input type="text" inputmode="text" autocomplete="off" data-answer="${ns}:${q.id}" value="${escapeAttr(saved)}" placeholder="Réponse" aria-label="${escapeAttr(q.prompt)}">`;
+      return `<div class="question" data-question="${ns}:${q.id}"><div class="q-title"><span>Question ${q.label||idx+1}</span></div><p class="q-body">${q.prompt}</p><div class="answer-row">${ctrl}</div><div class="feedback" role="status"><strong>Méthode\u202f:</strong> ${q.hint}</div></div>`;
+    }).join('');
+  }
+  function getAnswer(ns,id){return ns==='auto'?(student.answers.auto[id]?.value||''):(student.answers.missions[ns]?.[id]?.value||'');}
+  function setAnswer(ns,id,v){
+    if(ns==='auto') student.answers.auto[id]={...(student.answers.auto[id]||{}),value:v};
+    else{student.answers.missions[ns]=student.answers.missions[ns]||{};student.answers.missions[ns][id]={...(student.answers.missions[ns][id]||{}),value:v};}
+    saveRoot();
+  }
+  function checkQuestions(ns,questions){
+    let ok=0;
+    questions.forEach(q=>{
+      const v=getAnswer(ns,q.id),correct=isCorrect(q,v);
+      if(ns==='auto') student.answers.auto[q.id]={...(student.answers.auto[q.id]||{}),value:v,correct,checked:true};
+      else{student.answers.missions[ns]=student.answers.missions[ns]||{};student.answers.missions[ns][q.id]={...(student.answers.missions[ns][q.id]||{}),value:v,correct,checked:true};}
+      const el=document.querySelector(`[data-question="${cssEscape(ns+':'+q.id)}"]`);
+      if(el){el.classList.toggle('correct',correct);el.classList.toggle('incorrect',!correct);}
+      if(correct){award(`${ns}:${q.id}`,ns==='auto'?XP.autoCorrect:XP.missionStep,'+XP\u202f: réponse correcte');ok++;}
+    });
+    saveRoot();updateDashboard();
+    if(ok===questions.length){confetti();toast('Bloc réussi intégralement\u202f!');}
+    else toast(`${ok}/${questions.length} correctes. Relisez les méthodes.`);
+  }
+
+  /* ── Flashcards ── */
+  function renderFlashcards(){
+    const grid=document.getElementById('flashGrid');if(!grid)return;
+    grid.innerHTML=flashcards.map(c=>`<article class="flashcard ${student.flash[c.id]?.flipped?'flipped':''}" data-flash="${c.id}"><div class="flash-inner"><div class="flash-face"><div><span class="flash-kicker">Carte méthode</span><div class="flash-title">${c.title}</div><p>${c.front}</p></div><div class="flash-actions no-print"><button class="btn small secondary" type="button" data-flip="${c.id}" aria-label="Retourner ${escapeAttr(c.title)}">Retourner</button></div></div><div class="flash-face flash-back"><div><span class="flash-kicker">À réciter</span><div class="flash-title">${c.title}</div><p>${c.back}</p></div><div class="flash-actions no-print"><button class="btn small secondary" type="button" data-flip="${c.id}">Revoir</button><button class="btn small gold" type="button" data-master="${c.id}">${student.flash[c.id]?.mastered?'Maîtrisée ✓':'Je maîtrise'}</button></div></div></div></article>`).join('');
+  }
+
+  /* ── Counts ── */
+  function countCorrectAuto(){return autoQuestions.filter(q=>student.answers.auto[q.id]?.correct).length;}
+  function countCorrectAll(){let n=countCorrectAuto();Object.entries(missions).forEach(([ns,qs])=>qs.forEach(q=>{if(student.answers.missions[ns]?.[q.id]?.correct)n++;}));return n;}
+  function countAllQuestions(){return autoQuestions.length+Object.values(missions).flat().length;}
+  function countMasteredCards(){return flashcards.filter(c=>student.flash[c.id]?.mastered).length;}
+  function countPaper(){return Object.values(student.paperTasks).filter(Boolean).length;}
+  function countStrategy(){return Object.values(student.strategy).filter(Boolean).length;}
+  function getProgress(){
+    const parts=[countCorrectAuto()/autoQuestions.length,countMasteredCards()/flashcards.length,countCorrectAll()/countAllQuestions(),countPaper()/4,countStrategy()/5];
+    return Math.round(parts.reduce((a,b)=>a+b,0)/parts.length*100);
+  }
+  function rank(){const p=getProgress();if(p>=90)return'Prêt solide';if(p>=75)return'Prêt efficace';if(p>=55)return'En bonne voie';if(p>=25)return'Échauffement';return'Départ';}
+
+  /* ── Dashboard ── */
+  function renderBadges(){
+    const bs=[{id:'starter',label:'Départ',earned:student.xp>0},{id:'auto',label:'Automatismes',earned:countCorrectAuto()>=7},{id:'cards',label:'Méthodes',earned:countMasteredCards()>=5},{id:'paper',label:'Rédacteur',earned:countPaper()>=3},{id:'ready',label:'Prêt demain',earned:getProgress()>=80}];
+    document.getElementById('badgeList').innerHTML=bs.map(b=>`<span class="badge ${b.earned?'earned':''}">${b.earned?'✓':'○'} ${b.label}</span>`).join('');
+  }
+  function updateDashboard(){
+    if(!student)return;
+    const p=getProgress();
+    document.getElementById('xpTop').textContent=`${student.xp} XP`;
+    document.getElementById('xpMetric').textContent=student.xp;
+    document.getElementById('progressTop').textContent=`${p}%`;
+    const bar=document.getElementById('progressBar');bar.style.width=`${p}%`;bar.setAttribute('aria-valuenow',p);
+    document.getElementById('rankTag').textContent=rank();
+    document.getElementById('scoreMetric').textContent=`${countCorrectAll()}/${countAllQuestions()}`;
+    document.getElementById('finalXP').textContent=`${student.xp} XP`;
+    document.getElementById('finalAuto').textContent=`${countCorrectAuto()}/10`;
+    document.getElementById('finalCards').textContent=`${countMasteredCards()}/8`;
+    document.getElementById('finalPaper').textContent=`${countPaper()}/4`;
+    document.getElementById('finalRank').textContent=rank();
+    renderBadges();
+    const done={brief:student.xp>0||countStrategy()>0,auto:countCorrectAuto()>=6,cards:countMasteredCards()>=5,missions:countCorrectAll()>=18,paper:countPaper()>=3,strategy:countStrategy()>=4};
+    Object.entries(done).forEach(([id,ok])=>document.querySelector(`[data-node="${id}"]`)?.classList.toggle('done',ok));
+  }
+
+  /* ── Bilan ── */
+  function _buildBilanText(){
+    const now=new Date().toLocaleString('fr-FR');
+    const blabels={starter:'Départ',auto:'Automatismes',cards:'Méthodes',paper:'Rédacteur',ready:'Prêt demain'};
+    const earned=(student.badges||[]).map(id=>blabels[id]).filter(Boolean).join(', ')||'Aucun';
+    const errors=autoQuestions.filter(q=>student.answers.auto[q.id]?.checked&&!student.answers.auto[q.id]?.correct).map(q=>`  - Q${q.label}: ${q.prompt}`).join('\n')||'  (aucune erreur ou non corrigé)';
+    const paper=Object.entries(student.paperTasks).filter(([,v])=>v).map(([k])=>k).join(', ')||'Aucune';
+    const mods=(student.completedModules||[]).join(', ')||'Aucun';
+    return['BILAN ÉLÈVE — NEXUS RÉUSSITE',`Nom : ${student.name||'–'}`,`Date : ${now}`,'',
+      `Score : ${countCorrectAll()}/${countAllQuestions()} réponses correctes`,`XP : ${student.xp}`,`Progression : ${getProgress()}%`,`Niveau : ${rank()}`,'',
+      `Automatismes : ${countCorrectAuto()}/10`,`Flashcards maîtrisées : ${countMasteredCards()}/8`,`Rédactions papier : ${countPaper()}/4`,'',
+      `Modules complétés : ${mods}`,'',`Badges obtenus : ${earned}`,'',
+      'Erreurs automatismes :',errors,'',`Rédactions papier faites : ${paper}`,'',
+      `Phrase de copie : ${student.text?.pledge||'(non renseignée)'}`,
+      `Points à vérifier : ${student.text?.checklist||'(non renseignés)'}`,''  ,
+      `Créé le : ${student.createdAt?new Date(student.createdAt).toLocaleString('fr-FR'):'–'}`,
+      `Mis à jour le : ${student.updatedAt?new Date(student.updatedAt).toLocaleString('fr-FR'):'–'}`,'',
+      "⚠ Réponses sur feuille (Pythagore, Réciproque, Thalès, Scratch) non autocorrigées.","  L'élève doit les montrer au professeur.",'',
+      "L'historique est sauvegardé dans le navigateur via localStorage. Il est récupérable sur le même appareil et le même navigateur.",
+      "Pour une récupération automatique par le professeur, il faut ajouter un backend.",
+      "En l'état, le professeur récupère le bilan si l'élève l'exporte ou le copie.",'',
+      'Généré par nexusreussite.academy'
+    ].join('\n');
+  }
+  function _buildBilanCSV(){
+    const h=['Nom','Date','XP','Progression','Automatismes','Flashcards','Rédactions','Modules','Badges','Niveau'];
+    const r=[student.name||'',new Date().toLocaleString('fr-FR'),student.xp,`${getProgress()}%`,`${countCorrectAuto()}/10`,`${countMasteredCards()}/8`,`${countPaper()}/4`,(student.completedModules||[]).join('|'),(student.badges||[]).join('|'),rank()];
+    const esc=c=>`"${String(c).replace(/"/g,'""')}"`;
+    return[h.map(esc).join(','),r.map(esc).join(',')].join('\n');
+  }
+  function showBilan(){
+    _updateCompletedModules();_updateBadges();
+    const block=document.getElementById('bilanBlock'),pre=document.getElementById('bilanPre');
+    if(!block||!pre)return;
+    pre.textContent=_buildBilanText();
+    block.classList.remove('hidden');
+    block.scrollIntoView({behavior:'smooth',block:'start'});
+    award('bilan:show',XP.textSave,'Bilan généré ✓');
+    saveRoot();updateDashboard();
+  }
+  function _normFilename(n){return String(n||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'_').replace(/[^a-z0-9_]/gi,'').toLowerCase();}
+  function _dl(blob,name){try{const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);}catch(e){toast('Export impossible dans ce navigateur.');}}
+  function exportJSON(){
+    _updateCompletedModules();_updateBadges();
+    _dl(new Blob([JSON.stringify({schemaVersion:SCHEMA_VERSION,generatedAt:new Date().toISOString(),studentId:student.id,studentName:student.name,progress:getProgress(),xp:student.xp,rank:rank(),badges:student.badges,completedModules:student.completedModules,scores:{auto:`${countCorrectAuto()}/10`,cards:`${countMasteredCards()}/8`,paper:`${countPaper()}/4`,all:`${countCorrectAll()}/${countAllQuestions()}`},text:student.text,answers:student.answers,flash:student.flash,paperTasks:student.paperTasks,strategy:student.strategy,history:student.history,createdAt:student.createdAt,updatedAt:student.updatedAt},null,2)],{type:'application/json'}),`bilan_${_normFilename(student.name||'eleve')}_dnb.json`);
+    toast('Fichier JSON téléchargé.');
+  }
+  function exportCSV(){_dl(new Blob([_buildBilanCSV()],{type:'text/csv;charset=utf-8;'}),`bilan_${_normFilename(student.name||'eleve')}_dnb.csv`);toast('Fichier CSV téléchargé.');}
+  function copyBilan(){
+    const text=_buildBilanText();
+    if(navigator.clipboard?.writeText){navigator.clipboard.writeText(text).then(()=>toast('Bilan copié dans le presse-papier\u202f!')).catch(()=>_fbCopy(text));}
+    else _fbCopy(text);
+  }
+  function _fbCopy(text){const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('Bilan copié\u202f!');}catch(e){toast('Sélectionne le texte manuellement.');}document.body.removeChild(ta);}
+
+  /* ── Events ── */
+  function wireEvents(){
+    document.getElementById('nameForm')?.addEventListener('submit',e=>{e.preventDefault();submitName();});
+    document.addEventListener('input',e=>{
+      if(!student)return;
+      const inp=e.target.closest('[data-answer]');
+      if(inp){const[ns,...rest]=inp.dataset.answer.split(':');setAnswer(ns,rest.join(':'),inp.value);}
+      if(e.target.id==='studentPledge'){student.text.pledge=e.target.value;saveRoot();}
+      if(e.target.id==='studentChecklist'){student.text.checklist=e.target.value;saveRoot();}
+    });
+    document.addEventListener('change',e=>{
+      if(!student)return;
+      const paper=e.target.closest('[data-paper-check]');
+      if(paper){const id=paper.dataset.paperCheck;student.paperTasks[id]=paper.checked;if(paper.checked)award(`paper:${id}`,XP.paperDone,'+XP\u202f: rédaction papier faite');saveRoot();updateDashboard();}
+      const strat=e.target.closest('[data-strategy]');
+      if(strat){const id=strat.dataset.strategy;student.strategy[id]=strat.checked;if(strat.checked)award(`strategy:${id}`,XP.strategyDone,'+XP\u202f: stratégie validée');saveRoot();updateDashboard();}
+    });
+    document.addEventListener('click',e=>{
+      if(!student&&!e.target.closest('#nameModal'))return;
+      const action=e.target.closest('[data-action]')?.dataset.action;
+      if(action==='check-auto')checkQuestions('auto',autoQuestions);
+      else if(action==='show-auto-hints')showAutoHints();
+      else if(action==='reset')resetStudent();
+      else if(action==='print')window.print();
+      else if(action==='save-text'){award('text:save',XP.textSave,'Bilan enregistré');saveRoot();updateDashboard();}
+      else if(action==='show-bilan')showBilan();
+      else if(action==='export-json')exportJSON();
+      else if(action==='export-csv')exportCSV();
+      else if(action==='copy-bilan')copyBilan();
+      const target=e.target.closest('[data-action="check-mission"]')?.dataset.target;
+      if(target)checkQuestions(target,missions[target]);
+      const flip=e.target.closest('[data-flip]')?.dataset.flip;
+      if(flip){student.flash[flip]={...(student.flash[flip]||{}),flipped:!student.flash[flip]?.flipped};saveRoot();renderFlashcards();}
+      const master=e.target.closest('[data-master]')?.dataset.master;
+      if(master){student.flash[master]={...(student.flash[master]||{}),mastered:true,flipped:true};award(`flash:${master}`,XP.flashMaster,'+XP\u202f: carte maîtrisée');saveRoot();renderFlashcards();updateDashboard();}
+      const model=e.target.closest('[data-model]')?.dataset.model;
+      if(model)document.getElementById(`model-${model}`)?.classList.toggle('open');
+      const tab=e.target.closest('[data-tab]')?.dataset.tab;
+      if(tab)activateTab(tab);
+      const mins=e.target.closest('[data-timer]')?.dataset.timer;
+      if(mins)setTimer(Number(mins));
+      const ta2=e.target.closest('[data-timer-action]')?.dataset.timerAction;
+      if(ta2==='toggle')toggleTimer(e.target.closest('[data-timer-action]'));
+      if(e.target.closest('[data-action="toggle-student-menu"]')){
+        const zone=document.getElementById('studentZone');
+        const chip=document.getElementById('studentChip');
+        const open=zone.classList.toggle('open');
+        chip.setAttribute('aria-expanded',String(open));
+        return;
+      }
+      if(!e.target.closest('#studentZone')) _closeStudentMenu();
+      if(e.target.closest('[data-action="logout"]'))logoutStudent();
+      else if(e.target.closest('[data-action="switch-student"]'))changeStudent();
+      else if(e.target.closest('[data-action="new-student"]'))newStudent();
+    });
+    window.addEventListener('scroll',setActiveNav,{passive:true});
+  }
+
+  function showAutoHints(){document.querySelectorAll('#autoQuiz .feedback').forEach(f=>f.style.display='block');student.autoHints=true;saveRoot();}
+
+  function resetStudent(){
+    const confirmMsg=`Réinitialiser toute la progression de ${student.name} sur cet appareil ?\n\nCette action est irréversible. Les autres élèves ne sont pas affectés.`;
+    if(!confirm(confirmMsg))return;
+    const id=student.id,name=student.name;
+    student.history.push({action:'reset',detail:'Progression réinitialisée par l\'élève',timestamp:new Date().toISOString()});
+    const hist=student.history;
+    root.students[id]=makeStudentRecord(name);
+    root.students[id].id=id;
+    root.students[id].history=hist;
+    student=root.students[id];
+    if(storageAvailable)localStorage.setItem(ROOT_KEY,JSON.stringify(root));
+    renderAll();toast('Progression réinitialisée.');
+  }
+
+  function activateTab(id){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.id===id));}
+  let timer={seconds:45*60,initial:45*60,interval:null,running:false};
+  function setTimer(m){timer.seconds=m*60;timer.initial=timer.seconds;timer.running=false;clearInterval(timer.interval);timer.interval=null;document.querySelector('[data-timer-action]')?.replaceChildren(document.createTextNode('Démarrer'));renderTimer();}
+  function toggleTimer(btn){timer.running=!timer.running;btn.textContent=timer.running?'Pause':'Démarrer';if(timer.running){timer.interval=setInterval(()=>{timer.seconds--;renderTimer();if(timer.seconds<=0){clearInterval(timer.interval);timer.running=false;btn.textContent='Démarrer';toast('Temps terminé. Passez au bilan.');confetti();}},1000);}else clearInterval(timer.interval);}
+  function renderTimer(){const m=Math.floor(Math.max(0,timer.seconds)/60),s=Math.max(0,timer.seconds)%60;document.getElementById('sessionTimer').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;}
+  function setActiveNav(){const secs=[...document.querySelectorAll('.section')];const cur=secs.reduce((acc,sec)=>sec.getBoundingClientRect().top<140?sec.id:acc,secs[0]?.id||'accueil');document.querySelectorAll('.nav-link').forEach(a=>a.classList.toggle('active',a.getAttribute('href')===`#${cur}`));}
+  function restoreChecked(){
+    Object.entries(student.paperTasks).forEach(([id,v])=>{const el=document.querySelector(`[data-paper-check="${id}"]`);if(el)el.checked=v;});
+    Object.entries(student.strategy).forEach(([id,v])=>{const el=document.querySelector(`[data-strategy="${id}"]`);if(el)el.checked=v;});
+    const pledge=document.getElementById('studentPledge');if(pledge)pledge.value=student.text?.pledge||'';
+    const chk=document.getElementById('studentChecklist');if(chk)chk.value=student.text?.checklist||'';
+  }
+  function restoreCheckedQuestions(){
+    autoQuestions.forEach(q=>{const st=student.answers.auto[q.id];const el=document.querySelector(`[data-question="${cssEscape('auto:'+q.id)}"]`);if(el&&st?.checked){el.classList.toggle('correct',!!st.correct);el.classList.toggle('incorrect',!st.correct);}});
+    Object.entries(missions).forEach(([ns,qs])=>qs.forEach(q=>{const st=student.answers.missions[ns]?.[q.id];const el=document.querySelector(`[data-question="${cssEscape(ns+':'+q.id)}"]`);if(el&&st?.checked){el.classList.toggle('correct',!!st.correct);el.classList.toggle('incorrect',!st.correct);}}));
+    if(student.autoHints)showAutoHints();
+  }
+  function renderAll(){
+    if(!student)return;
+    renderQuiz(document.getElementById('autoQuiz'),autoQuestions,'auto');
+    Object.entries(missions).forEach(([ns,qs])=>renderQuiz(document.querySelector(`[data-mission="${ns}"]`),qs,ns));
+    renderFlashcards();restoreChecked();restoreCheckedQuestions();renderTimer();updateDashboard();setActiveNav();
+  }
+
+  /* ── Init ── */
+  function init(){
+    if(!storageAvailable)document.getElementById('storageBanner')?.classList.remove('hidden');
+    root=loadRoot();
+    const curId=sessionStorage.getItem('nexusDnbCurrent')||root.activeStudentId;
+    if(curId&&root.students[curId]){
+      student=root.students[curId];
+      sessionStorage.setItem('nexusDnbCurrent',curId);
+      _updateStudentChip();
+      renderAll();
+    } else {
+      showModal();
+    }
+  }
+
+  wireEvents();
+  init();
+})();
+</script>
+</body>
+</html>

@@ -138,27 +138,26 @@ export function CorporateNavbar() {
 
   const menuGroups = [
     {
-      title: 'Essentiel',
+      title: 'Offres & tarifs',
       items: [
-        { label: 'Accueil', href: '/', desc: 'Page principale', isPage: true },
-        { label: 'Offres', href: '/offres', desc: 'Nos formules', isPage: true },
-        { label: 'Bilan Gratuit', href: '/bilan-gratuit', desc: 'Évaluation en ligne', isPage: true },
-        { label: 'Contact', href: '/contact', desc: 'Nous joindre', isPage: true },
+        { label: 'Offres & tarifs', href: '/offres', desc: 'Catalogue 2026/2027', isPage: true },
+        { label: 'Trouver ma formule', href: '/recommandation', desc: 'Diagnostic en 3 questions', isPage: true },
+        { label: 'Bilan gratuit', href: '/bilan-gratuit', desc: 'Évaluation personnalisée', isPage: true },
       ]
     },
     {
       title: 'Programmes',
       items: [
-        { label: 'Accompagnement Scolaire', href: '/accompagnement-scolaire', desc: 'Suivi personnalisé', isPage: true },
-        { label: 'Stages', href: '/stages', desc: 'Stages intensifs', isPage: true },
-        { label: 'Plateforme ARIA', href: '/plateforme-aria', desc: 'IA pédagogique', isPage: true },
+        { label: 'Stages intensifs', href: '/stages', desc: 'Toutes les vacances', isPage: true },
+        { label: 'Plateforme Masterium', href: '/plateforme-aria', desc: 'Ressources & parcours en ligne', isPage: true },
+        { label: 'Accompagnement scolaire', href: '/accompagnement-scolaire', desc: 'Suivi personnalisé', isPage: true },
       ]
     },
     {
-      title: 'À propos',
+      title: 'Contact',
       items: [
-        { label: 'Notre Équipe', href: '/equipe', desc: 'Coachs & experts', isPage: true },
-        { label: 'Notre Centre', href: '/notre-centre', desc: 'Centre Urbain Nord', isPage: true },
+        { label: 'Contact', href: '/contact', desc: 'Nous joindre', isPage: true },
+        { label: 'Notre Centre', href: '/notre-centre', desc: 'Centre Urbain Nord, Tunis', isPage: true },
       ]
     },
   ];
