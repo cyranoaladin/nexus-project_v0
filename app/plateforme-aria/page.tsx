@@ -153,10 +153,10 @@ export default function PlateformeAriaPage() {
                 <Sparkles className="mr-2 h-4 w-4 text-lux-gold" />
                 Qu’est-ce qu’ARIA ?
               </Badge>
-              <h2 className="text-3xl font-fraunces text-lux-ink md:text-4xl">
+              <h2 className="text-3xl font-fraunces text-lux-ivory md:text-4xl">
                 Un assistant pédagogique <span className="text-lux-gold-deep">propulsé par l’IA</span>
               </h2>
-              <p className="mt-5 max-w-2xl text-sm leading-7 text-lux-slate md:text-base">
+              <p className="mt-5 max-w-2xl text-sm leading-7 text-lux-ivory/75 md:text-base">
                 ARIA, pour Assistant de Révision Intelligent et Adaptatif, est conçue pour
                 compléter le travail humain. Elle aide à reformuler, expliquer et structurer,
                 mais les réponses doivent toujours être relues et retravaillées avec méthode.
@@ -217,13 +217,13 @@ export default function PlateformeAriaPage() {
             {ARIA_FEATURES.map((feature) => {
               const Icon = feature.icon;
               return (
-                <Card key={feature.title} className="border-lux-line bg-lux-white lux-shadow">
+                <Card key={feature.title} className="border-lux-line bg-lux-ink text-lux-ivory lux-shadow">
                   <CardContent className="p-6">
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-lux-gold/12">
                       <Icon className="h-6 w-6 text-lux-gold" />
                     </div>
-                    <h3 className="mt-4 text-xl font-fraunces text-lux-ink">{feature.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-lux-slate">{feature.description}</p>
+                    <h3 className="mt-4 text-xl font-fraunces text-lux-ivory">{feature.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-lux-ivory/75">{feature.description}</p>
                   </CardContent>
                 </Card>
               );
