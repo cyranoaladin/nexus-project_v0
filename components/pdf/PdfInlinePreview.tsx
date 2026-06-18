@@ -8,7 +8,82 @@ type PdfInlinePreviewProps = {
   title: string;
 };
 
+type PdfRenderMode = 'pdfjs' | 'native';
+
 export function PdfInlinePreview({ src, title }: PdfInlinePreviewProps) {
+  const [renderMode, setRenderMode] = useState<PdfRenderMode | null>(null);
+
+  useEffect(() => {
+    const updateRenderMode = () => {
+      const mobileViewport = window.innerWidth < 768;
+      setRenderMode(mobileViewport ? 'native' : 'pdfjs');
+    };
+
+    updateRenderMode();
+    window.addEventListener('resize', updateRenderMode);
+
+    return () => {
+      window.removeEventListener('resize', updateRenderMode);
+    };
+  }, []);
+
+  if (renderMode === null) {
+    return (
+      <div className="rounded-2xl border border-dashed border-lux-line/70 bg-lux-white px-6 py-20 text-center">
+        <p className="text-xs font-black uppercase tracking-[0.18em] text-lux-gold-deep">
+          Chargement
+        </p>
+        <p className="mt-3 text-sm leading-7 text-lux-slate">
+          L’aperçu PDF se prépare. Le chargement peut prendre quelques secondes.
+        </p>
+      </div>
+    );
+  }
+
+  return renderMode === 'native' ? (
+    <NativePdfPreview src={src} title={title} />
+  ) : (
+    <PdfJsPreview src={src} title={title} />
+  );
+}
+
+function NativePdfPreview({ src, title }: PdfInlinePreviewProps) {
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-t-2xl border-b border-lux-line/70 bg-lux-ink px-4 py-3 text-lux-ivory sm:px-6">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-lux-gold-wash">
+            Aperçu du document
+          </p>
+          <p className="mt-1 text-sm text-lux-ivory/70">
+            {title} - aperçu natif mobile
+          </p>
+        </div>
+        <a
+          href={src}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center rounded-lg border border-lux-line/30 bg-white/5 px-3 py-2 text-sm font-semibold text-lux-ivory transition hover:bg-white/10"
+        >
+          Ouvrir le PDF
+        </a>
+      </div>
+
+      <div className="overflow-hidden rounded-b-2xl border border-lux-line/70 bg-lux-paper">
+        <div className="h-[78vh] min-h-[620px] bg-lux-white sm:h-[80vh] sm:min-h-[760px]">
+          <iframe
+            src={`${src}#view=FitH&page=1`}
+            title={`Aperçu mobile de ${title}`}
+            className="h-full w-full border-0 bg-lux-white"
+            loading="eager"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PdfJsPreview({ src, title }: PdfInlinePreviewProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const pdfRef = useRef<any>(null);
@@ -206,14 +281,26 @@ export function PdfInlinePreview({ src, title }: PdfInlinePreviewProps) {
         ) : null}
 
         {status === 'error' ? (
-          <div className="flex min-h-[760px] items-center justify-center rounded-2xl border border-dashed border-lux-line/70 bg-lux-white px-6 text-center">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-red-600">
-                Aperçu indisponible
-              </p>
-              <p className="mt-3 max-w-md text-sm leading-7 text-lux-slate">
-                {error ?? 'L’aperçu du PDF n’a pas pu être rendu.'}
-              </p>
+          <div className="space-y-4">
+            <div className="flex min-h-[240px] items-center justify-center rounded-2xl border border-dashed border-lux-line/70 bg-lux-white px-6 text-center">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-red-600">
+                  Aperçu indisponible
+                </p>
+                <p className="mt-3 max-w-md text-sm leading-7 text-lux-slate">
+                  {error ?? 'L’aperçu du PDF n’a pas pu être rendu.'}
+                </p>
+              </div>
+            </div>
+            <div className="overflow-hidden rounded-2xl border border-lux-line/70 bg-lux-white">
+              <div className="h-[78vh] min-h-[620px] sm:min-h-[760px]">
+                <iframe
+                  src={`${src}#view=FitH&page=1`}
+                  title={`Aperçu de secours de ${title}`}
+                  className="h-full w-full border-0 bg-lux-white"
+                  loading="eager"
+                />
+              </div>
             </div>
           </div>
         ) : null}
