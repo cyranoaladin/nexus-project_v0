@@ -140,7 +140,7 @@ export default function CorrigeDnbMaths2026Page() {
                 <ul className="mt-4 space-y-3 text-sm text-lux-ivory/80">
                   <li className="flex gap-2">
                     <ShieldCheck className="mt-0.5 h-4 w-4 text-lux-evergreen" />
-                    Un document lisible directement dans le navigateur.
+                    Un accès direct au PDF depuis le site.
                   </li>
                   <li className="flex gap-2">
                     <ShieldCheck className="mt-0.5 h-4 w-4 text-lux-evergreen" />
