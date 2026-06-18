@@ -60,7 +60,7 @@ export default function NotreCentrePage() {
 
           <Card className="border-lux-line bg-lux-ink text-lux-ivory lux-shadow">
             <CardContent className="p-6 md:p-8">
-              <h2 className="text-2xl font-fraunces text-lux-ivory">Ce que vous trouvez sur place</h2>
+              <h2 className="text-2xl font-fraunces !text-lux-ivory">Ce que vous trouvez sur place</h2>
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 {[
                   'Salles adaptées aux groupes réduits',
