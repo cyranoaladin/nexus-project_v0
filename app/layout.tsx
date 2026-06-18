@@ -3,6 +3,7 @@ import Script from "next/script";
 import localFont from "next/font/local";
 import { Providers } from "@/components/providers";
 import PromoBanner from "@/components/layout/PromoBanner";
+import { getAllOffers, getEffectivePrice } from "@/lib/pricing";
 import "./globals.css";
 
 const GA_MEASUREMENT_ID = "G-3XPB54QL5N";
@@ -53,24 +54,24 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXTAUTH_URL || 'https://nexusreussite.academy'),
-  title: "Nexus Réussite - Pédagogie Augmentée",
-  description: "La plateforme de référence pour l'excellence éducative en Tunisie. Accompagnement humain d'élite, plateforme numérique intelligente et assistance IA révolutionnaire.",
-  keywords: ["soutien scolaire", "Tunisie", "lycée", "baccalauréat", "cours particuliers", "IA", "pédagogie"],
+  title: "Nexus Réussite | Accompagnement académique premium à Tunis",
+  description: "Accompagnement académique premium pour les élèves du système français à Tunis : groupes réduits, méthode structurée, bilans individualisés et suivi parent clair.",
+  keywords: ["soutien scolaire", "Tunisie", "lycée français", "baccalauréat", "cours particuliers", "ARIA", "pédagogie"],
   icons: [
     { rel: "icon", url: "/web-app-manifest-192x192.png", type: "image/png", sizes: "192x192" },
     { rel: "shortcut icon", url: "/web-app-manifest-192x192.png", type: "image/png", sizes: "192x192" },
   ],
   openGraph: {
-    title: "Nexus Réussite - Pédagogie Augmentée",
-    description: "La plateforme de référence pour l'excellence éducative en Tunisie. Accompagnement humain d'élite, plateforme numérique intelligente et assistance IA révolutionnaire.",
+    title: "Nexus Réussite | Accompagnement académique premium à Tunis",
+    description: "Groupes réduits, méthode structurée, bilans individualisés et suivi parent clair pour les élèves du système français à Tunis.",
     siteName: 'Nexus Réussite',
     locale: 'fr_FR',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Nexus Réussite - Pédagogie Augmentée",
-    description: "La plateforme de référence pour l'excellence éducative en Tunisie. Accompagnement humain d'élite, plateforme numérique intelligente et assistance IA révolutionnaire.",
+    title: "Nexus Réussite | Accompagnement académique premium à Tunis",
+    description: "Groupes réduits, méthode structurée, bilans individualisés et suivi parent clair pour les élèves du système français à Tunis.",
   },
   robots: {
     index: true,
@@ -83,23 +84,30 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const publicPrices = getAllOffers()
+    .map((offer) => getEffectivePrice(offer))
+    .filter((value): value is number => typeof value === 'number');
+
+  const lowPrice = publicPrices.length > 0 ? String(Math.min(...publicPrices)) : undefined;
+  const highPrice = publicPrices.length > 0 ? String(Math.max(...publicPrices)) : undefined;
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'EducationalOrganization',
     name: 'Nexus Réussite',
     alternateName: 'Nexus Digital Campus',
     url: process.env.NEXTAUTH_URL || 'https://nexusreussite.academy',
-    description: 'Plateforme de pilotage éducatif combinant coachs Agrégés et Certifiés, IA pédagogique ARIA et dashboard parent en temps réel pour la réussite au Baccalauréat.',
+    description: 'Plateforme d’accompagnement éducatif combinant groupes réduits, méthode structurée, bilans individualisés et outils numériques complémentaires.',
     areaServed: { '@type': 'Country', name: 'Tunisia' },
     availableLanguage: ['fr'],
     sameAs: [],
-    offers: {
+    offers: lowPrice && highPrice ? {
       '@type': 'AggregateOffer',
       priceCurrency: 'TND',
-      lowPrice: '150',
-      highPrice: '990',
-      offerCount: '3',
-    },
+      lowPrice,
+      highPrice,
+      offerCount: String(publicPrices.length),
+    } : undefined,
   };
 
   return (

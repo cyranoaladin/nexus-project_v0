@@ -1,15 +1,12 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Stages Printemps 2026 — La Dernière Ligne Droite | Nexus Réussite",
+  title: "Stages 2026/2027 | Nexus Réussite",
   description:
-    "Stages intensifs Première & Terminale : Maths, Français, NSI, Grand Oral. 5 élèves max, enseignants agrégés. Épreuves blanches incluses. Du 18 avril au 2 mai 2026 à Tunis.",
-  keywords:
-    "stage bac 2026, stage maths terminale tunis, épreuve pratique NSI, bac français première, grand oral terminale, stage printemps tunis, nexus réussite",
+    "Stages de prérentrée, Toussaint, hiver, printemps et sprint final. Groupes réduits, présentiel à Mutuelleville ou en ligne.",
   openGraph: {
-    title: "Stages Printemps 2026 — Nexus Réussite",
-    description:
-      "On ne révise plus, on valide. Simulations réelles, 5 élèves max, agrégés.",
+    title: "Stages 2026/2027 — Nexus Réussite",
+    description: "Des stages utiles, structurés et pensés pour la progression réelle.",
     type: "website",
   },
 };

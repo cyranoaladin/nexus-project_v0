@@ -1,19 +1,10 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import Link from 'next/link';
 import { ChevronRight, CheckCircle2, RotateCcw } from 'lucide-react';
-import { ExamCard, type ExamCardProps } from './ExamCard';
-import {
-  getOffersByLevel,
-  getOffersByTrack,
-  getStageFormats,
-  getPonctuelOffers,
-  getPacks,
-  getCarte,
-  getRules,
-  type AnnualOffer,
-} from '@/lib/pricing';
-import { fmtTND } from './format';
+import { ExamCard } from './ExamCard';
+import { buildRecommendationOutcome, recommendationActions, type RecommendationAction } from './recommendation-engine';
 
 // ── Wizard steps ──
 
@@ -30,10 +21,10 @@ const steps: WizardStep[] = [
     title: 'Quel est le niveau de l\'élève ?',
     description: 'Cela nous permet de cibler les épreuves et le programme.',
     options: [
-      { id: 'Terminale', label: 'Terminale', description: 'Bac en fin d\'année' },
-      { id: 'Premiere', label: 'Première', description: 'EAF + spécialités' },
-      { id: 'Seconde', label: 'Seconde', description: 'Consolidation' },
-      { id: 'Troisieme', label: 'Troisième', description: 'Brevet' },
+      { id: 'terminale', label: 'Terminale', description: 'Bac en fin d\'année' },
+      { id: 'premiere', label: 'Première', description: 'EAF + spécialités' },
+      { id: 'seconde', label: 'Seconde', description: 'Consolidation' },
+      { id: 'troisieme', label: 'Troisième', description: 'Brevet' },
     ],
   },
   {
@@ -58,85 +49,6 @@ const steps: WizardStep[] = [
   },
 ];
 
-// ── Recommendation engine ──
-
-function getRecommendations(answers: Record<string, string>): ExamCardProps[] {
-  const level = answers.level;
-  const track = answers.track;
-  const need = answers.need;
-  const results: ExamCardProps[] = [];
-
-  if (need === 'annual') {
-    const offers = track === 'libre'
-      ? getOffersByTrack('libre').filter(o => o.level === level)
-      : getOffersByLevel(level);
-
-    for (const o of offers.slice(0, 3)) {
-      const price = o.price_annual_campaign ?? o.price_annual_public ?? 0;
-      results.push({
-        eyebrow: `${o.level} · ${o.track === 'libre' ? 'Candidat libre' : 'Parcours présentiel'}`,
-        title: o.title,
-        subtitle: o.subjects,
-        price,
-        originalPrice: o.price_annual_public !== price ? (o.price_annual_public ?? undefined) : undefined,
-        monthlyDisplay: o.monthly_display ?? undefined,
-        hoursPerWeek: o.hours_per_week ?? undefined,
-        totalHours: o.hours_per_year ?? undefined,
-        groupMax: o.group_max ?? 5,
-        groupMinOpen: o.group_min_open ?? 3,
-        payment: o.deposit != null ? {
-          deposit: o.deposit,
-          installments: o.installment_amount != null && o.n_installments != null
-            ? Array(o.n_installments).fill(o.installment_amount)
-            : undefined,
-        } : undefined,
-      });
-    }
-  } else if (need === 'stage') {
-    const formats = getStageFormats().slice(0, 3);
-    for (const f of formats) {
-      results.push({
-        eyebrow: `Les Intensifs · ${f.title}`,
-        title: f.title,
-        subtitle: `${f.hours}h de travail concentré`,
-        price: f.price_per_student,
-        groupMax: f.group_max,
-        groupMinOpen: f.group_min_open,
-        payment: { deposit: f.payment.deposit, solde: f.payment.solde },
-      });
-    }
-  } else if (need === 'ponctuel') {
-    const ponctuels = getPonctuelOffers().filter(p =>
-      !level || p.public === 'Tous' || p.public === level
-    ).slice(0, 3);
-    for (const p of ponctuels) {
-      results.push({
-        eyebrow: `Prépa épreuves · ${p.public}`,
-        title: p.title,
-        subtitle: p.description,
-        price: p.price_per_student,
-        groupMax: p.group_max ?? 5,
-        groupMinOpen: p.group_min_open ?? 3,
-        payment: p.payment.full_at_booking
-          ? undefined
-          : { deposit: p.payment.deposit, solde: p.payment.solde },
-      });
-    }
-  } else {
-    // platform
-    const carte = getCarte();
-    results.push({
-      eyebrow: 'Carte membre',
-      title: carte.title,
-      subtitle: 'Accès plateforme + remises + diagnostic',
-      price: carte.price_annual,
-      features: carte.includes,
-    });
-  }
-
-  return results;
-}
-
 // ── Component ──
 
 export function RecommendationWizard() {
@@ -147,10 +59,11 @@ export function RecommendationWizard() {
   const step = steps[currentStep];
   const selectedValue = answers[step.id];
 
-  const recommendations = useMemo(
-    () => (showResults ? getRecommendations(answers) : []),
+  const recommendationOutcome = useMemo(
+    () => (showResults ? buildRecommendationOutcome(answers) : { cards: [] }),
     [showResults, answers],
   );
+  const recommendations = recommendationOutcome.cards;
 
   const handleSelect = (value: string) => {
     const newAnswers = { ...answers, [step.id]: value };
@@ -171,6 +84,28 @@ export function RecommendationWizard() {
     setCurrentStep(0);
     setAnswers({});
     setShowResults(false);
+  };
+
+  const renderAction = (action: RecommendationAction, className: string) => {
+    if (action.external) {
+      return (
+        <a
+          key={action.href}
+          href={action.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={className}
+        >
+          {action.label}
+        </a>
+      );
+    }
+
+    return (
+      <Link key={action.href} href={action.href} className={className}>
+        {action.label}
+      </Link>
+    );
   };
 
   if (showResults) {
@@ -198,17 +133,51 @@ export function RecommendationWizard() {
         </div>
 
         {/* Results grid */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {recommendations.map((props, i) => (
-            <div key={i} className="relative">
-              {i === 0 && (
-                <span className="absolute -top-3 left-4 z-10 rounded-full bg-lux-gold px-3 py-0.5 text-[0.65rem] font-semibold text-lux-ink">
-                  Recommandation #1
-                </span>
-              )}
-              <ExamCard {...props} featured={i === 0} ctaText="Réserver ma place" />
+        {recommendations.length > 0 ? (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {recommendations.map((props, i) => (
+              <div key={`${props.title}-${i}`} className="relative">
+                {i === 0 && (
+                  <span className="absolute -top-3 left-4 z-10 rounded-full bg-lux-gold px-3 py-0.5 text-[0.65rem] font-semibold text-lux-ink">
+                    Recommandation #1
+                  </span>
+                )}
+                <ExamCard {...props} featured={i === 0} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-xl border border-lux-line bg-lux-white p-6">
+            <h3 className="text-xl font-fraunces text-lux-ink">
+              {recommendationOutcome.emptyState?.title ?? 'Aucune recommandation disponible'}
+            </h3>
+            <p className="mt-2 text-sm text-lux-slate">
+              {recommendationOutcome.emptyState?.message ?? 'Revenez au début du quiz pour préciser votre besoin.'}
+            </p>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              {(recommendationOutcome.emptyState?.actions ?? recommendationActions).map((action) => (
+                renderAction(
+                  action,
+                  'inline-flex items-center justify-center rounded-lg border border-lux-line px-4 py-3 text-sm font-semibold text-lux-ink transition-all hover:border-lux-gold hover:text-lux-gold lux-focus min-h-[44px]',
+                )
+              ))}
             </div>
-          ))}
+          </div>
+        )}
+
+        <div className="rounded-xl border border-lux-line bg-lux-paper/60 p-6">
+          <h3 className="text-lg font-fraunces text-lux-ink">Et maintenant ?</h3>
+          <p className="mt-2 text-sm text-lux-slate">
+            Si vous hésitez encore, choisissez l’action la plus simple pour avancer.
+          </p>
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+            {recommendationActions.map((action) => (
+              renderAction(
+                action,
+                'inline-flex items-center justify-center rounded-lg px-4 py-3 text-sm font-semibold transition-all lux-focus min-h-[44px] bg-lux-ink text-lux-ivory hover:bg-lux-ink/90',
+              )
+            ))}
+          </div>
         </div>
       </div>
     );

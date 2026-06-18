@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { BookOpen, CalendarRange, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -13,6 +14,7 @@ export default function PromoBanner() {
   const [isVisible, setIsVisible] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileIndex, setMobileIndex] = useState(0);
+  const pathname = usePathname();
 
   useEffect(() => {
     const syncViewport = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
@@ -66,6 +68,10 @@ export default function PromoBanner() {
   );
 
   if (!isVisible) {
+    return null;
+  }
+
+  if (pathname === "/") {
     return null;
   }
 

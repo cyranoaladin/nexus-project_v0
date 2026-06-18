@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Check, Zap } from 'lucide-react';
 import { fmtTND, fmtDiscount } from './format';
 import type { Pack } from '@/lib/pricing';
@@ -9,10 +10,12 @@ interface PassCardProps {
   /** Resolved component labels */
   componentLabels: string[];
   onCta?: () => void;
+  ctaHref?: string;
+  ctaText?: string;
   highlighted?: boolean;
 }
 
-export function PassCard({ pack, componentLabels, onCta, highlighted = false }: PassCardProps) {
+export function PassCard({ pack, componentLabels, onCta, ctaHref, ctaText = 'Réserver ce Pass', highlighted = false }: PassCardProps) {
   const hasDiscount = pack.value > pack.price;
 
   return (
@@ -120,14 +123,25 @@ export function PassCard({ pack, componentLabels, onCta, highlighted = false }: 
 
       {/* CTA */}
       <div className="mt-auto border-t border-lux-line/50 p-5">
-        <button
-          onClick={onCta}
-          className={`w-full rounded-lg py-3 text-sm font-semibold transition-all lux-focus ${
-            highlighted ? 'lux-cta-reserve' : 'lux-cta-primary'
-          }`}
-        >
-          Réserver ce Pass
-        </button>
+        {ctaHref ? (
+          <Link
+            href={ctaHref}
+            className={`flex w-full items-center justify-center rounded-lg py-3 text-sm font-semibold transition-all lux-focus ${
+              highlighted ? 'lux-cta-reserve' : 'lux-cta-primary'
+            }`}
+          >
+            {ctaText}
+          </Link>
+        ) : onCta ? (
+          <button
+            onClick={onCta}
+            className={`w-full rounded-lg py-3 text-sm font-semibold transition-all lux-focus ${
+              highlighted ? 'lux-cta-reserve' : 'lux-cta-primary'
+            }`}
+          >
+            {ctaText}
+          </button>
+        ) : null}
       </div>
     </div>
   );

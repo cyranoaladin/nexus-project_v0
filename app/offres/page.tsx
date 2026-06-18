@@ -10,9 +10,6 @@ import {
   PassCard,
   CarteNexusCard,
   FAQAccordion,
-  fmtTND,
-  fmtGroup,
-  fmtDiscount,
   type FAQItem,
 } from '@/components/premium';
 import {
@@ -28,11 +25,10 @@ import {
   getRules,
   getCampaign,
   getEffectivePrice,
-  resolvePackValue,
+  getAnnualOfferPaymentSchedule,
   getStageFormat,
   getPonctuelOffer,
   getCoachingOffer,
-  type AnnualOffer,
   type StageFormat,
   type PonctuelOffer,
   type CoachingOffer,
@@ -40,20 +36,6 @@ import {
 } from '@/lib/pricing';
 
 const WHATSAPP_URL = 'https://wa.me/21699192829';
-
-// ── Payment builder — reads flat fields from AnnualOffer, never recalculates ──
-
-function buildPayment(o: AnnualOffer): { deposit: number; installments?: number[] } | undefined {
-  if (o.deposit == null) return undefined;
-  if (o.n_installments == null || o.installment_amount == null) {
-    return { deposit: o.deposit };
-  }
-  // Build installments array: (n-1) × installment_amount + last_installment
-  const regular = o.n_installments - 1;
-  const last = o.last_installment ?? o.installment_amount;
-  const installments = [...Array(regular).fill(o.installment_amount), last];
-  return { deposit: o.deposit, installments };
-}
 
 // ── Category filter ──
 
@@ -156,6 +138,12 @@ export default function OffresPage() {
             Tous les parcours, stages, Pass et formules. Groupes de {rules.group_max} max,
             tarifs en TND, échéanciers transparents.
           </p>
+          <div className="mt-5 inline-flex flex-wrap gap-2 text-sm text-lux-ivory/80">
+            <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">Groupes de 5 maximum</span>
+            <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">Tarifs en TND</span>
+            <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">Acompte 30 %</span>
+            <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">Échéanciers transparents</span>
+          </div>
         </div>
       </section>
 
@@ -211,17 +199,19 @@ export default function OffresPage() {
                           subtitle={o.subjects}
                           price={price}
                           originalPrice={o.price_annual_public !== price ? (o.price_annual_public ?? undefined) : undefined}
-                          monthlyDisplay={o.monthly_display ?? undefined}
-                          hoursPerWeek={o.hours_per_week ?? undefined}
-                          totalHours={o.hours_per_year ?? undefined}
-                          groupMax={o.group_max ?? rules.group_max}
-                          groupMinOpen={o.group_min_open ?? rules.group_min_open.lycee}
-                          effectifType="groupe"
-                          payment={buildPayment(o)}
-                          campaignBadge={o.badge === 'campagne' ? campaign.campaign_label : undefined}
-                        />
-                      );
-                    })}
+                        monthlyDisplay={o.monthly_display ?? undefined}
+                        hoursPerWeek={o.hours_per_week ?? undefined}
+                        totalHours={o.hours_per_year ?? undefined}
+                        groupMax={o.group_max ?? rules.group_max}
+                        groupMinOpen={o.group_min_open ?? rules.group_min_open.lycee}
+                        effectifType="groupe"
+                        payment={getAnnualOfferPaymentSchedule(o) ?? undefined}
+                        campaignBadge={o.badge === 'campagne' ? campaign.campaign_label : undefined}
+                        ctaText="Être conseillé"
+                        ctaHref="/bilan-gratuit"
+                      />
+                    );
+                  })}
                   </div>
                 </div>
               );
@@ -256,7 +246,9 @@ export default function OffresPage() {
                     groupMax={o.group_max ?? rules.group_max}
                     groupMinOpen={o.group_min_open ?? rules.group_min_open.online_live}
                     effectifType="groupe"
-                    payment={buildPayment(o)}
+                    payment={getAnnualOfferPaymentSchedule(o) ?? undefined}
+                    ctaText="Être conseillé"
+                    ctaHref="/bilan-gratuit"
                   />
                 );
               })}
@@ -264,11 +256,11 @@ export default function OffresPage() {
           </section>
         )}
 
-        {/* Plateforme Masterium */}
+        {/* Plateforme */}
         {showSection('plateforme') && (
           <section>
             <div className="mb-8">
-              <span className="lux-eyebrow">Plateforme Masterium</span>
+              <span className="lux-eyebrow">Plateforme</span>
               <h2 className="mt-2 text-2xl md:text-3xl">Trois paliers numériques</h2>
               <p className="mt-2 text-sm text-lux-slate">
                 Ressources, parcours, fiches, exercices — avec ou sans accompagnement live.
@@ -282,7 +274,7 @@ export default function OffresPage() {
                   return (
                     <ExamCard
                       key={o.id}
-                      eyebrow="Masterium"
+                      eyebrow="Plateforme"
                       title={o.title}
                       subtitle={o.subjects}
                       price={price}
@@ -291,6 +283,8 @@ export default function OffresPage() {
                       effectifType={o.group_max ? 'groupe' : 'none'}
                       groupMax={o.group_max ?? undefined}
                       groupMinOpen={o.group_min_open ?? undefined}
+                      ctaText="Demander un bilan"
+                      ctaHref="/bilan-gratuit"
                     />
                   );
                 })}
@@ -322,6 +316,8 @@ export default function OffresPage() {
                   groupMinOpen={f.group_min_open}
                   effectifType="groupe"
                   payment={{ deposit: f.payment.deposit, solde: f.payment.solde }}
+                  ctaText="Pré-inscription"
+                  ctaHref="/stages"
                 />
               ))}
             </div>
@@ -368,7 +364,8 @@ export default function OffresPage() {
                       ? undefined
                       : { deposit: p.payment.deposit, solde: p.payment.solde }
                   }
-                  ctaText={p.payment.full_at_booking ? `Réserver · ${fmtTND(p.price_per_student)}` : undefined}
+                  ctaText="Demander un bilan"
+                  ctaHref="/bilan-gratuit"
                 />
               ))}
             </div>
@@ -407,7 +404,8 @@ export default function OffresPage() {
                       ? ['Offert en campagne', c.deductible ? 'Déductible du parcours annuel' : ''].filter(Boolean)
                       : undefined
                   }
-                  ctaText={c.campaign_free ? 'Demander un diagnostic gratuit' : undefined}
+                  ctaText="Être conseillé"
+                  ctaHref="/bilan-gratuit"
                 />
               ))}
             </div>
@@ -431,6 +429,8 @@ export default function OffresPage() {
                   pack={p}
                   componentLabels={resolvePackComponentLabels(p)}
                   highlighted={i === 0}
+                  ctaText="Être conseillé"
+                  ctaHref="/bilan-gratuit"
                 />
               ))}
             </div>
@@ -445,7 +445,7 @@ export default function OffresPage() {
               <h2 className="mt-2 text-2xl md:text-3xl">La carte membre</h2>
             </div>
             <div className="max-w-md">
-              <CarteNexusCard carte={carte} />
+              <CarteNexusCard carte={carte} ctaText="Être conseillé" ctaHref="/bilan-gratuit" />
             </div>
           </section>
         )}

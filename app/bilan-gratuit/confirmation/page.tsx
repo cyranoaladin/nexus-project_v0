@@ -5,7 +5,7 @@ import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import { ArrowRight, CheckCircle, Clock, Mail, Phone } from "lucide-react";
+import { CheckCircle, Clock, Mail, Phone } from "lucide-react";
 import Link from "next/link";
 
 export default function ConfirmationPage() {
@@ -37,7 +37,7 @@ export default function ConfirmationPage() {
               transition={{ duration: 0 }}
               className="font-display text-3xl md:text-4xl font-bold text-white mb-4"
             >
-              Félicitations ! Votre Bilan est Créé
+              Votre demande de bilan a bien été enregistrée
             </motion.h1>
 
             <motion.p
@@ -46,8 +46,7 @@ export default function ConfirmationPage() {
               transition={{ duration: 0 }}
               className="text-xl text-neutral-300 mb-12 max-w-2xl mx-auto"
             >
-              Votre demande de bilan stratégique gratuit a été enregistrée avec succès.
-              Notre équipe va analyser votre profil et vous contacter très prochainement.
+              Notre équipe pédagogique va analyser votre demande et vous recontacter pour orienter la meilleure formule.
             </motion.p>
 
             {/* Étapes suivantes */}
@@ -88,7 +87,7 @@ export default function ConfirmationPage() {
                   </div>
                   <h3 className="font-semibold text-lg mb-2 text-white">Plan d'Action</h3>
                   <p className="text-neutral-400 text-sm">
-                    Nous vous proposons un plan personnalisé pour la réussite de votre enfant
+                    Nous vous proposons un plan personnalisé pour la progression de votre enfant
                   </p>
                 </CardContent>
               </Card>
@@ -108,7 +107,7 @@ export default function ConfirmationPage() {
                     Vérifiez votre boîte email
                   </h3>
                   <p className="text-neutral-300 text-sm">
-                    Un email de confirmation a été envoyé avec vos identifiants de connexion.
+                    Un email de confirmation a été envoyé avec les prochaines étapes de prise en charge.
                     Si vous ne le trouvez pas, pensez à vérifier vos spams.
                   </p>
                 </div>
@@ -123,9 +122,8 @@ export default function ConfirmationPage() {
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
               <Button asChild size="lg">
-                <Link href="/auth/signin">
-                  Se Connecter
-                  <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+                <Link href="/offres">
+                  Voir les offres
                 </Link>
               </Button>
 
@@ -136,7 +134,7 @@ export default function ConfirmationPage() {
               </Button>
             </motion.div>
 
-            {/* Contact d'urgence */}
+            {/* Contact direct */}
             <motion.div
               initial={{ opacity: 1 }}
               animate={{ opacity: 1 }}

@@ -35,12 +35,12 @@ describe('PromoBanner', () => {
 
     render(<PromoBanner />);
 
-    expect(screen.getByRole('link', { name: /réserver/i })).toHaveAttribute('href', '/stages');
-    expect(screen.getByRole('link', { name: /essayer gratuitement/i })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /voir les offres/i })).toHaveAttribute('href', '/offres');
+    expect(screen.getByRole('link', { name: /essayer/i })).toHaveAttribute(
       'href',
       'https://eaf.nexusreussite.academy'
     );
-    expect(screen.getByText(/stages printemps/i)).toBeInTheDocument();
+    expect(screen.getByText(/rentrée 2026/i)).toBeInTheDocument();
     expect(screen.getByText(/plateforme eaf/i)).toBeInTheDocument();
   });
 
@@ -58,7 +58,7 @@ describe('PromoBanner', () => {
 
     render(<PromoBanner />);
 
-    expect(screen.getByText(/stages printemps/i)).toBeInTheDocument();
+    expect(screen.getByText(/rentrée 2026/i)).toBeInTheDocument();
 
     act(() => {
       jest.advanceTimersByTime(4000);

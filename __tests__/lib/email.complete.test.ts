@@ -44,7 +44,7 @@ describe('sendWelcomeParentEmail', () => {
     expect(mockSendMail).toHaveBeenCalledTimes(1);
     const call = mockSendMail.mock.calls[0][0];
     expect(call.to).toBe('parent@example.com');
-    expect(call.subject).toContain('Bienvenue');
+    expect(call.subject).toContain('bilan');
   });
 
   it('should include parent name in HTML body', async () => {
@@ -61,11 +61,11 @@ describe('sendWelcomeParentEmail', () => {
     expect(call.html).toContain('Mehdi');
   });
 
-  it('should include temporary password when provided', async () => {
-    await sendWelcomeParentEmail('parent@example.com', 'Ahmed', 'Mehdi', 'TempPass123');
+  it('should include activation link when provided', async () => {
+    await sendWelcomeParentEmail('parent@example.com', 'Ahmed', 'Mehdi', 'https://nexusreussite.academy/auth/activate?token=abc');
 
     const call = mockSendMail.mock.calls[0][0];
-    expect(call.html).toContain('TempPass123');
+    expect(call.html).toContain('/auth/activate?token=abc');
   });
 
   it('should not include password section when not provided', async () => {

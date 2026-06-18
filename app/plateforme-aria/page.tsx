@@ -41,8 +41,8 @@ const ARIA_SUBJECTS = [
 const ARIA_FEATURES = [
   {
     icon: Clock,
-    title: "Disponible 24h/24, 7j/7",
-    description: "ARIA ne dort jamais. Posez votre question à 23h la veille d'un contrôle, elle est là.",
+    title: "Accès selon formule",
+    description: "ARIA peut compléter votre parcours ou votre add-on selon la formule choisie.",
   },
   {
     icon: Target,
@@ -62,7 +62,7 @@ const ARIA_FEATURES = [
   {
     icon: Shield,
     title: "Pédagogie bienveillante",
-    description: "ARIA encourage, ne juge pas. Elle propose des méthodes et des exemples concrets.",
+    description: "ARIA encourage, ne juge pas. Les réponses doivent être relues et travaillées avec méthode.",
   },
   {
     icon: Star,
@@ -80,7 +80,7 @@ const ARIA_STEPS = [
   {
     step: "2",
     title: "Posez votre question",
-    description: "Tapez votre question comme vous la poseriez à un professeur particulier.",
+    description: "Tapez votre question comme vous la poseriez à un assistant pédagogique, puis relisez la réponse.",
   },
   {
     step: "3",
@@ -133,9 +133,8 @@ export default function PlateformeAriaPage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto mb-8 leading-relaxed"
             >
-              Votre assistante IA pédagogique personnelle, disponible <strong className="text-white">24h/24</strong> pour
-              vous aider dans <strong className="text-white">10 matières du lycée</strong>. Comme un professeur particulier
-              qui ne dort jamais.
+              Votre assistante IA pédagogique personnelle pour compléter le travail humain,
+              vous aider dans <strong className="text-white">10 matières du lycée</strong> et structurer les révisions.
             </motion.p>
 
             <motion.div
@@ -146,7 +145,7 @@ export default function PlateformeAriaPage() {
             >
               <Button asChild size="lg" className="h-14 px-8 text-lg bg-white text-slate-900 hover:bg-slate-100 font-semibold group">
                 <Link href="/bilan-gratuit">
-                  Essayer ARIA gratuitement
+                  Demander un bilan
                   <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
@@ -165,11 +164,11 @@ export default function PlateformeAriaPage() {
             >
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-green-400" />
-                <span>Démonstration gratuite</span>
+                <span>Complément de l’accompagnement humain</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-green-400" />
-                <span>Sans engagement</span>
+                <span>Relu et travaillé avec méthode</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-green-400" />
@@ -189,7 +188,7 @@ export default function PlateformeAriaPage() {
                   Qu'est-ce qu'ARIA ?
                 </Badge>
                 <h2 className="font-heading text-3xl md:text-4xl font-bold text-slate-900 mb-6">
-                  Votre professeur particulier <span className="text-blue-600">propulsé par l'IA</span>
+                  Un assistant pédagogique <span className="text-blue-600">propulsé par l'IA</span>
                 </h2>
                 <p className="text-lg text-slate-700 mb-6 leading-relaxed">
                   ARIA (<strong>A</strong>ssistant de <strong>R</strong>évision <strong>I</strong>ntelligent et <strong>A</strong>daptatif) est l'intelligence artificielle
@@ -225,7 +224,7 @@ export default function PlateformeAriaPage() {
                       </div>
                       <div>
                         <p className="font-semibold text-slate-900">ARIA</p>
-                        <p className="text-xs text-slate-600">Assistant IA Pédagogique 24/7</p>
+                        <p className="text-xs text-slate-600">Assistant IA pédagogique</p>
                       </div>
                     </div>
                     <div className="space-y-3">
@@ -361,16 +360,16 @@ export default function PlateformeAriaPage() {
           <div className="container mx-auto max-w-4xl px-4 text-center">
             <div>
               <h2 className="font-heading text-3xl md:text-4xl font-bold text-slate-900 mb-6">
-                Prêt à rencontrer votre <span className="text-blue-600">assistant IA</span> ?
+                Prêt à utiliser <span className="text-blue-600">ARIA</span> dans un cadre clair ?
               </h2>
               <p className="text-lg text-slate-700 mb-8 max-w-2xl mx-auto">
-                Essayez ARIA gratuitement dès maintenant. Cliquez sur la bulle en bas à droite
-                pour démarrer une conversation de démonstration.
+                ARIA complète l’accompagnement humain, elle ne le remplace pas. Demandez un bilan pour
+                savoir si l’accès doit passer par une formule ou un add-on.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button asChild size="lg" className="h-14 px-8 text-lg bg-brand-primary hover:bg-brand-primary-dark font-semibold group">
                   <Link href="/bilan-gratuit">
-                    Commencer mon Bilan Gratuit
+                    Demander un bilan
                     <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </Button>

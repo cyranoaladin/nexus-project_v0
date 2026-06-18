@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { buildAdaptivePlanning, getDefaultProfile } from "@/content/stage-eam-stmg/core";
 import type { DiagnosticAnswers, DiagnosticProfile, DomainId } from "@/content/stage-eam-stmg/types";
 
@@ -78,6 +78,7 @@ export function serializeStageState(state: StageProgressState): string {
 export function useStageProgress(eleveId: string) {
   const [state, setState] = useState<StageProgressState>(() => createInitialStageState(eleveId));
   const [hydrated, setHydrated] = useState(false);
+  const suppressPersistRef = useRef(false);
 
   useEffect(() => {
     setState(parseStageState(window.localStorage.getItem(storageKey(eleveId)), eleveId));
@@ -86,6 +87,10 @@ export function useStageProgress(eleveId: string) {
 
   useEffect(() => {
     if (!hydrated) return;
+    if (suppressPersistRef.current) {
+      suppressPersistRef.current = false;
+      return;
+    }
     window.localStorage.setItem(storageKey(eleveId), JSON.stringify(state));
   }, [eleveId, hydrated, state]);
 
@@ -128,6 +133,7 @@ export function useStageProgress(eleveId: string) {
 
   const reset = useCallback(() => {
     const next = createInitialStageState(eleveId);
+    suppressPersistRef.current = true;
     setState(next);
     window.localStorage.removeItem(storageKey(eleveId));
   }, [eleveId]);

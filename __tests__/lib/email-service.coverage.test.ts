@@ -51,13 +51,13 @@ describe('Email Service', () => {
       expect(mockSendMail).toHaveBeenCalledTimes(1);
       const call = mockSendMail.mock.calls[0][0];
       expect(call.to).toBe('parent@test.com');
-      expect(call.subject).toContain('Bienvenue');
+      expect(call.subject).toContain('bilan');
     });
 
-    it('includes temp password when provided', async () => {
-      await sendWelcomeParentEmail('parent@test.com', 'Marie', 'Karim', 'tempPass123');
+    it('includes activation link when provided', async () => {
+      await sendWelcomeParentEmail('parent@test.com', 'Marie', 'Karim', 'https://nexusreussite.academy/auth/activate?token=abc');
       const call = mockSendMail.mock.calls[0][0];
-      expect(call.html).toContain('tempPass123');
+      expect(call.html).toContain('/auth/activate?token=abc');
     });
 
     it('does not include password section when not provided', async () => {

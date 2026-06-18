@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowRight, MessageCircle } from 'lucide-react';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
-import { RecommendationWizard } from '@/components/premium';
+import { RecommendationWizard } from '@/components/premium/RecommendationWizard';
 
 const WHATSAPP_URL = 'https://wa.me/21699192829';
 
@@ -81,7 +81,7 @@ export function RecommandationClient() {
             Vous préférez échanger directement ?
           </h2>
           <p className="mt-3 text-base text-lux-ivory/70 font-dm-sans">
-            Un conseiller peut répondre à toutes vos questions et finaliser votre inscription.
+            Un conseiller peut répondre à toutes vos questions et vous orienter vers la bonne formule.
           </p>
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link

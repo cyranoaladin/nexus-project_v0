@@ -9,7 +9,6 @@ import { sendMail } from '@/lib/email/mailer';
 import { GradeLevel, AcademicTrack } from '@prisma/client';
 import { normalizeGradeLevel, getDefaultTrackForLevel, normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
 import crypto from 'crypto';
-import bcrypt from 'bcryptjs';
 
 export async function POST(
   req: NextRequest,
@@ -46,7 +45,6 @@ export async function POST(
     });
 
     if (!user) {
-      const tempPass = await bcrypt.hash(crypto.randomBytes(16).toString('hex'), 10);
       const gTrack = normalizeStudentLevelAndTrack(reservation.classe) || { level: GradeLevel.AUTRE, track: AcademicTrack.EDS_GENERALE };
 
       // Ensure we have a parent profile. We assume the reservation contact (email) IS the parent.
@@ -102,7 +100,10 @@ export async function POST(
           firstName: reservation.studentName?.split(' ')[0] ?? reservation.parentName.split(' ')[0],
           lastName: reservation.studentName?.split(' ')[1] ?? reservation.parentName.split(' ')[1] ?? '',
           role: 'ELEVE',
-          password: tempPass,
+          password: null,
+          activatedAt: null,
+          activationToken: hashedToken,
+          activationExpiry: expiresAt,
           student: {
             create: {
               gradeLevel: gTrack.level,

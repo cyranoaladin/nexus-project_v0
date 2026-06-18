@@ -30,7 +30,7 @@ describe('email', () => {
 
   it('sends welcome parent email', async () => {
     (process.env as any).NODE_ENV = 'production';
-    await sendWelcomeParentEmail('parent@test.com', 'Parent', 'Student', 'temp123');
+    await sendWelcomeParentEmail('parent@test.com', 'Parent', 'Student', 'https://nexusreussite.academy/auth/activate?token=abc');
     expect(transport.sendMail).toHaveBeenCalledTimes(1);
   });
 

@@ -1,12 +1,11 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Accompagnement Scolaire Premium - IA + Humain | Nexus Réussite",
-  description: "Accompagnement scolaire nouvelle génération: coaching humain d'excellence + intelligence artificielle ARIA. Suivi personnalisé 7j/7, garantie résultats. À partir de 299 TND/mois.",
-  keywords: ["accompagnement scolaire", "cours particuliers", "soutien scolaire premium", "coaching scolaire", "IA éducation", "ARIA", "Tunisie"],
+  title: "Accompagnement scolaire | Nexus Réussite",
+  description: "Accompagnement scolaire pour le système français à Tunis : groupes réduits, bilans individualisés, suivi parent clair et complément numérique selon formule.",
   openGraph: {
-    title: "Accompagnement Scolaire Premium | Nexus Réussite",
-    description: "Excellence pédagogique augmentée par l'IA. Coaching humain + assistant ARIA disponible 24/7. Résultats garantis.",
+    title: "Accompagnement scolaire | Nexus Réussite",
+    description: "Un cadre exigeant pour progresser avec méthode, groupes réduits et suivi clair.",
     type: "website",
   },
 };

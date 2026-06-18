@@ -3,9 +3,10 @@ import { defineConfig, devices } from '@playwright/test';
 /**
  * Playwright Configuration - Chromium Desktop focus
  */
-const baseURL = process.env.CI
-  ? (process.env.NEXTAUTH_URL ?? 'http://localhost:3000')
-  : (process.env.BASE_URL ?? 'http://localhost:3000');
+const baseURL =
+  process.env.BASE_URL ??
+  process.env.NEXTAUTH_URL ??
+  'http://localhost:3000';
 
 const e2eDatabaseUrl =
   process.env.E2E_DATABASE_URL ??
@@ -32,7 +33,6 @@ export default defineConfig({
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
-        channel: 'chrome',
         launchOptions: {
           args: ['--no-sandbox', '--disable-setuid-sandbox'],
           chromiumSandbox: false,

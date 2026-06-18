@@ -1,14 +1,13 @@
 export const dynamic = 'force-dynamic';
 
 import { prisma } from '@/lib/prisma';
-import { GradeLevel } from '@prisma/client';
 import { bilanGratuitSchema } from '@/lib/validations';
-import { normalizeGradeLevel, getDefaultTrackForLevel, normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
+import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
 import { UserRole } from '@/types/enums';
 import { guardRateLimitAsync } from '@/lib/rate-limit';
 import { checkCsrf, checkBodySize } from '@/lib/csrf';
 import { createId } from '@paralleldrive/cuid2';
-import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
@@ -28,9 +27,6 @@ export async function POST(request: NextRequest) {
     if (blocked) return blocked;
 
     const body = await request.json();
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Received request body:', body);
-    }
 
     // Honeypot check — bots fill hidden fields, humans don't
     if (body.website || body.url || body.honeypot) {
@@ -58,8 +54,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hasher le mot de passe
-    const hashedPassword = await bcrypt.hash(validatedData.parentPassword, 12);
+    const resolvedStudentLastName = validatedData.studentLastName ?? validatedData.parentLastName;
+    const rawActivationToken = `act_${createId()}_${crypto.randomBytes(16).toString('hex')}`;
+    const hashedActivationToken = crypto.createHash('sha256').update(rawActivationToken).digest('hex');
+    const activationExpiry = new Date(Date.now() + 72 * 60 * 60 * 1000);
 
     // Normaliser le niveau scolaire AVANT la transaction
     const gTrack = normalizeStudentLevelAndTrack(validatedData.studentGrade);
@@ -77,12 +75,14 @@ export async function POST(request: NextRequest) {
       const parentUser = await tx.user.create({
         data: {
           email: validatedData.parentEmail,
-          password: hashedPassword,
+          password: null,
           role: UserRole.PARENT,
           firstName: validatedData.parentFirstName,
           lastName: validatedData.parentLastName,
           phone: validatedData.parentPhone,
-          activatedAt: new Date(), // Parent is active immediately
+          activatedAt: null,
+          activationToken: hashedActivationToken,
+          activationExpiry,
         }
       });
 
@@ -93,18 +93,18 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      // Créer le compte élève (auto-activated with parent's password for MVP flow)
+      // Créer le compte élève sans accès direct.
       // Email format: prenom.nom.random@nexus-student.local to ensure uniqueness
-      const studentEmailSlug = `${validatedData.studentFirstName.toLowerCase()}.${validatedData.studentLastName.toLowerCase()}.${createId().slice(0, 4)}@nexus-student.local`;
+      const studentEmailSlug = `${validatedData.studentFirstName.toLowerCase()}.${resolvedStudentLastName.toLowerCase()}.${createId().slice(0, 4)}@nexus-student.local`;
       
       const studentUser = await tx.user.create({
         data: {
           email: studentEmailSlug,
           role: UserRole.ELEVE,
           firstName: validatedData.studentFirstName,
-          lastName: validatedData.studentLastName,
-          password: hashedPassword, // Same password as parent initially
-          activatedAt: new Date(), // Auto-activate
+          lastName: resolvedStudentLastName,
+          password: null,
+          activatedAt: null,
         }
       });
 
@@ -129,10 +129,12 @@ export async function POST(request: NextRequest) {
     // Envoyer email de bienvenue
     try {
       const { sendWelcomeParentEmail } = await import('@/lib/email');
+      const activationUrl = `${process.env.NEXTAUTH_URL || 'https://nexusreussite.academy'}/auth/activate?token=${encodeURIComponent(rawActivationToken)}&source=bilan-gratuit`;
       await sendWelcomeParentEmail(
         result.parentUser.email,
         `${result.parentUser.firstName} ${result.parentUser.lastName}`,
-        `${result.studentUser.firstName} ${result.studentUser.lastName}`
+        `${result.studentUser.firstName} ${result.studentUser.lastName}`,
+        activationUrl
       );
     } catch (emailError) {
       if (!isTestEnv) {
@@ -143,7 +145,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'Inscription réussie ! Vous recevrez un email de confirmation sous 24h.',
+      message: 'Votre demande a bien été enregistrée. Un lien d’activation a été envoyé.',
       parentId: result.parentUser.id,
       studentId: result.student.id
     });

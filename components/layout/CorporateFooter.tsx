@@ -18,7 +18,7 @@ const CorporateFooter = () => {
         { label: 'Accompagnement Scolaire', href: '/accompagnement-scolaire', isPage: true },
         { label: 'Offres', href: '/offres', isPage: true },
         { label: 'Stages', href: '/stages', isPage: true },
-        { label: 'Plateforme Masterium', href: '/plateforme-aria', isPage: true },
+        { label: 'Plateforme ARIA', href: '/plateforme-aria', isPage: true },
         { label: 'Notre Équipe', href: '/equipe', isPage: true },
         { label: 'Notre Centre', href: '/notre-centre', isPage: true },
         { label: 'Bilan Gratuit', href: '/bilan-gratuit', isPage: true },
@@ -83,7 +83,7 @@ const CorporateFooter = () => {
                             <div className="p-4 rounded-xl bg-white/5 border border-white/5 flex items-start gap-3">
                                 <MapPin className="w-5 h-5 text-cyan-400 mt-1" />
                                 <div>
-                                    <span className="block text-white text-sm font-medium">Siège Social</span>
+                                    <span className="block text-white text-sm font-medium">Siège social administratif</span>
                                     <span className="block text-neutral-300 text-xs mt-1">
                                         Centre Urbain Nord, Immeuble VENUS<br />Appt C13, 1082 – Tunis
                                     </span>
@@ -93,9 +93,9 @@ const CorporateFooter = () => {
                             <div className="p-4 rounded-xl bg-white/5 border border-white/5 flex items-start gap-3">
                                 <MapPin className="w-5 h-5 text-cyan-400 mt-1" />
                                 <div>
-                                    <span className="block text-white text-sm font-medium">Centre d&apos;accompagnement</span>
+                                    <span className="block text-white text-sm font-medium">Centre d&apos;accompagnement pédagogique</span>
                                     <span className="block text-neutral-300 text-xs mt-1">
-                                        Siège : Centre Urbain Nord, Tunis<br />Centre : Mutuelleville, Tunis
+                                        Mutuelleville, Tunis
                                     </span>
                                 </div>
                             </div>

@@ -16,38 +16,33 @@ function mockSession(userId: string, role: string) {
 }
 
 describe('GET /api/parent/children — IDOR (P0-02)', () => {
-  let parentA: any;
-  let parentB: any;
-  let childA: any;
-
-  beforeEach(async () => {
-    await prisma.user.deleteMany({ where: { email: { contains: '@test.com' } } });
-    await prisma.parentProfile.deleteMany();
-
-    parentA = await prisma.user.create({
-      data: { email: 'parent-a@test.com', password: 'hash-a', role: 'PARENT', firstName: 'PA', lastName: 'A' },
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (prisma.parentProfile.findUnique as jest.Mock).mockImplementation(({ where }: any) => {
+      if (where?.userId === 'parent-a') return Promise.resolve({ id: 'profile-a' });
+      if (where?.userId === 'parent-b') return Promise.resolve({ id: 'profile-b' });
+      return Promise.resolve(null);
     });
-    const profileA = await prisma.parentProfile.create({ data: { userId: parentA.id } });
-
-    parentB = await prisma.user.create({
-      data: { email: 'parent-b@test.com', password: 'hash-b', role: 'PARENT', firstName: 'PB', lastName: 'B' },
+    (prisma.student.findMany as jest.Mock).mockImplementation(({ where }: any) => {
+      if (where?.parentId === 'profile-a') {
+        return Promise.resolve([
+          {
+            id: 'student-a',
+            grade: 'Terminale',
+            school: 'Lycée A',
+            createdAt: new Date('2025-01-01'),
+            user: { firstName: 'C', lastName: 'A', email: 'child.a@test.com' },
+            creditTransactions: [],
+            sessions: [],
+          },
+        ]);
+      }
+      return Promise.resolve([]);
     });
-    const profileB = await prisma.parentProfile.create({ data: { userId: parentB.id } });
-
-    const childUser = await prisma.user.create({
-      data: { email: 'child.a@test.com', password: 'hash-c', role: 'ELEVE', firstName: 'C', lastName: 'A' },
-    });
-    childA = await prisma.student.create({
-      data: { userId: childUser.id, parentId: profileA.id, grade: 'Terminale', gradeLevel: 'TERMINALE', academicTrack: 'GENERAL' },
-    });
-  });
-
-  afterAll(async () => {
-    await prisma.$disconnect();
   });
 
   it('returns own children for parent A', async () => {
-    mockSession(parentA.id, 'PARENT');
+    mockSession('parent-a', 'PARENT');
     const response = await getChildren(new NextRequest('http://localhost/api/parent/children'));
     const json = await response.json();
     expect(response.status).toBe(200);
@@ -56,7 +51,7 @@ describe('GET /api/parent/children — IDOR (P0-02)', () => {
   });
 
   it('returns empty for parent B (no children)', async () => {
-    mockSession(parentB.id, 'PARENT');
+    mockSession('parent-b', 'PARENT');
     const response = await getChildren(new NextRequest('http://localhost/api/parent/children'));
     const json = await response.json();
     expect(response.status).toBe(200);

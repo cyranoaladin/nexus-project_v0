@@ -8,16 +8,12 @@ import {
   HeroSection,
   MethodSection,
   ForWhoSection,
-  ExamCard,
   ComparisonTable,
   FAQAccordion,
-  fmtTND,
-  fmtDesMonthly,
   type ComparisonRow,
   type FAQItem,
 } from '@/components/premium';
 import {
-  getOffersByLevel,
   getReperes,
   getRules,
 } from '@/lib/pricing';
@@ -48,14 +44,11 @@ function PricingReperesSection() {
       value: reperes?.['intensif-express'] || 'dès 490 TND',
     },
     {
-      label: 'Plateforme Masterium',
+      label: 'Plateforme ARIA',
       sublabel: 'Autonomie · en ligne',
       value: reperes?.['plateforme-autonomie'] || 'dès 590 TND/an',
     },
   ];
-
-  // Fallback: if repères is empty, use loader data directly
-  const termSpe = getOffersByLevel('terminale')?.[0];
 
   return (
     <section className="py-20 px-4 md:px-6 bg-lux-paper">
@@ -105,7 +98,7 @@ const comparisonRows: ComparisonRow[] = [
   { feature: 'Enseignants', nexus: 'Agrégés / certifiés', traditional: 'Variable' },
   { feature: 'Carte d\'examen personnalisée', nexus: true, traditional: false },
   { feature: 'Bacs blancs sur grilles officielles', nexus: true, traditional: false },
-  { feature: 'Plateforme numérique (Masterium)', nexus: true, traditional: false },
+  { feature: 'Plateforme numérique (ARIA)', nexus: true, traditional: false },
   { feature: 'Suivi parents en temps réel', nexus: true, traditional: false },
   { feature: 'Cellule Cyclades (candidats libres)', nexus: true, traditional: false },
   { feature: 'Coaching orientation / Parcoursup', nexus: 'Boussole (en option)', traditional: false },
@@ -130,9 +123,9 @@ const faqItems: FAQItem[] = [
       'Un acompte de 30 % est versé à la réservation, puis le solde est réparti en mensualités. L\'acompte d\'un stage ou Pass est déductible si vous souscrivez ensuite un parcours annuel.',
   },
   {
-    question: 'Qu\'est-ce que la plateforme Masterium ?',
+    question: 'Qu\'est-ce que la plateforme ARIA ?',
     answer:
-      'Masterium est notre plateforme numérique avec trois paliers (Autonomie, Suivi, Accompagnée). Elle offre des ressources, parcours de révision, fiches et exercices, avec un suivi adapté à chaque niveau d\'abonnement.',
+      'ARIA est notre plateforme numérique avec des ressources, parcours de révision, fiches et exercices. Elle complète l\'accompagnement humain et s\'utilise selon la formule choisie.',
   },
   {
     question: 'Proposez-vous un accompagnement pour les candidats libres ?',

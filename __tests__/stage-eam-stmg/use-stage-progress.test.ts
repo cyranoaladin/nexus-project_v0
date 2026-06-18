@@ -1,58 +1,44 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { useStageProgress } from '@/hooks/stage-eam-stmg/useStageProgress';
+import { useStageProgress, storageKey } from '@/hooks/stage-eam-stmg/useStageProgress';
 
-describe('useStageProgress server sync guard', () => {
-  const originalFetch = global.fetch;
-
+describe('useStageProgress local persistence', () => {
   beforeEach(() => {
     window.localStorage.clear();
-    jest.useFakeTimers();
   });
 
-  afterEach(() => {
-    global.fetch = originalFetch;
-    jest.useRealTimers();
-    jest.clearAllMocks();
-  });
-
-  it('does not write remote stage progress when initial server load fails', async () => {
-    global.fetch = jest.fn().mockResolvedValue({ ok: false }) as jest.Mock;
-
-    const { result } = renderHook(() => useStageProgress('student-sync-failed'));
-
-    await waitFor(() => expect(result.current.serverSyncStatus).toBe('failed'));
-
-    act(() => {
-      result.current.toggleNotion('derivation', 'Tangente');
-    });
-    act(() => {
-      jest.advanceTimersByTime(1000);
-    });
-
-    expect(global.fetch).toHaveBeenCalledTimes(1);
-    expect(global.fetch).toHaveBeenCalledWith('/api/programme/maths-1ere-stmg/stage-progress');
-  });
-
-  it('writes only to the scoped stage-progress endpoint after a valid server load', async () => {
-    global.fetch = jest
-      .fn()
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ ok: true, data: null }) })
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ ok: true, persisted: true }) }) as jest.Mock;
-
+  it('hydrates from localStorage and persists validated notions for a real DomainId', async () => {
     const { result } = renderHook(() => useStageProgress('student-sync-ok'));
 
-    await waitFor(() => expect(result.current.serverSyncStatus).toBe('ok'));
+    await waitFor(() => expect(result.current.hydrated).toBe(true));
 
     act(() => {
-      result.current.toggleNotion('derivation', 'Tangente');
-    });
-    act(() => {
-      jest.advanceTimersByTime(1000);
+      result.current.toggleNotion('fonctions', 'Tangente');
     });
 
-    await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(2));
-    expect(global.fetch).toHaveBeenNthCalledWith(2, '/api/programme/maths-1ere-stmg/stage-progress', expect.objectContaining({
-      method: 'POST',
-    }));
+    const raw = window.localStorage.getItem(storageKey('student-sync-ok'));
+    expect(raw).not.toBeNull();
+
+    const parsed = JSON.parse(raw as string) as { validatedNotions: Record<string, string[]> };
+    expect(parsed.validatedNotions.fonctions).toContain('Tangente');
+    expect(result.current.state.validatedNotions.fonctions).toContain('Tangente');
+  });
+
+  it('resets state and clears persisted progress cleanly', async () => {
+    const { result } = renderHook(() => useStageProgress('student-sync-reset'));
+
+    await waitFor(() => expect(result.current.hydrated).toBe(true));
+
+    act(() => {
+      result.current.toggleNotion('algorithmique-information', 'Variables');
+    });
+    expect(window.localStorage.getItem(storageKey('student-sync-reset'))).not.toBeNull();
+
+    act(() => {
+      result.current.reset();
+    });
+
+    const raw = window.localStorage.getItem(storageKey('student-sync-reset'));
+    expect(raw).toBeNull();
+    expect(result.current.state.validatedNotions['algorithmique-information']).toHaveLength(0);
   });
 });

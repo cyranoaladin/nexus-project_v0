@@ -1,14 +1,22 @@
 /**
  * Tests P0-04: Payment validation must create invoice with productCode
- * and call activateEntitlements atomically.
+ * and activate entitlement atomically.
  */
 
 import { POST as validatePayment } from '@/app/api/payments/validate/route';
 import { prisma } from '@/lib/prisma';
 import { NextRequest } from 'next/server';
 import { auth } from '@/auth';
+import { activateEntitlements } from '@/lib/entitlement/engine';
 
 jest.mock('@/auth');
+jest.mock('@/lib/entitlement/engine', () => ({
+  activateEntitlements: jest.fn().mockResolvedValue({
+    activatedCodes: ['ABONNEMENT_HYBRIDE'],
+    skippedItems: 0,
+    noBeneficiary: false,
+  }),
+}));
 jest.mock('@/lib/invoice', () => ({
   renderInvoicePDF: jest.fn().mockResolvedValue(Buffer.from('PDF')),
   generateInvoiceNumber: jest.fn().mockResolvedValue('INV-TEST-001'),
@@ -33,42 +41,103 @@ function req(body: object) {
 }
 
 describe('POST /api/payments/validate — P0-04 entitlement bridge', () => {
-  beforeEach(async () => {
-    await prisma.payment.deleteMany();
-    await prisma.invoice.deleteMany();
-    await prisma.entitlement.deleteMany();
-    await prisma.user.deleteMany({ where: { email: { contains: '@test.com' } } });
-    await prisma.parentProfile.deleteMany();
-    await prisma.student.deleteMany();
+  let tx: any;
 
-    const parentUser = await prisma.user.create({
-      data: { email: 'parent@test.com', password: 'hash', role: 'PARENT', firstName: 'P', lastName: 'A' },
-    });
-    const parentProfile = await prisma.parentProfile.create({ data: { userId: parentUser.id } });
-    const childUser = await prisma.user.create({
-      data: { email: 'child@test.com', password: 'hash', role: 'ELEVE', firstName: 'C', lastName: 'A' },
-    });
-    await prisma.student.create({
-      data: { userId: childUser.id, parentId: parentProfile.id, grade: 'Terminale', gradeLevel: 'TERMINALE', academicTrack: 'GENERAL' },
-    });
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockAdminSession();
+    tx = undefined;
 
-    await prisma.payment.create({
-      data: {
-        id: 'pay-test-1',
-        amount: 450,
-        description: 'Abonnement Hybride',
-        status: 'PENDING',
-        type: 'SUBSCRIPTION',
-        method: 'bank_transfer',
-        userId: parentUser.id,
-        metadata: JSON.stringify({ studentId: childUser.id, itemKey: 'HYBRIDE' }),
+    (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
+      id: 'pay-test-1',
+      amount: 450,
+      description: 'Abonnement Hybride',
+      status: 'PENDING',
+      type: 'SUBSCRIPTION',
+      method: 'bank_transfer',
+      userId: 'parent-user-1',
+      metadata: { studentId: 'child-user-1', itemKey: 'HYBRIDE' },
+      user: {
+        id: 'parent-user-1',
+        email: 'parent@test.com',
+        firstName: 'P',
+        lastName: 'A',
+        parentProfile: {
+          children: [{ id: 'child-user-1' }],
+        },
       },
     });
-    mockAdminSession();
-  });
 
-  afterAll(async () => {
-    await prisma.$disconnect();
+    (prisma.$transaction as jest.Mock).mockImplementation(async (callback: any) => {
+      tx = {
+        payment: {
+          updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+        },
+        invoice: {
+          create: jest.fn().mockResolvedValue({
+            id: 'invoice-1',
+            number: 'INV-TEST-001',
+            issuedAt: new Date(),
+            issuerName: 'Nexus Réussite',
+            issuerAddress: 'Mutuelleville, Tunis',
+            issuerMF: 'MF-TEST',
+            issuerRNE: 'RNE-TEST',
+            items: [
+              {
+                label: 'Abonnement Hybride',
+                description: null,
+                qty: 1,
+                unitPrice: 450000,
+                total: 450000,
+              },
+            ],
+            currency: 'TND',
+            subtotal: 450000,
+            discountTotal: 0,
+            taxTotal: 0,
+            total: 450000,
+            taxRegime: 'TVA_NON_APPLICABLE',
+            customerName: 'P A',
+            customerEmail: 'parent@test.com',
+            beneficiaryUserId: 'child-user-1',
+            events: [],
+          }),
+          findUnique: jest.fn().mockResolvedValue({
+            id: 'invoice-1',
+            number: 'INV-TEST-001',
+            issuerName: 'Nexus Réussite',
+            issuerAddress: 'Mutuelleville, Tunis',
+            issuerMF: 'MF-TEST',
+            issuerRNE: 'RNE-TEST',
+            items: [{ label: 'Abonnement Hybride', description: null, qty: 1, unitPrice: 450000, total: 450000 }],
+            currency: 'TND',
+            subtotal: 450000,
+            discountTotal: 0,
+            taxTotal: 0,
+            total: 450000,
+            taxRegime: 'TVA_NON_APPLICABLE',
+            customerName: 'P A',
+            customerEmail: 'parent@test.com',
+            events: [],
+          }),
+          update: jest.fn().mockResolvedValue({}),
+        },
+        student: {
+          findUnique: jest.fn().mockResolvedValue({ id: 'child-user-1' }),
+        },
+        subscription: {
+          updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+          findFirst: jest.fn().mockResolvedValue(null),
+        },
+        creditTransaction: {
+          create: jest.fn().mockResolvedValue({}),
+        },
+      };
+      return callback(tx);
+    });
+
+    (prisma.invoice.update as jest.Mock).mockResolvedValue({});
+    (prisma.userDocument.create as jest.Mock).mockResolvedValue({ id: 'doc-1' });
   });
 
   it('creates invoice with productCode and activates entitlement', async () => {
@@ -77,16 +146,9 @@ describe('POST /api/payments/validate — P0-04 entitlement bridge', () => {
 
     expect(response.status).toBe(200);
     expect(json.success).toBe(true);
-
-    const invoice = await prisma.invoice.findFirst({
-      where: { beneficiaryUserId: 'child@test.com' ? undefined : undefined },
-      include: { items: true, entitlements: true },
-    });
-    // Invoice should exist with at least one item
-    const invoices = await prisma.invoice.findMany({ include: { items: true } });
-    expect(invoices.length).toBeGreaterThanOrEqual(1);
-    const inv = invoices[0];
-    expect(inv.items[0].productCode).toBe('ABONNEMENT_HYBRIDE');
-    expect(inv.beneficiaryUserId).toBeTruthy();
+    expect(activateEntitlements).toHaveBeenCalledWith('invoice-1', tx);
+    const invoiceCreateArg = tx.invoice.create.mock.calls[0][0];
+    expect(invoiceCreateArg.data.beneficiaryUserId).toBe('child-user-1');
+    expect(invoiceCreateArg.data.items.create[0].productCode).toBe('ABONNEMENT_HYBRIDE');
   });
 });
