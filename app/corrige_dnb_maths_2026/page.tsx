@@ -3,6 +3,7 @@ import { Download, FileText, ShieldCheck, Sparkles } from 'lucide-react';
 
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
+import { PdfInlinePreview } from '@/components/pdf/PdfInlinePreview';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -73,32 +74,9 @@ export default function CorrigeDnbMaths2026Page() {
               </div>
 
               <div className="overflow-hidden rounded-2xl border border-dashed border-lux-line bg-lux-paper">
-                <div className="border-b border-lux-line/70 bg-lux-ink px-5 py-4 sm:px-6">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-xs font-black uppercase tracking-[0.18em] text-lux-gold-wash">
-                        Aperçu du document
-                      </p>
-                      <h3 className="mt-1 text-2xl font-fraunces text-lux-ivory">
-                        Visionneuse PDF intégrée
-                      </h3>
-                    </div>
-                    <a
-                      href={PDF_URL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center rounded-lg border border-lux-gold/30 bg-lux-gold px-4 py-3 text-sm font-semibold text-lux-ink transition hover:bg-lux-gold-deep"
-                    >
-                      <Download className="mr-2 h-4 w-4" />
-                      Télécharger le PDF
-                    </a>
-                  </div>
-                </div>
-
-                <iframe
-                  title="Aperçu intégré du corrigé DNB Maths 2026"
+                <PdfInlinePreview
                   src={PREVIEW_URL}
-                  className="h-[82vh] min-h-[760px] w-full bg-lux-white"
+                  title="Corrigé DNB Maths 2026"
                 />
               </div>
             </CardContent>
