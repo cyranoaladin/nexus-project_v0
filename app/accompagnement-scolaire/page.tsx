@@ -84,7 +84,7 @@ export default function AccompagnementScolairePage() {
             <CardContent className="p-6 md:p-8">
               <div className="flex items-center gap-3">
                 <BookOpen className="h-5 w-5 text-lux-gold" />
-                <h2 className="text-2xl font-fraunces text-lux-ink">Ce que couvre le service</h2>
+                <h2 className="text-2xl font-fraunces !text-lux-ivory">Ce que couvre le service</h2>
               </div>
               <div className="mt-6 space-y-4">
                 {offers.map((offer) => (
@@ -101,7 +101,7 @@ export default function AccompagnementScolairePage() {
             <CardContent className="p-6 md:p-8">
               <div className="flex items-center gap-3">
                 <ShieldCheck className="h-5 w-5 text-lux-gold-wash" />
-                <h2 className="text-2xl font-fraunces text-lux-ivory">ARIA en complément</h2>
+                <h2 className="text-2xl font-fraunces !text-lux-ivory">ARIA en complément</h2>
               </div>
               <p className="mt-4 text-sm text-lux-ivory/75">
                 ARIA complète l’accompagnement humain. Elle ne remplace ni l’enseignant ni les bilans.
