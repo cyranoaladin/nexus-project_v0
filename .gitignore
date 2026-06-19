@@ -34,6 +34,13 @@ screenshots/
 # Test artifacts
 test-results/
 playwright-report/
+
+# Build/audit/trace artifacts (never commit)
+tmp/
+e2e-results/
+audit-captures*/
+*.lhr*.json
+*.trace.zip
 e2e/.auth/*.json
 # Archives
 *.tgz
