@@ -39,7 +39,8 @@ describe('Stages page — 2026/2027', () => {
     expect(screen.getByTestId('footer')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /des stages utiles, structurés et pensés pour la progression réelle/i })).toBeInTheDocument();
     expect(screen.getByText(/les dates précises sont communiquées selon le niveau, l’établissement et la formule recommandée/i)).toBeInTheDocument();
-    expect(screen.getByText(/prérentrée août 2026/i)).toBeInTheDocument();
+    expect(screen.getByText(/cap rentrée/i)).toBeInTheDocument();
+    expect(screen.getByText(/intensif noël/i)).toBeInTheDocument();
     expect(screen.queryByText(/printemps 2026|20 avril|1er mai|8 juin/i)).not.toBeInTheDocument();
   });
 });

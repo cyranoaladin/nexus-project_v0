@@ -41,7 +41,7 @@ const KorrigoSectionGSAP = () => {
         },
         {
             icon: Clock,
-            title: 'Disponible 24/7',
+            title: 'Disponible selon formule',
             description: 'Accès permanent pour réviser quand il faut.',
             color: 'bg-slate-400/10'
         }

@@ -9,7 +9,7 @@
 /** Feature gating is disabled for V1 launch — all features open */
 const GATING_ENABLED = false;
 
-export type NsiFeatureTier = 'free' | 'premium' | 'masterium';
+export type NsiFeatureTier = 'free' | 'premium' | 'aria';
 
 export interface NsiFeatureGate {
   key: string;
@@ -31,10 +31,10 @@ export const NSI_FEATURES: NsiFeatureGate[] = [
   { key: 'assessment', label: 'Auto-évaluation', tier: 'premium' },
   { key: 'questions', label: 'Questions transversales', tier: 'premium' },
   { key: 'progress', label: 'Suivi de progression', tier: 'premium' },
-  // Masterium tier
-  { key: 'mock', label: 'Sujet blanc avancé', tier: 'masterium' },
-  { key: 'export', label: 'Export/import progression', tier: 'masterium' },
-  { key: 'report', label: 'Rapport de préparation', tier: 'masterium' },
+  // ARIA tier
+  { key: 'mock', label: 'Sujet blanc avancé', tier: 'aria' },
+  { key: 'export', label: 'Export/import progression', tier: 'aria' },
+  { key: 'report', label: 'Rapport de préparation', tier: 'aria' },
 ];
 
 /** Demo subject IDs available in free tier */
@@ -53,7 +53,7 @@ export function canAccessNsiFeature(
   const tierHierarchy: Record<NsiFeatureTier, number> = {
     free: 0,
     premium: 1,
-    masterium: 2,
+    aria: 2,
   };
 
   return tierHierarchy[_userTier] >= tierHierarchy[feature.tier];

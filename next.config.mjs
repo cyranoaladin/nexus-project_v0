@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable standalone output for production builds
+  // Production: standalone mode. PM2 serves via `node .next/standalone/server.js`.
+  // Requires copying .next/static → .next/standalone/.next/static and public → .next/standalone/public after build.
   output: 'standalone',
 
   // Fix workspace root warning from multiple lockfiles

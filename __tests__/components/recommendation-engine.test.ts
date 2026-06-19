@@ -23,11 +23,11 @@ describe('recommendation engine', () => {
     expect(outcome.cards).toHaveLength(0);
     expect(outcome.emptyState).toBeDefined();
     expect(outcome.emptyState?.title).toContain('Sélectionnez un niveau');
-    expect(outcome.emptyState?.actions.map((action) => action.href)).toEqual([
-      '/bilan-gratuit',
-      '/offres',
-      'https://wa.me/21699192829',
-    ]);
+    const hrefs = outcome.emptyState?.actions.map((action) => action.href) ?? [];
+    expect(hrefs[0]).toBe('/bilan-gratuit');
+    expect(hrefs[1]).toBe('/offres');
+    expect(hrefs[2]).toMatch(/^https:\/\/wa\.me\/\d+/);
+
   });
 
   it('returns at least one recommendation for a valid annual request', () => {

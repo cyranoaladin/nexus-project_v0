@@ -31,33 +31,28 @@ test.describe('Homepage (/) - Landing Nexus Reussite', () => {
     expect(critical, `Erreurs console critiques: ${critical.join(', ')}`).toHaveLength(0);
   });
 
-  test('H1 est visible dans le hero', async ({ page }) => {
-    await expect(page.locator('.hero h1').first()).toBeVisible();
+  test('H1 est visible et contient le texte exact', async ({ page }) => {
+    const h1 = page.locator('h1').first();
+    await expect(h1).toBeVisible();
+    await expect(h1).toContainText('Préparer le bac français avec méthode, suivi et exigence.');
   });
 
-  test('hero affiche le CTA WhatsApp', async ({ page }) => {
-    await expect(page.locator('.hero a[href*="wa.me"]').first()).toBeVisible();
+  test('hero CTA principal pointe vers /recommandation', async ({ page }) => {
+    await expect(page.locator('section a[href="/recommandation"]').first()).toBeVisible();
   });
 
-  test('CTA secondaire hero pointe vers la methode', async ({ page }) => {
-    await expect(page.locator('.hero a[href="#methode"]').first()).toBeVisible();
+  test('hero CTA secondaire pointe vers /offres', async ({ page }) => {
+    await expect(page.locator('section a[href="/offres"]').first()).toBeVisible();
   });
 
-  test('sections principales sont presentes', async ({ page }) => {
-    await expect(page.locator('#methode')).toBeAttached();
-    await expect(page.locator('#pourquoi')).toBeAttached();
-    await expect(page.locator('#offres')).toBeAttached();
-    await expect(page.locator('#stages')).toBeAttached();
-    await expect(page.locator('#candidats')).toBeAttached();
-    await expect(page.locator('#enligne')).toBeAttached();
-    await expect(page.locator('#contact')).toBeAttached();
+  test('10 sections principales dans <main>', async ({ page }) => {
+    const sections = page.locator('main > section');
+    await expect(sections).toHaveCount(10);
   });
 
-  test('CTA WhatsApp dans les sections principales', async ({ page }) => {
-    const whatsappLinks = page.locator('a[href*="wa.me"]');
-    const count = await whatsappLinks.count();
-
-    expect(count).toBeGreaterThanOrEqual(6);
+  test('exactement 4 liens WhatsApp sur la page', async ({ page }) => {
+    const waLinks = page.locator('a[href*="wa.me"]');
+    await expect(waLinks).toHaveCount(4);
   });
 
   test('tous les liens footer internes ne retournent pas 404', async ({ page }) => {

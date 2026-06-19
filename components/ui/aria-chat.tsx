@@ -263,7 +263,7 @@ export function AriaChat() {
                     />
                     <div>
                       <CardTitle className="text-xl font-bold">ARIA</CardTitle>
-                      <p className="text-sm text-white/90">Assistant IA Pédagogique 24/7</p>
+                      <p className="text-sm text-white/90">Assistant pédagogique ARIA</p>
                     </div>
                   </div>
                   <Button

@@ -190,8 +190,8 @@ describe('Invoice PDF payment details', () => {
           total: 1_149_000,
         },
         {
-          label: 'Accès plateforme EAF — Masterium offert',
-          description: 'Accès Masterium offert à titre commercial, non facturé.',
+          label: 'Accès plateforme EAF — ARIA offert',
+          description: 'Accès ARIA offert à titre commercial, non facturé.',
           qty: 1,
           unitPrice: 0,
           total: 0,

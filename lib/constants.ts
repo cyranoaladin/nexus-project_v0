@@ -15,7 +15,7 @@ export const SUBSCRIPTION_PLANS = {
     price: 150,
     credits: 0,
     features: [
-      "Accès 24/7 à la plateforme",
+      "Accès à la plateforme selon formule",
       "Suivi personnalisé",
       "ARIA (1 matière)",
       "Support par email"

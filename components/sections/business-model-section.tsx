@@ -19,7 +19,7 @@ const SUBSCRIPTION_PLANS = {
     price: 150,
     sessions: 0,
     features: [
-      "Accès 24/7 à la plateforme",
+      "Accès à la plateforme selon formule",
       "Suivi personnalisé",
       "Coaching à la demande",
       "ARIA (1 matière)"
@@ -107,7 +107,7 @@ function ARIAInteractiveModule() {
             L'Offre IA "ARIA"
           </h3>
           <p className="text-slate-300 text-lg">
-            Votre assistant IA personnel, disponible 24/7
+            Votre assistant pédagogique ARIA, selon formule
           </p>
         </div>
       </div>

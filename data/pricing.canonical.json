@@ -1,15 +1,15 @@
 {
   "version": "2026-2027.1",
-  "_note": "SOURCE DE VERITE UNIQUE des prix, effectifs, acomptes et echeanciers Nexus Reussite. Aucun montant TND ne doit etre code en dur dans les composants ou pages. Toute modification doit repasser le validateur pricing-canonical-validator.test.ts.",
+  "_note": "SOURCE DE VÉRITÉ UNIQUE des prix, effectifs, acomptes et échéanciers Nexus Réussite. Aucun montant TND ne doit être codé en dur dans les composants ou pages. Toute modification doit repasser le validateur pricing-canonical-validator.test.ts.",
   "currency": "TND",
   "campaign": {
     "label": "Campagne 2026/2027",
     "availability": "selon les places disponibles",
-    "availability_note": "Le tarif campagne est verrouille par l'acompte, tant que des places sont disponibles dans le groupe. Pas de date limite arbitraire.",
+    "availability_note": "Le tarif campagne est verrouillé par l'acompte, tant que des places sont disponibles dans le groupe. Pas de date limite arbitraire.",
     "public_label": "Tarif public",
     "campaign_label": "Tarif campagne 2026/2027",
-    "fidelity_label": "Tarif fidelite",
-    "fidelity_condition": "Reserve aux familles deja accompagnees par Nexus en 2025/2026 (statut, sans date limite)."
+    "fidelity_label": "Tarif fidélité",
+    "fidelity_condition": "Réservé aux familles déjà accompagnées par Nexus en 2025/2026 (statut, sans date limite)."
   },
   "rules": {
     "weeks_per_year": 30,
@@ -37,7 +37,7 @@
       "carte_nexus_pct": 10,
       "cumulable": false,
       "global_cap_pct": 20,
-      "note": "Non cumulables sauf decision exceptionnelle de la direction ; le plafond global de 20% garantit que le prix/eleve/heure reste au-dessus du plancher."
+      "note": "Non cumulables sauf décision exceptionnelle de la direction ; le plafond global de 20% garantit que le prix/élève/heure reste au-dessus du plancher."
     }
   },
   "offers": [
@@ -45,8 +45,8 @@
       "id": "term-spe-simple",
       "level": "terminale",
       "track": "scolarise",
-      "title": "Terminale Specialite simple",
-      "subjects": "1 specialite",
+      "title": "Terminale Spécialité simple",
+      "subjects": "1 spécialité",
       "hours_per_week": 2,
       "hours_per_year": 60,
       "group_max": 5,
@@ -61,7 +61,7 @@
       "n_installments": 9,
       "installment_amount": 300,
       "last_installment": 330,
-      "included": ["1 specialite au choix, 2 h / semaine", "Groupe de 5 maximum, garanti des 3 inscrits", "Bacs blancs en conditions reelles", "Plateforme Nexus illimitee + espace parent"]
+      "included": ["1 spécialité au choix, 2 h / semaine", "Groupe de 5 maximum, garanti dès 3 inscrits", "Bacs blancs en conditions réelles", "Plateforme ARIA + espace parent"]
     },
     {
       "id": "term-duo",
@@ -83,7 +83,7 @@
       "n_installments": 9,
       "installment_amount": 560,
       "last_installment": 545,
-      "included": ["2 specialites au choix, 4 h / semaine", "Groupe de 5 maximum, garanti des 3 inscrits", "Grand Oral : preparation complete incluse", "Stages de vacances inclus (Toussaint, fevrier, Paques)", "Bacs blancs en conditions reelles + correction detaillee", "Plateforme Nexus illimitee + espace parent", "Accompagnement Parcoursup et orientation"]
+      "included": ["2 spécialités au choix, 4 h / semaine", "Groupe de 5 maximum, garanti dès 3 inscrits", "Grand Oral : préparation complète incluse", "Stages de vacances inclus (Toussaint, février, Pâques)", "Bacs blancs en conditions réelles + correction détaillée", "Plateforme ARIA + espace parent", "Accompagnement Parcoursup et orientation"]
     },
     {
       "id": "term-excellence",
@@ -105,14 +105,14 @@
       "n_installments": 9,
       "installment_amount": 750,
       "last_installment": 714,
-      "included": ["2 specialites + Maths expertes, 6 h / semaine", "Groupe de 5 maximum, garanti des 3 inscrits", "Grand Oral : preparation complete incluse", "Stages de vacances inclus", "Coaching individuel et suivi parent renforce", "6 h d'urgence en ligne incluses", "Plateforme Nexus illimitee + espace parent", "Accompagnement Parcoursup et orientation"]
+      "included": ["2 spécialités + Maths expertes, 6 h / semaine", "Groupe de 5 maximum, garanti dès 3 inscrits", "Grand Oral : préparation complète incluse", "Stages de vacances inclus", "Coaching individuel et suivi parent renforcé", "6 h d'urgence en ligne incluses", "Plateforme ARIA + espace parent", "Accompagnement Parcoursup et orientation"]
     },
     {
       "id": "1re-eaf",
       "level": "premiere",
       "track": "scolarise",
-      "title": "Premiere EAF Francais",
-      "subjects": "Francais ecrit + oral",
+      "title": "Première EAF Français",
+      "subjects": "Français écrit + oral",
       "hours_per_week": 2,
       "hours_per_year": 60,
       "group_max": 5,
@@ -127,14 +127,14 @@
       "n_installments": 9,
       "installment_amount": 233,
       "last_installment": 236,
-      "included": ["Preparation EAF complete : ecrit + oral", "Groupe de 5 maximum, garanti des 3 inscrits", "Bacs blancs de francais en conditions reelles", "Methodologie commentaire et dissertation", "Plateforme Nexus illimitee + espace parent", "Bilans de progression reguliers"]
+      "included": ["Préparation EAF complète : écrit + oral", "Groupe de 5 maximum, garanti dès 3 inscrits", "Bacs blancs de français en conditions réelles", "Méthodologie commentaire et dissertation", "Plateforme ARIA + espace parent", "Bilans de progression réguliers"]
     },
     {
       "id": "1re-maths-antic",
       "level": "premiere",
       "track": "scolarise",
-      "title": "Premiere Maths anticipees",
-      "subjects": "Mathematiques",
+      "title": "Première Maths anticipées",
+      "subjects": "Mathématiques",
       "hours_per_week": 2,
       "hours_per_year": 60,
       "group_max": 5,
@@ -149,14 +149,14 @@
       "n_installments": 9,
       "installment_amount": 233,
       "last_installment": 236,
-      "included": ["Mathematiques anticipees et methode", "Groupe de 5 maximum, garanti des 3 inscrits", "Preparation aux attendus de Terminale", "Bilan de positionnement initial offert", "Plateforme Nexus illimitee + espace parent", "Bilans de progression reguliers"]
+      "included": ["Mathématiques anticipées et méthode", "Groupe de 5 maximum, garanti dès 3 inscrits", "Préparation aux attendus de Terminale", "Bilan de positionnement initial offert", "Plateforme ARIA + espace parent", "Bilans de progression réguliers"]
     },
     {
       "id": "1re-double-secu",
       "level": "premiere",
       "track": "scolarise",
-      "title": "Premiere Double Securite",
-      "subjects": "Francais + Maths",
+      "title": "Première Double Sécurité",
+      "subjects": "Français + Maths",
       "hours_per_week": 4,
       "hours_per_year": 120,
       "group_max": 5,
@@ -171,13 +171,13 @@
       "n_installments": 9,
       "installment_amount": 420,
       "last_installment": 420,
-      "included": ["Preparation EAF complete : ecrit + oral", "Mathematiques anticipees et methode", "Groupe de 5 maximum, garanti des 3 inscrits", "Bacs blancs de francais en conditions reelles", "Bilan de positionnement initial offert", "Plateforme Nexus illimitee + espace parent", "Bilans de progression reguliers"]
+      "included": ["Préparation EAF complète : écrit + oral", "Mathématiques anticipées et méthode", "Groupe de 5 maximum, garanti dès 3 inscrits", "Bacs blancs de français en conditions réelles", "Bilan de positionnement initial offert", "Plateforme ARIA + espace parent", "Bilans de progression réguliers"]
     },
     {
       "id": "1re-sciences",
       "level": "premiere",
       "track": "scolarise",
-      "title": "Premiere Sciences",
+      "title": "Première Sciences",
       "subjects": "Maths + PC ou Maths + NSI",
       "hours_per_week": 4,
       "hours_per_year": 120,
@@ -193,14 +193,14 @@
       "n_installments": 9,
       "installment_amount": 460,
       "last_installment": 450,
-      "included": ["Mathematiques et raisonnement scientifique", "Groupe de 5 maximum, garanti des 3 inscrits", "Preparation aux attendus de Terminale", "Bilan de positionnement initial offert", "Plateforme Nexus illimitee + espace parent", "Bilans de progression reguliers"]
+      "included": ["Mathématiques et raisonnement scientifique", "Groupe de 5 maximum, garanti dès 3 inscrits", "Préparation aux attendus de Terminale", "Bilan de positionnement initial offert", "Plateforme ARIA + espace parent", "Bilans de progression réguliers"]
     },
     {
       "id": "2nde-maths",
       "level": "seconde",
       "track": "scolarise",
-      "title": "Seconde Maths & methode",
-      "subjects": "Maths + methode",
+      "title": "Seconde Maths & méthode",
+      "subjects": "Maths + méthode",
       "hours_per_week": 2,
       "hours_per_year": 60,
       "group_max": 5,
@@ -215,7 +215,7 @@
       "n_installments": 9,
       "installment_amount": 210,
       "last_installment": 210,
-      "included": ["Mathematiques et methode de travail", "Groupe de 5 maximum, garanti des 3 inscrits", "Preparation aux choix de specialites", "Bilan de positionnement initial offert", "Plateforme Nexus + espace parent", "Bilans de progression reguliers"]
+      "included": ["Mathématiques et méthode de travail", "Groupe de 5 maximum, garanti dès 3 inscrits", "Préparation aux choix de spécialités", "Bilan de positionnement initial offert", "Plateforme ARIA + espace parent", "Bilans de progression réguliers"]
     },
     {
       "id": "2nde-sciences",
@@ -237,7 +237,7 @@
       "n_installments": 9,
       "installment_amount": 420,
       "last_installment": 420,
-      "included": ["Mathematiques et raisonnement scientifique, 4 h / semaine", "Groupe de 5 maximum, garanti des 3 inscrits", "Preparation aux attendus de Premiere", "Bilan de positionnement initial offert", "Plateforme Nexus + espace parent", "Aide a l'arbitrage des specialites", "Bilans de progression reguliers"]
+      "included": ["Mathématiques et raisonnement scientifique, 4 h / semaine", "Groupe de 5 maximum, garanti dès 3 inscrits", "Préparation aux attendus de Première", "Bilan de positionnement initial offert", "Plateforme ARIA + espace parent", "Aide à l'arbitrage des spécialités", "Bilans de progression réguliers"]
     },
     {
       "id": "2nde-coaching",
@@ -259,14 +259,14 @@
       "n_installments": null,
       "installment_amount": null,
       "last_installment": null,
-      "included": ["3 rendez-vous individuels", "Bilan de positionnement et orientation", "Aide au choix des specialites"]
+      "included": ["3 rendez-vous individuels", "Bilan de positionnement et orientation", "Aide au choix des spécialités"]
     },
     {
       "id": "brevet-maths",
       "level": "troisieme",
       "track": "scolarise",
-      "title": "Troisieme Brevet Maths",
-      "subjects": "Mathematiques",
+      "title": "Troisième Brevet Maths",
+      "subjects": "Mathématiques",
       "hours_per_week": 2,
       "hours_per_year": 60,
       "group_max": 5,
@@ -281,14 +281,14 @@
       "n_installments": 9,
       "installment_amount": 186,
       "last_installment": 192,
-      "included": ["Mathematiques : calcul, geometrie, resolution de problemes", "Groupe de 5 maximum, garanti des 4 inscrits", "Entrainement DNB : sujets corriges et methodologie", "Bilan de positionnement initial offert", "Plateforme Nexus + espace parent", "Bilans de progression reguliers"]
+      "included": ["Mathématiques : calcul, géométrie, résolution de problèmes", "Groupe de 5 maximum, garanti dès 4 inscrits", "Entraînement DNB : sujets corrigés et méthodologie", "Bilan de positionnement initial offert", "Plateforme ARIA + espace parent", "Bilans de progression réguliers"]
     },
     {
       "id": "brevet-complet",
       "level": "troisieme",
       "track": "scolarise",
-      "title": "Troisieme Brevet Complet",
-      "subjects": "Maths + Francais + methode",
+      "title": "Troisième Brevet Complet",
+      "subjects": "Maths + Français + méthode",
       "hours_per_week": 4,
       "hours_per_year": 120,
       "group_max": 5,
@@ -303,13 +303,13 @@
       "n_installments": 9,
       "installment_amount": 373,
       "last_installment": 376,
-      "included": ["Mathematiques + Francais + methode de travail, 4 h / semaine", "Groupe de 5 maximum, garanti des 4 inscrits", "Entrainement DNB complet : sujets corriges", "Bilan de positionnement initial offert", "Plateforme Nexus + espace parent", "Bilans de progression reguliers"]
+      "included": ["Mathématiques + Français + méthode de travail, 4 h / semaine", "Groupe de 5 maximum, garanti dès 4 inscrits", "Entraînement DNB complet : sujets corrigés", "Bilan de positionnement initial offert", "Plateforme ARIA + espace parent", "Bilans de progression réguliers"]
     },
     {
       "id": "1re-libre-essentiel",
       "level": "premiere",
       "track": "libre",
-      "title": "Premiere Libre Essentiel",
+      "title": "Première Libre Essentiel",
       "subjects": "EAF + Maths + tronc, en ligne",
       "hours_per_week": null,
       "hours_per_year": null,
@@ -325,14 +325,14 @@
       "n_installments": 9,
       "installment_amount": 150,
       "last_installment": 130,
-      "included": ["EAF + Maths + tronc commun en ligne", "Plateforme Nexus illimitee", "Bilans de progression reguliers"]
+      "included": ["EAF + Maths + tronc commun en ligne", "Plateforme ARIA", "Bilans de progression réguliers"]
     },
     {
       "id": "1re-libre-accomp",
       "level": "premiere",
       "track": "libre",
-      "title": "Premiere Libre Accompagnee",
-      "subjects": "Presentiel + plateforme",
+      "title": "Première Libre Accompagnée",
+      "subjects": "Présentiel + plateforme",
       "hours_per_week": null,
       "hours_per_year": null,
       "group_max": 5,
@@ -347,13 +347,13 @@
       "n_installments": 9,
       "installment_amount": 380,
       "last_installment": 390,
-      "included": ["Presentiel hebdomadaire en groupe de 5 max", "Plateforme Nexus illimitee + espace parent", "Carte d'examen personnalisee", "Bilans de progression reguliers"]
+      "included": ["Présentiel hebdomadaire en groupe de 5 max", "Plateforme ARIA + espace parent", "Carte d'examen personnalisée", "Bilans de progression réguliers"]
     },
     {
       "id": "1re-libre-intensif",
       "level": "premiere",
       "track": "libre",
-      "title": "Premiere Libre Intensif",
+      "title": "Première Libre Intensif",
       "subjects": "Stage 20-30 h",
       "hours_per_week": null,
       "hours_per_year": null,
@@ -392,14 +392,14 @@
       "n_installments": 9,
       "installment_amount": 225,
       "last_installment": 230,
-      "included": ["Specialites + Grand Oral + tronc commun en ligne", "Plateforme Nexus illimitee", "Bilans de progression reguliers"]
+      "included": ["Spécialités + Grand Oral + tronc commun en ligne", "Plateforme ARIA", "Bilans de progression réguliers"]
     },
     {
       "id": "term-libre-mixte",
       "level": "terminale",
       "track": "libre",
       "title": "Terminale Libre Mixte",
-      "subjects": "Presentiel + plateforme",
+      "subjects": "Présentiel + plateforme",
       "hours_per_week": 4,
       "hours_per_year": 120,
       "group_max": 5,
@@ -414,7 +414,7 @@
       "n_installments": 9,
       "installment_amount": 614,
       "last_installment": 618,
-      "included": ["Specialites, Grand Oral, tronc commun selon carte d'examen", "Presentiel hebdomadaire en groupe de 5 max", "Bacs blancs en conditions reelles + correction detaillee", "Carte d'examen personnalisee", "Bulletin trimestriel Nexus + conseil de classe individuel", "Plateforme Nexus illimitee + espace parent", "Accompagnement Parcoursup et orientation"]
+      "included": ["Spécialités, Grand Oral, tronc commun selon carte d'examen", "Présentiel hebdomadaire en groupe de 5 max", "Bacs blancs en conditions réelles + correction détaillée", "Carte d'examen personnalisée", "Bulletin trimestriel Nexus + conseil de classe individuel", "Plateforme ARIA + espace parent", "Accompagnement Parcoursup et orientation"]
     },
     {
       "id": "term-libre-premium",
@@ -436,13 +436,13 @@
       "n_installments": 9,
       "installment_amount": 770,
       "last_installment": 770,
-      "included": ["Tout le parcours Mixte en groupe de 5 max", "Coaching individuel et suivi parent renforce", "6 h d'urgence en ligne incluses", "Priorite de planification sur les stages", "Preparation Parcoursup : dossier et entretiens optimises"]
+      "included": ["Tout le parcours Mixte en groupe de 5 max", "Coaching individuel et suivi parent renforcé", "6 h d'urgence en ligne incluses", "Priorite de planification sur les stages", "Préparation Parcoursup : dossier et entretiens optimises"]
     },
     {
       "id": "plateforme-autonomie",
       "level": "tous",
       "track": "plateforme",
-      "title": "Plateforme Autonomie",
+      "title": "ARIA Autonomie",
       "subjects": "Ressources",
       "hours_per_week": null,
       "hours_per_year": null,
@@ -458,13 +458,13 @@
       "n_installments": null,
       "installment_amount": null,
       "last_installment": null,
-      "included": ["Ressources, fiches, exercices et sujets corriges", "Parcours personnalise en autonomie", "Acces illimite 24/7 a la plateforme Nexus"]
+      "included": ["Ressources, fiches, exercices et sujets corrigés", "Parcours personnalisé en autonomie", "Accès selon formule à la plateforme ARIA"]
     },
     {
       "id": "plateforme-suivi",
       "level": "tous",
       "track": "plateforme",
-      "title": "Plateforme Suivi",
+      "title": "ARIA Suivi",
       "subjects": "+ compte parent + bilans",
       "hours_per_week": null,
       "hours_per_year": null,
@@ -480,13 +480,13 @@
       "n_installments": null,
       "installment_amount": null,
       "last_installment": null,
-      "included": ["Tout l'abonnement Autonomie", "Compte parent + bilans reguliers", "1 atelier collectif en ligne / mois"]
+      "included": ["Tout l'abonnement Autonomie", "Compte parent + bilans réguliers", "1 atelier collectif en ligne / mois"]
     },
     {
       "id": "plateforme-accomp",
       "level": "tous",
       "track": "plateforme",
-      "title": "Plateforme Accompagnee",
+      "title": "ARIA Accompagnée",
       "subjects": "+ live hebdo",
       "hours_per_week": null,
       "hours_per_year": null,
@@ -502,7 +502,7 @@
       "n_installments": null,
       "installment_amount": null,
       "last_installment": null,
-      "included": ["Tout l'abonnement Suivi", "1 seance live en groupe de 5 max / semaine", "Corrections personnalisees ponctuelles"]
+      "included": ["Tout l'abonnement Suivi", "1 séance live en groupe de 5 max / semaine", "Corrections personnalisées ponctuelles"]
     }
   ],
   "stage_formats": [
@@ -519,7 +519,7 @@
     },
     {
       "format_id": "intensif-solo",
-      "title": "Intensif Solo (1 matiere)",
+      "title": "Intensif Solo (1 matière)",
       "hours": 12,
       "group_max": 5,
       "group_min_open": 3,
@@ -541,7 +541,7 @@
     },
     {
       "format_id": "intensif-duo",
-      "title": "Intensif Duo (2 matieres)",
+      "title": "Intensif Duo (2 matières)",
       "hours": 18,
       "group_max": 5,
       "group_min_open": 3,
@@ -587,44 +587,44 @@
   "stage_editions": [
     {
       "edition_id": "cap-rentree",
-      "title": "Cap Rentree",
-      "period": "Aout-septembre",
-      "dates_display": "communiquees avec la recommandation",
+      "title": "Cap Rentrée",
+      "period": "Août-septembre",
+      "dates_display": "communiquées avec la recommandation",
       "formats": ["intensif-solo", "intensif-renfort", "intensif-duo", "intensif-duo-plus"]
     },
     {
       "edition_id": "toussaint",
       "title": "Intensif Toussaint",
       "period": "Octobre-novembre",
-      "dates_display": "communiquees avec la recommandation",
+      "dates_display": "communiquées avec la recommandation",
       "formats": ["intensif-solo", "intensif-renfort", "intensif-duo"]
     },
     {
       "edition_id": "noel",
-      "title": "Intensif Noel",
-      "period": "Decembre",
-      "dates_display": "communiquees avec la recommandation",
+      "title": "Intensif Noël",
+      "period": "Décembre",
+      "dates_display": "communiquées avec la recommandation",
       "formats": ["intensif-solo", "intensif-renfort", "intensif-duo"]
     },
     {
-      "edition_id": "fevrier",
-      "title": "Intensif Fevrier",
-      "period": "Fevrier",
-      "dates_display": "communiquees avec la recommandation",
+      "edition_id": "février",
+      "title": "Intensif Février",
+      "period": "Février",
+      "dates_display": "communiquées avec la recommandation",
       "formats": ["intensif-solo", "intensif-renfort", "intensif-duo-plus"]
     },
     {
       "edition_id": "printemps",
       "title": "Intensif Printemps",
       "period": "Avril",
-      "dates_display": "communiquees avec la recommandation",
+      "dates_display": "communiquées avec la recommandation",
       "formats": ["intensif-solo", "intensif-renfort", "intensif-duo-plus"]
     },
     {
       "edition_id": "sprint",
       "title": "Sprint Final",
       "period": "Mai-juin",
-      "dates_display": "communiquees avec la recommandation",
+      "dates_display": "communiquées avec la recommandation",
       "formats": ["sprint-final", "sprint-final-max"]
     }
   ],
@@ -632,8 +632,8 @@
     {
       "id": "cap-eaf",
       "title": "Cap EAF",
-      "public": "Premiere",
-      "description": "Francais ecrit + oral, textes, methode",
+      "public": "Première",
+      "description": "Français écrit + oral, textes, méthode",
       "hours": 15,
       "group_max": 5,
       "group_min_open": 3,
@@ -644,9 +644,9 @@
     },
     {
       "id": "cap-maths-1re",
-      "title": "Cap Maths Premiere",
-      "public": "Premiere",
-      "description": "Epreuve anticipee de maths",
+      "title": "Cap Maths Première",
+      "public": "Première",
+      "description": "Épreuve anticipée de maths",
       "hours": 12,
       "group_max": 5,
       "group_min_open": 3,
@@ -670,9 +670,9 @@
     },
     {
       "id": "epreuve-blanche",
-      "title": "Epreuve Blanche",
+      "title": "Épreuve Blanche",
       "public": "Tous",
-      "description": "Bac blanc conditions reelles + correction sur grille officielle",
+      "description": "Bac blanc conditions réelles + correction sur grille officielle",
       "hours": null,
       "group_max": null,
       "group_min_open": null,
@@ -685,7 +685,7 @@
   "coaching": [
     {
       "id": "diagnostic",
-      "title": "Diagnostic Strategique",
+      "title": "Diagnostic Stratégique",
       "format": "Bilan + carte d'examen",
       "effectif": "individuel",
       "group_max": null,
@@ -698,9 +698,9 @@
       "payment": { "full_at_booking": true, "deposit": 100, "solde": 0 }
     },
     {
-      "id": "boussole-methode",
+      "id": "boussole-méthode",
       "title": "Boussole Methode",
-      "format": "Atelier methodo, 3 seances",
+      "format": "Atelier méthodo, 3 séances",
       "effectif": "groupe",
       "group_max": 5,
       "group_min_open": 3,
@@ -728,7 +728,7 @@
     {
       "id": "boussole-individuel",
       "title": "Boussole Individuel",
-      "format": "Coaching 1:1 a la seance",
+      "format": "Coaching 1:1 à la séance",
       "effectif": "individuel",
       "group_max": null,
       "group_min_open": null,
@@ -742,7 +742,7 @@
     {
       "id": "boussole-individuel-pack3",
       "title": "Boussole Individuel — Pack 3",
-      "format": "3 seances 1:1",
+      "format": "3 séances 1:1",
       "effectif": "individuel",
       "group_max": null,
       "group_min_open": null,
@@ -756,7 +756,7 @@
     {
       "id": "boussole-individuel-pack5",
       "title": "Boussole Individuel — Pack 5",
-      "format": "5 seances 1:1",
+      "format": "5 séances 1:1",
       "effectif": "individuel",
       "group_max": null,
       "group_min_open": null,
@@ -771,12 +771,12 @@
   "packs": [
     {
       "id": "pass-intensifs-1re",
-      "title": "Pass Intensifs Annee — Premiere",
-      "public": "Premiere",
+      "title": "Pass Intensifs Année — Première",
+      "public": "Première",
       "components": [
         { "type": "stage", "format_id": "intensif-solo", "edition_id": "toussaint", "qty": 1 },
         { "type": "stage", "format_id": "intensif-solo", "edition_id": "noel", "qty": 1 },
-        { "type": "stage", "format_id": "intensif-solo", "edition_id": "fevrier", "qty": 1 },
+        { "type": "stage", "format_id": "intensif-solo", "edition_id": "février", "qty": 1 },
         { "type": "stage", "format_id": "intensif-solo", "edition_id": "printemps", "qty": 1 }
       ],
       "value": 2320,
@@ -788,12 +788,12 @@
     },
     {
       "id": "pass-intensifs-term",
-      "title": "Pass Intensifs Annee — Terminale",
+      "title": "Pass Intensifs Année — Terminale",
       "public": "Terminale",
       "components": [
         { "type": "stage", "format_id": "intensif-renfort", "edition_id": "toussaint", "qty": 1 },
         { "type": "stage", "format_id": "intensif-renfort", "edition_id": "noel", "qty": 1 },
-        { "type": "stage", "format_id": "intensif-renfort", "edition_id": "fevrier", "qty": 1 },
+        { "type": "stage", "format_id": "intensif-renfort", "edition_id": "février", "qty": 1 },
         { "type": "stage", "format_id": "intensif-renfort", "edition_id": "printemps", "qty": 1 }
       ],
       "value": 2880,
@@ -805,8 +805,8 @@
     },
     {
       "id": "pass-cap-bac-1re",
-      "title": "Cap Bac Premiere",
-      "public": "Premiere",
+      "title": "Cap Bac Première",
+      "public": "Première",
       "components": [
         { "type": "ponctuel", "id": "cap-eaf", "qty": 1 },
         { "type": "ponctuel", "id": "cap-maths-1re", "qty": 1 },
@@ -840,7 +840,7 @@
       "public": "Terminale",
       "components": [
         { "type": "stage", "format_id": "intensif-renfort", "edition_id": "toussaint", "qty": 1 },
-        { "type": "stage", "format_id": "intensif-renfort", "edition_id": "fevrier", "qty": 1 },
+        { "type": "stage", "format_id": "intensif-renfort", "edition_id": "février", "qty": 1 },
         { "type": "ponctuel", "id": "studio-grand-oral", "qty": 1 },
         { "type": "stage", "format_id": "sprint-final", "edition_id": "sprint", "qty": 1 }
       ],
@@ -858,7 +858,7 @@
       "components": [
         { "type": "coaching", "id": "diagnostic", "qty": 1, "value_override": 100 },
         { "type": "stage", "format_id": "intensif-renfort", "edition_id": "toussaint", "qty": 1 },
-        { "type": "stage", "format_id": "intensif-renfort", "edition_id": "fevrier", "qty": 1 },
+        { "type": "stage", "format_id": "intensif-renfort", "edition_id": "février", "qty": 1 },
         { "type": "ponctuel", "id": "epreuve-blanche", "qty": 3 },
         { "type": "service", "label": "Cellule Cyclades", "qty": 1, "value_override": 0 }
       ],
@@ -874,7 +874,7 @@
     "id": "carte-nexus",
     "title": "Carte Nexus",
     "price_annual": 290,
-    "includes": ["Plateforme Autonomie", "Remise -10% sur stages unitaires & coaching (hors Pass)", "Reservation prioritaire", "1 Diagnostic Strategique offert"],
+    "includes": ["ARIA Autonomie", "Remise -10% sur stages unitaires & coaching (hors Pass)", "Réservation prioritaire", "1 Diagnostic Stratégique offert"],
     "discount_pct": 10,
     "discount_applies_to": ["stage_formats", "ponctuel_offers", "coaching"],
     "discount_excludes": ["packs"],

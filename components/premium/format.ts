@@ -35,5 +35,5 @@ export function fmtHoursWeek(hours: number): string {
 
 /** Format discount badge "-X %" */
 export function fmtDiscount(pct: number): string {
-  return `−${Math.round(pct * 10) / 10}\u00A0%`;
+  return `−${Math.round(pct)}\u00A0%`;
 }

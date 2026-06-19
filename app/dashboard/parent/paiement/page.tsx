@@ -364,7 +364,7 @@ function PaiementContent() {
                   <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto">
                     <Landmark className="w-8 h-8 text-green-600" />
                   </div>
-                  <h3 className="font-semibold text-white">Support 24/7</h3>
+                  <h3 className="font-semibold text-white">Support selon formule</h3>
                   <p className="text-sm text-neutral-300">
                     Notre équipe est disponible à tout moment pour vous accompagner
                   </p>
@@ -383,7 +383,7 @@ function PaiementContent() {
 
               <div className="mt-8 pt-6 border-t border-white/10">
                 <p className="text-center text-neutral-200 font-medium">
-                  Plus de <span className="text-brand-primary font-bold">10,000 familles</span> nous font confiance
+                  <span className="text-brand-primary font-bold">Un cadre de paiement sécurisé</span> pour les familles
                 </p>
                 <p className="text-center text-sm text-neutral-400 mt-2">
                   Rejoignez notre communauté d&apos;excellence éducative

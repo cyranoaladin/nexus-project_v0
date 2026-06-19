@@ -3,10 +3,10 @@
 exports[`SurvivalHeroBanner matches snapshot 1`] = `
 <div>
   <div
-    class="rounded-xl border border-white/10 bg-surface-card text-neutral-100 shadow-md transition-all duration-300 hover:shadow-xl border-eaf-indigo/20 bg-eaf-hero-gradient"
+    class="rounded-xl border text-neutral-100 shadow-md transition-all duration-300 hover:shadow-xl border-eaf-indigo/20 bg-eaf-hero-gradient"
   >
     <div
-      class="p-4 md:p-6 pt-0 grid gap-4 p-4 sm:grid-cols-3"
+      class="md:p-6 grid gap-4 p-4 sm:grid-cols-3"
     >
       <div
         class="rounded-lg border border-eaf-indigo/20 bg-eaf-indigo/10 p-4"

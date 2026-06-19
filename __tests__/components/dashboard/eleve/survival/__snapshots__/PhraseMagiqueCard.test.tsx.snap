@@ -3,13 +3,13 @@
 exports[`PhraseMagiqueCard matches snapshot with copy count 0 1`] = `
 <div>
   <div
-    class="rounded-xl border border-white/10 bg-surface-card text-neutral-100 shadow-md transition-all duration-300 hover:shadow-xl border-eaf-indigo/20 bg-eaf-hero-gradient"
+    class="rounded-xl border text-neutral-100 shadow-md transition-all duration-300 hover:shadow-xl border-eaf-indigo/20 bg-eaf-hero-gradient"
   >
     <div
       class="flex flex-col space-y-1.5 p-4 md:p-6"
     >
       <h3
-        class="font-semibold leading-none tracking-tight font-fraunces text-sm text-eaf-text-primary"
+        class="font-semibold tracking-tight font-fraunces text-sm text-eaf-text-primary"
       >
         Montrer qu’une suite est arithmétique
       </h3>
@@ -40,7 +40,7 @@ exports[`PhraseMagiqueCard matches snapshot with copy count 0 1`] = `
         <button
           aria-busy="false"
           aria-label="Copier la phrase magique"
-          class="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-brand-primary text-white shadow-sm font-semibold hover:bg-brand-primary/90 focus-visible:ring-brand-primary h-10 md:h-12 px-4 md:px-6 py-2 md:py-3 text-sm md:text-base min-h-11 min-w-11 bg-eaf-orange text-eaf-text-primary"
+          class="inline-flex items-center justify-center whitespace-nowrap rounded-lg transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 shadow-sm font-semibold hover:bg-brand-primary/90 focus-visible:ring-brand-primary h-10 md:h-12 px-4 md:px-6 py-2 md:py-3 text-sm md:text-base min-h-11 min-w-11 bg-eaf-orange text-eaf-text-primary"
           tabindex="0"
           type="button"
         >
@@ -79,13 +79,13 @@ exports[`PhraseMagiqueCard matches snapshot with copy count 0 1`] = `
 exports[`PhraseMagiqueCard matches snapshot with copy count 3 1`] = `
 <div>
   <div
-    class="rounded-xl border border-white/10 bg-surface-card text-neutral-100 shadow-md transition-all duration-300 hover:shadow-xl border-eaf-indigo/20 bg-eaf-hero-gradient"
+    class="rounded-xl border text-neutral-100 shadow-md transition-all duration-300 hover:shadow-xl border-eaf-indigo/20 bg-eaf-hero-gradient"
   >
     <div
       class="flex flex-col space-y-1.5 p-4 md:p-6"
     >
       <h3
-        class="font-semibold leading-none tracking-tight font-fraunces text-sm text-eaf-text-primary"
+        class="font-semibold tracking-tight font-fraunces text-sm text-eaf-text-primary"
       >
         Montrer qu’une suite est arithmétique
       </h3>
@@ -116,7 +116,7 @@ exports[`PhraseMagiqueCard matches snapshot with copy count 3 1`] = `
         <button
           aria-busy="false"
           aria-label="Copier la phrase magique"
-          class="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-brand-primary text-white shadow-sm font-semibold hover:bg-brand-primary/90 focus-visible:ring-brand-primary h-10 md:h-12 px-4 md:px-6 py-2 md:py-3 text-sm md:text-base min-h-11 min-w-11 bg-eaf-orange text-eaf-text-primary"
+          class="inline-flex items-center justify-center whitespace-nowrap rounded-lg transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 shadow-sm font-semibold hover:bg-brand-primary/90 focus-visible:ring-brand-primary h-10 md:h-12 px-4 md:px-6 py-2 md:py-3 text-sm md:text-base min-h-11 min-w-11 bg-eaf-orange text-eaf-text-primary"
           tabindex="0"
           type="button"
         >
@@ -155,13 +155,13 @@ exports[`PhraseMagiqueCard matches snapshot with copy count 3 1`] = `
 exports[`PhraseMagiqueCard matches snapshot with copy count 10 1`] = `
 <div>
   <div
-    class="rounded-xl border border-white/10 bg-surface-card text-neutral-100 shadow-md transition-all duration-300 hover:shadow-xl border-eaf-indigo/20 bg-eaf-hero-gradient"
+    class="rounded-xl border text-neutral-100 shadow-md transition-all duration-300 hover:shadow-xl border-eaf-indigo/20 bg-eaf-hero-gradient"
   >
     <div
       class="flex flex-col space-y-1.5 p-4 md:p-6"
     >
       <h3
-        class="font-semibold leading-none tracking-tight font-fraunces text-sm text-eaf-text-primary"
+        class="font-semibold tracking-tight font-fraunces text-sm text-eaf-text-primary"
       >
         Montrer qu’une suite est arithmétique
       </h3>
@@ -192,7 +192,7 @@ exports[`PhraseMagiqueCard matches snapshot with copy count 10 1`] = `
         <button
           aria-busy="false"
           aria-label="Copier la phrase magique"
-          class="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-brand-primary text-white shadow-sm font-semibold hover:bg-brand-primary/90 focus-visible:ring-brand-primary h-10 md:h-12 px-4 md:px-6 py-2 md:py-3 text-sm md:text-base min-h-11 min-w-11 bg-eaf-orange text-eaf-text-primary"
+          class="inline-flex items-center justify-center whitespace-nowrap rounded-lg transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 shadow-sm font-semibold hover:bg-brand-primary/90 focus-visible:ring-brand-primary h-10 md:h-12 px-4 md:px-6 py-2 md:py-3 text-sm md:text-base min-h-11 min-w-11 bg-eaf-orange text-eaf-text-primary"
           tabindex="0"
           type="button"
         >

@@ -116,7 +116,7 @@ export default function PlateformeAriaPage() {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.08 }}
-            className="mx-auto mt-5 max-w-3xl text-lg text-lux-ivory/75 md:text-xl"
+            className="mx-auto mt-5 max-w-3xl text-lg text-lux-on-dark-muted md:text-xl"
           >
             ARIA complète l’accompagnement humain avec une aide pédagogique structurée,
             disponible selon formule pour réviser, s’entraîner et clarifier les méthodes.
@@ -137,7 +137,7 @@ export default function PlateformeAriaPage() {
             </Link>
           </motion.div>
 
-          <div className="mt-10 flex flex-wrap justify-center gap-3 text-sm text-lux-ivory/80">
+          <div className="mt-10 flex flex-wrap justify-center gap-3 text-sm text-lux-on-dark-muted">
             <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2">Complément de l’humain</span>
             <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2">Relu et travaillé avec méthode</span>
             <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2">Programmes officiels</span>
@@ -147,7 +147,7 @@ export default function PlateformeAriaPage() {
 
       <section className="bg-lux-paper px-4 py-14 md:px-6">
         <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-          <Card className="!bg-lux-white !text-lux-ink border-lux-line lux-shadow">
+          <Card className="bg-lux-white text-lux-ink border-lux-line lux-shadow">
             <CardContent className="p-6 md:p-8">
               <Badge variant="outline" className="mb-4 border-lux-line/70 text-lux-slate">
                 <Sparkles className="mr-2 h-4 w-4 text-lux-gold" />
@@ -182,11 +182,11 @@ export default function PlateformeAriaPage() {
                 <h2 className="text-2xl font-fraunces text-lux-ivory">Exemple de dialogue</h2>
               </div>
               <div className="mt-6 space-y-3">
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-lux-ivory/90">
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-lux-on-dark">
                   <p className="mb-1 font-semibold text-lux-gold-wash">Élève</p>
                   Comment résoudre une équation du second degré ?
                 </div>
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-lux-ivory/90">
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-lux-on-dark">
                   <p className="mb-1 font-semibold text-lux-gold-wash">ARIA</p>
                   On calcule le discriminant Δ = b² - 4ac. Si Δ &gt; 0, il y a deux solutions;
                   si Δ = 0, une solution double; si Δ &lt; 0, pas de solution réelle.
@@ -223,7 +223,7 @@ export default function PlateformeAriaPage() {
                       <Icon className="h-6 w-6 text-lux-gold" />
                     </div>
                     <h3 className="mt-4 text-xl font-fraunces text-lux-ivory">{feature.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-lux-ivory/75">{feature.description}</p>
+                    <p className="mt-2 text-sm leading-6 text-lux-on-dark-muted">{feature.description}</p>
                   </CardContent>
                 </Card>
               );
@@ -274,7 +274,7 @@ export default function PlateformeAriaPage() {
             Comment ça marche
           </Badge>
           <h2 className="text-3xl font-fraunces text-lux-ivory md:text-4xl">Simple comme une conversation</h2>
-          <p className="mx-auto mt-4 max-w-2xl text-sm text-lux-ivory/75 md:text-base">
+          <p className="mx-auto mt-4 max-w-2xl text-sm text-lux-on-dark-muted md:text-base">
             Pas de configuration compliquée. Choisissez la matière, posez votre question, puis travaillez la réponse avec méthode.
           </p>
 
@@ -285,7 +285,7 @@ export default function PlateformeAriaPage() {
                   {step.step}
                 </div>
                 <h3 className="mt-4 text-xl font-fraunces text-lux-ivory">{step.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-lux-ivory/75">{step.description}</p>
+                <p className="mt-2 text-sm leading-6 text-lux-on-dark-muted">{step.description}</p>
               </div>
             ))}
           </div>

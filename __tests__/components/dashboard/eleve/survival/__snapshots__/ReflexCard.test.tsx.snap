@@ -3,10 +3,10 @@
 exports[`ReflexCard matches snapshot for state ACQUIS 1`] = `
 <div>
   <div
-    class="rounded-xl border border-white/10 bg-surface-card text-neutral-100 shadow-md transition-all duration-300 hover:shadow-xl border-eaf-indigo/20 bg-eaf-hero-gradient"
+    class="rounded-xl border text-neutral-100 shadow-md transition-all duration-300 hover:shadow-xl border-eaf-indigo/20 bg-eaf-hero-gradient"
   >
     <div
-      class="flex flex-col space-y-1.5 p-4 md:p-6 space-y-3"
+      class="flex flex-col p-4 md:p-6 space-y-3"
     >
       <div
         class="flex flex-wrap items-center gap-2"
@@ -31,7 +31,7 @@ exports[`ReflexCard matches snapshot for state ACQUIS 1`] = `
         </span>
       </div>
       <h3
-        class="font-semibold leading-none tracking-tight font-fraunces text-base text-eaf-text-primary"
+        class="font-semibold tracking-tight font-fraunces text-base text-eaf-text-primary"
       >
         1
         . 
@@ -48,7 +48,7 @@ exports[`ReflexCard matches snapshot for state ACQUIS 1`] = `
       </p>
       <button
         aria-busy="false"
-        class="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-brand-primary text-brand-primary bg-transparent hover:bg-brand-primary hover:text-white h-10 md:h-12 px-4 md:px-6 py-2 md:py-3 text-sm md:text-base min-h-11 w-full border-eaf-indigo/30 text-eaf-orange"
+        class="inline-flex items-center justify-center whitespace-nowrap rounded-lg font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border bg-transparent hover:bg-brand-primary hover:text-white h-10 md:h-12 px-4 md:px-6 py-2 md:py-3 text-sm md:text-base min-h-11 w-full border-eaf-indigo/30 text-eaf-orange"
         tabindex="0"
         type="button"
       >
@@ -62,10 +62,10 @@ exports[`ReflexCard matches snapshot for state ACQUIS 1`] = `
 exports[`ReflexCard matches snapshot for state PAS_VU 1`] = `
 <div>
   <div
-    class="rounded-xl border border-white/10 bg-surface-card text-neutral-100 shadow-md transition-all duration-300 hover:shadow-xl border-eaf-indigo/20 bg-eaf-hero-gradient"
+    class="rounded-xl border text-neutral-100 shadow-md transition-all duration-300 hover:shadow-xl border-eaf-indigo/20 bg-eaf-hero-gradient"
   >
     <div
-      class="flex flex-col space-y-1.5 p-4 md:p-6 space-y-3"
+      class="flex flex-col p-4 md:p-6 space-y-3"
     >
       <div
         class="flex flex-wrap items-center gap-2"
@@ -90,7 +90,7 @@ exports[`ReflexCard matches snapshot for state PAS_VU 1`] = `
         </span>
       </div>
       <h3
-        class="font-semibold leading-none tracking-tight font-fraunces text-base text-eaf-text-primary"
+        class="font-semibold tracking-tight font-fraunces text-base text-eaf-text-primary"
       >
         1
         . 
@@ -107,7 +107,7 @@ exports[`ReflexCard matches snapshot for state PAS_VU 1`] = `
       </p>
       <button
         aria-busy="false"
-        class="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-brand-primary text-brand-primary bg-transparent hover:bg-brand-primary hover:text-white h-10 md:h-12 px-4 md:px-6 py-2 md:py-3 text-sm md:text-base min-h-11 w-full border-eaf-indigo/30 text-eaf-orange"
+        class="inline-flex items-center justify-center whitespace-nowrap rounded-lg font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border bg-transparent hover:bg-brand-primary hover:text-white h-10 md:h-12 px-4 md:px-6 py-2 md:py-3 text-sm md:text-base min-h-11 w-full border-eaf-indigo/30 text-eaf-orange"
         tabindex="0"
         type="button"
       >
@@ -121,10 +121,10 @@ exports[`ReflexCard matches snapshot for state PAS_VU 1`] = `
 exports[`ReflexCard matches snapshot for state REVOIR 1`] = `
 <div>
   <div
-    class="rounded-xl border border-white/10 bg-surface-card text-neutral-100 shadow-md transition-all duration-300 hover:shadow-xl border-eaf-indigo/20 bg-eaf-hero-gradient"
+    class="rounded-xl border text-neutral-100 shadow-md transition-all duration-300 hover:shadow-xl border-eaf-indigo/20 bg-eaf-hero-gradient"
   >
     <div
-      class="flex flex-col space-y-1.5 p-4 md:p-6 space-y-3"
+      class="flex flex-col p-4 md:p-6 space-y-3"
     >
       <div
         class="flex flex-wrap items-center gap-2"
@@ -149,7 +149,7 @@ exports[`ReflexCard matches snapshot for state REVOIR 1`] = `
         </span>
       </div>
       <h3
-        class="font-semibold leading-none tracking-tight font-fraunces text-base text-eaf-text-primary"
+        class="font-semibold tracking-tight font-fraunces text-base text-eaf-text-primary"
       >
         1
         . 
@@ -166,7 +166,7 @@ exports[`ReflexCard matches snapshot for state REVOIR 1`] = `
       </p>
       <button
         aria-busy="false"
-        class="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-brand-primary text-brand-primary bg-transparent hover:bg-brand-primary hover:text-white h-10 md:h-12 px-4 md:px-6 py-2 md:py-3 text-sm md:text-base min-h-11 w-full border-eaf-indigo/30 text-eaf-orange"
+        class="inline-flex items-center justify-center whitespace-nowrap rounded-lg font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border bg-transparent hover:bg-brand-primary hover:text-white h-10 md:h-12 px-4 md:px-6 py-2 md:py-3 text-sm md:text-base min-h-11 w-full border-eaf-indigo/30 text-eaf-orange"
         tabindex="0"
         type="button"
       >

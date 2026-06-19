@@ -18,7 +18,7 @@ import { TeacherView } from './Enseignant/TeacherView';
 import { BilanView } from '@/components/programme/shared/Bilan/BilanView';
 import { TopBar } from '@/components/programme/shared/layout/TopBar';
 import { LoadingScreen } from '@/components/programme/shared/layout/LoadingScreen';
-import { Toaster, toast } from 'sonner';
+import { toast } from 'sonner';
 
 export type ActiveTab = 'cockpit' | 'cours' | 'examen' | 'enseignant' | 'bilan';
 
@@ -84,7 +84,7 @@ export default function MathsRevisionClient({ user }: MathsRevisionClientProps) 
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-cyan-500/30 selection:text-cyan-200">
-      <Toaster theme="dark" position="bottom-right" richColors />
+      {/* Toaster provided globally by components/providers.tsx */}
 
       <Navigation
         activeTab={activeTab}

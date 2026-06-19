@@ -84,14 +84,14 @@ const TABS = [
     label: "Parents & Élèves (Lycée)",
     items: [
       {
-        title: "ARIA : Tuteur IA 24/7",
+        title: "ARIA : assistant pédagogique",
         subtitle: "Assistant pédagogique intelligent",
         shortDesc:
           "Assistant pédagogique intelligent qui connaît le programme et répond aux questions sans donner la solution brute.",
         fullDesc:
           "Assistant pédagogique intelligent qui connaît le programme et répond aux questions sans donner la solution brute.",
         benefits: [
-          "Suivi personnalisé 24/7",
+          "Suivi personnalisé selon formule",
           "Réponses guidées, pas de solution brute",
           "Progression visible pour les familles",
         ],

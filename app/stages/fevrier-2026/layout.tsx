@@ -158,7 +158,7 @@ export default function StagesFevrier2026Layout({
                 name: "Les stages garantissent-ils des résultats ?",
                 acceptedAnswer: {
                   '@type': 'Answer',
-                  text: "Les résultats dépendent du travail personnel et de l'implication de chacun. Nous observons en moyenne une progression de 4,2 points, mais chaque trajectoire est unique. Notre engagement : cadre structuré, méthode rigoureuse, bilan individualisé.",
+                  text: "Les résultats dépendent du travail personnel et de l'implication de chacun.  Notre engagement : cadre structuré, méthode rigoureuse, bilan individualisé.",
                 },
               },
               {

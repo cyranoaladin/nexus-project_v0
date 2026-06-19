@@ -13,7 +13,7 @@ interface AriaFeature {
 }
 
 const ariaFeatures: AriaFeature[] = [
-  { feature: "Aide aux devoirs 24/7", aria: true, ariaPlus: true },
+  { feature: "Aide aux devoirs selon formule", aria: true, ariaPlus: true },
   { feature: "Explications personnalisées", aria: true, ariaPlus: true },
   { feature: "Correction d'exercices", aria: true, ariaPlus: true },
   { feature: "Matières disponibles", aria: "1 au choix", ariaPlus: "Toutes disponibles" },
@@ -136,7 +136,7 @@ export function AriaComparison() {
                       +300% de fonctionnalités
                     </p>
                     <p className="text-xs text-blue-600">
-                      Accès illimité à toutes les matières
+                      Accès selon formule aux matières
                     </p>
                   </div>
                 </CardHeader>

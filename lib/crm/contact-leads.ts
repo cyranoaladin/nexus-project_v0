@@ -23,6 +23,8 @@ const contactLeadPayloadSchema = z.object({
   urgency: optionalText,
   source: optionalText,
   notes: optionalText,
+  type: optionalText,
+  consent: z.boolean().optional(),
 });
 
 export class ContactLeadValidationError extends Error {
@@ -61,6 +63,10 @@ export async function captureContactLead(payload: unknown) {
   }
 
   const data = parsed.data;
+  if ((data.type === 'newsletter' || data.type === 'callback' || data.type === 'contact') && data.consent !== true) {
+    throw new ContactLeadValidationError('missing_required');
+  }
+
   const lead = await prisma.contactLead.create({
     data: {
       name: data.name,

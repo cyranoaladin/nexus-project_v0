@@ -28,7 +28,7 @@ export function ComparisonTableSection() {
       nexus: "Pédagogie individualisée qui développe l'autonomie."
     },
     {
-      criteria: "Aide 24/7",
+      criteria: "Aide selon formule",
       standard: "Inexistante.",
       nexus: "Plateforme intelligente & IA ARIA."
     },

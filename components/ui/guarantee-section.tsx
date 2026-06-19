@@ -10,7 +10,7 @@ const guarantees = [
   {
     icon: Shield,
     title: "Garantie de Réussite",
-    description: "Si vous n'obtenez pas votre Bac, nous vous remboursons 100% de votre investissement.",
+    description: "Diagnostic initial, plan de travail et suivi pédagogique encadré.",
     color: "from-green-600 to-emerald-500"
   },
   {
@@ -21,7 +21,7 @@ const guarantees = [
   },
   {
     icon: Clock,
-    title: "Support 24/7",
+    title: "Support selon formule",
     description: "Notre équipe est disponible 24h/24 et 7j/7 pour répondre à toutes vos questions.",
     color: "from-blue-600 to-cyan-500"
   },
@@ -37,7 +37,7 @@ const stats = [
   { value: "98%", label: "Taux de réussite" },
   { value: "500+", label: "Élèves accompagnés" },
   { value: "4.9/5", label: "Note moyenne" },
-  { value: "100%", label: "Satisfaction client" }
+  { value: "Suivi", label: "Points réguliers" }
 ];
 
 export function GuaranteeSection() {

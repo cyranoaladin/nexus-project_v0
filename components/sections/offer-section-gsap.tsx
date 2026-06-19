@@ -21,7 +21,7 @@ const OfferSection = () => {
             title: "Accès Plateforme",
             subtitle: "IA + Suivi",
             items: [
-                { icon: Bot, text: "IA ARIA 24/7 (1 matière)" },
+                { icon: Bot, text: "IA ARIA selon formule (1 matière)" },
                 { icon: FileCheck, text: "Suivi de progression" },
                 { icon: Shield, text: "Dashboard parent" },
                 { icon: GraduationCap, text: "Ressources & méthodes Bac" }
@@ -33,7 +33,7 @@ const OfferSection = () => {
             subtitle: "Plateforme + Coach",
             items: [
                 { icon: Check, text: "4h/mois avec coach agrégé et certifié" },
-                { icon: Bot, text: "IA ARIA 24/7" },
+                { icon: Bot, text: "IA ARIA selon formule" },
                 { icon: Shield, text: "Suivi parental" },
                 { icon: GraduationCap, text: "Plan de révision personnalisé" }
             ],
@@ -44,7 +44,7 @@ const OfferSection = () => {
             subtitle: "Intensif & Prioritaire",
             items: [
                 { icon: Check, text: "8h/mois avec experts agrégés et certifiés" },
-                { icon: Bot, text: "IA ARIA 24/7" },
+                { icon: Bot, text: "IA ARIA selon formule" },
                 { icon: Shield, text: "Support prioritaire" },
                 { icon: GraduationCap, text: "Bilan trimestriel" }
             ],
@@ -160,8 +160,8 @@ const OfferSection = () => {
                     <div data-reveal="up" className="rounded-[10px] border border-white/10 bg-neutral-950/80 p-4 flex items-center gap-3">
                         <Bot className="w-5 h-5 text-brand-accent flex-shrink-0" />
                         <div>
-                            <span className="block text-white text-xs font-medium">IA ARIA 24/7</span>
-                            <span className="block text-neutral-400 text-[10px]">Pratique illimitée</span>
+                            <span className="block text-white text-xs font-medium">IA ARIA selon formule</span>
+                            <span className="block text-neutral-400 text-[10px]">Pratique selon formule</span>
                         </div>
                     </div>
 

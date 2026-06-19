@@ -1,10 +1,6 @@
-'use client';
-
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowRight, MessageCircle } from 'lucide-react';
-
-const WHATSAPP_URL = 'https://wa.me/21699192829';
+import { buildWhatsAppUrl } from '@/lib/whatsapp';
 
 const reassuranceItems = [
   'Cellule Cyclades',
@@ -25,7 +21,7 @@ function ExamCardArtifact() {
         N
       </div>
 
-      <span className="lux-eyebrow">Carte d&apos;examen · Terminale</span>
+      <span className="lux-eyebrow text-lux-gold-deep">Carte d&apos;examen · Terminale</span>
       <p className="mt-2 font-fraunces text-lg font-medium text-lux-ink" role="presentation">
         Spécialités &amp; épreuves
       </p>
@@ -39,7 +35,7 @@ function ExamCardArtifact() {
           { name: 'Philosophie', coef: 8, priority: 'ciblée' },
         ].map((item) => (
           <div key={item.name} className="flex items-center justify-between border-b border-lux-line/30 pb-1.5">
-            <span className="text-lux-ink/80">{item.name}</span>
+            <span className="text-lux-slate">{item.name}</span>
             <div className="flex items-center gap-3">
               <span className="lux-price text-xs font-semibold text-lux-slate">
                 coef.&nbsp;{item.coef}
@@ -66,28 +62,13 @@ function ExamCardArtifact() {
 }
 
 export function HeroSection() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    setVisible(true);
-  }, []);
-
   return (
     <section className="relative overflow-hidden bg-lux-ink py-16 md:py-24">
-      {/* Subtle texture — no blobs */}
-      <div className="absolute inset-0 opacity-[0.015]" aria-hidden="true">
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'radial-gradient(circle at 20% 80%, rgba(191,160,106,0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(30,95,75,0.2) 0%, transparent 50%)',
-        }} />
-      </div>
-
-      <div className="relative z-10 mx-auto max-w-6xl px-4 md:px-6">
+      <div className="mx-auto max-w-6xl px-4 md:px-6">
         <div className="grid items-center gap-10 md:grid-cols-2 md:gap-14">
-          {/* Left: thesis content */}
+          {/* Left — always visible for LCP. Animation via CSS only (lux-fade-in). */}
           <div
-            className={`space-y-6 transition-all duration-700 ${
-              visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-            }`}
+            className="space-y-6 lux-fade-in"
             data-lux-animate
           >
             <span className="lux-eyebrow text-lux-gold-wash">
@@ -98,7 +79,7 @@ export function HeroSection() {
               Préparer le bac français avec méthode, suivi et exigence.
             </h1>
 
-            <p className="max-w-lg text-base leading-relaxed text-lux-ivory/80 font-dm-sans">
+            <p className="max-w-lg text-base leading-relaxed text-lux-on-dark-muted font-dm-sans">
               Un cadre structurant pour préparer le bac français&nbsp;:
               enseignants agrégés, groupes de 5, bacs blancs,
               carte d&apos;examen et plateforme ARIA.
@@ -120,7 +101,7 @@ export function HeroSection() {
                 Voir les offres & tarifs
               </Link>
               <a
-                href={WHATSAPP_URL}
+                href={buildWhatsAppUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-sm font-medium text-lux-gold-wash transition-all hover:underline min-h-[44px]"
@@ -135,7 +116,7 @@ export function HeroSection() {
               {reassuranceItems.map((item) => (
                 <span
                   key={item}
-                  className="rounded-full border border-lux-ivory/15 px-3 py-1 text-[0.65rem] font-medium text-lux-ivory/70"
+                  className="rounded-full border border-lux-ivory/15 px-3 py-1 text-[0.65rem] font-medium text-lux-on-dark-muted"
                 >
                   {item}
                 </span>
@@ -145,9 +126,7 @@ export function HeroSection() {
 
           {/* Right: exam card artifact */}
           <div
-            className={`flex justify-center transition-all duration-700 delay-200 ${
-              visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
+            className="flex justify-center lux-fade-in lux-fade-in-delay"
             data-lux-animate
           >
             <ExamCardArtifact />

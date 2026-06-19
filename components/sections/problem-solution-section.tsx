@@ -49,7 +49,7 @@ export default function ProblemSolutionSection() {
               Besoin d&apos;un soutien personnalisé ?
             </h3>
             <p className="mt-2 text-slate-300">
-              Visez l&apos;excellence avec ARIA, votre tuteur IA 24/7.
+              Travaillez avec ARIA, assistant pédagogique complémentaire selon formule.
             </p>
           </a>
 

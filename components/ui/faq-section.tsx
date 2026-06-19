@@ -13,11 +13,11 @@ const faqs = [
   },
   {
     question: "L'IA ARIA peut-elle remplacer un professeur ?",
-    answer: "Non, ARIA est un outil complémentaire qui aide à la révision 24/7, mais ne remplace pas l'expertise humaine. Nos professeurs agrégés et certifiés restent au cœur de notre pédagogie pour l'accompagnement personnalisé et les cours en présentiel."
+    answer: "Non, ARIA est un outil complémentaire qui aide à la révision selon formule, mais ne remplace pas l'expertise humaine. Nos professeurs agrégés et certifiés restent au cœur de notre pédagogie pour l'accompagnement personnalisé et les cours en présentiel."
   },
   {
     question: "Comment fonctionne la garantie de réussite ?",
-    answer: "Si vous n'obtenez pas votre Bac avec nos programmes Odyssée, nous vous remboursons 100% de votre investissement. Cette garantie s'applique uniquement aux programmes annuels complets."
+    answer: "Nexus privilégie un engagement de moyens : diagnostic, méthode, bilans réguliers et ajustements pédagogiques."
   },
   {
     question: "Puis-je changer de programme en cours d'année ?",
@@ -37,7 +37,7 @@ const faqs = [
   },
   {
     question: "Que se passe-t-il si je ne suis pas satisfait ?",
-    answer: "Nous offrons une garantie de satisfaction de 30 jours. Si vous n'êtes pas satisfait de nos services, nous vous remboursons intégralement. Votre satisfaction est notre priorité."
+    answer: "Si une formule ne convient pas, nous analysons la situation et proposons un ajustement pédagogique adapté."
   }
 ];
 

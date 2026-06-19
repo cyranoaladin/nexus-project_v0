@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { CheckCircle2, GraduationCap, MessageCircle, Phone } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
 import { track } from '@/lib/analytics';
-import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -14,6 +13,19 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { ConseillerCard, ProcessSteps } from '@/components/marketing/acadomia-inspired';
+import { fmtTND } from '@/components/premium/format';
+import {
+  getAnnualOffer,
+  getAnnualOfferPaymentSchedule,
+  getCarte,
+  getCoachingOffer,
+  getEffectivePrice,
+  getPack,
+  getPonctuelOffer,
+  getStageFormat,
+} from '@/lib/pricing';
+import { buildWhatsAppUrl } from '@/lib/whatsapp';
 
 const SUBJECTS = [
   { value: 'MATHEMATIQUES', label: 'Mathématiques' },
@@ -61,12 +73,107 @@ const initialFormData: FormData = {
   acceptTerms: false,
 };
 
-const WHATSAPP_URL = 'https://wa.me/21699192829';
+
+/** Canonical payment breakdown — same structure used by OfferDetailDialog. */
+export type SelectedOfferContext = {
+  id: string;
+  title: string;
+  price: number;
+  deposit?: number;
+  /** Individual installment amounts (same values the modal renders). */
+  installments?: number[];
+  /** Single solde amount (stages, ponctuel). */
+  solde?: number;
+  /** Multiple solde amounts (packs, coaching with schedule). */
+  solde_schedule?: number[];
+  /** Full payment at booking (no échéancier). */
+  full_at_booking?: boolean;
+};
+
+export function resolveSelectedOfferContext(id: string | null): SelectedOfferContext | null {
+  if (!id) return null;
+
+  const annual = getAnnualOffer(id);
+  if (annual) {
+    const price = getEffectivePrice(annual);
+    const payment = getAnnualOfferPaymentSchedule(annual);
+    if (!price) return null;
+    return {
+      id: annual.id,
+      title: annual.title,
+      price,
+      deposit: payment?.deposit,
+      installments: payment?.installments,
+    };
+  }
+
+  const stage = getStageFormat(id);
+  if (stage) {
+    return {
+      id: stage.format_id,
+      title: stage.title,
+      price: stage.price_per_student,
+      deposit: stage.payment.deposit,
+      solde: stage.payment.solde,
+    };
+  }
+
+  const ponctuel = getPonctuelOffer(id);
+  if (ponctuel) {
+    return {
+      id: ponctuel.id,
+      title: ponctuel.title,
+      price: ponctuel.price_per_student,
+      deposit: ponctuel.payment.deposit,
+      solde: ponctuel.payment.full_at_booking ? undefined : ponctuel.payment.solde,
+      full_at_booking: ponctuel.payment.full_at_booking,
+    };
+  }
+
+  const coaching = getCoachingOffer(id);
+  if (coaching) {
+    return {
+      id: coaching.id,
+      title: coaching.title,
+      price: coaching.price,
+      deposit: coaching.payment.full_at_booking ? coaching.price : coaching.payment.deposit,
+      solde: coaching.payment.solde,
+      solde_schedule: coaching.payment.solde_schedule,
+      full_at_booking: coaching.payment.full_at_booking,
+    };
+  }
+
+  const pack = getPack(id);
+  if (pack) {
+    return {
+      id: pack.id,
+      title: pack.title,
+      price: pack.price,
+      deposit: pack.payment.deposit,
+      solde_schedule: pack.payment.solde_schedule,
+    };
+  }
+
+  const carte = getCarte();
+  if (carte.id === id) {
+    return {
+      id: carte.id,
+      title: carte.title,
+      price: carte.price_annual,
+      full_at_booking: true,
+      deposit: carte.price_annual,
+    };
+  }
+
+  return null;
+}
 
 export function BilanStrategiqueClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const programme = searchParams?.get('programme');
+  const offerId = searchParams?.get('offer');
+  const selectedOffer = useMemo(() => resolveSelectedOfferContext(offerId), [offerId]);
   const programmeLabel = useMemo(() => {
     if (!programme) return null;
     const labels: Record<string, string> = {
@@ -99,7 +206,7 @@ export function BilanStrategiqueClient() {
     if (formData.parentLastName.trim().length < 2) nextErrors.parentLastName = 'Nom requis';
     if (!emailRegex.test(formData.parentEmail)) nextErrors.parentEmail = 'Email invalide';
     if (!phoneRegex.test(formData.parentPhone)) nextErrors.parentPhone = 'Téléphone invalide';
-    if (formData.studentFirstName.trim().length < 2) nextErrors.studentFirstName = "Prénom de l'élève requis";
+    if (formData.studentFirstName.trim().length < 2) nextErrors.studentFirstName = `Prénom de l\u2019élève requis`;
     if (!formData.studentGrade) nextErrors.studentGrade = 'Classe requise';
     if (formData.studentSchool.trim().length < 2) nextErrors.studentSchool = 'Établissement requis';
     if (selectedSubjects.length === 0) nextErrors.subjects = 'Sélectionnez au moins une matière';
@@ -140,6 +247,7 @@ export function BilanStrategiqueClient() {
         ...formData,
         subjects: selectedSubjects,
         website: honeypot,
+        offerId: selectedOffer?.id,
       };
 
       const response = await fetch('/api/bilan-gratuit', {
@@ -165,9 +273,8 @@ export function BilanStrategiqueClient() {
   };
 
   return (
-    <main className="luxury min-h-screen" id="main-content">
-      <Toaster position="top-right" richColors theme="dark" />
-      <CorporateNavbar />
+    <>
+      {/* Toaster is provided globally by components/providers.tsx */}
 
       <section className="bg-lux-ink px-4 py-16 pt-28 md:px-6">
         <div className="mx-auto max-w-5xl text-center">
@@ -177,19 +284,43 @@ export function BilanStrategiqueClient() {
           <h1 className="font-fraunces text-4xl font-light tracking-tight text-lux-ivory md:text-5xl">
             Bilan stratégique gratuit
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-lux-ivory/75">
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-lux-on-dark-muted">
             Identifier les priorités de votre enfant avant de choisir une formule. Réponse personnalisée,
             orientation vers la bonne solution et échange humain avec notre équipe pédagogique.
           </p>
           {programmeLabel && (
             <p className="mt-3 text-sm text-lux-gold-wash">
-              Contexte repéré : {programmeLabel}
+              Contexte repéré&nbsp;: {programmeLabel}
             </p>
+          )}
+          {selectedOffer && (
+            <div className="mx-auto mt-5 max-w-2xl rounded-2xl border border-lux-line/30 bg-white/5 p-4 text-left text-sm text-lux-on-dark-muted">
+              <p className="font-semibold text-lux-gold-wash">Offre repérée&nbsp;: {selectedOffer.title}</p>
+              <p className="mt-1">
+                Tarif {fmtTND(selectedOffer.price)}
+                {selectedOffer.deposit != null && !selectedOffer.full_at_booking
+                  ? ` · acompte ${fmtTND(selectedOffer.deposit)}`
+                  : ''}
+                {selectedOffer.full_at_booking
+                  ? ` · règlement intégral à la réservation`
+                  : selectedOffer.installments && selectedOffer.installments.length > 0
+                    ? ` · ${selectedOffer.installments.length}\u00A0×\u00A0${fmtTND(selectedOffer.installments[0])}${
+                        selectedOffer.installments[selectedOffer.installments.length - 1] !== selectedOffer.installments[0]
+                          ? ` puis ${fmtTND(selectedOffer.installments[selectedOffer.installments.length - 1])}`
+                          : ''
+                      }`
+                    : selectedOffer.solde != null
+                      ? ` · solde ${fmtTND(selectedOffer.solde)}`
+                      : selectedOffer.solde_schedule && selectedOffer.solde_schedule.length > 0
+                        ? ` · ${selectedOffer.solde_schedule.length} soldes`
+                        : ''}
+              </p>
+            </div>
           )}
 
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <a
-              href={WHATSAPP_URL}
+              href={buildWhatsAppUrl('le bilan gratuit')}
               target="_blank"
               rel="noopener noreferrer"
               className="lux-cta-secondary rounded-lg px-6 py-3.5 text-sm font-semibold text-lux-ivory border-lux-line/40"
@@ -206,9 +337,9 @@ export function BilanStrategiqueClient() {
 
       <section className="bg-lux-paper px-4 py-14 md:px-6">
         <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-          <Card className="border-lux-line bg-lux-white lux-shadow">
+          <Card className="border-lux-line bg-lux-white text-lux-ink lux-shadow">
             <CardContent className="p-6 sm:p-8">
-              <form onSubmit={onSubmit} className="space-y-8">
+              <form onSubmit={onSubmit} noValidate className="space-y-8">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="parentFirstName" className="text-lux-ink">Prénom du parent</Label>
@@ -373,7 +504,7 @@ export function BilanStrategiqueClient() {
                   </button>
                   <Link
                     href="/contact"
-                    className="inline-flex items-center justify-center rounded-lg border border-white/10 bg-white/5 px-6 py-3.5 text-sm font-semibold text-lux-ivory transition-colors hover:border-lux-gold/40 hover:bg-white/10"
+                    className="lux-cta-secondary rounded-lg px-6 py-3.5 text-sm font-semibold"
                   >
                     Poser une question
                   </Link>
@@ -383,7 +514,9 @@ export function BilanStrategiqueClient() {
           </Card>
 
           <div className="space-y-6">
-            <Card className="border-lux-line bg-lux-white lux-shadow">
+            <ConseillerCard />
+
+            <Card className="border-lux-line bg-lux-white text-lux-ink lux-shadow">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3">
                   <GraduationCap className="h-5 w-5 text-lux-gold" />
@@ -415,13 +548,13 @@ export function BilanStrategiqueClient() {
                 <h2 className="text-lg font-fraunces text-lux-ivory">Contact direct</h2>
                 <div className="mt-4 space-y-3">
                   <a
-                    href={WHATSAPP_URL}
+                    href={buildWhatsAppUrl('le bilan gratuit')}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-lux-ivory transition-colors hover:border-lux-gold/40 hover:bg-white/10"
                   >
                     <MessageCircle className="h-4 w-4 text-lux-gold-wash" />
-                    WhatsApp : +216 99 19 28 29
+                    WhatsApp&nbsp;: +216 99 19 28 29
                   </a>
                   <a
                     href="tel:+21699192829"
@@ -434,7 +567,7 @@ export function BilanStrategiqueClient() {
               </CardContent>
             </Card>
 
-            <Card className="border-lux-line bg-lux-white lux-shadow">
+            <Card className="border-lux-line bg-lux-white text-lux-ink lux-shadow">
               <CardContent className="p-6">
                 <h2 className="text-lg font-fraunces text-lux-ink">Sans JavaScript</h2>
                 <p className="mt-3 text-sm text-lux-slate">
@@ -443,7 +576,7 @@ export function BilanStrategiqueClient() {
                 <div className="mt-4 flex flex-col gap-3 sm:flex-row">
                   <a
                     className="lux-cta-secondary rounded-lg px-4 py-3 text-sm font-semibold text-lux-ink border-lux-line/40"
-                    href={WHATSAPP_URL}
+                    href={buildWhatsAppUrl('le bilan gratuit')}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -459,7 +592,9 @@ export function BilanStrategiqueClient() {
         </div>
       </section>
 
+      <ProcessSteps />
+
       <CorporateFooter />
-    </main>
+    </>
   );
 }

@@ -269,13 +269,18 @@ h1, h2, h3 {
   --color-lux-ivory: #F7F4ED;
   --color-lux-paper: #FBFAF5;
   --color-lux-gold: #BFA06A;
-  --color-lux-gold-deep: #8C7340;
+  --color-lux-gold-deep: #7A6535;
   --color-lux-gold-bright: #D4B978;
   --color-lux-gold-wash: #EBDFC4;
   --color-lux-slate: #5A6B82;
   --color-lux-evergreen: #1E5F4B;
   --color-lux-line: rgba(11, 37, 71, 0.12);
   --color-lux-white: #FFFFFF;
+
+  /* Semantic text tokens — AA-validated (see docs/design/contrast-matrix.md) */
+  --color-lux-on-dark: #F7F4ED;        /* = lux-ivory, 15.7:1 on ink */
+  --color-lux-on-dark-muted: #C4BBA8;  /* 8.2:1 on ink — secondary text */
+  --color-lux-on-dark-subtle: #97918A; /* 5.0:1 on ink — captions */
 
   /* Font aliases for luxury Fraunces + DM Sans */
   --font-fraunces: var(--font-display), 'Fraunces', serif;
@@ -973,6 +978,16 @@ html {
   animation: fadeInScale 0.6s ease-out;
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -1401,7 +1416,7 @@ html {
   font-family: var(--font-dm-sans);
 }
 
-/* Headings: Fraunces allégé (300-500, pas tout en 700) */
+/* Headings: Fraunces allégé (300-500, pas tout en 700). */
 .luxury h1,
 .luxury h2,
 .luxury h3,
@@ -1416,11 +1431,16 @@ html {
 .luxury h3 { font-weight: 500; line-height: 1.2; }
 .luxury h4 { font-weight: 500; line-height: 1.25; }
 
-/* Override dark-surface heading white for luxury pages */
-.luxury .bg-surface-darker h1, .luxury .bg-surface-darker h2,
-.luxury .bg-surface-darker h3, .luxury .bg-surface-dark h1,
-.luxury .bg-surface-dark h2, .luxury .bg-surface-dark h3 {
-  color: var(--color-lux-ink);
+/* Token conflicts resolved by twMerge in cn() — no CSS specificity overrides needed.
+   cn('bg-surface-card','bg-lux-white') → 'bg-lux-white' deterministically. */
+
+/* Headings on dark luxury surfaces: inherit ivory, not ink.
+   .luxury h1-h4 { color: ink } would override inherited ivory inside bg-lux-ink cards/footer. */
+.luxury .bg-lux-ink h1, .luxury .bg-lux-ink h2,
+.luxury .bg-lux-ink h3, .luxury .bg-lux-ink h4,
+.luxury footer h1, .luxury footer h2,
+.luxury footer h3, .luxury footer h4 {
+  color: var(--color-lux-ivory);
 }
 
 /* Luxury utility classes */
@@ -1510,6 +1530,13 @@ html {
   color: var(--color-lux-ink);
 }
 
+/* Bottom padding on mobile to clear the sticky CTA bar */
+@media (max-width: 767px) {
+  .luxury {
+    padding-bottom: 4.5rem; /* ~72px — height of MobileStickyBar + safe-area */
+  }
+}
+
 /* Reduced motion for luxury animations */
 @media (prefers-reduced-motion: reduce) {
   .luxury [data-lux-animate] {
@@ -1522,5 +1549,35 @@ html {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+}
+
+/* R3 — Entrance animations: visible by default (LCP + no-JS safe).
+   CSS-only animation — no JS state required. */
+/* Entrance animation — LCP-safe.
+   Element painted at opacity:1 (fill-mode:none = natural state visible).
+   Animation plays 0→1 as enhancement; without animation support, element stays visible. */
+@keyframes luxFadeIn {
+  from { opacity: 0; transform: translateY(1.5rem); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .lux-fade-in {
+    animation: luxFadeIn 0.7s ease-out;
+    /* fill-mode intentionally omitted (defaults to 'none'):
+       before animation = natural state (opacity:1 from CSS),
+       during animation = keyframe values,
+       after animation = back to natural state (opacity:1). */
+  }
+  .lux-fade-in-delay {
+    animation-delay: 0.2s;
+  }
+}
+/* Reduced motion: skip entrance animations entirely */
+@media (prefers-reduced-motion: reduce) {
+  .lux-fade-in, [data-lux-animate] {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }

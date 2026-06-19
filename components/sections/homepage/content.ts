@@ -24,15 +24,13 @@
 export const STAGES_URL = "/stages";
 export const EAF_URL = "https://eaf.nexusreussite.academy";
 
-// WhatsApp variants — contextual pre-filled messages
-export const WHATSAPP_URL =
-  "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20les%20informations%20sur%20les%20offres%20Nexus%20R%C3%A9ussite.%20Mon%20enfant%20est%20en%20%5Bclasse%5D%20et%20je%20souhaite%20%C3%AAtre%20conseill%C3%A9%20sur%20la%20formule%20la%20plus%20adapt%C3%A9e.";
-export const WHATSAPP_URL_FINISH =
-  "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20le%20Pack%20Premi%C3%A8re%20%E2%80%94%20Finish%208%20juin.%20Mon%20enfant%20est%20en%20Premi%C3%A8re.";
-export const WHATSAPP_URL_SELECT =
-  "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20les%20informations%20sur%20le%20stage%20Nexus%20Select%2040%C2%A0h.%20Mon%20enfant%20est%20admis%20ou%20candidat%20%C3%A0%20une%20fili%C3%A8re%20s%C3%A9lective%20et%20je%20souhaite%20v%C3%A9rifier%20si%20ce%20stage%20est%20adapt%C3%A9%20%C3%A0%20son%20profil.";
-export const WHATSAPP_URL_FORFAITS =
-  "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20conna%C3%AEtre%20les%20forfaits%20Nexus%20R%C3%A9ussite%20adapt%C3%A9s%20au%20profil%20de%20mon%20enfant.";
+// WhatsApp variants — contextual pre-filled messages (centralised in lib/whatsapp.ts)
+import { buildWhatsAppUrl } from '@/lib/whatsapp';
+
+export const WHATSAPP_URL = buildWhatsAppUrl('les offres Nexus Réussite');
+export const WHATSAPP_URL_FINISH = buildWhatsAppUrl('le Pack Première — Finish 8 juin');
+export const WHATSAPP_URL_SELECT = buildWhatsAppUrl('le stage Nexus Select 40 h');
+export const WHATSAPP_URL_FORFAITS = buildWhatsAppUrl('les forfaits Nexus Réussite');
 
 export const PHONE_URL = "tel:+21699192829";
 export const PHONE_LABEL = "+216 99 19 28 29";

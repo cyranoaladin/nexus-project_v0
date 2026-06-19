@@ -5,7 +5,7 @@ import React from "react";
 const impactGroups = [
   {
     title: "Établissements",
-    stats: ["-30% temps administratif", "+15% réussite examens"],
+    stats: ["Temps administratif réduit", "Suivi des examens"],
   },
   {
     title: "Élèves",

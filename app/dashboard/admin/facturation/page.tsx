@@ -126,14 +126,14 @@ const NEXUS_PRESETS: ProductPreset[] = [
   { label: 'Stage Intensif Maths — Palier 2, Viser mention', description: '5 jours, 4h/jour, groupe de 6 max', unitPrice: 350, category: 'Stage' },
   { label: 'Stage Intensif Maths — Palier 1, Consolider les bases', description: '5 jours, 4h/jour, groupe de 6 max', unitPrice: 250, category: 'Stage' },
   { label: 'Stage NSI — Terminale, Prépa Bac', description: '4 jours, 3h/jour, groupe de 4 max', unitPrice: 300, category: 'Stage' },
-  { label: 'Abonnement Essentiel', description: '4 séances/mois + ARIA illimité', unitPrice: 190, category: 'Abonnement' },
-  { label: 'Abonnement Hybride', description: '8 séances/mois + ARIA illimité', unitPrice: 290, category: 'Abonnement' },
-  { label: 'Abonnement Premium', description: '12 séances/mois + ARIA illimité + suivi coach dédié', unitPrice: 490, category: 'Abonnement' },
+  { label: 'Abonnement Essentiel', description: '4 séances/mois + ARIA selon formule', unitPrice: 190, category: 'Abonnement' },
+  { label: 'Abonnement Hybride', description: '8 séances/mois + ARIA selon formule', unitPrice: 290, category: 'Abonnement' },
+  { label: 'Abonnement Premium', description: '12 séances/mois + ARIA selon formule + suivi coach dédié', unitPrice: 490, category: 'Abonnement' },
   { label: 'Pack 5 crédits — Séances individuelles', description: 'Valable 2 mois', unitPrice: 225, category: 'Pack' },
   { label: 'Pack 10 crédits — Séances individuelles', description: 'Valable 4 mois', unitPrice: 400, category: 'Pack' },
   { label: 'Séance individuelle Maths', description: '1h, en ligne ou présentiel', unitPrice: 55, category: 'Séance' },
   { label: 'Séance individuelle NSI', description: '1h, en ligne', unitPrice: 60, category: 'Séance' },
-  { label: 'Add-on ARIA Maths', description: 'Assistant IA illimité, 1 mois', unitPrice: 35, category: 'Add-on' },
+  { label: 'Add-on ARIA Maths', description: 'Assistant IA selon formule, 1 mois', unitPrice: 35, category: 'Add-on' },
 ];
 
 // ─── Component ──────────────────────────────────────────────────────────────

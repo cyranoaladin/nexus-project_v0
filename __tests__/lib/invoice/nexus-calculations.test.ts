@@ -16,8 +16,8 @@ describe('nexus invoice calculations', () => {
         { method: 'CHEQUE', amount: tndToMillimes(400), reference: 'CHQ-002' },
         { method: 'CASH', amount: tndToMillimes(199), reference: 'Espèces' },
       ],
-      masteriumMonths: 1,
-      masteriumMonthlyValue: tndToMillimes(129),
+      ariaMonths: 1,
+      ariaMonthlyValue: tndToMillimes(129),
     });
 
     expect(totals.netTtc).toBe(1_099_000);
@@ -26,10 +26,10 @@ describe('nexus invoice calculations', () => {
     expect(totals.packageDiscount).toBe(39_000);
     expect(totals.paid).toBe(1_099_000);
     expect(totals.due).toBe(0);
-    expect(totals.masteriumOfferedValue).toBe(129_000);
+    expect(totals.ariaOfferedValue).toBe(129_000);
   });
 
-  it('keeps Masterium offered access at zero billed amount in the API request', () => {
+  it('keeps ARIA offered access at zero billed amount in the API request', () => {
     const duo = NEXUS_INVOICE_PACKAGES.find((pack) => pack.id === 'duo-premiere');
     expect(duo).toBeDefined();
 
@@ -46,22 +46,22 @@ describe('nexus invoice calculations', () => {
       adjustmentTtc: 0,
       adjustmentLabel: 'Ajustement séance non suivie',
       payments: [],
-      masteriumMonths: 1,
-      masteriumMonthlyValue: tndToMillimes(129),
-      notes: 'Accès Masterium offert à titre commercial, non facturé.',
+      ariaMonths: 1,
+      ariaMonthlyValue: tndToMillimes(129),
+      notes: 'Accès ARIA offert à titre commercial, non facturé.',
     });
 
     expect(request.items).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          label: 'Accès plateforme EAF — Masterium offert',
+          label: 'Accès plateforme EAF — ARIA offert',
           unitPrice: 0,
           total: 0,
         }),
       ])
     );
     expect(request.items.reduce((sum, item) => sum + item.total, 0)).toBe(duo!.priceTtc);
-    expect(request.notes).toContain('Accès Masterium offert à titre commercial, non facturé.');
+    expect(request.notes).toContain('Accès ARIA offert à titre commercial, non facturé.');
   });
 
   it('builds a production request with three mixed payments and matching UI/API totals', () => {
@@ -85,8 +85,8 @@ describe('nexus invoice calculations', () => {
         { method: 'CHEQUE', amount: tndToMillimes(400), reference: 'CHQ-002 Banque BIAT' },
         { method: 'CASH', amount: tndToMillimes(199), reference: 'Espèces bureau' },
       ],
-      masteriumMonths: 1,
-      masteriumMonthlyValue: tndToMillimes(129),
+      ariaMonths: 1,
+      ariaMonthlyValue: tndToMillimes(129),
       notes: '',
     });
 
@@ -108,8 +108,8 @@ describe('nexus invoice calculations', () => {
           total: 1_149_000,
         }),
         expect.objectContaining({
-          label: 'Accès plateforme EAF — Masterium offert',
-          description: expect.stringContaining('Accès Masterium offert à titre commercial, non facturé.'),
+          label: 'Accès plateforme EAF — ARIA offert',
+          description: expect.stringContaining('Accès ARIA offert à titre commercial, non facturé.'),
           unitPrice: 0,
           total: 0,
         }),
@@ -140,8 +140,8 @@ describe('nexus invoice calculations', () => {
         { method: 'CHEQUE', amount: tndToMillimes(400), reference: 'CHQ-001' },
         { method: 'CHEQUE', amount: tndToMillimes(749), reference: 'CHQ-002' },
       ],
-      masteriumMonths: 1,
-      masteriumMonthlyValue: tndToMillimes(129),
+      ariaMonths: 1,
+      ariaMonthlyValue: tndToMillimes(129),
       notes: '',
     });
 

@@ -24,7 +24,7 @@ const features: ComparisonFeature[] = [
   { name: "Ressources exclusives", cortex: true, academies: true, odyssee: true },
   { name: "Simulateurs d'examens", cortex: true, academies: true, odyssee: true },
   { name: "Dashboard de progression", cortex: true, academies: true, odyssee: true },
-  { name: "Support 24/7", cortex: true, academies: true, odyssee: true },
+  { name: "Support selon formule", cortex: true, academies: true, odyssee: true },
   { name: "Garantie de réussite", cortex: false, academies: false, odyssee: true },
   { name: "Mention garantie", cortex: false, academies: false, odyssee: true }
 ];
@@ -38,14 +38,14 @@ const plans = [
     description: "IA prédictive pour optimiser votre préparation",
     popular: false,
     sessions: "Coaching à la demande",
-    valueBreakdown: "Accès illimité à ARIA + Coaching personnalisé sur réservation. Support réactif 7j/7.",
+    valueBreakdown: "Accès à ARIA selon formule + coaching personnalisé sur réservation.",
     dailyCost: "soit ~3 TND/jour"
   },
   {
     name: "Académies Nexus",
     icon: Rocket,
     color: "from-green-600 to-emerald-500",
-    price: "450 TND/mois",
+    price: "Voir tarif canonique",
     description: "Stages spécialisés avec nos experts",
     popular: true,
     sessions: "4 Séances de coaching/mois",
@@ -56,7 +56,7 @@ const plans = [
     name: "Programme Odyssée",
     icon: Crown,
     color: "from-blue-700 to-slate-700",
-    price: "750 TND/mois",
+    price: "Voir tarif canonique",
     description: "Accompagnement complet vers l'excellence",
     popular: false,
     sessions: "8 Séances de coaching/mois",

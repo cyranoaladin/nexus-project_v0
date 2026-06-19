@@ -163,7 +163,7 @@ export function HeroSection() {
           <div className="flex flex-col items-center gap-2 md:gap-3 p-3 md:p-6 bg-white/90 backdrop-blur-sm rounded-xl shadow-soft">
             <BrainCircuit className="w-6 h-6 md:w-8 md:h-8 text-blue-600" />
             <p className="text-slate-900 font-medium text-center text-xs md:text-sm">
-              <span className="text-blue-600 font-semibold">IA ARIA</span> 24/7
+              <span className="text-blue-600 font-semibold">IA ARIA</span> selon formule
             </p>
           </div>
 

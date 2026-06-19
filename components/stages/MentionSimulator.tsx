@@ -111,7 +111,7 @@ export function MentionSimulator() {
                 <div className="text-center mb-6">
                   <h3 className="text-2xl font-black mb-2">Projections basées sur nos statistiques</h3>
                   <p className="text-sm text-slate-200">
-                    Progression moyenne observée : +4,2 points | Résultats selon travail personnel
+                    Résultats selon travail personnel et régularité
                   </p>
                 </div>
 
@@ -121,7 +121,7 @@ export function MentionSimulator() {
                       <div className="pill-stage-strong mb-3">
                         Pallier 1 : Essentiel
                       </div>
-                      <div className="text-xs text-slate-200 mb-4">Progression moyenne : +2,5 points</div>
+                      <div className="text-xs text-slate-200 mb-4">Progression suivie par bilans</div>
                     </div>
 
                     <div className="bg-white/10 backdrop-blur rounded-xl p-6 mb-4">
@@ -162,7 +162,7 @@ export function MentionSimulator() {
                       <div className="pill-stage-strong mb-3">
                         Pallier 2 : Excellence
                       </div>
-                      <div className="text-xs text-slate-200 mb-4">Progression moyenne : +4,5 points</div>
+                      <div className="text-xs text-slate-200 mb-4">Progression suivie par bilans</div>
                     </div>
 
                     <div className="bg-white/10 backdrop-blur rounded-xl p-6 mb-4">

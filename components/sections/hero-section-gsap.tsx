@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 const HeroSectionGSAP = () => {
 
     const authorityBadges = [
-        { icon: Cpu, label: 'IA ARIA 24/7', color: 'blue' },
+        { icon: Cpu, label: 'IA ARIA selon formule', color: 'blue' },
         { icon: GraduationCap, label: 'Agrégés et Certifiés', color: 'emerald' },
         { icon: Blocks, label: '98% Réussite', color: 'secondary' },
     ];
@@ -87,7 +87,7 @@ const HeroSectionGSAP = () => {
 
                         {/* Value Proposition */}
                         <p className="hero-animate-in hero-stagger-3 text-neutral-300/90 mt-6 text-lg leading-relaxed max-w-xl">
-                            Coachs agrégés et certifiés, IA ARIA 24/7 et suivi parent clair :
+                            Enseignants qualifiés, IA ARIA selon formule et suivi parent clair :
                             Nexus Réussite transforme le potentiel de votre enfant
                             en résultats visibles.
                         </p>

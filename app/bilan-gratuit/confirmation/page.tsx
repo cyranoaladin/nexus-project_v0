@@ -17,7 +17,7 @@ export default function ConfirmationPage() {
           <h1 className="mt-8 font-fraunces text-4xl font-light tracking-tight text-lux-ivory md:text-5xl">
             Votre demande de bilan a bien été enregistrée
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-lux-ivory/75">
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-lux-on-dark-muted">
             Notre équipe pédagogique va analyser votre demande et vous recontacter pour orienter la meilleure formule.
           </p>
         </div>
@@ -25,7 +25,7 @@ export default function ConfirmationPage() {
 
       <section className="bg-lux-paper px-4 py-14 md:px-6">
         <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3">
-          <Card className="border-lux-line bg-lux-white lux-shadow">
+          <Card className="border-lux-line bg-lux-white text-lux-ink lux-shadow">
             <CardContent className="p-6 text-center">
               <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full bg-lux-gold/12">
                 <Clock className="h-6 w-6 text-lux-gold" aria-hidden="true" />
@@ -37,7 +37,7 @@ export default function ConfirmationPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-lux-line bg-lux-white lux-shadow">
+          <Card className="border-lux-line bg-lux-white text-lux-ink lux-shadow">
             <CardContent className="p-6 text-center">
               <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full bg-lux-gold/12">
                 <Phone className="h-6 w-6 text-lux-gold" aria-hidden="true" />
@@ -49,7 +49,7 @@ export default function ConfirmationPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-lux-line bg-lux-white lux-shadow">
+          <Card className="border-lux-line bg-lux-white text-lux-ink lux-shadow">
             <CardContent className="p-6 text-center">
               <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full bg-lux-gold/12">
                 <CheckCircle className="h-6 w-6 text-lux-evergreen" aria-hidden="true" />
@@ -65,7 +65,7 @@ export default function ConfirmationPage() {
 
       <section className="bg-lux-paper px-4 py-14 md:px-6">
         <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-          <Card className="border-lux-line bg-lux-white lux-shadow">
+          <Card className="border-lux-line bg-lux-white text-lux-ink lux-shadow">
             <CardContent className="p-6 md:p-8">
               <div className="flex items-center gap-3">
                 <Mail className="h-5 w-5 text-lux-gold" />
@@ -89,7 +89,7 @@ export default function ConfirmationPage() {
           <Card className="border-lux-line bg-lux-ink text-lux-ivory lux-shadow">
             <CardContent className="p-6 md:p-8">
               <h2 className="text-2xl font-fraunces text-lux-ivory">Contact direct</h2>
-              <p className="mt-3 text-sm text-lux-ivory/75">
+              <p className="mt-3 text-sm text-lux-on-dark-muted">
                 Une question urgente ? Contactez-nous directement.
               </p>
               <div className="mt-6 space-y-3">
