@@ -1,8 +1,25 @@
-# Design System, Lisibilité, Modales & Conversion — Audit Final
+# Design System, Lisibilité, Modales & Conversion — Audit en cours
 
 **Date :** 2026-06-19
-**Branche :** `feat/acadomia-inspired`
+**Branche :** `feat/acadomia-inspired` → commit `649fb2e3f`
 **Mode de service :** standalone (`node .next/standalone/server.js` via PM2)
+**Statut :** **NON FINAL — 7 blocs ouverts** (voir ci-dessous)
+
+---
+
+## OUVERT (7 blocs — session suivante)
+
+| # | Bloc | Description |
+|---|------|-------------|
+| 1 | **G3** | 8 integration specs rouges (anciens sélecteurs post-redesign) + 2 env → à mettre à jour, pas supprimer |
+| 2 | **H1-H5** | Hygiène prod : console.log, commentaires internes (R1/R3/Gx) dans globals.css, jargon de tâches dans le code |
+| 3 | **G8** | Garde typographique trop permissive (exclut JSX) → resserrer + corriger les vraies violations dans les chaînes |
+| 4 | **G6** | `leading-none` drop par twMerge → vérifier conflit réel ou config manquante + axe dashboards non-luxury |
+| 5 | **G7** | Test d'alternance des fonds supprimé → réintroduire sur le rendu (e2e/RTL) |
+| 6 | **G2.E** | Images legacy 1.7 Mo (hero-image.png, BackgroundImage) → trancher (supprimer si morts, optimiser si vivants) |
+| 7 | **G9** | Ce rapport à mettre à jour après les 6 ci-dessus |
+
+**Aucun de ces items n'est « mineur » ni « hors scope ».** Tant qu'ils sont ouverts, ce rapport n'est pas final.
 
 ---
 
