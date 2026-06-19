@@ -1431,8 +1431,8 @@ html {
 .luxury h3 { font-weight: 500; line-height: 1.2; }
 .luxury h4 { font-weight: 500; line-height: 1.25; }
 
-/* Token conflicts resolved by twMerge in cn() — no CSS specificity overrides needed.
-   cn('bg-surface-card','bg-lux-white') → 'bg-lux-white' deterministically. */
+/* Token conflicts between component defaults and luxury utilities
+   are resolved in cn() via tailwind-merge configuration. */
 
 /* Headings on dark luxury surfaces: inherit ivory, not ink.
    .luxury h1-h4 { color: ink } would override inherited ivory inside bg-lux-ink cards/footer. */
@@ -1552,8 +1552,8 @@ html {
   }
 }
 
-/* R3 — Entrance animations: visible by default (LCP + no-JS safe).
-   CSS-only animation — no JS state required. */
+/* Entrance animations: visible by default (LCP + no-JS safe).
+   CSS-only animation, no JS state required. */
 /* Entrance animation — LCP-safe.
    Element painted at opacity:1 (fill-mode:none = natural state visible).
    Animation plays 0→1 as enhancement; without animation support, element stays visible. */

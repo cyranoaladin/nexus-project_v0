@@ -1,7 +1,7 @@
 # Design System, Lisibilité, Modales & Conversion — Audit en cours
 
 **Date :** 2026-06-19
-**Branche :** `feat/acadomia-inspired` → commit `649fb2e3f`
+**Branche :** `feat/design-conversion`
 **Mode de service :** standalone (`node .next/standalone/server.js` via PM2)
 **Statut :** **NON FINAL — 7 blocs ouverts** (voir ci-dessous)
 
