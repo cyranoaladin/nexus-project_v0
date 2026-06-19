@@ -43,6 +43,8 @@
     "node_modules",
     "nexus-src",
     "scripts",
-    "academic-luxury-design"
+    "academic-luxury-design",
+    "playwright.config.ts",
+    "playwright.config.e2e.ts"
   ]
 }

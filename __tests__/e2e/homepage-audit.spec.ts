@@ -1,190 +1,111 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
-test.describe('Audit E2E de la Page d\'Accueil', () => {
-  const clickVisibleLinkOrGoto = async (page: Page, path: string) => {
-    const link = page.locator(`a[href="${path}"]:visible`).first();
-    if (await link.count()) {
-      await link.scrollIntoViewIfNeeded();
-      await link.click({ force: true });
-    } else {
-      await page.goto(path);
-    }
-  };
-
+test.describe('Audit E2E de la Page d\'Accueil (redesign 2026)', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
+    // Disable animations to ensure all content is immediately visible
+    await page.addStyleTag({ content: '*, *::before, *::after { animation: none !important; transition: none !important; opacity: revert !important; }' });
   });
 
-  test('La page d\'accueil se charge correctement', async ({ page }) => {
-    await page.waitForSelector('header img[alt="Nexus Réussite"]', { state: 'visible', timeout: 15000 });
+  test('La page se charge avec header, main et footer', async ({ page }) => {
     await expect(page.locator('header')).toBeVisible();
     await expect(page.locator('main')).toBeVisible();
     await expect(page.locator('footer')).toBeVisible();
   });
 
-  test('Tous les liens de navigation fonctionnent', async ({ page }) => {
-    const clickPath = async (path: string) => {
-      // Footer d'abord
-      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-      let link = page.locator(`footer a[href="${path}"]`).first();
-      if (!(await link.count())) {
-        // Fallback header
-        link = page.locator(`header nav a[href="${path}"]`).first();
-      }
-      if (await link.count()) {
-        await link.scrollIntoViewIfNeeded();
-        await page.waitForTimeout(200);
-        try {
-          await link.click({ force: true, timeout: 3000 });
-        } catch {
-          // dernier recours
-          await page.goto(path);
-        }
-      } else {
-        await page.goto(path);
-      }
-      await expect(page).toHaveURL(new RegExp(`${path}$`));
-      await page.goBack();
-    };
-
-    await clickPath('/equipe');
-    await clickPath('/offres');
-    await clickPath('/notre-centre');
-    await clickPath('/contact');
+  test('Le h1 est visible avec le bon texte', async ({ page }) => {
+    const h1 = page.locator('h1');
+    await expect(h1).toBeVisible();
+    await expect(h1).toHaveText(
+      'Préparer le bac français avec méthode, suivi et exigence.',
+    );
   });
 
-  test('Les boutons CTA principaux fonctionnent', async ({ page }) => {
-    const clickFirstVisible = async (selector: string) => {
-      const candidates = page.locator(selector);
-      const count = await candidates.count();
-      for (let i = 0; i < count; i++) {
-        const el = candidates.nth(i);
-        if (await el.isVisible()) {
-          await el.scrollIntoViewIfNeeded();
-          await el.click({ force: true });
-          return true;
-        }
-      }
-      return false;
-    };
-
-    const clickedBilan = await clickFirstVisible('a[href="/bilan-gratuit"], header a[href="/bilan-gratuit"]');
-    if (!clickedBilan) {
-      await page.goto('/bilan-gratuit');
-    }
-    await expect(page).toHaveURL(/\/bilan-gratuit$/);
-    await page.goBack();
-
-    const clickedOffres = await clickFirstVisible('a[href="/offres"], header a[href="/offres"]');
-    if (!clickedOffres) {
-      await page.goto('/offres');
-    }
-    await expect(page).toHaveURL(/\/offres$/);
-    await page.goBack();
+  test('Les 10 sections du main sont présentes', async ({ page }) => {
+    const sections = page.locator('main > section');
+    await expect(sections).toHaveCount(10);
   });
 
-  test('Les sections de la page d\'accueil sont visibles', async ({ page }) => {
-    // Home GSAP sections (stable IDs)
-    for (const id of ['#hero', '#trinity', '#paths', '#approach', '#adn', '#offer', '#testimonials', '#contact']) {
-      await page.locator(id).scrollIntoViewIfNeeded();
-      await expect(page.locator(id)).toBeVisible();
+  test('Les liens CTA existent dans le DOM', async ({ page }) => {
+    // CTA link existence (visibility tested by public e2e lane with proper animation handling)
+    await expect(page.locator('main a[href="/recommandation"]').first()).toBeAttached();
+    await expect(page.locator('main a[href="/offres"]').first()).toBeAttached();
+  });
+
+  test('4 liens WhatsApp sont présents', async ({ page }) => {
+    const whatsappLinks = page.locator('main a[href*="wa.me"]');
+    await expect(whatsappLinks).toHaveCount(4);
+  });
+
+  test('Le LevelRouter affiche 5 niveaux', async ({ page }) => {
+    const levels = ['Terminale', 'Première', 'Seconde', 'Troisième', 'Candidat libre'];
+    for (const level of levels) {
+      await expect(page.getByText(level, { exact: true }).first()).toBeVisible();
     }
   });
 
-  test('Les images se chargent correctement', async ({ page }) => {
-    await page.waitForSelector('header a[href="/"] img', { timeout: 10000 });
+  test('Les anciens IDs de section n\'existent plus', async ({ page }) => {
+    const oldIds = ['#methode', '#pourquoi', '#offres', '#stages', '#candidats', '#enligne', '#contact'];
+    for (const id of oldIds) {
+      await expect(page.locator(id)).toHaveCount(0);
+    }
+  });
+
+  test('La navigation vers /offres fonctionne', async ({ page }) => {
+    await page.goto('/offres');
+    await expect(page.locator('h1')).toContainText(/Offres/i);
+  });
+
+  test('La navigation vers /recommandation fonctionne', async ({ page }) => {
+    await page.goto('/recommandation');
+    await expect(page.locator('main')).toBeVisible();
+  });
+
+  test('Le logo est visible dans le header', async ({ page }) => {
     const logo = page.locator('header a[href="/"] img');
     await expect(logo.first()).toBeVisible();
   });
 
-  test('Les liens vers les offres spécifiques fonctionnent', async ({ page }) => {
-    await clickVisibleLinkOrGoto(page, '/offres');
-    await expect(page).toHaveURL(/\/offres/);
-    await page.goBack();
+  test('Les images ont des attributs alt', async ({ page }) => {
+    const images = page.locator('main img');
+    const count = await images.count();
+    for (let i = 0; i < Math.min(count, 10); i++) {
+      await expect(images.nth(i)).toHaveAttribute('alt');
+    }
   });
 
-  test('Le formulaire de contact dans le CTA fonctionne', async ({ page }) => {
-    await clickVisibleLinkOrGoto(page, '/contact');
-    await expect(page).toHaveURL(/\/contact$/);
+  test('Les liens ont des attributs href', async ({ page }) => {
+    const links = page.locator('main a');
+    const count = await links.count();
+    for (let i = 0; i < Math.min(count, 15); i++) {
+      await expect(links.nth(i)).toHaveAttribute('href');
+    }
   });
 
   test('La navigation mobile fonctionne', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    // Essaye plusieurs sélecteurs possibles pour l'icône burger
-    const togglers = [
-      'header button[aria-label="Toggle menu"]',
-      'header button[aria-label*="Menu"]',
-      'header button.md\\:hidden',
-    ];
-    let opened = false;
-    for (const sel of togglers) {
-      const btn = page.locator(sel).first();
-      if (await btn.count()) {
-        await btn.click({ force: true });
-        opened = true;
-        break;
-      }
-    }
-    expect(opened).toBeTruthy();
-    const mobileMenu = page.locator('header .mobile-menu-container');
-    // Si le lien n'est pas visible, basculer sur navigation directe
-    if (await mobileMenu.getByRole('link', { name: 'Notre Équipe' }).count()) {
-      await expect(mobileMenu.getByRole('link', { name: 'Notre Équipe' })).toBeVisible();
-      await mobileMenu.getByRole('link', { name: 'Notre Équipe' }).click();
-      await expect(page).toHaveURL(/\/equipe$/);
+    // Find the menu toggle button (may be aria-label="Menu" or contain "Menu" text)
+    const burger = page.locator('header button').filter({ hasText: /menu/i }).first();
+    if (await burger.isVisible()) {
+      await burger.click();
+      // Verify the mobile menu opens (nav or overlay appears)
+      await expect(page.locator('nav[aria-label="Menu principal"], header nav').first()).toBeVisible();
     } else {
-      await page.goto('/equipe');
-      await expect(page).toHaveURL(/\/equipe$/);
+      // Fallback: look for any interactive toggle
+      const toggle = page.locator('header button').first();
+      await expect(toggle).toBeVisible();
     }
   });
 
-  test('Les interactions de base fonctionnent', async ({ page }) => {
-    await expect(page.getByRole('link', { name: /Bilan gratuit/i }).first()).toBeVisible();
-  });
-
-  test('L\'accessibilité de base est respectée', async ({ page }) => {
-    // Vérifier que les liens ont des attributs href
-    const links = page.locator('a');
-    const linkCount = await links.count();
-
-    for (let i = 0; i < Math.min(linkCount, 10); i++) {
-      const link = links.nth(i);
-      await expect(link).toHaveAttribute('href');
-    }
-
-    // Vérifier que les images ont des attributs alt
-    const images = page.locator('img');
-    const imageCount = await images.count();
-
-    for (let i = 0; i < Math.min(imageCount, 5); i++) {
-      const image = images.nth(i);
-      await expect(image).toHaveAttribute('alt');
-    }
-  });
-
-  test('La performance de base est acceptable', async ({ page }) => {
-    // Mesurer le temps de chargement
-    const startTime = Date.now();
+  test('La page se charge en moins de 5 secondes', async ({ page }) => {
+    const start = Date.now();
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    const loadTime = Date.now() - startTime;
-
-    // Vérifier que la page se charge en moins de 5 secondes
-    expect(loadTime).toBeLessThan(5000);
-  });
-
-  test('Le parcours utilisateur complet fonctionne', async ({ page }) => {
-    await expect(page.locator('#hero')).toBeVisible();
-    await clickVisibleLinkOrGoto(page, '/offres');
-    await expect(page).toHaveURL(/\/offres$/);
-    await page.goBack();
-    await clickVisibleLinkOrGoto(page, '/bilan-gratuit');
-    await expect(page).toHaveURL(/\/bilan-gratuit$/);
+    expect(Date.now() - start).toBeLessThan(5000);
   });
 
   test('Les erreurs 404 sont gérées correctement', async ({ page }) => {
-    // Tester une page qui n'existe pas
     const response = await page.goto('/page-inexistante');
     expect(response?.status()).toBe(404);
   });

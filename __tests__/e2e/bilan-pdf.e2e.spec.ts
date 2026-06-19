@@ -38,9 +38,9 @@ test('GET /api/parent/bilans/xxx/pdf Content-Type est json pour 401', async ({ r
 test('Page /connexion se charge (redirection auth attendue)', async ({ page }) => {
   await page.goto('/connexion');
   await page.waitForLoadState('networkidle');
-  // Must land on login page or be redirected — never 500
-  const status = page.url();
-  expect(status).toContain('nexusreussite');
+  // Must land on login/signin page or redirect — never 500
+  const url = page.url();
+  expect(url).toMatch(/connexion|signin|auth/i);
 });
 
 test('Page /dashboard/parent/ sans session redirige vers /connexion', async ({ page }) => {

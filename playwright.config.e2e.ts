@@ -28,9 +28,16 @@ export default defineConfig({
     video: 'retain-on-failure',
     actionTimeout: 30000,
     navigationTimeout: 30000,
+    reducedMotion: 'reduce',
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    {
+      name: 'chromium',
+      use: {
+        ...devices['Desktop Chrome'],
+        reducedMotion: 'reduce',
+      },
+    },
   ],
   // No webServer — app-e2e container handles startup via docker-compose
 });
