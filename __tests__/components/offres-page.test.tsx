@@ -52,8 +52,8 @@ describe('OffresPage', () => {
   it('exposes actionable CTAs to the conversion funnel', () => {
     render(<OffresPage />);
 
-    expect(screen.getAllByRole('link', { name: /être conseillé/i }).length).toBeGreaterThan(0);
-    expect(screen.getAllByRole('link', { name: /pré-inscription/i }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('link', { name: /réserver ma place/i }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('link', { name: /poser une question/i }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole('link', { name: /demander un bilan/i }).length).toBeGreaterThan(0);
   });
 });

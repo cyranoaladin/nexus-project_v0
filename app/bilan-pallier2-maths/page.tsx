@@ -15,7 +15,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check, CheckCircle, GraduationCap, Loader2, Calculator, Target, TrendingUp, ChevronDown, AlertTriangle, BarChart3, Code2, Lightbulb, Sigma, FileText, BrainCircuit, BookOpen } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import { track } from "@/lib/analytics";
 import SplashScreen from "@/components/ui/SplashScreen";
 import type { ChapterDefinition } from "@/lib/diagnostics/types";
@@ -479,7 +479,7 @@ export default function BilanPallier2MathsPage() {
         )}
       </AnimatePresence>
 
-      <Toaster position="top-right" richColors theme="dark" />
+      {/* Toaster provided globally by components/providers.tsx */}
       <CorporateNavbar />
       <main className="py-8 md:py-12">
         <div className="container mx-auto px-4 max-w-4xl">

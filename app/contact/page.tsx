@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, useRef, useCallback, type FormEvent, type KeyboardEvent } from 'react';
 import Link from 'next/link';
 import { MessageCircle, Phone, Mail, ArrowRight, MapPin } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
@@ -12,8 +12,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-
-const WHATSAPP_URL = 'https://wa.me/21699192829';
+import { CallbackRequestForm } from '@/components/marketing/acadomia-inspired';
+import { buildWhatsAppUrl } from '@/lib/whatsapp';
 const ADMIN_ADDRESS = 'Centre Urbain Nord, Immeuble VENUS, Apt. C13, 1082 Tunis';
 const PEDA_ADDRESS = 'Mutuelleville, Tunis';
 
@@ -25,24 +25,71 @@ type FormState = {
   interest: string;
   urgency: string;
   message: string;
+  consent: boolean;
 };
 
 const initialFormState: FormState = {
-  profile: 'family',
+  profile: 'parent-prospect',
   name: '',
   email: '',
   phone: '',
-  interest: '',
+  interest: 'Demande de bilan gratuit',
   urgency: '',
   message: '',
+  consent: false,
 };
+
+const intentions = [
+  { value: 'parent-prospect', label: 'Parent (prospect)', interest: 'Demande de bilan gratuit' },
+  { value: 'famille-suivie', label: 'Famille déjà accompagnée', interest: 'Suivi famille déjà accompagnée' },
+  { value: 'candidat-libre', label: 'Candidat libre', interest: 'Candidat libre bac français' },
+  { value: 'enseignant', label: 'Enseignant (recrutement)', interest: 'Recrutement enseignant' },
+];
 
 export default function ContactPage() {
   const [form, setForm] = useState<FormState>(initialFormState);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  const handleChange = (field: keyof FormState, value: string) => {
+  const handleTabKeyDown = useCallback((event: KeyboardEvent<HTMLButtonElement>) => {
+    const currentIndex = intentions.findIndex((i) => i.value === form.profile);
+    let nextIndex: number | null = null;
+
+    switch (event.key) {
+      case 'ArrowRight':
+      case 'ArrowDown':
+        nextIndex = (currentIndex + 1) % intentions.length;
+        break;
+      case 'ArrowLeft':
+      case 'ArrowUp':
+        nextIndex = (currentIndex - 1 + intentions.length) % intentions.length;
+        break;
+      case 'Home':
+        nextIndex = 0;
+        break;
+      case 'End':
+        nextIndex = intentions.length - 1;
+        break;
+      default:
+        return;
+    }
+
+    event.preventDefault();
+    selectIntention(intentions[nextIndex].value);
+    tabRefs.current[nextIndex]?.focus();
+  }, [form.profile]);
+
+  const handleChange = (field: keyof FormState, value: string | boolean) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const selectIntention = (value: string) => {
+    const intention = intentions.find((item) => item.value === value);
+    setForm((prev) => ({
+      ...prev,
+      profile: value,
+      interest: intention?.interest ?? prev.interest,
+    }));
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -53,7 +100,7 @@ export default function ContactPage() {
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, source: 'contact-page', type: 'contact' }),
       });
 
       if (!response.ok) {
@@ -71,7 +118,7 @@ export default function ContactPage() {
 
   return (
     <main className="luxury min-h-screen" id="main-content">
-      <Toaster position="top-right" richColors theme="dark" />
+      {/* Toaster provided globally by components/providers.tsx */}
       <CorporateNavbar />
 
       <section className="bg-lux-ink py-16 px-4 md:px-6 pt-28">
@@ -82,7 +129,7 @@ export default function ContactPage() {
           <h1 className="font-fraunces text-4xl font-light tracking-tight text-lux-ivory md:text-5xl">
             Une question claire mérite une réponse claire
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-lux-ivory/75">
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-lux-on-dark-muted">
             Les rendez-vous pédagogiques et cours en présentiel se déroulent à Mutuelleville, sur confirmation.
           </p>
         </div>
@@ -90,28 +137,52 @@ export default function ContactPage() {
 
       <section className="bg-lux-paper py-14 px-4 md:px-6">
         <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <Card className="border-lux-line bg-lux-white lux-shadow">
+          <Card className="border-lux-line bg-lux-white text-lux-ink lux-shadow">
             <CardContent className="p-6 sm:p-8">
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="profile" className="text-lux-ink">Votre profil</Label>
-                  <select
-                    id="profile"
-                    value={form.profile}
-                    onChange={(e) => handleChange('profile', e.target.value)}
-                    className="h-11 w-full rounded-lg border border-lux-line bg-lux-paper px-3 text-sm text-lux-ink outline-none focus-visible:ring-2 focus-visible:ring-lux-gold"
-                  >
-                    <option value="family">Famille / Parent</option>
-                    <option value="school">Établissement</option>
-                    <option value="pro">Professionnel</option>
-                  </select>
+                <div className="space-y-3">
+                  <Label className="text-lux-ink">Votre intention</Label>
+                  <div className="grid gap-2 sm:grid-cols-2" role="tablist" aria-label="Type de demande">
+                    {intentions.map((intention, index) => {
+                      const active = form.profile === intention.value;
+                      return (
+                        <button
+                          key={intention.value}
+                          ref={(el) => { tabRefs.current[index] = el; }}
+                          type="button"
+                          role="tab"
+                          id={`tab-${intention.value}`}
+                          aria-selected={active}
+                          aria-controls={`tabpanel-${intention.value}`}
+                          tabIndex={active ? 0 : -1}
+                          onClick={() => selectIntention(intention.value)}
+                          onKeyDown={handleTabKeyDown}
+                          className={`min-h-[44px] rounded-xl border px-4 py-3 text-left text-sm font-semibold transition ${
+                            active
+                              ? 'border-lux-gold bg-lux-gold/12 text-lux-ink'
+                              : 'border-lux-line bg-lux-paper text-lux-slate hover:border-lux-gold/60'
+                          }`}
+                        >
+                          {intention.label}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
+                <div
+                  role="tabpanel"
+                  id={`tabpanel-${form.profile}`}
+                  aria-labelledby={`tab-${form.profile}`}
+                  tabIndex={0}
+                  className="space-y-6"
+                >
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="name" className="text-lux-ink">{form.profile === 'family' ? 'Nom du parent' : 'Nom complet'}</Label>
+                    <Label htmlFor="name" className="text-lux-ink">{form.profile === 'parent-prospect' ? 'Nom du parent' : 'Nom complet'}</Label>
                     <Input
                       id="name"
+                      required
                       value={form.name}
                       onChange={(e) => handleChange('name', e.target.value)}
                       className="border-lux-line bg-lux-paper text-lux-ink placeholder:text-lux-slate focus-visible:ring-lux-gold"
@@ -122,6 +193,7 @@ export default function ContactPage() {
                     <Input
                       id="email"
                       type="email"
+                      required
                       value={form.email}
                       onChange={(e) => handleChange('email', e.target.value)}
                       className="border-lux-line bg-lux-paper text-lux-ink placeholder:text-lux-slate focus-visible:ring-lux-gold"
@@ -132,6 +204,7 @@ export default function ContactPage() {
                     <Input
                       id="phone"
                       type="tel"
+                      required
                       value={form.phone}
                       onChange={(e) => handleChange('phone', e.target.value)}
                       className="border-lux-line bg-lux-paper text-lux-ink placeholder:text-lux-slate focus-visible:ring-lux-gold"
@@ -141,6 +214,7 @@ export default function ContactPage() {
                     <Label htmlFor="interest" className="text-lux-ink">Objet</Label>
                     <Input
                       id="interest"
+                      required
                       value={form.interest}
                       onChange={(e) => handleChange('interest', e.target.value)}
                       placeholder="Bilan, stage, accompagnement..."
@@ -165,12 +239,29 @@ export default function ContactPage() {
                   <Textarea
                     id="message"
                     rows={5}
+                    required
                     value={form.message}
                     onChange={(e) => handleChange('message', e.target.value)}
                     placeholder="Décrivez votre besoin."
                     className="border-lux-line bg-lux-paper text-lux-ink placeholder:text-lux-slate focus-visible:ring-lux-gold"
                   />
                 </div>
+
+                <label className="flex items-start gap-3 rounded-2xl border border-lux-line/60 bg-lux-paper/80 p-4 text-sm leading-6 text-lux-slate">
+                  <input
+                    type="checkbox"
+                    checked={form.consent}
+                    onChange={(e) => handleChange('consent', e.target.checked)}
+                    required
+                    className="mt-1"
+                  />
+                  <span>
+                    J’accepte d’être contacté par Nexus Réussite au sujet de ma demande et j’ai pris connaissance de la{' '}
+                    <Link href="/politique-confidentialite" className="font-semibold text-lux-gold-deep underline">
+                      politique de confidentialité
+                    </Link>.
+                  </span>
+                </label>
 
                 <div className="flex flex-col gap-3 sm:flex-row">
                   <Button
@@ -185,12 +276,15 @@ export default function ContactPage() {
                     Demander un bilan
                   </Link>
                 </div>
+                </div>
               </form>
             </CardContent>
           </Card>
 
           <div className="space-y-6">
-            <Card className="border-lux-line bg-lux-white lux-shadow">
+            <CallbackRequestForm source="contact-page" />
+
+            <Card className="border-lux-line bg-lux-white text-lux-ink lux-shadow">
               <CardContent className="p-6">
                 <h2 className="text-lg font-fraunces text-lux-ink">Nos deux adresses</h2>
                 <div className="mt-4 space-y-4 text-sm text-lux-slate">
@@ -213,9 +307,9 @@ export default function ContactPage() {
                   <h2 className="text-lg font-fraunces text-lux-ivory">Contact direct</h2>
                 </div>
                 <div className="mt-4 space-y-3">
-                  <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-lux-ivory transition-colors hover:border-lux-gold/40 hover:bg-white/10">
+                  <a href={buildWhatsAppUrl()} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-lux-ivory transition-colors hover:border-lux-gold/40 hover:bg-white/10">
                     <MessageCircle className="h-4 w-4 text-lux-evergreen" />
-                    WhatsApp : +216 99 19 28 29
+                    WhatsApp&nbsp;: +216 99 19 28 29
                   </a>
                   <a href="tel:+21699192829" className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-lux-ivory transition-colors hover:border-lux-gold/40 hover:bg-white/10">
                     <Phone className="h-4 w-4 text-lux-gold-wash" />
@@ -234,21 +328,21 @@ export default function ContactPage() {
 
       <section className="bg-lux-paper py-14 px-4 md:px-6">
         <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-          <Card className="border-lux-line bg-lux-white lux-shadow">
+          <Card className="border-lux-line bg-lux-white text-lux-ink lux-shadow">
             <CardContent className="p-6 md:p-8">
               <h2 className="text-2xl font-fraunces text-lux-ink">Venir au centre</h2>
               <p className="mt-2 text-sm text-lux-slate">
                 Les cours et rendez-vous pédagogiques sont confirmés à Mutuelleville.
               </p>
               <p className="mt-2 text-sm text-lux-slate">{PEDA_ADDRESS}</p>
-              <a href={`https://www.google.com/maps?q=${encodeURIComponent(PEDA_ADDRESS)}&output=embed`} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex items-center text-sm font-semibold text-lux-gold-deep hover:text-lux-ink transition-colors">
+              <a href={`https://www.google.com/maps?q=${encodeURIComponent(PEDA_ADDRESS)}`} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex items-center text-sm font-semibold text-lux-gold-deep hover:text-lux-ink transition-colors">
                 Ouvrir l’itinéraire
                 <ArrowRight className="ml-2 h-4 w-4" />
               </a>
             </CardContent>
           </Card>
 
-          <Card className="border-lux-line bg-lux-white lux-shadow">
+          <Card className="border-lux-line bg-lux-white text-lux-ink lux-shadow">
             <CardContent className="flex h-full min-h-[320px] flex-col justify-between p-6 md:p-8">
               <div>
                 <div className="flex items-center gap-3">
@@ -262,7 +356,7 @@ export default function ContactPage() {
                 </p>
                 <p className="mt-3 text-lg font-medium text-lux-ink">{PEDA_ADDRESS}</p>
                 <p className="mt-2 max-w-md text-sm leading-6 text-lux-slate">
-                  Centre d’accompagnement pédagogique : accès simple, cadre calme et rendez-vous sur confirmation.
+                  Centre d’accompagnement pédagogique&nbsp;: accès simple, cadre calme et rendez-vous sur confirmation.
                 </p>
               </div>
 

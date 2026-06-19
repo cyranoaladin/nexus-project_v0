@@ -5,8 +5,7 @@ import { ArrowRight, MessageCircle } from 'lucide-react';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { RecommendationWizard } from '@/components/premium/RecommendationWizard';
-
-const WHATSAPP_URL = 'https://wa.me/21699192829';
+import { buildWhatsAppUrl } from '@/lib/whatsapp';
 
 export function RecommandationClient() {
   return (
@@ -20,7 +19,7 @@ export function RecommandationClient() {
           <h1 className="mt-3 text-4xl md:text-5xl font-fraunces font-light text-lux-ivory">
             Trouver ma formule
           </h1>
-          <p className="mt-3 text-base text-lux-ivory/70 font-dm-sans">
+          <p className="mt-3 text-base text-lux-on-dark-muted font-dm-sans">
             Répondez à 3 questions pour découvrir les formules les plus adaptées
             à votre profil et vos objectifs.
           </p>
@@ -80,7 +79,7 @@ export function RecommandationClient() {
           <h2 className="text-2xl md:text-3xl font-fraunces font-light text-lux-ivory">
             Vous préférez échanger directement ?
           </h2>
-          <p className="mt-3 text-base text-lux-ivory/70 font-dm-sans">
+          <p className="mt-3 text-base text-lux-on-dark-muted font-dm-sans">
             Un conseiller peut répondre à toutes vos questions et vous orienter vers la bonne formule.
           </p>
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
@@ -92,7 +91,7 @@ export function RecommandationClient() {
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
             <a
-              href={WHATSAPP_URL}
+              href={buildWhatsAppUrl()}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm font-medium text-lux-gold-wash hover:underline min-h-[44px]"

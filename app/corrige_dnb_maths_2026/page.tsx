@@ -43,7 +43,7 @@ export default function CorrigeDnbMaths2026Page() {
           <h1 className="font-fraunces text-4xl font-light tracking-tight text-lux-ivory md:text-5xl">
             Corrigé DNB Maths 2026
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-lux-ivory/75">
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-lux-on-dark-muted">
             Consultez le document en ligne ou téléchargez-le directement au format PDF.
           </p>
         </div>
@@ -51,7 +51,7 @@ export default function CorrigeDnbMaths2026Page() {
 
       <section className="bg-lux-paper px-4 py-14 md:px-6">
         <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <Card className="border-lux-line bg-lux-white lux-shadow">
+          <Card className="border-lux-line bg-lux-white text-lux-ink lux-shadow">
             <CardContent className="p-4 sm:p-6">
               <div className="mb-4 flex items-center justify-between gap-4">
                 <div>
@@ -89,7 +89,7 @@ export default function CorrigeDnbMaths2026Page() {
                   <FileText className="h-5 w-5 text-lux-gold-wash" />
                   <h2 className="text-lg font-fraunces text-lux-ivory">Ce que vous trouverez</h2>
                 </div>
-                <ul className="mt-4 space-y-3 text-sm text-lux-ivory/80">
+                <ul className="mt-4 space-y-3 text-sm text-lux-on-dark-muted">
                   <li className="flex gap-2">
                     <ShieldCheck className="mt-0.5 h-4 w-4 text-lux-evergreen" />
                     Une visionneuse PDF intégrée au site.
@@ -106,7 +106,7 @@ export default function CorrigeDnbMaths2026Page() {
               </CardContent>
             </Card>
 
-            <Card className="border-lux-line bg-lux-white lux-shadow">
+            <Card className="border-lux-line bg-lux-white text-lux-ink lux-shadow">
               <CardContent className="p-6">
                 <h2 className="text-lg font-fraunces text-lux-ink">Actions rapides</h2>
                 <div className="mt-4 flex flex-col gap-3">

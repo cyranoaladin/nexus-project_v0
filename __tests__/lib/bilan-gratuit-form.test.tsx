@@ -54,7 +54,7 @@ describe('BilanGratuitPage', () => {
   it('renders the strategic bilan funnel without a password field', () => {
     render(<BilanGratuitPage />);
 
-    expect(screen.getByText('Bilan stratégique gratuit')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Bilan stratégique gratuit' })).toBeInTheDocument();
     expect(screen.getByText(/Identifier les priorités de votre enfant/i)).toBeInTheDocument();
     expect(screen.queryByLabelText(/mot de passe/i)).not.toBeInTheDocument();
   });

@@ -79,7 +79,7 @@ export default function PromoBanner() {
   const ActiveIcon = activeSlide.icon;
 
   return (
-    <div className="relative z-[60] border-b border-nexus-green/15 bg-gradient-to-r from-nexus-bg-alt via-surface-darker to-nexus-bg-alt text-white animate-in slide-in-from-top-2 duration-300">
+    <aside aria-label="Informations et promotions" className="relative z-[60] border-b border-nexus-green/15 bg-gradient-to-r from-nexus-bg-alt via-surface-darker to-nexus-bg-alt text-white animate-in slide-in-from-top-2 duration-300">
       <div className="mx-auto flex min-h-10 max-w-7xl items-center justify-center px-4 py-2 text-xs font-body sm:px-6 sm:text-sm">
         <button
           type="button"
@@ -142,6 +142,6 @@ export default function PromoBanner() {
           </div>
         )}
       </div>
-    </div>
+    </aside>
   );
 }

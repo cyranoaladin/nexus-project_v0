@@ -26,10 +26,10 @@ const profiles = [
   {
     title: 'Élève exigeant',
     description:
-      'Pour ceux qui visent l\'excellence : optimiser chaque épreuve, maîtriser la méthode, affiner la stratégie.',
+      `Pour ceux qui visent l\u2019excellence\u00A0: optimiser chaque épreuve, maîtriser la méthode, affiner la stratégie.`,
     features: [
       'Studio Grand Oral & simulations filmées',
-      'Épreuves blanches illimitées',
+      'Épreuves blanches selon formule',
       'Boussole Orientation & Parcoursup',
     ],
   },
@@ -66,7 +66,7 @@ export function ForWhoSection() {
                 {profile.features.map((feature, fi) => (
                   <li key={fi} className="flex items-start gap-2">
                     <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-lux-evergreen" />
-                    <span className="text-sm text-lux-ink/80">{feature}</span>
+                    <span className="text-sm text-lux-slate">{feature}</span>
                   </li>
                 ))}
               </ul>

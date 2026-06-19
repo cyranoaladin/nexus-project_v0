@@ -16,7 +16,7 @@ describe('NexusInvoiceGenerator', () => {
     expect(screen.getAllByText('Virement bancaire').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Chèque').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Espèces').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Accès plateforme EAF — Masterium offert').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Accès plateforme EAF — ARIA offert').length).toBeGreaterThan(0);
     expect(screen.getByText(/Prix forfaitaire incluant une remise commerciale de 39,000 TND/)).toBeInTheDocument();
     expect(screen.queryByText(/Remise forfaitaire intégrée/i)).not.toBeInTheDocument();
     expect(screen.getByText('Viser. Atteindre. Dépasser.')).toBeInTheDocument();

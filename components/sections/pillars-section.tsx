@@ -23,7 +23,7 @@ const pillars = [
     icon: BrainCircuit,
     title: "Une Technologie Qui Fait la Différence",
     category: "Le Levier Technologique",
-    description: "Nous avons développé des outils propriétaires qui vous donnent un avantage décisif, disponibles 24/7 pour ne jamais être bloqué.",
+    description: "Nous avons développé des outils propriétaires qui vous donnent un avantage décisif, disponibles selon formule pour compléter le travail humain.",
     features: [
       "**IA ARIA** entraînée sur nos contenus exclusifs",
       "Plateforme de suivi de progression **en temps réel**",

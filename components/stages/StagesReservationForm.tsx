@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Building2, CalendarRange, CheckCircle2, ClipboardList, CreditCard, Hourglass, Lightbulb, ShieldCheck } from 'lucide-react';
-import { Toaster, toast } from 'sonner';
+import { toast } from 'sonner';
 import { analytics } from '@/lib/analytics-stages';
 import type { Academy } from '@/data/stages/fevrier2026';
 import { resolveUiIcon } from '@/lib/ui-icons';
@@ -131,7 +131,7 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
   if (submitSuccess) {
     return (
       <div className="bg-green-50 border-2 border-green-500 rounded-2xl p-8 text-center">
-        <Toaster position="top-right" richColors />
+        {/* Toaster provided globally by components/providers.tsx */}
         <div className="mb-4 flex justify-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-green-700">
             <CheckCircle2 className="h-9 w-9" aria-hidden="true" />
@@ -166,7 +166,7 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-6 md:p-8 shadow-2xl border-2 border-white/20">
-      <Toaster position="top-right" richColors />
+      {/* Toaster provided globally by components/providers.tsx */}
       <h3 className="text-2xl md:text-3xl font-black text-slate-900 mb-6 text-center">
         <span className="inline-flex items-center gap-3">
           <ClipboardList className="h-7 w-7 text-blue-700" aria-hidden="true" />

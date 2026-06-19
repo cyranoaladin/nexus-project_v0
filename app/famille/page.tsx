@@ -56,7 +56,7 @@ export default function FamillePage() {
                 La mention au Bac, enfin à portée de main. (Sans sacrifier vos week-ends).
               </h1>
               <p className="marketing-hero-copy mt-6">
-                Expertise humaine d&apos;excellence × Intelligence Artificielle 24/7.
+                Expertise humaine exigeante × assistant pédagogique ARIA selon formule.
                 Nous garantissons la réussite au Bac ET l&apos;admission dans la
                 formation supérieure de choix.
               </p>
@@ -141,7 +141,7 @@ export default function FamillePage() {
               <div className="mt-6 grid gap-3 md:grid-cols-2 text-slate-300 text-sm">
                 <div>• Suivi 360°</div>
                 <div>• Tuteur IA inclus</div>
-                <div>• Visio illimitée</div>
+                <div>• Visio selon formule</div>
                 <div>• Garantie Bac</div>
               </div>
             </div>
@@ -232,7 +232,7 @@ export default function FamillePage() {
 
             <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-center">
-                <div className="text-brand-accent text-3xl font-bold">100%</div>
+                <div className="text-brand-accent text-3xl font-bold">Suivi</div>
                 <p className="mt-2 text-slate-300">Taux de réussite</p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-center">

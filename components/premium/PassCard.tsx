@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Check, Zap } from 'lucide-react';
 import { fmtTND, fmtDiscount } from './format';
+import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import type { Pack } from '@/lib/pricing';
 
 interface PassCardProps {
@@ -54,7 +55,7 @@ export function PassCard({ pack, componentLabels, onCta, ctaHref, ctaText = 'Ré
           {componentLabels.map((label, i) => (
             <li key={i} className="flex items-start gap-2 text-sm">
               <Check className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-lux-gold" />
-              <span className="text-lux-ink/80">{label}</span>
+              <span className="text-lux-slate">{label}</span>
             </li>
           ))}
         </ul>
@@ -142,6 +143,16 @@ export function PassCard({ pack, componentLabels, onCta, ctaHref, ctaText = 'Ré
             {ctaText}
           </button>
         ) : null}
+        {(ctaHref || onCta) && (
+          <a
+            href={buildWhatsAppUrl(`l’offre ${pack.title}`)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 flex min-h-[44px] w-full items-center justify-center rounded-lg border border-lux-line px-4 py-2 text-sm font-semibold text-lux-ink transition hover:border-lux-gold/70"
+          >
+            Poser une question
+          </a>
+        )}
       </div>
     </div>
   );

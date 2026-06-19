@@ -118,7 +118,7 @@ export default function HomeHero() {
                         <span className="text-sm font-semibold">Agent ARIA</span>
                       </div>
                       <p className="mt-2 text-xs text-slate-300">
-                        Tuteur IA disponible 24/7
+                        Assistant ARIA selon formule
                       </p>
                     </div>
                     <div className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-brand-accent/60 hover:shadow-[0_0_24px_rgba(46,233,246,0.2)]">

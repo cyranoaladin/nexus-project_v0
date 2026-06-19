@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ChevronRight, CheckCircle2, RotateCcw } from 'lucide-react';
 import { ExamCard } from './ExamCard';
 import { buildRecommendationOutcome, recommendationActions, type RecommendationAction } from './recommendation-engine';
+import { buildWhatsAppUrl } from '@/lib/whatsapp';
 
 // ── Wizard steps ──
 
@@ -263,7 +264,7 @@ export function RecommendationWizard() {
             JavaScript désactivé — veuillez nous contacter directement&nbsp;:
           </p>
           <a
-            href="https://wa.me/21699192829"
+            href={buildWhatsAppUrl()}
             className="lux-cta-primary rounded-lg px-6 py-3"
           >
             Nous contacter sur WhatsApp

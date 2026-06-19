@@ -1,7 +1,29 @@
 import { type ClassValue, clsx } from "clsx";
+import { extendTailwindMerge } from "tailwind-merge";
+
+const twMerge = extendTailwindMerge({
+  extend: {
+    classGroups: {
+      // Custom background tokens — all conflict with each other
+      'bg-color': [
+        { bg: ['surface-card', 'surface-dark', 'surface-darker',
+               'lux-white', 'lux-paper', 'lux-ivory', 'lux-ink',
+               'lux-gold', 'lux-gold-deep', 'lux-gold-bright', 'lux-gold-wash',
+               'lux-evergreen', 'lux-line'] },
+      ],
+      // Custom text tokens
+      'text-color': [
+        { text: ['lux-ink', 'lux-ivory', 'lux-slate', 'lux-gold', 'lux-gold-deep',
+                 'lux-gold-wash', 'lux-gold-bright', 'lux-evergreen',
+                 'lux-on-dark', 'lux-on-dark-muted', 'lux-on-dark-subtle',
+                 'neutral-100', 'neutral-200', 'neutral-300', 'neutral-400', 'neutral-500'] },
+      ],
+    },
+  },
+});
 
 export function cn(...inputs: ClassValue[]) {
-  return clsx(inputs);
+  return twMerge(clsx(inputs));
 }
 
 export function formatPrice(price: number, currency: string = "TND"): string {

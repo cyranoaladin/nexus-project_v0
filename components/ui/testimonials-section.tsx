@@ -26,15 +26,15 @@ const testimonials = [
     name: "Léa Dubois",
     role: "Élève de Première",
     program: "Académie de la Toussaint",
-    content: "L'Académie de la Toussaint m'a permis de maîtriser les méthodes de dissertation. Mes notes ont progressé de 3 points en moyenne. Je recommande !",
+    content: "L'Académie de la Toussaint m'a permis de maîtriser les méthodes de dissertation. La méthode m’a aidé à structurer mon travail.",
     rating: 5,
-    achievement: "+3 points en moyenne"
+    achievement: "Méthode structurée"
   },
   {
     name: "Youssef Khelifi",
     role: "Parent d'élève",
     program: "ARIA+ Premium",
-    content: "L'IA ARIA est révolutionnaire. Mon fils peut réviser 24/7 et obtenir des explications instantanées. Son niveau en Maths a considérablement progressé.",
+    content: "L'IA ARIA est révolutionnaire. Mon fils peut réviser selon formule avec des explications à retravailler. Son niveau en Maths a considérablement progressé.",
     rating: 5,
     achievement: "Progression significative"
   }

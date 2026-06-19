@@ -6,9 +6,9 @@ import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { buildWhatsAppUrl } from '@/lib/whatsapp';
 
 const PEDA_ADDRESS = 'Mutuelleville, Tunis';
-const WHATSAPP_URL = 'https://wa.me/21699192829';
 
 export default function NotreCentrePage() {
   return (
@@ -23,7 +23,7 @@ export default function NotreCentrePage() {
           <h1 className="font-fraunces text-4xl font-light tracking-tight text-lux-ivory md:text-5xl">
             Mutuelleville, le centre d’accompagnement pédagogique
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-lux-ivory/75">
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-lux-on-dark-muted">
             Les rendez-vous pédagogiques et cours en présentiel se déroulent à Mutuelleville, sur confirmation.
           </p>
         </div>
@@ -31,7 +31,7 @@ export default function NotreCentrePage() {
 
       <section className="bg-lux-paper py-14 px-4 md:px-6">
         <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1fr_1.1fr]">
-          <Card className="border-lux-line bg-lux-white lux-shadow">
+          <Card className="border-lux-line bg-lux-white text-lux-ink lux-shadow">
             <CardContent className="p-6 md:p-8">
               <h2 className="text-2xl font-fraunces text-lux-ink">Informations pratiques</h2>
               <div className="mt-6 space-y-4 text-sm text-lux-slate">
@@ -60,7 +60,7 @@ export default function NotreCentrePage() {
 
           <Card className="border-lux-line bg-lux-ink text-lux-ivory lux-shadow">
             <CardContent className="p-6 md:p-8">
-              <h2 className="text-2xl font-fraunces !text-lux-ivory">Ce que vous trouvez sur place</h2>
+              <h2 className="text-2xl font-fraunces text-lux-ivory">Ce que vous trouvez sur place</h2>
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 {[
                   'Salles adaptées aux groupes réduits',
@@ -79,7 +79,7 @@ export default function NotreCentrePage() {
                   Contacter l’équipe
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
-                <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="lux-cta-reserve rounded-lg px-6 py-3.5 text-sm font-semibold">
+                <a href={buildWhatsAppUrl('notre centre')} target="_blank" rel="noopener noreferrer" className="lux-cta-reserve rounded-lg px-6 py-3.5 text-sm font-semibold">
                   Écrire sur WhatsApp
                 </a>
               </div>

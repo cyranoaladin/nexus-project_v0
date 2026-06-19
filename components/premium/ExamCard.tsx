@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Check } from 'lucide-react';
 import { fmtTND, fmtGroup, fmtHoursWeek, fmtDiscount, fmtPrice } from './format';
+import { buildWhatsAppUrl } from '@/lib/whatsapp';
 
 interface ExamCardPayment {
   deposit: number;
@@ -253,7 +254,7 @@ export function ExamCard(props: ExamCardProps) {
             {features.map((feature, i) => (
               <li key={i} className="flex items-start gap-2">
                 <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-lux-gold" />
-                <span className="text-sm text-lux-ink/80">{feature}</span>
+                <span className="text-sm text-lux-slate">{feature}</span>
               </li>
             ))}
           </ul>
@@ -264,26 +265,36 @@ export function ExamCard(props: ExamCardProps) {
       {hideCta ? null : (
         <div className="mt-auto border-t border-lux-line/50 p-5">
           {ctaHref ? (
-          <Link
-            href={ctaHref}
-            className={`flex w-full items-center justify-center rounded-lg py-3 text-sm font-semibold transition-all lux-focus ${
-              featured ? 'lux-cta-reserve' : 'lux-cta-primary'
-            }`}
-          >
-            {ctaText}
-          </Link>
+            <Link
+              href={ctaHref}
+              className={`flex w-full items-center justify-center rounded-lg py-3 text-sm font-semibold transition-all lux-focus ${
+                featured ? 'lux-cta-reserve' : 'lux-cta-primary'
+              }`}
+            >
+              {ctaText}
+            </Link>
           ) : ctaAction ? (
-          <button
-            onClick={ctaAction}
-            className={`w-full rounded-lg py-3 text-sm font-semibold transition-all lux-focus ${
-              featured
-                ? 'lux-cta-reserve'
-                : 'lux-cta-primary'
-            }`}
-          >
-            {ctaText}
-          </button>
+            <button
+              onClick={ctaAction}
+              className={`w-full rounded-lg py-3 text-sm font-semibold transition-all lux-focus ${
+                featured
+                  ? 'lux-cta-reserve'
+                  : 'lux-cta-primary'
+              }`}
+            >
+              {ctaText}
+            </button>
           ) : null}
+          {(ctaHref || ctaAction) && (
+            <a
+              href={buildWhatsAppUrl(`l’offre ${title}`)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 flex min-h-[44px] w-full items-center justify-center rounded-lg border border-lux-line px-4 py-2 text-sm font-semibold text-lux-ink transition hover:border-lux-gold/70"
+            >
+              Poser une question
+            </a>
+          )}
         </div>
       )}
     </div>

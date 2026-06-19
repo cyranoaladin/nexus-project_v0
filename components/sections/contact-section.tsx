@@ -247,9 +247,9 @@ export default function ContactSection() {
                       onChange={(event) => setUrgency(event.target.value)}
                     >
                       <option value="" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Sélectionner</option>
-                      <option value="moins-300" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Moins de 300 élèves</option>
-                      <option value="300-800" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>300 à 800 élèves</option>
-                      <option value="plus-800" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Plus de 800 élèves</option>
+                      <option value="moins-300" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Petite structure</option>
+                      <option value="300-800" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Structure intermédiaire</option>
+                      <option value="plus-800" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Grande structure</option>
                     </select>
                   </div>
                   <div>
@@ -412,7 +412,7 @@ export default function ContactSection() {
                       <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Programme Odyssée (annuel)</option>
                       <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Académies Nexus (stages intensifs)</option>
                       <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Studio Flex (cours à la carte)</option>
-                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Nexus Cortex (tuteur IA 24/7)</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>ARIA (assistant pédagogique)</option>
                       <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Soutien cycle Terminal (Maths/NSI)</option>
                       <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Coaching Orientation & Grand Oral</option>
                       <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Découvrir ARIA (tuteur IA)</option>

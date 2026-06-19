@@ -1,7 +1,7 @@
 import type { CreateInvoiceRequest, InvoicePaymentMethodType, TaxRegime } from './types';
 
 export const NEXUS_VAT_RATE = 0.06;
-export const MASTERIUM_MONTHLY_VALUE = 129_000;
+export const ARIA_MONTHLY_VALUE = 129_000;
 
 export type NexusInvoicePackageId = 'duo-premiere' | 'francais-sprint-eaf' | 'custom';
 
@@ -26,8 +26,8 @@ export type NexusInvoiceTotalsInput = {
   normalPriceTtc: number;
   adjustmentTtc: number;
   payments: NexusMixedPayment[];
-  masteriumMonths: number;
-  masteriumMonthlyValue: number;
+  ariaMonths: number;
+  ariaMonthlyValue: number;
 };
 
 export type NexusInvoiceTotals = {
@@ -40,7 +40,7 @@ export type NexusInvoiceTotals = {
   packageDiscount: number;
   paid: number;
   due: number;
-  masteriumOfferedValue: number;
+  ariaOfferedValue: number;
 };
 
 export type NexusInvoiceRequestInput = NexusInvoiceTotalsInput & {
@@ -120,8 +120,8 @@ export function calculateNexusInvoiceTotals(input: NexusInvoiceTotalsInput): Nex
     input.payments.reduce((sum, payment) => sum + Math.max(0, Math.round(payment.amount)), 0)
   );
   const due = Math.max(0, netTtc - paid);
-  const masteriumOfferedValue =
-    Math.max(0, Math.round(input.masteriumMonths)) * Math.max(0, Math.round(input.masteriumMonthlyValue));
+  const ariaOfferedValue =
+    Math.max(0, Math.round(input.ariaMonths)) * Math.max(0, Math.round(input.ariaMonthlyValue));
 
   return {
     priceTtc,
@@ -133,7 +133,7 @@ export function calculateNexusInvoiceTotals(input: NexusInvoiceTotalsInput): Nex
     packageDiscount,
     paid,
     due,
-    masteriumOfferedValue,
+    ariaOfferedValue,
   };
 }
 
@@ -177,12 +177,12 @@ export function buildNexusInvoiceRequest(input: NexusInvoiceRequestInput): Nexus
   ];
 
   items.push({
-    label: 'Accès plateforme EAF — Masterium offert',
+    label: 'Accès plateforme EAF — ARIA offert',
     description: [
-      `Valeur normale : ${formatTnd(input.masteriumMonthlyValue)} / mois · ${input.masteriumMonths} mois`,
-      'Accès Masterium offert à titre commercial, non facturé.',
+      `Valeur normale : ${formatTnd(input.ariaMonthlyValue)} / mois · ${input.ariaMonths} mois`,
+      'Accès ARIA offert à titre commercial, non facturé.',
     ].join('\n'),
-    qty: Math.max(1, Math.round(input.masteriumMonths || 1)),
+    qty: Math.max(1, Math.round(input.ariaMonths || 1)),
     unitPrice: 0,
     total: 0,
   });

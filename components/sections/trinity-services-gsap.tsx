@@ -21,7 +21,7 @@ const TrinityServicesGSAP = () => {
         {
             id: "ia",
             icon: Brain,
-            title: "IA ARIA 24/7",
+            title: "IA ARIA selon formule",
             description: "Un tuteur IA pour pratiquer, réviser et comprendre à tout moment.",
             features: ["Explications instantanées", "Exercices guidés", "Révisions intelligentes"],
             color: "text-blue-400",

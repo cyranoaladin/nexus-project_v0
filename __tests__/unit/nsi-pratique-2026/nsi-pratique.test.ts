@@ -1282,7 +1282,7 @@ describe('gating — NSI_FEATURES structure', () => {
     const tiers = NSI_FEATURES.map(f => f.tier);
     expect(tiers.filter(t => t === 'free')).toHaveLength(4);
     expect(tiers.filter(t => t === 'premium')).toHaveLength(6);
-    expect(tiers.filter(t => t === 'masterium')).toHaveLength(3);
+    expect(tiers.filter(t => t === 'aria')).toHaveLength(3);
   });
 
   it('FREE_SUBJECT_IDS contains subjects 1, 2, 5', () => {

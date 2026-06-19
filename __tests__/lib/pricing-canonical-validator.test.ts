@@ -271,6 +271,35 @@ describe('T11 — Anti-leak strings not in JSON', () => {
   });
 });
 
+describe('T12 — French labels keep required accents', () => {
+  test('pricing canonical does not contain known unaccented public tokens', () => {
+    const json = JSON.stringify(data);
+    const forbiddenTokens = [
+      'Specialite',
+      'Francais',
+      'methode',
+      'Presentiel',
+      'Strategique',
+      'Epreuve',
+      'Reservation',
+      'Annee',
+      'anticipee',
+      'Securite',
+      'Accompagnee',
+      'reguliers',
+      'corriges',
+      'personnalise',
+      'seances',
+      'Mathematiques',
+      'Premiere',
+      'Troisieme',
+    ];
+
+    const offenders = forbiddenTokens.filter((token) => json.includes(token));
+    expect(offenders).toEqual([]);
+  });
+});
+
 // ── Additional invariants from PROCEDURE §3 ──
 
 describe('Price floors per offer type', () => {

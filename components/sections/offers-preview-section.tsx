@@ -12,10 +12,10 @@ const OFFERS_PREVIEW = [
   {
     id: 'cortex',
     title: 'Nexus Cortex',
-    subtitle: 'L\'Intelligence Artificielle au service de votre réussite',
-    description: 'Votre tuteur personnel IA, disponible 24/7 pour répondre à vos questions, corriger vos méthodes et vous entraîner avec des quiz sur mesure.',
+    subtitle: `L\u2019Intelligence Artificielle au service de votre réussite`,
+    description: 'Votre assistant pédagogique ARIA complète le travail humain avec des exercices, méthodes et quiz selon formule.',
     whyPoints: [
-      'Disponibilité 24/7 sans interruption',
+      'Accès selon formule',
       'Correction instantanée de vos méthodes',
       'Quiz personnalisés selon vos lacunes',
       'Progression mesurée et optimisée'
@@ -35,7 +35,7 @@ const OFFERS_PREVIEW = [
     whyPoints: [
       'Réservation à la demande selon vos besoins',
       'Accès direct à nos experts certifiés',
-      'Formats variés : individuel, groupe, coaching',
+      'Formats variés\u00A0: individuel, groupe, coaching',
       'Flexibilité totale dans votre planning'
     ],
     cta: 'Explorer les prestations à la carte',
@@ -66,8 +66,8 @@ const OFFERS_PREVIEW = [
   {
     id: 'odyssee',
     title: 'Le Programme Odyssée',
-    subtitle: 'L\'accompagnement annuel intégral vers l\'excellence',
-    description: 'L\'accompagnement annuel intégral qui structure toute l\'année de Première ou de Terminale pour viser la mention, sécuriser Parcoursup et réussir en candidat libre.',
+    subtitle: `L\u2019accompagnement annuel intégral vers l\u2019excellence`,
+    description: `L\u2019accompagnement annuel intégral qui structure toute l\u2019année de Première ou de Terminale pour viser la mention, sécuriser Parcoursup et réussir en candidat libre.`,
     whyPoints: [
       'Structuration complète de votre année scolaire',
       'Accompagnement vers la mention au Bac',
@@ -103,7 +103,7 @@ export function OffersPreviewSection() {
           </h2>
           <p className="marketing-section-copy-light max-w-3xl mx-auto">
             Découvrez nos quatre univers de solutions conçus pour répondre précisément à vos besoins,
-            que vous soyez élève autonome ou famille en quête d'excellence.
+            que vous soyez élève autonome ou famille en quête d\u2019excellence.
           </p>
         </motion.div>
 
@@ -171,7 +171,7 @@ export function OffersPreviewSection() {
                       {/* Liste "Pourquoi" avec icônes Check vertes */}
                       <div className="mb-6">
                         <div className="text-sm font-semibold text-gray-900 mb-3">
-                          Pourquoi choisir cette solution ?
+                          Pourquoi choisir cette solution\u00A0?
                         </div>
                         <ul className="space-y-2">
                           {offer.whyPoints.map((point, pointIndex) => (

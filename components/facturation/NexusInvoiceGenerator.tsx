@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { Loader2, Plus, Printer, Trash2 } from 'lucide-react';
 import {
-  MASTERIUM_MONTHLY_VALUE,
+  ARIA_MONTHLY_VALUE,
   NEXUS_INVOICE_PACKAGES,
   buildNexusInvoiceRequest,
   buildPaymentSummary,
@@ -60,7 +60,7 @@ export function NexusInvoiceGenerator() {
   const [normalPriceTtc, setNormalPriceTtc] = useState(selected.normalPriceTtc);
   const [adjustmentTtc, setAdjustmentTtc] = useState(0);
   const [adjustmentLabel, setAdjustmentLabel] = useState('Ajustement séance non suivie');
-  const [masteriumMonths, setMasteriumMonths] = useState(1);
+  const [ariaMonths, setARIAMonths] = useState(1);
   const [payments, setPayments] = useState<PaymentFormRow[]>([
     { method: 'BANK_TRANSFER', amount: 0, reference: '' },
     { method: 'CHEQUE', amount: 0, reference: '' },
@@ -76,10 +76,10 @@ export function NexusInvoiceGenerator() {
       normalPriceTtc,
       adjustmentTtc,
       payments,
-      masteriumMonths,
-      masteriumMonthlyValue: MASTERIUM_MONTHLY_VALUE,
+      ariaMonths,
+      ariaMonthlyValue: ARIA_MONTHLY_VALUE,
     }),
-    [adjustmentTtc, masteriumMonths, normalPriceTtc, payments, priceTtc]
+    [adjustmentTtc, ariaMonths, normalPriceTtc, payments, priceTtc]
   );
   const paymentSummary = buildPaymentSummary(payments);
 
@@ -134,9 +134,9 @@ export function NexusInvoiceGenerator() {
         adjustmentTtc,
         adjustmentLabel,
         payments,
-        masteriumMonths,
-        masteriumMonthlyValue: MASTERIUM_MONTHLY_VALUE,
-        notes: 'Accès Masterium offert à titre commercial, non facturé.',
+        ariaMonths,
+        ariaMonthlyValue: ARIA_MONTHLY_VALUE,
+        notes: 'Accès ARIA offert à titre commercial, non facturé.',
       });
 
       const res = await fetch('/api/admin/invoices', {
@@ -257,12 +257,12 @@ export function NexusInvoiceGenerator() {
 
             <section className="rounded-lg border border-red-300/30 bg-red-500/10 p-4">
               <h2 className="font-semibold text-white">Accès plateforme offert</h2>
-              <p className="mt-2 text-sm text-red-100">Accès plateforme EAF — Masterium offert</p>
+              <p className="mt-2 text-sm text-red-100">Accès plateforme EAF — ARIA offert</p>
               <div className="mt-3 grid grid-cols-2 gap-3">
-                <label className={labelClass} htmlFor="masterium-months">Durée Masterium</label>
-                <input id="masterium-months" type="number" value={masteriumMonths} onChange={(event) => setMasteriumMonths(Number(event.target.value))} className={`${inputClass} text-right`} />
+                <label className={labelClass} htmlFor="aria-months">Durée ARIA</label>
+                <input id="aria-months" type="number" value={ariaMonths} onChange={(event) => setARIAMonths(Number(event.target.value))} className={`${inputClass} text-right`} />
               </div>
-              <p className="mt-3 text-sm font-medium text-red-100">Valeur offerte : {formatTnd(totals.masteriumOfferedValue)}</p>
+              <p className="mt-3 text-sm font-medium text-red-100">Valeur offerte : {formatTnd(totals.ariaOfferedValue)}</p>
             </section>
 
             {error && <p className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">{error}</p>}
@@ -309,8 +309,8 @@ export function NexusInvoiceGenerator() {
               </div>
               <div className="rounded-xl p-5" style={{ border: '1px solid #BFD8FF', background: `linear-gradient(135deg, ${BRAND.blueSoft} 0%, ${BRAND.redSoft} 100%)` }}>
                 <h3 className="text-xs font-bold uppercase tracking-[0.2em]" style={{ color: BRAND.red }}>Avantage offert</h3>
-                <p className="mt-3 font-bold" style={{ color: BRAND.navy }}>Accès plateforme EAF — Masterium offert</p>
-                <p className="text-sm" style={{ color: BRAND.text }}>Durée : {masteriumMonths} mois · Valeur réelle : {formatTnd(totals.masteriumOfferedValue)}</p>
+                <p className="mt-3 font-bold" style={{ color: BRAND.navy }}>Accès plateforme EAF — ARIA offert</p>
+                <p className="text-sm" style={{ color: BRAND.text }}>Durée : {ariaMonths} mois · Valeur réelle : {formatTnd(totals.ariaOfferedValue)}</p>
                 <p className="mt-1 text-xs" style={{ color: BRAND.red }}>Cet avantage est offert et n&apos;est pas inclus dans le total à payer.</p>
               </div>
             </section>
@@ -355,11 +355,11 @@ export function NexusInvoiceGenerator() {
                       </tr>
                     )}
                     <tr style={{ background: BRAND.blueSoft, color: BRAND.navy }}>
-                      <td className="px-4 py-3 font-medium">Accès plateforme EAF — Masterium offert</td>
-                      <td className="px-4 py-3 text-center">{masteriumMonths}</td>
+                      <td className="px-4 py-3 font-medium">Accès plateforme EAF — ARIA offert</td>
+                      <td className="px-4 py-3 text-center">{ariaMonths}</td>
                       <td className="px-4 py-3 text-right">0,000 TND</td>
                       <td className="px-4 py-3 text-right">0,000 TND</td>
-                      <td className="px-4 py-3 text-right font-semibold">Offert — valeur {formatTnd(totals.masteriumOfferedValue)}</td>
+                      <td className="px-4 py-3 text-right font-semibold">Offert — valeur {formatTnd(totals.ariaOfferedValue)}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -402,7 +402,7 @@ export function NexusInvoiceGenerator() {
 
             <section className="mt-8 rounded-xl bg-white p-5" style={{ border: `1px solid ${BRAND.border}` }}>
               <p className="text-sm"><b>Montant total TTC :</b> {formatTnd(totals.netTtc)}.</p>
-              <p className="mt-2 text-xs" style={{ color: BRAND.textSoft }}>Accès Masterium offert à titre commercial, non facturé.</p>
+              <p className="mt-2 text-xs" style={{ color: BRAND.textSoft }}>Accès ARIA offert à titre commercial, non facturé.</p>
             </section>
 
             <footer className="mt-auto border-t pt-6 text-center" style={{ borderColor: BRAND.border }}>

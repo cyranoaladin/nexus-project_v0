@@ -326,7 +326,7 @@ export const faq: FAQ[] = [
   },
   {
     question: "Les stages garantissent-ils des résultats ?",
-    answer: "Les résultats dépendent du travail personnel et de l'implication de chacun. Nous observons en moyenne une progression de 4,2 points, mais chaque trajectoire est unique. Notre engagement : cadre structuré, méthode rigoureuse, bilan individualisé."
+    answer: "Les résultats dépendent du travail personnel et de l'implication de chacun.  Notre engagement : cadre structuré, méthode rigoureuse, bilan individualisé."
   },
   {
     question: "Quel est le rythme pendant la semaine ?",

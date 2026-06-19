@@ -74,19 +74,20 @@ describe('OffersPreviewSection', () => {
   it('renders offer subtitles', () => {
     render(<OffersPreviewSection />);
 
-    expect(screen.getByText(/L'Intelligence Artificielle au service de votre réussite/i)).toBeInTheDocument();
+    // Assert exact typographic apostrophe \u2019
+    expect(screen.getByText(/L\u2019Intelligence Artificielle au service de votre réussite/i)).toBeInTheDocument();
     expect(screen.getByText(/La flexibilité absolue pour un accompagnement sur-mesure/i)).toBeInTheDocument();
     expect(screen.getByText(/Des stages intensifs pour une progression accélérée/i)).toBeInTheDocument();
-    expect(screen.getByText(/L'accompagnement annuel intégral vers l'excellence/i)).toBeInTheDocument();
+    expect(screen.getByText(/L\u2019accompagnement annuel intégral vers l\u2019excellence/i)).toBeInTheDocument();
   });
 
   it('renders offer descriptions', () => {
     render(<OffersPreviewSection />);
 
-    expect(screen.getByText(/Votre tuteur personnel IA, disponible 24\/7/i)).toBeInTheDocument();
+    expect(screen.getByText(/Votre assistant pédagogique ARIA complète le travail humain/i)).toBeInTheDocument();
     expect(screen.getByText(/Accédez à la demande à nos experts/i)).toBeInTheDocument();
     expect(screen.getByText(/Des stages intensifs pendant chaque vacance scolaire/i)).toBeInTheDocument();
-    expect(screen.getByText(/L'accompagnement annuel intégral qui structure/i)).toBeInTheDocument();
+    expect(screen.getByText(/L\u2019accompagnement annuel intégral qui structure/i)).toBeInTheDocument();
   });
 
   it('renders "Le plus populaire" badge for Studio Flex', () => {
@@ -118,7 +119,7 @@ describe('OffersPreviewSection', () => {
     render(<OffersPreviewSection />);
 
     // Vérifier quelques points clés
-    expect(screen.getByText(/Disponibilité 24\/7 sans interruption/i)).toBeInTheDocument();
+    expect(screen.getByText(/Accès selon formule/i)).toBeInTheDocument();
     expect(screen.getByText(/Réservation à la demande selon vos besoins/i)).toBeInTheDocument();
     expect(screen.getByText(/Stages pendant chaque période de vacances/i)).toBeInTheDocument();
     expect(screen.getByText(/Structuration complète de votre année scolaire/i)).toBeInTheDocument();

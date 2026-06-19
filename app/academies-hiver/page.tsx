@@ -1136,7 +1136,7 @@ export default function AcademiesHiverPage() {
                 <div className="mt-8 space-y-4 text-sm font-bold text-slate-700">
                   <li className="flex gap-4 items-center"><CheckCircle2 className="w-5 h-5 text-nexus-blue" /> 24h intensives</li>
                   <li className="flex gap-4 items-center"><CheckCircle2 className="w-5 h-5 text-nexus-blue" /> Profs de Lycée</li>
-                  <li className="flex gap-4 items-center"><CheckCircle2 className="w-5 h-5 text-nexus-blue" /> Objectif +4 points</li>
+                  <li className="flex gap-4 items-center"><CheckCircle2 className="w-5 h-5 text-nexus-blue" /> Objectif : consolider les automatismes</li>
                 </div>
               </div>
 

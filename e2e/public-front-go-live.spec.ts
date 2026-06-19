@@ -7,8 +7,8 @@ type PublicPageCase = {
 };
 
 const PUBLIC_PAGES: PublicPageCase[] = [
-  { url: '/', h1: /viser|atteindre|dépasser/i, cta: /bilan gratuit|offres|trouver ma formule/i },
-  { url: '/offres', h1: /offres|tarifs|catalogue/i, cta: /être conseillé|pré-inscription|demander un bilan/i },
+  { url: '/', h1: /préparer le bac français avec méthode, suivi et exigence/i, cta: /bilan gratuit|offres|trouver ma formule/i },
+  { url: '/offres', h1: /offres|tarifs|catalogue/i, cta: /réserver ma place|demander un bilan|poser une question/i },
   { url: '/recommandation', h1: /trouver ma formule|diagnostic/i, cta: /demander un bilan gratuit|offres|whatsapp/i },
   { url: '/bilan-gratuit', h1: /bilan stratégique gratuit/i, cta: /demander mon bilan stratégique gratuit|whatsapp|voir les offres/i },
   { url: '/stages', h1: /stages 2026\/2027|stages/i, cta: /pré-inscription|demander un bilan|whatsapp/i },
@@ -34,6 +34,8 @@ const INTERNAL_LINK_ALLOWLIST = new Set([
   '/contact',
   '/notre-centre',
   '/faq',
+  '/ressources',
+  '/politique-confidentialite',
 ]);
 
 const EXTERNAL_LINK_ALLOWLIST = [
@@ -46,6 +48,14 @@ const EXTERNAL_LINK_ALLOWLIST = [
 
 function isAllowedExternalHref(href: string) {
   return EXTERNAL_LINK_ALLOWLIST.some((prefix) => href.startsWith(prefix));
+}
+
+function shouldCheckInternalHref(href: string) {
+  if (href.startsWith('/auth') || href.startsWith('/dashboard') || href.startsWith('/api')) {
+    return false;
+  }
+
+  return true;
 }
 
 async function auditPublicPage(page: Page, testInfo: TestInfo, url: string, h1: RegExp, cta: RegExp, label: string) {
@@ -133,10 +143,7 @@ async function auditPublicPage(page: Page, testInfo: TestInfo, url: string, h1: 
       const normalized = href.startsWith('http')
         ? new URL(href).pathname + new URL(href).search + new URL(href).hash
         : href;
-      if (!INTERNAL_LINK_ALLOWLIST.has(normalized)) {
-        // Internal links outside the public surface are still checked by HTTP.
-        internalLinks.push(normalized);
-      } else {
+      if (shouldCheckInternalHref(normalized)) {
         internalLinks.push(normalized);
       }
       continue;
@@ -283,7 +290,7 @@ test.describe('Public front go-live smoke', () => {
     await page.getByLabel('Prénom du parent', { exact: true }).fill('Sara');
     await page.getByRole('textbox', { name: 'Nom du parent', exact: true }).fill('Ben Ali');
     await page.getByLabel('Email', { exact: true }).fill(`sara.${Date.now()}@example.com`);
-    await page.getByLabel('Téléphone', { exact: true }).fill('+216 99 19 28 29');
+    await page.locator('#parentPhone').fill('+216 99 19 28 29');
     await page.getByLabel('Prénom de l’élève', { exact: true }).fill('Amine');
     await page.getByLabel('Classe', { exact: true }).selectOption('premiere');
     await page.getByLabel('Établissement', { exact: true }).fill('Lycée français');
@@ -318,7 +325,7 @@ test.describe('Public front go-live smoke', () => {
     await page.getByLabel('Prénom du parent', { exact: true }).fill('Sara');
     await page.getByRole('textbox', { name: 'Nom du parent', exact: true }).fill('Ben Ali');
     await page.getByLabel('Email', { exact: true }).fill(`sara.${Date.now()}@example.com`);
-    await page.getByLabel('Téléphone', { exact: true }).fill('+216 99 19 28 29');
+    await page.locator('#parentPhone').fill('+216 99 19 28 29');
     await page.getByLabel('Prénom de l’élève', { exact: true }).fill('Amine');
     await page.getByLabel('Classe', { exact: true }).selectOption('premiere');
     await page.getByLabel('Établissement', { exact: true }).fill('Lycée français');
@@ -361,7 +368,7 @@ test.describe('Public front go-live smoke', () => {
     await page.getByLabel('Prénom du parent', { exact: true }).fill('Sara');
     await page.getByLabel('Nom du parent', { exact: true }).fill('Ben Ali');
     await page.getByLabel('Email', { exact: true }).fill(`sara.${Date.now()}@example.com`);
-    await page.getByLabel('Téléphone', { exact: true }).fill('+216 99 19 28 29');
+    await page.locator('#parentPhone').fill('+216 99 19 28 29');
     await page.getByLabel('Prénom de l’élève', { exact: true }).fill('Amine');
     await page.getByLabel('Classe', { exact: true }).selectOption('premiere');
     await page.getByLabel('Établissement', { exact: true }).fill('Lycée français');

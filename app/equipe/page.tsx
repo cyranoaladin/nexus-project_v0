@@ -101,7 +101,7 @@ const MENTORS: Mentor[] = [
     title: "Expert NSI & Développement",
     experience: "12 ans d'expérience",
     tagline: "Le mentor qui transforme les projets en compétences durables",
-    stats: ["+3,8 pts", "100% projets validés", "10 places/mois"],
+    stats: ["Méthode structurée", "Projets accompagnés", "10 places/mois"],
     testimonial: {
       quote: "Avec Yassine j'ai enfin compris la logique de l'algorithmique.",
       author: "Ali, Terminale",
@@ -126,7 +126,7 @@ const MENTORS: Mentor[] = [
     title: "Coach en Éloquence",
     experience: "15 ans d'expérience",
     tagline: "Débloque l'oral et installe la confiance",
-    stats: ["+2,9 pts", "95% oraux réussis", "9 places/mois"],
+    stats: ["Entraînement progressif", "Simulations encadrées", "9 places/mois"],
     testimonial: {
       quote: "Hélène m'a appris à parler avec assurance. Le Grand Oral est devenu un plaisir.",
       author: "Sara, Terminale",
@@ -517,7 +517,7 @@ export default function EquipePage() {
                 </h1>
                 <p className="mt-4 text-lg text-slate-300">
                   Sélectionnés parmi 1% des candidats. Unis par une obsession :
-                  <strong className="text-white"> +4,2 points de moyenne</strong> pour chaque élève.
+                  <strong className="text-white"> cadre de progression individualisé</strong> pour chaque élève.
                 </p>
 
                 <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -915,10 +915,10 @@ export default function EquipePage() {
                 </div>
                 <div className="mt-2 text-sm text-slate-300">60 TND/h*</div>
                 <ul className="mt-4 space-y-2 text-sm text-slate-200">
-                  <li className="inline-flex items-center gap-2"><GraduationCap className="h-4 w-4 text-gold-400" aria-hidden="true" /> 100% Agrégés/Certifiés</li>
-                  <li className="inline-flex items-center gap-2"><BarChart3 className="h-4 w-4 text-gold-400" aria-hidden="true" /> Dashboard + IA ARIA 24/7</li>
-                  <li className="inline-flex items-center gap-2"><Clock3 className="h-4 w-4 text-gold-400" aria-hidden="true" /> Disponibilité illimitée</li>
-                  <li className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-gold-400" aria-hidden="true" /> Garantie résultats</li>
+                  <li className="inline-flex items-center gap-2"><GraduationCap className="h-4 w-4 text-gold-400" aria-hidden="true" /> Enseignants agrégés/certifiés selon matière</li>
+                  <li className="inline-flex items-center gap-2"><BarChart3 className="h-4 w-4 text-gold-400" aria-hidden="true" /> Dashboard + IA ARIA selon formule</li>
+                  <li className="inline-flex items-center gap-2"><Clock3 className="h-4 w-4 text-gold-400" aria-hidden="true" /> Disponibilité encadrée selon formule</li>
+                  <li className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-gold-400" aria-hidden="true" /> Engagement de moyens et suivi</li>
                   <li className="inline-flex items-center gap-2"><Compass className="h-4 w-4 text-gold-400" aria-hidden="true" /> Coaching orientation inclus</li>
                 </ul>
                 <div className="mt-4 text-xs text-slate-300">
@@ -955,7 +955,7 @@ export default function EquipePage() {
                     <div>
                       <strong className="text-white">Si le courant ne passe pas</strong>
                       <p className="text-sm text-slate-300">
-                        Nous remboursons ou changeons de professeur immédiatement.
+                        Nous analysons la situation et proposons un ajustement pédagogique adapté.
                       </p>
                     </div>
                   </div>

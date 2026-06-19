@@ -9,7 +9,7 @@ const DNASectionGSAP = () => {
 
     const values = [
         "Coachs agrégés et certifiés",
-        "IA ARIA disponible 24/7",
+        "IA ARIA selon formule",
         "Suivi parent clair et continu",
         "Méthode Bac et rigueur",
         "Résultats mesurables"

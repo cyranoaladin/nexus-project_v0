@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Filter, X, MessageCircle } from 'lucide-react';
+import { ArrowRight, MessageCircle } from 'lucide-react';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import {
@@ -13,7 +13,6 @@ import {
   type FAQItem,
 } from '@/components/premium';
 import {
-  getAllOffers,
   getOffersByLevel,
   getOffersByTrack,
   getStageFormats,
@@ -29,13 +28,15 @@ import {
   getStageFormat,
   getPonctuelOffer,
   getCoachingOffer,
-  type StageFormat,
-  type PonctuelOffer,
-  type CoachingOffer,
   type Pack,
 } from '@/lib/pricing';
-
-const WHATSAPP_URL = 'https://wa.me/21699192829';
+import {
+  AccompagnementInclus,
+  ReassuranceChips,
+  Testimonials,
+  TransparencyBanner,
+} from '@/components/marketing/acadomia-inspired';
+import { buildWhatsAppUrl } from '@/lib/whatsapp';
 
 // ── Category filter ──
 
@@ -81,28 +82,28 @@ function resolvePackComponentLabels(pack: Pack): string[] {
 
 const catalogueFAQ: FAQItem[] = [
   {
-    question: 'Les tarifs sont-ils en TND ?',
-    answer: 'Oui, tous nos tarifs sont en dinars tunisiens (TND). Aucun paiement en euros.',
+    question: `Les tarifs sont-ils en TND\u00A0?`,
+    answer: `Oui, tous nos tarifs sont en dinars tunisiens (TND). Aucun paiement en euros.`,
   },
   {
-    question: 'Comment fonctionne le modèle places-based ?',
+    question: `Comment fonctionne le modèle places-based\u00A0?`,
     answer:
-      'Les groupes se remplissent progressivement. Il n\'y a pas de date limite artificielle — la rareté est réelle : un groupe de 5 se remplit naturellement. Réservez tôt pour garantir votre place.',
+      `Les groupes se remplissent progressivement. Il n\u2019y a pas de date limite artificielle — la rareté est réelle\u00A0: un groupe de 5 se remplit naturellement. Réservez tôt pour garantir votre place.`,
   },
   {
-    question: 'L\'acompte est-il remboursable ?',
+    question: `L\u2019acompte est-il remboursable\u00A0?`,
     answer:
-      'L\'acompte n\'est pas remboursable sauf si le groupe n\'atteint pas le seuil d\'ouverture (3 ou 4 inscrits). Dans ce cas, remboursement intégral.',
+      `L\u2019acompte n\u2019est pas remboursable sauf si le groupe n\u2019atteint pas le seuil d\u2019ouverture (3 ou 4 inscrits). Dans ce cas, remboursement intégral.`,
   },
   {
-    question: 'Puis-je déduire l\'acompte d\'un stage si je prends un parcours annuel ?',
+    question: `Puis-je déduire l\u2019acompte d\u2019un stage si je prends un parcours annuel\u00A0?`,
     answer:
-      'Oui. L\'acompte versé pour un stage ou un Pass est déductible du parcours annuel. Il est aussi reportable sur l\'année suivante.',
+      `Oui. L\u2019acompte versé pour un stage ou un Pass est déductible du parcours annuel. Il est aussi reportable sur l\u2019année suivante.`,
   },
   {
-    question: 'Les remises sont-elles cumulables ?',
+    question: `Les remises sont-elles cumulables\u00A0?`,
     answer:
-      'Non. Les remises (fratrie, ancien élève, parrainage, Carte Nexus) ne sont pas cumulables sauf décision de la direction. Le plafond global est de 20 %, et aucun tarif ne descend sous le plancher horaire.',
+      `Non. Les remises (fratrie, ancien élève, parrainage, Carte Nexus) ne sont pas cumulables sauf décision de la direction. Le plafond global est de 20\u00A0%, et aucun tarif ne descend sous le plancher horaire.`,
   },
 ];
 
@@ -112,8 +113,8 @@ export default function OffresPage() {
   const [activeCategory, setActiveCategory] = useState<Category>('all');
   const rules = getRules();
   const campaign = getCampaign();
-  const allOffers = getAllOffers();
   const libreOffers = getOffersByTrack('libre');
+  const platformOffers = getOffersByTrack('plateforme');
   const stageFormats = getStageFormats();
   const stageEditions = getStageEditions();
   const ponctuelOffers = getPonctuelOffers();
@@ -134,21 +135,25 @@ export default function OffresPage() {
           <h1 className="mt-3 text-4xl md:text-5xl font-fraunces font-light text-lux-ivory">
             Offres & tarifs
           </h1>
-          <p className="mt-3 max-w-2xl text-base text-lux-ivory/70 font-dm-sans">
+          <p className="mt-3 max-w-2xl text-base text-lux-on-dark-muted font-dm-sans">
             Tous les parcours, stages, Pass et formules. Groupes de {rules.group_max} max,
             tarifs en TND, échéanciers transparents.
           </p>
-          <div className="mt-5 inline-flex flex-wrap gap-2 text-sm text-lux-ivory/80">
+          <div className="mt-5 inline-flex flex-wrap gap-2 text-sm text-lux-on-dark-muted">
             <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">Groupes de 5 maximum</span>
             <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">Tarifs en TND</span>
             <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">Acompte 30 %</span>
             <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">Échéanciers transparents</span>
           </div>
+          <div className="mt-8 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+            <TransparencyBanner compact />
+            <ReassuranceChips compact />
+          </div>
         </div>
       </section>
 
       {/* Filter bar */}
-      <div className="sticky top-0 z-20 border-b border-lux-line bg-lux-ivory/95 backdrop-blur-sm">
+      <nav aria-label="Filtres des offres" className="sticky top-0 z-20 border-b border-lux-line bg-lux-ivory/95 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl overflow-x-auto px-4 md:px-6">
           <div className="flex gap-1 py-3">
             {categories.map((cat) => (
@@ -166,9 +171,10 @@ export default function OffresPage() {
             ))}
           </div>
         </div>
-      </div>
+      </nav>
 
       <div className="mx-auto max-w-6xl px-4 md:px-6 py-12 space-y-16">
+        <AccompagnementInclus compact />
 
         {/* Parcours annuels (scolarisé) */}
         {showSection('annual') && (
@@ -186,14 +192,14 @@ export default function OffresPage() {
               const displayLevel = { terminale: 'Terminale', premiere: 'Première', seconde: 'Seconde', troisieme: 'Troisième' }[level];
               return (
                 <div key={level} className="mb-10">
-                  <h3 className="mb-4 text-lg text-lux-ink/80">{displayLevel}</h3>
+                  <h3 className="mb-4 text-lg text-lux-slate">{displayLevel}</h3>
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {offers.map((o) => {
                       const price = getEffectivePrice(o);
                       if (price == null) return null;
                       return (
+                        <div key={o.id} id={o.id} className="scroll-mt-28">
                         <ExamCard
-                          key={o.id}
                           eyebrow={`${displayLevel} · Présentiel`}
                           title={o.title}
                           subtitle={o.subjects}
@@ -207,9 +213,10 @@ export default function OffresPage() {
                         effectifType="groupe"
                         payment={getAnnualOfferPaymentSchedule(o) ?? undefined}
                         campaignBadge={o.badge === 'campagne' ? campaign.campaign_label : undefined}
-                        ctaText="Être conseillé"
-                        ctaHref="/bilan-gratuit"
+                        ctaText="Réserver ma place"
+                        ctaHref={`/bilan-gratuit?offer=${encodeURIComponent(o.id)}`}
                       />
+                        </div>
                     );
                   })}
                   </div>
@@ -235,8 +242,8 @@ export default function OffresPage() {
                 if (price == null) return null;
                 const displayLevel = o.level === 'premiere' ? 'Première' : o.level === 'terminale' ? 'Terminale' : o.level;
                 return (
+                  <div key={o.id} id={o.id} className="scroll-mt-28">
                   <ExamCard
-                    key={o.id}
                     eyebrow={`${displayLevel} · Libre`}
                     title={o.title}
                     subtitle={o.subjects}
@@ -247,9 +254,10 @@ export default function OffresPage() {
                     groupMinOpen={o.group_min_open ?? rules.group_min_open.online_live}
                     effectifType="groupe"
                     payment={getAnnualOfferPaymentSchedule(o) ?? undefined}
-                    ctaText="Être conseillé"
-                    ctaHref="/bilan-gratuit"
+                    ctaText="Réserver ma place"
+                    ctaHref={`/bilan-gratuit?offer=${encodeURIComponent(o.id)}`}
                   />
+                  </div>
                 );
               })}
             </div>
@@ -267,13 +275,11 @@ export default function OffresPage() {
               </p>
             </div>
             <div className="grid gap-6 md:grid-cols-3">
-              {getAllOffers()
-                .filter(o => o.id.startsWith('plateforme'))
-                .map((o) => {
+              {platformOffers.map((o) => {
                   const price = o.price_annual_campaign ?? o.price_annual_public ?? 0;
                   return (
+                    <div key={o.id} id={o.id} className="scroll-mt-28">
                     <ExamCard
-                      key={o.id}
                       eyebrow="Plateforme"
                       title={o.title}
                       subtitle={o.subjects}
@@ -283,9 +289,10 @@ export default function OffresPage() {
                       effectifType={o.group_max ? 'groupe' : 'none'}
                       groupMax={o.group_max ?? undefined}
                       groupMinOpen={o.group_min_open ?? undefined}
-                      ctaText="Demander un bilan"
-                      ctaHref="/bilan-gratuit"
+                      ctaText="Réserver ma place"
+                      ctaHref={`/bilan-gratuit?offer=${encodeURIComponent(o.id)}`}
                     />
+                    </div>
                   );
                 })}
             </div>
@@ -294,7 +301,7 @@ export default function OffresPage() {
 
         {/* Les Intensifs */}
         {showSection('intensifs') && (
-          <section>
+          <section id="les-intensifs" className="scroll-mt-28">
             <div className="mb-8">
               <span className="lux-eyebrow">Les Intensifs</span>
               <h2 className="mt-2 text-2xl md:text-3xl">Stages intensifs — toutes les vacances</h2>
@@ -306,8 +313,8 @@ export default function OffresPage() {
             {/* Formats grid */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mb-10">
               {stageFormats.map((f) => (
+                <div key={f.format_id} id={f.format_id} className="scroll-mt-28">
                 <ExamCard
-                  key={f.format_id}
                   eyebrow={`Intensif · ${f.hours}h`}
                   title={f.title}
                   subtitle={`${f.hours}h de travail concentré`}
@@ -316,9 +323,10 @@ export default function OffresPage() {
                   groupMinOpen={f.group_min_open}
                   effectifType="groupe"
                   payment={{ deposit: f.payment.deposit, solde: f.payment.solde }}
-                  ctaText="Pré-inscription"
-                  ctaHref="/stages"
+                  ctaText="Réserver ma place"
+                  ctaHref={`/bilan-gratuit?offer=${encodeURIComponent(f.format_id)}`}
                 />
+                </div>
               ))}
             </div>
 
@@ -349,8 +357,8 @@ export default function OffresPage() {
             </div>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
               {ponctuelOffers.map((p) => (
+                <div key={p.id} id={p.id} className="scroll-mt-28">
                 <ExamCard
-                  key={p.id}
                   eyebrow={`Prépa · ${p.public}`}
                   title={p.title}
                   subtitle={p.description}
@@ -364,9 +372,10 @@ export default function OffresPage() {
                       ? undefined
                       : { deposit: p.payment.deposit, solde: p.payment.solde }
                   }
-                  ctaText="Demander un bilan"
-                  ctaHref="/bilan-gratuit"
+                  ctaText="Réserver ma place"
+                  ctaHref={`/bilan-gratuit?offer=${encodeURIComponent(p.id)}`}
                 />
+                </div>
               ))}
             </div>
           </section>
@@ -381,8 +390,8 @@ export default function OffresPage() {
             </div>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {coachingOffers.map((c) => (
+                <div key={c.id} id={c.id} className="scroll-mt-28">
                 <ExamCard
-                  key={c.id}
                   eyebrow={`Boussole · ${c.effectif}`}
                   title={c.title}
                   subtitle={c.format}
@@ -404,9 +413,10 @@ export default function OffresPage() {
                       ? ['Offert en campagne', c.deductible ? 'Déductible du parcours annuel' : ''].filter(Boolean)
                       : undefined
                   }
-                  ctaText="Être conseillé"
-                  ctaHref="/bilan-gratuit"
+                  ctaText="Réserver ma place"
+                  ctaHref={`/bilan-gratuit?offer=${encodeURIComponent(c.id)}`}
                 />
+                </div>
               ))}
             </div>
           </section>
@@ -424,14 +434,15 @@ export default function OffresPage() {
             </div>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {packs.map((p, i) => (
+                <div key={p.id} id={p.id} className="scroll-mt-28">
                 <PassCard
-                  key={p.id}
                   pack={p}
                   componentLabels={resolvePackComponentLabels(p)}
                   highlighted={i === 0}
-                  ctaText="Être conseillé"
-                  ctaHref="/bilan-gratuit"
+                  ctaText="Réserver ma place"
+                  ctaHref={`/bilan-gratuit?offer=${encodeURIComponent(p.id)}`}
                 />
+                </div>
               ))}
             </div>
           </section>
@@ -439,13 +450,13 @@ export default function OffresPage() {
 
         {/* Carte Nexus */}
         {showSection('carte') && (
-          <section>
+          <section id="carte-nexus" className="scroll-mt-28">
             <div className="mb-8">
               <span className="lux-eyebrow">Carte Nexus</span>
-              <h2 className="mt-2 text-2xl md:text-3xl">La carte membre</h2>
+              <h2 className="mt-2 text-2xl md:text-3xl">L&apos;accompagnement Nexus toute l&apos;année</h2>
             </div>
             <div className="max-w-md">
-              <CarteNexusCard carte={carte} ctaText="Être conseillé" ctaHref="/bilan-gratuit" />
+              <CarteNexusCard carte={carte} ctaText="Réserver ma place" ctaHref={`/bilan-gratuit?offer=${encodeURIComponent(carte.id)}`} />
             </div>
           </section>
         )}
@@ -454,13 +465,15 @@ export default function OffresPage() {
 
       <FAQAccordion items={catalogueFAQ} title="Questions sur les tarifs" />
 
+      <Testimonials />
+
       {/* CTA */}
       <section className="bg-lux-ink py-16 px-4 md:px-6">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-2xl md:text-3xl font-fraunces font-light text-lux-ivory">
             Besoin d&apos;aide pour choisir ?
           </h2>
-          <p className="mt-3 text-base text-lux-ivory/70 font-dm-sans">
+          <p className="mt-3 text-base text-lux-on-dark-muted font-dm-sans">
             Notre diagnostic gratuit identifie la formule adaptée en 3 questions.
           </p>
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
@@ -472,7 +485,7 @@ export default function OffresPage() {
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
             <a
-              href={WHATSAPP_URL}
+              href={buildWhatsAppUrl('les offres Nexus')}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm font-medium text-lux-gold-wash hover:underline min-h-[44px]"

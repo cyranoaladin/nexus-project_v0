@@ -165,7 +165,7 @@ const offers = [
     threshold: "Ouverture à partir de 3 élèves",
     shortPitch: "Les deux épreuves anticipées dans une seule formule cohérente.",
     points: ["Maths 14h + Français 16h", "Écrit blanc de Français inclus", "Écrit blanc de Maths inclus", "Bilan final individualisé"],
-    bonus: { title: "Accès Masterium offert", subtitle: "Préparation à l'épreuve anticipée de Français", value: "Valeur réelle : 258 TND" },
+    bonus: { title: "Accès ARIA offert", subtitle: "Préparation à l'épreuve anticipée de Français", value: "Valeur réelle : 258 TND" },
     planning: ["Lundi 20 avril — Maths (09h) + Français (11h30)", "Mardi 21 avril — Maths (09h) + Français (11h30)", "Mercredi 22 avril — Maths (09h) + Français (11h30)", "Jeudi 23 avril — Maths (09h) + Français (11h30)", "Mardi 28 avril — Français écrit blanc", "Mercredi 29 avril — Maths écrit blanc + correction", "Jeudi 30 avril — Français oral blanc + Bilan Maths"],
     followUp: ["Point d'étape intermédiaire", "Corrigés détaillés des épreuves blanches", "Bilan final avec priorités"],
   },
@@ -186,7 +186,7 @@ const offers = [
     threshold: "Ouverture à partir de 3 élèves",
     shortPitch: "Un parcours cohérent pour travailler deux matières stratégiques.",
     points: ["Maths 15h + NSI 15h", "Écrit blanc de Maths inclus", "Sujet de synthèse NSI intégré", "Progression structurée"],
-    bonus: { title: "Accès Masterium offert", subtitle: "Préparation à l'épreuve anticipée de Français", value: "Valeur réelle : 258 TND" },
+    bonus: { title: "Accès ARIA offert", subtitle: "Préparation à l'épreuve anticipée de Français", value: "Valeur réelle : 258 TND" },
     planning: ["Samedi 18 avril — Maths bloc 1", "Lundi 20 avril — Maths bloc 2", "Mercredi 22 avril — NSI bloc 1", "Jeudi 23 avril — Maths bloc 3", "Vendredi 24 avril — NSI bloc 2", "Samedi 25 avril — Maths bloc 4", "Lundi 27 avril — NSI bloc 3", "Mercredi 29 avril — Maths écrit blanc + correction", "Vendredi 1er mai — NSI bloc 4", "Samedi 2 mai — NSI bloc 5"],
     followUp: ["Point d'étape intermédiaire", "Corrigé détaillé Maths + retour NSI", "Bilan final sur les deux matières"],
   },
@@ -207,7 +207,7 @@ const offers = [
     threshold: "Ouverture à partir de 3 élèves",
     shortPitch: "Une préparation globale et structurée sur l'ensemble des priorités.",
     points: ["Maths 18h + Français 12h + NSI 6h", "Écrits blancs inclus", "Oral blanc de Français inclus", "Vision claire des priorités"],
-    bonus: { title: "Accès Masterium offert", subtitle: "Préparation à l'épreuve anticipée de Français", value: "Valeur réelle : 258 TND" },
+    bonus: { title: "Accès ARIA offert", subtitle: "Préparation à l'épreuve anticipée de Français", value: "Valeur réelle : 258 TND" },
     planning: ["Samedi 18 avril — Maths bloc 1", "Lundi 20 avril — Maths bloc 2", "Mardi 21 avril — Français bloc 1", "Mercredi 22 avril — NSI bloc 1", "Jeudi 23 avril — Maths bloc 3", "Vendredi 24 avril — NSI bloc 2", "Samedi 25 avril — Maths bloc 4", "Lundi 27 avril — Français bloc 2", "Mardi 28 avril — Français écrit blanc", "Mercredi 29 avril — Maths écrit blanc + correction", "Jeudi 30 avril — Français oral blanc", "Samedi 2 mai — Maths consolidation"],
     followUp: ["Point d'étape intermédiaire", "Corrigés détaillés des épreuves blanches", "Bilan final multi-matières"],
   },
@@ -570,7 +570,7 @@ export default function NexusStagesPage() {
                     ))}
                   </div>
                   <div className="text-sm text-white/55">
-                    <span className="font-semibold text-white">+500 élèves</span> accompagnés chaque année
+                    <span className="font-semibold text-white">groupes réduits</span> accompagnés chaque année
                   </div>
                 </motion.div>
               </motion.div>

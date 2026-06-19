@@ -25,6 +25,11 @@ jest.mock('openai', () => ({
   },
 }));
 
+jest.mock('@/lib/rag-client', () => ({
+  ragSearch: jest.fn().mockResolvedValue([]),
+  buildRAGContext: jest.fn().mockReturnValue(''),
+}));
+
 jest.mock('@/lib/prisma', () => ({
   prisma: {
     pedagogicalContent: { findMany: jest.fn() },

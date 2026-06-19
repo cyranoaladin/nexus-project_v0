@@ -33,7 +33,8 @@ export interface RecommendationOutcome {
   emptyState?: RecommendationEmptyState;
 }
 
-const WHATSAPP_URL = 'https://wa.me/21699192829';
+import { buildWhatsAppUrl } from '@/lib/whatsapp';
+const WHATSAPP_URL = buildWhatsAppUrl();
 const LEVEL_LABELS: Record<string, string> = {
   terminale: 'Terminale',
   premiere: 'Première',

@@ -4,6 +4,8 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Mail, Phone, MapPin, ArrowRight } from 'lucide-react';
+import { FloatingAdvisorBubble, NewsletterSignup } from '@/components/marketing/acadomia-inspired';
+import { MobileStickyBar } from '@/components/marketing/MobileStickyBar';
 
 const CorporateFooter = () => {
     const scrollToSection = (id: string) => {
@@ -19,6 +21,7 @@ const CorporateFooter = () => {
         { label: 'Offres', href: '/offres', isPage: true },
         { label: 'Stages', href: '/stages', isPage: true },
         { label: 'Plateforme ARIA', href: '/plateforme-aria', isPage: true },
+        { label: 'Ressources', href: '/ressources', isPage: true },
         { label: 'Notre Équipe', href: '/equipe', isPage: true },
         { label: 'Notre Centre', href: '/notre-centre', isPage: true },
         { label: 'Bilan Gratuit', href: '/bilan-gratuit', isPage: true },
@@ -34,7 +37,7 @@ const CorporateFooter = () => {
                     <div className="lg:col-span-1">
                         <div className="mb-6">
                             <Image
-                                src="/images/logo_slogan_nexus_x3.png"
+                                src="/images/logo_slogan_nexus.webp"
                                 alt="Nexus Réussite"
                                 width={150}
                                 height={54}
@@ -46,11 +49,12 @@ const CorporateFooter = () => {
                             <br />
                             Pour les familles qui recherchent un cadre sérieux, sobre et cohérent.
                         </p>
+                        <NewsletterSignup />
                     </div>
 
                     {/* Links */}
                     <div>
-                        <h4 className="font-fraunces text-lg font-medium text-lux-ivory mb-6">Exploration</h4>
+                        <h2 className="font-fraunces text-lg font-medium text-lux-ivory mb-6">Exploration</h2>
                         <ul className="space-y-4">
                             {links.map((item, index) => (
                                 <li key={index}>
@@ -78,7 +82,7 @@ const CorporateFooter = () => {
 
                     {/* Contact */}
                     <div className="lg:col-span-2">
-                        <h4 className="font-fraunces text-lg font-medium text-lux-ivory mb-6">Coordonnées</h4>
+                        <h2 className="font-fraunces text-lg font-medium text-lux-ivory mb-6">Coordonnées</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="p-4 rounded-xl bg-white/5 border border-white/10 flex items-start gap-3">
                                 <MapPin className="w-5 h-5 text-lux-gold-wash mt-1" />
@@ -132,6 +136,8 @@ const CorporateFooter = () => {
                     </div>
                 </div>
             </div>
+            <FloatingAdvisorBubble />
+            <MobileStickyBar />
         </footer>
     );
 };

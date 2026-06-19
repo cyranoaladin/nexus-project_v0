@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Check, CreditCard } from 'lucide-react';
 import { fmtTND } from './format';
+import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import type { CarteNexus } from '@/lib/pricing';
 
 interface CarteNexusCardProps {
@@ -34,19 +35,19 @@ export function CarteNexusCard({ carte, onCta, ctaHref, ctaText = 'Prendre la Ca
         <span className="lux-price text-3xl text-lux-gold">
           {fmtTND(carte.price_annual)}
         </span>
-        <span className="ml-2 text-sm text-lux-ivory/60">/&nbsp;an</span>
+        <span className="ml-2 text-sm text-lux-on-dark-muted">/&nbsp;an</span>
       </div>
 
       <ul className="mb-6 space-y-2.5">
         {carte.includes.map((benefit, i) => (
           <li key={i} className="flex items-start gap-2">
             <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-lux-gold" />
-            <span className="text-sm text-lux-ivory/80">{benefit}</span>
+            <span className="text-sm text-lux-on-dark-muted">{benefit}</span>
           </li>
         ))}
       </ul>
 
-      <p className="mb-4 text-xs text-lux-ivory/50">
+      <p className="mb-4 text-xs text-lux-on-dark-subtle">
         Remise −{carte.discount_pct}% sur stages & coaching unitaires (hors Pass).
         Non cumulable. Plancher {fmtTND(carte.member_floor_per_student_hour)}/h.
       </p>
@@ -66,6 +67,16 @@ export function CarteNexusCard({ carte, onCta, ctaHref, ctaText = 'Prendre la Ca
           {ctaText}
         </button>
       ) : null}
+      {(ctaHref || onCta) && (
+        <a
+          href={buildWhatsAppUrl(`l’offre ${carte.title}`)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 flex min-h-[44px] w-full items-center justify-center rounded-lg border border-white/15 px-4 py-2 text-sm font-semibold text-lux-ivory transition hover:border-lux-gold/70"
+        >
+          Poser une question
+        </a>
+      )}
     </div>
   );
 }

@@ -6,6 +6,7 @@ import {
   type Dispatch,
   type SetStateAction,
 } from "react";
+import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import {
   ArrowRight,
   CheckCircle2,
@@ -94,10 +95,10 @@ export default function StageReservationModal({
 
       // If WhatsApp, just redirect
       if (paymentMethod === "whatsapp") {
-        const text = encodeURIComponent(
-          `Bonjour, je souhaite réserver la formule « ${offer.title} » (${offer.price} TND) pour ${form.studentName || form.parent}. Email : ${form.email}. Tél : ${form.phone}. Classe : ${form.classe}.`
+        window.open(
+          buildWhatsAppUrl(`la réservation « ${offer.title} » (${offer.price} TND) pour ${form.studentName || form.parent}`),
+          "_blank"
         );
-        window.open(`https://wa.me/21699192829?text=${text}`, "_blank");
         handleClose();
         return;
       }

@@ -75,7 +75,7 @@ export function GuaranteeSection() {
                   <p className="text-slate-100 text-lg leading-relaxed">
                     Si votre enfant, inscrit à notre formule annuelle "Immersion" ou "Candidat Libre",
                     suit assidûment notre programme et n'obtient pas son Baccalauréat, nous vous
-                    remboursons l'intégralité des frais de scolarité de l'année.
+                    mettons en place un ajustement pédagogique encadré.
                   </p>
                 </motion.div>
 

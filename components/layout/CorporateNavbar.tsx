@@ -180,12 +180,14 @@ export function CorporateNavbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3">
             <Image
-              src="/images/logo_slogan_nexus_x3.png"
+              src="/images/logo_slogan_nexus.webp"
               alt="Nexus Réussite"
               width={180}
               height={65}
               className="h-10 w-auto md:h-12"
               priority
+              fetchPriority="high"
+              unoptimized
             />
           </Link>
 
@@ -390,7 +392,7 @@ export function CorporateNavbar() {
             {/* Menu Items */}
             <div className="flex items-center justify-center flex-1">
               {(isOpen || !reducedMotion) && (
-                <nav className="w-full max-w-5xl px-6 md:px-10">
+                <nav className="w-full max-w-5xl px-6 md:px-10" aria-label="Menu principal">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
                     {menuGroups.map((group, groupIndex) => (
                       <div key={group.title} className="space-y-6">
@@ -454,9 +456,9 @@ export function CorporateNavbar() {
                     <p className="text-xs uppercase tracking-[0.2em] text-neutral-500 font-mono">
                       Prochaine étape
                     </p>
-                    <h3 className="mt-2 text-2xl md:text-3xl font-bold text-white">
+                    <p className="mt-2 text-2xl md:text-3xl font-bold text-white" role="presentation">
                       Démarrer en moins de 2 minutes
-                    </h3>
+                    </p>
                     <p className="mt-2 text-sm text-neutral-300">
                       Lancez un bilan gratuit ou échangez avec un expert.
                     </p>
