@@ -3,6 +3,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, BookOpen, Target, ChevronRight } from 'lucide-react';
+import { getNextStage } from '@/lib/pricing';
+
+const _stageLabel = getNextStage()?.title ?? 'Stage Nexus Réussite';
 
 interface SeanceDuJourProps {
   onNavigateToChap: (catKey: string, chapId: string) => void;
@@ -62,7 +65,7 @@ export const SeanceDuJour: React.FC<SeanceDuJourProps> = ({ onNavigateToChap, st
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-3">
               <span className="rounded-full bg-cyan-500/20 px-3 py-1 text-[10px] font-black text-cyan-400 border border-cyan-500/30 uppercase tracking-widest">
-                Stage Printemps 2026
+                {_stageLabel}
               </span>
               <span className="text-[10px] text-slate-500 font-bold uppercase">
                 {formatDateFr(session.date)} • {session.heureDebut}–{session.heureFin}

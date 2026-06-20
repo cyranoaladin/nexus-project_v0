@@ -3,6 +3,9 @@ import { ArrowRight, MessageCircle, ShieldCheck } from "lucide-react";
 import CountdownChip from "./CountdownChip";
 import CTAButton from "./CTAButton";
 import { TARGET_DATES, WHATSAPP_URL } from "../_lib/constants";
+import { getNextStage } from "@/lib/pricing";
+
+const _nextStage = getNextStage();
 
 export default function StagesHero() {
   return (
@@ -14,7 +17,7 @@ export default function StagesHero() {
         {/* Badge contextuel */}
         <div className="mb-8 flex flex-wrap items-center justify-center gap-3">
           <span className="rounded-full border border-nexus-green/22 bg-white/[0.04] px-4 py-2 font-mono text-[11px] uppercase tracking-[0.18em] text-white/65">
-            Stages Printemps 2026 · 18 avril — 2 mai · Tunis
+            {_nextStage ? `${_nextStage.title} · ${_nextStage.dates_display} · Tunis` : 'Stages Nexus Réussite · Tunis'}
           </span>
           <CountdownChip
             targetDate={TARGET_DATES.stage_start.toISOString()}

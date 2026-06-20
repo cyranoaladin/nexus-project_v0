@@ -357,14 +357,14 @@ export function getNextStage(referenceDate?: Date): { title: string; dates_displ
   const now = referenceDate ?? new Date();
   const calendar = getStageCalendar();
   const upcoming = calendar
-    .filter((e) => new Date((e as any).date_start) >= now)
-    .sort((a, b) => new Date((a as any).date_start).getTime() - new Date((b as any).date_start).getTime());
+    .filter((e) => new Date(e.date_start) >= now)
+    .sort((a, b) => new Date(a.date_start).getTime() - new Date(b.date_start).getTime());
   if (upcoming.length === 0) return null;
   const next = upcoming[0];
   return {
-    title: (next as any).title ?? next.id,
-    dates_display: (next as any).dates_display ?? '',
-    date_start: (next as any).date_start,
+    title: next.title,
+    dates_display: next.dates_display,
+    date_start: next.date_start,
   };
 }
 

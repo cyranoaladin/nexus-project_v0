@@ -113,7 +113,7 @@ export default function ScoreHeader({
         {studentName && (
           <p className="text-lg text-slate-600">{studentName}</p>
         )}
-        <p className="text-sm text-slate-500">Stage Février 2026 — Maths & NSI</p>
+        <p className="text-sm text-slate-500">Bilan de Positionnement — Maths & NSI</p>
       </div>
 
       {/* Score + Metrics */}

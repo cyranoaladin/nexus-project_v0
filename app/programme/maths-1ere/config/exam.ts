@@ -97,11 +97,11 @@ export interface SujetBlanc {
   exercices: ExerciceBloc[];
 }
 
-// ─── Sujet Blanc #1 — Printemps 2026 ────────────────────────────────────────
+// ─── Sujet Blanc #1 ─────────────────────────────────────────────────────────
 
 export const SUJET_BLANC_1: SujetBlanc = {
   id: "sb1",
-  titre: "Sujet Blanc #1 — Stage Printemps 2026",
+  titre: "Sujet Blanc #1 — Stage Nexus Réussite",
   automatismes: [
     {
       id: "a1",
