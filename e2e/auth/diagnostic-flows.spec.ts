@@ -58,7 +58,7 @@ test.describe('Diagnostic Flow — Definitions API', () => {
     for (const def of data.definitions) {
       expect(def.key).toBeTruthy();
       expect(def.label).toBeTruthy();
-      expect(['maths', 'nsi', 'physique']).toContain(def.track);
+      expect(['maths', 'nsi', 'physique', 'maths-stmg', 'sgn-stmg', 'management-stmg', 'droit-eco-stmg']).toContain(def.track);
       expect(['premiere', 'terminale']).toContain(def.level);
       expect(def.version).toBeTruthy();
     }
