@@ -173,15 +173,6 @@ export interface StageCalendarEntry {
   notes: string | null;
 }
 
-export interface CompositeStagePack {
-  id: string;
-  title: string;
-  level: string;
-  hours: number;
-  price_per_student: number;
-  price_per_student_hour: number;
-}
-
 export interface SpecialProgram {
   id: string;
   title: string;
@@ -215,7 +206,6 @@ export interface PricingData {
   ponctuel_offers: PonctuelOffer[];
   coaching: CoachingOffer[];
   packs: Pack[];
-  composite_stage_packs: CompositeStagePack[];
   special_programs: SpecialProgram[];
   aria_addon: AriaAddon;
   subscription_tiers: SubscriptionTier[];
@@ -497,22 +487,6 @@ export function applyCarteDiscount(unitPrice: number, hours: number | null): num
     return Math.max(discounted, minPrice);
   }
   return discounted;
-}
-
-// ── Composite stage packs ──
-
-export function getCompositeStagePacks(): CompositeStagePack[] {
-  return data.composite_stage_packs;
-}
-
-export function getCompositeStagePack(id: string): CompositeStagePack | undefined {
-  return data.composite_stage_packs.find((p) => p.id === id);
-}
-
-export function getCompositeStagePackPrice(id: string): number {
-  const pack = data.composite_stage_packs.find((p) => p.id === id);
-  if (!pack) throw new Error(`Unknown composite stage pack: ${id}`);
-  return pack.price_per_student;
 }
 
 // ── Special programs ──
