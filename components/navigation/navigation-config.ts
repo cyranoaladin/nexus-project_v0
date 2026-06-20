@@ -57,6 +57,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       href: '/dashboard/eleve/npc',
       icon: 'ClipboardCheck',
       match: 'prefix'
+    },
+    {
+      label: 'Documents',
+      href: '/dashboard/eleve/documents',
+      icon: 'FileText',
+      match: 'prefix'
     }
   ],
   [UserRole.PARENT]: [
@@ -100,6 +106,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       label: 'Diagnostics',
       href: '/dashboard/parent/npc',
       icon: 'ClipboardCheck',
+      match: 'prefix'
+    },
+    {
+      label: 'Mes enfants',
+      href: '/dashboard/parent/children',
+      icon: 'Users',
       match: 'prefix'
     }
   ],
@@ -212,6 +224,18 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       label: 'Documents',
       href: '/dashboard/assistante/docs',
       icon: 'FolderOpen',
+      match: 'prefix'
+    },
+    {
+      label: 'Demandes de crédit',
+      href: '/dashboard/assistante/credit-requests',
+      icon: 'Wallet',
+      match: 'prefix'
+    },
+    {
+      label: 'Demandes d\'abonnement',
+      href: '/dashboard/assistante/subscription-requests',
+      icon: 'FileCheck',
       match: 'prefix'
     }
   ],

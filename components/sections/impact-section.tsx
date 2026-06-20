@@ -34,7 +34,7 @@ const choices = [
     title: "Pros",
     description: "Maîtriser les technos de demain.",
     cta: "Explorer les formations",
-    href: "/academy",
+    href: "/contact",
   },
 ];
 

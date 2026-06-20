@@ -42,12 +42,20 @@ describe('T16.2 — Mensuel == round(annuel / 10)', () => {
 // ── Échéancier ──
 
 describe('T16.3 — Échéancier somme == annuel', () => {
-  test('deposit + installments == price_annual for every offer', () => {
+  test('deposit + installments == price_annual for every priced offer', () => {
+    let checked = 0;
     for (const o of data.offers) {
-      if (o.deposit == null || o.installment_amount == null || o.price_annual == null) continue;
-      const total = o.deposit + ((o.n_installments ?? 9) - 1) * o.installment_amount + (o.last_installment ?? o.installment_amount);
+      if (o.price_annual == null) continue;
+      if (o.deposit == null || o.installment_amount == null) continue;
+      // Every priced offer with deposit MUST have complete schedule
+      expect(o.n_installments).not.toBeNull();
+      expect(o.last_installment).not.toBeNull();
+      const total = o.deposit + (o.n_installments! - 1) * o.installment_amount + o.last_installment!;
       expect(total).toBe(o.price_annual);
+      checked++;
     }
+    // Must verify at least 14 offers (all priced annuals with schedules)
+    expect(checked).toBeGreaterThanOrEqual(14);
   });
 
   test('stage format deposit + solde == price_per_student', () => {

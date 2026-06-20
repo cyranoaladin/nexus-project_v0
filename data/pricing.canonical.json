@@ -5,9 +5,23 @@
   "rules": {
     "weeks_per_year": 30,
     "group_max": 5,
-    "group_min_open": { "lycee": 3, "college": 4, "online_live": 3, "stage": 3, "stage_college": 4 },
+    "group_min_open": {
+      "lycee": 3,
+      "college": 4,
+      "online_live": 3,
+      "stage": 3,
+      "stage_college": 4
+    },
     "semi_individual_surcharge_pct": 50,
-    "price_floor_per_student_hour_tnd": { "single": 50, "multi": 45, "college": 40, "stage": 45, "coaching_1to1": 180, "carte_member": 40, "pack": 40 },
+    "price_floor_per_student_hour_tnd": {
+      "single": 50,
+      "multi": 45,
+      "college": 40,
+      "stage": 45,
+      "coaching_1to1": 180,
+      "carte_member": 40,
+      "pack": 40
+    },
     "payment": {
       "deposit_pct": 30,
       "deposit_pct_annual": 30,
@@ -50,7 +64,12 @@
       "n_installments": 9,
       "installment_amount": 300,
       "last_installment": 330,
-      "included": ["1 spécialité au choix, 2 h / semaine", "Groupe de 5 maximum, garanti dès 3 inscrits", "Bacs blancs en conditions réelles", "Plateforme ARIA + espace parent"]
+      "included": [
+        "1 spécialité au choix, 2 h / semaine",
+        "Groupe de 5 maximum, garanti dès 3 inscrits",
+        "Bacs blancs en conditions réelles",
+        "Plateforme ARIA + espace parent"
+      ]
     },
     {
       "id": "term-duo",
@@ -127,7 +146,14 @@
       "n_installments": 9,
       "installment_amount": 233,
       "last_installment": 236,
-      "included": ["Préparation EAF complète : écrit + oral", "Groupe de 5 maximum, garanti dès 3 inscrits", "Bacs blancs de français en conditions réelles", "Méthodologie commentaire et dissertation", "Plateforme ARIA + espace parent", "Bilans de progression réguliers"]
+      "included": [
+        "Préparation EAF complète : écrit + oral",
+        "Groupe de 5 maximum, garanti dès 3 inscrits",
+        "Bacs blancs de français en conditions réelles",
+        "Méthodologie commentaire et dissertation",
+        "Plateforme ARIA + espace parent",
+        "Bilans de progression réguliers"
+      ]
     },
     {
       "id": "1re-maths-antic",
@@ -147,7 +173,14 @@
       "n_installments": 9,
       "installment_amount": 233,
       "last_installment": 236,
-      "included": ["Mathématiques anticipées et méthode", "Groupe de 5 maximum, garanti dès 3 inscrits", "Préparation aux attendus de Terminale", "Bilan de positionnement initial offert", "Plateforme ARIA + espace parent", "Bilans de progression réguliers"]
+      "included": [
+        "Mathématiques anticipées et méthode",
+        "Groupe de 5 maximum, garanti dès 3 inscrits",
+        "Préparation aux attendus de Terminale",
+        "Bilan de positionnement initial offert",
+        "Plateforme ARIA + espace parent",
+        "Bilans de progression réguliers"
+      ]
     },
     {
       "id": "1re-double-secu",
@@ -167,7 +200,15 @@
       "n_installments": 9,
       "installment_amount": 420,
       "last_installment": 420,
-      "included": ["Préparation EAF complète : écrit + oral", "Mathématiques anticipées et méthode", "Groupe de 5 maximum, garanti dès 3 inscrits", "Bacs blancs de français en conditions réelles", "Bilan de positionnement initial offert", "Plateforme ARIA + espace parent", "Bilans de progression réguliers"]
+      "included": [
+        "Préparation EAF complète : écrit + oral",
+        "Mathématiques anticipées et méthode",
+        "Groupe de 5 maximum, garanti dès 3 inscrits",
+        "Bacs blancs de français en conditions réelles",
+        "Bilan de positionnement initial offert",
+        "Plateforme ARIA + espace parent",
+        "Bilans de progression réguliers"
+      ]
     },
     {
       "id": "1re-sciences",
@@ -187,7 +228,14 @@
       "n_installments": 9,
       "installment_amount": 460,
       "last_installment": 450,
-      "included": ["Mathématiques et raisonnement scientifique", "Groupe de 5 maximum, garanti dès 3 inscrits", "Préparation aux attendus de Terminale", "Bilan de positionnement initial offert", "Plateforme ARIA + espace parent", "Bilans de progression réguliers"]
+      "included": [
+        "Mathématiques et raisonnement scientifique",
+        "Groupe de 5 maximum, garanti dès 3 inscrits",
+        "Préparation aux attendus de Terminale",
+        "Bilan de positionnement initial offert",
+        "Plateforme ARIA + espace parent",
+        "Bilans de progression réguliers"
+      ]
     },
     {
       "id": "2nde-maths",
@@ -207,7 +255,14 @@
       "n_installments": 9,
       "installment_amount": 210,
       "last_installment": 210,
-      "included": ["Mathématiques et méthode de travail", "Groupe de 5 maximum, garanti dès 3 inscrits", "Préparation aux choix de spécialités", "Bilan de positionnement initial offert", "Plateforme ARIA + espace parent", "Bilans de progression réguliers"]
+      "included": [
+        "Mathématiques et méthode de travail",
+        "Groupe de 5 maximum, garanti dès 3 inscrits",
+        "Préparation aux choix de spécialités",
+        "Bilan de positionnement initial offert",
+        "Plateforme ARIA + espace parent",
+        "Bilans de progression réguliers"
+      ]
     },
     {
       "id": "2nde-sciences",
@@ -227,7 +282,15 @@
       "n_installments": 9,
       "installment_amount": 420,
       "last_installment": 420,
-      "included": ["Mathématiques et raisonnement scientifique, 4 h / semaine", "Groupe de 5 maximum, garanti dès 3 inscrits", "Préparation aux attendus de Première", "Bilan de positionnement initial offert", "Plateforme ARIA + espace parent", "Aide à l'arbitrage des spécialités", "Bilans de progression réguliers"]
+      "included": [
+        "Mathématiques et raisonnement scientifique, 4 h / semaine",
+        "Groupe de 5 maximum, garanti dès 3 inscrits",
+        "Préparation aux attendus de Première",
+        "Bilan de positionnement initial offert",
+        "Plateforme ARIA + espace parent",
+        "Aide à l'arbitrage des spécialités",
+        "Bilans de progression réguliers"
+      ]
     },
     {
       "id": "2nde-coaching",
@@ -247,7 +310,11 @@
       "n_installments": null,
       "installment_amount": null,
       "last_installment": null,
-      "included": ["3 rendez-vous individuels", "Bilan de positionnement et orientation", "Aide au choix des spécialités"]
+      "included": [
+        "3 rendez-vous individuels",
+        "Bilan de positionnement et orientation",
+        "Aide au choix des spécialités"
+      ]
     },
     {
       "id": "brevet-maths",
@@ -267,7 +334,14 @@
       "n_installments": 9,
       "installment_amount": 186,
       "last_installment": 192,
-      "included": ["Mathématiques : calcul, géométrie, résolution de problèmes", "Groupe de 5 maximum, garanti dès 4 inscrits", "Entraînement DNB : sujets corrigés et méthodologie", "Bilan de positionnement initial offert", "Plateforme ARIA + espace parent", "Bilans de progression réguliers"]
+      "included": [
+        "Mathématiques : calcul, géométrie, résolution de problèmes",
+        "Groupe de 5 maximum, garanti dès 4 inscrits",
+        "Entraînement DNB : sujets corrigés et méthodologie",
+        "Bilan de positionnement initial offert",
+        "Plateforme ARIA + espace parent",
+        "Bilans de progression réguliers"
+      ]
     },
     {
       "id": "brevet-complet",
@@ -287,7 +361,14 @@
       "n_installments": 9,
       "installment_amount": 373,
       "last_installment": 376,
-      "included": ["Mathématiques + Français + méthode de travail, 4 h / semaine", "Groupe de 5 maximum, garanti dès 4 inscrits", "Entraînement DNB complet : sujets corrigés", "Bilan de positionnement initial offert", "Plateforme ARIA + espace parent", "Bilans de progression réguliers"]
+      "included": [
+        "Mathématiques + Français + méthode de travail, 4 h / semaine",
+        "Groupe de 5 maximum, garanti dès 4 inscrits",
+        "Entraînement DNB complet : sujets corrigés",
+        "Bilan de positionnement initial offert",
+        "Plateforme ARIA + espace parent",
+        "Bilans de progression réguliers"
+      ]
     },
     {
       "id": "1re-libre-essentiel",
@@ -307,7 +388,11 @@
       "n_installments": 9,
       "installment_amount": 150,
       "last_installment": 130,
-      "included": ["EAF + Maths + tronc commun en ligne", "Plateforme ARIA", "Bilans de progression réguliers"]
+      "included": [
+        "EAF + Maths + tronc commun en ligne",
+        "Plateforme ARIA",
+        "Bilans de progression réguliers"
+      ]
     },
     {
       "id": "1re-libre-accomp",
@@ -327,7 +412,12 @@
       "n_installments": 9,
       "installment_amount": 380,
       "last_installment": 390,
-      "included": ["Présentiel hebdomadaire en groupe de 5 max", "Plateforme ARIA + espace parent", "Carte d'examen personnalisée", "Bilans de progression réguliers"]
+      "included": [
+        "Présentiel hebdomadaire en groupe de 5 max",
+        "Plateforme ARIA + espace parent",
+        "Carte d'examen personnalisée",
+        "Bilans de progression réguliers"
+      ]
     },
     {
       "id": "term-libre-online",
@@ -347,7 +437,11 @@
       "n_installments": 9,
       "installment_amount": 225,
       "last_installment": 230,
-      "included": ["Spécialités + Grand Oral + tronc commun en ligne", "Plateforme ARIA", "Bilans de progression réguliers"]
+      "included": [
+        "Spécialités + Grand Oral + tronc commun en ligne",
+        "Plateforme ARIA",
+        "Bilans de progression réguliers"
+      ]
     },
     {
       "id": "term-libre-mixte",
@@ -395,7 +489,13 @@
       "n_installments": 9,
       "installment_amount": 770,
       "last_installment": 770,
-      "included": ["Tout le parcours Mixte en groupe de 5 max", "Coaching individuel et suivi parent renforcé", "6 h d'urgence en ligne incluses", "Priorite de planification sur les stages", "Préparation Parcoursup : dossier et entretiens optimises"]
+      "included": [
+        "Tout le parcours Mixte en groupe de 5 max",
+        "Coaching individuel et suivi parent renforcé",
+        "6 h d'urgence en ligne incluses",
+        "Priorite de planification sur les stages",
+        "Préparation Parcoursup : dossier et entretiens optimises"
+      ]
     },
     {
       "id": "plateforme-autonomie",
@@ -415,7 +515,11 @@
       "n_installments": null,
       "installment_amount": null,
       "last_installment": null,
-      "included": ["Ressources, fiches, exercices et sujets corrigés", "Parcours personnalisé en autonomie", "Accès selon formule à la plateforme ARIA"]
+      "included": [
+        "Ressources, fiches, exercices et sujets corrigés",
+        "Parcours personnalisé en autonomie",
+        "Accès selon formule à la plateforme ARIA"
+      ]
     },
     {
       "id": "plateforme-suivi",
@@ -435,7 +539,11 @@
       "n_installments": null,
       "installment_amount": null,
       "last_installment": null,
-      "included": ["Tout l'abonnement Autonomie", "Compte parent + bilans réguliers", "1 atelier collectif en ligne / mois"]
+      "included": [
+        "Tout l'abonnement Autonomie",
+        "Compte parent + bilans réguliers",
+        "1 atelier collectif en ligne / mois"
+      ]
     },
     {
       "id": "plateforme-accomp",
@@ -455,7 +563,11 @@
       "n_installments": null,
       "installment_amount": null,
       "last_installment": null,
-      "included": ["Tout l'abonnement Suivi", "1 séance live en groupe de 5 max / semaine", "Corrections personnalisées ponctuelles"]
+      "included": [
+        "Tout l'abonnement Suivi",
+        "1 séance live en groupe de 5 max / semaine",
+        "Corrections personnalisées ponctuelles"
+      ]
     }
   ],
   "stage_formats": [
@@ -468,7 +580,10 @@
       "price_per_student": 490,
       "price_per_student_hour": 49,
       "floor_type": "stage",
-      "payment": { "deposit": 150, "solde": 340 }
+      "payment": {
+        "deposit": 150,
+        "solde": 340
+      }
     },
     {
       "format_id": "intensif-solo",
@@ -479,7 +594,10 @@
       "price_per_student": 580,
       "price_per_student_hour": 48,
       "floor_type": "stage",
-      "payment": { "deposit": 170, "solde": 410 }
+      "payment": {
+        "deposit": 170,
+        "solde": 410
+      }
     },
     {
       "format_id": "intensif-renfort",
@@ -490,7 +608,10 @@
       "price_per_student": 720,
       "price_per_student_hour": 48,
       "floor_type": "stage",
-      "payment": { "deposit": 220, "solde": 500 }
+      "payment": {
+        "deposit": 220,
+        "solde": 500
+      }
     },
     {
       "format_id": "intensif-duo",
@@ -501,7 +622,10 @@
       "price_per_student": 850,
       "price_per_student_hour": 47,
       "floor_type": "stage",
-      "payment": { "deposit": 260, "solde": 590 }
+      "payment": {
+        "deposit": 260,
+        "solde": 590
+      }
     },
     {
       "format_id": "intensif-duo-plus",
@@ -512,7 +636,10 @@
       "price_per_student": 950,
       "price_per_student_hour": 48,
       "floor_type": "stage",
-      "payment": { "deposit": 290, "solde": 660 }
+      "payment": {
+        "deposit": 290,
+        "solde": 660
+      }
     },
     {
       "format_id": "sprint-final",
@@ -523,7 +650,10 @@
       "price_per_student": 950,
       "price_per_student_hour": 48,
       "floor_type": "stage",
-      "payment": { "deposit": 290, "solde": 660 }
+      "payment": {
+        "deposit": 290,
+        "solde": 660
+      }
     },
     {
       "format_id": "sprint-final-max",
@@ -534,7 +664,10 @@
       "price_per_student": 1450,
       "price_per_student_hour": 48,
       "floor_type": "stage",
-      "payment": { "deposit": 440, "solde": 1010 }
+      "payment": {
+        "deposit": 440,
+        "solde": 1010
+      }
     },
     {
       "format_id": "express-vacances",
@@ -545,7 +678,10 @@
       "price_per_student": 420,
       "price_per_student_hour": 47,
       "floor_type": "stage",
-      "payment": { "deposit": 126, "solde": 294 }
+      "payment": {
+        "deposit": 126,
+        "solde": 294
+      }
     }
   ],
   "stage_calendar": [
@@ -561,8 +697,16 @@
       "dates_display": "Lun. 24 → ven. 28 août 2026",
       "weeks": null,
       "objective": "Reprendre le rythme et prendre de l’avance avant la rentrée.",
-      "audience": ["AEFE-inscrit", "candidat libre"],
-      "subjects": ["Maths", "NSI", "Français (EAF)", "Philo"],
+      "audience": [
+        "AEFE-inscrit",
+        "candidat libre"
+      ],
+      "subjects": [
+        "Maths",
+        "NSI",
+        "Français (EAF)",
+        "Philo"
+      ],
       "notes": null
     },
     {
@@ -575,10 +719,21 @@
       "date_start": "2026-10-19",
       "date_end": "2026-10-30",
       "dates_display": "Sem. A : lun. 19 → ven. 23 oct. OU sem. B : lun. 26 → ven. 30 oct. 2026",
-      "weeks": ["2026-10-19/2026-10-23", "2026-10-26/2026-10-30"],
+      "weeks": [
+        "2026-10-19/2026-10-23",
+        "2026-10-26/2026-10-30"
+      ],
       "objective": "Sécuriser les acquis du premier trimestre et combler les premières lacunes.",
-      "audience": ["AEFE-inscrit", "candidat libre"],
-      "subjects": ["Maths", "NSI", "Français (EAF)", "Philo"],
+      "audience": [
+        "AEFE-inscrit",
+        "candidat libre"
+      ],
+      "subjects": [
+        "Maths",
+        "NSI",
+        "Français (EAF)",
+        "Philo"
+      ],
       "notes": null
     },
     {
@@ -591,10 +746,21 @@
       "date_start": "2026-12-21",
       "date_end": "2026-12-30",
       "dates_display": "Lun. 21 → mer. 23 déc. 2026 (option : lun. 28 → mer. 30 déc.)",
-      "weeks": ["2026-12-21/2026-12-23", "2026-12-28/2026-12-30"],
+      "weeks": [
+        "2026-12-21/2026-12-23",
+        "2026-12-28/2026-12-30"
+      ],
       "objective": "Faire le point à mi-parcours et consolider les bases avant le second semestre.",
-      "audience": ["AEFE-inscrit", "candidat libre"],
-      "subjects": ["Maths", "NSI", "Français (EAF)", "Philo"],
+      "audience": [
+        "AEFE-inscrit",
+        "candidat libre"
+      ],
+      "subjects": [
+        "Maths",
+        "NSI",
+        "Français (EAF)",
+        "Philo"
+      ],
       "notes": null
     },
     {
@@ -607,10 +773,21 @@
       "date_start": "2027-02-15",
       "date_end": "2027-02-26",
       "dates_display": "Sem. A : lun. 15 → ven. 19 fév. OU sem. B : lun. 22 → ven. 26 fév. 2027",
-      "weeks": ["2027-02-15/2027-02-19", "2027-02-22/2027-02-26"],
+      "weeks": [
+        "2027-02-15/2027-02-19",
+        "2027-02-22/2027-02-26"
+      ],
       "objective": "Préparer les bacs blancs et renforcer les spécialités. Horaires aménagés Ramadan (matinées ou post-iftar).",
-      "audience": ["AEFE-inscrit", "candidat libre"],
-      "subjects": ["Maths", "NSI", "Français (EAF)", "Philo"],
+      "audience": [
+        "AEFE-inscrit",
+        "candidat libre"
+      ],
+      "subjects": [
+        "Maths",
+        "NSI",
+        "Français (EAF)",
+        "Philo"
+      ],
       "notes": "Horaires aménagés Ramadan : matinées ou post-iftar"
     },
     {
@@ -623,10 +800,21 @@
       "date_start": "2027-04-26",
       "date_end": "2027-05-07",
       "dates_display": "Lun. 26 → ven. 30 avr. + lun. 3 → ven. 7 mai 2027 (option 1 sem. 15 h)",
-      "weeks": ["2027-04-26/2027-04-30", "2027-05-03/2027-05-07"],
+      "weeks": [
+        "2027-04-26/2027-04-30",
+        "2027-05-03/2027-05-07"
+      ],
       "objective": "Dernière ligne droite avant le bac : automatismes, sujets-types, simulations.",
-      "audience": ["AEFE-inscrit", "candidat libre"],
-      "subjects": ["Maths", "NSI", "Français (EAF)", "Philo"],
+      "audience": [
+        "AEFE-inscrit",
+        "candidat libre"
+      ],
+      "subjects": [
+        "Maths",
+        "NSI",
+        "Français (EAF)",
+        "Philo"
+      ],
       "notes": "Option 1 semaine (INTENSIF 15 h) disponible"
     }
   ],
@@ -636,42 +824,66 @@
       "title": "Cap Rentrée",
       "period": "Août-septembre",
       "dates_display": "communiquées avec la recommandation",
-      "formats": ["intensif-solo", "intensif-renfort", "intensif-duo", "intensif-duo-plus"]
+      "formats": [
+        "intensif-solo",
+        "intensif-renfort",
+        "intensif-duo",
+        "intensif-duo-plus"
+      ]
     },
     {
       "edition_id": "toussaint",
       "title": "Intensif Toussaint",
       "period": "Octobre-novembre",
       "dates_display": "communiquées avec la recommandation",
-      "formats": ["intensif-solo", "intensif-renfort", "intensif-duo"]
+      "formats": [
+        "intensif-solo",
+        "intensif-renfort",
+        "intensif-duo"
+      ]
     },
     {
       "edition_id": "noel",
       "title": "Intensif Noël",
       "period": "Décembre",
       "dates_display": "communiquées avec la recommandation",
-      "formats": ["intensif-solo", "intensif-renfort", "intensif-duo"]
+      "formats": [
+        "intensif-solo",
+        "intensif-renfort",
+        "intensif-duo"
+      ]
     },
     {
       "edition_id": "février",
       "title": "Intensif Février",
       "period": "Février",
       "dates_display": "communiquées avec la recommandation",
-      "formats": ["intensif-solo", "intensif-renfort", "intensif-duo-plus"]
+      "formats": [
+        "intensif-solo",
+        "intensif-renfort",
+        "intensif-duo-plus"
+      ]
     },
     {
       "edition_id": "printemps",
       "title": "Intensif Printemps",
       "period": "Avril",
       "dates_display": "communiquées avec la recommandation",
-      "formats": ["intensif-solo", "intensif-renfort", "intensif-duo-plus"]
+      "formats": [
+        "intensif-solo",
+        "intensif-renfort",
+        "intensif-duo-plus"
+      ]
     },
     {
       "edition_id": "sprint",
       "title": "Sprint Final",
       "period": "Mai-juin",
       "dates_display": "communiquées avec la recommandation",
-      "formats": ["sprint-final", "sprint-final-max"]
+      "formats": [
+        "sprint-final",
+        "sprint-final-max"
+      ]
     }
   ],
   "ponctuel_offers": [
@@ -686,7 +898,10 @@
       "price_per_student": 720,
       "price_per_student_hour": 48,
       "floor_type": "stage",
-      "payment": { "deposit": 220, "solde": 500 }
+      "payment": {
+        "deposit": 220,
+        "solde": 500
+      }
     },
     {
       "id": "cap-maths-1re",
@@ -699,7 +914,10 @@
       "price_per_student": 580,
       "price_per_student_hour": 48,
       "floor_type": "stage",
-      "payment": { "deposit": 170, "solde": 410 }
+      "payment": {
+        "deposit": 170,
+        "solde": 410
+      }
     },
     {
       "id": "studio-grand-oral",
@@ -712,7 +930,10 @@
       "price_per_student": 490,
       "price_per_student_hour": 49,
       "floor_type": "stage",
-      "payment": { "deposit": 150, "solde": 340 }
+      "payment": {
+        "deposit": 150,
+        "solde": 340
+      }
     },
     {
       "id": "epreuve-blanche",
@@ -725,7 +946,11 @@
       "price_per_student": 150,
       "price_per_student_hour": null,
       "floor_type": "na",
-      "payment": { "full_at_booking": true, "deposit": 150, "solde": 0 }
+      "payment": {
+        "full_at_booking": true,
+        "deposit": 150,
+        "solde": 0
+      }
     }
   ],
   "coaching": [
@@ -741,7 +966,11 @@
       "floor_type": "na",
       "campaign_free": true,
       "deductible": true,
-      "payment": { "full_at_booking": true, "deposit": 100, "solde": 0 }
+      "payment": {
+        "full_at_booking": true,
+        "deposit": 100,
+        "solde": 0
+      }
     },
     {
       "id": "boussole-méthode",
@@ -755,7 +984,10 @@
       "floor_type": "na",
       "campaign_free": false,
       "deductible": false,
-      "payment": { "deposit": 120, "solde": 270 }
+      "payment": {
+        "deposit": 120,
+        "solde": 270
+      }
     },
     {
       "id": "boussole-orientation",
@@ -769,7 +1001,10 @@
       "floor_type": "na",
       "campaign_free": false,
       "deductible": false,
-      "payment": { "deposit": 160, "solde": 380 }
+      "payment": {
+        "deposit": 160,
+        "solde": 380
+      }
     },
     {
       "id": "boussole-individuel",
@@ -783,7 +1018,11 @@
       "floor_type": "coaching_1to1",
       "campaign_free": false,
       "deductible": false,
-      "payment": { "full_at_booking": true, "deposit": 190, "solde": 0 }
+      "payment": {
+        "full_at_booking": true,
+        "deposit": 190,
+        "solde": 0
+      }
     },
     {
       "id": "boussole-individuel-pack3",
@@ -799,7 +1038,10 @@
       "deductible": false,
       "payment": {
         "deposit": 160,
-        "solde_schedule": [190, 190]
+        "solde_schedule": [
+          190,
+          190
+        ]
       }
     },
     {
@@ -814,7 +1056,10 @@
       "floor_type": "coaching_1to1",
       "campaign_free": false,
       "deductible": false,
-      "payment": { "deposit": 250, "solde": 650 }
+      "payment": {
+        "deposit": 250,
+        "solde": 650
+      }
     }
   ],
   "packs": [
@@ -823,17 +1068,42 @@
       "title": "Pass Intensifs Année — Première",
       "public": "Première",
       "components": [
-        { "type": "stage", "format_id": "intensif-solo", "edition_id": "toussaint", "qty": 1 },
-        { "type": "stage", "format_id": "intensif-solo", "edition_id": "noel", "qty": 1 },
-        { "type": "stage", "format_id": "intensif-solo", "edition_id": "février", "qty": 1 },
-        { "type": "stage", "format_id": "intensif-solo", "edition_id": "printemps", "qty": 1 }
+        {
+          "type": "stage",
+          "format_id": "intensif-solo",
+          "edition_id": "toussaint",
+          "qty": 1
+        },
+        {
+          "type": "stage",
+          "format_id": "intensif-solo",
+          "edition_id": "noel",
+          "qty": 1
+        },
+        {
+          "type": "stage",
+          "format_id": "intensif-solo",
+          "edition_id": "février",
+          "qty": 1
+        },
+        {
+          "type": "stage",
+          "format_id": "intensif-solo",
+          "edition_id": "printemps",
+          "qty": 1
+        }
       ],
       "price": 1990,
       "deposit_deductible_to_annual": true,
       "deposit_carryover": true,
       "payment": {
         "deposit": 250,
-        "solde_schedule": [435, 435, 435, 435]
+        "solde_schedule": [
+          435,
+          435,
+          435,
+          435
+        ]
       }
     },
     {
@@ -841,17 +1111,42 @@
       "title": "Pass Intensifs Année — Terminale",
       "public": "Terminale",
       "components": [
-        { "type": "stage", "format_id": "intensif-renfort", "edition_id": "toussaint", "qty": 1 },
-        { "type": "stage", "format_id": "intensif-renfort", "edition_id": "noel", "qty": 1 },
-        { "type": "stage", "format_id": "intensif-renfort", "edition_id": "février", "qty": 1 },
-        { "type": "stage", "format_id": "intensif-renfort", "edition_id": "printemps", "qty": 1 }
+        {
+          "type": "stage",
+          "format_id": "intensif-renfort",
+          "edition_id": "toussaint",
+          "qty": 1
+        },
+        {
+          "type": "stage",
+          "format_id": "intensif-renfort",
+          "edition_id": "noel",
+          "qty": 1
+        },
+        {
+          "type": "stage",
+          "format_id": "intensif-renfort",
+          "edition_id": "février",
+          "qty": 1
+        },
+        {
+          "type": "stage",
+          "format_id": "intensif-renfort",
+          "edition_id": "printemps",
+          "qty": 1
+        }
       ],
       "price": 2490,
       "deposit_deductible_to_annual": true,
       "deposit_carryover": true,
       "payment": {
         "deposit": 290,
-        "solde_schedule": [550, 550, 550, 550]
+        "solde_schedule": [
+          550,
+          550,
+          550,
+          550
+        ]
       }
     },
     {
@@ -859,16 +1154,33 @@
       "title": "Cap Bac Première",
       "public": "Première",
       "components": [
-        { "type": "ponctuel", "id": "cap-eaf", "qty": 1 },
-        { "type": "ponctuel", "id": "cap-maths-1re", "qty": 1 },
-        { "type": "ponctuel", "id": "epreuve-blanche", "qty": 2 }
+        {
+          "type": "ponctuel",
+          "id": "cap-eaf",
+          "qty": 1
+        },
+        {
+          "type": "ponctuel",
+          "id": "cap-maths-1re",
+          "qty": 1
+        },
+        {
+          "type": "ponctuel",
+          "id": "epreuve-blanche",
+          "qty": 2
+        }
       ],
       "price": 1390,
       "deposit_deductible_to_annual": true,
       "deposit_carryover": true,
       "payment": {
         "deposit": 200,
-        "solde_schedule": [300, 300, 300, 290]
+        "solde_schedule": [
+          300,
+          300,
+          300,
+          290
+        ]
       }
     },
     {
@@ -876,15 +1188,27 @@
       "title": "Pass Grand Oral & Sprint",
       "public": "Terminale",
       "components": [
-        { "type": "ponctuel", "id": "studio-grand-oral", "qty": 1 },
-        { "type": "stage", "format_id": "sprint-final", "edition_id": "sprint", "qty": 1 }
+        {
+          "type": "ponctuel",
+          "id": "studio-grand-oral",
+          "qty": 1
+        },
+        {
+          "type": "stage",
+          "format_id": "sprint-final",
+          "edition_id": "sprint",
+          "qty": 1
+        }
       ],
       "price": 1290,
       "deposit_deductible_to_annual": true,
       "deposit_carryover": true,
       "payment": {
         "deposit": 200,
-        "solde_schedule": [545, 545]
+        "solde_schedule": [
+          545,
+          545
+        ]
       }
     },
     {
@@ -892,17 +1216,41 @@
       "title": "Pass Excellence Ponctuel",
       "public": "Terminale",
       "components": [
-        { "type": "stage", "format_id": "intensif-renfort", "edition_id": "toussaint", "qty": 1 },
-        { "type": "stage", "format_id": "intensif-renfort", "edition_id": "février", "qty": 1 },
-        { "type": "ponctuel", "id": "studio-grand-oral", "qty": 1 },
-        { "type": "stage", "format_id": "sprint-final", "edition_id": "sprint", "qty": 1 }
+        {
+          "type": "stage",
+          "format_id": "intensif-renfort",
+          "edition_id": "toussaint",
+          "qty": 1
+        },
+        {
+          "type": "stage",
+          "format_id": "intensif-renfort",
+          "edition_id": "février",
+          "qty": 1
+        },
+        {
+          "type": "ponctuel",
+          "id": "studio-grand-oral",
+          "qty": 1
+        },
+        {
+          "type": "stage",
+          "format_id": "sprint-final",
+          "edition_id": "sprint",
+          "qty": 1
+        }
       ],
       "price": 2390,
       "deposit_deductible_to_annual": true,
       "deposit_carryover": true,
       "payment": {
         "deposit": 290,
-        "solde_schedule": [525, 525, 525, 525]
+        "solde_schedule": [
+          525,
+          525,
+          525,
+          525
+        ]
       }
     },
     {
@@ -910,18 +1258,47 @@
       "title": "Pass Candidat Libre",
       "public": "Libre",
       "components": [
-        { "type": "coaching", "id": "diagnostic", "qty": 1, "value_override": 100 },
-        { "type": "stage", "format_id": "intensif-renfort", "edition_id": "toussaint", "qty": 1 },
-        { "type": "stage", "format_id": "intensif-renfort", "edition_id": "février", "qty": 1 },
-        { "type": "ponctuel", "id": "epreuve-blanche", "qty": 3 },
-        { "type": "service", "label": "Cellule Cyclades", "qty": 1, "value_override": 0 }
+        {
+          "type": "coaching",
+          "id": "diagnostic",
+          "qty": 1,
+          "value_override": 100
+        },
+        {
+          "type": "stage",
+          "format_id": "intensif-renfort",
+          "edition_id": "toussaint",
+          "qty": 1
+        },
+        {
+          "type": "stage",
+          "format_id": "intensif-renfort",
+          "edition_id": "février",
+          "qty": 1
+        },
+        {
+          "type": "ponctuel",
+          "id": "epreuve-blanche",
+          "qty": 3
+        },
+        {
+          "type": "service",
+          "label": "Cellule Cyclades",
+          "qty": 1,
+          "value_override": 0
+        }
       ],
       "price": 1690,
       "deposit_deductible_to_annual": true,
       "deposit_carryover": true,
       "payment": {
         "deposit": 290,
-        "solde_schedule": [350, 350, 350, 350]
+        "solde_schedule": [
+          350,
+          350,
+          350,
+          350
+        ]
       }
     }
   ],
@@ -1047,34 +1424,78 @@
       "group_max": 5,
       "price_per_student": 1800,
       "price_per_student_hour": 45,
-      "payment": { "deposit": 540, "solde": 1260 }
+      "payment": {
+        "deposit": 540,
+        "solde": 1260
+      }
     }
   ],
   "aria_addon": {
     "price_monthly": 50,
-    "subjects": ["MATHEMATIQUES", "NSI", "PHYSIQUE_CHIMIE", "FRANCAIS"]
+    "subjects": [
+      "MATHEMATIQUES",
+      "NSI",
+      "PHYSIQUE_CHIMIE",
+      "FRANCAIS"
+    ]
   },
   "subscription_tiers": [
-    { "id": "basic", "price_monthly": 450 },
-    { "id": "premium", "price_monthly": 650 },
-    { "id": "elite", "price_monthly": 850 }
+    {
+      "id": "basic",
+      "price_monthly": 450
+    },
+    {
+      "id": "premium",
+      "price_monthly": 650
+    },
+    {
+      "id": "elite",
+      "price_monthly": 850
+    }
   ],
   "carte_nexus": {
     "id": "carte-nexus",
     "title": "Carte Nexus",
     "price_annual": 290,
-    "includes": ["ARIA Autonomie", "Remise -10% sur stages unitaires & coaching (hors Pass)", "Réservation prioritaire", "1 Diagnostic Stratégique offert"],
+    "includes": [
+      "ARIA Autonomie",
+      "Remise -10% sur stages unitaires & coaching (hors Pass)",
+      "Réservation prioritaire",
+      "1 Diagnostic Stratégique offert"
+    ],
     "discount_pct": 10,
-    "discount_applies_to": ["stage_formats", "ponctuel_offers", "coaching"],
-    "discount_excludes": ["packs"],
+    "discount_applies_to": [
+      "stage_formats",
+      "ponctuel_offers",
+      "coaching"
+    ],
+    "discount_excludes": [
+      "packs"
+    ],
     "non_cumulable": true,
     "member_floor_per_student_hour": 40
   },
   "urgence": {
-    "membre_heure": { "title": "Heure d'urgence en ligne - membre", "display": "150 TND / h", "hourly": 150 },
-    "non_membre_heure": { "title": "Heure d'urgence en ligne - non-membre", "display": "200 TND / h", "hourly": 200 },
-    "pack_5h_membre": { "title": "Pack 5 h urgence - membre", "display": "650 TND", "amount": 650 },
-    "pack_10h_membre": { "title": "Pack 10 h urgence - membre", "display": "1 200 TND", "amount": 1200 }
+    "membre_heure": {
+      "title": "Heure d'urgence en ligne - membre",
+      "display": "150 TND / h",
+      "hourly": 150
+    },
+    "non_membre_heure": {
+      "title": "Heure d'urgence en ligne - non-membre",
+      "display": "200 TND / h",
+      "hourly": 200
+    },
+    "pack_5h_membre": {
+      "title": "Pack 5 h urgence - membre",
+      "display": "650 TND",
+      "amount": 650
+    },
+    "pack_10h_membre": {
+      "title": "Pack 10 h urgence - membre",
+      "display": "1 200 TND",
+      "amount": 1200
+    }
   },
   "reperes_tarifaires": {
     "brevetMois": "a partir de 240 TND / mois",

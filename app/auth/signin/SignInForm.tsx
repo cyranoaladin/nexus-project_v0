@@ -306,7 +306,7 @@ export function SignInForm() {
             <div className="mt-6 text-center">
               <p className="text-xs text-neutral-400">
                 En vous connectant, vous acceptez nos{" "}
-                <Link href="/conditions" className="text-brand-accent underline">
+                <Link href="/conditions-generales" className="text-brand-accent underline">
                   conditions d'utilisation
                 </Link>
               </p>

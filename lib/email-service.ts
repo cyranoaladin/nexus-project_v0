@@ -104,7 +104,7 @@ const EMAIL_TEMPLATES = {
             <h3>🎥 Rejoindre la session :</h3>
             <p>Le lien de visioconférence sera disponible 15 minutes avant le début de la session dans votre espace personnel.</p>
             <p>
-              <a href="${process.env.NEXTAUTH_URL}/dashboard/eleve/mes-sessions"
+              <a href="${process.env.NEXTAUTH_URL}/dashboard/eleve/sessions"
                  style="background: #2196f3; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; display: inline-block;">
                 Voir mes sessions
               </a>
