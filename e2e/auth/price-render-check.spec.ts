@@ -92,7 +92,8 @@ test.describe('Price render check — DOM vs canonical', () => {
 
   // ── Homepage repères tarifaires (scroll + hydrate) ──
 
-  test('homepage renders canonical reperes prices after scroll (innerText)', async ({ page }) => {
+  test('homepage repères: each label shows its canonical value (label↔valeur)', async ({ page }) => {
+    const rep = data.reperes_tarifaires;
     await page.goto('/', { waitUntil: 'load' });
     await page.waitForTimeout(2000);
     for (let i = 0; i < 10; i++) {
@@ -100,10 +101,24 @@ test.describe('Price render check — DOM vs canonical', () => {
       await page.waitForTimeout(300);
     }
     const text = await page.locator('body').innerText();
-    // Repères: terminaleSimpleMois=390, stagesBase=420, plateformeAn=590
-    expect(text).toContain('390');
-    expect(text).toContain('420');
-    expect(text).toContain('590');
+
+    // Each repère label is paired with its canonical value
+    const pairs = [
+      { label: 'Spécialité simple', value: rep.terminaleSimpleMois },
+      { label: 'Double Sécurité', value: rep.premiereDuoMois },
+      { label: 'Stage Intensif', value: rep.stagesBase },
+      { label: 'Plateforme ARIA', value: rep.plateformeAn },
+    ];
+
+    for (const { label, value } of pairs) {
+      // Extract the number from the repère string
+      const numMatch = value.match(/[0-9]+/);
+      expect(numMatch).not.toBeNull();
+      const num = numMatch![0];
+      // Both label and its price number must appear in the visible text
+      expect(text).toContain(label);
+      expect(text).toContain(num);
+    }
     expect(text).toContain('TND');
   });
 

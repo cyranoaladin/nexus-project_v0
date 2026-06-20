@@ -211,7 +211,17 @@ export interface PricingData {
   subscription_tiers: SubscriptionTier[];
   carte_nexus: CarteNexus;
   urgence: Record<string, { title: string; display: string; hourly?: number; amount?: number }>;
-  reperes_tarifaires: Record<string, string>;
+  reperes_tarifaires: {
+    brevetMois: string;
+    secondeMois: string;
+    premiereSimpleMois: string;
+    premiereDuoMois: string;
+    terminaleSimpleMois: string;
+    terminaleDuoMois: string;
+    plateformeAn: string;
+    stagesBase: string;
+    parrainage: string;
+  };
 }
 
 export type PricingLevel = 'terminale' | 'premiere' | 'seconde' | 'troisieme';
