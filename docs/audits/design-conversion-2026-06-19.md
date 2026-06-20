@@ -3,7 +3,7 @@
 **Date :** 2026-06-19 (mis à jour 2026-06-20)
 **Branche :** `feat/design-conversion`
 **Mode de service :** standalone (`node .next/standalone/server.js` via PM2)
-**Statut :** **FINAL**
+**Statut :** **Vérification de clôture en cours** (lane Docker auth, axe dashboards, réconciliation compteurs e2e)
 
 ---
 
