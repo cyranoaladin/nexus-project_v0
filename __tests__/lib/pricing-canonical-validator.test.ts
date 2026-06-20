@@ -135,13 +135,23 @@ describe('T4 — Pack referential integrity', () => {
   });
 });
 
-// ── T5: Pack value = Σ qty × unit price ──
+// ── T5: Pack fields + monthly_display ──
 
 describe('T5 — Pack pricing fields are clean', () => {
   test('no pack has deprecated value or discount_pct fields', () => {
     for (const pack of data.packs) {
       expect((pack as unknown as Record<string, unknown>).value).toBeUndefined();
       expect((pack as unknown as Record<string, unknown>).discount_pct).toBeUndefined();
+    }
+  });
+});
+
+describe('T5b — monthly_display = round(price_annual / 10)', () => {
+  test('every offer with price_annual has correct monthly_display', () => {
+    for (const offer of data.offers) {
+      if (offer.price_annual == null) continue;
+      const expected = Math.round(offer.price_annual / 10);
+      expect(offer.monthly_display).toBe(expected);
     }
   });
 });
