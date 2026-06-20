@@ -39,13 +39,13 @@ const LEVEL_CONFIG = {
   bon: { label: 'Bon', color: 'text-brand-primary', bg: 'bg-brand-primary/10', ring: 'ring-brand-primary/30' },
   en_progression: { label: 'En progression', color: 'text-brand-accent', bg: 'bg-brand-accent/10', ring: 'ring-brand-accent/30' },
   a_renforcer: { label: 'À renforcer', color: 'text-neutral-300', bg: 'bg-neutral-800', ring: 'ring-neutral-700' },
-  debutant: { label: 'Débutant', color: 'text-neutral-400', bg: 'bg-neutral-900', ring: 'ring-neutral-800' },
+  debutant: { label: 'Débutant', color: 'text-neutral-300', bg: 'bg-neutral-900', ring: 'ring-neutral-800' },
 } as const;
 
 const TREND_CONFIG = {
   up: { icon: TrendingUp, label: 'En progression', color: 'text-success' },
   down: { icon: TrendingDown, label: 'À surveiller', color: 'text-neutral-300' },
-  stable: { icon: Minus, label: 'Stable', color: 'text-neutral-400' },
+  stable: { icon: Minus, label: 'Stable', color: 'text-neutral-300' },
 } as const;
 
 // Convention: ↗ En progression / → Stable / ↘ À surveiller
@@ -56,7 +56,7 @@ function PillarBar({ label, score, maxScore = 100 }: { label: string; score: num
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between text-xs">
-        <span className="text-neutral-400">{label}</span>
+        <span className="text-neutral-300">{label}</span>
         <span className="font-medium text-neutral-200">{score}</span>
       </div>
       <div className="h-1.5 rounded-full bg-neutral-800">
@@ -118,7 +118,7 @@ export function NexusIndexCard({ studentId }: NexusIndexCardProps) {
           <Activity className="h-4 w-4 text-brand-primary" />
           <h3 className="text-sm font-semibold text-neutral-200">Indice de trajectoire</h3>
         </div>
-        <p className="text-xs text-neutral-500">
+        <p className="text-xs text-neutral-300">
           Aucune donnée disponible pour le moment.
         </p>
       </div>
@@ -142,7 +142,7 @@ export function NexusIndexCard({ studentId }: NexusIndexCardProps) {
           <span>{trendCfg.label}</span>
         </div>
       </div>
-      <p className="text-[11px] text-neutral-500 mb-5">
+      <p className="text-[11px] text-neutral-300 mb-5">
         Indicateur synthétique sur 30 jours.
       </p>
 

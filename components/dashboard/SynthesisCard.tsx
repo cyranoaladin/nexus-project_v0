@@ -182,12 +182,12 @@ export function SynthesisCard({ studentId, role = 'ELEVE' }: SynthesisCardProps)
   return (
     <div className="rounded-xl border border-neutral-800/50 bg-surface-card/50 p-5">
       <div className="flex items-start gap-3">
-        <FileText className="h-4 w-4 text-neutral-500 mt-0.5 flex-shrink-0" aria-hidden="true" />
+        <FileText className="h-4 w-4 text-neutral-300 mt-0.5 flex-shrink-0" aria-hidden="true" />
         <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-neutral-500 mb-1.5">Synthèse stratégique</p>
+          <p className="text-xs font-medium uppercase tracking-wider text-neutral-300 mb-1.5">Synthèse stratégique</p>
           <p className={`text-sm font-medium ${synthesis.tone}`}>{synthesis.message}</p>
           {synthesis.secondary && (
-            <p className="text-xs text-neutral-500 mt-1">{synthesis.secondary}</p>
+            <p className="text-xs text-neutral-300 mt-1">{synthesis.secondary}</p>
           )}
         </div>
       </div>

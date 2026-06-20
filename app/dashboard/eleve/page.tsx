@@ -3,7 +3,6 @@
 // BadgeWidget reserved for gamification phase
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, Calendar, HardDrive, Loader2, LogOut, MessageSquare, Sparkles, User, Video, AlertCircle, ArrowRight, Calculator, Zap, Target } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
@@ -58,7 +57,7 @@ export default function DashboardEleve() {
     <>
       <Button
         type="button"
-        className="fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full bg-brand-accent text-white shadow-lg hover:bg-brand-accent/90 flex items-center justify-center"
+        className="fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full bg-brand-accent text-surface-darker shadow-lg hover:bg-brand-accent/90 flex items-center justify-center"
         onClick={() => openAriaWithSubject()}
         data-testid="aria-chat-trigger"
         aria-label="Ouvrir ARIA"
@@ -122,7 +121,7 @@ export default function DashboardEleve() {
       <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-accent" aria-label="Chargement" />
-          <p className="text-neutral-400">Chargement de votre espace...</p>
+          <p className="text-neutral-300">Chargement de votre espace...</p>
         </div>
         {ariaControls}
       </div>
@@ -135,7 +134,7 @@ export default function DashboardEleve() {
         <div className="text-center">
           <AlertCircle className="w-8 h-8 mx-auto mb-4 text-rose-300" aria-label="Erreur" />
           <p className="text-rose-200 mb-4">Erreur lors du chargement</p>
-          <p className="text-neutral-400 text-sm">{error}</p>
+          <p className="text-neutral-300 text-sm">{error}</p>
           <Button
             onClick={() => window.location.reload()}
             className="btn-primary mt-4"
@@ -176,7 +175,7 @@ export default function DashboardEleve() {
                 <h1 className="font-semibold text-white text-sm sm:text-base truncate">
                   {session?.user.firstName} {session?.user.lastName}
                 </h1>
-                <p className="text-xs sm:text-sm text-neutral-400 hidden sm:block">Espace Élève</p>
+                <p className="text-xs sm:text-sm text-neutral-300 hidden sm:block">Espace Élève</p>
               </div>
             </div>
             <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
@@ -204,22 +203,34 @@ export default function DashboardEleve() {
           </div>
           {/* Row 2: navigation tabs */}
           <div className="pb-2 -mx-1 overflow-x-auto scrollbar-none">
-            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'dashboard' | 'booking')}>
-              <TabsList className="bg-white/5 border border-white/10 w-full sm:w-auto">
-                <TabsTrigger value="dashboard" className="flex-1 sm:flex-none text-xs sm:text-sm data-[state=active]:bg-white/10 data-[state=active]:text-white">
-                  Tableau de Bord
-                </TabsTrigger>
-                <TabsTrigger value="booking" className="flex-1 sm:flex-none text-xs sm:text-sm data-[state=active]:bg-white/10 data-[state=active]:text-white">
-                  Réserver Session
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
+            <div role="tablist" aria-label="Navigation principale" className="inline-flex h-10 items-center justify-center rounded-lg bg-white/5 border border-white/10 p-1 w-full sm:w-auto">
+              <button
+                role="tab"
+                aria-selected={activeTab === 'dashboard'}
+                onClick={() => setActiveTab('dashboard')}
+                className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-xs sm:text-sm font-medium transition-all flex-1 sm:flex-none ${
+                  activeTab === 'dashboard' ? 'bg-white/10 text-white shadow-sm' : 'text-neutral-300 hover:text-white'
+                }`}
+              >
+                Tableau de Bord
+              </button>
+              <button
+                role="tab"
+                aria-selected={activeTab === 'booking'}
+                onClick={() => setActiveTab('booking')}
+                className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-xs sm:text-sm font-medium transition-all flex-1 sm:flex-none ${
+                  activeTab === 'booking' ? 'bg-white/10 text-white shadow-sm' : 'text-neutral-300 hover:text-white'
+                }`}
+              >
+                Réserver Session
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'dashboard' && (
           <DashboardPilotage role="ELEVE" trajectoryData={dashboardData?.trajectory}>
             {dashboardData && (
@@ -242,8 +253,8 @@ export default function DashboardEleve() {
                         variant={activeRubrique === tab.id ? 'default' : 'ghost'}
                         className={`whitespace-nowrap rounded-lg transition-all text-xs sm:text-sm px-3 sm:px-4 shrink-0 sm:flex-1 ${
                           activeRubrique === tab.id
-                            ? 'bg-brand-accent text-white shadow-premium font-bold'
-                            : 'text-neutral-400 hover:text-white hover:bg-white/5'
+                            ? 'bg-brand-accent text-surface-darker shadow-premium font-bold'
+                            : 'text-neutral-300 hover:text-white hover:bg-white/5'
                         }`}
                         size="sm"
                       >
@@ -334,7 +345,7 @@ export default function DashboardEleve() {
                               <h4 className="text-lg font-bold text-white mb-2">
                                 Mathématiques — {studentGradeLevel === 'PREMIERE' ? 'Première EDS' : 'Terminale EDS'}
                               </h4>
-                              <p className="text-sm text-neutral-400 mb-6 line-clamp-2">
+                              <p className="text-sm text-neutral-300 mb-6 line-clamp-2">
                                 Accédez à vos fiches de cours, exercices interactifs et quiz de révision pour maîtriser le programme officiel.
                               </p>
                               <Link href={studentGradeLevel === 'PREMIERE' ? "/dashboard/eleve/programme/maths" : "/programme/maths-terminale"} className="w-full sm:w-fit">
@@ -368,7 +379,7 @@ export default function DashboardEleve() {
                               <h4 className="text-lg font-bold text-white mb-2">
                                 Objectif Bac Maths STMG
                               </h4>
-                              <p className="text-sm text-neutral-400 mb-6 line-clamp-2">
+                              <p className="text-sm text-neutral-300 mb-6 line-clamp-2">
                                 Deux journées de mission avec réponses obligatoires, aides graduées, correction immédiate et questions à refaire.
                               </p>
                               <Link href="/lamis" className="w-full sm:w-fit">
@@ -408,7 +419,7 @@ export default function DashboardEleve() {
                               <h4 className="text-lg font-bold text-white mb-2">
                                 Révisions Mathématiques Interactives
                               </h4>
-                              <p className="text-sm text-neutral-400 mb-6 line-clamp-2">
+                              <p className="text-sm text-neutral-300 mb-6 line-clamp-2">
                                 Entraînez-vous avec notre nouveau livret gamifié : calculs de base, pourcentages, suites et QCM Chrono.
                               </p>
                               <Link href="/dashboard/eleve/programme/maths" className="w-full sm:w-fit">
@@ -477,8 +488,8 @@ export default function DashboardEleve() {
                             </div>
                           ) : (
                             <div className="text-center py-8">
-                              <Calendar className="w-12 h-12 text-neutral-500 mx-auto mb-3" />
-                              <p className="text-neutral-400 text-sm">
+                              <Calendar className="w-12 h-12 text-neutral-300 mx-auto mb-3" />
+                              <p className="text-neutral-300 text-sm">
                                 Vos sessions apparaîtront ici une fois programmées.
                               </p>
                               <Button
@@ -508,7 +519,7 @@ export default function DashboardEleve() {
                             <BookOpen className="w-5 h-5 mr-2 text-brand-accent" />
                             Mes Matières
                           </span>
-                          <span className="text-xs font-normal text-neutral-500">
+                          <span className="text-xs font-normal text-neutral-300">
                             Clique sur une matière pour poser une question à ARIA
                           </span>
                         </CardTitle>
@@ -533,7 +544,7 @@ export default function DashboardEleve() {
                                     </span>
                                     <div className="flex items-center gap-1 mt-0.5">
                                       <Sparkles className="w-3 h-3 text-brand-accent/50" />
-                                      <span className="text-[10px] text-neutral-500">ARIA</span>
+                                      <span className="text-[10px] text-neutral-300">ARIA</span>
                                     </div>
                                   </div>
                                 </button>
@@ -601,7 +612,7 @@ export default function DashboardEleve() {
             }}
           />
         )}
-      </main>
+      </div>
 
       {ariaControls}
     </div>

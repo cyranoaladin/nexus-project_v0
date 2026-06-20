@@ -41,7 +41,7 @@ const PRIORITY_STYLES: Record<StepPriority, { border: string; accent: string; ic
   critical: { border: 'border-error/40', accent: 'text-error', icon: AlertTriangle },
   high: { border: 'border-brand-primary/30', accent: 'text-brand-primary', icon: Zap },
   medium: { border: 'border-brand-accent/30', accent: 'text-brand-accent', icon: Info },
-  low: { border: 'border-neutral-700', accent: 'text-neutral-400', icon: ChevronRight },
+  low: { border: 'border-neutral-700', accent: 'text-neutral-300', icon: ChevronRight },
 };
 
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -212,7 +212,7 @@ export function NextStepCard() {
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-neutral-500">Action prioritaire</p>
+            <p className="text-[11px] font-medium uppercase tracking-wider text-neutral-300">Action prioritaire</p>
             {isHighPriority && (
               <span className={`inline-flex items-center px-1.5 py-0.5 text-[10px] font-semibold rounded ${priority === 'critical' ? 'bg-red-500/15 text-red-400' : 'bg-blue-500/15 text-blue-300'}`}>
                 Priorité
@@ -220,7 +220,7 @@ export function NextStepCard() {
             )}
           </div>
           <p className="text-base font-semibold text-neutral-100">{title}</p>
-          <p className="text-xs text-neutral-400 mt-0.5 line-clamp-2">{description}</p>
+          <p className="text-xs text-neutral-300 mt-0.5 line-clamp-2">{description}</p>
         </div>
 
         {/* CTA — large primary button */}

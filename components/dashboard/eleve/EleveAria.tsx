@@ -24,12 +24,12 @@ export function EleveAria({ totalConversations, messagesToday, onOpenAria, readO
         <CardContent className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-2xl font-semibold text-white">{totalConversations}</p>
-            <p className="text-sm text-neutral-400">
+            <p className="text-sm text-neutral-300">
               {messagesToday} message{messagesToday > 1 ? 's' : ''} aujourd'hui
             </p>
           </div>
           {!readOnly && (
-            <Button onClick={onOpenAria} className="bg-brand-accent hover:bg-brand-accent/90">
+            <Button onClick={onOpenAria} className="bg-brand-accent hover:bg-brand-accent/90 text-surface-darker">
               Ouvrir ARIA
             </Button>
           )}

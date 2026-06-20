@@ -21,7 +21,7 @@ export async function Navbar() {
   );
 
   return (
-    <header className="sticky top-0 z-50 h-16 bg-surface-card border-b border-neutral-800 lg:pl-[280px]" role="banner">
+    <header className="sticky top-0 z-50 h-16 bg-surface-card border-b border-neutral-800 lg:pl-[280px]">
       <div className="flex items-center justify-between h-full px-4 lg:px-6">
         <div className="flex items-center gap-4">
           <MobileMenuWrapper items={navigationItems} user={session.user} />
@@ -32,7 +32,7 @@ export async function Navbar() {
         </div>
 
         <nav className="hidden lg:flex items-center gap-4" aria-label="Actions utilisateur">
-          <div className="text-sm text-neutral-400">
+          <div className="text-sm text-neutral-300">
             Utilisateur connecté
           </div>
         </nav>

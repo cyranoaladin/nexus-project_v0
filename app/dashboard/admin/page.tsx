@@ -111,7 +111,7 @@ export default function DashboardAdmin() {
       <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-accent" aria-label="Chargement" />
-          <p className="text-neutral-400">Chargement de l'administration...</p>
+          <p className="text-neutral-300">Chargement de l'administration...</p>
         </div>
       </div>
     );
@@ -123,7 +123,7 @@ export default function DashboardAdmin() {
         <div className="text-center">
           <AlertTriangle className="w-8 h-8 mx-auto mb-4 text-rose-300" aria-hidden="true" />
           <p className="text-rose-200 mb-4">Erreur lors du chargement</p>
-          <p className="text-neutral-400 text-sm">{error}</p>
+          <p className="text-neutral-300 text-sm">{error}</p>
         </div>
       </div>
     );
@@ -142,7 +142,7 @@ export default function DashboardAdmin() {
                   <h1 className="font-semibold text-white text-sm md:text-base">
                     Administration Nexus Réussite
                   </h1>
-                  <p className="text-xs md:text-sm text-neutral-400">Contrôle Total du Système</p>
+                  <p className="text-xs md:text-sm text-neutral-300">Contrôle Total du Système</p>
                 </div>
               </div>
             </div>
@@ -160,7 +160,7 @@ export default function DashboardAdmin() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8">
         <DashboardPilotage role="ADMIN">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -178,25 +178,25 @@ export default function DashboardAdmin() {
                   <div className="text-2xl md:text-3xl font-bold text-brand-accent">
                     {adminData?.stats?.totalParents || 0}
                   </div>
-                  <p className="text-xs md:text-sm text-neutral-400 mt-1">Parents</p>
+                  <p className="text-xs md:text-sm text-neutral-300 mt-1">Parents</p>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl md:text-3xl font-bold text-emerald-300">
                     {adminData?.stats?.totalStudents || 0}
                   </div>
-                  <p className="text-xs md:text-sm text-neutral-400 mt-1">Élèves</p>
+                  <p className="text-xs md:text-sm text-neutral-300 mt-1">Élèves</p>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl md:text-3xl font-bold text-blue-300">
                     {adminData?.stats?.totalCoaches || 0}
                   </div>
-                  <p className="text-xs md:text-sm text-neutral-400 mt-1">Coachs</p>
+                  <p className="text-xs md:text-sm text-neutral-300 mt-1">Coachs</p>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl md:text-3xl font-bold text-blue-200">
                     {adminData?.stats?.totalAssistants || 0}
                   </div>
-                  <p className="text-xs md:text-sm text-neutral-400 mt-1">Assistantes</p>
+                  <p className="text-xs md:text-sm text-neutral-300 mt-1">Assistantes</p>
                 </div>
               </div>
               <div className="mt-4 pt-4 border-t border-white/10">
@@ -204,7 +204,7 @@ export default function DashboardAdmin() {
                   <div className="text-lg md:text-xl font-bold text-white">
                     {adminData?.stats?.totalUsers || 0}
                   </div>
-                  <p className="text-xs md:text-sm text-neutral-400">Total Utilisateurs</p>
+                  <p className="text-xs md:text-sm text-neutral-300">Total Utilisateurs</p>
                 </div>
               </div>
             </CardContent>
@@ -219,7 +219,7 @@ export default function DashboardAdmin() {
               <div className="text-xl md:text-2xl font-bold text-emerald-300">
                 {adminData?.stats?.currentMonthRevenue?.toLocaleString() || 0} TND
               </div>
-              <p className="text-xs text-neutral-400 mt-1">
+              <p className="text-xs text-neutral-300 mt-1">
                 {adminData?.stats?.revenueGrowthPercent && adminData.stats.revenueGrowthPercent > 0 ? '+' : ''}{adminData?.stats?.revenueGrowthPercent || 0}% par rapport au mois dernier
               </p>
             </CardContent>
@@ -234,7 +234,7 @@ export default function DashboardAdmin() {
               <div className="text-xl md:text-2xl font-bold text-blue-200">
                 {adminData?.stats?.activeSubscriptions || 0}
               </div>
-              <p className="text-xs text-neutral-400 mt-1">
+              <p className="text-xs text-neutral-300 mt-1">
                 Taux de rétention: 94%
               </p>
             </CardContent>
@@ -252,7 +252,7 @@ export default function DashboardAdmin() {
               <div className="text-xl md:text-2xl font-bold text-brand-accent">
                 {adminData?.stats?.thisMonthSessions || 0}
               </div>
-              <p className="text-xs text-neutral-400 mt-1">
+              <p className="text-xs text-neutral-300 mt-1">
                 {adminData?.stats?.sessionGrowthPercent && adminData.stats.sessionGrowthPercent > 0 ? '+' : ''}{adminData?.stats?.sessionGrowthPercent || 0}% par rapport au mois dernier
               </p>
             </CardContent>
@@ -267,7 +267,7 @@ export default function DashboardAdmin() {
               <div className="text-xl md:text-2xl font-bold text-blue-300">
                 {adminData?.stats?.totalSessions || 0}
               </div>
-              <p className="text-xs text-neutral-400 mt-1">
+              <p className="text-xs text-neutral-300 mt-1">
                 Toutes sessions confondues
               </p>
             </CardContent>
@@ -282,7 +282,7 @@ export default function DashboardAdmin() {
               <div className="text-xl md:text-2xl font-bold text-blue-200">
                 {adminData?.stats?.totalSubscriptions || 0}
               </div>
-              <p className="text-xs text-neutral-400 mt-1">
+              <p className="text-xs text-neutral-300 mt-1">
                 Tous abonnements confondus
               </p>
             </CardContent>
@@ -307,7 +307,7 @@ export default function DashboardAdmin() {
                       <TestTube className="w-4 h-4 md:w-5 md:h-5 text-rose-300" aria-hidden="true" />
                       <div className="text-left">
                         <p className="font-medium text-sm md:text-base">Tests Système</p>
-                        <p className="text-xs md:text-sm text-neutral-400">Email, Paiements, APIs</p>
+                        <p className="text-xs md:text-sm text-neutral-300">Email, Paiements, APIs</p>
                       </div>
                     </div>
                   </Link>
@@ -319,7 +319,7 @@ export default function DashboardAdmin() {
                       <Users className="w-4 h-4 md:w-5 md:h-5 text-brand-accent" aria-hidden="true" />
                       <div className="text-left">
                         <p className="font-medium text-sm md:text-base">Gestion Utilisateurs</p>
-                        <p className="text-xs md:text-sm text-neutral-400">CRUD complet</p>
+                        <p className="text-xs md:text-sm text-neutral-300">CRUD complet</p>
                       </div>
                     </div>
                   </Link>
@@ -331,7 +331,7 @@ export default function DashboardAdmin() {
                       <CreditCard className="w-4 h-4 md:w-5 md:h-5 text-emerald-300" aria-hidden="true" />
                       <div className="text-left">
                         <p className="font-medium text-sm md:text-base">Abonnements Actifs</p>
-                        <p className="text-xs md:text-sm text-neutral-400">Gestion des abonnements</p>
+                        <p className="text-xs md:text-sm text-neutral-300">Gestion des abonnements</p>
                       </div>
                     </div>
                   </Link>
@@ -343,7 +343,7 @@ export default function DashboardAdmin() {
                       <BarChart3 className="w-4 h-4 md:w-5 md:h-5 text-emerald-300" aria-hidden="true" />
                       <div className="text-left">
                         <p className="font-medium text-sm md:text-base">Analytics</p>
-                        <p className="text-xs md:text-sm text-neutral-400">Métriques détaillées</p>
+                        <p className="text-xs md:text-sm text-neutral-300">Métriques détaillées</p>
                       </div>
                     </div>
                   </Link>
@@ -355,7 +355,7 @@ export default function DashboardAdmin() {
                       <Settings className="w-4 h-4 md:w-5 md:h-5 text-blue-300" aria-hidden="true" />
                       <div className="text-left">
                         <p className="font-medium text-sm md:text-base">Docs internes</p>
-                        <p className="text-xs md:text-sm text-neutral-400">Référentiel read-only</p>
+                        <p className="text-xs md:text-sm text-neutral-300">Référentiel read-only</p>
                       </div>
                     </div>
                   </Link>
@@ -367,7 +367,7 @@ export default function DashboardAdmin() {
                       <Activity className="w-4 h-4 md:w-5 md:h-5 text-brand-accent" aria-hidden="true" />
                       <div className="text-left">
                         <p className="font-medium text-sm md:text-base">Diagnostics Pré-Stage</p>
-                        <p className="text-xs md:text-sm text-neutral-400">Suivi des bilans</p>
+                        <p className="text-xs md:text-sm text-neutral-300">Suivi des bilans</p>
                       </div>
                     </div>
                   </Link>
@@ -399,10 +399,10 @@ export default function DashboardAdmin() {
                         <p className="text-xs md:text-sm font-medium text-white truncate">
                           {activity.title}
                         </p>
-                        <p className="text-xs text-neutral-400 truncate">
+                        <p className="text-xs text-neutral-300 truncate">
                           {activity.description}
                         </p>
-                        <p className="text-xs text-neutral-500">
+                        <p className="text-xs text-neutral-300">
                           {activity.action} - {new Date(activity.time).toLocaleDateString('fr-FR')}
                         </p>
                       </div>
@@ -437,15 +437,15 @@ export default function DashboardAdmin() {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <Activity className="w-12 h-12 text-neutral-500 mx-auto mb-4" aria-hidden="true" />
-                  <p className="text-neutral-400 text-sm md:text-base">Aucune activité récente</p>
+                  <Activity className="w-12 h-12 text-neutral-300 mx-auto mb-4" aria-hidden="true" />
+                  <p className="text-neutral-300 text-sm md:text-base">Aucune activité récente</p>
                 </div>
               )}
             </CardContent>
           </Card>
         </div>
         </DashboardPilotage>
-      </main>
+      </div>
       <CorporateFooter />
     </div>
   );

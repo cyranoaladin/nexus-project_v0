@@ -129,7 +129,7 @@ export function TrajectoireCard(props: TrajectoireCardProps) {
           <Target className="h-4 w-4 text-brand-primary" />
           <h3 className="text-sm font-semibold text-neutral-200">Votre trajectoire</h3>
         </div>
-        <p className="text-[11px] text-neutral-500 mb-3">
+        <p className="text-[11px] text-neutral-300 mb-3">
           Objectif défini et jalons intermédiaires.
         </p>
 

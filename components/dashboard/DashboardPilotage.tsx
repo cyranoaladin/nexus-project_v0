@@ -73,7 +73,7 @@ export function DashboardPilotage({ role, studentId, trajectoryData, children }:
       {/* Hero signature — role-specific */}
       <div>
         <h2 className="text-lg font-semibold text-neutral-100">{hero.title}</h2>
-        <p className="text-xs text-neutral-500">{hero.subtitle}</p>
+        <p className="text-xs text-neutral-300">{hero.subtitle}</p>
       </div>
 
       {/* Cap actuel — student roles only */}

@@ -55,11 +55,11 @@ function RouteItem({ item }: { item: EleveFeuilleDeRouteItem }) {
         aria-hidden="true"
       />
       <div className="flex-1 min-w-0">
-        <p className={`truncate text-sm font-medium ${item.done ? 'line-through text-neutral-400' : 'text-neutral-100'}`}>
+        <p className={`truncate text-sm font-medium ${item.done ? 'line-through text-neutral-300' : 'text-neutral-100'}`}>
           {item.title}
         </p>
       </div>
-      <span className="shrink-0 text-[10px] text-neutral-500">{item.estimatedMinutes} min</span>
+      <span className="shrink-0 text-[10px] text-neutral-300">{item.estimatedMinutes} min</span>
     </a>
   );
 }
@@ -74,7 +74,7 @@ export function EleveCockpit({ data, onBookSession, onOpenAria, readOnly = false
         <h2 id="eleve-cockpit-title" className="text-xl font-semibold text-neutral-100">
           Cockpit du jour
         </h2>
-        <p className="text-sm text-neutral-400">
+        <p className="text-sm text-neutral-300">
           {data.student.gradeLevel ?? data.student.grade} · {data.student.academicTrack ?? 'EDS_GENERALE'}
         </p>
       </div>
@@ -101,7 +101,7 @@ export function EleveCockpit({ data, onBookSession, onOpenAria, readOnly = false
             {nextSession ? (
               <>
                 <p className="font-medium text-white">{nextSession.title}</p>
-                <p className="text-sm text-neutral-400">
+                <p className="text-sm text-neutral-300">
                   {new Date(nextSession.scheduledAt).toLocaleString('fr-FR', {
                     day: '2-digit',
                     month: 'short',
@@ -112,7 +112,7 @@ export function EleveCockpit({ data, onBookSession, onOpenAria, readOnly = false
               </>
             ) : (
               <>
-                <p className="text-sm text-neutral-400">Aucune séance programmée.</p>
+                <p className="text-sm text-neutral-300">Aucune séance programmée.</p>
                 {!readOnly && (
                   <Button size="sm" onClick={onBookSession} className="btn-primary">
                     Réserver
@@ -132,7 +132,7 @@ export function EleveCockpit({ data, onBookSession, onOpenAria, readOnly = false
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-semibold text-white">{data.sessionsCount ?? data.recentSessions.length}</p>
-            <p className="text-sm text-neutral-400">sessions suivies ou programmées</p>
+            <p className="text-sm text-neutral-300">sessions suivies ou programmées</p>
           </CardContent>
         </Card>
 
@@ -145,7 +145,7 @@ export function EleveCockpit({ data, onBookSession, onOpenAria, readOnly = false
           </CardHeader>
           <CardContent className="space-y-3">
             <p className="text-3xl font-semibold text-white">{data.ariaStats.totalConversations}</p>
-            <p className="text-sm text-neutral-400">conversations pédagogiques</p>
+            <p className="text-sm text-neutral-300">conversations pédagogiques</p>
             {!readOnly && (
               <Button size="sm" variant="outline" onClick={onOpenAria} className="border-brand-accent/30 text-brand-accent">
                 Ouvrir ARIA
