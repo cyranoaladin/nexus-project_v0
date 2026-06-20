@@ -41,7 +41,7 @@ function resolveOffer(ref: OfferRef): ResolvedOffer | null {
       id: offer.id,
       title: offer.title,
       description: offer.included.slice(0, 2).join(' · ') || offer.subjects,
-      price: offer.price_annual_campaign ?? offer.price_annual_public,
+      price: offer.price_annual,
     };
   }
 

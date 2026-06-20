@@ -22,7 +22,6 @@ import {
   getPacks,
   getCarte,
   getRules,
-  getCampaign,
   getEffectivePrice,
   getAnnualOfferPaymentSchedule,
   getStageFormat,
@@ -112,7 +111,6 @@ const catalogueFAQ: FAQItem[] = [
 export default function OffresPage() {
   const [activeCategory, setActiveCategory] = useState<Category>('all');
   const rules = getRules();
-  const campaign = getCampaign();
   const libreOffers = getOffersByTrack('libre');
   const platformOffers = getOffersByTrack('plateforme');
   const stageFormats = getStageFormats();
@@ -204,18 +202,16 @@ export default function OffresPage() {
                           title={o.title}
                           subtitle={o.subjects}
                           price={price}
-                          originalPrice={o.price_annual_public !== price ? (o.price_annual_public ?? undefined) : undefined}
-                        monthlyDisplay={o.monthly_display ?? undefined}
-                        hoursPerWeek={o.hours_per_week ?? undefined}
-                        totalHours={o.hours_per_year ?? undefined}
-                        groupMax={o.group_max ?? rules.group_max}
-                        groupMinOpen={o.group_min_open ?? rules.group_min_open.lycee}
-                        effectifType="groupe"
-                        payment={getAnnualOfferPaymentSchedule(o) ?? undefined}
-                        campaignBadge={o.badge === 'campagne' ? campaign.campaign_label : undefined}
-                        ctaText="Réserver ma place"
-                        ctaHref={`/bilan-gratuit?offer=${encodeURIComponent(o.id)}`}
-                      />
+                          monthlyDisplay={o.monthly_display ?? undefined}
+                          hoursPerWeek={o.hours_per_week ?? undefined}
+                          totalHours={o.hours_per_year ?? undefined}
+                          groupMax={o.group_max ?? rules.group_max}
+                          groupMinOpen={o.group_min_open ?? rules.group_min_open.lycee}
+                          effectifType="groupe"
+                          payment={getAnnualOfferPaymentSchedule(o) ?? undefined}
+                          ctaText="Réserver ma place"
+                          ctaHref={`/bilan-gratuit?offer=${encodeURIComponent(o.id)}`}
+                        />
                         </div>
                     );
                   })}
@@ -248,7 +244,6 @@ export default function OffresPage() {
                     title={o.title}
                     subtitle={o.subjects}
                     price={price}
-                    originalPrice={o.price_annual_public !== price ? (o.price_annual_public ?? undefined) : undefined}
                     monthlyDisplay={o.monthly_display ?? undefined}
                     groupMax={o.group_max ?? rules.group_max}
                     groupMinOpen={o.group_min_open ?? rules.group_min_open.online_live}
@@ -276,7 +271,7 @@ export default function OffresPage() {
             </div>
             <div className="grid gap-6 md:grid-cols-3">
               {platformOffers.map((o) => {
-                  const price = o.price_annual_campaign ?? o.price_annual_public ?? 0;
+                  const price = o.price_annual ?? 0;
                   return (
                     <div key={o.id} id={o.id} className="scroll-mt-28">
                     <ExamCard
