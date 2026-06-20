@@ -120,9 +120,9 @@ test.describe('Authentication & Booking Flow', () => {
     test('Login fails with invalid credentials', async ({ page }) => {
       await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
 
-      await page.getByLabel(/email/i).fill('invalid@test.com');
+      await page.locator('#email').fill('invalid@test.com');
       await page.getByPlaceholder('Votre mot de passe').fill('wrongpassword');
-      await page.locator('button[type="submit"]').click();
+      await page.getByTestId('btn-signin').click();
 
       // Wait for error message
       await expect(
@@ -137,10 +137,10 @@ test.describe('Authentication & Booking Flow', () => {
       await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
 
       // Try to submit without filling fields
-      await page.locator('button[type="submit"]').click();
+      await page.getByTestId('btn-signin').click();
 
       // Should show validation errors
-      const emailInput = page.getByLabel(/email/i);
+      const emailInput = page.locator('#email');
       await expect(emailInput).toHaveAttribute('required', '');
     });
   });
@@ -516,11 +516,11 @@ test.describe('Authentication & Booking Flow', () => {
       await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
 
       // Fill form
-      await page.getByLabel(/email/i).fill(CREDS.parent.email);
+      await page.locator('#email').fill(CREDS.parent.email);
       await page.getByPlaceholder('Votre mot de passe').fill(CREDS.parent.password);
 
       // Click submit
-      const submitButton = page.locator('button[type="submit"]');
+      const submitButton = page.getByTestId('btn-signin');
       await submitButton.click();
 
       // Check for loading state (button disabled or loading indicator)
@@ -541,9 +541,9 @@ test.describe('Authentication & Booking Flow', () => {
       await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
 
       // Fill invalid email
-      await page.getByLabel(/email/i).fill('invalid-email');
+      await page.locator('#email').fill('invalid-email');
       await page.getByPlaceholder('Votre mot de passe').fill('short');
-      await page.locator('button[type="submit"]').click();
+      await page.getByTestId('btn-signin').click();
 
       // Should stay on signin page (validation prevents navigation)
       await page.waitForTimeout(1000);
@@ -580,9 +580,9 @@ test.describe('Authentication & Booking Flow', () => {
       // Block only the credentials callback (not providers/session)
       await page.route('**/api/auth/callback/**', (route) => route.abort());
 
-      await page.getByLabel(/email/i).fill(CREDS.parent.email);
+      await page.locator('#email').fill(CREDS.parent.email);
       await page.getByPlaceholder('Votre mot de passe').fill(CREDS.parent.password);
-      await page.locator('button[type="submit"]').click();
+      await page.getByTestId('btn-signin').click();
 
       // Should stay on signin page (login fails due to network error)
       await page.waitForTimeout(3000);
