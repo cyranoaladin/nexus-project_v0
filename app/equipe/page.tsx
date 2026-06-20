@@ -493,7 +493,7 @@ export default function EquipePage() {
                   L&apos;élite pédagogique qui transforme l&apos;angoisse en excellence
                 </h1>
                 <p className="mt-4 text-lg text-slate-300">
-                  Sélectionnés parmi 1% des candidats. Unis par une obsession :
+                  S\u00e9lectionn\u00e9s pour leur expertise et leur p\u00e9dagogie. Unis par une obsession\u00A0:
                   <strong className="text-white"> cadre de progression individualisé</strong> pour chaque élève.
                 </p>
 
@@ -667,7 +667,7 @@ export default function EquipePage() {
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center">
               <h2 className="text-3xl md:text-4xl font-bold text-white font-serif">
-                Les mentors qui ont déjà transformé 500+ parcours
+                Des mentors qui transforment chaque parcours
               </h2>
               <p className="mt-3 text-slate-300">Découvrez nos 4 experts les plus demandés</p>
             </div>
