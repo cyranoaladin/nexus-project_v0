@@ -46,8 +46,6 @@ interface ExamCardBaseProps {
   ctaText?: string;
   /** Highlighted / featured */
   featured?: boolean;
-  /** Campaign badge label */
-  campaignBadge?: string;
   /** Acompte deductible */
   depositDeductible?: boolean;
 }
@@ -88,7 +86,6 @@ export function ExamCard(props: ExamCardProps) {
     placesLeft,
     ctaText = 'Réserver ma place',
     featured = false,
-    campaignBadge,
     depositDeductible,
   } = props;
   const ctaHref = 'ctaHref' in props ? props.ctaHref : undefined;
@@ -114,11 +111,6 @@ export function ExamCard(props: ExamCardProps) {
       <div className="relative border-b border-lux-line px-6 pb-4 pt-5">
         <div className="flex items-start justify-between gap-3">
           <span className="lux-eyebrow">{eyebrow}</span>
-          {campaignBadge && (
-            <span className="rounded-full bg-lux-evergreen px-3 py-0.5 text-[0.65rem] font-semibold text-white">
-              {campaignBadge}
-            </span>
-          )}
         </div>
 
         {/* Title + gold filet */}
