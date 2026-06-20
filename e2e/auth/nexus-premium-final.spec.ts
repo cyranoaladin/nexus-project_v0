@@ -3,38 +3,28 @@ import { test, expect } from '@playwright/test';
 const WA_NUMBER = '21699192829';
 
 test.describe('Nexus premium final — contenu et parcours publics', () => {
-  test('homepage contient les blocs publics non négociables', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
-    const body = page.locator('body');
+  test(‘homepage contient les blocs publics non négociables’, async ({ page }) => {
+    await page.goto(‘/’, { waitUntil: ‘domcontentloaded’ });
+    const body = page.locator(‘body’);
 
     for (const text of [
-      'Offres & tarifs',
-      'Trouver ma formule',
-      'Plateforme',
-      'Contact',
-      'Préparer 2026/2027 dès maintenant',
-      'Candidats libres, élèves scolarisés, prérentrée, parcours annuels, plateforme et stages : Nexus vous oriente vers la formule adaptée.',
-      'Quel parcours pour votre enfant ?',
-      'Repères tarifaires 2026/2027',
-      'Forfaits courts et accompagnements ciblés',
-      'Forfait Complet 16 h',
-      'Ces forfaits répondent à des besoins ponctuels. Pour un parcours annuel complet, consultez les offres 2026/2027.',
-      'Voir les parcours annuels',
-      'Les stages sont positionnés sur les grandes périodes du calendrier scolaire : prérentrée, Toussaint, hiver/février, printemps et sprint final.',
-      'Une équipe d’enseignants certifiés et agrégés',
-      'enseignement français à l’étranger',
-      'Les effectifs dépendent du format',
-      'Les progressions mentionnées correspondent à des parcours individuels et ne constituent pas une garantie de résultat.',
+      ‘Trouver ma formule’,
+      ‘Préparer le bac français avec méthode, suivi et exigence’,
+      ‘Cellule Cyclades’,
+      ‘Groupes de 5 max’,
+      ‘Enseignants agrégés’,
+      ‘Repères tarifaires’,
+      ‘TND’,
+      ‘Demander un bilan gratuit’,
     ]) {
       await expect(body).toContainText(text);
     }
 
-    await expect(body).not.toContainText('Forfait Excellence');
-    await expect(body).not.toContainText('Forfaits et formules');
-    await expect(body).not.toContainText('100 % réussite');
-    await expect(body).not.toContainText('réussite garantie');
-    await expect(body).not.toContainText('date limite');
-    await expect(body).not.toContainText('période de réservation prioritaire');
+    await expect(body).not.toContainText(‘Forfait Excellence’);
+    await expect(body).not.toContainText(‘100 % réussite’);
+    await expect(body).not.toContainText(‘réussite garantie’);
+    await expect(body).not.toContainText(‘date limite’);
+    await expect(body).not.toContainText(‘période de réservation prioritaire’);
   });
 
   test('catalogue expose des cartes structurées et des détails premium', async ({ page }) => {
@@ -109,27 +99,29 @@ test.describe('Nexus premium final — contenu et parcours publics', () => {
     await expect(result).not.toContainText('période de réservation prioritaire');
   });
 
-  test('navigation publique complète et liens WhatsApp', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
-    await page.getByRole('link', { name: /Trouver ma formule/i }).first().click();
-    await expect(page).toHaveURL(/nexus_selecteur\.html/);
+  test(‘navigation publique complète et liens WhatsApp’, async ({ page }) => {
+    // "Trouver ma formule" from homepage goes to /recommandation
+    await page.goto(‘/’, { waitUntil: ‘domcontentloaded’ });
+    await page.getByRole(‘link’, { name: /Trouver ma formule/i }).first().click();
+    await expect(page).toHaveURL(/\/recommandation/);
+
+    // "Voir les offres" or similar from homepage goes to /offres
+    await page.goto(‘/’, { waitUntil: ‘domcontentloaded’ });
+    await page.getByRole(‘link’, { name: /offres/i }).first().click();
+    await expect(page).toHaveURL(/\/offres/);
     await expect(page.locator(`a[href*="wa.me/${WA_NUMBER}"]`).first()).toBeVisible();
 
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
-    await page.getByRole('link', { name: /Offres & tarifs|Voir les offres & tarifs/i }).first().click();
-    await expect(page).toHaveURL(/catalogue-nexus-reussite-2026-2027\.html/);
+    // Static catalogue page still works
+    await page.goto(‘/catalogue-nexus-reussite-2026-2027.html’, { waitUntil: ‘domcontentloaded’ });
     await expect(page.locator(`a[href*="wa.me/${WA_NUMBER}"]`).first()).toBeVisible();
 
-    await page.goto('/catalogue-nexus-reussite-2026-2027.html', { waitUntil: 'domcontentloaded' });
-    await page.getByRole('link', { name: /Je ne sais pas quoi choisir/i }).click();
-    await expect(page).toHaveURL(/nexus_selecteur\.html/);
-
-    await page.goto('/nexus_selecteur.html', { waitUntil: 'domcontentloaded' });
-    await page.getByRole('link', { name: /Voir toutes les offres/i }).click();
+    // Static selector page still works
+    await page.goto(‘/nexus_selecteur.html’, { waitUntil: ‘domcontentloaded’ });
+    await page.getByRole(‘link’, { name: /Voir toutes les offres/i }).click();
     await expect(page).toHaveURL(/catalogue-nexus-reussite-2026-2027\.html/);
 
-    await page.goto('/nexus_selecteur.html', { waitUntil: 'domcontentloaded' });
-    await page.getByRole('link', { name: /Retour à l’accueil/i }).first().click();
+    await page.goto(‘/nexus_selecteur.html’, { waitUntil: ‘domcontentloaded’ });
+    await page.getByRole(‘link’, { name: /Retour à l’accueil/i }).first().click();
     await expect(page).toHaveURL(/\/$/);
   });
 });

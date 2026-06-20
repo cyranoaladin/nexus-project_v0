@@ -26,7 +26,7 @@ test.describe('Responsive layout — mobile', () => {
 
   test('signin page renders on mobile', async ({ page }) => {
     await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
-    const emailInput = page.locator('input[type="email"], input[name="email"]');
+    const emailInput = page.locator('#email');
     await expect(emailInput).toBeVisible({ timeout: 10000 });
   });
 

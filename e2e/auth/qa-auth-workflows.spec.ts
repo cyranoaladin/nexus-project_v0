@@ -93,7 +93,7 @@ test.describe('Public pages (no auth required)', () => {
   test('/auth/signin loads with 200', async ({ page }) => {
     const resp = await page.goto('/auth/signin');
     expect(resp?.status()).toBe(200);
-    await expect(page.locator('form')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('form').filter({ has: page.locator('#email') })).toBeVisible({ timeout: 10000 });
   });
 
   test('/contact loads with 200', async ({ page }) => {
@@ -238,7 +238,7 @@ test.describe('Signin page UI', () => {
     await page.fill('#email', CREDS.parent.email);
     await page.fill('#password', 'wrongpassword');
     // Check if React client JS is working (button text changes on submit)
-    const submitBtn = page.locator('button[type="submit"]');
+    const submitBtn = page.getByTestId('btn-signin');
     await submitBtn.click();
     // Wait for either the error alert or a timeout (headless shell may not run React)
     const alertAppeared = await page.locator('[role="alert"]').isVisible({ timeout: 10000 }).catch(() => false);
@@ -256,9 +256,9 @@ test.describe('Signin page UI', () => {
     await page.fill('#password', CREDS.parent.password);
 
     // Click and check loading state appears
-    await page.click('button[type="submit"]');
+    await page.getByTestId('btn-signin').click();
     // The button text should change to "Connexion en cours..."
-    const loadingText = page.locator('button[type="submit"]');
+    const loadingText = page.getByTestId('btn-signin');
     // Either loading state or successful redirect
     await expect(loadingText.or(page.locator('[data-testid="dashboard"]'))).toBeVisible({ timeout: 15000 });
   });
@@ -291,7 +291,7 @@ test.describe('Forgot password page', () => {
     }
     await emailInput.fill(CREDS.parent.email);
     // Try clicking submit — button may be disabled if React state isn't working
-    const submitBtn = page.locator('button[type="submit"]');
+    const submitBtn = page.locator('main button[type="submit"]');
     const isEnabled = await submitBtn.isEnabled({ timeout: 3000 }).catch(() => false);
     if (!isEnabled) {
       // Headless shell fallback: React state not working, verify page loads

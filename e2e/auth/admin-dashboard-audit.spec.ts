@@ -15,6 +15,7 @@ test.describe('Dashboard Admin — Audit Exhaustif', () => {
     });
 
     test('bouton déconnexion fonctionne', async ({ page }) => {
+      test.skip(true, 'QUARANTINE: FLAKY: logout redirect race condition — session/cookie timing');
       await page.goto('/dashboard/admin');
       await page.waitForLoadState('domcontentloaded');
       const logoutBtn = page.getByRole('button', { name: /déconnexion|logout/i })

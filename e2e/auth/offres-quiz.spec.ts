@@ -4,16 +4,13 @@ test.describe('Offres quiz flow', () => {
   test('loads offres page with pricing and recommendation section', async ({ page }) => {
     await page.goto('/offres', { waitUntil: 'domcontentloaded' });
 
-    await expect(page.getByRole('heading', { name: /Investissez dans la seule garantie/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /offres\s*&\s*tarifs/i }).first()).toBeVisible();
 
-    // Quick recommendation section exists
-    await expect(page.getByRole('heading', { name: /Recommandation rapide/i })).toBeVisible();
-
-    // Profile buttons are visible
-    await expect(page.getByRole('button', { name: /Lyc\u00e9e fran\u00e7ais/i }).first()).toBeVisible();
+    // Category filter buttons are visible
+    await expect(page.getByRole('button', { name: /Tout voir/i }).first()).toBeVisible();
     await expect(page.getByRole('button', { name: /Candidat libre/i }).first()).toBeVisible();
 
     // CTA links work
-    await expect(page.getByRole('link', { name: /Démarrer un bilan gratuit/i }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: /réserver ma place|trouver ma formule/i }).first()).toBeVisible();
   });
 });

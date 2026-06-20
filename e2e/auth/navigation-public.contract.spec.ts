@@ -45,21 +45,21 @@ test.describe('Navigation publique - contrat', () => {
     await page.goto('/');
 
     let nameInput = page
-      .locator('input[name="name"], input[name="nom"], [data-testid="input-contact-nom"]')
+      .locator('input[name="name"], input[name="nom"], input#name')
       .first();
     if (!(await nameInput.isVisible().catch(() => false))) {
       await page.goto('/contact');
       nameInput = page
-        .locator('input[name="name"], input[name="nom"], [data-testid="input-contact-nom"]')
+        .locator('input[name="name"], input[name="nom"], input#name')
         .first();
     }
     await expect(nameInput).toBeVisible({ timeout: 10000 });
 
     const emailInput = page
-      .locator('input[name="email"], [data-testid="input-contact-email"]')
+      .locator('input[name="email"], input#email')
       .first();
     const messageInput = page
-      .locator('textarea[name="message"], textarea[name="content"], [data-testid="input-contact-message"]')
+      .locator('textarea[name="message"], textarea[name="content"], textarea#message')
       .first();
     await expect(emailInput).toBeVisible({ timeout: 10000 });
     await expect(messageInput).toBeVisible({ timeout: 10000 });
@@ -69,8 +69,13 @@ test.describe('Navigation publique - contrat', () => {
     await messageInput.fill('Test contact contractuel');
 
     const contactRequest = page.waitForRequest((req) => req.url().includes('/api/contact') && req.method() === 'POST');
+    // Contact form needs consent checkbox checked before submit
+    const consent = page.getByText(/j.accepte d.être contacté/i);
+    if (await consent.isVisible().catch(() => false)) {
+      await consent.click();
+    }
     await page
-      .locator('button[type="submit"], [data-testid="btn-submit-contact"]')
+      .locator('button[type="submit"]')
       .last()
       .click();
     await contactRequest;

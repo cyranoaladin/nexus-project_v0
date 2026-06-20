@@ -23,7 +23,7 @@ test.describe.serial('Feature gating / entitlements', () => {
 
     await page.goto('/access-required?feature=aria_maths&reason=missing_entitlement&missing=aria_maths');
     await expect(page.getByRole('heading', { name: /accès requis/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: /voir les offres/i })).toHaveAttribute('href', '/offres');
+    await expect(page.locator('main').getByRole('link', { name: /voir les offres/i })).toHaveAttribute('href', '/offres');
     await expect(page.getByRole('link', { name: /contacter nexus/i })).toHaveAttribute('href', '/contact');
     await expect(page.getByRole('link', { name: /retour au tableau de bord/i })).toHaveAttribute('href', '/dashboard/eleve');
   });

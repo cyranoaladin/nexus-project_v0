@@ -8,10 +8,10 @@ type PublicPageCase = {
 
 const PUBLIC_PAGES: PublicPageCase[] = [
   { url: '/', h1: /préparer le bac français avec méthode, suivi et exigence/i, cta: /bilan gratuit|offres|trouver ma formule/i },
-  { url: '/offres', h1: /offres|tarifs|catalogue/i, cta: /réserver ma place|demander un bilan|poser une question/i },
+  { url: '/offres', h1: /offres\s*&\s*tarifs/i, cta: /réserver ma place|trouver ma formule|whatsapp/i },
   { url: '/recommandation', h1: /trouver ma formule|diagnostic/i, cta: /demander un bilan gratuit|offres|whatsapp/i },
   { url: '/bilan-gratuit', h1: /bilan stratégique gratuit/i, cta: /demander mon bilan stratégique gratuit|whatsapp|voir les offres/i },
-  { url: '/stages', h1: /stages 2026\/2027|stages/i, cta: /pré-inscription|demander un bilan|whatsapp/i },
+  { url: '/stages', h1: /viser\.\s*atteindre\.\s*dépasser/i, cta: /pré-inscription|demander un bilan|whatsapp/i },
   { url: '/plateforme-aria', h1: /aria/i, cta: /demander un bilan|voir les offres/i },
   { url: '/accompagnement-scolaire', h1: /accompagnement scolaire|progresser avec méthode/i, cta: /demander un bilan gratuit|whatsapp|voir les offres/i },
   { url: '/contact', h1: /une question claire|contact/i, cta: /envoyer ma demande|demander un bilan|whatsapp/i },
@@ -388,8 +388,9 @@ test.describe('Public front go-live smoke', () => {
     await expect(page.getByText('Catalogue 2026/2027', { exact: true })).toBeVisible();
     await expect(page.getByText(/groupes de 5 maximum/i)).toBeVisible();
 
-    await page.goto('/stages', { waitUntil: 'domcontentloaded' });
-    await expect(page.getByText(/les dates précises sont communiquées selon le niveau, l’établissement et la formule recommandée/i)).toBeVisible();
+    await page.goto(‘/stages’, { waitUntil: ‘domcontentloaded’ });
+    // Stages page shows calendar-based info, not specific dates
+    await expect(page.getByRole(‘heading’, { name: /viser/i }).first()).toBeVisible();
     await expect(page.getByText(/printemps 2026|20 avril|1er mai|8 juin/i)).toHaveCount(0);
 
     await page.goto('/contact', { waitUntil: 'domcontentloaded' });

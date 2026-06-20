@@ -13,7 +13,7 @@ test.describe('Password reset flow', () => {
     expect(response?.status()).toBeLessThan(400);
 
     // Should have an email input
-    const emailInput = page.locator('input[type="email"], input[name="email"]');
+    const emailInput = page.locator('#email');
     await expect(emailInput).toBeVisible({ timeout: 10000 });
   });
 
@@ -21,7 +21,7 @@ test.describe('Password reset flow', () => {
     await page.goto('/auth/mot-de-passe-oublie', { waitUntil: 'domcontentloaded' });
 
     // Try to submit without filling email
-    const submitBtn = page.locator('button[type="submit"]');
+    const submitBtn = page.locator('main button[type="submit"]');
     if (await submitBtn.isVisible()) {
       await submitBtn.click();
       // Should show validation error or stay on same page

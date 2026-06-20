@@ -13,7 +13,7 @@ test.describe('Module Automatismes - Élève', () => {
         await page.goto('/dashboard/eleve/automatismes');
         
         // Vérifier le titre
-        await expect(page.locator('h1')).toContainText(/Automatismes/i);
+        await expect(page.locator('main h1').first()).toContainText(/Automatismes/i);
         
         // Vérifier la présence des simulations (au moins une)
         const simulations = page.locator('button:has-text("Démarrer")');
@@ -42,7 +42,7 @@ test.describe('Module Automatismes - Élève', () => {
         
         // Abandonner pour revenir à la liste
         await page.getByRole('button', { name: /Abandonner/i }).click();
-        await expect(page.locator('h1')).toContainText(/Automatismes/i);
+        await expect(page.locator('main h1').first()).toContainText(/Automatismes/i);
     });
 
     test('Sécurité : Pas de triche possible via correctChoiceId dans le DOM', async ({ page }) => {
