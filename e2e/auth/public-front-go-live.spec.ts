@@ -378,7 +378,7 @@ test.describe('Public front go-live smoke', () => {
     await page.getByText('Mathématiques', { exact: true }).click();
     await page.locator('#objectives').fill('Preparer une remise a niveau avant la rentree.');
     await page.locator('#difficulties').fill("Besoin d'un echange pedagogique pour clarifier les priorites.");
-    await page.locator('label:has(button[role="checkbox"])').click();
+    await page.locator('label').filter({ hasText: /accepte|consent/i }).first().click();
     await page.getByRole('button', { name: /demander mon bilan stratégique gratuit/i }).click();
     await expect(page.getByText(/server error|erreur/i).first()).toBeVisible();
   });
