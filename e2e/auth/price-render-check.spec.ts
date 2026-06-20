@@ -92,25 +92,29 @@ test.describe('Price render check — DOM vs canonical', () => {
 
   // ── Homepage ──
 
-  test('homepage shows "TND" currency in reperes tarifaires', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
-    await page.waitForTimeout(1000);
-    await expect(page.getByText('TND').first()).toBeVisible();
-  });
+  // ── Homepage findings ──
 
-  test('homepage mentions "TND" (currency derived from canonical)', async ({ page }) => {
+  test('homepage shows "TND" currency label', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(2000);
     const text = await page.locator('body').innerText();
-    // The homepage mentions TND in the reperes tarifaires section
-    // (prices are client-rendered after hydration; the currency label is SSR)
     expect(text).toContain('TND');
   });
 
-  // Note: /recommandation is an interactive wizard — prices appear only after
-  // completing the 3-step form. The diagnostic test (unit) verifies the
-  // recommendation engine outputs canonical prices.
-  // Dashboard dialogs are verified by data-coherence.test.ts.
+  // FINDING: homepage reperes tarifaires prix numeriques are client-rendered
+  // and do NOT appear in innerText even after full hydration (3s wait + load).
+  // The "TND" label appears but not the numerical values (240, 270, 390...).
+  // The Nexus Select price (1800) is also absent from visible text.
+  // Decision required: are prices intentionally hidden on homepage?
+
+  // FINDING: /recommandation wizard completes but shows offer cards WITHOUT
+  // any price in the visible text. TND is absent from the results.
+  // The recommendation-engine.ts derives prices from canonical but ExamCard
+  // does not render them in the recommendation context.
+  // Decision required: should recommended offers show their price?
+
+  // Dashboard dialogs (aria-addon, subscription-change) are verified by
+  // data-coherence.test.ts (data-layer, gated by role).
 
   // Note: Dashboard dialogs (aria-addon, subscription-change) are verified
   // by unit tests in data-coherence.test.ts (data-layer, not DOM) since they
