@@ -108,6 +108,8 @@ describe('DiagnosticForm', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/Odyssée Première : Le Parcours Anticipé/)).toBeInTheDocument();
+        // Stage recommendation points to a FUTURE stage
+        expect(screen.getByText(/Stage Pré-rentrée août 2026/)).toBeInTheDocument();
       });
     });
 

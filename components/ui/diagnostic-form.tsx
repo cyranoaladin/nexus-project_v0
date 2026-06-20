@@ -55,27 +55,42 @@ const RECOMMENDATIONS: Record<string, Recommendation> = {
   'Première-Lycée-Français': {
     parcours: 'Odyssée Première : Le Parcours Anticipé',
     description: 'Spécialement conçu pour optimiser le contrôle continu et préparer l\'EAF avec excellence.',
-    parcoursLink: '/offres#odyssee'
+    parcoursLink: '/offres#odyssee',
+    academie: 'Stage Pré-rentrée août 2026',
+    academieDescription: 'Reprendre le rythme et prendre de l\'avance avant la rentrée.',
+    academieLink: '/stages',
   },
   'Terminale-Lycée-Mention': {
     parcours: 'Odyssée Terminale : La Stratégie Mention',
     description: 'Conçu pour exceller dans les matières à fort coefficient et obtenir une mention.',
-    parcoursLink: '/offres#odyssee'
+    parcoursLink: '/offres#odyssee',
+    academie: 'Stage Pré-rentrée août 2026',
+    academieDescription: 'Consolider les fondamentaux avant la Terminale.',
+    academieLink: '/stages',
   },
   'Terminale-Lycée-Parcoursup': {
     parcours: 'Odyssée Terminale : La Stratégie Mention',
     description: 'Optimise votre dossier Parcoursup avec une stratégie complète.',
-    parcoursLink: '/offres#odyssee'
+    parcoursLink: '/offres#odyssee',
+    academie: 'Stage Pré-rentrée août 2026',
+    academieDescription: 'Préparer Parcoursup dès la rentrée avec une avance stratégique.',
+    academieLink: '/stages',
   },
   'Première-Lycée-Controle': {
     parcours: 'Odyssée Première : Le Parcours Anticipé',
     description: 'Maximisez votre contrôle continu avec un suivi personnalisé.',
-    parcoursLink: '/offres#odyssee'
+    parcoursLink: '/offres#odyssee',
+    academie: 'Stage Pré-rentrée août 2026',
+    academieDescription: 'Poser les bases solides du contrôle continu.',
+    academieLink: '/stages',
   },
   'CandidatLibre-Cadre': {
     parcours: 'Odyssée Individuel : La Préparation Intégrale',
     description: 'Votre établissement privé à domicile pour obtenir votre Bac.',
-    parcoursLink: '/offres#odyssee'
+    parcoursLink: '/offres#odyssee',
+    academie: 'Stage Pré-rentrée août 2026',
+    academieDescription: 'Bilan + remise à niveau pour candidats libres.',
+    academieLink: '/stages',
   }
 };
 

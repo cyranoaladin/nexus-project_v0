@@ -70,6 +70,31 @@ describe('offres-nexus.json consistent with canonical', () => {
   });
 });
 
+describe('offres-nexus.json is a generated derivative', () => {
+  test('regenerating from canonical produces structurally identical output', () => {
+    // Run generator in-process
+    const { execSync } = require('child_process');
+    const before = fs.readFileSync(path.join(ROOT, 'data', 'offres-nexus.json'), 'utf8');
+    execSync('node scripts/gen-offres-nexus.js', { cwd: ROOT, stdio: 'pipe' });
+    const after = fs.readFileSync(path.join(ROOT, 'data', 'offres-nexus.json'), 'utf8');
+    expect(after).toBe(before);
+  });
+
+  test('every annual price in offres-nexus matches canonical', () => {
+    const canonical = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'pricing.canonical.json'), 'utf8'));
+    const canonicalById = {};
+    for (const o of canonical.offers) {
+      const key = o.id.replace(/-([a-z0-9])/g, (_, c) => c.toUpperCase());
+      canonicalById[key] = o;
+    }
+    for (const [key, offer] of Object.entries(offers)) {
+      if (offer.annual != null && canonicalById[key] && canonicalById[key].price_annual != null) {
+        expect(offer.annual).toBe(canonicalById[key].price_annual);
+      }
+    }
+  });
+});
+
 describe('pipeline artifacts cleaned', () => {
   test('no static HTML files exist in public/', () => {
     for (const file of ['catalogue-nexus-reussite-2026-2027.html', 'nexus_selecteur.html', 'mentions-legales.html', 'confidentialite.html']) {
