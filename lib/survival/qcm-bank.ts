@@ -381,5 +381,3 @@ export const QCM_BANK: QcmQuestion[] = [
     pedagogicalHint: 'Avec coefficients 1, 1, 2 : (10 + 14 + 2x) ÷ 4 = 12, donc x = 12.',
   },
 ];
-
-// TODO: Shark fournira 30 questions simulées additionnelles dans une seconde itération.

@@ -27,10 +27,12 @@ test.describe('Audit E2E de la Page d\'Accueil (redesign 2026)', () => {
     await expect(sections).toHaveCount(10);
   });
 
-  test('Les liens CTA existent dans le DOM', async ({ page }) => {
-    // CTA link existence (visibility tested by public e2e lane with proper animation handling)
-    await expect(page.locator('main a[href="/recommandation"]').first()).toBeAttached();
-    await expect(page.locator('main a[href="/offres"]').first()).toBeAttached();
+  test('Les liens CTA du hero sont visibles', async ({ page }) => {
+    // Target hero CTAs by visible text (not menu overlay links which share the same hrefs)
+    const ctaReco = page.getByRole('link', { name: /Trouver ma formule/i });
+    const ctaOffres = page.getByRole('link', { name: /Voir les offres/i });
+    await expect(ctaReco).toBeVisible();
+    await expect(ctaOffres).toBeVisible();
   });
 
   test('4 liens WhatsApp sont présents', async ({ page }) => {
@@ -52,13 +54,19 @@ test.describe('Audit E2E de la Page d\'Accueil (redesign 2026)', () => {
     }
   });
 
-  test('La navigation vers /offres fonctionne', async ({ page }) => {
-    await page.goto('/offres');
+  test('Clic sur le CTA /offres navigue correctement', async ({ page }) => {
+    const ctaOffres = page.getByRole('link', { name: /Voir les offres/i });
+    await expect(ctaOffres).toBeVisible();
+    await ctaOffres.click();
+    await expect(page).toHaveURL(/\/offres/);
     await expect(page.locator('h1')).toContainText(/Offres/i);
   });
 
-  test('La navigation vers /recommandation fonctionne', async ({ page }) => {
-    await page.goto('/recommandation');
+  test('Clic sur le CTA /recommandation navigue correctement', async ({ page }) => {
+    const ctaReco = page.getByRole('link', { name: /Trouver ma formule/i });
+    await expect(ctaReco).toBeVisible();
+    await ctaReco.click();
+    await expect(page).toHaveURL(/\/recommandation/);
     await expect(page.locator('main')).toBeVisible();
   });
 
@@ -85,17 +93,10 @@ test.describe('Audit E2E de la Page d\'Accueil (redesign 2026)', () => {
 
   test('La navigation mobile fonctionne', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    // Find the menu toggle button (may be aria-label="Menu" or contain "Menu" text)
-    const burger = page.locator('header button').filter({ hasText: /menu/i }).first();
-    if (await burger.isVisible()) {
-      await burger.click();
-      // Verify the mobile menu opens (nav or overlay appears)
-      await expect(page.locator('nav[aria-label="Menu principal"], header nav').first()).toBeVisible();
-    } else {
-      // Fallback: look for any interactive toggle
-      const toggle = page.locator('header button').first();
-      await expect(toggle).toBeVisible();
-    }
+    const burger = page.locator('button[aria-label="Ouvrir le menu"]');
+    await expect(burger).toBeVisible();
+    await burger.click();
+    await expect(page.locator('nav[aria-label="Menu principal"]')).toBeVisible();
   });
 
   test('La page se charge en moins de 5 secondes', async ({ page }) => {

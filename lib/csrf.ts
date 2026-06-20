@@ -91,10 +91,6 @@ export function checkCsrf(request: NextRequest): NextResponse | null {
       return null;
     }
     // In production, log and reject
-    console.warn('[CSRF] Request without Origin/Referer header:', {
-      method,
-      path: request.nextUrl.pathname,
-    });
     return NextResponse.json(
       { error: 'Forbidden — missing origin' },
       { status: 403 }
@@ -126,11 +122,6 @@ export function checkCsrf(request: NextRequest): NextResponse | null {
   );
 
   if (!isAllowed) {
-    console.warn('[CSRF] Cross-origin request rejected:', {
-      method,
-      path: request.nextUrl.pathname,
-      origin: sourceOrigin,
-    });
     return NextResponse.json(
       { error: 'Forbidden — cross-origin request' },
       { status: 403 }
@@ -159,11 +150,6 @@ export function checkBodySize(
 ): NextResponse | null {
   const contentLength = request.headers.get('content-length');
   if (contentLength && parseInt(contentLength, 10) > maxBytes) {
-    console.warn('[Security] Oversized request body rejected:', {
-      path: request.nextUrl.pathname,
-      contentLength,
-      maxBytes,
-    });
     return NextResponse.json(
       { error: 'Payload too large' },
       { status: 413 }

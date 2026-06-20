@@ -59,7 +59,7 @@ export interface OfficialPdfMetadata {
  * Lot B will populate this with at minimum:
  *   - 6 PDFs from `programmes/automatismes-eds-premiere/` (EDS Première EDS_GENERALE)
  *   - Programme officiel Maths Première générale (currently in same dir)
- *   - TODO entries for STMG Première and Terminale EDS (filed by Shark when MEN PDFs are sourced)
+ *   - STMG Première and Terminale EDS (when MEN PDFs are sourced)
  */
 export const OFFICIAL_PDFS: Readonly<Record<OfficialPdfSlug, OfficialPdfMetadata>> =
   Object.freeze({} as Record<OfficialPdfSlug, OfficialPdfMetadata>);

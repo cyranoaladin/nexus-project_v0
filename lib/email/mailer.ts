@@ -139,7 +139,6 @@ export function resetTransporter(): void {
  */
 export async function sendMail(options: SendMailOptions): Promise<SendMailResult> {
   if (isMailDisabled()) {
-    console.log(`[mailer] Skipped (MAIL_DISABLED): subject="${options.subject}"`);
     return { ok: true, skipped: true };
   }
 
@@ -158,13 +157,11 @@ export async function sendMail(options: SendMailOptions): Promise<SendMailResult
     });
 
     const messageId = typeof info?.messageId === 'string' ? info.messageId : undefined;
-    console.log(`[mailer] Sent: messageId=${messageId ?? 'unknown'}`);
     return { ok: true, messageId };
   } catch (error) {
     console.error('[mailer] Send failed:', error instanceof Error ? error.message : 'unknown');
 
     if (process.env.NODE_ENV === 'development') {
-      console.log('[mailer] Swallowed in development');
       return { ok: false };
     }
 

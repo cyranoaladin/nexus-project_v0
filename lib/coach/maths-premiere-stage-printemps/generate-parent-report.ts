@@ -54,7 +54,7 @@ const AXIS_LABELS: Record<string, string> = {
   'gestion-du-temps': 'gestion du temps',
 };
 
-// P0 - New structured labels
+// New structured labels
 const PROFILE_LABELS: Record<string, string> = {
   'RAPID_PROGRESS': 'progression rapide',
   'STEADY_PROGRESS': 'progression régulière',
@@ -135,7 +135,7 @@ function studentName(student: StudentInfo): string {
 
 /**
  * Generate parent report with structured data and anti-repetition logic.
- * P0 restructuring: uses new fields, limits redundancy, produces concise synthesis.
+ * Uses structured fields, limits redundancy, produces concise synthesis.
  */
 export function generateParentMathsStageReport(
   sourceData: Partial<CoachMathsSourceData>,
@@ -171,7 +171,7 @@ export function generateParentMathsStageReport(
   lines.push('');
   lines.push('═'.repeat(60));
 
-  // ===== 1. SYNTHÈSE GÉNÉRALE (P0 structured) =====
+  // ===== 1. SYNTHÈSE GÉNÉRALE =====
   const globalDiag = sourceData.globalDiagnostic ?? {};
   const pra = sourceData.parentRecommendations ?? {};
 
@@ -191,13 +191,13 @@ export function generateParentMathsStageReport(
     addLine(`Rythme de travail observé : ${paceLabel}.`);
   }
 
-  // Main coach message (new P0 field) - prioritized over legacy parentSummaryMessage
+  // Main coach message - prioritized over legacy parentSummaryMessage
   if (globalDiag.mainCoachMessage) {
     addLine('');
     addLine(globalDiag.mainCoachMessage);
   }
 
-  // Parent urgency and tone (new P0)
+  // Parent urgency and tone
   if (pra.parentUrgency || pra.parentTone) {
     addLine('');
     const urgency = pra.parentUrgency ? URGENCY_LABELS[pra.parentUrgency] : '';
@@ -209,7 +209,7 @@ export function generateParentMathsStageReport(
     }
   }
 
-  // Parent main message (new P0) - prioritized over legacy
+  // Parent main message - prioritized over legacy
   if (pra.parentMainMessage) {
     addLine('');
     addLine(pra.parentMainMessage);
@@ -274,7 +274,7 @@ export function generateParentMathsStageReport(
     vigilance.slice(0, 4).forEach(v => addLine(`  • ${v}`));
   }
 
-  // ===== 4. DIAGNOSTIC PAR CHAPITRE (P0 structured) =====
+  // ===== 4. DIAGNOSTIC PAR CHAPITRE =====
   const chaptersWithData = Object.entries(chapterDiags).filter(([, c]) => c?.mastery !== undefined);
 
   if (chaptersWithData.length > 0) {
@@ -310,7 +310,7 @@ export function generateParentMathsStageReport(
     }
   }
 
-  // ===== 5. ÉPREUVE FINALE (P0 enhanced) =====
+  // ===== 5. ÉPREUVE FINALE =====
   if (fa.finalTestDone && fa.finalTestDone !== 'NOT_DONE') {
     lines.push('═'.repeat(60));
     lines.push('');
@@ -385,7 +385,7 @@ export function generateParentMathsStageReport(
     addLine(FOLLOW_UP_LABELS[pra.recommendedFollowUp] ?? pra.recommendedFollowUp);
   }
 
-  // Legacy parentSummaryMessage - only used if no new P0 fields, and reformulated
+  // Legacy parentSummaryMessage - only used if no new structured fields, and reformulated
   if (pra.parentSummaryMessage && !pra.parentMainMessage && !globalDiag.mainCoachMessage) {
     const summary = pra.parentSummaryMessage.trim();
     // Don't use if too similar to what's already been said

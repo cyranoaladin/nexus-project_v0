@@ -4,9 +4,7 @@ if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
     for (const registration of registrations) {
       // Désinscrire tous les SW qui ne sont pas de Next.js
       if (!registration.scope.includes('_next')) {
-        registration.unregister().then(function () {
-          console.log('Service Worker résiduel supprimé:', registration.scope);
-        });
+        registration.unregister();
       }
     }
   });

@@ -31,7 +31,7 @@ const pillars = [
 
 export function MethodSection() {
   return (
-    <section className="py-20 px-4 md:px-6 bg-lux-paper">
+    <section className="py-20 px-4 md:px-6 bg-lux-white">
       <div className="mx-auto max-w-6xl">
         <div className="mb-14 text-center">
           <span className="lux-eyebrow">Notre méthode</span>

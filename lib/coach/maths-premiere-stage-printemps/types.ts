@@ -56,14 +56,14 @@ export const probabilitiesSchema = z.object({
   conditionalProbabilityFormula: z.number().min(1).max(5).optional(),
 });
 
-// Enhanced Final Assessment schema (P0 restructuring)
+// Enhanced Final Assessment schema
 export const finalAssessmentSchema = z.object({
   // Legacy fields (kept for retrocompatibility)
   timeManagement: z.number().min(1).max(5).optional(),
   writtenClarity: z.number().min(1).max(5).optional(),
   adviceForNextAssessment: z.string().optional(),
 
-  // New structured fields (P0)
+  // New structured fields
   finalTestDone: z.enum(['NOT_DONE', 'PARTIAL', 'DONE']).optional(),
   approximateScore: z.number().min(0).max(20).optional(),
   instructionUnderstanding: z.number().min(1).max(5).optional(),
@@ -75,7 +75,7 @@ export const finalAssessmentSchema = z.object({
   priorityBeforeExam: z.string().max(500).optional(),
 });
 
-// Guided parent message schema (P0 restructuring)
+// Guided parent message schema
 // parentSummaryMessage kept for retrocompatibility but no longer primary
 export const parentRecommendationsSchema = z.object({
   // Legacy fields (kept for retrocompatibility)
@@ -87,14 +87,14 @@ export const parentRecommendationsSchema = z.object({
   ), // Deduplicated; frontend shows 9 options max, display limited to 3
   parentSummaryMessage: z.string().optional(), // Kept but treated as secondary note
 
-  // New guided fields (P0)
+  // New guided fields
   parentTone: z.enum(['REASSURING', 'BALANCED', 'FIRM_BUT_SUPPORTIVE']).optional(),
   parentUrgency: z.enum(['NORMAL', 'WATCH', 'IMPORTANT', 'PRIORITY']).optional(),
   parentMainMessage: z.string().max(600).optional(),
   parentDoNotSay: z.string().max(400).optional(),
 });
 
-// Chapter diagnostic item schema (P0 restructuring)
+// Chapter diagnostic item schema
 export const chapterDiagnosticSchema = z.object({
   mastery: z.number().min(1).max(5).optional(),
   methodsAcquired: z.preprocess(
@@ -114,7 +114,7 @@ export const chapterDiagnosticSchema = z.object({
   priorityRemediation: z.string().max(500).optional(),
 });
 
-// Global diagnostic schema (P0 restructuring)
+// Global diagnostic schema
 export const globalDiagnosticSchema = z.object({
   overallProfile: z.enum(['RAPID_PROGRESS', 'STEADY_PROGRESS', 'UNEVEN_PROGRESS', 'FRAGILE_BUT_MOTIVATED', 'FRAGILE_AND_DISCOURAGED']).optional(),
   workPace: z.enum(['FAST_AND_ACCURATE', 'FAST_BUT_CARELESS', 'SLOW_BUT_ACCURATE', 'SLOW_AND_UNCERTAIN', 'IRREGULAR']).optional(),
@@ -124,7 +124,7 @@ export const globalDiagnosticSchema = z.object({
   mainCoachMessage: z.string().max(600).optional(),
 });
 
-// Chapter diagnostics collection (P0 restructuring)
+// Chapter diagnostics collection
 export const chapterDiagnosticsSchema = z.object({
   // General Maths chapters
   secondDegree: chapterDiagnosticSchema.optional(),
@@ -170,7 +170,7 @@ export const statistiquesProbabilitesStmgSchema = z.object({
   arbrePondere: z.number().min(1).max(5).optional(),
 });
 
-// Full Bilan form schema (extended P0 with STMG support)
+// Full Bilan form schema (with STMG support)
 export const coachMathsBilanSchema = z.object({
   action: z.enum(['draft', 'complete']),
   subject: z.enum(['MATHEMATIQUES', 'STMG']).optional(),
@@ -190,7 +190,7 @@ export const coachMathsBilanSchema = z.object({
   fonctionsDerivationStmg: fonctionsDerivationStmgSchema.optional(),
   statistiquesProbabilitesStmg: statistiquesProbabilitesStmgSchema.optional(),
 
-  // New structured sections (P0)
+  // New structured sections
   globalDiagnostic: globalDiagnosticSchema.optional(),
   chapterDiagnostics: chapterDiagnosticsSchema.optional(),
 });
@@ -234,7 +234,7 @@ export type CoachMathsSourceData = {
   fonctionsDerivationStmg?: FonctionsDerivationStmg;
   statistiquesProbabilitesStmg?: StatistiquesProbabilitesStmg;
 
-  // New structured sections (P0)
+  // New structured sections
   globalDiagnostic?: GlobalDiagnostic;
   chapterDiagnostics?: ChapterDiagnostics;
 };

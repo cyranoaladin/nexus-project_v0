@@ -92,7 +92,6 @@ export async function POST(request: NextRequest) {
           data: { status: SessionStatus.COMPLETED, completedAt: new Date() }
         });
 
-        // TODO: Logique de crédits si nécessaire
 
         return NextResponse.json({
           success: true,

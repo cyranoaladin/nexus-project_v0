@@ -63,7 +63,6 @@ export async function GET(
 
     // Validate path format (prevent directory traversal)
     if (!relativePath || !isSafeRelativeStoragePath(relativePath)) {
-      console.warn('[NPC Files] Invalid storage path requested');
       return NextResponse.json(
         { error: 'Invalid path' },
         { status: 400 }

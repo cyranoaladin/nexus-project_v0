@@ -37,10 +37,14 @@ describe('Stages page — 2026/2027', () => {
 
     expect(screen.getByTestId('navbar')).toBeInTheDocument();
     expect(screen.getByTestId('footer')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /des stages utiles, structurés et pensés pour la progression réelle/i })).toBeInTheDocument();
-    expect(screen.getByText(/les dates précises sont communiquées selon le niveau, l’établissement et la formule recommandée/i)).toBeInTheDocument();
-    expect(screen.getByText(/cap rentrée/i)).toBeInTheDocument();
-    expect(screen.getByText(/intensif noël/i)).toBeInTheDocument();
-    expect(screen.queryByText(/printemps 2026|20 avril|1er mai|8 juin/i)).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/Viser.*Atteindre.*passer/i);
+    expect(screen.getByText(/Pré-Rentrée/)).toBeInTheDocument();
+    expect(screen.getByText(/Toussaint/)).toBeInTheDocument();
+    expect(screen.getByText(/Noël/)).toBeInTheDocument();
+    expect(screen.getByText(/Février/)).toBeInTheDocument();
+    expect(screen.getByText(/Printemps \/ Prépa-Bac/)).toBeInTheDocument();
+    // Verify exact dates are displayed
+    expect(screen.getByText(/24.*août 2026/)).toBeInTheDocument();
+    expect(screen.getByText(/26.*avr.*7 mai 2027/)).toBeInTheDocument();
   });
 });

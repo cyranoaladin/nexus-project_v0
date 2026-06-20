@@ -43,14 +43,11 @@ export async function GET(request: NextRequest) {
     const userRole = (session?.user as { role?: string })?.role;
 
     if (!session || userRole !== 'ADMIN') {
-      console.warn(`[directeur/stats] 403 — unauthorized access attempt, role=${userRole ?? 'none'}, userId=${(session?.user as { id?: string })?.id ?? 'anonymous'}`);
       return NextResponse.json(
         { success: false, error: 'Accès non autorisé. Rôle ADMIN requis.' },
         { status: 403 }
       );
     }
-
-    console.log(`[directeur/stats] Admin access by userId=${(session.user as { id?: string })?.id}`);
 
     // ─── KPIs ─────────────────────────────────────────────────────────────
 

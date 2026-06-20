@@ -48,7 +48,6 @@ const ContactSectionGSAP = () => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Form submitted:', { ...formData, profile: profileType });
         // Add real submission logic here
     };
 

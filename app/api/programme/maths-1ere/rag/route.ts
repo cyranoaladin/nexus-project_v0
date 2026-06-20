@@ -104,7 +104,7 @@ export async function POST(req: NextRequest) {
       }
     }
   } catch (err) {
-    console.warn('[RAG maths-1ere] Nexus RAG API unavailable:', err);
+    // RAG API unavailable — fall through to empty results
   }
 
   // ── No results ─────────────────────────────────────────────────────────────-

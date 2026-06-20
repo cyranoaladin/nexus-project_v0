@@ -28,6 +28,13 @@ test.describe('/offres — Page Tarifs', () => {
     }
   });
 
+  test('les 4 repères de transparence sont visibles', async ({ page }) => {
+    await expect(page.getByText(/Groupes\s+de\s+5\s+maximum/).first()).toBeVisible();
+    await expect(page.getByText(/Tarifs\s+en\s+TND/).first()).toBeVisible();
+    await expect(page.getByText(/Acompte\s+30\s*%/).first()).toBeVisible();
+    await expect(page.getByText(/[ÉE]ch[ée]anciers\s+transparents/).first()).toBeVisible();
+  });
+
   test('page charge sans erreur 500', async ({ page }) => {
     const response = await page.request.get('/offres');
     expect(response.status()).toBeLessThan(500);

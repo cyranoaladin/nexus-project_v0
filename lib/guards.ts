@@ -71,12 +71,6 @@ export async function requireRole(requiredRole: UserRole): Promise<AuthSession |
   const session = result as AuthSession;
 
   if (session.user.role !== requiredRole) {
-    console.warn('Access denied: insufficient permissions', {
-      userId: session.user.id,
-      userRole: session.user.role,
-      requiredRole
-    });
-
     return NextResponse.json(
       {
         error: 'Forbidden',
@@ -102,11 +96,6 @@ export async function requireAnyRole(allowedRoles: UserRole[]): Promise<AuthSess
   const session = result as AuthSession;
 
   if (!allowedRoles.includes(session.user.role)) {
-    console.warn('Access denied: insufficient permissions', {
-      userId: session.user.id,
-      userRole: session.user.role,
-      allowedRoles
-    });
 
     return NextResponse.json(
       {
@@ -142,7 +131,7 @@ export function isErrorResponse(result: unknown): result is NextResponse {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SECTION 3: Ownership Guards (P0-02 hardening)
+// SECTION 3: Ownership Guards
 // ═══════════════════════════════════════════════════════════════════════════════
 
 /**

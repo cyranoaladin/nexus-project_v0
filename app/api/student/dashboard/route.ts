@@ -17,10 +17,6 @@ export async function GET(_req: NextRequest) {
     const payload = await buildStudentDashboardPayload(session.user.id);
     const elapsed = Date.now() - t0;
 
-    if (process.env.NODE_ENV !== 'production' && elapsed > 400) {
-      console.warn(`[dashboard] slow payload build: ${elapsed}ms`);
-    }
-
     return NextResponse.json(payload, {
       headers: {
         'Cache-Control': 'private, max-age=10',

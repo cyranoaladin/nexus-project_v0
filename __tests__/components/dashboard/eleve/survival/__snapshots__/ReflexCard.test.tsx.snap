@@ -31,7 +31,7 @@ exports[`ReflexCard matches snapshot for state ACQUIS 1`] = `
         </span>
       </div>
       <h3
-        class="font-semibold tracking-tight font-fraunces text-base text-eaf-text-primary"
+        class="font-semibold leading-none tracking-tight font-fraunces text-base text-eaf-text-primary"
       >
         1
         . 
@@ -90,7 +90,7 @@ exports[`ReflexCard matches snapshot for state PAS_VU 1`] = `
         </span>
       </div>
       <h3
-        class="font-semibold tracking-tight font-fraunces text-base text-eaf-text-primary"
+        class="font-semibold leading-none tracking-tight font-fraunces text-base text-eaf-text-primary"
       >
         1
         . 
@@ -149,7 +149,7 @@ exports[`ReflexCard matches snapshot for state REVOIR 1`] = `
         </span>
       </div>
       <h3
-        class="font-semibold tracking-tight font-fraunces text-base text-eaf-text-primary"
+        class="font-semibold leading-none tracking-tight font-fraunces text-base text-eaf-text-primary"
       >
         1
         . 

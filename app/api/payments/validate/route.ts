@@ -199,7 +199,6 @@ async function generateInvoicePDFAndDocument(
       },
     });
 
-    console.log(`[Validate] Facture ${invoice.number} PDF généré → UserDocument ${userDocument.id}`);
     return { invoiceId: invoice.id, documentId: userDocument.id };
   } catch (err) {
     // Non-blocking: log error but don't fail the payment validation
@@ -344,15 +343,10 @@ export async function POST(request: NextRequest) {
         });
         invoiceIdForEntitlements = invoice.id;
 
-        // Activate entitlements atomically (P0-04)
+        // Activate entitlements atomically
         if (productCode && beneficiaryUserId) {
           const entitlementResult = await activateEntitlements(invoice.id, tx);
           if (entitlementResult.noBeneficiary || entitlementResult.skippedItems > 0) {
-            console.warn('[Validate] Entitlement activation incomplete:', {
-              noBeneficiary: entitlementResult.noBeneficiary,
-              skippedItems: entitlementResult.skippedItems,
-              activatedCodes: entitlementResult.activatedCodes,
-            });
             // Do NOT throw here — the payment is valid, the invoice is created,
             // entitlements can be retried manually by staff if needed.
             // Log the failure for alerting.
@@ -453,7 +447,6 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      // TODO: Envoyer email d'information au client
 
       return NextResponse.json({
         success: true,

@@ -48,7 +48,6 @@ export async function GET(request: NextRequest) {
     }
 
     // Note: isActive field does not exist in User schema
-    // TODO: Add isActive field to User model if needed
     // if (params.isActive !== undefined) {
     //   whereClause.isActive = params.isActive;
     // }

@@ -1,5 +1,5 @@
 /**
- * Canonical API Guard (P0-01)
+ * Canonical API Guard
  *
  * Single entry-point for API route protection.
  * Combines: auth, role check, ownership, and rate limiting.
@@ -27,7 +27,7 @@ export interface ApiGuardOptions {
 }
 
 /**
- * Canonical API Guard (P0-01)
+ * Canonical API Guard
  *
  * Single entry-point for API route protection.
  * Combines auth, role check, and ownership in one call.

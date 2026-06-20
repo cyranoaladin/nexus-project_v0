@@ -251,6 +251,19 @@ h1, h2, h3 {
   --color-neutral-900: rgb(var(--color-neutral-900));
   --color-neutral-950: rgb(var(--color-neutral-950));
 
+  /* Gray Scale — hex values for Tailwind v4 utility generation */
+  --color-gray-50: #F9FAFB;
+  --color-gray-100: #F3F4F6;
+  --color-gray-200: #E5E7EB;
+  --color-gray-300: #D1D5DB;
+  --color-gray-400: #9CA3AF;
+  --color-gray-500: #6B7280;
+  --color-gray-600: #4B5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1F2937;
+  --color-gray-900: #111827;
+  --color-gray-950: #030712;
+
   /* Surface Colors - mapped to Tailwind utilities */
   --color-surface-dark: rgb(var(--color-surface-dark));
   --color-surface-darker: rgb(var(--color-surface-darker));
@@ -610,17 +623,7 @@ h1, h2, h3 {
     color: rgb(var(--color-neutral-500));
   }
 
-  .bg-surface-darker .text-gray-600,
-  .bg-surface-dark .text-gray-600,
-  .bg-neutral-950 .text-gray-600 {
-    color: rgb(var(--color-neutral-300));
-  }
-
-  .bg-surface-darker .text-gray-500,
-  .bg-surface-dark .text-gray-500,
-  .bg-neutral-950 .text-gray-500 {
-    color: rgb(var(--color-neutral-300));
-  }
+  /* bg-surface-darker .text-gray-500/600 remaps removed — see comment at ~line 1095 */
 }
 
 body {
@@ -1079,29 +1082,11 @@ html {
   background-color: #166534;
 }
 
-.bg-surface-darker .text-gray-900,
-.bg-surface-dark .text-gray-900,
-.bg-neutral-950 .text-gray-900 {
-  color: rgb(var(--color-neutral-100)) !important;
-}
-
-.bg-surface-darker .text-gray-600,
-.bg-surface-dark .text-gray-600,
-.bg-neutral-950 .text-gray-600 {
-  color: rgb(var(--color-neutral-300)) !important;
-}
-
-.bg-surface-darker .text-gray-500,
-.bg-surface-dark .text-gray-500,
-.bg-neutral-950 .text-gray-500 {
-  color: rgb(var(--color-neutral-300)) !important;
-}
-
-.bg-surface-darker .text-gray-400,
-.bg-surface-dark .text-gray-400,
-.bg-neutral-950 .text-gray-400 {
-  color: rgb(var(--color-neutral-300)) !important;
-}
+/* Global .bg-surface-darker .text-gray-* remaps REMOVED (2026-06-20).
+   Reason: body has bg-surface-darker, so these descendant selectors catch
+   ALL text-gray-* in the page — including light-background islands
+   (tooltips, chat bubbles, popovers). Dashboard dark-mode is covered by
+   the scoped .dashboard-soft rules above. */
 
 /* Global sobriety layer for legacy flashy utility classes */
 .from-purple-500,

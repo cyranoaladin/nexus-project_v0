@@ -1,6 +1,5 @@
 /**
  * NSI Terminale - Algorithmique
- * TODO: Migrer les 4 questions depuis stage-qcm-structure.ts
  */
 
 import { Subject } from '../../../core/types';
@@ -12,7 +11,7 @@ const questionModule: QuestionModule = {
   subject: Subject.NSI,
   grade: 'TERMINALE',
   category: 'Algorithmique',
-  questions: [], // TODO: Migrer depuis stage-qcm-structure.ts
+  questions: [],
 };
 
 export default questionModule;

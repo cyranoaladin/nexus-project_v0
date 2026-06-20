@@ -130,7 +130,6 @@ export async function telegramSendMessage(
   opts?: { parseMode?: 'Markdown' | 'MarkdownV2' | 'HTML'; disableNotification?: boolean }
 ): Promise<TelegramSendResult> {
   if (isTelegramDisabled()) {
-    console.log('[telegram] Skipped (TELEGRAM_DISABLED)');
     return { ok: true, skipped: true };
   }
 
@@ -148,7 +147,6 @@ export async function telegramSendMessage(
       disable_notification: opts?.disableNotification ?? false,
     });
 
-    console.log(`[telegram] Sent: message_id=${result.message_id}`);
     return { ok: true, messageId: result.message_id };
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : 'unknown';

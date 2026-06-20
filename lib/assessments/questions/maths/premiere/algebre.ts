@@ -1,6 +1,5 @@
 /**
  * Maths Première - Algèbre
- * TODO: Créer questions Première
  */
 
 import { Subject } from '../../../core/types';
@@ -12,7 +11,7 @@ const questionModule: QuestionModule = {
   subject: Subject.MATHS,
   grade: 'PREMIERE',
   category: 'Algèbre',
-  questions: [], // TODO: Créer questions
+  questions: [],
 };
 
 export default questionModule;

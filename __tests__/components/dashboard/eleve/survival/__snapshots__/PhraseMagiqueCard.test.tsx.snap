@@ -9,7 +9,7 @@ exports[`PhraseMagiqueCard matches snapshot with copy count 0 1`] = `
       class="flex flex-col space-y-1.5 p-4 md:p-6"
     >
       <h3
-        class="font-semibold tracking-tight font-fraunces text-sm text-eaf-text-primary"
+        class="font-semibold leading-none tracking-tight font-fraunces text-sm text-eaf-text-primary"
       >
         Montrer qu’une suite est arithmétique
       </h3>
@@ -85,7 +85,7 @@ exports[`PhraseMagiqueCard matches snapshot with copy count 3 1`] = `
       class="flex flex-col space-y-1.5 p-4 md:p-6"
     >
       <h3
-        class="font-semibold tracking-tight font-fraunces text-sm text-eaf-text-primary"
+        class="font-semibold leading-none tracking-tight font-fraunces text-sm text-eaf-text-primary"
       >
         Montrer qu’une suite est arithmétique
       </h3>
@@ -161,7 +161,7 @@ exports[`PhraseMagiqueCard matches snapshot with copy count 10 1`] = `
       class="flex flex-col space-y-1.5 p-4 md:p-6"
     >
       <h3
-        class="font-semibold tracking-tight font-fraunces text-sm text-eaf-text-primary"
+        class="font-semibold leading-none tracking-tight font-fraunces text-sm text-eaf-text-primary"
       >
         Montrer qu’une suite est arithmétique
       </h3>

@@ -127,8 +127,9 @@ test.describe('Scenario 2: Admin Dashboard', () => {
 // ─── Scenario 3: LLM Down Resilience ────────────────────────────────────────
 
 test.describe('Scenario 3: LLM Resilience', () => {
-  test('result API returns data even with LLM_GENERATION_FAILED', async ({ request }) => {
-    // First, submit an assessment
+  test('scoring pipeline succeeds even with LLM_MODE=off', async ({ request }) => {
+    // Submit an assessment — scoring is synchronous, LLM is async fire-and-forget.
+    // With LLM_MODE=off, submit MUST still return 201 (scoring worked, LLM skipped).
     const submitResponse = await request.post('/api/assessments/submit', {
       data: {
         subject: 'MATHS',
@@ -146,41 +147,25 @@ test.describe('Scenario 3: LLM Resilience', () => {
       },
     });
 
-    // With LLM_MODE=off, the assessment API should still accept submissions.
-    // Skip if submit fails (DB seed missing) OR if it succeeds (scoring may timeout without LLM).
-    if (submitResponse.status() !== 201) {
-      test.skip(true, `Submit returned ${submitResponse.status()} — DB not seeded`);
+    // If DB is not seeded (no questions loaded), skip gracefully.
+    if (submitResponse.status() === 400) {
+      const body = await submitResponse.json();
+      test.skip(true, `Submit returned 400 — ${body.error ?? 'no questions loaded'}`);
       return;
     }
-    const submitBody = await submitResponse.json();
-    const assessmentId = submitBody.assessmentId;
 
-    // Poll briefly — scoring is sync, LLM is async (disabled in e2e env)
-    let resultData: Record<string, unknown> | null = null;
-    const maxAttempts = 6;
-    const pollInterval = 2000; // 2s
+    // Core assertion: scoring pipeline MUST succeed despite LLM being off
+    expect(submitResponse.status()).toBe(201);
+    const body = await submitResponse.json();
+    expect(body.success).toBe(true);
+    expect(body.assessmentId).toBeTruthy();
+    expect(typeof body.assessmentId).toBe('string');
+    expect(body.redirectUrl).toContain(body.assessmentId);
 
-    for (let i = 0; i < maxAttempts; i++) {
-      const resultResponse = await request.get(
-        `/api/assessments/${assessmentId}/result`
-      );
-
-      if (resultResponse.status() === 200) {
-        resultData = await resultResponse.json();
-        break;
-      }
-
-      // Still processing — wait and retry
-      await new Promise((resolve) => setTimeout(resolve, pollInterval));
-    }
-
-    // With LLM_MODE=off, the result may or may not be available.
-    // Core assertion: the submit was accepted (201) — proven above.
-    // If result is available, verify structure.
-    if (resultData && resultData.status === 'COMPLETED') {
-      expect(resultData.globalScore).toBeDefined();
-      expect(typeof resultData.globalScore).toBe('number');
-    }
-    // If result not ready: the submit worked, LLM processing is disabled — test purpose met.
+    // Verify result API enforces auth (401) — no session in Docker e2e
+    const resultResponse = await request.get(
+      `/api/assessments/${body.assessmentId}/result`
+    );
+    expect(resultResponse.status()).toBe(401);
   });
 });

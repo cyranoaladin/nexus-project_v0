@@ -131,35 +131,36 @@ export function auditAllOffers(): OfferAudit[] {
   return ALL_OFFERS.map(auditOffer);
 }
 
-// ── Console-friendly summary ─────────────────────────────────
+// ── Text-based summary (caller decides where to output) ─────
 
-export function printAuditSummary(): void {
+export function formatAuditSummary(): string {
   const audits = auditAllOffers();
   const divider = "─".repeat(120);
+  const lines: string[] = [];
 
-  console.log("\n" + divider);
-  console.log("  NEXUS RÉUSSITE — PROFITABILITY AUDIT");
-  console.log(divider);
+  lines.push("\n" + divider);
+  lines.push("  NEXUS RÉUSSITE — PROFITABILITY AUDIT");
+  lines.push(divider);
 
   let hasIssues = false;
 
   for (const a of audits) {
     const tag = ` [${a.roleInPortfolio.toUpperCase()}] [${a.profitabilityProfile}] mktPrio=${a.marketingPriority}`;
 
-    console.log(`\n  ${a.id}${tag}`);
-    console.log(`  ${a.title} | ${a.hours}h | ${a.price} TND`);
-    console.log(
+    lines.push(`\n  ${a.id}${tag}`);
+    lines.push(`  ${a.title} | ${a.hours}h | ${a.price} TND`);
+    lines.push(
       `  Breakdown: ${JSON.stringify(a.hoursBreakdown)} = ${a.breakdownSum}h ${a.breakdownValid ? "✓" : "✗ MISMATCH"}`
     );
 
     if (a.priceReference) {
-      console.log(
+      lines.push(
         `  PriceRef: ${a.priceReference} | Saving: ${a.saving} ${a.savingValid ? "✓" : "✗ MISMATCH"}`
       );
     }
 
-    console.log(`  Threshold: ${a.openingThreshold} students | Max: ${MAX_STUDENTS}`);
-    console.log(
+    lines.push(`  Threshold: ${a.openingThreshold} students | Max: ${MAX_STUDENTS}`);
+    lines.push(
       `  ${"Students".padEnd(10)} ${"Revenue".padEnd(12)} ${"Cost".padEnd(12)} ${"Margin".padEnd(12)} ${"Margin%".padEnd(10)} ${"OK"}`
     );
 
@@ -170,30 +171,32 @@ export function printAuditSummary(): void {
             ? " ← THRESHOLD ✓"
             : " ← THRESHOLD ✗ DEFICIT"
           : "";
-      console.log(
+      lines.push(
         `  ${String(s.students).padEnd(10)} ${String(s.revenue).padEnd(12)} ${String(s.teacherCost).padEnd(12)} ${String(s.margin).padEnd(12)} ${(s.marginPercent + "%").padEnd(10)} ${s.isProfitable ? "✓" : "✗"}${marker}`
       );
     }
 
     if (!a.breakdownValid) {
-      console.log(`  ⚠️  HOURS MISMATCH: breakdown=${a.breakdownSum} vs displayed=${a.hours}`);
+      lines.push(`  ⚠️  HOURS MISMATCH: breakdown=${a.breakdownSum} vs displayed=${a.hours}`);
       hasIssues = true;
     }
     if (!a.savingValid) {
-      console.log(`  ⚠️  SAVING MISMATCH: ref=${a.priceReference} - price=${a.price} ≠ saving=${a.saving}`);
+      lines.push(`  ⚠️  SAVING MISMATCH: ref=${a.priceReference} - price=${a.price} ≠ saving=${a.saving}`);
       hasIssues = true;
     }
     if (!a.isProfitableAtThreshold) {
-      console.log(`  ⚠️  DEFICIT AT THRESHOLD (${a.openingThreshold} students)`);
+      lines.push(`  ⚠️  DEFICIT AT THRESHOLD (${a.openingThreshold} students)`);
       hasIssues = true;
     }
   }
 
-  console.log("\n" + divider);
-  console.log(
+  lines.push("\n" + divider);
+  lines.push(
     hasIssues
       ? "  ⚠️  ISSUES FOUND — review items marked above"
       : "  ✅ ALL OFFERS PASS AUDIT"
   );
-  console.log(divider + "\n");
+  lines.push(divider + "\n");
+
+  return lines.join("\n");
 }

@@ -136,8 +136,5 @@ export type StudentMetadataParsed = z.infer<typeof studentMetadataSchema>;
 export function safeParse<T>(schema: z.ZodType<T>, data: unknown): T | null {
   const result = schema.safeParse(data);
   if (result.success) return result.data;
-  if (process.env.NODE_ENV !== 'production') {
-    console.warn('[Assessment Schema] Validation failed:', result.error.flatten());
-  }
   return null;
 }

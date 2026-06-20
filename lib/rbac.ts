@@ -473,10 +473,6 @@ export async function enforcePolicy(policyKey: string) {
       if (['ADMIN', 'ASSISTANTE'].includes(session.user.role)) {
         // staff can access anything
       } else {
-        console.warn('[RBAC] Access denied — role insufficient and not owner', {
-          policy: policyKey,
-          allowedRoles: policy.allowedRoles,
-        });
         return NextResponse.json(
           {
             error: 'Forbidden',
@@ -486,10 +482,6 @@ export async function enforcePolicy(policyKey: string) {
         );
       }
     } else {
-      console.warn('[RBAC] Access denied', {
-        policy: policyKey,
-        allowedRoles: policy.allowedRoles,
-      });
       return NextResponse.json(
         {
           error: 'Forbidden',
