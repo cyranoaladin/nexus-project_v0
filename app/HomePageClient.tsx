@@ -68,22 +68,22 @@ function PricingReperesSection() {
     {
       label: 'Spécialité simple',
       sublabel: 'Terminale · 2h/semaine',
-      value: reperes?.terminaleSimpleMois || '',
+      value: reperes.terminaleSimpleMois,
     },
     {
       label: 'Double Sécurité',
       sublabel: 'Première · 4h/semaine',
-      value: reperes?.premiereDuoMois || '',
+      value: reperes.premiereDuoMois,
     },
     {
       label: 'Stage Intensif',
       sublabel: 'Toutes vacances',
-      value: reperes?.stagesBase || '',
+      value: reperes.stagesBase,
     },
     {
       label: 'Plateforme ARIA',
       sublabel: 'Autonomie · en ligne',
-      value: reperes?.plateformeAn || '',
+      value: reperes.plateformeAn,
     },
   ];
 
