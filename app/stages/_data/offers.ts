@@ -14,9 +14,6 @@ export type HoursBreakdown = Partial<Record<Subject, number>>;
 /** Strategic role within the product portfolio */
 export type PortfolioRole = "lead" | "secondary" | "entry";
 
-/** Profitability health indicator */
-export type ProfitabilityProfile = "strong" | "fragile" | "entry";
-
 export interface Offer {
   id: string;
   level: Level;
@@ -26,8 +23,6 @@ export interface Offer {
   title: string;
   hours: number;
   price: number;
-  priceReference?: number;
-  saving?: number;
   emphasis: Emphasis;
   priority: number;
   accrocheCourte: string;
@@ -48,12 +43,8 @@ export interface Offer {
   maxStudents: number;
   /** Strategic role: lead (push hard), secondary (visible), entry (credibility) */
   roleInPortfolio: PortfolioRole;
-  /** Economic health: strong (healthy margin), fragile (tight), entry (zero-margin) */
-  profitabilityProfile: ProfitabilityProfile;
   /** Absolute marketing priority (1 = highest across both levels) */
   marketingPriority: number;
-  /** Internal profitability notes (not rendered) */
-  profitabilityNotes?: string;
 }
 
 // ──── PREMIÈRE ────────────────────────────────────────────────
@@ -68,8 +59,6 @@ const PREMIERE_OFFERS: Offer[] = [
     title: "Duo Première — Français + Maths",
     hours: 30,
     price: 1149,
-    priceReference: 1188,
-    saving: 39,
     emphasis: "maximale",
     priority: 2,
     accrocheCourte:
@@ -93,9 +82,7 @@ const PREMIERE_OFFERS: Offer[] = [
     openingThreshold: 3,
     maxStudents: 6,
     roleInPortfolio: "lead",
-    profitabilityProfile: "fragile",
     marketingPriority: 5,
-    profitabilityNotes: "Maths absorbs 3h extra vs mono. Discount 39 TND on maths margin. Threshold=3 (français per-student cost = deficit at 2).",
   },
   {
     id: "p-mono-maths",
@@ -127,9 +114,7 @@ const PREMIERE_OFFERS: Offer[] = [
     openingThreshold: 2,
     maxStudents: 6,
     roleInPortfolio: "lead",
-    profitabilityProfile: "strong",
     marketingPriority: 2,
-    profitabilityNotes: "Core margin driver. Maths is the only subject that carries Nexus margin.",
   },
   {
     id: "p-trio-fr-maths-nsi",
@@ -140,8 +125,6 @@ const PREMIERE_OFFERS: Offer[] = [
     title: "Trio Première — Français + Maths + NSI",
     hours: 36,
     price: 1609,
-    priceReference: 1697,
-    saving: 88,
     emphasis: "standard",
     priority: 4,
     accrocheCourte:
@@ -165,9 +148,7 @@ const PREMIERE_OFFERS: Offer[] = [
     openingThreshold: 3,
     maxStudents: 6,
     roleInPortfolio: "secondary",
-    profitabilityProfile: "fragile",
     marketingPriority: 11,
-    profitabilityNotes: "Condensed parcours: maths gets bulk (18h), NSI reduced to 6h consolidation. Discount 88 TND on maths margin. Requires 3.",
   },
   {
     id: "p-duo-maths-nsi",
@@ -178,8 +159,6 @@ const PREMIERE_OFFERS: Offer[] = [
     title: "Duo Première — Maths + NSI",
     hours: 30,
     price: 1009,
-    priceReference: 1048,
-    saving: 39,
     emphasis: "forte",
     priority: 3,
     accrocheCourte:
@@ -203,9 +182,7 @@ const PREMIERE_OFFERS: Offer[] = [
     openingThreshold: 3,
     maxStudents: 6,
     roleInPortfolio: "lead",
-    profitabilityProfile: "fragile",
     marketingPriority: 6,
-    profitabilityNotes: "Exact mono sum. Discount 39 TND on maths margin. NSI cost at 100 TND/h requires 3+.",
   },
   {
     id: "p-mono-nsi",
@@ -237,9 +214,7 @@ const PREMIERE_OFFERS: Offer[] = [
     openingThreshold: 3,
     maxStudents: 6,
     roleInPortfolio: "entry",
-    profitabilityProfile: "entry",
     marketingPriority: 14,
-    profitabilityNotes: "Fragile at 2 students due to 100 TND/h group cost. Opens at 3 minimum.",
   },
   {
     id: "p-mono-francais",
@@ -271,9 +246,7 @@ const PREMIERE_OFFERS: Offer[] = [
     openingThreshold: 3,
     maxStudents: 6,
     roleInPortfolio: "entry",
-    profitabilityProfile: "entry",
     marketingPriority: 13,
-    profitabilityNotes: "Lead magnet / credibility offer. Cost is per-student (80 TND/student/90min). Zero margin by design.",
   },
 ];
 
@@ -289,8 +262,6 @@ const TERMINALE_OFFERS: Offer[] = [
     title: "Pack Terminale — Maths + NSI",
     hours: 30,
     price: 1279,
-    priceReference: 1328,
-    saving: 49,
     emphasis: "maximale",
     priority: 2,
     accrocheCourte:
@@ -314,9 +285,7 @@ const TERMINALE_OFFERS: Offer[] = [
     openingThreshold: 2,
     maxStudents: 6,
     roleInPortfolio: "lead",
-    profitabilityProfile: "strong",
     marketingPriority: 3,
-    profitabilityNotes: "Exact mono sum (18+12=30). Discount 49 TND absorbed by maths margin.",
   },
   {
     id: "t-duo-maths-pc",
@@ -327,8 +296,6 @@ const TERMINALE_OFFERS: Offer[] = [
     title: "Pack Terminale — Maths + Physique-Chimie",
     hours: 30,
     price: 1279,
-    priceReference: 1328,
-    saving: 49,
     emphasis: "maximale",
     priority: 3,
     accrocheCourte:
@@ -352,9 +319,7 @@ const TERMINALE_OFFERS: Offer[] = [
     openingThreshold: 2,
     maxStudents: 6,
     roleInPortfolio: "lead",
-    profitabilityProfile: "strong",
     marketingPriority: 4,
-    profitabilityNotes: "Exact mono sum (18+12=30). Discount 49 TND absorbed by maths margin.",
   },
   {
     id: "t-trio-maths-nsi-go",
@@ -365,8 +330,6 @@ const TERMINALE_OFFERS: Offer[] = [
     title: "Pack Terminale — Maths + NSI + Grand Oral",
     hours: 36,
     price: 1449,
-    priceReference: 1537,
-    saving: 88,
     emphasis: "standard",
     priority: 6,
     accrocheCourte:
@@ -390,9 +353,7 @@ const TERMINALE_OFFERS: Offer[] = [
     openingThreshold: 3,
     maxStudents: 6,
     roleInPortfolio: "secondary",
-    profitabilityProfile: "strong",
     marketingPriority: 9,
-    profitabilityNotes: "GO gets 6h (2h more than mono = pack bonus). Discount 88 TND on maths margin.",
   },
   {
     id: "t-trio-maths-pc-go",
@@ -403,8 +364,6 @@ const TERMINALE_OFFERS: Offer[] = [
     title: "Pack Terminale — Maths + Physique-Chimie + Grand Oral",
     hours: 36,
     price: 1449,
-    priceReference: 1537,
-    saving: 88,
     emphasis: "standard",
     priority: 7,
     accrocheCourte:
@@ -428,9 +387,7 @@ const TERMINALE_OFFERS: Offer[] = [
     openingThreshold: 3,
     maxStudents: 6,
     roleInPortfolio: "secondary",
-    profitabilityProfile: "strong",
     marketingPriority: 10,
-    profitabilityNotes: "GO gets 6h (2h more than mono = pack bonus). Discount 88 TND on maths margin.",
   },
   {
     id: "t-mono-maths",
@@ -462,9 +419,7 @@ const TERMINALE_OFFERS: Offer[] = [
     openingThreshold: 2,
     maxStudents: 6,
     roleInPortfolio: "lead",
-    profitabilityProfile: "strong",
     marketingPriority: 1,
-    profitabilityNotes: "Core Terminale margin driver. Maths at 60 TND/h group cost.",
   },
   {
     id: "t-mono-nsi",
@@ -496,9 +451,7 @@ const TERMINALE_OFFERS: Offer[] = [
     openingThreshold: 3,
     maxStudents: 6,
     roleInPortfolio: "secondary",
-    profitabilityProfile: "fragile",
     marketingPriority: 7,
-    profitabilityNotes: "NSI at 100 TND/h group cost. Tight margin.",
   },
   {
     id: "t-mono-pc",
@@ -530,9 +483,7 @@ const TERMINALE_OFFERS: Offer[] = [
     openingThreshold: 3,
     maxStudents: 6,
     roleInPortfolio: "secondary",
-    profitabilityProfile: "fragile",
     marketingPriority: 8,
-    profitabilityNotes: "PC at 100 TND/h group cost. Tight margin.",
   },
   {
     id: "t-complement-go",
@@ -564,9 +515,7 @@ const TERMINALE_OFFERS: Offer[] = [
     openingThreshold: 3,
     maxStudents: 6,
     roleInPortfolio: "secondary",
-    profitabilityProfile: "fragile",
     marketingPriority: 12,
-    profitabilityNotes: "GO at 100 TND/h group cost. 4h mono. Tight margin at 2.",
   },
 ];
 

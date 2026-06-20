@@ -51,7 +51,6 @@ export default function OfferAccordionCard({
   const cardId = `offer-${offer.id}`;
   const panelId = `panel-${offer.id}`;
   const panelRef = useRef<HTMLDivElement>(null);
-  const hasSaving = !!(offer.priceReference && offer.saving);
   const muted = isSecondary(offer.emphasis);
 
   return (
@@ -136,11 +135,6 @@ export default function OfferAccordionCard({
         <div className="border-t border-white/5 px-5 py-3 sm:hidden">
           <div className="flex items-center gap-2">
             <OfferPriceBlock offer={offer} compact />
-            {hasSaving ? (
-              <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-nexus-green/10 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-nexus-green/90">
-                −{offer.saving}&nbsp;TND
-              </span>
-            ) : null}
           </div>
           <p className="mt-1.5 text-xs leading-5 text-white/40">
             {offer.accrocheCourte}
