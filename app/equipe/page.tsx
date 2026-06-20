@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useRef, useState, useEffect } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import {
   BarChart3,
   CalendarRange,
@@ -12,7 +12,6 @@ import {
   MessageCircle,
   ShieldCheck,
   Sparkles,
-  Star,
   Target,
   Users,
 } from "lucide-react";
@@ -51,7 +50,7 @@ const MENTORS: Mentor[] = [
     title: "Agrégés et Certifiés de Mathématiques",
     experience: "22 ans d’expérience",
     tagline: "Transforme l’angoisse des équations en plaisir de la résolution",
-    stats: ["+4,2 pts de moyenne", "92% mentions", "12 places/mois"],
+    stats: ["Spécialiste Terminale", "Méthodo Bac", "12 places/mois"],
     testimonial: {
       quote: "Marc a sauvé mon année de Terminale. En 3 mois, je suis passé de 8 à 16.",
       author: "Thomas, Terminale",
@@ -76,7 +75,7 @@ const MENTORS: Mentor[] = [
     title: "Professeur Agrégés et Certifiés",
     experience: "18 ans d’expérience",
     tagline: "Rend la physique intuitive et passionnante",
-    stats: ["+3,6 pts", "88% mentions", "8 places/mois"],
+    stats: ["Approche expérimentale", "Prépa intégrée", "8 places/mois"],
     testimonial: {
       quote: "Sophie m’a donné une méthode claire pour tout comprendre.",
       author: "Inès, Première",
@@ -151,7 +150,7 @@ const MENTORS: Mentor[] = [
     title: "Agrégés et Certifiés de Mathématiques",
     experience: "20 ans d’expérience",
     tagline: "Spécialiste de l’algèbre et de la géométrie avancée",
-    stats: ["+3,4 pts", "4 places", "4.9/5"],
+    stats: ["Algèbre avancée", "4 places", "Exigeant"],
     testimonial: {
       quote: "Son exigence m’a fait progresser très vite.",
       author: "Yasmine, Terminale",
@@ -176,7 +175,7 @@ const MENTORS: Mentor[] = [
     title: "Professeur Certifié (CAPES)",
     experience: "14 ans d’expérience",
     tagline: "Pédagogue pragmatique, adore les problèmes concrets",
-    stats: ["+3 pts", "6 places", "4.7/5"],
+    stats: ["Pragmatique", "6 places", "Concret"],
     testimonial: {
       quote: "Victor rend les maths simples et efficaces.",
       author: "Nour, Première",
@@ -201,7 +200,7 @@ const MENTORS: Mentor[] = [
     title: "Professeur Certifié",
     experience: "13 ans d’expérience",
     tagline: "Maîtrise la chimie et les problématiques d’examens",
-    stats: ["+2,7 pts", "5 places", "4.8/5"],
+    stats: ["Chimie & examens", "5 places", "Rigoureux"],
     testimonial: {
       quote: "Avec Fabien j’ai enfin compris les réactions chimiques.",
       author: "Leila, Première",
@@ -226,7 +225,7 @@ const MENTORS: Mentor[] = [
     title: "Professeur Agrégés et Certifiés",
     experience: "19 ans d’expérience",
     tagline: "Passionné par la physique théorique et les défis",
-    stats: ["+3,1 pts", "4 places", "4.9/5"],
+    stats: ["Physique théorique", "4 places", "Passionné"],
     testimonial: {
       quote: "Olivier m’a poussé à viser la mention.",
       author: "Amin, Terminale",
@@ -251,7 +250,7 @@ const MENTORS: Mentor[] = [
     title: "Ingénieur & Mentor NSI",
     experience: "11 ans d’expérience",
     tagline: "Spécialiste des projets et de la préparation Bac",
-    stats: ["+3,2 pts", "7 places", "4.8/5"],
+    stats: ["Projets & Bac", "7 places", "Accompagnant"],
     testimonial: {
       quote: "Rachid m’a aidé à réussir mon projet final.",
       author: "Youssef, Terminale",
@@ -276,7 +275,7 @@ const MENTORS: Mentor[] = [
     title: "Expert systèmes",
     experience: "16 ans d’expérience",
     tagline: "Aide à comprendre l’architecture et la logique informatique",
-    stats: ["+3,5 pts", "6 places", "4.9/5"],
+    stats: ["Systèmes & réseaux", "6 places", "Structuré"],
     testimonial: {
       quote: "Karim m’a donné une vraie méthode en NSI.",
       author: "Omar, Terminale",
@@ -301,7 +300,7 @@ const MENTORS: Mentor[] = [
     title: "Professeure Certifiée",
     experience: "17 ans d’expérience",
     tagline: "Spécialiste de l’écrit et des analyses de textes",
-    stats: ["+2,8 pts", "5 places", "4.8/5"],
+    stats: ["Écrit & analyse", "5 places", "Méthodique"],
     testimonial: {
       quote: "Sarah m’a donné une vraie méthode pour les commentaires.",
       author: "Amira, Première",
@@ -326,7 +325,7 @@ const MENTORS: Mentor[] = [
     title: "Conseiller Parcoursup",
     experience: "10 ans d’expérience",
     tagline: "Stratégie d’orientation et coaching entretien",
-    stats: ["+200 dossiers", "4 places", "4.7/5"],
+    stats: ["Parcoursup", "4 places", "Stratégique"],
     testimonial: {
       quote: "Pierre a rendu Parcoursup clair et stratégique.",
       author: "Nadia, Parent",
@@ -351,7 +350,7 @@ const MENTORS: Mentor[] = [
     title: "Responsable pédagogique",
     experience: "12 ans d’expérience",
     tagline: "Suivi personnalisé et coordination des parcours",
-    stats: ["+95% satisfaction", "6 places", "4.9/5"],
+    stats: ["Suivi personnalisé", "6 places", "Organisée"],
     testimonial: {
       quote: "Clara a organisé notre parcours avec précision.",
       author: "Mme Trabelsi",
@@ -432,29 +431,7 @@ export default function EquipePage() {
   const [quizStep, setQuizStep] = useState(0);
   const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({});
   const [quizResult, setQuizResult] = useState<Mentor | null>(null);
-  const [counters, setCounters] = useState({
-    agr: 0,
-    mentions: 0,
-    satisfaction: 0,
-    students: 0,
-  });
-
-  useEffect(() => {
-    const targets = { agr: 100, mentions: 150, satisfaction: 98, students: 500 };
-    let frame = 0;
-    const total = 80;
-    const interval = setInterval(() => {
-      frame += 1;
-      setCounters({
-        agr: Math.min(Math.round((targets.agr * frame) / total), targets.agr),
-        mentions: Math.min(Math.round((targets.mentions * frame) / total), targets.mentions),
-        satisfaction: Math.min(Math.round((targets.satisfaction * frame) / total), targets.satisfaction),
-        students: Math.min(Math.round((targets.students * frame) / total), targets.students),
-      });
-      if (frame >= total) clearInterval(interval);
-    }, 20);
-    return () => clearInterval(interval);
-  }, []);
+  // Animated counters removed — replaced with verifiable qualitative statements
 
   const featuredMentors = useMemo(() => MENTORS.filter((m) => FEATURED.includes(m.id)), []);
 
@@ -522,10 +499,10 @@ export default function EquipePage() {
 
                 <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   {[
-                    { value: `${counters.agr}%`, label: "Agrégés et Certifiés" },
-                    { value: `${counters.mentions}+`, label: "Mentions TB" },
-                    { value: `${counters.satisfaction}%`, label: "Satisfaction" },
-                    { value: `${counters.students}+`, label: "Élèves accompagnés" },
+                    { value: "Agr\u00e9g\u00e9s", label: "Enseignants certifi\u00e9s" },
+                    { value: "5 max", label: "\u00c9l\u00e8ves par groupe" },
+                    { value: "Grilles", label: "Corrections officielles" },
+                    { value: "Suivi", label: "Bilan individualis\u00e9" },
                   ].map((stat) => (
                     <div
                       key={stat.label}
@@ -849,8 +826,8 @@ export default function EquipePage() {
 
                   <div className="mt-3 flex items-center justify-between text-xs text-slate-300">
                     <span className="inline-flex items-center gap-2">
-                      <Star className="h-3.5 w-3.5 fill-current text-gold-400" aria-hidden="true" />
-                      {mentor.rating.toFixed(1)}
+                      <ShieldCheck className="h-3.5 w-3.5 text-gold-400" aria-hidden="true" />
+                      {mentor.subject}
                     </span>
                     <span className="inline-flex items-center gap-2 text-blue-300">
                       <Users className="h-3.5 w-3.5" aria-hidden="true" />
