@@ -52,7 +52,6 @@ test.describe('Accessibility basics', () => {
   }
 
   test('signin form has proper labels', async ({ page }) => {
-    test.skip(true, 'QUARANTINE: catches unlabeled input from NextAuth CSRF — needs investigation');
     await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
     const inputs = page.locator('input:visible');
     const count = await inputs.count();

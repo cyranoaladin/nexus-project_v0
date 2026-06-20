@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe.skip('Refonte Dashboards V2', () => { // QUARANTINE: dashboard content assertions outdated after design-conversion refactor
+test.describe('Refonte Dashboards V2', () => {
   
   test('Dashboard Élève - Unification EDS/STMG', async ({ page }) => {
     // Mock authentication as student
