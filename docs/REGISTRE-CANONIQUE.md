@@ -1,7 +1,7 @@
 # Registre Canonique — Nexus Reussite
 
 **Source unique :** `data/pricing.canonical.json` (v2026-2027.1)
-**Audite :** 2026-06-20 | **Statut :** Phase A — en attente decisions Shark (#1-#5)
+**Audite :** 2026-06-20 | **Statut :** FINAL (decisions #1-#4 appliquees, #5 Carte -10% conservee)
 
 ---
 
@@ -138,19 +138,19 @@
 | `secondeMois` | "a partir de 270 TND / mois" | OK (2nde-maths: 270) |
 | `premiereMois` | "a partir de 300 TND / mois" | OK (1re-eaf: 300) |
 | `terminaleSimpleMois` | "a partir de 390 TND / mois" | OK (term-spe: 390) |
-| `terminaleDuoMois` | "~ 720 TND / mois (tarif campagne)" | OK (term-duo: 720) |
+| `terminaleDuoMois` | "~ 720 TND / mois" | OK (term-duo: 718) |
 | `plateformeAn` | "a partir de 590 TND / an" | OK (plateforme-autonomie: 590) |
 | `stagesBase` | "des 420 TND" | OK (express-vacances: 420) -- CORRIGE de 350 |
 | `parrainage` | "150 a 300 TND" | OK (rules.discounts) |
 
 ---
 
-## Decisions EN ATTENTE (Shark)
+## Decisions appliquees
 
-| # | Sujet | Champs concernes | Statut |
-|---|-------|------------------|--------|
-| 1 | Prix public != prix campagne (3 offres) | `price_annual_public` sur term-duo/excellence/libre-mixte | EN ATTENTE |
-| 2 | Packs `discount_pct` + `value` (6 packs) | `discount_pct`, `value` sur chaque pack | EN ATTENTE |
-| 3 | Offre skeleton `1re-libre-intensif` | Tous les champs prix = null | EN ATTENTE |
-| 4 | ~~stagesBase "350 TND"~~ | ~~Corrige a 420 TND~~ | **FAIT** |
-| 5 | Carte Nexus "Remise -10%" | `carte_nexus.includes[1]`, `discount_pct` | EN ATTENTE |
+| # | Sujet | Action | Statut |
+|---|-------|--------|--------|
+| 1 | Prix public != prix campagne | `price_annual_public` supprime, `price_annual_campaign` renomme en `price_annual` | **FAIT** |
+| 2 | Packs discount_pct + value | `discount_pct` et `value` supprimes de tous les packs | **FAIT** |
+| 3 | Offre skeleton 1re-libre-intensif | Offre supprimee du JSON | **FAIT** |
+| 4 | stagesBase 350 TND | Corrige a 420 TND | **FAIT** |
+| 5 | Carte Nexus "Remise -10%" | Conserve comme avantage produit (pas un prix barre) | **CONSERVE** |
