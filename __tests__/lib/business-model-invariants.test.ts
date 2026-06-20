@@ -54,8 +54,8 @@ describe('T16.3 — Échéancier somme == annuel', () => {
       expect(total).toBe(o.price_annual);
       checked++;
     }
-    // Must verify at least 14 offers (all priced annuals with schedules)
-    expect(checked).toBeGreaterThanOrEqual(14);
+    // 16 annual offers have deposit+installments (4 without: 2nde-coaching + 3 plateformes)
+    expect(checked).toBe(16);
   });
 
   test('stage format deposit + solde == price_per_student', () => {

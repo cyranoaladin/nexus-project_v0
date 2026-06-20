@@ -293,6 +293,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       href: '/dashboard/admin/tests',
       icon: 'TestTube',
       match: 'prefix'
+    },
+    {
+      label: 'Vue Directeur',
+      href: '/admin/directeur',
+      icon: 'BarChart',
+      match: 'prefix'
     }
   ]
 };
