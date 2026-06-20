@@ -2,6 +2,7 @@
 // Offers data model — single source of truth for stages pricing
 // ─────────────────────────────────────────────────────────────
 
+import { getCompositeStagePackPrice } from "@/lib/pricing";
 import type { Subject } from "../_lib/business-config";
 
 export type Level = "premiere" | "terminale";
@@ -58,7 +59,7 @@ const PREMIERE_OFFERS: Offer[] = [
     badgeColor: "#f59e0b",
     title: "Duo Première — Français + Maths",
     hours: 30,
-    price: 1149,
+    price: getCompositeStagePackPrice("p-duo-fr-maths"),
     emphasis: "maximale",
     priority: 2,
     accrocheCourte:
@@ -92,7 +93,7 @@ const PREMIERE_OFFERS: Offer[] = [
     badgeColor: "#10b981",
     title: "Maths Première — Nouvelle Épreuve 2026",
     hours: 15,
-    price: 539,
+    price: getCompositeStagePackPrice("p-mono-maths"),
     emphasis: "forte",
     priority: 1,
     accrocheCourte:
@@ -124,7 +125,7 @@ const PREMIERE_OFFERS: Offer[] = [
     badgeColor: "#a78bfa",
     title: "Trio Première — Français + Maths + NSI",
     hours: 36,
-    price: 1609,
+    price: getCompositeStagePackPrice("p-trio-fr-maths-nsi"),
     emphasis: "standard",
     priority: 4,
     accrocheCourte:
@@ -158,7 +159,7 @@ const PREMIERE_OFFERS: Offer[] = [
     badgeColor: "#10b981",
     title: "Duo Première — Maths + NSI",
     hours: 30,
-    price: 1009,
+    price: getCompositeStagePackPrice("p-duo-maths-nsi"),
     emphasis: "forte",
     priority: 3,
     accrocheCourte:
@@ -192,7 +193,7 @@ const PREMIERE_OFFERS: Offer[] = [
     badgeColor: "#64748b",
     title: "NSI Première",
     hours: 15,
-    price: 509,
+    price: getCompositeStagePackPrice("p-mono-nsi"),
     emphasis: "secondaire",
     priority: 6,
     accrocheCourte:
@@ -224,7 +225,7 @@ const PREMIERE_OFFERS: Offer[] = [
     badgeColor: "#64748b",
     title: "Français Première — Sprint EAF",
     hours: 12,
-    price: 649,
+    price: getCompositeStagePackPrice("p-mono-francais"),
     emphasis: "secondaire",
     priority: 5,
     accrocheCourte:
@@ -261,7 +262,7 @@ const TERMINALE_OFFERS: Offer[] = [
     badgeColor: "#10b981",
     title: "Pack Terminale — Maths + NSI",
     hours: 30,
-    price: 1279,
+    price: getCompositeStagePackPrice("t-duo-maths-nsi"),
     emphasis: "maximale",
     priority: 2,
     accrocheCourte:
@@ -295,7 +296,7 @@ const TERMINALE_OFFERS: Offer[] = [
     badgeColor: "#f59e0b",
     title: "Pack Terminale — Maths + Physique-Chimie",
     hours: 30,
-    price: 1279,
+    price: getCompositeStagePackPrice("t-duo-maths-pc"),
     emphasis: "maximale",
     priority: 3,
     accrocheCourte:
@@ -329,7 +330,7 @@ const TERMINALE_OFFERS: Offer[] = [
     badgeColor: "#a78bfa",
     title: "Pack Terminale — Maths + NSI + Grand Oral",
     hours: 36,
-    price: 1449,
+    price: getCompositeStagePackPrice("t-trio-maths-nsi-go"),
     emphasis: "standard",
     priority: 6,
     accrocheCourte:
@@ -363,7 +364,7 @@ const TERMINALE_OFFERS: Offer[] = [
     badgeColor: "#a78bfa",
     title: "Pack Terminale — Maths + Physique-Chimie + Grand Oral",
     hours: 36,
-    price: 1449,
+    price: getCompositeStagePackPrice("t-trio-maths-pc-go"),
     emphasis: "standard",
     priority: 7,
     accrocheCourte:
@@ -397,7 +398,7 @@ const TERMINALE_OFFERS: Offer[] = [
     badgeColor: "#10b981",
     title: "Maths Terminale",
     hours: 18,
-    price: 719,
+    price: getCompositeStagePackPrice("t-mono-maths"),
     emphasis: "forte",
     priority: 1,
     accrocheCourte:
@@ -429,7 +430,7 @@ const TERMINALE_OFFERS: Offer[] = [
     badgeColor: "#64748b",
     title: "NSI Terminale — Écrit + Pratique",
     hours: 12,
-    price: 609,
+    price: getCompositeStagePackPrice("t-mono-nsi"),
     emphasis: "standard",
     priority: 4,
     accrocheCourte:
@@ -461,7 +462,7 @@ const TERMINALE_OFFERS: Offer[] = [
     badgeColor: "#64748b",
     title: "Physique-Chimie Terminale",
     hours: 12,
-    price: 609,
+    price: getCompositeStagePackPrice("t-mono-pc"),
     emphasis: "standard",
     priority: 5,
     accrocheCourte:
@@ -493,7 +494,7 @@ const TERMINALE_OFFERS: Offer[] = [
     badgeColor: "#a78bfa",
     title: "Grand Oral — Module complémentaire",
     hours: 4,
-    price: 209,
+    price: getCompositeStagePackPrice("t-complement-go"),
     emphasis: "secondaire",
     priority: 8,
     accrocheCourte:

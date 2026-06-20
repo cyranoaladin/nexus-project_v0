@@ -173,6 +173,41 @@ export interface StageCalendarEntry {
   notes: string | null;
 }
 
+export interface CompositeStagePack {
+  id: string;
+  title: string;
+  level: string;
+  hours: number;
+  price_per_student: number;
+  price_per_student_hour: number;
+}
+
+export interface SpecialProgram {
+  id: string;
+  title: string;
+  hours: number;
+  group_max: number;
+  price_per_student: number;
+  price_per_student_hour: number;
+  payment: { deposit: number; solde: number };
+}
+
+export interface AriaAddon {
+  price_monthly: number;
+  subjects: string[];
+}
+
+export interface SubscriptionTier {
+  id: string;
+  price_monthly: number;
+}
+
+export interface StageAcademyEntry {
+  id: string;
+  hours: number;
+  price: number;
+}
+
 export interface PricingData {
   version: string;
   _note?: string;
@@ -186,6 +221,11 @@ export interface PricingData {
   ponctuel_offers: PonctuelOffer[];
   coaching: CoachingOffer[];
   packs: Pack[];
+  composite_stage_packs: CompositeStagePack[];
+  special_programs: SpecialProgram[];
+  aria_addon: AriaAddon;
+  subscription_tiers: SubscriptionTier[];
+  stage_academies_fevrier2026: StageAcademyEntry[];
   carte_nexus: CarteNexus;
   urgence: Record<string, { title: string; display: string; hourly?: number; amount?: number }>;
   reperes_tarifaires: Record<string, string>;
@@ -445,6 +485,64 @@ export function applyCarteDiscount(unitPrice: number, hours: number | null): num
     return Math.max(discounted, minPrice);
   }
   return discounted;
+}
+
+// ── Composite stage packs ──
+
+export function getCompositeStagePacks(): CompositeStagePack[] {
+  return data.composite_stage_packs;
+}
+
+export function getCompositeStagePack(id: string): CompositeStagePack | undefined {
+  return data.composite_stage_packs.find((p) => p.id === id);
+}
+
+export function getCompositeStagePackPrice(id: string): number {
+  const pack = data.composite_stage_packs.find((p) => p.id === id);
+  if (!pack) throw new Error(`Unknown composite stage pack: ${id}`);
+  return pack.price_per_student;
+}
+
+// ── Special programs ──
+
+export function getSpecialPrograms(): SpecialProgram[] {
+  return data.special_programs;
+}
+
+export function getSpecialProgram(id: string): SpecialProgram | undefined {
+  return data.special_programs.find((p) => p.id === id);
+}
+
+// ── ARIA addon ──
+
+export function getAriaAddon(): AriaAddon {
+  return data.aria_addon;
+}
+
+export function getAriaAddonPrice(): number {
+  return data.aria_addon.price_monthly;
+}
+
+// ── Subscription tiers ──
+
+export function getSubscriptionTiers(): SubscriptionTier[] {
+  return data.subscription_tiers;
+}
+
+export function getSubscriptionTier(id: string): SubscriptionTier | undefined {
+  return data.subscription_tiers.find((t) => t.id === id);
+}
+
+// ── Stage academies (février 2026) ──
+
+export function getStageAcademyPrice(id: string): number {
+  const entry = data.stage_academies_fevrier2026.find((a) => a.id === id);
+  if (!entry) throw new Error(`Unknown stage academy: ${id}`);
+  return entry.price;
+}
+
+export function getStageAcademies(): StageAcademyEntry[] {
+  return data.stage_academies_fevrier2026;
 }
 
 // ── Full data export (for tests) ──

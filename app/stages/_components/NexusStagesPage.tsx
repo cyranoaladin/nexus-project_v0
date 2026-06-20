@@ -35,6 +35,31 @@ import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
 import StageReservationModal from "./StageReservationModal";
 import StickyMobileCTA from "./StickyMobileCTA";
 import { LEGAL } from "@/lib/legal";
+import { getCompositeStagePackPrice } from "@/lib/pricing";
+
+/** Map local page offer IDs to canonical composite_stage_packs IDs */
+const CANONICAL_ID: Record<string, string> = {
+  "p-maths": "p-mono-maths",
+  "p-fr": "p-mono-francais",
+  "p-nsi": "p-mono-nsi",
+  "p-duo-fr-maths": "p-duo-fr-maths",
+  "p-duo-maths-nsi": "p-duo-maths-nsi",
+  "p-trio": "p-trio-fr-maths-nsi",
+  "t-maths": "t-mono-maths",
+  "t-nsi": "t-mono-nsi",
+  "t-physique": "t-mono-pc",
+  "t-go": "t-complement-go",
+  "t-pack-maths-nsi": "t-duo-maths-nsi",
+  "t-pack-maths-phys": "t-duo-maths-pc",
+  "t-pack-maths-nsi-go": "t-trio-maths-nsi-go",
+  "t-pack-maths-phys-go": "t-trio-maths-pc-go",
+};
+
+function canonicalPrice(localId: string): number {
+  const cid = CANONICAL_ID[localId];
+  if (!cid) throw new Error(`No canonical mapping for stage page offer: ${localId}`);
+  return getCompositeStagePackPrice(cid);
+}
 
 // ============================================
 // DATA
@@ -94,7 +119,7 @@ const offers = [
     title: "Maths Première — Nouvelle épreuve 2026",
     badge: "Mono-matière",
     hours: 14,
-    price: 539,
+    price: canonicalPrice("p-maths"),
     oldPrice: null,
     featured: true,
     color: "from-cyan-500 to-blue-500",
@@ -115,7 +140,7 @@ const offers = [
     title: "Français Première — Sprint EAF",
     badge: "Écrit + Oral",
     hours: 16,
-    price: 649,
+    price: canonicalPrice("p-fr"),
     oldPrice: null,
     featured: false,
     color: "from-blue-500 to-indigo-500",
@@ -136,7 +161,7 @@ const offers = [
     title: "NSI Première",
     badge: "Mono-matière",
     hours: 15,
-    price: 509,
+    price: canonicalPrice("p-nsi"),
     oldPrice: null,
     featured: false,
     color: "from-violet-500 to-fuchsia-500",
@@ -157,7 +182,7 @@ const offers = [
     title: "Duo Première — Français + Maths",
     badge: "Best-seller",
     hours: 30,
-    price: 1149,
+    price: canonicalPrice("p-duo-fr-maths"),
     oldPrice: 1188,
     featured: true,
     color: "from-amber-500 to-orange-500",
@@ -178,7 +203,7 @@ const offers = [
     title: "Duo Première — Maths + NSI",
     badge: "Parcours scientifique",
     hours: 30,
-    price: 1009,
+    price: canonicalPrice("p-duo-maths-nsi"),
     oldPrice: 1048,
     featured: true,
     color: "from-emerald-500 to-cyan-500",
@@ -199,7 +224,7 @@ const offers = [
     title: "Trio Première — Français + Maths + NSI",
     badge: "Formule complète",
     hours: 36,
-    price: 1609,
+    price: canonicalPrice("p-trio"),
     oldPrice: 1697,
     featured: false,
     color: "from-fuchsia-500 to-indigo-500",
@@ -220,7 +245,7 @@ const offers = [
     title: "Maths Terminale",
     badge: "Bac écrit",
     hours: 18,
-    price: 719,
+    price: canonicalPrice("t-maths"),
     oldPrice: null,
     featured: true,
     color: "from-rose-500 to-orange-500",
@@ -241,7 +266,7 @@ const offers = [
     title: "NSI Terminale — Écrit + Pratique",
     badge: "Spécialité",
     hours: 12,
-    price: 609,
+    price: canonicalPrice("t-nsi"),
     oldPrice: null,
     featured: false,
     color: "from-violet-500 to-purple-500",
@@ -262,7 +287,7 @@ const offers = [
     title: "Physique-Chimie Terminale",
     badge: "Spécialité",
     hours: 12,
-    price: 609,
+    price: canonicalPrice("t-physique"),
     oldPrice: null,
     featured: false,
     color: "from-emerald-500 to-teal-500",
@@ -283,7 +308,7 @@ const offers = [
     title: "Grand Oral — Module complémentaire",
     badge: "Add-on",
     hours: 4,
-    price: 209,
+    price: canonicalPrice("t-go"),
     oldPrice: null,
     featured: false,
     color: "from-amber-500 to-yellow-500",
@@ -304,7 +329,7 @@ const offers = [
     title: "Pack Terminale — Maths + NSI",
     badge: "Parcours numérique",
     hours: 30,
-    price: 1279,
+    price: canonicalPrice("t-pack-maths-nsi"),
     oldPrice: 1328,
     featured: true,
     color: "from-emerald-500 to-cyan-500",
@@ -325,7 +350,7 @@ const offers = [
     title: "Pack Terminale — Maths + Physique-Chimie",
     badge: "Parcours scientifique",
     hours: 30,
-    price: 1279,
+    price: canonicalPrice("t-pack-maths-phys"),
     oldPrice: 1328,
     featured: true,
     color: "from-orange-500 to-rose-500",
@@ -346,7 +371,7 @@ const offers = [
     title: "Pack Terminale — Maths + NSI + Grand Oral",
     badge: "Premium",
     hours: 36,
-    price: 1449,
+    price: canonicalPrice("t-pack-maths-nsi-go"),
     oldPrice: 1537,
     featured: false,
     color: "from-indigo-500 to-fuchsia-500",
@@ -367,7 +392,7 @@ const offers = [
     title: "Pack Terminale — Maths + Physique + Grand Oral",
     badge: "Premium",
     hours: 36,
-    price: 1449,
+    price: canonicalPrice("t-pack-maths-phys-go"),
     oldPrice: 1537,
     featured: false,
     color: "from-sky-500 to-indigo-500",

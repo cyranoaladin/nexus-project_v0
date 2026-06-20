@@ -27,6 +27,7 @@ export const EAF_URL = "https://eaf.nexusreussite.academy";
 // WhatsApp variants — contextual pre-filled messages (centralised in lib/whatsapp.ts)
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { LEGAL } from '@/lib/legal';
+import { getSpecialProgram } from '@/lib/pricing';
 
 export const WHATSAPP_URL = buildWhatsAppUrl('les offres Nexus Réussite');
 export const WHATSAPP_URL_FINISH = buildWhatsAppUrl('le Pack Première — Finish 8 juin');
@@ -194,7 +195,8 @@ export const PREMIERE_FINISH = {
 
 // ── Nexus Select — post-épreuves ────────────────────────────────────────────
 
-// Nexus Select: stage 40h post-épreuves. Prix dans pricing.canonical.json quand finalisé.
+// Nexus Select: stage 40h post-épreuves. Prix dans pricing.canonical.json (special_programs).
+const _nexusSelectProgram = getSpecialProgram("nexus-select")!;
 
 export const NEXUS_SELECT = {
   eyebrow: "Nexus Select · Post-épreuves",
@@ -247,7 +249,7 @@ export const NEXUS_SELECT = {
   ],
   pricing: {
     label: "Forfait unique",
-    price: "",
+    price: `${_nexusSelectProgram.price_per_student} DT*`,
     details: "40 h · 4 h/jour · 2 semaines · groupe de 5 élèves maximum",
     note: "*Tarif par élève, pour un groupe de 5 élèves maximum. Le tarif inclut les 40 h de stage, les supports de travail, le livret Select, les corrections et le bilan de fin de stage.",
   },
