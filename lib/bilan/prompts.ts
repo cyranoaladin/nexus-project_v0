@@ -1,5 +1,5 @@
 /**
- * F50: Canonical Bilan Prompts
+ * Canonical Bilan Prompts
  * Centralized prompt templates for tri-destinataire generation
  * Audience: student (bienveillant/tutoiement), parents (professionnel/vouvoiement), nexus (technique/factuel)
  */

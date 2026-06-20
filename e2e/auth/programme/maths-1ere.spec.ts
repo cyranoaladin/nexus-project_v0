@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { loginAsUser } from '../helpers/auth';
+import { loginAsUser } from '../../helpers/auth';
 
 const BASE_URL = '/programme/maths-1ere';
 

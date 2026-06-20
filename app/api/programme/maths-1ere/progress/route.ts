@@ -50,7 +50,7 @@ function parsePayload(raw: unknown): ProgressPayload | null {
 
 /**
  * POST /api/programme/maths-1ere/progress
- * Save Première progress to Prisma (F16/F17 — source of truth migration)
+ * Save Première progress to Prisma
  */
 export async function POST(request: Request) {
   const session = await auth();
@@ -149,7 +149,7 @@ export async function POST(request: Request) {
 
 /**
  * GET /api/programme/maths-1ere/progress
- * Retrieve Première progress from Prisma (F16/F17 — source of truth migration)
+ * Retrieve Première progress from Prisma
  */
 export async function GET() {
   const session = await auth();

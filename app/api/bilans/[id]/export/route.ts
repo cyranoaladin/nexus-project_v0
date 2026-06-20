@@ -1,5 +1,5 @@
 /**
- * F50: Bilan Export API
+ * Bilan Export API
  * GET /api/bilans/[id]/export?format=pdf|markdown
  * POST /api/bilans/[id]/export — Trigger export generation
  */

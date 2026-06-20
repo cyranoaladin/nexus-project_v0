@@ -5,7 +5,7 @@ import { useMathsLabStore } from '../store';
 
 const PROGRESS_API_ROUTE = '/api/programme/maths-1ere/progress';
 
-// F16/F17 — Progress payload matching API contract (Prisma source of truth)
+// Progress payload matching API contract (Prisma source of truth)
 interface ProgressPayload {
   completed_chapters: string[];
   mastered_chapters: string[];
@@ -43,7 +43,7 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, fallback: 
   }
 }
 
-// F16/F17 — Load progress from API route (Prisma source of truth)
+// Load progress from API route (Prisma source of truth)
 async function loadProgressFromApi(userId: string): Promise<
   | { status: 'ok'; data: ProgressPayload | null }
   | { status: 'error'; data: null; error: string }
@@ -150,7 +150,7 @@ export function useProgressionSync(userId: string) {
         return true;
       }
 
-      // F16/F17 — API route is the only canonical persistence layer
+      // API route is the only canonical persistence layer
       // localStorage (Zustand persist) remains as local cache only
       pendingPayloadRef.current = payload;
       setSyncError('Échec de sauvegarde. La progression sera réessayée automatiquement.');

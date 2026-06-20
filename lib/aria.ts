@@ -12,7 +12,7 @@ const openai = new OpenAI({
 // ARIA_SYSTEM_PROMPT imported from '@/lib/aria/prompt' — single source of truth
 
 // Recherche dans la base de connaissances (RAG canonique via ChromaDB)
-// F19+F24+F26: pgvector désactivé — ChromaDB est le seul backend RAG actif
+// pgvector désactivé — ChromaDB est le seul backend RAG actif
 // Ingestion ChromaDB opérée hors-repo par infra-ingestor-1 (voir docs/RAG_ARCHITECTURE.md)
 async function searchKnowledgeBase(query: string, subject: Subject, limit: number = 3) {
   const hits = await ragSearch({

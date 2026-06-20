@@ -94,7 +94,7 @@ export default function BilanAssessmentPage() {
   return (
     <div className="min-h-screen bg-surface-darker text-neutral-100">
       <CorporateNavbar />
-      <main className="py-8">
+      <main id="main-content" className="py-8">
         <Suspense
           fallback={
             <div className="min-h-screen flex items-center justify-center">

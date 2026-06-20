@@ -13,7 +13,7 @@ interface SeanceDuJourProps {
   programmeData: Record<string, any>;
 }
 
-// F44: Helper to find catKey for a given chapter id
+// Helper to find catKey for a given chapter id
 function findCatKeyForChapter(chapId: string, programmeData: Record<string, any>): string | null {
   for (const [catKey, cat] of Object.entries(programmeData)) {
     if (cat.chapitres.some((chap: any) => chap.id === chapId)) {
@@ -29,7 +29,7 @@ export const SeanceDuJour: React.FC<SeanceDuJourProps> = ({ onNavigateToChap, st
 
   if (!session) return null;
 
-  // F44: Navigate with dynamically resolved catKey
+  // Navigate with dynamically resolved catKey
   const handleLaunchSession = () => {
     if (session.chapitresClés.length > 0) {
       const chapId = session.chapitresClés[0];

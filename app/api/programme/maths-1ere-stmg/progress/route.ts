@@ -50,7 +50,7 @@ function parsePayload(raw: unknown): ProgressPayload | null {
 
 /**
  * POST /api/programme/maths-1ere-stmg/progress
- * Save Première STMG progress to Prisma (F16/F17 — source of truth migration)
+ * Save Première STMG progress to Prisma
  */
 export async function POST(request: Request) {
   const session = await auth();
@@ -142,7 +142,7 @@ export async function POST(request: Request) {
 
 /**
  * GET /api/programme/maths-1ere-stmg/progress
- * Retrieve Première STMG progress from Prisma (F16/F17 — source of truth migration)
+ * Retrieve Première STMG progress from Prisma
  */
 export async function GET() {
   const session = await auth();

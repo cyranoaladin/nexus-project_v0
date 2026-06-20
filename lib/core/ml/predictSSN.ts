@@ -226,7 +226,7 @@ export async function predictSSNForStudent(
   weeklyHours: number = 3,
   methodologyScore?: number
 ): Promise<PredictionResult | null> {
-  // F18 — Fetch SSN history via Prisma client typé
+  // Fetch SSN history via Prisma client typé
   const history = await prisma.progressionHistory.findMany({
     where: { studentId },
     orderBy: { date: 'asc' },
@@ -260,7 +260,7 @@ export async function predictSSNForStudent(
     ssnHistory
   );
 
-  // F18 — Persist to projection_history via Prisma client typé
+  // Persist to projection_history via Prisma client typé
   const { createId } = await import('@paralleldrive/cuid2');
   await prisma.projectionHistory.create({
     data: {

@@ -138,7 +138,7 @@ export default function BilanClient({
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+      <main id="main-content" className="max-w-4xl mx-auto px-4 py-8 space-y-6">
         <div className="flex items-center justify-center gap-3 pb-1 print:pb-2">
           <Image
             src="/images/logo_nexus_reussite.png"

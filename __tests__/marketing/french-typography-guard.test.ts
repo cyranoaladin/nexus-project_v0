@@ -21,7 +21,6 @@ const luxuryFiles = [
   'components/marketing/MobileStickyBar.tsx',
   'components/premium/HeroSection.tsx',
   'components/premium/ForWhoSection.tsx',
-  'components/sections/offers-preview-section.tsx',
   'components/layout/CorporateFooter.tsx',
 ];
 

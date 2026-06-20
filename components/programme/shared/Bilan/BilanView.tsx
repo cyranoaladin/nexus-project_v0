@@ -20,7 +20,7 @@ import { BilanTabs } from '@/components/bilan';
 
 type BilanType = 'eleve' | 'famille' | 'nexus';
 
-// F52: Map legacy audience names to canonical
+// Map legacy audience names to canonical
 const audienceMap: Record<BilanType, 'student' | 'parents' | 'nexus'> = {
   eleve: 'student',
   famille: 'parents',
@@ -80,7 +80,7 @@ export const BilanView: React.FC<BilanViewProps> = ({ displayName, store, progra
   const forces = diagResults.filter((d) => d.percent >= 75).slice(0, 3);
   const priorites = diagResults.filter((d) => d.percent < 60).slice(0, 3);
 
-  // F48: Prepare data for PDF export
+  // Prepare data for PDF export
   const pdfData = useMemo(() => ({
     studentName: displayName.toLowerCase().replace(/\s+/g, '-'),
     displayName,
@@ -133,7 +133,7 @@ export const BilanView: React.FC<BilanViewProps> = ({ displayName, store, progra
         </p>
       </div>
 
-      {/* F52: Bilan type selector using canonical BilanTabs */}
+      {/* Bilan type selector using canonical BilanTabs */}
       <BilanTabs
         activeAudience={audienceMap[activeBilan]}
         onAudienceChange={(audience) => setActiveBilan(audienceReverseMap[audience])}
@@ -268,7 +268,7 @@ export const BilanView: React.FC<BilanViewProps> = ({ displayName, store, progra
               <Printer className="h-4 w-4" />
               Imprimer
             </button>
-            {/* F48: PDF Export Button */}
+            {/* PDF Export Button */}
             <BilanPDFDownloadButton data={pdfData}>
               <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 px-5 py-3 text-sm font-bold text-white shadow-lg hover:brightness-110 transition-all">
                 <Download className="h-4 w-4" />

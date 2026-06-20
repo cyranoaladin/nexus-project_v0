@@ -82,7 +82,7 @@ export interface MathsLabState {
   newtonBestIterations: number | null;
   printedFiche: boolean;
 
-  // ─── Exam Blanc Persistence (F41) ────────────────────────────────────────
+  // ─── Exam Blanc Persistence ──────────────────────────────────────────────
   /** Persisted exam state */
   examState: {
     autoStates: Record<string, { reponse: string; revealed: boolean; selfScore?: 0 | 0.5 | 1 }>;
@@ -137,7 +137,7 @@ export interface MathsLabState {
   setHydrationStatus: (status: { isHydrated: boolean; canWriteRemote: boolean; hydrationError: string | null }) => void;
   unlockChapter: (chapId: string) => void;
 
-  // ─── Exam Blanc Actions (F41) ────────────────────────────────────────────
+  // ─── Exam Blanc Actions ─────────────────────────────────────────────────
   saveExamState: (state: { autoStates: Record<string, { reponse: string; revealed: boolean; selfScore?: 0 | 0.5 | 1 }>; exScores: Record<string, number>; elapsedSeconds: number; isActive: boolean }) => void;
   clearExamState: () => void;
 }
@@ -644,7 +644,7 @@ export const useMathsLabStore = create<MathsLabState>()(
         });
       },
 
-      // ─── Exam Blanc Actions (F41) ─────────────────────────────────────────
+      // ─── Exam Blanc Actions ──────────────────────────────────────────────
       saveExamState: (examData) => {
         set({
           examState: {

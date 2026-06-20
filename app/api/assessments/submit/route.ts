@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // F18 — Persist assessmentVersion + engineVersion via Prisma client typé
+    // Persist assessmentVersion + engineVersion via Prisma client typé
     await prisma.assessment.update({
       where: { id: assessment.id },
       data: {
@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
     // Backfill with canonical domains — guarantees all domains are persisted (0 if absent)
     const completeDomains = backfillCanonicalDomains(subject, categoryScores);
 
-    // F18 — Persist via Prisma client typé (bulk create)
+    // Persist via Prisma client typé (bulk create)
     await prisma.domainScore.createMany({
       data: Object.entries(completeDomains).map(([domain, score]) => ({
         id: createId(),

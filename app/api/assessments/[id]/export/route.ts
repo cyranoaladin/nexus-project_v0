@@ -60,24 +60,24 @@ export async function GET(
       );
     }
 
-    // F18 — Fetch SSN from assessment (already loaded)
+    // Fetch SSN from assessment (already loaded)
     const ssn = assessment.ssn ?? null;
 
-    // F18 — Fetch domain scores via Prisma client typé
+    // Fetch domain scores via Prisma client typé
     const domainScores = await prisma.domainScore.findMany({
       where: { assessmentId: id },
       orderBy: { score: 'desc' },
       select: { domain: true, score: true },
     });
 
-    // F18 — Fetch skill scores via Prisma client typé
+    // Fetch skill scores via Prisma client typé
     const skillScores = await prisma.skillScore.findMany({
       where: { assessmentId: id },
       orderBy: { score: 'asc' },
       select: { skillTag: true, score: true },
     });
 
-    // F18 — Compute percentile via Prisma
+    // Compute percentile via Prisma
     let percentile: number | null = null;
     if (ssn !== null) {
       const cohortAssessments = await prisma.assessment.findMany({

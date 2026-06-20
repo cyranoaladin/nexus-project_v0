@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
  *
  * Builds a semantically rich query from chapter context + user query,
  * then searches via ChromaDB (ragSearch) with premiere+maths filters.
- * F26: pgvector fallback removed — ChromaDB is the canonical RAG source.
+ * pgvector fallback removed — ChromaDB is the canonical RAG source.
  *
  * Returns: { hits: RAGHit[], source: 'chroma' | 'none' }
  */
