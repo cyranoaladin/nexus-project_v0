@@ -26,17 +26,18 @@ export const EAF_URL = "https://eaf.nexusreussite.academy";
 
 // WhatsApp variants — contextual pre-filled messages (centralised in lib/whatsapp.ts)
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
+import { LEGAL } from '@/lib/legal';
 
 export const WHATSAPP_URL = buildWhatsAppUrl('les offres Nexus Réussite');
 export const WHATSAPP_URL_FINISH = buildWhatsAppUrl('le Pack Première — Finish 8 juin');
 export const WHATSAPP_URL_SELECT = buildWhatsAppUrl('le stage Nexus Select 40 h');
 export const WHATSAPP_URL_FORFAITS = buildWhatsAppUrl('les forfaits Nexus Réussite');
 
-export const PHONE_URL = "tel:+21699192829";
-export const PHONE_LABEL = "+216 99 19 28 29";
-export const CONTACT_EMAIL = "contact@nexusreussite.academy";
-export const CONTACT_ADDRESS = "Centre Urbain Nord, Tunis";
-export const CENTRE_ADDRESS = "Centre Urbain Nord, Tunis — Accompagnement : Mutuelleville, Tunis";
+export const PHONE_URL = `tel:${LEGAL.contact.phoneRaw}`;
+export const PHONE_LABEL = LEGAL.contact.phone;
+export const CONTACT_EMAIL = LEGAL.contact.email;
+export const CONTACT_ADDRESS = `Centre Urbain Nord, ${LEGAL.addresses.siege.city}`;
+export const CENTRE_ADDRESS = `Centre Urbain Nord, ${LEGAL.addresses.siege.city} — Accompagnement : ${LEGAL.addresses.pedagogique.full}`;
 
 // ── Landing images (centralized paths & alt texts) ──────────────────────────
 
@@ -528,6 +529,6 @@ export const FAQ_ITEMS = [
   {
     question: "Comment réserver une place ?",
     answer:
-      "Contactez-nous directement sur WhatsApp au 99 19 28 29. Nous échangeons sur le profil de l'élève, ses objectifs et la formule la plus adaptée avant de confirmer l'inscription. Les groupes restent réduits et varient selon le format retenu.",
+      `Contactez-nous directement sur WhatsApp au ${LEGAL.contact.phone.replace('+216 ', '')}. Nous échangeons sur le profil de l'élève, ses objectifs et la formule la plus adaptée avant de confirmer l'inscription. Les groupes restent réduits et varient selon le format retenu.`,
   },
 ];

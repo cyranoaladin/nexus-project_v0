@@ -14,8 +14,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { CallbackRequestForm } from '@/components/marketing/acadomia-inspired';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
-const ADMIN_ADDRESS = 'Centre Urbain Nord, Immeuble VENUS, Apt. C13, 1082 Tunis';
-const PEDA_ADDRESS = 'Mutuelleville, Tunis';
+import { LEGAL } from '@/lib/legal';
+const ADMIN_ADDRESS = LEGAL.addresses.siege.full;
+const PEDA_ADDRESS = LEGAL.addresses.pedagogique.full;
 
 type FormState = {
   profile: string;
@@ -309,15 +310,15 @@ export default function ContactPage() {
                 <div className="mt-4 space-y-3">
                   <a href={buildWhatsAppUrl()} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-lux-ivory transition-colors hover:border-lux-gold/40 hover:bg-white/10">
                     <MessageCircle className="h-4 w-4 text-lux-evergreen" />
-                    WhatsApp&nbsp;: +216 99 19 28 29
+                    WhatsApp&nbsp;: {LEGAL.contact.phone}
                   </a>
-                  <a href="tel:+21699192829" className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-lux-ivory transition-colors hover:border-lux-gold/40 hover:bg-white/10">
+                  <a href={`tel:${LEGAL.contact.phoneRaw}`} className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-lux-ivory transition-colors hover:border-lux-gold/40 hover:bg-white/10">
                     <Phone className="h-4 w-4 text-lux-gold-wash" />
                     Appeler
                   </a>
-                  <a href="mailto:contact@nexusreussite.academy" className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-lux-ivory transition-colors hover:border-lux-gold/40 hover:bg-white/10">
+                  <a href={`mailto:${LEGAL.contact.email}`} className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-lux-ivory transition-colors hover:border-lux-gold/40 hover:bg-white/10">
                     <Mail className="h-4 w-4 text-lux-gold-wash" />
-                    contact@nexusreussite.academy
+                    {LEGAL.contact.email}
                   </a>
                 </div>
               </CardContent>

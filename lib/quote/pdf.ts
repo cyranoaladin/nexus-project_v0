@@ -1,6 +1,7 @@
 import { existsSync } from 'fs';
 import path from 'path';
 import PDFDocument from 'pdfkit';
+import { LEGAL } from '@/lib/legal';
 
 const COLORS = {
   navy: '#0B1F4D',
@@ -180,7 +181,7 @@ function drawFooter(doc: PDFKit.PDFDocument, pageNumber: number) {
       align: 'center',
     });
   doc.font(FONTS.regular).fontSize(6.5).fillColor(COLORS.muted)
-    .text(`nexusreussite.academy · +216 99 192 829 · contact@nexusreussite.academy · Page ${pageNumber}`, PAGE.marginLeft, y + 10, {
+    .text(`${LEGAL.web.domain} · ${LEGAL.contact.phone} · ${LEGAL.contact.email} · Page ${pageNumber}`, PAGE.marginLeft, y + 10, {
       width: CONTENT_WIDTH,
       align: 'center',
     });
@@ -215,11 +216,11 @@ function drawHeader(doc: PDFKit.PDFDocument, data: QuotePDFData) {
   }
 
   doc.font(FONTS.bold).fontSize(13).fillColor(COLORS.navy)
-    .text('M&M ACADEMY (NEXUS RÉUSSITE)', PAGE.marginLeft, issuerY, { width: 270 });
+    .text(LEGAL.entity.name, PAGE.marginLeft, issuerY, { width: 270 });
   doc.font(FONTS.regular).fontSize(7.8).fillColor(COLORS.secondary)
     .text('Établissement d’accompagnement pédagogique', PAGE.marginLeft, issuerY + 16)
-    .text('Centre Urbain Nord, Immeuble VENUS, Appt C13, 1082 Tunis', PAGE.marginLeft, issuerY + 29)
-    .text('MF : 1948837 N/A/M/000 · +216 99 19 28 29', PAGE.marginLeft, issuerY + 42);
+    .text(LEGAL.addresses.siege.full, PAGE.marginLeft, issuerY + 29)
+    .text(`MF : ${LEGAL.entity.taxId} · ${LEGAL.contact.phone}`, PAGE.marginLeft, issuerY + 42);
 
   const rightX = PAGE.width - PAGE.marginRight - 210;
   doc.font(FONTS.bold).fontSize(22).fillColor(COLORS.navy)

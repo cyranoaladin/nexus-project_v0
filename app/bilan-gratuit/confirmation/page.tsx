@@ -3,6 +3,7 @@ import { CheckCircle, Clock, Mail, Phone } from 'lucide-react';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { Card, CardContent } from '@/components/ui/card';
+import { LEGAL } from '@/lib/legal';
 
 export default function ConfirmationPage() {
   return (
@@ -94,18 +95,18 @@ export default function ConfirmationPage() {
               </p>
               <div className="mt-6 space-y-3">
                 <a
-                  href="tel:+21699192829"
+                  href={`tel:${LEGAL.contact.phoneRaw}`}
                   className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-lux-ivory transition-colors hover:border-lux-gold/40 hover:bg-white/10"
                 >
                   <Phone className="h-4 w-4 text-lux-gold-wash" aria-hidden="true" />
-                  +216 99 19 28 29
+                  {LEGAL.contact.phone}
                 </a>
                 <a
-                  href="mailto:contact@nexusreussite.academy"
+                  href={`mailto:${LEGAL.contact.email}`}
                   className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-lux-ivory transition-colors hover:border-lux-gold/40 hover:bg-white/10"
                 >
                   <Mail className="h-4 w-4 text-lux-gold-wash" aria-hidden="true" />
-                  contact@nexusreussite.academy
+                  {LEGAL.contact.email}
                 </a>
               </div>
             </CardContent>

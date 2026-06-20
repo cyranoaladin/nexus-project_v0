@@ -16,6 +16,7 @@ import {
   isOnlineLocation,
   subjectLabels,
 } from '@/lib/stages/public';
+import { LEGAL } from '@/lib/legal';
 
 type PageProps = {
   params: Promise<{ stageSlug: string }>;
@@ -214,8 +215,8 @@ export default async function StageDetailPage({ params }: PageProps) {
                   <Phone className="h-4 w-4" />
                   Questions
                 </div>
-                <p className="mt-2 text-white">contact@nexusreussite.academy</p>
-                <p className="mt-1 text-neutral-300">+216 99 19 28 29</p>
+                <p className="mt-2 text-white">{LEGAL.contact.email}</p>
+                <p className="mt-1 text-neutral-300">{LEGAL.contact.phone}</p>
               </div>
             </div>
           </aside>

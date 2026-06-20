@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Menu, X, Phone, ChevronDown, LogIn, UserPlus } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { LEGAL } from '@/lib/legal';
 
 export function CorporateNavbar() {
   const pathname = usePathname();
@@ -490,10 +491,10 @@ export function CorporateNavbar() {
                                 text-neutral-500 text-sm font-mono border-t border-white/5">
               <div className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-lux-gold-wash" aria-hidden="true" />
-                <span>+216 99 19 28 29</span>
+                <span>{LEGAL.contact.phone}</span>
               </div>
-              <div>contact@nexusreussite.academy</div>
-              <div>Centre Urbain Nord, Tunis</div>
+              <div>{LEGAL.contact.email}</div>
+              <div>Centre Urbain Nord, {LEGAL.addresses.siege.city}</div>
             </div>
 
           </div>

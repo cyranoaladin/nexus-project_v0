@@ -1,3 +1,5 @@
+import { LEGAL } from '@/lib/legal';
+
 export const translations = {
   fr: {
     hero: {
@@ -136,7 +138,7 @@ export const translations = {
       },
       address: {
         hq: "Siège :",
-        location: "Centre Urbain Nord, Immeuble VENUS, Apt. C13, 1082 – Tunis",
+        location: LEGAL.addresses.siege.full,
         contact: "Contact :"
       },
       rights: "Tous droits réservés."
@@ -279,7 +281,7 @@ export const translations = {
       },
       address: {
         hq: "HQ:",
-        location: "Centre Urbain Nord, Immeuble VENUS, Apt. C13, 1082 – Tunis",
+        location: LEGAL.addresses.siege.full,
         contact: "Contact:"
       },
       rights: "All rights reserved."

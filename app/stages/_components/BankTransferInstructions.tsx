@@ -3,11 +3,12 @@
 import { useCallback, useState } from "react";
 import { Check, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { LEGAL } from "@/lib/legal";
 
 // ── Bank details (single source of truth) ──────────────────
 export const BANK_DETAILS = {
   identifiant: "871456",
-  titulaire: "STE M&M ACADEMY SUARL",
+  titulaire: LEGAL.entity.name,
   nature: "COMPTES CHEQUES ENTREPRISES",
   rib: "RIB25079000000156908404",
   iban: "TN5925079000000156908404",

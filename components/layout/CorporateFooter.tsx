@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Mail, Phone, MapPin, ArrowRight } from 'lucide-react';
 import { FloatingAdvisorBubble, NewsletterSignup } from '@/components/marketing/acadomia-inspired';
 import { MobileStickyBar } from '@/components/marketing/MobileStickyBar';
+import { LEGAL } from '@/lib/legal';
 
 const CorporateFooter = () => {
     const scrollToSection = (id: string) => {
@@ -89,7 +90,7 @@ const CorporateFooter = () => {
                                 <div>
                                     <span className="block text-lux-ivory text-sm font-medium">Siège social administratif</span>
                                     <span className="block text-neutral-300 text-xs mt-1">
-                                        Centre Urbain Nord, Immeuble VENUS<br />Appt C13, 1082 – Tunis
+                                        {LEGAL.addresses.siege.full}
                                     </span>
                                 </div>
                             </div>
@@ -99,7 +100,7 @@ const CorporateFooter = () => {
                                 <div>
                                     <span className="block text-lux-ivory text-sm font-medium">Centre d&apos;accompagnement pédagogique</span>
                                     <span className="block text-neutral-300 text-xs mt-1">
-                                        Mutuelleville, Tunis
+                                        {LEGAL.addresses.pedagogique.full}
                                     </span>
                                 </div>
                             </div>
@@ -107,11 +108,11 @@ const CorporateFooter = () => {
                             <div className="space-y-3">
                                 <div className="flex items-center gap-3 text-neutral-300 hover:text-white transition-colors">
                                     <Mail className="w-4 h-4 text-lux-gold-wash" />
-                                    <span className="text-sm">contact@nexusreussite.academy</span>
+                                    <span className="text-sm">{LEGAL.contact.email}</span>
                                 </div>
                                 <div className="flex items-center gap-3 text-neutral-300 hover:text-white transition-colors">
                                     <Phone className="w-4 h-4 text-lux-gold-wash" />
-                                    <span className="text-sm">+216 99 19 28 29</span>
+                                    <span className="text-sm">{LEGAL.contact.phone}</span>
                                 </div>
                             </div>
                         </div>
@@ -121,7 +122,7 @@ const CorporateFooter = () => {
                 {/* Bottom Bar */}
                 <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
                     <p className="max-w-3xl text-center md:text-left text-neutral-300 text-xs leading-relaxed">
-                        © 2026 Nexus Réussite - Une marque exploitée par la société STE M&amp;M ACADEMY SUARL. Le site nexusreussite.academy est la propriété exclusive de M&amp;M ACADEMY SUARL.
+                        {LEGAL.copyright.notice()}
                     </p>
                     <div className="flex items-center gap-6">
                         <Link href="/mentions-legales" className="text-neutral-300 text-xs hover:text-lux-gold-wash transition-colors">

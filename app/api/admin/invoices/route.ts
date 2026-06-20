@@ -25,14 +25,16 @@ import type { CreateInvoiceRequest, InvoiceData, TaxRegime } from '@/lib/invoice
 
 // ─── Default issuer (can be overridden per request) ─────────────────────────
 
+import { LEGAL } from '@/lib/legal';
+
 const DEFAULT_ISSUER = {
-  name: 'M&M ACADEMY (NEXUS RÉUSSITE)',
-  address: 'Centre Urbain Nord, Immeuble VENUS, Appt C13, 1082 – Tunis',
-  mf: '1948837 N/A/M/000',
-  rne: null as string | null,
-  phone: '+216 99 19 28 29',
-  email: 'contact@nexusreussite.academy',
-  web: 'nexusreussite.academy',
+  name: LEGAL.entity.name,
+  address: LEGAL.addresses.siege.full,
+  mf: LEGAL.entity.taxId,
+  rne: LEGAL.entity.rne,
+  phone: LEGAL.contact.phone,
+  email: LEGAL.contact.email,
+  web: LEGAL.web.domain,
   slogan: 'Viser. Atteindre. Dépasser.',
   logoPath: path.join(process.cwd(), 'public', 'images', 'logo_slogan_nexus.png'),
 };

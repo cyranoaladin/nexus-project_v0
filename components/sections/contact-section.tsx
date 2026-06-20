@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Building2, Users, Briefcase, Phone, Mail, MapPin } from "lucide-react";
 import { track } from "@/lib/analytics";
+import { LEGAL } from '@/lib/legal';
 
 type TabKey = "schools" | "families" | "pros";
 
@@ -87,18 +88,16 @@ export default function ContactSection() {
               <div className="space-y-4 text-sm">
                 <div className="flex items-center gap-3">
                   <Phone className="h-4 w-4 text-brand-accent" />
-                  <span>+216 99 19 28 29</span>
+                  <span>{LEGAL.contact.phone}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <Mail className="h-4 w-4 text-brand-accent" />
-                  <span>contact@nexusreussite.academy</span>
+                  <span>{LEGAL.contact.email}</span>
                 </div>
                 <div className="flex items-start gap-3">
                   <MapPin className="h-4 w-4 text-brand-accent mt-0.5" />
                   <div>
-                    <div>Centre Urbain Nord</div>
-                    <div>Immeuble VENUS, Apt. C13</div>
-                    <div>1082 – Tunis</div>
+                    <div>{LEGAL.addresses.siege.full}</div>
                   </div>
                 </div>
               </div>

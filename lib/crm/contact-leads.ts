@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { sendMail } from '@/lib/email/mailer';
 import { contactLeadNotification } from '@/lib/email/templates';
+import { LEGAL } from '@/lib/legal';
 
 const optionalText = z
   .preprocess(
@@ -44,7 +45,7 @@ function getLeadNotificationRecipient(): string {
     process.env.INTERNAL_NOTIFICATION_EMAIL ||
     process.env.MAIL_REPLY_TO ||
     process.env.EMAIL_REPLY_TO ||
-    'contact@nexusreussite.academy'
+    LEGAL.contact.email
   );
 }
 

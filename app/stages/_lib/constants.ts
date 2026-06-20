@@ -1,12 +1,13 @@
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
+import { LEGAL } from '@/lib/legal';
 
-export const PHONE = "+216 99 19 28 29";
-export const PHONE_LINK = "tel:+21699192829";
+export const PHONE = LEGAL.contact.phone;
+export const PHONE_LINK = `tel:${LEGAL.contact.phoneRaw}`;
 /** @deprecated Use `buildWhatsAppUrl('les stages Nexus')` from `@/lib/whatsapp` directly. */
 export const WHATSAPP_URL = buildWhatsAppUrl('les stages Nexus');
-export const CONTACT_EMAIL = "contact@nexusreussite.academy";
+export const CONTACT_EMAIL = LEGAL.contact.email;
 export const CONTACT_ADDRESS =
-  "Nexus Réussite — Centre Urbain Nord, Immeuble VENUS, Appt C13, 1082 Tunis";
+  `${LEGAL.entity.tradeName} — ${LEGAL.addresses.siege.full}`;
 
 export const TARGET_DATES = {
   pratique_nsi: new Date("2026-05-18T08:00:00"),

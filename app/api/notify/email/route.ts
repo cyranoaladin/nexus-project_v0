@@ -21,6 +21,7 @@ import { checkCsrf } from '@/lib/csrf';
 import { guardRateLimit } from '@/lib/rate-limit';
 import { sendMail } from '@/lib/email/mailer';
 import { bilanAcknowledgement, internalNotification } from '@/lib/email/templates';
+import { LEGAL } from '@/lib/legal';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -146,7 +147,7 @@ export async function POST(request: NextRequest) {
         process.env.INTERNAL_NOTIFICATION_EMAIL ||
         process.env.MAIL_REPLY_TO ||
         process.env.EMAIL_REPLY_TO ||
-        'contact@nexusreussite.academy';
+        LEGAL.contact.email;
 
       const template = internalNotification({
         eventType: data.eventType,

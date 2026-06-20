@@ -14,6 +14,7 @@ import {
   type NexusInvoicePackageId,
   type NexusMixedPayment,
 } from '@/lib/invoice/nexus-calculations';
+import { LEGAL } from '@/lib/legal';
 
 const BRAND = {
   navy: '#0B1F4D',
@@ -28,13 +29,13 @@ const BRAND = {
 };
 
 const COMPANY = {
-  name: 'M&M ACADEMY (NEXUS RÉUSSITE)',
-  address: 'Centre Urbain Nord, Immeuble VENUS, Appt C13, 1082 – Tunis',
-  taxId: 'MF : 1948837 N/A/M/000',
-  phone: '+216 99 19 28 29',
-  email: 'contact@nexusreussite.academy',
-  web: 'nexusreussite.academy',
-  bankBeneficiary: 'STE M&M ACADEMY SUARL',
+  name: LEGAL.entity.name,
+  address: LEGAL.addresses.siege.full,
+  taxId: `MF : ${LEGAL.entity.taxId}`,
+  phone: LEGAL.contact.phone,
+  email: LEGAL.contact.email,
+  web: LEGAL.web.domain,
+  bankBeneficiary: LEGAL.entity.name,
   bank: 'Banque Zitouna',
   rib: '25 079 000 0001569084 04',
   iban: 'TN59 25 079 000 0001569084 04',

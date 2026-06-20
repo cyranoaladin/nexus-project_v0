@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
+import { LEGAL } from '@/lib/legal';
 
 export const metadata: Metadata = {
   title: 'Politique de confidentialité | Nexus Réussite',
@@ -34,8 +35,8 @@ export default function PolitiqueConfidentialitePage() {
             </p>
             <p>
               Pour toute demande d’accès, de correction ou de suppression, contactez{' '}
-              <a className="font-semibold text-lux-gold-deep underline" href="mailto:contact@nexusreussite.academy">
-                contact@nexusreussite.academy
+              <a className="font-semibold text-lux-gold-deep underline" href={`mailto:${LEGAL.contact.email}`}>
+                {LEGAL.contact.email}
               </a>.
             </p>
           </div>

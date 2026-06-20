@@ -34,6 +34,7 @@ import { CorporateFooter } from "@/components/layout/CorporateFooter";
 import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
 import StageReservationModal from "./StageReservationModal";
 import StickyMobileCTA from "./StickyMobileCTA";
+import { LEGAL } from "@/lib/legal";
 
 // ============================================
 // DATA
@@ -955,7 +956,7 @@ export default function NexusStagesPage() {
               Réserver ma place
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </a>
-            <a href="mailto:contact@nexusreussite.academy" className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nexus-green/50 sm:w-auto sm:min-w-[240px]">
+            <a href={`mailto:${LEGAL.contact.email}`} className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-nexus-green/50 sm:w-auto sm:min-w-[240px]">
               <Mail className="h-4 w-4" aria-hidden="true" />
               Nous contacter
             </a>
@@ -1035,7 +1036,7 @@ export default function NexusStagesPage() {
                 </div>
                 <div className="flex items-center gap-3 text-white/70">
                   <Mail className="h-5 w-5 text-nexus-green" />
-                  <span>contact@nexusreussite.academy</span>
+                  <span>{LEGAL.contact.email}</span>
                 </div>
                 <div className="flex items-center gap-3 text-white/70">
                   <MapPin className="h-5 w-5 text-nexus-green" />

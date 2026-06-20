@@ -26,6 +26,7 @@ import {
   getStageFormat,
 } from '@/lib/pricing';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
+import { LEGAL } from '@/lib/legal';
 
 const SUBJECTS = [
   { value: 'MATHEMATIQUES', label: 'Mathématiques' },
@@ -554,10 +555,10 @@ export function BilanStrategiqueClient() {
                     className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-lux-ivory transition-colors hover:border-lux-gold/40 hover:bg-white/10"
                   >
                     <MessageCircle className="h-4 w-4 text-lux-gold-wash" />
-                    WhatsApp&nbsp;: +216 99 19 28 29
+                    WhatsApp&nbsp;: {LEGAL.contact.phone}
                   </a>
                   <a
-                    href="tel:+21699192829"
+                    href={`tel:${LEGAL.contact.phoneRaw}`}
                     className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-lux-ivory transition-colors hover:border-lux-gold/40 hover:bg-white/10"
                   >
                     <Phone className="h-4 w-4 text-lux-gold-wash" />
@@ -582,8 +583,8 @@ export function BilanStrategiqueClient() {
                   >
                     WhatsApp
                   </a>
-                  <a className="lux-cta-reserve rounded-lg px-4 py-3 text-sm font-semibold" href="tel:+21699192829">
-                    +216 99 19 28 29
+                  <a className="lux-cta-reserve rounded-lg px-4 py-3 text-sm font-semibold" href={`tel:${LEGAL.contact.phoneRaw}`}>
+                    {LEGAL.contact.phone}
                   </a>
                 </div>
               </CardContent>

@@ -7,6 +7,7 @@ import {
   EAF_EXAM_DATE,
   HERO,
   LANDING_IMAGES,
+  PHONE_LABEL,
   WHATSAPP_URL,
 } from "@/components/sections/homepage/content";
 
@@ -93,7 +94,7 @@ export default function HomeHero() {
                 </p>
                 <p className="mt-3 flex items-center gap-2 text-sm font-semibold text-[#0f3d73]">
                   <MessageCircle className="h-4 w-4" aria-hidden="true" />
-                  WhatsApp : 99 19 28 29
+                  WhatsApp : {PHONE_LABEL}
                 </p>
               </div>
             </div>

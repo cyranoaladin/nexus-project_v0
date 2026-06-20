@@ -7,6 +7,7 @@
  */
 
 import nodemailer from 'nodemailer';
+import { LEGAL } from '@/lib/legal';
 import {
   getInvoiceEmailSubject,
   renderInvoiceEmailHtml,
@@ -46,7 +47,7 @@ function resolveFrom(): string {
   if (!from && process.env.NODE_ENV === 'production') {
     throw new Error('[Invoice] EMAIL_FROM or SMTP_FROM env var is required in production.');
   }
-  return from || 'Nexus Réussite <contact@nexusreussite.academy>';
+  return from || `Nexus Réussite <${LEGAL.contact.email}>`;
 }
 
 // ─── Send ────────────────────────────────────────────────────────────────────

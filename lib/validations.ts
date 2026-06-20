@@ -59,7 +59,7 @@ export const stageReservationSchema = z.object({
   phone: z.string()
     .min(8, 'Numéro de téléphone invalide')
     .max(20, 'Numéro trop long')
-    .regex(/^\+?[0-9\s\-]{8,20}$/, 'Format de téléphone invalide (ex: +216 99 19 28 29)'),
+    .regex(/^\+?[0-9\s\-]{8,20}$/, 'Format de téléphone invalide (ex: +216 XX XX XX XX)'),
   classe: z.string()
     .min(1, 'Classe requise')
     .max(50, 'Classe invalide'),
