@@ -66,6 +66,7 @@ services:
       RAG_INGESTOR_URL: ""
       NEXT_PUBLIC_SUPABASE_URL: ""
       UPSTASH_REDIS_REST_URL: ""
+      RATE_LIMIT_DISABLE: "1"
     volumes:
       - e2e-shared:/app/e2e-shared
     healthcheck:

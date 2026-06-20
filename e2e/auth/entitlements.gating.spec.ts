@@ -4,6 +4,10 @@ import { CREDS } from '../helpers/credentials';
 import { clearEntitlementsByUserEmail, setEntitlementByUserEmail, disconnectPrisma } from '../helpers/db';
 
 test.describe.serial('Feature gating / entitlements', () => {
+  // No retries: each POST counts against the expensive rate limiter (10/h).
+  // Retries would exhaust the budget and turn 403 into 429.
+  test.describe.configure({ retries: 0 });
+
   test.afterAll(async () => {
     await disconnectPrisma();
   });
@@ -38,12 +42,9 @@ test.describe.serial('Feature gating / entitlements', () => {
       failOnStatusCode: false,
     });
 
-    // 403 = entitlement guard, 429 = rate limiter hit first (retries exhaust budget)
-    expect([403, 429]).toContain(denied.status());
-    if (denied.status() === 403) {
-      const deniedBody = await denied.json();
-      expect(deniedBody.feature).toBe('credits_use');
-    }
+    expect(denied.status()).toBe(403);
+    const deniedBody = await denied.json();
+    expect(deniedBody.feature).toBe('credits_use');
 
     await setEntitlementByUserEmail(CREDS.parent.email, 'ABONNEMENT_HYBRIDE');
 

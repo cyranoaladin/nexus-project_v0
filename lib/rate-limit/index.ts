@@ -53,7 +53,11 @@ export function _resetStoreForTests(): MemoryStore {
 export type RateLimitRuntimeMode = 'memory' | 'redis' | 'upstash';
 
 function canBypassRateLimit(): boolean {
-  return process.env.RATE_LIMIT_DISABLE === '1' && process.env.NODE_ENV !== 'production';
+  if (process.env.RATE_LIMIT_DISABLE === '1') {
+    // Allow bypass in dev/test, or in E2E containers (CI=true guards against real prod)
+    return process.env.NODE_ENV !== 'production' || process.env.CI === 'true';
+  }
+  return false;
 }
 
 export function getRateLimitRuntimeMode(): RateLimitRuntimeMode {
