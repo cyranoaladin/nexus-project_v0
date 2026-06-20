@@ -165,7 +165,7 @@ export function MobileMenu({ items, user }: MobileMenuProps) {
             <h2 className="text-lg font-semibold text-neutral-50">Menu</h2>
             <button
               onClick={close}
-              className="p-2 rounded-micro text-neutral-400 hover:text-neutral-50 hover:bg-surface-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+              className="p-2 rounded-micro text-neutral-300 hover:text-neutral-50 hover:bg-surface-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
               aria-label="Fermer le menu"
             >
               <X className="h-5 w-5" aria-hidden="true" />

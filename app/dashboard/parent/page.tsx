@@ -95,10 +95,10 @@ export default function DashboardParent() {
             <Users className="w-8 h-8 text-brand-accent" />
             <div>
               <h1 className="font-semibold text-white">Espace Famille</h1>
-              <p className="text-xs text-neutral-400">{session?.user.firstName} {session?.user.lastName}</p>
+              <p className="text-xs text-neutral-300">{session?.user.firstName} {session?.user.lastName}</p>
             </div>
           </div>
-          <Button variant="ghost" onClick={() => signOut({ callbackUrl: '/' })} className="text-neutral-400">
+          <Button variant="ghost" onClick={() => signOut({ callbackUrl: '/' })} className="text-neutral-300">
             <LogOut className="w-4 h-4 mr-2" />
             Déconnexion
           </Button>
@@ -106,7 +106,7 @@ export default function DashboardParent() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-6">
           {/* Rubriques Switcher */}
           <div className="flex flex-wrap gap-2 p-1 bg-white/5 border border-white/10 rounded-xl">
@@ -121,8 +121,8 @@ export default function DashboardParent() {
                 variant={activeRubrique === tab.id ? 'default' : 'ghost'}
                 className={`flex-1 min-w-[120px] rounded-lg transition-all ${
                   activeRubrique === tab.id
-                    ? 'bg-brand-accent text-white shadow-premium font-bold'
-                    : 'text-neutral-400 hover:text-white hover:bg-white/5'
+                    ? 'bg-brand-accent text-surface-darker shadow-premium font-bold'
+                    : 'text-neutral-300 hover:text-white hover:bg-white/5'
                 }`}
                 size="sm"
               >
@@ -136,7 +136,7 @@ export default function DashboardParent() {
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
                   Mes Enfants
-                  <Badge variant="outline" className="ml-2 border-white/10 text-neutral-400">
+                  <Badge variant="outline" className="ml-2 border-white/10 text-neutral-300">
                     {dashboardData?.children.length || 0}
                   </Badge>
                 </h2>
@@ -164,7 +164,7 @@ export default function DashboardParent() {
                 <CardContent>
                   <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
                     <div>
-                      <p className="text-xs text-neutral-400">Total Mensuel</p>
+                      <p className="text-xs text-neutral-300">Total Mensuel</p>
                       <p className="text-2xl font-bold text-white">
                         {(dashboardData?.children || []).reduce((sum, c) => sum + (c.subscriptionDetails?.monthlyPrice || 0), 0)} TND
                       </p>
@@ -187,10 +187,10 @@ export default function DashboardParent() {
                     <CardContent className="p-6">
                       <TrendingUp className="w-8 h-8 text-brand-accent mb-4" />
                       <h3 className="text-lg font-bold text-white mb-2">Nexus Performance</h3>
-                      <p className="text-sm text-neutral-400 mb-4">
+                      <p className="text-sm text-neutral-300 mb-4">
                         Les trajectoires de vos enfants sont optimisées par l'IA pour garantir les meilleurs résultats au Bac.
                       </p>
-                      <Button className="w-full bg-brand-accent">Voir le rapport annuel</Button>
+                      <Button className="w-full bg-brand-accent text-surface-darker">Voir le rapport annuel</Button>
                     </CardContent>
                   </Card>
                 </div>
@@ -198,7 +198,7 @@ export default function DashboardParent() {
             </div>
           )}
         </div>
-      </main>
+      </div>
     </div>
   )
 }

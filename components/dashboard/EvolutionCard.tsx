@@ -107,7 +107,7 @@ export function EvolutionCard({ studentId }: EvolutionCardProps) {
   return (
     <div className="rounded-xl border border-neutral-800 bg-surface-card p-6">
       <h3 className="text-sm font-semibold text-neutral-200 mb-1">Évolution récente</h3>
-      <p className="text-[11px] text-neutral-500 mb-4">Synthèse des 30 derniers jours.</p>
+      <p className="text-[11px] text-neutral-300 mb-4">Synthèse des 30 derniers jours.</p>
       <div className="grid grid-cols-2 gap-3">
         {metrics.map((metric) => (
           <div
@@ -119,10 +119,10 @@ export function EvolutionCard({ studentId }: EvolutionCardProps) {
               <p className="text-lg font-semibold text-neutral-100 leading-tight">
                 {metric.value}
                 {metric.suffix && (
-                  <span className="text-xs text-neutral-500 ml-0.5">{metric.suffix}</span>
+                  <span className="text-xs text-neutral-300 ml-0.5">{metric.suffix}</span>
                 )}
               </p>
-              <p className="text-[10px] text-neutral-500 mt-0.5">{metric.label}</p>
+              <p className="text-[10px] text-neutral-300 mt-0.5">{metric.label}</p>
             </div>
           </div>
         ))}

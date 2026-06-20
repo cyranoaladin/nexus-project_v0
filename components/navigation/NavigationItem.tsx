@@ -45,7 +45,7 @@ const navigationItemVariants = cva(
     variants: {
       active: {
         true: "bg-brand-primary text-white shadow-sm",
-        false: "text-neutral-400 hover:bg-surface-hover hover:text-neutral-50",
+        false: "text-neutral-300 hover:bg-surface-hover hover:text-neutral-50",
       },
     },
     defaultVariants: {

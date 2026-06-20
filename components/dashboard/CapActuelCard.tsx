@@ -82,20 +82,20 @@ export function CapActuelCard({ studentId }: CapActuelCardProps) {
         <div className="flex items-start gap-3 min-w-0">
           <Compass className="h-5 w-5 text-brand-primary mt-0.5 flex-shrink-0" />
           <div className="min-w-0">
-            <p className="text-xs font-medium uppercase tracking-wider text-neutral-500 mb-1">Votre cap actuel</p>
+            <p className="text-xs font-medium uppercase tracking-wider text-neutral-300 mb-1">Votre cap actuel</p>
             {hasData && trajectory ? (
               <>
                 <p className="text-sm font-semibold text-neutral-100 truncate">
                   Cap défini : {trajectory.title}
                 </p>
                 {trajectory.nextMilestoneDate && (
-                  <p className="text-xs text-neutral-400 mt-0.5">
+                  <p className="text-xs text-neutral-300 mt-0.5">
                     Prochaine échéance : {new Date(trajectory.nextMilestoneDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}
                   </p>
                 )}
               </>
             ) : (
-              <p className="text-sm text-neutral-400">
+              <p className="text-sm text-neutral-300">
                 Aucun cap formalisé pour le moment.
               </p>
             )}

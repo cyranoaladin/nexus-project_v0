@@ -21,6 +21,11 @@ test.describe('Axe dashboards (authenticated)', () => {
         (v) => `${v.id} (${v.impact}): ${v.help} [${v.nodes.length} nodes]`
       );
       console.log('Violations parent dashboard:', summary);
+      for (const v of results.violations) {
+        for (const node of v.nodes) {
+          console.log(`  [${v.id}] ${node.html.substring(0, 120)} | target: ${node.target}`);
+        }
+      }
     }
     expect(results.violations).toEqual([]);
   });
@@ -37,6 +42,11 @@ test.describe('Axe dashboards (authenticated)', () => {
         (v) => `${v.id} (${v.impact}): ${v.help} [${v.nodes.length} nodes]`
       );
       console.log('Violations eleve dashboard:', summary);
+      for (const v of results.violations) {
+        for (const node of v.nodes) {
+          console.log(`  [${v.id}] ${node.html.substring(0, 150)} | target: ${node.target}`);
+        }
+      }
     }
     expect(results.violations).toEqual([]);
   });
@@ -53,6 +63,11 @@ test.describe('Axe dashboards (authenticated)', () => {
         (v) => `${v.id} (${v.impact}): ${v.help} [${v.nodes.length} nodes]`
       );
       console.log('Violations admin dashboard (page):', summary);
+      for (const v of pageResults.violations) {
+        for (const node of v.nodes) {
+          console.log(`  [${v.id}] ${node.html.substring(0, 150)} | target: ${node.target}`);
+        }
+      }
     }
     expect(pageResults.violations).toEqual([]);
 

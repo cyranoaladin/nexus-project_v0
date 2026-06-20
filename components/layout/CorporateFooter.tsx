@@ -120,17 +120,17 @@ const CorporateFooter = () => {
 
                 {/* Bottom Bar */}
                 <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
-                    <p className="max-w-3xl text-center md:text-left text-neutral-400 text-xs leading-relaxed">
+                    <p className="max-w-3xl text-center md:text-left text-neutral-300 text-xs leading-relaxed">
                         © 2026 Nexus Réussite - Une marque exploitée par la société STE M&amp;M ACADEMY SUARL. Le site nexusreussite.academy est la propriété exclusive de M&amp;M ACADEMY SUARL.
                     </p>
                     <div className="flex items-center gap-6">
-                        <Link href="/mentions-legales" className="text-neutral-400 text-xs hover:text-lux-gold-wash transition-colors">
+                        <Link href="/mentions-legales" className="text-neutral-300 text-xs hover:text-lux-gold-wash transition-colors">
                             Mentions Légales
                         </Link>
-                        <Link href="/conditions-generales" className="text-neutral-400 text-xs hover:text-lux-gold-wash transition-colors">
+                        <Link href="/conditions-generales" className="text-neutral-300 text-xs hover:text-lux-gold-wash transition-colors">
                             Conditions Générales
                         </Link>
-                        <Link href="/contact" className="text-neutral-400 text-xs hover:text-lux-gold-wash transition-colors">
+                        <Link href="/contact" className="text-neutral-300 text-xs hover:text-lux-gold-wash transition-colors">
                             Contact
                         </Link>
                     </div>

@@ -36,13 +36,13 @@ export function ChildCard({ child }: ChildCardProps) {
             </div>
             <div>
               <CardTitle className="text-white text-lg">{child.firstName}</CardTitle>
-              <p className="text-xs text-neutral-400">
+              <p className="text-xs text-neutral-300">
                 {child.gradeLevel} • {child.academicTrack.replace('_', ' ')}
               </p>
             </div>
           </div>
           <div className="text-right">
-            <p className="text-[10px] uppercase tracking-wider text-neutral-500 font-bold">NexusIndex</p>
+            <p className="text-[10px] uppercase tracking-wider text-neutral-300 font-bold">NexusIndex</p>
             <p className={`text-xl font-bold ${child.nexusIndex ? 'text-brand-accent' : 'text-neutral-600'}`}>
               {child.nexusIndex ?? '--'}
             </p>
@@ -63,14 +63,14 @@ export function ChildCard({ child }: ChildCardProps) {
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4 text-brand-accent" />
             <div className="flex flex-col">
-              <span className="text-[10px] text-neutral-500 uppercase font-bold">Prochaine séance</span>
+              <span className="text-[10px] text-neutral-300 uppercase font-bold">Prochaine séance</span>
               <span className="text-xs text-white truncate max-w-[120px]">
                 {child.nextSession?.subject ?? 'Aucune programmée'}
               </span>
             </div>
           </div>
           {child.nextSession && (
-            <span className="text-[10px] text-neutral-400">
+            <span className="text-[10px] text-neutral-300">
               {new Date(child.nextSession.scheduledAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
             </span>
           )}
@@ -78,7 +78,7 @@ export function ChildCard({ child }: ChildCardProps) {
 
         {/* Action Button */}
         <Link href={`/dashboard/parent/enfant/${child.id}`} className="block w-full">
-          <Button variant="outline" className="w-full border-white/10 hover:bg-brand-accent hover:text-white group">
+          <Button variant="outline" className="w-full border-white/10 text-neutral-100 hover:bg-brand-accent hover:text-white group">
             Voir la progression
             <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
           </Button>

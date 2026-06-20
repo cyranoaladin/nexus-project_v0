@@ -15,11 +15,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="dashboard-soft min-h-screen bg-surface-darker">
       <Sidebar />
       <Navbar />
-      <div id="main-content" className="lg:pl-[280px] pt-16">
+      <main id="main-content" className="lg:pl-[280px] pt-16">
         <div className="p-4 lg:p-6">
           {children}
         </div>
-      </div>
+      </main>
     </div>
   );
 }
