@@ -876,7 +876,6 @@ export default function EquipePage() {
             <div className="mt-10 grid gap-6 md:grid-cols-2">
               <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
                 <h3 className="text-xl font-semibold text-white">Professeur Classique</h3>
-                <div className="mt-2 text-sm text-slate-300">~60 TND/h</div>
                 <ul className="mt-4 space-y-2 text-sm text-slate-300">
                   <li className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-slate-300" aria-hidden="true" /> Diplôme variable</li>
                   <li className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-slate-300" aria-hidden="true" /> Suivi limité aux cours</li>
@@ -890,7 +889,6 @@ export default function EquipePage() {
                   <h3 className="text-xl font-semibold text-white">Expert Nexus</h3>
                   <span className="rounded-full bg-gold-500/10 px-3 py-1 text-xs text-gold-400">MEILLEUR ROI</span>
                 </div>
-                <div className="mt-2 text-sm text-slate-300">60 TND/h*</div>
                 <ul className="mt-4 space-y-2 text-sm text-slate-200">
                   <li className="inline-flex items-center gap-2"><GraduationCap className="h-4 w-4 text-gold-400" aria-hidden="true" /> Enseignants agrégés/certifiés selon matière</li>
                   <li className="inline-flex items-center gap-2"><BarChart3 className="h-4 w-4 text-gold-400" aria-hidden="true" /> Dashboard + IA ARIA selon formule</li>
@@ -898,9 +896,6 @@ export default function EquipePage() {
                   <li className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-gold-400" aria-hidden="true" /> Engagement de moyens et suivi</li>
                   <li className="inline-flex items-center gap-2"><Compass className="h-4 w-4 text-gold-400" aria-hidden="true" /> Coaching orientation inclus</li>
                 </ul>
-                <div className="mt-4 text-xs text-slate-300">
-                  *Tarifs horaires de référence : cours individuel 60 TND/h, cours en groupe 40 TND/h
-                </div>
               </div>
             </div>
           </div>
@@ -937,8 +932,8 @@ export default function EquipePage() {
                     </div>
                   </div>
                   <div className="mt-6">
-                    <div className="text-3xl font-bold text-gold-400">30 TND</div>
-                    <div className="text-sm text-slate-300">au lieu de 60 TND pour le premier cours</div>
+                    <div className="text-lg font-bold text-gold-400">Premier cours découverte</div>
+                    <div className="text-sm text-slate-300">Tarif préférentiel pour une première séance</div>
                   </div>
                   <div className="mt-6 flex flex-col gap-3">
                     <a

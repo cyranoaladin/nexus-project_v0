@@ -98,6 +98,27 @@ const nextConfig = {
         destination: '/offres',
         permanent: false, // 307 — pricing page alias
       },
+      // Legacy static HTML → Next.js pages (files deleted 2026-06-20)
+      {
+        source: '/mentions-legales.html',
+        destination: '/mentions-legales',
+        permanent: true,
+      },
+      {
+        source: '/confidentialite.html',
+        destination: '/politique-confidentialite',
+        permanent: true,
+      },
+      {
+        source: '/catalogue-nexus-reussite-2026-2027.html',
+        destination: '/offres',
+        permanent: true,
+      },
+      {
+        source: '/nexus_selecteur.html',
+        destination: '/recommandation',
+        permanent: true,
+      },
     ];
   },
 };

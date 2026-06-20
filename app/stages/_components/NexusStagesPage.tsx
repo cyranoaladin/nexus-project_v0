@@ -166,7 +166,7 @@ const offers = [
     threshold: "Ouverture à partir de 3 élèves",
     shortPitch: "Les deux épreuves anticipées dans une seule formule cohérente.",
     points: ["Maths 14h + Français 16h", "Écrit blanc de Français inclus", "Écrit blanc de Maths inclus", "Bilan final individualisé"],
-    bonus: { title: "Accès ARIA offert", subtitle: "Préparation à l'épreuve anticipée de Français", value: "Valeur réelle : 258 TND" },
+    bonus: { title: "Accès ARIA offert", subtitle: "Préparation à l'épreuve anticipée de Français" },
     planning: ["Lundi 20 avril — Maths (09h) + Français (11h30)", "Mardi 21 avril — Maths (09h) + Français (11h30)", "Mercredi 22 avril — Maths (09h) + Français (11h30)", "Jeudi 23 avril — Maths (09h) + Français (11h30)", "Mardi 28 avril — Français écrit blanc", "Mercredi 29 avril — Maths écrit blanc + correction", "Jeudi 30 avril — Français oral blanc + Bilan Maths"],
     followUp: ["Point d'étape intermédiaire", "Corrigés détaillés des épreuves blanches", "Bilan final avec priorités"],
   },
@@ -187,7 +187,7 @@ const offers = [
     threshold: "Ouverture à partir de 3 élèves",
     shortPitch: "Un parcours cohérent pour travailler deux matières stratégiques.",
     points: ["Maths 15h + NSI 15h", "Écrit blanc de Maths inclus", "Sujet de synthèse NSI intégré", "Progression structurée"],
-    bonus: { title: "Accès ARIA offert", subtitle: "Préparation à l'épreuve anticipée de Français", value: "Valeur réelle : 258 TND" },
+    bonus: { title: "Accès ARIA offert", subtitle: "Préparation à l'épreuve anticipée de Français" },
     planning: ["Samedi 18 avril — Maths bloc 1", "Lundi 20 avril — Maths bloc 2", "Mercredi 22 avril — NSI bloc 1", "Jeudi 23 avril — Maths bloc 3", "Vendredi 24 avril — NSI bloc 2", "Samedi 25 avril — Maths bloc 4", "Lundi 27 avril — NSI bloc 3", "Mercredi 29 avril — Maths écrit blanc + correction", "Vendredi 1er mai — NSI bloc 4", "Samedi 2 mai — NSI bloc 5"],
     followUp: ["Point d'étape intermédiaire", "Corrigé détaillé Maths + retour NSI", "Bilan final sur les deux matières"],
   },
@@ -208,7 +208,7 @@ const offers = [
     threshold: "Ouverture à partir de 3 élèves",
     shortPitch: "Une préparation globale et structurée sur l'ensemble des priorités.",
     points: ["Maths 18h + Français 12h + NSI 6h", "Écrits blancs inclus", "Oral blanc de Français inclus", "Vision claire des priorités"],
-    bonus: { title: "Accès ARIA offert", subtitle: "Préparation à l'épreuve anticipée de Français", value: "Valeur réelle : 258 TND" },
+    bonus: { title: "Accès ARIA offert", subtitle: "Préparation à l'épreuve anticipée de Français" },
     planning: ["Samedi 18 avril — Maths bloc 1", "Lundi 20 avril — Maths bloc 2", "Mardi 21 avril — Français bloc 1", "Mercredi 22 avril — NSI bloc 1", "Jeudi 23 avril — Maths bloc 3", "Vendredi 24 avril — NSI bloc 2", "Samedi 25 avril — Maths bloc 4", "Lundi 27 avril — Français bloc 2", "Mardi 28 avril — Français écrit blanc", "Mercredi 29 avril — Maths écrit blanc + correction", "Jeudi 30 avril — Français oral blanc", "Samedi 2 mai — Maths consolidation"],
     followUp: ["Point d'étape intermédiaire", "Corrigés détaillés des épreuves blanches", "Bilan final multi-matières"],
   },
@@ -313,7 +313,7 @@ const offers = [
     threshold: "Ouverture à partir de 2 élèves",
     shortPitch: "Une formule structurante pour deux piliers majeurs.",
     points: ["Maths 18h + NSI 12h", "Écrits blancs inclus", "Pratique blanche NSI", "Progression cohérente"],
-    bonus: { title: "3 ateliers Grand Oral offerts", subtitle: "Préparation orale en complément", value: "Valeur réelle : 300 TND" },
+    bonus: { title: "3 ateliers Grand Oral offerts", subtitle: "Préparation orale en complément" },
     planning: ["Samedi 18 avril — Maths bloc 1", "Lundi 20 avril — Maths bloc 2", "Mardi 21 avril — NSI bloc 1", "Jeudi 23 avril — NSI bloc 2", "Samedi 25 avril — Maths bloc 3", "Mardi 28 avril — NSI écrit blanc + Maths bloc 4 + GO atelier 1", "Mercredi 29 avril — Maths écrit blanc", "Jeudi 30 avril — NSI pratique + débrief + GO atelier 2", "Samedi 2 mai — Maths correction finale + GO atelier 3"],
     followUp: ["Bilan intermédiaire", "Corrigés détaillés + retour pratique", "Bilan final sur les deux matières"],
   },
@@ -334,7 +334,7 @@ const offers = [
     threshold: "Ouverture à partir de 2 élèves",
     shortPitch: "Une ligne droite scientifique jusqu'aux écrits.",
     points: ["Maths 18h + Physique 12h", "Écrits blancs inclus", "Correction des méthodes", "Cadre premium"],
-    bonus: { title: "3 ateliers Grand Oral offerts", subtitle: "Préparation orale en complément", value: "Valeur réelle : 300 TND" },
+    bonus: { title: "3 ateliers Grand Oral offerts", subtitle: "Préparation orale en complément" },
     planning: ["Samedi 18 avril — Maths bloc 1", "Lundi 20 avril — Maths bloc 2", "Mardi 21 avril — Physique bloc 1", "Vendredi 24 avril — Physique bloc 2", "Samedi 25 avril — Maths bloc 3", "Mardi 28 avril — Physique écrit blanc + Maths bloc 4 + GO atelier 1", "Mercredi 29 avril — Maths écrit blanc", "Jeudi 30 avril — GO atelier 2", "Vendredi 1er mai — Physique correction", "Samedi 2 mai — Maths correction finale + GO atelier 3"],
     followUp: ["Bilan intermédiaire", "Corrigés détaillés Maths et Physique", "Bilan final avec priorités"],
   },
@@ -756,7 +756,7 @@ export default function NexusStagesPage() {
                                     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="mt-3 inline-flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-2 text-sm">
                                       <Sparkles className="h-4 w-4 text-emerald-400" />
                                       <span className="font-medium text-emerald-300">{offer.bonus.title}</span>
-                                      <span className="text-emerald-400/80">· {offer.bonus.value}</span>
+                                      <span className="text-emerald-400/80">· {offer.bonus.subtitle}</span>
                                     </motion.div>
                                   )}
                                 </div>

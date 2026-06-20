@@ -34,12 +34,12 @@ const plans = [
     name: "Nexus Cortex",
     icon: Brain,
     color: "from-blue-600 to-cyan-500",
-    price: "90 TND/mois",
+    price: "Voir tarif canonique",
     description: "IA prédictive pour optimiser votre préparation",
     popular: false,
     sessions: "Coaching à la demande",
-    valueBreakdown: "Accès à ARIA selon formule + coaching personnalisé sur réservation.",
-    dailyCost: "soit ~3 TND/jour"
+    valueBreakdown: "Accès à ARIA selon formule + coaching personnalisé sur réservation",
+    dailyCost: ""
   },
   {
     name: "Académies Nexus",
@@ -49,8 +49,8 @@ const plans = [
     description: "Stages spécialisés avec nos experts",
     popular: true,
     sessions: "4 Séances de coaching/mois",
-    valueBreakdown: "Inclus : 4 séances de 60min + Coaching référent (valeur 350 TND). Valeur totale : 530 TND, votre prix : 450 TND.",
-    dailyCost: "soit ~15 TND/jour"
+    valueBreakdown: "Inclus : 4 séances de 60 min + Coaching référent.",
+    dailyCost: ""
   },
   {
     name: "Programme Odyssée",
@@ -60,8 +60,8 @@ const plans = [
     description: "Accompagnement complet vers l'excellence",
     popular: false,
     sessions: "8 Séances de coaching/mois",
-    valueBreakdown: "Inclus : 8 séances de 60min + Coaching Premium (valeur 650 TND) + Garantie de réussite. Valeur totale : 950 TND, votre prix : 750 TND.",
-    dailyCost: "soit ~25 TND/jour"
+    valueBreakdown: "Inclus : 8 séances de 60 min + Coaching Premium + Garantie de réussite.",
+    dailyCost: ""
   }
 ];
 

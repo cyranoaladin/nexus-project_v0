@@ -103,10 +103,10 @@ export function AriaComparison() {
                   </p>
                   <div className="bg-gradient-to-r from-or-stellaire to-or-stellaire-dark p-4 rounded-lg">
                     <p className="text-2xl font-bold text-bleu-nuit">
-                      50 TND/mois
+                      Voir tarif en vigueur
                     </p>
                     <p className="text-xs text-bleu-nuit">
-                      Soit ~1,7 TND/jour
+                      Consultez notre page offres
                     </p>
                   </div>
                 </CardHeader>
@@ -231,7 +231,7 @@ export function AriaComparison() {
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             <p className="text-sm text-gris-noble mt-3">
-              Débloquez tout le potentiel de notre IA pour 50 TND/mois
+              Débloquez tout le potentiel de notre IA — consultez nos offres
             </p>
           </motion.div>
         </div>
