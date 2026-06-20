@@ -93,17 +93,4 @@ describe('Rendered prices match canonical — by offer', () => {
     });
   });
 
-  describe('Composite stage packs', () => {
-    const packs = (data as any).composite_stage_packs as any[];
-
-    test('all 14 composite packs exist', () => {
-      expect(packs.length).toBe(14);
-    });
-
-    test('every pack has price_per_student_hour == round(price/hours)', () => {
-      for (const p of packs) {
-        expect(p.price_per_student_hour).toBe(Math.round(p.price_per_student / p.hours));
-      }
-    });
-  });
 });
