@@ -67,6 +67,7 @@ services:
       NEXT_PUBLIC_SUPABASE_URL: ""
       UPSTASH_REDIS_REST_URL: ""
       RATE_LIMIT_DISABLE: "1"
+      CI: "true"
     volumes:
       - e2e-shared:/app/e2e-shared
     healthcheck:
