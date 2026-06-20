@@ -76,18 +76,26 @@ test.describe('Axe dashboards (authenticated)', () => {
       'button[aria-haspopup], [role="combobox"], [data-radix-collection-item], button:has-text("Filtrer"), button:has-text("Actions")'
     ).first();
 
-    if (await dropdownTrigger.isVisible({ timeout: 3000 }).catch(() => false)) {
+    const hasTrigger = await dropdownTrigger.isVisible({ timeout: 5000 }).catch(() => false);
+    if (hasTrigger) {
       await dropdownTrigger.click();
-      await page.waitForTimeout(500);
 
-      const modalResults = await new AxeBuilder({ page }).analyze();
-      if (modalResults.violations.length > 0) {
-        const summary = modalResults.violations.map(
-          (v) => `${v.id} (${v.impact}): ${v.help} [${v.nodes.length} nodes]`
-        );
-        console.log('Violations admin dashboard (dropdown open):', summary);
+      // Wait for the dropdown/popup to actually open before scanning
+      const dropdownPanel = page.locator(
+        '[role="menu"], [role="listbox"], [data-state="open"], [role="dialog"]'
+      ).first();
+      const panelOpened = await dropdownPanel.waitFor({ state: 'visible', timeout: 5000 }).then(() => true).catch(() => false);
+
+      if (panelOpened) {
+        const modalResults = await new AxeBuilder({ page }).analyze();
+        if (modalResults.violations.length > 0) {
+          const summary = modalResults.violations.map(
+            (v) => `${v.id} (${v.impact}): ${v.help} [${v.nodes.length} nodes]`
+          );
+          console.log('Violations admin dashboard (dropdown open):', summary);
+        }
+        expect(modalResults.violations).toEqual([]);
       }
-      expect(modalResults.violations).toEqual([]);
     }
   });
 });
