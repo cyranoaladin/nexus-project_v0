@@ -50,7 +50,7 @@ export const HeroPedagogique: React.FC<HeroPedagogiqueProps> = ({ displayName, o
 
       <div className="relative z-10">
         {/* Stage phase badge */}
-        <StagePhaseBadge phase={phase} />
+        <StagePhaseBadge phase={phase} stageLabel={_stageLabel} />
 
         {/* Main header */}
         <div className="mt-6 mb-8">
@@ -223,8 +223,7 @@ export const HeroPedagogique: React.FC<HeroPedagogiqueProps> = ({ displayName, o
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function StagePhaseBadge({ phase }: { phase: 'avant' | 'pendant' | 'apres' }) {
-  const _stageLabel = useMemo(() => getNextStage()?.title ?? 'Stage Nexus Réussite', []);
+function StagePhaseBadge({ phase, stageLabel }: { phase: 'avant' | 'pendant' | 'apres'; stageLabel: string }) {
   const config = {
     avant: { label: 'Pré-stage', color: 'text-blue-400 border-blue-500/30 bg-blue-500/10', dot: 'bg-blue-400' },
     pendant: { label: 'Stage en cours', color: 'text-cyan-400 border-cyan-500/30 bg-cyan-500/10', dot: 'bg-cyan-400 animate-pulse' },
@@ -234,7 +233,7 @@ function StagePhaseBadge({ phase }: { phase: 'avant' | 'pendant' | 'apres' }) {
   return (
     <div className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-bold ${c.color}`}>
       <span className={`h-2 w-2 rounded-full ${c.dot}`} />
-      {_stageLabel} — {c.label}
+      {stageLabel} — {c.label}
     </div>
   );
 }
