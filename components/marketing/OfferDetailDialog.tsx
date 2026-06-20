@@ -171,17 +171,6 @@ export function OfferDetailDialog({ offer, onClose }: OfferDetailDialogProps) {
               <span className="lux-price text-2xl text-lux-ink">
                 {fmtTND(offer.price)}
               </span>
-              {offer.originalPrice != null &&
-                offer.originalPrice > offer.price && (
-                  <span className="text-sm text-lux-slate line-through">
-                    {fmtTND(offer.originalPrice)}
-                  </span>
-                )}
-              {offer.discountPct != null && (
-                <span className="rounded bg-lux-evergreen/10 px-2 py-0.5 text-xs font-semibold text-lux-evergreen">
-                  −{Math.round(offer.discountPct)}&nbsp;%
-                </span>
-              )}
             </div>
             {offer.monthlyDisplay != null && (
               <p className="mt-1 text-sm text-lux-slate">

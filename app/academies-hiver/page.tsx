@@ -954,8 +954,7 @@ export default function AcademiesHiverPage() {
                         <span className={`text-xl font-bold ${academy.tone === 'premium' ? 'text-slate-200' : 'text-slate-600'}`}>TND</span>
                       </div>
                       <div className={`text-xs font-medium mt-2 flex items-center gap-2 ${academy.tone === 'premium' ? 'text-slate-200' : 'text-slate-500'}`}>
-                        <span className="line-through decoration-slate-400 decoration-2">Prix standard : {academy.price} TND</span>
-                        <span className="px-2 py-0.5 rounded text-xs font-bold bg-green-500 text-white">ÉCONOMISEZ 15%</span>
+                        <span>Tarif : {academy.early} TND</span>
                       </div>
                     </div>
 

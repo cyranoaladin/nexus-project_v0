@@ -91,16 +91,6 @@ export function ExamCard({
       <div className="px-6 py-5 bg-muted/30">
         <div className="flex items-baseline gap-3 mb-1">
           <span className="text-price text-accent">{offer.price}€</span>
-          {offer.originalPrice && (
-            <>
-              <span className="text-body-sm line-through text-muted-foreground">
-                {offer.originalPrice}€
-              </span>
-              <span className="text-xs font-bold text-secondary">
-                -{offer.discount}%
-              </span>
-            </>
-          )}
         </div>
         {offer.acompte && (
           <p className="text-body-sm text-muted-foreground">

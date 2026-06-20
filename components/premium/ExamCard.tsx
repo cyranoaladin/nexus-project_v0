@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Check } from 'lucide-react';
-import { fmtTND, fmtGroup, fmtHoursWeek, fmtDiscount, fmtPrice } from './format';
+import { fmtTND, fmtGroup, fmtHoursWeek, fmtPrice } from './format';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 
 interface ExamCardPayment {
@@ -77,8 +77,6 @@ export function ExamCard(props: ExamCardProps) {
     title,
     subtitle,
     price,
-    originalPrice,
-    discountPct,
     payment,
     monthlyDisplay,
     hoursPerWeek,
@@ -171,18 +169,6 @@ export function ExamCard(props: ExamCardProps) {
           <span className="lux-price text-2xl text-lux-ink">
             {fmtTND(price)}
           </span>
-          {originalPrice != null && originalPrice > price && (
-            <>
-              <span className="text-sm text-lux-slate line-through">
-                {fmtTND(originalPrice)}
-              </span>
-              {discountPct != null && (
-                <span className="rounded bg-lux-evergreen/10 px-2 py-0.5 text-xs font-semibold text-lux-evergreen">
-                  {fmtDiscount(discountPct)}
-                </span>
-              )}
-            </>
-          )}
         </div>
         {monthlyDisplay != null && (
           <p className="mt-1 text-sm text-lux-slate">

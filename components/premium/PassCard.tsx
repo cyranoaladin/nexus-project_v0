@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Check, Zap } from 'lucide-react';
-import { fmtTND, fmtDiscount } from './format';
+import { fmtTND } from './format';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import type { Pack } from '@/lib/pricing';
 
@@ -17,8 +17,6 @@ interface PassCardProps {
 }
 
 export function PassCard({ pack, componentLabels, onCta, ctaHref, ctaText = 'Réserver ce Pass', highlighted = false }: PassCardProps) {
-  const hasDiscount = pack.value > pack.price;
-
   return (
     <div
       className={`relative flex flex-col overflow-hidden rounded-xl transition-all duration-300 bg-lux-white ${
@@ -67,22 +65,7 @@ export function PassCard({ pack, componentLabels, onCta, ctaHref, ctaText = 'Ré
           <span className="lux-price text-2xl text-lux-ink">
             {fmtTND(pack.price)}
           </span>
-          {hasDiscount && (
-            <>
-              <span className="text-sm text-lux-slate line-through">
-                {fmtTND(pack.value)}
-              </span>
-              <span className="rounded bg-lux-evergreen/10 px-2 py-0.5 text-xs font-semibold text-lux-evergreen">
-                {fmtDiscount(pack.discount_pct)}
-              </span>
-            </>
-          )}
         </div>
-        {hasDiscount && (
-          <p className="mt-1 text-xs text-lux-slate">
-            au lieu de {fmtTND(pack.value)} (somme des prestations unitaires)
-          </p>
-        )}
       </div>
 
       {/* Schedule */}

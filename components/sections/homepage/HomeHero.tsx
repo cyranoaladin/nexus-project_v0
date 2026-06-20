@@ -20,7 +20,7 @@ export default function HomeHero() {
       <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(239,246,255,0.95),rgba(255,255,255,0.98)_48%,rgba(219,234,254,0.45))]" />
       <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-b from-transparent to-white" />
 
-      <div className="relative mx-auto grid max-w-7xl items-center gap-8 sm:gap-12 lg:min-h-[calc(100vh-var(--promo-banner-offset,0px)-64px)] lg:grid-cols-[1.05fr_0.95fr]">
+      <div className="relative mx-auto grid max-w-7xl items-center gap-8 sm:gap-12 lg:min-h-[calc(100vh-64px)] lg:grid-cols-[1.05fr_0.95fr]">
         {/* ─── Copy ─── */}
         <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-4 duration-700">
           <div className="inline-flex items-center gap-2 rounded-full border border-[#0f3d73]/15 bg-white px-3 py-1.5 text-xs font-mono uppercase tracking-[0.14em] text-[#0f3d73] shadow-sm sm:px-4 sm:py-2">

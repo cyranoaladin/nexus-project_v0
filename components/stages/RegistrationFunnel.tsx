@@ -106,9 +106,7 @@ export function RegistrationFunnel({ academies }: RegistrationFunnelProps) {
                     <p className="text-sm text-slate-600 mb-4">{academy.objective}</p>
 
                     <div className="mb-4">
-                      <div className="text-sm text-slate-600 line-through mb-1">{academy.price} DT</div>
                       <div className="text-2xl font-black text-blue-600">{academy.earlyBirdPrice} DT</div>
-                      <div className="text-xs text-blue-700 font-semibold">Tarif anticipé</div>
                     </div>
 
                     <div className="text-xs text-slate-700 font-semibold mb-4">
@@ -158,16 +156,8 @@ export function RegistrationFunnel({ academies }: RegistrationFunnelProps) {
 
                   <div className="border-t border-slate-200 pt-6">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-slate-600">Prix normal</span>
-                      <span className="text-slate-600 line-through">{selectedAcademy.price} DT</span>
-                    </div>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-slate-600 font-semibold">Tarif anticipé</span>
+                      <span className="text-slate-600 font-semibold">Tarif</span>
                       <span className="text-2xl font-black text-blue-600">{selectedAcademy.earlyBirdPrice} DT</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-blue-700 font-semibold">Économie</span>
-                      <span className="text-blue-700 font-bold">-{selectedAcademy.price - selectedAcademy.earlyBirdPrice} DT</span>
                     </div>
                   </div>
                 </div>
