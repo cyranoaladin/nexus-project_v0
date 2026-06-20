@@ -31,6 +31,45 @@ describe('offres-nexus.json integrity', () => {
   });
 });
 
+describe('offres-nexus.json consistent with canonical', () => {
+  const canonical = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'pricing.canonical.json'), 'utf8'));
+  const canonicalByTitle = {};
+  for (const o of canonical.offers) {
+    canonicalByTitle[o.title] = o;
+  }
+
+  test('no publicAnnual field (prix barre removed)', () => {
+    for (const [key, offer] of Object.entries(offers)) {
+      expect(offer.publicAnnual).toBeUndefined();
+    }
+  });
+
+  test('no "campagne" wording', () => {
+    const json = JSON.stringify(data);
+    expect(json).not.toContain('campagne');
+    expect(json).not.toContain('campaign');
+  });
+
+  test('annual prices match canonical where mappable', () => {
+    // Map offres-nexus keys to canonical titles
+    const mapping = {
+      terminaleSpecialiteSimple: 'Terminale Specialite simple',
+      duoTerminaleNexus: 'Terminale Duo',
+      excellenceTerminale: 'Terminale Excellence',
+      premiereEafFrancais: '1re EAF',
+      premiereMathsAnticipees: '1re Maths Anticipation',
+      premiereDoubleSecurite: '1re Double Securite',
+    };
+    for (const [nexusKey, canonicalTitle] of Object.entries(mapping)) {
+      const nexus = offers[nexusKey];
+      const canon = canonicalByTitle[canonicalTitle];
+      if (nexus && canon && nexus.annual != null && canon.price_annual != null) {
+        expect(nexus.annual).toBe(canon.price_annual);
+      }
+    }
+  });
+});
+
 describe('pipeline artifacts cleaned', () => {
   test('no static HTML files exist in public/', () => {
     for (const file of ['catalogue-nexus-reussite-2026-2027.html', 'nexus_selecteur.html', 'mentions-legales.html', 'confidentialite.html']) {

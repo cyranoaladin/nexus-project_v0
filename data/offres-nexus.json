@@ -27,11 +27,11 @@
   },
   "terminaleLibreMixte": {
     "label": "Terminale Libre Mixte",
-    "monthly": 790, "annual": 7900, "publicAnnual": 8750, "approx": true,
+    "monthly": 790, "annual": 7900, "approx": true,
     "sub": "parcours complet candidat libre",
     "echeancier": [2370, 614, 614, 614, 614, 614, 614, 614, 614, 618],
     "paiement": "2 370 TND réservation + 9 mensualités",
-    "detailTarif": "Tarif public : 8 750 TND / an. Tarif campagne / fidélité : 7 900 TND / an."
+    "detailTarif": "Tarif annuel : 7 900 TND / an."
   },
   "terminaleLibrePremium": {
     "label": "Terminale Libre Premium",
@@ -57,21 +57,21 @@
   },
   "premiereEafFrancais": {
     "label": "Première EAF Français",
-    "monthly": 300, "annual": 3000, "publicAnnual": 3000,
+    "monthly": 300, "annual": 3000,
     "echeancier": [900, 233, 233, 233, 233, 233, 233, 233, 233, 236],
     "paiement": "900 TND réservation + 9 mensualités",
     "annualDisplay": "3 000 TND / an"
   },
   "premiereMathsAnticipees": {
     "label": "Première Maths Anticipées",
-    "monthly": 300, "annual": 3000, "publicAnnual": 3000,
+    "monthly": 300, "annual": 3000,
     "echeancier": [900, 233, 233, 233, 233, 233, 233, 233, 233, 236],
     "paiement": "900 TND réservation + 9 mensualités",
     "annualDisplay": "3 000 TND / an"
   },
   "premiereDoubleSecurite": {
     "label": "Première Double Sécurité",
-    "monthly": 540, "annual": 5400, "publicAnnual": 5400,
+    "monthly": 540, "annual": 5400,
     "echeancier": [1620, 420, 420, 420, 420, 420, 420, 420, 420, 420],
     "paiement": "1 620 TND réservation + 9 mensualités de 420 TND",
     "annualDisplay": "5 400 TND / an"
@@ -93,21 +93,21 @@
   },
   "duoTerminaleNexus": {
     "label": "Duo Terminale Nexus",
-    "monthly": 720, "annual": 7175, "publicAnnual": 8750, "approx": true,
+    "monthly": 718, "annual": 7175, "approx": true,
     "sub": "stages + Grand Oral inclus",
     "echeancier": [2150, 560, 560, 560, 560, 560, 560, 560, 560, 545],
     "paiement": "2 150 TND réservation + 9 mensualités",
     "annualDisplay": "7 175 TND / an",
-    "detailTarif": "Tarif public : 8 750 TND / an. Tarif campagne / fidélité : 7 175 TND / an."
+    "detailTarif": "Tarif annuel : 7 175 TND / an."
   },
   "excellenceTerminale": {
     "label": "Excellence Terminale",
-    "monthly": 960, "annual": 9594, "publicAnnual": 10700, "approx": true,
+    "monthly": 959, "annual": 9594, "approx": true,
     "sub": "Maths expertes + urgence incluses",
     "echeancier": [2880, 750, 750, 750, 750, 750, 750, 750, 750, 714],
     "paiement": "2 880 TND réservation + 8 mensualités + solde 714 TND",
     "annualDisplay": "9 594 TND / an",
-    "detailTarif": "Tarif public : 10 700 TND / an. Tarif campagne / fidélité : 9 594 TND / an."
+    "detailTarif": "Tarif annuel : 9 594 TND / an."
   },
   "secondeMathsMethode": {
     "label": "Seconde Maths Méthode",
@@ -163,9 +163,9 @@
   "urgencePack10Membre": { "label": "Pack 10 h urgence en ligne — membre", "display": "1 200 TND", "annual": 1200 },
 
   "_notes": {
-    "tarifCampagne": {
-      "long": "Tarif campagne 2026/2027 selon les places disponibles. Acompte verrouillant le tarif campagne. Groupes de 5 élèves maximum.",
-      "short": "Tarif campagne selon les places disponibles — acompte verrouillant."
+    "tarifAnnuel": {
+      "long": "Tarif annuel 2026/2027 selon les places disponibles. Acompte verrouillant le tarif annuel. Groupes de 5 élèves maximum.",
+      "short": "Tarif annuel selon les places disponibles — acompte verrouillant."
     }
   },
 
@@ -175,7 +175,7 @@
     "premiereSimpleMois": "à partir de 300 TND / mois",
     "premiereDuoMois": "à partir de 540 TND / mois",
     "terminaleSimpleMois": "à partir de 390 TND / mois",
-    "terminaleDuoMois": "~ 720 TND / mois (tarif campagne)",
+    "terminaleDuoMois": "~ 718 TND / mois",
     "plateformeAn": "à partir de 590 TND / an",
     "stagesBase": "dès 490 TND",
     "parrainage": "150 à 300 TND"
