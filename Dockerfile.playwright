@@ -14,6 +14,7 @@ RUN npm ci
 
 # Copy test files and configs
 COPY __tests__/e2e ./__tests__/e2e
+COPY e2e ./e2e
 COPY playwright.config.e2e.ts ./playwright.config.e2e.ts
 
 # Copy tsconfig for TypeScript resolution
