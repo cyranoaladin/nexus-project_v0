@@ -7,7 +7,7 @@ const MOBILE_PAGES = ['/', '/offres', '/bilan-gratuit', '/contact']
 
 for (const url of MOBILE_PAGES) {
   test(`Mobile 390px — ${url} — zéro scroll horizontal`, async ({ page }) => {
-    await page.goto(BASE + url, { waitUntil: 'networkidle' })
+    await page.goto(BASE + url, { waitUntil: 'domcontentloaded' })
     await page.waitForTimeout(500)
     
     await page.screenshot({ path: `/tmp/mobile${url.replace(/\//g,'_') || 'home'}.png` })
@@ -39,7 +39,7 @@ for (const url of MOBILE_PAGES) {
 }
 
 test('Mobile — Menu hamburger visible et fonctionnel', async ({ page }) => {
-  await page.goto(BASE, { waitUntil: 'networkidle' })
+  await page.goto(BASE, { waitUntil: 'domcontentloaded' })
   
   await page.screenshot({ path: '/tmp/mobile-nav-closed.png' })
   

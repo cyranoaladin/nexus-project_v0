@@ -14,7 +14,6 @@ test.describe.serial('ARIA / RAG / LLM deterministic', () => {
   });
 
   test('sans entitlement aria_maths => 403', async ({ page }) => {
-    test.skip(true, 'QUARANTINE: DB helper mismatch — clearEntitlementsByUserEmail connects to different DB than app-e2e');
     await clearEntitlementsByUserEmail(CREDS.student.email);
     await loginAsUser(page, 'student');
 
@@ -28,7 +27,6 @@ test.describe.serial('ARIA / RAG / LLM deterministic', () => {
   });
 
   test('avec entitlement aria_maths + mock réponse chat', async ({ page }) => {
-    test.skip(true, 'QUARANTINE: Prisma not generated in playwright container — db.ts helper fails');
     await setEntitlementByUserEmail(CREDS.student.email, 'ARIA_ADDON_MATHS');
     await ensureActiveAriaSubscriptionForStudentEmail(CREDS.student.email, ['MATHEMATIQUES']);
 

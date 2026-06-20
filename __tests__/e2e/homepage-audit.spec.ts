@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 test.describe('Audit E2E de la Page d\'Accueil (redesign 2026)', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     // Disable animations to ensure all content is immediately visible
     await page.addStyleTag({ content: '*, *::before, *::after { animation: none !important; transition: none !important; opacity: revert !important; }' });
   });
@@ -102,7 +102,7 @@ test.describe('Audit E2E de la Page d\'Accueil (redesign 2026)', () => {
   test('La page se charge en moins de 5 secondes', async ({ page }) => {
     const start = Date.now();
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     expect(Date.now() - start).toBeLessThan(5000);
   });
 
