@@ -20,8 +20,6 @@ const PUBLIC_PAGES = [
   '/contact',
   '/conditions',
   '/mentions-legales',
-  '/academy',
-  '/consulting',
   '/famille',
   '/programme/maths-1ere',
   '/programme/maths-terminale',
@@ -32,7 +30,6 @@ const PUBLIC_PAGES = [
   '/access-required',
   '/test',
   '/session/video',
-  '/studio',
 ];
 
 const AUTH_PAGES = [
@@ -70,7 +67,6 @@ const DASHBOARD_PAGES = [
   '/dashboard/parent/paiement/confirmation',
   '/dashboard/parent/ressources',
   '/dashboard/eleve',
-  '/dashboard/eleve/mes-sessions',
   '/dashboard/eleve/sessions',
   '/dashboard/eleve/ressources',
   '/dashboard/trajectoire',

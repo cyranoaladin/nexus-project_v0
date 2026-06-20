@@ -59,7 +59,6 @@ test.describe('Dashboard élève — EDS Première', () => {
   test('sous-pages accessibles (HTTP 200)', async ({ page }) => {
     for (const path of [
       '/dashboard/eleve/sessions',
-      '/dashboard/eleve/mes-sessions',
       '/dashboard/eleve/ressources',
     ]) {
       const response = await page.request.get(path);

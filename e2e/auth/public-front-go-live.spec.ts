@@ -400,7 +400,7 @@ test.describe('Public front go-live smoke', () => {
     await expect(page.getByRole('main').getByText(/siège social administratif/i).first()).toBeVisible();
     await expect(page.getByRole('main').getByText(/centre d\'accompagnement pédagogique/i).first()).toBeVisible();
     await expect(page.getByRole('main').getByText(/mutuelleville, tunis/i).first()).toBeVisible();
-    await expect(page.getByRole('main').getByText(/centre urbain nord, immeuble venus/i).first()).toBeVisible();
+    await expect(page.getByRole('main').getByText(/immeuble venus.*centre urbain nord/i).first()).toBeVisible();
     await expect(page.getByRole('link', { name: /whatsapp/i }).first()).toHaveAttribute('href', /wa\.me\/21699192829/);
     await expect(page.getByRole('link', { name: /appeler/i }).first()).toHaveAttribute('href', 'tel:+21699192829');
   });
