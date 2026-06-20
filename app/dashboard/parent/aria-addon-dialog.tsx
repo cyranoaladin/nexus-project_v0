@@ -7,6 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Brain, AlertCircle } from "lucide-react";
+import { getAriaAddonPrice } from "@/lib/pricing";
+
+const ARIA_ADDON_PRICE = getAriaAddonPrice();
 
 interface AriaAddonDialogProps {
   studentId: string;
@@ -17,22 +20,22 @@ interface AriaAddonDialogProps {
 const ARIA_ADDONS = [
   {
     name: "ARIA_MATH",
-    price: 50,
+    price: ARIA_ADDON_PRICE,
     description: "Assistant IA spécialisé en mathématiques"
   },
   {
     name: "ARIA_PHYSICS",
-    price: 50,
+    price: ARIA_ADDON_PRICE,
     description: "Assistant IA spécialisé en physique-chimie"
   },
   {
     name: "ARIA_FRENCH",
-    price: 50,
+    price: ARIA_ADDON_PRICE,
     description: "Assistant IA spécialisé en français"
   },
   {
     name: "ARIA_ENGLISH",
-    price: 50,
+    price: ARIA_ADDON_PRICE,
     description: "Assistant IA spécialisé en anglais"
   }
 ];

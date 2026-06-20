@@ -58,7 +58,15 @@ if [ "$COUNT" -gt 0 ]; then
   FAIL=1
 fi
 
-# 8. Static HTML files with prices/contact (should not exist)
+# 8. Numeric price literals (price: NNN) outside canonical sources
+COUNT=$(grep -rnE "price:\s*[0-9]" app/ components/ src/ --include="*.ts" --include="*.tsx" 2>/dev/null | grep -v "node_modules\|.next\|test\|spec\|__tests__\|pricing.canonical\|pricing.ts\|BilanClient.*price: 0" | wc -l)
+if [ "$COUNT" -gt 0 ]; then
+  echo "FAIL: $COUNT numeric price literals outside canonical"
+  grep -rnE "price:\s*[0-9]" app/ components/ src/ --include="*.ts" --include="*.tsx" 2>/dev/null | grep -v "node_modules\|.next\|test\|spec\|__tests__\|pricing.canonical\|pricing.ts\|BilanClient.*price: 0"
+  FAIL=1
+fi
+
+# 9. Static HTML files (should not exist)
 if ls public/*.html 2>/dev/null | grep -q .; then
   echo "FAIL: static HTML files exist in public/ (should be deleted)"
   ls public/*.html

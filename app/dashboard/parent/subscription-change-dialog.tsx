@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, CreditCard, AlertCircle } from "lucide-react";
+import { getSubscriptionTiers } from "@/lib/pricing";
 
 interface SubscriptionPlan {
   name: string;
@@ -21,20 +22,27 @@ interface SubscriptionChangeDialogProps {
   onRequestComplete: () => void;
 }
 
+const tiers = getSubscriptionTiers();
+const tierPrice = (id: string): number => {
+  const t = tiers.find((t) => t.id === id);
+  if (!t) throw new Error(`Unknown subscription tier: ${id}`);
+  return t.price_monthly;
+};
+
 const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {
     name: "HYBRIDE",
-    price: 450,
+    price: tierPrice("basic"),
     description: "Formule hybride avec sessions en ligne et en présentiel"
   },
   {
     name: "IMMERSION",
-    price: 650,
+    price: tierPrice("premium"),
     description: "Formule immersion complète avec suivi personnalisé"
   },
   {
     name: "PREMIUM",
-    price: 850,
+    price: tierPrice("elite"),
     description: "Formule premium avec coach dédié et ressources exclusives"
   }
 ];
