@@ -4,7 +4,6 @@ import path from 'path';
 const routeFiles = [
   'app/api/bilan-gratuit/route.ts',
   'app/api/stages/[stageSlug]/inscrire/route.ts',
-  'app/api/stages/submit-diagnostic/route.ts',
   'app/api/assessments/submit/route.ts',
   'app/api/contact/route.ts',
   'app/api/auth/reset-password/route.ts',

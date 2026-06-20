@@ -23,7 +23,7 @@ const TEST_DATA = {
   email: TEST_EMAIL,
   phone: '+216 98 765 432',
   classe: 'Terminale',
-  academyId: 'fevrier-2026-athena',
+  academyId: 'test-academy',
   academyTitle: 'Académie Athéna (Maths Sup/Spé)',
   price: 150,
   paymentMethod: 'ESPECES',

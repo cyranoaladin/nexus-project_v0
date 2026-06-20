@@ -108,7 +108,6 @@ describe('DiagnosticForm', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/Odyssée Première : Le Parcours Anticipé/)).toBeInTheDocument();
-        expect(screen.getByText(/Stage Février 2026 — Maths ou NSI Première/)).toBeInTheDocument();
       });
     });
 
@@ -123,7 +122,6 @@ describe('DiagnosticForm', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/Odyssée Terminale : La Stratégie Mention/)).toBeInTheDocument();
-        expect(screen.getByText(/Stage Février 2026 — Excellence Terminale/)).toBeInTheDocument();
       });
     });
 
@@ -138,7 +136,6 @@ describe('DiagnosticForm', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/Odyssée Terminale : La Stratégie Mention/)).toBeInTheDocument();
-        expect(screen.getByText(/Stage Février 2026 — Prépa Bac Terminale/)).toBeInTheDocument();
       });
     });
 
@@ -154,7 +151,6 @@ describe('DiagnosticForm', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/Odyssée Individuel : La Préparation Intégrale/)).toBeInTheDocument();
-        expect(screen.getByText(/Stage Février 2026 — Candidats Libres/)).toBeInTheDocument();
       });
     });
   });
@@ -181,16 +177,10 @@ describe('DiagnosticForm', () => {
       expect(screen.getByText('Découvrir ce parcours')).toBeInTheDocument();
     });
 
-    it('affiche le bouton pour voir l\'académie quand applicable', () => {
-      expect(screen.getByText('Voir cette académie')).toBeInTheDocument();
-    });
-
     it('a les bons liens href', () => {
       const parcoursButton = screen.getByText('Découvrir ce parcours');
-      const academieButton = screen.getByText('Voir cette académie');
 
       expect(parcoursButton.closest('a')).toHaveAttribute('href', '/offres#odyssee');
-      expect(academieButton.closest('a')).toHaveAttribute('href', '/stages/fevrier-2026#academies');
     });
   });
 

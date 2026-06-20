@@ -89,12 +89,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.3,
     },
     {
-      url: `${BASE_URL}/stages/fevrier-2026`,
-      lastModified: now,
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
-    {
       url: `${BASE_URL}/corrige_dnb_maths_2026`,
       lastModified: now,
       changeFrequency: 'yearly',

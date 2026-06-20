@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { prisma } from '@/lib/prisma';
 import { stageReservationSchema } from '@/lib/validations';
-import { sendStageDiagnosticInvitation, sendStageBankTransferConfirmation } from '@/lib/email';
+import { sendStageBankTransferConfirmation } from '@/lib/email';
 import { auth } from '@/auth';
 import { guardRateLimit } from '@/lib/rate-limit';
 import { checkCsrf, checkBodySize } from '@/lib/csrf';
@@ -200,17 +200,6 @@ export async function POST(request: NextRequest) {
             data.studentName || null,
             data.academyTitle,
             data.price
-          );
-        } else {
-          // Template A: diagnostic invitation
-          const baseUrl = process.env.NEXTAUTH_URL || 'https://nexusreussite.academy';
-          const diagnosticUrl = `${baseUrl}/stages/fevrier-2026/diagnostic?email=${encodeURIComponent(data.email)}`;
-          await sendStageDiagnosticInvitation(
-            data.email,
-            data.parent,
-            data.studentName || null,
-            data.academyTitle,
-            diagnosticUrl
           );
         }
       } catch (emailError) {

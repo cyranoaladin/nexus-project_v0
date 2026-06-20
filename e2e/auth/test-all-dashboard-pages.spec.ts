@@ -62,7 +62,7 @@ test('Admin — toutes les pages', async ({ page }) => {
     '/dashboard/admin', '/dashboard/admin/users', '/dashboard/admin/analytics',
     '/dashboard/admin/subscriptions', '/dashboard/admin/activities',
     '/dashboard/admin/tests', '/dashboard/admin/facturation',
-    '/admin/directeur', '/admin/stages/fevrier-2026',
+    '/admin/directeur',
   ]
   for (const url of pages) await testPage(page, url)
 })

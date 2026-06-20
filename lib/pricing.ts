@@ -202,12 +202,6 @@ export interface SubscriptionTier {
   price_monthly: number;
 }
 
-export interface StageAcademyEntry {
-  id: string;
-  hours: number;
-  price: number;
-}
-
 export interface PricingData {
   version: string;
   _note?: string;
@@ -225,7 +219,6 @@ export interface PricingData {
   special_programs: SpecialProgram[];
   aria_addon: AriaAddon;
   subscription_tiers: SubscriptionTier[];
-  stage_academies_fevrier2026: StageAcademyEntry[];
   carte_nexus: CarteNexus;
   urgence: Record<string, { title: string; display: string; hourly?: number; amount?: number }>;
   reperes_tarifaires: Record<string, string>;
@@ -531,18 +524,6 @@ export function getSubscriptionTiers(): SubscriptionTier[] {
 
 export function getSubscriptionTier(id: string): SubscriptionTier | undefined {
   return data.subscription_tiers.find((t) => t.id === id);
-}
-
-// ── Stage academies (février 2026) ──
-
-export function getStageAcademyPrice(id: string): number {
-  const entry = data.stage_academies_fevrier2026.find((a) => a.id === id);
-  if (!entry) throw new Error(`Unknown stage academy: ${id}`);
-  return entry.price;
-}
-
-export function getStageAcademies(): StageAcademyEntry[] {
-  return data.stage_academies_fevrier2026;
 }
 
 // ── Full data export (for tests) ──
