@@ -20,7 +20,7 @@ test.describe('Auth workflows', () => {
   }
 
   test('login KO', async ({ page }) => {
-    await page.goto('/auth/signin');
+    await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
     await page.locator(SELECTORS.auth.email).fill('nobody@example.com');
     await page.locator(SELECTORS.auth.password).fill('bad-password');
     await page.locator(SELECTORS.auth.submit).click();
@@ -29,16 +29,16 @@ test.describe('Auth workflows', () => {
 
   test('deja connecte -> auth/* redirigé', async ({ page }) => {
     await loginAsUser(page, 'student');
-    await page.goto('/auth/signin');
+    await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
     await expect(page).toHaveURL(/\/dashboard\/eleve/);
-    await page.goto('/auth/activate');
+    await page.goto('/auth/activate', { waitUntil: 'domcontentloaded' });
     await expect(page).toHaveURL(/\/dashboard\/eleve/);
-    await page.goto('/auth/reset-password');
+    await page.goto('/auth/reset-password', { waitUntil: 'domcontentloaded' });
     await expect(page).toHaveURL(/\/dashboard\/eleve/);
   });
 
   test('mot de passe oublié anti-enumeration', async ({ page }) => {
-    await page.goto('/auth/mot-de-passe-oublie');
+    await page.goto('/auth/mot-de-passe-oublie', { waitUntil: 'domcontentloaded' });
 
     const resetResponsePromise = page.waitForResponse((res) =>
       res.url().includes('/api/auth/reset-password') && res.request().method() === 'POST'

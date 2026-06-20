@@ -9,13 +9,13 @@ test.describe('Dashboard Coach — Audit Exhaustif', () => {
   test.describe('Page Principale', () => {
     test('dashboard coach charge', async ({ page }) => {
       await page.goto('/dashboard/coach');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       expect(page.url()).toContain('/dashboard/coach');
     });
 
     test('contenu principal est visible', async ({ page }) => {
       await page.goto('/dashboard/coach');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       // Should display sessions or coach-related content
       const body = await page.textContent('body');
       expect(body).toBeTruthy();
@@ -25,7 +25,7 @@ test.describe('Dashboard Coach — Audit Exhaustif', () => {
   test.describe('Disponibilités', () => {
     test('page disponibilités charge', async ({ page }) => {
       await page.goto('/dashboard/coach/availability');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       expect(page.url()).toContain('/dashboard/coach');
     });
   });

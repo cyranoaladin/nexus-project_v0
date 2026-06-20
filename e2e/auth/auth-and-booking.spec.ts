@@ -118,7 +118,7 @@ test.describe('Authentication & Booking Flow', () => {
     });
 
     test('Login fails with invalid credentials', async ({ page }) => {
-      await page.goto('/auth/signin', { waitUntil: 'networkidle' });
+      await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
 
       await page.getByLabel(/email/i).fill('invalid@test.com');
       await page.getByPlaceholder('Votre mot de passe').fill('wrongpassword');
@@ -134,7 +134,7 @@ test.describe('Authentication & Booking Flow', () => {
     });
 
     test('Login fails with empty fields', async ({ page }) => {
-      await page.goto('/auth/signin', { waitUntil: 'networkidle' });
+      await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
 
       // Try to submit without filling fields
       await page.locator('button[type="submit"]').click();
@@ -167,7 +167,7 @@ test.describe('Authentication & Booking Flow', () => {
       });
 
       // Should redirect to parent dashboard or show 403
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
 
       const url = new URL(page.url());
       const pathname = url.pathname;
@@ -538,7 +538,7 @@ test.describe('Authentication & Booking Flow', () => {
     });
 
     test('Form validation errors display correctly', async ({ page }) => {
-      await page.goto('/auth/signin', { waitUntil: 'networkidle' });
+      await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
 
       // Fill invalid email
       await page.getByLabel(/email/i).fill('invalid-email');
@@ -575,7 +575,7 @@ test.describe('Authentication & Booking Flow', () => {
 
     test('Error toast appears on network failure', async ({ page }) => {
       // Load the page first, then block the auth callback to simulate login failure
-      await page.goto('/auth/signin', { waitUntil: 'networkidle' });
+      await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
 
       // Block only the credentials callback (not providers/session)
       await page.route('**/api/auth/callback/**', (route) => route.abort());
@@ -602,7 +602,7 @@ test.describe('Authentication & Booking Flow', () => {
       const profileLink = page.getByRole('link', { name: /profil|profile|paramètres|settings/i });
       if (await profileLink.isVisible().catch(() => false)) {
         await profileLink.click();
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded');
         await expect(page).toHaveURL(/profile|profil|settings|paramètres/);
       }
     });
