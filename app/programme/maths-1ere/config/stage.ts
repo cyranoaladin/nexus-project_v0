@@ -34,7 +34,7 @@ export interface SeanceStage {
 }
 
 export const STAGE_PRINTEMPS_2026 = {
-  nom: "Stage de Printemps 2026 — Classe de Première",
+  nom: "Stage intensif — Classe de Première",
   sousTitre: "Réseau AEFE Tunisie · Français · Mathématiques",
   periode: "20 Avril – 1er Mai 2026",
   debut: "20 Avril",

@@ -28,6 +28,9 @@ import { EPREUVE_MATHS_1ERE } from '../../config/exam';
 import { RAGRemediation } from '@/components/programme/shared/RAG/RAGRemediation';
 import { BilanPDFDownloadButton } from '../../lib/bilan-pdf';
 import { Download } from 'lucide-react';
+import { getNextStage } from '@/lib/pricing';
+
+const _stageLabel = getNextStage()?.title ?? 'Stage Nexus Réussite';
 
 interface RAGHit {
   id: string;
@@ -122,7 +125,7 @@ export const TeacherView: React.FC<TeacherViewProps> = ({ studentName }) => {
             </div>
             <div>
               <h1 className="text-2xl font-black text-white tracking-tight">Cockpit de Pilotage Enseignant</h1>
-              <p className="text-sm text-violet-200 font-medium">Stage Printemps 2026 — Nexus Réussite</p>
+              <p className="text-sm text-violet-200 font-medium">{_stageLabel} — Nexus Réussite</p>
             </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3" role="list">
@@ -515,7 +518,7 @@ export const TeacherView: React.FC<TeacherViewProps> = ({ studentName }) => {
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h3 className="text-xl font-black text-white">Générateur de Bilan Final</h3>
-                <p className="text-sm text-slate-400">Rapport de progression individualisé — Stage Printemps 2026</p>
+                <p className="text-sm text-slate-400">Rapport de progression individualisé — {_stageLabel}</p>
               </div>
               <div className="flex gap-3">
                 <button
@@ -574,7 +577,7 @@ export const TeacherView: React.FC<TeacherViewProps> = ({ studentName }) => {
                 </div>
                 <div>
                   <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Contexte</h4>
-                  <div className="text-sm font-bold">Stage intensif de Printemps 2026</div>
+                  <div className="text-sm font-bold">{_stageLabel}</div>
                   <div className="text-sm text-slate-600">Volume horaire : 14h de Mathématiques</div>
                 </div>
               </div>

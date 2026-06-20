@@ -3,6 +3,9 @@ import { ArrowRight, CalendarRange, MessageCircle } from "lucide-react";
 import CountdownChip from "./CountdownChip";
 import CTAButton from "./CTAButton";
 import { TARGET_DATES } from "../_lib/constants";
+import { getNextStage } from "@/lib/pricing";
+
+const _nextStage = getNextStage();
 
 export default function StagesHeader() {
   return (
@@ -14,7 +17,7 @@ export default function StagesHeader() {
         <div className="flex flex-wrap items-center gap-2.5">
           <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 font-display text-xs font-bold uppercase tracking-[0.18em] text-white">
             <CalendarRange className="h-3.5 w-3.5 text-nexus-green" aria-hidden="true" />
-            Stages Printemps 2026
+            {_nextStage?.title ?? 'Stages Nexus Réussite'}
           </span>
           <CountdownChip
             targetDate={TARGET_DATES.pratique_nsi.toISOString()}

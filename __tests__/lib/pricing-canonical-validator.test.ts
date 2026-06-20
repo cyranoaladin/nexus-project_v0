@@ -4,6 +4,7 @@
  * They protect against pricing invariant violations.
  */
 import {
+  getNextStage,
   getFullPricingData,
   getRules,
   getStageFormat,
@@ -363,8 +364,8 @@ describe('T14 — No past dates in stage calendar', () => {
 
   test('every stage_calendar entry has dates >= launch date', () => {
     for (const entry of data.stage_calendar) {
-      const start = new Date((entry as any).date_start);
-      const end = new Date((entry as any).date_end);
+      const start = new Date(entry.date_start);
+      const end = new Date(entry.date_end);
       expect(start.getTime()).toBeGreaterThanOrEqual(LAUNCH_DATE.getTime());
       expect(end.getTime()).toBeGreaterThanOrEqual(LAUNCH_DATE.getTime());
     }
@@ -375,5 +376,26 @@ describe('T14 — No past dates in stage calendar', () => {
     expect(json).not.toContain('fevrier2026');
     expect(json).not.toContain('fevrier-2026');
     expect(json.match(/"2025-/g)).toBeNull();
+  });
+});
+
+// ── T15: getNextStage auto-advances ──
+
+describe('T15 — getNextStage auto-advances by date', () => {
+  test('before pré-rentrée → returns Pré-Rentrée', () => {
+    const result = getNextStage(new Date('2026-06-20'));
+    expect(result).not.toBeNull();
+    expect(result!.title).toMatch(/Pré-Rentrée/i);
+  });
+
+  test('after pré-rentrée, before toussaint → returns Toussaint', () => {
+    const result = getNextStage(new Date('2026-09-15'));
+    expect(result).not.toBeNull();
+    expect(result!.title).toMatch(/Toussaint/i);
+  });
+
+  test('after all stages → returns null', () => {
+    const result = getNextStage(new Date('2028-01-01'));
+    expect(result).toBeNull();
   });
 });

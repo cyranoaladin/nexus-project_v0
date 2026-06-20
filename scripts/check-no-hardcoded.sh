@@ -66,7 +66,15 @@ if [ "$COUNT" -gt 0 ]; then
   FAIL=1
 fi
 
-# 9. Static HTML files (should not exist)
+# 9. Hardcoded stage period names + year (must derive from stage_calendar)
+COUNT=$(grep -rnEi "(Pré-rentrée|Toussaint|Noël|Février|Printemps|Sprint.?final)\s*(20[0-9]{2}|août|avril|octobre|décembre|janvier|février|mai)" app/ components/ --include="*.ts" --include="*.tsx" 2>/dev/null | grep -v "node_modules\|.next\|test\|spec\|__tests__\|pricing.canonical\|pricing.ts\|//.*stage\|layout\.tsx.*description\|metadata" | wc -l)
+if [ "$COUNT" -gt 0 ]; then
+  echo "FAIL: $COUNT hardcoded stage period+year names"
+  grep -rnEi "(Pré-rentrée|Toussaint|Noël|Février|Printemps|Sprint.?final)\s*(20[0-9]{2}|août|avril|octobre|décembre|janvier|février|mai)" app/ components/ --include="*.ts" --include="*.tsx" 2>/dev/null | grep -v "node_modules\|.next\|test\|spec\|__tests__\|pricing.canonical\|pricing.ts\|//.*stage\|layout\.tsx.*description\|metadata"
+  FAIL=1
+fi
+
+# 10. Static HTML files (should not exist)
 if ls public/*.html 2>/dev/null | grep -q .; then
   echo "FAIL: static HTML files exist in public/ (should be deleted)"
   ls public/*.html

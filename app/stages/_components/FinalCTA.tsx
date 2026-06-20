@@ -8,6 +8,9 @@ import {
   PHONE_LINK,
   WHATSAPP_URL,
 } from "../_lib/constants";
+import { getNextStage } from "@/lib/pricing";
+
+const _nextStage = getNextStage();
 
 export default function FinalCTA() {
   return (
@@ -19,7 +22,7 @@ export default function FinalCTA() {
 
       <div className="relative mx-auto max-w-3xl text-center">
         <p className="font-mono text-xs uppercase tracking-[0.18em] text-nexus-green">
-          Stages Printemps 2026 · 18 avril — 2 mai
+          {_nextStage ? `${_nextStage.title} · ${_nextStage.dates_display}` : 'Stages Nexus Réussite'}
         </p>
 
         <h2 className="mt-4 font-display text-h2 font-bold text-white">

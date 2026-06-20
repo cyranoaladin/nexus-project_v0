@@ -17,6 +17,9 @@ import {
 } from 'lucide-react';
 import { BilanPDFDownloadButton } from '@/app/programme/maths-1ere/lib/bilan-pdf';
 import { BilanTabs } from '@/components/bilan';
+import { getNextStage } from '@/lib/pricing';
+
+const _stageLabel = getNextStage()?.title ?? 'Stage Nexus Réussite';
 
 type BilanType = 'eleve' | 'famille' | 'nexus';
 
@@ -288,7 +291,7 @@ export const BilanView: React.FC<BilanViewProps> = ({ displayName, store, progra
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-600 to-blue-700 flex items-center justify-center font-black text-white">N</div>
                 <div>
                   <div className="font-bold text-white">Nexus Réussite</div>
-                  <div className="text-xs text-slate-500">Rapport de progression — Stage de Printemps 2026</div>
+                  <div className="text-xs text-slate-500">Rapport de progression — {_stageLabel}</div>
                 </div>
               </div>
               <div className="text-xs text-slate-500">Élève : <span className="text-white font-bold">{displayName}</span> · Niveau Première Générale · Spécialité Mathématiques</div>

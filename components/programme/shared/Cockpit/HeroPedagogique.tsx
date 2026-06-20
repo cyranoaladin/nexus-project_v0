@@ -3,6 +3,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, Target, TrendingUp, Zap, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { getNextStage } from '@/lib/pricing';
+
+const _stageLabel = getNextStage()?.title ?? 'Stage Nexus Réussite';
 
 interface HeroPedagogiqueProps {
   displayName: string;
@@ -231,7 +234,7 @@ function StagePhaseBadge({ phase }: { phase: 'avant' | 'pendant' | 'apres' }) {
   return (
     <div className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-bold ${c.color}`}>
       <span className={`h-2 w-2 rounded-full ${c.dot}`} />
-      Stage Printemps 2026 — {c.label}
+      {_stageLabel} — {c.label}
     </div>
   );
 }

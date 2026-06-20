@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { getNextStage } from '@/lib/pricing';
 import {
   Document,
   Page,
@@ -93,7 +94,7 @@ const BilanPDFDocument: React.FC<{ data: BilanPDFData }> = ({ data }) => (
       <View style={styles.header}>
         <Text style={styles.title}>Nexus Réussite — Bilan de Progression</Text>
         <Text style={styles.subtitle}>
-          Stage Printemps 2026 · {data.niveau}
+          {getNextStage()?.title ?? 'Stage Nexus Réussite'} · {data.niveau}
         </Text>
         <Text style={styles.subtitle}>Généré le {data.date}</Text>
       </View>

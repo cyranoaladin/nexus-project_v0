@@ -35,7 +35,10 @@ import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
 import StageReservationModal from "./StageReservationModal";
 import StickyMobileCTA from "./StickyMobileCTA";
 import { LEGAL } from "@/lib/legal";
-import { getCompositeStagePackPrice } from "@/lib/pricing";
+import { getCompositeStagePackPrice, getNextStage } from "@/lib/pricing";
+
+/** Resolved once at module load — no hardcoded stage name. */
+const _nextStage = getNextStage();
 
 /** Map local page offer IDs to canonical composite_stage_packs IDs */
 const CANONICAL_ID: Record<string, string> = {
@@ -556,7 +559,7 @@ export default function NexusStagesPage() {
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
                   <span className="mb-4 inline-block rounded-full border border-nexus-green/25 bg-white/[0.04] px-4 py-2 font-mono text-[11px] uppercase tracking-[0.18em] text-white/65">
                     <Sparkles className="mr-2 inline-block h-3.5 w-3.5 text-nexus-green" />
-                    Stages Printemps 2026 · 18 avril — 2 mai · Tunis
+                    {_nextStage ? `${_nextStage.title} · ${_nextStage.dates_display} · Tunis` : 'Stages Nexus Réussite · Tunis'}
                   </span>
                 </motion.div>
 
@@ -969,7 +972,7 @@ export default function NexusStagesPage() {
       <section className="relative overflow-hidden px-4 py-20 sm:px-6 lg:px-8">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.10),transparent_52%)]" />
         <div className="relative mx-auto max-w-3xl text-center">
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-nexus-green">Stages Printemps 2026 · 18 avril — 2 mai</p>
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-nexus-green">{_nextStage ? `${_nextStage.title} · ${_nextStage.dates_display}` : 'Stages Nexus Réussite'}</p>
           <h2 className="mt-4 text-xl font-bold text-white sm:text-2xl md:text-3xl">
             Le 2 mai, vous repartez avec une méthode posée, des points faibles identifiés et un plan de révision prêt à exécuter.
           </h2>
