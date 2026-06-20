@@ -68,14 +68,14 @@ test.describe('F2 — Desktop 1440px', () => {
           failed404.push(resp.url());
         }
       });
-      const response = await page.goto(path, { waitUntil: 'networkidle' });
+      const response = await page.goto(path, { waitUntil: 'domcontentloaded' });
       expect(response?.status()).toBe(200);
       expect(failed404).toEqual([]);
     });
   }
 
   test('Homepage: nexus-tokens.css loaded', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
     const tokenLink = page.locator('link[href*="nexus-tokens"]');
     await expect(tokenLink).toHaveCount(1);
   });
@@ -87,7 +87,7 @@ test.describe('F2 — Desktop 1440px', () => {
   });
 
   test('Homepage: expected strings present', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
     const html = await page.content();
     for (const s of EXPECTED_STRINGS_HOMEPAGE) {
       expect(html).toContain(s);
@@ -96,7 +96,7 @@ test.describe('F2 — Desktop 1440px', () => {
 
   test('Catalogue and selector: campaign tariff is based on limited places, not dates', async ({ page }) => {
     for (const path of ['/catalogue-nexus-reussite-2026-2027.html', '/nexus_selecteur.html']) {
-      await page.goto(path, { waitUntil: 'networkidle' });
+      await page.goto(path, { waitUntil: 'domcontentloaded' });
       const scope = path.includes('nexus_selecteur')
         ? await completeSelectorRecommendation(page)
         : page.locator('body');
@@ -111,7 +111,7 @@ test.describe('F2 — Desktop 1440px', () => {
 
   test('Catalogue and selector: teacher reassurance is present', async ({ page }) => {
     for (const path of ['/catalogue-nexus-reussite-2026-2027.html', '/nexus_selecteur.html']) {
-      await page.goto(path, { waitUntil: 'networkidle' });
+      await page.goto(path, { waitUntil: 'domcontentloaded' });
       const scope = path.includes('nexus_selecteur')
         ? await completeSelectorRecommendation(page)
         : page.locator('body');
@@ -121,7 +121,7 @@ test.describe('F2 — Desktop 1440px', () => {
   });
 
   test('Homepage: forbidden strings absent', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
     const text = await page.locator('body').innerText();
     for (const s of FORBIDDEN_STRINGS) {
       // "à valider" allowed in "Points à valider avant inscription"
@@ -219,17 +219,17 @@ test.describe('F2 — Desktop 1440px', () => {
   });
 
   test('Screenshot: homepage desktop', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
     await page.screenshot({ path: 'e2e-results/homepage-desktop.png', fullPage: true });
   });
 
   test('Screenshot: catalogue desktop', async ({ page }) => {
-    await page.goto('/catalogue-nexus-reussite-2026-2027.html', { waitUntil: 'networkidle' });
+    await page.goto('/catalogue-nexus-reussite-2026-2027.html', { waitUntil: 'domcontentloaded' });
     await page.screenshot({ path: 'e2e-results/catalogue-desktop.png', fullPage: true });
   });
 
   test('Screenshot: selecteur desktop', async ({ page }) => {
-    await page.goto('/nexus_selecteur.html', { waitUntil: 'networkidle' });
+    await page.goto('/nexus_selecteur.html', { waitUntil: 'domcontentloaded' });
     await page.screenshot({ path: 'e2e-results/selecteur-desktop.png', fullPage: true });
   });
 });
@@ -258,14 +258,14 @@ test.describe('F2 — Mobile 390px', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
   test('Homepage: no horizontal overflow', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
     const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
     const viewportWidth = await page.evaluate(() => window.innerWidth);
     expect(bodyWidth).toBeLessThanOrEqual(viewportWidth + 1);
   });
 
   test('Catalogue: no horizontal overflow', async ({ page }) => {
-    await page.goto('/catalogue-nexus-reussite-2026-2027.html', { waitUntil: 'networkidle' });
+    await page.goto('/catalogue-nexus-reussite-2026-2027.html', { waitUntil: 'domcontentloaded' });
     const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
     const viewportWidth = await page.evaluate(() => window.innerWidth);
     expect(bodyWidth).toBeLessThanOrEqual(viewportWidth + 1);
@@ -278,17 +278,17 @@ test.describe('F2 — Mobile 390px', () => {
   });
 
   test('Screenshot: homepage mobile', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
     await page.screenshot({ path: 'e2e-results/homepage-mobile.png', fullPage: true });
   });
 
   test('Screenshot: catalogue mobile', async ({ page }) => {
-    await page.goto('/catalogue-nexus-reussite-2026-2027.html', { waitUntil: 'networkidle' });
+    await page.goto('/catalogue-nexus-reussite-2026-2027.html', { waitUntil: 'domcontentloaded' });
     await page.screenshot({ path: 'e2e-results/catalogue-mobile.png', fullPage: true });
   });
 
   test('Screenshot: selecteur mobile', async ({ page }) => {
-    await page.goto('/nexus_selecteur.html', { waitUntil: 'networkidle' });
+    await page.goto('/nexus_selecteur.html', { waitUntil: 'domcontentloaded' });
     await page.screenshot({ path: 'e2e-results/selecteur-mobile.png', fullPage: true });
   });
 });

@@ -11,7 +11,7 @@ const LOGINS = [
 
 for (const { email, pwd, expectedPath } of LOGINS) {
   test(`Login réel: ${email}`, async ({ page }) => {
-    await page.goto(`${BASE}/auth/signin`, { waitUntil: 'networkidle' })
+    await page.goto(`${BASE}/auth/signin`, { waitUntil: 'domcontentloaded' })
     
     const emailInput = page.locator('input[type="email"], input[name="email"]')
     const pwdInput = page.locator('input[type="password"]')

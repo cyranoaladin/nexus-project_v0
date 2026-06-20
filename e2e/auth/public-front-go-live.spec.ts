@@ -245,7 +245,7 @@ test.describe('Public front go-live smoke', () => {
   test('/recommandation completes the 3-step wizard', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1200 });
     await page.goto('/recommandation', { waitUntil: 'domcontentloaded' });
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(1000);
 
     const terminaleButton = page.getByRole('button', { name: /Terminale/i });
@@ -282,7 +282,7 @@ test.describe('Public front go-live smoke', () => {
   test('/bilan-gratuit handles the public funnel without password', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1200 });
     await page.goto('/bilan-gratuit', { waitUntil: 'domcontentloaded' });
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(1000);
 
     await expect(page.locator('input[type="password"]')).toHaveCount(0);
@@ -319,7 +319,7 @@ test.describe('Public front go-live smoke', () => {
   test('/bilan-gratuit rejects a bot honeypot and server failures are surfaced', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1200 });
     await page.goto('/bilan-gratuit', { waitUntil: 'domcontentloaded' });
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(1000);
 
     await page.getByLabel('Prénom du parent', { exact: true }).fill('Sara');

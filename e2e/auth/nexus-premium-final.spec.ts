@@ -4,7 +4,7 @@ const WA_NUMBER = '21699192829';
 
 test.describe('Nexus premium final — contenu et parcours publics', () => {
   test('homepage contient les blocs publics non négociables', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
     const body = page.locator('body');
 
     for (const text of [
@@ -38,7 +38,7 @@ test.describe('Nexus premium final — contenu et parcours publics', () => {
   });
 
   test('catalogue expose des cartes structurées et des détails premium', async ({ page }) => {
-    await page.goto('/catalogue-nexus-reussite-2026-2027.html', { waitUntil: 'networkidle' });
+    await page.goto('/catalogue-nexus-reussite-2026-2027.html', { waitUntil: 'domcontentloaded' });
 
     for (const offerName of [
       'Première Libre Accompagnée',
@@ -80,7 +80,7 @@ test.describe('Nexus premium final — contenu et parcours publics', () => {
   });
 
   test('sélecteur affiche un résultat diagnostic avec CTA attendus', async ({ page }) => {
-    await page.goto('/nexus_selecteur.html', { waitUntil: 'networkidle' });
+    await page.goto('/nexus_selecteur.html', { waitUntil: 'domcontentloaded' });
     await page.getByRole('button', { name: /Élève scolarisé/i }).click();
     await page.getByRole('button', { name: /^Terminale/i }).click();
     await page.getByRole('button', { name: /Duo Terminale Nexus/i }).click();
@@ -110,25 +110,25 @@ test.describe('Nexus premium final — contenu et parcours publics', () => {
   });
 
   test('navigation publique complète et liens WhatsApp', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
     await page.getByRole('link', { name: /Trouver ma formule/i }).first().click();
     await expect(page).toHaveURL(/nexus_selecteur\.html/);
     await expect(page.locator(`a[href*="wa.me/${WA_NUMBER}"]`).first()).toBeVisible();
 
-    await page.goto('/', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
     await page.getByRole('link', { name: /Offres & tarifs|Voir les offres & tarifs/i }).first().click();
     await expect(page).toHaveURL(/catalogue-nexus-reussite-2026-2027\.html/);
     await expect(page.locator(`a[href*="wa.me/${WA_NUMBER}"]`).first()).toBeVisible();
 
-    await page.goto('/catalogue-nexus-reussite-2026-2027.html', { waitUntil: 'networkidle' });
+    await page.goto('/catalogue-nexus-reussite-2026-2027.html', { waitUntil: 'domcontentloaded' });
     await page.getByRole('link', { name: /Je ne sais pas quoi choisir/i }).click();
     await expect(page).toHaveURL(/nexus_selecteur\.html/);
 
-    await page.goto('/nexus_selecteur.html', { waitUntil: 'networkidle' });
+    await page.goto('/nexus_selecteur.html', { waitUntil: 'domcontentloaded' });
     await page.getByRole('link', { name: /Voir toutes les offres/i }).click();
     await expect(page).toHaveURL(/catalogue-nexus-reussite-2026-2027\.html/);
 
-    await page.goto('/nexus_selecteur.html', { waitUntil: 'networkidle' });
+    await page.goto('/nexus_selecteur.html', { waitUntil: 'domcontentloaded' });
     await page.getByRole('link', { name: /Retour à l’accueil/i }).first().click();
     await expect(page).toHaveURL(/\/$/);
   });

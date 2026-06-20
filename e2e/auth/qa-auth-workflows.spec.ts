@@ -232,7 +232,7 @@ test.describe('Role-based access control', () => {
 
 test.describe('Signin page UI', () => {
   test('shows error on wrong credentials', async ({ page }) => {
-    await page.goto('/auth/signin', { waitUntil: 'networkidle' });
+    await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
     // Verify the form rendered (client-side React)
     // Fill form and submit
     await page.fill('#email', CREDS.parent.email);
@@ -280,7 +280,7 @@ test.describe('Signin page UI', () => {
 
 test.describe('Forgot password page', () => {
   test('submits email and shows success', async ({ page }) => {
-    await page.goto('/auth/mot-de-passe-oublie', { waitUntil: 'networkidle' });
+    await page.goto('/auth/mot-de-passe-oublie', { waitUntil: 'domcontentloaded' });
     const emailInput = page.locator('#email');
     const inputVisible = await emailInput.isVisible({ timeout: 5000 }).catch(() => false);
     if (!inputVisible) {
@@ -315,7 +315,7 @@ test.describe('Forgot password page', () => {
 
 test.describe('Reset password page', () => {
   test('shows invalid link message when no token', async ({ page }) => {
-    await page.goto('/auth/reset-password', { waitUntil: 'networkidle' });
+    await page.goto('/auth/reset-password', { waitUntil: 'domcontentloaded' });
     const hasContent = await page.getByText('Lien invalide').isVisible().catch(() => false);
     if (!hasContent) {
       // Client component may not render in headless shell
@@ -327,7 +327,7 @@ test.describe('Reset password page', () => {
   });
 
   test('has link to request new reset', async ({ page }) => {
-    await page.goto('/auth/reset-password', { waitUntil: 'networkidle' });
+    await page.goto('/auth/reset-password', { waitUntil: 'domcontentloaded' });
     const hasContent = await page.getByText('Demander un nouveau lien').isVisible().catch(() => false);
     if (!hasContent) {
       // Fallback: verify page loads with 200
@@ -352,7 +352,7 @@ test.describe('Contact form', () => {
 
 test.describe('Bilan gratuit form', () => {
   test('page loads with content', async ({ page }) => {
-    const resp = await page.goto('/bilan-gratuit', { waitUntil: 'networkidle' });
+    const resp = await page.goto('/bilan-gratuit', { waitUntil: 'domcontentloaded' });
     expect(resp?.status()).toBe(200);
     // Verify page has meaningful content (SSR or CSR)
     const hasHeading = await page.locator('h1, h2').first().isVisible().catch(() => false);

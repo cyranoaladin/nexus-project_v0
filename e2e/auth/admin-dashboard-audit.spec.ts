@@ -9,7 +9,7 @@ test.describe('Dashboard Admin — Audit Exhaustif', () => {
   test.describe('Page Principale /dashboard/admin', () => {
     test('charge sans erreur et affiche le contenu', async ({ page }) => {
       await page.goto('/dashboard/admin');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       // Page should load without 500
       expect(page.url()).toContain('/dashboard/admin');
     });
@@ -30,13 +30,13 @@ test.describe('Dashboard Admin — Audit Exhaustif', () => {
   test.describe('Admin > Gestion Utilisateurs', () => {
     test('page users charge', async ({ page }) => {
       await page.goto('/dashboard/admin/users');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       expect(page.url()).toContain('/dashboard/admin');
     });
 
     test('bouton Créer Utilisateur est visible', async ({ page }) => {
       await page.goto('/dashboard/admin/users');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       const createBtn = page.getByRole('button', { name: /créer|ajouter.*utilisateur|new user/i });
       if (await createBtn.isVisible()) {
         await createBtn.click();
@@ -49,7 +49,7 @@ test.describe('Dashboard Admin — Audit Exhaustif', () => {
   test.describe('Admin > Tests Système', () => {
     test('page tests charge', async ({ page }) => {
       await page.goto('/dashboard/admin/tests');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       expect(page.url()).toContain('/dashboard/admin');
     });
   });
@@ -57,7 +57,7 @@ test.describe('Dashboard Admin — Audit Exhaustif', () => {
   test.describe('Admin > Documents', () => {
     test('page documents charge', async ({ page }) => {
       await page.goto('/dashboard/admin/documents');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       expect(page.url()).toContain('/dashboard/admin');
     });
   });
