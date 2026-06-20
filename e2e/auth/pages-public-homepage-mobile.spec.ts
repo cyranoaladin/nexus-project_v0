@@ -76,13 +76,15 @@ test.describe('Homepage Mobile (390x844) - Landing redesign luxe', () => {
   });
 
   test('sticky WhatsApp apparait apres scroll et pointe vers wa.me', async ({ page }) => {
-    const sticky = page.locator('nav[aria-label="Actions rapides"] a[href*="wa.me"]');
+    const stickyBar = page.locator('nav[aria-label="Actions rapides"]');
+    const sticky = stickyBar.locator('a[href*="wa.me"]');
 
-    await expect(sticky).toBeHidden();
-    await page.evaluate(() => window.scrollTo(0, 900));
-    await page.waitForTimeout(250);
+    // MobileStickyBar starts hidden (translate-y-full) and appears after hero exits viewport
+    await expect(stickyBar).toHaveClass(/translate-y-full/);
+    await page.evaluate(() => window.scrollTo(0, 1200));
+    await page.waitForTimeout(500);
 
-    await expect(sticky).toBeVisible();
+    await expect(stickyBar).not.toHaveClass(/translate-y-full/);
     await expect(sticky).toHaveAttribute('href', /wa\.me\/21699192829/);
   });
 

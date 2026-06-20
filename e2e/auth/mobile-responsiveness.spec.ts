@@ -58,8 +58,8 @@ test.describe('Mobile Responsiveness — Pages Publiques', () => {
     await page.goto('/bilan-gratuit');
     await page.waitForLoadState('domcontentloaded');
 
-    // Email input should be visible and accessible
-    const emailInput = page.getByTestId('input-parent-email');
+    // Design-conversion: bilan-gratuit form uses native HTML id selectors
+    const emailInput = page.locator('#parentEmail');
     await expect(emailInput).toBeVisible();
 
     // Input should have minimum touch target height

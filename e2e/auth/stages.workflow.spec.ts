@@ -22,7 +22,7 @@ test.describe.serial('Stages workflow', () => {
   test('/stages loads Printemps 2026 page', async ({ page }) => {
     await page.goto('/stages');
     await expect(page).toHaveURL(/\/stages/);
-    await expect(page.getByRole('heading', { name: /Préparez les échéances de mai et juin/i }).first()).toBeVisible();
+    await expect(page.getByRole('heading', { name: /viser\.\s*atteindre\.\s*dépasser/i }).first()).toBeVisible();
   });
 
   test('réservation stage via API', async ({ page }) => {

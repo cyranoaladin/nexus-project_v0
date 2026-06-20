@@ -105,9 +105,9 @@ export const SELECTORS = {
     BTN_PAY_ONLINE: 'btn-pay-online',
   },
   auth: {
-    email: 'input[type="email"]',
-    password: 'input[type="password"]',
-    submit: 'button[type="submit"]',
+    email: '#email',
+    password: '#password',
+    submit: '[data-testid="btn-signin"]',
   },
   booking: {
     subjectTrigger: 'booking-subject-trigger',

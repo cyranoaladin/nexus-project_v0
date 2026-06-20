@@ -12,21 +12,21 @@ test.describe('Signin form', () => {
   });
 
   test('renders email and password inputs', async ({ page }) => {
-    const emailInput = page.locator('input[type="email"], input[name="email"]');
-    const passwordInput = page.locator('input[type="password"], input[name="password"]');
+    const emailInput = page.locator('#email');
+    const passwordInput = page.locator('#password');
     await expect(emailInput).toBeVisible({ timeout: 10000 });
     await expect(passwordInput).toBeVisible({ timeout: 10000 });
   });
 
   test('renders submit button', async ({ page }) => {
-    const submitBtn = page.locator('button[type="submit"]');
+    const submitBtn = page.getByTestId('btn-signin');
     await expect(submitBtn).toBeVisible({ timeout: 10000 });
   });
 
   test('shows error for invalid credentials', async ({ page }) => {
-    const emailInput = page.locator('input[type="email"], input[name="email"]');
-    const passwordInput = page.locator('input[type="password"], input[name="password"]');
-    const submitBtn = page.locator('button[type="submit"]');
+    const emailInput = page.locator('#email');
+    const passwordInput = page.locator('#password');
+    const submitBtn = page.getByTestId('btn-signin');
 
     await emailInput.fill('invalid@test.com');
     await passwordInput.fill('wrongpassword');

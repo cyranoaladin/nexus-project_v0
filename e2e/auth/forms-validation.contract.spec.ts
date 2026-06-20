@@ -9,49 +9,46 @@ async function fillIfVisible(locator: import('@playwright/test').Locator, value:
 async function fillBilanForm(page: import('@playwright/test').Page, uniqueEmail?: string) {
   const email = uniqueEmail || `e2e.bilan.${Date.now()}@test.local`;
 
-  await page.getByTestId('input-parent-firstname').fill('Parent');
-  await page.getByTestId('input-parent-lastname').fill('Test');
-  await page.getByTestId('input-parent-email').fill(email);
-  await fillIfVisible(page.getByTestId('input-parent-tel'), '+21699112233');
-  await fillIfVisible(page.getByTestId('input-parent-phone'), '+21699112233');
-  await fillIfVisible(page.getByTestId('input-parent-password'), 'Test1234!');
-  await page.getByTestId('btn-next-step').click();
+  // Design-conversion: bilan-gratuit form is now a single-page form with label-based selectors
+  await page.getByLabel('Prénom du parent').fill('Parent');
+  await page.getByLabel('Nom du parent').fill('Test');
+  await page.getByLabel('Email').fill(email);
+  await page.getByLabel('Téléphone').fill('+21699112233');
 
-  await expect(page.getByTestId('input-child-firstname')).toBeVisible();
-  await page.getByTestId('input-child-firstname').fill('Eleve');
-  await page.locator('input[id="studentLastName"]').fill('Test');
+  await page.getByLabel(/Prénom de l.élève/i).fill('Eleve');
+  await page.locator('#studentGrade').selectOption('premiere');
+  await page.getByLabel(/Établissement/i).fill('Lycée français');
 
-  await page.getByTestId('select-child-level').click();
-  await page.getByRole('option', { name: /Première|Terminale|Seconde/i }).first().click();
+  // Select a subject (checkbox)
+  await page.getByText('Mathématiques', { exact: true }).click();
 
-  await page.getByTestId('select-current-level').click();
-  await page.getByRole('option', { name: /Niveau moyen|Bon niveau|Excellent niveau|En difficulté/i }).first().click();
+  await page.getByLabel(/Besoin principal/i).fill('Préparer une remise à niveau avant la rentrée.');
+  await page.getByLabel(/Message libre/i).fill('Besoin échange pédagogique pour clarifier les priorités.');
 
-  await page.getByTestId('select-preferred-modality').click();
-  await page.getByRole('option', { name: /Cours en ligne uniquement|Cours en présentiel uniquement|Cours en ligne et présentiel/i }).first().click();
-
-  await page.locator('[data-testid^="checkbox-subject-"]').first().click();
-  if (await page.getByTestId('checkbox-accept-terms').isVisible().catch(() => false)) {
-    await page.getByTestId('checkbox-accept-terms').click();
-  }
+  // Accept terms
+  await page.getByText(/j.accepte d.être contacté/i).click();
 }
 
 async function fillContactForm(page: import('@playwright/test').Page, data: { nom: string; email: string; message: string; phone?: string }) {
-  await page.getByTestId('input-contact-nom').fill(data.nom);
-  await page.getByTestId('input-contact-email').fill(data.email);
+  // Design-conversion: contact form uses native HTML ids (name, email, phone, message)
+  await page.locator('#name').fill(data.nom);
+  await page.locator('#email').fill(data.email);
   if (data.phone) {
-    await page.getByTestId('input-contact-phone').fill(data.phone);
+    await page.locator('#phone').fill(data.phone);
   }
-  await page.getByTestId('input-contact-message').fill(data.message);
+  await page.locator('#message').fill(data.message);
+  // Accept consent checkbox
+  await page.getByText(/j.accepte d.être contacté/i).click();
 }
 
 test.describe('Bilan Gratuit - Validation formulaire multi-etapes', () => {
   test('Champ email parent format invalide -> message erreur', async ({ page }) => {
-    test.skip(true, 'QUARANTINE: bilan-gratuit form redesigned — selectors outdated');
     await page.goto('/bilan-gratuit');
-    await page.getByTestId('input-parent-email').fill('pasunemail');
-    await page.getByTestId('btn-next-step').click();
-    await expect(page.getByTestId('error-parent-email')).toContainText(/invalide|valide/i);
+    await page.getByLabel('Email').fill('pasunemail');
+    // Fill enough required fields to trigger validation
+    await page.getByLabel('Prénom du parent').fill('T');
+    await page.getByRole('button', { name: /demander mon bilan stratégique gratuit/i }).click();
+    await expect(page.getByText(/invalide/i).first()).toBeVisible();
   });
 
   test('Double-click submit -> une seule requete API', async ({ page }) => {
@@ -64,7 +61,7 @@ test.describe('Bilan Gratuit - Validation formulaire multi-etapes', () => {
     await page.goto('/bilan-gratuit');
     await fillBilanForm(page);
 
-    const submit = page.getByTestId('btn-submit-bilan');
+    const submit = page.getByRole('button', { name: /demander mon bilan stratégique gratuit/i });
     await submit.dblclick();
     await page.waitForTimeout(400);
 
@@ -78,9 +75,9 @@ test.describe('Bilan Gratuit - Validation formulaire multi-etapes', () => {
 
     await page.goto('/bilan-gratuit');
     await fillBilanForm(page);
-    await page.getByTestId('btn-submit-bilan').click();
+    await page.getByRole('button', { name: /demander mon bilan stratégique gratuit/i }).click();
 
-    await expect(page).toHaveURL(/\/bilan-gratuit\/assessment/);
+    await expect(page).toHaveURL(/\/bilan-gratuit\/confirmation/);
   });
 });
 
@@ -93,8 +90,9 @@ test.describe('Contact - Validation formulaire', () => {
       message: 'Message test suffisamment long',
       phone: '22111222',
     });
-    await page.getByTestId('btn-submit-contact').click();
-    await expect(page.getByTestId('contact-success-message')).toHaveCount(0);
+    await page.getByRole('button', { name: /envoyer ma demande/i }).click();
+    // Form should not show success toast with invalid email
+    await expect(page.getByText(/votre message a bien été envoyé/i)).toHaveCount(0);
   });
 
   test('Soumission valide -> success visible', async ({ page }) => {
@@ -109,9 +107,10 @@ test.describe('Contact - Validation formulaire', () => {
       message: 'Message test suffisamment long',
       phone: '22111222',
     });
-    await page.getByTestId('btn-submit-contact').click();
+    await page.getByRole('button', { name: /envoyer ma demande/i }).click();
 
-    await expect(page.getByTestId('contact-success-message')).toBeVisible();
+    // Design-conversion: contact form uses toast for success feedback
+    await expect(page.getByText(/votre message a bien été envoyé/i)).toBeVisible();
   });
 
   test('API 500 -> erreur visible', async ({ page }) => {
@@ -126,9 +125,10 @@ test.describe('Contact - Validation formulaire', () => {
       message: 'Message test suffisamment long',
       phone: '22111222',
     });
-    await page.getByTestId('btn-submit-contact').click();
+    await page.getByRole('button', { name: /envoyer ma demande/i }).click();
 
-    await expect(page.getByTestId('contact-error-message')).toBeVisible();
+    // Design-conversion: contact form uses toast for error feedback
+    await expect(page.getByText(/impossible d'envoyer|erreur/i).first()).toBeVisible();
   });
 });
 

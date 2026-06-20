@@ -45,8 +45,8 @@ test.describe('Auth workflows', () => {
       res.url().includes('/api/auth/reset-password') && res.request().method() === 'POST'
     );
 
-    await page.locator('input[type="email"]').fill(CREDS.parent.email);
-    await page.locator('button[type="submit"]').click();
+    await page.locator('#email').fill(CREDS.parent.email);
+    await page.locator('main button[type="submit"]').click();
 
     const res = await resetResponsePromise;
     expect([200, 201]).toContain(res.status());
