@@ -43,14 +43,13 @@ const LEVEL_LABELS: Record<string, string> = {
 };
 
 function buildOfferCard(offer: AnnualOffer): ExamCardProps {
-  const price = offer.price_annual_campaign ?? offer.price_annual_public ?? 0;
+  const price = offer.price_annual ?? 0;
   const payment = getAnnualOfferPaymentSchedule(offer);
   return {
     eyebrow: `${LEVEL_LABELS[normalizePricingLevel(offer.level) ?? ''] ?? offer.level} · ${offer.track === 'libre' ? 'Candidat libre' : 'Parcours présentiel'}`,
     title: offer.title,
     subtitle: offer.subjects,
     price,
-    originalPrice: offer.price_annual_public !== price ? (offer.price_annual_public ?? undefined) : undefined,
     monthlyDisplay: offer.monthly_display ?? undefined,
     hoursPerWeek: offer.hours_per_week ?? undefined,
     totalHours: offer.hours_per_year ?? undefined,

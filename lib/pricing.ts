@@ -56,12 +56,10 @@ export interface AnnualOffer {
   hours_per_year: number | null;
   group_max: number | null;
   group_min_open: number | null;
-  price_annual_public: number | null;
-  price_annual_campaign: number | null;
+  price_annual: number | null;
   price_per_student_hour: number | null;
   monthly_display: number | null;
   equiv_per_2h_session: number | null;
-  badge: string | null;
   deposit: number | null;
   n_installments: number | null;
   installment_amount: number | null;
@@ -140,9 +138,7 @@ export interface Pack {
   title: string;
   public: string;
   components: PackComponent[];
-  value: number;
   price: number;
-  discount_pct: number;
   deposit_deductible_to_annual: boolean;
   deposit_carryover: boolean;
   payment: { deposit: number; solde_schedule: number[] };
@@ -435,19 +431,9 @@ export function resolvePackValue(pack: Pack): number {
   return pack.components.reduce((sum, c) => sum + c.qty * resolveComponentPrice(c), 0);
 }
 
-/** Check if campaign is still active — places-based model, no deadline */
-export function isCampaignActive(): boolean {
-  // Campaign availability is driven by group fill rate, not by a date.
-  // Returns true as long as the campaign label exists.
-  // Business logic for "group full" is handled at reservation time, not here.
-  return Boolean(data.campaign.availability);
-}
-
-/** Get the effective price for an annual offer (campaign or public) */
+/** Get the effective price for an annual offer */
 export function getEffectivePrice(offer: AnnualOffer): number | null {
-  if (offer.price_annual_campaign == null && offer.price_annual_public == null) return null;
-  if (isCampaignActive() && offer.price_annual_campaign != null) return offer.price_annual_campaign;
-  return offer.price_annual_public;
+  return offer.price_annual;
 }
 
 /** Apply Carte Nexus discount to a unit (stage/ponctuel/coaching) price */

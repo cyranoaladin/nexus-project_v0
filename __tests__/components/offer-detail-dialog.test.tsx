@@ -21,8 +21,6 @@ const sampleOffer: OfferDetail = {
   groupMax: 5,
   groupMinOpen: 3,
   price: 7175,
-  originalPrice: 8750,
-  discountPct: 18,
   payment: {
     deposit: 2150,
     installments: [560, 560, 560, 560, 560, 560, 560, 560, 545],
@@ -61,9 +59,9 @@ describe('OfferDetailDialog', () => {
     expect(screen.getByText(/7[\s\u00A0\u202F]?175\s*TND/)).toBeInTheDocument();
   });
 
-  it('displays the original price with strikethrough', () => {
+  it('does NOT display a strikethrough price (prix barre removed)', () => {
     render(<OfferDetailDialog offer={sampleOffer} onClose={jest.fn()} />);
-    expect(screen.getByText(/8[\s\u00A0\u202F]?750\s*TND/)).toBeInTheDocument();
+    expect(screen.queryByText(/8[\s\u00A0\u202F]?750\s*TND/)).not.toBeInTheDocument();
   });
 
   it('displays deposit from canonical payment field', () => {
@@ -130,7 +128,7 @@ describe('OfferDetailDialog — échéancier rendered = canonical (real RTL rend
       id: canonical.id,
       title: canonical.title,
       eyebrow: 'Test',
-      price: canonical.price_annual_campaign ?? canonical.price_annual_public ?? 0,
+      price: canonical.price_annual ?? 0,
       payment: payment
         ? { deposit: payment.deposit, installments: payment.installments }
         : undefined,
@@ -152,7 +150,7 @@ describe('OfferDetailDialog — échéancier rendered = canonical (real RTL rend
 
     const detail: OfferDetail = {
       id: canonical.id, title: canonical.title, eyebrow: 'Test',
-      price: canonical.price_annual_campaign ?? canonical.price_annual_public ?? 0,
+      price: canonical.price_annual ?? 0,
       payment: { deposit: payment.deposit, installments: payment.installments },
       included: canonical.included,
     };
@@ -210,7 +208,7 @@ describe('OfferDetailDialog — échéancier rendered = canonical (real RTL rend
 
     render(<OfferDetailDialog offer={{
       id: offer.id, title: offer.title, eyebrow: 'Test',
-      price: offer.price_annual_campaign ?? offer.price_annual_public ?? 0,
+      price: offer.price_annual ?? 0,
       payment: { deposit: payment.deposit, installments: payment.installments },
       included: offer.included,
     }} onClose={jest.fn()} />);

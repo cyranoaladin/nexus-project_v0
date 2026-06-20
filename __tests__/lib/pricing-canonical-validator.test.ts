@@ -137,21 +137,11 @@ describe('T4 — Pack referential integrity', () => {
 
 // ── T5: Pack value = Σ qty × unit price ──
 
-describe('T5 — Pack value coherence', () => {
-  test('stored value matches computed sum of components', () => {
+describe('T5 — Pack pricing fields are clean', () => {
+  test('no pack has deprecated value or discount_pct fields', () => {
     for (const pack of data.packs) {
-      const computed = resolvePackValue(pack);
-      expect(computed).toBe(pack.value);
-    }
-  });
-});
-
-// ── T6: Pack price ≥ 80% of value (discount ≤ 20%) ──
-
-describe('T6 — Pack price floor (remise ≤ 20%)', () => {
-  test('price ≥ 0.80 × value for every pack', () => {
-    for (const pack of data.packs) {
-      expect(pack.price).toBeGreaterThanOrEqual(Math.floor(pack.value * 0.80));
+      expect((pack as unknown as Record<string, unknown>).value).toBeUndefined();
+      expect((pack as unknown as Record<string, unknown>).discount_pct).toBeUndefined();
     }
   });
 });
@@ -163,7 +153,7 @@ describe('T7 — Échéancier coherence', () => {
     for (const offer of data.offers) {
       if (offer.deposit != null && offer.n_installments != null && offer.installment_amount != null && offer.last_installment != null) {
         const total = offer.deposit + offer.installment_amount * (offer.n_installments - 1) + offer.last_installment;
-        expect(total).toBe(offer.price_annual_campaign ?? offer.price_annual_public);
+        expect(total).toBe(offer.price_annual);
       }
     }
   });
@@ -347,10 +337,11 @@ describe('Global discount cap = 20%', () => {
     expect(data.rules.discounts.global_cap_pct).toBe(20);
   });
 
-  test('no pack discount exceeds 20%', () => {
-    for (const pack of data.packs) {
-      const actualDiscount = ((pack.value - pack.price) / pack.value) * 100;
-      expect(actualDiscount).toBeLessThanOrEqual(20);
+  test('no offer has deprecated price_annual_public or badge fields', () => {
+    for (const offer of data.offers) {
+      expect((offer as unknown as Record<string, unknown>).price_annual_public).toBeUndefined();
+      expect((offer as unknown as Record<string, unknown>).price_annual_campaign).toBeUndefined();
+      expect((offer as unknown as Record<string, unknown>).badge).toBeUndefined();
     }
   });
 });
