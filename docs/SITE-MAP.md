@@ -85,11 +85,32 @@
 | /planning_stage_printemps | Stage passe (printemps 2026) |
 | /stages/fevrier-2026 | Stage passe (fevrier 2026) |
 
-## Coherence rendu vs registre
+## Coherence rendu vs registre (offre par offre)
 
-| Page | Prix canoniques trouves | line-through | prix barre |
-|------|------------------------|-------------|------------|
-| /offres | 20/20 | 0 | 0 |
-| /stages | 5/8 (3 formats specifiques) | 0 | 0 |
-| Groupes 5 max | Present | - | - |
-| Plancher stage | >= 420 TND | - | - |
+| Page | Prix canoniques | Detail | line-through | prix barre |
+|------|-----------------|--------|-------------|------------|
+| /offres | 20/20 | Toutes offres annuelles | 0 | 0 |
+| /stages listing | 5/5 | Formats listing (express/solo/renfort/duo/vacances) | 0 | 0 |
+| /stages editions | 3/3 | Formats edition-only (duo-plus/sprint-final/sprint-max) dans stage_editions | 0 | 0 |
+
+Invariants verifies par offre (tests commites) :
+- monthly_display == round(price_annual / 10) pour les 20 offres
+- group_max <= 5 pour toutes offres + stages
+- deposit + echeancier == annuel pour les 16 offres avec echeancier
+- deposit + solde == prix pour les 8 formats stage
+- plancher stage >= 420 TND
+- 0 prix barre / badge campagne / discount_pct / "valeur reelle"
+- Nexus Select : 540 + 1260 == 1800, 1800/40 == 45
+- 14 composites : per_hour == round(price/hours)
+
+## Routes resolues
+
+| Route | Decision | Lien |
+|-------|----------|------|
+| /admin/directeur | GARDER | Nav admin "Vue Directeur" |
+| /session/video | GARDER | email-service.ts (lien video session) |
+| credit-requests | LIER | Nav assistante |
+| subscription-requests | LIER | Nav assistante |
+| eleve/documents | LIER | Nav eleve |
+| parent/children | LIER | Nav parent |
+| mes-sessions | FUSIONNER | Supprime, garde sessions |
