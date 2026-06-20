@@ -90,33 +90,43 @@ test.describe('Price render check — DOM vs canonical', () => {
     await expect(page.getByText(/5 max|5 élèves|groupe de 5/i).first()).toBeVisible();
   });
 
-  // ── Homepage ──
+  // ── Homepage repères tarifaires (scroll + hydrate) ──
 
-  // ── Homepage findings ──
-
-  test('homepage shows "TND" currency label', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
+  test('homepage renders canonical reperes prices after scroll (innerText)', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'load' });
     await page.waitForTimeout(2000);
+    for (let i = 0; i < 10; i++) {
+      await page.evaluate(() => window.scrollBy(0, window.innerHeight));
+      await page.waitForTimeout(300);
+    }
     const text = await page.locator('body').innerText();
+    // Repères: terminaleSimpleMois=390, stagesBase=420, plateformeAn=590
+    expect(text).toContain('390');
+    expect(text).toContain('420');
+    expect(text).toContain('590');
     expect(text).toContain('TND');
   });
 
-  // FINDING: homepage reperes tarifaires prix numeriques are client-rendered
-  // and do NOT appear in innerText even after full hydration (3s wait + load).
-  // The "TND" label appears but not the numerical values (240, 270, 390...).
-  // The Nexus Select price (1800) is also absent from visible text.
-  // Decision required: are prices intentionally hidden on homepage?
+  // ── /recommandation wizard → prix affiché ──
 
-  // FINDING: /recommandation wizard completes but shows offer cards WITHOUT
-  // any price in the visible text. TND is absent from the results.
-  // The recommendation-engine.ts derives prices from canonical but ExamCard
-  // does not render them in the recommendation context.
-  // Decision required: should recommended offers show their price?
+  test('/recommandation wizard shows canonical prices after 3 steps', async ({ page }) => {
+    await page.goto('/recommandation', { waitUntil: 'load' });
+    await page.waitForTimeout(2000);
+    await page.locator('button', { hasText: 'Terminale' }).first().click();
+    await page.waitForTimeout(800);
+    await page.locator('button', { hasText: 'Scolarisé' }).first().click();
+    await page.waitForTimeout(800);
+    await page.locator('button', { hasText: 'Accompagnement annuel' }).first().click();
+    await page.waitForTimeout(2000);
+    for (let i = 0; i < 5; i++) {
+      await page.evaluate(() => window.scrollBy(0, window.innerHeight));
+      await page.waitForTimeout(300);
+    }
+    const text = await page.locator('body').innerText();
+    // Terminale annual offers: monthly 390 (simple), 718 (duo), 959 (excellence)
+    expect(text).toContain('390');
+    expect(text).toContain('TND');
+  });
 
-  // Dashboard dialogs (aria-addon, subscription-change) are verified by
-  // data-coherence.test.ts (data-layer, gated by role).
-
-  // Note: Dashboard dialogs (aria-addon, subscription-change) are verified
-  // by unit tests in data-coherence.test.ts (data-layer, not DOM) since they
-  // require authenticated sessions and derive from the same canonical source.
+  // Dashboard dialogs verified by data-coherence.test.ts (data-layer, gated by role).
 });

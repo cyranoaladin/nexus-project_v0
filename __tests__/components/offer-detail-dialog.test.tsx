@@ -165,7 +165,7 @@ describe('OfferDetailDialog — échéancier rendered = canonical (real RTL rend
   });
 
   it('renders stage format solde within échéancier block', () => {
-    const stage = getStageFormat('intensif-express');
+    const stage = getStageFormat('intensif-solo');
     expect(stage).toBeDefined();
     if (!stage) return;
 

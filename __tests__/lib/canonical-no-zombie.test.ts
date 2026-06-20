@@ -44,13 +44,13 @@ describe('Anti-zombie: every canonical entry has a consumer', () => {
     expect(unreferenced).toEqual([]);
   });
 
-  test('every stage_format ID is referenced by calendar, editions, or source code', () => {
+  test('every stage_format ID is referenced by stage_calendar OR stage_editions (strict)', () => {
     const referenced = new Set<string>();
     for (const c of canonical.stage_calendar) referenced.add(c.format_id);
     for (const e of canonical.stage_editions) for (const f of e.formats) referenced.add(f);
     const unreferenced: string[] = [];
     for (const f of canonical.stage_formats) {
-      if (!referenced.has(f.format_id) && !allSource.includes(f.format_id)) {
+      if (!referenced.has(f.format_id)) {
         unreferenced.push(f.format_id);
       }
     }

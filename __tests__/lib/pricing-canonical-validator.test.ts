@@ -240,8 +240,8 @@ describe('T9 — Carte member floor ≥ 40 TND/h', () => {
 // Here we validate the JSON has all required sections populated.
 
 describe('T10 — JSON completeness (anti-hardcode enabler)', () => {
-  test('stage_formats has 8 entries', () => {
-    expect(data.stage_formats).toHaveLength(8);
+  test('stage_formats has 7 entries', () => {
+    expect(data.stage_formats).toHaveLength(7);
   });
 
   test('stage_editions has 6 entries', () => {
