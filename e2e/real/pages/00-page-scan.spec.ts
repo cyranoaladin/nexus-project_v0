@@ -13,8 +13,6 @@ const PUBLIC_PAGES = [
   '/bilan-gratuit/confirmation',
   '/offres',
   '/stages',
-  '/stages/fevrier-2026',
-  '/stages/fevrier-2026/diagnostic',
   '/accompagnement-scolaire',
   '/plateforme-aria',
   '/equipe',
@@ -77,7 +75,6 @@ const DASHBOARD_PAGES = [
   '/dashboard/eleve/ressources',
   '/dashboard/trajectoire',
   '/admin/directeur',
-  '/admin/stages/fevrier-2026',
 ];
 
 test.describe('SCAN — HTTP Status de TOUTES les pages publiques', () => {

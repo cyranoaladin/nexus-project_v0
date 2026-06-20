@@ -34,22 +34,4 @@ test.describe('SECURITY — Admin pages require authentication', () => {
     ).toBe(true);
   });
 
-  test('/admin/stages/fevrier-2026 — unauthenticated should redirect to signin', async ({ page }) => {
-    const response = await page.goto('/admin/stages/fevrier-2026', { waitUntil: 'domcontentloaded' });
-    const finalUrl = page.url();
-
-    console.log(`/admin/stages/fevrier-2026 — final URL: ${finalUrl}`);
-
-    const isProtected = finalUrl.includes('/auth/signin') || finalUrl.includes('/access-required');
-
-    if (!isProtected) {
-      const hasAdminContent = await page.getByText(/réservation|stage|admin/i).first().isVisible().catch(() => false);
-      console.log(`Admin stages content visible without auth: ${hasAdminContent}`);
-    }
-
-    expect(
-      isProtected,
-      `SECURITY: /admin/stages/fevrier-2026 is accessible without auth! Final URL: ${finalUrl}`
-    ).toBe(true);
-  });
 });

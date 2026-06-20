@@ -16,8 +16,6 @@ const CONTRACT_PAGE_ROUTES = [
   '/bilan-gratuit',
   '/bilan-gratuit/confirmation',
   '/stages',
-  '/stages/fevrier-2026',
-  '/stages/fevrier-2026/diagnostic',
   '/contact',
   '/accompagnement-scolaire',
   '/plateforme-aria',

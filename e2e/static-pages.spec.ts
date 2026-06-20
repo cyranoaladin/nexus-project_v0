@@ -15,7 +15,6 @@ const PAGES = [
   '/education',
   '/academies-hiver',
   '/stages',
-  '/stages/fevrier-2026',
   '/mentions-legales',
   '/conditions',
   '/auth/signin',

@@ -42,7 +42,7 @@ test('Toutes les pages publiques', async ({ page }) => {
   test.skip(true, 'QUARANTINE: PRE-EXISTING: hardcoded localhost:3000, incompatible with Docker E2E');
   const PAGES = [
     '/', '/offres', '/bilan-gratuit', '/contact',
-    '/stages', '/stages/fevrier-2026',
+    '/stages',
     '/bilan-pallier2-maths', '/programme/maths-1ere',
     '/accompagnement-scolaire', '/plateforme-aria',
     '/equipe', '/notre-centre', '/conditions', '/mentions-legales',

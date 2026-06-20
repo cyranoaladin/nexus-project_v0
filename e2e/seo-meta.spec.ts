@@ -11,7 +11,6 @@ const SEO_PAGES = [
   { path: '/offres', titleContains: 'offre' },
   { path: '/contact', titleContains: 'contact' },
   { path: '/bilan-gratuit', titleContains: 'bilan' },
-  { path: '/stages/fevrier-2026', titleContains: 'stage' },
   { path: '/auth/signin', titleContains: 'connexion' },
 ];
 

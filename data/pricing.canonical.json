@@ -1059,16 +1059,6 @@
     { "id": "premium", "price_monthly": 650 },
     { "id": "elite", "price_monthly": 850 }
   ],
-  "stage_academies_fevrier2026": [
-    { "id": "maths-terminale-pallier1", "hours": 22, "price": 590 },
-    { "id": "maths-terminale-pallier2", "hours": 30, "price": 990 },
-    { "id": "nsi-terminale-pallier1", "hours": 22, "price": 590 },
-    { "id": "nsi-terminale-pallier2", "hours": 30, "price": 990 },
-    { "id": "maths-premiere-pallier1", "hours": 22, "price": 490 },
-    { "id": "maths-premiere-pallier2", "hours": 30, "price": 990 },
-    { "id": "nsi-premiere-pallier1", "hours": 22, "price": 490 },
-    { "id": "nsi-premiere-pallier2", "hours": 30, "price": 990 }
-  ],
   "carte_nexus": {
     "id": "carte-nexus",
     "title": "Carte Nexus",

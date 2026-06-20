@@ -13,7 +13,6 @@ const PAGES = [
   '/education',
   '/academies-hiver',
   '/stages',
-  '/stages/fevrier-2026',
 ];
 
 test.describe('Marketing links integrity', () => {
