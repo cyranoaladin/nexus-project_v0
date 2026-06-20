@@ -253,7 +253,7 @@ export const NEXUS_SELECT = {
   ],
   pricing: {
     label: "Forfait unique",
-    price: "1 800 TND*",
+    price: "",
     details: "40 h · 4 h/jour · 2 semaines · groupe de 5 élèves maximum",
     note: "*Tarif par élève, pour un groupe de 5 élèves maximum. Le tarif inclut les 40 h de stage, les supports de travail, le livret Select, les corrections et le bilan de fin de stage.",
   },

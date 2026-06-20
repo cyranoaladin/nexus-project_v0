@@ -68,22 +68,22 @@ function PricingReperesSection() {
     {
       label: 'Spécialité simple',
       sublabel: 'Terminale · 2h/semaine',
-      value: reperes?.['term-spe-simple'] || 'dès 3 900 TND/an',
+      value: reperes?.['term-spe-simple'] || '',
     },
     {
       label: 'Double Sécurité',
       sublabel: 'Première · 4h/semaine',
-      value: reperes?.['1re-double-secu'] || 'dès 5 400 TND/an',
+      value: reperes?.['1re-double-secu'] || '',
     },
     {
       label: 'Stage Intensif Express',
       sublabel: '10h · toutes vacances',
-      value: reperes?.['intensif-express'] || 'dès 490 TND',
+      value: reperes?.['intensif-express'] || '',
     },
     {
       label: 'Plateforme ARIA',
       sublabel: 'Autonomie · en ligne',
-      value: reperes?.['plateforme-autonomie'] || 'dès 590 TND/an',
+      value: reperes?.['plateforme-autonomie'] || '',
     },
   ];
 

@@ -21,7 +21,7 @@ describe('NexusInvoiceGenerator', () => {
     expect(screen.queryByText(/Remise forfaitaire intégrée/i)).not.toBeInTheDocument();
     expect(screen.getByText('Viser. Atteindre. Dépasser.')).toBeInTheDocument();
     expect(
-      screen.getAllByText(/Immeuble VENUS.*Centre Urbain Nord|Centre Urbain Nord.*Immeuble VENUS/).length
+      screen.getAllByText(/Immeuble VENUS, Appt C13, Centre Urbain Nord, 1082 Tunis/).length
     ).toBeGreaterThan(0);
     expect(screen.getByText(/contact@nexusreussite\.academy/)).toBeInTheDocument();
     expect(screen.getByText(/Montant total TTC/i)).toBeInTheDocument();

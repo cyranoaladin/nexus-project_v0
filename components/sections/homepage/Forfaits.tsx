@@ -140,7 +140,7 @@ export default function Forfaits() {
           </p>
           <div className="pt-2">
             <TrackedCTAButton
-              href="/catalogue-nexus-reussite-2026-2027.html"
+              href="/offres"
               variant="eaf-outline"
               trackingLocation="forfaits_parcours_annuels"
             >

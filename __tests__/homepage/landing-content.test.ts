@@ -43,12 +43,9 @@ describe("Landing content — business invariants", () => {
       }
     });
 
-    it("Nexus Select pricing has asterisk", () => {
-      expect(NEXUS_SELECT.pricing.price).toContain("*");
-    });
-
-    it("Nexus Select pricing is 1 800 TND", () => {
-      expect(NEXUS_SELECT.pricing.price).toContain("1 800");
+    it("Nexus Select pricing derives from canonical (no hardcoded price)", () => {
+      // Price was removed from content.ts — must come from pricing.canonical.json
+      expect(NEXUS_SELECT.pricing.price).not.toContain("1 800");
     });
 
     it("Nexus Select does NOT mention 120 DT", () => {
