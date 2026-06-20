@@ -68,22 +68,22 @@ function PricingReperesSection() {
     {
       label: 'Spécialité simple',
       sublabel: 'Terminale · 2h/semaine',
-      value: reperes?.['term-spe-simple'] || '',
+      value: reperes?.terminaleSimpleMois || '',
     },
     {
       label: 'Double Sécurité',
       sublabel: 'Première · 4h/semaine',
-      value: reperes?.['1re-double-secu'] || '',
+      value: reperes?.premiereDuoMois || '',
     },
     {
-      label: 'Stage Intensif Express',
-      sublabel: '10h · toutes vacances',
-      value: reperes?.['intensif-express'] || '',
+      label: 'Stage Intensif',
+      sublabel: 'Toutes vacances',
+      value: reperes?.stagesBase || '',
     },
     {
       label: 'Plateforme ARIA',
       sublabel: 'Autonomie · en ligne',
-      value: reperes?.['plateforme-autonomie'] || '',
+      value: reperes?.plateformeAn || '',
     },
   ];
 

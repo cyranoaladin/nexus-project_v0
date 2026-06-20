@@ -76,7 +76,7 @@ describe('Rendered prices match canonical — by offer', () => {
     });
 
     test('listing formats (express/solo/renfort/duo/vacances) are all present', () => {
-      const listingFormats = ['intensif-express', 'intensif-solo', 'intensif-renfort', 'intensif-duo', 'express-vacances'];
+      const listingFormats = ['intensif-solo', 'intensif-renfort', 'intensif-duo', 'express-vacances'];
       for (const id of listingFormats) {
         const found = data.stage_formats.find((f) => f.format_id === id);
         expect(found).toBeDefined();

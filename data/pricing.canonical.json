@@ -572,20 +572,6 @@
   ],
   "stage_formats": [
     {
-      "format_id": "intensif-express",
-      "title": "Intensif Express",
-      "hours": 10,
-      "group_max": 5,
-      "group_min_open": 3,
-      "price_per_student": 490,
-      "price_per_student_hour": 49,
-      "floor_type": "stage",
-      "payment": {
-        "deposit": 150,
-        "solde": 340
-      }
-    },
-    {
       "format_id": "intensif-solo",
       "title": "Intensif Solo (1 matière)",
       "hours": 12,
