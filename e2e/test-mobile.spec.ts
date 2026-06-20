@@ -2,12 +2,11 @@ import { test, expect } from '@playwright/test'
 
 test.use({ viewport: { width: 390, height: 844 } })
 
-const BASE = 'http://localhost:3000'
 const MOBILE_PAGES = ['/', '/offres', '/bilan-gratuit', '/contact']
 
 for (const url of MOBILE_PAGES) {
   test(`Mobile 390px — ${url} — zéro scroll horizontal`, async ({ page }) => {
-    await page.goto(BASE + url, { waitUntil: 'domcontentloaded' })
+    await page.goto(url, { waitUntil: 'domcontentloaded' })
     await page.waitForTimeout(500)
     
     await page.screenshot({ path: `/tmp/mobile${url.replace(/\//g,'_') || 'home'}.png` })
@@ -39,7 +38,7 @@ for (const url of MOBILE_PAGES) {
 }
 
 test('Mobile — Menu hamburger visible et fonctionnel', async ({ page }) => {
-  await page.goto(BASE, { waitUntil: 'domcontentloaded' })
+  await page.goto('/', { waitUntil: 'domcontentloaded' })
   
   await page.screenshot({ path: '/tmp/mobile-nav-closed.png' })
   
