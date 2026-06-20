@@ -355,3 +355,25 @@ describe('Global discount cap = 20%', () => {
     }
   });
 });
+
+// ── T14: Anti-date-passée guard ──
+
+describe('T14 — No past dates in stage calendar', () => {
+  const LAUNCH_DATE = new Date('2026-08-01');
+
+  test('every stage_calendar entry has dates >= launch date', () => {
+    for (const entry of data.stage_calendar) {
+      const start = new Date((entry as any).date_start);
+      const end = new Date((entry as any).date_end);
+      expect(start.getTime()).toBeGreaterThanOrEqual(LAUNCH_DATE.getTime());
+      expect(end.getTime()).toBeGreaterThanOrEqual(LAUNCH_DATE.getTime());
+    }
+  });
+
+  test('no fevrier2026 or 2025 references in canonical JSON', () => {
+    const json = JSON.stringify(data);
+    expect(json).not.toContain('fevrier2026');
+    expect(json).not.toContain('fevrier-2026');
+    expect(json.match(/"2025-/g)).toBeNull();
+  });
+});
