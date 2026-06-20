@@ -76,7 +76,6 @@ export const designTokens = {
     },
 
     // Midnight Blue Scale (Legacy - for backward compatibility)
-    // TODO: Migrate to neutral/surface colors
     midnight: {
       50: '#f8fafc',
       100: '#f1f5f9',
@@ -315,7 +314,9 @@ export function getColor(path: string): string {
       value = (value as Record<string, unknown>)[part] as Record<string, unknown> | string;
     }
     if (value === undefined) {
-      console.warn(`Color token not found: ${path}`);
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(`Color token not found: ${path}`);
+      }
       return '#000000';
     }
   }

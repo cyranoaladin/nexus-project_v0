@@ -51,8 +51,6 @@ export async function POST(request: NextRequest) {
     const userAgent = headersList.get('user-agent') || undefined;
     const ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || undefined;
 
-    console.log(`[Assessment Submit] ${subject} ${grade}`);
-
     // ─── Step 1: Load Questions (version-aware) ─────────────────────────────
 
     const { questions, resolvedVersion } = await QuestionBank.loadByVersion(
@@ -70,8 +68,6 @@ export async function POST(request: NextRequest) {
         { status: 404 }
       );
     }
-
-    console.log(`[Assessment Submit] Loaded ${questions.length}Q, version=${resolvedVersion}`);
 
     // ─── Step 2: Convert Answers to StudentAnswer Format ────────────────────
 
@@ -110,8 +106,6 @@ export async function POST(request: NextRequest) {
       }))
     );
 
-    console.log(`[Assessment Submit] Score: ${scoringResult.globalScore}/100, Confidence: ${scoringResult.confidenceIndex}/100`);
-
     // ─── Step 4: Validate & Persist to Database ──────────────────────────────
 
     // Validate scoringResult shape before persisting (runtime type safety)
@@ -142,8 +136,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    console.log(`[Assessment Submit] Created assessment ${assessment.id}`);
-
     // F18 — Persist assessmentVersion + engineVersion via Prisma client typé
     await prisma.assessment.update({
       where: { id: assessment.id },
@@ -171,8 +163,6 @@ export async function POST(request: NextRequest) {
         score,
       })),
     });
-
-    console.log(`[Assessment Submit] DomainScores persisted for ${assessment.id} (${Object.keys(completeDomains).length} canonical domains)`);
 
     // ─── Step 6: Compute SSN (non-blocking) ───────────────────────────────────
 

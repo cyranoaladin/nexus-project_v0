@@ -11,11 +11,11 @@ describe('theme tokens', () => {
     expect(getColor('neutral.900')).toBe('#111827');
   });
 
-  it('getColor returns fallback when missing', () => {
+  it('getColor returns fallback and warns when missing', () => {
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
     const color = getColor('missing.token');
     expect(color).toBe('#000000');
-    expect(warnSpy).toHaveBeenCalled();
+    expect(warnSpy).toHaveBeenCalledWith('Color token not found: missing.token');
     warnSpy.mockRestore();
   });
 });

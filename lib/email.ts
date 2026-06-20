@@ -97,7 +97,6 @@ export async function sendWelcomeParentEmail(
     console.error('Erreur envoi email:', error);
     // En développement, ne pas faire échouer l'application si l'email ne part pas
     if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
-      console.log('Email non envoyé en mode développement');
       return;
     }
     throw error;
@@ -154,12 +153,10 @@ export async function sendCreditExpirationReminder(
   try {
     const transporter = createTransporter();
     await transporter.sendMail(mailOptions);
-    console.log('Email de rappel crédits envoyé à:', parentEmail);
   } catch (error) {
     console.error('Erreur envoi email rappel:', error);
     // En développement, ne pas faire échouer l'application si l'email ne part pas
     if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
-      console.log('Email de rappel non envoyé en mode développement');
       return;
     }
     throw error;
@@ -231,11 +228,9 @@ export async function sendPasswordResetEmail(
   try {
     const transporter = createTransporter();
     await transporter.sendMail(mailOptions);
-    console.log('[Password Reset] Email envoyé à:', email.replace(/(?<=.{2}).*(?=@)/, '***'));
   } catch (error) {
     console.error('[Password Reset] Erreur envoi email:', error);
     if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
-      console.log('[Password Reset] Email non envoyé en mode développement');
       return;
     }
     throw error;
@@ -338,11 +333,9 @@ export async function sendStageDiagnosticInvitation(
   try {
     const transporter = createTransporter();
     await transporter.sendMail(mailOptions);
-    console.log('[Stage] Email diagnostic invitation envoyé à:', email);
   } catch (error) {
     console.error('[Stage] Erreur envoi email diagnostic:', error);
     if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
-      console.log('[Stage] Email non envoyé en mode développement');
       return;
     }
     throw error;
@@ -439,11 +432,9 @@ export async function sendStageBankTransferConfirmation(
   try {
     const transporter = createTransporter();
     await transporter.sendMail(mailOptions);
-    console.log('[Stage] Bank transfer confirmation email sent to:', email);
   } catch (error) {
     console.error('[Stage] Bank transfer email error:', error);
     if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
-      console.log('[Stage] Email non envoyé en mode développement');
       return;
     }
     throw error;
@@ -558,11 +549,9 @@ export async function sendStageBilanReady(
   try {
     const transporter = createTransporter();
     await transporter.sendMail(mailOptions);
-    console.log('[Stage] Email bilan ready envoyé à:', email);
   } catch (error) {
     console.error('[Stage] Erreur envoi email bilan:', error);
     if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
-      console.log('[Stage] Email non envoyé en mode développement');
       return;
     }
     throw error;

@@ -37,7 +37,6 @@ export const SeanceDuJour: React.FC<SeanceDuJourProps> = ({ onNavigateToChap, st
       if (catKey) {
         onNavigateToChap(catKey, chapId);
       } else {
-        console.warn(`[F44] Chapter ${chapId} not found in any category`);
       }
     }
   };

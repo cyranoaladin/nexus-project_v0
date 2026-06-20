@@ -22,7 +22,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // TODO: Implémenter l'intégration ClicToPay une fois les clés API activées
     // 1. Valider le body (montant, description, userId)
     // 2. Créer un Payment PENDING + ClicToPayTransaction PENDING
     // 3. Appeler l'API ClicToPay pour obtenir l'URL de paiement

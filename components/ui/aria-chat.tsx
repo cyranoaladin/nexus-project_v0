@@ -48,7 +48,6 @@ export function AriaChat() {
   useEffect(() => {
     if (session?.user.role === 'ELEVE') {
       setIsAuthenticated(true)
-      // TODO: Vérifier les droits ARIA de l'élève
     } else {
       setIsAuthenticated(false)
     }
@@ -202,11 +201,9 @@ export function AriaChat() {
   return (
     <>
       {/* Bouton flottant */}
-      <motion.div
-        className="fixed bottom-6 right-6 z-50"
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ delay: 2, type: "spring", stiffness: 200 }}
+      <div
+        className="fixed bottom-6 right-6 z-50 lux-fade-in"
+        data-lux-animate
       >
         <Button
           onClick={() => setIsOpen(true)}
@@ -217,11 +214,9 @@ export function AriaChat() {
         </Button>
 
         {/* Bulle d'invitation */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 3 }}
-          className="absolute bottom-20 right-0 bg-white rounded-lg shadow-lg p-3 w-48 border border-gray-200"
+        <div
+          className="absolute bottom-20 right-0 bg-white rounded-lg shadow-lg p-3 w-48 border border-gray-200 lux-fade-in"
+          data-lux-animate
         >
           <div className="flex items-start space-x-2">
             <Image
@@ -232,14 +227,14 @@ export function AriaChat() {
               className="rounded-full"
             />
             <div>
-              <p className="text-sm font-medium text-gray-900">ARIA</p>
-              <p className="text-xs text-gray-600 whitespace-nowrap">
+              <p className="text-sm font-medium text-lux-ink">ARIA</p>
+              <p className="text-xs text-lux-slate whitespace-nowrap">
                 Essayez-moi gratuitement
               </p>
             </div>
           </div>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
 
       {/* Fenêtre de chat */}
       <AnimatePresence>

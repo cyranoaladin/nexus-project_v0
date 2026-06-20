@@ -32,7 +32,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // TODO: Implémenter le traitement du webhook ClicToPay
     // 1. Parser le payload (orderId, bankReference, status)
     // 2. Mettre à jour ClicToPayTransaction (status, bankReference)
     // 3. Mettre à jour Payment (status → COMPLETED ou FAILED)

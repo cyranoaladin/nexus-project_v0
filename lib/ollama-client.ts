@@ -206,7 +206,6 @@ export async function generateWithFallback(
 ): Promise<{ content: string; fromFallback: boolean }> {
   const health = await ollamaHealthCheck();
   if (!health.healthy) {
-    console.warn('[Ollama] Service unavailable, returning fallback message');
     return {
       content:
         "Le service d'analyse IA est temporairement indisponible. " +
@@ -219,7 +218,6 @@ export async function generateWithFallback(
     const content = await ollamaGenerate(prompt, model);
     return { content, fromFallback: false };
   } catch (error) {
-    console.warn('[Ollama] Generation failed, returning fallback:', error);
     return {
       content:
         "Le service d'analyse IA a rencontré une erreur. " +

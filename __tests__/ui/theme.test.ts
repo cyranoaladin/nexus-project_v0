@@ -410,23 +410,17 @@ describe('Theme Configuration', () => {
 
     it('should return fallback color for invalid path', () => {
       const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-
       const result = getColor('invalid.path');
-
       expect(result).toBe('#000000');
       expect(consoleSpy).toHaveBeenCalledWith('Color token not found: invalid.path');
-
       consoleSpy.mockRestore();
     });
 
     it('should return fallback color for partially invalid path', () => {
       const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-
       const result = getColor('brand.nonexistent');
-
       expect(result).toBe('#000000');
       expect(consoleSpy).toHaveBeenCalledWith('Color token not found: brand.nonexistent');
-
       consoleSpy.mockRestore();
     });
   });

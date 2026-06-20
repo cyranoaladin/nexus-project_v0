@@ -105,9 +105,6 @@ export async function convertPdfToImages(
     }
 
     if (convertedPaths.length !== pageCount) {
-      console.warn(
-        `[PDF Converter] Page count mismatch: expected ${pageCount}, got ${convertedPaths.length}`
-      );
     }
 
     return {

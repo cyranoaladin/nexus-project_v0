@@ -15,6 +15,7 @@ const luxuryFiles = [
   'app/notre-centre/page.tsx',
   'app/ressources/page.tsx',
   'app/recommandation/RecommandationClient.tsx',
+  'app/equipe/page.tsx',
   'components/marketing/acadomia-inspired.tsx',
   'components/marketing/OfferDetailDialog.tsx',
   'components/marketing/MobileStickyBar.tsx',
@@ -25,23 +26,67 @@ const luxuryFiles = [
 ];
 
 /**
- * Extract user-visible string literals from TSX files.
- * Matches: `...`, '...', "..." (template, single, double-quoted strings)
- * Excludes: import paths, className, href, src, id attributes.
+ * Strip template literal interpolations: `${expr}` → `` (empty).
+ * This lets us check the French text portions of template strings
+ * without false positives from JS code inside `${...}`.
  */
-function extractVisibleStrings(source: string): string[] {
-  const strings: string[] = [];
-  // Match template literals and string literals containing French text
-  const regex = /[`'"]([^`'"]{10,})[`'"]/g;
-  let m;
-  while ((m = regex.exec(source)) !== null) {
-    const s = m[1];
-    // Skip non-French / non-visible patterns
-    if (/^(\/|@\/|http|#|\.\/|__|\{|import|className|href=|src=|id=|data-|aria-)/.test(s)) continue;
-    if (!/[àâéèêëîïôùûüçÀÂÉÈÊËÎÏÔÙÛÜÇ]/.test(s)) continue; // Must contain French chars
-    strings.push(s);
+function stripInterpolations(s: string): string {
+  // Handle nested braces by iterating
+  let result = s;
+  let prev = '';
+  while (result !== prev) {
+    prev = result;
+    result = result.replace(/\$\{[^{}]*\}/g, '');
   }
-  return strings;
+  return result;
+}
+
+/**
+ * Extract user-visible French string literals from TSX source.
+ *
+ * Scans each line for single-quoted, double-quoted AND backtick strings.
+ * For backtick strings, `${…}` interpolations are stripped before analysis.
+ * Strings must be ≥10 chars and contain French-specific characters.
+ */
+function extractVisibleStrings(source: string): { line: number; text: string }[] {
+  const results: { line: number; text: string }[] = [];
+  const lines = source.split('\n');
+
+  for (let i = 0; i < lines.length; i++) {
+    const ln = lines[i];
+    const trimmed = ln.trim();
+
+    // Skip non-content lines
+    if (/^import\s/.test(trimmed)) continue;
+    if (/^\/\//.test(trimmed)) continue;
+    if (/^\*/.test(trimmed)) continue;
+    if (/^className[=:]/.test(trimmed)) continue;
+
+    // Extract single/double quoted strings
+    const sdRegex = /(?:["'])([^"']{10,})(?:["'])/g;
+    let m;
+    while ((m = sdRegex.exec(ln)) !== null) {
+      const s = m[1];
+      if (/^(\/|@\/|http|#|\.\/|__|\.\.)/.test(s)) continue;
+      if (/(?:className|href|src|id|data-|aria-|key|name|type|role|placeholder)\s*=\s*$/.test(ln.substring(0, m.index))) continue;
+      if (!/[àâéèêëîïôùûüçÀÂÉÈÊËÎÏÔÙÛÜÇ\u2019]/.test(s)) continue;
+      results.push({ line: i + 1, text: s });
+    }
+
+    // Extract backtick template literals (single-line only)
+    const btRegex = /`([^`]{10,})`/g;
+    while ((m = btRegex.exec(ln)) !== null) {
+      const raw = m[1];
+      const s = stripInterpolations(raw);
+      if (s.length < 10) continue;
+      if (/^(\/|@\/|http|#|\.\/|__|\.\.)/.test(s)) continue;
+      if (/(?:className|href|src|id|data-|aria-|key|name|type|role|placeholder)\s*=\s*$/.test(ln.substring(0, m.index))) continue;
+      if (!/[àâéèêëîïôùûüçÀÂÉÈÊËÎÏÔÙÛÜÇ\u2019]/.test(s)) continue;
+      results.push({ line: i + 1, text: s });
+    }
+  }
+
+  return results;
 }
 
 describe('French typography guard — luxury pages', () => {
@@ -52,30 +97,25 @@ describe('French typography guard — luxury pages', () => {
       if (!existsSync(path)) continue;
       const source = readFileSync(path, 'utf8');
       const strings = extractVisibleStrings(source);
-      for (const s of strings) {
-        // Straight apostrophe between word chars = violation
-        if (/\w'\w/.test(s)) {
-          violations.push(`${file}: "${s.substring(0, 60)}..."`);
+      for (const { line, text } of strings) {
+        if (/\w'\w/.test(text)) {
+          violations.push(`${file}:${line}: "${text.substring(0, 60)}"`);
         }
       }
     }
     expect(violations).toEqual([]);
   });
 
-  it('no regular space before high punctuation in pure-text French strings', () => {
+  it('no regular space before high punctuation in user-visible French strings', () => {
     const violations: string[] = [];
     for (const file of luxuryFiles) {
       const path = join(root, file);
       if (!existsSync(path)) continue;
       const source = readFileSync(path, 'utf8');
       const strings = extractVisibleStrings(source);
-      for (const s of strings) {
-        // Skip strings containing JSX/HTML/code patterns
-        if (/<|>|\{|className|href|src|onClick|import/.test(s)) continue;
-        // Regular space (not NBSP) before : ; ! ? = violation
-        // Exclude URLs (http:) and time formats (10:00) and // comments
-        if (/ [:;!?]/.test(s) && !/https?:/.test(s) && !/\d:\d/.test(s) && !/\/\//.test(s)) {
-          violations.push(`${file}: "${s.substring(0, 60)}"`);
+      for (const { line, text } of strings) {
+        if (/ [:;!?]/.test(text) && !/https?:/.test(text) && !/\d:\d/.test(text) && !/\/\//.test(text)) {
+          violations.push(`${file}:${line}: "${text.substring(0, 60)}"`);
         }
       }
     }

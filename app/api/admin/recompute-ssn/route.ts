@@ -22,7 +22,6 @@ export async function POST(request: NextRequest) {
     const userRole = (session?.user as { role?: string })?.role;
 
     if (!session || userRole !== 'ADMIN') {
-      console.warn(`[recompute-ssn] 403 — unauthorized access attempt, role=${userRole ?? 'none'}, userId=${(session?.user as { id?: string })?.id ?? 'anonymous'}`);
       return NextResponse.json(
         { success: false, error: 'Accès non autorisé. Rôle ADMIN requis.' },
         { status: 403 }
@@ -42,18 +41,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`[recompute-ssn] Admin ${session.user?.email} triggered recompute for type=${type}`);
-
     // Compute audit log (before/after stats)
     const auditEntry = await computeCohortStatsWithAudit(type);
 
     // Batch recompute
     const result = await recomputeSSNBatch(type);
-
-    console.log(
-      `[recompute-ssn] Completed: ${result.updated} assessments updated, ` +
-      `cohort mean=${result.cohort.mean.toFixed(1)}, std=${result.cohort.std.toFixed(1)}, n=${result.cohort.sampleSize}`
-    );
 
     return NextResponse.json({
       success: true,

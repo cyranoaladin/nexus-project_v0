@@ -25,11 +25,6 @@ type AnalyticsWindow = Window & {
 export function trackEvent(event: AnalyticsEvent): void {
   if (typeof window === 'undefined') return;
 
-  // Development: log to console
-  if (process.env.NODE_ENV === 'development') {
-    console.log('[Analytics]', event.name, event.params);
-  }
-
   // Production: send to analytics service
   const analyticsWindow = window as AnalyticsWindow;
   if (analyticsWindow.gtag) {

@@ -81,7 +81,6 @@ export class BilanGenerator {
    */
   static async generate(context: BilanGenerationContext): Promise<GeneratedBilans> {
     const llmMode = getLlmMode();
-    console.log(`[BilanGenerator] type=${context.type} subject=${context.subject} mode=${llmMode}`);
 
     // LLM_MODE=off: skip generation
     if (llmMode === 'off') {
@@ -210,7 +209,7 @@ export class BilanGenerator {
         ragHitCount = allHits.length;
         ragCollections = collections.slice(0, 3);
       } catch (error) {
-        console.warn('[BilanGenerator] RAG failed, continuing without:', error);
+        // RAG failed, continuing without context
         ragError = true;
       }
     }

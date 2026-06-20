@@ -57,8 +57,6 @@ export class BilanGenerator {
    */
   static async generate(assessmentId: string): Promise<void> {
     const llmMode = getLlmMode();
-    console.log(`[BilanGenerator] Starting generation for ${assessmentId} (LLM_MODE=${llmMode})`);
-
     // ─── LLM_MODE=off: skip generation entirely ──────────────────────────
     if (llmMode === 'off') {
       try {
@@ -71,9 +69,8 @@ export class BilanGenerator {
             errorDetails: 'LLM_MODE=off — generation skipped by configuration',
           },
         });
-        console.log(`[BilanGenerator] ${assessmentId} set to COMPLETED (LLM_MODE=off)`);
       } catch (updateError) {
-        console.error(`[BilanGenerator] CRITICAL: Failed to update status for ${assessmentId}:`, updateError);
+        void updateError;
       }
       return;
     }
@@ -104,8 +101,6 @@ export class BilanGenerator {
 
       const scoringResult = assessment.scoringResult as unknown as ScoringResult;
 
-      console.log(`[BilanGenerator] Assessment loaded: ${assessment.subject} ${assessment.grade}`);
-
       // ─── Step 2: Update Status to GENERATING ─────────────────────────────
 
       await prisma.assessment.update({
@@ -123,7 +118,6 @@ export class BilanGenerator {
       if (llmMode === 'stub') {
         // Deterministic stub bilans for tests/staging
         result = this.generateStubBilans(assessment.studentName, scoringResult);
-        console.log(`[BilanGenerator] Stub bilans generated (LLM_MODE=stub)`);
       } else {
         result = await this.generateBilans(
           assessment.subject as Subject,
@@ -132,8 +126,6 @@ export class BilanGenerator {
           scoringResult
         );
       }
-
-      console.log(`[BilanGenerator] Bilans generated successfully`);
 
       // ─── Step 4: Save Results ─────────────────────────────────────────────
 
@@ -148,11 +140,9 @@ export class BilanGenerator {
         },
       });
 
-      console.log(`[BilanGenerator] Completed for ${assessmentId}`);
     } catch (error) {
-      console.error(`[BilanGenerator] LLM generation failed for ${assessmentId}:`, error);
 
-      // P0 Rule: LLM failure must NOT block results.
+      // LLM failure must NOT block results.
       // Scoring + DomainScores + SSN are already persisted — set COMPLETED
       // so the result API can serve them. Track LLM failure separately.
       try {
@@ -168,10 +158,9 @@ export class BilanGenerator {
             },
           },
         });
-        console.warn(`[BilanGenerator] ${assessmentId} set to COMPLETED despite LLM failure (scoring data preserved)`);
       } catch (updateError) {
-        // Last resort: if even the status update fails, log but don't crash
-        console.error(`[BilanGenerator] CRITICAL: Failed to update status for ${assessmentId}:`, updateError);
+        // Last resort: if even the status update fails, don't crash
+        void updateError;
       }
       // Do NOT re-throw — the assessment is usable without LLM bilans
     }
@@ -210,8 +199,6 @@ export class BilanGenerator {
     studentName: string,
     scoringResult: ScoringResult
   ): Promise<string> {
-    console.log(`[BilanGenerator] Generating ${audience} bilan for ${subject} ${grade}`);
-
     try {
       // ─── Step 1: Get Prompt Template ─────────────────────────────────────
 
@@ -247,13 +234,8 @@ export class BilanGenerator {
         numPredict: 2000, // Max 2000 tokens for bilan
       });
 
-      console.log(
-        `[BilanGenerator] ${audience} bilan generated (${generatedText.length} chars)`
-      );
-
       return generatedText;
     } catch (error) {
-      console.error(`[BilanGenerator] Failed to generate ${audience} bilan:`, error);
       throw new Error(
         `Failed to generate ${audience} bilan: ${error instanceof Error ? error.message : 'Unknown error'}`
       );

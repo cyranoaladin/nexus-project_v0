@@ -79,11 +79,9 @@ export async function sendInvoiceEmail(
       html,
       text,
     });
-    console.log(`[Invoice] Email envoyé à ${recipientEmail} pour facture ${data.invoiceNumber}`);
   } catch (error) {
     console.error('[Invoice] Erreur envoi email:', error);
     if (process.env.NODE_ENV === 'development') {
-      console.log('[Invoice] Email non envoyé en mode développement');
       return;
     }
     throw error;

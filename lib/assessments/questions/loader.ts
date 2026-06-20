@@ -157,7 +157,6 @@ export class QuestionBank {
    * Load Maths Première modules
    */
   private static async loadMathsPremiere(): Promise<QuestionModule[]> {
-    // TODO: Implement when Première content is ready
     const [algebre] = await Promise.all([
       import('./maths/premiere/algebre').then((m) => m.default),
     ]);
@@ -184,7 +183,6 @@ export class QuestionBank {
    * Load NSI Première modules
    */
   private static async loadNsiPremiere(): Promise<QuestionModule[]> {
-    // TODO: Implement when Première content is ready
     const [python] = await Promise.all([
       import('./nsi/premiere/python').then((m) => m.default),
     ]);

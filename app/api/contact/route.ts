@@ -19,16 +19,6 @@ export async function POST(request: Request) {
 
     const lead = await captureContactLead(payload);
 
-    if (process.env.CONTACT_DEBUG === "1") {
-      console.log("[contact]", {
-        leadId: lead.id,
-        profile: lead.profile,
-        interest: lead.interest,
-        urgency: lead.urgency,
-        source: lead.source,
-      });
-    }
-
     return NextResponse.json({ ok: true, leadId: lead.id });
   } catch (error) {
     if (error instanceof ContactLeadValidationError) {

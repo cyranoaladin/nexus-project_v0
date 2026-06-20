@@ -70,6 +70,7 @@ export interface AnnualOffer {
   included: string[];
 }
 
+/** Public shape — no internal `_*` fields. */
 export interface StageFormat {
   format_id: string;
   title: string;
@@ -80,6 +81,11 @@ export interface StageFormat {
   price_per_student_hour: number;
   floor_type: string;
   payment: { deposit: number; solde: number };
+}
+
+/** Raw shape in canonical JSON (may contain `_*` internal fields). */
+interface StageFormatRaw extends StageFormat {
+  [key: string]: unknown;
 }
 
 export interface StageEdition {
@@ -154,6 +160,23 @@ export interface CarteNexus {
   member_floor_per_student_hour: number;
 }
 
+export interface StageCalendarEntry {
+  id: string;
+  title: string;
+  format_id: string;
+  format_label: string;
+  half_days: number;
+  hours: number;
+  date_start: string;
+  date_end: string;
+  dates_display: string;
+  weeks: string[] | null;
+  objective: string;
+  audience: string[];
+  subjects: string[];
+  notes: string | null;
+}
+
 export interface PricingData {
   version: string;
   _note?: string;
@@ -162,6 +185,7 @@ export interface PricingData {
   rules: Rules;
   offers: AnnualOffer[];
   stage_formats: StageFormat[];
+  stage_calendar: StageCalendarEntry[];
   stage_editions: StageEdition[];
   ponctuel_offers: PonctuelOffer[];
   coaching: CoachingOffer[];
@@ -176,6 +200,17 @@ export type PricingLevel = 'terminale' | 'premiere' | 'seconde' | 'troisieme';
 // ── Data ──
 
 const data = pricingData as unknown as PricingData;
+
+/** Strip all keys prefixed with `_` from an object (internal metadata). */
+function stripInternal<T>(obj: T): T {
+  const result = {} as Record<string, unknown>;
+  for (const key of Object.keys(obj as object)) {
+    if (!key.startsWith('_')) {
+      result[key] = (obj as Record<string, unknown>)[key];
+    }
+  }
+  return result as T;
+}
 
 // ── Accessors ──
 
@@ -259,16 +294,30 @@ export function getOffersByTrack(track: string): AnnualOffer[] {
 }
 
 export function getStageFormats(): StageFormat[] {
-  return data.stage_formats;
+  return data.stage_formats.map(stripInternal);
+}
+
+/** Returns true if the format's price is validated by the business.
+ *  Reads from internal raw data, NOT from the public StageFormat object. */
+export function isFormatPriceValidated(formatOrId: StageFormat | string): boolean {
+  const id = typeof formatOrId === 'string' ? formatOrId : formatOrId.format_id;
+  const raw = data.stage_formats.find((f) => f.format_id === id) as StageFormatRaw | undefined;
+  // A format is pending if it has _price_status: "pending_validation" in the raw JSON
+  return (raw as Record<string, unknown> | undefined)?.['_price_status'] !== 'pending_validation';
 }
 
 export function getStageFormat(formatId: string): StageFormat | undefined {
-  return data.stage_formats.find((f) => f.format_id === formatId);
+  const raw = data.stage_formats.find((f) => f.format_id === formatId);
+  return raw ? stripInternal(raw) : undefined;
 }
 
-/** Alias for getStageFormat — PROCEDURE §3 accessor */
+/** Alias for getStageFormat */
 export function getStage(formatId: string): StageFormat | undefined {
   return getStageFormat(formatId);
+}
+
+export function getStageCalendar(): StageCalendarEntry[] {
+  return data.stage_calendar ?? [];
 }
 
 export function getStageEditions(): StageEdition[] {

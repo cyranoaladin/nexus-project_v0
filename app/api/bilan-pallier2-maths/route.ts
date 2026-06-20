@@ -39,9 +39,6 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
-    // PII-safe logging (never log personal data)
-    console.log(safeDiagnosticLog('RECEIVED', 'pending', { summary: safeSubmissionLog(body) as unknown as string }));
-
     // 1. Validate input against v1.3 schema
     const validatedData = bilanDiagnosticMathsSchema.parse(body);
 
@@ -61,7 +58,6 @@ export async function POST(request: NextRequest) {
       select: { id: true, publicShareId: true, status: true },
     });
     if (existingDuplicate) {
-      console.log(safeDiagnosticLog('DUPLICATE_BLOCKED', existingDuplicate.id, { idempotencyKey }));
       return NextResponse.json({
         success: true,
         message: 'Diagnostic déjà soumis récemment.',

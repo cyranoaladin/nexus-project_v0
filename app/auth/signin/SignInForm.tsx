@@ -162,7 +162,7 @@ export function SignInForm() {
                   </Label>
                   <Link
                     href="/auth/mot-de-passe-oublie"
-                    className="text-sm text-brand-accent-dark hover:underline"
+                    className="text-sm text-brand-accent-dark underline"
                   >
                     Mot de passe oublié ?
                   </Link>
@@ -306,7 +306,7 @@ export function SignInForm() {
             <div className="mt-6 text-center">
               <p className="text-xs text-neutral-400">
                 En vous connectant, vous acceptez nos{" "}
-                <Link href="/conditions" className="text-brand-accent hover:underline">
+                <Link href="/conditions" className="text-brand-accent underline">
                   conditions d'utilisation
                 </Link>
               </p>

@@ -140,13 +140,11 @@ export async function GET(
       cohortStd: Math.round(cohortStats.std * 10) / 10,
       cohortN: cohortStats.n,
       isLowSample: cohortStats.isLowSample,
-      // LLM generation status (P0: LLM failure must not block results)
+      // LLM generation status (LLM failure must not block results)
       generationStatus,
       ...(llmFailed && !hasBilans ? { llmUnavailableMessage: 'L\'analyse IA personnalisée est temporairement indisponible. Vos scores et résultats sont disponibles.' } : {}),
     });
   } catch (error) {
-    console.error('[Assessment Result] Error:', error instanceof Error ? error.name : 'unknown');
-
     return NextResponse.json(
       {
         error: 'Internal server error',

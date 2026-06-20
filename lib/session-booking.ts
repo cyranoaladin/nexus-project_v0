@@ -528,13 +528,11 @@ export class SessionBookingService {
 
   private static async createStatusChangeNotifications(session: SessionBooking, status: SessionStatus): Promise<void> {
     // Implementation for status change notifications
-    console.log(`Session ${session.id} status changed to ${status}`);
   }
 
   private static async sendReminder(reminder: Prisma.SessionReminderGetPayload<{
     include: { session: true };
   }>): Promise<void> {
     // Implementation for sending reminders
-    console.log(`Sending reminder for session ${reminder.sessionId}`);
   }
 }

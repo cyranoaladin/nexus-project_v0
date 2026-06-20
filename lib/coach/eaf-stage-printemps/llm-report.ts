@@ -378,7 +378,6 @@ export async function generateLLMParentEafReport(
 
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    console.warn(`[EAF LLM] generation failed (${msg}), falling back to template`);
 
     const markdown = generateParentEafStageReport(sourceData, student, date);
     return { markdown, llmUsed: false, ragHitCount: 0 };

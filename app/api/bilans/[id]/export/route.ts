@@ -191,7 +191,6 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // TODO: Trigger async PDF generation here
     // For now return placeholder
     return NextResponse.json({
       success: true,

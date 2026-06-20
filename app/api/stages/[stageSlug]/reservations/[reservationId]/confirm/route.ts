@@ -137,8 +137,6 @@ export async function POST(
           parentId: parentId
         }
       });
-      // We just log that the student was created since we can't inject it dynamically
-      console.log('Student created for reservation', reservation.id, 'with ID:', student.id);
     }
 
     await prisma.stageReservation.update({

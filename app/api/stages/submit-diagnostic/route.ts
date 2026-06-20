@@ -143,17 +143,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // 6. Log (PII-safe)
-    console.log('[submit-diagnostic] Scored', {
-      reservationId: reservation.id,
-      academyId: reservation.academyId,
-      globalScore: Math.round(scoringResult.globalScore),
-      confidenceIndex: Math.round(scoringResult.confidenceIndex),
-      totalQuestions: scoringResult.totalQuestions,
-      totalAttempted: scoringResult.totalAttempted,
-    });
-
-    // 7. Email notification: Template B (bilan ready) — non-blocking
+    // 6. Email notification: Template B (bilan ready) — non-blocking
     try {
       const baseUrl = process.env.NEXTAUTH_URL || 'https://nexusreussite.academy';
       const bilanUrl = `${baseUrl}/stages/fevrier-2026/bilan/${reservation.id}`;

@@ -1,6 +1,5 @@
 /**
  * NSI Première - Python Bases
- * TODO: Créer questions Première
  */
 
 import { Subject } from '../../../core/types';
@@ -12,7 +11,7 @@ const questionModule: QuestionModule = {
   subject: Subject.NSI,
   grade: 'PREMIERE',
   category: 'Python',
-  questions: [], // TODO: Créer questions
+  questions: [],
 };
 
 export default questionModule;

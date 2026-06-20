@@ -84,7 +84,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // TODO: Send activation email to student
     // await sendActivationEmail(parsed.data.studentEmail, result.activationUrl!, result.studentName!);
 
     return NextResponse.json({

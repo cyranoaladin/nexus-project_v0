@@ -62,7 +62,7 @@ export async function GET(
           ? {
               globalScore: assessment.globalScore,
               confidenceIndex: assessment.confidenceIndex || 0,
-              recommendations: [], // TODO: Extract from analysisJson
+              recommendations: [],
             }
           : undefined,
     };

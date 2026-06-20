@@ -123,9 +123,6 @@ export async function POST(request: NextRequest) {
       return { parentUser, studentUser, student };
     });
 
-    // TODO: Envoyer email de bienvenue
-    // TODO: Créer une tâche pour l'assistante (nouveau bilan à traiter)
-
     // Envoyer email de bienvenue
     try {
       const { sendWelcomeParentEmail } = await import('@/lib/email');

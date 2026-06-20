@@ -78,9 +78,9 @@ function main() {
 
     // Vérifier que les images principales sont bien copiées
     const keyImages = [
-      'images/hero-image.png',
-      'images/BackgroundImage_EquipeStrategique.png',
-      'images/logo_slogan_nexus.webp'
+      'images/logo_slogan_nexus.webp',
+      'images/logo_nexus_reussite.png',
+      'images/logo_slogan_nexus_x3.png'
     ];
 
     keyImages.forEach(img => {

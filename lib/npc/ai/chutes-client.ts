@@ -52,7 +52,6 @@ export class ChutesClient {
     this.baseUrl = CHUTES_BASE_URL || 'https://api.chutes.ai';
 
     if (!this.apiKey) {
-      console.warn('[Chutes] API key not configured - calls will fail');
     }
   }
 

@@ -4,8 +4,6 @@
  * Lightweight analytics event ingestion endpoint.
  * Currently a no-op stub — accepts events silently to prevent 404 errors
  * from client-side tracking calls (NextStepCard, etc.).
- *
- * TODO: Wire to a real analytics backend (PostHog, Plausible, or DB table).
  */
 
 import { NextRequest, NextResponse } from 'next/server';

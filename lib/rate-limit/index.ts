@@ -31,7 +31,7 @@ function getStore(): MemoryStore {
   if (!_store) {
     _store = new MemoryStore();
     MemoryStore.warnFallbackOnce();
-    // P1-02 hardening: production MUST use distributed rate limiting
+    // Production MUST use distributed rate limiting
     if (process.env.NODE_ENV === 'production' && getRateLimitRuntimeMode() === 'memory') {
       console.error('[CRITICAL] Rate limiting runs in memory mode in production. Configure REDIS_URL or UPSTASH_REDIS_REST_URL.');
     }
@@ -166,7 +166,7 @@ export async function checkRateLimitAsync(
     } catch (error) {
       if (!_distributedWarned && process.env.NODE_ENV !== 'test') {
         _distributedWarned = true;
-        console.warn('[rate-limit] Distributed store unavailable, falling back to memory store:', error instanceof Error ? error.name : 'unknown');
+        // Distributed store unavailable, falling back to memory store
       }
     }
   }

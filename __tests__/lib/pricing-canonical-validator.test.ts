@@ -56,6 +56,7 @@ describe('T1 — Effectif group_max ≤ 5', () => {
 });
 
 // ── T2: Price floor — stage unitaire ≥ 45 TND/élève/h ──
+// Business-ratified threshold (decision 2026-06-20): 45 TND/h applies to all stage formats.
 
 describe('T2 — Stage price floor ≥ 45 TND/élève/h', () => {
   const stageFloor = 45;
@@ -63,6 +64,13 @@ describe('T2 — Stage price floor ≥ 45 TND/élève/h', () => {
   test('all stage formats respect floor', () => {
     for (const fmt of data.stage_formats) {
       expect(fmt.price_per_student_hour).toBeGreaterThanOrEqual(stageFloor);
+    }
+  });
+
+  test('price_per_student_hour is consistent with price/hours for every format', () => {
+    for (const fmt of data.stage_formats) {
+      const computed = Math.round(fmt.price_per_student / fmt.hours);
+      expect(fmt.price_per_student_hour).toBe(computed);
     }
   });
 
@@ -231,8 +239,8 @@ describe('T9 — Carte member floor ≥ 40 TND/h', () => {
 // Here we validate the JSON has all required sections populated.
 
 describe('T10 — JSON completeness (anti-hardcode enabler)', () => {
-  test('stage_formats has 7 entries', () => {
-    expect(data.stage_formats).toHaveLength(7);
+  test('stage_formats has 8 entries', () => {
+    expect(data.stage_formats).toHaveLength(8);
   });
 
   test('stage_editions has 6 entries', () => {

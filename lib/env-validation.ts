@@ -98,13 +98,6 @@ export function validateEnv(): { ok: boolean; missing: string[]; warnings: strin
     missing.forEach((m) => console.error(`  - ${m}`));
   }
   if (warnings.length > 0) {
-    console.warn(`[ENV] ⚠️  RECOMMENDED missing (${warnings.length}):`);
-    warnings.forEach((w) => console.warn(`  - ${w}`));
-  }
-  if (missing.length === 0 && warnings.length === 0) {
-    console.log('[ENV] ✅ All environment variables validated');
-  } else if (missing.length === 0) {
-    console.log(`[ENV] ✅ Required OK — ${warnings.length} recommended missing (graceful degradation)`);
   }
 
   // Fail-fast in production

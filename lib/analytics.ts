@@ -49,15 +49,6 @@ type NexusEvent =
 function sendEvent(event: NexusEvent): void {
   if (typeof window === 'undefined') return;
 
-  // Development: structured console log
-  if (process.env.NODE_ENV === 'development') {
-    console.log(
-      `%c[Analytics] ${event.name}`,
-      'color: #2EE9F6; font-weight: bold;',
-      event.params
-    );
-  }
-
   // GA4 / GTM integration
   const gtag = (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag;
   if (typeof gtag === 'function') {

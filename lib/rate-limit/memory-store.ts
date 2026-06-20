@@ -33,7 +33,7 @@ export class MemoryStore {
     if (!MemoryStore.fallbackWarned) {
       MemoryStore.fallbackWarned = true;
       if (process.env.NODE_ENV !== 'test') {
-        console.warn('[rate-limit] Running in memory-only mode (no Redis/Upstash configured).');
+        // memory-only mode (no Redis/Upstash configured)
       }
     }
   }

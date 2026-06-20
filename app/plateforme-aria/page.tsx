@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
 import {
   ArrowRight,
   BookOpen,
@@ -103,30 +102,24 @@ export default function PlateformeAriaPage() {
             Intelligence artificielle pédagogique
           </Badge>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="font-fraunces text-4xl font-light tracking-tight text-lux-ivory md:text-6xl"
+          <h1
+            className="font-fraunces text-4xl font-light tracking-tight text-lux-ivory md:text-6xl lux-fade-in"
+            data-lux-animate
           >
             Rencontrez <span className="text-lux-gold-wash">ARIA</span>
-          </motion.h1>
+          </h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.08 }}
-            className="mx-auto mt-5 max-w-3xl text-lg text-lux-on-dark-muted md:text-xl"
+          <p
+            className="mx-auto mt-5 max-w-3xl text-lg text-lux-on-dark-muted md:text-xl lux-fade-in lux-fade-in-delay"
+            data-lux-animate
           >
-            ARIA complète l’accompagnement humain avec une aide pédagogique structurée,
-            disponible selon formule pour réviser, s’entraîner et clarifier les méthodes.
-          </motion.p>
+            ARIA compl\u00e8te l\u2019accompagnement humain avec une aide p\u00e9dagogique structur\u00e9e,
+            disponible selon formule pour r\u00e9viser, s\u2019entra\u00eener et clarifier les m\u00e9thodes.
+          </p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.16 }}
-            className="mt-8 flex flex-col justify-center gap-3 sm:flex-row"
+          <div
+            className="mt-8 flex flex-col justify-center gap-3 sm:flex-row lux-fade-in lux-fade-in-delay"
+            data-lux-animate
           >
             <Link href="/bilan-gratuit" className="lux-cta-reserve rounded-lg px-6 py-3.5 text-sm font-semibold">
               Demander un bilan
@@ -135,7 +128,7 @@ export default function PlateformeAriaPage() {
             <Link href="/offres" className="lux-cta-secondary rounded-lg px-6 py-3.5 text-sm font-semibold text-lux-ivory border-lux-line/40">
               Voir les offres ARIA
             </Link>
-          </motion.div>
+          </div>
 
           <div className="mt-10 flex flex-wrap justify-center gap-3 text-sm text-lux-on-dark-muted">
             <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2">Complément de l’humain</span>

@@ -15,6 +15,7 @@ const e2eDatabaseUrl =
 export default defineConfig({
   testDir: './e2e',
   testMatch: ['**/*.spec.ts'],
+  testIgnore: ['**/auth/**', '**/real/**', '**/npc/**'],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 1,

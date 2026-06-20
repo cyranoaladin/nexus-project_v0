@@ -95,7 +95,6 @@ export async function POST(request: NextRequest) {
 
     // 2. Honeypot check (bot trap field)
     if (body.website || body.url || body.honeypot) {
-      console.warn('[reservation] Honeypot triggered:', { ip: request.headers.get('x-forwarded-for') });
       // Return success to fool bots, but don't save
       return NextResponse.json(
         { success: true, message: 'Réservation enregistrée avec succès !' },
@@ -119,9 +118,6 @@ export async function POST(request: NextRequest) {
     }
 
     const data = parseResult.data;
-
-    // 2. PII-safe log (no names, no emails, no phones)
-    console.log(`[reservation] Processing: academy=${data.academyId} classe=${data.classe} price=${data.price}`);
 
     // 3. Upsert: create or update (anti-duplicate on email+academyId)
     let isUpdate = false;
@@ -151,7 +147,6 @@ export async function POST(request: NextRequest) {
           updatedAt: new Date(),
         },
       });
-      console.log(`[reservation] Updated existing: id=${existing.id}`);
     } else {
       const isBankTransfer = data.paymentMethod === 'bank_transfer';
       const reservation = await prisma.stageReservation.create({
@@ -168,7 +163,6 @@ export async function POST(request: NextRequest) {
           status: isBankTransfer ? 'PENDING_BANK_TRANSFER' : 'PENDING',
         },
       });
-      console.log(`[reservation] Created: id=${reservation.id}`);
     }
 
     // 4. Telegram notification (non-blocking side-effect)
@@ -379,8 +373,6 @@ export async function PATCH(request: NextRequest) {
         updatedAt: new Date(),
       },
     });
-
-    console.log(`[reservation] ${action}: id=${reservationId} by=${session.user.id} note=${note ?? 'none'}`);
 
     return NextResponse.json({
       success: true,

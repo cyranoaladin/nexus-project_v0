@@ -236,7 +236,7 @@ export default function CoachMathsIndividualReportPage() {
   const [fonctionsDerivationStmg, setFonctionsDerivationStmg] = useState<FonctionsDerivationStmg>({});
   const [statistiquesProbabilitesStmg, setStatistiquesProbabilitesStmg] = useState<StatistiquesProbabilitesStmg>({});
 
-  // New P0 structured diagnostic states
+  // Structured diagnostic states
   const [globalDiag, setGlobalDiag] = useState<GlobalDiagnostic>({});
   const [chapterDiags, setChapterDiags] = useState<ChapterDiagnostics>({});
 
@@ -287,7 +287,7 @@ export default function CoachMathsIndividualReportPage() {
         setSuitesStmg(sd.suitesStmg ?? {});
         setFonctionsDerivationStmg(sd.fonctionsDerivationStmg ?? {});
         setStatistiquesProbabilitesStmg(sd.statistiquesProbabilitesStmg ?? {});
-        // Load new P0 fields if present
+        // Load structured fields if present
         setGlobalDiag(sd.globalDiagnostic ?? {});
         setChapterDiags(sd.chapterDiagnostics ?? {});
 
@@ -581,7 +581,7 @@ export default function CoachMathsIndividualReportPage() {
           />
         </AccordionSection>
 
-        {/* Section 2 — Diagnostic global (P0) */}
+        {/* Section 2 — Diagnostic global */}
         <AccordionSection title="2. Diagnostic global" icon={<FileText className="h-4 w-4" />}>
           <div className="grid gap-5 sm:grid-cols-2">
             <SelectInput
@@ -846,7 +846,7 @@ export default function CoachMathsIndividualReportPage() {
               </div>
             </AccordionSection>
 
-            <AccordionSection title="7. Probabilités conditionnelles (P0)" icon={<FileText className="h-4 w-4" />}>
+            <AccordionSection title="7. Probabilités conditionnelles" icon={<FileText className="h-4 w-4" />}>
               <div className="grid gap-5 sm:grid-cols-2">
                 <RatingInput
                   label="Arbre pondéré"
@@ -941,7 +941,7 @@ export default function CoachMathsIndividualReportPage() {
           </AccordionSection>
         )}
 
-        {/* Section 9 — Diagnostic par chapitre (P0) */}
+        {/* Section 9 — Diagnostic par chapitre */}
         <AccordionSection title="9. Diagnostic par chapitre" icon={<FileText className="h-4 w-4" />}>
           {(
             isStmg
@@ -1038,7 +1038,7 @@ export default function CoachMathsIndividualReportPage() {
           ))}
         </AccordionSection>
 
-        {/* Section 10 — Message aux parents (P0 guided) */}
+        {/* Section 10 — Message aux parents */}
         <AccordionSection title="10. Message aux parents" icon={<FileText className="h-4 w-4" />}>
           <div className="grid gap-5 sm:grid-cols-2">
             <SelectInput

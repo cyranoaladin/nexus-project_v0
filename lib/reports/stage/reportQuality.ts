@@ -1,6 +1,6 @@
 /**
  * Report Quality Control Module
- * P0: Prevents repetitions, copy-paste, and oversized sections in LLM-generated reports
+ * Prevents repetitions, copy-paste, and oversized sections in LLM-generated reports
  */
 
 export class ReportQualityError extends Error {

@@ -2,6 +2,14 @@ import { type ClassValue, clsx } from "clsx";
 import { extendTailwindMerge } from "tailwind-merge";
 
 const twMerge = extendTailwindMerge({
+  override: {
+    conflictingClassGroups: {
+      // Prevent text-* (font-size) from implicitly dropping leading-* (line-height).
+      // Default twMerge has { 'font-size': ['leading'] } which means text-xl drops
+      // an existing leading-none. We override to empty so explicit leading-* survives.
+      'font-size': [],
+    },
+  },
   extend: {
     classGroups: {
       // Custom background tokens — all conflict with each other

@@ -20,7 +20,6 @@ async function startExecution(jobName: string, executionKey: string) {
     if (error && typeof error === 'object' && 'code' in error) {
       const prismaError = error as { code: string };
       if (prismaError.code === 'P2002') {
-        console.log(`⏭️  Skipping ${jobName}:${executionKey} - already executed`);
         return null;
       }
     }
@@ -44,8 +43,6 @@ async function completeExecution(executionId: string, error?: string) {
 
 // Job quotidien pour vérifier les crédits qui expirent
 export async function checkExpiringCredits() {
-  console.log('🔍 Vérification des crédits qui expirent...')
-  
   // Chercher les crédits qui expirent dans 7 jours
   const sevenDaysFromNow = new Date()
   sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7)
@@ -102,7 +99,6 @@ export async function checkExpiringCredits() {
           data.expirationDate
         )
         
-        console.log(`📧 Email de rappel envoyé pour ${data.student.user.firstName}`)
       } catch (error) {
         console.error(`❌ Erreur envoi email pour ${data.student.user.firstName}:`, error)
       }
@@ -110,15 +106,11 @@ export async function checkExpiringCredits() {
   })
 
   await Promise.all(reminderJobs)
-  
-  console.log(`✅ Vérification terminée. ${studentCreditsMap.size} rappels envoyés.`)
 }
 
 // Job mensuel pour expirer les anciens crédits
 // CRITICAL: Uses transaction to ensure atomicity of expiration operations (INV-CRON-2)
 export async function expireOldCredits() {
-  console.log('🗑️ Expiration des anciens crédits...')
-
   // Wrap expiration in transaction to ensure both create and update happen atomically
   const totalExpired = await prisma.$transaction(async (tx) => {
     const expiredTransactions = await tx.creditTransaction.findMany({
@@ -157,14 +149,11 @@ export async function expireOldCredits() {
     timeout: 60000  // 60 seconds for potentially long-running job
   });
 
-  console.log(`✅ ${totalExpired} crédits expirés au total.`);
 }
 
 // Job mensuel pour allouer les crédits mensuels
 // CRITICAL: Uses idempotency tracking to prevent duplicate allocations (INV-CRON-1)
 export async function allocateMonthlyCredits() {
-  console.log('💳 Allocation des crédits mensuels...')
-
   // Create execution key from current year-month to prevent duplicate runs
   const now = new Date();
   const executionKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -209,7 +198,6 @@ export async function allocateMonthlyCredits() {
         });
 
         total += subscription.creditsPerMonth;
-        console.log(`💳 ${subscription.creditsPerMonth} crédits alloués à ${subscription.student.user.firstName}`);
       }
 
       return total;
@@ -219,7 +207,6 @@ export async function allocateMonthlyCredits() {
     });
 
     await completeExecution(execution.id);
-    console.log(`✅ ${totalAllocated} crédits alloués au total.`);
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);

@@ -207,7 +207,7 @@ function userDocCategory(
  *   - OFFICIAL_PROGRAM | OFFICIAL_AUTOMATISMES | OFFICIAL_SUJET → static mapping
  *     filtered by (level × track) via lib/programme/official-pdfs.
  *   - COACH_RESOURCE | USER_DOCUMENT → derived from already-fetched userDocs (Q5).
- *   - RAG_REFERENCE → currently empty (TODO: requires schema extension to track
+ *   - RAG_REFERENCE → currently empty (requires schema extension to track
  *     consulted RAG sources per ARIA conversation; out-of-scope for Lot B).
  *   - INVOICE | RECEIPT → derived from userInvoices (Q10).
  *   - STAGE_BILAN → derived from already-computed stageItems (no extra query).
@@ -345,7 +345,7 @@ export function buildHub(input: {
   }
 
   // ── RAG_REFERENCE ──────────────────────────────────────────────────────
-  // TODO (post Lot B): surface RAG sources consulted during ARIA conversations.
+  // Post Lot B: surface RAG sources consulted during ARIA conversations.
   //   Requires either a schema extension (AriaConversation.referencesUsed) or a
   //   denormalised view from the RAG ingestor. Out-of-scope for Lot B.
 
@@ -365,7 +365,6 @@ export function buildHub(input: {
 function normaliseBilanSubject(rawSubject: string): EleveBilanSubject {
   const normalised = SUBJECT_TO_BILAN_SUBJECT[rawSubject.toUpperCase()];
   if (!normalised) {
-    console.warn(`[dashboard] unknown bilan subject: "${rawSubject}", falling back to MIXTE`);
     return 'MIXTE';
   }
   return normalised;
