@@ -233,10 +233,11 @@ describe('offres-nexus.json integrity', () => {
     expect(assistantStyles).toContain('page-break-inside: avoid');
   });
 
-  test('archive templates do not reference deleted static HTML files', () => {
-    // Static HTML files were deleted 2026-06-20 — redirected to Next.js pages
-    // Legacy templates in src/static-pages/ may still reference them but
-    // those templates are build artifacts, not served directly.
+  test('no static HTML files exist in public/', () => {
+    const deleted = ['catalogue-nexus-reussite-2026-2027.html', 'nexus_selecteur.html', 'mentions-legales.html', 'confidentialite.html'];
+    for (const file of deleted) {
+      expect(fs.existsSync(path.join(ROOT, 'public', file))).toBe(false);
+    }
   });
 });
 
@@ -332,32 +333,9 @@ describe('production marketing pages readiness', () => {
     }
   });
 
-  test('catalogue HTML deleted — offers served by /offres Next.js page', () => {
-    // catalogue-nexus-reussite-2026-2027.html was deleted 2026-06-20
-    // Offers are now served by the Next.js /offres page
-    const catalogueExists = fs.existsSync(path.join(ROOT, 'public', 'catalogue-nexus-reussite-2026-2027.html'));
-    expect(catalogueExists).toBe(false);
-    return; // Skip remaining assertions — file no longer exists
-    const catalogue = ''; // dead code below
-    const detailBlocks = catalogue.match(/<details\b(?=[^>]*\boffer-detail\b)[\s\S]*?<\/details>/g) || [];
-    const actionBlocks = catalogue.match(/<div class="offer-actions">[\s\S]*?<\/div>/g) || [];
-
-    expect(detailBlocks.length).toBeGreaterThan(0);
-    expect(actionBlocks.length).toBeGreaterThan(0);
-    expect(catalogue).not.toContain('<summary>Voir le détail</summary>');
-    expect(catalogue).not.toContain('Détails inclus, paiement et points à valider');
-    expect(catalogue).not.toContain('<strong>CTA WhatsApp</strong>');
-    expect(catalogue).toContain('data-controlled-detail');
-    expect(catalogue).toContain('Détails et paiement');
-
-    for (const block of detailBlocks) {
-      expect(block).not.toContain('Recevoir l’échéancier');
-    }
-
-    for (const block of actionBlocks) {
-      expect(block).toContain('Recevoir l’échéancier');
-      expect(block).toContain('Détails et paiement');
-      expect(block).not.toContain('Voir le détail');
+  test('static HTML files must not exist in public/', () => {
+    for (const file of ['catalogue-nexus-reussite-2026-2027.html', 'nexus_selecteur.html', 'mentions-legales.html', 'confidentialite.html']) {
+      expect(fs.existsSync(path.join(ROOT, 'public', file))).toBe(false);
     }
   });
 

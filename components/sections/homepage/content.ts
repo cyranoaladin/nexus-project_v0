@@ -194,13 +194,7 @@ export const PREMIERE_FINISH = {
 
 // ── Nexus Select — post-épreuves ────────────────────────────────────────────
 
-// Nexus Select business model:
-// Format: 40 h / student, group of 5 students max.
-// Price: 1 800 TND / student.
-// Group revenue: 4 × 1 800 = 7 200 TND.
-// Teacher cost estimate: 40 h × 100 TND = 4 000 TND.
-// Gross margin before fixed costs: 3 200 TND.
-// This stage is a premium high-intensity program and should not be priced like standard weekly support.
+// Nexus Select: stage 40h post-épreuves. Prix dans pricing.canonical.json quand finalisé.
 
 export const NEXUS_SELECT = {
   eyebrow: "Nexus Select · Post-épreuves",

@@ -51,7 +51,7 @@ if [ "$COUNT" -gt 0 ]; then
 fi
 
 # 7. Hardcoded TND prices in client-facing code (excluding documented exceptions)
-COUNT=$(grep -rnE "[0-9]{2,5}\s*TND" app/ components/ --include="*.ts" --include="*.tsx" 2>/dev/null | grep -v "node_modules\|.next\|test\|spec\|__tests__\|pricing.canonical\|pricing.ts\|legal.ts\|//.*TND\|profitabilityNotes\|_data/offers\|facturation.*0,000\|admin/facturation.*Prix en" | wc -l)
+COUNT=$(grep -rnE "[0-9]{2,5}\s*TND" app/ components/ --include="*.ts" --include="*.tsx" 2>/dev/null | grep -v "node_modules\|.next\|test\|spec\|__tests__\|pricing.canonical\|pricing.ts\|legal.ts\|//.*TND\|facturation.*0,000\|admin/facturation.*Prix en" | wc -l)
 if [ "$COUNT" -gt 0 ]; then
   echo "FAIL: $COUNT hardcoded TND prices in client code"
   grep -rnE "[0-9]{2,5}\s*TND" app/ components/ --include="*.ts" --include="*.tsx" 2>/dev/null | grep -v "node_modules\|.next\|test\|spec\|__tests__\|pricing.canonical\|pricing.ts\|legal.ts\|//.*TND\|profitabilityNotes\|_data/offers\|facturation.*0,000\|admin/facturation.*Prix en"
