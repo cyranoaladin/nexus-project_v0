@@ -20,6 +20,7 @@ RUN npx prisma generate
 COPY __tests__/e2e ./__tests__/e2e
 COPY e2e ./e2e
 COPY playwright.config.e2e.ts ./playwright.config.e2e.ts
+COPY playwright.config.ts ./playwright.config.ts
 
 # Copy tsconfig for TypeScript resolution
 COPY tsconfig.json ./tsconfig.json
