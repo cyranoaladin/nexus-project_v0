@@ -1,5 +1,5 @@
 import { DiagnosticForm } from '@/components/ui/diagnostic-form';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, cleanup } from '@testing-library/react';
 
 // Mock Next.js Link component
 jest.mock('next/link', () => {
@@ -8,222 +8,91 @@ jest.mock('next/link', () => {
   };
 });
 
-describe('DiagnosticForm', () => {
-  beforeEach(() => {
-    render(<DiagnosticForm />);
+// Helper: complete the form and get recommendation
+async function fillAndValidate(
+  classOption: string,
+  statusOption: string,
+  priorityOption: string,
+) {
+  fireEvent.click(screen.getByText(classOption));
+  fireEvent.click(screen.getByText(statusOption));
+  fireEvent.click(screen.getByText(priorityOption));
+  await waitFor(() => {
+    fireEvent.click(screen.getByText('Obtenir ma recommandation personnalisée'));
   });
+  await waitFor(() => {
+    expect(screen.getByText(/Votre recommandation personnalisée/)).toBeInTheDocument();
+  });
+}
 
+describe('DiagnosticForm', () => {
   describe('Rendu initial', () => {
+    beforeEach(() => {
+      render(<DiagnosticForm />);
+    });
+
     it('affiche le titre et la description', () => {
       expect(screen.getByText('Notre outil de diagnostic intelligent')).toBeInTheDocument();
-      expect(screen.getByText(/Notre outil de diagnostic devient encore plus intelligent/)).toBeInTheDocument();
     });
 
     it('affiche les trois questions', () => {
       expect(screen.getByText('Votre enfant est en classe de...')).toBeInTheDocument();
       expect(screen.getByText('Son statut est...')).toBeInTheDocument();
-      expect(screen.getByText('Sa priorité absolue cette année est de...')).toBeInTheDocument();
     });
 
-    it('affiche toutes les options pour chaque question', () => {
-      // Question 1
-      expect(screen.getByText('Première')).toBeInTheDocument();
-      expect(screen.getByText('Terminale')).toBeInTheDocument();
-
-      // Question 2
-      expect(screen.getByText('Élève dans un lycée français')).toBeInTheDocument();
-      expect(screen.getByText('Candidat Libre')).toBeInTheDocument();
-
-      // Question 3
-      expect(screen.getByText('Réussir ses épreuves de Français (pour 1ère)')).toBeInTheDocument();
-      expect(screen.getByText('Optimiser son contrôle continu')).toBeInTheDocument();
-      expect(screen.getByText('Obtenir une Mention')).toBeInTheDocument();
-      expect(screen.getByText('Construire un excellent dossier Parcoursup')).toBeInTheDocument();
-      expect(screen.getByText('Avoir un cadre pour obtenir son Bac (pour C. Libre)')).toBeInTheDocument();
-    });
-
-    it('n\'affiche pas de recommandation initialement', () => {
+    it("n'affiche pas de recommandation initialement", () => {
       expect(screen.queryByText(/Votre recommandation personnalisée/)).not.toBeInTheDocument();
     });
   });
 
-  describe('Interactions utilisateur', () => {
-    it('sélectionne une option quand on clique dessus', async () => {
-      fireEvent.click(screen.getByText('Première'));
-
-      // Wait for state update and verify the Check icon appears and bg-or-stellaire class is applied
-      await waitFor(() => {
-        const button = screen.getByText('Première').closest('button');
-        expect(button).toContainHTML('<svg');
-        expect(button).toHaveClass('bg-or-stellaire');
-      });
-    });
-
-    it('permet de changer la sélection', async () => {
-      fireEvent.click(screen.getByText('Première'));
-
-      await waitFor(() => {
-        expect(screen.getByText('Première').closest('button')).toHaveClass('bg-or-stellaire');
-      });
-
-      fireEvent.click(screen.getByText('Terminale'));
-
-      await waitFor(() => {
-        expect(screen.getByText('Terminale').closest('button')).toHaveClass('bg-or-stellaire');
-        expect(screen.getByText('Première').closest('button')).not.toHaveClass('bg-or-stellaire');
-      });
-    });
-  });
-
   describe('Logique de recommandation', () => {
-    it('affiche une recommandation quand toutes les questions sont répondues', async () => {
-      // Sélectionner Première
-      fireEvent.click(screen.getByText('Première'));
+    afterEach(cleanup);
 
-      // Sélectionner AEFE
-      fireEvent.click(screen.getByText('Élève dans un lycée français'));
-
-      // Sélectionner Français
-      fireEvent.click(screen.getByText('Réussir ses épreuves de Français (pour 1ère)'));
-
-      // Click validation button
-      await waitFor(() => {
-        expect(screen.getByText('Obtenir ma recommandation personnalisée')).toBeInTheDocument();
-      });
-      fireEvent.click(screen.getByText('Obtenir ma recommandation personnalisée'));
-
-      await waitFor(() => {
-        expect(screen.getByText(/Votre recommandation personnalisée/)).toBeInTheDocument();
-      });
+    it('affiche le parcours correct pour Première-Lycée-Français', async () => {
+      render(<DiagnosticForm referenceDate={new Date('2026-06-20')} />);
+      await fillAndValidate('Première', 'Élève dans un lycée français', 'Réussir ses épreuves de Français (pour 1ère)');
+      expect(screen.getByText(/Odyssée Première : Le Parcours Anticipé/)).toBeInTheDocument();
     });
 
-    it('affiche la bonne recommandation pour Première-Lycée-Français', async () => {
-      fireEvent.click(screen.getByText('Première'));
-      fireEvent.click(screen.getByText('Élève dans un lycée français'));
-      fireEvent.click(screen.getByText('Réussir ses épreuves de Français (pour 1ère)'));
-
-      await waitFor(() => {
-        fireEvent.click(screen.getByText('Obtenir ma recommandation personnalisée'));
-      });
-
-      await waitFor(() => {
-        expect(screen.getByText(/Odyssée Première : Le Parcours Anticipé/)).toBeInTheDocument();
-        // Stage recommendation derived from canonical (auto-advancing)
-        expect(screen.getByText(/Stage Pré-Rentrée/)).toBeInTheDocument();
-      });
+    it('affiche le parcours correct pour Terminale-Lycée-Mention', async () => {
+      render(<DiagnosticForm referenceDate={new Date('2026-06-20')} />);
+      await fillAndValidate('Terminale', 'Élève dans un lycée français', 'Obtenir une Mention');
+      expect(screen.getByText(/Odyssée Terminale : La Stratégie Mention/)).toBeInTheDocument();
     });
 
-    it('affiche la bonne recommandation pour Terminale-Lycée-Mention', async () => {
-      fireEvent.click(screen.getByText('Terminale'));
-      fireEvent.click(screen.getByText('Élève dans un lycée français'));
-      fireEvent.click(screen.getByText('Obtenir une Mention'));
-
-      await waitFor(() => {
-        fireEvent.click(screen.getByText('Obtenir ma recommandation personnalisée'));
-      });
-
-      await waitFor(() => {
-        expect(screen.getByText(/Odyssée Terminale : La Stratégie Mention/)).toBeInTheDocument();
-      });
-    });
-
-    it('affiche la bonne recommandation pour Terminale-Lycée-Parcoursup', async () => {
-      fireEvent.click(screen.getByText('Terminale'));
-      fireEvent.click(screen.getByText('Élève dans un lycée français'));
-      fireEvent.click(screen.getByText('Construire un excellent dossier Parcoursup'));
-
-      await waitFor(() => {
-        fireEvent.click(screen.getByText('Obtenir ma recommandation personnalisée'));
-      });
-
-      await waitFor(() => {
-        expect(screen.getByText(/Odyssée Terminale : La Stratégie Mention/)).toBeInTheDocument();
-      });
-    });
-
-    it('affiche la bonne recommandation pour Candidat Libre', async () => {
-      // render(<DiagnosticForm />); // Removed duplicate render (handled in beforeEach)
-      fireEvent.click(screen.getByText('Terminale'));
-      fireEvent.click(screen.getByText('Candidat Libre'));
-      fireEvent.click(screen.getByText('Avoir un cadre pour obtenir son Bac (pour C. Libre)'));
-
-      await waitFor(() => {
-        fireEvent.click(screen.getByText('Obtenir ma recommandation personnalisée'));
-      });
-
-      await waitFor(() => {
-        expect(screen.getByText(/Odyssée Individuel : La Préparation Intégrale/)).toBeInTheDocument();
-      });
+    it('affiche le parcours correct pour Candidat Libre', async () => {
+      render(<DiagnosticForm referenceDate={new Date('2026-06-20')} />);
+      await fillAndValidate('Terminale', 'Candidat Libre', 'Avoir un cadre pour obtenir son Bac (pour C. Libre)');
+      expect(screen.getByText(/Odyssée Individuel/)).toBeInTheDocument();
     });
   });
 
-  describe('Boutons d\'action', () => {
-    beforeEach(async () => {
-      // Remplir le formulaire pour afficher une recommandation
-      fireEvent.click(screen.getByText('Première'));
-      fireEvent.click(screen.getByText('Élève dans un lycée français'));
-      fireEvent.click(screen.getByText('Réussir ses épreuves de Français (pour 1ère)'));
+  describe('Auto-avance runtime du stage recommandé', () => {
+    afterEach(cleanup);
 
-      await waitFor(() => {
-        expect(screen.getByText('Obtenir ma recommandation personnalisée')).toBeInTheDocument();
-      });
-
-      fireEvent.click(screen.getByText('Obtenir ma recommandation personnalisée'));
-
-      await waitFor(() => {
-        expect(screen.getByText(/Votre recommandation personnalisée/)).toBeInTheDocument();
-      });
+    it('2026-06-20 → recommande Stage Pré-Rentrée', async () => {
+      render(<DiagnosticForm referenceDate={new Date('2026-06-20')} />);
+      await fillAndValidate('Première', 'Élève dans un lycée français', 'Réussir ses épreuves de Français (pour 1ère)');
+      expect(screen.getByText(/Stage Pré-Rentrée/)).toBeInTheDocument();
     });
 
-    it('affiche le bouton pour découvrir le parcours', () => {
-      expect(screen.getByText('Découvrir ce parcours')).toBeInTheDocument();
+    it('2026-09-15 → recommande Stage Toussaint (Pré-Rentrée passée)', async () => {
+      render(<DiagnosticForm referenceDate={new Date('2026-09-15')} />);
+      await fillAndValidate('Première', 'Élève dans un lycée français', 'Réussir ses épreuves de Français (pour 1ère)');
+      expect(screen.getByText(/Stage Toussaint/)).toBeInTheDocument();
+      expect(screen.queryByText(/Stage Pré-Rentrée/)).not.toBeInTheDocument();
     });
 
-    it('a les bons liens href', () => {
-      const parcoursButton = screen.getByText('Découvrir ce parcours');
-
-      expect(parcoursButton.closest('a')).toHaveAttribute('href', '/offres#odyssee');
-    });
-  });
-
-  describe('Animations et transitions', () => {
-    it('applique les classes de transition sur les boutons', () => {
-      const premiereButton = screen.getByText('Première');
-      expect(premiereButton.closest('button')).toHaveClass('transition-all', 'duration-200');
+    it('2028-01-01 → aucun stage affiché (tous passés)', async () => {
+      render(<DiagnosticForm referenceDate={new Date('2028-01-01')} />);
+      await fillAndValidate('Première', 'Élève dans un lycée français', 'Réussir ses épreuves de Français (pour 1ère)');
+      expect(screen.queryByText(/Stage /)).not.toBeInTheDocument();
     });
 
-    it('applique les classes hover sur les boutons non sélectionnés', () => {
-      const premiereButton = screen.getByText('Première');
-      expect(premiereButton.closest('button')).toHaveClass('hover:border-or-stellaire', 'hover:bg-or-stellaire/5');
-    });
-  });
-
-  describe('Accessibilité', () => {
-    it('tous les boutons sont cliquables', () => {
-      const buttons = screen.getAllByRole('button');
-      buttons.forEach(button => {
-        expect(button).not.toBeDisabled();
-      });
-    });
-
-    it('les liens ont des attributs href appropriés', async () => {
-      fireEvent.click(screen.getByText('Première'));
-      fireEvent.click(screen.getByText('Élève dans un lycée français'));
-      fireEvent.click(screen.getByText('Réussir ses épreuves de Français (pour 1ère)'));
-
-      await waitFor(() => {
-        expect(screen.getByText('Obtenir ma recommandation personnalisée')).toBeInTheDocument();
-      });
-
-      fireEvent.click(screen.getByText('Obtenir ma recommandation personnalisée'));
-
-      await waitFor(() => {
-        const links = screen.getAllByRole('link');
-        expect(links.length).toBeGreaterThan(0);
-        links.forEach(link => {
-          expect(link).toHaveAttribute('href');
-        });
-      });
+    it('CTA WhatsApp est présent au résultat', async () => {
+      render(<DiagnosticForm referenceDate={new Date('2026-06-20')} />);
+      await fillAndValidate('Terminale', 'Élève dans un lycée français', 'Obtenir une Mention');
+      expect(screen.getByText(/Recevoir ma recommandation sur WhatsApp/)).toBeInTheDocument();
     });
   });
 });

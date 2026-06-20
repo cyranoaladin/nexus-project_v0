@@ -8,10 +8,12 @@ import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { motion } from 'framer-motion';
 import { ArrowRight, Check, ClipboardList, Lightbulb, Rocket, Target } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 interface DiagnosticFormProps {
   className?: string;
+  /** Override "now" for testing auto-advance */
+  referenceDate?: Date;
 }
 
 interface FormData {
@@ -53,55 +55,36 @@ const DIAGNOSTIC_QUESTIONS = [
   }
 ];
 
-// Derive next stage from canonical calendar (auto-advances)
-const _nextStage = getNextStage();
-const _stageAcademie = _nextStage ? `Stage ${_nextStage.title}` : undefined;
-const _stageDates = _nextStage?.dates_display || undefined;
-
-const RECOMMENDATIONS: Record<string, Recommendation> = {
+// Static parcours data (no stage info — injected at render via useMemo)
+const PARCOURS: Record<string, { parcours: string; description: string; parcoursLink: string }> = {
   'Première-Lycée-Français': {
     parcours: 'Odyssée Première : Le Parcours Anticipé',
     description: 'Spécialement conçu pour optimiser le contrôle continu et préparer l\'EAF avec excellence.',
     parcoursLink: '/offres#odyssee',
-    academie: _stageAcademie,
-    academieDescription: _stageDates,
-    academieLink: '/stages',
   },
   'Terminale-Lycée-Mention': {
     parcours: 'Odyssée Terminale : La Stratégie Mention',
     description: 'Conçu pour exceller dans les matières à fort coefficient et obtenir une mention.',
     parcoursLink: '/offres#odyssee',
-    academie: _stageAcademie,
-    academieDescription: _stageDates,
-    academieLink: '/stages',
   },
   'Terminale-Lycée-Parcoursup': {
     parcours: 'Odyssée Terminale : La Stratégie Mention',
     description: 'Optimise votre dossier Parcoursup avec une stratégie complète.',
     parcoursLink: '/offres#odyssee',
-    academie: _stageAcademie,
-    academieDescription: _stageDates,
-    academieLink: '/stages',
   },
   'Première-Lycée-Controle': {
     parcours: 'Odyssée Première : Le Parcours Anticipé',
     description: 'Maximisez votre contrôle continu avec un suivi personnalisé.',
     parcoursLink: '/offres#odyssee',
-    academie: _stageAcademie,
-    academieDescription: _stageDates,
-    academieLink: '/stages',
   },
   'CandidatLibre-Cadre': {
     parcours: 'Odyssée Individuel : La Préparation Intégrale',
     description: 'Votre établissement privé à domicile pour obtenir votre Bac.',
     parcoursLink: '/offres#odyssee',
-    academie: _stageAcademie,
-    academieDescription: _stageDates,
-    academieLink: '/stages',
   }
 };
 
-export function DiagnosticForm({ className }: DiagnosticFormProps) {
+export function DiagnosticForm({ className, referenceDate }: DiagnosticFormProps) {
   const [formData, setFormData] = useState<FormData>({
     classe: '',
     statut: '',
@@ -110,6 +93,23 @@ export function DiagnosticForm({ className }: DiagnosticFormProps) {
 
   const [isComplete, setIsComplete] = useState(false);
   const [isValidated, setIsValidated] = useState(false);
+
+  // Build recommendations at RENDER time — auto-advances with date
+  const RECOMMENDATIONS = useMemo(() => {
+    const nextStage = getNextStage(referenceDate);
+    const stageAcademie = nextStage ? `Stage ${nextStage.title}` : undefined;
+    const stageDates = nextStage?.dates_display || undefined;
+    const result: Record<string, Recommendation> = {};
+    for (const [key, parcours] of Object.entries(PARCOURS)) {
+      result[key] = {
+        ...parcours,
+        academie: stageAcademie,
+        academieDescription: stageDates,
+        academieLink: nextStage ? '/stages' : undefined,
+      };
+    }
+    return result;
+  }, [referenceDate]);
 
   const handleOptionSelect = (questionId: string, option: string) => {
     const newFormData = { ...formData, [questionId]: option };
