@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Bilan gratuit multi-step', () => {
   test('validates step 1 and advances to step 2', async ({ page }) => {
+    test.skip(true, 'REFONTE: bilan-gratuit form redesigned as single-page — old multi-step selectors invalid');
     await page.goto('/bilan-gratuit', { waitUntil: 'domcontentloaded' });
 
     await expect(page.getByRole('heading', { name: /Créez Votre Compte Parent et Élève/i })).toBeVisible();

@@ -290,21 +290,21 @@ test.describe('Public front go-live smoke', () => {
 
     await expect(page.locator('input[type="password"]')).toHaveCount(0);
 
-    await page.getByLabel('Prénom du parent', { exact: true }).fill('Sara');
-    await page.getByRole('textbox', { name: 'Nom du parent', exact: true }).fill('Ben Ali');
-    await page.getByLabel('Email', { exact: true }).fill(`sara.${Date.now()}@example.com`);
+    await page.locator('#parentFirstName').fill('Sara');
+    await page.locator('#parentLastName').fill('Ben Ali');
+    await page.locator('#parentEmail').fill(`sara.${Date.now()}@example.com`);
     await page.locator('#parentPhone').fill('+216 99 19 28 29');
-    await page.getByLabel('Prénom de l\'élève', { exact: true }).fill('Amine');
-    await page.getByLabel('Classe', { exact: true }).selectOption('premiere');
-    await page.getByLabel('Établissement', { exact: true }).fill('Lycée français');
+    await page.locator('#studentFirstName').fill('Amine');
+    await page.locator('#studentGrade').selectOption('premiere');
+    await page.locator('#studentSchool').fill('Lycée français');
     const mathCheckbox = page.getByRole('checkbox', { name: 'Mathématiques' });
     await page.getByText('Mathématiques', { exact: true }).click();
     await expect(mathCheckbox).toBeChecked();
-    await page.getByLabel('Besoin principal', { exact: true }).fill('Préparer une remise à niveau avant la rentrée.');
-    await page.getByLabel('Message libre', { exact: true }).fill('Besoin d\'un échange pédagogique pour clarifier les priorités.');
-    const consentCheckbox = page.getByRole('checkbox', { name: /j\'accepte d\'être contacté/i });
-    await page.getByText(/j\'accepte d\'être contacté/i).click();
-    await expect(consentCheckbox).toBeChecked();
+    await page.locator('#objectives').fill('Préparer une remise à niveau avant la rentrée.');
+    await page.locator('#difficulties').fill("Besoin d'un echange pedagogique pour clarifier les priorites.");
+    const consentLabel = page.locator('label:has(button[role="checkbox"])');
+    await consentLabel.click();
+    await expect(consentLabel.locator('button[role="checkbox"]')).toHaveAttribute('data-state', 'checked');
 
     await page.route('**/api/bilan-gratuit', async (route) => {
       await route.fulfill({
@@ -325,21 +325,21 @@ test.describe('Public front go-live smoke', () => {
     await page.waitForLoadState('domcontentloaded');
     await page.waitForTimeout(1000);
 
-    await page.getByLabel('Prénom du parent', { exact: true }).fill('Sara');
-    await page.getByRole('textbox', { name: 'Nom du parent', exact: true }).fill('Ben Ali');
-    await page.getByLabel('Email', { exact: true }).fill(`sara.${Date.now()}@example.com`);
+    await page.locator('#parentFirstName').fill('Sara');
+    await page.locator('#parentLastName').fill('Ben Ali');
+    await page.locator('#parentEmail').fill(`sara.${Date.now()}@example.com`);
     await page.locator('#parentPhone').fill('+216 99 19 28 29');
-    await page.getByLabel('Prénom de l\'élève', { exact: true }).fill('Amine');
-    await page.getByLabel('Classe', { exact: true }).selectOption('premiere');
-    await page.getByLabel('Établissement', { exact: true }).fill('Lycée français');
+    await page.locator('#studentFirstName').fill('Amine');
+    await page.locator('#studentGrade').selectOption('premiere');
+    await page.locator('#studentSchool').fill('Lycee francais');
     const mathCheckboxBot = page.getByRole('checkbox', { name: 'Mathématiques' });
     await page.getByText('Mathématiques', { exact: true }).click();
     await expect(mathCheckboxBot).toBeChecked();
-    await page.getByLabel('Besoin principal', { exact: true }).fill('Préparer une remise à niveau avant la rentrée.');
-    await page.getByLabel('Message libre', { exact: true }).fill('Besoin d\'un échange pédagogique pour clarifier les priorités.');
-    const consentCheckboxBot = page.getByRole('checkbox', { name: /j\'accepte d\'être contacté/i });
-    await page.getByText(/j\'accepte d\'être contacté/i).click();
-    await expect(consentCheckboxBot).toBeChecked();
+    await page.locator('#objectives').fill('Preparer une remise a niveau avant la rentree.');
+    await page.locator('#difficulties').fill("Besoin d'un echange pedagogique pour clarifier les priorites.");
+    const consentLabelBot = page.locator('label:has(button[role="checkbox"])');
+    await consentLabelBot.click();
+    await expect(consentLabelBot.locator('button[role="checkbox"]')).toHaveAttribute('data-state', 'checked');
 
     await page.locator('input[type="text"][aria-hidden="true"]').evaluate((node) => {
       const input = node as HTMLInputElement;
@@ -368,17 +368,17 @@ test.describe('Public front go-live smoke', () => {
     });
 
     await page.goto('/bilan-gratuit', { waitUntil: 'domcontentloaded' });
-    await page.getByLabel('Prénom du parent', { exact: true }).fill('Sara');
-    await page.getByLabel('Nom du parent', { exact: true }).fill('Ben Ali');
-    await page.getByLabel('Email', { exact: true }).fill(`sara.${Date.now()}@example.com`);
+    await page.locator('#parentFirstName').fill('Sara');
+    await page.locator('#parentLastName').fill('Ben Ali');
+    await page.locator('#parentEmail').fill(`sara.${Date.now()}@example.com`);
     await page.locator('#parentPhone').fill('+216 99 19 28 29');
-    await page.getByLabel('Prénom de l\'élève', { exact: true }).fill('Amine');
-    await page.getByLabel('Classe', { exact: true }).selectOption('premiere');
-    await page.getByLabel('Établissement', { exact: true }).fill('Lycée français');
-    await page.getByLabel('Mathématiques', { exact: true }).check();
-    await page.getByLabel('Besoin principal', { exact: true }).fill('Préparer une remise à niveau avant la rentrée.');
-    await page.getByLabel('Message libre', { exact: true }).fill('Besoin d\'un échange pédagogique pour clarifier les priorités.');
-    await page.getByLabel(/j\'accepte d\'être contacté/i).check();
+    await page.locator('#studentFirstName').fill('Amine');
+    await page.locator('#studentGrade').selectOption('premiere');
+    await page.locator('#studentSchool').fill('Lycee francais');
+    await page.getByText('Mathématiques', { exact: true }).click();
+    await page.locator('#objectives').fill('Preparer une remise a niveau avant la rentree.');
+    await page.locator('#difficulties').fill("Besoin d'un echange pedagogique pour clarifier les priorites.");
+    await page.locator('label:has(button[role="checkbox"])').click();
     await page.getByRole('button', { name: /demander mon bilan stratégique gratuit/i }).click();
     await expect(page.getByText(/server error|erreur/i).first()).toBeVisible();
   });

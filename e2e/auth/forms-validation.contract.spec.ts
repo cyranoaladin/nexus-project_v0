@@ -44,9 +44,10 @@ async function fillContactForm(page: import('@playwright/test').Page, data: { no
 test.describe('Bilan Gratuit - Validation formulaire multi-etapes', () => {
   test('Champ email parent format invalide -> message erreur', async ({ page }) => {
     await page.goto('/bilan-gratuit');
-    await page.getByLabel('Email').fill('pasunemail');
+    await page.waitForLoadState('domcontentloaded');
+    await page.locator('#parentEmail').fill('pasunemail');
     // Fill enough required fields to trigger validation
-    await page.getByLabel('Prénom du parent').fill('T');
+    await page.locator('#parentFirstName').fill('T');
     await page.getByRole('button', { name: /demander mon bilan stratégique gratuit/i }).click();
     await expect(page.getByText(/invalide/i).first()).toBeVisible();
   });

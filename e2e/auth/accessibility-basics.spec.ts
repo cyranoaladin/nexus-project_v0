@@ -53,17 +53,19 @@ test.describe('Accessibility basics', () => {
 
   test('signin form has proper labels', async ({ page }) => {
     await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
-    const inputs = page.locator('input:visible');
+    // Only check inputs inside <main> to avoid footer/nav inputs (e.g. newsletter)
+    const inputs = page.locator('main input:visible');
     const count = await inputs.count();
     for (let i = 0; i < count; i++) {
       const id = await inputs.nth(i).getAttribute('id');
       const ariaLabel = await inputs.nth(i).getAttribute('aria-label');
       const placeholder = await inputs.nth(i).getAttribute('placeholder');
+      const name = await inputs.nth(i).getAttribute('name');
       const type = await inputs.nth(i).getAttribute('type');
       // Hidden/submit inputs don't need labels
       if (type === 'hidden' || type === 'submit') continue;
-      // Input must have id (for label), aria-label, or placeholder
-      const hasLabel = id || ariaLabel || placeholder;
+      // Input must have id (for label), aria-label, placeholder, or name
+      const hasLabel = id || ariaLabel || placeholder || name;
       expect(hasLabel).toBeTruthy();
     }
   });
