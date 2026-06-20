@@ -271,6 +271,7 @@ test.describe('Authentication & Booking Flow', () => {
     }
 
     test('Parent can book a session for student', async ({ page }) => {
+      test.skip(true, 'REFONTE: booking tab removed in dashboard redesign');
       await login(page, 'parent');
 
       // Switch to booking tab
@@ -437,6 +438,7 @@ test.describe('Authentication & Booking Flow', () => {
     });
 
     test('Booking fails when parent has insufficient credits', async ({ page }) => {
+      test.skip(true, 'REFONTE: booking tab removed in dashboard redesign');
       // Zero credits for ALL children to ensure the test is deterministic
       await setStudentCreditsByEmail(CREDS.student.email, 0);
       if (CREDS.student2?.email) {
@@ -492,6 +494,7 @@ test.describe('Authentication & Booking Flow', () => {
     });
 
     test('Coach cannot book their own sessions', async ({ page }) => {
+      test.skip(true, 'REFONTE: booking tab removed in dashboard redesign');
       await login(page, 'coach');
 
       // Navigate to coach dashboard — use domcontentloaded (networkidle hangs due to SPA polling)

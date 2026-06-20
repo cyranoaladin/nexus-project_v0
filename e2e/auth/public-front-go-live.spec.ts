@@ -302,7 +302,7 @@ test.describe('Public front go-live smoke', () => {
     await expect(mathCheckbox).toBeChecked();
     await page.locator('#objectives').fill('Préparer une remise à niveau avant la rentrée.');
     await page.locator('#difficulties').fill("Besoin d'un echange pedagogique pour clarifier les priorites.");
-    const consentLabel = page.locator('label:has(button[role="checkbox"])');
+    const consentLabel = page.locator('label').filter({ hasText: /accepte|consent/i });
     await consentLabel.click();
     await expect(consentLabel.locator('button[role="checkbox"]')).toHaveAttribute('data-state', 'checked');
 
@@ -337,7 +337,7 @@ test.describe('Public front go-live smoke', () => {
     await expect(mathCheckboxBot).toBeChecked();
     await page.locator('#objectives').fill('Preparer une remise a niveau avant la rentree.');
     await page.locator('#difficulties').fill("Besoin d'un echange pedagogique pour clarifier les priorites.");
-    const consentLabelBot = page.locator('label:has(button[role="checkbox"])');
+    const consentLabelBot = page.locator('label').filter({ hasText: /accepte|consent/i });
     await consentLabelBot.click();
     await expect(consentLabelBot.locator('button[role="checkbox"]')).toHaveAttribute('data-state', 'checked');
 
