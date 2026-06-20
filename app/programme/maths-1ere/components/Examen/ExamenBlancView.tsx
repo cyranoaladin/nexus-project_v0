@@ -26,7 +26,7 @@ type AutomatismeState = Record<string, { reponse: string; revealed: boolean; sel
 type ExerciceScoreState = Record<string, number>;
 
 export const ExamenBlancView: React.FC = () => {
-  // F41: Load persisted exam state from store
+  // Load persisted exam state from store
   const store = useMathsLabStore();
   const persistedExam = store.examState;
 
@@ -39,7 +39,7 @@ export const ExamenBlancView: React.FC = () => {
   const [expandedQ, setExpandedQ] = useState<string | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // F41: Persist exam state to store on changes
+  // Persist exam state to store on changes
   useEffect(() => {
     const isExamActive = mode === 'automatismes' || mode === 'exercices';
     if (isExamActive) {
@@ -75,7 +75,7 @@ export const ExamenBlancView: React.FC = () => {
   }, [isTimerRunning, timeUp]);
 
   const startExam = useCallback(() => {
-    // F41: Clear any previous exam state
+    // Clear any previous exam state
     store.clearExamState();
     setElapsedSeconds(0);
     setAutoStates({});
@@ -90,7 +90,7 @@ export const ExamenBlancView: React.FC = () => {
     setAutoStates({});
     setExScores({});
     setMode('accueil');
-    // F41: Clear persisted exam state
+    // Clear persisted exam state
     store.clearExamState();
   }, [store]);
 

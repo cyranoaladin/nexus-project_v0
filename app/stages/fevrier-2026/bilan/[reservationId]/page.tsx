@@ -1,5 +1,5 @@
 /**
- * F53: LEGACY — Cette page est en cours d'extinction
+ * LEGACY — Cette page est en cours d'extinction
  * La nouvelle surface canonique est /stages/[stageSlug]/bilan/[reservationId]
  * Migration: Les réservations avec scoringResult devraient rediriger vers la nouvelle surface
  * @deprecated Utiliser /stages/[stageSlug]/bilan/[reservationId] avec BilanClient canonique
@@ -36,7 +36,7 @@ export default async function BilanPage({ params }: PageProps) {
     },
   });
 
-  // F53: Migration vers nouvelle surface si stageSlug existe
+  // Migration vers nouvelle surface si stageSlug existe
   if (reservation?.stage?.slug && reservation.stage.slug !== 'fevrier-2026') {
     redirect(`/stages/${reservation.stage.slug}/bilan/${reservationId}`);
   }

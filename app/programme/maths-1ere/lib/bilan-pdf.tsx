@@ -1,5 +1,5 @@
 /**
- * F48: PDF Export for Maths 1ere Bilan
+ * PDF Export for Maths 1ere Bilan
  * Lightweight PDF generation using @react-pdf/renderer
  */
 

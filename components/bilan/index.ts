@@ -1,5 +1,5 @@
 /**
- * F52: Components bilans canoniques — Barrel export
+ * Components bilans canoniques — Barrel export
  */
 
 export { default as BilanViewer } from './BilanViewer';

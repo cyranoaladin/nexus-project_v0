@@ -259,6 +259,7 @@ export default function DashboardExcellencePage() {
 
   return (
     <main
+      id="main-content"
       className={`${outfit.className} ${outfit.variable} ${spaceGrotesk.variable} min-h-screen bg-slate-950 pb-32 text-slate-100`}
     >
       <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_10%_20%,rgba(99,102,241,0.15),transparent_38%),radial-gradient(circle_at_85%_80%,rgba(244,114,182,0.12),transparent_38%)]" />

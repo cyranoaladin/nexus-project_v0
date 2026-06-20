@@ -1,5 +1,5 @@
 /**
- * F50: Bilan Generation API
+ * Bilan Generation API
  * POST /api/bilans/generate — Trigger LLM generation for a bilan
  */
 

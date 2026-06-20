@@ -48,7 +48,7 @@ function parsePayload(raw: unknown): ProgressPayload | null {
 
 /**
  * POST /api/programme/maths-terminale/progress
- * Save Terminale progress to Prisma (F16/F17 — source of truth migration)
+ * Save Terminale progress to Prisma
  */
 export async function POST(request: Request) {
   const session = await auth();
@@ -130,7 +130,7 @@ export async function POST(request: Request) {
 
 /**
  * GET /api/programme/maths-terminale/progress
- * Retrieve Terminale progress from Prisma (F16/F17 — source of truth migration)
+ * Retrieve Terminale progress from Prisma
  */
 export async function GET() {
   const session = await auth();

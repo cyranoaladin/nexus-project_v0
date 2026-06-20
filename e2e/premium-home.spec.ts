@@ -2,129 +2,71 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Premium Home Journey', () => {
     test.beforeEach(async ({ page }) => {
-        // Log console errors to help debugging
-        page.on('console', msg => {
-            if (msg.type() === 'error') console.log(`[Browser Error]: ${msg.text()}`);
-        });
-
-        page.on('pageerror', err => {
-            console.log(`[Page Error]: ${err.message}`);
-        });
-
-        // Reduce animations for faster, more deterministic tests
         await page.emulateMedia({ reducedMotion: 'reduce' });
         await page.goto('/', { waitUntil: 'networkidle' });
     });
 
     test('Hero Section loads with premium content', async ({ page }) => {
-        // Wait for hero section to be fully loaded
-        const heroSection = page.locator('#hero');
+        const heroSection = page.locator('main > section').first();
         await expect(heroSection).toBeVisible({ timeout: 10000 });
 
-        // Verify heading with flexible timeout
-        const heading = page.getByRole('heading', { name: /réussite au Bac|Pédagogie Augmentée/i });
+        const heading = page.getByRole('heading', { name: /préparer le bac français/i });
         await expect(heading).toBeVisible({ timeout: 10000 });
 
-        // Verify key premium content
-        await expect(heroSection.getByText(/IA pédagogique|IA ARIA|ARIA/i).first()).toBeVisible({ timeout: 10000 });
+        // Verify reassurance items in hero
+        await expect(heroSection.getByText('Cellule Cyclades')).toBeVisible({ timeout: 10000 });
     });
 
     test('Navigation Menu opens and closes', async ({ page }) => {
-        // The hamburger menu is only visible on mobile (md:hidden)
         await page.setViewportSize({ width: 375, height: 812 });
         await page.goto('/', { waitUntil: 'networkidle' });
 
-        // Find menu button — aria-label is "Ouvrir le menu" and contains text "Menu"
-        const menuButton = page.getByRole('button', { name: /Menu|Ouvrir le menu|☰|Navigation/i }).first();
+        const menuButton = page.getByRole('button', { name: /ouvrir le menu/i });
         await expect(menuButton).toBeVisible({ timeout: 10000 });
 
-        // Open menu
         await menuButton.click();
-        await page.waitForTimeout(300); // Wait for animation
+        await page.waitForTimeout(300);
 
-        // Verify menu is open (nav becomes visible with navigation links)
-        const navLink = page.locator('nav a').filter({ hasText: /Accueil/i }).first();
-        const isNavVisible = await navLink.isVisible({ timeout: 5000 }).catch(() => false);
-        if (!isNavVisible) {
-            const navCount = await navLink.count();
-            expect(navCount).toBeGreaterThan(0);
-        } else {
-            await expect(navLink).toBeVisible({ timeout: 5000 });
-        }
+        // Verify menu is open — nav links are visible
+        const navLink = page.locator('#primary-menu a').filter({ hasText: /Offres & tarifs/i }).first();
+        await expect(navLink).toBeVisible({ timeout: 5000 });
 
-        // Close menu - try multiple possible close buttons
-        const closeButton = page.locator('#close-menu, [aria-label*="Close"], button:has-text("×")').first();
-        if (await closeButton.isVisible().catch(() => false)) {
-            await closeButton.click({ force: true });
-            await page.waitForTimeout(300); // Wait for close animation
-        }
+        // Close menu
+        const closeButton = page.locator('#close-menu');
+        await closeButton.click({ force: true });
+        await page.waitForTimeout(300);
+        await expect(menuButton).toHaveAttribute('aria-expanded', 'false');
     });
 
-    test('Paths Section displays personas', async ({ page }) => {
-        // Scroll to paths section
-        const pathsSection = page.locator('#paths');
-        await pathsSection.scrollIntoViewIfNeeded();
+    test('Method Section displays approach', async ({ page }) => {
+        // MethodSection is section 4 in the homepage
+        const sections = page.locator('main > section');
+        const count = await sections.count();
+        expect(count).toBeGreaterThanOrEqual(8);
 
-        // Wait for section to be in viewport
-        await expect(pathsSection).toBeInViewport({ timeout: 5000 });
-
-        // Wait for GSAP animations with explicit timeout
-        await page.waitForTimeout(1000);
-
-        // Verify persona heading with flexible matching
-        const personaHeading = page.getByRole('heading', { name: /Élève|Lycée|Prépas|Student/i });
-        await expect(personaHeading.first()).toBeVisible({ timeout: 10000 });
+        // Find the method section by heading
+        const methodHeading = page.getByRole('heading', { name: /méthode|approche|comment ça marche/i });
+        await expect(methodHeading.first()).toBeVisible({ timeout: 10000 });
     });
 
-    test('Offer Section tabs interaction', async ({ page }) => {
-        const offerSection = page.locator('#offer');
-        await offerSection.scrollIntoViewIfNeeded();
+    test('Pricing anchors are visible', async ({ page }) => {
+        // PricingReperesSection shows pricing anchor cards
+        const pricingText = page.getByText(/repères tarifaires|tous les tarifs/i).first();
+        await pricingText.scrollIntoViewIfNeeded();
+        await expect(pricingText).toBeVisible({ timeout: 10000 });
 
-        // Wait for section to be in viewport
-        await expect(offerSection).toBeInViewport({ timeout: 5000 });
-        await page.waitForTimeout(1000); // GSAP animation
-
-        // Find and click tab (flexible selector)
-        const tabBtn = page.locator('button').filter({ hasText: /Parents|Élèves/i }).first();
-
-        if (await tabBtn.isVisible({ timeout: 10000 }).catch(() => false)) {
-            // Scroll tab into view and click
-            await tabBtn.scrollIntoViewIfNeeded();
-            await tabBtn.click({ force: true });
-            await page.waitForTimeout(500); // Tab transition
-
-            // Verify content loaded (flexible matching)
-            const contentHeading = page.getByRole('heading', { name: /Accompagnement|Elite|Premium/i });
-            await expect(contentHeading.first()).toBeVisible({ timeout: 10000 });
-        } else {
-            console.log('⚠️  Tab button not found - may be different layout');
-        }
+        // Verify at least one pricing anchor card exists
+        const pricingCard = page.getByText(/TND/i).first();
+        await expect(pricingCard).toBeVisible({ timeout: 10000 });
     });
 
-    test('Contact Form profile selector', async ({ page }) => {
-        const contactSection = page.locator('#contact');
-        await contactSection.scrollIntoViewIfNeeded();
+    test('CTA bilan gratuit is accessible', async ({ page }) => {
+        const ctaSection = page.locator('section[aria-label="Demander un bilan gratuit"]');
+        await ctaSection.scrollIntoViewIfNeeded();
+        await expect(ctaSection).toBeInViewport({ timeout: 5000 });
 
-        // Wait for section to be in viewport
-        await expect(contactSection).toBeInViewport({ timeout: 5000 });
-        await page.waitForTimeout(500);
-
-        // Verify form is visible (flexible selector)
-        const formInput = page.locator('input, textarea').first();
-        await expect(formInput).toBeVisible({ timeout: 10000 });
-
-        // Try to find profile selector button
-        const profileBtn = page.locator('button').filter({ hasText: /Élève|Parent|Student/i }).first();
-
-        if (await profileBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
-            await profileBtn.click({ force: true });
-            await page.waitForTimeout(300);
-
-            // Verify conditional field appears (flexible matching)
-            const conditionalField = page.locator('label, input').filter({ hasText: /Nom complet|Email|Téléphone|établissement|Message/i });
-            await expect(conditionalField.first()).toBeVisible({ timeout: 5000 });
-        } else {
-            console.log('⚠️  Profile selector not found - may be different form structure');
-        }
+        const ctaLink = ctaSection.getByRole('link', { name: /bilan gratuit/i });
+        await expect(ctaLink).toBeVisible({ timeout: 10000 });
+        await expect(ctaLink).toHaveAttribute('href', '/bilan-gratuit');
     });
 });

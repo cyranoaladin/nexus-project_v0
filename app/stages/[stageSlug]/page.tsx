@@ -78,7 +78,7 @@ export default async function StageDetailPage({ params }: PageProps) {
     <div className="relative min-h-screen bg-surface-darker text-neutral-100">
       <CorporateNavbar />
 
-      <main className="relative z-10 pt-28">
+      <main id="main-content" className="relative z-10 pt-28">
         <section className="mx-auto max-w-7xl px-6 pb-10">
           <div className="rounded-[36px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(143,175,196,0.18),transparent_40%),linear-gradient(145deg,rgba(17,24,38,0.95),rgba(7,11,18,0.98))] px-8 py-10 md:px-12 md:py-14">
             <div className="flex flex-wrap gap-2">

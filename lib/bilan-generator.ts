@@ -24,7 +24,7 @@ export interface GeneratedBilans {
   ragUsed: boolean;
   ragHitCount: number;
   ragCollections: string[];
-  ragError?: boolean; // F30: true if RAG search failed explicitly
+  ragError?: boolean; // true if RAG search failed explicitly
 }
 
 /**
@@ -332,7 +332,7 @@ VERBATIMS:
 
 
   const ragUsed = uniqueHits.length > 0;
-  const ragError = !ragUsed && ragCollections.length > 0; // F30: Error if no hits but collections were requested
+  const ragError = !ragUsed && ragCollections.length > 0; // Error if no hits but collections were requested
   return { eleve, parents, nexus, ragUsed, ragHitCount: uniqueHits.length, ragCollections, ragError };
 }
 

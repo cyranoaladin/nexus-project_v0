@@ -11,7 +11,7 @@ const openai = new OpenAI({
 // ARIA_SYSTEM_PROMPT imported from '@/lib/aria/prompt' — single source of truth
 
 async function searchKnowledgeBase(query: string, subject: Subject, limit: number = 3) {
-  // F26: Use canonical RAG circuit (ChromaDB via ragSearch)
+  // Use canonical RAG circuit (ChromaDB via ragSearch)
   const hits = await ragSearch({
     query,
     k: limit,

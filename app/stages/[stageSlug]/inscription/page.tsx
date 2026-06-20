@@ -24,7 +24,7 @@ export default async function StageInscriptionPage({ params }: PageProps) {
     <div className="relative min-h-screen bg-surface-darker text-neutral-100">
       <CorporateNavbar />
 
-      <main className="relative z-10 pt-28">
+      <main id="main-content" className="relative z-10 pt-28">
         <section className="mx-auto max-w-7xl px-6 pb-20">
           <div className="grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
             <aside className="rounded-[28px] border border-white/10 bg-white/5 p-6 backdrop-blur-sm">

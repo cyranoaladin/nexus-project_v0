@@ -188,7 +188,7 @@ export async function computeAndPersistSSN(
   const result = await computeSSNForAssessment(assessmentId);
   if (!result) return null;
 
-  // F18 — Persist SSN on assessment via Prisma client typé
+  // Persist SSN on assessment via Prisma client typé
   await prisma.assessment.update({
     where: { id: assessmentId },
     data: { ssn: result.ssn },

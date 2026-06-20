@@ -77,10 +77,10 @@ export async function GET(
 
     // ─── Learning Graph v2: SSN, domain scores, skill scores ────────────────
 
-    // F18 — Fetch SSN via Prisma (already loaded in assessment, but ensure fresh value)
+    // Fetch SSN via Prisma (already loaded in assessment, but ensure fresh value)
     const ssn = assessment.ssn ?? null;
 
-    // F18 — Fetch domain scores via Prisma client typé
+    // Fetch domain scores via Prisma client typé
     const domainScores = await prisma.domainScore.findMany({
       where: { assessmentId: id },
       orderBy: { score: 'desc' },
@@ -95,7 +95,7 @@ export async function GET(
       score: domainMap.get(domain) ?? 0,
     }));
 
-    // F18 — Fetch skill scores via Prisma client typé
+    // Fetch skill scores via Prisma client typé
     const skillScores = await prisma.skillScore.findMany({
       where: { assessmentId: id },
       orderBy: { score: 'asc' },
@@ -106,7 +106,7 @@ export async function GET(
 
     const cohortStats = await computeCohortStats({ type: assessment.subject });
 
-    // F18 — Compute cohort percentile if SSN is available via Prisma
+    // Compute cohort percentile if SSN is available via Prisma
     let percentile: number | null = null;
     if (ssn !== null) {
       const cohortAssessments = await prisma.assessment.findMany({

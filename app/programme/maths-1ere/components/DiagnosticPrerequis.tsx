@@ -26,7 +26,7 @@ export default function DiagnosticPrerequis({ chapId, questions, onComplete, onN
 
   const score = answers.filter((a, i) => a === questions[i].correct).length;
 
-  // F43: Track which questions were failed for remediation
+  // Track which questions were failed for remediation
   const failedQuestions = answers.map((a, i) => ({ answer: a, question: questions[i] }))
     .filter(({ answer, question }) => answer !== question.correct);
   const remediationsNeeded = [...new Set(failedQuestions.map(fq => fq.question.remediation))];
@@ -79,7 +79,7 @@ export default function DiagnosticPrerequis({ chapId, questions, onComplete, onN
       {score >= questions.length * 0.7 ? <p className="text-xs text-green-300">Pré-requis solides. Tu peux avancer.</p> : (
         <>
           <p className="text-xs text-amber-300 mb-3">Quelques prérequis à consolider avant de poursuivre.</p>
-          {/* F43: Remediation links */}
+          {/* Remediation links */}
           {remediationsNeeded.length > 0 && (
             <div className="space-y-2 mb-3">
               <p className="text-xs font-bold text-amber-400">Révisions recommandées :</p>

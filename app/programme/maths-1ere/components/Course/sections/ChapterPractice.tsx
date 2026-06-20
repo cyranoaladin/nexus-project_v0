@@ -59,7 +59,7 @@ export const ChapterPractice: React.FC<ChapterPracticeProps> = ({
   const [hintLevel, setHintLevel] = useState(0);
   const [showSolution, setShowSolution] = useState(false);
 
-  // F39: Check if prerequisites are met
+  // Check if prerequisites are met
   const store = useMathsLabStore();
   const missingPrerequis = chap.prerequis?.filter(
     (pre) => !store.completedChapters.includes(pre)
@@ -76,7 +76,7 @@ export const ChapterPractice: React.FC<ChapterPracticeProps> = ({
 
   return (
     <div className="space-y-10">
-      {/* F39: Prerequis Warning */}
+      {/* Prerequis Warning */}
       {hasMissingPrerequis && (
         <div className="bg-amber-950/30 rounded-2xl p-4 border border-amber-600/30">
           <div className="flex items-start gap-3">

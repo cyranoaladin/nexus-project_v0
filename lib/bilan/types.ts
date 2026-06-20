@@ -1,5 +1,5 @@
 /**
- * F49: Canonical Bilan Types
+ * Canonical Bilan Types
  * Unified type definitions for all bilan sources (Diagnostic, Assessment, StageBilan)
  */
 

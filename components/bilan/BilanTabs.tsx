@@ -1,5 +1,5 @@
 /**
- * F52: BilanTabs — Navigation entre audiences de bilan
+ * BilanTabs — Navigation entre audiences de bilan
  * Onglets pour switcher entre les versions élève, parents, Nexus
  */
 

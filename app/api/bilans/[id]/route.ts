@@ -1,5 +1,5 @@
 /**
- * F50: Bilan Individual API
+ * Bilan Individual API
  * GET /api/bilans/[id] — Get bilan by ID
  * PUT /api/bilans/[id] — Update bilan
  * DELETE /api/bilans/[id] — Delete bilan

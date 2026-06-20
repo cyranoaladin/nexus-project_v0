@@ -1,5 +1,5 @@
 /**
- * F52: BilanViewer — Composant canonique de visualisation de bilan
+ * BilanViewer — Composant canonique de visualisation de bilan
  * Affiche un bilan avec gestion des audiences (élève, famille, Nexus)
  */
 

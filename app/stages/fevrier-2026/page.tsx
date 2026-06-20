@@ -48,7 +48,7 @@ export default function StagesFevrier2026Page() {
 
       <CorporateNavbar />
 
-      <main className="pt-24">
+      <main id="main-content" className="pt-24">
         {/* B — HERO (above the fold) */}
         <StagesHero stats={stats} />
 

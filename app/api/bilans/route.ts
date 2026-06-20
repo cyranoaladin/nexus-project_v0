@@ -1,5 +1,5 @@
 /**
- * F50: Bilans API — CRUD Canonical
+ * Bilans API — CRUD Canonical
  * GET /api/bilans — List bilans with filtering
  * POST /api/bilans — Create new bilan
  */

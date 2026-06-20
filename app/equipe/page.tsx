@@ -481,7 +481,7 @@ export default function EquipePage() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 equipe-dark">
 
-      <main className="pb-20">
+      <main id="main-content" className="pb-20">
         {/* HERO */}
         <section className="relative overflow-hidden py-20">
           <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-950/70 to-slate-950" />
@@ -809,7 +809,7 @@ export default function EquipePage() {
                       {mentor.name.slice(0, 1)}
                     </div>
                     <div>
-                      <h4 className="text-sm font-semibold text-white">{mentor.name}</h4>
+                      <h3 className="text-sm font-semibold text-white">{mentor.name}</h3>
                       <div className="text-xs text-slate-300">{mentor.title}</div>
                     </div>
                   </div>

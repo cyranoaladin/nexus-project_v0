@@ -117,7 +117,7 @@ export async function computeAndPersistUAI(
   studentEmail: string,
   weights: UAIWeights = DEFAULT_UAI_WEIGHTS
 ): Promise<UAIResult | null> {
-  // F18 — Fetch latest SSN per subject for this student via Prisma
+  // Fetch latest SSN per subject for this student via Prisma
   // Note: DISTINCT ON is PostgreSQL-specific; we use groupBy-like pattern with Prisma
   const assessments = await prisma.assessment.findMany({
     where: {
@@ -150,7 +150,7 @@ export async function computeAndPersistUAI(
   const result = computeUAI(ssnBySubject, weights);
   if (!result) return null;
 
-  // F18 — Persist UAI on the most recent assessment for each subject via Prisma
+  // Persist UAI on the most recent assessment for each subject via Prisma
   for (const a of latestAssessments) {
     await prisma.assessment.update({
       where: { id: a.id },

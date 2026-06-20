@@ -1,5 +1,5 @@
 /**
- * F50: Canonical Bilan Generator
+ * Canonical Bilan Generator
  * Unified LLM generation for all bilan sources (Diagnostic, Assessment, Stage)
  * Consolidates lib/bilan-generator.ts + lib/assessments/generators/index.ts
  */
