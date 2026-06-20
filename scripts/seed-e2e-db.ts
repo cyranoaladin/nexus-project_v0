@@ -42,6 +42,25 @@ async function main() {
   console.log('✅ Database cleared\n');
 
   // =============================================================================
+  // RAW TABLES (not in Prisma schema — created by scripts/migrate-eam.ts in prod)
+  // =============================================================================
+  console.log('🗄️  Creating raw tables (eam_progress)...');
+  await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS eam_progress (
+      id          TEXT        PRIMARY KEY,
+      user_id     TEXT        NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+      checks      JSONB       NOT NULL DEFAULT '{}',
+      quiz        JSONB       NOT NULL DEFAULT '{}',
+      updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+  `);
+  await prisma.$executeRawUnsafe(`
+    CREATE INDEX IF NOT EXISTS idx_eam_progress_user_id ON eam_progress(user_id);
+  `);
+  console.log('  ✓ eam_progress table ready\n');
+
+  // =============================================================================
   // PASSWORD HASHES
   // =============================================================================
   const hashedPassword = await bcrypt.hash('password123', 10);
