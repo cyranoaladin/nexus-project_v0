@@ -10,6 +10,7 @@
  */
 
 import { AcademicTrack, GradeLevel, PrismaClient, StmgPathway, UserRole, Subject } from '@prisma/client';
+import { ensureEamProgressTable } from './migrate-eam';
 import bcrypt from 'bcryptjs';
 import * as dotenv from 'dotenv';
 import path from 'path';
@@ -42,22 +43,10 @@ async function main() {
   console.log('✅ Database cleared\n');
 
   // =============================================================================
-  // RAW TABLES (not in Prisma schema — created by scripts/migrate-eam.ts in prod)
+  // RAW TABLES (not in Prisma schema — DDL source unique: scripts/migrate-eam.ts)
   // =============================================================================
   console.log('🗄️  Creating raw tables (eam_progress)...');
-  await prisma.$executeRawUnsafe(`
-    CREATE TABLE IF NOT EXISTS eam_progress (
-      id          TEXT        PRIMARY KEY,
-      user_id     TEXT        NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
-      checks      JSONB       NOT NULL DEFAULT '{}',
-      quiz        JSONB       NOT NULL DEFAULT '{}',
-      updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    );
-  `);
-  await prisma.$executeRawUnsafe(`
-    CREATE INDEX IF NOT EXISTS idx_eam_progress_user_id ON eam_progress(user_id);
-  `);
+  await ensureEamProgressTable(prisma);
   console.log('  ✓ eam_progress table ready\n');
 
   // =============================================================================
