@@ -89,9 +89,12 @@ services:
         condition: service_healthy
     volumes:
       - e2e-shared:/app/e2e-shared
+      - ./e2e:/app/e2e
+      - ./__tests__/e2e:/app/__tests__/e2e
     environment:
       BASE_URL: http://app-e2e:3000
       CI: "true"
+      PLAYWRIGHT_ARGS: "${PLAYWRIGHT_ARGS:-}"
     networks:
       - e2e-network
 
