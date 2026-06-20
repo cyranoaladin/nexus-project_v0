@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Premium Home Journey', () => {
     test.beforeEach(async ({ page }) => {
         await page.emulateMedia({ reducedMotion: 'reduce' });
-        await page.goto('/', { waitUntil: 'networkidle' });
+        await page.goto('/', { waitUntil: 'domcontentloaded' });
     });
 
     test('Hero Section loads with premium content', async ({ page }) => {
@@ -19,7 +19,7 @@ test.describe('Premium Home Journey', () => {
 
     test('Navigation Menu opens and closes', async ({ page }) => {
         await page.setViewportSize({ width: 375, height: 812 });
-        await page.goto('/', { waitUntil: 'networkidle' });
+        await page.goto('/', { waitUntil: 'domcontentloaded' });
 
         const menuButton = page.getByRole('button', { name: /ouvrir le menu/i });
         await expect(menuButton).toBeVisible({ timeout: 10000 });

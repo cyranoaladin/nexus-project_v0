@@ -37,7 +37,7 @@ test('GET /api/parent/bilans/xxx/pdf Content-Type est json pour 401', async ({ r
 
 test('Page /connexion se charge (redirection auth attendue)', async ({ page }) => {
   await page.goto('/connexion');
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
   // Must land on login/signin page or redirect — never 500
   const url = page.url();
   expect(url).toMatch(/connexion|signin|auth/i);
@@ -45,7 +45,7 @@ test('Page /connexion se charge (redirection auth attendue)', async ({ page }) =
 
 test('Page /dashboard/parent/ sans session redirige vers /connexion', async ({ page }) => {
   await page.goto('/dashboard/parent/bilans');
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
   // Should redirect to login, not show a 500 or blank page
   const url = page.url();
   expect(url).toMatch(/connexion|login|auth/i);

@@ -67,7 +67,7 @@ test.describe('E2E — Coach → Ressource → Élève (P1)', () => {
   test('1. Coach voit uniquement ses élèves assignés', async ({ page }) => {
     await login(page, COACH_EMAIL, COACH_PWD);
     await page.goto('/dashboard/coach/students');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const body = (await page.textContent('body')) || '';
     expect(body, 'élève assigné doit apparaître').toContain(STUDENT_ASSIGNED_EMAIL.split('@')[0]);
@@ -81,7 +81,7 @@ test.describe('E2E — Coach → Ressource → Élève (P1)', () => {
   test('2. Coach ouvre le dossier de son élève (200) et crée une ressource', async ({ page }) => {
     await login(page, COACH_EMAIL, COACH_PWD);
     await page.goto('/dashboard/coach/students');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Cliquer sur le premier lien élève assigné
     const studentLink = page
@@ -89,7 +89,7 @@ test.describe('E2E — Coach → Ressource → Élève (P1)', () => {
       .filter({ hasText: STUDENT_ASSIGNED_EMAIL.split('@')[0] })
       .first();
     await studentLink.click();
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     expect(page.url()).toMatch(/\/dashboard\/coach\/students\/[^/]+/);
 
@@ -105,7 +105,7 @@ test.describe('E2E — Coach → Ressource → Élève (P1)', () => {
   test('3. Élève assigné voit la ressource', async ({ page }) => {
     await login(page, STUDENT_ASSIGNED_EMAIL, STUDENT_ASSIGNED_PWD);
     await page.goto('/dashboard/eleve');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // TODO: adapter quand la route de listing documents élève est confirmée
     // const body = (await page.textContent('body')) || '';
@@ -117,7 +117,7 @@ test.describe('E2E — Coach → Ressource → Élève (P1)', () => {
   test('4. Élève NON assigné ne voit PAS la ressource', async ({ page }) => {
     await login(page, STUDENT_OTHER_EMAIL, STUDENT_OTHER_PWD);
     await page.goto('/dashboard/eleve');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const body = (await page.textContent('body')) || '';
     expect(body, 'ressource doit être invisible pour un autre élève').not.toContain(RESOURCE_TITLE);

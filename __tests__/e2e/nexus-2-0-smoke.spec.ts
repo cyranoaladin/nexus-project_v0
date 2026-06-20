@@ -111,7 +111,7 @@ test.describe('Scenario 2: Admin Dashboard', () => {
 
       // Navigate to directeur dashboard
       await page.goto('/admin/directeur');
-      await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
+      await page.waitForLoadState('domcontentloaded', { timeout: 15000 }).catch(() => {});
 
       // Check that KPI content loads (or 403 redirect if session didn't persist)
       const bodyText = await page.textContent('body');

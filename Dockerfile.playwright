@@ -12,6 +12,10 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci
 
+# Generate Prisma client (needed by e2e/helpers/db.ts)
+COPY prisma ./prisma
+RUN npx prisma generate
+
 # Copy test files and configs
 COPY __tests__/e2e ./__tests__/e2e
 COPY e2e ./e2e

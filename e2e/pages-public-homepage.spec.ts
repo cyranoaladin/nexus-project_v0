@@ -13,7 +13,7 @@ test.describe('Homepage (/) - Landing Nexus Reussite', () => {
     });
 
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const critical = errors.filter(
       (error) =>
