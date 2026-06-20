@@ -283,7 +283,6 @@ test.describe('Public front go-live smoke', () => {
   });
 
   test('/bilan-gratuit handles the public funnel without password', async ({ page }) => {
-    test.skip(true, 'QUARANTINE: REFONTE: bilan-gratuit form labels changed — \'Prénom de l\\\'élève\' not found');
     await page.setViewportSize({ width: 1440, height: 1200 });
     await page.goto('/bilan-gratuit', { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('domcontentloaded');
@@ -321,7 +320,6 @@ test.describe('Public front go-live smoke', () => {
   });
 
   test('/bilan-gratuit rejects a bot honeypot and server failures are surfaced', async ({ page }) => {
-    test.skip(true, 'QUARANTINE: REFONTE: bilan-gratuit form labels changed — \'Prénom de l\\\'élève\' not found');
     await page.setViewportSize({ width: 1440, height: 1200 });
     await page.goto('/bilan-gratuit', { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('domcontentloaded');

@@ -43,7 +43,6 @@ async function fillContactForm(page: import('@playwright/test').Page, data: { no
 
 test.describe('Bilan Gratuit - Validation formulaire multi-etapes', () => {
   test('Champ email parent format invalide -> message erreur', async ({ page }) => {
-    test.skip(true, 'QUARANTINE: REFONTE: bilan-gratuit form selectors changed');
     await page.goto('/bilan-gratuit');
     await page.getByLabel('Email').fill('pasunemail');
     // Fill enough required fields to trigger validation

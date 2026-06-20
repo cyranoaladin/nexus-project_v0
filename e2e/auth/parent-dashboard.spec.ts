@@ -28,7 +28,7 @@ import { attachCoreApiGuard, assertNoCoreApiFailure, suppressCoreGuard } from '.
 const DASHBOARD_LOAD_TIMEOUT = process.env.CI ? 45000 : 35000;
 const NETWORK_TIMEOUT = 10000;
 
-test.describe.skip('Parent Dashboard — QUARANTINE: PRE-EXISTING: expects parent-dashboard-ready testId and fixture names not in seed', () => {
+test.describe('Parent Dashboard', () => {
   test.beforeEach(async ({ page }) => {
     // Reduce animations for deterministic tests
     await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -90,6 +90,7 @@ test.describe.skip('Parent Dashboard — QUARANTINE: PRE-EXISTING: expects paren
 
   test.describe('Dashboard Load & Data Visibility', () => {
     test('Parent can login and dashboard loads successfully', async ({ page }) => {
+      test.skip(true, 'PRE-EXISTING: expects parent-dashboard-ready testId not in seed');
       const startTime = Date.now();
       
       await login(page);
@@ -126,6 +127,7 @@ test.describe.skip('Parent Dashboard — QUARANTINE: PRE-EXISTING: expects paren
     });
 
     test('Dashboard displays children list', async ({ page }) => {
+      test.skip(true, 'PRE-EXISTING: expects fixture names Yasmine/Karim not in seed');
       await login(page);
       await waitForLoadingToComplete(page);
 
@@ -141,6 +143,7 @@ test.describe.skip('Parent Dashboard — QUARANTINE: PRE-EXISTING: expects paren
     });
 
     test('Dashboard displays credit information', async ({ page }) => {
+      test.skip(true, 'PRE-EXISTING: expects crédit text not present in current dashboard');
       await login(page);
       await waitForLoadingToComplete(page);
 
@@ -150,6 +153,7 @@ test.describe.skip('Parent Dashboard — QUARANTINE: PRE-EXISTING: expects paren
     });
 
     test('Dashboard displays all main sections', async ({ page }) => {
+      test.skip(true, 'PRE-EXISTING: expects progression/agenda sections not in current dashboard');
       await login(page);
       await waitForLoadingToComplete(page);
 

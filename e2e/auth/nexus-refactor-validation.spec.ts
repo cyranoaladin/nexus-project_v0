@@ -107,7 +107,6 @@ test.describe('F2 — Desktop 1440px', () => {
   });
 
   test('Catalogue and selector: teacher reassurance is present', async ({ page }) => {
-    test.skip(true, 'QUARANTINE: PRE-EXISTING: catalogue/selecteur HTML not in E2E container, or content strings changed');
     for (const path of ['/catalogue-nexus-reussite-2026-2027.html', '/nexus_selecteur.html']) {
       await page.goto(path, { waitUntil: 'domcontentloaded' });
       const scope = path.includes('nexus_selecteur')
@@ -199,7 +198,6 @@ test.describe('F2 — Desktop 1440px', () => {
   });
 
   test('Catalogue: per-card echeancier CTAs are present before enhancement JS', async ({ page }) => {
-    test.skip(true, 'QUARANTINE: PRE-EXISTING: catalogue/selecteur HTML not in E2E container, or content strings changed');
     await page.route('**/*', route => {
       if (route.request().resourceType() === 'script') return route.abort();
       return route.continue();
@@ -245,7 +243,6 @@ test.describe('F2 — JavaScript disabled', () => {
   });
 
   test('Catalogue: head prices and per-card CTAs are present in server HTML', async ({ page }) => {
-    test.skip(true, 'QUARANTINE: PRE-EXISTING: catalogue/selecteur HTML not in E2E container, or content strings changed');
     await page.goto('/catalogue-nexus-reussite-2026-2027.html', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('article.offer').first().locator('.price-main')).toContainText(/TND/);
     const offerCount = await page.locator('article.offer').count();

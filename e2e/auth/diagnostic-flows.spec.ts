@@ -52,7 +52,6 @@ test.describe('Diagnostic Flow — Definitions API', () => {
   });
 
   test('each definition in list has required metadata fields', async ({ request }) => {
-    test.skip(true, 'QUARANTINE: metadata schema changed — assertions need update');
     const res = await request.get('/api/diagnostics/definitions');
     const data = await res.json();
 

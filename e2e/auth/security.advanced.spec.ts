@@ -14,7 +14,6 @@ test.describe('Security - Advanced', () => {
   });
 
   test('IDOR: parent cannot download student document -> 403', async ({ page }) => {
-    test.skip(true, 'QUARANTINE: PRE-EXISTING: document ID from seed does not exist — returns 404');
     const docId = await createTestDocument(CREDS.student.email, `student-private-${Date.now()}.pdf`);
 
     await loginAsUser(page, 'parent');
