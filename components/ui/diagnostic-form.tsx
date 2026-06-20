@@ -3,6 +3,8 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { getNextStage } from '@/lib/pricing';
+import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { motion } from 'framer-motion';
 import { ArrowRight, Check, ClipboardList, Lightbulb, Rocket, Target } from 'lucide-react';
 import Link from 'next/link';
@@ -51,45 +53,50 @@ const DIAGNOSTIC_QUESTIONS = [
   }
 ];
 
+// Derive next stage from canonical calendar (auto-advances)
+const _nextStage = getNextStage();
+const _stageAcademie = _nextStage ? `Stage ${_nextStage.title}` : undefined;
+const _stageDates = _nextStage?.dates_display || undefined;
+
 const RECOMMENDATIONS: Record<string, Recommendation> = {
   'Première-Lycée-Français': {
     parcours: 'Odyssée Première : Le Parcours Anticipé',
     description: 'Spécialement conçu pour optimiser le contrôle continu et préparer l\'EAF avec excellence.',
     parcoursLink: '/offres#odyssee',
-    academie: 'Stage Pré-rentrée août 2026',
-    academieDescription: 'Reprendre le rythme et prendre de l\'avance avant la rentrée.',
+    academie: _stageAcademie,
+    academieDescription: _stageDates,
     academieLink: '/stages',
   },
   'Terminale-Lycée-Mention': {
     parcours: 'Odyssée Terminale : La Stratégie Mention',
     description: 'Conçu pour exceller dans les matières à fort coefficient et obtenir une mention.',
     parcoursLink: '/offres#odyssee',
-    academie: 'Stage Pré-rentrée août 2026',
-    academieDescription: 'Consolider les fondamentaux avant la Terminale.',
+    academie: _stageAcademie,
+    academieDescription: _stageDates,
     academieLink: '/stages',
   },
   'Terminale-Lycée-Parcoursup': {
     parcours: 'Odyssée Terminale : La Stratégie Mention',
     description: 'Optimise votre dossier Parcoursup avec une stratégie complète.',
     parcoursLink: '/offres#odyssee',
-    academie: 'Stage Pré-rentrée août 2026',
-    academieDescription: 'Préparer Parcoursup dès la rentrée avec une avance stratégique.',
+    academie: _stageAcademie,
+    academieDescription: _stageDates,
     academieLink: '/stages',
   },
   'Première-Lycée-Controle': {
     parcours: 'Odyssée Première : Le Parcours Anticipé',
     description: 'Maximisez votre contrôle continu avec un suivi personnalisé.',
     parcoursLink: '/offres#odyssee',
-    academie: 'Stage Pré-rentrée août 2026',
-    academieDescription: 'Poser les bases solides du contrôle continu.',
+    academie: _stageAcademie,
+    academieDescription: _stageDates,
     academieLink: '/stages',
   },
   'CandidatLibre-Cadre': {
     parcours: 'Odyssée Individuel : La Préparation Intégrale',
     description: 'Votre établissement privé à domicile pour obtenir votre Bac.',
     parcoursLink: '/offres#odyssee',
-    academie: 'Stage Pré-rentrée août 2026',
-    academieDescription: 'Bilan + remise à niveau pour candidats libres.',
+    academie: _stageAcademie,
+    academieDescription: _stageDates,
     academieLink: '/stages',
   }
 };
@@ -333,8 +340,16 @@ export function DiagnosticForm({ className }: DiagnosticFormProps) {
                     <p className="text-sm text-blue-800">
                       <Lightbulb className="mr-2 inline h-4 w-4" aria-hidden="true" />
                       <strong>Conseil :</strong> Cette recommandation est basée sur votre profil.
-                      Pour un accompagnement encore plus personnalisé, contactez-nous pour un diagnostic approfondi.
                     </p>
+                    <a
+                      href={buildWhatsAppUrl(`le parcours ${recommendation.parcours}`)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700 transition-colors"
+                      aria-label="Contacter via WhatsApp pour cette recommandation"
+                    >
+                      Recevoir ma recommandation sur WhatsApp
+                    </a>
                   </div>
                 </motion.div>
               )}

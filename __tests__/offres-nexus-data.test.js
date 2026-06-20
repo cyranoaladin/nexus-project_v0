@@ -71,27 +71,36 @@ describe('offres-nexus.json consistent with canonical', () => {
 });
 
 describe('offres-nexus.json is a generated derivative', () => {
-  test('regenerating from canonical produces structurally identical output', () => {
-    // Run generator in-process
+  test('regenerating to /tmp produces structurally identical output (no repo mutation)', () => {
     const { execSync } = require('child_process');
-    const before = fs.readFileSync(path.join(ROOT, 'data', 'offres-nexus.json'), 'utf8');
-    execSync('node scripts/gen-offres-nexus.js', { cwd: ROOT, stdio: 'pipe' });
-    const after = fs.readFileSync(path.join(ROOT, 'data', 'offres-nexus.json'), 'utf8');
-    expect(after).toBe(before);
+    const committed = fs.readFileSync(path.join(ROOT, 'data', 'offres-nexus.json'), 'utf8');
+    const tmpOut = path.join(require('os').tmpdir(), 'offres-nexus-check.json');
+    execSync(`node scripts/gen-offres-nexus.js`, {
+      cwd: ROOT,
+      stdio: 'pipe',
+      env: { ...process.env, OFFRES_NEXUS_OUT: tmpOut },
+    });
+    const regenerated = fs.readFileSync(tmpOut, 'utf8');
+    expect(regenerated).toBe(committed);
+    fs.unlinkSync(tmpOut);
   });
 
-  test('every annual price in offres-nexus matches canonical', () => {
+  test('every annual price in offres-nexus matches canonical (no skip)', () => {
     const canonical = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'pricing.canonical.json'), 'utf8'));
     const canonicalById = {};
     for (const o of canonical.offers) {
       const key = o.id.replace(/-([a-z0-9])/g, (_, c) => c.toUpperCase());
       canonicalById[key] = o;
     }
+    let checked = 0;
     for (const [key, offer] of Object.entries(offers)) {
       if (offer.annual != null && canonicalById[key] && canonicalById[key].price_annual != null) {
+        checked++;
         expect(offer.annual).toBe(canonicalById[key].price_annual);
       }
     }
+    // Must have checked at least 10 offers (no silent skip)
+    expect(checked).toBeGreaterThanOrEqual(10);
   });
 });
 
