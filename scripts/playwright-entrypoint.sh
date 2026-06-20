@@ -31,8 +31,14 @@ else
   echo "[playwright] WARNING: No credentials file found in shared volume."
 fi
 
-echo "[playwright] Running Playwright tests..."
-npx playwright test --config playwright.config.e2e.ts
+set +e
+if [ -n "${PLAYWRIGHT_ARGS:-}" ]; then
+  echo "[playwright] Running Playwright with custom args: ${PLAYWRIGHT_ARGS}"
+  npx playwright test ${PLAYWRIGHT_ARGS}
+else
+  echo "[playwright] Running Playwright tests (default config)..."
+  npx playwright test --config playwright.config.e2e.ts
+fi
 
 EXIT_CODE=$?
 echo "[playwright] Tests finished with exit code: ${EXIT_CODE}"
