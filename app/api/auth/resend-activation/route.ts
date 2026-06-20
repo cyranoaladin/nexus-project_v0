@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { guardRateLimit } from '@/lib/rate-limit';
 import { sendMail } from '@/lib/email/mailer';
 import { prisma } from '@/lib/prisma';
+import { LEGAL } from '@/lib/legal';
 
 const bodySchema = z.object({
   email: z.string().email('Email invalide'),
@@ -66,8 +67,8 @@ function buildActivationEmailHtml(firstName: string, activationUrl: string) {
 
         <p>Une question ? Contactez-nous :</p>
         <ul>
-          <li>📞 +216 99 19 28 29</li>
-          <li>📧 contact@nexusreussite.academy</li>
+          <li>📞 ${LEGAL.contact.phone}</li>
+          <li>📧 ${LEGAL.contact.email}</li>
         </ul>
 
         <p>Cordialement,<br><strong>L'équipe Nexus Réussite</strong></p>

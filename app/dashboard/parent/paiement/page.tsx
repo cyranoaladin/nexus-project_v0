@@ -20,6 +20,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { LEGAL } from "@/lib/legal";
 
 interface OrderDetails {
   type: "subscription" | "addon" | "pack";
@@ -420,7 +421,7 @@ function PaiementContent() {
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-xs text-neutral-400 uppercase tracking-wider">Bénéficiaire</p>
-                <p className="font-semibold text-white mt-0.5">STE M&amp;M ACADEMY SUARL</p>
+                <p className="font-semibold text-white mt-0.5">{LEGAL.entity.name}</p>
               </div>
             </div>
 

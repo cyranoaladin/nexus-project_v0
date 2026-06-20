@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { CheckCircle, Clock, Mail, Home } from "lucide-react"
 import Link from "next/link"
+import { LEGAL } from "@/lib/legal"
 
 export default function PaymentConfirmationPage() {
   return (
@@ -148,12 +149,12 @@ export default function PaymentConfirmationPage() {
             >
               <p className="text-neutral-300 text-sm">
                 Une question sur votre paiement ? Contactez-nous au{' '}
-                <a href="tel:+21699192829" className="text-brand-primary font-medium hover:underline">
-                  +216 99 19 28 29
+                <a href={`tel:${LEGAL.contact.phoneRaw}`} className="text-brand-primary font-medium hover:underline">
+                  {LEGAL.contact.phone}
                 </a>
                 {' '}ou par email à{' '}
-                <a href="mailto:contact@nexusreussite.academy" className="text-brand-primary font-medium hover:underline">
-                  contact@nexusreussite.academy
+                <a href={`mailto:${LEGAL.contact.email}`} className="text-brand-primary font-medium hover:underline">
+                  {LEGAL.contact.email}
                 </a>
               </p>
             </motion.div>

@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { LEGAL } from '@/lib/legal';
 
 // Configuration SMTP avec fallback pour développement
 const createTransporter = () => {
@@ -39,7 +40,7 @@ export async function sendWelcomeParentEmail(
   activationUrl?: string
 ) {
   const mailOptions = {
-    from: process.env.SMTP_FROM || 'Nexus Réussite <contact@nexusreussite.academy>',
+    from: process.env.SMTP_FROM || `Nexus Réussite <${LEGAL.contact.email}>`,
     to: parentEmail,
     subject: 'Votre demande de bilan a été enregistrée',
     html: `
@@ -80,8 +81,8 @@ export async function sendWelcomeParentEmail(
 
           <p>Une question ? Contactez-nous :</p>
           <ul>
-            <li>📞 +216 99 19 28 29</li>
-            <li>📧 contact@nexusreussite.academy</li>
+            <li>📞 ${LEGAL.contact.phone}</li>
+            <li>📧 ${LEGAL.contact.email}</li>
           </ul>
 
           <p>À très bientôt,<br><strong>L'équipe Nexus Réussite</strong></p>
@@ -112,7 +113,7 @@ export async function sendCreditExpirationReminder(
   expirationDate: Date
 ) {
   const mailOptions = {
-    from: process.env.SMTP_FROM || 'Nexus Réussite <contact@nexusreussite.academy>',
+    from: process.env.SMTP_FROM || `Nexus Réussite <${LEGAL.contact.email}>`,
     to: parentEmail,
     subject: '⏰ Rappel : Vos crédits expirent bientôt',
     html: `
@@ -174,7 +175,7 @@ export async function sendPasswordResetEmail(
   resetUrl: string
 ) {
   const mailOptions = {
-    from: process.env.SMTP_FROM || 'Nexus Réussite <contact@nexusreussite.academy>',
+    from: process.env.SMTP_FROM || `Nexus Réussite <${LEGAL.contact.email}>`,
     to: email,
     subject: '🔐 Réinitialisation de votre mot de passe — Nexus Réussite',
     html: `
@@ -215,8 +216,8 @@ export async function sendPasswordResetEmail(
 
           <p>Une question ? Contactez-nous :</p>
           <ul>
-            <li>📞 +216 99 19 28 29</li>
-            <li>📧 contact@nexusreussite.academy</li>
+            <li>📞 ${LEGAL.contact.phone}</li>
+            <li>📧 ${LEGAL.contact.email}</li>
           </ul>
 
           <p>Cordialement,<br><strong>L'équipe Nexus Réussite</strong></p>
@@ -252,7 +253,7 @@ export async function sendStageDiagnosticInvitation(
 ) {
   const displayName = studentName || parentName;
   const mailOptions = {
-    from: process.env.SMTP_FROM || 'Nexus Réussite <contact@nexusreussite.academy>',
+    from: process.env.SMTP_FROM || `Nexus Réussite <${LEGAL.contact.email}>`,
     to: email,
     subject: '🎯 Stage Février 2026 — Passe ton test de positionnement',
     html: `
@@ -309,8 +310,8 @@ export async function sendStageDiagnosticInvitation(
 
           <p style="color: #64748b; font-size: 13px; margin: 0;">
             Des questions ? Contacte-nous :<br>
-            📞 +216 99 19 28 29<br>
-            📧 contact@nexusreussite.academy
+            📞 ${LEGAL.contact.phone}<br>
+            📧 ${LEGAL.contact.email}
           </p>
 
           <p style="color: #475569; font-size: 14px; margin: 24px 0 0 0;">
@@ -354,7 +355,7 @@ export async function sendStageBankTransferConfirmation(
   price: number
 ) {
   const mailOptions = {
-    from: process.env.SMTP_FROM || 'Nexus Réussite <contact@nexusreussite.academy>',
+    from: process.env.SMTP_FROM || `Nexus Réussite <${LEGAL.contact.email}>`,
     to: email,
     subject: 'Réservation enregistrée – en attente de virement bancaire',
     html: `
@@ -396,7 +397,7 @@ export async function sendStageBankTransferConfirmation(
             <h3 style="color: #1e293b; margin: 0 0 16px 0; font-size: 16px;">🏦 Coordonnées bancaires</h3>
             <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
               <tr><td style="color: #64748b; padding: 6px 0; vertical-align: top; width: 120px;">Identifiant</td><td style="color: #1e293b; font-weight: 600; padding: 6px 0;">871456</td></tr>
-              <tr><td style="color: #64748b; padding: 6px 0; vertical-align: top;">Titulaire</td><td style="color: #1e293b; font-weight: 600; padding: 6px 0;">STE M&amp;M ACADEMY SUARL</td></tr>
+              <tr><td style="color: #64748b; padding: 6px 0; vertical-align: top;">Titulaire</td><td style="color: #1e293b; font-weight: 600; padding: 6px 0;">${LEGAL.entity.name}</td></tr>
               <tr><td style="color: #64748b; padding: 6px 0; vertical-align: top;">Nature</td><td style="color: #1e293b; padding: 6px 0;">Comptes chèques entreprises</td></tr>
               <tr><td style="color: #64748b; padding: 6px 0; vertical-align: top;">RIB</td><td style="color: #1e293b; font-family: monospace; padding: 6px 0;">RIB25079000000156908404</td></tr>
               <tr><td style="color: #64748b; padding: 6px 0; vertical-align: top;">IBAN</td><td style="color: #1e293b; font-family: monospace; padding: 6px 0;">TN5925079000000156908404</td></tr>
@@ -408,8 +409,8 @@ export async function sendStageBankTransferConfirmation(
 
           <p style="color: #64748b; font-size: 13px; margin: 0;">
             Des questions ? Contactez-nous :<br>
-            📞 +216 99 19 28 29<br>
-            📧 contact@nexusreussite.academy
+            📞 ${LEGAL.contact.phone}<br>
+            📧 ${LEGAL.contact.email}
           </p>
 
           <p style="color: #475569; font-size: 14px; margin: 24px 0 0 0;">
@@ -459,7 +460,7 @@ export async function sendStageBilanReady(
   const scoreColor = globalScore >= 70 ? '#22c55e' : globalScore >= 50 ? '#3b82f6' : globalScore >= 30 ? '#f59e0b' : '#ef4444';
   
   const mailOptions = {
-    from: process.env.SMTP_FROM || 'Nexus Réussite <contact@nexusreussite.academy>',
+    from: process.env.SMTP_FROM || `Nexus Réussite <${LEGAL.contact.email}>`,
     to: email,
     subject: '✨ Ton bilan de compétences est prêt !',
     html: `
@@ -525,8 +526,8 @@ export async function sendStageBilanReady(
 
           <p style="color: #64748b; font-size: 13px; margin: 0;">
             Des questions sur ton bilan ? Contacte-nous :<br>
-            📞 +216 99 19 28 29<br>
-            📧 contact@nexusreussite.academy
+            📞 ${LEGAL.contact.phone}<br>
+            📧 ${LEGAL.contact.email}
           </p>
 
           <p style="color: #475569; font-size: 14px; margin: 24px 0 0 0;">

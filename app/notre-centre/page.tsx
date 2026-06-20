@@ -7,6 +7,7 @@ import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
+import { LEGAL } from '@/lib/legal';
 
 const PEDA_ADDRESS = 'Mutuelleville, Tunis';
 
@@ -48,11 +49,11 @@ export default function NotreCentrePage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <Phone className="h-4 w-4 text-lux-gold" />
-                  <span>+216 99 19 28 29</span>
+                  <span>{LEGAL.contact.phone}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <Mail className="h-4 w-4 text-lux-gold" />
-                  <span>contact@nexusreussite.academy</span>
+                  <span>{LEGAL.contact.email}</span>
                 </div>
               </div>
             </CardContent>

@@ -5,6 +5,7 @@ import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { LEGAL } from "@/lib/legal";
 import { motion } from "framer-motion";
 import { CheckCircle, GraduationCap, Mail, ArrowRight, Clock, Target, TrendingUp } from "lucide-react";
 import Link from "next/link";
@@ -145,8 +146,8 @@ function ConfirmationContent() {
             </p>
             <div className="flex items-center justify-center gap-2 text-brand-accent">
               <Mail className="w-4 h-4" />
-              <a href="mailto:contact@nexusreussite.tn" className="hover:underline">
-                contact@nexusreussite.tn
+              <a href={`mailto:${LEGAL.contact.email}`} className="hover:underline">
+                {LEGAL.contact.email}
               </a>
             </div>
           </motion.div>

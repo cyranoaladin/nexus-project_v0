@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { analytics } from '@/lib/analytics-stages';
 import type { Academy } from '@/data/stages/fevrier2026';
 import { resolveUiIcon } from '@/lib/ui-icons';
+import { LEGAL } from '@/lib/legal';
 
 interface StagesReservationFormProps {
   academies: Academy[];
@@ -245,7 +246,7 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
             className={`w-full px-4 py-3 rounded-lg border-2 ${
               errors.phone ? 'border-blue-500' : 'border-slate-300'
             } focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all text-slate-900 placeholder:text-slate-500`}
-            placeholder="+216 99 19 28 29"
+            placeholder={LEGAL.contact.phone}
           />
           {errors.phone && (
             <p className="text-slate-600 text-sm mt-1">{errors.phone}</p>
@@ -366,7 +367,7 @@ export function StagesReservationForm({ academies }: StagesReservationFormProps)
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between items-start">
                           <span className="text-slate-600 font-medium">Bénéficiaire:</span>
-                          <span className="text-slate-900 font-semibold text-right">STE M&M ACADEMY SUARL</span>
+                          <span className="text-slate-900 font-semibold text-right">{LEGAL.entity.name}</span>
                         </div>
                         <div className="flex justify-between items-start">
                           <span className="text-slate-600 font-medium">RIB:</span>

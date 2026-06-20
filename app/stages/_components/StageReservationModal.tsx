@@ -1,5 +1,6 @@
 "use client";
 
+import { LEGAL } from '@/lib/legal';
 import {
   useCallback,
   useState,
@@ -243,7 +244,7 @@ export default function StageReservationModal({
                   value={form.phone}
                   onChange={handleField("phone")}
                   className={inputClass}
-                  placeholder="+216 99 19 28 29"
+                  placeholder={LEGAL.contact.phone}
                 />
               </div>
 

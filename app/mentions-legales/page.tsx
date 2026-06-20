@@ -1,11 +1,12 @@
 import React from 'react';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
+import { LEGAL } from '@/lib/legal';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Mentions Légales — Nexus Réussite',
-  description: 'Mentions légales du site nexusreussite.academy — M&M ACADEMY SUARL.',
+  description: `Mentions légales du site nexusreussite.academy — ${LEGAL.entity.name}.`,
 };
 
 export default function MentionsLegalesPage() {
@@ -23,19 +24,19 @@ export default function MentionsLegalesPage() {
             <section>
               <h2 className="text-2xl font-bold mb-4 text-white">1. Éditeur du Site</h2>
               <p>
-                Le site est édité par la société <strong className="text-white">STE M&amp;M ACADEMY SUARL</strong>,
+                Le site est édité par la société <strong className="text-white">{LEGAL.entity.name}</strong>,
                 immatriculée au Registre National des Entreprises (RNE) et sous le Matricule Fiscal{' '}
-                <strong className="text-white">1948837 N/A/M/000</strong>.
+                <strong className="text-white">{LEGAL.entity.taxId}</strong>.
               </p>
               <ul className="mt-4 space-y-2">
-                <li><strong className="text-white">Raison sociale :</strong> STE M&amp;M ACADEMY SUARL</li>
-                <li><strong className="text-white">Nom commercial :</strong> Nexus Réussite</li>
+                <li><strong className="text-white">Raison sociale :</strong> {LEGAL.entity.name}</li>
+                <li><strong className="text-white">Nom commercial :</strong> {LEGAL.entity.tradeName}</li>
                 <li><strong className="text-white">Forme juridique :</strong> Société Unipersonnelle à Responsabilité Limitée (SUARL)</li>
-                <li><strong className="text-white">Matricule fiscal :</strong> 1948837 N/A/M/000</li>
-                <li><strong className="text-white">Siège social :</strong> Immeuble VENUS, Appt C13, Centre Urbain Nord, 1082 Tunis</li>
-                <li><strong className="text-white">Téléphone :</strong> +216 99 19 28 29</li>
+                <li><strong className="text-white">Matricule fiscal :</strong> {LEGAL.entity.taxId}</li>
+                <li><strong className="text-white">Siège social :</strong> {LEGAL.addresses.siege.full}</li>
+                <li><strong className="text-white">Téléphone :</strong> {LEGAL.contact.phone}</li>
                 <li><strong className="text-white">Email de contact :</strong>{' '}
-                  <a href="mailto:contact@nexusreussite.academy" className="text-brand-accent underline">contact@nexusreussite.academy</a>
+                  <a href={`mailto:${LEGAL.contact.email}`} className="text-brand-accent underline">{LEGAL.contact.email}</a>
                 </li>
               </ul>
             </section>
@@ -44,8 +45,8 @@ export default function MentionsLegalesPage() {
             <section>
               <h2 className="text-2xl font-bold mb-4 text-white">2. Représentation légale &amp; Direction de la publication</h2>
               <ul className="space-y-2">
-                <li><strong className="text-white">Représentante légale :</strong> Mme Molka Mezzez Ben Rhouma</li>
-                <li><strong className="text-white">Responsable de la publication :</strong> Mme Molka Mezzez Ben Rhouma</li>
+                <li><strong className="text-white">Représentante légale :</strong> {LEGAL.entity.representative}</li>
+                <li><strong className="text-white">Responsable de la publication :</strong> {LEGAL.entity.publicationDirector}</li>
               </ul>
             </section>
 
@@ -76,7 +77,7 @@ export default function MentionsLegalesPage() {
             <section>
               <h2 className="text-2xl font-bold mb-4 text-white">5. Activité</h2>
               <p>
-                STE M&amp;M ACADEMY SUARL, sous l&apos;enseigne <strong className="text-white">Nexus Réussite</strong>, fournit des services de soutien à l&apos;enseignement comprenant :
+                {LEGAL.entity.name}, sous l&apos;enseigne <strong className="text-white">Nexus Réussite</strong>, fournit des services de soutien à l&apos;enseignement comprenant :
               </p>
               <ul className="mt-3 list-disc pl-5 space-y-1">
                 <li>Accompagnement scolaire personnalisé (tutorat en ligne et/ou en présentiel)</li>
@@ -90,7 +91,7 @@ export default function MentionsLegalesPage() {
               <h2 className="text-2xl font-bold mb-4 text-white">6. Propriété intellectuelle</h2>
               <p>
                 L&apos;ensemble des éléments du site (textes, images, vidéos, logiciels, code source, design, bases de données, marques et logos)
-                sont la propriété exclusive de M&amp;M ACADEMY SUARL ou de ses partenaires licenciés.
+                sont la propriété exclusive de {LEGAL.entity.name} ou de ses partenaires licenciés.
               </p>
               <p className="mt-3">
                 Toute reproduction, représentation, modification, diffusion, extraction ou réutilisation, totale ou partielle,
@@ -103,7 +104,7 @@ export default function MentionsLegalesPage() {
             <section>
               <h2 className="text-2xl font-bold mb-4 text-white">7. Données personnelles &amp; Protection de la vie privée</h2>
               <p className="mb-3">
-                STE M&amp;M ACADEMY SUARL collecte et traite des données personnelles (nom, email, téléphone, données scolaires) exclusivement
+                {LEGAL.entity.name} collecte et traite des données personnelles (nom, email, téléphone, données scolaires) exclusivement
                 pour les finalités suivantes :
               </p>
               <ul className="list-disc pl-5 space-y-1 mb-4">
@@ -119,7 +120,7 @@ export default function MentionsLegalesPage() {
                 <a href="mailto:dpo@nexusreussite.academy" className="text-brand-accent underline">dpo@nexusreussite.academy</a>
               </p>
               <p>
-                <strong className="text-white">Paiement :</strong> Les transactions par carte bancaire sont traitées exclusivement par le prestataire de paiement <strong className="text-white">ClicToPay</strong> (Banque Zitouna). M&amp;M ACADEMY SUARL ne collecte, ne stocke et ne journalise jamais le cryptogramme visuel (CVV/CVC) de votre carte. L&apos;ensemble des données de carte est traité par le prestataire dans un environnement sécurisé.
+                <strong className="text-white">Paiement :</strong> Les transactions par carte bancaire sont traitées exclusivement par le prestataire de paiement <strong className="text-white">ClicToPay</strong> (Banque Zitouna). {LEGAL.entity.name} ne collecte, ne stocke et ne journalise jamais le cryptogramme visuel (CVV/CVC) de votre carte. L&apos;ensemble des données de carte est traité par le prestataire dans un environnement sécurisé.
               </p>
             </section>
 
@@ -141,12 +142,12 @@ export default function MentionsLegalesPage() {
             <section>
               <h2 className="text-2xl font-bold mb-4 text-white">9. Limitation de responsabilité</h2>
               <p className="mb-3">
-                STE M&amp;M ACADEMY SUARL s&apos;engage à assurer la disponibilité de la Plateforme dans le cadre d&apos;une <strong className="text-white">obligation de moyens</strong>.
+                {LEGAL.entity.name} s&apos;engage à assurer la disponibilité de la Plateforme dans le cadre d&apos;une <strong className="text-white">obligation de moyens</strong>.
               </p>
               <ul className="list-disc pl-5 space-y-1">
                 <li>Des interruptions temporaires (maintenance, mise à jour) pourront survenir sans engager la responsabilité de l&apos;éditeur.</li>
-                <li>Les liens hypertextes vers des sites tiers sont fournis à titre informatif ; M&amp;M ACADEMY SUARL ne saurait être tenu responsable de leur contenu.</li>
-                <li>En aucun cas M&amp;M ACADEMY SUARL ne pourra être tenu responsable de dommages indirects résultant de l&apos;utilisation ou de l&apos;impossibilité d&apos;utiliser la Plateforme.</li>
+                <li>Les liens hypertextes vers des sites tiers sont fournis à titre informatif ; {LEGAL.entity.name} ne saurait être tenu responsable de leur contenu.</li>
+                <li>En aucun cas {LEGAL.entity.name} ne pourra être tenu responsable de dommages indirects résultant de l&apos;utilisation ou de l&apos;impossibilité d&apos;utiliser la Plateforme.</li>
               </ul>
             </section>
 
@@ -154,7 +155,7 @@ export default function MentionsLegalesPage() {
             <section>
               <h2 className="text-2xl font-bold mb-4 text-white">10. Droit applicable et juridiction compétente</h2>
               <p className="mb-3">
-                Les présentes mentions légales sont régies par le <strong className="text-white">droit tunisien</strong>. Tout litige relatif à l&apos;utilisation de la Plateforme sera soumis aux <strong className="text-white">juridictions compétentes de Tunis, Tunisie</strong>.
+                Les présentes mentions légales sont régies par le <strong className="text-white">{LEGAL.applicableLaw}</strong>. Tout litige relatif à l&apos;utilisation de la Plateforme sera soumis aux <strong className="text-white">juridictions compétentes de {LEGAL.jurisdiction}</strong>.
               </p>
               <p className="text-sm text-neutral-400">
                 Sous réserve des dispositions impératives de protection du consommateur applicables dans le pays de résidence de l&apos;utilisateur, le cas échéant.

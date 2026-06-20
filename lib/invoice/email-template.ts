@@ -4,6 +4,7 @@
  * Generates HTML email body for invoice delivery with a single CTA button.
  * Design: clean, branded, responsive, dark-compatible.
  */
+import { LEGAL } from '@/lib/legal';
 
 export interface InvoiceEmailData {
   /** Invoice number (e.g. "202602-0001") */
@@ -92,10 +93,10 @@ export function renderInvoiceEmailHtml(data: InvoiceEmailData): string {
           <tr>
             <td style="background-color:#fafafa;padding:20px 32px;border-top:1px solid #eeeeee;">
               <p style="margin:0;font-size:12px;color:#999999;line-height:1.5;text-align:center;">
-                M&amp;M Academy — Nexus Réussite<br />
-                Résidence Narjess 2, Bloc D, Appt 12, Raoued 2056, Ariana, Tunisie<br />
-                <a href="mailto:contact@nexusreussite.academy" style="color:#6366f1;text-decoration:none;">
-                  contact@nexusreussite.academy
+                M&amp;M Academy — ${LEGAL.entity.tradeName}<br />
+                ${LEGAL.addresses.siege.full}<br />
+                <a href="mailto:${LEGAL.contact.email}" style="color:#6366f1;text-decoration:none;">
+                  ${LEGAL.contact.email}
                 </a>
               </p>
             </td>
@@ -126,9 +127,9 @@ export function renderInvoiceEmailText(data: InvoiceEmailData): string {
     `Passé ce délai, veuillez nous contacter pour un nouvel envoi.`,
     '',
     '---',
-    'M&M Academy — Nexus Réussite',
-    'Résidence Narjess 2, Bloc D, Appt 12, Raoued 2056, Ariana, Tunisie',
-    'contact@nexusreussite.academy',
+    `M&M Academy — ${LEGAL.entity.tradeName}`,
+    LEGAL.addresses.siege.full,
+    LEGAL.contact.email,
   ].join('\n');
 }
 

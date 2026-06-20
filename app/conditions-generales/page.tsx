@@ -2,12 +2,13 @@ import React from 'react';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { ClipboardList } from 'lucide-react';
+import { LEGAL } from '@/lib/legal';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Conditions Générales (CGU + CGV) — Nexus Réussite',
   description:
-    'Conditions Générales d\'Utilisation et de Vente du site nexusreussite.academy — M&M ACADEMY SUARL.',
+    `Conditions Générales d'Utilisation et de Vente du site nexusreussite.academy — ${LEGAL.entity.name}.`,
 };
 
 export default function ConditionsGeneralesPage() {
@@ -31,10 +32,10 @@ export default function ConditionsGeneralesPage() {
               <h2 className="text-2xl font-bold mb-4 text-white">Préambule</h2>
               <p className="mb-3">
                 Les présentes Conditions Générales régissent l&apos;utilisation de la plateforme{' '}
-                <strong className="text-white">nexusreussite.academy</strong> (ci-après « la Plateforme ») éditée par{' '}
-                <strong className="text-white">STE M&amp;M ACADEMY SUARL</strong>, société de droit tunisien, matricule fiscal 1948837 N/A/M/000,
-                dont le siège social est situé Immeuble VENUS, Appt C13, Centre Urbain Nord, 1082 Tunis, Tunisie,
-                exploitant la marque commerciale <strong className="text-white">Nexus Réussite</strong>.
+                <strong className="text-white">{LEGAL.web.domain}</strong> (ci-après « la Plateforme ») éditée par{' '}
+                <strong className="text-white">{LEGAL.entity.name}</strong>, société de droit tunisien, matricule fiscal {LEGAL.entity.taxId},
+                dont le siège social est situé {LEGAL.addresses.siege.full}, Tunisie,
+                exploitant la marque commerciale <strong className="text-white">{LEGAL.entity.tradeName}</strong>.
               </p>
               <p className="mb-3">
                 Elles se composent de deux parties indissociables :
@@ -64,7 +65,7 @@ export default function ConditionsGeneralesPage() {
                 <li>Les <strong className="text-white">cartes bancaires nationales et internationales</strong> sont acceptées.</li>
                 <li>La sécurité des transactions est assurée par <strong className="text-white">CVV2</strong> et <strong className="text-white">3D Secure</strong>.</li>
                 <li><strong className="text-white">Aucun frais additionnel</strong> n&apos;est facturé au Client du seul fait du paiement par carte bancaire.</li>
-                <li>Le <strong className="text-white">cryptogramme visuel (CVV/CVC) n&apos;est jamais stocké</strong> par M&amp;M ACADEMY SUARL ni dans ses bases de données, ni dans ses journaux techniques.</li>
+                <li>Le <strong className="text-white">cryptogramme visuel (CVV/CVC) n&apos;est jamais stocké</strong> par {LEGAL.entity.name} ni dans ses bases de données, ni dans ses journaux techniques.</li>
               </ul>
               <p className="text-xs text-neutral-400">
                 Lors du paiement, une case à cocher « J&apos;ai lu et j&apos;accepte les Conditions Générales (CGU + CGV) » est requise. Le bouton « Payer » reste désactivé tant que cette case n&apos;est pas cochée.
@@ -130,7 +131,7 @@ export default function ConditionsGeneralesPage() {
             <section>
               <h3 className="text-xl font-bold mb-3 text-white">5. Disponibilité et maintenance</h3>
               <p>
-                M&amp;M ACADEMY SUARL s&apos;efforce d&apos;assurer la disponibilité de la Plateforme 24h/24 et 7j/7.
+                {LEGAL.entity.name} s&apos;efforce d&apos;assurer la disponibilité de la Plateforme 24h/24 et 7j/7.
                 Toutefois, des interruptions (maintenance programmée, mises à jour, incidents techniques)
                 pourront survenir sans engager la responsabilité de l&apos;éditeur. Les maintenances programmées seront,
                 dans la mesure du possible, signalées à l&apos;avance.
@@ -142,7 +143,7 @@ export default function ConditionsGeneralesPage() {
               <h3 className="text-xl font-bold mb-3 text-white">6. Propriété intellectuelle</h3>
               <p>
                 L&apos;ensemble des contenus de la Plateforme (textes, logiciels, design, bases de données, marques, logos,
-                contenus pédagogiques, algorithmes IA) est la propriété exclusive de M&amp;M ACADEMY SUARL ou de ses licenciés.
+                contenus pédagogiques, algorithmes IA) est la propriété exclusive de {LEGAL.entity.name} ou de ses licenciés.
                 Toute reproduction, extraction ou diffusion non autorisée est strictement interdite.
               </p>
             </section>
@@ -179,13 +180,13 @@ export default function ConditionsGeneralesPage() {
             <section>
               <h3 className="text-xl font-bold mb-3 text-white">1. Identité du Vendeur</h3>
               <ul className="space-y-1">
-                <li><strong className="text-white">Vendeur :</strong> STE M&amp;M ACADEMY SUARL — Matricule fiscal 1948837 N/A/M/000</li>
-                <li><strong className="text-white">Enseigne :</strong> Nexus Réussite</li>
-                <li><strong className="text-white">Siège social :</strong> Immeuble VENUS, Appt C13, Centre Urbain Nord, 1082 Tunis, Tunisie</li>
+                <li><strong className="text-white">Vendeur :</strong> {LEGAL.entity.name} — Matricule fiscal {LEGAL.entity.taxId}</li>
+                <li><strong className="text-white">Enseigne :</strong> {LEGAL.entity.tradeName}</li>
+                <li><strong className="text-white">Siège social :</strong> {LEGAL.addresses.siege.full}, Tunisie</li>
                 <li><strong className="text-white">Email :</strong>{' '}
-                  <a href="mailto:contact@nexusreussite.academy" className="text-brand-accent underline">contact@nexusreussite.academy</a>
+                  <a href={`mailto:${LEGAL.contact.email}`} className="text-brand-accent underline">{LEGAL.contact.email}</a>
                 </li>
-                <li><strong className="text-white">Téléphone :</strong> +216 99 19 28 29</li>
+                <li><strong className="text-white">Téléphone :</strong> {LEGAL.contact.phone}</li>
               </ul>
             </section>
 
@@ -234,7 +235,7 @@ export default function ConditionsGeneralesPage() {
               <h4 className="font-semibold text-white mt-3 mb-2">5.1 Modes de paiement acceptés</h4>
               <ul className="list-disc pl-5 space-y-1 mb-3">
                 <li><strong className="text-white">Carte bancaire via ClicToPay</strong> (Banque Zitouna) — cartes nationales et internationales</li>
-                <li><strong className="text-white">Virement bancaire</strong> sur le compte Banque Zitouna de M&amp;M ACADEMY SUARL</li>
+                <li><strong className="text-white">Virement bancaire</strong> sur le compte Banque Zitouna de {LEGAL.entity.name}</li>
               </ul>
 
               <h4 className="font-semibold text-white mt-4 mb-2">5.2 Sécurité des transactions</h4>
@@ -261,7 +262,7 @@ export default function ConditionsGeneralesPage() {
               </p>
               <ul className="space-y-1">
                 <li><strong className="text-white">Banque :</strong> Banque Zitouna</li>
-                <li><strong className="text-white">Titulaire :</strong> STE M&amp;M ACADEMY SUARL</li>
+                <li><strong className="text-white">Titulaire :</strong> {LEGAL.entity.name}</li>
                 <li><strong className="text-white">RIB :</strong> 25 079 000 0001569084 04</li>
               </ul>
             </section>
@@ -310,7 +311,7 @@ export default function ConditionsGeneralesPage() {
               </ul>
               <p className="mt-3">
                 Les demandes de remboursement doivent être adressées à{' '}
-                <a href="mailto:contact@nexusreussite.academy" className="text-brand-accent underline">contact@nexusreussite.academy</a>{' '}
+                <a href={`mailto:${LEGAL.contact.email}`} className="text-brand-accent underline">{LEGAL.contact.email}</a>{' '}
                 en indiquant le motif et la référence de commande. Délai de traitement : 10 jours ouvrés maximum.
               </p>
             </section>
@@ -340,9 +341,9 @@ export default function ConditionsGeneralesPage() {
               </p>
               <ul className="mt-3 space-y-1">
                 <li><strong className="text-white">Email :</strong>{' '}
-                  <a href="mailto:contact@nexusreussite.academy" className="text-brand-accent underline">contact@nexusreussite.academy</a>
+                  <a href={`mailto:${LEGAL.contact.email}`} className="text-brand-accent underline">{LEGAL.contact.email}</a>
                 </li>
-                <li><strong className="text-white">Téléphone :</strong> +216 99 19 28 29</li>
+                <li><strong className="text-white">Téléphone :</strong> {LEGAL.contact.phone}</li>
               </ul>
               <p className="mt-3">
                 Le Vendeur s&apos;engage à accuser réception de toute réclamation dans un délai de 48 heures ouvrées

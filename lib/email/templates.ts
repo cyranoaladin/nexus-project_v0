@@ -4,6 +4,7 @@
  * Each template returns { subject, html, text } ready for sendMail().
  * Templates are pure functions — no side effects, no env access.
  */
+import { LEGAL } from '@/lib/legal';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -31,7 +32,7 @@ function wrapLayout(title: string, headerBg: string, body: string): string {
 <tr><td style="background:#fafafa;padding:16px 32px;border-top:1px solid #eee;">
 <p style="margin:0;font-size:12px;color:#999;text-align:center;">
 Nexus Réussite — M&amp;M Academy<br/>
-<a href="mailto:contact@nexusreussite.academy" style="color:#6366f1;text-decoration:none;">contact@nexusreussite.academy</a>
+<a href="mailto:${LEGAL.contact.email}" style="color:#6366f1;text-decoration:none;">${LEGAL.contact.email}</a>
 </p>
 </td></tr>
 </table>
@@ -84,7 +85,7 @@ export function bilanAcknowledgement(data: BilanAckData): EmailTemplate {
   </ol>
 </div>
 <p style="color:#666;font-size:14px;">
-  Une question ? Répondez directement à cet email ou appelez le +216 99 19 28 29.
+  Une question ? Répondez directement à cet email ou appelez le ${LEGAL.contact.phone}.
 </p>
 <p style="color:#333;">Cordialement,<br/><strong>L'équipe Nexus Réussite</strong></p>
 `
@@ -100,7 +101,7 @@ export function bilanAcknowledgement(data: BilanAckData): EmailTemplate {
     '2. Un conseiller vous contacte pour un échange découverte',
     `3. Nous vous proposons un plan d'accompagnement personnalisé`,
     '',
-    'Une question ? contact@nexusreussite.academy ou +216 99 19 28 29',
+    `Une question ? ${LEGAL.contact.email} ou ${LEGAL.contact.phone}`,
     '',
     'Cordialement,',
     "L'équipe Nexus Réussite",

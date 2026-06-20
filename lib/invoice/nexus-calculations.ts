@@ -1,4 +1,5 @@
 import type { CreateInvoiceRequest, InvoicePaymentMethodType, TaxRegime } from './types';
+import { LEGAL } from '@/lib/legal';
 
 export const NEXUS_VAT_RATE = 0.06;
 export const ARIA_MONTHLY_VALUE = 129_000;
@@ -211,12 +212,12 @@ export function buildNexusInvoiceRequest(input: NexusInvoiceRequestInput): Nexus
     paymentDetails: paymentDetailsNotes ? { notes: paymentDetailsNotes } : null,
     notes,
     issuer: {
-      name: 'M&M ACADEMY (NEXUS RÉUSSITE)',
-      address: 'Centre Urbain Nord, Immeuble VENUS, Appt C13, 1082 – Tunis',
-      mf: '1948837 N/A/M/000',
-      phone: '+216 99 19 28 29',
-      email: 'contact@nexusreussite.academy',
-      web: 'nexusreussite.academy',
+      name: LEGAL.entity.name,
+      address: LEGAL.addresses.siege.full,
+      mf: LEGAL.entity.taxId,
+      phone: LEGAL.contact.phone,
+      email: LEGAL.contact.email,
+      web: LEGAL.web.domain,
       slogan: 'Viser. Atteindre. Dépasser.',
     },
   };
