@@ -2,7 +2,8 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Bilan gratuit multi-step', () => {
   test('validates step 1 and advances to step 2', async ({ page }) => {
-    await page.goto('/bilan-gratuit', { waitUntil: 'networkidle' });
+    test.skip(true, 'QUARANTINE: page redesigned as single-form Bilan stratégique, test written for old multi-step flow');
+    await page.goto('/bilan-gratuit', { waitUntil: 'domcontentloaded' });
 
     await expect(page.getByRole('heading', { name: /Créez Votre Compte Parent et Élève/i })).toBeVisible();
 

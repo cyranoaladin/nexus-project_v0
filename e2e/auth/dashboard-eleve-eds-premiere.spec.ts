@@ -17,7 +17,7 @@ import { loginAsUser } from '../helpers/auth';
 test.describe('Dashboard élève — EDS Première', () => {
   test.beforeEach(async ({ page }) => {
     await loginAsUser(page, 'student');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
   });
 
   test('charge le dashboard sans erreur', async ({ page }) => {

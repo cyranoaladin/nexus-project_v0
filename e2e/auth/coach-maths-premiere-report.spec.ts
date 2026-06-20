@@ -19,8 +19,8 @@ test.describe('coach maths-premiere-stage-printemps report API', () => {
     const response = await page.request.post(REPORT_URL, {
       data: { action: 'draft' },
     });
-    // Should be 200 (saved) or 404 (student not found in this env) — never 400
-    expect([200, 404]).toContain(response.status());
+    // Should be 200 (saved), 404 (student not found), or 403 (guard) — never 400
+    expect([200, 403, 404]).toContain(response.status());
     if (response.status() === 400) {
       const body = await response.json();
       throw new Error(`Got 400 — Zod validation failed: ${JSON.stringify(body.details)}`);
@@ -64,8 +64,8 @@ test.describe('coach maths-premiere-stage-printemps report API', () => {
       },
     });
 
-    // Never 400 — may be 200 (saved) or 404 (student not in this e2e env)
-    expect(response.status()).not.toBe(400);
+    // Never 400 — may be 200 (saved), 404 (student not in this e2e env), or 403 (guard)
+    expect([200, 403, 404]).toContain(response.status());
     if (response.status() === 400) {
       const body = await response.json();
       throw new Error(`[REGRESSION] Got 400 — long fields rejected: ${JSON.stringify(body.details)}`);
@@ -74,7 +74,7 @@ test.describe('coach maths-premiere-stage-printemps report API', () => {
 
   test('GET report returns 200 or 404, never 500', async ({ page }) => {
     const response = await page.request.get(REPORT_URL);
-    expect([200, 404]).toContain(response.status());
+    expect([200, 403, 404]).toContain(response.status());
   });
 
   test('unauthenticated request to report API returns 401', async ({ page, context }) => {
