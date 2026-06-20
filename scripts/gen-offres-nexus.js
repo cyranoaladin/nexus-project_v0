@@ -15,7 +15,7 @@ const ROOT = path.resolve(__dirname, '..');
 const canonical = JSON.parse(
   fs.readFileSync(path.join(ROOT, 'data', 'pricing.canonical.json'), 'utf8')
 );
-const OUT = path.join(ROOT, 'data', 'offres-nexus.json');
+const OUT = process.env.OFFRES_NEXUS_OUT || path.join(ROOT, 'data', 'offres-nexus.json');
 
 // ── Helpers ─────────────────────────────────────────────────────────
 function fmtTND(n) {

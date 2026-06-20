@@ -349,6 +349,25 @@ export function getStageCalendar(): StageCalendarEntry[] {
   return data.stage_calendar ?? [];
 }
 
+/**
+ * Returns the next upcoming stage from the calendar (date_start >= today).
+ * Auto-advances as time passes — no hardcoded stage name needed.
+ */
+export function getNextStage(referenceDate?: Date): { title: string; dates_display: string; date_start: string } | null {
+  const now = referenceDate ?? new Date();
+  const calendar = getStageCalendar();
+  const upcoming = calendar
+    .filter((e) => new Date((e as any).date_start) >= now)
+    .sort((a, b) => new Date((a as any).date_start).getTime() - new Date((b as any).date_start).getTime());
+  if (upcoming.length === 0) return null;
+  const next = upcoming[0];
+  return {
+    title: (next as any).title ?? next.id,
+    dates_display: (next as any).dates_display ?? '',
+    date_start: (next as any).date_start,
+  };
+}
+
 export function getStageEditions(): StageEdition[] {
   return data.stage_editions;
 }
