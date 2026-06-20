@@ -37,9 +37,6 @@ import StickyMobileCTA from "./StickyMobileCTA";
 import { LEGAL } from "@/lib/legal";
 import { getCompositeStagePackPrice, getNextStage } from "@/lib/pricing";
 
-/** Resolved once at module load — no hardcoded stage name. */
-const _nextStage = getNextStage();
-
 /** Map local page offer IDs to canonical composite_stage_packs IDs */
 const CANONICAL_ID: Record<string, string> = {
   "p-maths": "p-mono-maths",
@@ -472,6 +469,7 @@ function NexusButton({ children, variant = "primary", className, ...props }: Rea
 // ============================================
 
 export default function NexusStagesPage() {
+  const _nextStage = useMemo(() => getNextStage(), []);
   const [level, setLevel] = useState<"premiere" | "terminale">("premiere");
   const [category, setCategory] = useState("all");
   const [query, setQuery] = useState("");

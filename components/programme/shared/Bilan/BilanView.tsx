@@ -19,8 +19,6 @@ import { BilanPDFDownloadButton } from '@/app/programme/maths-1ere/lib/bilan-pdf
 import { BilanTabs } from '@/components/bilan';
 import { getNextStage } from '@/lib/pricing';
 
-const _stageLabel = getNextStage()?.title ?? 'Stage Nexus Réussite';
-
 type BilanType = 'eleve' | 'famille' | 'nexus';
 
 // Map legacy audience names to canonical
@@ -55,6 +53,7 @@ interface BilanViewProps {
 }
 
 export const BilanView: React.FC<BilanViewProps> = ({ displayName, store, programmeData, stageConfig, userRole }) => {
+  const _stageLabel = useMemo(() => getNextStage()?.title ?? 'Stage Nexus Réussite', []);
   const [activeBilan, setActiveBilan] = useState<BilanType>('eleve');
   const [openSections, setOpenSections] = useState<string[]>(['resume']);
   const isStudent = userRole === 'ELEVE';

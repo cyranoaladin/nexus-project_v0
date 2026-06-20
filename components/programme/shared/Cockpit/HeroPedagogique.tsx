@@ -1,11 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, Target, TrendingUp, Zap, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { getNextStage } from '@/lib/pricing';
-
-const _stageLabel = getNextStage()?.title ?? 'Stage Nexus Réussite';
 
 interface HeroPedagogiqueProps {
   displayName: string;
@@ -27,6 +25,7 @@ interface HeroPedagogiqueProps {
 }
 
 export const HeroPedagogique: React.FC<HeroPedagogiqueProps> = ({ displayName, onNavigate, store, stageConfig }) => {
+  const _stageLabel = useMemo(() => getNextStage()?.title ?? 'Stage Nexus Réussite', []);
   const now = new Date();
   const phase = stageConfig.getStagePhase(now);
   const daysUntilStage = stageConfig.getDaysUntilStage(now);
@@ -225,6 +224,7 @@ export const HeroPedagogique: React.FC<HeroPedagogiqueProps> = ({ displayName, o
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 function StagePhaseBadge({ phase }: { phase: 'avant' | 'pendant' | 'apres' }) {
+  const _stageLabel = useMemo(() => getNextStage()?.title ?? 'Stage Nexus Réussite', []);
   const config = {
     avant: { label: 'Pré-stage', color: 'text-blue-400 border-blue-500/30 bg-blue-500/10', dot: 'bg-blue-400' },
     pendant: { label: 'Stage en cours', color: 'text-cyan-400 border-cyan-500/30 bg-cyan-500/10', dot: 'bg-cyan-400 animate-pulse' },

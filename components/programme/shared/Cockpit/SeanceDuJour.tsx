@@ -1,11 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, BookOpen, Target, ChevronRight } from 'lucide-react';
 import { getNextStage } from '@/lib/pricing';
-
-const _stageLabel = getNextStage()?.title ?? 'Stage Nexus Réussite';
 
 interface SeanceDuJourProps {
   onNavigateToChap: (catKey: string, chapId: string) => void;
@@ -27,6 +25,7 @@ function findCatKeyForChapter(chapId: string, programmeData: Record<string, any>
 }
 
 export const SeanceDuJour: React.FC<SeanceDuJourProps> = ({ onNavigateToChap, stageConfig, programmeData }) => {
+  const _stageLabel = useMemo(() => getNextStage()?.title ?? 'Stage Nexus Réussite', []);
   const { getTodaySession, formatDateFr } = stageConfig;
   const session = getTodaySession(undefined, 'Mathématiques');
 
