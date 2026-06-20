@@ -19,7 +19,7 @@ test.describe('Parcours coach cohorte + RBAC dossier', () => {
 
   test('arrive sur /dashboard/coach et l’API cohorte renvoie un payload', async ({ page }) => {
     await page.goto('/dashboard/coach');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     expect(page.url()).toContain('/dashboard/coach');
 
     const response = await page.request.get('/api/coach/dashboard');
@@ -59,7 +59,7 @@ test.describe('Parcours coach cohorte + RBAC dossier', () => {
     }
 
     const response = await page.goto(`/dashboard/coach/eleve/${firstStudent.id}`);
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     if (response) {
       expect(response.status()).toBeLessThan(500);
     }

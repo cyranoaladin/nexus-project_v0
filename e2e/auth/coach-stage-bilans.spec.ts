@@ -12,7 +12,7 @@ test.describe('coach-stage-bilans - IDOR & Access Control', () => {
     await page.goto('/dashboard/coach/stages/un-stage-non-assigne-ou-fantome/bilan');
     
     // On attend que la page soit stabilisée
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     // Vérification : l'API sous-jacente doit avoir refusé l'accès
     // Le front-end doit soit afficher un message d'erreur, soit rediriger.

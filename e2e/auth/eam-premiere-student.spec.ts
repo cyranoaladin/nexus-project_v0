@@ -19,7 +19,7 @@ test.describe('EAM Première - élève authentifié', () => {
   test.skip(!allowMutation, 'Test mutationnel désactivé par défaut. Définir ALLOW_EAM_MUTATION_E2E=true pour l’exécuter.');
 
   test('affiche le module, rend les formules et persiste la progression', async ({ page }) => {
-    await page.goto('/auth/signin', { waitUntil: 'networkidle' });
+    await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
 
     await page.getByTestId('input-email').click();
     await page.keyboard.type(email!);
@@ -28,7 +28,7 @@ test.describe('EAM Première - élève authentifié', () => {
     await page.keyboard.press('Enter');
 
     await page.waitForURL(/\/dashboard\/eleve/, { timeout: 20_000 });
-    await page.goto('/dashboard/eleve', { waitUntil: 'networkidle' });
+    await page.goto('/dashboard/eleve', { waitUntil: 'domcontentloaded' });
 
     await page.getByRole('button', { name: /EAM Maths/ }).click();
 
@@ -84,7 +84,7 @@ test.describe('EAM Première - élève authentifié', () => {
       }, { timeout: 10_000 })
       .toBe(true);
 
-    await page.reload({ waitUntil: 'networkidle' });
+    await page.reload({ waitUntil: 'domcontentloaded' });
     await page.getByRole('button', { name: /EAM Maths/ }).click();
     await page.getByRole('button', { name: 'Modules', exact: true }).click();
     await page.getByTestId('eam-open-module-auto').click();

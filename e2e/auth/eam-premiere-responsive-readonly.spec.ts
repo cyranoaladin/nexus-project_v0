@@ -11,7 +11,7 @@ const viewports = [
 ];
 
 async function login(page: import('@playwright/test').Page) {
-  await page.goto('/auth/signin', { waitUntil: 'networkidle' });
+  await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
   await page.getByTestId('input-email').click();
   await page.keyboard.type(email!);
   await page.getByTestId('input-password').click();
@@ -32,7 +32,7 @@ test.describe('EAM Première responsive read-only', () => {
     await page.setViewportSize({ width: 1024, height: 600 });
     await login(page);
 
-    await page.goto('/dashboard/eleve', { waitUntil: 'networkidle' });
+    await page.goto('/dashboard/eleve', { waitUntil: 'domcontentloaded' });
     const cockpitSummary = page.getByRole('region', {
       name: /préparation épreuve anticipée de mathématiques/i,
     });
@@ -50,7 +50,7 @@ test.describe('EAM Première responsive read-only', () => {
 
     for (const viewport of viewports) {
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
-      await page.goto('/dashboard/eleve/eam', { waitUntil: 'networkidle' });
+      await page.goto('/dashboard/eleve/eam', { waitUntil: 'domcontentloaded' });
 
       await expect(page.getByText('Épreuve Anticipée de Mathématiques')).toBeVisible();
       await expect(page.getByText('Première générale')).toBeVisible();

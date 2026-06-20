@@ -19,7 +19,7 @@ test.describe('Parcours élève EDS Première', () => {
 
   test('arrive sur /dashboard/eleve unifié et voit le cockpit', async ({ page }) => {
     await page.goto('/dashboard/eleve');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     expect(page.url()).toContain('/dashboard/eleve');
     // Au moins un indicateur de cockpit/crédits doit s'afficher
     await expect(
@@ -29,7 +29,7 @@ test.describe('Parcours élève EDS Première', () => {
 
   test('accède au programme maths via /dashboard/eleve/programme/maths', async ({ page }) => {
     await page.goto('/dashboard/eleve/programme/maths');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     expect(page.url()).toContain('/dashboard/eleve/programme/maths');
   });
 
@@ -37,14 +37,14 @@ test.describe('Parcours élève EDS Première', () => {
     // mes-sessions / sessions / ressources / stages doivent rester sous /dashboard/eleve
     for (const path of ['/dashboard/eleve/sessions', '/dashboard/eleve/ressources', '/dashboard/eleve/stages']) {
       await page.goto(path);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       expect(page.url()).toContain('/dashboard/eleve');
     }
   });
 
   test('la route publique /programme/maths-1ere ne doit pas servir une UI standalone à un élève', async ({ page }) => {
     const response = await page.goto('/programme/maths-1ere');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     // Soit redirect 3xx vers /dashboard/eleve/programme/maths, soit OK
     // mais l'URL finale doit appartenir à /dashboard/eleve OU /programme/maths-1ere.
     // On accepte les deux pour ne pas casser tant que la redirection

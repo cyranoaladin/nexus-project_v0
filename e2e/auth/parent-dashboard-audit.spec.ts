@@ -9,7 +9,7 @@ test.describe('Dashboard Parent — Audit Exhaustif', () => {
   test.describe('Dashboard Principal', () => {
     test('charge avec les éléments principaux', async ({ page }) => {
       await page.goto('/dashboard/parent');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       await expect(page.getByTestId('parent-dashboard-ready')).toBeVisible({ timeout: 15000 });
     });
 

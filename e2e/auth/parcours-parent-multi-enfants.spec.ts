@@ -20,7 +20,7 @@ test.describe('Parcours parent multi-enfants', () => {
 
   test('arrive sur /dashboard/parent et l’API renvoie ≥ 2 enfants', async ({ page }) => {
     await page.goto('/dashboard/parent');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     expect(page.url()).toContain('/dashboard/parent');
 
     const response = await page.request.get('/api/parent/dashboard');
@@ -38,7 +38,7 @@ test.describe('Parcours parent multi-enfants', () => {
     expect(firstChildId).toBeTruthy();
 
     const response = await page.goto(`/dashboard/parent/enfant/${firstChildId}`);
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     if (response) {
       expect(response.status()).toBeLessThan(500);
     }

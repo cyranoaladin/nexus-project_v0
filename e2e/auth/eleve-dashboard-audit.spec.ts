@@ -9,14 +9,14 @@ test.describe('Dashboard Élève — Audit Exhaustif', () => {
   test.describe('Dashboard Principal', () => {
     test('charge avec les éléments principaux', async ({ page }) => {
       await page.goto('/dashboard/eleve');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       expect(page.url()).toContain('/dashboard/eleve');
       await expect(page.getByText(/crédits|solde/i).first()).toBeVisible({ timeout: 15000 });
     });
 
     test('widget crédits est visible', async ({ page }) => {
       await page.goto('/dashboard/eleve');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       await expect(page.getByText(/crédits|solde/i).first()).toBeVisible({ timeout: 15000 });
     });
   });
@@ -24,7 +24,7 @@ test.describe('Dashboard Élève — Audit Exhaustif', () => {
   test.describe('Sessions Élève', () => {
     test('page sessions charge', async ({ page }) => {
       await page.goto('/dashboard/eleve/sessions');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       // Should load without error — either sessions list or empty state
       expect(page.url()).toContain('/dashboard/eleve');
     });
@@ -33,7 +33,7 @@ test.describe('Dashboard Élève — Audit Exhaustif', () => {
   test.describe('Ressources Élève', () => {
     test('page ressources charge', async ({ page }) => {
       await page.goto('/dashboard/eleve/ressources');
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       expect(page.url()).toContain('/dashboard/eleve');
     });
   });
