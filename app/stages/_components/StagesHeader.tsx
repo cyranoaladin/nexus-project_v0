@@ -8,7 +8,7 @@ export default function StagesHeader() {
   return (
     <div
       className="sticky z-30 border-b border-white/8 bg-nexus-bg/85 backdrop-blur-xl"
-      style={{ top: "calc(var(--promo-banner-offset, 0px) + 72px)" }}
+      style={{ top: "72px" }}
     >
       <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
         <div className="flex flex-wrap items-center gap-2.5">

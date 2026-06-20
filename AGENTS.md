@@ -197,7 +197,6 @@ Fichiers fréquents :
 - `app/contact/page.tsx`
 - `components/layout/CorporateNavbar.tsx`
 - `components/layout/CorporateFooter.tsx`
-- `components/layout/PromoBanner.tsx`
 - `components/sections/homepage/content.ts`
 - `app/globals.css`
 - `tailwind.config.mjs`

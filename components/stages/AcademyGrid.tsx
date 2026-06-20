@@ -181,15 +181,13 @@ export function AcademyGrid({ academies }: AcademyGridProps) {
                     ? 'bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200'
                     : 'bg-gradient-to-br from-slate-50 to-blue-100 border-2 border-brand-secondary/35'
                 }`}>
-                  <div className="flex items-baseline justify-between mb-2">
-                    <span className="text-xs text-slate-600 line-through">Prix: {academy.price} TND</span>
+                  <div className="flex items-baseline justify-end mb-2">
                     <div className="text-right">
                       <div className={`text-2xl font-black ${
                         academy.tier === 'pallier1' ? 'text-blue-700' : 'text-blue-800'
                       }`}>
                         {academy.earlyBirdPrice} TND
                       </div>
-                      <div className="text-xs text-slate-600 font-semibold">Early Bird</div>
                     </div>
                   </div>
                   <div className="mt-2 pt-2 border-t border-slate-300">

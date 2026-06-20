@@ -394,19 +394,12 @@ const levelLabels = { premiere: "Première", terminale: "Terminale" };
 // UI HELPERS
 // ============================================
 
-function PriceBlock({ price, oldPrice }: { price: number; oldPrice?: number | null }) {
-  const savings = oldPrice ? oldPrice - price : 0;
+function PriceBlock({ price }: { price: number; oldPrice?: number | null }) {
   return (
     <div className="text-right">
       <motion.div className="text-2xl font-bold tracking-tight text-white md:text-3xl" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ type: "spring", stiffness: 200 }}>
         {price.toLocaleString("fr-FR")} TND
       </motion.div>
-      {oldPrice && (
-        <motion.div className="mt-1 flex items-center justify-end gap-2" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
-          <span className="text-sm text-white/40 line-through">{oldPrice.toLocaleString("fr-FR")} TND</span>
-          <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs font-medium text-emerald-400">-{savings.toLocaleString("fr-FR")} TND</span>
-        </motion.div>
-      )}
     </div>
   );
 }

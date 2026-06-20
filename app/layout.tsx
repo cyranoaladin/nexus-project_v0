@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import localFont from "next/font/local";
 import { Providers } from "@/components/providers";
-import PromoBanner from "@/components/layout/PromoBanner";
 import { getAllOffers, getEffectivePrice } from "@/lib/pricing";
 import "./globals.css";
 
@@ -135,10 +134,7 @@ export default function RootLayout({
           Aller au contenu principal
         </a>
         <Providers>
-          <PromoBanner />
-          <div className="promo-layout-shell">
             {children}
-          </div>
         </Providers>
       </body>
     </html>
