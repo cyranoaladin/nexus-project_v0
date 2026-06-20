@@ -66,6 +66,8 @@ services:
       RAG_INGESTOR_URL: ""
       NEXT_PUBLIC_SUPABASE_URL: ""
       UPSTASH_REDIS_REST_URL: ""
+    volumes:
+      - e2e-shared:/app/e2e-shared
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/"]
       interval: 5s
@@ -85,11 +87,16 @@ services:
     depends_on:
       app-e2e:
         condition: service_healthy
+    volumes:
+      - e2e-shared:/app/e2e-shared
     environment:
       BASE_URL: http://app-e2e:3000
       CI: "true"
     networks:
       - e2e-network
+
+volumes:
+  e2e-shared:
 
 networks:
   e2e-network:

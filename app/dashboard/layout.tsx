@@ -12,14 +12,14 @@ export const metadata: Metadata = {
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-surface-darker">
+    <div className="dashboard-soft min-h-screen bg-surface-darker">
       <Sidebar />
       <Navbar />
-      <main className="lg:pl-[280px] pt-16">
+      <div id="main-content" className="lg:pl-[280px] pt-16">
         <div className="p-4 lg:p-6">
           {children}
         </div>
-      </main>
+      </div>
     </div>
   );
 }
