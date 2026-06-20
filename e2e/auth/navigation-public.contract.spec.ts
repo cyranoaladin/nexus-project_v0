@@ -12,8 +12,6 @@ const PUBLIC_ROUTES = [
   '/equipe',
   '/notre-centre',
   '/famille',
-  '/academy',
-  '/consulting',
   '/conditions',
   '/mentions-legales',
 ];

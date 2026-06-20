@@ -7,11 +7,7 @@ const PAGES = [
   '/famille',
   '/equipe',
   '/notre-centre',
-  '/academy',
-  '/studio',
-  '/consulting',
-  '/education',
-  '/academies-hiver',
+  '/accompagnement-scolaire',
   '/stages',
 ];
 

@@ -12,8 +12,6 @@ const PUBLIC_PAGES = [
   { url: '/plateforme-aria', expectedH1: /aria|plateforme|ia/i },
   { url: '/equipe', expectedH1: /équipe|equipe|coach/i },
   { url: '/notre-centre', expectedH1: /centre|nexus/i },
-  { url: '/academy', expectedH1: /academy|académie/i },
-  { url: '/consulting', expectedH1: /consulting|conseil/i },
   { url: '/famille', expectedH1: /famille/i },
   { url: '/programme/maths-terminale', expectedH1: /maths|terminale|programme/i },
   { url: '/programme/maths-1ere', expectedH1: /maths|première|1ère|programme/i },

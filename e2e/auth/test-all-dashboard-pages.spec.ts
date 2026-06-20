@@ -107,7 +107,7 @@ test('Élève — toutes les pages', async ({ page }) => {
   test.setTimeout(60000)
   await loginAs(page, 'student@example.com', 'admin123', '/dashboard/eleve')
   const pages = [
-    '/dashboard/eleve', '/dashboard/eleve/mes-sessions',
+    '/dashboard/eleve',
     '/dashboard/eleve/sessions', '/dashboard/eleve/ressources',
     '/dashboard/trajectoire',
   ]

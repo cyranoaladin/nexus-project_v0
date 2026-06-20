@@ -27,7 +27,6 @@ const ROLE_PATHS = {
   ],
   student: [
     '/dashboard/eleve',
-    '/dashboard/eleve/mes-sessions',
     '/dashboard/eleve/sessions',
     '/dashboard/eleve/ressources',
   ],
