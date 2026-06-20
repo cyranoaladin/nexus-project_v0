@@ -1,9 +1,9 @@
 /**
- * Rendered vs Canonical — proves that prices displayed on /offres and /stages
- * match pricing.canonical.json OFFER BY OFFER, not by substring search.
+ * Data coherence — proves that lib/pricing exports match the invariants
+ * of pricing.canonical.json. This is DATA-layer verification, not DOM.
  *
- * This test reads the canonical JSON and verifies each offer's price_annual
- * and monthly_display appears in the rendered HTML of the corresponding page.
+ * The DOM-level verification (prices rendered on pages) is in the E2E
+ * suite: e2e/auth/price-render-check.spec.ts
  */
 
 import { getFullPricingData } from '@/lib/pricing';
