@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useRef, type ReactNode } from 'react';
 import Link from 'next/link';
-import { X, Check, MessageCircle, ShieldCheck } from 'lucide-react';
+import { X, Check, ShieldCheck } from 'lucide-react';
+import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { fmtTND } from '@/components/premium/format';
 
@@ -268,7 +269,7 @@ export function OfferDetailDialog({ offer, onClose }: OfferDetailDialogProps) {
             rel="noopener noreferrer"
             className="flex min-h-[44px] items-center gap-2 rounded-lg border border-lux-line px-4 py-3 text-sm font-semibold text-lux-ink transition hover:border-lux-gold/70 lux-focus"
           >
-            <MessageCircle className="h-4 w-4 text-lux-evergreen" aria-hidden="true" />
+            <WhatsAppLogo className="h-4 w-4" style={{ color: WHATSAPP_BRAND_GREEN }} aria-hidden="true" />
             Poser une question
           </a>
         </div>

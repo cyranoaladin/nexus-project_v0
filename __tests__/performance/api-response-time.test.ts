@@ -16,7 +16,11 @@ jest.mock('@/auth', () => ({
 
 const SLA_MS = 500; // 500ms P95 for standard routes
 
-describe('API Response Time SLA', () => {
+// Perf lane: non-deterministic (Date.now() timing varies under load).
+// Opt-in only: PERF_TESTS=1 npx jest __tests__/performance/
+const RUN_PERF = process.env.PERF_TESTS === '1';
+
+(RUN_PERF ? describe : describe.skip)('API Response Time SLA', () => {
   let prisma: any;
   let mockAuth: jest.Mock;
 

@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, type FormEvent, type KeyboardEvent } from 'react';
 import Link from 'next/link';
 import { MessageCircle, Phone, Mail, ArrowRight, MapPin } from 'lucide-react';
+import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
 import { toast, Toaster } from 'sonner';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
@@ -309,7 +310,7 @@ export default function ContactPage() {
                 </div>
                 <div className="mt-4 space-y-3">
                   <a href={buildWhatsAppUrl()} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-lux-ivory transition-colors hover:border-lux-gold/40 hover:bg-white/10">
-                    <MessageCircle className="h-4 w-4 text-lux-evergreen" />
+                    <WhatsAppLogo className="h-4 w-4" style={{ color: WHATSAPP_BRAND_GREEN }} />
                     WhatsApp&nbsp;: {LEGAL.contact.phone}
                   </a>
                   <a href={`tel:${LEGAL.contact.phoneRaw}`} className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-lux-ivory transition-colors hover:border-lux-gold/40 hover:bg-white/10">

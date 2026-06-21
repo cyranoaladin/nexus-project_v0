@@ -122,7 +122,7 @@ export function StageEamStmgDashboard({ eleveId }: { eleveId: string }) {
               <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-300">Élève : Première STMG. Parcours individualisé du samedi 30/05 au lundi 08/06/2026, sans calculatrice.</p>
             </div>
             <div className="rounded-card-sm border border-neutral-700 bg-surface-elevated p-4 text-right">
-              <p className="text-xs uppercase text-neutral-400">Épreuve réseau AEFE Tunisie</p>
+              <p className="text-xs uppercase text-neutral-400">Épreuve du réseau AEFE Tunisie</p>
               <Countdown enabled={progress.state.settings.countdownEnabled} />
               <p className="mt-1 text-xs text-neutral-400">lundi 08/06/2026</p>
             </div>

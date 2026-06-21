@@ -6,7 +6,7 @@
  * 2. Dates fall within official vacation windows (no school days)
  * 3. Formats and hours match (EXPRESS 9h, INTENSIF 15h, PRÉPA-BAC 30h)
  * 4. Prices come from canonical data (not hardcoded)
- * 5. Each stage is available to both AEFE-inscrit and candidat libre
+ * 5. Each stage is available to both inscrit réseau AEFE and candidat libre
  */
 
 import { getStageCalendar, getStageFormat, type StageCalendarEntry } from '@/lib/pricing';
