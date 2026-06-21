@@ -192,6 +192,9 @@ model User {
   // Entitlements (product access rights)
   entitlements Entitlement[]
 
+  // EAM (Écrit Argumentation Méthodologie) progression
+  eamProgress EamProgress?
+
   // ClicToPay transactions
   clicToPayTransactions ClicToPayTransaction[]
 
@@ -1773,6 +1776,21 @@ model MathsProgress {
   @@index([userId])
   @@index([track])
   @@map("maths_progress")
+}
+
+// EAM (Écrit Argumentation Méthodologie) — progression tracking
+// Columns kept snake_case: runtime raw SQL (api/eam/progress, coach/eam-summary) references them directly
+model EamProgress {
+  id        String   @id @default(dbgenerated("(gen_random_uuid())::text"))
+  userId    String   @unique @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  checks    Json     @default("{}")
+  quiz      Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("eam_progress")
 }
 
 // NSI Pratique 2026 — Server-side progression (hybrid with localStorage)
