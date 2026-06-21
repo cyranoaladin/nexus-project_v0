@@ -8,27 +8,27 @@
 export const LEGAL = {
   entity: {
     name: 'STE M&M ACADEMY SUARL',
-    tradeName: 'Nexus Reussite',
-    form: 'SUARL (Societe Unipersonnelle a Responsabilite Limitee)',
+    tradeName: 'Nexus Réussite',
+    form: 'SUARL (Société Unipersonnelle à Responsabilité Limitée)',
     taxId: '1948837 N/A/M/000',
-    rne: null as string | null, // A completer si disponible
+    rne: null as string | null, // À compléter si disponible
     representative: 'Mme Molka Mezzez Ben Rhouma',
-    representativeTitle: 'Gerante',
+    representativeTitle: 'Gérante',
     publicationDirector: 'Mme Molka Mezzez Ben Rhouma',
   },
 
   addresses: {
     siege: {
-      label: 'Siege social',
+      label: 'Siège social',
       full: 'Immeuble VENUS, Appt C13, Centre Urbain Nord, 1082 Tunis',
       city: 'Tunis',
       postalCode: '1082',
     },
     pedagogique: {
-      label: 'Centre pedagogique',
+      label: 'Centre pédagogique',
       full: 'Mutuelleville, Tunis',
       city: 'Tunis',
-      note: 'Les rendez-vous pedagogiques et cours en presentiel sont confirmes a Mutuelleville.',
+      note: 'Les rendez-vous pédagogiques et cours en présentiel sont confirmés à Mutuelleville.',
     },
   },
 
@@ -46,9 +46,9 @@ export const LEGAL = {
 
   copyright: {
     year: 2026,
-    holder: 'Nexus Reussite',
+    holder: 'Nexus Réussite',
     notice: (year?: number) =>
-      `\u00A9 ${year ?? 2026} Nexus Reussite - Une marque exploitee par la societe STE M&M ACADEMY SUARL. Le site nexusreussite.academy est la propriete exclusive de M&M ACADEMY SUARL.`,
+      `\u00A9 ${year ?? 2026} Nexus Réussite — Une marque exploitée par la société STE M&M ACADEMY SUARL. Le site nexusreussite.academy est la propriété exclusive de M&M ACADEMY SUARL.`,
   },
 
   jurisdiction: 'Tunis, Tunisie',

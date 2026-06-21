@@ -17,12 +17,10 @@ LOG="/var/log/nexus-backup-db.log"
 TMP="/tmp/nexus_bk_$$"
 START=$(date +%s)
 
-log() { echo "$(date +%H:%M:%S) $1" | tee -a "$LOG"; }
+log() { echo "$(date +%H:%M:%S) $1"; }
 SB_SSH() { ssh -i "$SB_KEY" -p 23 -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=20 "$SB_USER@$SB_HOST" "$@"; }
 SB_SCP() { scp -P 23 -i "$SB_KEY" -o StrictHostKeyChecking=no -o BatchMode=yes "$@"; }
 
-# Log rotation (>10MB)
-[ -f "$LOG" ] && [ "$(stat -c%s "$LOG" 2>/dev/null || echo 0)" -gt 10485760 ] && mv "$LOG" "${LOG}.old"
 log "=== DEBUT $DATE (${HOUR}h) ==="
 
 # Pre-flight: container running?

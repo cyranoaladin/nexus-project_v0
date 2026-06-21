@@ -336,7 +336,7 @@ export default function OffresPage() {
                     <p className="font-semibold text-lux-ink">{ed.title}</p>
                     <p className="text-sm text-lux-slate">{ed.period}</p>
                     <p className="mt-1 text-xs text-lux-slate">
-                      Formats&nbsp;: {ed.formats.join(', ')}
+                      Formats&nbsp;: {ed.formats.map((fid) => getStageFormat(fid)?.title || fid).join(', ')}
                     </p>
                   </div>
                 ))}
