@@ -45,12 +45,11 @@ const CorporateFooter = () => {
                                 className="h-8 w-auto brightness-0 invert"
                             />
                         </div>
-                        <p className="text-neutral-300 text-sm leading-relaxed mb-6">
+                        <p className="text-neutral-300 text-sm leading-relaxed">
                             L&apos;excellence pédagogique augmentée par l&apos;Intelligence Artificielle.
                             <br />
                             Pour les familles qui recherchent un cadre sérieux, sobre et cohérent.
                         </p>
-                        <NewsletterSignup />
                     </div>
 
                     {/* Links */}
@@ -117,6 +116,11 @@ const CorporateFooter = () => {
                             </div>
                         </div>
                     </div>
+                </div>
+
+                {/* Newsletter — full width, above bottom bar */}
+                <div className="mb-12 max-w-2xl">
+                    <NewsletterSignup />
                 </div>
 
                 {/* Bottom Bar */}

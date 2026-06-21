@@ -424,7 +424,7 @@ export default function OffresPage() {
           <section>
             <div className="mb-8">
               <span className="lux-eyebrow">Les Pass</span>
-              <h2 className="mt-2 text-2xl md:text-3xl">Packs fidélité — économisez en regroupant</h2>
+              <h2 className="mt-2 text-2xl md:text-3xl">Packs fidélité — simplifiez votre parcours</h2>
               <p className="mt-2 text-sm text-lux-slate">
                 Acompte déductible du parcours annuel. Solde avant chaque prestation.
               </p>
