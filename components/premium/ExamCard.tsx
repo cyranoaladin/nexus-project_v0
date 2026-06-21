@@ -93,7 +93,7 @@ export function ExamCard(props: ExamCardProps) {
   const hideCta = 'hideCta' in props && props.hideCta;
   return (
     <div
-      className={`relative flex flex-col overflow-hidden rounded-2xl transition-all duration-300 ${
+      className={`@container relative flex flex-col overflow-hidden rounded-2xl transition-all duration-300 ${
         featured
           ? 'ring-2 ring-lux-gold shadow-xl shadow-lux-gold/10 scale-[1.02]'
           : 'border border-lux-line/60 shadow-md shadow-lux-ink/5 hover:shadow-lg hover:shadow-lux-ink/10 hover:-translate-y-1'
@@ -130,24 +130,34 @@ export function ExamCard(props: ExamCardProps) {
         <div className="lux-filet-gold mt-3 w-16" />
       </div>
 
-      {/* Key metrics — stacked rows, label left / value right */}
-      <div className="flex flex-col gap-1.5 border-b border-lux-line/40 px-6 py-3 text-sm">
-        {hoursPerWeek != null && (
-          <div className="flex justify-between gap-3">
-            <span className="text-lux-slate">Volume</span>
-            <span className="font-dm-sans font-semibold text-lux-ink whitespace-nowrap">{fmtHoursWeek(hoursPerWeek)}</span>
+      {/* Key metrics — container query: stacked on narrow cards, 2-col on wide */}
+      <div className="border-b border-lux-line/40 px-6 py-3 text-sm">
+        {/* Volume + Total: side-by-side when card is wide enough */}
+        {(hoursPerWeek != null || totalHours != null) && (
+          <div className="grid grid-cols-1 @[22rem]:grid-cols-2 gap-x-6 gap-y-1.5">
+            {hoursPerWeek != null && (
+              <div>
+                <span className="text-[0.6rem] font-medium uppercase tracking-wider text-lux-slate">Volume</span>
+                <p className="mt-0.5 font-dm-sans text-sm font-semibold text-lux-ink">{fmtHoursWeek(hoursPerWeek)}</p>
+              </div>
+            )}
+            {totalHours != null && (
+              <div>
+                <span className="text-[0.6rem] font-medium uppercase tracking-wider text-lux-slate">Total</span>
+                <p className="mt-0.5 font-dm-sans text-sm font-semibold text-lux-ink">{totalHours}h&nbsp;/&nbsp;an</p>
+              </div>
+            )}
           </div>
         )}
-        {totalHours != null && (
-          <div className="flex justify-between gap-3">
-            <span className="text-lux-slate">Total</span>
-            <span className="font-dm-sans font-semibold text-lux-ink whitespace-nowrap">{totalHours}h&nbsp;/&nbsp;an</span>
-          </div>
-        )}
+        {/* Groupe: always full width */}
         {effectifType !== 'none' && (
-          <div className="flex justify-between gap-3">
-            <span className="text-lux-slate">{effectifType === 'individuel' ? 'Format' : 'Groupe'}</span>
-            <span className="font-dm-sans font-semibold text-lux-ink whitespace-nowrap">{effectifType === 'individuel' ? 'Individuel' : fmtGroup(groupMax, groupMinOpen)}</span>
+          <div className="mt-1.5 flex justify-between gap-3">
+            <span className="text-[0.6rem] font-medium uppercase tracking-wider text-lux-slate">
+              {effectifType === 'individuel' ? 'Format' : 'Groupe'}
+            </span>
+            <span className="font-dm-sans text-sm font-semibold text-lux-ink text-right">
+              {effectifType === 'individuel' ? 'Individuel' : fmtGroup(groupMax, groupMinOpen)}
+            </span>
           </div>
         )}
       </div>
