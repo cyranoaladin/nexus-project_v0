@@ -44,18 +44,17 @@ for (const vp of VIEWPORTS) {
 
     // Check metric pairs: label (text-lux-slate uppercase) vs value (font-semibold text-lux-ink)
     const overlaps = await firstCard.evaluate((card) => {
-      // Find metric containers: divs containing exactly 2 <p> children (label + value)
-      // inside the card, before the pricing section
+      // Find metric containers: divs with exactly 2 inline children (span or p) = label + value
       const allDivs = Array.from(card.querySelectorAll('div'));
       const metricDivs = allDivs.filter(div => {
-        const ps = div.querySelectorAll(':scope > p');
-        return ps.length === 2 && div.children.length === 2;
+        const kids = div.querySelectorAll(':scope > span, :scope > p');
+        return kids.length === 2 && div.children.length === 2;
       });
       if (metricDivs.length === 0) return ['NON_VACUITY_FAIL: 0 metric divs found'];
       const collisions: string[] = [];
       metricDivs.forEach((div) => {
-        const label = div.querySelector('p:first-child');
-        const value = div.querySelector('p:last-child');
+        const label = div.querySelector(':scope > :first-child');
+        const value = div.querySelector(':scope > :last-child');
         if (label && value && label !== value) {
           const lb = label.getBoundingClientRect();
           const vb = value.getBoundingClientRect();

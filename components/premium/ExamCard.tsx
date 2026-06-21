@@ -93,10 +93,10 @@ export function ExamCard(props: ExamCardProps) {
   const hideCta = 'hideCta' in props && props.hideCta;
   return (
     <div
-      className={`relative flex flex-col overflow-hidden rounded-xl transition-all duration-300 ${
+      className={`relative flex flex-col overflow-hidden rounded-2xl transition-all duration-300 ${
         featured
-          ? 'ring-2 ring-lux-gold lux-shadow-hover'
-          : 'border border-lux-line lux-shadow hover:lux-shadow-hover hover:-translate-y-0.5'
+          ? 'ring-2 ring-lux-gold shadow-xl shadow-lux-gold/10 scale-[1.02]'
+          : 'border border-lux-line/60 shadow-md shadow-lux-ink/5 hover:shadow-lg hover:shadow-lux-ink/10 hover:-translate-y-1'
       } bg-lux-white`}
     >
       {/* Filigrane monogramme N — discret */}
@@ -107,8 +107,17 @@ export function ExamCard(props: ExamCardProps) {
         N
       </div>
 
-      {/* Tab eyebrow + campaign badge */}
-      <div className="relative border-b border-lux-line px-6 pb-4 pt-5">
+      {/* Featured badge */}
+      {featured && (
+        <div className="bg-lux-gold px-4 py-1.5 text-center">
+          <span className="text-[0.7rem] font-semibold uppercase tracking-widest text-lux-ink">
+            Meilleure valeur
+          </span>
+        </div>
+      )}
+
+      {/* Tab eyebrow */}
+      <div className={`relative border-b border-lux-line/40 px-6 pb-4 ${featured ? 'pt-4' : 'pt-5'}`}>
         <div className="flex items-start justify-between gap-3">
           <span className="lux-eyebrow">{eyebrow}</span>
         </div>
@@ -121,44 +130,32 @@ export function ExamCard(props: ExamCardProps) {
         <div className="lux-filet-gold mt-3 w-16" />
       </div>
 
-      {/* Key metrics — 1 col mobile, 2 col sm+ */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 border-b border-lux-line/50 px-6 py-4">
+      {/* Key metrics — stacked rows, label left / value right */}
+      <div className="flex flex-col gap-1.5 border-b border-lux-line/40 px-6 py-3 text-sm">
         {hoursPerWeek != null && (
-          <div className="flex items-baseline justify-between sm:block">
-            <p className="text-[0.65rem] font-medium uppercase tracking-wider text-lux-slate">
-              Volume
-            </p>
-            <p className="font-dm-sans text-sm font-semibold text-lux-ink">
-              {fmtHoursWeek(hoursPerWeek)}
-            </p>
+          <div className="flex justify-between gap-3">
+            <span className="text-lux-slate">Volume</span>
+            <span className="font-dm-sans font-semibold text-lux-ink whitespace-nowrap">{fmtHoursWeek(hoursPerWeek)}</span>
           </div>
         )}
         {totalHours != null && (
-          <div className="flex items-baseline justify-between sm:block">
-            <p className="text-[0.65rem] font-medium uppercase tracking-wider text-lux-slate">
-              Total
-            </p>
-            <p className="font-dm-sans text-sm font-semibold text-lux-ink">
-              {totalHours}h&nbsp;/&nbsp;an
-            </p>
+          <div className="flex justify-between gap-3">
+            <span className="text-lux-slate">Total</span>
+            <span className="font-dm-sans font-semibold text-lux-ink whitespace-nowrap">{totalHours}h&nbsp;/&nbsp;an</span>
           </div>
         )}
         {effectifType !== 'none' && (
-          <div className="flex items-baseline justify-between sm:block">
-            <p className="text-[0.65rem] font-medium uppercase tracking-wider text-lux-slate">
-              {effectifType === 'individuel' ? 'Format' : 'Groupe'}
-            </p>
-            <p className="font-dm-sans text-sm font-semibold text-lux-ink">
-              {effectifType === 'individuel' ? 'Individuel' : fmtGroup(groupMax, groupMinOpen)}
-            </p>
+          <div className="flex justify-between gap-3">
+            <span className="text-lux-slate">{effectifType === 'individuel' ? 'Format' : 'Groupe'}</span>
+            <span className="font-dm-sans font-semibold text-lux-ink whitespace-nowrap">{effectifType === 'individuel' ? 'Individuel' : fmtGroup(groupMax, groupMinOpen)}</span>
           </div>
         )}
       </div>
 
       {/* Pricing — tabular */}
-      <div className="bg-lux-paper/60 px-6 py-5">
+      <div className={`px-6 py-5 ${featured ? 'bg-lux-ink/[0.03]' : 'bg-lux-paper/60'}`}>
         <div className="flex items-baseline gap-3">
-          <span className="lux-price text-2xl text-lux-ink">
+          <span className="lux-price text-2xl font-bold text-lux-ink">
             {fmtTND(price)}
           </span>
         </div>
