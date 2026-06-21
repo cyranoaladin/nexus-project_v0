@@ -77,20 +77,19 @@ export function MobileStickyBar() {
     };
   }, []);
 
+  if (!visible) return null;
+
   return (
     <nav
       aria-label="Actions rapides"
-      className={`fixed inset-x-0 bottom-0 z-40 md:hidden transition-all duration-300 ${
-        visible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 pointer-events-none'
-      }`}
+      className="fixed inset-x-0 bottom-0 z-40 md:hidden animate-in slide-in-from-bottom duration-300"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
-      {...(!visible ? { inert: true } : {})}
     >
       <div className="flex items-center gap-3 border-t border-lux-line bg-lux-white px-4 py-3 lux-shadow">
         <Link
           href="/bilan-gratuit"
           className="lux-cta-reserve flex-1 rounded-lg px-4 py-3 text-center text-sm font-semibold"
-          tabIndex={visible ? 0 : -1}
+          tabIndex={0}
         >
           Bilan gratuit
         </Link>
@@ -100,7 +99,7 @@ export function MobileStickyBar() {
           rel="noopener noreferrer"
           className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-lux-line text-lux-evergreen transition hover:border-lux-evergreen/50"
           aria-label="Contacter sur WhatsApp"
-          tabIndex={visible ? 0 : -1}
+          tabIndex={0}
         >
           <MessageCircle className="h-5 w-5" aria-hidden="true" />
         </a>
