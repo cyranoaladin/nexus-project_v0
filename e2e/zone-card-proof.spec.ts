@@ -103,11 +103,23 @@ for (const vp of VIEWPORTS) {
         }
       });
 
-      return collisions;
+      // Anti-clip: every metric and échéancier value must not overflow its container
+      const allValues = [
+        ...metricDivs.flatMap(d => Array.from(d.querySelectorAll(':scope > :last-child'))),
+        ...echeancierRows.flatMap(d => Array.from(d.querySelectorAll(':scope > :last-child'))),
+      ];
+      allValues.forEach((el, i) => {
+        const e = el as HTMLElement;
+        if (e.scrollWidth > e.clientWidth + 1) {
+          collisions.push(`CLIP[${i}]: "${e.textContent?.trim().slice(0,30)}" scrollW=${e.scrollWidth} > clientW=${e.clientWidth}`);
+        }
+      });
+
+      return { collisions, metricCount: metricDivs.length, echeancierCount: echeancierRows.length };
     });
 
-    console.log(`anti-collision @ ${vp.width}px: metricDivs inspected, échéancier rows inspected. Collisions: ${JSON.stringify(overlaps)}`);
-    expect(overlaps, `Collisions at ${vp.width}px`).toEqual([]);
+    console.log(`anti-collision @ ${vp.width}px: metrics=${overlaps.metricCount}, échéancier=${overlaps.echeancierCount}, collisions=${JSON.stringify(overlaps.collisions)}`);
+    expect(overlaps.collisions, `Collisions at ${vp.width}px`).toEqual([]);
     await ctx.close();
   });
 }
