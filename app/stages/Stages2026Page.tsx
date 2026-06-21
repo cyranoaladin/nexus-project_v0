@@ -45,7 +45,7 @@ export default function Stages2026Page() {
           </p>
           <p className="mt-2 text-sm text-lux-on-dark-subtle">
             Mati\u00e8res\u00A0: Maths \u00b7 NSI \u00b7 Fran\u00e7ais (EAF) \u00b7 Philo
-            &mdash; AEFE-inscrits et candidats libres
+            &mdash; inscrits en réseau AEFE et candidats libres
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <Link href="/bilan-gratuit?source=stages" className="lux-cta-reserve rounded-lg px-6 py-3.5 text-sm font-semibold">

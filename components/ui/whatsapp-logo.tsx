@@ -7,10 +7,11 @@
 /** WhatsApp brand green — https://about.whatsapp.com/brand */
 export const WHATSAPP_BRAND_GREEN = '#25D366';
 
-export function WhatsAppLogo({ className }: { className?: string }) {
+export function WhatsAppLogo({ className, style }: { className?: string; style?: React.CSSProperties }) {
   return (
     <svg
       className={className}
+      style={style}
       viewBox="0 0 24 24"
       fill="currentColor"
       aria-hidden="true"

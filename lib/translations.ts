@@ -32,7 +32,7 @@ export const translations = {
       consulting: {
         badge: "Pôle Advisory",
         title: "Nexus Consulting",
-        description: "Expertise en gouvernance éducative, audit de conformité AEFE/Éducation Nationale et stratégie de transformation numérique.",
+        description: "Expertise en gouvernance éducative, audit de conformité réseau AEFE / Éducation Nationale et stratégie de transformation numérique.",
         list: {
           audit: {
             title: "Audit Stratégique",
