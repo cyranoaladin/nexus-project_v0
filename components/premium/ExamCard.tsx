@@ -136,26 +136,26 @@ export function ExamCard(props: ExamCardProps) {
         {(hoursPerWeek != null || totalHours != null) && (
           <div className="grid grid-cols-1 @[22rem]:grid-cols-2 gap-x-6 gap-y-1.5">
             {hoursPerWeek != null && (
-              <div>
+              <div data-testid="metric-volume">
                 <span className="text-[0.6rem] font-medium uppercase tracking-wider text-lux-slate">Volume</span>
-                <p className="mt-0.5 font-dm-sans text-sm font-semibold text-lux-ink">{fmtHoursWeek(hoursPerWeek)}</p>
+                <p data-testid="metric-volume-value" className="mt-0.5 font-dm-sans text-sm font-semibold text-lux-ink">{fmtHoursWeek(hoursPerWeek)}</p>
               </div>
             )}
             {totalHours != null && (
-              <div>
+              <div data-testid="metric-total">
                 <span className="text-[0.6rem] font-medium uppercase tracking-wider text-lux-slate">Total</span>
-                <p className="mt-0.5 font-dm-sans text-sm font-semibold text-lux-ink">{totalHours}h&nbsp;/&nbsp;an</p>
+                <p data-testid="metric-total-value" className="mt-0.5 font-dm-sans text-sm font-semibold text-lux-ink">{totalHours}h&nbsp;/&nbsp;an</p>
               </div>
             )}
           </div>
         )}
         {/* Groupe: always full width */}
         {effectifType !== 'none' && (
-          <div className="mt-1.5 flex justify-between gap-3">
+          <div data-testid="metric-groupe" className="mt-1.5 flex justify-between gap-3">
             <span className="text-[0.6rem] font-medium uppercase tracking-wider text-lux-slate">
               {effectifType === 'individuel' ? 'Format' : 'Groupe'}
             </span>
-            <span className="font-dm-sans text-sm font-semibold text-lux-ink text-right">
+            <span data-testid="metric-groupe-value" className="font-dm-sans text-sm font-semibold text-lux-ink text-right">
               {effectifType === 'individuel' ? 'Individuel' : fmtGroup(groupMax, groupMinOpen)}
             </span>
           </div>
@@ -196,18 +196,18 @@ export function ExamCard(props: ExamCardProps) {
             Échéancier
           </p>
           <div className="space-y-2 font-dm-sans text-sm">
-            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
+            <div data-testid="echeancier-acompte" className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
               <span className="text-lux-slate">Acompte</span>
-              <span className="lux-price font-semibold text-lux-ink whitespace-nowrap">
+              <span data-testid="echeancier-acompte-value" className="lux-price font-semibold text-lux-ink whitespace-nowrap">
                 {fmtTND(payment.deposit)}
               </span>
             </div>
             {payment.installments && payment.installments.length > 0 && (
-              <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
+              <div data-testid="echeancier-mensualites" className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
                 <span className="text-lux-slate whitespace-nowrap">
                   {payment.installments.length}&nbsp;mensualité{payment.installments.length > 1 ? 's' : ''}
                 </span>
-                <span className="lux-price font-semibold text-lux-ink whitespace-nowrap">
+                <span data-testid="echeancier-mensualites-value" className="lux-price font-semibold text-lux-ink whitespace-nowrap">
                   {fmtTND(payment.installments[0])}
                   {payment.installments.length > 1 &&
                     payment.installments[payment.installments.length - 1] !== payment.installments[0] &&
@@ -216,9 +216,9 @@ export function ExamCard(props: ExamCardProps) {
               </div>
             )}
             {payment.solde != null && payment.solde > 0 && (
-              <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
+              <div data-testid="echeancier-solde" className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
                 <span className="text-lux-slate">Solde</span>
-                <span className="lux-price font-semibold text-lux-ink whitespace-nowrap">
+                <span data-testid="echeancier-solde-value" className="lux-price font-semibold text-lux-ink whitespace-nowrap">
                   {fmtTND(payment.solde)}
                 </span>
               </div>

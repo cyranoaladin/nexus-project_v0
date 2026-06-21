@@ -6,17 +6,14 @@ const VIEWPORTS = [
   { name: 'desktop', width: 1280, height: 900 },
 ];
 
-// Two wizard paths: annual (full metrics) and stage (simpler cards)
 const PATHS = [
-  { name: 'annual', steps: ['Terminale', 'Scolarisé', 'Accompagnement annuel'] },
-  { name: 'stage', steps: ['Terminale', 'Scolarisé', 'Stage intensif'] },
+  { name: 'annual', steps: ['Terminale', 'Scolarisé', 'Accompagnement annuel'], minMetrics: 9, minEcheancier: 6 },
+  { name: 'stage', steps: ['Terminale', 'Scolarisé', 'Stage intensif'], minMetrics: 1, minEcheancier: 4 },
 ];
 
 async function completeWizard(page: import('@playwright/test').Page, steps: string[]) {
   for (const label of steps) {
-    const option = page.locator('button').filter({ hasText: label }).first();
-    await option.waitFor({ state: 'visible', timeout: 5000 });
-    await option.click();
+    await page.locator('button').filter({ hasText: label }).first().click();
     await page.waitForTimeout(300);
   }
   await page.waitForTimeout(500);
@@ -29,98 +26,63 @@ for (const path of PATHS) {
       const page = await ctx.newPage();
       await page.goto('/recommandation', { waitUntil: 'domcontentloaded' });
       await page.waitForTimeout(1000);
-
       await completeWizard(page, path.steps);
+      await expect(page.locator('text=Diagnostic complété')).toBeVisible({ timeout: 5000 });
 
-      // Verify cards appeared
-      const resultsHeader = page.locator('text=Diagnostic complété');
-      await expect(resultsHeader).toBeVisible({ timeout: 5000 });
-
-      // Screenshot full results
       await page.screenshot({
         path: `e2e/screenshots/zones/reco-${path.name}-${vp.name}-${vp.width}.png`,
         fullPage: true,
       });
 
-      // Anti-collision: check all label/value pairs in the results area
       const result = await page.evaluate(() => {
-        const body = document.body;
-        const allDivs = Array.from(body.querySelectorAll('div'));
-
-        // Metric divs: exactly 2 inline children (span/p in any combo)
-        const metricDivs = allDivs.filter(div => {
-          const kids = div.querySelectorAll(':scope > span, :scope > p');
-          return kids.length === 2 && div.children.length === 2;
-        });
-
-        // Échéancier rows: same pattern (2 inline children)
-        const echeancierRows = metricDivs; // unified selector — collision checks apply to all
-
+        // Containers only (not -value children)
+        const metricContainers = Array.from(document.querySelectorAll(
+          '[data-testid="metric-volume"], [data-testid="metric-total"], [data-testid="metric-groupe"]'
+        ));
+        const echeancierContainers = Array.from(document.querySelectorAll(
+          '[data-testid="echeancier-acompte"], [data-testid="echeancier-mensualites"], [data-testid="echeancier-solde"]'
+        ));
+        const values = Array.from(document.querySelectorAll('[data-testid$="-value"]'));
         const collisions: string[] = [];
 
-        // Check metric label/value don't collide
-        metricDivs.forEach(div => {
-          const label = div.querySelector(':scope > :first-child') as HTMLElement | null;
-          const value = div.querySelector(':scope > :last-child') as HTMLElement | null;
-          if (label && value && label !== value) {
-            const lb = label.getBoundingClientRect();
-            const vb = value.getBoundingClientRect();
-            const sameRow = Math.abs(lb.top - vb.top) < 10;
-            const overlap = lb.right > vb.left && vb.right > lb.left && lb.bottom > vb.top && vb.bottom > lb.top;
-            if (overlap && !sameRow) {
-              collisions.push(`METRIC: "${label.textContent?.trim()}" ↔ "${value.textContent?.trim()}"`);
-            }
+        // Anti-clip on every value element
+        values.forEach(el => {
+          const e = el as HTMLElement;
+          if (e.scrollWidth > e.clientWidth + 1) {
+            collisions.push(`CLIP: ${e.dataset.testid} scrollW=${e.scrollWidth} > clientW=${e.clientWidth}`);
           }
         });
 
-        // Inter-cell check: adjacent metric divs must not overlap
-        for (let i = 0; i < metricDivs.length - 1; i++) {
-          const a = metricDivs[i].getBoundingClientRect();
-          const b = metricDivs[i + 1].getBoundingClientRect();
-          const hOverlap = a.right > b.left + 2 && b.right > a.left + 2;
-          const vOverlap = a.bottom > b.top + 2 && b.bottom > a.top + 2;
-          if (hOverlap && vOverlap) {
-            collisions.push(`INTER-CELL[${i}↔${i+1}]: "${metricDivs[i].textContent?.trim().slice(0,20)}" ↔ "${metricDivs[i+1].textContent?.trim().slice(0,20)}"`);
+        // Adjacent metric CONTAINERS overlap (Volume vs Total, not label vs own value)
+        for (let i = 0; i < metricContainers.length - 1; i++) {
+          const a = metricContainers[i].getBoundingClientRect();
+          const b = metricContainers[i + 1].getBoundingClientRect();
+          if (a.right > b.left + 2 && b.right > a.left + 2 && a.bottom > b.top + 2 && b.bottom > a.top + 2) {
+            collisions.push(`OVERLAP: ${metricContainers[i].getAttribute('data-testid')} ↔ ${metricContainers[i + 1].getAttribute('data-testid')}`);
           }
         }
 
-        // Check échéancier labels don't overlap values
-        echeancierRows.forEach((row, i) => {
-          const kids = Array.from(row.querySelectorAll(':scope > span, :scope > p'));
-          if (kids.length >= 2) {
-            const l = kids[0].getBoundingClientRect();
-            const r = kids[kids.length - 1].getBoundingClientRect();
-            if (l.right > r.left + 2 && Math.abs(l.top - r.top) < 15) {
-              collisions.push(`ECHEANCIER[${i}]: "${kids[0].textContent}" ↔ "${kids[1].textContent}"`);
-            }
+        // Arrow spacing
+        values.filter(el => el.textContent?.includes('→')).forEach(el => {
+          if (/[^\s\u00A0]→|→[^\s\u00A0]/.test(el.textContent ?? '')) {
+            collisions.push(`ARROW_SPACING: ${el.getAttribute('data-testid')}`);
           }
         });
-
-        // Arrow spacing check: → must have space on both sides
-        const arrowSpans = Array.from(body.querySelectorAll('span')).filter(s =>
-          s.textContent?.includes('→')
-        );
-        const arrowIssues = arrowSpans.filter(s => {
-          const t = s.textContent ?? '';
-          // Must have a non-breaking space or regular space before and after →
-          return /[^\s\u00A0]→|→[^\s\u00A0]/.test(t);
-        });
-        if (arrowIssues.length > 0) {
-          collisions.push(`ARROW_SPACING: ${arrowIssues.length} arrows without proper spacing`);
-        }
 
         return {
-          metricDivs: metricDivs.length,
-          echeancierRows: echeancierRows.length,
-          arrowCount: arrowSpans.length,
+          metrics: metricContainers.length,
+          echeancier: echeancierContainers.length,
+          values: values.length,
           collisions,
         };
       });
 
-      console.log(`/recommandation ${path.name} @ ${vp.width}px: metrics=${result.metricDivs}, échéancier=${result.echeancierRows}, arrows=${result.arrowCount}, collisions=${JSON.stringify(result.collisions)}`);
+      console.log(`/recommandation ${path.name} @ ${vp.width}px: metrics=${result.metrics}, écheancier=${result.echeancier}, values=${result.values}, collisions=${JSON.stringify(result.collisions)}`);
 
-      // Collisions empty is the key assertion; metricDivs count varies by card structure
-      // Either path: no collisions
+      // Non-vacuity
+      expect(result.metrics, `${path.name}: metrics >= ${path.minMetrics}`).toBeGreaterThanOrEqual(path.minMetrics);
+      expect(result.echeancier, `${path.name}: echeancier >= ${path.minEcheancier}`).toBeGreaterThanOrEqual(path.minEcheancier);
+      // Zero collisions
       expect(result.collisions, `Collisions at ${vp.width}px`).toEqual([]);
 
       await ctx.close();
