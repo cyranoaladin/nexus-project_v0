@@ -25,6 +25,7 @@ import {
   getEffectivePrice,
   getAnnualOfferPaymentSchedule,
   getStageFormat,
+  getStageEdition,
   getPonctuelOffer,
   getCoachingOffer,
   type Pack,
@@ -59,7 +60,8 @@ function resolvePackComponentLabels(pack: Pack): string[] {
   return pack.components.map((c) => {
     if (c.type === 'stage' && c.format_id) {
       const fmt = getStageFormat(c.format_id);
-      const edLabel = c.edition_id ? ` (${c.edition_id})` : '';
+      const ed = c.edition_id ? getStageEdition(c.edition_id) : undefined;
+      const edLabel = ed ? ` (${ed.title})` : '';
       return `${c.qty}× ${fmt?.title || c.format_id}${edLabel}`;
     }
     if (c.type === 'ponctuel' && c.id) {
