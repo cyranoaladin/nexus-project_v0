@@ -141,7 +141,7 @@ const trustItems = [
   `Groupes de 5 élèves maximum — suivi individualisé`,
   `Transparence tarifaire\u00A0: tous les prix publics, en TND`,
   `Cellule Cyclades intégrée pour les candidats libres`,
-  `Cadre réseau AEFE — programme français, exigence garantie`,
+  `Cadre réseau AEFE — programme et exigences de l\u2019enseignement français`,
 ];
 
 function TrustSection() {
