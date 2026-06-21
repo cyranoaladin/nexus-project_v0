@@ -102,7 +102,7 @@ export function HeroSection() {
             {/* Image zone */}
             <div className="relative overflow-hidden rounded-2xl bg-lux-ink/50 border-l-2 border-lux-gold/20 min-h-[280px] sm:min-h-[320px] md:min-h-[380px]">
               <Image
-                src="/images/hero-study-session.webp"
+                src="/hero/hero.webp"
                 alt="Séance de travail en petit groupe — Nexus Réussite"
                 fill
                 className="object-cover object-center"
