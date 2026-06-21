@@ -52,6 +52,7 @@ export default defineConfig({
             NEXTAUTH_URL: 'http://127.0.0.1:3002',
             DATABASE_URL: e2eDatabaseUrl,
             TEST_DATABASE_URL: e2eDatabaseUrl,
+            ALLOW_TEST_ROUTES: '1',
           },
           url: baseURL,
           reuseExistingServer: true,
