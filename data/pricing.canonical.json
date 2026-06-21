@@ -493,8 +493,8 @@
         "Tout le parcours Mixte en groupe de 5 max",
         "Coaching individuel et suivi parent renforcé",
         "6 h d'urgence en ligne incluses",
-        "Priorite de planification sur les stages",
-        "Préparation Parcoursup : dossier et entretiens optimises"
+        "Priorité de planification sur les stages",
+        "Préparation Parcoursup : dossier et entretiens optimisés"
       ]
     },
     {
@@ -960,7 +960,7 @@
     },
     {
       "id": "boussole-méthode",
-      "title": "Boussole Methode",
+      "title": "Boussole Méthode",
       "format": "Atelier méthodo, 3 séances",
       "effectif": "groupe",
       "group_max": 5,
@@ -1370,14 +1370,14 @@
     }
   },
   "reperes_tarifaires": {
-    "brevetMois": "a partir de 240 TND / mois",
-    "secondeMois": "a partir de 270 TND / mois",
-    "premiereSimpleMois": "a partir de 300 TND / mois",
-    "premiereDuoMois": "a partir de 540 TND / mois",
-    "terminaleSimpleMois": "a partir de 390 TND / mois",
+    "brevetMois": "à partir de 240 TND / mois",
+    "secondeMois": "à partir de 270 TND / mois",
+    "premiereSimpleMois": "à partir de 300 TND / mois",
+    "premiereDuoMois": "à partir de 540 TND / mois",
+    "terminaleSimpleMois": "à partir de 390 TND / mois",
     "terminaleDuoMois": "~ 718 TND / mois",
-    "plateformeAn": "a partir de 590 TND / an",
-    "stagesBase": "des 420 TND",
-    "parrainage": "150 a 300 TND"
+    "plateformeAn": "à partir de 590 TND / an",
+    "stagesBase": "dès 420 TND",
+    "parrainage": "150 à 300 TND"
   }
 }
