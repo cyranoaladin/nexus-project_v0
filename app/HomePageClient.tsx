@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, MessageCircle, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import {
@@ -140,7 +141,7 @@ const trustItems = [
   `Groupes de 5 élèves maximum — suivi individualisé`,
   `Transparence tarifaire\u00A0: tous les prix publics, en TND`,
   `Cellule Cyclades intégrée pour les candidats libres`,
-  `Cadre réseau AEFE — programme français, exigences du réseau`,
+  `Cadre réseau AEFE — programme français, exigence garantie`,
 ];
 
 function TrustSection() {
@@ -269,7 +270,7 @@ export function HomePageClient() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm font-medium text-lux-gold-wash hover:underline min-h-[44px]"
             >
-              <MessageCircle className="h-4 w-4" />
+              <WhatsAppLogo className="h-4 w-4" style={{ color: WHATSAPP_BRAND_GREEN }} />
               Nous écrire sur WhatsApp
             </a>
           </div>

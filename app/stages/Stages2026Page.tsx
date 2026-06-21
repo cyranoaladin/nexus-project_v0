@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { CalendarDays, CheckCircle2, Clock, MapPin, MessageCircle, ArrowRight, Users, BookOpen } from 'lucide-react';
+import { CalendarDays, CheckCircle2, Clock, MapPin, ArrowRight, Users, BookOpen } from 'lucide-react';
+import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { Badge } from '@/components/ui/badge';
@@ -52,7 +53,7 @@ export default function Stages2026Page() {
               Pr\u00e9-inscription
             </Link>
             <a href={buildWhatsAppUrl('les stages Nexus')} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-lg border border-lux-line/40 px-6 py-3.5 text-sm font-semibold text-lux-ivory min-h-[44px]">
-              <MessageCircle className="mr-2 h-4 w-4" />
+              <WhatsAppLogo className="mr-2 h-4 w-4" style={{ color: WHATSAPP_BRAND_GREEN }} />
               \u00c9crire sur WhatsApp
             </a>
             <Link href="/offres#les-intensifs" className="inline-flex items-center justify-center rounded-lg border border-lux-line/40 px-6 py-3.5 text-sm font-semibold text-lux-ivory min-h-[44px]">
@@ -231,7 +232,7 @@ export default function Stages2026Page() {
               Pr\u00e9-inscription
             </Link>
             <a href={buildWhatsAppUrl('les stages Nexus')} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-lg border border-lux-line px-6 py-3.5 text-sm font-semibold text-lux-ink min-h-[44px]">
-              <MessageCircle className="mr-2 h-4 w-4" />
+              <WhatsAppLogo className="mr-2 h-4 w-4" style={{ color: WHATSAPP_BRAND_GREEN }} />
               WhatsApp
             </a>
           </div>

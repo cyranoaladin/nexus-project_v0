@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { CheckCircle2, GraduationCap, MessageCircle, Phone } from 'lucide-react';
+import { CheckCircle2, GraduationCap, Phone } from 'lucide-react';
+import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
 import { toast, Toaster } from 'sonner';
 import { track } from '@/lib/analytics';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
@@ -326,7 +327,7 @@ export function BilanStrategiqueClient() {
               rel="noopener noreferrer"
               className="lux-cta-secondary rounded-lg px-6 py-3.5 text-sm font-semibold text-lux-ivory border-lux-line/40"
             >
-              <MessageCircle className="mr-2 h-4 w-4" />
+              <WhatsAppLogo className="mr-2 h-4 w-4" style={{ color: WHATSAPP_BRAND_GREEN }} />
               Écrire sur WhatsApp
             </a>
             <Link href="/offres" className="lux-cta-reserve rounded-lg px-6 py-3.5 text-sm font-semibold">
@@ -554,7 +555,7 @@ export function BilanStrategiqueClient() {
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-lux-ivory transition-colors hover:border-lux-gold/40 hover:bg-white/10"
                   >
-                    <MessageCircle className="h-4 w-4 text-lux-gold-wash" />
+                    <WhatsAppLogo className="h-4 w-4" style={{ color: WHATSAPP_BRAND_GREEN }} />
                     WhatsApp&nbsp;: {LEGAL.contact.phone}
                   </a>
                   <a

@@ -96,3 +96,4 @@ Tests skipped with documented justification. Must be fixed or removed.
 | Test | Reason | Status |
 |------|--------|--------|
 | `__tests__/api/coach.eaf-stage-printemps.report.test.ts:304` | Was flaky: `generateLLMParentEafReport` unmocked → sporadic 5s timeout on `action=complete`. Root-fixed: added mock. 5/5 deterministic green. | **FIXED** |
+| `__tests__/performance/api-response-time.test.ts` | Non-deterministic: Date.now() timing varies under CPU load. Moved to opt-in lane: `PERF_TESTS=1 npx jest __tests__/performance/`. Skipped by default in gate. | **PERF LANE** |

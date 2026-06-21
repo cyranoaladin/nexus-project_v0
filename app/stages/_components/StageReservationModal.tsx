@@ -13,8 +13,8 @@ import {
   CheckCircle2,
   Landmark,
   Loader2,
-  MessageCircle,
 } from "lucide-react";
+import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
 import { cn } from "@/lib/utils";
 
 import BankTransferInstructions from "./BankTransferInstructions";
@@ -321,7 +321,7 @@ export default function StageReservationModal({
                   />
                   <div>
                     <span className="flex items-center gap-2 text-sm font-medium text-white">
-                      <MessageCircle className="h-4 w-4 text-nexus-green" />
+                      <WhatsAppLogo className="h-4 w-4" style={{ color: WHATSAPP_BRAND_GREEN }} />
                       Réserver via WhatsApp
                     </span>
                     <p className="mt-0.5 text-xs text-white/45">

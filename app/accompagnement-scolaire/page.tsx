@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, CheckCircle2, BookOpen, Users, MessageCircle, ShieldCheck } from 'lucide-react';
+import { ArrowRight, CheckCircle2, BookOpen, Users, ShieldCheck } from 'lucide-react';
+import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { Badge } from '@/components/ui/badge';
@@ -56,7 +57,7 @@ export default function AccompagnementScolairePage() {
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
             <a href={buildWhatsAppUrl(`l\u2019accompagnement scolaire`)} target="_blank" rel="noopener noreferrer" className="lux-cta-secondary rounded-lg px-6 py-3.5 text-sm font-semibold text-lux-ivory border-lux-line/40">
-              <MessageCircle className="mr-2 h-4 w-4" />
+              <WhatsAppLogo className="mr-2 h-4 w-4" style={{ color: WHATSAPP_BRAND_GREEN }} />
               Écrire sur WhatsApp
             </a>
           </div>
@@ -140,7 +141,7 @@ export default function AccompagnementScolairePage() {
               Demander un bilan gratuit
             </Link>
             <a href={buildWhatsAppUrl(`l\u2019accompagnement scolaire`)} target="_blank" rel="noopener noreferrer" className="lux-cta-secondary rounded-lg px-6 py-3.5 text-sm font-semibold text-lux-ink border-lux-line/40">
-              <MessageCircle className="mr-2 h-4 w-4" />
+              <WhatsAppLogo className="mr-2 h-4 w-4" style={{ color: WHATSAPP_BRAND_GREEN }} />
               WhatsApp
             </a>
           </div>
