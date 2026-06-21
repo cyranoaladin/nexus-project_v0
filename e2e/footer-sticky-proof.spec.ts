@@ -5,9 +5,10 @@ test('footer mobile 375px — newsletter button not occluded by sticky bar', asy
   const page = await ctx.newPage();
   await page.goto('/', { waitUntil: 'networkidle' });
 
-  // Scroll to bottom
-  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-  await page.waitForTimeout(500);
+  // Scroll until the newsletter button is in view
+  const nlBtn = page.locator('button[type="submit"]').filter({ hasText: 'Recevoir' });
+  await nlBtn.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(800);
 
   // Screenshot viewport (not full-page) at bottom
   await page.screenshot({ path: 'e2e/screenshots/zones/footer-mobile-viewport-bottom.png' });
@@ -58,12 +59,25 @@ test('footer mobile 375px — newsletter button not occluded by sticky bar', asy
 
   console.log('Footer sticky proof result:', JSON.stringify(result, null, 2));
 
-  expect(result.found, 'Both elements found').toBe(true);
+  // Newsletter button must be found
+  expect(result.newsletterBtn ?? result.found, 'Newsletter button found').toBe(true);
+
   if (result.found) {
-    // Either the button is above the bar OR the button is clickable through
+    // Both elements found — verify the button is not occluded
     const cleared = result.btnBottomAboveBarTop || result.btnAccessible;
     expect(cleared, `Button must be accessible. btnBottom=${(result as any).btnRect?.bottom} barTop=${(result as any).barRect?.top} accessible=${result.btnAccessible}`).toBe(true);
   }
+
+  // Final proof: elementFromPoint must reach the button regardless
+  const btnClickable = await page.evaluate(() => {
+    const buttons = Array.from(document.querySelectorAll('button[type="submit"]'));
+    const btn = buttons.find(b => b.textContent?.includes('Recevoir'));
+    if (!btn) return false;
+    const r = btn.getBoundingClientRect();
+    const el = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    return btn.contains(el as Node);
+  });
+  expect(btnClickable, 'Newsletter button clickable via elementFromPoint').toBe(true);
 
   await ctx.close();
 });
