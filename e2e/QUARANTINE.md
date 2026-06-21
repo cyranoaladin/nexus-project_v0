@@ -90,3 +90,9 @@ Tests skipped with documented justification. Must be fixed or removed.
 | `bilan-pdf.e2e.spec.ts:61` |  |
 | `nexus-2-0-smoke.spec.ts:122` | true, 'Custom auth UI — manual login required' |
 | `nexus-2-0-smoke.spec.ts:153` | true, `Submit returned 400 — ${body.error ?? 'no questions loaded'}` |
+
+## Jest Flaky (unit/integration)
+
+| Test | Reason |
+|------|--------|
+| `__tests__/api/coach.eaf-stage-printemps.report.test.ts:304` | FLAKY: passes 2/3 isolated runs, mock timing issue. Green in isolation, fails in full suite due to test ordering pollution. |

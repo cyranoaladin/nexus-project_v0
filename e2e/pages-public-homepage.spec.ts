@@ -50,11 +50,18 @@ test.describe('Homepage (/) - Landing Nexus Reussite', () => {
     await expect(sections).toHaveCount(10);
   });
 
-  test('au moins 3 liens WhatsApp sur la page (4e = sticky bar après scroll)', async ({ page }) => {
+  test('exactement 3 liens WhatsApp au chargement (hero, CTA footer, bulle conseiller), 4 après scroll (+ sticky bar)', async ({ page }) => {
+    // At load: hero WhatsApp + footer CTA WhatsApp + FloatingAdvisorBubble = 3
+    // MobileStickyBar returns null until hero exits viewport
     const waLinks = page.locator('a[href*="wa.me"]');
-    const count = await waLinks.count();
-    expect(count).toBeGreaterThanOrEqual(3);
-    expect(count).toBeLessThanOrEqual(4);
+    await expect(waLinks).toHaveCount(3);
+
+    // Scroll past hero to trigger MobileStickyBar
+    await page.evaluate(() => window.scrollBy(0, 800));
+    await page.waitForTimeout(600);
+
+    // Now MobileStickyBar renders: 3 + 1 = 4
+    await expect(waLinks).toHaveCount(4);
   });
 
   test('tous les liens footer internes ne retournent pas 404', async ({ page }) => {
