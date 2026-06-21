@@ -80,8 +80,8 @@ export function MobileStickyBar() {
   return (
     <nav
       aria-label="Actions rapides"
-      className={`fixed inset-x-0 bottom-0 z-40 md:hidden transition-transform duration-300 ${
-        visible ? 'translate-y-0' : 'translate-y-full'
+      className={`fixed inset-x-0 bottom-0 z-40 md:hidden transition-all duration-300 ${
+        visible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 pointer-events-none'
       }`}
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       {...(!visible ? { inert: true } : {})}
