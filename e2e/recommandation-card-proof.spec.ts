@@ -75,6 +75,17 @@ for (const path of PATHS) {
           }
         });
 
+        // Inter-cell check: adjacent metric divs must not overlap
+        for (let i = 0; i < metricDivs.length - 1; i++) {
+          const a = metricDivs[i].getBoundingClientRect();
+          const b = metricDivs[i + 1].getBoundingClientRect();
+          const hOverlap = a.right > b.left + 2 && b.right > a.left + 2;
+          const vOverlap = a.bottom > b.top + 2 && b.bottom > a.top + 2;
+          if (hOverlap && vOverlap) {
+            collisions.push(`INTER-CELL[${i}↔${i+1}]: "${metricDivs[i].textContent?.trim().slice(0,20)}" ↔ "${metricDivs[i+1].textContent?.trim().slice(0,20)}"`);
+          }
+        }
+
         // Check échéancier labels don't overlap values
         echeancierRows.forEach((row, i) => {
           const spans = Array.from(row.querySelectorAll(':scope > span'));
@@ -87,10 +98,28 @@ for (const path of PATHS) {
           }
         });
 
-        return { metricDivs: metricDivs.length, echeancierRows: echeancierRows.length, collisions };
+        // Arrow spacing check: → must have space on both sides
+        const arrowSpans = Array.from(body.querySelectorAll('span')).filter(s =>
+          s.textContent?.includes('→')
+        );
+        const arrowIssues = arrowSpans.filter(s => {
+          const t = s.textContent ?? '';
+          // Must have a non-breaking space or regular space before and after →
+          return /[^\s\u00A0]→|→[^\s\u00A0]/.test(t);
+        });
+        if (arrowIssues.length > 0) {
+          collisions.push(`ARROW_SPACING: ${arrowIssues.length} arrows without proper spacing`);
+        }
+
+        return {
+          metricDivs: metricDivs.length,
+          echeancierRows: echeancierRows.length,
+          arrowCount: arrowSpans.length,
+          collisions,
+        };
       });
 
-      console.log(`/recommandation ${path.name} @ ${vp.width}px: metrics=${result.metricDivs}, échéancier=${result.echeancierRows}, collisions=${JSON.stringify(result.collisions)}`);
+      console.log(`/recommandation ${path.name} @ ${vp.width}px: metrics=${result.metricDivs}, échéancier=${result.echeancierRows}, arrows=${result.arrowCount}, collisions=${JSON.stringify(result.collisions)}`);
 
       // For stage path: metrics may be 0 (no Volume/Total), but échéancier should have deposit+solde
       // For annual path: both should be > 0
