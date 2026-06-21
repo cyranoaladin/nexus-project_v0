@@ -131,7 +131,7 @@ export function ExamCard(props: ExamCardProps) {
       </div>
 
       {/* Key metrics — container query: stacked on narrow cards, 2-col on wide */}
-      <div className="border-b border-lux-line/40 px-6 py-3 text-sm">
+      <div className="border-b border-lux-line/40 bg-lux-paper/40 px-6 py-3 text-sm">
         {/* Volume + Total: side-by-side when card is wide enough */}
         {(hoursPerWeek != null || totalHours != null) && (
           <div className="grid grid-cols-1 @[22rem]:grid-cols-2 gap-x-6 gap-y-1.5">

@@ -39,7 +39,7 @@ interface Props {
 
 // ── Helpers ────────────────────────────────────────────────
 const inputClass =
-  "w-full rounded-lg border border-white/12 bg-white/[0.04] px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-nexus-green/50 focus:outline-none focus:ring-1 focus:ring-nexus-green/30 transition";
+  "w-full rounded-lg border border-white/12 bg-white/[0.04] px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-lux-gold/50 focus:outline-none focus:ring-1 focus:ring-lux-gold/30 transition";
 
 // ── Component ──────────────────────────────────────────────
 export default function StageReservationModal({
@@ -157,7 +157,7 @@ export default function StageReservationModal({
         role="dialog"
         aria-modal="true"
         aria-label={`Réserver ${offer.title}`}
-        className="relative z-10 mx-4 w-full max-w-lg max-h-[92vh] overflow-y-auto rounded-2xl border border-white/10 bg-nexus-bg shadow-2xl"
+        className="relative z-10 mx-4 w-full max-w-lg max-h-[92vh] overflow-y-auto rounded-2xl border border-white/10 bg-lux-ink shadow-2xl"
       >
         {/* ─── Close button ─── */}
         <button
@@ -176,7 +176,7 @@ export default function StageReservationModal({
           <form onSubmit={handleSubmit} className="p-6 sm:p-8">
             {/* Header */}
             <div className="mb-6">
-              <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-nexus-green">
+              <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-lux-gold-wash">
                 Réservation
               </p>
               <h2 className="mt-1 text-lg font-bold text-white leading-snug">
@@ -279,7 +279,7 @@ export default function StageReservationModal({
                   className={cn(
                     "flex items-start gap-3 rounded-xl border px-4 py-3.5 cursor-pointer transition",
                     paymentMethod === "bank_transfer"
-                      ? "border-nexus-green/40 bg-nexus-green/[0.06]"
+                      ? "border-lux-evergreen/40 bg-lux-evergreen/[0.06]"
                       : "border-white/10 bg-white/[0.02] hover:bg-white/[0.04]"
                   )}
                 >
@@ -289,11 +289,11 @@ export default function StageReservationModal({
                     value="bank_transfer"
                     checked={paymentMethod === "bank_transfer"}
                     onChange={() => setPaymentMethod("bank_transfer")}
-                    className="mt-0.5 accent-nexus-green"
+                    className="mt-0.5 accent-lux-evergreen"
                   />
                   <div>
                     <span className="flex items-center gap-2 text-sm font-medium text-white">
-                      <Landmark className="h-4 w-4 text-nexus-green" />
+                      <Landmark className="h-4 w-4 text-lux-evergreen" />
                       Virement bancaire
                     </span>
                     <p className="mt-0.5 text-xs text-white/45">
@@ -307,7 +307,7 @@ export default function StageReservationModal({
                   className={cn(
                     "flex items-start gap-3 rounded-xl border px-4 py-3.5 cursor-pointer transition",
                     paymentMethod === "whatsapp"
-                      ? "border-nexus-green/40 bg-nexus-green/[0.06]"
+                      ? "border-lux-evergreen/40 bg-lux-evergreen/[0.06]"
                       : "border-white/10 bg-white/[0.02] hover:bg-white/[0.04]"
                   )}
                 >
@@ -317,7 +317,7 @@ export default function StageReservationModal({
                     value="whatsapp"
                     checked={paymentMethod === "whatsapp"}
                     onChange={() => setPaymentMethod("whatsapp")}
-                    className="mt-0.5 accent-nexus-green"
+                    className="mt-0.5 accent-lux-evergreen"
                   />
                   <div>
                     <span className="flex items-center gap-2 text-sm font-medium text-white">
@@ -343,7 +343,7 @@ export default function StageReservationModal({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-nexus-green to-nexus-green-dark px-6 py-3.5 text-sm font-bold text-white shadow-lg transition hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-lux-evergreen px-6 py-3.5 text-sm font-bold text-white shadow-lg transition hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>
@@ -369,8 +369,8 @@ export default function StageReservationModal({
         {step === "bank_details" && (
           <div className="p-6 sm:p-8">
             {/* Success badge */}
-            <div className="mb-5 flex items-start gap-3 rounded-xl border border-nexus-green/20 bg-nexus-green/[0.06] px-4 py-3.5">
-              <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-nexus-green" />
+            <div className="mb-5 flex items-start gap-3 rounded-xl border border-lux-evergreen/20 bg-lux-evergreen/[0.06] px-4 py-3.5">
+              <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-lux-evergreen" />
               <div>
                 <p className="text-sm font-semibold text-white">
                   Réservation enregistrée — en attente de réception du virement
