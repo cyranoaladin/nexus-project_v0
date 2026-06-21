@@ -204,7 +204,7 @@ export function ExamCard(props: ExamCardProps) {
                   {fmtTND(payment.installments[0])}
                   {payment.installments.length > 1 &&
                     payment.installments[payment.installments.length - 1] !== payment.installments[0] &&
-                    <> → {fmtTND(payment.installments[payment.installments.length - 1])}</>}
+                    <>&nbsp;→&nbsp;{fmtTND(payment.installments[payment.installments.length - 1])}</>}
                 </span>
               </div>
             )}
