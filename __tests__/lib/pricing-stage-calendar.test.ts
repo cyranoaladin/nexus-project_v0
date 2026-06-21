@@ -140,9 +140,9 @@ describe('Stage Calendar 2026-2027', () => {
     }
   });
 
-  it('each stage is available to both AEFE-inscrit and candidat libre', () => {
+  it('each stage is available to both inscrits réseau AEFE and candidat libre', () => {
     for (const stage of calendar) {
-      expect(stage.audience).toContain('AEFE-inscrit');
+      expect(stage.audience).toContain('inscrit réseau AEFE');
       expect(stage.audience).toContain('candidat libre');
     }
   });

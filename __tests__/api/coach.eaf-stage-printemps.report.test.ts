@@ -38,6 +38,14 @@ jest.mock('@/lib/logger', () => ({
   logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() },
 }));
 
+jest.mock('@/lib/coach/eaf-stage-printemps/llm-report', () => ({
+  generateLLMParentEafReport: jest.fn().mockResolvedValue({
+    markdown: '# Rapport test',
+    llmUsed: false,
+    ragHitCount: 0,
+  }),
+}));
+
 import { GET, POST, PATCH } from '@/app/api/coach/eaf-stage-printemps/students/[studentId]/report/route';
 import { requireRole, isErrorResponse } from '@/lib/guards';
 import {

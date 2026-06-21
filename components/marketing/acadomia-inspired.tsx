@@ -8,7 +8,6 @@ import {
   CheckCircle2,
   Clock3,
   Mail,
-  MessageCircle,
   Phone,
   ShieldCheck,
 } from 'lucide-react';
@@ -16,6 +15,7 @@ import {
 import socialProof from '@/content/social-proof.json';
 import team from '@/content/team.json';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
+import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
 
 export const reassuranceItems = [
   'Groupe non ouvert\u00A0? Acompte intégralement remboursé.',
@@ -217,7 +217,7 @@ export function FloatingAdvisorBubble() {
       rel="noopener noreferrer"
       className="fixed bottom-5 right-4 z-40 hidden min-h-[44px] items-center gap-2 rounded-full border border-lux-line/50 bg-lux-ink px-4 py-3 text-sm font-semibold text-lux-ivory shadow-lg transition hover:border-lux-gold/70 md:inline-flex"
     >
-      <MessageCircle className="h-4 w-4 text-lux-gold-wash" aria-hidden="true" />
+      <WhatsAppLogo className="h-4 w-4" style={{ color: WHATSAPP_BRAND_GREEN }} />
       Une question&nbsp;? Échangez avec un conseiller Nexus.
     </a>
   );
@@ -437,7 +437,7 @@ export function EnjeuxNiveau() {
       <div className="mx-auto max-w-6xl">
         <div className="mb-8">
           <span className="lux-eyebrow">Enjeux par niveau</span>
-          <h2 className="mt-2 text-2xl md:text-3xl">Les priorités AEFE à sécuriser</h2>
+          <h2 className="mt-2 text-2xl md:text-3xl">Les priorités du réseau AEFE à sécuriser</h2>
         </div>
 
         {/* Tab bar */}

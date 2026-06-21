@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { MessageCircle } from 'lucide-react';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
+import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
 
 /**
  * Mobile-only sticky CTA bar.
@@ -97,11 +97,12 @@ export function MobileStickyBar() {
           href={buildWhatsAppUrl()}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-lux-line text-lux-evergreen transition hover:border-lux-evergreen/50"
+          className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-lux-line transition hover:border-lux-line/80"
+          style={{ color: WHATSAPP_BRAND_GREEN }}
           aria-label="Contacter sur WhatsApp"
           tabIndex={0}
         >
-          <MessageCircle className="h-5 w-5" aria-hidden="true" />
+          <WhatsAppLogo className="h-5 w-5" />
         </a>
       </div>
     </nav>

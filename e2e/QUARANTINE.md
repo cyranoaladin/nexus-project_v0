@@ -93,6 +93,6 @@ Tests skipped with documented justification. Must be fixed or removed.
 
 ## Jest Flaky (unit/integration)
 
-| Test | Reason |
-|------|--------|
-| `__tests__/api/coach.eaf-stage-printemps.report.test.ts:304` | FLAKY: passes 2/3 isolated runs, mock timing issue. Green in isolation, fails in full suite due to test ordering pollution. |
+| Test | Reason | Status |
+|------|--------|--------|
+| `__tests__/api/coach.eaf-stage-printemps.report.test.ts:304` | Was flaky: `generateLLMParentEafReport` unmocked → sporadic 5s timeout on `action=complete`. Root-fixed: added mock. 5/5 deterministic green. | **FIXED** |
