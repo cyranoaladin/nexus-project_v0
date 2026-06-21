@@ -131,7 +131,7 @@ export function ExamCard(props: ExamCardProps) {
       </div>
 
       {/* Key metrics — container query: stacked on narrow cards, 2-col on wide */}
-      <div className="border-b border-lux-line/40 bg-lux-paper/40 px-6 py-3 text-sm">
+      <div className="border-b border-lux-line/40 bg-lux-paper/70 px-6 py-3 text-sm">
         {/* Volume + Total: side-by-side when card is wide enough */}
         {(hoursPerWeek != null || totalHours != null) && (
           <div className="grid grid-cols-1 @[22rem]:grid-cols-2 gap-x-6 gap-y-1.5">
@@ -246,14 +246,16 @@ export function ExamCard(props: ExamCardProps) {
         </div>
       )}
 
-      {/* CTA */}
+      {/* CTA — featured: or plein (lux-cta-reserve) / standard: navy contour */}
       {hideCta ? null : (
         <div className="mt-auto border-t border-lux-line/50 p-5">
           {ctaHref ? (
             <Link
               href={ctaHref}
-              className={`flex w-full items-center justify-center rounded-lg py-3 text-sm font-semibold transition-all lux-focus ${
-                featured ? 'lux-cta-reserve' : 'lux-cta-primary'
+              className={`flex w-full items-center justify-center rounded-lg py-3 text-sm font-semibold transition-all min-h-[44px] lux-focus ${
+                featured
+                  ? 'lux-cta-reserve'
+                  : 'border-[1.5px] border-lux-ink bg-transparent text-lux-ink hover:bg-lux-ink hover:text-lux-ivory'
               }`}
             >
               {ctaText}
@@ -261,10 +263,10 @@ export function ExamCard(props: ExamCardProps) {
           ) : ctaAction ? (
             <button
               onClick={ctaAction}
-              className={`w-full rounded-lg py-3 text-sm font-semibold transition-all lux-focus ${
+              className={`w-full rounded-lg py-3 text-sm font-semibold transition-all min-h-[44px] lux-focus ${
                 featured
                   ? 'lux-cta-reserve'
-                  : 'lux-cta-primary'
+                  : 'border-[1.5px] border-lux-ink bg-transparent text-lux-ink hover:bg-lux-ink hover:text-lux-ivory'
               }`}
             >
               {ctaText}

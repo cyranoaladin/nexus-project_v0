@@ -3,6 +3,8 @@
 import { LEGAL } from '@/lib/legal';
 import {
   useCallback,
+  useEffect,
+  useRef,
   useState,
   type Dispatch,
   type SetStateAction,
@@ -73,6 +75,56 @@ export default function StageReservationModal({
     // Defer reset so the closing animation can play
     setTimeout(reset, 250);
   }, [setOpen, reset]);
+
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+
+  // A11y: Escape closes, focus-trap, auto-focus, focus-restore
+  useEffect(() => {
+    if (!open) return;
+
+    // Save focus to restore on close
+    previousFocusRef.current = document.activeElement as HTMLElement;
+
+    // Auto-focus first input
+    const timer = setTimeout(() => {
+      const firstInput = dialogRef.current?.querySelector<HTMLElement>('input, select, button[type="submit"]');
+      firstInput?.focus();
+    }, 50);
+
+    // Escape handler
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        handleClose();
+      }
+      // Focus trap: Tab cycles within modal
+      if (e.key === 'Tab' && dialogRef.current) {
+        const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('keydown', onKeyDown);
+      // Restore focus
+      previousFocusRef.current?.focus();
+    };
+  }, [open, handleClose]);
 
   const handleField = useCallback(
     (field: keyof typeof form) =>
@@ -154,6 +206,7 @@ export default function StageReservationModal({
 
       {/* Modal */}
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-label={`Réserver ${offer.title}`}
@@ -279,7 +332,7 @@ export default function StageReservationModal({
                   className={cn(
                     "flex items-start gap-3 rounded-xl border px-4 py-3.5 cursor-pointer transition",
                     paymentMethod === "bank_transfer"
-                      ? "border-lux-evergreen/40 bg-lux-evergreen/[0.06]"
+                      ? "border-lux-gold/40 bg-lux-gold/[0.06]"
                       : "border-white/10 bg-white/[0.02] hover:bg-white/[0.04]"
                   )}
                 >
@@ -289,11 +342,11 @@ export default function StageReservationModal({
                     value="bank_transfer"
                     checked={paymentMethod === "bank_transfer"}
                     onChange={() => setPaymentMethod("bank_transfer")}
-                    className="mt-0.5 accent-lux-evergreen"
+                    className="mt-0.5 accent-lux-gold"
                   />
                   <div>
                     <span className="flex items-center gap-2 text-sm font-medium text-white">
-                      <Landmark className="h-4 w-4 text-lux-evergreen" />
+                      <Landmark className="h-4 w-4 text-lux-gold-wash" />
                       Virement bancaire
                     </span>
                     <p className="mt-0.5 text-xs text-white/45">
@@ -307,7 +360,7 @@ export default function StageReservationModal({
                   className={cn(
                     "flex items-start gap-3 rounded-xl border px-4 py-3.5 cursor-pointer transition",
                     paymentMethod === "whatsapp"
-                      ? "border-lux-evergreen/40 bg-lux-evergreen/[0.06]"
+                      ? "border-lux-gold/40 bg-lux-gold/[0.06]"
                       : "border-white/10 bg-white/[0.02] hover:bg-white/[0.04]"
                   )}
                 >
@@ -317,7 +370,7 @@ export default function StageReservationModal({
                     value="whatsapp"
                     checked={paymentMethod === "whatsapp"}
                     onChange={() => setPaymentMethod("whatsapp")}
-                    className="mt-0.5 accent-lux-evergreen"
+                    className="mt-0.5 accent-lux-gold"
                   />
                   <div>
                     <span className="flex items-center gap-2 text-sm font-medium text-white">
@@ -343,7 +396,7 @@ export default function StageReservationModal({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-lux-evergreen px-6 py-3.5 text-sm font-bold text-white shadow-lg transition hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full lux-cta-reserve px-6 py-3.5 text-sm font-bold shadow-lg transition hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>
