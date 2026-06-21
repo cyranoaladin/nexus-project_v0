@@ -10,29 +10,6 @@ const reassuranceItems = [
   'Cellule Cyclades',
 ];
 
-/** Credibility card: coefficients réseau AEFE */
-function CredibilityCard() {
-  return (
-    <div className="rounded-xl bg-lux-paper/95 p-4 shadow-lg shadow-lux-ink/10 backdrop-blur-sm border border-lux-line/30">
-      <span className="text-[0.6rem] font-semibold uppercase tracking-widest text-lux-gold-deep">
-        Coefficients · réseau AEFE
-      </span>
-      <div className="mt-2 space-y-1.5 text-sm">
-        {[
-          { name: 'Spécialités', coef: 16 },
-          { name: 'Grand Oral', coef: 10 },
-          { name: 'Philosophie', coef: 8 },
-        ].map((item) => (
-          <div key={item.name} className="flex items-center justify-between">
-            <span className="text-lux-slate">{item.name}</span>
-            <span className="font-dm-sans font-semibold text-lux-gold-deep">coef.&nbsp;{item.coef}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 export function HeroSection() {
   return (
     <section data-hero className="relative overflow-hidden bg-lux-ink">
@@ -97,25 +74,18 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* ── Right column: hero image + credibility card ── */}
-          <div className="relative order-1 md:order-2 lux-fade-in lux-fade-in-delay" data-lux-animate>
-            {/* Image zone */}
-            <div className="relative overflow-hidden rounded-2xl bg-lux-ink/50 border-l-2 border-lux-gold/20 min-h-[280px] sm:min-h-[320px] md:min-h-[380px]">
+          {/* ── Right column: hero image ── */}
+          <div className="order-1 md:order-2 lux-fade-in lux-fade-in-delay" data-lux-animate>
+            <div className="overflow-hidden rounded-2xl shadow-lg shadow-lux-ink/20 ring-1 ring-lux-gold/10">
               <Image
                 src="/hero/hero.webp"
-                alt="Séance de travail en petit groupe — Nexus Réussite"
-                fill
-                className="object-cover object-center"
+                alt="Stages de prérentrée Nexus Réussite — Août 2026"
+                width={1672}
+                height={941}
+                className="block w-full h-auto"
                 priority
                 sizes="(max-width: 768px) 100vw, 45vw"
               />
-              {/* Subtle overlay for contrast */}
-              <div className="absolute inset-0 bg-gradient-to-t from-lux-ink/40 via-transparent to-transparent" />
-            </div>
-
-            {/* Credibility card — superposed at bottom */}
-            <div className="absolute -bottom-4 left-4 right-4 sm:left-6 sm:right-6 md:-bottom-6">
-              <CredibilityCard />
             </div>
           </div>
 

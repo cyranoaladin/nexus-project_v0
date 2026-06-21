@@ -6,21 +6,20 @@ const VIEWPORTS = [
   { name: 'desktop', width: 1280, height: 900 },
 ];
 
+const NATURAL_RATIO = 1672 / 941; // 1.7768
+
 for (const vp of VIEWPORTS) {
-  test(`hero visual proof @ ${vp.name} (${vp.width}px)`, async ({ browser }) => {
+  test(`hero image uncropped @ ${vp.name} (${vp.width}px)`, async ({ browser }) => {
     const ctx = await browser.newContext({ viewport: { width: vp.width, height: vp.height } });
     const page = await ctx.newPage();
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(2000);
 
-    // Find hero image
     const heroImg = page.locator('[data-hero] img').first();
     await expect(heroImg).toBeVisible({ timeout: 5000 });
 
-    // Screenshot the hero section (viewport, not full-page)
     await page.screenshot({ path: `e2e/screenshots/hero-visual-${vp.name}-${vp.width}.png` });
 
-    // Structural assertions
     const imgData = await heroImg.evaluate((img: HTMLImageElement) => {
       const r = img.getBoundingClientRect();
       return {
@@ -28,13 +27,6 @@ for (const vp of VIEWPORTS) {
         naturalHeight: img.naturalHeight,
         renderedWidth: r.width,
         renderedHeight: r.height,
-        objectFit: getComputedStyle(img).objectFit,
-        // Check no stretching: aspect ratio preserved
-        naturalRatio: img.naturalWidth / img.naturalHeight,
-        renderedRatio: r.width / r.height,
-        // Check no empty bands: image fills its container
-        containerWidth: (img.parentElement?.getBoundingClientRect().width ?? 0),
-        containerHeight: (img.parentElement?.getBoundingClientRect().height ?? 0),
       };
     });
 
@@ -42,11 +34,16 @@ for (const vp of VIEWPORTS) {
 
     // Image loaded
     expect(imgData.naturalWidth, 'naturalWidth > 0').toBeGreaterThan(0);
-    // object-cover applied
-    expect(imgData.objectFit, 'object-fit: cover').toBe('cover');
-    // Image fills container (no empty bands)
-    expect(imgData.renderedWidth, 'fills container width').toBeGreaterThanOrEqual(imgData.containerWidth - 2);
-    expect(imgData.renderedHeight, 'fills container height').toBeGreaterThanOrEqual(imgData.containerHeight - 2);
+
+    // Aspect ratio preserved (< 1% deviation = no crop)
+    const renderedRatio = imgData.renderedWidth / imgData.renderedHeight;
+    const deviation = Math.abs(renderedRatio - NATURAL_RATIO) / NATURAL_RATIO;
+    expect(deviation, `aspect ratio deviation ${(deviation * 100).toFixed(2)}% < 1%`).toBeLessThan(0.01);
+
+    // No letterbox: image dimensions match container (width-driven)
+    // w-full h-auto means renderedWidth should be > 0 and height proportional
+    expect(imgData.renderedWidth, 'rendered width > 100px').toBeGreaterThan(100);
+    expect(imgData.renderedHeight, 'rendered height > 50px').toBeGreaterThan(50);
 
     await ctx.close();
   });
