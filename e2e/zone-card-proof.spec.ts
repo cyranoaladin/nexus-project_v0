@@ -42,6 +42,7 @@ for (const vp of VIEWPORTS) {
     // Check metric pairs: label (text-lux-slate uppercase) vs value (font-semibold text-lux-ink)
     const overlaps = await firstCard.evaluate((card) => {
       const metricDivs = card.querySelectorAll('[class*="grid"] > div');
+      if (metricDivs.length === 0) return ['NON_VACUITY_FAIL: 0 metric divs found'];
       const collisions: string[] = [];
       metricDivs.forEach((div) => {
         const label = div.querySelector('p:first-child');
@@ -77,6 +78,7 @@ for (const vp of VIEWPORTS) {
 
       // Check échéancier rows
       const echeancierRows = card.querySelectorAll('[class*="space-y"] > [class*="flex"]');
+      if (echeancierRows.length === 0) collisions.push('NON_VACUITY_WARN: 0 échéancier rows (card may lack payment)');
       echeancierRows.forEach((row, idx) => {
         const spans = row.querySelectorAll('span');
         if (spans.length >= 2) {
@@ -92,6 +94,7 @@ for (const vp of VIEWPORTS) {
       return collisions;
     });
 
+    console.log(`anti-collision @ ${vp.width}px: metricDivs inspected, échéancier rows inspected. Collisions: ${JSON.stringify(overlaps)}`);
     expect(overlaps, `Collisions at ${vp.width}px`).toEqual([]);
     await ctx.close();
   });
