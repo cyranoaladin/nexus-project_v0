@@ -12,7 +12,7 @@ for (const page of PAGES) {
     test(`${page} @ ${vp.name} (${vp.width}px) — no horizontal overflow`, async ({ browser }) => {
       const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height } });
       const p = await context.newPage();
-      await p.goto(page, { waitUntil: 'networkidle' });
+      await p.goto(page, { waitUntil: 'domcontentloaded' });
 
       // Assert no horizontal overflow
       const overflow = await p.evaluate(() => {

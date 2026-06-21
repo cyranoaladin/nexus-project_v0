@@ -10,7 +10,7 @@ for (const vp of VIEWPORTS) {
   test(`card zone proof @ ${vp.name} (${vp.width}px)`, async ({ browser }) => {
     const ctx = await browser.newContext({ viewport: { width: vp.width, height: vp.height } });
     const page = await ctx.newPage();
-    await page.goto('/offres', { waitUntil: 'networkidle' });
+    await page.goto('/offres', { waitUntil: 'domcontentloaded' });
 
     // Find first card with an échéancier section
     const card = page.locator('div').filter({ hasText: /^Échéancier/ }).locator('..').first();
@@ -33,15 +33,24 @@ for (const vp of VIEWPORTS) {
   test(`anti-collision metrics @ ${vp.name} (${vp.width}px)`, async ({ browser }) => {
     const ctx = await browser.newContext({ viewport: { width: vp.width, height: vp.height } });
     const page = await ctx.newPage();
-    await page.goto('/offres', { waitUntil: 'networkidle' });
+    await page.goto('/offres', { waitUntil: 'domcontentloaded' });
 
     // Get all metric containers (label + value pairs) inside first ExamCard
-    const firstCard = page.locator('[class*="rounded-xl"][class*="bg-lux-white"]').first();
-    await expect(firstCard).toBeVisible();
+    // Wait for page to render cards
+    await page.waitForTimeout(2000);
+    // Find first card that has a price (contains "TND")
+    const firstCard = page.locator('div').filter({ hasText: /^\d[\d\s]*TND$/ }).locator('..').locator('..').first();
+    await expect(firstCard).toBeVisible({ timeout: 10000 });
 
     // Check metric pairs: label (text-lux-slate uppercase) vs value (font-semibold text-lux-ink)
     const overlaps = await firstCard.evaluate((card) => {
-      const metricDivs = card.querySelectorAll('[class*="grid"] > div');
+      // Find metric containers: divs containing exactly 2 <p> children (label + value)
+      // inside the card, before the pricing section
+      const allDivs = Array.from(card.querySelectorAll('div'));
+      const metricDivs = allDivs.filter(div => {
+        const ps = div.querySelectorAll(':scope > p');
+        return ps.length === 2 && div.children.length === 2;
+      });
       if (metricDivs.length === 0) return ['NON_VACUITY_FAIL: 0 metric divs found'];
       const collisions: string[] = [];
       metricDivs.forEach((div) => {
@@ -77,7 +86,11 @@ for (const vp of VIEWPORTS) {
       }
 
       // Check échéancier rows
-      const echeancierRows = card.querySelectorAll('[class*="space-y"] > [class*="flex"]');
+      // Find échéancier rows: divs containing exactly 2 <span> children (label + value)
+      const echeancierRows = allDivs.filter(div => {
+        const spans = div.querySelectorAll(':scope > span');
+        return spans.length === 2 && div.children.length === 2;
+      });
       if (echeancierRows.length === 0) collisions.push('NON_VACUITY_WARN: 0 échéancier rows (card may lack payment)');
       echeancierRows.forEach((row, idx) => {
         const spans = row.querySelectorAll('span');

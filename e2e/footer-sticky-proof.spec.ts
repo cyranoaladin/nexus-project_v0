@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test('footer mobile 375px — newsletter button not occluded by sticky bar', async ({ browser }) => {
   const ctx = await browser.newContext({ viewport: { width: 375, height: 812 } });
   const page = await ctx.newPage();
-  await page.goto('/', { waitUntil: 'networkidle' });
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
 
   // Scroll until the newsletter button is in view
   const nlBtn = page.locator('button[type="submit"]').filter({ hasText: 'Recevoir' });
