@@ -121,10 +121,10 @@ export function ExamCard(props: ExamCardProps) {
         <div className="lux-filet-gold mt-3 w-16" />
       </div>
 
-      {/* Key metrics */}
-      <div className="grid grid-cols-2 gap-x-4 gap-y-2 border-b border-lux-line/50 px-6 py-4">
+      {/* Key metrics — 1 col mobile, 2 col sm+ */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 border-b border-lux-line/50 px-6 py-4">
         {hoursPerWeek != null && (
-          <div>
+          <div className="flex items-baseline justify-between sm:block">
             <p className="text-[0.65rem] font-medium uppercase tracking-wider text-lux-slate">
               Volume
             </p>
@@ -134,17 +134,17 @@ export function ExamCard(props: ExamCardProps) {
           </div>
         )}
         {totalHours != null && (
-          <div>
+          <div className="flex items-baseline justify-between sm:block">
             <p className="text-[0.65rem] font-medium uppercase tracking-wider text-lux-slate">
               Total
             </p>
             <p className="font-dm-sans text-sm font-semibold text-lux-ink">
-              {totalHours}h / an
+              {totalHours}h&nbsp;/&nbsp;an
             </p>
           </div>
         )}
         {effectifType !== 'none' && (
-          <div>
+          <div className="flex items-baseline justify-between sm:block">
             <p className="text-[0.65rem] font-medium uppercase tracking-wider text-lux-slate">
               {effectifType === 'individuel' ? 'Format' : 'Groupe'}
             </p>
@@ -188,30 +188,30 @@ export function ExamCard(props: ExamCardProps) {
           <p className="mb-2 text-[0.65rem] font-medium uppercase tracking-wider text-lux-slate">
             Échéancier
           </p>
-          <div className="space-y-1.5 font-dm-sans text-sm">
-            <div className="flex justify-between">
+          <div className="space-y-2 font-dm-sans text-sm">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
               <span className="text-lux-slate">Acompte</span>
-              <span className="lux-price font-semibold text-lux-ink">
+              <span className="lux-price font-semibold text-lux-ink whitespace-nowrap">
                 {fmtTND(payment.deposit)}
               </span>
             </div>
             {payment.installments && payment.installments.length > 0 && (
-              <div className="flex justify-between">
-                <span className="text-lux-slate">
-                  {payment.installments.length} mensualité{payment.installments.length > 1 ? 's' : ''}
+              <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
+                <span className="text-lux-slate whitespace-nowrap">
+                  {payment.installments.length}&nbsp;mensualité{payment.installments.length > 1 ? 's' : ''}
                 </span>
-                <span className="lux-price font-semibold text-lux-ink">
+                <span className="lux-price font-semibold text-lux-ink whitespace-nowrap">
                   {fmtTND(payment.installments[0])}
                   {payment.installments.length > 1 &&
                     payment.installments[payment.installments.length - 1] !== payment.installments[0] &&
-                    ` → ${fmtTND(payment.installments[payment.installments.length - 1])}`}
+                    <> → {fmtTND(payment.installments[payment.installments.length - 1])}</>}
                 </span>
               </div>
             )}
             {payment.solde != null && payment.solde > 0 && (
-              <div className="flex justify-between">
+              <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
                 <span className="text-lux-slate">Solde</span>
-                <span className="lux-price font-semibold text-lux-ink">
+                <span className="lux-price font-semibold text-lux-ink whitespace-nowrap">
                   {fmtTND(payment.solde)}
                 </span>
               </div>
