@@ -380,11 +380,17 @@ export async function clearParentSubscription(email: string): Promise<void> {
 }
 
 type E2ESubscriptionPlanName = 'ACCES_PLATEFORME' | 'HYBRIDE' | 'IMMERSION';
+type E2EAriaAddonName = 'MATIERE_SUPPLEMENTAIRE' | 'ANALYSE_APPROFONDIE';
 
 const E2E_SUBSCRIPTION_CATALOG: Record<E2ESubscriptionPlanName, { price: number; credits: number }> = {
   ACCES_PLATEFORME: { price: 150, credits: 0 },
   HYBRIDE: { price: 450, credits: 4 },
   IMMERSION: { price: 750, credits: 8 },
+};
+
+const E2E_ARIA_ADDON_CATALOG: Record<E2EAriaAddonName, { price: number }> = {
+  MATIERE_SUPPLEMENTAIRE: { price: 50 },
+  ANALYSE_APPROFONDIE: { price: 75 },
 };
 
 export async function createPendingSubscriptionRequest(
@@ -479,6 +485,95 @@ export async function getPlanChangeApprovalState(requestId: string) {
       : null,
     creditTotal: creditTotal._sum.amount ?? 0,
     latestApprovalCreditAmount: approvalCredits[0]?.amount ?? null,
+  };
+}
+
+export async function createPendingAriaAddonRequest(
+  parentEmail: string,
+  options: {
+    addonName?: E2EAriaAddonName;
+    reason?: string;
+  } = {}
+): Promise<{ id: string; studentId: string }> {
+  const client = getPrisma();
+  const parentUser = await client.user.findUnique({
+    where: { email: parentEmail },
+    include: { parentProfile: { include: { children: true } } },
+  });
+  if (!parentUser?.parentProfile?.children?.length) {
+    throw new Error(`No child found for ${parentEmail}`);
+  }
+
+  const child = parentUser.parentProfile.children[0];
+  const addonName = options.addonName ?? 'ANALYSE_APPROFONDIE';
+  const addon = E2E_ARIA_ADDON_CATALOG[addonName];
+
+  if (options.reason) {
+    await client.subscriptionRequest.deleteMany({
+      where: { studentId: child.id, reason: options.reason },
+    });
+  }
+
+  const req = await client.subscriptionRequest.create({
+    data: {
+      studentId: child.id,
+      requestType: 'ARIA_ADDON',
+      planName: addonName,
+      monthlyPrice: addon.price,
+      reason: options.reason ?? '',
+      status: 'PENDING',
+      requestedBy: parentUser.id,
+      requestedByEmail: parentEmail,
+    },
+  });
+
+  return { id: req.id, studentId: child.id };
+}
+
+function normalizeJsonArray(value: unknown): string[] {
+  if (Array.isArray(value)) return value.map(String);
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value) as unknown;
+      return Array.isArray(parsed) ? parsed.map(String) : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
+export async function getAriaAddonApprovalState(requestId: string) {
+  const client = getPrisma();
+  const request = await client.subscriptionRequest.findUnique({
+    where: { id: requestId },
+  });
+  if (!request) throw new Error(`Subscription request not found: ${requestId}`);
+
+  const activeSubscription = await client.subscription.findFirst({
+    where: {
+      studentId: request.studentId,
+      status: 'ACTIVE',
+    },
+    orderBy: { updatedAt: 'desc' },
+  });
+
+  return {
+    request: {
+      status: request.status,
+      planName: request.planName,
+      monthlyPrice: request.monthlyPrice,
+      processedBy: request.processedBy,
+      processedAt: request.processedAt,
+    },
+    activeSubscription: activeSubscription
+      ? {
+          planName: activeSubscription.planName,
+          ariaSubjects: normalizeJsonArray(activeSubscription.ariaSubjects),
+          ariaCost: activeSubscription.ariaCost,
+          status: activeSubscription.status,
+        }
+      : null,
   };
 }
 
