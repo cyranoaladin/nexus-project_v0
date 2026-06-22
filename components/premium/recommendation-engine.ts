@@ -51,6 +51,7 @@ function buildOfferCard(offer: AnnualOffer): ExamCardProps {
     subtitle: offer.subjects,
     price,
     monthlyDisplay: offer.monthly_display ?? undefined,
+    pricingDisplay: offer.pricing_display ?? undefined,
     hoursPerWeek: offer.hours_per_week ?? undefined,
     totalHours: offer.hours_per_year ?? undefined,
     groupMax: offer.group_max ?? 5,

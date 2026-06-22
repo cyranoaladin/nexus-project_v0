@@ -207,6 +207,7 @@ export default function OffresPage() {
                           subtitle={o.subjects}
                           price={price}
                           monthlyDisplay={o.monthly_display ?? undefined}
+                          pricingDisplay={o.pricing_display ?? undefined}
                           hoursPerWeek={o.hours_per_week ?? undefined}
                           totalHours={o.hours_per_year ?? undefined}
                           groupMax={o.group_max ?? rules.group_max}
@@ -250,6 +251,7 @@ export default function OffresPage() {
                     subtitle={o.subjects}
                     price={price}
                     monthlyDisplay={o.monthly_display ?? undefined}
+                    pricingDisplay={o.pricing_display ?? undefined}
                     groupMax={o.group_max ?? rules.group_max}
                     groupMinOpen={o.group_min_open ?? rules.group_min_open.online_live}
                     effectifType="groupe"
@@ -285,7 +287,7 @@ export default function OffresPage() {
                       title={o.title}
                       subtitle={o.subjects}
                       price={price}
-                      monthlyDisplay={o.monthly_display ?? undefined}
+                      pricingDisplay={o.pricing_display ?? undefined}
                       features={o.included}
                       effectifType={o.group_max ? 'groupe' : 'none'}
                       groupMax={o.group_max ?? undefined}

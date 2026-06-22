@@ -50,6 +50,8 @@ export interface AnnualOffer {
   id: string;
   level: string;
   track: string;
+  /** Controls how pricing renders: 'monthly_first' (default for tutorat), 'annual' (plateforme) */
+  pricing_display?: 'monthly_first' | 'annual';
   title: string;
   subjects: string;
   hours_per_week: number | null;
