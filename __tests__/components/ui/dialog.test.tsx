@@ -130,13 +130,13 @@ describe('Dialog', () => {
 
       const description = screen.getByText('Test dialog description');
       expect(description).toBeInTheDocument();
-      expect(description).toHaveClass('text-sm', 'text-gray-500');
+      expect(description).toHaveClass('text-sm', 'text-lux-slate');
     });
 
     it('renders close button with X icon', () => {
       render(<TestDialog open={true} onOpenChange={jest.fn()} />);
 
-      const closeButton = screen.getByRole('button', { name: 'Close' });
+      const closeButton = screen.getByRole('button', { name: 'Fermer' });
       expect(closeButton).toBeInTheDocument();
       expect(closeButton.querySelector('svg')).toBeInTheDocument();
     });
@@ -227,20 +227,20 @@ describe('Dialog', () => {
     it('has accessible close button with sr-only text', () => {
       render(<TestDialog open={true} onOpenChange={jest.fn()} />);
 
-      const closeButton = screen.getByRole('button', { name: 'Close' });
+      const closeButton = screen.getByRole('button', { name: 'Fermer' });
       expect(closeButton).toBeInTheDocument();
       
       const srOnlyText = closeButton.querySelector('.sr-only');
-      expect(srOnlyText).toHaveTextContent('Close');
+      expect(srOnlyText).toHaveTextContent('Fermer');
     });
 
     it('close button has proper focus styles', () => {
       render(<TestDialog open={true} onOpenChange={jest.fn()} />);
 
-      const closeButton = screen.getByRole('button', { name: 'Close' });
+      const closeButton = screen.getByRole('button', { name: 'Fermer' });
       expect(closeButton).toHaveClass('focus:outline-none');
       expect(closeButton).toHaveClass('focus:ring-2');
-      expect(closeButton).toHaveClass('focus:ring-gray-950');
+      expect(closeButton).toHaveClass('focus:ring-lux-gold');
     });
 
     it('trigger has proper ARIA attributes when dialog is closed', () => {
@@ -278,7 +278,7 @@ describe('Dialog', () => {
     it('renders overlay with background opacity classes', () => {
       render(<TestDialog open={true} onOpenChange={jest.fn()} />);
 
-      const overlay = document.querySelector('.bg-black\\/80');
+      const overlay = document.querySelector('.bg-lux-ink\\/80');
       expect(overlay).toBeInTheDocument();
       expect(overlay).toHaveClass('fixed', 'inset-0', 'z-50');
     });
@@ -319,7 +319,7 @@ describe('Dialog', () => {
       const onOpenChange = jest.fn();
       render(<TestDialog open={true} onOpenChange={onOpenChange} />);
 
-      const closeButton = screen.getByRole('button', { name: 'Close' });
+      const closeButton = screen.getByRole('button', { name: 'Fermer' });
       await user.click(closeButton);
 
       await waitFor(() => {
@@ -370,7 +370,7 @@ describe('Dialog', () => {
     it('renders overlay when dialog is open', () => {
       render(<TestDialog open={true} onOpenChange={jest.fn()} />);
 
-      const overlay = document.querySelector('.bg-black\\/80');
+      const overlay = document.querySelector('.bg-lux-ink\\/80');
       expect(overlay).toBeInTheDocument();
     });
   });
@@ -523,16 +523,16 @@ describe('Dialog', () => {
       render(<TestDialog open={true} onOpenChange={jest.fn()} />);
 
       const dialog = screen.getByRole('dialog');
-      expect(dialog).toHaveClass('shadow-lg');
+      expect(dialog).toHaveClass('shadow-2xl');
       expect(dialog).toHaveClass('border');
-      expect(dialog).toHaveClass('border-gray-200');
+      expect(dialog).toHaveClass('border-lux-line/20');
     });
 
     it('has proper background and padding', () => {
       render(<TestDialog open={true} onOpenChange={jest.fn()} />);
 
       const dialog = screen.getByRole('dialog');
-      expect(dialog).toHaveClass('bg-white');
+      expect(dialog).toHaveClass('bg-lux-ink');
       expect(dialog).toHaveClass('p-6');
     });
   });

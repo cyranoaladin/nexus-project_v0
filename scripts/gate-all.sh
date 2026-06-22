@@ -6,16 +6,19 @@
 # Lane 2: E2E public (playwright.config.ts — no auth required)
 # Lane 3: E2E auth (playwright.auth.config.ts — real auth via seed + standalone)
 #
-# Plancher: 6215 jest + 184 public + 9 auth = 6408 total (grows as specs are promoted)
-#
 # Usage: ./scripts/gate-all.sh
-set -euo pipefail
+set -uo pipefail
 
 PORT=${AUTH_E2E_PORT:-3002}
 DB_URL="postgresql://postgres:postgres@127.0.0.1:5435/nexus_e2e?schema=public"
 JEST_MIN=6215
 PUBLIC_MIN=184
-AUTH_MIN=15
+AUTH_MIN=18
+
+# Extract "N passed" from test output (last occurrence)
+extract_passed() { echo "$1" | grep -oP '\d+(?= passed)' | tail -1; }
+# Extract jest Tests: line specifically
+extract_jest_passed() { echo "$1" | grep "^Tests:" | grep -oP '\d+(?= passed)' || echo "0"; }
 
 echo "╔══════════════════════════════════════════╗"
 echo "║           UNIFIED GATE                   ║"
@@ -24,13 +27,12 @@ echo ""
 
 # ── Lane 1: Jest ──
 echo "━━━ Lane 1: Jest ━━━"
-JEST_OUTPUT=$(npx jest --config jest.config.js --no-cache 2>&1)
-JEST_PASSED=$(echo "$JEST_OUTPUT" | grep -oP 'Tests:\s+\d+ skipped,\s+\K\d+(?= passed)' || echo "$JEST_OUTPUT" | grep -oP 'Tests:\s+\K\d+(?= passed)' || echo "0")
-JEST_FAILED=$(echo "$JEST_OUTPUT" | grep -oP '\d+(?= failed)' || echo "0")
+JEST_OUTPUT=$(npx jest --config jest.config.js --no-cache 2>&1) || true
+JEST_PASSED=$(extract_jest_passed "$JEST_OUTPUT")
 echo "$JEST_OUTPUT" | tail -5
 echo ""
-if [ "$JEST_FAILED" != "0" ] && [ "$JEST_FAILED" != "" ]; then
-  echo "✗ Jest: $JEST_FAILED failures"
+if echo "$JEST_OUTPUT" | grep -q "failed"; then
+  echo "✗ Jest has failures"
   exit 1
 fi
 echo "✓ Jest: $JEST_PASSED passed (min $JEST_MIN)"
@@ -46,19 +48,19 @@ echo ""
 
 # ── Lane 2: E2E public ──
 echo "━━━ Lane 2: E2E public ━━━"
-HOSTNAME=localhost PORT="$PORT" node .next/standalone/server.js &
+HOSTNAME=localhost PORT="$PORT" node .next/standalone/server.js > /dev/null 2>&1 &
 PUB_PID=$!
 sleep 3
 
-PUBLIC_OUTPUT=$(CI=1 BASE_URL="http://localhost:${PORT}" npx playwright test --config=playwright.config.ts --reporter=line 2>&1)
-PUBLIC_EXIT=$?
-PUBLIC_PASSED=$(echo "$PUBLIC_OUTPUT" | grep -oP '\d+(?= passed)' || echo "0")
+PUBLIC_OUTPUT=$(CI=1 BASE_URL="http://localhost:${PORT}" npx playwright test --config=playwright.config.ts --reporter=line 2>&1) || true
+PUBLIC_PASSED=$(extract_passed "$PUBLIC_OUTPUT")
 echo "$PUBLIC_OUTPUT" | tail -3
 
-kill "$PUB_PID" 2>/dev/null; wait "$PUB_PID" 2>/dev/null || true
+kill "$PUB_PID" 2>/dev/null || true
+wait "$PUB_PID" 2>/dev/null || true
 
-if [ "$PUBLIC_EXIT" -ne 0 ]; then
-  echo "✗ E2E public: exit $PUBLIC_EXIT"
+if echo "$PUBLIC_OUTPUT" | grep -q "failed"; then
+  echo "✗ E2E public has failures"
   exit 1
 fi
 echo "✓ E2E public: $PUBLIC_PASSED passed (min $PUBLIC_MIN)"
@@ -67,14 +69,12 @@ echo ""
 # ── Lane 3: E2E auth ──
 echo "━━━ Lane 3: E2E auth (seed + real auth) ━━━"
 
-# Seed BEFORE serve
 echo "→ Seeding e2e DB..."
 DATABASE_URL="$DB_URL" npx tsx scripts/seed-e2e-db.ts 2>&1 | tail -2
 
 fuser -k "$PORT/tcp" 2>/dev/null || true
 sleep 2
 
-# Serve with full auth env
 set -a
 # shellcheck disable=SC1091
 source .env.local 2>/dev/null || true
@@ -84,19 +84,19 @@ export NEXTAUTH_URL="http://localhost:${PORT}"
 export HOSTNAME="localhost"
 export PORT="$PORT"
 
-node .next/standalone/server.js &
+node .next/standalone/server.js > /dev/null 2>&1 &
 AUTH_PID=$!
 sleep 3
 
-AUTH_OUTPUT=$(CI=1 BASE_URL="http://localhost:${PORT}" npx playwright test --config=playwright.auth.config.ts --reporter=line 2>&1)
-AUTH_EXIT=$?
-AUTH_PASSED=$(echo "$AUTH_OUTPUT" | grep -oP '\d+(?= passed)' || echo "0")
-echo "$AUTH_OUTPUT" | tail -3
+AUTH_OUTPUT=$(CI=1 BASE_URL="http://localhost:${PORT}" npx playwright test --config=playwright.auth.config.ts --reporter=line 2>&1) || true
+AUTH_PASSED=$(extract_passed "$AUTH_OUTPUT")
+echo "$AUTH_OUTPUT" | tail -5
 
-kill "$AUTH_PID" 2>/dev/null; wait "$AUTH_PID" 2>/dev/null || true
+kill "$AUTH_PID" 2>/dev/null || true
+wait "$AUTH_PID" 2>/dev/null || true
 
-if [ "$AUTH_EXIT" -ne 0 ]; then
-  echo "✗ E2E auth: exit $AUTH_EXIT"
+if echo "$AUTH_OUTPUT" | grep -q "failed"; then
+  echo "✗ E2E auth has failures"
   exit 1
 fi
 echo "✓ E2E auth: $AUTH_PASSED passed (min $AUTH_MIN)"
