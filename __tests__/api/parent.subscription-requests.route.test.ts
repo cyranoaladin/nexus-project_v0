@@ -107,6 +107,61 @@ describe('parent subscription-requests', () => {
     expect(prisma.notification.create).toHaveBeenCalled();
   });
 
+  it('POST creates ARIA add-on request using catalog pricing', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'parent-1', role: 'PARENT', firstName: 'P', lastName: 'One', email: 'p@test.com' },
+    });
+    (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
+    (prisma.student.findFirst as jest.Mock).mockResolvedValue({
+      id: 'student-1',
+      user: { firstName: 'Student', lastName: 'One' },
+    });
+    (prisma.subscriptionRequest.create as jest.Mock).mockResolvedValue({ id: 'req-aria' });
+    (prisma.user.findMany as jest.Mock).mockResolvedValue([{ id: 'assistant-1' }]);
+    (prisma.notification.create as jest.Mock).mockResolvedValue({});
+
+    const response = await POST(
+      makeRequest({
+        studentId: 'student-1',
+        requestType: 'ARIA_ADDON',
+        planName: 'MATIERE_SUPPLEMENTAIRE',
+        monthlyPrice: 1,
+      })
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.success).toBe(true);
+    expect(prisma.subscriptionRequest.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          requestType: 'ARIA_ADDON',
+          planName: 'MATIERE_SUPPLEMENTAIRE',
+          monthlyPrice: 50,
+          status: 'PENDING',
+        }),
+      })
+    );
+  });
+
+  it('POST rejects invoice details as a subscription request type', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'parent-1', role: 'PARENT', firstName: 'P', lastName: 'One', email: 'p@test.com' },
+    });
+
+    const response = await POST(
+      makeRequest({
+        studentId: 'student-1',
+        requestType: 'INVOICE_DETAILS',
+      })
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toContain('Type');
+    expect(prisma.subscriptionRequest.create).not.toHaveBeenCalled();
+  });
+
   it('GET returns 400 without studentId', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'parent-1', role: 'PARENT' },

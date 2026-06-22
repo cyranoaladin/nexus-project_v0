@@ -3,6 +3,10 @@ export const dynamic = 'force-dynamic';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
+import { ARIA_ADDONS, SUBSCRIPTION_PLANS } from '@/lib/constants';
+
+class AlreadyProcessedError extends Error {}
+class NoActiveSubscriptionError extends Error {}
 
 export async function GET(request: NextRequest) {
   try {
@@ -130,43 +134,88 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    // Update request status
-    await prisma.subscriptionRequest.update({
-      where: { id: requestId },
-      data: {
-        status: action,
-        processedBy: `${session.user.firstName} ${session.user.lastName}`,
-        processedAt: new Date(),
-        ...(action === 'REJECTED' ? { rejectionReason: reason ?? '' } : {})
-      }
-    });
+    const plan = subscriptionRequest.requestType === 'PLAN_CHANGE'
+      ? SUBSCRIPTION_PLANS[subscriptionRequest.planName as keyof typeof SUBSCRIPTION_PLANS]
+      : null;
+    const addon = subscriptionRequest.requestType === 'ARIA_ADDON'
+      ? ARIA_ADDONS[subscriptionRequest.planName as keyof typeof ARIA_ADDONS]
+      : null;
 
-    // If approved, apply the changes
-    if (action === 'APPROVED') {
-      if (subscriptionRequest.requestType === 'PLAN_CHANGE') {
-        // Update subscription
-        await prisma.subscription.updateMany({
-          where: {
-            studentId: subscriptionRequest.studentId,
-            status: 'ACTIVE'
-          },
+    if (action === 'APPROVED' && subscriptionRequest.requestType === 'PLAN_CHANGE' && !plan) {
+      return NextResponse.json({ error: 'Plan d’abonnement invalide' }, { status: 400 });
+    }
+    if (action === 'APPROVED' && subscriptionRequest.requestType === 'ARIA_ADDON' && !addon) {
+      return NextResponse.json({ error: 'Add-on ARIA invalide' }, { status: 400 });
+    }
+
+    await prisma.$transaction(async (tx) => {
+      const updatedRequest = await tx.subscriptionRequest.updateMany({
+        where: { id: requestId, status: 'PENDING' },
+        data: {
+          status: action,
+          processedBy: `${session.user.firstName} ${session.user.lastName}`,
+          processedAt: new Date(),
+          ...(action === 'REJECTED' ? { rejectionReason: reason ?? '' } : {})
+        }
+      });
+
+      if (updatedRequest.count !== 1) {
+        throw new AlreadyProcessedError('Subscription request already processed');
+      }
+
+      if (action !== 'APPROVED') return;
+
+      if (subscriptionRequest.requestType === 'PLAN_CHANGE' && plan) {
+        const updatedSubscription = await tx.subscription.updateMany({
+          where: { studentId: subscriptionRequest.studentId, status: 'ACTIVE' },
           data: {
-            ...(subscriptionRequest.planName != null && { planName: subscriptionRequest.planName }),
-            ...(subscriptionRequest.monthlyPrice != null && { monthlyPrice: subscriptionRequest.monthlyPrice }),
+            planName: subscriptionRequest.planName!,
+            monthlyPrice: plan.price,
+            creditsPerMonth: plan.credits,
             updatedAt: new Date()
           }
         });
-      } else if (subscriptionRequest.requestType === 'ARIA_ADDON') {
-        // Add ARIA addon to active subscription (schema: Subscription.ariaSubjects/ariaCost)
-        await prisma.subscription.updateMany({
+
+        if (updatedSubscription.count === 0) {
+          await tx.subscription.create({
+            data: {
+              studentId: subscriptionRequest.studentId,
+              planName: subscriptionRequest.planName!,
+              monthlyPrice: plan.price,
+              creditsPerMonth: plan.credits,
+              status: 'ACTIVE',
+              startDate: new Date(),
+              endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+              ariaSubjects: '[]',
+              ariaCost: 0
+            }
+          });
+        }
+
+        if (plan.credits > 0) {
+          await tx.creditTransaction.create({
+            data: {
+              studentId: subscriptionRequest.studentId,
+              type: 'CREDIT_ADD',
+              amount: plan.credits,
+              description: `Crédits inclus dans l'abonnement ${subscriptionRequest.planName} (demande approuvée par ${session.user.firstName} ${session.user.lastName})`
+            }
+          });
+        }
+      } else if (subscriptionRequest.requestType === 'ARIA_ADDON' && addon) {
+        const updatedSubscription = await tx.subscription.updateMany({
           where: { studentId: subscriptionRequest.studentId, status: 'ACTIVE' },
           data: {
             ariaSubjects: subscriptionRequest.planName ? JSON.stringify([subscriptionRequest.planName]) : undefined,
-            ariaCost: subscriptionRequest.monthlyPrice ?? 0
+            ariaCost: addon.price
           }
         });
+
+        if (updatedSubscription.count === 0) {
+          throw new NoActiveSubscriptionError('No active subscription for ARIA add-on');
+        }
       }
-    }
+    });
 
     return NextResponse.json({
       success: true,
@@ -174,6 +223,20 @@ export async function PATCH(request: NextRequest) {
     });
 
   } catch (error) {
+    if (error instanceof AlreadyProcessedError) {
+      return NextResponse.json(
+        { error: 'Demande déjà traitée' },
+        { status: 409 }
+      );
+    }
+
+    if (error instanceof NoActiveSubscriptionError) {
+      return NextResponse.json(
+        { error: 'Aucun abonnement actif trouvé' },
+        { status: 400 }
+      );
+    }
+
     console.error('Error processing subscription request:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

@@ -11,6 +11,9 @@ jest.mock('@/lib/prisma', () => ({
     parentProfile: { findUnique: jest.fn() },
     student: { findMany: jest.fn(), findFirst: jest.fn() },
     subscription: { create: jest.fn() },
+    subscriptionRequest: { create: jest.fn() },
+    user: { findMany: jest.fn() },
+    notification: { create: jest.fn() },
   },
 }));
 
@@ -141,20 +144,21 @@ describe('parent subscriptions', () => {
     expect(response.status).toBe(400);
     expect(body.error).toContain('Plan');
     expect(prisma.subscription.create).not.toHaveBeenCalled();
+    expect(prisma.subscriptionRequest.create).not.toHaveBeenCalled();
   });
 
-  it('POST creates subscription request with server-side catalog price and credits', async () => {
+  it('POST creates canonical SubscriptionRequest with server-side catalog price', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'parent-1', role: 'PARENT' },
+      user: { id: 'parent-1', role: 'PARENT', firstName: 'Parent', lastName: 'One', email: 'p@test.com' },
     });
     (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
-    (prisma.student.findFirst as jest.Mock).mockResolvedValue({ id: 'student-1' });
-    (prisma.subscription.create as jest.Mock).mockResolvedValue({
-      id: 'sub-1',
-      planName: 'HYBRIDE',
-      status: 'INACTIVE',
-      student: { user: { firstName: 'Student', lastName: 'One' } },
+    (prisma.student.findFirst as jest.Mock).mockResolvedValue({
+      id: 'student-1',
+      user: { firstName: 'Student', lastName: 'One' },
     });
+    (prisma.subscriptionRequest.create as jest.Mock).mockResolvedValue({ id: 'req-1' });
+    (prisma.user.findMany as jest.Mock).mockResolvedValue([{ id: 'assistant-1' }]);
+    (prisma.notification.create as jest.Mock).mockResolvedValue({});
 
     const response = await POST(
       makeRequest({ studentId: 'student-1', planName: 'HYBRIDE', monthlyPrice: 1, creditsPerMonth: 99 })
@@ -163,13 +167,15 @@ describe('parent subscriptions', () => {
 
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
-    expect(body.subscription.id).toBe('sub-1');
-    expect(prisma.subscription.create).toHaveBeenCalledWith(
+    expect(body.requestId).toBe('req-1');
+    expect(prisma.subscription.create).not.toHaveBeenCalled();
+    expect(prisma.subscriptionRequest.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
+          requestType: 'PLAN_CHANGE',
           planName: 'HYBRIDE',
           monthlyPrice: 450,
-          creditsPerMonth: 4,
+          status: 'PENDING',
         }),
       })
     );

@@ -142,6 +142,9 @@ export async function POST(request: NextRequest) {
       where: {
         id: studentId,
         parentId: parentProfile.id
+      },
+      include: {
+        user: true
       }
     });
 
@@ -152,36 +155,47 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create subscription request
-    const subscription = await prisma.subscription.create({
+    const subscriptionRequest = await prisma.subscriptionRequest.create({
       data: {
         studentId: studentId,
+        requestType: 'PLAN_CHANGE',
         planName: planName,
         monthlyPrice: plan.price,
-        creditsPerMonth: plan.credits,
-        status: 'INACTIVE', // Will be activated by assistant
-        startDate: new Date(),
-        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-        ariaSubjects: '[]', // Default empty array
-        ariaCost: 0 // Default cost
-      },
-      include: {
-        student: {
-          include: {
-            user: true
-          }
-        }
+        reason: '',
+        status: 'PENDING',
+        requestedBy: `${session.user.firstName} ${session.user.lastName}`,
+        requestedByEmail: session.user.email ?? ''
       }
     });
 
+    const assistants = await prisma.user.findMany({
+      where: { role: 'ASSISTANTE' }
+    });
+
+    await Promise.all(assistants.map((assistant) =>
+      prisma.notification.create({
+        data: {
+          userId: assistant.id,
+          userRole: 'ASSISTANTE',
+          type: 'SUBSCRIPTION_REQUEST',
+          title: 'Nouvelle demande d\'abonnement',
+          message: `Nouvelle demande de changement de formule pour ${student.user.firstName} ${student.user.lastName}`,
+          data: JSON.stringify({
+            requestId: subscriptionRequest.id,
+            studentId,
+            studentName: `${student.user.firstName} ${student.user.lastName}`,
+            requestType: 'PLAN_CHANGE',
+            planName,
+            monthlyPrice: plan.price
+          })
+        }
+      })
+    ));
+
     return NextResponse.json({
       success: true,
-      subscription: {
-        id: subscription.id,
-        planName: subscription.planName,
-        status: subscription.status,
-        message: 'Demande d\'abonnement envoyée. En attente d\'approbation par l\'assistant.'
-      }
+      requestId: subscriptionRequest.id,
+      message: 'Demande d\'abonnement envoyée. En attente d\'approbation par l\'assistante.'
     });
 
   } catch (error) {

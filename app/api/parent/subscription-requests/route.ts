@@ -5,6 +5,8 @@ import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 import { ARIA_ADDONS, SUBSCRIPTION_PLANS } from '@/lib/constants';
 
+const ALLOWED_REQUEST_TYPES = ['PLAN_CHANGE', 'ARIA_ADDON'] as const;
+
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
@@ -28,6 +30,13 @@ export async function POST(request: NextRequest) {
     if (!studentId || !requestType) {
       return NextResponse.json(
         { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+
+    if (!ALLOWED_REQUEST_TYPES.includes(requestType as (typeof ALLOWED_REQUEST_TYPES)[number])) {
+      return NextResponse.json(
+        { error: 'Type de demande invalide' },
         { status: 400 }
       );
     }
