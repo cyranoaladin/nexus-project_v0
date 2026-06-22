@@ -37,6 +37,7 @@ interface Child {
 
 type SubscriptionPlan = typeof SUBSCRIPTION_PLANS[keyof typeof SUBSCRIPTION_PLANS];
 type SelectedPlan = SubscriptionPlan;
+type SubscriptionPlanKey = keyof typeof SUBSCRIPTION_PLANS;
 
 export default function AbonnementsPage() {
   const { data: session, status } = useSession();
@@ -48,6 +49,7 @@ export default function AbonnementsPage() {
   const [isRequesting, setIsRequesting] = useState(false);
   const [showRequestDialog, setShowRequestDialog] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null);
+  const [selectedPlanKey, setSelectedPlanKey] = useState<SubscriptionPlanKey | null>(null);
   const requestDialogTriggerRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
@@ -87,23 +89,27 @@ export default function AbonnementsPage() {
 
   const currentChild = parentData?.children.find((child) => child.id === selectedChild);
 
-  const handleSubscriptionRequest = async (plan: SubscriptionPlan) => {
+  const handleSubscriptionRequest = async () => {
     if (!selectedChild) {
       alert('Veuillez sélectionner un enfant');
       return;
     }
 
+    if (!selectedPlanKey) {
+      alert('Veuillez sélectionner une formule');
+      return;
+    }
+
     const requestData = {
       studentId: selectedChild,
-      planName: plan.name,
-      monthlyPrice: plan.price,
-      creditsPerMonth: plan.credits
+      requestType: 'PLAN_CHANGE',
+      planName: selectedPlanKey
     };
 
 
     setIsRequesting(true);
     try {
-      const response = await fetch('/api/parent/subscriptions', {
+      const response = await fetch('/api/parent/subscription-requests', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -113,7 +119,7 @@ export default function AbonnementsPage() {
 
       if (response.ok) {
         const result = await response.json();
-        alert(result.subscription.message);
+        alert(result.message);
         setShowRequestDialog(false);
         fetchSubscriptions(); // Refresh data
       } else {
@@ -135,22 +141,21 @@ export default function AbonnementsPage() {
 
     setIsRequesting(true);
     try {
-      const response = await fetch('/api/parent/subscriptions', {
+      const response = await fetch('/api/parent/subscription-requests', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           studentId: selectedChild,
-          planName: `ARIA_${addonKey}`,
-          monthlyPrice: ARIA_ADDONS[addonKey as keyof typeof ARIA_ADDONS]?.price || 0,
-          creditsPerMonth: 0
+          requestType: 'ARIA_ADDON',
+          planName: addonKey
         })
       });
 
       if (response.ok) {
         const result = await response.json();
-        alert(result.subscription.message);
+        alert(result.message);
         fetchSubscriptions(); // Refresh data
       } else {
         const errorData = await response.json();
@@ -346,7 +351,8 @@ export default function AbonnementsPage() {
                           <Button
                             onClick={(event) => {
                               requestDialogTriggerRef.current = event.currentTarget;
-                              setSelectedPlan(SUBSCRIPTION_PLANS[key as keyof typeof SUBSCRIPTION_PLANS]);
+                              setSelectedPlan(SUBSCRIPTION_PLANS[key as SubscriptionPlanKey]);
+                              setSelectedPlanKey(key as SubscriptionPlanKey);
                               setShowRequestDialog(true);
                             }}
                             className="w-full text-sm sm:text-base"
@@ -493,7 +499,7 @@ export default function AbonnementsPage() {
 
                 <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                   <Button
-                    onClick={() => handleSubscriptionRequest(selectedPlan)}
+                    onClick={handleSubscriptionRequest}
                     className="flex-1"
                     disabled={isRequesting}
                   >

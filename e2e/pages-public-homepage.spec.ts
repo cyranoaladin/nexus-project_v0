@@ -67,7 +67,7 @@ test.describe('Homepage (/) - Landing Nexus Reussite', () => {
     const visibleCount = await waLinks.evaluateAll((els) =>
       els.filter((el) => {
         const cs = getComputedStyle(el);
-        return cs.display !== 'none' && el.offsetWidth > 0;
+        return el instanceof HTMLElement && cs.display !== 'none' && el.offsetWidth > 0;
       }).length
     );
     expect(visibleCount).toBe(3);

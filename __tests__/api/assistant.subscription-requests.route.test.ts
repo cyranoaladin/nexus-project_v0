@@ -8,8 +8,10 @@ jest.mock('@/auth', () => ({
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {
-    subscriptionRequest: { findMany: jest.fn(), count: jest.fn(), findUnique: jest.fn(), update: jest.fn() },
-    subscription: { updateMany: jest.fn() },
+    subscriptionRequest: { findMany: jest.fn(), count: jest.fn(), findUnique: jest.fn(), update: jest.fn(), updateMany: jest.fn() },
+    subscription: { updateMany: jest.fn(), create: jest.fn() },
+    creditTransaction: { create: jest.fn() },
+    $transaction: jest.fn(),
   },
 }));
 
@@ -74,7 +76,7 @@ describe('assistant subscription-requests', () => {
     expect(body.error).toBe('Invalid action');
   });
 
-  it('PATCH approves request and updates subscription', async () => {
+  it('PATCH approves plan change atomically with server catalog price and credits', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE', firstName: 'A', lastName: 'S' },
     });
@@ -83,16 +85,119 @@ describe('assistant subscription-requests', () => {
       status: 'PENDING',
       requestType: 'PLAN_CHANGE',
       studentId: 'student-1',
-      planName: 'Plan A',
-      monthlyPrice: 100,
+      planName: 'HYBRIDE',
+      monthlyPrice: 1,
     });
-    (prisma.subscriptionRequest.update as jest.Mock).mockResolvedValue({});
-    (prisma.subscription.updateMany as jest.Mock).mockResolvedValue({});
+    const txSubscriptionUpdateMany = jest
+      .fn()
+      .mockResolvedValueOnce({ count: 1 })
+      .mockResolvedValueOnce({ count: 1 });
+    const txCreditCreate = jest.fn();
+    (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) =>
+      cb({
+        subscriptionRequest: { updateMany: txSubscriptionUpdateMany },
+        subscription: { updateMany: txSubscriptionUpdateMany, create: jest.fn() },
+        creditTransaction: { create: txCreditCreate },
+      })
+    );
 
     const response = await PATCH(makeRequest({ requestId: 'req-1', action: 'APPROVED' }));
     const body = await response.json();
 
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
+    expect(txSubscriptionUpdateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'req-1', status: 'PENDING' },
+        data: expect.objectContaining({ status: 'APPROVED' }),
+      })
+    );
+    expect(txSubscriptionUpdateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { studentId: 'student-1', status: 'ACTIVE' },
+        data: expect.objectContaining({
+          planName: 'HYBRIDE',
+          monthlyPrice: 450,
+          creditsPerMonth: 4,
+        }),
+      })
+    );
+    expect(txCreditCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          studentId: 'student-1',
+          type: 'CREDIT_ADD',
+          amount: 4,
+        }),
+      })
+    );
+  });
+
+  it('PATCH returns 409 and applies no side effect when request already processed concurrently', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'assistant-1', role: 'ASSISTANTE', firstName: 'A', lastName: 'S' },
+    });
+    (prisma.subscriptionRequest.findUnique as jest.Mock).mockResolvedValue({
+      id: 'req-1',
+      status: 'PENDING',
+      requestType: 'PLAN_CHANGE',
+      studentId: 'student-1',
+      planName: 'HYBRIDE',
+      monthlyPrice: 450,
+    });
+    const txRequestUpdateMany = jest.fn().mockResolvedValue({ count: 0 });
+    const txSubscriptionUpdateMany = jest.fn();
+    (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) =>
+      cb({
+        subscriptionRequest: { updateMany: txRequestUpdateMany },
+        subscription: { updateMany: txSubscriptionUpdateMany, create: jest.fn() },
+        creditTransaction: { create: jest.fn() },
+      })
+    );
+
+    const response = await PATCH(makeRequest({ requestId: 'req-1', action: 'APPROVED' }));
+    const body = await response.json();
+
+    expect(response.status).toBe(409);
+    expect(body.error).toContain('déjà');
+    expect(txSubscriptionUpdateMany).not.toHaveBeenCalled();
+  });
+
+  it('PATCH approves ARIA add-on atomically with catalog price', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'assistant-1', role: 'ASSISTANTE', firstName: 'A', lastName: 'S' },
+    });
+    (prisma.subscriptionRequest.findUnique as jest.Mock).mockResolvedValue({
+      id: 'req-aria',
+      status: 'PENDING',
+      requestType: 'ARIA_ADDON',
+      studentId: 'student-1',
+      planName: 'MATIERE_SUPPLEMENTAIRE',
+      monthlyPrice: 1,
+    });
+    const txRequestUpdateMany = jest.fn().mockResolvedValue({ count: 1 });
+    const txSubscriptionUpdateMany = jest.fn().mockResolvedValue({ count: 1 });
+    (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) =>
+      cb({
+        subscriptionRequest: { updateMany: txRequestUpdateMany },
+        subscription: { updateMany: txSubscriptionUpdateMany, create: jest.fn() },
+        creditTransaction: { create: jest.fn() },
+      })
+    );
+
+    const response = await PATCH(makeRequest({ requestId: 'req-aria', action: 'APPROVED' }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.success).toBe(true);
+    expect(txSubscriptionUpdateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { studentId: 'student-1', status: 'ACTIVE' },
+        data: expect.objectContaining({
+          ariaSubjects: JSON.stringify(['MATIERE_SUPPLEMENTAIRE']),
+          ariaCost: 50,
+        }),
+      })
+    );
   });
 });

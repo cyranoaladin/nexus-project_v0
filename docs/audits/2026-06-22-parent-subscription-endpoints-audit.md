@@ -83,41 +83,33 @@ Les tests existants couvrent ce point :
 La faille historique "prix client accepté" documentée en mai 2026 semble donc corrigée pour ces deux
 routes.
 
-## Décision recommandée
+## Décision appliquée
 
 Choisir une seule file d'attente métier pour les demandes parent.
 
-Option recommandée : `SubscriptionRequest` devient la file canonique pour les intentions parent
+Option retenue : `SubscriptionRequest` devient la file canonique pour les intentions parent
 avant validation/paiement.
 
 - `PLAN_CHANGE` : crée une `SubscriptionRequest`.
-- `ARIA_ADDON` : crée une `SubscriptionRequest` ou redirige vers paiement `type=addon`, mais pas via
-  `/api/parent/subscriptions`.
+- `ARIA_ADDON` : crée une `SubscriptionRequest`, pas une `Subscription INACTIVE`.
 - `INVOICE_DETAILS` : à supprimer comme type de demande si la modale de détails suffit.
 - `Subscription INACTIVE` ne doit plus servir de file d'attente générique parent hors paiement validé.
 
-## Plan de correction recommandé
+## Correction appliquée
 
-1. Extraire un helper serveur canonique, par exemple `lib/subscriptions/catalog.ts`, qui résout :
-   - plan;
-   - prix;
-   - crédits;
-   - type de demande autorisé.
-2. Corriger `/dashboard/parent/abonnements` :
-   - plan change -> route canonique retenue;
-   - ARIA add-on -> route canonique `ARIA_ADDON` ou paiement `type=addon`.
-3. Aligner le traitement staff :
-   - approval atomique sur `SubscriptionRequest.status = PENDING`;
-   - pour `PLAN_CHANGE`, mettre à jour `planName`, `monthlyPrice`, `creditsPerMonth`;
-   - définir explicitement si des crédits sont ajoutés immédiatement ou au prochain cycle.
-4. Déprécier ou supprimer les routes dormantes :
-   - `/api/subscriptions/change`;
-   - `/api/subscriptions/aria-addon`.
-5. Ajouter des tests d'invariant inter-flux :
-   - prix client falsifié ignoré;
-   - crédits `HYBRIDE` / `IMMERSION` cohérents après approbation;
-   - ARIA add-on n'appelle pas `/api/parent/subscriptions`;
-   - double approbation renvoie `409`.
+- `/dashboard/parent/abonnements` poste les changements de formule vers
+  `POST /api/parent/subscription-requests` avec `requestType=PLAN_CHANGE` et la clé de plan
+  canonique.
+- Le bouton ARIA poste vers `POST /api/parent/subscription-requests` avec
+  `requestType=ARIA_ADDON`.
+- `POST /api/parent/subscriptions` reste compatible mais crée désormais une `SubscriptionRequest`
+  `PLAN_CHANGE`, sans prix ni crédits issus du client.
+- `PATCH /api/assistante/subscription-requests` traite les approbations dans une transaction avec
+  garde atomique `status: 'PENDING'`.
+- L'approbation `PLAN_CHANGE` applique le prix catalogue, synchronise `creditsPerMonth` et ajoute
+  les crédits du plan.
+- L'approbation `ARIA_ADDON` applique le prix catalogue de l'add-on sur l'abonnement actif.
+- `POST /api/subscriptions/change` et `POST /api/subscriptions/aria-addon` retournent `410 Gone`.
 
 ## Tests exécutés
 
@@ -125,20 +117,33 @@ avant validation/paiement.
 npx jest --config jest.config.js \
   __tests__/api/parent.subscriptions.route.test.ts \
   __tests__/api/parent.subscription-requests.route.test.ts \
-  __tests__/api/assistant.subscriptions.route.test.ts \
   __tests__/api/assistant.subscription-requests.route.test.ts \
+  __tests__/api/subscriptions.change.route.test.ts \
+  __tests__/api/subscriptions.aria-addon.route.test.ts \
   --runInBand
 ```
 
-Résultat : `4 passed`, `27 passed`.
+Résultat ciblé après correction : `5 passed`, `30 passed`.
+
+Gate complet après correction :
+
+- Jest : `6216 passed` (plancher `6215`);
+- E2E public : `184 passed` (plancher `184`);
+- E2E auth réelle : `35 passed` (plancher `35`);
+- Total : `6435` (plancher `6434`);
+- `EXIT=0`.
 
 ## Risques restants
 
-- Les tests unitaires actuels valident chaque route isolément, mais pas l'équivalence métier entre
-  les deux chemins.
-- Le bouton ARIA parent est probablement cassé fonctionnellement tant qu'il poste vers
-  `/api/parent/subscriptions`.
+- `POST /api/assistante/subscriptions` reste présent pour traiter d'anciennes lignes
+  `Subscription INACTIVE` éventuelles, mais il ne doit plus être utilisé comme file d'attente
+  parent pour les nouveaux changements de formule.
+- La décision métier "ajouter les crédits immédiatement à l'approbation d'un changement de plan" est
+  maintenant codée et testée. Si le prochain cycle de facturation doit porter cette allocation, il
+  faudra changer explicitement la règle produit et les tests.
 
 ## Rollback
 
-Audit documentaire uniquement. Aucun rollback applicatif requis.
+Revenir au commit précédent restaure les deux files concurrentes. Si rollback nécessaire, conserver
+la dépréciation des routes dormantes ou bloquer l'UI parent pour éviter de recréer des demandes dans
+la mauvaise file.
