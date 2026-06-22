@@ -55,6 +55,12 @@ const categories: { id: Category; label: string }[] = [
   { id: 'carte', label: 'Carte Nexus' },
 ];
 
+// ── Mega-parcours grouping ──
+
+const MEGA_ANNEE: Category[] = ['annual', 'libre', 'plateforme'];
+const MEGA_STAGES: Category[] = ['intensifs', 'ponctuel'];
+const MEGA_SURMESURE: Category[] = ['coaching', 'pass', 'carte'];
+
 // ── Helpers for Pack component labels ──
 
 function resolvePackComponentLabels(pack: Pack): string[] {
@@ -78,6 +84,25 @@ function resolvePackComponentLabels(pack: Pack): string[] {
     }
     return `${c.qty}× ${c.type}`;
   });
+}
+
+// ── Navy separator band ──
+
+function NavyBand({ eyebrow, title, intro, testId }: { eyebrow: string; title: string; intro: string; testId: string }) {
+  return (
+    <section data-testid={testId} className="bg-lux-ink py-10 px-4 md:px-6">
+      <div className="mx-auto max-w-6xl">
+        <span className="lux-eyebrow text-lux-gold-wash">{eyebrow}</span>
+        <h2 className="mt-2 text-2xl md:text-3xl font-fraunces font-light text-lux-ivory">
+          {title}
+        </h2>
+        <div className="lux-filet-gold mt-3 w-16" />
+        <p className="mt-3 max-w-2xl text-base text-lux-on-dark-muted font-dm-sans">
+          {intro}
+        </p>
+      </div>
+    </section>
+  );
 }
 
 // ── FAQ ──
@@ -124,6 +149,7 @@ export default function OffresPage() {
   const carte = getCarte();
 
   const showSection = (cat: Category) => activeCategory === 'all' || activeCategory === cat;
+  const showMega = (cats: Category[]) => activeCategory === 'all' || cats.includes(activeCategory);
 
   return (
     <main className="luxury" id="main-content">
@@ -174,12 +200,29 @@ export default function OffresPage() {
         </div>
       </nav>
 
-      <div className="mx-auto max-w-6xl px-4 md:px-6 py-12 space-y-16">
+      {/* AccompagnementInclus — standalone intro */}
+      <div className="mx-auto max-w-6xl px-4 md:px-6 py-12">
         <AccompagnementInclus compact />
+      </div>
 
-        {/* Parcours annuels (scolarisé) */}
-        {showSection('annual') && (
-          <section>
+      {/* ════════════════════════════════════════════════════════════
+         MÉGA-PARCOURS 1 — Accompagnement à l'année
+         (annuel scolarisé + candidat libre + plateforme ARIA)
+         ════════════════════════════════════════════════════════════ */}
+
+      {showMega(MEGA_ANNEE) && (
+        <NavyBand
+          testId="mega-annee"
+          eyebrow="Parcours annuels"
+          title="Accompagnement à l'année"
+          intro="Scolarisés, candidats libres ou 100 % en ligne — un parcours adapté à chaque profil, de septembre à juin."
+        />
+      )}
+
+      {/* Annuel scolarisé — bg white */}
+      {showSection('annual') && (
+        <section data-testid="section-annual" className="bg-lux-white py-12 px-4 md:px-6">
+          <div className="mx-auto max-w-6xl">
             <div className="mb-8">
               <span className="lux-eyebrow">Parcours présentiel</span>
               <h2 className="mt-2 text-2xl md:text-3xl">Accompagnement annuel — scolarisés</h2>
@@ -224,12 +267,14 @@ export default function OffresPage() {
                 </div>
               );
             })}
-          </section>
-        )}
+          </div>
+        </section>
+      )}
 
-        {/* Candidat libre */}
-        {showSection('libre') && libreOffers.length > 0 && (
-          <section>
+      {/* Candidat libre — bg paper */}
+      {showSection('libre') && libreOffers.length > 0 && (
+        <section data-testid="section-libre" className="bg-lux-paper py-12 px-4 md:px-6">
+          <div className="mx-auto max-w-6xl">
             <div className="mb-8">
               <span className="lux-eyebrow">Candidat libre</span>
               <h2 className="mt-2 text-2xl md:text-3xl">Parcours candidats libres</h2>
@@ -263,12 +308,14 @@ export default function OffresPage() {
                 );
               })}
             </div>
-          </section>
-        )}
+          </div>
+        </section>
+      )}
 
-        {/* Plateforme */}
-        {showSection('plateforme') && (
-          <section>
+      {/* Plateforme ARIA — bg white */}
+      {showSection('plateforme') && (
+        <section data-testid="section-plateforme" className="bg-lux-white py-12 px-4 md:px-6">
+          <div className="mx-auto max-w-6xl">
             <div className="mb-8">
               <span className="lux-eyebrow">Plateforme</span>
               <h2 className="mt-2 text-2xl md:text-3xl">Trois paliers numériques</h2>
@@ -299,12 +346,28 @@ export default function OffresPage() {
                   );
                 })}
             </div>
-          </section>
-        )}
+          </div>
+        </section>
+      )}
 
-        {/* Les Intensifs */}
-        {showSection('intensifs') && (
-          <section id="les-intensifs" className="scroll-mt-28">
+      {/* ════════════════════════════════════════════════════════════
+         MÉGA-PARCOURS 2 — Stages & prépa épreuves
+         (intensifs + ponctuel)
+         ════════════════════════════════════════════════════════════ */}
+
+      {showMega(MEGA_STAGES) && (
+        <NavyBand
+          testId="mega-stages"
+          eyebrow="Formules ponctuelles"
+          title="Stages & prépa épreuves"
+          intro="Vacances scolaires ou semaines ciblées — des formats courts pour progresser vite sur les points clés."
+        />
+      )}
+
+      {/* Les Intensifs — bg white */}
+      {showSection('intensifs') && (
+        <section data-testid="section-intensifs" id="les-intensifs" className="bg-lux-white py-12 px-4 md:px-6 scroll-mt-28">
+          <div className="mx-auto max-w-6xl">
             <div className="mb-8">
               <span className="lux-eyebrow">Les Intensifs</span>
               <h2 className="mt-2 text-2xl md:text-3xl">Stages intensifs — toutes les vacances</h2>
@@ -349,12 +412,14 @@ export default function OffresPage() {
                 ))}
               </div>
             </div>
-          </section>
-        )}
+          </div>
+        </section>
+      )}
 
-        {/* Prépa épreuves (ponctuel) */}
-        {showSection('ponctuel') && ponctuelOffers.length > 0 && (
-          <section>
+      {/* Prépa épreuves — bg paper */}
+      {showSection('ponctuel') && ponctuelOffers.length > 0 && (
+        <section data-testid="section-ponctuel" className="bg-lux-paper py-12 px-4 md:px-6">
+          <div className="mx-auto max-w-6xl">
             <div className="mb-8">
               <span className="lux-eyebrow">Prépa épreuves</span>
               <h2 className="mt-2 text-2xl md:text-3xl">Cap EAF, Cap Maths, Grand Oral, Épreuve Blanche</h2>
@@ -383,12 +448,28 @@ export default function OffresPage() {
                 </div>
               ))}
             </div>
-          </section>
-        )}
+          </div>
+        </section>
+      )}
 
-        {/* Boussole (coaching) */}
-        {showSection('coaching') && coachingOffers.length > 0 && (
-          <section>
+      {/* ════════════════════════════════════════════════════════════
+         MÉGA-PARCOURS 3 — Sur-mesure & fidélité
+         (coaching + pass + carte)
+         ════════════════════════════════════════════════════════════ */}
+
+      {showMega(MEGA_SURMESURE) && (
+        <NavyBand
+          testId="mega-surmesure"
+          eyebrow="Formules individuelles"
+          title="Sur-mesure & fidélité"
+          intro="Coaching individuel, packs combinés et Carte Nexus — des solutions flexibles pour compléter ou personnaliser votre parcours."
+        />
+      )}
+
+      {/* Boussole (coaching) — bg white */}
+      {showSection('coaching') && coachingOffers.length > 0 && (
+        <section data-testid="section-coaching" className="bg-lux-white py-12 px-4 md:px-6">
+          <div className="mx-auto max-w-6xl">
             <div className="mb-8">
               <span className="lux-eyebrow">Boussole</span>
               <h2 className="mt-2 text-2xl md:text-3xl">Coaching méthode, orientation & individuel</h2>
@@ -425,12 +506,14 @@ export default function OffresPage() {
                 </div>
               ))}
             </div>
-          </section>
-        )}
+          </div>
+        </section>
+      )}
 
-        {/* Pass */}
-        {showSection('pass') && packs.length > 0 && (
-          <section>
+      {/* Pass — bg paper */}
+      {showSection('pass') && packs.length > 0 && (
+        <section data-testid="section-pass" className="bg-lux-paper py-12 px-4 md:px-6">
+          <div className="mx-auto max-w-6xl">
             <div className="mb-8">
               <span className="lux-eyebrow">Les Pass</span>
               <h2 className="mt-2 text-2xl md:text-3xl">Packs fidélité — simplifiez votre parcours</h2>
@@ -452,12 +535,14 @@ export default function OffresPage() {
                 </div>
               ))}
             </div>
-          </section>
-        )}
+          </div>
+        </section>
+      )}
 
-        {/* Carte Nexus */}
-        {showSection('carte') && (
-          <section id="carte-nexus" className="scroll-mt-28">
+      {/* Carte Nexus — bg white */}
+      {showSection('carte') && (
+        <section data-testid="section-carte" id="carte-nexus" className="bg-lux-white py-12 px-4 md:px-6 scroll-mt-28">
+          <div className="mx-auto max-w-6xl">
             <div className="mb-8">
               <span className="lux-eyebrow">Carte Nexus</span>
               <h2 className="mt-2 text-2xl md:text-3xl">L&apos;accompagnement Nexus toute l&apos;année</h2>
@@ -466,10 +551,9 @@ export default function OffresPage() {
             <div className="max-w-md">
               <CarteNexusCard carte={carte} ctaText="Réserver ma place" ctaHref={`/bilan-gratuit?offer=${encodeURIComponent(carte.id)}`} />
             </div>
-          </section>
-        )}
-
-      </div>
+          </div>
+        </section>
+      )}
 
       <FAQAccordion items={catalogueFAQ} title="Questions sur les tarifs" />
 
