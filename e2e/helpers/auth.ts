@@ -19,10 +19,10 @@ const ROLE_PATHS: Record<UserType, string> = {
     student: '/dashboard/eleve',
     student2: '/dashboard/eleve',
     studentSurvival: '/dashboard/eleve',
-  coach: '/dashboard/coach',
-  coach2: '/dashboard/coach',
-  admin: '/dashboard/admin',
-  assistante: '/dashboard/assistante',
+    coach: '/dashboard/coach',
+    coach2: '/dashboard/coach',
+    admin: '/dashboard/admin',
+    assistante: '/dashboard/assistante',
 };
 
 function parseSetCookie(setCookieHeader?: string | string[]) {
@@ -52,90 +52,92 @@ function getSetCookieHeaders(response: { headersArray: () => { name: string; val
         .map((header) => header.value);
 }
 
-async function fetchCsrf(page: Page, attempts = 3) {
-    let lastError: unknown;
-    for (let i = 0; i < attempts; i += 1) {
-        try {
-            const response = await page.request.get(`${BASE_URL}/api/auth/csrf`, {
-                timeout: 15_000,
-            });
-            const contentType = response.headers()['content-type'] || '';
-            if (!response.ok() || !contentType.includes('application/json')) {
-                const body = await response.text();
-                throw new Error(`CSRF response not JSON (${response.status()}): ${body.slice(0, 200)}`);
-            }
-            const json = (await response.json()) as { csrfToken: string };
-            return { json, response };
-        } catch (error) {
-            lastError = error;
-            const backoffMs = Math.min(500 * (i + 1), 3000);
-            await new Promise((resolve) => setTimeout(resolve, backoffMs));
-        }
+/**
+ * Fetch CSRF token and install its cookies into the browser context.
+ * Returns the csrfToken string for use in form submissions.
+ */
+async function fetchCsrfAndInstall(page: Page): Promise<string> {
+    const response = await page.request.get(`${BASE_URL}/api/auth/csrf`, {
+        timeout: 15_000,
+    });
+    const contentType = response.headers()['content-type'] || '';
+    if (!response.ok() || !contentType.includes('application/json')) {
+        const body = await response.text();
+        throw new Error(`CSRF response not JSON (${response.status()}): ${body.slice(0, 200)}`);
     }
-    throw lastError instanceof Error ? lastError : new Error('Failed to fetch CSRF token');
+    const json = (await response.json()) as { csrfToken: string };
+
+    // Install CSRF cookies into browser context so all subsequent requests carry them
+    const csrfCookies = parseSetCookie(getSetCookieHeaders(response))
+        .map((cookie) => ({
+            name: cookie.name,
+            value: cookie.value,
+            domain: BASE_URL_HOST,
+            path: cookie.path || '/',
+        }))
+        .filter((c) => c.name && c.value);
+
+    if (csrfCookies.length > 0) {
+        await page.context().addCookies(csrfCookies);
+    }
+
+    return json.csrfToken;
 }
 
+/**
+ * Authenticate via the real NextAuth credentials flow:
+ * GET /api/auth/csrf → install cookie → POST /api/auth/callback/credentials
+ * ONE path, no fallback, no manual cookie headers.
+ */
 async function setAuthCookies(page: Page, email: string, password: string, targetPath: string) {
-    let lastError: unknown;
+    // 1. Fetch CSRF token and install its cookie into the browser context
+    const csrfToken = await fetchCsrfAndInstall(page);
 
-    for (let i = 0; i < 2; i += 1) {
-        try {
-            const { json: csrfJson, response: csrfResponse } = await fetchCsrf(page);
-            const csrfCookies = parseSetCookie(getSetCookieHeaders(csrfResponse));
-
-            const callbackResponse = await page.request.post(
-                `${BASE_URL}/api/auth/callback/credentials`,
-                {
-                    form: {
-                        csrfToken: csrfJson.csrfToken,
-                        email,
-                        password,
-                        callbackUrl: `${BASE_URL}${targetPath}`,
-                        json: 'true',
-                    },
-                    headers: {
-                        cookie: csrfCookies.map((cookie) => `${cookie.name}=${cookie.value}`).join('; '),
-                    },
-                }
-            );
-
-            const callbackCookies = parseSetCookie(getSetCookieHeaders(callbackResponse));
-            const hasSession = callbackCookies.some((cookie) =>
-                cookie.name.includes('session-token')
-            );
-
-            if (!callbackResponse.ok() || !hasSession) {
-                const contentType = callbackResponse.headers()['content-type'] || '';
-                const body = contentType.includes('application/json')
-                    ? JSON.stringify(await callbackResponse.json())
-                    : await callbackResponse.text();
-                if (body.includes('csrf=true') || body.includes('/api/auth/signin')) {
-                    throw new Error(`Auth callback requested CSRF retry: ${body.slice(0, 200)}`);
-                }
-                throw new Error(`Auth callback failed (${callbackResponse.status()}): ${body.slice(0, 200)}`);
-            }
-
-            const authCookies = [...csrfCookies, ...callbackCookies]
-                .map((cookie) => ({
-                    name: cookie.name,
-                    value: cookie.value,
-                    domain: BASE_URL_HOST,
-                    path: cookie.path || '/',
-                }))
-                .filter((cookie) => cookie.name && cookie.value);
-
-            await page.context().addCookies(authCookies);
-            return;
-        } catch (error) {
-            lastError = error;
-            const backoffMs = Math.min(750 * (i + 1), 4000);
-            await new Promise((resolve) => setTimeout(resolve, backoffMs));
+    // 2. POST to credentials callback — page.request uses context cookies automatically
+    const callbackResponse = await page.request.post(
+        `${BASE_URL}/api/auth/callback/credentials`,
+        {
+            form: {
+                csrfToken,
+                email,
+                password,
+                callbackUrl: `${BASE_URL}${targetPath}`,
+                json: 'true',
+            },
+            maxRedirects: 0, // Don't follow redirects (avoids CSRF-less redirect chains)
         }
+    );
+
+    // Accept 200 (JSON response) or 302 (redirect after auth)
+    const status = callbackResponse.status();
+    if (status !== 200 && status !== 302) {
+        const body = await callbackResponse.text();
+        throw new Error(`Auth callback failed (HTTP ${status}): ${body.slice(0, 200)}`);
     }
 
-    throw lastError instanceof Error ? lastError : new Error('Failed to set auth cookies');
+    // 3. Install session cookies from the callback response into context
+    const sessionCookies = parseSetCookie(getSetCookieHeaders(callbackResponse))
+        .map((cookie) => ({
+            name: cookie.name,
+            value: cookie.value,
+            domain: BASE_URL_HOST,
+            path: cookie.path || '/',
+        }))
+        .filter((c) => c.name && c.value);
+
+    if (sessionCookies.length > 0) {
+        await page.context().addCookies(sessionCookies);
+    }
+
+    const hasSession = sessionCookies.some((c) => c.name.includes('session-token'));
+    if (!hasSession) {
+        throw new Error(`No session-token cookie returned for ${email}`);
+    }
 }
 
+/**
+ * Poll /api/auth/session until the expected user appears.
+ */
 async function waitForAuthenticatedSession(page: Page, expectedEmail: string, attempts = 20) {
     for (let i = 0; i < attempts; i += 1) {
         const res = await page.request.get(`${BASE_URL}/api/auth/session`, {
@@ -158,7 +160,9 @@ async function waitForAuthenticatedSession(page: Page, expectedEmail: string, at
 }
 
 /**
- * Login as a specific user type for E2E tests using API-based auth.
+ * Login as a specific user type for E2E tests.
+ * Uses REAL NextAuth credentials flow: CSRF → callback → session.
+ * NO fallback, NO stubs — if this fails, the test fails with a clear error.
  */
 export async function loginAsUser(
     page: Page,
@@ -168,22 +172,28 @@ export async function loginAsUser(
     const { navigate = true, targetPath = ROLE_PATHS[userType] } = options;
     const { email, password } = CREDENTIALS[userType];
 
-    try {
-        await setAuthCookies(page, email, password, targetPath);
-        await waitForAuthenticatedSession(page, email);
-    } catch {
-        // Fallback to UI login when callback flow changes.
-        await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
-        await page.getByTestId('input-email').fill(email);
-        await page.getByTestId('input-password').fill(password);
-        await page.getByTestId('btn-signin').click();
-        await waitForAuthenticatedSession(page, email);
-    }
+    await setAuthCookies(page, email, password, targetPath);
+    await waitForAuthenticatedSession(page, email);
 
     if (navigate) {
         await page.goto(targetPath, { waitUntil: 'domcontentloaded' });
         await page.waitForLoadState('domcontentloaded');
     }
+}
+
+/**
+ * Sign out via the real NextAuth signout flow WITH CSRF.
+ * GET /api/auth/csrf → POST /api/auth/signout with csrfToken.
+ */
+export async function logoutUser(page: Page) {
+    const csrfToken = await fetchCsrfAndInstall(page);
+
+    await page.request.post(`${BASE_URL}/api/auth/signout`, {
+        form: { csrfToken },
+        maxRedirects: 0,
+    });
+
+    await page.context().clearCookies();
 }
 
 export { ROLE_PATHS };

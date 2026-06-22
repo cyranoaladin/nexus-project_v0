@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { loginAsUser } from '../helpers/auth';
+import { loginAsUser, logoutUser } from '../helpers/auth';
 
 const ROLE_PATHS = {
   admin: [
@@ -91,8 +91,7 @@ test.describe('RBAC dashboards - contrat', () => {
     }
     expect(clicked).toBeTruthy();
 
-    await page.request.get('/api/auth/signout', { failOnStatusCode: false });
-    await page.context().clearCookies();
+    await logoutUser(page);
 
     const dashboardRes = await page.request.get('/dashboard/parent', {
       failOnStatusCode: false,
