@@ -1,22 +1,19 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import {
   HeroSection,
   MethodSection,
-  FAQAccordion,
-  type FAQItem,
 } from '@/components/premium';
 import {
   getReperes,
   getRules,
 } from '@/lib/pricing';
 import {
-  AccompagnementInclus,
   EnjeuxNiveau,
   ProcessSteps,
   ReassuranceChips,
@@ -59,7 +56,7 @@ function LevelRouter() {
   );
 }
 
-// ── Repères tarifaires + Transparency (merged) ──
+// ── Repères tarifaires + Transparence + Chips réassurance (merged) ──
 
 function PricingReperesSection() {
   const reperes = getReperes();
@@ -119,6 +116,11 @@ function PricingReperesSection() {
           <TransparencyBanner compact />
         </div>
 
+        {/* Reassurance chips — rattachées au bloc tarifs */}
+        <div className="mt-6">
+          <ReassuranceChips />
+        </div>
+
         <div className="mt-6 text-center">
           <Link
             href="/offres"
@@ -133,20 +135,23 @@ function PricingReperesSection() {
   );
 }
 
-// ── Couche de confiance vérifiable ──
+// ── Confiance vérifiable (fusionnée AccompagnementInclus + TrustSection) ──
 
-const trustItems = [
-  `Enseignants agrégés et certifiés, spécialistes de l\u2019épreuve`,
-  `Corrections sur grilles officielles du baccalauréat`,
-  `Groupes de 5 élèves maximum — suivi individualisé`,
-  `Transparence tarifaire\u00A0: tous les prix publics, en TND`,
-  `Cellule Cyclades intégrée pour les candidats libres`,
-  `Cadre réseau AEFE — programme et exigences de l\u2019enseignement français`,
+const verifiableItems = [
+  'Enseignants agrégés et certifiés, spécialistes de l\u2019épreuve',
+  'Corrections sur grilles officielles du baccalauréat et bacs blancs',
+  'Groupes de 5 élèves maximum — suivi individualisé',
+  'Transparence tarifaire\u00A0: tous les prix publics, en TND',
+  'Accès à la plateforme ARIA — ressources et révisions en continu',
+  'Bilans réguliers et suivi parent en temps réel',
+  'Carte d\u2019examen personnalisée',
+  'Cellule Cyclades intégrée pour les candidats libres',
+  'Cadre réseau AEFE — programme et exigences de l\u2019enseignement français',
 ];
 
-function TrustSection() {
+function VerifiableSection() {
   return (
-    <section className="bg-lux-white px-4 py-14 md:py-20 md:px-6">
+    <section className="bg-lux-paper px-4 py-14 md:py-20 md:px-6">
       <div className="mx-auto max-w-6xl">
         <div className="mb-8 text-center">
           <span className="lux-eyebrow">Le cadre Nexus</span>
@@ -156,7 +161,7 @@ function TrustSection() {
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {trustItems.map((item) => (
+          {verifiableItems.map((item) => (
             <div
               key={item}
               className="flex items-start gap-3 rounded-xl border border-lux-line bg-lux-white p-5 lux-shadow"
@@ -173,33 +178,8 @@ function TrustSection() {
 
 // ── FAQ ──
 
-const faqItems: FAQItem[] = [
-  {
-    question: `Comment fonctionnent les groupes de 5 maximum\u00A0?`,
-    answer:
-      `Chaque groupe est limité à 5 élèves (4 pour le Brevet) pour garantir un suivi personnalisé. Le groupe est ouvert dès 3 inscrits. Si le seuil n\u2019est pas atteint, l\u2019acompte est intégralement remboursé.`,
-  },
-  {
-    question: `Qui sont les enseignants\u00A0?`,
-    answer:
-      `Nos enseignants sont agrégés et certifiés de l\u2019enseignement français à l\u2019étranger, spécialistes de chaque épreuve du baccalauréat. Ils connaissent les grilles de correction officielles et les attentes des jurys.`,
-  },
-  {
-    question: `Comment fonctionne l\u2019échéancier de paiement\u00A0?`,
-    answer:
-      `Un acompte de 30\u00A0% est versé à la réservation, puis le solde est réparti en mensualités. L\u2019acompte d\u2019un stage ou Pass est déductible si vous souscrivez ensuite un parcours annuel.`,
-  },
-  {
-    question: `Qu\u2019est-ce que la plateforme ARIA\u00A0?`,
-    answer:
-      `ARIA est notre plateforme numérique avec des ressources, parcours de révision, fiches et exercices. Elle complète l\u2019accompagnement humain et s\u2019utilise selon la formule choisie.`,
-  },
-  {
-    question: `Proposez-vous un accompagnement pour les candidats libres\u00A0?`,
-    answer:
-      `Oui, nous avons des parcours dédiés aux candidats libres (Essentiel, Mixte, Premium) avec cellule Cyclades intégrée pour l\u2019accompagnement administratif. Le Pass Candidat Libre regroupe diagnostic, stages et épreuves blanches.`,
-  },
-];
+// FAQAccordion + items kept but not rendered on homepage currently
+// (available for future re-add if needed)
 
 // ── Main ──
 
@@ -214,35 +194,25 @@ export function HomePageClient() {
       {/* 2. Router par niveau (bg-lux-white) — navigation immédiate */}
       <LevelRouter />
 
-      {/* 3. ReassuranceChips (bg-lux-paper) — risk-reversal */}
-      <section className="bg-lux-paper px-4 py-8 md:px-6">
-        <div className="mx-auto max-w-6xl">
-          <ReassuranceChips />
-        </div>
-      </section>
-
-      {/* 4. Méthode (bg-lux-white via MethodSection) */}
-      <MethodSection />
-
-      {/* 5. Enjeux par niveau (bg-lux-paper) — sélecteur onglets */}
+      {/* 3. Priorités par niveau (bg-lux-paper) — onglets par niveau */}
       <EnjeuxNiveau />
 
-      {/* 6. Repères tarifaires + transparence (bg-lux-white) — merged */}
+      {/* 4. Méthode (bg-lux-ink) — rupture sombre, 4 piliers */}
+      <MethodSection />
+
+      {/* 5. Tarifs + Transparence + Chips réassurance (bg-lux-white) */}
       <PricingReperesSection />
 
-      {/* 7. Bouquet inclus (bg-lux-paper) */}
-      <AccompagnementInclus />
+      {/* 6. Confiance vérifiable (bg-lux-paper) — fusionnée */}
+      <VerifiableSection />
 
-      {/* 8. Confiance vérifiable (bg-lux-white) */}
-      <TrustSection />
-
-      {/* 9. Process + CTA final (bg-lux-ink) */}
+      {/* 7. Parcours en 4 étapes (bg-lux-white) */}
       <ProcessSteps />
 
       {/* Testimonials — hidden tant que social-proof.json est vide */}
       <Testimonials />
 
-      {/* 10. CTA bilan gratuit (bg-lux-ink) */}
+      {/* 8. CTA bilan gratuit (bg-lux-ink) */}
       <section className="bg-lux-ink px-4 py-14 md:py-20 md:px-6" aria-label="Demander un bilan gratuit">
         <div className="mx-auto max-w-2xl text-center">
           <span className="lux-eyebrow text-lux-gold-wash">Commencer</span>
