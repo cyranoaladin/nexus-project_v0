@@ -28,6 +28,8 @@ interface ExamCardBaseProps {
   payment?: ExamCardPayment;
   /** "X TND / mois" display */
   monthlyDisplay?: number;
+  /** Pricing display mode: 'monthly_first' | 'annual' | 'total' (auto-detected if omitted) */
+  pricingDisplay?: 'monthly_first' | 'annual' | 'total';
   /** "Xh / semaine" */
   hoursPerWeek?: number;
   /** Total hours */
@@ -77,6 +79,7 @@ export function ExamCard(props: ExamCardProps) {
     price,
     payment,
     monthlyDisplay,
+    pricingDisplay,
     hoursPerWeek,
     totalHours,
     effectifType = 'groupe',
@@ -162,28 +165,40 @@ export function ExamCard(props: ExamCardProps) {
         )}
       </div>
 
-      {/* Pricing — monthly-first for annual offers, total-only for one-shots */}
-      <div data-testid="pricing-block" className={`px-6 py-5 ${featured ? 'bg-lux-ink/[0.03]' : 'bg-lux-paper/60'}`}>
-        {monthlyDisplay != null ? (
-          <>
-            <div className="flex items-baseline gap-2">
-              <span data-testid="price-primary" className="lux-price text-2xl font-bold text-lux-ink">
-                {fmtPrice(monthlyDisplay)}&nbsp;TND
-              </span>
-              <span className="text-sm font-medium text-lux-slate">/&nbsp;mois</span>
-            </div>
-            <p data-testid="price-secondary" className="mt-1 text-sm text-lux-slate">
-              soit {fmtTND(price)}&nbsp;/&nbsp;an
-            </p>
-          </>
-        ) : (
-          <div className="flex items-baseline gap-3">
-            <span data-testid="price-primary" className="lux-price text-2xl font-bold text-lux-ink">
-              {fmtTND(price)}
-            </span>
+      {/* Pricing — monthly-first for tutorat, annual for plateforme, total for one-shots */}
+      {(() => {
+        const mode = pricingDisplay ?? (monthlyDisplay != null ? 'monthly_first' : 'total');
+        return (
+          <div data-testid="pricing-block" className={`px-6 py-5 ${featured ? 'bg-lux-ink/[0.03]' : 'bg-lux-paper/60'}`}>
+            {mode === 'monthly_first' && monthlyDisplay != null ? (
+              <>
+                <div className="flex items-baseline gap-2">
+                  <span data-testid="price-primary" className="lux-price text-2xl font-bold text-lux-ink">
+                    {fmtPrice(monthlyDisplay)}&nbsp;TND
+                  </span>
+                  <span className="text-sm font-medium text-lux-slate">/&nbsp;mois</span>
+                </div>
+                <p data-testid="price-secondary" className="mt-1 text-sm text-lux-slate">
+                  soit {fmtTND(price)}&nbsp;/&nbsp;an
+                </p>
+              </>
+            ) : mode === 'annual' ? (
+              <div className="flex items-baseline gap-2">
+                <span data-testid="price-primary" className="lux-price text-2xl font-bold text-lux-ink">
+                  {fmtTND(price)}
+                </span>
+                <span className="text-sm font-medium text-lux-slate">/&nbsp;an</span>
+              </div>
+            ) : (
+              <div className="flex items-baseline gap-3">
+                <span data-testid="price-primary" className="lux-price text-2xl font-bold text-lux-ink">
+                  {fmtTND(price)}
+                </span>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        );
+      })()}
 
       {/* Places left — only if data present */}
       {placesLeft != null && (
