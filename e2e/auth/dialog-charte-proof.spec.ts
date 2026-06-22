@@ -7,8 +7,10 @@
  * What this does NOT prove: données affichées dans la modale, soumission de formulaire.
  *
  * NOTE: Only AddChildDialog is currently mounted in the parent dashboard.
- * CreditPurchaseDialog, SubscriptionChangeDialog, InvoiceDetailsDialog, AriaAddonDialog
- * exist as files but are NOT imported/mounted anywhere — they are dead code.
+ * CreditPurchaseDialog + InvoiceDetailsDialog exist as files but are NOT mounted —
+ * they are documented as product debt (trou fonctionnel, see DETTE.md).
+ * SubscriptionChangeDialog + AriaAddonDialog were vestiges (function covered
+ * by abonnements/page.tsx) and have been removed.
  * This spec tests what is real, not what is imaginary.
  */
 import { test, expect } from '@playwright/test';
