@@ -162,17 +162,26 @@ export function ExamCard(props: ExamCardProps) {
         )}
       </div>
 
-      {/* Pricing — tabular */}
-      <div className={`px-6 py-5 ${featured ? 'bg-lux-ink/[0.03]' : 'bg-lux-paper/60'}`}>
-        <div className="flex items-baseline gap-3">
-          <span className="lux-price text-2xl font-bold text-lux-ink">
-            {fmtTND(price)}
-          </span>
-        </div>
-        {monthlyDisplay != null && (
-          <p className="mt-1 text-sm text-lux-slate">
-            soit {fmtPrice(monthlyDisplay)}&nbsp;TND&nbsp;/&nbsp;mois
-          </p>
+      {/* Pricing — monthly-first for annual offers, total-only for one-shots */}
+      <div data-testid="pricing-block" className={`px-6 py-5 ${featured ? 'bg-lux-ink/[0.03]' : 'bg-lux-paper/60'}`}>
+        {monthlyDisplay != null ? (
+          <>
+            <div className="flex items-baseline gap-2">
+              <span data-testid="price-primary" className="lux-price text-2xl font-bold text-lux-ink">
+                {fmtPrice(monthlyDisplay)}&nbsp;TND
+              </span>
+              <span className="text-sm font-medium text-lux-slate">/&nbsp;mois</span>
+            </div>
+            <p data-testid="price-secondary" className="mt-1 text-sm text-lux-slate">
+              soit {fmtTND(price)}&nbsp;/&nbsp;an
+            </p>
+          </>
+        ) : (
+          <div className="flex items-baseline gap-3">
+            <span data-testid="price-primary" className="lux-price text-2xl font-bold text-lux-ink">
+              {fmtTND(price)}
+            </span>
+          </div>
         )}
       </div>
 
