@@ -16,6 +16,7 @@ export default defineConfig({
     'dialog-charte-proof.spec.ts',
     'dialog-all-roles-proof.spec.ts',
     'parent-subscription-requests-visible.spec.ts',
+    'assistante-subscription-approval-invariants.spec.ts',
   ],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
