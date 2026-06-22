@@ -11,8 +11,8 @@ interface InvoiceDetailsDialogProps {
     planName: string;
     monthlyPrice: number;
     status: string;
-    startDate: string;
-    endDate: string;
+    startDate: string | null;
+    endDate: string | null;
   } | null;
   studentName: string;
 }
@@ -23,7 +23,7 @@ export default function InvoiceDetailsDialog({ subscriptionDetails, studentName 
   if (!subscriptionDetails) {
     return (
       <Button variant="outline" size="sm" className="text-xs sm:text-sm text-neutral-400" disabled>
-        Voir Détails
+        Voir les détails
       </Button>
     );
   }
@@ -49,17 +49,17 @@ export default function InvoiceDetailsDialog({ subscriptionDetails, studentName 
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="text-xs sm:text-sm text-neutral-200 hover:text-white">
-          Voir Détails
+          Voir les détails
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Receipt className="w-5 h-5" />
-            Détails de Facturation
+            Détails de l'abonnement
           </DialogTitle>
           <p className="text-sm text-neutral-400 mt-2">
-            Informations de facturation pour {studentName}
+            Informations d'abonnement pour {studentName}
           </p>
         </DialogHeader>
         
@@ -95,7 +95,7 @@ export default function InvoiceDetailsDialog({ subscriptionDetails, studentName 
               <div>
                 <p className="text-sm font-medium">Date de début</p>
                 <p className="text-sm text-neutral-400">
-                  {formatDate(subscriptionDetails.startDate)}
+                  {subscriptionDetails.startDate ? formatDate(subscriptionDetails.startDate) : 'Non renseignée'}
                 </p>
               </div>
             </div>
@@ -103,9 +103,9 @@ export default function InvoiceDetailsDialog({ subscriptionDetails, studentName 
             <div className="flex items-center space-x-3 p-3 bg-white/5 rounded-lg">
               <CreditCard className="w-5 h-5 text-emerald-300" />
               <div>
-                <p className="text-sm font-medium">Prochaine facturation</p>
+                <p className="text-sm font-medium">Fin de période prévue</p>
                 <p className="text-sm text-neutral-400">
-                  {formatDate(subscriptionDetails.endDate)}
+                  {subscriptionDetails.endDate ? formatDate(subscriptionDetails.endDate) : 'Non renseignée'}
                 </p>
               </div>
             </div>
@@ -116,7 +116,7 @@ export default function InvoiceDetailsDialog({ subscriptionDetails, studentName 
               <Receipt className="w-4 h-4 text-slate-200 mt-0.5 flex-shrink-0" />
               <div className="text-sm text-slate-200">
                 <p className="font-medium mb-1">Information :</p>
-                <p>La facturation est automatique à la date indiquée. Vous recevrez un email de confirmation.</p>
+                <p>Ces informations résument l'abonnement enregistré. Toute modification reste soumise au suivi administratif Nexus.</p>
               </div>
             </div>
           </div>

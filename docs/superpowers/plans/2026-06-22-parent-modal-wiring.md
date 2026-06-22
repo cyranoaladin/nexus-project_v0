@@ -15,7 +15,7 @@
 **Files:**
 - Modify: `e2e/auth/dialog-all-roles-proof.spec.ts`
 
-- [ ] **Step 1: Ajouter deux preuves parent**
+- [x] **Step 1: Ajouter deux preuves parent**
 
 Ajouter :
 - `parent: abonnements credit-purchase dialog`
@@ -23,7 +23,7 @@ Ajouter :
 
 Chaque test se connecte en parent, ouvre `/dashboard/parent/abonnements`, clique le vrai trigger et appelle `assertDialogCharte` puis `assertDialogCloses`.
 
-- [ ] **Step 2: Verifier le rouge**
+- [x] **Step 2: Verifier le rouge**
 
 Run:
 
@@ -40,17 +40,17 @@ Expected: les deux nouveaux tests echouent car les triggers n'existent pas encor
 - Modify: `app/dashboard/parent/credit-purchase-dialog.tsx`
 - Modify: `app/dashboard/parent/invoice-details-dialog.tsx`
 
-- [ ] **Step 3: Exposer les donnees d'abonnement au type Child**
+- [x] **Step 3: Exposer les donnees d'abonnement au type Child**
 
 Ajouter les champs requis : `subscriptionStartDate`, `subscriptionEndDate`, `monthlyPrice`.
 
-- [ ] **Step 4: Monter les deux modales**
+- [x] **Step 4: Monter les deux modales**
 
 Dans la carte "Abonnement actuel", ajouter les triggers :
 - demande de credits pour l'enfant courant ;
 - details d'abonnement si un abonnement existe.
 
-- [ ] **Step 5: Ajuster les libelles produit**
+- [x] **Step 5: Ajuster les libelles produit**
 
 Remplacer les formulations trompeuses :
 - "Acheter des Credits" -> "Demander des credits" ;
@@ -63,11 +63,11 @@ Remplacer les formulations trompeuses :
 - Modify: `DETTE.md`
 - Create or modify audit doc under `docs/audits/`
 
-- [ ] **Step 6: Relever AUTH_MIN**
+- [x] **Step 6: Relever AUTH_MIN**
 
 Passer `AUTH_MIN=35`.
 
-- [ ] **Step 7: Verifier ciblage et gate complet**
+- [x] **Step 7: Verifier ciblage et gate complet**
 
 Run targeted, puis :
 
@@ -77,7 +77,7 @@ Run targeted, puis :
 
 Expected totals: Jest 6215, public 184, auth 35, total 6434, `EXIT=0`.
 
-- [ ] **Step 8: Commit, push, deploy**
+- [x] **Step 8: Commit, push, deploy**
 
 Push dans l'ordre demande :
 

@@ -131,6 +131,36 @@ test('parent: paiement virement dialog', async ({ page }) => {
   await assertDialogCloses(page, trigger, 'parent/paiement');
 });
 
+test('parent: abonnements credit-purchase dialog', async ({ page }) => {
+  test.setTimeout(60000);
+  await loginAsUser(page, 'parent');
+  await page.goto(`${BASE}/dashboard/parent/abonnements`, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(2000);
+
+  const trigger = page.getByRole('button', { name: /demander des crédits/i }).first();
+  await expect(trigger).toBeVisible({ timeout: 5000 });
+  await trigger.click();
+  await page.waitForTimeout(500);
+
+  await assertDialogCharte(page, 'parent/credit-purchase');
+  await assertDialogCloses(page, trigger, 'parent/credit-purchase');
+});
+
+test('parent: abonnements invoice-details dialog', async ({ page }) => {
+  test.setTimeout(60000);
+  await loginAsUser(page, 'parent');
+  await page.goto(`${BASE}/dashboard/parent/abonnements`, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(2000);
+
+  const trigger = page.getByRole('button', { name: /voir les détails/i }).first();
+  await expect(trigger).toBeVisible({ timeout: 5000 });
+  await trigger.click();
+  await page.waitForTimeout(500);
+
+  await assertDialogCharte(page, 'parent/invoice-details');
+  await assertDialogCloses(page, trigger, 'parent/invoice-details');
+});
+
 // ── ADMIN ──
 
 test('admin: users detail dialog', async ({ page }) => {
