@@ -183,7 +183,8 @@ export default function OffresPage() {
             <div className="mb-8">
               <span className="lux-eyebrow">Parcours présentiel</span>
               <h2 className="mt-2 text-2xl md:text-3xl">Accompagnement annuel — scolarisés</h2>
-              <p className="mt-2 text-sm text-lux-slate">
+              <div className="lux-filet-gold mt-3 w-16" />
+              <p className="mt-3 text-sm text-lux-slate">
                 {rules.group_max} élèves max, garanti dès {rules.group_min_open.lycee}. Acompte 30 % + mensualités.
               </p>
             </div>
@@ -231,7 +232,8 @@ export default function OffresPage() {
             <div className="mb-8">
               <span className="lux-eyebrow">Candidat libre</span>
               <h2 className="mt-2 text-2xl md:text-3xl">Parcours candidats libres</h2>
-              <p className="mt-2 text-sm text-lux-slate">
+              <div className="lux-filet-gold mt-3 w-16" />
+              <p className="mt-3 text-sm text-lux-slate">
                 Cellule Cyclades intégrée. Formules en ligne, mixte ou avec coaching.
               </p>
             </div>
@@ -268,7 +270,8 @@ export default function OffresPage() {
             <div className="mb-8">
               <span className="lux-eyebrow">Plateforme</span>
               <h2 className="mt-2 text-2xl md:text-3xl">Trois paliers numériques</h2>
-              <p className="mt-2 text-sm text-lux-slate">
+              <div className="lux-filet-gold mt-3 w-16" />
+              <p className="mt-3 text-sm text-lux-slate">
                 Ressources, parcours, fiches, exercices — avec ou sans accompagnement live.
               </p>
             </div>
@@ -303,7 +306,8 @@ export default function OffresPage() {
             <div className="mb-8">
               <span className="lux-eyebrow">Les Intensifs</span>
               <h2 className="mt-2 text-2xl md:text-3xl">Stages intensifs — toutes les vacances</h2>
-              <p className="mt-2 text-sm text-lux-slate">
+              <div className="lux-filet-gold mt-3 w-16" />
+              <p className="mt-3 text-sm text-lux-slate">
                 {stageEditions.length} éditions par an, {stageFormats.length} formats. Groupes de {rules.group_max} max.
               </p>
             </div>
@@ -352,6 +356,7 @@ export default function OffresPage() {
             <div className="mb-8">
               <span className="lux-eyebrow">Prépa épreuves</span>
               <h2 className="mt-2 text-2xl md:text-3xl">Cap EAF, Cap Maths, Grand Oral, Épreuve Blanche</h2>
+              <div className="lux-filet-gold mt-3 w-16" />
             </div>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
               {ponctuelOffers.map((p) => (
@@ -385,6 +390,7 @@ export default function OffresPage() {
             <div className="mb-8">
               <span className="lux-eyebrow">Boussole</span>
               <h2 className="mt-2 text-2xl md:text-3xl">Coaching méthode, orientation & individuel</h2>
+              <div className="lux-filet-gold mt-3 w-16" />
             </div>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {coachingOffers.map((c) => (
@@ -426,7 +432,8 @@ export default function OffresPage() {
             <div className="mb-8">
               <span className="lux-eyebrow">Les Pass</span>
               <h2 className="mt-2 text-2xl md:text-3xl">Packs fidélité — simplifiez votre parcours</h2>
-              <p className="mt-2 text-sm text-lux-slate">
+              <div className="lux-filet-gold mt-3 w-16" />
+              <p className="mt-3 text-sm text-lux-slate">
                 Acompte déductible du parcours annuel. Solde avant chaque prestation.
               </p>
             </div>
@@ -452,6 +459,7 @@ export default function OffresPage() {
             <div className="mb-8">
               <span className="lux-eyebrow">Carte Nexus</span>
               <h2 className="mt-2 text-2xl md:text-3xl">L&apos;accompagnement Nexus toute l&apos;année</h2>
+              <div className="lux-filet-gold mt-3 w-16" />
             </div>
             <div className="max-w-md">
               <CarteNexusCard carte={carte} ctaText="Réserver ma place" ctaHref={`/bilan-gratuit?offer=${encodeURIComponent(carte.id)}`} />
