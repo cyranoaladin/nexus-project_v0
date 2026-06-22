@@ -84,6 +84,8 @@ export async function GET(request: NextRequest) {
       planName: sub.planName,
       monthlyPrice: sub.monthlyPrice,
       creditsPerMonth: sub.creditsPerMonth,
+      ariaSubjects: sub.ariaSubjects,
+      ariaCost: sub.ariaCost,
       status: sub.status,
       createdAt: sub.createdAt,
       startDate: sub.startDate,
