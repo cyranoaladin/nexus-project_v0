@@ -30,7 +30,8 @@ export function ReassuranceChips({ compact = false }: { compact?: boolean }) {
       {reassuranceItems.map((item) => (
         <div
           key={item}
-          className="flex min-h-[44px] items-start gap-2 rounded-xl border border-lux-line/60 bg-lux-white px-4 py-3 text-sm text-lux-ink lux-shadow"
+          data-card="chip-secondary"
+          className="flex min-h-[44px] items-start gap-2 rounded-xl border border-lux-line/60 bg-lux-white px-4 py-3 text-sm text-lux-ink"
         >
           <ShieldCheck className="mt-0.5 h-4 w-4 flex-none text-lux-evergreen" aria-hidden="true" />
           <span>{item}</span>
@@ -65,7 +66,8 @@ export function ProcessSteps() {
       <div className="mx-auto max-w-6xl">
         <div className="mb-8">
           <span className="lux-eyebrow">Comment ça se passe</span>
-          <h2 className="mt-2 text-2xl md:text-3xl">Un parcours clair avant de réserver</h2>
+          <h2 className="mt-2 text-2xl md:text-3xl font-fraunces">Un parcours clair avant de réserver</h2>
+          <div className="lux-filet-gold mt-3 w-16" />
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {processSteps.map((step, index) => (
@@ -490,7 +492,8 @@ export function EnjeuxNiveau() {
       <div className="mx-auto max-w-6xl">
         <div className="mb-8">
           <span className="lux-eyebrow">Enjeux par niveau</span>
-          <h2 className="mt-2 text-2xl md:text-3xl">Les priorités du réseau AEFE à sécuriser</h2>
+          <h2 className="mt-2 text-2xl md:text-3xl font-fraunces">Les priorités du réseau AEFE à sécuriser</h2>
+          <div className="lux-filet-gold mt-3 w-16" />
         </div>
 
         {/* Tab bar */}

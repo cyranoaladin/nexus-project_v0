@@ -44,7 +44,8 @@ function LevelRouter() {
             <Link
               key={route.label}
               href={route.href}
-              className="flex min-h-[44px] flex-col items-center justify-center rounded-xl border border-lux-line bg-lux-paper px-4 py-3 text-center transition-all hover:border-lux-gold/60 hover:lux-shadow lux-focus"
+              data-card="level-primary"
+              className="flex min-h-[44px] flex-col items-center justify-center rounded-xl border border-lux-line bg-lux-paper px-4 py-3 text-center lux-shadow transition-all hover:border-lux-gold/60 hover:lux-shadow-hover lux-focus"
             >
               <span className="text-sm font-semibold text-lux-ink">{route.label}</span>
               <span className="mt-0.5 text-xs text-lux-slate">{route.sublabel}</span>
@@ -90,9 +91,10 @@ function PricingReperesSection() {
       <div className="mx-auto max-w-6xl">
         <div className="mb-10 text-center">
           <span className="lux-eyebrow">Repères tarifaires</span>
-          <h2 className="mt-3 text-2xl md:text-3xl text-balance">
+          <h2 className="mt-3 text-2xl md:text-3xl font-fraunces text-balance">
             Des formules pour chaque besoin
           </h2>
+          <div className="lux-filet-gold mx-auto mt-3 w-16" />
           <p className="mx-auto mt-3 max-w-xl text-base text-lux-slate">
             Groupes de {rules.group_max} max, garanti dès {rules.group_min_open.lycee}.
             Tous les tarifs en TND.
@@ -155,16 +157,18 @@ function VerifiableSection() {
       <div className="mx-auto max-w-6xl">
         <div className="mb-8 text-center">
           <span className="lux-eyebrow">Le cadre Nexus</span>
-          <h2 className="mt-3 text-2xl md:text-3xl text-balance">
+          <h2 className="mt-3 text-2xl md:text-3xl font-fraunces text-balance">
             Un accompagnement vérifiable, pas des promesses
           </h2>
+          <div className="lux-filet-gold mx-auto mt-3 w-16" />
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {verifiableItems.map((item) => (
             <div
               key={item}
-              className="flex items-start gap-3 rounded-xl border border-lux-line bg-lux-white p-5 lux-shadow"
+              data-card="verifiable-secondary"
+              className="flex items-start gap-3 rounded-xl border border-lux-line bg-lux-white p-5"
             >
               <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-lux-evergreen" aria-hidden="true" />
               <span className="text-sm leading-6 text-lux-ink">{item}</span>
