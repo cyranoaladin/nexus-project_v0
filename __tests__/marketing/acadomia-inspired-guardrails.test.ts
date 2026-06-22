@@ -68,8 +68,8 @@ describe('Acadomia-inspired public marketing guardrails', () => {
     expect(bubble).toMatch(/hidden\s[^"]*md:inline-flex/);
   });
 
-  // Section count (10) and background alternation are verified by the e2e test:
-  //   e2e/pages-public-homepage.spec.ts → "10 sections principales dans <main>"
+  // Section count (8) and background alternation are verified by the e2e test:
+  //   e2e/pages-public-homepage.spec.ts → "8 sections principales dans <main>"
   // No regex/hardcoded-map unit test — the e2e asserts the actual rendered DOM.
 
   it('keeps the footer newsletter consent copy present', () => {

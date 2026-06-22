@@ -45,9 +45,9 @@ test.describe('Homepage (/) - Landing Nexus Reussite', () => {
     await expect(page.locator('section a[href="/offres"]').first()).toBeVisible();
   });
 
-  test('10 sections principales dans <main>', async ({ page }) => {
+  test('8 sections principales dans <main>', async ({ page }) => {
     const sections = page.locator('main > section');
-    await expect(sections).toHaveCount(10);
+    await expect(sections).toHaveCount(8);
   });
 
   test('exactement 3 liens WhatsApp au chargement (hero, CTA footer, bulle conseiller), 4 après scroll (+ sticky bar)', async ({ page }) => {

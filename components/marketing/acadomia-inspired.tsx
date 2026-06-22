@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useCallback, useRef, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import {
   ArrowRight,
   CheckCircle2,
@@ -61,7 +61,7 @@ const processSteps = [
 
 export function ProcessSteps() {
   return (
-    <section className="bg-lux-paper px-4 py-14 md:px-6">
+    <section className="bg-lux-white px-4 py-14 md:px-6">
       <div className="mx-auto max-w-6xl">
         <div className="mb-8">
           <span className="lux-eyebrow">Comment ça se passe</span>
@@ -210,6 +210,29 @@ export function CallbackRequestForm({ source = 'callback-card' }: { source?: str
 }
 
 export function FloatingAdvisorBubble() {
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const footer = document.querySelector('footer');
+    const ctaSections = document.querySelectorAll('[aria-label="Demander un bilan gratuit"]');
+    if (!footer && ctaSections.length === 0) return;
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        const anyOverlap = entries.some((e) => e.isIntersecting);
+        setVisible(!anyOverlap);
+      },
+      { threshold: 0 },
+    );
+
+    if (footer) io.observe(footer);
+    ctaSections.forEach((el) => io.observe(el));
+
+    return () => io.disconnect();
+  }, []);
+
+  if (!visible) return null;
+
   return (
     <a
       href={buildWhatsAppUrl()}
