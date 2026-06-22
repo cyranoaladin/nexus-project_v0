@@ -2,7 +2,8 @@
  * Dialog proof per role — opens REAL modals under auth for each dashboard role.
  *
  * For each modal: ouverture (no early-return) + role=dialog + focus-trap +
- * ESC ferme + retour focus + charte (bg lux-ink) + animation settled (opacity=1).
+ * ESC ferme + retour focus + charte (bg lux-ink, filet or, titre Fraunces)
+ * + animation settled (opacity=1).
  *
  * Some modals are hard to reach (require pre-existing data or specific UI state).
  * These are documented inline. We test what is reachable, not what is imaginary.
@@ -36,6 +37,14 @@ async function assertDialogCharte(page: Page, dialogLabel: string) {
   const opacity = await dialog.evaluate(el => getComputedStyle(el).opacity);
   expect(opacity, `${dialogLabel}: opacity settled`).toBe('1');
 
+  const filet = dialog.locator('.lux-filet-gold').first();
+  await expect(filet, `${dialogLabel}: gold filet`).toBeVisible();
+
+  const title = dialog.locator('.font-fraunces').first();
+  await expect(title, `${dialogLabel}: Fraunces title marker`).toBeVisible();
+  const titleFont = await title.evaluate(el => getComputedStyle(el).fontFamily);
+  expect(titleFont.toLowerCase(), `${dialogLabel}: Fraunces title font`).toContain('fraunces');
+
   // Focus trapped: 15 Tabs stay inside
   for (let i = 0; i < 15; i++) await page.keyboard.press('Tab');
   const trapped = await page.evaluate(() => {
@@ -64,13 +73,9 @@ async function assertDialogCloses(page: Page, trigger: ReturnType<Page['locator'
   const gone = !(await page.locator('[role="dialog"]').isVisible().catch(() => false));
   expect(gone, `${label}: ESC closes`).toBe(true);
 
-  // Focus returned to trigger (best-effort — some triggers are inside lists)
+  // Focus returned to trigger
   const triggerFocused = await trigger.evaluate(el => el === document.activeElement).catch(() => false);
-  if (triggerFocused) {
-    console.log(`${label}: focus returned to trigger ✓`);
-  } else {
-    console.log(`${label}: focus not on original trigger (acceptable for list-item triggers)`);
-  }
+  expect(triggerFocused, `${label}: focus returns to trigger`).toBe(true);
 }
 
 // ── PARENT ──
@@ -109,16 +114,16 @@ test('parent: abonnements plan-change dialog', async ({ page }) => {
 test('parent: paiement virement dialog', async ({ page }) => {
   test.setTimeout(60000);
   await loginAsUser(page, 'parent');
-  await page.goto(`${BASE}/dashboard/parent/paiement`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`${BASE}/dashboard/parent/paiement?plan=HYBRIDE`, { waitUntil: 'domcontentloaded' });
   await page.waitForTimeout(2000);
+
+  await page.getByTestId('checkbox-accept-cgv').check();
+  await page.getByTestId('checkbox-immediate-execution').check();
 
   // The virement dialog is triggered by "Payer par Virement" button
   const trigger = page.getByRole('button', { name: /virement/i }).first();
-  if (!(await trigger.isVisible({ timeout: 3000 }).catch(() => false))) {
-    // Page may not show virement if no pending items — this is documented, not masked
-    test.skip(true, 'No pending payment items — virement button not rendered');
-    return;
-  }
+  await expect(trigger).toBeVisible({ timeout: 5000 });
+  await expect(trigger).toBeEnabled();
   await trigger.click();
   await page.waitForTimeout(500);
 
@@ -168,13 +173,8 @@ test('assistante: credit-requests dialog', async ({ page }) => {
   await page.goto(`${BASE}/dashboard/assistante/credit-requests`, { waitUntil: 'domcontentloaded' });
   await page.waitForTimeout(2000);
 
-  // Credit request detail dialogs require pending requests in the DB.
-  // The e2e seed doesn't create credit requests → no table rows → no dialog trigger.
-  const trigger = page.locator('table button, tr button').first();
-  if (!(await trigger.isVisible({ timeout: 3000 }).catch(() => false))) {
-    test.skip(true, 'No credit requests in e2e DB — dialog trigger absent (data dependency)');
-    return;
-  }
+  const trigger = page.getByRole('button', { name: /voir détails/i }).first();
+  await expect(trigger).toBeVisible({ timeout: 5000 });
   await trigger.click();
   await page.waitForTimeout(500);
 

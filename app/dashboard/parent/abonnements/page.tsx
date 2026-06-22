@@ -10,7 +10,7 @@ import { ArrowLeft, Brain, Check, CreditCard, Star, Users, AlertCircle, Loader2 
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CorporateFooter } from "@/components/layout/CorporateFooter";
 
 interface Child {
@@ -39,6 +39,7 @@ export default function AbonnementsPage() {
   const [isRequesting, setIsRequesting] = useState(false);
   const [showRequestDialog, setShowRequestDialog] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null);
+  const requestDialogTriggerRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -321,7 +322,8 @@ export default function AbonnementsPage() {
                           </Button>
                         ) : (
                           <Button
-                            onClick={() => {
+                            onClick={(event) => {
+                              requestDialogTriggerRef.current = event.currentTarget;
                               setSelectedPlan(SUBSCRIPTION_PLANS[key as keyof typeof SUBSCRIPTION_PLANS]);
                               setShowRequestDialog(true);
                             }}
@@ -427,7 +429,14 @@ export default function AbonnementsPage() {
 
         {/* Subscription Request Dialog */}
         <Dialog open={showRequestDialog} onOpenChange={setShowRequestDialog}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent
+            className="sm:max-w-md"
+            onCloseAutoFocus={(event) => {
+              if (!requestDialogTriggerRef.current) return;
+              event.preventDefault();
+              requestDialogTriggerRef.current.focus();
+            }}
+          >
             <DialogHeader>
               <DialogTitle>Demande d'Abonnement</DialogTitle>
             </DialogHeader>
