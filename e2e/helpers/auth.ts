@@ -9,7 +9,7 @@ interface LoginOptions {
 }
 
 // Keep E2E auth deterministic: do not rely on app NEXTAUTH_URL from random shells.
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3002';
 const BASE_URL_HOST = new URL(BASE_URL).hostname;
 
 const CREDENTIALS = CREDS;

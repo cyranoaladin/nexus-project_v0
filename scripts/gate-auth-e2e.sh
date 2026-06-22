@@ -3,12 +3,17 @@
 # Seeds the e2e DB then runs auth-requiring specs against standalone with real auth.
 # Order: seed → serve → test. Seed MUST happen before serve (credentials sync).
 #
+# IMPORTANT: HOSTNAME=localhost (not 127.0.0.1) to avoid origin mismatch.
+# Next.js resolves 127.0.0.1 → localhost in redirect URLs, causing cookie domain
+# mismatch in the browser. With HOSTNAME=localhost, redirects are relative paths
+# and cookies stay on the same origin.
+#
 # Usage: ./scripts/gate-auth-e2e.sh [playwright args...]
-# Example: ./scripts/gate-auth-e2e.sh e2e/auth/rbac.dashboards.contract.spec.ts
 set -euo pipefail
 
 PORT=${AUTH_E2E_PORT:-3002}
 DB_URL="postgresql://postgres:postgres@127.0.0.1:5435/nexus_e2e?schema=public"
+HOST="localhost"
 
 echo "═══ Auth E2E Gate ═══"
 
@@ -29,7 +34,7 @@ if [ ! -f .next/standalone/server.js ]; then
 fi
 
 # ── 4. Serve standalone with full auth env ──
-echo "→ Starting standalone on :${PORT} with auth env..."
+echo "→ Starting standalone on ${HOST}:${PORT} with auth env..."
 
 # Source .env.local for AUTH_SECRET and other secrets
 set -a
@@ -38,8 +43,8 @@ source .env.local 2>/dev/null || true
 set +a
 
 export DATABASE_URL="$DB_URL"
-export NEXTAUTH_URL="http://127.0.0.1:${PORT}"
-export HOSTNAME="127.0.0.1"
+export NEXTAUTH_URL="http://${HOST}:${PORT}"
+export HOSTNAME="$HOST"
 export PORT="$PORT"
 
 node .next/standalone/server.js &
@@ -47,13 +52,13 @@ SERVER_PID=$!
 
 # Wait for server
 for i in $(seq 1 15); do
-  if curl -s -o /dev/null -w "" "http://127.0.0.1:${PORT}/" 2>/dev/null; then
+  if curl -s -o /dev/null -w "" "http://${HOST}:${PORT}/" 2>/dev/null; then
     break
   fi
   sleep 1
 done
 
-CODE=$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:${PORT}/")
+CODE=$(curl -s -o /dev/null -w "%{http_code}" "http://${HOST}:${PORT}/")
 if [ "$CODE" != "200" ]; then
   echo "✗ Standalone failed to start (HTTP $CODE)"
   kill "$SERVER_PID" 2>/dev/null
@@ -64,7 +69,7 @@ echo ""
 
 # ── 5. Run specs ──
 echo "→ Running auth e2e specs..."
-CI=1 BASE_URL="http://127.0.0.1:${PORT}" \
+CI=1 BASE_URL="http://${HOST}:${PORT}" \
   npx playwright test --config=playwright.auth.config.ts "${@}" --reporter=line
 EXIT_CODE=$?
 
