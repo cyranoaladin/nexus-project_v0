@@ -66,6 +66,13 @@ export async function GET(request: NextRequest) {
         currentSubscription: activeSubscription?.planName || 'AUCUN',
         subscriptionStatus: activeSubscription?.status || 'INACTIVE',
         subscriptionExpiry: activeSubscription?.endDate,
+        subscriptionDetails: activeSubscription ? {
+          planName: activeSubscription.planName,
+          monthlyPrice: activeSubscription.monthlyPrice ?? 0,
+          status: activeSubscription.status,
+          startDate: activeSubscription.startDate?.toISOString() ?? null,
+          endDate: activeSubscription.endDate?.toISOString() ?? null,
+        } : null,
         creditBalance: creditBalance,
         ariaSubjects: [] // Placeholder for ARIA subjects
       };

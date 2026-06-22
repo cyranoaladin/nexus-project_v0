@@ -12,6 +12,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { CorporateFooter } from "@/components/layout/CorporateFooter";
+import CreditPurchaseDialog from "../credit-purchase-dialog";
+import InvoiceDetailsDialog from "../invoice-details-dialog";
 
 interface Child {
   id: string;
@@ -22,6 +24,13 @@ interface Child {
   currentSubscription: string;
   subscriptionStatus: string;
   subscriptionExpiry: string | null;
+  subscriptionDetails: {
+    planName: string;
+    monthlyPrice: number;
+    status: string;
+    startDate: string | null;
+    endDate: string | null;
+  } | null;
   creditBalance: number;
   ariaSubjects: string[];
 }
@@ -268,9 +277,22 @@ export default function AbonnementsPage() {
                       </p>
                     )}
                   </div>
-                  <Badge variant={currentChild.subscriptionStatus === 'ACTIVE' ? 'default' : 'outline'}>
-                    {currentChild.subscriptionStatus === 'ACTIVE' ? 'Actif' : 'Inactif'}
-                  </Badge>
+                  <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+                    {currentChild.subscriptionDetails && (
+                      <InvoiceDetailsDialog
+                        subscriptionDetails={currentChild.subscriptionDetails}
+                        studentName={`${currentChild.firstName} ${currentChild.lastName}`}
+                      />
+                    )}
+                    <CreditPurchaseDialog
+                      studentId={currentChild.id}
+                      studentName={`${currentChild.firstName} ${currentChild.lastName}`}
+                      onPurchaseComplete={fetchSubscriptions}
+                    />
+                    <Badge variant={currentChild.subscriptionStatus === 'ACTIVE' ? 'default' : 'outline'} className="justify-center">
+                      {currentChild.subscriptionStatus === 'ACTIVE' ? 'Actif' : 'Inactif'}
+                    </Badge>
+                  </div>
                 </div>
               </CardContent>
             </Card>

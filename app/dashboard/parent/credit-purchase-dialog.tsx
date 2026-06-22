@@ -66,17 +66,17 @@ export default function CreditPurchaseDialog({ studentId, studentName, onPurchas
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="w-full text-xs sm:text-sm text-neutral-200 hover:text-white">
           <CreditCard className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-          Acheter des Crédits
+          Demander des crédits
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CreditCard className="w-5 h-5" />
-            Acheter des Crédits
+            Demander des crédits
           </DialogTitle>
           <p className="text-sm text-neutral-400 mt-2">
-            Demande d'achat de crédits pour {studentName}
+            Demande de crédits pour {studentName}
           </p>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -94,12 +94,12 @@ export default function CreditPurchaseDialog({ studentId, studentName, onPurchas
           </div>
           
           <div>
-            <Label htmlFor="reason" className="text-neutral-200">Raison de l'achat (optionnel)</Label>
+            <Label htmlFor="reason" className="text-neutral-200">Motif de la demande (optionnel)</Label>
             <Textarea
               id="reason"
               value={formData.reason}
               onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
-              placeholder="Ex: Préparation aux examens, cours supplémentaires..."
+              placeholder="Ex: préparation aux examens, cours supplémentaires..."
               rows={3}
             />
           </div>
@@ -109,7 +109,7 @@ export default function CreditPurchaseDialog({ studentId, studentName, onPurchas
               <AlertCircle className="w-4 h-4 text-slate-200 mt-0.5 flex-shrink-0" />
               <div className="text-sm text-slate-200">
                 <p className="font-medium mb-1">Information importante :</p>
-                <p>Votre demande sera envoyée à l'assistant pour approbation. Les crédits seront ajoutés à votre compte une fois approuvés.</p>
+                <p>Votre demande sera envoyée à l'assistante pour validation. Aucun paiement direct n'est déclenché depuis cette fenêtre.</p>
               </div>
             </div>
           </div>
@@ -128,7 +128,7 @@ export default function CreditPurchaseDialog({ studentId, studentName, onPurchas
               ) : (
                 <>
                   <CreditCard className="w-4 h-4 mr-2" />
-                  Envoyer la Demande
+                  Envoyer la demande
                 </>
               )}
             </Button>
