@@ -50,18 +50,27 @@ test.describe('Homepage (/) - Landing Nexus Reussite', () => {
     await expect(sections).toHaveCount(8);
   });
 
-  test('exactement 3 liens WhatsApp au chargement (hero, CTA footer, bulle conseiller), 4 après scroll (+ sticky bar)', async ({ page }) => {
-    // At load: hero WhatsApp + footer CTA WhatsApp + FloatingAdvisorBubble = 3
-    // MobileStickyBar returns null until hero exits viewport
+  test('2 WA links at load, 3 visible after scroll (+ bubble), MobileStickyBar in DOM but hidden', async ({ page }) => {
+    // At load (desktop): hero WA + final CTA WA = 2 in DOM
+    // FloatingAdvisorBubble hidden (hero visible), MobileStickyBar returns null
     const waLinks = page.locator('a[href*="wa.me"]');
-    await expect(waLinks).toHaveCount(3);
+    await expect(waLinks).toHaveCount(2);
 
-    // Scroll past hero to trigger MobileStickyBar
-    await page.evaluate(() => window.scrollBy(0, 800));
-    await page.waitForTimeout(600);
+    // Scroll past hero → bubble + MobileStickyBar render (4 DOM, 3 visible)
+    await page.evaluate(() => window.scrollBy(0, 1200));
+    await page.waitForTimeout(800);
 
-    // Now MobileStickyBar renders: 3 + 1 = 4
+    // 4 in DOM: hero + CTA + bubble + MobileStickyBar(md:hidden)
     await expect(waLinks).toHaveCount(4);
+
+    // Only 3 visible (MobileStickyBar hidden at desktop)
+    const visibleCount = await waLinks.evaluateAll((els) =>
+      els.filter((el) => {
+        const cs = getComputedStyle(el);
+        return cs.display !== 'none' && el.offsetWidth > 0;
+      }).length
+    );
+    expect(visibleCount).toBe(3);
   });
 
   test('tous les liens footer internes ne retournent pas 404', async ({ page }) => {
