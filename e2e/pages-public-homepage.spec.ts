@@ -45,9 +45,9 @@ test.describe('Homepage (/) - Landing Nexus Reussite', () => {
     await expect(page.locator('section a[href="/offres"]').first()).toBeVisible();
   });
 
-  test('8 sections principales dans <main>', async ({ page }) => {
+  test('9 sections principales dans <main>', async ({ page }) => {
     const sections = page.locator('main > section');
-    await expect(sections).toHaveCount(8);
+    await expect(sections).toHaveCount(9);
   });
 
   test('2 WA links at load, 3 visible after scroll (+ bubble), MobileStickyBar in DOM but hidden', async ({ page }) => {

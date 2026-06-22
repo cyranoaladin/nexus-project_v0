@@ -38,10 +38,11 @@ describe('Landing page business invariants', () => {
     expect(homeClient).toContain('Cellule Cyclades');
   });
 
-  test('home FAQ is available on /offres (not on homepage)', () => {
-    // FAQ was moved off homepage — verify FAQAccordion still exists in premium components
-    const premiumIndex = readFileSync(join(root, 'components/premium/index.ts'), 'utf8');
-    expect(premiumIndex).toContain('FAQAccordion');
+  test('home renders FAQ with 5 items', () => {
+    expect(homeClient).toContain('FAQAccordion');
+    // 5 FAQ items with question key
+    const faqMatches = homeClient.match(/question:/g);
+    expect(faqMatches?.length ?? 0).toBeGreaterThanOrEqual(5);
   });
 
   test('home CTA section links to /bilan-gratuit', () => {

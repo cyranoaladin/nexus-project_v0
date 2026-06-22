@@ -8,6 +8,8 @@ import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import {
   HeroSection,
   MethodSection,
+  FAQAccordion,
+  type FAQItem,
 } from '@/components/premium';
 import {
   getReperes,
@@ -182,8 +184,33 @@ function VerifiableSection() {
 
 // ── FAQ ──
 
-// FAQAccordion + items kept but not rendered on homepage currently
-// (available for future re-add if needed)
+const faqItems: FAQItem[] = [
+  {
+    question: 'Comment fonctionnent les groupes de 5 maximum\u00A0?',
+    answer:
+      'Chaque groupe est limité à 5 élèves (4 pour le Brevet) pour garantir un suivi personnalisé. Le groupe est ouvert dès 3 inscrits. Si le seuil n\u2019est pas atteint, l\u2019acompte est intégralement remboursé.',
+  },
+  {
+    question: 'Qui sont les enseignants\u00A0?',
+    answer:
+      'Nos enseignants sont agrégés et certifiés de l\u2019enseignement français à l\u2019étranger, spécialistes de chaque épreuve du baccalauréat. Ils connaissent les grilles de correction officielles et les attentes des jurys.',
+  },
+  {
+    question: 'Comment fonctionne l\u2019échéancier de paiement\u00A0?',
+    answer:
+      'Un acompte de 30\u00A0% est versé à la réservation, puis le solde est réparti en mensualités. L\u2019acompte d\u2019un stage ou Pass est déductible si vous souscrivez ensuite un parcours annuel.',
+  },
+  {
+    question: 'Qu\u2019est-ce que la plateforme ARIA\u00A0?',
+    answer:
+      'ARIA est notre plateforme numérique avec des ressources, parcours de révision, fiches et exercices. Elle complète l\u2019accompagnement humain et s\u2019utilise selon la formule choisie.',
+  },
+  {
+    question: 'Proposez-vous un accompagnement pour les candidats libres\u00A0?',
+    answer:
+      'Oui, nous avons des parcours dédiés aux candidats libres (Essentiel, Mixte, Premium) avec cellule Cyclades intégrée pour l\u2019accompagnement administratif. Le Pass Candidat Libre regroupe diagnostic, stages et épreuves blanches.',
+  },
+];
 
 // ── Main ──
 
@@ -216,7 +243,10 @@ export function HomePageClient() {
       {/* Testimonials — hidden tant que social-proof.json est vide */}
       <Testimonials />
 
-      {/* 8. CTA bilan gratuit (bg-lux-ink) */}
+      {/* 8. FAQ (bg-lux-paper) */}
+      <FAQAccordion items={faqItems} className="bg-lux-paper" />
+
+      {/* 9. CTA bilan gratuit (bg-lux-ink) */}
       <section className="bg-lux-ink px-4 py-14 md:py-20 md:px-6" aria-label="Demander un bilan gratuit">
         <div className="mx-auto max-w-2xl text-center">
           <span className="lux-eyebrow text-lux-gold-wash">Commencer</span>
