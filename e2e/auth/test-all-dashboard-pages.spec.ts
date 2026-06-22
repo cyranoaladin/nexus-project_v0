@@ -7,7 +7,7 @@ import { test, expect, Page } from '@playwright/test';
 import * as fs from 'fs';
 import { loginAsUser } from '../helpers/auth';
 
-const BASE_URL = process.env.BASE_URL || 'http://127.0.0.1:3002';
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3002';
 const report: { url: string; http: number; issues: string[]; ok: boolean }[] = [];
 
 async function testPage(page: Page, url: string) {
@@ -16,20 +16,15 @@ async function testPage(page: Page, url: string) {
   page.on('console', (m) => {
     if (m.type() === 'error') {
       const t = m.text();
-      // Filter known non-breaking console noise
-      // CSP: only ignore violations where the blocked URI is the test origin
-      // (127.0.0.1↔localhost mismatch). A violation to a PROD origin must fail.
-      const isTestOriginCsp =
-        t.includes('Content Security Policy') &&
-        (t.includes('localhost:') || t.includes('127.0.0.1:'));
+      // Filter known non-breaking console noise (NO CSP filter — with aligned
+      // HOSTNAME=localhost, CSP 'self' matches and violations are real signals)
       if (
         t.includes('favicon') ||
         t.includes('ClientFetchError') ||
         t.includes('Failed to fetch') ||
         t.includes('hydration') ||
         t.includes('Failed to load resource') ||
-        t.includes('net::ERR') ||
-        isTestOriginCsp
+        t.includes('net::ERR')
       )
         return;
       jsErrors.push(t.substring(0, 100));
@@ -75,9 +70,7 @@ test('Admin — toutes les pages', async ({ page }) => {
     '/dashboard/admin/activities',
     '/dashboard/admin/tests',
     '/dashboard/admin/facturation',
-    // /admin/directeur intentionally omitted: RBAC redirects it to /dashboard/admin
-    // (302 → localhost vs 127.0.0.1 cookie domain mismatch in test env).
-    // The redirect itself is correct behaviour, verified via curl in recon.
+    '/admin/directeur',  // RBAC redirects 302 → /dashboard/admin (tested as redirect)
   ];
   for (const url of pages) await testPage(page, url);
 });

@@ -46,11 +46,11 @@ echo ""
 
 # ── Lane 2: E2E public ──
 echo "━━━ Lane 2: E2E public ━━━"
-HOSTNAME=127.0.0.1 PORT="$PORT" node .next/standalone/server.js &
+HOSTNAME=localhost PORT="$PORT" node .next/standalone/server.js &
 PUB_PID=$!
 sleep 3
 
-PUBLIC_OUTPUT=$(CI=1 BASE_URL="http://127.0.0.1:${PORT}" npx playwright test --config=playwright.config.ts --reporter=line 2>&1)
+PUBLIC_OUTPUT=$(CI=1 BASE_URL="http://localhost:${PORT}" npx playwright test --config=playwright.config.ts --reporter=line 2>&1)
 PUBLIC_EXIT=$?
 PUBLIC_PASSED=$(echo "$PUBLIC_OUTPUT" | grep -oP '\d+(?= passed)' || echo "0")
 echo "$PUBLIC_OUTPUT" | tail -3
@@ -80,15 +80,15 @@ set -a
 source .env.local 2>/dev/null || true
 set +a
 export DATABASE_URL="$DB_URL"
-export NEXTAUTH_URL="http://127.0.0.1:${PORT}"
-export HOSTNAME="127.0.0.1"
+export NEXTAUTH_URL="http://localhost:${PORT}"
+export HOSTNAME="localhost"
 export PORT="$PORT"
 
 node .next/standalone/server.js &
 AUTH_PID=$!
 sleep 3
 
-AUTH_OUTPUT=$(CI=1 BASE_URL="http://127.0.0.1:${PORT}" npx playwright test --config=playwright.auth.config.ts --reporter=line 2>&1)
+AUTH_OUTPUT=$(CI=1 BASE_URL="http://localhost:${PORT}" npx playwright test --config=playwright.auth.config.ts --reporter=line 2>&1)
 AUTH_EXIT=$?
 AUTH_PASSED=$(echo "$AUTH_OUTPUT" | grep -oP '\d+(?= passed)' || echo "0")
 echo "$AUTH_OUTPUT" | tail -3

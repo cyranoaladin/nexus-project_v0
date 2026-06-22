@@ -5,7 +5,7 @@ import { defineConfig, devices } from '@playwright/test';
  * Run via: scripts/gate-auth-e2e.sh
  * Uses real auth (CSRF → callback → session), no stubs.
  */
-const baseURL = process.env.BASE_URL ?? 'http://127.0.0.1:3002';
+const baseURL = process.env.BASE_URL ?? 'http://localhost:3002';
 
 export default defineConfig({
   testDir: './e2e/auth',
