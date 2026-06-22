@@ -211,27 +211,57 @@ export function CallbackRequestForm({ source = 'callback-card' }: { source?: str
 
 export function FloatingAdvisorBubble() {
   const [visible, setVisible] = useState(true);
+  const [blocked, setBlocked] = useState(false);
 
   useEffect(() => {
+    // Hide entirely on /recommandation (redundant + covers wizard options)
+    if (window.location.pathname.startsWith('/recommandation')) {
+      setBlocked(true);
+      return;
+    }
+
+    const hero =
+      document.querySelector('[data-hero]') ??
+      document.querySelector('main > section:first-of-type');
     const footer = document.querySelector('footer');
     const ctaSections = document.querySelectorAll('[aria-label="Demander un bilan gratuit"]');
-    if (!footer && ctaSections.length === 0) return;
+
+    let heroOut = !hero; // if no hero, consider it "out"
+    let footerOrCtaIn = false;
+
+    function update() {
+      setVisible(heroOut && !footerOrCtaIn);
+    }
 
     const io = new IntersectionObserver(
       (entries) => {
-        const anyOverlap = entries.some((e) => e.isIntersecting);
-        setVisible(!anyOverlap);
+        for (const entry of entries) {
+          if (entry.target === hero) {
+            heroOut = !entry.isIntersecting;
+          } else {
+            // footer or CTA section
+            if (entry.isIntersecting) footerOrCtaIn = true;
+            else {
+              // Re-check all non-hero targets
+              footerOrCtaIn = entries
+                .filter((e) => e.target !== hero)
+                .some((e) => e.isIntersecting);
+            }
+          }
+        }
+        update();
       },
       { threshold: 0 },
     );
 
+    if (hero) io.observe(hero);
     if (footer) io.observe(footer);
     ctaSections.forEach((el) => io.observe(el));
 
     return () => io.disconnect();
   }, []);
 
-  if (!visible) return null;
+  if (blocked || !visible) return null;
 
   return (
     <a
