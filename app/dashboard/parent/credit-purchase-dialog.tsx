@@ -64,14 +64,14 @@ export default function CreditPurchaseDialog({ studentId, studentName, onPurchas
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="w-full text-xs sm:text-sm border-white/10 text-neutral-200 hover:text-white">
+        <Button variant="outline" size="sm" className="w-full text-xs sm:text-sm text-neutral-200 hover:text-white">
           <CreditCard className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
           Acheter des Crédits
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md bg-surface-card border border-white/10 text-neutral-100">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-white">
+          <DialogTitle className="flex items-center gap-2">
             <CreditCard className="w-5 h-5" />
             Acheter des Crédits
           </DialogTitle>
@@ -136,7 +136,7 @@ export default function CreditPurchaseDialog({ studentId, studentName, onPurchas
               type="button" 
               variant="outline" 
               onClick={() => setOpen(false)}
-              className="flex-1 border-white/10 text-neutral-200 hover:text-white"
+              className="flex-1 text-neutral-200 hover:text-white"
               disabled={loading}
             >
               Annuler

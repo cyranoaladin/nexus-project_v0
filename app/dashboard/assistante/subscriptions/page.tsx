@@ -291,16 +291,16 @@ export default function AssistanteSubscriptionsPage() {
   const requestCount = requestsStatus === "PENDING" ? filteredRequests.length : requests.length;
 
   return (
-    <div className="min-h-screen bg-surface-darker text-neutral-100">
+    <div className="min-h-screen bg-surface-darker">
       {/* Header */}
-      <header className="bg-surface-card shadow-sm border-b border-white/10">
+      <header className="shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <Link href="/dashboard/assistante" className="flex items-center space-x-2">
                 <Settings className="w-8 h-8 text-brand-accent" />
                 <div>
-                  <h1 className="font-semibold text-white">Abonnements</h1>
+                  <h1 className="font-semibold">Abonnements</h1>
                   <p className="text-sm text-neutral-400">Souscriptions, demandes, actifs</p>
                 </div>
               </Link>
@@ -320,19 +320,19 @@ export default function AssistanteSubscriptionsPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-white">Gestion des abonnements</h2>
+            <h2 className="text-2xl font-bold">Gestion des abonnements</h2>
             <p className="text-neutral-400 text-sm">
               Validez les souscriptions, traitez les demandes, suivez les abonnements actifs.
             </p>
           </div>
           {studentIdFilter && (
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className="border-white/10 text-neutral-300">
+              <Badge variant="outline" className="text-neutral-300">
                 Filtre élève actif
               </Badge>
               <Button
                 variant="outline"
-                className="border-white/10 text-neutral-200 hover:text-white"
+                className="text-neutral-200 hover:text-white"
                 onClick={() => router.push("/dashboard/assistante/subscriptions")}
               >
                 Effacer
@@ -348,19 +348,19 @@ export default function AssistanteSubscriptionsPage() {
             placeholder="Rechercher (élève, parent, plan)..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 bg-surface-elevated border-white/10 text-neutral-100"
+            className="pl-10 bg-surface-elevated"
           />
         </div>
 
         <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)}>
           <TabsList className="bg-surface-elevated text-neutral-300">
-            <TabsTrigger value="pending" className="data-[state=active]:bg-surface-card data-[state=active]:text-white">
+            <TabsTrigger value="pending" className="data-[state=active]:data-[state=active]:text-white">
               Souscriptions <span className="ml-2 text-xs text-neutral-400">({pendingCount})</span>
             </TabsTrigger>
-            <TabsTrigger value="requests" className="data-[state=active]:bg-surface-card data-[state=active]:text-white">
+            <TabsTrigger value="requests" className="data-[state=active]:data-[state=active]:text-white">
               Demandes <span className="ml-2 text-xs text-neutral-400">({requestCount})</span>
             </TabsTrigger>
-            <TabsTrigger value="active" className="data-[state=active]:bg-surface-card data-[state=active]:text-white">
+            <TabsTrigger value="active" className="data-[state=active]:data-[state=active]:text-white">
               Actifs <span className="ml-2 text-xs text-neutral-400">({activeCount})</span>
             </TabsTrigger>
           </TabsList>
@@ -373,7 +373,7 @@ export default function AssistanteSubscriptionsPage() {
                     <CardHeader>
                       <div className="flex justify-between items-start">
                         <div>
-                          <CardTitle className="text-lg text-white">
+                          <CardTitle className="text-lg">
                             {sub.planName} — {sub.student.firstName} {sub.student.lastName}
                           </CardTitle>
                           <p className="text-sm text-neutral-300">
@@ -415,12 +415,12 @@ export default function AssistanteSubscriptionsPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="border-white/10 text-neutral-200 hover:text-white"
+                            className="text-neutral-200 hover:text-white"
                           >
                             Voir détails
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="bg-surface-card border border-white/10 text-neutral-100">
+                        <DialogContent className="text-lux-ivory">
                           <DialogHeader>
                             <DialogTitle className="text-white">Détails de la souscription</DialogTitle>
                           </DialogHeader>
@@ -444,7 +444,7 @@ export default function AssistanteSubscriptionsPage() {
 
                             <div>
                               <Label className="text-sm font-medium text-neutral-200">Abonnement</Label>
-                              <p className="text-sm font-medium text-neutral-100">{sub.planName}</p>
+                              <p className="text-sm font-medium">{sub.planName}</p>
                               <p className="text-sm text-neutral-300">{sub.monthlyPrice} TND/mois</p>
                               <p className="text-xs text-neutral-400">{sub.creditsPerMonth} crédits inclus</p>
                             </div>
@@ -472,14 +472,14 @@ export default function AssistanteSubscriptionsPage() {
                                 <DialogTrigger asChild>
                                   <Button
                                     variant="outline"
-                                    className="flex-1 border-white/10 text-neutral-200 hover:text-white"
+                                    className="flex-1 text-neutral-200 hover:text-white"
                                     disabled={pendingProcessing}
                                   >
                                     <X className="w-4 h-4 mr-2" />
                                     Rejeter
                                   </Button>
                                 </DialogTrigger>
-                                <DialogContent className="bg-surface-card border border-white/10 text-neutral-100">
+                                <DialogContent className="text-lux-ivory">
                                   <DialogHeader>
                                     <DialogTitle className="text-white">Rejeter la souscription</DialogTitle>
                                   </DialogHeader>
@@ -512,7 +512,7 @@ export default function AssistanteSubscriptionsPage() {
                                           "Rejeter"
                                         )}
                                       </Button>
-                                      <Button variant="outline" className="flex-1 border-white/10 text-neutral-200 hover:text-white">
+                                      <Button variant="outline" className="flex-1 text-neutral-200 hover:text-white">
                                         Annuler
                                       </Button>
                                     </div>
@@ -529,7 +529,7 @@ export default function AssistanteSubscriptionsPage() {
               ) : (
                 <div className="text-center py-12">
                   <Check className="w-16 h-16 text-emerald-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-white mb-2">Aucune souscription en attente</h3>
+                  <h3 className="text-lg font-medium mb-2">Aucune souscription en attente</h3>
                   <p className="text-neutral-400">
                     {searchTerm ? "Aucune souscription ne correspond à votre recherche." : "Toutes les souscriptions ont été traitées."}
                   </p>
@@ -541,14 +541,14 @@ export default function AssistanteSubscriptionsPage() {
           <TabsContent value="requests" className="mt-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
               <div className="flex items-center gap-2">
-                <Badge variant="outline" className="border-white/10 text-neutral-300">
+                <Badge variant="outline" className="text-neutral-300">
                   Statut
                 </Badge>
                 <Select value={requestsStatus} onValueChange={(v) => setRequestsStatus(v as typeof requestsStatus)}>
-                  <SelectTrigger className="w-[200px] border-white/10 bg-surface-elevated text-neutral-100">
+                  <SelectTrigger className="w-[200px] bg-surface-elevated">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-surface-card border border-white/10 text-neutral-100">
+                  <SelectContent className="text-lux-ivory">
                     <SelectItem value="PENDING">En attente</SelectItem>
                     <SelectItem value="APPROVED">Approuvées</SelectItem>
                     <SelectItem value="REJECTED">Rejetées</SelectItem>
@@ -558,7 +558,7 @@ export default function AssistanteSubscriptionsPage() {
 
               <Button
                 variant="outline"
-                className="border-white/10 text-neutral-200 hover:text-white"
+                className="text-neutral-200 hover:text-white"
                 onClick={() => fetchRequests()}
                 disabled={requestsLoading}
               >
@@ -579,11 +579,11 @@ export default function AssistanteSubscriptionsPage() {
                   const studentName = `${req.student.user.firstName || ""} ${req.student.user.lastName || ""}`.trim() || "Élève";
                   const parentName = `${req.student.parent.user.firstName || ""} ${req.student.parent.user.lastName || ""}`.trim() || "Parent";
                   return (
-                    <Card key={req.id} className="bg-surface-card border border-white/10 shadow-premium">
+                    <Card key={req.id} className="shadow-premium">
                       <CardHeader>
                         <div className="flex justify-between items-start">
                           <div>
-                            <CardTitle className="text-lg text-white">
+                            <CardTitle className="text-lg">
                               {req.requestType} — {studentName}
                             </CardTitle>
                             <p className="text-sm text-neutral-300">Parent : {parentName}</p>
@@ -592,7 +592,7 @@ export default function AssistanteSubscriptionsPage() {
                               {new Date(req.createdAt).toLocaleTimeString("fr-FR")}
                             </p>
                           </div>
-                          <Badge variant="outline" className="border-white/10 text-neutral-300">
+                          <Badge variant="outline" className="text-neutral-300">
                             {req.status}
                           </Badge>
                         </div>
@@ -614,7 +614,7 @@ export default function AssistanteSubscriptionsPage() {
                         </div>
 
                         {req.reason && (
-                          <div className="rounded border border-white/10 bg-white/5 p-3">
+                          <div className="rounded bg-white/5 p-3">
                             <p className="text-xs text-neutral-400 mb-1">Motif</p>
                             <p className="text-sm text-neutral-200">{req.reason}</p>
                           </div>
@@ -625,12 +625,12 @@ export default function AssistanteSubscriptionsPage() {
                             <Button
                               variant="outline"
                               size="sm"
-                              className="border-white/10 text-neutral-200 hover:text-white"
+                              className="text-neutral-200 hover:text-white"
                             >
                               Voir / traiter
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="bg-surface-card border border-white/10 text-neutral-100">
+                          <DialogContent className="text-lux-ivory">
                             <DialogHeader>
                               <DialogTitle className="text-white">Demande d’abonnement</DialogTitle>
                             </DialogHeader>
@@ -679,14 +679,14 @@ export default function AssistanteSubscriptionsPage() {
                                     <DialogTrigger asChild>
                                       <Button
                                         variant="outline"
-                                        className="flex-1 border-white/10 text-neutral-200 hover:text-white"
+                                        className="flex-1 text-neutral-200 hover:text-white"
                                         disabled={requestProcessing}
                                       >
                                         <X className="w-4 h-4 mr-2" />
                                         Rejeter
                                       </Button>
                                     </DialogTrigger>
-                                    <DialogContent className="bg-surface-card border border-white/10 text-neutral-100">
+                                    <DialogContent className="text-lux-ivory">
                                       <DialogHeader>
                                         <DialogTitle className="text-white">Rejeter la demande</DialogTitle>
                                       </DialogHeader>
@@ -719,7 +719,7 @@ export default function AssistanteSubscriptionsPage() {
                                               "Rejeter"
                                             )}
                                           </Button>
-                                          <Button variant="outline" className="flex-1 border-white/10 text-neutral-200 hover:text-white">
+                                          <Button variant="outline" className="flex-1 text-neutral-200 hover:text-white">
                                             Annuler
                                           </Button>
                                         </div>
@@ -728,7 +728,7 @@ export default function AssistanteSubscriptionsPage() {
                                   </Dialog>
                                 </div>
                               ) : (
-                                <div className="rounded border border-white/10 bg-white/5 p-3 text-sm text-neutral-300">
+                                <div className="rounded bg-white/5 p-3 text-sm text-neutral-300">
                                   Demande déjà traitée.
                                 </div>
                               )}
@@ -742,7 +742,7 @@ export default function AssistanteSubscriptionsPage() {
               ) : (
                 <div className="text-center py-12">
                   <CreditCard className="w-16 h-16 text-neutral-500 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-white mb-2">Aucune demande</h3>
+                  <h3 className="text-lg font-medium mb-2">Aucune demande</h3>
                   <p className="text-neutral-400">
                     {searchTerm ? "Aucune demande ne correspond à votre recherche." : "Aucune demande à afficher."}
                   </p>
@@ -755,11 +755,11 @@ export default function AssistanteSubscriptionsPage() {
             <div className="space-y-4">
               {filteredActive.length > 0 ? (
                 filteredActive.map((sub) => (
-                  <Card key={sub.id} className="bg-surface-card border border-white/10 shadow-premium">
+                  <Card key={sub.id} className="shadow-premium">
                     <CardHeader>
                       <div className="flex justify-between items-start">
                         <div>
-                          <CardTitle className="text-lg text-white">
+                          <CardTitle className="text-lg">
                             {sub.planName} — {sub.student.firstName} {sub.student.lastName}
                           </CardTitle>
                           <p className="text-sm text-neutral-300">
@@ -794,7 +794,7 @@ export default function AssistanteSubscriptionsPage() {
               ) : (
                 <div className="text-center py-12">
                   <CreditCard className="w-16 h-16 text-neutral-500 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-white mb-2">Aucun abonnement actif</h3>
+                  <h3 className="text-lg font-medium mb-2">Aucun abonnement actif</h3>
                   <p className="text-neutral-400">
                     {searchTerm ? "Aucun abonnement ne correspond à votre recherche." : "Aucun abonnement actif à afficher."}
                   </p>

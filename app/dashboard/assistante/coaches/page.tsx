@@ -238,9 +238,9 @@ export default function CoachManagement() {
   }
 
   return (
-    <div className="min-h-screen bg-surface-darker text-neutral-100">
+    <div className="min-h-screen bg-surface-darker">
       {/* Header */}
-      <div className="bg-surface-card shadow-sm border-b border-white/10">
+      <div className="shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">
@@ -251,7 +251,7 @@ export default function CoachManagement() {
                 </Button>
               </Link>
               <div>
-                <h1 className="text-2xl font-bold text-white">Gestion des Coachs</h1>
+                <h1 className="text-2xl font-bold">Gestion des Coachs</h1>
                 <p className="text-sm text-neutral-400">Créer et gérer les coachs de la plateforme</p>
               </div>
             </div>
@@ -263,7 +263,7 @@ export default function CoachManagement() {
                   Ajouter un Coach
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-surface-card border border-white/10 text-neutral-100">
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle className="text-white">Ajouter un nouveau coach</DialogTitle>
                 </DialogHeader>
@@ -293,13 +293,13 @@ export default function CoachManagement() {
 
         <div className="grid gap-6">
           {coaches.map((coach) => (
-            <Card key={coach.id} className="bg-surface-card border border-white/10 shadow-premium">
+            <Card key={coach.id} className="shadow-premium">
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className="flex items-center space-x-2 text-white">
+                    <CardTitle className="flex items-center space-x-2">
                       <span>{coach.pseudonym}</span>
-                      <Badge className="bg-white/10 text-neutral-200 border border-white/10">{coach.tag}</Badge>
+                      <Badge className="bg-white/10 text-neutral-200">{coach.tag}</Badge>
                     </CardTitle>
                     <p className="text-sm text-neutral-400">
                       {coach.firstName} {coach.lastName} • {coach.email}
@@ -309,7 +309,7 @@ export default function CoachManagement() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="border-white/10 text-neutral-200 hover:text-white hover:border-brand-accent/40"
+                      className="text-neutral-200 hover:hover:border-brand-accent/40"
                       onClick={() => openEditDialog(coach)}
                     >
                       <Edit className="w-4 h-4" />
@@ -317,7 +317,7 @@ export default function CoachManagement() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="border-white/10 text-neutral-200 hover:text-white hover:border-rose-400/40"
+                      className="text-neutral-200 hover:hover:border-rose-400/40"
                       onClick={() => handleDeleteCoach(coach.id)}
                     >
                       <Trash2 className="w-4 h-4" />
@@ -328,15 +328,15 @@ export default function CoachManagement() {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <h4 className="font-medium text-white mb-2">Description</h4>
+                    <h4 className="font-medium mb-2">Description</h4>
                     <p className="text-sm text-neutral-300">{coach.description}</p>
                   </div>
 
                   <div>
-                    <h4 className="font-medium text-white mb-2">Matières</h4>
+                    <h4 className="font-medium mb-2">Matières</h4>
                     <div className="flex flex-wrap gap-2">
                       {coach.coachSubjects.map((subject) => (
-                        <Badge key={subject} variant="outline" className="border-white/10 text-neutral-300">
+                        <Badge key={subject} variant="outline" className="text-neutral-300">
                           {SUBJECTS.find(s => s.value === subject)?.label || subject}
                         </Badge>
                       ))}
@@ -359,10 +359,10 @@ export default function CoachManagement() {
           ))}
 
           {coaches.length === 0 && !loading && (
-            <Card className="bg-surface-card border border-white/10 shadow-premium">
+            <Card className="shadow-premium">
               <CardContent className="text-center py-12">
                 <UserPlus className="w-12 h-12 text-neutral-500 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-white mb-2">Aucun coach</h3>
+                <h3 className="text-lg font-medium mb-2">Aucun coach</h3>
                 <p className="text-neutral-400 mb-4">Commencez par ajouter votre premier coach</p>
                 <Button className="btn-primary" onClick={() => setIsAddDialogOpen(true)}>
                   <Plus className="w-4 h-4 mr-2" />
@@ -376,7 +376,7 @@ export default function CoachManagement() {
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-surface-card border border-white/10 text-neutral-100">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-white">Modifier le coach</DialogTitle>
           </DialogHeader>
@@ -519,7 +519,7 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
                 type="checkbox"
                 checked={formData.subjects.includes(subject.value)}
                 onChange={(e) => handleSubjectChange(subject.value, e.target.checked)}
-                className="rounded border-white/10 bg-white/5"
+                className="rounded bg-white/5"
               />
               <span className="text-sm">{subject.label}</span>
             </label>
@@ -533,7 +533,7 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
             type="checkbox"
             checked={formData.availableOnline}
             onChange={(e) => setFormData({ ...formData, availableOnline: e.target.checked })}
-            className="rounded border-white/10 bg-white/5"
+            className="rounded bg-white/5"
           />
           <span>Disponible en ligne</span>
         </label>
@@ -542,14 +542,14 @@ function CoachForm({ formData, setFormData, onSubmit, submitting, subjects }: Co
             type="checkbox"
             checked={formData.availableInPerson}
             onChange={(e) => setFormData({ ...formData, availableInPerson: e.target.checked })}
-            className="rounded border-white/10 bg-white/5"
+            className="rounded bg-white/5"
           />
           <span>Disponible en présentiel</span>
         </label>
       </div>
 
       <div className="flex justify-end space-x-2">
-        <Button variant="outline" className="border-white/10 text-neutral-200 hover:text-white" onClick={() => setFormData(INITIAL_FORM_DATA)}>
+        <Button variant="outline" className="text-neutral-200 hover:text-white" onClick={() => setFormData(INITIAL_FORM_DATA)}>
           Annuler
         </Button>
         <Button className="btn-primary" onClick={onSubmit} disabled={submitting}>

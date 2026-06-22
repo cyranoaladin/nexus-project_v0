@@ -68,15 +68,15 @@ export default function AddChildDialog({ onChildAdded }: AddChildDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="flex items-center gap-2 border-white/10 text-neutral-200 hover:text-white">
+        <Button variant="outline" size="sm" className="flex items-center gap-2 text-neutral-200 hover:text-white">
           <Plus className="w-4 h-4" />
           <span className="hidden sm:inline">Ajouter un Enfant</span>
           <span className="sm:hidden">Ajouter</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md bg-surface-card border border-white/10 text-neutral-100">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-white">
+          <DialogTitle className="flex items-center gap-2">
             <User className="w-5 h-5" />
             Ajouter un Enfant
           </DialogTitle>
@@ -117,10 +117,10 @@ export default function AddChildDialog({ onChildAdded }: AddChildDialogProps) {
             <div>
               <Label htmlFor="grade" className="text-neutral-200">Niveau *</Label>
               <Select value={formData.grade} onValueChange={(value) => setFormData({ ...formData, grade: value })}>
-                <SelectTrigger className="border-white/10 bg-surface-elevated text-neutral-100">
+                <SelectTrigger className="bg-surface-elevated">
                   <SelectValue placeholder="Sélectionner le niveau" />
                 </SelectTrigger>
-                <SelectContent className="bg-surface-card border border-white/10 text-neutral-100">
+                <SelectContent className="text-neutral-100">
                   {GRADES.map((grade) => (
                     <SelectItem key={grade} value={grade}>
                       {grade}
@@ -162,7 +162,7 @@ export default function AddChildDialog({ onChildAdded }: AddChildDialogProps) {
               type="button" 
               variant="outline" 
               onClick={() => setOpen(false)}
-              className="flex-1 border-white/10 text-neutral-200 hover:text-white"
+              className="flex-1 text-neutral-200 hover:text-white"
               disabled={loading}
             >
               Annuler

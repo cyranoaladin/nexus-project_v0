@@ -165,10 +165,10 @@ function PaiementContent() {
     return (
       <div className="min-h-screen bg-transparent">
         <main className="max-w-4xl mx-auto px-4 py-8">
-          <h1 className="text-2xl font-bold text-white mb-6">Paiements</h1>
-          <div className="rounded-xl border border-white/10 bg-surface-card p-8 text-center">
+          <h1 className="text-2xl font-bold mb-6">Paiements</h1>
+          <div className="rounded-xl p-8 text-center">
             <Landmark className="w-10 h-10 mx-auto mb-4 text-brand-accent" />
-            <h2 className="text-lg font-semibold text-white mb-2">Aucune commande en cours</h2>
+            <h2 className="text-lg font-semibold mb-2">Aucune commande en cours</h2>
             <p className="text-neutral-400 mb-6 max-w-md mx-auto">
               Pour effectuer un paiement, choisissez d'abord une formule ou un pack depuis la page Abonnements.
             </p>
@@ -191,7 +191,7 @@ function PaiementContent() {
         <nav aria-label="Fil d'Ariane" className="mb-4 text-sm text-neutral-400">
           <ol className="flex items-center gap-2">
             <li>
-              <Link href="/dashboard/parent/abonnements" className="hover:text-white transition">
+              <Link href="/dashboard/parent/abonnements" className="hover:transition">
                 Abonnements
               </Link>
             </li>
@@ -203,19 +203,19 @@ function PaiementContent() {
         <div className="flex items-center gap-4 mb-8">
           <Link
             href="/dashboard/parent/abonnements"
-            className="flex items-center text-neutral-300 hover:text-white transition-colors"
+            className="flex items-center text-neutral-300 hover:transition-colors"
           >
             <ArrowLeft className="w-5 h-5 mr-1" />
             Retour
           </Link>
-          <h1 className="text-2xl font-bold text-white">
+          <h1 className="text-2xl font-bold">
             Finaliser votre commande
           </h1>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">
           {/* Résumé de commande */}
-          <Card className="bg-white/5 border border-white/10">
+          <Card className="bg-white/5">
             <CardHeader>
               <CardTitle>Résumé de la commande</CardTitle>
             </CardHeader>
@@ -225,7 +225,7 @@ function PaiementContent() {
                   <h3 className="font-semibold">{orderDetails.name}</h3>
                   <p className="text-sm text-neutral-300">{orderDetails.description}</p>
                   {orderDetails.recurring && (
-                    <Badge variant="outline" className="mt-2 border-white/10 bg-white/5 text-neutral-200">
+                    <Badge variant="outline" className="mt-2 bg-white/5 text-neutral-200">
                       Abonnement mensuel
                     </Badge>
                   )}
@@ -233,7 +233,7 @@ function PaiementContent() {
                 <span className="font-semibold">{orderDetails.price} TND</span>
               </div>
 
-              <div className="border-t border-white/10 pt-4">
+              <div className="border-t pt-4">
                 <div className="flex justify-between items-center">
                   <span className="font-semibold">Total à payer</span>
                   <span className="text-xl font-bold">
@@ -245,7 +245,7 @@ function PaiementContent() {
           </Card>
 
           {/* Méthodes de paiement */}
-          <Card className="bg-white/5 border border-white/10">
+          <Card className="bg-white/5">
             <CardHeader>
               <CardTitle>Méthode de Paiement</CardTitle>
             </CardHeader>
@@ -268,7 +268,7 @@ function PaiementContent() {
               )}
 
               {/* Carte Bancaire — désactivée */}
-              <div className="p-4 border border-white/10 rounded-lg bg-white/5 opacity-50 cursor-not-allowed">
+              <div className="p-4 rounded-lg bg-white/5 opacity-50 cursor-not-allowed">
                 <div className="flex items-center gap-3">
                   <CreditCard className="w-5 h-5 text-neutral-400" />
                   <div className="flex-1">
@@ -292,7 +292,7 @@ function PaiementContent() {
                 disabled={hasPendingPayment || !termsAccepted}
                 className={`w-full text-left p-4 border rounded-lg transition-colors ${
                   hasPendingPayment || !termsAccepted
-                    ? 'border-white/10 bg-white/5 opacity-50 cursor-not-allowed'
+                    ? 'bg-white/5 opacity-50 cursor-not-allowed'
                     : 'border-brand-primary/40 bg-brand-primary/5 hover:bg-brand-primary/10 cursor-pointer'
                 }`}
               >
@@ -345,17 +345,17 @@ function PaiementContent() {
 
           {/* Section Notre engagement Qualité centrée */}
           <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl font-bold text-white mb-6">
+            <h2 className="text-3xl font-bold mb-6">
               Notre engagement Qualité
             </h2>
 
-            <div className="bg-white/5 rounded-xl shadow-premium p-8 border border-white/10">
+            <div className="bg-white/5 rounded-xl shadow-premium p-8">
               <div className="grid md:grid-cols-3 gap-6 text-center">
                 <div className="space-y-3">
                   <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto">
                     <Check className="w-8 h-8 text-brand-primary" />
                   </div>
-                  <h3 className="font-semibold text-white">Paiement Sécurisé</h3>
+                  <h3 className="font-semibold">Paiement Sécurisé</h3>
                   <p className="text-sm text-neutral-300">
                     Toutes vos transactions sont protégées par un cryptage SSL de niveau bancaire
                   </p>
@@ -365,7 +365,7 @@ function PaiementContent() {
                   <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto">
                     <Landmark className="w-8 h-8 text-green-600" />
                   </div>
-                  <h3 className="font-semibold text-white">Support selon formule</h3>
+                  <h3 className="font-semibold">Support selon formule</h3>
                   <p className="text-sm text-neutral-300">
                     Notre équipe est disponible à tout moment pour vous accompagner
                   </p>
@@ -375,14 +375,14 @@ function PaiementContent() {
                   <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto">
                     <CreditCard className="w-8 h-8 text-blue-600" />
                   </div>
-                  <h3 className="font-semibold text-white">Satisfaction Garantie</h3>
+                  <h3 className="font-semibold">Satisfaction Garantie</h3>
                   <p className="text-sm text-neutral-300">
                     Remboursement intégral si vous n&apos;êtes pas satisfait sous 14 jours
                   </p>
                 </div>
               </div>
 
-              <div className="mt-8 pt-6 border-t border-white/10">
+              <div className="mt-8 pt-6 border-t">
                 <p className="text-center text-neutral-200 font-medium">
                   <span className="text-brand-primary font-bold">Un cadre de paiement sécurisé</span> pour les familles
                 </p>
@@ -397,9 +397,9 @@ function PaiementContent() {
 
       {/* Modale Virement Bancaire */}
       <Dialog open={virementModalOpen} onOpenChange={setVirementModalOpen}>
-        <DialogContent size="lg" className="bg-neutral-900 border-white/10 text-white max-h-[90vh] overflow-y-auto">
+        <DialogContent size="lg" className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-xl text-white flex items-center gap-2">
+            <DialogTitle className="text-xl flex items-center gap-2">
               <Landmark className="w-5 h-5 text-brand-primary" />
               Coordonnées Bancaires
             </DialogTitle>
@@ -417,34 +417,34 @@ function PaiementContent() {
           </div>
 
           {/* Coordonnées bancaires */}
-          <div className="bg-neutral-800/50 border border-white/10 rounded-lg p-5 space-y-3 select-text">
+          <div className="bg-neutral-800/50 rounded-lg p-5 space-y-3 select-text">
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-xs text-neutral-400 uppercase tracking-wider">Bénéficiaire</p>
-                <p className="font-semibold text-white mt-0.5">{LEGAL.entity.name}</p>
+                <p className="font-semibold mt-0.5">{LEGAL.entity.name}</p>
               </div>
             </div>
 
             <div>
               <p className="text-xs text-neutral-400 uppercase tracking-wider">Banque</p>
-              <p className="font-semibold text-white mt-0.5">Banque Zitouna</p>
+              <p className="font-semibold mt-0.5">Banque Zitouna</p>
             </div>
 
             <div>
               <p className="text-xs text-neutral-400 uppercase tracking-wider">Compte</p>
-              <p className="font-mono text-white mt-0.5">25 079 000 0001569084 04</p>
+              <p className="font-mono mt-0.5">25 079 000 0001569084 04</p>
             </div>
 
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-neutral-400 uppercase tracking-wider">IBAN</p>
-                <p className="font-mono text-white mt-0.5">{IBAN}</p>
+                <p className="font-mono mt-0.5">{IBAN}</p>
               </div>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleCopyIban}
-                className="border-white/20 text-neutral-200 hover:text-white hover:bg-white/10 shrink-0 ml-3"
+                className="border-white/20 text-neutral-200 hover:hover:bg-white/10 shrink-0 ml-3"
               >
                 <Copy className="w-3.5 h-3.5 mr-1.5" />
                 Copier l&apos;IBAN
@@ -453,7 +453,7 @@ function PaiementContent() {
 
             <div>
               <p className="text-xs text-neutral-400 uppercase tracking-wider">SWIFT</p>
-              <p className="font-mono text-white mt-0.5">BZITTNTTXXX</p>
+              <p className="font-mono mt-0.5">BZITTNTTXXX</p>
             </div>
           </div>
 
@@ -498,7 +498,7 @@ function PaiementPageLoading() {
           <div className="h-8 bg-white/10 rounded w-1/3 mb-6"></div>
           <div className="grid md:grid-cols-2 gap-8">
             <div className="space-y-6">
-              <div className="bg-white/5 p-6 rounded-lg border border-white/10">
+              <div className="bg-white/5 p-6 rounded-lg">
                 <div className="h-6 bg-white/10 rounded w-1/2 mb-4"></div>
                 <div className="space-y-3">
                   <div className="h-4 bg-white/10 rounded w-full"></div>
@@ -507,7 +507,7 @@ function PaiementPageLoading() {
               </div>
             </div>
             <div className="space-y-6">
-              <div className="bg-white/5 p-6 rounded-lg border border-white/10">
+              <div className="bg-white/5 p-6 rounded-lg">
                 <div className="h-6 bg-white/10 rounded w-1/2 mb-4"></div>
                 <div className="space-y-3">
                   <div className="h-4 bg-white/10 rounded w-full"></div>

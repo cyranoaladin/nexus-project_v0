@@ -338,7 +338,7 @@ function StageFormFields({
             id="stage-title"
             value={form.title}
             onChange={(event) => onChange({ ...form, title: event.target.value })}
-            className="bg-surface-elevated border-white/15 text-white"
+            className="bg-surface-elevated border-white/15"
           />
         </div>
         <div className="space-y-2">
@@ -351,7 +351,7 @@ function StageFormFields({
               onSlugEdited?.();
               onChange({ ...form, slug: event.target.value });
             }}
-            className="bg-surface-elevated border-white/15 text-white"
+            className="bg-surface-elevated border-white/15"
           />
         </div>
       </div>
@@ -362,7 +362,7 @@ function StageFormFields({
           id="stage-subtitle"
           value={form.subtitle}
           onChange={(event) => onChange({ ...form, subtitle: event.target.value })}
-          className="bg-surface-elevated border-white/15 text-white"
+          className="bg-surface-elevated border-white/15"
         />
       </div>
 
@@ -372,7 +372,7 @@ function StageFormFields({
           id="stage-description"
           value={form.description}
           onChange={(event) => onChange({ ...form, description: event.target.value })}
-          className="min-h-[120px] bg-surface-elevated border-white/15 text-white"
+          className="min-h-[120px] bg-surface-elevated border-white/15"
         />
       </div>
 
@@ -380,7 +380,7 @@ function StageFormFields({
         <div className="space-y-2">
           <Label className="text-neutral-200">Type</Label>
           <Select value={form.type} onValueChange={(value: StageType) => onChange({ ...form, type: value })}>
-            <SelectTrigger className="bg-surface-elevated border-white/15 text-white">
+            <SelectTrigger className="bg-surface-elevated border-white/15">
               <SelectValue placeholder="Choisir un type" />
             </SelectTrigger>
             <SelectContent>
@@ -398,7 +398,7 @@ function StageFormFields({
             id="stage-location"
             value={form.location}
             onChange={(event) => onChange({ ...form, location: event.target.value })}
-            className="bg-surface-elevated border-white/15 text-white"
+            className="bg-surface-elevated border-white/15"
           />
         </div>
       </div>
@@ -407,7 +407,7 @@ function StageFormFields({
         <Label className="text-neutral-200">Matières</Label>
         <div className="grid gap-2 sm:grid-cols-2">
           {subjectOptions.map((option) => (
-            <label key={option.value} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-neutral-200">
+            <label key={option.value} className="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2 text-sm text-neutral-200">
               <Checkbox checked={form.subject.includes(option.value)} onCheckedChange={() => toggleSubject(option.value)} />
               <span>{option.label}</span>
             </label>
@@ -419,7 +419,7 @@ function StageFormFields({
         <Label className="text-neutral-200">Niveaux</Label>
         <div className="grid gap-2 sm:grid-cols-3">
           {levelOptions.map((level) => (
-            <label key={level} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-neutral-200">
+            <label key={level} className="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2 text-sm text-neutral-200">
               <Checkbox checked={form.level.includes(level)} onCheckedChange={() => toggleLevel(level)} />
               <span>{level}</span>
             </label>
@@ -435,7 +435,7 @@ function StageFormFields({
             type="datetime-local"
             value={form.startDate}
             onChange={(event) => onChange({ ...form, startDate: event.target.value })}
-            className="bg-surface-elevated border-white/15 text-white"
+            className="bg-surface-elevated border-white/15"
           />
         </div>
         <div className="space-y-2">
@@ -445,7 +445,7 @@ function StageFormFields({
             type="datetime-local"
             value={form.endDate}
             onChange={(event) => onChange({ ...form, endDate: event.target.value })}
-            className="bg-surface-elevated border-white/15 text-white"
+            className="bg-surface-elevated border-white/15"
           />
         </div>
       </div>
@@ -460,7 +460,7 @@ function StageFormFields({
             max={50}
             value={form.capacity}
             onChange={(event) => onChange({ ...form, capacity: Number(event.target.value) })}
-            className="bg-surface-elevated border-white/15 text-white"
+            className="bg-surface-elevated border-white/15"
           />
         </div>
         <div className="space-y-2">
@@ -471,7 +471,7 @@ function StageFormFields({
             min={0}
             value={form.priceAmount}
             onChange={(event) => onChange({ ...form, priceAmount: Number(event.target.value) })}
-            className="bg-surface-elevated border-white/15 text-white"
+            className="bg-surface-elevated border-white/15"
           />
         </div>
         <div className="space-y-2">
@@ -480,12 +480,12 @@ function StageFormFields({
             id="stage-currency"
             value={form.priceCurrency}
             onChange={(event) => onChange({ ...form, priceCurrency: event.target.value })}
-            className="bg-surface-elevated border-white/15 text-white"
+            className="bg-surface-elevated border-white/15"
           />
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-white/5 p-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-3 rounded-xl bg-white/5 p-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center justify-between md:gap-3">
           <Label htmlFor="stage-visible" className="text-neutral-200">Visible</Label>
           <Switch
@@ -842,7 +842,7 @@ export default function AdminStagesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-surface-darker text-neutral-100">
+    <div className="min-h-screen bg-surface-darker">
       {toast && (
         <div className={`fixed right-4 top-4 z-50 rounded-xl border px-4 py-3 text-sm shadow-xl ${toast.type === 'success' ? 'border-emerald-500/30 bg-emerald-500/15 text-emerald-200' : 'border-rose-500/30 bg-rose-500/15 text-rose-200'}`}>
           {toast.message}
@@ -854,13 +854,13 @@ export default function AdminStagesPage() {
           <div className="space-y-6">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <h1 className="text-2xl font-semibold text-white">Administration des stages</h1>
+                <h1 className="text-2xl font-semibold">Administration des stages</h1>
                 <p className="text-sm text-neutral-400">Pilotage des stages, séances, coachs et bilans.</p>
               </div>
               <Button
                 type="button"
                 variant="outline"
-                className="border-white/15 bg-transparent text-neutral-100 hover:bg-white/10"
+                className="border-white/15 bg-transparent hover:bg-white/10"
                 onClick={loadStages}
               >
                 <RefreshCw className="mr-2 h-4 w-4" />
@@ -870,39 +870,39 @@ export default function AdminStagesPage() {
 
             {kpis && (
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                <Card className="border-white/10 bg-surface-card shadow-premium">
+                <Card className="shadow-premium">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm text-neutral-200">Stages actifs</CardTitle>
                   </CardHeader>
                   <CardContent className="flex items-center justify-between">
-                    <span className="text-3xl font-bold text-white">{kpis.activeStages}</span>
+                    <span className="text-3xl font-bold">{kpis.activeStages}</span>
                     <Calendar className="h-5 w-5 text-brand-accent" />
                   </CardContent>
                 </Card>
-                <Card className="border-white/10 bg-surface-card shadow-premium">
+                <Card className="shadow-premium">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm text-neutral-200">Total inscrits</CardTitle>
                   </CardHeader>
                   <CardContent className="flex items-center justify-between">
-                    <span className="text-3xl font-bold text-white">{kpis.totalInscrits}</span>
+                    <span className="text-3xl font-bold">{kpis.totalInscrits}</span>
                     <Users className="h-5 w-5 text-emerald-300" />
                   </CardContent>
                 </Card>
-                <Card className="border-white/10 bg-surface-card shadow-premium">
+                <Card className="shadow-premium">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm text-neutral-200">CA estimé</CardTitle>
                   </CardHeader>
                   <CardContent className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-white">{formatPrice(kpis.caEstime, 'TND')}</span>
+                    <span className="text-2xl font-bold">{formatPrice(kpis.caEstime, 'TND')}</span>
                     <CheckCircle2 className="h-5 w-5 text-emerald-300" />
                   </CardContent>
                 </Card>
-                <Card className="border-white/10 bg-surface-card shadow-premium">
+                <Card className="shadow-premium">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm text-neutral-200">Bilans publiés</CardTitle>
                   </CardHeader>
                   <CardContent className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-white">{kpis.bilansPublies} / {kpis.totalBilans}</span>
+                    <span className="text-2xl font-bold">{kpis.bilansPublies} / {kpis.totalBilans}</span>
                     <GraduationCap className="h-5 w-5 text-brand-accent" />
                   </CardContent>
                 </Card>
@@ -919,14 +919,14 @@ export default function AdminStagesPage() {
               </TabsList>
 
               <TabsContent value="overview" className="space-y-4">
-                <Card className="border-white/10 bg-surface-card shadow-premium">
+                <Card className="shadow-premium">
                   <CardHeader>
-                    <CardTitle className="text-white">Catalogue interne des stages</CardTitle>
+                    <CardTitle className="text-lux-ivory">Catalogue interne des stages</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <Table className="text-neutral-200">
                       <TableHeader>
-                        <TableRow className="border-white/10 hover:bg-transparent">
+                        <TableRow className="hover:bg-transparent">
                           <TableHead className="text-neutral-300">Titre</TableHead>
                           <TableHead className="text-neutral-300">Dates</TableHead>
                           <TableHead className="text-neutral-300">Places</TableHead>
@@ -938,10 +938,10 @@ export default function AdminStagesPage() {
                       </TableHeader>
                       <TableBody>
                         {stages.map((stage) => (
-                          <TableRow key={stage.id} className="border-white/10 hover:bg-white/5">
+                          <TableRow key={stage.id} className="hover:bg-white/5">
                             <TableCell>
                               <div>
-                                <p className="font-medium text-white">{stage.title}</p>
+                                <p className="font-medium">{stage.title}</p>
                                 <p className="text-xs text-neutral-400">{stage.slug}</p>
                               </div>
                             </TableCell>
@@ -952,15 +952,15 @@ export default function AdminStagesPage() {
                             <TableCell>{stage.publishedBilans} / {stage.totalBilans}</TableCell>
                             <TableCell className="text-right">
                               <div className="flex flex-wrap justify-end gap-2">
-                                <Button type="button" size="sm" variant="outline" className="border-white/15 bg-transparent text-neutral-100 hover:bg-white/10" onClick={() => openEditDialog(stage)}>
+                                <Button type="button" size="sm" variant="outline" className="border-white/15 bg-transparent hover:bg-white/10" onClick={() => openEditDialog(stage)}>
                                   <Pencil className="mr-2 h-4 w-4" />
                                   Modifier
                                 </Button>
-                                <Button type="button" size="sm" variant="outline" className="border-white/15 bg-transparent text-neutral-100 hover:bg-white/10" onClick={() => { setSelectedStageId(stage.id); setActiveTab('schedule'); }}>
+                                <Button type="button" size="sm" variant="outline" className="border-white/15 bg-transparent hover:bg-white/10" onClick={() => { setSelectedStageId(stage.id); setActiveTab('schedule'); }}>
                                   <Calendar className="mr-2 h-4 w-4" />
                                   Séances
                                 </Button>
-                                <Button type="button" size="sm" variant="outline" className="border-white/15 bg-transparent text-neutral-100 hover:bg-white/10" onClick={() => { setSelectedStageId(stage.id); setActiveTab('coaches'); }}>
+                                <Button type="button" size="sm" variant="outline" className="border-white/15 bg-transparent hover:bg-white/10" onClick={() => { setSelectedStageId(stage.id); setActiveTab('coaches'); }}>
                                   <Users className="mr-2 h-4 w-4" />
                                   Coachs
                                 </Button>
@@ -979,9 +979,9 @@ export default function AdminStagesPage() {
               </TabsContent>
 
               <TabsContent value="create">
-                <Card className="border-white/10 bg-surface-card shadow-premium">
+                <Card className="shadow-premium">
                   <CardHeader>
-                    <CardTitle className="text-white">Créer un stage</CardTitle>
+                    <CardTitle className="text-lux-ivory">Créer un stage</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <StageFormFields form={createForm} onChange={setCreateForm} onSlugEdited={() => setCreateSlugTouched(true)} />
@@ -996,15 +996,15 @@ export default function AdminStagesPage() {
               </TabsContent>
 
               <TabsContent value="schedule" className="space-y-4">
-                <Card className="border-white/10 bg-surface-card shadow-premium">
+                <Card className="shadow-premium">
                   <CardHeader className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div>
-                      <CardTitle className="text-white">Emploi du temps</CardTitle>
+                      <CardTitle className="text-lux-ivory">Emploi du temps</CardTitle>
                       <p className="text-sm text-neutral-400">Choisissez un stage pour voir ou compléter son planning.</p>
                     </div>
                     <div className="flex w-full flex-col gap-3 lg:w-auto lg:flex-row">
                       <Select value={selectedStageId} onValueChange={setSelectedStageId}>
-                        <SelectTrigger className="w-full min-w-[240px] bg-surface-elevated border-white/15 text-white">
+                        <SelectTrigger className="w-full min-w-[240px] bg-surface-elevated border-white/15">
                           <SelectValue placeholder="Choisir un stage" />
                         </SelectTrigger>
                         <SelectContent>
@@ -1035,15 +1035,15 @@ export default function AdminStagesPage() {
               </TabsContent>
 
               <TabsContent value="coaches" className="space-y-4">
-                <Card className="border-white/10 bg-surface-card shadow-premium">
+                <Card className="shadow-premium">
                   <CardHeader className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div>
-                      <CardTitle className="text-white">Coachs assignés</CardTitle>
+                      <CardTitle className="text-lux-ivory">Coachs assignés</CardTitle>
                       <p className="text-sm text-neutral-400">Attribuez des coachs et précisez leur rôle dans le stage.</p>
                     </div>
                     <div className="flex w-full flex-col gap-3 lg:w-auto lg:flex-row">
                       <Select value={selectedStageId} onValueChange={setSelectedStageId}>
-                        <SelectTrigger className="w-full min-w-[240px] bg-surface-elevated border-white/15 text-white">
+                        <SelectTrigger className="w-full min-w-[240px] bg-surface-elevated border-white/15">
                           <SelectValue placeholder="Choisir un stage" />
                         </SelectTrigger>
                         <SelectContent>
@@ -1067,9 +1067,9 @@ export default function AdminStagesPage() {
                     ) : (
                       <div className="space-y-3">
                         {(selectedStageDetail?.coaches ?? []).map((assignment) => (
-                          <div key={assignment.id} className="flex flex-col gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
+                          <div key={assignment.id} className="flex flex-col gap-3 rounded-xl bg-white/5 px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
                             <div>
-                              <p className="font-medium text-white">{assignment.coach.pseudonym}</p>
+                              <p className="font-medium">{assignment.coach.pseudonym}</p>
                               <p className="text-xs text-neutral-400">{normalizeSubjects(assignment.coach.subjects).join(', ') || 'Matières non renseignées'}</p>
                               {assignment.role && <p className="text-xs text-brand-accent">Rôle: {assignment.role}</p>}
                             </div>
@@ -1089,14 +1089,14 @@ export default function AdminStagesPage() {
               </TabsContent>
 
               <TabsContent value="bilans" className="space-y-4">
-                <Card className="border-white/10 bg-surface-card shadow-premium">
+                <Card className="shadow-premium">
                   <CardHeader className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div>
-                      <CardTitle className="text-white">Bilans</CardTitle>
+                      <CardTitle className="text-lux-ivory">Bilans</CardTitle>
                       <p className="text-sm text-neutral-400">Consultez les bilans produits pour un stage donné.</p>
                     </div>
                     <Select value={selectedStageId} onValueChange={setSelectedStageId}>
-                      <SelectTrigger className="w-full min-w-[240px] bg-surface-elevated border-white/15 text-white">
+                      <SelectTrigger className="w-full min-w-[240px] bg-surface-elevated border-white/15">
                         <SelectValue placeholder="Choisir un stage" />
                       </SelectTrigger>
                       <SelectContent>
@@ -1109,7 +1109,7 @@ export default function AdminStagesPage() {
                   <CardContent>
                     <Table className="text-neutral-200">
                       <TableHeader>
-                        <TableRow className="border-white/10 hover:bg-transparent">
+                        <TableRow className="hover:bg-transparent">
                           <TableHead className="text-neutral-300">Élève</TableHead>
                           <TableHead className="text-neutral-300">Coach</TableHead>
                           <TableHead className="text-neutral-300">Score</TableHead>
@@ -1120,7 +1120,7 @@ export default function AdminStagesPage() {
                       </TableHeader>
                       <TableBody>
                         {(selectedStageDetail?.bilans ?? []).map((bilan) => (
-                          <TableRow key={bilan.id} className="border-white/10 hover:bg-white/5">
+                          <TableRow key={bilan.id} className="hover:bg-white/5">
                             <TableCell>{`${bilan.student.user?.firstName || ''} ${bilan.student.user?.lastName || ''}`.trim() || 'Élève'}</TableCell>
                             <TableCell>{bilan.coach.pseudonym}</TableCell>
                             <TableCell>{bilan.scoreGlobal != null ? `${bilan.scoreGlobal}/20` : '—'}</TableCell>
@@ -1128,7 +1128,7 @@ export default function AdminStagesPage() {
                             <TableCell>{getBilanStatusBadge(bilan.isPublished)}</TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end gap-2">
-                                <Button type="button" size="sm" variant="outline" className="border-white/15 bg-transparent text-neutral-100 hover:bg-white/10" onClick={() => setViewedBilan(bilan)}>
+                                <Button type="button" size="sm" variant="outline" className="border-white/15 bg-transparent hover:bg-white/10" onClick={() => setViewedBilan(bilan)}>
                                   <Eye className="mr-2 h-4 w-4" />
                                   Voir
                                 </Button>
@@ -1136,7 +1136,7 @@ export default function AdminStagesPage() {
                                   type="button"
                                   size="sm"
                                   variant="outline"
-                                  className="border-white/15 bg-transparent text-neutral-100 hover:bg-white/10"
+                                  className="border-white/15 bg-transparent hover:bg-white/10"
                                   disabled={!bilan.pdfUrl}
                                   onClick={() => {
                                     if (bilan.pdfUrl) {
@@ -1165,9 +1165,9 @@ export default function AdminStagesPage() {
       </main>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent size="full" className="max-h-[90vh] overflow-y-auto border-white/10 bg-surface-card text-white">
+        <DialogContent size="full" className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-white">Modifier le stage</DialogTitle>
+            <DialogTitle className="text-lux-ivory">Modifier le stage</DialogTitle>
           </DialogHeader>
           <StageFormFields form={editForm} onChange={setEditForm} />
           <div className="flex justify-end">
@@ -1180,19 +1180,19 @@ export default function AdminStagesPage() {
       </Dialog>
 
       <Dialog open={isSessionDialogOpen} onOpenChange={setIsSessionDialogOpen}>
-        <DialogContent className="border-white/10 bg-surface-card text-white">
+        <DialogContent className="text-lux-ivory">
           <DialogHeader>
-            <DialogTitle className="text-white">Ajouter une séance</DialogTitle>
+            <DialogTitle className="text-lux-ivory">Ajouter une séance</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
               <Label className="text-neutral-200">Titre</Label>
-              <Input value={sessionForm.title} onChange={(event) => setSessionForm((current) => ({ ...current, title: event.target.value }))} className="bg-surface-elevated border-white/15 text-white" />
+              <Input value={sessionForm.title} onChange={(event) => setSessionForm((current) => ({ ...current, title: event.target.value }))} className="bg-surface-elevated border-white/15" />
             </div>
             <div className="space-y-2">
               <Label className="text-neutral-200">Matière</Label>
               <Select value={sessionForm.subject} onValueChange={(value: Subject) => setSessionForm((current) => ({ ...current, subject: value }))}>
-                <SelectTrigger className="bg-surface-elevated border-white/15 text-white">
+                <SelectTrigger className="bg-surface-elevated border-white/15">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -1205,21 +1205,21 @@ export default function AdminStagesPage() {
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label className="text-neutral-200">Début</Label>
-                <Input type="datetime-local" value={sessionForm.startAt} onChange={(event) => setSessionForm((current) => ({ ...current, startAt: event.target.value }))} className="bg-surface-elevated border-white/15 text-white" />
+                <Input type="datetime-local" value={sessionForm.startAt} onChange={(event) => setSessionForm((current) => ({ ...current, startAt: event.target.value }))} className="bg-surface-elevated border-white/15" />
               </div>
               <div className="space-y-2">
                 <Label className="text-neutral-200">Fin</Label>
-                <Input type="datetime-local" value={sessionForm.endAt} onChange={(event) => setSessionForm((current) => ({ ...current, endAt: event.target.value }))} className="bg-surface-elevated border-white/15 text-white" />
+                <Input type="datetime-local" value={sessionForm.endAt} onChange={(event) => setSessionForm((current) => ({ ...current, endAt: event.target.value }))} className="bg-surface-elevated border-white/15" />
               </div>
             </div>
             <div className="space-y-2">
               <Label className="text-neutral-200">Lieu</Label>
-              <Input value={sessionForm.location} onChange={(event) => setSessionForm((current) => ({ ...current, location: event.target.value }))} className="bg-surface-elevated border-white/15 text-white" />
+              <Input value={sessionForm.location} onChange={(event) => setSessionForm((current) => ({ ...current, location: event.target.value }))} className="bg-surface-elevated border-white/15" />
             </div>
             <div className="space-y-2">
               <Label className="text-neutral-200">Coach</Label>
               <Select value={sessionForm.coachId || 'none'} onValueChange={(value) => setSessionForm((current) => ({ ...current, coachId: value === 'none' ? '' : value }))}>
-                <SelectTrigger className="bg-surface-elevated border-white/15 text-white">
+                <SelectTrigger className="bg-surface-elevated border-white/15">
                   <SelectValue placeholder="Sélectionner un coach" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1232,7 +1232,7 @@ export default function AdminStagesPage() {
             </div>
             <div className="space-y-2">
               <Label className="text-neutral-200">Description</Label>
-              <Textarea value={sessionForm.description} onChange={(event) => setSessionForm((current) => ({ ...current, description: event.target.value }))} className="bg-surface-elevated border-white/15 text-white" />
+              <Textarea value={sessionForm.description} onChange={(event) => setSessionForm((current) => ({ ...current, description: event.target.value }))} className="bg-surface-elevated border-white/15" />
             </div>
             <div className="flex justify-end">
               <Button type="button" className="btn-primary" disabled={submitting} onClick={submitSession}>
@@ -1245,15 +1245,15 @@ export default function AdminStagesPage() {
       </Dialog>
 
       <Dialog open={isCoachDialogOpen} onOpenChange={setIsCoachDialogOpen}>
-        <DialogContent className="border-white/10 bg-surface-card text-white">
+        <DialogContent className="text-lux-ivory">
           <DialogHeader>
-            <DialogTitle className="text-white">Assigner un coach</DialogTitle>
+            <DialogTitle className="text-lux-ivory">Assigner un coach</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
               <Label className="text-neutral-200">Coach</Label>
               <Select value={coachForm.coachId} onValueChange={(value) => setCoachForm((current) => ({ ...current, coachId: value }))}>
-                <SelectTrigger className="bg-surface-elevated border-white/15 text-white">
+                <SelectTrigger className="bg-surface-elevated border-white/15">
                   <SelectValue placeholder="Sélectionner un coach" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1265,7 +1265,7 @@ export default function AdminStagesPage() {
             </div>
             <div className="space-y-2">
               <Label className="text-neutral-200">Rôle dans le stage</Label>
-              <Input value={coachForm.role} onChange={(event) => setCoachForm((current) => ({ ...current, role: event.target.value }))} className="bg-surface-elevated border-white/15 text-white" placeholder="Ex. Lead coach" />
+              <Input value={coachForm.role} onChange={(event) => setCoachForm((current) => ({ ...current, role: event.target.value }))} className="bg-surface-elevated border-white/15" placeholder="Ex. Lead coach" />
             </div>
             <div className="flex justify-end">
               <Button type="button" className="btn-primary" disabled={submitting} onClick={submitCoachAssignment}>
@@ -1278,25 +1278,25 @@ export default function AdminStagesPage() {
       </Dialog>
 
       <Dialog open={Boolean(viewedBilan)} onOpenChange={(open) => { if (!open) setViewedBilan(null); }}>
-        <DialogContent size="full" className="max-h-[90vh] overflow-y-auto border-white/10 bg-surface-card text-white">
+        <DialogContent size="full" className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-white">Bilan du stage</DialogTitle>
+            <DialogTitle className="text-lux-ivory">Bilan du stage</DialogTitle>
           </DialogHeader>
           {viewedBilan && (
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-2">
                 {getBilanStatusBadge(viewedBilan.isPublished)}
-                <Badge className="bg-white/10 text-white border border-white/10">{viewedBilan.coach.pseudonym}</Badge>
+                <Badge className="bg-white/10">{viewedBilan.coach.pseudonym}</Badge>
               </div>
-              <Card className="border-white/10 bg-white/5">
+              <Card className="bg-white/5">
                 <CardHeader>
-                  <CardTitle className="text-base text-white">Version élève</CardTitle>
+                  <CardTitle className="text-base">Version élève</CardTitle>
                 </CardHeader>
                 <CardContent className="whitespace-pre-wrap text-sm text-neutral-200">{viewedBilan.contentEleve}</CardContent>
               </Card>
-              <Card className="border-white/10 bg-white/5">
+              <Card className="bg-white/5">
                 <CardHeader>
-                  <CardTitle className="text-base text-white">Version parent</CardTitle>
+                  <CardTitle className="text-base">Version parent</CardTitle>
                 </CardHeader>
                 <CardContent className="whitespace-pre-wrap text-sm text-neutral-200">{viewedBilan.contentParent}</CardContent>
               </Card>

@@ -147,16 +147,16 @@ export default function CreditRequestsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-surface-darker text-neutral-100">
+    <div className="min-h-screen bg-surface-darker">
       {/* Header */}
-      <header className="bg-surface-card shadow-sm border-b border-white/10">
+      <header className="shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
                 <CreditCard className="w-8 h-8 text-brand-accent" />
                 <div>
-                  <h1 className="font-semibold text-white">
+                  <h1 className="font-semibold">
                     Gestion des Demandes de Crédits
                   </h1>
                   <p className="text-sm text-neutral-400">Approbation des achats de crédits</p>
@@ -180,7 +180,7 @@ export default function CreditRequestsPage() {
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold text-white mb-2">
+              <h2 className="text-2xl font-bold mb-2">
                 Demandes de Crédits
               </h2>
               <p className="text-neutral-400">
@@ -188,7 +188,7 @@ export default function CreditRequestsPage() {
               </p>
             </div>
             <div className="flex space-x-2">
-              <Badge variant="outline" className="text-sm border-white/10 text-neutral-300">
+              <Badge variant="outline" className="text-sm text-neutral-300">
                 {creditRequests.length} demandes
               </Badge>
             </div>
@@ -204,7 +204,7 @@ export default function CreditRequestsPage() {
               placeholder="Rechercher une demande..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-white/10 rounded-lg bg-surface-elevated text-neutral-100 focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-accent/40"
+              className="w-full pl-10 pr-4 py-2 rounded-lg bg-surface-elevated focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-accent/40"
             />
           </div>
         </div>
@@ -217,7 +217,7 @@ export default function CreditRequestsPage() {
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div>
-                      <CardTitle className="text-lg text-white">
+                      <CardTitle className="text-lg">
                         Demande de {request.amount} crédits - {request.student.firstName} {request.student.lastName}
                       </CardTitle>
                       <p className="text-sm text-neutral-300">
@@ -253,7 +253,7 @@ export default function CreditRequestsPage() {
                   
                   <div className="mb-4">
                     <p className="text-sm font-medium text-neutral-200 mb-2">Description</p>
-                    <p className="text-sm text-neutral-300 bg-surface-card p-3 rounded-lg border border-white/10">
+                    <p className="text-sm text-neutral-300 p-3 rounded-lg">
                       {request.description}
                     </p>
                   </div>
@@ -264,13 +264,13 @@ export default function CreditRequestsPage() {
                         <Button 
                           variant="outline" 
                           size="sm"
-                          className="border-white/10 text-neutral-200 hover:text-white"
+                          className="text-neutral-200 hover:text-white"
                           onClick={() => setSelectedRequest(request)}
                         >
                           Voir Détails
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="bg-surface-card border border-white/10 text-neutral-100">
+                      <DialogContent className="text-lux-ivory">
                         <DialogHeader>
                           <DialogTitle className="text-white">Détails de la Demande</DialogTitle>
                         </DialogHeader>
@@ -295,7 +295,7 @@ export default function CreditRequestsPage() {
 
                           <div>
                             <p className="text-sm font-medium text-neutral-200">Description</p>
-                            <p className="text-sm bg-white/5 border border-white/10 p-3 rounded-lg text-neutral-300">
+                            <p className="text-sm bg-white/5 p-3 rounded-lg text-neutral-300">
                               {request.description}
                             </p>
                           </div>
@@ -322,14 +322,14 @@ export default function CreditRequestsPage() {
                               <DialogTrigger asChild>
                                 <Button 
                                   variant="outline" 
-                                  className="flex-1 border-white/10 text-neutral-200 hover:text-white"
+                                  className="flex-1 text-neutral-200 hover:text-white"
                                   disabled={isProcessing}
                                 >
                                   <X className="w-4 h-4 mr-2" />
                                   Rejeter
                                 </Button>
                               </DialogTrigger>
-                              <DialogContent className="bg-surface-card border border-white/10 text-neutral-100">
+                              <DialogContent className="text-lux-ivory">
                                 <DialogHeader>
                                   <DialogTitle className="text-white">Rejeter la Demande</DialogTitle>
                                 </DialogHeader>
@@ -359,7 +359,7 @@ export default function CreditRequestsPage() {
                                         'Rejeter'
                                       )}
                                     </Button>
-                                    <Button variant="outline" className="flex-1 border-white/10 text-neutral-200 hover:text-white">
+                                    <Button variant="outline" className="flex-1 text-neutral-200 hover:text-white">
                                       Annuler
                                     </Button>
                                   </div>
@@ -377,7 +377,7 @@ export default function CreditRequestsPage() {
           ) : (
             <div className="text-center py-12">
               <Check className="w-16 h-16 text-emerald-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-white mb-2">
+              <h3 className="text-lg font-medium mb-2">
                 Aucune demande en attente
               </h3>
               <p className="text-neutral-400">

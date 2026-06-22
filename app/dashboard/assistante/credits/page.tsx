@@ -153,16 +153,16 @@ export default function CreditsManagement() {
   }
 
   return (
-    <div className="min-h-screen bg-surface-darker text-neutral-100">
+    <div className="min-h-screen bg-surface-darker">
       {/* Header */}
-      <header className="bg-surface-card shadow-sm border-b border-white/10">
+      <header className="shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <Link href="/dashboard/assistante" className="flex items-center space-x-2">
                 <Settings className="w-8 h-8 text-brand-accent" />
                 <div>
-                  <h1 className="font-semibold text-white">
+                  <h1 className="font-semibold">
                     Gestion des Crédits
                   </h1>
                   <p className="text-sm text-neutral-400">Administration des crédits élèves</p>
@@ -186,7 +186,7 @@ export default function CreditsManagement() {
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold text-white mb-2">
+              <h2 className="text-2xl font-bold mb-2">
                 Gestion des Crédits
               </h2>
               <p className="text-neutral-400">
@@ -204,7 +204,7 @@ export default function CreditsManagement() {
               placeholder="Rechercher un élève..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-surface-elevated border-white/10 text-neutral-100"
+              className="pl-10 bg-surface-elevated"
             />
           </div>
         </div>
@@ -212,11 +212,11 @@ export default function CreditsManagement() {
         {/* Students Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredStudents.map((student) => (
-            <Card key={student.id} className="bg-surface-card border border-white/10 shadow-premium hover:shadow-premium-strong transition-shadow">
+            <Card key={student.id} className="shadow-premium hover:shadow-premium-strong transition-shadow">
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className="text-lg text-white">{student.firstName} {student.lastName}</CardTitle>
+                    <CardTitle className="text-lg">{student.firstName} {student.lastName}</CardTitle>
                     <p className="text-sm text-neutral-300">{student.email}</p>
                     <p className="text-xs text-neutral-400">{student.grade} - {student.school}</p>
                   </div>
@@ -242,14 +242,14 @@ export default function CreditsManagement() {
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        className="w-full border-white/10 text-neutral-200 hover:text-white"
+                        className="w-full text-neutral-200 hover:text-white"
                         onClick={() => setSelectedStudent(student)}
                       >
                         <Plus className="w-4 h-4 mr-2" />
                         Ajouter des crédits
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="bg-surface-card border border-white/10 text-neutral-100">
+                    <DialogContent className="text-lux-ivory">
                       <DialogHeader>
                         <DialogTitle className="text-white">Ajouter des crédits pour {student.firstName} {student.lastName}</DialogTitle>
                       </DialogHeader>
@@ -272,10 +272,10 @@ export default function CreditsManagement() {
                             value={addCreditsForm.type} 
                             onValueChange={(value) => setAddCreditsForm({...addCreditsForm, type: value})}
                           >
-                            <SelectTrigger className="border-white/10 bg-surface-elevated text-neutral-100">
+                            <SelectTrigger className="bg-surface-elevated">
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent className="bg-surface-card border border-white/10 text-neutral-100">
+                            <SelectContent className="text-lux-ivory">
                               <SelectItem value="CREDIT_ADD">Achat de crédits</SelectItem>
                               <SelectItem value="CREDIT_REMOVE">Retrait de crédits</SelectItem>
                               <SelectItem value="CREDIT_EXPIRY">Expiration de crédits</SelectItem>
@@ -298,7 +298,7 @@ export default function CreditsManagement() {
                           <Button onClick={handleAddCredits} className="flex-1 btn-primary">
                             Confirmer
                           </Button>
-                          <Button variant="outline" className="flex-1 border-white/10 text-neutral-200 hover:text-white">
+                          <Button variant="outline" className="flex-1 text-neutral-200 hover:text-white">
                             Annuler
                           </Button>
                         </div>
@@ -314,7 +314,7 @@ export default function CreditsManagement() {
         {filteredStudents.length === 0 && (
           <div className="text-center py-12">
             <CreditCard className="w-16 h-16 text-neutral-500 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-white mb-2">
+            <h3 className="text-lg font-medium mb-2">
               Aucun élève trouvé
             </h3>
             <p className="text-neutral-400">

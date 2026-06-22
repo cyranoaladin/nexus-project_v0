@@ -157,16 +157,16 @@ export default function StudentsManagement() {
   }
 
   return (
-    <div className="min-h-screen bg-surface-darker text-neutral-100">
+    <div className="min-h-screen bg-surface-darker">
       {/* Header */}
-      <header className="bg-surface-card shadow-sm border-b border-white/10">
+      <header className="shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <Link href="/dashboard/assistante" className="flex items-center space-x-2">
                 <Settings className="w-8 h-8 text-brand-accent" />
                 <div>
-                  <h1 className="font-semibold text-white">
+                  <h1 className="font-semibold">
                     Gestion des Élèves
                   </h1>
                   <p className="text-sm text-neutral-400">Administration des élèves</p>
@@ -190,7 +190,7 @@ export default function StudentsManagement() {
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold text-white mb-2">
+              <h2 className="text-2xl font-bold mb-2">
                 Gestion des Élèves
               </h2>
               <p className="text-neutral-400">
@@ -199,7 +199,7 @@ export default function StudentsManagement() {
             </div>
             <div className="flex space-x-2">
               <Link href="/dashboard/assistante/credits">
-                <Button variant="outline" className="border-white/10 text-neutral-200 hover:text-white">
+                <Button variant="outline" className="text-neutral-200 hover:text-white">
                   <Users className="w-4 h-4 mr-2" />
                   Gérer les Crédits
                 </Button>
@@ -210,7 +210,7 @@ export default function StudentsManagement() {
                     + Créer parent + élève
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="bg-surface-card border border-white/10 text-neutral-100 max-w-2xl">
+                <DialogContent className="max-w-2xl">
                   <DialogHeader>
                     <DialogTitle>Créer un parent et un élève</DialogTitle>
                   </DialogHeader>
@@ -224,7 +224,7 @@ export default function StudentsManagement() {
                           id="parentEmail"
                           value={createForm.parentEmail}
                           onChange={(e) => setCreateForm({ ...createForm, parentEmail: e.target.value })}
-                          className="bg-surface-elevated border-white/10 text-neutral-100"
+                          className="bg-surface-elevated"
                           placeholder="parent@email.com"
                         />
                       </div>
@@ -235,7 +235,7 @@ export default function StudentsManagement() {
                             id="parentFirstName"
                             value={createForm.parentFirstName}
                             onChange={(e) => setCreateForm({ ...createForm, parentFirstName: e.target.value })}
-                            className="bg-surface-elevated border-white/10 text-neutral-100"
+                            className="bg-surface-elevated"
                           />
                         </div>
                         <div>
@@ -244,7 +244,7 @@ export default function StudentsManagement() {
                             id="parentLastName"
                             value={createForm.parentLastName}
                             onChange={(e) => setCreateForm({ ...createForm, parentLastName: e.target.value })}
-                            className="bg-surface-elevated border-white/10 text-neutral-100"
+                            className="bg-surface-elevated"
                           />
                         </div>
                       </div>
@@ -254,7 +254,7 @@ export default function StudentsManagement() {
                           id="parentPhone"
                           value={createForm.parentPhone}
                           onChange={(e) => setCreateForm({ ...createForm, parentPhone: e.target.value })}
-                          className="bg-surface-elevated border-white/10 text-neutral-100"
+                          className="bg-surface-elevated"
                           placeholder="+216 ..."
                         />
                       </div>
@@ -268,7 +268,7 @@ export default function StudentsManagement() {
                           id="studentEmail"
                           value={createForm.studentEmail}
                           onChange={(e) => setCreateForm({ ...createForm, studentEmail: e.target.value })}
-                          className="bg-surface-elevated border-white/10 text-neutral-100"
+                          className="bg-surface-elevated"
                           placeholder="eleve@email.com"
                         />
                       </div>
@@ -279,7 +279,7 @@ export default function StudentsManagement() {
                             id="studentFirstName"
                             value={createForm.studentFirstName}
                             onChange={(e) => setCreateForm({ ...createForm, studentFirstName: e.target.value })}
-                            className="bg-surface-elevated border-white/10 text-neutral-100"
+                            className="bg-surface-elevated"
                           />
                         </div>
                         <div>
@@ -288,7 +288,7 @@ export default function StudentsManagement() {
                             id="studentLastName"
                             value={createForm.studentLastName}
                             onChange={(e) => setCreateForm({ ...createForm, studentLastName: e.target.value })}
-                            className="bg-surface-elevated border-white/10 text-neutral-100"
+                            className="bg-surface-elevated"
                           />
                         </div>
                       </div>
@@ -298,7 +298,7 @@ export default function StudentsManagement() {
                           id="studentGrade"
                           value={createForm.studentGrade}
                           onChange={(e) => setCreateForm({ ...createForm, studentGrade: e.target.value })}
-                          className="bg-surface-elevated border-white/10 text-neutral-100"
+                          className="bg-surface-elevated"
                           placeholder="Première"
                         />
                       </div>
@@ -308,7 +308,7 @@ export default function StudentsManagement() {
                           id="studentSchool"
                           value={createForm.studentSchool}
                           onChange={(e) => setCreateForm({ ...createForm, studentSchool: e.target.value })}
-                          className="bg-surface-elevated border-white/10 text-neutral-100"
+                          className="bg-surface-elevated"
                         />
                       </div>
                     </div>
@@ -324,7 +324,7 @@ export default function StudentsManagement() {
                     <Button
                       variant="outline"
                       onClick={() => setIsCreateOpen(false)}
-                      className="border-white/10 text-neutral-200 hover:text-white"
+                      className="text-neutral-200 hover:text-white"
                       disabled={isCreating}
                     >
                       Annuler
@@ -341,13 +341,13 @@ export default function StudentsManagement() {
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card className="bg-surface-card border border-white/10 shadow-premium">
+          <Card className="shadow-premium">
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-brand-accent">{students.length}</div>
               <p className="text-sm text-neutral-400">Total Élèves</p>
             </CardContent>
           </Card>
-          <Card className="bg-surface-card border border-white/10 shadow-premium">
+          <Card className="shadow-premium">
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-emerald-300">
                 {students.filter(s => s.creditBalance > 0).length}
@@ -355,7 +355,7 @@ export default function StudentsManagement() {
               <p className="text-sm text-neutral-400">Avec Crédits</p>
             </CardContent>
           </Card>
-          <Card className="bg-surface-card border border-white/10 shadow-premium">
+          <Card className="shadow-premium">
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-blue-200">
                 {students.filter(s => s.creditBalance === 0).length}
@@ -363,7 +363,7 @@ export default function StudentsManagement() {
               <p className="text-sm text-neutral-400">Sans Crédits</p>
             </CardContent>
           </Card>
-          <Card className="bg-surface-card border border-white/10 shadow-premium">
+          <Card className="shadow-premium">
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-rose-300">
                 {students.filter(s => s.creditBalance < 0).length}
@@ -381,13 +381,13 @@ export default function StudentsManagement() {
               placeholder="Rechercher un élève..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-surface-elevated border-white/10 text-neutral-100"
+              className="pl-10 bg-surface-elevated"
             />
           </div>
         </div>
 
         {/* Students Table */}
-        <Card className="bg-surface-card border border-white/10 shadow-premium">
+        <Card className="shadow-premium">
           <CardHeader>
             <CardTitle className="text-white">Liste des Élèves</CardTitle>
           </CardHeader>
@@ -395,7 +395,7 @@ export default function StudentsManagement() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-white/10 text-neutral-300">
+                  <tr className="border-b text-neutral-300">
                     <th className="text-left p-3 font-medium">Nom</th>
                     <th className="text-left p-3 font-medium">Email</th>
                     <th className="text-left p-3 font-medium">Niveau</th>
@@ -406,12 +406,12 @@ export default function StudentsManagement() {
                 </thead>
                 <tbody>
                   {filteredStudents.map((student) => (
-                    <tr key={student.id} className="border-b border-white/10 hover:bg-white/5">
+                    <tr key={student.id} className="border-b hover:bg-white/5">
                       <td className="p-3">
                         <div>
                           <Link
                             href={`/dashboard/assistante/students/${student.id}`}
-                            className="font-medium text-white hover:text-brand-accent"
+                            className="font-medium hover:text-brand-accent"
                           >
                             {student.firstName} {student.lastName}
                           </Link>
@@ -419,7 +419,7 @@ export default function StudentsManagement() {
                       </td>
                       <td className="p-3 text-sm text-neutral-300">{student.email}</td>
                       <td className="p-3">
-                        <Badge variant="outline" className="border-white/10 text-neutral-300">{student.grade}</Badge>
+                        <Badge variant="outline" className="text-neutral-300">{student.grade}</Badge>
                       </td>
                       <td className="p-3 text-sm text-neutral-300">{student.school}</td>
                       <td className="p-3">
@@ -432,12 +432,12 @@ export default function StudentsManagement() {
                       <td className="p-3">
                         <div className="flex space-x-2">
                           <Link href={`/dashboard/assistante/students/${student.id}`}>
-                            <Button variant="outline" size="sm" className="border-white/10 text-neutral-200 hover:text-white">
+                            <Button variant="outline" size="sm" className="text-neutral-200 hover:text-white">
                               Fiche
                             </Button>
                           </Link>
                           <Link href={`/dashboard/assistante/credits?studentId=${student.id}`}>
-                            <Button variant="outline" size="sm" className="border-white/10 text-neutral-200 hover:text-white">
+                            <Button variant="outline" size="sm" className="text-neutral-200 hover:text-white">
                               Gérer Crédits
                             </Button>
                           </Link>
@@ -454,7 +454,7 @@ export default function StudentsManagement() {
         {filteredStudents.length === 0 && (
           <div className="text-center py-12">
             <Users className="w-16 h-16 text-neutral-500 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-white mb-2">
+            <h3 className="text-lg font-medium mb-2">
               Aucun élève trouvé
             </h3>
             <p className="text-neutral-400">

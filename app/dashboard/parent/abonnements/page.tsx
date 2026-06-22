@@ -190,7 +190,7 @@ export default function AbonnementsPage() {
     <>
     <div className="min-h-screen bg-transparent">
       {/* Header */}
-      <header className="bg-surface-card/80 shadow-sm border-b border-white/10 backdrop-blur">
+      <header className="bg-surface-card/80 shadow-sm border-b backdrop-blur">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center h-auto sm:h-16 py-3 sm:py-0">
             <Button
@@ -204,7 +204,7 @@ export default function AbonnementsPage() {
               </Link>
             </Button>
             <div className="w-full sm:w-auto">
-              <h1 className="font-semibold text-white text-lg sm:text-xl">Gestion des Abonnements</h1>
+              <h1 className="font-semibold text-lg sm:text-xl">Gestion des Abonnements</h1>
               <p className="text-sm text-neutral-400">Modifiez les formules et add-ons</p>
             </div>
           </div>
@@ -237,7 +237,7 @@ export default function AbonnementsPage() {
         {currentChild && (
           <>
             {/* Abonnement Actuel */}
-            <Card className="mb-6 sm:mb-8 bg-white/5 border border-white/10">
+            <Card className="mb-6 sm:mb-8 bg-white/5">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <CreditCard className="w-5 h-5 mr-2 text-brand-accent" />
@@ -275,7 +275,7 @@ export default function AbonnementsPage() {
             </Card>
 
             {/* Changer d'Abonnement */}
-            <Card className="mb-6 sm:mb-8 bg-white/5 border border-white/10">
+            <Card className="mb-6 sm:mb-8 bg-white/5">
               <CardHeader>
                 <CardTitle>Changer d'Abonnement</CardTitle>
                 <p className="text-neutral-300">Modifiez votre formule mensuelle</p>
@@ -287,7 +287,7 @@ export default function AbonnementsPage() {
                       key={key}
                       className={`relative ${key === currentChild.currentSubscription
                         ? 'border-brand-accent/60 bg-white/10'
-                        : 'border-white/10 hover:border-brand-accent/50 bg-white/5'
+                        : 'hover:border-brand-accent/50 bg-white/5'
                         }`}
                     >
                       {'popular' in plan && plan.popular && (
@@ -339,7 +339,7 @@ export default function AbonnementsPage() {
             </Card>
 
             {/* Add-ons ARIA */}
-            <Card className="mb-6 sm:mb-8 bg-white/5 border border-white/10">
+            <Card className="mb-6 sm:mb-8 bg-white/5">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Brain className="w-5 h-5 mr-2 text-blue-300" />
@@ -350,7 +350,7 @@ export default function AbonnementsPage() {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   {Object.entries(ARIA_ADDONS).map(([key, addon]) => (
-                    <Card key={key} className="border-white/10 bg-white/5">
+                    <Card key={key} className="bg-white/5">
                       <CardContent className="p-4 sm:p-6">
                         <div className="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-4 mb-4">
                           <div>
@@ -379,7 +379,7 @@ export default function AbonnementsPage() {
             </Card>
 
             {/* Packs Spécifiques */}
-            <Card className="bg-white/5 border border-white/10">
+            <Card className="bg-white/5">
               <CardHeader>
                 <CardTitle>Packs Spécifiques</CardTitle>
                 <p className="text-neutral-300">Accompagnements ciblés (paiement unique)</p>
@@ -387,7 +387,7 @@ export default function AbonnementsPage() {
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   {Object.entries(SPECIAL_PACKS).map(([key, pack]) => (
-                    <Card key={key} className="border-white/10 bg-white/5">
+                    <Card key={key} className="bg-white/5">
                       <CardHeader className="pb-3 sm:pb-4">
                         <CardTitle className="text-base sm:text-lg">{pack.name}</CardTitle>
                         <div className="text-xl sm:text-2xl font-bold text-emerald-300">
@@ -427,14 +427,14 @@ export default function AbonnementsPage() {
 
         {/* Subscription Request Dialog */}
         <Dialog open={showRequestDialog} onOpenChange={setShowRequestDialog}>
-          <DialogContent className="sm:max-w-md bg-surface-card border border-white/10 text-neutral-100">
+          <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Demande d'Abonnement</DialogTitle>
             </DialogHeader>
             {selectedPlan && (
               <div className="space-y-4">
-                <div className="bg-white/5 border border-white/10 p-4 rounded-lg">
-                  <h3 className="font-semibold text-white">{selectedPlan.name}</h3>
+                <div className="bg-white/5 p-4 rounded-lg">
+                  <h3 className="font-semibold">{selectedPlan.name}</h3>
                   <p className="text-neutral-300">{selectedPlan.price} TND/mois</p>
                   <p className="text-sm text-neutral-400 mt-2">
                     {selectedPlan.credits} crédits inclus par mois
@@ -453,7 +453,7 @@ export default function AbonnementsPage() {
                   </ul>
                 </div>
 
-                <div className="bg-white/5 border border-white/10 p-4 rounded-lg">
+                <div className="bg-white/5 p-4 rounded-lg">
                   <p className="text-sm text-neutral-300">
                     <strong>Note :</strong> Votre demande sera envoyée à l'assistant pour approbation.
                     Vous recevrez une notification une fois approuvée.
