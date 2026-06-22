@@ -258,6 +258,43 @@ const student = await prisma.user.create({
         description: 'E2E pending credit request for dialog proof'
       }
     });
+
+    await prisma.subscription.create({
+      data: {
+        studentId: primaryStudent.id,
+        planName: 'HYBRIDE',
+        monthlyPrice: 450,
+        creditsPerMonth: 4,
+        status: 'ACTIVE',
+        startDate: new Date('2026-09-01T00:00:00.000Z'),
+        endDate: new Date('2027-06-30T00:00:00.000Z'),
+      }
+    });
+
+    await prisma.subscription.create({
+      data: {
+        studentId: primaryStudent.id,
+        planName: 'IMMERSION',
+        monthlyPrice: 750,
+        creditsPerMonth: 8,
+        status: 'INACTIVE',
+        startDate: new Date('2026-09-01T00:00:00.000Z'),
+        endDate: new Date('2027-06-30T00:00:00.000Z'),
+      }
+    });
+
+    await prisma.subscriptionRequest.create({
+      data: {
+        studentId: primaryStudent.id,
+        requestType: 'PLAN_CHANGE',
+        planName: 'IMMERSION',
+        monthlyPrice: 750,
+        reason: 'E2E pending subscription request for dialog proof',
+        status: 'PENDING',
+        requestedBy: parent.id,
+        requestedByEmail: parent.email,
+      }
+    });
   }
 
   console.log(`  ✓ Student: ${student.email} (Linked to Parent)`);
@@ -436,6 +473,69 @@ const student = await prisma.user.create({
   console.log(`  ✓ Zenon Coach: ${zenon.email} (for E2E booking tests)`);
   console.log(`  ✓ Additional test users created for RBAC tests\n`);
 
+  if (primaryStudent && coach.coachProfile) {
+    const stageStart = new Date('2026-08-24T08:00:00.000Z');
+    const stageEnd = new Date('2026-08-28T16:00:00.000Z');
+    const stage = await prisma.stage.create({
+      data: {
+        slug: 'stage-e2e-modales',
+        title: 'Stage E2E Modales',
+        subtitle: 'Fixture de preuve modales',
+        description: 'Stage déterministe pour les preuves e2e des modales admin.',
+        type: 'INTENSIF',
+        subject: [Subject.MATHEMATIQUES],
+        level: ['Première'],
+        startDate: stageStart,
+        endDate: stageEnd,
+        capacity: 12,
+        priceAmount: 450,
+        priceCurrency: 'TND',
+        location: 'Mutuelleville',
+        isVisible: true,
+        isOpen: true,
+      }
+    });
+
+    await prisma.stageCoach.create({
+      data: {
+        stageId: stage.id,
+        coachId: coach.coachProfile.id,
+        role: 'Coach référent E2E',
+      }
+    });
+
+    await prisma.stageSession.create({
+      data: {
+        stageId: stage.id,
+        title: 'Séance E2E diagnostic',
+        subject: Subject.MATHEMATIQUES,
+        startAt: new Date('2026-08-24T09:00:00.000Z'),
+        endAt: new Date('2026-08-24T10:30:00.000Z'),
+        location: 'Mutuelleville',
+        coachId: coach.coachProfile.id,
+        description: 'Séance seedée pour le planning de stage.',
+      }
+    });
+
+    await prisma.stageBilan.create({
+      data: {
+        stageId: stage.id,
+        studentId: primaryStudent.id,
+        coachId: coach.coachProfile.id,
+        contentEleve: 'Bilan élève E2E pour preuve de modale.',
+        contentParent: 'Bilan parent E2E pour preuve de modale.',
+        contentInterne: 'Bilan interne E2E.',
+        scoreGlobal: 15,
+        domainScores: { methode: 15, automatisme: 14 },
+        strengths: ['Méthode structurée'],
+        areasForGrowth: ['Régularité'],
+        nextSteps: 'Poursuivre les entraînements ciblés.',
+        isPublished: true,
+        publishedAt: new Date('2026-08-28T16:00:00.000Z'),
+      }
+    });
+  }
+
   // =============================================================================
   // CREATE COACH AVAILABILITIES (CRITICAL for E2E booking tests)
   // =============================================================================
@@ -538,6 +638,26 @@ const student = await prisma.user.create({
   });
   console.log(`  ✓ Booking 2: ${student.firstName} → ${booking2.title} (SCHEDULED)`);
 
+  const todayForCoach = new Date();
+  todayForCoach.setHours(15, 0, 0, 0);
+  const bookingToday = await prisma.sessionBooking.create({
+    data: {
+      studentId: student.id,
+      coachId: coach.id,
+      parentId: parent.id,
+      subject: Subject.MATHEMATIQUES,
+      title: 'E2E Report Session',
+      description: 'Today session for report dialog proof',
+      scheduledDate: todayForCoach,
+      startTime: '15:00',
+      endTime: '16:00',
+      duration: 60,
+      status: 'CONFIRMED',
+      creditsUsed: 1,
+    },
+  });
+  console.log(`  ✓ Booking Today: ${student.firstName} → ${bookingToday.title} (CONFIRMED)`);
+
   const booking3 = await prisma.sessionBooking.create({
     data: {
       studentId: student2.id,
@@ -562,6 +682,10 @@ const student = await prisma.user.create({
   console.log('📊 Summary:');
   console.log(`  Users: ${await prisma.user.count()}`);
   console.log(`  Pending Credit Requests: ${await prisma.creditTransaction.count({ where: { type: 'CREDIT_REQUEST' } })}`);
+  console.log(`  Subscriptions: ${await prisma.subscription.count()}`);
+  console.log(`  Subscription Requests: ${await prisma.subscriptionRequest.count()}`);
+  console.log(`  Stages: ${await prisma.stage.count()}`);
+  console.log(`  Stage Bilans: ${await prisma.stageBilan.count()}`);
   console.log(`  Session Bookings: ${await prisma.sessionBooking.count()}\n`);
 
   console.log('🔑 Test Credentials:');

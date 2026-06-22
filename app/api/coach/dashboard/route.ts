@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
       subject: s.subject,
       time: `${s.startTime} - ${s.endTime}`,
       type: s.type, // INDIVIDUAL | GROUP | MASTERCLASS
-      status: s.status.toLowerCase(),
+      status: s.status,
       scheduledAt: s.scheduledDate,
       duration: s.duration,
     }));

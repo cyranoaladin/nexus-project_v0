@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import {
@@ -531,6 +531,10 @@ export default function AdminStagesPage() {
   const [viewedBilan, setViewedBilan] = useState<StageBilan | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const editDialogTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const sessionDialogTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const coachDialogTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const bilanDialogTriggerRef = useRef<HTMLButtonElement | null>(null);
 
   const selectedStage = useMemo(
     () => stages.find((stage) => stage.id === selectedStageId) ?? null,
@@ -952,7 +956,16 @@ export default function AdminStagesPage() {
                             <TableCell>{stage.publishedBilans} / {stage.totalBilans}</TableCell>
                             <TableCell className="text-right">
                               <div className="flex flex-wrap justify-end gap-2">
-                                <Button type="button" size="sm" variant="outline" className="border-white/15 bg-transparent hover:bg-white/10" onClick={() => openEditDialog(stage)}>
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="outline"
+                                  className="border-white/15 bg-transparent hover:bg-white/10"
+                                  onClick={(event) => {
+                                    editDialogTriggerRef.current = event.currentTarget;
+                                    openEditDialog(stage);
+                                  }}
+                                >
                                   <Pencil className="mr-2 h-4 w-4" />
                                   Modifier
                                 </Button>
@@ -1013,7 +1026,15 @@ export default function AdminStagesPage() {
                           ))}
                         </SelectContent>
                       </Select>
-                      <Button type="button" className="btn-primary" disabled={!selectedStageId} onClick={() => setIsSessionDialogOpen(true)}>
+                      <Button
+                        type="button"
+                        className="btn-primary"
+                        disabled={!selectedStageId}
+                        onClick={(event) => {
+                          sessionDialogTriggerRef.current = event.currentTarget;
+                          setIsSessionDialogOpen(true);
+                        }}
+                      >
                         <Plus className="mr-2 h-4 w-4" />
                         Ajouter une séance
                       </Button>
@@ -1052,7 +1073,15 @@ export default function AdminStagesPage() {
                           ))}
                         </SelectContent>
                       </Select>
-                      <Button type="button" className="btn-primary" disabled={!selectedStageId} onClick={() => setIsCoachDialogOpen(true)}>
+                      <Button
+                        type="button"
+                        className="btn-primary"
+                        disabled={!selectedStageId}
+                        onClick={(event) => {
+                          coachDialogTriggerRef.current = event.currentTarget;
+                          setIsCoachDialogOpen(true);
+                        }}
+                      >
                         <Plus className="mr-2 h-4 w-4" />
                         Assigner un coach
                       </Button>
@@ -1128,7 +1157,16 @@ export default function AdminStagesPage() {
                             <TableCell>{getBilanStatusBadge(bilan.isPublished)}</TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end gap-2">
-                                <Button type="button" size="sm" variant="outline" className="border-white/15 bg-transparent hover:bg-white/10" onClick={() => setViewedBilan(bilan)}>
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="outline"
+                                  className="border-white/15 bg-transparent hover:bg-white/10"
+                                  onClick={(event) => {
+                                    bilanDialogTriggerRef.current = event.currentTarget;
+                                    setViewedBilan(bilan);
+                                  }}
+                                >
                                   <Eye className="mr-2 h-4 w-4" />
                                   Voir
                                 </Button>
@@ -1165,7 +1203,15 @@ export default function AdminStagesPage() {
       </main>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent size="full" className="max-h-[90vh] overflow-y-auto">
+        <DialogContent
+          size="full"
+          className="max-h-[90vh] overflow-y-auto"
+          onCloseAutoFocus={(event) => {
+            if (!editDialogTriggerRef.current) return;
+            event.preventDefault();
+            editDialogTriggerRef.current.focus();
+          }}
+        >
           <DialogHeader>
             <DialogTitle className="text-lux-ivory">Modifier le stage</DialogTitle>
           </DialogHeader>
@@ -1180,7 +1226,14 @@ export default function AdminStagesPage() {
       </Dialog>
 
       <Dialog open={isSessionDialogOpen} onOpenChange={setIsSessionDialogOpen}>
-        <DialogContent className="text-lux-ivory">
+        <DialogContent
+          className="text-lux-ivory"
+          onCloseAutoFocus={(event) => {
+            if (!sessionDialogTriggerRef.current) return;
+            event.preventDefault();
+            sessionDialogTriggerRef.current.focus();
+          }}
+        >
           <DialogHeader>
             <DialogTitle className="text-lux-ivory">Ajouter une séance</DialogTitle>
           </DialogHeader>
@@ -1245,7 +1298,14 @@ export default function AdminStagesPage() {
       </Dialog>
 
       <Dialog open={isCoachDialogOpen} onOpenChange={setIsCoachDialogOpen}>
-        <DialogContent className="text-lux-ivory">
+        <DialogContent
+          className="text-lux-ivory"
+          onCloseAutoFocus={(event) => {
+            if (!coachDialogTriggerRef.current) return;
+            event.preventDefault();
+            coachDialogTriggerRef.current.focus();
+          }}
+        >
           <DialogHeader>
             <DialogTitle className="text-lux-ivory">Assigner un coach</DialogTitle>
           </DialogHeader>
@@ -1278,7 +1338,15 @@ export default function AdminStagesPage() {
       </Dialog>
 
       <Dialog open={Boolean(viewedBilan)} onOpenChange={(open) => { if (!open) setViewedBilan(null); }}>
-        <DialogContent size="full" className="max-h-[90vh] overflow-y-auto">
+        <DialogContent
+          size="full"
+          className="max-h-[90vh] overflow-y-auto"
+          onCloseAutoFocus={(event) => {
+            if (!bilanDialogTriggerRef.current) return;
+            event.preventDefault();
+            bilanDialogTriggerRef.current.focus();
+          }}
+        >
           <DialogHeader>
             <DialogTitle className="text-lux-ivory">Bilan du stage</DialogTitle>
           </DialogHeader>

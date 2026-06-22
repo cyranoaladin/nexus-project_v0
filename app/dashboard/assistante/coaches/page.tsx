@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
+import { useState, useEffect, useRef, type Dispatch, type SetStateAction } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -83,6 +83,7 @@ export default function CoachManagement() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingCoach, setEditingCoach] = useState<Coach | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const editDialogTriggerRef = useRef<HTMLButtonElement | null>(null);
 
   // Form state
   const [formData, setFormData] = useState<CoachFormData>(INITIAL_FORM_DATA);
@@ -310,7 +311,10 @@ export default function CoachManagement() {
                       variant="outline"
                       size="sm"
                       className="text-neutral-200 hover:hover:border-brand-accent/40"
-                      onClick={() => openEditDialog(coach)}
+                      onClick={(event) => {
+                        editDialogTriggerRef.current = event.currentTarget;
+                        openEditDialog(coach);
+                      }}
                     >
                       <Edit className="w-4 h-4" />
                     </Button>
@@ -376,7 +380,14 @@ export default function CoachManagement() {
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent
+          className="max-w-2xl max-h-[90vh] overflow-y-auto"
+          onCloseAutoFocus={(event) => {
+            if (!editDialogTriggerRef.current) return;
+            event.preventDefault();
+            editDialogTriggerRef.current.focus();
+          }}
+        >
           <DialogHeader>
             <DialogTitle className="text-white">Modifier le coach</DialogTitle>
           </DialogHeader>

@@ -11,7 +11,7 @@ import { AlertCircle, CreditCard, Edit, Loader2, LogOut, Search } from "lucide-r
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface Subscription {
   id: string;
@@ -49,6 +49,7 @@ export default function SubscriptionsManagementPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedSubscription, setSelectedSubscription] = useState<Subscription | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const editDialogTriggerRef = useRef<HTMLButtonElement | null>(null);
 
   const fetchSubscriptions = useCallback(async () => {
     try {
@@ -315,7 +316,8 @@ export default function SubscriptionsManagementPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => {
+                            onClick={(event) => {
+                              editDialogTriggerRef.current = event.currentTarget;
                               setSelectedSubscription(subscription);
                               setIsDialogOpen(true);
                             }}
@@ -361,7 +363,13 @@ export default function SubscriptionsManagementPage() {
 
         {/* Edit Subscription Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent>
+          <DialogContent
+            onCloseAutoFocus={(event) => {
+              if (!editDialogTriggerRef.current) return;
+              event.preventDefault();
+              editDialogTriggerRef.current.focus();
+            }}
+          >
             <DialogHeader>
               <DialogTitle>Modifier l'Abonnement</DialogTitle>
             </DialogHeader>

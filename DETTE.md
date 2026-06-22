@@ -26,6 +26,15 @@
 
 ## Risques de divergence
 
+## État preuve modales
+
+- **2026-06-22, fil 2** : 17 preuves e2e auth réelles couvrent les modales montées et atteignables
+  dans `e2e/auth/dialog-all-roles-proof.spec.ts`.
+- Les deux trous fonctionnels ci-dessus restent hors périmètre de preuve car les composants ne sont
+  toujours pas montés dans un parcours utilisateur réel.
+- Les modales nested de rejet dans les flux assistante restent non ouvertes séparément dans ce lot ;
+  les modales principales de détail/traitement sont couvertes.
+
 ### Doublon de logique paiement/abonnement
 - La page `abonnements/page.tsx` a sa propre modale inline de changement de plan
   qui poste à `POST /api/parent/subscriptions`.

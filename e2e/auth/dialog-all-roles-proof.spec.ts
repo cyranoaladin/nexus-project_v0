@@ -149,6 +149,86 @@ test('admin: users detail dialog', async ({ page }) => {
   await assertDialogCloses(page, trigger, 'admin/users');
 });
 
+test('admin: subscriptions edit dialog', async ({ page }) => {
+  test.setTimeout(60000);
+  await loginAsUser(page, 'admin');
+  await page.goto(`${BASE}/dashboard/admin/subscriptions`, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(2000);
+
+  const trigger = page.locator('tbody tr button').first();
+  await expect(trigger).toBeVisible({ timeout: 5000 });
+  await trigger.click();
+  await page.waitForTimeout(500);
+
+  await assertDialogCharte(page, 'admin/subscriptions');
+  await assertDialogCloses(page, trigger, 'admin/subscriptions');
+});
+
+test('admin: stages edit dialog', async ({ page }) => {
+  test.setTimeout(60000);
+  await loginAsUser(page, 'admin');
+  await page.goto(`${BASE}/dashboard/admin/stages`, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(2000);
+
+  const trigger = page.getByRole('button', { name: /modifier/i }).first();
+  await expect(trigger).toBeVisible({ timeout: 5000 });
+  await trigger.click();
+  await page.waitForTimeout(500);
+
+  await assertDialogCharte(page, 'admin/stages/edit');
+  await assertDialogCloses(page, trigger, 'admin/stages/edit');
+});
+
+test('admin: stages session dialog', async ({ page }) => {
+  test.setTimeout(60000);
+  await loginAsUser(page, 'admin');
+  await page.goto(`${BASE}/dashboard/admin/stages`, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(2000);
+
+  await page.getByRole('tab', { name: /emploi du temps/i }).click();
+  const trigger = page.getByRole('button', { name: /ajouter une séance/i });
+  await expect(trigger).toBeVisible({ timeout: 5000 });
+  await expect(trigger).toBeEnabled();
+  await trigger.click();
+  await page.waitForTimeout(500);
+
+  await assertDialogCharte(page, 'admin/stages/session');
+  await assertDialogCloses(page, trigger, 'admin/stages/session');
+});
+
+test('admin: stages coach assignment dialog', async ({ page }) => {
+  test.setTimeout(60000);
+  await loginAsUser(page, 'admin');
+  await page.goto(`${BASE}/dashboard/admin/stages`, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(2000);
+
+  await page.getByRole('tab', { name: /coachs assignés/i }).click();
+  const trigger = page.getByRole('button', { name: /assigner un coach/i });
+  await expect(trigger).toBeVisible({ timeout: 5000 });
+  await expect(trigger).toBeEnabled();
+  await trigger.click();
+  await page.waitForTimeout(500);
+
+  await assertDialogCharte(page, 'admin/stages/coach');
+  await assertDialogCloses(page, trigger, 'admin/stages/coach');
+});
+
+test('admin: stages bilan dialog', async ({ page }) => {
+  test.setTimeout(60000);
+  await loginAsUser(page, 'admin');
+  await page.goto(`${BASE}/dashboard/admin/stages`, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(2000);
+
+  await page.getByRole('tab', { name: /^bilans$/i }).click();
+  const trigger = page.getByRole('button', { name: /^voir$/i }).first();
+  await expect(trigger).toBeVisible({ timeout: 5000 });
+  await trigger.click();
+  await page.waitForTimeout(500);
+
+  await assertDialogCharte(page, 'admin/stages/bilan');
+  await assertDialogCloses(page, trigger, 'admin/stages/bilan');
+});
+
 // ── ASSISTANTE ──
 
 test('assistante: create-student dialog', async ({ page }) => {
@@ -180,4 +260,96 @@ test('assistante: credit-requests dialog', async ({ page }) => {
 
   await assertDialogCharte(page, 'assistante/credit-requests');
   await assertDialogCloses(page, trigger, 'assistante/credit-requests');
+});
+
+test('assistante: coaches add dialog', async ({ page }) => {
+  test.setTimeout(60000);
+  await loginAsUser(page, 'assistante');
+  await page.goto(`${BASE}/dashboard/assistante/coaches`, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(2000);
+
+  const trigger = page.getByRole('button', { name: /ajouter un coach/i }).first();
+  await expect(trigger).toBeVisible({ timeout: 5000 });
+  await trigger.click();
+  await page.waitForTimeout(500);
+
+  await assertDialogCharte(page, 'assistante/coaches/add');
+  await assertDialogCloses(page, trigger, 'assistante/coaches/add');
+});
+
+test('assistante: coaches edit dialog', async ({ page }) => {
+  test.setTimeout(60000);
+  await loginAsUser(page, 'assistante');
+  await page.goto(`${BASE}/dashboard/assistante/coaches`, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(2000);
+
+  const trigger = page.locator('.grid .flex.space-x-2 button').first();
+  await expect(trigger).toBeVisible({ timeout: 5000 });
+  await trigger.click();
+  await page.waitForTimeout(500);
+
+  await assertDialogCharte(page, 'assistante/coaches/edit');
+  await assertDialogCloses(page, trigger, 'assistante/coaches/edit');
+});
+
+test('assistante: credits add dialog', async ({ page }) => {
+  test.setTimeout(60000);
+  await loginAsUser(page, 'assistante');
+  await page.goto(`${BASE}/dashboard/assistante/credits`, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(2000);
+
+  const trigger = page.getByRole('button', { name: /ajouter des crédits/i }).first();
+  await expect(trigger).toBeVisible({ timeout: 5000 });
+  await trigger.click();
+  await page.waitForTimeout(500);
+
+  await assertDialogCharte(page, 'assistante/credits');
+  await assertDialogCloses(page, trigger, 'assistante/credits');
+});
+
+test('assistante: subscriptions pending detail dialog', async ({ page }) => {
+  test.setTimeout(60000);
+  await loginAsUser(page, 'assistante');
+  await page.goto(`${BASE}/dashboard/assistante/subscriptions?tab=pending`, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(2000);
+
+  const trigger = page.getByRole('button', { name: /voir détails/i }).first();
+  await expect(trigger).toBeVisible({ timeout: 5000 });
+  await trigger.click();
+  await page.waitForTimeout(500);
+
+  await assertDialogCharte(page, 'assistante/subscriptions/pending');
+  await assertDialogCloses(page, trigger, 'assistante/subscriptions/pending');
+});
+
+test('assistante: subscription request detail dialog', async ({ page }) => {
+  test.setTimeout(60000);
+  await loginAsUser(page, 'assistante');
+  await page.goto(`${BASE}/dashboard/assistante/subscriptions?tab=requests`, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(2000);
+
+  const trigger = page.getByRole('button', { name: /voir \/ traiter/i }).first();
+  await expect(trigger).toBeVisible({ timeout: 5000 });
+  await trigger.click();
+  await page.waitForTimeout(500);
+
+  await assertDialogCharte(page, 'assistante/subscriptions/request');
+  await assertDialogCloses(page, trigger, 'assistante/subscriptions/request');
+});
+
+// ── COACH ──
+
+test('coach: session report dialog', async ({ page }) => {
+  test.setTimeout(60000);
+  await loginAsUser(page, 'coach');
+  await page.goto(`${BASE}/dashboard/coach/sessions`, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(2000);
+
+  const trigger = page.getByRole('button', { name: /rapport/i }).first();
+  await expect(trigger).toBeVisible({ timeout: 5000 });
+  await trigger.click();
+  await page.waitForTimeout(500);
+
+  await assertDialogCharte(page, 'coach/sessions/report');
+  await assertDialogCloses(page, trigger, 'coach/sessions/report');
 });
