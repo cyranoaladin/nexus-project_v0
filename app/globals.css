@@ -290,9 +290,12 @@ h1, h2, h3 {
   --color-lux-on-dark-muted: #C4BBA8;  /* 8.2:1 on ink — secondary text */
   --color-lux-on-dark-subtle: #97918A; /* 5.0:1 on ink — captions */
 
-  /* Font aliases for luxury Fraunces + DM Sans */
-  --font-fraunces: var(--font-display), 'Fraunces', serif;
-  --font-dm-sans: var(--font-body), 'DM Sans', sans-serif;
+  /* Font aliases for luxury Fraunces + DM Sans
+     NOTE: These reference --font-display/--font-body which are overridden
+     at body level by Next.js font loader. CSS vars resolve at use time,
+     so these aliases correctly inherit the body-level values. */
+  --font-fraunces: 'Fraunces', serif;
+  --font-dm-sans: 'DM Sans', sans-serif;
 
   /* Legacy colors (backward compatibility) */
   --color-background: var(--background);
