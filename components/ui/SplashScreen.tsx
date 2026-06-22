@@ -10,18 +10,30 @@ interface SplashScreenProps {
 export default function SplashScreen({ onComplete }: SplashScreenProps) {
     const [text, setText] = useState('');
     const [isFadingOut, setIsFadingOut] = useState(false);
+    const [reducedMotion, setReducedMotion] = useState(false);
 
     const fullText = "Viser. Atteindre. Dépasser.";
-    const typingSpeed = 40; // ms per char
-    const initialDelay = 800; // ms before typing starts
-    const postTypingDelay = 1200; // ms to wait after typing finishes
-    const fadeOutDuration = 500; // ms
+    const typingSpeed = 40;
+    const initialDelay = 800;
+    const postTypingDelay = 1200;
+    const fadeOutDuration = 500;
 
     useEffect(() => {
+        const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+        setReducedMotion(mq.matches);
+    }, []);
+
+    useEffect(() => {
+        // Skip animation entirely if reduced motion
+        if (reducedMotion) {
+            setText(fullText);
+            const id = setTimeout(() => onComplete(), 600);
+            return () => clearTimeout(id);
+        }
+
         let timeoutId: NodeJS.Timeout;
         let charIndex = 0;
 
-        // Start typing after initial delay
         const startTyping = () => {
             const typeChar = () => {
                 if (charIndex < fullText.length) {
@@ -29,7 +41,6 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
                     charIndex++;
                     timeoutId = setTimeout(typeChar, typingSpeed);
                 } else {
-                    // Finished typing
                     timeoutId = setTimeout(() => {
                         setIsFadingOut(true);
                         timeoutId = setTimeout(() => {
@@ -45,16 +56,19 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         timeoutId = setTimeout(startTyping, initialDelay);
 
         return () => clearTimeout(timeoutId);
-    }, [onComplete]);
+    }, [onComplete, reducedMotion]);
 
     return (
         <div
             id="nexus-splash"
-            className={`fixed inset-0 bg-white flex justify-center items-center z-[10000] ${isFadingOut ? 'opacity-0 transition-opacity duration-500 pointer-events-none' : ''}`}
+            role="status"
+            aria-live="polite"
+            aria-label="Chargement de Nexus Réussite"
+            className={`fixed inset-0 bg-lux-ivory flex justify-center items-center z-[10000] ${isFadingOut ? 'opacity-0 transition-opacity duration-500 motion-reduce:transition-none pointer-events-none' : ''}`}
         >
             <div className="flex flex-col items-center">
                 {/* Logo with bounce animation */}
-                <div className="animate-bounce-in opacity-0">
+                <div className="splash-bounce-in opacity-0 motion-reduce:opacity-100 motion-reduce:animate-none">
                     <Image
                         src="/images/logo.png"
                         alt="Nexus Réussite"
@@ -65,12 +79,15 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
                     />
                 </div>
 
-                {/* Typewriter text container */}
-                <div className="mt-[30px] font-sans font-extrabold text-[1.8rem] h-[40px] flex items-center">
-                    <span style={{ color: '#004aad' }}>{text}</span>
+                {/* Filet or — marque */}
+                <div className="lux-filet-gold mt-5 w-12" />
+
+                {/* Typewriter text */}
+                <div className="mt-4 font-fraunces font-semibold text-[1.6rem] md:text-[1.8rem] h-[40px] flex items-center">
+                    <span className="text-lux-ink">{text}</span>
                     <span
-                        className="animate-blink font-bold ml-1"
-                        style={{ color: '#e30613' }}
+                        className="splash-blink font-bold ml-1 text-lux-gold motion-reduce:hidden"
+                        aria-hidden="true"
                     >
                         |
                     </span>
@@ -78,27 +95,40 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
             </div>
 
             <style jsx global>{`
-        @keyframes bounceIn {
-          0% {
-            opacity: 0;
-            transform: scale(0.3) rotate(-20deg);
+        @media (prefers-reduced-motion: no-preference) {
+          @keyframes splashBounceIn {
+            0% {
+              opacity: 0;
+              transform: scale(0.3) rotate(-20deg);
+            }
+            100% {
+              opacity: 1;
+              transform: scale(1) rotate(0deg);
+            }
           }
-          100% {
-            opacity: 1;
-            transform: scale(1) rotate(0deg);
+
+          .splash-bounce-in {
+            animation: splashBounceIn 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+          }
+
+          @keyframes splashBlink {
+            50% { opacity: 0; }
+          }
+
+          .splash-blink {
+            animation: splashBlink 0.6s step-end infinite;
           }
         }
-        
-        .animate-bounce-in {
-          animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
-        }
-        
-        @keyframes blink {
-          50% { opacity: 0; }
-        }
-        
-        .animate-blink {
-          animation: blink 0.6s step-end infinite;
+
+        @media (prefers-reduced-motion: reduce) {
+          .splash-bounce-in {
+            opacity: 1 !important;
+            animation: none !important;
+          }
+          .splash-blink {
+            animation: none !important;
+            display: none;
+          }
         }
       `}</style>
         </div>
