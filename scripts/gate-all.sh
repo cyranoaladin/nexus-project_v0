@@ -15,7 +15,7 @@ PORT=${AUTH_E2E_PORT:-3002}
 DB_URL="postgresql://postgres:postgres@127.0.0.1:5435/nexus_e2e?schema=public"
 JEST_MIN=6215
 PUBLIC_MIN=184
-AUTH_MIN=14
+AUTH_MIN=15
 
 echo "╔══════════════════════════════════════════╗"
 echo "║           UNIFIED GATE                   ║"

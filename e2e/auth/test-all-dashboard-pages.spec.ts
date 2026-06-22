@@ -17,6 +17,11 @@ async function testPage(page: Page, url: string) {
     if (m.type() === 'error') {
       const t = m.text();
       // Filter known non-breaking console noise
+      // CSP: only ignore violations where the blocked URI is the test origin
+      // (127.0.0.1↔localhost mismatch). A violation to a PROD origin must fail.
+      const isTestOriginCsp =
+        t.includes('Content Security Policy') &&
+        (t.includes('localhost:') || t.includes('127.0.0.1:'));
       if (
         t.includes('favicon') ||
         t.includes('ClientFetchError') ||
@@ -24,7 +29,7 @@ async function testPage(page: Page, url: string) {
         t.includes('hydration') ||
         t.includes('Failed to load resource') ||
         t.includes('net::ERR') ||
-        t.includes('Content Security Policy')  // CSP violations in test env (localhost not in connect-src)
+        isTestOriginCsp
       )
         return;
       jsErrors.push(t.substring(0, 100));
@@ -70,6 +75,9 @@ test('Admin — toutes les pages', async ({ page }) => {
     '/dashboard/admin/activities',
     '/dashboard/admin/tests',
     '/dashboard/admin/facturation',
+    // /admin/directeur intentionally omitted: RBAC redirects it to /dashboard/admin
+    // (302 → localhost vs 127.0.0.1 cookie domain mismatch in test env).
+    // The redirect itself is correct behaviour, verified via curl in recon.
   ];
   for (const url of pages) await testPage(page, url);
 });
@@ -124,6 +132,13 @@ test('Élève — toutes les pages', async ({ page }) => {
     '/dashboard/eleve/ressources',
     '/dashboard/trajectoire',
   ];
+  for (const url of pages) await testPage(page, url);
+});
+
+test('Pages spéciales authentifiées', async ({ page }) => {
+  test.setTimeout(60000);
+  await loginAsUser(page, 'student');
+  const pages = ['/session/video', '/access-required'];
   for (const url of pages) await testPage(page, url);
 });
 
