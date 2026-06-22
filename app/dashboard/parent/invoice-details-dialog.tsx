@@ -22,7 +22,7 @@ export default function InvoiceDetailsDialog({ subscriptionDetails, studentName 
 
   if (!subscriptionDetails) {
     return (
-      <Button variant="outline" size="sm" className="text-xs sm:text-sm border-white/10 text-neutral-400" disabled>
+      <Button variant="outline" size="sm" className="text-xs sm:text-sm text-neutral-400" disabled>
         Voir Détails
       </Button>
     );
@@ -48,13 +48,13 @@ export default function InvoiceDetailsDialog({ subscriptionDetails, studentName 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="text-xs sm:text-sm border-white/10 text-neutral-200 hover:text-white">
+        <Button variant="outline" size="sm" className="text-xs sm:text-sm text-neutral-200 hover:text-white">
           Voir Détails
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md bg-surface-card border border-white/10 text-neutral-100">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-white">
+          <DialogTitle className="flex items-center gap-2">
             <Receipt className="w-5 h-5" />
             Détails de Facturation
           </DialogTitle>
@@ -64,9 +64,9 @@ export default function InvoiceDetailsDialog({ subscriptionDetails, studentName 
         </DialogHeader>
         
         <div className="space-y-4">
-          <div className="bg-white/5 border border-white/10 p-4 rounded-lg">
+          <div className="bg-white/5 p-4 rounded-lg">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="font-medium text-white">Formule Actuelle</h3>
+              <h3 className="font-medium">Formule Actuelle</h3>
               <Badge
                 variant={
                   subscriptionDetails.status === 'ACTIVE'
@@ -90,20 +90,20 @@ export default function InvoiceDetailsDialog({ subscriptionDetails, studentName 
           </div>
 
           <div className="grid grid-cols-1 gap-4">
-            <div className="flex items-center space-x-3 p-3 bg-white/5 border border-white/10 rounded-lg">
+            <div className="flex items-center space-x-3 p-3 bg-white/5 rounded-lg">
               <Calendar className="w-5 h-5 text-brand-accent" />
               <div>
-                <p className="text-sm font-medium text-white">Date de début</p>
+                <p className="text-sm font-medium">Date de début</p>
                 <p className="text-sm text-neutral-400">
                   {formatDate(subscriptionDetails.startDate)}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center space-x-3 p-3 bg-white/5 border border-white/10 rounded-lg">
+            <div className="flex items-center space-x-3 p-3 bg-white/5 rounded-lg">
               <CreditCard className="w-5 h-5 text-emerald-300" />
               <div>
-                <p className="text-sm font-medium text-white">Prochaine facturation</p>
+                <p className="text-sm font-medium">Prochaine facturation</p>
                 <p className="text-sm text-neutral-400">
                   {formatDate(subscriptionDetails.endDate)}
                 </p>
@@ -125,7 +125,7 @@ export default function InvoiceDetailsDialog({ subscriptionDetails, studentName 
             <Button 
               variant="outline" 
               onClick={() => setOpen(false)}
-              className="border-white/10 text-neutral-200 hover:text-white"
+              className="text-neutral-200 hover:text-white"
             >
               Fermer
             </Button>

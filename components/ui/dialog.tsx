@@ -70,15 +70,15 @@ const DialogContent = React.forwardRef<
           initial={
             prefersReducedMotion
               ? { opacity: 1, scale: 1, y: "-50%" }
-              : { opacity: 0, scale: 0.97, y: "calc(-50% + 10px)" }
+              : { opacity: 0, scale: 0.96, y: "calc(-50% + 12px)" }
           }
           animate={{ opacity: 1, scale: 1, y: "-50%" }}
           exit={
             prefersReducedMotion
               ? { opacity: 1, scale: 1, y: "-50%" }
-              : { opacity: 0, scale: 0.97, y: "calc(-50% + 10px)" }
+              : { opacity: 0, scale: 0.96, y: "calc(-50% + 12px)" }
           }
-          transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
         >
           {children}
           <DialogPrimitive.Close className="absolute right-4 top-4 rounded-full p-1.5 text-lux-slate transition-colors hover:text-lux-ivory hover:bg-lux-ivory/10 focus:outline-none focus:ring-2 focus:ring-lux-gold focus:ring-offset-2 focus:ring-offset-lux-ink disabled:pointer-events-none">

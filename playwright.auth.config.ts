@@ -14,6 +14,7 @@ export default defineConfig({
     'rbac.dashboards.contract.spec.ts',
     'test-all-dashboard-pages.spec.ts',
     'dialog-charte-proof.spec.ts',
+    'dialog-all-roles-proof.spec.ts',
   ],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
