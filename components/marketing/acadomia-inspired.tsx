@@ -64,23 +64,40 @@ export function ProcessSteps() {
   return (
     <section className="bg-lux-white px-4 py-14 md:px-6">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-8">
+        <div className="mb-10">
           <span className="lux-eyebrow">Comment ça se passe</span>
           <h2 className="mt-2 text-2xl md:text-3xl font-fraunces">Un parcours clair avant de réserver</h2>
           <div className="lux-filet-gold mt-3 w-16" />
         </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+
+        {/* Timeline — vertical on mobile, horizontal on lg */}
+        <div className="relative grid gap-0 lg:grid-cols-4">
+          {/* Connecting line — vertical on mobile, horizontal on lg */}
+          <div
+            className="absolute left-[17px] top-5 bottom-5 w-px bg-lux-gold/25 lg:left-0 lg:right-0 lg:top-[17px] lg:bottom-auto lg:h-px lg:w-auto"
+            aria-hidden="true"
+          />
+
           {processSteps.map((step, index) => (
-            <article key={step.title} className="rounded-xl border border-lux-line bg-lux-white p-5 lux-shadow">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-lux-gold/15 text-sm font-bold text-lux-gold-deep">
+            <article
+              key={step.title}
+              className="relative flex gap-5 py-5 lg:flex-col lg:items-start lg:px-5 lg:py-0"
+            >
+              {/* Number badge */}
+              <div className="relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-lux-gold/30 bg-lux-white text-sm font-bold text-lux-gold-deep">
                 {index + 1}
               </div>
-              <h3 className="mt-4 text-lg font-fraunces text-lux-ink">{step.title}</h3>
-              <p className="mt-2 text-sm leading-6 text-lux-slate">{step.text}</p>
+
+              {/* Content */}
+              <div className="pb-1">
+                <h3 className="text-base font-fraunces text-lux-ink lg:mt-4">{step.title}</h3>
+                <p className="mt-1 text-sm leading-6 text-lux-slate">{step.text}</p>
+              </div>
             </article>
           ))}
         </div>
-        <p className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-lux-ink">
+
+        <p className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-lux-ink">
           <Clock3 className="h-4 w-4 text-lux-gold-deep" aria-hidden="true" />
           Réponse sous 24 h ouvrées.
         </p>

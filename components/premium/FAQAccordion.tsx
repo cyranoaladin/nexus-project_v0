@@ -11,17 +11,19 @@ export interface FAQItem {
 interface FAQAccordionProps {
   items: FAQItem[];
   title?: string;
+  className?: string;
 }
 
-export function FAQAccordion({ items, title = 'Questions fréquentes' }: FAQAccordionProps) {
+export function FAQAccordion({ items, title = 'Questions fréquentes', className }: FAQAccordionProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <section className="py-20 px-4 md:px-6">
+    <section className={`py-20 px-4 md:px-6 ${className ?? ''}`}>
       <div className="mx-auto max-w-2xl">
         <div className="mb-10 text-center">
           <span className="lux-eyebrow">FAQ</span>
-          <h2 className="mt-3 text-3xl md:text-4xl">{title}</h2>
+          <h2 className="mt-3 text-3xl md:text-4xl font-fraunces">{title}</h2>
+          <div className="lux-filet-gold mx-auto mt-3 w-16" />
         </div>
 
         <div className="space-y-3">
