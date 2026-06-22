@@ -12,7 +12,7 @@ import { AlertCircle, Edit, Loader2, LogOut, Plus, Search, Trash2, Users } from 
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface User {
   id: string;
@@ -51,6 +51,7 @@ export default function UsersManagementPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const userDialogTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [formData, setFormData] = useState<UserFormData>({
     email: "",
     firstName: "",
@@ -319,12 +320,25 @@ export default function UsersManagementPage() {
             </div>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button onClick={openCreateDialog}>
+                <Button
+                  onClick={(event) => {
+                    userDialogTriggerRef.current = event.currentTarget;
+                    openCreateDialog();
+                  }}
+                >
                   <Plus className="w-4 h-4 mr-2" />
                   Ajouter Utilisateur
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-md" aria-describedby={undefined}>
+              <DialogContent
+                className="sm:max-w-md"
+                aria-describedby={undefined}
+                onCloseAutoFocus={(event) => {
+                  if (!userDialogTriggerRef.current) return;
+                  event.preventDefault();
+                  userDialogTriggerRef.current.focus();
+                }}
+              >
                 <DialogHeader>
                   <DialogTitle>
                     {editingUser ? 'Modifier Utilisateur' : 'Ajouter Utilisateur'}
@@ -520,7 +534,10 @@ export default function UsersManagementPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => openEditDialog(user)}
+                            onClick={(event) => {
+                              userDialogTriggerRef.current = event.currentTarget;
+                              openEditDialog(user);
+                            }}
                           >
                             <Edit className="w-4 h-4" />
                           </Button>

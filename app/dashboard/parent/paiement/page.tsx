@@ -18,7 +18,7 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { LEGAL } from "@/lib/legal";
 
@@ -45,6 +45,7 @@ function PaiementContent() {
   const [pendingCheckDone, setPendingCheckDone] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [immediateExecution, setImmediateExecution] = useState(false);
+  const virementTriggerRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -288,7 +289,11 @@ function PaiementContent() {
               {/* Virement Bancaire — actif (désactivé si PENDING existe) */}
               <button
                 type="button"
-                onClick={() => setVirementModalOpen(true)}
+                ref={virementTriggerRef}
+                onClick={(event) => {
+                  virementTriggerRef.current = event.currentTarget;
+                  setVirementModalOpen(true);
+                }}
                 disabled={hasPendingPayment || !termsAccepted}
                 className={`w-full text-left p-4 border rounded-lg transition-colors ${
                   hasPendingPayment || !termsAccepted
@@ -397,7 +402,15 @@ function PaiementContent() {
 
       {/* Modale Virement Bancaire */}
       <Dialog open={virementModalOpen} onOpenChange={setVirementModalOpen}>
-        <DialogContent size="lg" className="max-h-[90vh] overflow-y-auto">
+        <DialogContent
+          size="lg"
+          className="max-h-[90vh] overflow-y-auto"
+          onCloseAutoFocus={(event) => {
+            if (!virementTriggerRef.current) return;
+            event.preventDefault();
+            virementTriggerRef.current.focus();
+          }}
+        >
           <DialogHeader>
             <DialogTitle className="text-xl flex items-center gap-2">
               <Landmark className="w-5 h-5 text-brand-primary" />

@@ -249,6 +249,15 @@ const student = await prisma.user.create({
         description: 'E2E seed credits'
       }
     });
+
+    await prisma.creditTransaction.create({
+      data: {
+        studentId: primaryStudent.id,
+        type: 'CREDIT_REQUEST',
+        amount: 4,
+        description: 'E2E pending credit request for dialog proof'
+      }
+    });
   }
 
   console.log(`  ✓ Student: ${student.email} (Linked to Parent)`);
@@ -552,6 +561,7 @@ const student = await prisma.user.create({
   console.log('✅ E2E database seeded successfully!\n');
   console.log('📊 Summary:');
   console.log(`  Users: ${await prisma.user.count()}`);
+  console.log(`  Pending Credit Requests: ${await prisma.creditTransaction.count({ where: { type: 'CREDIT_REQUEST' } })}`);
   console.log(`  Session Bookings: ${await prisma.sessionBooking.count()}\n`);
 
   console.log('🔑 Test Credentials:');
