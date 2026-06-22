@@ -180,4 +180,20 @@ test('assistante approves a fresh ARIA add-on request with catalog price and add
   });
   await expect(approvedRequestCard).toContainText('75 TND');
   await expect(approvedRequestCard).toContainText(CREDS.parent.email);
+
+  await page.getByRole('tab', { name: /Actifs/i }).click();
+  await page.getByPlaceholder(/Rechercher/i).fill('ANALYSE_APPROFONDIE');
+
+  const activeCard = page
+    .locator('.shadow-premium')
+    .filter({ hasText: 'Yasmine Dupont' })
+    .filter({ hasText: 'ACTIF' })
+    .first();
+
+  await expect(activeCard, 'active subscription displays approved ARIA add-on fields').toBeVisible({
+    timeout: 10_000,
+  });
+  await expect(activeCard).toContainText('ARIA');
+  await expect(activeCard).toContainText('ANALYSE_APPROFONDIE');
+  await expect(activeCard).toContainText('75 TND/mois');
 });

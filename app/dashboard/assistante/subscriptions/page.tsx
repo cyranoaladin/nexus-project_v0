@@ -42,6 +42,8 @@ type Subscription = {
   planName: string;
   monthlyPrice: number;
   creditsPerMonth: number;
+  ariaSubjects: unknown;
+  ariaCost: number;
   status: string;
   createdAt: string;
   startDate: string;
@@ -88,6 +90,19 @@ type SubscriptionChangeRequest = {
 };
 
 type TabKey = "pending" | "requests" | "active";
+
+function normalizeAriaSubjects(value: unknown): string[] {
+  if (Array.isArray(value)) return value.map(String);
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value) as unknown;
+      return Array.isArray(parsed) ? parsed.map(String) : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
 
 export default function AssistanteSubscriptionsPage() {
   const { data: session, status } = useSession();
@@ -245,7 +260,8 @@ export default function AssistanteSubscriptionsPage() {
       .filter((sub) => {
         if (studentIdFilter && sub.student.id !== studentIdFilter) return false;
         if (!term) return true;
-        const hay = `${sub.student.firstName} ${sub.student.lastName} ${sub.parent.firstName} ${sub.parent.lastName} ${sub.planName}`.toLowerCase();
+        const ariaSubjects = normalizeAriaSubjects(sub.ariaSubjects).join(" ");
+        const hay = `${sub.student.firstName} ${sub.student.lastName} ${sub.parent.firstName} ${sub.parent.lastName} ${sub.planName} ${ariaSubjects} ${sub.ariaCost}`.toLowerCase();
         return hay.includes(term);
       });
   }, [allSubscriptions, searchTerm, studentIdFilter]);
@@ -754,43 +770,53 @@ export default function AssistanteSubscriptionsPage() {
           <TabsContent value="active" className="mt-4">
             <div className="space-y-4">
               {filteredActive.length > 0 ? (
-                filteredActive.map((sub) => (
-                  <Card key={sub.id} className="shadow-premium">
-                    <CardHeader>
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <CardTitle className="text-lg">
-                            {sub.planName} — {sub.student.firstName} {sub.student.lastName}
-                          </CardTitle>
-                          <p className="text-sm text-neutral-300">
-                            Parent : {sub.parent.firstName} {sub.parent.lastName}
-                          </p>
-                          <p className="text-xs text-neutral-400">
-                            Début : {new Date(sub.startDate).toLocaleDateString("fr-FR")}
-                            {sub.endDate ? ` • Fin : ${new Date(sub.endDate).toLocaleDateString("fr-FR")}` : ""}
-                          </p>
+                filteredActive.map((sub) => {
+                  const ariaSubjects = normalizeAriaSubjects(sub.ariaSubjects);
+                  return (
+                    <Card key={sub.id} className="shadow-premium">
+                      <CardHeader>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <CardTitle className="text-lg">
+                              {sub.planName} — {sub.student.firstName} {sub.student.lastName}
+                            </CardTitle>
+                            <p className="text-sm text-neutral-300">
+                              Parent : {sub.parent.firstName} {sub.parent.lastName}
+                            </p>
+                            <p className="text-xs text-neutral-400">
+                              Début : {new Date(sub.startDate).toLocaleDateString("fr-FR")}
+                              {sub.endDate ? ` • Fin : ${new Date(sub.endDate).toLocaleDateString("fr-FR")}` : ""}
+                            </p>
+                          </div>
+                          <Badge variant="outline" className="border-emerald-500/30 text-emerald-200">
+                            ACTIF
+                          </Badge>
                         </div>
-                        <Badge variant="outline" className="border-emerald-500/30 text-emerald-200">
-                          ACTIF
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <p className="text-xs text-neutral-400">Prix</p>
-                        <p className="text-sm text-neutral-200">{sub.monthlyPrice} TND/mois</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-neutral-400">Crédits/mois</p>
-                        <p className="text-sm text-neutral-200">{sub.creditsPerMonth}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-neutral-400">Créé le</p>
-                        <p className="text-sm text-neutral-200">{new Date(sub.createdAt).toLocaleDateString("fr-FR")}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
+                      </CardHeader>
+                      <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                          <p className="text-xs text-neutral-400">Prix</p>
+                          <p className="text-sm text-neutral-200">{sub.monthlyPrice} TND/mois</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-neutral-400">Crédits/mois</p>
+                          <p className="text-sm text-neutral-200">{sub.creditsPerMonth}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-neutral-400">ARIA</p>
+                          <p className="text-sm text-neutral-200">
+                            {ariaSubjects.length > 0 ? ariaSubjects.join(", ") : "Aucun add-on actif"}
+                          </p>
+                          <p className="text-xs text-neutral-400">{sub.ariaCost} TND/mois</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-neutral-400">Créé le</p>
+                          <p className="text-sm text-neutral-200">{new Date(sub.createdAt).toLocaleDateString("fr-FR")}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })
               ) : (
                 <div className="text-center py-12">
                   <CreditCard className="w-16 h-16 text-neutral-500 mx-auto mb-4" />
