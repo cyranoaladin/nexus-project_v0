@@ -68,6 +68,8 @@ export function CorporateNavbar() {
     };
   }, []);
 
+  const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const menuOverlayRef = useRef<HTMLDivElement | null>(null);
   const [reducedMotion, setReducedMotion] = useState(false);
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -81,9 +83,33 @@ export function CorporateNavbar() {
   useEffect(() => {
     if (!isOpen) return;
 
+    // Focus the close button on open (after transition starts)
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.getElementById('close-menu')?.focus();
+      });
+    });
+
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setIsOpen(false);
+      }
+
+      // Focus trap — wrap Tab within the overlay
+      if (event.key === 'Tab' && menuOverlayRef.current) {
+        const focusable = menuOverlayRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
       }
     };
 
@@ -93,6 +119,8 @@ export function CorporateNavbar() {
     return () => {
       document.removeEventListener('keydown', onKeyDown);
       document.body.style.overflow = '';
+      // Restore focus to trigger
+      menuTriggerRef.current?.focus();
     };
   }, [isOpen]);
 
@@ -348,6 +376,7 @@ export function CorporateNavbar() {
 
             {/* Menu Button - Mobile */}
             <button
+              ref={menuTriggerRef}
               onClick={() => setIsOpen(true)}
               className={chromeMenuButton}
               aria-label="Ouvrir le menu"
@@ -363,14 +392,19 @@ export function CorporateNavbar() {
 
       {/* Full Screen Menu Overlay */}
       <div
+        ref={menuOverlayRef}
         id="primary-menu"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Menu principal"
         className={`fixed inset-0 z-[100] transition-all duration-500 motion-reduce:transition-none ${isOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
           }`}
       >
         {/* Backdrop */}
         <div
-          className="absolute inset-0 bg-surface-darker/95 backdrop-blur-xl"
+          className="absolute inset-0 bg-lux-ink/95 backdrop-blur-xl"
           onClick={() => setIsOpen(false)}
+          aria-hidden="true"
         />
 
         {/* Content */}
@@ -397,9 +431,10 @@ export function CorporateNavbar() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
                     {menuGroups.map((group, groupIndex) => (
                       <div key={group.title} className="space-y-6">
-                        <div className="text-xs uppercase tracking-[0.24em] text-neutral-500 font-mono">
+                        <div className="text-xs uppercase tracking-[0.24em] text-lux-gold-wash font-mono">
                           {group.title}
                         </div>
+                        <div className="lux-filet-gold w-10" />
                         <div className="flex flex-col gap-6">
                           {group.items.map((item, itemIndex) => {
                             const index = groupIndex * 10 + itemIndex;
@@ -454,7 +489,7 @@ export function CorporateNavbar() {
               <div className="mx-auto max-w-4xl rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                   <div>
-                    <p className="text-xs uppercase tracking-[0.2em] text-neutral-500 font-mono">
+                    <p className="text-xs uppercase tracking-[0.2em] text-lux-gold-wash font-mono">
                       Prochaine étape
                     </p>
                     <p className="mt-2 text-2xl md:text-3xl font-bold text-white" role="presentation">
@@ -468,7 +503,7 @@ export function CorporateNavbar() {
                     <Link
                       href="/auth/signin"
                       onClick={() => setIsOpen(false)}
-                      className="flex items-center gap-2 rounded-lg bg-lux-gold px-5 py-3 text-sm font-semibold text-lux-ink transition-all hover:bg-lux-gold-bright"
+                      className="flex items-center gap-2 rounded-lg lux-cta-reserve px-5 py-3 text-sm font-semibold transition-all"
                     >
                       <LogIn className="w-4 h-4" aria-hidden="true" />
                       Se connecter
