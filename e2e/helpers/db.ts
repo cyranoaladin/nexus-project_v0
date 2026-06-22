@@ -379,7 +379,21 @@ export async function clearParentSubscription(email: string): Promise<void> {
   });
 }
 
-export async function createPendingSubscriptionRequest(parentEmail: string): Promise<{ id: string }> {
+type E2ESubscriptionPlanName = 'ACCES_PLATEFORME' | 'HYBRIDE' | 'IMMERSION';
+
+const E2E_SUBSCRIPTION_CATALOG: Record<E2ESubscriptionPlanName, { price: number; credits: number }> = {
+  ACCES_PLATEFORME: { price: 150, credits: 0 },
+  HYBRIDE: { price: 450, credits: 4 },
+  IMMERSION: { price: 750, credits: 8 },
+};
+
+export async function createPendingSubscriptionRequest(
+  parentEmail: string,
+  options: {
+    planName?: E2ESubscriptionPlanName;
+    reason?: string;
+  } = {}
+): Promise<{ id: string; studentId: string; initialCreditTotal: number }> {
   const client = getPrisma();
   const parentUser = await client.user.findUnique({
     where: { email: parentEmail },
@@ -389,18 +403,83 @@ export async function createPendingSubscriptionRequest(parentEmail: string): Pro
     throw new Error(`No child found for ${parentEmail}`);
   }
   const child = parentUser.parentProfile.children[0];
+  const planName = options.planName ?? 'HYBRIDE';
+  const plan = E2E_SUBSCRIPTION_CATALOG[planName];
+
+  if (options.reason) {
+    await client.subscriptionRequest.deleteMany({
+      where: { studentId: child.id, reason: options.reason },
+    });
+  }
+
+  const initialCreditTotal = await client.creditTransaction.aggregate({
+    where: { studentId: child.id },
+    _sum: { amount: true },
+  });
+
   const req = await client.subscriptionRequest.create({
     data: {
       studentId: child.id,
       requestType: 'PLAN_CHANGE',
-      planName: 'HYBRIDE',
-      monthlyPrice: 450,
+      planName,
+      monthlyPrice: plan.price,
+      reason: options.reason ?? '',
       status: 'PENDING',
       requestedBy: parentUser.id,
       requestedByEmail: parentEmail,
     },
   });
-  return { id: req.id };
+  return { id: req.id, studentId: child.id, initialCreditTotal: initialCreditTotal._sum.amount ?? 0 };
+}
+
+export async function getPlanChangeApprovalState(requestId: string) {
+  const client = getPrisma();
+  const request = await client.subscriptionRequest.findUnique({
+    where: { id: requestId },
+  });
+  if (!request) throw new Error(`Subscription request not found: ${requestId}`);
+
+  const activeSubscription = await client.subscription.findFirst({
+    where: {
+      studentId: request.studentId,
+      status: 'ACTIVE',
+    },
+    orderBy: { updatedAt: 'desc' },
+  });
+
+  const creditTotal = await client.creditTransaction.aggregate({
+    where: { studentId: request.studentId },
+    _sum: { amount: true },
+  });
+
+  const approvalCredits = await client.creditTransaction.findMany({
+    where: {
+      studentId: request.studentId,
+      type: 'CREDIT_ADD',
+      description: { contains: `Crédits inclus dans l'abonnement ${request.planName}` },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  return {
+    request: {
+      status: request.status,
+      planName: request.planName,
+      monthlyPrice: request.monthlyPrice,
+      processedBy: request.processedBy,
+      processedAt: request.processedAt,
+    },
+    activeSubscription: activeSubscription
+      ? {
+          planName: activeSubscription.planName,
+          monthlyPrice: activeSubscription.monthlyPrice,
+          creditsPerMonth: activeSubscription.creditsPerMonth,
+          status: activeSubscription.status,
+        }
+      : null,
+    creditTotal: creditTotal._sum.amount ?? 0,
+    latestApprovalCreditAmount: approvalCredits[0]?.amount ?? null,
+  };
 }
 
 export async function createPendingPayment(parentEmail: string): Promise<{ id: string }> {
