@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { SessionReportForm } from "@/components/ui/session-report-form";
 
@@ -36,7 +37,7 @@ export function SessionReportDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <div onClick={() => setOpen(true)}>{trigger}</div>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent size="xl" className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Compte-rendu de session</DialogTitle>
