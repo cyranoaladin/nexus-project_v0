@@ -9,7 +9,6 @@ const nextConfig = {
   outputFileTracingIncludes: {
     '/': [
       './Nexus_Reussite_Accueil.html',
-      './data/offres-nexus.json',
       './src/static-pages/assistante-devis-v3/**/*',
     ],
   },

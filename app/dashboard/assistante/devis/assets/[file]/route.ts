@@ -5,6 +5,7 @@ import { UserRole } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 import { isErrorResponse, requireAnyRole } from '@/lib/guards';
+import { getAssistanteDevisCatalog } from '@/lib/assistante-devis-catalog';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,10 +19,6 @@ const allowedFiles: Record<string, { contentType: string; path: string }> = {
     contentType: 'text/css; charset=utf-8',
     path: path.join(toolDir, 'styles.css'),
   },
-  'offres-nexus.json': {
-    contentType: 'application/json; charset=utf-8',
-    path: path.join(process.cwd(), 'data/offres-nexus.json'),
-  },
 };
 
 interface RouteParams {
@@ -33,6 +30,16 @@ export async function GET(_request: Request, { params }: RouteParams) {
   if (isErrorResponse(sessionOrError)) return sessionOrError;
 
   const { file } = await params;
+
+  if (file === 'catalogue-operationnel.json') {
+    return NextResponse.json(getAssistanteDevisCatalog(), {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'X-Robots-Tag': 'noindex, nofollow, noarchive',
+      },
+    });
+  }
+
   const asset = allowedFiles[file];
 
   if (!asset) {

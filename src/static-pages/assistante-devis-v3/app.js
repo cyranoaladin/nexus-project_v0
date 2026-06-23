@@ -12,7 +12,7 @@ const CONFIG = {
   totalSteps: 5,
   storageKey: 'nexus_assistante_v3_data',
   themeKey: 'nexus_assistante_v3_theme',
-  offersUrl: '/dashboard/assistante/devis/assets/offres-nexus.json',
+  offersUrl: '/dashboard/assistante/devis/assets/catalogue-operationnel.json',
   autoSaveDelay: 1000,
   validationPatterns: {
     email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
@@ -914,24 +914,17 @@ function refreshReducedPrices() {
 }
 
 function updateTarifMode() {
-  const mode = document.querySelector('input[name="tarifMode"]:checked')?.value || 'campagne';
   const priceEl = document.getElementById('offerPrice');
   if (!currentRecommendation?.offer) return;
 
   const offer = currentRecommendation.offer;
-  if (mode === 'public' && offer.publicAnnual) {
-    const display = offer.publicAnnual.toLocaleString('fr-FR') + ' TND / an';
-    if (priceEl) {
-      priceEl.dataset.original = display;
-      priceEl.textContent = display;
-    }
-  } else {
-    const annual = offer.annual || offer.publicAnnual;
-    if (annual && priceEl) {
-      const display = annual.toLocaleString('fr-FR') + ' TND / an';
-      priceEl.dataset.original = display;
-      priceEl.textContent = display;
-    }
+  if (offer.annual && priceEl) {
+    const display = offer.annual.toLocaleString('fr-FR') + ' TND / an';
+    priceEl.dataset.original = display;
+    priceEl.textContent = display;
+  } else if (offer.display && priceEl) {
+    priceEl.dataset.original = offer.display;
+    priceEl.textContent = offer.display;
   }
   refreshReducedPrices();
 }
@@ -964,7 +957,6 @@ function applyManualOffer(key) {
   const offer = OFFERS[key];
   if (!offer) return;
 
-  const meta = OFFER_META[key] || {};
   currentRecommendation = {
     key,
     offer,
@@ -977,9 +969,9 @@ function applyManualOffer(key) {
   const priceEl = document.getElementById('offerPrice');
 
   if (labelEl) labelEl.textContent = offer.label;
-  if (descEl) descEl.textContent = meta.desc || '';
+  if (descEl) descEl.textContent = offer.desc || '';
   if (priceEl) {
-    const annual = offer.annual || offer.publicAnnual;
+    const annual = offer.annual;
     const display = annual ? annual.toLocaleString('fr-FR') + ' TND / an' : (offer.display || 'Tarif à valider');
     priceEl.dataset.original = display;
     priceEl.textContent = display;
@@ -987,8 +979,8 @@ function applyManualOffer(key) {
 
   // Update inclusions display
   const incEl = document.getElementById('offerInclusions');
-  if (incEl && meta.inc) {
-    incEl.innerHTML = meta.inc.map(item => `<li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-1 text-xs"></i><span>${escapeHtml(item)}</span></li>`).join('');
+  if (incEl && offer.inc) {
+    incEl.innerHTML = offer.inc.map(item => `<li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-1 text-xs"></i><span>${escapeHtml(item)}</span></li>`).join('');
   }
 
   // Update installments display
@@ -1002,246 +994,29 @@ function applyManualOffer(key) {
 }
 
 // ============================================
-// OFFERS DATA — runtime sync with data/offres-nexus.json
+// OFFERS DATA — runtime sync with the server-side operational catalog.
 // ============================================
 
 const RECOMMENDATION_KEYS = {
-  terminaleLibreMixte: 'terminaleLibreMixte',
-  terminaleLibrePremium: 'terminaleLibrePremium',
-  terminaleLibreOnline: 'terminaleLibreOnline',
-  duoTerminaleNexus: 'duoTerminaleNexus',
-  excellenceTerminale: 'excellenceTerminale',
-  terminaleSpecialiteSimple: 'terminaleSpecialiteSimple',
-  premiereLibreEssentiel: 'premiereLibreEssentiel',
-  premiereLibreAccompagnee: 'premiereLibreAccompagnee',
-  premiereDoubleSecurite: 'premiereDoubleSecurite',
-  premiereEafFrancais: 'premiereEafFrancais',
-  premiereMathsAnticipees: 'premiereMathsAnticipees',
-  premiereSciences: 'premiereSciences',
-  secondeMathsMethode: 'secondeMathsMethode',
-  secondeSciences: 'secondeSciences',
-  brevetMaths: 'brevetMaths',
-  brevetComplet: 'brevetComplet',
-  plateformeAutonomie: 'plateformeAutonomie',
-  plateformeSuivi: 'plateformeSuivi',
-  plateformeAccompagnee: 'plateformeAccompagnee'
-};
-
-const OFFER_META = {
-  terminaleLibreMixte: {
-    desc: 'Présentiel + plateforme — parcours complet candidat libre.',
-    inc: [
-      'Spécialités, Grand Oral, tronc commun selon carte d\'examen',
-      'Présentiel hebdomadaire en groupe de 5 max',
-      'Bacs blancs en conditions réelles + correction détaillée',
-      'Carte d\'examen personnalisée : accompagnement administratif complet',
-      'Bulletin trimestriel Nexus + conseil de classe individuel',
-      'Plateforme Nexus illimitée + espace parent dédié',
-      'Bilans de progression réguliers communiqués aux parents',
-      'Accompagnement Parcoursup et orientation'
-    ]
-  },
-  terminaleLibrePremium: {
-    desc: 'Mixte + coaching + urgence — accompagnement maximal candidat libre.',
-    inc: [
-      'Tout le parcours Mixte en groupe de 5 max',
-      'Coaching individuel et suivi parent renforcé',
-      '6 h d\'accompagnement en ligne d\'urgence incluses',
-      'Priorité de planification sur les stages',
-      'Préparation Parcoursup : dossier et entretiens optimisés',
-      'Bulletin trimestriel Nexus + conseil de classe individuel',
-      'Carte d\'examen et accompagnement administratif complet',
-      'Points parents mensuels : transparence totale'
-    ]
-  },
-  terminaleLibreOnline: {
-    desc: 'Parcours candidat libre à distance avec plateforme et lives.',
-    inc: [
-      'Plateforme pédagogique complète avec vidéos et exercices',
-      'Lives interactifs réguliers avec enseignants',
-      'Cadrage examen, progression et corrections',
-      'Bulletin trimestriel Nexus + suivi à distance',
-      'Compte parent et bilans réguliers'
-    ]
-  },
-  duoTerminaleNexus: {
-    desc: 'Deux enseignements, stages et Grand Oral pour Terminale scolarisée.',
-    inc: [
-      '2 spécialités de coefficient 16 en groupe de 5 max',
-      'Stages vacances inclus (Toussaint, février, printemps)',
-      'Préparation complète au Grand Oral',
-      'Bacs blancs en conditions réelles + correction détaillée',
-      'Bilan de positionnement initial offert',
-      'Plateforme Nexus illimitée + espace parent dédié',
-      'Bilans de progression réguliers communiqués aux parents',
-      'Coaching scolaire, méthodologie et accompagnement Parcoursup'
-    ]
-  },
-  excellenceTerminale: {
-    desc: 'Deux spécialités + Mathématiques expertes pour dossiers sélectifs.',
-    inc: [
-      '2 spécialités + Mathématiques expertes en groupe de 5 max',
-      'Stages vacances inclus (Toussaint, février, printemps)',
-      'Préparation au Grand Oral scientifique',
-      '2 h d\'accompagnement en ligne d\'urgence incluses',
-      'Bacs blancs en conditions réelles + correction détaillée',
-      'Bilan de positionnement initial offert',
-      'Plateforme Nexus illimitée + espace parent dédié',
-      'Bilans de progression réguliers communiqués aux parents',
-      'Préparation Parcoursup : dossier et entretiens optimisés'
-    ]
-  },
-  premiereLibreEssentiel: {
-    desc: 'Socle candidat libre en autonomie encadrée.',
-    inc: [
-      'Plateforme pédagogique complète avec vidéos et exercices',
-      'Cadrage EAF, EAM et calendrier candidat libre',
-      'Suivi léger mais régulier pour garder le rythme',
-      'Bulletin trimestriel Nexus',
-      'Compte parent et bilans'
-    ]
-  },
-  premiereLibreAccompagnee: {
-    desc: 'Présentiel + plateforme pour Première candidat libre.',
-    inc: [
-      'EAF + EAM avec accompagnement régulier en groupe de 5 max',
-      'Présentiel hebdomadaire et plateforme complète',
-      'Oraux blancs et sujets types inclus',
-      'Accompagnement administratif (carte d\'examen, calendrier)',
-      'Bulletin trimestriel Nexus + conseil de classe individuel',
-      'Compte parent et bilans de progression réguliers'
-    ]
-  },
-  premiereDoubleSecurite: {
-    desc: 'EAF + EAM sécurisées pour Première scolarisée.',
-    inc: [
-      'EAF Français (écrit + oral) en groupe de 5 max',
-      'EAM Mathématiques anticipées en groupe de 5 max',
-      'Oraux blancs et sujets types inclus',
-      'Bilan de positionnement initial offert',
-      'Plateforme Nexus illimitée + espace parent dédié',
-      'Bilans de progression réguliers communiqués aux parents',
-      'Coaching scolaire et méthodologie de travail',
-      'Continuité garantie vers le parcours Terminale'
-    ]
-  },
-  secondeMathsMethode: {
-    desc: 'Mathématiques, méthode et régularité pour consolider la Seconde.',
-    inc: [
-      'Mathématiques hebdomadaires en groupe de 5 max',
-      'Méthode de travail et organisation',
-      'Préparation progressive des choix de spécialités',
-      'Bilan de positionnement initial offert',
-      'Plateforme Nexus + espace parent dédié',
-      'Bilans de progression réguliers'
-    ]
-  },
-  secondeSciences: {
-    desc: 'Maths + sciences pour préparer les choix de spécialités.',
-    inc: [
-      'Mathématiques et raisonnement scientifique, 4 h / semaine',
-      'Groupe de 5 max, niveaux homogènes',
-      'Préparation aux attendus de Première',
-      'Bilan de positionnement initial offert',
-      'Plateforme Nexus + espace parent dédié',
-      'Aide à l\'arbitrage des spécialités',
-      'Bilans de progression réguliers'
-    ]
-  },
-  brevetMaths: {
-    desc: 'Renforcement mathématiques pour le DNB.',
-    inc: [
-      'Cours de mathématiques en petit groupe de 5 max',
-      'Méthode de résolution et rédaction',
-      'Annales, sujets blancs et progression suivie',
-      'Bilan de positionnement initial offert',
-      'Plateforme Nexus + espace parent dédié',
-      'Bilans de progression réguliers'
-    ]
-  },
-  brevetComplet: {
-    desc: 'Préparation DNB plus globale avec cadrage régulier.',
-    inc: [
-      'Maths + Français en groupe de 5 max',
-      'Planning de révision structuré',
-      'Brevet blanc corrigé en conditions réelles',
-      'Bilan de positionnement initial offert',
-      'Plateforme Nexus + espace parent dédié',
-      'Bilans de progression réguliers',
-      'Préparation de la transition vers la Seconde'
-    ]
-  },
-  terminaleSpecialiteSimple: {
-    desc: 'Une spécialité renforcée en groupe réduit pour Terminale scolarisée.',
-    inc: [
-      '1 spécialité au choix, 2 h / semaine en groupe de 5 max',
-      'Bacs blancs en conditions réelles + correction détaillée',
-      'Bilan de positionnement initial offert',
-      'Plateforme Nexus illimitée + espace parent dédié',
-      'Bilans de progression réguliers communiqués aux parents',
-      'Coaching scolaire et méthodologie de travail'
-    ]
-  },
-  premiereEafFrancais: {
-    desc: 'Épreuve anticipée de français : écrit + oral, méthode et entraînement.',
-    inc: [
-      'Méthodes de l\'écrit (commentaire, dissertation, contraction)',
-      'Préparation de l\'oral : oraux blancs inclus',
-      'Sujets types EAF et corrections détaillées',
-      'Groupe de 5 max, niveaux homogènes',
-      'Bilan de positionnement initial offert',
-      'Plateforme Nexus illimitée + espace parent dédié',
-      'Bilans de progression réguliers communiqués aux parents'
-    ]
-  },
-  premiereMathsAnticipees: {
-    desc: 'Épreuve anticipée de mathématiques : automatismes, méthode et sujets types.',
-    inc: [
-      'Automatismes et techniques de calcul',
-      'Méthode de rédaction mathématique',
-      'Sujets types EAM et corrections détaillées',
-      'Groupe de 5 max, niveaux homogènes',
-      'Bilan de positionnement initial offert',
-      'Plateforme Nexus illimitée + espace parent dédié',
-      'Bilans de progression réguliers communiqués aux parents'
-    ]
-  },
-  premiereSciences: {
-    desc: 'Maths + sciences pour première scolarisée, préparation EAM renforcée.',
-    inc: [
-      'Mathématiques et raisonnement scientifique',
-      'Préparation EAM et automatismes',
-      'Groupe de 5 max, niveaux homogènes',
-      'Bilan de positionnement initial offert',
-      'Plateforme Nexus illimitée + espace parent dédié',
-      'Bilans de progression réguliers communiqués aux parents',
-      'Continuité vers la Terminale'
-    ]
-  },
-  plateformeAutonomie: {
-    desc: 'Plateforme en autonomie pour les élèves organisés, hors Tunis.',
-    inc: [
-      'Ressources, fiches, exercices et sujets corrigés',
-      'Parcours personnalisé en autonomie',
-      'Accès illimité 24/7 à la plateforme Nexus'
-    ]
-  },
-  plateformeSuivi: {
-    desc: 'Plateforme avec suivi léger et visibilité parents.',
-    inc: [
-      'Tout l\'abonnement Autonomie',
-      'Compte parent + bilans réguliers',
-      '1 atelier collectif en ligne / mois'
-    ]
-  },
-  plateformeAccompagnee: {
-    desc: 'Véritable accompagnement à distance avec séances live.',
-    inc: [
-      'Tout l\'abonnement Suivi',
-      '1 séance live en groupe / semaine',
-      'Corrections personnalisées ponctuelles'
-    ]
-  }
+  terminaleLibreMixte: 'term-libre-mixte',
+  terminaleLibrePremium: 'term-libre-premium',
+  terminaleLibreOnline: 'term-libre-online',
+  duoTerminaleNexus: 'term-duo',
+  excellenceTerminale: 'term-excellence',
+  terminaleSpecialiteSimple: 'term-spe-simple',
+  premiereLibreEssentiel: '1re-libre-essentiel',
+  premiereLibreAccompagnee: '1re-libre-accomp',
+  premiereDoubleSecurite: '1re-double-secu',
+  premiereEafFrancais: '1re-eaf',
+  premiereMathsAnticipees: '1re-maths-antic',
+  premiereSciences: '1re-sciences',
+  secondeMathsMethode: '2nde-maths',
+  secondeSciences: '2nde-sciences',
+  brevetMaths: 'brevet-maths',
+  brevetComplet: 'brevet-complet',
+  plateformeAutonomie: 'plateforme-autonomie',
+  plateformeSuivi: 'plateforme-suivi',
+  plateformeAccompagnee: 'plateforme-accomp'
 };
 
 function formatAnnualDisplay(offer) {
@@ -1287,18 +1062,16 @@ function buildInstallments(offer) {
 }
 
 function normalizeOffer(key, jsonOffer) {
-  const meta = OFFER_META[key] || {};
   return {
     ...jsonOffer,
-    ...meta,
     key,
     label: jsonOffer.label,
     annual: jsonOffer.annual || 0,
     displayPrice: formatMainDisplay(jsonOffer),
     annualDisplay: formatAnnualDisplay(jsonOffer),
     ech: buildInstallments(jsonOffer),
-    inc: meta.inc || [],
-    desc: meta.desc || jsonOffer.sub || 'Offre Nexus à valider selon le profil.'
+    inc: jsonOffer.inc || [],
+    desc: jsonOffer.desc || jsonOffer.sub || 'Offre Nexus à valider selon le profil.'
   };
 }
 
@@ -1694,9 +1467,7 @@ function getQuoteNumber() {
 function collectQuoteData() {
   const offer = currentRecommendation?.offer || getOfferFromUi();
   const reduction = getEffectiveReduction();
-  const publicAnnual = offer?.publicAnnual || null;
   const monthly = offer?.monthly || null;
-  const economie = (publicAnnual && offer?.annual) ? publicAnnual - offer.annual : 0;
   const monthlyDisplay = monthly ? `≈ ${monthly.toLocaleString('fr-FR')} TND / mois` : null;
   const alternatives = currentRecommendation?.alternatives || [];
   const reductionText = document.getElementById('totalReduction')?.textContent?.trim() || '0%';
@@ -1719,11 +1490,11 @@ function collectQuoteData() {
 
     finalOffer = {
       label: offer.label || 'Offre à valider',
-      desc: OFFER_META[currentRecommendation?.key]?.desc || offer.desc || '',
+      desc: offer.desc || '',
       annualDisplay: adjustedAnnual
         ? adjustedAnnual.toLocaleString('fr-FR') + ' TND / an'
         : (offer.annualDisplay || offer.display || 'Tarif à valider'),
-      inc: OFFER_META[currentRecommendation?.key]?.inc || offer.inc || [],
+      inc: offer.inc || [],
       ech: adjustedEch
     };
   } else {
@@ -1759,9 +1530,8 @@ function collectQuoteData() {
     internalNotes: getFieldValue('notesInternes', ''),
     reduction: reductionText,
     reductionLabels,
-    publicAnnual,
     monthlyDisplay,
-    economie,
+    economie: 0,
     hasDirectionOverride: Boolean(document.getElementById('cumulDir')?.checked),
     offer: finalOffer,
     alternatives
