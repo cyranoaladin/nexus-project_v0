@@ -15,6 +15,7 @@
 - Les dépendances, builds, rapports Playwright et sorties générées ne doivent pas être versionnés dans `docs/`.
 - Les anciens supports tarifaires ou de campagne doivent être supprimés ou remplacés par un audit daté qui pointe vers le catalogue canonique.
 - Les rapports d'audit historiques doivent être regroupés dans `docs/archive/` quand ils ne sont plus des documents actifs.
+- Les nouveaux rapports `AUDIT_*`, `P0_*`, `P1_*`, `GO_LIVE_*` ne doivent pas être créés au premier niveau de `docs/`; vérifier avec `npm run check:docs-archive`.
 
 ## Régénérer les inventaires
 ```bash
