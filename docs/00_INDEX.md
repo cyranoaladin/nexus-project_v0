@@ -34,3 +34,14 @@ flowchart LR
 
 > **NOTE**
 > Ces inventaires sont régénérés par `scripts/docs/route_inventory.js` (voir `docs/README.md`).
+
+## Documents métier et catalogue
+- Source prix unique : `data/pricing.canonical.json`
+- Loader prix : `lib/pricing.ts`
+- Procédure d'intégration : `docs/PROCEDURE_Integration_pricing_canonical.md`
+- Bilan nettoyage documentaire : `docs/audits/2026-06-23-documentation-inventory-cleanup.md`
+
+## Hygiène documentaire
+- Ne pas versionner de prototype applicatif, dépendances `node_modules`, rapports Playwright, builds ou exports générés dans `docs/`.
+- Ne pas recréer de grille tarifaire Markdown, document de campagne ou registre de prix manuel.
+- Conserver les audits datés dans `docs/audits/`, `docs/security/` ou `docs/incidents/` quand ils servent de preuve ou de traçabilité.
