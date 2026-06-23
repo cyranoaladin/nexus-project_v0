@@ -7,60 +7,24 @@
  *
  * This file contains only business logic constants (pricing, features, credits).
  */
-import { getAriaAddonCatalog, getSubscriptionCatalogPlans } from "@/lib/subscription-catalog";
+import {
+  getAriaAddonCatalog,
+  getCreditCostCatalog,
+  getSpecialPackCatalog,
+  getSubscriptionCatalogPlans,
+} from "@/lib/subscription-catalog";
 
 // Formules d'abonnement
 export const SUBSCRIPTION_PLANS = getSubscriptionCatalogPlans();
 
 // Packs spécifiques
-export const SPECIAL_PACKS = {
-  GRAND_ORAL: {
-    name: "Pack Grand Oral",
-    price: 750,
-    description: "Préparation complète au Grand Oral",
-    features: [
-      "4 séances de coaching individuel",
-      "Préparation des supports visuels",
-      "Entraînement à l'oral avec feedback vidéo",
-      "Simulation d'épreuve en conditions réelles",
-      "Gestion du stress et techniques de présentation"
-    ]
-  },
-  BAC_FRANCAIS: {
-    name: "Pack Bac de Français",
-    price: 1200,
-    description: "Accompagnement intensif pour le Bac de Français",
-    features: [
-      "6 séances de méthodologie (dissertation, commentaire)",
-      "Révision complète des œuvres au programme",
-      "Entraînement à l'oral avec textes",
-      "Correction personnalisée de 3 devoirs blancs",
-      "Fiches de révision personnalisées"
-    ]
-  },
-  ORIENTATION: {
-    name: "Pack Orientation & Parcoursup",
-    price: 900,
-    description: "Stratégie complète pour Parcoursup",
-    features: [
-      "Bilan d'orientation personnalisé",
-      "Stratégie de vœux optimisée",
-      "Rédaction des projets de formation motivés",
-      "Préparation aux entretiens d'écoles",
-      "Suivi jusqu'aux résultats d'admission"
-    ]
-  }
-} as const
+export const SPECIAL_PACKS = getSpecialPackCatalog();
 
 // Add-ons ARIA
 export const ARIA_ADDONS = getAriaAddonCatalog();
 
 // Coûts des prestations en crédits
-export const CREDIT_COSTS = {
-  COURS_ONLINE: 1,
-  COURS_PRESENTIEL: 1.25,
-  ATELIER_GROUPE: 1.5
-} as const
+export const CREDIT_COSTS = getCreditCostCatalog();
 
 // Emails techniques
 export const SYSTEM_PARENT_EMAIL = "parent-technique@nexusreussite.academy";

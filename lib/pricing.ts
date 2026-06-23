@@ -210,6 +210,13 @@ export interface OperationalAriaAddon {
   features: string[];
 }
 
+export interface OperationalSpecialPack {
+  name: string;
+  price: number;
+  description: string;
+  features: string[];
+}
+
 export interface PricingData {
   version: string;
   _note?: string;
@@ -228,6 +235,8 @@ export interface PricingData {
   operational_aria_addons: Record<string, OperationalAriaAddon>;
   subscription_tiers: SubscriptionTier[];
   operational_subscription_plans: Record<string, OperationalSubscriptionPlan>;
+  operational_special_packs: Record<string, OperationalSpecialPack>;
+  operational_credit_costs: Record<string, number>;
   carte_nexus: CarteNexus;
   urgence: Record<string, { title: string; display: string; hourly?: number; amount?: number }>;
   reperes_tarifaires: {

@@ -1,30 +1,15 @@
 import { ServiceType } from '@/types/enums';
 import { prisma } from '@/lib/prisma';
 import { Prisma, SessionType, SessionModality } from '@prisma/client';
+import { getCreditCost } from '@/lib/subscription-catalog';
 
 // Defensive access: Prisma enums may be absent when @prisma/client is mocked in unit tests
 const SERIALIZABLE = (Prisma as unknown as { TransactionIsolationLevel?: { Serializable?: Prisma.TransactionIsolationLevel } })
   ?.TransactionIsolationLevel?.Serializable ?? undefined;
 
-// Coûts des prestations en crédits
-const CREDIT_COSTS = {
-  COURS_ONLINE: 1,
-  COURS_PRESENTIEL: 1.25,
-  ATELIER_GROUPE: 1.5
-} as const;
-
 // Calcul du coût en crédits selon le type de prestation
 export function calculateCreditCost(serviceType: ServiceType): number {
-  switch (serviceType) {
-    case 'COURS_ONLINE':
-      return CREDIT_COSTS.COURS_ONLINE;
-    case 'COURS_PRESENTIEL':
-      return CREDIT_COSTS.COURS_PRESENTIEL;
-    case 'ATELIER_GROUPE':
-      return CREDIT_COSTS.ATELIER_GROUPE;
-    default:
-      return 1;
-  }
+  return getCreditCost(serviceType) ?? 1;
 }
 
 export async function checkCreditBalance(studentId: string, requiredCredits: number): Promise<boolean> {

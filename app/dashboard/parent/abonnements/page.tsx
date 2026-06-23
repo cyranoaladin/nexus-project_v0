@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { SPECIAL_PACKS } from "@/lib/constants";
 import {
   getAriaAddonCatalog,
+  getSpecialPackCatalog,
   getSubscriptionCatalogPlans,
   type SubscriptionPlanKey,
 } from "@/lib/subscription-catalog";
@@ -42,6 +42,7 @@ interface Child {
 
 const SUBSCRIPTION_CATALOG = getSubscriptionCatalogPlans();
 const ARIA_ADDON_CATALOG = getAriaAddonCatalog();
+const SPECIAL_PACK_CATALOG = getSpecialPackCatalog();
 
 type SubscriptionPlan = (typeof SUBSCRIPTION_CATALOG)[SubscriptionPlanKey];
 type SelectedPlan = SubscriptionPlan;
@@ -423,7 +424,7 @@ export default function AbonnementsPage() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                  {Object.entries(SPECIAL_PACKS).map(([key, pack]) => (
+                  {Object.entries(SPECIAL_PACK_CATALOG).map(([key, pack]) => (
                     <Card key={key} className="bg-white/5">
                       <CardHeader className="pb-3 sm:pb-4">
                         <CardTitle className="text-base sm:text-lg">{pack.name}</CardTitle>
