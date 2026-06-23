@@ -17,6 +17,7 @@ export default defineConfig({
     'dialog-all-roles-proof.spec.ts',
     'parent-subscription-requests-visible.spec.ts',
     'assistante-subscription-approval-invariants.spec.ts',
+    'assistante-devis-catalog.spec.ts',
   ],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
