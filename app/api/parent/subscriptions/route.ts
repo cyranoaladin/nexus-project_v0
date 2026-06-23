@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
-import { getSubscriptionCatalogPlan } from '@/lib/operational-catalog';
+import { getOperationalSubscriptionPlan } from '@/lib/operational-catalog';
 
 export async function GET(request: NextRequest) {
   try {
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const plan = getSubscriptionCatalogPlan(planName);
+    const plan = getOperationalSubscriptionPlan(planName);
     if (!plan) {
       return NextResponse.json(
         { error: 'Plan d’abonnement invalide' },

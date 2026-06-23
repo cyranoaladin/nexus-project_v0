@@ -1,7 +1,7 @@
 import {
   getAriaAddonCatalogItem,
   getSpecialPackCatalogItem,
-  getSubscriptionCatalogPlan,
+  getOperationalSubscriptionPlan,
 } from '@/lib/operational-catalog';
 
 export type PaymentCatalogType = 'subscription' | 'addon' | 'pack';
@@ -17,7 +17,7 @@ export function resolvePaymentCatalogItem(
   key: string,
 ): PaymentCatalogItem | null {
   if (type === 'subscription') {
-    const plan = getSubscriptionCatalogPlan(key);
+    const plan = getOperationalSubscriptionPlan(key);
     if (!plan) return null;
     return {
       amount: plan.price,

@@ -2,7 +2,7 @@ import {
   getFullPricingData,
   type OperationalAriaAddon,
   type OperationalSpecialPack,
-  type OperationalSubscriptionPlan,
+  type OperationalSubscriptionPlan as PricingOperationalSubscriptionPlan,
 } from '@/lib/pricing';
 
 export type SubscriptionPlanKey = 'ACCES_PLATEFORME' | 'HYBRIDE' | 'IMMERSION';
@@ -10,17 +10,17 @@ export type AriaAddonKey = 'MATIERE_SUPPLEMENTAIRE' | 'ANALYSE_APPROFONDIE';
 export type SpecialPackKey = 'GRAND_ORAL' | 'BAC_FRANCAIS' | 'ORIENTATION';
 export type CreditCostKey = 'COURS_ONLINE' | 'COURS_PRESENTIEL' | 'ATELIER_GROUPE';
 
-export type SubscriptionCatalogPlan = OperationalSubscriptionPlan;
+export type OperationalSubscriptionPlan = PricingOperationalSubscriptionPlan;
 export type AriaAddonCatalogItem = OperationalAriaAddon;
 export type SpecialPackCatalogItem = OperationalSpecialPack;
 
-export function getSubscriptionCatalogPlans(): Record<SubscriptionPlanKey, SubscriptionCatalogPlan> {
-  return getFullPricingData().operational_subscription_plans as Record<SubscriptionPlanKey, SubscriptionCatalogPlan>;
+export function getOperationalSubscriptionPlans(): Record<SubscriptionPlanKey, OperationalSubscriptionPlan> {
+  return getFullPricingData().operational_subscription_plans as Record<SubscriptionPlanKey, OperationalSubscriptionPlan>;
 }
 
-export function getSubscriptionCatalogPlan(planName: string | null | undefined): SubscriptionCatalogPlan | null {
+export function getOperationalSubscriptionPlan(planName: string | null | undefined): OperationalSubscriptionPlan | null {
   if (!planName) return null;
-  return getSubscriptionCatalogPlans()[planName as SubscriptionPlanKey] ?? null;
+  return getOperationalSubscriptionPlans()[planName as SubscriptionPlanKey] ?? null;
 }
 
 export function getAriaAddonCatalog(): Record<AriaAddonKey, AriaAddonCatalogItem> {

@@ -3,15 +3,15 @@ export const dynamic = 'force-dynamic';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
-import { getSubscriptionCatalogPlan } from '@/lib/operational-catalog';
+import { getOperationalSubscriptionPlan } from '@/lib/operational-catalog';
 
 class AlreadyProcessedError extends Error {}
 
 function getPlanCatalog(planName: string) {
-  return getSubscriptionCatalogPlan(planName);
+  return getOperationalSubscriptionPlan(planName);
 }
 
-function getSubscriptionCatalogFields(subscription: { planName: string; monthlyPrice: number; creditsPerMonth: number }) {
+function getOperationalSubscriptionFields(subscription: { planName: string; monthlyPrice: number; creditsPerMonth: number }) {
   const plan = getPlanCatalog(subscription.planName);
   return {
     catalogMonthlyPrice: plan?.price ?? subscription.monthlyPrice,
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
       planName: sub.planName,
       monthlyPrice: sub.monthlyPrice,
       creditsPerMonth: sub.creditsPerMonth,
-      ...getSubscriptionCatalogFields(sub),
+      ...getOperationalSubscriptionFields(sub),
       status: sub.status,
       createdAt: sub.createdAt,
       student: {
@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
       planName: sub.planName,
       monthlyPrice: sub.monthlyPrice,
       creditsPerMonth: sub.creditsPerMonth,
-      ...getSubscriptionCatalogFields(sub),
+      ...getOperationalSubscriptionFields(sub),
       ariaSubjects: sub.ariaSubjects,
       ariaCost: sub.ariaCost,
       status: sub.status,

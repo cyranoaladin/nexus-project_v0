@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import {
   getAriaAddonCatalog,
   getSpecialPackCatalog,
-  getSubscriptionCatalogPlans,
+  getOperationalSubscriptionPlans,
   type SubscriptionPlanKey,
 } from "@/lib/operational-catalog";
 import { ArrowLeft, Brain, Check, CreditCard, Star, Users, AlertCircle, Loader2 } from "lucide-react";
@@ -40,11 +40,11 @@ interface Child {
   ariaSubjects: string[];
 }
 
-const SUBSCRIPTION_CATALOG = getSubscriptionCatalogPlans();
+const OPERATIONAL_SUBSCRIPTION_PLANS = getOperationalSubscriptionPlans();
 const ARIA_ADDON_CATALOG = getAriaAddonCatalog();
 const SPECIAL_PACK_CATALOG = getSpecialPackCatalog();
 
-type SubscriptionPlan = (typeof SUBSCRIPTION_CATALOG)[SubscriptionPlanKey];
+type SubscriptionPlan = (typeof OPERATIONAL_SUBSCRIPTION_PLANS)[SubscriptionPlanKey];
 type SelectedPlan = SubscriptionPlan;
 
 export default function AbonnementsPage() {
@@ -318,7 +318,7 @@ export default function AbonnementsPage() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                  {Object.entries(SUBSCRIPTION_CATALOG).map(([key, plan]) => (
+                  {Object.entries(OPERATIONAL_SUBSCRIPTION_PLANS).map(([key, plan]) => (
                     <Card
                       key={key}
                       className={`relative ${key === currentChild.currentSubscription
@@ -359,7 +359,7 @@ export default function AbonnementsPage() {
                           <Button
                             onClick={(event) => {
                               requestDialogTriggerRef.current = event.currentTarget;
-                              setSelectedPlan(SUBSCRIPTION_CATALOG[key as SubscriptionPlanKey]);
+                              setSelectedPlan(OPERATIONAL_SUBSCRIPTION_PLANS[key as SubscriptionPlanKey]);
                               setSelectedPlanKey(key as SubscriptionPlanKey);
                               setShowRequestDialog(true);
                             }}
