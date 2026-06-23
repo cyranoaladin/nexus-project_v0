@@ -1,4 +1,5 @@
-import { ARIA_ADDONS, SPECIAL_PACKS, SUBSCRIPTION_PLANS } from '@/lib/constants';
+import { SPECIAL_PACKS } from '@/lib/constants';
+import { getAriaAddonCatalogItem, getSubscriptionCatalogPlan } from '@/lib/subscription-catalog';
 
 export type PaymentCatalogType = 'subscription' | 'addon' | 'pack';
 
@@ -13,7 +14,7 @@ export function resolvePaymentCatalogItem(
   key: string,
 ): PaymentCatalogItem | null {
   if (type === 'subscription') {
-    const plan = SUBSCRIPTION_PLANS[key as keyof typeof SUBSCRIPTION_PLANS];
+    const plan = getSubscriptionCatalogPlan(key);
     if (!plan) return null;
     return {
       amount: plan.price,
@@ -23,7 +24,7 @@ export function resolvePaymentCatalogItem(
   }
 
   if (type === 'addon') {
-    const addon = ARIA_ADDONS[key as keyof typeof ARIA_ADDONS];
+    const addon = getAriaAddonCatalogItem(key);
     if (!addon) return null;
     return {
       amount: addon.price,

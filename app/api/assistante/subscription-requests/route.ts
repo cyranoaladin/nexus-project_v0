@@ -3,14 +3,14 @@ export const dynamic = 'force-dynamic';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
-import { ARIA_ADDONS, SUBSCRIPTION_PLANS } from '@/lib/constants';
+import { getAriaAddonCatalogItem, getSubscriptionCatalogPlan } from '@/lib/subscription-catalog';
 
 class AlreadyProcessedError extends Error {}
 class NoActiveSubscriptionError extends Error {}
 
 function getRequestCatalogFields(request: { requestType: string; planName: string | null; monthlyPrice: number }) {
   if (request.requestType === 'PLAN_CHANGE') {
-    const plan = request.planName ? SUBSCRIPTION_PLANS[request.planName as keyof typeof SUBSCRIPTION_PLANS] : null;
+    const plan = getSubscriptionCatalogPlan(request.planName);
     return {
       catalogMonthlyPrice: plan?.price ?? request.monthlyPrice,
       catalogCreditsPerMonth: plan?.credits ?? 0,
@@ -19,7 +19,7 @@ function getRequestCatalogFields(request: { requestType: string; planName: strin
   }
 
   if (request.requestType === 'ARIA_ADDON') {
-    const addon = request.planName ? ARIA_ADDONS[request.planName as keyof typeof ARIA_ADDONS] : null;
+    const addon = getAriaAddonCatalogItem(request.planName);
     return {
       catalogMonthlyPrice: addon?.price ?? request.monthlyPrice,
       catalogCreditsPerMonth: 0,
@@ -166,10 +166,10 @@ export async function PATCH(request: NextRequest) {
     }
 
     const plan = subscriptionRequest.requestType === 'PLAN_CHANGE'
-      ? SUBSCRIPTION_PLANS[subscriptionRequest.planName as keyof typeof SUBSCRIPTION_PLANS]
+      ? getSubscriptionCatalogPlan(subscriptionRequest.planName)
       : null;
     const addon = subscriptionRequest.requestType === 'ARIA_ADDON'
-      ? ARIA_ADDONS[subscriptionRequest.planName as keyof typeof ARIA_ADDONS]
+      ? getAriaAddonCatalogItem(subscriptionRequest.planName)
       : null;
 
     if (action === 'APPROVED' && subscriptionRequest.requestType === 'PLAN_CHANGE' && !plan) {

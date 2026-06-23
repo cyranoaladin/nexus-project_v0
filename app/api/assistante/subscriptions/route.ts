@@ -3,12 +3,12 @@ export const dynamic = 'force-dynamic';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
-import { SUBSCRIPTION_PLANS } from '@/lib/constants';
+import { getSubscriptionCatalogPlan } from '@/lib/subscription-catalog';
 
 class AlreadyProcessedError extends Error {}
 
 function getPlanCatalog(planName: string) {
-  return SUBSCRIPTION_PLANS[planName as keyof typeof SUBSCRIPTION_PLANS] ?? null;
+  return getSubscriptionCatalogPlan(planName);
 }
 
 function getSubscriptionCatalogFields(subscription: { planName: string; monthlyPrice: number; creditsPerMonth: number }) {

@@ -11,7 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ARIA_ADDONS, SPECIAL_PACKS, SUBSCRIPTION_PLANS } from "@/lib/constants";
+import { SPECIAL_PACKS } from "@/lib/constants";
+import { getAriaAddonCatalogItem, getSubscriptionCatalogPlan } from "@/lib/subscription-catalog";
 import { ArrowLeft, Check, Clock, Copy, CreditCard, Landmark } from "lucide-react";
 import { LegalAcceptance, CGV_VERSION } from "@/components/checkout/LegalAcceptance";
 import { useSession } from "next-auth/react";
@@ -63,8 +64,10 @@ function PaiementContent() {
 
     let details: OrderDetails | null = null;
 
-    if (plan && SUBSCRIPTION_PLANS[plan as keyof typeof SUBSCRIPTION_PLANS]) {
-      const planData = SUBSCRIPTION_PLANS[plan as keyof typeof SUBSCRIPTION_PLANS];
+    const planData = getSubscriptionCatalogPlan(plan);
+    const addonData = getAriaAddonCatalogItem(addon);
+
+    if (planData && plan) {
       details = {
         type: 'subscription',
         key: plan,
@@ -73,8 +76,7 @@ function PaiementContent() {
         description: `Abonnement mensuel ${planData.name}`,
         recurring: true
       };
-    } else if (addon && ARIA_ADDONS[addon as keyof typeof ARIA_ADDONS]) {
-      const addonData = ARIA_ADDONS[addon as keyof typeof ARIA_ADDONS];
+    } else if (addonData && addon) {
       details = {
         type: 'addon',
         key: addon,

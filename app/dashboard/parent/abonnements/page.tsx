@@ -5,7 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ARIA_ADDONS, SPECIAL_PACKS, SUBSCRIPTION_PLANS } from "@/lib/constants";
+import { SPECIAL_PACKS } from "@/lib/constants";
+import {
+  getAriaAddonCatalog,
+  getSubscriptionCatalogPlans,
+  type SubscriptionPlanKey,
+} from "@/lib/subscription-catalog";
 import { ArrowLeft, Brain, Check, CreditCard, Star, Users, AlertCircle, Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -35,9 +40,11 @@ interface Child {
   ariaSubjects: string[];
 }
 
-type SubscriptionPlan = typeof SUBSCRIPTION_PLANS[keyof typeof SUBSCRIPTION_PLANS];
+const SUBSCRIPTION_CATALOG = getSubscriptionCatalogPlans();
+const ARIA_ADDON_CATALOG = getAriaAddonCatalog();
+
+type SubscriptionPlan = (typeof SUBSCRIPTION_CATALOG)[SubscriptionPlanKey];
 type SelectedPlan = SubscriptionPlan;
-type SubscriptionPlanKey = keyof typeof SUBSCRIPTION_PLANS;
 
 export default function AbonnementsPage() {
   const { data: session, status } = useSession();
@@ -310,7 +317,7 @@ export default function AbonnementsPage() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                  {Object.entries(SUBSCRIPTION_PLANS).map(([key, plan]) => (
+                  {Object.entries(SUBSCRIPTION_CATALOG).map(([key, plan]) => (
                     <Card
                       key={key}
                       className={`relative ${key === currentChild.currentSubscription
@@ -351,7 +358,7 @@ export default function AbonnementsPage() {
                           <Button
                             onClick={(event) => {
                               requestDialogTriggerRef.current = event.currentTarget;
-                              setSelectedPlan(SUBSCRIPTION_PLANS[key as SubscriptionPlanKey]);
+                              setSelectedPlan(SUBSCRIPTION_CATALOG[key as SubscriptionPlanKey]);
                               setSelectedPlanKey(key as SubscriptionPlanKey);
                               setShowRequestDialog(true);
                             }}
@@ -379,7 +386,7 @@ export default function AbonnementsPage() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                  {Object.entries(ARIA_ADDONS).map(([key, addon]) => (
+                  {Object.entries(ARIA_ADDON_CATALOG).map(([key, addon]) => (
                     <Card key={key} className="bg-white/5">
                       <CardContent className="p-4 sm:p-6">
                         <div className="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-4 mb-4">
