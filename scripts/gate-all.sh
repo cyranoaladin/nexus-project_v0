@@ -11,7 +11,7 @@ set -uo pipefail
 
 PORT=${AUTH_E2E_PORT:-3002}
 DB_URL="postgresql://postgres:postgres@127.0.0.1:5435/nexus_e2e?schema=public"
-JEST_MIN=6219
+JEST_MIN=6221
 PUBLIC_MIN=184
 AUTH_MIN=40
 

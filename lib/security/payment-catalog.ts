@@ -1,5 +1,8 @@
-import { SPECIAL_PACKS } from '@/lib/constants';
-import { getAriaAddonCatalogItem, getSubscriptionCatalogPlan } from '@/lib/subscription-catalog';
+import {
+  getAriaAddonCatalogItem,
+  getSpecialPackCatalogItem,
+  getSubscriptionCatalogPlan,
+} from '@/lib/subscription-catalog';
 
 export type PaymentCatalogType = 'subscription' | 'addon' | 'pack';
 
@@ -33,7 +36,7 @@ export function resolvePaymentCatalogItem(
     };
   }
 
-  const pack = SPECIAL_PACKS[key as keyof typeof SPECIAL_PACKS];
+  const pack = getSpecialPackCatalogItem(key);
   if (!pack) return null;
   return {
     amount: pack.price,

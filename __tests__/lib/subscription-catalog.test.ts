@@ -1,6 +1,10 @@
 import {
   getAriaAddonCatalog,
   getAriaAddonCatalogItem,
+  getCreditCost,
+  getCreditCostCatalog,
+  getSpecialPackCatalog,
+  getSpecialPackCatalogItem,
   getSubscriptionCatalogPlan,
   getSubscriptionCatalogPlans,
 } from '@/lib/subscription-catalog';
@@ -43,5 +47,34 @@ describe('subscription catalog', () => {
       })
     );
     expect(getAriaAddonCatalogItem('ARIA_FAKE')).toBeNull();
+  });
+
+  it('loads operational special packs from canonical pricing data', () => {
+    const pricing = getFullPricingData();
+
+    expect(getSpecialPackCatalog()).toEqual(pricing.operational_special_packs);
+    expect(getSpecialPackCatalogItem('GRAND_ORAL')).toEqual(
+      expect.objectContaining({
+        name: 'Pack Grand Oral',
+        price: 750,
+      })
+    );
+    expect(getSpecialPackCatalogItem('BAC_FRANCAIS')).toEqual(
+      expect.objectContaining({
+        name: 'Pack Bac de Français',
+        price: 1200,
+      })
+    );
+    expect(getSpecialPackCatalogItem('PACK_FAKE')).toBeNull();
+  });
+
+  it('loads operational credit costs from canonical pricing data', () => {
+    const pricing = getFullPricingData();
+
+    expect(getCreditCostCatalog()).toEqual(pricing.operational_credit_costs);
+    expect(getCreditCost('COURS_ONLINE')).toBe(1);
+    expect(getCreditCost('COURS_PRESENTIEL')).toBe(1.25);
+    expect(getCreditCost('ATELIER_GROUPE')).toBe(1.5);
+    expect(getCreditCost('COURS_FAKE')).toBeNull();
   });
 });
