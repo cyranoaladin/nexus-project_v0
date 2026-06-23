@@ -13,7 +13,7 @@ PORT=${AUTH_E2E_PORT:-3002}
 DB_URL="postgresql://postgres:postgres@127.0.0.1:5435/nexus_e2e?schema=public"
 JEST_MIN=6215
 PUBLIC_MIN=184
-AUTH_MIN=39
+AUTH_MIN=40
 
 # Normalize colored reporter output before parsing counters.
 strip_ansi() { echo "$1" | sed -r 's/\x1B\[[0-9;]*[mK]//g'; }

@@ -95,7 +95,7 @@ describe('assistant subscriptions', () => {
       id: 'sub-1',
       status: 'INACTIVE',
       creditsPerMonth: 3,
-      planName: 'Plan A',
+      planName: 'HYBRIDE',
       studentId: 'student-1',
     });
     (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => cb({
@@ -110,6 +110,52 @@ describe('assistant subscriptions', () => {
     expect(body.success).toBe(true);
   });
 
+  it('POST approves legacy inactive subscription with server catalog price and credits', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'assistant-1', role: 'ASSISTANTE', firstName: 'A', lastName: 'S' },
+    });
+    (prisma.subscription.findUnique as jest.Mock).mockResolvedValue({
+      id: 'sub-legacy',
+      status: 'INACTIVE',
+      monthlyPrice: 1,
+      creditsPerMonth: 99,
+      planName: 'HYBRIDE',
+      studentId: 'student-1',
+    });
+    const txSubscriptionUpdateMany = jest.fn().mockResolvedValue({ count: 1 });
+    const txCreditCreate = jest.fn();
+    (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) =>
+      cb({
+        subscription: { updateMany: txSubscriptionUpdateMany, update: jest.fn() },
+        creditTransaction: { create: txCreditCreate },
+      })
+    );
+
+    const response = await POST(makeRequest({ subscriptionId: 'sub-legacy', action: 'approve' }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.success).toBe(true);
+    expect(txSubscriptionUpdateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'sub-legacy', status: 'INACTIVE' },
+        data: expect.objectContaining({
+          status: 'ACTIVE',
+          monthlyPrice: 450,
+          creditsPerMonth: 4,
+        }),
+      })
+    );
+    expect(txCreditCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          studentId: 'student-1',
+          amount: 4,
+        }),
+      })
+    );
+  });
+
   it('POST does not add credits when approval was already processed concurrently', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE', firstName: 'A', lastName: 'S' },
@@ -118,7 +164,7 @@ describe('assistant subscriptions', () => {
       id: 'sub-1',
       status: 'INACTIVE',
       creditsPerMonth: 3,
-      planName: 'Plan A',
+      planName: 'HYBRIDE',
       studentId: 'student-1',
     });
     let txCreditCreate: jest.Mock | undefined;

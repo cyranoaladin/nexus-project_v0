@@ -3,8 +3,21 @@ export const dynamic = 'force-dynamic';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
+import { SUBSCRIPTION_PLANS } from '@/lib/constants';
 
 class AlreadyProcessedError extends Error {}
+
+function getPlanCatalog(planName: string) {
+  return SUBSCRIPTION_PLANS[planName as keyof typeof SUBSCRIPTION_PLANS] ?? null;
+}
+
+function getSubscriptionCatalogFields(subscription: { planName: string; monthlyPrice: number; creditsPerMonth: number }) {
+  const plan = getPlanCatalog(subscription.planName);
+  return {
+    catalogMonthlyPrice: plan?.price ?? subscription.monthlyPrice,
+    catalogCreditsPerMonth: plan?.credits ?? subscription.creditsPerMonth,
+  };
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -63,6 +76,7 @@ export async function GET(request: NextRequest) {
       planName: sub.planName,
       monthlyPrice: sub.monthlyPrice,
       creditsPerMonth: sub.creditsPerMonth,
+      ...getSubscriptionCatalogFields(sub),
       status: sub.status,
       createdAt: sub.createdAt,
       student: {
@@ -84,6 +98,7 @@ export async function GET(request: NextRequest) {
       planName: sub.planName,
       monthlyPrice: sub.monthlyPrice,
       creditsPerMonth: sub.creditsPerMonth,
+      ...getSubscriptionCatalogFields(sub),
       ariaSubjects: sub.ariaSubjects,
       ariaCost: sub.ariaCost,
       status: sub.status,
@@ -163,13 +178,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const plan = getPlanCatalog(subscription.planName);
+
+    if (action === 'approve' && !plan) {
+      return NextResponse.json(
+        { error: 'Plan d’abonnement invalide' },
+        { status: 400 }
+      );
+    }
+
     // status must be a valid SubscriptionStatus from schema
     let newStatus: 'ACTIVE' | 'INACTIVE' | 'CANCELLED' | 'EXPIRED';
     let creditAmount: number = 0;
 
     if (action === 'approve') {
       newStatus = 'ACTIVE';
-      creditAmount = subscription.creditsPerMonth || 0;
+      creditAmount = plan?.credits ?? 0;
     } else if (action === 'reject') {
       newStatus = 'INACTIVE';
     } else {
@@ -182,7 +206,15 @@ export async function POST(request: NextRequest) {
     await prisma.$transaction(async (tx) => {
       const updated = await tx.subscription.updateMany({
         where: { id: subscriptionId, status: 'INACTIVE' },
-        data: { status: newStatus },
+        data: {
+          status: newStatus,
+          ...(action === 'approve' && plan
+            ? {
+                monthlyPrice: plan.price,
+                creditsPerMonth: plan.credits,
+              }
+            : {}),
+        },
       });
 
       if (updated.count !== 1) {

@@ -15,6 +15,38 @@ test.afterAll(async () => {
   await disconnectPrisma();
 });
 
+test('assistante sees catalog fields on legacy pending subscriptions tab', async ({ page }) => {
+  test.setTimeout(60_000);
+
+  await loginAsUser(page, 'assistante', {
+    targetPath: '/dashboard/assistante/subscriptions?tab=pending',
+  });
+
+  await expect(page.getByRole('heading', { name: /Gestion des abonnements/i })).toBeVisible();
+  await expect(page.getByRole('tab', { name: /Souscriptions/i })).toBeVisible();
+
+  await page.getByPlaceholder(/Rechercher/i).fill('IMMERSION');
+  const pendingCard = page
+    .locator('.bg-blue-500\\/10')
+    .filter({ hasText: 'IMMERSION' })
+    .filter({ hasText: 'Yasmine Dupont' })
+    .filter({ hasText: 'En attente' })
+    .first();
+
+  await expect(pendingCard, 'legacy pending subscription displays catalog fields').toBeVisible({
+    timeout: 10_000,
+  });
+  await expect(pendingCard).toContainText('750 TND/mois');
+  await expect(pendingCard).toContainText('8 crédits/mois');
+
+  await pendingCard.getByRole('button', { name: /Voir détails/i }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toContainText('IMMERSION');
+  await expect(dialog).toContainText('750 TND/mois');
+  await expect(dialog).toContainText('8 crédits inclus');
+});
+
 test('assistante approves a fresh plan-change request with catalog price and credits', async ({ page }) => {
   test.setTimeout(60_000);
 
@@ -43,6 +75,7 @@ test('assistante approves a fresh plan-change request with catalog price and cre
     timeout: 10_000,
   });
   await expect(requestCard).toContainText('750 TND');
+  await expect(requestCard).toContainText('8 crédits/mois');
   await expect(requestCard).toContainText(CREDS.parent.email);
   await expect(requestCard).toContainText('PENDING');
 
@@ -51,6 +84,7 @@ test('assistante approves a fresh plan-change request with catalog price and cre
   await expect(dialog).toBeVisible();
   await expect(dialog).toContainText('IMMERSION');
   await expect(dialog).toContainText('750 TND/mois');
+  await expect(dialog).toContainText('8 crédits/mois');
 
   const successAlert = page.waitForEvent('dialog');
   await dialog.getByRole('button', { name: /Approuver/i }).click();
