@@ -8,6 +8,32 @@ import { ARIA_ADDONS, SUBSCRIPTION_PLANS } from '@/lib/constants';
 class AlreadyProcessedError extends Error {}
 class NoActiveSubscriptionError extends Error {}
 
+function getRequestCatalogFields(request: { requestType: string; planName: string | null; monthlyPrice: number }) {
+  if (request.requestType === 'PLAN_CHANGE') {
+    const plan = request.planName ? SUBSCRIPTION_PLANS[request.planName as keyof typeof SUBSCRIPTION_PLANS] : null;
+    return {
+      catalogMonthlyPrice: plan?.price ?? request.monthlyPrice,
+      catalogCreditsPerMonth: plan?.credits ?? 0,
+      catalogAriaCost: 0,
+    };
+  }
+
+  if (request.requestType === 'ARIA_ADDON') {
+    const addon = request.planName ? ARIA_ADDONS[request.planName as keyof typeof ARIA_ADDONS] : null;
+    return {
+      catalogMonthlyPrice: addon?.price ?? request.monthlyPrice,
+      catalogCreditsPerMonth: 0,
+      catalogAriaCost: addon?.price ?? request.monthlyPrice,
+    };
+  }
+
+  return {
+    catalogMonthlyPrice: request.monthlyPrice,
+    catalogCreditsPerMonth: 0,
+    catalogAriaCost: 0,
+  };
+}
+
 export async function GET(request: NextRequest) {
   try {
     const session = await auth();
@@ -56,8 +82,13 @@ export async function GET(request: NextRequest) {
       }
     });
 
+    const formattedRequests = requests.map((subscriptionRequest) => ({
+      ...subscriptionRequest,
+      ...getRequestCatalogFields(subscriptionRequest),
+    }));
+
     return NextResponse.json({
-      requests: requests,
+      requests: formattedRequests,
       pagination: {
         page,
         limit,

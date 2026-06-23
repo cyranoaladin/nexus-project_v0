@@ -21,6 +21,8 @@ type PendingSubscription = {
   planName: string;
   monthlyPrice: number;
   creditsPerMonth: number;
+  catalogMonthlyPrice: number;
+  catalogCreditsPerMonth: number;
   status: string;
   createdAt: string;
   student: {
@@ -42,6 +44,8 @@ type Subscription = {
   planName: string;
   monthlyPrice: number;
   creditsPerMonth: number;
+  catalogMonthlyPrice: number;
+  catalogCreditsPerMonth: number;
   ariaSubjects: unknown;
   ariaCost: number;
   status: string;
@@ -66,6 +70,9 @@ type SubscriptionChangeRequest = {
   requestType: string;
   planName: string | null;
   monthlyPrice: number;
+  catalogMonthlyPrice: number;
+  catalogCreditsPerMonth: number;
+  catalogAriaCost: number;
   reason: string | null;
   status: string;
   requestedBy: string;
@@ -248,7 +255,7 @@ export default function AssistanteSubscriptionsPage() {
     return pendingSubscriptions.filter((sub) => {
       if (studentIdFilter && sub.student.id !== studentIdFilter) return false;
       if (!term) return true;
-      const hay = `${sub.student.firstName} ${sub.student.lastName} ${sub.parent.firstName} ${sub.parent.lastName} ${sub.planName}`.toLowerCase();
+      const hay = `${sub.student.firstName} ${sub.student.lastName} ${sub.parent.firstName} ${sub.parent.lastName} ${sub.planName} ${sub.catalogMonthlyPrice} ${sub.catalogCreditsPerMonth}`.toLowerCase();
       return hay.includes(term);
     });
   }, [pendingSubscriptions, searchTerm, studentIdFilter]);
@@ -271,7 +278,7 @@ export default function AssistanteSubscriptionsPage() {
     return requests.filter((req) => {
       if (studentIdFilter && req.studentId !== studentIdFilter) return false;
       if (!term) return true;
-      const hay = `${req.student.user.firstName || ""} ${req.student.user.lastName || ""} ${req.student.parent.user.firstName || ""} ${req.student.parent.user.lastName || ""} ${req.planName || ""} ${req.requestType}`.toLowerCase();
+      const hay = `${req.student.user.firstName || ""} ${req.student.user.lastName || ""} ${req.student.parent.user.firstName || ""} ${req.student.parent.user.lastName || ""} ${req.planName || ""} ${req.requestType} ${req.catalogMonthlyPrice} ${req.catalogCreditsPerMonth} ${req.catalogAriaCost}`.toLowerCase();
       return hay.includes(term);
     });
   }, [requests, searchTerm, studentIdFilter]);
@@ -384,164 +391,168 @@ export default function AssistanteSubscriptionsPage() {
           <TabsContent value="pending" className="mt-4">
             <div className="space-y-4">
               {filteredPending.length > 0 ? (
-                filteredPending.map((sub) => (
-                  <Card key={sub.id} className="border-blue-500/20 bg-blue-500/10">
-                    <CardHeader>
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <CardTitle className="text-lg">
-                            {sub.planName} — {sub.student.firstName} {sub.student.lastName}
-                          </CardTitle>
-                          <p className="text-sm text-neutral-300">
-                            Parent : {sub.parent.firstName} {sub.parent.lastName}
-                          </p>
-                          <p className="text-xs text-neutral-400">
-                            {new Date(sub.createdAt).toLocaleDateString("fr-FR")} à{" "}
-                            {new Date(sub.createdAt).toLocaleTimeString("fr-FR")}
-                          </p>
-                        </div>
-                        <Badge variant="outline" className="text-slate-200 border-blue-500/30">
-                          En attente
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                        <div>
-                          <p className="text-sm font-medium text-neutral-200">Élève</p>
-                          <p className="text-sm text-neutral-300">
-                            {sub.student.firstName} {sub.student.lastName}
-                          </p>
-                          <p className="text-xs text-neutral-400">
-                            {sub.student.grade} {sub.student.school ? `— ${sub.student.school}` : ""}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-neutral-200">Prix</p>
-                          <p className="text-sm text-neutral-300">{sub.monthlyPrice} TND/mois</p>
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-neutral-200">Crédits</p>
-                          <p className="text-sm text-neutral-300">{sub.creditsPerMonth} crédits/mois</p>
-                        </div>
-                      </div>
-
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-neutral-200 hover:text-white"
-                          >
-                            Voir détails
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="text-lux-ivory">
-                          <DialogHeader>
-                            <DialogTitle className="text-white">Détails de la souscription</DialogTitle>
-                          </DialogHeader>
-                          <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <Label className="text-sm font-medium text-neutral-200">Élève</Label>
-                                <p className="text-sm text-neutral-300">
-                                  {sub.student.firstName} {sub.student.lastName}
-                                </p>
-                                <p className="text-xs text-neutral-400">{sub.student.grade}</p>
-                              </div>
-                              <div>
-                                <Label className="text-sm font-medium text-neutral-200">Parent</Label>
-                                <p className="text-sm text-neutral-300">
-                                  {sub.parent.firstName} {sub.parent.lastName}
-                                </p>
-                                <p className="text-xs text-neutral-400">{sub.parent.email}</p>
-                              </div>
-                            </div>
-
-                            <div>
-                              <Label className="text-sm font-medium text-neutral-200">Abonnement</Label>
-                              <p className="text-sm font-medium">{sub.planName}</p>
-                              <p className="text-sm text-neutral-300">{sub.monthlyPrice} TND/mois</p>
-                              <p className="text-xs text-neutral-400">{sub.creditsPerMonth} crédits inclus</p>
-                            </div>
-
-                            <div className="flex space-x-2">
-                              <Button
-                                onClick={() => handlePendingAction(sub.id, "approve")}
-                                className="flex-1 btn-primary"
-                                disabled={pendingProcessing}
-                              >
-                                {pendingProcessing ? (
-                                  <>
-                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                    Traitement...
-                                  </>
-                                ) : (
-                                  <>
-                                    <Check className="w-4 h-4 mr-2" />
-                                    Approuver
-                                  </>
-                                )}
-                              </Button>
-
-                              <Dialog>
-                                <DialogTrigger asChild>
-                                  <Button
-                                    variant="outline"
-                                    className="flex-1 text-neutral-200 hover:text-white"
-                                    disabled={pendingProcessing}
-                                  >
-                                    <X className="w-4 h-4 mr-2" />
-                                    Rejeter
-                                  </Button>
-                                </DialogTrigger>
-                                <DialogContent className="text-lux-ivory">
-                                  <DialogHeader>
-                                    <DialogTitle className="text-white">Rejeter la souscription</DialogTitle>
-                                  </DialogHeader>
-                                  <div className="space-y-4">
-                                    <div>
-                                      <Label htmlFor="pendingRejectionReason" className="text-neutral-200">
-                                        Raison du rejet
-                                      </Label>
-                                      <Textarea
-                                        id="pendingRejectionReason"
-                                        value={pendingRejectionReason}
-                                        onChange={(e) => setPendingRejectionReason(e.target.value)}
-                                        placeholder="Expliquez pourquoi cette souscription est rejetée..."
-                                        rows={3}
-                                      />
-                                    </div>
-                                    <div className="flex space-x-2">
-                                      <Button
-                                        onClick={() => handlePendingAction(sub.id, "reject")}
-                                        variant="secondary"
-                                        className="flex-1 btn-secondary"
-                                        disabled={pendingProcessing}
-                                      >
-                                        {pendingProcessing ? (
-                                          <>
-                                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                            Traitement...
-                                          </>
-                                        ) : (
-                                          "Rejeter"
-                                        )}
-                                      </Button>
-                                      <Button variant="outline" className="flex-1 text-neutral-200 hover:text-white">
-                                        Annuler
-                                      </Button>
-                                    </div>
-                                  </div>
-                                </DialogContent>
-                              </Dialog>
-                            </div>
+                filteredPending.map((sub) => {
+                  const catalogMonthlyPrice = sub.catalogMonthlyPrice ?? sub.monthlyPrice;
+                  const catalogCreditsPerMonth = sub.catalogCreditsPerMonth ?? sub.creditsPerMonth;
+                  return (
+                    <Card key={sub.id} className="border-blue-500/20 bg-blue-500/10">
+                      <CardHeader>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <CardTitle className="text-lg">
+                              {sub.planName} — {sub.student.firstName} {sub.student.lastName}
+                            </CardTitle>
+                            <p className="text-sm text-neutral-300">
+                              Parent : {sub.parent.firstName} {sub.parent.lastName}
+                            </p>
+                            <p className="text-xs text-neutral-400">
+                              {new Date(sub.createdAt).toLocaleDateString("fr-FR")} à{" "}
+                              {new Date(sub.createdAt).toLocaleTimeString("fr-FR")}
+                            </p>
                           </div>
-                        </DialogContent>
-                      </Dialog>
-                    </CardContent>
-                  </Card>
-                ))
+                          <Badge variant="outline" className="text-slate-200 border-blue-500/30">
+                            En attente
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                          <div>
+                            <p className="text-sm font-medium text-neutral-200">Élève</p>
+                            <p className="text-sm text-neutral-300">
+                              {sub.student.firstName} {sub.student.lastName}
+                            </p>
+                            <p className="text-xs text-neutral-400">
+                              {sub.student.grade} {sub.student.school ? `— ${sub.student.school}` : ""}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-neutral-200">Prix</p>
+                            <p className="text-sm text-neutral-300">{catalogMonthlyPrice} TND/mois</p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-neutral-200">Crédits</p>
+                            <p className="text-sm text-neutral-300">{catalogCreditsPerMonth} crédits/mois</p>
+                          </div>
+                        </div>
+
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-neutral-200 hover:text-white"
+                            >
+                              Voir détails
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="text-lux-ivory">
+                            <DialogHeader>
+                              <DialogTitle className="text-white">Détails de la souscription</DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <Label className="text-sm font-medium text-neutral-200">Élève</Label>
+                                  <p className="text-sm text-neutral-300">
+                                    {sub.student.firstName} {sub.student.lastName}
+                                  </p>
+                                  <p className="text-xs text-neutral-400">{sub.student.grade}</p>
+                                </div>
+                                <div>
+                                  <Label className="text-sm font-medium text-neutral-200">Parent</Label>
+                                  <p className="text-sm text-neutral-300">
+                                    {sub.parent.firstName} {sub.parent.lastName}
+                                  </p>
+                                  <p className="text-xs text-neutral-400">{sub.parent.email}</p>
+                                </div>
+                              </div>
+
+                              <div>
+                                <Label className="text-sm font-medium text-neutral-200">Abonnement</Label>
+                                <p className="text-sm font-medium">{sub.planName}</p>
+                                <p className="text-sm text-neutral-300">{catalogMonthlyPrice} TND/mois</p>
+                                <p className="text-xs text-neutral-400">{catalogCreditsPerMonth} crédits inclus</p>
+                              </div>
+
+                              <div className="flex space-x-2">
+                                <Button
+                                  onClick={() => handlePendingAction(sub.id, "approve")}
+                                  className="flex-1 btn-primary"
+                                  disabled={pendingProcessing}
+                                >
+                                  {pendingProcessing ? (
+                                    <>
+                                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                      Traitement...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Check className="w-4 h-4 mr-2" />
+                                      Approuver
+                                    </>
+                                  )}
+                                </Button>
+
+                                <Dialog>
+                                  <DialogTrigger asChild>
+                                    <Button
+                                      variant="outline"
+                                      className="flex-1 text-neutral-200 hover:text-white"
+                                      disabled={pendingProcessing}
+                                    >
+                                      <X className="w-4 h-4 mr-2" />
+                                      Rejeter
+                                    </Button>
+                                  </DialogTrigger>
+                                  <DialogContent className="text-lux-ivory">
+                                    <DialogHeader>
+                                      <DialogTitle className="text-white">Rejeter la souscription</DialogTitle>
+                                    </DialogHeader>
+                                    <div className="space-y-4">
+                                      <div>
+                                        <Label htmlFor="pendingRejectionReason" className="text-neutral-200">
+                                          Raison du rejet
+                                        </Label>
+                                        <Textarea
+                                          id="pendingRejectionReason"
+                                          value={pendingRejectionReason}
+                                          onChange={(e) => setPendingRejectionReason(e.target.value)}
+                                          placeholder="Expliquez pourquoi cette souscription est rejetée..."
+                                          rows={3}
+                                        />
+                                      </div>
+                                      <div className="flex space-x-2">
+                                        <Button
+                                          onClick={() => handlePendingAction(sub.id, "reject")}
+                                          variant="secondary"
+                                          className="flex-1 btn-secondary"
+                                          disabled={pendingProcessing}
+                                        >
+                                          {pendingProcessing ? (
+                                            <>
+                                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                              Traitement...
+                                            </>
+                                          ) : (
+                                            "Rejeter"
+                                          )}
+                                        </Button>
+                                        <Button variant="outline" className="flex-1 text-neutral-200 hover:text-white">
+                                          Annuler
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  </DialogContent>
+                                </Dialog>
+                              </div>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </CardContent>
+                    </Card>
+                  );
+                })
               ) : (
                 <div className="text-center py-12">
                   <Check className="w-16 h-16 text-emerald-300 mx-auto mb-4" />
@@ -594,6 +605,13 @@ export default function AssistanteSubscriptionsPage() {
                 filteredRequests.map((req) => {
                   const studentName = `${req.student.user.firstName || ""} ${req.student.user.lastName || ""}`.trim() || "Élève";
                   const parentName = `${req.student.parent.user.firstName || ""} ${req.student.parent.user.lastName || ""}`.trim() || "Parent";
+                  const catalogMonthlyPrice = req.catalogMonthlyPrice ?? req.monthlyPrice;
+                  const catalogCreditsPerMonth = req.catalogCreditsPerMonth ?? 0;
+                  const catalogAriaCost = req.catalogAriaCost ?? catalogMonthlyPrice;
+                  const catalogDetail =
+                    req.requestType === "PLAN_CHANGE"
+                      ? `${catalogCreditsPerMonth} crédits/mois`
+                      : `${catalogAriaCost} TND/mois ARIA`;
                   return (
                     <Card key={req.id} className="shadow-premium">
                       <CardHeader>
@@ -614,14 +632,18 @@ export default function AssistanteSubscriptionsPage() {
                         </div>
                       </CardHeader>
                       <CardContent className="space-y-3">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                           <div>
                             <p className="text-xs text-neutral-400">Plan</p>
                             <p className="text-sm text-neutral-200">{req.planName || "—"}</p>
                           </div>
                           <div>
-                            <p className="text-xs text-neutral-400">Prix mensuel</p>
-                            <p className="text-sm text-neutral-200">{req.monthlyPrice} TND</p>
+                            <p className="text-xs text-neutral-400">Prix catalogue</p>
+                            <p className="text-sm text-neutral-200">{catalogMonthlyPrice} TND/mois</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-neutral-400">Effet catalogue</p>
+                            <p className="text-sm text-neutral-200">{catalogDetail}</p>
                           </div>
                           <div>
                             <p className="text-xs text-neutral-400">Demandé par</p>
@@ -669,7 +691,8 @@ export default function AssistanteSubscriptionsPage() {
                               <div>
                                 <Label className="text-sm font-medium text-neutral-200">Plan</Label>
                                 <p className="text-sm text-neutral-300">{req.planName || "—"}</p>
-                                <p className="text-xs text-neutral-400">{req.monthlyPrice} TND/mois</p>
+                                <p className="text-xs text-neutral-400">{catalogMonthlyPrice} TND/mois</p>
+                                <p className="text-xs text-neutral-400">{catalogDetail}</p>
                               </div>
 
                               {requestsStatus === "PENDING" ? (
