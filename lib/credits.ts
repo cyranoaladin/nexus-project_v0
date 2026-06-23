@@ -1,7 +1,7 @@
 import { ServiceType } from '@/types/enums';
 import { prisma } from '@/lib/prisma';
 import { Prisma, SessionType, SessionModality } from '@prisma/client';
-import { getCreditCost } from '@/lib/subscription-catalog';
+import { getCreditCost } from '@/lib/operational-catalog';
 
 // Defensive access: Prisma enums may be absent when @prisma/client is mocked in unit tests
 const SERIALIZABLE = (Prisma as unknown as { TransactionIsolationLevel?: { Serializable?: Prisma.TransactionIsolationLevel } })

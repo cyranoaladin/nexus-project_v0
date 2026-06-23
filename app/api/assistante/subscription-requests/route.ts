@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
-import { getAriaAddonCatalogItem, getSubscriptionCatalogPlan } from '@/lib/subscription-catalog';
+import { getAriaAddonCatalogItem, getSubscriptionCatalogPlan } from '@/lib/operational-catalog';
 
 class AlreadyProcessedError extends Error {}
 class NoActiveSubscriptionError extends Error {}

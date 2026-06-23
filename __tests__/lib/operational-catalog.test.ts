@@ -7,10 +7,10 @@ import {
   getSpecialPackCatalogItem,
   getSubscriptionCatalogPlan,
   getSubscriptionCatalogPlans,
-} from '@/lib/subscription-catalog';
+} from '@/lib/operational-catalog';
 import { getFullPricingData } from '@/lib/pricing';
 
-describe('subscription catalog', () => {
+describe('operational catalog', () => {
   it('loads operational subscription plans from canonical pricing data', () => {
     const pricing = getFullPricingData();
 

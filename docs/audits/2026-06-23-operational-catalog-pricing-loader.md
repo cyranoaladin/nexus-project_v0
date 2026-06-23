@@ -25,7 +25,7 @@ Avant cette migration, ces valeurs etaient maintenues dans `lib/constants.ts`, s
   - `operational_aria_addons`
   - `operational_special_packs`
   - `operational_credit_costs`
-- Creer `lib/subscription-catalog.ts` comme loader unique du catalogue operationnel adosse a `getFullPricingData()`.
+- Creer `lib/operational-catalog.ts` comme loader unique du catalogue operationnel adosse a `getFullPricingData()`.
 - Migrer les routes serveur parent et assistante vers ce loader.
 - Migrer le validateur `lib/security/payment-catalog.ts` vers ce loader.
 - Migrer `lib/credits.ts` vers ce loader pour calculer les couts de prestation.
@@ -36,7 +36,7 @@ Avant cette migration, ces valeurs etaient maintenues dans `lib/constants.ts`, s
 
 - `data/pricing.canonical.json`
 - `lib/pricing.ts`
-- `lib/subscription-catalog.ts`
+- `lib/operational-catalog.ts`
 - `lib/constants.ts`
 - `lib/security/payment-catalog.ts`
 - `lib/credits.ts`
@@ -46,14 +46,14 @@ Avant cette migration, ces valeurs etaient maintenues dans `lib/constants.ts`, s
 - `app/api/assistante/subscriptions/route.ts`
 - `app/dashboard/parent/abonnements/page.tsx`
 - `app/dashboard/parent/paiement/page.tsx`
-- `__tests__/lib/subscription-catalog.test.ts`
+- `__tests__/lib/operational-catalog.test.ts`
 - `scripts/gate-all.sh`
 
 ## Tests executes
 
-- Test rouge initial: `npx jest --config jest.config.js __tests__/lib/subscription-catalog.test.ts --runInBand`
-- Test cible apres implementation: `npx jest --config jest.config.js __tests__/lib/subscription-catalog.test.ts --runInBand`
-- Bundle routes/catalogue: `npx jest --config jest.config.js __tests__/lib/subscription-catalog.test.ts __tests__/api/parent.subscription-requests.route.test.ts __tests__/api/parent.subscriptions.route.test.ts __tests__/api/assistant.subscription-requests.route.test.ts __tests__/api/assistant.subscriptions.route.test.ts __tests__/lib/constants.test.ts __tests__/lib/constants.complete.test.ts --runInBand`
+- Test rouge initial: `npx jest --config jest.config.js __tests__/lib/operational-catalog.test.ts --runInBand`
+- Test cible apres implementation: `npx jest --config jest.config.js __tests__/lib/operational-catalog.test.ts --runInBand`
+- Bundle routes/catalogue: `npx jest --config jest.config.js __tests__/lib/operational-catalog.test.ts __tests__/api/parent.subscription-requests.route.test.ts __tests__/api/parent.subscriptions.route.test.ts __tests__/api/assistant.subscription-requests.route.test.ts __tests__/api/assistant.subscriptions.route.test.ts __tests__/lib/constants.test.ts __tests__/lib/constants.complete.test.ts --runInBand`
 - Typecheck: `npm run typecheck`
 - Gate complet: `scripts/gate-all.sh`
 

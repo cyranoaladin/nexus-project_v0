@@ -15,7 +15,7 @@ import {
   getAriaAddonCatalogItem,
   getSpecialPackCatalogItem,
   getSubscriptionCatalogPlan,
-} from "@/lib/subscription-catalog";
+} from "@/lib/operational-catalog";
 import { ArrowLeft, Check, Clock, Copy, CreditCard, Landmark } from "lucide-react";
 import { LegalAcceptance, CGV_VERSION } from "@/components/checkout/LegalAcceptance";
 import { useSession } from "next-auth/react";

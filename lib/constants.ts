@@ -12,7 +12,7 @@ import {
   getCreditCostCatalog,
   getSpecialPackCatalog,
   getSubscriptionCatalogPlans,
-} from "@/lib/subscription-catalog";
+} from "@/lib/operational-catalog";
 
 // Formules d'abonnement
 export const SUBSCRIPTION_PLANS = getSubscriptionCatalogPlans();

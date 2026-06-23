@@ -2,7 +2,7 @@ import {
   getAriaAddonCatalogItem,
   getSpecialPackCatalogItem,
   getSubscriptionCatalogPlan,
-} from '@/lib/subscription-catalog';
+} from '@/lib/operational-catalog';
 
 export type PaymentCatalogType = 'subscription' | 'addon' | 'pack';
 
