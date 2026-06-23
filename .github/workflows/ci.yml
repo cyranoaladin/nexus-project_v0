@@ -67,6 +67,9 @@ jobs:
       - name: Run ESLint
         run: npm run lint
 
+      - name: Check docs archive placement
+        run: npm run check:docs-archive
+
   # ===========================================================================
   # JOB 2: TYPECHECK
   # ===========================================================================
