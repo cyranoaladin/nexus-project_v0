@@ -11,11 +11,11 @@ import {
   getAriaAddonCatalog,
   getCreditCostCatalog,
   getSpecialPackCatalog,
-  getSubscriptionCatalogPlans,
+  getOperationalSubscriptionPlans,
 } from "@/lib/operational-catalog";
 
 // Formules d'abonnement
-export const SUBSCRIPTION_PLANS = getSubscriptionCatalogPlans();
+export const SUBSCRIPTION_PLANS = getOperationalSubscriptionPlans();
 
 // Packs spécifiques
 export const SPECIAL_PACKS = getSpecialPackCatalog();

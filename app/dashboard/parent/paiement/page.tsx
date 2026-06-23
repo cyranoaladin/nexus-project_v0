@@ -14,7 +14,7 @@ import {
 import {
   getAriaAddonCatalogItem,
   getSpecialPackCatalogItem,
-  getSubscriptionCatalogPlan,
+  getOperationalSubscriptionPlan,
 } from "@/lib/operational-catalog";
 import { ArrowLeft, Check, Clock, Copy, CreditCard, Landmark } from "lucide-react";
 import { LegalAcceptance, CGV_VERSION } from "@/components/checkout/LegalAcceptance";
@@ -67,7 +67,7 @@ function PaiementContent() {
 
     let details: OrderDetails | null = null;
 
-    const planData = getSubscriptionCatalogPlan(plan);
+    const planData = getOperationalSubscriptionPlan(plan);
     const addonData = getAriaAddonCatalogItem(addon);
     const packData = getSpecialPackCatalogItem(pack);
 
