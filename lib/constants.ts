@@ -7,44 +7,10 @@
  *
  * This file contains only business logic constants (pricing, features, credits).
  */
+import { getAriaAddonCatalog, getSubscriptionCatalogPlans } from "@/lib/subscription-catalog";
 
 // Formules d'abonnement
-export const SUBSCRIPTION_PLANS = {
-  ACCES_PLATEFORME: {
-    name: "ACCÈS PLATEFORME",
-    price: 150,
-    credits: 0,
-    features: [
-      "Accès à la plateforme selon formule",
-      "Suivi personnalisé",
-      "ARIA (1 matière)",
-      "Support par email"
-    ]
-  },
-  HYBRIDE: {
-    name: "HYBRIDE",
-    price: 450,
-    credits: 4,
-    popular: true,
-    features: [
-      "Tout de la Plateforme",
-      "4 crédits/mois",
-      "Coach référent",
-      "Support prioritaire"
-    ]
-  },
-  IMMERSION: {
-    name: "IMMERSION",
-    price: 750,
-    credits: 8,
-    features: [
-      "Tout de l'Hybride",
-      "8 crédits/mois",
-      "Support prioritaire",
-      "Bilan trimestriel"
-    ]
-  }
-} as const
+export const SUBSCRIPTION_PLANS = getSubscriptionCatalogPlans();
 
 // Packs spécifiques
 export const SPECIAL_PACKS = {
@@ -87,30 +53,7 @@ export const SPECIAL_PACKS = {
 } as const
 
 // Add-ons ARIA
-export const ARIA_ADDONS = {
-  MATIERE_SUPPLEMENTAIRE: {
-    name: "Matière supplémentaire ARIA",
-    price: 50,
-    description: "Ajoutez une matière supplémentaire à votre suivi ARIA",
-    features: [
-      "Suivi personnalisé dans une matière additionnelle",
-      "Analyses détaillées des performances",
-      "Recommandations pédagogiques ciblées",
-      "Intégration au tableau de bord principal"
-    ]
-  },
-  ANALYSE_APPROFONDIE: {
-    name: "Analyse approfondie ARIA",
-    price: 75,
-    description: "Bénéficiez d'analyses plus poussées de vos performances",
-    features: [
-      "Rapports détaillés hebdomadaires",
-      "Analyse prédictive des résultats",
-      "Recommandations stratégiques personnalisées",
-      "Suivi des tendances d'apprentissage"
-    ]
-  }
-} as const
+export const ARIA_ADDONS = getAriaAddonCatalog();
 
 // Coûts des prestations en crédits
 export const CREDIT_COSTS = {

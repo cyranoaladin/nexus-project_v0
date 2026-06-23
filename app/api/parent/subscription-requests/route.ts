@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
-import { ARIA_ADDONS, SUBSCRIPTION_PLANS } from '@/lib/constants';
+import { getAriaAddonCatalogItem, getSubscriptionCatalogPlan } from '@/lib/subscription-catalog';
 
 const ALLOWED_REQUEST_TYPES = ['PLAN_CHANGE', 'ARIA_ADDON'] as const;
 
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
       }
-      const plan = SUBSCRIPTION_PLANS[planName as keyof typeof SUBSCRIPTION_PLANS];
+      const plan = getSubscriptionCatalogPlan(planName);
       if (!plan) {
         return NextResponse.json(
           { error: 'Plan d’abonnement invalide' },
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
       }
-      const addon = ARIA_ADDONS[planName as keyof typeof ARIA_ADDONS];
+      const addon = getAriaAddonCatalogItem(planName);
       if (!addon) {
         return NextResponse.json(
           { error: 'Add-on ARIA invalide' },

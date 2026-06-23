@@ -195,6 +195,21 @@ export interface SubscriptionTier {
   price_monthly: number;
 }
 
+export interface OperationalSubscriptionPlan {
+  name: string;
+  price: number;
+  credits: number;
+  popular?: boolean;
+  features: string[];
+}
+
+export interface OperationalAriaAddon {
+  name: string;
+  price: number;
+  description: string;
+  features: string[];
+}
+
 export interface PricingData {
   version: string;
   _note?: string;
@@ -210,7 +225,9 @@ export interface PricingData {
   packs: Pack[];
   special_programs: SpecialProgram[];
   aria_addon: AriaAddon;
+  operational_aria_addons: Record<string, OperationalAriaAddon>;
   subscription_tiers: SubscriptionTier[];
+  operational_subscription_plans: Record<string, OperationalSubscriptionPlan>;
   carte_nexus: CarteNexus;
   urgence: Record<string, { title: string; display: string; hourly?: number; amount?: number }>;
   reperes_tarifaires: {
