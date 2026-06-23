@@ -175,9 +175,9 @@ Les parcours annuels peuvent être réglés selon un échéancier convenu entre 
 
 ---
 
-### Article 3 : Politique de Fidélité et Remises
+### Article 3 : Politique de remises
 
-Les tarifs "Campagne" ou "Fidélité" sont des tarifs préférentiels accordés sous condition d'engagement sur la durée complète du parcours annuel.
+Les remises sont des conditions commerciales encadrées par le catalogue canonique et ne doivent jamais être reconstruites depuis une ancienne grille.
 
 **Règles de cumul** : Les réductions de type fratrie, parrainage, ancien élève, et paiement comptant ne sont pas cumulables entre elles par défaut, sauf accord écrit et exceptionnel de la direction de Nexus Réussite.
 
@@ -189,29 +189,20 @@ Les tarifs "Campagne" ou "Fidélité" sont des tarifs préférentiels accordés 
 
 En cas de désistement ou d'arrêt du parcours à l'initiative de la famille en cours d'année scolaire :
 
-1. **Recalcul au tarif public** : Les prestations déjà consommées (séances de cours effectuées, stages suivis, accès plateforme utilisé, bulletins émis) seront recalculées au **Tarif Public de Référence**.
+1. **Recalcul contractuel** : Les prestations déjà consommées (séances de cours effectuées, stages suivis, accès plateforme utilisé, bulletins émis) sont recalculées selon les conditions contractuelles validées et les montants issus du catalogue canonique en vigueur.
 
    **Méthode de calcul (par ordre de priorité) :**
-   - **Méthode 1 (règle par défaut)** : Prorata du tarif public annuel.  
-     *Exemple : 8 750 TND × 30% de l'année consommée = 2 625 TND dû*
-   - **Méthode 2** (si impossible à proratiser) : Tarif unitaire de 150 TND par séance de 2h effectuée.  
-     *Exemple : 12 séances × 150 TND = 1 800 TND dû*
-   - **Méthode 3** (prestations spécifiques) : Coût réel facturé (stages, packs urgence).
+   - **Méthode 1** : proratisation du parcours annuel souscrit, lorsque le parcours est proratisable.
+   - **Méthode 2** : valorisation des prestations effectivement consommées selon le catalogue canonique.
+   - **Méthode 3** : coût réel facturé pour les prestations spécifiques non proratisables.
 
-   → La Méthode 1 est systématiquement privilégiée pour les parcours annuels. Les méthodes 2 et 3 ne s'appliquent qu'en cas d'impossibilité technique de proratisation.
+   → La méthode retenue doit être explicitée dans le dossier famille avant toute régularisation.
 
 2. **Regularisation** : La famille devra régler la différence entre le montant recalculé des prestations consommées et les sommes déjà versées, avant tout départ définitif.
 
 3. **Conservation des sommes** : Les sommes déjà versées (acompte et traites) restent acquises à Nexus et ne donnent lieu à aucun remboursement, sauf application de l'article 1 (impossibilité d'ouverture du groupe par Nexus).
 
-**Exemple concret de recalcul** :
-- Famille inscrite en Terminale Libre Mixte à 7 900 TND (tarif fidélité campagne)
-- Prix public de référence : 8 750 TND
-- Arrêt après 3 mois (30% de l'année)
-- Montant dû au tarif public : 8 750 TND × 30% = 2 625 TND
-- Montant déjà payé (acompte 2 000 TND + 1ère traite 1 600 TND) : 3 600 TND
-- **Situation** : Pas de remboursement car 3 600 TND > 2 625 TND
-- Si arrêt après 1 mois seulement : 8 750 × 10% = 875 TND dû → solde non remboursable
+**Exemples chiffrés** : ne pas utiliser d'exemple historique dans ce document. Générer tout exemple depuis le devis ou le catalogue canonique en vigueur.
 
 ---
 
@@ -227,7 +218,7 @@ En cas de désistement ou d'arrêt du parcours à l'initiative de la famille en 
 
 ### Article 6 : Ouverture et Composition des Groupes
 
-**Engagement d'effectif** : Nexus s'engage à maintenir un effectif maximum strict : 5 élèves en Terminale, 6 élèves en Première et Seconde, 8 élèves en Troisième (Brevet).
+**Engagement d'effectif** : Nexus s'engage à maintenir des groupes réduits, avec un maximum de 5 élèves lorsque le format relève du catalogue canonique actuel.
 
 **Seuil de viabilité** : Si, à la date de rentrée effective, un groupe n'atteint pas le seuil minimum de viabilité (4 élèves pour Terminale/Première/Seconde, 5 élèves pour Brevet), Nexus s'engage à proposer à la famille, dans un délai de 15 jours calendaires :
 - Un changement de créneau horaire vers un groupe ouvert ;

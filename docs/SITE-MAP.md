@@ -99,7 +99,7 @@ Invariants verifies par offre (tests commites) :
 - deposit + echeancier == annuel pour les 16 offres avec echeancier
 - deposit + solde == prix pour les 8 formats stage
 - plancher stage >= 420 TND
-- 0 prix barre / badge campagne / discount_pct / "valeur reelle"
+- 0 prix barré / badge promotionnel obsolète / discount_pct / "valeur réelle"
 - Nexus Select : 540 + 1260 == 1800, 1800/40 == 45
 - 14 composites : per_hour == round(price/hours)
 

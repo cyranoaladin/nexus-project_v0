@@ -35,7 +35,7 @@
 **Files:**
 - Modify: `src/static-pages/assistante-devis-v3/app.js`
 - Modify: `src/static-pages/assistante-devis-v3/index.html`
-- Test: `__tests__/offres-nexus-data.test.js`
+- Test: `__tests__/assistante-devis-catalog.test.ts`
 
 - [ ] Update the existing PDF export test so the assistant no longer depends on `html2pdf` for downloads.
 - [ ] Replace `generatePDF()` with a `fetch('/api/assistante/quotes/pdf')` download flow.

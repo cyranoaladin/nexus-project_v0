@@ -209,8 +209,6 @@ Le dépôt peut contenir des sources concurrentes ou anciennes :
 - `academic-luxury-design/`
 - `src/static-pages/`
 - `Nexus_Reussite_Accueil.html`
-- `data/offres-nexus.json`
-- `public/offres-nexus.json`
 - anciens dossiers d’audit et captures.
 
 Ne pas les traiter comme sources de vérité sans preuve. S’ils servent de référence visuelle, le signaler explicitement. S’ils sont obsolètes, ne pas les réactiver silencieusement.
