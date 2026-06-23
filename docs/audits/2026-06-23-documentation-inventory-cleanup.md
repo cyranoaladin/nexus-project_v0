@@ -58,7 +58,7 @@ Le dépôt contenait plusieurs familles documentaires : guides opérationnels ac
 
 ## Risques restants
 
-- Plusieurs audits anciens restent dans `docs/`, `docs/security/` et `docs/AUDIT_SENIOR_2026-04-19/`. Ils sont conservés pour traçabilité, mais une passe future peut les regrouper en `docs/archive/` avec un index.
+- Les audits anciens ont été regroupés ensuite dans `docs/archive/` avec un index, sans suppression de preuve historique.
 - `academic-luxury-design/`, `src/static-pages/` et `Nexus_Reussite_Accueil.html` sont des prototypes ou surfaces historiques hors documentation pure. Ils n'ont pas été supprimés pendant cette passe car certains sont exclus du build TypeScript ou encore référencés par l'application.
 
 ## Rollback
