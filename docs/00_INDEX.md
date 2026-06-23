@@ -40,8 +40,9 @@ flowchart LR
 - Loader prix : `lib/pricing.ts`
 - Procédure d'intégration : `docs/PROCEDURE_Integration_pricing_canonical.md`
 - Bilan nettoyage documentaire : `docs/audits/2026-06-23-documentation-inventory-cleanup.md`
+- Archives historiques : `docs/archive/README.md`
 
 ## Hygiène documentaire
 - Ne pas versionner de prototype applicatif, dépendances `node_modules`, rapports Playwright, builds ou exports générés dans `docs/`.
 - Ne pas recréer de grille tarifaire Markdown, document de campagne ou registre de prix manuel.
-- Conserver les audits datés dans `docs/audits/`, `docs/security/` ou `docs/incidents/` quand ils servent de preuve ou de traçabilité.
+- Conserver les audits datés dans `docs/archive/`, `docs/audits/`, `docs/security/` ou `docs/incidents/` quand ils servent de preuve ou de traçabilité.

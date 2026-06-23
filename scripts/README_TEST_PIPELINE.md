@@ -334,6 +334,6 @@ jobs:
 ## Références
 
 - Documentation déploiement : `docs/DEPLOYMENT_ASSESSMENT_MODULE.md`
-- Architecture : `docs/AUDIT_BILAN_PIPELINE.md`
+- Architecture archivée : `docs/archive/audits/2026-04-root/AUDIT_BILAN_PIPELINE.md`
 - QuestionBank : `lib/assessments/questions/README.md`
 - ScoringFactory : `lib/assessments/scoring/README.md`

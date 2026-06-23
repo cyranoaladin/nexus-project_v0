@@ -407,6 +407,6 @@ En cas de problème, vérifier :
 5. Les ressources système (CPU, RAM, disque)
 
 Pour plus d'informations, consulter :
-- `docs/AUDIT_BILAN_PIPELINE.md` — Architecture complète
+- `docs/archive/audits/2026-04-root/AUDIT_BILAN_PIPELINE.md` — Architecture complète archivée
 - `lib/assessments/README.md` — Documentation du module
 - `lib/assessments/questions/README.md` — QuestionBank

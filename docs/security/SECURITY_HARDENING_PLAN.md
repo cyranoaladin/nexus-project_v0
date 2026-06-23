@@ -530,7 +530,7 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
 #### Audit global de clôture P0-004 — API / IDOR
 
 - Statut : audit documentaire produit le 2026-05-29, sans changement applicatif ni déploiement.
-- Rapport : `docs/security/P0_API_CLOSURE_AUDIT_2026-05-29.md`.
+- Rapport archivé : `docs/archive/security/2026-05/P0_API_CLOSURE_AUDIT_2026-05-29.md`.
 - Résultat : 164 routes inventoriées, 42 P0 statiques, 0 vrai P0 API/IDOR ouvert identifié après croisement avec les lots déployés.
 - Décision recommandée : P0-004 clôturable côté API/IDOR sous réserve de validation humaine.
 - Go-live large : toujours NON autorisé automatiquement; validation produit/ops/RGPD/monitoring requise.
@@ -573,8 +573,8 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
 - Statut : P1-A corrigé, testé, CI verte et déployé production le 2026-05-29.
 - Propriétaire proposé : Backend.
 - Rollback : revert du commit P1-A; la variable `RATE_LIMIT_DISABLE` ne désactive plus la production.
-- Document : `docs/security/P1_A_ANTI_ABUSE_RATE_LIMITING_2026-05-29.md`.
-- Déploiement : `docs/security/P1_A_DEPLOYMENT_REPORT_2026-05-29.md`.
+- Document archivé : `docs/archive/security/2026-05/P1_A_ANTI_ABUSE_RATE_LIMITING_2026-05-29.md`.
+- Déploiement archivé : `docs/archive/security/2026-05/P1_A_DEPLOYMENT_REPORT_2026-05-29.md`.
 - CI : run `26659083757`, SHA `69f0e1435a07a96495b8c918dd8c4b4b56cf69b2`, conclusion `success`.
 - Backup : `/root/nexus-backups/deploy-p1-a-anti-abuse-rate-limit-20260529221733`.
 - HEAD prod : `802acb9112d90ddcd04adb8699367da2ac664ae3` -> `69f0e1435a07a96495b8c918dd8c4b4b56cf69b2`.
@@ -584,15 +584,15 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
 - Variables production attendues : `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`; état au déploiement : missing/missing.
 - Mode production observé : fallback mémoire, avec warning attendu en logs; `RATE_LIMIT_DISABLE=1` absent.
 - Limite : bêta élargie encore conditionnelle tant que le backend distribué Upstash n'est pas configuré et validé en production.
-- Runbook configuration Upstash : `docs/security/P1_A_UPSTASH_CONFIGURATION_RUNBOOK_2026-05-29.md`.
+- Runbook configuration Upstash archivé : `docs/archive/security/2026-05/P1_A_UPSTASH_CONFIGURATION_RUNBOOK_2026-05-29.md`.
 - Vérification opérationnelle post-déploiement : runtime `69f0e143`, `UPSTASH_REDIS_REST_URL=missing`, `UPSTASH_REDIS_REST_TOKEN=missing`, `RATE_LIMIT_DISABLE_1=absent`, `api_health=200`; aucun secret lu ou modifié.
 - Action suivante actualisée : P1-A-bis ajoute le backend Redis local VPS via `REDIS_URL`, gratuit et prioritaire sur Upstash. Upstash reste une option future.
-- P1-A-bis : corrigé/testé localement, non déployé production. Document : `docs/security/P1_A_BIS_REDIS_LOCAL_RATE_LIMITING_2026-05-29.md`.
-- Tentative déploiement P1-A-bis du 2026-05-30 : bloquée avant build/reload par timeouts des tests 429 quand `REDIS_URL` est présent sur le serveur; disque rollbacké vers `69f0e143`, PM2 non rechargé, health OK. Rapport : `docs/security/P1_A_BIS_DEPLOYMENT_BLOCKER_2026-05-30.md`.
-- Correctif tests P1-A-bis poussé : `024721f92f9aebfe833f90bae5a80ee2ba3dfc0e`; validations locales OK, mais CI GitHub bloquée par un problème externe Actions/billing. Rapport : `docs/security/P1_A_BIS_CI_BILLING_BLOCKER_2026-05-30.md`.
+- P1-A-bis : corrigé/testé localement, non déployé production. Document archivé : `docs/archive/security/2026-05/P1_A_BIS_REDIS_LOCAL_RATE_LIMITING_2026-05-29.md`.
+- Tentative déploiement P1-A-bis du 2026-05-30 : bloquée avant build/reload par timeouts des tests 429 quand `REDIS_URL` est présent sur le serveur; disque rollbacké vers `69f0e143`, PM2 non rechargé, health OK. Rapport archivé : `docs/archive/security/2026-05/P1_A_BIS_DEPLOYMENT_BLOCKER_2026-05-30.md`.
+- Correctif tests P1-A-bis poussé : `024721f92f9aebfe833f90bae5a80ee2ba3dfc0e`; validations locales OK, mais CI GitHub bloquée par un problème externe Actions/billing. Rapport archivé : `docs/archive/security/2026-05/P1_A_BIS_CI_BILLING_BLOCKER_2026-05-30.md`.
 - Reprise P1-A-bis : attendre résolution GitHub billing puis CI `CI Pipeline` et `Data Invariants` vertes sur `024721f92` avant toute nouvelle tentative de déploiement.
-- État de gel P1-A-bis : production stable sur `69f0e143`, worktree propre conservé pour reprise, repo principal dirty hors déploiement, P1-B suspendu. Rapport : `docs/security/P1_A_BIS_RECOVERY_STATE_2026-05-30.md`.
-- Gouvernance des flux ouverts : repo principal réservé aux chantiers STMG/Prisma locaux, interdit pour déploiement sécurité; P1-A-bis doit reprendre depuis le worktree propre après résolution CI. Document : `docs/security/PROJECT_STATE_AND_WORKSTREAMS_2026-05-30.md`.
+- État de gel P1-A-bis : production stable sur `69f0e143`, worktree propre conservé pour reprise, repo principal dirty hors déploiement, P1-B suspendu. Rapport archivé : `docs/archive/security/2026-05/P1_A_BIS_RECOVERY_STATE_2026-05-30.md`.
+- Gouvernance des flux ouverts : repo principal réservé aux chantiers STMG/Prisma locaux, interdit pour déploiement sécurité; P1-A-bis doit reprendre depuis le worktree propre après résolution CI. Document archivé : `docs/archive/security/2026-05/PROJECT_STATE_AND_WORKSTREAMS_2026-05-30.md`.
 - Condition bêta élargie : installer/configurer Redis local sur le VPS, ajouter `REDIS_URL`, reload PM2 contrôlé et valider le mode `redis`; tant que cette validation n'est pas faite, l'anti-abus distribué reste non actif en production.
 
 ### P1-005 — Logs sans PII excessive
@@ -633,7 +633,7 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
 
 ## Audit go-live global post P0-004
 
-- Document : `docs/security/GO_LIVE_READINESS_AUDIT_2026-05-29.md`.
+- Document archivé : `docs/archive/security/2026-05/GO_LIVE_READINESS_AUDIT_2026-05-29.md`.
 - Statut : audit documentaire terminé après clôture P0-004 API/IDOR.
 - Décision : go-live large NON recommandé automatiquement.
 - Bêta contrôlée : maintenue.

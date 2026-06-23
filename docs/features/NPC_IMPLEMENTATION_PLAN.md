@@ -23,7 +23,7 @@ Ce document est un **livre de spécifications** uniquement. Aucun code fonctionn
 $ git status -sb
 ## main
  M docs/features/EAF_COACH_REPORTS.md
-?? docs/audits/AUDIT_COMPLET_2026-05-01.md
+?? docs/archive/audits/2026-05/AUDIT_COMPLET_2026-05-01.md
 ?? docs/features/NPC_IMPLEMENTATION_PLAN.md
 ?? e2e/eaf-report-raja-smoke.spec.ts
 
@@ -2258,7 +2258,7 @@ export function validateCodeBlocks(text: string): { valid: boolean; errors: stri
 $ git status -sb
 ## main
  M docs/features/EAF_COACH_REPORTS.md
-?? docs/audits/AUDIT_COMPLET_2026-05-01.md
+?? docs/archive/audits/2026-05/AUDIT_COMPLET_2026-05-01.md
 ?? docs/features/NPC_IMPLEMENTATION_PLAN.md  <-- FICHIER ACTUEL
 ?? e2e/eaf-report-raja-smoke.spec.ts
 ```
@@ -2302,4 +2302,3 @@ Ce document est **PRÊT pour validation utilisateur**.
 
 *Document version 2.0 - Durci après audit complet*
 *Aucun secret, aucune URL production, aucune donnée sensible*
-

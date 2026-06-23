@@ -144,6 +144,6 @@ app/api/programme/maths-1ere/rag/route.ts
 
 ## 7. Références
 
-- `docs/AUDIT_SENIOR_2026-04-19/07_RAG_LLM_ARCHITECTURE.md` — Audit initial
+- `docs/archive/audits/2026-04-senior/07_RAG_LLM_ARCHITECTURE.md` — Audit initial archivé
 - `docs/40_LLM_RAG_PIPELINE.md` — Pipeline LLM/RAG
 - `lib/rag-client.ts` — Implémentation client
