@@ -10,7 +10,7 @@ import {
   getSpecialPackCatalog,
   getSubscriptionCatalogPlans,
   type SubscriptionPlanKey,
-} from "@/lib/subscription-catalog";
+} from "@/lib/operational-catalog";
 import { ArrowLeft, Brain, Check, CreditCard, Star, Users, AlertCircle, Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";

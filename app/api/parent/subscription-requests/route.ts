@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
-import { getAriaAddonCatalogItem, getSubscriptionCatalogPlan } from '@/lib/subscription-catalog';
+import { getAriaAddonCatalogItem, getSubscriptionCatalogPlan } from '@/lib/operational-catalog';
 
 const ALLOWED_REQUEST_TYPES = ['PLAN_CHANGE', 'ARIA_ADDON'] as const;
 
