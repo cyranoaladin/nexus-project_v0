@@ -59,18 +59,26 @@ describe('T1 — Effectif group_max ≤ 5', () => {
 describe('T1b — Catalogue identifiers are URL-safe ASCII slugs', () => {
   const slugPattern = /^[a-z0-9-]+$/;
 
-  test('annual, stage, ponctuel, coaching, pack and carte ids are ASCII kebab-case', () => {
-    const ids = [
-      ...data.offers.map((offer) => offer.id),
-      ...data.stage_formats.map((format) => format.format_id),
-      ...data.stage_editions.map((edition) => edition.edition_id),
-      ...data.ponctuel_offers.map((offer) => offer.id),
-      ...data.coaching.map((offer) => offer.id),
-      ...data.packs.map((pack) => pack.id),
-      data.carte_nexus.id,
-    ];
+  test('every recursive id, format_id and edition_id is ASCII kebab-case', () => {
+    const offenders: string[] = [];
 
-    expect(ids.filter((id) => !slugPattern.test(id))).toEqual([]);
+    function visit(value: unknown, pathLabel: string): void {
+      if (Array.isArray(value)) {
+        value.forEach((item, index) => visit(item, `${pathLabel}[${index}]`));
+        return;
+      }
+      if (!value || typeof value !== 'object') return;
+      for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
+        const nextPath = `${pathLabel}.${key}`;
+        if (['id', 'format_id', 'edition_id'].includes(key) && typeof child === 'string' && !slugPattern.test(child)) {
+          offenders.push(`${nextPath}=${child}`);
+        }
+        visit(child, nextPath);
+      }
+    }
+
+    visit(data, 'pricing');
+    expect(offenders).toEqual([]);
   });
 });
 
