@@ -10,7 +10,6 @@ describe('GROUP_RULES lightweight client constant', () => {
       group_min_open: {
         lycee: rules.group_min_open.lycee,
         college: rules.group_min_open.college,
-        brevet: rules.group_min_open.college,
       },
     });
   });

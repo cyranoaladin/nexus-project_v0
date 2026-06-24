@@ -823,7 +823,7 @@
       ]
     },
     {
-      "edition_id": "février",
+      "edition_id": "fevrier",
       "title": "Intensif Février",
       "period": "Février",
       "dates_display": "communiquées avec la recommandation",
@@ -942,7 +942,7 @@
       }
     },
     {
-      "id": "boussole-méthode",
+      "id": "boussole-methode",
       "title": "Boussole Méthode",
       "format": "Atelier méthodo, 3 séances",
       "effectif": "groupe",
@@ -1052,7 +1052,7 @@
         {
           "type": "stage",
           "format_id": "intensif-solo",
-          "edition_id": "février",
+          "edition_id": "fevrier",
           "qty": 1
         },
         {
@@ -1095,7 +1095,7 @@
         {
           "type": "stage",
           "format_id": "intensif-renfort",
-          "edition_id": "février",
+          "edition_id": "fevrier",
           "qty": 1
         },
         {
@@ -1194,7 +1194,7 @@
         {
           "type": "stage",
           "format_id": "intensif-renfort",
-          "edition_id": "février",
+          "edition_id": "fevrier",
           "qty": 1
         },
         {
@@ -1242,7 +1242,7 @@
         {
           "type": "stage",
           "format_id": "intensif-renfort",
-          "edition_id": "février",
+          "edition_id": "fevrier",
           "qty": 1
         },
         {

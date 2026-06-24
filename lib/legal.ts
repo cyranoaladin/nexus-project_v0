@@ -39,6 +39,16 @@ export const LEGAL = {
     whatsappNumber: '21699192829',
   },
 
+  billing: {
+    bank: 'Banque Zitouna',
+    accountIdentifier: '871456',
+    accountNature: 'Comptes chèques entreprises',
+    rib: '25 079 000 0001569084 04',
+    iban: 'TN59 25 079 000 0001569084 04',
+    bic: 'BZITTNTT',
+    swift: 'BZITTNTTXXX',
+  },
+
   web: {
     domain: 'nexusreussite.academy',
     url: 'https://nexusreussite.academy',
@@ -58,3 +68,8 @@ export const LEGAL = {
 
 export type LegalEntity = typeof LEGAL.entity;
 export type LegalContact = typeof LEGAL.contact;
+export type LegalBilling = typeof LEGAL.billing;
+
+export function compactBankIdentifier(value: string): string {
+  return value.replace(/\s+/g, '');
+}

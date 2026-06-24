@@ -192,13 +192,13 @@ function VerifiableSection() {
 function getFaqItems(rules: typeof GROUP_RULES): FAQItem[] {
   const groupMax = rules.group_max;
   const lyceeMin = rules.group_min_open.lycee;
-  const brevetMin = rules.group_min_open.brevet;
+  const collegeMin = rules.group_min_open.college;
 
   return [
   {
     question: `Comment fonctionnent les groupes de ${groupMax} maximum\u00A0?`,
     answer:
-      `Chaque groupe est limité à ${groupMax} élèves afin de préserver un suivi personnalisé. Le groupe est ouvert dès ${lyceeMin} inscrits au lycée et ${brevetMin} au Brevet. Si le seuil n\u2019est pas atteint, l\u2019acompte est intégralement remboursé.`,
+      `Chaque groupe est limité à ${groupMax} élèves afin de préserver un suivi personnalisé. Le groupe est ouvert dès ${lyceeMin} inscrits au lycée et ${collegeMin} au Brevet. Si le seuil n\u2019est pas atteint, l\u2019acompte est intégralement remboursé.`,
   },
   {
     question: 'Qui sont les enseignants\u00A0?',

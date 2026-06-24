@@ -259,11 +259,10 @@ export default function ConditionsGeneralesPage() {
                 En cas de paiement par virement, le Client déclare son virement sur la Plateforme.
                 Le service est activé après <strong className="text-white">vérification et validation</strong> du virement par l&apos;équipe administrative (délai indicatif : 24 à 48 heures ouvrées).
               </p>
-              <ul className="space-y-1">
-                <li><strong className="text-white">Banque :</strong> {CGV_POLICY.payment.bank}</li>
-                <li><strong className="text-white">Titulaire :</strong> {LEGAL.entity.name}</li>
-                <li><strong className="text-white">RIB :</strong> 25 079 000 0001569084 04</li>
-              </ul>
+              <p className="text-sm text-neutral-400">
+                Les coordonnées bancaires sont communiquées uniquement dans l&apos;espace parent authentifié,
+                dans le récapitulatif de paiement ou sur la facture transmise au Client.
+              </p>
             </section>
 
             {/* CGV 6 */}

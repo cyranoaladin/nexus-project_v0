@@ -1,11 +1,13 @@
+import { LEGAL } from '@/lib/legal';
+
 export const CGV_POLICY = {
   version: '1.0',
   versionLabel: 'CGV v1.0 – 2026-03-01',
   effectiveDateLabel: '1er mars 2026',
   payment: {
     provider: 'ClicToPay',
-    bank: 'Banque Zitouna',
-    methodsLabel: 'ClicToPay (Banque Zitouna) ou virement bancaire',
+    bank: LEGAL.billing.bank,
+    methodsLabel: `ClicToPay (${LEGAL.billing.bank}) ou virement bancaire`,
     acceptedCards: 'Cartes bancaires nationales et internationales acceptées.',
     security: 'CVV2 + 3D Secure requis.',
     cardFee: 'Aucun frais additionnel lié au paiement par carte.',

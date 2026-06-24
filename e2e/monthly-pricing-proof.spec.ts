@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { getAnnualOffer } from '@/lib/pricing';
 
 const VIEWPORTS = [
   { name: 'mobile', width: 375, height: 812 },
@@ -13,6 +14,18 @@ const CARD_SCREENSHOTS = [
   { id: 'intensif-solo', label: 'one-shot-stage' },
   { id: 'plateforme-autonomie', label: 'aria-annual' },
 ];
+
+function annualOffer(id: string) {
+  const offer = getAnnualOffer(id);
+  if (!offer) {
+    throw new Error(`Missing annual offer ${id}`);
+  }
+  return offer;
+}
+
+function digitsText(text: string | null) {
+  return (text ?? '').replace(/[^\d]/g, '');
+}
 
 for (const vp of VIEWPORTS) {
   for (const card of CARD_SCREENSHOTS) {
@@ -33,8 +46,9 @@ for (const vp of VIEWPORTS) {
   }
 }
 
-// ── Annual scolarisé card: monthly-first + "soit …/an" + échéancier ──
-test('annual scolarisé shows monthly-first, annual secondary, échéancier', async ({ browser }) => {
+// ── Annual scolarisé card: installment-first + real canonical échéancier ──
+test('annual scolarisé shows installment-first, annual secondary, échéancier', async ({ browser }) => {
+  const offer = annualOffer('term-spe-simple');
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
   const page = await ctx.newPage();
   await page.goto('/offres', { waitUntil: 'domcontentloaded' });
@@ -42,17 +56,21 @@ test('annual scolarisé shows monthly-first, annual secondary, échéancier', as
 
   const card = page.locator('#term-spe-simple');
 
-  // Primary price: monthly (390 TND / mois)
+  // Primary price: canonical installment amount, not legacy price_annual / 10.
   const primary = card.locator('[data-testid="price-primary"]');
   const primaryText = await primary.textContent();
-  expect(primaryText, 'primary shows monthly').toContain('390');
+  expect(primaryText, 'primary shows installment amount').toContain(String(offer.installment_amount));
   expect(primaryText, 'primary has TND').toContain('TND');
 
-  // Secondary: "soit 3 900 TND / an"
+  // Secondary: real deposit + installments + total annual.
   const secondary = card.locator('[data-testid="price-secondary"]');
   await expect(secondary).toBeVisible();
   const secText = await secondary.textContent();
-  expect(secText, 'secondary shows annual').toContain('3');
+  const secDigits = digitsText(secText);
+  expect(secDigits, 'secondary shows deposit').toContain(String(offer.deposit));
+  expect(secDigits, 'secondary shows installment amount').toContain(String(offer.installment_amount));
+  expect(secDigits, 'secondary shows last installment').toContain(String(offer.last_installment));
+  expect(secDigits, 'secondary shows annual').toContain(String(offer.price_annual));
   expect(secText, 'secondary shows /an').toMatch(/\/\s*an/);
 
   // Has /mois in pricing block
@@ -69,8 +87,9 @@ test('annual scolarisé shows monthly-first, annual secondary, échéancier', as
   await ctx.close();
 });
 
-// ── Candidat libre: also monthly-first ──
-test('candidat libre shows monthly-first', async ({ browser }) => {
+// ── Candidat libre: also installment-first ──
+test('candidat libre shows installment-first', async ({ browser }) => {
+  const offer = annualOffer('term-libre-online');
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
   const page = await ctx.newPage();
   await page.goto('/offres', { waitUntil: 'domcontentloaded' });
@@ -78,10 +97,10 @@ test('candidat libre shows monthly-first', async ({ browser }) => {
 
   const card = page.locator('#term-libre-online');
 
-  // Primary price: monthly (290 TND)
+  // Primary price: canonical installment amount, not legacy price_annual / 10.
   const primary = card.locator('[data-testid="price-primary"]');
   const primaryText = await primary.textContent();
-  expect(primaryText, 'libre primary shows monthly').toContain('290');
+  expect(primaryText, 'libre primary shows installment amount').toContain(String(offer.installment_amount));
   expect(primaryText, 'libre primary has TND').toContain('TND');
 
   // Has /mois in pricing block
@@ -92,6 +111,10 @@ test('candidat libre shows monthly-first', async ({ browser }) => {
   // Secondary present
   const secondary = card.locator('[data-testid="price-secondary"]');
   await expect(secondary).toBeVisible();
+  const secondaryText = await secondary.textContent();
+  const secondaryDigits = digitsText(secondaryText);
+  expect(secondaryDigits, 'libre secondary shows deposit').toContain(String(offer.deposit));
+  expect(secondaryDigits, 'libre secondary shows annual').toContain(String(offer.price_annual));
 
   await ctx.close();
 });
@@ -155,8 +178,9 @@ test('one-shot offer shows total only, no /mois no /an', async ({ browser }) => 
   await ctx.close();
 });
 
-// ── Consistency: monthly on /offres == monthly on home (same canonical source) ──
-test('monthly display on /offres matches home repères', async ({ browser }) => {
+// ── Consistency: installment on /offres == installment on home (same canonical source) ──
+test('installment display on /offres matches home repères', async ({ browser }) => {
+  const offer = annualOffer('term-spe-simple');
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
   const page = await ctx.newPage();
 
@@ -178,9 +202,9 @@ test('monthly display on /offres matches home repères', async ({ browser }) => 
   await page.waitForTimeout(2500);
   const offresMonthly = await page.locator('#term-spe-simple').locator('[data-testid="price-primary"]').textContent();
 
-  // Both should contain "390"
-  expect(homeText, 'home has 390').toContain('390');
-  expect(offresMonthly, 'offres has 390').toContain('390');
+  // Both should contain the canonical installment amount.
+  expect(homeText, 'home has canonical installment amount').toContain(String(offer.installment_amount));
+  expect(offresMonthly, 'offres has canonical installment amount').toContain(String(offer.installment_amount));
 
   await ctx.close();
 });

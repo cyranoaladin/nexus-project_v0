@@ -17,13 +17,13 @@ export default function FamillePage() {
   const rules = getRules();
   const groupMax = rules.group_max;
   const lyceeMin = rules.group_min_open.lycee;
-  const brevetMin = rules.group_min_open.brevet;
+  const collegeMin = rules.group_min_open.college;
 
   const engagementCards = [
     {
       icon: Users,
       title: "Groupes réduits",
-      text: `${groupMax} élèves maximum, avec ouverture dès ${lyceeMin} inscrits au lycée et ${brevetMin} au Brevet.`,
+      text: `${groupMax} élèves maximum, avec ouverture dès ${lyceeMin} inscrits au lycée et ${collegeMin} au Brevet.`,
     },
     {
       icon: ShieldCheck,

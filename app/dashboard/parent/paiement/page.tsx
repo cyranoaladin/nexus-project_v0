@@ -37,8 +37,6 @@ interface OrderDetails {
   studentId?: string | null;
 }
 
-const IBAN = "TN59 25 079 000 0001569084 04";
-
 function PaiementContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -116,7 +114,7 @@ function PaiementContent() {
 
   const handleCopyIban = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(IBAN);
+      await navigator.clipboard.writeText(LEGAL.billing.iban);
       toast.success("IBAN copié dans le presse-papier");
     } catch {
       toast.error("Impossible de copier l'IBAN");
@@ -446,18 +444,18 @@ function PaiementContent() {
 
             <div>
               <p className="text-xs text-neutral-400 uppercase tracking-wider">Banque</p>
-              <p className="font-semibold mt-0.5">{CGV_POLICY.payment.bank}</p>
+              <p className="font-semibold mt-0.5">{LEGAL.billing.bank}</p>
             </div>
 
             <div>
               <p className="text-xs text-neutral-400 uppercase tracking-wider">Compte</p>
-              <p className="font-mono mt-0.5">25 079 000 0001569084 04</p>
+              <p className="font-mono mt-0.5">{LEGAL.billing.rib}</p>
             </div>
 
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-neutral-400 uppercase tracking-wider">IBAN</p>
-                <p className="font-mono mt-0.5">{IBAN}</p>
+                <p className="font-mono mt-0.5">{LEGAL.billing.iban}</p>
               </div>
               <Button
                 variant="outline"

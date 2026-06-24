@@ -67,6 +67,11 @@ const brandRangeClaims = [
   /bac-garanti/i,
 ];
 
+const invalidGroupMinOpenReads = [
+  /group_min_open\.brevet/,
+  /\bbrevetMinOpen\b/,
+];
+
 const scanAllowlist: Array<{ file: string; reason: string }> = [
   // Legal page must explicitly state that Nexus does not guarantee exam results.
   { file: 'app/conditions-generales/page.tsx', reason: 'legal non-guarantee clause' },
@@ -127,6 +132,10 @@ describe('Lot 1 T1.2 brand trust guardrails', () => {
 
   test('public group-size claims interpolate pricing rules instead of hardcoding 5/4/3 in copy', () => {
     expect(matchingFiles(hardcodedGroupSizeClaims)).toEqual([]);
+  });
+
+  test('group opening thresholds use canonical keys and never read the missing brevet key', () => {
+    expect(matchingFiles(invalidGroupMinOpenReads)).toEqual([]);
   });
 
   test('client marketing surfaces use GROUP_RULES instead of importing getRules()', () => {

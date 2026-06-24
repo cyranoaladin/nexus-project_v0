@@ -15,7 +15,7 @@ function getPillars(rules: typeof GROUP_RULES) {
     icon: Users,
     title: `Groupes de ${rules.group_max} maximum`,
     description:
-      `Attention individualisée renforcée. Groupe ouvert dès ${rules.group_min_open.lycee} inscrits au lycée et ${rules.group_min_open.brevet} au Brevet.`,
+      `Attention individualisée renforcée. Groupe ouvert dès ${rules.group_min_open.lycee} inscrits au lycée et ${rules.group_min_open.college} au Brevet.`,
   },
   {
     icon: BookOpen,

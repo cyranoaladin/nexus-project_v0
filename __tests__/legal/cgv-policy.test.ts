@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 
 import { CGV_POLICY, CGV_VERSION } from '@/lib/cgv-policy';
+import { LEGAL } from '@/lib/legal';
 
 const root = process.cwd();
 
@@ -13,7 +14,7 @@ describe('centralized CGV policy', () => {
   test('checkout version is exported from the canonical CGV policy', () => {
     expect(CGV_VERSION).toBe(CGV_POLICY.versionLabel);
     expect(CGV_POLICY.payment.provider).toBe('ClicToPay');
-    expect(CGV_POLICY.payment.bank).toBe('Banque Zitouna');
+    expect(CGV_POLICY.payment.bank).toBe(LEGAL.billing.bank);
     expect(CGV_POLICY.refunds.packs).toContain('14 jours');
   });
 
