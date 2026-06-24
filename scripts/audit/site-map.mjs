@@ -32,28 +32,24 @@ const publicOrphanPolicy = {
     reason: 'Landing SEO T1.1 presente au sitemap et reliee au cluster Preparations.',
   },
   '/notre-centre': {
-    status: 'a relier',
-    reason: 'Page publique sitemappee mais seulement contextuelle; verifier son role vs /contact.',
+    status: 'page centre volontaire',
+    reason: 'Presentation du centre pedagogique de Mutuelleville, reliee depuis la navigation/footer.',
   },
   '/ressources': {
-    status: 'a relier',
-    reason: 'Page publique sitemappee, faible maillage observe; clarifier hub ressources ou retrait.',
-  },
-  '/corrige_dnb_maths_2026': {
-    status: 'a relier ou renommer',
-    reason: 'Route snake_case au sitemap, aucun lien entrant public stable detecte; decision Shark requise.',
+    status: 'hub ressources volontaire',
+    reason: 'Hub public assume, relie depuis la navigation/footer et present au sitemap.',
   },
   '/access-required': {
-    status: 'a relier ou noindex',
-    reason: 'Page technique d’acces requis, hors sitemap; verifier si elle doit rester publique.',
+    status: 'noindex technique',
+    reason: 'Page technique d’acces requis, hors sitemap et noindex explicite.',
   },
   '/bilan-gratuit/assessment': {
-    status: 'a relier ou noindex',
-    reason: 'Ancien tunnel assessment hors sitemap; clarifier son entree ou son retrait.',
+    status: 'noindex technique',
+    reason: 'Tunnel assessment hors sitemap, noindex explicite via layout local.',
   },
   '/bilan-pallier2-maths/confirmation': {
-    status: 'a relier ou noindex',
-    reason: 'Confirmation technique hors sitemap; entree indirecte via formulaire, a documenter/noindex.',
+    status: 'noindex technique',
+    reason: 'Confirmation technique hors sitemap, noindex explicite via layout local.',
   },
   '/conditions': {
     status: 'alias redirect',
@@ -64,12 +60,12 @@ const publicOrphanPolicy = {
     reason: 'Alias applicatif vers /programme/maths-1ere; aucun lien interne ne devrait viser l’alias.',
   },
   '/programme/maths-1ere-stmg': {
-    status: 'a relier ou noindex',
-    reason: 'Page programme publique hors sitemap sans maillage detecte.',
+    status: 'noindex programme eleve',
+    reason: 'Redirect vers cockpit eleve, hors sitemap et noindex explicite.',
   },
   '/programme/maths-terminale': {
-    status: 'a relier ou noindex',
-    reason: 'Page programme publique hors sitemap sans maillage detecte.',
+    status: 'noindex programme eleve',
+    reason: 'Programme authentifie, hors sitemap et noindex explicite.',
   },
 };
 
@@ -223,10 +219,14 @@ function collectRoutes() {
 function parseRedirects() {
   const source = read(path.join(ROOT, 'next.config.mjs'));
   const redirects = [];
-  const blockRx = /\{\s*source:\s*['"]([^'"]+)['"],\s*destination:\s*['"]([^'"]+)['"],\s*permanent:\s*(true|false)[\s\S]*?\}/g;
+  const blockRx = /\{\s*source:\s*['"]([^'"]+)['"],\s*destination:\s*['"]([^'"]+)['"],(?<body>[\s\S]*?)\}/g;
   let match;
   while ((match = blockRx.exec(source)) !== null) {
-    redirects.push({ source: match[1], target: match[2], permanent: match[3] === 'true' });
+    const body = match.groups?.body ?? '';
+    const statusCodeMatch = body.match(/statusCode:\s*(30[178])/);
+    const permanentMatch = body.match(/permanent:\s*(true|false)/);
+    const statusCode = statusCodeMatch ? Number(statusCodeMatch[1]) : permanentMatch?.[1] === 'true' ? 301 : 307;
+    redirects.push({ source: match[1], target: match[2], statusCode, permanent: statusCode === 301 });
   }
   return redirects;
 }
@@ -577,14 +577,12 @@ function anomalyList({ linkFindings, orphans, sitemapFindings, clientPages, busi
   if (sitemapFindings.privateInSitemap.length) p1.push(`Routes privees presentes au sitemap: ${sitemapFindings.privateInSitemap.join(', ')}.`);
   const unclassified = orphans.filter((o) => o.classification.status === 'non classee');
   if (unclassified.length) p1.push(`Orphelines publiques non classees: ${unclassified.map((o) => o.route).join(', ')}.`);
-  const corrige = orphans.find((o) => o.route === '/corrige_dnb_maths_2026');
-  if (corrige) p2.push('/corrige_dnb_maths_2026 est snake_case, au sitemap et a relier/renommer/retirer sur decision Shark.');
   if (business.missingOfferAnchors.length) p2.push(`Offres canonical sans ancre /offres detectee: ${business.missingOfferAnchors.join(', ')}.`);
   if (clientPages.some((p) => p.route === '/offres')) p2.push('/offres est une page publique SEO en "use client"; extraction server recommandee avant optimisation SEO/perf.');
   if (sitemapFindings.privatePagesNoNoindex.length) p2.push(`${sitemapFindings.privatePagesNoNoindex.length} page(s) privees sans metadata noindex locale; robots.txt les bloque mais le noindex explicite reste a harmoniser.`);
   if (hygiene.editionOccurrences.length) p3.push(`edition_id hors canonical limite a: ${hygiene.editionOccurrences.join(', ')}.`);
   if (hygiene.roadmap.includes('present')) p3.push(hygiene.roadmap);
-  p3.push('Decisions Shark ouvertes: charte cible, Carte Nexus, tutoiement eleve, sort des orphelines.');
+  p3.push('Lots restants: extraction server de /offres puis migration charte lux-*.');
   return { p1, p2, p3 };
 }
 
@@ -760,7 +758,6 @@ function collectAll() {
       '/reussir-eaf',
       '/candidat-libre-bac-francais',
       '/preparation-bac-francais-tunis',
-      '/corrige_dnb_maths_2026',
     ]),
   ].map((route) => {
     const orphan = orphans.find((entry) => entry.route === route);

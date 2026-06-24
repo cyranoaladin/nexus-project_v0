@@ -1421,6 +1421,7 @@
       "Réservation prioritaire",
       "1 Diagnostic Stratégique offert"
     ],
+    "rationale": "Loss-leader assumé par décision Shark : la Carte Nexus reste à 290 TND/an même si elle inclut ARIA Autonomie vendue plus cher en standalone. Aucun changement de prix sans nouvelle décision produit.",
     "discount_pct": 10,
     "discount_applies_to": [
       "stage_formats",

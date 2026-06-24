@@ -68,6 +68,11 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: '/corrige_dnb_maths_2026',
+        destination: '/ressources',
+        statusCode: 301,
+      },
+      {
         source: '/academies-hiver',
         destination: '/stages',
         permanent: true, // 301 redirect (permanent)
