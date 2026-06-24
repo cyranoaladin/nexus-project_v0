@@ -1,7 +1,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
 import { extname, join } from 'path';
 
-import { LEGAL } from '@/lib/legal';
+import { LEGAL, compactBankIdentifier } from '@/lib/legal';
 
 const root = process.cwd();
 const scanRoots = ['app', 'components', 'lib'];
@@ -41,6 +41,24 @@ function filesContaining(pattern: RegExp): string[] {
     .filter((file) => pattern.test(sourceFor(file)));
 }
 
+function routeFromPage(file: string): string {
+  const rel = file.replace(/^app\//, '').replace(/(^|\/)page\.tsx$/, '');
+  const parts = rel.split('/').filter(Boolean).filter((part) => !(part.startsWith('(') && part.endsWith(')')));
+  return parts.length ? `/${parts.join('/')}` : '/';
+}
+
+function isPublicPage(file: string): boolean {
+  const route = routeFromPage(file);
+  return !(
+    route.startsWith('/dashboard') ||
+    route.startsWith('/admin') ||
+    route.startsWith('/api') ||
+    route.startsWith('/auth') ||
+    route.startsWith('/session') ||
+    route.startsWith('/assessments')
+  );
+}
+
 describe('centralized banking policy', () => {
   test('bank transfer identifiers have a single canonical source', () => {
     const billing = (LEGAL as unknown as { billing?: { rib: string; iban: string; bic: string } }).billing;
@@ -56,21 +74,33 @@ describe('centralized banking policy', () => {
     expect(filesContaining(bankIdentifierPattern)).toEqual(['lib/legal.ts']);
   });
 
-  test('public legal and marketing pages do not expose bank account identifiers', () => {
-    const publicFiles = [
-      'app/conditions-generales/page.tsx',
-      'app/mentions-legales/page.tsx',
-      'app/offres/page.tsx',
-      'app/page.tsx',
-      'app/HomePageClient.tsx',
-      'app/bilan-gratuit/page.tsx',
-      'app/contact/page.tsx',
+  test('public legal and marketing surfaces do not expose bank account identifiers', () => {
+    const publicPageFiles = listScannedFiles('app')
+      .filter((file) => file.endsWith('/page.tsx'))
+      .filter(isPublicPage);
+    const publicComponentFiles = [
+      'components/layout',
+      'components/marketing',
+      'components/premium',
+      'components/sections',
+      'components/stages',
+      'components/ui',
+    ].flatMap(listScannedFiles);
+    const publicFiles = [...new Set([...publicPageFiles, ...publicComponentFiles])].sort();
+    const forbiddenValues = [
+      LEGAL.billing.rib,
+      LEGAL.billing.iban,
+      compactBankIdentifier(LEGAL.billing.rib),
+      compactBankIdentifier(LEGAL.billing.iban),
     ];
 
+    const offenders: string[] = [];
     for (const file of publicFiles) {
       const source = sourceFor(file);
-      expect(source).not.toContain('LEGAL.billing');
-      expect(source).not.toMatch(/TN59|RIB25079000000156908404|0001569084/);
+      if (source.includes('LEGAL.billing') || forbiddenValues.some((value) => source.includes(value))) {
+        offenders.push(file);
+      }
     }
+    expect(offenders).toEqual([]);
   });
 });

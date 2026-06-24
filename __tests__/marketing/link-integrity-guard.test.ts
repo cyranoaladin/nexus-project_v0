@@ -1,3 +1,4 @@
+import { execFileSync } from 'child_process';
 import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
 import { extname, join } from 'path';
 
@@ -110,5 +111,16 @@ describe('internal anchor link integrity', () => {
     }
 
     expect(missing).toEqual([]);
+  });
+
+  test('global route graph audit classifies every detected dead link or missing anchor', () => {
+    execFileSync('node', ['scripts/audit/site-map.mjs'], { cwd: root, stdio: 'pipe' });
+    const siteMap = sourceFor('docs/architecture/SITE_MAP.md');
+    const linkSection = siteMap.split('## Liens morts / ancres a verifier')[1]?.split('## Orphelines publiques')[0] ?? '';
+
+    expect(linkSection).toContain('/auth/login');
+    expect(linkSection).toContain('/dashboard/eleve#resources');
+    expect(linkSection).toContain('#reservation');
+    expect(siteMap.split('## Orphelines publiques')[1]?.split('## Routes publiques surveillees')[0]).not.toContain('non classee');
   });
 });
