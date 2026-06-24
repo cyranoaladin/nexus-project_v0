@@ -44,6 +44,7 @@
     "nexus-src",
     "scripts",
     "academic-luxury-design",
+    "nexus-codex-handoff",
     "playwright.config.ts",
     "playwright.config.e2e.ts"
   ]

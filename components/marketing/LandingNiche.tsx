@@ -31,6 +31,8 @@ export type LandingNicheProps = {
   offerRefs: OfferRef[];
   faq: { question: string; answer: string }[];
   jsonLdName: string;
+  sections?: { heading: string; body?: string[]; bullets?: string[] }[];
+  relatedLinks?: { href: string; label: string; description?: string }[];
 };
 
 function resolveOffer(ref: OfferRef): ResolvedOffer | null {
@@ -66,7 +68,15 @@ function resolveOffer(ref: OfferRef): ResolvedOffer | null {
   };
 }
 
-export function LandingNiche({ title, intro, offerRefs, faq, jsonLdName }: LandingNicheProps) {
+export function LandingNiche({
+  title,
+  intro,
+  offerRefs,
+  faq,
+  jsonLdName,
+  sections = [],
+  relatedLinks = [],
+}: LandingNicheProps) {
   const offers = offerRefs.map(resolveOffer).filter((offer): offer is ResolvedOffer => Boolean(offer));
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -90,10 +100,25 @@ export function LandingNiche({ title, intro, offerRefs, faq, jsonLdName }: Landi
       url: `https://nexusreussite.academy/offres#${offer.id}`,
     })),
   };
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faq.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.answer,
+      },
+    })),
+  };
 
   return (
     <main className="luxury min-h-screen bg-lux-paper" id="main-content">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      {faq.length > 0 ? (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      ) : null}
       <CorporateNavbar />
 
       <section className="bg-lux-ink px-4 pb-16 pt-32 md:px-6">
@@ -123,6 +148,35 @@ export function LandingNiche({ title, intro, offerRefs, faq, jsonLdName }: Landi
         </div>
       </section>
 
+      {sections.length > 0 ? (
+        <section className="px-4 py-14 md:px-6">
+          <div className="mx-auto max-w-4xl space-y-10">
+            {sections.map((section) => (
+              <article key={section.heading}>
+                <p className="lux-eyebrow">Repère</p>
+                <h2 className="mt-2 text-2xl font-fraunces text-lux-ink md:text-3xl">{section.heading}</h2>
+                <div className="lux-filet-gold mt-3 w-16" />
+                {section.body?.map((paragraph) => (
+                  <p key={paragraph} className="mt-4 text-base leading-8 text-lux-slate">
+                    {paragraph}
+                  </p>
+                ))}
+                {section.bullets ? (
+                  <ul className="mt-4 space-y-3">
+                    {section.bullets.map((bullet) => (
+                      <li key={bullet} className="flex items-start gap-3 text-base leading-7 text-lux-slate">
+                        <CheckCircle2 className="mt-1 h-4 w-4 flex-none text-lux-evergreen" aria-hidden="true" />
+                        <span>{bullet}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       <section className="px-4 py-14 md:px-6">
         <div className="mx-auto max-w-6xl">
           <div className="mb-8">
@@ -151,6 +205,37 @@ export function LandingNiche({ title, intro, offerRefs, faq, jsonLdName }: Landi
       </section>
 
       <ProcessSteps />
+
+      {relatedLinks.length > 0 ? (
+        <section className="px-4 py-14 md:px-6">
+          <div className="mx-auto max-w-6xl">
+            <div className="mb-8">
+              <p className="lux-eyebrow">Aller plus loin</p>
+              <h2 className="mt-2 text-2xl font-fraunces text-lux-ink md:text-3xl">Préparations dédiées</h2>
+            </div>
+            <div className="grid gap-4 md:grid-cols-3">
+              {relatedLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="group rounded-2xl border border-lux-line bg-lux-white p-5 lux-shadow"
+                >
+                  <h3 className="flex items-center justify-between gap-4 font-fraunces text-xl text-lux-ink">
+                    {link.label}
+                    <ArrowRight
+                      className="h-4 w-4 flex-none text-lux-slate transition-transform group-hover:translate-x-1"
+                      aria-hidden="true"
+                    />
+                  </h3>
+                  {link.description ? (
+                    <p className="mt-3 text-sm leading-6 text-lux-slate">{link.description}</p>
+                  ) : null}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <section className="px-4 py-14 md:px-6">
         <div className="mx-auto max-w-4xl rounded-2xl border border-lux-line bg-lux-white p-6 lux-shadow md:p-8">
