@@ -3,6 +3,5 @@ export const GROUP_RULES = {
   group_min_open: {
     lycee: 3,
     college: 4,
-    brevet: 4,
   },
 } as const;

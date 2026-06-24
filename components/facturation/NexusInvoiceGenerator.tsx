@@ -38,9 +38,9 @@ const COMPANY = {
   web: LEGAL.web.domain,
   bankBeneficiary: LEGAL.entity.name,
   bank: CGV_POLICY.payment.bank,
-  rib: '25 079 000 0001569084 04',
-  iban: 'TN59 25 079 000 0001569084 04',
-  swift: 'BZITTNTTXXX',
+  rib: LEGAL.billing.rib,
+  iban: LEGAL.billing.iban,
+  swift: LEGAL.billing.swift,
 };
 
 type PaymentFormRow = NexusMixedPayment;

@@ -40,7 +40,7 @@ describe('OffresPage', () => {
   it('renders the active catalogue without legacy campaign copy', () => {
     const groupMax = getRules().group_max;
 
-    render(<OffresPage />);
+    const { container } = render(<OffresPage />);
 
     expect(screen.getByRole('heading', { name: /offres & tarifs/i })).toBeInTheDocument();
     expect(screen.getByText(/catalogue 2026\/2027/i)).toBeInTheDocument();
@@ -50,6 +50,7 @@ describe('OffresPage', () => {
     expect(screen.getByRole('heading', { name: /trois paliers numériques/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /stages intensifs — toutes les vacances/i })).toBeInTheDocument();
     expect(screen.queryByText(/garantie réussite|mention garantie|100 % réussite|100 % bac|bac garanti/i)).not.toBeInTheDocument();
+    expect(container.textContent).not.toMatch(/undefined|NaN/);
   });
 
   it('exposes actionable CTAs to the conversion funnel', () => {

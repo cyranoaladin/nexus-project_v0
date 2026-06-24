@@ -454,7 +454,7 @@ const enjeux = [
     text: `La seconde marque un saut d\u2019exigence et l\u2019année où se préparent les choix de spécialités. Gagner en méthode et en autonomie y est déterminant. L\u2019enjeu\u00A0: consolider les bases, installer une méthode de travail et choisir ses spécialités en connaissance de cause.`,
     goals: [
       { label: 'Consolider les bases', href: '/offres#2nde-maths' },
-      { label: 'Méthode de travail', href: '/offres#boussole-méthode' },
+      { label: 'Méthode de travail', href: '/offres#boussole-methode' },
       { label: 'Choisir mes spécialités', href: '/offres#boussole-orientation' },
     ],
   },
@@ -465,7 +465,7 @@ const enjeux = [
     goals: [
       { label: 'Préparer le brevet', href: '/offres#brevet-complet' },
       { label: 'Maths ciblées', href: '/offres#brevet-maths' },
-      { label: 'Gagner en méthode', href: '/offres#boussole-méthode' },
+      { label: 'Gagner en méthode', href: '/offres#boussole-methode' },
     ],
   },
   {

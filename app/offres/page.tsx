@@ -107,7 +107,7 @@ function NavyBand({ eyebrow, title, intro, testId }: { eyebrow: string; title: s
 
 // ── FAQ ──
 
-function getCatalogueFAQ(groupMax: number, lyceeMinOpen: number, brevetMinOpen: number): FAQItem[] {
+function getCatalogueFAQ(groupMax: number, lyceeMinOpen: number, collegeMinOpen: number): FAQItem[] {
   return [
   {
     question: `Les tarifs sont-ils en TND\u00A0?`,
@@ -121,7 +121,7 @@ function getCatalogueFAQ(groupMax: number, lyceeMinOpen: number, brevetMinOpen: 
   {
     question: `L\u2019acompte est-il remboursable\u00A0?`,
     answer:
-      `L\u2019acompte n\u2019est pas remboursable sauf si le groupe n\u2019atteint pas le seuil d\u2019ouverture (${lyceeMinOpen} inscrits au lycée ou ${brevetMinOpen} au Brevet). Dans ce cas, remboursement intégral.`,
+      `L\u2019acompte n\u2019est pas remboursable sauf si le groupe n\u2019atteint pas le seuil d\u2019ouverture (${lyceeMinOpen} inscrits au lycée ou ${collegeMinOpen} au Brevet). Dans ce cas, remboursement intégral.`,
   },
   {
     question: `Puis-je déduire l\u2019acompte d\u2019un stage si je prends un parcours annuel\u00A0?`,
@@ -558,7 +558,7 @@ export default function OffresPage() {
       )}
 
       <FAQAccordion
-        items={getCatalogueFAQ(rules.group_max, rules.group_min_open.lycee, rules.group_min_open.brevet)}
+        items={getCatalogueFAQ(rules.group_max, rules.group_min_open.lycee, rules.group_min_open.college)}
         title="Questions sur les tarifs"
       />
 
