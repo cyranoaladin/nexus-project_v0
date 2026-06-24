@@ -1,6 +1,6 @@
 # Site Map
 
-Routes detectees: 288 (113 pages, 175 route handlers).
+Routes detectees: 287 (112 pages, 175 route handlers).
 
 ## Marketing public
 
@@ -20,7 +20,6 @@ Routes detectees: 288 (113 pages, 175 route handlers).
 | /conditions | page | statique | server | public | Legal et conformite | - | app/conditions/page.tsx |
 | /conditions-generales | page | statique | server | public | Legal et conformite | legal, cgv-policy | app/conditions-generales/page.tsx |
 | /contact | page | statique | client | public | Page publique ou applicative | legal, api fetch | app/contact/page.tsx |
-| /corrige_dnb_maths_2026 | page | statique | server | public | Page publique ou applicative | metadataBase | app/corrige_dnb_maths_2026/page.tsx |
 | /equipe | page | statique | client | public | Page publique ou applicative | group-rules | app/equipe/page.tsx |
 | /famille | page | statique | server | public | Page publique ou applicative | pricing canonical | app/famille/page.tsx |
 | /grand-oral | page | statique | server | public | Landing SEO | content marketing | app/grand-oral/page.tsx |
@@ -327,34 +326,32 @@ Aucun lien interne litteral mort detecte.
 
 | Route | Entrants | Sitemap | Classement | Justification |
 | --- | --- | --- | --- | --- |
-| /access-required | 0 | non | a relier ou noindex | Page technique d’acces requis, hors sitemap; verifier si elle doit rester publique. |
-| /bilan-gratuit/assessment | 0 | non | a relier ou noindex | Ancien tunnel assessment hors sitemap; clarifier son entree ou son retrait. |
-| /bilan-pallier2-maths/confirmation | 0 | non | a relier ou noindex | Confirmation technique hors sitemap; entree indirecte via formulaire, a documenter/noindex. |
+| /access-required | 0 | non | noindex technique | Page technique d’acces requis, hors sitemap et noindex explicite. |
+| /bilan-gratuit/assessment | 0 | non | noindex technique | Tunnel assessment hors sitemap, noindex explicite via layout local. |
+| /bilan-pallier2-maths/confirmation | 0 | non | noindex technique | Confirmation technique hors sitemap, noindex explicite via layout local. |
 | /candidat-libre-bac-francais | 1 | oui | SEO-landing volontaire | Landing SEO T1.1 presente au sitemap et reliee au cluster Preparations. |
 | /conditions | 0 | non | alias redirect | Alias applicatif vers /conditions-generales; aucun lien interne ne devrait viser l’alias. |
-| /corrige_dnb_maths_2026 | 0 | oui | a relier ou renommer | Route snake_case au sitemap, aucun lien entrant public stable detecte; decision Shark requise. |
 | /grand-oral | 1 | oui | SEO-landing volontaire | Landing SEO T1.1 presente au sitemap et reliee au cluster Preparations. |
 | /maths-1ere | 0 | non | alias redirect | Alias applicatif vers /programme/maths-1ere; aucun lien interne ne devrait viser l’alias. |
-| /notre-centre | 2 | oui | a relier | Page publique sitemappee mais seulement contextuelle; verifier son role vs /contact. |
+| /notre-centre | 2 | oui | page centre volontaire | Presentation du centre pedagogique de Mutuelleville, reliee depuis la navigation/footer. |
 | /preparation-bac-francais-tunis | 2 | oui | SEO-landing volontaire | Landing SEO T1.1 presente au sitemap et reliee au cluster Preparations. |
-| /programme/maths-1ere-stmg | 0 | non | a relier ou noindex | Page programme publique hors sitemap sans maillage detecte. |
-| /programme/maths-terminale | 0 | non | a relier ou noindex | Page programme publique hors sitemap sans maillage detecte. |
-| /ressources | 1 | oui | a relier | Page publique sitemappee, faible maillage observe; clarifier hub ressources ou retrait. |
+| /programme/maths-1ere-stmg | 0 | non | noindex programme eleve | Redirect vers cockpit eleve, hors sitemap et noindex explicite. |
+| /programme/maths-terminale | 0 | non | noindex programme eleve | Programme authentifie, hors sitemap et noindex explicite. |
+| /ressources | 3 | oui | hub ressources volontaire | Hub public assume, relie depuis la navigation/footer et present au sitemap. |
 | /reussir-eaf | 1 | oui | SEO-landing volontaire | Landing SEO T1.1 presente au sitemap et reliee au cluster Preparations. |
 
 ## Routes publiques surveillees
 
 | Route | Entrants | Sitemap | Statut |
 | --- | --- | --- | --- |
-| /notre-centre | 2 | oui | a relier |
-| /ressources | 1 | oui | a relier |
+| /notre-centre | 2 | oui | page centre volontaire |
+| /ressources | 3 | oui | hub ressources volontaire |
 | /accompagnement-scolaire | 3 | oui | reliee |
 | /plateforme-aria | 4 | oui | reliee |
 | /grand-oral | 1 | oui | SEO-landing volontaire |
 | /reussir-eaf | 1 | oui | SEO-landing volontaire |
 | /candidat-libre-bac-francais | 1 | oui | SEO-landing volontaire |
 | /preparation-bac-francais-tunis | 2 | oui | SEO-landing volontaire |
-| /corrige_dnb_maths_2026 | 0 | oui | a relier ou renommer |
 
 ## Alias et redirects
 
@@ -374,6 +371,7 @@ Aucun lien interne litteral mort detecte.
 | /catalogue-nexus-reussite-2026-2027.html | /offres | 301 permanent | next.config.mjs |
 | /conditions | /conditions-generales | 307 temporaire | app/conditions/page.tsx |
 | /confidentialite.html | /politique-confidentialite | 301 permanent | next.config.mjs |
+| /corrige_dnb_maths_2026 | /ressources | 301 permanent | next.config.mjs |
 | /dashboard | /auth/signin | 307 temporaire | app/dashboard/page.tsx |
 | /dashboard | /auth/signin | 307 temporaire | app/dashboard/page.tsx |
 | /dashboard | /dashboard/admin | 307 temporaire | app/dashboard/page.tsx |
@@ -493,7 +491,7 @@ Aucun lien interne litteral mort detecte.
 
 ## Sitemap / routes / noindex
 
-- Routes sitemap statiques detectees: /, /accompagnement-scolaire, /bilan-gratuit, /candidat-libre-bac-francais, /conditions-generales, /contact, /corrige_dnb_maths_2026, /equipe, /famille, /grand-oral, /mentions-legales, /notre-centre, /offres, /plateforme-aria, /politique-confidentialite, /preparation-bac-francais-tunis, /programme/maths-1ere, /recommandation, /ressources, /reussir-eaf, /stages, /stages/[dynamic], /stages/[dynamic]/inscription
+- Routes sitemap statiques detectees: /, /accompagnement-scolaire, /bilan-gratuit, /candidat-libre-bac-francais, /conditions-generales, /contact, /equipe, /famille, /grand-oral, /mentions-legales, /notre-centre, /offres, /plateforme-aria, /politique-confidentialite, /preparation-bac-francais-tunis, /programme/maths-1ere, /recommandation, /ressources, /reussir-eaf, /stages, /stages/[dynamic], /stages/[dynamic]/inscription
 - Routes privees au sitemap: aucune
 - Entrees sitemap sans route statique locale: aucune
 - Pages publiques hors sitemap: /access-required, /bilan-gratuit/assessment, /bilan-gratuit/confirmation, /bilan-pallier2-maths, /bilan-pallier2-maths/confirmation, /bilan-pallier2-maths/dashboard, /conditions, /lamis, /maths-1ere, /programme/maths-1ere-stmg, /programme/maths-terminale
@@ -524,7 +522,7 @@ Aucun lien interne litteral mort detecte.
 
 ## Hygiene source
 
-- ROADMAP.md present au root (non suivi si git status le confirme); a classer avant prochain lot.
+- ROADMAP.md absent au root.
 - edition_id hors canonical/tests: app/offres/page.tsx, lib/pricing.ts.
 
 ## Anomalies prioritaires
@@ -535,11 +533,9 @@ Aucun lien interne litteral mort detecte.
 
 ### P2 incoherence
 
-- /corrige_dnb_maths_2026 est snake_case, au sitemap et a relier/renommer/retirer sur decision Shark.
 - /offres est une page publique SEO en "use client"; extraction server recommandee avant optimisation SEO/perf.
 
 ### P3 hygiene
 
 - edition_id hors canonical limite a: app/offres/page.tsx, lib/pricing.ts.
-- ROADMAP.md present au root (non suivi si git status le confirme); a classer avant prochain lot.
-- Decisions Shark ouvertes: charte cible, Carte Nexus, tutoiement eleve, sort des orphelines.
+- Lots restants: extraction server de /offres puis migration charte lux-*.

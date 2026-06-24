@@ -181,6 +181,7 @@ export function CorporateNavbar() {
         { label: 'Stages intensifs', href: '/stages', desc: 'Toutes les vacances', isPage: true },
         { label: 'Plateforme ARIA', href: '/plateforme-aria', desc: 'Ressources & parcours en ligne', isPage: true },
         { label: 'Accompagnement scolaire', href: '/accompagnement-scolaire', desc: 'Suivi personnalisé', isPage: true },
+        { label: 'Ressources', href: '/ressources', desc: 'Hub de contenus utiles', isPage: true },
       ]
     },
     {

@@ -9,8 +9,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { LEGAL } from '@/lib/legal';
 
-const PEDA_ADDRESS = 'Mutuelleville, Tunis';
-
 export default function NotreCentrePage() {
   return (
     <main className="luxury min-h-screen" id="main-content">
@@ -40,7 +38,7 @@ export default function NotreCentrePage() {
                   <MapPin className="mt-0.5 h-4 w-4 text-lux-gold" />
                   <div>
                     <p className="font-semibold text-lux-ink">Centre d’accompagnement pédagogique</p>
-                    <p className="mt-1">{PEDA_ADDRESS}</p>
+                    <p className="mt-1">{LEGAL.addresses.pedagogique.full}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
