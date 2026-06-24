@@ -6,6 +6,8 @@ import {
   getStageFormat, getPonctuelOffer, getCoachingOffer, getPack,
 } from '@/lib/pricing';
 import { fmtTND } from '@/components/premium/format';
+import { CGV_POLICY } from '@/lib/cgv-policy';
+import { LEGAL } from '@/lib/legal';
 
 // Suppress ResizeObserver warnings in jsdom
 beforeAll(() => {
@@ -112,6 +114,16 @@ describe('OfferDetailDialog', () => {
     const waLink = screen.getByRole('link', { name: /poser une question/i });
     expect(waLink.getAttribute('href')).toContain('wa.me/');
     expect(decodeURIComponent(waLink.getAttribute('href')!)).toContain('Terminale Duo');
+  });
+
+  it('shows card payment policy from CGV without exposing RIB/IBAN', () => {
+    const { container } = render(<OfferDetailDialog offer={sampleOffer} onClose={jest.fn()} />);
+
+    expect(screen.getByText(new RegExp(CGV_POLICY.payment.provider, 'i'))).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(CGV_POLICY.payment.acceptedCards, 'i'))).toBeInTheDocument();
+    expect(screen.getByText(CGV_POLICY.payment.cardFee)).toBeInTheDocument();
+    expect(container.textContent).not.toContain(LEGAL.billing.rib);
+    expect(container.textContent).not.toContain(LEGAL.billing.iban);
   });
 
   it('group max never exceeds 5', () => {

@@ -7,6 +7,7 @@ import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-log
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { fmtTND } from '@/components/premium/format';
 import { getRules } from '@/lib/pricing';
+import { PaymentMethodsNote } from '@/components/marketing/PaymentMethodsNote';
 
 // ── Types ──
 
@@ -256,6 +257,10 @@ export function OfferDetailDialog({ offer, onClose }: OfferDetailDialogProps) {
               </p>
             </div>
           )}
+
+          <div className="mb-6">
+            <PaymentMethodsNote />
+          </div>
 
           {/* Included */}
           {offer.included.length > 0 && (

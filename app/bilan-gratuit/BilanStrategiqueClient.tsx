@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ConseillerCard, ProcessSteps } from '@/components/marketing/acadomia-inspired';
+import { PaymentMethodsNote } from '@/components/marketing/PaymentMethodsNote';
 import { fmtTND } from '@/components/premium/format';
 import {
   getAnnualOffer,
@@ -316,6 +317,9 @@ export function BilanStrategiqueClient() {
                         ? ` · ${selectedOffer.solde_schedule.length} soldes`
                         : ''}
               </p>
+              <div className="mt-4">
+                <PaymentMethodsNote tone="dark" />
+              </div>
             </div>
           )}
 
