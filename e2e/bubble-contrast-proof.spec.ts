@@ -57,7 +57,7 @@ test('bubble hidden while hero visible, no occlude after scroll (desktop)', asyn
   expect(countBefore, 'bubble hidden while hero visible').toBe(0);
 
   // "Candidat libre" is safe at initial load (no bubble)
-  const candidatLink = page.locator('a:has-text("Candidat libre")').first();
+  const candidatLink = page.locator('a:has-text("Candidat libre")').filter({ visible: true }).first();
   await expect(candidatLink).toBeVisible();
 
   // Scroll past hero to trigger bubble

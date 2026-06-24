@@ -14,6 +14,7 @@ import {
 
 import socialProof from '@/content/social-proof.json';
 import team from '@/content/team.json';
+import { GROUP_RULES } from '@/lib/group-rules';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
 
@@ -41,7 +42,8 @@ export function ReassuranceChips({ compact = false }: { compact?: boolean }) {
   );
 }
 
-const processSteps = [
+function getProcessSteps(rules: typeof GROUP_RULES) {
+  return [
   {
     title: 'Bilan stratégique gratuit',
     text: 'On fait le point sur le niveau, les besoins et les coefficients prioritaires. Sans engagement.',
@@ -52,15 +54,18 @@ const processSteps = [
   },
   {
     title: 'Constitution du groupe & premier cours',
-    text: `Groupe de 5 maximum, ouvert dès 3 inscrits\u00A0; démarrage dès qu\u2019il est constitué.`,
+    text: `Groupe de ${rules.group_max} maximum, ouvert dès ${rules.group_min_open.lycee} inscrits au lycée\u00A0; démarrage dès qu\u2019il est constitué.`,
   },
   {
     title: 'Bilans réguliers & suivi parent',
     text: `Points d\u2019étape tout au long de l\u2019année et suivi accessible en continu.`,
   },
-];
+  ];
+}
 
 export function ProcessSteps() {
+  const processSteps = getProcessSteps(GROUP_RULES);
+
   return (
     <section className="bg-lux-white px-4 py-14 md:px-6">
       <div className="mx-auto max-w-6xl">

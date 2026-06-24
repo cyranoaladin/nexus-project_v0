@@ -1,9 +1,11 @@
 import { Award, BookOpenCheck, ClipboardList, Users } from "lucide-react";
+import { getRules } from "@/lib/pricing";
 
-const signals = [
+function getSignals(groupMax: number) {
+  return [
   {
     icon: Users,
-    title: "5 élèves maximum",
+    title: `${groupMax} élèves maximum`,
     copy: "Chaque correction est individuelle. Chaque erreur est travaillée. Pas un groupe où on écoute sans être vu.",
   },
   {
@@ -21,9 +23,12 @@ const signals = [
     title: "Bilan individualisé + plan de révision",
     copy: "À la sortie du stage, l'élève sait où il en est et ce qu'il doit faire ensuite. C'est le livrable de fin de stage.",
   },
-];
+  ];
+}
 
 export default function TrustSignals() {
+  const signals = getSignals(getRules().group_max);
+
   return (
     <section className="bg-nexus-bg-alt px-4 py-20 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">

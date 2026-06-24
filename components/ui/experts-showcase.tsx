@@ -26,7 +26,7 @@ const experts: Expert[] = [
       "Spécialiste de l'algèbre abstraite",
       "+20 ans d'expérience en classes préparatoires"
     ],
-    specialites: ["Option Maths Expertes", "Préparation aux Concours", "Programme Odyssée"],
+    specialites: ["Option Maths Expertes", "Préparation aux Concours", "Parcours annuels"],
     icon: Calculator,
     color: "from-blue-600 to-cyan-500"
   },
@@ -39,7 +39,7 @@ const experts: Expert[] = [
       "Spécialiste de la méthodologie des épreuves",
       "Expert en statistiques et probabilités"
     ],
-    specialites: ["Académies des Vacances", "Suivi Hebdomadaire", "Préparation au Bac Blanc"],
+    specialites: ["Stages intensifs", "Suivi Hebdomadaire", "Préparation au Bac Blanc"],
     icon: Target,
     color: "from-green-600 to-emerald-500"
   },
@@ -78,7 +78,7 @@ const experts: Expert[] = [
       "Ingénieur spécialisé en développement logiciel",
       "Expert en algorithmique et structures de données"
     ],
-    specialites: ["Académie Python & NSI", "Projets NSI"],
+    specialites: ["Stage Python & NSI", "Projets NSI"],
     icon: Code,
     color: "from-blue-700 to-blue-500"
   },
@@ -91,7 +91,7 @@ const experts: Expert[] = [
       "Expérience en administration système",
       "Expert des interactions matériel-logiciel"
     ],
-    specialites: ["Suivi de Spécialité NSI", "Programme Odyssée"],
+    specialites: ["Suivi de Spécialité NSI", "Parcours annuels"],
     icon: Users,
     color: "from-teal-600 to-cyan-500"
   }
@@ -113,10 +113,10 @@ export function ExpertsShowcase() {
             Notre Équipe d'Experts
           </Badge>
           <h2 className="text-3xl md:text-4xl font-bold text-bleu-nuit mb-4">
-            Les Maîtres de l'Excellence
+            Des profils pédagogiques spécialisés
           </h2>
           <p className="text-lg text-gris-noble max-w-3xl mx-auto">
-            Découvrez notre panthéon d'experts, chacun spécialisé dans son domaine d'excellence pour vous accompagner vers la réussite
+            Découvrez des profils d'accompagnement par discipline, selon les besoins de l'élève.
           </p>
         </motion.div>
 

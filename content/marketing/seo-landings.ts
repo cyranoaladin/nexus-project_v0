@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import type { OfferRef, NicheSection, RelatedLink } from '@/components/marketing/LandingNiche';
 import { LEGAL } from '@/lib/legal';
+import { getRules } from '@/lib/pricing';
 import { PREPARATION_LINKS, type PreparationLink } from './preparation-links';
 
 export type SeoLandingContent = {
@@ -38,6 +39,7 @@ function relatedLinksFor(path: PreparationLink['href']): RelatedLink[] {
 
 const pedagogicalAddress = LEGAL.addresses.pedagogique.full;
 const pedagogicalAddressNote = LEGAL.addresses.pedagogique.note;
+const groupMax = getRules().group_max;
 
 export const seoLandings = {
   '/candidat-libre-bac-francais': {
@@ -140,7 +142,7 @@ export const seoLandings = {
     path: '/preparation-bac-francais-tunis',
     title: 'Préparer le bac français à Tunis',
     intro:
-      'Nexus Réussite accompagne les élèves du système français à Tunis, scolarisés ou candidats libres, avec une méthode structurée : diagnostic, groupes réduits, entraînements, corrections, bilans et suivi parent. Cette page sert de point d’entrée vers les préparations clés du bac français : EAF, Grand Oral, spécialités, stages et parcours candidat libre.',
+      `Nexus Réussite accompagne les élèves du système français à Tunis, scolarisés ou candidats libres, avec une méthode structurée : diagnostic, groupes de ${groupMax} maximum, entraînements, corrections, bilans et suivi parent. Cette page sert de point d’entrée vers les préparations clés du bac français : EAF, Grand Oral, spécialités, stages et parcours candidat libre.`,
     jsonLdName: 'Préparation au bac français à Tunis',
     primaryCtaHref: '/bilan-gratuit',
     metadata: metadata(
@@ -153,7 +155,7 @@ export const seoLandings = {
         heading: 'Un cadre de travail pour les familles à Tunis',
         body: [
           'La préparation du bac français ne se résume pas à quelques révisions en fin d’année. Entre les épreuves anticipées, les spécialités, le tronc commun, la philosophie et le Grand Oral, les familles ont besoin d’un cadre lisible pour savoir quoi travailler, dans quel ordre et avec quel niveau d’exigence.',
-          `Nexus Réussite construit ce cadre autour d’un diagnostic initial, de groupes réduits, de corrections régulières et d’un suivi parent clair. ${pedagogicalAddressNote} Certaines formules permettent aussi un suivi en ligne ou mixte pour les familles éloignées ou les candidats libres.`,
+          `Nexus Réussite construit ce cadre autour d’un diagnostic initial, de groupes de ${groupMax} maximum, de corrections régulières et d’un suivi parent clair. ${pedagogicalAddressNote} Certaines formules permettent aussi un suivi en ligne ou mixte pour les familles éloignées ou les candidats libres.`,
         ],
       },
       {

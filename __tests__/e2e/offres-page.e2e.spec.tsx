@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { getRules } from '@/lib/pricing';
 
 test.describe('Page Offres E2E', () => {
   test.beforeEach(async ({ page }) => {
@@ -104,7 +105,7 @@ test.describe('Page Offres E2E', () => {
   });
 
   test('hero affiche les repères clés', async ({ page }) => {
-    await expect(page.getByText(/Groupes de 5 maximum/)).toBeVisible();
+    await expect(page.getByText(new RegExp(`Groupes de ${getRules().group_max} maximum`))).toBeVisible();
     await expect(page.getByText(/Tarifs en TND/)).toBeVisible();
   });
 

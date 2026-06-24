@@ -33,9 +33,9 @@ interface ExamCardBaseProps {
   hoursPerWeek?: number;
   /** Total hours */
   totalHours?: number;
-  /** Effectif display type: groupe → "5 max, dès 3" ; individuel → "individuel" ; none → hidden */
+  /** Effectif display type: groupe → canonical group display ; individuel → "individuel" ; none → hidden */
   effectifType?: 'groupe' | 'individuel' | 'none';
-  /** Group max (always 5) */
+  /** Group max from pricing rules/catalog. */
   groupMax?: number;
   /** Group min to open */
   groupMinOpen?: number;

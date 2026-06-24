@@ -107,7 +107,8 @@ function NavyBand({ eyebrow, title, intro, testId }: { eyebrow: string; title: s
 
 // ── FAQ ──
 
-const catalogueFAQ: FAQItem[] = [
+function getCatalogueFAQ(groupMax: number, lyceeMinOpen: number, collegeMinOpen: number): FAQItem[] {
+  return [
   {
     question: `Les tarifs sont-ils en TND\u00A0?`,
     answer: `Oui, tous nos tarifs sont en dinars tunisiens (TND). Aucun paiement en euros.`,
@@ -115,12 +116,12 @@ const catalogueFAQ: FAQItem[] = [
   {
     question: `Comment fonctionne le modèle places-based\u00A0?`,
     answer:
-      `Les groupes se remplissent progressivement. Il n\u2019y a pas de date limite artificielle — la rareté est réelle\u00A0: un groupe de 5 se remplit naturellement. Réservez tôt pour garantir votre place.`,
+      `Les groupes se remplissent progressivement. Un groupe compte ${groupMax} élèves maximum et ouvre dès ${lyceeMinOpen} inscrits au lycée. Réserver tôt permet de choisir plus facilement le créneau souhaité.`,
   },
   {
     question: `L\u2019acompte est-il remboursable\u00A0?`,
     answer:
-      `L\u2019acompte n\u2019est pas remboursable sauf si le groupe n\u2019atteint pas le seuil d\u2019ouverture (3 ou 4 inscrits). Dans ce cas, remboursement intégral.`,
+      `L\u2019acompte n\u2019est pas remboursable sauf si le groupe n\u2019atteint pas le seuil d\u2019ouverture (${lyceeMinOpen} inscrits au lycée ou ${collegeMinOpen} au Brevet). Dans ce cas, remboursement intégral.`,
   },
   {
     question: `Puis-je déduire l\u2019acompte d\u2019un stage si je prends un parcours annuel\u00A0?`,
@@ -132,7 +133,8 @@ const catalogueFAQ: FAQItem[] = [
     answer:
       `Non. Les remises (fratrie, ancien élève, parrainage, Carte Nexus) ne sont pas cumulables sauf décision de la direction. Le plafond global est de 20\u00A0%, et aucun tarif ne descend sous le plancher horaire.`,
   },
-];
+  ];
+}
 
 // ── Main component ──
 
@@ -167,7 +169,7 @@ export default function OffresPage() {
             tarifs en TND, échéanciers transparents.
           </p>
           <div className="mt-5 inline-flex flex-wrap gap-2 text-sm text-lux-on-dark-muted">
-            <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">Groupes de 5 maximum</span>
+            <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">Groupes de {rules.group_max} maximum</span>
             <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">Tarifs en TND</span>
             <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">Acompte 30 %</span>
             <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">Échéanciers transparents</span>
@@ -221,14 +223,14 @@ export default function OffresPage() {
 
       {/* Annuel scolarisé — bg white */}
       {showSection('annual') && (
-        <section data-testid="section-annual" className="bg-lux-white py-12 px-4 md:px-6">
+        <section id="section-annual" data-testid="section-annual" className="bg-lux-white py-12 px-4 md:px-6 scroll-mt-28">
           <div className="mx-auto max-w-6xl">
             <div className="mb-8">
               <span className="lux-eyebrow">Parcours présentiel</span>
               <h2 className="mt-2 text-2xl md:text-3xl">Accompagnement annuel — scolarisés</h2>
               <div className="lux-filet-gold mt-3 w-16" />
               <p className="mt-3 text-sm text-lux-slate">
-                {rules.group_max} élèves max, garanti dès {rules.group_min_open.lycee}. Acompte 30 % + mensualités.
+                {rules.group_max} élèves max, ouverture dès {rules.group_min_open.lycee}. Acompte 30 % + mensualités.
               </p>
             </div>
             {(['terminale', 'premiere', 'seconde', 'troisieme'] as const).map((level) => {
@@ -273,7 +275,7 @@ export default function OffresPage() {
 
       {/* Candidat libre — bg paper */}
       {showSection('libre') && libreOffers.length > 0 && (
-        <section data-testid="section-libre" className="bg-lux-paper py-12 px-4 md:px-6">
+        <section id="section-libre" data-testid="section-libre" className="bg-lux-paper py-12 px-4 md:px-6 scroll-mt-28">
           <div className="mx-auto max-w-6xl">
             <div className="mb-8">
               <span className="lux-eyebrow">Candidat libre</span>
@@ -314,7 +316,7 @@ export default function OffresPage() {
 
       {/* Plateforme ARIA — bg white */}
       {showSection('plateforme') && (
-        <section data-testid="section-plateforme" className="bg-lux-white py-12 px-4 md:px-6">
+        <section id="section-plateforme" data-testid="section-plateforme" className="bg-lux-white py-12 px-4 md:px-6 scroll-mt-28">
           <div className="mx-auto max-w-6xl">
             <div className="mb-8">
               <span className="lux-eyebrow">Plateforme</span>
@@ -366,7 +368,7 @@ export default function OffresPage() {
 
       {/* Les Intensifs — bg white */}
       {showSection('intensifs') && (
-        <section data-testid="section-intensifs" id="les-intensifs" className="bg-lux-white py-12 px-4 md:px-6 scroll-mt-28">
+        <section id="section-intensifs" data-testid="section-intensifs" className="bg-lux-white py-12 px-4 md:px-6 scroll-mt-28">
           <div className="mx-auto max-w-6xl">
             <div className="mb-8">
               <span className="lux-eyebrow">Les Intensifs</span>
@@ -555,7 +557,10 @@ export default function OffresPage() {
         </section>
       )}
 
-      <FAQAccordion items={catalogueFAQ} title="Questions sur les tarifs" />
+      <FAQAccordion
+        items={getCatalogueFAQ(rules.group_max, rules.group_min_open.lycee, rules.group_min_open.college)}
+        title="Questions sur les tarifs"
+      />
 
       <Testimonials />
 

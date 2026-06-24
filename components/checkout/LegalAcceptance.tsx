@@ -3,9 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { ExternalLink, ShieldCheck } from 'lucide-react';
-
-/** Current CGV version — must match the version exported from /conditions-generales page. */
-export const CGV_VERSION = 'CGV v1.0 – 2026-03-01';
+import { CGV_POLICY } from '@/lib/cgv-policy';
 
 interface LegalAcceptanceProps {
   /** Whether the user has accepted the CGV. */
@@ -78,23 +76,23 @@ export function LegalAcceptance({
         )}
         <li className="flex items-start gap-2">
           <span className="text-cyan-400 mt-0.5">•</span>
-          <span>Paiement via <strong className="text-white">ClicToPay</strong> (Banque Zitouna) ou virement bancaire.</span>
+          <span>Paiement via <strong className="text-white">{CGV_POLICY.payment.methodsLabel}</strong>.</span>
         </li>
         <li className="flex items-start gap-2">
           <span className="text-cyan-400 mt-0.5">•</span>
-          <span>Cartes bancaires <strong className="text-white">nationales et internationales</strong> acceptées.</span>
+          <span>{CGV_POLICY.payment.acceptedCards}</span>
         </li>
         <li className="flex items-start gap-2">
           <span className="text-cyan-400 mt-0.5">•</span>
-          <span>Sécurité : <strong className="text-white">CVV2 + 3D Secure</strong> requis.</span>
+          <span>Sécurité : <strong className="text-white">{CGV_POLICY.payment.security}</strong></span>
         </li>
         <li className="flex items-start gap-2">
           <span className="text-cyan-400 mt-0.5">•</span>
-          <span><strong className="text-white">Aucun frais additionnel</strong> lié au paiement par carte.</span>
+          <span>{CGV_POLICY.payment.cardFee}</span>
         </li>
         <li className="flex items-start gap-2">
           <span className="text-cyan-400 mt-0.5">•</span>
-          <span>Le cryptogramme visuel (CVV) <strong className="text-white">n&apos;est jamais stocké</strong>.</span>
+          <span>{CGV_POLICY.payment.cvvStorage}</span>
         </li>
       </ul>
 

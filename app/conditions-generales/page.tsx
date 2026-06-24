@@ -3,6 +3,7 @@ import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { ClipboardList } from 'lucide-react';
 import { LEGAL } from '@/lib/legal';
+import { CGV_POLICY } from '@/lib/cgv-policy';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -12,8 +13,6 @@ export const metadata: Metadata = {
 };
 
 export default function ConditionsGeneralesPage() {
-  const CGV_VERSION = '1.0';
-  void CGV_VERSION; // used in JSX below
   return (
     <div className="min-h-screen bg-surface-darker text-neutral-100 font-sans">
       <CorporateNavbar />
@@ -22,7 +21,7 @@ export default function ConditionsGeneralesPage() {
         <div className="container mx-auto px-4 max-w-4xl">
           <h1 className="text-4xl font-bold mb-4 text-white">Conditions Générales</h1>
           <p className="text-neutral-400 mb-8 text-sm">
-            Version {CGV_VERSION} — En vigueur à compter du 1er mars 2026
+            Version {CGV_POLICY.version} — En vigueur à compter du {CGV_POLICY.effectiveDateLabel}
           </p>
 
           <div className="bg-surface-card p-8 md:p-12 rounded-2xl shadow-premium border border-white/10 space-y-10 text-neutral-300 leading-relaxed">
@@ -61,11 +60,11 @@ export default function ConditionsGeneralesPage() {
               <ul className="list-disc pl-5 space-y-2 text-sm mb-3">
                 <li>Les présentes <strong className="text-white">Conditions Générales (CGU + CGV)</strong> sont consultables à tout moment sur cette page et doivent être acceptées avant paiement.</li>
                 <li>Les <strong className="text-white">prix sont affichés en Dinar Tunisien (TND)</strong>, toutes taxes comprises, avant validation de la commande.</li>
-                <li>Le paiement est réalisé via <strong className="text-white">ClicToPay</strong> (Banque Zitouna) ou par virement bancaire.</li>
-                <li>Les <strong className="text-white">cartes bancaires nationales et internationales</strong> sont acceptées.</li>
-                <li>La sécurité des transactions est assurée par <strong className="text-white">CVV2</strong> et <strong className="text-white">3D Secure</strong>.</li>
-                <li><strong className="text-white">Aucun frais additionnel</strong> n&apos;est facturé au Client du seul fait du paiement par carte bancaire.</li>
-                <li>Le <strong className="text-white">cryptogramme visuel (CVV/CVC) n&apos;est jamais stocké</strong> par {LEGAL.entity.name} ni dans ses bases de données, ni dans ses journaux techniques.</li>
+                <li>Le paiement est réalisé via <strong className="text-white">{CGV_POLICY.payment.methodsLabel}</strong>.</li>
+                <li>{CGV_POLICY.payment.acceptedCards}</li>
+                <li>La sécurité des transactions est assurée par <strong className="text-white">{CGV_POLICY.payment.security}</strong></li>
+                <li>{CGV_POLICY.payment.cardFee}</li>
+                <li>{CGV_POLICY.payment.cvvStorage}</li>
               </ul>
               <p className="text-xs text-neutral-400">
                 Lors du paiement, une case à cocher « J&apos;ai lu et j&apos;accepte les Conditions Générales (CGU + CGV) » est requise. Le bouton « Payer » reste désactivé tant que cette case n&apos;est pas cochée.
@@ -234,24 +233,24 @@ export default function ConditionsGeneralesPage() {
               <h3 className="text-xl font-bold mb-3 text-white">5. Paiement</h3>
               <h4 className="font-semibold text-white mt-3 mb-2">5.1 Modes de paiement acceptés</h4>
               <ul className="list-disc pl-5 space-y-1 mb-3">
-                <li><strong className="text-white">Carte bancaire via ClicToPay</strong> (Banque Zitouna) — cartes nationales et internationales</li>
-                <li><strong className="text-white">Virement bancaire</strong> sur le compte Banque Zitouna de {LEGAL.entity.name}</li>
+                <li><strong className="text-white">Carte bancaire via {CGV_POLICY.payment.provider}</strong> ({CGV_POLICY.payment.bank}) — cartes nationales et internationales</li>
+                <li><strong className="text-white">Virement bancaire</strong> sur le compte {CGV_POLICY.payment.bank} de {LEGAL.entity.name}</li>
               </ul>
 
               <h4 className="font-semibold text-white mt-4 mb-2">5.2 Sécurité des transactions</h4>
               <p className="mb-3">
-                Les transactions par carte bancaire sont sécurisées par la solution <strong className="text-white">ClickToPay</strong> de la Banque Zitouna.
+                Les transactions par carte bancaire sont sécurisées par la solution <strong className="text-white">{CGV_POLICY.payment.provider}</strong> de la {CGV_POLICY.payment.bank}.
                 Le contrat est soumis au <strong className="text-white">droit tunisien</strong>.
               </p>
               <ul className="list-disc pl-5 space-y-1 mb-3">
-                <li>Les paiements par carte sont sécurisés par <strong className="text-white">CVV2</strong> et <strong className="text-white">3D Secure</strong>.</li>
-                <li>Le <strong className="text-white">cryptogramme visuel (CVV/CVC) n&apos;est jamais stocké</strong> par le Vendeur — ni en base de données, ni dans les journaux techniques.</li>
-                <li>Toutes les données de carte sont traitées exclusivement par le prestataire de paiement ClicToPay dans un environnement sécurisé.</li>
+                <li>Les paiements par carte sont sécurisés par <strong className="text-white">{CGV_POLICY.payment.security}</strong></li>
+                <li>{CGV_POLICY.payment.cvvStorage}</li>
+                <li>Toutes les données de carte sont traitées exclusivement par le prestataire de paiement {CGV_POLICY.payment.provider} dans un environnement sécurisé.</li>
               </ul>
 
               <h4 className="font-semibold text-white mt-4 mb-2">5.3 Absence de frais additionnels</h4>
               <p className="mb-3">
-                <strong className="text-white">Aucun frais additionnel</strong> n&apos;est facturé au Client du seul fait du paiement par carte bancaire.
+                {CGV_POLICY.payment.cardFee}{' '}
                 Le montant débité correspond exactement au prix affiché.
               </p>
 
@@ -260,11 +259,10 @@ export default function ConditionsGeneralesPage() {
                 En cas de paiement par virement, le Client déclare son virement sur la Plateforme.
                 Le service est activé après <strong className="text-white">vérification et validation</strong> du virement par l&apos;équipe administrative (délai indicatif : 24 à 48 heures ouvrées).
               </p>
-              <ul className="space-y-1">
-                <li><strong className="text-white">Banque :</strong> Banque Zitouna</li>
-                <li><strong className="text-white">Titulaire :</strong> {LEGAL.entity.name}</li>
-                <li><strong className="text-white">RIB :</strong> 25 079 000 0001569084 04</li>
-              </ul>
+              <p className="text-sm text-neutral-400">
+                Les coordonnées bancaires sont communiquées uniquement dans l&apos;espace parent authentifié,
+                dans le récapitulatif de paiement ou sur la facture transmise au Client.
+              </p>
             </section>
 
             {/* CGV 6 */}
@@ -305,14 +303,13 @@ export default function ConditionsGeneralesPage() {
             <section>
               <h3 className="text-xl font-bold mb-3 text-white">8. Remboursements</h3>
               <ul className="list-disc pl-5 space-y-1">
-                <li><strong className="text-white">Abonnements :</strong> aucun remboursement prorata pour les jours restants du mois en cours après résiliation.</li>
-                <li><strong className="text-white">Packs :</strong> remboursement intégral si la demande est formulée dans les 14 jours suivant l&apos;achat et qu&apos;aucune séance n&apos;a été consommée.</li>
-                <li><strong className="text-white">Incident technique :</strong> si un service payé n&apos;a pas pu être délivré du fait du Vendeur, un remboursement ou un avoir est accordé.</li>
+                <li><strong className="text-white">Abonnements :</strong> {CGV_POLICY.refunds.subscriptions}</li>
+                <li><strong className="text-white">Packs :</strong> {CGV_POLICY.refunds.packs}</li>
+                <li><strong className="text-white">Incident technique :</strong> {CGV_POLICY.refunds.technicalIncident}</li>
               </ul>
               <p className="mt-3">
-                Les demandes de remboursement doivent être adressées à{' '}
-                <a href={`mailto:${LEGAL.contact.email}`} className="text-brand-accent underline">{LEGAL.contact.email}</a>{' '}
-                en indiquant le motif et la référence de commande. Délai de traitement : 10 jours ouvrés maximum.
+                {CGV_POLICY.refunds.request} Contact :{' '}
+                <a href={`mailto:${LEGAL.contact.email}`} className="text-brand-accent underline">{LEGAL.contact.email}</a>.
               </p>
             </section>
 
@@ -419,8 +416,8 @@ export default function ConditionsGeneralesPage() {
 
             {/* Date & version */}
             <div className="pt-6 border-t border-white/10 text-sm text-neutral-400">
-              <p>Version {CGV_VERSION} — Date d&apos;effet : 1er mars 2026</p>
-              <p>Dernière mise à jour : 1er mars 2026</p>
+              <p>Version {CGV_POLICY.version} — Date d&apos;effet : {CGV_POLICY.effectiveDateLabel}</p>
+              <p>Dernière mise à jour : {CGV_POLICY.effectiveDateLabel}</p>
             </div>
           </div>
         </div>

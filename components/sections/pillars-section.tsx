@@ -9,13 +9,13 @@ import { useState } from "react";
 const pillars = [
   {
     icon: Users,
-    title: "Des Coachs d'Exception",
-    category: "La Garantie Humaine",
-    description: "Nous ne recrutons que l'élite. Chaque intervenant est rigoureusement sélectionné pour son expertise et son expérience du système éducatif français.",
+    title: "Des intervenants qualifiés",
+    category: "L'accompagnement humain",
+    description: "Chaque intervenant est sélectionné pour son expertise disciplinaire, sa pédagogie et sa connaissance des attendus du système français.",
     features: [
-      "Professeurs **Agrégés et Certifiés** de l'Éducation Nationale française",
-      "Riche expérience dans **l'enseignement français à l'étranger**",
-      "Spécialistes NSI titulaires du **DIU NSI**",
+      "Enseignants **qualifiés** selon les disciplines",
+      "Expérience de **l'enseignement français à l'étranger** selon les profils",
+      "Spécialistes NSI pouvant être titulaires du **DIU NSI**",
       "Pédagogie active et suivi **bienveillant**"
     ]
   },
@@ -35,7 +35,7 @@ const pillars = [
     icon: GitBranch,
     title: "Votre Parcours, Votre Stratégie",
     category: "La Stratégie Personnalisée",
-    description: "Il n'y a pas de solution unique pour la réussite. Nous construisons avec vous un plan d'action sur-mesure, du premier jour jusqu'à Parcoursup.",
+    description: "Il n'y a pas de solution unique. Nous construisons avec vous un plan d'action adapté, du premier diagnostic jusqu'aux échéances d'orientation.",
     features: [
       "**Bilan Stratégique** initial complet et gratuit",
       "Constitution de groupes de travail **homogènes**",
@@ -45,14 +45,14 @@ const pillars = [
   },
   {
     icon: Award,
-    title: "Des Résultats Concrets",
-    category: "Les Résultats Concrets",
-    description: "Notre accompagnement ne s'arrête pas aux bonnes notes. Nous préparons activement vos enfants à leur avenir et nous nous engageons sur leurs résultats.",
+    title: "Des repères concrets",
+    category: "Le suivi pédagogique",
+    description: "Notre accompagnement suit la méthode, la régularité du travail, les corrections et les jalons d'orientation.",
     features: [
       "Préparation stratégique aux concours **post-bac**",
       "Accompagnement expert et intégré à **Parcoursup**",
       "Développement de **compétences transversales** pour le supérieur",
-      "**Garantie \"Bac Obtenu ou Remboursé\"** sous conditions"
+      "Bilans réguliers pour **ajuster le parcours**"
     ]
   }
 ];
@@ -87,8 +87,8 @@ function DIUTooltip() {
               </button>
             </div>
             <p className="text-xs text-slate-700 leading-relaxed">
-              Le DIU "Enseigner l'informatique au lycée" est un diplôme national qui garantit
-              que l'enseignant possède les connaissances et les compétences pédagogiques requises
+              Le DIU "Enseigner l'informatique au lycée" est un diplôme national qui atteste
+              des connaissances et des compétences pédagogiques requises
               pour enseigner la spécialité Numérique et Sciences Informatiques (NSI) en classes
               de 1ère et de Terminale, conformément aux exigences de la réforme du lycée.
             </p>
@@ -145,11 +145,11 @@ export function PillarsSection() {
             Notre Promesse
           </Badge>
           <h2 className="font-heading text-4xl md:text-5xl font-bold text-slate-900 mb-8 leading-tight max-w-4xl mx-auto">
-            L'<span className="text-blue-600">Excellence</span> Augmentée
+            Une <span className="text-blue-600">méthode structurée</span>, appuyée par les outils numériques
           </h2>
           <p className="text-xl md:text-2xl text-slate-600 max-w-4xl mx-auto leading-relaxed">
             Nous avons construit un écosystème unique où l'expertise humaine, la puissance technologique
-            et la stratégie personnalisée convergent vers un seul objectif : votre réussite.
+            et la stratégie personnalisée rendent le travail plus lisible et plus régulier.
           </p>
         </motion.div>
 
@@ -204,7 +204,7 @@ export function PillarsSection() {
 
                   {/* Colonne de droite - Image */}
                   <div className="lg:order-last">
-                    {pillar.category === "La Garantie Humaine" ? (
+                    {pillar.category === "L'accompagnement humain" ? (
                       <Image
                         src="/images/Image_AccompagnementBienveillant.png"
                         alt="Accompagnement bienveillant par nos experts"
@@ -228,7 +228,7 @@ export function PillarsSection() {
                         height={400}
                         className="w-full h-auto rounded-lg shadow-lg"
                       />
-                    ) : pillar.category === "Les Résultats Concrets" ? (
+                    ) : pillar.category === "Le suivi pédagogique" ? (
                       <Image
                         src="/images/coach_parcoursup.png"
                         alt="Coaching Parcoursup et orientation"

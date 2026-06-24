@@ -3,11 +3,13 @@ import { ArrowRight, MessageCircle, ShieldCheck } from "lucide-react";
 import CountdownChip from "./CountdownChip";
 import CTAButton from "./CTAButton";
 import { TARGET_DATES, WHATSAPP_URL } from "../_lib/constants";
-import { getNextStage } from "@/lib/pricing";
+import { getNextStage, getRules } from "@/lib/pricing";
 
 const _nextStage = getNextStage();
 
 export default function StagesHero() {
+  const { group_max: groupMax } = getRules();
+
   return (
     <section className="relative overflow-hidden bg-nexus-bg px-4 pb-24 pt-20 sm:px-6 lg:px-8">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_20%,rgba(16,185,129,0.13),transparent_42%),radial-gradient(ellipse_at_80%_70%,rgba(245,158,11,0.07),transparent_32%)]" />
@@ -34,13 +36,13 @@ export default function StagesHero() {
 
         {/* Sous-titre */}
         <p className="mx-auto mt-7 max-w-2xl text-base leading-8 text-white/55 sm:text-lg">
-          Des groupes de 5 élèves maximum. Des intervenants du système français. Des entraînements
+          Des groupes de {groupMax} élèves maximum. Des intervenants du système français. Des entraînements
           corrigés, des épreuves blanches et un plan de révision final.
         </p>
 
         {/* CTA */}
         <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-          <CTAButton href="#offres" className="sm:min-w-[260px]">
+          <CTAButton href="/offres#section-intensifs" className="sm:min-w-[260px]">
             Voir les formules disponibles
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </CTAButton>
@@ -54,7 +56,7 @@ export default function StagesHero() {
         <div className="mx-auto mt-10 flex max-w-3xl flex-wrap items-center justify-center gap-x-6 gap-y-2 rounded-2xl border border-white/8 bg-white/[0.025] px-6 py-4 text-sm text-white/55">
           <span className="flex items-center gap-2">
             <ShieldCheck className="h-3.5 w-3.5 text-nexus-green" aria-hidden="true" />
-            5 élèves maximum
+            {groupMax} élèves maximum
           </span>
           <span className="hidden h-1 w-1 rounded-full bg-white/18 sm:block" aria-hidden="true" />
           <span>Épreuves blanches incluses</span>

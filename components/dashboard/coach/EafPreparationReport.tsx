@@ -230,7 +230,7 @@ export function EafPreparationReport({ studentId, studentName }: EafPreparationR
 
         {report.status === "VALIDATED" && (
           <div className="p-3 rounded-lg bg-emerald-500/15 text-emerald-300 text-sm border border-emerald-500/20">
-            Ce bilan est validé. Il est verrouillé pour garantir la cohérence du PDF généré.
+            Ce bilan est validé. Il est verrouillé pour préserver la cohérence du PDF généré.
           </div>
         )}
 

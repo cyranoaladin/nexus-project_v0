@@ -56,7 +56,7 @@ export default function Stages2026Page() {
               <WhatsAppLogo className="mr-2 h-4 w-4" style={{ color: WHATSAPP_BRAND_GREEN }} />
               \u00c9crire sur WhatsApp
             </a>
-            <Link href="/offres#les-intensifs" className="inline-flex items-center justify-center rounded-lg border border-lux-line/40 px-6 py-3.5 text-sm font-semibold text-lux-ivory min-h-[44px]">
+            <Link href="/offres#section-intensifs" className="inline-flex items-center justify-center rounded-lg border border-lux-line/40 px-6 py-3.5 text-sm font-semibold text-lux-ivory min-h-[44px]">
               Voir tous les formats & tarifs
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
@@ -182,7 +182,7 @@ export default function Stages2026Page() {
                   Demander un bilan
                 </Link>
                 <Button asChild variant="outline" className="border-lux-line/40 text-lux-ivory hover:bg-white/5">
-                  <Link href="/offres#les-intensifs">
+                  <Link href="/offres#section-intensifs">
                     Voir tous les formats & tarifs
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>

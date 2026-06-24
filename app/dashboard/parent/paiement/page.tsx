@@ -17,7 +17,7 @@ import {
   getOperationalSubscriptionPlan,
 } from "@/lib/operational-catalog";
 import { ArrowLeft, Check, Clock, Copy, CreditCard, Landmark } from "lucide-react";
-import { LegalAcceptance, CGV_VERSION } from "@/components/checkout/LegalAcceptance";
+import { LegalAcceptance } from "@/components/checkout/LegalAcceptance";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -25,6 +25,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { LEGAL } from "@/lib/legal";
+import { CGV_POLICY, CGV_VERSION } from "@/lib/cgv-policy";
 
 interface OrderDetails {
   type: "subscription" | "addon" | "pack";
@@ -35,8 +36,6 @@ interface OrderDetails {
   recurring: boolean;
   studentId?: string | null;
 }
-
-const IBAN = "TN59 25 079 000 0001569084 04";
 
 function PaiementContent() {
   const { data: session, status } = useSession();
@@ -115,7 +114,7 @@ function PaiementContent() {
 
   const handleCopyIban = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(IBAN);
+      await navigator.clipboard.writeText(LEGAL.billing.iban);
       toast.success("IBAN copié dans le presse-papier");
     } catch {
       toast.error("Impossible de copier l'IBAN");
@@ -285,7 +284,7 @@ function PaiementContent() {
                       </span>
                     </div>
                     <p className="text-sm text-neutral-500 mt-1">
-                      ClicToPay — Banque Zitouna (en cours de configuration)
+                      {CGV_POLICY.payment.provider} — {CGV_POLICY.payment.bank} (en cours de configuration)
                     </p>
                   </div>
                 </div>
@@ -313,7 +312,7 @@ function PaiementContent() {
                       Paiement par virement bancaire
                     </span>
                     <p className="text-sm text-neutral-300 mt-1">
-                      Virement sur le compte Banque Zitouna
+                      Virement sur le compte {CGV_POLICY.payment.bank}
                     </p>
                     <div className="flex items-center gap-2 mt-2">
                       <Check className={`w-4 h-4 ${hasPendingPayment ? 'text-neutral-500' : 'text-brand-primary'}`} />
@@ -367,7 +366,7 @@ function PaiementContent() {
                   </div>
                   <h3 className="font-semibold">Paiement Sécurisé</h3>
                   <p className="text-sm text-neutral-300">
-                    Toutes vos transactions sont protégées par un cryptage SSL de niveau bancaire
+                    {CGV_POLICY.payment.security} Paiement par {CGV_POLICY.payment.provider} ou virement.
                   </p>
                 </div>
 
@@ -377,7 +376,7 @@ function PaiementContent() {
                   </div>
                   <h3 className="font-semibold">Support selon formule</h3>
                   <p className="text-sm text-neutral-300">
-                    Notre équipe est disponible à tout moment pour vous accompagner
+                    Les modalités d'accompagnement dépendent de la formule souscrite.
                   </p>
                 </div>
 
@@ -385,9 +384,9 @@ function PaiementContent() {
                   <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto">
                     <CreditCard className="w-8 h-8 text-blue-600" />
                   </div>
-                  <h3 className="font-semibold">Satisfaction Garantie</h3>
+                  <h3 className="font-semibold">Règles de remboursement</h3>
                   <p className="text-sm text-neutral-300">
-                    Remboursement intégral si vous n&apos;êtes pas satisfait sous 14 jours
+                    {CGV_POLICY.refunds.summary}
                   </p>
                 </div>
               </div>
@@ -397,7 +396,7 @@ function PaiementContent() {
                   <span className="text-brand-primary font-bold">Un cadre de paiement sécurisé</span> pour les familles
                 </p>
                 <p className="text-center text-sm text-neutral-400 mt-2">
-                  Rejoignez notre communauté d&apos;excellence éducative
+                  Les conditions générales restent consultables avant validation.
                 </p>
               </div>
             </div>
@@ -445,18 +444,18 @@ function PaiementContent() {
 
             <div>
               <p className="text-xs text-neutral-400 uppercase tracking-wider">Banque</p>
-              <p className="font-semibold mt-0.5">Banque Zitouna</p>
+              <p className="font-semibold mt-0.5">{LEGAL.billing.bank}</p>
             </div>
 
             <div>
               <p className="text-xs text-neutral-400 uppercase tracking-wider">Compte</p>
-              <p className="font-mono mt-0.5">25 079 000 0001569084 04</p>
+              <p className="font-mono mt-0.5">{LEGAL.billing.rib}</p>
             </div>
 
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-neutral-400 uppercase tracking-wider">IBAN</p>
-                <p className="font-mono mt-0.5">{IBAN}</p>
+                <p className="font-mono mt-0.5">{LEGAL.billing.iban}</p>
               </div>
               <Button
                 variant="outline"

@@ -42,7 +42,7 @@
       "carte_nexus_pct": 10,
       "cumulable": false,
       "global_cap_pct": 20,
-      "note": "Non cumulables sauf décision exceptionnelle de la direction ; le plafond global de 20% garantit que le prix/élève/heure reste au-dessus du plancher."
+      "note": "Non cumulables sauf décision exceptionnelle de la direction ; le plafond global de 20% maintient le prix/élève/heure au-dessus du plancher."
     }
   },
   "offers": [
@@ -65,7 +65,7 @@
       "last_installment": 330,
       "included": [
         "1 spécialité au choix, 2 h / semaine",
-        "Groupe de 5 maximum, garanti dès 3 inscrits",
+        "Groupe réduit, seuil d'ouverture selon niveau",
         "Bacs blancs en conditions réelles",
         "Plateforme ARIA + espace parent"
       ]
@@ -89,7 +89,7 @@
       "last_installment": 545,
       "included": [
         "2 spécialités au choix, 4 h / semaine",
-        "Groupe de 5 maximum, garanti dès 3 inscrits",
+        "Groupe réduit, seuil d'ouverture selon niveau",
         "Grand Oral : préparation complète incluse",
         "Stages de vacances inclus (Toussaint, février, Pâques)",
         "Bacs blancs en conditions réelles + correction détaillée",
@@ -116,7 +116,7 @@
       "last_installment": 714,
       "included": [
         "2 spécialités + Maths expertes, 6 h / semaine",
-        "Groupe de 5 maximum, garanti dès 3 inscrits",
+        "Groupe réduit, seuil d'ouverture selon niveau",
         "Grand Oral : préparation complète incluse",
         "Stages de vacances inclus",
         "Coaching individuel et suivi parent renforcé",
@@ -144,7 +144,7 @@
       "last_installment": 236,
       "included": [
         "Préparation EAF complète : écrit + oral",
-        "Groupe de 5 maximum, garanti dès 3 inscrits",
+        "Groupe réduit, seuil d'ouverture selon niveau",
         "Bacs blancs de français en conditions réelles",
         "Méthodologie commentaire et dissertation",
         "Plateforme ARIA + espace parent",
@@ -170,7 +170,7 @@
       "last_installment": 236,
       "included": [
         "Mathématiques anticipées et méthode",
-        "Groupe de 5 maximum, garanti dès 3 inscrits",
+        "Groupe réduit, seuil d'ouverture selon niveau",
         "Préparation aux attendus de Terminale",
         "Bilan de positionnement initial offert",
         "Plateforme ARIA + espace parent",
@@ -197,7 +197,7 @@
       "included": [
         "Préparation EAF complète : écrit + oral",
         "Mathématiques anticipées et méthode",
-        "Groupe de 5 maximum, garanti dès 3 inscrits",
+        "Groupe réduit, seuil d'ouverture selon niveau",
         "Bacs blancs de français en conditions réelles",
         "Bilan de positionnement initial offert",
         "Plateforme ARIA + espace parent",
@@ -223,7 +223,7 @@
       "last_installment": 450,
       "included": [
         "Mathématiques et raisonnement scientifique",
-        "Groupe de 5 maximum, garanti dès 3 inscrits",
+        "Groupe réduit, seuil d'ouverture selon niveau",
         "Préparation aux attendus de Terminale",
         "Bilan de positionnement initial offert",
         "Plateforme ARIA + espace parent",
@@ -249,7 +249,7 @@
       "last_installment": 210,
       "included": [
         "Mathématiques et méthode de travail",
-        "Groupe de 5 maximum, garanti dès 3 inscrits",
+        "Groupe réduit, seuil d'ouverture selon niveau",
         "Préparation aux choix de spécialités",
         "Bilan de positionnement initial offert",
         "Plateforme ARIA + espace parent",
@@ -275,7 +275,7 @@
       "last_installment": 420,
       "included": [
         "Mathématiques et raisonnement scientifique, 4 h / semaine",
-        "Groupe de 5 maximum, garanti dès 3 inscrits",
+        "Groupe réduit, seuil d'ouverture selon niveau",
         "Préparation aux attendus de Première",
         "Bilan de positionnement initial offert",
         "Plateforme ARIA + espace parent",
@@ -325,7 +325,7 @@
       "last_installment": 192,
       "included": [
         "Mathématiques : calcul, géométrie, résolution de problèmes",
-        "Groupe de 5 maximum, garanti dès 4 inscrits",
+        "Groupe réduit, seuil d'ouverture selon niveau",
         "Entraînement DNB : sujets corrigés et méthodologie",
         "Bilan de positionnement initial offert",
         "Plateforme ARIA + espace parent",
@@ -351,7 +351,7 @@
       "last_installment": 376,
       "included": [
         "Mathématiques + Français + méthode de travail, 4 h / semaine",
-        "Groupe de 5 maximum, garanti dès 4 inscrits",
+        "Groupe réduit, seuil d'ouverture selon niveau",
         "Entraînement DNB complet : sujets corrigés",
         "Bilan de positionnement initial offert",
         "Plateforme ARIA + espace parent",
@@ -399,7 +399,7 @@
       "installment_amount": 380,
       "last_installment": 390,
       "included": [
-        "Présentiel hebdomadaire en groupe de 5 max",
+        "Présentiel hebdomadaire en groupe réduit",
         "Plateforme ARIA + espace parent",
         "Carte d'examen personnalisée",
         "Bilans de progression réguliers"
@@ -447,7 +447,7 @@
       "last_installment": 618,
       "included": [
         "Spécialités, Grand Oral, tronc commun selon carte d'examen",
-        "Présentiel hebdomadaire en groupe de 5 max",
+        "Présentiel hebdomadaire en groupe réduit",
         "Bacs blancs en conditions réelles + correction détaillée",
         "Carte d'examen personnalisée",
         "Bulletin trimestriel Nexus + conseil de classe individuel",
@@ -473,7 +473,7 @@
       "installment_amount": 770,
       "last_installment": 770,
       "included": [
-        "Tout le parcours Mixte en groupe de 5 max",
+        "Tout le parcours Mixte en groupe réduit",
         "Coaching individuel et suivi parent renforcé",
         "6 h d'urgence en ligne incluses",
         "Priorité de planification sur les stages",
@@ -548,7 +548,7 @@
       "last_installment": null,
       "included": [
         "Tout l'abonnement Suivi",
-        "1 séance live en groupe de 5 max / semaine",
+        "1 séance live en groupe réduit / semaine",
         "Corrections personnalisées ponctuelles"
       ]
     }
@@ -823,7 +823,7 @@
       ]
     },
     {
-      "edition_id": "février",
+      "edition_id": "fevrier",
       "title": "Intensif Février",
       "period": "Février",
       "dates_display": "communiquées avec la recommandation",
@@ -942,7 +942,7 @@
       }
     },
     {
-      "id": "boussole-méthode",
+      "id": "boussole-methode",
       "title": "Boussole Méthode",
       "format": "Atelier méthodo, 3 séances",
       "effectif": "groupe",
@@ -1052,7 +1052,7 @@
         {
           "type": "stage",
           "format_id": "intensif-solo",
-          "edition_id": "février",
+          "edition_id": "fevrier",
           "qty": 1
         },
         {
@@ -1095,7 +1095,7 @@
         {
           "type": "stage",
           "format_id": "intensif-renfort",
-          "edition_id": "février",
+          "edition_id": "fevrier",
           "qty": 1
         },
         {
@@ -1194,7 +1194,7 @@
         {
           "type": "stage",
           "format_id": "intensif-renfort",
-          "edition_id": "février",
+          "edition_id": "fevrier",
           "qty": 1
         },
         {
@@ -1242,7 +1242,7 @@
         {
           "type": "stage",
           "format_id": "intensif-renfort",
-          "edition_id": "février",
+          "edition_id": "fevrier",
           "qty": 1
         },
         {

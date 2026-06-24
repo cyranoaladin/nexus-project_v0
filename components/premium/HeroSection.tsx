@@ -3,14 +3,20 @@ import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
+import { getRules } from '@/lib/pricing';
 
-const reassuranceItems = [
+function getReassuranceItems(groupMax: number): string[] {
+  return [
   'Enseignants agrégés & certifiés',
-  'Groupes de 5 max',
+  `Groupes de ${groupMax} max`,
   'Cellule Cyclades',
-];
+  ];
+}
 
 export function HeroSection() {
+  const { group_max: groupMax } = getRules();
+  const reassuranceItems = getReassuranceItems(groupMax);
+
   return (
     <section data-hero className="relative overflow-hidden bg-lux-ink">
       <div className="mx-auto max-w-6xl px-4 py-16 md:px-6 md:py-24 lg:py-28">
@@ -31,7 +37,7 @@ export function HeroSection() {
             {/* Description */}
             <p className="max-w-lg text-base leading-relaxed text-lux-on-dark-muted font-dm-sans">
               Un cadre structurant pensé pour les familles&nbsp;: enseignants agrégés et certifiés,
-              groupes de 5, bacs blancs sur grilles officielles, et la plateforme ARIA.
+              groupes de {groupMax}, bacs blancs sur grilles officielles, et la plateforme ARIA.
             </p>
 
             {/* CTA row */}

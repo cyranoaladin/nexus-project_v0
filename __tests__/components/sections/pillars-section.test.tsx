@@ -43,9 +43,9 @@ describe('PillarsSection', () => {
   it('renders the section title correctly', () => {
     render(<PillarsSection />);
 
-    // Title text is split across elements with "Excellence" in a span
+    // Title text is split across elements with "méthode structurée" in a span
     expect(screen.getByText((content, element) => {
-      return element?.textContent === "L'Excellence Augmentée" || false;
+      return element?.textContent === "Une méthode structurée, appuyée par les outils numériques" || false;
     })).toBeInTheDocument();
     expect(screen.getByText(/Notre Promesse/i)).toBeInTheDocument();
   });
@@ -59,29 +59,29 @@ describe('PillarsSection', () => {
   it('renders all four pillars', () => {
     render(<PillarsSection />);
 
-    expect(screen.getByText(/Des Coachs d'Exception/i)).toBeInTheDocument();
+    expect(screen.getByText(/Des intervenants qualifiés/i)).toBeInTheDocument();
     expect(screen.getByText(/Une Technologie Qui Fait la Différence/i)).toBeInTheDocument();
     expect(screen.getByText(/Votre Parcours, Votre Stratégie/i)).toBeInTheDocument();
-    expect(screen.getByText(/Des Résultats Concrets/i)).toBeInTheDocument();
+    expect(screen.getByText(/Des repères concrets/i)).toBeInTheDocument();
   });
 
   it('renders pillar categories correctly', () => {
     render(<PillarsSection />);
 
     // Categories may appear in multiple places, use getAllByText
-    expect(screen.getAllByText(/La Garantie Humaine/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/L'accompagnement humain/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/Le Levier Technologique/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/La Stratégie Personnalisée/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/Les Résultats Concrets/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Le suivi pédagogique/i).length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders pillar descriptions', () => {
     render(<PillarsSection />);
 
-    expect(screen.getByText(/Nous ne recrutons que l'élite/i)).toBeInTheDocument();
+    expect(screen.getByText(/Chaque intervenant est sélectionné pour son expertise disciplinaire/i)).toBeInTheDocument();
     expect(screen.getByText(/Nous avons développé des outils propriétaires/i)).toBeInTheDocument();
     expect(screen.getByText(/Il n'y a pas de solution unique/i)).toBeInTheDocument();
-    expect(screen.getByText(/Notre accompagnement ne s'arrête pas aux bonnes notes/i)).toBeInTheDocument();
+    expect(screen.getByText(/Notre accompagnement suit la méthode/i)).toBeInTheDocument();
   });
 
   it('renders all pillar images', () => {
@@ -100,13 +100,22 @@ describe('PillarsSection', () => {
     render(<PillarsSection />);
 
     // Check for important feature text (some may be in multiple places)
-    expect(screen.getByText(/Agrégés et Certifiés/)).toBeInTheDocument();
+    expect(screen.getByText(/Enseignants/)).toBeInTheDocument();
     expect(screen.getByText(/IA ARIA/)).toBeInTheDocument();
     expect(screen.getByText(/Bilan Stratégique/)).toBeInTheDocument();
 
     // Parcoursup appears multiple times
     const parcoursupElements = screen.getAllByText(/Parcoursup/);
     expect(parcoursupElements.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('does not render the former result guarantee claims', () => {
+    render(<PillarsSection />);
+
+    expect(screen.queryByText(/Nous ne recrutons que l'élite/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Bac Obtenu ou Remboursé/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/La Garantie Humaine/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Les Résultats Concrets/i)).not.toBeInTheDocument();
   });
 
   it('renders DIU NSI tooltip functionality', () => {
