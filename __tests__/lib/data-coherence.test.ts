@@ -34,9 +34,22 @@ describe('Rendered prices match canonical — by offer', () => {
       }
     });
 
-    test('every priced offer has monthly_display == round(annual/10)', () => {
+    test('priced annual offers do not expose legacy monthly_display', () => {
       for (const o of priced) {
-        expect(o.monthly_display).toBe(Math.round(o.price_annual! / 10));
+        expect((o as unknown as Record<string, unknown>).monthly_display).toBeUndefined();
+      }
+    });
+
+    test('every priced offer with installments recomposes exactly to annual price', () => {
+      for (const o of priced) {
+        if (o.deposit == null || o.n_installments == null || o.installment_amount == null) continue;
+
+        const total =
+          o.deposit +
+          o.installment_amount * (o.n_installments - 1) +
+          (o.last_installment ?? o.installment_amount);
+
+        expect(total).toBe(o.price_annual);
       }
     });
 

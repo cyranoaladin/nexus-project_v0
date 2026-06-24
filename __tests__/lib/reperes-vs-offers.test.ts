@@ -18,28 +18,28 @@ function findOffer(id: string) {
 }
 
 describe('Repères tarifaires == canonical offers (no second source)', () => {
-  test('brevetMois == brevet-maths monthly_display', () => {
-    expect(rep.brevetMois).toBe(`à partir de ${findOffer('brevet-maths').monthly_display} TND / mois`);
+  test('brevetMois == brevet-maths installment_amount', () => {
+    expect(rep.brevetMois).toBe(`à partir de ${findOffer('brevet-maths').installment_amount} TND / mois hors acompte`);
   });
 
-  test('secondeMois == 2nde-maths monthly_display', () => {
-    expect(rep.secondeMois).toBe(`à partir de ${findOffer('2nde-maths').monthly_display} TND / mois`);
+  test('secondeMois == 2nde-maths installment_amount', () => {
+    expect(rep.secondeMois).toBe(`à partir de ${findOffer('2nde-maths').installment_amount} TND / mois hors acompte`);
   });
 
-  test('premiereSimpleMois == 1re-eaf monthly_display', () => {
-    expect(rep.premiereSimpleMois).toBe(`à partir de ${findOffer('1re-eaf').monthly_display} TND / mois`);
+  test('premiereSimpleMois == 1re-eaf installment_amount', () => {
+    expect(rep.premiereSimpleMois).toBe(`à partir de ${findOffer('1re-eaf').installment_amount} TND / mois hors acompte`);
   });
 
-  test('premiereDuoMois == 1re-double-secu monthly_display', () => {
-    expect(rep.premiereDuoMois).toBe(`à partir de ${findOffer('1re-double-secu').monthly_display} TND / mois`);
+  test('premiereDuoMois == 1re-double-secu installment_amount', () => {
+    expect(rep.premiereDuoMois).toBe(`à partir de ${findOffer('1re-double-secu').installment_amount} TND / mois hors acompte`);
   });
 
-  test('terminaleSimpleMois == term-spe-simple monthly_display', () => {
-    expect(rep.terminaleSimpleMois).toBe(`à partir de ${findOffer('term-spe-simple').monthly_display} TND / mois`);
+  test('terminaleSimpleMois == term-spe-simple installment_amount', () => {
+    expect(rep.terminaleSimpleMois).toBe(`à partir de ${findOffer('term-spe-simple').installment_amount} TND / mois hors acompte`);
   });
 
-  test('terminaleDuoMois == term-duo monthly_display', () => {
-    expect(rep.terminaleDuoMois).toBe(`~ ${findOffer('term-duo').monthly_display} TND / mois`);
+  test('terminaleDuoMois == term-duo installment_amount', () => {
+    expect(rep.terminaleDuoMois).toBe(`à partir de ${findOffer('term-duo').installment_amount} TND / mois hors acompte`);
   });
 
   test('plateformeAn == plateforme-autonomie price_annual', () => {

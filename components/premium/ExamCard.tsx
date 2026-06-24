@@ -10,6 +10,7 @@ interface ExamCardPayment {
   installments?: number[];
   solde?: number;
   n_installments?: number;
+  depositPct?: number;
   full_at_booking?: boolean;
 }
 
@@ -26,8 +27,6 @@ interface ExamCardBaseProps {
   discountPct?: number;
   /** Payment schedule */
   payment?: ExamCardPayment;
-  /** "X TND / mois" display */
-  monthlyDisplay?: number;
   /** Pricing display mode: 'monthly_first' | 'annual' | 'total' (auto-detected if omitted) */
   pricingDisplay?: 'monthly_first' | 'annual' | 'total';
   /** "Xh / semaine" */
@@ -78,7 +77,6 @@ export function ExamCard(props: ExamCardProps) {
     subtitle,
     price,
     payment,
-    monthlyDisplay,
     pricingDisplay,
     hoursPerWeek,
     totalHours,
@@ -167,19 +165,36 @@ export function ExamCard(props: ExamCardProps) {
 
       {/* Pricing — monthly-first for tutorat, annual for plateforme, total for one-shots */}
       {(() => {
-        const mode = pricingDisplay ?? (monthlyDisplay != null ? 'monthly_first' : 'total');
+        const firstInstallment = payment?.installments?.[0];
+        const lastInstallment = payment?.installments?.[payment.installments.length - 1];
+        const hasInstallments =
+          payment != null &&
+          !payment.full_at_booking &&
+          firstInstallment != null &&
+          payment.installments != null &&
+          payment.installments.length > 0;
+        const depositPctLabel = payment?.depositPct != null ? ` (${payment.depositPct}\u00A0%)` : '';
+        const lastInstallmentLabel =
+          lastInstallment != null && lastInstallment !== firstInstallment
+            ? `, dernière à ${fmtTND(lastInstallment)}`
+            : '';
+        const scheduleLabel = hasInstallments
+          ? `Acompte ${fmtTND(payment.deposit)}${depositPctLabel}, puis ${payment.installments!.length} mensualité${payment.installments!.length > 1 ? 's' : ''} (${fmtTND(firstInstallment)}${lastInstallmentLabel})`
+          : undefined;
+        const mode = pricingDisplay ?? (hasInstallments ? 'monthly_first' : 'total');
+
         return (
           <div data-testid="pricing-block" className={`px-6 py-5 ${featured ? 'bg-lux-ink/[0.03]' : 'bg-lux-paper/60'}`}>
-            {mode === 'monthly_first' && monthlyDisplay != null ? (
+            {mode === 'monthly_first' && hasInstallments ? (
               <>
                 <div className="flex items-baseline gap-2">
                   <span data-testid="price-primary" className="lux-price text-2xl font-bold text-lux-ink">
-                    {fmtPrice(monthlyDisplay)}&nbsp;TND
+                    {fmtPrice(firstInstallment)}&nbsp;TND
                   </span>
-                  <span className="text-sm font-medium text-lux-slate">/&nbsp;mois</span>
+                  <span className="text-sm font-medium text-lux-slate">/&nbsp;mois hors acompte</span>
                 </div>
                 <p data-testid="price-secondary" className="mt-1 text-sm text-lux-slate">
-                  soit {fmtTND(price)}&nbsp;/&nbsp;an
+                  {scheduleLabel}. Total {fmtTND(price)}&nbsp;/&nbsp;an.
                 </p>
               </>
             ) : mode === 'annual' ? (

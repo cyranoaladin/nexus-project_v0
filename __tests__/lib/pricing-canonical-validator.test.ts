@@ -136,7 +136,7 @@ describe('T4 — Pack referential integrity', () => {
   });
 });
 
-// ── T5: Pack fields + monthly_display ──
+// ── T5: Pack fields + deprecated monthly_display ──
 
 describe('T5 — Pack pricing fields are clean', () => {
   test('no pack has deprecated value or discount_pct fields', () => {
@@ -147,12 +147,10 @@ describe('T5 — Pack pricing fields are clean', () => {
   });
 });
 
-describe('T5b — monthly_display = round(price_annual / 10)', () => {
-  test('every offer with price_annual has correct monthly_display', () => {
+describe('T5b — monthly_display is deprecated from annual offers', () => {
+  test('no annual offer exposes the legacy annual/10 display field', () => {
     for (const offer of data.offers) {
-      if (offer.price_annual == null) continue;
-      const expected = Math.round(offer.price_annual / 10);
-      expect(offer.monthly_display).toBe(expected);
+      expect((offer as unknown as Record<string, unknown>).monthly_display).toBeUndefined();
     }
   });
 });
