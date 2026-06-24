@@ -1,6 +1,3 @@
-'use client';
-
-import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
@@ -39,6 +36,7 @@ import {
 } from '@/components/marketing/acadomia-inspired';
 import { PaymentMethodsNote } from '@/components/marketing/PaymentMethodsNote';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
+import OffersFiltersClient from './_components/OffersFiltersClient';
 
 // ── Category filter ──
 
@@ -87,11 +85,34 @@ function resolvePackComponentLabels(pack: Pack): string[] {
   });
 }
 
+function filterSectionAttrs(categories: string) {
+  return {
+    'data-offres-block': '1',
+    'data-offres-categories': categories,
+  } satisfies Record<string, string>;
+}
+
 // ── Navy separator band ──
 
-function NavyBand({ eyebrow, title, intro, testId }: { eyebrow: string; title: string; intro: string; testId: string }) {
+function NavyBand({
+  eyebrow,
+  title,
+  intro,
+  testId,
+  dataCategories,
+}: {
+  eyebrow: string;
+  title: string;
+  intro: string;
+  testId: string;
+  dataCategories?: string;
+}) {
   return (
-    <section data-testid={testId} className="bg-lux-ink py-10 px-4 md:px-6">
+    <section
+      data-testid={testId}
+      {...(dataCategories ? filterSectionAttrs(dataCategories) : undefined)}
+      className="bg-lux-ink py-10 px-4 md:px-6"
+    >
       <div className="mx-auto max-w-6xl">
         <span className="lux-eyebrow text-lux-gold-wash">{eyebrow}</span>
         <h2 className="mt-2 text-2xl md:text-3xl font-fraunces font-light text-lux-ivory">
@@ -110,37 +131,36 @@ function NavyBand({ eyebrow, title, intro, testId }: { eyebrow: string; title: s
 
 function getCatalogueFAQ(groupMax: number, lyceeMinOpen: number, collegeMinOpen: number): FAQItem[] {
   return [
-  {
-    question: `Les tarifs sont-ils en TND\u00A0?`,
-    answer: `Oui, tous nos tarifs sont en dinars tunisiens (TND). Aucun paiement en euros.`,
-  },
-  {
-    question: `Comment fonctionne le modèle places-based\u00A0?`,
-    answer:
-      `Les groupes se remplissent progressivement. Un groupe compte ${groupMax} élèves maximum et ouvre dès ${lyceeMinOpen} inscrits au lycée. Réserver tôt permet de choisir plus facilement le créneau souhaité.`,
-  },
-  {
-    question: `L\u2019acompte est-il remboursable\u00A0?`,
-    answer:
-      `L\u2019acompte n\u2019est pas remboursable sauf si le groupe n\u2019atteint pas le seuil d\u2019ouverture (${lyceeMinOpen} inscrits au lycée ou ${collegeMinOpen} au Brevet). Dans ce cas, remboursement intégral.`,
-  },
-  {
-    question: `Puis-je déduire l\u2019acompte d\u2019un stage si je prends un parcours annuel\u00A0?`,
-    answer:
-      `Oui. L\u2019acompte versé pour un stage ou un Pass est déductible du parcours annuel. Il est aussi reportable sur l\u2019année suivante.`,
-  },
-  {
-    question: `Les remises sont-elles cumulables\u00A0?`,
-    answer:
-      `Non. Les remises (fratrie, ancien élève, parrainage, Carte Nexus) ne sont pas cumulables sauf décision de la direction. Le plafond global est de 20\u00A0%, et aucun tarif ne descend sous le plancher horaire.`,
-  },
+    {
+      question: `Les tarifs sont-ils en TND\u00A0?`,
+      answer: `Oui, tous nos tarifs sont en dinars tunisiens (TND). Aucun paiement en euros.`,
+    },
+    {
+      question: `Comment fonctionne le modèle places-based\u00A0?`,
+      answer:
+        `Les groupes se remplissent progressivement. Un groupe compte ${groupMax} élèves maximum et ouvre dès ${lyceeMinOpen} inscrits au lycée. Réserver tôt permet de choisir plus facilement le créneau souhaité.`,
+    },
+    {
+      question: `L\u2019acompte est-il remboursable\u00A0?`,
+      answer:
+        `L\u2019acompte n\u2019est pas remboursable sauf si le groupe n\u2019atteint pas le seuil d\u2019ouverture (${lyceeMinOpen} inscrits au lycée ou ${collegeMinOpen} au Brevet). Dans ce cas, remboursement intégral.`,
+    },
+    {
+      question: `Puis-je déduire l\u2019acompte d\u2019un stage si je prends un parcours annuel\u00A0?`,
+      answer:
+        `Oui. L\u2019acompte versé pour un stage ou un Pass est déductible du parcours annuel. Il est aussi reportable sur l\u2019année suivante.`,
+    },
+    {
+      question: `Les remises sont-elles cumulables\u00A0?`,
+      answer:
+        `Non. Les remises (fratrie, ancien élève, parrainage, Carte Nexus) ne sont pas cumulables sauf décision de la direction. Le plafond global est de 20\u00A0%, et aucun tarif ne descend sous le plancher horaire.`,
+    },
   ];
 }
 
 // ── Main component ──
 
 export default function OffresPage() {
-  const [activeCategory, setActiveCategory] = useState<Category>('all');
   const rules = getRules();
   const libreOffers = getOffersByTrack('libre');
   const platformOffers = getOffersByTrack('plateforme');
@@ -150,9 +170,6 @@ export default function OffresPage() {
   const coachingOffers = getCoachingOffers();
   const packs = getPacks();
   const carte = getCarte();
-
-  const showSection = (cat: Category) => activeCategory === 'all' || activeCategory === cat;
-  const showMega = (cats: Category[]) => activeCategory === 'all' || cats.includes(activeCategory);
 
   return (
     <main className="luxury" id="main-content">
@@ -185,26 +202,7 @@ export default function OffresPage() {
         </div>
       </section>
 
-      {/* Filter bar */}
-      <nav aria-label="Filtres des offres" className="sticky top-0 z-20 border-b border-lux-line bg-lux-ivory/95 backdrop-blur-sm">
-        <div className="mx-auto max-w-6xl overflow-x-auto px-4 md:px-6">
-          <div className="flex gap-1 py-3">
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setActiveCategory(cat.id)}
-                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-all lux-focus min-h-[44px] ${
-                  activeCategory === cat.id
-                    ? 'bg-lux-ink text-lux-ivory'
-                    : 'text-lux-ink hover:bg-lux-paper'
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </nav>
+      <OffersFiltersClient categories={categories} />
 
       {/* AccompagnementInclus — standalone intro */}
       <div className="mx-auto max-w-6xl px-4 md:px-6 py-12">
@@ -216,41 +214,49 @@ export default function OffresPage() {
          (annuel scolarisé + candidat libre + plateforme ARIA)
          ════════════════════════════════════════════════════════════ */}
 
-      {showMega(MEGA_ANNEE) && (
-        <NavyBand
-          testId="mega-annee"
-          eyebrow="Parcours annuels"
-          title="Accompagnement à l'année"
-          intro="Scolarisés, candidats libres ou 100 % en ligne — un parcours adapté à chaque profil, de septembre à juin."
-        />
-      )}
+      <NavyBand
+        testId="mega-annee"
+        eyebrow="Parcours annuels"
+        title="Accompagnement à l'année"
+        intro="Scolarisés, candidats libres ou 100 % en ligne — un parcours adapté à chaque profil, de septembre à juin."
+        dataCategories={MEGA_ANNEE.join(',')}
+      />
 
       {/* Annuel scolarisé — bg white */}
-      {showSection('annual') && (
-        <section id="section-annual" data-testid="section-annual" className="bg-lux-white py-12 px-4 md:px-6 scroll-mt-28">
-          <div className="mx-auto max-w-6xl">
-            <div className="mb-8">
-              <span className="lux-eyebrow">Parcours présentiel</span>
-              <h2 className="mt-2 text-2xl md:text-3xl">Accompagnement annuel — scolarisés</h2>
-              <div className="lux-filet-gold mt-3 w-16" />
-              <p className="mt-3 text-sm text-lux-slate">
-                {rules.group_max} élèves max, ouverture dès {rules.group_min_open.lycee}. Acompte 30 % + mensualités.
-              </p>
-            </div>
-            {(['terminale', 'premiere', 'seconde', 'troisieme'] as const).map((level) => {
-              const offers = getOffersByLevel(level).filter(o => o.track === 'scolarise');
-              if (offers.length === 0) return null;
-              const displayLevel = { terminale: 'Terminale', premiere: 'Première', seconde: 'Seconde', troisieme: 'Troisième' }[level];
-              return (
-                <div key={level} className="mb-10">
-                  <h3 className="mb-4 text-lg text-lux-slate">{displayLevel}</h3>
-                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {offers.map((o) => {
-                      const price = getEffectivePrice(o);
-                      if (price == null) return null;
-                      const payment = getAnnualOfferPaymentSchedule(o);
-                      return (
-                        <div key={o.id} id={o.id} className="scroll-mt-28">
+      <section
+        id="section-annual"
+        data-testid="section-annual"
+        {...filterSectionAttrs('annual')}
+        className="bg-lux-white py-12 px-4 md:px-6 scroll-mt-28"
+      >
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-8">
+            <span className="lux-eyebrow">Parcours présentiel</span>
+            <h2 className="mt-2 text-2xl md:text-3xl">Accompagnement annuel — scolarisés</h2>
+            <div className="lux-filet-gold mt-3 w-16" />
+            <p className="mt-3 text-sm text-lux-slate">
+              {rules.group_max} élèves max, ouverture dès {rules.group_min_open.lycee}. Acompte 30 % + mensualités.
+            </p>
+          </div>
+          {(['terminale', 'premiere', 'seconde', 'troisieme'] as const).map((level) => {
+            const offers = getOffersByLevel(level).filter((o) => o.track === 'scolarise');
+            if (offers.length === 0) return null;
+            const displayLevel = {
+              terminale: 'Terminale',
+              premiere: 'Première',
+              seconde: 'Seconde',
+              troisieme: 'Troisième',
+            }[level];
+            return (
+              <div key={level} className="mb-10">
+                <h3 className="mb-4 text-lg text-lux-slate">{displayLevel}</h3>
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {offers.map((o) => {
+                    const price = getEffectivePrice(o);
+                    if (price == null) return null;
+                    const payment = getAnnualOfferPaymentSchedule(o);
+                    return (
+                      <div key={o.id} id={o.id} className="scroll-mt-28">
                         <ExamCard
                           eyebrow={`${displayLevel} · Présentiel`}
                           title={o.title}
@@ -266,37 +272,40 @@ export default function OffresPage() {
                           ctaText="Réserver ma place"
                           ctaHref={`/bilan-gratuit?offer=${encodeURIComponent(o.id)}`}
                         />
-                        </div>
+                      </div>
                     );
                   })}
-                  </div>
                 </div>
-              );
-            })}
-          </div>
-        </section>
-      )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
 
       {/* Candidat libre — bg paper */}
-      {showSection('libre') && libreOffers.length > 0 && (
-        <section id="section-libre" data-testid="section-libre" className="bg-lux-paper py-12 px-4 md:px-6 scroll-mt-28">
-          <div className="mx-auto max-w-6xl">
-            <div className="mb-8">
-              <span className="lux-eyebrow">Candidat libre</span>
-              <h2 className="mt-2 text-2xl md:text-3xl">Parcours candidats libres</h2>
-              <div className="lux-filet-gold mt-3 w-16" />
-              <p className="mt-3 text-sm text-lux-slate">
-                Cellule Cyclades intégrée. Formules en ligne, mixte ou avec coaching.
-              </p>
-            </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {libreOffers.map((o) => {
-                const price = getEffectivePrice(o);
-                if (price == null) return null;
-                const displayLevel = o.level === 'premiere' ? 'Première' : o.level === 'terminale' ? 'Terminale' : o.level;
-                const payment = getAnnualOfferPaymentSchedule(o);
-                return (
-                  <div key={o.id} id={o.id} className="scroll-mt-28">
+      <section
+        id="section-libre"
+        data-testid="section-libre"
+        {...filterSectionAttrs('libre')}
+        className="bg-lux-paper py-12 px-4 md:px-6 scroll-mt-28"
+      >
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-8">
+            <span className="lux-eyebrow">Candidat libre</span>
+            <h2 className="mt-2 text-2xl md:text-3xl">Parcours candidats libres</h2>
+            <div className="lux-filet-gold mt-3 w-16" />
+            <p className="mt-3 text-sm text-lux-slate">
+              Cellule Cyclades intégrée. Formules en ligne, mixte ou avec coaching.
+            </p>
+          </div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {libreOffers.map((o) => {
+              const price = getEffectivePrice(o);
+              if (price == null) return null;
+              const displayLevel = o.level === 'premiere' ? 'Première' : o.level === 'terminale' ? 'Terminale' : o.level;
+              const payment = getAnnualOfferPaymentSchedule(o);
+              return (
+                <div key={o.id} id={o.id} className="scroll-mt-28">
                   <ExamCard
                     eyebrow={`${displayLevel} · Libre`}
                     title={o.title}
@@ -310,83 +319,88 @@ export default function OffresPage() {
                     ctaText="Réserver ma place"
                     ctaHref={`/bilan-gratuit?offer=${encodeURIComponent(o.id)}`}
                   />
-                  </div>
-                );
-              })}
-            </div>
+                </div>
+              );
+            })}
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
       {/* Plateforme ARIA — bg white */}
-      {showSection('plateforme') && (
-        <section id="section-plateforme" data-testid="section-plateforme" className="bg-lux-white py-12 px-4 md:px-6 scroll-mt-28">
-          <div className="mx-auto max-w-6xl">
-            <div className="mb-8">
-              <span className="lux-eyebrow">Plateforme</span>
-              <h2 className="mt-2 text-2xl md:text-3xl">Trois paliers numériques</h2>
-              <div className="lux-filet-gold mt-3 w-16" />
-              <p className="mt-3 text-sm text-lux-slate">
-                Ressources, parcours, fiches, exercices — avec ou sans accompagnement live.
-              </p>
-            </div>
-            <div className="grid gap-6 md:grid-cols-3">
-              {platformOffers.map((o) => {
-                  const price = o.price_annual ?? 0;
-                  return (
-                    <div key={o.id} id={o.id} className="scroll-mt-28">
-                    <ExamCard
-                      eyebrow="Plateforme"
-                      title={o.title}
-                      subtitle={o.subjects}
-                      price={price}
-                      pricingDisplay={o.pricing_display ?? undefined}
-                      features={o.included}
-                      effectifType={o.group_max ? 'groupe' : 'none'}
-                      groupMax={o.group_max ?? undefined}
-                      groupMinOpen={o.group_min_open ?? undefined}
-                      ctaText="Réserver ma place"
-                      ctaHref={`/bilan-gratuit?offer=${encodeURIComponent(o.id)}`}
-                    />
-                    </div>
-                  );
-                })}
-            </div>
+      <section
+        id="section-plateforme"
+        data-testid="section-plateforme"
+        {...filterSectionAttrs('plateforme')}
+        className="bg-lux-white py-12 px-4 md:px-6 scroll-mt-28"
+      >
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-8">
+            <span className="lux-eyebrow">Plateforme</span>
+            <h2 className="mt-2 text-2xl md:text-3xl">Trois paliers numériques</h2>
+            <div className="lux-filet-gold mt-3 w-16" />
+            <p className="mt-3 text-sm text-lux-slate">
+              Ressources, parcours, fiches, exercices — avec ou sans accompagnement live.
+            </p>
           </div>
-        </section>
-      )}
+          <div className="grid gap-6 md:grid-cols-3">
+            {platformOffers.map((o) => {
+              const price = o.price_annual ?? 0;
+              return (
+                <div key={o.id} id={o.id} className="scroll-mt-28">
+                  <ExamCard
+                    eyebrow="Plateforme"
+                    title={o.title}
+                    subtitle={o.subjects}
+                    price={price}
+                    pricingDisplay={o.pricing_display ?? undefined}
+                    features={o.included}
+                    effectifType={o.group_max ? 'groupe' : 'none'}
+                    groupMax={o.group_max ?? undefined}
+                    groupMinOpen={o.group_min_open ?? undefined}
+                    ctaText="Réserver ma place"
+                    ctaHref={`/bilan-gratuit?offer=${encodeURIComponent(o.id)}`}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
 
       {/* ════════════════════════════════════════════════════════════
          MÉGA-PARCOURS 2 — Stages & prépa épreuves
          (intensifs + ponctuel)
          ════════════════════════════════════════════════════════════ */}
 
-      {showMega(MEGA_STAGES) && (
-        <NavyBand
-          testId="mega-stages"
-          eyebrow="Formules ponctuelles"
-          title="Stages & prépa épreuves"
-          intro="Vacances scolaires ou semaines ciblées — des formats courts pour progresser vite sur les points clés."
-        />
-      )}
+      <NavyBand
+        testId="mega-stages"
+        eyebrow="Formules ponctuelles"
+        title="Stages & prépa épreuves"
+        intro="Vacances scolaires ou semaines ciblées — des formats courts pour progresser vite sur les points clés."
+        dataCategories={MEGA_STAGES.join(',')}
+      />
 
       {/* Les Intensifs — bg white */}
-      {showSection('intensifs') && (
-        <section id="section-intensifs" data-testid="section-intensifs" className="bg-lux-white py-12 px-4 md:px-6 scroll-mt-28">
-          <div className="mx-auto max-w-6xl">
-            <div className="mb-8">
-              <span className="lux-eyebrow">Les Intensifs</span>
-              <h2 className="mt-2 text-2xl md:text-3xl">Stages intensifs — toutes les vacances</h2>
-              <div className="lux-filet-gold mt-3 w-16" />
-              <p className="mt-3 text-sm text-lux-slate">
-                {stageEditions.length} éditions par an, {stageFormats.length} formats. Groupes de {rules.group_max} max.
-              </p>
-            </div>
+      <section
+        id="section-intensifs"
+        data-testid="section-intensifs"
+        {...filterSectionAttrs('intensifs')}
+        className="bg-lux-white py-12 px-4 md:px-6 scroll-mt-28"
+      >
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-8">
+            <span className="lux-eyebrow">Les Intensifs</span>
+            <h2 className="mt-2 text-2xl md:text-3xl">Stages intensifs — toutes les vacances</h2>
+            <div className="lux-filet-gold mt-3 w-16" />
+            <p className="mt-3 text-sm text-lux-slate">
+              {stageEditions.length} éditions par an, {stageFormats.length} formats. Groupes de {rules.group_max} max.
+            </p>
+          </div>
 
-            {/* Formats grid */}
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mb-10">
-              {stageFormats.map((f) => (
-                <div key={f.format_id} id={f.format_id} className="scroll-mt-28">
+          {/* Formats grid */}
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mb-10">
+            {stageFormats.map((f) => (
+              <div key={f.format_id} id={f.format_id} className="scroll-mt-28">
                 <ExamCard
                   eyebrow={`Intensif · ${f.hours}h`}
                   title={f.title}
@@ -399,41 +413,43 @@ export default function OffresPage() {
                   ctaText="Réserver ma place"
                   ctaHref={`/bilan-gratuit?offer=${encodeURIComponent(f.format_id)}`}
                 />
+              </div>
+            ))}
+          </div>
+
+          {/* Editions calendar */}
+          <div className="rounded-xl border border-lux-line bg-lux-white p-6 lux-shadow">
+            <h3 className="mb-4 text-lg">Calendrier des éditions</h3>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {stageEditions.map((ed) => (
+                <div key={ed.edition_id} className="rounded-lg border border-lux-line/50 p-4">
+                  <p className="font-semibold text-lux-ink">{ed.title}</p>
+                  <p className="text-sm text-lux-slate">{ed.period}</p>
+                  <p className="mt-1 text-xs text-lux-slate">
+                    Formats&nbsp;: {ed.formats.map((fid) => getStageFormat(fid)?.title || fid).join(', ')}
+                  </p>
                 </div>
               ))}
             </div>
-
-            {/* Editions calendar */}
-            <div className="rounded-xl border border-lux-line bg-lux-white p-6 lux-shadow">
-              <h3 className="mb-4 text-lg">Calendrier des éditions</h3>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {stageEditions.map((ed) => (
-                  <div key={ed.edition_id} className="rounded-lg border border-lux-line/50 p-4">
-                    <p className="font-semibold text-lux-ink">{ed.title}</p>
-                    <p className="text-sm text-lux-slate">{ed.period}</p>
-                    <p className="mt-1 text-xs text-lux-slate">
-                      Formats&nbsp;: {ed.formats.map((fid) => getStageFormat(fid)?.title || fid).join(', ')}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
       {/* Prépa épreuves — bg paper */}
-      {showSection('ponctuel') && ponctuelOffers.length > 0 && (
-        <section data-testid="section-ponctuel" className="bg-lux-paper py-12 px-4 md:px-6">
-          <div className="mx-auto max-w-6xl">
-            <div className="mb-8">
-              <span className="lux-eyebrow">Prépa épreuves</span>
-              <h2 className="mt-2 text-2xl md:text-3xl">Cap EAF, Cap Maths, Grand Oral, Épreuve Blanche</h2>
-              <div className="lux-filet-gold mt-3 w-16" />
-            </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {ponctuelOffers.map((p) => (
-                <div key={p.id} id={p.id} className="scroll-mt-28">
+      <section
+        data-testid="section-ponctuel"
+        {...filterSectionAttrs('ponctuel')}
+        className="bg-lux-paper py-12 px-4 md:px-6"
+      >
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-8">
+            <span className="lux-eyebrow">Prépa épreuves</span>
+            <h2 className="mt-2 text-2xl md:text-3xl">Cap EAF, Cap Maths, Grand Oral, Épreuve Blanche</h2>
+            <div className="lux-filet-gold mt-3 w-16" />
+          </div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {ponctuelOffers.map((p) => (
+              <div key={p.id} id={p.id} className="scroll-mt-28">
                 <ExamCard
                   eyebrow={`Prépa · ${p.public}`}
                   title={p.title}
@@ -451,39 +467,40 @@ export default function OffresPage() {
                   ctaText="Réserver ma place"
                   ctaHref={`/bilan-gratuit?offer=${encodeURIComponent(p.id)}`}
                 />
-                </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
       {/* ════════════════════════════════════════════════════════════
          MÉGA-PARCOURS 3 — Sur-mesure & fidélité
          (coaching + pass + carte)
          ════════════════════════════════════════════════════════════ */}
 
-      {showMega(MEGA_SURMESURE) && (
-        <NavyBand
-          testId="mega-surmesure"
-          eyebrow="Formules individuelles"
-          title="Sur-mesure & fidélité"
-          intro="Coaching individuel, packs combinés et Carte Nexus — des solutions flexibles pour compléter ou personnaliser votre parcours."
-        />
-      )}
+      <NavyBand
+        testId="mega-surmesure"
+        eyebrow="Formules individuelles"
+        title="Sur-mesure & fidélité"
+        intro="Coaching individuel, packs combinés et Carte Nexus — des solutions flexibles pour compléter ou personnaliser votre parcours."
+        dataCategories={MEGA_SURMESURE.join(',')}
+      />
 
       {/* Boussole (coaching) — bg white */}
-      {showSection('coaching') && coachingOffers.length > 0 && (
-        <section data-testid="section-coaching" className="bg-lux-white py-12 px-4 md:px-6">
-          <div className="mx-auto max-w-6xl">
-            <div className="mb-8">
-              <span className="lux-eyebrow">Boussole</span>
-              <h2 className="mt-2 text-2xl md:text-3xl">Coaching méthode, orientation & individuel</h2>
-              <div className="lux-filet-gold mt-3 w-16" />
-            </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {coachingOffers.map((c) => (
-                <div key={c.id} id={c.id} className="scroll-mt-28">
+      <section
+        data-testid="section-coaching"
+        {...filterSectionAttrs('coaching')}
+        className="bg-lux-white py-12 px-4 md:px-6"
+      >
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-8">
+            <span className="lux-eyebrow">Boussole</span>
+            <h2 className="mt-2 text-2xl md:text-3xl">Coaching méthode, orientation & individuel</h2>
+            <div className="lux-filet-gold mt-3 w-16" />
+          </div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {coachingOffers.map((c) => (
+              <div key={c.id} id={c.id} className="scroll-mt-28">
                 <ExamCard
                   eyebrow={`Boussole · ${c.effectif}`}
                   title={c.title}
@@ -509,28 +526,30 @@ export default function OffresPage() {
                   ctaText="Réserver ma place"
                   ctaHref={`/bilan-gratuit?offer=${encodeURIComponent(c.id)}`}
                 />
-                </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
       {/* Pass — bg paper */}
-      {showSection('pass') && packs.length > 0 && (
-        <section data-testid="section-pass" className="bg-lux-paper py-12 px-4 md:px-6">
-          <div className="mx-auto max-w-6xl">
-            <div className="mb-8">
-              <span className="lux-eyebrow">Les Pass</span>
-              <h2 className="mt-2 text-2xl md:text-3xl">Packs fidélité — simplifiez votre parcours</h2>
-              <div className="lux-filet-gold mt-3 w-16" />
-              <p className="mt-3 text-sm text-lux-slate">
-                Acompte déductible du parcours annuel. Solde avant chaque prestation.
-              </p>
-            </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {packs.map((p, i) => (
-                <div key={p.id} id={p.id} className="scroll-mt-28">
+      <section
+        data-testid="section-pass"
+        {...filterSectionAttrs('pass')}
+        className="bg-lux-paper py-12 px-4 md:px-6"
+      >
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-8">
+            <span className="lux-eyebrow">Les Pass</span>
+            <h2 className="mt-2 text-2xl md:text-3xl">Packs fidélité — simplifiez votre parcours</h2>
+            <div className="lux-filet-gold mt-3 w-16" />
+            <p className="mt-3 text-sm text-lux-slate">
+              Acompte déductible du parcours annuel. Solde avant chaque prestation.
+            </p>
+          </div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {packs.map((p, i) => (
+              <div key={p.id} id={p.id} className="scroll-mt-28">
                 <PassCard
                   pack={p}
                   componentLabels={resolvePackComponentLabels(p)}
@@ -538,28 +557,30 @@ export default function OffresPage() {
                   ctaText="Réserver ma place"
                   ctaHref={`/bilan-gratuit?offer=${encodeURIComponent(p.id)}`}
                 />
-                </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
       {/* Carte Nexus — bg white */}
-      {showSection('carte') && (
-        <section data-testid="section-carte" id="carte-nexus" className="bg-lux-white py-12 px-4 md:px-6 scroll-mt-28">
-          <div className="mx-auto max-w-6xl">
-            <div className="mb-8">
-              <span className="lux-eyebrow">Carte Nexus</span>
-              <h2 className="mt-2 text-2xl md:text-3xl">L&apos;accompagnement Nexus toute l&apos;année</h2>
-              <div className="lux-filet-gold mt-3 w-16" />
-            </div>
-            <div className="max-w-md">
-              <CarteNexusCard carte={carte} ctaText="Réserver ma place" ctaHref={`/bilan-gratuit?offer=${encodeURIComponent(carte.id)}`} />
-            </div>
+      <section
+        data-testid="section-carte"
+        id="carte-nexus"
+        {...filterSectionAttrs('carte')}
+        className="bg-lux-white py-12 px-4 md:px-6 scroll-mt-28"
+      >
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-8">
+            <span className="lux-eyebrow">Carte Nexus</span>
+            <h2 className="mt-2 text-2xl md:text-3xl">L&apos;accompagnement Nexus toute l&apos;année</h2>
+            <div className="lux-filet-gold mt-3 w-16" />
           </div>
-        </section>
-      )}
+          <div className="max-w-md">
+            <CarteNexusCard carte={carte} ctaText="Réserver ma place" ctaHref={`/bilan-gratuit?offer=${encodeURIComponent(carte.id)}`} />
+          </div>
+        </div>
+      </section>
 
       <FAQAccordion
         items={getCatalogueFAQ(rules.group_max, rules.group_min_open.lycee, rules.group_min_open.college)}

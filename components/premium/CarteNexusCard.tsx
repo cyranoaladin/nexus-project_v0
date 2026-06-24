@@ -1,5 +1,3 @@
-'use client';
-
 import Link from 'next/link';
 import { Check, CreditCard } from 'lucide-react';
 import { fmtTND } from './format';
