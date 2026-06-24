@@ -8,7 +8,6 @@ import { LEGAL } from '@/lib/legal';
 
 const mockPush = jest.fn();
 const mockFetch = jest.fn();
-let mockSearchParams = new URLSearchParams();
 
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
@@ -19,7 +18,6 @@ jest.mock('next/navigation', () => ({
     replace: jest.fn(),
     prefetch: jest.fn(),
   }),
-  useSearchParams: () => mockSearchParams,
   usePathname: () => '/bilan-gratuit',
 }));
 
@@ -41,7 +39,6 @@ jest.mock('framer-motion', () => ({
 describe('BilanGratuitPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockSearchParams = new URLSearchParams();
     (global as any).fetch = mockFetch;
     mockFetch.mockResolvedValue({
       ok: true,
@@ -49,23 +46,26 @@ describe('BilanGratuitPage', () => {
     });
   });
 
+  async function renderPage(params: Record<string, string> = {}) {
+    render(await BilanGratuitPage({ searchParams: Promise.resolve(params) }));
+  }
+
   function fillInput(id: string, value: string) {
     const el = document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | null;
     if (!el) throw new Error(`Input ${id} not found`);
     fireEvent.change(el, { target: { value } });
   }
 
-  it('renders the strategic bilan funnel without a password field', () => {
-    render(<BilanGratuitPage />);
+  it('renders the strategic bilan funnel without a password field', async () => {
+    await renderPage();
 
     expect(screen.getByRole('heading', { level: 1, name: 'Bilan stratégique gratuit' })).toBeInTheDocument();
     expect(screen.getByText(/Identifier les priorités de votre enfant/i)).toBeInTheDocument();
     expect(screen.queryByLabelText(/mot de passe/i)).not.toBeInTheDocument();
   });
 
-  it('shows card payment policy for a selected offer without public RIB/IBAN', () => {
-    mockSearchParams = new URLSearchParams('offer=term-spe-simple');
-    const { container } = render(<BilanGratuitPage />);
+  it('shows card payment policy for a selected offer without public RIB/IBAN', async () => {
+    const { container } = render(await BilanGratuitPage({ searchParams: Promise.resolve({ offer: 'term-spe-simple' }) }));
 
     expect(screen.getByText(/offre repérée/i)).toBeInTheDocument();
     expect(screen.getByText(new RegExp(CGV_POLICY.payment.provider, 'i'))).toBeInTheDocument();
@@ -77,7 +77,7 @@ describe('BilanGratuitPage', () => {
 
   it('submits the public form and redirects to confirmation', async () => {
     const user = userEvent.setup();
-    render(<BilanGratuitPage />);
+    await renderPage();
 
     fillInput('parentFirstName', 'Jean');
     fillInput('parentLastName', 'Dupont');
