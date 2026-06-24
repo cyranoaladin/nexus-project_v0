@@ -57,4 +57,18 @@ test.describe('Bilan Gratuit — Formulaire stratégique', () => {
   test('CTA WhatsApp est visible', async ({ page }) => {
     await expect(page.locator('a[href*="wa.me"]').first()).toBeVisible();
   });
+
+  test('offre repérée et paiement carte sont présents dans le HTML initial', async ({ page }) => {
+    const response = await page.request.get('/bilan-gratuit?offer=term-spe-simple');
+    expect(response.status()).toBe(200);
+
+    const html = await response.text();
+    expect(html).not.toContain('BAILOUT_TO_CLIENT_SIDE_RENDERING');
+    expect(html).toContain('Offre repérée');
+    expect(html).toContain('Terminale Spécialité simple');
+    expect(html).toContain('ClicToPay');
+    expect(html).toContain('Banque Zitouna');
+    expect(html).not.toContain('25 079 000 0001569084 04');
+    expect(html).not.toContain('TN59 25 079 000 0001569084 04');
+  });
 });
