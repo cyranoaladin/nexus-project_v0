@@ -21,7 +21,7 @@ export default async function CoachNpcPage() {
   const session = await auth();
 
   if (!session?.user || session.user.role !== 'COACH') {
-    redirect('/auth/login');
+    redirect('/auth/signin');
   }
 
   // Fetch coach profile

@@ -1,11 +1,14 @@
 import { execFileSync } from 'child_process';
-import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, statSync } from 'fs';
+import { tmpdir } from 'os';
 import { extname, join } from 'path';
 
 import { LEGAL, compactBankIdentifier } from '@/lib/legal';
 
+const { linkAllowlist } = require('../../scripts/audit/link-allowlist.cjs') as { linkAllowlist: string[] };
+
 const root = process.cwd();
-const siteMapPath = join(root, 'docs/architecture/SITE_MAP.md');
+let auditOutDir = '';
 const pricingPath = join(root, 'data/pricing.canonical.json');
 const scannedExtensions = new Set(['.ts', '.tsx', '.json', '.prisma']);
 
@@ -50,7 +53,7 @@ function isPublicPage(file: string): boolean {
 }
 
 function extractLinkFindingKeys(siteMap: string): string[] {
-  const section = siteMap.split('## Liens morts / ancres a verifier')[1]?.split('## Orphelines publiques')[0] ?? '';
+  const section = siteMap.split('## Liens morts / ancres a verifier')[1]?.split('## Decisions P1 navigation appliquees')[0] ?? '';
   return section
     .split('\n')
     .filter((line) => line.startsWith('| ') && !line.includes('---') && !line.includes('Origine'))
@@ -62,42 +65,35 @@ function extractLinkFindingKeys(siteMap: string): string[] {
 }
 
 beforeAll(() => {
-  execFileSync('node', ['scripts/audit/site-map.mjs'], { cwd: root, stdio: 'pipe' });
+  auditOutDir = mkdtempSync(join(tmpdir(), 'nexus-architecture-'));
+  execFileSync('node', ['scripts/audit/site-map.mjs', '--out-dir', auditOutDir], { cwd: root, stdio: 'pipe' });
 });
 
 describe('architecture diagnostic guardrails', () => {
   test('site-map audit keeps every current public orphan classified', () => {
-    const siteMap = sourceFor('docs/architecture/SITE_MAP.md');
+    const siteMap = readFileSync(join(auditOutDir, 'SITE_MAP.md'), 'utf8');
     const orphanSection = siteMap.split('## Orphelines publiques')[1]?.split('## Routes publiques surveillees')[0] ?? '';
     expect(orphanSection).not.toContain('non classee');
   });
 
-  test('link-integrity findings are limited to the diagnosed allowlist', () => {
-    const siteMap = sourceFor('docs/architecture/SITE_MAP.md');
-    const expected = [
-      // NPC dashboards still redirect to the old /auth/login alias; diagnosis only in this lot.
-      '/dashboard/coach/npc -> /auth/login (app/dashboard/coach/npc/page.tsx)',
-      '/dashboard/coach/npc/reports/[reportId] -> /auth/login (app/dashboard/coach/npc/reports/[reportId]/page.tsx)',
-      '/dashboard/coach/npc/submissions/[submissionId]/upload -> /auth/login (app/dashboard/coach/npc/submissions/[submissionId]/upload/page.tsx)',
-      '/dashboard/eleve/npc -> /auth/login (app/dashboard/eleve/npc/page.tsx)',
-      '/dashboard/parent/npc -> /auth/login (app/dashboard/parent/npc/page.tsx)',
-      // Dashboard hash anchors are referenced by redirects/navigation but not rendered as literal ids today.
-      '/dashboard/eleve/ressources -> /dashboard/eleve#resources (app/dashboard/eleve/ressources/page.tsx)',
-      '/dashboard/trajectoire -> /dashboard/eleve#trajectory (app/dashboard/trajectoire/page.tsx)',
-      'shared -> /dashboard/eleve#aria (components/navigation/navigation-config.ts)',
-      'shared -> /dashboard/eleve#programme-maths (components/navigation/navigation-config.ts)',
-      'shared -> /dashboard/eleve#resources (components/navigation/navigation-config.ts)',
-      'shared -> /dashboard/eleve#survival (lib/dashboard/student-payload.ts)',
-      // Public/stage anchors and legacy section components remain documented, not mass-fixed here.
-      '/stages -> #reservation (app/stages/_components/StagesHeader.tsx)',
-      'shared -> #contact (components/sections/korrigo-showcase.tsx)',
-      'shared -> #etablissements (components/sections/problem-solution-section.tsx)',
-      'shared -> #formation_tech (components/sections/problem-solution-section.tsx)',
-      'shared -> #methodologie (components/sections/home-hero.tsx)',
-      'shared -> #parents_eleves (components/sections/problem-solution-section.tsx)',
-    ].sort();
+  test('link-integrity findings fail outside the shrinking shared allowlist', () => {
+    const siteMap = readFileSync(join(auditOutDir, 'SITE_MAP.md'), 'utf8');
+    const findings = extractLinkFindingKeys(siteMap);
+    const allowed = new Set(linkAllowlist);
+    const unexpected = findings.filter((finding) => !allowed.has(finding));
+    const staleAllowlist = linkAllowlist.filter((allowedFinding) => !findings.includes(allowedFinding));
 
-    expect(extractLinkFindingKeys(siteMap)).toEqual(expected);
+    expect(linkAllowlist.some((entry) => entry.includes('/auth/login'))).toBe(false);
+    expect(unexpected).toEqual([]);
+    expect(staleAllowlist).toEqual([]);
+  });
+
+  test('no source link or redirect points to the removed /auth/login alias', () => {
+    const offenders = ['app', 'components', 'lib']
+      .flatMap(listFiles)
+      .filter((file) => sourceFor(file).includes('/auth/login'));
+
+    expect(offenders).toEqual([]);
   });
 
   test('public routes and public marketing components do not render bank identifiers', () => {
@@ -158,7 +154,65 @@ describe('architecture diagnostic guardrails', () => {
   });
 
   test('root ROADMAP status is explicitly surfaced in the generated architecture audit', () => {
-    const siteMap = sourceFor('docs/architecture/SITE_MAP.md');
+    const siteMap = readFileSync(join(auditOutDir, 'SITE_MAP.md'), 'utf8');
     expect(siteMap).toContain('ROADMAP.md present au root');
+  });
+
+  test('private route groups define noindex metadata at their layout boundary', () => {
+    const layoutFiles = [
+      'app/dashboard/layout.tsx',
+      'app/auth/layout.tsx',
+      'app/admin/directeur/layout.tsx',
+      'app/assessments/layout.tsx',
+      'app/session/layout.tsx',
+    ];
+    const offenders = layoutFiles.filter((file) => {
+      if (!existsSync(join(root, file))) return true;
+      const source = sourceFor(file);
+      return !/robots:\s*\{[\s\S]*index:\s*false[\s\S]*follow:\s*false[\s\S]*\}/m.test(source);
+    });
+
+    expect(offenders).toEqual([]);
+  });
+
+  test('generated site map accounts for inherited private noindex layouts', () => {
+    const siteMap = readFileSync(join(auditOutDir, 'SITE_MAP.md'), 'utf8');
+
+    expect(siteMap).toContain('Pages privees sans metadata noindex locale: aucune');
+    expect(siteMap).not.toMatch(/\|\s+\/dashboard\/trajectoire\s+\| page \|[^\n]+\| public \|/);
+  });
+
+  test('generated architecture artifacts are deterministic and partition the route graph', () => {
+    const siteMap = readFileSync(join(auditOutDir, 'SITE_MAP.md'), 'utf8');
+    const ssotMap = readFileSync(join(auditOutDir, 'SSOT_MAP.md'), 'utf8');
+    const graph = readFileSync(join(auditOutDir, 'SITE_GRAPH.mmd'), 'utf8');
+    const edgeLines = graph.split('\n').filter((line) => line.includes('-->'));
+
+    expect(siteMap).not.toMatch(/Genere:\s*\d{4}-\d{2}-\d{2}T/);
+    expect(ssotMap).not.toMatch(/Genere:\s*\d{4}-\d{2}-\d{2}T/);
+    expect(graph).toContain('subgraph marketing');
+    expect(graph).toContain('subgraph dashboard_parent');
+    expect(graph).toContain('subgraph dashboard_coach');
+    expect(graph).toContain('subgraph api');
+    expect(edgeLines).toHaveLength(new Set(edgeLines).size);
+  });
+
+  test('metadataBase SSOT row stays focused on canonical metadata consumers', () => {
+    const ssotMap = readFileSync(join(auditOutDir, 'SSOT_MAP.md'), 'utf8');
+    const row = ssotMap.split('\n').find((line) => line.startsWith('| metadataBase/url canonique |')) ?? '';
+
+    expect(row).toContain('app/layout.tsx');
+    expect(row).not.toContain('NEXTAUTH_URL');
+  });
+
+  test('programme testimonial type is not rendered as fabricated marketing proof', () => {
+    const typeFile = 'components/programme/shared/types/programme.ts';
+    expect(sourceFor(typeFile)).not.toContain('testimonial');
+    const offenders = ['app', 'components', 'content']
+      .flatMap(listFiles)
+      .filter((file) => file !== typeFile)
+      .filter((file) => /testimonial/.test(sourceFor(file)) && /programme/i.test(sourceFor(file)));
+
+    expect(offenders).toEqual([]);
   });
 });

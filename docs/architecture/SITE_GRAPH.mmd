@@ -1,435 +1,516 @@
 flowchart TD
-  N1["/"] -->|CTA| N2["/bilan-gratuit"]
-  N1["/"] -->|CTA| N3["/offres"]
-  N1["/"] -->|CTA| N4["/offres#section-annual"]
-  N1["/"] -->|CTA| N4["/offres#section-annual"]
-  N1["/"] -->|CTA| N4["/offres#section-annual"]
-  N1["/"] -->|CTA| N4["/offres#section-annual"]
-  N1["/"] -->|CTA| N5["/offres#section-libre"]
-  N1["/"] -->|contextuel| N6["/#main-content"]
-  N7["/academies-hiver"] -->|redirect| N8["/stages"]
-  N9["/access-required"] -->|CTA| N10["/contact"]
-  N9["/access-required"] -->|CTA| N3["/offres"]
-  N11["/accompagnement-scolaire"] -->|CTA| N2["/bilan-gratuit"]
-  N11["/accompagnement-scolaire"] -->|CTA| N2["/bilan-gratuit"]
-  N11["/accompagnement-scolaire"] -->|CTA| N3["/offres"]
-  N11["/accompagnement-scolaire"] -->|CTA| N12["/plateforme-aria"]
-  N13["/admin/directeur"] -->|redirect| N14["/dashboard"]
-  N13["/admin/directeur"] -->|redirect| N14["/dashboard"]
-  N15["/assessments/[id]/processing"] -->|redirect| N1["/"]
-  N16["/assessments/[id]/result"] -->|redirect| N1["/"]
-  N16["/assessments/[id]/result"] -->|redirect| N14["/dashboard"]
-  N17["/auth/activate"] -->|redirect| N18["/auth/signin"]
-  N17["/auth/activate"] -->|redirect| N18["/auth/signin"]
-  N17["/auth/activate"] -->|redirect| N18["/auth/signin"]
-  N17["/auth/activate"] -->|redirect| N19["/dashboard/eleve/stages"]
-  N20["/auth/mot-de-passe-oublie"] -->|contextuel| N18["/auth/signin"]
-  N20["/auth/mot-de-passe-oublie"] -->|CTA| N18["/auth/signin"]
-  N21["/auth/reset-password"] -->|CTA| N20["/auth/mot-de-passe-oublie"]
-  N21["/auth/reset-password"] -->|CTA| N18["/auth/signin"]
-  N21["/auth/reset-password"] -->|CTA| N18["/auth/signin"]
-  N18["/auth/signin"] -->|contextuel| N20["/auth/mot-de-passe-oublie"]
-  N18["/auth/signin"] -->|contextuel| N20["/auth/mot-de-passe-oublie"]
-  N18["/auth/signin"] -->|CTA| N2["/bilan-gratuit"]
-  N18["/auth/signin"] -->|CTA| N22["/conditions-generales"]
-  N2["/bilan-gratuit"] -->|redirect| N23["/bilan-gratuit/confirmation"]
-  N2["/bilan-gratuit"] -->|CTA| N10["/contact"]
-  N2["/bilan-gratuit"] -->|CTA| N3["/offres"]
-  N23["/bilan-gratuit/confirmation"] -->|CTA| N1["/"]
-  N23["/bilan-gratuit/confirmation"] -->|CTA| N3["/offres"]
-  N24["/bilan-pallier2-maths"] -->|CTA| N1["/"]
-  N25["/bilan-pallier2-maths/confirmation"] -->|CTA| N1["/"]
-  N25["/bilan-pallier2-maths/confirmation"] -->|CTA| N3["/offres"]
-  N26["/bilan-pallier2-maths/dashboard"] -->|CTA| N24["/bilan-pallier2-maths"]
-  N27["/bilan-pallier2-maths/resultat/[id]"] -->|CTA| N24["/bilan-pallier2-maths"]
-  N27["/bilan-pallier2-maths/resultat/[id]"] -->|CTA| N24["/bilan-pallier2-maths"]
-  N28["/catalogue-nexus-reussite-2026-2027.html"] -->|redirect| N3["/offres"]
-  N29["/conditions"] -->|redirect| N22["/conditions-generales"]
-  N22["/conditions-generales"] -->|contextuel| N30["/mentions-legales#donnees"]
-  N22["/conditions-generales"] -->|CTA| N3["/offres"]
-  N31["/confidentialite.html"] -->|redirect| N32["/politique-confidentialite"]
-  N10["/contact"] -->|CTA| N2["/bilan-gratuit"]
-  N10["/contact"] -->|contextuel| N32["/politique-confidentialite"]
-  N14["/dashboard"] -->|redirect| N18["/auth/signin"]
-  N14["/dashboard"] -->|redirect| N18["/auth/signin"]
-  N14["/dashboard"] -->|redirect| N33["/dashboard/admin"]
-  N14["/dashboard"] -->|redirect| N34["/dashboard/assistante"]
-  N14["/dashboard"] -->|redirect| N35["/dashboard/coach"]
-  N14["/dashboard"] -->|redirect| N36["/dashboard/eleve"]
-  N14["/dashboard"] -->|redirect| N37["/dashboard/parent"]
-  N33["/dashboard/admin"] -->|redirect| N18["/auth/signin"]
-  N33["/dashboard/admin"] -->|CTA| N26["/bilan-pallier2-maths/dashboard"]
-  N33["/dashboard/admin"] -->|contextuel| N38["/dashboard/admin/activities"]
-  N33["/dashboard/admin"] -->|contextuel| N39["/dashboard/admin/analytics"]
-  N33["/dashboard/admin"] -->|contextuel| N40["/dashboard/admin/documents"]
-  N33["/dashboard/admin"] -->|contextuel| N41["/dashboard/admin/subscriptions"]
-  N33["/dashboard/admin"] -->|contextuel| N42["/dashboard/admin/tests"]
-  N33["/dashboard/admin"] -->|contextuel| N43["/dashboard/admin/users"]
-  N38["/dashboard/admin/activities"] -->|redirect| N18["/auth/signin"]
-  N38["/dashboard/admin/activities"] -->|CTA| N33["/dashboard/admin"]
-  N39["/dashboard/admin/analytics"] -->|redirect| N18["/auth/signin"]
-  N39["/dashboard/admin/analytics"] -->|CTA| N33["/dashboard/admin"]
-  N40["/dashboard/admin/documents"] -->|redirect| N14["/dashboard"]
-  N44["/dashboard/admin/stages"] -->|redirect| N18["/auth/signin"]
-  N41["/dashboard/admin/subscriptions"] -->|redirect| N18["/auth/signin"]
-  N41["/dashboard/admin/subscriptions"] -->|CTA| N33["/dashboard/admin"]
-  N43["/dashboard/admin/users"] -->|redirect| N18["/auth/signin"]
-  N43["/dashboard/admin/users"] -->|CTA| N33["/dashboard/admin"]
-  N34["/dashboard/assistante"] -->|redirect| N18["/auth/signin"]
-  N34["/dashboard/assistante"] -->|CTA| N45["/dashboard/assistante/coaches"]
-  N34["/dashboard/assistante"] -->|CTA| N46["/dashboard/assistante/docs"]
-  N34["/dashboard/assistante"] -->|CTA| N46["/dashboard/assistante/docs"]
-  N34["/dashboard/assistante"] -->|contextuel| N47["/dashboard/assistante/paiements"]
-  N34["/dashboard/assistante"] -->|CTA| N48["/dashboard/assistante/students"]
-  N34["/dashboard/assistante"] -->|CTA| N49["/dashboard/assistante/subscriptions"]
-  N34["/dashboard/assistante"] -->|CTA| N49["/dashboard/assistante/subscriptions"]
-  N34["/dashboard/assistante"] -->|CTA| N49["/dashboard/assistante/subscriptions"]
-  N50["/dashboard/assistante/assignments"] -->|redirect| N18["/auth/signin"]
-  N50["/dashboard/assistante/assignments"] -->|redirect| N14["/dashboard"]
-  N50["/dashboard/assistante/assignments"] -->|redirect| N50["/dashboard/assistante/assignments"]
-  N45["/dashboard/assistante/coaches"] -->|redirect| N18["/auth/signin"]
-  N45["/dashboard/assistante/coaches"] -->|CTA| N34["/dashboard/assistante"]
-  N51["/dashboard/assistante/credit-requests"] -->|redirect| N18["/auth/signin"]
-  N52["/dashboard/assistante/credits"] -->|redirect| N18["/auth/signin"]
-  N52["/dashboard/assistante/credits"] -->|contextuel| N34["/dashboard/assistante"]
-  N53["/dashboard/assistante/devis"] -->|redirect| N18["/auth/signin"]
-  N53["/dashboard/assistante/devis"] -->|redirect| N14["/dashboard"]
-  N54["/dashboard/assistante/devis/app"] -->|contextuel| N55["/dashboard/assistante/devis/assets/styles.css"]
-  N54["/dashboard/assistante/devis/app"] -->|contextuel| N56["/images/logo_slogan_nexus_x3.png"]
-  N46["/dashboard/assistante/docs"] -->|redirect| N18["/auth/signin"]
-  N46["/dashboard/assistante/docs"] -->|redirect| N14["/dashboard"]
-  N46["/dashboard/assistante/docs"] -->|contextuel| N33["/dashboard/admin"]
-  N46["/dashboard/assistante/docs"] -->|contextuel| N34["/dashboard/assistante"]
-  N57["/dashboard/assistante/facturation"] -->|redirect| N18["/auth/signin"]
-  N47["/dashboard/assistante/paiements"] -->|redirect| N18["/auth/signin"]
-  N47["/dashboard/assistante/paiements"] -->|CTA| N34["/dashboard/assistante"]
-  N58["/dashboard/assistante/stages"] -->|contextuel| N59["/dashboard/assistante/stages/planning"]
-  N59["/dashboard/assistante/stages/planning"] -->|redirect| N18["/auth/signin"]
-  N59["/dashboard/assistante/stages/planning"] -->|redirect| N14["/dashboard"]
-  N59["/dashboard/assistante/stages/planning"] -->|contextuel| N58["/dashboard/assistante/stages"]
-  N48["/dashboard/assistante/students"] -->|redirect| N18["/auth/signin"]
-  N48["/dashboard/assistante/students"] -->|contextuel| N34["/dashboard/assistante"]
-  N48["/dashboard/assistante/students"] -->|CTA| N52["/dashboard/assistante/credits"]
-  N60["/dashboard/assistante/students/[studentId]"] -->|redirect| N18["/auth/signin"]
-  N60["/dashboard/assistante/students/[studentId]"] -->|CTA| N48["/dashboard/assistante/students"]
-  N60["/dashboard/assistante/students/[studentId]"] -->|CTA| N48["/dashboard/assistante/students"]
-  N49["/dashboard/assistante/subscriptions"] -->|redirect| N18["/auth/signin"]
-  N49["/dashboard/assistante/subscriptions"] -->|contextuel| N34["/dashboard/assistante"]
-  N49["/dashboard/assistante/subscriptions"] -->|redirect| N49["/dashboard/assistante/subscriptions"]
-  N35["/dashboard/coach"] -->|redirect| N18["/auth/signin"]
-  N35["/dashboard/coach"] -->|redirect| N61["/dashboard/coach/eaf-stage-printemps"]
-  N35["/dashboard/coach"] -->|redirect| N62["/dashboard/coach/maths-premiere-stage-printemps"]
-  N63["/dashboard/coach/availability"] -->|redirect| N18["/auth/signin"]
-  N61["/dashboard/coach/eaf-stage-printemps"] -->|redirect| N18["/auth/signin"]
-  N64["/dashboard/coach/eaf-stage-printemps/[studentId]"] -->|redirect| N18["/auth/signin"]
-  N64["/dashboard/coach/eaf-stage-printemps/[studentId]"] -->|contextuel| N61["/dashboard/coach/eaf-stage-printemps"]
-  N64["/dashboard/coach/eaf-stage-printemps/[studentId]"] -->|redirect| N61["/dashboard/coach/eaf-stage-printemps"]
-  N65["/dashboard/coach/eleve/[studentId]"] -->|redirect| N18["/auth/signin"]
-  N65["/dashboard/coach/eleve/[studentId]"] -->|CTA| N35["/dashboard/coach"]
-  N65["/dashboard/coach/eleve/[studentId]"] -->|CTA| N35["/dashboard/coach"]
-  N65["/dashboard/coach/eleve/[studentId]"] -->|redirect| N35["/dashboard/coach"]
-  N62["/dashboard/coach/maths-premiere-stage-printemps"] -->|redirect| N18["/auth/signin"]
-  N66["/dashboard/coach/maths-premiere-stage-printemps/[studentId]"] -->|redirect| N18["/auth/signin"]
-  N66["/dashboard/coach/maths-premiere-stage-printemps/[studentId]"] -->|CTA| N62["/dashboard/coach/maths-premiere-stage-printemps"]
-  N66["/dashboard/coach/maths-premiere-stage-printemps/[studentId]"] -->|redirect| N62["/dashboard/coach/maths-premiere-stage-printemps"]
-  N67["/dashboard/coach/npc"] -->|redirect| N68["/auth/login"]
-  N67["/dashboard/coach/npc"] -->|redirect| N14["/dashboard"]
-  N69["/dashboard/coach/npc/reports/[reportId]"] -->|redirect| N68["/auth/login"]
-  N69["/dashboard/coach/npc/reports/[reportId]"] -->|redirect| N14["/dashboard"]
-  N69["/dashboard/coach/npc/reports/[reportId]"] -->|CTA| N67["/dashboard/coach/npc"]
-  N69["/dashboard/coach/npc/reports/[reportId]"] -->|redirect| N67["/dashboard/coach/npc"]
-  N69["/dashboard/coach/npc/reports/[reportId]"] -->|redirect| N67["/dashboard/coach/npc"]
-  N70["/dashboard/coach/npc/submissions/[submissionId]/upload"] -->|redirect| N68["/auth/login"]
-  N70["/dashboard/coach/npc/submissions/[submissionId]/upload"] -->|redirect| N14["/dashboard"]
-  N70["/dashboard/coach/npc/submissions/[submissionId]/upload"] -->|CTA| N67["/dashboard/coach/npc"]
-  N70["/dashboard/coach/npc/submissions/[submissionId]/upload"] -->|redirect| N67["/dashboard/coach/npc"]
-  N70["/dashboard/coach/npc/submissions/[submissionId]/upload"] -->|redirect| N67["/dashboard/coach/npc"]
-  N71["/dashboard/coach/nsi-pratique-2026"] -->|redirect| N18["/auth/signin"]
-  N72["/dashboard/coach/nsi-pratique-2026/[studentId]"] -->|redirect| N18["/auth/signin"]
-  N72["/dashboard/coach/nsi-pratique-2026/[studentId]"] -->|contextuel| N71["/dashboard/coach/nsi-pratique-2026"]
-  N72["/dashboard/coach/nsi-pratique-2026/[studentId]"] -->|contextuel| N71["/dashboard/coach/nsi-pratique-2026"]
-  N73["/dashboard/coach/sessions"] -->|redirect| N18["/auth/signin"]
-  N74["/dashboard/coach/stages/[stageSlug]/bilan/[studentId]"] -->|redirect| N18["/auth/signin"]
-  N74["/dashboard/coach/stages/[stageSlug]/bilan/[studentId]"] -->|redirect| N14["/dashboard"]
-  N74["/dashboard/coach/stages/[stageSlug]/bilan/[studentId]"] -->|contextuel| N75["/dashboard/coach/stages"]
-  N76["/dashboard/coach/students"] -->|redirect| N18["/auth/signin"]
-  N36["/dashboard/eleve"] -->|CTA| N1["/"]
-  N36["/dashboard/eleve"] -->|redirect| N18["/auth/signin"]
-  N36["/dashboard/eleve"] -->|CTA| N77["/dashboard/eleve/eam"]
-  N36["/dashboard/eleve"] -->|CTA| N78["/dashboard/eleve/programme/maths"]
-  N36["/dashboard/eleve"] -->|CTA| N79["/lamis"]
-  N80["/dashboard/eleve/automatismes"] -->|redirect| N18["/auth/signin"]
-  N80["/dashboard/eleve/automatismes"] -->|redirect| N14["/dashboard"]
-  N80["/dashboard/eleve/automatismes"] -->|CTA| N36["/dashboard/eleve"]
-  N80["/dashboard/eleve/automatismes"] -->|CTA| N36["/dashboard/eleve"]
-  N80["/dashboard/eleve/automatismes"] -->|redirect| N36["/dashboard/eleve"]
-  N80["/dashboard/eleve/automatismes"] -->|CTA| N78["/dashboard/eleve/programme/maths"]
-  N81["/dashboard/eleve/bilans/[publicShareId]"] -->|redirect| N18["/auth/signin"]
-  N81["/dashboard/eleve/bilans/[publicShareId]"] -->|CTA| N36["/dashboard/eleve"]
-  N81["/dashboard/eleve/bilans/[publicShareId]"] -->|CTA| N82["/dashboard/eleve#bilans"]
-  N83["/dashboard/eleve/documents"] -->|redirect| N18["/auth/signin"]
-  N83["/dashboard/eleve/documents"] -->|redirect| N14["/dashboard"]
-  N77["/dashboard/eleve/eam"] -->|redirect| N18["/auth/signin"]
-  N77["/dashboard/eleve/eam"] -->|CTA| N36["/dashboard/eleve"]
-  N84["/dashboard/eleve/npc"] -->|redirect| N68["/auth/login"]
-  N84["/dashboard/eleve/npc"] -->|redirect| N14["/dashboard"]
-  N85["/dashboard/eleve/nsi-pratique-2026"] -->|redirect| N18["/auth/signin"]
-  N85["/dashboard/eleve/nsi-pratique-2026"] -->|contextuel| N36["/dashboard/eleve"]
-  N86["/dashboard/eleve/programme/[subject]"] -->|redirect| N18["/auth/signin"]
-  N86["/dashboard/eleve/programme/[subject]"] -->|redirect| N14["/dashboard"]
-  N86["/dashboard/eleve/programme/[subject]"] -->|contextuel| N36["/dashboard/eleve"]
-  N86["/dashboard/eleve/programme/[subject]"] -->|redirect| N36["/dashboard/eleve"]
-  N78["/dashboard/eleve/programme/maths"] -->|redirect| N18["/auth/signin"]
-  N78["/dashboard/eleve/programme/maths"] -->|redirect| N14["/dashboard"]
-  N78["/dashboard/eleve/programme/maths"] -->|contextuel| N36["/dashboard/eleve"]
-  N78["/dashboard/eleve/programme/maths"] -->|redirect| N36["/dashboard/eleve"]
-  N78["/dashboard/eleve/programme/maths"] -->|contextuel| N87["/dashboard/eleve/programme/droit_eco"]
-  N78["/dashboard/eleve/programme/maths"] -->|contextuel| N88["/dashboard/eleve/programme/management"]
-  N78["/dashboard/eleve/programme/maths"] -->|contextuel| N89["/dashboard/eleve/programme/sgn"]
-  N90["/dashboard/eleve/ressources"] -->|redirect| N91["/dashboard/eleve#resources"]
-  N92["/dashboard/eleve/sessions"] -->|redirect| N93["/dashboard/eleve#sessions"]
-  N94["/dashboard/eleve/stage-eam-stmg"] -->|redirect| N18["/auth/signin"]
-  N94["/dashboard/eleve/stage-eam-stmg"] -->|redirect| N14["/dashboard"]
-  N94["/dashboard/eleve/stage-eam-stmg"] -->|redirect| N36["/dashboard/eleve"]
-  N95["/dashboard/eleve/stage-eam-stmg/diagnostic"] -->|redirect| N18["/auth/signin"]
-  N95["/dashboard/eleve/stage-eam-stmg/diagnostic"] -->|redirect| N14["/dashboard"]
-  N95["/dashboard/eleve/stage-eam-stmg/diagnostic"] -->|redirect| N36["/dashboard/eleve"]
-  N96["/dashboard/eleve/stage-eam-stmg/livret"] -->|redirect| N18["/auth/signin"]
-  N96["/dashboard/eleve/stage-eam-stmg/livret"] -->|redirect| N14["/dashboard"]
-  N96["/dashboard/eleve/stage-eam-stmg/livret"] -->|redirect| N36["/dashboard/eleve"]
-  N19["/dashboard/eleve/stages"] -->|redirect| N18["/auth/signin"]
-  N19["/dashboard/eleve/stages"] -->|CTA| N36["/dashboard/eleve"]
-  N19["/dashboard/eleve/stages"] -->|CTA| N36["/dashboard/eleve"]
-  N37["/dashboard/parent"] -->|redirect| N18["/auth/signin"]
-  N97["/dashboard/parent/abonnements"] -->|redirect| N18["/auth/signin"]
-  N97["/dashboard/parent/abonnements"] -->|contextuel| N37["/dashboard/parent"]
-  N98["/dashboard/parent/children"] -->|redirect| N37["/dashboard/parent"]
-  N99["/dashboard/parent/enfant/[studentId]"] -->|redirect| N18["/auth/signin"]
-  N99["/dashboard/parent/enfant/[studentId]"] -->|CTA| N37["/dashboard/parent"]
-  N99["/dashboard/parent/enfant/[studentId]"] -->|redirect| N37["/dashboard/parent"]
-  N100["/dashboard/parent/factures"] -->|redirect| N18["/auth/signin"]
-  N100["/dashboard/parent/factures"] -->|redirect| N14["/dashboard"]
-  N100["/dashboard/parent/factures"] -->|contextuel| N37["/dashboard/parent"]
-  N101["/dashboard/parent/npc"] -->|redirect| N68["/auth/login"]
-  N101["/dashboard/parent/npc"] -->|redirect| N37["/dashboard/parent"]
-  N102["/dashboard/parent/paiement"] -->|redirect| N18["/auth/signin"]
-  N102["/dashboard/parent/paiement"] -->|contextuel| N97["/dashboard/parent/abonnements"]
-  N102["/dashboard/parent/paiement"] -->|contextuel| N97["/dashboard/parent/abonnements"]
-  N102["/dashboard/parent/paiement"] -->|contextuel| N97["/dashboard/parent/abonnements"]
-  N102["/dashboard/parent/paiement"] -->|redirect| N97["/dashboard/parent/abonnements"]
-  N103["/dashboard/parent/paiement/confirmation"] -->|CTA| N10["/contact"]
-  N103["/dashboard/parent/paiement/confirmation"] -->|CTA| N37["/dashboard/parent"]
-  N103["/dashboard/parent/paiement/confirmation"] -->|contextuel| N97["/dashboard/parent/abonnements"]
-  N103["/dashboard/parent/paiement/confirmation"] -->|contextuel| N102["/dashboard/parent/paiement"]
-  N104["/dashboard/parent/ressources"] -->|redirect| N18["/auth/signin"]
-  N105["/dashboard/parent/stages"] -->|redirect| N18["/auth/signin"]
-  N105["/dashboard/parent/stages"] -->|CTA| N37["/dashboard/parent"]
-  N105["/dashboard/parent/stages"] -->|CTA| N37["/dashboard/parent"]
-  N106["/dashboard/trajectoire"] -->|redirect| N107["/dashboard/eleve#trajectory"]
-  N108["/education"] -->|redirect| N11["/accompagnement-scolaire"]
-  N109["/equipe"] -->|CTA| N2["/bilan-gratuit"]
-  N109["/equipe"] -->|contextuel| N10["/contact"]
-  N109["/equipe"] -->|contextuel| N10["/contact"]
-  N109["/equipe"] -->|contextuel| N10["/contact"]
-  N109["/equipe"] -->|CTA| N10["/contact"]
-  N109["/equipe"] -->|contextuel| N10["/contact"]
-  N109["/equipe"] -->|contextuel| N10["/contact"]
-  N110["/famille"] -->|CTA| N2["/bilan-gratuit"]
-  N110["/famille"] -->|CTA| N10["/contact"]
-  N110["/famille"] -->|contextuel| N109["/equipe"]
-  N110["/famille"] -->|CTA| N111["/famille#offres"]
-  N112["/inscription"] -->|redirect| N2["/bilan-gratuit"]
-  N113["/maths-1ere"] -->|redirect| N114["/programme/maths-1ere"]
-  N115["/mentions-legales.html"] -->|redirect| N116["/mentions-legales"]
-  N117["/nexus_selecteur.html"] -->|redirect| N118["/recommandation"]
-  N119["/notre-centre"] -->|CTA| N10["/contact"]
-  N3["/offres"] -->|CTA| N118["/recommandation"]
-  N120["/plateforme"] -->|redirect| N12["/plateforme-aria"]
-  N12["/plateforme-aria"] -->|CTA| N2["/bilan-gratuit"]
-  N12["/plateforme-aria"] -->|CTA| N2["/bilan-gratuit"]
-  N12["/plateforme-aria"] -->|CTA| N3["/offres"]
-  N12["/plateforme-aria"] -->|CTA| N3["/offres"]
-  N32["/politique-confidentialite"] -->|contextuel| N10["/contact"]
-  N114["/programme/maths-1ere"] -->|redirect| N78["/dashboard/eleve/programme/maths"]
-  N114["/programme/maths-1ere"] -->|redirect| N3["/offres"]
-  N121["/programme/maths-1ere-stmg"] -->|redirect| N78["/dashboard/eleve/programme/maths"]
-  N122["/questionnaire"] -->|redirect| N2["/bilan-gratuit"]
-  N118["/recommandation"] -->|CTA| N2["/bilan-gratuit"]
-  N123["/ressources"] -->|CTA| N2["/bilan-gratuit"]
-  N123["/ressources"] -->|CTA| N3["/offres"]
-  N124["/session/video"] -->|redirect| N18["/auth/signin"]
-  N8["/stages"] -->|CTA| N2["/bilan-gratuit"]
-  N8["/stages"] -->|CTA| N2["/bilan-gratuit"]
-  N8["/stages"] -->|CTA| N2["/bilan-gratuit"]
-  N8["/stages"] -->|CTA| N125["/offres#section-intensifs"]
-  N8["/stages"] -->|CTA| N125["/offres#section-intensifs"]
-  N8["/stages"] -->|CTA| N125["/offres#section-intensifs"]
-  N8["/stages"] -->|CTA| N126["/stages#reservation"]
-  N127["/stages/[stageSlug]/inscription"] -->|contextuel| N8["/stages"]
-  N128["/tarifs"] -->|redirect| N3["/offres"]
-  N129["shared"] -->|footer| N1["/"]
-  N129["shared"] -->|nav| N1["/"]
-  N129["shared"] -->|contextuel| N1["/"]
-  N129["shared"] -->|footer| N11["/accompagnement-scolaire"]
-  N129["shared"] -->|nav| N11["/accompagnement-scolaire"]
-  N129["shared"] -->|nav| N13["/admin/directeur"]
-  N129["shared"] -->|nav| N18["/auth/signin"]
-  N129["shared"] -->|nav| N18["/auth/signin"]
-  N129["shared"] -->|nav| N18["/auth/signin"]
-  N129["shared"] -->|redirect| N18["/auth/signin"]
-  N129["shared"] -->|redirect| N18["/auth/signin"]
-  N129["shared"] -->|CTA| N18["/auth/signin"]
-  N129["shared"] -->|redirect| N18["/auth/signin"]
-  N129["shared"] -->|CTA| N2["/bilan-gratuit"]
-  N129["shared"] -->|footer| N2["/bilan-gratuit"]
-  N129["shared"] -->|nav| N2["/bilan-gratuit"]
-  N129["shared"] -->|nav| N2["/bilan-gratuit"]
-  N129["shared"] -->|nav| N2["/bilan-gratuit"]
-  N129["shared"] -->|nav| N2["/bilan-gratuit"]
-  N129["shared"] -->|CTA| N2["/bilan-gratuit"]
-  N129["shared"] -->|CTA| N2["/bilan-gratuit"]
-  N129["shared"] -->|CTA| N2["/bilan-gratuit"]
-  N129["shared"] -->|CTA| N2["/bilan-gratuit"]
-  N129["shared"] -->|CTA| N2["/bilan-gratuit"]
-  N129["shared"] -->|CTA| N2["/bilan-gratuit"]
-  N129["shared"] -->|CTA| N2["/bilan-gratuit"]
-  N129["shared"] -->|CTA| N2["/bilan-gratuit"]
-  N129["shared"] -->|CTA| N2["/bilan-gratuit"]
-  N129["shared"] -->|CTA| N2["/bilan-gratuit"]
-  N129["shared"] -->|CTA| N2["/bilan-gratuit"]
-  N129["shared"] -->|CTA| N2["/bilan-gratuit"]
-  N129["shared"] -->|CTA| N2["/bilan-gratuit"]
-  N129["shared"] -->|contextuel| N130["/candidat-libre-bac-francais"]
-  N129["shared"] -->|contextuel| N22["/conditions-generales"]
-  N129["shared"] -->|contextuel| N22["/conditions-generales"]
-  N129["shared"] -->|footer| N22["/conditions-generales"]
-  N129["shared"] -->|contextuel| N10["/contact"]
-  N129["shared"] -->|footer| N10["/contact"]
-  N129["shared"] -->|footer| N10["/contact"]
-  N129["shared"] -->|nav| N10["/contact"]
-  N129["shared"] -->|contextuel| N10["/contact"]
-  N129["shared"] -->|contextuel| N10["/contact"]
-  N129["shared"] -->|contextuel| N10["/contact"]
-  N129["shared"] -->|CTA| N10["/contact"]
-  N129["shared"] -->|CTA| N10["/contact"]
-  N129["shared"] -->|nav| N33["/dashboard/admin"]
-  N129["shared"] -->|nav| N38["/dashboard/admin/activities"]
-  N129["shared"] -->|nav| N39["/dashboard/admin/analytics"]
-  N129["shared"] -->|nav| N40["/dashboard/admin/documents"]
-  N129["shared"] -->|nav| N131["/dashboard/admin/facturation"]
-  N129["shared"] -->|nav| N44["/dashboard/admin/stages"]
-  N129["shared"] -->|nav| N41["/dashboard/admin/subscriptions"]
-  N129["shared"] -->|nav| N42["/dashboard/admin/tests"]
-  N129["shared"] -->|nav| N43["/dashboard/admin/users"]
-  N129["shared"] -->|nav| N34["/dashboard/assistante"]
-  N129["shared"] -->|nav| N50["/dashboard/assistante/assignments"]
-  N129["shared"] -->|nav| N45["/dashboard/assistante/coaches"]
-  N129["shared"] -->|nav| N51["/dashboard/assistante/credit-requests"]
-  N129["shared"] -->|nav| N53["/dashboard/assistante/devis"]
-  N129["shared"] -->|nav| N46["/dashboard/assistante/docs"]
-  N129["shared"] -->|nav| N57["/dashboard/assistante/facturation"]
-  N129["shared"] -->|nav| N47["/dashboard/assistante/paiements"]
-  N129["shared"] -->|nav| N132["/dashboard/assistante/planning"]
-  N129["shared"] -->|nav| N58["/dashboard/assistante/stages"]
-  N129["shared"] -->|nav| N48["/dashboard/assistante/students"]
-  N129["shared"] -->|nav| N133["/dashboard/assistante/subscription-requests"]
-  N129["shared"] -->|nav| N49["/dashboard/assistante/subscriptions"]
-  N129["shared"] -->|nav| N35["/dashboard/coach"]
-  N129["shared"] -->|nav| N63["/dashboard/coach/availability"]
-  N129["shared"] -->|nav| N67["/dashboard/coach/npc"]
-  N129["shared"] -->|nav| N71["/dashboard/coach/nsi-pratique-2026"]
-  N129["shared"] -->|nav| N73["/dashboard/coach/sessions"]
-  N129["shared"] -->|nav| N75["/dashboard/coach/stages"]
-  N129["shared"] -->|nav| N76["/dashboard/coach/students"]
-  N129["shared"] -->|nav| N36["/dashboard/eleve"]
-  N129["shared"] -->|contextuel| N36["/dashboard/eleve"]
-  N129["shared"] -->|CTA| N80["/dashboard/eleve/automatismes"]
-  N129["shared"] -->|contextuel| N80["/dashboard/eleve/automatismes"]
-  N129["shared"] -->|nav| N83["/dashboard/eleve/documents"]
-  N129["shared"] -->|contextuel| N77["/dashboard/eleve/eam"]
-  N129["shared"] -->|nav| N84["/dashboard/eleve/npc"]
-  N129["shared"] -->|contextuel| N85["/dashboard/eleve/nsi-pratique-2026"]
-  N129["shared"] -->|nav| N85["/dashboard/eleve/nsi-pratique-2026"]
-  N129["shared"] -->|contextuel| N78["/dashboard/eleve/programme/maths"]
-  N129["shared"] -->|CTA| N134["/dashboard/eleve/questionnaires/eaf-stage-printemps"]
-  N129["shared"] -->|CTA| N135["/dashboard/eleve/questionnaires/maths-premiere-stage-printemps"]
-  N129["shared"] -->|CTA| N94["/dashboard/eleve/stage-eam-stmg"]
-  N129["shared"] -->|CTA| N94["/dashboard/eleve/stage-eam-stmg"]
-  N129["shared"] -->|CTA| N95["/dashboard/eleve/stage-eam-stmg/diagnostic"]
-  N129["shared"] -->|CTA| N96["/dashboard/eleve/stage-eam-stmg/livret"]
-  N129["shared"] -->|nav| N136["/dashboard/eleve#aria"]
-  N129["shared"] -->|nav| N137["/dashboard/eleve#programme-maths"]
-  N129["shared"] -->|nav| N91["/dashboard/eleve#resources"]
-  N129["shared"] -->|nav| N93["/dashboard/eleve#sessions"]
-  N129["shared"] -->|nav| N138["/dashboard/eleve#stages"]
-  N129["shared"] -->|contextuel| N139["/dashboard/eleve#survival"]
-  N129["shared"] -->|nav| N37["/dashboard/parent"]
-  N129["shared"] -->|nav| N97["/dashboard/parent/abonnements"]
-  N129["shared"] -->|nav| N98["/dashboard/parent/children"]
-  N129["shared"] -->|nav| N100["/dashboard/parent/factures"]
-  N129["shared"] -->|nav| N101["/dashboard/parent/npc"]
-  N129["shared"] -->|nav| N102["/dashboard/parent/paiement"]
-  N129["shared"] -->|nav| N104["/dashboard/parent/ressources"]
-  N129["shared"] -->|nav| N105["/dashboard/parent/stages"]
-  N129["shared"] -->|contextuel| N106["/dashboard/trajectoire"]
-  N129["shared"] -->|contextuel| N106["/dashboard/trajectoire"]
-  N129["shared"] -->|contextuel| N106["/dashboard/trajectoire"]
-  N129["shared"] -->|contextuel| N106["/dashboard/trajectoire"]
-  N129["shared"] -->|contextuel| N106["/dashboard/trajectoire"]
-  N129["shared"] -->|contextuel| N106["/dashboard/trajectoire"]
-  N129["shared"] -->|footer| N109["/equipe"]
-  N129["shared"] -->|contextuel| N110["/famille"]
-  N129["shared"] -->|contextuel| N110["/famille"]
-  N129["shared"] -->|contextuel| N110["/famille"]
-  N129["shared"] -->|CTA| N110["/famille"]
-  N129["shared"] -->|contextuel| N140["/grand-oral"]
-  N129["shared"] -->|footer| N116["/mentions-legales"]
-  N129["shared"] -->|footer| N119["/notre-centre"]
-  N129["shared"] -->|nav| N119["/notre-centre"]
-  N129["shared"] -->|footer| N3["/offres"]
-  N129["shared"] -->|nav| N3["/offres"]
-  N129["shared"] -->|CTA| N3["/offres"]
-  N129["shared"] -->|CTA| N3["/offres"]
-  N129["shared"] -->|CTA| N3["/offres"]
-  N129["shared"] -->|CTA| N3["/offres"]
-  N129["shared"] -->|CTA| N3["/offres"]
-  N129["shared"] -->|CTA| N3["/offres"]
-  N129["shared"] -->|CTA| N3["/offres"]
-  N129["shared"] -->|CTA| N3["/offres"]
-  N129["shared"] -->|CTA| N3["/offres"]
-  N129["shared"] -->|CTA| N3["/offres"]
-  N129["shared"] -->|CTA| N141["/offres#1re-double-secu"]
-  N129["shared"] -->|CTA| N142["/offres#2nde-maths"]
-  N129["shared"] -->|CTA| N143["/offres#boussole-methode"]
-  N129["shared"] -->|CTA| N143["/offres#boussole-methode"]
-  N129["shared"] -->|CTA| N144["/offres#boussole-orientation"]
-  N129["shared"] -->|CTA| N144["/offres#boussole-orientation"]
-  N129["shared"] -->|CTA| N145["/offres#brevet-complet"]
-  N129["shared"] -->|CTA| N146["/offres#brevet-maths"]
-  N129["shared"] -->|CTA| N147["/offres#cap-eaf"]
-  N129["shared"] -->|CTA| N148["/offres#pass-candidat-libre"]
-  N129["shared"] -->|CTA| N148["/offres#pass-candidat-libre"]
-  N129["shared"] -->|CTA| N149["/offres#pass-cap-bac-1re"]
-  N129["shared"] -->|nav| N4["/offres#section-annual"]
-  N129["shared"] -->|nav| N125["/offres#section-intensifs"]
-  N129["shared"] -->|nav| N150["/offres#section-plateforme"]
-  N129["shared"] -->|CTA| N151["/offres#studio-grand-oral"]
-  N129["shared"] -->|CTA| N152["/offres#term-duo"]
-  N129["shared"] -->|CTA| N153["/offres#term-libre-mixte"]
-  N129["shared"] -->|footer| N12["/plateforme-aria"]
-  N129["shared"] -->|nav| N12["/plateforme-aria"]
-  N129["shared"] -->|contextuel| N154["/preparation-bac-francais-tunis"]
-  N129["shared"] -->|contextuel| N154["/preparation-bac-francais-tunis"]
-  N129["shared"] -->|nav| N118["/recommandation"]
-  N129["shared"] -->|CTA| N118["/recommandation"]
-  N129["shared"] -->|CTA| N118["/recommandation"]
-  N129["shared"] -->|footer| N123["/ressources"]
-  N129["shared"] -->|contextuel| N155["/reussir-eaf"]
-  N129["shared"] -->|footer| N8["/stages"]
-  N129["shared"] -->|nav| N8["/stages"]
-  N129["shared"] -->|contextuel| N8["/stages"]
-  N129["shared"] -->|contextuel| N156["/#contact"]
-  N129["shared"] -->|contextuel| N157["/#etablissements"]
-  N129["shared"] -->|contextuel| N158["/#formation_tech"]
-  N129["shared"] -->|contextuel| N159["/#methodologie"]
-  N129["shared"] -->|contextuel| N160["/#parents_eleves"]
+  subgraph marketing["Marketing public"]
+    N1["/"]
+    N6["/#main-content"]
+    N7["/academies-hiver"]
+    N9["/access-required"]
+    N11["/accompagnement-scolaire"]
+    N15["/assessments/[id]/processing"]
+    N16["/assessments/[id]/result"]
+    N17["/auth/activate"]
+    N20["/auth/mot-de-passe-oublie"]
+    N21["/auth/reset-password"]
+    N18["/auth/signin"]
+    N2["/bilan-gratuit"]
+    N23["/bilan-gratuit/confirmation"]
+    N24["/bilan-pallier2-maths"]
+    N25["/bilan-pallier2-maths/confirmation"]
+    N26["/bilan-pallier2-maths/dashboard"]
+    N27["/bilan-pallier2-maths/resultat/[id]"]
+    N128["/candidat-libre-bac-francais"]
+    N28["/catalogue-nexus-reussite-2026-2027.html"]
+    N29["/conditions"]
+    N22["/conditions-generales"]
+    N31["/confidentialite.html"]
+    N10["/contact"]
+    N107["/education"]
+    N108["/equipe"]
+    N109["/famille"]
+    N110["/famille#offres"]
+    N138["/grand-oral"]
+    N56["/images/logo_slogan_nexus_x3.png"]
+    N111["/inscription"]
+    N78["/lamis"]
+    N112["/maths-1ere"]
+    N115["/mentions-legales"]
+    N114["/mentions-legales.html"]
+    N30["/mentions-legales#donnees"]
+    N116["/nexus_selecteur.html"]
+    N118["/notre-centre"]
+    N3["/offres"]
+    N139["/offres#1re-double-secu"]
+    N140["/offres#2nde-maths"]
+    N141["/offres#boussole-methode"]
+    N142["/offres#boussole-orientation"]
+    N143["/offres#brevet-complet"]
+    N144["/offres#brevet-maths"]
+    N145["/offres#cap-eaf"]
+    N146["/offres#pass-candidat-libre"]
+    N147["/offres#pass-cap-bac-1re"]
+    N4["/offres#section-annual"]
+    N124["/offres#section-intensifs"]
+    N5["/offres#section-libre"]
+    N148["/offres#section-plateforme"]
+    N149["/offres#studio-grand-oral"]
+    N150["/offres#term-duo"]
+    N151["/offres#term-libre-mixte"]
+    N119["/plateforme"]
+    N12["/plateforme-aria"]
+    N32["/politique-confidentialite"]
+    N152["/preparation-bac-francais-tunis"]
+    N113["/programme/maths-1ere"]
+    N120["/programme/maths-1ere-stmg"]
+    N121["/questionnaire"]
+    N117["/recommandation"]
+    N122["/ressources"]
+    N153["/reussir-eaf"]
+    N123["/session/video"]
+    N8["/stages"]
+    N125["/stages/[stageSlug]/inscription"]
+    N126["/tarifs"]
+    N127["shared"]
+  end
+  subgraph dashboard_parent["Dashboard parent"]
+    N37["/dashboard/parent"]
+    N96["/dashboard/parent/abonnements"]
+    N97["/dashboard/parent/children"]
+    N98["/dashboard/parent/enfant/[studentId]"]
+    N99["/dashboard/parent/factures"]
+    N100["/dashboard/parent/npc"]
+    N101["/dashboard/parent/paiement"]
+    N102["/dashboard/parent/paiement/confirmation"]
+    N103["/dashboard/parent/ressources"]
+    N104["/dashboard/parent/stages"]
+  end
+  subgraph dashboard_coach["Dashboard coach"]
+    N35["/dashboard/coach"]
+    N63["/dashboard/coach/availability"]
+    N61["/dashboard/coach/eaf-stage-printemps"]
+    N64["/dashboard/coach/eaf-stage-printemps/[studentId]"]
+    N65["/dashboard/coach/eleve/[studentId]"]
+    N62["/dashboard/coach/maths-premiere-stage-printemps"]
+    N66["/dashboard/coach/maths-premiere-stage-printemps/[studentId]"]
+    N67["/dashboard/coach/npc"]
+    N68["/dashboard/coach/npc/reports/[reportId]"]
+    N69["/dashboard/coach/npc/submissions/[submissionId]/upload"]
+    N70["/dashboard/coach/nsi-pratique-2026"]
+    N71["/dashboard/coach/nsi-pratique-2026/[studentId]"]
+    N72["/dashboard/coach/sessions"]
+    N74["/dashboard/coach/stages"]
+    N73["/dashboard/coach/stages/[stageSlug]/bilan/[studentId]"]
+    N75["/dashboard/coach/students"]
+  end
+  subgraph dashboard_assistante["Dashboard assistante"]
+    N34["/dashboard/assistante"]
+    N50["/dashboard/assistante/assignments"]
+    N45["/dashboard/assistante/coaches"]
+    N51["/dashboard/assistante/credit-requests"]
+    N52["/dashboard/assistante/credits"]
+    N53["/dashboard/assistante/devis"]
+    N54["/dashboard/assistante/devis/app"]
+    N55["/dashboard/assistante/devis/assets/styles.css"]
+    N46["/dashboard/assistante/docs"]
+    N57["/dashboard/assistante/facturation"]
+    N47["/dashboard/assistante/paiements"]
+    N130["/dashboard/assistante/planning"]
+    N58["/dashboard/assistante/stages"]
+    N59["/dashboard/assistante/stages/planning"]
+    N48["/dashboard/assistante/students"]
+    N60["/dashboard/assistante/students/[studentId]"]
+    N131["/dashboard/assistante/subscription-requests"]
+    N49["/dashboard/assistante/subscriptions"]
+  end
+  subgraph dashboard_admin["Dashboard admin"]
+    N13["/admin/directeur"]
+    N33["/dashboard/admin"]
+    N38["/dashboard/admin/activities"]
+    N39["/dashboard/admin/analytics"]
+    N40["/dashboard/admin/documents"]
+    N129["/dashboard/admin/facturation"]
+    N44["/dashboard/admin/stages"]
+    N41["/dashboard/admin/subscriptions"]
+    N42["/dashboard/admin/tests"]
+    N43["/dashboard/admin/users"]
+  end
+  subgraph dashboard_eleve["Dashboard eleve"]
+    N36["/dashboard/eleve"]
+    N79["/dashboard/eleve/automatismes"]
+    N80["/dashboard/eleve/bilans/[publicShareId]"]
+    N82["/dashboard/eleve/documents"]
+    N76["/dashboard/eleve/eam"]
+    N83["/dashboard/eleve/npc"]
+    N84["/dashboard/eleve/nsi-pratique-2026"]
+    N85["/dashboard/eleve/programme/[subject]"]
+    N86["/dashboard/eleve/programme/droit_eco"]
+    N87["/dashboard/eleve/programme/management"]
+    N77["/dashboard/eleve/programme/maths"]
+    N88["/dashboard/eleve/programme/sgn"]
+    N132["/dashboard/eleve/questionnaires/eaf-stage-printemps"]
+    N133["/dashboard/eleve/questionnaires/maths-premiere-stage-printemps"]
+    N89["/dashboard/eleve/ressources"]
+    N91["/dashboard/eleve/sessions"]
+    N93["/dashboard/eleve/stage-eam-stmg"]
+    N94["/dashboard/eleve/stage-eam-stmg/diagnostic"]
+    N95["/dashboard/eleve/stage-eam-stmg/livret"]
+    N19["/dashboard/eleve/stages"]
+    N134["/dashboard/eleve#aria"]
+    N81["/dashboard/eleve#bilans"]
+    N135["/dashboard/eleve#programme-maths"]
+    N90["/dashboard/eleve#resources"]
+    N92["/dashboard/eleve#sessions"]
+    N136["/dashboard/eleve#stages"]
+    N137["/dashboard/eleve#survival"]
+    N106["/dashboard/eleve#trajectory"]
+  end
+  subgraph dashboard_shared["Dashboard partage"]
+    N14["/dashboard"]
+    N105["/dashboard/trajectoire"]
+  end
+  subgraph api["API"]
+  end
+  N1 -->|CTA| N2
+  N1 -->|CTA| N3
+  N1 -->|CTA| N4
+  N1 -->|CTA| N5
+  N1 -->|contextuel| N6
+  N7 -->|redirect| N8
+  N9 -->|CTA| N10
+  N9 -->|CTA| N3
+  N11 -->|CTA| N2
+  N11 -->|CTA| N3
+  N11 -->|CTA| N12
+  N13 -->|redirect| N14
+  N15 -->|redirect| N1
+  N16 -->|redirect| N1
+  N16 -->|redirect| N14
+  N17 -->|redirect| N18
+  N17 -->|redirect| N19
+  N20 -->|contextuel| N18
+  N20 -->|CTA| N18
+  N21 -->|CTA| N20
+  N21 -->|CTA| N18
+  N18 -->|contextuel| N20
+  N18 -->|CTA| N2
+  N18 -->|CTA| N22
+  N2 -->|redirect| N23
+  N2 -->|CTA| N10
+  N2 -->|CTA| N3
+  N23 -->|CTA| N1
+  N23 -->|CTA| N3
+  N24 -->|CTA| N1
+  N25 -->|CTA| N1
+  N25 -->|CTA| N3
+  N26 -->|CTA| N24
+  N27 -->|CTA| N24
+  N28 -->|redirect| N3
+  N29 -->|redirect| N22
+  N22 -->|contextuel| N30
+  N22 -->|CTA| N3
+  N31 -->|redirect| N32
+  N10 -->|CTA| N2
+  N10 -->|contextuel| N32
+  N14 -->|redirect| N18
+  N14 -->|redirect| N33
+  N14 -->|redirect| N34
+  N14 -->|redirect| N35
+  N14 -->|redirect| N36
+  N14 -->|redirect| N37
+  N33 -->|redirect| N18
+  N33 -->|CTA| N26
+  N33 -->|contextuel| N38
+  N33 -->|contextuel| N39
+  N33 -->|contextuel| N40
+  N33 -->|contextuel| N41
+  N33 -->|contextuel| N42
+  N33 -->|contextuel| N43
+  N38 -->|redirect| N18
+  N38 -->|CTA| N33
+  N39 -->|redirect| N18
+  N39 -->|CTA| N33
+  N40 -->|redirect| N14
+  N44 -->|redirect| N18
+  N41 -->|redirect| N18
+  N41 -->|CTA| N33
+  N43 -->|redirect| N18
+  N43 -->|CTA| N33
+  N34 -->|redirect| N18
+  N34 -->|CTA| N45
+  N34 -->|CTA| N46
+  N34 -->|contextuel| N47
+  N34 -->|CTA| N48
+  N34 -->|CTA| N49
+  N50 -->|redirect| N18
+  N50 -->|redirect| N14
+  N50 -->|redirect| N50
+  N45 -->|redirect| N18
+  N45 -->|CTA| N34
+  N51 -->|redirect| N18
+  N52 -->|redirect| N18
+  N52 -->|contextuel| N34
+  N53 -->|redirect| N18
+  N53 -->|redirect| N14
+  N54 -->|contextuel| N55
+  N54 -->|contextuel| N56
+  N46 -->|redirect| N18
+  N46 -->|redirect| N14
+  N46 -->|contextuel| N33
+  N46 -->|contextuel| N34
+  N57 -->|redirect| N18
+  N47 -->|redirect| N18
+  N47 -->|CTA| N34
+  N58 -->|contextuel| N59
+  N59 -->|redirect| N18
+  N59 -->|redirect| N14
+  N59 -->|contextuel| N58
+  N48 -->|redirect| N18
+  N48 -->|contextuel| N34
+  N48 -->|CTA| N52
+  N60 -->|redirect| N18
+  N60 -->|CTA| N48
+  N49 -->|redirect| N18
+  N49 -->|contextuel| N34
+  N49 -->|redirect| N49
+  N35 -->|redirect| N18
+  N35 -->|redirect| N61
+  N35 -->|redirect| N62
+  N63 -->|redirect| N18
+  N61 -->|redirect| N18
+  N64 -->|redirect| N18
+  N64 -->|contextuel| N61
+  N64 -->|redirect| N61
+  N65 -->|redirect| N18
+  N65 -->|CTA| N35
+  N65 -->|redirect| N35
+  N62 -->|redirect| N18
+  N66 -->|redirect| N18
+  N66 -->|CTA| N62
+  N66 -->|redirect| N62
+  N67 -->|redirect| N18
+  N67 -->|redirect| N14
+  N68 -->|redirect| N18
+  N68 -->|redirect| N14
+  N68 -->|CTA| N67
+  N68 -->|redirect| N67
+  N69 -->|redirect| N18
+  N69 -->|redirect| N14
+  N69 -->|CTA| N67
+  N69 -->|redirect| N67
+  N70 -->|redirect| N18
+  N71 -->|redirect| N18
+  N71 -->|contextuel| N70
+  N72 -->|redirect| N18
+  N73 -->|redirect| N18
+  N73 -->|redirect| N14
+  N73 -->|contextuel| N74
+  N75 -->|redirect| N18
+  N36 -->|CTA| N1
+  N36 -->|redirect| N18
+  N36 -->|CTA| N76
+  N36 -->|CTA| N77
+  N36 -->|CTA| N78
+  N79 -->|redirect| N18
+  N79 -->|redirect| N14
+  N79 -->|CTA| N36
+  N79 -->|redirect| N36
+  N79 -->|CTA| N77
+  N80 -->|redirect| N18
+  N80 -->|CTA| N36
+  N80 -->|CTA| N81
+  N82 -->|redirect| N18
+  N82 -->|redirect| N14
+  N76 -->|redirect| N18
+  N76 -->|CTA| N36
+  N83 -->|redirect| N18
+  N83 -->|redirect| N14
+  N84 -->|redirect| N18
+  N84 -->|contextuel| N36
+  N85 -->|redirect| N18
+  N85 -->|redirect| N14
+  N85 -->|contextuel| N36
+  N85 -->|redirect| N36
+  N77 -->|redirect| N18
+  N77 -->|redirect| N14
+  N77 -->|contextuel| N36
+  N77 -->|redirect| N36
+  N77 -->|contextuel| N86
+  N77 -->|contextuel| N87
+  N77 -->|contextuel| N88
+  N89 -->|redirect| N90
+  N91 -->|redirect| N92
+  N93 -->|redirect| N18
+  N93 -->|redirect| N14
+  N93 -->|redirect| N36
+  N94 -->|redirect| N18
+  N94 -->|redirect| N14
+  N94 -->|redirect| N36
+  N95 -->|redirect| N18
+  N95 -->|redirect| N14
+  N95 -->|redirect| N36
+  N19 -->|redirect| N18
+  N19 -->|CTA| N36
+  N37 -->|redirect| N18
+  N96 -->|redirect| N18
+  N96 -->|contextuel| N37
+  N97 -->|redirect| N37
+  N98 -->|redirect| N18
+  N98 -->|CTA| N37
+  N98 -->|redirect| N37
+  N99 -->|redirect| N18
+  N99 -->|redirect| N14
+  N99 -->|contextuel| N37
+  N100 -->|redirect| N18
+  N100 -->|redirect| N37
+  N101 -->|redirect| N18
+  N101 -->|contextuel| N96
+  N101 -->|redirect| N96
+  N102 -->|CTA| N10
+  N102 -->|CTA| N37
+  N102 -->|contextuel| N96
+  N102 -->|contextuel| N101
+  N103 -->|redirect| N18
+  N104 -->|redirect| N18
+  N104 -->|CTA| N37
+  N105 -->|redirect| N106
+  N107 -->|redirect| N11
+  N108 -->|CTA| N2
+  N108 -->|contextuel| N10
+  N108 -->|CTA| N10
+  N109 -->|CTA| N2
+  N109 -->|CTA| N10
+  N109 -->|contextuel| N108
+  N109 -->|CTA| N110
+  N111 -->|redirect| N2
+  N112 -->|redirect| N113
+  N114 -->|redirect| N115
+  N116 -->|redirect| N117
+  N118 -->|CTA| N10
+  N3 -->|CTA| N117
+  N119 -->|redirect| N12
+  N12 -->|CTA| N2
+  N12 -->|CTA| N3
+  N32 -->|contextuel| N10
+  N113 -->|redirect| N77
+  N113 -->|redirect| N3
+  N120 -->|redirect| N77
+  N121 -->|redirect| N2
+  N117 -->|CTA| N2
+  N122 -->|CTA| N2
+  N122 -->|CTA| N3
+  N123 -->|redirect| N18
+  N8 -->|CTA| N2
+  N8 -->|CTA| N124
+  N125 -->|contextuel| N8
+  N126 -->|redirect| N3
+  N127 -->|footer| N1
+  N127 -->|nav| N1
+  N127 -->|contextuel| N1
+  N127 -->|footer| N11
+  N127 -->|nav| N11
+  N127 -->|nav| N13
+  N127 -->|nav| N18
+  N127 -->|redirect| N18
+  N127 -->|CTA| N18
+  N127 -->|CTA| N2
+  N127 -->|footer| N2
+  N127 -->|nav| N2
+  N127 -->|contextuel| N128
+  N127 -->|contextuel| N22
+  N127 -->|footer| N22
+  N127 -->|contextuel| N10
+  N127 -->|footer| N10
+  N127 -->|nav| N10
+  N127 -->|CTA| N10
+  N127 -->|nav| N33
+  N127 -->|nav| N38
+  N127 -->|nav| N39
+  N127 -->|nav| N40
+  N127 -->|nav| N129
+  N127 -->|nav| N44
+  N127 -->|nav| N41
+  N127 -->|nav| N42
+  N127 -->|nav| N43
+  N127 -->|nav| N34
+  N127 -->|nav| N50
+  N127 -->|nav| N45
+  N127 -->|nav| N51
+  N127 -->|nav| N53
+  N127 -->|nav| N46
+  N127 -->|nav| N57
+  N127 -->|nav| N47
+  N127 -->|nav| N130
+  N127 -->|nav| N58
+  N127 -->|nav| N48
+  N127 -->|nav| N131
+  N127 -->|nav| N49
+  N127 -->|nav| N35
+  N127 -->|nav| N63
+  N127 -->|nav| N67
+  N127 -->|nav| N70
+  N127 -->|nav| N72
+  N127 -->|nav| N74
+  N127 -->|nav| N75
+  N127 -->|nav| N36
+  N127 -->|contextuel| N36
+  N127 -->|CTA| N79
+  N127 -->|contextuel| N79
+  N127 -->|nav| N82
+  N127 -->|contextuel| N76
+  N127 -->|nav| N83
+  N127 -->|contextuel| N84
+  N127 -->|nav| N84
+  N127 -->|contextuel| N77
+  N127 -->|CTA| N132
+  N127 -->|CTA| N133
+  N127 -->|CTA| N93
+  N127 -->|CTA| N94
+  N127 -->|CTA| N95
+  N127 -->|nav| N134
+  N127 -->|nav| N135
+  N127 -->|nav| N90
+  N127 -->|nav| N92
+  N127 -->|nav| N136
+  N127 -->|contextuel| N137
+  N127 -->|nav| N37
+  N127 -->|nav| N96
+  N127 -->|nav| N97
+  N127 -->|nav| N99
+  N127 -->|nav| N100
+  N127 -->|nav| N101
+  N127 -->|nav| N103
+  N127 -->|nav| N104
+  N127 -->|contextuel| N105
+  N127 -->|footer| N108
+  N127 -->|contextuel| N109
+  N127 -->|CTA| N109
+  N127 -->|contextuel| N138
+  N127 -->|footer| N115
+  N127 -->|footer| N118
+  N127 -->|nav| N118
+  N127 -->|footer| N3
+  N127 -->|nav| N3
+  N127 -->|CTA| N3
+  N127 -->|CTA| N139
+  N127 -->|CTA| N140
+  N127 -->|CTA| N141
+  N127 -->|CTA| N142
+  N127 -->|CTA| N143
+  N127 -->|CTA| N144
+  N127 -->|CTA| N145
+  N127 -->|CTA| N146
+  N127 -->|CTA| N147
+  N127 -->|nav| N4
+  N127 -->|nav| N124
+  N127 -->|nav| N148
+  N127 -->|CTA| N149
+  N127 -->|CTA| N150
+  N127 -->|CTA| N151
+  N127 -->|footer| N12
+  N127 -->|nav| N12
+  N127 -->|contextuel| N152
+  N127 -->|nav| N117
+  N127 -->|CTA| N117
+  N127 -->|footer| N122
+  N127 -->|contextuel| N153
+  N127 -->|footer| N8
+  N127 -->|nav| N8
+  N127 -->|contextuel| N8

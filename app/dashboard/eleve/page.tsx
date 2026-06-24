@@ -105,9 +105,19 @@ export default function DashboardEleve() {
     const scrollToHash = () => {
       const id = window.location.hash.slice(1);
       if (!id) return;
+      const rubriqueByHash: Partial<Record<string, typeof activeRubrique>> = {
+        'programme-maths': 'parcours',
+        resources: 'matières',
+        survival: 'parcours',
+        trajectory: 'parcours',
+      };
+      const rubrique = rubriqueByHash[id];
+      if (rubrique) setActiveRubrique(rubrique);
 
       window.requestAnimationFrame(() => {
-        document.getElementById(id)?.scrollIntoView({ block: 'start' });
+        window.requestAnimationFrame(() => {
+          document.getElementById(id)?.scrollIntoView({ block: 'start' });
+        });
       });
     };
 
@@ -275,11 +285,13 @@ export default function DashboardEleve() {
                       onBookSession={() => setActiveTab('booking')}
                       onOpenAria={() => openAriaWithSubject()}
                     />
-                    <EleveAria
-                      totalConversations={dashboardData.ariaStats.totalConversations}
-                      messagesToday={dashboardData.ariaStats.messagesToday}
-                      onOpenAria={() => openAriaWithSubject()}
-                    />
+                    <div id="aria" className="scroll-mt-24">
+                      <EleveAria
+                        totalConversations={dashboardData.ariaStats.totalConversations}
+                        messagesToday={dashboardData.ariaStats.messagesToday}
+                        onOpenAria={() => openAriaWithSubject()}
+                      />
+                    </div>
                   </div>
                 )}
 
@@ -312,9 +324,11 @@ export default function DashboardEleve() {
                 )}
 
                 {activeRubrique === 'parcours' && (
-                  <div className="space-y-6">
+                  <div id="trajectory" className="space-y-6 scroll-mt-24">
                     {isSurvivalMode ? (
-                      <SurvivalDashboard progress={dashboardData.survivalProgress} />
+                      <div id="survival" className="scroll-mt-24">
+                        <SurvivalDashboard progress={dashboardData.survivalProgress} />
+                      </div>
                     ) : isStmgTrack ? (
                       <TrackContentSTMG modules={stmgModules} />
                     ) : (
@@ -327,7 +341,7 @@ export default function DashboardEleve() {
                       grade: dashboardData?.student.grade,
                       gradeLevel: studentGradeLevel,
                     }) && (
-                      <Card className="bg-gradient-to-br from-indigo-500/10 via-brand-accent/5 to-surface-card border border-indigo-500/20 shadow-lg overflow-hidden group">
+                      <Card id="programme-maths" className="scroll-mt-24 bg-gradient-to-br from-indigo-500/10 via-brand-accent/5 to-surface-card border border-indigo-500/20 shadow-lg overflow-hidden group">
                         <CardContent className="p-0">
                           <div className="flex flex-col md:flex-row items-stretch">
                             <div className="md:w-1/3 bg-indigo-500/10 p-6 flex flex-col items-center justify-center text-center border-b md:border-b-0 md:border-r border-indigo-500/20">
@@ -445,7 +459,7 @@ export default function DashboardEleve() {
                 )}
 
                 {activeRubrique === 'sessions' && (
-                  <div className="space-y-6">
+                  <div id="resources" className="space-y-6 scroll-mt-24">
                     <EleveSessions
                       sessions={dashboardData.recentSessions}
                       onBookSession={() => setActiveTab('booking')}

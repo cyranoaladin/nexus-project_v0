@@ -31,7 +31,7 @@ export default function StagesHeader() {
           />
         </div>
 
-        <CTAButton href="#reservation" className="w-full lg:w-auto">
+        <CTAButton href="/offres#section-intensifs" className="w-full lg:w-auto">
           <MessageCircle className="h-4 w-4" aria-hidden="true" />
           Réserver ma place
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
