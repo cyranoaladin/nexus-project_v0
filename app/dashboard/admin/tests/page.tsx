@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { AlertTriangle, CheckCircle, CreditCard, Mail, Settings, XCircle } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
+import { CGV_POLICY } from '@/lib/cgv-policy';
 
 interface ConfigStatus {
   variable: string;
@@ -211,7 +212,7 @@ export default function AdminTestsPage() {
             <CardContent className="space-y-4">
               {paymentConfig && (
                 <div className="space-y-2">
-                  <h4 className="font-semibold text-sm text-neutral-200">ClicToPay (Banque Zitouna)</h4>
+                  <h4 className="font-semibold text-sm text-neutral-200">{CGV_POLICY.payment.provider} ({CGV_POLICY.payment.bank})</h4>
                   {Object.entries(paymentConfig.clictopay).map(([key, configured]) => (
                     <div key={key} className="flex items-center justify-between p-2 bg-white/5 border border-white/10 rounded">
                       <span className="text-sm text-neutral-300">{key}</span>
@@ -224,12 +225,12 @@ export default function AdminTestsPage() {
               )}
 
               <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-                <p className="text-sm text-slate-200 font-medium">En attente d&apos;activation des clés API ClicToPay</p>
+                <p className="text-sm text-slate-200 font-medium">En attente d&apos;activation des clés API {CGV_POLICY.payment.provider}</p>
                 <p className="text-xs text-blue-200/70 mt-1">Les tests de connexion seront disponibles après configuration.</p>
               </div>
 
               <div className="space-y-2">
-                <TestResultDisplay testKey="clictopayConnection" title="Test Connexion ClicToPay" />
+                <TestResultDisplay testKey="clictopayConnection" title={`Test Connexion ${CGV_POLICY.payment.provider}`} />
               </div>
             </CardContent>
           </Card>

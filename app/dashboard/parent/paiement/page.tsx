@@ -17,7 +17,7 @@ import {
   getOperationalSubscriptionPlan,
 } from "@/lib/operational-catalog";
 import { ArrowLeft, Check, Clock, Copy, CreditCard, Landmark } from "lucide-react";
-import { LegalAcceptance, CGV_VERSION } from "@/components/checkout/LegalAcceptance";
+import { LegalAcceptance } from "@/components/checkout/LegalAcceptance";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -25,7 +25,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { LEGAL } from "@/lib/legal";
-import { CGV_POLICY } from "@/lib/cgv-policy";
+import { CGV_POLICY, CGV_VERSION } from "@/lib/cgv-policy";
 
 interface OrderDetails {
   type: "subscription" | "addon" | "pack";

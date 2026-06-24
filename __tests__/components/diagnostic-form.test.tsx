@@ -114,11 +114,11 @@ describe('DiagnosticForm', () => {
   // ── CTA et liens ──
 
   describe('CTA et liens de la recommandation', () => {
-    it('CTA "Découvrir ce parcours" pointe vers /offres#accompagnement-annuel', async () => {
+    it('CTA "Découvrir ce parcours" pointe vers la section annuelle canonique', async () => {
       render(<DiagnosticForm referenceDate={REF_DATE} />);
       await fillAndValidate('Première', 'Élève dans un lycée français', 'Réussir ses épreuves de Français (pour 1ère)');
       const link = screen.getByRole('link', { name: /Découvrir ce parcours/i });
-      expect(link).toHaveAttribute('href', '/offres#accompagnement-annuel');
+      expect(link).toHaveAttribute('href', '/offres#section-annual');
     });
 
     it('CTA "Voir ce stage" pointe vers /stages', async () => {

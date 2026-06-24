@@ -42,7 +42,7 @@ export default function StagesHero() {
 
         {/* CTA */}
         <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-          <CTAButton href="#offres" className="sm:min-w-[260px]">
+          <CTAButton href="/offres#section-intensifs" className="sm:min-w-[260px]">
             Voir les formules disponibles
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </CTAButton>

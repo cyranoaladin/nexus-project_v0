@@ -13,8 +13,8 @@ import {
 } from '@/components/premium';
 import {
   getReperes,
-  getRules,
 } from '@/lib/pricing';
+import { GROUP_RULES } from '@/lib/group-rules';
 import {
   EnjeuxNiveau,
   ProcessSteps,
@@ -27,11 +27,11 @@ import { buildWhatsAppUrl } from '@/lib/whatsapp';
 // ── Router par niveau (near hero) ──
 
 const levelRoutes = [
-  { label: 'Terminale', href: '/offres#accompagnement-annuel', sublabel: 'Spécialités, Grand Oral, Parcoursup' },
-  { label: 'Première', href: '/offres#accompagnement-annuel', sublabel: 'EAF, contrôle continu, spécialités' },
-  { label: 'Seconde', href: '/offres#accompagnement-annuel', sublabel: 'Méthode, orientation, spécialités' },
-  { label: 'Troisième', href: '/offres#accompagnement-annuel', sublabel: 'Brevet, préparation lycée' },
-  { label: 'Candidat libre', href: '/offres#candidats-libres', sublabel: 'Cyclades, organisation, épreuves' },
+  { label: 'Terminale', href: '/offres#section-annual', sublabel: 'Spécialités, Grand Oral, Parcoursup' },
+  { label: 'Première', href: '/offres#section-annual', sublabel: 'EAF, contrôle continu, spécialités' },
+  { label: 'Seconde', href: '/offres#section-annual', sublabel: 'Méthode, orientation, spécialités' },
+  { label: 'Troisième', href: '/offres#section-annual', sublabel: 'Brevet, préparation lycée' },
+  { label: 'Candidat libre', href: '/offres#section-libre', sublabel: 'Cyclades, organisation, épreuves' },
 ];
 
 function LevelRouter() {
@@ -63,7 +63,7 @@ function LevelRouter() {
 
 function PricingReperesSection() {
   const reperes = getReperes();
-  const rules = getRules();
+  const rules = GROUP_RULES;
 
   const anchors = [
     {
@@ -156,7 +156,7 @@ function getVerifiableItems(groupMax: number): string[] {
 }
 
 function VerifiableSection() {
-  const { group_max: groupMax } = getRules();
+  const { group_max: groupMax } = GROUP_RULES;
   const verifiableItems = getVerifiableItems(groupMax);
 
   return (
@@ -189,7 +189,7 @@ function VerifiableSection() {
 
 // ── FAQ ──
 
-function getFaqItems(rules: ReturnType<typeof getRules>): FAQItem[] {
+function getFaqItems(rules: typeof GROUP_RULES): FAQItem[] {
   const groupMax = rules.group_max;
   const lyceeMin = rules.group_min_open.lycee;
   const brevetMin = rules.group_min_open.brevet;
@@ -226,7 +226,7 @@ function getFaqItems(rules: ReturnType<typeof getRules>): FAQItem[] {
 // ── Main ──
 
 export function HomePageClient() {
-  const faqItems = getFaqItems(getRules());
+  const faqItems = getFaqItems(GROUP_RULES);
 
   return (
     <main className="luxury" id="main-content">

@@ -17,6 +17,7 @@ import {
   XCircle,
   CreditCard,
 } from 'lucide-react';
+import { CGV_POLICY } from '@/lib/cgv-policy';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -110,7 +111,7 @@ const PAYMENT_METHODS: Array<{ value: string; label: string }> = [
   { value: 'BANK_TRANSFER', label: 'Virement bancaire' },
   { value: 'CHEQUE', label: 'Chèque' },
   { value: 'CARD', label: 'Carte bancaire' },
-  { value: 'CLICTOPAY', label: 'ClicToPay' },
+  { value: 'CLICTOPAY', label: CGV_POLICY.payment.provider },
 ];
 
 // ─── Nexus Product Presets ──────────────────────────────────────────────────
@@ -747,7 +748,7 @@ export default function FacturationPage() {
                     <option value="" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Non spécifié</option>
                     <option value="CASH" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Espèces</option>
                     <option value="BANK_TRANSFER" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Virement bancaire</option>
-                    <option value="CLICTOPAY" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>ClicToPay</option>
+                    <option value="CLICTOPAY" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>{CGV_POLICY.payment.provider}</option>
                     <option value="CHECK" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Chèque</option>
                     <option value="OTHER" style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Autre</option>
                   </select>

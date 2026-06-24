@@ -6,7 +6,8 @@ const root = process.cwd();
 const recursiveScanRoots = [
   'app',
   'components',
-  'content/marketing',
+  'content',
+  'lib',
   'data/pricing.canonical.json',
 ];
 
@@ -19,7 +20,7 @@ const deadFabricationArtifacts = [
   'public/images/sceau_garantie_reussite.png',
 ];
 
-const scannedExtensions = new Set(['.ts', '.tsx', '.json']);
+const scannedExtensions = new Set(['.ts', '.tsx', '.json', '.md', '.mdx', '.js']);
 
 const excludedDirectories = new Set([
   '.next',
@@ -73,6 +74,8 @@ const scanAllowlist: Array<{ file: string; reason: string }> = [
   { file: 'app/politique-confidentialite/page.tsx', reason: 'privacy non-use of testimonials' },
   // Third-party math engine package name, not a public Nexus range.
   { file: 'app/programme/maths-1ere/lib/math-engine.ts', reason: '@cortex-js package import' },
+  // Lightweight client mirror of pricing group rules, equivalence-tested against the canonical loader.
+  { file: 'lib/group-rules.ts', reason: 'canonical GROUP_RULES client mirror' },
 ];
 
 function sourceFor(file: string): string {
@@ -126,6 +129,21 @@ describe('Lot 1 T1.2 brand trust guardrails', () => {
     expect(matchingFiles(hardcodedGroupSizeClaims)).toEqual([]);
   });
 
+  test('client marketing surfaces use GROUP_RULES instead of importing getRules()', () => {
+    const clientFiles = [
+      'app/equipe/page.tsx',
+      'app/HomePageClient.tsx',
+      'components/marketing/acadomia-inspired.tsx',
+      'components/premium/MethodSection.tsx',
+    ];
+
+    for (const file of clientFiles) {
+      const source = sourceFor(file);
+      expect(source).not.toMatch(/\bgetRules\b/);
+      expect(source).toContain('GROUP_RULES');
+    }
+  });
+
   test('legacy range names are not exposed in active app or component copy', () => {
     expect(matchingFiles(brandRangeClaims)).toEqual([]);
   });
@@ -145,6 +163,11 @@ describe('Lot 1 T1.2 brand trust guardrails', () => {
     for (const pattern of forbidden) {
       expect(source).not.toMatch(pattern);
     }
+  });
+
+  test('team content cannot reintroduce testimonial, quote or rating payloads', () => {
+    const source = sourceFor('content/team.json');
+    expect(source).not.toMatch(/"testimonial"|"testimonials"|"quote"|"rating"|"reviews"/i);
   });
 
   test('dead testimonial and guarantee components are removed instead of left as reintroduction traps', () => {
