@@ -71,7 +71,7 @@ Les quatre landings SEO déclarées dans le sitemap étaient trop courtes et peu
 ## Risques restants
 
 - Les informations administratives IFT/Cyclades doivent rester vérifiées chaque session avant communication nominative à une famille.
-- La CI GitHub Actions reste à vérifier côté PR #48 : si elle est encore bloquée par la facturation, la PR doit rester draft et nécessiter une revue humaine explicite avant merge.
+- La CI GitHub Actions de la PR #48 est bloquée avant exécution : les annotations CheckRun indiquent `The job was not started because your account is locked due to a billing issue.` La PR doit rester draft et nécessiter soit le déblocage Actions, soit une revue humaine explicite avant merge.
 - Le dossier `nexus-codex-handoff/` et les exclusions associées restent à nettoyer après consommation complète du handoff en fin T1.2/T1.3.
 
 ## Rollback
