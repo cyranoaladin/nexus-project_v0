@@ -37,6 +37,7 @@ describe('Lot A closure decisions', () => {
     const routeMetadataFiles = [
       ['app/access-required/page.tsx'],
       ['app/bilan-gratuit/assessment/page.tsx', 'app/bilan-gratuit/assessment/layout.tsx'],
+      ['app/bilan-gratuit/confirmation/layout.tsx'],
       ['app/lamis/page.tsx'],
       ['app/programme/maths-1ere-stmg/page.tsx'],
       ['app/programme/maths-terminale/page.tsx'],
