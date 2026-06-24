@@ -242,6 +242,7 @@ export default function OffresPage() {
                     {offers.map((o) => {
                       const price = getEffectivePrice(o);
                       if (price == null) return null;
+                      const payment = getAnnualOfferPaymentSchedule(o);
                       return (
                         <div key={o.id} id={o.id} className="scroll-mt-28">
                         <ExamCard
@@ -249,14 +250,13 @@ export default function OffresPage() {
                           title={o.title}
                           subtitle={o.subjects}
                           price={price}
-                          monthlyDisplay={o.monthly_display ?? undefined}
                           pricingDisplay={o.pricing_display ?? undefined}
                           hoursPerWeek={o.hours_per_week ?? undefined}
                           totalHours={o.hours_per_year ?? undefined}
                           groupMax={o.group_max ?? rules.group_max}
                           groupMinOpen={o.group_min_open ?? rules.group_min_open.lycee}
                           effectifType="groupe"
-                          payment={getAnnualOfferPaymentSchedule(o) ?? undefined}
+                          payment={payment ? { ...payment, depositPct: rules.payment.deposit_pct_annual } : undefined}
                           ctaText="Réserver ma place"
                           ctaHref={`/bilan-gratuit?offer=${encodeURIComponent(o.id)}`}
                         />
@@ -288,6 +288,7 @@ export default function OffresPage() {
                 const price = getEffectivePrice(o);
                 if (price == null) return null;
                 const displayLevel = o.level === 'premiere' ? 'Première' : o.level === 'terminale' ? 'Terminale' : o.level;
+                const payment = getAnnualOfferPaymentSchedule(o);
                 return (
                   <div key={o.id} id={o.id} className="scroll-mt-28">
                   <ExamCard
@@ -295,12 +296,11 @@ export default function OffresPage() {
                     title={o.title}
                     subtitle={o.subjects}
                     price={price}
-                    monthlyDisplay={o.monthly_display ?? undefined}
                     pricingDisplay={o.pricing_display ?? undefined}
                     groupMax={o.group_max ?? rules.group_max}
                     groupMinOpen={o.group_min_open ?? rules.group_min_open.online_live}
                     effectifType="groupe"
-                    payment={getAnnualOfferPaymentSchedule(o) ?? undefined}
+                    payment={payment ? { ...payment, depositPct: rules.payment.deposit_pct_annual } : undefined}
                     ctaText="Réserver ma place"
                     ctaHref={`/bilan-gratuit?offer=${encodeURIComponent(o.id)}`}
                   />

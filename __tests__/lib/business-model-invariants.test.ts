@@ -30,11 +30,11 @@ describe('T16.1 — Groupes <= 5', () => {
 
 // ── Mensuel ──
 
-describe('T16.2 — Mensuel == round(annuel / 10)', () => {
-  test('every offer with price_annual has correct monthly_display', () => {
+describe('T16.2 — No legacy annual / 10 monthly display', () => {
+  test('no priced annual offer exposes monthly_display', () => {
     for (const o of data.offers) {
       if (o.price_annual == null) continue;
-      expect(o.monthly_display).toBe(Math.round(o.price_annual / 10));
+      expect((o as unknown as Record<string, unknown>).monthly_display).toBeUndefined();
     }
   });
 });
