@@ -107,7 +107,8 @@ function NavyBand({ eyebrow, title, intro, testId }: { eyebrow: string; title: s
 
 // ── FAQ ──
 
-const catalogueFAQ: FAQItem[] = [
+function getCatalogueFAQ(groupMax: number, lyceeMinOpen: number): FAQItem[] {
+  return [
   {
     question: `Les tarifs sont-ils en TND\u00A0?`,
     answer: `Oui, tous nos tarifs sont en dinars tunisiens (TND). Aucun paiement en euros.`,
@@ -115,7 +116,7 @@ const catalogueFAQ: FAQItem[] = [
   {
     question: `Comment fonctionne le modèle places-based\u00A0?`,
     answer:
-      `Les groupes se remplissent progressivement. Il n\u2019y a pas de date limite artificielle — la rareté est réelle\u00A0: un groupe de 5 se remplit naturellement. Réservez tôt pour garantir votre place.`,
+      `Les groupes se remplissent progressivement. Un groupe compte ${groupMax} élèves maximum et ouvre dès ${lyceeMinOpen} inscrits au lycée. Réserver tôt permet de choisir plus facilement le créneau souhaité.`,
   },
   {
     question: `L\u2019acompte est-il remboursable\u00A0?`,
@@ -132,7 +133,8 @@ const catalogueFAQ: FAQItem[] = [
     answer:
       `Non. Les remises (fratrie, ancien élève, parrainage, Carte Nexus) ne sont pas cumulables sauf décision de la direction. Le plafond global est de 20\u00A0%, et aucun tarif ne descend sous le plancher horaire.`,
   },
-];
+  ];
+}
 
 // ── Main component ──
 
@@ -228,7 +230,7 @@ export default function OffresPage() {
               <h2 className="mt-2 text-2xl md:text-3xl">Accompagnement annuel — scolarisés</h2>
               <div className="lux-filet-gold mt-3 w-16" />
               <p className="mt-3 text-sm text-lux-slate">
-                {rules.group_max} élèves max, garanti dès {rules.group_min_open.lycee}. Acompte 30 % + mensualités.
+                {rules.group_max} élèves max, ouverture dès {rules.group_min_open.lycee}. Acompte 30 % + mensualités.
               </p>
             </div>
             {(['terminale', 'premiere', 'seconde', 'troisieme'] as const).map((level) => {
@@ -555,7 +557,7 @@ export default function OffresPage() {
         </section>
       )}
 
-      <FAQAccordion items={catalogueFAQ} title="Questions sur les tarifs" />
+      <FAQAccordion items={getCatalogueFAQ(rules.group_max, rules.group_min_open.lycee)} title="Questions sur les tarifs" />
 
       <Testimonials />
 

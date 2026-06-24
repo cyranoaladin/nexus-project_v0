@@ -385,9 +385,9 @@ function PaiementContent() {
                   <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto">
                     <CreditCard className="w-8 h-8 text-blue-600" />
                   </div>
-                  <h3 className="font-semibold">Satisfaction Garantie</h3>
+                  <h3 className="font-semibold">Règles de remboursement</h3>
                   <p className="text-sm text-neutral-300">
-                    Remboursement intégral si vous n&apos;êtes pas satisfait sous 14 jours
+                    Les conditions applicables dépendent de la formule et de la consommation des séances.
                   </p>
                 </div>
               </div>

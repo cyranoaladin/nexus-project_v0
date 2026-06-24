@@ -13,7 +13,7 @@ const pillars = [
     icon: Users,
     title: 'Groupes de 5 maximum',
     description:
-      'Attention individualisée garantie. Groupe ouvert dès 3 inscrits (dès 4 pour le Brevet).',
+      'Attention individualisée renforcée. Groupe ouvert dès 3 inscrits (dès 4 pour le Brevet).',
   },
   {
     icon: BookOpen,
