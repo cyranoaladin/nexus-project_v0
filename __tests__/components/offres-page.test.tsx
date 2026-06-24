@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import OffresPage from '@/app/offres/page';
+import { getRules } from '@/lib/pricing';
 
 jest.mock('next/link', () => {
   return function MockLink({ children, href, ...props }: any) {
@@ -37,16 +38,19 @@ jest.mock('framer-motion', () => {
 
 describe('OffresPage', () => {
   it('renders the active catalogue without legacy campaign copy', () => {
-    render(<OffresPage />);
+    const groupMax = getRules().group_max;
+
+    const { container } = render(<OffresPage />);
 
     expect(screen.getByRole('heading', { name: /offres & tarifs/i })).toBeInTheDocument();
     expect(screen.getByText(/catalogue 2026\/2027/i)).toBeInTheDocument();
-    expect(screen.getByText(/groupes de 5 maximum/i)).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(`groupes de ${groupMax} maximum`, 'i'))).toBeInTheDocument();
     expect(screen.getByText(/accompagnement annuel — scolarisés/i)).toBeInTheDocument();
     expect(screen.getByText(/parcours candidats libres/i)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /trois paliers numériques/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /stages intensifs — toutes les vacances/i })).toBeInTheDocument();
     expect(screen.queryByText(/garantie réussite|mention garantie|100 % réussite|100 % bac|bac garanti/i)).not.toBeInTheDocument();
+    expect(container.textContent).not.toMatch(/undefined|NaN/);
   });
 
   it('exposes actionable CTAs to the conversion funnel', () => {

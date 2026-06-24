@@ -42,9 +42,9 @@ describe('FloatingNav', () => {
   it('affiche les trois boutons de navigation', () => {
     render(<FloatingNav />);
 
-    expect(screen.getByText('Cortex')).toBeInTheDocument();
-    expect(screen.getByText('Académies')).toBeInTheDocument();
-    expect(screen.getByText('Odyssée')).toBeInTheDocument();
+    expect(screen.getByText('ARIA')).toBeInTheDocument();
+    expect(screen.getByText('Stages')).toBeInTheDocument();
+    expect(screen.getByText('Parcours')).toBeInTheDocument();
   });
 
   it('a les bonnes icônes pour chaque bouton', () => {
@@ -54,23 +54,19 @@ describe('FloatingNav', () => {
     expect(buttons).toHaveLength(3);
   });
 
-  it('appelle scrollIntoView quand on clique sur un bouton', () => {
-    const mockElement = { scrollIntoView: mockScrollIntoView };
-    jest.spyOn(document, 'querySelector').mockReturnValue(mockElement as any);
-
+  it('navigue vers la section canonique des offres quand on clique sur un bouton', () => {
     render(<FloatingNav />);
 
-    const cortexButton = screen.getByText('Cortex');
-    fireEvent.click(cortexButton);
+    const ariaButton = screen.getByText('ARIA');
+    fireEvent.click(ariaButton);
 
-    expect(document.querySelector).toHaveBeenCalledWith('#cortex');
-    expect(mockScrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth' });
+    expect(window.location.href).toBe('/offres#section-plateforme');
   });
 
   it('a les bonnes classes CSS', () => {
     render(<FloatingNav />);
 
-    const button = screen.getByText('Cortex');
+    const button = screen.getByText('ARIA');
     // Navigate up: button -> flex div -> bg-white div -> motion.div (fixed container)
     const navContainer = button.closest('div')?.parentElement?.parentElement;
     expect(navContainer).toHaveClass('fixed');
@@ -78,15 +74,15 @@ describe('FloatingNav', () => {
     expect(navContainer).toHaveClass('left-1/2');
   });
 
-  it('gère le cas où l\'élément n\'existe pas', () => {
+  it('ne tente pas de scroll local pour les liens inter-pages', () => {
     jest.spyOn(document, 'querySelector').mockReturnValue(null);
 
     render(<FloatingNav />);
 
-    const cortexButton = screen.getByText('Cortex');
-    fireEvent.click(cortexButton);
+    const ariaButton = screen.getByText('ARIA');
+    fireEvent.click(ariaButton);
 
-    expect(document.querySelector).toHaveBeenCalledWith('#cortex');
+    expect(document.querySelector).not.toHaveBeenCalled();
     expect(mockScrollIntoView).not.toHaveBeenCalled();
   });
 });

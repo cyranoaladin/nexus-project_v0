@@ -1,10 +1,12 @@
 import { BookOpen, CheckCircle2, PenLine, Users } from "lucide-react";
+import { getRules } from "@/lib/pricing";
 
-const advantages = [
+function getAdvantages(groupMax: number) {
+  return [
   {
     icon: Users,
     title: "Moins d'élèves par groupe",
-    copy: "6 maximum. Chaque intervention garde un niveau d'attention réel. Chaque erreur est corrigée, pas ignorée.",
+    copy: `${groupMax} maximum. Chaque intervention garde un niveau d'attention réel. Chaque erreur peut être reprise en séance.`,
   },
   {
     icon: PenLine,
@@ -18,12 +20,16 @@ const advantages = [
   },
   {
     icon: CheckCircle2,
-    title: "Meilleur rendement pédagogique",
-    copy: "Un cours collectif classique couvre les notions. Un stage Nexus prépare l'épreuve. La différence est mesurable.",
+    title: "Préparation centrée sur l'épreuve",
+    copy: "Chaque bloc relie notions, méthode et entraînement au format attendu.",
   },
-];
+  ];
+}
 
 export default function WhyNexus() {
+  const rules = getRules();
+  const advantages = getAdvantages(rules.group_max);
+
   return (
     <section className="bg-nexus-bg-alt px-4 py-20 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
@@ -34,11 +40,11 @@ export default function WhyNexus() {
               Pourquoi Nexus Réussite
             </p>
             <h2 className="mt-3 font-display text-h2 font-bold text-white">
-              Ce n'est pas une question de prix. C'est une question de densité pédagogique.
+              Ce n'est pas seulement une question de temps. C'est une question de cadre pédagogique.
             </h2>
             <p className="mt-5 text-base leading-8 text-white/56">
-              Un stage Nexus coûte moins qu'un équivalent en cours individuels et produit plus
-              qu'un cours collectif classique. C'est là que le rendement change.
+              Un stage Nexus concentre le travail sur un objectif précis : revoir les notions,
+              s'entraîner au format de l'épreuve et recevoir des corrections exploitables.
             </p>
           </div>
 

@@ -2,11 +2,14 @@
  * Stage content data (UX/marketing text only — no prices).
  * All pricing lives in data/pricing.canonical.json.
  */
+import { getRules } from "@/lib/pricing";
 
 export interface FAQItem {
   question: string;
   answer: string;
 }
+
+const rules = getRules();
 
 export const FAQS: FAQItem[] = [
   {
@@ -27,10 +30,10 @@ export const FAQS: FAQItem[] = [
   },
   {
     question: "Comment se deroule une journee type ?",
-    answer: "Matin (9h-12h30) : cours structure + exercices avec correction immediate. Apres-midi (14h-17h30) : consolidation, simulations ou coaching oral selon le stage. Les groupes sont petits — 5 eleves maximum.",
+    answer: `Matin (9h-12h30) : cours structure + exercices avec correction immediate. Apres-midi (14h-17h30) : consolidation, simulations ou coaching oral selon le stage. Les groupes sont petits — ${rules.group_max} eleves maximum.`,
   },
   {
-    question: "Les groupes sont-ils vraiment limites a 5 eleves ?",
+    question: `Les groupes sont-ils vraiment limites a ${rules.group_max} eleves ?`,
     answer: "Oui, sans exception. C'est un choix structurant : chaque eleve recoit de l'attention, du feedback et des corrections sur ses propres erreurs, pas des corrections generiques.",
   },
   {

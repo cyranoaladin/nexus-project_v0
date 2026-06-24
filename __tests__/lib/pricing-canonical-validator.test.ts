@@ -56,6 +56,24 @@ describe('T1 — Effectif group_max ≤ 5', () => {
   });
 });
 
+describe('T1b — Catalogue identifiers are URL-safe ASCII slugs', () => {
+  const slugPattern = /^[a-z0-9-]+$/;
+
+  test('annual, stage, ponctuel, coaching, pack and carte ids are ASCII kebab-case', () => {
+    const ids = [
+      ...data.offers.map((offer) => offer.id),
+      ...data.stage_formats.map((format) => format.format_id),
+      ...data.stage_editions.map((edition) => edition.edition_id),
+      ...data.ponctuel_offers.map((offer) => offer.id),
+      ...data.coaching.map((offer) => offer.id),
+      ...data.packs.map((pack) => pack.id),
+      data.carte_nexus.id,
+    ];
+
+    expect(ids.filter((id) => !slugPattern.test(id))).toEqual([]);
+  });
+});
+
 // ── T2: Price floor — stage unitaire ≥ 45 TND/élève/h ──
 // Business-ratified threshold (decision 2026-06-20): 45 TND/h applies to all stage formats.
 
@@ -280,7 +298,37 @@ describe('T11 — Anti-leak strings not in JSON', () => {
 
 describe('T12 — French labels keep required accents', () => {
   test('pricing canonical does not contain known unaccented public tokens', () => {
-    const json = JSON.stringify(data);
+    const technicalKeys = new Set([
+      'id',
+      'format_id',
+      'edition_id',
+      'floor_type',
+      'type',
+      'track',
+      'level',
+      'public',
+      'effectif',
+    ]);
+    const publicText: string[] = [];
+
+    function collectPublicText(value: unknown, key?: string): void {
+      if (typeof value === 'string') {
+        if (!key || !technicalKeys.has(key)) publicText.push(value);
+        return;
+      }
+      if (Array.isArray(value)) {
+        value.forEach((item) => collectPublicText(item, key));
+        return;
+      }
+      if (value && typeof value === 'object') {
+        for (const [childKey, childValue] of Object.entries(value as Record<string, unknown>)) {
+          collectPublicText(childValue, childKey);
+        }
+      }
+    }
+
+    collectPublicText(data);
+    const copy = publicText.join('\n');
     const forbiddenTokens = [
       'Specialite',
       'Francais',
@@ -302,7 +350,7 @@ describe('T12 — French labels keep required accents', () => {
       'Troisieme',
     ];
 
-    const offenders = forbiddenTokens.filter((token) => json.includes(token));
+    const offenders = forbiddenTokens.filter((token) => copy.includes(token));
     expect(offenders).toEqual([]);
   });
 });

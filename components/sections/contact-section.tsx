@@ -408,9 +408,9 @@ export default function ContactSection() {
                   )}
                   {active === "families" && (
                     <>
-                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Programme Odyssée (annuel)</option>
-                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Académies Nexus (stages intensifs)</option>
-                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Studio Flex (cours à la carte)</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Parcours annuels</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Stages intensifs</option>
+                      <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Modules ciblés</option>
                       <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>ARIA (assistant pédagogique)</option>
                       <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Soutien cycle Terminal (Maths/NSI)</option>
                       <option style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>Coaching Orientation & Grand Oral</option>

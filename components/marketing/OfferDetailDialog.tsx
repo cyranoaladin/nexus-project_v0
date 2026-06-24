@@ -6,6 +6,7 @@ import { X, Check, ShieldCheck } from 'lucide-react';
 import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { fmtTND } from '@/components/premium/format';
+import { getRules } from '@/lib/pricing';
 
 // ── Types ──
 
@@ -16,7 +17,7 @@ export interface OfferDetail {
   eyebrow: string;
   /** Présentiel Mutuelleville / en ligne / mixte */
   format?: string;
-  /** ≤ 5 always */
+  /** Group size from pricing rules/catalog. */
   groupMax?: number;
   groupMinOpen?: number;
   /** Display price (campaign or public) */
@@ -108,6 +109,7 @@ export function OfferDetailDialog({ offer, onClose }: OfferDetailDialogProps) {
   const whatsappHref = buildWhatsAppUrl(`l\u2019offre ${offer.title}`);
   const firstInstallment = offer.payment?.installments?.[0];
   const lastInstallment = offer.payment?.installments?.[offer.payment.installments.length - 1];
+  const defaultGroupMinOpen = getRules().group_min_open.lycee;
   const hasInstallments =
     offer.payment != null &&
     !offer.payment.full_at_booking &&
@@ -163,7 +165,7 @@ export function OfferDetailDialog({ offer, onClose }: OfferDetailDialogProps) {
               <p id="offer-dialog-desc" className="mt-1 text-sm text-lux-slate">
                 {offer.format}
                 {offer.groupMax != null &&
-                  ` · ${offer.groupMax} élèves max, garanti dès ${offer.groupMinOpen ?? 3}`}
+                  ` · ${offer.groupMax} élèves max, ouverture dès ${offer.groupMinOpen ?? defaultGroupMinOpen}`}
               </p>
             )}
           </div>

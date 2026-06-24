@@ -13,8 +13,8 @@ import {
 } from '@/components/premium';
 import {
   getReperes,
-  getRules,
 } from '@/lib/pricing';
+import { GROUP_RULES } from '@/lib/group-rules';
 import {
   EnjeuxNiveau,
   ProcessSteps,
@@ -27,11 +27,11 @@ import { buildWhatsAppUrl } from '@/lib/whatsapp';
 // ── Router par niveau (near hero) ──
 
 const levelRoutes = [
-  { label: 'Terminale', href: '/offres#accompagnement-annuel', sublabel: 'Spécialités, Grand Oral, Parcoursup' },
-  { label: 'Première', href: '/offres#accompagnement-annuel', sublabel: 'EAF, contrôle continu, spécialités' },
-  { label: 'Seconde', href: '/offres#accompagnement-annuel', sublabel: 'Méthode, orientation, spécialités' },
-  { label: 'Troisième', href: '/offres#accompagnement-annuel', sublabel: 'Brevet, préparation lycée' },
-  { label: 'Candidat libre', href: '/offres#candidats-libres', sublabel: 'Cyclades, organisation, épreuves' },
+  { label: 'Terminale', href: '/offres#section-annual', sublabel: 'Spécialités, Grand Oral, Parcoursup' },
+  { label: 'Première', href: '/offres#section-annual', sublabel: 'EAF, contrôle continu, spécialités' },
+  { label: 'Seconde', href: '/offres#section-annual', sublabel: 'Méthode, orientation, spécialités' },
+  { label: 'Troisième', href: '/offres#section-annual', sublabel: 'Brevet, préparation lycée' },
+  { label: 'Candidat libre', href: '/offres#section-libre', sublabel: 'Cyclades, organisation, épreuves' },
 ];
 
 function LevelRouter() {
@@ -63,7 +63,7 @@ function LevelRouter() {
 
 function PricingReperesSection() {
   const reperes = getReperes();
-  const rules = getRules();
+  const rules = GROUP_RULES;
 
   const anchors = [
     {
@@ -98,7 +98,7 @@ function PricingReperesSection() {
           </h2>
           <div className="lux-filet-gold mx-auto mt-3 w-16" />
           <p className="mx-auto mt-3 max-w-xl text-base text-lux-slate">
-            Groupes de {rules.group_max} max, garanti dès {rules.group_min_open.lycee}.
+            Groupes de {rules.group_max} max, ouverture dès {rules.group_min_open.lycee}.
             Tous les tarifs en TND.
           </p>
         </div>
@@ -141,19 +141,24 @@ function PricingReperesSection() {
 
 // ── Confiance vérifiable (fusionnée AccompagnementInclus + TrustSection) ──
 
-const verifiableItems = [
+function getVerifiableItems(groupMax: number): string[] {
+  return [
   'Enseignants agrégés et certifiés, spécialistes de l\u2019épreuve',
   'Corrections sur grilles officielles du baccalauréat et bacs blancs',
-  'Groupes de 5 élèves maximum — suivi individualisé',
+  `Groupes de ${groupMax} élèves maximum — suivi individualisé`,
   'Transparence tarifaire\u00A0: tous les prix publics, en TND',
   'Accès à la plateforme ARIA — ressources et révisions en continu',
   'Bilans réguliers et suivi parent en temps réel',
   'Carte d\u2019examen personnalisée',
   'Cellule Cyclades intégrée pour les candidats libres',
   'Cadre réseau AEFE — programme et exigences de l\u2019enseignement français',
-];
+  ];
+}
 
 function VerifiableSection() {
+  const { group_max: groupMax } = GROUP_RULES;
+  const verifiableItems = getVerifiableItems(groupMax);
+
   return (
     <section className="bg-lux-paper px-4 py-14 md:py-20 md:px-6">
       <div className="mx-auto max-w-6xl">
@@ -184,11 +189,16 @@ function VerifiableSection() {
 
 // ── FAQ ──
 
-const faqItems: FAQItem[] = [
+function getFaqItems(rules: typeof GROUP_RULES): FAQItem[] {
+  const groupMax = rules.group_max;
+  const lyceeMin = rules.group_min_open.lycee;
+  const collegeMin = rules.group_min_open.college;
+
+  return [
   {
-    question: 'Comment fonctionnent les groupes de 5 maximum\u00A0?',
+    question: `Comment fonctionnent les groupes de ${groupMax} maximum\u00A0?`,
     answer:
-      'Chaque groupe est limité à 5 élèves (4 pour le Brevet) pour garantir un suivi personnalisé. Le groupe est ouvert dès 3 inscrits. Si le seuil n\u2019est pas atteint, l\u2019acompte est intégralement remboursé.',
+      `Chaque groupe est limité à ${groupMax} élèves afin de préserver un suivi personnalisé. Le groupe est ouvert dès ${lyceeMin} inscrits au lycée et ${collegeMin} au Brevet. Si le seuil n\u2019est pas atteint, l\u2019acompte est intégralement remboursé.`,
   },
   {
     question: 'Qui sont les enseignants\u00A0?',
@@ -210,11 +220,14 @@ const faqItems: FAQItem[] = [
     answer:
       'Oui, nous avons des parcours dédiés aux candidats libres (Essentiel, Mixte, Premium) avec cellule Cyclades intégrée pour l\u2019accompagnement administratif. Le Pass Candidat Libre regroupe diagnostic, stages et épreuves blanches.',
   },
-];
+  ];
+}
 
 // ── Main ──
 
 export function HomePageClient() {
+  const faqItems = getFaqItems(GROUP_RULES);
+
   return (
     <main className="luxury" id="main-content">
       <CorporateNavbar />

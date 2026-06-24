@@ -80,51 +80,51 @@ describe('DiagnosticForm', () => {
   // ── 5 parcours de recommandation ──
 
   describe('Logique de recommandation — tous les parcours', () => {
-    it('Première-Lycée-Français → Odyssée Première', async () => {
+    it('Première-Lycée-Français → parcours annuel Première', async () => {
       render(<DiagnosticForm referenceDate={REF_DATE} />);
       await fillAndValidate('Première', 'Élève dans un lycée français', 'Réussir ses épreuves de Français (pour 1ère)');
-      expect(screen.getByText(/Odyssée Première : Le Parcours Anticipé/)).toBeInTheDocument();
+      expect(screen.getByText(/Parcours annuel Première : préparation EAF/)).toBeInTheDocument();
     });
 
-    it('Première-Lycée-Controle → Odyssée Première', async () => {
+    it('Première-Lycée-Controle → parcours annuel Première', async () => {
       render(<DiagnosticForm referenceDate={REF_DATE} />);
       await fillAndValidate('Première', 'Élève dans un lycée français', 'Optimiser son contrôle continu');
-      expect(screen.getByText(/Odyssée Première : Le Parcours Anticipé/)).toBeInTheDocument();
+      expect(screen.getByText(/Parcours annuel Première : préparation EAF/)).toBeInTheDocument();
     });
 
-    it('Terminale-Lycée-Mention → Odyssée Terminale', async () => {
+    it('Terminale-Lycée-Mention → parcours annuel Terminale', async () => {
       render(<DiagnosticForm referenceDate={REF_DATE} />);
       await fillAndValidate('Terminale', 'Élève dans un lycée français', 'Obtenir une Mention');
-      expect(screen.getByText(/Odyssée Terminale : La Stratégie Mention/)).toBeInTheDocument();
+      expect(screen.getByText(/Parcours annuel Terminale : spécialités et Grand Oral/)).toBeInTheDocument();
     });
 
-    it('Terminale-Lycée-Parcoursup → Odyssée Terminale', async () => {
+    it('Terminale-Lycée-Parcoursup → parcours annuel Terminale', async () => {
       render(<DiagnosticForm referenceDate={REF_DATE} />);
       await fillAndValidate('Terminale', 'Élève dans un lycée français', 'Construire un excellent dossier Parcoursup');
-      expect(screen.getByText(/Odyssée Terminale : La Stratégie Mention/)).toBeInTheDocument();
+      expect(screen.getByText(/Parcours annuel Terminale : spécialités et Grand Oral/)).toBeInTheDocument();
     });
 
-    it('Candidat Libre → Odyssée Individuel', async () => {
+    it('Candidat Libre → parcours candidat libre', async () => {
       render(<DiagnosticForm referenceDate={REF_DATE} />);
       await fillAndValidate('Terminale', 'Candidat Libre', 'Avoir un cadre pour obtenir son Bac (pour C. Libre)');
-      expect(screen.getByText(/Odyssée Individuel/)).toBeInTheDocument();
+      expect(screen.getByText(/Parcours candidat libre : préparation intégrale/)).toBeInTheDocument();
     });
   });
 
   // ── CTA et liens ──
 
   describe('CTA et liens de la recommandation', () => {
-    it('CTA "Découvrir ce parcours" pointe vers /offres#odyssee', async () => {
+    it('CTA "Découvrir ce parcours" pointe vers la section annuelle canonique', async () => {
       render(<DiagnosticForm referenceDate={REF_DATE} />);
       await fillAndValidate('Première', 'Élève dans un lycée français', 'Réussir ses épreuves de Français (pour 1ère)');
       const link = screen.getByRole('link', { name: /Découvrir ce parcours/i });
-      expect(link).toHaveAttribute('href', '/offres#odyssee');
+      expect(link).toHaveAttribute('href', '/offres#section-annual');
     });
 
-    it('CTA "Voir cette académie" pointe vers /stages', async () => {
+    it('CTA "Voir ce stage" pointe vers /stages', async () => {
       render(<DiagnosticForm referenceDate={REF_DATE} />);
       await fillAndValidate('Première', 'Élève dans un lycée français', 'Réussir ses épreuves de Français (pour 1ère)');
-      const stageLink = screen.getByRole('link', { name: /Voir cette académie/i });
+      const stageLink = screen.getByRole('link', { name: /Voir ce stage/i });
       expect(stageLink).toHaveAttribute('href', '/stages');
     });
 

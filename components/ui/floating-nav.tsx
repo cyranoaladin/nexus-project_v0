@@ -9,9 +9,9 @@ interface FloatingNavProps {
 }
 
 const navItems = [
-  { href: '#cortex', icon: Brain, label: 'Cortex', color: 'from-blue-600 to-cyan-500' },
-  { href: '#academies', icon: Rocket, label: 'Académies', color: 'from-green-600 to-emerald-500' },
-  { href: '#odyssee', icon: Crown, label: 'Odyssée', color: 'from-blue-700 to-slate-700' },
+  { href: '/offres#section-plateforme', icon: Brain, label: 'ARIA', color: 'from-blue-600 to-cyan-500' },
+  { href: '/offres#section-intensifs', icon: Rocket, label: 'Stages', color: 'from-green-600 to-emerald-500' },
+  { href: '/offres#section-annual', icon: Crown, label: 'Parcours', color: 'from-blue-700 to-slate-700' },
 ];
 
 export function FloatingNav({ className = "" }: FloatingNavProps) {
@@ -20,6 +20,11 @@ export function FloatingNav({ className = "" }: FloatingNavProps) {
   const y = useTransform(scrollYProgress, [0, 0.1], [20, 0]);
 
   const handleClick = (href: string) => {
+    if (!href.startsWith('#')) {
+      window.location.href = href;
+      return;
+    }
+
     const element = document.querySelector(href);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });

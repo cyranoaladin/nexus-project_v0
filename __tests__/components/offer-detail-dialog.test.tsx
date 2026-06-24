@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import { OfferDetailDialog, type OfferDetail } from '@/components/marketing/OfferDetailDialog';
 import {
-  getAnnualOffer, getAnnualOfferPaymentSchedule,
+  getAnnualOffer, getAnnualOfferPaymentSchedule, getRules,
   getStageFormat, getPonctuelOffer, getCoachingOffer, getPack,
 } from '@/lib/pricing';
 import { fmtTND } from '@/components/premium/format';
@@ -13,13 +13,15 @@ beforeAll(() => {
   globalThis.ResizeObserver = class { observe() {} unobserve() {} disconnect() {} } as unknown as typeof ResizeObserver;
 });
 
+const pricingRules = getRules();
+
 const sampleOffer: OfferDetail = {
   id: 'term-duo',
   title: 'Terminale Duo',
   eyebrow: 'Terminale · Parcours présentiel',
   format: 'Présentiel Mutuelleville',
-  groupMax: 5,
-  groupMinOpen: 3,
+  groupMax: pricingRules.group_max,
+  groupMinOpen: pricingRules.group_min_open.lycee,
   price: 7175,
   payment: {
     deposit: 2150,
@@ -31,7 +33,7 @@ const sampleOffer: OfferDetail = {
     'Bacs blancs sur grilles officielles',
     'Accès plateforme ARIA',
   ],
-  availabilityNote: 'Ouverture dès 3 inscrits. Places limitées à 5 par groupe.',
+  availabilityNote: `Ouverture dès ${pricingRules.group_min_open.lycee} inscrits. Places limitées à ${pricingRules.group_max} par groupe.`,
 };
 
 describe('OfferDetailDialog', () => {
@@ -51,7 +53,7 @@ describe('OfferDetailDialog', () => {
   it('renders format and group size', () => {
     render(<OfferDetailDialog offer={sampleOffer} onClose={jest.fn()} />);
     expect(screen.getByText(/Présentiel Mutuelleville/)).toBeInTheDocument();
-    expect(screen.getByText(/5 élèves max/)).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(`${pricingRules.group_max} élèves max`))).toBeInTheDocument();
   });
 
   it('displays the real monthly installment and annual total from canonical payment fields', () => {

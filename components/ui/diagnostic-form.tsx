@@ -25,10 +25,10 @@ interface FormData {
 interface Recommendation {
   parcours: string;
   description: string;
-  academie?: string;
-  academieDescription?: string;
+  stage?: string;
+  stageDescription?: string;
   parcoursLink: string;
-  academieLink?: string;
+  stageLink?: string;
 }
 
 const DIAGNOSTIC_QUESTIONS = [
@@ -58,29 +58,29 @@ const DIAGNOSTIC_QUESTIONS = [
 // Static parcours data (no stage info — injected at render via useMemo)
 const PARCOURS: Record<string, { parcours: string; description: string; parcoursLink: string }> = {
   'Première-Lycée-Français': {
-    parcours: 'Odyssée Première : Le Parcours Anticipé',
+    parcours: 'Parcours annuel Première : préparation EAF',
     description: 'Spécialement conçu pour optimiser le contrôle continu et préparer l\'EAF avec excellence.',
-    parcoursLink: '/offres#odyssee',
+    parcoursLink: '/offres#section-annual',
   },
   'Terminale-Lycée-Mention': {
-    parcours: 'Odyssée Terminale : La Stratégie Mention',
+    parcours: 'Parcours annuel Terminale : spécialités et Grand Oral',
     description: 'Conçu pour exceller dans les matières à fort coefficient et obtenir une mention.',
-    parcoursLink: '/offres#odyssee',
+    parcoursLink: '/offres#section-annual',
   },
   'Terminale-Lycée-Parcoursup': {
-    parcours: 'Odyssée Terminale : La Stratégie Mention',
+    parcours: 'Parcours annuel Terminale : spécialités et Grand Oral',
     description: 'Optimise votre dossier Parcoursup avec une stratégie complète.',
-    parcoursLink: '/offres#odyssee',
+    parcoursLink: '/offres#section-annual',
   },
   'Première-Lycée-Controle': {
-    parcours: 'Odyssée Première : Le Parcours Anticipé',
+    parcours: 'Parcours annuel Première : préparation EAF',
     description: 'Maximisez votre contrôle continu avec un suivi personnalisé.',
-    parcoursLink: '/offres#odyssee',
+    parcoursLink: '/offres#section-annual',
   },
   'CandidatLibre-Cadre': {
-    parcours: 'Odyssée Individuel : La Préparation Intégrale',
+    parcours: 'Parcours candidat libre : préparation intégrale',
     description: 'Votre établissement privé à domicile pour obtenir votre Bac.',
-    parcoursLink: '/offres#odyssee',
+    parcoursLink: '/offres#section-libre',
   }
 };
 
@@ -97,15 +97,15 @@ export function DiagnosticForm({ className, referenceDate }: DiagnosticFormProps
   // Build recommendations at RENDER time — auto-advances with date
   const RECOMMENDATIONS = useMemo(() => {
     const nextStage = getNextStage(referenceDate);
-    const stageAcademie = nextStage ? `Stage ${nextStage.title}` : undefined;
+    const stageLabel = nextStage ? `Stage ${nextStage.title}` : undefined;
     const stageDates = nextStage?.dates_display || undefined;
     const result: Record<string, Recommendation> = {};
     for (const [key, parcours] of Object.entries(PARCOURS)) {
       result[key] = {
         ...parcours,
-        academie: stageAcademie,
-        academieDescription: stageDates,
-        academieLink: nextStage ? '/stages' : undefined,
+        stage: stageLabel,
+        stageDescription: stageDates,
+        stageLink: nextStage ? '/stages' : undefined,
       };
     }
     return result;
@@ -305,16 +305,16 @@ export function DiagnosticForm({ className, referenceDate }: DiagnosticFormProps
                       </p>
                     </div>
 
-                    {recommendation.academie && (
+                    {recommendation.stage && (
                       <div className="p-4 bg-white rounded-lg border border-blue-200">
                         <h6 className="font-semibold text-bleu-nuit mb-2">
                           <span className="inline-flex items-center gap-2">
                             <ClipboardList className="h-4 w-4 text-blue-700" aria-hidden="true" />
-                            {recommendation.academie}
+                            {recommendation.stage}
                           </span>
                         </h6>
                         <p className="text-gris-noble text-sm">
-                          {recommendation.academieDescription}
+                          {recommendation.stageDescription}
                         </p>
                       </div>
                     )}
@@ -327,10 +327,10 @@ export function DiagnosticForm({ className, referenceDate }: DiagnosticFormProps
                         <ArrowRight className="ml-2 h-5 w-5" />
                       </Button>
                     </Link>
-                    {recommendation.academieLink && (
-                      <Link href={recommendation.academieLink} aria-label="Voir cette académie">
+                    {recommendation.stageLink && (
+                      <Link href={recommendation.stageLink} aria-label="Voir ce stage">
                         <Button size="lg" variant="outline" className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-300">
-                          Voir cette académie
+                          Voir ce stage
                         </Button>
                       </Link>
                     )}

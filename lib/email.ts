@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { LEGAL } from '@/lib/legal';
+import { LEGAL, compactBankIdentifier } from '@/lib/legal';
 
 // Configuration SMTP avec fallback pour développement
 const createTransporter = () => {
@@ -396,12 +396,12 @@ export async function sendStageBankTransferConfirmation(
           <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 24px; margin: 24px 0;">
             <h3 style="color: #1e293b; margin: 0 0 16px 0; font-size: 16px;">🏦 Coordonnées bancaires</h3>
             <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-              <tr><td style="color: #64748b; padding: 6px 0; vertical-align: top; width: 120px;">Identifiant</td><td style="color: #1e293b; font-weight: 600; padding: 6px 0;">871456</td></tr>
+              <tr><td style="color: #64748b; padding: 6px 0; vertical-align: top; width: 120px;">Identifiant</td><td style="color: #1e293b; font-weight: 600; padding: 6px 0;">${LEGAL.billing.accountIdentifier}</td></tr>
               <tr><td style="color: #64748b; padding: 6px 0; vertical-align: top;">Titulaire</td><td style="color: #1e293b; font-weight: 600; padding: 6px 0;">${LEGAL.entity.name}</td></tr>
-              <tr><td style="color: #64748b; padding: 6px 0; vertical-align: top;">Nature</td><td style="color: #1e293b; padding: 6px 0;">Comptes chèques entreprises</td></tr>
-              <tr><td style="color: #64748b; padding: 6px 0; vertical-align: top;">RIB</td><td style="color: #1e293b; font-family: monospace; padding: 6px 0;">RIB25079000000156908404</td></tr>
-              <tr><td style="color: #64748b; padding: 6px 0; vertical-align: top;">IBAN</td><td style="color: #1e293b; font-family: monospace; padding: 6px 0;">TN5925079000000156908404</td></tr>
-              <tr><td style="color: #64748b; padding: 6px 0; vertical-align: top;">BIC</td><td style="color: #1e293b; font-family: monospace; padding: 6px 0;">BZITTNTT</td></tr>
+              <tr><td style="color: #64748b; padding: 6px 0; vertical-align: top;">Nature</td><td style="color: #1e293b; padding: 6px 0;">${LEGAL.billing.accountNature}</td></tr>
+              <tr><td style="color: #64748b; padding: 6px 0; vertical-align: top;">RIB</td><td style="color: #1e293b; font-family: monospace; padding: 6px 0;">RIB${compactBankIdentifier(LEGAL.billing.rib)}</td></tr>
+              <tr><td style="color: #64748b; padding: 6px 0; vertical-align: top;">IBAN</td><td style="color: #1e293b; font-family: monospace; padding: 6px 0;">${compactBankIdentifier(LEGAL.billing.iban)}</td></tr>
+              <tr><td style="color: #64748b; padding: 6px 0; vertical-align: top;">BIC</td><td style="color: #1e293b; font-family: monospace; padding: 6px 0;">${LEGAL.billing.bic}</td></tr>
             </table>
           </div>
 
