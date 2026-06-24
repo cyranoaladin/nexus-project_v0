@@ -24,8 +24,8 @@ const sampleOffer: OfferDetail = {
   payment: {
     deposit: 2150,
     installments: [560, 560, 560, 560, 560, 560, 560, 560, 545],
+    depositPct: 30,
   },
-  monthlyDisplay: 720,
   included: [
     '2 spécialités au choix, 4 h / semaine',
     'Bacs blancs sur grilles officielles',
@@ -54,8 +54,10 @@ describe('OfferDetailDialog', () => {
     expect(screen.getByText(/5 élèves max/)).toBeInTheDocument();
   });
 
-  it('displays the correct price from loader', () => {
+  it('displays the real monthly installment and annual total from canonical payment fields', () => {
     render(<OfferDetailDialog offer={sampleOffer} onClose={jest.fn()} />);
+    expect(screen.getAllByText(/560\s*TND/).length).toBeGreaterThan(0);
+    expect(screen.getByText(/mois hors acompte/)).toBeInTheDocument();
     expect(screen.getByText(/7[\s\u00A0\u202F]?175\s*TND/)).toBeInTheDocument();
   });
 
@@ -66,7 +68,7 @@ describe('OfferDetailDialog', () => {
 
   it('displays deposit from canonical payment field', () => {
     render(<OfferDetailDialog offer={sampleOffer} onClose={jest.fn()} />);
-    expect(screen.getByText(/2[\s\u00A0\u202F]?150\s*TND/)).toBeInTheDocument();
+    expect(screen.getAllByText(/2[\s\u00A0\u202F]?150\s*TND/).length).toBeGreaterThan(0);
   });
 
   it('displays included items', () => {
@@ -139,7 +141,7 @@ describe('OfferDetailDialog — échéancier rendered = canonical (real RTL rend
     const depositRegex = new RegExp(
       String(canonical.deposit!).replace(/(\d)(?=(\d{3})+$)/g, '$1[\\s\\u00A0\\u202F]?') + '\\s*TND'
     );
-    expect(screen.getByText(depositRegex)).toBeInTheDocument();
+    expect(screen.getAllByText(depositRegex).length).toBeGreaterThan(0);
   });
 
   it('renders installment amounts from canonical when modal is open', () => {

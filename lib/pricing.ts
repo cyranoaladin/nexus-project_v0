@@ -60,7 +60,6 @@ export interface AnnualOffer {
   group_min_open: number | null;
   price_annual: number | null;
   price_per_student_hour: number | null;
-  monthly_display: number | null;
   equiv_per_2h_session: number | null;
   deposit: number | null;
   n_installments: number | null;

@@ -30,7 +30,6 @@ export interface AssistanteDevisOffer {
   sourceId: string;
   label: string;
   annual?: number | null;
-  monthly?: number | null;
   display?: string;
   annualDisplay?: string;
   paiement?: string;
@@ -66,6 +65,20 @@ function annualSchedule(offer: AnnualOffer): number[] {
   return [payment.deposit, ...payment.installments];
 }
 
+function annualPaymentDisplay(offer: AnnualOffer): string | undefined {
+  const payment = getAnnualOfferPaymentSchedule(offer);
+  if (!payment) return undefined;
+
+  const firstInstallment = payment.installments[0];
+  const lastInstallment = payment.installments[payment.installments.length - 1];
+  const lastLabel =
+    lastInstallment !== firstInstallment
+      ? `, derniere a ${formatTnd(lastInstallment)}`
+      : '';
+
+  return `${formatTnd(payment.deposit)} reservation + ${payment.installments.length} mensualites (${formatTnd(firstInstallment)}${lastLabel})`;
+}
+
 function annualOfferToDevis(offer: AnnualOffer): AssistanteDevisOffer {
   const annual = offer.price_annual;
   return {
@@ -73,9 +86,8 @@ function annualOfferToDevis(offer: AnnualOffer): AssistanteDevisOffer {
     sourceId: offer.id,
     label: offer.title,
     annual,
-    monthly: offer.monthly_display,
     annualDisplay: annual != null ? `${formatTnd(annual)} / an` : undefined,
-    paiement: offer.deposit != null ? `${formatTnd(offer.deposit)} reservation + mensualites` : undefined,
+    paiement: annualPaymentDisplay(offer),
     echeancier: annualSchedule(offer),
     desc: offer.subjects,
     inc: offer.included,

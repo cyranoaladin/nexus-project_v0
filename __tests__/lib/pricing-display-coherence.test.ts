@@ -2,8 +2,8 @@
  * Pricing display coherence:
  * - pricing_display field is explicit for plateforme offers (not heuristic)
  * - plateforme offers render as annual (no /mois)
- * - tutorat (scolarisé + libre) offers render as monthly-first
- * - every mensualized offer's monthly_display on /offres matches the home repère
+ * - tutorat (scolarisé + libre) offers render from canonical installments
+ * - every mensualized home repère matches the canonical installment amount
  */
 
 import { getFullPricingData, type PricingData } from '@/lib/pricing';
@@ -44,16 +44,16 @@ describe('pricing_display canonical invariant', () => {
   });
 });
 
-// ── Monthly / annual coherence across home repères and /offres ──
+// ── Installment / annual coherence across home repères and /offres ──
 
-describe('monthly_display coherence: home repères == offres source', () => {
-  const repereSourceMap: Record<string, { repereKey: keyof PricingData['reperes_tarifaires']; offerId: string; field: 'monthly_display' | 'price_annual' }> = {
-    'brevet (mois)': { repereKey: 'brevetMois', offerId: 'brevet-maths', field: 'monthly_display' },
-    'seconde (mois)': { repereKey: 'secondeMois', offerId: '2nde-maths', field: 'monthly_display' },
-    'première simple (mois)': { repereKey: 'premiereSimpleMois', offerId: '1re-eaf', field: 'monthly_display' },
-    'première duo (mois)': { repereKey: 'premiereDuoMois', offerId: '1re-double-secu', field: 'monthly_display' },
-    'terminale simple (mois)': { repereKey: 'terminaleSimpleMois', offerId: 'term-spe-simple', field: 'monthly_display' },
-    'terminale duo (mois)': { repereKey: 'terminaleDuoMois', offerId: 'term-duo', field: 'monthly_display' },
+describe('installment display coherence: home repères == offres source', () => {
+  const repereSourceMap: Record<string, { repereKey: keyof PricingData['reperes_tarifaires']; offerId: string; field: 'installment_amount' | 'price_annual' }> = {
+    'brevet (mois)': { repereKey: 'brevetMois', offerId: 'brevet-maths', field: 'installment_amount' },
+    'seconde (mois)': { repereKey: 'secondeMois', offerId: '2nde-maths', field: 'installment_amount' },
+    'première simple (mois)': { repereKey: 'premiereSimpleMois', offerId: '1re-eaf', field: 'installment_amount' },
+    'première duo (mois)': { repereKey: 'premiereDuoMois', offerId: '1re-double-secu', field: 'installment_amount' },
+    'terminale simple (mois)': { repereKey: 'terminaleSimpleMois', offerId: 'term-spe-simple', field: 'installment_amount' },
+    'terminale duo (mois)': { repereKey: 'terminaleDuoMois', offerId: 'term-duo', field: 'installment_amount' },
     'plateforme (annuel)': { repereKey: 'plateformeAn', offerId: 'plateforme-autonomie', field: 'price_annual' },
   };
 
@@ -68,29 +68,27 @@ describe('monthly_display coherence: home repères == offres source', () => {
   }
 });
 
-// ── Full mensualized offers table ──
+// ── Full installment offers table ──
 
-describe('all mensualized offers table (scolarisé + libre)', () => {
-  test('every offer with monthly_display has correct annual ≈ monthly × 10', () => {
+describe('all installment-backed offers table (scolarisé + libre)', () => {
+  test('every offer with installments recomposes annual price exactly', () => {
     const mensualized = data.offers.filter(
-      (o) => o.monthly_display != null && o.pricing_display !== 'annual',
+      (o) => o.deposit != null && o.installment_amount != null && o.pricing_display !== 'annual',
     );
     expect(mensualized.length).toBeGreaterThanOrEqual(10);
     for (const o of mensualized) {
-      // monthly_display × 10 should be close to price_annual (within rounding)
-      const expected = o.monthly_display! * 10;
-      const annual = o.price_annual!;
-      expect(Math.abs(annual - expected)).toBeLessThanOrEqual(50);
+      const expected =
+        o.deposit! +
+        o.installment_amount! * (o.n_installments! - 1) +
+        (o.last_installment ?? o.installment_amount!);
+
+      expect(expected).toBe(o.price_annual);
     }
   });
 
-  test('plateforme offers monthly_display × 10 ≈ price_annual', () => {
-    const plateforme = data.offers.filter((o) => o.track === 'plateforme');
-    for (const o of plateforme) {
-      expect(o.monthly_display).toBeDefined();
-      const expected = o.monthly_display! * 10;
-      const annual = o.price_annual!;
-      expect(Math.abs(annual - expected)).toBeLessThanOrEqual(10);
+  test('all offers omit deprecated monthly_display', () => {
+    for (const o of data.offers) {
+      expect((o as unknown as Record<string, unknown>).monthly_display).toBeUndefined();
     }
   });
 });

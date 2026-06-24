@@ -25,8 +25,8 @@ describe('assistante devis catalog', () => {
         sourceId: offer.id,
         label: offer.title,
         annual: offer.price_annual,
-        monthly: offer.monthly_display,
       });
+      expect(catalog[offer.id]).not.toHaveProperty('monthly');
     }
   });
 
@@ -147,6 +147,8 @@ describe('assistante devis catalog', () => {
       expect((devisOffer as { echeancier: number[] }).echeancier).toContain(
         offer.last_installment ?? offer.installment_amount,
       );
+      expect((devisOffer as { paiement: string }).paiement).toContain(`${offer.deposit!.toLocaleString('fr-FR')} TND`);
+      expect((devisOffer as { paiement: string }).paiement).toContain(`${offer.n_installments} mensualites`);
     }
   });
 
@@ -170,15 +172,15 @@ describe('assistante devis catalog', () => {
     expect(payload).not.toMatch(/8\s?750/);
   });
 
-  test('platform offers expose canonical monthly display values', () => {
+  test('platform offers expose annual prices without legacy monthly display', () => {
     const catalog = getAssistanteDevisCatalog();
     const pricing = getFullPricingData();
 
     for (const offer of pricing.offers.filter((item) => item.track === 'plateforme')) {
       expect(catalog[offer.id]).toMatchObject({
-        monthly: offer.monthly_display,
         annual: offer.price_annual,
       });
+      expect(catalog[offer.id]).not.toHaveProperty('monthly');
     }
   });
 });
