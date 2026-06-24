@@ -17,7 +17,7 @@
 | `/notre-centre` | Header+Footer | 0.6 | form + WA |
 | `/contact` | Header+Footer | 0.6 | form + WA |
 | `/recommandation` | Header | 0.8 | form + WA |
-| `/ressources` | Footer | 0.5 | WA |
+| `/ressources` | Header+Footer | 0.5 | WA |
 | `/famille` | Sections | 0.8 | WA |
 | `/mentions-legales` | Footer | 0.3 | - |
 | `/conditions-generales` | Footer | 0.3 | - |
@@ -32,7 +32,6 @@
 | `/candidat-libre-bac-francais` | 0.6 |
 | `/preparation-bac-francais-tunis` | 0.6 |
 | `/programme/maths-1ere` | 0.5 |
-| `/corrige_dnb_maths_2026` | 0.4 |
 
 ## Auth
 
@@ -64,6 +63,7 @@
 | /inscription | /bilan-gratuit | 307 |
 | /questionnaire | /bilan-gratuit | 307 |
 | /tarifs | /offres | 307 |
+| /corrige_dnb_maths_2026 | /ressources | 301 |
 | /mentions-legales.html | /mentions-legales | 301 |
 | /confidentialite.html | /politique-confidentialite | 301 |
 | /catalogue-*.html | /offres | 301 |

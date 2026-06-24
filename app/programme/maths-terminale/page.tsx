@@ -4,6 +4,14 @@ import { prisma } from '@/lib/prisma';
 import { UserRole, MathsLevel } from '@prisma/client';
 import { MathJaxProvider } from '@/components/programme/shared/MathJaxProvider';
 import MathsTerminaleClient from './components/MathsTerminaleClient';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function MathsTerminalePage() {
   const callbackUrl = '/programme/maths-terminale';

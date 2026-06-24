@@ -150,6 +150,7 @@ export interface CarteNexus {
   title: string;
   price_annual: number;
   includes: string[];
+  rationale: string;
   discount_pct: number;
   discount_applies_to: string[];
   discount_excludes: string[];

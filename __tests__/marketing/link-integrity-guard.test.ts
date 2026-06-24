@@ -137,6 +137,8 @@ describe('internal anchor link integrity', () => {
 
     expect(findings.filter((finding) => !allowed.has(finding))).toEqual([]);
     expect(linkAllowlist.filter((allowedFinding) => !findings.includes(allowedFinding))).toEqual([]);
-    expect(siteMap.split('## Orphelines publiques')[1]?.split('## Routes publiques surveillees')[0]).not.toContain('non classee');
+    const orphanSection = siteMap.split('## Orphelines publiques')[1]?.split('## Routes publiques surveillees')[0] ?? '';
+    expect(orphanSection).not.toContain('non classee');
+    expect(orphanSection).not.toContain('a relier');
   });
 });
