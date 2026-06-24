@@ -27,7 +27,7 @@ Routes detectees: 287 (112 pages, 175 route handlers).
 | /maths-1ere | page | statique | server | public | Page publique ou applicative | - | app/maths-1ere/page.tsx |
 | /mentions-legales | page | statique | server | public | Legal et conformite | legal, cgv-policy | app/mentions-legales/page.tsx |
 | /notre-centre | page | statique | client | public | Page publique ou applicative | legal | app/notre-centre/page.tsx |
-| /offres | page | statique | client | public | Catalogue offres et tarifs | pricing canonical | app/offres/page.tsx |
+| /offres | page | statique | server | public | Catalogue offres et tarifs | pricing canonical | app/offres/page.tsx |
 | /plateforme-aria | page | statique | client | public | Page publique ou applicative | - | app/plateforme-aria/page.tsx |
 | /politique-confidentialite | page | statique | server | public | Legal et conformite | legal | app/politique-confidentialite/page.tsx |
 | /preparation-bac-francais-tunis | page | statique | server | public | Landing SEO | content marketing | app/preparation-bac-francais-tunis/page.tsx |
@@ -510,7 +510,6 @@ Aucun lien interne litteral mort detecte.
 | /contact | app/contact/page.tsx | justifiee par interactivite actuelle |
 | /equipe | app/equipe/page.tsx | justifiee par interactivite actuelle |
 | /notre-centre | app/notre-centre/page.tsx | candidate server component |
-| /offres | app/offres/page.tsx | priorite audit: page SEO majeure en client, candidate a repasser server par extraction des interactions |
 | /plateforme-aria | app/plateforme-aria/page.tsx | candidate server component |
 
 ## Cohérence métier
@@ -533,7 +532,7 @@ Aucun lien interne litteral mort detecte.
 
 ### P2 incoherence
 
-- /offres est une page publique SEO en "use client"; extraction server recommandee avant optimisation SEO/perf.
+- Aucune anomalie detectee.
 
 ### P3 hygiene
 

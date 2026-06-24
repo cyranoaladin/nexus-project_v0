@@ -129,17 +129,17 @@ for (const vp of VIEWPORTS) {
     // Mega-annee band visible
     await expect(page.locator('[data-testid="mega-annee"]')).toBeVisible();
     // Other mega bands hidden
-    await expect(page.locator('[data-testid="mega-stages"]')).toHaveCount(0);
-    await expect(page.locator('[data-testid="mega-surmesure"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="mega-stages"]')).toBeHidden();
+    await expect(page.locator('[data-testid="mega-surmesure"]')).toBeHidden();
     // Libre section hidden (different filter)
-    await expect(page.locator('[data-testid="section-libre"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="section-libre"]')).toBeHidden();
 
     // Click "Les Intensifs" filter
     await page.getByRole('button', { name: 'Les Intensifs' }).click();
     await page.waitForTimeout(500);
     await expect(page.locator('[data-testid="mega-stages"]')).toBeVisible();
     await expect(page.locator('[data-testid="section-intensifs"]')).toBeVisible();
-    await expect(page.locator('[data-testid="mega-annee"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="mega-annee"]')).toBeHidden();
 
     // Click "Tout voir" to restore
     await page.getByRole('button', { name: 'Tout voir' }).click();
