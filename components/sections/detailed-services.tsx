@@ -46,7 +46,7 @@ const TABS = [
         benefits: [
           "Gain de temps administratif (-30%)",
           "Image d'excellence immédiate",
-          "Données 100% souveraines",
+          "Données maîtrisées selon le périmètre validé",
         ],
         icon: "Landmark",
       },

@@ -8,11 +8,13 @@ import {
   PHONE_LINK,
   WHATSAPP_URL,
 } from "../_lib/constants";
-import { getNextStage } from "@/lib/pricing";
+import { getNextStage, getRules } from "@/lib/pricing";
 
 const _nextStage = getNextStage();
 
 export default function FinalCTA() {
+  const { group_max: groupMax } = getRules();
+
   return (
     <section
       id="reservation"
@@ -32,7 +34,7 @@ export default function FinalCTA() {
 
         <p className="mt-5 text-base leading-8 text-white/56">
           Les semaines qui suivent servent à capitaliser sur ce travail — pas à recommencer de
-          zéro. Les groupes sont à 5 élèves maximum. Les inscriptions se ferment quand les places
+          zéro. Les groupes sont à {groupMax} élèves maximum. Les inscriptions se ferment quand les places
           sont pleines.
         </p>
 

@@ -9,9 +9,9 @@ interface FloatingNavProps {
 }
 
 const navItems = [
-  { href: '#cortex', icon: Brain, label: 'Cortex', color: 'from-blue-600 to-cyan-500' },
-  { href: '#academies', icon: Rocket, label: 'Académies', color: 'from-green-600 to-emerald-500' },
-  { href: '#odyssee', icon: Crown, label: 'Odyssée', color: 'from-blue-700 to-slate-700' },
+  { href: '#plateforme', icon: Brain, label: 'ARIA', color: 'from-blue-600 to-cyan-500' },
+  { href: '#les-intensifs', icon: Rocket, label: 'Stages', color: 'from-green-600 to-emerald-500' },
+  { href: '#accompagnement-annuel', icon: Crown, label: 'Parcours', color: 'from-blue-700 to-slate-700' },
 ];
 
 export function FloatingNav({ className = "" }: FloatingNavProps) {

@@ -53,7 +53,7 @@ const specializedPacks: SpecializedPack[] = [
       "Suivi hebdomadaire avec coach dédié",
       "Accès à la plateforme pédagogique",
       "Simulateurs d'examens",
-      "Garantie de réussite"
+      "Méthode et suivi structurés"
     ],
     expert: {
       pseudonyme: "Vector",
@@ -99,7 +99,7 @@ export function SpecializedPacks() {
             Packs Spécialisés
           </Badge>
           <h2 className="text-3xl md:text-4xl font-bold text-bleu-nuit mb-4">
-            Nos Programmes d'Excellence
+            Nos modules spécialisés
           </h2>
           <p className="text-lg text-gris-noble max-w-3xl mx-auto">
             Des parcours sur mesure animés par nos experts pour répondre à vos besoins spécifiques

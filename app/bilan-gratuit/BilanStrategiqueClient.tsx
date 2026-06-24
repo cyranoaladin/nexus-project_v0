@@ -180,7 +180,6 @@ export function BilanStrategiqueClient() {
     if (!programme) return null;
     const labels: Record<string, string> = {
       excellence: 'Excellence',
-      'bac-garanti': 'Bac français',
       plateforme: 'Plateforme',
       hybride: 'Hybride',
       immersion: 'Immersion',

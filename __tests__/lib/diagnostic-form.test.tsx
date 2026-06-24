@@ -109,7 +109,7 @@ describe('DiagnosticForm', () => {
       fireEvent.click(screen.getByText('Obtenir ma recommandation personnalisée'));
 
       await waitFor(() => {
-        expect(screen.getByText(/Odyssée Première/i)).toBeInTheDocument();
+        expect(screen.getByText(/Parcours annuel Première/i)).toBeInTheDocument();
       });
     });
 
@@ -122,7 +122,7 @@ describe('DiagnosticForm', () => {
       fireEvent.click(screen.getByText('Obtenir ma recommandation personnalisée'));
 
       await waitFor(() => {
-        expect(screen.getByText(/Odyssée Terminale/i)).toBeInTheDocument();
+        expect(screen.getByText(/Parcours annuel Terminale/i)).toBeInTheDocument();
       });
     });
 
@@ -135,7 +135,7 @@ describe('DiagnosticForm', () => {
       fireEvent.click(screen.getByText('Obtenir ma recommandation personnalisée'));
 
       await waitFor(() => {
-        expect(screen.getByText(/Odyssée Terminale/i)).toBeInTheDocument();
+        expect(screen.getByText(/Parcours annuel Terminale/i)).toBeInTheDocument();
       });
     });
 
@@ -148,7 +148,7 @@ describe('DiagnosticForm', () => {
       fireEvent.click(screen.getByText('Obtenir ma recommandation personnalisée'));
 
       await waitFor(() => {
-        expect(screen.getByText(/Odyssée Individuel/i)).toBeInTheDocument();
+        expect(screen.getByText(/Parcours candidat libre/i)).toBeInTheDocument();
       });
     });
   });
@@ -175,7 +175,7 @@ describe('DiagnosticForm', () => {
     it('a les bons liens href', () => {
       const parcoursButton = screen.getByText('Découvrir ce parcours');
 
-      expect(parcoursButton.closest('a')).toHaveAttribute('href', '/offres#odyssee');
+      expect(parcoursButton.closest('a')).toHaveAttribute('href', '/offres#accompagnement-annuel');
     });
   });
 

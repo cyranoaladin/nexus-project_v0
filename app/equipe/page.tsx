@@ -15,6 +15,7 @@ import {
   Users,
 } from "lucide-react";
 import { resolveUiIcon } from "@/lib/ui-icons";
+import { getRules } from "@/lib/pricing";
 
 const FEATURED = [
   "maths-methode-bac",
@@ -260,6 +261,7 @@ const filterCategories = [
 ];
 
 export default function EquipePage() {
+  const groupMax = getRules().group_max;
   const profilesRef = useRef<HTMLDivElement | null>(null);
   const directoryRef = useRef<HTMLDivElement | null>(null);
 
@@ -336,7 +338,7 @@ export default function EquipePage() {
                 <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   {[
                     { value: "Méthode", label: "Progression structurée" },
-                    { value: "5 max", label: "Élèves par groupe" },
+                    { value: `${groupMax} max`, label: "Élèves par groupe" },
                     { value: "Grilles", label: "Corrections officielles" },
                     { value: "Suivi", label: "Bilan individualisé" },
                   ].map((stat) => (
