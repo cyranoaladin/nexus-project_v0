@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ShieldAlert, ArrowLeft, Mail, Package } from 'lucide-react';
 import { getFeatureDefinition } from '@/lib/access/features';
 import { auth } from '@/auth';
+import type { Metadata } from 'next';
 
 /**
  * Access Required page — shown when a user lacks entitlements for a feature.
@@ -12,6 +13,13 @@ import { auth } from '@/auth';
  * - reason: denial reason (missing_entitlement, auth_required, etc.)
  * - missing: comma-separated list of missing entitlement features
  */
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 interface AccessRequiredContentProps {
   searchParams: Promise<{ feature?: string; reason?: string; missing?: string }>;

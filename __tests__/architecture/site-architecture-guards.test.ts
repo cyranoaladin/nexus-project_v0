@@ -74,6 +74,7 @@ describe('architecture diagnostic guardrails', () => {
     const siteMap = readFileSync(join(auditOutDir, 'SITE_MAP.md'), 'utf8');
     const orphanSection = siteMap.split('## Orphelines publiques')[1]?.split('## Routes publiques surveillees')[0] ?? '';
     expect(orphanSection).not.toContain('non classee');
+    expect(orphanSection).not.toContain('a relier');
   });
 
   test('link-integrity findings fail outside the shrinking shared allowlist', () => {
@@ -153,9 +154,11 @@ describe('architecture diagnostic guardrails', () => {
     expect(offenders).toEqual([]);
   });
 
-  test('root ROADMAP status is explicitly surfaced in the generated architecture audit', () => {
+  test('root ROADMAP is classified under docs instead of left as a root artifact', () => {
     const siteMap = readFileSync(join(auditOutDir, 'SITE_MAP.md'), 'utf8');
-    expect(siteMap).toContain('ROADMAP.md present au root');
+    expect(existsSync(join(root, 'ROADMAP.md'))).toBe(false);
+    expect(existsSync(join(root, 'docs/roadmaps/RAG_PLATFORM_ROADMAP.md'))).toBe(true);
+    expect(siteMap).not.toContain('ROADMAP.md present au root');
   });
 
   test('private route groups define noindex metadata at their layout boundary', () => {

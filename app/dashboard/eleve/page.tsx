@@ -106,6 +106,7 @@ export default function DashboardEleve() {
       const id = window.location.hash.slice(1);
       if (!id) return;
       const rubriqueByHash: Partial<Record<string, typeof activeRubrique>> = {
+        aria: 'cockpit',
         'programme-maths': 'parcours',
         resources: 'matières',
         survival: 'parcours',
@@ -459,7 +460,7 @@ export default function DashboardEleve() {
                 )}
 
                 {activeRubrique === 'sessions' && (
-                  <div id="resources" className="space-y-6 scroll-mt-24">
+                  <div className="space-y-6">
                     <EleveSessions
                       sessions={dashboardData.recentSessions}
                       onBookSession={() => setActiveTab('booking')}
@@ -522,7 +523,7 @@ export default function DashboardEleve() {
                 )}
 
                 {activeRubrique === 'matières' && (
-                  <div className="space-y-6">
+                  <div id="resources" className="space-y-6 scroll-mt-24">
                     {!isSurvivalMode && <EleveHubRessources hub={dashboardData.hub} />}
 
                     {/* Mes Matières — ARIA contextuel */}

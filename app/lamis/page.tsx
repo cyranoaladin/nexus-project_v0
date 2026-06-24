@@ -3,6 +3,10 @@ import StudentDashboard from "@/components/lamis/LamisStudentApp";
 export const metadata = {
   title: "Mission Lamis - Objectif Bac Maths STMG | Nexus Réussite",
   description: "Interface interactive de préparation à l’épreuve anticipée de mathématiques Première STMG.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function LamisPage() {

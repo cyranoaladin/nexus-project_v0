@@ -130,12 +130,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'yearly',
       priority: 0.3,
     },
-    {
-      url: `${BASE_URL}/corrige_dnb_maths_2026`,
-      lastModified: now,
-      changeFrequency: 'yearly',
-      priority: 0.4,
-    },
   ];
 
   // Dynamic stage entries from DB

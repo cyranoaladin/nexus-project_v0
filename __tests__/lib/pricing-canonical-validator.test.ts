@@ -287,6 +287,11 @@ describe('T10 — JSON completeness (anti-hardcode enabler)', () => {
   test('carte_nexus exists with price 290', () => {
     expect(data.carte_nexus.price_annual).toBe(290);
   });
+
+  test('carte_nexus documents the assumed loss-leader rationale', () => {
+    expect(data.carte_nexus.rationale).toMatch(/loss-leader/i);
+    expect(data.carte_nexus.rationale).toMatch(/ARIA Autonomie/i);
+  });
 });
 
 // ── T11: Anti-leak ──
