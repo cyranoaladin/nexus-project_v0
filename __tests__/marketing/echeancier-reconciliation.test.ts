@@ -21,8 +21,8 @@ import {
   getAnnualOfferPaymentSchedule,
 } from '@/lib/pricing';
 
-// Import the actual resolver used by the bilan-gratuit banner
-import { resolveSelectedOfferContext } from '@/app/bilan-gratuit/BilanStrategiqueClient';
+// Import the actual resolver used by the server-rendered bilan-gratuit banner
+import { resolveSelectedOfferContext } from '@/app/bilan-gratuit/selected-offer';
 
 describe('Échéancier reconciliation — canonical payment data', () => {
   const rules = getRules();
