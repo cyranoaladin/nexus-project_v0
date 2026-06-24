@@ -40,6 +40,7 @@
     "test:e2e:seed:parent": "tsx scripts/seed-parent-dashboard-e2e.ts",
     "test:e2e:teardown": "bash scripts/teardown-e2e-db.sh",
     "audit:contrast": "node scripts/audit-contrast.mjs",
+    "audit:site-map": "node scripts/audit/site-map.mjs",
     "test:e2e:full": "bash -lc \"node -e \\\"const { chromium } = require('playwright'); chromium.launch({ headless: true, args: ['--no-sandbox'] }).then(b => b.close()).catch(() => process.exit(1));\\\"; if [ $? -ne 0 ]; then export SKIP_CHROMIUM=1; fi; npm run test:e2e:setup && SKIP_CHROMIUM=\\${SKIP_CHROMIUM} npm run test:e2e && npm run test:e2e:teardown\"",
     "test:ci": "npm test -- --coverage --maxWorkers=2 && npm run test:db-integration",
     "verify": "npm run lint && npm run typecheck && npm run test && npm run test:db:full && npm run build",
