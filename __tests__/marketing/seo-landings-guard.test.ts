@@ -10,7 +10,7 @@ import CandidatLibreBacFrancaisPage from '@/app/candidat-libre-bac-francais/page
 import GrandOralPage from '@/app/grand-oral/page';
 import PreparationBacFrancaisTunisPage from '@/app/preparation-bac-francais-tunis/page';
 import ReussirEafPage from '@/app/reussir-eaf/page';
-import { getAnnualOffer, getPack, getPonctuelOffer } from '@/lib/pricing';
+import { getAllOffers, getAnnualOffer, getPack, getPacks, getPonctuelOffer } from '@/lib/pricing';
 
 const usePathnameMock = jest.fn();
 
@@ -186,12 +186,22 @@ describe('SEO landings T1.1 guard', () => {
     }
   });
 
-  test('landing service claims are present in the canonical catalog', () => {
-    const pricingSource = sourceFor('data/pricing.canonical.json');
+  test('landing service claims map to canonical included entries or pack services', () => {
+    const annualIncluded = getAllOffers().flatMap((offer) => offer.included);
+    const packServices = getPacks().flatMap((pack) =>
+      pack.components
+        .filter((component) => component.type === 'service')
+        .map((component) => component.label ?? ''),
+    );
+    const candidatLibreText = landingText(seoLandings['/candidat-libre-bac-francais']);
+    const hubText = landingText(seoLandings['/preparation-bac-francais-tunis']);
 
-    expect(pricingSource).toContain('Cellule Cyclades');
-    expect(pricingSource).toContain('Plateforme ARIA');
-    expect(pricingSource).toContain('Bacs blancs');
+    expect(candidatLibreText).toContain('Cyclades');
+    expect(candidatLibreText).toContain('épreuves blanches selon la formule');
+    expect(hubText).toContain('ARIA complète le travail humain');
+    expect(packServices).toContain('Cellule Cyclades');
+    expect(annualIncluded.some((item) => item.includes('Plateforme ARIA'))).toBe(true);
+    expect(annualIncluded.some((item) => item.includes('Bacs blancs'))).toBe(true);
   });
 
   test.each(LANDINGS)('$path renders sections, related links, offer cards and FAQ from page props', ({ Page, path }) => {

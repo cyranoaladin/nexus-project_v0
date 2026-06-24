@@ -26,7 +26,7 @@ Les quatre landings SEO déclarées dans le sitemap étaient trop courtes et peu
 - Exclure `nexus-codex-handoff/` de TypeScript et de Git, car c’est une matière locale non source.
 - Laisser `metadataBase` dans `app/layout.tsx` résoudre les canonical relatifs, et ne plus recopier le domaine public dans `content/`.
 - Faire de `LandingNiche` la source des types `OfferRef`, `NicheSection` et `RelatedLink`.
-- Rattacher les adresses pédagogiques à `LEGAL.addresses.pedagogique` et les claims Cyclades/ARIA/bacs blancs au catalogue canonique.
+- Rattacher les adresses pédagogiques à `LEGAL.addresses.pedagogique` et les claims Cyclades/ARIA/bacs blancs aux surfaces opérationnelles du catalogue canonique : `included` pour ARIA/bacs blancs, composants `service` de packs pour Cyclades.
 
 ## Fichiers modifiés
 
@@ -67,6 +67,7 @@ Les quatre landings SEO déclarées dans le sitemap étaient trop courtes et peu
 - Grep demandé : aucune occurrence de `nexusreussite.academy` dans `content/` ni dans `__tests__/marketing/seo-landings-guard.test.ts`.
 - Grep demandé : une seule déclaration par type `OfferRef`, `NicheSection`, `RelatedLink`, toutes dans `components/marketing/LandingNiche.tsx`.
 - Responsive local : desktop 1440 et mobile 390 sans overflow horizontal, navbar/footer présents, liens du cluster présents sur les quatre landings.
+- P2.5 : la garde `landing service claims map to canonical included entries or pack services` a été vérifiée rouge puis verte ; elle échoue si les claims Cyclades/ARIA/bacs blancs ne correspondent plus aux `included` ou services du catalogue.
 
 ## Risques restants
 
