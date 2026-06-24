@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Mail, Phone, MapPin, ArrowRight } from 'lucide-react';
 import { FloatingAdvisorBubble, NewsletterSignup } from '@/components/marketing/acadomia-inspired';
 import { MobileStickyBar } from '@/components/marketing/MobileStickyBar';
+import { PREPARATION_LINKS } from '@/content/marketing/preparation-links';
 import { LEGAL } from '@/lib/legal';
 
 const CorporateFooter = () => {
@@ -32,7 +33,7 @@ const CorporateFooter = () => {
     return (
         <footer className="relative bg-surface-darker pt-24 pb-28 overflow-hidden z-20 border-t border-white/10 lg:pb-8">
             <div className="max-w-7xl mx-auto px-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
 
                     {/* Brand */}
                     <div className="lg:col-span-1">
@@ -75,6 +76,24 @@ const CorporateFooter = () => {
                                             <ArrowRight className="w-3 h-3 opacity-0 hover:opacity-100" />
                                         </button>
                                     )}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    {/* Contact */}
+                    <div>
+                        <h2 className="font-fraunces text-lg font-medium text-lux-ivory mb-6">Préparations</h2>
+                        <ul className="space-y-4">
+                            {PREPARATION_LINKS.map((item) => (
+                                <li key={item.href}>
+                                    <Link
+                                        href={item.href}
+                                        className="inline-flex items-center gap-2 text-neutral-300 text-sm hover:text-lux-gold-wash hover:gap-3 transition-all duration-300"
+                                    >
+                                        <span>{item.label}</span>
+                                        <ArrowRight className="w-3 h-3 opacity-0 hover:opacity-100" />
+                                    </Link>
                                 </li>
                             ))}
                         </ul>

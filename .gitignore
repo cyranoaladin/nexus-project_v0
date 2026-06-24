@@ -49,6 +49,8 @@ e2e/.auth/*.json
 audit-public-front-*/
 *.local-audit.html
 nexus_prod_tree_*.txt
+nexus-codex-handoff/
+files (*).zip
 
 # Build artifacts
 .next/

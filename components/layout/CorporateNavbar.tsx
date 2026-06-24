@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Menu, X, Phone, ChevronDown, LogIn, UserPlus } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { PREPARATION_LINKS } from '@/content/marketing/preparation-links';
 import { LEGAL } from '@/lib/legal';
 
 export function CorporateNavbar() {
@@ -181,6 +182,15 @@ export function CorporateNavbar() {
         { label: 'Plateforme ARIA', href: '/plateforme-aria', desc: 'Ressources & parcours en ligne', isPage: true },
         { label: 'Accompagnement scolaire', href: '/accompagnement-scolaire', desc: 'Suivi personnalisé', isPage: true },
       ]
+    },
+    {
+      title: 'Préparations',
+      items: PREPARATION_LINKS.map((item) => ({
+        label: item.label,
+        href: item.href,
+        desc: item.description,
+        isPage: true,
+      })),
     },
     {
       title: 'Contact',
@@ -428,7 +438,7 @@ export function CorporateNavbar() {
             <div className="flex items-center justify-center flex-1">
               {(isOpen || !reducedMotion) && (
                 <nav className="w-full max-w-5xl px-6 md:px-10" aria-label="Menu principal">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
                     {menuGroups.map((group, groupIndex) => (
                       <div key={group.title} className="space-y-6">
                         <div className="text-xs uppercase tracking-[0.24em] text-lux-gold-wash font-mono">
