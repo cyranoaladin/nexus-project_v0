@@ -31,7 +31,7 @@ export default async function ReportPage({ params }: ReportPageProps) {
   const session = await auth();
 
   if (!session?.user || session.user.role !== 'COACH') {
-    redirect('/auth/login');
+    redirect('/auth/signin');
   }
 
   // Fetch report with all relations

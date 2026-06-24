@@ -28,7 +28,7 @@ export default async function ParentNpcPage() {
   const session = await auth();
 
   if (!session?.user || session.user.role !== 'PARENT') {
-    redirect('/auth/login');
+    redirect('/auth/signin');
   }
 
   // Fetch parent profile with children

@@ -28,7 +28,7 @@ export default async function UploadPage({ params }: UploadPageProps) {
   const session = await auth();
 
   if (!session?.user || session.user.role !== 'COACH') {
-    redirect('/auth/login');
+    redirect('/auth/signin');
   }
 
   // Fetch submission

@@ -21,7 +21,7 @@ export default async function StudentNpcPage() {
   const session = await auth();
 
   if (!session?.user || session.user.role !== 'ELEVE') {
-    redirect('/auth/login');
+    redirect('/auth/signin');
   }
 
   // Fetch student profile

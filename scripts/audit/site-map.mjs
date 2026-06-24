@@ -1,9 +1,14 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 
 const ROOT = process.cwd();
-const OUT_DIR = path.join(ROOT, 'docs', 'architecture');
+const require = createRequire(import.meta.url);
+const { linkAllowlist } = require('./link-allowlist.cjs');
+const args = process.argv.slice(2);
+const outDirArg = args.includes('--out-dir') ? args[args.indexOf('--out-dir') + 1] : null;
+const OUT_DIR = outDirArg ? path.resolve(ROOT, outDirArg) : path.join(ROOT, 'docs', 'architecture');
 const SITE_MAP = path.join(OUT_DIR, 'SITE_MAP.md');
 const SITE_GRAPH = path.join(OUT_DIR, 'SITE_GRAPH.mmd');
 const SSOT_MAP = path.join(OUT_DIR, 'SSOT_MAP.md');
@@ -127,6 +132,7 @@ function classifyAccess(route, source, kind) {
   if (route.startsWith('/dashboard/parent')) return 'auth parent';
   if (route.startsWith('/dashboard/eleve')) return 'auth eleve';
   if (route === '/dashboard') return 'auth routeur role';
+  if (route.startsWith('/dashboard/')) return 'auth dashboard';
   if (route.startsWith('/auth')) return 'public auth';
   if (route.startsWith('/assessments') || route.startsWith('/session')) return 'auth/session';
   return kind === 'page' ? 'public' : 'technique';
@@ -155,7 +161,7 @@ function detectDataSources(source) {
     ['cgv-policy', /@\/lib\/cgv-policy|CGV_POLICY/],
     ['team', /content\/team|TEAM|team\.json/],
     ['social-proof', /content\/social-proof|social-proof\.json/],
-    ['metadataBase', /metadataBase|alternates|canonical/],
+    ['metadataBase', /metadataBase|alternates|canonical:/],
     ['prisma/db', /@\/lib\/prisma|prisma\./],
     ['next-auth/session', /next-auth|getServerSession|useSession/],
     ['api fetch', /fetch\(['"`]\/api|fetch\(`/],
@@ -372,6 +378,51 @@ function collectLinkFindings(routes, edges) {
   return missing;
 }
 
+function collectNavigationDebtDecisions() {
+  const dashboardSource = read(path.join(ROOT, 'app', 'dashboard', 'eleve', 'page.tsx'));
+  const stagesHeader = read(path.join(ROOT, 'app', 'stages', '_components', 'StagesHeader.tsx'));
+  const requiredDashboardAnchors = ['aria', 'programme-maths', 'resources', 'survival', 'trajectory'];
+  const legacySections = [
+    'components/sections/home-hero.tsx',
+    'components/sections/korrigo-showcase.tsx',
+    'components/sections/problem-solution-section.tsx',
+  ];
+  const legacyPresent = legacySections.filter((file) => fs.existsSync(path.join(ROOT, file)));
+
+  return [
+    {
+      case: 'NPC auth redirects',
+      decision: collectAuthLoginSources().length === 0 ? 'corrige' : 'a corriger',
+      proof: collectAuthLoginSources().length === 0 ? 'aucun lien/redirect applicatif vers /auth/login' : collectAuthLoginSources().join(', '),
+    },
+    {
+      case: 'Dashboard eleve hash anchors',
+      decision: requiredDashboardAnchors.every((id) => dashboardSource.includes(`id="${id}"`)) ? 'ids cibles ajoutes' : 'ids incomplets',
+      proof: requiredDashboardAnchors.join(', '),
+    },
+    {
+      case: 'StagesHeader reservation',
+      decision: stagesHeader.includes('/offres#section-intensifs') ? 'repointage vers route catalogue reelle' : 'a corriger',
+      proof: '/offres#section-intensifs',
+    },
+    {
+      case: 'Legacy home-hero/problem-solution/korrigo-showcase',
+      decision: legacyPresent.length === 0 ? 'code mort supprime' : 'encore present',
+      proof: legacyPresent.length === 0 ? 'fichiers absents et aucun import actif detecte avant suppression' : legacyPresent.join(', '),
+    },
+  ];
+}
+
+function collectAuthLoginSources() {
+  const roots = ['app', 'components', 'lib'];
+  return roots
+    .flatMap((root) => walk(path.join(ROOT, root)))
+    .filter((file) => /\.(ts|tsx)$/.test(file))
+    .map((file) => toPosix(path.relative(ROOT, file)))
+    .filter((rel) => read(path.join(ROOT, rel)).includes('/auth/login'))
+    .sort();
+}
+
 function publicPages(routes) {
   return routes.filter((r) => r.kind === 'page' && r.access === 'public');
 }
@@ -411,13 +462,16 @@ function ssotRows() {
     ['CGV/paiement', 'lib/cgv-policy.ts', /CGV_POLICY|CGV_VERSION|@\/lib\/cgv-policy/g],
     ['equipe', 'content/team.json', /content\/team|team\.json|TEAM_MEMBERS|MENTORS/g],
     ['avis/social proof', 'content/social-proof.json', /social-proof|testimonial|testimonials|reviews/g],
-    ['metadataBase/url canonique', 'app/layout.tsx metadataBase', /metadataBase|alternates|canonical|NEXTAUTH_URL/g],
+    ['metadataBase/url canonique', 'app/layout.tsx metadataBase', /metadataBase|alternates|canonical:|openGraph:\s*\{/],
   ];
   return scans.map(([data, source, rx]) => {
     const consumers = files
       .map((file) => toPosix(path.relative(ROOT, file)))
       .filter((rel) => !rel.startsWith('docs/'))
-      .filter((rel) => rx.test(read(path.join(ROOT, rel))))
+      .filter((rel) => {
+        rx.lastIndex = 0;
+        return rx.test(read(path.join(ROOT, rel)));
+      })
       .sort();
     return { data, source, consumers };
   });
@@ -462,16 +516,40 @@ function collectPublicClientPages(routes) {
 
 function collectSitemapFindings(routes, edges, sitemapEntries) {
   const routeSet = new Set(routes.filter((r) => r.kind === 'page').map((r) => r.route));
-  const privateInSitemap = sitemapEntries.filter((route) => route.startsWith('/dashboard') || route.startsWith('/auth') || route.startsWith('/api'));
+  const privateInSitemap = sitemapEntries.filter((route) => isNoindexRequiredRoute(route) || route.startsWith('/api'));
   const sitemapMissingRoutes = sitemapEntries.filter((route) => !route.includes('[dynamic]') && !routeSet.has(route));
   const publicNoSitemap = publicPages(routes)
     .filter((r) => !r.dynamic && !sitemapEntries.includes(r.route))
     .map((r) => r.route);
   const privatePagesNoNoindex = routes
-    .filter((r) => r.kind === 'page' && r.access.startsWith('auth'))
-    .filter((r) => !/robots:\s*\{\s*index:\s*false|noindex/i.test(r.source))
+    .filter((r) => r.kind === 'page' && isNoindexRequiredRoute(r.route))
+    .filter((r) => !routeHasNoindex(r))
     .map((r) => r.route);
   return { privateInSitemap, sitemapMissingRoutes, publicNoSitemap, privatePagesNoNoindex };
+}
+
+function isNoindexRequiredRoute(route) {
+  return (
+    route.startsWith('/dashboard') ||
+    route.startsWith('/auth') ||
+    route.startsWith('/admin/directeur') ||
+    route.startsWith('/assessments') ||
+    route.startsWith('/session')
+  );
+}
+
+function hasNoindexMetadata(source) {
+  return /robots:\s*\{[\s\S]*index:\s*false[\s\S]*follow:\s*false[\s\S]*\}|noindex/i.test(source);
+}
+
+function routeHasNoindex(routeItem) {
+  if (hasNoindexMetadata(routeItem.source)) return true;
+  const parts = routeItem.file.split('/');
+  for (let i = parts.length - 1; i > 1; i--) {
+    const candidate = path.join(ROOT, parts.slice(0, i).join('/'), 'layout.tsx');
+    if (fs.existsSync(candidate) && hasNoindexMetadata(read(candidate))) return true;
+  }
+  return false;
 }
 
 function collectSourceHygiene() {
@@ -526,8 +604,6 @@ function renderSiteMap(data) {
   const lines = [
     '# Site Map',
     '',
-    `Genere: ${data.generatedAt}`,
-    '',
     `Routes detectees: ${data.routes.length} (${data.routes.filter((r) => r.kind === 'page').length} pages, ${data.routes.filter((r) => r.kind === 'api').length} route handlers).`,
     '',
   ];
@@ -548,8 +624,14 @@ function renderSiteMap(data) {
   if (data.linkFindings.length === 0) {
     lines.push('Aucun lien interne litteral mort detecte.');
   } else {
-    lines.push(mdTable(['Origine', 'Cible', 'Canal', 'Fichier', 'Diagnostic'], data.linkFindings.map((f) => [f.from, f.to, f.channel, f.file, `${f.reason} (${f.normalizedTarget})`])));
+    lines.push(mdTable(['Origine', 'Cible', 'Canal', 'Fichier', 'Diagnostic'], data.linkFindings.map((f) => {
+      const key = `${f.from} -> ${f.to} (${f.file})`;
+      const suffix = linkAllowlist.includes(key) ? ' allowlist temporaire' : '';
+      return [f.from, f.to, f.channel, f.file, `${f.reason} (${f.normalizedTarget})${suffix}`];
+    })));
   }
+  lines.push('', '## Decisions P1 navigation appliquees', '');
+  lines.push(mdTable(['Cas', 'Decision', 'Preuve'], data.navigationDebtDecisions.map((item) => [item.case, item.decision, item.proof])));
   lines.push('', '## Orphelines publiques', '');
   lines.push(mdTable(['Route', 'Entrants', 'Sitemap', 'Classement', 'Justification'], data.orphans.map((o) => [o.route, o.inbound, o.sitemap ? 'oui' : 'non', o.classification.status, o.classification.reason])));
   lines.push('', '## Routes publiques surveillees', '');
@@ -582,19 +664,63 @@ function renderSiteMap(data) {
   return `${lines.join('\n').trimEnd()}\n`;
 }
 
+function graphGroup(route) {
+  const normalized = route.replace(/#.*/, '');
+  if (normalized.startsWith('/api')) return 'api';
+  if (normalized.startsWith('/dashboard/parent')) return 'dashboard_parent';
+  if (normalized.startsWith('/dashboard/coach')) return 'dashboard_coach';
+  if (normalized.startsWith('/dashboard/assistante')) return 'dashboard_assistante';
+  if (normalized.startsWith('/dashboard/admin') || normalized.startsWith('/admin/directeur')) return 'dashboard_admin';
+  if (normalized.startsWith('/dashboard/eleve')) return 'dashboard_eleve';
+  if (normalized.startsWith('/dashboard')) return 'dashboard_shared';
+  return 'marketing';
+}
+
 function renderGraph(edges) {
+  const dedupedEdges = [];
+  const seenEdges = new Set();
+  for (const edge of edges) {
+    const normalized = normalizeTarget(edge.to, edge.from === 'shared' ? '/' : edge.from);
+    const toLabel = normalized.anchor ? `${normalized.route}#${normalized.anchor}` : normalized.route;
+    const key = `${edge.from}|${toLabel}|${edge.channel}`;
+    if (seenEdges.has(key)) continue;
+    seenEdges.add(key);
+    dedupedEdges.push({ ...edge, toLabel });
+  }
+
   const lines = ['flowchart TD'];
   const nodeId = new Map();
   const idFor = (route) => {
     if (!nodeId.has(route)) nodeId.set(route, `N${nodeId.size + 1}`);
     return nodeId.get(route);
   };
-  for (const edge of edges) {
-    const from = idFor(edge.from);
-    const normalized = normalizeTarget(edge.to, edge.from === 'shared' ? '/' : edge.from);
-    const toLabel = normalized.anchor ? `${normalized.route}#${normalized.anchor}` : normalized.route;
-    const to = idFor(toLabel);
-    lines.push(`  ${from}["${edge.from}"] -->|${edge.channel}| ${to}["${toLabel}"]`);
+  for (const edge of dedupedEdges) {
+    idFor(edge.from);
+    idFor(edge.toLabel);
+  }
+
+  const groupLabels = [
+    ['marketing', 'Marketing public'],
+    ['dashboard_parent', 'Dashboard parent'],
+    ['dashboard_coach', 'Dashboard coach'],
+    ['dashboard_assistante', 'Dashboard assistante'],
+    ['dashboard_admin', 'Dashboard admin'],
+    ['dashboard_eleve', 'Dashboard eleve'],
+    ['dashboard_shared', 'Dashboard partage'],
+    ['api', 'API'],
+  ];
+  for (const [group, label] of groupLabels) {
+    const nodes = [...nodeId.entries()].filter(([route]) => graphGroup(route) === group);
+    if (nodes.length === 0 && !['marketing', 'dashboard_parent', 'dashboard_coach', 'api'].includes(group)) continue;
+    lines.push(`  subgraph ${group}["${label}"]`);
+    for (const [route, id] of nodes.sort(([a], [b]) => a.localeCompare(b))) {
+      lines.push(`    ${id}["${route}"]`);
+    }
+    lines.push('  end');
+  }
+
+  for (const edge of dedupedEdges) {
+    lines.push(`  ${idFor(edge.from)} -->|${edge.channel}| ${idFor(edge.toLabel)}`);
   }
   return `${lines.join('\n').trimEnd()}\n`;
 }
@@ -602,8 +728,6 @@ function renderGraph(edges) {
 function renderSsot(rows) {
   const lines = [
     '# SSOT Map',
-    '',
-    `Genere: ${new Date().toISOString()}`,
     '',
     mdTable(
       ['Donnee', 'Source unique', 'Consommateurs detectes'],
@@ -655,12 +779,12 @@ function collectAll() {
   const hygiene = collectSourceHygiene();
   const anomalies = anomalyList({ linkFindings, orphans, sitemapFindings, clientPages, business, hygiene });
   return {
-    generatedAt: new Date().toISOString(),
     routes: routes.map(({ source, ...rest }) => rest),
     edges,
     sitemapEntries,
     redirects: [...redirects, ...appRedirects].sort((a, b) => `${a.source} ${a.target}`.localeCompare(`${b.source} ${b.target}`)),
     linkFindings,
+    navigationDebtDecisions: collectNavigationDebtDecisions(),
     orphans,
     watchedPublicRoutes,
     sitemapFindings,

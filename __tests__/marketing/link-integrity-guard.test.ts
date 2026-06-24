@@ -1,6 +1,9 @@
 import { execFileSync } from 'child_process';
-import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, statSync } from 'fs';
+import { tmpdir } from 'os';
 import { extname, join } from 'path';
+
+const { linkAllowlist } = require('../../scripts/audit/link-allowlist.cjs') as { linkAllowlist: string[] };
 
 const root = process.cwd();
 
@@ -32,6 +35,18 @@ function listScannedFiles(target: string): string[] {
 
 function sourceFor(file: string): string {
   return readFileSync(join(root, file), 'utf8');
+}
+
+function extractLinkFindingKeys(siteMap: string): string[] {
+  const section = siteMap.split('## Liens morts / ancres a verifier')[1]?.split('## Decisions P1 navigation appliquees')[0] ?? '';
+  return section
+    .split('\n')
+    .filter((line) => line.startsWith('| ') && !line.includes('---') && !line.includes('Origine'))
+    .map((line) => {
+      const cells = line.split('|').map((cell) => cell.trim());
+      return `${cells[1]} -> ${cells[2]} (${cells[4]})`;
+    })
+    .sort();
 }
 
 function anchorFromHref(href: string): string | null {
@@ -114,13 +129,14 @@ describe('internal anchor link integrity', () => {
   });
 
   test('global route graph audit classifies every detected dead link or missing anchor', () => {
-    execFileSync('node', ['scripts/audit/site-map.mjs'], { cwd: root, stdio: 'pipe' });
-    const siteMap = sourceFor('docs/architecture/SITE_MAP.md');
-    const linkSection = siteMap.split('## Liens morts / ancres a verifier')[1]?.split('## Orphelines publiques')[0] ?? '';
+    const auditOutDir = mkdtempSync(join(tmpdir(), 'nexus-links-'));
+    execFileSync('node', ['scripts/audit/site-map.mjs', '--out-dir', auditOutDir], { cwd: root, stdio: 'pipe' });
+    const siteMap = readFileSync(join(auditOutDir, 'SITE_MAP.md'), 'utf8');
+    const findings = extractLinkFindingKeys(siteMap);
+    const allowed = new Set(linkAllowlist);
 
-    expect(linkSection).toContain('/auth/login');
-    expect(linkSection).toContain('/dashboard/eleve#resources');
-    expect(linkSection).toContain('#reservation');
+    expect(findings.filter((finding) => !allowed.has(finding))).toEqual([]);
+    expect(linkAllowlist.filter((allowedFinding) => !findings.includes(allowedFinding))).toEqual([]);
     expect(siteMap.split('## Orphelines publiques')[1]?.split('## Routes publiques surveillees')[0]).not.toContain('non classee');
   });
 });

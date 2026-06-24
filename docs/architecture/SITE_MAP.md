@@ -1,7 +1,5 @@
 # Site Map
 
-Genere: 2026-06-24T18:22:56.414Z
-
 Routes detectees: 288 (113 pages, 175 route handlers).
 
 ## Marketing public
@@ -23,7 +21,6 @@ Routes detectees: 288 (113 pages, 175 route handlers).
 | /conditions-generales | page | statique | server | public | Legal et conformite | legal, cgv-policy | app/conditions-generales/page.tsx |
 | /contact | page | statique | client | public | Page publique ou applicative | legal, api fetch | app/contact/page.tsx |
 | /corrige_dnb_maths_2026 | page | statique | server | public | Page publique ou applicative | metadataBase | app/corrige_dnb_maths_2026/page.tsx |
-| /dashboard/trajectoire | page | statique probable | server | public | Espace applicatif par role | - | app/dashboard/trajectoire/page.tsx |
 | /equipe | page | statique | client | public | Page publique ou applicative | group-rules | app/equipe/page.tsx |
 | /famille | page | statique | server | public | Page publique ou applicative | pricing canonical | app/famille/page.tsx |
 | /grand-oral | page | statique | server | public | Landing SEO | content marketing | app/grand-oral/page.tsx |
@@ -131,7 +128,7 @@ Routes detectees: 288 (113 pages, 175 route handlers).
 | /dashboard/parent/paiement/confirmation | page | statique probable | client | auth parent | Espace applicatif par role | legal | app/dashboard/parent/paiement/confirmation/page.tsx |
 | /dashboard/parent/ressources | page | statique probable | server | auth parent | Espace applicatif par role | prisma/db | app/dashboard/parent/ressources/page.tsx |
 | /dashboard/parent/stages | page | statique probable | client | auth parent | Espace applicatif par role | next-auth/session, api fetch | app/dashboard/parent/stages/page.tsx |
-| /dashboard/trajectoire | page | statique probable | server | public | Espace applicatif par role | - | app/dashboard/trajectoire/page.tsx |
+| /dashboard/trajectoire | page | statique probable | server | auth dashboard | Espace applicatif par role | - | app/dashboard/trajectoire/page.tsx |
 
 ## API
 
@@ -160,10 +157,10 @@ Routes detectees: 288 (113 pages, 175 route handlers).
 | /api/aria/conversations | api | route handler | server | api authentifiee | Endpoint aria/conversations | prisma/db | app/api/aria/conversations/route.ts |
 | /api/aria/feedback | api | route handler | server | api authentifiee | Endpoint aria/feedback | prisma/db | app/api/aria/feedback/route.ts |
 | /api/assessments/[id]/export | api | route handler | server | api authentifiee | Endpoint assessments/[id]/export | prisma/db | app/api/assessments/[id]/export/route.ts |
-| /api/assessments/[id]/result | api | route handler | server | api authentifiee | Endpoint assessments/[id]/result | metadataBase, prisma/db | app/api/assessments/[id]/result/route.ts |
+| /api/assessments/[id]/result | api | route handler | server | api authentifiee | Endpoint assessments/[id]/result | prisma/db | app/api/assessments/[id]/result/route.ts |
 | /api/assessments/[id]/status | api | route handler | server | api authentifiee | Endpoint assessments/[id]/status | prisma/db | app/api/assessments/[id]/status/route.ts |
 | /api/assessments/predict | api | route handler | server | api authentifiee | Endpoint assessments/predict | prisma/db | app/api/assessments/predict/route.ts |
-| /api/assessments/submit | api | route handler | server | api publique/technique | Endpoint assessments/submit | metadataBase, prisma/db | app/api/assessments/submit/route.ts |
+| /api/assessments/submit | api | route handler | server | api publique/technique | Endpoint assessments/submit | prisma/db | app/api/assessments/submit/route.ts |
 | /api/assessments/test | api | route handler | server | api authentifiee | Endpoint assessments/test | prisma/db | app/api/assessments/test/route.ts |
 | /api/assistante/activate-student | api | route handler | server | api assistante | Endpoint assistante/activate-student | - | app/api/assistante/activate-student/route.ts |
 | /api/assistante/assignments | api | route handler | server | api assistante | Endpoint assistante/assignments | prisma/db | app/api/assistante/assignments/route.ts |
@@ -236,7 +233,7 @@ Routes detectees: 288 (113 pages, 175 route handlers).
 | /api/health | api | route handler | server | api publique/technique | Endpoint health | prisma/db | app/api/health/route.ts |
 | /api/internal/health | api | route handler | server | interne | Endpoint internal/health | prisma/db | app/api/internal/health/route.ts |
 | /api/invoices/[id]/pdf | api | route handler | server | api authentifiee | Endpoint invoices/[id]/pdf | prisma/db | app/api/invoices/[id]/pdf/route.ts |
-| /api/invoices/[id]/receipt/pdf | api | route handler | server | api authentifiee | Endpoint invoices/[id]/receipt/pdf | metadataBase, prisma/db | app/api/invoices/[id]/receipt/pdf/route.ts |
+| /api/invoices/[id]/receipt/pdf | api | route handler | server | api authentifiee | Endpoint invoices/[id]/receipt/pdf | prisma/db | app/api/invoices/[id]/receipt/pdf/route.ts |
 | /api/lamis/attempt | api | route handler | server | api publique/technique | Endpoint lamis/attempt | - | app/api/lamis/attempt/route.ts |
 | /api/lamis/exercises | api | route handler | server | api publique/technique | Endpoint lamis/exercises | - | app/api/lamis/exercises/route.ts |
 | /api/lamis/export | api | route handler | server | api publique/technique | Endpoint lamis/export | - | app/api/lamis/export/route.ts |
@@ -266,12 +263,12 @@ Routes detectees: 288 (113 pages, 175 route handlers).
 | /api/payments/clictopay/init | api | route handler | server | api publique/technique | Endpoint payments/clictopay/init | - | app/api/payments/clictopay/init/route.ts |
 | /api/payments/clictopay/webhook | api | route handler | server | api publique/technique | Endpoint payments/clictopay/webhook | - | app/api/payments/clictopay/webhook/route.ts |
 | /api/payments/pending | api | route handler | server | api authentifiee | Endpoint payments/pending | prisma/db | app/api/payments/pending/route.ts |
-| /api/payments/validate | api | route handler | server | api authentifiee | Endpoint payments/validate | metadataBase, prisma/db | app/api/payments/validate/route.ts |
+| /api/payments/validate | api | route handler | server | api authentifiee | Endpoint payments/validate | prisma/db | app/api/payments/validate/route.ts |
 | /api/programme/maths-1ere-stmg/progress | api | route handler | server | api publique/technique | Endpoint programme/maths-1ere-stmg/progress | prisma/db | app/api/programme/maths-1ere-stmg/progress/route.ts |
-| /api/programme/maths-1ere-stmg/rag | api | route handler | server | api publique/technique | Endpoint programme/maths-1ere-stmg/rag | metadataBase | app/api/programme/maths-1ere-stmg/rag/route.ts |
+| /api/programme/maths-1ere-stmg/rag | api | route handler | server | api publique/technique | Endpoint programme/maths-1ere-stmg/rag | - | app/api/programme/maths-1ere-stmg/rag/route.ts |
 | /api/programme/maths-1ere-stmg/stage-progress | api | route handler | server | api publique/technique | Endpoint programme/maths-1ere-stmg/stage-progress | prisma/db | app/api/programme/maths-1ere-stmg/stage-progress/route.ts |
 | /api/programme/maths-1ere/progress | api | route handler | server | api publique/technique | Endpoint programme/maths-1ere/progress | prisma/db | app/api/programme/maths-1ere/progress/route.ts |
-| /api/programme/maths-1ere/rag | api | route handler | server | api publique/technique | Endpoint programme/maths-1ere/rag | metadataBase | app/api/programme/maths-1ere/rag/route.ts |
+| /api/programme/maths-1ere/rag | api | route handler | server | api publique/technique | Endpoint programme/maths-1ere/rag | - | app/api/programme/maths-1ere/rag/route.ts |
 | /api/programme/maths-terminale/progress | api | route handler | server | api publique/technique | Endpoint programme/maths-terminale/progress | prisma/db | app/api/programme/maths-terminale/progress/route.ts |
 | /api/public-documents/corrige-dnb-maths-2026 | api | route handler | server | api publique/technique | Endpoint public-documents/corrige-dnb-maths-2026 | - | app/api/public-documents/corrige-dnb-maths-2026/route.ts |
 | /api/reservation | api | route handler | server | api publique/technique | Endpoint reservation | prisma/db | app/api/reservation/route.ts |
@@ -291,7 +288,7 @@ Routes detectees: 288 (113 pages, 175 route handlers).
 | /api/student/automatismes/check-answer | api | route handler | server | api authentifiee | Endpoint student/automatismes/check-answer | - | app/api/student/automatismes/check-answer/route.ts |
 | /api/student/automatismes/series | api | route handler | server | api authentifiee | Endpoint student/automatismes/series | prisma/db | app/api/student/automatismes/series/route.ts |
 | /api/student/automatismes/series/[id] | api | route handler | server | api authentifiee | Endpoint student/automatismes/series/[id] | - | app/api/student/automatismes/series/[id]/route.ts |
-| /api/student/bilans/[publicShareId] | api | route handler | server | api authentifiee | Endpoint student/bilans/[publicShareId] | metadataBase, prisma/db | app/api/student/bilans/[publicShareId]/route.ts |
+| /api/student/bilans/[publicShareId] | api | route handler | server | api authentifiee | Endpoint student/bilans/[publicShareId] | prisma/db | app/api/student/bilans/[publicShareId]/route.ts |
 | /api/student/credits | api | route handler | server | api authentifiee | Endpoint student/credits | prisma/db | app/api/student/credits/route.ts |
 | /api/student/dashboard | api | route handler | server | api authentifiee | Endpoint student/dashboard | - | app/api/student/dashboard/route.ts |
 | /api/student/documents | api | route handler | server | api authentifiee | Endpoint student/documents | prisma/db | app/api/student/documents/route.ts |
@@ -315,25 +312,16 @@ Routes detectees: 288 (113 pages, 175 route handlers).
 
 ## Liens morts / ancres a verifier
 
-| Origine | Cible | Canal | Fichier | Diagnostic |
-| --- | --- | --- | --- | --- |
-| /dashboard/coach/npc | /auth/login | redirect | app/dashboard/coach/npc/page.tsx | route absente (/auth/login) |
-| /dashboard/coach/npc/reports/[reportId] | /auth/login | redirect | app/dashboard/coach/npc/reports/[reportId]/page.tsx | route absente (/auth/login) |
-| /dashboard/coach/npc/submissions/[submissionId]/upload | /auth/login | redirect | app/dashboard/coach/npc/submissions/[submissionId]/upload/page.tsx | route absente (/auth/login) |
-| /dashboard/eleve/npc | /auth/login | redirect | app/dashboard/eleve/npc/page.tsx | route absente (/auth/login) |
-| /dashboard/eleve/ressources | /dashboard/eleve#resources | redirect | app/dashboard/eleve/ressources/page.tsx | ancre absente #resources (/dashboard/eleve#resources) |
-| /dashboard/parent/npc | /auth/login | redirect | app/dashboard/parent/npc/page.tsx | route absente (/auth/login) |
-| /dashboard/trajectoire | /dashboard/eleve#trajectory | redirect | app/dashboard/trajectoire/page.tsx | ancre absente #trajectory (/dashboard/eleve#trajectory) |
-| /stages | #reservation | CTA | app/stages/_components/StagesHeader.tsx | ancre absente #reservation (/stages#reservation) |
-| shared | /dashboard/eleve#aria | nav | components/navigation/navigation-config.ts | ancre absente #aria (/dashboard/eleve#aria) |
-| shared | /dashboard/eleve#programme-maths | nav | components/navigation/navigation-config.ts | ancre absente #programme-maths (/dashboard/eleve#programme-maths) |
-| shared | /dashboard/eleve#resources | nav | components/navigation/navigation-config.ts | ancre absente #resources (/dashboard/eleve#resources) |
-| shared | /dashboard/eleve#survival | contextuel | lib/dashboard/student-payload.ts | ancre absente #survival (/dashboard/eleve#survival) |
-| shared | #contact | contextuel | components/sections/korrigo-showcase.tsx | ancre absente #contact (/#contact) |
-| shared | #etablissements | contextuel | components/sections/problem-solution-section.tsx | ancre absente #etablissements (/#etablissements) |
-| shared | #formation_tech | contextuel | components/sections/problem-solution-section.tsx | ancre absente #formation_tech (/#formation_tech) |
-| shared | #methodologie | contextuel | components/sections/home-hero.tsx | ancre absente #methodologie (/#methodologie) |
-| shared | #parents_eleves | contextuel | components/sections/problem-solution-section.tsx | ancre absente #parents_eleves (/#parents_eleves) |
+Aucun lien interne litteral mort detecte.
+
+## Decisions P1 navigation appliquees
+
+| Cas | Decision | Preuve |
+| --- | --- | --- |
+| NPC auth redirects | corrige | aucun lien/redirect applicatif vers /auth/login |
+| Dashboard eleve hash anchors | ids cibles ajoutes | aria, programme-maths, resources, survival, trajectory |
+| StagesHeader reservation | repointage vers route catalogue reelle | /offres#section-intensifs |
+| Legacy home-hero/problem-solution/korrigo-showcase | code mort supprime | fichiers absents et aucun import actif detecte avant suppression |
 
 ## Orphelines publiques
 
@@ -431,13 +419,13 @@ Routes detectees: 288 (113 pages, 175 route handlers).
 | /dashboard/coach/maths-premiere-stage-printemps | /auth/signin | 307 temporaire | app/dashboard/coach/maths-premiere-stage-printemps/page.tsx |
 | /dashboard/coach/maths-premiere-stage-printemps/[studentId] | /auth/signin | 307 temporaire | app/dashboard/coach/maths-premiere-stage-printemps/[studentId]/page.tsx |
 | /dashboard/coach/maths-premiere-stage-printemps/[studentId] | /dashboard/coach/maths-premiere-stage-printemps | 307 temporaire | app/dashboard/coach/maths-premiere-stage-printemps/[studentId]/page.tsx |
-| /dashboard/coach/npc | /auth/login | 307 temporaire | app/dashboard/coach/npc/page.tsx |
+| /dashboard/coach/npc | /auth/signin | 307 temporaire | app/dashboard/coach/npc/page.tsx |
 | /dashboard/coach/npc | /dashboard | 307 temporaire | app/dashboard/coach/npc/page.tsx |
-| /dashboard/coach/npc/reports/[reportId] | /auth/login | 307 temporaire | app/dashboard/coach/npc/reports/[reportId]/page.tsx |
+| /dashboard/coach/npc/reports/[reportId] | /auth/signin | 307 temporaire | app/dashboard/coach/npc/reports/[reportId]/page.tsx |
 | /dashboard/coach/npc/reports/[reportId] | /dashboard | 307 temporaire | app/dashboard/coach/npc/reports/[reportId]/page.tsx |
 | /dashboard/coach/npc/reports/[reportId] | /dashboard/coach/npc | 307 temporaire | app/dashboard/coach/npc/reports/[reportId]/page.tsx |
 | /dashboard/coach/npc/reports/[reportId] | /dashboard/coach/npc | 307 temporaire | app/dashboard/coach/npc/reports/[reportId]/page.tsx |
-| /dashboard/coach/npc/submissions/[submissionId]/upload | /auth/login | 307 temporaire | app/dashboard/coach/npc/submissions/[submissionId]/upload/page.tsx |
+| /dashboard/coach/npc/submissions/[submissionId]/upload | /auth/signin | 307 temporaire | app/dashboard/coach/npc/submissions/[submissionId]/upload/page.tsx |
 | /dashboard/coach/npc/submissions/[submissionId]/upload | /dashboard | 307 temporaire | app/dashboard/coach/npc/submissions/[submissionId]/upload/page.tsx |
 | /dashboard/coach/npc/submissions/[submissionId]/upload | /dashboard/coach/npc | 307 temporaire | app/dashboard/coach/npc/submissions/[submissionId]/upload/page.tsx |
 | /dashboard/coach/npc/submissions/[submissionId]/upload | /dashboard/coach/npc | 307 temporaire | app/dashboard/coach/npc/submissions/[submissionId]/upload/page.tsx |
@@ -455,7 +443,7 @@ Routes detectees: 288 (113 pages, 175 route handlers).
 | /dashboard/eleve/documents | /auth/signin | 307 temporaire | app/dashboard/eleve/documents/page.tsx |
 | /dashboard/eleve/documents | /dashboard | 307 temporaire | app/dashboard/eleve/documents/page.tsx |
 | /dashboard/eleve/eam | /auth/signin?callbackUrl=/dashboard/eleve/eam | 307 temporaire | app/dashboard/eleve/eam/page.tsx |
-| /dashboard/eleve/npc | /auth/login | 307 temporaire | app/dashboard/eleve/npc/page.tsx |
+| /dashboard/eleve/npc | /auth/signin | 307 temporaire | app/dashboard/eleve/npc/page.tsx |
 | /dashboard/eleve/npc | /dashboard | 307 temporaire | app/dashboard/eleve/npc/page.tsx |
 | /dashboard/eleve/nsi-pratique-2026 | /auth/signin | 307 temporaire | app/dashboard/eleve/nsi-pratique-2026/page.tsx |
 | /dashboard/eleve/programme/[subject] | /auth/signin?callbackUrl=/dashboard/eleve | 307 temporaire | app/dashboard/eleve/programme/[subject]/page.tsx |
@@ -483,7 +471,7 @@ Routes detectees: 288 (113 pages, 175 route handlers).
 | /dashboard/parent/enfant/[studentId] | /dashboard/parent | 307 temporaire | app/dashboard/parent/enfant/[studentId]/page.tsx |
 | /dashboard/parent/factures | /auth/signin | 307 temporaire | app/dashboard/parent/factures/page.tsx |
 | /dashboard/parent/factures | /dashboard | 307 temporaire | app/dashboard/parent/factures/page.tsx |
-| /dashboard/parent/npc | /auth/login | 307 temporaire | app/dashboard/parent/npc/page.tsx |
+| /dashboard/parent/npc | /auth/signin | 307 temporaire | app/dashboard/parent/npc/page.tsx |
 | /dashboard/parent/npc | /dashboard/parent | 307 temporaire | app/dashboard/parent/npc/page.tsx |
 | /dashboard/parent/paiement | /auth/signin | 307 temporaire | app/dashboard/parent/paiement/page.tsx |
 | /dashboard/parent/paiement | /dashboard/parent/abonnements | 307 temporaire | app/dashboard/parent/paiement/page.tsx |
@@ -508,8 +496,8 @@ Routes detectees: 288 (113 pages, 175 route handlers).
 - Routes sitemap statiques detectees: /, /accompagnement-scolaire, /bilan-gratuit, /candidat-libre-bac-francais, /conditions-generales, /contact, /corrige_dnb_maths_2026, /equipe, /famille, /grand-oral, /mentions-legales, /notre-centre, /offres, /plateforme-aria, /politique-confidentialite, /preparation-bac-francais-tunis, /programme/maths-1ere, /recommandation, /ressources, /reussir-eaf, /stages, /stages/[dynamic], /stages/[dynamic]/inscription
 - Routes privees au sitemap: aucune
 - Entrees sitemap sans route statique locale: aucune
-- Pages publiques hors sitemap: /access-required, /bilan-gratuit/assessment, /bilan-gratuit/confirmation, /bilan-pallier2-maths, /bilan-pallier2-maths/confirmation, /bilan-pallier2-maths/dashboard, /conditions, /dashboard/trajectoire, /lamis, /maths-1ere, /programme/maths-1ere-stmg, /programme/maths-terminale
-- Pages privees sans metadata noindex locale: /admin/directeur, /assessments/[id]/processing, /assessments/[id]/result, /dashboard, /dashboard/admin, /dashboard/admin/activities, /dashboard/admin/analytics, /dashboard/admin/documents, /dashboard/admin/facturation, /dashboard/admin/stages, /dashboard/admin/subscriptions, /dashboard/admin/tests, /dashboard/admin/users, /dashboard/assistante, /dashboard/assistante/assignments, /dashboard/assistante/coaches, /dashboard/assistante/credit-requests, /dashboard/assistante/credits, /dashboard/assistante/docs, /dashboard/assistante/facturation, /dashboard/assistante/paiements, /dashboard/assistante/planning, /dashboard/assistante/stages, /dashboard/assistante/stages/planning, /dashboard/assistante/students, /dashboard/assistante/students/[studentId], /dashboard/assistante/subscription-requests, /dashboard/assistante/subscriptions, /dashboard/coach, /dashboard/coach/availability, /dashboard/coach/eaf-stage-printemps, /dashboard/coach/eaf-stage-printemps/[studentId], /dashboard/coach/eleve/[studentId], /dashboard/coach/maths-premiere-stage-printemps, /dashboard/coach/maths-premiere-stage-printemps/[studentId], /dashboard/coach/npc, /dashboard/coach/npc/reports/[reportId], /dashboard/coach/npc/submissions/[submissionId]/upload, /dashboard/coach/nsi-pratique-2026, /dashboard/coach/nsi-pratique-2026/[studentId], /dashboard/coach/sessions, /dashboard/coach/stages, /dashboard/coach/stages/[stageSlug]/bilan/[studentId], /dashboard/coach/students, /dashboard/eleve, /dashboard/eleve/automatismes, /dashboard/eleve/bilans/[publicShareId], /dashboard/eleve/documents, /dashboard/eleve/eam, /dashboard/eleve/npc, /dashboard/eleve/nsi-pratique-2026, /dashboard/eleve/programme/[subject], /dashboard/eleve/programme/maths, /dashboard/eleve/questionnaires/eaf-stage-printemps, /dashboard/eleve/questionnaires/maths-premiere-stage-printemps, /dashboard/eleve/ressources, /dashboard/eleve/sessions, /dashboard/eleve/stage-eam-stmg, /dashboard/eleve/stage-eam-stmg/diagnostic, /dashboard/eleve/stage-eam-stmg/livret, /dashboard/eleve/stages, /dashboard/parent, /dashboard/parent/abonnements, /dashboard/parent/children, /dashboard/parent/enfant/[studentId], /dashboard/parent/factures, /dashboard/parent/npc, /dashboard/parent/paiement, /dashboard/parent/paiement/confirmation, /dashboard/parent/ressources, /dashboard/parent/stages, /session/video
+- Pages publiques hors sitemap: /access-required, /bilan-gratuit/assessment, /bilan-gratuit/confirmation, /bilan-pallier2-maths, /bilan-pallier2-maths/confirmation, /bilan-pallier2-maths/dashboard, /conditions, /lamis, /maths-1ere, /programme/maths-1ere-stmg, /programme/maths-terminale
+- Pages privees sans metadata noindex locale: aucune
 
 ## Frontieres server/client publiques
 
@@ -543,13 +531,12 @@ Routes detectees: 288 (113 pages, 175 route handlers).
 
 ### P1 nav
 
-- 17 lien(s)/ancre(s) internes a verifier (voir section liens morts).
+- Aucune anomalie detectee.
 
 ### P2 incoherence
 
 - /corrige_dnb_maths_2026 est snake_case, au sitemap et a relier/renommer/retirer sur decision Shark.
 - /offres est une page publique SEO en "use client"; extraction server recommandee avant optimisation SEO/perf.
-- 72 page(s) privees sans metadata noindex locale; robots.txt les bloque mais le noindex explicite reste a harmoniser.
 
 ### P3 hygiene
 
