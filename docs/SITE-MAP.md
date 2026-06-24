@@ -1,5 +1,7 @@
 # Site Map — Nexus Reussite
 
+> Ce document est **supersédé** par `docs/architecture/SITE_MAP.md` (version automatisée de l’inventaire des routes et du graphe).
+
 **Date :** 2026-06-20 | **Source :** audit app/ routes + next.config.mjs
 
 ## Pages publiques (GARDER)
