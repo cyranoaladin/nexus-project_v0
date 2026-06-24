@@ -62,18 +62,18 @@ const CorporateFooter = () => {
                                     {item.isPage ? (
                                         <Link
                                             href={item.href}
-                                            className="inline-flex items-center gap-2 text-neutral-300 text-sm hover:text-lux-gold-wash hover:gap-3 transition-all duration-300"
+                                            className="group inline-flex items-center gap-2 text-neutral-300 text-sm hover:text-lux-gold-wash hover:gap-3 transition-all duration-300"
                                         >
                                             <span>{item.label}</span>
-                                            <ArrowRight className="w-3 h-3 opacity-0 hover:opacity-100" />
+                                            <ArrowRight className="w-3 h-3 opacity-0 transition-opacity group-hover:opacity-100" />
                                         </Link>
                                     ) : (
                                         <button
                                             onClick={() => scrollToSection(item.href)}
-                                            className="inline-flex items-center gap-2 text-neutral-300 text-sm hover:text-lux-gold-wash hover:gap-3 transition-all duration-300"
+                                            className="group inline-flex items-center gap-2 text-neutral-300 text-sm hover:text-lux-gold-wash hover:gap-3 transition-all duration-300"
                                         >
                                             <span>{item.label}</span>
-                                            <ArrowRight className="w-3 h-3 opacity-0 hover:opacity-100" />
+                                            <ArrowRight className="w-3 h-3 opacity-0 transition-opacity group-hover:opacity-100" />
                                         </button>
                                     )}
                                 </li>
@@ -89,10 +89,10 @@ const CorporateFooter = () => {
                                 <li key={item.href}>
                                     <Link
                                         href={item.href}
-                                        className="inline-flex items-center gap-2 text-neutral-300 text-sm hover:text-lux-gold-wash hover:gap-3 transition-all duration-300"
+                                        className="group inline-flex items-center gap-2 text-neutral-300 text-sm hover:text-lux-gold-wash hover:gap-3 transition-all duration-300"
                                     >
                                         <span>{item.label}</span>
-                                        <ArrowRight className="w-3 h-3 opacity-0 hover:opacity-100" />
+                                        <ArrowRight className="w-3 h-3 opacity-0 transition-opacity group-hover:opacity-100" />
                                     </Link>
                                 </li>
                             ))}

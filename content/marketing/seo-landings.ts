@@ -1,22 +1,7 @@
 import type { Metadata } from 'next';
+import type { OfferRef, NicheSection, RelatedLink } from '@/components/marketing/LandingNiche';
+import { LEGAL } from '@/lib/legal';
 import { PREPARATION_LINKS, type PreparationLink } from './preparation-links';
-
-export type OfferRef = {
-  type: 'annual' | 'ponctuel' | 'pack';
-  id: string;
-};
-
-export type NicheSection = {
-  heading: string;
-  body?: string[];
-  bullets?: string[];
-};
-
-export type RelatedLink = {
-  href: PreparationLink['href'];
-  label: string;
-  description?: string;
-};
 
 export type SeoLandingContent = {
   path: PreparationLink['href'];
@@ -36,12 +21,13 @@ function metadata(path: PreparationLink['href'], title: string, description: str
     title,
     description,
     alternates: {
-      canonical: `https://nexusreussite.academy${path}`,
+      canonical: path,
     },
     openGraph: {
       title,
       description,
       type: 'website',
+      url: path,
     },
   };
 }
@@ -49,6 +35,9 @@ function metadata(path: PreparationLink['href'], title: string, description: str
 function relatedLinksFor(path: PreparationLink['href']): RelatedLink[] {
   return PREPARATION_LINKS.filter((link) => link.href !== path);
 }
+
+const pedagogicalAddress = LEGAL.addresses.pedagogique.full;
+const pedagogicalAddressNote = LEGAL.addresses.pedagogique.note;
 
 export const seoLandings = {
   '/candidat-libre-bac-francais': {
@@ -157,14 +146,14 @@ export const seoLandings = {
     metadata: metadata(
       '/preparation-bac-francais-tunis',
       'Préparer le bac français à Tunis | Nexus Réussite',
-      'Accompagnement bac français à Tunis : méthode, groupes réduits, EAF, Grand Oral, spécialités, candidats libres, présentiel à Mutuelleville et formules en ligne.',
+      `Accompagnement bac français à Tunis : méthode, groupes réduits, EAF, Grand Oral, spécialités, candidats libres, présentiel à ${pedagogicalAddress} et formules en ligne.`,
     ),
     sections: [
       {
         heading: 'Un cadre de travail pour les familles à Tunis',
         body: [
           'La préparation du bac français ne se résume pas à quelques révisions en fin d’année. Entre les épreuves anticipées, les spécialités, le tronc commun, la philosophie et le Grand Oral, les familles ont besoin d’un cadre lisible pour savoir quoi travailler, dans quel ordre et avec quel niveau d’exigence.',
-          'Nexus Réussite construit ce cadre autour d’un diagnostic initial, de groupes réduits, de corrections régulières et d’un suivi parent clair. Les cours en présentiel et les rendez-vous pédagogiques se déroulent à Mutuelleville, sur confirmation, tandis que certaines formules permettent un suivi en ligne ou mixte pour les familles éloignées ou les candidats libres.',
+          `Nexus Réussite construit ce cadre autour d’un diagnostic initial, de groupes réduits, de corrections régulières et d’un suivi parent clair. ${pedagogicalAddressNote} Certaines formules permettent aussi un suivi en ligne ou mixte pour les familles éloignées ou les candidats libres.`,
         ],
       },
       {
@@ -213,9 +202,8 @@ export const seoLandings = {
           'Oui. Elle sert de hub général, puis renvoie vers la page candidat libre pour les modalités propres aux candidats individuels.',
       },
       {
-        question: 'Les cours ont-ils lieu à Mutuelleville ?',
-        answer:
-          'Les cours en présentiel et rendez-vous pédagogiques se déroulent au centre d’accompagnement pédagogique de Mutuelleville, sur confirmation.',
+        question: 'Où se déroulent les cours en présentiel ?',
+        answer: pedagogicalAddressNote,
       },
       {
         question: 'Le Grand Oral est-il préparé séparément ?',

@@ -4,6 +4,8 @@ import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { fmtTND } from '@/components/premium/format';
 import { ProcessSteps, ReassuranceChips } from '@/components/marketing/acadomia-inspired';
+import type { PreparationLink } from '@/content/marketing/preparation-links';
+import { LEGAL } from '@/lib/legal';
 import {
   getAnnualOffer,
   getPack,
@@ -13,9 +15,21 @@ import {
   type PonctuelOffer,
 } from '@/lib/pricing';
 
-type OfferRef = {
+export type OfferRef = {
   type: 'annual' | 'ponctuel' | 'pack';
   id: string;
+};
+
+export type NicheSection = {
+  heading: string;
+  body?: string[];
+  bullets?: string[];
+};
+
+export type RelatedLink = {
+  href: PreparationLink['href'];
+  label: string;
+  description?: string;
 };
 
 type ResolvedOffer = {
@@ -31,8 +45,8 @@ export type LandingNicheProps = {
   offerRefs: OfferRef[];
   faq: { question: string; answer: string }[];
   jsonLdName: string;
-  sections?: { heading: string; body?: string[]; bullets?: string[] }[];
-  relatedLinks?: { href: string; label: string; description?: string }[];
+  sections?: NicheSection[];
+  relatedLinks?: RelatedLink[];
 };
 
 function resolveOffer(ref: OfferRef): ResolvedOffer | null {
@@ -85,7 +99,7 @@ export function LandingNiche({
     provider: {
       '@type': 'EducationalOrganization',
       name: 'Nexus Réussite',
-      url: 'https://nexusreussite.academy',
+      url: LEGAL.web.url,
       address: {
         '@type': 'PostalAddress',
         addressLocality: 'Tunis',
@@ -97,7 +111,7 @@ export function LandingNiche({
       name: offer.title,
       price: offer.price ?? undefined,
       priceCurrency: 'TND',
-      url: `https://nexusreussite.academy/offres#${offer.id}`,
+      url: `${LEGAL.web.url}/offres#${offer.id}`,
     })),
   };
   const faqJsonLd = {

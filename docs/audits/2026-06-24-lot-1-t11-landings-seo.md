@@ -14,6 +14,7 @@ Les quatre landings SEO déclarées dans le sitemap étaient trop courtes et peu
 - Les metadata ne déclaraient pas de canonical.
 - Le maillage interne entre les préparations était insuffisant.
 - Le renderer `LandingNiche` ne rendait pas encore de sections longues ni de JSON-LD `FAQPage`.
+- La revue PR #48 a relevé des canonical absolus dans le contenu, des types de contenu dupliqués, des `offerRefs` filtrés sans garde et une garde SEO trop liée à la forme du code.
 
 ## Décisions prises
 
@@ -23,6 +24,9 @@ Les quatre landings SEO déclarées dans le sitemap étaient trop courtes et peu
 - Formuler les éléments Cyclades/IFT avec prudence, car les dates et pièces varient selon la session.
 - Ajouter un groupe navbar et un bloc footer « Préparations » depuis `content/marketing/preparation-links.ts`.
 - Exclure `nexus-codex-handoff/` de TypeScript et de Git, car c’est une matière locale non source.
+- Laisser `metadataBase` dans `app/layout.tsx` résoudre les canonical relatifs, et ne plus recopier le domaine public dans `content/`.
+- Faire de `LandingNiche` la source des types `OfferRef`, `NicheSection` et `RelatedLink`.
+- Rattacher les adresses pédagogiques à `LEGAL.addresses.pedagogique` et les claims Cyclades/ARIA/bacs blancs au catalogue canonique.
 
 ## Fichiers modifiés
 
@@ -47,22 +51,28 @@ Les quatre landings SEO déclarées dans le sitemap étaient trop courtes et peu
 - `npm run typecheck`
 - `npm run test -- --runInBand`
 - `npm run build`
+- `NEXTAUTH_URL=https://nexusreussite.academy npm run build`
 - `npm run check:docs-archive`
 - `git diff --check`
-- `HOSTNAME=localhost PORT=3017 node .next/standalone/server.js`, puis vérification HTTP locale par `fetch`.
+- `NEXTAUTH_URL=https://nexusreussite.academy HOSTNAME=localhost PORT=3017 node .next/standalone/server.js`, puis vérification HTTP locale par `fetch`.
+- Script Playwright temporaire `/tmp/playwright-t11-responsive.js` sur desktop 1440 et mobile 390.
 
 ## Résultats
 
-- Garde SEO T1.1 : 14 tests passés.
+- Garde SEO T1.1 : 28 tests passés.
 - Pricing/typographie ciblés : 54 tests passés.
-- Jest complet : 491 suites passées, 1 skipped ; 6242 tests passés, 4 skipped.
+- Jest complet : 491 suites passées, 1 skipped ; 6256 tests passés, 4 skipped.
 - Build Next : 139 pages générées, assets standalone copiés.
-- SSR local : les quatre routes répondent 200, contiennent leur canonical, un JSON-LD `FAQPage`, le CTA bilan et plus de 1000 mots extraits du HTML.
+- SSR local : les quatre routes répondent 200, contiennent leur canonical résolu `https://nexusreussite.academy/...`, un JSON-LD `FAQPage`, le CTA bilan et un H1.
+- Grep demandé : aucune occurrence de `nexusreussite.academy` dans `content/` ni dans `__tests__/marketing/seo-landings-guard.test.ts`.
+- Grep demandé : une seule déclaration par type `OfferRef`, `NicheSection`, `RelatedLink`, toutes dans `components/marketing/LandingNiche.tsx`.
+- Responsive local : desktop 1440 et mobile 390 sans overflow horizontal, navbar/footer présents, liens du cluster présents sur les quatre landings.
 
 ## Risques restants
 
 - Les informations administratives IFT/Cyclades doivent rester vérifiées chaque session avant communication nominative à une famille.
-- Le menu public contient désormais un groupe supplémentaire ; une passe visuelle mobile/desktop restera utile lors du lot marque/polish.
+- La CI GitHub Actions reste à vérifier côté PR #48 : si elle est encore bloquée par la facturation, la PR doit rester draft et nécessiter une revue humaine explicite avant merge.
+- Le dossier `nexus-codex-handoff/` et les exclusions associées restent à nettoyer après consommation complète du handoff en fin T1.2/T1.3.
 
 ## Rollback
 
