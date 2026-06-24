@@ -1,6 +1,7 @@
 import {
   getCarte,
   getAnnualOfferPaymentSchedule,
+  getRules,
   getOffersByLevel,
   getOffersByTrack,
   getPonctuelOffers,
@@ -45,18 +46,18 @@ const LEVEL_LABELS: Record<string, string> = {
 function buildOfferCard(offer: AnnualOffer): ExamCardProps {
   const price = offer.price_annual ?? 0;
   const payment = getAnnualOfferPaymentSchedule(offer);
+  const rules = getRules();
   return {
     eyebrow: `${LEVEL_LABELS[normalizePricingLevel(offer.level) ?? ''] ?? offer.level} · ${offer.track === 'libre' ? 'Candidat libre' : 'Parcours présentiel'}`,
     title: offer.title,
     subtitle: offer.subjects,
     price,
-    monthlyDisplay: offer.monthly_display ?? undefined,
     pricingDisplay: offer.pricing_display ?? undefined,
     hoursPerWeek: offer.hours_per_week ?? undefined,
     totalHours: offer.hours_per_year ?? undefined,
     groupMax: offer.group_max ?? 5,
     groupMinOpen: offer.group_min_open ?? 3,
-    payment: payment ?? undefined,
+    payment: payment ? { ...payment, depositPct: rules.payment.deposit_pct_annual } : undefined,
     features: offer.included,
     ctaText: 'Voir l\'offre',
     ctaHref: '/offres',

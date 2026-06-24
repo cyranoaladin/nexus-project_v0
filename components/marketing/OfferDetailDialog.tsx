@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { X, Check, ShieldCheck } from 'lucide-react';
 import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
@@ -31,9 +31,8 @@ export interface OfferDetail {
     solde?: number;
     solde_schedule?: number[];
     full_at_booking?: boolean;
+    depositPct?: number;
   };
-  /** Monthly display amount */
-  monthlyDisplay?: number;
   /** "Included" items list */
   included: string[];
   /** Places-based availability note */
@@ -107,6 +106,19 @@ export function OfferDetailDialog({ offer, onClose }: OfferDetailDialogProps) {
 
   const bilanHref = `/bilan-gratuit?offer=${encodeURIComponent(offer.id)}`;
   const whatsappHref = buildWhatsAppUrl(`l\u2019offre ${offer.title}`);
+  const firstInstallment = offer.payment?.installments?.[0];
+  const lastInstallment = offer.payment?.installments?.[offer.payment.installments.length - 1];
+  const hasInstallments =
+    offer.payment != null &&
+    !offer.payment.full_at_booking &&
+    firstInstallment != null &&
+    offer.payment.installments != null &&
+    offer.payment.installments.length > 0;
+  const depositPctLabel = offer.payment?.depositPct != null ? ` (${offer.payment.depositPct}\u00A0%)` : '';
+  const lastInstallmentLabel =
+    lastInstallment != null && lastInstallment !== firstInstallment
+      ? `, dernière à ${fmtTND(lastInstallment)}`
+      : '';
 
   return (
     <div
@@ -168,14 +180,28 @@ export function OfferDetailDialog({ offer, onClose }: OfferDetailDialogProps) {
         <div className="flex-1 overflow-y-auto overscroll-contain px-6 py-5">
           {/* Price */}
           <div className="mb-6">
-            <div className="flex items-baseline gap-3">
-              <span className="lux-price text-2xl text-lux-ink">
-                {fmtTND(offer.price)}
-              </span>
-            </div>
-            {offer.monthlyDisplay != null && (
+            {hasInstallments ? (
+              <>
+                <div className="flex items-baseline gap-3">
+                  <span className="lux-price text-2xl text-lux-ink">
+                    {fmtTND(firstInstallment)}
+                  </span>
+                  <span className="text-sm font-medium text-lux-slate">/ mois hors acompte</span>
+                </div>
+                <p className="mt-1 text-sm text-lux-slate">
+                  Acompte {fmtTND(offer.payment!.deposit)}{depositPctLabel}, puis {offer.payment!.installments!.length} mensualité{offer.payment!.installments!.length > 1 ? 's' : ''} ({fmtTND(firstInstallment)}{lastInstallmentLabel}). Total {fmtTND(offer.price)} / an.
+                </p>
+              </>
+            ) : (
+              <div className="flex items-baseline gap-3">
+                <span className="lux-price text-2xl text-lux-ink">
+                  {fmtTND(offer.price)}
+                </span>
+              </div>
+            )}
+            {!hasInstallments && offer.payment?.full_at_booking !== true && (
               <p className="mt-1 text-sm text-lux-slate">
-                soit {fmtTND(offer.monthlyDisplay)} / mois
+                Prix catalogue selon la source canonique.
               </p>
             )}
           </div>
