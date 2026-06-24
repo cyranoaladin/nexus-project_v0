@@ -2,6 +2,8 @@ import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import OffresPage from '@/app/offres/page';
 import { getRules } from '@/lib/pricing';
+import { CGV_POLICY } from '@/lib/cgv-policy';
+import { LEGAL } from '@/lib/legal';
 
 jest.mock('next/link', () => {
   return function MockLink({ children, href, ...props }: any) {
@@ -59,5 +61,16 @@ describe('OffresPage', () => {
     expect(screen.getAllByRole('link', { name: /réserver ma place/i }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole('link', { name: /poser une question/i }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole('link', { name: /demander un bilan/i }).length).toBeGreaterThan(0);
+  });
+
+  it('surfaces ClicToPay card payment without exposing bank identifiers publicly', () => {
+    const { container } = render(<OffresPage />);
+
+    expect(screen.getByText(new RegExp(CGV_POLICY.payment.provider, 'i'))).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(CGV_POLICY.payment.bank, 'i'))).toBeInTheDocument();
+    expect(screen.getByText(CGV_POLICY.payment.acceptedCards)).toBeInTheDocument();
+    expect(screen.getByText(CGV_POLICY.payment.cardFee)).toBeInTheDocument();
+    expect(container.textContent).not.toContain(LEGAL.billing.rib);
+    expect(container.textContent).not.toContain(LEGAL.billing.iban);
   });
 });
