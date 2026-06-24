@@ -42,9 +42,9 @@ describe('FloatingNav', () => {
   it('affiche les trois boutons de navigation', () => {
     render(<FloatingNav />);
 
-    expect(screen.getByText('Cortex')).toBeInTheDocument();
-    expect(screen.getByText('Académies')).toBeInTheDocument();
-    expect(screen.getByText('Odyssée')).toBeInTheDocument();
+    expect(screen.getByText('ARIA')).toBeInTheDocument();
+    expect(screen.getByText('Stages')).toBeInTheDocument();
+    expect(screen.getByText('Parcours')).toBeInTheDocument();
   });
 
   it('a les bonnes icônes pour chaque bouton', () => {
@@ -60,17 +60,17 @@ describe('FloatingNav', () => {
 
     render(<FloatingNav />);
 
-    const cortexButton = screen.getByText('Cortex');
-    fireEvent.click(cortexButton);
+    const ariaButton = screen.getByText('ARIA');
+    fireEvent.click(ariaButton);
 
-    expect(document.querySelector).toHaveBeenCalledWith('#cortex');
+    expect(document.querySelector).toHaveBeenCalledWith('#plateforme');
     expect(mockScrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth' });
   });
 
   it('a les bonnes classes CSS', () => {
     render(<FloatingNav />);
 
-    const button = screen.getByText('Cortex');
+    const button = screen.getByText('ARIA');
     // Navigate up: button -> flex div -> bg-white div -> motion.div (fixed container)
     const navContainer = button.closest('div')?.parentElement?.parentElement;
     expect(navContainer).toHaveClass('fixed');
@@ -83,10 +83,10 @@ describe('FloatingNav', () => {
 
     render(<FloatingNav />);
 
-    const cortexButton = screen.getByText('Cortex');
-    fireEvent.click(cortexButton);
+    const ariaButton = screen.getByText('ARIA');
+    fireEvent.click(ariaButton);
 
-    expect(document.querySelector).toHaveBeenCalledWith('#cortex');
+    expect(document.querySelector).toHaveBeenCalledWith('#plateforme');
     expect(mockScrollIntoView).not.toHaveBeenCalled();
   });
 });

@@ -1,8 +1,10 @@
 'use client';
 
 import { GraduationCap, Users, BookOpen, Shield } from 'lucide-react';
+import { getRules } from '@/lib/pricing';
 
-const pillars = [
+function getPillars(rules: ReturnType<typeof getRules>) {
+  return [
   {
     icon: GraduationCap,
     title: 'Enseignants agrégés & certifiés',
@@ -11,9 +13,9 @@ const pillars = [
   },
   {
     icon: Users,
-    title: 'Groupes de 5 maximum',
+    title: `Groupes de ${rules.group_max} maximum`,
     description:
-      'Attention individualisée renforcée. Groupe ouvert dès 3 inscrits (dès 4 pour le Brevet).',
+      `Attention individualisée renforcée. Groupe ouvert dès ${rules.group_min_open.lycee} inscrits au lycée et ${rules.group_min_open.brevet} au Brevet.`,
   },
   {
     icon: BookOpen,
@@ -27,9 +29,12 @@ const pillars = [
     description:
       'Carte d\'examen, bacs blancs sur grilles officielles, bulletins et suivi parents en temps réel.',
   },
-];
+  ];
+}
 
 export function MethodSection() {
+  const pillars = getPillars(getRules());
+
   return (
     <section className="py-20 px-4 md:px-6 bg-lux-ink">
       <div className="mx-auto max-w-6xl">

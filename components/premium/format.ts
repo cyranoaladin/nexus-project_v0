@@ -23,7 +23,7 @@ export function fmtDesMonthly(amount: number): string {
   return `dès ${fmtPrice(amount)}\u00A0TND\u00A0/\u00A0mois`;
 }
 
-/** Format group info "5 max, ouverture dès 3" */
+/** Format group info from canonical group rules. */
 export function fmtGroup(max: number, minOpen: number): string {
   return `${max}\u00A0max, ouverture dès\u00A0${minOpen}`;
 }

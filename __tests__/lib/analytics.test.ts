@@ -123,13 +123,13 @@ describe('Analytics Tracking System', () => {
     });
 
     it('track.stageView sends stage_view event', () => {
-      track.stageView('maths-bac-garanti', 'MATHS : ESSENTIELS BAC');
-      expect(mockGtag).toHaveBeenCalledWith('event', 'stage_view', { stage_id: 'maths-bac-garanti', stage_title: 'MATHS : ESSENTIELS BAC' });
+      track.stageView('maths-essentiels-bac', 'MATHS : ESSENTIELS BAC');
+      expect(mockGtag).toHaveBeenCalledWith('event', 'stage_view', { stage_id: 'maths-essentiels-bac', stage_title: 'MATHS : ESSENTIELS BAC' });
     });
 
     it('track.stageReserve sends stage_reserve event', () => {
-      track.stageReserve('maths-bac-garanti', 502);
-      expect(mockGtag).toHaveBeenCalledWith('event', 'stage_reserve', { stage_id: 'maths-bac-garanti', price: 502 });
+      track.stageReserve('maths-essentiels-bac', 502);
+      expect(mockGtag).toHaveBeenCalledWith('event', 'stage_reserve', { stage_id: 'maths-essentiels-bac', price: 502 });
     });
 
     it('track.sessionBook sends session_book event', () => {

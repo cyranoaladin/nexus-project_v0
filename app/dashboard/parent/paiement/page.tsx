@@ -25,6 +25,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { LEGAL } from "@/lib/legal";
+import { CGV_POLICY } from "@/lib/cgv-policy";
 
 interface OrderDetails {
   type: "subscription" | "addon" | "pack";
@@ -285,7 +286,7 @@ function PaiementContent() {
                       </span>
                     </div>
                     <p className="text-sm text-neutral-500 mt-1">
-                      ClicToPay — Banque Zitouna (en cours de configuration)
+                      {CGV_POLICY.payment.provider} — {CGV_POLICY.payment.bank} (en cours de configuration)
                     </p>
                   </div>
                 </div>
@@ -313,7 +314,7 @@ function PaiementContent() {
                       Paiement par virement bancaire
                     </span>
                     <p className="text-sm text-neutral-300 mt-1">
-                      Virement sur le compte Banque Zitouna
+                      Virement sur le compte {CGV_POLICY.payment.bank}
                     </p>
                     <div className="flex items-center gap-2 mt-2">
                       <Check className={`w-4 h-4 ${hasPendingPayment ? 'text-neutral-500' : 'text-brand-primary'}`} />
@@ -367,7 +368,7 @@ function PaiementContent() {
                   </div>
                   <h3 className="font-semibold">Paiement Sécurisé</h3>
                   <p className="text-sm text-neutral-300">
-                    Toutes vos transactions sont protégées par un cryptage SSL de niveau bancaire
+                    {CGV_POLICY.payment.security} Paiement par {CGV_POLICY.payment.provider} ou virement.
                   </p>
                 </div>
 
@@ -377,7 +378,7 @@ function PaiementContent() {
                   </div>
                   <h3 className="font-semibold">Support selon formule</h3>
                   <p className="text-sm text-neutral-300">
-                    Notre équipe est disponible à tout moment pour vous accompagner
+                    Les modalités d'accompagnement dépendent de la formule souscrite.
                   </p>
                 </div>
 
@@ -387,7 +388,7 @@ function PaiementContent() {
                   </div>
                   <h3 className="font-semibold">Règles de remboursement</h3>
                   <p className="text-sm text-neutral-300">
-                    Les conditions applicables dépendent de la formule et de la consommation des séances.
+                    {CGV_POLICY.refunds.summary}
                   </p>
                 </div>
               </div>
@@ -397,7 +398,7 @@ function PaiementContent() {
                   <span className="text-brand-primary font-bold">Un cadre de paiement sécurisé</span> pour les familles
                 </p>
                 <p className="text-center text-sm text-neutral-400 mt-2">
-                  Rejoignez notre communauté d&apos;excellence éducative
+                  Les conditions générales restent consultables avant validation.
                 </p>
               </div>
             </div>
@@ -445,7 +446,7 @@ function PaiementContent() {
 
             <div>
               <p className="text-xs text-neutral-400 uppercase tracking-wider">Banque</p>
-              <p className="font-semibold mt-0.5">Banque Zitouna</p>
+              <p className="font-semibold mt-0.5">{CGV_POLICY.payment.bank}</p>
             </div>
 
             <div>

@@ -107,7 +107,7 @@ function NavyBand({ eyebrow, title, intro, testId }: { eyebrow: string; title: s
 
 // ── FAQ ──
 
-function getCatalogueFAQ(groupMax: number, lyceeMinOpen: number): FAQItem[] {
+function getCatalogueFAQ(groupMax: number, lyceeMinOpen: number, brevetMinOpen: number): FAQItem[] {
   return [
   {
     question: `Les tarifs sont-ils en TND\u00A0?`,
@@ -121,7 +121,7 @@ function getCatalogueFAQ(groupMax: number, lyceeMinOpen: number): FAQItem[] {
   {
     question: `L\u2019acompte est-il remboursable\u00A0?`,
     answer:
-      `L\u2019acompte n\u2019est pas remboursable sauf si le groupe n\u2019atteint pas le seuil d\u2019ouverture (3 ou 4 inscrits). Dans ce cas, remboursement intégral.`,
+      `L\u2019acompte n\u2019est pas remboursable sauf si le groupe n\u2019atteint pas le seuil d\u2019ouverture (${lyceeMinOpen} inscrits au lycée ou ${brevetMinOpen} au Brevet). Dans ce cas, remboursement intégral.`,
   },
   {
     question: `Puis-je déduire l\u2019acompte d\u2019un stage si je prends un parcours annuel\u00A0?`,
@@ -169,7 +169,7 @@ export default function OffresPage() {
             tarifs en TND, échéanciers transparents.
           </p>
           <div className="mt-5 inline-flex flex-wrap gap-2 text-sm text-lux-on-dark-muted">
-            <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">Groupes de 5 maximum</span>
+            <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">Groupes de {rules.group_max} maximum</span>
             <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">Tarifs en TND</span>
             <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">Acompte 30 %</span>
             <span className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1">Échéanciers transparents</span>
@@ -557,7 +557,10 @@ export default function OffresPage() {
         </section>
       )}
 
-      <FAQAccordion items={getCatalogueFAQ(rules.group_max, rules.group_min_open.lycee)} title="Questions sur les tarifs" />
+      <FAQAccordion
+        items={getCatalogueFAQ(rules.group_max, rules.group_min_open.lycee, rules.group_min_open.brevet)}
+        title="Questions sur les tarifs"
+      />
 
       <Testimonials />
 
