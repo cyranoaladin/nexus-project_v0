@@ -14,7 +14,7 @@ import {
 
 import socialProof from '@/content/social-proof.json';
 import team from '@/content/team.json';
-import { getRules } from '@/lib/pricing';
+import { GROUP_RULES } from '@/lib/group-rules';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
 
@@ -42,7 +42,7 @@ export function ReassuranceChips({ compact = false }: { compact?: boolean }) {
   );
 }
 
-function getProcessSteps(rules: ReturnType<typeof getRules>) {
+function getProcessSteps(rules: typeof GROUP_RULES) {
   return [
   {
     title: 'Bilan stratégique gratuit',
@@ -64,7 +64,7 @@ function getProcessSteps(rules: ReturnType<typeof getRules>) {
 }
 
 export function ProcessSteps() {
-  const processSteps = getProcessSteps(getRules());
+  const processSteps = getProcessSteps(GROUP_RULES);
 
   return (
     <section className="bg-lux-white px-4 py-14 md:px-6">
@@ -454,7 +454,7 @@ const enjeux = [
     text: `La seconde marque un saut d\u2019exigence et l\u2019année où se préparent les choix de spécialités. Gagner en méthode et en autonomie y est déterminant. L\u2019enjeu\u00A0: consolider les bases, installer une méthode de travail et choisir ses spécialités en connaissance de cause.`,
     goals: [
       { label: 'Consolider les bases', href: '/offres#2nde-maths' },
-      { label: 'Méthode de travail', href: '/offres#boussole-methode' },
+      { label: 'Méthode de travail', href: '/offres#boussole-méthode' },
       { label: 'Choisir mes spécialités', href: '/offres#boussole-orientation' },
     ],
   },
@@ -465,7 +465,7 @@ const enjeux = [
     goals: [
       { label: 'Préparer le brevet', href: '/offres#brevet-complet' },
       { label: 'Maths ciblées', href: '/offres#brevet-maths' },
-      { label: 'Gagner en méthode', href: '/offres#boussole-methode' },
+      { label: 'Gagner en méthode', href: '/offres#boussole-méthode' },
     ],
   },
   {

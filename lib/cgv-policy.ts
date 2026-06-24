@@ -19,7 +19,7 @@ export const CGV_POLICY = {
     technicalIncident:
       'Si un service payé n’a pas pu être délivré du fait de Nexus Réussite, un remboursement ou un avoir est accordé.',
     request:
-      'en indiquant le motif et la référence de commande. Délai de traitement : 10 jours ouvrés maximum.',
+      'Les demandes de remboursement doivent indiquer le motif et la référence de commande. Délai de traitement : 10 jours ouvrés maximum.',
   },
 } as const;
 

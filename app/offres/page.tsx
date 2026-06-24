@@ -223,7 +223,7 @@ export default function OffresPage() {
 
       {/* Annuel scolarisé — bg white */}
       {showSection('annual') && (
-        <section data-testid="section-annual" className="bg-lux-white py-12 px-4 md:px-6">
+        <section id="section-annual" data-testid="section-annual" className="bg-lux-white py-12 px-4 md:px-6 scroll-mt-28">
           <div className="mx-auto max-w-6xl">
             <div className="mb-8">
               <span className="lux-eyebrow">Parcours présentiel</span>
@@ -275,7 +275,7 @@ export default function OffresPage() {
 
       {/* Candidat libre — bg paper */}
       {showSection('libre') && libreOffers.length > 0 && (
-        <section data-testid="section-libre" className="bg-lux-paper py-12 px-4 md:px-6">
+        <section id="section-libre" data-testid="section-libre" className="bg-lux-paper py-12 px-4 md:px-6 scroll-mt-28">
           <div className="mx-auto max-w-6xl">
             <div className="mb-8">
               <span className="lux-eyebrow">Candidat libre</span>
@@ -316,7 +316,7 @@ export default function OffresPage() {
 
       {/* Plateforme ARIA — bg white */}
       {showSection('plateforme') && (
-        <section data-testid="section-plateforme" className="bg-lux-white py-12 px-4 md:px-6">
+        <section id="section-plateforme" data-testid="section-plateforme" className="bg-lux-white py-12 px-4 md:px-6 scroll-mt-28">
           <div className="mx-auto max-w-6xl">
             <div className="mb-8">
               <span className="lux-eyebrow">Plateforme</span>
@@ -368,7 +368,7 @@ export default function OffresPage() {
 
       {/* Les Intensifs — bg white */}
       {showSection('intensifs') && (
-        <section data-testid="section-intensifs" id="les-intensifs" className="bg-lux-white py-12 px-4 md:px-6 scroll-mt-28">
+        <section id="section-intensifs" data-testid="section-intensifs" className="bg-lux-white py-12 px-4 md:px-6 scroll-mt-28">
           <div className="mx-auto max-w-6xl">
             <div className="mb-8">
               <span className="lux-eyebrow">Les Intensifs</span>

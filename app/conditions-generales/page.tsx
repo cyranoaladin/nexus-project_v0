@@ -309,9 +309,8 @@ export default function ConditionsGeneralesPage() {
                 <li><strong className="text-white">Incident technique :</strong> {CGV_POLICY.refunds.technicalIncident}</li>
               </ul>
               <p className="mt-3">
-                Les demandes de remboursement doivent être adressées à{' '}
-                <a href={`mailto:${LEGAL.contact.email}`} className="text-brand-accent underline">{LEGAL.contact.email}</a>{' '}
-                {CGV_POLICY.refunds.request}
+                {CGV_POLICY.refunds.request} Contact :{' '}
+                <a href={`mailto:${LEGAL.contact.email}`} className="text-brand-accent underline">{LEGAL.contact.email}</a>.
               </p>
             </section>
 

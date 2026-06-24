@@ -175,7 +175,7 @@ describe('DiagnosticForm', () => {
     it('a les bons liens href', () => {
       const parcoursButton = screen.getByText('Découvrir ce parcours');
 
-      expect(parcoursButton.closest('a')).toHaveAttribute('href', '/offres#accompagnement-annuel');
+      expect(parcoursButton.closest('a')).toHaveAttribute('href', '/offres#section-annual');
     });
   });
 

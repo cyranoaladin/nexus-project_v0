@@ -4,7 +4,6 @@ import React from 'react';
 import Link from 'next/link';
 import { ExternalLink, ShieldCheck } from 'lucide-react';
 import { CGV_POLICY } from '@/lib/cgv-policy';
-export { CGV_VERSION } from '@/lib/cgv-policy';
 
 interface LegalAcceptanceProps {
   /** Whether the user has accepted the CGV. */

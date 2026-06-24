@@ -60,27 +60,27 @@ const PARCOURS: Record<string, { parcours: string; description: string; parcours
   'Première-Lycée-Français': {
     parcours: 'Parcours annuel Première : préparation EAF',
     description: 'Spécialement conçu pour optimiser le contrôle continu et préparer l\'EAF avec excellence.',
-    parcoursLink: '/offres#accompagnement-annuel',
+    parcoursLink: '/offres#section-annual',
   },
   'Terminale-Lycée-Mention': {
     parcours: 'Parcours annuel Terminale : spécialités et Grand Oral',
     description: 'Conçu pour exceller dans les matières à fort coefficient et obtenir une mention.',
-    parcoursLink: '/offres#accompagnement-annuel',
+    parcoursLink: '/offres#section-annual',
   },
   'Terminale-Lycée-Parcoursup': {
     parcours: 'Parcours annuel Terminale : spécialités et Grand Oral',
     description: 'Optimise votre dossier Parcoursup avec une stratégie complète.',
-    parcoursLink: '/offres#accompagnement-annuel',
+    parcoursLink: '/offres#section-annual',
   },
   'Première-Lycée-Controle': {
     parcours: 'Parcours annuel Première : préparation EAF',
     description: 'Maximisez votre contrôle continu avec un suivi personnalisé.',
-    parcoursLink: '/offres#accompagnement-annuel',
+    parcoursLink: '/offres#section-annual',
   },
   'CandidatLibre-Cadre': {
     parcours: 'Parcours candidat libre : préparation intégrale',
     description: 'Votre établissement privé à domicile pour obtenir votre Bac.',
-    parcoursLink: '/offres#candidats-libres',
+    parcoursLink: '/offres#section-libre',
   }
 };
 

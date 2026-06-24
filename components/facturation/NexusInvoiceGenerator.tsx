@@ -15,6 +15,7 @@ import {
   type NexusMixedPayment,
 } from '@/lib/invoice/nexus-calculations';
 import { LEGAL } from '@/lib/legal';
+import { CGV_POLICY } from '@/lib/cgv-policy';
 
 const BRAND = {
   navy: '#0B1F4D',
@@ -36,7 +37,7 @@ const COMPANY = {
   email: LEGAL.contact.email,
   web: LEGAL.web.domain,
   bankBeneficiary: LEGAL.entity.name,
-  bank: 'Banque Zitouna',
+  bank: CGV_POLICY.payment.bank,
   rib: '25 079 000 0001569084 04',
   iban: 'TN59 25 079 000 0001569084 04',
   swift: 'BZITTNTTXXX',

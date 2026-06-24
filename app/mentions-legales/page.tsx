@@ -2,6 +2,7 @@ import React from 'react';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { LEGAL } from '@/lib/legal';
+import { CGV_POLICY } from '@/lib/cgv-policy';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -21,7 +22,7 @@ export default function MentionsLegalesPage() {
           <div className="bg-surface-card p-8 md:p-12 rounded-2xl shadow-premium border border-white/10 space-y-10 text-neutral-300 leading-relaxed">
 
             {/* 1. Éditeur */}
-            <section>
+            <section id="donnees">
               <h2 className="text-2xl font-bold mb-4 text-white">1. Éditeur du Site</h2>
               <p>
                 Le site est édité par la société <strong className="text-white">{LEGAL.entity.name}</strong>,
@@ -120,7 +121,7 @@ export default function MentionsLegalesPage() {
                 <a href="mailto:dpo@nexusreussite.academy" className="text-brand-accent underline">dpo@nexusreussite.academy</a>
               </p>
               <p>
-                <strong className="text-white">Paiement :</strong> Les transactions par carte bancaire sont traitées exclusivement par le prestataire de paiement <strong className="text-white">ClicToPay</strong> (Banque Zitouna). {LEGAL.entity.name} ne collecte, ne stocke et ne journalise jamais le cryptogramme visuel (CVV/CVC) de votre carte. L&apos;ensemble des données de carte est traité par le prestataire dans un environnement sécurisé.
+                <strong className="text-white">Paiement :</strong> Les transactions par carte bancaire sont traitées exclusivement par le prestataire de paiement <strong className="text-white">{CGV_POLICY.payment.provider}</strong> ({CGV_POLICY.payment.bank}). {LEGAL.entity.name} ne collecte, ne stocke et ne journalise jamais le cryptogramme visuel (CVV/CVC) de votre carte. {CGV_POLICY.payment.cvvStorage} L&apos;ensemble des données de carte est traité par le prestataire dans un environnement sécurisé.
               </p>
             </section>
 
