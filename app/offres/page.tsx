@@ -37,6 +37,7 @@ import {
   Testimonials,
   TransparencyBanner,
 } from '@/components/marketing/acadomia-inspired';
+import { PaymentMethodsNote } from '@/components/marketing/PaymentMethodsNote';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 
 // ── Category filter ──
@@ -177,6 +178,9 @@ export default function OffresPage() {
           <div className="mt-8 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
             <TransparencyBanner compact />
             <ReassuranceChips compact />
+          </div>
+          <div className="mt-4 max-w-2xl">
+            <PaymentMethodsNote tone="dark" />
           </div>
         </div>
       </section>

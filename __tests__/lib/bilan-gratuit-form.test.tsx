@@ -3,9 +3,12 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import BilanGratuitPage from '../../app/bilan-gratuit/page';
+import { CGV_POLICY } from '@/lib/cgv-policy';
+import { LEGAL } from '@/lib/legal';
 
 const mockPush = jest.fn();
 const mockFetch = jest.fn();
+let mockSearchParams = new URLSearchParams();
 
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
@@ -16,7 +19,7 @@ jest.mock('next/navigation', () => ({
     replace: jest.fn(),
     prefetch: jest.fn(),
   }),
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => mockSearchParams,
   usePathname: () => '/bilan-gratuit',
 }));
 
@@ -38,6 +41,7 @@ jest.mock('framer-motion', () => ({
 describe('BilanGratuitPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockSearchParams = new URLSearchParams();
     (global as any).fetch = mockFetch;
     mockFetch.mockResolvedValue({
       ok: true,
@@ -57,6 +61,18 @@ describe('BilanGratuitPage', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Bilan stratégique gratuit' })).toBeInTheDocument();
     expect(screen.getByText(/Identifier les priorités de votre enfant/i)).toBeInTheDocument();
     expect(screen.queryByLabelText(/mot de passe/i)).not.toBeInTheDocument();
+  });
+
+  it('shows card payment policy for a selected offer without public RIB/IBAN', () => {
+    mockSearchParams = new URLSearchParams('offer=term-spe-simple');
+    const { container } = render(<BilanGratuitPage />);
+
+    expect(screen.getByText(/offre repérée/i)).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(CGV_POLICY.payment.provider, 'i'))).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(CGV_POLICY.payment.bank, 'i'))).toBeInTheDocument();
+    expect(screen.getByText(CGV_POLICY.payment.cardFee)).toBeInTheDocument();
+    expect(container.textContent).not.toContain(LEGAL.billing.rib);
+    expect(container.textContent).not.toContain(LEGAL.billing.iban);
   });
 
   it('submits the public form and redirects to confirmation', async () => {
