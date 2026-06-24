@@ -188,7 +188,7 @@ export default function DashboardParent() {
                       <TrendingUp className="w-8 h-8 text-brand-accent mb-4" />
                       <h3 className="text-lg font-bold text-white mb-2">Nexus Performance</h3>
                       <p className="text-sm text-neutral-300 mb-4">
-                        Les trajectoires de vos enfants sont optimisées par l'IA pour garantir les meilleurs résultats au Bac.
+                        Le suivi s'appuie sur l'IA et l'accompagnement pédagogique pour cibler les priorités en vue du Bac.
                       </p>
                       <Button className="w-full bg-brand-accent text-surface-darker">Voir le rapport annuel</Button>
                     </CardContent>

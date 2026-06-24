@@ -47,9 +47,7 @@ const CorporateFooter = () => {
                             />
                         </div>
                         <p className="text-neutral-300 text-sm leading-relaxed">
-                            L&apos;excellence pédagogique augmentée par l&apos;Intelligence Artificielle.
-                            <br />
-                            Pour les familles qui recherchent un cadre sérieux, sobre et cohérent.
+                            Un accompagnement pédagogique exigeant, augmenté par l&apos;IA selon la formule, pour les familles qui recherchent un cadre sérieux, sobre et cohérent.
                         </p>
                     </div>
 

@@ -16,7 +16,7 @@ const faqs = [
     answer: "Non, ARIA est un outil complémentaire qui aide à la révision selon formule, mais ne remplace pas l'expertise humaine. Nos professeurs agrégés et certifiés restent au cœur de notre pédagogie pour l'accompagnement personnalisé et les cours en présentiel."
   },
   {
-    question: "Comment fonctionne la garantie de réussite ?",
+    question: "Quel engagement Nexus prend-il ?",
     answer: "Nexus privilégie un engagement de moyens : diagnostic, méthode, bilans réguliers et ajustements pédagogiques."
   },
   {
@@ -112,7 +112,7 @@ export function FAQSection() {
             Tout Ce Que Vous Devez Savoir
           </h2>
           <p className="text-lg text-gris-noble max-w-3xl mx-auto">
-            Trouvez rapidement les réponses à vos questions sur nos programmes, nos garanties et notre accompagnement.
+            Trouvez rapidement les réponses à vos questions sur nos programmes, notre méthode et notre accompagnement.
           </p>
         </motion.div>
 

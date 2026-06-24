@@ -98,7 +98,7 @@ function PricingReperesSection() {
           </h2>
           <div className="lux-filet-gold mx-auto mt-3 w-16" />
           <p className="mx-auto mt-3 max-w-xl text-base text-lux-slate">
-            Groupes de {rules.group_max} max, garanti dès {rules.group_min_open.lycee}.
+            Groupes de {rules.group_max} max, ouverture dès {rules.group_min_open.lycee}.
             Tous les tarifs en TND.
           </p>
         </div>
@@ -188,7 +188,7 @@ const faqItems: FAQItem[] = [
   {
     question: 'Comment fonctionnent les groupes de 5 maximum\u00A0?',
     answer:
-      'Chaque groupe est limité à 5 élèves (4 pour le Brevet) pour garantir un suivi personnalisé. Le groupe est ouvert dès 3 inscrits. Si le seuil n\u2019est pas atteint, l\u2019acompte est intégralement remboursé.',
+      'Chaque groupe est limité à 5 élèves (4 pour le Brevet) afin de préserver un suivi personnalisé. Le groupe est ouvert dès 3 inscrits. Si le seuil n\u2019est pas atteint, l\u2019acompte est intégralement remboursé.',
   },
   {
     question: 'Qui sont les enseignants\u00A0?',

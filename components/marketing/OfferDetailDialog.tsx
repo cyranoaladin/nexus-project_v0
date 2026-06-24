@@ -163,7 +163,7 @@ export function OfferDetailDialog({ offer, onClose }: OfferDetailDialogProps) {
               <p id="offer-dialog-desc" className="mt-1 text-sm text-lux-slate">
                 {offer.format}
                 {offer.groupMax != null &&
-                  ` · ${offer.groupMax} élèves max, garanti dès ${offer.groupMinOpen ?? 3}`}
+                  ` · ${offer.groupMax} élèves max, ouverture dès ${offer.groupMinOpen ?? 3}`}
               </p>
             )}
           </div>
