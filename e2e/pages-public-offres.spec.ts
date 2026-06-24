@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test';
+import { CGV_POLICY } from '@/lib/cgv-policy';
+import { LEGAL } from '@/lib/legal';
 
 test.describe('/offres — Page Tarifs', () => {
   test.beforeEach(async ({ page }) => {
@@ -33,6 +35,17 @@ test.describe('/offres — Page Tarifs', () => {
     await expect(page.getByText(/Tarifs\s+en\s+TND/).first()).toBeVisible();
     await expect(page.getByText(/Acompte\s+30\s*%/).first()).toBeVisible();
     await expect(page.getByText(/[ÉE]ch[ée]anciers\s+transparents/).first()).toBeVisible();
+  });
+
+  test('paiement carte ClicToPay visible sans RIB public', async ({ page }) => {
+    await expect(page.getByTestId('payment-methods-note').first()).toBeVisible();
+    await expect(page.getByText(CGV_POLICY.payment.provider).first()).toBeVisible();
+    await expect(page.getByText(CGV_POLICY.payment.acceptedCards).first()).toBeVisible();
+    await expect(page.getByText(CGV_POLICY.payment.cardFee).first()).toBeVisible();
+
+    const body = await page.textContent('body');
+    expect(body).not.toContain(LEGAL.billing.rib);
+    expect(body).not.toContain(LEGAL.billing.iban);
   });
 
   test('page charge sans erreur 500', async ({ page }) => {
