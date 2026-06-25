@@ -93,4 +93,32 @@ describe('Public lux-* charte guard', () => {
 
     expect(stale).toEqual([]);
   });
+
+  // text-lux-slate (#5A6B82) has only 3.17:1 contrast on lux-ink — below AA.
+  // It's fine on light backgrounds (lux-white, lux-paper) but must not appear
+  // on pages whose root is bg-lux-ink (dark surfaces).
+  const DARK_BG_PUBLIC_FILES = [
+    'app/famille/page.tsx',
+    'app/stages/[stageSlug]/page.tsx',
+    'app/stages/[stageSlug]/inscription/page.tsx',
+    'app/mentions-legales/page.tsx',
+    'app/conditions-generales/page.tsx',
+    'components/stages/StageInscriptionForm.tsx',
+    'components/stages/PublicStageCard.tsx',
+  ];
+
+  test('text-lux-slate must not appear on dark-background public surfaces (contrast < AA)', () => {
+    const offenders: string[] = [];
+
+    for (const file of DARK_BG_PUBLIC_FILES) {
+      const fullPath = join(root, file);
+      if (!existsSync(fullPath)) continue;
+      const content = readFileSync(fullPath, 'utf-8');
+      if (content.includes('text-lux-slate')) {
+        offenders.push(`${file} uses text-lux-slate on dark bg (use text-lux-on-dark-subtle instead)`);
+      }
+    }
+
+    expect(offenders).toEqual([]);
+  });
 });
