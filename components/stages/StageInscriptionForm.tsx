@@ -183,11 +183,11 @@ export function StageInscriptionForm({ stage }: { stage: StageSummary }) {
 
         <div className="mt-6 grid gap-4 rounded-2xl border border-lux-line/40 bg-white/5 p-5 text-sm sm:grid-cols-2">
           <div>
-            <p className="text-lux-slate">Statut</p>
+            <p className="text-lux-on-dark-subtle">Statut</p>
             <p className="mt-1 font-semibold text-lux-ivory">{statusLabel}</p>
           </div>
           <div>
-            <p className="text-lux-slate">Email de suivi</p>
+            <p className="text-lux-on-dark-subtle">Email de suivi</p>
             <p className="mt-1 font-semibold text-lux-ivory">{success.email}</p>
           </div>
         </div>
@@ -227,8 +227,8 @@ export function StageInscriptionForm({ stage }: { stage: StageSummary }) {
               }`}
             >
               <div className="flex items-center gap-2">
-                {done ? <CheckCircle2 className="h-4 w-4 text-emerald-300" /> : <Circle className={`h-4 w-4 ${active ? 'text-lux-gold' : 'text-lux-slate'}`} />}
-                <span className="text-xs uppercase tracking-[0.16em] text-lux-slate">Étape {index + 1}</span>
+                {done ? <CheckCircle2 className="h-4 w-4 text-emerald-300" /> : <Circle className={`h-4 w-4 ${active ? 'text-lux-gold' : 'text-lux-on-dark-subtle'}`} />}
+                <span className="text-xs uppercase tracking-[0.16em] text-lux-on-dark-subtle">Étape {index + 1}</span>
               </div>
               <p className="mt-2 text-sm font-semibold text-lux-ivory">{title}</p>
             </div>
@@ -287,7 +287,7 @@ export function StageInscriptionForm({ stage }: { stage: StageSummary }) {
             <div className="rounded-[24px] border border-lux-line/40 bg-white/5 p-5">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.16em] text-lux-slate">Stage sélectionné</p>
+                  <p className="text-xs uppercase tracking-[0.16em] text-lux-on-dark-subtle">Stage sélectionné</p>
                   <h3 className="mt-2 text-xl font-semibold text-lux-ivory">{stage.title}</h3>
                   <p className="mt-1 text-sm text-lux-on-dark-muted">{formatStageDateRange(stage.startDate, stage.endDate)}</p>
                 </div>
@@ -329,7 +329,7 @@ export function StageInscriptionForm({ stage }: { stage: StageSummary }) {
                 />
                 <span>J&apos;accepte que mes données soient traitées par Nexus Réussite.</span>
               </label>
-              <p className="text-xs text-lux-slate">
+              <p className="text-xs text-lux-on-dark-subtle">
                 Notre équipe vous contactera dans les 24h pour les détails de paiement.
               </p>
             </div>
@@ -424,7 +424,7 @@ function Field({
 function SummaryLine({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-lux-line/40 bg-white/5 px-4 py-3">
-      <p className="text-xs uppercase tracking-[0.16em] text-lux-slate">{label}</p>
+      <p className="text-xs uppercase tracking-[0.16em] text-lux-on-dark-subtle">{label}</p>
       <p className="mt-1 text-sm font-medium text-lux-ivory">{value}</p>
     </div>
   );

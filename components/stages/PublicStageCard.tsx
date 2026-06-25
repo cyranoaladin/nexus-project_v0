@@ -70,7 +70,7 @@ export function PublicStageCard({ stage }: { stage: PublicStage }) {
 
       <div className="mt-6 flex items-end justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-lux-slate">Tarif</p>
+          <p className="text-xs uppercase tracking-[0.18em] text-lux-on-dark-subtle">Tarif</p>
           <p className="mt-1 text-2xl font-semibold text-lux-ivory">
             {formatStagePrice(stage.priceAmount, stage.priceCurrency)}
           </p>
@@ -91,7 +91,7 @@ export function PublicStageCard({ stage }: { stage: PublicStage }) {
               <ArrowRight className="h-4 w-4" />
             </Link>
           ) : (
-            <span className="inline-flex items-center rounded-full border border-lux-line/40 bg-white/5 px-5 py-3 text-sm font-semibold text-lux-slate">
+            <span className="inline-flex items-center rounded-full border border-lux-line/40 bg-white/5 px-5 py-3 text-sm font-semibold text-lux-on-dark-subtle">
               Stage terminé
             </span>
           )}

@@ -14,6 +14,9 @@ const publicPages = [
   '/ressources',
   '/recommandation',
   '/mentions-legales',
+  '/conditions-generales',
+  '/politique-confidentialite',
+  '/famille',
   '/programme/maths-1ere',
 ];
 

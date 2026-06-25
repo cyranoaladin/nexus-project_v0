@@ -28,7 +28,7 @@ export default async function StageInscriptionPage({ params }: PageProps) {
         <section className="mx-auto max-w-7xl px-6 pb-20">
           <div className="grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
             <aside className="rounded-[28px] border border-lux-line/40 bg-white/5 p-6 backdrop-blur-sm">
-              <p className="text-xs uppercase tracking-[0.16em] text-lux-slate">Inscription publique</p>
+              <p className="text-xs uppercase tracking-[0.16em] text-lux-on-dark-subtle">Inscription publique</p>
               <h1 className="mt-3 font-fraunces text-3xl font-light tracking-tight text-lux-ivory">{stage.title}</h1>
               <p className="mt-4 text-sm leading-7 text-lux-on-dark-muted">{formatStageDateRange(stage.startDate, stage.endDate)}</p>
               <p className="mt-2 text-sm text-lux-on-dark-muted">{formatStagePrice(stage.priceAmount, stage.priceCurrency)}</p>

@@ -118,18 +118,18 @@ export default async function StageDetailPage({ params }: PageProps) {
                     <span>{stage.location || 'Centre Nexus Réussite'}</span>
                   </div>
                   <div className="rounded-2xl border border-lux-line/40 bg-white/5 px-4 py-3">
-                    <span className="text-lux-slate">Places restantes</span>
+                    <span className="text-lux-on-dark-subtle">Places restantes</span>
                     <p className="mt-1 font-semibold text-lux-ivory">{stage.availablePlaces}</p>
                   </div>
                   <div className="rounded-2xl border border-lux-line/40 bg-white/5 px-4 py-3">
-                    <span className="text-lux-slate">Tarif</span>
+                    <span className="text-lux-on-dark-subtle">Tarif</span>
                     <p className="mt-1 font-semibold text-lux-ivory">{formatStagePrice(stage.priceAmount, stage.priceCurrency)}</p>
                   </div>
                 </div>
               </div>
 
               <aside className="rounded-[28px] border border-lux-line/40 bg-white/5 p-6">
-                <p className="text-xs uppercase tracking-[0.16em] text-lux-slate">Réserver une place</p>
+                <p className="text-xs uppercase tracking-[0.16em] text-lux-on-dark-subtle">Réserver une place</p>
                 <p className="mt-3 text-sm leading-7 text-lux-on-dark-muted">
                   L&apos;inscription est transmise à notre équipe, qui confirme ensuite le créneau, le groupe et les modalités de paiement.
                 </p>
@@ -142,7 +142,7 @@ export default async function StageDetailPage({ params }: PageProps) {
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 ) : (
-                  <span className="mt-6 inline-flex w-full items-center justify-center rounded-full border border-lux-line/40 bg-white/5 px-5 py-3 text-sm font-semibold text-lux-slate">
+                  <span className="mt-6 inline-flex w-full items-center justify-center rounded-full border border-lux-line/40 bg-white/5 px-5 py-3 text-sm font-semibold text-lux-on-dark-subtle">
                     Inscriptions fermées
                   </span>
                 )}
@@ -190,28 +190,28 @@ export default async function StageDetailPage({ params }: PageProps) {
             <h2 className="text-2xl md:text-3xl font-fraunces font-light text-lux-ivory">Infos pratiques</h2>
             <div className="mt-6 space-y-4 text-sm text-lux-on-dark-muted">
               <div className="rounded-2xl border border-lux-line/40 bg-white/5 px-4 py-4">
-                <div className="flex items-center gap-2 text-lux-slate">
+                <div className="flex items-center gap-2 text-lux-on-dark-subtle">
                   <Clock3 className="h-4 w-4" />
                   Horaires globaux
                 </div>
                 <p className="mt-2 text-lux-ivory">{practicalHours}</p>
               </div>
               <div className="rounded-2xl border border-lux-line/40 bg-white/5 px-4 py-4">
-                <div className="flex items-center gap-2 text-lux-slate">
+                <div className="flex items-center gap-2 text-lux-on-dark-subtle">
                   {isOnlineLocation(stage.location) ? <Video className="h-4 w-4" /> : <MapPin className="h-4 w-4" />}
                   Lieu
                 </div>
                 <p className="mt-2 text-lux-ivory">{stage.location || 'Centre Nexus Réussite'}</p>
               </div>
               <div className="rounded-2xl border border-lux-line/40 bg-white/5 px-4 py-4">
-                <p className="text-lux-slate">Prix & modalités</p>
+                <p className="text-lux-on-dark-subtle">Prix & modalités</p>
                 <p className="mt-2 text-lux-ivory">{formatStagePrice(stage.priceAmount, stage.priceCurrency)}</p>
                 <p className="mt-2 text-lux-on-dark-muted">
                   Paiement validé avec notre équipe après confirmation de l&apos;inscription.
                 </p>
               </div>
               <div className="rounded-2xl border border-lux-line/40 bg-white/5 px-4 py-4">
-                <div className="flex items-center gap-2 text-lux-slate">
+                <div className="flex items-center gap-2 text-lux-on-dark-subtle">
                   <Phone className="h-4 w-4" />
                   Questions
                 </div>
@@ -230,7 +230,7 @@ export default async function StageDetailPage({ params }: PageProps) {
                 <div key={assignment.id} className="rounded-[24px] border border-lux-line/40 bg-white/5 p-5">
                   <p className="text-xs uppercase tracking-[0.16em] text-lux-gold">{assignment.role || 'Coach référent'}</p>
                   <h3 className="mt-3 text-xl font-semibold text-lux-ivory">{assignment.coach.pseudonym}</h3>
-                  <p className="mt-1 text-sm text-lux-slate">{assignment.coach.title || assignment.coach.tag || 'Coach Nexus Réussite'}</p>
+                  <p className="mt-1 text-sm text-lux-on-dark-subtle">{assignment.coach.title || assignment.coach.tag || 'Coach Nexus Réussite'}</p>
                   <div className="mt-4 flex flex-wrap gap-2">
                     {(assignment.coach.subjects as string[]).map((subject) => (
                       <span key={subject} className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1 text-xs font-medium text-lux-on-dark-muted">
@@ -254,7 +254,7 @@ export default async function StageDetailPage({ params }: PageProps) {
 
         <section className="mx-auto max-w-7xl px-6 pb-20">
           <div className="rounded-[32px] border border-lux-line/40 bg-[linear-gradient(135deg,rgba(191,160,106,0.18),rgba(191,160,106,0.08))] p-8 text-center md:p-12">
-            <p className="text-xs uppercase tracking-[0.18em] text-lux-slate">Réservez votre place</p>
+            <p className="text-xs uppercase tracking-[0.18em] text-lux-on-dark-subtle">Réservez votre place</p>
             <h2 className="mt-3 text-2xl md:text-3xl font-fraunces font-light text-lux-ivory md:text-4xl">
               Un stage bien dimensionné, un planning clair, un suivi humain du premier contact jusqu&apos;au bilan.
             </h2>
@@ -270,7 +270,7 @@ export default async function StageDetailPage({ params }: PageProps) {
                 <ArrowRight className="h-4 w-4" />
               </Link>
             ) : (
-              <span className="mt-8 inline-flex items-center rounded-full border border-lux-line/40 bg-white/5 px-6 py-3 text-sm font-semibold text-lux-slate">
+              <span className="mt-8 inline-flex items-center rounded-full border border-lux-line/40 bg-white/5 px-6 py-3 text-sm font-semibold text-lux-on-dark-subtle">
                 Inscriptions fermées
               </span>
             )}
