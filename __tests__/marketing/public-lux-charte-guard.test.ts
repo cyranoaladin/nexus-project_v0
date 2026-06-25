@@ -31,22 +31,21 @@ const MIGRATED_PUBLIC_PAGES = [
   'app/ressources/page.tsx',
   'app/politique-confidentialite/page.tsx',
   'app/famille/page.tsx',
+  'app/stages/[stageSlug]/page.tsx',
+  'app/stages/[stageSlug]/inscription/page.tsx',
 ];
 
 // Public shared components (chrome) already migrated
 const MIGRATED_PUBLIC_COMPONENTS = [
   'components/layout/CorporateNavbar.tsx',
   'components/layout/CorporateFooter.tsx',
+  'components/stages/StageInscriptionForm.tsx',
+  'components/stages/PublicStageCard.tsx',
 ];
 
 // Pages publiques PAS encore migrées — allowlist décroissante
 // Retirer de cette liste au fur et à mesure des PR de migration
 const PUBLIC_ALLOWLIST = [
-  // PR-4: stages
-  'app/stages/[stageSlug]/page.tsx',
-  'app/stages/[stageSlug]/inscription/page.tsx',
-  'components/stages/StageInscriptionForm.tsx',
-  'components/stages/PublicStageCard.tsx',
   // PR-5: légal
   'app/mentions-legales/page.tsx',
   'app/conditions-generales/page.tsx',
