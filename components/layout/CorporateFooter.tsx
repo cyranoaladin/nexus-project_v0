@@ -26,6 +26,7 @@ const CorporateFooter = () => {
         { label: 'Ressources', href: '/ressources', isPage: true },
         { label: 'Notre Équipe', href: '/equipe', isPage: true },
         { label: 'Notre Centre', href: '/notre-centre', isPage: true },
+        { label: 'Espace Famille', href: '/famille', isPage: true },
         { label: 'Bilan Gratuit', href: '/bilan-gratuit', isPage: true },
         { label: 'Contact', href: '/contact', isPage: true }
     ];
