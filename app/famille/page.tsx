@@ -47,24 +47,24 @@ export default function FamillePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-surface-darker text-slate-200 font-sans">
+    <div className="min-h-screen bg-lux-ink font-dm-sans">
       <CorporateNavbar />
 
       <main>
-        <section className="relative overflow-hidden py-24 bg-surface-darker">
-          <div className="absolute inset-0 bg-gradient-to-b from-surface-darker via-surface-darker/70 to-surface-darker" />
-          <div className="absolute -top-24 right-10 h-72 w-72 rounded-full bg-brand-accent/10 blur-[140px]" />
+        <section className="relative overflow-hidden py-24 bg-lux-ink">
+          <div className="absolute inset-0 bg-gradient-to-b from-lux-ink via-lux-ink/70 to-lux-ink" />
+          <div className="absolute -top-24 right-10 h-72 w-72 rounded-full bg-lux-gold/10 blur-[140px]" />
           <div className="absolute bottom-0 left-10 h-72 w-72 rounded-full bg-neutral-800/30 blur-[140px]" />
 
           <div className="container mx-auto px-4 md:px-6 relative z-10">
             <div className="max-w-4xl">
-              <p className="inline-flex items-center rounded-full border border-brand-accent/40 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-brand-accent">
+              <p className="inline-flex items-center rounded-full border border-lux-gold/40 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-lux-gold">
                 Accompagnement scolaire
               </p>
-              <h1 className="marketing-hero-title mt-6">
+              <h1 className="mt-6 text-4xl md:text-5xl font-fraunces font-light text-lux-ivory">
                 Un cadre clair pour préparer le Bac et Parcoursup.
               </h1>
-              <p className="marketing-hero-copy mt-6">
+              <p className="mt-6 max-w-2xl text-base text-lux-on-dark-muted">
                 Nexus Réussite accompagne les familles avec une méthode structurée,
                 des groupes réduits, des corrections sur grilles officielles et un
                 suivi parent régulier.
@@ -88,12 +88,12 @@ export default function FamillePage() {
                   <a
                     key={item.label}
                     href="#offres"
-                    className="rounded-2xl border border-white/10 bg-white/5 p-5 text-left backdrop-blur-md transition hover:border-brand-accent/50 hover:bg-white/10"
+                    className="rounded-2xl border border-lux-line/40 bg-white/5 p-5 text-left backdrop-blur-md transition hover:border-lux-gold/50 hover:bg-white/10"
                   >
-                    <div className="text-brand-accent text-sm font-semibold uppercase tracking-wider">
+                    <div className="text-lux-gold text-sm font-semibold uppercase tracking-wider">
                       {item.label}
                     </div>
-                    <div className="mt-2 text-white font-semibold">{item.text}</div>
+                    <div className="mt-2 text-lux-ivory font-semibold">{item.text}</div>
                   </a>
                 ))}
               </div>
@@ -101,23 +101,23 @@ export default function FamillePage() {
           </div>
         </section>
 
-        <section className="bg-surface-darker py-20">
+        <section className="bg-lux-ink py-20">
           <div className="container mx-auto px-4 md:px-6">
-            <h2 className="marketing-section-title text-center">
+            <h2 className="text-2xl md:text-3xl font-fraunces font-light text-lux-ivory text-center">
               Le soutien scolaire a évolué. Votre exigence aussi.
             </h2>
             <div className="mt-10 grid gap-6 lg:grid-cols-2">
-              <div className="rounded-3xl border border-slate-500/30 bg-slate-500/10 p-6">
-                <h3 className="text-xl font-semibold text-white">Un suivi trop souvent opaque</h3>
-                <ul className="mt-4 space-y-2 text-slate-300">
+              <div className="rounded-3xl border border-lux-line/40 bg-white/5 p-6">
+                <h3 className="text-xl font-semibold text-lux-ivory">Un suivi trop souvent opaque</h3>
+                <ul className="mt-4 space-y-2 text-lux-on-dark-muted">
                   <li>• Peu de visibilité parent entre deux séances.</li>
                   <li>• Des exercices sans plan de progression clair.</li>
                   <li>• Des priorités qui changent sans diagnostic partagé.</li>
                 </ul>
               </div>
-              <div className="rounded-3xl border border-brand-accent/30 bg-white/5 p-6">
-                <h3 className="text-xl font-semibold text-white">Le cadre Nexus</h3>
-                <ul className="mt-4 space-y-2 text-slate-300">
+              <div className="rounded-3xl border border-lux-gold/30 bg-white/5 p-6">
+                <h3 className="text-xl font-semibold text-lux-ivory">Le cadre Nexus</h3>
+                <ul className="mt-4 space-y-2 text-lux-on-dark-muted">
                   <li>• Diagnostic initial et priorités explicites.</li>
                   <li>• Groupes réduits et corrections régulières.</li>
                   <li>• Bilans parent pour suivre les ajustements pédagogiques.</li>
@@ -127,24 +127,24 @@ export default function FamillePage() {
           </div>
         </section>
 
-        <section id="offres" className="bg-surface-darker py-20">
+        <section id="offres" className="bg-lux-ink py-20">
           <div className="container mx-auto px-4 md:px-6">
-            <h2 className="marketing-section-title text-center">
+            <h2 className="text-2xl md:text-3xl font-fraunces font-light text-lux-ivory text-center">
               Des parcours adaptés à chaque besoin.
             </h2>
 
-            <div className="mt-10 rounded-3xl border border-brand-accent/40 bg-white/5 p-8 backdrop-blur-md">
-              <div className="flex items-center gap-3 text-brand-accent text-sm font-semibold uppercase">
+            <div className="mt-10 rounded-3xl border border-lux-gold/40 bg-white/5 p-8 backdrop-blur-md">
+              <div className="flex items-center gap-3 text-lux-gold text-sm font-semibold uppercase">
                 <Crown className="h-5 w-5" />
                 Parcours annuel
               </div>
-              <h3 className="mt-4 text-2xl md:text-3xl font-bold text-white">
+              <h3 className="mt-4 text-2xl md:text-3xl font-fraunces font-light text-lux-ivory">
                 Accompagnement structuré Nexus
               </h3>
-              <p className="mt-3 text-slate-300">
+              <p className="mt-3 text-lux-on-dark-muted">
                 Un parcours annuel pour organiser le travail, suivre les progrès et préparer les échéances.
               </p>
-              <div className="mt-6 grid gap-3 md:grid-cols-2 text-slate-300 text-sm">
+              <div className="mt-6 grid gap-3 md:grid-cols-2 text-lux-on-dark-muted text-sm">
                 <div>• Suivi parent régulier</div>
                 <div>• ARIA selon formule</div>
                 <div>• Présentiel, distanciel ou mixte selon parcours</div>
@@ -153,51 +153,51 @@ export default function FamillePage() {
             </div>
 
             <div className="mt-8 grid gap-6 md:grid-cols-2">
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-md">
-                <div className="flex items-center gap-2 text-brand-accent">
+              <div className="rounded-3xl border border-lux-line/40 bg-white/5 p-6 backdrop-blur-md">
+                <div className="flex items-center gap-2 text-lux-gold">
                   <GraduationCap className="h-5 w-5" />
                   <span className="text-sm font-semibold uppercase tracking-wider">
                     Stages intensifs
                   </span>
                 </div>
-                <p className="mt-4 text-white font-semibold">
+                <p className="mt-4 text-lux-ivory font-semibold">
                   Travailler une période courte avec un objectif précis
                 </p>
-                <p className="mt-2 text-sm text-slate-300">
+                <p className="mt-2 text-sm text-lux-on-dark-muted">
                   Modules vacances, entraînements et corrections selon le niveau.
                 </p>
               </div>
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-md">
-                <div className="flex items-center gap-2 text-brand-accent">
+              <div className="rounded-3xl border border-lux-line/40 bg-white/5 p-6 backdrop-blur-md">
+                <div className="flex items-center gap-2 text-lux-gold">
                   <Sparkles className="h-5 w-5" />
                   <span className="text-sm font-semibold uppercase tracking-wider">
                     Modules ciblés
                   </span>
                 </div>
-                <p className="mt-4 text-white font-semibold">EAF, Grand Oral, coaching ou méthode</p>
-                <p className="mt-2 text-sm text-slate-300">
+                <p className="mt-4 text-lux-ivory font-semibold">EAF, Grand Oral, coaching ou méthode</p>
+                <p className="mt-2 text-sm text-lux-on-dark-muted">
                   Sessions ciblées lorsque le diagnostic fait apparaître un besoin ponctuel.
                 </p>
               </div>
             </div>
 
-            <div className="mt-8 rounded-2xl border border-white/10 bg-black/20 p-6 text-center">
-              <div className="text-brand-accent text-sm font-semibold uppercase tracking-wider">
+            <div className="mt-8 rounded-2xl border border-lux-line/40 bg-lux-ink/40 p-6 text-center">
+              <div className="text-lux-gold text-sm font-semibold uppercase tracking-wider">
                 Plateforme ARIA
               </div>
-              <p className="mt-2 text-white font-semibold">
+              <p className="mt-2 text-lux-ivory font-semibold">
                 Un assistant pédagogique complémentaire
               </p>
-              <p className="text-slate-300 text-sm">
+              <p className="text-lux-on-dark-muted text-sm">
                 Ressources et exercices selon la formule retenue.
               </p>
             </div>
           </div>
         </section>
 
-        <section className="bg-surface-darker py-20">
+        <section className="bg-lux-ink py-20">
           <div className="container mx-auto px-4 md:px-6">
-            <h2 className="marketing-section-title text-center">
+            <h2 className="text-2xl md:text-3xl font-fraunces font-light text-lux-ivory text-center">
               Nos engagements.
             </h2>
             <div className="mt-10 grid gap-6 md:grid-cols-3">
@@ -206,11 +206,11 @@ export default function FamillePage() {
                 return (
                   <div
                     key={card.title}
-                    className="rounded-3xl border border-brand-accent/40 bg-white/5 p-6 text-center backdrop-blur-md"
+                    className="rounded-3xl border border-lux-gold/40 bg-white/5 p-6 text-center backdrop-blur-md"
                   >
-                    <Icon className="mx-auto h-8 w-8 text-brand-accent" />
-                    <h3 className="mt-4 text-xl font-semibold text-white">{card.title}</h3>
-                    <p className="mt-2 text-slate-300">{card.text}</p>
+                    <Icon className="mx-auto h-8 w-8 text-lux-gold" />
+                    <h3 className="mt-4 text-xl font-semibold text-lux-ivory">{card.title}</h3>
+                    <p className="mt-2 text-lux-on-dark-muted">{card.text}</p>
                   </div>
                 );
               })}
@@ -218,13 +218,13 @@ export default function FamillePage() {
           </div>
         </section>
 
-        <section className="bg-surface-darker py-20">
+        <section className="bg-lux-ink py-20">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center">
-              <h2 className="marketing-section-title">
+              <h2 className="text-2xl md:text-3xl font-fraunces font-light text-lux-ivory">
                 Un cadre exigeant
               </h2>
-              <p className="mt-3 text-slate-300">
+              <p className="mt-3 text-lux-on-dark-muted">
                 Des preuves de méthode plutôt que des promesses de résultat.
               </p>
             </div>
@@ -233,16 +233,16 @@ export default function FamillePage() {
               {frameworkItems.map((item) => (
                 <div
                   key={item}
-                  className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 p-5"
+                  className="flex items-start gap-3 rounded-2xl border border-lux-line/40 bg-white/5 p-5"
                 >
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 flex-none text-brand-accent" aria-hidden="true" />
-                  <span className="text-sm leading-6 text-slate-200">{item}</span>
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 flex-none text-lux-gold" aria-hidden="true" />
+                  <span className="text-sm leading-6 text-lux-on-dark-muted">{item}</span>
                 </div>
               ))}
             </div>
 
             <div className="mt-8 text-center">
-              <Link href="/equipe" className="btn-outline-strong">
+              <Link href="/equipe" className="inline-flex items-center justify-center rounded-lg border-[1.5px] border-lux-ivory/60 bg-transparent px-6 py-3 text-sm font-semibold text-lux-ivory hover:bg-lux-ivory hover:text-lux-ink transition-all min-h-[44px]">
                 Découvrir l'équipe pédagogique
               </Link>
             </div>
@@ -251,30 +251,30 @@ export default function FamillePage() {
 
         <section className="py-16">
           <div className="container mx-auto px-4 md:px-6">
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-8 md:p-10">
+            <div className="rounded-3xl border border-lux-line/40 bg-white/5 p-8 md:p-10">
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                 <div>
-                  <p className="marketing-eyebrow">
+                  <p className="lux-eyebrow">
                     Prochaine étape
                   </p>
-                  <h2 className="marketing-cta-title">
+                  <h2 className="mt-2 text-2xl md:text-3xl font-fraunces font-light text-lux-ivory">
                     Obtenir un diagnostic personnalisé
                   </h2>
-                  <p className="marketing-cta-copy">
+                  <p className="mt-3 text-base text-lux-on-dark-muted">
                     Un bilan gratuit pour poser un plan clair, sans engagement.
                   </p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <Link href="/bilan-gratuit" className="btn-primary">
+                  <Link href="/bilan-gratuit" className="lux-cta-reserve rounded-lg px-8 py-3.5 text-sm font-semibold">
                     Démarrer un bilan gratuit
                   </Link>
-                  <Link href="/contact" className="btn-outline">
+                  <Link href="/contact" className="inline-flex items-center justify-center rounded-lg border-[1.5px] border-lux-ivory/60 bg-transparent px-6 py-3 text-sm font-semibold text-lux-ivory hover:bg-lux-ivory hover:text-lux-ink transition-all min-h-[44px]">
                     Parler à un conseiller
                   </Link>
                 </div>
               </div>
-              <div className="mt-6 flex items-center gap-3 text-neutral-300">
-                <Bot className="h-5 w-5 text-brand-accent" />
+              <div className="mt-6 flex items-center gap-3 text-lux-on-dark-muted">
+                <Bot className="h-5 w-5 text-lux-gold" />
                 <span>
                   Le bilan permet d'identifier les priorités et de recommander un format adapté.
                 </span>
