@@ -135,7 +135,7 @@ export function CorporateNavbar() {
   const chromePillActive = 'border-lux-gold/40 bg-white/10 text-white';
   const chromeMenuItem = 'group/item flex items-start gap-3 rounded-xl px-4 py-3.5 transition-colors text-neutral-300 hover:bg-white/10 hover:text-white';
   const chromeMenuItemActive = 'bg-white/10 text-white';
-  const chromeHeader = 'fixed top-0 left-0 right-0 z-50 bg-surface-darker/88 backdrop-blur-md border-b border-white/10 shadow-[0_12px_40px_rgba(7,26,58,0.18)] transition-all duration-500';
+  const chromeHeader = 'fixed top-0 left-0 right-0 z-50 bg-lux-ink/88 backdrop-blur-md border-b border-white/10 shadow-[0_12px_40px_rgba(7,26,58,0.18)] transition-all duration-500';
   const chromeCta = 'hidden md:flex items-center gap-2 rounded-full bg-lux-gold px-5 py-2.5 text-xs font-semibold text-lux-ink transition-all hover:bg-lux-gold-bright shadow-[0_12px_30px_rgba(191,160,106,0.18)]';
   const chromeMobileCta = 'md:hidden inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-xs font-semibold text-white transition-colors hover:border-lux-gold/40 hover:bg-white/10 min-h-[44px]';
   const chromeMenuButton = 'md:hidden flex items-center gap-2 text-white transition-colors duration-300 hover:text-lux-gold-wash group';
@@ -271,7 +271,7 @@ export function CorporateNavbar() {
 
                   {isOpenGroup && (
                     <div
-                      className="absolute left-1/2 -translate-x-1/2 top-full mt-3 w-72 rounded-2xl border border-white/10 bg-surface-darker/95 backdrop-blur-xl shadow-2xl p-2 z-[60] animate-in fade-in slide-in-from-top-2 duration-200"
+                      className="absolute left-1/2 -translate-x-1/2 top-full mt-3 w-72 rounded-2xl border border-white/10 bg-lux-ink/95 backdrop-blur-xl shadow-2xl p-2 z-[60] animate-in fade-in slide-in-from-top-2 duration-200"
                       role="menu"
                       onMouseEnter={cancelClose}
                       onMouseLeave={scheduleClose}
@@ -328,7 +328,7 @@ export function CorporateNavbar() {
 
               {isConnexionOpen && (
                 <div
-                  className="absolute right-0 top-full mt-3 w-72 rounded-2xl border border-white/10 bg-surface-darker/95 backdrop-blur-xl shadow-2xl p-2 z-[60] animate-in fade-in slide-in-from-top-2 duration-200"
+                  className="absolute right-0 top-full mt-3 w-72 rounded-2xl border border-white/10 bg-lux-ink/95 backdrop-blur-xl shadow-2xl p-2 z-[60] animate-in fade-in slide-in-from-top-2 duration-200"
                   role="menu"
                   onMouseEnter={cancelConnexionClose}
                   onMouseLeave={scheduleConnexionClose}

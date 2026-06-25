@@ -32,7 +32,7 @@ const CorporateFooter = () => {
     ];
 
     return (
-        <footer className="relative bg-surface-darker pt-24 pb-28 overflow-hidden z-20 border-t border-white/10 lg:pb-8">
+        <footer className="relative bg-lux-ink pt-24 pb-28 overflow-hidden z-20 border-t border-white/10 lg:pb-8">
             <div className="max-w-7xl mx-auto px-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
 
