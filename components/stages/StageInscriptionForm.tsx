@@ -172,35 +172,35 @@ export function StageInscriptionForm({ stage }: { stage: StageSummary }) {
 
   if (success) {
     return (
-      <div className="rounded-[28px] border border-emerald-500/20 bg-emerald-500/10 p-8 text-neutral-100">
+      <div className="rounded-[28px] border border-emerald-500/20 bg-emerald-500/10 p-8 text-lux-on-dark-muted">
         <div className="flex items-center gap-3 text-emerald-300">
           <CheckCircle2 className="h-8 w-8" />
           <div>
-            <h2 className="text-2xl font-semibold text-white">Inscription enregistrée !</h2>
+            <h2 className="text-2xl font-semibold text-lux-ivory">Inscription enregistrée !</h2>
             <p className="text-sm text-emerald-100">Votre demande a bien été transmise à notre équipe.</p>
           </div>
         </div>
 
-        <div className="mt-6 grid gap-4 rounded-2xl border border-white/10 bg-surface-darker/60 p-5 text-sm sm:grid-cols-2">
+        <div className="mt-6 grid gap-4 rounded-2xl border border-lux-line/40 bg-white/5 p-5 text-sm sm:grid-cols-2">
           <div>
-            <p className="text-neutral-500">Statut</p>
-            <p className="mt-1 font-semibold text-white">{statusLabel}</p>
+            <p className="text-lux-slate">Statut</p>
+            <p className="mt-1 font-semibold text-lux-ivory">{statusLabel}</p>
           </div>
           <div>
-            <p className="text-neutral-500">Email de suivi</p>
-            <p className="mt-1 font-semibold text-white">{success.email}</p>
+            <p className="text-lux-slate">Email de suivi</p>
+            <p className="mt-1 font-semibold text-lux-ivory">{success.email}</p>
           </div>
         </div>
 
-        <p className="mt-6 text-sm leading-6 text-neutral-200">
+        <p className="mt-6 text-sm leading-6 text-lux-on-dark-muted">
           Un email de confirmation vous a été envoyé à <strong>{success.email}</strong>. Notre équipe vous contactera dans les 24h pour les détails de paiement.
         </p>
 
         <div className="mt-8 flex flex-wrap gap-3">
-          <Link href="/" className="inline-flex items-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-surface-darker transition hover:bg-neutral-100">
+          <Link href="/" className="inline-flex items-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-lux-ink transition hover:bg-lux-ivory">
             Retour à l&apos;accueil
           </Link>
-          <Link href="/stages" className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
+          <Link href="/stages" className="inline-flex items-center rounded-full border border-lux-line/40 bg-white/5 px-5 py-3 text-sm font-semibold text-lux-ivory transition hover:bg-white/10">
             Découvrir nos autres stages
           </Link>
         </div>
@@ -210,7 +210,7 @@ export function StageInscriptionForm({ stage }: { stage: StageSummary }) {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-3 rounded-[24px] border border-white/10 bg-white/5 p-4 sm:grid-cols-3">
+      <div className="grid gap-3 rounded-[24px] border border-lux-line/40 bg-white/5 p-4 sm:grid-cols-3">
         {stepTitles.map((title, index) => {
           const active = index === step;
           const done = index < step;
@@ -220,23 +220,23 @@ export function StageInscriptionForm({ stage }: { stage: StageSummary }) {
               key={title}
               className={`rounded-2xl border px-4 py-3 transition-colors ${
                 active
-                  ? 'border-brand-accent/40 bg-brand-accent/10'
+                  ? 'border-lux-gold/40 bg-lux-gold/10'
                   : done
                     ? 'border-emerald-500/30 bg-emerald-500/10'
-                    : 'border-white/10 bg-white/5'
+                    : 'border-lux-line/40 bg-white/5'
               }`}
             >
               <div className="flex items-center gap-2">
-                {done ? <CheckCircle2 className="h-4 w-4 text-emerald-300" /> : <Circle className={`h-4 w-4 ${active ? 'text-brand-accent' : 'text-neutral-500'}`} />}
-                <span className="text-xs uppercase tracking-[0.16em] text-neutral-500">Étape {index + 1}</span>
+                {done ? <CheckCircle2 className="h-4 w-4 text-emerald-300" /> : <Circle className={`h-4 w-4 ${active ? 'text-lux-gold' : 'text-lux-slate'}`} />}
+                <span className="text-xs uppercase tracking-[0.16em] text-lux-slate">Étape {index + 1}</span>
               </div>
-              <p className="mt-2 text-sm font-semibold text-white">{title}</p>
+              <p className="mt-2 text-sm font-semibold text-lux-ivory">{title}</p>
             </div>
           );
         })}
       </div>
 
-      <div className="rounded-[28px] border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
+      <div className="rounded-[28px] border border-lux-line/40 bg-white/5 p-6 backdrop-blur-sm">
         {step === 0 ? (
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Prénom" value={formData.firstName} onChange={(value) => updateField('firstName', value)} />
@@ -244,11 +244,11 @@ export function StageInscriptionForm({ stage }: { stage: StageSummary }) {
             <Field label="Email" type="email" value={formData.email} onChange={(value) => updateField('email', value)} />
             <Field label="Téléphone" type="tel" value={formData.phone ?? ''} onChange={(value) => updateField('phone', value)} />
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium text-neutral-200">Niveau</label>
+              <label className="text-sm font-medium text-lux-on-dark-muted">Niveau</label>
               <select
                 value={formData.level}
                 onChange={(event) => updateField('level', event.target.value)}
-                className="w-full rounded-2xl border border-white/10 bg-surface-elevated px-4 py-3 text-sm text-white outline-none transition focus:border-brand-accent/50"
+                className="w-full rounded-2xl border border-lux-line/40 bg-white/5 px-4 py-3 text-sm text-lux-ivory outline-none transition focus:border-lux-gold/50"
               >
                 {['Première', 'Terminale', '3ème', 'Autre'].map((level) => (
                   <option key={level} value={level} style={{ backgroundColor: '#1e1e2e', color: '#f5f5f5' }}>{level}</option>
@@ -260,7 +260,7 @@ export function StageInscriptionForm({ stage }: { stage: StageSummary }) {
 
         {step === 1 ? (
           <div className="space-y-4">
-            <p className="text-sm leading-6 text-neutral-300">
+            <p className="text-sm leading-6 text-lux-on-dark-muted">
               Ces informations permettent à notre équipe de vous contacter directement.
             </p>
             <div className="grid gap-4 md:grid-cols-2">
@@ -269,12 +269,12 @@ export function StageInscriptionForm({ stage }: { stage: StageSummary }) {
               <Field label="Email du parent" type="email" value={formData.parentEmail ?? ''} onChange={(value) => updateField('parentEmail', value)} />
               <Field label="Téléphone du parent" type="tel" value={formData.parentPhone ?? ''} onChange={(value) => updateField('parentPhone', value)} />
               <div className="space-y-2 md:col-span-2">
-                <label className="text-sm font-medium text-neutral-200">Note complémentaire</label>
+                <label className="text-sm font-medium text-lux-on-dark-muted">Note complémentaire</label>
                 <textarea
                   value={formData.notes ?? ''}
                   onChange={(event) => updateField('notes', event.target.value)}
                   rows={4}
-                  className="w-full rounded-2xl border border-white/10 bg-surface-elevated px-4 py-3 text-sm text-white outline-none transition focus:border-brand-accent/50"
+                  className="w-full rounded-2xl border border-lux-line/40 bg-white/5 px-4 py-3 text-sm text-lux-ivory outline-none transition focus:border-lux-gold/50"
                   placeholder="Allergies, contraintes horaires, question à transmettre à l'équipe..."
                 />
               </div>
@@ -284,18 +284,18 @@ export function StageInscriptionForm({ stage }: { stage: StageSummary }) {
 
         {step === 2 ? (
           <div className="space-y-6">
-            <div className="rounded-[24px] border border-white/10 bg-surface-darker/60 p-5">
+            <div className="rounded-[24px] border border-lux-line/40 bg-white/5 p-5">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.16em] text-neutral-500">Stage sélectionné</p>
-                  <h3 className="mt-2 text-xl font-semibold text-white">{stage.title}</h3>
-                  <p className="mt-1 text-sm text-neutral-300">{formatStageDateRange(stage.startDate, stage.endDate)}</p>
+                  <p className="text-xs uppercase tracking-[0.16em] text-lux-slate">Stage sélectionné</p>
+                  <h3 className="mt-2 text-xl font-semibold text-lux-ivory">{stage.title}</h3>
+                  <p className="mt-1 text-sm text-lux-on-dark-muted">{formatStageDateRange(stage.startDate, stage.endDate)}</p>
                 </div>
-                <p className="text-lg font-semibold text-white">{formatStagePrice(stage.priceAmount, stage.priceCurrency)}</p>
+                <p className="text-lg font-semibold text-lux-ivory">{formatStagePrice(stage.priceAmount, stage.priceCurrency)}</p>
               </div>
             </div>
 
-            <div className="grid gap-4 text-sm text-neutral-200 md:grid-cols-2">
+            <div className="grid gap-4 text-sm text-lux-on-dark-muted md:grid-cols-2">
               <SummaryLine label="Élève" value={`${formData.firstName} ${formData.lastName}`} />
               <SummaryLine label="Email élève" value={formData.email} />
               <SummaryLine label="Téléphone élève" value={formData.phone || 'Non renseigné'} />
@@ -310,13 +310,13 @@ export function StageInscriptionForm({ stage }: { stage: StageSummary }) {
               />
             </div>
 
-            <div className="space-y-3 rounded-[24px] border border-white/10 bg-white/5 p-5 text-sm text-neutral-200">
+            <div className="space-y-3 rounded-[24px] border border-lux-line/40 bg-white/5 p-5 text-sm text-lux-on-dark-muted">
               <label className="flex items-start gap-3">
                 <input
                   type="checkbox"
                   checked={formData.stageTermsAccepted}
                   onChange={(event) => updateField('stageTermsAccepted', event.target.checked)}
-                  className="mt-1 h-4 w-4 rounded border-white/20 bg-surface-elevated"
+                  className="mt-1 h-4 w-4 rounded border-lux-line/40 bg-white/5"
                 />
                 <span>J&apos;ai pris connaissance des modalités du stage.</span>
               </label>
@@ -325,11 +325,11 @@ export function StageInscriptionForm({ stage }: { stage: StageSummary }) {
                   type="checkbox"
                   checked={formData.dataProcessingAccepted}
                   onChange={(event) => updateField('dataProcessingAccepted', event.target.checked)}
-                  className="mt-1 h-4 w-4 rounded border-white/20 bg-surface-elevated"
+                  className="mt-1 h-4 w-4 rounded border-lux-line/40 bg-white/5"
                 />
                 <span>J&apos;accepte que mes données soient traitées par Nexus Réussite.</span>
               </label>
-              <p className="text-xs text-neutral-500">
+              <p className="text-xs text-lux-slate">
                 Notre équipe vous contactera dans les 24h pour les détails de paiement.
               </p>
             </div>
@@ -347,7 +347,7 @@ export function StageInscriptionForm({ stage }: { stage: StageSummary }) {
             type="button"
             onClick={() => setStep((current) => Math.max(current - 1, 0))}
             disabled={step === 0 || submitting}
-            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex items-center gap-2 rounded-full border border-lux-line/40 bg-white/5 px-5 py-3 text-sm font-semibold text-lux-ivory transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <ArrowLeft className="h-4 w-4" />
             Retour
@@ -361,7 +361,7 @@ export function StageInscriptionForm({ stage }: { stage: StageSummary }) {
                   if (!validateStep()) return;
                   setStep(2);
                 }}
-                className="rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-neutral-200 transition hover:bg-white/10"
+                className="rounded-full border border-lux-line/40 bg-white/5 px-5 py-3 text-sm font-semibold text-lux-on-dark-muted transition hover:bg-white/10"
               >
                 Passer cette étape
               </button>
@@ -374,7 +374,7 @@ export function StageInscriptionForm({ stage }: { stage: StageSummary }) {
                   if (!validateStep()) return;
                   setStep((current) => Math.min(current + 1, 2));
                 }}
-                className="inline-flex items-center gap-2 rounded-full bg-brand-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-primary/90"
+                className="inline-flex items-center gap-2 rounded-full bg-lux-gold px-5 py-3 text-sm font-semibold text-lux-ink transition hover:bg-lux-gold-bright"
               >
                 Continuer
                 <ArrowRight className="h-4 w-4" />
@@ -384,7 +384,7 @@ export function StageInscriptionForm({ stage }: { stage: StageSummary }) {
                 type="button"
                 onClick={submit}
                 disabled={submitting || !stage.isOpen}
-                className="inline-flex items-center gap-2 rounded-full bg-brand-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-full bg-lux-gold px-5 py-3 text-sm font-semibold text-lux-ink transition hover:bg-lux-gold-bright disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
                 Confirmer mon inscription
@@ -410,12 +410,12 @@ function Field({
 }) {
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium text-neutral-200">{label}</label>
+      <label className="text-sm font-medium text-lux-on-dark-muted">{label}</label>
       <input
         type={type}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-2xl border border-white/10 bg-surface-elevated px-4 py-3 text-sm text-white outline-none transition focus:border-brand-accent/50"
+        className="w-full rounded-2xl border border-lux-line/40 bg-white/5 px-4 py-3 text-sm text-lux-ivory outline-none transition focus:border-lux-gold/50"
       />
     </div>
   );
@@ -423,9 +423,9 @@ function Field({
 
 function SummaryLine({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-      <p className="text-xs uppercase tracking-[0.16em] text-neutral-500">{label}</p>
-      <p className="mt-1 text-sm font-medium text-white">{value}</p>
+    <div className="rounded-2xl border border-lux-line/40 bg-white/5 px-4 py-3">
+      <p className="text-xs uppercase tracking-[0.16em] text-lux-slate">{label}</p>
+      <p className="mt-1 text-sm font-medium text-lux-ivory">{value}</p>
     </div>
   );
 }
