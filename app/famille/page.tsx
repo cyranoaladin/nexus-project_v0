@@ -50,7 +50,7 @@ export default function FamillePage() {
     <div className="min-h-screen bg-lux-ink font-dm-sans">
       <CorporateNavbar />
 
-      <main>
+      <main id="main-content">
         <section className="relative overflow-hidden py-24 bg-lux-ink">
           <div className="absolute inset-0 bg-gradient-to-b from-lux-ink via-lux-ink/70 to-lux-ink" />
           <div className="absolute -top-24 right-10 h-72 w-72 rounded-full bg-lux-gold/10 blur-[140px]" />
@@ -254,7 +254,7 @@ export default function FamillePage() {
             <div className="rounded-3xl border border-lux-line/40 bg-white/5 p-8 md:p-10">
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                 <div>
-                  <p className="lux-eyebrow">
+                  <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.15em] text-lux-gold">
                     Prochaine étape
                   </p>
                   <h2 className="mt-2 text-2xl md:text-3xl font-fraunces font-light text-lux-ivory">
