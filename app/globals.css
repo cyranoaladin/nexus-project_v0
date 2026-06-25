@@ -692,7 +692,7 @@ body {
   }
 
   body {
-    @apply bg-surface-darker text-slate-200 font-sans antialiased;
+    @apply bg-lux-ink text-slate-200 font-sans antialiased;
     font-family: 'Inter', sans-serif;
   }
 
@@ -712,7 +712,9 @@ body {
   .bg-surface-darker h1, .bg-surface-darker h2, .bg-surface-darker h3,
   .bg-surface-darker h4, .bg-surface-darker h5, .bg-surface-darker h6,
   .bg-surface-dark h1, .bg-surface-dark h2, .bg-surface-dark h3,
-  .bg-surface-dark h4, .bg-surface-dark h5, .bg-surface-dark h6 {
+  .bg-surface-dark h4, .bg-surface-dark h5, .bg-surface-dark h6,
+  .bg-lux-ink h1, .bg-lux-ink h2, .bg-lux-ink h3,
+  .bg-lux-ink h4, .bg-lux-ink h5, .bg-lux-ink h6 {
     color: white;
   }
 

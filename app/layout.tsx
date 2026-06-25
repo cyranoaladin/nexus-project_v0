@@ -129,7 +129,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className={`${inter.variable} ${spaceGrotesk.variable} ${ibmPlexMono.variable} ${fraunces.variable} ${dmSans.variable} antialiased bg-surface-darker text-neutral-100 font-sans selection:bg-brand-accent/30 selection:text-white`}>
+      <body className={`${inter.variable} ${spaceGrotesk.variable} ${ibmPlexMono.variable} ${fraunces.variable} ${dmSans.variable} antialiased bg-lux-ink text-neutral-100 font-sans selection:bg-lux-gold/30 selection:text-white`}>
         <a href="#main-content" className="skip-to-content">
           Aller au contenu principal
         </a>
