@@ -33,6 +33,8 @@ const MIGRATED_PUBLIC_PAGES = [
   'app/famille/page.tsx',
   'app/stages/[stageSlug]/page.tsx',
   'app/stages/[stageSlug]/inscription/page.tsx',
+  'app/mentions-legales/page.tsx',
+  'app/conditions-generales/page.tsx',
 ];
 
 // Public shared components (chrome) already migrated
@@ -46,9 +48,6 @@ const MIGRATED_PUBLIC_COMPONENTS = [
 // Pages publiques PAS encore migrées — allowlist décroissante
 // Retirer de cette liste au fur et à mesure des PR de migration
 const PUBLIC_ALLOWLIST = [
-  // PR-5: légal
-  'app/mentions-legales/page.tsx',
-  'app/conditions-generales/page.tsx',
   // PR-6: auth
   'app/auth/signin/page.tsx',
   'app/auth/signin/SignInForm.tsx',
