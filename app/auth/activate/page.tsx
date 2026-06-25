@@ -111,10 +111,10 @@ function ActivateForm() {
 
   if (status === 'loading') {
     return (
-      <div className="min-h-screen bg-surface-darker flex items-center justify-center">
+      <div className="min-h-screen bg-lux-ink flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-brand-accent" />
-          <p className="text-neutral-400">Vérification du lien d&apos;activation...</p>
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-lux-gold" />
+          <p className="text-lux-on-dark-subtle">Vérification du lien d&apos;activation...</p>
         </div>
       </div>
     );
@@ -122,12 +122,12 @@ function ActivateForm() {
 
   if (status === 'invalid') {
     return (
-      <div className="min-h-screen bg-surface-darker flex items-center justify-center p-4">
-        <Card className="w-full max-w-md bg-surface-card border border-white/10">
+      <div className="min-h-screen bg-lux-ink flex items-center justify-center p-4">
+        <Card className="w-full max-w-md bg-white/5 border border-lux-line/40">
           <CardContent className="pt-8 text-center">
             <AlertCircle className="w-12 h-12 text-rose-400 mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-white mb-2">Lien invalide</h2>
-            <p className="text-neutral-400 mb-6">{error}</p>
+            <h2 className="font-fraunces text-xl font-light text-lux-ivory mb-2">Lien invalide</h2>
+            <p className="text-lux-on-dark-subtle mb-6">{error}</p>
             <Button onClick={() => router.push('/auth/signin')} className="btn-primary">
               Retour à la connexion
             </Button>
@@ -139,15 +139,15 @@ function ActivateForm() {
 
   if (status === 'success') {
     return (
-      <div className="min-h-screen bg-surface-darker flex items-center justify-center p-4">
-        <Card className="w-full max-w-md bg-surface-card border border-white/10">
+      <div className="min-h-screen bg-lux-ink flex items-center justify-center p-4">
+        <Card className="w-full max-w-md bg-white/5 border border-lux-line/40">
           <CardContent className="pt-8 text-center">
             <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-white mb-2">Compte activé !</h2>
-            <p className="text-neutral-400 mb-2">
+            <h2 className="font-fraunces text-xl font-light text-lux-ivory mb-2">Compte activé !</h2>
+            <p className="text-lux-on-dark-subtle mb-2">
               Bienvenue {studentName} ! Votre compte est maintenant actif.
             </p>
-            <p className="text-neutral-500 text-sm">
+            <p className="text-lux-on-dark-subtle text-sm">
               {isStageSource ? 'Connexion en cours vers votre espace stages...' : 'Redirection vers la connexion...'}
             </p>
           </CardContent>
@@ -157,14 +157,14 @@ function ActivateForm() {
   }
 
   return (
-    <div className="min-h-screen bg-surface-darker flex items-center justify-center p-4">
-      <Card className="w-full max-w-md bg-surface-card border border-white/10">
+    <div className="min-h-screen bg-lux-ink flex items-center justify-center p-4">
+      <Card className="w-full max-w-md bg-white/5 border border-lux-line/40">
         <CardHeader className="text-center">
-          <Lock className="w-10 h-10 text-brand-accent mx-auto mb-2" />
-          <CardTitle className="text-white text-xl">
+          <Lock className="w-10 h-10 text-lux-gold mx-auto mb-2" />
+          <CardTitle className="text-lux-ivory text-xl">
             {isStageSource ? 'Activez votre compte — Stage Nexus Réussite' : 'Activer votre compte'}
           </CardTitle>
-          <p className="text-neutral-400 text-sm mt-1">
+          <p className="text-lux-on-dark-subtle text-sm mt-1">
             {isStageSource
               ? 'Votre inscription au stage est confirmée. Choisissez votre mot de passe pour accéder à votre emploi du temps et vos ressources.'
               : `Bienvenue ${studentName} ! Choisissez votre mot de passe pour accéder à votre espace élève.`}
@@ -173,36 +173,36 @@ function ActivateForm() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-neutral-300 mb-1">Email</label>
+              <label className="block text-sm font-medium text-lux-on-dark-muted mb-1">Email</label>
               <input
                 type="email"
                 value={email}
                 disabled
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-neutral-400 cursor-not-allowed"
+                className="w-full px-3 py-2 bg-white/5 border border-lux-line/40 rounded-lg text-lux-on-dark-subtle cursor-not-allowed"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-neutral-300 mb-1">Mot de passe</label>
+              <label className="block text-sm font-medium text-lux-on-dark-muted mb-1">Mot de passe</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Minimum 8 caractères"
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-neutral-500 focus:border-brand-accent focus:outline-none"
+                className="w-full px-3 py-2 bg-white/5 border border-lux-line/40 rounded-lg text-lux-ivory placeholder:text-lux-on-dark-subtle focus:border-lux-gold focus:outline-none"
                 minLength={8}
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-neutral-300 mb-1">Confirmer le mot de passe</label>
+              <label className="block text-sm font-medium text-lux-on-dark-muted mb-1">Confirmer le mot de passe</label>
               <input
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Retapez votre mot de passe"
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-neutral-500 focus:border-brand-accent focus:outline-none"
+                className="w-full px-3 py-2 bg-white/5 border border-lux-line/40 rounded-lg text-lux-ivory placeholder:text-lux-on-dark-subtle focus:border-lux-gold focus:outline-none"
                 minLength={8}
                 required
               />
@@ -239,8 +239,8 @@ export default function ActivatePage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-surface-darker flex items-center justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-brand-accent" />
+        <div className="min-h-screen bg-lux-ink flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-lux-gold" />
         </div>
       }
     >

@@ -108,13 +108,13 @@ export function SignInForm() {
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-md">
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-accent/10 rounded-full mb-6">
-          <LogIn className="w-8 h-8 text-brand-accent" aria-hidden="true" />
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-lux-gold/10 rounded-full mb-6">
+          <LogIn className="w-8 h-8 text-lux-gold" aria-hidden="true" />
         </div>
-        <h1 className="font-display text-3xl font-bold text-white mb-4">
+        <h1 className="font-fraunces text-3xl font-light text-lux-ivory mb-4">
           Accédez à Votre Espace
         </h1>
-        <p className="text-neutral-300">
+        <p className="text-lux-on-dark-muted">
           Connectez-vous pour accéder à votre espace personnalisé et continuer
           votre parcours vers l'excellence.
         </p>
@@ -122,21 +122,20 @@ export function SignInForm() {
 
       <div className="mb-8">
         <Card
-          className="border border-white/10 shadow-lg bg-surface-card"
-          style={{ backgroundColor: "rgb(var(--color-surface-card))" }}
+          className="border border-lux-line/40 bg-white/5"
         >
           <CardHeader className="text-center pb-6">
-            <CardTitle className="text-2xl font-bold text-white">
+            <h2 className="font-fraunces text-2xl font-light text-lux-ivory leading-none tracking-tight">
               Connexion à Votre Espace
-            </CardTitle>
-            <p className="text-neutral-400 text-sm mt-2">
+            </h2>
+            <p className="text-lux-on-dark-subtle text-sm mt-2">
               Saisissez vos identifiants pour accéder à votre tableau de bord
             </p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <Label htmlFor="email" className="text-neutral-200 font-medium">
+                <Label htmlFor="email" className="text-lux-on-dark-muted font-medium">
                   Adresse Email
                 </Label>
                 <Input
@@ -147,22 +146,18 @@ export function SignInForm() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="votre.email@exemple.com"
                   required
-                  className="mt-2 h-12 bg-surface-elevated text-neutral-100 placeholder:text-neutral-400 border-white/15"
-                  style={{
-                    backgroundColor: "rgb(var(--color-surface-elevated))",
-                    color: "rgb(var(--color-neutral-100))",
-                  }}
+                  className="mt-2 h-12 bg-white/5 text-lux-ivory placeholder:text-lux-on-dark-subtle border-lux-line/40"
                 />
               </div>
 
               <div>
                 <div className="flex justify-between items-center">
-                  <Label htmlFor="password" className="text-neutral-200 font-medium">
+                  <Label htmlFor="password" className="text-lux-on-dark-muted font-medium">
                     Mot de Passe
                   </Label>
                   <Link
                     href="/auth/mot-de-passe-oublie"
-                    className="text-sm text-brand-accent-dark underline"
+                    className="text-sm text-lux-gold underline"
                   >
                     Mot de passe oublié ?
                   </Link>
@@ -176,17 +171,13 @@ export function SignInForm() {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Votre mot de passe"
                     required
-                    className="h-12 pr-12 bg-surface-elevated text-neutral-100 placeholder:text-neutral-400 border-white/15"
-                    style={{
-                      backgroundColor: "rgb(var(--color-surface-elevated))",
-                      color: "rgb(var(--color-neutral-100))",
-                    }}
+                    className="h-12 pr-12 bg-white/5 text-lux-ivory placeholder:text-lux-on-dark-subtle border-lux-line/40"
                   />
                   <button
                     type="button"
                     data-testid="btn-toggle-password"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 p-2 text-neutral-300 hover:text-neutral-100 transition-colors"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 p-2 text-lux-on-dark-muted hover:text-lux-ivory transition-colors"
                     aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
                   >
                     {showPassword ? (
@@ -204,7 +195,7 @@ export function SignInForm() {
                   <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
                     <Link
                       href="/auth/mot-de-passe-oublie"
-                      className="text-sm font-medium text-brand-accent hover:underline"
+                      className="text-sm font-medium text-lux-gold hover:underline"
                     >
                       Réinitialiser le mot de passe
                     </Link>
@@ -214,7 +205,7 @@ export function SignInForm() {
                         setShowResendActivation((value) => !value);
                         setResendEmail((current) => current || email);
                       }}
-                      className="text-left text-sm text-neutral-300 hover:text-neutral-100 hover:underline"
+                      className="text-left text-sm text-lux-on-dark-muted hover:text-lux-ivory hover:underline"
                     >
                       Renvoyer un lien d'activation
                     </button>
@@ -223,9 +214,9 @@ export function SignInForm() {
               )}
 
               {showResendActivation && (
-                <div className="rounded-lg border border-white/10 bg-white/5 p-4 space-y-3">
+                <div className="rounded-lg border border-lux-line/40 bg-white/5 p-4 space-y-3">
                   <div>
-                    <Label htmlFor="resend-email" className="text-neutral-200 font-medium">
+                    <Label htmlFor="resend-email" className="text-lux-on-dark-muted font-medium">
                       Renvoyer le lien d'activation
                     </Label>
                     <Input
@@ -234,13 +225,13 @@ export function SignInForm() {
                       value={resendEmail}
                       onChange={(e) => setResendEmail(e.target.value)}
                       placeholder="votre.email@exemple.com"
-                      className="mt-2 h-11 bg-surface-elevated text-neutral-100 placeholder:text-neutral-400 border-white/15"
+                      className="mt-2 h-11 bg-white/5 text-lux-ivory placeholder:text-lux-on-dark-subtle border-lux-line/40"
                     />
                   </div>
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full border-white/20 text-neutral-100 hover:bg-white/10"
+                    className="w-full border-lux-line/40 text-lux-ivory hover:bg-white/10"
                     disabled={isResendingActivation}
                     onClick={handleResendActivation}
                   >
@@ -254,7 +245,7 @@ export function SignInForm() {
                     )}
                   </Button>
                   {resendMessage && (
-                    <p className="text-sm text-neutral-300">{resendMessage}</p>
+                    <p className="text-sm text-lux-on-dark-muted">{resendMessage}</p>
                   )}
                 </div>
               )}
@@ -279,23 +270,23 @@ export function SignInForm() {
               </Button>
             </form>
 
-            <div className="mt-6 rounded-lg border border-white/10 bg-white/5 p-4 space-y-2">
-              <p className="text-sm text-neutral-300">
-                <span className="font-semibold text-brand-accent">Parent ?</span>{" "}
+            <div className="mt-6 rounded-lg border border-lux-line/40 bg-white/5 p-4 space-y-2">
+              <p className="text-sm text-lux-on-dark-muted">
+                <span className="font-semibold text-lux-gold">Parent ?</span>{" "}
                 Connectez-vous avec votre adresse email personnelle.
               </p>
-              <p className="text-sm text-neutral-300">
+              <p className="text-sm text-lux-on-dark-muted">
                 <span className="font-semibold text-emerald-400">Élève ?</span>{" "}
                 Connectez-vous avec l'email élève reçu lors de votre inscription.
               </p>
             </div>
 
-            <div className="mt-6 pt-6 border-t border-white/10">
+            <div className="mt-6 pt-6 border-t border-lux-line/40">
               <div className="text-center space-y-4">
-                <p className="text-sm text-neutral-300">
+                <p className="text-sm text-lux-on-dark-muted">
                   Pas encore de compte ?
                 </p>
-                <Button asChild variant="outline" className="w-full border-white/20 text-neutral-100 hover:bg-white/10">
+                <Button asChild variant="outline" className="w-full border-lux-line/40 text-lux-ivory hover:bg-white/10">
                   <Link href="/bilan-gratuit">
                     Créer mon Compte Gratuit
                   </Link>
@@ -304,9 +295,9 @@ export function SignInForm() {
             </div>
 
             <div className="mt-6 text-center">
-              <p className="text-xs text-neutral-400">
+              <p className="text-xs text-lux-on-dark-subtle">
                 En vous connectant, vous acceptez nos{" "}
-                <Link href="/conditions-generales" className="text-brand-accent underline">
+                <Link href="/conditions-generales" className="text-lux-gold underline">
                   conditions d'utilisation
                 </Link>
               </p>

@@ -17,6 +17,8 @@ const publicPages = [
   '/conditions-generales',
   '/politique-confidentialite',
   '/famille',
+  '/auth/signin',
+  '/auth/mot-de-passe-oublie',
   '/programme/maths-1ere',
 ];
 

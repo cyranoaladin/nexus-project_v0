@@ -12,9 +12,9 @@ export const metadata: Metadata = {
 
 export default function SignInPage() {
   return (
-    <div className="min-h-screen bg-surface-darker">
+    <div className="min-h-screen bg-lux-ink">
       <CorporateNavbar />
-      <main className="py-12 sm:py-20">
+      <main id="main-content" className="py-12 sm:py-20">
         <SignInForm />
       </main>
       <CorporateFooter />

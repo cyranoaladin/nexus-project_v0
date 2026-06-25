@@ -35,6 +35,12 @@ const MIGRATED_PUBLIC_PAGES = [
   'app/stages/[stageSlug]/inscription/page.tsx',
   'app/mentions-legales/page.tsx',
   'app/conditions-generales/page.tsx',
+  'app/auth/signin/page.tsx',
+  'app/auth/signin/SignInForm.tsx',
+  'app/auth/activate/page.tsx',
+  'app/auth/reset-password/page.tsx',
+  'app/auth/mot-de-passe-oublie/page.tsx',
+  'app/access-required/page.tsx',
 ];
 
 // Public shared components (chrome) already migrated
@@ -47,15 +53,8 @@ const MIGRATED_PUBLIC_COMPONENTS = [
 
 // Pages publiques PAS encore migrées — allowlist décroissante
 // Retirer de cette liste au fur et à mesure des PR de migration
-const PUBLIC_ALLOWLIST = [
-  // PR-6: auth
-  'app/auth/signin/page.tsx',
-  'app/auth/signin/SignInForm.tsx',
-  'app/auth/activate/page.tsx',
-  'app/auth/reset-password/page.tsx',
-  'app/auth/mot-de-passe-oublie/page.tsx',
-  'app/access-required/page.tsx',
-];
+// ✅ ALLOWLIST VIDE — Lot C complet
+const PUBLIC_ALLOWLIST: string[] = [];
 
 describe('Public lux-* charte guard', () => {
   test('migrated public pages contain no legacy tokens', () => {
@@ -105,6 +104,12 @@ describe('Public lux-* charte guard', () => {
     'app/conditions-generales/page.tsx',
     'components/stages/StageInscriptionForm.tsx',
     'components/stages/PublicStageCard.tsx',
+    'app/auth/signin/page.tsx',
+    'app/auth/signin/SignInForm.tsx',
+    'app/auth/activate/page.tsx',
+    'app/auth/reset-password/page.tsx',
+    'app/auth/mot-de-passe-oublie/page.tsx',
+    'app/access-required/page.tsx',
   ];
 
   test('text-lux-slate must not appear on dark-background public surfaces (contrast < AA)', () => {

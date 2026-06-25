@@ -61,21 +61,21 @@ function ResetPasswordForm() {
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-surface-darker text-neutral-100">
+      <div className="min-h-screen bg-lux-ink text-lux-ivory">
         <CorporateNavbar />
         <main className="py-12 sm:py-20">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-md text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-error/15 rounded-full mb-4">
               <Lock className="w-8 h-8 text-error" />
             </div>
-            <h1 className="font-display text-2xl font-bold text-white mb-4">
+            <h1 className="font-fraunces text-2xl font-light text-lux-ivory mb-4">
               Lien invalide
             </h1>
-            <p className="text-neutral-300 mb-6">
+            <p className="text-lux-on-dark-muted mb-6">
               Ce lien de réinitialisation est invalide ou a expiré.
               Veuillez demander un nouveau lien.
             </p>
-            <Button asChild variant="outline" className="border-white/20 text-neutral-100 hover:bg-white/10">
+            <Button asChild variant="outline" className="border-lux-line/40 text-lux-ivory hover:bg-white/10">
               <Link href="/auth/mot-de-passe-oublie">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Demander un nouveau lien
@@ -90,17 +90,17 @@ function ResetPasswordForm() {
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen bg-surface-darker text-neutral-100">
+      <div className="min-h-screen bg-lux-ink text-lux-ivory">
         <CorporateNavbar />
         <main className="py-12 sm:py-20">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-md text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-500/15 rounded-full mb-4">
               <CheckCircle className="w-8 h-8 text-emerald-400" />
             </div>
-            <h1 className="font-display text-2xl font-bold text-white mb-4">
+            <h1 className="font-fraunces text-2xl font-light text-lux-ivory mb-4">
               Mot de passe réinitialisé !
             </h1>
-            <p className="text-neutral-300 mb-6">
+            <p className="text-lux-on-dark-muted mb-6">
               Votre mot de passe a été modifié avec succès.
               Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.
             </p>
@@ -117,35 +117,34 @@ function ResetPasswordForm() {
   }
 
   return (
-    <div className="min-h-screen bg-surface-darker text-neutral-100">
+    <div className="min-h-screen bg-lux-ink text-lux-ivory">
       <CorporateNavbar />
       <main className="py-12 sm:py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-md">
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-accent/10 rounded-full mb-6">
-              <Lock className="w-8 h-8 text-brand-accent" aria-hidden="true" />
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-lux-gold/10 rounded-full mb-6">
+              <Lock className="w-8 h-8 text-lux-gold" aria-hidden="true" />
             </div>
-            <h1 className="font-display text-3xl font-bold text-white mb-4">
+            <h1 className="font-fraunces text-3xl font-light text-lux-ivory mb-4">
               Nouveau Mot de Passe
             </h1>
-            <p className="text-neutral-300">
+            <p className="text-lux-on-dark-muted">
               Saisissez votre nouveau mot de passe ci-dessous.
             </p>
           </div>
 
           <Card
-            className="border border-white/10 bg-surface-card shadow-premium"
-            style={{ backgroundColor: "rgb(var(--color-surface-card))" }}
+            className="border border-lux-line/40 bg-white/5"
           >
             <CardHeader>
-              <CardTitle className="text-center text-white">
+              <CardTitle className="text-center text-lux-ivory">
                 Réinitialiser le Mot de Passe
               </CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <Label htmlFor="newPassword" className="text-neutral-200">
+                  <Label htmlFor="newPassword" className="text-lux-on-dark-muted">
                     Nouveau mot de passe
                   </Label>
                   <div className="relative mt-2">
@@ -158,16 +157,12 @@ function ResetPasswordForm() {
                       required
                       minLength={8}
                       disabled={isLoading}
-                      className="h-12 pr-12 bg-surface-elevated text-neutral-100 placeholder:text-neutral-400 border-white/15"
-                      style={{
-                        backgroundColor: "rgb(var(--color-surface-elevated))",
-                        color: "rgb(var(--color-neutral-100))",
-                      }}
+                      className="h-12 pr-12 bg-white/5 text-lux-ivory placeholder:text-lux-on-dark-subtle border-lux-line/40"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-300 hover:text-neutral-100 transition-colors"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-lux-on-dark-muted hover:text-lux-ivory transition-colors"
                       aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
                     >
                       {showPassword ? (
@@ -180,7 +175,7 @@ function ResetPasswordForm() {
                 </div>
 
                 <div>
-                  <Label htmlFor="confirmPassword" className="text-neutral-200">
+                  <Label htmlFor="confirmPassword" className="text-lux-on-dark-muted">
                     Confirmer le mot de passe
                   </Label>
                   <Input
@@ -192,11 +187,7 @@ function ResetPasswordForm() {
                     required
                     minLength={8}
                     disabled={isLoading}
-                    className="mt-2 h-12 bg-surface-elevated text-neutral-100 placeholder:text-neutral-400 border-white/15"
-                    style={{
-                      backgroundColor: "rgb(var(--color-surface-elevated))",
-                      color: "rgb(var(--color-neutral-100))",
-                    }}
+                    className="mt-2 h-12 bg-white/5 text-lux-ivory placeholder:text-lux-on-dark-subtle border-lux-line/40"
                   />
                 </div>
 
@@ -224,7 +215,7 @@ function ResetPasswordForm() {
               <div className="mt-6 text-center">
                 <Link
                   href="/auth/signin"
-                  className="text-sm text-brand-accent-dark hover:text-white flex items-center justify-center"
+                  className="text-sm text-lux-gold hover:text-lux-ivory flex items-center justify-center"
                 >
                   <ArrowLeft className="w-4 h-4 mr-1" />
                   Retour à la connexion
@@ -243,8 +234,8 @@ export default function ResetPasswordPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-surface-darker flex items-center justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-brand-accent" />
+        <div className="min-h-screen bg-lux-ink flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-lux-gold" />
         </div>
       }
     >

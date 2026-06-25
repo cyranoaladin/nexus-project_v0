@@ -57,43 +57,43 @@ async function AccessRequiredContent({ searchParams }: AccessRequiredContentProp
   const dashboardHref = role ? (roleDashboardMap[role] ?? '/dashboard') : '/dashboard';
 
   return (
-    <div className="min-h-screen bg-surface-darker flex items-center justify-center px-4">
+    <div className="min-h-screen bg-lux-ink flex items-center justify-center px-4">
       <div className="max-w-md w-full">
-        <div className="bg-surface-card border border-white/10 rounded-2xl p-8 shadow-premium text-center">
+        <div className="bg-white/5 border border-lux-line/40 rounded-2xl p-8 text-center">
           {/* Icon */}
           <div className="mx-auto w-16 h-16 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-6">
             <ShieldAlert className="w-8 h-8 text-blue-200" />
           </div>
 
           {/* Title */}
-          <h1 className="text-2xl font-bold text-white mb-2">
+          <h1 className="font-fraunces text-2xl font-light text-lux-ivory mb-2">
             Accès requis
           </h1>
 
           {/* Feature label */}
           {featureLabel && (
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 mb-4">
-              <Package className="w-4 h-4 text-brand-accent" />
-              <span className="text-sm font-medium text-neutral-200">{featureLabel}</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-lux-line/40 mb-4">
+              <Package className="w-4 h-4 text-lux-gold" />
+              <span className="text-sm font-medium text-lux-on-dark-muted">{featureLabel}</span>
             </div>
           )}
 
           {/* Message */}
-          <p className="text-neutral-400 mb-2">{message}</p>
+          <p className="text-lux-on-dark-subtle mb-2">{message}</p>
 
           {featureDescription && (
-            <p className="text-sm text-neutral-500 mb-6">{featureDescription}</p>
+            <p className="text-sm text-lux-on-dark-subtle mb-6">{featureDescription}</p>
           )}
 
           {/* Missing features */}
           {missing.length > 0 && (
-            <div className="bg-white/5 border border-white/10 rounded-lg p-4 mb-6 text-left">
-              <p className="text-xs font-medium text-neutral-400 uppercase tracking-wider mb-2">
+            <div className="bg-white/5 border border-lux-line/40 rounded-lg p-4 mb-6 text-left">
+              <p className="text-xs font-medium text-lux-on-dark-subtle uppercase tracking-wider mb-2">
                 Droits manquants
               </p>
               <ul className="space-y-1">
                 {missing.map((feat) => (
-                  <li key={feat} className="text-sm text-neutral-300 flex items-center gap-2">
+                  <li key={feat} className="text-sm text-lux-on-dark-muted flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
                     {feat.replace(/_/g, ' ')}
                   </li>
@@ -106,14 +106,14 @@ async function AccessRequiredContent({ searchParams }: AccessRequiredContentProp
           <div className="space-y-3">
             <Link
               href="/offres"
-              className="block w-full py-3 px-4 rounded-lg bg-brand-accent text-white font-medium hover:bg-brand-accent/90 transition-colors text-center"
+              className="block w-full py-3 px-4 rounded-lg bg-lux-gold text-lux-ink font-medium hover:bg-lux-gold-bright transition-colors text-center"
             >
               Voir les offres
             </Link>
 
             <Link
               href="/contact"
-              className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-lg border border-white/10 text-neutral-200 hover:text-white hover:border-white/20 transition-colors"
+              className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-lg border border-lux-line/40 text-lux-on-dark-muted hover:text-lux-ivory hover:border-lux-line/40 transition-colors"
             >
               <Mail className="w-4 h-4" />
               Contacter Nexus
@@ -121,7 +121,7 @@ async function AccessRequiredContent({ searchParams }: AccessRequiredContentProp
 
             <Link
               href={dashboardHref}
-              className="flex items-center justify-center gap-2 w-full py-2 px-4 text-sm text-neutral-400 hover:text-neutral-200 transition-colors"
+              className="flex items-center justify-center gap-2 w-full py-2 px-4 text-sm text-lux-on-dark-subtle hover:text-lux-on-dark-muted transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               Retour au tableau de bord
@@ -141,8 +141,8 @@ export default function AccessRequiredPage({
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-surface-darker flex items-center justify-center">
-          <div className="text-neutral-400">Chargement...</div>
+        <div className="min-h-screen bg-lux-ink flex items-center justify-center">
+          <div className="text-lux-on-dark-subtle">Chargement...</div>
         </div>
       }
     >
