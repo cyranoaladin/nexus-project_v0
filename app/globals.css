@@ -1058,11 +1058,6 @@ html {
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 10px 10px -5px rgba(0, 0, 0, 0.08);
 }
 
-/* Marketing typography helpers */
-.marketing-eyebrow {
-  @apply text-xs uppercase tracking-[0.2em] text-neutral-400 font-mono;
-}
-
 /* Contrast hardening for common light-surface combinations */
 .bg-white .text-slate-400,
 .bg-slate-50 .text-slate-400,
@@ -1157,88 +1152,6 @@ html {
 
 .breadcrumb-on-dark .text-gray-400 {
   color: rgb(var(--color-neutral-400)) !important;
-}
-
-.equipe-dark .text-slate-400 {
-  color: rgb(var(--color-neutral-300)) !important;
-}
-
-.equipe-dark .text-slate-300 {
-  color: rgb(var(--color-neutral-200)) !important;
-}
-
-.equipe-dark .text-gold-400 {
-  color: #fcd34d !important;
-}
-
-.equipe-dark .bg-gold-500\/10 {
-  background-color: rgba(251, 191, 36, 0.2) !important;
-}
-
-.equipe-dark .bg-white\/5 {
-  background-color: rgba(0, 0, 0, 0.45) !important;
-}
-
-.equipe-dark .bg-black\/20 {
-  background-color: rgba(0, 0, 0, 0.6) !important;
-}
-
-.equipe-dark .border-white\/10 {
-  border-color: rgba(255, 255, 255, 0.25) !important;
-}
-
-.equipe-dark .border-gold-500\/50,
-.equipe-dark .border-gold-500\/40,
-.equipe-dark .border-gold-500 {
-  border-color: rgba(251, 191, 36, 0.65) !important;
-}
-
-.equipe-dark .hover\:bg-gold-500\/10:hover {
-  background-color: rgba(251, 191, 36, 0.2) !important;
-}
-
-.marketing-cta-title {
-  @apply mt-2 text-3xl md:text-4xl font-display font-bold text-white;
-}
-
-.marketing-cta-copy {
-  @apply mt-2 text-sm text-neutral-300;
-}
-
-.marketing-hero-title {
-  @apply text-4xl md:text-6xl font-display font-bold text-white;
-}
-
-.marketing-hero-copy {
-  @apply mt-4 text-lg md:text-xl text-neutral-300 leading-relaxed;
-}
-
-.marketing-section-title {
-  @apply text-3xl md:text-4xl font-display font-bold text-white;
-}
-
-.marketing-section-copy {
-  @apply mt-3 text-base md:text-lg text-neutral-300;
-}
-
-.marketing-hero-title-light {
-  @apply text-4xl md:text-6xl font-display font-bold text-slate-900;
-}
-
-.marketing-hero-copy-light {
-  @apply mt-4 text-lg md:text-xl text-slate-600 leading-relaxed;
-}
-
-.marketing-section-title-light {
-  @apply text-3xl md:text-4xl font-display font-bold text-slate-900;
-}
-
-.marketing-section-copy-light {
-  @apply mt-3 text-base md:text-lg text-slate-600;
-}
-
-.marketing-badge {
-  @apply inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em];
 }
 
 /* Responsive typography adjustments */
