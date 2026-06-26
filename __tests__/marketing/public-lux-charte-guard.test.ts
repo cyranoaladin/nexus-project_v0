@@ -41,6 +41,8 @@ const MIGRATED_PUBLIC_PAGES = [
   'app/auth/reset-password/page.tsx',
   'app/auth/mot-de-passe-oublie/page.tsx',
   'app/access-required/page.tsx',
+  'app/not-found.tsx',
+  'app/error.tsx',
 ];
 
 // Public shared components (chrome) already migrated
@@ -110,6 +112,8 @@ describe('Public lux-* charte guard', () => {
     'app/auth/reset-password/page.tsx',
     'app/auth/mot-de-passe-oublie/page.tsx',
     'app/access-required/page.tsx',
+    'app/not-found.tsx',
+    'app/error.tsx',
   ];
 
   test('text-lux-slate must not appear on dark-background public surfaces (contrast < AA)', () => {
@@ -157,5 +161,29 @@ describe('Public lux-* charte guard', () => {
     }
 
     expect(offenders).toEqual([]);
+  });
+
+  // global-error.tsx uses inline hex (no Tailwind token classes available when
+  // the root layout crashes). Verify hex values match the lux palette.
+  // Not included in MIGRATED/DARK_BG lists since those check Tailwind classes.
+  test('global-error.tsx hex colors match lux palette', () => {
+    const fullPath = join(root, 'app/global-error.tsx');
+    if (!existsSync(fullPath)) return;
+    const content = readFileSync(fullPath, 'utf-8');
+
+    const LUX_PALETTE: Record<string, string> = {
+      '#071A3A': 'lux-ink',
+      '#F7F4ED': 'lux-ivory',
+      '#C4BBA8': 'lux-on-dark-muted',
+      '#97918A': 'lux-on-dark-subtle',
+      '#BFA06A': 'lux-gold',
+    };
+
+    // Extract all hex colors from the file
+    const hexPattern = /#[0-9A-Fa-f]{6}/g;
+    const hexColors = [...new Set(content.match(hexPattern) ?? [])];
+    const unknownHex = hexColors.filter((hex) => !LUX_PALETTE[hex.toUpperCase()]);
+
+    expect(unknownHex).toEqual([]);
   });
 });
