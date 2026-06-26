@@ -3,6 +3,7 @@ import Script from "next/script";
 import localFont from "next/font/local";
 import { Providers } from "@/components/providers";
 import { getAllOffers, getEffectivePrice } from "@/lib/pricing";
+import { OG_DEFAULT_IMAGE } from "@/lib/seo";
 import "./globals.css";
 
 const GA_MEASUREMENT_ID = "G-3XPB54QL5N";
@@ -66,20 +67,13 @@ export const metadata: Metadata = {
     siteName: 'Nexus Réussite',
     locale: 'fr_FR',
     type: 'website',
-    images: [
-      {
-        url: '/og-default.png',
-        width: 1200,
-        height: 630,
-        alt: 'Nexus Réussite — Accompagnement académique premium à Tunis',
-      },
-    ],
+    images: [OG_DEFAULT_IMAGE],
   },
   twitter: {
     card: 'summary_large_image',
     title: "Nexus Réussite | Accompagnement académique premium à Tunis",
     description: "Groupes réduits, méthode structurée, bilans individualisés et suivi parent clair pour les élèves du système français à Tunis.",
-    images: ['/og-default.png'],
+    images: [OG_DEFAULT_IMAGE.url],
   },
   robots: {
     index: true,

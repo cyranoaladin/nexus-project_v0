@@ -1,3 +1,4 @@
+import { OG_DEFAULT_IMAGE } from '@/lib/seo';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
     'programme officiel',
   ],
   openGraph: {
-    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "Nexus Réussite" }],
+    images: [OG_DEFAULT_IMAGE],
     title: 'Spécialité Maths 1ère - Révisions Interactives | Nexus Réussite',
     description:
       'Fiches de cours, quiz et exercices corrigés pour la Spécialité Maths en Première. Basé sur le B.O. Éducation Nationale 2025-2026.',

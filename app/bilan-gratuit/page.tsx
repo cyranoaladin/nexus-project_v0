@@ -1,3 +1,4 @@
+import { OG_DEFAULT_IMAGE } from '@/lib/seo';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
   description:
     'Identifiez les priorités de votre enfant avant de choisir une formule. Bilan gratuit, réponse personnalisée et orientation vers la bonne solution.',
   openGraph: {
-    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "Nexus Réussite" }],
+    images: [OG_DEFAULT_IMAGE],
     title: 'Bilan stratégique gratuit | Nexus Réussite',
     description:
       'Un échange simple pour comprendre le niveau, les besoins et les matières prioritaires de votre enfant.',

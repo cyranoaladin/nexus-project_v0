@@ -1,3 +1,4 @@
+import { OG_DEFAULT_IMAGE } from '@/lib/seo';
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -5,7 +6,7 @@ export const metadata: Metadata = {
   description: "Obtenez un diagnostic pédagogique complet et gratuit pour votre enfant. Identifiez ses besoins, ses forces et recevez un plan d'action personnalisé par nos experts.",
   keywords: ["bilan gratuit", "diagnostic pédagogique", "évaluation scolaire", "orientation", "soutien scolaire Tunisie"],
   openGraph: {
-    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "Nexus Réussite" }],
+    images: [OG_DEFAULT_IMAGE],
     title: "Bilan Gratuit - Diagnostic Personnalisé | Nexus Réussite",
     description: "Diagnostic pédagogique complet et gratuit. Plan d'action personnalisé par nos experts.",
     type: "website",
