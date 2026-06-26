@@ -66,11 +66,20 @@ export const metadata: Metadata = {
     siteName: 'Nexus Réussite',
     locale: 'fr_FR',
     type: 'website',
+    images: [
+      {
+        url: '/og-default.png',
+        width: 1200,
+        height: 630,
+        alt: 'Nexus Réussite — Accompagnement académique premium à Tunis',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: "Nexus Réussite | Accompagnement académique premium à Tunis",
     description: "Groupes réduits, méthode structurée, bilans individualisés et suivi parent clair pour les élèves du système français à Tunis.",
+    images: ['/og-default.png'],
   },
   robots: {
     index: true,
