@@ -45,7 +45,7 @@ function SelectedOfferSummary({ selectedOffer }: { selectedOffer: SelectedOfferC
         {selectedOffer.full_at_booking
           ? ` · règlement intégral à la réservation`
           : selectedOffer.installments && selectedOffer.installments.length > 0
-            ? ` · ${selectedOffer.installments.length}\u00A0×\u00A0${fmtTND(selectedOffer.installments[0])}${
+            ? ` · ${selectedOffer.installments.length} × ${fmtTND(selectedOffer.installments[0])}${
                 selectedOffer.installments[selectedOffer.installments.length - 1] !== selectedOffer.installments[0]
                   ? ` puis ${fmtTND(selectedOffer.installments[selectedOffer.installments.length - 1])}`
                   : ''
