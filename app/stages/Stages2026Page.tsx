@@ -14,12 +14,12 @@ import { StagePriceLabel } from './_components/StagePriceLabel';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 
 const pillars = [
-  'Prise d\u2019avance',
-  'Remise \u00e0 niveau',
-  'Stages par mati\u00e8re',
-  'Pr\u00e9sentiel \u00e0 Mutuelleville ou en ligne',
-  'Groupes r\u00e9duits',
-  'Bilan et pr\u00e9-inscription',
+  'Prise d’avance',
+  'Remise à niveau',
+  'Stages par matière',
+  'Présentiel à Mutuelleville ou en ligne',
+  'Groupes réduits',
+  'Bilan et pré-inscription',
 ];
 
 export default function Stages2026Page() {
@@ -37,24 +37,24 @@ export default function Stages2026Page() {
             Stages 2026/2027
           </Badge>
           <h1 className="mt-4 max-w-3xl text-4xl md:text-5xl font-fraunces font-light text-lux-ivory">
-            Viser. Atteindre. D\u00e9passer.
+            Viser. Atteindre. Dépasser.
           </h1>
           <p className="mt-4 max-w-3xl text-base text-lux-on-dark-muted">
-            Des stages structur\u00e9s, cal\u00e9s sur les vacances du calendrier officiel,
+            Des stages structurés, calés sur les vacances du calendrier officiel,
             pour progresser en groupe de {rules.group_max} maximum.
-            Unit\u00e9\u00A0: la demi-journ\u00e9e de 3\u00A0h.
+            Unité : la demi-journée de 3 h.
           </p>
           <p className="mt-2 text-sm text-lux-on-dark-subtle">
-            Mati\u00e8res\u00A0: Maths \u00b7 NSI \u00b7 Fran\u00e7ais (EAF) \u00b7 Philo
+            Matières : Maths · NSI · Français (EAF) · Philo
             &mdash; inscrits en réseau AEFE et candidats libres
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <Link href="/bilan-gratuit?source=stages" className="lux-cta-reserve rounded-lg px-6 py-3.5 text-sm font-semibold">
-              Pr\u00e9-inscription
+              Pré-inscription
             </Link>
             <a href={buildWhatsAppUrl('les stages Nexus')} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-lg border border-lux-line/40 px-6 py-3.5 text-sm font-semibold text-lux-ivory min-h-[44px]">
               <WhatsAppLogo className="mr-2 h-4 w-4" style={{ color: WHATSAPP_BRAND_GREEN }} />
-              \u00c9crire sur WhatsApp
+              Écrire sur WhatsApp
             </a>
             <Link href="/offres#section-intensifs" className="inline-flex items-center justify-center rounded-lg border border-lux-line/40 px-6 py-3.5 text-sm font-semibold text-lux-ivory min-h-[44px]">
               Voir tous les formats & tarifs
@@ -96,7 +96,7 @@ export default function Stages2026Page() {
                     )}
                     <div className="mt-3 flex flex-wrap gap-2">
                       <span className="inline-flex items-center gap-1 text-xs text-lux-on-dark-subtle">
-                        <Clock className="h-3 w-3" /> {stage.hours}\u00A0h ({stage.half_days} demi-journ\u00e9es)
+                        <Clock className="h-3 w-3" /> {stage.hours} h ({stage.half_days} demi-journées)
                       </span>
                       <span className="inline-flex items-center gap-1 text-xs text-lux-on-dark-subtle">
                         <Users className="h-3 w-3" /> {rules.group_max} max
@@ -122,13 +122,13 @@ export default function Stages2026Page() {
       <section className="py-14 px-4 md:px-6">
         <div className="mx-auto max-w-5xl">
           <h2 className="text-2xl md:text-3xl font-fraunces text-lux-ink mb-6">
-            Trois formats, une unit\u00e9\u00A0: la demi-journ\u00e9e de 3\u00A0h
+            Trois formats, une unité : la demi-journée de 3 h
           </h2>
           <div className="grid gap-6 md:grid-cols-3">
             {[
-              { label: 'EXPRESS', hours: 9, halfDays: 3, desc: 'Mise au point cibl\u00e9e sur une p\u00e9riode courte.' },
-              { label: 'INTENSIF', hours: 15, halfDays: 5, desc: 'Le format de r\u00e9f\u00e9rence\u00A0: une semaine compl\u00e8te de travail.' },
-              { label: 'PR\u00c9PA-BAC', hours: 30, halfDays: 10, desc: 'Deux semaines de pr\u00e9paration intensive avant les \u00e9preuves.' },
+              { label: 'EXPRESS', hours: 9, halfDays: 3, desc: 'Mise au point ciblée sur une période courte.' },
+              { label: 'INTENSIF', hours: 15, halfDays: 5, desc: 'Le format de référence : une semaine complète de travail.' },
+              { label: 'PRÉPA-BAC', hours: 30, halfDays: 10, desc: 'Deux semaines de préparation intensive avant les épreuves.' },
             ].map((f) => (
               <Card key={f.label} className="border-lux-line bg-lux-white lux-shadow">
                 <CardContent className="p-6">
@@ -136,8 +136,8 @@ export default function Stages2026Page() {
                     <BookOpen className="h-4 w-4" />
                     <span className="text-xs font-semibold uppercase tracking-[0.2em]">{f.label}</span>
                   </div>
-                  <p className="mt-3 text-2xl font-fraunces text-lux-ink">{f.hours}\u00A0h</p>
-                  <p className="mt-1 text-sm text-lux-slate">{f.halfDays} demi-journ\u00e9es \u00d7 3\u00A0h</p>
+                  <p className="mt-3 text-2xl font-fraunces text-lux-ink">{f.hours} h</p>
+                  <p className="mt-1 text-sm text-lux-slate">{f.halfDays} demi-journées × 3 h</p>
                   <p className="mt-3 text-sm text-lux-slate">{f.desc}</p>
                 </CardContent>
               </Card>
@@ -170,12 +170,12 @@ export default function Stages2026Page() {
               </div>
               <h2 className="mt-3 text-2xl font-fraunces text-lux-ivory">Mutuelleville ou en ligne</h2>
               <p className="mt-3 text-sm text-lux-on-dark-muted">
-                Les stages sont pens\u00e9s pour fonctionner en pr\u00e9sentiel \u00e0 Mutuelleville ou \u00e0 distance selon la formule recommand\u00e9e.
+                Les stages sont pensés pour fonctionner en présentiel à Mutuelleville ou à distance selon la formule recommandée.
               </p>
               <div className="mt-6 space-y-3 text-sm text-lux-on-dark-muted">
                 <div>Groupes de {rules.group_max} pour garder un vrai suivi.</div>
                 <div>Bilan avant inscription pour orienter le bon niveau.</div>
-                <div>Pr\u00e9paration m\u00e9thodique par mati\u00e8re et par objectif.</div>
+                <div>Préparation méthodique par matière et par objectif.</div>
               </div>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link href="/bilan-gratuit?source=stages" className="lux-cta-reserve rounded-lg px-6 py-3.5 text-sm font-semibold">
@@ -199,9 +199,9 @@ export default function Stages2026Page() {
           <div className="mx-auto max-w-5xl">
             <Card className="border-lux-line bg-lux-ink text-lux-ivory lux-shadow">
               <CardContent className="p-6 md:p-8">
-                <h2 className="text-2xl font-fraunces text-lux-ivory">Le parcours complet, pas des stages isol\u00e9s</h2>
+                <h2 className="text-2xl font-fraunces text-lux-ivory">Le parcours complet, pas des stages isolés</h2>
                 <p className="mt-3 text-sm leading-7 text-lux-on-dark-muted">
-                  Le Pass Intensifs Ann\u00e9e permet d\u2019inscrire les stages dans une progression suivie, avec acompte d\u00e9ductible et solde r\u00e9gl\u00e9 avant chaque prestation.
+                  Le Pass Intensifs Année permet d’inscrire les stages dans une progression suivie, avec acompte déductible et solde réglé avant chaque prestation.
                 </p>
                 <div className="mt-5 space-y-3">
                   {passIntensifs.map((pack) => (
@@ -223,13 +223,13 @@ export default function Stages2026Page() {
 
       <section className="bg-lux-paper py-14 px-4 md:px-6">
         <div className="mx-auto max-w-5xl rounded-2xl border border-lux-line bg-lux-white p-6 md:p-8">
-          <h2 className="text-2xl font-fraunces text-lux-ink">Pr\u00eat \u00e0 s\u00e9curiser une place\u00A0?</h2>
+          <h2 className="text-2xl font-fraunces text-lux-ink">Prêt à sécuriser une place ?</h2>
           <p className="mt-2 text-sm text-lux-slate">
             Un bilan gratuit permet de confirmer le bon stage, le bon niveau et le bon rythme de travail.
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <Link href="/bilan-gratuit?source=stages" className="lux-cta-reserve rounded-lg px-6 py-3.5 text-sm font-semibold">
-              Pr\u00e9-inscription
+              Pré-inscription
             </Link>
             <a href={buildWhatsAppUrl('les stages Nexus')} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-lg border border-lux-line px-6 py-3.5 text-sm font-semibold text-lux-ink min-h-[44px]">
               <WhatsAppLogo className="mr-2 h-4 w-4" style={{ color: WHATSAPP_BRAND_GREEN }} />

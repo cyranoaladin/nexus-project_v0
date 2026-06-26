@@ -132,28 +132,28 @@ function NavyBand({
 function getCatalogueFAQ(groupMax: number, lyceeMinOpen: number, collegeMinOpen: number): FAQItem[] {
   return [
     {
-      question: `Les tarifs sont-ils en TND\u00A0?`,
+      question: `Les tarifs sont-ils en TND ?`,
       answer: `Oui, tous nos tarifs sont en dinars tunisiens (TND). Aucun paiement en euros.`,
     },
     {
-      question: `Comment fonctionne le modèle places-based\u00A0?`,
+      question: `Comment fonctionne le modèle places-based ?`,
       answer:
         `Les groupes se remplissent progressivement. Un groupe compte ${groupMax} élèves maximum et ouvre dès ${lyceeMinOpen} inscrits au lycée. Réserver tôt permet de choisir plus facilement le créneau souhaité.`,
     },
     {
-      question: `L\u2019acompte est-il remboursable\u00A0?`,
+      question: `L’acompte est-il remboursable ?`,
       answer:
-        `L\u2019acompte n\u2019est pas remboursable sauf si le groupe n\u2019atteint pas le seuil d\u2019ouverture (${lyceeMinOpen} inscrits au lycée ou ${collegeMinOpen} au Brevet). Dans ce cas, remboursement intégral.`,
+        `L’acompte n’est pas remboursable sauf si le groupe n’atteint pas le seuil d’ouverture (${lyceeMinOpen} inscrits au lycée ou ${collegeMinOpen} au Brevet). Dans ce cas, remboursement intégral.`,
     },
     {
-      question: `Puis-je déduire l\u2019acompte d\u2019un stage si je prends un parcours annuel\u00A0?`,
+      question: `Puis-je déduire l’acompte d’un stage si je prends un parcours annuel ?`,
       answer:
-        `Oui. L\u2019acompte versé pour un stage ou un Pass est déductible du parcours annuel. Il est aussi reportable sur l\u2019année suivante.`,
+        `Oui. L’acompte versé pour un stage ou un Pass est déductible du parcours annuel. Il est aussi reportable sur l’année suivante.`,
     },
     {
-      question: `Les remises sont-elles cumulables\u00A0?`,
+      question: `Les remises sont-elles cumulables ?`,
       answer:
-        `Non. Les remises (fratrie, ancien élève, parrainage, Carte Nexus) ne sont pas cumulables sauf décision de la direction. Le plafond global est de 20\u00A0%, et aucun tarif ne descend sous le plancher horaire.`,
+        `Non. Les remises (fratrie, ancien élève, parrainage, Carte Nexus) ne sont pas cumulables sauf décision de la direction. Le plafond global est de 20 %, et aucun tarif ne descend sous le plancher horaire.`,
     },
   ];
 }

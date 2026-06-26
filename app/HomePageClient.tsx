@@ -143,15 +143,15 @@ function PricingReperesSection() {
 
 function getVerifiableItems(groupMax: number): string[] {
   return [
-  'Enseignants agrégés et certifiés, spécialistes de l\u2019épreuve',
+  'Enseignants agrégés et certifiés, spécialistes de l’épreuve',
   'Corrections sur grilles officielles du baccalauréat et bacs blancs',
   `Groupes de ${groupMax} élèves maximum — suivi individualisé`,
-  'Transparence tarifaire\u00A0: tous les prix publics, en TND',
+  'Transparence tarifaire : tous les prix publics, en TND',
   'Accès à la plateforme ARIA — ressources et révisions en continu',
   'Bilans réguliers et suivi parent en temps réel',
-  'Carte d\u2019examen personnalisée',
+  'Carte d’examen personnalisée',
   'Cellule Cyclades intégrée pour les candidats libres',
-  'Cadre réseau AEFE — programme et exigences de l\u2019enseignement français',
+  'Cadre réseau AEFE — programme et exigences de l’enseignement français',
   ];
 }
 
@@ -196,29 +196,29 @@ function getFaqItems(rules: typeof GROUP_RULES): FAQItem[] {
 
   return [
   {
-    question: `Comment fonctionnent les groupes de ${groupMax} maximum\u00A0?`,
+    question: `Comment fonctionnent les groupes de ${groupMax} maximum ?`,
     answer:
-      `Chaque groupe est limité à ${groupMax} élèves afin de préserver un suivi personnalisé. Le groupe est ouvert dès ${lyceeMin} inscrits au lycée et ${collegeMin} au Brevet. Si le seuil n\u2019est pas atteint, l\u2019acompte est intégralement remboursé.`,
+      `Chaque groupe est limité à ${groupMax} élèves afin de préserver un suivi personnalisé. Le groupe est ouvert dès ${lyceeMin} inscrits au lycée et ${collegeMin} au Brevet. Si le seuil n’est pas atteint, l’acompte est intégralement remboursé.`,
   },
   {
-    question: 'Qui sont les enseignants\u00A0?',
+    question: 'Qui sont les enseignants ?',
     answer:
-      'Nos enseignants sont agrégés et certifiés de l\u2019enseignement français à l\u2019étranger, spécialistes de chaque épreuve du baccalauréat. Ils connaissent les grilles de correction officielles et les attentes des jurys.',
+      'Nos enseignants sont agrégés et certifiés de l’enseignement français à l’étranger, spécialistes de chaque épreuve du baccalauréat. Ils connaissent les grilles de correction officielles et les attentes des jurys.',
   },
   {
-    question: 'Comment fonctionne l\u2019échéancier de paiement\u00A0?',
+    question: 'Comment fonctionne l’échéancier de paiement ?',
     answer:
-      'Un acompte de 30\u00A0% est versé à la réservation, puis le solde est réparti en mensualités. L\u2019acompte d\u2019un stage ou Pass est déductible si vous souscrivez ensuite un parcours annuel.',
+      'Un acompte de 30 % est versé à la réservation, puis le solde est réparti en mensualités. L’acompte d’un stage ou Pass est déductible si vous souscrivez ensuite un parcours annuel.',
   },
   {
-    question: 'Qu\u2019est-ce que la plateforme ARIA\u00A0?',
+    question: 'Qu’est-ce que la plateforme ARIA ?',
     answer:
-      'ARIA est notre plateforme numérique avec des ressources, parcours de révision, fiches et exercices. Elle complète l\u2019accompagnement humain et s\u2019utilise selon la formule choisie.',
+      'ARIA est notre plateforme numérique avec des ressources, parcours de révision, fiches et exercices. Elle complète l’accompagnement humain et s’utilise selon la formule choisie.',
   },
   {
-    question: 'Proposez-vous un accompagnement pour les candidats libres\u00A0?',
+    question: 'Proposez-vous un accompagnement pour les candidats libres ?',
     answer:
-      'Oui, nous avons des parcours dédiés aux candidats libres (Essentiel, Mixte, Premium) avec cellule Cyclades intégrée pour l\u2019accompagnement administratif. Le Pass Candidat Libre regroupe diagnostic, stages et épreuves blanches.',
+      'Oui, nous avons des parcours dédiés aux candidats libres (Essentiel, Mixte, Premium) avec cellule Cyclades intégrée pour l’accompagnement administratif. Le Pass Candidat Libre regroupe diagnostic, stages et épreuves blanches.',
   },
   ];
 }
