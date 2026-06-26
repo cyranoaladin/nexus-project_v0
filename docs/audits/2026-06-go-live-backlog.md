@@ -1,7 +1,7 @@
 # Post-Go-Live Technical Debt Backlog
 
 **Date :** 2026-06-26
-**Baseline :** `f643d4234` (go-live SHA)
+**Baseline :** `6388ff9ce` (go-live SHA)
 
 ## Dettes tracées
 
@@ -47,13 +47,19 @@
 - **Action :** Dériver la palette depuis le fichier source pour rester SSOT
 - **Sévérité :** Faible — divergence possible si les tokens changent
 
-### 8. `Stages2026Page.tsx` : échappements Unicode dans le contenu marketing
-- **Fichier :** `app/stages/Stages2026Page.tsx` (déjà fixé en D1)
-- **Constat :** Les 21 `\u00xx` originaux ont été remplacés par UTF-8 en D1 ; la garde `unicode-escape-guard.test.ts` empêche la régression
-- **Action :** Aucune — résolu. Tracé pour mémoire.
-- **Sévérité :** Résolu
+### 8. Gardes bare-eyebrow + raw-palette : heuristique fragile
+- **Fichier :** `__tests__/marketing/public-lux-charte-guard.test.ts`
+- **Constat :** Les gardes `bare lux-eyebrow` et `raw palette tokens` utilisent `line.includes()` sur la même ligne — une `className` multi-ligne (template literal ou formatage Prettier) pourrait échapper à la détection
+- **Action :** Parser les className comme des blocs multi-lignes (regex multi-ligne ou extraction AST simplifiée) au lieu du scan ligne par ligne
+- **Sévérité :** Faible — les formateurs actuels gardent les className sur une seule ligne, mais fragile si le style de code change
 
-### 9. Docker Compose vestigial dans le repo
+### 9. Vhost nginx non versionné
+- **Fichier :** `/etc/nginx/sites-enabled/nexusreussite.academy` (serveur uniquement)
+- **Constat :** Le commentaire a été corrigé côté serveur ("Docker container" → "PM2 standalone") mais ce fichier n'est pas versionné dans le repo — une reconstruction du serveur depuis zéro perdrait cette correction
+- **Action :** Versionner le vhost sous `infra/nginx/nexusreussite.academy` (ou équivalent) avec un README décrivant la procédure de déploiement
+- **Sévérité :** Moyenne — risque de divergence silencieuse en cas de reconstruction serveur
+
+### 10. Docker Compose vestigial dans le repo
 - **Fichiers :** `Dockerfile.prod`, `docker-compose.prod.yml`, `docker-compose.yml`
 - **Constat :** Le README documente désormais PM2 comme runtime prod. Les fichiers Docker pour Next.js sont vestigiaux mais toujours présents dans le repo
 - **Action :** Évaluer la suppression ou le déplacement sous `docker/archive/` si plus aucun workflow ne les utilise. Garder `docker-compose.e2e.yml` et `docker-compose.test.yml` s'ils servent les tests
