@@ -49,6 +49,7 @@ const dmSans = localFont({
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
+  themeColor: '#071A3A',
   // Do NOT set maximumScale=1 — that breaks accessibility (user zoom)
 };
 
