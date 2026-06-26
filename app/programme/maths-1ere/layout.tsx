@@ -17,6 +17,7 @@ export const metadata: Metadata = {
     'probabilités conditionnelles',
     'programme officiel',
   ],
+  alternates: { canonical: '/programme/maths-1ere' },
   openGraph: {
     images: [OG_DEFAULT_IMAGE],
     title: 'Spécialité Maths 1ère - Révisions Interactives | Nexus Réussite',

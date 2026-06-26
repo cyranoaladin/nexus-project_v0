@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "Notre Équipe de Mentors & Coachs | Nexus Réussite",
   description: "Rencontrez nos mentors d'exception: professeurs Agrégés et Certifiés, experts pédagogiques et coachs certifiés. Spécialisations Maths, Sciences, NSI, Grand Oral et orientation Parcoursup.",
   keywords: ["professeurs Agrégés et Certifiés", "mentors pédagogiques", "coachs scolaires", "équipe enseignante", "expertise éducation Tunisie"],
+  alternates: { canonical: '/equipe' },
   openGraph: {
     images: [OG_DEFAULT_IMAGE],
     title: "Notre Équipe de Mentors | Nexus Réussite",

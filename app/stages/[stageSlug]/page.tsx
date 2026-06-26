@@ -38,6 +38,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${stage.title} | Nexus Réussite`,
     description: stage.subtitle || stage.description || `Découvrez le stage ${stage.title} et inscrivez-vous en ligne.`,
+    alternates: {
+      canonical: `/stages/${stage.slug}`,
+    },
     openGraph: {
       images: [OG_DEFAULT_IMAGE],
       title: `${stage.title} | Nexus Réussite`,

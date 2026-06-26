@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "Bilan Gratuit - Diagnostic Personnalisé | Nexus Réussite",
   description: "Obtenez un diagnostic pédagogique complet et gratuit pour votre enfant. Identifiez ses besoins, ses forces et recevez un plan d'action personnalisé par nos experts.",
   keywords: ["bilan gratuit", "diagnostic pédagogique", "évaluation scolaire", "orientation", "soutien scolaire Tunisie"],
+  alternates: { canonical: '/bilan-gratuit' },
   openGraph: {
     images: [OG_DEFAULT_IMAGE],
     title: "Bilan Gratuit - Diagnostic Personnalisé | Nexus Réussite",
