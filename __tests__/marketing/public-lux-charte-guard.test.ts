@@ -43,6 +43,14 @@ const MIGRATED_PUBLIC_PAGES = [
   'app/access-required/page.tsx',
   'app/not-found.tsx',
   'app/error.tsx',
+  // Sitemap pages using shared lux components (LandingNiche, Stages2026Page)
+  'app/stages/page.tsx',
+  'app/stages/Stages2026Page.tsx',
+  'app/grand-oral/page.tsx',
+  'app/reussir-eaf/page.tsx',
+  'app/candidat-libre-bac-francais/page.tsx',
+  'app/preparation-bac-francais-tunis/page.tsx',
+  'app/programme/maths-1ere/page.tsx',
 ];
 
 // Public shared components (chrome) already migrated
@@ -50,6 +58,7 @@ const MIGRATED_PUBLIC_COMPONENTS = [
   'components/layout/CorporateNavbar.tsx',
   'components/layout/CorporateFooter.tsx',
   'components/stages/StageInscriptionForm.tsx',
+  'components/marketing/LandingNiche.tsx',
   'components/stages/PublicStageCard.tsx',
 ];
 
