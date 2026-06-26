@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   description:
     "Stages de prérentrée, Toussaint, hiver, printemps et sprint final. Groupes réduits, présentiel à Mutuelleville ou en ligne.",
   openGraph: {
+    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "Nexus Réussite" }],
     title: "Stages 2026/2027 — Nexus Réussite",
     description: "Des stages utiles, structurés et pensés pour la progression réelle.",
     type: "website",

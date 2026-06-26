@@ -15,6 +15,7 @@ export const metadata: Metadata = {
     'Nexus Réussite offres',
   ],
   openGraph: {
+    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "Nexus Réussite" }],
     title: 'Offres & Tarifs — Catalogue 2026/2027 | Nexus Réussite',
     description:
       `Parcours annuels, stages intensifs, Pass fidélité et Carte Nexus. Groupes de ${rules.group_max} max, tarifs en TND.`,

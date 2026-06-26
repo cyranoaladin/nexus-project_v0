@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: 'Ressources bac français | Nexus Réussite',
   description: 'Méthode, coefficients, EAF, Grand Oral et organisation pour les familles du système français.',
   openGraph: {
+    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "Nexus Réussite" }],
     title: 'Ressources bac français | Nexus Réussite',
     description: 'Un hub de ressources pédagogiques Nexus Réussite, publié progressivement.',
     type: 'website',
