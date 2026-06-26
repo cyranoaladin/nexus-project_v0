@@ -860,38 +860,51 @@ Domaine: https://nexusreussite.academy
 SSL: Let's Encrypt (auto-renew)
 Reverse Proxy: Nginx → 127.0.0.1:3001
 
-Conteneurs Docker (13+ healthy):
-├── nexus-next-app     (port 3001→3000, standalone, Next.js 15.5)
-├── nexus-postgres-db  (port 5435→5432, PostgreSQL 15-alpine)
-├── ollama             (llama3.2:latest 2GB + phi3:mini 2.2GB + nomic-embed-text 274MB)
-├── chromadb           (collection: ressources_pedagogiques_terminale, 211 chunks)
-├── rag-ingestor       (FastAPI v2.3, port 8001, pgvector backend)
+Application Next.js (PM2 standalone):
+├── nexus-prod          PM2 cluster, port 3001, node .next/standalone/server.js
+│                       pm2 startup systemd (survie reboot)
+│                       Chemin: /var/www/nexus-project_v0
+├── PostgreSQL          port 5435 (DB principale)
+├── ollama              (llama3.2:latest, phi3:mini, nomic-embed-text)
+├── chromadb            (collection: ressources_pedagogiques_terminale, 211 chunks)
+├── rag-ingestor        (FastAPI v2.3, port 8001, pgvector backend)
 ├── prometheus + grafana (monitoring RAG)
 └── Korrigo (7 conteneurs séparés — NE PAS TOUCHER)
 
-Réseaux Docker:
-├── nexus_nexus-network  (app ↔ DB)
-├── rag_v2_net           (ollama ↔ ingestor ↔ chroma)
-└── infra_rag_net        (nexus-next-app ↔ ollama/ingestor, bridge externe)
+Note: Next.js tourne en PM2 standalone (pas Docker). Les docker-compose
+du repo (docker-compose.prod.yml, Dockerfile.prod) sont vestigiaux et
+ne sont PAS utilisés en production. Les autres services (ollama, chroma,
+rag-ingestor, Korrigo) tournent en Docker.
 ```
 
-### Docker
-
-- **`Dockerfile.prod`** : Multi-stage build, standalone output, `HOSTNAME=0.0.0.0`
-- **`docker-compose.prod.yml`** : Orchestration Nexus (app + DB)
-- **RAG Compose** : `/opt/rag-service/infra/docker-compose.v2.yml` (ollama, ingestor, chroma, prometheus, grafana)
-- Healthcheck : `curl http://127.0.0.1:3000/api/health`
+### Déploiement Nexus (PM2)
 
 ```bash
-# Nexus
-docker compose -f docker-compose.prod.yml up -d next-app
+# Sur nexus-prod (ssh nexus-prod)
+cd /var/www/nexus-project_v0
+git fetch origin && git reset --hard origin/main
+npx next build
+cp -r .next/static .next/standalone/.next/static
+cp -r public .next/standalone/public
+pm2 restart nexus-prod
+pm2 save
+```
 
-# RAG (sur le serveur)
+- **PM2 process** : `nexus-prod`, mode cluster, port 3001
+- **Persistance reboot** : `pm2 startup systemd` + `pm2 save`
+- **Healthcheck** : `curl http://127.0.0.1:3001/api/health`
+- **Nginx** : reverse proxy TLS → 127.0.0.1:3001 (ne pose aucun en-tête sécurité, tout vient du middleware Next.js)
+
+### RAG & autres services (Docker)
+
+- **RAG Compose** : `/opt/rag-service/infra/docker-compose.v2.yml` (ollama, ingestor, chroma, prometheus, grafana)
+
+```bash
 cd /opt/rag-service/infra
 docker compose -f docker-compose.v2.yml -f docker-compose.prod.v2.yml up -d [service]
 ```
 
-> **Important** : `docker compose restart` ne recharge PAS le `.env`. Utiliser `docker compose up -d next-app` pour recréer le conteneur avec les nouvelles variables.
+> **Note** : `Dockerfile.prod` et `docker-compose.prod.yml` dans le repo sont vestigiaux — la production utilise PM2 standalone, pas Docker pour Next.js.
 
 ### Seed Production (9 users)
 

@@ -1,11 +1,15 @@
 /**
  * Security Headers Middleware
  *
- * Single source of truth for security headers applied at the application level.
- * Nginx is configured to NOT set CSP (to avoid double/conflicting headers).
- * Nginx only sets HSTS, X-Content-Type-Options, and basic security headers.
+ * Single source of truth for ALL security headers. Applied by Next.js
+ * middleware (middleware.ts → applySecurityHeaders). Nginx reverse proxy
+ * does NOT set any security headers — it only handles TLS termination,
+ * proxying, and static file serving.
  *
  * CSP exceptions documented:
+ * - 'unsafe-inline' on script-src: required by Next.js inline scripts.
+ *   Nonce-based CSP would need custom Document + per-request nonce (tracked).
+ * - 'unsafe-eval' on script-src: required for WebAssembly (some client libs).
  * - 'unsafe-inline' on style-src: required by Next.js inline styles, Radix UI,
  *   and TailwindCSS v4 runtime. Cannot be removed without breaking the UI.
  * - Jitsi frame-src: required for video conferencing embeds.
