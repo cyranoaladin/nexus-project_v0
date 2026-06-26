@@ -155,3 +155,8 @@ public/images/nexus-select.png
 public/images/premiere-finish-pack.png
 
 eam_prep_nexus.html
+
+# Regenerated audit artefacts (npm run audit:site-map)
+docs/architecture/SITE_MAP.md
+docs/architecture/SITE_GRAPH.mmd
+docs/architecture/SSOT_MAP.md
