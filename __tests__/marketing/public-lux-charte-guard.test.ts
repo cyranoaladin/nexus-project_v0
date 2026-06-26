@@ -126,4 +126,36 @@ describe('Public lux-* charte guard', () => {
 
     expect(offenders).toEqual([]);
   });
+
+  // lux-eyebrow resolves to text-lux-gold-deep (#7A6535) — 3.07:1 on lux-ink.
+  // On light backgrounds (lux-white 5.61:1, lux-paper 5.37:1) it passes AA.
+  // On dark backgrounds it FAILS AA for normal text (11px semibold).
+  // Rule: bare "lux-eyebrow" (without a color override like text-lux-gold-wash)
+  // must not appear in dark-bg public files.
+  test('bare lux-eyebrow must not appear on dark-background public surfaces (contrast < AA)', () => {
+    const offenders: string[] = [];
+
+    for (const file of DARK_BG_PUBLIC_FILES) {
+      const fullPath = join(root, file);
+      if (!existsSync(fullPath)) continue;
+      const content = readFileSync(fullPath, 'utf-8');
+      const lines = content.split('\n');
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        // Match lux-eyebrow NOT followed by a color override on the same className
+        if (
+          line.includes('lux-eyebrow') &&
+          !line.includes('text-lux-gold-wash') &&
+          !line.includes('text-lux-gold"') &&
+          !line.includes('text-lux-gold ') &&
+          !line.includes('text-lux-gold}')
+        ) {
+          const relPath = file;
+          offenders.push(`${relPath}:${i + 1} uses bare lux-eyebrow on dark bg (add text-lux-gold-wash or use inline text-lux-gold)`);
+        }
+      }
+    }
+
+    expect(offenders).toEqual([]);
+  });
 });
