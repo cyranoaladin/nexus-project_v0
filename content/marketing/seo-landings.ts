@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { OfferRef, NicheSection, RelatedLink } from '@/components/marketing/LandingNiche';
 import { LEGAL } from '@/lib/legal';
 import { getRules } from '@/lib/pricing';
+import { OG_DEFAULT_IMAGE } from '@/lib/seo';
 import { PREPARATION_LINKS, type PreparationLink } from './preparation-links';
 
 export type SeoLandingContent = {
@@ -25,6 +26,7 @@ function metadata(path: PreparationLink['href'], title: string, description: str
       canonical: path,
     },
     openGraph: {
+      images: [OG_DEFAULT_IMAGE],
       title,
       description,
       type: 'website',

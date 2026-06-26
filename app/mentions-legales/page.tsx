@@ -3,11 +3,16 @@ import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { LEGAL } from '@/lib/legal';
 import { CGV_POLICY } from '@/lib/cgv-policy';
+import { buildPageMetadata } from '@/lib/seo';
 import type { Metadata } from 'next';
 
+const _title = 'Mentions Légales — Nexus Réussite';
+const _desc = `Mentions légales du site nexusreussite.academy — ${LEGAL.entity.name}.`;
+
 export const metadata: Metadata = {
-  title: 'Mentions Légales — Nexus Réussite',
-  description: `Mentions légales du site nexusreussite.academy — ${LEGAL.entity.name}.`,
+  title: _title,
+  description: _desc,
+  ...buildPageMetadata({ title: _title, description: _desc, path: '/mentions-legales' }),
 };
 
 export default function MentionsLegalesPage() {

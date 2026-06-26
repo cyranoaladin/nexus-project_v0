@@ -9,6 +9,7 @@ export const metadata: Metadata = {
     "Accompagnement académique premium pour les élèves du système français à Tunis : groupes réduits, méthode structurée, bilans individualisés et suivi parent clair.",
   keywords:
     'Nexus Réussite, bac français, Tunis, accompagnement scolaire, candidats libres, Première, Terminale, ARIA',
+  alternates: { canonical: '/' },
   openGraph: {
     images: [OG_DEFAULT_IMAGE],
     title: 'Nexus Réussite | Accompagnement académique premium à Tunis',

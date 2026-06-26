@@ -7,6 +7,7 @@ import { CorporateFooter } from '@/components/layout/CorporateFooter';
 export const metadata: Metadata = {
   title: 'Ressources bac français | Nexus Réussite',
   description: 'Méthode, coefficients, EAF, Grand Oral et organisation pour les familles du système français.',
+  alternates: { canonical: '/ressources' },
   openGraph: {
     images: [OG_DEFAULT_IMAGE],
     title: 'Ressources bac français | Nexus Réussite',

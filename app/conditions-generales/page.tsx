@@ -4,12 +4,16 @@ import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { ClipboardList } from 'lucide-react';
 import { LEGAL } from '@/lib/legal';
 import { CGV_POLICY } from '@/lib/cgv-policy';
+import { buildPageMetadata } from '@/lib/seo';
 import type { Metadata } from 'next';
 
+const _title = 'Conditions Générales (CGU + CGV) — Nexus Réussite';
+const _desc = `Conditions Générales d'Utilisation et de Vente du site nexusreussite.academy — ${LEGAL.entity.name}.`;
+
 export const metadata: Metadata = {
-  title: 'Conditions Générales (CGU + CGV) — Nexus Réussite',
-  description:
-    `Conditions Générales d'Utilisation et de Vente du site nexusreussite.academy — ${LEGAL.entity.name}.`,
+  title: _title,
+  description: _desc,
+  ...buildPageMetadata({ title: _title, description: _desc, path: '/conditions-generales' }),
 };
 
 export default function ConditionsGeneralesPage() {

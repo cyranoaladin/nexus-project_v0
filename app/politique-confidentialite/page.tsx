@@ -3,11 +3,16 @@ import Link from 'next/link';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { LEGAL } from '@/lib/legal';
+import { buildPageMetadata } from '@/lib/seo';
+
+const _title = 'Politique de confidentialité | Nexus Réussite';
+const _desc = 'Traitement des données de contact, bilan gratuit et newsletter Nexus Réussite.';
 
 export const metadata: Metadata = {
-  title: 'Politique de confidentialité | Nexus Réussite',
-  description: 'Traitement des données de contact, bilan gratuit et newsletter Nexus Réussite.',
+  title: _title,
+  description: _desc,
   robots: { index: true, follow: true },
+  ...buildPageMetadata({ title: _title, description: _desc, path: '/politique-confidentialite' }),
 };
 
 export default function PolitiqueConfidentialitePage() {

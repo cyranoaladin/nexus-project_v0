@@ -15,6 +15,7 @@ export const metadata: Metadata = {
     'soutien scolaire Tunisie',
     'Nexus Réussite offres',
   ],
+  alternates: { canonical: '/offres' },
   openGraph: {
     images: [OG_DEFAULT_IMAGE],
     title: 'Offres & Tarifs — Catalogue 2026/2027 | Nexus Réussite',
