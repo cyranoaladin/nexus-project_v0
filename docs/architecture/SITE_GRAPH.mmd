@@ -1,9 +1,9 @@
 flowchart TD
   subgraph marketing["Marketing public"]
     N1["/"]
-    N6["/#main-content"]
-    N7["/academies-hiver"]
-    N9["/access-required"]
+    N7["/#main-content"]
+    N8["/academies-hiver"]
+    N10["/access-required"]
     N11["/accompagnement-scolaire"]
     N15["/assessments/[id]/processing"]
     N16["/assessments/[id]/result"]
@@ -22,7 +22,7 @@ flowchart TD
     N29["/conditions"]
     N22["/conditions-generales"]
     N31["/confidentialite.html"]
-    N10["/contact"]
+    N3["/contact"]
     N33["/corrige_dnb_maths_2026"]
     N109["/education"]
     N110["/equipe"]
@@ -38,7 +38,7 @@ flowchart TD
     N30["/mentions-legales#donnees"]
     N118["/nexus_selecteur.html"]
     N120["/notre-centre"]
-    N3["/offres"]
+    N4["/offres"]
     N140["/offres#1re-double-secu"]
     N141["/offres#2nde-maths"]
     N142["/offres#boussole-methode"]
@@ -48,9 +48,9 @@ flowchart TD
     N146["/offres#cap-eaf"]
     N147["/offres#pass-candidat-libre"]
     N148["/offres#pass-cap-bac-1re"]
-    N4["/offres#section-annual"]
+    N5["/offres#section-annual"]
     N125["/offres#section-intensifs"]
-    N5["/offres#section-libre"]
+    N6["/offres#section-libre"]
     N149["/offres#section-plateforme"]
     N150["/offres#studio-grand-oral"]
     N151["/offres#term-duo"]
@@ -66,7 +66,7 @@ flowchart TD
     N34["/ressources"]
     N154["/reussir-eaf"]
     N124["/session/video"]
-    N8["/stages"]
+    N9["/stages"]
     N126["/stages/[stageSlug]/inscription"]
     N127["/tarifs"]
     N128["shared"]
@@ -169,16 +169,19 @@ flowchart TD
   end
   subgraph api["API"]
   end
+  N1 -->|CTA| N1
+  N1 -->|contextuel| N1
   N1 -->|CTA| N2
-  N1 -->|CTA| N3
+  N1 -->|contextuel| N3
   N1 -->|CTA| N4
   N1 -->|CTA| N5
-  N1 -->|contextuel| N6
-  N7 -->|redirect| N8
-  N9 -->|CTA| N10
-  N9 -->|CTA| N3
+  N1 -->|CTA| N6
+  N1 -->|contextuel| N7
+  N8 -->|redirect| N9
+  N10 -->|CTA| N3
+  N10 -->|CTA| N4
   N11 -->|CTA| N2
-  N11 -->|CTA| N3
+  N11 -->|CTA| N4
   N11 -->|CTA| N12
   N13 -->|redirect| N14
   N15 -->|redirect| N1
@@ -194,22 +197,22 @@ flowchart TD
   N18 -->|CTA| N2
   N18 -->|CTA| N22
   N2 -->|redirect| N23
-  N2 -->|CTA| N10
   N2 -->|CTA| N3
+  N2 -->|CTA| N4
   N23 -->|CTA| N1
-  N23 -->|CTA| N3
+  N23 -->|CTA| N4
   N24 -->|CTA| N1
   N25 -->|CTA| N1
-  N25 -->|CTA| N3
+  N25 -->|CTA| N4
   N26 -->|CTA| N24
   N27 -->|CTA| N24
-  N28 -->|redirect| N3
+  N28 -->|redirect| N4
   N29 -->|redirect| N22
   N22 -->|contextuel| N30
-  N22 -->|CTA| N3
+  N22 -->|CTA| N4
   N31 -->|redirect| N32
-  N10 -->|CTA| N2
-  N10 -->|contextuel| N32
+  N3 -->|CTA| N2
+  N3 -->|contextuel| N32
   N33 -->|redirect| N34
   N14 -->|redirect| N18
   N14 -->|redirect| N35
@@ -365,7 +368,7 @@ flowchart TD
   N103 -->|redirect| N18
   N103 -->|contextuel| N98
   N103 -->|redirect| N98
-  N104 -->|CTA| N10
+  N104 -->|CTA| N3
   N104 -->|CTA| N39
   N104 -->|contextuel| N98
   N104 -->|contextuel| N103
@@ -375,34 +378,34 @@ flowchart TD
   N107 -->|redirect| N108
   N109 -->|redirect| N11
   N110 -->|CTA| N2
-  N110 -->|contextuel| N10
-  N110 -->|CTA| N10
+  N110 -->|contextuel| N3
+  N110 -->|CTA| N3
   N111 -->|CTA| N2
-  N111 -->|CTA| N10
+  N111 -->|CTA| N3
   N111 -->|contextuel| N110
   N111 -->|CTA| N112
   N113 -->|redirect| N2
   N114 -->|redirect| N115
   N116 -->|redirect| N117
   N118 -->|redirect| N119
-  N120 -->|CTA| N10
-  N3 -->|CTA| N119
+  N120 -->|CTA| N3
+  N4 -->|CTA| N119
   N121 -->|redirect| N12
   N12 -->|CTA| N2
-  N12 -->|CTA| N3
-  N32 -->|contextuel| N10
+  N12 -->|CTA| N4
+  N32 -->|contextuel| N3
   N115 -->|redirect| N79
-  N115 -->|redirect| N3
+  N115 -->|redirect| N4
   N122 -->|redirect| N79
   N123 -->|redirect| N2
   N119 -->|CTA| N2
   N34 -->|CTA| N2
-  N34 -->|CTA| N3
+  N34 -->|CTA| N4
   N124 -->|redirect| N18
-  N8 -->|CTA| N2
-  N8 -->|CTA| N125
-  N126 -->|contextuel| N8
-  N127 -->|redirect| N3
+  N9 -->|CTA| N2
+  N9 -->|CTA| N125
+  N126 -->|contextuel| N9
+  N127 -->|redirect| N4
   N128 -->|footer| N1
   N128 -->|nav| N1
   N128 -->|contextuel| N1
@@ -418,9 +421,9 @@ flowchart TD
   N128 -->|contextuel| N129
   N128 -->|contextuel| N22
   N128 -->|footer| N22
-  N128 -->|contextuel| N10
-  N128 -->|footer| N10
-  N128 -->|nav| N10
+  N128 -->|contextuel| N3
+  N128 -->|footer| N3
+  N128 -->|nav| N3
   N128 -->|nav| N35
   N128 -->|nav| N40
   N128 -->|nav| N41
@@ -486,9 +489,9 @@ flowchart TD
   N128 -->|footer| N117
   N128 -->|footer| N120
   N128 -->|nav| N120
-  N128 -->|footer| N3
-  N128 -->|nav| N3
-  N128 -->|CTA| N3
+  N128 -->|footer| N4
+  N128 -->|nav| N4
+  N128 -->|CTA| N4
   N128 -->|CTA| N140
   N128 -->|CTA| N141
   N128 -->|CTA| N142
@@ -498,7 +501,7 @@ flowchart TD
   N128 -->|CTA| N146
   N128 -->|CTA| N147
   N128 -->|CTA| N148
-  N128 -->|nav| N4
+  N128 -->|nav| N5
   N128 -->|nav| N125
   N128 -->|nav| N149
   N128 -->|CTA| N150
@@ -512,6 +515,6 @@ flowchart TD
   N128 -->|footer| N34
   N128 -->|nav| N34
   N128 -->|contextuel| N154
-  N128 -->|footer| N8
-  N128 -->|nav| N8
-  N128 -->|contextuel| N8
+  N128 -->|footer| N9
+  N128 -->|nav| N9
+  N128 -->|contextuel| N9
