@@ -13,7 +13,19 @@ import { execSync } from 'child_process';
 const root = process.cwd();
 
 // Legacy tokens that must not appear on public surfaces
-const LEGACY_TOKENS = ['surface-darker', 'brand-accent', 'brand-accent-dark'];
+const LEGACY_TOKENS = [
+  'surface-darker', 'brand-accent', 'brand-accent-dark',
+  'bg-surface-card', 'bg-surface-elevated',
+];
+
+// Raw Tailwind palette tokens forbidden on migrated public surfaces
+// (must use lux-* equivalents instead)
+const RAW_PALETTE_TOKENS = [
+  'bg-slate-950', 'bg-slate-900',
+  'text-slate-200', 'text-slate-300', 'text-slate-400',
+  'gold-400', 'gold-500', 'bg-gold-',
+  'brand-primary',
+];
 
 // Public page files that are ALREADY migrated (must stay clean)
 const MIGRATED_PUBLIC_PAGES = [
@@ -51,6 +63,9 @@ const MIGRATED_PUBLIC_PAGES = [
   'app/candidat-libre-bac-francais/page.tsx',
   'app/preparation-bac-francais-tunis/page.tsx',
   'app/programme/maths-1ere/page.tsx',
+  'app/recommandation/page.tsx',
+  'app/recommandation/RecommandationClient.tsx',
+  'app/equipe/page.tsx',
 ];
 
 // Public shared components (chrome) already migrated
@@ -78,6 +93,23 @@ describe('Public lux-* charte guard', () => {
       for (const token of LEGACY_TOKENS) {
         if (content.includes(token)) {
           offenders.push(`${file} contains '${token}'`);
+        }
+      }
+    }
+
+    expect(offenders).toEqual([]);
+  });
+
+  test('migrated public pages contain no raw palette tokens (slate/gold/brand-primary)', () => {
+    const offenders: string[] = [];
+
+    for (const file of [...MIGRATED_PUBLIC_PAGES, ...MIGRATED_PUBLIC_COMPONENTS]) {
+      const fullPath = join(root, file);
+      if (!existsSync(fullPath)) continue;
+      const content = readFileSync(fullPath, 'utf-8');
+      for (const token of RAW_PALETTE_TOKENS) {
+        if (content.includes(token)) {
+          offenders.push(`${file} contains '${token}' (use lux-* equivalent)`);
         }
       }
     }
@@ -123,6 +155,7 @@ describe('Public lux-* charte guard', () => {
     'app/access-required/page.tsx',
     'app/not-found.tsx',
     'app/error.tsx',
+    'app/equipe/page.tsx',
   ];
 
   test('text-lux-slate must not appear on dark-background public surfaces (contrast < AA)', () => {
@@ -194,5 +227,53 @@ describe('Public lux-* charte guard', () => {
     const unknownHex = hexColors.filter((hex) => !LUX_PALETTE[hex.toUpperCase()]);
 
     expect(unknownHex).toEqual([]);
+  });
+
+  // Exhaustive filesystem guard: every public page.tsx (excluding
+  // dashboard/api/auth/session) must be either in MIGRATED, in EXCLUDED
+  // (noindex/redirect/dynamic-auth), or fail. This prevents new public
+  // pages from slipping through without charte coverage.
+  const EXCLUDED_FROM_CHARTE = [
+    // noindex pages (parcours fonctionnel, pas marketing)
+    'app/access-required/page.tsx',
+    'app/bilan-gratuit/assessment/page.tsx',
+    'app/bilan-gratuit/confirmation/page.tsx',
+    'app/bilan-pallier2-maths/page.tsx',
+    'app/bilan-pallier2-maths/confirmation/page.tsx',
+    'app/bilan-pallier2-maths/resultat/[id]/page.tsx',
+    'app/bilan-pallier2-maths/dashboard/page.tsx',
+    'app/lamis/page.tsx',
+    'app/programme/maths-1ere-stmg/page.tsx',
+    'app/programme/maths-terminale/page.tsx',
+    // redirects (no rendering)
+    'app/conditions/page.tsx',
+    'app/maths-1ere/page.tsx',
+    // dynamic-auth (requires auth, not public marketing)
+    'app/admin/directeur/page.tsx',
+    'app/assessments/[id]/processing/page.tsx',
+    'app/assessments/[id]/result/page.tsx',
+  ];
+
+  test('filesystem exhaustivity: every public page.tsx is covered', () => {
+    const allPages = execSync(
+      "find app -name 'page.tsx' -not -path '*/dashboard/*' -not -path '*/api/*' -not -path '*/auth/*' -not -path '*/session/*'",
+      { encoding: 'utf-8', cwd: root },
+    )
+      .trim()
+      .split('\n')
+      .filter(Boolean);
+
+    const allMigrated = [...MIGRATED_PUBLIC_PAGES, ...MIGRATED_PUBLIC_COMPONENTS];
+    const uncovered: string[] = [];
+
+    for (const page of allPages) {
+      const isInMigrated = allMigrated.includes(page);
+      const isExcluded = EXCLUDED_FROM_CHARTE.includes(page);
+      if (!isInMigrated && !isExcluded) {
+        uncovered.push(`${page} is NOT in MIGRATED nor EXCLUDED — add it to one list`);
+      }
+    }
+
+    expect(uncovered).toEqual([]);
   });
 });

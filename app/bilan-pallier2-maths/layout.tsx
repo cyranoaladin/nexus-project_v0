@@ -1,6 +1,10 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
   title: "Bilan Diagnostic Pré-Stage Maths | Nexus Réussite",
   description: "Bilan diagnostic personnalisé avant votre stage de mathématiques. Évaluez votre niveau, identifiez vos priorités et recevez un rapport détaillé pour préparer l'épreuve anticipée 2026.",
   keywords: ["bilan diagnostic maths", "pré-stage", "épreuve anticipée 2026", "baccalauréat", "soutien scolaire maths", "positionnement mathématiques"],
