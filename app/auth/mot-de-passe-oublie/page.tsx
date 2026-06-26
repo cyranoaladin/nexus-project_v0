@@ -153,8 +153,8 @@ export default function MotDePasseOubliePage() {
                 </div>
 
                 {error && (
-                  <div className="bg-slate-1000/10 border border-slate-500/30 rounded-lg p-3">
-                    <p className="text-slate-200 text-sm">{error}</p>
+                  <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
+                    <p className="text-amber-100 text-sm">{error}</p>
                   </div>
                 )}
 

@@ -320,17 +320,17 @@ export default function EquipePage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 equipe-dark">
+    <div className="min-h-screen bg-lux-ink text-lux-on-dark-muted font-dm-sans">
       <main id="main-content" className="pb-20">
         <section className="relative overflow-hidden py-20">
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-950/70 to-slate-950" />
+          <div className="absolute inset-0 bg-gradient-to-b from-lux-ink via-lux-ink/70 to-lux-ink" />
           <div className="container relative z-10 mx-auto px-4 md:px-6">
             <div className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr] items-center">
               <div>
-                <h1 className="text-4xl md:text-6xl font-bold text-white font-serif">
+                <h1 className="text-4xl md:text-6xl font-fraunces font-light text-lux-ivory">
                   Des approches pédagogiques structurées pour progresser
                 </h1>
-                <p className="mt-4 text-lg text-slate-300">
+                <p className="mt-4 text-lg text-lux-on-dark-muted">
                   Nexus Réussite présente ici ses profils d'accompagnement par discipline et par besoin.
                   Le diagnostic permet ensuite d'orienter la famille vers le cadre le plus adapté.
                 </p>
@@ -344,10 +344,10 @@ export default function EquipePage() {
                   ].map((stat) => (
                     <div
                       key={stat.label}
-                      className="rounded-2xl border border-white/10 bg-white/5 p-4 text-center"
+                      className="rounded-2xl border border-lux-line/40 bg-white/5 p-4 text-center"
                     >
-                      <div className="text-2xl font-bold text-gold-400">{stat.value}</div>
-                      <div className="text-xs text-slate-300">{stat.label}</div>
+                      <div className="text-2xl font-bold text-lux-gold">{stat.value}</div>
+                      <div className="text-xs text-lux-on-dark-muted">{stat.label}</div>
                     </div>
                   ))}
                 </div>
@@ -355,7 +355,7 @@ export default function EquipePage() {
                 <div className="mt-8 flex flex-col sm:flex-row gap-4">
                   <button
                     onClick={() => profilesRef.current?.scrollIntoView({ behavior: "smooth" })}
-                    className="rounded-full bg-gold-500 px-6 py-3 text-sm font-bold text-black hover:bg-gold-400 transition"
+                    className="rounded-full bg-lux-gold px-6 py-3 text-sm font-bold text-lux-ink hover:bg-lux-gold-bright transition"
                   >
                     <span className="inline-flex items-center gap-2">
                       <Target className="h-4 w-4" aria-hidden="true" />
@@ -364,7 +364,7 @@ export default function EquipePage() {
                   </button>
                   <button
                     onClick={() => directoryRef.current?.scrollIntoView({ behavior: "smooth" })}
-                    className="rounded-full border border-gold-500 px-6 py-3 text-sm font-bold text-white hover:bg-gold-500/10 transition"
+                    className="rounded-full border border-lux-gold px-6 py-3 text-sm font-bold text-lux-ivory hover:bg-lux-gold/10 transition"
                   >
                     <span className="inline-flex items-center gap-2">
                       <Users className="h-4 w-4" aria-hidden="true" />
@@ -375,15 +375,15 @@ export default function EquipePage() {
               </div>
 
               <div className="relative">
-                <div className="relative rounded-3xl border border-white/10 bg-white/5 p-6 text-center backdrop-blur-md">
+                <div className="relative rounded-3xl border border-lux-line/40 bg-white/5 p-6 text-center backdrop-blur-md">
                   <div className="grid grid-cols-2 gap-4">
                     {featuredProfiles.map((profile) => (
-                      <div key={profile.id} className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gold-500/20 text-gold-400 font-bold">
+                      <div key={profile.id} className="rounded-2xl border border-lux-line/40 bg-white/5 p-4">
+                        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-lux-gold/20 text-lux-gold font-bold">
                           {profile.label.slice(0, 1)}
                         </div>
-                        <div className="mt-2 text-sm font-semibold text-white">{profile.subject}</div>
-                        <div className="text-xs text-slate-300">{profile.category}</div>
+                        <div className="mt-2 text-sm font-semibold text-lux-ivory">{profile.subject}</div>
+                        <div className="text-xs text-lux-on-dark-muted">{profile.category}</div>
                       </div>
                     ))}
                   </div>
@@ -393,24 +393,24 @@ export default function EquipePage() {
           </div>
         </section>
 
-        <section ref={profilesRef} className="py-20 bg-black/20" id="matchingQuiz">
+        <section ref={profilesRef} className="py-20 bg-white/5" id="matchingQuiz">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-white font-serif">
+              <h2 className="text-3xl md:text-4xl font-fraunces font-light text-lux-ivory">
                 Identifier le cadre de travail le plus utile
               </h2>
-              <p className="mt-3 text-slate-300">
+              <p className="mt-3 text-lux-on-dark-muted">
                 4 questions pour orienter la discussion de diagnostic.
               </p>
             </div>
 
-            <div className="mt-10 rounded-3xl border border-white/10 bg-white/5 p-8">
+            <div className="mt-10 rounded-3xl border border-lux-line/40 bg-white/5 p-8">
               <div className="mb-6">
-                <div className="flex flex-wrap gap-3 text-xs text-slate-300">
+                <div className="flex flex-wrap gap-3 text-xs text-lux-on-dark-muted">
                   {quizQuestions.map((q, index) => (
                     <div
                       key={q.key}
-                      className={`rounded-full px-3 py-1 border ${index <= quizStep ? "border-gold-500/50 text-gold-400" : "border-white/10"}`}
+                      className={`rounded-full px-3 py-1 border ${index <= quizStep ? "border-lux-gold/50 text-lux-gold" : "border-lux-line/40"}`}
                     >
                       {q.question.split(" ")[0]}
                     </div>
@@ -418,7 +418,7 @@ export default function EquipePage() {
                 </div>
                 <div className="mt-3 h-2 w-full rounded-full bg-white/10">
                   <div
-                    className="h-2 rounded-full bg-gold-500 transition"
+                    className="h-2 rounded-full bg-lux-gold transition"
                     style={{ width: `${((quizStep + 1) / quizQuestions.length) * 100}%` }}
                   />
                 </div>
@@ -426,7 +426,7 @@ export default function EquipePage() {
 
               {!quizResult ? (
                 <div>
-                  <h3 className="text-xl font-semibold text-white">
+                  <h3 className="text-xl font-semibold text-lux-ivory">
                     {quizQuestions[quizStep].question}
                   </h3>
                   <div className="mt-4 grid gap-3 md:grid-cols-2">
@@ -434,11 +434,11 @@ export default function EquipePage() {
                       <button
                         key={option.value}
                         onClick={() => handleQuiz(option.value)}
-                        className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-slate-200 hover:border-gold-500/40 transition"
+                        className="rounded-2xl border border-lux-line/40 bg-white/5 px-4 py-3 text-sm text-lux-on-dark-muted hover:border-lux-gold/40 transition"
                       >
                         {(() => {
                           const OptionIcon = resolveUiIcon(option.icon);
-                          return <OptionIcon className="mr-2 inline h-4 w-4 text-gold-400" aria-hidden="true" />;
+                          return <OptionIcon className="mr-2 inline h-4 w-4 text-lux-gold" aria-hidden="true" />;
                         })()}
                         {option.label}
                       </button>
@@ -448,31 +448,31 @@ export default function EquipePage() {
                     {quizStep > 0 && (
                       <button
                         onClick={() => setQuizStep(Math.max(quizStep - 1, 0))}
-                        className="rounded-full border border-gold-500 px-4 py-2 text-xs font-semibold text-gold-300"
+                        className="rounded-full border border-lux-gold px-4 py-2 text-xs font-semibold text-lux-gold-wash"
                       >
                         Précédent
                       </button>
                     )}
                     <button
                       onClick={() => directoryRef.current?.scrollIntoView({ behavior: "smooth" })}
-                      className="rounded-full border border-white/10 px-4 py-2 text-xs text-slate-300 hover:text-white"
+                      className="rounded-full border border-lux-line/40 px-4 py-2 text-xs text-lux-on-dark-muted hover:text-lux-ivory"
                     >
                       Voir directement les profils
                     </button>
                   </div>
                 </div>
               ) : (
-                <div className="rounded-3xl border border-gold-500/40 bg-black/30 p-6">
+                <div className="rounded-3xl border border-lux-gold/40 bg-white/5 p-6">
                   <div className="flex flex-col gap-6 md:flex-row md:items-center">
-                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gold-500/20 text-gold-400 text-3xl font-bold">
+                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-lux-gold/20 text-lux-gold text-3xl font-bold">
                       {quizResult.label.slice(0, 1)}
                     </div>
                     <div>
-                      <h3 className="text-xl font-semibold text-white">
+                      <h3 className="text-xl font-semibold text-lux-ivory">
                         Approche recommandée : {quizResult.label}
                       </h3>
-                      <p className="mt-2 text-slate-300">{quizResult.tagline}</p>
-                      <div className="mt-2 text-sm text-gold-400">
+                      <p className="mt-2 text-lux-on-dark-muted">{quizResult.tagline}</p>
+                      <div className="mt-2 text-sm text-lux-gold">
                         {quizResult.stats[0]} · {quizResult.capacityLabel}
                       </div>
                     </div>
@@ -480,13 +480,13 @@ export default function EquipePage() {
                   <div className="mt-6 flex flex-col sm:flex-row gap-3">
                     <a
                       href="/contact"
-                      className="rounded-full bg-gold-500 px-6 py-3 text-sm font-bold text-black hover:bg-gold-400 transition"
+                      className="rounded-full bg-lux-gold px-6 py-3 text-sm font-bold text-lux-ink hover:bg-lux-gold-bright transition"
                     >
                       Réserver un diagnostic pédagogique
                     </a>
                     <button
                       onClick={resetQuiz}
-                      className="rounded-full border border-gold-500 px-6 py-3 text-sm font-bold text-white hover:bg-gold-500/10 transition"
+                      className="rounded-full border border-lux-gold px-6 py-3 text-sm font-bold text-lux-ivory hover:bg-lux-gold/10 transition"
                     >
                       Recommencer
                     </button>
@@ -500,33 +500,33 @@ export default function EquipePage() {
         <section className="py-20" id="featuredProfiles">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-white font-serif">
+              <h2 className="text-3xl md:text-4xl font-fraunces font-light text-lux-ivory">
                 Des repères par discipline et par besoin
               </h2>
-              <p className="mt-3 text-slate-300">Ces profils servent à préparer le diagnostic, pas à promettre un résultat.</p>
+              <p className="mt-3 text-lux-on-dark-muted">Ces profils servent à préparer le diagnostic, pas à promettre un résultat.</p>
             </div>
 
             <div className="mt-10 grid gap-6 lg:grid-cols-2">
               {featuredProfiles.map((profile) => (
                 <div
                   key={profile.id}
-                  className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm hover:border-gold-500/40 transition"
+                  className="rounded-3xl border border-lux-line/40 bg-white/5 p-6 backdrop-blur-sm hover:border-lux-gold/40 transition"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gold-500/20 text-gold-400 text-xl font-bold">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-lux-gold/20 text-lux-gold text-xl font-bold">
                       {profile.label.slice(0, 1)}
                     </div>
                     <div>
-                      <h3 className="text-xl font-semibold text-white">{profile.label}</h3>
-                      <div className="text-sm text-slate-300">{profile.title}</div>
+                      <h3 className="text-xl font-semibold text-lux-ivory">{profile.label}</h3>
+                      <div className="text-sm text-lux-on-dark-muted">{profile.title}</div>
                     </div>
                   </div>
 
-                  <div className="mt-4 text-sm text-slate-300">{profile.tagline}</div>
+                  <div className="mt-4 text-sm text-lux-on-dark-muted">{profile.tagline}</div>
 
-                  <div className="mt-4 grid gap-3 sm:grid-cols-3 text-xs text-slate-200">
+                  <div className="mt-4 grid gap-3 sm:grid-cols-3 text-xs text-lux-on-dark-muted">
                     {profile.stats.map((stat) => (
-                      <div key={stat} className="rounded-xl border border-white/10 bg-black/20 p-3">
+                      <div key={stat} className="rounded-xl border border-lux-line/40 bg-white/5 p-3">
                         {stat}
                       </div>
                     ))}
@@ -534,7 +534,7 @@ export default function EquipePage() {
 
                   <div className="mt-4 flex flex-wrap gap-2">
                     {profile.tags.map((tag) => (
-                      <span key={tag} className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs">
+                      <span key={tag} className="rounded-full border border-lux-line/40 bg-white/5 px-3 py-1 text-xs text-lux-on-dark-muted">
                         {tag}
                       </span>
                     ))}
@@ -543,14 +543,14 @@ export default function EquipePage() {
                   <div className="mt-6 flex flex-col sm:flex-row gap-3">
                     <a
                       href="/contact"
-                      className="rounded-full bg-gold-500 px-6 py-3 text-sm font-bold text-black hover:bg-gold-400 transition"
+                      className="rounded-full bg-lux-gold px-6 py-3 text-sm font-bold text-lux-ink hover:bg-lux-gold-bright transition"
                     >
                       <span className="inline-flex items-center gap-2">
                         <CalendarRange className="h-4 w-4" aria-hidden="true" />
                         Demander un diagnostic
                       </span>
                     </a>
-                    <a href="/contact?sujet=accompagnement" className="rounded-full border border-gold-500 px-6 py-3 text-sm font-bold text-white hover:bg-gold-500/10 transition text-center">
+                    <a href="/contact?sujet=accompagnement" className="rounded-full border border-lux-gold px-6 py-3 text-sm font-bold text-lux-ivory hover:bg-lux-gold/10 transition text-center">
                       Être conseillé
                     </a>
                   </div>
@@ -561,7 +561,7 @@ export default function EquipePage() {
             <div className="mt-10 text-center">
               <button
                 onClick={() => directoryRef.current?.scrollIntoView({ behavior: "smooth" })}
-                className="rounded-full border border-gold-500 px-6 py-3 text-sm font-bold text-white hover:bg-gold-500/10 transition"
+                className="rounded-full border border-lux-gold px-6 py-3 text-sm font-bold text-lux-ivory hover:bg-lux-gold/10 transition"
               >
                 <span className="inline-flex items-center gap-2">
                   <Users className="h-4 w-4" aria-hidden="true" />
@@ -572,35 +572,35 @@ export default function EquipePage() {
           </div>
         </section>
 
-        <section ref={directoryRef} className="py-20 bg-black/20" id="allProfiles">
+        <section ref={directoryRef} className="py-20 bg-white/5" id="allProfiles">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-white font-serif">
+              <h2 className="text-3xl md:text-4xl font-fraunces font-light text-lux-ivory">
                 Profils d'accompagnement
               </h2>
-              <p className="mt-3 text-slate-300">Une lecture par discipline, objectif et méthode de travail.</p>
+              <p className="mt-3 text-lux-on-dark-muted">Une lecture par discipline, objectif et méthode de travail.</p>
             </div>
 
             <div className="mt-8 flex flex-wrap gap-3 items-center">
-              <span className="text-xs text-slate-300">Filtrer par :</span>
+              <span className="text-xs text-lux-on-dark-muted">Filtrer par :</span>
               {filterCategories.map((category) => (
                 <button
                   key={category.value}
                   onClick={() => setFilters((prev) => ({ ...prev, category: category.value }))}
                   className={`rounded-full px-3 py-1 text-xs border transition ${filters.category === category.value
-                      ? "border-gold-500 bg-gold-500/10 text-gold-400"
-                      : "border-white/10 text-slate-300 hover:border-gold-500/40"
+                      ? "border-lux-gold bg-lux-gold/10 text-lux-gold"
+                      : "border-lux-line/40 text-lux-on-dark-muted hover:border-lux-gold/40"
                     }`}
                 >
                   {category.label}
                 </button>
               ))}
-              <span className="text-xs text-slate-300">Disponibilité :</span>
+              <span className="text-xs text-lux-on-dark-muted">Disponibilité :</span>
               <button
                 onClick={() => setFilters((prev) => ({ ...prev, availability: "available" }))}
                 className={`rounded-full px-3 py-1 text-xs border transition ${filters.availability === "available"
                     ? "border-emerald-400 bg-emerald-400/10 text-blue-300"
-                    : "border-white/10 text-slate-300"
+                    : "border-lux-line/40 text-lux-on-dark-muted"
                   }`}
               >
                 <span className="inline-flex items-center gap-2">
@@ -611,8 +611,8 @@ export default function EquipePage() {
               <button
                 onClick={() => setFilters((prev) => ({ ...prev, availability: "all" }))}
                 className={`rounded-full px-3 py-1 text-xs border transition ${filters.availability === "all"
-                    ? "border-gold-500 bg-gold-500/10 text-gold-400"
-                    : "border-white/10 text-slate-300"
+                    ? "border-lux-gold bg-lux-gold/10 text-lux-gold"
+                    : "border-lux-line/40 text-lux-on-dark-muted"
                   }`}
               >
                 Tous
@@ -623,31 +623,31 @@ export default function EquipePage() {
               {visibleProfiles.map((profile) => (
                 <div
                   key={profile.id}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm hover:border-gold-500/40 transition"
+                  className="rounded-2xl border border-lux-line/40 bg-white/5 p-5 backdrop-blur-sm hover:border-lux-gold/40 transition"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gold-500/20 text-gold-400 font-bold">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-lux-gold/20 text-lux-gold font-bold">
                       {profile.label.slice(0, 1)}
                     </div>
                     <div>
-                      <h3 className="text-sm font-semibold text-white">{profile.label}</h3>
-                      <div className="text-xs text-slate-300">{profile.subject}</div>
+                      <h3 className="text-sm font-semibold text-lux-ivory">{profile.label}</h3>
+                      <div className="text-xs text-lux-on-dark-muted">{profile.subject}</div>
                     </div>
                   </div>
 
-                  <p className="mt-3 text-xs text-slate-300">{profile.tagline}</p>
+                  <p className="mt-3 text-xs text-lux-on-dark-muted">{profile.tagline}</p>
 
                   <div className="mt-3 flex flex-wrap gap-2">
                     {profile.tags.slice(0, 2).map((tag) => (
-                      <span key={tag} className="rounded-full border border-white/10 bg-black/20 px-2 py-1 text-[10px]">
+                      <span key={tag} className="rounded-full border border-lux-line/40 bg-white/5 px-2 py-1 text-[10px] text-lux-on-dark-muted">
                         {tag}
                       </span>
                     ))}
                   </div>
 
-                  <div className="mt-3 flex items-center justify-between gap-3 text-xs text-slate-300">
+                  <div className="mt-3 flex items-center justify-between gap-3 text-xs text-lux-on-dark-muted">
                     <span className="inline-flex items-center gap-2">
-                      <ShieldCheck className="h-3.5 w-3.5 text-gold-400" aria-hidden="true" />
+                      <ShieldCheck className="h-3.5 w-3.5 text-lux-gold" aria-hidden="true" />
                       {profile.subject}
                     </span>
                     <span className="inline-flex items-center gap-2 text-blue-300">
@@ -659,11 +659,11 @@ export default function EquipePage() {
                   <div className="mt-4 flex gap-2">
                     <a
                       href="/contact"
-                      className="flex-1 rounded-full bg-gold-500 px-3 py-2 text-xs font-semibold text-black text-center hover:bg-gold-400 transition"
+                      className="flex-1 rounded-full bg-lux-gold px-3 py-2 text-xs font-semibold text-lux-ink text-center hover:bg-lux-gold-bright transition"
                     >
                       Diagnostic
                     </a>
-                    <a href="/contact?sujet=accompagnement" className="flex-1 rounded-full border border-gold-500 px-3 py-2 text-xs font-semibold text-white hover:bg-gold-500/10 text-center">
+                    <a href="/contact?sujet=accompagnement" className="flex-1 rounded-full border border-lux-gold px-3 py-2 text-xs font-semibold text-lux-ivory hover:bg-lux-gold/10 text-center">
                       Conseil
                     </a>
                   </div>
@@ -675,12 +675,12 @@ export default function EquipePage() {
               {visibleCount < filteredProfiles.length && (
                 <button
                   onClick={() => setVisibleCount((prev) => Math.min(prev + 4, filteredProfiles.length))}
-                  className="rounded-full border border-gold-500 px-6 py-3 text-sm font-semibold text-white hover:bg-gold-500/10"
+                  className="rounded-full border border-lux-gold px-6 py-3 text-sm font-semibold text-lux-ivory hover:bg-lux-gold/10"
                 >
                   Charger plus de profils
                 </button>
               )}
-              <div className="text-xs text-slate-300">
+              <div className="text-xs text-lux-on-dark-muted">
                 {visibleProfiles.length}/{filteredProfiles.length} profils affichés
               </div>
             </div>
@@ -689,71 +689,71 @@ export default function EquipePage() {
 
         <section className="py-20">
           <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-white font-serif text-center">
+            <h2 className="text-3xl md:text-4xl font-fraunces font-light text-lux-ivory text-center">
               Ce que le cadre Nexus ajoute à un cours isolé
             </h2>
 
             <div className="mt-10 grid gap-6 md:grid-cols-2">
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-                <h3 className="text-xl font-semibold text-white">Cours isolé</h3>
-                <ul className="mt-4 space-y-2 text-sm text-slate-300">
-                  <li className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-slate-300" aria-hidden="true" /> Objectifs parfois implicites</li>
-                  <li className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-slate-300" aria-hidden="true" /> Suivi limité aux séances</li>
-                  <li className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-slate-300" aria-hidden="true" /> Peu de visibilité parent</li>
-                  <li className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-slate-300" aria-hidden="true" /> Ajustements rarement formalisés</li>
+              <div className="rounded-3xl border border-lux-line/40 bg-white/5 p-6">
+                <h3 className="text-xl font-semibold text-lux-ivory">Cours isolé</h3>
+                <ul className="mt-4 space-y-2 text-sm text-lux-on-dark-muted">
+                  <li className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-lux-on-dark-muted" aria-hidden="true" /> Objectifs parfois implicites</li>
+                  <li className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-lux-on-dark-muted" aria-hidden="true" /> Suivi limité aux séances</li>
+                  <li className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-lux-on-dark-muted" aria-hidden="true" /> Peu de visibilité parent</li>
+                  <li className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-lux-on-dark-muted" aria-hidden="true" /> Ajustements rarement formalisés</li>
                 </ul>
               </div>
-              <div className="rounded-3xl border border-gold-500/40 bg-white/5 p-6">
-                <h3 className="text-xl font-semibold text-white">Cadre Nexus</h3>
-                <ul className="mt-4 space-y-2 text-sm text-slate-200">
-                  <li className="inline-flex items-center gap-2"><GraduationCap className="h-4 w-4 text-gold-400" aria-hidden="true" /> Approches alignées sur les attendus du système français</li>
-                  <li className="inline-flex items-center gap-2"><BarChart3 className="h-4 w-4 text-gold-400" aria-hidden="true" /> Bilans et progression suivie</li>
-                  <li className="inline-flex items-center gap-2"><Clock3 className="h-4 w-4 text-gold-400" aria-hidden="true" /> Créneaux encadrés selon la formule retenue</li>
-                  <li className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-gold-400" aria-hidden="true" /> Engagement de moyens, méthode et suivi parent</li>
-                  <li className="inline-flex items-center gap-2"><Compass className="h-4 w-4 text-gold-400" aria-hidden="true" /> Orientation vers les ressources utiles</li>
+              <div className="rounded-3xl border border-lux-gold/40 bg-white/5 p-6">
+                <h3 className="text-xl font-semibold text-lux-ivory">Cadre Nexus</h3>
+                <ul className="mt-4 space-y-2 text-sm text-lux-on-dark-muted">
+                  <li className="inline-flex items-center gap-2"><GraduationCap className="h-4 w-4 text-lux-gold" aria-hidden="true" /> Approches alignées sur les attendus du système français</li>
+                  <li className="inline-flex items-center gap-2"><BarChart3 className="h-4 w-4 text-lux-gold" aria-hidden="true" /> Bilans et progression suivie</li>
+                  <li className="inline-flex items-center gap-2"><Clock3 className="h-4 w-4 text-lux-gold" aria-hidden="true" /> Créneaux encadrés selon la formule retenue</li>
+                  <li className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-lux-gold" aria-hidden="true" /> Engagement de moyens, méthode et suivi parent</li>
+                  <li className="inline-flex items-center gap-2"><Compass className="h-4 w-4 text-lux-gold" aria-hidden="true" /> Orientation vers les ressources utiles</li>
                 </ul>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="py-20 bg-black/20">
+        <section className="py-20 bg-white/5">
           <div className="container mx-auto px-4 md:px-6">
-            <div className="rounded-3xl border border-gold-500/30 bg-white/5 p-10">
+            <div className="rounded-3xl border border-lux-gold/30 bg-white/5 p-10">
               <div className="flex flex-col lg:flex-row lg:items-center gap-8">
                 <div className="flex-1">
-                  <h2 className="text-3xl md:text-4xl font-bold text-white font-serif">
+                  <h2 className="text-3xl md:text-4xl font-fraunces font-light text-lux-ivory">
                     Commencer par un diagnostic pédagogique
                   </h2>
-                  <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-gold-500/10 px-3 py-1 text-xs text-gold-400">
+                  <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-lux-gold/10 px-3 py-1 text-xs text-lux-gold">
                     <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
                     Orientation personnalisée
                   </div>
-                  <ul className="mt-6 space-y-2 text-sm text-slate-300">
-                    <li className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-gold-400" aria-hidden="true" /> Diagnostic des besoins prioritaires</li>
-                    <li className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-gold-400" aria-hidden="true" /> Analyse des difficultés précises</li>
-                    <li className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-gold-400" aria-hidden="true" /> Plan de travail adapté</li>
-                    <li className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-gold-400" aria-hidden="true" /> Orientation vers les outils utiles selon la formule</li>
+                  <ul className="mt-6 space-y-2 text-sm text-lux-on-dark-muted">
+                    <li className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-lux-gold" aria-hidden="true" /> Diagnostic des besoins prioritaires</li>
+                    <li className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-lux-gold" aria-hidden="true" /> Analyse des difficultés précises</li>
+                    <li className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-lux-gold" aria-hidden="true" /> Plan de travail adapté</li>
+                    <li className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-lux-gold" aria-hidden="true" /> Orientation vers les outils utiles selon la formule</li>
                   </ul>
                 </div>
-                <div className="flex-1 rounded-2xl border border-white/10 bg-black/20 p-6">
+                <div className="flex-1 rounded-2xl border border-lux-line/40 bg-white/5 p-6">
                   <div className="flex items-center gap-3">
-                    <Sparkles className="h-8 w-8 text-gold-400" aria-hidden="true" />
+                    <Sparkles className="h-8 w-8 text-lux-gold" aria-hidden="true" />
                     <div>
-                      <strong className="text-white">Un cadre ajusté après échange</strong>
-                      <p className="text-sm text-slate-300">
+                      <strong className="text-lux-ivory">Un cadre ajusté après échange</strong>
+                      <p className="text-sm text-lux-on-dark-muted">
                         La recommandation finale dépend du niveau, de l'établissement, du calendrier et des objectifs.
                       </p>
                     </div>
                   </div>
                   <div className="mt-6">
-                    <div className="text-lg font-bold text-gold-400">Bilan initial</div>
-                    <div className="text-sm text-slate-300">Point de départ pour choisir la formule et le rythme.</div>
+                    <div className="text-lg font-bold text-lux-gold">Bilan initial</div>
+                    <div className="text-sm text-lux-on-dark-muted">Point de départ pour choisir la formule et le rythme.</div>
                   </div>
                   <div className="mt-6 flex flex-col gap-3">
                     <a
                       href="/bilan-gratuit"
-                      className="rounded-full bg-gold-500 px-6 py-3 text-sm font-bold text-black hover:bg-gold-400 transition"
+                      className="rounded-full bg-lux-gold px-6 py-3 text-sm font-bold text-lux-ink hover:bg-lux-gold-bright transition"
                     >
                       <span className="inline-flex items-center gap-2">
                         <CalendarRange className="h-4 w-4" aria-hidden="true" />
@@ -762,7 +762,7 @@ export default function EquipePage() {
                     </a>
                     <a
                       href="/contact"
-                      className="rounded-full border border-gold-500 px-6 py-3 text-sm font-bold text-white hover:bg-gold-500/10 transition"
+                      className="rounded-full border border-lux-gold px-6 py-3 text-sm font-bold text-lux-ivory hover:bg-lux-gold/10 transition"
                     >
                       <span className="inline-flex items-center gap-2">
                         <MessageCircle className="h-4 w-4" aria-hidden="true" />
