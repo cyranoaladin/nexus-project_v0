@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   keywords:
     'Nexus Réussite, bac français, Tunis, accompagnement scolaire, candidats libres, Première, Terminale, ARIA',
   openGraph: {
+    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "Nexus Réussite" }],
     title: 'Nexus Réussite | Accompagnement académique premium à Tunis',
     description:
       "Un cadre exigeant pour progresser avec méthode, suivi clair et groupes réduits.",

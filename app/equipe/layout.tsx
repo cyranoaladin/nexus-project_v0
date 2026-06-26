@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   description: "Rencontrez nos mentors d'exception: professeurs Agrégés et Certifiés, experts pédagogiques et coachs certifiés. Spécialisations Maths, Sciences, NSI, Grand Oral et orientation Parcoursup.",
   keywords: ["professeurs Agrégés et Certifiés", "mentors pédagogiques", "coachs scolaires", "équipe enseignante", "expertise éducation Tunisie"],
   openGraph: {
+    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "Nexus Réussite" }],
     title: "Notre Équipe de Mentors | Nexus Réussite",
     description: "Professeurs Agrégés et Certifiés et experts pédagogiques. Spécialisés Maths, Sciences, NSI, Grand Oral.",
     type: "website",

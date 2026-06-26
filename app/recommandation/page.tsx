@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   description:
     'Répondez à 3 questions pour découvrir la formule Nexus Réussite la plus adaptée à votre profil. Parcours annuels, stages, plateforme, candidat libre et coaching.',
   openGraph: {
+    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "Nexus Réussite" }],
     title: 'Trouver ma formule | Nexus Réussite',
     description:
       '3 questions pour identifier le meilleur parcours : niveau, statut, besoin. Résultats immédiats.',

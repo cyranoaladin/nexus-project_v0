@@ -18,6 +18,7 @@ export const metadata: Metadata = {
   description:
     'Identifiez les priorités de votre enfant avant de choisir une formule. Bilan gratuit, réponse personnalisée et orientation vers la bonne solution.',
   openGraph: {
+    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "Nexus Réussite" }],
     title: 'Bilan stratégique gratuit | Nexus Réussite',
     description:
       'Un échange simple pour comprendre le niveau, les besoins et les matières prioritaires de votre enfant.',

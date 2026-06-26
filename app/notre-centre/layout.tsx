@@ -4,6 +4,7 @@ export const metadata: Metadata = {
   title: "Centre pédagogique | Nexus Réussite",
   description: "Centre pédagogique de Nexus Réussite à Mutuelleville, Tunis. Rendez-vous sur confirmation, groupes réduits et accompagnement clair.",
   openGraph: {
+    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "Nexus Réussite" }],
     title: "Centre pédagogique | Nexus Réussite",
     description: "Centre d’accompagnement pédagogique à Mutuelleville, Tunis.",
     type: "website",
