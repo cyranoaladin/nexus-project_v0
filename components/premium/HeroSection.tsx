@@ -90,6 +90,7 @@ export function HeroSection() {
                 height={941}
                 className="block w-full h-auto"
                 priority
+                fetchPriority="high"
                 sizes="(max-width: 768px) 100vw, 45vw"
               />
             </div>
