@@ -184,52 +184,215 @@ model BusinessConfig {
 
 4. **Rollback** : `POST /api/admin/config/rollback { namespace, key }` restaure `previousValue`.
 
-#### Mécanisme de lecture (migration progressive)
+#### Mécanisme de lecture : snapshot mémoire
 
-Les accessors existants (`lib/pricing.ts`, `lib/entitlement/types.ts`) sont modifiés pour lire d'abord le store runtime, puis fallback sur la valeur statique :
+**Contrainte critique** : les 46 importeurs de `lib/pricing.ts` appellent `getRules()`, `getAllOffers()`, `computeDeposit()`, etc. de manière **synchrone** (vérifié : `grep 'export function\|export async function' lib/pricing.ts` → 0 async). Les passer en async casserait 46 sites d'appel, créerait un fanout DB par requête sur les chemins chauds (pages offres, facturation), et rendrait le pricing indisponible si la DB tombe.
+
+**Solution : snapshot mémoire avec invalidation**
 
 ```typescript
-// lib/config/reader.ts
-export async function getConfigValue<T>(namespace: string, key: string, fallback: T): Promise<T> {
-  const entry = await prisma.businessConfig.findUnique({
-    where: { namespace_key: { namespace, key } },
-    select: { value: true },
+// lib/config/snapshot.ts
+
+/** In-memory snapshot of BusinessConfig overrides. Loaded once, refreshed on write or TTL. */
+let snapshot: Map<string, Json> = new Map();
+let lastLoadedAt = 0;
+const TTL_MS = 60_000; // 1 minute
+
+/** Load all BusinessConfig entries into memory. Called at startup + on invalidation. */
+export async function loadConfigSnapshot(): Promise<void> {
+  const entries = await prisma.businessConfig.findMany({
+    select: { namespace: true, key: true, value: true },
   });
-  return entry ? (entry.value as T) : fallback;
+  const next = new Map<string, Json>();
+  for (const e of entries) {
+    next.set(`${e.namespace}::${e.key}`, e.value);
+  }
+  snapshot = next;
+  lastLoadedAt = Date.now();
+}
+
+/** Sync read from snapshot. Returns override if exists, otherwise undefined. */
+export function getOverride<T>(namespace: string, key: string): T | undefined {
+  // Lazy refresh if TTL expired (non-blocking — uses stale snapshot until next request)
+  if (Date.now() - lastLoadedAt > TTL_MS) {
+    loadConfigSnapshot().catch(console.error); // fire-and-forget
+  }
+  const val = snapshot.get(`${namespace}::${key}`);
+  return val !== undefined ? (val as T) : undefined;
+}
+
+/** Invalidate snapshot (called after admin write). */
+export async function invalidateConfigSnapshot(): Promise<void> {
+  await loadConfigSnapshot();
 }
 ```
 
-Les accessors existants restent la couche d'accès publique. `lib/pricing.ts` → `getRules()` devient :
+**Intégration dans les accessors existants** — les signatures restent SYNC, zéro changement pour les 46 importeurs :
 
 ```typescript
-export async function getRules(): Promise<Rules> {
+// lib/pricing.ts — modifié
+import { getOverride } from '@/lib/config/snapshot';
+
+export function getRules(): Rules {
   const staticRules = data.rules;
   return {
     ...staticRules,
-    group_max: await getConfigValue('pricing.rules', 'group_max', staticRules.group_max),
+    group_max: getOverride<number>('pricing.rules', 'group_max') ?? staticRules.group_max,
     payment: {
       ...staticRules.payment,
-      deposit_pct: await getConfigValue('pricing.rules', 'deposit_pct', staticRules.payment.deposit_pct),
+      deposit_pct: getOverride<number>('pricing.rules', 'deposit_pct') ?? staticRules.payment.deposit_pct,
+      installments_default: getOverride<number>('pricing.rules', 'installments_default') ?? staticRules.payment.installments_default,
+      rounding_tnd: getOverride<number>('pricing.rules', 'rounding_tnd') ?? staticRules.payment.rounding_tnd,
     },
-    // ... etc
+    discounts: {
+      ...staticRules.discounts,
+      global_cap_pct: getOverride<number>('pricing.rules', 'global_cap_pct') ?? staticRules.discounts.global_cap_pct,
+      // ... idem pour chaque champ discount
+    },
   };
 }
 ```
 
-**Migration progressive** : tant qu'une clé n'a pas d'entrée dans `BusinessConfig`, la valeur statique est utilisée. L'admin peut overrider une valeur à la fois depuis l'UI.
+**Cycle de vie** :
+1. **Démarrage** : `loadConfigSnapshot()` appelé dans l'instrumentation Next.js (`instrumentation.ts`) ou le premier appel
+2. **Lecture** : `getOverride()` est SYNC, lit le `Map` en mémoire. Si TTL expiré, lance un refresh non-bloquant.
+3. **Écriture ADMIN** : `POST /api/admin/config` écrit en DB → appelle `invalidateConfigSnapshot()` → snapshot rafraîchi immédiatement
+4. **Panne DB** : le snapshot mémoire reste valide (dernière version chargée). Si jamais le snapshot est vide (premier démarrage, DB down), les fallbacks statiques prennent le relais (opérateur `??`).
 
-### Résolution R2 à la racine
+**Aucun changement de signature** sur les 46 importeurs de `lib/pricing.ts`, `lib/entitlement/types.ts`, `lib/operational-catalog.ts`.
 
-R2 est causé par deux sources indépendantes de crédits : `pricing.canonical.json` (annoncé) et `PRODUCT_REGISTRY` (octroyé). La source unique runtime est le store `BusinessConfig`.
+#### Intégration dans le PRODUCT_REGISTRY
 
-**Convergence** :
-1. Migrer `PRODUCT_REGISTRY.*.grantsCredits` vers le store runtime : namespace `products`, key `ABONNEMENT_ESSENTIEL.grantsCredits`, etc.
-2. Migrer `operational_subscription_plans.*.credits` vers le store runtime : namespace `pricing.plans`, key `ACCES_PLATEFORME.credits`, etc.
-3. L'écran admin édite les deux sous le même toit. **Une seule valeur de crédits par produit** : le store runtime. L'admin voit et corrige la divergence.
-4. `resolveProductCode()` (`app/api/payments/validate/route.ts:36-68`) lit le `grantsCredits` depuis le store runtime, plus depuis le code TS.
-5. L'écran marketing (`/parent/abonnements`) lit les crédits depuis le store runtime, plus depuis le canonical JSON.
+```typescript
+// lib/entitlement/types.ts — modifié
+import { getOverride } from '@/lib/config/snapshot';
 
-**L'écran « réconciliation » (§3.1) devient un filet transitoire** : tant que la migration n'est pas complète, il affiche les divergences entre valeurs statiques et store runtime. Quand toutes les valeurs sont en runtime, l'écran se simplifie en une vue de la config courante.
+export function getProductDefinition(code: ProductCode): ProductDefinition {
+  const staticDef = PRODUCT_REGISTRY[code];
+  return {
+    ...staticDef,
+    grantsCredits: getOverride<number>('products', `${code}.grantsCredits`) ?? staticDef.grantsCredits,
+    defaultDurationDays: getOverride<number>('products', `${code}.defaultDurationDays`) ?? staticDef.defaultDurationDays,
+    features: getOverride<string[]>('products', `${code}.features`) ?? staticDef.features,
+    label: getOverride<string>('products', `${code}.label`) ?? staticDef.label,
+    // mode reste statique (Tier LOGIQUE)
+  };
+}
+```
+
+### R2 : rendu corrigible à la source
+
+R2 est causé par deux sources indépendantes de crédits : `pricing.canonical.json` (annoncé) et `PRODUCT_REGISTRY` (octroyé). Le store `BusinessConfig` **rend la source unique POSSIBLE** — il ne résout pas R2 automatiquement.
+
+**Correction effective** = deux étapes :
+1. **Décision métier** : quelle échelle de crédits fait foi ? (0/4/8 du canonical ? ou 4/8/16 du registry ? ou une troisième ?) — décision humaine, pas technique.
+2. **Saisie admin** : l'admin pose la valeur correcte dans `BusinessConfig` (namespace `products`, key `ABONNEMENT_ESSENTIEL.grantsCredits` = la valeur décidée).
+
+**Tant qu'aucune valeur n'est dans le store** : le fallback `??` octroie la valeur `PRODUCT_REGISTRY` statique actuelle (4/8/16). Le comportement prod ne change pas tant que l'admin n'agit pas.
+
+**L'écran réconciliation (§3.2) est un filet transitoire** qui affiche les divergences et guide la saisie. Quand l'admin a posé toutes les valeurs, les fallbacks statiques ne servent plus et la réconciliation se simplifie en vue de la config courante.
+
+### Validation structurelle : invariants croisés par namespace
+
+Les schemas Zod ne valident pas seulement des champs isolés (min/max). Pour les namespaces à contraintes inter-champs, des invariants croisés sont requis.
+
+#### Namespace `pricing.rules.payment`
+
+**Invariants** (source : `lib/pricing.ts:446-462`, `computeDeposit` + `computeSchedule`) :
+
+| Invariant | Expression | Raison |
+|-----------|-----------|--------|
+| Deposit cohérent avec installments | `deposit_pct + (100 - deposit_pct)` réparti en `installments_default` versements doit couvrir 100% du prix | `computeSchedule()` (`:452`) : `remaining = price - deposit`, divisé en `n` versements. Si `deposit_pct > 100` → deposit > prix. |
+| Rounding ne crée pas de deposit nul | `rounding_tnd` ne doit pas être supérieur au deposit minimum plausible | `computeDeposit()` (`:447`) : `Math.round(price * pct / 100 / rounding) * rounding`. Si `rounding_tnd = 1000` et `price = 150` → deposit = 0. |
+| deposit_pct ∈ [0, 100] | Contrainte de domaine | Sinon deposit > prix ou négatif |
+| installments_default ≥ 1 | Au moins 1 versement | Sinon division par zéro dans `computeSchedule()` |
+
+```typescript
+// lib/config/schemas.ts — namespace pricing.rules.payment
+const paymentRulesSchema = z.object({
+  deposit_pct: z.number().int().min(0).max(100),
+  installments_default: z.number().int().min(1).max(24),
+  rounding_tnd: z.number().int().min(1).max(100),
+}).refine(
+  (d) => {
+    // Invariant: avec le prix minimum plausible (150 TND),
+    // le deposit arrondi ne doit pas être nul
+    const minPrice = 150; // prix minimum existant (ACCES_PLATEFORME)
+    const deposit = Math.round((minPrice * d.deposit_pct) / 100 / d.rounding_tnd) * d.rounding_tnd;
+    return deposit > 0 || d.deposit_pct === 0;
+  },
+  { message: 'deposit_pct + rounding_tnd produirait un acompte nul pour le prix minimum (150 TND)' }
+);
+```
+
+#### Namespace `pricing.rules.discounts`
+
+**Invariants** (source : `lib/pricing.ts`, `applyDiscount`, `applyCarteDiscount`) :
+
+| Invariant | Expression | Raison |
+|-----------|-----------|--------|
+| global_cap_pct ≥ chaque remise individuelle | `global_cap_pct >= max(comptant_pct, fratrie_2nd_child_pct, ancien_eleve_max_pct, carte_nexus_pct)` | Sinon le cap est inférieur à une remise individuelle → contradiction |
+| ancien_eleve_min_pct ≤ ancien_eleve_max_pct | Cohérence plage | |
+| parrainage_min_tnd ≤ parrainage_max_tnd | Cohérence plage | |
+| global_cap_pct ∈ [0, 50] | Au-delà de 50% le prix plancher est probablement violé | |
+
+```typescript
+const discountRulesSchema = z.object({
+  comptant_pct: z.number().min(0).max(50),
+  fratrie_2nd_child_pct: z.number().min(0).max(50),
+  ancien_eleve_min_pct: z.number().min(0).max(50),
+  ancien_eleve_max_pct: z.number().min(0).max(50),
+  parrainage_min_tnd: z.number().min(0),
+  parrainage_max_tnd: z.number().min(0),
+  carte_nexus_pct: z.number().min(0).max(50),
+  global_cap_pct: z.number().min(0).max(50),
+}).refine(
+  (d) => d.ancien_eleve_min_pct <= d.ancien_eleve_max_pct,
+  { message: 'ancien_eleve_min_pct doit être ≤ ancien_eleve_max_pct' }
+).refine(
+  (d) => d.parrainage_min_tnd <= d.parrainage_max_tnd,
+  { message: 'parrainage_min_tnd doit être ≤ parrainage_max_tnd' }
+).refine(
+  (d) => d.global_cap_pct >= Math.max(d.comptant_pct, d.fratrie_2nd_child_pct, d.ancien_eleve_max_pct, d.carte_nexus_pct),
+  { message: 'global_cap_pct doit être ≥ chaque remise individuelle' }
+);
+```
+
+#### Namespace `products.*.grantsCredits`
+
+**Invariants** :
+
+| Invariant | Expression | Raison |
+|-----------|-----------|--------|
+| grantsCredits ≥ 0 | Non négatif | On n'octroie pas de crédits négatifs |
+| Si mode = STACK et grantsCredits = null → incohérent | Credit packs DOIVENT octroyer des crédits | `engine.ts:114` : crédits accumulés pour mode STACK |
+| Cohérence avec credit_costs | grantsCredits ≥ credit_cost d'une session pour les abonnements | Sinon l'abonnement ne couvre même pas 1 session |
+
+```typescript
+const productCreditsSchema = z.number().int().min(0).max(100);
+// Invariant cross-product: pas validable par champ seul,
+// validé au niveau de l'écran admin qui affiche le coût d'une session
+// à côté des crédits octroyés (information, pas blocage)
+```
+
+#### Namespace `pricing.rules.group`
+
+**Invariants** :
+
+| Invariant | Expression | Raison |
+|-----------|-----------|--------|
+| group_min_open.* ≤ group_max pour chaque catégorie | Sinon un groupe ne peut jamais ouvrir | |
+| group_max ≥ 1 | Au moins 1 élève | |
+
+```typescript
+const groupRulesSchema = z.object({
+  group_max: z.number().int().min(1).max(20),
+  group_min_open: z.record(z.number().int().min(1)),
+}).refine(
+  (d) => Object.values(d.group_min_open).every(min => min <= d.group_max),
+  { message: 'chaque group_min_open doit être ≤ group_max' }
+);
+```
 
 ### Résumé des deux tiers
 
