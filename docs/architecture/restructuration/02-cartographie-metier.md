@@ -1,7 +1,7 @@
-# DOC-2 — Cartographie métier & incohérences
+# DOC-2 — Cartographie métier & incohérences (v2)
 
 > Chaque affirmation est adossée à DOC-1 (sections a/b) et au code source.
-> Preuve au niveau champ. On ne consolide pas pour consolider.
+> Preuve au niveau champ avec coordonnées fichier:ligne. On ne consolide pas pour consolider.
 > Date : 2026-06-27
 
 ---
@@ -11,7 +11,7 @@
 1. [Signal 1 : Sprawl des modèles « rapport/bilan »](#signal-1--sprawl-des-7-modèles-rapportbilan)
 2. [Signal 2 : Silos de progression par matière](#signal-2--silos-de-progression-par-matière)
 3. [Signal 3 : Triade Diagnostic/Assessment/Bilan](#signal-3--triade-diagnosticassessmentbilan)
-4. [Signal 4 : Chaîne facturation devis→paiement→entitlement→accès](#signal-4--chaîne-facturation)
+4. [Signal 4 : Chaîne facturation](#signal-4--chaîne-facturation)
 5. [Signal 5 : Source de vérité « qui coache qui »](#signal-5--source-de-vérité-qui-coache-qui)
 6. [Machines à états réelles](#machines-à-états-réelles)
 7. [Carte des règles métier → SSOT](#carte-des-règles-métier--ssot)
@@ -21,429 +21,350 @@
 
 ## Signal 1 : Sprawl des 7 modèles « rapport/bilan »
 
-### Modèles concernés
-
-| Modèle | Table | Champs (hors id/timestamps) | Scope | Route créatrice |
-|--------|-------|------|-------|-----------------|
-| StudentReport | `student_reports` | 8 | Rapport périodique de suivi | **Aucune route production** (seed/test only) |
-| SessionReport | `session_reports` | 10 | Débrief post-session 1:1 | `POST /api/coach/sessions/[sessionId]/report` |
-| StageBilan | `stage_bilans` | 12 | Évaluation post-stage par coach | `POST /api/stages/[stageSlug]/bilans` (upsert) |
-| EafPreparationReport | `eaf_preparation_reports` | 15 | Grille EAF rubric-based | `PUT /api/coach/students/[id]/eaf-preparation-report` |
-| Bilan | `bilans` | 28 | Modèle canonique unifié | 6+ routes (voir Signal 3) |
-| PedagogicalReport | `pedagogical_reports` | 14 + 3 relations | Diagnostic IA sur copie (NPC) | `POST /api/npc/submissions/[id]/generate` |
-| GeneratedPedagogicalReport | `generated_pedagogical_reports` | 18 | PDF LLM fusionnant bilan élève + rapport coach | `lib/reports/stage/maybeCreateGeneratedReportJob.ts` |
-
-### Champs partagés (preuve de recouvrement)
-
-| Champ | StudentReport | SessionReport | StageBilan | EafPrep | Bilan | PedReport | GenPedReport |
-|-------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| `studentId` | x | x | x | x | x (?) | x | x |
-| `coachId` | x (?) | x | x | x | x (?) | x (?) | x (?) |
-| `strengths` | — | — | x (`String[]`) | x (`String? Text`) | — | x (`String[]`) | — |
-| `recommendations`/`nextSteps` | x | x | x (`nextSteps`) | x (`nextSessionGoals`) | — | — | — |
-| `domainScores`/`globalScore` | — | — | x (`scoreGlobal`, `domainScores Json`) | — | x (`globalScore`, `domainScores Json`) | — (dans CompetenceMatrix) | — |
-| `isPublished`/`publishedAt` | — | — | x | — | x | — | — |
-| `pdfUrl` | — | — | x | — | — | — | x |
-| `status` (machine à états) | — | — | — | x (String) | x (BilanStatus enum) | x (PedReportStatus) | x (GenReportStatus) |
-| `errorCode`/`retryCount` | — | — | — | — | x | — | x |
-
 ### Verdict par modèle
 
-**StudentReport — MORT.** Aucune route production ne le crée (`grep -r 'prisma.studentReport.create' app/` : 0 résultats hors tests). Candidat à la suppression.
+**StudentReport — MORT.**
+- Preuve mutation : `grep -r 'prisma.studentReport' app/ lib/` → 0 résultats hors `__tests__/` et `__tests__/setup/test-database.ts:112`
+- Preuve lecture : `grep -r 'StudentReport' app/ lib/` → 0 résultats
+- Seules occurrences : `__tests__/database/schema.test.ts:346` (create), `__tests__/setup/test-database.ts:112` (deleteMany cleanup)
+- Relations déclarées dans le schéma (`prisma/schema.prisma:282` sur Student, `:342` sur CoachProfile) mais jamais consommées en production
+- **Verdict** : modèle mort, 0 mutation production, 0 lecture production
 
-**SessionReport — JUSTIFIÉ SÉPARÉ.** Scope distinct : 1:1 avec `SessionBooking` (FK unique `sessionId`). Champs spécifiques : `performanceRating` (Int 1-5), `attendance` (Boolean), `engagementLevel` (enum), `homeworkAssigned`, `nextSessionFocus`. Pas substituable par Bilan.
+**SessionReport — SÉPARATION JUSTIFIÉE.**
+- Scope : 1:1 avec SessionBooking via `sessionId @unique` (`schema.prisma:793`)
+- Champs spécifiques sans équivalent ailleurs : `performanceRating Int` (1-5), `attendance Boolean`, `engagementLevel EngagementLevel?`, `homeworkAssigned String?`, `nextSessionFocus String?`
+- Créé par : `app/api/coach/sessions/[sessionId]/report/route.ts`
 
-**StageBilan — REDONDANCE PARTIELLE avec Bilan.** Les champs `scoreGlobal`/`domainScores`/`isPublished`/`publishedAt` existent dans les deux. Migration en cours : `Bilan.legacyStageBilanId` (String? @unique) existe comme bridge. Les nouveaux flux coach (EAF, maths) écrivent directement dans Bilan avec `type=STAGE_POST`. L'ancien flux `/api/stages/[stageSlug]/bilans` écrit encore dans StageBilan. **Convergence inachevée.**
+**StageBilan — REDONDANCE PARTIELLE avec Bilan, convergence inachevée.**
+- Champs qui existent aussi dans Bilan : `scoreGlobal Float?` (StageBilan `:1151`) ↔ `globalScore Float?` (Bilan `:1369`), `domainScores Json?` (StageBilan `:1152`) ↔ (Bilan `:1373`), `isPublished Boolean` (StageBilan `:1158`) ↔ (Bilan `:1383`), `publishedAt DateTime?` (StageBilan `:1159`) ↔ (Bilan `:1384`)
+- Bridge FK : `Bilan.legacyStageBilanId String? @unique` (`schema.prisma:1343`)
+- Flux legacy actif : `app/api/stages/[stageSlug]/bilans/route.ts` écrit dans `prisma.stageBilan.upsert`
+- Nouveaux flux coach écrivent dans Bilan : `app/api/coach/eaf-stage-printemps/.../report/route.ts`, `app/api/coach/maths-premiere-stage-printemps/.../report/route.ts`
 
-**EafPreparationReport — JUSTIFIÉ SÉPARÉ.** 11 champs textuels de grille rubric (linearReading, workPresentation, interview, etc.) n'ont aucun équivalent dans les autres modèles. Sert d'INPUT au GeneratedPedagogicalReport (via `coachReportId`), pas de substitut. Unique `[studentId, coachId]`.
+**EafPreparationReport — SÉPARATION JUSTIFIÉE (grille rubric input).**
+- 11 champs textuels de grille sans équivalent : `linearReading`, `workPresentation`, `interview`, `oralExpression`, `writingMethod`, `languageMastery`, `literaryCulture`, `strengths`, `areasToImprove`, `nextSessionGoals`, `coachFreeComment` (tous `String? @db.Text`, `schema.prisma:1922-1932`)
+- Sert d'INPUT au GeneratedPedagogicalReport via `coachReportId` (`lib/reports/stage/buildReportContext.ts`)
 
-**Bilan (canonique) — CIBLE DE CONVERGENCE.** Superset intentionnel absorbant Diagnostic, Assessment, StageBilan via `BilanType` + `sourceVersion`. 5 sourceVersions actifs. Bridge FKs `legacy*Id` pour migration.
+**Bilan (canonique) — CIBLE DE CONVERGENCE.**
+- 5 sourceVersions actifs (vérifiés par grep dans `lib/` et `app/api/`) :
+  - `maths_premiere_stage_printemps_v1` (`app/api/eleve/questionnaire-maths-premiere-stage-printemps/route.ts`)
+  - `eaf_stage_printemps_v1` (`app/api/eleve/questionnaire-eaf-stage-printemps/route.ts`)
+  - `maths_terminale_v1` (`lib/diagnostic/maths-terminale/types.ts`)
+  - `coach_eaf_stage_printemps_v1` (`lib/coach/eaf-stage-printemps/types.ts`)
+  - `coach_maths_premiere_stage_printemps_v1` (`app/api/coach/maths-premiere-stage-printemps/students/[studentId]/report/route.ts`)
 
-**PedagogicalReport (NPC) — JUSTIFIÉ SÉPARÉ.** Scope distinct : diagnostic IA sur copie scannée. A ses propres relations enfants (CompetenceMatrix, RemediationRoadmap, ReportFeedback, NpcAuditLog) et son propre pipeline (CopySubmission → AiProcessingJob → PedagogicalReport). Pas fusionnable avec Bilan sans casser le pipeline NPC.
+**PedagogicalReport (NPC) — SÉPARATION JUSTIFIÉE.**
+- Pipeline distinct : CopySubmission → AiProcessingJob → PedagogicalReport → CompetenceMatrix + RemediationRoadmap
+- Relations enfants propres : `competenceMatrix` (1:1, `schema.prisma:2226`), `remediationRoadmap` (1:1, `:2227`), `feedback ReportFeedback[]` (`:2230`), `auditLogs NpcAuditLog[]` (`:2231`)
 
-**GeneratedPedagogicalReport — JUSTIFIÉ SÉPARÉ.** Scope distinct : PDF LaTeX généré par LLM à partir de 2 sources (bilan élève + rapport coach). Champs spécifiques : `latexSource`, `promptVersion`, `templateVersion`, `inputChecksum`, `kind` (EAF_STAGE_POST / MATHS_PREMIERE_STAGE_POST). Dédupliqué via `@@unique([studentId, stageSlug, subject, kind, inputChecksum])`.
-
-### Conclusion Signal 1
-
-| Modèle | Verdict |
-|--------|---------|
-| StudentReport | **MORT** — supprimer |
-| SessionReport | **Séparation justifiée** |
-| StageBilan | **Redondance partielle** — convergence vers Bilan à achever |
-| EafPreparationReport | **Séparation justifiée** (input rubric) |
-| Bilan | **Cible canonique** |
-| PedagogicalReport | **Séparation justifiée** (pipeline NPC distinct) |
-| GeneratedPedagogicalReport | **Séparation justifiée** (pipeline LaTeX distinct) |
-
-**Coût actuel** : 2 modèles problématiques (StudentReport mort, StageBilan ↔ Bilan convergence inachevée). Les 5 autres ont des scopes distincts justifiés.
+**GeneratedPedagogicalReport — SÉPARATION JUSTIFIÉE.**
+- Champs spécifiques : `latexSource String?` (`:2381`), `promptVersion`/`templateVersion` (`:2367-2368`), `inputChecksum` (`:2373`), `kind String` (`:2366`)
+- Dédupliqué via `@@unique([studentId, stageSlug, subject, kind, inputChecksum])` (`:2388`)
 
 ---
 
 ## Signal 2 : Silos de progression par matière
 
-### Comparaison champ par champ
+### Constat factuel champ par champ
 
-| Aspect | MathsProgress | EamProgress | NsiPracticeProgress | SurvivalProgress |
-|--------|:---:|:---:|:---:|:---:|
-| Champs domaine | **28** | **2** (`checks`, `quiz`) | **2** (`data`, `version`) | **8** + relation enfant |
-| Pattern de stockage | Scalaires typés | JSON blob | JSON blob | Hybride (scalaires + JSON) |
-| FK cible | `User` | `User` | `User` | `Student` |
-| Cardinalité | Multiple (`@@unique[userId, level, track]`) | 1:1 (`@unique userId`) | 1:1 (`@unique userId`) | 1:1 (`@unique studentId`) |
-| Table enfant | Non | Non | Non | Oui (`SurvivalAttempt`) |
-| Champs spécifiques notables | `completedChapters[]`, `masteredChapters[]`, `totalXp`, `quizScore`, `comboCount`, `streak`, `srsQueue`, `diagnosticResults`, `errorTags`, 6 booleans feature-flags | `checks Json`, `quiz Json` | `data Json`, `version Int` | `examDate`, `reflexesState`, `phrasesState`, `qcmAttempts`, `qcmCorrect`, `rituals`, `notePotentielle` |
+**EamProgress** (`schema.prisma:1773-1783`, table `eam_progress`) :
+- `checks Json @default("{}")` — état des cases cochées
+- `quiz Json @default("{}")` — résultats quiz
+- Cardinalité : `userId @unique` (1:1 par user)
 
-### Verdict
+**NsiPracticeProgress** (`schema.prisma:1787-1797`, table `nsi_practice_progress`) :
+- `data Json` — objet NsiProgress complet
+- `version Int @default(1)` — version du schéma de données
+- Cardinalité : `userId @unique` (1:1 par user)
 
-**MathsProgress — JUSTIFIÉ SÉPARÉ.** 28 champs scalaires typés (Int, Boolean, String[], Json) avec sémantique spécifique (XP, combos, streaks, SRS queue, error tags). Multi-row par user (level+track). Forcer dans un blob JSON = perte de type safety et d'indexabilité. Le modèle le plus mature.
+**Différences factuelles** : EamProgress a 2 champs JSON distincts (`checks` + `quiz`), NsiPracticeProgress a 1 champ JSON unique (`data`) + un champ `version`. Les deux sont des wrappers JSON 1:1 par user avec la même structure de base `{ userId, timestamps }`.
 
-**EamProgress + NsiPracticeProgress — CANDIDATS À LA FUSION.** Structure quasi-identique : `{ userId @unique, data: Json, timestamps }`. La seule différence est `version Int` sur NsiPracticeProgress. Une table unifiée `SubjectProgress` avec discriminateur `subject` et `@@unique([userId, subject])` fonctionnerait sans perte. **Économie : 1 table.**
+**Proposition de design** (pas un fait) : ces deux modèles pourraient être fusionnés dans une table `SubjectProgress` avec discriminateur `subject String` et `@@unique([userId, subject])`. Le champ `version` de NsiPracticeProgress deviendrait nullable. La proposition économise 1 table mais perd la distinction sémantique au niveau schéma.
 
-**SurvivalProgress — JUSTIFIÉ SÉPARÉ.** FK vers `Student` (pas `User`), relation enfant `SurvivalAttempt` pour tracking granulaire des réponses, champs domaine spécifiques (`examDate`, `notePotentielle`, `rituals`).
+**MathsProgress** (`schema.prisma:1722-1769`, table `maths_progress`) :
+- 28 champs domaine typés (Int, Boolean, String[], Json)
+- Cardinalité : `@@unique([userId, level, track])` — multiple par user
+- **Séparation justifiée** : forcer dans un blob JSON = perte de type safety et d'indexabilité
 
-### Conclusion Signal 2
-
-| Modèle(s) | Verdict |
-|-----------|---------|
-| MathsProgress | **Séparation justifiée** |
-| EamProgress + NsiPracticeProgress | **Vraie redondance** — fusionnable |
-| SurvivalProgress + SurvivalAttempt | **Séparation justifiée** |
+**SurvivalProgress** (`schema.prisma:1800-1815`, table `survival_progress`) :
+- FK vers `Student` (pas `User` — `schema.prisma:1802`)
+- Relation enfant `SurvivalAttempt` (`schema.prisma:1817-1828`)
+- Champs domaine spécifiques : `examDate DateTime`, `notePotentielle Float?`
+- **Séparation justifiée** : FK différente, table enfant, champs domaine distincts
 
 ---
 
 ## Signal 3 : Triade Diagnostic/Assessment/Bilan
 
-### Champs partagés entre les trois modèles (14 champs identiques)
+### Champs de sortie dupliqués (14 champs identiques sur les 3 modèles)
 
-| Champ | Diagnostic | Assessment | Bilan |
-|-------|:---:|:---:|:---:|
-| `publicShareId` (String @unique) | x | x | x |
-| `studentEmail` (String) | x | x | x |
-| `studentPhone` (String?) | x | x | x |
-| `status` (enum/string) | x (String libre) | x (AssessmentStatus) | x (BilanStatus) |
-| `analysisJson` (Json?) | x | x | x |
-| `studentMarkdown` (String?) | x | x | x |
-| `parentsMarkdown` (String?) | x | x | x |
-| `nexusMarkdown` (String?) | x | x | x |
-| `errorCode` (String?) | x | x | x |
-| `errorDetails` (String?) | x | x | x |
-| `retryCount` (Int) | x | x | x |
-| `createdAt` / `updatedAt` | x | x | x |
+| Champ | Diagnostic (ligne) | Assessment (ligne) | Bilan (ligne) |
+|-------|:--:|:--:|:--:|
+| `publicShareId String @unique` | :1000 | :1219 | :1339 |
+| `studentEmail String` | :1011 | :1224 | :1357 |
+| `studentPhone String?` | :1012 | :1226 | :1358 |
+| `analysisJson Json?` | :1023 | :1241 | :1378 |
+| `studentMarkdown String?` | :1024 | :1242 | :1374 |
+| `parentsMarkdown String?` | :1025 | :1243 | :1375 |
+| `nexusMarkdown String?` | :1026 | :1244 | :1376 |
+| `errorCode String?` | :1027 | :1250 | :1386 |
+| `errorDetails String?` | :1028 | :1251 | :1387 |
+| `retryCount Int` | :1029 | :1252 | :1388 |
 
-### Champs dans Assessment + Bilan mais PAS Diagnostic
+*(Les numéros de ligne renvoient à `prisma/schema.prisma`)*
 
-`subject`, `studentName`, `studentId` (FK), `globalScore`, `confidenceIndex`, `ssn`, `uai`, `progress`, `engineVersion`, `domainScores`
+### Routes créatrices (état de la migration)
 
-### Champs UNIQUEMENT dans Diagnostic (pas dans Bilan)
+| Route | Crée dans | Preuve |
+|-------|----------|-------|
+| `POST /api/bilan-pallier2-maths` | `Diagnostic` | `app/api/bilan-pallier2-maths/route.ts` → `prisma.diagnostic.create` |
+| `POST /api/assessments/submit` | `Assessment` | `app/api/assessments/submit/route.ts` → `prisma.assessment.create` |
+| `POST /api/student/automatismes/attempts` | `Assessment` | `app/api/student/automatismes/attempts/route.ts` → `prisma.assessment.create` |
+| Toutes les autres routes bilans | `Bilan` | Voir Signal 1 sourceVersions |
 
-`studentFirstName`/`studentLastName` (nom splitté), `establishment`, `teacherName`, `mathAverage`, `specialtyAverage`, `bacBlancResult`, `classRanking`, `definitionKey`, `definitionVersion`, `promptVersion`, `modelUsed`, `analysisResult` (legacy String), `actionPlan` (legacy)
+**Conclusion** : 3 routes legacy, 6+ routes canoniques. Migration en cours, pas achevée.
 
-### Champs UNIQUEMENT dans Assessment (pas dans Bilan)
+### DomainScore/SkillScore orphelins de Bilan
 
-`grade`, `studentMetadata`, `answers` (Json), `duration`, `startedAt`, `completedAt`, `scoringResult` (Json), `assessmentVersion`, `userAgent`, `ipAddress`, `skillScores` (relation), `domainScores` (relation → DomainScore table)
-
-### Champs UNIQUEMENT dans Bilan
-
-`type` (BilanType enum), `legacyDiagnosticId/AssessmentId/StageBilanId`, `sourceData`, `stageId` (FK), `coachId` (FK), `isPublished`/`publishedAt`, `sourceVersion`, `ragUsed`/`ragCollections`
-
-### Migration : état actuel (vérifié en code)
-
-| Route | Crée | Modèle cible | Status migration |
-|-------|------|-------------|------------------|
-| `POST /api/bilan-pallier2-maths` | `prisma.diagnostic.create` | **Diagnostic** (legacy) | Non migré |
-| `POST /api/assessments/submit` | `prisma.assessment.create` | **Assessment** (legacy) | Non migré |
-| `POST /api/student/automatismes/attempts` | `prisma.assessment.create` | **Assessment** (legacy) | Non migré |
-| `POST /api/bilans` | `prisma.bilan.create` | **Bilan** (canonique) | OK |
-| `POST /api/eleve/questionnaire-*` | `prisma.bilan.create` | **Bilan** | OK |
-| `POST /api/eleve/bilan-diagnostic-maths-terminale` | `prisma.bilan.create` | **Bilan** | OK |
-| `POST /api/coach/eaf-stage-printemps/.../report` | `prisma.bilan.create` | **Bilan** | OK |
-| `POST /api/coach/maths-premiere-stage-printemps/.../report` | `prisma.bilan.create` | **Bilan** | OK |
-
-**5 sourceVersion actifs** (tous sur Bilan) :
-`maths_premiere_stage_printemps_v1`, `eaf_stage_printemps_v1`, `maths_terminale_v1`, `coach_eaf_stage_printemps_v1`, `coach_maths_premiere_stage_printemps_v1`
-
-### Bridge FKs (strangler fig)
-
-`Bilan.legacyDiagnosticId → Diagnostic.id` (String? @unique, pas de @relation Prisma)
-`Bilan.legacyAssessmentId → Assessment.id` (String? @unique, pas de @relation Prisma)
-`Bilan.legacyStageBilanId → StageBilan.id` (String? @unique, pas de @relation Prisma)
-
-Script de migration existant : `scripts/migrate-bilans.ts` (copie sourceData, rattache legacy FKs).
-
-### DomainScore/SkillScore : orphelins de Bilan
-
-Les tables relationnelles `DomainScore` et `SkillScore` ont un FK vers `Assessment` uniquement. Bilan stocke ses domain scores en `Json?`. Si Assessment migre vers Bilan, ces tables deviennent orphelines ou doivent être re-parentées.
-
-### Verdict Signal 3
-
-**Migration en cours, pas achevée.** 14 champs de sortie dupliqués identiquement sur les 3 modèles. Bilan est la cible canonique (superset). 2 routes legacy écrivent encore dans Diagnostic (1 route) et Assessment (2 routes). DomainScore/SkillScore non re-parentés. Coût : triple maintenance des champs de rendu tant que la migration n'est pas complète.
+- `DomainScore` : FK `assessmentId → Assessment` (`schema.prisma:1261`). Aucun lien vers Bilan.
+- `SkillScore` : FK `assessmentId → Assessment` (`schema.prisma:1272`). Aucun lien vers Bilan.
+- Bilan stocke ses scores en `domainScores Json?` (`schema.prisma:1373`) — approche différente (dénormalisée).
 
 ---
 
 ## Signal 4 : Chaîne facturation
 
-### Modèles impliqués
+### Payment ↔ Invoice : pas de FK
 
-`Payment` → (aucune FK) → `Invoice` → `InvoiceItem` (FK) → `Entitlement` (FK `sourceInvoiceId`)
+- `Payment` (`schema.prisma:555-575`) : aucun champ `invoiceId`
+- `Invoice` (`schema.prisma:1501-1549`) : aucun champ `paymentId`
+- Lien applicatif uniquement dans `app/api/payments/validate/route.ts:282-340` (crée Invoice dans $transaction)
 
-**Fait critique** : Payment et Invoice n'ont **aucune FK** entre eux. Ils sont liés uniquement par la logique applicative dans les routes.
+### Machine à états Invoice
 
-### Deux chemins de création
-
-**Chemin 1 — Webhook ClicToPay** (`app/api/payments/validate/route.ts`) :
-1. Webhook arrive → trouve Payment par `externalId`
-2. Dans une `$transaction` : met Payment à COMPLETED
-3. Crée Invoice directement en status PAID (saute DRAFT/SENT)
-4. Appelle `activateEntitlements(invoice.id, tx)` atomiquement
-
-**Chemin 2 — Facture manuelle admin** (`app/api/admin/invoices/[id]/route.ts`) :
-1. Invoice créée séparément (DRAFT)
-2. Admin transition DRAFT → SENT → PAID via PATCH
-3. MARK_PAID déclenche `activateEntitlements()` dans une transaction
-
-### Incohérence de type de montant
-
-| Modèle | Champ montant | Type |
-|--------|--------------|------|
-| Payment | `amount` | `Float` |
-| Invoice | `subtotal`, `discountTotal`, `taxTotal`, `total` | `Int` (millimes) |
-| InvoiceItem | `unitPrice`, `total` | `Int` (millimes) |
-| ClicToPayTransaction | `amount` | `Float` |
-
-**Risque** : un Payment.amount en Float (e.g., `150.5`) et un Invoice.total en Int millimes (e.g., `150500`) représentent la même valeur avec des unités différentes. La conversion se fait dans `validateTransition()` via `assertMillimes()` mais seulement pour le `amountPaid` du MARK_PAID — pas pour le montant initial du Payment.
-
-### Machine à états Invoice (source : `lib/invoice/transitions.ts`)
+Source : `lib/invoice/transitions.ts:32-57` (const `TRANSITIONS`)
 
 ```
-         MARK_SENT          MARK_PAID
-DRAFT ──────────→ SENT ──────────→ PAID (terminal)
-  │                 │
-  │ CANCEL          │ CANCEL
-  ▼                 ▼
-CANCELLED (terminal)   CANCELLED (terminal)
+DRAFT → SENT (MARK_SENT) → PAID (MARK_PAID, terminal)
+DRAFT → CANCELLED (CANCEL, terminal)
+SENT → CANCELLED (CANCEL, terminal)
 ```
 
-**Transitions** : `validateTransition(currentStatus, action, meta?, invoiceTotal?)` — pure function.
-**Guard RBAC** : `canPerformStatusAction(role)` — ADMIN et ASSISTANTE uniquement.
-**Idempotence** : si déjà dans le statut cible, retourne `{ valid: true, noop: true }`.
+Guard : `canPerformStatusAction(role)` (`lib/invoice/transitions.ts:68`) — ADMIN + ASSISTANTE
 
-### Side-effects des transitions (source : `app/api/admin/invoices/[id]/route.ts`)
+### Side-effects MARK_PAID
 
-| Action | Side-effects (dans $transaction) |
-|--------|----------------------------------|
-| MARK_SENT | Update status, append event. Pas de side-effect entitlement. |
-| MARK_PAID | Update status + `paidAt` + `paymentMethod`. Révoquer tous access tokens. **`activateEntitlements(invoice.id, tx)`** → crée/prolonge entitlements + octroie crédits. |
-| CANCEL | Update status + `cancelledAt`. Révoquer access tokens. **`suspendEntitlements(invoice.id, 'Invoice cancelled', tx)`** → suspend entitlements ACTIVE de cette facture. |
+Source : `app/api/admin/invoices/[id]/route.ts:157-210` (dans $transaction) :
+1. `prisma.invoice.update` → status PAID, paidAt, paymentMethod (`:176`)
+2. `prisma.invoiceAccessToken.updateMany` → revokedAt (`:188`)
+3. `activateEntitlements(invoice.id, tx)` (`lib/entitlement/engine.ts:51`) → crée/prolonge entitlements + octroie crédits
 
-### Moteur d'entitlements (source : `lib/entitlement/engine.ts`)
+### Side-effects CANCEL
+
+Source : `app/api/admin/invoices/[id]/route.ts:215-250` :
+1. `prisma.invoice.update` → status CANCELLED, cancelledAt (`:231`)
+2. Token revocation (`:241`)
+3. `suspendEntitlements(invoice.id, 'Invoice cancelled', tx)` (`lib/entitlement/engine.ts:155`)
+
+### Moteur d'entitlements
+
+Source : `lib/entitlement/engine.ts`, Product Registry : `lib/entitlement/types.ts:85-150`
 
 | Mode | Comportement | Produits |
 |------|-------------|----------|
-| SINGLE | Noop si déjà ACTIVE pour ce productCode. Crée sinon. | STAGE_*, PREMIUM_* |
-| EXTEND | Prolonge `endsAt` de `defaultDurationDays` si ACTIVE. Crée trace `(extension)`. Crée frais sinon. | ABONNEMENT_*, ARIA_ADDON_* |
-| STACK | Crée toujours un nouvel entitlement. | CREDIT_PACK_* |
+| SINGLE | Noop si ACTIVE pour ce productCode. Crée sinon. | STAGE_*, PREMIUM_* |
+| EXTEND | Prolonge `endsAt` si ACTIVE. Crée trace `(extension)`. | ABONNEMENT_*, ARIA_ADDON_* |
+| STACK | Crée toujours. | CREDIT_PACK_* |
 
-Si `grantsCredits > 0` : exécute `tx.student.update({ credits: { increment } })`.
+Credit grant : `lib/entitlement/engine.ts:130` — `tx.student.update({ credits: { increment: creditsGranted } })`
 
-### Verdict Signal 4
+### Incohérence Float vs Int millimes
 
-**Pas de machine à états unifiée.** Payment et Invoice sont des silos sans FK. La chaîne tient par la logique applicative. L'incohérence `Float` vs `Int millimes` est un risque d'arrondi. La machine à états Invoice→Entitlement via libs est bien implémentée (ACID, idempotente), mais le chemin webhook saute DRAFT/SENT, ce qui crée deux chemins incompatibles vers PAID.
+- `Payment.amount Float` (`schema.prisma:563`)
+- `ClicToPayTransaction.amount Float` (`schema.prisma:596`)
+- `Invoice.total Int` (millimes) (`schema.prisma:1529`, commentaire "in millimes")
+- `InvoiceItem.unitPrice Int` (millimes) (`schema.prisma:1583`, commentaire "in millimes (1 TND = 1000)")
+- `assertMillimes()` ne vérifie que `payment.amountPaid` lors de MARK_PAID (`lib/invoice/transitions.ts:133`), pas le montant initial
 
 ---
 
 ## Signal 5 : Source de vérité « qui coache qui »
 
-### Modèle déclaré : CoachStudentAssignment
+### Classification des 14 modèles avec `coachId`
 
-Source : `prisma/schema.prisma` — `coachId` → CoachProfile, `studentId` → Student, `assignmentType` (PRIMARY/SECONDARY/STAGE/TEMPORARY), `status` (ACTIVE/SUSPENDED/ENDED), `subjects Subject[]`.
+#### Propriétaire légitime (le coach EST l'auteur/responsable du record)
 
-Géré par : `POST/PATCH /api/assistante/assignments`.
+| Modèle | Ligne schema | Rôle du coachId |
+|--------|:---:|---|
+| CoachStudentAssignment | :1845 | SOT déclarée : quel coach tutore quel élève |
+| CoachAvailability | :695 | Disponibilités du coach (self-referencing) |
+| CoachNote | :1822 | Auteur de la note (le coach qui écrit) |
+| SessionReport | :801 | Coach qui a conduit la session et rédige le rapport |
+| StageCoach | :1105 | Table de jonction stage-coach (quel coach enseigne le stage) |
+| StageSession | :1087 | Coach assigné à une session de stage |
+| EafPreparationReport | :1920 | Coach qui évalue la préparation EAF de l'élève |
+| CopySubmission | :2063 | Coach qui soumet/supervise la copie NPC |
 
-### Autres modèles avec `coachId` (set INDÉPENDAMMENT de CoachStudentAssignment)
+#### Dénormalisation recopiée (coachId posé sur le record sans synchro/cascade avec l'assignment)
 
-| Modèle | Champ `coachId` | Set par | Vérifie l'assignment ? |
-|--------|----------------|---------|----------------------|
-| Session | `coachId → CoachProfile?` | Routes session | Non vérifié en code |
-| SessionBooking | `coachId → User` | `/api/assistante/sessions` | Non vérifié en code |
-| SessionReport | `coachId → CoachProfile` | `/api/coach/sessions/.../report` | Non vérifié (route vérifie auth COACH, pas assignment) |
-| StageBilan | `coachId → CoachProfile` | `/api/stages/.../bilans` | Non — le coach crée le bilan pour tout étudiant du stage |
-| Bilan | `coachId → CoachProfile?` | Multiples routes coach | Vérifié partiellement (certaines routes vérifient `isCoachRattachedToStudent`) |
-| StageSession | `coachId → CoachProfile?` | Admin stage sessions | Non — admin assigne directement |
-| StageCoach | `coachId → CoachProfile` | `/api/admin/stages/[id]/coaches` | Non — table de jonction stage-coach, pas student |
-| CoachNote | `coachId → User` | `/api/coach/students/[id]/notes` | Oui — `isCoachRattachedToStudent()` vérifié |
-| EafPreparationReport | `coachId → CoachProfile` | `/api/coach/.../eaf-preparation-report` | Oui — `assertCoachCanAccessStudent()` |
-| CopySubmission (NPC) | `coachId → CoachProfile?` | `/api/npc/submissions` | Oui — via `canManageSubmissionDocuments()` |
-| PedagogicalReport | `coachId → CoachProfile?` | NPC pipeline | Oui — hérité de CopySubmission |
-| GeneratedPedReport | `coachId → CoachProfile?` | Report pipeline | Non — set depuis context, pas vérifié |
+| Modèle | Ligne schema | Risque |
+|--------|:---:|---|
+| Session | :431 | `coachId` set lors de la création, pas de vérification assignment |
+| SessionBooking | :727 | `coachId` set par `/api/assistante/sessions`, pas de vérification assignment |
+| StageBilan | :1143 | `coachId` set lors de la création du bilan, le coach peut ne plus être assigné au stage |
+| Bilan | :1361 | `coachId` set par les routes coach, partiellement vérifié (`assertCoachCanAccessStudent` sur certaines routes, pas toutes) |
+| StudentReport | :536 | Modèle mort (voir Signal 1) |
+| PedagogicalReport | :2204 | Hérité de CopySubmission, pas re-vérifié |
+| GeneratedPedagogicalReport | :2358 | Set depuis le context du pipeline, pas de vérification d'assignment |
 
-### Verdict Signal 5
+**Risque concret** : si un CoachStudentAssignment passe à `status: ENDED` (`schema.prisma:1853`), les `coachId` sur les records existants de la colonne droite ne sont PAS mis à jour. Il n'y a pas de cascade ni de trigger de synchronisation. Les records orphelins restent liés à l'ancien coach.
 
-**CoachStudentAssignment est la SOT déclarée mais pas imposée.** Le `coachId` est dénormalisé sur 12+ modèles. Certaines routes vérifient l'assignment (CoachNote, EafPreparationReport, NPC), d'autres non (SessionBooking, StageBilan, GeneratedPedReport). Le risque : un coach dont l'assignment passe à ENDED continue d'apparaître comme `coachId` sur les records existants. Pas de cascade de dé-affectation.
+### Routes qui vérifient l'assignment avant d'agir
 
-**Séparation justifiée pour StageCoach** : table de jonction stage-coach (quel coach enseigne quel stage), scope différent de coach-student (qui tutore qui).
+Vérification via `isCoachRattachedToStudent` ou `assertCoachCanAccessStudent` (`lib/rbac/coach-student-access.ts`) :
+- `app/api/coach/students/[studentId]/survival-mode/route.ts:38`
+- `app/api/coach/students/[studentId]/documents/route.ts:42,115`
+- `app/api/coach/students/[studentId]/generated-reports/route.ts:45,112`
+- `app/api/coach/maths-premiere-stage-printemps/.../report/route.ts:33,144`
+- `app/api/coach/maths-premiere-stage-printemps/.../regenerate-student/route.ts:33`
+- `app/api/coach/students/[studentId]/notes/route.ts` (via `isCoachRattachedToStudent`)
+
+### Routes qui NE vérifient PAS l'assignment
+
+- `app/api/coach/sessions/[sessionId]/report/route.ts` — vérifie auth COACH, pas l'assignment au student
+- `app/api/stages/[stageSlug]/bilans/route.ts` — vérifie rôle COACH/ADMIN/ASSISTANTE, pas l'assignment
+- `app/api/coach/dashboard/route.ts` — filtre par coachProfile.id, pas par assignments
 
 ---
 
 ## Machines à états réelles
 
-### 1. Session : `SessionStatus` enum
+### Session : `SessionStatus` (`schema.prisma:115-123`)
 
-```
-SCHEDULED → CONFIRMED → IN_PROGRESS → COMPLETED
-    │           │            │
-    │ cancel    │ cancel     │ no-show
-    ▼           ▼            ▼
-CANCELLED   CANCELLED    NO_SHOW
+Enum : `SCHEDULED | CONFIRMED | IN_PROGRESS | COMPLETED | CANCELLED | NO_SHOW | RESCHEDULED`
 
-SCHEDULED → RESCHEDULED (puis re-SCHEDULED)
-```
+Pas de `validateTransition` centralisée. Transitions inline :
+- Cancel : `app/api/sessions/cancel/route.ts` (vérifie politique 24h/48h)
+- Complete : `app/api/coach/sessions/[sessionId]/report/route.ts`
 
-**Enum** : `SCHEDULED | CONFIRMED | IN_PROGRESS | COMPLETED | CANCELLED | NO_SHOW | RESCHEDULED`
-**Transitions** : pas de fonction `validateTransition` dédiée. Les transitions sont inline dans les routes (`/api/sessions/cancel`, `/api/coach/sessions/[id]/report`).
-**Politique d'annulation** : 24h avant pour ELEVE (via `sessions/cancel`), 48h pour COACH. Remboursement crédits via `CreditTransaction.create(type: REFUND)`.
+### Stage Reservation
 
-### 2. Stage Reservation : `StageReservationStatus` enum
+Double statut (`schema.prisma:1179,1193`) :
+- `status String @default("PENDING")` — legacy, valeurs libres
+- `richStatus StageReservationStatus?` — enum `PENDING|CONFIRMED|WAITLISTED|CANCELLED|COMPLETED`
+- Commentaire schema : `// Rich status mirroring new enum (kept alongside legacy String status for compat)`
 
-```
-PENDING → CONFIRMED → COMPLETED
-    │         │
-    │         │ cancel
-    ▼         ▼
-WAITLISTED  CANCELLED
-    │
-    │ confirm
-    ▼
-CONFIRMED
-```
+Pas de `validateTransition` centralisée.
 
-**Enum** : `PENDING | CONFIRMED | WAITLISTED | CANCELLED | COMPLETED`
-**Note** : double statut sur StageReservation — `status` (String legacy) + `richStatus` (StageReservationStatus? enum). Coexistence non résolue.
+### Invoice : voir [Signal 4](#signal-4--chaîne-facturation)
 
-### 3. Facturation : `InvoiceStatus` enum
+Seul cycle avec machine à états formelle (`lib/invoice/transitions.ts`).
 
-Voir [Signal 4](#signal-4--chaîne-facturation) pour le diagramme et les side-effects.
+### Pipeline pédagogique
 
-### 4. Pipeline pédagogique : Diagnostic → Bilan → Trajectoire → Roadmap
+Pas une machine à états linéaire — étapes indépendantes :
+- Diagnostic/Bilan : `BilanStatus` enum (`PENDING→SCORING→GENERATING→COMPLETED→FAILED`, `schema.prisma:232-238`)
+- Diagnostic legacy : `status String` libre, 6 valeurs (`RECEIVED/VALIDATED/SCORED/GENERATING/ANALYZED/FAILED`), `schema.prisma:1019`
+- Trajectoire : `TrajectoryStatus` (`ACTIVE→PAUSED→COMPLETED→ABANDONED`, `schema.prisma:225-230`)
+- NPC : `CopySubmissionStatus` (10 valeurs, `schema.prisma:148-159`), `AiJobStatus` (8 valeurs, `schema.prisma:177-186`), `PedagogicalReportStatus` (6 valeurs, `schema.prisma:189-196`)
 
-**Pas une machine à états linéaire** — c'est un pipeline à étapes indépendantes :
-
-| Étape | Modèle | Status enum | Transitions |
-|-------|--------|-------------|-------------|
-| Diagnostic | `Diagnostic` ou `Bilan` | Diagnostic: String libre (`RECEIVED→VALIDATED→SCORED→GENERATING→ANALYZED→FAILED`) / Bilan: `BilanStatus` (`PENDING→SCORING→GENERATING→COMPLETED→FAILED`) | Inline dans routes + `lib/bilan-generator.ts` |
-| Bilan rendu | `Bilan` | `BilanStatus` | `PENDING→SCORING→GENERATING→COMPLETED` |
-| Trajectoire | `Trajectory` | `TrajectoryStatus` (`ACTIVE→PAUSED→COMPLETED→ABANDONED`) | `POST /api/coach/trajectory` crée en ACTIVE |
-| Roadmap NPC | `RemediationRoadmap` | Pas d'enum status propre — via `PedagogicalReport.status` | Pipeline NPC |
-
-**Observation** : le Diagnostic utilise un `status: String` libre (6 valeurs non-enum), alors que Bilan utilise `BilanStatus` enum (5 valeurs). Pas de correspondance 1:1. La migration Diagnostic→Bilan devra normaliser les statuts.
-
-### 5. Pipeline NPC : Soumission → OCR → IA → Rapport
-
-```
-CopySubmission.status:
-PENDING_UPLOAD → UPLOADED → PROCESSING_OCR → (OCR_FAILED)
-                                 ↓
-                          READY_FOR_AI → QUEUED_FOR_ANALYSIS → ANALYZING → (ANALYSIS_FAILED)
-                                                                    ↓
-                                                               COMPLETED → ARCHIVED
-
-AiProcessingJob.status:
-PENDING → QUEUED → CLAIMED → PROCESSING → (RETRYING) → COMPLETED | FAILED | CANCELLED
-
-PedagogicalReport.status:
-DRAFT → PENDING_VALIDATION → VALIDATED → SENT_TO_STUDENT → READ_BY_STUDENT → ARCHIVED
-```
-
-**Pas de `validateTransition` centralisée** — transitions inline dans `lib/npc/` et les routes NPC.
+Aucune de ces machines n'a de `validateTransition` centralisée — toutes font des transitions inline dans les routes.
 
 ---
 
 ## Carte des règles métier → SSOT
 
-### Sources canoniques
-
-| Règle métier | SSOT | Accesseur | Consommateurs |
-|-------------|------|-----------|---------------|
-| Tarifs annuels, stages, ponctuels, packs | `data/pricing.canonical.json` | `lib/pricing.ts` (46 importeurs) | Pages offres, composants marketing, facturation, tests |
-| Règles de paiement (acompte 30 %, 9 échéances, 5 % comptant, cap 20 %) | `data/pricing.canonical.json` → `rules.payment` | `computeDeposit()`, `computeSchedule()`, `applyDiscount()` | Facturation admin, devis assistante |
-| Produits & activation (14 codes, modes SINGLE/EXTEND/STACK) | `lib/entitlement/types.ts` → `PRODUCT_REGISTRY` | `lib/entitlement/engine.ts` | `/api/payments/validate`, `/api/admin/invoices/[id]` |
-| Features & gating (10 features, fallback HIDE/DISABLE/REDIRECT) | `lib/access/features.ts` | `lib/access/rules.ts` → `resolveAccess()` | `lib/access/guard.ts` |
-| RBAC policies (30+ routes, 5 rôles) | `lib/rbac.ts` | `can()`, `enforcePolicy()` | 17 fichiers (routes + guard) |
-| Groupes (max, min open) | `data/pricing.canonical.json` → `rules.group_max/min_open` | `lib/pricing.ts` → `getRules()` | **Aussi dupliqué dans `lib/group-rules.ts`** (4 composants marketing) |
-| Entité juridique, banque, contact | `lib/legal.ts` | Direct import | 37 fichiers |
-| CGV (remboursements, paiements) | `lib/cgv-policy.ts` | Direct import | 13 fichiers |
-| Plans opérationnels (noms, prix, crédits) | `data/pricing.canonical.json` → `operational_*` | `lib/operational-catalog.ts` → `lib/constants.ts` | Dashboard, API subscriptions |
-| Design tokens | `lib/theme/tokens.ts` | `tailwind.config.mjs` | Tous composants |
+| Règle métier | SSOT (fichier) | Accesseur | Consommateurs (count) |
+|-------------|------|-----------|---------|
+| Tarifs, offres, formules, stages, packs | `data/pricing.canonical.json` | `lib/pricing.ts` | 46 fichiers |
+| Règles paiement (acompte 30%, 9 échéances, cap 20%) | `data/pricing.canonical.json` → `rules.payment` | `computeDeposit()`, `computeSchedule()` | facturation, devis |
+| Produits & activation (14 codes, SINGLE/EXTEND/STACK) | `lib/entitlement/types.ts` → `PRODUCT_REGISTRY` | `lib/entitlement/engine.ts` | 6+ fichiers |
+| Features & gating (10 features) | `lib/access/features.ts` | `resolveAccess()` | `lib/access/guard.ts` |
+| RBAC (30+ policies, 5 rôles) | `lib/rbac.ts` | `can()`, `enforcePolicy()` | 17 fichiers |
+| Groupes (max, min open) | `data/pricing.canonical.json` → `rules.group_*` | `lib/pricing.ts` → `getRules()` | via pricing (+ duplication `lib/group-rules.ts` → 4 composants) |
+| Entité juridique | `lib/legal.ts` | direct import | 37 fichiers |
+| CGV | `lib/cgv-policy.ts` | direct import | 13 fichiers |
+| Plans opérationnels | `data/pricing.canonical.json` → `operational_*` | `lib/operational-catalog.ts` | 10 fichiers |
+| Design tokens | `lib/theme/tokens.ts` | `tailwind.config.mjs` | tous composants |
 | Rate-limit presets | `lib/rate-limit/presets.ts` | `checkRateLimit()` | 20+ routes |
 
-### Incohérences détectées
+### Incohérence : `group-rules.ts` duplique `pricing.canonical.json`
 
-#### 1. `group-rules.ts` duplique `pricing.canonical.json` (MEDIUM)
-
-**Preuve** :
-- `pricing.canonical.json` → `rules.group_max: 5`, `rules.group_min_open: { lycee: 3, college: 4, online_live: 3, stage: 3, stage_college: 4 }`
-- `lib/group-rules.ts` → `GROUP_RULES.group_max: 5`, `GROUP_RULES.group_min_open: { lycee: 3, college: 4 }`
-
-Valeurs cohérentes pour les clés communes, mais `group-rules.ts` **manque** `online_live`, `stage`, `stage_college`. 4 composants marketing lisent `group-rules.ts` au lieu de `lib/pricing.ts`.
-
-**Risque** : si `pricing.canonical.json` change, `group-rules.ts` ne suit pas automatiquement.
-
-#### 2. Noms de plans ≠ codes PRODUCT_REGISTRY (MEDIUM)
-
-**Preuve** :
-- `operational_subscription_plans` : clés `ACCES_PLATEFORME`, `HYBRIDE`, `IMMERSION`
-- `PRODUCT_REGISTRY` : codes `ABONNEMENT_ESSENTIEL`, `ABONNEMENT_HYBRIDE`, `ABONNEMENT_IMMERSION`
-
-Le bridge est dans `resolveProductCode()` (fonction locale dans `app/api/payments/validate/route.ts`). Aucun lien compile-time entre les deux registres.
-
-**Risque** : un nouveau plan ajouté dans un registre mais pas l'autre → entitlements silencieusement non activés.
-
-#### 3. Crédits ACCES_PLATEFORME vs ABONNEMENT_ESSENTIEL (HIGH)
-
-**Preuve** :
-- `operational_subscription_plans.ACCES_PLATEFORME.credits_per_month: 0`
-- `PRODUCT_REGISTRY.ABONNEMENT_ESSENTIEL.grantsCredits: 4`
-- `resolveProductCode()` mappe `ACCES_PLATEFORME` / `ESSENTIEL` / `PLAN` → `ABONNEMENT_ESSENTIEL`
-
-**Conséquence** : un client achetant « Accès Plateforme » (annoncé 0 crédits) reçoit 4 crédits via le moteur d'entitlements. Soit le marketing ment, soit le code ment. À clarifier.
-
-#### 4. Feature `admin_facturation` orpheline (LOW)
-
-`lib/access/features.ts` définit `admin_facturation` avec `requires: ['admin_facturation']`, mais aucun produit dans `PRODUCT_REGISTRY` ne grant cette feature. Fonctionne uniquement via l'exemption rôle ADMIN. La feature string est morte dans la couche entitlement.
+- `data/pricing.canonical.json` (grep `group_max`) : `rules.group_max: 5`, `rules.group_min_open: { lycee: 3, college: 4, online_live: 3, stage: 3, stage_college: 4 }`
+- `lib/group-rules.ts:3-7` : `GROUP_RULES = { group_max: 5, group_min_open: { lycee: 3, college: 4 } }`
+- Valeurs cohérentes pour les clés communes, mais `group-rules.ts` manque `online_live`, `stage`, `stage_college`
+- 4 composants marketing lisent `group-rules.ts` au lieu de `lib/pricing.ts` : `app/equipe/page.tsx`, `app/HomePageClient.tsx`, `components/marketing/acadomia-inspired.tsx`, `components/premium/MethodSection.tsx`
 
 ---
 
 ## Risques
 
-### Repris de DOC-1
+### R1 — Rate-limit permissif sur `/api/stages/[stageSlug]/inscrire` (MEDIUM)
 
-**R1 — `/api/stages/[stageSlug]/inscrire` : rate-limit permissif** (DOC-1 b-ter).
-Preset `api` (60/min) au lieu de `expensive` (10/h). Pas de CAPTCHA, pas de CSRF. Risque de spam de fausses inscriptions. Bloqué par contrainte unique `[email, academyId]` mais un attaquant peut varier les emails.
+- **Coordonnées** : `app/api/stages/[stageSlug]/inscrire/route.ts:17` → `guardRateLimitAsync(req, { preset: 'api', keySuffix: ... })`
+- **Preset** : `lib/rate-limit/presets.ts:23` → `api: { limit: 60, windowMs: 60_000 }` (60 req/min)
+- **Comparaison** : `assessments/submit` utilise `expensive` (10/h). Un formulaire d'inscription devrait utiliser un preset similaire.
+- **Protection partielle** : contrainte unique `[email, academyId]` (`schema.prisma:1204`) bloque les doublons par email
 
-### Révélés par la cartographie
+### R2 — Collision crédits ACCES_PLATEFORME / ABONNEMENT_ESSENTIEL (HIGH)
 
-**R2 — Incohérence crédits ACCES_PLATEFORME / ABONNEMENT_ESSENTIEL** (HIGH).
-Voir incohérence #3 ci-dessus. Impact direct sur la facturation.
+- **Étape 1** : parent initie paiement type `subscription`, clé `ACCES_PLATEFORME` → Payment créé avec `metadata.itemKey = 'ACCES_PLATEFORME'` (`app/api/payments/bank-transfer/confirm/route.ts:136`)
+- **Étape 2** : admin valide → `resolveProductCode('ACCES_PLATEFORME')` → retourne `'ABONNEMENT_ESSENTIEL'` (`app/api/payments/validate/route.ts:41-44`)
+- **Étape 3** : `activateEntitlements` avec product `ABONNEMENT_ESSENTIEL` → `grantsCredits: 4` (`lib/entitlement/types.ts:133`)
+- **Étape 4** : crédits octroyés au student (`lib/entitlement/engine.ts:130`)
+- **Conflit** : `data/pricing.canonical.json:1339` déclare `ACCES_PLATEFORME.credits: 0`
+- **Impact** : client achetant « Accès Plateforme » (annoncé 0 crédits) reçoit 4 crédits via entitlements. Soit le marketing (canonical JSON) est incorrect, soit le mapping (resolveProductCode) est incorrect, soit ACCES_PLATEFORME et ABONNEMENT_ESSENTIEL sont intentionnellement des concepts distincts qui ne devraient pas être mappés l'un vers l'autre.
 
-**R3 — Payment.amount Float vs Invoice.total Int millimes** (MEDIUM).
-Aucune conversion systématique. `assertMillimes()` ne vérifie que le `amountPaid` du MARK_PAID, pas le montant initial. Risque d'arrondi sur les centimes.
+### R3 — Payment.amount Float vs Invoice.total Int millimes (MEDIUM)
 
-**R4 — Double statut StageReservation** (MEDIUM).
-`status` (String legacy "PENDING"/"CONFIRMED") + `richStatus` (StageReservationStatus? enum). Les deux coexistent. Les routes lisent tantôt l'un tantôt l'autre. Risque d'état incohérent.
+- **Payment** : `amount Float` (`schema.prisma:563`)
+- **Invoice** : `total Int` (`schema.prisma:1529`, commentaire `// in millimes`)
+- **Vérification partielle** : `assertMillimes()` ne vérifie que `payment.amountPaid` lors de MARK_PAID (`lib/invoice/transitions.ts:133`), pas le montant initial du Payment
 
-**R5 — CoachStudentAssignment non imposé** (MEDIUM).
-12+ modèles dénormalisent `coachId` sans vérifier l'assignment actif. Si un assignment passe à ENDED, les records existants gardent l'ancien `coachId`. Pas de cascade.
+### R4 — Double statut StageReservation (MEDIUM)
 
-**R6 — Diagnostic status String libre vs BilanStatus enum** (LOW).
-6 valeurs String non contraintes (`RECEIVED`, `VALIDATED`, `SCORED`, `GENERATING`, `ANALYZED`, `FAILED`) vs 5 valeurs enum BilanStatus. La migration devra normaliser.
+- **Legacy** : `status String @default("PENDING")` (`schema.prisma:1179`)
+- **Enum** : `richStatus StageReservationStatus?` (`schema.prisma:1193`)
+- **Commentaire schema** : `// Rich status mirroring new enum (kept alongside legacy String status for compat)` (`:1192`)
 
-**R7 — DomainScore/SkillScore orphelins de Bilan** (LOW).
-Ces tables relationnelles ne sont liées qu'à Assessment. Si Assessment migre vers Bilan, elles deviennent orphelines. Bilan stocke ses scores en `Json?` — les deux approches divergent.
+### R5 — coachId dénormalisé sans cascade (MEDIUM)
 
-**R8 — StudentReport mort** (LOW).
-Modèle dans le schéma sans route production. Poids mort, confusion potentielle.
+- **7 modèles** de la catégorie « dénormalisation » (voir Signal 5 tableau droite) portent un `coachId` qui n'est pas synchronisé si `CoachStudentAssignment.status` passe à `ENDED`
+- **Modèles affectés** : Session (`:431`), SessionBooking (`:727`), StageBilan (`:1143`), Bilan (`:1361`), PedagogicalReport (`:2204`), GeneratedPedagogicalReport (`:2358`)
+- **StudentReport (`:536`)** est mort → hors scope
 
-**R9 — Pas de `validateTransition` centralisée pour les sessions et les réservations** (LOW).
-Seule Invoice a une machine à états formelle (`lib/invoice/transitions.ts`). Les autres cycles (session, réservation, NPC) font des transitions inline dans les routes sans validation centralisée.
+### R6 — Diagnostic status String libre vs BilanStatus enum (LOW)
+
+- **Diagnostic** : `status String @default("RECEIVED")` (`schema.prisma:1019`) — 6 valeurs non contraintes
+- **Bilan** : `status BilanStatus` (`schema.prisma:1380`) — enum 5 valeurs (`PENDING/SCORING/GENERATING/COMPLETED/FAILED`)
+- La migration Diagnostic→Bilan devra normaliser les statuts
+
+### R7 — DomainScore/SkillScore orphelins de Bilan (LOW)
+
+- `DomainScore.assessmentId → Assessment` (`schema.prisma:1261`)
+- `SkillScore.assessmentId → Assessment` (`schema.prisma:1272`)
+- Bilan utilise `domainScores Json?` (`schema.prisma:1373`) — pas de table relationnelle
+- Si Assessment migre vers Bilan, ces tables doivent être re-parentées ou abandonnées
+
+### R8 — StudentReport mort (LOW)
+
+- 0 mutation production, 0 lecture production (voir Signal 1 preuve)
+- Définition schema : `schema.prisma:529-542`
+
+### R9 — Pas de validateTransition centralisée pour sessions/réservations (LOW)
+
+- Invoice : `lib/invoice/transitions.ts` (machine à états formelle avec `TRANSITIONS` map)
+- Session : transitions inline dans `app/api/sessions/cancel/route.ts`, `app/api/coach/sessions/[sessionId]/report/route.ts`
+- StageReservation : transitions inline
+- NPC pipeline : transitions inline dans `lib/npc/` et routes NPC
+
+### R10 — Noms de plans ≠ codes PRODUCT_REGISTRY (MEDIUM)
+
+- `operational_subscription_plans` clés : `ACCES_PLATEFORME`, `HYBRIDE`, `IMMERSION` (`data/pricing.canonical.json:1336,1343,1350`)
+- `PRODUCT_REGISTRY` codes : `ABONNEMENT_ESSENTIEL`, `ABONNEMENT_HYBRIDE`, `ABONNEMENT_IMMERSION` (`lib/entitlement/types.ts:127,136,145`)
+- Bridge : `resolveProductCode()` dans `app/api/payments/validate/route.ts:36-68` — fonction locale, pas de lien compile-time
+- Risque : un nouveau plan ajouté dans un registre mais pas l'autre → entitlements non activés
 
 ---
 
-> **FIN DOC-2** — En attente de validation avant DOC-3.
+> **FIN DOC-2 v2** — En attente de validation avant DOC-3.
