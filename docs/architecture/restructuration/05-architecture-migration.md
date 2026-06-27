@@ -56,19 +56,24 @@ Le store BusinessConfig rend la source unique de crédits **possible**. La corre
 
 ## 2. Gate canonique
 
-Chaque lot doit passer ce gate AVANT merge :
+Chaque lot doit passer ce gate COMPLET AVANT merge — pas de subset, pas de « si applicable » :
 
 ```
-1. lint        → npx next lint (0 erreurs)
-2. typecheck   → npx tsc --noEmit (0 erreurs)
-3. test:unit   → npx jest --passWithNoTests (0 régressions)
-4. test:e2e    → npx playwright test (si applicable au lot)
-5. build       → npx next build (succès)
-6. guards      → grep de vérification : les routes modifiées conservent leurs gardes RBAC
-7. migration   → prisma migrate deploy (si migration schéma) sur DB de staging
+1. lint            → npx next lint (0 erreurs)
+2. typecheck       → npx tsc --noEmit (0 erreurs)
+3. test:unit       → npx jest --passWithNoTests (0 régressions)
+4. test:e2e        → npx playwright test (0 régressions)
+5. build           → npx next build (succès)
+6. guards          → grep de vérification : les routes modifiées conservent leurs gardes RBAC
+7. audit:site-map  → vérification du site-map (toutes les routes publiques répondent)
+8. check:docs      → vérification d'archive (aucun doc orphelin)
+9. git diff --check → pas de whitespace/merge markers résiduels
+10. migration      → prisma migrate deploy sur DB de staging (si migration schéma dans le lot)
 ```
 
-Un lot qui casse le gate ne merge pas. Réversibilité = `git revert` du merge commit + `prisma migrate` rollback si applicable.
+Un lot qui casse le gate ne merge pas. Réversibilité = `git revert` du merge commit. Pour les lots avec migration schéma : `prisma migrate` rollback en complément du revert.
+
+**Note : lots touchant des surfaces charte** (pages marketing, composants premium, HomePageClient) doivent en plus faire tourner les gardes charte + site-map — c'est non négociable. Cela concerne explicitement le Lot 1 (4 composants marketing).
 
 ---
 
@@ -107,7 +112,7 @@ Ordonnée par risque croissant et dépendances.
 | `components/marketing/acadomia-inspired.tsx` | Idem |
 | `components/premium/MethodSection.tsx` | Idem |
 
-**Gate** : lint + typecheck + build. Pas de test spécifique (composants marketing).
+**Gate** : gate canonique complet. Ce lot touche des surfaces charte (equipe, HomePageClient, composants marketing/premium) → les gardes charte + site-map sont non négociables.
 **Réversibilité** : `git revert`. Aucune migration DB.
 **Critère de réussite** : `grep -r 'group-rules' app/ components/ lib/` → 0 résultats. `npx next build` succès.
 
@@ -115,7 +120,7 @@ Ordonnée par risque croissant et dépendances.
 
 ### Lot 2 — Supprimer StudentReport
 
-**Risque** : faible (modèle mort prouvé DOC-2)
+**Risque** : faible (code mort prouvé DOC-2 — mais mort du CODE ne prouve pas le vide de la TABLE)
 **Périmètre** :
 
 | Fichier | Action |
@@ -124,17 +129,40 @@ Ordonnée par risque croissant et dépendances.
 | `__tests__/database/schema.test.ts` | Supprimer le test cascade `CoachProfile → StudentReport.coachId SetNull` |
 | `__tests__/setup/test-database.ts` | Supprimer `testPrisma.studentReport.deleteMany()` du cleanup |
 
-**Migration Prisma** : `prisma migrate dev --name drop_student_report`
+#### Pré-drop obligatoire (AVANT la migration)
+
+**Étape 1 — Gate de pré-drop** : vérifier que la table est vide en production.
+
+```sql
+-- Exécuter sur la DB de production AVANT de lancer la migration
+SELECT count(*) AS row_count FROM student_reports;
+-- DOIT retourner 0.
+-- Si non-zéro : le lot S'ARRÊTE. Investiguer les lignes héritées
+-- (qui les a créées, quand, sont-elles référencées par d'autres tables).
+```
+
+**Étape 2 — Dump archivé** : même si la table est vide, archiver la structure + les éventuelles données.
+
+```bash
+pg_dump -t student_reports --no-owner --no-privileges "$DATABASE_URL" \
+  > docs/architecture/restructuration/archives/student_reports_pre_drop.sql
+# Commiter l'archive dans le même lot.
+```
+
+**Le DROP n'est autorisé qu'après ces deux étapes.**
+
+#### Migration Prisma
+
+`prisma migrate dev --name drop_student_report`
 
 ```sql
 -- Migration : drop table student_reports
--- Réversibilité : la table peut être recréée via prisma migrate si nécessaire
--- Les données sont vides en production (0 rows, prouvé DOC-2)
+-- Pré-conditions vérifiées : count = 0, dump archivé
 DROP TABLE IF EXISTS "student_reports";
 ```
 
-**Gate** : typecheck + test:unit + build + migration sur staging.
-**Réversibilité** : migration down (recréer la table vide) + `git revert`.
+**Gate** : gate canonique complet (lint → typecheck → test → e2e → build → site-map → docs → diff-check → migration staging).
+**Réversibilité** : migration down (recréer la table depuis l'archive) + `git revert`.
 **Critère de réussite** : `grep -r 'studentReport\|StudentReport' app/ lib/` → 0 résultats hors composants NPC (`StudentReportList` = nom de composant React, pas le modèle Prisma). Build succès.
 
 ---
@@ -178,7 +206,7 @@ CREATE INDEX "business_configs_updatedAt_idx" ON "business_configs"("updatedAt")
 
 Note snapshot : sur échec de `loadConfigSnapshot()`, le single-flight sert le snapshot stale jusqu'à la prochaine fenêtre TTL (60s). Le système reste fonctionnel via les fallbacks statiques `??`.
 
-**Gate** : typecheck + test:unit (tests du snapshot + tests de l'API config) + build + migration staging.
+**Gate** : gate canonique complet + migration staging.
 **Réversibilité** : `DROP TABLE business_configs` + `git revert`. Aucun accessor modifié = 0 régression.
 **Critère de réussite** : `GET /api/admin/config` retourne `{ entries: [], fallbacks: {...} }`. PATCH écrit + versioning fonctionne. Snapshot se charge au démarrage.
 
@@ -197,7 +225,7 @@ Note snapshot : sur échec de `loadConfigSnapshot()`, le single-flight sert le s
 
 **Dépend de** : lot 3 (snapshot + API doivent exister)
 
-**Gate** : typecheck (signatures restent identiques) + test:unit (valider que sans entrée BusinessConfig, le comportement est identique au statique) + build.
+**Gate** : gate canonique complet. Test spécifique : valider que sans entrée BusinessConfig, le comportement est identique au statique.
 **Réversibilité** : `git revert`. Supprime les `getOverride()` calls, retour au statique pur.
 **Critère de réussite** : `getRules().group_max` retourne 5 (valeur statique, store vide). Après `PATCH /api/admin/config { namespace: 'pricing.rules', key: 'group_max', value: 3 }`, `getRules().group_max` retourne 3.
 
@@ -220,11 +248,11 @@ Note snapshot : sur échec de `loadConfigSnapshot()`, le single-flight sert le s
 
 | Fichier | Action |
 |---------|--------|
-| `app/dashboard/admin/config/page.tsx` | Onglet Produits & Crédits avec affichage triple (canonical/registry/runtime) |
+| `app/dashboard/admin/config/page.tsx` | **Créé dans ce lot** — onglet Produits & Crédits avec affichage triple (canonical/registry/runtime). Lots 6 étendra cette page avec les onglets Tarifs/Règles/Historique. |
 | `app/api/admin/config/route.ts` | Déjà créé lot 3 — validation `validateProductCredits()` pour les clés `products.*.grantsCredits` |
 
 **Dépend de** : lot 4 (accessors runtime)
-**Gate** : typecheck + build + test (vérifier que le fallback fonctionne quand le store est vide).
+**Gate** : gate canonique complet. Test spécifique : le fallback fonctionne quand le store est vide.
 **Réversibilité** : supprimer les entrées `BusinessConfig` namespace `products` → retour aux valeurs registry statiques.
 **Critère de réussite** : l'admin voit la triple collision actuelle (0→4, 4→8, 8→16), peut poser une valeur, et `activateEntitlements()` utilise cette valeur.
 
@@ -239,7 +267,7 @@ Note snapshot : sur échec de `loadConfigSnapshot()`, le single-flight sert le s
 
 | Écran | Fichiers nouveaux | API nouvelle |
 |-------|------------------|-------------|
-| `/admin/config` | `app/dashboard/admin/config/page.tsx` | Lot 3 (déjà créé) |
+| `/admin/config` | `app/dashboard/admin/config/page.tsx` | **Étend la page créée en Lot 5** — ajoute les onglets Tarifs, Règles, Historique à côté de l'onglet Produits & Crédits (Lot 5) |
 | `/admin/entitlements` | `app/dashboard/admin/entitlements/page.tsx` | `app/api/admin/entitlements/route.ts` (GET), `app/api/admin/entitlements/[id]/route.ts` (PATCH) |
 | `/admin/crons` | `app/dashboard/admin/crons/page.tsx` | `app/api/admin/crons/route.ts` (GET), `app/api/admin/crons/trigger/route.ts` (POST) |
 | `/admin/audit` | `app/dashboard/admin/audit/page.tsx` | `app/api/admin/audit/route.ts` (GET) |
@@ -247,7 +275,7 @@ Note snapshot : sur échec de `loadConfigSnapshot()`, le single-flight sert le s
 
 Toutes les routes nouvelles : `requireRole(ADMIN)` sauf entitlements GET → `requireAnyRole(ADMIN, ASSISTANTE)`.
 
-**Gate** : typecheck + build + test des nouvelles routes.
+**Gate** : gate canonique complet.
 **Réversibilité** : `git revert` — supprime les pages et routes. Aucun impact sur l'existant.
 
 ---
@@ -265,7 +293,7 @@ Toutes les routes nouvelles : `requireRole(ADMIN)` sauf entitlements GET → `re
 | R5 orphans dans assignments | `app/dashboard/assistante/assignments/page.tsx` | Modifier — afficher warning orphelins |
 | Documents listing | `app/dashboard/admin/documents/page.tsx` | Modifier — ajouter GET listing |
 
-**Gate** : typecheck + build.
+**Gate** : gate canonique complet.
 **Réversibilité** : `git revert`.
 
 ---
@@ -281,7 +309,7 @@ Toutes les routes nouvelles : `requireRole(ADMIN)` sauf entitlements GET → `re
 | `app/api/admin/stages/[stageId]/route.ts` | PATCH : `requireRole(ADMIN)` → `requireAnyRole(ADMIN, ASSISTANTE)`. DELETE reste `requireRole(ADMIN)`. |
 
 **Dépend de** : lot 7 (la page assistante stages doit exister pour utiliser ces routes)
-**Gate** : typecheck + test guards (vérifier que ASSISTANTE peut POST/PATCH, ne peut pas DELETE).
+**Gate** : gate canonique complet. Test spécifique guards : ASSISTANTE peut POST/PATCH, ne peut pas DELETE.
 **Réversibilité** : `git revert` — 2 lignes.
 
 ---
@@ -361,7 +389,7 @@ WHERE b.id IS NULL;
 -- Doit retourner 0
 ```
 
-**Gate** : typecheck + test:unit (double-écriture produit un Bilan valide) + build + vérification intégrité sur staging.
+**Gate** : gate canonique complet + vérification intégrité sur staging.
 **Réversibilité** : supprimer les Bilan avec `sourceVersion = 'stage_bilan_migrated_v1'` + `git revert` la double-écriture.
 
 ---
@@ -388,7 +416,7 @@ WHERE b.id IS NULL;
 
 **Le modèle StageBilan reste dans le schéma** (non supprimé). La table `stage_bilans` est conservée en lecture seule. Suppression = lot futur, après confirmation que tous les lecteurs sont migrés.
 
-**Gate** : typecheck + test:unit + test:e2e (vérifier que les bilans de stage s'affichent correctement) + build.
+**Gate** : gate canonique complet. Test e2e spécifique : bilans de stage s'affichent correctement après bascule.
 **Réversibilité** : `git revert` — les pages relisent StageBilan. Les données sont toujours dans les deux tables.
 **Critère de réussite** : `grep -r 'stageBilan' app/ lib/ --include='*.ts' --include='*.tsx' | grep -v schema | grep -v migrate | grep -v test` → 0 résultats pertinents.
 
@@ -466,7 +494,7 @@ SELECT 'NSI orphans',
 
 **Les tables `eam_progress` et `nsi_practice_progress` restent** (non supprimées). Conservation en lecture seule. Suppression = lot futur.
 
-**Gate** : typecheck + test:unit + build + vérification intégrité staging.
+**Gate** : gate canonique complet + vérification intégrité staging.
 **Réversibilité** : `git revert` la double-écriture → les routes relisent les anciennes tables. `SubjectProgress` conservé mais ignoré.
 
 ---
