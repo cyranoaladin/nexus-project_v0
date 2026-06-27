@@ -182,7 +182,7 @@ export default function OffresPage() {
           <h1 className="mt-3 text-4xl md:text-5xl font-fraunces font-light text-lux-ivory">
             Offres & tarifs
           </h1>
-          <p className="mt-3 max-w-2xl text-base text-lux-on-dark-muted font-dm-sans">
+          <p className="mt-3 text-lg leading-8 text-lux-on-dark-muted font-dm-sans">
             Tous les parcours, stages, Pass et formules. Groupes de {rules.group_max} max,
             tarifs en TND, échéanciers transparents.
           </p>
