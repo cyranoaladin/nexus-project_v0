@@ -1,0 +1,23 @@
+# Contrôle de cohérence croisé — 2026-06-27
+
+## 1. Routes 410 Gone avec mutations déclarées
+
+(fin section 1)
+
+## 2. Mutations déclarées non confirmées dans le code
+
+(fin section 2)
+
+## 3. Mutations dans le code non capturées par l'extraction
+
+(fin section 3)
+
+## 4. Décompte par seau d'autorisation
+
+- Centralized (lib/guards): 65
+- RBAC (lib/rbac enforcePolicy): 1
+- Inline auth(): 80
+- Public: 27
+- Total: 173 (doit être 173)
+
+Contrôle terminé.
