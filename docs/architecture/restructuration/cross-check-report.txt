@@ -14,10 +14,10 @@
 
 ## 4. Décompte par seau d'autorisation
 
-- Centralized (lib/guards): 65
+- Centralized (lib/guards): 67
 - RBAC (lib/rbac enforcePolicy): 1
 - Inline auth(): 80
-- Public: 27
+- Public: 25
 - Total: 173 (doit être 173)
 
 Contrôle terminé.

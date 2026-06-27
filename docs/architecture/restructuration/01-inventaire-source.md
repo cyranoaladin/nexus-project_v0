@@ -1,8 +1,8 @@
-# DOC-1 — Inventaire source (v2 — extraction déterministe)
+# DOC-1 — Inventaire source (v3 — extraction déterministe, auth corrigée)
 
 > Dénominateur = filesystem. Extraction par script, zéro paraphrase.
 > Date : 2026-06-27 | Branche : main
-> Méthode v2 : scripts déterministes (commitées dans `docs/architecture/restructuration/scripts/`)
+> Méthode v3 : scripts déterministes + classification auth exhaustive + audit routes publiques
 
 ---
 
@@ -11,6 +11,8 @@
 - [Dénominateur reproductible](#dénominateur-reproductible)
 - [(a) Schéma Prisma complet](#a-schéma-prisma-complet)
 - [(b) Surface API](#b-surface-api)
+- [(b-bis) Réalité middleware & classification auth](#b-bis-réalité-middleware--classification-auth)
+- [(b-ter) Audit des routes publiques mutantes](#b-ter-audit-des-routes-publiques-mutantes)
 - [(c) Dashboards par rôle](#c-dashboards-par-rôle)
 - [(d) Libs métier](#d-libs-métier)
 
@@ -54,9 +56,8 @@ $ find app/dashboard -name 'page.tsx' | wc -l
 - Routes 410 Gone avec mutations déclarées : **0**
 - Mutations déclarées non confirmées dans le code : **0**
 - Mutations dans le code non capturées par l'extraction : **0**
-- Classification auth : **66 centralized + 80 inline + 27 public = 173**
+- Classification auth : **67 centralized + 1 RBAC + 80 inline + 25 public = 173**
 
----
 
 ## (a) Schéma Prisma complet
 
@@ -2185,258 +2186,356 @@ $ find app/dashboard -name 'page.tsx' | wc -l
 
 
 ---
-
 ## (b) Surface API
 
-**Source** : `find app/api -name route.ts` → 173 fichiers — extrait par `scripts/extract-routes.sh`
+**Source** : `find app/api -name route.ts` → 173 fichiers — extrait par `scripts/extract-routes.sh` v2
 
-> Chaque ligne ci-dessous est le résultat d'un grep déterministe sur le fichier route.ts.
-> Gardes = expressions réelles trouvées dans le code.
-> Mutations = appels `prisma.<model>.<op>` trouvés dans le fichier route.ts.
+> Chaque ligne ci-dessous est le résultat d'un grep déterministe sur le fichier route.ts
+> (+ suivi re-exports 1 niveau pour les gardes).
+> Format : ROUTE | METHODS | AUTH_CATEGORY | GUARD_DETAIL | ROLE_CONSTRAINTS | PRISMA_MUTATIONS
 > Note : les mutations déléguées à des libs importées ne sont pas capturées par ce grep
-> (le cross-check confirme 0 écart entre grep et code pour les mutations directes).
+> (le cross-check confirme 0 écart pour les mutations directes).
 
 ### Classification par seau d'autorisation
 
 | Seau | Description | Compte |
 |------|-------------|--------|
-| CENTRALIZED | `requireRole` / `requireAnyRole` / `requireAuth` (lib/guards.ts) | **65** |
+| CENTRALIZED | `requireRole` / `requireAnyRole` / `requireAuth` (lib/guards.ts) | **67** |
 | RBAC | `enforcePolicy` (lib/rbac.ts) | **1** |
-| INLINE_AUTH | `auth()` NextAuth direct + vérification rôle manuelle | **80** |
-| PUBLIC | Pas d'authentification (justifié) | **27** |
+| INLINE_AUTH | `auth()` NextAuth direct + vérification rôle inline | **80** |
+| PUBLIC | Pas d'authentification (justifié par route — voir b-ter) | **25** |
 | **TOTAL** | | **173** |
 
 ### Listing complet (173 routes)
 
 ```
-/api/admin/activities | GET | CENTRALIZED: requireRole(UserRole.ADMIN); | none
-/api/admin/analytics | GET | CENTRALIZED: requireRole(UserRole.ADMIN); | none
-/api/admin/dashboard | GET | CENTRALIZED: requireRole(UserRole.ADMIN); | none
-/api/admin/directeur/stats | GET | INLINE_AUTH: auth() | none
-/api/admin/documents | POST | CENTRALIZED: requireAnyRole([UserRole.ADMIN, UserRole.ASSISTANTE]); | prisma.userDocument.create;
-/api/admin/invoices/[id] | PATCH | INLINE_AUTH: auth() | prisma.invoice.update;
-/api/admin/invoices/[id]/send | POST | INLINE_AUTH: auth() | prisma.invoice.update;
-/api/admin/invoices | GET,POST | INLINE_AUTH: auth() | prisma.invoice.create;prisma.invoice.update;
-/api/admin/recompute-ssn | POST | INLINE_AUTH: auth() | none
-/api/admin/stages | GET,POST | CENTRALIZED: requireAnyRole([UserRole.ADMIN, UserRole.ASSISTANTE]);requireRole(UserRole.ADMIN); | prisma.stage.create;
-/api/admin/stages/[stageId]/coaches | DELETE,GET,POST | CENTRALIZED: requireRole(UserRole.ADMIN); | prisma.stageCoach.create;prisma.stageCoach.deleteMany;
-/api/admin/stages/[stageId] | DELETE,GET,PATCH | CENTRALIZED: requireRole(UserRole.ADMIN); | prisma.stage.update;
-/api/admin/stages/[stageId]/sessions | GET,POST | CENTRALIZED: requireAnyRole([UserRole.ADMIN, UserRole.ASSISTANTE]); | prisma.stageSession.create;
-/api/admin/stages/[stageId]/sessions/[sessionId] | DELETE,PATCH | CENTRALIZED: requireAnyRole([UserRole.ADMIN, UserRole.ASSISTANTE]); | prisma.stageSession.delete;prisma.stageSession.update;
-/api/admin/subscriptions | GET,PUT | CENTRALIZED: requireRole(UserRole.ADMIN); | prisma.subscription.update;
-/api/admin/test-email | GET,POST | INLINE_AUTH: auth() | none
-/api/admin/users | DELETE,GET,PATCH,POST | CENTRALIZED: requireRole(UserRole.ADMIN); | prisma.student.upsert;prisma.user.create;prisma.user.delete;prisma.user.update;
-/api/admin/users/search | GET | CENTRALIZED: requireAnyRole([UserRole.ADMIN]); | none
-docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
-0 : nombre entier attendu comme expression
-/api/analytics/event | POST | PUBLIC | none
-/api/aria/chat | POST | INLINE_AUTH: auth() + roles: role !== 'ELEVE'; | none
-/api/aria/conversations | GET | INLINE_AUTH: auth() + roles: role !== 'ELEVE'; | none
-/api/aria/feedback | POST | INLINE_AUTH: auth() + roles: role !== 'ELEVE'; | none
-/api/assessments/[id]/export | GET | INLINE_AUTH: auth() | none
-/api/assessments/[id]/result | GET | INLINE_AUTH: auth() | none
-/api/assessments/[id]/status | GET | INLINE_AUTH: auth() | none
-/api/assessments/predict | POST | INLINE_AUTH: auth() + roles: role === 'COACH';role === 'PARENT'; | none
-docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
-0 : nombre entier attendu comme expression
-/api/assessments/submit | POST | PUBLIC | prisma.assessment.create;prisma.assessment.update;prisma.domainScore.createMany;
-/api/assessments/test | GET | INLINE_AUTH: auth() + roles: role !== 'ADMIN'; | none
-/api/assistante/activate-student | POST | INLINE_AUTH: auth() | none
-/api/assistante/assignments/[id] | GET,PATCH | CENTRALIZED: requireAnyRole(['ADMIN', 'ASSISTANTE']); | prisma.coachStudentAssignment.update;
-/api/assistante/assignments | GET,POST | CENTRALIZED: requireAnyRole(['ADMIN', 'ASSISTANTE']); | prisma.coachStudentAssignment.create;
-/api/assistante/coaches/manage/[id] | DELETE,PUT | INLINE_AUTH: auth() | none
-/api/assistante/coaches/manage | GET,POST | INLINE_AUTH: auth() | none
-/api/assistante/coaches | GET | CENTRALIZED: requireAnyRole(['ADMIN', 'ASSISTANTE']); | none
-/api/assistante/credit-requests | GET,POST | INLINE_AUTH: auth() | prisma.creditTransaction.update;
-/api/assistante/dashboard | GET | INLINE_AUTH: auth() | none
-/api/assistante/planning | GET | CENTRALIZED: requireAnyRole(['ADMIN', 'ASSISTANTE']); | none
-/api/assistante/quotes/pdf | POST | CENTRALIZED: requireAnyRole([UserRole.ADMIN, UserRole.ASSISTANTE]); | none
-/api/assistante/sessions | POST | CENTRALIZED: requireAnyRole(['ADMIN', 'ASSISTANTE']); | none
-/api/assistante/stages | GET | CENTRALIZED: requireAnyRole(['ADMIN', 'ASSISTANTE']); | none
-/api/assistante/students/credits | GET,POST | INLINE_AUTH: auth() | prisma.creditTransaction.create;
-/api/assistante/students | GET,POST | CENTRALIZED: requireAnyRole(['ADMIN', 'ASSISTANTE']); | prisma.user.update;
-/api/assistante/students/[studentId]/documents | GET,POST | CENTRALIZED: requireAnyRole(['ADMIN', 'ASSISTANTE']); | prisma.userDocument.create;
-/api/assistante/students/[studentId] | GET | CENTRALIZED: requireAnyRole(['ADMIN', 'ASSISTANTE']); | none
-/api/assistante/subscription-requests | GET,PATCH | INLINE_AUTH: auth() | none
-/api/assistante/subscriptions | GET,POST | INLINE_AUTH: auth() | none
-docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
-0 : nombre entier attendu comme expression
-/api/auth/[...nextauth] | NONE | PUBLIC | none
-docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
-0 : nombre entier attendu comme expression
-/api/auth/resend-activation | POST | PUBLIC | prisma.user.update;
-docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
-0 : nombre entier attendu comme expression
-/api/auth/reset-password | POST | PUBLIC | prisma.user.update;
-/api/bilan-gratuit/dismiss | POST | INLINE_AUTH: auth() + roles: role !== 'PARENT'; | prisma.parentProfile.update;
-docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
-0 : nombre entier attendu comme expression
-/api/bilan-gratuit | POST | PUBLIC | none
-/api/bilan-gratuit/status | GET | INLINE_AUTH: auth() | none
-docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
-0 : nombre entier attendu comme expression
-/api/bilan-pallier2-maths/retry | POST | PUBLIC | prisma.diagnostic.update;
-/api/bilan-pallier2-maths | GET,POST | CENTRALIZED: requireAnyRole(['ADMIN', 'ASSISTANTE', 'COACH'] as unknown as Parameters<typeof requireAnyRole>[0]); | prisma.diagnostic.create;prisma.diagnostic.update;
-/api/bilans/generate | GET,POST | CENTRALIZED: requireAnyRole(['ADMIN', 'ASSISTANTE', 'COACH']); | prisma.bilan.update;
-/api/bilans/[id]/export | GET,POST | CENTRALIZED: requireAnyRole(['ADMIN', 'ASSISTANTE', 'COACH']);requireAnyRole(['ADMIN', 'ASSISTANTE', 'COACH', 'ELEVE', 'PARENT']); | none
-/api/bilans/[id] | DELETE,GET,PUT | CENTRALIZED: requireAnyRole(['ADMIN']);requireAnyRole(['ADMIN', 'ASSISTANTE', 'COACH']);requireAnyRole(['ADMIN', 'ASSISTANTE', 'COACH', 'ELEVE', 'PARENT']); | prisma.bilan.delete;prisma.bilan.update;
-/api/bilans | GET,POST | CENTRALIZED: requireAnyRole(['ADMIN', 'ASSISTANTE', 'COACH']); | prisma.bilan.create;
-/api/coach/dashboard | GET | INLINE_AUTH: auth() + roles: role !== 'COACH'; | none
-/api/coach/eaf-stage-printemps/students | GET | CENTRALIZED: requireRole('COACH'); | none
-/api/coach/eaf-stage-printemps/students/[studentId]/report/regenerate | POST | CENTRALIZED: requireRole('COACH'); | prisma.bilan.update;
-/api/coach/eaf-stage-printemps/students/[studentId]/report | GET,PATCH,POST | CENTRALIZED: requireRole('COACH'); | prisma.bilan.create;prisma.bilan.update;
-/api/coaches/availability | DELETE,GET,POST | INLINE_AUTH: auth() + roles: role !== 'COACH';role === 'COACH'; | prisma.coachAvailability.createMany;prisma.coachAvailability.delete;prisma.coachAvailability.deleteMany;
-/api/coaches/available | GET | INLINE_AUTH: auth() + roles: role !== 'ELEVE';role !== 'PARENT'; | none
-/api/coach/maths-premiere-stage-printemps/students | GET | CENTRALIZED: requireRole('COACH'); | none
-/api/coach/maths-premiere-stage-printemps/students/[studentId]/regenerate-parent | POST | CENTRALIZED: requireRole('COACH'); | none
-/api/coach/maths-premiere-stage-printemps/students/[studentId]/regenerate-student | POST | CENTRALIZED: requireRole('COACH'); | prisma.bilan.update;
-/api/coach/maths-premiere-stage-printemps/students/[studentId]/report | GET,PATCH,POST | CENTRALIZED: requireRole('COACH'); | prisma.bilan.create;prisma.bilan.update;
-/api/coach/nsi-pratique-2026/students | GET | CENTRALIZED: requireAnyRole(['COACH', 'ADMIN']); | none
-/api/coach/nsi-pratique-2026/students/[studentId]/progress | GET | CENTRALIZED: requireAnyRole(['COACH', 'ADMIN']); | none
-/api/coach/sessions/[sessionId]/report | GET,POST | INLINE_AUTH: auth() + roles: role !== 'ADMIN';role !== 'ASSISTANTE';role !== 'COACH'; | none
-/api/coach/stages | GET | CENTRALIZED: requireRole('COACH'); | none
-/api/coach/students/eam-summary | GET | INLINE_AUTH: auth() + roles: role !== "COACH"; | none
-/api/coach/students | GET | CENTRALIZED: requireRole(UserRole.COACH); | none
-/api/coach/students/[studentId]/bilan-diagnostic-maths-terminale | GET,PATCH | CENTRALIZED: requireRole('COACH'); | prisma.bilan.update;
-/api/coach/students/[studentId]/documents | GET,POST | CENTRALIZED: requireRole('COACH'); | prisma.userDocument.create;
-/api/coach/students/[studentId]/dossier | GET | INLINE_AUTH: auth() + roles: role !== 'ADMIN';role !== 'COACH';role === 'COACH'; | none
-/api/coach/students/[studentId]/eaf-preparation-report | GET,PUT | CENTRALIZED: requireRole('COACH'); | prisma.eafPreparationReport.upsert;
-/api/coach/students/[studentId]/eaf-preparation-report/validate | POST | CENTRALIZED: requireRole('COACH'); | prisma.eafPreparationReport.update;
-/api/coach/students/[studentId]/generated-reports/[reportId]/download | GET | CENTRALIZED: requireRole('COACH'); | none
-docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
-0 : nombre entier attendu comme expression
-/api/coach/students/[studentId]/generated-reports/[reportId]/generate | POST | PUBLIC | none
-/api/coach/students/[studentId]/generated-reports/[reportId]/regenerate | POST | CENTRALIZED: requireRole('COACH'); | none
-/api/coach/students/[studentId]/generated-reports | GET,POST | CENTRALIZED: requireRole('COACH'); | none
-/api/coach/students/[studentId]/notes | GET,POST | INLINE_AUTH: auth() + roles: role !== 'ADMIN';role !== 'COACH';role === 'COACH'; | prisma.coachNote.create;
-/api/coach/students/[studentId] | GET | CENTRALIZED: requireRole(UserRole.COACH); | none
-/api/coach/students/[studentId]/survival-mode | POST | INLINE_AUTH: auth() + roles: role === 'COACH'; | prisma.coachNote.create;prisma.student.update;
-/api/coach/trajectory | POST | INLINE_AUTH: auth() + roles: role !== "ADMIN";role !== "COACH"; | prisma.trajectory.create;prisma.trajectory.updateMany;
-docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
-0 : nombre entier attendu comme expression
-/api/contact | POST | PUBLIC | none
-docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
-0 : nombre entier attendu comme expression
-/api/diagnostics/definitions | GET | PUBLIC | none
-/api/documents/[id] | GET | INLINE_AUTH: auth(); UserRole.ADMIN;UserRole.ASSISTANTE; | none
-/api/eam/progress | GET,POST | INLINE_AUTH: auth() + roles: role !== "ELEVE"; | none
-/api/eleve/bilan-diagnostic-maths-terminale | GET,POST | CENTRALIZED: requireRole('ELEVE'); | prisma.bilan.create;prisma.bilan.update;
-/api/eleve/nsi-pratique-2026/progress | GET,PUT | CENTRALIZED: requireRole('ELEVE'); | prisma.nsiPracticeProgress.upsert;
-/api/eleve/questionnaire-eaf-stage-printemps | GET,POST | CENTRALIZED: requireRole('ELEVE'); | prisma.bilan.create;prisma.bilan.update;
-/api/eleve/questionnaire-maths-premiere-stage-printemps | GET,POST | CENTRALIZED: requireRole('ELEVE'); | prisma.bilan.create;prisma.bilan.update;
-/api/eleve/stages | GET | CENTRALIZED: requireRole('ELEVE'); | none
-docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
-0 : nombre entier attendu comme expression
-/api/health | GET | PUBLIC | none
-/api/internal/health | GET | RBAC: enforcePolicy('admin.dashboard'); | none
-/api/invoices/[id]/pdf | GET | INLINE_AUTH: auth() | none
-/api/invoices/[id]/receipt/pdf | GET | INLINE_AUTH: auth() | prisma.invoice.update;
-docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
-0 : nombre entier attendu comme expression
-/api/lamis/attempt | POST | PUBLIC | none
-docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
-0 : nombre entier attendu comme expression
-/api/lamis/exercises | GET | PUBLIC | none
-docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
-0 : nombre entier attendu comme expression
-/api/lamis/export | GET,POST | PUBLIC | none
-docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
-0 : nombre entier attendu comme expression
-/api/lamis/progress | GET,POST | PUBLIC | none
-docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
-0 : nombre entier attendu comme expression
-/api/lamis/teacher-report | GET,POST | PUBLIC | none
-/api/me/next-step | GET | INLINE_AUTH: auth() | none
-/api/messages/conversations | GET | INLINE_AUTH: auth() | none
-/api/messages/send | POST | INLINE_AUTH: auth() | prisma.message.create;
-docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
-0 : nombre entier attendu comme expression
-/api/newsletter | POST | PUBLIC | none
-/api/notifications | GET,PATCH | INLINE_AUTH: auth() | prisma.notification.update;prisma.notification.updateMany;
-docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
-0 : nombre entier attendu comme expression
-/api/notify/email | POST | PUBLIC | none
-/api/npc/files/[...path] | GET | INLINE_AUTH: auth() | none
-/api/npc/submissions | GET,POST | INLINE_AUTH: auth() + roles: role === 'COACH';role === 'ELEVE';role === 'PARENT'; | prisma.copySubmission.create;prisma.npcAuditLog.create;
-/api/npc/submissions/[submissionId]/documents/[documentId] | DELETE,PATCH | INLINE_AUTH: auth() | prisma.copyPage.delete;prisma.copyPage.update;prisma.copySubmission.update;prisma.npcAuditLog.create;
-/api/npc/submissions/[submissionId]/documents | GET,POST | INLINE_AUTH: auth() | prisma.aiProcessingJob.create;prisma.copyPage.create;prisma.copySubmission.update;prisma.npcAuditLog.create;
-/api/npc/submissions/[submissionId]/generate | POST | INLINE_AUTH: auth() | prisma.aiProcessingJob.create;prisma.copySubmission.update;prisma.npcAuditLog.create;
-/api/npc/uploads | POST | INLINE_AUTH: auth() + roles: role === UserRole;; UserRole.COACH;UserRole.ELEVE;UserRole.PARENT; | prisma.copyPage.create;prisma.copySubmission.create;prisma.copySubmission.delete;prisma.copySubmission.update;
-/api/parent/bilans/[id]/pdf | GET | CENTRALIZED: requireRole('PARENT'); | none
-/api/parent/children | GET,POST | INLINE_AUTH: auth() + roles: role !== 'PARENT'; | none
-/api/parent/credit-request | POST | INLINE_AUTH: auth() + roles: role !== 'PARENT'; | prisma.creditTransaction.create;
-/api/parent/dashboard | GET | INLINE_AUTH: auth() + roles: role !== 'PARENT'; | none
-/api/parent/stages | GET | CENTRALIZED: requireRole('PARENT'); | none
-/api/parent/subscription-requests | GET,POST | INLINE_AUTH: auth() + roles: role !== 'PARENT'; | prisma.notification.create;prisma.subscriptionRequest.create;
-/api/parent/subscriptions | GET,POST | INLINE_AUTH: auth() + roles: role !== 'PARENT'; | prisma.notification.create;prisma.subscriptionRequest.create;
-/api/payments/bank-transfer/confirm | POST | INLINE_AUTH: auth() + roles: role !== 'PARENT'; | prisma.notification.createMany;prisma.payment.create;
-/api/payments/check-pending | GET | INLINE_AUTH: auth() + roles: role !== 'PARENT'; | none
-/api/payments/clictopay/init | POST | INLINE_AUTH: auth() | none
-docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
-0 : nombre entier attendu comme expression
-/api/payments/clictopay/webhook | POST | PUBLIC | none
-/api/payments/pending | GET | INLINE_AUTH: auth() | none
-/api/payments/validate | POST | INLINE_AUTH: auth() | prisma.invoice.update;prisma.payment.update;prisma.userDocument.create;
-/api/programme/maths-1ere/progress | GET,POST | INLINE_AUTH: auth() | prisma.mathsProgress.upsert;
-/api/programme/maths-1ere/rag | POST | INLINE_AUTH: auth() | none
-/api/programme/maths-1ere-stmg/progress | GET,POST | INLINE_AUTH: auth() | prisma.mathsProgress.upsert;
-/api/programme/maths-1ere-stmg/rag | POST | INLINE_AUTH: auth() | none
-/api/programme/maths-1ere-stmg/stage-progress | GET,POST | INLINE_AUTH: auth() | none
-/api/programme/maths-terminale/progress | GET,POST | INLINE_AUTH: auth() | prisma.mathsProgress.upsert;
-docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
-0 : nombre entier attendu comme expression
-/api/public-documents/corrige-dnb-maths-2026 | GET | PUBLIC | none
-/api/reservation | GET,PATCH,POST | INLINE_AUTH: auth() | prisma.stageReservation.create;prisma.stageReservation.update;prisma.stageReservation.updateMany;
-docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
-0 : nombre entier attendu comme expression
-/api/reservation/verify | POST | PUBLIC | none
-/api/sessions/book | POST | CENTRALIZED: requireAnyRole([UserRole.PARENT, UserRole.ELEVE]); | prisma.sessionNotification.createMany;prisma.sessionReminder.createMany;
-/api/sessions/cancel | POST | CENTRALIZED: requireAnyRole([UserRole.ELEVE, UserRole.COACH, UserRole.ASSISTANTE]); | prisma.sessionBooking.update;
-/api/sessions/video | POST | INLINE_AUTH: auth() + roles: role === 'COACH'; | prisma.sessionBooking.update;
-docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
-0 : nombre entier attendu comme expression
-/api/stages | GET | PUBLIC | none
-/api/stages/[stageSlug]/bilans | GET,POST | CENTRALIZED: requireAnyRole(['ADMIN', 'ASSISTANTE', 'COACH']);requireAnyRole(['COACH', 'ADMIN', 'ASSISTANTE']); | prisma.stageBilan.upsert;
-docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
-0 : nombre entier attendu comme expression
-/api/stages/[stageSlug]/inscrire | POST | PUBLIC | prisma.stageReservation.create;
-/api/stages/[stageSlug]/reservations/[reservationId]/confirm | POST | CENTRALIZED: requireAnyRole(['ADMIN', 'ASSISTANTE']); | prisma.stageReservation.update;prisma.student.create;prisma.user.create;
-/api/stages/[stageSlug]/reservations | GET | CENTRALIZED: requireAnyRole(['ADMIN', 'ASSISTANTE']); | none
-docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
-0 : nombre entier attendu comme expression
-/api/stages/[stageSlug] | GET | PUBLIC | none
-docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
-0 : nombre entier attendu comme expression
-/api/student/activate | GET,POST | PUBLIC | none
-/api/student/automatismes/attempts/[id] | GET | INLINE_AUTH: auth() + roles: role !== "ELEVE"; | none
-/api/student/automatismes/attempts | GET,POST | INLINE_AUTH: auth() + roles: role !== "ELEVE"; | prisma.assessment.create;
-/api/student/automatismes/check-answer | POST | INLINE_AUTH: auth() + roles: role !== "ELEVE"; | none
-/api/student/automatismes/series/[id] | GET | INLINE_AUTH: auth() + roles: role !== "ELEVE"; | none
-/api/student/automatismes/series | GET | INLINE_AUTH: auth() + roles: role !== "ELEVE"; | none
-/api/student/bilans/[publicShareId] | GET | CENTRALIZED: requireRole('ELEVE'); | none
-/api/student/credits | GET | CENTRALIZED: requireRole(UserRole.ELEVE); | none
-/api/student/dashboard | GET | CENTRALIZED: requireRole(UserRole.ELEVE); | none
-/api/student/documents/[id]/download | GET | CENTRALIZED: requireRole(UserRole.ELEVE); | none
-/api/student/documents | GET | INLINE_AUTH: auth() + roles: role !== 'ELEVE'; | none
-/api/student/nexus-index | GET | INLINE_AUTH: auth() + roles: role === 'PARENT'; | none
-/api/student/resources/official/[slug] | GET | CENTRALIZED: requireRole(UserRole.ELEVE); | none
-/api/student/resources | GET | INLINE_AUTH: auth() + roles: role !== 'ELEVE'; | none
-/api/student/sessions | GET | CENTRALIZED: requireRole(UserRole.ELEVE); | none
-/api/students/[studentId]/badges | GET | INLINE_AUTH: auth() + roles: role !== 'ELEVE'; | none
-/api/student/stages | GET | CENTRALIZED: requireRole('ELEVE'); | none
-/api/student/survival/phrases/[phraseId]/copied | POST | INLINE_AUTH: auth() + roles: role !== 'ELEVE'; | prisma.survivalProgress.upsert;
-/api/student/survival/progress | GET,POST | INLINE_AUTH: auth() + roles: role !== 'ELEVE'; | prisma.survivalProgress.create;prisma.survivalProgress.upsert;
-/api/student/survival/qcm/attempt | POST | INLINE_AUTH: auth() + roles: role !== 'ELEVE'; | prisma.survivalAttempt.create;prisma.survivalProgress.upsert;
-/api/student/survival/reflexes/[reflexId]/attempt | POST | INLINE_AUTH: auth() + roles: role !== 'ELEVE'; | prisma.survivalAttempt.create;prisma.survivalProgress.upsert;
-/api/student/survival/ritual | GET | INLINE_AUTH: auth() + roles: role !== 'ELEVE'; | none
-/api/student/trajectory | GET | INLINE_AUTH: auth() + roles: role === 'PARENT'; | none
-docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
-0 : nombre entier attendu comme expression
-/api/subscriptions/aria-addon | POST | PUBLIC | none
-docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
-0 : nombre entier attendu comme expression
-/api/subscriptions/change | POST | PUBLIC | none
+/api/admin/activities | GET | CENTRALIZED | requireRole(UserRole.ADMIN); | UserRole.ADMIN; | none
+/api/admin/analytics | GET | CENTRALIZED | requireRole(UserRole.ADMIN); | UserRole.ADMIN; | none
+/api/admin/dashboard | GET | CENTRALIZED | requireRole(UserRole.ADMIN); | UserRole.ADMIN; | none
+/api/admin/directeur/stats | GET | INLINE_AUTH | auth() | userRole !== 'ADMIN'; | none
+/api/admin/documents | POST | CENTRALIZED | requireAnyRole([UserRole.ADMIN, UserRole.ASSISTANTE]); | UserRole.ADMIN;UserRole.ASSISTANTE; | prisma.userDocument.create;
+/api/admin/invoices/[id] | PATCH | INLINE_AUTH | auth() | canPerformStatusAction(userRole); | prisma.invoice.update;
+/api/admin/invoices/[id]/send | POST | INLINE_AUTH | auth() | canPerformStatusAction(role); | prisma.invoice.update;
+/api/admin/invoices | GET,POST | INLINE_AUTH | auth() | userRole !== 'ADMIN';userRole !== 'ASSISTANTE'; | prisma.invoice.create;prisma.invoice.update;
+/api/admin/recompute-ssn | POST | INLINE_AUTH | auth() | userRole !== 'ADMIN'; | none
+/api/admin/stages | GET,POST | CENTRALIZED | requireAnyRole([UserRole.ADMIN, UserRole.ASSISTANTE]);requireRole(UserRole.ADMIN); | UserRole.ADMIN;UserRole.ASSISTANTE; | prisma.stage.create;
+/api/admin/stages/[stageId]/coaches | DELETE,GET,POST | CENTRALIZED | requireRole(UserRole.ADMIN); | UserRole.ADMIN; | prisma.stageCoach.create;prisma.stageCoach.deleteMany;
+/api/admin/stages/[stageId] | DELETE,GET,PATCH | CENTRALIZED | requireRole(UserRole.ADMIN); | UserRole.ADMIN; | prisma.stage.update;
+/api/admin/stages/[stageId]/sessions | GET,POST | CENTRALIZED | requireAnyRole([UserRole.ADMIN, UserRole.ASSISTANTE]); | UserRole.ADMIN;UserRole.ASSISTANTE; | prisma.stageSession.create;
+/api/admin/stages/[stageId]/sessions/[sessionId] | DELETE,PATCH | CENTRALIZED | requireAnyRole([UserRole.ADMIN, UserRole.ASSISTANTE]); | UserRole.ADMIN;UserRole.ASSISTANTE; | prisma.stageSession.delete;prisma.stageSession.update;
+/api/admin/subscriptions | GET,PUT | CENTRALIZED | requireRole(UserRole.ADMIN); | UserRole.ADMIN; | prisma.subscription.update;
+/api/admin/test-email | GET,POST | INLINE_AUTH | auth() | ['ADMIN', 'ASSISTANTE'].includes; | none
+/api/admin/users | DELETE,GET,PATCH,POST | CENTRALIZED | requireRole(UserRole.ADMIN); | UserRole.ADMIN;UserRole.ELEVE;; role !== 'ALL';role === 'COACH';role === 'ELEVE'; | prisma.student.upsert;prisma.user.create;prisma.user.delete;prisma.user.update;
+/api/admin/users/search | GET | CENTRALIZED | requireAnyRole([UserRole.ADMIN]); | UserRole.ADMIN;UserRole.ELEVE;UserRole.PARENT; | none
+/api/analytics/event | POST | PUBLIC | none | none | none
+/api/aria/chat | POST | INLINE_AUTH | auth() | session.user.role !== 'ELEVE';; user.role !== 'ELEVE';; role !== 'ELEVE'; | none
+/api/aria/conversations | GET | INLINE_AUTH | auth() | session.user.role !== 'ELEVE';; user.role !== 'ELEVE';; role !== 'ELEVE'; | none
+/api/aria/feedback | POST | INLINE_AUTH | auth() | session.user.role !== 'ELEVE';; user.role !== 'ELEVE';; role !== 'ELEVE'; | none
+/api/assessments/[id]/export | GET | INLINE_AUTH | auth() | none | none
+/api/assessments/[id]/result | GET | INLINE_AUTH | auth() | none | none
+/api/assessments/[id]/status | GET | INLINE_AUTH | auth() | none | none
+/api/assessments/predict | POST | INLINE_AUTH | auth() | session.user.role === 'COACH';session.user.role === 'PARENT';; user.role === 'COACH';user.role === 'PARENT';; role === 'COACH';role === 'PARENT'; | none
+/api/assessments/submit | POST | PUBLIC | none | none | prisma.assessment.create;prisma.assessment.update;prisma.domainScore.createMany;
+/api/assessments/test | GET | INLINE_AUTH | auth() | session.user.role !== 'ADMIN';; user.role !== 'ADMIN';; role !== 'ADMIN'; | none
+/api/assistante/activate-student | POST | INLINE_AUTH | auth() | none | none
+/api/assistante/assignments/[id] | GET,PATCH | CENTRALIZED | requireAnyRole(['ADMIN', 'ASSISTANTE']); | none | prisma.coachStudentAssignment.update;
+/api/assistante/assignments | GET,POST | CENTRALIZED | requireAnyRole(['ADMIN', 'ASSISTANTE']); | none | prisma.coachStudentAssignment.create;
+/api/assistante/coaches/manage/[id] | DELETE,PUT | INLINE_AUTH | auth() | ['ADMIN', 'ASSISTANTE'].includes; | none
+/api/assistante/coaches/manage | GET,POST | INLINE_AUTH | auth() | ['ADMIN', 'ASSISTANTE'].includes; | none
+/api/assistante/coaches | GET | CENTRALIZED | requireAnyRole(['ADMIN', 'ASSISTANTE']); | none | none
+/api/assistante/credit-requests | GET,POST | INLINE_AUTH | auth() | ['ADMIN', 'ASSISTANTE'].includes; | prisma.creditTransaction.update;
+/api/assistante/dashboard | GET | INLINE_AUTH | auth() | ['ADMIN', 'ASSISTANTE'].includes; | none
+/api/assistante/planning | GET | CENTRALIZED | requireAnyRole(['ADMIN', 'ASSISTANTE']); | none | none
+/api/assistante/quotes/pdf | POST | CENTRALIZED | requireAnyRole([UserRole.ADMIN, UserRole.ASSISTANTE]); | UserRole.ADMIN;UserRole.ASSISTANTE; | none
+/api/assistante/sessions | POST | CENTRALIZED | requireAnyRole(['ADMIN', 'ASSISTANTE']); | role !== 'COACH';role !== 'ELEVE'; | none
+/api/assistante/stages | GET | CENTRALIZED | requireAnyRole(['ADMIN', 'ASSISTANTE']); | none | none
+/api/assistante/students/credits | GET,POST | INLINE_AUTH | auth() | ['ADMIN', 'ASSISTANTE'].includes; | prisma.creditTransaction.create;
+/api/assistante/students | GET,POST | CENTRALIZED | requireAnyRole(['ADMIN', 'ASSISTANTE']); | role !== 'PARENT'; | prisma.user.update;
+/api/assistante/students/[studentId]/documents | GET,POST | CENTRALIZED | requireAnyRole(['ADMIN', 'ASSISTANTE']); | none | prisma.userDocument.create;
+/api/assistante/students/[studentId] | GET | CENTRALIZED | requireAnyRole(['ADMIN', 'ASSISTANTE']); | none | none
+/api/assistante/subscription-requests | GET,PATCH | INLINE_AUTH | auth() | ['ADMIN', 'ASSISTANTE'].includes; | none
+/api/assistante/subscriptions | GET,POST | INLINE_AUTH | auth() | ['ADMIN', 'ASSISTANTE'].includes; | none
+/api/auth/[...nextauth] | NONE | PUBLIC | none | none | none
+/api/auth/resend-activation | POST | PUBLIC | none | none | prisma.user.update;
+/api/auth/reset-password | POST | PUBLIC | none | none | prisma.user.update;
+/api/bilan-gratuit/dismiss | POST | INLINE_AUTH | auth() | session.user.role !== 'PARENT';; user.role !== 'PARENT';; role !== 'PARENT'; | prisma.parentProfile.update;
+/api/bilan-gratuit | POST | PUBLIC | none | UserRole.ELEVE;UserRole.PARENT; | none
+/api/bilan-gratuit/status | GET | INLINE_AUTH | auth() | none | none
+/api/bilan-pallier2-maths/retry | POST | CENTRALIZED | await requireAnyRole(; | none | prisma.diagnostic.update;
+/api/bilan-pallier2-maths | GET,POST | CENTRALIZED | requireAnyRole(['ADMIN', 'ASSISTANTE', 'COACH'] as unknown as Parameters<typeof requireAnyRole>[0]); | none | prisma.diagnostic.create;prisma.diagnostic.update;
+/api/bilans/generate | GET,POST | CENTRALIZED | requireAnyRole(['ADMIN', 'ASSISTANTE', 'COACH']); | none | prisma.bilan.update;
+/api/bilans/[id]/export | GET,POST | CENTRALIZED | requireAnyRole(['ADMIN', 'ASSISTANTE', 'COACH']);requireAnyRole(['ADMIN', 'ASSISTANTE', 'COACH', 'ELEVE', 'PARENT']); | user.role === 'PARENT';; role === 'PARENT'; | none
+/api/bilans/[id] | DELETE,GET,PUT | CENTRALIZED | requireAnyRole(['ADMIN']);requireAnyRole(['ADMIN', 'ASSISTANTE', 'COACH']);requireAnyRole(['ADMIN', 'ASSISTANTE', 'COACH', 'ELEVE', 'PARENT']); | none | prisma.bilan.delete;prisma.bilan.update;
+/api/bilans | GET,POST | CENTRALIZED | requireAnyRole(['ADMIN', 'ASSISTANTE', 'COACH']); | userRole === 'COACH'; | prisma.bilan.create;
+/api/coach/dashboard | GET | INLINE_AUTH | auth() | session.user.role !== 'COACH';; user.role !== 'COACH';; role !== 'COACH'; | none
+/api/coach/eaf-stage-printemps/students | GET | CENTRALIZED | requireRole('COACH'); | none | none
+/api/coach/eaf-stage-printemps/students/[studentId]/report/regenerate | POST | CENTRALIZED | requireRole('COACH'); | none | prisma.bilan.update;
+/api/coach/eaf-stage-printemps/students/[studentId]/report | GET,PATCH,POST | CENTRALIZED | requireRole('COACH'); | none | prisma.bilan.create;prisma.bilan.update;
+/api/coaches/availability | DELETE,GET,POST | INLINE_AUTH | auth() | session.user.role !== 'COACH';session.user.role === 'COACH';; user.role !== 'COACH';user.role === 'COACH';; role !== 'COACH';role === 'COACH'; | prisma.coachAvailability.createMany;prisma.coachAvailability.delete;prisma.coachAvailability.deleteMany;
+/api/coaches/available | GET | INLINE_AUTH | auth() | session.user.role !== 'ELEVE';session.user.role !== 'PARENT';; user.role !== 'ELEVE';user.role !== 'PARENT';; role !== 'ELEVE';role !== 'PARENT'; | none
+/api/coach/maths-premiere-stage-printemps/students | GET | CENTRALIZED | requireRole('COACH'); | none | none
+/api/coach/maths-premiere-stage-printemps/students/[studentId]/regenerate-parent | POST | CENTRALIZED | requireRole('COACH'); | none | none
+/api/coach/maths-premiere-stage-printemps/students/[studentId]/regenerate-student | POST | CENTRALIZED | requireRole('COACH'); | none | prisma.bilan.update;
+/api/coach/maths-premiere-stage-printemps/students/[studentId]/report | GET,PATCH,POST | CENTRALIZED | requireRole('COACH'); | none | prisma.bilan.create;prisma.bilan.update;
+/api/coach/nsi-pratique-2026/students | GET | CENTRALIZED | requireAnyRole(['COACH', 'ADMIN']); | none | none
+/api/coach/nsi-pratique-2026/students/[studentId]/progress | GET | CENTRALIZED | requireAnyRole(['COACH', 'ADMIN']); | none | none
+/api/coach/sessions/[sessionId]/report | GET,POST | INLINE_AUTH | auth() | session.user.role !== 'ADMIN';session.user.role !== 'ASSISTANTE';session.user.role !== 'COACH';; user.role !== 'ADMIN';user.role !== 'ASSISTANTE';user.role !== 'COACH';; role !== 'ADMIN';role !== 'ASSISTANTE';role !== 'COACH'; | none
+/api/coach/stages | GET | CENTRALIZED | requireRole('COACH'); | none | none
+/api/coach/students/eam-summary | GET | INLINE_AUTH | auth() | session.user.role !== "COACH";; user.role !== "COACH";; role !== "COACH"; | none
+/api/coach/students | GET | CENTRALIZED | requireRole(UserRole.COACH); | UserRole.COACH; | none
+/api/coach/students/[studentId]/bilan-diagnostic-maths-terminale | GET,PATCH | CENTRALIZED | requireRole('COACH'); | none | prisma.bilan.update;
+/api/coach/students/[studentId]/documents | GET,POST | CENTRALIZED | requireRole('COACH'); | none | prisma.userDocument.create;
+/api/coach/students/[studentId]/dossier | GET | INLINE_AUTH | auth() | role !== 'ADMIN';role !== 'COACH';role === 'COACH'; | none
+/api/coach/students/[studentId]/eaf-preparation-report | GET,PUT | CENTRALIZED | requireRole('COACH'); | none | prisma.eafPreparationReport.upsert;
+/api/coach/students/[studentId]/eaf-preparation-report/validate | POST | CENTRALIZED | requireRole('COACH'); | none | prisma.eafPreparationReport.update;
+/api/coach/students/[studentId]/generated-reports/[reportId]/download | GET | CENTRALIZED | requireRole('COACH'); | none | none
+/api/coach/students/[studentId]/generated-reports/[reportId]/generate | POST | CENTRALIZED | requireRole('COACH'); | none | none
+/api/coach/students/[studentId]/generated-reports/[reportId]/regenerate | POST | CENTRALIZED | requireRole('COACH'); | none | none
+/api/coach/students/[studentId]/generated-reports | GET,POST | CENTRALIZED | requireRole('COACH'); | none | none
+/api/coach/students/[studentId]/notes | GET,POST | INLINE_AUTH | auth() | session.user.role !== 'COACH';; user.role !== 'COACH';; role !== 'ADMIN';role !== 'COACH';role === 'COACH'; | prisma.coachNote.create;
+/api/coach/students/[studentId] | GET | CENTRALIZED | requireRole(UserRole.COACH); | UserRole.COACH; | none
+/api/coach/students/[studentId]/survival-mode | POST | INLINE_AUTH | auth() | role === 'COACH'; | prisma.coachNote.create;prisma.student.update;
+/api/coach/trajectory | POST | INLINE_AUTH | auth() | session.user.role !== "ADMIN";session.user.role !== "COACH";; user.role !== "ADMIN";user.role !== "COACH";; role !== "ADMIN";role !== "COACH"; | prisma.trajectory.create;prisma.trajectory.updateMany;
+/api/contact | POST | PUBLIC | none | none | none
+/api/diagnostics/definitions | GET | PUBLIC | none | none | none
+/api/documents/[id] | GET | INLINE_AUTH | auth() | UserRole.ADMIN;UserRole.ASSISTANTE; | none
+/api/eam/progress | GET,POST | INLINE_AUTH | auth() | user.role !== "ELEVE";; role !== "ELEVE"; | none
+/api/eleve/bilan-diagnostic-maths-terminale | GET,POST | CENTRALIZED | requireRole('ELEVE'); | none | prisma.bilan.create;prisma.bilan.update;
+/api/eleve/nsi-pratique-2026/progress | GET,PUT | CENTRALIZED | requireRole('ELEVE'); | none | prisma.nsiPracticeProgress.upsert;
+/api/eleve/questionnaire-eaf-stage-printemps | GET,POST | CENTRALIZED | requireRole('ELEVE'); | none | prisma.bilan.create;prisma.bilan.update;
+/api/eleve/questionnaire-maths-premiere-stage-printemps | GET,POST | CENTRALIZED | requireRole('ELEVE'); | none | prisma.bilan.create;prisma.bilan.update;
+/api/eleve/stages | GET | CENTRALIZED | requireRole('ELEVE'); | none | none
+/api/health | GET | PUBLIC | none | none | none
+/api/internal/health | GET | RBAC | enforcePolicy('admin.dashboard'); | none | none
+/api/invoices/[id]/pdf | GET | INLINE_AUTH | auth() | none | none
+/api/invoices/[id]/receipt/pdf | GET | INLINE_AUTH | auth() | none | prisma.invoice.update;
+/api/lamis/attempt | POST | PUBLIC | none | none | none
+/api/lamis/exercises | GET | PUBLIC | none | none | none
+/api/lamis/export | GET,POST | PUBLIC | none | none | none
+/api/lamis/progress | GET,POST | PUBLIC | none | none | none
+/api/lamis/teacher-report | GET,POST | PUBLIC | none | none | none
+/api/me/next-step | GET | INLINE_AUTH | auth() | none | none
+/api/messages/conversations | GET | INLINE_AUTH | auth() | none | none
+/api/messages/send | POST | INLINE_AUTH | auth() | none | prisma.message.create;
+/api/newsletter | POST | PUBLIC | none | none | none
+/api/notifications | GET,PATCH | INLINE_AUTH | auth() | none | prisma.notification.update;prisma.notification.updateMany;
+/api/notify/email | POST | PUBLIC | none | none | none
+/api/npc/files/[...path] | GET | INLINE_AUTH | auth() | none | none
+/api/npc/submissions | GET,POST | INLINE_AUTH | auth() | session.user.role === 'COACH';session.user.role === 'ELEVE';session.user.role === 'PARENT';; user.role === 'COACH';user.role === 'ELEVE';user.role === 'PARENT';; role === 'COACH';role === 'ELEVE';role === 'PARENT'; | prisma.copySubmission.create;prisma.npcAuditLog.create;
+/api/npc/submissions/[submissionId]/documents/[documentId] | DELETE,PATCH | INLINE_AUTH | auth() | none | prisma.copyPage.delete;prisma.copyPage.update;prisma.copySubmission.update;prisma.npcAuditLog.create;
+/api/npc/submissions/[submissionId]/documents | GET,POST | INLINE_AUTH | auth() | none | prisma.aiProcessingJob.create;prisma.copyPage.create;prisma.copySubmission.update;prisma.npcAuditLog.create;
+/api/npc/submissions/[submissionId]/generate | POST | INLINE_AUTH | auth() | none | prisma.aiProcessingJob.create;prisma.copySubmission.update;prisma.npcAuditLog.create;
+/api/npc/uploads | POST | INLINE_AUTH | auth() | UserRole.COACH;UserRole.ELEVE;UserRole.PARENT; | prisma.copyPage.create;prisma.copySubmission.create;prisma.copySubmission.delete;prisma.copySubmission.update;
+/api/parent/bilans/[id]/pdf | GET | CENTRALIZED | requireRole('PARENT'); | none | none
+/api/parent/children | GET,POST | INLINE_AUTH | auth() | session.user.role !== 'PARENT';; user.role !== 'PARENT';; role !== 'PARENT'; | none
+/api/parent/credit-request | POST | INLINE_AUTH | auth() | session.user.role !== 'PARENT';; user.role !== 'PARENT';; role !== 'PARENT'; | prisma.creditTransaction.create;
+/api/parent/dashboard | GET | INLINE_AUTH | auth() | session.user.role !== 'PARENT';; user.role !== 'PARENT';; role !== 'PARENT'; | none
+/api/parent/stages | GET | CENTRALIZED | requireRole('PARENT'); | none | none
+/api/parent/subscription-requests | GET,POST | INLINE_AUTH | auth() | session.user.role !== 'PARENT';; user.role !== 'PARENT';; role !== 'PARENT'; | prisma.notification.create;prisma.subscriptionRequest.create;
+/api/parent/subscriptions | GET,POST | INLINE_AUTH | auth() | session.user.role !== 'PARENT';; user.role !== 'PARENT';; role !== 'PARENT'; | prisma.notification.create;prisma.subscriptionRequest.create;
+/api/payments/bank-transfer/confirm | POST | INLINE_AUTH | auth() | session.user.role !== 'PARENT';; user.role !== 'PARENT';; role !== 'PARENT'; | prisma.notification.createMany;prisma.payment.create;
+/api/payments/check-pending | GET | INLINE_AUTH | auth() | session.user.role !== 'PARENT';; user.role !== 'PARENT';; role !== 'PARENT'; | none
+/api/payments/clictopay/init | POST | INLINE_AUTH | auth() | none | none
+/api/payments/clictopay/webhook | POST | PUBLIC | none | none | none
+/api/payments/pending | GET | INLINE_AUTH | auth() | ['ADMIN', 'ASSISTANTE'].includes; | none
+/api/payments/validate | POST | INLINE_AUTH | auth() | ['ASSISTANTE', 'ADMIN'].includes; | prisma.invoice.update;prisma.payment.update;prisma.userDocument.create;
+/api/programme/maths-1ere/progress | GET,POST | INLINE_AUTH | auth() | none | prisma.mathsProgress.upsert;
+/api/programme/maths-1ere/rag | POST | INLINE_AUTH | auth() | none | none
+/api/programme/maths-1ere-stmg/progress | GET,POST | INLINE_AUTH | auth() | none | prisma.mathsProgress.upsert;
+/api/programme/maths-1ere-stmg/rag | POST | INLINE_AUTH | auth() | none | none
+/api/programme/maths-1ere-stmg/stage-progress | GET,POST | INLINE_AUTH | auth() | none | none
+/api/programme/maths-terminale/progress | GET,POST | INLINE_AUTH | auth() | none | prisma.mathsProgress.upsert;
+/api/public-documents/corrige-dnb-maths-2026 | GET | PUBLIC | none | none | none
+/api/reservation | GET,PATCH,POST | INLINE_AUTH | auth() | userRole !== 'ADMIN';userRole !== 'ASSISTANTE'; | prisma.stageReservation.create;prisma.stageReservation.update;prisma.stageReservation.updateMany;
+/api/reservation/verify | POST | PUBLIC | none | none | none
+/api/sessions/book | POST | CENTRALIZED | requireAnyRole([UserRole.PARENT, UserRole.ELEVE]); | session.user.role === 'ELEVE';session.user.role === 'PARENT';; user.role !== 'COACH';user.role === 'ELEVE';user.role === 'PARENT';; UserRole.ELEVE;UserRole.PARENT;; role !== 'COACH';role === 'ELEVE';role === 'PARENT'; | prisma.sessionNotification.createMany;prisma.sessionReminder.createMany;
+/api/sessions/cancel | POST | CENTRALIZED | requireAnyRole([UserRole.ELEVE, UserRole.COACH, UserRole.ASSISTANTE]); | session.user.role === 'ASSISTANTE';session.user.role === 'COACH';session.user.role === 'ELEVE';; user.role === 'ASSISTANTE';user.role === 'COACH';user.role === 'ELEVE';; UserRole.ASSISTANTE;UserRole.COACH;UserRole.ELEVE;; role === 'ASSISTANTE';role === 'COACH';role === 'ELEVE'; | prisma.sessionBooking.update;
+/api/sessions/video | POST | INLINE_AUTH | auth() | session.user.role === 'COACH';; user.role === 'COACH';; role === 'COACH'; | prisma.sessionBooking.update;
+/api/stages | GET | PUBLIC | none | none | none
+/api/stages/[stageSlug]/bilans | GET,POST | CENTRALIZED | requireAnyRole(['ADMIN', 'ASSISTANTE', 'COACH']);requireAnyRole(['COACH', 'ADMIN', 'ASSISTANTE']); | user.role === 'ADMIN';user.role === 'ASSISTANTE';user.role === 'COACH';; role === 'ADMIN';role === 'ASSISTANTE';role === 'COACH'; | prisma.stageBilan.upsert;
+/api/stages/[stageSlug]/inscrire | POST | PUBLIC | none | none | prisma.stageReservation.create;
+/api/stages/[stageSlug]/reservations/[reservationId]/confirm | POST | CENTRALIZED | requireAnyRole(['ADMIN', 'ASSISTANTE']); | user.role === 'ELEVE';; role === 'ELEVE'; | prisma.stageReservation.update;prisma.student.create;prisma.user.create;
+/api/stages/[stageSlug]/reservations | GET | CENTRALIZED | requireAnyRole(['ADMIN', 'ASSISTANTE']); | none | none
+/api/stages/[stageSlug] | GET | PUBLIC | none | none | none
+/api/student/activate | GET,POST | PUBLIC | none | none | none
+/api/student/automatismes/attempts/[id] | GET | INLINE_AUTH | auth() | session.user.role !== "ELEVE";; user.role !== "ELEVE";; role !== "ELEVE"; | none
+/api/student/automatismes/attempts | GET,POST | INLINE_AUTH | auth() | session.user.role !== "ELEVE";; user.role !== "ELEVE";; role !== "ELEVE"; | prisma.assessment.create;
+/api/student/automatismes/check-answer | POST | INLINE_AUTH | auth() | session.user.role !== "ELEVE";; user.role !== "ELEVE";; role !== "ELEVE"; | none
+/api/student/automatismes/series/[id] | GET | INLINE_AUTH | auth() | session.user.role !== "ELEVE";; user.role !== "ELEVE";; role !== "ELEVE"; | none
+/api/student/automatismes/series | GET | INLINE_AUTH | auth() | session.user.role !== "ELEVE";; user.role !== "ELEVE";; role !== "ELEVE"; | none
+/api/student/bilans/[publicShareId] | GET | CENTRALIZED | requireRole('ELEVE'); | none | none
+/api/student/credits | GET | CENTRALIZED | requireRole(UserRole.ELEVE); | UserRole.ELEVE; | none
+/api/student/dashboard | GET | CENTRALIZED | requireRole(UserRole.ELEVE); | UserRole.ELEVE; | none
+/api/student/documents/[id]/download | GET | CENTRALIZED | requireRole(UserRole.ELEVE); | UserRole.ELEVE; | none
+/api/student/documents | GET | INLINE_AUTH | auth() | session.user.role !== 'ELEVE';; user.role !== 'ELEVE';; role !== 'ELEVE'; | none
+/api/student/nexus-index | GET | INLINE_AUTH | auth() | ['ELEVE', 'PARENT', 'ADMIN', 'ASSISTANTE'].includes;; role === 'PARENT'; | none
+/api/student/resources/official/[slug] | GET | CENTRALIZED | requireRole(UserRole.ELEVE); | UserRole.ELEVE; | none
+/api/student/resources | GET | INLINE_AUTH | auth() | session.user.role !== 'ELEVE';; user.role !== 'ELEVE';; role !== 'ELEVE'; | none
+/api/student/sessions | GET | CENTRALIZED | requireRole(UserRole.ELEVE); | UserRole.ELEVE; | none
+/api/students/[studentId]/badges | GET | INLINE_AUTH | auth() | session.user.role !== 'ELEVE';; user.role !== 'ELEVE';; role !== 'ELEVE'; | none
+/api/student/stages | GET | CENTRALIZED | requireRole('ELEVE'); | none | none
+/api/student/survival/phrases/[phraseId]/copied | POST | INLINE_AUTH | auth() | session.user.role !== 'ELEVE';; user.role !== 'ELEVE';; role !== 'ELEVE'; | prisma.survivalProgress.upsert;
+/api/student/survival/progress | GET,POST | INLINE_AUTH | auth() | session.user.role !== 'ELEVE';; user.role !== 'ELEVE';; role !== 'ELEVE'; | prisma.survivalProgress.create;prisma.survivalProgress.upsert;
+/api/student/survival/qcm/attempt | POST | INLINE_AUTH | auth() | session.user.role !== 'ELEVE';; user.role !== 'ELEVE';; role !== 'ELEVE'; | prisma.survivalAttempt.create;prisma.survivalProgress.upsert;
+/api/student/survival/reflexes/[reflexId]/attempt | POST | INLINE_AUTH | auth() | session.user.role !== 'ELEVE';; user.role !== 'ELEVE';; role !== 'ELEVE'; | prisma.survivalAttempt.create;prisma.survivalProgress.upsert;
+/api/student/survival/ritual | GET | INLINE_AUTH | auth() | session.user.role !== 'ELEVE';; user.role !== 'ELEVE';; role !== 'ELEVE'; | none
+/api/student/trajectory | GET | INLINE_AUTH | auth() | ['ELEVE', 'PARENT', 'ADMIN', 'ASSISTANTE'].includes;; role === 'PARENT'; | none
+/api/subscriptions/aria-addon | POST | PUBLIC | none | none | none
+/api/subscriptions/change | POST | PUBLIC | none | none | none
 ```
+
+---
+
+## (b-bis) Réalité middleware & classification auth
+
+### Middleware Next.js — matcher
+
+**Source** : `middleware.ts` ligne 98
+
+```typescript
+export const config = {
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|.*\\.png$).*)'],
+};
+```
+
+**Conséquence** : le middleware **EXCLUT** `/api/*`. L'autorisation des routes API est
+**100 % au niveau handler** — aucun filet middleware ne protège `/api`. Chaque route API
+doit implémenter sa propre vérification d'authentification et de rôle.
+
+Le middleware protège uniquement les routes de page :
+- `/dashboard/*` → redirect vers `/auth/signin` si non authentifié
+- Enforcement rôle-dashboard : `/dashboard/admin/*` accessible uniquement par ADMIN, etc.
+- `/admin/*` → ADMIN uniquement
+- `/auth/*` → redirect vers dashboard si déjà authentifié
+
+### Routes INLINE_AUTH avec rôle vérifié hors grep
+
+22 routes sont classées INLINE_AUTH avec `role_constraints = none` par le grep car la
+vérification de rôle se fait via une fonction importée (import transitif non capturable par grep).
+Vérification manuelle exhaustive sur les sous-ensembles sensibles :
+
+| Route | Mécanisme réel (vérifié en source) |
+|-------|------------------------------------|
+| `/api/admin/test-email` | `['ADMIN', 'ASSISTANTE'].includes(session.user.role)` |
+| `/api/assistante/activate-student` | `['ADMIN', 'ASSISTANTE', 'PARENT'].includes(...)` + owner-scoping PARENT |
+| `/api/assistante/coaches/manage` | `['ADMIN', 'ASSISTANTE'].includes(session.user.role)` |
+| `/api/assistante/coaches/manage/[id]` | `['ADMIN', 'ASSISTANTE'].includes(session.user.role)` |
+| `/api/assistante/credit-requests` | `['ADMIN', 'ASSISTANTE'].includes(session.user.role)` |
+| `/api/assistante/dashboard` | `['ADMIN', 'ASSISTANTE'].includes(session.user.role)` |
+| `/api/assistante/students/credits` | `['ADMIN', 'ASSISTANTE'].includes(session.user.role)` |
+| `/api/assistante/subscription-requests` | `['ADMIN', 'ASSISTANTE'].includes(session.user.role)` |
+| `/api/assistante/subscriptions` | `['ADMIN', 'ASSISTANTE'].includes(session.user.role)` |
+| `/api/payments/validate` | `['ASSISTANTE', 'ADMIN'].includes(session.user.role)` |
+| `/api/payments/pending` | `['ADMIN', 'ASSISTANTE'].includes(session.user.role)` |
+| `/api/npc/submissions/[id]/generate` | `canManageSubmissionDocuments()` via `lib/npc/access.ts` (ADMIN/ASSISTANTE full + COACH scoped) |
+| `/api/npc/submissions/[id]/documents` | `canReadSubmission()` / `canManageSubmissionDocuments()` via `lib/npc/access.ts` |
+| `/api/npc/submissions/[id]/documents/[docId]` | `canManageSubmissionDocuments()` via `lib/npc/access.ts` |
+| `/api/npc/files/[...path]` | `can(role, 'READ', 'COPY_SUBMISSION')` via `lib/rbac.ts` + `canReadSubmission()` |
+| `/api/invoices/[id]/pdf` | Dual-path : token signé OU `buildInvoiceScopeWhere()` (ADMIN/ASSISTANTE full, PARENT scoped) |
+| `/api/invoices/[id]/receipt/pdf` | `buildInvoiceScopeWhere()` (ADMIN/ASSISTANTE full, PARENT scoped, COACH/ELEVE denied) |
+| `/api/messages/send` | `canSendMessageToReceiver()` via `lib/security/message-access.ts` (role-pair rules) |
+| `/api/notifications` | Auth seul, intentionnel — user-scoped `WHERE userId = session.user.id` |
+| `/api/assessments/*/status/result/export` | Auth seul, intentionnel — user-scoped ou public-share-id |
+| `/api/me/next-step` | Auth seul, intentionnel — user-scoped |
+| `/api/messages/conversations` | Auth seul, intentionnel — user-scoped `WHERE senderId/receiverId` |
+| `/api/programme/*/progress` | Auth seul, intentionnel — user-scoped via `userId` |
+| `/api/programme/*/rag` | Auth seul, intentionnel — user-scoped |
+| `/api/payments/clictopay/init` | Auth seul — crée transaction liée au `userId` de session |
+| `/api/bilan-gratuit/status` | Auth seul — lecture `WHERE userId` |
+
+### Routes auth-seul sur surface sensible : AUCUNE
+
+Après correction, **aucune route** `/api/admin/*` ou `/api/assistante/*` n'est réellement
+auth-seul sans vérification de rôle. Toutes ont un contrôle de rôle effectif, soit via grep
+détectable, soit via `.includes()` en inline.
+
+Les routes véritablement auth-seul (sans aucun contrôle de rôle) sont toutes des routes
+**user-scoped** qui opèrent uniquement sur les données de l'utilisateur connecté (`WHERE userId = session.user.id`).
+Aucune ne donne accès à des données d'autres utilisateurs.
+
+---
+
+## (b-ter) Audit des routes publiques mutantes
+
+### Les 25 routes publiques — justification individuelle
+
+| # | Route | Méthodes | Mute | Justification |
+|---|-------|----------|------|---------------|
+| 1 | `/api/analytics/event` | POST | non | Stub no-op, empêche les 404 client analytics |
+| 2 | `/api/assessments/submit` | POST | **oui** | Assessment public (lead gen). Voir audit ci-dessous |
+| 3 | `/api/auth/[...nextauth]` | GET,POST | non | Handler NextAuth — EST le mécanisme d'auth |
+| 4 | `/api/auth/resend-activation` | POST | **oui** | Utilisateur non activé ne peut pas se connecter. Rate-limited 3/15min + throttle par email |
+| 5 | `/api/auth/reset-password` | POST | **oui** | Utilisateur sans mot de passe ne peut pas se connecter. CSRF + rate-limited 5/15min + token HMAC single-use |
+| 6 | `/api/bilan-gratuit` | POST | non (direct) | Formulaire lead-capture public. CSRF + honeypot + rate-limited |
+| 7 | `/api/contact` | POST | non | Formulaire contact site vitrine. Rate-limited |
+| 8 | `/api/diagnostics/definitions` | GET | non | Metadata safe (labels, domaines, skills). Pas de données sensibles |
+| 9 | `/api/health` | GET | non | Healthcheck monitoring infrastructure |
+| 10 | `/api/lamis/attempt` | POST | non | Outil in-browser, pas de persistence DB |
+| 11 | `/api/lamis/exercises` | GET | non | Catalogue exercices statique |
+| 12 | `/api/lamis/export` | GET,POST | non | Export CSV depuis données client. Stateless |
+| 13 | `/api/lamis/progress` | GET,POST | non | Calcul progression depuis données client. Stateless |
+| 14 | `/api/lamis/teacher-report` | GET,POST | non | Rapport depuis données client. Stateless |
+| 15 | `/api/newsletter` | POST | non | Inscription newsletter. Rate-limited |
+| 16 | `/api/notify/email` | POST | non | Email dispatch server-side. CSRF same-origin + rate-limited + body size limit |
+| 17 | `/api/payments/clictopay/webhook` | POST | non (direct) | Webhook callback banque (ClicToPay/Zitouna). HMAC optionnel |
+| 18 | `/api/public-documents/corrige-dnb-maths-2026` | GET | non | PDF public éducatif |
+| 19 | `/api/reservation/verify` | POST | non | Vérifie existence réservation (retourne booléen) |
+| 20 | `/api/stages` | GET | non | Catalogue stages publics du site vitrine |
+| 21 | `/api/stages/[stageSlug]` | GET | non | Détail stage public |
+| 22 | `/api/stages/[stageSlug]/inscrire` | POST | **oui** | Inscription stage anonyme. Voir audit ci-dessous |
+| 23 | `/api/student/activate` | GET,POST | non (direct) | Activation compte via token email (token-based) |
+| 24 | `/api/subscriptions/aria-addon` | POST | non | Déprécié : retourne 410 Gone immédiatement |
+| 25 | `/api/subscriptions/change` | POST | non | Déprécié : retourne 410 Gone immédiatement |
+
+### Audit détaillé des 4 routes publiques mutantes
+
+#### 1. `/api/assessments/submit` — `assessment.create` + `domainScore.createMany`
+
+| Contrôle | Détail |
+|----------|--------|
+| Rate-limit | `guardRateLimitAsync(request, { preset: 'expensive' })` → **10 req / heure par IP** |
+| Validation | Zod strict : subject `z.nativeEnum(Subject)`, grade `z.enum(...)`, email/name/phone validés, answers `z.record(string, string)`, assessmentVersion regex `/^[a-z0-9_:-]{1,80}$/i` |
+| Escalade | **Non** — aucune session créée, aucun rôle assigné. L'assessmentId (CUID) retourné est non devinable |
+| Réponse | `{ success, assessmentId, redirectUrl, message }` — expose l'ID CUID uniquement |
+| CSRF | Aucun (endpoint cross-origin par design pour formulaires publics) |
+| CAPTCHA | Aucun |
+| **Verdict** | **Rate-limit adéquat (10/h/IP)**. Pas d'escalade. Risque résiduel : pollution DB par rotation IP. Pas de chemin d'escalade vers des données sensibles |
+
+#### 2. `/api/auth/resend-activation` — `user.update` (token activation)
+
+| Contrôle | Détail |
+|----------|--------|
+| Rate-limit | Dual : `guardRateLimit(preset: 'resendActivation')` → **3 req / 15 min par IP** + throttle in-memory 15 min par email |
+| Validation | Zod : `z.object({ email: z.string().email() })` |
+| Escalade | **Non** — ne traite que les utilisateurs non activés (`activatedAt === null`). Déjà activés ignorés silencieusement |
+| Réponse | Toujours `{ success: true, message: "Si ce compte existe..." }` — **anti-énumération** |
+| Token | SHA-256 hashé avant stockage. Raw envoyé uniquement par email |
+| **Verdict** | **SAFE** — double rate-limit, anti-énumération, tokens hashés |
+
+#### 3. `/api/auth/reset-password` — `user.update` (password bcrypt-12)
+
+| Contrôle | Détail |
+|----------|--------|
+| Rate-limit | `guardRateLimitAsync(preset: 'auth')` → **5 req / 15 min par IP** |
+| CSRF | `checkCsrf(request)` — validation origin/referer |
+| Body size | `checkBodySize(request)` — 1 MB max |
+| Validation | Zod : email phase `z.string().email()`, confirm phase `z.string().min(8).refine(not in COMMON_PASSWORDS)` |
+| Escalade | **Non** — token HMAC signé avec le hash du mot de passe actuel (single-use : invalide après changement) |
+| Réponse | Anti-énumération : toujours `{ success: true, message: "Si un compte existe..." }` |
+| **Verdict** | **SAFE** — CSRF + rate-limit + Zod + HMAC single-use + anti-énumération + bcrypt-12 |
+
+#### 4. `/api/stages/[stageSlug]/inscrire` — `stageReservation.create`
+
+| Contrôle | Détail |
+|----------|--------|
+| Rate-limit | `guardRateLimitAsync(preset: 'api', keySuffix: stage-inscrire:${slug})` → **60 req / min par IP par slug** |
+| Validation | Zod `.strict()` : firstName/lastName min 2 max 50, email validé, phone max 30, level min 1 max 50, notes max 500 |
+| Escalade | **Non** — crée uniquement StageReservation. Aucun compte utilisateur, aucune session, aucun rôle |
+| Doublon | Check `unique: [email, academyId]` — empêche ré-inscription |
+| Stage | Doit être `isOpen: true` ET `isVisible: true` |
+| CSRF/CAPTCHA | Aucun |
+| Réponse | `{ reservation: { status }, message }`. Sur 409 doublon : retourne `{ error, reservationId }` (fuite ID mineur) |
+| **Verdict** | **CONCERN mineur** : rate-limit preset 'api' (60/min) est permissif pour un formulaire d'inscription. Pas de CSRF ni CAPTCHA. Risque : spam de fausses inscriptions (mais bloqué par contrainte unique email+stage). Pas de chemin d'escalade |
 
 ---
 
@@ -2679,32 +2778,9 @@ docs/architecture/restructuration/scripts/extract-routes.sh: ligne 72 : [: 0
 ---
 
 
-## Méthode v2 — extraction déterministe
-
-### Changements par rapport à v1
-
-La v1 de DOC-1 avait été produite par 4 agents parallèles qui PARAPHRASAIENT le schéma et les routes.
-Un spot-check indépendant (Student −5 champs, Subscription −startDate/endDate + contradiction 410 Gone,
-Diagnostic −16 champs sur 32) a démontré que la paraphrase produit des omissions systématiques.
-
-La v2 remplace la paraphrase par une extraction déterministe :
-
-1. **Section (a)** : `extract-schema.mjs` parse `prisma/schema.prisma` et émet chaque champ verbatim.
-   Par construction : 0 omission possible. Le script est commité à côté du doc.
-
-2. **Section (b)** : `extract-routes.sh` grep chaque `route.ts` pour les gardes et mutations.
-   Déterministe et re-générable.
-
-3. **Contrôle croisé** : `cross-check.sh` vérifie la cohérence bidirectionnelle
-   (mutations déclarées ↔ code, routes 410 ↔ mutations).
-   Résultat : 0 contradiction, 0 mismatch, 0 uncaptured.
-
-4. **Limite connue** : les mutations déléguées à des fonctions importées (ex: `activateEntitlements()`)
-   ne sont pas capturées par le grep sur route.ts. Le cross-check confirme que toutes les mutations
-   DIRECTES dans les route.ts sont bien capturées. Les mutations transitives restent documentées
-   dans la section (d) libs métier.
 
 ---
 
-> **FIN DOC-1 v2** — Extraction déterministe, scripts commitées, dénominateur reproductible.
-> En attente de validation indépendante (spot-check ≥ 8 modèles + ≥ 8 routes) avant DOC-2.
+> **FIN DOC-1 v3** — Extraction déterministe, classification auth exhaustive, audit routes publiques.
+> Scripts commitées dans `docs/architecture/restructuration/scripts/`.
+> En attente de spot-check indépendant (≥ 8 modèles + ≥ 8 routes) avant DOC-2.
