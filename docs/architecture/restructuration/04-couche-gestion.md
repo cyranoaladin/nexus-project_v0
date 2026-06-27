@@ -1,6 +1,7 @@
-# DOC-4 — Spec de la couche de gestion admin/assistante
+# DOC-4 — Spec de la couche de gestion admin/assistante (v2)
 
 > Couche design assumée. Base factuelle adossée à DOC-1 (auth corrigée) et DOC-3 §2 (trous prouvés).
+> v2 : tier DONNÉES (runtime editable) vs tier LOGIQUE (code). R2 résolu à la racine.
 > Date : 2026-06-27
 
 ---
@@ -101,125 +102,224 @@ Légende :
 
 ---
 
-## 2. Statique → runtime
+## 2. Statique → runtime : deux tiers
 
-### Le problème
+### Analyse du couplage code
 
-Les SSOT qui pilotent le business sont aujourd'hui :
-- **Fichier JSON commité** : `data/pricing.canonical.json` (tarifs, règles, offres)
-- **Code TypeScript build-time** : `PRODUCT_REGISTRY`, `FEATURES`, `GROUP_RULES`, `RBAC_POLICIES`, `RATE_LIMIT_PRESETS`
+Avant de trancher, preuve du couplage réel de chaque SSOT :
 
-« Éditable depuis le dashboard admin » nécessite de migrer chaque SSOT vers un store runtime. Deux architectures possibles :
+| SSOT | Le code lit-il les VALEURS via un accessor générique ? | Le code contient-il de la LOGIQUE couplée à des valeurs spécifiques ? |
+|------|---|---|
+| `pricing.canonical.json` | Oui — `lib/pricing.ts` est un data loader pur. `computeDeposit()` (`:446`) lit `data.rules.payment.deposit_pct` et calcule. Aucune valeur hardcodée. | Non — toutes les fonctions (`computeSchedule`, `applyDiscount`, `applyCarteDiscount`) opèrent sur des paramètres lus du JSON. |
+| `PRODUCT_REGISTRY` | Oui — `lib/entitlement/engine.ts` appelle `getProductDefinition(code)` (`:114`) et lit `product.mode`, `product.grantsCredits`, `product.defaultDurationDays`. | Non — `engine.ts` n'a **aucun** code produit hardcodé (`grep 'ABONNEMENT_\|STAGE_\|CREDIT_PACK_\|PREMIUM_\|ARIA_ADDON_' lib/entitlement/engine.ts` → 0 résultats). Le switch sur `product.mode` (SINGLE/EXTEND/STACK) est une logique structurelle, pas une valeur. |
+| `FEATURES` | Partiellement — `requires[]` et `label` sont des données pures. Mais `fallback` (HIDE/DISABLE/REDIRECT) et `rolesExempt` contrôlent le comportement UI/sécurité. | Oui — `resolveAccess()` dans `lib/access/rules.ts` utilise `fallback` pour décider du comportement. Modifier `rolesExempt` en runtime = risque de changement de posture sécurité. |
+| `RBAC_POLICIES` | Non — `lib/rbac.ts` (565 lignes) contient des rules complexes avec `allowOwner`, callbacks de vérification. | Oui — couplage total entre policy keys et handler logic. |
+| `RATE_LIMIT_PRESETS` | Non — les presets définissent les limites ET sont référencés par nom dans chaque route. | Oui — changer un preset en runtime modifie la posture DDoS de toutes les routes qui l'utilisent. |
+| `LEGAL` / `CGV` | Données pures. | Non — mais changement = engagement juridique, pas une décision opérationnelle. |
+| `GROUP_RULES` | Données pures (duplicate du canonical JSON). | Non — mais à supprimer, pas à migrer (DOC-2). |
 
-**Option A — Table DB de config versionnée** :
-- Nouveau modèle `ConfigEntry { id, namespace, key, value: Json, version: Int, updatedBy, updatedAt, previousValue: Json }`
-- L'accessor (ex: `lib/pricing.ts`) lit depuis la DB avec cache TTL au lieu du fichier JSON
-- Avantages : éditable runtime, audit trail, rollback par version
-- Coûts : requête DB sur chaque accès pricing (mitigé par cache), migration des 1470 lignes JSON, risque de config corrompue en prod
+### Tier DONNÉES — éditable runtime par ADMIN
 
-**Option B — Write-back Git + redéploiement** :
-- L'admin édite via UI → l'API écrit dans le fichier JSON → commit Git automatique → webhook CI redéploie
-- Avantages : SSOT reste un fichier versionné, diff lisible, rollback = git revert
-- Coûts : temps de propagation (commit + deploy ≈ 2-5 min), pas de CI GitHub dans ce projet, complexité opérationnelle
+Paramètres métier qui sont des **valeurs pures** sans couplage logique au code. Le moteur qui les consomme opère sur des accessors génériques.
 
-### Décision par SSOT
+| Paramètre | Source actuelle | Preuve de découplage |
+|-----------|----------------|---------------------|
+| Prix des offres (annuelles, stages, ponctuels, packs) | `pricing.canonical.json` → `getAllOffers()`, `getStageFormats()`, etc. | `lib/pricing.ts` : pure data loader, aucun prix hardcodé |
+| Crédits par plan | `pricing.canonical.json` → `operational_subscription_plans.*.credits` | Valeur lue par `getOperationalSubscriptionPlan()` |
+| Crédits octroyés par produit | `lib/entitlement/types.ts` → `PRODUCT_REGISTRY.*.grantsCredits` | `engine.ts:114` lit via `getProductDefinition()`, aucun produit hardcodé |
+| Durée des entitlements | `PRODUCT_REGISTRY.*.defaultDurationDays` | `computeEndsAt()` dans `types.ts` — pure fonction de la valeur |
+| Features par produit | `PRODUCT_REGISTRY.*.features[]` | Tableau de strings, lu par `hasFeature()` |
+| Règles de paiement | `pricing.canonical.json` → `rules.payment.deposit_pct`, `installments_default`, `rounding_tnd` | `computeDeposit()` (`:446`), `computeSchedule()` (`:452`) — pures fonctions de ces valeurs |
+| Règles de remise | `pricing.canonical.json` → `rules.discounts.*` | `applyDiscount()`, `applyCarteDiscount()` — pures fonctions |
+| group_max / group_min_open | `pricing.canonical.json` → `rules.group_max/min_open` | Valeurs lues par `getRules()`, aucune logique couplée |
+| Labels et descriptions produits | `PRODUCT_REGISTRY.*.label`, plans `*.name` | Données d'affichage pures |
 
-| SSOT | Nature actuelle | Décision | Justification |
-|------|----------------|----------|---------------|
-| `pricing.canonical.json` | JSON 1470 lignes, lu par `lib/pricing.ts` | **Consulter uniquement (read-only UI)** | Trop complexe pour édition runtime. 1470 lignes avec règles imbriquées (acomptes, échéanciers, remises conditionnelles). Risque de corruption business critique. Édition via PR Git avec review reste la bonne approche. L'UI admin affiche les tarifs courants et la réconciliation R2. |
-| `PRODUCT_REGISTRY` | TypeScript, 14 produits | **Consulter uniquement (read-only UI)** | Lié au code d'activation (`lib/entitlement/engine.ts`). Changer un `grantsCredits` en runtime sans revalider la logique d'activation = risque. L'UI affiche les produits et alerte sur les divergences canonical↔registry (R2). |
-| `FEATURES` / `ACCESS_RULES` | TypeScript, 10 features | **Reste en code** | Feature gating est une décision architecturale, pas opérationnelle. Changement = PR. |
-| `GROUP_RULES` | TypeScript, 7 lignes | **Supprimer (dédupliquer vers canonical JSON)** | Duplication prouvée DOC-2. Les 4 composants marketing doivent lire `lib/pricing.ts` → `getRules()` au lieu de `lib/group-rules.ts`. |
-| `RBAC_POLICIES` | TypeScript, 565 lignes | **Reste en code** | Sécurité critique. Pas d'édition runtime. |
-| `RATE_LIMIT_PRESETS` | TypeScript, 38 lignes | **Reste en code** | Sécurité critique. Pas d'édition runtime. |
-| `LEGAL` | TypeScript, 75 lignes | **Reste en code** | Rarement modifié (données juridiques). Changement = PR avec review légale. |
-| `CGV_POLICY` | TypeScript, 28 lignes | **Reste en code** | Contrat juridique. Changement = PR + validation légale. |
+### Tier LOGIQUE — reste en code, PR + review
 
-### Résumé
+Paramètres où le code contient de la **logique couplée** aux valeurs, ou dont la modification impacte la **posture de sécurité**.
 
-**Aucun SSOT ne migre vers un store runtime.** La complexité et le risque de corruption business critique l'emportent sur la commodité d'une édition UI. Le vrai besoin n'est pas « éditer les tarifs en live » mais :
+| Paramètre | Source actuelle | Preuve du couplage |
+|-----------|----------------|-------------------|
+| Modes d'activation (SINGLE/EXTEND/STACK) | `PRODUCT_REGISTRY.*.mode` | `engine.ts:134-180` : `if (product.mode === 'SINGLE')` — le moteur switch sur le mode. Ajouter un nouveau mode = nouveau code. Changer le mode d'un produit existant = changement de sémantique d'activation. |
+| Feature fallback (HIDE/DISABLE/REDIRECT) | `FEATURES.*.fallback` | `lib/access/rules.ts` : `resolveAccess()` retourne le `fallback` qui contrôle le comportement UI. Changer REDIRECT→HIDE en runtime = modifier la posture d'accès. |
+| Feature rolesExempt | `FEATURES.*.rolesExempt` | Modifier `rolesExempt` = changer quels rôles bypassent le gating. Impact sécurité direct. |
+| RBAC policies | `lib/rbac.ts` | 565 lignes, `allowOwner` callbacks, vérifications de propriété. Couplage total code↔policies. |
+| Rate-limit presets | `lib/rate-limit/presets.ts` | Chaque route référence un preset par nom. Modifier `expensive: { limit: 10 }` → `{ limit: 1000 }` en runtime = désarmer la protection DDoS. |
+| Legal / CGV | `lib/legal.ts`, `lib/cgv-policy.ts` | Données juridiques. Pas de couplage code, mais changement = engagement juridique → PR + review légale, pas une UI admin. |
 
-1. **Consulter** les SSOT depuis l'interface (pricing, products, features) — sans ouvrir le code
-2. **Détecter** les incohérences (réconciliation R2 canonical↔registry) — visible, pas cachée
-3. **Auditer** les changements (historique Git des SSOT déjà versionné)
+### Mécanisme du store runtime (Tier DONNÉES)
 
-La couche admin crée des **vues de consultation + alertes**, pas des formulaires d'édition runtime.
+#### Modèle Prisma
+
+```prisma
+model BusinessConfig {
+  id            String   @id @default(cuid())
+  namespace     String   // 'pricing.rules', 'pricing.offers', 'products', 'products.credits'
+  key           String   // 'deposit_pct', 'ABONNEMENT_ESSENTIEL.grantsCredits', 'group_max'
+  value         Json     // la valeur typée
+  schemaVersion String   // version du schéma de validation attendu
+  version       Int      @default(1) // auto-incrémenté à chaque écriture
+  previousValue Json?    // snapshot avant modification (rollback)
+  updatedBy     String   // userId de l'admin
+  updatedAt     DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  @@unique([namespace, key])
+  @@index([namespace])
+  @@index([updatedAt])
+  @@map("business_configs")
+}
+```
+
+#### Mécanisme d'écriture
+
+1. **Validation de schéma** : chaque namespace a un schema Zod déclaré dans `lib/config/schemas.ts`. L'API valide AVANT d'écrire. Exemples :
+   - `pricing.rules.deposit_pct` : `z.number().int().min(0).max(100)`
+   - `products.ABONNEMENT_ESSENTIEL.grantsCredits` : `z.number().int().min(0).max(100)`
+   - `pricing.rules.group_max` : `z.number().int().min(1).max(20)`
+
+2. **Versioning + audit** : chaque écriture incrémente `version`, sauvegarde `previousValue`, enregistre `updatedBy`.
+
+3. **Garde RBAC** : `requireRole(ADMIN)` sur toutes les routes d'écriture config.
+
+4. **Rollback** : `POST /api/admin/config/rollback { namespace, key }` restaure `previousValue`.
+
+#### Mécanisme de lecture (migration progressive)
+
+Les accessors existants (`lib/pricing.ts`, `lib/entitlement/types.ts`) sont modifiés pour lire d'abord le store runtime, puis fallback sur la valeur statique :
+
+```typescript
+// lib/config/reader.ts
+export async function getConfigValue<T>(namespace: string, key: string, fallback: T): Promise<T> {
+  const entry = await prisma.businessConfig.findUnique({
+    where: { namespace_key: { namespace, key } },
+    select: { value: true },
+  });
+  return entry ? (entry.value as T) : fallback;
+}
+```
+
+Les accessors existants restent la couche d'accès publique. `lib/pricing.ts` → `getRules()` devient :
+
+```typescript
+export async function getRules(): Promise<Rules> {
+  const staticRules = data.rules;
+  return {
+    ...staticRules,
+    group_max: await getConfigValue('pricing.rules', 'group_max', staticRules.group_max),
+    payment: {
+      ...staticRules.payment,
+      deposit_pct: await getConfigValue('pricing.rules', 'deposit_pct', staticRules.payment.deposit_pct),
+    },
+    // ... etc
+  };
+}
+```
+
+**Migration progressive** : tant qu'une clé n'a pas d'entrée dans `BusinessConfig`, la valeur statique est utilisée. L'admin peut overrider une valeur à la fois depuis l'UI.
+
+### Résolution R2 à la racine
+
+R2 est causé par deux sources indépendantes de crédits : `pricing.canonical.json` (annoncé) et `PRODUCT_REGISTRY` (octroyé). La source unique runtime est le store `BusinessConfig`.
+
+**Convergence** :
+1. Migrer `PRODUCT_REGISTRY.*.grantsCredits` vers le store runtime : namespace `products`, key `ABONNEMENT_ESSENTIEL.grantsCredits`, etc.
+2. Migrer `operational_subscription_plans.*.credits` vers le store runtime : namespace `pricing.plans`, key `ACCES_PLATEFORME.credits`, etc.
+3. L'écran admin édite les deux sous le même toit. **Une seule valeur de crédits par produit** : le store runtime. L'admin voit et corrige la divergence.
+4. `resolveProductCode()` (`app/api/payments/validate/route.ts:36-68`) lit le `grantsCredits` depuis le store runtime, plus depuis le code TS.
+5. L'écran marketing (`/parent/abonnements`) lit les crédits depuis le store runtime, plus depuis le canonical JSON.
+
+**L'écran « réconciliation » (§3.1) devient un filet transitoire** : tant que la migration n'est pas complète, il affiche les divergences entre valeurs statiques et store runtime. Quand toutes les valeurs sont en runtime, l'écran se simplifie en une vue de la config courante.
+
+### Résumé des deux tiers
+
+| SSOT | Tier | Mécanisme | ADMIN | ASSISTANTE |
+|------|------|-----------|:---:|:---:|
+| Prix offres, stages, ponctuels, packs | **DONNÉES** | Store runtime `BusinessConfig` | Éditer | Consulter |
+| Crédits par produit (`grantsCredits`) | **DONNÉES** | Store runtime | Éditer | Consulter |
+| Durées entitlements (`defaultDurationDays`) | **DONNÉES** | Store runtime | Éditer | Consulter |
+| Features par produit (`features[]`) | **DONNÉES** | Store runtime | Éditer | Consulter |
+| Règles paiement (acompte, échéancier) | **DONNÉES** | Store runtime | Éditer | Consulter |
+| Règles remises | **DONNÉES** | Store runtime | Éditer | Consulter |
+| group_max / group_min_open | **DONNÉES** | Store runtime | Éditer | Consulter |
+| Labels / descriptions produits | **DONNÉES** | Store runtime | Éditer | Consulter |
+| Modes d'activation (SINGLE/EXTEND/STACK) | **LOGIQUE** | Code TS, PR | — | — |
+| Feature fallback + rolesExempt | **LOGIQUE** | Code TS, PR | — | — |
+| RBAC policies | **LOGIQUE** | Code TS, PR | — | — |
+| Rate-limit presets | **LOGIQUE** | Code TS, PR | — | — |
+| Legal / CGV | **LOGIQUE** | Code TS, PR | — | — |
+| GROUP_RULES (lib/group-rules.ts) | **SUPPRIMER** | Dédupliquer vers canonical/runtime | — | — |
 
 ---
 
 ## 3. Écrans de gestion
 
-Pour chaque trou prouvé de DOC-3 §2, un écran spécifié.
+### 3.1 Éditeur de configuration métier (Tier DONNÉES)
 
-### 3.1 Réconciliation canonical ↔ registry (R2)
+**Écran** : `/admin/config`
+**Rôle** : ADMIN (édition) / ASSISTANTE (consultation via `/assistante/config`, read-only)
 
-**Écran** : `/admin/config/reconciliation`
-**Rôle** : ADMIN seul
-**Lit** :
-- `data/pricing.canonical.json` → `operational_subscription_plans` (via `lib/pricing.ts` → `getSubscriptionTiers()`)
-- `lib/entitlement/types.ts` → `PRODUCT_REGISTRY`
-- Bridge : `resolveProductCode()` (`app/api/payments/validate/route.ts:36-68`)
+**Onglets** :
 
-**Affiche** :
-- Tableau à 3 colonnes : Plan canonical (nom, prix, crédits annoncés) | Code PRODUCT_REGISTRY (mode, durée, crédits octroyés) | Delta crédits
-- Alerte rouge sur chaque ligne où delta ≠ 0
-- Triple collision actuelle mise en évidence
+#### Onglet Tarifs
+- Lit : `BusinessConfig` namespace `pricing.*` avec fallback `pricing.canonical.json`
+- Affiche : tableau éditable des prix par offre, stage, pack. Champs validés par schema Zod.
+- Mute : `PATCH /api/admin/config` → écrit dans `BusinessConfig` avec version + audit
 
-**Mute** : rien (read-only). Résolution = PR sur les fichiers sources.
+#### Onglet Produits & Crédits
+- Lit : `BusinessConfig` namespace `products.*` avec fallback `PRODUCT_REGISTRY`
+- Affiche : 14 produits avec `grantsCredits`, `defaultDurationDays`, `features[]` éditables
+- **Résolution R2** : une seule valeur de crédits visible et éditable par produit. L'ancien canonical et l'ancien registry ne sont plus les sources actives.
 
-**Contrat API** :
-```
-GET /api/admin/config/reconciliation
-Guard: requireRole(ADMIN)
-Response: { plans: [{ planKey, planName, planCredits, productCode, productCredits, delta }] }
-```
+#### Onglet Règles
+- Lit : `BusinessConfig` namespace `pricing.rules.*`
+- Affiche : acompte %, échéancier, cap remises, group_max, group_min_open — éditables
 
-### 3.2 Vue PRODUCT_REGISTRY
-
-**Écran** : `/admin/config/products`
-**Rôle** : ADMIN seul
-**Lit** : `PRODUCT_REGISTRY` (14 produits) via nouvelle route
-
-**Affiche** : tableau des 14 produits (code, label, category, mode, duration, grantsCredits, features[])
-
-**Mute** : rien (read-only)
+#### Onglet Historique
+- Lit : `BusinessConfig` ordered by `updatedAt DESC`
+- Affiche : journal des modifications (qui, quand, ancienne valeur → nouvelle). Bouton rollback par entrée.
 
 **Contrat API** :
 ```
-GET /api/admin/config/products
+GET /api/admin/config?namespace=
+Guard: requireAnyRole(ADMIN, ASSISTANTE)
+Response: { entries: BusinessConfig[], fallbacks: Record<string, Json> }
+
+PATCH /api/admin/config
 Guard: requireRole(ADMIN)
-Response: { products: ProductDefinition[] }
+Body: { namespace, key, value: Json }
+Validation: Zod schema par namespace (lib/config/schemas.ts)
+Response: { entry: BusinessConfig }
+
+POST /api/admin/config/rollback
+Guard: requireRole(ADMIN)
+Body: { namespace, key }
+Response: { entry: BusinessConfig }
+
+GET /api/admin/config/history?namespace=&key=&page=&limit=
+Guard: requireRole(ADMIN)
+Response: { entries: BusinessConfig[], pagination }
 ```
 
-### 3.3 Vue pricing canonique
+### 3.2 Réconciliation transitoire (filet R2)
 
-**Écran** : `/admin/config/pricing`
+**Écran** : onglet dans `/admin/config`
 **Rôle** : ADMIN seul
-**Lit** : `data/pricing.canonical.json` via `lib/pricing.ts`
 
-**Affiche** : offres annuelles, stages, ponctuels, packs, règles (acompte, échéancier, remises, group_max/min_open). Navigation par onglets.
+Tant que la migration n'est pas complète, affiche côte à côte :
+- Valeur statique (canonical JSON / PRODUCT_REGISTRY code TS)
+- Valeur runtime (BusinessConfig, si elle existe)
+- Delta
 
-**Mute** : rien (read-only)
+Quand toutes les valeurs Tier DONNÉES sont dans le store runtime, cet onglet se simplifie en « config courante ».
 
-**Contrat API** :
-```
-GET /api/admin/config/pricing
-Guard: requireRole(ADMIN)
-Response: { rules, annualOffers, stageFormats, ponctuelOffers, packs, subscriptionTiers, ariaAddons }
-```
+### 3.3 Vue entitlements actifs
 
-### 3.4 Vue entitlements actifs
-
-**Écran** : `/admin/entitlements` (ADMIN) et `/assistante/entitlements` (ASSISTANTE, read-only)
-**Rôle** : ADMIN (CRUD) / ASSISTANTE (read)
+**Écran** : `/admin/entitlements` (ADMIN CRUD) / `/assistante/entitlements` (read-only)
 
 **Lit** : Entitlement[] avec User + Invoice source
 
-**Affiche** : tableau filtrable par user/status/productCode. Pour chaque entitlement : productCode, label, status, startsAt, endsAt, sourceInvoiceId (lien cliquable), crédits octroyés.
-
-**Mute (ADMIN uniquement)** :
-- Révoquer un entitlement (status → REVOKED)
-- Ajuster endsAt (prolonger/raccourcir)
+**Mute (ADMIN)** : révoquer, ajuster endsAt
 
 **Contrat API** :
 ```
@@ -233,71 +333,56 @@ Body: { status?: 'REVOKED', endsAt?: DateTime, reason: string }
 Response: { entitlement: Entitlement }
 ```
 
-### 3.5 Supervision crons
+### 3.4 Supervision crons
 
 **Écran** : `/admin/crons`
 **Rôle** : ADMIN seul
 
-**Lit** : CronExecution[] (3 jobs : `checkExpiringCredits`, `expireOldCredits`, `allocateMonthlyCredits`)
-
-**Affiche** : dernière exécution par job (status, startedAt, completedAt, error, metadata). Timeline des 10 dernières exécutions.
-
-**Mute** : déclencher un cron manuellement (bouton par job)
+**Lit** : CronExecution[] (3 jobs)
+**Mute** : déclencher manuellement
 
 **Contrat API** :
 ```
 GET /api/admin/crons
 Guard: requireRole(ADMIN)
-Response: { jobs: [{ jobName, lastExecution: CronExecution, history: CronExecution[] }] }
+Response: { jobs: [{ jobName, lastExecution, history: CronExecution[] }] }
 
 POST /api/admin/crons/trigger
 Guard: requireRole(ADMIN)
-Body: { jobName: string }
+Body: { jobName }
 Response: { execution: CronExecution }
 ```
 
-### 3.6 Vue audit
+### 3.5 Vue audit
 
 **Écran** : `/admin/audit`
 **Rôle** : ADMIN seul
 
-**Lit** :
-- NpcAuditLog[] (actions NPC : validation, feedback, génération)
-- Invoice.events[] (audit trail facturation : STATUS_CHANGED, ENTITLEMENTS_ACTIVATED, TOKENS_REVOKED)
-
-**Affiche** : journal unifié filtrable par type (NPC/facturation), acteur, date, entité
+**Lit** : NpcAuditLog[] + Invoice.events[] + BusinessConfig history
 
 **Contrat API** :
 ```
-GET /api/admin/audit?type=npc|invoice&actorId=&from=&to=&page=&limit=
+GET /api/admin/audit?type=npc|invoice|config&actorId=&from=&to=&page=&limit=
 Guard: requireRole(ADMIN)
 Response: { entries: AuditEntry[], pagination }
 ```
 
-### 3.7 Stats ARIA
+### 3.6 Stats ARIA
 
 **Écran** : `/admin/aria`
 **Rôle** : ADMIN seul
-
-**Lit** : AriaConversation (count, par subject), AriaMessage (count, feedback stats)
-
-**Affiche** : nombre de conversations par matière, volume de messages, taux de feedback positif/négatif, tokens consommés (si tracé)
-
-**Mute** : rien (read-only)
 
 **Contrat API** :
 ```
 GET /api/admin/aria/stats
 Guard: requireRole(ADMIN)
-Response: { totalConversations, bySubject: {}, totalMessages, feedbackPositive, feedbackNegative }
+Response: { totalConversations, bySubject, totalMessages, feedbackPositive, feedbackNegative }
 ```
 
-### 3.8 Vue globale documents
+### 3.7 Vue globale documents
 
 **Écran** : extension de `/admin/documents`
 **Rôle** : ADMIN + ASSISTANTE
-
-**Lit** : UserDocument[] (all, filtrable par user/type/subject/date)
 
 **Contrat API** :
 ```
@@ -306,47 +391,28 @@ Guard: requireAnyRole(ADMIN, ASSISTANTE)
 Response: { documents: UserDocument[], pagination }
 ```
 
-### 3.9 CRUD Stages pour ASSISTANTE
+### 3.8 CRUD Stages pour ASSISTANTE
 
-**Écran** : extension de `/assistante/stages`
-**Rôle** : ASSISTANTE
-
-**Mute** : Create/Update Stage (les routes `/api/admin/stages` existent déjà, il faut élargir le guard)
-
-**Changement API** :
+Élargir les guards existants :
 ```
-POST /api/admin/stages
-Guard actuel: requireRole(ADMIN)
-Guard cible: requireAnyRole(ADMIN, ASSISTANTE)
-
-PATCH /api/admin/stages/[id]
-Guard actuel: requireRole(ADMIN)
-Guard cible: requireAnyRole(ADMIN, ASSISTANTE)
+POST /api/admin/stages → Guard: requireAnyRole(ADMIN, ASSISTANTE)
+PATCH /api/admin/stages/[id] → Guard: requireAnyRole(ADMIN, ASSISTANTE)
+DELETE reste requireRole(ADMIN)
 ```
-Note : DELETE Stage reste ADMIN seul (irréversible).
 
-### 3.10 Assignments avec détection R5
+### 3.9 Assignments avec détection R5
 
-**Écran** : extension de `/assistante/assignments`
-**Rôle** : ADMIN + ASSISTANTE
+Extension : après PATCH status=ENDED, afficher les records orphelins.
 
-**Ajout** : après un PATCH status=ENDED, afficher les records orphelins (Bilan, SessionBooking avec le coachId de l'assignment terminé).
-
-**Contrat API** :
 ```
 GET /api/assistante/assignments/[id]/orphans
 Guard: requireAnyRole(ADMIN, ASSISTANTE)
-Response: { orphanedBilans: { id, subject, createdAt }[], orphanedSessions: { id, scheduledDate }[] }
+Response: { orphanedBilans: [], orphanedSessions: [] }
 ```
 
-### 3.11 Vue StageReservation unifiée (R4)
+### 3.10 Vue StageReservation unifiée (R4)
 
-**Écran** : `/assistante/reservations`
-**Rôle** : ASSISTANTE
-
-**Lit** : StageReservation[] — affiche `richStatus` (enum) uniquement, ignore `status` (String legacy)
-
-**Contrat API** : réutilise `GET /api/stages/[slug]/reservations` existant. Côté front, filter/display uniquement sur `richStatus`.
+Front-only : afficher `richStatus` (enum), ignorer `status` (String legacy). Réutilise les routes existantes.
 
 ---
 
@@ -379,9 +445,9 @@ L'ASSISTANTE gère le **quotidien opérationnel** : élèves, coaches, sessions,
 | **Documents listing** | x | x | Support. |
 | **Entitlements read** | x | x | Support — consulter les droits d'accès d'un élève. |
 | **Entitlements CRUD** | x | — | Critique — modifier les droits = impact accès. ADMIN seul. |
-| **Config pricing (read)** | x | x | Consultation — l'assistante doit voir les tarifs en vigueur. |
-| **Config products (read)** | x | — | Technique — peu utile pour l'opérationnel. |
-| **Config reconciliation** | x | — | Diagnostic technique — R2. |
+| **Config Tier DONNÉES (read)** | x | x | Consultation — l'assistante doit voir les tarifs, crédits, règles en vigueur. |
+| **Config Tier DONNÉES (write)** | x | — | Paramètres métier = décision business, pas opérationnel. L'assistante n'éditera pas un prix ou un nombre de crédits. |
+| **Config réconciliation / historique** | x | — | Diagnostic technique — R2, audit. |
 | **Crons monitoring** | x | — | Système. |
 | **Crons trigger** | x | — | Système — risque de double exécution. |
 | **Audit logs** | x | — | Conformité — accès restreint. |
@@ -391,9 +457,9 @@ L'ASSISTANTE gère le **quotidien opérationnel** : élèves, coaches, sessions,
 
 ### Résumé de la frontière
 
-**ASSISTANTE peut** : CRUD élèves/coaches/assignments, create/update stages (pas delete), planifier sessions, gérer crédits/paiements/factures/abonnements-requests, consulter entitlements et tarifs.
+**ASSISTANTE peut** : CRUD élèves/coaches/assignments, create/update stages (pas delete), planifier sessions, gérer crédits/paiements/factures/abonnements-requests, consulter entitlements, consulter la config métier (tarifs, crédits, règles en lecture seule).
 
-**ASSISTANTE ne peut PAS** : CRUD users admin/assistante, delete stages, modifier subscriptions directement, CRUD entitlements, configurer produits/features/RBAC, superviser crons/audit/ARIA, assigner coaches aux stages.
+**ASSISTANTE ne peut PAS** : CRUD users admin/assistante, delete stages, modifier subscriptions directement, CRUD entitlements, **éditer la config métier** (prix, crédits, règles — Tier DONNÉES en écriture = ADMIN seul), configurer features/RBAC (Tier LOGIQUE), superviser crons/audit/ARIA, assigner coaches aux stages.
 
 **Garde de la frontière** : chaque route de la matrice utilise soit `requireRole(ADMIN)` (ADMIN seul) soit `requireAnyRole(ADMIN, ASSISTANTE)` (délégation). La frontière est enforcée au niveau handler, pas au niveau UI. L'UI peut masquer les boutons, mais la sécurité ne repose pas sur le masquage.
 
