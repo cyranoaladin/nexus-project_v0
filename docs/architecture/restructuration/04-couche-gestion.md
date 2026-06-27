@@ -190,12 +190,21 @@ model BusinessConfig {
 
 **Solution : snapshot mémoire avec invalidation**
 
+**Hypothèse de modèle de process** : `ecosystem.config.js:6` → `instances: 1`, pas de `exec_mode: 'cluster'`. PM2 fork mono-instance. Le snapshot mémoire est correct sous ce modèle : un seul process Node, une seule copie du Map.
+
+> **Prérequis explicite** : ce mécanisme suppose une instance unique. Sous cluster PM2 ou scale horizontal (plusieurs pods/instances), l'invalidation locale (`invalidateConfigSnapshot()`) ne propage pas aux autres instances. Il faudrait alors une invalidation cross-instance via :
+> - **Poll d'une version DB** : colonne `configVersion Int` sur une table `ConfigMeta`, lue au TTL, comparée au snapshot local.
+> - **Ou pub/sub** (Redis, pg_notify) pour notifier toutes les instances à l'écriture.
+>
+> Tant que le déploiement reste mono-instance (config actuelle), le snapshot local suffit.
+
 ```typescript
 // lib/config/snapshot.ts
 
 /** In-memory snapshot of BusinessConfig overrides. Loaded once, refreshed on write or TTL. */
 let snapshot: Map<string, Json> = new Map();
 let lastLoadedAt = 0;
+let refreshPromise: Promise<void> | null = null; // single-flight guard
 const TTL_MS = 60_000; // 1 minute
 
 /** Load all BusinessConfig entries into memory. Called at startup + on invalidation. */
@@ -209,19 +218,29 @@ export async function loadConfigSnapshot(): Promise<void> {
   }
   snapshot = next;
   lastLoadedAt = Date.now();
+  refreshPromise = null;
 }
 
-/** Sync read from snapshot. Returns override if exists, otherwise undefined. */
+/**
+ * Sync read from snapshot. Returns override if exists, otherwise undefined.
+ * If TTL expired, triggers a SINGLE background refresh (single-flight).
+ * All concurrent reads during refresh share the same promise.
+ */
 export function getOverride<T>(namespace: string, key: string): T | undefined {
-  // Lazy refresh if TTL expired (non-blocking — uses stale snapshot until next request)
-  if (Date.now() - lastLoadedAt > TTL_MS) {
-    loadConfigSnapshot().catch(console.error); // fire-and-forget
+  if (Date.now() - lastLoadedAt > TTL_MS && !refreshPromise) {
+    // Single-flight: set lastLoadedAt immediately to prevent concurrent triggers,
+    // then launch ONE async refresh shared across all readers.
+    lastLoadedAt = Date.now(); // prevent re-entry before promise resolves
+    refreshPromise = loadConfigSnapshot().catch((err) => {
+      console.error('[config-snapshot] refresh failed, using stale data:', err);
+      refreshPromise = null;
+    });
   }
   const val = snapshot.get(`${namespace}::${key}`);
   return val !== undefined ? (val as T) : undefined;
 }
 
-/** Invalidate snapshot (called after admin write). */
+/** Invalidate snapshot (called after admin write). Synchronous callers await this. */
 export async function invalidateConfigSnapshot(): Promise<void> {
   await loadConfigSnapshot();
 }
@@ -309,19 +328,31 @@ Les schemas Zod ne valident pas seulement des champs isolés (min/max). Pour les
 
 ```typescript
 // lib/config/schemas.ts — namespace pricing.rules.payment
+// lib/config/schemas.ts
+import { getSubscriptionTiers, getAllOffers, getStageFormats } from '@/lib/pricing';
+
+function getCurrentMinPrice(): number {
+  // Reads from the live config (snapshot + fallback), not a constant.
+  const tierPrices = Object.values(getSubscriptionTiers()).map(t => t.price);
+  const offerPrices = getAllOffers().map(o => o.price_annual_tnd).filter(Boolean);
+  const stagePrices = getStageFormats().map(s => s.price_tnd).filter(Boolean);
+  const all = [...tierPrices, ...offerPrices, ...stagePrices].filter(p => p > 0);
+  return all.length > 0 ? Math.min(...all) : 1; // fallback 1 if no prices found
+}
+
 const paymentRulesSchema = z.object({
   deposit_pct: z.number().int().min(0).max(100),
   installments_default: z.number().int().min(1).max(24),
   rounding_tnd: z.number().int().min(1).max(100),
 }).refine(
   (d) => {
-    // Invariant: avec le prix minimum plausible (150 TND),
+    // Invariant: avec le prix minimum COURANT (lu depuis le Tier DONNÉES),
     // le deposit arrondi ne doit pas être nul
-    const minPrice = 150; // prix minimum existant (ACCES_PLATEFORME)
+    const minPrice = getCurrentMinPrice();
     const deposit = Math.round((minPrice * d.deposit_pct) / 100 / d.rounding_tnd) * d.rounding_tnd;
     return deposit > 0 || d.deposit_pct === 0;
   },
-  { message: 'deposit_pct + rounding_tnd produirait un acompte nul pour le prix minimum (150 TND)' }
+  { message: 'deposit_pct + rounding_tnd produirait un acompte nul pour le prix minimum courant' }
 );
 ```
 
@@ -368,12 +399,34 @@ const discountRulesSchema = z.object({
 | Si mode = STACK et grantsCredits = null → incohérent | Credit packs DOIVENT octroyer des crédits | `engine.ts:114` : crédits accumulés pour mode STACK |
 | Cohérence avec credit_costs | grantsCredits ≥ credit_cost d'une session pour les abonnements | Sinon l'abonnement ne couvre même pas 1 session |
 
+**Invariant imposé à l'écriture** (cross-namespace : `products.*.grantsCredits` × mode statique) :
+
+Le mode d'activation (SINGLE/EXTEND/STACK) reste en Tier LOGIQUE (code TS, non éditable runtime). Au moment de l'écriture d'un `grantsCredits` via `PATCH /api/admin/config`, la route lit le `mode` statique depuis `PRODUCT_REGISTRY` et impose :
+
 ```typescript
-const productCreditsSchema = z.number().int().min(0).max(100);
-// Invariant cross-product: pas validable par champ seul,
-// validé au niveau de l'écran admin qui affiche le coût d'une session
-// à côté des crédits octroyés (information, pas blocage)
+// Dans la route PATCH /api/admin/config — validation cross-namespace
+import { PRODUCT_REGISTRY } from '@/lib/entitlement/types';
+
+function validateProductCredits(productCode: string, grantsCredits: number): void {
+  const staticDef = PRODUCT_REGISTRY[productCode];
+  if (!staticDef) throw new Error(`Unknown product: ${productCode}`);
+
+  // STACK products (credit packs) MUST grant > 0 credits.
+  // Monetary invariant: a credit pack charging the customer for 0 credits = fraude.
+  if (staticDef.mode === 'STACK' && (grantsCredits === null || grantsCredits <= 0)) {
+    throw new Error(
+      `Product ${productCode} has mode STACK — grantsCredits must be > 0 (got ${grantsCredits})`
+    );
+  }
+
+  // All products: credits must be non-negative
+  if (grantsCredits < 0) {
+    throw new Error(`grantsCredits must be >= 0 (got ${grantsCredits})`);
+  }
+}
 ```
+
+Cet invariant est **bloquant** (rejet HTTP 400), pas seulement affiché. Un admin ne peut pas sauvegarder `CREDIT_PACK_5.grantsCredits = 0` — la route refuse.
 
 #### Namespace `pricing.rules.group`
 
