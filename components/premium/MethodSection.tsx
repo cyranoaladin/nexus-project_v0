@@ -1,9 +1,9 @@
 'use client';
 
 import { GraduationCap, Users, BookOpen, Shield } from 'lucide-react';
-import { GROUP_RULES } from '@/lib/group-rules';
+import { getRules } from '@/lib/pricing';
 
-function getPillars(rules: typeof GROUP_RULES) {
+function getPillars(rules: { group_max: number; group_min_open: Record<string, number> }) {
   return [
   {
     icon: GraduationCap,
@@ -33,7 +33,7 @@ function getPillars(rules: typeof GROUP_RULES) {
 }
 
 export function MethodSection() {
-  const pillars = getPillars(GROUP_RULES);
+  const pillars = getPillars(getRules());
 
   return (
     <section className="py-20 px-4 md:px-6 bg-lux-ink">

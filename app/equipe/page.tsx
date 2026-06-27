@@ -15,7 +15,7 @@ import {
   Users,
 } from "lucide-react";
 import { resolveUiIcon } from "@/lib/ui-icons";
-import { GROUP_RULES } from "@/lib/group-rules";
+import { getRules } from "@/lib/pricing";
 
 const FEATURED = [
   "maths-methode-bac",
@@ -261,7 +261,7 @@ const filterCategories = [
 ];
 
 export default function EquipePage() {
-  const groupMax = GROUP_RULES.group_max;
+  const groupMax = getRules().group_max;
   const profilesRef = useRef<HTMLDivElement | null>(null);
   const directoryRef = useRef<HTMLDivElement | null>(null);
 
