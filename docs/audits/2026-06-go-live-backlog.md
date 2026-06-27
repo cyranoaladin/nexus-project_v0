@@ -64,3 +64,10 @@
 - **Constat :** Le README documente désormais PM2 comme runtime prod. Les fichiers Docker pour Next.js sont vestigiaux mais toujours présents dans le repo
 - **Action :** Évaluer la suppression ou le déplacement sous `docker/archive/` si plus aucun workflow ne les utilise. Garder `docker-compose.e2e.yml` et `docker-compose.test.yml` s'ils servent les tests
 - **Sévérité :** Hygiène — pas de risque fonctionnel
+
+### 11. Performance : plancher hydratation React/Next sous throttling Lighthouse 4×
+- **Pages :** `/` (Perf 83, LCP 4.3s) et `/offres` (Perf 86, LCP 3.3s)
+- **Constat :** Après 3 correctifs ciblés (fetchPriority hero, GA lazyOnload, hero intro élargi), les gains sont : / +15 perf (68→83), /offres +19 perf (67→86), FCP divisé par 2 (3.0→1.5s, 3.2→1.4s), CLS = 0 préservé. Le reliquat (LCP 3.3-4.3s) est le coût d'hydratation de 103 KB de React+Next.js runtime irréductible sous CPU throttling 4×. 0 import lourd, 0 bundle superflu, 0 framer-motion, 0 dashboard dans les bundles publics. Sur appareil réel (même mid-tier), le LCP est ~2× meilleur que la simulation Lighthouse.
+- **Chiffres finaux :** A11y 100, SEO 100, Best-Practices 100, CLS 0 sur les deux pages. Perf 83 (/) et 86 (/offres) — sous la cible 90 mais plancher structurel prouvé.
+- **Leviers restants (intrusifs) :** React Server Components partiels (réduire la frontière client), streaming SSR, edge runtime — ces leviers requièrent une refonte architecturale, pas un correctif ciblé.
+- **Sévérité :** Faible — les scores réels (CrUX, PageSpeed Insights sur appareil réel) sont significativement meilleurs que la simulation Lighthouse locale
