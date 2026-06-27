@@ -13,8 +13,8 @@ import {
 } from '@/components/premium';
 import {
   getReperes,
+  getRules,
 } from '@/lib/pricing';
-import { GROUP_RULES } from '@/lib/group-rules';
 import {
   EnjeuxNiveau,
   ProcessSteps,
@@ -63,7 +63,7 @@ function LevelRouter() {
 
 function PricingReperesSection() {
   const reperes = getReperes();
-  const rules = GROUP_RULES;
+  const rules = getRules();
 
   const anchors = [
     {
@@ -156,7 +156,7 @@ function getVerifiableItems(groupMax: number): string[] {
 }
 
 function VerifiableSection() {
-  const { group_max: groupMax } = GROUP_RULES;
+  const { group_max: groupMax } = getRules();
   const verifiableItems = getVerifiableItems(groupMax);
 
   return (
@@ -189,7 +189,7 @@ function VerifiableSection() {
 
 // ── FAQ ──
 
-function getFaqItems(rules: typeof GROUP_RULES): FAQItem[] {
+function getFaqItems(rules: { group_max: number; group_min_open: Record<string, number> }): FAQItem[] {
   const groupMax = rules.group_max;
   const lyceeMin = rules.group_min_open.lycee;
   const collegeMin = rules.group_min_open.college;
@@ -226,7 +226,7 @@ function getFaqItems(rules: typeof GROUP_RULES): FAQItem[] {
 // ── Main ──
 
 export function HomePageClient() {
-  const faqItems = getFaqItems(GROUP_RULES);
+  const faqItems = getFaqItems(getRules());
 
   return (
     <main className="luxury" id="main-content">

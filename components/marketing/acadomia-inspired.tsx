@@ -14,7 +14,7 @@ import {
 
 import socialProof from '@/content/social-proof.json';
 import team from '@/content/team.json';
-import { GROUP_RULES } from '@/lib/group-rules';
+import { getRules } from '@/lib/pricing';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
 
@@ -42,7 +42,7 @@ export function ReassuranceChips({ compact = false }: { compact?: boolean }) {
   );
 }
 
-function getProcessSteps(rules: typeof GROUP_RULES) {
+function getProcessSteps(rules: { group_max: number; group_min_open: Record<string, number> }) {
   return [
   {
     title: 'Bilan stratégique gratuit',
@@ -64,7 +64,7 @@ function getProcessSteps(rules: typeof GROUP_RULES) {
 }
 
 export function ProcessSteps() {
-  const processSteps = getProcessSteps(GROUP_RULES);
+  const processSteps = getProcessSteps(getRules());
 
   return (
     <section className="bg-lux-white px-4 py-14 md:px-6">
