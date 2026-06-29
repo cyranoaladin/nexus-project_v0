@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
@@ -159,7 +160,7 @@ async function generateInvoicePDFAndDocument(
     try {
       pdfBuffer = await renderInvoicePDF(pdfData);
     } catch (pdfError) {
-      console.error('[Validate] PDF render failed, using minimal fallback PDF:', pdfError);
+      console.error('[Validate] PDF render failed, using minimal fallback PDF:', serializeError(pdfError));
       pdfBuffer = buildMinimalPdfBuffer(`Facture ${invoice.number}`);
     }
 
@@ -202,7 +203,7 @@ async function generateInvoicePDFAndDocument(
     return { invoiceId: invoice.id, documentId: userDocument.id };
   } catch (err) {
     // Non-blocking: log error but don't fail the payment validation
-    console.error('[Validate] Erreur génération facture/document:', err);
+    console.error('[Validate] Erreur génération facture/document:', serializeError(err));
     return null;
   }
 }
@@ -490,7 +491,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.error('Erreur validation paiement:', error);
+    console.error('Erreur validation paiement:', serializeError(error));
 
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },

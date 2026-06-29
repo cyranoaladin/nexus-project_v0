@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { computeDiagnostics } from '@/lib/diagnostic/maths-terminale/scoring';
 import { DOMAINS } from '@/lib/diagnostic/maths-terminale/data';
 import type { DiagnosticSourceData, TeacherGrade } from '@/lib/diagnostic/maths-terminale/types';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 interface RouteParams {
   params: Promise<{ studentId: string }>;
@@ -48,7 +49,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
 
     return NextResponse.json({ bilan });
   } catch (error) {
-    console.error('[API Coach Bilan Diagnostic Maths Terminale GET]', error);
+    console.error('[API Coach Bilan Diagnostic Maths Terminale GET]', serializeError(error));
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
@@ -141,7 +142,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 
     return NextResponse.json({ success: true, bilan: updatedBilan });
   } catch (error) {
-    console.error('[API Coach Bilan Diagnostic Maths Terminale PATCH]', error);
+    console.error('[API Coach Bilan Diagnostic Maths Terminale PATCH]', serializeError(error));
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

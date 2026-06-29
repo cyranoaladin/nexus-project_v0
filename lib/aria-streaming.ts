@@ -2,6 +2,7 @@ import { Subject } from '@/types/enums';
 import OpenAI from 'openai';
 import { ragSearch, buildRAGContext } from '@/lib/rag-client';
 import { ARIA_SYSTEM_PROMPT, ARIA_MAX_MESSAGE_LENGTH, getAriaModel } from '@/lib/aria/prompt';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || 'ollama',
@@ -68,7 +69,7 @@ export async function generateAriaResponseStream(
         controller.enqueue(encoder.encode('data: [DONE]\n\n'));
         controller.close();
       } catch (error) {
-        console.error('Streaming error:', error);
+        console.error('Streaming error:', serializeError(error));
         const errorData = `data: ${JSON.stringify({ error: 'Streaming error occurred' })}\n\n`;
         controller.enqueue(encoder.encode(errorData));
         controller.close();

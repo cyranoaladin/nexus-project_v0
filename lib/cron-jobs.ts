@@ -1,6 +1,7 @@
 import { prisma } from './prisma'
 import { Prisma, CronExecutionStatus } from '@prisma/client'
 import { sendCreditExpirationReminder } from './email'
+import { serializeError } from '@/lib/utils/serialize-error';
 
 /**
  * Helper: Start a cron job execution with idempotency tracking
@@ -100,7 +101,7 @@ export async function checkExpiringCredits() {
         )
         
       } catch (error) {
-        console.error(`❌ Erreur envoi email pour ${data.student.user.firstName}:`, error)
+        console.error(`❌ Erreur envoi email pour ${data.student.user.firstName}:`, serializeError(error))
       }
     })())
   })
@@ -211,7 +212,7 @@ export async function allocateMonthlyCredits() {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     await completeExecution(execution.id, errorMessage);
-    console.error('❌ Erreur lors de l\'allocation des crédits:', error);
+    console.error('❌ Erreur lors de l\'allocation des crédits:', serializeError(error));
     throw error;
   }
 }

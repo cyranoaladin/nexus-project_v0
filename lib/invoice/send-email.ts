@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * Invoice email sender — uses nodemailer transporter from lib/email pattern.
  * Separated from template for testability.
@@ -81,7 +82,7 @@ export async function sendInvoiceEmail(
       text,
     });
   } catch (error) {
-    console.error('[Invoice] Erreur envoi email:', error);
+    console.error('[Invoice] Erreur envoi email:', serializeError(error));
     if (process.env.NODE_ENV === 'development') {
       return;
     }

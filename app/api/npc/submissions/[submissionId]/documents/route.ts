@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { CopySubmissionStatus, UserRole, AiJobType, AiJobStatus, AiJobPriority } from '@prisma/client';
 import {
+import { serializeError } from '@/lib/utils/serialize-error';
   FILE_VALIDATION_ERRORS,
   validateUploadedFile,
 } from '@/lib/npc/file-validator';
@@ -290,7 +291,7 @@ export async function POST(
       { status: 201 }
     );
   } catch (error) {
-    console.error('[NPC Documents] Upload error:', error);
+    console.error('[NPC Documents] Upload error:', serializeError(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

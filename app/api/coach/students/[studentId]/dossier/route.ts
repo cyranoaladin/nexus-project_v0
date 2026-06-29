@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
@@ -181,7 +182,7 @@ export async function GET(
       ariaConversationCount: ariaConversationsCount,
     });
   } catch (error) {
-    console.error('[Coach Dossier API] Error:', error);
+    console.error('[Coach Dossier API] Error:', serializeError(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

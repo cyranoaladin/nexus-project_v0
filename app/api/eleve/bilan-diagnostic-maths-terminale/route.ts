@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { computeDiagnostics } from '@/lib/diagnostic/maths-terminale/scoring';
 import type { DiagnosticSourceData } from '@/lib/diagnostic/maths-terminale/types';
 import { DOMAINS } from '@/lib/diagnostic/maths-terminale/data';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 const BILAN_SOURCE_VERSION = 'maths_terminale_v1';
 
@@ -65,7 +66,7 @@ export async function GET() {
 
     return NextResponse.json({ bilan, studentName });
   } catch (error) {
-    console.error('[API ELEVE Bilan Diagnostic Maths Terminale GET]', error);
+    console.error('[API ELEVE Bilan Diagnostic Maths Terminale GET]', serializeError(error));
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
@@ -182,7 +183,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, bilan });
   } catch (error) {
-    console.error('[API ELEVE Bilan Diagnostic Maths Terminale POST]', error);
+    console.error('[API ELEVE Bilan Diagnostic Maths Terminale POST]', serializeError(error));
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

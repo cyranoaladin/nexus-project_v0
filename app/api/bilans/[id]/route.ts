@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * Bilan Individual API
  * GET /api/bilans/[id] — Get bilan by ID
@@ -67,7 +68,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       data: sanitizeBilanForRole(bilan, authResponse.user.role),
     });
   } catch (error) {
-    console.error('[GET /api/bilans/[id]] Error:', error);
+    console.error('[GET /api/bilans/[id]] Error:', serializeError(error));
     return NextResponse.json(
       { success: false, error: 'Failed to fetch bilan' },
       { status: 500 }
@@ -144,7 +145,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       message: 'Bilan updated successfully',
     });
   } catch (error) {
-    console.error('[PUT /api/bilans/[id]] Error:', error);
+    console.error('[PUT /api/bilans/[id]] Error:', serializeError(error));
     return NextResponse.json(
       { success: false, error: 'Failed to update bilan' },
       { status: 500 }
@@ -180,7 +181,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       message: 'Bilan deleted successfully',
     });
   } catch (error) {
-    console.error('[DELETE /api/bilans/[id]] Error:', error);
+    console.error('[DELETE /api/bilans/[id]] Error:', serializeError(error));
     return NextResponse.json(
       { success: false, error: 'Failed to delete bilan' },
       { status: 500 }

@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * Telegram Bot API client for Nexus Réussite.
  *
@@ -150,7 +151,7 @@ export async function telegramSendMessage(
     return { ok: true, messageId: result.message_id };
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : 'unknown';
-    console.error('[telegram] Send failed:', errorMsg);
+    console.error('[telegram] Send failed:', serializeError(errorMsg));
     return { ok: false, error: errorMsg };
   }
 }

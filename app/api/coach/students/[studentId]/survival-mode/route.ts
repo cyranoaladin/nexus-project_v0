@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
@@ -114,7 +115,7 @@ export async function POST(
 
     return NextResponse.json(updated);
   } catch (error) {
-    console.error('[Survival Mode API] POST error:', error);
+    console.error('[Survival Mode API] POST error:', serializeError(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

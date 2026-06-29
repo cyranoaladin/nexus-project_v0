@@ -5,6 +5,7 @@ import { CopySubmissionStatus, UserRole } from '@prisma/client';
 import { deleteSecureFile } from '@/lib/npc/storage';
 import { canManageSubmissionDocuments } from '@/lib/npc/access';
 import { isCorrectionDocumentType } from '@/lib/npc/document-types';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 interface RouteParams {
   params: Promise<{ submissionId: string; documentId: string }>;
@@ -120,7 +121,7 @@ export async function PATCH(
       document: sanitizeCopyPage(updatedDocument as unknown as Record<string, unknown>),
     });
   } catch (error) {
-    console.error('[NPC Documents] PATCH error:', error);
+    console.error('[NPC Documents] PATCH error:', serializeError(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -191,7 +192,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('[NPC Documents] Delete error:', error);
+    console.error('[NPC Documents] Delete error:', serializeError(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

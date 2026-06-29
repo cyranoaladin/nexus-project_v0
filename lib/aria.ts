@@ -3,6 +3,7 @@ import OpenAI from 'openai';
 import { prisma } from './prisma';
 import { ragSearch, buildRAGContext } from '@/lib/rag-client';
 import { ARIA_SYSTEM_PROMPT, ARIA_MAX_MESSAGE_LENGTH, getAriaModel } from '@/lib/aria/prompt';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || 'ollama',
@@ -62,7 +63,7 @@ export async function generateAriaResponse(
     return completion.choices[0]?.message?.content || 'Désolé, je n\'ai pas pu générer une réponse.';
 
   } catch (error) {
-    console.error('Erreur ARIA:', error);
+    console.error('Erreur ARIA:', serializeError(error));
     return 'Je rencontre une difficulté technique. Veuillez réessayer ou contacter un coach.';
   }
 }

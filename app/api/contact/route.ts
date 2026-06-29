@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { guardRateLimitAsync } from "@/lib/rate-limit";
 import { captureContactLead, ContactLeadValidationError } from "@/lib/crm/contact-leads";
+import { serializeError } from '@/lib/utils/serialize-error';
 
 export async function POST(request: Request) {
   try {
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
       );
     }
 
-    console.error("[contact] error", error);
+    console.error("[contact] error", serializeError(error));
     return NextResponse.json({ ok: false, error: "lead_capture_failed" }, { status: 500 });
   }
 }

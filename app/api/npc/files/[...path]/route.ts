@@ -5,6 +5,7 @@ import { UserRole } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { readSecureFile, MIME_TO_EXT } from '@/lib/npc';
 import { canReadSubmission } from '@/lib/npc/access';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 // ─── Route Params ───
 
@@ -132,7 +133,7 @@ export async function GET(
 
     return new NextResponse(new Blob([new Uint8Array(fileBuffer)]), { status: 200, headers });
   } catch (error) {
-    console.error('[NPC Files] Error serving file:', error);
+    console.error('[NPC Files] Error serving file:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

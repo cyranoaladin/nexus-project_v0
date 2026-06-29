@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * Next Step Engine — Intelligent "what to do next" recommendations per role.
  *
@@ -99,7 +100,7 @@ export async function getNextStep(userId: string): Promise<NextStep | null> {
         return null;
     }
   } catch (error) {
-    console.error('[NextStepEngine] Error computing next step:', error);
+    console.error('[NextStepEngine] Error computing next step:', serializeError(error));
     return null;
   }
 }

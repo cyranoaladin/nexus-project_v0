@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import { serializeError } from '@/lib/utils/serialize-error';
 
 export async function GET(
   request: NextRequest,
@@ -33,7 +34,7 @@ export async function GET(
 
     return NextResponse.json(attempt);
   } catch (error) {
-    console.error("Error fetching automatisme attempt detail:", error);
+    console.error("Error fetching automatisme attempt detail:", serializeError(error));
     return NextResponse.json(
       { error: "Failed to fetch attempt" },
       { status: 500 }

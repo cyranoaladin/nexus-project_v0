@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
@@ -60,7 +61,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ progress, snapshot, isCorrect });
   } catch (error) {
-    console.error('[Student Survival QCM Attempt API] POST error:', error);
+    console.error('[Student Survival QCM Attempt API] POST error:', serializeError(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

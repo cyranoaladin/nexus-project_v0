@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { PREMIERE_EDS_SIMULATIONS } from "@/data/automatismes/premiere-eds/simulations";
+import { serializeError } from '@/lib/utils/serialize-error';
 
 export async function GET(
   request: NextRequest,
@@ -43,7 +44,7 @@ export async function GET(
 
     return NextResponse.json(safeSeries);
   } catch (error) {
-    console.error("Error fetching automatisme series detail:", error);
+    console.error("Error fetching automatisme series detail:", serializeError(error));
     return NextResponse.json(
       { error: "Failed to fetch series details" },
       { status: 500 }

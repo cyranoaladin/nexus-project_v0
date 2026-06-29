@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -178,7 +179,7 @@ export async function POST(
           );
         }
       } catch (emailError) {
-        console.error('Failed to send session report email notification:', emailError);
+        console.error('Failed to send session report email notification:', serializeError(emailError));
       }
     });
 

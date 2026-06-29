@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * Bilans API — CRUD Canonical
  * GET /api/bilans — List bilans with filtering
@@ -90,7 +91,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('[GET /api/bilans] Error:', error);
+    console.error('[GET /api/bilans] Error:', serializeError(error));
     return NextResponse.json(
       { success: false, error: 'Failed to fetch bilans' },
       { status: 500 }
@@ -166,7 +167,7 @@ export async function POST(request: NextRequest) {
       message: 'Bilan created successfully',
     }, { status: 201 });
   } catch (error) {
-    console.error('[POST /api/bilans] Error:', error);
+    console.error('[POST /api/bilans] Error:', serializeError(error));
     return NextResponse.json(
       { success: false, error: 'Failed to create bilan' },
       { status: 500 }

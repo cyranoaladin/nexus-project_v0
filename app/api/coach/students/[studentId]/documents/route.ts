@@ -6,6 +6,7 @@ import { assertCoachCanAccessStudent } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
 import { DocumentType, DocumentVisibilityScope, Subject } from '@prisma/client';
 import { z } from 'zod';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 // Validation schema for creating documents
 const createDocumentSchema = z.object({
@@ -86,7 +87,7 @@ export async function GET(request: Request, { params }: RouteParams) {
       documents,
     });
   } catch (error) {
-    console.error('[API Coach Documents GET] Error:', error);
+    console.error('[API Coach Documents GET] Error:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal Server Error', message: 'Erreur lors de la récupération' },
       { status: 500 }
@@ -239,7 +240,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       );
     }
 
-    console.error('[API Coach Documents POST] Error:', error);
+    console.error('[API Coach Documents POST] Error:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal Server Error', message: 'Erreur lors de la création' },
       { status: 500 }

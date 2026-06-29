@@ -3,6 +3,7 @@ import { AcademicTrack, MathsLevel } from '@prisma/client';
 import type { Prisma } from '@prisma/client';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 type JsonRecord = Record<string, unknown>;
 
@@ -45,7 +46,7 @@ export async function GET() {
     const stageState = asRecord(progress?.diagnosticResults).stage_eam_stmg ?? null;
     return NextResponse.json({ ok: true, data: stageState }, { status: 200 });
   } catch (error) {
-    console.error('[API] Failed to load Première STMG stage progress:', error);
+    console.error('[API] Failed to load Première STMG stage progress:', serializeError(error));
     return NextResponse.json({ error: 'Failed to load stage progress' }, { status: 500 });
   }
 }
@@ -122,7 +123,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true, persisted: true }, { status: 200 });
   } catch (error) {
-    console.error('[API] Failed to persist Première STMG stage progress:', error);
+    console.error('[API] Failed to persist Première STMG stage progress:', serializeError(error));
     return NextResponse.json({ error: 'Failed to persist stage progress' }, { status: 500 });
   }
 }

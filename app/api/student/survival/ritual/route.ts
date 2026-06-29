@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
@@ -24,7 +25,7 @@ export async function GET() {
     const examDate = student.survivalProgress?.examDate ?? new Date(DEFAULT_EXAM_DATE);
     return NextResponse.json({ ritual: chooseDailyRitual(snapshot, new Date(), examDate) });
   } catch (error) {
-    console.error('[Student Survival Ritual API] GET error:', error);
+    console.error('[Student Survival Ritual API] GET error:', serializeError(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

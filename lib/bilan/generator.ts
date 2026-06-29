@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * Canonical Bilan Generator
  * Unified LLM generation for all bilan sources (Diagnostic, Assessment, Stage)
@@ -162,7 +163,7 @@ export class BilanGenerator {
       return { success: true, result };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.error('[BilanGenerator] Generation failed:', errorMessage);
+      console.error('[BilanGenerator] Generation failed:', serializeError(errorMessage));
 
       // Update to FAILED status
       if (context.bilanId) {

@@ -1,5 +1,6 @@
 import { readFile, stat } from 'fs/promises';
 import { join } from 'path';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 import { NextResponse } from 'next/server';
 
@@ -26,7 +27,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error('[public-documents/corrige-dnb-maths-2026] PDF unavailable', error);
+    console.error('[public-documents/corrige-dnb-maths-2026] PDF unavailable', serializeError(error));
     return NextResponse.json(
       { error: 'PDF not found' },
       { status: 404 }

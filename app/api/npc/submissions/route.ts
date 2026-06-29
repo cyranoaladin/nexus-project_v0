@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 // ═══════════════════════════════════════════════════════════════════════════════
 // API Route: NPC Submissions
 // Create new copy submissions with RBAC
@@ -164,7 +165,7 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.error('NPC submissions API error:', error);
+    console.error('NPC submissions API error:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -286,7 +287,7 @@ export async function GET(req: NextRequest) {
       ),
     });
   } catch (error) {
-    console.error('NPC submissions API error:', error);
+    console.error('NPC submissions API error:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

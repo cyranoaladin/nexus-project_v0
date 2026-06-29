@@ -4,6 +4,7 @@ import { can } from '@/lib/rbac';
 import { activeAssignmentWhere } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
 import { parsePagination, createPaginationMeta } from '@/lib/api/pagination';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 /**
  * GET /api/assistante/coaches
@@ -130,7 +131,7 @@ export async function GET(request: Request) {
       coaches: formattedCoaches,
     });
   } catch (error) {
-    console.error('[API Assistante Coaches GET] Error:', error);
+    console.error('[API Assistante Coaches GET] Error:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal Server Error', message: 'Erreur lors de la récupération des coachs' },
       { status: 500 }

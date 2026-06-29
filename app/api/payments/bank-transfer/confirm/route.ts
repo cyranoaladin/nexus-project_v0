@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
@@ -184,7 +185,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.error('[BankTransfer Confirm] Erreur:', error);
+    console.error('[BankTransfer Confirm] Erreur:', serializeError(error));
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
       { status: 500 }

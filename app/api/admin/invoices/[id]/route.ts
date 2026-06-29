@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * PATCH /api/admin/invoices/:id — Invoice status actions.
  *
@@ -274,7 +275,7 @@ export async function PATCH(
     return NextResponse.json(updated, { status: 200 });
 
   } catch (error) {
-    console.error('[PATCH /api/admin/invoices/:id]', error);
+    console.error('[PATCH /api/admin/invoices/:id]', serializeError(error));
     return NextResponse.json({ error: 'Erreur interne' }, { status: 500 });
   }
 }

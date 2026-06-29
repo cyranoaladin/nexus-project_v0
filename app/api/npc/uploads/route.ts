@@ -4,6 +4,7 @@ import { can } from '@/lib/rbac';
 import { UserRole, CopySubmissionStatus, Subject } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import {
+import { serializeError } from '@/lib/utils/serialize-error';
   validateUploadedFile,
   generateSecureFileId,
   saveUploadedFile,
@@ -254,7 +255,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       { status: 201 }
     );
   } catch (error) {
-    console.error('[NPC Upload] Error:', error);
+    console.error('[NPC Upload] Error:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

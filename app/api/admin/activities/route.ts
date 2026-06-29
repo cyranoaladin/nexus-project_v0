@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { prisma } from '@/lib/prisma';
@@ -152,7 +153,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error fetching activities:', error);
+    console.error('Error fetching activities:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

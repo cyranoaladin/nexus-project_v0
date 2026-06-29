@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 // ═══════════════════════════════════════════════════════════════════════════════
 // NPC - NEXUS PEDAGOGY COCKPIT — Secure File Storage
 // Server-side only - handles secure path generation and file operations
@@ -119,7 +120,7 @@ export async function saveUploadedFile(
       relativePath,
     };
   } catch (error) {
-    console.error('[NPC Storage] Save failed:', error);
+    console.error('[NPC Storage] Save failed:', serializeError(error));
     return { success: false, error: 'SAVE_FAILED' };
   }
 }
@@ -146,7 +147,7 @@ export async function readSecureFile(
 
     return await fs.readFile(absolutePath);
   } catch (error) {
-    console.error('[NPC Storage] Read failed:', error);
+    console.error('[NPC Storage] Read failed:', serializeError(error));
     return null;
   }
 }
@@ -173,7 +174,7 @@ export async function deleteSecureFile(
     await fs.unlink(absolutePath);
     return true;
   } catch (error) {
-    console.error('[NPC Storage] Delete failed:', error);
+    console.error('[NPC Storage] Delete failed:', serializeError(error));
     return false;
   }
 }
@@ -233,7 +234,7 @@ export async function deleteSubmissionFiles(
     await fs.rm(submissionDir, { recursive: true, force: true });
     return true;
   } catch (error) {
-    console.error('[NPC Storage] Cleanup failed:', error);
+    console.error('[NPC Storage] Cleanup failed:', serializeError(error));
     return false;
   }
 }

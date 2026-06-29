@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { prisma } from '@/lib/prisma';
@@ -168,7 +169,7 @@ export async function POST(request: NextRequest) {
           ? 'OLLAMA_EMPTY_RESPONSE'
           : 'UNKNOWN_ERROR';
 
-      console.error(`Retry failed for ${diagnosticId}:`, bilanError);
+      console.error(`Retry failed for ${diagnosticId}:`, serializeError(bilanError));
 
       await prisma.diagnostic.update({
         where: { id: diagnosticId },
@@ -189,7 +190,7 @@ export async function POST(request: NextRequest) {
       );
     }
   } catch (error) {
-    console.error('Erreur retry diagnostic:', error);
+    console.error('Erreur retry diagnostic:', serializeError(error));
 
     if (error instanceof Error && error.name === 'ZodError') {
       return NextResponse.json(

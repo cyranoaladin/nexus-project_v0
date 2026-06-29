@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * Bilan Generation API
  * POST /api/bilans/generate — Trigger LLM generation for a bilan
@@ -82,7 +83,7 @@ export async function POST(request: NextRequest) {
     // Trigger generation asynchronously
     // Don't await — return immediately and let generation happen in background
     BilanGenerator.generateAndSave(context).catch(error => {
-      console.error('[POST /api/bilans/generate] Background generation failed:', error);
+      console.error('[POST /api/bilans/generate] Background generation failed:', serializeError(error));
     });
 
     // Update status to GENERATING immediately
@@ -102,7 +103,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('[POST /api/bilans/generate] Error:', error);
+    console.error('[POST /api/bilans/generate] Error:', serializeError(error));
     return NextResponse.json(
       { success: false, error: 'Failed to start generation' },
       { status: 500 }
@@ -171,7 +172,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('[GET /api/bilans/generate] Error:', error);
+    console.error('[GET /api/bilans/generate] Error:', serializeError(error));
     return NextResponse.json(
       { success: false, error: 'Failed to fetch generation status' },
       { status: 500 }

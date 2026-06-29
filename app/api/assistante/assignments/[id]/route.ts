@@ -4,6 +4,7 @@ import { can } from '@/lib/rbac';
 import { prisma } from '@/lib/prisma';
 import { AssignmentStatus, Subject } from '@prisma/client';
 import { z } from 'zod';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 // Validation schema for updating assignments
 const updateAssignmentSchema = z.object({
@@ -85,7 +86,7 @@ export async function GET(request: Request, { params }: RouteParams) {
       assignment,
     });
   } catch (error) {
-    console.error('[API Assistante Assignment GET] Error:', error);
+    console.error('[API Assistante Assignment GET] Error:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal Server Error', message: 'Erreur lors de la récupération' },
       { status: 500 }
@@ -195,7 +196,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       );
     }
 
-    console.error('[API Assistante Assignment PATCH] Error:', error);
+    console.error('[API Assistante Assignment PATCH] Error:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal Server Error', message: 'Erreur lors de la mise à jour' },
       { status: 500 }

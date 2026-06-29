@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import type { Prisma } from '@prisma/client';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 type EmailUser = {
   firstName?: string | null;
@@ -169,7 +170,7 @@ export async function sendWelcomeEmail(user: EmailUser) {
     });
 
   } catch (error) {
-    console.error('Erreur envoi email bienvenue:', error);
+    console.error('Erreur envoi email bienvenue:', serializeError(error));
     throw error;
   }
 }
@@ -215,7 +216,7 @@ export async function sendSessionConfirmationEmail(session: EmailSession, studen
     }
 
   } catch (error) {
-    console.error('Erreur envoi email confirmation:', error);
+    console.error('Erreur envoi email confirmation:', serializeError(error));
     throw error;
   }
 }
@@ -232,7 +233,7 @@ export async function sendSessionReminderEmail(session: EmailSession, student: E
     });
 
   } catch (error) {
-    console.error('Erreur envoi rappel session:', error);
+    console.error('Erreur envoi rappel session:', serializeError(error));
     throw error;
   }
 }
@@ -243,7 +244,7 @@ export async function testEmailConfiguration() {
     await transporter.verify();
     return { success: true, message: 'Configuration email valide' };
   } catch (error) {
-    console.error('Erreur configuration email:', error);
+    console.error('Erreur configuration email:', serializeError(error));
     return { success: false, error: error instanceof Error ? error.message : String(error) };
   }
 }
@@ -321,7 +322,7 @@ export async function sendSessionReportNotification(
     });
 
   } catch (error) {
-    console.error('Error sending session report notification:', error);
+    console.error('Error sending session report notification:', serializeError(error));
   }
 }
 
@@ -385,6 +386,6 @@ export async function sendScheduledReminders() {
     }
 
   } catch (error) {
-    console.error('Erreur envoi rappels automatiques:', error);
+    console.error('Erreur envoi rappels automatiques:', serializeError(error));
   }
 }

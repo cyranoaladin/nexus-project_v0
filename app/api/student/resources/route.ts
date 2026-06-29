@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
@@ -49,7 +50,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(formattedResources);
 
   } catch (error) {
-    console.error('Error fetching student resources:', error);
+    console.error('Error fetching student resources:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

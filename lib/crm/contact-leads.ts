@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { sendMail } from '@/lib/email/mailer';
 import { contactLeadNotification } from '@/lib/email/templates';
 import { LEGAL } from '@/lib/legal';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 const optionalText = z
   .preprocess(
@@ -103,7 +104,7 @@ export async function captureContactLead(payload: unknown) {
       replyTo: lead.email,
     });
   } catch (error) {
-    console.error('[contact] lead notification failed', error);
+    console.error('[contact] lead notification failed', serializeError(error));
   }
 
   return lead;

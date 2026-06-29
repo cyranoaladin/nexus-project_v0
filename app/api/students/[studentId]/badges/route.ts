@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
@@ -60,7 +61,7 @@ export async function GET(
 
     return NextResponse.json({ badges });
   } catch (error) {
-    console.error('[Student Badges API] Error:', error);
+    console.error('[Student Badges API] Error:', serializeError(error));
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { PREMIERE_EDS_SIMULATIONS } from "@/data/automatismes/premiere-eds/simulations";
 import { calculateAutomatismeScore } from "@/lib/automatismes/scoring";
+import { serializeError } from '@/lib/utils/serialize-error';
 
 export async function POST(request: NextRequest) {
   try {
@@ -63,7 +64,7 @@ export async function POST(request: NextRequest) {
       series // Include the full series with corrections for the result view
     });
   } catch (error) {
-    console.error("Error saving automatisme attempt:", error);
+    console.error("Error saving automatisme attempt:", serializeError(error));
     return NextResponse.json(
       { error: "Failed to save attempt" },
       { status: 500 }
@@ -102,7 +103,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(attempts);
   } catch (error) {
-    console.error("Error fetching automatisme attempts:", error);
+    console.error("Error fetching automatisme attempts:", serializeError(error));
     return NextResponse.json(
       { error: "Failed to fetch attempts" },
       { status: 500 }
