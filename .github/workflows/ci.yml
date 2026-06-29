@@ -119,11 +119,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install pdflatex
+      - name: Install PDF tooling
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends texlive-latex-base texlive-latex-recommended
+          sudo apt-get install -y --no-install-recommends poppler-utils texlive-latex-base texlive-latex-recommended
           pdflatex --version
+          pdfinfo -v
+          pdftotext -v
+          pdfimages -v
 
       - name: Generate Prisma Client
         run: npx prisma generate
