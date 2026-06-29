@@ -127,7 +127,7 @@ async function step1_registration() {
     
     return reservation.id;
   } catch (error) {
-    console.error('❌ STEP 1 FAILED:', error.message);
+    console.error('❌ STEP 1 FAILED:', serializeError(error));
     throw error;
   }
 }
@@ -225,7 +225,7 @@ async function step2_diagnostic(reservationId) {
     
     return scoringResult;
   } catch (error) {
-    console.error('❌ STEP 2 FAILED:', error.message);
+    console.error('❌ STEP 2 FAILED:', serializeError(error));
     throw error;
   }
 }
@@ -286,7 +286,7 @@ async function step3_adminVerification(reservationId) {
     
     return reservation;
   } catch (error) {
-    console.error('❌ STEP 3 FAILED:', error.message);
+    console.error('❌ STEP 3 FAILED:', serializeError(error));
     throw error;
   }
 }
@@ -317,7 +317,7 @@ async function step4_cleanup(reservationId) {
     
     console.log('✅ Cleanup verification passed: Test data removed from DB\n');
   } catch (error) {
-    console.error('❌ STEP 4 FAILED:', error.message);
+    console.error('❌ STEP 4 FAILED:', serializeError(error));
     throw error;
   }
 }

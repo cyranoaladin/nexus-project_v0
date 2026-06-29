@@ -13,6 +13,7 @@
 import { PrismaClient } from '@prisma/client';
 import * as fs from 'fs';
 import * as path from 'path';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 const prisma = new PrismaClient();
 const DOCUMENTS_DIR = path.join(process.cwd(), 'storage', 'documents');
@@ -287,8 +288,8 @@ async function run() {
 
   } catch (error) {
     log('❌', `TEST ÉCHOUÉ : ${error instanceof Error ? error.message : String(error)}`);
-    if (error instanceof Error && error.stack) {
-      console.error(error.stack);
+    if (error instanceof Error) {
+      console.error(serializeError(error));
     }
     process.exit(1);
   } finally {
