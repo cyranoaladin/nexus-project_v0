@@ -10,6 +10,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 export async function GET() {
   try {
@@ -48,7 +49,7 @@ export async function GET() {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('[Assessment Test] Error:', error instanceof Error ? error.name : 'unknown');
+    console.error('[Assessment Test] Error:', serializeError(error));
 
     return NextResponse.json(
       {

@@ -54,8 +54,8 @@ export type RateLimitRuntimeMode = 'memory' | 'redis' | 'upstash';
 
 function canBypassRateLimit(): boolean {
   if (process.env.RATE_LIMIT_DISABLE === '1') {
-    // Allow bypass in dev/test, or in E2E containers (CI=true guards against real prod)
-    return process.env.NODE_ENV !== 'production' || process.env.CI === 'true';
+    // Never allow the bypass in production, including CI jobs that run production builds.
+    return process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
   }
   return false;
 }
@@ -167,7 +167,7 @@ export async function checkRateLimitAsync(
       );
       const retryAfter = success ? 0 : Math.max(0, Math.ceil((resetAt - Date.now()) / 1000));
       return { success, limit, remaining, resetAt, retryAfter };
-    } catch (error) {
+    } catch {
       if (!_distributedWarned && process.env.NODE_ENV !== 'test') {
         _distributedWarned = true;
         // Distributed store unavailable, falling back to memory store

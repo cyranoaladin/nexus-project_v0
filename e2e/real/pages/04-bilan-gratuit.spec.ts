@@ -3,8 +3,8 @@ import { test, expect } from '@playwright/test';
 /**
  * REAL AUDIT — Bilan Gratuit (/bilan-gratuit)
  *
- * Tests the multi-step registration form with real form submission
- * and database verification.
+ * Tests the low-friction bilan request form with real form submission.
+ * The public page must not ask for a password before qualification.
  */
 
 test.describe('REAL — Bilan Gratuit (/bilan-gratuit)', () => {
@@ -33,105 +33,50 @@ test.describe('REAL — Bilan Gratuit (/bilan-gratuit)', () => {
     await expect(h1).toBeVisible();
     const text = (await h1.textContent()) || '';
     console.log(`Bilan H1: "${text.trim()}"`);
-    // Actual H1 is "Créez Votre Compte Parent et Élève"
     expect(text.trim().length, 'H1 est vide').toBeGreaterThan(0);
   });
 
-  test('Étape 1 — Champs parent visibles (data-testid)', async ({ page }) => {
-    await expect(page.getByTestId('input-parent-firstname')).toBeVisible({ timeout: 5000 });
-    await expect(page.getByTestId('input-parent-lastname')).toBeVisible();
-    await expect(page.getByTestId('input-parent-email')).toBeVisible();
-    await expect(page.getByTestId('input-parent-tel')).toBeVisible();
-    await expect(page.getByTestId('input-parent-password')).toBeVisible();
+  test('Formulaire de demande visible sans mot de passe', async ({ page }) => {
+    await expect(page.locator('#parentFirstName')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('#parentLastName')).toBeVisible();
+    await expect(page.locator('#parentEmail')).toBeVisible();
+    await expect(page.locator('#parentPhone')).toBeVisible();
+    await expect(page.locator('#studentFirstName')).toBeVisible();
+    await expect(page.locator('#studentGrade')).toBeVisible();
+    await expect(page.locator('#studentSchool')).toBeVisible();
+    await expect(page.locator('#objectives')).toBeVisible();
+    await expect(page.locator('input[type="password"]')).toHaveCount(0);
   });
 
-  test('Étape 1 — Validation empêche soumission vide', async ({ page }) => {
-    const nextBtn = page.locator('button').filter({ hasText: /suivant|continuer|next|étape/i }).first();
-    if (await nextBtn.isVisible()) {
-      await nextBtn.click();
-      await page.waitForTimeout(1000);
-      // Should still show step 1 fields or validation errors
-      const hasValidationError = await page.locator('[data-testid*="error"], [class*="text-error"]').first().isVisible().catch(() => false);
-      const stillOnStep1 = await page.getByTestId('input-parent-firstname').isVisible().catch(() => false);
-      expect(hasValidationError || stillOnStep1, 'Formulaire avance sans validation').toBe(true);
-    }
+  test('Validation empêche soumission vide', async ({ page }) => {
+    const submitBtn = page.getByRole('button', { name: /demander mon bilan stratégique gratuit/i });
+    await submitBtn.click();
+    await expect(page.locator('text=Email invalide')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('#parentFirstName')).toBeVisible();
   });
 
   test('Soumission complète — crée parent + élève en DB', async ({ page }) => {
     const uniqueEmail = `test.audit.${Date.now()}@e2e-test.com`;
 
-    // Fill step 1 — Parent info using data-testid
-    await page.getByTestId('input-parent-firstname').fill('TestAudit');
-    await page.getByTestId('input-parent-lastname').fill('Parent');
-    await page.getByTestId('input-parent-email').fill(uniqueEmail);
-    await page.getByTestId('input-parent-tel').fill('99887766');
-    await page.getByTestId('input-parent-password').fill('TestPassword123!');
+    await page.locator('#parentFirstName').fill('TestAudit');
+    await page.locator('#parentLastName').fill('Parent');
+    await page.locator('#parentEmail').fill(uniqueEmail);
+    await page.locator('#parentPhone').fill('99887766');
+    await page.locator('#studentFirstName').fill('TestAudit');
+    await page.locator('#studentGrade').selectOption('terminale');
+    await page.locator('#studentSchool').fill('Lycée Pierre Mendès France');
+    await page.locator('label').filter({ hasText: 'Mathématiques' }).click();
+    await page.locator('#objectives').fill('Préparer le baccalauréat avec un suivi personnalisé');
+    await page.locator('label').filter({ hasText: /j’accepte d’être contacté/i }).click();
 
-    // Click next to go to step 2
-    const nextBtn = page.locator('button').filter({ hasText: /suivant|continuer|next|étape/i }).first();
-    await nextBtn.click();
-    await page.waitForTimeout(2000);
-
-    // Fill step 2 — Student info (actual data-testid: input-child-*)
-    const studentFirstName = page.getByTestId('input-child-firstname');
-    await expect(studentFirstName, 'Champ prénom élève non visible à l\'étape 2').toBeVisible({ timeout: 5000 });
-    await studentFirstName.fill('TestAudit');
-    await page.locator('#studentLastName').fill('Eleve');
-
-    // Grade — custom Select component (click trigger, then option)
-    const gradeTrigger = page.getByTestId('select-child-level');
-    await gradeTrigger.click();
-    await page.waitForTimeout(300);
-    await page.locator('[role="option"]').filter({ hasText: /terminale/i }).first().click();
-    await page.waitForTimeout(300);
-
-    // Current level — custom Select
-    const levelTrigger = page.getByTestId('select-current-level');
-    await levelTrigger.click();
-    await page.waitForTimeout(300);
-    await page.locator('[role="option"]').first().click();
-    await page.waitForTimeout(300);
-
-    // Preferred modality — custom Select (REQUIRED by validation)
-    const modalityTrigger = page.getByTestId('select-preferred-modality');
-    await modalityTrigger.click();
-    await page.waitForTimeout(300);
-    await page.locator('[role="option"]').first().click();
-    await page.waitForTimeout(300);
-
-    // Objectives — required by Zod (min 10 chars)
-    const objectivesField = page.locator('#objectives');
-    if (await objectivesField.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await objectivesField.fill('Préparer le baccalauréat avec un suivi personnalisé');
-    }
-
-    // Select at least one subject (Checkbox component)
-    const mathCheckbox = page.getByTestId('checkbox-subject-MATHEMATIQUES');
-    if (await mathCheckbox.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await mathCheckbox.click();
-    }
-
-    // Accept terms
-    const termsCheckbox = page.getByTestId('checkbox-accept-terms');
-    await termsCheckbox.click();
-    await page.waitForTimeout(300);
-
-    // Submit — use data-testid
-    const submitBtn = page.getByTestId('btn-submit-bilan');
+    const submitBtn = page.getByRole('button', { name: /demander mon bilan stratégique gratuit/i });
     await expect(submitBtn, 'Bouton submit non trouvé').toBeVisible({ timeout: 3000 });
 
-    // Check if button is disabled (validation errors remain)
-    const isDisabled = await submitBtn.isDisabled();
-    console.log(`Submit button disabled: ${isDisabled}`);
-    if (isDisabled) {
-      // Log visible errors
-      const errorTexts = await page.locator('[class*="text-error"]').allTextContents();
-      console.log('Validation errors:', errorTexts);
-    }
-    expect(isDisabled, 'Submit button is disabled — form validation failed').toBe(false);
-
     const [apiResponse] = await Promise.all([
-      page.waitForResponse(resp => resp.url().includes('/api/bilan-gratuit'), { timeout: 15000 }),
+      page.waitForResponse(
+        resp => resp.url().includes('/api/bilan-gratuit') && resp.request().method() === 'POST',
+        { timeout: 15000 }
+      ),
       submitBtn.click(),
     ]);
 
@@ -144,6 +89,7 @@ test.describe('REAL — Bilan Gratuit (/bilan-gratuit)', () => {
       expect(body.success, 'API ne retourne pas success=true').toBe(true);
       expect(body.parentId, 'API ne retourne pas parentId').toBeTruthy();
       expect(body.studentId, 'API ne retourne pas studentId').toBeTruthy();
+      await page.waitForURL('**/bilan-gratuit/confirmation', { timeout: 10000 });
     } else {
       const body = await apiResponse.json().catch(() => ({}));
       console.log(`API error response: ${JSON.stringify(body)}`);

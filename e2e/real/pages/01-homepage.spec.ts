@@ -4,13 +4,14 @@ import { test, expect, type Page } from '@playwright/test';
  * REAL AUDIT — Homepage (/)
  *
  * Structure réelle de la navbar : CorporateNavbar avec dropdowns
- * - "Essentiel" dropdown → Accueil, Offres, Bilan Gratuit, Contact
+ * - "Offres & tarifs" dropdown → Offres, Recommandation, Bilan gratuit
  * - "Programmes" dropdown → Accompagnement, Stages, ARIA
- * - "À propos" dropdown → Équipe, Centre
+ * - "Préparations" dropdown → pages niches
+ * - "Contact" dropdown → Contact, Notre Centre
  * - "Connexion" dropdown → Se connecter, S'inscrire
  * - CTA "Bilan gratuit" (lien direct desktop)
  *
- * Hero CTA : WhatsApp + ancre #offres-fin-annee
+ * Hero CTA : recommandation, offres et WhatsApp.
  */
 
 async function getHeaderDropdownLink(
@@ -118,10 +119,10 @@ test.describe('REAL — Homepage (/)', () => {
     console.log(`H1 contenu: "${h1Text?.trim()}"`);
   });
 
-  // NAVBAR — Dropdown "Essentiel" → Offres
-  test('Navbar dropdown Essentiel → lien Offres navigue vers /offres', async ({ page }) => {
-    const offresLink = await getHeaderDropdownLink(page, /essentiel/i, '/offres', /offres/i);
-    await expect(offresLink, 'Lien Offres absent du dropdown Essentiel').toBeVisible();
+  // NAVBAR — Dropdown "Offres & tarifs" → Offres
+  test('Navbar dropdown Offres & tarifs → lien Offres navigue vers /offres', async ({ page }) => {
+    const offresLink = await getHeaderDropdownLink(page, /offres & tarifs/i, '/offres', /offres/i);
+    await expect(offresLink, 'Lien Offres absent du dropdown Offres & tarifs').toBeVisible();
     await Promise.all([
       page.waitForURL('**/offres**', { timeout: 10000 }),
       offresLink.click({ force: true }),
@@ -129,9 +130,9 @@ test.describe('REAL — Homepage (/)', () => {
     expect(page.url()).toContain('/offres');
   });
 
-  // NAVBAR — Dropdown "Essentiel" → Bilan Gratuit
-  test('Navbar dropdown Essentiel → lien Bilan Gratuit navigue vers /bilan-gratuit', async ({ page }) => {
-    const bilanLink = await getHeaderDropdownLink(page, /essentiel/i, '/bilan-gratuit', /bilan gratuit/i);
+  // NAVBAR — Dropdown "Offres & tarifs" → Bilan Gratuit
+  test('Navbar dropdown Offres & tarifs → lien Bilan Gratuit navigue vers /bilan-gratuit', async ({ page }) => {
+    const bilanLink = await getHeaderDropdownLink(page, /offres & tarifs/i, '/bilan-gratuit', /bilan gratuit/i);
     await expect(bilanLink, 'Lien Bilan Gratuit absent du dropdown').toBeVisible();
     await Promise.all([
       page.waitForURL('**/bilan-gratuit**', { timeout: 10000 }),
@@ -140,10 +141,10 @@ test.describe('REAL — Homepage (/)', () => {
     expect(page.url()).toContain('/bilan-gratuit');
   });
 
-  // NAVBAR — Dropdown "Essentiel" → Contact
-  test('Navbar dropdown Essentiel → lien Contact navigue vers /contact', async ({ page }) => {
-    const contactLink = await getHeaderDropdownLink(page, /essentiel/i, '/contact', /contact/i);
-    await expect(contactLink, 'Lien Contact absent du dropdown Essentiel').toBeVisible({
+  // NAVBAR — Dropdown "Contact" → Contact
+  test('Navbar dropdown Contact → lien Contact navigue vers /contact', async ({ page }) => {
+    const contactLink = await getHeaderDropdownLink(page, /contact/i, '/contact', /contact/i);
+    await expect(contactLink, 'Lien Contact absent du dropdown Contact').toBeVisible({
       timeout: 5000,
     });
     await Promise.all([
@@ -181,15 +182,15 @@ test.describe('REAL — Homepage (/)', () => {
 
   // HERO — CTA WhatsApp principal
   test('Hero CTA WhatsApp est visible et pointe vers wa.me', async ({ page }) => {
-    const heroCTA = page.locator('#hero a[href*="wa.me"]').first();
+    const heroCTA = page.locator('[data-hero] a[href*="wa.me"]').first();
     await expect(heroCTA, 'CTA WhatsApp absent du Hero').toBeVisible();
     const href = await heroCTA.getAttribute('href');
     expect(href).toContain('wa.me/21699192829');
   });
 
   // HERO — CTA secondaire vers offres
-  test('Hero CTA secondaire pointe vers #offres-fin-annee', async ({ page }) => {
-    const secondaryCTA = page.locator('#hero a[href="#offres-fin-annee"]');
+  test('Hero CTA secondaire pointe vers /offres', async ({ page }) => {
+    const secondaryCTA = page.locator('[data-hero] a[href="/offres"]');
     await expect(secondaryCTA, 'CTA offres absent du Hero').toBeVisible();
   });
 

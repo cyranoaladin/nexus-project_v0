@@ -56,7 +56,7 @@ async function extractPdfText(buffer: Buffer) {
   const pdfPath = path.join('/tmp', `quote-pdfkit-${Date.now()}.pdf`);
   await writeFile(pdfPath, buffer);
   try {
-    return execFileSync('pdftotext', ['-layout', pdfPath, '-'], { encoding: 'utf8' });
+    return runPdfTool('pdftotext', ['-layout', pdfPath, '-']);
   } finally {
     await rm(pdfPath, { force: true });
   }
@@ -66,7 +66,7 @@ async function getPdfInfo(buffer: Buffer) {
   const pdfPath = path.join('/tmp', `quote-pdfkit-info-${Date.now()}.pdf`);
   await writeFile(pdfPath, buffer);
   try {
-    return execFileSync('pdfinfo', [pdfPath], { encoding: 'utf8' });
+    return runPdfTool('pdfinfo', [pdfPath]);
   } finally {
     await rm(pdfPath, { force: true });
   }
@@ -76,9 +76,18 @@ async function getPdfImages(buffer: Buffer) {
   const pdfPath = path.join('/tmp', `quote-pdfkit-images-${Date.now()}.pdf`);
   await writeFile(pdfPath, buffer);
   try {
-    return execFileSync('pdfimages', ['-list', pdfPath], { encoding: 'utf8' });
+    return runPdfTool('pdfimages', ['-list', pdfPath]);
   } finally {
     await rm(pdfPath, { force: true });
+  }
+}
+
+function runPdfTool(command: string, args: string[]) {
+  try {
+    return execFileSync(command, args, { encoding: 'utf8' });
+  } catch (error) {
+    const details = error instanceof Error ? error.message : String(error);
+    throw new Error(`${command} failed while inspecting quote PDF: ${details}`);
   }
 }
 
