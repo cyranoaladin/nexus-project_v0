@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 const prisma = new PrismaClient();
 
@@ -10,4 +11,8 @@ async function main() {
   console.log(JSON.stringify(user, null, 2));
 }
 
-main().catch(console.error).finally(() => prisma.$disconnect());
+main()
+  .catch((error) => {
+    console.error(serializeError(error));
+  })
+  .finally(() => prisma.$disconnect());

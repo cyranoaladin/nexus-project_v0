@@ -1,4 +1,5 @@
 import { createId } from '@paralleldrive/cuid2';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 async function run() {
   const baseUrl = 'http://localhost:3002';
@@ -36,7 +37,7 @@ async function run() {
 
   if (!regRes.ok) {
     const err = await regRes.text();
-    console.error('❌ Registration Failed:', regRes.status, err);
+    console.error('❌ Registration Failed:', regRes.status, serializeError(err));
     process.exit(1);
   }
   const regData = await regRes.json();
@@ -50,4 +51,6 @@ async function run() {
   console.log('🎉 Validation User Journey Complete!');
 }
 
-run().catch(console.error);
+run().catch((error) => {
+  console.error(serializeError(error));
+});

@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { serializeError } from '@/lib/utils/serialize-error';
 
 /**
  * Ensure the eam_progress table exists.
@@ -35,7 +36,7 @@ if (require.main === module) {
   ensureEamProgressTable(prisma)
     .then(() => console.log("Table eam_progress creee ou deja existante."))
     .catch((error) => {
-      console.error(error);
+      console.error(serializeError(error));
       process.exit(1);
     })
     .finally(async () => {

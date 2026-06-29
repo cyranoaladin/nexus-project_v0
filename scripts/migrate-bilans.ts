@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * F51: Bilan Migration Script (Read-Only / Dry-Run Safe)
  * Migrates data from Diagnostic, Assessment, StageBilan to canonical Bilan model
@@ -486,7 +487,7 @@ async function main() {
     console.log('\nMigration completed.');
     process.exit(0);
   } catch (error) {
-    console.error('Migration failed:', error);
+    console.error('Migration failed:', serializeError(error));
     process.exit(1);
   } finally {
     await prisma.$disconnect();

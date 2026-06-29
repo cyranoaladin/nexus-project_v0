@@ -8,6 +8,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 interface TestFile {
   path: string;
@@ -208,4 +209,6 @@ async function main() {
   console.log('  4. Tester: npm run test:integration\n');
 }
 
-main().catch(console.error);
+main().catch((error) => {
+  console.error(serializeError(error));
+});

@@ -7,6 +7,7 @@
 
 const { PrismaClient } = require('@prisma/client');
 const http = require('http');
+const { serializeError } = require('./serialize-error.cjs');
 
 const prisma = new PrismaClient();
 const BASE_URL = 'http://localhost:3000';
@@ -218,7 +219,7 @@ if (require.main === module) {
   checkDatabaseConsistency().then(results => {
     process.exit(results.failed > 0 ? 1 : 0);
   }).catch(err => {
-    console.error('❌ Erreur critique lors de la vérification:', err);
+    console.error('❌ Erreur critique lors de la vérification:', serializeError(err));
     process.exit(1);
   });
 }

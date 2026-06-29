@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 const prisma = new PrismaClient();
 
@@ -11,7 +12,7 @@ async function main() {
         const userCount = await prisma.user.count();
         console.log(`Found ${userCount} users in database.`);
     } catch (error) {
-        console.error('❌ Connection failed:', error);
+        console.error('❌ Connection failed:', serializeError(error));
         process.exit(1);
     } finally {
         await prisma.$disconnect();

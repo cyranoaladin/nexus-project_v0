@@ -8,6 +8,7 @@
 const http = require('http');
 const https = require('https');
 const { URL } = require('url');
+const { serializeError } = require('./serialize-error.cjs');
 
 const BASE_URL = 'http://localhost:3000';
 
@@ -161,7 +162,7 @@ if (require.main === module) {
   auditHomepageLinks().then(results => {
     process.exit(results.failed > 0 ? 1 : 0);
   }).catch(err => {
-    console.error('❌ Erreur lors de l\'audit:', err);
+    console.error('❌ Erreur lors de l\'audit:', serializeError(err));
     process.exit(1);
   });
 }

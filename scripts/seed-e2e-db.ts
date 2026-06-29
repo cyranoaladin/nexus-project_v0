@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * E2E Database Seeding Script
  *
@@ -718,7 +719,7 @@ const student = await prisma.user.create({
 main()
   .catch((e) => {
     console.error('❌ Error seeding E2E database:');
-    console.error(e);
+    console.error(serializeError(e));
     process.exit(1);
   })
   .finally(async () => {

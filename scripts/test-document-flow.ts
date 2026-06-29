@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { createId } from '@paralleldrive/cuid2';
 import * as fs from 'fs';
 import * as path from 'path';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 const prisma = new PrismaClient();
 
@@ -57,7 +58,7 @@ async function runTest() {
     console.log('🏆 TOUT EST OPÉRATIONNEL.');
 
   } catch (error) {
-    console.error('❌ Test échoué:', error);
+    console.error('❌ Test échoué:', serializeError(error));
     process.exit(1);
   } finally {
     await prisma.$disconnect();
