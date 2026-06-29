@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 // ═══════════════════════════════════════════════════════════════════════════════
 // API Route: NPC Generate Correction
 // Launch AI correction for a submission
@@ -126,7 +127,7 @@ export async function POST(
       { status: 201 }
     );
   } catch (error) {
-    console.error('[NPC Generate] Error:', error);
+    console.error('[NPC Generate] Error:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { PREMIERE_EDS_SIMULATIONS } from "@/data/automatismes/premiere-eds/simulations";
+import { serializeError } from '@/lib/utils/serialize-error';
 
 /**
  * POST /api/student/automatismes/check-answer
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest) {
       sourceComment: question.sourceComment,
     });
   } catch (error) {
-    console.error("Error checking automatisme answer:", error);
+    console.error("Error checking automatisme answer:", serializeError(error));
     return NextResponse.json(
       { error: "Failed to check answer" },
       { status: 500 }

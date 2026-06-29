@@ -3,6 +3,7 @@ import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { can } from '@/lib/rbac';
 import { prisma } from '@/lib/prisma';
 import { activeAssignmentWhere } from '@/lib/rbac/coach-student-access';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 interface RouteParams {
   params: Promise<{ studentId: string }>;
@@ -134,7 +135,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
       assignments,
     });
   } catch (error) {
-    console.error('[API Assistante Student Overview GET] Error:', error);
+    console.error('[API Assistante Student Overview GET] Error:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal Server Error', message: 'Erreur lors de la récupération' },
       { status: 500 }

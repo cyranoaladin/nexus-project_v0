@@ -3,6 +3,7 @@ import { requireRole, isErrorResponse } from '@/lib/guards';
 import { can } from '@/lib/rbac';
 import { getAssignedStudentsForCoach } from '@/lib/rbac/coach-student-access';
 import { UserRole } from '@prisma/client';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 /**
  * GET /api/coach/students
@@ -37,7 +38,7 @@ export async function GET() {
       students,
     });
   } catch (error) {
-    console.error('[API Coach Students GET] Error:', error);
+    console.error('[API Coach Students GET] Error:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal Server Error', message: 'Erreur lors de la récupération des élèves' },
       { status: 500 }

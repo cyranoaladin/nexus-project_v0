@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error creating credit request:', error);
+    console.error('Error creating credit request:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

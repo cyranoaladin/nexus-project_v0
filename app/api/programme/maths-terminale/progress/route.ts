@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { AcademicTrack, MathsLevel } from '@prisma/client';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 interface ProgressPayload {
   completed_chapters: string[];
@@ -123,7 +124,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true, persisted: true }, { status: 200 });
   } catch (error) {
-    console.error('[API] Failed to persist Terminale progress:', error);
+    console.error('[API] Failed to persist Terminale progress:', serializeError(error));
     return NextResponse.json({ error: 'Failed to persist progress' }, { status: 500 });
   }
 }
@@ -180,7 +181,7 @@ export async function GET() {
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error('[API] Failed to load Terminale progress:', error);
+    console.error('[API] Failed to load Terminale progress:', serializeError(error));
     return NextResponse.json({ error: 'Failed to load progress' }, { status: 500 });
   }
 }

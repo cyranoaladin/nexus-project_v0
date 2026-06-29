@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import { serializeError } from '@/lib/utils/serialize-error';
 
 export async function POST(request: NextRequest) {
   try {
@@ -40,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(trajectory);
   } catch (error) {
-    console.error("Error creating trajectory:", error);
+    console.error("Error creating trajectory:", serializeError(error));
     return NextResponse.json(
       { error: "Failed to create trajectory" },
       { status: 500 }

@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
@@ -213,7 +214,7 @@ export async function GET() {
     });
 
   } catch (error) {
-    console.error('[Parent Dashboard API] Error fetching parent dashboard data:', error);
+    console.error('[Parent Dashboard API] Error fetching parent dashboard data:', serializeError(error));
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }

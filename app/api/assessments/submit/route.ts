@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * Universal Assessment Submission API
  * 
@@ -169,7 +170,7 @@ export async function POST(request: NextRequest) {
     // Fire and forget - SSN computation should not block the response
     import('@/lib/core/ssn/computeSSN').then(({ computeAndPersistSSN }) => {
       computeAndPersistSSN(assessment.id).catch((error) => {
-        console.error(`[Assessment Submit] SSN computation failed for ${assessment.id}:`, error);
+        console.error(`[Assessment Submit] SSN computation failed for ${assessment.id}:`, serializeError(error));
       });
     });
 
@@ -177,7 +178,7 @@ export async function POST(request: NextRequest) {
 
     // Fire and forget - don't block the response
     BilanGenerator.generate(assessment.id).catch((error) => {
-      console.error(`[Assessment Submit] Bilan generation failed for ${assessment.id}:`, error);
+      console.error(`[Assessment Submit] Bilan generation failed for ${assessment.id}:`, serializeError(error));
     });
 
     // ─── Step 6: Return Response ─────────────────────────────────────────────

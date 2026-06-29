@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { AssignmentType, AssignmentStatus, Subject, Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { parsePagination, createPaginationMeta } from '@/lib/api/pagination';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 // Validation schema for query parameters
 const statusQuerySchema = z.nativeEnum(AssignmentStatus).optional().default(AssignmentStatus.ACTIVE);
@@ -110,7 +111,7 @@ export async function GET(request: Request) {
       assignments,
     });
   } catch (error) {
-    console.error('[API Assistante Assignments GET] Error:', error);
+    console.error('[API Assistante Assignments GET] Error:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal Server Error', message: 'Erreur lors de la récupération' },
       { status: 500 }
@@ -258,7 +259,7 @@ export async function POST(request: Request) {
       );
     }
 
-    console.error('[API Assistante Assignments POST] Error:', error);
+    console.error('[API Assistante Assignments POST] Error:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal Server Error', message: 'Erreur lors de la création' },
       { status: 500 }

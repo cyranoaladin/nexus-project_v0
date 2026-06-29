@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
       { status: 501 }
     );
   } catch (error) {
-    console.error('[ClicToPay Init] Erreur:', error);
+    console.error('[ClicToPay Init] Erreur:', serializeError(error));
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
       { status: 500 }

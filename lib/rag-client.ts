@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * RAG Client — Canonical RAG retrieval via ChromaDB.
  *
@@ -129,7 +130,7 @@ export async function ragSearch(options: RAGSearchOptions): Promise<RAGSearchHit
     if (error instanceof Error && error.name === 'AbortError') {
       console.error(`RAG search timeout after ${timeout}ms`);
     } else {
-      console.error('RAG search error:', error);
+      console.error('RAG search error:', serializeError(error));
     }
     return [];
   } finally {

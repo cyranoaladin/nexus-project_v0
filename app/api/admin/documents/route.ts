@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createId } from '@paralleldrive/cuid2';
 import path from 'path';
 import { mkdir, writeFile } from 'fs/promises';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 // Secure storage root (mapped to volume in docker-compose)
 const STORAGE_ROOT = '/app/storage/documents';
@@ -65,7 +66,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(document, { status: 201 });
 
   } catch (error) {
-    console.error('[Upload Error]', error);
+    console.error('[Upload Error]', serializeError(error));
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

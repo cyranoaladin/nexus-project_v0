@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
@@ -43,7 +44,7 @@ export async function GET(request: NextRequest) {
       createdAt: existing?.createdAt?.toISOString() ?? null,
     });
   } catch (error) {
-    console.error('[CheckPending] Erreur:', error);
+    console.error('[CheckPending] Erreur:', serializeError(error));
     return NextResponse.json({ hasPending: false });
   }
 }

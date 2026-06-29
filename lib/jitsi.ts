@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * Utilitaires pour la gestion des salles de visioconférence Jitsi
  * Implémentation selon les directives CTO pour Nexus Réussite
@@ -63,7 +64,7 @@ export function parseJitsiUrl(jitsiUrl: string): { server: string; roomName: str
       roomName
     };
   } catch (error) {
-    console.error('Erreur parsing URL Jitsi:', error);
+    console.error('Erreur parsing URL Jitsi:', serializeError(error));
     return null;
   }
 }

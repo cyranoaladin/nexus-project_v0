@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * Nexus Index™ — Composite score measuring student progression quality.
  *
@@ -120,7 +121,7 @@ export async function computeNexusIndex(
     const data = await fetchIndexData(studentUserId);
     return computeFromData(data);
   } catch (error) {
-    console.error('[NexusIndex] Error computing index:', error);
+    console.error('[NexusIndex] Error computing index:', serializeError(error));
     return null;
   }
 }

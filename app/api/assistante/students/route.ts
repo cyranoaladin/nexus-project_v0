@@ -12,6 +12,7 @@ import { sendPasswordResetEmail } from '@/lib/email';
 import { LEGAL } from '@/lib/legal';
 import crypto from 'crypto';
 import { sendMail } from '@/lib/email/mailer';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 /**
  * GET /api/assistante/students
@@ -177,7 +178,7 @@ export async function GET(request: Request) {
       students,
     });
   } catch (error) {
-    console.error('[API Assistante Students GET] Error:', error);
+    console.error('[API Assistante Students GET] Error:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal Server Error', message: 'Erreur lors de la récupération des élèves' },
       { status: 500 }
@@ -406,7 +407,7 @@ export async function POST(request: Request) {
       await sendPasswordResetEmail(result.parent.email, result.parent.firstName || 'Parent', resetUrl);
     } catch (emailError) {
       if (process.env.NODE_ENV !== 'test') {
-        console.error('[assistante/students POST] parent reset email failed:', emailError);
+        console.error('[assistante/students POST] parent reset email failed:', serializeError(emailError));
       }
     }
 
@@ -432,7 +433,7 @@ export async function POST(request: Request) {
       });
     } catch (emailError) {
       if (process.env.NODE_ENV !== 'test') {
-        console.error('[assistante/students POST] student activation email failed:', emailError);
+        console.error('[assistante/students POST] student activation email failed:', serializeError(emailError));
       }
     }
 
@@ -445,7 +446,7 @@ export async function POST(request: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error('[API Assistante Students POST] Error:', error);
+    console.error('[API Assistante Students POST] Error:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal Server Error', message: 'Erreur lors de la création' },
       { status: 500 }

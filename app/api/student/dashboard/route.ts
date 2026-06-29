@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
@@ -24,7 +25,7 @@ export async function GET(_req: NextRequest) {
       },
     });
   } catch (err) {
-    console.error('[dashboard] payload build failed', err);
+    console.error('[dashboard] payload build failed', serializeError(err));
     return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
 }

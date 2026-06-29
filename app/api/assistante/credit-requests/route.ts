@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -63,7 +64,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error fetching credit requests:', error);
+    console.error('Error fetching credit requests:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -180,7 +181,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.error('Error processing credit request:', error);
+    console.error('Error processing credit request:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

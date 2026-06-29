@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -217,7 +218,7 @@ export async function POST(req: NextRequest) {
     );
 
   } catch (error) {
-    console.error('Set availability error:', error);
+    console.error('Set availability error:', serializeError(error));
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -338,7 +339,7 @@ export async function GET(req: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Get availability error:', error);
+    console.error('Get availability error:', serializeError(error));
     
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to get availability' },
@@ -503,7 +504,7 @@ export async function DELETE(req: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Delete availability error:', error);
+    console.error('Delete availability error:', serializeError(error));
     
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to delete availability' },

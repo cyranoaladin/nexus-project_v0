@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 interface RouteParams {
   params: Promise<{ publicShareId: string }>;
@@ -59,7 +60,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
 
     return NextResponse.json({ bilan });
   } catch (error) {
-    console.error('[API student/bilans/[publicShareId] GET]', error);
+    console.error('[API student/bilans/[publicShareId] GET]', serializeError(error));
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

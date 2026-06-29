@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
@@ -175,7 +176,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(dashboardData);
 
   } catch (error) {
-    console.error('Error fetching assistant dashboard data:', error);
+    console.error('Error fetching assistant dashboard data:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -74,7 +75,7 @@ export async function GET(
     try {
       fileStats = await stat(filePath);
     } catch (error) {
-      console.error(`[official-pdf] File not found: ${filePath}`, error);
+      console.error(`[official-pdf] File not found: ${filePath}`, serializeError(error));
       return NextResponse.json(
         { error: 'PDF file not found on disk' },
         { status: 404 }
@@ -104,7 +105,7 @@ export async function GET(
     });
 
   } catch (error) {
-    console.error(`[official-pdf] Error serving PDF for slug: ${slug}`, error);
+    console.error(`[official-pdf] Error serving PDF for slug: ${slug}`, serializeError(error));
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

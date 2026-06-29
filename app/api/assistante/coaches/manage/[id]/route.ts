@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
@@ -144,7 +145,7 @@ export async function PUT(
       );
     }
 
-    console.error('Error updating coach:', error);
+    console.error('Error updating coach:', serializeError(error));
 
     return NextResponse.json(
       {
@@ -216,7 +217,7 @@ export async function DELETE(
     });
 
   } catch (error) {
-    console.error('Error deleting coach:', error);
+    console.error('Error deleting coach:', serializeError(error));
     return NextResponse.json(
       {
         success: false,

@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 // ═══════════════════════════════════════════════════════════════════════════════
 // NPC - NEXUS PEDAGOGY COCKPIT — PDF to Image Conversion
 // Server-side PDF processing for AI analysis
@@ -44,7 +45,7 @@ export async function getPdfPageCount(pdfPath: string): Promise<number | null> {
     const match = stdout.match(/Pages:\s*(\d+)/);
     return match ? parseInt(match[1], 10) : null;
   } catch (error) {
-    console.error('[PDF Converter] Failed to get page count:', error);
+    console.error('[PDF Converter] Failed to get page count:', serializeError(error));
     return null;
   }
 }
@@ -113,7 +114,7 @@ export async function convertPdfToImages(
       convertedPaths,
     };
   } catch (error) {
-    console.error('[PDF Converter] Conversion failed:', error);
+    console.error('[PDF Converter] Conversion failed:', serializeError(error));
     return {
       success: false,
       error: error instanceof Error ? error.message : 'CONVERSION_FAILED',
@@ -143,7 +144,7 @@ async function convertPngsToWebp(
         await fs.unlink(pngPath); // Clean up PNG
         webpPaths.push(webpPath);
       } catch (error) {
-        console.error(`[PDF Converter] WebP conversion failed for ${pngFile}:`, error);
+        console.error(`[PDF Converter] WebP conversion failed for ${pngFile}:`, serializeError(error));
         // Keep PNG as fallback
         webpPaths.push(pngPath);
       }
@@ -151,7 +152,7 @@ async function convertPngsToWebp(
 
     return webpPaths;
   } catch (error) {
-    console.error('[PDF Converter] WebP batch conversion failed:', error);
+    console.error('[PDF Converter] WebP batch conversion failed:', serializeError(error));
     return [];
   }
 }
@@ -180,7 +181,7 @@ export async function getImageDimensions(
         return { width: parseInt(match[1], 10), height: parseInt(match[2], 10) };
       }
     } catch (error) {
-      console.error('[PDF Converter] Failed to get dimensions:', error);
+      console.error('[PDF Converter] Failed to get dimensions:', serializeError(error));
     }
     return null;
   }
@@ -240,7 +241,7 @@ export async function processPdfSubmission(
       pageInfos,
     };
   } catch (error) {
-    console.error('[PDF Converter] Submission processing failed:', error);
+    console.error('[PDF Converter] Submission processing failed:', serializeError(error));
     return {
       success: false,
       error: 'PROCESSING_FAILED',

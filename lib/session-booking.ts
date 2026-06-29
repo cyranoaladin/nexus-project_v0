@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { parseSubjects } from '@/lib/utils/subjects';
 import type {
+import { serializeError } from '@/lib/utils/serialize-error';
   Prisma,
   SessionBooking,
   SessionModality,
@@ -370,7 +371,7 @@ export class SessionBookingService {
           }
         });
       } catch (error) {
-        console.error(`Failed to send reminder ${reminder.id}:`, error);
+        console.error(`Failed to send reminder ${reminder.id}:`, serializeError(error));
       }
     }
   }

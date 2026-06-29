@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
@@ -33,7 +34,7 @@ export async function GET() {
 
     return NextResponse.json({ documents });
   } catch (error) {
-    console.error('[GET /api/student/documents] Error:', error);
+    console.error('[GET /api/student/documents] Error:', serializeError(error));
     return NextResponse.json({ error: 'Erreur interne' }, { status: 500 });
   }
 }

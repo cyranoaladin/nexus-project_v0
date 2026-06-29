@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * GET /api/invoices/:id/pdf — Stream invoice PDF with RBAC + token access.
  *
@@ -93,7 +94,7 @@ export async function GET(
     return streamPdf(pdfBuffer, invoice.number);
 
   } catch (error) {
-    console.error('[GET /api/invoices/:id/pdf]', error);
+    console.error('[GET /api/invoices/:id/pdf]', serializeError(error));
     return notFoundResponse();
   }
 }

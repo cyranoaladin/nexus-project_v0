@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
@@ -96,7 +97,7 @@ export async function GET() {
 
     return NextResponse.json({ data });
   } catch (error) {
-    console.error("[Coach EAM summary GET] failed", error);
+    console.error("[Coach EAM summary GET] failed", serializeError(error));
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

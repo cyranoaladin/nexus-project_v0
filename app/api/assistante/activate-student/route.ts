@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * POST /api/assistant/activate-student
  *
@@ -92,7 +93,7 @@ export async function POST(request: NextRequest) {
       message: `Lien d'activation envoyé à ${parsed.data.studentEmail}`,
     });
   } catch (error) {
-    console.error('[API] activate-student error:', error);
+    console.error('[API] activate-student error:', serializeError(error));
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
       { status: 500 }

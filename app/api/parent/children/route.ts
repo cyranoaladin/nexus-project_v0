@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
@@ -82,7 +83,7 @@ export async function GET(_request: NextRequest) {
     return NextResponse.json(formattedChildren);
 
   } catch (error) {
-    console.error('Error fetching children:', error);
+    console.error('Error fetching children:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -212,7 +213,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error creating child:', error);
+    console.error('Error creating child:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

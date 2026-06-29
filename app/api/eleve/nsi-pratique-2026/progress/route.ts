@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { canAccessNsiPratique } from '@/lib/nsi-pratique-2026/access';
 import { validateNsiProgressPayload } from '@/lib/nsi-pratique-2026/progress-validation';
 import type { Prisma } from '@prisma/client';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 const MAX_PAYLOAD_SIZE = 200 * 1024; // 200 KB
 
@@ -36,7 +37,7 @@ export async function GET() {
       version: record.version,
     });
   } catch (error) {
-    console.error('[NSI Progress GET] Error:', error);
+    console.error('[NSI Progress GET] Error:', serializeError(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -94,7 +95,7 @@ export async function PUT(request: NextRequest) {
       updatedAt: record.updatedAt.toISOString(),
     });
   } catch (error) {
-    console.error('[NSI Progress PUT] Error:', error);
+    console.error('[NSI Progress PUT] Error:', serializeError(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

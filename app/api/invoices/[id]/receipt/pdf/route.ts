@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * GET /api/invoices/:id/receipt/pdf — Stream payment receipt PDF.
  *
@@ -107,7 +108,7 @@ export async function GET(
       where: { id: invoice.id },
       data: { events: JSON.parse(JSON.stringify(events)) },
     }).catch((err: unknown) => {
-      console.error('[Receipt] Failed to append RECEIPT_RENDERED event:', err);
+      console.error('[Receipt] Failed to append RECEIPT_RENDERED event:', serializeError(err));
     });
 
     return new NextResponse(new Uint8Array(pdfBuffer), {
@@ -121,7 +122,7 @@ export async function GET(
     });
 
   } catch (error) {
-    console.error('[GET /api/invoices/:id/receipt/pdf]', error);
+    console.error('[GET /api/invoices/:id/receipt/pdf]', serializeError(error));
     return notFoundResponse();
   }
 }

@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * GET /api/diagnostics/definitions
  *
@@ -68,7 +69,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ definitions: unique });
   } catch (error) {
-    console.error('[API] /diagnostics/definitions error:', error);
+    console.error('[API] /diagnostics/definitions error:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

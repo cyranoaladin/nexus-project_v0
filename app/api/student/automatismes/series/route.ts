@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { PREMIERE_EDS_SIMULATIONS } from "@/data/automatismes/premiere-eds/simulations";
+import { serializeError } from '@/lib/utils/serialize-error';
 
 export async function GET() {
   try {
@@ -44,7 +45,7 @@ export async function GET() {
 
     return NextResponse.json(seriesList);
   } catch (error) {
-    console.error("Error fetching automatismes series:", error);
+    console.error("Error fetching automatismes series:", serializeError(error));
     return NextResponse.json(
       { error: "Failed to fetch series" },
       { status: 500 }

@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * POST /api/admin/invoices — Create invoice + atomic number + PDF + store.
  * GET  /api/admin/invoices — List invoices (paginated).
@@ -222,7 +223,7 @@ export async function POST(request: NextRequest) {
       }, { status: 422 });
     }
 
-    console.error('[POST /api/admin/invoices] Error:', error);
+    console.error('[POST /api/admin/invoices] Error:', serializeError(error));
     return NextResponse.json({ error: 'Erreur interne' }, { status: 500 });
   }
 }
@@ -281,7 +282,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[GET /api/admin/invoices] Error:', error);
+    console.error('[GET /api/admin/invoices] Error:', serializeError(error));
     return NextResponse.json({ error: 'Erreur interne' }, { status: 500 });
   }
 }

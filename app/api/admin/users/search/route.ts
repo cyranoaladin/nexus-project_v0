@@ -2,6 +2,7 @@ import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
 import { UserRole } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 export async function GET(request: NextRequest) {
   try {
@@ -39,7 +40,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(users);
 
   } catch (error) {
-    console.error('User search error:', error);
+    console.error('User search error:', serializeError(error));
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

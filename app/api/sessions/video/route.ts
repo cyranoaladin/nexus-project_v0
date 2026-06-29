@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
@@ -103,7 +104,7 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
-    console.error('Erreur lors de la gestion de la session vidéo:', error);
+    console.error('Erreur lors de la gestion de la session vidéo:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

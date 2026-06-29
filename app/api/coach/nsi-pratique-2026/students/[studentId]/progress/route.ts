@@ -3,6 +3,7 @@ import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { isCoachAssignedToStudent } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
 import {
+import { serializeError } from '@/lib/utils/serialize-error';
   computeCoachStudentSummary,
   getSubjectDetails,
   getPatternDetails,
@@ -121,7 +122,7 @@ export async function GET(
       version: record?.version ?? null,
     });
   } catch (error) {
-    console.error('[Coach NSI Student Progress GET] Error:', error);
+    console.error('[Coach NSI Student Progress GET] Error:', serializeError(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

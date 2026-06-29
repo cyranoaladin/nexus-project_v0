@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
@@ -28,7 +29,7 @@ export async function POST() {
 
     return NextResponse.json({ dismissed: true });
   } catch (error) {
-    console.error('Error dismissing bilan gratuit banner:', error);
+    console.error('Error dismissing bilan gratuit banner:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

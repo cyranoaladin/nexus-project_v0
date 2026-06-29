@@ -3,6 +3,7 @@ import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
 import { DocumentType, DocumentVisibilityScope, Subject } from '@prisma/client';
 import { z } from 'zod';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 // Validation schema for creating documents
 const createDocumentSchema = z.object({
@@ -89,7 +90,7 @@ export async function GET(request: Request, { params }: RouteParams) {
       documents: documents.map((document) => sanitizeDocument(document)),
     });
   } catch (error) {
-    console.error('[API Assistante Documents GET] Error:', error);
+    console.error('[API Assistante Documents GET] Error:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal Server Error', message: 'Erreur lors de la récupération' },
       { status: 500 }
@@ -169,7 +170,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       );
     }
 
-    console.error('[API Assistante Documents POST] Error:', error);
+    console.error('[API Assistante Documents POST] Error:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal Server Error', message: 'Erreur lors de la création' },
       { status: 500 }

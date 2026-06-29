@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { canAccessNsiPratique } from '@/lib/nsi-pratique-2026/access';
 import { computeCoachStudentSummary } from '@/lib/nsi-pratique-2026/coach-summary';
 import type { NsiProgress } from '@/data/nsi-pratique-2026/types';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 type AssignmentStudent = {
   id: string;
@@ -74,7 +75,7 @@ export async function GET() {
 
     return NextResponse.json({ students, count: students.length });
   } catch (error) {
-    console.error('[Coach NSI Students GET] Error:', error);
+    console.error('[Coach NSI Students GET] Error:', serializeError(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

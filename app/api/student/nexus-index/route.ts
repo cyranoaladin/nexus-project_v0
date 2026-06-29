@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
@@ -65,7 +66,7 @@ export async function GET(request: NextRequest) {
       index,
     });
   } catch (error) {
-    console.error('[API] Nexus Index error:', error);
+    console.error('[API] Nexus Index error:', serializeError(error));
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
       { status: 500 }

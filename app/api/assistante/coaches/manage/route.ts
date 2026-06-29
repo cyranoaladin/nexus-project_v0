@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -77,7 +78,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ coaches: formattedCoaches });
 
   } catch (error) {
-    console.error('Error fetching coaches:', error);
+    console.error('Error fetching coaches:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -199,7 +200,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error creating coach:', error);
+    console.error('Error creating coach:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { readFile } from 'fs/promises';
 import { UserRole } from '@prisma/client';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 export async function GET(
   request: NextRequest,
@@ -59,7 +60,7 @@ export async function GET(
     }
 
   } catch (error) {
-    console.error('[Download Error]', error);
+    console.error('[Download Error]', serializeError(error));
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }

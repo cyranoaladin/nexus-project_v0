@@ -4,6 +4,7 @@ import { can } from '@/lib/rbac';
 import { assertCoachCanAccessStudent, CoachNotAssignedError, activeAssignmentWhere } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
 import { UserRole } from '@prisma/client';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 interface RouteParams {
   params: Promise<{ studentId: string }>;
@@ -138,7 +139,7 @@ export async function GET(request: Request, { params }: RouteParams) {
       student,
     });
   } catch (error) {
-    console.error('[API Coach Student Detail GET] Error:', error);
+    console.error('[API Coach Student Detail GET] Error:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal Server Error', message: 'Erreur lors de la récupération des données' },
       { status: 500 }

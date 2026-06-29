@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * POST /api/admin/invoices/[id]/send
  *
@@ -154,7 +155,7 @@ export async function POST(
     }, { status: 200 });
 
   } catch (error) {
-    console.error('[POST /api/admin/invoices/[id]/send]', error);
+    console.error('[POST /api/admin/invoices/[id]/send]', serializeError(error));
     return NextResponse.json(
       { error: 'Erreur interne du serveur.' },
       { status: 500 }

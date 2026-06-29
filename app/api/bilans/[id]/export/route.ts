@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * Bilan Export API
  * GET /api/bilans/[id]/export?format=pdf|markdown
@@ -141,7 +142,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       { status: 400 }
     );
   } catch (error) {
-    console.error('[GET /api/bilans/[id]/export] Error:', error);
+    console.error('[GET /api/bilans/[id]/export] Error:', serializeError(error));
     return NextResponse.json(
       { success: false, error: 'Failed to export bilan' },
       { status: 500 }
@@ -203,7 +204,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       },
     });
   } catch (error) {
-    console.error('[POST /api/bilans/[id]/export] Error:', error);
+    console.error('[POST /api/bilans/[id]/export] Error:', serializeError(error));
     return NextResponse.json(
       { success: false, error: 'Failed to queue export' },
       { status: 500 }

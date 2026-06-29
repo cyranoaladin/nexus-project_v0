@@ -5,6 +5,7 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { normalizeProgress, type EAMProgressData } from "@/hooks/eamProgressCore";
+import { serializeError } from '@/lib/utils/serialize-error';
 
 export const dynamic = "force-dynamic";
 
@@ -63,7 +64,7 @@ export async function GET() {
       }),
     });
   } catch (error) {
-    console.error("[EAM progress GET] failed", error);
+    console.error("[EAM progress GET] failed", serializeError(error));
     return NextResponse.json({ error: "Failed to load EAM progress" }, { status: 500 });
   }
 }
@@ -115,7 +116,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, data }, { status: 200 });
   } catch (error) {
-    console.error("[EAM progress POST] failed", error);
+    console.error("[EAM progress POST] failed", serializeError(error));
     return NextResponse.json({ error: "Failed to save EAM progress" }, { status: 500 });
   }
 }

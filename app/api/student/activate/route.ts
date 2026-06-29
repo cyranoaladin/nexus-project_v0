@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * POST /api/student/activate
  *
@@ -41,7 +42,7 @@ export async function GET(request: NextRequest) {
     const result = await verifyActivationToken(token);
     return NextResponse.json(result);
   } catch (error) {
-    console.error('[API] verify activation token error:', error);
+    console.error('[API] verify activation token error:', serializeError(error));
     return NextResponse.json(
       { valid: false, error: 'Erreur interne' },
       { status: 500 }
@@ -79,7 +80,7 @@ export async function POST(request: NextRequest) {
       message: 'Compte activé avec succès ! Vous pouvez maintenant vous connecter.',
     });
   } catch (error) {
-    console.error('[API] complete activation error:', error);
+    console.error('[API] complete activation error:', serializeError(error));
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
       { status: 500 }

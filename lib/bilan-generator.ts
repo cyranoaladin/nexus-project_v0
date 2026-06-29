@@ -4,6 +4,7 @@ import type { BilanDiagnosticMathsData } from '@/lib/validations';
 import type { ScoringResult } from '@/lib/bilan-scoring';
 import type { ScoringV2Result, DiagnosticDefinition } from '@/lib/diagnostics/types';
 import {
+import { serializeError } from '@/lib/utils/serialize-error';
   buildPromptContextPack,
   renderPromptContext,
   buildChapterAwareRAGQueries,
@@ -326,7 +327,7 @@ VERBATIMS:
       else nexus = result;
       llmSuccessCount++;
     } catch (error) {
-      console.error(`LLM ${audience} failed, using fallback:`, error);
+      console.error(`LLM ${audience} failed, using fallback:`, serializeError(error));
     }
   }
 
