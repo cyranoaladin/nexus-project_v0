@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { LEGAL, compactBankIdentifier } from '@/lib/legal';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 // Configuration SMTP avec fallback pour développement
 const createTransporter = () => {
@@ -95,7 +96,7 @@ export async function sendWelcomeParentEmail(
     const transporter = createTransporter();
     await transporter.sendMail(mailOptions);
   } catch (error) {
-    console.error('Erreur envoi email:', error);
+    console.error('Erreur envoi email:', serializeError(error));
     // En développement, ne pas faire échouer l'application si l'email ne part pas
     if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
       return;
@@ -155,7 +156,7 @@ export async function sendCreditExpirationReminder(
     const transporter = createTransporter();
     await transporter.sendMail(mailOptions);
   } catch (error) {
-    console.error('Erreur envoi email rappel:', error);
+    console.error('Erreur envoi email rappel:', serializeError(error));
     // En développement, ne pas faire échouer l'application si l'email ne part pas
     if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
       return;
@@ -230,7 +231,7 @@ export async function sendPasswordResetEmail(
     const transporter = createTransporter();
     await transporter.sendMail(mailOptions);
   } catch (error) {
-    console.error('[Password Reset] Erreur envoi email:', error);
+    console.error('[Password Reset] Erreur envoi email:', serializeError(error));
     if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
       return;
     }
@@ -335,7 +336,7 @@ export async function sendStageDiagnosticInvitation(
     const transporter = createTransporter();
     await transporter.sendMail(mailOptions);
   } catch (error) {
-    console.error('[Stage] Erreur envoi email diagnostic:', error);
+    console.error('[Stage] Erreur envoi email diagnostic:', serializeError(error));
     if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
       return;
     }
@@ -434,7 +435,7 @@ export async function sendStageBankTransferConfirmation(
     const transporter = createTransporter();
     await transporter.sendMail(mailOptions);
   } catch (error) {
-    console.error('[Stage] Bank transfer email error:', error);
+    console.error('[Stage] Bank transfer email error:', serializeError(error));
     if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
       return;
     }
@@ -551,7 +552,7 @@ export async function sendStageBilanReady(
     const transporter = createTransporter();
     await transporter.sendMail(mailOptions);
   } catch (error) {
-    console.error('[Stage] Erreur envoi email bilan:', error);
+    console.error('[Stage] Erreur envoi email bilan:', serializeError(error));
     if ((process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
       return;
     }

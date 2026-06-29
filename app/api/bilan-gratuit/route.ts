@@ -6,6 +6,7 @@ import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
 import { UserRole } from '@/types/enums';
 import { guardRateLimitAsync } from '@/lib/rate-limit';
 import { checkCsrf, checkBodySize } from '@/lib/csrf';
+import { serializeError } from '@/lib/utils/serialize-error';
 import { createId } from '@paralleldrive/cuid2';
 import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
@@ -43,7 +44,7 @@ export async function POST(request: NextRequest) {
       existingUser = await prisma.user.findUnique({ where: { email: validatedData.parentEmail } });
     } catch (dbErr) {
       if (!isTestEnv) {
-        console.error('DB check failed:', dbErr);
+        console.error('DB check failed:', serializeError(dbErr));
       }
     }
 
@@ -135,7 +136,7 @@ export async function POST(request: NextRequest) {
       );
     } catch (emailError) {
       if (!isTestEnv) {
-        console.error('Erreur envoi email de bienvenue:', emailError);
+        console.error('Erreur envoi email de bienvenue:', serializeError(emailError));
       }
       // Ne pas faire échouer l'inscription si l'email ne part pas
     }
@@ -149,7 +150,7 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     if (process.env.NODE_ENV !== 'test') {
-      console.error('Erreur inscription bilan gratuit:', error);
+      console.error('Erreur inscription bilan gratuit:', serializeError(error));
     }
 
     if (error instanceof Error && error.name === 'ZodError') {

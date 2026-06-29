@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
 import { getNextStep } from '@/lib/next-step-engine';
+import { serializeError } from '@/lib/utils/serialize-error';
 import { NextResponse } from 'next/server';
 
 /**
@@ -28,7 +29,7 @@ export async function GET() {
       step,
     });
   } catch (error) {
-    console.error('[API] Next Step error:', error);
+    console.error('[API] Next Step error:', serializeError(error));
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
       { status: 500 }
