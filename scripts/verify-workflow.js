@@ -13,6 +13,7 @@
 
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const { serializeError } = require('./serialize-error.cjs');
 
 // ─── Test Configuration ──────────────────────────────────────────────────────
 
@@ -365,7 +366,7 @@ async function main() {
     console.error('║                    ❌ WORKFLOW FAILED                          ║');
     console.error('║                                                                ║');
     console.error('╚════════════════════════════════════════════════════════════════╝\n');
-    console.error('Error:', error);
+    console.error('Error:', serializeError(error));
     
     // Attempt cleanup even on failure
     if (reservationId) {
@@ -376,7 +377,7 @@ async function main() {
         });
         console.log('✅ Cleanup successful');
       } catch (cleanupError) {
-        console.error('❌ Cleanup failed:', cleanupError.message);
+        console.error('❌ Cleanup failed:', serializeError(cleanupError));
       }
     }
     

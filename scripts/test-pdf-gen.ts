@@ -1,6 +1,7 @@
 import React from 'react';
 import { renderToBuffer } from '@react-pdf/renderer';
 import { BilanParentPDFDocument } from '../lib/pdf/bilan-parent-template';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 async function main() {
   try {
@@ -18,7 +19,7 @@ async function main() {
     const buffer = await renderToBuffer(React.createElement(BilanParentPDFDocument, { data: pdfData }));
     console.log('Success! Buffer length:', buffer.length);
   } catch (err) {
-    console.error('Caught error during PDF render:', err);
+    console.error('Caught error during PDF render:', serializeError(err));
   }
 }
 

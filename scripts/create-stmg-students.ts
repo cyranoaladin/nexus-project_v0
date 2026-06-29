@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import * as dotenv from "dotenv";
 import { AcademicTrack, GradeLevel, PrismaClient, StmgPathway, UserRole } from "@prisma/client";
 import { SYSTEM_PARENT_EMAIL } from "../lib/constants";
+import { serializeError } from '@/lib/utils/serialize-error';
 
 export interface StmgStudentInput {
   firstName: string;
@@ -305,7 +306,7 @@ async function main() {
 
 if (require.main === module) {
   main().catch((error) => {
-    console.error(error instanceof Error ? error.message : error);
+    console.error(serializeError(error));
     process.exit(1);
   });
 }

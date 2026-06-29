@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * Backfill Script — Canonical Domain Scores for Historical Assessments
  *
@@ -72,7 +73,7 @@ async function main() {
     console.log(`  Assessments fixed:   ${assessmentsFixed}`);
     console.log(`  Domains inserted:    ${totalInserted}`);
   } catch (error) {
-    console.error('[Backfill] FAILED:', error);
+    console.error('[Backfill] FAILED:', serializeError(error));
     process.exit(1);
   } finally {
     await prisma.$disconnect();

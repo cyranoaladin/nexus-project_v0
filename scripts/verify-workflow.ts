@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 #!/usr/bin/env tsx
 /**
  * E2E Workflow Verification Script
@@ -132,7 +133,7 @@ async function step1_registration() {
     
     return reservation.id;
   } catch (error) {
-    console.error('❌ STEP 1 FAILED:', error instanceof Error ? error.message : error);
+    console.error('❌ STEP 1 FAILED:', serializeError(error));
     throw error;
   }
 }
@@ -229,7 +230,7 @@ async function step2_diagnostic(reservationId: string) {
     
     return scoringResult;
   } catch (error) {
-    console.error('❌ STEP 2 FAILED:', error instanceof Error ? error.message : error);
+    console.error('❌ STEP 2 FAILED:', serializeError(error));
     throw error;
   }
 }
@@ -290,7 +291,7 @@ async function step3_adminVerification(reservationId: string) {
     
     return reservation;
   } catch (error) {
-    console.error('❌ STEP 3 FAILED:', error instanceof Error ? error.message : error);
+    console.error('❌ STEP 3 FAILED:', serializeError(error));
     throw error;
   }
 }
@@ -321,7 +322,7 @@ async function step4_cleanup(reservationId: string) {
     
     console.log('✅ Cleanup verification passed: Test data removed from DB\n');
   } catch (error) {
-    console.error('❌ STEP 4 FAILED:', error instanceof Error ? error.message : error);
+    console.error('❌ STEP 4 FAILED:', serializeError(error));
     throw error;
   }
 }
@@ -370,7 +371,7 @@ async function main() {
     console.error('║                    ❌ WORKFLOW FAILED                          ║');
     console.error('║                                                                ║');
     console.error('╚════════════════════════════════════════════════════════════════╝\n');
-    console.error('Error:', error);
+    console.error('Error:', serializeError(error));
     
     // Attempt cleanup even on failure
     if (reservationId) {
@@ -381,7 +382,7 @@ async function main() {
         });
         console.log('✅ Cleanup successful');
       } catch (cleanupError) {
-        console.error('❌ Cleanup failed:', cleanupError);
+        console.error('❌ Cleanup failed:', serializeError(cleanupError));
       }
     }
     

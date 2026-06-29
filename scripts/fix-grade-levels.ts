@@ -1,5 +1,6 @@
 import { PrismaClient, GradeLevel, AcademicTrack } from '@prisma/client';
 import { normalizeGradeLevel, getDefaultTrackForLevel, normalizeStudentLevelAndTrack } from '../lib/utils/grade-utils';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 const prisma = new PrismaClient();
 
@@ -80,7 +81,7 @@ async function main() {
         skippedCount++;
       }
     } catch (err) {
-      console.error(`❌ Error processing student ${student.id}:`, err);
+      console.error(`❌ Error processing student ${student.id}:`, serializeError(err));
       errorCount++;
     }
   }
@@ -100,7 +101,7 @@ async function main() {
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error(serializeError(e));
     process.exit(1);
   })
   .finally(async () => {

@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient({
@@ -47,7 +48,7 @@ async function main() {
 
 main()
   .catch(e => {
-    console.error('❌ Erreur:', e);
+    console.error('❌ Erreur:', serializeError(e));
     process.exit(1);
   })
   .finally(() => prisma.$disconnect());

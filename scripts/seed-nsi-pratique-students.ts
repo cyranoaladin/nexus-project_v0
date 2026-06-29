@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import bcrypt from 'bcryptjs';
 import { PrismaClient, UserRole, GradeLevel, AcademicTrack, Subject } from '@prisma/client';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 const prisma = new PrismaClient();
 
@@ -157,7 +158,7 @@ async function main() {
 
 main()
   .catch((error) => {
-    console.error(error);
+    console.error(serializeError(error));
     process.exitCode = 1;
   })
   .finally(async () => {

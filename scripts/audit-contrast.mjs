@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { chromium } from 'playwright';
+import { serializeError } from './serialize-error.mjs';
 
 const ROOT = process.cwd();
 const APP_DIR = path.join(ROOT, 'app');
@@ -117,6 +118,6 @@ async function run() {
 }
 
 run().catch((error) => {
-  console.error('Contrast audit failed:', error);
+  console.error('Contrast audit failed:', serializeError(error));
   process.exit(1);
 });

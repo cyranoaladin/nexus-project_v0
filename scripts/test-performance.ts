@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * Performance & Security Testing Script
  * 
@@ -206,7 +207,7 @@ async function testAPIPerformance() {
     }
 
   } catch (error) {
-    console.error('❌ API test failed:', error);
+    console.error('❌ API test failed:', serializeError(error));
   }
 }
 
@@ -319,7 +320,7 @@ async function main() {
     await cleanup();
 
   } catch (error) {
-    console.error('❌ Test failed:', error);
+    console.error('❌ Test failed:', serializeError(error));
     process.exit(1);
   } finally {
     await prisma.$disconnect();

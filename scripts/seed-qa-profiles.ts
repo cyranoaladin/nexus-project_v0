@@ -1,3 +1,4 @@
+import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * QA Seed Script — Idempotent creation of all test profiles
  *
@@ -263,7 +264,7 @@ async function main() {
 
 main()
   .catch((e) => {
-    console.error('❌ QA Seed failed:', e);
+    console.error('❌ QA Seed failed:', serializeError(e));
     process.exit(1);
   })
   .finally(async () => {
