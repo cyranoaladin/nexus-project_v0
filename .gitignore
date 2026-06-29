@@ -108,6 +108,8 @@ diagnostic_maths_*.json
 prisma/seed-zakaria*
 prisma/seed-demo-student.ts
 storage/documents/
+docs/attestations/
+docs/audits/*attestation-travail*.md
 *.csv
 !examples/**/*.csv
 !fixtures/**/*.csv
