@@ -24,6 +24,7 @@
  */
 
 import { config } from 'dotenv';
+import { serializeError } from './serialize-error.mjs';
 const dotenvResult = config(); // Load .env
 
 if (dotenvResult.error && !process.env.TELEGRAM_BOT_TOKEN) {
@@ -61,7 +62,7 @@ try {
   console.log(`   Bot ID:   ${bot.id}`);
   console.log(`   Name:     ${bot.first_name}`);
 } catch (err) {
-  console.error('❌ Network error calling getMe:', err.message);
+  console.error('❌ Network error calling getMe:', serializeError(err));
   process.exit(1);
 }
 
@@ -90,7 +91,7 @@ if (chatId) {
     console.log(`   Title: ${chat.title || chat.first_name || '(DM)'}`);
     console.log(`   ID:    ${chat.id}`);
   } catch (err) {
-    console.error('❌ Network error calling getChat:', err.message);
+    console.error('❌ Network error calling getChat:', serializeError(err));
     process.exit(2);
   }
 } else {
@@ -128,7 +129,7 @@ if (chatId) {
       }
     }
   } catch (err) {
-    console.error('   ❌ Network error calling getUpdates:', err.message);
+    console.error('   ❌ Network error calling getUpdates:', serializeError(err));
   }
 }
 

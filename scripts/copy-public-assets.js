@@ -8,6 +8,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { serializeError } = require('./serialize-error.cjs');
 
 function copyRecursiveSync(src, dest) {
   const exists = fs.existsSync(src);
@@ -106,7 +107,7 @@ function main() {
     } catch { }
 
   } catch (error) {
-    console.error('❌ Erreur lors de la copie:', error.message);
+    console.error('❌ Erreur lors de la copie:', serializeError(error));
     process.exit(1);
   }
 }

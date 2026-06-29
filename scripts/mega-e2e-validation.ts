@@ -17,6 +17,7 @@
 import { PrismaClient } from '@prisma/client';
 import * as fs from 'fs';
 import * as path from 'path';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 const prisma = new PrismaClient();
 const BASE_URL = 'http://localhost:3001';
@@ -474,7 +475,7 @@ async function fluxC_Paiement(): Promise<boolean> {
     return true;
   } catch (err) {
     fail(`C — Exception: ${err instanceof Error ? err.message : String(err)}`);
-    if (err instanceof Error && err.stack) console.error(err.stack);
+    if (err instanceof Error) console.error(serializeError(err));
     return false;
   }
 }
