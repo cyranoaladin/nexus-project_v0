@@ -52,7 +52,8 @@ for route in "${!BASELINES[@]}"; do
   # Match the route in build output — handles both ┌ and ├ prefixes
   line=$(grep -E "○ ${route} " "$BUILD_LOG" | head -1 || true)
   if [ -z "$line" ]; then
-    echo "⚠  ${route}: not found in build output (skipped)"
+    echo "✗  ${route}: not found in build output (protected route vanished from build)"
+    FAILURES=$((FAILURES + 1))
     continue
   fi
 
@@ -64,7 +65,7 @@ for route in "${!BASELINES[@]}"; do
     continue
   fi
 
-  first_load_int=$(echo "$first_load" | cut -d. -f1)
+  first_load_int=$(awk -v v="$first_load" 'BEGIN { printf "%d", (v == int(v) ? v : int(v) + 1) }')
 
   if [ "$first_load_int" -gt "$budget" ]; then
     echo "✗  ${route}: ${first_load} kB > ${budget} kB (baseline ${baseline} + ${TOLERANCE_KB})"
