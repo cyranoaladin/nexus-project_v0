@@ -87,9 +87,16 @@ describe('pricing no-import guard — transitive', () => {
       for (const line of content.split('\n')) {
         const trimmed = line.trim();
         if (trimmed.startsWith('import type ')) continue; // erased at compile time
+        // Static imports: from '...'
         const match = trimmed.match(/from\s+['"]([^'"]+)['"]/);
         if (match) {
           imports.push({ specifier: match[1], fromFile: file });
+        }
+        // Dynamic imports: import('...') / import("...") — skip import type(...)
+        if (/import\s+type\s*\(/.test(trimmed)) continue;
+        const dynMatch = trimmed.match(/import\s*\(\s*['"]([^'"]+)['"]\s*\)/);
+        if (dynMatch) {
+          imports.push({ specifier: dynMatch[1], fromFile: file });
         }
       }
       importGraph.set(file, imports);
@@ -123,6 +130,8 @@ describe('pricing no-import guard — transitive', () => {
       for (const { specifier, fromFile } of imports) {
         if (specifier === '@/lib/pricing') return true;
         const resolved = resolveSpecifier(specifier, fromFile);
+        // Also catch relative paths that resolve to lib/pricing.ts
+        if (resolved && (resolved === 'lib/pricing.ts' || resolved.startsWith('lib/pricing/'))) return true;
         if (resolved && importsLibPricing(resolved, visited)) return true;
       }
       return false;

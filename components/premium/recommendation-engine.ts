@@ -85,6 +85,30 @@ export interface RecommendationData {
 
 // ── Internal helpers ──
 
+/**
+ * Normalize a level string inline (same algorithm as pricing.ts):
+ * trim, lowercase, NFD strip accents, strip non-alphanumeric,
+ * then map common variants to canonical form.
+ */
+function normalizeLevel(input: string | null | undefined): string | null {
+  if (!input) return null;
+  const normalized = input
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '');
+  if (!normalized) return null;
+
+  if (normalized === 'terminale' || normalized === 'tle' || normalized === 'term') return 'terminale';
+  if (normalized === 'premiere' || normalized === '1ere' || normalized === '1re') return 'premiere';
+  if (normalized === 'seconde' || normalized === '2de' || normalized === '2nde') return 'seconde';
+  if (normalized === 'troisieme' || normalized === '3eme' || normalized === '3e') return 'troisieme';
+
+  // Already canonical or unrecognized — return as-is so data filtering still works
+  return normalized;
+}
+
 const LEVEL_LABELS: Record<string, string> = {
   terminale: 'Terminale',
   premiere: 'Première',
@@ -155,7 +179,7 @@ export function buildRecommendationOutcome(
   answers: RecommendationAnswerSet,
   data: RecommendationData,
 ): RecommendationOutcome {
-  const level = answers.level ?? null;
+  const level = normalizeLevel(answers.level);
   const need = answers.need;
   const track = answers.track;
   const actions = makeActions(data.whatsappUrl);
