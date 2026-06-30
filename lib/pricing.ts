@@ -389,9 +389,12 @@ export function getStageCalendar(): StageCalendarEntry[] {
  */
 export function getNextStage(referenceDate?: Date): { title: string; dates_display: string; date_start: string } | null {
   const now = referenceDate ?? new Date();
+  // Truncate to start of local day so that date_start strings like '2026-08-24'
+  // (parsed as midnight UTC) are not excluded by local-time hour offset.
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const calendar = getStageCalendar();
   const upcoming = calendar
-    .filter((e) => new Date(e.date_start) >= now)
+    .filter((e) => new Date(e.date_start) >= today)
     .sort((a, b) => new Date(a.date_start).getTime() - new Date(b.date_start).getTime());
   if (upcoming.length === 0) return null;
   const next = upcoming[0];

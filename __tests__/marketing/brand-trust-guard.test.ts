@@ -139,12 +139,31 @@ describe('Lot 1 T1.2 brand trust guardrails', () => {
   });
 
   test('client marketing surfaces read group rules from canonical SSOT (lib/pricing-client), not a duplicate', () => {
-    const clientFiles = [
-      'app/equipe/page.tsx',
-      'app/HomePageClient.tsx',
-      'components/marketing/acadomia-inspired.tsx',
-      'components/premium/MethodSection.tsx',
-    ];
+    // Dynamically find all .tsx files under app/ and components/ that are
+    // 'use client' AND import getRules from @/lib/pricing-client.
+    const glob = require('glob');
+    const candidates: string[] = glob.sync('{app,components}/**/*.tsx', {
+      ignore: ['**/node_modules/**', '**/.next/**'],
+    });
+
+    const clientFiles: string[] = [];
+    for (const file of candidates) {
+      const source = readFileSync(join(root, file), 'utf8');
+      // Detect 'use client' directive
+      const firstLine = source.split('\n').find((l: string) => {
+        const t = l.trim();
+        return t !== '' && !t.startsWith('//') && !t.startsWith('/*') && !t.startsWith('*');
+      });
+      const isClient = firstLine && (firstLine.trim() === "'use client';" || firstLine.trim() === '"use client";'
+        || firstLine.trim() === "'use client'" || firstLine.trim() === '"use client"');
+      if (!isClient) continue;
+      // Check if file imports getRules from @/lib/pricing-client
+      if (/\bgetRules\b/.test(source) && /from ['"]@\/lib\/pricing-client['"]/.test(source)) {
+        clientFiles.push(file);
+      }
+    }
+
+    expect(clientFiles.length).toBeGreaterThan(0);
 
     for (const file of clientFiles) {
       const source = sourceFor(file);

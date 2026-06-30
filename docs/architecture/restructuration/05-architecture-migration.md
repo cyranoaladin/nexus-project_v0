@@ -63,13 +63,12 @@ Chaque lot doit passer ce gate COMPLET AVANT merge — pas de subset, pas de « 
 2.  typecheck         → npx tsc --noEmit (0 erreurs)
 3.  test:unit         → npx jest --passWithNoTests (0 régressions)
 4.  test:e2e          → npx playwright test (0 régressions)
-5.  build             → npx next build 2>&1 | tee .next/build-output.log (succès)
-6.  bundle-weight     → npm run check:bundle-weight (baselines par page marketing, +5 kB tolérance)
-7.  guards            → grep de vérification : les routes modifiées conservent leurs gardes RBAC
-8.  audit:site-map    → vérification du site-map (toutes les routes publiques répondent)
-9.  check:docs        → vérification d'archive (aucun doc orphelin)
-10. git diff --check  → pas de whitespace/merge markers résiduels
-11. migration         → prisma migrate deploy sur DB de staging (si migration schéma dans le lot)
+5.  build:gate        → npm run build:gate (build + bundle-weight check)
+6.  guards            → grep de vérification : les routes modifiées conservent leurs gardes RBAC
+7.  audit:site-map    → vérification du site-map (toutes les routes publiques répondent)
+8.  check:docs        → vérification d'archive (aucun doc orphelin)
+9.  git diff --check  → pas de whitespace/merge markers résiduels
+10. migration         → prisma migrate deploy sur DB de staging (si migration schéma dans le lot)
 ```
 
 Un lot qui casse le gate ne merge pas. Réversibilité = `git revert` du merge commit. Pour les lots avec migration schéma : `prisma migrate` rollback en complément du revert.

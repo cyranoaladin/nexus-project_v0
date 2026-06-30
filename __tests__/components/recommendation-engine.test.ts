@@ -75,4 +75,10 @@ describe('recommendation engine', () => {
     expect(outcome.cards.length).toBeGreaterThan(0);
     expect(outcome.cards[0].ctaHref).toBe('/offres');
   });
+
+  it('normalizes accented legacy level labels in the wizard (e.g. Première)', () => {
+    const data = buildTestData();
+    const outcome = buildRecommendationOutcome({ need: 'annual', track: 'scolarise', level: 'Première' }, data);
+    expect(outcome.cards.length).toBeGreaterThan(0);
+  });
 });

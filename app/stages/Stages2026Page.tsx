@@ -204,7 +204,7 @@ export default function Stages2026Page({ calendar, rules, passIntensifs, formatM
               <CardContent className="p-6 md:p-8">
                 <h2 className="text-2xl font-fraunces text-lux-ivory">Le parcours complet, pas des stages isolés</h2>
                 <p className="mt-3 text-sm leading-7 text-lux-on-dark-muted">
-                  Le Pass Intensifs Année permet d'inscrire les stages dans une progression suivie, avec acompte déductible et solde réglé avant chaque prestation.
+                  Le Pass Intensifs Année permet d’inscrire les stages dans une progression suivie, avec acompte déductible et solde réglé avant chaque prestation.
                 </p>
                 <div className="mt-5 space-y-3">
                   {passIntensifs.map((pack) => (

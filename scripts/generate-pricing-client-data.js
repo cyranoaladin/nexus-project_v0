@@ -15,6 +15,20 @@ const canonical = JSON.parse(
 );
 
 // 1. Rules + repères + operational catalog
+const clientDataKeys = [
+  'rules',
+  'reperes_tarifaires',
+  'operational_subscription_plans',
+  'operational_aria_addons',
+  'operational_special_packs',
+  'operational_credit_costs',
+];
+for (const key of clientDataKeys) {
+  if (canonical[key] === undefined) {
+    throw new Error(`Missing expected key "${key}" in pricing.canonical.json`);
+  }
+}
+
 const clientData = {
   rules: canonical.rules,
   reperes_tarifaires: canonical.reperes_tarifaires,
@@ -27,6 +41,9 @@ const clientDataPath = path.join(__dirname, '..', 'data', 'pricing-client-data.g
 fs.writeFileSync(clientDataPath, JSON.stringify(clientData, null, 2) + '\n');
 
 // 2. Mini stage calendar (id, title, date_start, dates_display only)
+if (canonical.stage_calendar === undefined) {
+  throw new Error('Missing expected key "stage_calendar" in pricing.canonical.json');
+}
 const miniCalendar = canonical.stage_calendar.map((e) => ({
   id: e.id,
   title: e.title,
