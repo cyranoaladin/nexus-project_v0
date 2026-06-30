@@ -1,7 +1,13 @@
 /**
  * Typed loader for pricing.canonical.json — single source of truth.
  * No other file should import the JSON directly.
+ *
+ * WARNING: Do NOT import this module in 'use client' components.
+ * Use '@/lib/pricing-client' instead — it contains a lightweight subset
+ * (~5 KB) that avoids bundling the full 28 KB JSON in the client.
+ * A test enforces this: __tests__/lib/pricing-client-sync.test.ts
  */
+import 'server-only';
 import pricingData from '@/data/pricing.canonical.json';
 
 // ── Types ──

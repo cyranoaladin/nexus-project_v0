@@ -1,14 +1,10 @@
-import {
-  getCarte,
-  getAnnualOfferPaymentSchedule,
-  getRules,
-  getOffersByLevel,
-  getOffersByTrack,
-  getPonctuelOffers,
-  getStageFormats,
-  normalizePricingLevel,
-  type AnnualOffer,
-} from '@/lib/pricing';
+/**
+ * Recommendation engine — pure computation, no pricing imports.
+ *
+ * Accepts pre-loaded pricing data as a parameter so it can run
+ * both server-side (for pre-computation) and client-side (for
+ * interactive wizard) without importing the full canonical JSON.
+ */
 import type { ExamCardProps } from './ExamCard';
 
 export interface RecommendationAnswerSet {
@@ -34,8 +30,61 @@ export interface RecommendationOutcome {
   emptyState?: RecommendationEmptyState;
 }
 
-import { buildWhatsAppUrl } from '@/lib/whatsapp';
-const WHATSAPP_URL = buildWhatsAppUrl();
+// ── Data shapes passed in from the server ──
+
+export interface RecommendationOffer {
+  id: string;
+  level: string;
+  track: string;
+  title: string;
+  subjects: string;
+  hours_per_week: number | null;
+  hours_per_year: number | null;
+  group_max: number | null;
+  group_min_open: number | null;
+  price_annual: number | null;
+  included: string[];
+  pricing_display?: 'monthly_first' | 'annual';
+  payment?: { deposit: number; installments: number[]; lastInstallment: number; depositPct: number };
+  normalizedLevel: string | null;
+}
+
+export interface RecommendationStageFormat {
+  title: string;
+  hours: number;
+  group_max: number;
+  group_min_open: number;
+  price_per_student: number;
+  payment: { deposit: number; solde: number };
+}
+
+export interface RecommendationPonctuel {
+  title: string;
+  description: string;
+  public: string;
+  price_per_student: number;
+  group_max: number | null;
+  group_min_open: number | null;
+  payment: { full_at_booking?: boolean; deposit: number; solde: number };
+  normalizedPublic: string | null;
+}
+
+export interface RecommendationCarte {
+  title: string;
+  price_annual: number;
+  includes: string[];
+}
+
+export interface RecommendationData {
+  offers: RecommendationOffer[];
+  stageFormats: RecommendationStageFormat[];
+  ponctuelOffers: RecommendationPonctuel[];
+  carte: RecommendationCarte;
+  whatsappUrl: string;
+}
+
+// ── Internal helpers ──
+
 const LEVEL_LABELS: Record<string, string> = {
   terminale: 'Terminale',
   premiere: 'Première',
@@ -43,12 +92,10 @@ const LEVEL_LABELS: Record<string, string> = {
   troisieme: 'Troisième',
 };
 
-function buildOfferCard(offer: AnnualOffer): ExamCardProps {
+function buildOfferCard(offer: RecommendationOffer): ExamCardProps {
   const price = offer.price_annual ?? 0;
-  const payment = getAnnualOfferPaymentSchedule(offer);
-  const rules = getRules();
   return {
-    eyebrow: `${LEVEL_LABELS[normalizePricingLevel(offer.level) ?? ''] ?? offer.level} · ${offer.track === 'libre' ? 'Candidat libre' : 'Parcours présentiel'}`,
+    eyebrow: `${LEVEL_LABELS[offer.normalizedLevel ?? ''] ?? offer.level} · ${offer.track === 'libre' ? 'Candidat libre' : 'Parcours présentiel'}`,
     title: offer.title,
     subtitle: offer.subjects,
     price,
@@ -57,14 +104,14 @@ function buildOfferCard(offer: AnnualOffer): ExamCardProps {
     totalHours: offer.hours_per_year ?? undefined,
     groupMax: offer.group_max ?? 5,
     groupMinOpen: offer.group_min_open ?? 3,
-    payment: payment ? { ...payment, depositPct: rules.payment.deposit_pct_annual } : undefined,
+    payment: offer.payment,
     features: offer.included,
     ctaText: 'Voir l\'offre',
     ctaHref: '/offres',
   };
 }
 
-function buildStageCard(format: ReturnType<typeof getStageFormats>[number]): ExamCardProps {
+function buildStageCard(format: RecommendationStageFormat): ExamCardProps {
   return {
     eyebrow: `Stages · ${format.title}`,
     title: format.title,
@@ -78,7 +125,7 @@ function buildStageCard(format: ReturnType<typeof getStageFormats>[number]): Exa
   };
 }
 
-function buildPonctuelCard(offer: ReturnType<typeof getPonctuelOffers>[number]): ExamCardProps {
+function buildPonctuelCard(offer: RecommendationPonctuel): ExamCardProps {
   return {
     eyebrow: `Prépa épreuves · ${offer.public}`,
     title: offer.title,
@@ -94,141 +141,79 @@ function buildPonctuelCard(offer: ReturnType<typeof getPonctuelOffers>[number]):
   };
 }
 
-export function buildRecommendationOutcome(answers: RecommendationAnswerSet): RecommendationOutcome {
-  const level = normalizePricingLevel(answers.level);
+function makeActions(whatsappUrl: string): RecommendationAction[] {
+  return [
+    { label: 'Demander un bilan gratuit', href: '/bilan-gratuit' },
+    { label: 'Voir toutes les offres', href: '/offres' },
+    { label: 'Écrire sur WhatsApp', href: whatsappUrl, external: true },
+  ];
+}
+
+// ── Main entry point ──
+
+export function buildRecommendationOutcome(
+  answers: RecommendationAnswerSet,
+  data: RecommendationData,
+): RecommendationOutcome {
+  const level = answers.level ?? null;
   const need = answers.need;
   const track = answers.track;
+  const actions = makeActions(data.whatsappUrl);
 
   if (!need) {
-    return {
-      cards: [],
-      emptyState: {
-        title: 'Choisissez votre besoin',
-        message: 'Indiquez si vous cherchez un accompagnement annuel, un stage, une préparation ponctuelle ou la plateforme en ligne.',
-        actions: [
-          { label: 'Demander un bilan gratuit', href: '/bilan-gratuit' },
-          { label: 'Voir toutes les offres', href: '/offres' },
-          { label: 'Écrire sur WhatsApp', href: WHATSAPP_URL, external: true },
-        ],
-      },
-    };
+    return { cards: [], emptyState: { title: 'Choisissez votre besoin', message: 'Indiquez si vous cherchez un accompagnement annuel, un stage, une préparation ponctuelle ou la plateforme en ligne.', actions } };
   }
 
   if (need === 'annual') {
     if (!level) {
-      return {
-        cards: [],
-        emptyState: {
-          title: 'Sélectionnez un niveau',
-          message: 'Nous avons besoin du niveau de l’élève pour vous orienter vers les parcours annuels adaptés.',
-          actions: [
-            { label: 'Demander un bilan gratuit', href: '/bilan-gratuit' },
-            { label: 'Voir toutes les offres', href: '/offres' },
-            { label: 'Écrire sur WhatsApp', href: WHATSAPP_URL, external: true },
-          ],
-        },
-      };
+      return { cards: [], emptyState: { title: 'Sélectionnez un niveau', message: 'Nous avons besoin du niveau de l\'élève pour vous orienter vers les parcours annuels adaptés.', actions } };
     }
-
     const offers = track === 'libre'
-      ? getOffersByTrack('libre').filter((offer) => normalizePricingLevel(offer.level) === level)
-      : getOffersByLevel(level);
-
+      ? data.offers.filter((o) => o.track === 'libre' && o.normalizedLevel === level)
+      : data.offers.filter((o) => o.normalizedLevel === level);
     const cards = offers.slice(0, 3).map(buildOfferCard);
     if (cards.length === 0) {
-      return {
-        cards: [],
-        emptyState: {
-          title: 'Aucune formule trouvée',
-          message: 'Nous n’avons pas de formule publiée correspondant exactement à ce niveau pour le moment. Un bilan gratuit permet de vous orienter vers la meilleure alternative.',
-          actions: [
-            { label: 'Demander un bilan gratuit', href: '/bilan-gratuit' },
-            { label: 'Voir toutes les offres', href: '/offres' },
-            { label: 'Écrire sur WhatsApp', href: WHATSAPP_URL, external: true },
-          ],
-        },
-      };
+      return { cards: [], emptyState: { title: 'Aucune formule trouvée', message: 'Nous n\'avons pas de formule publiée correspondant exactement à ce niveau pour le moment. Un bilan gratuit permet de vous orienter vers la meilleure alternative.', actions } };
     }
-
     return { cards };
   }
 
   if (need === 'stage') {
-    const cards = getStageFormats().slice(0, 3).map(buildStageCard);
+    const cards = data.stageFormats.slice(0, 3).map(buildStageCard);
     if (cards.length === 0) {
-      return {
-        cards: [],
-        emptyState: {
-          title: 'Stages non disponibles',
-          message: 'Aucun format de stage n’est publié pour l’instant. Un bilan gratuit permet de trouver une alternative.',
-          actions: [
-            { label: 'Demander un bilan gratuit', href: '/bilan-gratuit' },
-            { label: 'Voir toutes les offres', href: '/offres' },
-            { label: 'Écrire sur WhatsApp', href: WHATSAPP_URL, external: true },
-          ],
-        },
-      };
+      return { cards: [], emptyState: { title: 'Stages non disponibles', message: 'Aucun format de stage n\'est publié pour l\'instant. Un bilan gratuit permet de trouver une alternative.', actions } };
     }
-
     return { cards };
   }
 
   if (need === 'ponctuel') {
-    const cards = getPonctuelOffers()
-      .filter((offer) => !level || offer.public === 'Tous' || normalizePricingLevel(offer.public) === level)
+    const cards = data.ponctuelOffers
+      .filter((o) => !level || o.public === 'Tous' || o.normalizedPublic === level)
       .slice(0, 3)
       .map(buildPonctuelCard);
     if (cards.length === 0) {
-      return {
-        cards: [],
-        emptyState: {
-          title: 'Aucune prépa ponctuelle trouvée',
-          message: 'Nous n’avons pas de session ponctuelle correspondante sous ce filtre. Le bilan gratuit permet de clarifier la meilleure option.',
-          actions: [
-            { label: 'Demander un bilan gratuit', href: '/bilan-gratuit' },
-            { label: 'Voir toutes les offres', href: '/offres' },
-            { label: 'Écrire sur WhatsApp', href: WHATSAPP_URL },
-          ],
-        },
-      };
+      return { cards: [], emptyState: { title: 'Aucune prépa ponctuelle trouvée', message: 'Nous n\'avons pas de session ponctuelle correspondante sous ce filtre. Le bilan gratuit permet de clarifier la meilleure option.', actions } };
     }
-
     return { cards };
   }
 
   if (need === 'platform') {
-    const carte = getCarte();
     return {
-      cards: [
-        {
-          eyebrow: 'Carte membre',
-          title: carte.title,
-          subtitle: 'Accès plateforme + remises + diagnostic',
-          price: carte.price_annual,
-          features: carte.includes,
-          ctaText: 'Découvrir ARIA',
-          ctaHref: '/plateforme-aria',
-        },
-      ],
+      cards: [{
+        eyebrow: 'Carte membre',
+        title: data.carte.title,
+        subtitle: 'Accès plateforme + remises + diagnostic',
+        price: data.carte.price_annual,
+        features: data.carte.includes,
+        ctaText: 'Découvrir ARIA',
+        ctaHref: '/plateforme-aria',
+      }],
     };
   }
 
-  return {
-    cards: [],
-    emptyState: {
-      title: 'Besoin non reconnu',
-      message: 'Choisissez une formule annuelle, un stage, une préparation ponctuelle ou la plateforme.',
-      actions: [
-        { label: 'Demander un bilan gratuit', href: '/bilan-gratuit' },
-        { label: 'Voir toutes les offres', href: '/offres' },
-        { label: 'Écrire sur WhatsApp', href: WHATSAPP_URL, external: true },
-      ],
-    },
-  };
+  return { cards: [], emptyState: { title: 'Besoin non reconnu', message: 'Choisissez une formule annuelle, un stage, une préparation ponctuelle ou la plateforme.', actions } };
 }
 
-export const recommendationActions = [
-  { label: 'Demander un bilan gratuit', href: '/bilan-gratuit' },
-  { label: 'Voir toutes les offres', href: '/offres' },
-  { label: 'Écrire sur WhatsApp', href: WHATSAPP_URL, external: true },
-] as const;
+export function getRecommendationActions(whatsappUrl: string): readonly RecommendationAction[] {
+  return makeActions(whatsappUrl);
+}

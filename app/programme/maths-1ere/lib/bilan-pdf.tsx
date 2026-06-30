@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { getNextStage } from '@/lib/pricing';
+import { getNextStage } from '@/lib/pricing-client';
 import {
   Document,
   Page,

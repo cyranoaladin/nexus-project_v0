@@ -14,7 +14,7 @@ import {
 
 import socialProof from '@/content/social-proof.json';
 import team from '@/content/team.json';
-import { getRules } from '@/lib/pricing';
+import { getRules } from '@/lib/pricing-client';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
 

@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { CopySubmissionStatus, UserRole, AiJobType, AiJobStatus, AiJobPriority } from '@prisma/client';
-import {
 import { serializeError } from '@/lib/utils/serialize-error';
+import {
   FILE_VALIDATION_ERRORS,
   validateUploadedFile,
 } from '@/lib/npc/file-validator';

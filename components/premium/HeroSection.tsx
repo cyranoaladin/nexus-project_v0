@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
-import { getRules } from '@/lib/pricing';
+import { getRules } from '@/lib/pricing-client';
 
 function getReassuranceItems(groupMax: number): string[] {
   return [

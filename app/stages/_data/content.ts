@@ -2,7 +2,7 @@
  * Stage content data (UX/marketing text only — no prices).
  * All pricing lives in data/pricing.canonical.json.
  */
-import { getRules } from "@/lib/pricing";
+import { getRules } from "@/lib/pricing-client";
 
 export interface FAQItem {
   question: string;

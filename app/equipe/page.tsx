@@ -15,7 +15,7 @@ import {
   Users,
 } from "lucide-react";
 import { resolveUiIcon } from "@/lib/ui-icons";
-import { getRules } from "@/lib/pricing";
+import { getRules } from "@/lib/pricing-client";
 
 const FEATURED = [
   "maths-methode-bac",

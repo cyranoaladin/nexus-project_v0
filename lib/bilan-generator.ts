@@ -3,8 +3,8 @@ import { ragSearch, buildRAGContext } from '@/lib/rag-client';
 import type { BilanDiagnosticMathsData } from '@/lib/validations';
 import type { ScoringResult } from '@/lib/bilan-scoring';
 import type { ScoringV2Result, DiagnosticDefinition } from '@/lib/diagnostics/types';
-import {
 import { serializeError } from '@/lib/utils/serialize-error';
+import {
   buildPromptContextPack,
   renderPromptContext,
   buildChapterAwareRAGQueries,

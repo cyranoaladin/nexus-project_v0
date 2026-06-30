@@ -3,7 +3,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { getNextStage } from '@/lib/pricing';
+import { getNextStage } from '@/lib/pricing-client';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { motion } from 'framer-motion';
 import { ArrowRight, Check, ClipboardList, Lightbulb, Rocket, Target } from 'lucide-react';

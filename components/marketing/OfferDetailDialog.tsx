@@ -6,7 +6,7 @@ import { X, Check, ShieldCheck } from 'lucide-react';
 import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { fmtTND } from '@/components/premium/format';
-import { getRules } from '@/lib/pricing';
+import { getRules } from '@/lib/pricing-client';
 import { PaymentMethodsNote } from '@/components/marketing/PaymentMethodsNote';
 
 // ── Types ──
