@@ -1,0 +1,32 @@
+[
+  {
+    "id": "pre-rentree-2026",
+    "title": "Pré-Rentrée",
+    "date_start": "2026-08-24",
+    "dates_display": "Lun. 24 → ven. 28 août 2026"
+  },
+  {
+    "id": "toussaint-2026",
+    "title": "Toussaint",
+    "date_start": "2026-10-19",
+    "dates_display": "Sem. A : lun. 19 → ven. 23 oct. OU sem. B : lun. 26 → ven. 30 oct. 2026"
+  },
+  {
+    "id": "noel-2026",
+    "title": "Noël",
+    "date_start": "2026-12-21",
+    "dates_display": "Lun. 21 → mer. 23 déc. 2026 (option : lun. 28 → mer. 30 déc.)"
+  },
+  {
+    "id": "fevrier-2027",
+    "title": "Février",
+    "date_start": "2027-02-15",
+    "dates_display": "Sem. A : lun. 15 → ven. 19 fév. OU sem. B : lun. 22 → ven. 26 fév. 2027"
+  },
+  {
+    "id": "printemps-prepa-bac-2027",
+    "title": "Printemps / Prépa-Bac",
+    "date_start": "2027-04-26",
+    "dates_display": "Lun. 26 → ven. 30 avr. + lun. 3 → ven. 7 mai 2027 (option 1 sem. 15 h)"
+  }
+]

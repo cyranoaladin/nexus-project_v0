@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { BilanPDFDownloadButton } from '@/app/programme/maths-1ere/lib/bilan-pdf';
 import { BilanTabs } from '@/components/bilan';
-import { getNextStage } from '@/lib/pricing';
+import { getNextStage } from '@/lib/pricing-client';
 
 type BilanType = 'eleve' | 'famille' | 'nexus';
 

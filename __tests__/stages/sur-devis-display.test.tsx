@@ -9,7 +9,10 @@ import {
   getStageCalendar,
   getStageFormat,
   isFormatPriceValidated,
+  getRules,
+  getPacks,
 } from '@/lib/pricing';
+import type { StageFormat } from '@/lib/pricing';
 
 // Mock layout components for full-page rendering
 jest.mock('@/components/layout/CorporateNavbar', () => ({
@@ -23,6 +26,21 @@ jest.mock('@/components/ui/button', () => ({
 }));
 
 import Stages2026Page from '@/app/stages/Stages2026Page';
+
+function buildStagesProps() {
+  const calendar = getStageCalendar();
+  const rules = getRules();
+  const passIntensifs = getPacks().filter((pack) => pack.id.startsWith('pass-intensifs'));
+  const formatIds = [...new Set(calendar.map((e) => e.format_id))];
+  const formatMap: Record<string, { format: StageFormat; priceValidated: boolean }> = {};
+  for (const id of formatIds) {
+    const format = getStageFormat(id);
+    if (format) {
+      formatMap[id] = { format, priceValidated: isFormatPriceValidated(format) };
+    }
+  }
+  return { calendar, rules, passIntensifs, formatMap };
+}
 
 // ── Branch test on extracted component ──
 
@@ -49,7 +67,7 @@ describe('StagePriceLabel — rendered branch coverage', () => {
 
 describe('Stages page — real prices', () => {
   it('all stages show a price (none pending)', () => {
-    render(<Stages2026Page />);
+    render(<Stages2026Page {...buildStagesProps()} />);
     const calendar = getStageCalendar();
     for (const stage of calendar) {
       expect(isFormatPriceValidated(stage.format_id)).toBe(true);
@@ -58,12 +76,12 @@ describe('Stages page — real prices', () => {
   });
 
   it('express-vacances shows 420 TND', () => {
-    render(<Stages2026Page />);
+    render(<Stages2026Page {...buildStagesProps()} />);
     expect(screen.getAllByText(/420/).length).toBeGreaterThanOrEqual(1);
   });
 
   it('intensif-renfort shows 720 TND', () => {
-    render(<Stages2026Page />);
+    render(<Stages2026Page {...buildStagesProps()} />);
     const fmt = getStageFormat('intensif-renfort')!;
     expect(screen.getAllByText(new RegExp(`${fmt.price_per_student}`)).length).toBeGreaterThanOrEqual(1);
   });

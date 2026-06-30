@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { ChevronRight, CheckCircle2, RotateCcw } from 'lucide-react';
 import { ExamCard } from './ExamCard';
-import { buildRecommendationOutcome, recommendationActions, type RecommendationAction } from './recommendation-engine';
+import { buildRecommendationOutcome, getRecommendationActions, type RecommendationAction, type RecommendationData } from './recommendation-engine';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 
 // ── Wizard steps ──
@@ -52,7 +52,11 @@ const steps: WizardStep[] = [
 
 // ── Component ──
 
-export function RecommendationWizard() {
+interface RecommendationWizardProps {
+  data: RecommendationData;
+}
+
+export function RecommendationWizard({ data }: RecommendationWizardProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [showResults, setShowResults] = useState(false);
@@ -61,10 +65,11 @@ export function RecommendationWizard() {
   const selectedValue = answers[step.id];
 
   const recommendationOutcome = useMemo(
-    () => (showResults ? buildRecommendationOutcome(answers) : { cards: [] }),
-    [showResults, answers],
+    () => (showResults ? buildRecommendationOutcome(answers, data) : { cards: [] }),
+    [showResults, answers, data],
   );
   const recommendations = recommendationOutcome.cards;
+  const recommendationActions = getRecommendationActions(data.whatsappUrl);
 
   const handleSelect = (value: string) => {
     const newAnswers = { ...answers, [step.id]: value };
