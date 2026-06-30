@@ -33,12 +33,11 @@ export function getReperes(): typeof PRICING_REPERES {
 
 export function getNextStage(referenceDate?: Date): { title: string; dates_display: string; date_start: string } | null {
   const now = referenceDate ?? new Date();
-  // Truncate to start of local day so that date_start strings like '2026-08-24'
-  // (parsed as midnight UTC) are not excluded by local-time hour offset.
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  // Compare YYYY-MM-DD strings to avoid UTC-vs-local timezone skew entirely.
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   const upcoming = (stageCalendarMini as Array<{ title: string; date_start: string; dates_display: string }>)
-    .filter((e) => new Date(e.date_start) >= today)
-    .sort((a, b) => new Date(a.date_start).getTime() - new Date(b.date_start).getTime());
+    .filter((e) => e.date_start >= todayStr)
+    .sort((a, b) => a.date_start.localeCompare(b.date_start));
   if (upcoming.length === 0) return null;
   const next = upcoming[0];
   return { title: next.title, dates_display: next.dates_display, date_start: next.date_start };

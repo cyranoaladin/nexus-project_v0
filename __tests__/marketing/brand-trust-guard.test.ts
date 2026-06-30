@@ -139,17 +139,20 @@ describe('Lot 1 T1.2 brand trust guardrails', () => {
   });
 
   test('client marketing surfaces read group rules from canonical SSOT (lib/pricing-client), not a duplicate', () => {
-    // Dynamically find all .tsx files under app/ and components/ that are
-    // 'use client' AND import getRules from @/lib/pricing-client.
     const glob = require('glob');
     const candidates: string[] = glob.sync('{app,components}/**/*.tsx', {
       ignore: ['**/node_modules/**', '**/.next/**'],
     });
 
-    const clientFiles: string[] = [];
+    // Two complementary checks:
+    // (A) Positive: files importing getRules must use pricing-client
+    // (B) Negative: NO client file anywhere imports group-rules (forbidden pattern)
+
+    const clientFilesWithGetRules: string[] = [];
+    const groupRulesViolations: string[] = [];
+
     for (const file of candidates) {
       const source = readFileSync(join(root, file), 'utf8');
-      // Detect 'use client' directive
       const firstLine = source.split('\n').find((l: string) => {
         const t = l.trim();
         return t !== '' && !t.startsWith('//') && !t.startsWith('/*') && !t.startsWith('*');
@@ -157,22 +160,28 @@ describe('Lot 1 T1.2 brand trust guardrails', () => {
       const isClient = firstLine && (firstLine.trim() === "'use client';" || firstLine.trim() === '"use client";'
         || firstLine.trim() === "'use client'" || firstLine.trim() === '"use client"');
       if (!isClient) continue;
-      // Check if file imports getRules from @/lib/pricing-client
-      if (/\bgetRules\b/.test(source) && /from ['"]@\/lib\/pricing-client['"]/.test(source)) {
-        clientFiles.push(file);
+
+      // (B) Forbidden: no client file should import group-rules
+      if (/group-rules/.test(source)) {
+        groupRulesViolations.push(file);
+      }
+
+      // (A) Positive: files using getRules must import from pricing-client
+      if (/\bgetRules\b/.test(source)) {
+        clientFilesWithGetRules.push(file);
       }
     }
 
-    expect(clientFiles.length).toBeGreaterThan(0);
+    // At least some client files use getRules (sanity check)
+    expect(clientFilesWithGetRules.length).toBeGreaterThan(0);
 
-    for (const file of clientFiles) {
+    for (const file of clientFilesWithGetRules) {
       const source = sourceFor(file);
-      // Must use getRules() from lib/pricing-client (client-safe SSOT subset)
-      expect(source).toMatch(/\bgetRules\b/);
       expect(source).toMatch(/from ['"]@\/lib\/pricing-client['"]/);
-      // Must NOT import from the deleted duplicate
-      expect(source).not.toContain('group-rules');
     }
+
+    // No client file anywhere uses the deleted group-rules module
+    expect(groupRulesViolations).toEqual([]);
   });
 
   test('legacy range names are not exposed in active app or component copy', () => {
