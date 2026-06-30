@@ -1,4 +1,4 @@
-import { serializeError } from '@/lib/utils/serialize-error';
+import { serializeError } from '../lib/utils/serialize-error';
 /**
  * F51: Bilan Migration Script (Read-Only / Dry-Run Safe)
  * Migrates data from Diagnostic, Assessment, StageBilan to canonical Bilan model
