@@ -28,7 +28,7 @@ import { EPREUVE_MATHS_1ERE } from '../../config/exam';
 import { RAGRemediation } from '@/components/programme/shared/RAG/RAGRemediation';
 import { BilanPDFDownloadButton } from '../../lib/bilan-pdf';
 import { Download } from 'lucide-react';
-import { getNextStage } from '@/lib/pricing';
+import { getNextStage } from '@/lib/pricing-client';
 
 const _stageLabel = getNextStage()?.title ?? 'Stage Nexus Réussite';
 

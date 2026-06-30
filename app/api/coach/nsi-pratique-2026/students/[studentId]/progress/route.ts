@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { isCoachAssignedToStudent } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
-import {
 import { serializeError } from '@/lib/utils/serialize-error';
+import {
   computeCoachStudentSummary,
   getSubjectDetails,
   getPatternDetails,

@@ -7,8 +7,13 @@ import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { RecommendationWizard } from '@/components/premium/RecommendationWizard';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
+import type { RecommendationData } from '@/components/premium/recommendation-engine';
 
-export function RecommandationClient() {
+interface RecommandationClientProps {
+  recommendationData: RecommendationData;
+}
+
+export function RecommandationClient({ recommendationData }: RecommandationClientProps) {
   return (
     <main className="luxury" id="main-content">
       <CorporateNavbar />
@@ -31,7 +36,7 @@ export function RecommandationClient() {
       <section className="py-16 px-4 md:px-6">
         <div className="mx-auto max-w-2xl">
           <div className="rounded-2xl border border-lux-line bg-lux-white p-6 md:p-10 lux-shadow">
-            <RecommendationWizard />
+            <RecommendationWizard data={recommendationData} />
           </div>
         </div>
       </section>

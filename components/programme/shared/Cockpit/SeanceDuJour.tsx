@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, BookOpen, Target, ChevronRight } from 'lucide-react';
-import { getNextStage } from '@/lib/pricing';
+import { getNextStage } from '@/lib/pricing-client';
 
 interface SeanceDuJourProps {
   onNavigateToChap: (catKey: string, chapId: string) => void;

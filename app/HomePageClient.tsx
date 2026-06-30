@@ -14,7 +14,7 @@ import {
 import {
   getReperes,
   getRules,
-} from '@/lib/pricing';
+} from '@/lib/pricing-client';
 import {
   EnjeuxNiveau,
   ProcessSteps,

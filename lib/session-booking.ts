@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { parseSubjects } from '@/lib/utils/subjects';
-import type {
 import { serializeError } from '@/lib/utils/serialize-error';
+import type {
   Prisma,
   SessionBooking,
   SessionModality,

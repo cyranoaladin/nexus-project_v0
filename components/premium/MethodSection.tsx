@@ -1,7 +1,7 @@
 'use client';
 
 import { GraduationCap, Users, BookOpen, Shield } from 'lucide-react';
-import { getRules } from '@/lib/pricing';
+import { getRules } from '@/lib/pricing-client';
 
 function getPillars(rules: { group_max: number; group_min_open: Record<string, number> }) {
   return [

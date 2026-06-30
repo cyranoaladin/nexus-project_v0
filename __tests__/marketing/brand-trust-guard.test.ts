@@ -138,7 +138,7 @@ describe('Lot 1 T1.2 brand trust guardrails', () => {
     expect(matchingFiles(invalidGroupMinOpenReads)).toEqual([]);
   });
 
-  test('client marketing surfaces read group rules from canonical SSOT (lib/pricing), not a duplicate', () => {
+  test('client marketing surfaces read group rules from canonical SSOT (lib/pricing-client), not a duplicate', () => {
     const clientFiles = [
       'app/equipe/page.tsx',
       'app/HomePageClient.tsx',
@@ -148,9 +148,9 @@ describe('Lot 1 T1.2 brand trust guardrails', () => {
 
     for (const file of clientFiles) {
       const source = sourceFor(file);
-      // Must use getRules() from lib/pricing (canonical SSOT), not a duplicate lib
+      // Must use getRules() from lib/pricing-client (client-safe SSOT subset)
       expect(source).toMatch(/\bgetRules\b/);
-      expect(source).toMatch(/from ['"]@\/lib\/pricing['"]/);
+      expect(source).toMatch(/from ['"]@\/lib\/pricing-client['"]/);
       // Must NOT import from the deleted duplicate
       expect(source).not.toContain('group-rules');
     }

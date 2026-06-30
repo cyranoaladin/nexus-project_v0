@@ -8,7 +8,7 @@ import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { getStageCalendar, getStageFormat, isFormatPriceValidated, getPacks, getRules } from '@/lib/pricing';
+import type { StageCalendarEntry, StageFormat, Pack, Rules } from '@/lib/pricing';
 import { fmtTND } from '@/components/premium/format';
 import { StagePriceLabel } from './_components/StagePriceLabel';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
@@ -22,10 +22,14 @@ const pillars = [
   'Bilan et pré-inscription',
 ];
 
-export default function Stages2026Page() {
-  const calendar = getStageCalendar();
-  const rules = getRules();
-  const passIntensifs = getPacks().filter((pack) => pack.id.startsWith('pass-intensifs'));
+interface Stages2026PageProps {
+  calendar: StageCalendarEntry[];
+  rules: Rules;
+  passIntensifs: Pack[];
+  formatMap: Record<string, { format: StageFormat; priceValidated: boolean }>;
+}
+
+export default function Stages2026Page({ calendar, rules, passIntensifs, formatMap }: Stages2026PageProps) {
 
   return (
     <main className="luxury" id="main-content">
@@ -72,9 +76,8 @@ export default function Stages2026Page() {
           </h2>
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {calendar.map((stage) => {
-              const format = getStageFormat(stage.format_id);
-              const priceValidated = format && isFormatPriceValidated(format);
-              const price = priceValidated ? format.price_per_student : null;
+              const entry = formatMap[stage.format_id];
+              const price = entry?.priceValidated ? entry.format.price_per_student : null;
               return (
                 <Card key={stage.id} className="border-lux-line bg-lux-ink text-lux-ivory">
                   <CardContent className="p-6">
@@ -201,7 +204,7 @@ export default function Stages2026Page() {
               <CardContent className="p-6 md:p-8">
                 <h2 className="text-2xl font-fraunces text-lux-ivory">Le parcours complet, pas des stages isolés</h2>
                 <p className="mt-3 text-sm leading-7 text-lux-on-dark-muted">
-                  Le Pass Intensifs Année permet d’inscrire les stages dans une progression suivie, avec acompte déductible et solde réglé avant chaque prestation.
+                  Le Pass Intensifs Année permet d'inscrire les stages dans une progression suivie, avec acompte déductible et solde réglé avant chaque prestation.
                 </p>
                 <div className="mt-5 space-y-3">
                   {passIntensifs.map((pack) => (

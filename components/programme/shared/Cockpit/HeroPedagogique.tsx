@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, Target, TrendingUp, Zap, AlertTriangle, CheckCircle2 } from 'lucide-react';
-import { getNextStage } from '@/lib/pricing';
+import { getNextStage } from '@/lib/pricing-client';
 
 interface HeroPedagogiqueProps {
   displayName: string;
