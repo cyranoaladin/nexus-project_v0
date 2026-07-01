@@ -40,6 +40,7 @@ const TTL_MS = 60_000;
 
 let snapshot = new Map<string, ConfigEntry>();
 let lastLoadedAt = 0;
+let hasLoadedOnce = false; // True after first successful full load (_doLoad)
 let passiveInflight: Promise<void> | null = null;
 let swapSequence = 0; // Monotonic: incremented on passive full-snapshot swap
 
@@ -80,6 +81,7 @@ async function _doLoad(): Promise<void> {
 
   snapshot = newSnapshot;
   swapSequence++;
+  hasLoadedOnce = true;
   lastLoadedAt = Date.now();
 }
 
@@ -166,7 +168,12 @@ export function applyWrite(entry: ConfigEntry): void {
   // Apply to current snapshot (mutate the existing Map — atomic in single-thread)
   snapshot.set(mapKey, entry);
   swapSequence++;
-  lastLoadedAt = Date.now();
+  // Only mark as fresh if we've done a full load at least once.
+  // On a cold snapshot, applyWrite sets ONE key but other overrides
+  // in the DB are still missing — ensureFresh must trigger a full load.
+  if (hasLoadedOnce) {
+    lastLoadedAt = Date.now();
+  }
 }
 
 // ── Testing helpers (guarded: throw in production) ──
@@ -177,6 +184,7 @@ export function _resetForTest(): void {
   }
   snapshot = new Map();
   lastLoadedAt = 0;
+  hasLoadedOnce = false;
   passiveInflight = null;
   swapSequence = 0;
 }

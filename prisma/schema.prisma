@@ -2423,6 +2423,7 @@ model BusinessConfigAudit {
   changedBy String   // userId
   changedAt DateTime @default(now())
 
+  @@unique([namespace, key, version])
   @@index([namespace, key])
   @@index([changedAt])
   @@map("business_config_audit")

@@ -14,13 +14,14 @@ import {
   SCHEMA_VERSION,
   validateConfigEntry,
   validateCrossInvariants,
+  CONFIG_ADVISORY_LOCK_KEY,
 } from '@/lib/config';
 import type { AuthSession } from '@/lib/guards';
 
 // Advisory lock key for serializing config writes. All config writes
 // share the same lock — config changes are rare (admin-only), so
 // serialization is the simplest correct solution for cross-key invariants.
-const CONFIG_ADVISORY_LOCK_KEY = 737001; // arbitrary stable int
+ // arbitrary stable int
 
 export async function GET() {
   const auth = await requireAnyRole(['ADMIN', 'ASSISTANTE']);

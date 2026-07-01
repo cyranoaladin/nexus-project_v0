@@ -11,10 +11,11 @@ import {
   SCHEMA_VERSION,
   validateConfigEntry,
   validateCrossInvariants,
+  CONFIG_ADVISORY_LOCK_KEY,
 } from '@/lib/config';
 import type { AuthSession } from '@/lib/guards';
 
-const CONFIG_ADVISORY_LOCK_KEY = 737001;
+
 
 export async function POST(request: NextRequest) {
   const auth = await requireRole('ADMIN');

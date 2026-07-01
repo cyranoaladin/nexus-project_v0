@@ -17,3 +17,6 @@ CREATE INDEX "business_config_audit_namespace_key_idx" ON "business_config_audit
 
 -- CreateIndex
 CREATE INDEX "business_config_audit_changedAt_idx" ON "business_config_audit"("changedAt");
+
+-- CreateIndex (integrity: one audit row per version per key)
+CREATE UNIQUE INDEX "business_config_audit_namespace_key_version_key" ON "business_config_audit"("namespace", "key", "version");

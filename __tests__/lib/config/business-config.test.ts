@@ -435,6 +435,56 @@ describe('snapshot — passive losing guard advances lastLoadedAt', () => {
   });
 });
 
+// ── applyWrite on cold snapshot does NOT suppress ensureFresh ──
+
+describe('snapshot — applyWrite on cold snapshot triggers ensureFresh', () => {
+  let snapshotModule: typeof import('@/lib/config/snapshot');
+  let prismaModule: typeof import('@/lib/prisma');
+  let origFindMany: any;
+
+  beforeEach(async () => {
+    snapshotModule = await import('@/lib/config/snapshot');
+    prismaModule = await import('@/lib/prisma');
+    origFindMany = prismaModule.prisma.businessConfig.findMany;
+    snapshotModule._resetForTest();
+  });
+
+  afterEach(() => {
+    (prismaModule.prisma.businessConfig as any).findMany = origFindMany;
+    snapshotModule._resetForTest();
+  });
+
+  it('cold snapshot + applyWrite → ensureFresh triggers full load', async () => {
+    // Snapshot is cold (never loaded). applyWrite sets ONE key.
+    snapshotModule.applyWrite({
+      namespace: 'pricing.rules', key: 'group_max', value: 3,
+      schemaVersion: '1.0', version: 1, updatedBy: 'admin', updatedAt: new Date(),
+    });
+    expect(snapshotModule.getOverride('pricing.rules', 'group_max')).toBe(3);
+
+    // ensureFresh should NOT be a no-op — it must trigger a full load
+    // because hasLoadedOnce is false.
+    let loadCalled = false;
+    (prismaModule.prisma.businessConfig as any).findMany = jest.fn(async () => {
+      loadCalled = true;
+      return [
+        { id: '1', namespace: 'pricing.rules', key: 'group_max', value: 3,
+          schemaVersion: '1.0', version: 1, previousValue: null,
+          updatedBy: 'admin', updatedAt: new Date(), createdAt: new Date() },
+        { id: '2', namespace: 'pricing.rules', key: 'group_min_open.lycee', value: 4,
+          schemaVersion: '1.0', version: 1, previousValue: null,
+          updatedBy: 'admin', updatedAt: new Date(), createdAt: new Date() },
+      ];
+    });
+
+    await snapshotModule.ensureFresh();
+    expect(loadCalled).toBe(true); // Full load triggered
+    // Now both keys are in snapshot
+    expect(snapshotModule.getOverride('pricing.rules', 'group_max')).toBe(3);
+    expect(snapshotModule.getOverride('pricing.rules', 'group_min_open.lycee')).toBe(4);
+  });
+});
+
 // ── Nominal TTL refresh — tested with mocked clock ──
 
 describe('snapshot — nominal TTL refresh (mocked clock, no reset)', () => {

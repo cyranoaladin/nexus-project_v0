@@ -14,7 +14,17 @@ export async function GET() {
 
   const entries = await prisma.businessConfigAudit.findMany({
     orderBy: { changedAt: 'desc' },
-    take: 200, // Limit to last 200 changes
+    take: 200,
+    select: {
+      id: true,
+      namespace: true,
+      key: true,
+      oldValue: true,
+      newValue: true,
+      version: true,
+      changedBy: true,
+      changedAt: true,
+    },
   });
 
   return NextResponse.json({ entries });

@@ -22,3 +22,6 @@ export {
   SCHEMA_VERSION,
   type NamespaceId,
 } from './schemas';
+
+/** Advisory lock key for serializing config writes (shared by PATCH + rollback). */
+export const CONFIG_ADVISORY_LOCK_KEY = 737001;

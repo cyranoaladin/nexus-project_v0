@@ -1,12 +1,9 @@
 /**
  * API integration tests for /api/admin/config
- *
- * Tests the PATCH → invalidateSnapshot → GET chain to prove the admin
- * sees the new value immediately after write.
  */
 import { NextRequest } from 'next/server';
 import { GET, PATCH } from '@/app/api/admin/config/route';
-import { _resetForTest, _setForTest, getOverride, type ConfigEntry } from '@/lib/config/snapshot';
+import { _resetForTest, _setForTest, getOverride } from '@/lib/config/snapshot';
 import { SCHEMA_VERSION } from '@/lib/config/schemas';
 
 // Mock auth: ADMIN user
@@ -20,14 +17,35 @@ jest.mock('@/lib/guards', () => ({
   isErrorResponse: jest.fn().mockReturnValue(false),
 }));
 
-// Mock prisma
+// Mock prisma with advisory lock simulation.
+// The serialization queue is in $queryRawUnsafe (the advisory lock).
+// $transaction does NOT serialize — it's the lock call that does.
+// This ensures the TOCTOU test FAILS if the prod code removes the lock call.
 const mockFindMany = jest.fn().mockResolvedValue([]);
 const mockFindUnique = jest.fn().mockResolvedValue(null);
 const mockUpsert = jest.fn();
+const mockQueryRawUnsafe = jest.fn();
 
-// Serialization lock for test: simulates pg_advisory_xact_lock behavior.
-// Only one $transaction callback runs at a time (queued).
-let txLock: Promise<void> = Promise.resolve();
+// Mutex: simulates pg_advisory_xact_lock — only one holder at a time
+let mutexRelease: (() => void) | null = null;
+let mutexQueue: Promise<void> = Promise.resolve();
+
+function acquireAdvisoryLock(): Promise<void> {
+  const prev = mutexQueue;
+  let release: () => void;
+  mutexQueue = new Promise((r) => { release = r; });
+  // Store the release function so $transaction can call it on commit
+  return prev.then(() => {
+    mutexRelease = release!;
+  });
+}
+
+function releaseAdvisoryLock(): void {
+  if (mutexRelease) {
+    mutexRelease();
+    mutexRelease = null;
+  }
+}
 
 jest.mock('@/lib/prisma', () => ({
   prisma: {
@@ -36,14 +54,15 @@ jest.mock('@/lib/prisma', () => ({
       findUnique: (...args: any[]) => mockFindUnique(...args),
       upsert: (...args: any[]) => mockUpsert(...args),
     },
-    $transaction: (fn: (tx: any) => Promise<any>) => {
-      // Serialize: each transaction waits for the previous to complete
-      const prev = txLock;
-      let resolveLock: () => void;
-      txLock = new Promise((r) => { resolveLock = r; });
-      return prev.then(() =>
-        fn({
-          $queryRawUnsafe: async () => {}, // advisory lock no-op in test
+    $transaction: async (fn: (tx: any) => Promise<any>) => {
+      // No serialization here — if code doesn't call $queryRawUnsafe,
+      // concurrent transactions interleave freely.
+      try {
+        const result = await fn({
+          $queryRawUnsafe: async (...args: any[]) => {
+            mockQueryRawUnsafe(...args);
+            await acquireAdvisoryLock();
+          },
           businessConfig: {
             findMany: (...args: any[]) => mockFindMany(...args),
             findUnique: (...args: any[]) => mockFindUnique(...args),
@@ -52,8 +71,12 @@ jest.mock('@/lib/prisma', () => ({
           businessConfigAudit: {
             create: async () => ({ id: 'audit-1' }),
           },
-        }).finally(() => resolveLock!()),
-      );
+        });
+        return result;
+      } finally {
+        // Release advisory lock on transaction commit/rollback
+        releaseAdvisoryLock();
+      }
     },
   },
 }));
@@ -71,14 +94,15 @@ beforeEach(() => {
   mockFindMany.mockResolvedValue([]);
   mockFindUnique.mockResolvedValue(null);
   mockUpsert.mockReset();
+  mockQueryRawUnsafe.mockClear();
+  mutexRelease = null;
+  mutexQueue = Promise.resolve();
 });
 
 describe('PATCH /api/admin/config', () => {
   it('rejects invalid value (group_max: -3)', async () => {
     const res = await PATCH(makeRequest({
-      namespace: 'pricing.rules',
-      key: 'group_max',
-      value: -3,
+      namespace: 'pricing.rules', key: 'group_max', value: -3,
     }));
     expect(res.status).toBe(400);
     const body = await res.json();
@@ -86,16 +110,20 @@ describe('PATCH /api/admin/config', () => {
   });
 
   it('rejects invariant violation (group_min_open.lycee > group_max)', async () => {
-    // Snapshot has group_max=3
     _setForTest([{
       namespace: 'pricing.rules', key: 'group_max', value: 3,
       schemaVersion: SCHEMA_VERSION, version: 1, updatedBy: 'test', updatedAt: new Date(),
     }]);
 
+    // Mock findMany in transaction returns the same state
+    mockFindMany.mockResolvedValue([{
+      id: '1', namespace: 'pricing.rules', key: 'group_max', value: 3,
+      schemaVersion: SCHEMA_VERSION, version: 1, previousValue: null,
+      updatedBy: 'test', updatedAt: new Date(), createdAt: new Date(),
+    }]);
+
     const res = await PATCH(makeRequest({
-      namespace: 'pricing.rules',
-      key: 'group_min_open.lycee',
-      value: 5,
+      namespace: 'pricing.rules', key: 'group_min_open.lycee', value: 5,
     }));
     expect(res.status).toBe(400);
     const body = await res.json();
@@ -109,10 +137,14 @@ describe('PATCH /api/admin/config', () => {
       schemaVersion: SCHEMA_VERSION, version: 1, updatedBy: 'test', updatedAt: new Date(),
     }]);
 
+    mockFindMany.mockResolvedValue([{
+      id: '1', namespace: 'pricing.rules', key: 'discounts.global_cap_pct', value: 10,
+      schemaVersion: SCHEMA_VERSION, version: 1, previousValue: null,
+      updatedBy: 'test', updatedAt: new Date(), createdAt: new Date(),
+    }]);
+
     const res = await PATCH(makeRequest({
-      namespace: 'pricing.rules',
-      key: 'discounts.comptant_pct',
-      value: 15,
+      namespace: 'pricing.rules', key: 'discounts.comptant_pct', value: 15,
     }));
     expect(res.status).toBe(400);
     const body = await res.json();
@@ -128,13 +160,10 @@ describe('PATCH /api/admin/config', () => {
     mockUpsert.mockResolvedValue(upsertedRow);
 
     const patchRes = await PATCH(makeRequest({
-      namespace: 'pricing.rules',
-      key: 'group_max',
-      value: 3,
+      namespace: 'pricing.rules', key: 'group_max', value: 3,
     }));
     expect(patchRes.status).toBe(200);
 
-    // GET immediately after PATCH — must see group_max=3
     const getRes = await GET();
     const body = await getRes.json();
     expect(body.entries).toEqual(
@@ -142,8 +171,6 @@ describe('PATCH /api/admin/config', () => {
         expect.objectContaining({ namespace: 'pricing.rules', key: 'group_max', value: 3 }),
       ]),
     );
-
-    // Also verify via getOverride (sync accessor)
     expect(getOverride('pricing.rules', 'group_max')).toBe(3);
   });
 
@@ -154,11 +181,24 @@ describe('PATCH /api/admin/config', () => {
 
   it('rejects unknown namespace', async () => {
     const res = await PATCH(makeRequest({
-      namespace: 'unknown.ns',
-      key: 'foo',
-      value: 1,
+      namespace: 'unknown.ns', key: 'foo', value: 1,
     }));
     expect(res.status).toBe(400);
+  });
+
+  it('calls pg_advisory_xact_lock in every PATCH', async () => {
+    mockUpsert.mockResolvedValue({
+      id: 'cfg-1', namespace: 'pricing.rules', key: 'group_max', value: 3,
+      schemaVersion: SCHEMA_VERSION, version: 1, previousValue: null,
+      updatedBy: 'admin-1', updatedAt: new Date(), createdAt: new Date(),
+    });
+    await PATCH(makeRequest({
+      namespace: 'pricing.rules', key: 'group_max', value: 3,
+    }));
+    expect(mockQueryRawUnsafe).toHaveBeenCalledWith(
+      'SELECT pg_advisory_xact_lock($1)',
+      expect.any(Number),
+    );
   });
 });
 
@@ -177,7 +217,6 @@ describe('TOCTOU — concurrent cross-key invariant bypass', () => {
         schemaVersion: SCHEMA_VERSION, version: 1, updatedBy: 'test', updatedAt: new Date() },
     ]);
 
-    // Mock findMany reads from dbState (transactional view)
     mockFindMany.mockImplementation(async () => {
       return Object.entries(dbState).map(([mapKey, { value, version }]) => {
         const [ns, key] = mapKey.split('::');
@@ -216,16 +255,13 @@ describe('TOCTOU — concurrent cross-key invariant bypass', () => {
       };
     });
 
-    // Fire both PATCHes concurrently. Due to the serialized $transaction
-    // mock, they execute one after the other — the second one sees the
-    // first's committed state in its transactional findMany.
+    // Fire both PATCHes concurrently. The advisory lock in $queryRawUnsafe
+    // serializes them. The second tx reads the first's committed state.
     const [resA, resB] = await Promise.all([
       PATCH(makeRequest({ namespace: 'pricing.rules', key: 'group_max', value: 4 })),
       PATCH(makeRequest({ namespace: 'pricing.rules', key: 'group_min_open.lycee', value: 5 })),
     ]);
 
-    // The serialized lock means: A commits first (group_max=4), then B
-    // validates inside the transaction seeing group_max=4 and lycee=5 → 5>4 → rejected.
     // At least one MUST be rejected (400).
     const statuses = [resA.status, resB.status].sort();
     expect(statuses).toContain(400);
