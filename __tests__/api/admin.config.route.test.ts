@@ -24,6 +24,7 @@ jest.mock('@/lib/guards', () => ({
 const mockFindMany = jest.fn().mockResolvedValue([]);
 const mockFindUnique = jest.fn().mockResolvedValue(null);
 const mockUpsert = jest.fn();
+const mockUpdate = jest.fn();
 const mockQueryRawUnsafe = jest.fn();
 
 // Mutex: simulates pg_advisory_xact_lock — only one holder at a time
@@ -53,6 +54,7 @@ jest.mock('@/lib/prisma', () => ({
       findMany: (...args: any[]) => mockFindMany(...args),
       findUnique: (...args: any[]) => mockFindUnique(...args),
       upsert: (...args: any[]) => mockUpsert(...args),
+      update: (...args: any[]) => mockUpdate(...args),
     },
     $transaction: async (fn: (tx: any) => Promise<any>) => {
       // No serialization here — if code doesn't call $queryRawUnsafe,
@@ -67,6 +69,7 @@ jest.mock('@/lib/prisma', () => ({
             findMany: (...args: any[]) => mockFindMany(...args),
             findUnique: (...args: any[]) => mockFindUnique(...args),
             upsert: (...args: any[]) => mockUpsert(...args),
+            update: (...args: any[]) => mockUpdate(...args),
           },
           businessConfigAudit: {
             create: async () => ({ id: 'audit-1' }),
@@ -94,6 +97,7 @@ beforeEach(() => {
   mockFindMany.mockResolvedValue([]);
   mockFindUnique.mockResolvedValue(null);
   mockUpsert.mockReset();
+  mockUpdate.mockReset();
   mockQueryRawUnsafe.mockClear();
   mutexRelease = null;
   mutexQueue = Promise.resolve();
@@ -328,84 +332,89 @@ describe('Invariants on empty store — must validate against canonical fallback
   });
 });
 
-describe('Nominal audit path — PATCH/PATCH/rollback/PATCH', () => {
-  it('versions are monotone, no audit collision', async () => {
-    // Simulate: create(v1) → update(v2) → rollback(v1→previousValue, v3) → re-PATCH(v4)
-    const auditLog: Array<{ ns: string; key: string; version: number }> = [];
+describe('Nominal audit path — PATCH(v1) → PATCH(v2) → ROLLBACK(v3) → PATCH(v4)', () => {
+  it('versions are strictly monotone through a real rollback', async () => {
+    const auditLog: Array<{ version: number; newValue: unknown }> = [];
     const dbState: Record<string, { value: unknown; version: number; previousValue: unknown }> = {};
+    const NS = 'pricing.rules';
+    const KEY = 'semi_individual_surcharge_pct';
+    const MK = `${NS}::${KEY}`;
 
-    mockFindMany.mockImplementation(async () => {
+    function dbRow() {
+      const s = dbState[MK];
+      if (!s) return null;
+      return { id: MK, namespace: NS, key: KEY, value: s.value,
+        schemaVersion: '1.0', version: s.version, previousValue: s.previousValue,
+        updatedBy: 'admin', updatedAt: new Date(), createdAt: new Date() };
+    }
+
+    function dbRows() {
       return Object.entries(dbState).map(([mk, s]) => {
         const [ns, key] = mk.split('::');
         return { id: mk, namespace: ns, key, value: s.value, schemaVersion: '1.0',
           version: s.version, previousValue: s.previousValue,
           updatedBy: 'admin', updatedAt: new Date(), createdAt: new Date() };
       });
-    });
+    }
 
-    mockFindUnique.mockImplementation(async (args: any) => {
-      const ns = args.where.namespace_key.namespace;
-      const key = args.where.namespace_key.key;
-      const s = dbState[`${ns}::${key}`];
-      if (!s) return null;
-      return { id: `${ns}::${key}`, namespace: ns, key, value: s.value,
-        schemaVersion: '1.0', version: s.version, previousValue: s.previousValue,
-        updatedBy: 'admin', updatedAt: new Date(), createdAt: new Date() };
-    });
+    mockFindMany.mockImplementation(async () => dbRows());
+    mockFindUnique.mockImplementation(async () => dbRow());
 
+    // upsert: used by PATCH
     mockUpsert.mockImplementation(async (args: any) => {
-      const ns = args.where.namespace_key.namespace;
-      const key = args.where.namespace_key.key;
       const value = args.update?.value ?? args.create?.value;
-      const mk = `${ns}::${key}`;
-      const existing = dbState[mk];
+      const existing = dbState[MK];
       const newVersion = (existing?.version ?? 0) + 1;
-      dbState[mk] = { value, version: newVersion, previousValue: existing?.value ?? null };
-      auditLog.push({ ns, key, version: newVersion });
-      return { id: mk, namespace: ns, key, value, schemaVersion: '1.0',
-        version: newVersion, previousValue: existing?.value ?? null,
-        updatedBy: 'admin-1', updatedAt: new Date(), createdAt: new Date() };
+      dbState[MK] = { value, version: newVersion, previousValue: existing?.value ?? null };
+      auditLog.push({ version: newVersion, newValue: value });
+      return dbRow();
+    });
+
+    // update: used by ROLLBACK
+    mockUpdate.mockImplementation(async (args: any) => {
+      const value = args.data.value;
+      const existing = dbState[MK]!;
+      const newVersion = existing.version + 1;
+      dbState[MK] = { value, version: newVersion, previousValue: existing.value };
+      auditLog.push({ version: newVersion, newValue: value });
+      return dbRow();
     });
 
     _resetForTest();
 
-    // 1. Create: semi_individual_surcharge_pct = 60 (v1)
-    await PATCH(makeRequest({ namespace: 'pricing.rules', key: 'semi_individual_surcharge_pct', value: 60 }));
-    expect(dbState['pricing.rules::semi_individual_surcharge_pct']?.version).toBe(1);
+    // 1. PATCH: create semi_individual_surcharge_pct = 60 (v1)
+    const r1 = await PATCH(makeRequest({ namespace: NS, key: KEY, value: 60 }));
+    expect(r1.status).toBe(200);
+    expect(dbState[MK]?.version).toBe(1);
 
-    // 2. Update: 60 → 70 (v2)
-    await PATCH(makeRequest({ namespace: 'pricing.rules', key: 'semi_individual_surcharge_pct', value: 70 }));
-    expect(dbState['pricing.rules::semi_individual_surcharge_pct']?.version).toBe(2);
+    // 2. PATCH: update 60 → 70 (v2)
+    const r2 = await PATCH(makeRequest({ namespace: NS, key: KEY, value: 70 }));
+    expect(r2.status).toBe(200);
+    expect(dbState[MK]?.version).toBe(2);
+    expect(dbState[MK]?.previousValue).toBe(60);
 
-    // 3. Rollback: 70 → 60 (v3, previousValue was 60)
-    // Import rollback handler
+    // 3. ROLLBACK: 70 → 60 (v3) — the REAL rollback handler
     const { POST: ROLLBACK } = require('@/app/api/admin/config/rollback/route');
     const rollbackReq = new NextRequest('http://localhost:3000/api/admin/config/rollback', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ namespace: 'pricing.rules', key: 'semi_individual_surcharge_pct' }),
+      body: JSON.stringify({ namespace: NS, key: KEY }),
     });
+    const r3 = await ROLLBACK(rollbackReq);
+    expect(r3.status).toBe(200);
+    const r3Body = await r3.json();
+    expect(r3Body.rolledBack).toBe(true);
+    expect(dbState[MK]?.version).toBe(3);
+    expect(dbState[MK]?.value).toBe(60); // rolled back to previousValue
 
-    // Mock the update for rollback (uses tx.businessConfig.update, not upsert)
-    const { prisma } = require('@/lib/prisma');
-    const origUpdate = prisma.businessConfig?.update;
-    // The rollback route uses the tx mock from $transaction, which shares mockUpsert for update.
-    // But rollback uses .update not .upsert — we need to mock that too.
-    // Actually, the rollback in the $transaction calls tx.businessConfig.update.
-    // Our tx mock doesn't have .update. Let's check.
+    // 4. PATCH: 60 → 80 (v4)
+    const r4 = await PATCH(makeRequest({ namespace: NS, key: KEY, value: 80 }));
+    expect(r4.status).toBe(200);
+    expect(dbState[MK]?.version).toBe(4);
 
-    // For simplicity, skip the rollback integration test (it needs tx.update mock)
-    // and verify the audit invariant directly:
-    expect(auditLog.map((a) => a.version)).toEqual([1, 2]);
-    // Versions are strictly monotone: 1, 2
-
-    // 4. Re-PATCH: 70 → 80 (v3 — or v2+1 if rollback didn't happen)
-    await PATCH(makeRequest({ namespace: 'pricing.rules', key: 'semi_individual_surcharge_pct', value: 80 }));
-    expect(dbState['pricing.rules::semi_individual_surcharge_pct']?.version).toBe(3);
-    expect(auditLog.map((a) => a.version)).toEqual([1, 2, 3]);
-
-    // All versions strictly monotone, no duplicates
+    // Audit log: versions strictly monotone, no duplicates
     const versions = auditLog.map((a) => a.version);
+    expect(versions).toEqual([1, 2, 3, 4]);
     for (let i = 1; i < versions.length; i++) {
       expect(versions[i]).toBeGreaterThan(versions[i - 1]);
     }
