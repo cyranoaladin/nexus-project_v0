@@ -8,6 +8,8 @@ import { requireRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
 import {
   applyWrite,
+  getStaticFallback,
+  loadConfigSnapshot,
   SCHEMA_VERSION,
   validateConfigEntry,
   validateCrossInvariants,
@@ -67,16 +69,35 @@ export async function POST(request: NextRequest) {
       return { rejected: true as const, status: 400, error: 'Rollback would violate invariants', violations };
     }
 
-    const entry = await tx.businessConfig.update({
-      where: { namespace_key: { namespace, key } },
-      data: {
-        value: prevValue as import('@prisma/client').Prisma.InputJsonValue,
-        previousValue: existing.value as import('@prisma/client').Prisma.InputJsonValue,
-        version: existing.version + 1,
-        schemaVersion: SCHEMA_VERSION,
-        updatedBy: session.user.id,
-      },
-    });
+    // If rolling back to the canonical fallback, DELETE the row
+    // (restore the "no override" state) instead of persisting the
+    // fallback as a frozen override that masks future canonical changes.
+    // getStaticFallback already imported at top
+    const canonicalFallback = getStaticFallback(namespace, key);
+    const isRollbackToFallback = canonicalFallback !== null &&
+      JSON.stringify(prevValue) === JSON.stringify(canonicalFallback);
+
+    let deletedRow = false;
+    let entry: typeof existing;
+
+    if (isRollbackToFallback) {
+      await tx.businessConfig.delete({
+        where: { namespace_key: { namespace, key } },
+      });
+      deletedRow = true;
+      entry = { ...existing, value: prevValue, version: existing.version + 1 };
+    } else {
+      entry = await tx.businessConfig.update({
+        where: { namespace_key: { namespace, key } },
+        data: {
+          value: prevValue as import('@prisma/client').Prisma.InputJsonValue,
+          previousValue: existing.value as import('@prisma/client').Prisma.InputJsonValue,
+          version: existing.version + 1,
+          schemaVersion: SCHEMA_VERSION,
+          updatedBy: session.user.id,
+        },
+      });
+    }
 
     await tx.businessConfigAudit.create({
       data: {
@@ -84,12 +105,12 @@ export async function POST(request: NextRequest) {
         key,
         oldValue: existing.value as import('@prisma/client').Prisma.InputJsonValue,
         newValue: prevValue as import('@prisma/client').Prisma.InputJsonValue,
-        version: entry.version,
+        version: existing.version + 1,
         changedBy: session.user.id,
       },
     });
 
-    return { rejected: false as const, entry };
+    return { rejected: false as const, entry, deletedRow };
   });
 
   if (result.rejected) {
@@ -99,15 +120,22 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  applyWrite({
-    namespace: result.entry.namespace,
-    key: result.entry.key,
-    value: result.entry.value,
-    schemaVersion: result.entry.schemaVersion,
-    version: result.entry.version,
-    updatedBy: result.entry.updatedBy,
-    updatedAt: result.entry.updatedAt,
-  });
+  if (result.deletedRow) {
+    // Row was deleted (rollback to canonical fallback).
+    // Force a full reload to clear this key from the snapshot.
+    // loadConfigSnapshot already imported at top
+    await loadConfigSnapshot();
+  } else {
+    applyWrite({
+      namespace: result.entry.namespace,
+      key: result.entry.key,
+      value: result.entry.value,
+      schemaVersion: result.entry.schemaVersion,
+      version: result.entry.version,
+      updatedBy: result.entry.updatedBy,
+      updatedAt: result.entry.updatedAt,
+    });
+  }
 
   return NextResponse.json({ entry: result.entry, rolledBack: true });
 }
