@@ -344,14 +344,14 @@ describe('Nominal audit path — PATCH(v1) → PATCH(v2) → ROLLBACK(v3) → PA
       const s = dbState[MK];
       if (!s) return null;
       return { id: MK, namespace: NS, key: KEY, value: s.value,
-        schemaVersion: '1.0', version: s.version, previousValue: s.previousValue,
+        schemaVersion: SCHEMA_VERSION, version: s.version, previousValue: s.previousValue,
         updatedBy: 'admin', updatedAt: new Date(), createdAt: new Date() };
     }
 
     function dbRows() {
       return Object.entries(dbState).map(([mk, s]) => {
         const [ns, key] = mk.split('::');
-        return { id: mk, namespace: ns, key, value: s.value, schemaVersion: '1.0',
+        return { id: mk, namespace: ns, key, value: s.value, schemaVersion: SCHEMA_VERSION,
           version: s.version, previousValue: s.previousValue,
           updatedBy: 'admin', updatedAt: new Date(), createdAt: new Date() };
       });
