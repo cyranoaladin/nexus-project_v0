@@ -11,7 +11,6 @@ import {
   getAllEntries,
   applyWrite,
   ensureFresh,
-  getOverride,
   getStaticFallback,
   getValidNamespaces,
   getNamespaceKeys,
@@ -19,7 +18,6 @@ import {
   validateConfigEntry,
   validateCrossInvariants,
   CONFIG_ADVISORY_LOCK_KEY,
-  type NamespaceId,
 } from '@/lib/config';
 import type { AuthSession } from '@/lib/guards';
 
