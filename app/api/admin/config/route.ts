@@ -139,6 +139,9 @@ export async function PATCH(request: NextRequest) {
         value: value as import('@prisma/client').Prisma.InputJsonValue,
         schemaVersion: SCHEMA_VERSION,
         version: 1,
+        // Store the canonical fallback as previousValue so rollback can
+        // undo even the first override (Codex P2: first-time rollback).
+        previousValue: (getStaticFallback(namespace, key) as import('@prisma/client').Prisma.InputJsonValue) ?? undefined,
         updatedBy: session.user.id,
       },
       update: {
