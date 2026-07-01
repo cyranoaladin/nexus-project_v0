@@ -523,6 +523,8 @@ Lot 7  [faible]       Extensions assistante (config read + entitlements + R4 + R
   ↓
 Lot 8  [très faible]  Guard widening assistante stages (2 lignes) ←── Lot 7
   ↓
+Lot S  [très faible]  serializeError-cleanup (21 scripts @/ → import relatif + tsconfig scripts/)
+  ↓
 Lot 9  [élevé]        StageBilan → Bilan : double-écriture + backfill
   ↓
 Lot 10 [élevé]        StageBilan → Bilan : bascule lectures
