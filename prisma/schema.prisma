@@ -2388,3 +2388,43 @@ model GeneratedPedagogicalReport {
   @@unique([studentId, stageSlug, subject, kind, inputChecksum])
   @@map("generated_pedagogical_reports")
 }
+
+/// Runtime business configuration store (Tier DONNÉES).
+/// Holds overrides keyed by namespace+key, with JSON values,
+/// versioning, and audit trail. When empty, accessors fall back
+/// to static values from pricing.canonical.json / PRODUCT_REGISTRY.
+model BusinessConfig {
+  id            String   @id @default(dbgenerated("(gen_random_uuid())::text"))
+  namespace     String   // e.g. "pricing.rules", "products.credits"
+  key           String   // e.g. "group_max", "IMMERSION.grantsCredits"
+  value         Json     @db.JsonB
+  schemaVersion String   // Zod schema version for this namespace
+  version       Int      @default(1) // Incremented on each update
+  previousValue Json?    @db.JsonB
+  updatedBy     String   // userId of the admin who wrote
+  updatedAt     DateTime @default(now()) @updatedAt
+  createdAt     DateTime @default(now())
+
+  @@unique([namespace, key])
+  @@index([namespace])
+  @@index([updatedAt])
+  @@map("business_configs")
+}
+
+/// Append-only audit trail for BusinessConfig changes.
+/// One row per change — full history, any rollback level.
+model BusinessConfigAudit {
+  id        String   @id @default(dbgenerated("(gen_random_uuid())::text"))
+  namespace String
+  key       String
+  oldValue  Json?    @db.JsonB
+  newValue  Json     @db.JsonB
+  version   Int      // version of the BusinessConfig row after this change
+  changedBy String   // userId
+  changedAt DateTime @default(now())
+
+  @@unique([namespace, key, version])
+  @@index([namespace, key])
+  @@index([changedAt])
+  @@map("business_config_audit")
+}
