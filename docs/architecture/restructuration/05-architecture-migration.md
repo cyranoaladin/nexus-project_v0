@@ -91,7 +91,8 @@ Ordonnée par risque croissant et dépendances.
 | **6** | Écrans de gestion admin (config + entitlements + crons + audit + ARIA) | Moyen | ~15 fichiers nouveaux | Lot 3 |
 | **7** | Extensions assistante (stages CRUD + entitlements read + reservations R4) | Faible | ~5 fichiers modifiés | Lot 6 |
 | **8** | Guard widening assistante stages | Très faible | 2 fichiers modifiés | Lot 7 |
-| **9** | StageBilan → Bilan : double-écriture | Élevé | ~11 fichiers | — |
+| **S** | serializeError-cleanup (scripts @/ → relatif) | Très faible | 21 scripts + tsconfig | — |
+| **9** | StageBilan → Bilan : double-écriture | Élevé | ~11 fichiers | Lot S |
 | **10** | StageBilan → Bilan : bascule + dépréciation | Élevé | ~11 fichiers | Lot 9 |
 | **11** | EamProgress + NsiPracticeProgress → SubjectProgress | Élevé | ~6 fichiers + migration data | — |
 
@@ -504,6 +505,23 @@ SELECT 'NSI orphans',
 
 ---
 
+### Lot S — serializeError-cleanup
+
+**Risque** : très faible (mécanique, aucun changement de logique)
+**Périmètre** : 21 scripts sous `scripts/` qui importent `@/lib/utils/serialize-error` — l'alias `@/` ne résout pas hors Next.js (les scripts tournent via `tsx` directement). Invisible au CI car `tsconfig.json` exclut `scripts/`.
+
+| Action | Fichiers |
+|--------|----------|
+| `@/lib/utils/serialize-error` → `../lib/utils/serialize-error` (import relatif) | 21 scripts |
+| Retirer `"scripts"` de `tsconfig.json > exclude` OU créer `tsconfig.scripts.json` + check dans le gate | 1 config |
+
+**Dépend de** : —
+**Bloque** : Lots 9-11 (migrations data qui exécutent des scripts de backfill)
+**Gate** : gate canonique complet. Les 21 scripts doivent compiler (`tsc --project tsconfig.scripts.json`).
+**Réversibilité** : `git revert`. Aucun impact runtime.
+
+---
+
 ## Résumé de la séquence
 
 ```
@@ -525,7 +543,7 @@ Lot 8  [très faible]  Guard widening assistante stages (2 lignes) ←── Lot
   ↓
 Lot S  [très faible]  serializeError-cleanup (21 scripts @/ → import relatif + tsconfig scripts/)
   ↓
-Lot 9  [élevé]        StageBilan → Bilan : double-écriture + backfill
+Lot 9  [élevé]        StageBilan → Bilan : double-écriture + backfill ←── Lot S
   ↓
 Lot 10 [élevé]        StageBilan → Bilan : bascule lectures
   ↓
