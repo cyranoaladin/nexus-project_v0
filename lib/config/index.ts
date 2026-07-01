@@ -4,7 +4,7 @@ export {
   getNamespaceEntries,
   getAllEntries,
   loadConfigSnapshot,
-  invalidateSnapshot,
+  applyWrite,
   ensureFresh,
   type ConfigEntry,
 } from './snapshot';

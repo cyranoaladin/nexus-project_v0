@@ -1,8 +1,8 @@
 /**
- * GET /api/admin/config/history — Config change history
+ * GET /api/admin/config/history — Full audit trail of config changes
  *
- * Guard: ADMIN only
- * Returns all entries ordered by updatedAt desc (audit trail).
+ * Guard: ADMIN only.
+ * Reads from business_config_audit (append-only, one row per change).
  */
 import { NextResponse } from 'next/server';
 import { requireRole, isErrorResponse } from '@/lib/guards';
@@ -12,19 +12,9 @@ export async function GET() {
   const auth = await requireRole('ADMIN');
   if (isErrorResponse(auth)) return auth;
 
-  const entries = await prisma.businessConfig.findMany({
-    orderBy: { updatedAt: 'desc' },
-    select: {
-      id: true,
-      namespace: true,
-      key: true,
-      value: true,
-      previousValue: true,
-      version: true,
-      schemaVersion: true,
-      updatedBy: true,
-      updatedAt: true,
-    },
+  const entries = await prisma.businessConfigAudit.findMany({
+    orderBy: { changedAt: 'desc' },
+    take: 200, // Limit to last 200 changes
   });
 
   return NextResponse.json({ entries });

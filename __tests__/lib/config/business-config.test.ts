@@ -6,6 +6,7 @@
 import {
   getOverride,
   getOverrideOr,
+  applyWrite,
   _resetForTest,
   _setForTest,
   type ConfigEntry,
@@ -17,13 +18,13 @@ import {
   SCHEMA_VERSION,
 } from '@/lib/config/schemas';
 
-function makeEntry(ns: string, key: string, value: unknown): ConfigEntry {
+function makeEntry(ns: string, key: string, value: unknown, version = 1): ConfigEntry {
   return {
     namespace: ns,
     key,
     value,
     schemaVersion: SCHEMA_VERSION,
-    version: 1,
+    version,
     updatedBy: 'test',
     updatedAt: new Date(),
   };
@@ -191,29 +192,49 @@ describe('invariant 5 — deposit viability at floor price', () => {
 
 // ── Load-time validation: invalid entries discarded ──
 
-describe('snapshot — load-time validation discards invalid entries', () => {
-  it('_setForTest with invalid entry still works (direct set bypasses validation)', () => {
-    // This test proves the concept: _setForTest is a test helper.
-    // The real validation happens in loadConfigSnapshot which reads from DB.
-    // We test the validation logic directly:
-    const invalidResult = validateConfigEntry('pricing.rules', 'group_max', -3);
-    expect(invalidResult.valid).toBe(false);
+describe('snapshot — load-time validation discards invalid entries (REAL path)', () => {
+  it('loadConfigSnapshot discards invalid DB entries, keeps valid ones', async () => {
+    const snapshotModule = await import('@/lib/config/snapshot');
+    const prismaModule = await import('@/lib/prisma');
+    const origFindMany = prismaModule.prisma.businessConfig.findMany;
+    snapshotModule._resetForTest();
 
-    // A valid entry passes
-    const validResult = validateConfigEntry('pricing.rules', 'group_max', 5);
-    expect(validResult.valid).toBe(true);
-  });
+    // Mock DB returns one valid and one invalid entry
+    (prismaModule.prisma.businessConfig as any).findMany = jest.fn(async () => [
+      { id: '1', namespace: 'pricing.rules', key: 'group_max', value: 5,
+        schemaVersion: '1.0', version: 1, previousValue: null,
+        updatedBy: 'admin', updatedAt: new Date(), createdAt: new Date() },
+      { id: '2', namespace: 'pricing.rules', key: 'group_max', value: -3, // INVALID
+        schemaVersion: '1.0', version: 2, previousValue: null,
+        updatedBy: 'admin', updatedAt: new Date(), createdAt: new Date() },
+    ]);
 
-  it('validates that the load function calls validateConfigEntry', () => {
-    // The loadConfigSnapshot function (snapshot.ts lines 95-103) calls
-    // validateConfigEntry for each row and skips invalid ones.
-    // We can't easily test DB loading in unit tests, but we verify
-    // the validation function rejects bad data that would otherwise
-    // corrupt the snapshot:
-    expect(validateConfigEntry('pricing.rules', 'group_max', -3).valid).toBe(false);
-    expect(validateConfigEntry('pricing.rules', 'group_max', 'text').valid).toBe(false);
-    expect(validateConfigEntry('pricing.rules', 'group_max', null).valid).toBe(false);
-    expect(validateConfigEntry('pricing.rules', 'group_max', 5).valid).toBe(true);
+    await snapshotModule.loadConfigSnapshot();
+
+    // The invalid entry (value=-3) should have been discarded.
+    // The valid entry (value=5) would have been overwritten by the invalid
+    // one if both had the same key. Since they DO have the same key,
+    // the Map uses the last one. But the invalid one is filtered → the
+    // valid one (v=5) is kept IF it was seen first. Let's use different keys:
+    (prismaModule.prisma.businessConfig as any).findMany = jest.fn(async () => [
+      { id: '1', namespace: 'pricing.rules', key: 'group_max', value: 5,
+        schemaVersion: '1.0', version: 1, previousValue: null,
+        updatedBy: 'admin', updatedAt: new Date(), createdAt: new Date() },
+      { id: '2', namespace: 'pricing.rules', key: 'group_min_open.lycee', value: -3, // INVALID
+        schemaVersion: '1.0', version: 1, previousValue: null,
+        updatedBy: 'admin', updatedAt: new Date(), createdAt: new Date() },
+    ]);
+
+    snapshotModule._resetForTest();
+    await snapshotModule.loadConfigSnapshot();
+
+    // Valid entry is in snapshot
+    expect(snapshotModule.getOverride('pricing.rules', 'group_max')).toBe(5);
+    // Invalid entry was discarded
+    expect(snapshotModule.getOverride('pricing.rules', 'group_min_open.lycee')).toBeNull();
+
+    (prismaModule.prisma.businessConfig as any).findMany = origFindMany;
+    snapshotModule._resetForTest();
   });
 });
 
@@ -239,12 +260,46 @@ describe('getCurrentMinPrice — dynamic from overrides + fallbacks', () => {
   });
 });
 
-// ── Race condition tests ──
-// Each test asserts the snapshot state IMMEDIATELY after the race settles,
-// with NO extra invalidateSnapshot() cleanup call. If the assertion fails,
-// the race bug is real.
+// ── applyWrite ordering tests ──
+// applyWrite uses the DB version as order authority. No findMany race.
 
-describe('snapshot — race conditions (no cleanup calls)', () => {
+describe('snapshot — applyWrite version-based ordering', () => {
+  it('two concurrent writes: higher version wins regardless of call order', () => {
+    // Admin A commits version=2 (group_max=3), admin B commits version=3 (group_max=7).
+    // Even if A's applyWrite is called AFTER B's, B wins (version 3 > 2).
+    applyWrite(makeEntry('pricing.rules', 'group_max', 7, 3)); // B first
+    applyWrite(makeEntry('pricing.rules', 'group_max', 3, 2)); // A second — lower version
+
+    expect(getOverride('pricing.rules', 'group_max')).toBe(7); // B wins
+  });
+
+  it('P1-a: old write fast + new write slow — new write wins by version', () => {
+    // A (old, version=2, value=3) applies first.
+    // B (new, version=3, value=7) applies second.
+    // B has higher version → wins.
+    applyWrite(makeEntry('pricing.rules', 'group_max', 3, 2));
+    expect(getOverride('pricing.rules', 'group_max')).toBe(3);
+
+    applyWrite(makeEntry('pricing.rules', 'group_max', 7, 3));
+    expect(getOverride('pricing.rules', 'group_max')).toBe(7);
+  });
+
+  it('applyWrite with lower version than snapshot is discarded', () => {
+    applyWrite(makeEntry('pricing.rules', 'group_max', 7, 3));
+    applyWrite(makeEntry('pricing.rules', 'group_max', 5, 1)); // stale version
+
+    expect(getOverride('pricing.rules', 'group_max')).toBe(7); // v3 kept
+  });
+
+  it('applyWrite rejects invalid value (defense in depth)', () => {
+    applyWrite(makeEntry('pricing.rules', 'group_max', -3, 1)); // invalid
+    expect(getOverride('pricing.rules', 'group_max')).toBeNull(); // not applied
+  });
+});
+
+// ── Passive vs applyWrite race ──
+
+describe('snapshot — passive load does not overwrite applyWrite', () => {
   let snapshotModule: typeof import('@/lib/config/snapshot');
   let prismaModule: typeof import('@/lib/prisma');
   let origFindMany: any;
@@ -269,188 +324,46 @@ describe('snapshot — race conditions (no cleanup calls)', () => {
     };
   }
 
-  it('stale passive DOES NOT overwrite a newer invalidation', async () => {
-    // Timeline:
-    // t=0   passive starts findMany → slow (50ms), reads stale value 5
-    // t=10  admin writes group_max=3 to DB
-    // t=10  admin calls invalidateSnapshot → fast findMany reads 3, swaps snapshot
-    // t=10  invalidateSnapshot returns — snapshot=3, lastLoadedAt=t10
-    // t=50  passive's slow findMany returns stale value 5
-    //       BUG (before fix): passive swaps snapshot back to 5
-    //       FIX: passive sees lastLoadedAt > its startedAt → does NOT swap
-    let callCount = 0;
+  it('stale passive does not overwrite a newer applyWrite', async () => {
+    // Passive starts slow findMany (50ms, returns stale v1=5).
+    // While passive is in-flight, admin commits v2=3 and calls applyWrite.
+    // Passive finishes → swapSequence changed → passive cedes.
     (prismaModule.prisma.businessConfig as any).findMany = jest.fn(async () => {
-      callCount++;
-      if (callCount === 1) {
-        // Passive: slow read started BEFORE the write
-        await new Promise((r) => setTimeout(r, 50));
-        return [mockRow('group_max', 5, 1)];
-      }
-      // Invalidation: fast read AFTER the write
-      return [mockRow('group_max', 3, 2)];
+      await new Promise((r) => setTimeout(r, 50));
+      return [mockRow('group_max', 5, 1)]; // stale
     });
 
     const passive = snapshotModule.loadConfigSnapshot();
     await new Promise((r) => setTimeout(r, 10));
-    await snapshotModule.invalidateSnapshot();
-    // At this point snapshot=3. Now wait for the slow passive to finish.
-    await passive;
 
-    // ASSERTION — immediately, no cleanup call:
-    // The stale passive must NOT have overwritten the invalidation's value.
+    // Admin commits and applies directly — synchronous, no race
+    snapshotModule.applyWrite({
+      namespace: 'pricing.rules', key: 'group_max', value: 3,
+      schemaVersion: '1.0', version: 2, updatedBy: 'admin', updatedAt: new Date(),
+    });
+    expect(snapshotModule.getOverride('pricing.rules', 'group_max')).toBe(3);
+
+    await passive; // passive finishes with stale v1
+
+    // Passive must NOT have overwritten the applyWrite value
     expect(snapshotModule.getOverride('pricing.rules', 'group_max')).toBe(3);
   });
 
-  it('two concurrent invalidations — last DB state wins', async () => {
-    // t=0   admin A writes group_max=3 → invalidateSnapshot (slow 30ms findMany)
-    // t=5   admin B writes group_max=7 → invalidateSnapshot (fast findMany)
-    // B's findMany finishes first → snapshot=7, lastLoadedAt=t5+ε
-    // A's findMany finishes at t=30 → returns 3
-    //   FIX: A sees lastLoadedAt > its startedAt → does NOT swap
-    let callCount = 0;
+  it('fast passive + later applyWrite → applyWrite wins', async () => {
+    // Passive finishes quickly (v1=5), then admin commits v2=3.
     (prismaModule.prisma.businessConfig as any).findMany = jest.fn(async () => {
-      callCount++;
-      if (callCount === 1) {
-        await new Promise((r) => setTimeout(r, 30)); // A: slow
-        return [mockRow('group_max', 3, 2)];
-      }
-      // B: fast — returns immediately
-      return [mockRow('group_max', 7, 3)];
+      return [mockRow('group_max', 5, 1)];
     });
 
-    const invA = snapshotModule.invalidateSnapshot();
-    await new Promise((r) => setTimeout(r, 5));
-    const invB = snapshotModule.invalidateSnapshot();
+    await snapshotModule.loadConfigSnapshot();
+    expect(snapshotModule.getOverride('pricing.rules', 'group_max')).toBe(5);
 
-    await invA;
-    await invB;
-
-    // ASSERTION — immediately, no cleanup:
-    // B (value=7) committed later, its snapshot must win.
-    expect(snapshotModule.getOverride('pricing.rules', 'group_max')).toBe(7);
-  });
-
-  it('passive single-flight joiners do not overwrite invalidation', async () => {
-    // t=0   passive A starts slow findMany (50ms, returns stale 5)
-    // t=0   passive B joins A via single-flight
-    // t=10  invalidation writes 3, fast findMany, swaps snapshot=3
-    // t=50  passive A completes with stale 5
-    //       FIX: passive sees lastLoadedAt > startedAt → no swap
-    let callCount = 0;
-    (prismaModule.prisma.businessConfig as any).findMany = jest.fn(async () => {
-      callCount++;
-      if (callCount === 1) {
-        await new Promise((r) => setTimeout(r, 50));
-        return [mockRow('group_max', 5, 1)];
-      }
-      return [mockRow('group_max', 3, 2)];
+    // Admin commits v2=3
+    snapshotModule.applyWrite({
+      namespace: 'pricing.rules', key: 'group_max', value: 3,
+      schemaVersion: '1.0', version: 2, updatedBy: 'admin', updatedAt: new Date(),
     });
-
-    const passiveA = snapshotModule.loadConfigSnapshot();
-    const passiveB = snapshotModule.loadConfigSnapshot(); // joins A
-    await new Promise((r) => setTimeout(r, 10));
-    await snapshotModule.invalidateSnapshot();
-    await Promise.all([passiveA, passiveB]);
-
-    // ASSERTION — immediately:
     expect(snapshotModule.getOverride('pricing.rules', 'group_max')).toBe(3);
-  });
-});
-
-// ── CRITICAL: can an invalidation LOSE to a passive? ──
-
-describe('snapshot — invalidation must NEVER lose to a passive', () => {
-  let snapshotModule: typeof import('@/lib/config/snapshot');
-  let prismaModule: typeof import('@/lib/prisma');
-  let origFindMany: any;
-
-  beforeEach(async () => {
-    snapshotModule = await import('@/lib/config/snapshot');
-    prismaModule = await import('@/lib/prisma');
-    origFindMany = prismaModule.prisma.businessConfig.findMany;
-    snapshotModule._resetForTest();
-  });
-
-  afterEach(() => {
-    (prismaModule.prisma.businessConfig as any).findMany = origFindMany;
-    snapshotModule._resetForTest();
-  });
-
-  function mockRow(value: unknown) {
-    return {
-      id: '1', namespace: 'pricing.rules', key: 'group_max', value,
-      schemaVersion: '1.0', version: 1, previousValue: null,
-      updatedBy: 'admin', updatedAt: new Date(), createdAt: new Date(),
-    };
-  }
-
-  it('fast passive + slow invalidation → invalidation wins (write is authoritative)', async () => {
-    // Timeline:
-    // t=0   passive starts findMany → fast (5ms), reads stale 5
-    // t=0   invalidation starts findMany → slow (30ms), reads post-write 3
-    // t=5   passive finishes, swaps to 5, seq 0→1
-    // t=30  invalidation finishes, sees seq=1 ≠ seqAtStart=0
-    //       BUG: invalidation discards its result → admin's write is LOST
-    //       FIX: invalidation must always swap (it's authoritative post-commit)
-    let callCount = 0;
-    (prismaModule.prisma.businessConfig as any).findMany = jest.fn(async () => {
-      callCount++;
-      if (callCount === 1) {
-        // Passive: fast
-        await new Promise((r) => setTimeout(r, 5));
-        return [mockRow(5)]; // stale pre-write
-      }
-      // Invalidation: slow
-      await new Promise((r) => setTimeout(r, 30));
-      return [mockRow(3)]; // post-write — this MUST win
-    });
-
-    // Start passive (its findMany fires first because loadConfigSnapshot
-    // starts _doLoad immediately when no inflight exists)
-    const passive = snapshotModule.loadConfigSnapshot();
-    // Start invalidation right after (its _doLoad fires independently)
-    const inv = snapshotModule.invalidateSnapshot();
-
-    await passive;
-    await inv;
-
-    // ASSERTION — immediately, no cleanup:
-    // The invalidation (post-write, value=3) MUST win over the passive (stale, value=5).
-    expect(snapshotModule.getOverride('pricing.rules', 'group_max')).toBe(3);
-  });
-
-  it('3-actor: passive + inv A + inv B → last invalidation wins', async () => {
-    // Timeline:
-    // t=0   passive starts findMany → very slow (60ms), returns stale 5
-    // t=0   inv A starts findMany → slow (30ms), returns write-A value 3
-    // t=5   inv B starts findMany → fast (5ms), returns write-B value 7
-    // t=10  inv B finishes, swaps to 7 (writeSeq 0→1, swapSeq 0→1)
-    // t=30  inv A finishes, sees writeSeq=1 ≠ seqAtStart=0 → cedes
-    // t=60  passive finishes, sees swapSeq=1 ≠ seqAtStart=0 → cedes
-    // Result: snapshot = 7 (last invalidation), never 5 or 3
-    let callCount = 0;
-    (prismaModule.prisma.businessConfig as any).findMany = jest.fn(async () => {
-      callCount++;
-      if (callCount === 1) {
-        await new Promise((r) => setTimeout(r, 60)); // passive: very slow
-        return [mockRow(5)]; // stale
-      }
-      if (callCount === 2) {
-        await new Promise((r) => setTimeout(r, 30)); // inv A: slow
-        return [mockRow(3)]; // write A
-      }
-      // inv B: fast
-      return [mockRow(7)]; // write B — latest
-    });
-
-    const passive = snapshotModule.loadConfigSnapshot();
-    const invA = snapshotModule.invalidateSnapshot();
-    await new Promise((r) => setTimeout(r, 5));
-    const invB = snapshotModule.invalidateSnapshot();
-
-    await Promise.all([passive, invA, invB]);
-
-    expect(snapshotModule.getOverride('pricing.rules', 'group_max')).toBe(7);
   });
 });
 
@@ -500,9 +413,12 @@ describe('snapshot — passive losing guard advances lastLoadedAt', () => {
 
     // Start passive
     const passive = snapshotModule.loadConfigSnapshot();
-    // Invalidation wins while passive is slow
+    // applyWrite wins while passive is slow
     await new Promise((r) => setTimeout(r, 5));
-    await snapshotModule.invalidateSnapshot();
+    snapshotModule.applyWrite({
+      namespace: 'pricing.rules', key: 'group_max', value: 3,
+      schemaVersion: '1.0', version: 2, updatedBy: 'admin', updatedAt: new Date(),
+    });
     await passive;
 
     // Passive lost the guard. But it should have advanced lastLoadedAt.

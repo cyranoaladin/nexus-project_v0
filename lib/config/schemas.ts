@@ -124,17 +124,25 @@ export function validateConfigEntry(
  * 4. global_cap_pct ≥ max individual discount
  * 5. price floors remain above minimum viable (getCurrentMinPrice)
  */
+/**
+ * @param resolver  Optional function to resolve existing config values.
+ *                  Defaults to getOverride() (reads snapshot). Pass a
+ *                  transactional resolver to read from the DB within a
+ *                  transaction for TOCTOU-safe cross-key validation.
+ */
 export function validateCrossInvariants(
   pendingNamespace: string,
   pendingKey: string,
   pendingValue: unknown,
+  resolver?: (ns: string, k: string) => unknown | null,
 ): string[] {
   const violations: string[] = [];
+  const resolve = resolver ?? ((ns: string, k: string) => getOverride(ns, k));
 
-  // Helper: get effective value (pending if matches, else snapshot, else null)
+  // Helper: get effective value (pending if matches, else resolve)
   function effective<T>(ns: string, k: string): T | null {
     if (ns === pendingNamespace && k === pendingKey) return pendingValue as T;
-    return getOverride<T>(ns, k);
+    return resolve(ns, k) as T | null;
   }
 
   // Invariant 1: discount min ≤ max (ancien_eleve)

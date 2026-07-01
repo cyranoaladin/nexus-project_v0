@@ -9,7 +9,7 @@
     "build:gate": "next build 2>&1 | tee build-output.log && bash scripts/check-bundle-weight.sh build-output.log",
     "start": "next start",
     "start:prod": "node .next/standalone/server.js",
-    "lint": "next lint --max-warnings 305",
+    "lint": "next lint --max-warnings 300",
     "typecheck": "tsc --noEmit",
     "test": "jest --config jest.unit.config.js",
     "test:all": "npm test && npm run test:integration",

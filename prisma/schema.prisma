@@ -2410,3 +2410,20 @@ model BusinessConfig {
   @@index([updatedAt])
   @@map("business_configs")
 }
+
+/// Append-only audit trail for BusinessConfig changes.
+/// One row per change — full history, any rollback level.
+model BusinessConfigAudit {
+  id        String   @id @default(dbgenerated("(gen_random_uuid())::text"))
+  namespace String
+  key       String
+  oldValue  Json?    @db.JsonB
+  newValue  Json     @db.JsonB
+  version   Int      // version of the BusinessConfig row after this change
+  changedBy String   // userId
+  changedAt DateTime @default(now())
+
+  @@index([namespace, key])
+  @@index([changedAt])
+  @@map("business_config_audit")
+}

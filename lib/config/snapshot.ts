@@ -5,19 +5,19 @@
  * - Loaded at startup via loadConfigSnapshot()
  * - getOverride(namespace, key) returns the value synchronously or null
  * - TTL 60s: passive refresh coalesced via single-flight
- * - Invalidation on write: API awaits invalidateSnapshot() AFTER DB commit
+ * - Invalidation on write: API calls applyWrite() with the committed entry
  * - Mono-instance (PM2 fork mode, instances: 1) — no cross-process sync
  *
- * Two load paths with ASYMMETRIC guards:
- * 1. PASSIVE (TTL / startup): cedes to ANY swap (passive or write)
- * 2. WRITE (post-API-commit): cedes ONLY to a newer WRITE
+ * Two load paths:
+ * 1. PASSIVE (TTL / startup): _doLoad() via loadConfigSnapshot() — single-flight.
+ *    Order guard: swapSequence counter prevents stale overwrite.
+ * 2. WRITE (post-API-commit): applyWrite() — applies a single entry directly
+ *    into the snapshot, using the DB version as the order authority. No findMany,
+ *    no race. version is monotone per key (incremented by Prisma upsert),
+ *    so a concurrent apply with a lower version is discarded.
  *
- * This ensures a write (authoritative post-commit) always wins over a
- * stale passive, but two concurrent writes still resolve correctly
- * (the later one wins).
- *
- * Order guards use monotonic counters (not wall-clock) to avoid
- * Date.now() resolution and NTP rewind issues.
+ * This eliminates the concurrent-invalidation ordering problem: the DB
+ * version IS the order, not an in-memory counter.
  */
 import { prisma } from '@/lib/prisma';
 import { validateConfigEntry } from './schemas';
@@ -41,25 +41,17 @@ const TTL_MS = 60_000;
 let snapshot = new Map<string, ConfigEntry>();
 let lastLoadedAt = 0;
 let passiveInflight: Promise<void> | null = null;
-let swapSequence = 0;  // Incremented on ANY swap (passive or write)
-let writeSequence = 0; // Incremented only on WRITE swaps
+let swapSequence = 0; // Monotonic: incremented on passive full-snapshot swap
 
-// ── Internal ──
+// ── Internal: passive load ──
 
 /**
- * Query DB, validate, build snapshot, conditionally assign.
- *
- * @param isWrite  true for invalidation (post-commit, authoritative).
- *                 false for passive (TTL refresh, can be stale).
- *
- * Guard logic:
- * - Passive load: cedes if swapSequence changed (any swap happened)
- * - Write load: cedes only if writeSequence changed (a newer write happened)
- *
- * A load that cedes still advances lastLoadedAt to prevent TTL storm.
+ * Full snapshot load from DB. Used by passive path only.
+ * Order guard: a passive load that started before a write (applyWrite)
+ * or another passive swapped does not overwrite.
  */
-async function _doLoad(isWrite: boolean): Promise<void> {
-  const seqAtStart = isWrite ? writeSequence : swapSequence;
+async function _doLoad(): Promise<void> {
+  const seqAtStart = swapSequence;
   const rows = await prisma.businessConfig.findMany();
   const newSnapshot = new Map<string, ConfigEntry>();
   for (const row of rows) {
@@ -81,21 +73,17 @@ async function _doLoad(isWrite: boolean): Promise<void> {
     });
   }
 
-  // Order guard — asymmetric:
-  const currentSeq = isWrite ? writeSequence : swapSequence;
-  if (currentSeq !== seqAtStart) {
-    // Someone swapped since we started reading. Cede.
+  if (swapSequence !== seqAtStart) {
     lastLoadedAt = Date.now();
     return;
   }
 
   snapshot = newSnapshot;
   swapSequence++;
-  if (isWrite) writeSequence++;
   lastLoadedAt = Date.now();
 }
 
-// ── Public API ──
+// ── Public API: reads ──
 
 export function getOverride<T = unknown>(namespace: string, key: string): T | null {
   const entry = snapshot.get(`${namespace}::${key}`);
@@ -128,7 +116,7 @@ export async function loadConfigSnapshot(): Promise<void> {
     return;
   }
 
-  passiveInflight = _doLoad(false).catch((error) => {
+  passiveInflight = _doLoad().catch((error) => {
     console.error('[config/snapshot] Passive refresh failed:', error);
   });
 
@@ -147,12 +135,38 @@ export async function ensureFresh(): Promise<void> {
 // ── Lifecycle: write path ──
 
 /**
- * Invalidate the snapshot after an API write.
- * RULE: The API must commit the DB update FIRST, then await this.
+ * Apply a single committed entry to the snapshot (WRITE path).
+ *
+ * Called by the API AFTER the DB commit with the upserted row.
+ * Uses the DB version as order authority: only applies if the entry's
+ * version is higher than what's currently in the snapshot for that key.
+ * This is synchronous — no DB round-trip, no race.
+ *
+ * RULE: The API must commit the DB upsert FIRST, then call this.
  */
-export async function invalidateSnapshot(): Promise<void> {
-  lastLoadedAt = 0;
-  await _doLoad(true);
+export function applyWrite(entry: ConfigEntry): void {
+  const mapKey = `${entry.namespace}::${entry.key}`;
+  const existing = snapshot.get(mapKey);
+
+  // Version guard: only apply if this entry is newer than what we have.
+  // version is monotone per (namespace, key), incremented by the DB upsert.
+  if (existing && existing.version >= entry.version) {
+    return; // A more recent write already applied — discard this one.
+  }
+
+  // Validate before applying (defense in depth)
+  const validation = validateConfigEntry(entry.namespace, entry.key, entry.value);
+  if (!validation.valid) {
+    console.error(
+      `[config/snapshot] applyWrite rejected invalid entry ${entry.namespace}::${entry.key}: ${validation.error}`,
+    );
+    return;
+  }
+
+  // Apply to current snapshot (mutate the existing Map — atomic in single-thread)
+  snapshot.set(mapKey, entry);
+  swapSequence++;
+  lastLoadedAt = Date.now();
 }
 
 // ── Testing helpers (guarded: throw in production) ──
@@ -165,7 +179,6 @@ export function _resetForTest(): void {
   lastLoadedAt = 0;
   passiveInflight = null;
   swapSequence = 0;
-  writeSequence = 0;
 }
 
 export function _setForTest(entries: ConfigEntry[]): void {
@@ -177,6 +190,5 @@ export function _setForTest(entries: ConfigEntry[]): void {
     snapshot.set(`${entry.namespace}::${entry.key}`, entry);
   }
   swapSequence++;
-  writeSequence++; // Keep both counters aligned to prevent test state inconsistency
   lastLoadedAt = Date.now();
 }

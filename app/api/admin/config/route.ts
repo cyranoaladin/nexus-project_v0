@@ -9,17 +9,24 @@ import { requireRole, requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
 import {
   getAllEntries,
-  invalidateSnapshot,
+  applyWrite,
+  ensureFresh,
   SCHEMA_VERSION,
   validateConfigEntry,
   validateCrossInvariants,
 } from '@/lib/config';
 import type { AuthSession } from '@/lib/guards';
 
+// Advisory lock key for serializing config writes. All config writes
+// share the same lock — config changes are rare (admin-only), so
+// serialization is the simplest correct solution for cross-key invariants.
+const CONFIG_ADVISORY_LOCK_KEY = 737001; // arbitrary stable int
+
 export async function GET() {
   const auth = await requireAnyRole(['ADMIN', 'ASSISTANTE']);
   if (isErrorResponse(auth)) return auth;
 
+  await ensureFresh();
   const entries = getAllEntries();
   return NextResponse.json({ entries });
 }
@@ -37,14 +44,14 @@ export async function PATCH(request: NextRequest) {
   }
 
   const { namespace, key, value } = body;
-  if (!namespace || !key || value === undefined) {
+  if (typeof namespace !== 'string' || !namespace || typeof key !== 'string' || !key || value === undefined) {
     return NextResponse.json(
       { error: 'Missing required fields: namespace, key, value' },
       { status: 400 },
     );
   }
 
-  // Per-key Zod validation
+  // Per-key Zod validation (stateless — can run outside transaction)
   const validation = validateConfigEntry(namespace, key, value);
   if (!validation.valid) {
     return NextResponse.json(
@@ -53,41 +60,94 @@ export async function PATCH(request: NextRequest) {
     );
   }
 
-  // Cross-namespace invariants
-  const invariantViolations = validateCrossInvariants(namespace, key, value);
-  if (invariantViolations.length > 0) {
+  // Fast-reject: check invariants against snapshot (catches obvious violations
+  // without a DB round-trip). The authoritative check happens inside the transaction.
+  await ensureFresh();
+  const fastReject = validateCrossInvariants(namespace, key, value);
+  if (fastReject.length > 0) {
     return NextResponse.json(
-      { error: 'Invariant violation', violations: invariantViolations },
+      { error: 'Invariant violation', violations: fastReject },
       { status: 400 },
     );
   }
 
-  // DB write: upsert with versioning
-  const existing = await prisma.businessConfig.findUnique({
-    where: { namespace_key: { namespace, key } },
+  // Serialized write: advisory lock + transactional invariant check + upsert.
+  // The advisory lock serializes ALL config writes so cross-key invariants
+  // cannot be bypassed by concurrent PATCHes on related keys (TOCTOU fix).
+  const result = await prisma.$transaction(async (tx) => {
+    // Acquire advisory lock — released when the transaction ends
+    await tx.$queryRawUnsafe('SELECT pg_advisory_xact_lock($1)', CONFIG_ADVISORY_LOCK_KEY);
+
+    // Read ALL config entries for this namespace from the DB (not snapshot)
+    // to build a transactional resolver for cross-key invariants.
+    const dbEntries = await tx.businessConfig.findMany();
+    const dbResolver = (ns: string, k: string): unknown | null => {
+      const row = dbEntries.find((r) => r.namespace === ns && r.key === k);
+      return row?.value ?? null;
+    };
+
+    // Authoritative invariant check against the transactional DB state
+    const invariantViolations = validateCrossInvariants(namespace, key, value, dbResolver);
+    if (invariantViolations.length > 0) {
+      return { rejected: true as const, violations: invariantViolations };
+    }
+
+    // Upsert with version increment
+    const existing = await tx.businessConfig.findUnique({
+      where: { namespace_key: { namespace, key } },
+    });
+
+    const entry = await tx.businessConfig.upsert({
+      where: { namespace_key: { namespace, key } },
+      create: {
+        namespace,
+        key,
+        value: value as import('@prisma/client').Prisma.InputJsonValue,
+        schemaVersion: SCHEMA_VERSION,
+        version: 1,
+        updatedBy: session.user.id,
+      },
+      update: {
+        value: value as import('@prisma/client').Prisma.InputJsonValue,
+        schemaVersion: SCHEMA_VERSION,
+        version: (existing?.version ?? 0) + 1,
+        previousValue: existing?.value as import('@prisma/client').Prisma.InputJsonValue ?? undefined,
+        updatedBy: session.user.id,
+      },
+    });
+
+    // Audit trail — append-only, same transaction
+    await tx.businessConfigAudit.create({
+      data: {
+        namespace,
+        key,
+        oldValue: existing?.value as import('@prisma/client').Prisma.InputJsonValue ?? undefined,
+        newValue: value as import('@prisma/client').Prisma.InputJsonValue,
+        version: entry.version,
+        changedBy: session.user.id,
+      },
+    });
+
+    return { rejected: false as const, entry };
   });
 
-  const entry = await prisma.businessConfig.upsert({
-    where: { namespace_key: { namespace, key } },
-    create: {
-      namespace,
-      key,
-      value: value as any,
-      schemaVersion: SCHEMA_VERSION,
-      version: 1,
-      updatedBy: session.user.id,
-    },
-    update: {
-      value: value as any,
-      schemaVersion: SCHEMA_VERSION,
-      version: existing ? existing.version + 1 : 1,
-      previousValue: existing?.value ?? undefined,
-      updatedBy: session.user.id,
-    },
+  if (result.rejected) {
+    return NextResponse.json(
+      { error: 'Invariant violation', violations: result.violations },
+      { status: 400 },
+    );
+  }
+
+  // Apply committed entry to snapshot (synchronous, version-ordered)
+  applyWrite({
+    namespace: result.entry.namespace,
+    key: result.entry.key,
+    value: result.entry.value,
+    schemaVersion: result.entry.schemaVersion,
+    version: result.entry.version,
+    updatedBy: result.entry.updatedBy,
+    updatedAt: result.entry.updatedAt,
   });
 
-  // RULE: commit FIRST, then await invalidateSnapshot()
-  await invalidateSnapshot();
-
-  return NextResponse.json({ entry });
+  return NextResponse.json({ entry: result.entry });
 }
