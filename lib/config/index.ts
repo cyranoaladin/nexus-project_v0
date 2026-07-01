@@ -17,6 +17,7 @@ export {
   validateConfigEntry,
   validateCrossInvariants,
   getCurrentMinPrice,
+  getStaticFallback,
   getValidNamespaces,
   getNamespaceKeys,
   SCHEMA_VERSION,

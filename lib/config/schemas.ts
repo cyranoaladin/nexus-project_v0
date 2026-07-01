@@ -10,10 +10,39 @@
  */
 import { z } from 'zod';
 import { getOverride } from './snapshot';
+import pricingCanonical from '@/data/pricing-client-data.generated.json';
 
 // ── Schema version — bump when adding/removing keys ──
 
 export const SCHEMA_VERSION = '1.0';
+
+// ── Static fallbacks from canonical (single source — used by invariants,
+// getCurrentMinPrice, and GET /api/admin/config) ──
+
+const canonicalRules = pricingCanonical.rules as Record<string, unknown>;
+
+/** Resolve a static fallback value for a namespace+key from canonical data. */
+export function getStaticFallback(namespace: string, key: string): unknown | null {
+  if (namespace === 'pricing.rules') {
+    // Dot-notation keys like 'group_min_open.lycee' → rules.group_min_open.lycee
+    const parts = key.split('.');
+    let current: unknown = canonicalRules;
+    for (const part of parts) {
+      if (current == null || typeof current !== 'object') return null;
+      current = (current as Record<string, unknown>)[part];
+    }
+    return current ?? null;
+  }
+  if (namespace === 'pricing.floors') {
+    const floors = canonicalRules.price_floor_per_student_hour_tnd;
+    if (floors && typeof floors === 'object') {
+      return (floors as Record<string, unknown>)[key] ?? null;
+    }
+    return null;
+  }
+  // products.credits: no static fallback (product-specific, defined in PRODUCT_REGISTRY)
+  return null;
+}
 
 // ── Namespace: pricing.rules ──
 
@@ -137,12 +166,16 @@ export function validateCrossInvariants(
   resolver?: (ns: string, k: string) => unknown | null,
 ): string[] {
   const violations: string[] = [];
-  const resolve = resolver ?? ((ns: string, k: string) => getOverride(ns, k));
+  const resolveOverride = resolver ?? ((ns: string, k: string) => getOverride(ns, k));
 
-  // Helper: get effective value (pending if matches, else resolve)
+  // Helper: get effective value — override ?? static fallback.
+  // Never returns null for a known canonical key, ensuring invariants
+  // always validate against the effective state (not against a void).
   function effective<T>(ns: string, k: string): T | null {
     if (ns === pendingNamespace && k === pendingKey) return pendingValue as T;
-    return resolve(ns, k) as T | null;
+    const override = resolveOverride(ns, k);
+    if (override !== null && override !== undefined) return override as T;
+    return getStaticFallback(ns, k) as T | null;
   }
 
   // Invariant 1: discount min ≤ max (ancien_eleve)

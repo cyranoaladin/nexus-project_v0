@@ -11,10 +11,15 @@ import {
   getAllEntries,
   applyWrite,
   ensureFresh,
+  getOverride,
+  getStaticFallback,
+  getValidNamespaces,
+  getNamespaceKeys,
   SCHEMA_VERSION,
   validateConfigEntry,
   validateCrossInvariants,
   CONFIG_ADVISORY_LOCK_KEY,
+  type NamespaceId,
 } from '@/lib/config';
 import type { AuthSession } from '@/lib/guards';
 
@@ -28,7 +33,37 @@ export async function GET() {
   if (isErrorResponse(auth)) return auth;
 
   await ensureFresh();
-  const entries = getAllEntries();
+
+  // Build effective entries: override if exists, else canonical fallback.
+  // Each entry marked with source: 'override' | 'fallback'.
+  const overrides = getAllEntries();
+  const overrideMap = new Map(overrides.map((e) => [`${e.namespace}::${e.key}`, e]));
+  const entries: Array<{ namespace: string; key: string; value: unknown; source: 'override' | 'fallback' }> = [];
+
+  for (const ns of getValidNamespaces()) {
+    const keys = getNamespaceKeys(ns);
+    if (keys) {
+      for (const key of keys) {
+        const override = overrideMap.get(`${ns}::${key}`);
+        if (override) {
+          entries.push({ namespace: ns, key, value: override.value, source: 'override' });
+        } else {
+          const fallback = getStaticFallback(ns, key);
+          if (fallback !== null) {
+            entries.push({ namespace: ns, key, value: fallback, source: 'fallback' });
+          }
+        }
+      }
+    }
+  }
+
+  // Also include any overrides for open-ended namespaces (products.credits)
+  for (const override of overrides) {
+    if (!entries.some((e) => e.namespace === override.namespace && e.key === override.key)) {
+      entries.push({ namespace: override.namespace, key: override.key, value: override.value, source: 'override' });
+    }
+  }
+
   return NextResponse.json({ entries });
 }
 
