@@ -56,9 +56,12 @@ export async function GET() {
   }
 
   // Also include any overrides for open-ended namespaces (products.credits)
+  const emitted = new Set(entries.map((e) => `${e.namespace}::${e.key}`));
   for (const override of overrides) {
-    if (!entries.some((e) => e.namespace === override.namespace && e.key === override.key)) {
+    const mapKey = `${override.namespace}::${override.key}`;
+    if (!emitted.has(mapKey)) {
       entries.push({ namespace: override.namespace, key: override.key, value: override.value, source: 'override' });
+      emitted.add(mapKey);
     }
   }
 

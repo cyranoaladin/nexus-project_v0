@@ -2,6 +2,11 @@
  * POST /api/admin/config/rollback — Rollback a config entry to its previous value
  *
  * Guard: ADMIN only. Uses advisory lock for serialization (same as PATCH).
+ *
+ * NOTE (Lot 3 scope): The FIRST override for a key has previousValue=null,
+ * so rollback returns 400 "No previous value". Reverting a first-time
+ * override to the canonical fallback is a Lot 5 feature (requires the
+ * R2 credits decision + rollback-to-fallback semantics).
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { requireRole, isErrorResponse } from '@/lib/guards';

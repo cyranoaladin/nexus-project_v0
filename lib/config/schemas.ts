@@ -21,10 +21,38 @@ export const SCHEMA_VERSION = '1.0';
 
 const canonicalRules = pricingCanonical.rules as Record<string, unknown>;
 
-/** Resolve a static fallback value for a namespace+key from canonical data. */
-export function getStaticFallback(namespace: string, key: string): unknown | null {
+// ── Startup assertion: verify all expected fallback keys exist in canonical ──
+// If a key is renamed/removed in the canonical JSON without updating the
+// schema, invariants would silently become no-ops (same hole we just closed).
+const EXPECTED_FALLBACK_KEYS = [
+  'pricing.rules::group_max',
+  'pricing.rules::group_min_open.lycee',
+  'pricing.rules::group_min_open.college',
+  'pricing.rules::group_min_open.online_live',
+  'pricing.rules::group_min_open.stage',
+  'pricing.rules::group_min_open.stage_college',
+  'pricing.rules::payment.deposit_pct',
+  'pricing.rules::payment.rounding_tnd',
+  'pricing.rules::payment.installments_default',
+  'pricing.rules::discounts.comptant_pct',
+  'pricing.rules::discounts.fratrie_2nd_child_pct',
+  'pricing.rules::discounts.ancien_eleve_min_pct',
+  'pricing.rules::discounts.ancien_eleve_max_pct',
+  'pricing.rules::discounts.parrainage_min_tnd',
+  'pricing.rules::discounts.parrainage_max_tnd',
+  'pricing.rules::discounts.carte_nexus_pct',
+  'pricing.rules::discounts.global_cap_pct',
+  'pricing.floors::single',
+  'pricing.floors::multi',
+  'pricing.floors::college',
+  'pricing.floors::stage',
+  'pricing.floors::coaching_1to1',
+  'pricing.floors::carte_member',
+  'pricing.floors::pack',
+];
+
+function resolveCanonicalKey(namespace: string, key: string): unknown | null {
   if (namespace === 'pricing.rules') {
-    // Dot-notation keys like 'group_min_open.lycee' → rules.group_min_open.lycee
     const parts = key.split('.');
     let current: unknown = canonicalRules;
     for (const part of parts) {
@@ -40,8 +68,28 @@ export function getStaticFallback(namespace: string, key: string): unknown | nul
     }
     return null;
   }
-  // products.credits: no static fallback (product-specific, defined in PRODUCT_REGISTRY)
   return null;
+}
+
+// Fail-fast at module load: every expected key must resolve to a non-null value.
+for (const fk of EXPECTED_FALLBACK_KEYS) {
+  const [ns, k] = fk.split('::');
+  const val = resolveCanonicalKey(ns, k);
+  if (val === null || val === undefined) {
+    throw new Error(
+      `[config/schemas] Canonical fallback missing for ${fk}. ` +
+      `Update EXPECTED_FALLBACK_KEYS or fix data/pricing-client-data.generated.json.`,
+    );
+  }
+}
+
+/** Resolve a static fallback value for a namespace+key from canonical data. */
+export function getStaticFallback(namespace: string, key: string): unknown | null {
+  if (namespace === 'products.credits') {
+    // No static fallback — product credits are in PRODUCT_REGISTRY (Lot 5)
+    return null;
+  }
+  return resolveCanonicalKey(namespace, key);
 }
 
 // ── Namespace: pricing.rules ──
