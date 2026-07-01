@@ -258,6 +258,11 @@ Note snapshot : sur échec de `loadConfigSnapshot()`, le single-flight sert le s
 
 **Note** : tant qu'aucune valeur n'est posée dans le store, le fallback octroie les valeurs `PRODUCT_REGISTRY` actuelles (4/8/16). Le comportement prod ne change pas tant que le dirigeant n'a pas tranché.
 
+**Prérequis reportés du Lot 3** (résolus dans ce lot) :
+1. Réversibilité du premier override : rollback vers le fallback canonical (delete de la ligne, pas update avec la valeur gelée). Dépend de la décision R2.
+2. Résolution des fallbacks `products.credits` depuis `PRODUCT_REGISTRY` (le Lot 3 ne résout que `pricing.rules` et `pricing.floors` en fallback).
+3. Sémantique du rollback multi-crans via `BusinessConfigAudit` (le Lot 3 pose l'audit append-only, le Lot 5 l'exploite).
+
 ---
 
 ### Lot 6 — Écrans de gestion admin
