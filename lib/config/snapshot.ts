@@ -130,7 +130,11 @@ export async function loadConfigSnapshot(): Promise<void> {
 }
 
 export async function ensureFresh(): Promise<void> {
-  if (Date.now() - lastLoadedAt < TTL_MS) return;
+  // Must have completed at least one full load AND be within TTL.
+  // Without hasLoadedOnce check, a cold passive that lost the guard
+  // (updating lastLoadedAt without hasLoadedOnce) would suppress the
+  // first full load for one TTL window.
+  if (hasLoadedOnce && Date.now() - lastLoadedAt < TTL_MS) return;
   await loadConfigSnapshot();
 }
 

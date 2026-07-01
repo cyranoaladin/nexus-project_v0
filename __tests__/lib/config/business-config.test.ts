@@ -399,38 +399,38 @@ describe('snapshot — passive losing guard advances lastLoadedAt', () => {
     };
   }
 
-  it('passive that loses the guard still prevents TTL re-trigger', async () => {
+  it('passive that loses guard prevents TTL re-trigger (when hasLoadedOnce)', async () => {
+    // First, do a successful full load to set hasLoadedOnce=true
+    (prismaModule.prisma.businessConfig as any).findMany = jest.fn(async () => {
+      return [mockRow(3)];
+    });
+    await snapshotModule.loadConfigSnapshot();
+
+    // Now set up the race: slow passive + applyWrite
     let findManyCallCount = 0;
     (prismaModule.prisma.businessConfig as any).findMany = jest.fn(async () => {
       findManyCallCount++;
-      if (findManyCallCount === 1) {
-        // Slow passive
-        await new Promise((r) => setTimeout(r, 30));
-        return [mockRow(5)]; // stale
-      }
-      return [mockRow(3)]; // post-write
+      await new Promise((r) => setTimeout(r, 30)); // slow passive
+      return [mockRow(5)]; // stale
     });
 
-    // Start passive
     const passive = snapshotModule.loadConfigSnapshot();
-    // applyWrite wins while passive is slow
     await new Promise((r) => setTimeout(r, 5));
     snapshotModule.applyWrite({
-      namespace: 'pricing.rules', key: 'group_max', value: 3,
-      schemaVersion: '1.0', version: 2, updatedBy: 'admin', updatedAt: new Date(),
+      namespace: 'pricing.rules', key: 'group_max', value: 7,
+      schemaVersion: '1.0', version: 3, updatedBy: 'admin', updatedAt: new Date(),
     });
     await passive;
 
-    // Passive lost the guard. But it should have advanced lastLoadedAt.
-    // So ensureFresh() should NOT re-trigger immediately:
+    // Passive lost the guard. But hasLoadedOnce=true AND lastLoadedAt updated.
+    // So ensureFresh() should be a no-op:
     findManyCallCount = 0;
     (prismaModule.prisma.businessConfig as any).findMany = jest.fn(async () => {
       findManyCallCount++;
-      return [mockRow(3)];
+      return [mockRow(7)];
     });
 
     await snapshotModule.ensureFresh();
-    // ensureFresh should be a no-op (within TTL), so no new findMany call
     expect(findManyCallCount).toBe(0);
   });
 });
@@ -482,6 +482,45 @@ describe('snapshot — applyWrite on cold snapshot triggers ensureFresh', () => 
     // Now both keys are in snapshot
     expect(snapshotModule.getOverride('pricing.rules', 'group_max')).toBe(3);
     expect(snapshotModule.getOverride('pricing.rules', 'group_min_open.lycee')).toBe(4);
+  });
+  it('cold passive loses guard + ensureFresh still triggers full load', async () => {
+    // Scenario from cubic: cold passive starts slow load, applyWrite
+    // fires during it, passive loses the guard and updates lastLoadedAt
+    // BUT not hasLoadedOnce. ensureFresh must still trigger a full load.
+    (prismaModule.prisma.businessConfig as any).findMany = jest.fn(async () => {
+      await new Promise((r) => setTimeout(r, 30)); // slow passive
+      return [{ id: '1', namespace: 'pricing.rules', key: 'group_max', value: 5,
+        schemaVersion: '1.0', version: 1, previousValue: null,
+        updatedBy: 'admin', updatedAt: new Date(), createdAt: new Date() }];
+    });
+
+    const passive = snapshotModule.loadConfigSnapshot();
+    await new Promise((r) => setTimeout(r, 5));
+
+    // applyWrite bumps swapSequence → passive will lose the guard
+    snapshotModule.applyWrite({
+      namespace: 'pricing.rules', key: 'group_max', value: 3,
+      schemaVersion: '1.0', version: 2, updatedBy: 'admin', updatedAt: new Date(),
+    });
+
+    await passive; // passive loses guard, updates lastLoadedAt but NOT hasLoadedOnce
+
+    // NOW ensureFresh must still trigger a full load
+    let fullLoadCalled = false;
+    (prismaModule.prisma.businessConfig as any).findMany = jest.fn(async () => {
+      fullLoadCalled = true;
+      return [
+        { id: '1', namespace: 'pricing.rules', key: 'group_max', value: 3,
+          schemaVersion: '1.0', version: 2, previousValue: null,
+          updatedBy: 'admin', updatedAt: new Date(), createdAt: new Date() },
+        { id: '2', namespace: 'pricing.rules', key: 'group_min_open.lycee', value: 4,
+          schemaVersion: '1.0', version: 1, previousValue: null,
+          updatedBy: 'admin', updatedAt: new Date(), createdAt: new Date() },
+      ];
+    });
+
+    await snapshotModule.ensureFresh();
+    expect(fullLoadCalled).toBe(true);
   });
 });
 
