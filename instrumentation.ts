@@ -11,5 +11,15 @@ export async function register() {
   ) {
     const { validateEnv } = await import('./lib/env-validation');
     validateEnv();
+
+    // Load BusinessConfig snapshot into memory at startup.
+    // Without this, getOverride() returns null for all keys until an
+    // admin triggers ensureFresh() via /api/admin/config — meaning all
+    // DB overrides are invisible after a server restart.
+    // Await ensures the snapshot is populated BEFORE the first request.
+    // loadConfigSnapshot handles errors internally (logs + serves fallbacks),
+    // so this await never throws — but it guarantees deterministic startup.
+    const { loadConfigSnapshot } = await import('./lib/config');
+    await loadConfigSnapshot();
   }
 }

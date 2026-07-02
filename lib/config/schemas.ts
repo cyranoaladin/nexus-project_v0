@@ -32,6 +32,8 @@ const EXPECTED_FALLBACK_KEYS = [
   'pricing.rules::group_min_open.stage',
   'pricing.rules::group_min_open.stage_college',
   'pricing.rules::payment.deposit_pct',
+  'pricing.rules::payment.deposit_pct_annual',
+  'pricing.rules::payment.deposit_pct_stage',
   'pricing.rules::payment.rounding_tnd',
   'pricing.rules::payment.installments_default',
   'pricing.rules::discounts.comptant_pct',
@@ -244,12 +246,17 @@ export function validateCrossInvariants(
     }
   }
 
-  // Invariant 2: deposit_pct > 0 when installments > 1
-  if (pendingNamespace === 'pricing.rules' && (pendingKey === 'payment.deposit_pct' || pendingKey === 'payment.installments_default')) {
-    const depositPct = effective<number>('pricing.rules', 'payment.deposit_pct');
+  // Invariant 2: deposit_pct variants > 0 when installments > 1
+  const depositKeys = ['payment.deposit_pct', 'payment.deposit_pct_annual', 'payment.deposit_pct_stage'] as const;
+  if (pendingNamespace === 'pricing.rules' && (depositKeys.includes(pendingKey as typeof depositKeys[number]) || pendingKey === 'payment.installments_default')) {
     const installments = effective<number>('pricing.rules', 'payment.installments_default');
-    if (depositPct !== null && installments !== null && installments > 1 && depositPct === 0) {
-      violations.push(`deposit_pct is 0 but installments_default is ${installments} (needs deposit > 0 for splitting)`);
+    if (installments !== null && installments > 1) {
+      for (const dk of depositKeys) {
+        const depositPct = effective<number>('pricing.rules', dk);
+        if (depositPct !== null && depositPct === 0) {
+          violations.push(`${dk} is 0 but installments_default is ${installments} (needs deposit > 0 for splitting)`);
+        }
+      }
     }
   }
 
@@ -288,27 +295,33 @@ export function validateCrossInvariants(
   if (
     pendingNamespace === 'pricing.floors' ||
     (pendingNamespace === 'pricing.rules' && (
+      // Only generic deposit_pct is checked against hourly floors.
+      // _annual/_stage apply to offer/plan prices (Lot 5 scope).
       pendingKey === 'payment.deposit_pct' ||
       pendingKey === 'payment.rounding_tnd'
     ))
   ) {
-    // Compute effective deposit parameters
-    const depositPct = effective<number>('pricing.rules', 'payment.deposit_pct');
+    // Compute effective deposit parameters — check ALL deposit variants
     const rounding = effective<number>('pricing.rules', 'payment.rounding_tnd');
+    // Only generic deposit_pct checked against hourly floors.
+    // _annual/_stage checked against their respective offer prices in Lot 5.
+    const floorDepositVariants = ['payment.deposit_pct'] as const;
 
-    if (depositPct !== null && rounding !== null && rounding > 0) {
-      // Check each floor type individually
+    if (rounding !== null && rounding > 0) {
       const floorKeys = ['single', 'multi', 'college', 'stage', 'coaching_1to1', 'carte_member', 'pack'] as const;
-      for (const fk of floorKeys) {
-        const floor = effective<number>('pricing.floors', fk);
-        if (floor !== null && floor > 0) {
-          // Simulate: deposit on a 1-hour session at the floor price
-          const deposit = Math.round((floor * depositPct) / 100 / rounding) * rounding;
-          if (deposit <= 0) {
-            violations.push(`deposit rounds to 0 at floor ${fk}=${floor} TND/h (deposit_pct=${depositPct}%, rounding=${rounding})`);
-          }
-          if (deposit > floor) {
-            violations.push(`deposit (${deposit}) exceeds floor price ${fk}=${floor} TND/h`);
+      for (const dpk of floorDepositVariants) {
+        const depositPct = effective<number>('pricing.rules', dpk);
+        if (depositPct === null) continue;
+        for (const fk of floorKeys) {
+          const floor = effective<number>('pricing.floors', fk);
+          if (floor !== null && floor > 0) {
+            const deposit = Math.round((floor * depositPct) / 100 / rounding) * rounding;
+            if (deposit <= 0) {
+              violations.push(`deposit rounds to 0 at floor ${fk}=${floor} TND/h (${dpk}=${depositPct}%, rounding=${rounding})`);
+            }
+            if (deposit > floor) {
+              violations.push(`deposit (${deposit}) exceeds floor price ${fk}=${floor} TND/h (${dpk}=${depositPct}%)`);
+            }
           }
         }
       }
