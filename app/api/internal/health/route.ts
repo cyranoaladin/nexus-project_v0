@@ -13,8 +13,9 @@ import { NextResponse } from 'next/server';
 import { enforcePolicy } from '@/lib/rbac';
 import { isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
-import { getRateLimitRuntimeMode } from '@/lib/rate-limit';
+import { getRateLimitProductionGate } from '@/lib/rate-limit';
 import { ragSearch } from '@/lib/rag-client';
+import { getConfigSnapshotRuntimeStatus } from '@/lib/config/snapshot';
 
 export async function GET() {
   // 1. Auth check
@@ -48,10 +49,10 @@ export async function GET() {
   }
 
   // 5. Redis / Upstash
-  const rateLimitMode = getRateLimitRuntimeMode();
+  const rateLimitGate = getRateLimitProductionGate();
   checks.redis = {
-    ok: rateLimitMode !== 'memory',
-    detail: rateLimitMode,
+    ok: rateLimitGate.ok,
+    detail: rateLimitGate.mode,
   };
 
   // 6. Disk (basic check via cwd access)
@@ -68,12 +69,29 @@ export async function GET() {
     detail: process.env.NPC_LLM_MODE || 'not configured',
   };
 
+  // 8. BusinessConfig snapshot (DB-backed overrides or classified static fallback)
+  const businessConfigStatus = getConfigSnapshotRuntimeStatus();
+  checks.businessConfig = {
+    ok: businessConfigStatus.ok,
+    detail: businessConfigStatus.lastError
+      ? `${businessConfigStatus.mode}:${businessConfigStatus.lastError.kind}`
+      : businessConfigStatus.mode,
+  };
+
   const allOk = Object.values(checks).every((c) => c.ok);
 
   return NextResponse.json(
     {
       status: allOk ? 'healthy' : 'degraded',
       checks,
+      runtime: {
+        rateLimit: {
+          mode: rateLimitGate.mode,
+          distributed: rateLimitGate.ok,
+          goLiveLarge: rateLimitGate.decision,
+        },
+        businessConfig: businessConfigStatus,
+      },
       timestamp: new Date().toISOString(),
     },
     { status: allOk ? 200 : 503 }

@@ -34,6 +34,25 @@ export interface ConfigEntry {
   updatedAt: Date;
 }
 
+export type ConfigSnapshotRuntimeStatus =
+  | { mode: 'not_loaded'; ok: true; lastError: null }
+  | { mode: 'database'; ok: true; lastError: null }
+  | {
+      mode: 'static_fallback_allowed';
+      ok: true;
+      lastError: { kind: 'missing_table'; table: 'business_configs' };
+    }
+  | {
+      mode: 'static_fallback_unexpected';
+      ok: false;
+      lastError: { kind: 'missing_table'; table: 'business_configs' };
+    }
+  | {
+      mode: 'static_fallback_error';
+      ok: false;
+      lastError: { kind: 'load_error'; name: string };
+    };
+
 // ── State ──
 
 const TTL_MS = 60_000;
@@ -43,6 +62,44 @@ let lastLoadedAt = 0;
 let hasLoadedOnce = false; // True after first successful full load (_doLoad)
 let passiveInflight: Promise<void> | null = null;
 let swapSequence = 0; // Monotonic: incremented on passive full-snapshot swap
+let runtimeStatus: ConfigSnapshotRuntimeStatus = {
+  mode: 'not_loaded',
+  ok: true,
+  lastError: null,
+};
+
+function isMissingBusinessConfigTableError(error: unknown): boolean {
+  const candidate = error as { code?: unknown; meta?: { table?: unknown }; message?: unknown };
+  const table = String(candidate.meta?.table ?? '');
+  const message = String(candidate.message ?? '');
+  return (
+    candidate.code === 'P2021' &&
+    (table.includes('business_configs') || message.includes('business_configs'))
+  );
+}
+
+function isStaticFallbackAllowed(): boolean {
+  return (
+    process.env.BUSINESS_CONFIG_STATIC_FALLBACK_ALLOWED === 'true' ||
+    process.env.NODE_ENV !== 'production'
+  );
+}
+
+function buildMissingTableRuntimeStatus(): ConfigSnapshotRuntimeStatus {
+  if (isStaticFallbackAllowed()) {
+    return {
+      mode: 'static_fallback_allowed',
+      ok: true,
+      lastError: { kind: 'missing_table', table: 'business_configs' },
+    };
+  }
+
+  return {
+    mode: 'static_fallback_unexpected',
+    ok: false,
+    lastError: { kind: 'missing_table', table: 'business_configs' },
+  };
+}
 
 // ── Internal: passive load ──
 
@@ -83,6 +140,11 @@ async function _doLoad(): Promise<void> {
   swapSequence++;
   hasLoadedOnce = true;
   lastLoadedAt = Date.now();
+  runtimeStatus = {
+    mode: 'database',
+    ok: true,
+    lastError: null,
+  };
 }
 
 // ── Public API: reads ──
@@ -110,6 +172,10 @@ export function getAllEntries(): ConfigEntry[] {
   return Array.from(snapshot.values());
 }
 
+export function getConfigSnapshotRuntimeStatus(): ConfigSnapshotRuntimeStatus {
+  return runtimeStatus;
+}
+
 // ── Lifecycle: passive path ──
 
 export async function loadConfigSnapshot(): Promise<void> {
@@ -119,7 +185,21 @@ export async function loadConfigSnapshot(): Promise<void> {
   }
 
   passiveInflight = _doLoad().catch((error) => {
-    console.error('[config/snapshot] Passive refresh failed:', error);
+    if (isMissingBusinessConfigTableError(error)) {
+      hasLoadedOnce = true;
+      lastLoadedAt = Date.now();
+      runtimeStatus = buildMissingTableRuntimeStatus();
+      return;
+    }
+
+    runtimeStatus = {
+      mode: 'static_fallback_error',
+      ok: false,
+      lastError: { kind: 'load_error', name: error instanceof Error ? error.name : 'Error' },
+    };
+    console.error('[config/snapshot] Passive refresh failed:', {
+      name: error instanceof Error ? error.name : 'Error',
+    });
   });
 
   try {
@@ -191,6 +271,11 @@ export function _resetForTest(): void {
   hasLoadedOnce = false;
   passiveInflight = null;
   swapSequence = 0;
+  runtimeStatus = {
+    mode: 'not_loaded',
+    ok: true,
+    lastError: null,
+  };
 }
 
 export function _setForTest(entries: ConfigEntry[]): void {
@@ -203,4 +288,10 @@ export function _setForTest(entries: ConfigEntry[]): void {
   }
   swapSequence++;
   lastLoadedAt = Date.now();
+  hasLoadedOnce = true;
+  runtimeStatus = {
+    mode: 'database',
+    ok: true,
+    lastError: null,
+  };
 }

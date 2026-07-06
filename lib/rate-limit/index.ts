@@ -70,6 +70,31 @@ export function getRateLimitRuntimeMode(): RateLimitRuntimeMode {
   return 'memory';
 }
 
+export function isDistributedRateLimitMode(
+  mode: RateLimitRuntimeMode = getRateLimitRuntimeMode(),
+): boolean {
+  return mode === 'redis' || mode === 'upstash';
+}
+
+export function getRateLimitProductionGate(
+  mode: RateLimitRuntimeMode = getRateLimitRuntimeMode(),
+): {
+  ok: boolean;
+  mode: RateLimitRuntimeMode;
+  decision: 'allowed' | 'blocked';
+  reason: string;
+} {
+  const ok = isDistributedRateLimitMode(mode);
+  return {
+    ok,
+    mode,
+    decision: ok ? 'allowed' : 'blocked',
+    reason: ok
+      ? 'Distributed rate limiting runtime is configured.'
+      : 'Memory rate limiting is process-local and blocks go-live large.',
+  };
+}
+
 function getDistributedStore(): RedisStore | UpstashStore | null {
   const mode = getRateLimitRuntimeMode();
 
