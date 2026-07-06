@@ -8,10 +8,23 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { Subject, GradeLevel, CopySubmissionStatus } from '@prisma/client';
+import { z } from 'zod';
 // No checkPermission import
 
-const VALID_SUBJECTS = Object.values(Subject);
-const VALID_GRADE_LEVELS = Object.values(GradeLevel);
+const safeIdSchema = z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/);
+
+const createSubmissionBodySchema = z.object({
+  studentId: safeIdSchema,
+  title: z.string().trim().min(1).max(180),
+  description: z.string().trim().max(2000).optional(),
+  subject: z.nativeEnum(Subject),
+  gradeLevel: z.nativeEnum(GradeLevel).optional(),
+}).strict();
+
+const listSubmissionsQuerySchema = z.object({
+  studentId: safeIdSchema.optional(),
+  status: z.nativeEnum(CopySubmissionStatus).optional(),
+}).strict();
 
 interface CreateSubmissionBody {
   studentId: string;
@@ -63,31 +76,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const body = await req.json() as CreateSubmissionBody;
-
-    // Validate required fields
-    if (!body.studentId || !body.title || !body.subject) {
-      return NextResponse.json(
-        { error: 'Missing required fields: studentId, title, subject' },
-        { status: 400 }
-      );
+    const parsedBody = createSubmissionBodySchema.safeParse(await req.json());
+    if (!parsedBody.success) {
+      return NextResponse.json({ error: 'Données invalides' }, { status: 400 });
     }
-
-    // Validate subject
-    if (!VALID_SUBJECTS.includes(body.subject)) {
-      return NextResponse.json(
-        { error: `Invalid subject. Valid: ${VALID_SUBJECTS.join(', ')}` },
-        { status: 400 }
-      );
-    }
-
-    // Validate grade level if provided
-    if (body.gradeLevel && !VALID_GRADE_LEVELS.includes(body.gradeLevel)) {
-      return NextResponse.json(
-        { error: `Invalid grade level. Valid: ${VALID_GRADE_LEVELS.join(', ')}` },
-        { status: 400 }
-      );
-    }
+    const body = parsedBody.data as CreateSubmissionBody;
 
     // Check if student exists
     const student = await prisma.student.findUnique({
@@ -194,8 +187,11 @@ export async function GET(req: NextRequest) {
     }
 
     const { searchParams } = new URL(req.url);
-    const studentId = searchParams.get('studentId');
-    const status = searchParams.get('status');
+    const parsedQuery = listSubmissionsQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
+    if (!parsedQuery.success) {
+      return NextResponse.json({ error: 'Données invalides' }, { status: 400 });
+    }
+    const { studentId, status } = parsedQuery.data;
 
     const where: Record<string, unknown> = {};
 

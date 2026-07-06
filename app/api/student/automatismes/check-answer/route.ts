@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { PREMIERE_EDS_SIMULATIONS } from "@/data/automatismes/premiere-eds/simulations";
 import { serializeError } from '@/lib/utils/serialize-error';
+import { z } from 'zod';
+
+const checkAnswerSchema = z.object({
+  seriesId: z.string().trim().min(1).max(80),
+  questionId: z.string().trim().min(1).max(80),
+  selectedChoiceId: z.string().trim().min(1).max(80),
+}).strict();
 
 /**
  * POST /api/student/automatismes/check-answer
@@ -20,15 +27,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
-    const { seriesId, questionId, selectedChoiceId } = body;
-
-    if (!seriesId || !questionId || !selectedChoiceId) {
+    const rawBody = await request.json().catch(() => null);
+    const parsedBody = checkAnswerSchema.safeParse(rawBody);
+    if (!parsedBody.success) {
       return NextResponse.json(
-        { error: "Missing required fields: seriesId, questionId, selectedChoiceId" },
+        { error: "Invalid answer payload" },
         { status: 400 }
       );
     }
+    const { seriesId, questionId, selectedChoiceId } = parsedBody.data;
 
     const series = PREMIERE_EDS_SIMULATIONS.find((s) => s.id === seriesId);
     if (!series) {

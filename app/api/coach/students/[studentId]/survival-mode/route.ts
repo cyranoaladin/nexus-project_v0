@@ -6,14 +6,17 @@ import { AcademicTrack } from '@prisma/client';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { isCoachRattachedToStudent } from '@/lib/rbac/coach-student-access';
+import { z } from 'zod';
 
 const ALLOWED_ROLES = new Set(['COACH', 'ADMIN', 'ASSISTANTE']);
 const MAX_REASON_LENGTH = 1000;
-
-type SurvivalModePayload = {
-  enabled?: unknown;
-  reason?: unknown;
-};
+const survivalModeParamsSchema = z.object({
+  studentId: z.string().trim().min(1).max(100).regex(/^[A-Za-z0-9_-]+$/),
+}).strict();
+const survivalModePayloadSchema = z.object({
+  enabled: z.boolean(),
+  reason: z.string().trim().max(MAX_REASON_LENGTH).optional().nullable(),
+}).strict();
 
 export async function POST(
   request: Request,
@@ -30,10 +33,11 @@ export async function POST(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const { studentId } = await context.params;
-    if (!studentId) {
+    const parsedParams = survivalModeParamsSchema.safeParse(await context.params);
+    if (!parsedParams.success) {
       return NextResponse.json({ error: 'studentId required' }, { status: 400 });
     }
+    const { studentId } = parsedParams.data;
 
     if (role === 'COACH') {
       const allowed = await isCoachRattachedToStudent(session.user.id, studentId);
@@ -42,21 +46,12 @@ export async function POST(
       }
     }
 
-    let payload: SurvivalModePayload;
-    try {
-      payload = (await request.json()) as SurvivalModePayload;
-    } catch {
-      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    const parsedPayload = survivalModePayloadSchema.safeParse(await request.json().catch(() => null));
+    if (!parsedPayload.success) {
+      return NextResponse.json({ error: 'Invalid survival mode payload' }, { status: 400 });
     }
-
-    if (typeof payload.enabled !== 'boolean') {
-      return NextResponse.json({ error: 'enabled must be a boolean' }, { status: 400 });
-    }
-
-    const reason = typeof payload.reason === 'string' ? payload.reason.trim() : null;
-    if (reason && reason.length > MAX_REASON_LENGTH) {
-      return NextResponse.json({ error: `reason too long (max ${MAX_REASON_LENGTH} chars)` }, { status: 400 });
-    }
+    const payload = parsedPayload.data;
+    const reason = payload.reason ?? null;
 
     const student = await prisma.student.findUnique({
       where: { userId: studentId },

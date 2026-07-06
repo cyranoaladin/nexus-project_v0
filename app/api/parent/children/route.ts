@@ -7,6 +7,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import type { CreditTransaction } from '@prisma/client';
 import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
 import crypto from 'crypto';
+import { z } from 'zod';
+
+const createChildSchema = z.object({
+  firstName: z.string().trim().min(1).max(80),
+  lastName: z.string().trim().min(1).max(80),
+  grade: z.string().trim().min(1).max(80),
+  school: z.string().trim().max(120).optional().default(''),
+}).strict();
 
 export async function GET(_request: NextRequest) {
   try {
@@ -102,21 +110,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
-    const {
-      firstName,
-      lastName,
-      grade,
-      school
-    } = body;
-
-    // Validate required fields
-    if (!firstName || !lastName || !grade) {
+    const rawBody = await request.json().catch(() => null);
+    const parsedBody = createChildSchema.safeParse(rawBody);
+    if (!parsedBody.success) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Invalid child payload' },
         { status: 400 }
       );
     }
+    const { firstName, lastName, grade, school } = parsedBody.data;
 
     // Generate email in the same format as bilan-gratuit
     const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@nexus-student.local`;
@@ -206,9 +208,8 @@ export async function POST(request: NextRequest) {
         school: result.school
       },
       activation: {
-        token: rawActivationToken,
         expiresAt: activationExpiry.toISOString(),
-        message: "Ce token permet à l'élève d'activer son compte et de choisir son propre mot de passe. Partagez-le de manière sécurisée."
+        message: "Un token d'activation a été généré et stocké de manière sécurisée. Il n'est pas retourné par cette API."
       }
     });
 

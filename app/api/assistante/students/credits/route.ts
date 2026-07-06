@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 import type { CreditTransaction } from '@prisma/client';
+import { z } from 'zod';
 
 const ALLOWED_STAFF_CREDIT_TYPES = new Set([
   'CREDIT_ADD',
@@ -12,6 +13,22 @@ const ALLOWED_STAFF_CREDIT_TYPES = new Set([
   'MANUAL_ADJUSTMENT',
   'MONTHLY_ALLOCATION',
 ]);
+const staffCreditTypeSchema = z.enum([
+  'CREDIT_ADD',
+  'CREDIT_REFUND',
+  'MANUAL_ADJUSTMENT',
+  'MONTHLY_ALLOCATION',
+]);
+const idSchema = z.string().trim().min(1).max(100).regex(/^[A-Za-z0-9_-]+$/);
+const studentCreditsQuerySchema = z.object({
+  studentId: idSchema.optional(),
+}).strict();
+const addStudentCreditsSchema = z.object({
+  studentId: idSchema,
+  amount: z.coerce.number().finite().positive().max(1000),
+  type: staffCreditTypeSchema,
+  description: z.string().trim().min(1).max(500),
+}).strict();
 
 export async function GET(request: NextRequest) {
   try {
@@ -25,7 +42,16 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const studentId = searchParams.get('studentId');
+    const parsedQuery = studentCreditsQuerySchema.safeParse({
+      studentId: searchParams.get('studentId') ?? undefined,
+    });
+    if (!parsedQuery.success) {
+      return NextResponse.json(
+        { error: 'Invalid query parameters' },
+        { status: 400 }
+      );
+    }
+    const { studentId } = parsedQuery.data;
 
     if (studentId) {
       // Get specific student credits
@@ -118,15 +144,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
-    const { studentId, amount, type, description } = body;
-
-    if (!studentId || amount === undefined || amount === null || !type || !description) {
+    const rawBody = await request.json().catch(() => null);
+    const parsedBody = addStudentCreditsSchema.safeParse(rawBody);
+    if (!parsedBody.success) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Invalid credit payload' },
         { status: 400 }
       );
     }
+    const { studentId, amount, type, description } = parsedBody.data;
 
     if (!ALLOWED_STAFF_CREDIT_TYPES.has(type)) {
       return NextResponse.json(
@@ -135,7 +161,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const parsedAmount = Number(amount);
+    const parsedAmount = amount;
     if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
       return NextResponse.json(
         { error: 'Invalid credit amount' },

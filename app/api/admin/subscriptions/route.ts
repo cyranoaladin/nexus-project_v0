@@ -5,17 +5,42 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isErrorResponse, requireRole } from '@/lib/guards';
 import { SubscriptionStatus, UserRole, type Prisma } from '@prisma/client';
+import { z } from 'zod';
 
 type SubscriptionWithStudent = Prisma.SubscriptionGetPayload<{
-  include: {
+  select: {
+    id: true;
+    planName: true;
+    monthlyPrice: true;
+    status: true;
+    startDate: true;
+    endDate: true;
+    createdAt: true;
     student: {
-      include: {
-        user: true;
-        parent: { include: { user: true } };
+      select: {
+        id: true;
+        grade: true;
+        school: true;
+        user: { select: { firstName: true; lastName: true; email: true } };
+        parent: { select: { user: { select: { firstName: true; lastName: true; email: true } } } };
       };
     };
   };
 }>;
+
+const statusFilterSchema = z.union([z.nativeEnum(SubscriptionStatus), z.literal('ALL')]);
+const adminSubscriptionsQuerySchema = z.object({
+  status: statusFilterSchema.default(SubscriptionStatus.ACTIVE),
+  page: z.coerce.number().int().min(1).max(10_000).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(10),
+  search: z.string().trim().max(120).default(''),
+}).strict();
+
+const subscriptionUpdateSchema = z.object({
+  subscriptionId: z.string().trim().min(1).max(191),
+  status: z.nativeEnum(SubscriptionStatus).optional(),
+  endDate: z.string().trim().regex(/^\d{4}-\d{2}-\d{2}/).nullable().optional(),
+}).strict();
 
 export async function GET(request: NextRequest) {
   try {
@@ -23,10 +48,13 @@ export async function GET(request: NextRequest) {
     if (isErrorResponse(sessionOrError)) return sessionOrError;
 
     const { searchParams } = new URL(request.url);
-    const statusParam = (searchParams.get('status') || 'ACTIVE') as SubscriptionStatus | 'ALL';
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
-    const search = searchParams.get('search') || '';
+    const parsedQuery = adminSubscriptionsQuerySchema.safeParse(
+      Object.fromEntries(searchParams.entries())
+    );
+    if (!parsedQuery.success) {
+      return NextResponse.json({ error: 'Invalid query' }, { status: 400 });
+    }
+    const { status: statusParam, page, limit, search } = parsedQuery.data;
 
     const skip = (page - 1) * limit;
 
@@ -65,14 +93,22 @@ export async function GET(request: NextRequest) {
         orderBy: {
           createdAt: 'desc'
         },
-        include: {
+        select: {
+          id: true,
+          planName: true,
+          monthlyPrice: true,
+          status: true,
+          startDate: true,
+          endDate: true,
+          createdAt: true,
           student: {
-            include: {
-              user: true,
+            select: {
+              id: true,
+              grade: true,
+              school: true,
+              user: { select: { firstName: true, lastName: true, email: true } },
               parent: {
-                include: {
-                  user: true
-                }
+                select: { user: { select: { firstName: true, lastName: true, email: true } } }
               }
             }
           }
@@ -128,22 +164,29 @@ export async function PUT(request: NextRequest) {
     const sessionOrError = await requireRole(UserRole.ADMIN);
     if (isErrorResponse(sessionOrError)) return sessionOrError;
 
-    const body = (await request.json()) as {
-      subscriptionId?: string;
-      status?: string;
-      endDate?: string | null;
-    };
-    const { subscriptionId, status, endDate } = body;
-    const statusValue = status && Object.values(SubscriptionStatus).includes(status as SubscriptionStatus)
-      ? (status as SubscriptionStatus)
-      : undefined;
+    let json: unknown;
+    try {
+      json = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
+    }
 
-    if (status && !statusValue) {
+    const parsedBody = subscriptionUpdateSchema.safeParse(json);
+    if (!parsedBody.success) {
+      const hasInvalidStatus = parsedBody.error.issues.some((issue) => issue.path[0] === 'status');
+      const hasMissingSubscriptionId = parsedBody.error.issues.some((issue) => issue.path[0] === 'subscriptionId');
       return NextResponse.json(
-        { error: 'Invalid status value' },
+        {
+          error: hasInvalidStatus
+            ? 'Invalid status value'
+            : hasMissingSubscriptionId
+              ? 'Subscription ID is required'
+              : 'Invalid payload',
+        },
         { status: 400 }
       );
     }
+    const { subscriptionId, status, endDate } = parsedBody.data;
 
     if (!subscriptionId) {
       return NextResponse.json(
@@ -156,14 +199,15 @@ export async function PUT(request: NextRequest) {
     const updatedSubscription = await prisma.subscription.update({
       where: { id: subscriptionId },
       data: {
-        status: statusValue,
+        status,
         endDate: endDate ? new Date(endDate) : undefined
       },
-      include: {
+      select: {
+        id: true,
+        status: true,
+        endDate: true,
         student: {
-          include: {
-            user: true
-          }
+          select: { user: { select: { firstName: true, lastName: true } } }
         }
       }
     });

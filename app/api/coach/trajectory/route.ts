@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { serializeError } from '@/lib/utils/serialize-error';
+import { isCoachRattachedToStudent } from '@/lib/rbac/coach-student-access';
+import { z } from 'zod';
+
+const createTrajectorySchema = z.object({
+  studentId: z.string().trim().min(1).max(100).regex(/^[A-Za-z0-9_-]+$/),
+  title: z.string().trim().min(1).max(160),
+  targetScore: z.coerce.number().finite().min(0).max(20).optional(),
+  horizon: z.enum(['3_MONTHS', '6_MONTHS', '12_MONTHS']),
+}).strict();
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,10 +19,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { studentId, title, targetScore, horizon } = await request.json();
+    const parsedBody = createTrajectorySchema.safeParse(await request.json().catch(() => null));
+    if (!parsedBody.success) {
+      return NextResponse.json({ error: "Invalid trajectory payload" }, { status: 400 });
+    }
+    const { studentId, title, targetScore, horizon } = parsedBody.data;
 
-    if (!studentId || !title || !horizon) {
-      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+    if (session.user.role === "COACH") {
+      const assigned = await isCoachRattachedToStudent(session.user.id, studentId);
+      if (!assigned) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
     }
 
     // Calculate endDate based on horizon

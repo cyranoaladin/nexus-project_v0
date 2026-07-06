@@ -5,8 +5,15 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { getOperationalSubscriptionPlan } from '@/lib/operational-catalog';
+import { z } from 'zod';
 
 class AlreadyProcessedError extends Error {}
+
+const subscriptionDecisionSchema = z.object({
+  subscriptionId: z.string().trim().min(1).max(100).regex(/^[A-Za-z0-9_-]+$/),
+  action: z.enum(['approve', 'reject']),
+  reason: z.string().trim().max(1000).optional(),
+}).strict();
 
 function getPlanCatalog(planName: string) {
   return getOperationalSubscriptionPlan(planName);
@@ -143,19 +150,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = (await request.json()) as {
-      subscriptionId?: string;
-      action?: 'approve' | 'reject';
-      reason?: string;
-    };
-    const { subscriptionId, action, reason: _reason } = body;
-
-    if (!subscriptionId || !action) {
+    const rawBody = await request.json().catch(() => null);
+    const parsedBody = subscriptionDecisionSchema.safeParse(rawBody);
+    if (!parsedBody.success) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Invalid subscription payload' },
         { status: 400 }
       );
     }
+    const { subscriptionId, action } = parsedBody.data;
 
     // Get the subscription
     const subscription = await prisma.subscription.findUnique({

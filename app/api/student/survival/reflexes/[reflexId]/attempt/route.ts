@@ -6,6 +6,16 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { getReflex } from '@/lib/survival/reflex-data';
 import { DEFAULT_EXAM_DATE, snapshotFromStoredProgress, toPrismaSurvivalData } from '@/lib/survival/progress';
+import { z } from 'zod';
+
+const reflexParamsSchema = z.object({
+  reflexId: z.string().trim().min(1).max(80).regex(/^reflex_[0-9]+$/),
+}).strict();
+const reflexAttemptSchema = z.object({
+  itemId: z.string().trim().min(1).max(80),
+  givenAnswer: z.string().trim().min(1).max(200),
+  timeSpentSec: z.coerce.number().finite().nonnegative().max(24 * 60 * 60).optional(),
+}).strict();
 
 export async function POST(
   request: Request,
@@ -17,21 +27,21 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { reflexId } = await context.params;
+    const parsedParams = reflexParamsSchema.safeParse(await context.params);
+    if (!parsedParams.success) {
+      return NextResponse.json({ error: 'Invalid reflex' }, { status: 400 });
+    }
+    const { reflexId } = parsedParams.data;
     const reflex = getReflex(reflexId);
     if (!reflex) {
       return NextResponse.json({ error: 'Unknown reflex' }, { status: 404 });
     }
 
-    const payload = await request.json().catch(() => null) as {
-      itemId?: string;
-      givenAnswer?: string;
-      timeSpentSec?: number;
-    } | null;
-
-    if (!payload?.itemId || typeof payload.givenAnswer !== 'string') {
+    const parsedPayload = reflexAttemptSchema.safeParse(await request.json().catch(() => null));
+    if (!parsedPayload.success) {
       return NextResponse.json({ error: 'Invalid attempt payload' }, { status: 400 });
     }
+    const payload = parsedPayload.data;
 
     const student = await prisma.student.findUnique({
       where: { userId: session.user.id },

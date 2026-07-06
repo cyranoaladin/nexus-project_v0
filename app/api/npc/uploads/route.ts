@@ -11,10 +11,18 @@ import {
   FILE_VALIDATION_ERRORS,
 } from '@/lib/npc';
 import type { FileMetadata } from '@/lib/npc';
+import { z } from 'zod';
 
 // ─── Constants ───
 
 const MAX_REQUEST_SIZE = 11 * 1024 * 1024; // 11MB (slightly above file limit for overhead)
+
+const uploadMetadataSchema = z.object({
+  studentId: z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/),
+  title: z.string().trim().min(1).max(180),
+  description: z.string().trim().max(2000).optional(),
+  subject: z.nativeEnum(Subject),
+}).strict();
 
 // ─── Auth Helper ───
 
@@ -119,18 +127,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Parse multipart form data
     const formData = await request.formData();
 
-    // Extract metadata
-    const studentId = formData.get('studentId') as string;
-    const title = formData.get('title') as string;
-    const description = formData.get('description') as string | undefined;
-    const subject = formData.get('subject') as string;
+    const parsedMetadata = uploadMetadataSchema.safeParse({
+      studentId: formData.get('studentId'),
+      title: formData.get('title'),
+      description: formData.get('description') || undefined,
+      subject: formData.get('subject'),
+    });
 
-    if (!studentId || !title || !subject) {
+    if (!parsedMetadata.success) {
       return NextResponse.json(
-        { error: 'Missing required fields: studentId, title, subject' },
+        { error: 'Données invalides' },
         { status: 400 }
       );
     }
+    const { studentId, title, description, subject } = parsedMetadata.data;
 
     // Authenticate and authorize
     const authorization = await authenticateAndAuthorize(sessionUser, studentId);

@@ -15,9 +15,63 @@ const createDocumentSchema = z.object({
   title: z.string().min(1, 'Titre requis').max(200),
   description: z.string().max(1000).optional(),
   url: z.string().url().optional(),
-  localPath: z.string().optional(),
   visibilityScope: z.nativeEnum(DocumentVisibilityScope).default(DocumentVisibilityScope.STUDENT_AND_COACH),
+}).strict();
+
+const routeParamsSchema = z.object({
+  studentId: z.string().min(1).max(128),
 });
+
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+const ALLOWED_UPLOAD_MIME_TYPES = new Set([
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+]);
+
+const documentSafeSelect = {
+  id: true,
+  title: true,
+  originalName: true,
+  mimeType: true,
+  sizeBytes: true,
+  documentType: true,
+  visibilityScope: true,
+  subject: true,
+  description: true,
+  expiresAt: true,
+  createdAt: true,
+  updatedAt: true,
+  userId: true,
+  uploadedById: true,
+} as const;
+
+type DocumentMutationData = {
+  title: string;
+  documentType: DocumentType;
+  subject: Subject | null;
+  description?: string | null;
+  localPath: string;
+  originalName: string;
+  mimeType: string;
+  sizeBytes: number;
+  visibilityScope: DocumentVisibilityScope;
+};
+
+function sanitizeDocument(document: Record<string, unknown>) {
+  const { localPath: _localPath, ...safeDocument } = document;
+  return safeDocument;
+}
+
+function optionalFormString(value: FormDataEntryValue | null): string | undefined {
+  if (typeof value !== 'string' || value.length === 0) return undefined;
+  return value;
+}
+
+function sanitizeFilenamePart(value: string): string {
+  return value.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 80) || 'document';
+}
 
 interface RouteParams {
   params: Promise<{ studentId: string }>;
@@ -31,7 +85,8 @@ interface RouteParams {
  */
 export async function GET(request: Request, { params }: RouteParams) {
   try {
-    const { studentId } = await params;
+    const parsedParams = routeParamsSchema.parse(await params);
+    const { studentId } = parsedParams;
     
     const sessionOrError = await requireRole('COACH');
     if (isErrorResponse(sessionOrError)) return sessionOrError;
@@ -80,13 +135,21 @@ export async function GET(request: Request, { params }: RouteParams) {
         },
       },
       orderBy: { createdAt: 'desc' },
+      select: documentSafeSelect,
     });
 
     return NextResponse.json({
       success: true,
-      documents,
+      documents: documents.map((document) => sanitizeDocument(document)),
     });
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Validation Error', message: error.errors },
+        { status: 400 }
+      );
+    }
+
     console.error('[API Coach Documents GET] Error:', serializeError(error));
     return NextResponse.json(
       { error: 'Internal Server Error', message: 'Erreur lors de la récupération' },
@@ -104,7 +167,8 @@ export async function GET(request: Request, { params }: RouteParams) {
  */
 export async function POST(request: Request, { params }: RouteParams) {
   try {
-    const { studentId } = await params;
+    const parsedParams = routeParamsSchema.parse(await params);
+    const { studentId } = parsedParams;
     
     const sessionOrError = await requireRole('COACH');
     if (isErrorResponse(sessionOrError)) return sessionOrError;
@@ -144,7 +208,7 @@ export async function POST(request: Request, { params }: RouteParams) {
 
     // Check if request is FormData (file upload) or JSON (URL)
     const contentType = request.headers.get('content-type');
-    let documentData: any;
+    let documentData: DocumentMutationData;
 
     if (contentType?.includes('multipart/form-data')) {
       // Handle file upload
@@ -158,10 +222,26 @@ export async function POST(request: Request, { params }: RouteParams) {
         );
       }
 
+      if (!ALLOWED_UPLOAD_MIME_TYPES.has(file.type) || file.size > MAX_UPLOAD_BYTES) {
+        return NextResponse.json(
+          { error: 'Bad Request', message: 'Type ou taille de fichier invalide' },
+          { status: 400 }
+        );
+      }
+
+      const validatedMeta = createDocumentSchema.parse({
+        title: optionalFormString(formData.get('title')) ?? file.name,
+        documentType: optionalFormString(formData.get('documentType')),
+        subject: optionalFormString(formData.get('subject')),
+        description: optionalFormString(formData.get('description')),
+        visibilityScope: optionalFormString(formData.get('visibilityScope')) ?? DocumentVisibilityScope.STUDENT_AND_COACH,
+        url: 'https://nexusreussite.academy/internal-upload-placeholder',
+      });
+
       // Generate a unique filename
       const timestamp = Date.now();
-      const sanitizedTitle = (formData.get('title') as string || 'document').replace(/[^a-zA-Z0-9]/g, '_');
-      const extension = file.name.split('.').pop() || 'pdf';
+      const sanitizedTitle = sanitizeFilenamePart(validatedMeta.title);
+      const extension = sanitizeFilenamePart(file.name.split('.').pop() || 'pdf');
       const filename = `${sanitizedTitle}-${timestamp}.${extension}`;
       const localPath = `/app/storage/documents/${student.userId}/${filename}`;
 
@@ -173,10 +253,11 @@ export async function POST(request: Request, { params }: RouteParams) {
       await writeFile(path.join(uploadDir, filename), buffer);
 
       documentData = {
-        title: formData.get('title') as string,
-        documentType: formData.get('documentType') as string,
-        subject: formData.get('subject') as string,
-        visibilityScope: formData.get('visibilityScope') as string,
+        title: validatedMeta.title,
+        documentType: validatedMeta.documentType,
+        subject: validatedMeta.subject ?? null,
+        description: validatedMeta.description ?? null,
+        visibilityScope: validatedMeta.visibilityScope,
         localPath,
         originalName: file.name,
         mimeType: file.type,
@@ -187,16 +268,16 @@ export async function POST(request: Request, { params }: RouteParams) {
       const body = await request.json();
       const validated = createDocumentSchema.parse(body);
 
-      // Require either url or localPath
-      if (!validated.url && !validated.localPath) {
+      // URL documents are metadata only; direct localPath is reserved for server-side uploads.
+      if (!validated.url) {
         return NextResponse.json(
-          { error: 'Bad Request', message: 'URL ou chemin local requis' },
+          { error: 'Bad Request', message: 'URL requise' },
           { status: 400 }
         );
       }
 
       // Build data ensuring localPath is always provided (required by Prisma schema)
-      const localPath = validated.localPath || validated.url || `/app/storage/documents/${student.userId}/${Date.now()}-${validated.title.replace(/[^a-zA-Z0-9]/g, '_')}`;
+      const localPath = validated.url;
       
       documentData = {
         title: validated.title,
@@ -225,12 +306,13 @@ export async function POST(request: Request, { params }: RouteParams) {
         sizeBytes: documentData.sizeBytes,
         visibilityScope: documentData.visibilityScope,
       },
+      select: documentSafeSelect,
     });
 
     return NextResponse.json({
       success: true,
       message: 'Document créé',
-      document,
+      document: sanitizeDocument(document),
     }, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {

@@ -6,9 +6,46 @@ import { createId } from '@paralleldrive/cuid2';
 import path from 'path';
 import { mkdir, writeFile } from 'fs/promises';
 import { serializeError } from '@/lib/utils/serialize-error';
+import { z } from 'zod';
 
 // Secure storage root (mapped to volume in docker-compose)
 const STORAGE_ROOT = '/app/storage/documents';
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+const ALLOWED_UPLOAD_MIME_TYPES = new Set([
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'text/plain',
+]);
+
+const targetUserIdSchema = z.string().min(1).max(128);
+
+const safeDocumentSelect = {
+  id: true,
+  title: true,
+  originalName: true,
+  mimeType: true,
+  sizeBytes: true,
+  userId: true,
+  uploadedById: true,
+  createdAt: true,
+} as const;
+
+function sanitizeOriginalName(value: string): string {
+  return value.replace(/[\\/\r\n"]/g, '_').slice(0, 200) || 'document';
+}
+
+function safeErrorSummary(error: unknown) {
+  const serialized = serializeError(error);
+  if (serialized && typeof serialized === 'object' && !Array.isArray(serialized)) {
+    return {
+      name: typeof serialized.name === 'string' ? serialized.name : 'Error',
+      message: typeof serialized.message === 'string' ? serialized.message : 'unknown',
+    };
+  }
+  return { name: 'Error', message: String(serialized) };
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,14 +57,22 @@ export async function POST(request: NextRequest) {
     // 2. Parse FormData
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
-    const userId = formData.get('userId') as string | null;
+    const parsedUserId = targetUserIdSchema.safeParse(formData.get('userId'));
 
-    if (!file || !userId) {
+    if (!file || !parsedUserId.success) {
       return NextResponse.json({ error: 'File and userId required' }, { status: 400 });
+    }
+    const userId = parsedUserId.data;
+
+    if (!ALLOWED_UPLOAD_MIME_TYPES.has(file.type) || file.size > MAX_UPLOAD_BYTES) {
+      return NextResponse.json({ error: 'Type ou taille de fichier invalide' }, { status: 400 });
     }
 
     // 3. Validate Target User
-    const targetUser = await prisma.user.findUnique({ where: { id: userId } });
+    const targetUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true },
+    });
     if (!targetUser) {
       return NextResponse.json({ error: 'Target user not found' }, { status: 404 });
     }
@@ -41,6 +86,7 @@ export async function POST(request: NextRequest) {
     // Using path.join ensures we stick to the OS separator, 
     // and combined with uniqueId prevents directory traversal like ../../
     const localPath = path.join(STORAGE_ROOT, secureFilename);
+    const originalName = sanitizeOriginalName(file.name);
 
     // Ensure directory exists
     await mkdir(STORAGE_ROOT, { recursive: true });
@@ -53,20 +99,24 @@ export async function POST(request: NextRequest) {
     const document = await prisma.userDocument.create({
       data: {
         id: uniqueId, // Use same ID for consistency
-        title: file.name, // Default title = filename
-        originalName: file.name,
+        title: originalName, // Default title = filename
+        originalName,
         mimeType: file.type,
         sizeBytes: file.size,
         localPath: localPath,
         userId: userId,
         uploadedById: session.user.id,
       },
+      select: safeDocumentSelect,
     });
 
-    return NextResponse.json(document, { status: 201 });
+    const safeDocument = { ...(document as Record<string, unknown>) };
+    delete safeDocument.localPath;
+
+    return NextResponse.json({ success: true, document: safeDocument }, { status: 201 });
 
   } catch (error) {
-    console.error('[Upload Error]', serializeError(error));
+    console.error('[Upload Error]', safeErrorSummary(error));
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

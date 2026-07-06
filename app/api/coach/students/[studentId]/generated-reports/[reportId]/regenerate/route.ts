@@ -6,9 +6,19 @@ import {
 } from '@/lib/rbac/coach-student-access';
 import { processGeneratedReportJob } from '@/lib/reports/stage/processGeneratedReportJob';
 import { logger } from '@/lib/logger';
+import { z } from 'zod';
 
 interface RouteParams {
   params: Promise<{ studentId: string; reportId: string }>;
+}
+
+const routeParamsSchema = z.object({
+  studentId: z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/),
+  reportId: z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/),
+}).strict();
+
+function validationFailed() {
+  return NextResponse.json({ error: 'Données invalides' }, { status: 400 });
 }
 
 function projectGeneratedReport(report: Record<string, unknown>) {
@@ -25,11 +35,13 @@ function projectGeneratedReport(report: Record<string, unknown>) {
 
 export async function POST(_request: Request, { params }: RouteParams) {
   try {
-    const { studentId, reportId } = await params;
-
     const sessionOrError = await requireRole('COACH');
     if (isErrorResponse(sessionOrError)) return sessionOrError;
     const authSession = sessionOrError;
+
+    const parsedParams = routeParamsSchema.safeParse(await params);
+    if (!parsedParams.success) return validationFailed();
+    const { studentId, reportId } = parsedParams.data;
 
     try {
       await assertCoachCanAccessStudent({ coachUserId: authSession.user.id, studentId });

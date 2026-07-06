@@ -6,6 +6,18 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { DEFAULT_EXAM_DATE, normalizeSurvivalSnapshot, snapshotFromStoredProgress, toPrismaSurvivalData } from '@/lib/survival/progress';
 import type { SurvivalState } from '@/lib/survival/types';
+import { z } from 'zod';
+
+const survivalStateSchema = z.enum(['ACQUIS', 'REVOIR', 'PAS_VU']);
+const survivalProgressPayloadSchema = z.object({
+  reflexesState: z.record(z.string().trim().min(1).max(80), survivalStateSchema).optional(),
+  phrasesState: z.record(z.string().trim().min(1).max(80), z.coerce.number().int().min(0).max(10_000)).optional(),
+  rituals: z.array(z.object({
+    date: z.string().trim().min(1).max(40),
+    taskId: z.string().trim().min(1).max(120),
+    completed: z.boolean(),
+  }).strict()).max(500).optional(),
+}).strict();
 
 async function getCurrentSurvivalStudent() {
   const session = await auth();
@@ -61,15 +73,16 @@ export async function POST(request: Request) {
     const current = await getCurrentSurvivalStudent();
     if ('error' in current) return current.error;
 
-    const payload = await request.json().catch(() => null) as Partial<{
+    const rawPayload = await request.json().catch(() => null);
+    const parsedPayload = survivalProgressPayloadSchema.safeParse(rawPayload);
+    if (!parsedPayload.success) {
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    }
+    const payload = parsedPayload.data as Partial<{
       reflexesState: Record<string, SurvivalState>;
       phrasesState: Record<string, number>;
       rituals: Array<{ date: string; taskId: string; completed: boolean }>;
-    }> | null;
-
-    if (!payload || typeof payload !== 'object') {
-      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
-    }
+    }>;
 
     const currentSnapshot = snapshotFromStoredProgress(current.student.survivalProgress);
     const nextSnapshot = normalizeSurvivalSnapshot({
