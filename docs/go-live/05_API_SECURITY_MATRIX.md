@@ -1,5 +1,24 @@
 # Matrice API sécurité
 
+## Mise à jour Lot 15 — 2026-07-06
+
+Lot 15 régularise les fichiers non suivis release sans modifier la matrice API et sans requalifier de P1.
+
+| Élément | Statut |
+| --- | --- |
+| Compteurs API | `P0=0`, `P1=6`, `P2=144`, `OK=28`, total `178` |
+| 6 P1 | Toujours visibles |
+| Tests release | Commités |
+| Preuves release Lots 9 à 13 | Commitées |
+| Fichiers exclus | `docs/audits/audit-nexus-reussite.md`, `rapport_audit_2_07_2026.md` |
+| Redis/Upstash | Non prouvé |
+| 429 runtime | Non exécuté |
+| ContactLead DB dry-run | Non exécuté |
+
+Décision : `READY_FOR_PUSH_REVIEW`; bêta contrôlée possible avec réserves ; bêta élargie et go-live large bloqués.
+
+---
+
 ## Mise à jour Lot 14 — 2026-07-06
 
 Lot 14 exécute les commits locaux et les gates finales sans requalifier les P1.

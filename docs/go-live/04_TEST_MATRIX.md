@@ -1,5 +1,15 @@
 # Matrice de tests
 
+## Mise à jour Lot 15 — untracked files regularization 2026-07-06
+
+| Commande | Objectif | Statut actuel | Résultat observé | Blocage éventuel | Critère go-live |
+| --- | --- | --- | --- | --- | --- |
+| `npm run test:unit -- --runInBand __tests__/scripts/release-candidate-manifest-consistency.test.ts __tests__/scripts/release-candidate-git-add-dry-run-plan.test.ts __tests__/scripts/release-candidate-human-commit-runbook.test.ts` | Valider les tests release régularisés | OK | 3 suites passées, 15 tests passés | Aucun | Obligatoire push review |
+| `npm run check:docs-archive` | Vérifier que les rapports historiques exclus ne sont pas à la racine `docs/` | OK | OK | Aucun | Obligatoire push review |
+| `npm run test:unit -- --runInBand __tests__/scripts/release-candidate-human-commit-runbook.test.ts` | Vérifier le runbook après inclusion preuves | OK | 1 suite passée, 5 tests passés | Aucun | Obligatoire push review |
+
+---
+
 ## Mise à jour Lot 14 — local commits 2026-07-06
 
 | Commande | Objectif | Statut actuel | Résultat observé | Blocage éventuel | Critère go-live |

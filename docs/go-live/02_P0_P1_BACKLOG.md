@@ -1,5 +1,23 @@
 # Backlog P0/P1 go-live
 
+## Mise à jour Lot 15 — 2026-07-06
+
+- Les 39 fichiers non suivis restants après Lot 14 ont été inventoriés.
+- 37 fichiers utiles RC ont été commités : 3 tests release et 34 preuves/reports Lots 9 à 13.
+- 2 fichiers restent exclus : `docs/audits/audit-nexus-reussite.md` et `rapport_audit_2_07_2026.md`.
+- Aucun fichier `REVIEW`.
+- Les 6 P1 restent visibles et non requalifiés.
+- Décision : `LOCAL_COMMITS_COMPLETE`, `READY_FOR_PUSH_REVIEW`, `BETA_CONTROLEE_ALLOWED_WITH_RESERVES`, `BETA_ELARGIE_BLOCKED`, `GO_LIVE_LARGE_BLOCKED`.
+
+Blocages maintenus :
+
+1. Redis/Upstash staging/production non prouvé.
+2. Test `429` runtime réel non exécuté.
+3. ContactLead dry-run DB non production non exécuté.
+4. ClicToPay disabled.
+
+---
+
 ## Mise à jour Lot 14 — 2026-07-06
 
 - Les 9 commits locaux du runbook Lot 11 ont été exécutés dans l'ordre demandé.

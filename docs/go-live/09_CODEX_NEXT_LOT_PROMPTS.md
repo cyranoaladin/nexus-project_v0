@@ -1,5 +1,34 @@
 # Prompts des prochains lots Codex
 
+## Mise à jour Lot 15 — prompt recommandé suivant
+
+Le prochain lot recommandé est une revue humaine finale avant push. Lot 15 indique `LOCAL_COMMITS_COMPLETE` et `READY_FOR_PUSH_REVIEW`, avec seulement deux exclusions non suivies documentées.
+
+```md
+Tu travailles dans `nexus-project_v0`. Les Lots 0 à 15 sont terminés avec réserves.
+
+Objectif : préparer la revue humaine finale avant push, sans push automatique, sans PR automatique et sans déploiement.
+
+Préconditions :
+- vérifier `git status --short --untracked-files=all` ;
+- vérifier que les seuls fichiers non suivis sont `docs/audits/audit-nexus-reussite.md` et `rapport_audit_2_07_2026.md` ;
+- vérifier `git diff --cached --name-only` vide ;
+- vérifier les 6 P1 dans `docs/go-live/api-security-matrix.full.md`.
+
+Actions :
+- ne pas pousser sans décision humaine explicite ;
+- ne pas créer de PR sans demande explicite ;
+- ne pas déployer et ne lancer aucune migration ;
+- refaire une vérification courte si push demandé : typecheck, lint, P1 matrix, staging vide.
+
+Décisions maintenues :
+- `BETA_CONTROLEE_ALLOWED_WITH_RESERVES` ;
+- `BETA_ELARGIE_BLOCKED` tant que Redis/Upstash et 429 runtime ne sont pas prouvés ;
+- `GO_LIVE_LARGE_BLOCKED`.
+```
+
+---
+
 ## Mise à jour Lot 14 — prompt recommandé suivant
 
 Le prochain lot recommandé est une revue humaine de push/PR, sans push automatique par Codex et sans déploiement. Lot 14 indique `LOCAL_COMMITS_EXECUTED` et `READY_FOR_PUSH_REVIEW`.
