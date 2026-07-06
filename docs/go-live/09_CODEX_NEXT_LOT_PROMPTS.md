@@ -577,6 +577,30 @@ Actions :
 Décision : bêta élargie reste interdite si Redis/Upstash ou 429 runtime ne sont pas prouvés.
 ```
 
+## Prompt Lot 17 — création PR manuelle et revue GitHub
+
+```md
+Tu travailles dans `nexus-project_v0`. Lot 16 a pousse la branche de travail vers `origin` sans PR automatique, sans deploiement et sans migration.
+
+Objectif : preparer la revue PR humaine, sans merge automatique.
+
+Preconditions :
+- relire `AGENTS.md`, `docs/go-live/30_LOT16_FINAL_DIFF_AND_PUSH_REVIEW.md`, `docs/go-live/_evidence/lot16-post-push-status.md` ;
+- verifier que la branche distante correspond au HEAD local pousse ;
+- verifier que seuls `docs/audits/audit-nexus-reussite.md` et `rapport_audit_2_07_2026.md` restent exclus localement ;
+- confirmer les 6 P1 visibles dans `docs/go-live/api-security-matrix.full.md`.
+
+Actions :
+- produire un resume PR humain : perimetre, commits, gates, risques, exclusions ;
+- ne pas creer de PR sauf demande explicite ;
+- ne pas deployer ;
+- ne pas lancer de migration ;
+- ne pas requalifier les P1 ;
+- ne jamais conclure go-live large autorise.
+
+Decision attendue : `READY_FOR_PR_CREATION_REVIEW`; `BETA_CONTROLEE_ALLOWED_WITH_RESERVES`; `BETA_ELARGIE_BLOCKED`; `GO_LIVE_LARGE_BLOCKED`.
+```
+
 ## Prompt Lot 13 — exécution humaine contrôlée des commits
 
 ```md

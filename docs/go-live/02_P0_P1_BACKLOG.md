@@ -524,6 +524,26 @@ Backlog bloquant restant :
 
 Décision : `BETA_CONTROLEE_ALLOWED_WITH_RESERVES`; `BETA_ELARGIE_BLOCKED`; `GO_LIVE_LARGE_BLOCKED`.
 
+# Mise à jour Lot 16 — 2026-07-06
+
+Lot 16 ne requalifie aucune route et ne ferme aucun P1.
+
+- `P0=0` maintenu.
+- `P1=6` maintenus et visibles dans `docs/go-live/api-security-matrix.full.md`.
+- Revue finale du diff : `main...HEAD`, 329 fichiers, 21 339 insertions, 1 258 suppressions avant commit documentaire Lot 16.
+- Staging Git vide au demarrage Lot 16.
+- Seuls fichiers non suivis acceptes : `docs/audits/audit-nexus-reussite.md` et `rapport_audit_2_07_2026.md`.
+- Push de la branche autorise uniquement apres gates minimales vertes et re-verification pre-push.
+
+Blocages maintenus :
+
+1. Redis/Upstash staging/production non prouve.
+2. Test `429` runtime reel non execute.
+3. ContactLead dry-run DB non production non execute.
+4. Les 6 P1 publics/paiement restent bloquants pour beta elargie et go-live large.
+
+Decision : `READY_TO_PUSH_BRANCH` sous reserve des gates pre-push ; `BETA_CONTROLEE_ALLOWED_WITH_RESERVES`; `BETA_ELARGIE_BLOCKED`; `GO_LIVE_LARGE_BLOCKED`.
+
 # Mise à jour Lot 8 — 2026-07-03
 
 Lot 8 a nettoyé la préparation release candidate sans fermer de P1 :

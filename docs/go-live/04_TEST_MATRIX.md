@@ -389,3 +389,14 @@ Les commandes finales complètes Lot 1 restent la source de vérité finale du v
 | `npm run test:unit -- --runInBand __tests__/scripts/release-candidate-human-commit-runbook.test.ts` | Vérifier que le runbook humain n'inclut pas de fichier exclu ou en revue humaine dans les commits standards | OK | 1 suite passée, 5 tests passés | Ne remplace pas les preuves runtime Redis/Upstash, 429 et ContactLead DB | Obligatoire human execution |
 | Runtime variables presence check | Tenter preuves assistées sans secret | PARTIEL | `NEXUS_HEALTH_AUTH_ABSENT`, `RL_PROBE_NOT_ALLOWED`, `DATABASE_URL_ABSENT`, `CONTACT_LEAD_DRY_RUN_NOT_ALLOWED` | Preuves non exécutées | Bloquant bêta élargie/go-live large |
 | Revue `docs/audits/audit-nexus-reussite.md` | Décider inclusion/exclusion audit humain | OK documentaire | `EXCLUDE_FROM_STANDARD_COMMITS` car `173 routes` et statut sécurité obsolète | Décision humaine requise pour inclusion historique ou réécriture | Obligatoire avant commit humain |
+
+## Mise à jour Lot 16 — final diff et pre-push
+
+| Commande | Objectif | Statut actuel | Resultat observe | Blocage eventuel | Critere go-live |
+| --- | --- | --- | --- | --- | --- |
+| `git diff --stat main...HEAD` | Resumer le diff a pousser | OK | `329 files changed, 21339 insertions(+), 1258 deletions(-)` avant commit documentaire Lot 16 | Revue humaine PR toujours requise | Obligatoire push review |
+| `git status --short --untracked-files=all` | Verifier le worktree pre-push | OK | seuls `docs/audits/audit-nexus-reussite.md` et `rapport_audit_2_07_2026.md` non suivis | Exclusions a ne pas ajouter | Obligatoire push review |
+| `npm run typecheck` | Gate pre-push minimale | OK | PASSED sous Node 20 | Aucun | Obligatoire push review |
+| `npm run lint` | Gate pre-push minimale | OK | PASSED sous Node 20 avec warnings existants sous seuil | Warnings a traiter hors Lot 16 | Obligatoire push review |
+| `npm run test:unit -- --runInBand __tests__/scripts/release-candidate-human-commit-runbook.test.ts` | Verrou runbook humain | OK | PASSED, 1 suite, 5 tests | Aucun | Obligatoire push review |
+| `npm run check:docs-archive` | Verifier archives docs | OK | PASSED | Aucun | Obligatoire push review |

@@ -507,3 +507,14 @@ La matrice complète a été régénérée depuis `docs/security/API_GUARD_INVEN
 | Total | 176 |
 
 Le Top 20 opérationnel pointe désormais vers les P1 restants dans `docs/go-live/api-security-matrix.full.md`. Les routes P0 historiques ne sont pas déclarées “go-live ready” par simple statique : leur fermeture est documentée dans `docs/go-live/11_LOT1_SECURITY_CLOSURE.md`.
+
+## Mise à jour Lot 16 — 2026-07-06
+
+Lot 16 ne modifie pas la classification API.
+
+- Etat courant : `P0=0`, `P1=6`, `P2=144`, `OK=28`, total `178`.
+- Les 6 P1 restent visibles dans `docs/go-live/api-security-matrix.full.md`.
+- La revue finale avant push confirme que les fichiers exclus `docs/audits/audit-nexus-reussite.md` et `rapport_audit_2_07_2026.md` restent hors staging.
+- Aucune route P1 n'est requalifiee pour le push review.
+
+Decision : `READY_TO_PUSH_BRANCH` seulement apres gates pre-push vertes ; beta elargie et go-live large restent bloques.
