@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { CGV_POLICY } from '@/lib/cgv-policy';
 
 test.describe('Bilan Gratuit — Formulaire stratégique', () => {
   test.beforeEach(async ({ page }) => {
@@ -58,7 +59,7 @@ test.describe('Bilan Gratuit — Formulaire stratégique', () => {
     await expect(page.locator('a[href*="wa.me"]').first()).toBeVisible();
   });
 
-  test('offre repérée et paiement carte sont présents dans le HTML initial', async ({ page }) => {
+  test('offre repérée visible sans exposition ClicToPay ni RIB public', async ({ page }) => {
     const response = await page.request.get('/bilan-gratuit?offer=term-spe-simple');
     expect(response.status()).toBe(200);
 
@@ -66,9 +67,19 @@ test.describe('Bilan Gratuit — Formulaire stratégique', () => {
     expect(html).not.toContain('BAILOUT_TO_CLIENT_SIDE_RENDERING');
     expect(html).toContain('Offre repérée');
     expect(html).toContain('Terminale Spécialité simple');
-    expect(html).toContain('ClicToPay');
-    expect(html).toContain('Banque Zitouna');
+    expect(html).toContain('Paiement confirmé après validation pédagogique');
+    expect(html).not.toContain(CGV_POLICY.payment.provider);
+    expect(html).not.toContain(CGV_POLICY.payment.bank);
     expect(html).not.toContain('25 079 000 0001569084 04');
     expect(html).not.toContain('TN59 25 079 000 0001569084 04');
+  });
+
+  test('analytics non essentiels absents du HTML initial sans opt-in explicite', async ({ page }) => {
+    const response = await page.request.get('/bilan-gratuit');
+    expect(response.status()).toBe(200);
+
+    const html = await response.text();
+    expect(html).not.toContain('googletagmanager.com/gtag/js');
+    expect(html).not.toContain('gtag-init');
   });
 });

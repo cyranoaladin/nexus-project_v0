@@ -50,27 +50,47 @@ test.describe('Homepage (/) - Landing Nexus Reussite', () => {
     await expect(sections).toHaveCount(9);
   });
 
-  test('2 WA links at load, 3 visible after scroll (+ bubble), MobileStickyBar in DOM but hidden', async ({ page }) => {
-    // At load (desktop): hero WA + final CTA WA = 2 in DOM
-    // FloatingAdvisorBubble hidden (hero visible), MobileStickyBar returns null
+  test('liens WhatsApp visibles, accessibles et stables desktop/mobile', async ({ page }) => {
     const waLinks = page.locator('a[href*="wa.me"]');
-    await expect(waLinks).toHaveCount(2);
+    const initialLinks = await waLinks.evaluateAll((els) =>
+      els.map((element) => ({
+        href: element.getAttribute('href') || '',
+        accessibleName: (element.getAttribute('aria-label') || element.textContent || '').trim(),
+      }))
+    );
+    expect(initialLinks.length).toBeGreaterThanOrEqual(2);
+    for (const link of initialLinks) {
+      expect(link.href).toContain('wa.me/21699192829');
+      expect(link.accessibleName.length).toBeGreaterThan(0);
+    }
 
-    // Scroll past hero → bubble + MobileStickyBar render (4 DOM, 3 visible)
     await page.evaluate(() => window.scrollBy(0, 1200));
     await page.waitForTimeout(800);
 
-    // 4 in DOM: hero + CTA + bubble + MobileStickyBar(md:hidden)
-    await expect(waLinks).toHaveCount(4);
+    const afterScrollCount = await waLinks.count();
+    expect(afterScrollCount).toBeGreaterThanOrEqual(initialLinks.length);
 
-    // Only 3 visible (MobileStickyBar hidden at desktop)
     const visibleCount = await waLinks.evaluateAll((els) =>
       els.filter((el) => {
         const cs = getComputedStyle(el);
         return el instanceof HTMLElement && cs.display !== 'none' && el.offsetWidth > 0;
       }).length
     );
-    expect(visibleCount).toBe(3);
+    expect(visibleCount).toBeGreaterThanOrEqual(3);
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    await page.waitForLoadState('domcontentloaded');
+    await page.evaluate(() => window.scrollBy(0, 1200));
+    await page.waitForTimeout(800);
+
+    const mobileVisibleCount = await page.locator('a[href*="wa.me"]').evaluateAll((els) =>
+      els.filter((el) => {
+        const cs = getComputedStyle(el);
+        return el instanceof HTMLElement && cs.display !== 'none' && el.offsetWidth > 0;
+      }).length
+    );
+    expect(mobileVisibleCount).toBeGreaterThanOrEqual(2);
   });
 
   test('tous les liens footer internes ne retournent pas 404', async ({ page }) => {

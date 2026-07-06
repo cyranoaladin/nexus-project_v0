@@ -8,6 +8,9 @@ const baseURL =
   process.env.PLAYWRIGHT_TEST_BASE_URL ??
   'http://127.0.0.1:3002';
 
+const webServerUrl = new URL(baseURL);
+const webServerPort = webServerUrl.port || (webServerUrl.protocol === 'https:' ? '443' : '80');
+
 const e2eDatabaseUrl =
   process.env.E2E_DATABASE_URL ??
   'postgresql://postgres:postgres@127.0.0.1:5435/nexus_e2e?schema=public';
@@ -47,14 +50,14 @@ export default defineConfig({
         webServer: {
           command: 'node .next/standalone/server.js',
           env: {
-            HOSTNAME: '127.0.0.1',
-            PORT: '3002',
-            NEXTAUTH_URL: 'http://127.0.0.1:3002',
+            HOSTNAME: webServerUrl.hostname,
+            PORT: webServerPort,
+            NEXTAUTH_URL: baseURL,
             DATABASE_URL: e2eDatabaseUrl,
             TEST_DATABASE_URL: e2eDatabaseUrl,
           },
           url: baseURL,
-          reuseExistingServer: true,
+          reuseExistingServer: process.env.PLAYWRIGHT_REUSE_EXISTING_SERVER === 'true',
           timeout: 120_000,
         },
       }),
