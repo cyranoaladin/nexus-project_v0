@@ -5,8 +5,16 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { isCoachRattachedToStudent } from '@/lib/rbac/coach-student-access';
+import { z } from 'zod';
 
 const MAX_BODY_LENGTH = 4000;
+const routeParamsSchema = z.object({
+  studentId: z.string().trim().min(1).max(100).regex(/^[A-Za-z0-9_-]+$/),
+}).strict();
+const createNoteSchema = z.object({
+  body: z.string().trim().min(1).max(MAX_BODY_LENGTH),
+  pinned: z.boolean().optional().default(false),
+}).strict();
 
 /**
  * GET /api/coach/students/[studentId]/notes
@@ -30,10 +38,11 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const { studentId } = await context.params;
-    if (!studentId) {
+    const parsedParams = routeParamsSchema.safeParse(await context.params);
+    if (!parsedParams.success) {
       return NextResponse.json({ error: 'studentId required' }, { status: 400 });
     }
+    const { studentId } = parsedParams.data;
 
     if (role === 'COACH') {
       const allowed = await isCoachRattachedToStudent(session.user.id, studentId);
@@ -90,10 +99,11 @@ export async function POST(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const { studentId } = await context.params;
-    if (!studentId) {
+    const parsedParams = routeParamsSchema.safeParse(await context.params);
+    if (!parsedParams.success) {
       return NextResponse.json({ error: 'studentId required' }, { status: 400 });
     }
+    const { studentId } = parsedParams.data;
 
     const allowed = await isCoachRattachedToStudent(session.user.id, studentId);
     if (!allowed) {
@@ -107,24 +117,18 @@ export async function POST(
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
 
-    const data = payload as { body?: unknown; pinned?: unknown };
-    if (typeof data.body !== 'string' || data.body.trim().length === 0) {
-      return NextResponse.json({ error: 'body must be a non-empty string' }, { status: 400 });
+    const parsedPayload = createNoteSchema.safeParse(payload);
+    if (!parsedPayload.success) {
+      return NextResponse.json({ error: 'Invalid note payload' }, { status: 400 });
     }
-    if (data.body.length > MAX_BODY_LENGTH) {
-      return NextResponse.json(
-        { error: `body too long (max ${MAX_BODY_LENGTH} chars)` },
-        { status: 400 },
-      );
-    }
-    const pinned = typeof data.pinned === 'boolean' ? data.pinned : false;
+    const data = parsedPayload.data;
 
     const note = await prisma.coachNote.create({
       data: {
         studentId,
         coachId: session.user.id,
-        body: data.body.trim(),
-        pinned,
+        body: data.body,
+        pinned: data.pinned,
       },
       select: {
         id: true,

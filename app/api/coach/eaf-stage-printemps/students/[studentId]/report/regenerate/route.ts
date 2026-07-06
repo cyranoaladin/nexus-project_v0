@@ -19,9 +19,9 @@ import {
 } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
-import { COACH_EAF_META } from '@/lib/coach/eaf-stage-printemps/types';
 import type { CoachEafSourceData } from '@/lib/coach/eaf-stage-printemps/types';
 import { generateLLMParentEafReport } from '@/lib/coach/eaf-stage-printemps/llm-report';
+import { z } from 'zod';
 
 export const maxDuration = 200;
 
@@ -33,13 +33,23 @@ interface RouteParams {
   params: Promise<{ studentId: string }>;
 }
 
+const routeParamsSchema = z.object({
+  studentId: z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/),
+}).strict();
+
+function validationFailed() {
+  return NextResponse.json({ error: 'Données invalides' }, { status: 400 });
+}
+
 export async function POST(_request: Request, { params }: RouteParams) {
   try {
-    const { studentId } = await params;
-
     const sessionOrError = await requireRole('COACH');
     if (isErrorResponse(sessionOrError)) return sessionOrError;
     const authSession = sessionOrError;
+
+    const parsedParams = routeParamsSchema.safeParse(await params);
+    if (!parsedParams.success) return validationFailed();
+    const { studentId } = parsedParams.data;
 
     try {
       await assertCoachCanAccessStudent({ coachUserId: authSession.user.id, studentId });

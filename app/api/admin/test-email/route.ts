@@ -3,22 +3,46 @@ export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
 import { sendWelcomeEmail, testEmailConfiguration } from '@/lib/email-service';
+import type { AuthSession } from '@/lib/guards';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
+const testEmailBodySchema = z.discriminatedUnion('action', [
+  z.object({ action: z.literal('test_config') }).strict(),
+  z.object({
+    action: z.literal('send_test'),
+    testEmail: z.string().trim().email().max(254),
+  }).strict(),
+]);
+
+function requireAdmin(session: AuthSession | null) {
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+  }
+  if (session.user.role !== 'ADMIN') {
+    return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
+  }
+  return null;
+}
 
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
+    const guard = requireAdmin(session as AuthSession | null);
+    if (guard) return guard;
 
-    // Vérifier que l'utilisateur est admin ou assistante
-    if (!session?.user || !['ADMIN', 'ASSISTANTE'].includes(session.user.role)) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+    let json: unknown;
+    try {
+      json = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Payload invalide' }, { status: 400 });
     }
-
-    const body = (await request.json()) as {
-      action?: 'test_config' | 'send_test';
-      testEmail?: string;
-    };
-    const { action, testEmail } = body;
+    const parsedBody = testEmailBodySchema.safeParse(json);
+    if (!parsedBody.success) {
+      return NextResponse.json({ success: false, error: 'Payload invalide' }, { status: 400 });
+    }
+    const body = parsedBody.data;
+    const { action } = body;
 
     switch (action) {
       case 'test_config':
@@ -28,30 +52,22 @@ export async function POST(request: NextRequest) {
 
       case 'send_test':
         // Envoyer un email de test
-        if (!testEmail) {
-          return NextResponse.json({
-            success: false,
-            error: 'Adresse email requise pour le test'
-          }, { status: 400 });
-        }
-
         try {
           await sendWelcomeEmail({
             firstName: 'Test',
             lastName: 'User',
-            email: testEmail
+            email: body.testEmail
           });
 
           return NextResponse.json({
             success: true,
-            message: `Email de test envoyé à ${testEmail}`
+            message: 'Email de test envoyé'
           });
         } catch (emailError: unknown) {
-          const message =
-            emailError instanceof Error ? emailError.message : 'Erreur inconnue';
+          console.error('Erreur envoi email test:', serializeError(emailError));
           return NextResponse.json({
             success: false,
-            error: `Erreur envoi email: ${message}`
+            error: 'Erreur envoi email'
           });
         }
 
@@ -73,10 +89,8 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const session = await auth();
-
-    if (!session?.user || !['ADMIN', 'ASSISTANTE'].includes(session.user.role)) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
-    }
+    const guard = requireAdmin(session as AuthSession | null);
+    if (guard) return guard;
 
     // Retourner l'état de la configuration email
     const envVars = [

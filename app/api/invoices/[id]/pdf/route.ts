@@ -16,7 +16,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { readInvoicePDF, verifyAccessToken } from '@/lib/invoice';
-import { notFoundResponse, buildInvoiceScopeWhere } from '@/lib/invoice/not-found';
+import { notFoundResponse, buildInvoiceAccessWhere } from '@/lib/invoice/not-found';
 
 /**
  * Stream a PDF response from a buffer.
@@ -68,10 +68,11 @@ export async function GET(
       return notFoundResponse();
     }
 
-    const userRole = (session.user as { role?: string }).role;
-    const userEmail = session.user.email;
-
-    const scopeWhere = buildInvoiceScopeWhere(id, userRole, userEmail);
+    const scopeWhere = await buildInvoiceAccessWhere(id, {
+      id: session.user.id,
+      role: (session.user as { role?: string }).role,
+      email: session.user.email,
+    });
     if (!scopeWhere) {
       return notFoundResponse();
     }

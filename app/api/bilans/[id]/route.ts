@@ -15,11 +15,42 @@ import {
   buildBilanWriteWhere,
   sanitizeBilanForRole,
 } from '@/lib/security/ownership';
+import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
+}
+
+const routeParamsSchema = z.object({
+  id: z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/),
+}).strict();
+
+const updateBilanBodySchema = z.object({
+  status: z.string().trim().min(1).max(80).optional(),
+  progress: z.number().int().min(0).max(100).optional(),
+  globalScore: z.number().min(0).max(100).optional(),
+  confidenceIndex: z.number().min(0).max(100).optional(),
+  ssn: z.number().optional(),
+  uai: z.number().optional(),
+  domainScores: z.unknown().optional(),
+  studentMarkdown: z.string().max(80_000).optional(),
+  parentsMarkdown: z.string().max(80_000).optional(),
+  nexusMarkdown: z.string().max(80_000).optional(),
+  analysisJson: z.unknown().optional(),
+  isPublished: z.boolean().optional(),
+  errorCode: z.string().trim().max(120).nullable().optional(),
+  errorDetails: z.string().trim().max(2000).nullable().optional(),
+  retryCount: z.number().int().min(0).max(20).optional(),
+  ragUsed: z.boolean().optional(),
+  ragCollections: z.array(z.string().trim().min(1).max(120)).max(20).optional(),
+  sourceVersion: z.string().trim().max(120).optional(),
+  engineVersion: z.string().trim().max(120).optional(),
+}).strict();
+
+function validationFailed() {
+  return NextResponse.json({ success: false, error: 'Données invalides' }, { status: 400 });
 }
 
 /**
@@ -31,7 +62,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   if (isErrorResponse(authResponse)) return authResponse;
 
   try {
-    const { id } = await params;
+    const parsedParams = routeParamsSchema.safeParse(await params);
+    if (!parsedParams.success) return validationFailed();
+    const { id } = parsedParams.data;
     const where = buildBilanReadWhere(id, authResponse.user);
     if (!where) {
       return NextResponse.json(
@@ -86,8 +119,12 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   if (isErrorResponse(authResponse)) return authResponse;
 
   try {
-    const { id } = await params;
-    const body = await request.json();
+    const parsedParams = routeParamsSchema.safeParse(await params);
+    if (!parsedParams.success) return validationFailed();
+    const parsedBody = updateBilanBodySchema.safeParse(await request.json());
+    if (!parsedBody.success) return validationFailed();
+    const { id } = parsedParams.data;
+    const body = parsedBody.data;
     const where = buildBilanWriteWhere(id, authResponse.user);
     if (!where) {
       return NextResponse.json(
@@ -162,7 +199,9 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
   if (isErrorResponse(authResponse)) return authResponse;
 
   try {
-    const { id } = await params;
+    const parsedParams = routeParamsSchema.safeParse(await params);
+    if (!parsedParams.success) return validationFailed();
+    const { id } = parsedParams.data;
 
     // Check bilan exists
     const existing = await prisma.bilan.findUnique({ where: { id } });

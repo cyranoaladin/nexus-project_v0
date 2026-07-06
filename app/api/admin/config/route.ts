@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireRole, requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
+import { z } from 'zod';
 import {
   getAllEntries,
   applyWrite,
@@ -25,6 +26,12 @@ import type { AuthSession } from '@/lib/guards';
 // share the same lock — config changes are rare (admin-only), so
 // serialization is the simplest correct solution for cross-key invariants.
  // arbitrary stable int
+
+const configPatchSchema = z.object({
+  namespace: z.string().trim().min(1).max(120),
+  key: z.string().trim().min(1).max(180),
+  value: z.unknown(),
+}).strict();
 
 export async function GET() {
   const auth = await requireAnyRole(['ADMIN', 'ASSISTANTE']);
@@ -73,20 +80,21 @@ export async function PATCH(request: NextRequest) {
   if (isErrorResponse(auth)) return auth;
   const session = auth as AuthSession;
 
-  let body: { namespace: string; key: string; value: unknown };
+  let json: unknown;
   try {
-    body = await request.json();
+    json = await request.json();
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const { namespace, key, value } = body;
-  if (typeof namespace !== 'string' || !namespace || typeof key !== 'string' || !key || value === undefined) {
+  const parsedBody = configPatchSchema.safeParse(json);
+  if (!parsedBody.success) {
     return NextResponse.json(
       { error: 'Missing required fields: namespace, key, value' },
       { status: 400 },
     );
   }
+  const { namespace, key, value } = parsedBody.data;
 
   // Per-key Zod validation (stateless — can run outside transaction)
   const validation = validateConfigEntry(namespace, key, value);

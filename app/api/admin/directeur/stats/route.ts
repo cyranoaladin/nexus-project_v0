@@ -8,8 +8,11 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { isErrorResponse, requireRole } from '@/lib/guards';
+import { guardRateLimitAsync } from '@/lib/rate-limit';
+import { UserRole } from '@prisma/client';
+import { z } from 'zod';
 
 interface KPIData {
   totalAssessments: number;
@@ -36,18 +39,27 @@ interface AlertEntry {
   assessmentId: string;
 }
 
+const statsQuerySchema = z.object({}).strict();
+
 export async function GET(request: NextRequest) {
   try {
     // RBAC Guard: ADMIN only
-    const session = await auth();
-    const userRole = (session?.user as { role?: string })?.role;
+    const sessionOrError = await requireRole(UserRole.ADMIN);
+    if (isErrorResponse(sessionOrError)) return sessionOrError;
 
-    if (!session || userRole !== 'ADMIN') {
+    const query = Object.fromEntries(request.nextUrl.searchParams.entries());
+    if (!statsQuerySchema.safeParse(query).success) {
       return NextResponse.json(
-        { success: false, error: 'Accès non autorisé. Rôle ADMIN requis.' },
-        { status: 403 }
+        { success: false, error: 'Paramètres invalides' },
+        { status: 400 }
       );
     }
+
+    const rateLimited = await guardRateLimitAsync(request, {
+      preset: 'api',
+      keySuffix: 'admin-directeur-stats',
+    });
+    if (rateLimited) return rateLimited;
 
     // ─── KPIs ─────────────────────────────────────────────────────────────
 
