@@ -5,6 +5,11 @@ import { auth } from '@/auth';
 import { resolveStudentScope } from '@/lib/scopes';
 import { getActiveTrajectory } from '@/lib/trajectory';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
+const trajectoryQuerySchema = z.object({
+  studentId: z.string().trim().min(1).max(100).regex(/^[A-Za-z0-9_-]+$/).optional(),
+}).strict();
 
 /**
  * GET /api/student/trajectory?studentId=...
@@ -30,7 +35,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const { role, id: userId } = session.user;
+    const role = session.user.role;
+    const userId = session.user.id;
 
     if (!['ELEVE', 'PARENT', 'ADMIN', 'ASSISTANTE'].includes(role)) {
       return NextResponse.json(
@@ -39,7 +45,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const studentId = request.nextUrl.searchParams.get('studentId') || undefined;
+    const parsedQuery = trajectoryQuerySchema.safeParse({
+      studentId: request.nextUrl.searchParams.get('studentId') || undefined,
+    });
+    if (!parsedQuery.success) {
+      return NextResponse.json({ error: 'Paramètres invalides' }, { status: 400 });
+    }
+    const { studentId } = parsedQuery.data;
 
     const scope = await resolveStudentScope(
       { id: userId, role },

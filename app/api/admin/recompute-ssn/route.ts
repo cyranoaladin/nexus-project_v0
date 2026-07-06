@@ -9,29 +9,34 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
 import { recomputeSSNBatch } from '@/lib/core/ssn/computeSSN';
 import { computeCohortStatsWithAudit } from '@/lib/core/statistics/cohort';
+import { isErrorResponse, requireRole } from '@/lib/guards';
+import { guardRateLimitAsync } from '@/lib/rate-limit';
+import { UserRole } from '@prisma/client';
+import { z } from 'zod';
 
-const VALID_TYPES = ['MATHS', 'NSI', 'GENERAL'];
+const VALID_TYPES = ['MATHS', 'NSI', 'GENERAL'] as const;
+const recomputeSsnSchema = z.object({
+  type: z.enum(VALID_TYPES),
+}).strict();
 
 export async function POST(request: NextRequest) {
   try {
     // RBAC Guard: ADMIN only
-    const session = await auth();
-    const userRole = (session?.user as { role?: string })?.role;
+    const sessionOrError = await requireRole(UserRole.ADMIN);
+    if (isErrorResponse(sessionOrError)) return sessionOrError;
 
-    if (!session || userRole !== 'ADMIN') {
-      return NextResponse.json(
-        { success: false, error: 'Accès non autorisé. Rôle ADMIN requis.' },
-        { status: 403 }
-      );
-    }
+    const rateLimited = await guardRateLimitAsync(request, {
+      preset: 'api',
+      keySuffix: 'admin-recompute-ssn',
+    });
+    if (rateLimited) return rateLimited;
 
-    const body = await request.json();
-    const { type } = body;
-
-    if (!type || !VALID_TYPES.includes(type)) {
+    let json: unknown;
+    try {
+      json = await request.json();
+    } catch {
       return NextResponse.json(
         {
           success: false,
@@ -40,6 +45,18 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    const parsedBody = recomputeSsnSchema.safeParse(json);
+    if (!parsedBody.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Type invalide. Valeurs acceptées : ${VALID_TYPES.join(', ')}`,
+        },
+        { status: 400 }
+      );
+    }
+    const { type } = parsedBody.data;
 
     // Compute audit log (before/after stats)
     const auditEntry = await computeCohortStatsWithAudit(type);

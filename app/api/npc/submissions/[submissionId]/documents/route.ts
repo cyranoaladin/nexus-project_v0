@@ -14,12 +14,22 @@ import {
 import type { FileMetadata } from '@/lib/npc/storage';
 import { isCorrectionDocumentType } from '@/lib/npc/document-types';
 import { canManageSubmissionDocuments, canReadSubmission } from '@/lib/npc/access';
+import { z } from 'zod';
 
 interface RouteParams {
   params: Promise<{ submissionId: string }>;
 }
 
 const MAX_FILES_PER_SUBMISSION = 20;
+const routeParamsSchema = z.object({
+  submissionId: z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/),
+}).strict();
+
+const documentTypeSchema = z.string().refine(isCorrectionDocumentType);
+
+function invalidParamsResponse() {
+  return NextResponse.json({ error: 'Invalid route params' }, { status: 400 });
+}
 
 function sanitizeCopyPage(page: Record<string, unknown>) {
   const {
@@ -92,7 +102,9 @@ export async function GET(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { submissionId } = await params;
+  const parsedParams = routeParamsSchema.safeParse(await params);
+  if (!parsedParams.success) return invalidParamsResponse();
+  const { submissionId } = parsedParams.data;
   const submission = await prisma.copySubmission.findUnique({
     where: { id: submissionId },
     select: {
@@ -130,7 +142,9 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { submissionId } = await params;
+    const parsedParams = routeParamsSchema.safeParse(await params);
+    if (!parsedParams.success) return invalidParamsResponse();
+    const { submissionId } = parsedParams.data;
     const submission = await getSubmission(submissionId);
     if (!submission) {
       return NextResponse.json({ error: 'Submission not found' }, { status: 404 });
@@ -141,13 +155,14 @@ export async function POST(
     }
 
     const formData = await request.formData();
-    const documentType = formData.get('documentType') || 'STUDENT_COPY';
-    if (!isCorrectionDocumentType(documentType)) {
+    const parsedDocumentType = documentTypeSchema.safeParse(formData.get('documentType') || 'STUDENT_COPY');
+    if (!parsedDocumentType.success) {
       return NextResponse.json(
         { error: 'Invalid document type' },
         { status: 400 }
       );
     }
+    const documentType = parsedDocumentType.data;
 
     const files = formData.getAll('file').filter((value): value is File => value instanceof File);
     if (files.length === 0) {

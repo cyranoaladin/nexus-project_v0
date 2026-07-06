@@ -1,4 +1,3 @@
-import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * POST /api/student/activate
  *
@@ -20,15 +19,22 @@ import {
   completeStudentActivation,
   verifyActivationToken,
 } from '@/lib/services/student-activation.service';
+import { guardRateLimitAsync } from '@/lib/rate-limit';
 import { z } from 'zod';
 
 const setPasswordSchema = z.object({
   token: z.string().min(1, 'Token requis'),
   password: z.string().min(8, 'Le mot de passe doit contenir au moins 8 caractères'),
-});
+}).strict();
 
 export async function GET(request: NextRequest) {
   try {
+    const rateLimited = await guardRateLimitAsync(request, {
+      preset: 'auth',
+      keySuffix: 'student-activate',
+    });
+    if (rateLimited) return rateLimited;
+
     const { searchParams } = new URL(request.url);
     const token = searchParams.get('token');
 
@@ -42,7 +48,7 @@ export async function GET(request: NextRequest) {
     const result = await verifyActivationToken(token);
     return NextResponse.json(result);
   } catch (error) {
-    console.error('[API] verify activation token error:', serializeError(error));
+    console.error('[API] verify activation token error', error instanceof Error ? error.name : 'unknown');
     return NextResponse.json(
       { valid: false, error: 'Erreur interne' },
       { status: 500 }
@@ -52,12 +58,18 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const rateLimited = await guardRateLimitAsync(request, {
+      preset: 'auth',
+      keySuffix: 'student-activate',
+    });
+    if (rateLimited) return rateLimited;
+
     const body = await request.json();
     const parsed = setPasswordSchema.safeParse(body);
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: 'Données invalides', details: parsed.error.flatten().fieldErrors },
+        { error: 'Données invalides' },
         { status: 400 }
       );
     }
@@ -80,7 +92,7 @@ export async function POST(request: NextRequest) {
       message: 'Compte activé avec succès ! Vous pouvez maintenant vous connecter.',
     });
   } catch (error) {
-    console.error('[API] complete activation error:', serializeError(error));
+    console.error('[API] complete activation error', error instanceof Error ? error.name : 'unknown');
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
       { status: 500 }

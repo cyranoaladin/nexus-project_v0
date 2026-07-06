@@ -9,6 +9,7 @@
  */
 
 import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
 /** Canonical 404 JSON body — frozen, never varies. */
 const NOT_FOUND_BODY = { error: 'NOT_FOUND' } as const;
@@ -48,4 +49,56 @@ export function buildInvoiceScopeWhere(
     return { id, customerEmail: email };
   }
   return null;
+}
+
+type InvoiceAccessUser = {
+  id: string;
+  role?: string | null;
+  email?: string | null;
+};
+
+/**
+ * Build a Prisma WHERE clause scoped to the authenticated user.
+ *
+ * Parent access is based on child beneficiary user ids when available, with a
+ * legacy customerEmail fallback for older invoices that predate beneficiaryUserId.
+ */
+export async function buildInvoiceAccessWhere(
+  id: string,
+  user: InvoiceAccessUser
+): Promise<Record<string, unknown> | null> {
+  if (user.role === 'ADMIN' || user.role === 'ASSISTANTE') {
+    return { id };
+  }
+
+  if (user.role !== 'PARENT') {
+    return null;
+  }
+
+  const parentProfile = await prisma.parentProfile.findUnique({
+    where: { userId: user.id },
+    select: {
+      children: {
+        select: { userId: true },
+      },
+    },
+  });
+
+  const childUserIds = parentProfile?.children
+    .map((child) => child.userId)
+    .filter((childUserId): childUserId is string => Boolean(childUserId)) ?? [];
+
+  const ownershipFilters: Record<string, unknown>[] = [];
+  if (childUserIds.length > 0) {
+    ownershipFilters.push({ beneficiaryUserId: { in: childUserIds } });
+  }
+  if (user.email) {
+    ownershipFilters.push({ customerEmail: user.email });
+  }
+
+  if (ownershipFilters.length === 0) {
+    return null;
+  }
+
+  return { id, OR: ownershipFilters };
 }

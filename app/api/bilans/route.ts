@@ -8,9 +8,40 @@ import { serializeError } from '@/lib/utils/serialize-error';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
-import type { BilanType, BilanStatus, CreateBilanInput } from '@/lib/bilan/types';
+import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
+
+const listBilansQuerySchema = z.object({
+  type: z.string().trim().min(1).max(80).optional(),
+  status: z.string().trim().min(1).max(80).optional(),
+  subject: z.string().trim().min(1).max(80).optional(),
+  studentId: z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/).optional(),
+  stageId: z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/).optional(),
+  coachId: z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/).optional(),
+  isPublished: z.enum(['true', 'false']).optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+  offset: z.coerce.number().int().min(0).max(100_000).default(0),
+}).strict();
+
+const createBilanBodySchema = z.object({
+  type: z.string().trim().min(1).max(80),
+  subject: z.string().trim().min(1).max(80),
+  studentEmail: z.string().trim().email(),
+  studentName: z.string().trim().min(1).max(180),
+  studentPhone: z.string().trim().max(80).optional(),
+  studentId: z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/).optional(),
+  stageId: z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/).optional(),
+  coachId: z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/).optional(),
+  sourceData: z.record(z.unknown()).optional(),
+  globalScore: z.number().min(0).max(100).optional(),
+  confidenceIndex: z.number().min(0).max(100).optional(),
+  domainScores: z.unknown().optional(),
+}).strict();
+
+function validationFailed() {
+  return NextResponse.json({ success: false, error: 'Données invalides' }, { status: 400 });
+}
 
 /**
  * GET /api/bilans
@@ -24,16 +55,9 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
 
-    // Parse filters
-    const type = searchParams.get('type') as BilanType | null;
-    const status = searchParams.get('status') as BilanStatus | null;
-    const subject = searchParams.get('subject');
-    const studentId = searchParams.get('studentId');
-    const stageId = searchParams.get('stageId');
-    const coachId = searchParams.get('coachId');
-    const isPublished = searchParams.get('isPublished');
-    const limit = parseInt(searchParams.get('limit') || '50');
-    const offset = parseInt(searchParams.get('offset') || '0');
+    const parsedQuery = listBilansQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
+    if (!parsedQuery.success) return validationFailed();
+    const { type, status, subject, studentId, stageId, coachId, isPublished, limit, offset } = parsedQuery.data;
 
     // RBAC: Force coachId if role is COACH
     const userRole = (authResponse as any).user.role;
@@ -62,7 +86,7 @@ export async function GET(request: NextRequest) {
       where.coachId = coachId;
     }
     
-    if (isPublished !== null) where.isPublished = isPublished === 'true';
+    if (isPublished !== undefined) where.isPublished = isPublished === 'true';
 
     // Fetch bilans
     const [bilans, total] = await Promise.all([
@@ -109,15 +133,9 @@ export async function POST(request: NextRequest) {
   if (isErrorResponse(authResponse)) return authResponse;
 
   try {
-    const body = await request.json();
-
-    // Validate required fields
-    if (!body.type || !body.subject || !body.studentEmail || !body.studentName) {
-      return NextResponse.json(
-        { success: false, error: 'Missing required fields: type, subject, studentEmail, studentName' },
-        { status: 400 }
-      );
-    }
+    const parsedBody = createBilanBodySchema.safeParse(await request.json());
+    if (!parsedBody.success) return validationFailed();
+    const body = parsedBody.data;
 
     // RBAC: Validate coachId if role is COACH
     const userRole = (authResponse as any).user.role;
@@ -140,7 +158,7 @@ export async function POST(request: NextRequest) {
     // Create bilan
     const bilan = await prisma.bilan.create({
       data: {
-        type: body.type as BilanType,
+        type: body.type as any,
         subject: body.subject,
         studentEmail: body.studentEmail,
         studentName: body.studentName,
@@ -148,10 +166,10 @@ export async function POST(request: NextRequest) {
         studentId: body.studentId,
         stageId: body.stageId,
         coachId: body.coachId,
-        sourceData: body.sourceData || {},
+        sourceData: (body.sourceData || {}) as any,
         globalScore: body.globalScore,
         confidenceIndex: body.confidenceIndex,
-        domainScores: body.domainScores,
+        domainScores: body.domainScores as any,
         status: 'PENDING',
         progress: 0,
         isPublished: false,

@@ -9,9 +9,18 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { CopySubmissionStatus, UserRole, AiJobType, AiJobStatus } from '@prisma/client';
 import { canManageSubmissionDocuments } from '@/lib/npc/access';
+import { z } from 'zod';
 
 interface RouteParams {
   params: Promise<{ submissionId: string }>;
+}
+
+const routeParamsSchema = z.object({
+  submissionId: z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/),
+}).strict();
+
+function invalidParamsResponse() {
+  return NextResponse.json({ error: 'Invalid route params' }, { status: 400 });
 }
 
 async function getActor() {
@@ -37,7 +46,9 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { submissionId } = await params;
+    const parsedParams = routeParamsSchema.safeParse(await params);
+    if (!parsedParams.success) return invalidParamsResponse();
+    const { submissionId } = parsedParams.data;
     const submission = await prisma.copySubmission.findUnique({
       where: { id: submissionId },
       include: {

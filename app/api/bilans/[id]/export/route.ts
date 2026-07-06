@@ -13,11 +13,29 @@ import {
   buildBilanWriteWhere,
   canSeeInternalBilan,
 } from '@/lib/security/ownership';
+import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
+}
+
+const routeParamsSchema = z.object({
+  id: z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/),
+}).strict();
+
+const exportQuerySchema = z.object({
+  format: z.enum(['pdf', 'markdown']).default('markdown'),
+  audience: z.enum(['student', 'parents', 'nexus', 'all']).default('all'),
+}).strict();
+
+const exportBodySchema = z.object({
+  format: z.enum(['pdf', 'markdown']).default('pdf'),
+}).strict();
+
+function validationFailed() {
+  return NextResponse.json({ success: false, error: 'Données invalides' }, { status: 400 });
 }
 
 /**
@@ -30,10 +48,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   if (isErrorResponse(authResponse)) return authResponse;
 
   try {
-    const { id } = await params;
+    const parsedParams = routeParamsSchema.safeParse(await params);
+    if (!parsedParams.success) return validationFailed();
     const { searchParams } = new URL(request.url);
-    const format = searchParams.get('format') || 'markdown';
-    const audience = searchParams.get('audience') || 'all';
+    const parsedQuery = exportQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
+    if (!parsedQuery.success) return validationFailed();
+    const { id } = parsedParams.data;
+    const { format, audience } = parsedQuery.data;
     const where = buildBilanReadWhere(id, authResponse.user);
     if (!where) {
       return NextResponse.json(
@@ -160,9 +181,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   if (isErrorResponse(authResponse)) return authResponse;
 
   try {
-    const { id } = await params;
-    const body = await request.json();
-    const { format = 'pdf' } = body;
+    const parsedParams = routeParamsSchema.safeParse(await params);
+    if (!parsedParams.success) return validationFailed();
+    const parsedBody = exportBodySchema.safeParse(await request.json());
+    if (!parsedBody.success) return validationFailed();
+    const { id } = parsedParams.data;
+    const { format } = parsedBody.data;
     const where = buildBilanWriteWhere(id, authResponse.user);
     if (!where) {
       return NextResponse.json(

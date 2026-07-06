@@ -6,9 +6,23 @@ import { deleteSecureFile } from '@/lib/npc/storage';
 import { canManageSubmissionDocuments } from '@/lib/npc/access';
 import { isCorrectionDocumentType } from '@/lib/npc/document-types';
 import { serializeError } from '@/lib/utils/serialize-error';
+import { z } from 'zod';
 
 interface RouteParams {
   params: Promise<{ submissionId: string; documentId: string }>;
+}
+
+const routeParamsSchema = z.object({
+  submissionId: z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/),
+  documentId: z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/),
+}).strict();
+
+const patchBodySchema = z.object({
+  documentType: z.string().refine(isCorrectionDocumentType),
+}).strict();
+
+function invalidParamsResponse() {
+  return NextResponse.json({ error: 'Invalid route params' }, { status: 400 });
 }
 
 function sanitizeCopyPage(page: Record<string, unknown>) {
@@ -44,7 +58,9 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { submissionId, documentId } = await params;
+    const parsedParams = routeParamsSchema.safeParse(await params);
+    if (!parsedParams.success) return invalidParamsResponse();
+    const { submissionId, documentId } = parsedParams.data;
     const submission = await prisma.copySubmission.findUnique({
       where: { id: submissionId },
       select: { id: true, studentId: true, coachId: true, pages: true },
@@ -66,15 +82,14 @@ export async function PATCH(
       return NextResponse.json({ error: 'Document not found' }, { status: 404 });
     }
 
-    const body = await request.json();
-    const { documentType } = body;
-
-    if (!documentType || !isCorrectionDocumentType(documentType)) {
+    const parsedBody = patchBodySchema.safeParse(await request.json());
+    if (!parsedBody.success) {
       return NextResponse.json(
         { error: 'Invalid document type' },
         { status: 400 }
       );
     }
+    const { documentType } = parsedBody.data;
 
     const updatedDocument = await prisma.copyPage.update({
       where: { id: document.id },
@@ -136,7 +151,9 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { submissionId, documentId } = await params;
+    const parsedParams = routeParamsSchema.safeParse(await params);
+    if (!parsedParams.success) return invalidParamsResponse();
+    const { submissionId, documentId } = parsedParams.data;
     const submission = await prisma.copySubmission.findUnique({
       where: { id: submissionId },
       select: { id: true, studentId: true, coachId: true },

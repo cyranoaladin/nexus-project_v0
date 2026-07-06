@@ -6,7 +6,7 @@ import { NextRequest } from 'next/server';
 import { SessionStatus } from '@prisma/client';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { cancelSessionSchema } from '@/lib/validation';
-import { parseBody, assertExists } from '@/lib/api/helpers';
+import { safeJsonParse, assertExists } from '@/lib/api/helpers';
 import { successResponse, handleApiError, ApiError } from '@/lib/api/errors';
 import { RateLimitPresets } from '@/lib/middleware/rateLimit';
 import { createLogger } from '@/lib/middleware/logger';
@@ -37,7 +37,11 @@ export async function POST(request: NextRequest) {
     logger.info('Cancelling session');
 
     // Parse and validate request body
-    const { sessionId, reason } = await parseBody(request, cancelSessionSchema);
+    const parsedBody = cancelSessionSchema.strict().safeParse(await safeJsonParse(request));
+    if (!parsedBody.success) {
+      throw ApiError.badRequest('Validation failed');
+    }
+    const { sessionId, reason } = parsedBody.data;
 
     // Fetch session
     const sessionToCancel = await prisma.sessionBooking.findUnique({

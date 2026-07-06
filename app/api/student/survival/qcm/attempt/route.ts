@@ -6,6 +6,13 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { DEFAULT_EXAM_DATE, snapshotFromStoredProgress, toPrismaSurvivalData } from '@/lib/survival/progress';
 import { QCM_BANK } from '@/lib/survival/qcm-bank';
+import { z } from 'zod';
+
+const qcmAttemptSchema = z.object({
+  itemId: z.string().trim().min(1).max(80),
+  givenAnswer: z.string().trim().min(1).max(20),
+  timeSpentSec: z.coerce.number().finite().nonnegative().max(24 * 60 * 60).optional(),
+}).strict();
 
 export async function POST(request: Request) {
   try {
@@ -14,14 +21,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const payload = await request.json().catch(() => null) as {
-      itemId?: string;
-      givenAnswer?: string;
-      timeSpentSec?: number;
-    } | null;
+    const parsedPayload = qcmAttemptSchema.safeParse(await request.json().catch(() => null));
 
-    const question = QCM_BANK.find((item) => item.id === payload?.itemId);
-    if (!question || typeof payload?.givenAnswer !== 'string') {
+    if (!parsedPayload.success) {
+      return NextResponse.json({ error: 'Invalid QCM attempt payload' }, { status: 400 });
+    }
+    const payload = parsedPayload.data;
+
+    const question = QCM_BANK.find((item) => item.id === payload.itemId);
+    if (!question) {
       return NextResponse.json({ error: 'Invalid QCM attempt payload' }, { status: 400 });
     }
 

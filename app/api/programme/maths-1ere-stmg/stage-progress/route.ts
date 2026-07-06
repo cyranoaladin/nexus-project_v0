@@ -4,22 +4,26 @@ import type { Prisma } from '@prisma/client';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { serializeError } from '@/lib/utils/serialize-error';
+import { z } from 'zod';
 
 type JsonRecord = Record<string, unknown>;
+
+const stageProgressSchema = z.object({
+  updatedAt: z.string().trim().min(1).max(80),
+  diagnosticAnswers: z.record(z.string(), z.unknown()),
+  profile: z.record(z.string(), z.unknown()),
+  validatedNotions: z.record(z.string(), z.unknown()),
+  automatismHistory: z.array(z.unknown()).max(500),
+  settings: z.record(z.string(), z.unknown()),
+}).strict();
 
 function asRecord(value: unknown): JsonRecord {
   return value && typeof value === 'object' && !Array.isArray(value) ? value as JsonRecord : {};
 }
 
 function parseStageState(raw: unknown): JsonRecord | null {
-  const input = asRecord(raw);
-  if (typeof input.updatedAt !== 'string') return null;
-  if (!asRecord(input.diagnosticAnswers)) return null;
-  if (!asRecord(input.profile)) return null;
-  if (!asRecord(input.validatedNotions)) return null;
-  if (!Array.isArray(input.automatismHistory)) return null;
-  if (!asRecord(input.settings)) return null;
-  return input;
+  const parsed = stageProgressSchema.safeParse(raw);
+  return parsed.success ? parsed.data : null;
 }
 
 const whereStmgPremiere = (userId: string) => ({
@@ -32,11 +36,10 @@ const whereStmgPremiere = (userId: string) => ({
 
 export async function GET() {
   const session = await auth();
-  const user = session?.user as { id?: string } | undefined;
-  if (!user?.id) {
+  if (!session?.user?.id || session.user.role !== 'ELEVE') {
     return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
   }
-  const userId = user.id;
+  const userId = session.user.id;
 
   try {
     const progress = await prisma.mathsProgress.findUnique({
@@ -53,11 +56,10 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const session = await auth();
-  const user = session?.user as { id?: string } | undefined;
-  if (!user?.id) {
+  if (!session?.user?.id || session.user.role !== 'ELEVE') {
     return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
   }
-  const userId = user.id;
+  const userId = session.user.id;
 
   let body: unknown = null;
   try {
