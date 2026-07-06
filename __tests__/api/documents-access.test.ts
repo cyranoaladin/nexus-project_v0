@@ -124,6 +124,7 @@ describe('Documents Access Control', () => {
       const data = await response.json();
       expect(data.success).toBe(true);
       expect(data.documents).toHaveLength(1);
+      expect(data.documents[0]).not.toHaveProperty('localPath');
     });
 
     it('should deny coach access to non-assigned student (403)', async () => {
@@ -213,6 +214,7 @@ describe('Documents Access Control', () => {
       const data = await response.json();
       expect(data.success).toBe(true);
       expect(data.document.title).toBe('New Exercise');
+      expect(data.document).not.toHaveProperty('localPath');
     });
 
     it('should validate documentType enum (400)', async () => {
@@ -238,7 +240,7 @@ describe('Documents Access Control', () => {
       expect(response.status).toBe(400);
     });
 
-    it('should require url or localPath (400)', async () => {
+    it('should require url for JSON metadata documents (400)', async () => {
       coachSession();
       (assertCoachCanAccessStudent as jest.Mock).mockResolvedValue(undefined);
       mockPrisma.student.findFirst.mockResolvedValue(mockStudent);
@@ -259,7 +261,7 @@ describe('Documents Access Control', () => {
 
       expect(response.status).toBe(400);
       const data = await response.json();
-      expect(data.message).toContain('URL ou chemin local requis');
+      expect(data.message).toContain('URL requise');
     });
   });
 

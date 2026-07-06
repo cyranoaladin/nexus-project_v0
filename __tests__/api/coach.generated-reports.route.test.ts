@@ -137,6 +137,20 @@ describe('POST /api/coach/students/[studentId]/generated-reports/[reportId]/rege
     jest.clearAllMocks();
   });
 
+  it('rejects unsafe route params before checking coach assignment', async () => {
+    (requireRole as jest.Mock).mockResolvedValue({ user: { id: 'coach-user-1', role: 'COACH' } });
+
+    const res = await REGENERATE(new Request('http://localhost/', { method: 'POST' }), {
+      params: Promise.resolve({ studentId: '../student', reportId: '../report' }),
+    });
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body.error).toContain('Données');
+    expect(assertCoachCanAccessStudent).not.toHaveBeenCalled();
+    expect(processGeneratedReportJob).not.toHaveBeenCalled();
+  });
+
   it('does not expose internal generated report payloads after regeneration', async () => {
     (requireRole as jest.Mock).mockResolvedValue({ user: { id: 'coach-user-1', role: 'COACH' } });
     (assertCoachCanAccessStudent as jest.Mock).mockResolvedValue(undefined);

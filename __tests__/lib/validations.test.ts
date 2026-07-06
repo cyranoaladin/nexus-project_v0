@@ -22,7 +22,6 @@ describe('Validation Schemas', () => {
       studentLastName: 'Dupont',
       studentGrade: 'Terminale',
       studentSchool: 'Lycée Victor Hugo',
-      studentBirthDate: '2005-06-15',
 
       // Besoins et objectifs
       subjects: ['MATHEMATIQUES'],

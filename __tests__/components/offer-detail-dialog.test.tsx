@@ -116,12 +116,14 @@ describe('OfferDetailDialog', () => {
     expect(decodeURIComponent(waLink.getAttribute('href')!)).toContain('Terminale Duo');
   });
 
-  it('shows card payment policy from CGV without exposing RIB/IBAN', () => {
+  it('keeps card payment provider hidden until public activation is explicitly enabled', () => {
     const { container } = render(<OfferDetailDialog offer={sampleOffer} onClose={jest.fn()} />);
 
-    expect(screen.getByText(new RegExp(CGV_POLICY.payment.provider, 'i'))).toBeInTheDocument();
-    expect(screen.getByText(new RegExp(CGV_POLICY.payment.acceptedCards, 'i'))).toBeInTheDocument();
-    expect(screen.getByText(CGV_POLICY.payment.cardFee)).toBeInTheDocument();
+    expect(screen.getByText(/paiement confirmé après validation pédagogique/i)).toBeInTheDocument();
+    expect(container.textContent).not.toContain(CGV_POLICY.payment.provider);
+    expect(container.textContent).not.toContain(CGV_POLICY.payment.bank);
+    expect(container.textContent).not.toContain(CGV_POLICY.payment.acceptedCards);
+    expect(container.textContent).not.toContain(CGV_POLICY.payment.cardFee);
     expect(container.textContent).not.toContain(LEGAL.billing.rib);
     expect(container.textContent).not.toContain(LEGAL.billing.iban);
   });

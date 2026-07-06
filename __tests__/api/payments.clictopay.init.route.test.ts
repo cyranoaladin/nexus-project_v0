@@ -48,4 +48,24 @@ describe('POST /api/payments/clictopay/init', () => {
     expect(res.status).toBe(501);
     expect(body.code).toBe('CLICTOPAY_NOT_CONFIGURED');
   });
+
+  it('rejects roles that cannot initiate parent payments', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'student-1', role: 'ELEVE' } } as any);
+
+    const res = await POST(makeRequest({ amount: 450000, invoiceId: 'invoice-1' }));
+    const body = await res.json();
+
+    expect(res.status).toBe(403);
+    expect(body.error).toContain('Accès');
+  });
+
+  it('validates the payload before returning the disabled service status', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'parent-1', role: 'PARENT' } } as any);
+
+    const res = await POST(makeRequest({ amount: -1, invoiceId: '' }));
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body.error).toContain('Données');
+  });
 });

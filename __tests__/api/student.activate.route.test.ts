@@ -12,15 +12,22 @@ jest.mock('@/lib/services/student-activation.service', () => ({
   completeStudentActivation: jest.fn(),
 }));
 
+jest.mock('@/lib/rate-limit', () => ({
+  guardRateLimitAsync: jest.fn().mockResolvedValue(null),
+}));
+
 import { GET, POST } from '@/app/api/student/activate/route';
 import { verifyActivationToken, completeStudentActivation } from '@/lib/services/student-activation.service';
+import { guardRateLimitAsync } from '@/lib/rate-limit';
 import { NextRequest } from 'next/server';
 
 const mockVerify = verifyActivationToken as jest.Mock;
 const mockComplete = completeStudentActivation as jest.Mock;
+const mockGuardRateLimit = guardRateLimitAsync as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockGuardRateLimit.mockResolvedValue(null);
 });
 
 // ─── GET /api/student/activate ───────────────────────────────────────────────
@@ -34,6 +41,16 @@ describe('GET /api/student/activate', () => {
     expect(res.status).toBe(400);
     expect(body.valid).toBe(false);
     expect(body.error).toContain('Token');
+  });
+
+  it('should return 429 when rate limit is exceeded', async () => {
+    mockGuardRateLimit.mockResolvedValue(new Response(JSON.stringify({ error: 'rate limited' }), { status: 429 }));
+
+    const req = new NextRequest('http://localhost:3000/api/student/activate?token=valid-token', { method: 'GET' });
+    const res = await GET(req);
+
+    expect(res.status).toBe(429);
+    expect(mockVerify).not.toHaveBeenCalled();
   });
 
   it('should verify valid token', async () => {
@@ -95,12 +112,35 @@ describe('POST /api/student/activate', () => {
     expect(body.redirectUrl).toBe('/auth/signin');
   });
 
+  it('should return 429 when activation POST rate limit is exceeded', async () => {
+    mockGuardRateLimit.mockResolvedValue(new Response(JSON.stringify({ error: 'rate limited' }), { status: 429 }));
+
+    const res = await POST(makePostRequest({ token: 'valid-token', password: 'securePass123' }));
+
+    expect(res.status).toBe(429);
+    expect(mockComplete).not.toHaveBeenCalled();
+  });
+
   it('should return 400 for short password', async () => {
     const res = await POST(makePostRequest({ token: 'valid-token', password: '123' }));
     const body = await res.json();
 
     expect(res.status).toBe(400);
     expect(body.error).toContain('invalides');
+    expect(JSON.stringify(body)).not.toContain('password');
+  });
+
+  it('rejects unexpected activation payload fields before service call', async () => {
+    const res = await POST(makePostRequest({
+      token: 'valid-token',
+      password: 'securePass123',
+      activationToken: 'raw-token',
+    }));
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body.error).toContain('invalides');
+    expect(mockComplete).not.toHaveBeenCalled();
   });
 
   it('should return 400 for missing token', async () => {

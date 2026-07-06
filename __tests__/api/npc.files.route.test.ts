@@ -78,4 +78,26 @@ describe('GET /api/npc/files/[...path]', () => {
     expect(response.status).toBe(200);
     expect(readSecureFile).toHaveBeenCalledWith('student/sub/page_1/copie.pdf');
   });
+
+  it('denies a coach who is not assigned before reading disk', async () => {
+    (prisma.copyPage.findFirst as jest.Mock).mockResolvedValue({
+      id: 'doc-1',
+      originalFilePath: 'student/sub/page_1/copie.pdf',
+      mimeType: 'application/pdf',
+      submission: {
+        id: 'submission-1',
+        studentId: 'student-1',
+        coachId: 'coach-2',
+      },
+    });
+    (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
+
+    const response = await GET(
+      new NextRequest('http://localhost/api/npc/files/student/sub/page_1/copie.pdf'),
+      params(['student', 'sub', 'page_1', 'copie.pdf'])
+    );
+
+    expect(response.status).toBe(403);
+    expect(readSecureFile).not.toHaveBeenCalled();
+  });
 });

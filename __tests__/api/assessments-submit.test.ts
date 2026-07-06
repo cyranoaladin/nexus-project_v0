@@ -8,6 +8,8 @@ import { POST } from '@/app/api/assessments/submit/route';
 import { prisma } from '@/lib/prisma';
 import { guardRateLimitAsync } from '@/lib/rate-limit';
 import { QuestionBank } from '@/lib/assessments/questions';
+import { createAssessmentPublicToken } from '@/lib/assessments/public-token';
+import { Subject } from '@/lib/assessments/core/types';
 
 // Mock next/headers
 jest.mock('next/headers', () => ({
@@ -94,8 +96,19 @@ jest.mock('@/lib/core/raw-sql-monitor', () => ({
 }));
 
 describe('POST /api/assessments/submit', () => {
+  const originalSecret = process.env.ASSESSMENT_PUBLIC_TOKEN_SECRET;
+
+  function assessmentToken() {
+    return createAssessmentPublicToken({
+      subject: Subject.MATHS,
+      grade: 'TERMINALE',
+      source: 'test',
+    });
+  }
+
   beforeEach(() => {
     jest.clearAllMocks();
+    process.env.ASSESSMENT_PUBLIC_TOKEN_SECRET = 'test-assessment-secret';
     (prisma.assessment.create as jest.Mock).mockResolvedValue({
       id: 'test-assessment-id',
       subject: 'MATHS',
@@ -104,6 +117,14 @@ describe('POST /api/assessments/submit', () => {
       globalScore: 50,
     });
     (prisma.$executeRawUnsafe as jest.Mock).mockResolvedValue(1);
+  });
+
+  afterEach(() => {
+    if (originalSecret === undefined) {
+      delete process.env.ASSESSMENT_PUBLIC_TOKEN_SECRET;
+    } else {
+      process.env.ASSESSMENT_PUBLIC_TOKEN_SECRET = originalSecret;
+    }
   });
 
   it('returns 429 when public submission rate limit is exceeded', async () => {
@@ -144,7 +165,10 @@ describe('POST /api/assessments/submit', () => {
 
     const request = new Request('http://localhost/api/assessments/submit', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-assessment-public-token': assessmentToken(),
+      },
       body: JSON.stringify(body),
     });
 
@@ -165,7 +189,10 @@ describe('POST /api/assessments/submit', () => {
 
     const request = new Request('http://localhost/api/assessments/submit', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-assessment-public-token': assessmentToken(),
+      },
       body: JSON.stringify(body),
     });
 
@@ -190,7 +217,10 @@ describe('POST /api/assessments/submit', () => {
 
     const request = new Request('http://localhost/api/assessments/submit', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-assessment-public-token': assessmentToken(),
+      },
       body: JSON.stringify(body),
     });
 
@@ -211,7 +241,10 @@ describe('POST /api/assessments/submit', () => {
 
     const request = new Request('http://localhost/api/assessments/submit', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-assessment-public-token': assessmentToken(),
+      },
       body: JSON.stringify(body),
     });
 
@@ -234,7 +267,10 @@ describe('POST /api/assessments/submit', () => {
 
     const request = new Request('http://localhost/api/assessments/submit', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-assessment-public-token': assessmentToken(),
+      },
       body: JSON.stringify(body),
     });
 
@@ -248,10 +284,13 @@ describe('POST /api/assessments/submit', () => {
     expect(createCall.data.globalScore).toBe(50);
   });
 
-  it('does not persist a client-supplied studentId on public submissions', async () => {
+  it('rejects a client-supplied studentId on public submissions', async () => {
     const request = new Request('http://localhost/api/assessments/submit', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-assessment-public-token': assessmentToken(),
+      },
       body: JSON.stringify({
         subject: 'MATHS',
         grade: 'TERMINALE',
@@ -266,16 +305,48 @@ describe('POST /api/assessments/submit', () => {
       }),
     });
 
-    await POST(request as any);
+    const response = await POST(request as any);
 
-    const createCall = (prisma.assessment.create as jest.Mock).mock.calls[0][0];
-    expect(createCall.data).not.toHaveProperty('studentId');
+    expect(response.status).toBe(400);
+    expect(prisma.assessment.create).not.toHaveBeenCalled();
+    expect(QuestionBank.loadByVersion).not.toHaveBeenCalled();
+  });
+
+  it('rejects unexpected nested studentData fields before persistence', async () => {
+    const request = new Request('http://localhost/api/assessments/submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-assessment-public-token': assessmentToken(),
+      },
+      body: JSON.stringify({
+        subject: 'MATHS',
+        grade: 'TERMINALE',
+        studentData: {
+          email: 'test@example.com',
+          name: 'Test Student',
+          rawPayload: true,
+        },
+        answers: {
+          'MATH-COMB-01': 'a',
+        },
+      }),
+    });
+
+    const response = await POST(request as any);
+
+    expect(response.status).toBe(400);
+    expect(prisma.assessment.create).not.toHaveBeenCalled();
+    expect(QuestionBank.loadByVersion).not.toHaveBeenCalled();
   });
 
   it('rejects malformed assessmentVersion before loading questions', async () => {
     const request = new Request('http://localhost/api/assessments/submit', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-assessment-public-token': assessmentToken(),
+      },
       body: JSON.stringify({
         subject: 'MATHS',
         grade: 'TERMINALE',
@@ -303,7 +374,10 @@ describe('POST /api/assessments/submit', () => {
 
     const request = new Request('http://localhost/api/assessments/submit', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-assessment-public-token': assessmentToken(),
+      },
       body: JSON.stringify({
         subject: 'MATHS',
         grade: 'TERMINALE',

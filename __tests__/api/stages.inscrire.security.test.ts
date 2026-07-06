@@ -45,6 +45,8 @@ const validBody = {
   parentEmail: 'parent@example.com',
   parentPhone: '+216 22 333 444',
   notes: 'Besoin de suivi maths',
+  stageTermsAccepted: true,
+  dataProcessingAccepted: true,
 };
 
 const publicStage = {
@@ -102,5 +104,22 @@ describe('POST /api/stages/[stageSlug]/inscrire security', () => {
     expect(serialized).not.toContain('activationToken');
     expect(serialized).not.toContain('internal note');
     expect(body.reservation).toEqual({ status: 'PENDING' });
+  });
+
+  it('ne renvoie pas reservationId lorsqu’une inscription existe déjà', async () => {
+    prisma.stage.findUnique.mockResolvedValue(publicStage);
+    prisma.stageReservation.findFirst.mockResolvedValue({
+      id: 'reservation-secret-id',
+      email: validBody.email,
+    });
+
+    const res = await POST(makeRequest(validBody), { params });
+    const body = await res.json();
+    const serialized = JSON.stringify(body);
+
+    expect(res.status).toBe(409);
+    expect(serialized).not.toContain('reservation-secret-id');
+    expect(body).not.toHaveProperty('reservationId');
+    expect(prisma.stageReservation.create).not.toHaveBeenCalled();
   });
 });

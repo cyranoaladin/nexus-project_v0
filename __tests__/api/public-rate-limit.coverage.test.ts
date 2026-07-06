@@ -7,6 +7,8 @@ const routeFiles = [
   'app/api/assessments/submit/route.ts',
   'app/api/contact/route.ts',
   'app/api/auth/reset-password/route.ts',
+  'app/api/student/activate/route.ts',
+  'app/api/lamis/teacher-report/route.ts',
 ];
 
 describe('public anti-abuse route coverage', () => {

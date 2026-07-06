@@ -86,4 +86,19 @@ describe('POST /api/npc/uploads', () => {
     });
     expect(body).not.toHaveProperty('filePath');
   });
+
+  it('rejects invalid metadata before ownership and file handling', async () => {
+    const response = await POST(makeUploadRequest({
+      studentId: '../student',
+      title: 'Copie bac blanc',
+      subject: 'MATHEMATIQUES',
+      file: new File(['%PDF-1.4'], 'copie.pdf', { type: 'application/pdf' }),
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toContain('Données');
+    expect(prisma.coachProfile.findFirst).not.toHaveBeenCalled();
+    expect(npcStorage.saveUploadedFile).not.toHaveBeenCalled();
+  });
 });

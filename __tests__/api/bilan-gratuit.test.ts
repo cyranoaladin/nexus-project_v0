@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { POST } from '../../app/api/bilan-gratuit/route';
 import { prisma } from '../../lib/prisma';
 import { sendWelcomeParentEmail } from '../../lib/email';
+import { sendMail } from '@/lib/email/mailer';
 
 jest.mock('bcryptjs');
 
@@ -23,7 +24,13 @@ jest.mock('../../lib/email', () => ({
   sendWelcomeParentEmail: jest.fn().mockResolvedValue(undefined),
 }));
 
+jest.mock('@/lib/email/mailer', () => ({
+  sendMail: jest.fn().mockResolvedValue({ ok: true }),
+}));
+
 const mockSendWelcomeParentEmail = sendWelcomeParentEmail as jest.Mock;
+const mockContactLeadCreate = prisma.contactLead.create as jest.Mock;
+const mockSendMail = sendMail as jest.Mock;
 
 describe('/api/bilan-gratuit', () => {
   const validRequestData = {
@@ -35,7 +42,6 @@ describe('/api/bilan-gratuit', () => {
     studentLastName: 'Dupont',
     studentGrade: 'Terminale',
     studentSchool: 'Lycée Victor Hugo',
-    studentBirthDate: '2005-06-15',
     subjects: ['MATHEMATIQUES'],
     currentLevel: 'Moyen',
     objectives: 'Améliorer les notes en mathématiques pour le baccalauréat',
@@ -48,6 +54,21 @@ describe('/api/bilan-gratuit', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockContactLeadCreate.mockResolvedValue({
+      id: 'lead-123',
+      name: 'Jean Dupont',
+      email: 'jean.dupont@test.com',
+      phone: '0123456789',
+      profile: 'Parent',
+      interest: 'Bilan gratuit - Terminale',
+      urgency: 'Moyen',
+      source: 'bilan-gratuit',
+      status: 'NEW',
+      notes: 'Lead notes',
+      createdAt: new Date('2026-07-03T08:00:00.000Z'),
+      updatedAt: new Date('2026-07-03T08:00:00.000Z'),
+    });
+    mockSendMail.mockResolvedValue({ ok: true });
   });
 
   function buildRequest(body: Record<string, unknown>) {
@@ -58,131 +79,44 @@ describe('/api/bilan-gratuit', () => {
     });
   }
 
-  it('creates inactive parent/student records and sends an activation link without password', async () => {
-    const userCreate = jest.fn()
-      .mockResolvedValueOnce({
-      id: 'parent-123',
-      email: 'jean.dupont@test.com',
-      firstName: 'Jean',
-      lastName: 'Dupont',
-      })
-      .mockResolvedValueOnce({
-        id: 'student-123',
-        email: 'marie.dupont.test@nexus-student.local',
-        firstName: 'Marie',
-        lastName: 'Dupont',
-      });
-    const parentProfileCreate = jest.fn().mockResolvedValue({ id: 'parent-profile-123' });
-    const studentCreate = jest.fn().mockResolvedValue({
-      id: 'student-profile-123',
-      parentId: 'parent-profile-123',
-      userId: 'student-123',
-      grade: 'Terminale',
-    });
-
-    jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null as never);
-    jest.spyOn(prisma, '$transaction').mockImplementation(async (callback: any) => {
-      return callback({
-        user: { create: userCreate },
-        parentProfile: { create: parentProfileCreate },
-        student: { create: studentCreate },
-      } as any);
-    });
-
+  it('creates a CRM lead without creating inactive parent/student accounts', async () => {
     const response = await POST(buildRequest(validRequestData));
     const body = await response.json();
 
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
-    expect(body.message).toBe('Votre demande a bien été enregistrée. Un lien d’activation a été envoyé.');
-    expect(body.parentId).toBe('parent-123');
-    expect(body.studentId).toBe('student-profile-123');
+    expect(body.message).toBe('Votre demande a bien été enregistrée. Notre équipe vous recontactera pour la suite.');
+    expect(body).not.toHaveProperty('parentId');
+    expect(body).not.toHaveProperty('studentId');
 
-    expect(userCreate).toHaveBeenNthCalledWith(
-      1,
-      expect.objectContaining({
-        data: expect.objectContaining({
-          email: 'jean.dupont@test.com',
-          password: null,
-          activatedAt: null,
-          activationToken: expect.any(String),
-          activationExpiry: expect.any(Date),
-        }),
+    expect(mockContactLeadCreate).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        name: 'Jean Dupont',
+        email: 'jean.dupont@test.com',
+        source: 'bilan-gratuit',
       }),
-    );
-    expect(userCreate).toHaveBeenNthCalledWith(
-      2,
-      expect.objectContaining({
-        data: expect.objectContaining({
-          email: 'marie.dupont.test@nexus-student.local',
-          password: null,
-          activatedAt: null,
-        }),
-      }),
-    );
-    expect(studentCreate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          userId: 'student-123',
-          parentId: 'parent-profile-123',
-          gradeLevel: 'TERMINALE',
-        }),
-      }),
-    );
-    expect(mockSendWelcomeParentEmail).toHaveBeenCalledWith(
-      'jean.dupont@test.com',
-      'Jean Dupont',
-      'Marie Dupont',
-      expect.stringContaining('/auth/activate?token='),
-    );
+    });
+    expect(prisma.user.findUnique).not.toHaveBeenCalled();
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+    expect(prisma.user.create).not.toHaveBeenCalled();
+    expect(prisma.parentProfile.create).not.toHaveBeenCalled();
+    expect(prisma.student.create).not.toHaveBeenCalled();
+    expect(mockSendWelcomeParentEmail).not.toHaveBeenCalled();
   });
 
-  it('ignores an injected parentPassword and still creates inactive accounts', async () => {
-    const userCreate = jest.fn()
-      .mockResolvedValueOnce({
-      id: 'parent-123',
-      email: 'jean.dupont@test.com',
-      firstName: 'Jean',
-      lastName: 'Dupont',
-      })
-      .mockResolvedValueOnce({
-        id: 'student-123',
-        email: 'marie.dupont.test@nexus-student.local',
-        firstName: 'Marie',
-        lastName: 'Dupont',
-      });
-    const parentProfileCreate = jest.fn().mockResolvedValue({ id: 'parent-profile-123' });
-    const studentCreate = jest.fn().mockResolvedValue({
-      id: 'student-profile-123',
-    });
-
-    jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null as never);
-    jest.spyOn(prisma, '$transaction').mockImplementation(async (callback: any) => {
-      return callback({
-        user: { create: userCreate },
-        parentProfile: { create: parentProfileCreate },
-        student: { create: studentCreate },
-      } as any);
-    });
-
+  it('rejects an injected parentPassword before creating inactive accounts', async () => {
     const response = await POST(buildRequest({
       ...validRequestData,
       parentPassword: 'temporary-password-should-not-be-used',
     }));
+    const body = await response.json();
 
-    expect(response.status).toBe(200);
-    expect(userCreate).toHaveBeenNthCalledWith(1, expect.objectContaining({ data: expect.objectContaining({ password: null }) }));
-    expect(userCreate).toHaveBeenNthCalledWith(2, expect.objectContaining({ data: expect.objectContaining({ password: null }) }));
-    expect(studentCreate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          gradeLevel: 'TERMINALE',
-        }),
-      }),
-    );
+    expect(response.status).toBe(400);
+    expect(body.error).toBe('Données invalides');
+    expect(mockContactLeadCreate).not.toHaveBeenCalled();
   });
 
-  it('returns 400 when parent email already exists', async () => {
+  it('returns a neutral success when parent email already exists', async () => {
     jest.spyOn(prisma.user, 'findUnique').mockResolvedValue({
       id: 'existing-user',
       email: 'jean.dupont@test.com',
@@ -191,8 +125,12 @@ describe('/api/bilan-gratuit', () => {
     const response = await POST(buildRequest(validRequestData));
     const body = await response.json();
 
-    expect(response.status).toBe(400);
-    expect(body.error).toBe('Un compte existe déjà avec cet email');
+    expect(response.status).toBe(200);
+    expect(body.success).toBe(true);
+    expect(body).not.toHaveProperty('error');
+    expect(body).not.toHaveProperty('parentId');
+    expect(body).not.toHaveProperty('studentId');
+    expect(prisma.user.findUnique).not.toHaveBeenCalled();
     expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 
@@ -219,8 +157,7 @@ describe('/api/bilan-gratuit', () => {
   });
 
   it('returns 500 when database error occurs', async () => {
-    jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null as never);
-    jest.spyOn(prisma, '$transaction').mockRejectedValue(new Error('Database connection failed'));
+    mockContactLeadCreate.mockRejectedValue(new Error('Database connection failed'));
 
     const response = await POST(buildRequest(validRequestData));
     const body = await response.json();
@@ -229,40 +166,15 @@ describe('/api/bilan-gratuit', () => {
     expect(body.error).toBe('Erreur interne du serveur');
   });
 
-  it('continues even if email sending fails', async () => {
-    mockSendWelcomeParentEmail.mockRejectedValueOnce(new Error('Email service unavailable'));
-
-    const userCreate = jest.fn()
-      .mockResolvedValueOnce({
-      id: 'parent-123',
-      email: 'jean.dupont@test.com',
-      firstName: 'Jean',
-      lastName: 'Dupont',
-      })
-      .mockResolvedValueOnce({
-        id: 'student-123',
-        email: 'marie.dupont.test@nexus-student.local',
-        firstName: 'Marie',
-        lastName: 'Dupont',
-      });
-    const parentProfileCreate = jest.fn().mockResolvedValue({ id: 'parent-profile-123' });
-    const studentCreate = jest.fn().mockResolvedValue({
-      id: 'student-profile-123',
-    });
-
-    jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null as never);
-    jest.spyOn(prisma, '$transaction').mockImplementation(async (callback: any) => {
-      return callback({
-        user: { create: userCreate },
-        parentProfile: { create: parentProfileCreate },
-        student: { create: studentCreate },
-      } as any);
-    });
+  it('continues even if internal lead notification email fails', async () => {
+    mockSendMail.mockRejectedValueOnce(new Error('Email service unavailable'));
 
     const response = await POST(buildRequest(validRequestData));
     const body = await response.json();
 
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
+    expect(mockContactLeadCreate).toHaveBeenCalledTimes(1);
+    expect(mockSendWelcomeParentEmail).not.toHaveBeenCalled();
   });
 });

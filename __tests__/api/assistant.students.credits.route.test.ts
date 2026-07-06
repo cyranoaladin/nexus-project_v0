@@ -96,7 +96,7 @@ describe('assistant students credits', () => {
     const body = await response.json();
 
     expect(response.status).toBe(400);
-    expect(body.error).toBe('Missing required fields');
+    expect(body.error).toBe('Invalid credit payload');
   });
 
   it('POST rejects unsupported credit transaction type', async () => {
@@ -108,7 +108,7 @@ describe('assistant students credits', () => {
     const body = await response.json();
 
     expect(response.status).toBe(400);
-    expect(body.error).toContain('Invalid credit type');
+    expect(body.error).toContain('Invalid credit payload');
     expect(prisma.creditTransaction.create).not.toHaveBeenCalled();
   });
 
@@ -121,7 +121,7 @@ describe('assistant students credits', () => {
     const body = await response.json();
 
     expect(response.status).toBe(400);
-    expect(body.error).toContain('Invalid credit amount');
+    expect(body.error).toContain('Invalid credit payload');
     expect(prisma.creditTransaction.create).not.toHaveBeenCalled();
   });
 

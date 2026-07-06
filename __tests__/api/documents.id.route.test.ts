@@ -34,6 +34,11 @@ beforeEach(async () => {
   jest.clearAllMocks();
 });
 
+function mockDocumentLookup(document: unknown) {
+  prisma.userDocument.findUnique.mockResolvedValue(document);
+  prisma.userDocument.findFirst.mockResolvedValue(document);
+}
+
 function makeRequest(id: string): [NextRequest, { params: Promise<{ id: string }> }] {
   const req = new NextRequest(`http://localhost:3000/api/documents/${id}`, { method: 'GET' });
   return [req, { params: Promise.resolve({ id }) }];
@@ -49,26 +54,27 @@ describe('GET /api/documents/[id]', () => {
 
   it('should return 404 when document not found', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'u1', role: 'ELEVE' } } as any);
-    prisma.userDocument.findUnique.mockResolvedValue(null);
+    mockDocumentLookup(null);
 
     const res = await GET(...makeRequest('nonexistent'));
     expect(res.status).toBe(404);
   });
 
-  it('should return 403 when user is not owner and not staff', async () => {
+  it('should return 404 when user is not owner and not staff without reading file', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'other-user', role: 'ELEVE' } } as any);
-    prisma.userDocument.findUnique.mockResolvedValue({
+    mockDocumentLookup({
       id: 'doc-1', userId: 'u1', localPath: '/app/storage/documents/test.pdf',
       mimeType: 'application/pdf', originalName: 'test.pdf', sizeBytes: 1024,
     });
 
     const res = await GET(...makeRequest('doc-1'));
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(404);
+    expect(mockReadFile).not.toHaveBeenCalled();
   });
 
   it('should return document for owner', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'u1', role: 'ELEVE' } } as any);
-    prisma.userDocument.findUnique.mockResolvedValue({
+    mockDocumentLookup({
       id: 'doc-1', userId: 'u1', localPath: '/app/storage/documents/test.pdf',
       mimeType: 'application/pdf', originalName: 'test.pdf', sizeBytes: 1024,
     });
@@ -84,7 +90,7 @@ describe('GET /api/documents/[id]', () => {
 
   it('should return document for ADMIN', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'admin-1', role: 'ADMIN' } } as any);
-    prisma.userDocument.findUnique.mockResolvedValue({
+    mockDocumentLookup({
       id: 'doc-1', userId: 'u1', localPath: '/app/storage/documents/test.pdf',
       mimeType: 'application/pdf', originalName: 'test.pdf', sizeBytes: 1024,
     });
@@ -96,7 +102,7 @@ describe('GET /api/documents/[id]', () => {
 
   it('should return document for ASSISTANTE', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'assist-1', role: 'ASSISTANTE' } } as any);
-    prisma.userDocument.findUnique.mockResolvedValue({
+    mockDocumentLookup({
       id: 'doc-1', userId: 'u1', localPath: '/app/storage/documents/test.pdf',
       mimeType: 'application/pdf', originalName: 'test.pdf', sizeBytes: 1024,
     });
@@ -108,7 +114,7 @@ describe('GET /api/documents/[id]', () => {
 
   it('should return 404 when file missing on disk', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'u1', role: 'ELEVE' } } as any);
-    prisma.userDocument.findUnique.mockResolvedValue({
+    mockDocumentLookup({
       id: 'doc-1', userId: 'u1', localPath: '/app/storage/documents/missing.pdf',
       mimeType: 'application/pdf', originalName: 'missing.pdf', sizeBytes: 1024,
     });
@@ -118,9 +124,28 @@ describe('GET /api/documents/[id]', () => {
     expect(res.status).toBe(404);
   });
 
+  it('should not log local file paths when file content is missing', async () => {
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    mockAuth.mockResolvedValue({ user: { id: 'u1', role: 'ELEVE' } } as any);
+    mockDocumentLookup({
+      id: 'doc-1', userId: 'u1', localPath: '/app/storage/documents/private/missing.pdf',
+      mimeType: 'application/pdf', originalName: 'missing.pdf', sizeBytes: 1024,
+    });
+    mockReadFile.mockRejectedValue(Object.assign(new Error('ENOENT: /app/storage/documents/private/missing.pdf'), { code: 'ENOENT' }));
+
+    const res = await GET(...makeRequest('doc-1'));
+
+    expect(res.status).toBe(404);
+    const serializedLogs = JSON.stringify(errorSpy.mock.calls);
+    expect(serializedLogs).not.toContain('/app/storage');
+    expect(serializedLogs).not.toContain('private/missing.pdf');
+    errorSpy.mockRestore();
+  });
+
   it('should return 500 on DB error', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'u1', role: 'ELEVE' } } as any);
     prisma.userDocument.findUnique.mockRejectedValue(new Error('DB error'));
+    prisma.userDocument.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await GET(...makeRequest('doc-1'));
     expect(res.status).toBe(500);
