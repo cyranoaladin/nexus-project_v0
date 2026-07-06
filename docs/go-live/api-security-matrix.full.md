@@ -1,7 +1,7 @@
 # Annexe matrice API sécurité complète
 
 Source : `docs/security/API_GUARD_INVENTORY.md`.
-Généré le : 2026-07-06T21:06:13.911Z.
+Généré le : 2026-07-06T21:29:09.336Z.
 
 Lecture statique uniquement : `Auth guard détecté`, `Role guard détecté`, `Zod détecté` et `Ownership requis` sont des indices de pilotage. `À vérifier` signifie qu’aucune preuve suffisante n’a été établie dans ce lot.
 

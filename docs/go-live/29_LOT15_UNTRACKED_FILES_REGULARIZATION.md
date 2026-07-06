@@ -50,6 +50,22 @@ Les fichiers suivants restent hors RC :
 |---|---|
 | `test(go-live): include release validation tests` | `c774ed34f` |
 | `docs(go-live): include remaining release evidence` | `edcb0faa2` |
+| `docs(go-live): record untracked file regularization` | `a775c4e60` |
+
+## Gates finales
+
+Les gates Lot 15 ont été exécutées sous Node 20 :
+
+- `npm run typecheck` : PASSED.
+- `npm run lint` : PASSED.
+- `npm run test:unit -- --runInBand` : PASSED, 541 suites passées, 1 skipped ; 6531 tests passés, 4 skipped.
+- `npm run build` : PASSED.
+- `node scripts/security/audit-api-guards.mjs` : PASSED, 178 routes.
+- `node scripts/go-live/generate-api-security-matrix.mjs` : PASSED, `P0=0`, `P1=6`, `P2=144`, `OK=28`.
+- `npm run audit:site-map` : PASSED.
+- `npm run check:no-hardcoded` : PASSED.
+- `npm run check:docs-archive` : PASSED.
+- `npm run check:bundle-weight` : PASSED.
 
 ## Matrice API
 
