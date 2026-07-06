@@ -1,5 +1,23 @@
 # Backlog P0/P1 go-live
 
+## Mise à jour Lot 14 — 2026-07-06
+
+- Les 9 commits locaux du runbook Lot 11 ont été exécutés dans l'ordre demandé.
+- Inventaire confirmé après gates finales : `P0=0`, `P1=6`, `P2=144`, `OK=28`, total `178`.
+- Les 6 P1 restent visibles et non requalifiés : ClicToPay webhook, assessment submit, bilan gratuit, Lamis teacher report, stage inscription, student activation.
+- Gates finales post-commits passées : typecheck, lint, full unit, build, audit API, matrice API, site-map, no-hardcoded, docs archive, bundle weight, Playwright public (`24` tests) et Playwright assessment (`1` test).
+- Aucun push, aucune PR, aucun déploiement, aucune migration et aucune modification `.env`.
+- Décision : `LOCAL_COMMITS_EXECUTED`, `READY_FOR_PUSH_REVIEW`, `BETA_CONTROLEE_ALLOWED_WITH_RESERVES`, `BETA_ELARGIE_BLOCKED`, `GO_LIVE_LARGE_BLOCKED`.
+
+Blocages maintenus :
+
+1. Redis/Upstash staging/production non prouvé.
+2. Test `429` runtime réel non exécuté.
+3. ContactLead dry-run DB non production non exécuté.
+4. ClicToPay disabled.
+
+---
+
 ## Mise à jour Lot 13 — 2026-07-06
 
 - Inventaire inchangé : `P0=0`, `P1=6`, `P2=144`, `OK=28`, total `178`.

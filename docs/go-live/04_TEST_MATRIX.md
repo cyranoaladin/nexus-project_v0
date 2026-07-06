@@ -1,5 +1,24 @@
 # Matrice de tests
 
+## Mise à jour Lot 14 — local commits 2026-07-06
+
+| Commande | Objectif | Statut actuel | Résultat observé | Blocage éventuel | Critère go-live |
+| --- | --- | --- | --- | --- | --- |
+| `npm run typecheck` | Valider TypeScript après commits locaux | OK | `tsc --noEmit` OK | Aucun | Obligatoire push review |
+| `npm run lint` | Valider lint après commits locaux | OK avec warnings | Next lint OK sous `--max-warnings 300` | Dette warnings existante | Obligatoire push review |
+| `npm run test:unit -- --runInBand` | Valider suite unitaire complète | OK | 541 suites passées, 1 skipped ; 6531 tests passés, 4 skipped | Logs simulés attendus | Obligatoire push review |
+| `npm run build` | Valider build production local | OK | Next build OK, 142 pages statiques générées | Charge les env sans afficher de valeurs | Obligatoire push review |
+| `node scripts/security/audit-api-guards.mjs` | Régénérer inventaire API | OK | 178 routes | Statique uniquement | 0 P0 |
+| `node scripts/go-live/generate-api-security-matrix.mjs` | Régénérer matrice API | OK | `P0=0`, `P1=6`, `P2=144`, `OK=28` | P1 maintenus | 0 P0, P1 visibles |
+| `npm run audit:site-map` | Vérifier graphe de routes/liens | OK | 292 routes, 413 edges, 0 link finding | 13 public orphan entries documentées par l'audit | Obligatoire |
+| `npm run check:no-hardcoded` | Vérifier prix/valeurs canoniques | OK | 0 valeur hardcodée hors sources canoniques | Aucun | Obligatoire |
+| `npm run check:docs-archive` | Vérifier placement docs historiques | OK | Aucun audit/rapport historique à la racine `docs/` | Aucun | Obligatoire |
+| `npm run check:bundle-weight` | Contrôler poids bundle | OK | Toutes les routes dans baseline + 5 kB | Aucun | Obligatoire |
+| Playwright public ciblé | Smoke public homepage/offres/bilan | OK | 24 tests passés | Refresh passif Prisma non bloquant | Obligatoire |
+| Playwright assessment token | Protéger accès direct assessment | OK | 1 test passé | Refresh passif Prisma non bloquant | Obligatoire |
+
+---
+
 ## Mise à jour Lot 13 — final precommit 2026-07-06
 
 | Commande | Objectif | Statut actuel | Résultat observé | Blocage éventuel | Critère go-live |

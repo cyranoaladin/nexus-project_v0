@@ -1,5 +1,34 @@
 # Prompts des prochains lots Codex
 
+## Mise à jour Lot 14 — prompt recommandé suivant
+
+Le prochain lot recommandé est une revue humaine de push/PR, sans push automatique par Codex et sans déploiement. Lot 14 indique `LOCAL_COMMITS_EXECUTED` et `READY_FOR_PUSH_REVIEW`.
+
+```md
+Tu travailles dans `nexus-project_v0`. Les Lots 0 à 14 sont terminés avec réserves. Les 9 commits locaux du runbook Lot 11 ont été exécutés, plus le commit documentaire Lot 14 si présent localement.
+
+Objectif : préparer la revue humaine avant push, sans push automatique, sans PR automatique et sans déploiement.
+
+Préconditions :
+- vérifier `git log --oneline` et confirmer la séquence de commits locaux ;
+- vérifier `git diff --cached --name-only` vide ;
+- vérifier que `rapport_audit_2_07_2026.md`, `docs/audits/audit-nexus-reussite.md`, `.env*`, `.next`, `node_modules`, `test-results` et `playwright-report` ne sont pas staged ;
+- relire `docs/go-live/28_LOT14_LOCAL_COMMITS_EXECUTION.md` et `docs/go-live/_evidence/lot14-post-commit-go-no-go.md`.
+
+Actions :
+- ne pas pousser sans décision humaine explicite ;
+- si push demandé, refaire une vérification courte : typecheck, lint, P1 matrix, staging vide, statut Git ;
+- préparer une PR uniquement si demandé explicitement ;
+- ne pas déployer, ne pas lancer de migration, ne pas modifier de secret.
+
+Décisions maintenues :
+- `BETA_CONTROLEE_ALLOWED_WITH_RESERVES` ;
+- `BETA_ELARGIE_BLOCKED` tant que Redis/Upstash et 429 runtime ne sont pas prouvés ;
+- `GO_LIVE_LARGE_BLOCKED`.
+```
+
+---
+
 ## Mise à jour Lot 13 — prompt recommandé suivant
 
 Le prochain lot recommandé est l'exécution humaine manuelle des 9 commits du runbook Lot 11. Le Lot 13 a validé le verrou precommit sans `git add` réel, sans commit, sans push et sans PR.

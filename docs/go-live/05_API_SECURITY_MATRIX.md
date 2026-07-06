@@ -1,5 +1,24 @@
 # Matrice API sécurité
 
+## Mise à jour Lot 14 — 2026-07-06
+
+Lot 14 exécute les commits locaux et les gates finales sans requalifier les P1.
+
+| Élément | Statut |
+| --- | --- |
+| Compteurs API | `P0=0`, `P1=6`, `P2=144`, `OK=28`, total `178` |
+| 6 P1 | Toujours visibles |
+| Commits locaux | 9 commits Lot 11 exécutés |
+| Gates finales | Toutes passées |
+| Staging Git | Vide après les 9 commits et les gates |
+| Redis/Upstash | Non prouvé |
+| 429 runtime | Non exécuté |
+| ContactLead DB dry-run | Non exécuté |
+
+Décision : `READY_FOR_PUSH_REVIEW`; bêta contrôlée possible avec réserves ; bêta élargie et go-live large bloqués.
+
+---
+
 ## Mise à jour Lot 13 — 2026-07-06
 
 Lot 13 ne modifie pas la matrice et ne requalifie aucun P1.
