@@ -21,7 +21,7 @@ export const submitAssessmentSchema = z.object({
     name: z.string().min(2, 'Nom trop court'),
     phone: z.string().optional(),
     schoolYear: z.string().optional(),
-  }),
+  }).strict(),
   answers: z.record(z.string(), z.string()), // questionId -> optionId
   duration: z.number().int().positive().optional(), // Duration in ms
   metadata: z
@@ -30,8 +30,9 @@ export const submitAssessmentSchema = z.object({
       startedAt: z.string().datetime().optional(),
       completedAt: z.string().datetime().optional(),
     })
+    .strict()
     .optional(),
-});
+}).strict();
 
 export type SubmitAssessmentRequest = z.infer<typeof submitAssessmentSchema>;
 

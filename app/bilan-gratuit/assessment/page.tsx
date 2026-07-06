@@ -1,96 +1,80 @@
-"use client";
-
-import { Suspense, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { AssessmentRunner } from "@/components/assessments/AssessmentRunner";
-import { Subject, Grade } from "@/lib/assessments/core/types";
-import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
-import { CorporateFooter } from "@/components/layout/CorporateFooter";
+import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
+import { AssessmentClient } from "./AssessmentClient";
+import { CorporateFooter } from "@/components/layout/CorporateFooter";
+import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
+import {
+  ASSESSMENT_FLOW_COOKIE_NAME,
+  buildAssessmentAliasEmail,
+  createAssessmentPublicToken,
+  verifyAssessmentFlowToken,
+} from "@/lib/assessments/public-token";
+import { Grade } from "@/lib/assessments/core/types";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
-/**
- * Map bilan-gratuit subject names to Assessment Subject enum.
- * MATHS and NSI get their dedicated assessments.
- * All other subjects (Français, Physique, SVT, etc.) get the GENERAL diagnostic.
- */
-function mapSubject(bilanSubject: string): Subject {
-  switch (bilanSubject) {
-    case "MATHEMATIQUES":
-      return Subject.MATHS;
-    case "NSI":
-      return Subject.NSI;
-    case "GENERAL":
-    default:
-      return Subject.GENERAL;
-  }
-}
+export const dynamic = "force-dynamic";
 
-/**
- * Map bilan-gratuit grade to Assessment Grade enum.
- */
-function mapGrade(bilanGrade: string): Grade {
-  switch (bilanGrade) {
-    case "terminale":
-      return Grade.TERMINALE;
-    case "premiere":
-    case "seconde":
-    default:
-      return Grade.PREMIERE;
-  }
+type SearchParams = Record<string, string | string[] | undefined>;
+
+function AssessmentAccessUnavailable() {
+  return (
+    <div className="mx-auto flex min-h-[60vh] max-w-2xl flex-col items-center justify-center px-6 text-center">
+      <div className="rounded-lg border border-white/10 bg-white/5 p-8">
+        <h1 className="text-3xl font-semibold text-white">Accès au diagnostic expiré</h1>
+        <p className="mt-4 text-sm text-neutral-300">
+          Pour accéder au diagnostic, commencez par envoyer la demande de bilan gratuit.
+          Notre équipe pourra ensuite exploiter les réponses dans le bon contexte pédagogique.
+        </p>
+      </div>
+    </div>
+  );
 }
 
 /**
  * Page: /bilan-gratuit/assessment
  *
- * After bilan-gratuit registration, the student is redirected here
- * with query params: ?subject=MATHEMATIQUES&grade=premiere&name=...&email=...
- *
- * This page hosts the AssessmentRunner which loads QCM questions,
- * lets the student answer, then submits to /api/assessments/submit
- * for scoring + RAG+LLM bilan generation.
+ * The assessment submission API requires a short-lived signed token bound to a
+ * lead/session flow. This page never issues a token from public query params.
  */
-function AssessmentContent() {
-  const searchParams = useSearchParams();
+export default async function BilanAssessmentPage({
+  searchParams,
+}: {
+  searchParams?: Promise<SearchParams>;
+}) {
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  if (Object.keys(resolvedSearchParams).length > 0) {
+    redirect("/bilan-gratuit/assessment");
+  }
 
-  const subjectParam = searchParams?.get("subject") || "MATHEMATIQUES";
-  const gradeParam = searchParams?.get("grade") || "premiere";
-  const nameParam = searchParams?.get("name") || "Élève";
-  const emailParam = searchParams?.get("email") || "";
+  const cookieStore = await cookies();
+  const flowCookie = cookieStore.get(ASSESSMENT_FLOW_COOKIE_NAME)?.value;
+  const flowVerification = verifyAssessmentFlowToken(flowCookie, {
+    source: "bilan-gratuit",
+  });
 
-  const [ready, setReady] = useState(false);
-
-  const subject = mapSubject(subjectParam);
-  const grade = mapGrade(gradeParam);
-
-  useEffect(() => {
-    setReady(true);
-  }, []);
-
-  if (!ready) {
+  if (!flowVerification.valid) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <Loader2 className="w-12 h-12 animate-spin text-brand-accent mx-auto" />
-          <p className="text-lg text-neutral-400">Chargement de l&apos;évaluation...</p>
-        </div>
+      <div className="min-h-screen bg-surface-darker text-neutral-100">
+        <CorporateNavbar />
+        <main id="main-content" className="py-8">
+          <AssessmentAccessUnavailable />
+        </main>
+        <CorporateFooter />
       </div>
     );
   }
 
-  return (
-    <AssessmentRunner
-      subject={subject}
-      grade={grade}
-      studentData={{
-        email: emailParam,
-        name: nameParam,
-      }}
-      apiEndpoint="/api/assessments/submit"
-    />
-  );
-}
+  const { subject, grade, leadEmailHash, source } = flowVerification.payload;
+  const assessmentPublicToken = createAssessmentPublicToken({
+    subject,
+    grade,
+    source,
+    binding: "lead",
+    leadEmailHash,
+  });
+  const email = buildAssessmentAliasEmail(leadEmailHash);
 
-export default function BilanAssessmentPage() {
   return (
     <div className="min-h-screen bg-surface-darker text-neutral-100">
       <CorporateNavbar />
@@ -102,7 +86,13 @@ export default function BilanAssessmentPage() {
             </div>
           }
         >
-          <AssessmentContent />
+          <AssessmentClient
+            subject={subject}
+            grade={grade as Grade}
+            name="Élève Nexus"
+            email={email}
+            assessmentPublicToken={assessmentPublicToken}
+          />
         </Suspense>
       </main>
       <CorporateFooter />

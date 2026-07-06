@@ -6,7 +6,8 @@ import { getAllOffers, getEffectivePrice } from "@/lib/pricing";
 import { OG_DEFAULT_IMAGE } from "@/lib/seo";
 import "./globals.css";
 
-const GA_MEASUREMENT_ID = "G-3XPB54QL5N";
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+const ENABLE_GOOGLE_ANALYTICS = process.env.NEXT_PUBLIC_ENABLE_GOOGLE_ANALYTICS === 'true';
 
 const inter = localFont({
   src: "./fonts/Inter-Variable.woff2",
@@ -112,22 +113,27 @@ export default function RootLayout({
       offerCount: String(publicPrices.length),
     } : undefined,
   };
+  const shouldLoadGoogleAnalytics = ENABLE_GOOGLE_ANALYTICS && Boolean(GA_MEASUREMENT_ID);
 
   return (
     <html lang="fr">
       <head>
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-          strategy="lazyOnload"
-        />
-        <Script id="gtag-init" strategy="lazyOnload">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${GA_MEASUREMENT_ID}');
-          `}
-        </Script>
+        {shouldLoadGoogleAnalytics && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+              strategy="lazyOnload"
+            />
+            <Script id="gtag-init" strategy="lazyOnload">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${GA_MEASUREMENT_ID}');
+              `}
+            </Script>
+          </>
+        )}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

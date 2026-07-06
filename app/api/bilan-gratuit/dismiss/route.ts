@@ -4,13 +4,24 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { z } from 'zod';
+
+const dismissPayloadSchema = z.object({}).strict();
 
 /**
  * POST /api/bilan-gratuit/dismiss
  * Marks the bilan gratuit banner as dismissed for the current parent.
  */
-export async function POST() {
+export async function POST(request: Request) {
   try {
+    const contentLength = request.headers.get('content-length');
+    if (contentLength && contentLength !== '0') {
+      const parsedPayload = dismissPayloadSchema.safeParse(await request.json().catch(() => null));
+      if (!parsedPayload.success) {
+        return NextResponse.json({ error: 'Invalid dismiss payload' }, { status: 400 });
+      }
+    }
+
     let session: any = null;
     try {
       session = await auth();

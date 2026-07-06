@@ -24,6 +24,19 @@ import { submitAssessmentSchema, type SubmitAssessmentResponse } from './types';
 import { headers } from 'next/headers';
 import { backfillCanonicalDomains } from '@/lib/assessments/core/config';
 import { guardRateLimitAsync } from '@/lib/rate-limit';
+import { verifyAssessmentPublicToken } from '@/lib/assessments/public-token';
+
+function getAssessmentPublicToken(request: NextRequest): string | null {
+  const headerToken = request.headers.get('x-assessment-public-token')?.trim();
+  if (headerToken) return headerToken;
+
+  const authorization = request.headers.get('authorization')?.trim();
+  if (authorization?.toLowerCase().startsWith('bearer ')) {
+    return authorization.slice('bearer '.length).trim();
+  }
+
+  return null;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,6 +59,24 @@ export async function POST(request: NextRequest) {
     }
 
     const { subject, grade, assessmentVersion, studentData, answers, duration, metadata } = validationResult.data;
+
+    const tokenVerification = verifyAssessmentPublicToken(
+      getAssessmentPublicToken(request),
+      {
+        usage: 'assessment_submit',
+        subject: subject as Subject,
+        grade,
+        studentEmail: studentData.email,
+      },
+    );
+
+    if (!tokenVerification.valid) {
+      const status = tokenVerification.reason === 'scope_mismatch' ? 403 : 401;
+      return NextResponse.json(
+        { error: status === 403 ? 'Forbidden' : 'Unauthorized' },
+        { status },
+      );
+    }
 
     // Get user agent and IP for tracking
     const headersList = await headers();

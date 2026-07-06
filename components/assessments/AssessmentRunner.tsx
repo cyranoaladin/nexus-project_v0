@@ -44,6 +44,7 @@ interface AssessmentRunnerProps {
   studentData?: StudentData;
   onComplete?: (answers: StudentAnswer[]) => void;
   apiEndpoint?: string;
+  assessmentPublicToken?: string;
 }
 
 export function AssessmentRunner({
@@ -53,6 +54,7 @@ export function AssessmentRunner({
   studentData,
   onComplete,
   apiEndpoint,
+  assessmentPublicToken,
 }: AssessmentRunnerProps) {
   const router = useRouter();
 
@@ -131,7 +133,12 @@ export function AssessmentRunner({
 
         const response = await fetch(apiEndpoint, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            ...(assessmentPublicToken
+              ? { 'x-assessment-public-token': assessmentPublicToken }
+              : {}),
+          },
           body: JSON.stringify({
             subject,
             grade,
@@ -164,7 +171,7 @@ export function AssessmentRunner({
       setState('ERROR');
       toast.error('Erreur lors de la soumission');
     }
-  }, [apiEndpoint, grade, onComplete, router, selectedOptions, startTime, studentData, subject]);
+  }, [apiEndpoint, assessmentPublicToken, grade, onComplete, router, selectedOptions, startTime, studentData, subject]);
 
   // Validate answer
   const handleValidate = useCallback(() => {

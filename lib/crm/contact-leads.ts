@@ -3,7 +3,6 @@ import { prisma } from '@/lib/prisma';
 import { sendMail } from '@/lib/email/mailer';
 import { contactLeadNotification } from '@/lib/email/templates';
 import { LEGAL } from '@/lib/legal';
-import { serializeError } from '@/lib/utils/serialize-error';
 
 const optionalText = z
   .preprocess(
@@ -40,6 +39,21 @@ export class ContactLeadValidationError extends Error {
 
 export type ContactLeadInput = z.input<typeof contactLeadPayloadSchema>;
 
+export const CONTACT_LEAD_RETENTION_DAYS = 365;
+export const CONTACT_LEAD_ERASURE_SLA_DAYS = 30;
+
+export function buildContactLeadRetentionDecision() {
+  return {
+    dataCategory: 'public_lead_minor_related',
+    legalBasis: 'parent_consent_and_precontractual_request',
+    retentionDays: CONTACT_LEAD_RETENTION_DAYS,
+    erasureSlaDays: CONTACT_LEAD_ERASURE_SLA_DAYS,
+    deletionProcedure:
+      'Supprimer ou anonymiser les lignes ContactLead à la demande parentale et purger les leads non convertis au-delà de la durée de conservation.',
+    productionAction: 'schedule_retention_job_before_go_live_large',
+  } as const;
+}
+
 function getLeadNotificationRecipient(): string {
   return (
     process.env.CRM_LEAD_NOTIFICATION_EMAIL ||
@@ -69,8 +83,7 @@ export async function captureContactLead(payload: unknown) {
     throw new ContactLeadValidationError('missing_required');
   }
 
-  const lead = await prisma.contactLead.create({
-    data: {
+  const leadData = {
       name: data.name,
       email: data.email,
       phone: data.phone,
@@ -80,8 +93,27 @@ export async function captureContactLead(payload: unknown) {
       source: data.source,
       status: 'NEW',
       notes: data.notes,
-    },
-  });
+  } as const;
+
+  const existingLead = typeof prisma.contactLead.findFirst === 'function'
+    ? await prisma.contactLead.findFirst({
+        where: {
+          email: data.email,
+          source: data.source,
+          status: 'NEW',
+        },
+        orderBy: { createdAt: 'desc' },
+      })
+    : null;
+
+  const lead = existingLead && typeof prisma.contactLead.update === 'function'
+    ? await prisma.contactLead.update({
+        where: { id: existingLead.id },
+        data: leadData,
+      })
+    : await prisma.contactLead.create({
+        data: leadData,
+      });
 
   const template = contactLeadNotification({
     id: lead.id,
@@ -104,7 +136,9 @@ export async function captureContactLead(payload: unknown) {
       replyTo: lead.email,
     });
   } catch (error) {
-    console.error('[contact] lead notification failed', serializeError(error));
+    console.error('[contact] lead notification failed', {
+      name: error instanceof Error ? error.name : 'Error',
+    });
   }
 
   return lead;
