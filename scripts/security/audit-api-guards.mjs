@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 
 const root = process.cwd();
 const apiRoot = join(root, 'app/api');
@@ -27,11 +27,59 @@ function methodsOf(source) {
   return matches.map((match) => match[1]).join(', ') || '-';
 }
 
+function hasRateLimitGuard(source) {
+  return hasAny(source, [
+    /\bguardRateLimitAsync\s*\(/,
+    /\bguardRateLimit\s*\(/,
+    /\bcheckRateLimitAsync\s*\(/,
+    /\bcheckRateLimit\s*\(/,
+    /\brateLimitResponse\s*\(/,
+    /\bRateLimitPresets\.[A-Za-z0-9_]+\s*\(/,
+    /\bwithRateLimit\s*\(/,
+    /\bapplyRateLimit\s*\(/,
+    /\bpublicLeadRateLimit\s*\(/,
+    /\benforceRateLimit\s*\(/,
+  ]);
+}
+
+function sourceFor(file) {
+  const source = readFileSync(file, 'utf8');
+  const reexportMatches = [...source.matchAll(/export\s*\{\s*([^}]+)\s*\}\s*from\s*['"]([^'"]+)['"]/g)];
+  if (reexportMatches.length === 0) return source;
+
+  const importedSources = reexportMatches
+    .map((match) => {
+      const target = resolve(dirname(file), match[2]);
+      const targetFile = target.endsWith('.ts') ? target : `${target}.ts`;
+      try {
+        return readFileSync(targetFile, 'utf8');
+      } catch {
+        return '';
+      }
+    })
+    .filter(Boolean);
+
+  return [source, ...importedSources].join('\n');
+}
+
 function riskFor(route, source, dynamic, authGuard, roleGuard, ownership, zod) {
   const sensitivePath = /documents|invoice|billing|payment|bilan|assessment|aria|session|stage|coach|assistante|admin|parent|student|npc|submission|report/i.test(route);
   const mutation = /\b(POST|PATCH|PUT|DELETE)\b/.test(methodsOf(source));
+  const staffOnlyRoute = (
+    /app\/api\/(admin|assistante)\//.test(route) ||
+    /requireAnyRole\s*\(\s*\[\s*['"]ADMIN['"]\s*,\s*['"]ASSISTANTE['"]/.test(source)
+  ) && authGuard && roleGuard;
+  const publicSensitiveWithControls = !authGuard && sensitivePath && zod && hasRateLimitGuard(source);
+  const fixedPublicDocument = /app\/api\/public-documents\//.test(route) && methodsOf(source) === 'GET' && /const\s+FILE_NAME\b/.test(source);
+  const disabledWebhook = /webhook/i.test(route) && /status:\s*501/.test(source) && /NOT_CONFIGURED|not configured|en cours de configuration/i.test(source);
+  const deprecatedRoute = /status:\s*410/.test(source);
+  const publicStageCatalog = /^app\/api\/stages(\/\[[^\]]+\])?\/route\.ts$/.test(route) && methodsOf(source) === 'GET';
+  const staticStudentContent = /app\/api\/student\/automatismes\/series\/\[id\]\/route\.ts/.test(route) && methodsOf(source) === 'GET';
 
-  if (dynamic && sensitivePath && authGuard && !ownership) return 'P0';
+  if (fixedPublicDocument || deprecatedRoute || publicStageCatalog || staticStudentContent) return 'P2';
+  if (disabledWebhook) return 'P1';
+  if (dynamic && sensitivePath && authGuard && !ownership && !staffOnlyRoute) return 'P0';
+  if (publicSensitiveWithControls) return mutation ? 'P1' : 'P2';
   if (sensitivePath && !authGuard) return 'P0';
   if (mutation && sensitivePath && !zod) return 'P1';
   if (sensitivePath && authGuard && !roleGuard && !ownership) return 'P1';
@@ -54,11 +102,26 @@ function notesFor(route, source, risk) {
 }
 
 const rows = walk(apiRoot).map((file) => {
-  const source = readFileSync(file, 'utf8');
+  const source = sourceFor(file);
   const route = relative(root, file);
   const dynamic = /\[[^\]]+\]/.test(route) ? 'yes' : 'no';
-  const authGuard = hasAny(source, [/\bauth\s*\(/, /\brequireAuth\b/, /\brequireRole\b/, /\brequireAnyRole\b/]) ? 'yes' : 'no';
-  const roleGuard = hasAny(source, [/\brequireRole\b/, /\brequireAnyRole\b/, /session\.user\.role/, /UserRole\./]) ? 'yes' : 'no';
+  const authGuard = hasAny(source, [
+    /\bauth\s*\(/,
+    /\brequireAuth\b/,
+    /\brequireRole\b/,
+    /\brequireAnyRole\b/,
+    /\benforcePolicy\b/,
+    /\bgetActor\b/,
+  ]) ? 'yes' : 'no';
+  const roleGuard = hasAny(source, [
+    /\brequireRole\b/,
+    /\brequireAnyRole\b/,
+    /\benforcePolicy\b/,
+    /\bcanPerformStatusAction\b/,
+    /\bcan\s*\(\s*role\s*,/,
+    /session\.user\.role/,
+    /UserRole\./,
+  ]) ? 'yes' : 'no';
   const featureGuard = hasAny(source, [/\brequireFeatureApi\b/, /\brequireFeature\b/]) ? 'yes' : 'no';
   const zod = hasAny(source, [/\bzod\b/, /\bz\./, /\.parse\s*\(/, /\.safeParse\s*\(/]) ? 'yes' : 'no';
   const ownership = hasAny(source, [
@@ -68,6 +131,32 @@ const rows = walk(apiRoot).map((file) => {
     /coachId\s*:\s*session\.user\.id/,
     /student\s*:\s*\{[^}]*userId\s*:\s*session\.user\.id/s,
     /where\s*:\s*\{[^}]*id\s*:[^}]*userId/s,
+    /\bbuildDocumentOwnershipWhere\b/,
+    /\bhasDocumentOwnership\b/,
+    /\bassertCoachCanAccessStudent\b/,
+    /\bisCoachAssignedToStudent\b/,
+    /\bcanReadSubmission\b/,
+    /\bcanManageSubmissionDocuments\b/,
+    /\bauthenticateAndAuthorize\b/,
+    /\bverifyStageAccess\b/,
+    /\bstageCoach\.findFirst\b/,
+    /stage\s*:\s*\{\s*slug\s*:\s*stageSlug\s*\}/,
+    /sessionBooking\.coachId\s*!==\s*coachUserId/,
+    /sessionBooking\.coachId\s*!==\s*session\.user\.id/,
+    /sessionBooking\.studentId\s*!==\s*session\.user\.id/,
+    /sessionBooking\.parentId\s*!==\s*session\.user\.id/,
+    /\bbuildInvoiceAccessWhere\b/,
+    /\bbuildInvoiceScopeWhere\b/,
+    /\bbuildAssessmentAccessWhere\b/,
+    /\bbuildBilanReadWhere\b/,
+    /\bbuildBilanWriteWhere\b/,
+    /studentId\s*:\s*\{\s*in\s*:\s*childIds\s*\}/,
+    /parentProfile\.findUnique\s*\([^]*userId\s*:\s*sessionOrError\.user\.id/s,
+    /\brequireParentOwnsStudent\b/,
+    /\brequireParentOwnsInvoice\b/,
+    /\brequireCoachAssignedToStudent\b/,
+    /\brequireStudentOwnsResource\b/,
+    /\benforceOwnership\b/,
     /ownership/i,
   ]) ? 'yes' : 'no';
   const methods = methodsOf(source);
