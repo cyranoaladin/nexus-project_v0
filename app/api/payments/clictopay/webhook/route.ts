@@ -14,21 +14,36 @@ import { logger } from '@/lib/logger';
  */
 export async function POST(request: NextRequest) {
   try {
+    const rawBody = await request.text();
+    const signature = request.headers.get('x-clictopay-signature')?.trim() ?? '';
+    if (!signature) {
+      logger.warn('[ClicToPay Webhook] Missing signature');
+      return NextResponse.json(
+        { error: 'Signature requise', code: 'CLICTOPAY_SIGNATURE_REQUIRED' },
+        { status: 401 }
+      );
+    }
+
     // HMAC signature verification (reject spoofed webhooks)
     const secret = process.env.CLICTOPAY_WEBHOOK_SECRET;
     if (secret) {
-      const signature = request.headers.get('x-clictopay-signature') ?? '';
-      const rawBody = await request.text();
       const expected = createHmac('sha256', secret).update(rawBody).digest('hex');
       let signatureValid = false;
       try {
-        signatureValid = timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
+        const signatureBuffer = Buffer.from(signature, 'hex');
+        const expectedBuffer = Buffer.from(expected, 'hex');
+        signatureValid =
+          signatureBuffer.length === expectedBuffer.length &&
+          timingSafeEqual(signatureBuffer, expectedBuffer);
       } catch {
-        // Length mismatch — definitely invalid
+        // Malformed signature — definitely invalid
       }
       if (!signatureValid) {
         logger.warn('[ClicToPay Webhook] Invalid signature');
-        return NextResponse.json({ error: 'Signature invalide' }, { status: 401 });
+        return NextResponse.json(
+          { error: 'Signature invalide', code: 'CLICTOPAY_SIGNATURE_INVALID' },
+          { status: 401 }
+        );
       }
     }
 
