@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import type { CreditTransaction } from '@prisma/client';
 import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
+import { sendMail } from '@/lib/email/mailer';
 import crypto from 'crypto';
 import { z } from 'zod';
 
@@ -199,6 +200,20 @@ export async function POST(request: NextRequest) {
 
     const baseUrl = process.env.NEXTAUTH_URL || 'https://nexusreussite.academy';
     const activationUrl = `${baseUrl}/auth/activate?token=${encodeURIComponent(rawActivationToken)}`;
+
+    // Send activation email (best-effort — the URL is also returned in the response)
+    await sendMail({
+      to: email,
+      subject: `Activation du compte élève — ${firstName} ${lastName}`,
+      html: `<p>Bonjour ${firstName},</p>
+             <p>Votre compte élève sur Nexus Réussite a été créé.</p>
+             <p>Cliquez sur le lien ci-dessous pour définir votre mot de passe et activer votre compte :</p>
+             <p><a href="${activationUrl}">${activationUrl}</a></p>
+             <p>Ce lien est valide pendant 72 heures.</p>
+             <p>L'équipe Nexus Réussite</p>`,
+    }).catch((err) => {
+      console.error('[parent/children] Activation email failed (non-blocking):', serializeError(err));
+    });
 
     return NextResponse.json({
       success: true,

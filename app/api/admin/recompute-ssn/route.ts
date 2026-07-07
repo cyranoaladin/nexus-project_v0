@@ -28,8 +28,9 @@ export async function POST(request: NextRequest) {
     if (isErrorResponse(sessionOrError)) return sessionOrError;
 
     const rateLimited = await guardRateLimitAsync(request, {
-      preset: 'api',
+      preset: 'expensive',
       keySuffix: 'admin-recompute-ssn',
+      userId: sessionOrError.user.id,
     });
     if (rateLimited) return rateLimited;
 

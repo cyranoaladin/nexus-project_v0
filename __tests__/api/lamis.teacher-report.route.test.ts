@@ -117,4 +117,33 @@ describe('Lamis teacher-report API', () => {
     expect(res.status).toBe(200);
     expect(body.report).toContain('Lamis');
   });
+
+  it('rejects unknown exerciseIds', async () => {
+    const res = await POST(postRequest({
+      attempts: [{ ...validAttempt, exerciseId: 'nonexistent-exercise-xyz' }],
+    }));
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body.error).toBe('exerciseId inconnu');
+    expect(body.unknownIds).toContain('nonexistent-exercise-xyz');
+  });
+
+  it('recomputes isCorrect and tooFast server-side', async () => {
+    // Send a forged attempt claiming isCorrect=true with a wrong answer
+    const forgedAttempt = {
+      ...validAttempt,
+      answer: 'obviously-wrong-answer',
+      isCorrect: true,
+      tooFast: false,
+      timeSpentSeconds: 1, // below expectedTimeSeconds
+    };
+
+    const res = await POST(postRequest({ attempts: [forgedAttempt] }));
+    const body = await res.json();
+
+    // Should still succeed (200) but the report uses server-recomputed values
+    expect(res.status).toBe(200);
+    expect(body.report).toBeDefined();
+  });
 });

@@ -9,7 +9,6 @@ import { serializeError } from '@/lib/utils/serialize-error';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
-import type { BilanStatus } from '@/lib/bilan/types';
 import {
   buildBilanReadWhere,
   buildBilanWriteWhere,
@@ -27,13 +26,15 @@ const routeParamsSchema = z.object({
   id: z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/),
 }).strict();
 
+const BILAN_STATUSES = ['PENDING', 'SCORING', 'GENERATING', 'COMPLETED', 'FAILED'] as const;
+
 const updateBilanBodySchema = z.object({
-  status: z.string().trim().min(1).max(80).optional(),
+  status: z.enum(BILAN_STATUSES).optional(),
   progress: z.number().int().min(0).max(100).optional(),
   globalScore: z.number().min(0).max(100).optional(),
   confidenceIndex: z.number().min(0).max(100).optional(),
-  ssn: z.number().optional(),
-  uai: z.number().optional(),
+  ssn: z.number().min(0).max(100).optional(),
+  uai: z.number().min(0).max(100).optional(),
   domainScores: z.unknown().optional(),
   studentMarkdown: z.string().max(80_000).optional(),
   parentsMarkdown: z.string().max(80_000).optional(),
@@ -121,7 +122,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const parsedParams = routeParamsSchema.safeParse(await params);
     if (!parsedParams.success) return validationFailed();
-    const parsedBody = updateBilanBodySchema.safeParse(await request.json());
+    const parsedBody = updateBilanBodySchema.safeParse(await request.json().catch(() => null));
     if (!parsedBody.success) return validationFailed();
     const { id } = parsedParams.data;
     const body = parsedBody.data;
@@ -145,7 +146,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     // Build update data
     const updateData: Record<string, unknown> = {};
 
-    if (body.status !== undefined) updateData.status = body.status as BilanStatus;
+    if (body.status !== undefined) updateData.status = body.status;
     if (body.progress !== undefined) updateData.progress = body.progress;
     if (body.globalScore !== undefined) updateData.globalScore = body.globalScore;
     if (body.confidenceIndex !== undefined) updateData.confidenceIndex = body.confidenceIndex;

@@ -26,17 +26,18 @@ function safeErrorSummary(error: unknown) {
 
 export async function POST(request: NextRequest) {
   try {
-    const blocked = await guardRateLimitAsync(request, {
-      preset: 'api',
-      keySuffix: 'session-video',
-    });
-    if (blocked) return blocked;
-
     const session = await auth();
 
     if (!session?.user) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
+
+    const blocked = await guardRateLimitAsync(request, {
+      preset: 'api',
+      keySuffix: 'session-video',
+      userId: session.user.id,
+    });
+    if (blocked) return blocked;
 
     const body = await request.json().catch(() => null);
     const parsedBody = videoSessionActionSchema.safeParse(body);

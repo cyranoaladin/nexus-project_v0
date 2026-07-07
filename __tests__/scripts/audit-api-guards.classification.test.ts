@@ -74,7 +74,7 @@ describe('audit-api-guards route classification', () => {
     expect(rows.get('app/api/assessments/comment-only/route.ts')).toEqual(expect.objectContaining({ risk: 'P0' }));
   });
 
-  it('keeps public sensitive routes with Zod and rate limit at P1, not OK', () => {
+  it('classifies public sensitive routes as P0 even with Zod and rate limit (validation ≠ authorization)', () => {
     const rows = runAuditOnFixtures({
       'app/api/assessments/submit/route.ts': `
         import { z } from 'zod';
@@ -89,7 +89,7 @@ describe('audit-api-guards route classification', () => {
       `,
     });
 
-    expect(rows.get('app/api/assessments/submit/route.ts')).toEqual(expect.objectContaining({ risk: 'P1' }));
+    expect(rows.get('app/api/assessments/submit/route.ts')).toEqual(expect.objectContaining({ risk: 'P0' }));
   });
 
   it('does not promote disabled ClicToPay webhook beyond P1', () => {
@@ -151,5 +151,38 @@ describe('audit-api-guards route classification', () => {
 
     expect(rows.get('app/api/admin/documents/route.ts')?.risk).not.toBe('P0');
     expect(rows.get('app/api/admin/documents/route.ts')?.risk).not.toBe('OK');
+  });
+
+  it('detects staff roles regardless of order (ASSISTANTE, ADMIN)', () => {
+    const rows = runAuditOnFixtures({
+      'app/api/assistante/billing/route.ts': `
+        import { requireAnyRole } from '@/lib/guards';
+        export async function POST() {
+          await requireAnyRole(['ASSISTANTE', 'ADMIN']);
+          return Response.json({ ok: true });
+        }
+      `,
+    });
+
+    expect(rows.get('app/api/assistante/billing/route.ts')?.risk).not.toBe('P0');
+  });
+
+  it('resolves re-exports from index.ts barrel files', () => {
+    const rows = runAuditOnFixtures({
+      'app/api/coach/barrel/[studentId]/route.ts': `
+        export { GET } from './handlers';
+      `,
+      'app/api/coach/barrel/[studentId]/handlers/index.ts': `
+        import { requireRole } from '@/lib/guards';
+        import { assertCoachCanAccessStudent } from '@/lib/rbac/coach-student-access';
+        export async function GET() {
+          const session = await requireRole('COACH');
+          await assertCoachCanAccessStudent({ coachUserId: session.user.id, studentId: 'student-1' });
+          return Response.json({ ok: true });
+        }
+      `,
+    });
+
+    expect(rows.get('app/api/coach/barrel/[studentId]/route.ts')?.risk).not.toBe('P0');
   });
 });

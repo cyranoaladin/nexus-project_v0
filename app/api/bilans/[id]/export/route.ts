@@ -183,7 +183,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const parsedParams = routeParamsSchema.safeParse(await params);
     if (!parsedParams.success) return validationFailed();
-    const parsedBody = exportBodySchema.safeParse(await request.json());
+    const parsedBody = exportBodySchema.safeParse(await request.json().catch(() => null));
     if (!parsedBody.success) return validationFailed();
     const { id } = parsedParams.data;
     const { format } = parsedBody.data;

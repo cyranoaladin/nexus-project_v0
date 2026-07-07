@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
   if (isErrorResponse(authResponse)) return authResponse;
 
   try {
-    const rawBody = await request.json();
+    const rawBody = await request.json().catch(() => null);
     const parsedBody = generateBilanBodySchema.safeParse(rawBody);
     if (!parsedBody.success) {
       const hasBilanId = rawBody && typeof rawBody === 'object' && 'bilanId' in rawBody;

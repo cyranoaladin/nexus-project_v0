@@ -2,12 +2,15 @@
  * Tests P0-03: Child creation must stay inactive and use its own activation token.
  */
 
-import { POST as createChild } from '@/app/api/parent/children/route';
+import { POST as createChild, GET as listChildren } from '@/app/api/parent/children/route';
 import { prisma } from '@/lib/prisma';
 import { NextRequest } from 'next/server';
 import { auth } from '@/auth';
 
 jest.mock('@/auth');
+jest.mock('@/lib/email/mailer', () => ({
+  sendMail: jest.fn().mockResolvedValue({ success: true }),
+}));
 
 function mockParentSession(userId = 'parent-1') {
   (auth as jest.Mock).mockResolvedValue({
@@ -91,6 +94,39 @@ describe('POST /api/parent/children — P0-03 hardening', () => {
         academicTrack: expect.any(String),
       }),
     }));
+  });
+
+  it('stores a SHA-256 hash in DB, not the raw token', async () => {
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+    const userCreate = jest.fn()
+      .mockResolvedValueOnce({
+        id: 'child-user-456',
+        email: 'alice.martin@nexus-student.local',
+        firstName: 'Alice',
+        lastName: 'Martin',
+      });
+    const studentCreate = jest.fn().mockResolvedValue({
+      id: 'student-456',
+      grade: 'Seconde',
+      school: '',
+      user: { firstName: 'Alice', lastName: 'Martin', email: 'alice.martin@nexus-student.local' },
+    });
+    (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) =>
+      cb({ user: { create: userCreate }, student: { create: studentCreate } })
+    );
+
+    const response = await createChild(req({ firstName: 'Alice', lastName: 'Martin', grade: 'Seconde' }));
+    const json = await response.json();
+
+    expect(response.status).toBe(200);
+    // The activationUrl contains the raw token
+    const rawToken = new URL(json.activation.activationUrl).searchParams.get('token');
+    expect(rawToken).toMatch(/^act_/);
+
+    // The DB received a 64-char hex hash (SHA-256), not the raw token
+    const storedToken = userCreate.mock.calls[0][0].data.activationToken;
+    expect(storedToken).toMatch(/^[0-9a-f]{64}$/);
+    expect(storedToken).not.toBe(rawToken);
   });
 
   it('returns 401 for non-parent', async () => {

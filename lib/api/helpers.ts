@@ -33,6 +33,25 @@ export async function safeJsonParse<T = unknown>(request: NextRequest): Promise<
 }
 
 /**
+ * Parse JSON body without throwing — returns null on malformed input.
+ * Designed for routes that use safeParse and want a consistent 400 path.
+ *
+ * @example
+ * ```ts
+ * const body = await parseJsonBody(request);
+ * const parsed = schema.safeParse(body);
+ * if (!parsed.success) return NextResponse.json({ error: '…' }, { status: 400 });
+ * ```
+ */
+export async function parseJsonBody(request: Request): Promise<unknown> {
+  try {
+    return await request.json();
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Parse and validate request body with Zod schema
  *
  * Combines JSON parsing and validation in one step.

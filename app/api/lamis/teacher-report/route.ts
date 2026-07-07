@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
 import { lamisExercises } from "@/src/data/lamisExercises";
-import { buildPedagogicalReport } from "@/lib/lamis/progress";
-import type { LamisAttempt } from "@/lib/lamis/types";
+import { buildPedagogicalReport, isAnswerCorrect, isTooFast } from "@/lib/lamis/progress";
+import type { LamisAttempt, LamisExercise } from "@/lib/lamis/types";
 import { isErrorResponse, requireAnyRole } from "@/lib/guards";
 import { guardRateLimitAsync } from "@/lib/rate-limit";
 import { UserRole } from "@prisma/client";
 import { z } from "zod";
+
+const exercisesById = new Map<string, LamisExercise>(
+  lamisExercises.map((ex) => [ex.id, ex])
+);
 
 const lamisAttemptSchema = z.object({
   exerciseId: z.string().min(1).max(120),
@@ -41,7 +45,27 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Payload invalide" }, { status: 400 });
   }
 
-  const attempts = parsed.data.attempts as LamisAttempt[];
+  // Reject unknown exerciseIds
+  const unknownIds = parsed.data.attempts
+    .filter((a) => !exercisesById.has(a.exerciseId))
+    .map((a) => a.exerciseId);
+  if (unknownIds.length > 0) {
+    return NextResponse.json(
+      { error: "exerciseId inconnu", unknownIds },
+      { status: 400 }
+    );
+  }
+
+  // Recompute isCorrect and tooFast server-side — never trust client
+  const attempts: LamisAttempt[] = parsed.data.attempts.map((a) => {
+    const exercise = exercisesById.get(a.exerciseId)!;
+    return {
+      ...a,
+      isCorrect: isAnswerCorrect(exercise, a.answer),
+      tooFast: isTooFast(exercise, a.timeSpentSeconds),
+    };
+  });
+
   return NextResponse.json({ report: buildPedagogicalReport(lamisExercises, attempts) });
 }
 

@@ -16,8 +16,14 @@ const routeParamsSchema = z.object({
   studentId: z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/),
 }).strict();
 
+const teacherGradeValueSchema = z.object({
+  score: z.union([z.number().min(0).max(20), z.literal('')]),
+  comment: z.string().max(2000),
+  errors: z.array(z.string().max(500)).max(20),
+});
+
 const teacherGradesSchema = z.object({
-  teacherGrades: z.record(z.unknown()),
+  teacherGrades: z.record(teacherGradeValueSchema),
 }).strict();
 
 function validationFailed() {

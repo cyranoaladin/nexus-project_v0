@@ -50,12 +50,17 @@ function sourceFor(file) {
   const importedSources = reexportMatches
     .map((match) => {
       const target = resolve(dirname(file), match[2]);
-      const targetFile = target.endsWith('.ts') ? target : `${target}.ts`;
-      try {
-        return readFileSync(targetFile, 'utf8');
-      } catch {
-        return '';
+      const candidates = target.endsWith('.ts')
+        ? [target]
+        : [`${target}.ts`, `${target}/index.ts`];
+      for (const candidate of candidates) {
+        try {
+          return readFileSync(candidate, 'utf8');
+        } catch {
+          // try next candidate
+        }
       }
+      return '';
     })
     .filter(Boolean);
 
@@ -65,11 +70,11 @@ function sourceFor(file) {
 function riskFor(route, source, dynamic, authGuard, roleGuard, ownership, zod) {
   const sensitivePath = /documents|invoice|billing|payment|bilan|assessment|aria|session|stage|coach|assistante|admin|parent|student|npc|submission|report/i.test(route);
   const mutation = /\b(POST|PATCH|PUT|DELETE)\b/.test(methodsOf(source));
+  const staffRolesMatch = source.match(/requireAnyRole\s*\(\s*\[([^\]]*)\]/);
+  const hasAdminAndAssistante = staffRolesMatch && /ADMIN/.test(staffRolesMatch[1]) && /ASSISTANTE/.test(staffRolesMatch[1]);
   const staffOnlyRoute = (
-    /app\/api\/(admin|assistante)\//.test(route) ||
-    /requireAnyRole\s*\(\s*\[\s*['"]ADMIN['"]\s*,\s*['"]ASSISTANTE['"]/.test(source)
+    /app\/api\/(admin|assistante)\//.test(route) || hasAdminAndAssistante
   ) && authGuard && roleGuard;
-  const publicSensitiveWithControls = !authGuard && sensitivePath && zod && hasRateLimitGuard(source);
   const fixedPublicDocument = /app\/api\/public-documents\//.test(route) && methodsOf(source) === 'GET' && /const\s+FILE_NAME\b/.test(source);
   const disabledWebhook = /webhook/i.test(route) && /status:\s*501/.test(source) && /NOT_CONFIGURED|not configured|en cours de configuration/i.test(source);
   const deprecatedRoute = /status:\s*410/.test(source);
@@ -79,7 +84,6 @@ function riskFor(route, source, dynamic, authGuard, roleGuard, ownership, zod) {
   if (fixedPublicDocument || deprecatedRoute || publicStageCatalog || staticStudentContent) return 'P2';
   if (disabledWebhook) return 'P1';
   if (dynamic && sensitivePath && authGuard && !ownership && !staffOnlyRoute) return 'P0';
-  if (publicSensitiveWithControls) return mutation ? 'P1' : 'P2';
   if (sensitivePath && !authGuard) return 'P0';
   if (mutation && sensitivePath && !zod) return 'P1';
   if (sensitivePath && authGuard && !roleGuard && !ownership) return 'P1';
@@ -166,8 +170,12 @@ const rows = walk(apiRoot).map((file) => {
 
 const priority = { P0: 0, P1: 1, P2: 2, OK: 3 };
 const topRisks = [...rows]
-  .sort((a, b) => priority[a.risk] - priority[b.risk] || a.route.localeCompare(b.route))
-  .slice(0, 10);
+  .sort((a, b) =>
+    priority[a.risk] - priority[b.risk] ||
+    (a.notes === '-' ? 1 : 0) - (b.notes === '-' ? 1 : 0) ||
+    a.route.localeCompare(b.route)
+  )
+  .slice(0, 20);
 
 const lines = [];
 lines.push('# Inventaire initial des guards API');
@@ -183,7 +191,7 @@ for (const level of ['P0', 'P1', 'P2', 'OK']) {
 }
 lines.push(`- Total routes : ${rows.length}`);
 lines.push('');
-lines.push('## 10 routes à auditer en priorité');
+lines.push('## 20 routes à auditer en priorité');
 lines.push('');
 lines.push('| Route | Methods | Risk | Notes |');
 lines.push('|---|---|---|---|');
