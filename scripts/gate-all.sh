@@ -32,7 +32,10 @@ echo ""
 
 # ── Clean dependency baseline ──
 echo "━━━ Dependency baseline ━━━"
-npm ci
+if ! npm ci; then
+  echo "✗ npm ci failed"
+  exit 1
+fi
 echo "✓ npm ci completed"
 echo ""
 
