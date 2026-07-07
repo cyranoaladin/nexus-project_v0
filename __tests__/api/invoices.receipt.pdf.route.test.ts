@@ -23,16 +23,16 @@ jest.mock('@/lib/invoice/not-found', () => ({
       headers: { 'Content-Type': 'application/json' },
     })
   ),
-  buildInvoiceScopeWhere: jest.fn(),
+  buildInvoiceAccessWhere: jest.fn(),
 }));
 
 import { GET } from '@/app/api/invoices/[id]/receipt/pdf/route';
 import { auth } from '@/auth';
-import { buildInvoiceScopeWhere } from '@/lib/invoice/not-found';
+import { buildInvoiceAccessWhere } from '@/lib/invoice/not-found';
 import { NextRequest } from 'next/server';
 
 const mockAuth = auth as jest.Mock;
-const mockBuildScope = buildInvoiceScopeWhere as jest.Mock;
+const mockBuildScope = buildInvoiceAccessWhere as jest.Mock;
 
 let prisma: any;
 
@@ -57,7 +57,7 @@ describe('GET /api/invoices/[id]/receipt/pdf', () => {
 
   it('should return 404 for unauthorized role', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'u1', role: 'ELEVE', email: 'e@t.com' } } as any);
-    mockBuildScope.mockReturnValue(null as any);
+    mockBuildScope.mockResolvedValue(null as any);
 
     const res = await GET(...makeRequest('inv-1'));
     expect(res.status).toBe(404);
@@ -65,7 +65,7 @@ describe('GET /api/invoices/[id]/receipt/pdf', () => {
 
   it('should return 404 when invoice not found', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN', email: 'a@t.com' } } as any);
-    mockBuildScope.mockReturnValue({ id: 'inv-1' } as any);
+    mockBuildScope.mockResolvedValue({ id: 'inv-1' } as any);
     prisma.invoice.findFirst.mockResolvedValue(null);
 
     const res = await GET(...makeRequest('inv-1'));
@@ -74,7 +74,7 @@ describe('GET /api/invoices/[id]/receipt/pdf', () => {
 
   it('should return 409 when invoice not PAID', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN', email: 'a@t.com' } } as any);
-    mockBuildScope.mockReturnValue({ id: 'inv-1' } as any);
+    mockBuildScope.mockResolvedValue({ id: 'inv-1' } as any);
     prisma.invoice.findFirst.mockResolvedValue({
       id: 'inv-1', number: 'NXS-2026-0001', status: 'SENT',
       paidAt: null, paidAmount: null, events: [],
@@ -89,7 +89,7 @@ describe('GET /api/invoices/[id]/receipt/pdf', () => {
 
   it('should stream receipt PDF for PAID invoice', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN', email: 'a@t.com' } } as any);
-    mockBuildScope.mockReturnValue({ id: 'inv-1' } as any);
+    mockBuildScope.mockResolvedValue({ id: 'inv-1' } as any);
     prisma.invoice.findFirst.mockResolvedValue({
       id: 'inv-1', number: 'NXS-2026-0001', status: 'PAID',
       issuedAt: new Date('2026-02-01'), paidAt: new Date('2026-02-15'),
@@ -110,7 +110,7 @@ describe('GET /api/invoices/[id]/receipt/pdf', () => {
 
   it('should return 404 on DB error', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN', email: 'a@t.com' } } as any);
-    mockBuildScope.mockReturnValue({ id: 'inv-1' } as any);
+    mockBuildScope.mockResolvedValue({ id: 'inv-1' } as any);
     prisma.invoice.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await GET(...makeRequest('inv-1'));

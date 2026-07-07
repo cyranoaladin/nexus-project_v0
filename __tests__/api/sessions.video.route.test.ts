@@ -1,6 +1,7 @@
 import { auth } from '@/auth';
 import { POST } from '@/app/api/sessions/video/route';
 import { prisma } from '@/lib/prisma';
+import { guardRateLimitAsync } from '@/lib/rate-limit';
 import { SessionStatus } from '@prisma/client';
 
 jest.mock('@/auth', () => ({
@@ -14,6 +15,10 @@ jest.mock('@/lib/prisma', () => ({
       update: jest.fn(),
     },
   },
+}));
+
+jest.mock('@/lib/rate-limit', () => ({
+  guardRateLimitAsync: jest.fn().mockResolvedValue(null),
 }));
 
 const baseSession = {
@@ -52,6 +57,7 @@ describe('POST /api/sessions/video', () => {
     jest.useFakeTimers().setSystemTime(new Date(2025, 0, 2, 10, 0, 0));
     jest.clearAllMocks();
     (auth as jest.Mock).mockResolvedValue(baseSession);
+    (guardRateLimitAsync as jest.Mock).mockResolvedValue(null);
     (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue(buildBooking());
   });
 
@@ -67,10 +73,36 @@ describe('POST /api/sessions/video', () => {
     expect(response.status).toBe(401);
   });
 
+  it('returns 429 before reading the body when rate limited', async () => {
+    (guardRateLimitAsync as jest.Mock).mockResolvedValue(
+      new Response(JSON.stringify({ error: 'RATE_LIMIT' }), { status: 429 })
+    );
+    const request = {
+      json: jest.fn(),
+    } as unknown as Request;
+
+    const response = await POST(request as any);
+
+    expect(response.status).toBe(429);
+    expect(request.json).not.toHaveBeenCalled();
+    expect(prisma.sessionBooking.findFirst).not.toHaveBeenCalled();
+  });
+
   it('returns 400 when missing params', async () => {
     const response = await POST(makeRequest({ sessionId: '', action: '' }) as any);
 
     expect(response.status).toBe(400);
+  });
+
+  it('rejects unexpected payload fields', async () => {
+    const response = await POST(makeRequest({
+      sessionId: 'session-1',
+      action: 'JOIN',
+      localPath: '/srv/private/session.log',
+    }) as any);
+
+    expect(response.status).toBe(400);
+    expect(prisma.sessionBooking.findFirst).not.toHaveBeenCalled();
   });
 
   it('returns 404 when session not found', async () => {

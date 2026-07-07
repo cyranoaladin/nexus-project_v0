@@ -99,4 +99,20 @@ describe('POST /api/assistante/quotes/pdf', () => {
       offer: expect.objectContaining({ label: 'Excellence Terminale' }),
     }));
   });
+
+  it('rejects unexpected fields before rendering a PDF', async () => {
+    mockAuth.mockResolvedValue({
+      user: { id: 'assistant-1', email: 'assistante@nexus-reussite.com', role: 'ASSISTANTE' },
+    });
+
+    const response = await POST(makeRequest({
+      ...quotePayload,
+      metadata: { rawPayload: true },
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toBe('Invalid quote payload');
+    expect(mockRenderQuotePDF).not.toHaveBeenCalled();
+  });
 });

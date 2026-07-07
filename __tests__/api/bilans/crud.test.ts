@@ -173,7 +173,7 @@ describe('F50: /api/bilans CRUD', () => {
 
       expect(response.status).toBe(400);
       expect(body.success).toBe(false);
-      expect(body.error).toContain('Missing required fields');
+      expect(body.error).toContain('Données invalides');
     });
   });
 });

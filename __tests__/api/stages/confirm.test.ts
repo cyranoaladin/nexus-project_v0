@@ -88,6 +88,19 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
     }));
   });
 
+  it('refuse des paramètres route invalides avant accès DB', async () => {
+    mockAuth.mockResolvedValue(session('ASSISTANTE'));
+
+    const res = await POST(makeRequest(), {
+      params: Promise.resolve({ stageSlug: '../secret', reservationId: 'res-1' }),
+    });
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body.error).toContain('invalides');
+    expect(prisma.stageReservation.findFirst).not.toHaveBeenCalled();
+  });
+
   it('retourne 409 si réservation déjà CONFIRMED', async () => {
     mockAuth.mockResolvedValue(session('ADMIN'));
     prisma.stageReservation.findFirst.mockResolvedValue({

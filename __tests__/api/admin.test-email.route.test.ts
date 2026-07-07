@@ -43,9 +43,20 @@ describe('admin test email', () => {
     expect(body.configuration).toBeDefined();
   });
 
-  it('tests SMTP config via POST', async () => {
+  it('blocks assistant access to admin test email actions', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
+    });
+
+    const response = await POST(makeRequest({ action: 'test_config' }));
+
+    expect(response.status).toBe(403);
+    expect(testEmailConfiguration).not.toHaveBeenCalled();
+  });
+
+  it('tests SMTP config via POST for admin only', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'admin-1', role: 'ADMIN' },
     });
     (testEmailConfiguration as jest.Mock).mockResolvedValue({ success: true });
 
@@ -59,7 +70,7 @@ describe('admin test email', () => {
 
   it('requires testEmail for send_test', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'assistant-1', role: 'ASSISTANTE' },
+      user: { id: 'admin-1', role: 'ADMIN' },
     });
 
     const response = await POST(makeRequest({ action: 'send_test' }));
@@ -71,7 +82,7 @@ describe('admin test email', () => {
 
   it('sends test email', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'assistant-1', role: 'ASSISTANTE' },
+      user: { id: 'admin-1', role: 'ADMIN' },
     });
 
     const response = await POST(makeRequest({ action: 'send_test', testEmail: 'a@test.com' }));
@@ -80,5 +91,22 @@ describe('admin test email', () => {
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
     expect(sendWelcomeEmail).toHaveBeenCalled();
+  });
+
+  it('rejects unexpected payload fields and invalid recipient emails', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'admin-1', role: 'ADMIN' },
+    });
+
+    const response = await POST(makeRequest({
+      action: 'send_test',
+      testEmail: 'not-an-email',
+      rawPayload: true,
+    }));
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toBe('Payload invalide');
+    expect(sendWelcomeEmail).not.toHaveBeenCalled();
   });
 });

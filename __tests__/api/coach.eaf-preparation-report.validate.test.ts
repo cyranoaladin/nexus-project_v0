@@ -64,6 +64,16 @@ describe('POST /api/coach/students/[studentId]/eaf-preparation-report/validate',
     (getCoachProfileForUser as jest.Mock).mockResolvedValue({ id: 'coach-1' });
   });
 
+  it('rejects unsafe student ids before checking coach assignment', async () => {
+    const res = await POST(new Request('http://localhost/', { method: 'POST' }), params('../student'));
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body.error).toContain('Données');
+    expect(assertCoachCanAccessStudent).not.toHaveBeenCalled();
+    expect(prisma.eafPreparationReport.findUnique).not.toHaveBeenCalled();
+  });
+
   it('refuses incomplete coach reports', async () => {
     (prisma.eafPreparationReport.findUnique as jest.Mock).mockResolvedValue({
       ...completeReport,
