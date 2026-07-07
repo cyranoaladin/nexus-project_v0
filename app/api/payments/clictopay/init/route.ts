@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const parsedBody = clicToPayInitSchema.safeParse(await request.json());
+    const parsedBody = clicToPayInitSchema.safeParse(await request.json().catch(() => null));
     if (!parsedBody.success) {
       return NextResponse.json(
         { error: 'Données invalides' },

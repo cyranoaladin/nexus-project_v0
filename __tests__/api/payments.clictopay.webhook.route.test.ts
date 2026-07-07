@@ -35,6 +35,7 @@ describe('POST /api/payments/clictopay/webhook', () => {
   });
 
   it('should return 501 after signature presence when not configured', async () => {
+    delete process.env.CLICTOPAY_WEBHOOK_SECRET;
     const req = new NextRequest('http://localhost:3000/api/payments/clictopay/webhook', {
       method: 'POST',
       headers: {

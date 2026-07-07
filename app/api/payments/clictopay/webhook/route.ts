@@ -29,14 +29,17 @@ export async function POST(request: NextRequest) {
     if (secret) {
       const expected = createHmac('sha256', secret).update(rawBody).digest('hex');
       let signatureValid = false;
-      try {
-        const signatureBuffer = Buffer.from(signature, 'hex');
-        const expectedBuffer = Buffer.from(expected, 'hex');
-        signatureValid =
-          signatureBuffer.length === expectedBuffer.length &&
-          timingSafeEqual(signatureBuffer, expectedBuffer);
-      } catch {
-        // Malformed signature — definitely invalid
+      // Validate hex format BEFORE Buffer.from to prevent silent truncation
+      if (/^[0-9a-f]{64}$/i.test(signature)) {
+        try {
+          const signatureBuffer = Buffer.from(signature, 'hex');
+          const expectedBuffer = Buffer.from(expected, 'hex');
+          signatureValid =
+            signatureBuffer.length === expectedBuffer.length &&
+            timingSafeEqual(signatureBuffer, expectedBuffer);
+        } catch {
+          // Malformed buffer — definitely invalid
+        }
       }
       if (!signatureValid) {
         logger.warn('[ClicToPay Webhook] Invalid signature');
