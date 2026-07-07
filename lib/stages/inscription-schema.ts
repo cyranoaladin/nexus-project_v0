@@ -11,6 +11,8 @@ export const publicStageInscriptionSchema = z.object({
   parentEmail: z.union([z.string().trim().email(), z.literal('')]).optional(),
   parentPhone: z.string().trim().max(30).optional(),
   notes: z.string().trim().max(500).optional(),
+  stageTermsAccepted: z.literal(true),
+  dataProcessingAccepted: z.literal(true),
 }).strict();
 
 export type PublicStageInscriptionInput = z.infer<typeof publicStageInscriptionSchema>;

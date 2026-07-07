@@ -47,7 +47,7 @@ describe('parent subscription-requests', () => {
     const body = await response.json();
 
     expect(response.status).toBe(400);
-    expect(body.error).toBe('Missing required fields');
+    expect(body.error).toBe('Invalid subscription request payload');
   });
 
   it('POST rejects a plan change with an unknown plan key', async () => {
@@ -60,7 +60,6 @@ describe('parent subscription-requests', () => {
         studentId: 'student-1',
         requestType: 'PLAN_CHANGE',
         planName: 'Plan A',
-        monthlyPrice: 1,
       })
     );
     const body = await response.json();
@@ -88,7 +87,6 @@ describe('parent subscription-requests', () => {
         studentId: 'student-1',
         requestType: 'PLAN_CHANGE',
         planName: 'HYBRIDE',
-        monthlyPrice: 1,
         reason: 'Upgrade',
       })
     );
@@ -125,7 +123,6 @@ describe('parent subscription-requests', () => {
         studentId: 'student-1',
         requestType: 'ARIA_ADDON',
         planName: 'MATIERE_SUPPLEMENTAIRE',
-        monthlyPrice: 1,
       })
     );
     const body = await response.json();
@@ -158,7 +155,7 @@ describe('parent subscription-requests', () => {
     const body = await response.json();
 
     expect(response.status).toBe(400);
-    expect(body.error).toContain('Type');
+    expect(body.error).toBe('Invalid subscription request payload');
     expect(prisma.subscriptionRequest.create).not.toHaveBeenCalled();
   });
 

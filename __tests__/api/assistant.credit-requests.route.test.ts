@@ -86,7 +86,7 @@ describe('assistant credit-requests', () => {
     const body = await response.json();
 
     expect(response.status).toBe(400);
-    expect(body.error).toBe('Missing required fields');
+    expect(body.error).toBe('Invalid credit request payload');
   });
 
   it('POST approves credit request', async () => {

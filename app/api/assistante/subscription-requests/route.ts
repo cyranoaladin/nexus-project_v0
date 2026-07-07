@@ -5,9 +5,22 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { getAriaAddonCatalogItem, getOperationalSubscriptionPlan } from '@/lib/operational-catalog';
+import { z } from 'zod';
 
 class AlreadyProcessedError extends Error {}
 class NoActiveSubscriptionError extends Error {}
+
+const idSchema = z.string().trim().min(1).max(100).regex(/^[A-Za-z0-9_-]+$/);
+const subscriptionRequestsQuerySchema = z.object({
+  status: z.enum(['PENDING', 'APPROVED', 'REJECTED']).default('PENDING'),
+  page: z.coerce.number().int().min(1).max(500).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+}).strict();
+const subscriptionRequestDecisionSchema = z.object({
+  requestId: idSchema,
+  action: z.enum(['APPROVED', 'REJECTED']),
+  reason: z.string().trim().max(1000).nullable().optional(),
+}).strict();
 
 function getRequestCatalogFields(request: { requestType: string; planName: string | null; monthlyPrice: number }) {
   if (request.requestType === 'PLAN_CHANGE') {
@@ -47,9 +60,15 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const status = searchParams.get('status') || 'PENDING';
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
+    const parsedQuery = subscriptionRequestsQuerySchema.safeParse({
+      status: searchParams.get('status') ?? undefined,
+      page: searchParams.get('page') ?? undefined,
+      limit: searchParams.get('limit') ?? undefined,
+    });
+    if (!parsedQuery.success) {
+      return NextResponse.json({ error: 'Invalid query parameters' }, { status: 400 });
+    }
+    const { status, page, limit } = parsedQuery.data;
 
     const skip = (page - 1) * limit;
 
@@ -118,22 +137,15 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
-    const { requestId, action, reason } = body;
-
-    if (!requestId || !action) {
+    const rawBody = await request.json().catch(() => null);
+    const parsedBody = subscriptionRequestDecisionSchema.safeParse(rawBody);
+    if (!parsedBody.success) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Invalid subscription request payload' },
         { status: 400 }
       );
     }
-
-    if (!['APPROVED', 'REJECTED'].includes(action)) {
-      return NextResponse.json(
-        { error: 'Invalid action' },
-        { status: 400 }
-      );
-    }
+    const { requestId, action, reason } = parsedBody.data;
 
     // Get the request
     const subscriptionRequest = await prisma.subscriptionRequest.findUnique({

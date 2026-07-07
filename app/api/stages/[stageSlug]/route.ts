@@ -1,14 +1,23 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
 import { getPublicStageBySlug } from '@/lib/stages/public';
+
+const paramsSchema = z.object({
+  stageSlug: z.string().min(1).max(160).regex(/^[a-z0-9-]+$/i),
+});
 
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ stageSlug: string }> }
 ) {
-  const { stageSlug } = await params;
+  const parsedParams = paramsSchema.safeParse(await params);
+  if (!parsedParams.success) {
+    return NextResponse.json({ error: 'Paramètres invalides' }, { status: 400 });
+  }
+  const { stageSlug } = parsedParams.data;
 
   try {
     const stage = await getPublicStageBySlug(stageSlug);

@@ -9,18 +9,29 @@ import { prisma } from '@/lib/prisma';
 import { maybeCreateGeneratedReportJob } from '@/lib/reports/stage/maybeCreateGeneratedReportJob';
 import { getEafCoachReportCompletion } from '@/lib/reports/stage/completeness';
 import { logger } from '@/lib/logger';
+import { z } from 'zod';
 
 interface RouteParams {
   params: Promise<{ studentId: string }>;
 }
 
+const routeParamsSchema = z.object({
+  studentId: z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/),
+}).strict();
+
+function validationFailed() {
+  return NextResponse.json({ error: 'Données invalides' }, { status: 400 });
+}
+
 export async function POST(_request: Request, { params }: RouteParams) {
   try {
-    const { studentId } = await params;
-
     const sessionOrError = await requireRole('COACH');
     if (isErrorResponse(sessionOrError)) return sessionOrError;
     const authSession = sessionOrError;
+
+    const parsedParams = routeParamsSchema.safeParse(await params);
+    if (!parsedParams.success) return validationFailed();
+    const { studentId } = parsedParams.data;
 
     // Verify coach assignment
     try {

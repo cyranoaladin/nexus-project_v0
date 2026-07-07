@@ -45,7 +45,6 @@ const existingProgrammeProgress = {
 };
 
 const stageState = {
-  eleveId: 'u-stmg',
   diagnosticAnswers: { qcm: { 'diag-q1': 1 }, exercises: {} },
   profile: {
     diagnosticDate: '2026-05-30T10:00:00.000Z',
@@ -80,7 +79,7 @@ describe('Maths 1ere STMG stage progress API', () => {
   });
 
   it('returns only the stage sub-state from programme diagnostic_results', async () => {
-    (auth as jest.Mock).mockResolvedValue({ user: { id: 'u-stmg' } });
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'u-stmg', role: 'ELEVE' } });
     (prisma.mathsProgress.findUnique as jest.Mock).mockResolvedValue({
       ...existingProgrammeProgress,
       diagnosticResults: { programme: { score: 72 }, stage_eam_stmg: stageState },
@@ -94,7 +93,7 @@ describe('Maths 1ere STMG stage progress API', () => {
   });
 
   it('updates only diagnostic_results.stage_eam_stmg and preserves programme fields', async () => {
-    (auth as jest.Mock).mockResolvedValue({ user: { id: 'u-stmg' } });
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'u-stmg', role: 'ELEVE' } });
     (prisma.mathsProgress.findUnique as jest.Mock).mockResolvedValue(existingProgrammeProgress);
     (prisma.mathsProgress.update as jest.Mock).mockResolvedValue({
       ...existingProgrammeProgress,
@@ -120,7 +119,7 @@ describe('Maths 1ere STMG stage progress API', () => {
   });
 
   it('creates a programme row with defaults only when no programme progress exists', async () => {
-    (auth as jest.Mock).mockResolvedValue({ user: { id: 'u-stmg' } });
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'u-stmg', role: 'ELEVE' } });
     (prisma.mathsProgress.findUnique as jest.Mock).mockResolvedValue(null);
     (prisma.mathsProgress.create as jest.Mock).mockResolvedValue({ id: 'new-progress' });
 

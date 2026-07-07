@@ -2,11 +2,26 @@ import { NextResponse } from 'next/server';
 import { requireRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
 import { computeDiagnostics } from '@/lib/diagnostic/maths-terminale/scoring';
-import type { DiagnosticSourceData } from '@/lib/diagnostic/maths-terminale/types';
+import type { ChapterProgress, DiagnosticSourceData, OpenAnswer } from '@/lib/diagnostic/maths-terminale/types';
 import { DOMAINS } from '@/lib/diagnostic/maths-terminale/data';
 import { serializeError } from '@/lib/utils/serialize-error';
+import { z } from 'zod';
 
 const BILAN_SOURCE_VERSION = 'maths_terminale_v1';
+const chapterProgressSchema = z.object({
+  declared: z.number().int().min(0).max(5).nullable(),
+  confidence: z.number().int().min(1).max(5),
+}).strict();
+const openAnswerSchema = z.object({
+  text: z.string().max(5000),
+  status: z.string().max(200),
+}).strict();
+const diagnosticPayloadSchema = z.object({
+  progress: z.record(z.string(), chapterProgressSchema).default({}),
+  qcmAnswers: z.record(z.string(), z.coerce.number().int()).default({}),
+  openAnswers: z.record(z.string(), openAnswerSchema).default({}),
+  step: z.enum(['progress', 'qcm', 'open', 'results']).default('progress'),
+}).strict();
 
 /**
  * GET /api/eleve/bilan-diagnostic-maths-terminale
@@ -82,8 +97,14 @@ export async function POST(request: Request) {
     if (isErrorResponse(sessionOrError)) return sessionOrError;
     const authSession = sessionOrError;
 
-    const body = await request.json();
-    const { progress = {}, qcmAnswers = {}, openAnswers = {}, step = 'progress' } = body;
+    const parsedBody = diagnosticPayloadSchema.safeParse(await request.json().catch(() => null));
+    if (!parsedBody.success) {
+      return NextResponse.json({ error: 'Invalid diagnostic payload' }, { status: 400 });
+    }
+    const progress = parsedBody.data.progress as Record<string, ChapterProgress>;
+    const qcmAnswers = parsedBody.data.qcmAnswers;
+    const openAnswers = parsedBody.data.openAnswers as Record<string, OpenAnswer>;
+    const step = parsedBody.data.step;
 
     // Find the student record
     const student = await prisma.student.findUnique({

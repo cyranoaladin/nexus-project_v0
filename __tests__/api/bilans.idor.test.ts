@@ -79,6 +79,17 @@ describe('/api/bilans — IDOR Prevention', () => {
     }));
   });
 
+  it('rejects invalid list filters before querying bilans', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'admin-1', role: 'ADMIN', email: 'admin@test.com' } });
+
+    const response = await GET(makeGetRequest('?limit=500&isPublished=maybe'));
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toContain('Données');
+    expect(prisma.bilan.findMany).not.toHaveBeenCalled();
+  });
+
   it('🔴 COACH tente de créer un bilan pour un autre coach — 403', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH', email: 'coach@test.com' } });
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-1', userId: 'coach-1' });

@@ -1,5 +1,5 @@
 import { GET, POST } from '@/app/api/npc/submissions/[submissionId]/documents/route';
-import { DELETE } from '@/app/api/npc/submissions/[submissionId]/documents/[documentId]/route';
+import { DELETE, PATCH } from '@/app/api/npc/submissions/[submissionId]/documents/[documentId]/route';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import * as npcStorage from '@/lib/npc/storage';
@@ -100,6 +100,18 @@ describe('NPC correction documents API', () => {
     expect(body.error).toBe('No file provided');
   });
 
+  it('rejects invalid submission ids before reading the submission', async () => {
+    const response = await GET(
+      new NextRequest('http://localhost/api/npc/submissions/../secret/documents'),
+      params('../secret')
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toContain('Invalid');
+    expect(prisma.copySubmission.findUnique).not.toHaveBeenCalled();
+  });
+
   it('rejects forbidden MIME types', async () => {
     const response = await POST(
       makeUploadRequest({
@@ -190,6 +202,23 @@ describe('NPC correction documents API', () => {
     expect(body.documents[0]).not.toHaveProperty('ocrText');
   });
 
+  it('denies listing documents to a coach who is not assigned to the submission', async () => {
+    (prisma.copySubmission.findUnique as jest.Mock).mockResolvedValue({
+      id: 'submission-1',
+      studentId: 'student-1',
+      coachId: 'coach-2',
+      pages: [],
+    });
+    (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
+
+    const response = await GET(
+      new NextRequest('http://localhost/api/npc/submissions/submission-1/documents'),
+      params()
+    );
+
+    expect(response.status).toBe(403);
+  });
+
   it('does not expose storage paths after uploading documents', async () => {
     (prisma.copyPage.create as jest.Mock).mockResolvedValue({
       id: 'doc-1',
@@ -216,6 +245,21 @@ describe('NPC correction documents API', () => {
     expect(body.document).not.toHaveProperty('convertedFilePaths');
     expect(body.document).not.toHaveProperty('ocrText');
     expect(body.documents[0]).not.toHaveProperty('originalFilePath');
+  });
+
+  it('rejects document updates when documentId is not a safe route id', async () => {
+    const response = await PATCH(
+      new NextRequest('http://localhost/api/npc/submissions/submission-1/documents/../doc', {
+        method: 'PATCH',
+        body: JSON.stringify({ documentType: 'SUBJECT' }),
+      }),
+      documentParams('submission-1', '../doc')
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toContain('Invalid');
+    expect(prisma.copySubmission.findUnique).not.toHaveBeenCalled();
   });
 
   it('does not overwrite existing student copy metadata when attaching a rubric', async () => {
@@ -261,6 +305,28 @@ describe('NPC correction documents API', () => {
     );
   });
 
+  it('denies uploading documents to a submission owned by another coach', async () => {
+    (prisma.copySubmission.findUnique as jest.Mock).mockResolvedValue({
+      id: 'submission-1',
+      studentId: 'student-1',
+      coachId: 'coach-2',
+      pages: [],
+    });
+    (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
+
+    const response = await POST(
+      makeUploadRequest({
+        documentType: 'STUDENT_COPY',
+        file: new File(['%PDF-1.4'], 'copie.pdf', { type: 'application/pdf' }),
+      }),
+      params()
+    );
+
+    expect(response.status).toBe(403);
+    expect(npcStorage.saveUploadedFile).not.toHaveBeenCalled();
+    expect(prisma.copyPage.create).not.toHaveBeenCalled();
+  });
+
   it('deletes a document only when the coach can access the submission', async () => {
     (prisma.copyPage.findFirst as jest.Mock).mockResolvedValue({
       id: 'doc-1',
@@ -278,5 +344,23 @@ describe('NPC correction documents API', () => {
     expect(response.status).toBe(200);
     expect(prisma.copyPage.delete).toHaveBeenCalledWith({ where: { id: 'doc-1' } });
     expect(npcStorage.deleteSecureFile).toHaveBeenCalledWith('student/sub/page_1/copie.pdf');
+  });
+
+  it('denies deleting a document from a submission owned by another coach', async () => {
+    (prisma.copySubmission.findUnique as jest.Mock).mockResolvedValue({
+      id: 'submission-1',
+      studentId: 'student-1',
+      coachId: 'coach-2',
+    });
+    (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
+
+    const response = await DELETE(
+      new NextRequest('http://localhost/api/npc/submissions/submission-1/documents/doc-1'),
+      documentParams()
+    );
+
+    expect(response.status).toBe(403);
+    expect(prisma.copyPage.findFirst).not.toHaveBeenCalled();
+    expect(npcStorage.deleteSecureFile).not.toHaveBeenCalled();
   });
 });

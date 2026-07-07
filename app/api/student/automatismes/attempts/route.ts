@@ -4,6 +4,13 @@ import { auth } from "@/auth";
 import { PREMIERE_EDS_SIMULATIONS } from "@/data/automatismes/premiere-eds/simulations";
 import { calculateAutomatismeScore } from "@/lib/automatismes/scoring";
 import { serializeError } from '@/lib/utils/serialize-error';
+import { z } from 'zod';
+
+const attemptSchema = z.object({
+  seriesId: z.string().trim().min(1).max(80),
+  answers: z.record(z.string().trim().min(1).max(80), z.string().trim().min(1).max(80)),
+  durationSeconds: z.coerce.number().finite().nonnegative().max(24 * 60 * 60).default(0),
+}).strict();
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,15 +20,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
-    const { seriesId, answers, durationSeconds } = body;
-
-    if (!seriesId || !answers) {
+    const rawBody = await request.json().catch(() => null);
+    const parsedBody = attemptSchema.safeParse(rawBody);
+    if (!parsedBody.success) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "Invalid attempt payload" },
         { status: 400 }
       );
     }
+    const { seriesId, answers, durationSeconds } = parsedBody.data;
 
     const series = PREMIERE_EDS_SIMULATIONS.find(s => s.id === seriesId);
     if (!series) {

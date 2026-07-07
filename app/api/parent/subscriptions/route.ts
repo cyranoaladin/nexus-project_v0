@@ -5,6 +5,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 import { getOperationalSubscriptionPlan } from '@/lib/operational-catalog';
+import { z } from 'zod';
+
+const parentSubscriptionRequestSchema = z.object({
+  studentId: z.string().trim().min(1).max(100).regex(/^[A-Za-z0-9_-]+$/),
+  planName: z.string().trim().min(1).max(120),
+}).strict();
 
 export async function GET(request: NextRequest) {
   try {
@@ -103,20 +109,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = (await request.json()) as {
-      studentId?: string;
-      planName?: string;
-      monthlyPrice?: number;
-      creditsPerMonth?: number;
-    };
-    const { studentId, planName } = body;
-
-    if (!studentId || !planName) {
+    const rawBody = await request.json().catch(() => null);
+    const parsedBody = parentSubscriptionRequestSchema.safeParse(rawBody);
+    if (!parsedBody.success) {
       return NextResponse.json(
-        { error: 'Missing required fields: studentId, planName' },
+        { error: 'Invalid subscription payload' },
         { status: 400 }
       );
     }
+    const { studentId, planName } = parsedBody.data;
 
     const plan = getOperationalSubscriptionPlan(planName);
     if (!plan) {
