@@ -102,6 +102,20 @@ describe('F50: /api/bilans/generate', () => {
       expect(body.error).toContain('bilanId');
     });
 
+    it('rejects unsafe bilan ids before loading the bilan', async () => {
+      const request = new NextRequest('http://localhost:3000/api/bilans/generate', {
+        method: 'POST',
+        body: JSON.stringify({ bilanId: '../secret' }),
+      });
+
+      const response = await POST(request);
+      const body = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(body.error).toContain('Données');
+      expect(mockPrisma.bilan.findUnique).not.toHaveBeenCalled();
+    });
+
     it('should return 404 for non-existent bilan', async () => {
       mockPrisma.bilan.findUnique.mockResolvedValue(null);
 
@@ -179,6 +193,16 @@ describe('F50: /api/bilans/generate', () => {
       const response = await GET(request);
 
       expect(response.status).toBe(400);
+    });
+
+    it('rejects unsafe bilan ids before querying generation status', async () => {
+      const request = new NextRequest('http://localhost:3000/api/bilans/generate?bilanId=../secret');
+      const response = await GET(request);
+      const body = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(body.error).toContain('Données');
+      expect(mockPrisma.bilan.findUnique).not.toHaveBeenCalled();
     });
   });
 });

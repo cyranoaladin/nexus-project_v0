@@ -124,6 +124,36 @@ describe('GET /api/admin/invoices', () => {
     );
   });
 
+  it('rejects invalid list filters before querying invoices', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN' } } as any);
+
+    const res = await GET(makeGetRequest('status=HACKED&limit=500'));
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body.error).toContain('Données');
+    expect(prisma.invoice.findMany).not.toHaveBeenCalled();
+  });
+
+  it('uses an explicit projection for invoice listing', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN' } } as any);
+    prisma.invoice.findMany.mockResolvedValue([]);
+    prisma.invoice.count.mockResolvedValue(0);
+
+    await GET(makeGetRequest());
+
+    expect(prisma.invoice.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        select: expect.objectContaining({
+          id: true,
+          number: true,
+          items: expect.any(Object),
+        }),
+      })
+    );
+    expect(prisma.invoice.findMany.mock.calls[0][0]).not.toHaveProperty('include');
+  });
+
   it('should return 500 on DB error', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN' } } as any);
     prisma.invoice.findMany.mockRejectedValue(new Error('DB error'));
@@ -165,7 +195,7 @@ describe('POST /api/admin/invoices', () => {
     const body = await res.json();
 
     expect(res.status).toBe(400);
-    expect(body.error).toContain('customer.name');
+    expect(body.error).toContain('Données');
   });
 
   it('should return 400 for empty items', async () => {
@@ -173,6 +203,21 @@ describe('POST /api/admin/invoices', () => {
 
     const res = await POST(makePostRequest({ customer: { name: 'Karim' }, items: [] }));
     expect(res.status).toBe(400);
+  });
+
+  it('rejects unknown invoice payload fields before creating anything', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN' } } as any);
+
+    const res = await POST(makePostRequest({
+      customer: { name: 'Karim' },
+      items: [{ label: 'Abonnement Hybride', qty: 1, unitPrice: 450000 }],
+      metadata: { raw: true },
+    }));
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body.error).toContain('Données');
+    expect(prisma.invoice.create).not.toHaveBeenCalled();
   });
 
   it('should create invoice successfully', async () => {

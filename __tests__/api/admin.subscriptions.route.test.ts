@@ -70,6 +70,21 @@ describe('GET /api/admin/subscriptions', () => {
     expect(body.subscriptions).toHaveLength(1);
     expect(body.pagination.total).toBe(1);
   });
+
+  it('bounds pagination and rejects unknown query fields', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'admin-1', role: 'ADMIN', email: 'admin@test.com' },
+    });
+
+    const response = await GET(
+      makeRequest('http://localhost:3000/api/admin/subscriptions?limit=500&rawPayload=true')
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toBe('Invalid query');
+    expect(prisma.subscription.findMany).not.toHaveBeenCalled();
+  });
 });
 
 describe('PUT /api/admin/subscriptions', () => {
@@ -100,6 +115,25 @@ describe('PUT /api/admin/subscriptions', () => {
 
     expect(response.status).toBe(400);
     expect(body.error).toBe('Invalid status value');
+  });
+
+  it('rejects unexpected update payload fields', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'admin-1', role: 'ADMIN', email: 'admin@test.com' },
+    });
+
+    const response = await PUT(
+      makeRequest('http://localhost:3000/api/admin/subscriptions', {
+        subscriptionId: 'sub-1',
+        status: 'ACTIVE',
+        rawPayload: true,
+      })
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toBe('Invalid payload');
+    expect(prisma.subscription.update).not.toHaveBeenCalled();
   });
 
   it('returns 400 for missing subscriptionId', async () => {

@@ -97,7 +97,7 @@ describe('parent subscriptions', () => {
     const body = await response.json();
 
     expect(response.status).toBe(400);
-    expect(body.error).toContain('Missing required fields');
+    expect(body.error).toBe('Invalid subscription payload');
   });
 
   it('POST returns 404 when parent profile missing', async () => {
@@ -106,9 +106,7 @@ describe('parent subscriptions', () => {
     });
     (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue(null);
 
-    const response = await POST(
-      makeRequest({ studentId: 'student-1', planName: 'HYBRIDE', monthlyPrice: 100 })
-    );
+    const response = await POST(makeRequest({ studentId: 'student-1', planName: 'HYBRIDE' }));
     const body = await response.json();
 
     expect(response.status).toBe(404);
@@ -122,9 +120,7 @@ describe('parent subscriptions', () => {
     (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'parent-profile-1' });
     (prisma.student.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const response = await POST(
-      makeRequest({ studentId: 'student-1', planName: 'HYBRIDE', monthlyPrice: 100 })
-    );
+    const response = await POST(makeRequest({ studentId: 'student-1', planName: 'HYBRIDE' }));
     const body = await response.json();
 
     expect(response.status).toBe(404);
@@ -136,9 +132,7 @@ describe('parent subscriptions', () => {
       user: { id: 'parent-1', role: 'PARENT' },
     });
 
-    const response = await POST(
-      makeRequest({ studentId: 'student-1', planName: 'Plan A', monthlyPrice: 1, creditsPerMonth: 99 })
-    );
+    const response = await POST(makeRequest({ studentId: 'student-1', planName: 'Plan A' }));
     const body = await response.json();
 
     expect(response.status).toBe(400);
@@ -160,9 +154,7 @@ describe('parent subscriptions', () => {
     (prisma.user.findMany as jest.Mock).mockResolvedValue([{ id: 'assistant-1' }]);
     (prisma.notification.create as jest.Mock).mockResolvedValue({});
 
-    const response = await POST(
-      makeRequest({ studentId: 'student-1', planName: 'HYBRIDE', monthlyPrice: 1, creditsPerMonth: 99 })
-    );
+    const response = await POST(makeRequest({ studentId: 'student-1', planName: 'HYBRIDE' }));
     const body = await response.json();
 
     expect(response.status).toBe(200);

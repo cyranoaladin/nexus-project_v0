@@ -73,7 +73,7 @@ describe('assistant subscription-requests', () => {
     const body = await response.json();
 
     expect(response.status).toBe(400);
-    expect(body.error).toBe('Invalid action');
+    expect(body.error).toBe('Invalid subscription request payload');
   });
 
   it('PATCH approves plan change atomically with server catalog price and credits', async () => {

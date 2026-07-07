@@ -6,15 +6,22 @@
  * Source: app/api/admin/directeur/stats/route.ts
  */
 
-jest.mock('@/auth', () => ({
-  auth: jest.fn(),
+jest.mock('@/lib/guards', () => ({
+  requireRole: jest.fn(),
+  isErrorResponse: jest.fn((result) => result && typeof result === 'object' && 'status' in result),
+}));
+
+jest.mock('@/lib/rate-limit', () => ({
+  guardRateLimitAsync: jest.fn().mockResolvedValue(null),
 }));
 
 import { GET } from '@/app/api/admin/directeur/stats/route';
-import { auth } from '@/auth';
+import { requireRole } from '@/lib/guards';
+import { guardRateLimitAsync } from '@/lib/rate-limit';
 import { NextRequest } from 'next/server';
 
-const mockAuth = auth as jest.Mock;
+const mockRequireRole = requireRole as jest.Mock;
+const mockGuardRateLimit = guardRateLimitAsync as jest.Mock;
 
 let prisma: any;
 
@@ -22,6 +29,10 @@ beforeEach(async () => {
   const mod = await import('@/lib/prisma');
   prisma = (mod as any).prisma;
   jest.clearAllMocks();
+  mockRequireRole.mockResolvedValue({
+    user: { id: 'admin-1', role: 'ADMIN', email: 'admin@test.com' },
+  });
+  mockGuardRateLimit.mockResolvedValue(null);
 });
 
 function makeRequest(): NextRequest {
@@ -29,33 +40,51 @@ function makeRequest(): NextRequest {
 }
 
 describe('GET /api/admin/directeur/stats', () => {
-  it('should return 403 when not authenticated', async () => {
-    mockAuth.mockResolvedValue(null as any);
+  it('should return 401 when not authenticated', async () => {
+    mockRequireRole.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 })
+    );
 
     const res = await GET(makeRequest());
     const body = await res.json();
 
-    expect(res.status).toBe(403);
-    expect(body.success).toBe(false);
+    expect(res.status).toBe(401);
+    expect(body.error).toBe('Unauthorized');
   });
 
   it('should return 403 for non-ADMIN role', async () => {
-    mockAuth.mockResolvedValue({
-      user: { id: 'user-1', role: 'ELEVE' },
-    } as any);
+    mockRequireRole.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: 'Forbidden', message: 'Access denied. Required role: ADMIN' }), { status: 403 })
+    );
 
     const res = await GET(makeRequest());
     const body = await res.json();
 
     expect(res.status).toBe(403);
-    expect(body.error).toContain('ADMIN');
+    expect(body.message).toContain('ADMIN');
+  });
+
+  it('rejects unexpected query parameters', async () => {
+    const res = await GET(new NextRequest('http://localhost:3000/api/admin/directeur/stats?rawPayload=true'));
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body.error).toBe('Paramètres invalides');
+    expect(prisma.assessment.count).not.toHaveBeenCalled();
+  });
+
+  it('returns 429 before DB work when rate limit is exceeded', async () => {
+    mockGuardRateLimit.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: 'rate limited' }), { status: 429 })
+    );
+
+    const res = await GET(makeRequest());
+
+    expect(res.status).toBe(429);
+    expect(prisma.assessment.count).not.toHaveBeenCalled();
   });
 
   it('should return KPIs for ADMIN', async () => {
-    mockAuth.mockResolvedValue({
-      user: { id: 'admin-1', role: 'ADMIN' },
-    } as any);
-
     prisma.assessment.count
       .mockResolvedValueOnce(100) // totalAssessments
       .mockResolvedValueOnce(80); // completedAssessments
@@ -86,10 +115,6 @@ describe('GET /api/admin/directeur/stats', () => {
   });
 
   it('should handle SSN distribution correctly', async () => {
-    mockAuth.mockResolvedValue({
-      user: { id: 'admin-1', role: 'ADMIN' },
-    } as any);
-
     prisma.assessment.count.mockResolvedValue(0);
     prisma.student.count.mockResolvedValue(0);
     prisma.assessment.aggregate.mockResolvedValue({ _avg: { globalScore: null } });
@@ -118,10 +143,6 @@ describe('GET /api/admin/directeur/stats', () => {
   });
 
   it('should handle DB errors gracefully', async () => {
-    mockAuth.mockResolvedValue({
-      user: { id: 'admin-1', role: 'ADMIN' },
-    } as any);
-
     prisma.assessment.count.mockRejectedValue(new Error('DB error'));
 
     const res = await GET(makeRequest());

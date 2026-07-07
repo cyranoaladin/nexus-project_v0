@@ -69,7 +69,10 @@ describe('POST /api/parent/children — P0-03 hardening', () => {
 
     expect(response.status).toBe(200);
     expect(json.success).toBe(true);
-    expect(json.activation.token).toMatch(/^act_/);
+    expect(JSON.stringify(json)).not.toContain('activationToken');
+    expect(JSON.stringify(json)).not.toContain('tokenHash');
+    expect(JSON.stringify(json)).not.toContain('act_');
+    expect(json.activation.message).toContain("n'est pas retourné");
     expect(userCreate).toHaveBeenCalledTimes(1);
     expect(userCreate).toHaveBeenCalledWith(expect.objectContaining({
       data: expect.objectContaining({

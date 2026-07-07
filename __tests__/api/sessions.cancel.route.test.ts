@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { POST } from '@/app/api/sessions/cancel/route';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { RateLimitPresets } from '@/lib/middleware/rateLimit';
-import { parseBody } from '@/lib/api/helpers';
+import { parseBody, safeJsonParse } from '@/lib/api/helpers';
 import { createLogger } from '@/lib/middleware/logger';
 import { prisma } from '@/lib/prisma';
 import { refundSessionBookingById, canCancelBooking } from '@/lib/credits';
@@ -21,6 +21,7 @@ jest.mock('@/lib/middleware/rateLimit', () => ({
 
 jest.mock('@/lib/api/helpers', () => ({
   parseBody: jest.fn(),
+  safeJsonParse: jest.fn(),
   assertExists: jest.requireActual('@/lib/api/helpers').assertExists,
 }));
 
@@ -50,6 +51,8 @@ const mockStudentSession = {
   },
 };
 
+const VALID_SESSION_ID = 'clh1234567890abcdefghij';
+
 function createMockRequest(url: string, options?: RequestInit): NextRequest {
   const request = new NextRequest(url, options as any);
   Object.defineProperty(request, 'nextUrl', {
@@ -70,7 +73,7 @@ function mockLogger() {
 
 function buildSession(overrides: Partial<Record<string, any>> = {}) {
   return {
-    id: 'session-1',
+    id: VALID_SESSION_ID,
     studentId: 'student-1',
     coachId: 'coach-1',
     status: 'SCHEDULED',
@@ -90,7 +93,8 @@ describe('POST /api/sessions/cancel', () => {
     (RateLimitPresets.expensive as jest.Mock).mockReturnValue(null);
     (requireAnyRole as jest.Mock).mockResolvedValue(mockStudentSession);
     (isErrorResponse as unknown as jest.Mock).mockReturnValue(false);
-    (parseBody as jest.Mock).mockResolvedValue({ sessionId: 'session-1', reason: 'Change' });
+    (parseBody as jest.Mock).mockResolvedValue({ sessionId: VALID_SESSION_ID, reason: 'Change' });
+    (safeJsonParse as jest.Mock).mockResolvedValue({ sessionId: VALID_SESSION_ID, reason: 'Change' });
     (createLogger as jest.Mock).mockReturnValue(mockLogger());
     (prisma.sessionBooking.findUnique as jest.Mock).mockResolvedValue(buildSession());
     (prisma.sessionBooking.update as jest.Mock).mockResolvedValue({});
@@ -186,7 +190,7 @@ describe('POST /api/sessions/cancel', () => {
 
     expect(response.status).toBe(200);
     expect(body.refunded).toBe(true);
-    expect(refundSessionBookingById).toHaveBeenCalledWith('session-1', 'Change');
+    expect(refundSessionBookingById).toHaveBeenCalledWith(VALID_SESSION_ID, 'Change');
   });
 
   it('assistant role overrides refund policy', async () => {
