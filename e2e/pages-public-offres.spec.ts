@@ -37,13 +37,16 @@ test.describe('/offres — Page Tarifs', () => {
     await expect(page.getByText(/[ÉE]ch[ée]anciers\s+transparents/).first()).toBeVisible();
   });
 
-  test('paiement carte ClicToPay visible sans RIB public', async ({ page }) => {
+  test('paiement fail-closed visible sans ClicToPay ni RIB public', async ({ page }) => {
     await expect(page.getByTestId('payment-methods-note').first()).toBeVisible();
-    await expect(page.getByText(CGV_POLICY.payment.provider).first()).toBeVisible();
-    await expect(page.getByText(CGV_POLICY.payment.acceptedCards).first()).toBeVisible();
-    await expect(page.getByText(CGV_POLICY.payment.cardFee).first()).toBeVisible();
+    await expect(page.getByText('Paiement confirmé après validation pédagogique').first()).toBeVisible();
+    await expect(page.getByText('Aucun identifiant bancaire sensible').first()).toBeVisible();
 
     const body = await page.textContent('body');
+    expect(body).not.toContain(CGV_POLICY.payment.provider);
+    expect(body).not.toContain(CGV_POLICY.payment.acceptedCards);
+    expect(body).not.toContain(CGV_POLICY.payment.cardFee);
+    expect(body).not.toContain(LEGAL.billing.bank);
     expect(body).not.toContain(LEGAL.billing.rib);
     expect(body).not.toContain(LEGAL.billing.iban);
   });
