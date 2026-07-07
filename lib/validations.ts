@@ -28,6 +28,7 @@ export const bilanGratuitSchema = z.object({
   studentLastName: z.string().min(2, 'Le nom doit contenir au moins 2 caractères').optional(),
   studentGrade: z.string().min(1, 'Veuillez sélectionner une classe'),
   studentSchool: z.string().optional(),
+  studentBirthDate: z.string().optional(),
 
   // Besoins et objectifs
   subjects: z.array(z.enum(Object.values(Subject) as [string, ...string[]])).min(1, 'Sélectionnez au moins une matière'),

@@ -13,7 +13,7 @@ const confirmationSchema = publicStageInscriptionSchema.extend({
   dataProcessingAccepted: z.literal(true),
 });
 
-type ConfirmationData = PublicStageInscriptionInput & {
+type ConfirmationData = Omit<PublicStageInscriptionInput, 'stageTermsAccepted' | 'dataProcessingAccepted'> & {
   stageTermsAccepted: boolean;
   dataProcessingAccepted: boolean;
 };
@@ -139,6 +139,8 @@ export function StageInscriptionForm({ stage }: { stage: StageSummary }) {
           parentEmail: formData.parentEmail,
           parentPhone: formData.parentPhone,
           notes: formData.notes,
+          stageTermsAccepted: formData.stageTermsAccepted,
+          dataProcessingAccepted: formData.dataProcessingAccepted,
         }),
       });
 
