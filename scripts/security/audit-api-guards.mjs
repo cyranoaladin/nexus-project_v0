@@ -67,6 +67,22 @@ function sourceFor(file) {
   return [source, ...importedSources].join('\n');
 }
 
+/**
+ * PUBLIC_BY_DESIGN — Routes publiques sensibles assumées et documentées.
+ * Chaque entrée : [route regex, justification].
+ * Toute route publique sensible HORS de cette liste reste P0.
+ */
+const PUBLIC_BY_DESIGN = [
+  [/app\/api\/stages\/\[[^\]]+\]\/inscrire\/route\.ts$/, 'Formulaire public d\'inscription aux stages — Zod + rate-limit'],
+  [/app\/api\/student\/activate\/route\.ts$/, 'Lien d\'activation élève via token unique hashé — Zod + rate-limit auth'],
+  [/app\/api\/bilan-gratuit\/route\.ts$/, 'Formulaire public de bilan stratégique gratuit — Zod + rate-limit + honeypot'],
+  [/app\/api\/assessments\/submit\/route\.ts$/, 'Soumission QCM publique via token signé x-assessment-public-token'],
+];
+
+function isPublicByDesign(route) {
+  return PUBLIC_BY_DESIGN.find(([regex]) => regex.test(route));
+}
+
 function riskFor(route, source, dynamic, authGuard, roleGuard, ownership, zod) {
   const sensitivePath = /documents|invoice|billing|payment|bilan|assessment|aria|session|stage|coach|assistante|admin|parent|student|npc|submission|report/i.test(route);
   const mutation = /\b(POST|PATCH|PUT|DELETE)\b/.test(methodsOf(source));
@@ -80,6 +96,10 @@ function riskFor(route, source, dynamic, authGuard, roleGuard, ownership, zod) {
   const deprecatedRoute = /status:\s*410/.test(source);
   const publicStageCatalog = /^app\/api\/stages(\/\[[^\]]+\])?\/route\.ts$/.test(route) && methodsOf(source) === 'GET';
   const staticStudentContent = /app\/api\/student\/automatismes\/series\/\[id\]\/route\.ts/.test(route) && methodsOf(source) === 'GET';
+
+  // Public-by-design routes: visible and assumed, not P0
+  const publicEntry = isPublicByDesign(route);
+  if (publicEntry && !authGuard) return 'PUBLIC';
 
   if (fixedPublicDocument || deprecatedRoute || publicStageCatalog || staticStudentContent) return 'P2';
   if (disabledWebhook) return 'P1';
@@ -101,6 +121,8 @@ function notesFor(route, source, risk) {
   if (/aria/i.test(route)) notes.push('ARIA');
   if (/assessment|bilan|report|submission/i.test(route)) notes.push('pédagogique sensible');
   if (risk === 'P0') notes.push('audit manuel prioritaire');
+  const publicEntry = isPublicByDesign(route);
+  if (risk === 'PUBLIC' && publicEntry) notes.push(publicEntry[1]);
   if (/auth\(\)/.test(source) && !/require(Role|AnyRole|Auth|FeatureApi)|enforcePolicy/.test(source)) notes.push('guard manuel');
   return notes.join('; ') || '-';
 }
@@ -168,7 +190,7 @@ const rows = walk(apiRoot).map((file) => {
   return { route, methods, dynamic, authGuard, roleGuard, featureGuard, zod, ownership, risk, notes: notesFor(route, source, risk) };
 });
 
-const priority = { P0: 0, P1: 1, P2: 2, OK: 3 };
+const priority = { P0: 0, P1: 1, P2: 2, PUBLIC: 3, OK: 4 };
 const topRisks = [...rows]
   .sort((a, b) =>
     priority[a.risk] - priority[b.risk] ||
@@ -186,7 +208,7 @@ lines.push('Lecture statique uniquement. La colonne `Ownership explicit` signale
 lines.push('');
 lines.push('## Synthèse');
 lines.push('');
-for (const level of ['P0', 'P1', 'P2', 'OK']) {
+for (const level of ['P0', 'P1', 'P2', 'PUBLIC', 'OK']) {
   lines.push(`- ${level} : ${rows.filter((row) => row.risk === level).length}`);
 }
 lines.push(`- Total routes : ${rows.length}`);

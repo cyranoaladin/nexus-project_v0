@@ -74,7 +74,7 @@ describe('audit-api-guards route classification', () => {
     expect(rows.get('app/api/assessments/comment-only/route.ts')).toEqual(expect.objectContaining({ risk: 'P0' }));
   });
 
-  it('classifies public sensitive routes as P0 even with Zod and rate limit (validation ≠ authorization)', () => {
+  it('classifies allow-listed public routes as PUBLIC (by design)', () => {
     const rows = runAuditOnFixtures({
       'app/api/assessments/submit/route.ts': `
         import { z } from 'zod';
@@ -89,7 +89,25 @@ describe('audit-api-guards route classification', () => {
       `,
     });
 
-    expect(rows.get('app/api/assessments/submit/route.ts')).toEqual(expect.objectContaining({ risk: 'P0' }));
+    expect(rows.get('app/api/assessments/submit/route.ts')).toEqual(expect.objectContaining({ risk: 'PUBLIC' }));
+  });
+
+  it('classifies public sensitive routes NOT in allow-list as P0', () => {
+    const rows = runAuditOnFixtures({
+      'app/api/billing/checkout/route.ts': `
+        import { z } from 'zod';
+        import { guardRateLimitAsync } from '@/lib/rate-limit';
+        const schema = z.object({ email: z.string().email() });
+        export async function POST(request: Request) {
+          const blocked = await guardRateLimitAsync(request, { preset: 'api' });
+          if (blocked) return blocked;
+          schema.parse(await request.json());
+          return Response.json({ ok: true });
+        }
+      `,
+    });
+
+    expect(rows.get('app/api/billing/checkout/route.ts')).toEqual(expect.objectContaining({ risk: 'P0' }));
   });
 
   it('does not promote disabled ClicToPay webhook beyond P1', () => {

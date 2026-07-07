@@ -47,7 +47,8 @@ const invoiceItemInputSchema = z.object({
   description: z.string().trim().max(600).nullable().optional(),
   qty: z.number().int().positive().max(100),
   unitPrice: z.number().int().nonnegative(),
-}).strict();
+  total: z.number().optional(), // client-sent, stripped — recalculated server-side
+}).strict().transform(({ total: _total, ...rest }) => rest);
 
 const invoiceIssuerInputSchema = z.object({
   name: z.string().trim().min(1).max(180).optional(),
@@ -64,8 +65,14 @@ const invoiceIssuerInputSchema = z.object({
 
 const createInvoiceBodySchema = z.object({
   number: z.string().trim().min(1).max(80).optional(),
-  issuedAt: z.string().datetime().optional(),
-  dueAt: z.string().datetime().nullable().optional(),
+  issuedAt: z.string().refine(
+    (v) => /^\d{4}-\d{2}-\d{2}(T.+)?$/.test(v) && !isNaN(Date.parse(v)),
+    { message: 'Date invalide (YYYY-MM-DD ou ISO datetime)' }
+  ).optional(),
+  dueAt: z.string().refine(
+    (v) => /^\d{4}-\d{2}-\d{2}(T.+)?$/.test(v) && !isNaN(Date.parse(v)),
+    { message: 'Date invalide (YYYY-MM-DD ou ISO datetime)' }
+  ).nullable().optional(),
   customer: z.object({
     name: z.string().trim().min(1).max(180),
     email: z.string().trim().email().nullable().optional(),
