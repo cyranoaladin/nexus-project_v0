@@ -16,6 +16,7 @@ beforeAll(() => {
 });
 
 const pricingRules = getRules();
+const originalClicToPayPublicFlag = process.env.NEXT_PUBLIC_ENABLE_CLICTOPAY_PUBLIC;
 
 const sampleOffer: OfferDetail = {
   id: 'term-duo',
@@ -39,6 +40,14 @@ const sampleOffer: OfferDetail = {
 };
 
 describe('OfferDetailDialog', () => {
+  afterEach(() => {
+    if (originalClicToPayPublicFlag === undefined) {
+      delete process.env.NEXT_PUBLIC_ENABLE_CLICTOPAY_PUBLIC;
+    } else {
+      process.env.NEXT_PUBLIC_ENABLE_CLICTOPAY_PUBLIC = originalClicToPayPublicFlag;
+    }
+  });
+
   it('renders nothing when offer is null', () => {
     const { container } = render(
       <OfferDetailDialog offer={null} onClose={jest.fn()} />,
@@ -116,7 +125,20 @@ describe('OfferDetailDialog', () => {
     expect(decodeURIComponent(waLink.getAttribute('href')!)).toContain('Terminale Duo');
   });
 
-  it('shows card payment policy from CGV without exposing RIB/IBAN', () => {
+  it('shows fail-closed payment guidance by default without exposing ClicToPay or RIB/IBAN', () => {
+    const { container } = render(<OfferDetailDialog offer={sampleOffer} onClose={jest.fn()} />);
+
+    expect(screen.getByText(/paiement confirmé après validation pédagogique/i)).toBeInTheDocument();
+    expect(screen.queryByText(new RegExp(CGV_POLICY.payment.provider, 'i'))).not.toBeInTheDocument();
+    expect(screen.queryByText(new RegExp(CGV_POLICY.payment.acceptedCards, 'i'))).not.toBeInTheDocument();
+    expect(screen.queryByText(CGV_POLICY.payment.cardFee)).not.toBeInTheDocument();
+    expect(container.textContent).not.toContain(LEGAL.billing.rib);
+    expect(container.textContent).not.toContain(LEGAL.billing.iban);
+  });
+
+  it('shows ClicToPay card policy only when the public flag is explicitly enabled', () => {
+    process.env.NEXT_PUBLIC_ENABLE_CLICTOPAY_PUBLIC = 'true';
+
     const { container } = render(<OfferDetailDialog offer={sampleOffer} onClose={jest.fn()} />);
 
     expect(screen.getByText(new RegExp(CGV_POLICY.payment.provider, 'i'))).toBeInTheDocument();

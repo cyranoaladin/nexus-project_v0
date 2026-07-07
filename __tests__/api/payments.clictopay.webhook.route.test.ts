@@ -20,10 +20,27 @@ describe('POST /api/payments/clictopay/webhook', () => {
     }
   });
 
-  it('should return 501 (not configured)', async () => {
+  it('rejects webhooks without a signature before any processing', async () => {
     const req = new NextRequest('http://localhost:3000/api/payments/clictopay/webhook', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId: 'ord-1', status: 'SUCCESS' }),
+    });
+
+    const res = await POST(req);
+    const body = await res.json();
+
+    expect(res.status).toBe(401);
+    expect(body.code).toBe('CLICTOPAY_SIGNATURE_REQUIRED');
+  });
+
+  it('should return 501 after signature presence when not configured', async () => {
+    const req = new NextRequest('http://localhost:3000/api/payments/clictopay/webhook', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-clictopay-signature': '00'.repeat(32),
+      },
       body: JSON.stringify({ orderId: 'ord-1', status: 'SUCCESS' }),
     });
 
