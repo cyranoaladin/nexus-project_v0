@@ -76,6 +76,34 @@ describe('assistant subscription-requests', () => {
     expect(body.error).toBe('Invalid subscription request payload');
   });
 
+  it('PATCH validates requestId strictly', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'assistant-1', role: 'ASSISTANTE' },
+    });
+
+    const response = await PATCH(makeRequest({ requestId: '../req-1', action: 'APPROVED' }));
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toBe('Invalid subscription request payload');
+    expect(prisma.subscriptionRequest.findUnique).not.toHaveBeenCalled();
+  });
+
+  it('PATCH rejects unknown payload fields', async () => {
+    (auth as jest.Mock).mockResolvedValue({
+      user: { id: 'assistant-1', role: 'ASSISTANTE' },
+    });
+
+    const response = await PATCH(
+      makeRequest({ requestId: 'req-1', action: 'APPROVED', role: 'ADMIN' })
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toBe('Invalid subscription request payload');
+    expect(prisma.subscriptionRequest.findUnique).not.toHaveBeenCalled();
+  });
+
   it('PATCH approves plan change atomically with server catalog price and credits', async () => {
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE', firstName: 'A', lastName: 'S' },
@@ -101,7 +129,7 @@ describe('assistant subscription-requests', () => {
       })
     );
 
-    const response = await PATCH(makeRequest({ requestId: 'req-1', action: 'APPROVED' }));
+    const response = await PATCH(makeRequest({ requestId: 'req-1', action: 'APPROVED', reason: null }));
     const body = await response.json();
 
     expect(response.status).toBe(200);

@@ -19,7 +19,7 @@ const subscriptionRequestsQuerySchema = z.object({
 const subscriptionRequestDecisionSchema = z.object({
   requestId: idSchema,
   action: z.enum(['APPROVED', 'REJECTED']),
-  reason: z.string().trim().max(1000).optional(),
+  reason: z.string().trim().max(1000).nullable().optional(),
 }).strict();
 
 function getRequestCatalogFields(request: { requestType: string; planName: string | null; monthlyPrice: number }) {
