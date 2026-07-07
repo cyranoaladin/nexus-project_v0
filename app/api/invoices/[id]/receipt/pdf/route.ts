@@ -2,7 +2,7 @@ import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * GET /api/invoices/:id/receipt/pdf — Stream payment receipt PDF.
  *
- * RBAC: same as invoice PDF (ADMIN/ASSISTANTE see all, PARENT scoped).
+ * RBAC: same as invoice PDF (ADMIN sees all, PARENT scoped).
  * Precondition: invoice.status === 'PAID' with paidAt + paidAmount.
  * Appends RECEIPT_RENDERED audit event on success only.
  *

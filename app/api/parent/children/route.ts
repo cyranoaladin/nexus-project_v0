@@ -197,6 +197,9 @@ export async function POST(request: NextRequest) {
       return student;
     });
 
+    const baseUrl = process.env.NEXTAUTH_URL || 'https://nexusreussite.academy';
+    const activationUrl = `${baseUrl}/auth/activate?token=${encodeURIComponent(rawActivationToken)}`;
+
     return NextResponse.json({
       success: true,
       child: {
@@ -208,8 +211,9 @@ export async function POST(request: NextRequest) {
         school: result.school
       },
       activation: {
+        activationUrl,
         expiresAt: activationExpiry.toISOString(),
-        message: "Un token d'activation a été généré et stocké de manière sécurisée. Il n'est pas retourné par cette API."
+        message: "Lien d'activation généré pour le parent authentifié. À transmettre uniquement à l'élève concerné."
       }
     });
 

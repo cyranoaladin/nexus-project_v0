@@ -44,8 +44,15 @@ export default function AddChildDialog({ onChildAdded }: AddChildDialogProps) {
         body: JSON.stringify(formData),
       });
 
+      const responseData = await response.json().catch(() => null);
+
       if (response.ok) {
-        alert("Enfant ajouté avec succès!");
+        const activationUrl = responseData?.activation?.activationUrl;
+        alert(
+          activationUrl
+            ? `Enfant ajouté avec succès. Transmettez ce lien d'activation uniquement à l'élève concerné : ${activationUrl}`
+            : "Enfant ajouté avec succès!"
+        );
         setOpen(false);
         setFormData({
           firstName: "",
@@ -55,8 +62,7 @@ export default function AddChildDialog({ onChildAdded }: AddChildDialogProps) {
         });
         onChildAdded();
       } else {
-        const errorData = await response.json();
-        alert(`Erreur: ${errorData.error}`);
+        alert(`Erreur: ${responseData?.error ?? "Impossible d'ajouter l'enfant"}`);
       }
     } catch {
       alert('Une erreur est survenue lors de l\'ajout de l\'enfant');
@@ -84,7 +90,7 @@ export default function AddChildDialog({ onChildAdded }: AddChildDialogProps) {
             L'email sera automatiquement généré au format : prénom.nom@nexus-student.local
           </p>
           <p className="text-sm text-neutral-400">
-            L'enfant utilisera le même mot de passe que vous pour se connecter.
+            Un lien d'activation élève sera généré après la création.
           </p>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
