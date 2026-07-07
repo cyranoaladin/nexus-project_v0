@@ -21,7 +21,7 @@ export default function ConditionsGeneralesPage() {
     <div className="min-h-screen bg-lux-ink font-dm-sans">
       <CorporateNavbar />
 
-      <main className="pt-32 pb-20">
+      <main id="main-content" tabIndex={-1} className="pt-32 pb-20">
         <div className="container mx-auto px-4 max-w-4xl">
           <h1 className="text-4xl md:text-5xl font-fraunces font-light mb-4 text-lux-ivory">Conditions Générales</h1>
           <p className="text-lux-on-dark-subtle mb-8 text-sm">

@@ -2,6 +2,7 @@
 # ── Unified Gate ──
 # Runs ALL test lanes in sequence. Failure in any lane stops the gate.
 #
+# Starts from a lockfile-clean dependency tree, then runs:
 # Lane 1: Jest (unit + integration)
 # Lane 2: E2E public (playwright.config.ts — no auth required)
 # Lane 3: E2E auth (playwright.auth.config.ts — real auth via seed + standalone)
@@ -27,6 +28,15 @@ extract_jest_failed() { strip_ansi "$1" | grep "^Tests:" | grep -oP '\d+(?= fail
 echo "╔══════════════════════════════════════════╗"
 echo "║           UNIFIED GATE                   ║"
 echo "╚══════════════════════════════════════════╝"
+echo ""
+
+# ── Clean dependency baseline ──
+echo "━━━ Dependency baseline ━━━"
+if ! npm ci; then
+  echo "✗ npm ci failed"
+  exit 1
+fi
+echo "✓ npm ci completed"
 echo ""
 
 # ── Lane 1: Jest ──
@@ -63,7 +73,7 @@ HOSTNAME=localhost PORT="$PORT" node .next/standalone/server.js > /dev/null 2>&1
 PUB_PID=$!
 sleep 3
 
-PUBLIC_OUTPUT=$(CI=1 BASE_URL="http://localhost:${PORT}" npx playwright test --config=playwright.config.ts --reporter=line 2>&1) || true
+PUBLIC_OUTPUT=$(CI=1 NODE_OPTIONS="--conditions=react-server" BASE_URL="http://localhost:${PORT}" npx playwright test --config=playwright.config.ts --reporter=line 2>&1) || true
 PUBLIC_PASSED=$(extract_passed "$PUBLIC_OUTPUT")
 PUBLIC_FAILED=$(extract_failed "$PUBLIC_OUTPUT")
 PUBLIC_PASSED=${PUBLIC_PASSED:-0}
@@ -106,7 +116,7 @@ node .next/standalone/server.js > /dev/null 2>&1 &
 AUTH_PID=$!
 sleep 3
 
-AUTH_OUTPUT=$(CI=1 BASE_URL="http://localhost:${PORT}" npx playwright test --config=playwright.auth.config.ts --reporter=line 2>&1) || true
+AUTH_OUTPUT=$(CI=1 NODE_OPTIONS="--conditions=react-server" BASE_URL="http://localhost:${PORT}" npx playwright test --config=playwright.auth.config.ts --reporter=line 2>&1) || true
 AUTH_PASSED=$(extract_passed "$AUTH_OUTPUT")
 AUTH_FAILED=$(extract_failed "$AUTH_OUTPUT")
 AUTH_PASSED=${AUTH_PASSED:-0}

@@ -59,10 +59,11 @@ Le store BusinessConfig rend la source unique de crédits **possible**. La corre
 Chaque lot doit passer ce gate COMPLET AVANT merge — pas de subset, pas de « si applicable » :
 
 ```
+0.  deps              → npm ci (obligatoire, jamais de gate sur un node_modules hérité)
 1.  lint              → npx next lint (0 erreurs)
 2.  typecheck         → npx tsc --noEmit (0 erreurs)
 3.  test:unit         → npx jest --passWithNoTests (0 régressions)
-4.  test:e2e          → npx playwright test (0 régressions)
+4.  test:e2e          → NODE_OPTIONS=--conditions=react-server npx playwright test (0 régressions)
 5.  build:gate        → npm run build:gate (build + bundle-weight check)
 6.  guards            → grep de vérification : les routes modifiées conservent leurs gardes RBAC
 7.  audit:site-map    → vérification du site-map (toutes les routes publiques répondent)

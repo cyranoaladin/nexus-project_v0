@@ -3,7 +3,7 @@
 import { CorporateFooter } from "@/components/layout/CorporateFooter";
 import { CorporateNavbar } from "@/components/layout/CorporateNavbar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
@@ -49,7 +49,7 @@ export default function MotDePasseOubliePage() {
       <div className="min-h-screen bg-lux-ink text-lux-ivory">
         <CorporateNavbar />
 
-        <main className="py-12 sm:py-20">
+        <main id="main-content" tabIndex={-1} className="py-12 sm:py-20">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-md">
             <div className="text-center mb-8">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-500/15 rounded-full mb-4">
@@ -70,9 +70,9 @@ export default function MotDePasseOubliePage() {
               <CardContent className="p-6">
                 <div className="space-y-4">
                   <div className="bg-lux-gold/10 border border-lux-gold/30 rounded-lg p-4">
-                    <h3 className="font-semibold text-lux-gold mb-2">
+                    <h2 className="font-semibold text-lux-gold mb-2">
                       Vérifiez votre boîte email
-                    </h3>
+                    </h2>
                     <p className="text-lux-on-dark-muted text-sm">
                       Nous avons envoyé un lien de réinitialisation à <strong>{email}</strong>.
                       Pensez à vérifier vos spams si vous ne le trouvez pas.
@@ -113,7 +113,7 @@ export default function MotDePasseOubliePage() {
     <div className="min-h-screen bg-lux-ink text-lux-ivory">
       <CorporateNavbar />
 
-      <main className="py-12 sm:py-20">
+      <main id="main-content" tabIndex={-1} className="py-12 sm:py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-md">
           <div className="text-center mb-8">
             {/* Badge optionnel désactivé pour lint */}
@@ -129,9 +129,9 @@ export default function MotDePasseOubliePage() {
             className="border border-lux-line/40 bg-white/5"
           >
             <CardHeader>
-              <CardTitle className="text-center text-lux-ivory">
+              <h2 className="text-center text-lux-ivory font-semibold leading-none tracking-tight">
                 Réinitialiser le Mot de Passe
-              </CardTitle>
+              </h2>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
