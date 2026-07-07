@@ -71,7 +71,7 @@ describe('assistant subscriptions', () => {
     const body = await response.json();
 
     expect(response.status).toBe(400);
-    expect(body.error).toBe('Missing required fields');
+    expect(body.error).toBe('Invalid subscription payload');
   });
 
   it('POST returns 404 when subscription missing', async () => {

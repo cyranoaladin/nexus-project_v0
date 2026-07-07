@@ -6,9 +6,22 @@ import { computeDiagnostics } from '@/lib/diagnostic/maths-terminale/scoring';
 import { DOMAINS } from '@/lib/diagnostic/maths-terminale/data';
 import type { DiagnosticSourceData, TeacherGrade } from '@/lib/diagnostic/maths-terminale/types';
 import { serializeError } from '@/lib/utils/serialize-error';
+import { z } from 'zod';
 
 interface RouteParams {
   params: Promise<{ studentId: string }>;
+}
+
+const routeParamsSchema = z.object({
+  studentId: z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/),
+}).strict();
+
+const teacherGradesSchema = z.object({
+  teacherGrades: z.record(z.unknown()),
+}).strict();
+
+function validationFailed() {
+  return NextResponse.json({ error: 'Données invalides' }, { status: 400 });
 }
 
 /**
@@ -17,11 +30,13 @@ interface RouteParams {
  */
 export async function GET(_request: Request, { params }: RouteParams) {
   try {
-    const { studentId } = await params;
-
     const sessionOrError = await requireRole('COACH');
     if (isErrorResponse(sessionOrError)) return sessionOrError;
     const authSession = sessionOrError;
+
+    const parsedParams = routeParamsSchema.safeParse(await params);
+    if (!parsedParams.success) return validationFailed();
+    const { studentId } = parsedParams.data;
 
     // Verify coach assignment
     try {
@@ -61,11 +76,13 @@ export async function GET(_request: Request, { params }: RouteParams) {
  */
 export async function PATCH(request: Request, { params }: RouteParams) {
   try {
-    const { studentId } = await params;
-
     const sessionOrError = await requireRole('COACH');
     if (isErrorResponse(sessionOrError)) return sessionOrError;
     const authSession = sessionOrError;
+
+    const parsedParams = routeParamsSchema.safeParse(await params);
+    if (!parsedParams.success) return validationFailed();
+    const { studentId } = parsedParams.data;
 
     // Verify coach assignment
     try {
@@ -77,12 +94,9 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       );
     }
 
-    const body = await request.json();
-    const { teacherGrades }: { teacherGrades: Record<string, TeacherGrade> } = body;
-
-    if (!teacherGrades || typeof teacherGrades !== 'object') {
-      return NextResponse.json({ error: 'teacherGrades required' }, { status: 400 });
-    }
+    const parsedBody = teacherGradesSchema.safeParse(await request.json());
+    if (!parsedBody.success) return validationFailed();
+    const { teacherGrades } = parsedBody.data as { teacherGrades: Record<string, TeacherGrade> };
 
     // Find the bilan
     const existingBilan = await prisma.bilan.findFirst({
@@ -101,7 +115,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 
     // Get existing source data
     const existingSourceData = existingBilan.sourceData as unknown as DiagnosticSourceData;
-    const { progress = {}, qcmAnswers = {}, openAnswers = {} } = existingSourceData;
+    const { progress = {}, qcmAnswers = {} } = existingSourceData;
 
     // Recompute with teacher grades
     const evaluatedData = computeDiagnostics(progress, qcmAnswers, teacherGrades, true);

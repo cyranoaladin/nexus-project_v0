@@ -49,7 +49,10 @@ export async function GET(
       },
     });
   } catch (err) {
-    console.error('[documents/download] file read failed', { id, err });
+    const code = err instanceof Error && 'code' in err
+      ? String((err as NodeJS.ErrnoException).code)
+      : 'UNKNOWN';
+    console.error('[documents/download] file read failed', { documentId: id, code });
     return NextResponse.json({ error: 'File unavailable' }, { status: 500 });
   }
 }

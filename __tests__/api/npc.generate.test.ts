@@ -77,6 +77,25 @@ describe('POST /api/npc/submissions/[submissionId]/generate', () => {
     expect(response.status).toBe(404);
   });
 
+  it('rejects unsafe submission ids before reading the submission', async () => {
+    const { auth } = require('@/auth');
+    auth.mockResolvedValue({
+      user: { id: 'user-1', role: UserRole.COACH },
+    });
+
+    const request = new NextRequest('http://localhost/api/npc/submissions/../secret/generate', {
+      method: 'POST',
+    });
+    const params = Promise.resolve({ submissionId: '../secret' });
+
+    const response = await POST(request, { params });
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toContain('Invalid');
+    expect(prisma.copySubmission.findUnique).not.toHaveBeenCalled();
+  });
+
   it('returns 403 if coach not assigned to student', async () => {
     const { auth } = require('@/auth');
     auth.mockResolvedValue({

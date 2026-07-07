@@ -7,12 +7,21 @@ import { telegramSendMessage } from '@/lib/telegram/client';
 import { computeReservationStatus } from '@/lib/stages/capacity';
 import { publicStageInscriptionSchema } from '@/lib/stages/inscription-schema';
 import { guardRateLimitAsync } from '@/lib/rate-limit';
+import { z } from 'zod';
+
+const stageInscriptionParamsSchema = z.object({
+  stageSlug: z.string().trim().min(1).max(120).regex(/^[a-z0-9][a-z0-9-]*$/),
+}).strict();
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ stageSlug: string }> }
 ) {
-  const { stageSlug } = await params;
+  const parsedParams = stageInscriptionParamsSchema.safeParse(await params);
+  if (!parsedParams.success) {
+    return NextResponse.json({ error: 'Paramètres de stage invalides' }, { status: 400 });
+  }
+  const { stageSlug } = parsedParams.data;
 
   const blocked = await guardRateLimitAsync(req, { preset: 'api', keySuffix: `stage-inscrire:${stageSlug}` });
   if (blocked) return blocked;
@@ -40,6 +49,8 @@ export async function POST(
     parentEmail,
     parentPhone,
     notes,
+    stageTermsAccepted,
+    dataProcessingAccepted,
   } = parsed.data;
 
   try {
@@ -58,7 +69,7 @@ export async function POST(
     });
     if (existing) {
       return NextResponse.json(
-        { error: 'Une inscription existe déjà pour cet email sur ce stage.', reservationId: existing.id },
+        { error: 'Une inscription existe déjà pour cet email sur ce stage.' },
         { status: 409 }
       );
     }
@@ -77,9 +88,11 @@ export async function POST(
       notes?.trim(),
       parentEmail ? `Email parent: ${parentEmail}` : null,
       parentPhone ? `Téléphone parent: ${parentPhone}` : null,
+      stageTermsAccepted ? 'Modalités stage acceptées: oui' : null,
+      dataProcessingAccepted ? 'Consentement données: oui' : null,
     ].filter(Boolean).join('\n');
 
-    const reservation = await prisma.stageReservation.create({
+    await prisma.stageReservation.create({
       data: {
         stageId: stage.id,
         email,

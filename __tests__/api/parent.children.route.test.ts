@@ -97,7 +97,7 @@ describe('parent children routes', () => {
       const body = await response.json();
 
       expect(response.status).toBe(400);
-      expect(body.error).toBe('Missing required fields');
+      expect(body.error).toBe('Invalid child payload');
     });
 
     it('rejects existing child email', async () => {
@@ -131,7 +131,7 @@ describe('parent children routes', () => {
       expect(body.error).toBe('Parent profile not found');
     });
 
-    it('ignores an injected parentPassword and creates an inactive child', async () => {
+    it('rejects injected fields and does not create a child', async () => {
       (auth as jest.Mock).mockResolvedValue({
         user: { id: 'parent-1', role: 'PARENT' },
       });
@@ -166,10 +166,9 @@ describe('parent children routes', () => {
       );
       const body = await response.json();
 
-      expect(response.status).toBe(200);
-      expect(body.success).toBe(true);
-      expect(body.child.email).toContain('@nexus-student.local');
-      expect(body.activation.token).toMatch(/^act_/);
+      expect(response.status).toBe(400);
+      expect(body.error).toBe('Invalid child payload');
+      expect(prisma.$transaction).not.toHaveBeenCalled();
     });
   });
 });

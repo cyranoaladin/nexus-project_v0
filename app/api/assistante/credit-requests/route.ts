@@ -4,8 +4,15 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
+import { z } from 'zod';
 
 class AlreadyProcessedError extends Error {}
+
+const creditRequestDecisionSchema = z.object({
+  requestId: z.string().trim().min(1).max(100).regex(/^[A-Za-z0-9_-]+$/),
+  action: z.enum(['approve', 'reject']),
+  reason: z.string().trim().max(500).optional(),
+}).strict();
 
 export async function GET(request: NextRequest) {
   try {
@@ -83,19 +90,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = (await request.json()) as {
-      requestId?: string;
-      action?: 'approve' | 'reject';
-      reason?: string;
-    };
-    const { requestId, action, reason } = body;
-
-    if (!requestId || !action) {
+    const rawBody = await request.json().catch(() => null);
+    const parsedBody = creditRequestDecisionSchema.safeParse(rawBody);
+    if (!parsedBody.success) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Invalid credit request payload' },
         { status: 400 }
       );
     }
+    const { requestId, action, reason } = parsedBody.data;
 
     // Get the credit request
     const creditRequest = await prisma.creditTransaction.findUnique({

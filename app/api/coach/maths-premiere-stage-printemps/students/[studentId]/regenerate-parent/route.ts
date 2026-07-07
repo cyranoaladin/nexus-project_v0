@@ -10,6 +10,7 @@ import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { generateBilan, adaptMathsPremiereStagePrintemps } from '@/lib/bilan-generation';
 import { MistralConfigurationError, MistralGenerationError } from '@/lib/llm/mistral';
+import { z } from 'zod';
 
 interface RouteParams {
   params: Promise<{ studentId: string }>;
@@ -18,10 +19,17 @@ interface RouteParams {
 const COACH_SOURCE_VERSION = 'coach_maths_premiere_stage_printemps_v1';
 const BILAN_TYPE = 'STAGE_POST' as const;
 const BILAN_SUBJECT_DEFAULT = 'MATHEMATIQUES';
+const routeParamsSchema = z.object({
+  studentId: z.string().trim().min(1).max(100).regex(/^[A-Za-z0-9_-]+$/),
+}).strict();
 
 export async function POST(_request: Request, { params }: RouteParams) {
   try {
-    const { studentId } = await params;
+    const parsedParams = routeParamsSchema.safeParse(await params);
+    if (!parsedParams.success) {
+      return NextResponse.json({ error: 'Invalid route params' }, { status: 400 });
+    }
+    const { studentId } = parsedParams.data;
 
     // Auth
     const sessionOrError = await requireRole('COACH');

@@ -3,22 +3,47 @@ export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { guardRateLimitAsync } from '@/lib/rate-limit';
 import { SessionStatus } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
+const videoSessionActionSchema = z.object({
+  sessionId: z.string().min(1).max(128),
+  action: z.enum(['JOIN', 'LEAVE']),
+}).strict();
+
+function safeErrorSummary(error: unknown) {
+  const serialized = serializeError(error);
+  if (serialized && typeof serialized === 'object' && !Array.isArray(serialized)) {
+    return {
+      name: typeof serialized.name === 'string' ? serialized.name : 'Error',
+      message: typeof serialized.message === 'string' ? serialized.message : 'unknown',
+    };
+  }
+  return { name: 'Error', message: String(serialized) };
+}
 
 export async function POST(request: NextRequest) {
   try {
+    const blocked = await guardRateLimitAsync(request, {
+      preset: 'api',
+      keySuffix: 'session-video',
+    });
+    if (blocked) return blocked;
+
     const session = await auth();
 
     if (!session?.user) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
-    const { sessionId, action } = await request.json();
-
-    if (!sessionId || !action) {
+    const body = await request.json().catch(() => null);
+    const parsedBody = videoSessionActionSchema.safeParse(body);
+    if (!parsedBody.success) {
       return NextResponse.json({ error: 'Paramètres manquants' }, { status: 400 });
     }
+    const { sessionId, action } = parsedBody.data;
 
     // Vérifier que la session existe et que l'utilisateur y a accès (SessionBooking canonique)
     const bookingSession = await prisma.sessionBooking.findFirst({
@@ -30,10 +55,19 @@ export async function POST(request: NextRequest) {
           { parentId: session.user.id }
         ]
       },
-      include: {
-        student: true,
-        coach: true,
-        parent: true
+      select: {
+        id: true,
+        studentId: true,
+        coachId: true,
+        parentId: true,
+        scheduledDate: true,
+        startTime: true,
+        duration: true,
+        status: true,
+        subject: true,
+        student: { select: { firstName: true, lastName: true } },
+        coach: { select: { firstName: true, lastName: true } },
+        parent: { select: { firstName: true, lastName: true } },
       }
     });
 
@@ -104,7 +138,7 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
-    console.error('Erreur lors de la gestion de la session vidéo:', serializeError(error));
+    console.error('Erreur lors de la gestion de la session vidéo:', safeErrorSummary(error));
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

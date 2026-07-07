@@ -187,6 +187,17 @@ describe('PATCH /api/admin/config', () => {
     expect(res.status).toBe(400);
   });
 
+  it('rejects unexpected fields in config writes', async () => {
+    const res = await PATCH(makeRequest({
+      namespace: 'pricing.rules',
+      key: 'semi_individual_surcharge_pct',
+      value: 60,
+      rawPayload: { leak: true },
+    }));
+    expect(res.status).toBe(400);
+    expect(mockUpsert).not.toHaveBeenCalled();
+  });
+
   it('rejects unknown namespace', async () => {
     const res = await PATCH(makeRequest({
       namespace: 'unknown.ns', key: 'foo', value: 1,
@@ -209,6 +220,25 @@ describe('PATCH /api/admin/config', () => {
       'SELECT pg_advisory_xact_lock($1)',
       expect.any(Number),
     );
+  });
+});
+
+describe('POST /api/admin/config/rollback', () => {
+  it('rejects unexpected fields in rollback payloads', async () => {
+    const { POST: ROLLBACK } = require('@/app/api/admin/config/rollback/route');
+    const rollbackReq = new NextRequest('http://localhost:3000/api/admin/config/rollback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        namespace: 'pricing.rules',
+        key: 'semi_individual_surcharge_pct',
+        force: true,
+      }),
+    });
+
+    const res = await ROLLBACK(rollbackReq);
+    expect(res.status).toBe(400);
+    expect(mockUpdate).not.toHaveBeenCalled();
   });
 });
 

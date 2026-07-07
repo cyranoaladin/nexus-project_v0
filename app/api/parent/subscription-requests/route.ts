@@ -5,8 +5,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 import { getAriaAddonCatalogItem, getOperationalSubscriptionPlan } from '@/lib/operational-catalog';
+import { z } from 'zod';
 
 const ALLOWED_REQUEST_TYPES = ['PLAN_CHANGE', 'ARIA_ADDON'] as const;
+
+const idSchema = z.string().trim().min(1).max(100).regex(/^[A-Za-z0-9_-]+$/);
+const subscriptionRequestBodySchema = z.object({
+  studentId: idSchema,
+  requestType: z.enum(ALLOWED_REQUEST_TYPES),
+  planName: z.string().trim().min(1).max(120).optional().nullable(),
+  reason: z.string().trim().max(1000).optional(),
+}).strict();
+
+const subscriptionRequestQuerySchema = z.object({
+  studentId: idSchema,
+}).strict();
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,28 +32,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = (await request.json()) as {
-      studentId?: string;
-      requestType?: 'PLAN_CHANGE' | 'ARIA_ADDON' | 'INVOICE_DETAILS';
-      planName?: string | null;
-      monthlyPrice?: number;
-      reason?: string;
-    };
-    const { studentId, requestType, planName, reason } = body;
-
-    if (!studentId || !requestType) {
+    const rawBody = await request.json().catch(() => null);
+    const parsedBody = subscriptionRequestBodySchema.safeParse(rawBody);
+    if (!parsedBody.success) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Invalid subscription request payload' },
         { status: 400 }
       );
     }
-
-    if (!ALLOWED_REQUEST_TYPES.includes(requestType as (typeof ALLOWED_REQUEST_TYPES)[number])) {
-      return NextResponse.json(
-        { error: 'Type de demande invalide' },
-        { status: 400 }
-      );
-    }
+    const { studentId, requestType, planName, reason } = parsedBody.data;
 
     let safePlanName = planName || null;
     let safeMonthlyPrice = 0;
@@ -179,14 +179,16 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const studentId = searchParams.get('studentId');
-
-    if (!studentId) {
+    const parsedQuery = subscriptionRequestQuerySchema.safeParse({
+      studentId: searchParams.get('studentId') ?? undefined,
+    });
+    if (!parsedQuery.success) {
       return NextResponse.json(
         { error: 'Student ID is required' },
         { status: 400 }
       );
     }
+    const { studentId } = parsedQuery.data;
 
     // Verify student belongs to parent
     const userId = session.user.id;

@@ -25,7 +25,7 @@ export type {
 export { createInvoiceEvent, appendInvoiceEvent, assertMillimes, MillimesValidationError, PAYMENT_METHOD_LABELS } from './types';
 export type { InvoiceEventDetails } from './types';
 export { sanitizeEventDetails, MAX_EVENT_DETAILS_SIZE } from './types';
-export { notFoundResponse, buildInvoiceScopeWhere } from './not-found';
+export { notFoundResponse, buildInvoiceScopeWhere, buildInvoiceAccessWhere } from './not-found';
 export {
   validateTransition,
   canPerformStatusAction,

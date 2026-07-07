@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
+import { z } from 'zod';
 import {
   applyWrite,
   SCHEMA_VERSION,
@@ -20,6 +21,10 @@ import {
 } from '@/lib/config';
 import type { AuthSession } from '@/lib/guards';
 
+const rollbackPayloadSchema = z.object({
+  namespace: z.string().trim().min(1).max(120),
+  key: z.string().trim().min(1).max(180),
+}).strict();
 
 
 export async function POST(request: NextRequest) {
@@ -27,20 +32,21 @@ export async function POST(request: NextRequest) {
   if (isErrorResponse(auth)) return auth;
   const session = auth as AuthSession;
 
-  let body: { namespace: string; key: string };
+  let json: unknown;
   try {
-    body = await request.json();
+    json = await request.json();
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const { namespace, key } = body;
-  if (typeof namespace !== 'string' || !namespace || typeof key !== 'string' || !key) {
+  const parsedBody = rollbackPayloadSchema.safeParse(json);
+  if (!parsedBody.success) {
     return NextResponse.json(
       { error: 'Missing required fields: namespace, key' },
       { status: 400 },
     );
   }
+  const { namespace, key } = parsedBody.data;
 
   const result = await prisma.$transaction(async (tx) => {
     await tx.$queryRawUnsafe('SELECT pg_advisory_xact_lock($1)', CONFIG_ADVISORY_LOCK_KEY);

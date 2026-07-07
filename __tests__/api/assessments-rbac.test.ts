@@ -8,6 +8,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
+import { NextRequest } from 'next/server';
 
 jest.mock('@/auth', () => ({
   auth: jest.fn(),
@@ -31,16 +32,15 @@ describe('GET /api/admin/directeur/stats', () => {
     jest.clearAllMocks();
   });
 
-  it('returns 403 without session', async () => {
+  it('returns 401 without session', async () => {
     mockGetServerSession.mockResolvedValue(null);
 
-    const request = new Request('http://localhost/api/admin/directeur/stats');
+    const request = new NextRequest('http://localhost/api/admin/directeur/stats');
     const response = await GET(request);
     const data = await response.json();
 
-    expect(response.status).toBe(403);
-    expect(data.success).toBe(false);
-    expect(data.error).toContain('ADMIN');
+    expect(response.status).toBe(401);
+    expect(data.error).toBe('Unauthorized');
   });
 
   it('returns 403 for non-ADMIN user', async () => {
@@ -48,12 +48,12 @@ describe('GET /api/admin/directeur/stats', () => {
       user: { id: 'user-1', email: 'coach@test.com', role: 'COACH' },
     });
 
-    const request = new Request('http://localhost/api/admin/directeur/stats');
+    const request = new NextRequest('http://localhost/api/admin/directeur/stats');
     const response = await GET(request);
     const data = await response.json();
 
     expect(response.status).toBe(403);
-    expect(data.success).toBe(false);
+    expect(data.error).toBe('Forbidden');
   });
 
   it('returns 200 for ADMIN user', async () => {
@@ -72,7 +72,7 @@ describe('GET /api/admin/directeur/stats', () => {
     (prisma.stageReservation.count as jest.Mock).mockResolvedValue(0);
     (prisma.$queryRawUnsafe as jest.Mock).mockResolvedValue([]);
 
-    const request = new Request('http://localhost/api/admin/directeur/stats');
+    const request = new NextRequest('http://localhost/api/admin/directeur/stats');
     const response = await GET(request);
     const data = await response.json();
 
@@ -96,10 +96,10 @@ describe('POST /api/admin/recompute-ssn', () => {
     jest.clearAllMocks();
   });
 
-  it('returns 403 without session', async () => {
+  it('returns 401 without session', async () => {
     mockGetServerSession.mockResolvedValue(null);
 
-    const request = new Request('http://localhost/api/admin/recompute-ssn', {
+    const request = new NextRequest('http://localhost/api/admin/recompute-ssn', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'MATHS' }),
@@ -108,8 +108,8 @@ describe('POST /api/admin/recompute-ssn', () => {
     const response = await POST(request);
     const data = await response.json();
 
-    expect(response.status).toBe(403);
-    expect(data.success).toBe(false);
+    expect(response.status).toBe(401);
+    expect(data.error).toBe('Unauthorized');
   });
 
   it('returns 200 for ADMIN user with valid type', async () => {
@@ -126,7 +126,7 @@ describe('POST /api/admin/recompute-ssn', () => {
     (prisma.$queryRawUnsafe as jest.Mock).mockResolvedValue([]);
     (prisma.$executeRawUnsafe as jest.Mock).mockResolvedValue(2);
 
-    const request = new Request('http://localhost/api/admin/recompute-ssn', {
+    const request = new NextRequest('http://localhost/api/admin/recompute-ssn', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'MATHS' }),

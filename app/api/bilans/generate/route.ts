@@ -9,8 +9,27 @@ import { prisma } from '@/lib/prisma';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { BilanGenerator } from '@/lib/bilan/generator';
 import type { BilanGenerationContext } from '@/lib/bilan/generator';
+import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
+
+const safeIdSchema = z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/);
+
+const generateBilanBodySchema = z.object({
+  bilanId: safeIdSchema,
+  enableRAG: z.boolean().default(true),
+  ragCollections: z.array(z.string().trim().min(1).max(120)).max(20).optional(),
+  ragQuery: z.string().trim().max(500).optional(),
+  force: z.boolean().optional(),
+}).strict();
+
+const generationStatusQuerySchema = z.object({
+  bilanId: safeIdSchema,
+}).strict();
+
+function validationFailed(message = 'Données invalides') {
+  return NextResponse.json({ success: false, error: message }, { status: 400 });
+}
 
 /**
  * POST /api/bilans/generate
@@ -22,15 +41,13 @@ export async function POST(request: NextRequest) {
   if (isErrorResponse(authResponse)) return authResponse;
 
   try {
-    const body = await request.json();
-    const { bilanId, enableRAG = true, ragCollections, ragQuery } = body;
-
-    if (!bilanId) {
-      return NextResponse.json(
-        { success: false, error: 'Missing required field: bilanId' },
-        { status: 400 }
-      );
+    const rawBody = await request.json();
+    const parsedBody = generateBilanBodySchema.safeParse(rawBody);
+    if (!parsedBody.success) {
+      const hasBilanId = rawBody && typeof rawBody === 'object' && 'bilanId' in rawBody;
+      return validationFailed(hasBilanId ? undefined : 'Missing required field: bilanId');
     }
+    const { bilanId, enableRAG, ragCollections, ragQuery, force } = parsedBody.data;
 
     // Fetch bilan
     const bilan = await prisma.bilan.findUnique({
@@ -53,7 +70,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if already completed
-    if (bilan.status === 'COMPLETED' && !body.force) {
+    if (bilan.status === 'COMPLETED' && !force) {
       return NextResponse.json(
         { success: false, error: 'Bilan already completed. Use force=true to regenerate.' },
         { status: 409 }
@@ -122,14 +139,12 @@ export async function GET(request: NextRequest) {
 
   try {
     const { searchParams } = new URL(request.url);
-    const bilanId = searchParams.get('bilanId');
-
-    if (!bilanId) {
-      return NextResponse.json(
-        { success: false, error: 'Missing required param: bilanId' },
-        { status: 400 }
-      );
+    const queryObject = Object.fromEntries(searchParams.entries());
+    const parsedQuery = generationStatusQuerySchema.safeParse(queryObject);
+    if (!parsedQuery.success) {
+      return validationFailed('bilanId' in queryObject ? undefined : 'Missing required param: bilanId');
     }
+    const { bilanId } = parsedQuery.data;
 
     const bilan = await prisma.bilan.findUnique({
       where: { id: bilanId },

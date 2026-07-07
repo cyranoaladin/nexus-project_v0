@@ -6,8 +6,12 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { getPhraseMagique } from '@/lib/survival/phrases';
 import { DEFAULT_EXAM_DATE, snapshotFromStoredProgress, toPrismaSurvivalData } from '@/lib/survival/progress';
+import { z } from 'zod';
 
 const lastCopyByUserAndPhrase = new Map<string, number>();
+const copiedParamsSchema = z.object({
+  phraseId: z.string().trim().min(1).max(80).regex(/^phrase_[0-9]+$/),
+}).strict();
 
 export async function POST(
   _request: Request,
@@ -19,7 +23,11 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { phraseId } = await context.params;
+    const parsedParams = copiedParamsSchema.safeParse(await context.params);
+    if (!parsedParams.success) {
+      return NextResponse.json({ error: 'Invalid phrase' }, { status: 400 });
+    }
+    const { phraseId } = parsedParams.data;
     const phrase = getPhraseMagique(phraseId);
     if (!phrase) {
       return NextResponse.json({ error: 'Unknown phrase' }, { status: 404 });

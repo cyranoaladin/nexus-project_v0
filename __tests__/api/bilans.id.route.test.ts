@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GET, PUT } from '@/app/api/bilans/[id]/route';
-import { GET as EXPORT_GET } from '@/app/api/bilans/[id]/export/route';
+import { GET as EXPORT_GET, POST as EXPORT_POST } from '@/app/api/bilans/[id]/export/route';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
 
@@ -77,6 +77,19 @@ describe('/api/bilans/[id] — ownership', () => {
     expect(body.data.analysisJson).toBeUndefined();
   });
 
+  it('rejects unsafe bilan ids before querying', async () => {
+    mockRequireAnyRole.mockResolvedValue({
+      user: { id: 'admin-1', role: 'ADMIN', email: 'admin@test.local' },
+    });
+
+    const res = await GET(makeRequest('/api/bilans/../secret'), params('../secret'));
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body.error).toContain('Données');
+    expect(prisma.bilan.findFirst).not.toHaveBeenCalled();
+  });
+
   it('requires a coach-owned or assigned bilan before update', async () => {
     mockRequireAnyRole.mockResolvedValue({
       user: { id: 'coach-user-1', role: 'COACH', email: 'coach@test.local' },
@@ -93,6 +106,20 @@ describe('/api/bilans/[id] — ownership', () => {
         OR: expect.any(Array),
       }),
     }));
+  });
+
+  it('rejects unknown update fields before mutating a bilan', async () => {
+    mockRequireAnyRole.mockResolvedValue({
+      user: { id: 'admin-1', role: 'ADMIN', email: 'admin@test.local' },
+    });
+
+    const res = await PUT(makePutRequest({ status: 'COMPLETED', metadata: { raw: true } }), params());
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body.error).toContain('Données');
+    expect(prisma.bilan.findFirst).not.toHaveBeenCalled();
+    expect(prisma.bilan.update).not.toHaveBeenCalled();
   });
 
   it('does not export Nexus markdown to parent audience=all', async () => {
@@ -155,6 +182,42 @@ describe('/api/bilans/[id] — ownership', () => {
     );
 
     expect(res.status).toBe(404);
+  });
+
+  it('rejects unsupported export audience before loading the bilan', async () => {
+    mockRequireAnyRole.mockResolvedValue({
+      user: { id: 'admin-1', role: 'ADMIN', email: 'admin@test.local' },
+    });
+
+    const res = await EXPORT_GET(
+      makeRequest('/api/bilans/bilan-1/export?format=markdown&audience=raw'),
+      params()
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body.error).toContain('Données');
+    expect(prisma.bilan.findFirst).not.toHaveBeenCalled();
+  });
+
+  it('rejects unsupported export generation formats before loading the bilan', async () => {
+    mockRequireAnyRole.mockResolvedValue({
+      user: { id: 'admin-1', role: 'ADMIN', email: 'admin@test.local' },
+    });
+
+    const res = await EXPORT_POST(
+      new NextRequest('http://localhost:3000/api/bilans/bilan-1/export', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ format: 'zip' }),
+      }),
+      params()
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body.error).toContain('Données');
+    expect(prisma.bilan.findFirst).not.toHaveBeenCalled();
   });
 
   it('returns guard response unchanged when auth fails', async () => {

@@ -49,8 +49,9 @@ for route in "${!BASELINES[@]}"; do
   baseline="${BASELINES[$route]}"
   budget=$((baseline + TOLERANCE_KB))
 
-  # Match the route in build output — handles both ┌ and ├ prefixes
-  line=$(grep -E "○ ${route} " "$BUILD_LOG" | head -1 || true)
+  # Match the route in build output regardless of whether Next marks it as
+  # static (○) or dynamic (ƒ). Some protected marketing flows read cookies.
+  line=$(grep -F " ${route} " "$BUILD_LOG" | head -1 || true)
   if [ -z "$line" ]; then
     echo "✗  ${route}: not found in build output (protected route vanished from build)"
     FAILURES=$((FAILURES + 1))

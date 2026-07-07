@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { PREMIERE_EDS_SIMULATIONS } from "@/data/automatismes/premiere-eds/simulations";
 import { serializeError } from '@/lib/utils/serialize-error';
+import { z } from "zod";
+
+const paramsSchema = z.object({
+  id: z.string().min(1).max(120).regex(/^[a-z0-9-]+$/i),
+});
 
 export async function GET(
   request: NextRequest,
@@ -13,7 +18,11 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = await params;
+    const parsedParams = paramsSchema.safeParse(await params);
+    if (!parsedParams.success) {
+      return NextResponse.json({ error: "Bad Request" }, { status: 400 });
+    }
+    const { id } = parsedParams.data;
     const series = PREMIERE_EDS_SIMULATIONS.find(s => s.id === id);
 
     if (!series) {

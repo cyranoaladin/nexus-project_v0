@@ -39,6 +39,8 @@ const validBody = {
   email: 'aya@example.com',
   phone: '+21699192829',
   level: 'Terminale',
+  stageTermsAccepted: true,
+  dataProcessingAccepted: true,
 };
 
 describe('POST /api/stages/[slug]/inscrire', () => {

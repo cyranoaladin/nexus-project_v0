@@ -3,7 +3,7 @@ import { serializeError } from '@/lib/utils/serialize-error';
  * GET /api/invoices/:id/pdf — Stream invoice PDF with RBAC + token access.
  *
  * Two access paths:
- * 1. Session-based (RBAC): ADMIN/ASSISTANTE see all, PARENT scoped by email
+ * 1. Session-based (RBAC): ADMIN sees all, PARENT scoped by child beneficiary/email
  * 2. Token-based (?token=...): signed link from email, 72h expiry
  *
  * No-leak design:
@@ -16,7 +16,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { readInvoicePDF, verifyAccessToken } from '@/lib/invoice';
-import { notFoundResponse, buildInvoiceScopeWhere } from '@/lib/invoice/not-found';
+import { notFoundResponse, buildInvoiceAccessWhere } from '@/lib/invoice/not-found';
 
 /**
  * Stream a PDF response from a buffer.
@@ -68,10 +68,11 @@ export async function GET(
       return notFoundResponse();
     }
 
-    const userRole = (session.user as { role?: string }).role;
-    const userEmail = session.user.email;
-
-    const scopeWhere = buildInvoiceScopeWhere(id, userRole, userEmail);
+    const scopeWhere = await buildInvoiceAccessWhere(id, {
+      id: session.user.id,
+      role: (session.user as { role?: string }).role,
+      email: session.user.email,
+    });
     if (!scopeWhere) {
       return notFoundResponse();
     }

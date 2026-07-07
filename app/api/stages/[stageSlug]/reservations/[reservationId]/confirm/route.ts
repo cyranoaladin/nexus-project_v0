@@ -9,6 +9,12 @@ import { sendMail } from '@/lib/email/mailer';
 import { GradeLevel, AcademicTrack } from '@prisma/client';
 import { normalizeGradeLevel, getDefaultTrackForLevel, normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
 import crypto from 'crypto';
+import { z } from 'zod';
+
+const confirmReservationParamsSchema = z.object({
+  stageSlug: z.string().trim().min(1).max(120).regex(/^[a-z0-9][a-z0-9-]*$/),
+  reservationId: z.string().trim().min(1).max(100).regex(/^[A-Za-z0-9_-]+$/),
+}).strict();
 
 export async function POST(
   req: NextRequest,
@@ -17,7 +23,11 @@ export async function POST(
   const sessionOrError = await requireAnyRole(['ADMIN', 'ASSISTANTE']);
   if (sessionOrError instanceof NextResponse) return sessionOrError;
 
-  const { stageSlug, reservationId } = await params;
+  const parsedParams = confirmReservationParamsSchema.safeParse(await params);
+  if (!parsedParams.success) {
+    return NextResponse.json({ error: 'Paramètres de réservation invalides' }, { status: 400 });
+  }
+  const { stageSlug, reservationId } = parsedParams.data;
 
   try {
     const reservation = await prisma.stageReservation.findFirst({
