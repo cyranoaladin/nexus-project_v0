@@ -1,7 +1,7 @@
 # Annexe matrice API sécurité complète
 
 Source : `docs/security/API_GUARD_INVENTORY.md`.
-Généré le : 2026-07-06T20:47:11.266Z.
+Généré le : 2026-07-07T07:03:08.659Z.
 
 Lecture statique uniquement : `Auth guard détecté`, `Role guard détecté`, `Zod détecté` et `Ownership requis` sont des indices de pilotage. `À vérifier` signifie qu’aucune preuve suffisante n’a été établie dans ce lot.
 
@@ -10,18 +10,20 @@ Lecture statique uniquement : `Auth guard détecté`, `Role guard détecté`, `Z
 | Priorité | Nombre |
 | --- | ---: |
 | P0 | 0 |
-| P1 | 6 |
-| P2 | 144 |
-| OK | 28 |
-| Total | 178 |
+| P1 | 8 |
+| P2 | 141 |
+| OK | 27 |
+| Total | 176 |
 
 ## Top 20 à corriger en priorité (P1)
 
 | Priorité | Route | Domaine | Risque dominant | Action Lot suivant |
 | --- | --- | --- | --- | --- |
+| P1 | `/api/payments/clictopay/init` | Paiement | Facture/paiement | Durcir avant bêta élargie |
 | P1 | `/api/payments/clictopay/webhook` | Paiement | Facture/paiement | Durcir avant bêta élargie |
 | P1 | `/api/assessments/submit` | Bilans/assessments | Données pédagogiques mineur | Durcir avant bêta élargie |
 | P1 | `/api/bilan-gratuit` | Bilans/assessments | Données pédagogiques mineur | Durcir avant bêta élargie |
+| P1 | `/api/bilan-gratuit/dismiss` | Bilans/assessments | Données pédagogiques mineur | Durcir avant bêta élargie |
 | P1 | `/api/lamis/teacher-report` | Bilans/assessments | Données pédagogiques mineur | Durcir avant bêta élargie |
 | P1 | `/api/stages/[stageSlug]/inscrire` | Stages | Réservation/session | Durcir avant bêta élargie |
 | P1 | `/api/student/activate` | Élève | PII/utilisateur | Durcir avant bêta élargie |
@@ -59,7 +61,6 @@ Lecture statique uniquement : `Auth guard détecté`, `Role guard détecté`, `Z
 | P2 | `/api/assessments/[id]/result` | GET | Bilans/assessments | Auth | À vérifier | Oui | Oui | Non | Non | Non | Données pédagogiques mineur | Suivi qualité P2 |
 | P2 | `/api/assessments/[id]/status` | GET | Bilans/assessments | Auth | À vérifier | Oui | Oui | Non | Oui | Non | Données pédagogiques mineur | Suivi qualité P2 |
 | P2 | `/api/assessments/predict` | POST | Bilans/assessments | Auth | Rôle détecté, à qualifier | Oui | Oui | Oui | Oui | Non | Données pédagogiques mineur | Suivi qualité P2 |
-| P2 | `/api/assessments/public-token` | POST | Bilans/assessments | Auth | Rôle détecté, à qualifier | Oui | Oui | Oui | Oui | Oui | Données pédagogiques mineur | Suivi qualité P2 |
 | P1 | `/api/assessments/submit` | POST | Bilans/assessments | Public | N/A | N/A | Non | Non | Oui | Oui | Données pédagogiques mineur | Durcir avant bêta élargie |
 | P2 | `/api/assessments/test` | GET | Bilans/assessments | Auth | Rôle détecté, à qualifier | Oui | Oui | Oui | Non | Non | Données pédagogiques mineur | Suivi qualité P2 |
 | P2 | `/api/assistante/activate-student` | POST | Assistante | Auth | Assistante | Oui | Oui | Oui | Oui | Non | PII/utilisateur | Suivi qualité P2 |
@@ -83,8 +84,8 @@ Lecture statique uniquement : `Auth guard détecté`, `Role guard détecté`, `Z
 | OK | `/api/auth/[...nextauth]` | - | Auth | Public/À vérifier | N/A | Oui | Non | Non | Non | Non | À vérifier | Maintenir tests de non-régression |
 | OK | `/api/auth/resend-activation` | POST | Auth | Public/À vérifier | N/A | N/A | Non | Non | Oui | Oui | À vérifier | Maintenir tests de non-régression |
 | OK | `/api/auth/reset-password` | POST | Auth | Public/À vérifier | N/A | N/A | Non | Non | Oui | Oui | À vérifier | Maintenir tests de non-régression |
-| P2 | `/api/bilan-gratuit/dismiss` | POST | Bilans/assessments | Auth | Rôle détecté, à qualifier | Oui | Oui | Oui | Oui | Non | Données pédagogiques mineur | Suivi qualité P2 |
-| P1 | `/api/bilan-gratuit` | POST | Bilans/assessments | Public | N/A | N/A | Non | Non | Oui | Oui | Données pédagogiques mineur | Durcir avant bêta élargie |
+| P1 | `/api/bilan-gratuit/dismiss` | POST | Bilans/assessments | Auth | Rôle détecté, à qualifier | Oui | Oui | Oui | Non | Non | Données pédagogiques mineur | Durcir avant bêta élargie |
+| P1 | `/api/bilan-gratuit` | POST | Bilans/assessments | Public | Rôle détecté, à qualifier | N/A | Non | Oui | Oui | Oui | Données pédagogiques mineur | Durcir avant bêta élargie |
 | P2 | `/api/bilan-gratuit/status` | GET | Bilans/assessments | Auth | À vérifier | Oui | Oui | Non | Non | Non | Données pédagogiques mineur | Suivi qualité P2 |
 | P2 | `/api/bilan-pallier2-maths/retry` | POST | Bilans/assessments | Auth | Rôle détecté, à qualifier | Oui | Oui | Oui | Oui | Non | Données pédagogiques mineur | Suivi qualité P2 |
 | P2 | `/api/bilan-pallier2-maths` | POST, GET | Bilans/assessments | Auth | Rôle détecté, à qualifier | Oui | Oui | Oui | Oui | Oui | Données pédagogiques mineur | Suivi qualité P2 |
@@ -132,7 +133,6 @@ Lecture statique uniquement : `Auth guard détecté`, `Role guard détecté`, `Z
 | P2 | `/api/eleve/stages` | GET | Stages | Auth | Élève | Oui | Oui | Oui | Non | Non | PII/utilisateur, Réservation/session | Suivi qualité P2 |
 | OK | `/api/health` | GET | Autre | Public/À vérifier | N/A | N/A | Non | Non | Non | Non | À vérifier | Maintenir tests de non-régression |
 | OK | `/api/internal/health` | GET | Autre | Auth | Rôle détecté, à qualifier | À vérifier | Oui | Oui | Non | Non | À vérifier | Maintenir tests de non-régression |
-| OK | `/api/internal/rate-limit-probe` | GET | Autre | Auth | Rôle détecté, à qualifier | À vérifier | Oui | Oui | Non | Oui | À vérifier | Maintenir tests de non-régression |
 | P2 | `/api/invoices/[id]/pdf` | GET | Facturation | Auth | À vérifier | Oui | Oui | Non | Non | Non | Facture/paiement, Document/fichier | Suivi qualité P2 |
 | P2 | `/api/invoices/[id]/receipt/pdf` | GET | Facturation | Auth | À vérifier | Oui | Oui | Non | Oui | Non | Facture/paiement, Document/fichier | Suivi qualité P2 |
 | OK | `/api/lamis/attempt` | POST | Autre | Public/À vérifier | N/A | N/A | Non | Non | Non | Non | À vérifier | Maintenir tests de non-régression |
@@ -161,7 +161,7 @@ Lecture statique uniquement : `Auth guard détecté`, `Role guard détecté`, `Z
 | P2 | `/api/parent/subscriptions` | GET, POST | Parent | Auth | Parent | Oui | Oui | Oui | Oui | Non | PII/utilisateur | Suivi qualité P2 |
 | P2 | `/api/payments/bank-transfer/confirm` | POST | Paiement | Auth | Rôle détecté, à qualifier | Oui | Oui | Oui | Oui | Non | Facture/paiement | Suivi qualité P2 |
 | P2 | `/api/payments/check-pending` | GET | Paiement | Auth | Rôle détecté, à qualifier | Oui | Oui | Oui | Non | Non | Facture/paiement | Suivi qualité P2 |
-| P2 | `/api/payments/clictopay/init` | POST | Paiement | Auth | Rôle détecté, à qualifier | Oui | Oui | Oui | Oui | Non | Facture/paiement | Suivi qualité P2 |
+| P1 | `/api/payments/clictopay/init` | POST | Paiement | Auth | À vérifier | Oui | Oui | Non | Non | Non | Facture/paiement | Durcir avant bêta élargie |
 | P1 | `/api/payments/clictopay/webhook` | POST | Paiement | Public webhook | N/A | N/A | Non | Non | Non | Non | Facture/paiement | Durcir avant bêta élargie |
 | P2 | `/api/payments/pending` | GET | Paiement | Auth | Rôle détecté, à qualifier | Oui | Oui | Oui | Non | Non | Facture/paiement | Suivi qualité P2 |
 | P2 | `/api/payments/validate` | POST | Paiement | Auth | Rôle détecté, à qualifier | Oui | Oui | Oui | Oui | Non | Facture/paiement | Suivi qualité P2 |
