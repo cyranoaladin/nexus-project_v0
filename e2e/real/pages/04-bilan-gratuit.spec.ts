@@ -55,7 +55,7 @@ test.describe('REAL — Bilan Gratuit (/bilan-gratuit)', () => {
     await expect(page.locator('#parentFirstName')).toBeVisible();
   });
 
-  test('Soumission complète — crée parent + élève en DB', async ({ page }) => {
+  test('Soumission complète — contrat public sécurisé et confirmation', async ({ page }) => {
     const uniqueEmail = `test.audit.${Date.now()}@e2e-test.com`;
 
     await page.locator('#parentFirstName').fill('TestAudit');
@@ -83,18 +83,20 @@ test.describe('REAL — Bilan Gratuit (/bilan-gratuit)', () => {
     const status = apiResponse.status();
     console.log(`API /api/bilan-gratuit → HTTP ${status}`);
 
-    if (status === 200) {
-      const body = await apiResponse.json();
-      console.log('API response:', JSON.stringify(body));
-      expect(body.success, 'API ne retourne pas success=true').toBe(true);
-      expect(body.parentId, 'API ne retourne pas parentId').toBeTruthy();
-      expect(body.studentId, 'API ne retourne pas studentId').toBeTruthy();
-      await page.waitForURL('**/bilan-gratuit/confirmation', { timeout: 10000 });
-    } else {
-      const body = await apiResponse.json().catch(() => ({}));
-      console.log(`API error response: ${JSON.stringify(body)}`);
-      expect(status, `API retourne ${status}: ${JSON.stringify(body)}`).toBeLessThan(500);
-    }
+    const body = await apiResponse.json();
+
+    expect(status, `API retourne ${status}: ${JSON.stringify(body)}`).toBe(200);
+    expect(body.success, 'API ne retourne pas success=true').toBe(true);
+    expect(body.message, 'API ne retourne pas de message de confirmation').toBeTruthy();
+    expect(body).not.toHaveProperty('parentId');
+    expect(body).not.toHaveProperty('studentId');
+    expect(body).not.toHaveProperty('token');
+    expect(body).not.toHaveProperty('assessmentToken');
+    expect(body).not.toHaveProperty('leadEmailHash');
+    expect(JSON.stringify(body)).not.toMatch(/parentId|studentId|token|assessmentToken|leadEmailHash/i);
+
+    await page.waitForURL('**/bilan-gratuit/confirmation', { timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /votre demande de bilan a bien été enregistrée/i })).toBeVisible();
   });
 
   test('Confirmation page charge après soumission', async ({ page }) => {

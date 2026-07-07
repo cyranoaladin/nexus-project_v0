@@ -601,6 +601,28 @@ Actions :
 Decision attendue : `READY_FOR_PR_CREATION_REVIEW`; `BETA_CONTROLEE_ALLOWED_WITH_RESERVES`; `BETA_ELARGIE_BLOCKED`; `GO_LIVE_LARGE_BLOCKED`.
 ```
 
+## Prompt Lot 19 — recheck CI PR #58 apres correction E2E bilan gratuit
+
+```md
+Tu travailles dans `nexus-project_v0`, branche `feat/lot4-accessors-runtime`, PR GitHub `#58`.
+
+Objectif : verifier le re-run CI GitHub apres le commit `test(e2e): align bilan gratuit response contract`.
+
+Contraintes :
+- ne pas modifier l'API publique ;
+- ne pas reintroduire `parentId` ou `studentId` dans `/api/bilan-gratuit` ;
+- ne pas lancer de migration locale ;
+- ne pas creer de PR ;
+- ne pas deployer ;
+- ne pas requalifier les 6 P1.
+
+Actions :
+- consulter `gh pr checks 58` ;
+- si `E2E Tests` passe, documenter `READY_FOR_PR_REVIEW_CONTINUATION` ;
+- si `E2E Tests` echoue encore, extraire le log GitHub Actions sans secret et identifier si l'echec est different de l'assertion `parentId/studentId` ;
+- garder beta elargie et go-live large bloques.
+```
+
 ## Prompt Lot 13 — exécution humaine contrôlée des commits
 
 ```md

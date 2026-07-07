@@ -400,3 +400,14 @@ Les commandes finales complètes Lot 1 restent la source de vérité finale du v
 | `npm run lint` | Gate pre-push minimale | OK | PASSED sous Node 20 avec warnings existants sous seuil | Warnings a traiter hors Lot 16 | Obligatoire push review |
 | `npm run test:unit -- --runInBand __tests__/scripts/release-candidate-human-commit-runbook.test.ts` | Verrou runbook humain | OK | PASSED, 1 suite, 5 tests | Aucun | Obligatoire push review |
 | `npm run check:docs-archive` | Verifier archives docs | OK | PASSED | Aucun | Obligatoire push review |
+
+## Mise à jour Lot 18 — CI E2E bilan gratuit
+
+| Commande | Objectif | Statut actuel | Resultat observe | Blocage eventuel | Critere go-live |
+| --- | --- | --- | --- | --- | --- |
+| `gh pr checks 58` | Identifier l'echec CI PR #58 | OK | `E2E Tests` failed, autres jobs principaux passed | `CI Success` echoue par synthese | Corriger E2E |
+| `npm run typecheck` | Gate locale apres correctif test | OK | PASSED sous Node 20 | Aucun | Obligatoire PR recheck |
+| `npm run lint` | Gate locale apres correctif test | OK | PASSED sous Node 20 avec warnings existants sous seuil | Warnings preexistants | Obligatoire PR recheck |
+| `npm run test:unit -- --runInBand __tests__/api/bilan-gratuit.product-rgpd.test.ts` | Prouver contrat API public securise | OK | PASSED, 8 tests | Aucun | Obligatoire RGPD mineurs |
+| `PLAYWRIGHT_TEST_BASE_URL=http://127.0.0.1:3012 npx playwright test e2e/pages-public-bilan-assessment-token.spec.ts --project=chromium --reporter=line` | Verifier refus acces direct assessment token | OK | PASSED, 1 test | Aucun | Obligatoire regression token |
+| `npx playwright test --config=playwright.ci.config.ts e2e/real/pages/04-bilan-gratuit.spec.ts --project=chromium --reporter=line` | Rejouer le fichier CI fautif | PARTIEL | 6 passed, 1 failed localement sur DB absente `127.0.0.1:5435` | DB E2E locale non disponible, migrations interdites | GitHub CI doit rechecker avec sa DB E2E |
