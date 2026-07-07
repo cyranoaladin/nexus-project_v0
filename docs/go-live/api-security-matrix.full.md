@@ -1,7 +1,7 @@
 # Annexe matrice API sécurité complète
 
 Source : `docs/security/API_GUARD_INVENTORY.md`.
-Généré le : 2026-07-07T07:03:08.659Z.
+Généré le : 2026-07-07T12:38:10.542Z.
 
 Lecture statique uniquement : `Auth guard détecté`, `Role guard détecté`, `Zod détecté` et `Ownership requis` sont des indices de pilotage. `À vérifier` signifie qu’aucune preuve suffisante n’a été établie dans ce lot.
 
@@ -10,8 +10,8 @@ Lecture statique uniquement : `Auth guard détecté`, `Role guard détecté`, `Z
 | Priorité | Nombre |
 | --- | ---: |
 | P0 | 0 |
-| P1 | 8 |
-| P2 | 141 |
+| P1 | 7 |
+| P2 | 142 |
 | OK | 27 |
 | Total | 176 |
 
@@ -24,7 +24,6 @@ Lecture statique uniquement : `Auth guard détecté`, `Role guard détecté`, `Z
 | P1 | `/api/assessments/submit` | Bilans/assessments | Données pédagogiques mineur | Durcir avant bêta élargie |
 | P1 | `/api/bilan-gratuit` | Bilans/assessments | Données pédagogiques mineur | Durcir avant bêta élargie |
 | P1 | `/api/bilan-gratuit/dismiss` | Bilans/assessments | Données pédagogiques mineur | Durcir avant bêta élargie |
-| P1 | `/api/lamis/teacher-report` | Bilans/assessments | Données pédagogiques mineur | Durcir avant bêta élargie |
 | P1 | `/api/stages/[stageSlug]/inscrire` | Stages | Réservation/session | Durcir avant bêta élargie |
 | P1 | `/api/student/activate` | Élève | PII/utilisateur | Durcir avant bêta élargie |
 
@@ -139,7 +138,7 @@ Lecture statique uniquement : `Auth guard détecté`, `Role guard détecté`, `Z
 | OK | `/api/lamis/exercises` | - | Autre | Public/À vérifier | N/A | N/A | Non | Non | Non | Non | À vérifier | Maintenir tests de non-régression |
 | OK | `/api/lamis/export` | POST | Autre | Public/À vérifier | N/A | N/A | Non | Non | Non | Non | À vérifier | Maintenir tests de non-régression |
 | OK | `/api/lamis/progress` | POST | Autre | Public/À vérifier | N/A | N/A | Non | Non | Non | Non | À vérifier | Maintenir tests de non-régression |
-| P1 | `/api/lamis/teacher-report` | POST, GET | Bilans/assessments | Public/À vérifier | N/A | N/A | Non | Non | Oui | Oui | Données pédagogiques mineur | Durcir avant bêta élargie |
+| P2 | `/api/lamis/teacher-report` | POST, GET | Bilans/assessments | Auth | Rôle détecté, à qualifier | Oui | Oui | Oui | Oui | Oui | Données pédagogiques mineur | Suivi qualité P2 |
 | OK | `/api/me/next-step` | GET | Autre | Auth | À vérifier | À vérifier | Oui | Non | Non | Non | À vérifier | Maintenir tests de non-régression |
 | OK | `/api/messages/conversations` | GET | Autre | Auth | À vérifier | Oui | Oui | Non | Non | Non | Conversation IA | Maintenir tests de non-régression |
 | OK | `/api/messages/send` | POST | Autre | Auth | Rôle détecté, à qualifier | Oui | Oui | Oui | Oui | Non | Conversation IA | Maintenir tests de non-régression |

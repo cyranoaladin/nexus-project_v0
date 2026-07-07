@@ -42,7 +42,7 @@ export function buildInvoiceScopeWhere(
   role: string | undefined,
   email: string | null | undefined
 ): Record<string, unknown> | null {
-  if (role === 'ADMIN' || role === 'ASSISTANTE') {
+  if (role === 'ADMIN') {
     return { id };
   }
   if (role === 'PARENT' && email) {
@@ -67,7 +67,7 @@ export async function buildInvoiceAccessWhere(
   id: string,
   user: InvoiceAccessUser
 ): Promise<Record<string, unknown> | null> {
-  if (user.role === 'ADMIN' || user.role === 'ASSISTANTE') {
+  if (user.role === 'ADMIN') {
     return { id };
   }
 

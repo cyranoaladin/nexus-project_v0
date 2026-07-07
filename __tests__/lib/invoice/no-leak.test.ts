@@ -16,7 +16,7 @@ function buildInvoiceScopeWhere(
   role: string | undefined,
   email: string | null | undefined
 ): Record<string, unknown> | null {
-  if (role === 'ADMIN' || role === 'ASSISTANTE') {
+  if (role === 'ADMIN') {
     return { id };
   }
   if (role === 'PARENT' && email) {
@@ -58,8 +58,8 @@ describe('buildInvoiceScopeWhere', () => {
     expect(buildInvoiceScopeWhere(id, 'ADMIN', null)).toEqual({ id });
   });
 
-  it('ASSISTANTE → returns { id } (full access)', () => {
-    expect(buildInvoiceScopeWhere(id, 'ASSISTANTE', null)).toEqual({ id });
+  it('ASSISTANTE → returns null on public invoice scopes', () => {
+    expect(buildInvoiceScopeWhere(id, 'ASSISTANTE', null)).toBeNull();
   });
 
   it('PARENT with email → returns { id, customerEmail }', () => {
@@ -97,6 +97,7 @@ describe('buildInvoiceScopeWhere', () => {
     const denyCases = [
       buildInvoiceScopeWhere(id, 'ELEVE', 'e@t.com'),
       buildInvoiceScopeWhere(id, 'COACH', 'c@t.com'),
+      buildInvoiceScopeWhere(id, 'ASSISTANTE', null),
       buildInvoiceScopeWhere(id, 'PARENT', null),
       buildInvoiceScopeWhere(id, undefined, null),
       buildInvoiceScopeWhere(id, '', null),

@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import { lamisExercises } from "@/src/data/lamisExercises";
 import { buildPedagogicalReport } from "@/lib/lamis/progress";
 import type { LamisAttempt } from "@/lib/lamis/types";
+import { isErrorResponse, requireAnyRole } from "@/lib/guards";
 import { guardRateLimitAsync } from "@/lib/rate-limit";
+import { UserRole } from "@prisma/client";
 import { z } from "zod";
 
 const lamisAttemptSchema = z.object({
@@ -23,9 +25,13 @@ const teacherReportBodySchema = z.object({
 }).strict();
 
 export async function POST(request: Request) {
+  const sessionOrError = await requireAnyRole([UserRole.ADMIN, UserRole.ASSISTANTE, UserRole.COACH]);
+  if (isErrorResponse(sessionOrError)) return sessionOrError;
+
   const rateLimited = await guardRateLimitAsync(request, {
     preset: "api",
     keySuffix: "lamis-teacher-report",
+    userId: sessionOrError.user.id,
   });
   if (rateLimited) return rateLimited;
 
@@ -40,9 +46,13 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
+  const sessionOrError = await requireAnyRole([UserRole.ADMIN, UserRole.ASSISTANTE, UserRole.COACH]);
+  if (isErrorResponse(sessionOrError)) return sessionOrError;
+
   const rateLimited = await guardRateLimitAsync(request, {
     preset: "api",
     keySuffix: "lamis-teacher-report",
+    userId: sessionOrError.user.id,
   });
   if (rateLimited) return rateLimited;
 

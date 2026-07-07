@@ -1,14 +1,14 @@
 # Inventaire initial des guards API
 
-Généré le : 2026-07-07T07:02:59.238Z
+Généré le : 2026-07-07T12:38:10.481Z
 
 Lecture statique uniquement. La colonne `Ownership explicit` signale des indices de filtrage propriétaire dans le fichier; elle ne remplace pas un audit manuel IDOR.
 
 ## Synthèse
 
 - P0 : 0
-- P1 : 8
-- P2 : 141
+- P1 : 7
+- P2 : 142
 - OK : 27
 - Total routes : 176
 
@@ -19,13 +19,13 @@ Lecture statique uniquement. La colonne `Ownership explicit` signale des indices
 | `app/api/assessments/submit/route.ts` | POST | P1 | pédagogique sensible |
 | `app/api/bilan-gratuit/dismiss/route.ts` | POST | P1 | pédagogique sensible; guard manuel |
 | `app/api/bilan-gratuit/route.ts` | POST | P1 | pédagogique sensible |
-| `app/api/lamis/teacher-report/route.ts` | POST, GET | P1 | pédagogique sensible |
 | `app/api/payments/clictopay/init/route.ts` | POST | P1 | finance; guard manuel |
 | `app/api/payments/clictopay/webhook/route.ts` | POST | P1 | finance |
 | `app/api/stages/[stageSlug]/inscrire/route.ts` | POST | P1 | - |
 | `app/api/student/activate/route.ts` | GET, POST | P1 | - |
 | `app/api/admin/activities/route.ts` | GET | P2 | staff/admin |
 | `app/api/admin/analytics/route.ts` | GET | P2 | staff/admin |
+| `app/api/admin/config/history/route.ts` | GET | P2 | staff/admin |
 
 ## Inventaire complet
 
@@ -138,7 +138,7 @@ Lecture statique uniquement. La colonne `Ownership explicit` signale des indices
 | `app/api/lamis/exercises/route.ts` | - | no | no | no | no | no | no | OK | - |
 | `app/api/lamis/export/route.ts` | POST | no | no | no | no | no | no | OK | - |
 | `app/api/lamis/progress/route.ts` | POST | no | no | no | no | no | no | OK | - |
-| `app/api/lamis/teacher-report/route.ts` | POST, GET | no | no | no | no | yes | no | P1 | pédagogique sensible |
+| `app/api/lamis/teacher-report/route.ts` | POST, GET | no | yes | yes | no | yes | no | P2 | pédagogique sensible |
 | `app/api/me/next-step/route.ts` | GET | no | yes | no | no | no | no | OK | guard manuel |
 | `app/api/messages/conversations/route.ts` | GET | no | yes | no | no | no | no | OK | guard manuel |
 | `app/api/messages/send/route.ts` | POST | no | yes | yes | no | yes | no | OK | guard manuel |
