@@ -2,11 +2,9 @@ import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { UserRole } from '@prisma/client';
 import { z } from 'zod';
-
-const allowedInitiatorRoles = new Set<string>([UserRole.PARENT, UserRole.ADMIN, UserRole.ASSISTANTE]);
 
 const clicToPayInitSchema = z.object({
   amount: z.number().positive().optional(),
@@ -24,21 +22,8 @@ const clicToPayInitSchema = z.object({
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
-
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Authentification requise' },
-        { status: 401 }
-      );
-    }
-
-    if (!allowedInitiatorRoles.has((session.user as { role?: string }).role ?? '')) {
-      return NextResponse.json(
-        { error: 'Accès refusé' },
-        { status: 403 }
-      );
-    }
+    const sessionOrError = await requireAnyRole([UserRole.PARENT, UserRole.ADMIN, UserRole.ASSISTANTE]);
+    if (isErrorResponse(sessionOrError)) return sessionOrError;
 
     if (process.env.NEXT_PUBLIC_ENABLE_CLICTOPAY_PUBLIC === 'true') {
       return NextResponse.json(
