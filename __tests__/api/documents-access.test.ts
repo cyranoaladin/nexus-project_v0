@@ -124,7 +124,7 @@ describe('Documents Access Control', () => {
       const data = await response.json();
       expect(data.success).toBe(true);
       expect(data.documents).toHaveLength(1);
-      expect(data.documents[0]).not.toHaveProperty('localPath');
+      expect(data.documents[0].localPath).toMatch(/^\/api\/documents\/.+\/download$/);
     });
 
     it('should deny coach access to non-assigned student (403)', async () => {
@@ -214,7 +214,7 @@ describe('Documents Access Control', () => {
       const data = await response.json();
       expect(data.success).toBe(true);
       expect(data.document.title).toBe('New Exercise');
-      expect(data.document).not.toHaveProperty('localPath');
+      expect(data.document.localPath).toMatch(/^\/api\/documents\/.+\/download$/);
     });
 
     it('should validate documentType enum (400)', async () => {

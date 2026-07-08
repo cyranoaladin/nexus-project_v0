@@ -49,10 +49,10 @@ describe('buildInvoiceAccessWhere', () => {
     ).resolves.toBeNull();
   });
 
-  it('denies ASSISTANTE, ELEVE, COACH and unknown roles on public invoice PDFs', async () => {
+  it('grants ASSISTANTE full access and denies ELEVE, COACH and unknown roles on public invoice PDFs', async () => {
     await expect(
       buildInvoiceAccessWhere('inv-1', { id: 'staff-1', role: 'ASSISTANTE', email: null }),
-    ).resolves.toBeNull();
+    ).resolves.toEqual({ id: 'inv-1' });
     await expect(
       buildInvoiceAccessWhere('inv-1', { id: 'student-1', role: 'ELEVE', email: 'student@test.tn' }),
     ).resolves.toBeNull();
