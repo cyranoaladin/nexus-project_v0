@@ -1,23 +1,22 @@
 # Inventaire initial des guards API
 
-Généré le : 2026-07-07T22:39:29.018Z
+Généré le : 2026-07-08T07:45:56.442Z
 
 Lecture statique uniquement. La colonne `Ownership explicit` signale des indices de filtrage propriétaire dans le fichier; elle ne remplace pas un audit manuel IDOR.
 
 ## Synthèse
 
 - P0 : 0
-- P1 : 3
+- P1 : 2
 - P2 : 142
 - PUBLIC : 4
 - OK : 27
-- Total routes : 176
+- Total routes : 175
 
 ## 20 routes à auditer en priorité
 
 | Route | Methods | Risk | Notes |
 |---|---|---|---|
-| `app/api/bilan-gratuit/dismiss/route.ts` | POST | P1 | pédagogique sensible; guard manuel |
 | `app/api/payments/clictopay/init/route.ts` | POST | P1 | finance; guard manuel |
 | `app/api/payments/clictopay/webhook/route.ts` | POST | P1 | finance |
 | `app/api/admin/activities/route.ts` | GET | P2 | staff/admin |
@@ -37,6 +36,7 @@ Lecture statique uniquement. La colonne `Ownership explicit` signale des indices
 | `app/api/admin/stages/[stageId]/sessions/[sessionId]/route.ts` | PATCH, DELETE | P2 | staff/admin |
 | `app/api/admin/stages/[stageId]/sessions/route.ts` | GET, POST | P2 | staff/admin |
 | `app/api/admin/stages/route.ts` | GET, POST | P2 | staff/admin |
+| `app/api/admin/subscriptions/route.ts` | GET, PUT | P2 | staff/admin |
 
 ## Inventaire complet
 
@@ -94,7 +94,7 @@ Lecture statique uniquement. La colonne `Ownership explicit` signale des indices
 | `app/api/auth/[...nextauth]/route.ts` | - | yes | no | no | no | no | no | OK | - |
 | `app/api/auth/resend-activation/route.ts` | POST | no | no | no | no | yes | no | OK | - |
 | `app/api/auth/reset-password/route.ts` | POST | no | no | no | no | yes | yes | OK | - |
-| `app/api/bilan-gratuit/dismiss/route.ts` | POST | no | yes | yes | no | no | yes | P1 | pédagogique sensible; guard manuel |
+| `app/api/bilan-gratuit/dismiss/route.ts` | POST | no | yes | yes | no | yes | no | P2 | pédagogique sensible |
 | `app/api/bilan-gratuit/route.ts` | POST | no | no | yes | no | yes | no | PUBLIC | pédagogique sensible; Formulaire public de bilan stratégique gratuit — Zod + rate-limit + honeypot |
 | `app/api/bilan-gratuit/status/route.ts` | GET | no | yes | no | no | no | yes | P2 | pédagogique sensible; guard manuel |
 | `app/api/bilan-pallier2-maths/retry/route.ts` | POST | no | yes | yes | no | yes | no | P2 | pédagogique sensible |
@@ -149,7 +149,6 @@ Lecture statique uniquement. La colonne `Ownership explicit` signale des indices
 | `app/api/lamis/exercises/route.ts` | - | no | no | no | no | no | no | OK | - |
 | `app/api/lamis/export/route.ts` | POST | no | no | no | no | no | no | OK | - |
 | `app/api/lamis/progress/route.ts` | POST | no | no | no | no | no | no | OK | - |
-| `app/api/lamis/teacher-report/route.ts` | POST, GET | no | yes | yes | no | yes | no | P2 | pédagogique sensible |
 | `app/api/me/next-step/route.ts` | GET | no | yes | no | no | no | no | OK | guard manuel |
 | `app/api/messages/conversations/route.ts` | GET | no | yes | no | no | no | no | OK | guard manuel |
 | `app/api/messages/send/route.ts` | POST | no | yes | yes | no | yes | no | OK | guard manuel |

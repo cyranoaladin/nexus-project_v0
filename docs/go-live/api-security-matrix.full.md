@@ -1,6 +1,19 @@
 # Annexe matrice API sécurité complète
 
 Source : `docs/security/API_GUARD_INVENTORY.md`.
+
+## Politique RBAC — Module Facturation
+
+| Opération | ADMIN | ASSISTANTE | PARENT | COACH/ELEVE |
+|---|:---:|:---:|:---:|:---:|
+| Créer une facture (`POST /api/admin/invoices`) | ✓ | ✓ | — | — |
+| Lister les factures (`GET /api/admin/invoices`) | ✓ | ✓ | — | — |
+| Changer le statut (`PATCH /api/admin/invoices/[id]`) | ✓ | ✓ | — | — |
+| Envoyer par email (`POST /api/admin/invoices/[id]/send`) | ✓ | ✓ | — | — |
+| Télécharger le PDF (`GET /api/invoices/[id]/pdf`) | ✓ | ✓ | ✓ (scope enfant) | — |
+| Télécharger le reçu (`GET /api/invoices/[id]/receipt/pdf`) | ✓ | ✓ | ✓ (scope enfant) | — |
+
+**Audit trail :** toute transition de statut est tracée par `appendInvoiceEvent()` (acteur + horodatage). Le téléchargement de reçu génère un événement `RECEIPT_RENDERED`.
 Généré le : 2026-07-07T12:38:10.542Z.
 
 Lecture statique uniquement : `Auth guard détecté`, `Role guard détecté`, `Zod détecté` et `Ownership requis` sont des indices de pilotage. `À vérifier` signifie qu’aucune preuve suffisante n’a été établie dans ce lot.

@@ -2,8 +2,12 @@ import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { requireRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
+import { UserRole } from '@prisma/client';
+import { z } from 'zod';
+
+const dismissPayloadSchema = z.object({}).strict();
 
 /**
  * POST /api/bilan-gratuit/dismiss
@@ -11,19 +15,11 @@ import { prisma } from '@/lib/prisma';
  */
 export async function POST() {
   try {
-    let session: any = null;
-    try {
-      session = await auth();
-    } catch {
-      // auth() can throw UntrustedHost in standalone mode
-    }
-
-    if (!session?.user?.id || session.user.role !== 'PARENT') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
+    const sessionOrError = await requireRole(UserRole.PARENT);
+    if (isErrorResponse(sessionOrError)) return sessionOrError;
 
     await prisma.parentProfile.update({
-      where: { userId: session.user.id },
+      where: { userId: sessionOrError.user.id },
       data: { bilanGratuitDismissedAt: new Date() },
     });
 

@@ -8,7 +8,10 @@ import { z } from 'zod';
 const createTrajectorySchema = z.object({
   studentId: z.string().trim().min(1).max(100).regex(/^[A-Za-z0-9_-]+$/),
   title: z.string().trim().min(1).max(160),
-  targetScore: z.coerce.number().finite().min(0).max(20).optional(),
+  targetScore: z.preprocess(
+    (v) => (v === null ? undefined : v),
+    z.coerce.number().finite().min(0).max(100).optional()
+  ),
   horizon: z.enum(['3_MONTHS', '6_MONTHS', '12_MONTHS']),
 }).strict();
 
