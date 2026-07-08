@@ -66,12 +66,36 @@ SECRET_PATTERNS=(
   "NexusReussite[0-9]{4}@"
 )
 
+# ─── Allowlist de fichiers exemptés de la détection de secrets ────────────────
+# Chaque entrée est un glob avec justification — tout ajout doit être reviewé.
+SECRET_SCAN_ALLOWLIST=(
+  # scripts/gate-all.sh: provisioning DB e2e jetable (conteneur pgvector local),
+  # credentials par défaut du conteneur, jamais de données réelles.
+  "scripts/gate-all.sh"
+)
+
+is_allowlisted() {
+  local file="$1"
+  for allowed in "${SECRET_SCAN_ALLOWLIST[@]}"; do
+    # Ignore comment lines
+    [[ "$allowed" == \#* ]] && continue
+    if [[ "$file" == $allowed ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
 for f in $STAGED_ADDED_MODIFIED; do
   if [[ ! -f "$f" ]]; then
     continue
   fi
   # Ne pas inspecter les fichiers binaires, les .example, ou le hook lui-même
   if [[ "$f" == *".example" || "$f" == *".sample" || "$f" == *"pre-commit-hook.sh" ]]; then
+    continue
+  fi
+  # Fichiers exemptés (voir SECRET_SCAN_ALLOWLIST ci-dessus)
+  if is_allowlisted "$f"; then
     continue
   fi
   CONTENT=$(git show ":$f" 2>/dev/null || true)
