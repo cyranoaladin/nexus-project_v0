@@ -69,7 +69,13 @@ echo ""
 
 # ── Lane 2: E2E public ──
 echo "━━━ Lane 2: E2E public ━━━"
-HOSTNAME=localhost PORT="$PORT" node .next/standalone/server.js > /dev/null 2>&1 &
+set -a
+# shellcheck disable=SC1091
+source .env.local 2>/dev/null || true
+set +a
+export HOSTNAME="localhost"
+export PORT="$PORT"
+node .next/standalone/server.js > /dev/null 2>&1 &
 PUB_PID=$!
 sleep 3
 
