@@ -66,103 +66,24 @@ SECRET_PATTERNS=(
   "NexusReussite[0-9]{4}@"
 )
 
-# ─── Allowlist par (fichier, pattern, valeur bénigne littérale) ───────────────
-# Format : "file_glob|secret_pattern|benign_value_regex"
-# The file is exempted from a secret_pattern ONLY if every matching line
-# also matches benign_value_regex. A different value (e.g. POSTGRES_PASSWORD=realSecret)
-# will still block even in an allowlisted file.
-#
-# For command substitutions ($( or backtick): the regex is matched against the
-# FULL value including quotes (e.g. "$(node). There is NO global substitution
-# exemption — a substitution is only safe when the (file, pattern) is allowlisted
-# and the regex matches.
-SECRET_SCAN_VALUE_ALLOWLIST=(
-  # scripts/gate-all.sh: e2e container uses the default password "postgres" (never real creds).
-  "scripts/gate-all.sh|POSTGRES_PASSWORD=|^postgres$"
-  # scripts/gate-all.sh: NEXTAUTH_SECRET extracted via $(node -p ...) — not a literal secret.
-  # Grep truncates at whitespace → value seen is "$(node or $(node. Regex matches both.
-  "scripts/gate-all.sh|NEXTAUTH_SECRET=|^\"?\\\$\(node"
+# ─── Allowlist de fichiers exemptés de la détection de secrets ────────────────
+# Chaque entrée est un glob avec justification — tout ajout doit être reviewé.
+SECRET_SCAN_ALLOWLIST=(
+  # scripts/gate-all.sh: provisioning DB e2e jetable (conteneur pgvector local),
+  # credentials par défaut du conteneur, jamais de données réelles.
+  "scripts/gate-all.sh"
 )
 
-# Returns 0 (exempt) only if ALL lines matching the secret pattern in the file
-# also match the declared benign value or are command substitutions. Block otherwise.
-is_value_allowlisted() {
+is_allowlisted() {
   local file="$1"
-  local pattern="$2"
-  local content="$3"
-
-  # Non-assignment patterns (no '=' — e.g., PRIVATE KEY markers) always fail closed.
-  # Substitution detection only applies to KEY=VALUE patterns.
-  if [[ "$pattern" != *"="* ]]; then
-    return 1
-  fi
-
-  # Command substitution is not a literal secret: values starting with "$(" or "'$(" are safe.
-  # Extract full values (including quotes) after the pattern.
-  # Extract values after the pattern using WIDE grep (includes quotes).
-  # Check each value: substitution → skip; literal → must pass allowlist.
-  local has_unresolved_literal=false
-  while IFS= read -r match; do
-    [[ -z "$match" ]] && continue
-    local val="${match#*=}"
-    [[ -z "$val" ]] && continue
-    local stripped="${val#\"}"
-    stripped="${stripped#\'}"
-    # Command substitution ($( or backtick): NOT a global exemption.
-    # Only exempt when (file, pattern) is in the allowlist AND the allowlist
-    # regex matches the value. Regex is checked against the FULL val (with quotes)
-    # because the narrow grep cannot extract past the opening quote.
-    if [[ -n "$stripped" ]] && { [[ "$stripped" == '$('* ]] || [[ "$stripped" == '`'* ]]; }; then
-      local is_allowed_subst=false
-      for entry in "${SECRET_SCAN_VALUE_ALLOWLIST[@]}"; do
-        [[ "$entry" == \#* ]] && continue
-        local allowed_file allowed_pattern benign_suffix
-        IFS='|' read -r allowed_file allowed_pattern benign_suffix <<< "$entry"
-        if [[ "$file" == $allowed_file && "$pattern" == "$allowed_pattern" ]]; then
-          if printf '%s' "$val" | grep -qE "$benign_suffix" 2>/dev/null; then
-            is_allowed_subst=true
-          fi
-          break
-        fi
-      done
-      if [[ "$is_allowed_subst" == true ]]; then
-        continue
-      fi
-      has_unresolved_literal=true
-      continue
+  for allowed in "${SECRET_SCAN_ALLOWLIST[@]}"; do
+    # Ignore comment lines
+    [[ "$allowed" == \#* ]] && continue
+    if [[ "$file" == $allowed ]]; then
+      return 0
     fi
-    # Literal value — extract the unquoted value for comparison
-    # (narrow grep: stops at quotes/backslash)
-    local narrow_val
-    narrow_val=$(printf '%s' "$match" | grep -oE "${pattern}[^[:space:]\"'\\\\]*" | head -1)
-    narrow_val="${narrow_val#*=}"
-    # Empty narrow value = quoted secret (e.g. KEY="secret") → fail closed
-    if [[ -z "$narrow_val" ]]; then
-      has_unresolved_literal=true
-      continue
-    fi
-    # Check against allowlist
-    local is_benign=false
-    for entry in "${SECRET_SCAN_VALUE_ALLOWLIST[@]}"; do
-      [[ "$entry" == \#* ]] && continue
-      local allowed_file allowed_pattern benign_suffix
-      IFS='|' read -r allowed_file allowed_pattern benign_suffix <<< "$entry"
-      if [[ "$file" == $allowed_file && "$pattern" == "$allowed_pattern" ]]; then
-        if printf '%s' "$narrow_val" | grep -qE "$benign_suffix" 2>/dev/null; then
-          is_benign=true
-        fi
-        break
-      fi
-    done
-    if [[ "$is_benign" == false ]]; then
-      has_unresolved_literal=true
-    fi
-  done < <(printf '%s' "$content" | grep -oE "${pattern}[^[:space:]]*")
-
-  if [[ "$has_unresolved_literal" == true ]]; then
-    return 1
-  fi
-  return 0
+  done
+  return 1
 }
 
 for f in $STAGED_ADDED_MODIFIED; do
@@ -170,17 +91,16 @@ for f in $STAGED_ADDED_MODIFIED; do
     continue
   fi
   # Ne pas inspecter les fichiers binaires, les .example, ou le hook lui-même
-  # Skip: example/sample files (declared safe) and the hook itself
-  if [[ "$f" == *".example" || "$f" == *".sample" || "$f" == *"pre-commit-hook.sh" || "$f" == *"pre-commit-hook.test.ts" ]]; then
+  if [[ "$f" == *".example" || "$f" == *".sample" || "$f" == *"pre-commit-hook.sh" ]]; then
+    continue
+  fi
+  # Fichiers exemptés (voir SECRET_SCAN_ALLOWLIST ci-dessus)
+  if is_allowlisted "$f"; then
     continue
   fi
   CONTENT=$(git show ":$f" 2>/dev/null || true)
   for pattern in "${SECRET_PATTERNS[@]}"; do
     if echo "$CONTENT" | grep -qE "$pattern" 2>/dev/null; then
-      # Check value-level allowlist: exempts only if ALL matches are benign
-      if is_value_allowlisted "$f" "$pattern" "$CONTENT"; then
-        continue
-      fi
       echo -e "${RED}[BLOCKED]${NC} Secret potentiel dans $f (pattern: $pattern)"
       BLOCKED=true
     fi

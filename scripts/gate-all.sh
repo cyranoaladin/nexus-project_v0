@@ -96,8 +96,7 @@ if ! pg_isready -h 127.0.0.1 -p 5435 -q 2>/dev/null; then
     docker rm -f nexus-e2e-pg 2>/dev/null || true
     envfile=$(mktemp)
     # docker postgres image requires POSTGRES_PASSWORD env var
-    PG_ENV_KEY="POSTGRES_PASS""WORD"
-    printf '%s=%s\nPOSTGRES_DB=nexus_e2e\n' "$PG_ENV_KEY" "$E2E_PG_PASS" > "$envfile"
+    printf 'POSTGRES_PASSWORD=%s\nPOSTGRES_DB=nexus_e2e\n' "$E2E_PG_PASS" > "$envfile"
     docker run -d --name nexus-e2e-pg \
       --env-file "$envfile" \
       -p 5435:5432 \
