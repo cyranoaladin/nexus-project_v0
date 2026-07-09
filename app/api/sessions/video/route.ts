@@ -27,18 +27,26 @@ function safeErrorSummary(error: unknown) {
 
 export async function POST(request: NextRequest) {
   try {
+    // IP-based rate-limit first — blocks anonymous abuse before auth()
+    const ipBlocked = await guardRateLimitAsync(request, {
+      preset: 'api',
+      keySuffix: 'session-video',
+    });
+    if (ipBlocked) return ipBlocked;
+
     const session = await auth();
 
     if (!session?.user) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
-    const blocked = await guardRateLimitAsync(request, {
+    // Refine with userId-based rate-limit post-auth
+    const userBlocked = await guardRateLimitAsync(request, {
       preset: 'api',
       keySuffix: 'session-video',
       userId: session.user.id,
     });
-    if (blocked) return blocked;
+    if (userBlocked) return userBlocked;
 
     const body = await parseJsonBody(request);
     const parsedBody = videoSessionActionSchema.safeParse(body);
