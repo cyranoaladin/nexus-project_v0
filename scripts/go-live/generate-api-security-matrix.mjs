@@ -183,7 +183,7 @@ const enriched = rows.map((row) => {
   };
 });
 
-const counts = ['P0', 'P1', 'P2', 'OK'].map((priority) => [
+const counts = ['P0', 'P1', 'PUBLIC', 'P2', 'OK'].map((priority) => [
   priority,
   enriched.filter((row) => row.priority === priority).length,
 ]);

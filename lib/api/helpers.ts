@@ -32,22 +32,28 @@ export async function safeJsonParse<T = unknown>(request: NextRequest): Promise<
   }
 }
 
+/** Sentinel: JSON parse failed (empty body or malformed). Not a valid JSON value. */
+export const JSON_PARSE_FAILED = Symbol('JSON_PARSE_FAILED');
+
 /**
- * Parse JSON body without throwing — returns null on malformed input.
- * Designed for routes that use safeParse and want a consistent 400 path.
+ * Parse JSON body without throwing — returns JSON_PARSE_FAILED on malformed/empty input.
+ * Discriminated from a valid JSON `null` payload (which is returned as-is).
+ *
+ * Callers passing the result to a Zod object schema via safeParse can treat
+ * JSON_PARSE_FAILED as an empty object to honour schema defaults:
+ *   `schema.safeParse(body === JSON_PARSE_FAILED ? {} : body)`
  *
  * @example
  * ```ts
  * const body = await parseJsonBody(request);
- * const parsed = schema.safeParse(body);
- * if (!parsed.success) return NextResponse.json({ error: '…' }, { status: 400 });
+ * const parsed = schema.safeParse(body === JSON_PARSE_FAILED ? {} : body);
  * ```
  */
 export async function parseJsonBody(request: Request): Promise<unknown> {
   try {
     return await request.json();
   } catch {
-    return null;
+    return JSON_PARSE_FAILED;
   }
 }
 

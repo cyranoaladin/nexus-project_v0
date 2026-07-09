@@ -20,10 +20,17 @@ const teacherGradeValueSchema = z.object({
   score: z.union([z.number().min(0).max(20), z.literal('')]),
   comment: z.string().max(2000),
   errors: z.array(z.string().max(500)).max(20),
-});
+  mode: z.enum(['global', 'detailed']),
+  criteria: z.record(z.coerce.number().int().min(0), z.union([z.number().min(0).max(20), z.literal('')])),
+}).strict();
+
+const MAX_TEACHER_GRADE_KEYS = 50;
 
 const teacherGradesSchema = z.object({
-  teacherGrades: z.record(teacherGradeValueSchema),
+  teacherGrades: z.record(z.string().min(1).max(120), teacherGradeValueSchema)
+    .refine((r) => Object.keys(r).length > 0 && Object.keys(r).length <= MAX_TEACHER_GRADE_KEYS, {
+      message: `teacherGrades doit contenir entre 1 et ${MAX_TEACHER_GRADE_KEYS} entrées`,
+    }),
 }).strict();
 
 function validationFailed() {

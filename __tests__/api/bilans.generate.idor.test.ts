@@ -28,6 +28,7 @@ jest.mock('@/lib/security/ownership', () => ({
 import { POST, GET } from '@/app/api/bilans/generate/route';
 import { requireAnyRole } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
+import { BilanGenerator } from '@/lib/bilan/generator';
 import { buildBilanWriteWhere, buildBilanReadWhere } from '@/lib/security/ownership';
 import { NextRequest } from 'next/server';
 
@@ -36,6 +37,7 @@ const mockBilanFindFirst = prisma.bilan.findFirst as jest.Mock;
 const mockBilanUpdate = prisma.bilan.update as jest.Mock;
 const mockWriteWhere = buildBilanWriteWhere as jest.Mock;
 const mockReadWhere = buildBilanReadWhere as jest.Mock;
+const mockGenerateAndSave = (BilanGenerator as unknown as { generateAndSave: jest.Mock }).generateAndSave;
 
 const COACH_A = { id: 'coach-a', role: 'COACH', email: 'a@test.tn' };
 const BILAN_OF_COACH_B = 'bilan-coach-b-student';
@@ -64,8 +66,10 @@ describe('IDOR bilans/generate', () => {
       // Must NOT leak error metadata beyond "not found"
       expect(json).not.toHaveProperty('data');
       expect(json.error).toBe('Bilan not found');
-      // Prisma must NOT have been called (denied before query)
+      // No side-effects: query, generation, and update must NOT have been called
       expect(mockBilanFindFirst).not.toHaveBeenCalled();
+      expect(mockGenerateAndSave).not.toHaveBeenCalled();
+      expect(mockBilanUpdate).not.toHaveBeenCalled();
     });
 
     it('returns 200 when coach generates their own bilan', async () => {

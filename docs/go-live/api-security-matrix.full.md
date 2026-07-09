@@ -1,7 +1,7 @@
 # Annexe matrice API sécurité complète
 
 Source : `docs/security/API_GUARD_INVENTORY.md`.
-Généré le : 2026-07-09T08:52:23.173Z.
+Généré le : 2026-07-09T15:28:46.090Z.
 
 Lecture statique uniquement : `Auth guard détecté`, `Role guard détecté`, `Zod détecté` et `Ownership requis` sont des indices de pilotage. `À vérifier` signifie qu’aucune preuve suffisante n’a été établie dans ce lot.
 
@@ -11,22 +11,10 @@ Lecture statique uniquement : `Auth guard détecté`, `Role guard détecté`, `Z
 | --- | ---: |
 | P0 | 0 |
 | P1 | 2 |
+| PUBLIC | 4 |
 | P2 | 143 |
 | OK | 27 |
 | Total | 176 |
-
-## RBAC facturation
-
-| Rôle | Accès factures | Mécanisme |
-|---|---|---|
-| ADMIN | Toutes | `buildInvoiceAccessWhere` → `{ id }` |
-| ASSISTANTE | Toutes | `buildInvoiceAccessWhere` → `{ id }` |
-| PARENT | Factures de ses enfants | `buildInvoiceAccessWhere` → `{ id, OR: [beneficiaryUserId, customerEmail] }` |
-| COACH | Aucun accès factures | `buildInvoiceAccessWhere` → `null` |
-| ELEVE | Aucun accès factures | `buildInvoiceAccessWhere` → `null` |
-
-Routes : `GET /api/invoices/[id]/pdf`, `GET /api/invoices/[id]/receipt/pdf`, `POST /api/admin/invoices`.
-Audit trail : `appendInvoiceEvent()` + `RECEIPT_RENDERED`.
 
 ## Top 20 à corriger en priorité (P1)
 

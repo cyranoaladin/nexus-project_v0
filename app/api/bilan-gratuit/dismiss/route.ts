@@ -19,8 +19,13 @@ export async function POST(request: NextRequest) {
     const sessionOrError = await requireRole(UserRole.PARENT);
     if (isErrorResponse(sessionOrError)) return sessionOrError;
 
-    // Enforce empty body — reject stray fields
-    const rawBody = await request.json().catch(() => ({}));
+    // Enforce empty body — reject stray fields AND malformed JSON
+    let rawBody: unknown;
+    try {
+      rawBody = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
+    }
     const parsed = dismissPayloadSchema.safeParse(rawBody);
     if (!parsed.success) {
       return NextResponse.json({ error: 'Le corps de la requête doit être vide' }, { status: 400 });
