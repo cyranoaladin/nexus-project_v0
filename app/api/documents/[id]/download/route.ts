@@ -133,8 +133,8 @@ export async function GET(
 
     // ── Stream file ──
     try {
-      const fileBuffer = await readFile(document.localPath) as Buffer;
-      return new NextResponse(fileBuffer, {
+      const fileBuffer = await readFile(document.localPath);
+      return new NextResponse(fileBuffer as unknown as BodyInit, {
         headers: {
           'Content-Type': safeContentType(document.mimeType),
           'Content-Disposition': `inline; filename="${safeFilename(document.originalName)}"`,
