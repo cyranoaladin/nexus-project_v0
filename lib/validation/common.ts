@@ -96,9 +96,10 @@ export function isStrictDateString(v: string): boolean {
     if (!/[Zz]$|[+-]\d{2}:\d{2}$/.test(v)) return false;
     if (isNaN(Date.parse(v))) return false;
     // Validate time portion (reject hours >= 24, minutes >= 60, seconds >= 60)
-    const timeMatch = v.match(/T(\d{2}):(\d{2}):(\d{2})/);
+    // Handles both HH:MM:SS and HH:MM (seconds optional)
+    const timeMatch = v.match(/T(\d{2}):(\d{2})(?::(\d{2}))?/);
     if (timeMatch) {
-      const h = Number(timeMatch[1]), m = Number(timeMatch[2]), s = Number(timeMatch[3]);
+      const h = Number(timeMatch[1]), m = Number(timeMatch[2]), s = Number(timeMatch[3] ?? '0');
       if (h >= 24 || m >= 60 || s >= 60) return false;
     }
     // Round-trip check on date portion to reject rolled-over datetimes

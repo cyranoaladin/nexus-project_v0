@@ -90,6 +90,20 @@ describe('issuedAt strict date validation', () => {
     });
   });
 
+  describe('HH:MM without seconds', () => {
+    it('rejects 2024-01-15T24:00Z (hour 24 without seconds)', () => {
+      expect(strictDateSchema.safeParse('2024-01-15T24:00Z').success).toBe(false);
+    });
+
+    it('rejects 2024-01-15T24:00+01:00 (hour 24 with offset)', () => {
+      expect(strictDateSchema.safeParse('2024-01-15T24:00+01:00').success).toBe(false);
+    });
+
+    it('accepts 2024-01-15T12:30Z (valid HH:MM)', () => {
+      expect(strictDateSchema.safeParse('2024-01-15T12:30Z').success).toBe(true);
+    });
+  });
+
   describe('rejects non-date strings', () => {
     it('rejects empty string', () => {
       expect(strictDateSchema.safeParse('').success).toBe(false);
