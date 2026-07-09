@@ -2,10 +2,13 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { readFile } from 'fs/promises';
+import { resolve } from 'path';
 import { UserRole, DocumentVisibilityScope } from '@prisma/client';
 import { serializeError } from '@/lib/utils/serialize-error';
 import { assertCoachCanAccessStudent } from '@/lib/rbac/coach-student-access';
 import { z } from 'zod';
+
+const STORAGE_ROOT = '/app/storage/documents/';
 
 const routeParamsSchema = z.object({
   id: z.string().min(1).max(128).regex(/^[A-Za-z0-9_-]+$/),
@@ -42,7 +45,7 @@ function safeContentType(mimeType: string | null | undefined): string {
 /**
  * GET /api/documents/[id]/download
  *
- * Streams a document file with full RBAC:
+ * Serves a document file with full RBAC:
  * - Staff (ADMIN/ASSISTANTE): access any document
  * - Coach: only documents of assigned students, with matching visibilityScope
  * - Parent: only documents of their children, with matching visibilityScope
@@ -107,7 +110,7 @@ export async function GET(
           studentId: studentProfile.id,
         });
       } catch {
-        return new NextResponse('Forbidden', { status: 403 });
+        return new NextResponse('Not Found', { status: 404 });
       }
     } else if (role === UserRole.PARENT) {
       // Parent must own the student AND scope must allow parent access
@@ -131,15 +134,27 @@ export async function GET(
       return new NextResponse('Forbidden', { status: 403 });
     }
 
-    // ── Stream file ──
+    // ── Serve file ──
+    // URL-based documents don't have local files
+    if (document.localPath.startsWith('http')) {
+      return new NextResponse('Not Found', { status: 404 });
+    }
+
+    // Path traversal containment
+    const resolved = resolve(document.localPath);
+    if (!resolved.startsWith(STORAGE_ROOT)) {
+      return new NextResponse('Not Found', { status: 404 });
+    }
+
     try {
-      const fileBuffer = await readFile(document.localPath);
+      const fileBuffer = await readFile(resolved);
       return new NextResponse(fileBuffer as unknown as BodyInit, {
         headers: {
           'Content-Type': safeContentType(document.mimeType),
           'Content-Disposition': `inline; filename="${safeFilename(document.originalName)}"`,
-          'Content-Length': document.sizeBytes.toString(),
+          'Content-Length': fileBuffer.length.toString(),
           'X-Content-Type-Options': 'nosniff',
+          'Cache-Control': 'private, no-store',
         },
       });
     } catch (fsError) {

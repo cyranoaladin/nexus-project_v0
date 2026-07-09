@@ -91,14 +91,14 @@ describe('GET /api/documents/[id]/download', () => {
     });
   });
 
-  it('returns 403 for non-assigned coach', async () => {
+  it('returns 404 for non-assigned coach', async () => {
     mockAuth.mockResolvedValue({ user: { id: OTHER_COACH_USER_ID, role: 'COACH' } });
     mockFindUnique.mockResolvedValue(mockDocument);
     mockAssert.mockRejectedValue(new Error('Not assigned'));
 
     const res = await GET(request(), params());
 
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(404);
   });
 
   it('returns 401 for anonymous user', async () => {
