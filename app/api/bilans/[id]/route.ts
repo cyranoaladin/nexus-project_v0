@@ -15,6 +15,7 @@ import {
   buildBilanWriteWhere,
   sanitizeBilanForRole,
 } from '@/lib/security/ownership';
+import { BilanStatus } from '@/lib/bilan/types';
 import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
@@ -27,10 +28,8 @@ const routeParamsSchema = z.object({
   id: z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/),
 }).strict();
 
-const BILAN_STATUSES = ['PENDING', 'SCORING', 'GENERATING', 'COMPLETED', 'FAILED'] as const;
-
 const updateBilanBodySchema = z.object({
-  status: z.enum(BILAN_STATUSES).optional(),
+  status: z.nativeEnum(BilanStatus).optional(),
   progress: z.number().int().min(0).max(100).optional(),
   globalScore: z.number().min(0).max(100).optional(),
   confidenceIndex: z.number().min(0).max(100).optional(),

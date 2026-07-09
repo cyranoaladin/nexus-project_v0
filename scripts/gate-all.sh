@@ -32,7 +32,7 @@ wait_for_server() {
   local attempts=0
   while [[ $attempts -lt 15 ]]; do
     local status
-    status=$(curl -s -o /dev/null -w "%{http_code}" "$url" 2>/dev/null) || true
+    status=$(curl --max-time 2 -s -o /dev/null -w "%{http_code}" "$url" 2>/dev/null) || true
     if [[ "$status" == "200" ]]; then
       return 0
     fi
@@ -56,6 +56,9 @@ echo ""
 # PREFLIGHT CHECKS — fail fast on missing prerequisites
 # ══════════════════════════════════════════════════════════
 echo "━━━ Preflight checks ━━━"
+
+# (0) Required tools
+command -v curl &>/dev/null || { echo "✗ curl is required for healthchecks"; exit 1; }
 
 # (a) .env.local must exist and provide the 3 required vars
 if [[ ! -f .env.local ]]; then
@@ -90,7 +93,15 @@ fi
 echo "✓ E2E DB URL is safe (127.0.0.1:5435/nexus_e2e)"
 
 # (c) E2E DB availability: provision pgvector container if port 5435 is not responding
-if ! pg_isready -h 127.0.0.1 -p 5435 -q 2>/dev/null; then
+# pg_isready fallback: if host binary absent, try docker exec on the container
+pg_check() {
+  if command -v pg_isready &>/dev/null; then
+    pg_isready -h 127.0.0.1 -p 5435 -q 2>/dev/null
+  else
+    docker exec nexus-e2e-pg pg_isready -q 2>/dev/null
+  fi
+}
+if ! pg_check; then
   echo "→ Port 5435 not responding — attempting to start pgvector container..."
   if command -v docker &>/dev/null; then
     docker rm -f nexus-e2e-pg 2>/dev/null || true
@@ -99,11 +110,11 @@ if ! pg_isready -h 127.0.0.1 -p 5435 -q 2>/dev/null; then
     printf 'POSTGRES_PASSWORD=%s\nPOSTGRES_DB=nexus_e2e\n' "$E2E_PG_PASS" > "$envfile"
     docker run -d --name nexus-e2e-pg \
       --env-file "$envfile" \
-      -p 5435:5432 \
+      -p 127.0.0.1:5435:5432 \
       pgvector/pgvector:pg16 >/dev/null 2>&1
     rm -f "$envfile"
     sleep 4
-    if ! pg_isready -h 127.0.0.1 -p 5435 -q 2>/dev/null; then
+    if ! pg_check; then
       echo "✗ PostgreSQL e2e container started but not responding"
       exit 1
     fi
@@ -117,14 +128,6 @@ else
   echo "✓ PostgreSQL e2e responding on port 5435"
 fi
 
-# (d) Ensure migrations are applied
-echo "→ Checking migrations..."
-MIGRATE_OUTPUT=$(DATABASE_URL="$DB_URL" npx prisma migrate deploy 2>&1) || {
-  echo "✗ prisma migrate deploy failed:"
-  echo "$MIGRATE_OUTPUT" | tail -10
-  exit 1
-}
-echo "✓ Migrations up to date"
 echo ""
 
 # ══════════════════════════════════════════════════════════
@@ -138,6 +141,16 @@ if ! npm ci; then
   exit 1
 fi
 echo "✓ npm ci completed"
+echo ""
+
+# (d) Ensure migrations are applied (AFTER npm ci for locked Prisma version)
+echo "→ Checking migrations..."
+MIGRATE_OUTPUT=$(DATABASE_URL="$DB_URL" npx prisma migrate deploy 2>&1) || {
+  echo "✗ prisma migrate deploy failed:"
+  echo "$MIGRATE_OUTPUT" | tail -10
+  exit 1
+}
+echo "✓ Migrations up to date"
 echo ""
 
 # ── Lane 1: Jest ──
@@ -184,6 +197,7 @@ set -a
 # shellcheck disable=SC1091
 source .env.local
 set +a
+export DATABASE_URL="$DB_URL"
 export HOSTNAME="localhost"
 export PORT="$PORT"
 node .next/standalone/server.js > /dev/null 2>&1 &

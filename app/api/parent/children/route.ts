@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import type { CreditTransaction } from '@prisma/client';
 import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
 import { sendMail } from '@/lib/email/mailer';
+import { escapeHtml } from '@/lib/email/templates';
 import crypto from 'crypto';
 import { parseJsonBody } from '@/lib/api/helpers';
 import { z } from 'zod';
@@ -202,11 +203,12 @@ export async function POST(request: NextRequest) {
     const baseUrl = process.env.NEXTAUTH_URL || 'https://nexusreussite.academy';
     const activationUrl = `${baseUrl}/auth/activate?token=${encodeURIComponent(rawActivationToken)}`;
 
-    // Send activation email (best-effort — the URL is also returned in the response)
-    await sendMail({
+    // Fire-and-forget: no await — SMTP timeout must not delay the response.
+    // escapeHtml on user-controlled firstName/lastName prevents HTML injection.
+    sendMail({
       to: email,
-      subject: `Activation du compte élève — ${firstName} ${lastName}`,
-      html: `<p>Bonjour ${firstName},</p>
+      subject: `Activation du compte élève — ${escapeHtml(firstName)} ${escapeHtml(lastName)}`,
+      html: `<p>Bonjour ${escapeHtml(firstName)},</p>
              <p>Votre compte élève sur Nexus Réussite a été créé.</p>
              <p>Cliquez sur le lien ci-dessous pour définir votre mot de passe et activer votre compte :</p>
              <p><a href="${activationUrl}">${activationUrl}</a></p>
