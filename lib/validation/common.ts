@@ -95,6 +95,12 @@ export function isStrictDateString(v: string): boolean {
     // Datetime must have timezone offset (Z or ±HH:MM)
     if (!/[Zz]$|[+-]\d{2}:\d{2}$/.test(v)) return false;
     if (isNaN(Date.parse(v))) return false;
+    // Validate time portion (reject hours >= 24, minutes >= 60, seconds >= 60)
+    const timeMatch = v.match(/T(\d{2}):(\d{2}):(\d{2})/);
+    if (timeMatch) {
+      const h = Number(timeMatch[1]), m = Number(timeMatch[2]), s = Number(timeMatch[3]);
+      if (h >= 24 || m >= 60 || s >= 60) return false;
+    }
     // Round-trip check on date portion to reject rolled-over datetimes
     const [, yearStr, monthStr, dayStr] = datetimeMatch;
     return isValidDateComponents(Number(yearStr), Number(monthStr), Number(dayStr));
@@ -103,8 +109,8 @@ export function isStrictDateString(v: string): boolean {
 }
 
 function isValidDateComponents(year: number, month: number, day: number): boolean {
-  const d = new Date(year, month - 1, day);
-  return d.getFullYear() === year && d.getMonth() === month - 1 && d.getDate() === day;
+  const d = new Date(Date.UTC(year, month - 1, day));
+  return d.getUTCFullYear() === year && d.getUTCMonth() === month - 1 && d.getUTCDate() === day;
 }
 
 export const strictDateSchema = z.string().refine(isStrictDateString, {

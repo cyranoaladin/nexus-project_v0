@@ -76,6 +76,20 @@ describe('issuedAt strict date validation', () => {
     });
   });
 
+  describe('datetime time portion validation', () => {
+    it('rejects 2024-01-15T24:00:00Z (hour 24 is invalid)', () => {
+      expect(strictDateSchema.safeParse('2024-01-15T24:00:00Z').success).toBe(false);
+    });
+
+    it('rejects 2024-01-15T12:60:00Z (minute 60 is invalid)', () => {
+      expect(strictDateSchema.safeParse('2024-01-15T12:60:00Z').success).toBe(false);
+    });
+
+    it('rejects 2024-01-15T12:00:60Z (second 60 is invalid)', () => {
+      expect(strictDateSchema.safeParse('2024-01-15T12:00:60Z').success).toBe(false);
+    });
+  });
+
   describe('rejects non-date strings', () => {
     it('rejects empty string', () => {
       expect(strictDateSchema.safeParse('').success).toBe(false);
