@@ -162,6 +162,9 @@ function actionFor(row, domain, rateLimit) {
     return 'Lot 1 : audit manuel prioritaire + tests IDOR';
   }
   if (row.priority === 'P1') return 'Durcir avant bêta élargie';
+  if (row.priority === 'PUBLIC') {
+    return rateLimit === 'Non' ? 'Ajouter rate limit public' : 'Maintenir tests de non-régression';
+  }
   return 'Suivi qualité P2';
 }
 

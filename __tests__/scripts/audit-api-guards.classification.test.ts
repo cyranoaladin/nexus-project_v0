@@ -171,9 +171,9 @@ describe('audit-api-guards route classification', () => {
     expect(rows.get('app/api/admin/documents/route.ts')?.risk).not.toBe('OK');
   });
 
-  it('detects staff roles regardless of order (ASSISTANTE, ADMIN) — path outside admin/assistante/', () => {
+  it('detects staff roles regardless of order — dynamic path outside admin/assistante/', () => {
     const rows = runAuditOnFixtures({
-      'app/api/some/billing/route.ts': `
+      'app/api/some/billing/[id]/route.ts': `
         import { requireAnyRole } from '@/lib/guards';
         export async function POST() {
           await requireAnyRole(['ASSISTANTE', 'ADMIN']);
@@ -182,8 +182,8 @@ describe('audit-api-guards route classification', () => {
       `,
     });
 
-    // Detected as staff-only by content, not by path
-    expect(rows.get('app/api/some/billing/route.ts')?.risk).not.toBe('P0');
+    // Dynamic + sensitive + auth + role BUT staff-only by content → NOT P0
+    expect(rows.get('app/api/some/billing/[id]/route.ts')?.risk).not.toBe('P0');
   });
 
   it('mixed-role guard (PARENT+ADMIN+ASSISTANTE) is NOT staff-only', () => {
@@ -215,6 +215,21 @@ describe('audit-api-guards route classification', () => {
 
     // Has Zod but no rate-limit → P1, not PUBLIC
     expect(rows.get('app/api/assessments/submit/route.ts')?.risk).toBe('P1');
+  });
+
+  it('path under admin/ with non-staff role in source is NOT staff-only', () => {
+    const rows = runAuditOnFixtures({
+      'app/api/admin/invoices/[id]/route.ts': `
+        import { requireAnyRole } from '@/lib/guards';
+        export async function GET() {
+          await requireAnyRole(['PARENT', 'ADMIN', 'ASSISTANTE']);
+          return Response.json({ ok: true });
+        }
+      `,
+    });
+
+    // Despite being under /admin/, PARENT in roles means NOT staff-only → P0
+    expect(rows.get('app/api/admin/invoices/[id]/route.ts')?.risk).toBe('P0');
   });
 
   it('resolves re-exports from index.ts barrel files', () => {

@@ -93,9 +93,9 @@ function riskFor(route, source, dynamic, authGuard, roleGuard, ownership, zod) {
   const hasStaffOnlyGuard = allRoleMatches.length > 0 && allRoleMatches.every(
     (m) => /ADMIN/.test(m[1]) && /ASSISTANTE/.test(m[1]) && !NON_STAFF_ROLES.test(m[1])
   );
-  const staffOnlyRoute = (
-    /app\/api\/(admin|assistante)\//.test(route) || hasStaffOnlyGuard
-  ) && authGuard && roleGuard;
+  // Path-based admin|assistante/ shortcut is CONDITIONAL on no non-staff roles in source
+  const pathBasedStaff = /app\/api\/(admin|assistante)\//.test(route) && !NON_STAFF_ROLES.test(source);
+  const staffOnlyRoute = (pathBasedStaff || hasStaffOnlyGuard) && authGuard && roleGuard;
   const fixedPublicDocument = /app\/api\/public-documents\//.test(route) && methodsOf(source) === 'GET' && /const\s+FILE_NAME\b/.test(source);
   const disabledWebhook = /webhook/i.test(route) && /status:\s*501/.test(source) && /NOT_CONFIGURED|not configured|en cours de configuration/i.test(source);
   const deprecatedRoute = /status:\s*410/.test(source);

@@ -1,7 +1,7 @@
 # Annexe matrice API sécurité complète
 
 Source : `docs/security/API_GUARD_INVENTORY.md`.
-Généré le : 2026-07-09T15:28:46.090Z.
+Généré le : 2026-07-09T22:13:01.299Z.
 
 Lecture statique uniquement : `Auth guard détecté`, `Role guard détecté`, `Zod détecté` et `Ownership requis` sont des indices de pilotage. `À vérifier` signifie qu’aucune preuve suffisante n’a été établie dans ce lot.
 
@@ -56,7 +56,7 @@ Lecture statique uniquement : `Auth guard détecté`, `Role guard détecté`, `Z
 | P2 | `/api/assessments/[id]/result` | GET | Bilans/assessments | Auth | À vérifier | Oui | Oui | Non | Non | Non | Données pédagogiques mineur | Suivi qualité P2 |
 | P2 | `/api/assessments/[id]/status` | GET | Bilans/assessments | Auth | À vérifier | Oui | Oui | Non | Oui | Non | Données pédagogiques mineur | Suivi qualité P2 |
 | P2 | `/api/assessments/predict` | POST | Bilans/assessments | Auth | Rôle détecté, à qualifier | Oui | Oui | Oui | Oui | Non | Données pédagogiques mineur | Suivi qualité P2 |
-| PUBLIC | `/api/assessments/submit` | POST | Bilans/assessments | Public | N/A | N/A | Non | Non | Oui | Oui | Données pédagogiques mineur | Suivi qualité P2 |
+| PUBLIC | `/api/assessments/submit` | POST | Bilans/assessments | Public | N/A | N/A | Non | Non | Oui | Oui | Données pédagogiques mineur | Maintenir tests de non-régression |
 | P2 | `/api/assessments/test` | GET | Bilans/assessments | Auth | Rôle détecté, à qualifier | Oui | Oui | Oui | Non | Non | Données pédagogiques mineur | Suivi qualité P2 |
 | P2 | `/api/assistante/activate-student` | POST | Assistante | Auth | Assistante | Oui | Oui | Oui | Oui | Non | PII/utilisateur | Suivi qualité P2 |
 | P2 | `/api/assistante/assignments/[id]` | GET, PATCH | Assistante | Auth | Assistante | Oui | Oui | Oui | Oui | Non | PII/utilisateur | Suivi qualité P2 |
@@ -80,7 +80,7 @@ Lecture statique uniquement : `Auth guard détecté`, `Role guard détecté`, `Z
 | OK | `/api/auth/resend-activation` | POST | Auth | Public/À vérifier | N/A | N/A | Non | Non | Oui | Oui | À vérifier | Maintenir tests de non-régression |
 | OK | `/api/auth/reset-password` | POST | Auth | Public/À vérifier | N/A | N/A | Non | Non | Oui | Oui | À vérifier | Maintenir tests de non-régression |
 | P2 | `/api/bilan-gratuit/dismiss` | POST | Bilans/assessments | Auth | Rôle détecté, à qualifier | Oui | Oui | Oui | Oui | Non | Données pédagogiques mineur | Suivi qualité P2 |
-| PUBLIC | `/api/bilan-gratuit` | POST | Bilans/assessments | Public | Rôle détecté, à qualifier | N/A | Non | Oui | Oui | Oui | Données pédagogiques mineur | Suivi qualité P2 |
+| PUBLIC | `/api/bilan-gratuit` | POST | Bilans/assessments | Public | Rôle détecté, à qualifier | N/A | Non | Oui | Oui | Oui | Données pédagogiques mineur | Maintenir tests de non-régression |
 | P2 | `/api/bilan-gratuit/status` | GET | Bilans/assessments | Auth | À vérifier | Oui | Oui | Non | Non | Non | Données pédagogiques mineur | Suivi qualité P2 |
 | P2 | `/api/bilan-pallier2-maths/retry` | POST | Bilans/assessments | Auth | Rôle détecté, à qualifier | Oui | Oui | Oui | Oui | Non | Données pédagogiques mineur | Suivi qualité P2 |
 | P2 | `/api/bilan-pallier2-maths` | POST, GET | Bilans/assessments | Auth | Rôle détecté, à qualifier | Oui | Oui | Oui | Oui | Oui | Données pédagogiques mineur | Suivi qualité P2 |
@@ -173,12 +173,12 @@ Lecture statique uniquement : `Auth guard détecté`, `Role guard détecté`, `Z
 | P2 | `/api/sessions/cancel` | POST | Autre | Auth | Rôle détecté, à qualifier | Oui | Oui | Oui | Oui | Oui | Réservation/session | Suivi qualité P2 |
 | P2 | `/api/sessions/video` | POST | Autre | Auth | Rôle détecté, à qualifier | Oui | Oui | Oui | Oui | Oui | Réservation/session | Suivi qualité P2 |
 | P2 | `/api/stages/[stageSlug]/bilans` | GET, POST | Bilans/assessments | Auth | Rôle détecté, à qualifier | Oui | Oui | Oui | Oui | Non | Données pédagogiques mineur, Réservation/session | Suivi qualité P2 |
-| PUBLIC | `/api/stages/[stageSlug]/inscrire` | POST | Stages | Public | N/A | Oui | Non | Non | Oui | Oui | Réservation/session | Suivi qualité P2 |
+| PUBLIC | `/api/stages/[stageSlug]/inscrire` | POST | Stages | Public | N/A | Oui | Non | Non | Oui | Oui | Réservation/session | Maintenir tests de non-régression |
 | P2 | `/api/stages/[stageSlug]/reservations/[reservationId]/confirm` | POST | Stages | Auth | Rôle détecté, à qualifier | Oui | Oui | Oui | Oui | Non | Réservation/session | Suivi qualité P2 |
 | P2 | `/api/stages/[stageSlug]/reservations` | GET | Stages | Auth | Rôle détecté, à qualifier | Oui | Oui | Oui | Non | Non | Réservation/session | Suivi qualité P2 |
 | P2 | `/api/stages/[stageSlug]` | GET | Stages | Public/À vérifier | N/A | Oui | Non | Non | Oui | Non | Réservation/session | Suivi qualité P2 |
 | P2 | `/api/stages` | GET | Stages | Public/À vérifier | N/A | N/A | Non | Non | Oui | Non | Réservation/session | Suivi qualité P2 |
-| PUBLIC | `/api/student/activate` | GET, POST | Élève | Public | N/A | N/A | Non | Non | Oui | Oui | PII/utilisateur | Suivi qualité P2 |
+| PUBLIC | `/api/student/activate` | GET, POST | Élève | Public | N/A | N/A | Non | Non | Oui | Oui | PII/utilisateur | Maintenir tests de non-régression |
 | P2 | `/api/student/automatismes/attempts/[id]` | GET | Élève | Auth | Élève | Oui | Oui | Oui | Non | Non | PII/utilisateur | Suivi qualité P2 |
 | P2 | `/api/student/automatismes/attempts` | POST, GET | Élève | Auth | Élève | Oui | Oui | Oui | Oui | Non | PII/utilisateur | Suivi qualité P2 |
 | P2 | `/api/student/automatismes/check-answer` | POST | Élève | Auth | Élève | Oui | Oui | Oui | Oui | Non | PII/utilisateur | Suivi qualité P2 |
