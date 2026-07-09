@@ -157,14 +157,25 @@ fi
 echo "✓ npm ci completed"
 echo ""
 
-# (d) Ensure migrations are applied (AFTER npm ci for locked Prisma version)
-echo "→ Checking migrations..."
+# (d) Drop+create the e2e database for a deterministic starting state.
+# The container may survive between runs but the DATABASE is disposable.
+echo "→ Resetting e2e database..."
+if command -v dropdb &>/dev/null; then
+  PGPASSWORD=postgres dropdb -h 127.0.0.1 -p 5435 -U postgres --if-exists nexus_e2e 2>/dev/null || true
+  PGPASSWORD=postgres createdb -h 127.0.0.1 -p 5435 -U postgres nexus_e2e 2>/dev/null || true
+else
+  docker exec nexus-e2e-pg bash -c 'PGPASSWORD=postgres dropdb -U postgres --if-exists nexus_e2e 2>/dev/null; PGPASSWORD=postgres createdb -U postgres nexus_e2e' 2>/dev/null || true
+fi
+echo "✓ nexus_e2e database reset"
+
+# (e) Apply migrations on clean database (AFTER npm ci for locked Prisma version)
+echo "→ Running migrations..."
 MIGRATE_OUTPUT=$(DATABASE_URL="$DB_URL" npx prisma migrate deploy 2>&1) || {
   echo "✗ prisma migrate deploy failed:"
   echo "$MIGRATE_OUTPUT" | tail -10
   exit 1
 }
-echo "✓ Migrations up to date"
+echo "✓ Migrations applied"
 echo ""
 
 # ── Lane 1: Jest ──
@@ -174,7 +185,8 @@ JEST_PASSED=$(extract_jest_passed "$JEST_OUTPUT")
 JEST_FAILED=$(extract_jest_failed "$JEST_OUTPUT")
 JEST_PASSED=${JEST_PASSED:-0}
 JEST_FAILED=${JEST_FAILED:-0}
-echo "$JEST_OUTPUT" | tail -5
+# Show summary + any FAIL lines for diagnostics
+echo "$JEST_OUTPUT" | grep -E "^(FAIL |Tests:)" | tail -10
 echo ""
 if [[ "${JEST_FAILED:-0}" -gt 0 ]]; then
   echo "✗ Jest has failures"
