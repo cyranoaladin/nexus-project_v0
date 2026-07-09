@@ -63,16 +63,40 @@ const invoiceIssuerInputSchema = z.object({
   stampPath: z.string().trim().max(500).nullable().optional(),
 }).strict();
 
+/**
+ * Strict date string validator:
+ * - YYYY-MM-DD: round-trip check (parsed year/month/day must match input components)
+ *   to reject rolled-over dates like 2024-02-31, 2023-02-29
+ * - Datetime: must include timezone offset or Z (rejects timezone-less like 2024-01-01T12:00:00)
+ */
+function isStrictDateString(v: string): boolean {
+  const dateOnlyMatch = v.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (dateOnlyMatch) {
+    const [, yearStr, monthStr, dayStr] = dateOnlyMatch;
+    const year = Number(yearStr);
+    const month = Number(monthStr);
+    const day = Number(dayStr);
+    // Construct date and verify round-trip
+    const d = new Date(year, month - 1, day);
+    return d.getFullYear() === year && d.getMonth() === month - 1 && d.getDate() === day;
+  }
+  const datetimeMatch = v.match(/^(\d{4})-(\d{2})-(\d{2})T.+$/);
+  if (datetimeMatch) {
+    // Datetime must have timezone offset (Z or ±HH:MM)
+    if (!/[Zz]$|[+-]\d{2}:\d{2}$/.test(v)) return false;
+    return !isNaN(Date.parse(v));
+  }
+  return false;
+}
+
+const strictDateSchema = z.string().refine(isStrictDateString, {
+  message: 'Date invalide (YYYY-MM-DD strict ou ISO datetime avec timezone)',
+});
+
 const createInvoiceBodySchema = z.object({
   number: z.string().trim().min(1).max(80).optional(),
-  issuedAt: z.string().refine(
-    (v) => /^\d{4}-\d{2}-\d{2}(T.+)?$/.test(v) && !isNaN(Date.parse(v)),
-    { message: 'Date invalide (YYYY-MM-DD ou ISO datetime)' }
-  ).optional(),
-  dueAt: z.string().refine(
-    (v) => /^\d{4}-\d{2}-\d{2}(T.+)?$/.test(v) && !isNaN(Date.parse(v)),
-    { message: 'Date invalide (YYYY-MM-DD ou ISO datetime)' }
-  ).nullable().optional(),
+  issuedAt: strictDateSchema.optional(),
+  dueAt: strictDateSchema.nullable().optional(),
   customer: z.object({
     name: z.string().trim().min(1).max(180),
     email: z.string().trim().email().nullable().optional(),
