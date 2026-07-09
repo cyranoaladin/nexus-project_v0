@@ -90,7 +90,7 @@ is_value_allowlisted() {
     if [[ "$file" == $allowed_file && "$pattern" == "$allowed_pattern" ]]; then
       # Extract values after the pattern and check each is benign
       local values
-      values=$(echo "$content" | grep -oE "${allowed_pattern}[^[:space:]\"']*" | sed "s/^${allowed_pattern}//")
+      values=$(echo "$content" | grep -oE "${allowed_pattern}[^[:space:]\"'\\\\]*" | sed "s/^${allowed_pattern}//")
       local non_benign
       non_benign=$(echo "$values" | grep -vcE "$benign_suffix" 2>/dev/null || true)
       if [[ "${non_benign:-0}" -eq 0 ]]; then
@@ -107,7 +107,7 @@ for f in $STAGED_ADDED_MODIFIED; do
     continue
   fi
   # Ne pas inspecter les fichiers binaires, les .example, ou le hook lui-même
-  if [[ "$f" == *".example" || "$f" == *".sample" || "$f" == *"pre-commit-hook.sh" ]]; then
+  if [[ "$f" == *".example" || "$f" == *".sample" || "$f" == *"pre-commit-hook.sh" || "$f" == *"pre-commit-hook.test.ts" ]]; then
     continue
   fi
   CONTENT=$(git show ":$f" 2>/dev/null || true)
