@@ -66,24 +66,35 @@ SECRET_PATTERNS=(
   "NexusReussite[0-9]{4}@"
 )
 
-# ─── Allowlist par (fichier, pattern) — un vrai NEXTAUTH_SECRET commité là doit encore bloquer ─
-# Format : "file_glob|pattern_regex" — seul ce pattern est exempté pour ce fichier.
-SECRET_SCAN_PATTERN_ALLOWLIST=(
-  # scripts/gate-all.sh: e2e container provisioning uses default POSTGRES_PASSWORD
-  # and a DATABASE_URL pointing to the disposable local e2e database.
-  "scripts/gate-all.sh|POSTGRES_PASSWORD="
-  "scripts/gate-all.sh|DATABASE_URL=postgresql://.*:.*@"
+# ─── Allowlist par (fichier, pattern, valeur bénigne littérale) ───────────────
+# Format : "file_glob|secret_pattern|benign_value_regex"
+# The file is exempted from a secret_pattern ONLY if every matching line
+# also matches benign_value_regex. A different value (e.g. POSTGRES_PASSWORD=realSecret)
+# will still block even in an allowlisted file.
+SECRET_SCAN_VALUE_ALLOWLIST=(
+  # scripts/gate-all.sh: e2e container uses the default password "postgres" (never real creds).
+  "scripts/gate-all.sh|POSTGRES_PASSWORD=|POSTGRES_PASSWORD=postgres"
 )
 
-is_pattern_allowlisted() {
+# Returns 0 (exempt) only if ALL lines matching the secret pattern in the file
+# also match the declared benign value. If any line has a non-benign match, block.
+is_value_allowlisted() {
   local file="$1"
   local pattern="$2"
-  for entry in "${SECRET_SCAN_PATTERN_ALLOWLIST[@]}"; do
+  local content="$3"
+  for entry in "${SECRET_SCAN_VALUE_ALLOWLIST[@]}"; do
     [[ "$entry" == \#* ]] && continue
-    local allowed_file="${entry%%|*}"
-    local allowed_pattern="${entry##*|}"
+    local allowed_file allowed_pattern benign_value
+    IFS='|' read -r allowed_file allowed_pattern benign_value <<< "$entry"
     if [[ "$file" == $allowed_file && "$pattern" == "$allowed_pattern" ]]; then
-      return 0
+      # Check that every matching line is benign
+      local non_benign
+      non_benign=$(echo "$content" | grep -E "$pattern" | grep -vcE "$benign_value" 2>/dev/null || true)
+      if [[ "${non_benign:-0}" -eq 0 ]]; then
+        return 0  # all matches are benign
+      fi
+      # Non-benign match found — do NOT exempt
+      return 1
     fi
   done
   return 1
@@ -99,11 +110,11 @@ for f in $STAGED_ADDED_MODIFIED; do
   fi
   CONTENT=$(git show ":$f" 2>/dev/null || true)
   for pattern in "${SECRET_PATTERNS[@]}"; do
-    # Pattern-level allowlist: skip only the exempted (file, pattern) pairs
-    if is_pattern_allowlisted "$f" "$pattern"; then
-      continue
-    fi
     if echo "$CONTENT" | grep -qE "$pattern" 2>/dev/null; then
+      # Check value-level allowlist: exempts only if ALL matches are benign
+      if is_value_allowlisted "$f" "$pattern" "$CONTENT"; then
+        continue
+      fi
       echo -e "${RED}[BLOCKED]${NC} Secret potentiel dans $f (pattern: $pattern)"
       BLOCKED=true
     fi

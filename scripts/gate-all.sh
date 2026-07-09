@@ -2,10 +2,12 @@
 # ── Unified Gate ──
 # Runs ALL test lanes in sequence. Failure in any lane stops the gate.
 #
-# Starts from a lockfile-clean dependency tree, then runs:
-# Lane 1: Jest (unit + integration)
-# Lane 2: E2E public (playwright.config.ts — no auth required)
-# Lane 3: E2E auth (playwright.auth.config.ts — real auth via seed + standalone)
+# Invariant: the build and all lanes see ONLY the e2e database ($DB_URL).
+# Next.js auto-loads .env.local — process.env overrides win, so we force
+# DATABASE_URL="$DB_URL" at every step that touches the runtime.
+# (Requalification: the A/B test proved the correlation, Codex corrected
+#  the mechanism — .env.local is always loaded, the subshell did not
+#  protect the build. The real invariant is "build sees ONLY the e2e DB".)
 #
 # Usage: ./scripts/gate-all.sh
 set -uo pipefail
@@ -26,24 +28,24 @@ extract_failed() { strip_ansi "$1" | grep -oP '\d+(?= failed)' | tail -1; }
 extract_jest_passed() { strip_ansi "$1" | grep "^Tests:" | grep -oP '\d+(?= passed)' || echo "0"; }
 extract_jest_failed() { strip_ansi "$1" | grep "^Tests:" | grep -oP '\d+(?= failed)' || echo "0"; }
 
-# Wait for HTTP 200 from the standalone server (timeout ~15s).
+# Wait for HTTP 200 from /api/health (decoupled from homepage rendering).
 wait_for_server() {
-  local url="$1"
+  local base_url="$1"
   local attempts=0
   while [[ $attempts -lt 15 ]]; do
     local status
-    status=$(curl --max-time 2 -s -o /dev/null -w "%{http_code}" "$url" 2>/dev/null) || true
+    status=$(curl --max-time 2 -s -o /dev/null -w "%{http_code}" "${base_url}/api/health" 2>/dev/null) || true
     if [[ "$status" == "200" ]]; then
       return 0
     fi
     if [[ "$status" =~ ^5 ]]; then
-      echo "✗ Server returned $status — aborting (check env vars and DB)"
+      echo "✗ Server returned $status on /api/health — aborting (check env vars and DB)"
       return 1
     fi
     sleep 1
     attempts=$((attempts + 1))
   done
-  echo "✗ Server did not respond with 200 within 15s"
+  echo "✗ Server /api/health did not respond with 200 within 15s"
   return 1
 }
 
@@ -60,7 +62,8 @@ echo "━━━ Preflight checks ━━━"
 # (0) Required tools
 command -v curl &>/dev/null || { echo "✗ curl is required for healthchecks"; exit 1; }
 
-# (a) .env.local must exist and provide the 3 required vars
+# (a) .env.local must exist and provide NEXTAUTH_SECRET + NEXTAUTH_URL
+#     DATABASE_URL is NOT required in .env.local — DB_URL is the single source of truth.
 if [[ ! -f .env.local ]]; then
   echo "✗ .env.local not found. The standalone server requires it."
   echo "  Copy it from the main repo if running in a worktree:"
@@ -68,21 +71,35 @@ if [[ ! -f .env.local ]]; then
   exit 1
 fi
 
-# Validate in a subshell to avoid polluting the build environment
-# (Next.js build must NOT see DATABASE_URL — it triggers static prerender with DB)
+# Validate required vars (DATABASE_URL excluded — DB_URL overrides everywhere)
 (
   set -a
   # shellcheck disable=SC1091
   source .env.local
   set +a
-  for var in DATABASE_URL NEXTAUTH_SECRET NEXTAUTH_URL; do
+  for var in NEXTAUTH_SECRET NEXTAUTH_URL; do
     if [[ -z "${!var:-}" ]]; then
       echo "✗ $var is empty after sourcing .env.local — standalone server will crash"
       exit 1
     fi
   done
 ) || exit 1
-echo "✓ .env.local validated (DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL present)"
+echo "✓ .env.local validated (NEXTAUTH_SECRET, NEXTAUTH_URL present)"
+
+# (a-bis) Safety: if .env.local contains a DATABASE_URL, it must be local.
+# A remote host would mean the build or lanes could hit a non-e2e database.
+ENV_LOCAL_DB=$(grep -E '^DATABASE_URL=' .env.local 2>/dev/null | head -1 | sed 's/^DATABASE_URL=//' || true)
+if [[ -n "$ENV_LOCAL_DB" ]]; then
+  if [[ "$ENV_LOCAL_DB" == *"127.0.0.1"* || "$ENV_LOCAL_DB" == *"localhost"* ]]; then
+    echo "✓ .env.local DATABASE_URL points to localhost (safe)"
+  else
+    echo "✗ ABORT: .env.local contains a DATABASE_URL pointing to a REMOTE host."
+    echo "  This is dangerous — the build auto-loads .env.local and could hit production."
+    echo "  Either remove DATABASE_URL from .env.local or point it to localhost."
+    echo "  Got: ${ENV_LOCAL_DB:0:60}..."
+    exit 1
+  fi
+fi
 
 # (b) E2E DB safety: the DB_URL used for e2e MUST point to 127.0.0.1:5435/nexus_e2e
 if [[ "$DB_URL" != *"127.0.0.1:5435/nexus_e2e"* ]]; then
@@ -174,10 +191,12 @@ echo "✓ Jest: $JEST_PASSED passed (min $JEST_MIN)"
 echo ""
 
 # ── Build standalone (shared by both e2e lanes) ──
+# Force DATABASE_URL to the e2e DB so any prerender hits the migrated e2e base,
+# never a stale DATABASE_URL from .env.local (process.env wins over .env files).
 echo "━━━ Building standalone ━━━"
 fuser -k "$PORT/tcp" 2>/dev/null || true
 sleep 2
-npx next build > /tmp/nexus-gate-build.log 2>&1 || {
+DATABASE_URL="$DB_URL" npx next build > /tmp/nexus-gate-build.log 2>&1 || {
   echo "✗ next build failed:"
   tail -10 /tmp/nexus-gate-build.log
   exit 1
@@ -198,6 +217,7 @@ set -a
 source .env.local
 set +a
 export DATABASE_URL="$DB_URL"
+export NEXTAUTH_URL="http://localhost:${PORT}"
 export HOSTNAME="localhost"
 export PORT="$PORT"
 node .next/standalone/server.js > /dev/null 2>&1 &
