@@ -45,6 +45,8 @@ const documentSafeSelect = {
   updatedAt: true,
   userId: true,
   uploadedById: true,
+  // Required by sanitizeDocument to distinguish URL-backed vs storage-backed
+  localPath: true,
 } as const;
 
 type DocumentMutationData = {
