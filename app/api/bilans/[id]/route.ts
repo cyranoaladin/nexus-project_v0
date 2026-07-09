@@ -9,6 +9,7 @@ import { serializeError } from '@/lib/utils/serialize-error';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
+import { parseJsonBody } from '@/lib/api/helpers';
 import {
   buildBilanReadWhere,
   buildBilanWriteWhere,
@@ -122,7 +123,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const parsedParams = routeParamsSchema.safeParse(await params);
     if (!parsedParams.success) return validationFailed();
-    const parsedBody = updateBilanBodySchema.safeParse(await request.json().catch(() => null));
+    const parsedBody = updateBilanBodySchema.safeParse(await parseJsonBody(request));
     if (!parsedBody.success) return validationFailed();
     const { id } = parsedParams.data;
     const body = parsedBody.data;

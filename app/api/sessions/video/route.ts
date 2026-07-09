@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma';
 import { guardRateLimitAsync } from '@/lib/rate-limit';
 import { SessionStatus } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
+import { parseJsonBody } from '@/lib/api/helpers';
 import { z } from 'zod';
 
 const videoSessionActionSchema = z.object({
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
     });
     if (blocked) return blocked;
 
-    const body = await request.json().catch(() => null);
+    const body = await parseJsonBody(request);
     const parsedBody = videoSessionActionSchema.safeParse(body);
     if (!parsedBody.success) {
       return NextResponse.json({ error: 'Paramètres manquants' }, { status: 400 });

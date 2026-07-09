@@ -6,6 +6,7 @@ import { POST as createChild, GET as listChildren } from '@/app/api/parent/child
 import { prisma } from '@/lib/prisma';
 import { NextRequest } from 'next/server';
 import { auth } from '@/auth';
+import crypto from 'crypto';
 
 jest.mock('@/auth');
 jest.mock('@/lib/email/mailer', () => ({
@@ -123,10 +124,10 @@ describe('POST /api/parent/children — P0-03 hardening', () => {
     const rawToken = new URL(json.activation.activationUrl).searchParams.get('token');
     expect(rawToken).toMatch(/^act_/);
 
-    // The DB received a 64-char hex hash (SHA-256), not the raw token
+    // The DB received the SHA-256 hash of the raw token — assert cryptographic relationship
     const storedToken = userCreate.mock.calls[0][0].data.activationToken;
-    expect(storedToken).toMatch(/^[0-9a-f]{64}$/);
-    expect(storedToken).not.toBe(rawToken);
+    const expectedHash = crypto.createHash('sha256').update(rawToken!).digest('hex');
+    expect(storedToken).toBe(expectedHash);
   });
 
   it('returns 401 for non-parent', async () => {

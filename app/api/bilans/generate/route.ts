@@ -10,6 +10,7 @@ import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { BilanGenerator } from '@/lib/bilan/generator';
 import type { BilanGenerationContext } from '@/lib/bilan/generator';
 import { buildBilanWriteWhere, buildBilanReadWhere } from '@/lib/security/ownership';
+import { parseJsonBody } from '@/lib/api/helpers';
 import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest) {
   if (isErrorResponse(authResponse)) return authResponse;
 
   try {
-    const rawBody = await request.json().catch(() => null);
+    const rawBody = await parseJsonBody(request);
     const parsedBody = generateBilanBodySchema.safeParse(rawBody);
     if (!parsedBody.success) {
       const hasBilanId = rawBody && typeof rawBody === 'object' && 'bilanId' in rawBody;

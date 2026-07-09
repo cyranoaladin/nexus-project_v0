@@ -8,6 +8,7 @@ import type { CreditTransaction } from '@prisma/client';
 import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
 import { sendMail } from '@/lib/email/mailer';
 import crypto from 'crypto';
+import { parseJsonBody } from '@/lib/api/helpers';
 import { z } from 'zod';
 
 const createChildSchema = z.object({
@@ -111,7 +112,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const rawBody = await request.json().catch(() => null);
+    const rawBody = await parseJsonBody(request);
     const parsedBody = createChildSchema.safeParse(rawBody);
     if (!parsedBody.success) {
       return NextResponse.json(

@@ -1,4 +1,4 @@
-import { buildInvoiceAccessWhere } from '@/lib/invoice/not-found';
+import { buildInvoiceAccessWhere, buildInvoiceScopeWhere } from '@/lib/invoice/not-found';
 import { prisma } from '@/lib/prisma';
 
 const mockParentProfileFindUnique = prisma.parentProfile.findUnique as jest.Mock;
@@ -62,5 +62,34 @@ describe('buildInvoiceAccessWhere', () => {
     await expect(
       buildInvoiceAccessWhere('inv-1', { id: 'x-1', role: 'SUPERADMIN', email: 'x@test.tn' }),
     ).resolves.toBeNull();
+  });
+});
+
+describe('buildInvoiceScopeWhere', () => {
+  it('grants ADMIN full scope', () => {
+    expect(buildInvoiceScopeWhere('inv-1', 'ADMIN', 'admin@test.tn')).toEqual({ id: 'inv-1' });
+  });
+
+  it('grants ASSISTANTE full scope (same as ADMIN)', () => {
+    expect(buildInvoiceScopeWhere('inv-1', 'ASSISTANTE', null)).toEqual({ id: 'inv-1' });
+  });
+
+  it('scopes PARENT by email', () => {
+    expect(buildInvoiceScopeWhere('inv-1', 'PARENT', 'parent@test.tn')).toEqual({
+      id: 'inv-1',
+      customerEmail: 'parent@test.tn',
+    });
+  });
+
+  it('denies PARENT without email', () => {
+    expect(buildInvoiceScopeWhere('inv-1', 'PARENT', null)).toBeNull();
+  });
+
+  it('denies COACH', () => {
+    expect(buildInvoiceScopeWhere('inv-1', 'COACH', 'coach@test.tn')).toBeNull();
+  });
+
+  it('denies ELEVE', () => {
+    expect(buildInvoiceScopeWhere('inv-1', 'ELEVE', 'student@test.tn')).toBeNull();
   });
 });

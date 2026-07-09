@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { serializeError } from '@/lib/utils/serialize-error';
 import { isCoachRattachedToStudent } from '@/lib/rbac/coach-student-access';
+import { parseJsonBody } from '@/lib/api/helpers';
 import { z } from 'zod';
 
 const createTrajectorySchema = z.object({
@@ -22,7 +23,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const parsedBody = createTrajectorySchema.safeParse(await request.json().catch(() => null));
+    const parsedBody = createTrajectorySchema.safeParse(await parseJsonBody(request));
     if (!parsedBody.success) {
       return NextResponse.json({ error: "Invalid trajectory payload" }, { status: 400 });
     }

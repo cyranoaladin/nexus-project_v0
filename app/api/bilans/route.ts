@@ -8,6 +8,7 @@ import { serializeError } from '@/lib/utils/serialize-error';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
+import { parseJsonBody } from '@/lib/api/helpers';
 import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
@@ -136,7 +137,7 @@ export async function POST(request: NextRequest) {
   if (isErrorResponse(authResponse)) return authResponse;
 
   try {
-    const parsedBody = createBilanBodySchema.safeParse(await request.json().catch(() => null));
+    const parsedBody = createBilanBodySchema.safeParse(await parseJsonBody(request));
     if (!parsedBody.success) return validationFailed();
     const body = parsedBody.data;
 
