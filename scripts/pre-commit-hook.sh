@@ -73,7 +73,8 @@ SECRET_PATTERNS=(
 # will still block even in an allowlisted file.
 SECRET_SCAN_VALUE_ALLOWLIST=(
   # scripts/gate-all.sh: e2e container uses the default password "postgres" (never real creds).
-  "scripts/gate-all.sh|POSTGRES_PASSWORD=|POSTGRES_PASSWORD=postgres"
+  # Benign default password for e2e container (not a secret)
+  "scripts/gate-all.sh|POSTGRES_PASSWORD=|^postgres$"
 )
 
 # Returns 0 (exempt) only if ALL lines matching the secret pattern in the file
@@ -84,16 +85,17 @@ is_value_allowlisted() {
   local content="$3"
   for entry in "${SECRET_SCAN_VALUE_ALLOWLIST[@]}"; do
     [[ "$entry" == \#* ]] && continue
-    local allowed_file allowed_pattern benign_value
-    IFS='|' read -r allowed_file allowed_pattern benign_value <<< "$entry"
+    local allowed_file allowed_pattern benign_suffix
+    IFS='|' read -r allowed_file allowed_pattern benign_suffix <<< "$entry"
     if [[ "$file" == $allowed_file && "$pattern" == "$allowed_pattern" ]]; then
-      # Check that every matching line is benign
+      # Extract values after the pattern and check each is benign
+      local values
+      values=$(echo "$content" | grep -oE "${allowed_pattern}[^[:space:]\"']*" | sed "s/^${allowed_pattern}//")
       local non_benign
-      non_benign=$(echo "$content" | grep -E "$pattern" | grep -vcE "$benign_value" 2>/dev/null || true)
+      non_benign=$(echo "$values" | grep -vcE "$benign_suffix" 2>/dev/null || true)
       if [[ "${non_benign:-0}" -eq 0 ]]; then
-        return 0  # all matches are benign
+        return 0
       fi
-      # Non-benign match found — do NOT exempt
       return 1
     fi
   done

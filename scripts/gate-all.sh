@@ -13,8 +13,7 @@
 set -uo pipefail
 
 PORT=${AUTH_E2E_PORT:-3002}
-E2E_PG_PASS="${E2E_PG_PASS:-postgres}"
-DB_URL="postgresql://postgres:${E2E_PG_PASS}@127.0.0.1:5435/nexus_e2e?schema=public"
+DB_URL="postgresql://postgres:postgres@127.0.0.1:5435/nexus_e2e?schema=public"
 JEST_MIN=6221
 PUBLIC_MIN=184
 AUTH_MIN=42
@@ -37,10 +36,6 @@ wait_for_server() {
     status=$(curl --max-time 2 -s -o /dev/null -w "%{http_code}" "${base_url}/api/health" 2>/dev/null) || true
     if [[ "$status" == "200" ]]; then
       return 0
-    fi
-    if [[ "$status" =~ ^5 ]]; then
-      echo "✗ Server returned $status on /api/health — aborting (check env vars and DB)"
-      return 1
     fi
     sleep 1
     attempts=$((attempts + 1))
@@ -88,15 +83,16 @@ echo "✓ .env.local validated (NEXTAUTH_SECRET, NEXTAUTH_URL present)"
 
 # (a-bis) Safety: if .env.local contains a DATABASE_URL, it must be local.
 # A remote host would mean the build or lanes could hit a non-e2e database.
-ENV_LOCAL_DB=$(grep -E '^DATABASE_URL=' .env.local 2>/dev/null | head -1 | sed 's/^DATABASE_URL=//' || true)
+ENV_LOCAL_DB=$(grep -E '^[[:space:]]*(export[[:space:]]+)?DATABASE_URL=' .env.local 2>/dev/null | head -1 | sed -E 's/^[[:space:]]*(export[[:space:]]+)?DATABASE_URL=//' || true)
 if [[ -n "$ENV_LOCAL_DB" ]]; then
-  if [[ "$ENV_LOCAL_DB" == *"127.0.0.1"* || "$ENV_LOCAL_DB" == *"localhost"* ]]; then
-    echo "✓ .env.local DATABASE_URL points to localhost (safe)"
+  # Extract host from DATABASE_URL: after @ or ://, before : or /
+  DB_HOST=$(echo "$ENV_LOCAL_DB" | sed -E 's|.*@([^:/]+).*|\1|; s|.*://([^:/]+).*|\1|')
+  if [[ "$DB_HOST" == "localhost" || "$DB_HOST" == "127.0.0.1" || "$DB_HOST" == "::1" ]]; then
+    echo "✓ .env.local DATABASE_URL points to $DB_HOST (safe)"
   else
-    echo "✗ ABORT: .env.local contains a DATABASE_URL pointing to a REMOTE host."
+    echo "✗ ABORT: .env.local DATABASE_URL points to host '$DB_HOST' — not localhost."
     echo "  This is dangerous — the build auto-loads .env.local and could hit production."
-    echo "  Either remove DATABASE_URL from .env.local or point it to localhost."
-    echo "  Got: ${ENV_LOCAL_DB:0:60}..."
+    echo "  Either remove DATABASE_URL from .env.local or point it to localhost/127.0.0.1."
     exit 1
   fi
 fi
@@ -124,7 +120,8 @@ if ! pg_check; then
     docker rm -f nexus-e2e-pg 2>/dev/null || true
     envfile=$(mktemp)
     # docker postgres image requires POSTGRES_PASSWORD env var
-    printf 'POSTGRES_PASSWORD=%s\nPOSTGRES_DB=nexus_e2e\n' "$E2E_PG_PASS" > "$envfile"
+    # Default password for disposable e2e container — never a real credential
+    printf 'POSTGRES_PASSWORD=postgres\nPOSTGRES_DB=nexus_e2e\n' > "$envfile"
     docker run -d --name nexus-e2e-pg \
       --env-file "$envfile" \
       -p 127.0.0.1:5435:5432 \
@@ -172,7 +169,7 @@ echo ""
 
 # ── Lane 1: Jest ──
 echo "━━━ Lane 1: Jest ━━━"
-JEST_OUTPUT=$(npx jest --config jest.config.js --no-cache 2>&1) || true
+JEST_OUTPUT=$(DATABASE_URL="$DB_URL" npx jest --config jest.config.js --no-cache 2>&1) || true
 JEST_PASSED=$(extract_jest_passed "$JEST_OUTPUT")
 JEST_FAILED=$(extract_jest_failed "$JEST_OUTPUT")
 JEST_PASSED=${JEST_PASSED:-0}
