@@ -127,6 +127,31 @@ describe('Documents Access Control', () => {
       expect(data.documents[0].localPath).toMatch(/^\/api\/documents\/.+\/download$/);
     });
 
+    it('returns external URL for URL-backed docs and /download for storage-backed docs', async () => {
+      coachSession();
+      (assertCoachCanAccessStudent as jest.Mock).mockResolvedValue(undefined);
+      mockPrisma.student.findFirst.mockResolvedValue(mockStudent);
+      const urlDoc = { ...mockDocument, id: 'doc-url', localPath: 'https://cdn.example.com/file.pdf' };
+      const storageDoc = { ...mockDocument, id: 'doc-storage', localPath: '/app/storage/documents/user/file.pdf' };
+      mockPrisma.userDocument.findMany.mockResolvedValue([urlDoc, storageDoc]);
+
+      const request = new NextRequest(
+        `http://localhost/api/coach/students/${STUDENT_ID}/documents`,
+        { method: 'GET' }
+      );
+      const response = await CoachDocumentsRoute.GET(request, {
+        params: Promise.resolve({ studentId: STUDENT_ID }),
+      });
+
+      expect(response.status).toBe(200);
+      const data = await response.json();
+      expect(data.documents).toHaveLength(2);
+      // URL-backed: the external URL is returned as-is
+      expect(data.documents[0].localPath).toBe('https://cdn.example.com/file.pdf');
+      // Storage-backed: the download endpoint is returned
+      expect(data.documents[1].localPath).toBe('/api/documents/doc-storage/download');
+    });
+
     it('should deny coach access to non-assigned student (403)', async () => {
       coachSession();
       (assertCoachCanAccessStudent as jest.Mock).mockRejectedValue(new Error('Forbidden'));

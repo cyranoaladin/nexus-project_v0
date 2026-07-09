@@ -60,9 +60,12 @@ type DocumentMutationData = {
 };
 
 function sanitizeDocument(document: Record<string, unknown>) {
-  const { localPath: _localPath, ...safeDocument } = document;
-  // Provide a download URL for the frontend (replaces localPath)
-  if (typeof document.id === 'string') {
+  const { localPath, ...safeDocument } = document;
+  if (typeof localPath === 'string' && localPath.startsWith('http')) {
+    // URL-backed document: expose the external URL directly
+    safeDocument.localPath = localPath;
+  } else if (typeof document.id === 'string') {
+    // Storage-backed document: provide download endpoint
     safeDocument.localPath = `/api/documents/${document.id}/download`;
   }
   return safeDocument;
