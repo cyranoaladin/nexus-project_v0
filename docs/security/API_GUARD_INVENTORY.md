@@ -1,6 +1,6 @@
 # Inventaire initial des guards API
 
-Généré le : 2026-07-08T07:45:56.442Z
+Généré le : 2026-07-09T08:52:07.479Z
 
 Lecture statique uniquement. La colonne `Ownership explicit` signale des indices de filtrage propriétaire dans le fichier; elle ne remplace pas un audit manuel IDOR.
 
@@ -8,10 +8,10 @@ Lecture statique uniquement. La colonne `Ownership explicit` signale des indices
 
 - P0 : 0
 - P1 : 2
-- P2 : 142
+- P2 : 143
 - PUBLIC : 4
 - OK : 27
-- Total routes : 175
+- Total routes : 176
 
 ## 20 routes à auditer en priorité
 
@@ -101,7 +101,7 @@ Lecture statique uniquement. La colonne `Ownership explicit` signale des indices
 | `app/api/bilan-pallier2-maths/route.ts` | POST, GET | no | yes | yes | no | yes | no | P2 | pédagogique sensible |
 | `app/api/bilans/[id]/export/route.ts` | GET, POST | yes | yes | yes | no | yes | yes | P2 | pédagogique sensible |
 | `app/api/bilans/[id]/route.ts` | GET, PUT, DELETE | yes | yes | yes | no | yes | yes | P2 | pédagogique sensible |
-| `app/api/bilans/generate/route.ts` | POST, GET | no | yes | yes | no | yes | no | P2 | pédagogique sensible |
+| `app/api/bilans/generate/route.ts` | POST, GET | no | yes | yes | no | yes | yes | P2 | pédagogique sensible |
 | `app/api/bilans/route.ts` | GET, POST | no | yes | yes | no | yes | no | P2 | pédagogique sensible |
 | `app/api/coach/dashboard/route.ts` | GET | no | yes | yes | no | no | no | P2 | coach; guard manuel |
 | `app/api/coach/eaf-stage-printemps/students/[studentId]/report/regenerate/route.ts` | POST | yes | yes | yes | no | yes | yes | P2 | coach; pédagogique sensible |
@@ -134,6 +134,7 @@ Lecture statique uniquement. La colonne `Ownership explicit` signale des indices
 | `app/api/coaches/available/route.ts` | GET | no | yes | yes | no | no | no | P2 | guard manuel |
 | `app/api/contact/route.ts` | POST | no | no | no | no | no | no | OK | - |
 | `app/api/diagnostics/definitions/route.ts` | GET | no | no | no | no | no | no | OK | - |
+| `app/api/documents/[id]/download/route.ts` | GET | yes | yes | yes | no | yes | yes | P2 | documents/PII; guard manuel |
 | `app/api/documents/[id]/route.ts` | GET | yes | yes | yes | no | yes | yes | P2 | documents/PII; guard manuel |
 | `app/api/eam/progress/route.ts` | GET, POST | no | yes | no | no | yes | no | OK | guard manuel |
 | `app/api/eleve/bilan-diagnostic-maths-terminale/route.ts` | GET, POST | no | yes | yes | no | yes | yes | P2 | pédagogique sensible |

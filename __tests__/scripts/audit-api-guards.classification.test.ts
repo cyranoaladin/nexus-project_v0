@@ -171,9 +171,9 @@ describe('audit-api-guards route classification', () => {
     expect(rows.get('app/api/admin/documents/route.ts')?.risk).not.toBe('OK');
   });
 
-  it('detects staff roles regardless of order (ASSISTANTE, ADMIN)', () => {
+  it('detects staff roles regardless of order (ASSISTANTE, ADMIN) — path outside admin/assistante/', () => {
     const rows = runAuditOnFixtures({
-      'app/api/assistante/billing/route.ts': `
+      'app/api/some/billing/route.ts': `
         import { requireAnyRole } from '@/lib/guards';
         export async function POST() {
           await requireAnyRole(['ASSISTANTE', 'ADMIN']);
@@ -182,7 +182,39 @@ describe('audit-api-guards route classification', () => {
       `,
     });
 
-    expect(rows.get('app/api/assistante/billing/route.ts')?.risk).not.toBe('P0');
+    // Detected as staff-only by content, not by path
+    expect(rows.get('app/api/some/billing/route.ts')?.risk).not.toBe('P0');
+  });
+
+  it('mixed-role guard (PARENT+ADMIN+ASSISTANTE) is NOT staff-only', () => {
+    const rows = runAuditOnFixtures({
+      'app/api/some/invoices/[id]/route.ts': `
+        import { requireAnyRole } from '@/lib/guards';
+        export async function GET() {
+          await requireAnyRole(['PARENT', 'ADMIN', 'ASSISTANTE']);
+          return Response.json({ ok: true });
+        }
+      `,
+    });
+
+    // Mixed-role should NOT be classified as staff-only → dynamic+sensitive+no ownership = P0
+    expect(rows.get('app/api/some/invoices/[id]/route.ts')?.risk).toBe('P0');
+  });
+
+  it('PUBLIC_BY_DESIGN without rate-limit degrades to P1', () => {
+    const rows = runAuditOnFixtures({
+      'app/api/assessments/submit/route.ts': `
+        import { z } from 'zod';
+        const schema = z.object({ email: z.string().email() });
+        export async function POST(request: Request) {
+          schema.parse(await request.json());
+          return Response.json({ ok: true });
+        }
+      `,
+    });
+
+    // Has Zod but no rate-limit → P1, not PUBLIC
+    expect(rows.get('app/api/assessments/submit/route.ts')?.risk).toBe('P1');
   });
 
   it('resolves re-exports from index.ts barrel files', () => {

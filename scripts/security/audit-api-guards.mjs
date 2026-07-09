@@ -86,10 +86,15 @@ function isPublicByDesign(route) {
 function riskFor(route, source, dynamic, authGuard, roleGuard, ownership, zod) {
   const sensitivePath = /documents|invoice|billing|payment|bilan|assessment|aria|session|stage|coach|assistante|admin|parent|student|npc|submission|report/i.test(route);
   const mutation = /\b(POST|PATCH|PUT|DELETE)\b/.test(methodsOf(source));
-  const staffRolesMatch = source.match(/requireAnyRole\s*\(\s*\[([^\]]*)\]/);
-  const hasAdminAndAssistante = staffRolesMatch && /ADMIN/.test(staffRolesMatch[1]) && /ASSISTANTE/.test(staffRolesMatch[1]);
+  // (a) matchAll: inspect ALL requireAnyRole calls, not just the first
+  const allRoleMatches = [...source.matchAll(/requireAnyRole\s*\(\s*\[([^\]]*)\]/g)];
+  // (b) staff-only = ADMIN+ASSISTANTE present AND no non-staff role in ANY match
+  const NON_STAFF_ROLES = /\bPARENT\b|\bELEVE\b|\bCOACH\b|\bSTUDENT\b/;
+  const hasStaffOnlyGuard = allRoleMatches.length > 0 && allRoleMatches.every(
+    (m) => /ADMIN/.test(m[1]) && /ASSISTANTE/.test(m[1]) && !NON_STAFF_ROLES.test(m[1])
+  );
   const staffOnlyRoute = (
-    /app\/api\/(admin|assistante)\//.test(route) || hasAdminAndAssistante
+    /app\/api\/(admin|assistante)\//.test(route) || hasStaffOnlyGuard
   ) && authGuard && roleGuard;
   const fixedPublicDocument = /app\/api\/public-documents\//.test(route) && methodsOf(source) === 'GET' && /const\s+FILE_NAME\b/.test(source);
   const disabledWebhook = /webhook/i.test(route) && /status:\s*501/.test(source) && /NOT_CONFIGURED|not configured|en cours de configuration/i.test(source);
@@ -97,9 +102,12 @@ function riskFor(route, source, dynamic, authGuard, roleGuard, ownership, zod) {
   const publicStageCatalog = /^app\/api\/stages(\/\[[^\]]+\])?\/route\.ts$/.test(route) && methodsOf(source) === 'GET';
   const staticStudentContent = /app\/api\/student\/automatismes\/series\/\[id\]\/route\.ts/.test(route) && methodsOf(source) === 'GET';
 
-  // Public-by-design routes: visible and assumed, not P0
+  // Public-by-design routes: must have baseline controls (Zod + rate-limit)
   const publicEntry = isPublicByDesign(route);
-  if (publicEntry && !authGuard) return 'PUBLIC';
+  if (publicEntry && !authGuard) {
+    if (zod && hasRateLimitGuard(source)) return 'PUBLIC';
+    return 'P1'; // allow-listed but missing baseline controls
+  }
 
   if (fixedPublicDocument || deprecatedRoute || publicStageCatalog || staticStudentContent) return 'P2';
   if (disabledWebhook) return 'P1';
