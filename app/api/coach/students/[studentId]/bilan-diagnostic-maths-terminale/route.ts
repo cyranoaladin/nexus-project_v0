@@ -21,7 +21,10 @@ const teacherGradeValueSchema = z.object({
   comment: z.string().max(2000),
   errors: z.array(z.string().max(500)).max(20),
   mode: z.enum(['global', 'detailed']),
-  criteria: z.record(z.coerce.number().int().min(0), z.union([z.number().min(0).max(20), z.literal('')])),
+  criteria: z.record(z.string().regex(/^\d+$/), z.union([z.number().min(0).max(20), z.literal('')]))
+    .refine((obj) => Object.keys(obj).length <= 30, {
+      message: 'criteria ne peut pas contenir plus de 30 entrées',
+    }),
 }).strict();
 
 const MAX_TEACHER_GRADE_KEYS = 50;
