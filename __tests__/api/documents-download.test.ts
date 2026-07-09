@@ -206,7 +206,9 @@ describe('GET /api/documents/[id]/download', () => {
     expect(res.status).toBe(200);
     const body = await res.arrayBuffer();
     expect(Buffer.from(body)).toEqual(fileContent);
-    // Verify the mock was called with the correct file path
-    expect(mockReadFile).toHaveBeenCalledWith(mockDocument.localPath);
+    // Verify readFile was called with the RESOLVED path (legacy prefix stripped, rebased to cwd)
+    const { resolve: pathResolve } = require('path');
+    const expectedPath = pathResolve(process.cwd(), 'storage', 'documents', 'student-user-1/test-doc.pdf');
+    expect(mockReadFile).toHaveBeenCalledWith(expectedPath);
   });
 });

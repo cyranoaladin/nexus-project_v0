@@ -8,7 +8,11 @@ import { serializeError } from '@/lib/utils/serialize-error';
 import { assertCoachCanAccessStudent } from '@/lib/rbac/coach-student-access';
 import { z } from 'zod';
 
-const STORAGE_ROOT = '/app/storage/documents/';
+// Storage root: env-configurable, defaults to cwd/storage/documents.
+// Accepts legacy /app/storage/documents/ prefix from existing DB rows.
+const STORAGE_ROOT = process.env.DOCUMENT_STORAGE_ROOT
+  || resolve(process.cwd(), 'storage', 'documents');
+const LEGACY_PREFIX = '/app/storage/documents/';
 
 const routeParamsSchema = z.object({
   id: z.string().min(1).max(128).regex(/^[A-Za-z0-9_-]+$/),
@@ -140,14 +144,26 @@ export async function GET(
       return new NextResponse('Not Found', { status: 404 });
     }
 
-    // Path traversal containment
-    const resolved = resolve(document.localPath);
-    if (!resolved.startsWith(STORAGE_ROOT)) {
+    // Resolve stored path to filesystem:
+    // Legacy rows store /app/storage/documents/... — strip prefix and resolve relative to STORAGE_ROOT
+    // New rows store relative paths like documents/user/file.pdf
+    let relativePath = document.localPath;
+    if (relativePath.startsWith(LEGACY_PREFIX)) {
+      relativePath = relativePath.slice(LEGACY_PREFIX.length);
+    } else if (relativePath.startsWith('/')) {
+      // Absolute path not matching legacy prefix — strip leading / for resolve
+      relativePath = relativePath.slice(1);
+    }
+    const resolvedPath = resolve(STORAGE_ROOT, relativePath);
+
+    // Path traversal containment: resolved path must stay within STORAGE_ROOT
+    const normalizedRoot = resolve(STORAGE_ROOT) + '/';
+    if (!resolvedPath.startsWith(normalizedRoot)) {
       return new NextResponse('Not Found', { status: 404 });
     }
 
     try {
-      const fileBuffer = await readFile(resolved);
+      const fileBuffer = await readFile(resolvedPath);
       return new NextResponse(fileBuffer as unknown as BodyInit, {
         headers: {
           'Content-Type': safeContentType(document.mimeType),
