@@ -66,20 +66,23 @@ SECRET_PATTERNS=(
   "NexusReussite[0-9]{4}@"
 )
 
-# ─── Allowlist de fichiers exemptés de la détection de secrets ────────────────
-# Chaque entrée est un glob avec justification — tout ajout doit être reviewé.
-SECRET_SCAN_ALLOWLIST=(
-  # scripts/gate-all.sh: provisioning DB e2e jetable (conteneur pgvector local),
-  # credentials par défaut du conteneur, jamais de données réelles.
-  "scripts/gate-all.sh"
+# ─── Allowlist par (fichier, pattern) — un vrai NEXTAUTH_SECRET commité là doit encore bloquer ─
+# Format : "file_glob|pattern_regex" — seul ce pattern est exempté pour ce fichier.
+SECRET_SCAN_PATTERN_ALLOWLIST=(
+  # scripts/gate-all.sh: e2e container provisioning uses default POSTGRES_PASSWORD
+  # and a DATABASE_URL pointing to the disposable local e2e database.
+  "scripts/gate-all.sh|POSTGRES_PASSWORD="
+  "scripts/gate-all.sh|DATABASE_URL=postgresql://.*:.*@"
 )
 
-is_allowlisted() {
+is_pattern_allowlisted() {
   local file="$1"
-  for allowed in "${SECRET_SCAN_ALLOWLIST[@]}"; do
-    # Ignore comment lines
-    [[ "$allowed" == \#* ]] && continue
-    if [[ "$file" == $allowed ]]; then
+  local pattern="$2"
+  for entry in "${SECRET_SCAN_PATTERN_ALLOWLIST[@]}"; do
+    [[ "$entry" == \#* ]] && continue
+    local allowed_file="${entry%%|*}"
+    local allowed_pattern="${entry##*|}"
+    if [[ "$file" == $allowed_file && "$pattern" == "$allowed_pattern" ]]; then
       return 0
     fi
   done
@@ -94,12 +97,12 @@ for f in $STAGED_ADDED_MODIFIED; do
   if [[ "$f" == *".example" || "$f" == *".sample" || "$f" == *"pre-commit-hook.sh" ]]; then
     continue
   fi
-  # Fichiers exemptés (voir SECRET_SCAN_ALLOWLIST ci-dessus)
-  if is_allowlisted "$f"; then
-    continue
-  fi
   CONTENT=$(git show ":$f" 2>/dev/null || true)
   for pattern in "${SECRET_PATTERNS[@]}"; do
+    # Pattern-level allowlist: skip only the exempted (file, pattern) pairs
+    if is_pattern_allowlisted "$f" "$pattern"; then
+      continue
+    fi
     if echo "$CONTENT" | grep -qE "$pattern" 2>/dev/null; then
       echo -e "${RED}[BLOCKED]${NC} Secret potentiel dans $f (pattern: $pattern)"
       BLOCKED=true
