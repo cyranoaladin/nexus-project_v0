@@ -13,7 +13,7 @@ import {
   buildBilanWriteWhere,
   canSeeInternalBilan,
 } from '@/lib/security/ownership';
-import { parseJsonBody, JSON_PARSE_FAILED } from '@/lib/api/helpers';
+import { parseJsonBody, JSON_BODY_EMPTY } from '@/lib/api/helpers';
 import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
@@ -184,8 +184,13 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const parsedParams = routeParamsSchema.safeParse(await params);
     if (!parsedParams.success) return validationFailed();
-    const rawBody = await parseJsonBody(request);
-    const parsedBody = exportBodySchema.safeParse(rawBody === JSON_PARSE_FAILED ? {} : rawBody);
+    let rawBody: unknown;
+    try {
+      rawBody = await parseJsonBody(request);
+    } catch {
+      return validationFailed();
+    }
+    const parsedBody = exportBodySchema.safeParse(rawBody === JSON_BODY_EMPTY ? {} : rawBody);
     if (!parsedBody.success) return validationFailed();
     const { id } = parsedParams.data;
     const { format } = parsedBody.data;

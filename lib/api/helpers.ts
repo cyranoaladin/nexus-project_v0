@@ -32,28 +32,22 @@ export async function safeJsonParse<T = unknown>(request: NextRequest): Promise<
   }
 }
 
-/** Sentinel: JSON parse failed (empty body or malformed). Not a valid JSON value. */
-export const JSON_PARSE_FAILED = Symbol('JSON_PARSE_FAILED');
+/** Sentinel: request body was empty or whitespace-only. */
+export const JSON_BODY_EMPTY = Symbol('JSON_BODY_EMPTY');
 
 /**
- * Parse JSON body without throwing — returns JSON_PARSE_FAILED on malformed/empty input.
- * Discriminated from a valid JSON `null` payload (which is returned as-is).
- *
- * Callers passing the result to a Zod object schema via safeParse can treat
- * JSON_PARSE_FAILED as an empty object to honour schema defaults:
- *   `schema.safeParse(body === JSON_PARSE_FAILED ? {} : body)`
- *
- * @example
- * ```ts
- * const body = await parseJsonBody(request);
- * const parsed = schema.safeParse(body === JSON_PARSE_FAILED ? {} : body);
- * ```
+ * Parse JSON body with discriminated results:
+ * - Empty/whitespace body → JSON_BODY_EMPTY (callers can treat as {} for defaults)
+ * - Non-empty but malformed → throws (caller should catch and return 400)
+ * - Valid JSON → returns the parsed value
  */
 export async function parseJsonBody(request: Request): Promise<unknown> {
+  const text = await request.text();
+  if (!text || !text.trim()) return JSON_BODY_EMPTY;
   try {
-    return await request.json();
+    return JSON.parse(text);
   } catch {
-    return JSON_PARSE_FAILED;
+    throw ApiError.badRequest('JSON invalide');
   }
 }
 

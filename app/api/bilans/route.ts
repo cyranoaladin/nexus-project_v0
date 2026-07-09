@@ -137,7 +137,13 @@ export async function POST(request: NextRequest) {
   if (isErrorResponse(authResponse)) return authResponse;
 
   try {
-    const parsedBody = createBilanBodySchema.safeParse(await parseJsonBody(request));
+    let rawBody: unknown;
+    try {
+      rawBody = await parseJsonBody(request);
+    } catch {
+      return validationFailed();
+    }
+    const parsedBody = createBilanBodySchema.safeParse(rawBody);
     if (!parsedBody.success) return validationFailed();
     const body = parsedBody.data;
 

@@ -29,9 +29,12 @@ const baseSession = {
 };
 
 function makeRequest(body: any) {
+  const bodyStr = JSON.stringify(body);
   return {
     json: async () => body,
-  } as Request;
+    text: async () => bodyStr,
+    headers: new Headers(),
+  } as unknown as Request;
 }
 
 function buildBooking(overrides: Partial<Record<string, any>> = {}) {

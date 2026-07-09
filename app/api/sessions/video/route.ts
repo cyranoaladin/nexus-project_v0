@@ -48,7 +48,12 @@ export async function POST(request: NextRequest) {
     });
     if (userBlocked) return userBlocked;
 
-    const body = await parseJsonBody(request);
+    let body: unknown;
+    try {
+      body = await parseJsonBody(request);
+    } catch {
+      return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
+    }
     const parsedBody = videoSessionActionSchema.safeParse(body);
     if (!parsedBody.success) {
       return NextResponse.json({ error: 'Paramètres manquants' }, { status: 400 });

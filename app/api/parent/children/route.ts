@@ -12,6 +12,11 @@ import crypto from 'crypto';
 import { parseJsonBody } from '@/lib/api/helpers';
 import { z } from 'zod';
 
+/** Strip CR/LF from SMTP header values to prevent header injection. */
+function sanitizeHeader(str: string): string {
+  return str.replace(/[\r\n]/g, '').trim();
+}
+
 const createChildSchema = z.object({
   firstName: z.string().trim().min(1).max(80),
   lastName: z.string().trim().min(1).max(80),
@@ -113,7 +118,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const rawBody = await parseJsonBody(request);
+    let rawBody: unknown;
+    try {
+      rawBody = await parseJsonBody(request);
+    } catch {
+      return NextResponse.json(
+        { error: 'JSON invalide' },
+        { status: 400 }
+      );
+    }
     const parsedBody = createChildSchema.safeParse(rawBody);
     if (!parsedBody.success) {
       return NextResponse.json(
@@ -203,17 +216,18 @@ export async function POST(request: NextRequest) {
     const baseUrl = process.env.NEXTAUTH_URL || 'https://nexusreussite.academy';
     const activationUrl = `${baseUrl}/auth/activate?token=${encodeURIComponent(rawActivationToken)}`;
 
-    // Fire-and-forget: no await — SMTP timeout must not delay the response.
-    // escapeHtml on user-controlled firstName/lastName prevents HTML injection.
+    // Send activation email to the parent (fire-and-forget: no await — SMTP timeout must not delay the response).
+    // sanitizeHeader on subject prevents SMTP header injection; escapeHtml in HTML body prevents XSS.
     sendMail({
-      to: email,
-      subject: `Activation du compte élève — ${escapeHtml(firstName)} ${escapeHtml(lastName)}`,
+      to: session.user.email,
+      subject: sanitizeHeader(`Activation du compte élève — ${firstName} ${lastName}`),
       html: `<p>Bonjour ${escapeHtml(firstName)},</p>
              <p>Votre compte élève sur Nexus Réussite a été créé.</p>
              <p>Cliquez sur le lien ci-dessous pour définir votre mot de passe et activer votre compte :</p>
              <p><a href="${activationUrl}">${activationUrl}</a></p>
              <p>Ce lien est valide pendant 72 heures.</p>
              <p>L'équipe Nexus Réussite</p>`,
+      text: `Bonjour ${firstName},\n\nVotre compte élève sur Nexus Réussite a été créé.\n\nCliquez sur le lien ci-dessous pour définir votre mot de passe et activer votre compte :\n${activationUrl}\n\nCe lien est valide pendant 72 heures.\n\nL'équipe Nexus Réussite`,
     }).catch((err) => {
       console.error('[parent/children] Activation email failed (non-blocking):', serializeError(err));
     });

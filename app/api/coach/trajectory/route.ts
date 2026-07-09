@@ -23,7 +23,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const parsedBody = createTrajectorySchema.safeParse(await parseJsonBody(request));
+    let rawBody: unknown;
+    try {
+      rawBody = await parseJsonBody(request);
+    } catch {
+      return NextResponse.json({ error: "JSON invalide" }, { status: 400 });
+    }
+    const parsedBody = createTrajectorySchema.safeParse(rawBody);
     if (!parsedBody.success) {
       return NextResponse.json({ error: "Invalid trajectory payload" }, { status: 400 });
     }

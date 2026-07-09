@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
 import { UserRole } from '@prisma/client';
+import { parseJsonBody, JSON_BODY_EMPTY } from '@/lib/api/helpers';
 import { z } from 'zod';
 
 const dismissPayloadSchema = z.object({}).strict();
@@ -19,16 +20,19 @@ export async function POST(request: NextRequest) {
     const sessionOrError = await requireRole(UserRole.PARENT);
     if (isErrorResponse(sessionOrError)) return sessionOrError;
 
-    // Enforce empty body — reject stray fields AND malformed JSON
+    // Empty body = valid dismiss. Non-empty must be valid empty JSON {}.
+    // Malformed JSON = 400.
     let rawBody: unknown;
     try {
-      rawBody = await request.json();
+      rawBody = await parseJsonBody(request);
     } catch {
       return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
     }
-    const parsed = dismissPayloadSchema.safeParse(rawBody);
-    if (!parsed.success) {
-      return NextResponse.json({ error: 'Le corps de la requête doit être vide' }, { status: 400 });
+    if (rawBody !== JSON_BODY_EMPTY) {
+      const parsed = dismissPayloadSchema.safeParse(rawBody);
+      if (!parsed.success) {
+        return NextResponse.json({ error: 'Le corps de la requête doit être vide' }, { status: 400 });
+      }
     }
 
     await prisma.parentProfile.update({
