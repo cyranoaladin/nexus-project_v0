@@ -74,22 +74,6 @@ if [[ ! -f .env.local ]]; then
   exit 1
 fi
 
-# (a-bis) Safety: if .env.local contains a DATABASE_URL, it must be local.
-# A remote host would mean the build or lanes could hit a non-e2e database.
-ENV_LOCAL_DB=$(grep -E '^[[:space:]]*(export[[:space:]]+)?DATABASE_URL=' .env.local 2>/dev/null | head -1 | sed -E 's/^[[:space:]]*(export[[:space:]]+)?DATABASE_URL=//' || true)
-if [[ -n "$ENV_LOCAL_DB" ]]; then
-  # Extract host from DATABASE_URL: after @ or ://, before : or /
-  DB_HOST=$(echo "$ENV_LOCAL_DB" | sed -E 's|.*@([^:/]+).*|\1|; s|.*://([^:/]+).*|\1|')
-  if [[ "$DB_HOST" == "localhost" || "$DB_HOST" == "127.0.0.1" || "$DB_HOST" == "::1" ]]; then
-    echo "✓ .env.local DATABASE_URL points to $DB_HOST (safe)"
-  else
-    echo "✗ ABORT: .env.local DATABASE_URL points to host '$DB_HOST' — not localhost."
-    echo "  This is dangerous — the build auto-loads .env.local and could hit production."
-    echo "  Either remove DATABASE_URL from .env.local or point it to localhost/127.0.0.1."
-    exit 1
-  fi
-fi
-
 # (b) E2E DB safety: the DB_URL used for e2e MUST point to 127.0.0.1:5435/nexus_e2e
 if [[ "$DB_URL" != *"127.0.0.1:5435/nexus_e2e"* ]]; then
   echo "✗ SAFETY: DB_URL for e2e lanes must point to 127.0.0.1:5435/nexus_e2e"
@@ -169,6 +153,18 @@ ENV_CHECK=$(node -e "
   exit 1
 }
 echo "✓ .env.local validated (NEXTAUTH_SECRET, NEXTAUTH_URL present)"
+
+# Safety: if .env.local contains a DATABASE_URL, it must point to localhost
+ENV_LOCAL_DB=$(node -p "require('dotenv').config({path:'.env.local'});process.env.DATABASE_URL||''" 2>/dev/null || echo "")
+if [[ -n "$ENV_LOCAL_DB" ]]; then
+  DB_HOST=$(echo "$ENV_LOCAL_DB" | sed -E 's|.*@([^:/]+).*|\1|; s|.*://([^:/]+).*|\1|')
+  if [[ "$DB_HOST" == "localhost" || "$DB_HOST" == "127.0.0.1" || "$DB_HOST" == "::1" ]]; then
+    echo "✓ .env.local DATABASE_URL points to $DB_HOST (safe)"
+  else
+    echo "✗ ABORT: .env.local DATABASE_URL points to host '$DB_HOST' — not localhost."
+    exit 1
+  fi
+fi
 echo ""
 
 # (d) Drop+create the e2e database for a deterministic starting state.
@@ -225,6 +221,29 @@ fi
 echo "✓ Jest: $JEST_PASSED passed (min $JEST_MIN)"
 echo ""
 
+# Reset DB after Jest: jest tests may mutate the e2e database.
+echo "→ Resetting e2e database (post-Jest)..."
+PGPASSWORD=postgres psql -h 127.0.0.1 -p 5435 -U postgres -d postgres -c \
+  "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='nexus_e2e' AND pid <> pg_backend_pid();" \
+  >/dev/null 2>&1 || true
+if command -v dropdb &>/dev/null; then
+  PGPASSWORD=postgres dropdb -h 127.0.0.1 -p 5435 -U postgres --if-exists nexus_e2e
+  PGPASSWORD=postgres createdb -h 127.0.0.1 -p 5435 -U postgres nexus_e2e
+else
+  docker exec nexus-e2e-pg bash -c "PGPASSWORD=postgres psql -U postgres -d postgres -c \"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='nexus_e2e' AND pid <> pg_backend_pid();\" 2>/dev/null; PGPASSWORD=postgres dropdb -U postgres --if-exists nexus_e2e && PGPASSWORD=postgres createdb -U postgres nexus_e2e"
+fi || {
+  echo "✗ Failed to reset nexus_e2e database (post-Jest)"
+  exit 1
+}
+sleep 1
+MIGRATE_OUTPUT=$(DATABASE_URL="$DB_URL" npx prisma migrate deploy 2>&1) || {
+  echo "✗ prisma migrate deploy failed (post-Jest):"
+  echo "$MIGRATE_OUTPUT" | tail -10
+  exit 1
+}
+echo "✓ Database reset and migrated (post-Jest)"
+echo ""
+
 # ── Build standalone (shared by both e2e lanes) ──
 # Force DATABASE_URL to the e2e DB so any prerender hits the migrated e2e base,
 # never a stale DATABASE_URL from .env.local (process.env wins over .env files).
@@ -263,7 +282,7 @@ if ! wait_for_server "http://localhost:${PORT}"; then
 fi
 
 PUBLIC_OUTPUT=$(CI=1 NODE_OPTIONS="--conditions=react-server" BASE_URL="http://localhost:${PORT}" npx playwright test --config=playwright.config.ts --reporter=line 2>&1)
-PW_PUBLIC_EXIT=${PIPESTATUS[0]:-$?}
+PW_PUBLIC_EXIT=$?
 PUBLIC_PASSED=$(extract_passed "$PUBLIC_OUTPUT")
 PUBLIC_FAILED=$(extract_failed "$PUBLIC_OUTPUT")
 PUBLIC_PASSED=${PUBLIC_PASSED:-0}
@@ -309,7 +328,7 @@ if ! wait_for_server "http://localhost:${PORT}"; then
 fi
 
 AUTH_OUTPUT=$(CI=1 NODE_OPTIONS="--conditions=react-server" BASE_URL="http://localhost:${PORT}" npx playwright test --config=playwright.auth.config.ts --reporter=line 2>&1)
-PW_AUTH_EXIT=${PIPESTATUS[0]:-$?}
+PW_AUTH_EXIT=$?
 AUTH_PASSED=$(extract_passed "$AUTH_OUTPUT")
 AUTH_FAILED=$(extract_failed "$AUTH_OUTPUT")
 AUTH_PASSED=${AUTH_PASSED:-0}
