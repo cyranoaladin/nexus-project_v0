@@ -247,9 +247,8 @@ echo ""
 
 # ── Lane 2: E2E public ──
 echo "━━━ Lane 2: E2E public ━━━"
-# Extract NEXTAUTH_SECRET and NEXTAUTH_URL from .env.local (no eval — one export per variable)
+# Extract NEXTAUTH_SECRET from .env.local (no eval — NEXTAUTH_URL is overridden below)
 export NEXTAUTH_SECRET="$(node -p "require('dotenv').config({path:'.env.local'});process.env.NEXTAUTH_SECRET||''")"
-export NEXTAUTH_URL="$(node -p "require('dotenv').config({path:'.env.local'});process.env.NEXTAUTH_URL||''")"
 # DB_URL is set by THIS script only — override any leaked value
 export DATABASE_URL="$DB_URL"
 export NEXTAUTH_URL="http://localhost:${PORT}"
@@ -274,7 +273,9 @@ echo "$PUBLIC_OUTPUT" | tail -3
 kill "$PUB_PID" 2>/dev/null || true
 wait "$PUB_PID" 2>/dev/null || true
 
-if [[ "$PW_PUBLIC_EXIT" -ne 0 && "${PUBLIC_FAILED:-0}" -gt 0 ]]; then
+# Exit code fait foi même si le parsing dit 0 failed —
+# Playwright sort 0 sur flaky-retried, donc pas de faux positif.
+if [[ "$PW_PUBLIC_EXIT" -ne 0 || "${PUBLIC_FAILED:-0}" -gt 0 ]]; then
   echo "✗ E2E public has failures (exit=$PW_PUBLIC_EXIT, failed=$PUBLIC_FAILED)"
   exit 1
 fi
@@ -318,7 +319,8 @@ echo "$AUTH_OUTPUT" | tail -5
 kill "$AUTH_PID" 2>/dev/null || true
 wait "$AUTH_PID" 2>/dev/null || true
 
-if [[ "$PW_AUTH_EXIT" -ne 0 && "${AUTH_FAILED:-0}" -gt 0 ]]; then
+# Exit code fait foi même si le parsing dit 0 failed.
+if [[ "$PW_AUTH_EXIT" -ne 0 || "${AUTH_FAILED:-0}" -gt 0 ]]; then
   echo "✗ E2E auth has failures (exit=$PW_AUTH_EXIT, failed=$AUTH_FAILED)"
   exit 1
 fi
