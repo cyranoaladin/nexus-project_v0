@@ -168,13 +168,16 @@ echo "✓ npm ci completed"
 echo ""
 
 # (d) Drop+create the e2e database for a deterministic starting state.
-# The container may survive between runs but the DATABASE is disposable.
+# Terminate active connections first (previous gate runs may leave sessions open).
 echo "→ Resetting e2e database..."
+PGPASSWORD=postgres psql -h 127.0.0.1 -p 5435 -U postgres -d postgres -c \
+  "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='nexus_e2e' AND pid <> pg_backend_pid();" \
+  >/dev/null 2>&1 || true
 if command -v dropdb &>/dev/null; then
   PGPASSWORD=postgres dropdb -h 127.0.0.1 -p 5435 -U postgres --if-exists nexus_e2e
   PGPASSWORD=postgres createdb -h 127.0.0.1 -p 5435 -U postgres nexus_e2e
 else
-  docker exec nexus-e2e-pg bash -c 'PGPASSWORD=postgres dropdb -U postgres --if-exists nexus_e2e && PGPASSWORD=postgres createdb -U postgres nexus_e2e'
+  docker exec nexus-e2e-pg bash -c "PGPASSWORD=postgres psql -U postgres -d postgres -c \"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='nexus_e2e' AND pid <> pg_backend_pid();\" 2>/dev/null; PGPASSWORD=postgres dropdb -U postgres --if-exists nexus_e2e && PGPASSWORD=postgres createdb -U postgres nexus_e2e"
 fi || {
   echo "✗ Failed to reset nexus_e2e database"
   exit 1
