@@ -1,15 +1,15 @@
 # Inventaire initial des guards API
 
-Généré le : 2026-07-09T22:13:01.248Z
+Généré le : 2026-07-10T07:44:00.446Z
 
 Lecture statique uniquement. La colonne `Ownership explicit` signale des indices de filtrage propriétaire dans le fichier; elle ne remplace pas un audit manuel IDOR.
 
 ## Synthèse
 
 - P0 : 0
-- P1 : 2
+- P1 : 3
 - P2 : 143
-- PUBLIC : 4
+- PUBLIC : 3
 - OK : 27
 - Total routes : 176
 
@@ -17,6 +17,7 @@ Lecture statique uniquement. La colonne `Ownership explicit` signale des indices
 
 | Route | Methods | Risk | Notes |
 |---|---|---|---|
+| `app/api/assessments/submit/route.ts` | POST | P1 | pédagogique sensible |
 | `app/api/payments/clictopay/init/route.ts` | POST | P1 | finance; guard manuel |
 | `app/api/payments/clictopay/webhook/route.ts` | POST | P1 | finance |
 | `app/api/admin/activities/route.ts` | GET | P2 | staff/admin |
@@ -36,7 +37,6 @@ Lecture statique uniquement. La colonne `Ownership explicit` signale des indices
 | `app/api/admin/stages/[stageId]/sessions/[sessionId]/route.ts` | PATCH, DELETE | P2 | staff/admin |
 | `app/api/admin/stages/[stageId]/sessions/route.ts` | GET, POST | P2 | staff/admin |
 | `app/api/admin/stages/route.ts` | GET, POST | P2 | staff/admin |
-| `app/api/admin/subscriptions/route.ts` | GET, PUT | P2 | staff/admin |
 
 ## Inventaire complet
 
@@ -71,7 +71,7 @@ Lecture statique uniquement. La colonne `Ownership explicit` signale des indices
 | `app/api/assessments/[id]/result/route.ts` | GET | yes | yes | no | no | no | yes | P2 | pédagogique sensible; guard manuel |
 | `app/api/assessments/[id]/status/route.ts` | GET | yes | yes | no | no | yes | yes | P2 | pédagogique sensible; guard manuel |
 | `app/api/assessments/predict/route.ts` | POST | no | yes | yes | no | yes | yes | P2 | pédagogique sensible; guard manuel |
-| `app/api/assessments/submit/route.ts` | POST | no | no | no | no | yes | no | PUBLIC | pédagogique sensible; Soumission QCM publique via token signé x-assessment-public-token |
+| `app/api/assessments/submit/route.ts` | POST | no | no | no | no | yes | no | P1 | pédagogique sensible |
 | `app/api/assessments/test/route.ts` | GET | no | yes | yes | no | no | no | P2 | pédagogique sensible; guard manuel |
 | `app/api/assistante/activate-student/route.ts` | POST | no | yes | yes | no | yes | no | P2 | assistante; guard manuel |
 | `app/api/assistante/assignments/[id]/route.ts` | GET, PATCH | yes | yes | yes | no | yes | no | P2 | assistante |
@@ -95,7 +95,7 @@ Lecture statique uniquement. La colonne `Ownership explicit` signale des indices
 | `app/api/auth/resend-activation/route.ts` | POST | no | no | no | no | yes | no | OK | - |
 | `app/api/auth/reset-password/route.ts` | POST | no | no | no | no | yes | yes | OK | - |
 | `app/api/bilan-gratuit/dismiss/route.ts` | POST | no | yes | yes | no | yes | no | P2 | pédagogique sensible |
-| `app/api/bilan-gratuit/route.ts` | POST | no | no | yes | no | yes | no | PUBLIC | pédagogique sensible; Formulaire public de bilan stratégique gratuit — Zod + rate-limit + honeypot |
+| `app/api/bilan-gratuit/route.ts` | POST | no | no | no | no | yes | no | PUBLIC | pédagogique sensible; Formulaire public de bilan stratégique gratuit — Zod + rate-limit + honeypot |
 | `app/api/bilan-gratuit/status/route.ts` | GET | no | yes | no | no | no | yes | P2 | pédagogique sensible; guard manuel |
 | `app/api/bilan-pallier2-maths/retry/route.ts` | POST | no | yes | yes | no | yes | no | P2 | pédagogique sensible |
 | `app/api/bilan-pallier2-maths/route.ts` | POST, GET | no | yes | yes | no | yes | no | P2 | pédagogique sensible |
@@ -117,7 +117,7 @@ Lecture statique uniquement. La colonne `Ownership explicit` signale des indices
 | `app/api/coach/stages/route.ts` | GET | no | yes | yes | no | no | no | P2 | coach |
 | `app/api/coach/students/[studentId]/bilan-diagnostic-maths-terminale/route.ts` | GET, PATCH | yes | yes | yes | no | yes | yes | P2 | coach; pédagogique sensible |
 | `app/api/coach/students/[studentId]/documents/route.ts` | GET, POST | yes | yes | yes | no | yes | yes | P2 | coach; documents/PII |
-| `app/api/coach/students/[studentId]/dossier/route.ts` | GET | yes | yes | yes | no | no | yes | P2 | coach; guard manuel |
+| `app/api/coach/students/[studentId]/dossier/route.ts` | GET | yes | yes | no | no | no | yes | P2 | coach; guard manuel |
 | `app/api/coach/students/[studentId]/eaf-preparation-report/route.ts` | GET, PUT | yes | yes | yes | no | yes | yes | P2 | coach; pédagogique sensible |
 | `app/api/coach/students/[studentId]/eaf-preparation-report/validate/route.ts` | POST | yes | yes | yes | no | yes | yes | P2 | coach; pédagogique sensible |
 | `app/api/coach/students/[studentId]/generated-reports/[reportId]/download/route.ts` | GET | yes | yes | yes | no | no | yes | P2 | coach; pédagogique sensible |
@@ -126,7 +126,7 @@ Lecture statique uniquement. La colonne `Ownership explicit` signale des indices
 | `app/api/coach/students/[studentId]/generated-reports/route.ts` | GET, POST | yes | yes | yes | no | yes | yes | P2 | coach; pédagogique sensible |
 | `app/api/coach/students/[studentId]/notes/route.ts` | GET, POST | yes | yes | yes | no | yes | yes | P2 | coach; guard manuel |
 | `app/api/coach/students/[studentId]/route.ts` | GET | yes | yes | yes | no | no | yes | P2 | coach |
-| `app/api/coach/students/[studentId]/survival-mode/route.ts` | POST | yes | yes | yes | no | yes | yes | P2 | coach; guard manuel |
+| `app/api/coach/students/[studentId]/survival-mode/route.ts` | POST | yes | yes | no | no | yes | yes | P2 | coach; guard manuel |
 | `app/api/coach/students/eam-summary/route.ts` | GET | no | yes | yes | no | no | yes | P2 | coach; guard manuel |
 | `app/api/coach/students/route.ts` | GET | no | yes | yes | no | no | no | P2 | coach |
 | `app/api/coach/trajectory/route.ts` | POST | no | yes | yes | no | yes | no | P2 | coach; guard manuel |
@@ -135,7 +135,7 @@ Lecture statique uniquement. La colonne `Ownership explicit` signale des indices
 | `app/api/contact/route.ts` | POST | no | no | no | no | no | no | OK | - |
 | `app/api/diagnostics/definitions/route.ts` | GET | no | no | no | no | no | no | OK | - |
 | `app/api/documents/[id]/download/route.ts` | GET | yes | yes | yes | no | yes | yes | P2 | documents/PII; guard manuel |
-| `app/api/documents/[id]/route.ts` | GET | yes | yes | yes | no | yes | yes | P2 | documents/PII; guard manuel |
+| `app/api/documents/[id]/route.ts` | GET | yes | yes | no | no | yes | yes | P2 | documents/PII; guard manuel |
 | `app/api/eam/progress/route.ts` | GET, POST | no | yes | no | no | yes | no | OK | guard manuel |
 | `app/api/eleve/bilan-diagnostic-maths-terminale/route.ts` | GET, POST | no | yes | yes | no | yes | yes | P2 | pédagogique sensible |
 | `app/api/eleve/nsi-pratique-2026/progress/route.ts` | GET, PUT | no | yes | yes | no | no | yes | OK | - |
@@ -152,14 +152,14 @@ Lecture statique uniquement. La colonne `Ownership explicit` signale des indices
 | `app/api/lamis/progress/route.ts` | POST | no | no | no | no | no | no | OK | - |
 | `app/api/me/next-step/route.ts` | GET | no | yes | no | no | no | no | OK | guard manuel |
 | `app/api/messages/conversations/route.ts` | GET | no | yes | no | no | no | no | OK | guard manuel |
-| `app/api/messages/send/route.ts` | POST | no | yes | yes | no | yes | no | OK | guard manuel |
+| `app/api/messages/send/route.ts` | POST | no | yes | no | no | yes | no | OK | guard manuel |
 | `app/api/newsletter/route.ts` | POST | no | no | no | no | no | no | OK | - |
 | `app/api/notifications/route.ts` | GET, PATCH | no | yes | no | no | no | yes | OK | guard manuel |
 | `app/api/notify/email/route.ts` | POST | no | no | no | no | yes | no | OK | - |
 | `app/api/npc/files/[...path]/route.ts` | GET | yes | yes | yes | no | no | yes | P2 | guard manuel |
-| `app/api/npc/submissions/[submissionId]/documents/[documentId]/route.ts` | PATCH, DELETE | yes | yes | yes | no | yes | yes | P2 | documents/PII; pédagogique sensible; guard manuel |
-| `app/api/npc/submissions/[submissionId]/documents/route.ts` | GET, POST | yes | yes | yes | no | yes | yes | P2 | documents/PII; pédagogique sensible; guard manuel |
-| `app/api/npc/submissions/[submissionId]/generate/route.ts` | POST | yes | yes | yes | no | yes | yes | P2 | pédagogique sensible; guard manuel |
+| `app/api/npc/submissions/[submissionId]/documents/[documentId]/route.ts` | PATCH, DELETE | yes | yes | no | no | yes | yes | P2 | documents/PII; pédagogique sensible; guard manuel |
+| `app/api/npc/submissions/[submissionId]/documents/route.ts` | GET, POST | yes | yes | no | no | yes | yes | P2 | documents/PII; pédagogique sensible; guard manuel |
+| `app/api/npc/submissions/[submissionId]/generate/route.ts` | POST | yes | yes | no | no | yes | yes | P2 | pédagogique sensible; guard manuel |
 | `app/api/npc/submissions/route.ts` | POST, GET | no | yes | yes | no | yes | yes | P2 | pédagogique sensible; guard manuel |
 | `app/api/npc/uploads/route.ts` | POST | no | yes | yes | no | yes | yes | P2 | guard manuel |
 | `app/api/parent/bilans/[id]/pdf/route.ts` | GET | yes | yes | yes | no | no | yes | P2 | pédagogique sensible |

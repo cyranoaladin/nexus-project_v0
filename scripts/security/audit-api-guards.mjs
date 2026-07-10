@@ -76,7 +76,6 @@ const PUBLIC_BY_DESIGN = [
   [/app\/api\/stages\/\[[^\]]+\]\/inscrire\/route\.ts$/, 'Formulaire public d\'inscription aux stages — Zod + rate-limit'],
   [/app\/api\/student\/activate\/route\.ts$/, 'Lien d\'activation élève via token unique hashé — Zod + rate-limit auth'],
   [/app\/api\/bilan-gratuit\/route\.ts$/, 'Formulaire public de bilan stratégique gratuit — Zod + rate-limit + honeypot'],
-  [/app\/api\/assessments\/submit\/route\.ts$/, 'Soumission QCM publique via token signé x-assessment-public-token'],
 ];
 
 function isPublicByDesign(route) {
@@ -105,14 +104,25 @@ function riskFor(route, source, dynamic, authGuard, roleGuard, ownership, zod) {
   // Public-by-design routes: must have baseline controls (Zod + rate-limit)
   const publicEntry = isPublicByDesign(route);
   if (publicEntry && !authGuard) {
-    if (zod && hasRateLimitGuard(source)) return 'PUBLIC';
+    // Verify the specific control named in the justification
+    const hasHoneypot = /honeypot|bot_field|hp_/i.test(source);
+    const hasHashToken = /verifyActivationToken|completeStudentActivation|hashToken|createHash.*sha256/i.test(source);
+
+    if (zod && hasRateLimitGuard(source)) {
+      // Additional per-route verification
+      if (/bilan-gratuit/.test(route) && !hasHoneypot) return 'P1';
+      if (/student\/activate/.test(route) && !hasHashToken) return 'P1';
+      return 'PUBLIC';
+    }
     return 'P1'; // allow-listed but missing baseline controls
   }
 
   if (fixedPublicDocument || deprecatedRoute || publicStageCatalog || staticStudentContent) return 'P2';
   if (disabledWebhook) return 'P1';
   if (dynamic && sensitivePath && authGuard && !ownership && !staffOnlyRoute) return 'P0';
-  if (sensitivePath && !authGuard) return 'P0';
+  // Public sensitive routes: P0 if no controls at all, P1 if partial controls (rate-limit/Zod)
+  if (sensitivePath && !authGuard && (!zod || !hasRateLimitGuard(source))) return 'P0';
+  if (sensitivePath && !authGuard) return 'P1';
   if (mutation && sensitivePath && !zod) return 'P1';
   if (sensitivePath && authGuard && !roleGuard && !ownership) return 'P1';
   if (sensitivePath) return 'P2';
@@ -153,8 +163,11 @@ const rows = walk(apiRoot).map((file) => {
     /\benforcePolicy\b/,
     /\bcanPerformStatusAction\b/,
     /\bcan\s*\(\s*role\s*,/,
-    /session\.user\.role/,
-    /UserRole\./,
+    // Manual role check patterns (session.user.role used in a guard)
+    /\.includes\s*\(\s*session\.user\.role\s*\)/,
+    /\.includes\s*\(\s*role\s*\)/,
+    /session\.user\.role\s*(!==|===|!= |== )/,
+    /STAFF_ROLES\.has\s*\(/,
   ]) ? 'yes' : 'no';
   const featureGuard = hasAny(source, [/\brequireFeatureApi\b/, /\brequireFeature\b/]) ? 'yes' : 'no';
   const zod = hasAny(source, [/\bzod\b/, /\bz\./, /\.parse\s*\(/, /\.safeParse\s*\(/]) ? 'yes' : 'no';

@@ -74,25 +74,38 @@ describe('audit-api-guards route classification', () => {
     expect(rows.get('app/api/assessments/comment-only/route.ts')).toEqual(expect.objectContaining({ risk: 'P0' }));
   });
 
-  it('classifies allow-listed public routes as PUBLIC (by design)', () => {
+  it('classifies allow-listed public routes as PUBLIC (bilan-gratuit with honeypot)', () => {
     const rows = runAuditOnFixtures({
-      'app/api/assessments/submit/route.ts': `
+      'app/api/bilan-gratuit/route.ts': `
         import { z } from 'zod';
         import { guardRateLimitAsync } from '@/lib/rate-limit';
         const schema = z.object({ email: z.string().email() });
         export async function POST(request: Request) {
           const blocked = await guardRateLimitAsync(request, { preset: 'api' });
           if (blocked) return blocked;
-          schema.parse(await request.json());
+          const body = schema.parse(await request.json());
+          if (body.honeypot) return Response.json({ ok: true });
           return Response.json({ ok: true });
         }
       `,
     });
 
-    expect(rows.get('app/api/assessments/submit/route.ts')).toEqual(expect.objectContaining({ risk: 'PUBLIC' }));
+    expect(rows.get('app/api/bilan-gratuit/route.ts')).toEqual(expect.objectContaining({ risk: 'PUBLIC' }));
   });
 
-  it('classifies public sensitive routes NOT in allow-list as P0', () => {
+  it('public sensitive route WITHOUT controls → P0', () => {
+    const rows = runAuditOnFixtures({
+      'app/api/billing/checkout/route.ts': `
+        export async function POST(request: Request) {
+          return Response.json({ ok: true });
+        }
+      `,
+    });
+
+    expect(rows.get('app/api/billing/checkout/route.ts')).toEqual(expect.objectContaining({ risk: 'P0' }));
+  });
+
+  it('public sensitive route WITH partial controls (Zod+rate-limit) → P1', () => {
     const rows = runAuditOnFixtures({
       'app/api/billing/checkout/route.ts': `
         import { z } from 'zod';
@@ -107,7 +120,7 @@ describe('audit-api-guards route classification', () => {
       `,
     });
 
-    expect(rows.get('app/api/billing/checkout/route.ts')).toEqual(expect.objectContaining({ risk: 'P0' }));
+    expect(rows.get('app/api/billing/checkout/route.ts')).toEqual(expect.objectContaining({ risk: 'P1' }));
   });
 
   it('does not promote disabled ClicToPay webhook beyond P1', () => {
@@ -203,18 +216,19 @@ describe('audit-api-guards route classification', () => {
 
   it('PUBLIC_BY_DESIGN without rate-limit degrades to P1', () => {
     const rows = runAuditOnFixtures({
-      'app/api/assessments/submit/route.ts': `
+      'app/api/bilan-gratuit/route.ts': `
         import { z } from 'zod';
         const schema = z.object({ email: z.string().email() });
         export async function POST(request: Request) {
-          schema.parse(await request.json());
+          const body = schema.parse(await request.json());
+          if (body.honeypot) return Response.json({ ok: true });
           return Response.json({ ok: true });
         }
       `,
     });
 
-    // Has Zod but no rate-limit → P1, not PUBLIC
-    expect(rows.get('app/api/assessments/submit/route.ts')?.risk).toBe('P1');
+    // Has Zod + honeypot but NO rate-limit → P1
+    expect(rows.get('app/api/bilan-gratuit/route.ts')?.risk).toBe('P1');
   });
 
   it('path under admin/ with non-staff role in source is NOT staff-only', () => {
