@@ -164,9 +164,14 @@ export async function GET(
     }
 
     const MAX_DOWNLOAD_BYTES = 25 * 1024 * 1024; // 25MB
-    const fileStat = await stat(resolvedPath);
-    if (fileStat.size > MAX_DOWNLOAD_BYTES) {
-      return new NextResponse('File too large', { status: 413 });
+    try {
+      const fileStat = await stat(resolvedPath);
+      if (fileStat.size > MAX_DOWNLOAD_BYTES) {
+        return new NextResponse('File too large', { status: 413 });
+      }
+    } catch {
+      // stat ENOENT (deleted/unmounted file) = 404 métier, not 500
+      return new NextResponse('File content not found', { status: 404 });
     }
 
     try {

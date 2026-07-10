@@ -10,6 +10,7 @@
 #  protect the build. The real invariant is "build sees ONLY the e2e DB".)
 #
 # Usage: ./scripts/gate-all.sh
+# NOTE: gates from multiple worktrees must run IN SERIES — they share port and e2e DB.
 set -uo pipefail
 
 PORT=${AUTH_E2E_PORT:-3002}
@@ -72,18 +73,6 @@ if [[ ! -f .env.local ]]; then
   echo "  cp /path/to/nexus-project_v0/.env.local ."
   exit 1
 fi
-
-# Validate required vars from .env.local using node dotenv (safe extraction, no bash eval)
-ENV_CHECK=$(node -e "
-  require('dotenv').config({ path: '.env.local' });
-  const required = ['NEXTAUTH_SECRET', 'NEXTAUTH_URL'];
-  const missing = required.filter(k => !process.env[k]);
-  if (missing.length) { console.error('Missing: ' + missing.join(', ')); process.exit(1); }
-" 2>&1) || {
-  echo "✗ .env.local missing required vars: $ENV_CHECK"
-  exit 1
-}
-echo "✓ .env.local validated (NEXTAUTH_SECRET, NEXTAUTH_URL present)"
 
 # (a-bis) Safety: if .env.local contains a DATABASE_URL, it must be local.
 # A remote host would mean the build or lanes could hit a non-e2e database.
@@ -169,6 +158,19 @@ fi
 echo "✓ npm ci completed"
 echo ""
 
+# Validate required vars from .env.local using node dotenv (AFTER npm ci — dotenv is a dependency)
+ENV_CHECK=$(node -e "
+  require('dotenv').config({ path: '.env.local' });
+  const required = ['NEXTAUTH_SECRET', 'NEXTAUTH_URL'];
+  const missing = required.filter(k => !process.env[k]);
+  if (missing.length) { console.error('Missing: ' + missing.join(', ')); process.exit(1); }
+" 2>&1) || {
+  echo "✗ .env.local missing required vars: $ENV_CHECK"
+  exit 1
+}
+echo "✓ .env.local validated (NEXTAUTH_SECRET, NEXTAUTH_URL present)"
+echo ""
+
 # (d) Drop+create the e2e database for a deterministic starting state.
 # Terminate active connections first (previous gate runs may leave sessions open).
 echo "→ Resetting e2e database..."
@@ -245,14 +247,9 @@ echo ""
 
 # ── Lane 2: E2E public ──
 echo "━━━ Lane 2: E2E public ━━━"
-# Extract only NEXTAUTH_SECRET and NEXTAUTH_URL from .env.local (no bash eval)
-eval "$(node -e "
-  require('dotenv').config({ path: '.env.local' });
-  for (const k of ['NEXTAUTH_SECRET', 'NEXTAUTH_URL']) {
-    const v = process.env[k] || '';
-    console.log('export ' + k + '=' + JSON.stringify(v));
-  }
-")"
+# Extract NEXTAUTH_SECRET and NEXTAUTH_URL from .env.local (no eval — one export per variable)
+export NEXTAUTH_SECRET="$(node -p "require('dotenv').config({path:'.env.local'});process.env.NEXTAUTH_SECRET||''")"
+export NEXTAUTH_URL="$(node -p "require('dotenv').config({path:'.env.local'});process.env.NEXTAUTH_URL||''")"
 # DB_URL is set by THIS script only — override any leaked value
 export DATABASE_URL="$DB_URL"
 export NEXTAUTH_URL="http://localhost:${PORT}"
@@ -266,7 +263,8 @@ if ! wait_for_server "http://localhost:${PORT}"; then
   exit 1
 fi
 
-PUBLIC_OUTPUT=$(CI=1 NODE_OPTIONS="--conditions=react-server" BASE_URL="http://localhost:${PORT}" npx playwright test --config=playwright.config.ts --reporter=line 2>&1) || true
+PUBLIC_OUTPUT=$(CI=1 NODE_OPTIONS="--conditions=react-server" BASE_URL="http://localhost:${PORT}" npx playwright test --config=playwright.config.ts --reporter=line 2>&1)
+PW_PUBLIC_EXIT=${PIPESTATUS[0]:-$?}
 PUBLIC_PASSED=$(extract_passed "$PUBLIC_OUTPUT")
 PUBLIC_FAILED=$(extract_failed "$PUBLIC_OUTPUT")
 PUBLIC_PASSED=${PUBLIC_PASSED:-0}
@@ -276,8 +274,8 @@ echo "$PUBLIC_OUTPUT" | tail -3
 kill "$PUB_PID" 2>/dev/null || true
 wait "$PUB_PID" 2>/dev/null || true
 
-if [[ "${PUBLIC_FAILED:-0}" -gt 0 ]]; then
-  echo "✗ E2E public has failures"
+if [[ "$PW_PUBLIC_EXIT" -ne 0 && "${PUBLIC_FAILED:-0}" -gt 0 ]]; then
+  echo "✗ E2E public has failures (exit=$PW_PUBLIC_EXIT, failed=$PUBLIC_FAILED)"
   exit 1
 fi
 if [[ "${PUBLIC_PASSED:-0}" -lt "$PUBLIC_MIN" ]]; then
@@ -309,7 +307,8 @@ if ! wait_for_server "http://localhost:${PORT}"; then
   exit 1
 fi
 
-AUTH_OUTPUT=$(CI=1 NODE_OPTIONS="--conditions=react-server" BASE_URL="http://localhost:${PORT}" npx playwright test --config=playwright.auth.config.ts --reporter=line 2>&1) || true
+AUTH_OUTPUT=$(CI=1 NODE_OPTIONS="--conditions=react-server" BASE_URL="http://localhost:${PORT}" npx playwright test --config=playwright.auth.config.ts --reporter=line 2>&1)
+PW_AUTH_EXIT=${PIPESTATUS[0]:-$?}
 AUTH_PASSED=$(extract_passed "$AUTH_OUTPUT")
 AUTH_FAILED=$(extract_failed "$AUTH_OUTPUT")
 AUTH_PASSED=${AUTH_PASSED:-0}
@@ -319,8 +318,8 @@ echo "$AUTH_OUTPUT" | tail -5
 kill "$AUTH_PID" 2>/dev/null || true
 wait "$AUTH_PID" 2>/dev/null || true
 
-if [[ "${AUTH_FAILED:-0}" -gt 0 ]]; then
-  echo "✗ E2E auth has failures"
+if [[ "$PW_AUTH_EXIT" -ne 0 && "${AUTH_FAILED:-0}" -gt 0 ]]; then
+  echo "✗ E2E auth has failures (exit=$PW_AUTH_EXIT, failed=$AUTH_FAILED)"
   exit 1
 fi
 if [[ "${AUTH_PASSED:-0}" -lt "$AUTH_MIN" ]]; then
