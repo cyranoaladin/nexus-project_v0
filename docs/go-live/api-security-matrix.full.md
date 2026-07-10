@@ -1,9 +1,17 @@
 # Annexe matrice API sécurité complète
 
 Source : `docs/security/API_GUARD_INVENTORY.md`.
-Généré le : 2026-07-10T07:44:00.496Z.
+Généré le : 2026-07-10T10:08:31.618Z.
 
 Lecture statique uniquement : `Auth guard détecté`, `Role guard détecté`, `Zod détecté` et `Ownership requis` sont des indices de pilotage. `À vérifier` signifie qu’aucune preuve suffisante n’a été établie dans ce lot.
+
+## Règles de sévérité (2026-07-10)
+
+- **P0** : route sensible publique sans AUCUN contrôle
+- **P1** : route sensible publique avec contrôles partiels (Zod + rate-limit) mais sans auth
+- **PUBLIC** : allow-listée avec contrôles spécifiques vérifiés (honeypot, hash token)
+- **P2** : route sensible authentifiée avec guards
+- **OK** : route non sensible
 
 ## Synthèse
 

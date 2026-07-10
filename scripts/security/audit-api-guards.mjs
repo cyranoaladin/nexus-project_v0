@@ -1,4 +1,20 @@
 #!/usr/bin/env node
+/**
+ * Severity classification rules (updated 2026-07-10, round 5):
+ *
+ *   P0  = route sensible publique sans AUCUN contrôle
+ *   P1  = route sensible publique avec contrôles partiels (Zod + rate-limit) mais sans auth
+ *   PUBLIC = allow-listée avec contrôles spécifiques vérifiés (honeypot, hash token, etc.)
+ *   P2  = route sensible authentifiée avec guards
+ *   OK  = route non sensible
+ *
+ * Change reason: assessments/submit removed from PUBLIC_BY_DESIGN (token claim was false).
+ * Public routes with partial controls (Zod+rate-limit) are now P1, not P0.
+ *
+ * Known limitation: manual role-guard patterns (.includes(role), STAFF_ROLES.has)
+ * do not verify that the variable originates from session.user — to be resolved
+ * by chore/audit-per-method-guards (per-method analysis).
+ */
 import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 
