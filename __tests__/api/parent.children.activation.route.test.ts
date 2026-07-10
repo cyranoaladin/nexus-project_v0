@@ -161,9 +161,6 @@ describe('POST /api/parent/children — P0-03 hardening', () => {
     const response = await createChild(req({ firstName: 'Marie', lastName: 'Curie', grade: 'Première' }));
     expect(response.status).toBe(200);
 
-    // Wait for fire-and-forget sendMail to be called
-    await new Promise((r) => setTimeout(r, 50));
-
     expect(mockSendMail).toHaveBeenCalledTimes(1);
     const mailArgs = mockSendMail.mock.calls[0][0];
 

@@ -3,7 +3,7 @@ import { requireRole, isErrorResponse } from '@/lib/guards';
 import { assertCoachCanAccessStudent } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
 import { computeDiagnostics } from '@/lib/diagnostic/maths-terminale/scoring';
-import { DOMAINS } from '@/lib/diagnostic/maths-terminale/data';
+import { DOMAINS, QUESTIONS_OPEN } from '@/lib/diagnostic/maths-terminale/data';
 import type { DiagnosticSourceData, TeacherGrade } from '@/lib/diagnostic/maths-terminale/types';
 import { serializeError } from '@/lib/utils/serialize-error';
 import { z } from 'zod';
@@ -27,12 +27,15 @@ const teacherGradeValueSchema = z.object({
     }),
 }).strict();
 
-const MAX_TEACHER_GRADE_KEYS = 50;
+const OPEN_QUESTION_IDS = QUESTIONS_OPEN.map(q => q.id);
 
 const teacherGradesSchema = z.object({
   teacherGrades: z.record(z.string().min(1).max(120), teacherGradeValueSchema)
-    .refine((r) => Object.keys(r).length > 0 && Object.keys(r).length <= MAX_TEACHER_GRADE_KEYS, {
-      message: `teacherGrades doit contenir entre 1 et ${MAX_TEACHER_GRADE_KEYS} entrées`,
+    .refine((r) => {
+      const keys = Object.keys(r);
+      return keys.length > 0 && keys.every(k => OPEN_QUESTION_IDS.includes(k));
+    }, {
+      message: `teacherGrades keys must be valid open question IDs (${OPEN_QUESTION_IDS.join(', ')})`,
     }),
 }).strict();
 

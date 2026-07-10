@@ -10,15 +10,13 @@ import { prisma } from '@/lib/prisma';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { parseJsonBody } from '@/lib/api/helpers';
 import { z } from 'zod';
+import { BilanType, BilanStatus } from '@/lib/bilan/types';
 
 export const dynamic = 'force-dynamic';
 
-const BILAN_TYPES = ['DIAGNOSTIC_PRE_STAGE', 'ASSESSMENT_QCM', 'STAGE_POST', 'CONTINUOUS'] as const;
-const BILAN_STATUSES = ['PENDING', 'SCORING', 'GENERATING', 'COMPLETED', 'FAILED'] as const;
-
 const listBilansQuerySchema = z.object({
-  type: z.enum(BILAN_TYPES).optional(),
-  status: z.enum(BILAN_STATUSES).optional(),
+  type: z.nativeEnum(BilanType).optional(),
+  status: z.nativeEnum(BilanStatus).optional(),
   subject: z.string().trim().min(1).max(80).optional(),
   studentId: z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/).optional(),
   stageId: z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/).optional(),
@@ -29,7 +27,7 @@ const listBilansQuerySchema = z.object({
 }).strict();
 
 const createBilanBodySchema = z.object({
-  type: z.enum(BILAN_TYPES),
+  type: z.nativeEnum(BilanType),
   subject: z.string().trim().min(1).max(80),
   studentEmail: z.string().trim().email(),
   studentName: z.string().trim().min(1).max(180),

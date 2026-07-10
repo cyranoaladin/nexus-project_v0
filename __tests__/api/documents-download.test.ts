@@ -18,18 +18,21 @@ jest.mock('@/lib/rbac/coach-student-access', () => ({
 }));
 jest.mock('fs/promises', () => ({
   readFile: jest.fn(),
+  stat: jest.fn(),
 }));
 jest.mock('node:fs/promises', () => ({
   readFile: jest.fn(),
+  stat: jest.fn(),
 }));
 
 import { GET } from '@/app/api/documents/[id]/download/route';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { assertCoachCanAccessStudent } from '@/lib/rbac/coach-student-access';
-import { readFile } from 'fs/promises';
+import { readFile, stat } from 'fs/promises';
 
 const mockAuth = auth as jest.Mock;
+const mockStat = stat as jest.Mock;
 const mockFindUnique = prisma.userDocument.findUnique as jest.Mock;
 const mockParentFind = (prisma.parentProfile as unknown as { findUnique: jest.Mock }).findUnique;
 const mockAssert = assertCoachCanAccessStudent as jest.Mock;
@@ -73,6 +76,7 @@ describe('GET /api/documents/[id]/download', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockReadFile.mockResolvedValue(Buffer.from('PDF content'));
+    mockStat.mockResolvedValue({ size: 1024 }); // well under 25MB cap
   });
 
   it('returns 200 for assigned coach with correct visibilityScope', async () => {

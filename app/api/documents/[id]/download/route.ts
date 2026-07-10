@@ -1,8 +1,8 @@
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
-import { readFile } from 'fs/promises';
-import { resolve } from 'path';
+import { readFile, stat } from 'fs/promises';
+import { resolve, sep } from 'path';
 import { UserRole, DocumentVisibilityScope } from '@prisma/client';
 import { serializeError } from '@/lib/utils/serialize-error';
 import { assertCoachCanAccessStudent } from '@/lib/rbac/coach-student-access';
@@ -157,9 +157,16 @@ export async function GET(
     const resolvedPath = resolve(STORAGE_ROOT, relativePath);
 
     // Path traversal containment: resolved path must stay within STORAGE_ROOT
-    const normalizedRoot = resolve(STORAGE_ROOT) + '/';
-    if (!resolvedPath.startsWith(normalizedRoot)) {
+    const normalizedRoot = resolve(STORAGE_ROOT);
+    const allowedPrefix = normalizedRoot.endsWith(sep) ? normalizedRoot : `${normalizedRoot}${sep}`;
+    if (resolvedPath !== normalizedRoot && !resolvedPath.startsWith(allowedPrefix)) {
       return new NextResponse('Not Found', { status: 404 });
+    }
+
+    const MAX_DOWNLOAD_BYTES = 25 * 1024 * 1024; // 25MB
+    const fileStat = await stat(resolvedPath);
+    if (fileStat.size > MAX_DOWNLOAD_BYTES) {
+      return new NextResponse('File too large', { status: 413 });
     }
 
     try {
