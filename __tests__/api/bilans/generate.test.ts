@@ -16,7 +16,6 @@ jest.mock('@/lib/guards', () => ({
 jest.mock('@/lib/prisma', () => ({
   prisma: {
     bilan: {
-      findUnique: jest.fn(),
       findFirst: jest.fn(),
       update: jest.fn(),
     },
@@ -41,7 +40,6 @@ import { BilanGenerator } from '@/lib/bilan/generator';
 
 const mockPrisma = prisma as unknown as {
   bilan: {
-    findUnique: jest.Mock;
     findFirst: jest.Mock;
     update: jest.Mock;
   };

@@ -83,10 +83,19 @@ is_value_allowlisted() {
   local pattern="$2"
   local content="$3"
 
+  # Non-assignment patterns (no '=' — e.g., PRIVATE KEY markers) always fail closed.
+  # Substitution detection only applies to KEY=VALUE patterns.
+  if [[ "$pattern" != *"="* ]]; then
+    return 1
+  fi
+
   # Command substitution is not a literal secret: values starting with "$(" or "'$(" are safe.
   # Extract full values (including quotes) after the pattern.
-  local all_values
-  all_values=$(echo "$content" | grep -oE "${pattern}[^[:space:]]*" | sed "s/^${pattern}//")
+  local all_values=""
+  while IFS= read -r match; do
+    [[ -z "$match" ]] && continue
+    all_values+="${match#*=}"$'\n'
+  done < <(echo "$content" | grep -oE "${pattern}[^[:space:]]*")
   local has_literal=false
   while IFS= read -r val; do
     [[ -z "$val" ]] && continue
@@ -112,10 +121,13 @@ is_value_allowlisted() {
     local allowed_file allowed_pattern benign_suffix
     IFS='|' read -r allowed_file allowed_pattern benign_suffix <<< "$entry"
     if [[ "$file" == $allowed_file && "$pattern" == "$allowed_pattern" ]]; then
-      local literal_values
-      literal_values=$(echo "$content" | grep -oE "${allowed_pattern}[^[:space:]\"'\\\\]*" | sed "s/^${allowed_pattern}//")
+      local literal_values=""
+      while IFS= read -r match; do
+        [[ -z "$match" ]] && continue
+        literal_values+="${match#*=}"$'\n'
+      done < <(echo "$content" | grep -oE "${allowed_pattern}[^[:space:]\"'\\\\]*")
       local non_benign
-      non_benign=$(echo "$literal_values" | grep -vcE "$benign_suffix" 2>/dev/null || true)
+      non_benign=$(echo "$literal_values" | grep -v '^$' | grep -vcE "$benign_suffix" 2>/dev/null || true)
       if [[ "${non_benign:-0}" -eq 0 ]]; then
         return 0
       fi
@@ -130,9 +142,8 @@ for f in $STAGED_ADDED_MODIFIED; do
     continue
   fi
   # Ne pas inspecter les fichiers binaires, les .example, ou le hook lui-même
-  # Skip: example/sample files (declared safe), the hook itself, and its test harness
-  # (the test constructs pattern strings from .sample fixtures — not literal secrets)
-  if [[ "$f" == *".example" || "$f" == *".sample" || "$f" == *"pre-commit-hook.sh" || "$f" == *"pre-commit-hook.test.ts" ]]; then
+  # Skip: example/sample files (declared safe) and the hook itself
+  if [[ "$f" == *".example" || "$f" == *".sample" || "$f" == *"pre-commit-hook.sh" ]]; then
     continue
   fi
   CONTENT=$(git show ":$f" 2>/dev/null || true)

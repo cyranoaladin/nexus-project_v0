@@ -71,7 +71,8 @@ describe('audit-api-guards route classification', () => {
       `,
     });
 
-    expect(rows.get('app/api/assessments/comment-only/route.ts')).toEqual(expect.objectContaining({ risk: 'P0' }));
+    // Has Zod but no real rate-limit call → P1 (partial controls), not P0
+    expect(rows.get('app/api/assessments/comment-only/route.ts')).toEqual(expect.objectContaining({ risk: 'P1' }));
   });
 
   it('classifies allow-listed public routes as PUBLIC (bilan-gratuit with honeypot)', () => {
@@ -103,6 +104,36 @@ describe('audit-api-guards route classification', () => {
     });
 
     expect(rows.get('app/api/billing/checkout/route.ts')).toEqual(expect.objectContaining({ risk: 'P0' }));
+  });
+
+  it('public sensitive route with Zod only (no rate-limit) → P1', () => {
+    const rows = runAuditOnFixtures({
+      'app/api/billing/checkout/route.ts': `
+        import { z } from 'zod';
+        const schema = z.object({ email: z.string().email() });
+        export async function POST(request) {
+          schema.parse(await request.json());
+          return Response.json({ ok: true });
+        }
+      `,
+    });
+
+    expect(rows.get('app/api/billing/checkout/route.ts')).toEqual(expect.objectContaining({ risk: 'P1' }));
+  });
+
+  it('public sensitive route with rate-limit only (no Zod) → P1', () => {
+    const rows = runAuditOnFixtures({
+      'app/api/billing/checkout/route.ts': `
+        import { guardRateLimitAsync } from '@/lib/rate-limit';
+        export async function POST(request) {
+          const blocked = await guardRateLimitAsync(request, { preset: 'api' });
+          if (blocked) return blocked;
+          return Response.json({ ok: true });
+        }
+      `,
+    });
+
+    expect(rows.get('app/api/billing/checkout/route.ts')).toEqual(expect.objectContaining({ risk: 'P1' }));
   });
 
   it('public sensitive route WITH partial controls (Zod+rate-limit) → P1', () => {

@@ -247,7 +247,7 @@ describe('Documents Access Control', () => {
       coachSession();
       (assertCoachCanAccessStudent as jest.Mock).mockResolvedValue(undefined);
       mockPrisma.student.findFirst.mockResolvedValue(mockStudent);
-      const createdDoc = { ...mockDocument, title: 'New Exercise', documentType: 'EXERCICE' };
+      const createdDoc = { ...mockDocument, title: 'New Exercise', documentType: 'EXERCICE', localPath: 'https://example.com/exercise.pdf' };
       mockPrisma.userDocument.create.mockResolvedValue(createdDoc);
 
       const request = new NextRequest(
@@ -270,7 +270,7 @@ describe('Documents Access Control', () => {
       const data = await response.json();
       expect(data.success).toBe(true);
       expect(data.document.title).toBe('New Exercise');
-      expect(data.document.localPath).toMatch(/^\/api\/documents\/.+\/download$/);
+      expect(data.document.localPath).toBe('https://example.com/exercise.pdf');
     });
 
     it('should validate documentType enum (400)', async () => {

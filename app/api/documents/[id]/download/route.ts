@@ -139,26 +139,34 @@ export async function GET(
     }
 
     // ── Serve file ──
-    // URL-based documents don't have local files
-    if (document.localPath.startsWith('http')) {
+    let resolvedPath: string;
+    const rawPath = document.localPath;
+
+    if (/^https?:\/\//i.test(rawPath)) {
       return new NextResponse('Not Found', { status: 404 });
     }
 
-    // Resolve stored path to filesystem:
-    // Legacy rows store /app/storage/documents/... — strip prefix and resolve relative to STORAGE_ROOT
-    // New rows store relative paths like documents/user/file.pdf
-    let relativePath = document.localPath;
-    if (relativePath.startsWith(LEGACY_PREFIX)) {
-      relativePath = relativePath.slice(LEGACY_PREFIX.length);
-    } else if (relativePath.startsWith('/')) {
-      // Absolute path not matching legacy prefix — strip leading / for resolve
-      relativePath = relativePath.slice(1);
-    }
-    const resolvedPath = resolve(STORAGE_ROOT, relativePath);
-
-    // Path traversal containment: resolved path must stay within STORAGE_ROOT
     const normalizedRoot = resolve(STORAGE_ROOT);
     const allowedPrefix = normalizedRoot.endsWith(sep) ? normalizedRoot : `${normalizedRoot}${sep}`;
+
+    // Absolute path already within STORAGE_ROOT — use as-is.
+    // This handles paths written by the upload route as path.join(process.cwd(), 'storage', ...),
+    // which are absolute cwd-based paths. The DB stores '/app/storage/documents/...' (LEGACY_PREFIX)
+    // but the file actually lives at cwd/storage/documents/... — both cases are covered here.
+    if (rawPath.startsWith(allowedPrefix) || rawPath === normalizedRoot) {
+      resolvedPath = rawPath;
+    } else {
+      // Legacy /app/storage/documents/ prefix or relative path — resolve against STORAGE_ROOT
+      let relativePath = rawPath;
+      if (relativePath.startsWith(LEGACY_PREFIX)) {
+        relativePath = relativePath.slice(LEGACY_PREFIX.length);
+      } else if (relativePath.startsWith('/')) {
+        relativePath = relativePath.slice(1);
+      }
+      resolvedPath = resolve(STORAGE_ROOT, relativePath);
+    }
+
+    // Path traversal containment
     if (resolvedPath !== normalizedRoot && !resolvedPath.startsWith(allowedPrefix)) {
       return new NextResponse('Not Found', { status: 404 });
     }

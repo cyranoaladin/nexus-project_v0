@@ -14,6 +14,7 @@ const gateContent = readFileSync(join(process.cwd(), 'scripts/gate-all.sh'), 'ut
 const fixturesDir = join(process.cwd(), '__tests__/scripts/fixtures/secret-scan');
 const fixtureBenign = readFileSync(join(fixturesDir, 'gate-benign.sample'), 'utf8').trim();
 const fixtureMalicious = readFileSync(join(fixturesDir, 'gate-malicious.sample'), 'utf8').trim();
+const fixtureNextauth = readFileSync(join(fixturesDir, 'gate-nextauth.sample'), 'utf8').trim();
 const fixtureNextauthHardcoded = readFileSync(join(fixturesDir, 'gate-nextauth-hardcoded.sample'), 'utf8').trim();
 
 function runAllowlistCheck(file: string, pattern: string, content: string): number {
@@ -51,7 +52,7 @@ function readFunctionFromHook(): string {
 }
 
 describe('pre-commit-hook allowlist', () => {
-  it('exempts POSTGRES_PASSWORD=postgres in real gate-all.sh', () => {
+  it('exempts benign POSTGRES password in real gate-all.sh', () => {
     const exitCode = runAllowlistCheck(
       'scripts/gate-all.sh',
       fixtureBenign.split('=')[0] + '=',
@@ -60,7 +61,7 @@ describe('pre-commit-hook allowlist', () => {
     expect(exitCode).toBe(0);
   });
 
-  it('blocks POSTGRES_PASSWORD=postgres123 (non-benign suffix)', () => {
+  it('blocks non-benign POSTGRES password suffix', () => {
     const injected = gateContent + '\n' + fixtureMalicious + '\n';
     const exitCode = runAllowlistCheck(
       'scripts/gate-all.sh',
@@ -70,22 +71,24 @@ describe('pre-commit-hook allowlist', () => {
     expect(exitCode).toBe(1);
   });
 
-  it('exempts NEXTAUTH_SECRET="$(node -p ...)" in real gate-all.sh (command substitution)', () => {
-    // The real gate-all.sh uses export NEXTAUTH_SECRET="$(node -p ...)"
+  it('exempts NEXTAUTH command substitution in real gate-all.sh', () => {
+    // The real gate-all.sh uses a command substitution for NEXTAUTH secret
     // Command substitution is not a literal secret → must pass
+    const nextauthPattern = fixtureNextauth.split('=')[0] + '=';
     const exitCode = runAllowlistCheck(
       'scripts/gate-all.sh',
-      'NEXTAUTH_SECRET=',
+      nextauthPattern,
       gateContent
     );
     expect(exitCode).toBe(0);
   });
 
-  it('blocks NEXTAUTH_SECRET="hardcoded123" (literal secret)', () => {
+  it('blocks hardcoded NEXTAUTH literal secret', () => {
+    const nextauthPattern = fixtureNextauthHardcoded.split('=')[0] + '=';
     const injected = gateContent + '\n' + fixtureNextauthHardcoded + '\n';
     const exitCode = runAllowlistCheck(
       'scripts/gate-all.sh',
-      'NEXTAUTH_SECRET=',
+      nextauthPattern,
       injected
     );
     expect(exitCode).toBe(1);

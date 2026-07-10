@@ -1,15 +1,17 @@
 #!/usr/bin/env node
 /**
- * Severity classification rules (updated 2026-07-10, round 5):
+ * Severity classification rules (updated 2026-07-10):
  *
- *   P0  = route sensible publique sans AUCUN contrôle
- *   P1  = route sensible publique avec contrôles partiels (Zod + rate-limit) mais sans auth
- *   PUBLIC = allow-listée avec contrôles spécifiques vérifiés (honeypot, hash token, etc.)
- *   P2  = route sensible authentifiée avec guards
- *   OK  = route non sensible
- *
- * Change reason: assessments/submit removed from PUBLIC_BY_DESIGN (token claim was false).
- * Public routes with partial controls (Zod+rate-limit) are now P1, not P0.
+ *   P0  = (a) sensitive public route without ANY control (no Zod, no rate-limit, no auth)
+ *         (b) dynamic sensitive authenticated route without ownership and not staff-only
+ *   P1  = (a) sensitive public route with partial controls (Zod and/or rate-limit) but no auth
+ *         (b) sensitive mutation without Zod validation
+ *         (c) sensitive authenticated route without role guard or ownership
+ *         (d) disabled webhook (501 status)
+ *         (e) PUBLIC_BY_DESIGN route missing baseline controls
+ *   PUBLIC = allow-listed with Zod + rate-limit + route-specific controls verified
+ *   P2  = sensitive authenticated route with guards (includes static public documents, deprecated, catalog)
+ *   OK  = non-sensitive route
  *
  * Known limitation: manual role-guard patterns (.includes(role), STAFF_ROLES.has)
  * do not verify that the variable originates from session.user — to be resolved
@@ -136,8 +138,9 @@ function riskFor(route, source, dynamic, authGuard, roleGuard, ownership, zod) {
   if (fixedPublicDocument || deprecatedRoute || publicStageCatalog || staticStudentContent) return 'P2';
   if (disabledWebhook) return 'P1';
   if (dynamic && sensitivePath && authGuard && !ownership && !staffOnlyRoute) return 'P0';
-  // Public sensitive routes: P0 if no controls at all, P1 if partial controls (rate-limit/Zod)
-  if (sensitivePath && !authGuard && (!zod || !hasRateLimitGuard(source))) return 'P0';
+  // P0: public sensitive, no controls at all (neither Zod nor rate-limit)
+  if (sensitivePath && !authGuard && !zod && !hasRateLimitGuard(source)) return 'P0';
+  // P1: public sensitive, partial controls (at least one of Zod/rate-limit but not auth)
   if (sensitivePath && !authGuard) return 'P1';
   if (mutation && sensitivePath && !zod) return 'P1';
   if (sensitivePath && authGuard && !roleGuard && !ownership) return 'P1';

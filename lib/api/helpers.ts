@@ -42,7 +42,12 @@ export const JSON_BODY_EMPTY = Symbol('JSON_BODY_EMPTY');
  * - Valid JSON → returns the parsed value
  */
 export async function parseJsonBody(request: Request): Promise<unknown> {
-  const text = await request.text();
+  let text: string;
+  try {
+    text = await request.text();
+  } catch {
+    return JSON_BODY_EMPTY;
+  }
   if (!text || !text.trim()) return JSON_BODY_EMPTY;
   try {
     return JSON.parse(text);

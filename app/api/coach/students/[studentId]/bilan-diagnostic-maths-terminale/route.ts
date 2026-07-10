@@ -33,7 +33,7 @@ const teacherGradesSchema = z.object({
   teacherGrades: z.record(z.string().min(1).max(120), teacherGradeValueSchema)
     .refine((r) => {
       const keys = Object.keys(r);
-      return keys.length > 0 && keys.every(k => OPEN_QUESTION_IDS.includes(k));
+      return keys.length <= OPEN_QUESTION_IDS.length && keys.every(k => OPEN_QUESTION_IDS.includes(k));
     }, {
       message: `teacherGrades keys must be valid open question IDs (${OPEN_QUESTION_IDS.join(', ')})`,
     }),

@@ -66,6 +66,8 @@ describe('IDOR bilans/generate', () => {
       // Must NOT leak error metadata beyond "not found"
       expect(json).not.toHaveProperty('data');
       expect(json.error).toBe('Bilan not found');
+      // Assert ownership check was called with correct args
+      expect(mockWriteWhere).toHaveBeenCalledWith('bilan-coach-b-student', COACH_A);
       // No side-effects: query, generation, and update must NOT have been called
       expect(mockBilanFindFirst).not.toHaveBeenCalled();
       expect(mockGenerateAndSave).not.toHaveBeenCalled();
@@ -122,6 +124,8 @@ describe('IDOR bilans/generate', () => {
       expect(json.success).toBe(false);
       // Must NOT leak status, errorCode, errorDetails
       expect(json).not.toHaveProperty('data');
+      // Assert ownership check was called with correct args
+      expect(mockReadWhere).toHaveBeenCalledWith('bilan-coach-b-student', COACH_A);
       expect(mockBilanFindFirst).not.toHaveBeenCalled();
     });
 

@@ -17,7 +17,11 @@ function makeRequest(opts: { signature?: string; secret?: string; body?: string 
   return { req, textMock };
 }
 
-afterEach(() => { delete process.env.CLICTOPAY_WEBHOOK_SECRET; });
+const originalSecret = process.env.CLICTOPAY_WEBHOOK_SECRET;
+afterEach(() => {
+  if (originalSecret !== undefined) process.env.CLICTOPAY_WEBHOOK_SECRET = originalSecret;
+  else delete process.env.CLICTOPAY_WEBHOOK_SECRET;
+});
 
 describe('POST /api/payments/clictopay/webhook', () => {
   it('returns 501 without consuming body when secret is not configured', async () => {
