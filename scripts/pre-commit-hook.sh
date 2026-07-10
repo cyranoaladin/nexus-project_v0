@@ -107,7 +107,7 @@ for f in $STAGED_ADDED_MODIFIED; do
     continue
   fi
   # Ne pas inspecter les fichiers binaires, les .example, ou le hook lui-même
-  if [[ "$f" == *".example" || "$f" == *".sample" || "$f" == *"pre-commit-hook.sh" || "$f" == *"pre-commit-hook.test.ts" ]]; then
+  if [[ "$f" == *".example" || "$f" == *".sample" || "$f" == *"pre-commit-hook.sh" ]]; then
     continue
   fi
   CONTENT=$(git show ":$f" 2>/dev/null || true)
