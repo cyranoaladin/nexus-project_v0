@@ -2,7 +2,7 @@
  * Tests for pre-commit-hook.sh allowlist logic.
  *
  * Sources the hook functions and exercises is_value_allowlisted
- * against real and injected content.
+ * against real and injected content. Fixtures in .sample files.
  */
 import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -14,14 +14,9 @@ const gateContent = readFileSync(join(process.cwd(), 'scripts/gate-all.sh'), 'ut
 const fixturesDir = join(process.cwd(), '__tests__/scripts/fixtures/secret-scan');
 const fixtureBenign = readFileSync(join(fixturesDir, 'gate-benign.sample'), 'utf8').trim();
 const fixtureMalicious = readFileSync(join(fixturesDir, 'gate-malicious.sample'), 'utf8').trim();
-const fixtureNextauth = readFileSync(join(fixturesDir, 'gate-nextauth.sample'), 'utf8').trim();
+const fixtureNextauthHardcoded = readFileSync(join(fixturesDir, 'gate-nextauth-hardcoded.sample'), 'utf8').trim();
 
-/**
- * Source the hook (allowlist + function only), then call is_value_allowlisted
- * with the given file, pattern, and content. Returns exit code.
- */
 function runAllowlistCheck(file: string, pattern: string, content: string): number {
-  // Extract the allowlist array and function from the hook, then invoke.
   const script = `
     set -euo pipefail
     ${readAllowlistFromHook()}
@@ -56,32 +51,43 @@ function readFunctionFromHook(): string {
 }
 
 describe('pre-commit-hook allowlist', () => {
-  it('exempts the REAL gate-all.sh content (benign fixture)', () => {
+  it('exempts POSTGRES_PASSWORD=postgres in real gate-all.sh', () => {
     const exitCode = runAllowlistCheck(
       'scripts/gate-all.sh',
       fixtureBenign.split('=')[0] + '=',
       gateContent
     );
-    expect(exitCode).toBe(0); // exempted
+    expect(exitCode).toBe(0);
   });
 
-  it('blocks non-benign suffix (malicious fixture)', () => {
+  it('blocks POSTGRES_PASSWORD=postgres123 (non-benign suffix)', () => {
     const injected = gateContent + '\n' + fixtureMalicious + '\n';
     const exitCode = runAllowlistCheck(
       'scripts/gate-all.sh',
       fixtureMalicious.split('=')[0] + '=',
       injected
     );
-    expect(exitCode).toBe(1); // blocked
+    expect(exitCode).toBe(1);
   });
 
-  it('blocks unrelated pattern in gate-all.sh (nextauth fixture)', () => {
-    const injected = gateContent + '\n' + fixtureNextauth + '\n';
+  it('exempts NEXTAUTH_SECRET="$(node -p ...)" in real gate-all.sh (command substitution)', () => {
+    // The real gate-all.sh uses export NEXTAUTH_SECRET="$(node -p ...)"
+    // Command substitution is not a literal secret → must pass
     const exitCode = runAllowlistCheck(
       'scripts/gate-all.sh',
-      fixtureNextauth.split('=')[0] + '=',
+      'NEXTAUTH_SECRET=',
+      gateContent
+    );
+    expect(exitCode).toBe(0);
+  });
+
+  it('blocks NEXTAUTH_SECRET="hardcoded123" (literal secret)', () => {
+    const injected = gateContent + '\n' + fixtureNextauthHardcoded + '\n';
+    const exitCode = runAllowlistCheck(
+      'scripts/gate-all.sh',
+      'NEXTAUTH_SECRET=',
       injected
     );
-    expect(exitCode).toBe(1); // blocked (no allowlist entry for this pattern)
+    expect(exitCode).toBe(1);
   });
 });
