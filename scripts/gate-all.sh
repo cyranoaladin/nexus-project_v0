@@ -31,6 +31,8 @@ extract_failed() {
 # Extract jest Tests: line specifically.
 extract_jest_passed() { strip_ansi "$1" | grep "^Tests:" | grep -oP '\d+(?= passed)' || echo "0"; }
 extract_jest_failed() { strip_ansi "$1" | grep "^Tests:" | grep -oP '\d+(?= failed)' || echo "0"; }
+# Extract jest Test Suites: line — a suite-level crash (N failed) is ALSO a failure.
+extract_jest_suites_failed() { strip_ansi "$1" | grep "^Test Suites:" | grep -oP '\d+(?= failed)' || echo "0"; }
 
 # Wait for HTTP 200 from /api/health (decoupled from homepage rendering).
 wait_for_server() {
@@ -183,6 +185,9 @@ fi || {
   exit 1
 }
 echo "✓ nexus_e2e database reset"
+# Workaround: P1017 "Server has closed the connection" after pg_terminate_backend.
+# Empirical — not diagnosed. If recurrence: retry migrate or check container health
+# post-reset, instead of increasing the sleep.
 sleep 1
 
 # (e) Apply migrations on clean database (AFTER npm ci for locked Prisma version)
@@ -202,11 +207,13 @@ JEST_PASSED=$(extract_jest_passed "$JEST_OUTPUT")
 JEST_FAILED=$(extract_jest_failed "$JEST_OUTPUT")
 JEST_PASSED=${JEST_PASSED:-0}
 JEST_FAILED=${JEST_FAILED:-0}
+JEST_SUITES_FAILED=$(extract_jest_suites_failed "$JEST_OUTPUT")
+JEST_SUITES_FAILED=${JEST_SUITES_FAILED:-0}
 # Show summary + any FAIL lines for diagnostics
-echo "$JEST_OUTPUT" | grep -E "^(FAIL |Tests:)" | tail -10
+echo "$JEST_OUTPUT" | grep -E "^(FAIL |Test Suites:|Tests:)" | tail -15
 echo ""
-if [[ "${JEST_FAILED:-0}" -gt 0 ]]; then
-  echo "✗ Jest has failures"
+if [[ "${JEST_FAILED:-0}" -gt 0 || "${JEST_SUITES_FAILED:-0}" -gt 0 ]]; then
+  echo "✗ Jest has failures (tests: $JEST_FAILED, suites: $JEST_SUITES_FAILED)"
   exit 1
 fi
 if [[ "${JEST_PASSED:-0}" -lt "$JEST_MIN" ]]; then
