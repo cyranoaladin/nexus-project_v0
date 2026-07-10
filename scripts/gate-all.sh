@@ -183,6 +183,7 @@ fi || {
   exit 1
 }
 echo "✓ nexus_e2e database reset"
+sleep 1
 
 # (e) Apply migrations on clean database (AFTER npm ci for locked Prisma version)
 echo "→ Running migrations..."
