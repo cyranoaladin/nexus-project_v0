@@ -20,9 +20,14 @@ AUTH_MIN=42
 
 # Normalize colored reporter output before parsing counters.
 strip_ansi() { echo "$1" | sed -r 's/\x1B\[[0-9;]*[mK]//g'; }
-# Extract "N passed"/"N failed" from test output (last occurrence).
+# Extract "N passed"/"N failed" from the SUMMARY line (the last line containing "passed").
+# Playwright flaky tests show intermediate "X failed" during execution then "X flaky" in summary.
 extract_passed() { strip_ansi "$1" | grep -oP '\d+(?= passed)' | tail -1; }
-extract_failed() { strip_ansi "$1" | grep -oP '\d+(?= failed)' | tail -1; }
+extract_failed() {
+  local summary
+  summary=$(strip_ansi "$1" | grep "passed" | tail -1)
+  echo "$summary" | grep -oP '\d+(?= failed)' || echo "0"
+}
 # Extract jest Tests: line specifically.
 extract_jest_passed() { strip_ansi "$1" | grep "^Tests:" | grep -oP '\d+(?= passed)' || echo "0"; }
 extract_jest_failed() { strip_ansi "$1" | grep "^Tests:" | grep -oP '\d+(?= failed)' || echo "0"; }
