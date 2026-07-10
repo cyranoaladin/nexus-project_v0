@@ -66,19 +66,16 @@ if [[ ! -f .env.local ]]; then
   exit 1
 fi
 
-# Validate required vars (DATABASE_URL excluded — DB_URL overrides everywhere)
-(
-  set -a
-  # shellcheck disable=SC1091
-  source .env.local
-  set +a
-  for var in NEXTAUTH_SECRET NEXTAUTH_URL; do
-    if [[ -z "${!var:-}" ]]; then
-      echo "✗ $var is empty after sourcing .env.local — standalone server will crash"
-      exit 1
-    fi
-  done
-) || exit 1
+# Validate required vars from .env.local using node dotenv (safe extraction, no bash eval)
+ENV_CHECK=$(node -e "
+  require('dotenv').config({ path: '.env.local' });
+  const required = ['NEXTAUTH_SECRET', 'NEXTAUTH_URL'];
+  const missing = required.filter(k => !process.env[k]);
+  if (missing.length) { console.error('Missing: ' + missing.join(', ')); process.exit(1); }
+" 2>&1) || {
+  echo "✗ .env.local missing required vars: $ENV_CHECK"
+  exit 1
+}
 echo "✓ .env.local validated (NEXTAUTH_SECRET, NEXTAUTH_URL present)"
 
 # (a-bis) Safety: if .env.local contains a DATABASE_URL, it must be local.
@@ -127,9 +124,17 @@ if ! pg_check; then
       -p 127.0.0.1:5435:5432 \
       pgvector/pgvector:pg16 >/dev/null 2>&1
     rm -f "$envfile"
-    sleep 4
+    # Wait for PostgreSQL to be ready (30 attempts × 1s)
+    retries=0
+    while [[ $retries -lt 30 ]]; do
+      if pg_check; then
+        break
+      fi
+      sleep 1
+      retries=$((retries + 1))
+    done
     if ! pg_check; then
-      echo "✗ PostgreSQL e2e container started but not responding"
+      echo "✗ PostgreSQL e2e container started but not responding after 30s"
       exit 1
     fi
     echo "✓ pgvector container started on port 5435"
@@ -161,11 +166,14 @@ echo ""
 # The container may survive between runs but the DATABASE is disposable.
 echo "→ Resetting e2e database..."
 if command -v dropdb &>/dev/null; then
-  PGPASSWORD=postgres dropdb -h 127.0.0.1 -p 5435 -U postgres --if-exists nexus_e2e 2>/dev/null || true
-  PGPASSWORD=postgres createdb -h 127.0.0.1 -p 5435 -U postgres nexus_e2e 2>/dev/null || true
+  PGPASSWORD=postgres dropdb -h 127.0.0.1 -p 5435 -U postgres --if-exists nexus_e2e
+  PGPASSWORD=postgres createdb -h 127.0.0.1 -p 5435 -U postgres nexus_e2e
 else
-  docker exec nexus-e2e-pg bash -c 'PGPASSWORD=postgres dropdb -U postgres --if-exists nexus_e2e 2>/dev/null; PGPASSWORD=postgres createdb -U postgres nexus_e2e' 2>/dev/null || true
-fi
+  docker exec nexus-e2e-pg bash -c 'PGPASSWORD=postgres dropdb -U postgres --if-exists nexus_e2e && PGPASSWORD=postgres createdb -U postgres nexus_e2e'
+fi || {
+  echo "✗ Failed to reset nexus_e2e database"
+  exit 1
+}
 echo "✓ nexus_e2e database reset"
 
 # (e) Apply migrations on clean database (AFTER npm ci for locked Prisma version)
@@ -221,10 +229,15 @@ echo ""
 
 # ── Lane 2: E2E public ──
 echo "━━━ Lane 2: E2E public ━━━"
-set -a
-# shellcheck disable=SC1091
-source .env.local
-set +a
+# Extract only NEXTAUTH_SECRET and NEXTAUTH_URL from .env.local (no bash eval)
+eval "$(node -e "
+  require('dotenv').config({ path: '.env.local' });
+  for (const k of ['NEXTAUTH_SECRET', 'NEXTAUTH_URL']) {
+    const v = process.env[k] || '';
+    console.log('export ' + k + '=' + JSON.stringify(v));
+  }
+")"
+# DB_URL is set by THIS script only — override any leaked value
 export DATABASE_URL="$DB_URL"
 export NEXTAUTH_URL="http://localhost:${PORT}"
 export HOSTNAME="localhost"
