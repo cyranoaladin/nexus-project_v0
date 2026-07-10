@@ -7,7 +7,7 @@
  */
 
 import { z } from 'zod';
-import { isStrictDateString } from '@/lib/validation/common';
+import { isStrictDateString, civilDateSchema } from '@/lib/validation/common';
 
 const strictDateSchema = z.string().refine(isStrictDateString, {
   message: 'Date invalide',
@@ -116,5 +116,19 @@ describe('issuedAt strict date validation', () => {
     it('rejects partial date', () => {
       expect(strictDateSchema.safeParse('2024-01').success).toBe(false);
     });
+  });
+});
+
+describe('civilDateSchema (date-only strict)', () => {
+  it('accepts 2024-01-15', () => {
+    expect(civilDateSchema.safeParse('2024-01-15').success).toBe(true);
+  });
+
+  it('rejects 2024-01-15T23:30:00+01:00 (datetime not allowed)', () => {
+    expect(civilDateSchema.safeParse('2024-01-15T23:30:00+01:00').success).toBe(false);
+  });
+
+  it('rejects 2024-02-31 (round-trip: February never has 31 days)', () => {
+    expect(civilDateSchema.safeParse('2024-02-31').success).toBe(false);
   });
 });

@@ -11,7 +11,7 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { UserRole, type InvoiceItem, type Prisma } from '@prisma/client';
 import { z } from 'zod';
-import { isStrictDateString } from '@/lib/validation/common';
+import { civilDateSchema } from '@/lib/validation/common';
 import {
   generateInvoiceNumber,
   renderInvoicePDF,
@@ -64,14 +64,10 @@ const invoiceIssuerInputSchema = z.object({
   stampPath: z.string().trim().max(500).nullable().optional(),
 }).strict();
 
-const strictDateSchema = z.string().refine(isStrictDateString, {
-  message: 'Date invalide (YYYY-MM-DD strict ou ISO datetime avec timezone)',
-});
-
 const createInvoiceBodySchema = z.object({
   number: z.string().trim().min(1).max(80).optional(),
-  issuedAt: strictDateSchema.optional(),
-  dueAt: strictDateSchema.nullable().optional(),
+  issuedAt: civilDateSchema.optional(),
+  dueAt: civilDateSchema.nullable().optional(),
   customer: z.object({
     name: z.string().trim().min(1).max(180),
     email: z.string().trim().email().nullable().optional(),

@@ -110,10 +110,24 @@ export function isStrictDateString(v: string): boolean {
 }
 
 function isValidDateComponents(year: number, month: number, day: number): boolean {
-  const d = new Date(Date.UTC(year, month - 1, day));
+  const d = new Date(0);
+  d.setUTCFullYear(year, month - 1, day);
   return d.getUTCFullYear() === year && d.getUTCMonth() === month - 1 && d.getUTCDate() === day;
 }
 
 export const strictDateSchema = z.string().refine(isStrictDateString, {
   message: 'Date invalide (YYYY-MM-DD strict ou ISO datetime avec timezone)',
+});
+
+/**
+ * Civil date schema: accepts ONLY YYYY-MM-DD format (no datetime).
+ * Use for fields like issuedAt, dueAt where time component is meaningless.
+ */
+export const civilDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
+  message: 'Format attendu : YYYY-MM-DD (date uniquement, sans heure)',
+}).refine((v) => {
+  const [yearStr, monthStr, dayStr] = v.split('-');
+  return isValidDateComponents(Number(yearStr), Number(monthStr), Number(dayStr));
+}, {
+  message: 'Date invalide (YYYY-MM-DD strict, pas de roll-over)',
 });
