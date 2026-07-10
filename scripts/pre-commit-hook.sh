@@ -73,8 +73,9 @@ SECRET_PATTERNS=(
 # will still block even in an allowlisted file.
 SECRET_SCAN_VALUE_ALLOWLIST=(
   # scripts/gate-all.sh: e2e container uses the default password "postgres" (never real creds).
-  # Benign default password for e2e container (not a secret)
   "scripts/gate-all.sh|POSTGRES_PASSWORD=|^postgres$"
+  # scripts/gate-all.sh: NEXTAUTH_SECRET is extracted from .env.local via node -p (not a literal)
+  "scripts/gate-all.sh|NEXTAUTH_SECRET=|^$"
 )
 
 # Returns 0 (exempt) only if ALL lines matching the secret pattern in the file
