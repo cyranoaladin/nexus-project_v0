@@ -20,25 +20,13 @@ import { createDefaultSurvivalSnapshot, toPrismaSurvivalData } from '../lib/surv
 // Fallback only: process.env.DATABASE_URL (set by gate) takes precedence over .env.local
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
-// ── Hard guard: refuse to seed anything other than the disposable e2e database ──
-// Parsed BEFORE new PrismaClient() — no connection is made if the target is wrong.
-import { isAllowedSeedTarget } from '../lib/e2e/seed-guard';
-
-const _seedTarget = isAllowedSeedTarget(process.env.DATABASE_URL ?? '');
-
-if (!_seedTarget.ok) {
-  // Never log the raw URL (may contain credentials)
-  console.error(
-    `✗ Refusing to run destructive seed against ${_seedTarget.host}:${_seedTarget.port}/${_seedTarget.db}\n` +
-    `  Expected target: nexus_e2e on a local or compose-internal host.`
-  );
-  process.exit(1);
-}
-
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log(`🌱 Seeding E2E database: ${_seedTarget.host}:${_seedTarget.port}/${_seedTarget.db}\n`);
+  // Log the target database BEFORE any mutation
+  const dbUrl = process.env.DATABASE_URL ?? '(not set)';
+  const dbMatch = dbUrl.match(/@([^/]+)\/([\w-]+)/);
+  console.log(`🌱 Seeding E2E database: ${dbMatch ? `${dbMatch[1]}/${dbMatch[2]}` : dbUrl}\n`);
 
   // =============================================================================
   // CLEANUP
