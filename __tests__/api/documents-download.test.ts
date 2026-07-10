@@ -180,6 +180,24 @@ describe('GET /api/documents/[id]/download', () => {
     expect(res.status).toBe(200);
   });
 
+  it('returns 404 for student downloading own ADMIN_ONLY document', async () => {
+    mockAuth.mockResolvedValue({ user: { id: STUDENT_USER_ID, role: 'ELEVE' } });
+    mockFindUnique.mockResolvedValue({ ...mockDocument, visibilityScope: 'ADMIN_ONLY' });
+
+    const res = await GET(request(), params());
+
+    expect(res.status).toBe(404);
+  });
+
+  it('returns 404 for parent downloading ADMIN_ONLY document of their child', async () => {
+    mockAuth.mockResolvedValue({ user: { id: PARENT_USER_ID, role: 'PARENT' } });
+    mockFindUnique.mockResolvedValue({ ...mockDocument, visibilityScope: 'ADMIN_ONLY' });
+
+    const res = await GET(request(), params());
+
+    expect(res.status).toBe(404);
+  });
+
   it('returns 404 for student downloading another student document', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'other-student', role: 'ELEVE' } });
     mockFindUnique.mockResolvedValue(mockDocument);

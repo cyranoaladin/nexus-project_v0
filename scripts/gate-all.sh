@@ -35,6 +35,32 @@ extract_jest_failed() { strip_ansi "$1" | grep "^Tests:" | grep -oP '\d+(?= fail
 # Extract jest Test Suites: line — a suite-level crash (N failed) is ALSO a failure.
 extract_jest_suites_failed() { strip_ansi "$1" | grep "^Test Suites:" | grep -oP '\d+(?= failed)' || echo "0"; }
 
+# Reset the e2e database: terminate connections, drop, create, migrate.
+reset_e2e_db() {
+  local label="${1:-}"
+  echo "→ Resetting e2e database${label:+ ($label)}..."
+  PGPASSWORD=postgres psql -h 127.0.0.1 -p 5435 -U postgres -d postgres -c \
+    "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='nexus_e2e' AND pid <> pg_backend_pid();" \
+    >/dev/null 2>&1 || true
+  if command -v dropdb &>/dev/null; then
+    PGPASSWORD=postgres dropdb -h 127.0.0.1 -p 5435 -U postgres --if-exists nexus_e2e
+    PGPASSWORD=postgres createdb -h 127.0.0.1 -p 5435 -U postgres nexus_e2e
+  else
+    docker exec nexus-e2e-pg bash -c "PGPASSWORD=postgres psql -U postgres -d postgres -c \"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='nexus_e2e' AND pid <> pg_backend_pid();\" 2>/dev/null; PGPASSWORD=postgres dropdb -U postgres --if-exists nexus_e2e && PGPASSWORD=postgres createdb -U postgres nexus_e2e"
+  fi || {
+    echo "✗ Failed to reset nexus_e2e database${label:+ ($label)}"
+    exit 1
+  }
+  # Workaround: P1017 post-terminate. See comment at first call site.
+  sleep 1
+  MIGRATE_OUTPUT=$(DATABASE_URL="$DB_URL" npx prisma migrate deploy 2>&1) || {
+    echo "✗ prisma migrate deploy failed${label:+ ($label)}:"
+    echo "$MIGRATE_OUTPUT" | tail -10
+    exit 1
+  }
+  echo "✓ Database reset and migrated${label:+ ($label)}"
+}
+
 # Wait for HTTP 200 from /api/health (decoupled from homepage rendering).
 wait_for_server() {
   local base_url="$1"
@@ -154,8 +180,8 @@ ENV_CHECK=$(node -e "
 }
 echo "✓ .env.local validated (NEXTAUTH_SECRET, NEXTAUTH_URL present)"
 
-# Safety: if .env.local contains a DATABASE_URL, it must point to localhost
-ENV_LOCAL_DB=$(node -p "require('dotenv').config({path:'.env.local'});process.env.DATABASE_URL||''" 2>/dev/null || echo "")
+# Safety: read DATABASE_URL from the FILE (not process.env which includes ambient vars)
+ENV_LOCAL_DB=$(node -p "require('dotenv').parse(require('fs').readFileSync('.env.local')).DATABASE_URL||''" 2>/dev/null || echo "")
 if [[ -n "$ENV_LOCAL_DB" ]]; then
   DB_HOST=$(echo "$ENV_LOCAL_DB" | sed -E 's|.*@([^:/]+).*|\1|; s|.*://([^:/]+).*|\1|')
   if [[ "$DB_HOST" == "localhost" || "$DB_HOST" == "127.0.0.1" || "$DB_HOST" == "::1" ]]; then
@@ -168,34 +194,7 @@ fi
 echo ""
 
 # (d) Drop+create the e2e database for a deterministic starting state.
-# Terminate active connections first (previous gate runs may leave sessions open).
-echo "→ Resetting e2e database..."
-PGPASSWORD=postgres psql -h 127.0.0.1 -p 5435 -U postgres -d postgres -c \
-  "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='nexus_e2e' AND pid <> pg_backend_pid();" \
-  >/dev/null 2>&1 || true
-if command -v dropdb &>/dev/null; then
-  PGPASSWORD=postgres dropdb -h 127.0.0.1 -p 5435 -U postgres --if-exists nexus_e2e
-  PGPASSWORD=postgres createdb -h 127.0.0.1 -p 5435 -U postgres nexus_e2e
-else
-  docker exec nexus-e2e-pg bash -c "PGPASSWORD=postgres psql -U postgres -d postgres -c \"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='nexus_e2e' AND pid <> pg_backend_pid();\" 2>/dev/null; PGPASSWORD=postgres dropdb -U postgres --if-exists nexus_e2e && PGPASSWORD=postgres createdb -U postgres nexus_e2e"
-fi || {
-  echo "✗ Failed to reset nexus_e2e database"
-  exit 1
-}
-echo "✓ nexus_e2e database reset"
-# Workaround: P1017 "Server has closed the connection" after pg_terminate_backend.
-# Empirical — not diagnosed. If recurrence: retry migrate or check container health
-# post-reset, instead of increasing the sleep.
-sleep 1
-
-# (e) Apply migrations on clean database (AFTER npm ci for locked Prisma version)
-echo "→ Running migrations..."
-MIGRATE_OUTPUT=$(DATABASE_URL="$DB_URL" npx prisma migrate deploy 2>&1) || {
-  echo "✗ prisma migrate deploy failed:"
-  echo "$MIGRATE_OUTPUT" | tail -10
-  exit 1
-}
-echo "✓ Migrations applied"
+reset_e2e_db "initial"
 echo ""
 
 # ── Lane 1: Jest ──
@@ -222,26 +221,7 @@ echo "✓ Jest: $JEST_PASSED passed (min $JEST_MIN)"
 echo ""
 
 # Reset DB after Jest: jest tests may mutate the e2e database.
-echo "→ Resetting e2e database (post-Jest)..."
-PGPASSWORD=postgres psql -h 127.0.0.1 -p 5435 -U postgres -d postgres -c \
-  "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='nexus_e2e' AND pid <> pg_backend_pid();" \
-  >/dev/null 2>&1 || true
-if command -v dropdb &>/dev/null; then
-  PGPASSWORD=postgres dropdb -h 127.0.0.1 -p 5435 -U postgres --if-exists nexus_e2e
-  PGPASSWORD=postgres createdb -h 127.0.0.1 -p 5435 -U postgres nexus_e2e
-else
-  docker exec nexus-e2e-pg bash -c "PGPASSWORD=postgres psql -U postgres -d postgres -c \"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='nexus_e2e' AND pid <> pg_backend_pid();\" 2>/dev/null; PGPASSWORD=postgres dropdb -U postgres --if-exists nexus_e2e && PGPASSWORD=postgres createdb -U postgres nexus_e2e"
-fi || {
-  echo "✗ Failed to reset nexus_e2e database (post-Jest)"
-  exit 1
-}
-sleep 1
-MIGRATE_OUTPUT=$(DATABASE_URL="$DB_URL" npx prisma migrate deploy 2>&1) || {
-  echo "✗ prisma migrate deploy failed (post-Jest):"
-  echo "$MIGRATE_OUTPUT" | tail -10
-  exit 1
-}
-echo "✓ Database reset and migrated (post-Jest)"
+reset_e2e_db "post-Jest"
 echo ""
 
 # ── Build standalone (shared by both e2e lanes) ──

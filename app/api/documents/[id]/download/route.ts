@@ -30,6 +30,13 @@ const PARENT_VISIBLE_SCOPES = new Set<string>([
   DocumentVisibilityScope.STUDENT_PARENT_COACH,
 ]);
 
+const ELEVE_VISIBLE_SCOPES = new Set<string>([
+  DocumentVisibilityScope.STUDENT_ONLY,
+  DocumentVisibilityScope.STUDENT_AND_PARENT,
+  DocumentVisibilityScope.STUDENT_AND_COACH,
+  DocumentVisibilityScope.STUDENT_PARENT_COACH,
+]);
+
 function safeFilename(name: string): string {
   return encodeURIComponent(name.replace(/[\\/\r\n"]/g, '_'));
 }
@@ -130,8 +137,8 @@ export async function GET(
         return new NextResponse('Not Found', { status: 404 });
       }
     } else if (role === UserRole.ELEVE) {
-      // Student can only access their own documents
-      if (document.userId !== session.user.id) {
+      // Student can only access their own documents with student-visible scope
+      if (document.userId !== session.user.id || !ELEVE_VISIBLE_SCOPES.has(document.visibilityScope)) {
         return new NextResponse('Not Found', { status: 404 });
       }
     } else {

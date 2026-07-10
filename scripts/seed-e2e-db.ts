@@ -17,12 +17,16 @@ import * as dotenv from 'dotenv';
 import path from 'path';
 import { createDefaultSurvivalSnapshot, toPrismaSurvivalData } from '../lib/survival/progress';
 
-dotenv.config({ path: path.resolve(process.cwd(), '.env.local'), override: true });
+// Fallback only: process.env.DATABASE_URL (set by gate) takes precedence over .env.local
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Seeding E2E database...\n');
+  // Log the target database BEFORE any mutation
+  const dbUrl = process.env.DATABASE_URL ?? '(not set)';
+  const dbMatch = dbUrl.match(/@([^/]+)\/([\w-]+)/);
+  console.log(`🌱 Seeding E2E database: ${dbMatch ? `${dbMatch[1]}/${dbMatch[2]}` : dbUrl}\n`);
 
   // =============================================================================
   // CLEANUP

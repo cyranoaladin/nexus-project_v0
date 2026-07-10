@@ -16,6 +16,7 @@ const fixtureBenign = readFileSync(join(fixturesDir, 'gate-benign.sample'), 'utf
 const fixtureMalicious = readFileSync(join(fixturesDir, 'gate-malicious.sample'), 'utf8').trim();
 const fixtureNextauth = readFileSync(join(fixturesDir, 'gate-nextauth.sample'), 'utf8').trim();
 const fixtureNextauthHardcoded = readFileSync(join(fixturesDir, 'gate-nextauth-hardcoded.sample'), 'utf8').trim();
+const fixturePostgresQuoted = readFileSync(join(fixturesDir, 'gate-postgres-quoted.sample'), 'utf8').trim();
 
 function runAllowlistCheck(file: string, pattern: string, content: string): number {
   const script = `
@@ -71,10 +72,20 @@ describe('pre-commit-hook allowlist', () => {
     expect(exitCode).toBe(1);
   });
 
+  it('blocks quoted POSTGRES secret (empty extract = fail closed)', () => {
+    const injected = gateContent + '\n' + fixturePostgresQuoted + '\n';
+    const exitCode = runAllowlistCheck(
+      'scripts/gate-all.sh',
+      fixturePostgresQuoted.split('=')[0] + '=',
+      injected
+    );
+    expect(exitCode).toBe(1);
+  });
+
   it('exempts NEXTAUTH command substitution in real gate-all.sh', () => {
-    // The real gate-all.sh uses a command substitution for NEXTAUTH secret
-    // Command substitution is not a literal secret → must pass
+    // Precondition: the real gate-all.sh MUST contain NEXTAUTH_SECRET=
     const nextauthPattern = fixtureNextauth.split('=')[0] + '=';
+    expect(gateContent).toContain(nextauthPattern);
     const exitCode = runAllowlistCheck(
       'scripts/gate-all.sh',
       nextauthPattern,

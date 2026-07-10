@@ -91,50 +91,51 @@ is_value_allowlisted() {
 
   # Command substitution is not a literal secret: values starting with "$(" or "'$(" are safe.
   # Extract full values (including quotes) after the pattern.
-  local all_values=""
+  # Extract values after the pattern using WIDE grep (includes quotes).
+  # Check each value: substitution → skip; literal → must pass allowlist.
+  local has_unresolved_literal=false
   while IFS= read -r match; do
     [[ -z "$match" ]] && continue
-    all_values+="${match#*=}"$'\n'
-  done < <(echo "$content" | grep -oE "${pattern}[^[:space:]]*")
-  local has_literal=false
-  while IFS= read -r val; do
+    local val="${match#*=}"
     [[ -z "$val" ]] && continue
-    # Strip surrounding quotes for inspection
     local stripped="${val#\"}"
     stripped="${stripped#\'}"
     # Command substitution: $( or backtick → not a literal secret
-    if [[ "$stripped" == '$('* || "$stripped" == '`'* ]]; then
+    if [[ -n "$stripped" ]] && { [[ "$stripped" == '$('* ]] || [[ "$stripped" == '`'* ]]; }; then
       continue
     fi
-    has_literal=true
-    break
-  done <<< "$all_values"
-
-  # If no literal values found, all matches are substitutions → exempt
-  if [[ "$has_literal" == false ]]; then
-    return 0
-  fi
-
-  # Check value-pinned allowlist for literal values
-  for entry in "${SECRET_SCAN_VALUE_ALLOWLIST[@]}"; do
-    [[ "$entry" == \#* ]] && continue
-    local allowed_file allowed_pattern benign_suffix
-    IFS='|' read -r allowed_file allowed_pattern benign_suffix <<< "$entry"
-    if [[ "$file" == $allowed_file && "$pattern" == "$allowed_pattern" ]]; then
-      local literal_values=""
-      while IFS= read -r match; do
-        [[ -z "$match" ]] && continue
-        literal_values+="${match#*=}"$'\n'
-      done < <(echo "$content" | grep -oE "${allowed_pattern}[^[:space:]\"'\\\\]*")
-      local non_benign
-      non_benign=$(echo "$literal_values" | grep -v '^$' | grep -vcE "$benign_suffix" 2>/dev/null || true)
-      if [[ "${non_benign:-0}" -eq 0 ]]; then
-        return 0
-      fi
-      return 1
+    # This is a literal value — check allowlist
+    # Extract the unquoted value for comparison (narrow: stops at quotes/backslash)
+    local narrow_val
+    narrow_val=$(printf '%s' "$match" | grep -oE "${pattern}[^[:space:]\"'\\\\]*" | head -1)
+    narrow_val="${narrow_val#*=}"
+    # Empty narrow value = quoted secret (e.g. KEY="secret") → fail closed
+    if [[ -z "$narrow_val" ]]; then
+      has_unresolved_literal=true
+      continue
     fi
-  done
-  return 1
+    # Check against allowlist
+    local is_benign=false
+    for entry in "${SECRET_SCAN_VALUE_ALLOWLIST[@]}"; do
+      [[ "$entry" == \#* ]] && continue
+      local allowed_file allowed_pattern benign_suffix
+      IFS='|' read -r allowed_file allowed_pattern benign_suffix <<< "$entry"
+      if [[ "$file" == $allowed_file && "$pattern" == "$allowed_pattern" ]]; then
+        if printf '%s' "$narrow_val" | grep -qE "$benign_suffix" 2>/dev/null; then
+          is_benign=true
+        fi
+        break
+      fi
+    done
+    if [[ "$is_benign" == false ]]; then
+      has_unresolved_literal=true
+    fi
+  done < <(printf '%s' "$content" | grep -oE "${pattern}[^[:space:]]*")
+
+  if [[ "$has_unresolved_literal" == true ]]; then
+    return 1
+  fi
+  return 0
 }
 
 for f in $STAGED_ADDED_MODIFIED; do
