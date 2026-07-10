@@ -51,7 +51,9 @@ reset_e2e_db() {
     echo "✗ Failed to reset nexus_e2e database${label:+ ($label)}"
     exit 1
   }
-  # Workaround: P1017 post-terminate. See comment at first call site.
+  # Workaround: P1017 "Server has closed the connection" after pg_terminate_backend.
+  # Empirical — not diagnosed. If recurrence: retry migrate or check container health
+  # post-reset, instead of increasing the sleep.
   sleep 1
   MIGRATE_OUTPUT=$(DATABASE_URL="$DB_URL" npx prisma migrate deploy 2>&1) || {
     echo "✗ prisma migrate deploy failed${label:+ ($label)}:"

@@ -146,7 +146,6 @@ export async function GET(
     }
 
     // ── Serve file ──
-    let resolvedPath: string;
     const rawPath = document.localPath;
 
     if (/^https?:\/\//i.test(rawPath)) {
@@ -156,25 +155,23 @@ export async function GET(
     const normalizedRoot = resolve(STORAGE_ROOT);
     const allowedPrefix = normalizedRoot.endsWith(sep) ? normalizedRoot : `${normalizedRoot}${sep}`;
 
-    // Absolute path already within STORAGE_ROOT — use as-is.
-    // This handles paths written by the upload route as path.join(process.cwd(), 'storage', ...),
-    // which are absolute cwd-based paths. The DB stores '/app/storage/documents/...' (LEGACY_PREFIX)
-    // but the file actually lives at cwd/storage/documents/... — both cases are covered here.
-    if (rawPath.startsWith(allowedPrefix) || rawPath === normalizedRoot) {
-      resolvedPath = rawPath;
+    // Resolve the raw path to an absolute, normalized path.
+    // Rule: NEVER do containment on an unresolved string — always on resolve()'d path.
+    // Upload writes absolute cwd-based paths; DB stores legacy /app/storage/documents/...
+    let resolvedPath: string;
+    if (rawPath.startsWith(LEGACY_PREFIX)) {
+      // Legacy: strip prefix, resolve relative to STORAGE_ROOT
+      resolvedPath = resolve(STORAGE_ROOT, rawPath.slice(LEGACY_PREFIX.length));
+    } else if (rawPath.startsWith('/')) {
+      // Absolute path (cwd-based from upload or other) — resolve normalizes /../
+      resolvedPath = resolve(rawPath);
     } else {
-      // Legacy /app/storage/documents/ prefix or relative path — resolve against STORAGE_ROOT
-      let relativePath = rawPath;
-      if (relativePath.startsWith(LEGACY_PREFIX)) {
-        relativePath = relativePath.slice(LEGACY_PREFIX.length);
-      } else if (relativePath.startsWith('/')) {
-        relativePath = relativePath.slice(1);
-      }
-      resolvedPath = resolve(STORAGE_ROOT, relativePath);
+      // Relative path — resolve against STORAGE_ROOT
+      resolvedPath = resolve(STORAGE_ROOT, rawPath);
     }
 
-    // Path traversal containment
-    if (resolvedPath !== normalizedRoot && !resolvedPath.startsWith(allowedPrefix)) {
+    // Path traversal containment — on the RESOLVED path only
+    if (!resolvedPath.startsWith(allowedPrefix)) {
       return new NextResponse('Not Found', { status: 404 });
     }
 

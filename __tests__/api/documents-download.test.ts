@@ -198,6 +198,20 @@ describe('GET /api/documents/[id]/download', () => {
     expect(res.status).toBe(404);
   });
 
+  it('returns 404 on path traversal via /../ (P1 containment)', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'admin-1', role: 'ADMIN' } });
+    const { resolve: pathResolve } = require('path');
+    const storageRoot = pathResolve(process.cwd(), 'storage', 'documents');
+    const traversalPath = storageRoot + '/../../../.env.local';
+    mockFindUnique.mockResolvedValue({ ...mockDocument, localPath: traversalPath });
+
+    const res = await GET(request(), params());
+
+    expect(res.status).toBe(404);
+    // readFile must NOT have been called (traversal blocked before I/O)
+    expect(mockReadFile).not.toHaveBeenCalled();
+  });
+
   it('returns 404 for student downloading another student document', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'other-student', role: 'ELEVE' } });
     mockFindUnique.mockResolvedValue(mockDocument);
