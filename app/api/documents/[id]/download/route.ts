@@ -1,18 +1,13 @@
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
-import { readFile, stat } from 'fs/promises';
+import { readFile, realpath, stat } from 'fs/promises';
 import { resolve, sep } from 'path';
 import { UserRole, DocumentVisibilityScope } from '@prisma/client';
 import { serializeError } from '@/lib/utils/serialize-error';
 import { assertCoachCanAccessStudent } from '@/lib/rbac/coach-student-access';
+import { getDocumentStorageRoot, LEGACY_STORAGE_PREFIX } from '@/lib/documents/storage-root';
 import { z } from 'zod';
-
-// Storage root: env-configurable, defaults to cwd/storage/documents.
-// Accepts legacy /app/storage/documents/ prefix from existing DB rows.
-const STORAGE_ROOT = process.env.DOCUMENT_STORAGE_ROOT
-  || resolve(process.cwd(), 'storage', 'documents');
-const LEGACY_PREFIX = '/app/storage/documents/';
 
 const routeParamsSchema = z.object({
   id: z.string().min(1).max(128).regex(/^[A-Za-z0-9_-]+$/),
@@ -56,11 +51,12 @@ function safeContentType(mimeType: string | null | undefined): string {
 /**
  * GET /api/documents/[id]/download
  *
- * Serves a document file with full RBAC:
- * - Staff (ADMIN/ASSISTANTE): access any document
- * - Coach: only documents of assigned students, with matching visibilityScope
- * - Parent: only documents of their children, with matching visibilityScope
- * - Elève: only their own documents
+ * Serves a document file with full RBAC.
+ *
+ * Containment: realpath on BOTH root and candidate path — handles symlinks
+ * (e.g., /app/storage → /mnt/volume). Link races (TOCTOU symlink) are out of
+ * threat model: they require local FS write access. realpath-before-read is
+ * the retained level.
  */
 export async function GET(
   _request: NextRequest,
@@ -79,7 +75,6 @@ export async function GET(
     const { id } = parsedParams.data;
     const role = (session.user.role as string) ?? '';
 
-    // Fetch document with owner and student relationships
     const document = await prisma.userDocument.findUnique({
       where: { id },
       select: {
@@ -105,9 +100,8 @@ export async function GET(
 
     // ── RBAC checks ──
     if (STAFF_ROLES.has(role)) {
-      // Staff can access any document — no further checks
+      // Staff can access any document
     } else if (role === UserRole.COACH) {
-      // Coach must be assigned to the student AND scope must allow coach access
       if (!COACH_VISIBLE_SCOPES.has(document.visibilityScope)) {
         return new NextResponse('Not Found', { status: 404 });
       }
@@ -124,7 +118,6 @@ export async function GET(
         return new NextResponse('Not Found', { status: 404 });
       }
     } else if (role === UserRole.PARENT) {
-      // Parent must own the student AND scope must allow parent access
       if (!PARENT_VISIBLE_SCOPES.has(document.visibilityScope)) {
         return new NextResponse('Not Found', { status: 404 });
       }
@@ -137,7 +130,6 @@ export async function GET(
         return new NextResponse('Not Found', { status: 404 });
       }
     } else if (role === UserRole.ELEVE) {
-      // Student can only access their own documents with student-visible scope
       if (document.userId !== session.user.id || !ELEVE_VISIBLE_SCOPES.has(document.visibilityScope)) {
         return new NextResponse('Not Found', { status: 404 });
       }
@@ -152,42 +144,50 @@ export async function GET(
       return new NextResponse('Not Found', { status: 404 });
     }
 
-    const normalizedRoot = resolve(STORAGE_ROOT);
-    const allowedPrefix = normalizedRoot.endsWith(sep) ? normalizedRoot : `${normalizedRoot}${sep}`;
+    const storageRoot = getDocumentStorageRoot();
 
     // Resolve the raw path to an absolute, normalized path.
-    // Rule: NEVER do containment on an unresolved string — always on resolve()'d path.
     // Upload writes absolute cwd-based paths; DB stores legacy /app/storage/documents/...
     let resolvedPath: string;
-    if (rawPath.startsWith(LEGACY_PREFIX)) {
-      // Legacy: strip prefix, resolve relative to STORAGE_ROOT
-      resolvedPath = resolve(STORAGE_ROOT, rawPath.slice(LEGACY_PREFIX.length));
+    if (rawPath.startsWith(LEGACY_STORAGE_PREFIX)) {
+      resolvedPath = resolve(storageRoot, rawPath.slice(LEGACY_STORAGE_PREFIX.length));
     } else if (rawPath.startsWith('/')) {
-      // Absolute path (cwd-based from upload or other) — resolve normalizes /../
       resolvedPath = resolve(rawPath);
     } else {
-      // Relative path — resolve against STORAGE_ROOT
-      resolvedPath = resolve(STORAGE_ROOT, rawPath);
+      resolvedPath = resolve(storageRoot, rawPath);
     }
 
-    // Path traversal containment — on the RESOLVED path only
-    if (!resolvedPath.startsWith(allowedPrefix)) {
+    // Containment by realpath: canonicalize BOTH root and candidate.
+    // Both sides must be canonical — if STORAGE_ROOT is a symlink (e.g.,
+    // /app/storage → /mnt/volume), realpath on only the candidate would
+    // fail containment for ALL legitimate files.
+    let canonicalRoot: string;
+    let canonicalPath: string;
+    try {
+      canonicalRoot = await realpath(storageRoot);
+      canonicalPath = await realpath(resolvedPath);
+    } catch {
+      // realpath ENOENT: path does not exist on disk → 404
+      return new NextResponse('File content not found', { status: 404 });
+    }
+
+    const canonicalPrefix = canonicalRoot.endsWith(sep) ? canonicalRoot : `${canonicalRoot}${sep}`;
+    if (!canonicalPath.startsWith(canonicalPrefix)) {
       return new NextResponse('Not Found', { status: 404 });
     }
 
-    const MAX_DOWNLOAD_BYTES = 25 * 1024 * 1024; // 25MB
+    const MAX_DOWNLOAD_BYTES = 25 * 1024 * 1024;
     try {
-      const fileStat = await stat(resolvedPath);
+      const fileStat = await stat(canonicalPath);
       if (fileStat.size > MAX_DOWNLOAD_BYTES) {
         return new NextResponse('File too large', { status: 413 });
       }
     } catch {
-      // stat ENOENT (deleted/unmounted file) = 404 métier, not 500
       return new NextResponse('File content not found', { status: 404 });
     }
 
     try {
-      const fileBuffer = await readFile(resolvedPath);
+      const fileBuffer = await readFile(canonicalPath);
       return new NextResponse(fileBuffer as unknown as BodyInit, {
         headers: {
           'Content-Type': safeContentType(document.mimeType),

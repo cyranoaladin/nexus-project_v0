@@ -8,6 +8,7 @@ import { mergePaymentMetadata, parsePaymentMetadata } from '@/lib/utils';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import path from 'path';
+import { getDocumentStorageRoot } from '@/lib/documents/storage-root';
 import { writeFile, mkdir } from 'fs/promises';
 import {
   renderInvoicePDF,
@@ -96,7 +97,7 @@ function buildMinimalPdfBuffer(message: string): Buffer {
 }
 
 /** Base directory for secure document storage (coffre-fort) */
-const DOCUMENTS_DIR = path.join(process.cwd(), 'storage', 'documents');
+const DOCUMENTS_DIR = getDocumentStorageRoot();
 
 const validatePaymentSchema = z.object({
   paymentId: z.string(),
