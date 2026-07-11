@@ -91,12 +91,12 @@ Les trois premières gates autorisent seulement la prochaine phase de **concepti
 
 | Identifiant | Propriétaire | Preuve attendue | Statut | Condition de blocage | Date de validation | Mécanisme concerné |
 |---|---|---|---|---|---|---|
-| `GATE-SEC-BASE-001` | `SOL` | [socle minimal V2 défini](../audits/2026-07-pre-rentree-security-baseline.md) + [réconciliation](../audits/2026-07-pre-rentree-current-main-security-reconciliation.md), SHA d'implémentation G-SEC/G-PAY, tests IDOR et audit de routes | `IMPLEMENTED_ON_MAIN_PENDING_DEDICATED_REVIEW` | bloque toute activation V2 ; socle fusionné mais revue dédiée Pré-rentrée non exécutée ; politiques parent M:N bloquées jusqu'à M3 | 2026-07-11 (réconciliation) | guards fail-closed, politiques ABAC, tests API |
+| `GATE-SEC-BASE-001` | `SOL` | [socle V2](../audits/2026-07-pre-rentree-security-baseline.md) + [réconciliation](../audits/2026-07-pre-rentree-current-main-security-reconciliation.md) + [preuves M0A-R](../reports/2026-07-m0a-r-final-test-evidence.md) + [audit Stage V1](../audits/2026-07-m0a-r-stage-v1-route-security-audit.md) | `VERIFIED_IN_TEST` | bloque toute activation V2 ; socle vérifié par M0A-R avec 630 tests passés, P0=0, redaction PII, validation hex ClicToPay ; politiques parent M:N bloquées jusqu'à M3 | 2026-07-11 (M0A-R) | guards fail-closed, PII redaction, hex validation, tests API |
 | `GATE-RBAC-001` | `SOL` | matrice admin/parent/élève/coach/assistante, 401/403/404 et IDOR | `PENDING_EVIDENCE` | accès hors famille/cohorte/académie | — | guards/query scopes |
 | `GATE-ID-001` | `SOL` | multi-responsables, vérification, révocation, fusion auditée | `PENDING_EVIDENCE` | liaison automatique par email/téléphone | — | identité/relations/audit |
 | `GATE-CAPACITY-001` | `SOL` | tests transactionnels de cinquième/sixième place | `PENDING_EVIDENCE` | surcapacité ou double enrollment | — | verrou/Serializable/unique |
 | `GATE-PAY-001` | `SOL` | paiement catalogue-first, idempotent, preuve et facture cohérentes | `PENDING_EVIDENCE` | statut payé sans transaction prouvée | — | payment/invoice/outbox |
-| `GATE-PAY-002` | `SOL` | webhook fail-closed avec secret obligatoire et rejeu dédupliqué | `PENDING_EVIDENCE` | secret absent accepté ou double effet | — | ClicToPay/webhook |
+| `GATE-PAY-002` | `SOL` | webhook fail-closed avec secret obligatoire, validation hex et rejeu dédupliqué | `PENDING_EVIDENCE` | signature vérifiée et hex validé mais logique métier absente (501 stub) ; rejeu/idempotence dépendent du modèle V2 ; **statut effectif : fermé en attente de preuves fournisseur** | 2026-07-11 (signature/hex M0A-R) | ClicToPay/webhook |
 | `GATE-PRIVACY-001` | `SOL` + `LUNA` | aucune PII mineur dans logs, Telegram, analytics ou erreurs | `PENDING_EVIDENCE` | payload/identité exposé | — | logs/outbox/analytics |
 
 ## Gates frontend, dashboards et qualité
@@ -130,7 +130,7 @@ Les trois premières gates autorisent seulement la prochaine phase de **concepti
 
 | Identifiant | Preuve attendue | Statut | Bloque |
 |---|---|---|---|
-| `GATE-M0A-SECURITY-001` | [plan sécurité recadré M0A-R](../plans/pre-rentree-2026-m0a-security-implementation-plan.md), revue des hardenings G-SEC/G-PAY, fermeture des écarts, tests | `IMPLEMENTATION_PLAN_DEFINED` | toute route V2 jusqu'à `VERIFIED_IN_TEST` |
+| `GATE-M0A-SECURITY-001` | [plan M0A-R](../plans/pre-rentree-2026-m0a-security-implementation-plan.md) + [preuves](../reports/2026-07-m0a-r-final-test-evidence.md) + [baseline](../reports/2026-07-m0a-r-baseline-test-evidence.md) + [audit Stage V1](../audits/2026-07-m0a-r-stage-v1-route-security-audit.md) | `VERIFIED_IN_TEST` | revue complétée : P0=0, 630 tests passés, PII redaction + hex validation ajoutés, 30 routes Stage V1 classifiées |
 | `GATE-M0B-DB-001` | [capacité DB](../plans/pre-rentree-2026-m0b-database-capability-plan.md), preuves PG15/extension/fallback | `IMPLEMENTATION_PLAN_DEFINED` | M1 deploy et M2 |
 | `GATE-M0C-TOOLCHAIN-001` | [plan Prisma](../plans/pre-rentree-2026-m0c-prisma-toolchain-plan.md), Node20/Prisma6.19.2/drift | `IMPLEMENTATION_PLAN_DEFINED` | création migration M1 |
 | `GATE-M0D-TEST-001` | [environnement test](../plans/pre-rentree-2026-m0d-test-environment-plan.md), lanes fresh/V1 | `IMPLEMENTATION_PLAN_DEFINED` | validation M1–M3 |

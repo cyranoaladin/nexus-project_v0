@@ -118,7 +118,7 @@ réellement présent sur main.
 
 | Exigence | Statut | Preuve |
 |----------|--------|--------|
-| Redaction PII dans les logs | NOT_IMPLEMENTED | Pas de helper `lib/security/redaction.ts` |
+| Redaction PII dans les logs | IMPLEMENTED_M0A_R | `lib/security/redact-for-logging.ts` créé, 25 tests, appliqué au webhook |
 | Pas d'email/phone/token dans les logs | IMPLEMENTED_BUT_NOT_VERIFIED_FOR_PRE_RENTREE | Webhook logs uniquement code/error, pas d'audit exhaustif |
 | Correlation ID | PARTIALLY_IMPLEMENTED | `generateRequestId()` existe, pas systématiquement utilisé |
 
@@ -174,8 +174,8 @@ réellement présent sur main.
 | Politique RBAC/ABAC déclarative V2 | PRE_RENTREE_SPECIFIC | Créer uniquement quand les routes V2 existent (M1+) — DENY par défaut suffit |
 | Types V2 authorization | PRE_RENTREE_SPECIFIC | Déclarer les types sans ouvrir de route — DEFERRED_TO_M1 |
 | Scope loaders V2 | DEFERRED_TO_M3 | Dépend du modèle M:N |
-| Redaction PII helper | GAP_CLOSURE_REQUIRED | Utile immédiatement, indépendant de V2 |
-| Validation hex signature webhook | GAP_CLOSURE_REQUIRED | Protection contre truncation silencieuse |
+| Redaction PII helper | IMPLEMENTED_M0A_R | `lib/security/redact-for-logging.ts` créé |
+| Validation hex signature webhook | IMPLEMENTED_M0A_R | Regex `/^[0-9a-f]{64}$/i` + normalisation lowercase, 7 tests |
 | Parsing payload webhook | DEFERRED_TO_PAYMENT_EVIDENCE | Dépend de la documentation fournisseur |
 | Idempotence webhook | DEFERRED_TO_PAYMENT_EVIDENCE | Dépend du modèle ClicToPayTransaction V2 |
 | Validation montant/devise | DEFERRED_TO_PAYMENT_EVIDENCE | Requiert payload documenté |
@@ -216,5 +216,5 @@ Closure) pour :
 3. **Déclarer** les types V2 en DENY par défaut sans ouvrir de route
 4. **Reporter** les éléments dépendant de M3 ou d'une preuve fournisseur paiement
 
-Le statut recommandé de GATE-SEC-BASE-001 devient :
-**IMPLEMENTED_ON_MAIN_PENDING_DEDICATED_REVIEW**
+Le statut de GATE-SEC-BASE-001 est désormais :
+**VERIFIED_IN_TEST** (M0A-R complété 2026-07-11)
