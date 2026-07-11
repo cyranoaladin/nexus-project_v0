@@ -2,7 +2,15 @@ import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { requireAnyRole, isErrorResponse } from '@/lib/guards';
+import { UserRole } from '@prisma/client';
+import { z } from 'zod';
+
+const clicToPayInitSchema = z.object({
+  amount: z.number().positive().optional(),
+  invoiceId: z.string().trim().min(1).max(191).optional(),
+  description: z.string().trim().min(1).max(300).optional(),
+}).strict();
 
 /**
  * POST /api/payments/clictopay/init
@@ -14,12 +22,24 @@ import { auth } from '@/auth';
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
+    const sessionOrError = await requireAnyRole([UserRole.PARENT, UserRole.ADMIN, UserRole.ASSISTANTE]);
+    if (isErrorResponse(sessionOrError)) return sessionOrError;
 
-    if (!session?.user?.id) {
+    if (process.env.NEXT_PUBLIC_ENABLE_CLICTOPAY_PUBLIC === 'true') {
       return NextResponse.json(
-        { error: 'Authentification requise' },
-        { status: 401 }
+        {
+          error: 'Configuration paiement incohérente',
+          code: 'CLICTOPAY_PUBLIC_FLAG_INCONSISTENT',
+        },
+        { status: 503 }
+      );
+    }
+
+    const parsedBody = clicToPayInitSchema.safeParse(await request.json().catch(() => null));
+    if (!parsedBody.success) {
+      return NextResponse.json(
+        { error: 'Données invalides' },
+        { status: 400 }
       );
     }
 
@@ -28,7 +48,7 @@ export async function POST(request: NextRequest) {
     // 3. Appeler l'API ClicToPay pour obtenir l'URL de paiement
     // 4. Retourner { payUrl, orderId }
 
-    void request; // Suppress unused parameter warning
+    void parsedBody;
 
     return NextResponse.json(
       {

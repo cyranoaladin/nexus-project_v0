@@ -20,7 +20,8 @@ describe('POST /api/payments/clictopay/webhook', () => {
     }
   });
 
-  it('should return 501 (not configured)', async () => {
+  it('returns 501 without consuming body when secret is not configured', async () => {
+    delete process.env.CLICTOPAY_WEBHOOK_SECRET;
     const req = new NextRequest('http://localhost:3000/api/payments/clictopay/webhook', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -32,6 +33,21 @@ describe('POST /api/payments/clictopay/webhook', () => {
 
     expect(res.status).toBe(501);
     expect(body.code).toBe('CLICTOPAY_NOT_CONFIGURED');
+  });
+
+  it('returns 401 when secret is configured but signature header is missing', async () => {
+    process.env.CLICTOPAY_WEBHOOK_SECRET = 'test-secret';
+    const req = new NextRequest('http://localhost:3000/api/payments/clictopay/webhook', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId: 'ord-1', status: 'SUCCESS' }),
+    });
+
+    const res = await POST(req);
+    const body = await res.json();
+
+    expect(res.status).toBe(401);
+    expect(body.error).toContain('Signature');
   });
 
   it('rejects an invalid webhook signature when the webhook secret is configured', async () => {
