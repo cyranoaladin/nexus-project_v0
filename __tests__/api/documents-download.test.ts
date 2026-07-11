@@ -203,6 +203,37 @@ describe('GET /api/documents/[id]/download', () => {
     expect(res.status).toBe(404);
   });
 
+  // ── Parent direct ownership (P2 — invoices) ──
+
+  it('returns 200 for parent downloading their own document (invoice, STUDENT_ONLY scope)', async () => {
+    // Invoices are created with userId = parent and default scope STUDENT_ONLY.
+    // The parent owns the document directly — scope should NOT gate.
+    mockAuth.mockResolvedValue({ user: { id: PARENT_USER_ID, role: 'PARENT' } });
+    mockFindUnique.mockResolvedValue({
+      ...mockDocument,
+      userId: PARENT_USER_ID, // parent is the owner
+      visibilityScope: 'STUDENT_ONLY',
+      user: { id: PARENT_USER_ID, student: null },
+    });
+
+    const res = await GET(request(), params());
+
+    expect(res.status).toBe(200);
+  });
+
+  it('returns 404 for parent on ADMIN_ONLY doc of their child (unchanged)', async () => {
+    // Child's ADMIN_ONLY document — parent does NOT own it, and scope gates.
+    mockAuth.mockResolvedValue({ user: { id: PARENT_USER_ID, role: 'PARENT' } });
+    mockFindUnique.mockResolvedValue({
+      ...mockDocument, // userId = STUDENT_USER_ID (not parent)
+      visibilityScope: 'ADMIN_ONLY',
+    });
+
+    const res = await GET(request(), params());
+
+    expect(res.status).toBe(404);
+  });
+
   it('returns 404 on path traversal via /../ (P1 containment)', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'admin-1', role: 'ADMIN' } });
     const { resolve: pathResolve } = require('path');

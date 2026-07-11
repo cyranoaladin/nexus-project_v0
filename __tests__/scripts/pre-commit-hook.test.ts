@@ -17,6 +17,7 @@ const fixtureMalicious = readFileSync(join(fixturesDir, 'gate-malicious.sample')
 const fixtureNextauth = readFileSync(join(fixturesDir, 'gate-nextauth.sample'), 'utf8').trim();
 const fixtureNextauthHardcoded = readFileSync(join(fixturesDir, 'gate-nextauth-hardcoded.sample'), 'utf8').trim();
 const fixturePostgresQuoted = readFileSync(join(fixturesDir, 'gate-postgres-quoted.sample'), 'utf8').trim();
+const fixtureNextauthSubstMalicious = readFileSync(join(fixturesDir, 'gate-nextauth-subst-malicious.sample'), 'utf8').trim();
 
 function runAllowlistCheck(file: string, pattern: string, content: string): number {
   const script = `
@@ -97,6 +98,19 @@ describe('pre-commit-hook allowlist', () => {
   it('blocks hardcoded NEXTAUTH literal secret', () => {
     const nextauthPattern = fixtureNextauthHardcoded.split('=')[0] + '=';
     const injected = gateContent + '\n' + fixtureNextauthHardcoded + '\n';
+    const exitCode = runAllowlistCheck(
+      'scripts/gate-all.sh',
+      nextauthPattern,
+      injected
+    );
+    expect(exitCode).toBe(1);
+  });
+
+  it('blocks NEXTAUTH_SECRET inside non-node substitution (P2 Codex)', () => {
+    // $(printf %s super-secret) is a substitution, but NOT the legitimate
+    // $(node -p ...) pattern — the secret is INSIDE the substitution.
+    const nextauthPattern = fixtureNextauthSubstMalicious.split('=')[0] + '=';
+    const injected = gateContent + '\n' + fixtureNextauthSubstMalicious + '\n';
     const exitCode = runAllowlistCheck(
       'scripts/gate-all.sh',
       nextauthPattern,

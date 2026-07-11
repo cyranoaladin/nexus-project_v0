@@ -118,16 +118,25 @@ export async function GET(
         return new NextResponse('Not Found', { status: 404 });
       }
     } else if (role === UserRole.PARENT) {
-      if (!PARENT_VISIBLE_SCOPES.has(document.visibilityScope)) {
-        return new NextResponse('Not Found', { status: 404 });
-      }
-      const parentProfile = await prisma.parentProfile.findUnique({
-        where: { userId: session.user.id },
-        select: { id: true },
-      });
-      const studentProfile = document.user?.student;
-      if (!parentProfile || !studentProfile || studentProfile.parentId !== parentProfile.id) {
-        return new NextResponse('Not Found', { status: 404 });
+      // Direct ownership: documents created FOR the parent (invoices, contracts)
+      // have userId = parent.id. Ownership implies access regardless of scope.
+      // Asymmetry with ELEVE is deliberate: for a student, documents are ABOUT them
+      // (scope gates, including their "own" ADMIN_ONLY docs); for a parent,
+      // owned documents are FOR them (invoices) — the legacy /api/documents/[id]
+      // route always allowed this via simple userId match.
+      if (document.userId !== session.user.id) {
+        // Not the owner — fall through to child-document scope check
+        if (!PARENT_VISIBLE_SCOPES.has(document.visibilityScope)) {
+          return new NextResponse('Not Found', { status: 404 });
+        }
+        const parentProfile = await prisma.parentProfile.findUnique({
+          where: { userId: session.user.id },
+          select: { id: true },
+        });
+        const studentProfile = document.user?.student;
+        if (!parentProfile || !studentProfile || studentProfile.parentId !== parentProfile.id) {
+          return new NextResponse('Not Found', { status: 404 });
+        }
       }
     } else if (role === UserRole.ELEVE) {
       if (document.userId !== session.user.id || !ELEVE_VISIBLE_SCOPES.has(document.visibilityScope)) {
