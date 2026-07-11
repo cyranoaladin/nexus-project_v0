@@ -1,4 +1,22 @@
 #!/usr/bin/env node
+/**
+ * Severity classification rules (updated 2026-07-10):
+ *
+ *   P0  = (a) sensitive public route without ANY control (no Zod, no rate-limit, no auth)
+ *         (b) dynamic sensitive authenticated route without ownership and not staff-only
+ *   P1  = (a) sensitive public route with partial controls (Zod and/or rate-limit) but no auth
+ *         (b) sensitive mutation without Zod validation
+ *         (c) sensitive authenticated route without role guard or ownership
+ *         (d) disabled webhook (501 status)
+ *         (e) PUBLIC_BY_DESIGN route missing baseline controls
+ *   PUBLIC = allow-listed with Zod + rate-limit + route-specific controls verified
+ *   P2  = sensitive authenticated route with guards (includes static public documents, deprecated, catalog)
+ *   OK  = non-sensitive route
+ *
+ * Known limitation: manual role-guard patterns (.includes(role), STAFF_ROLES.has)
+ * do not verify that the variable originates from session.user — to be resolved
+ * by chore/audit-per-method-guards (per-method analysis).
+ */
 import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 
@@ -50,37 +68,80 @@ function sourceFor(file) {
   const importedSources = reexportMatches
     .map((match) => {
       const target = resolve(dirname(file), match[2]);
-      const targetFile = target.endsWith('.ts') ? target : `${target}.ts`;
-      try {
-        return readFileSync(targetFile, 'utf8');
-      } catch {
-        return '';
+      const candidates = target.endsWith('.ts')
+        ? [target]
+        : [`${target}.ts`, `${target}/index.ts`];
+      for (const candidate of candidates) {
+        try {
+          return readFileSync(candidate, 'utf8');
+        } catch {
+          // try next candidate
+        }
       }
+      return '';
     })
     .filter(Boolean);
 
   return [source, ...importedSources].join('\n');
 }
 
+/**
+ * PUBLIC_BY_DESIGN — Routes publiques sensibles assumées et documentées.
+ * Chaque entrée : [route regex, justification].
+ * Toute route publique sensible HORS de cette liste reste P0.
+ */
+const PUBLIC_BY_DESIGN = [
+  [/app\/api\/stages\/\[[^\]]+\]\/inscrire\/route\.ts$/, 'Formulaire public d\'inscription aux stages — Zod + rate-limit'],
+  [/app\/api\/student\/activate\/route\.ts$/, 'Lien d\'activation élève via token unique hashé — Zod + rate-limit auth'],
+  [/app\/api\/bilan-gratuit\/route\.ts$/, 'Formulaire public de bilan stratégique gratuit — Zod + rate-limit + honeypot'],
+];
+
+function isPublicByDesign(route) {
+  return PUBLIC_BY_DESIGN.find(([regex]) => regex.test(route));
+}
+
 function riskFor(route, source, dynamic, authGuard, roleGuard, ownership, zod) {
   const sensitivePath = /documents|invoice|billing|payment|bilan|assessment|aria|session|stage|coach|assistante|admin|parent|student|npc|submission|report/i.test(route);
   const mutation = /\b(POST|PATCH|PUT|DELETE)\b/.test(methodsOf(source));
-  const staffOnlyRoute = (
-    /app\/api\/(admin|assistante)\//.test(route) ||
-    /requireAnyRole\s*\(\s*\[\s*['"]ADMIN['"]\s*,\s*['"]ASSISTANTE['"]/.test(source)
-  ) && authGuard && roleGuard;
-  const publicSensitiveWithControls = !authGuard && sensitivePath && zod && hasRateLimitGuard(source);
+  // (a) matchAll: inspect ALL requireAnyRole calls, not just the first
+  const allRoleMatches = [...source.matchAll(/requireAnyRole\s*\(\s*\[([^\]]*)\]/g)];
+  // (b) staff-only = ADMIN+ASSISTANTE present AND no non-staff role in ANY match
+  const NON_STAFF_ROLES = /\bPARENT\b|\bELEVE\b|\bCOACH\b|\bSTUDENT\b/;
+  const hasStaffOnlyGuard = allRoleMatches.length > 0 && allRoleMatches.every(
+    (m) => /ADMIN/.test(m[1]) && /ASSISTANTE/.test(m[1]) && !NON_STAFF_ROLES.test(m[1])
+  );
+  // Path-based admin|assistante/ shortcut is CONDITIONAL on no non-staff roles in source
+  const pathBasedStaff = /app\/api\/(admin|assistante)\//.test(route) && !NON_STAFF_ROLES.test(source);
+  const staffOnlyRoute = (pathBasedStaff || hasStaffOnlyGuard) && authGuard && roleGuard;
   const fixedPublicDocument = /app\/api\/public-documents\//.test(route) && methodsOf(source) === 'GET' && /const\s+FILE_NAME\b/.test(source);
   const disabledWebhook = /webhook/i.test(route) && /status:\s*501/.test(source) && /NOT_CONFIGURED|not configured|en cours de configuration/i.test(source);
   const deprecatedRoute = /status:\s*410/.test(source);
   const publicStageCatalog = /^app\/api\/stages(\/\[[^\]]+\])?\/route\.ts$/.test(route) && methodsOf(source) === 'GET';
   const staticStudentContent = /app\/api\/student\/automatismes\/series\/\[id\]\/route\.ts/.test(route) && methodsOf(source) === 'GET';
 
+  // Public-by-design routes: must have baseline controls (Zod + rate-limit)
+  const publicEntry = isPublicByDesign(route);
+  if (publicEntry && !authGuard) {
+    // Verify the specific control named in the justification
+    const hasHoneypot = /honeypot|bot_field|hp_/i.test(source);
+    const hasHashToken = /verifyActivationToken|completeStudentActivation|hashToken|createHash.*sha256/i.test(source);
+
+    if (zod && hasRateLimitGuard(source)) {
+      // Additional per-route verification
+      if (/bilan-gratuit/.test(route) && !hasHoneypot) return 'P1';
+      if (/student\/activate/.test(route) && !hasHashToken) return 'P1';
+      return 'PUBLIC';
+    }
+    return 'P1'; // allow-listed but missing baseline controls
+  }
+
   if (fixedPublicDocument || deprecatedRoute || publicStageCatalog || staticStudentContent) return 'P2';
   if (disabledWebhook) return 'P1';
   if (dynamic && sensitivePath && authGuard && !ownership && !staffOnlyRoute) return 'P0';
-  if (publicSensitiveWithControls) return mutation ? 'P1' : 'P2';
-  if (sensitivePath && !authGuard) return 'P0';
+  // P0: public sensitive, no controls at all (neither Zod nor rate-limit)
+  if (sensitivePath && !authGuard && !zod && !hasRateLimitGuard(source)) return 'P0';
+  // P1: public sensitive, partial controls (at least one of Zod/rate-limit but not auth)
+  if (sensitivePath && !authGuard) return 'P1';
   if (mutation && sensitivePath && !zod) return 'P1';
   if (sensitivePath && authGuard && !roleGuard && !ownership) return 'P1';
   if (sensitivePath) return 'P2';
@@ -97,6 +158,8 @@ function notesFor(route, source, risk) {
   if (/aria/i.test(route)) notes.push('ARIA');
   if (/assessment|bilan|report|submission/i.test(route)) notes.push('pédagogique sensible');
   if (risk === 'P0') notes.push('audit manuel prioritaire');
+  const publicEntry = isPublicByDesign(route);
+  if (risk === 'PUBLIC' && publicEntry) notes.push(publicEntry[1]);
   if (/auth\(\)/.test(source) && !/require(Role|AnyRole|Auth|FeatureApi)|enforcePolicy/.test(source)) notes.push('guard manuel');
   return notes.join('; ') || '-';
 }
@@ -119,8 +182,11 @@ const rows = walk(apiRoot).map((file) => {
     /\benforcePolicy\b/,
     /\bcanPerformStatusAction\b/,
     /\bcan\s*\(\s*role\s*,/,
-    /session\.user\.role/,
-    /UserRole\./,
+    // Manual role check patterns (session.user.role used in a guard)
+    /\.includes\s*\(\s*session\.user\.role\s*\)/,
+    /\.includes\s*\(\s*role\s*\)/,
+    /session\.user\.role\s*(!==|===|!= |== )/,
+    /STAFF_ROLES\.has\s*\(/,
   ]) ? 'yes' : 'no';
   const featureGuard = hasAny(source, [/\brequireFeatureApi\b/, /\brequireFeature\b/]) ? 'yes' : 'no';
   const zod = hasAny(source, [/\bzod\b/, /\bz\./, /\.parse\s*\(/, /\.safeParse\s*\(/]) ? 'yes' : 'no';
@@ -164,10 +230,14 @@ const rows = walk(apiRoot).map((file) => {
   return { route, methods, dynamic, authGuard, roleGuard, featureGuard, zod, ownership, risk, notes: notesFor(route, source, risk) };
 });
 
-const priority = { P0: 0, P1: 1, P2: 2, OK: 3 };
+const priority = { P0: 0, P1: 1, P2: 2, PUBLIC: 3, OK: 4 };
 const topRisks = [...rows]
-  .sort((a, b) => priority[a.risk] - priority[b.risk] || a.route.localeCompare(b.route))
-  .slice(0, 10);
+  .sort((a, b) =>
+    priority[a.risk] - priority[b.risk] ||
+    (a.notes === '-' ? 1 : 0) - (b.notes === '-' ? 1 : 0) ||
+    a.route.localeCompare(b.route)
+  )
+  .slice(0, 20);
 
 const lines = [];
 lines.push('# Inventaire initial des guards API');
@@ -178,12 +248,12 @@ lines.push('Lecture statique uniquement. La colonne `Ownership explicit` signale
 lines.push('');
 lines.push('## Synthèse');
 lines.push('');
-for (const level of ['P0', 'P1', 'P2', 'OK']) {
+for (const level of ['P0', 'P1', 'P2', 'PUBLIC', 'OK']) {
   lines.push(`- ${level} : ${rows.filter((row) => row.risk === level).length}`);
 }
 lines.push(`- Total routes : ${rows.length}`);
 lines.push('');
-lines.push('## 10 routes à auditer en priorité');
+lines.push('## 20 routes à auditer en priorité');
 lines.push('');
 lines.push('| Route | Methods | Risk | Notes |');
 lines.push('|---|---|---|---|');

@@ -27,7 +27,15 @@ export type AuthSession = {
  * Require authenticated session
  */
 export async function requireAuth(): Promise<AuthSession | NextResponse> {
-  const session = await auth();
+  let session;
+  try {
+    session = await auth();
+  } catch {
+    return NextResponse.json(
+      { error: 'Unauthorized', message: 'Authentication failed' },
+      { status: 401 }
+    );
+  }
 
   if (!session || !session.user) {
     return NextResponse.json(

@@ -14,7 +14,7 @@ const subscriptionRequestBodySchema = z.object({
   studentId: idSchema,
   requestType: z.enum(ALLOWED_REQUEST_TYPES),
   planName: z.string().trim().min(1).max(120).optional().nullable(),
-  reason: z.string().trim().max(1000).optional(),
+  reason: z.string().trim().max(1000).nullish(),
 }).strict();
 
 const subscriptionRequestQuerySchema = z.object({

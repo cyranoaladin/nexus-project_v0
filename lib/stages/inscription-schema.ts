@@ -11,8 +11,12 @@ export const publicStageInscriptionSchema = z.object({
   parentEmail: z.union([z.string().trim().email(), z.literal('')]).optional(),
   parentPhone: z.string().trim().max(30).optional(),
   notes: z.string().trim().max(500).optional(),
-  stageTermsAccepted: z.literal(true),
-  dataProcessingAccepted: z.literal(true),
+  stageTermsAccepted: z.literal(true, {
+    errorMap: () => ({ message: 'Vous devez accepter les modalités du stage' }),
+  }),
+  dataProcessingAccepted: z.literal(true, {
+    errorMap: () => ({ message: 'Vous devez accepter le traitement des données personnelles' }),
+  }),
 }).strict();
 
 export type PublicStageInscriptionInput = z.infer<typeof publicStageInscriptionSchema>;

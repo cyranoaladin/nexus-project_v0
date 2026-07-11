@@ -3,7 +3,7 @@ import { requireRole, isErrorResponse } from '@/lib/guards';
 import { assertCoachCanAccessStudent } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
 import { computeDiagnostics } from '@/lib/diagnostic/maths-terminale/scoring';
-import { DOMAINS } from '@/lib/diagnostic/maths-terminale/data';
+import { DOMAINS, QUESTIONS_OPEN } from '@/lib/diagnostic/maths-terminale/data';
 import type { DiagnosticSourceData, TeacherGrade } from '@/lib/diagnostic/maths-terminale/types';
 import { serializeError } from '@/lib/utils/serialize-error';
 import { z } from 'zod';
@@ -16,8 +16,27 @@ const routeParamsSchema = z.object({
   studentId: z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/),
 }).strict();
 
+const teacherGradeValueSchema = z.object({
+  score: z.union([z.number().min(0).max(20), z.literal('')]),
+  comment: z.string().max(2000),
+  errors: z.array(z.string().max(500)).max(20),
+  mode: z.enum(['global', 'detailed']),
+  criteria: z.record(z.string().regex(/^\d+$/), z.union([z.number().min(0).max(20), z.literal('')]))
+    .refine((obj) => Object.keys(obj).length <= 30, {
+      message: 'criteria ne peut pas contenir plus de 30 entrées',
+    }),
+}).strict();
+
+const OPEN_QUESTION_IDS = QUESTIONS_OPEN.map(q => q.id);
+
 const teacherGradesSchema = z.object({
-  teacherGrades: z.record(z.unknown()),
+  teacherGrades: z.record(z.string().min(1).max(120), teacherGradeValueSchema)
+    .refine((r) => {
+      const keys = Object.keys(r);
+      return keys.length <= OPEN_QUESTION_IDS.length && keys.every(k => OPEN_QUESTION_IDS.includes(k));
+    }, {
+      message: `teacherGrades keys must be valid open question IDs (${OPEN_QUESTION_IDS.join(', ')})`,
+    }),
 }).strict();
 
 function validationFailed() {

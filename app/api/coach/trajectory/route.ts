@@ -3,12 +3,16 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { serializeError } from '@/lib/utils/serialize-error';
 import { isCoachRattachedToStudent } from '@/lib/rbac/coach-student-access';
+import { parseJsonBody } from '@/lib/api/helpers';
 import { z } from 'zod';
 
 const createTrajectorySchema = z.object({
   studentId: z.string().trim().min(1).max(100).regex(/^[A-Za-z0-9_-]+$/),
   title: z.string().trim().min(1).max(160),
-  targetScore: z.coerce.number().finite().min(0).max(20).optional(),
+  targetScore: z.preprocess(
+    (v) => (v === null ? undefined : v),
+    z.coerce.number().finite().min(0).max(100).optional()
+  ),
   horizon: z.enum(['3_MONTHS', '6_MONTHS', '12_MONTHS']),
 }).strict();
 
@@ -19,7 +23,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const parsedBody = createTrajectorySchema.safeParse(await request.json().catch(() => null));
+    let rawBody: unknown;
+    try {
+      rawBody = await parseJsonBody(request);
+    } catch {
+      return NextResponse.json({ error: "JSON invalide" }, { status: 400 });
+    }
+    const parsedBody = createTrajectorySchema.safeParse(rawBody);
     if (!parsedBody.success) {
       return NextResponse.json({ error: "Invalid trajectory payload" }, { status: 400 });
     }

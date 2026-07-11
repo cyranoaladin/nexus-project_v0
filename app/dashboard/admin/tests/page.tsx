@@ -38,7 +38,7 @@ export default function AdminTestsPage() {
   const [results, setResults] = useState<{ [key: string]: TestResult; }>({});
 
   // Vérifier l'autorisation (éviter hook conditionnel)
-  const isAuthorized = !!(session?.user && ['ADMIN', 'ASSISTANTE'].includes(session.user.role));
+  const isAuthorized = !!(session?.user && session.user.role === 'ADMIN');
 
   // Charger les configurations au démarrage
   useEffect(() => {

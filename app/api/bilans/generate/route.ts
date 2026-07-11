@@ -9,6 +9,8 @@ import { prisma } from '@/lib/prisma';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { BilanGenerator } from '@/lib/bilan/generator';
 import type { BilanGenerationContext } from '@/lib/bilan/generator';
+import { buildBilanWriteWhere, buildBilanReadWhere } from '@/lib/security/ownership';
+import { parseJsonBody } from '@/lib/api/helpers';
 import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
@@ -41,7 +43,12 @@ export async function POST(request: NextRequest) {
   if (isErrorResponse(authResponse)) return authResponse;
 
   try {
-    const rawBody = await request.json();
+    let rawBody: unknown;
+    try {
+      rawBody = await parseJsonBody(request);
+    } catch {
+      return validationFailed();
+    }
     const parsedBody = generateBilanBodySchema.safeParse(rawBody);
     if (!parsedBody.success) {
       const hasBilanId = rawBody && typeof rawBody === 'object' && 'bilanId' in rawBody;
@@ -49,10 +56,16 @@ export async function POST(request: NextRequest) {
     }
     const { bilanId, enableRAG, ragCollections, ragQuery, force } = parsedBody.data;
 
-    // Fetch bilan
-    const bilan = await prisma.bilan.findUnique({
-      where: { id: bilanId },
-    });
+    // Ownership-scoped fetch (same clause as /api/bilans/[id])
+    const writeWhere = buildBilanWriteWhere(bilanId, authResponse.user);
+    if (!writeWhere) {
+      return NextResponse.json(
+        { success: false, error: 'Bilan not found' },
+        { status: 404 }
+      );
+    }
+
+    const bilan = await prisma.bilan.findFirst({ where: writeWhere });
 
     if (!bilan) {
       return NextResponse.json(
@@ -146,8 +159,17 @@ export async function GET(request: NextRequest) {
     }
     const { bilanId } = parsedQuery.data;
 
-    const bilan = await prisma.bilan.findUnique({
-      where: { id: bilanId },
+    // Ownership-scoped fetch (same clause as /api/bilans/[id])
+    const readWhere = buildBilanReadWhere(bilanId, authResponse.user);
+    if (!readWhere) {
+      return NextResponse.json(
+        { success: false, error: 'Bilan not found' },
+        { status: 404 }
+      );
+    }
+
+    const bilan = await prisma.bilan.findFirst({
+      where: readWhere,
       select: {
         id: true,
         status: true,

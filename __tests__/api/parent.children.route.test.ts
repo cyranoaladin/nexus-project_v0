@@ -16,8 +16,11 @@ jest.mock('@/lib/prisma', () => ({
 }));
 
 function makeRequest(body?: any) {
+  const bodyStr = body !== undefined ? JSON.stringify(body) : '';
   return {
     json: async () => body,
+    text: async () => bodyStr,
+    headers: new Headers(),
   } as any;
 }
 

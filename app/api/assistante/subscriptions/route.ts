@@ -12,7 +12,7 @@ class AlreadyProcessedError extends Error {}
 const subscriptionDecisionSchema = z.object({
   subscriptionId: z.string().trim().min(1).max(100).regex(/^[A-Za-z0-9_-]+$/),
   action: z.enum(['approve', 'reject']),
-  reason: z.string().trim().max(1000).optional(),
+  reason: z.string().trim().max(1000).nullish(),
 }).strict();
 
 function getPlanCatalog(planName: string) {

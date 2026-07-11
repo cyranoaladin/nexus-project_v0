@@ -25,6 +25,10 @@ jest.mock('@/lib/diagnostic/maths-terminale/scoring', () => ({
 
 jest.mock('@/lib/diagnostic/maths-terminale/data', () => ({
   DOMAINS: [],
+  QUESTIONS_OPEN: [
+    { id: 'O1' }, { id: 'O2' }, { id: 'O3' }, { id: 'O4' },
+    { id: 'O5' }, { id: 'O6' }, { id: 'O7' }, { id: 'O8' },
+  ],
 }));
 
 jest.mock('@/lib/utils/serialize-error', () => ({

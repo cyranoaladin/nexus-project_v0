@@ -95,7 +95,7 @@ describe('/api/bilans — IDOR Prevention', () => {
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-1', userId: 'coach-1' });
 
     const res = await POST(makePostRequest({
-      type: 'DIAGNOSTIC',
+      type: 'DIAGNOSTIC_PRE_STAGE',
       subject: 'Mathématiques',
       studentEmail: 'test@test.com',
       studentName: 'Test Eleve',
@@ -113,7 +113,7 @@ describe('/api/bilans — IDOR Prevention', () => {
     (prisma.bilan.create as jest.Mock).mockResolvedValue({ id: 'bilan-new' });
 
     const res = await POST(makePostRequest({
-      type: 'DIAGNOSTIC',
+      type: 'DIAGNOSTIC_PRE_STAGE',
       subject: 'Mathématiques',
       studentEmail: 'test@test.com',
       studentName: 'Test Eleve',

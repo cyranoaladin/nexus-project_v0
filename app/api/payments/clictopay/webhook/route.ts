@@ -14,34 +14,43 @@ import { logger } from '@/lib/logger';
  */
 export async function POST(request: NextRequest) {
   try {
-    // HMAC signature verification (reject spoofed webhooks)
     const secret = process.env.CLICTOPAY_WEBHOOK_SECRET;
-    if (secret) {
-      const signature = request.headers.get('x-clictopay-signature') ?? '';
-      const rawBody = await request.text();
-      const expected = createHmac('sha256', secret).update(rawBody).digest('hex');
-      let signatureValid = false;
-      try {
-        signatureValid = timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
-      } catch {
-        // Length mismatch — definitely invalid
-      }
-      if (!signatureValid) {
-        logger.warn('[ClicToPay Webhook] Invalid signature');
-        return NextResponse.json({ error: 'Signature invalide' }, { status: 401 });
-      }
+
+    // No secret configured → feature disabled, return 501 WITHOUT consuming body
+    if (!secret) {
+      return NextResponse.json(
+        { error: 'Webhook ClicToPay en cours de configuration', code: 'CLICTOPAY_NOT_CONFIGURED' },
+        { status: 501 }
+      );
     }
 
-    // 1. Parser le payload (orderId, bankReference, status)
-    // 2. Mettre à jour ClicToPayTransaction (status, bankReference)
-    // 3. Mettre à jour Payment (status → COMPLETED ou FAILED)
-    // 4. Déclencher les side-effects (activation entitlements, notifications)
+    // Read signature header BEFORE consuming body
+    const signature = request.headers.get('x-clictopay-signature') ?? '';
+    if (!signature) {
+      return NextResponse.json({ error: 'Signature manquante' }, { status: 401 });
+    }
+
+    // NOW consume the body for HMAC verification
+    const rawBody = await request.text();
+    const expected = createHmac('sha256', secret).update(rawBody).digest('hex');
+    let signatureValid = false;
+    try {
+      signatureValid = timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
+    } catch {
+      // Length mismatch — definitely invalid
+    }
+    if (!signatureValid) {
+      logger.warn('[ClicToPay Webhook] Invalid signature');
+      return NextResponse.json({ error: 'Signature invalide' }, { status: 401 });
+    }
+
+    // TODO: 1. Parse payload (orderId, bankReference, status)
+    // TODO: 2. Update ClicToPayTransaction
+    // TODO: 3. Update Payment (COMPLETED/FAILED)
+    // TODO: 4. Side-effects (activation, notifications)
 
     return NextResponse.json(
-      {
-        error: 'Webhook ClicToPay en cours de configuration',
-        code: 'CLICTOPAY_NOT_CONFIGURED',
-      },
+      { error: 'Webhook ClicToPay en cours de configuration', code: 'CLICTOPAY_NOT_CONFIGURED' },
       { status: 501 }
     );
   } catch (error) {

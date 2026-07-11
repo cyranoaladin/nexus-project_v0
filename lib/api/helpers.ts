@@ -32,6 +32,30 @@ export async function safeJsonParse<T = unknown>(request: NextRequest): Promise<
   }
 }
 
+/** Sentinel: request body was empty or whitespace-only. */
+export const JSON_BODY_EMPTY = Symbol('JSON_BODY_EMPTY');
+
+/**
+ * Parse JSON body with discriminated results:
+ * - Empty/whitespace body → JSON_BODY_EMPTY (callers can treat as {} for defaults)
+ * - Non-empty but malformed → throws (caller should catch and return 400)
+ * - Valid JSON → returns the parsed value
+ */
+export async function parseJsonBody(request: Request): Promise<unknown> {
+  let text: string;
+  try {
+    text = await request.text();
+  } catch {
+    return JSON_BODY_EMPTY;
+  }
+  if (!text || !text.trim()) return JSON_BODY_EMPTY;
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw ApiError.badRequest('JSON invalide');
+  }
+}
+
 /**
  * Parse and validate request body with Zod schema
  *

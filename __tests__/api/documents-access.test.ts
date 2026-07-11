@@ -75,12 +75,20 @@ const ADMIN_USER_ID = 'user-admin-1';
 
 const mockStudent = { id: STUDENT_ID, userId: STUDENT_USER_ID, gradeLevel: 'PREMIERE', academicTrack: 'GENERAL' };
 const mockOtherStudent = { id: OTHER_STUDENT_ID, userId: 'user-student-2', gradeLevel: 'TERMINALE', academicTrack: 'STMG', specialties: [] };
+// Shape must match documentSafeSelect in the route — if the select changes, this fixture breaks.
+const DOCUMENT_SAFE_SELECT_KEYS = [
+  'id', 'title', 'originalName', 'mimeType', 'sizeBytes', 'documentType',
+  'visibilityScope', 'subject', 'description', 'expiresAt', 'createdAt',
+  'updatedAt', 'userId', 'uploadedById', 'localPath',
+] as const;
+
 const mockDocument = {
-  id: 'doc-1', userId: STUDENT_USER_ID, uploadedById: COACH_USER_ID,
-  documentType: 'COURS', title: 'Test Document',
-  visibilityScope: 'STUDENT_AND_COACH', url: 'https://example.com/doc.pdf',
-  localPath: '/storage/doc.pdf', originalName: 'doc.pdf', mimeType: 'application/pdf',
-  sizeBytes: 1024, createdAt: new Date(), description: null, subject: null,
+  id: 'doc-1', title: 'Test Document', originalName: 'doc.pdf',
+  mimeType: 'application/pdf', sizeBytes: 1024, documentType: 'COURS',
+  visibilityScope: 'STUDENT_AND_COACH', subject: null, description: null,
+  expiresAt: null, createdAt: new Date(), updatedAt: new Date(),
+  userId: STUDENT_USER_ID, uploadedById: COACH_USER_ID,
+  localPath: '/app/storage/documents/user/doc.pdf',
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -106,6 +114,29 @@ describe('Documents Access Control', () => {
   });
 
   describe('Coach Documents API', () => {
+    it('documentSafeSelect includes localPath (shape lock)', async () => {
+      coachSession();
+      (assertCoachCanAccessStudent as jest.Mock).mockResolvedValue(undefined);
+      mockPrisma.student.findFirst.mockResolvedValue(mockStudent);
+      mockPrisma.userDocument.findMany.mockResolvedValue([mockDocument]);
+
+      const request = new NextRequest(
+        `http://localhost/api/coach/students/${STUDENT_ID}/documents`,
+        { method: 'GET' }
+      );
+      await CoachDocumentsRoute.GET(request, {
+        params: Promise.resolve({ studentId: STUDENT_ID }),
+      });
+
+      // Verify the Prisma select includes localPath — if select drops it, sanitizeDocument breaks
+      const findManyCall = mockPrisma.userDocument.findMany.mock.calls[0][0];
+      expect(findManyCall.select).toHaveProperty('localPath', true);
+      // Verify all expected keys are present
+      for (const key of DOCUMENT_SAFE_SELECT_KEYS) {
+        expect(findManyCall.select).toHaveProperty(key, true);
+      }
+    });
+
     it('should allow assigned coach to GET documents for their student', async () => {
       coachSession();
       (assertCoachCanAccessStudent as jest.Mock).mockResolvedValue(undefined);
@@ -124,7 +155,32 @@ describe('Documents Access Control', () => {
       const data = await response.json();
       expect(data.success).toBe(true);
       expect(data.documents).toHaveLength(1);
-      expect(data.documents[0]).not.toHaveProperty('localPath');
+      expect(data.documents[0].localPath).toMatch(/^\/api\/documents\/.+\/download$/);
+    });
+
+    it('returns external URL for URL-backed docs and /download for storage-backed docs', async () => {
+      coachSession();
+      (assertCoachCanAccessStudent as jest.Mock).mockResolvedValue(undefined);
+      mockPrisma.student.findFirst.mockResolvedValue(mockStudent);
+      const urlDoc = { ...mockDocument, id: 'doc-url', localPath: 'https://cdn.example.com/file.pdf' };
+      const storageDoc = { ...mockDocument, id: 'doc-storage', localPath: '/app/storage/documents/user/file.pdf' };
+      mockPrisma.userDocument.findMany.mockResolvedValue([urlDoc, storageDoc]);
+
+      const request = new NextRequest(
+        `http://localhost/api/coach/students/${STUDENT_ID}/documents`,
+        { method: 'GET' }
+      );
+      const response = await CoachDocumentsRoute.GET(request, {
+        params: Promise.resolve({ studentId: STUDENT_ID }),
+      });
+
+      expect(response.status).toBe(200);
+      const data = await response.json();
+      expect(data.documents).toHaveLength(2);
+      // URL-backed: the external URL is returned as-is
+      expect(data.documents[0].localPath).toBe('https://cdn.example.com/file.pdf');
+      // Storage-backed: the download endpoint is returned
+      expect(data.documents[1].localPath).toBe('/api/documents/doc-storage/download');
     });
 
     it('should deny coach access to non-assigned student (403)', async () => {
@@ -191,7 +247,7 @@ describe('Documents Access Control', () => {
       coachSession();
       (assertCoachCanAccessStudent as jest.Mock).mockResolvedValue(undefined);
       mockPrisma.student.findFirst.mockResolvedValue(mockStudent);
-      const createdDoc = { ...mockDocument, title: 'New Exercise', documentType: 'EXERCICE' };
+      const createdDoc = { ...mockDocument, title: 'New Exercise', documentType: 'EXERCICE', localPath: 'https://example.com/exercise.pdf' };
       mockPrisma.userDocument.create.mockResolvedValue(createdDoc);
 
       const request = new NextRequest(
@@ -214,7 +270,7 @@ describe('Documents Access Control', () => {
       const data = await response.json();
       expect(data.success).toBe(true);
       expect(data.document.title).toBe('New Exercise');
-      expect(data.document).not.toHaveProperty('localPath');
+      expect(data.document.localPath).toBe('https://example.com/exercise.pdf');
     });
 
     it('should validate documentType enum (400)', async () => {

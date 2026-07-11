@@ -11,6 +11,7 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { UserRole, type InvoiceItem, type Prisma } from '@prisma/client';
 import { z } from 'zod';
+import { civilDateSchema } from '@/lib/validation/common';
 import {
   generateInvoiceNumber,
   renderInvoicePDF,
@@ -47,7 +48,8 @@ const invoiceItemInputSchema = z.object({
   description: z.string().trim().max(600).nullable().optional(),
   qty: z.number().int().positive().max(100),
   unitPrice: z.number().int().nonnegative(),
-}).strict();
+  total: z.number().optional(), // client-sent, stripped — recalculated server-side
+}).strict().transform(({ total: _total, ...rest }) => rest);
 
 const invoiceIssuerInputSchema = z.object({
   name: z.string().trim().min(1).max(180).optional(),
@@ -64,8 +66,8 @@ const invoiceIssuerInputSchema = z.object({
 
 const createInvoiceBodySchema = z.object({
   number: z.string().trim().min(1).max(80).optional(),
-  issuedAt: z.string().datetime().optional(),
-  dueAt: z.string().datetime().nullable().optional(),
+  issuedAt: civilDateSchema.optional(),
+  dueAt: civilDateSchema.nullable().optional(),
   customer: z.object({
     name: z.string().trim().min(1).max(180),
     email: z.string().trim().email().nullable().optional(),

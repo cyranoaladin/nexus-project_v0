@@ -6,10 +6,10 @@ import { createId } from '@paralleldrive/cuid2';
 import path from 'path';
 import { mkdir, writeFile } from 'fs/promises';
 import { serializeError } from '@/lib/utils/serialize-error';
+import { getDocumentStorageRoot } from '@/lib/documents/storage-root';
 import { z } from 'zod';
 
-// Secure storage root (mapped to volume in docker-compose)
-const STORAGE_ROOT = '/app/storage/documents';
+const STORAGE_ROOT = getDocumentStorageRoot();
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 const ALLOWED_UPLOAD_MIME_TYPES = new Set([
   'application/pdf',

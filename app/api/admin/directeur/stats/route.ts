@@ -58,6 +58,7 @@ export async function GET(request: NextRequest) {
     const rateLimited = await guardRateLimitAsync(request, {
       preset: 'api',
       keySuffix: 'admin-directeur-stats',
+      userId: sessionOrError.user.id,
     });
     if (rateLimited) return rateLimited;
 

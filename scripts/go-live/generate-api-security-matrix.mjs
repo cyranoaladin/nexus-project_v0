@@ -162,6 +162,9 @@ function actionFor(row, domain, rateLimit) {
     return 'Lot 1 : audit manuel prioritaire + tests IDOR';
   }
   if (row.priority === 'P1') return 'Durcir avant bêta élargie';
+  if (row.priority === 'PUBLIC') {
+    return rateLimit === 'Non' ? 'Ajouter rate limit public' : 'Maintenir tests de non-régression';
+  }
   return 'Suivi qualité P2';
 }
 
@@ -183,7 +186,7 @@ const enriched = rows.map((row) => {
   };
 });
 
-const counts = ['P0', 'P1', 'P2', 'OK'].map((priority) => [
+const counts = ['P0', 'P1', 'PUBLIC', 'P2', 'OK'].map((priority) => [
   priority,
   enriched.filter((row) => row.priority === priority).length,
 ]);
@@ -205,6 +208,14 @@ lines.push(`Source : \`${inventoryPath.replace(`${root}/`, '')}\`.`);
 lines.push(`Généré le : ${new Date().toISOString()}.`);
 lines.push('');
 lines.push('Lecture statique uniquement : `Auth guard détecté`, `Role guard détecté`, `Zod détecté` et `Ownership requis` sont des indices de pilotage. `À vérifier` signifie qu’aucune preuve suffisante n’a été établie dans ce lot.');
+lines.push('');
+lines.push('## Règles de sévérité (2026-07-10)');
+lines.push('');
+lines.push('- **P0** : (a) sensitive public route without ANY control (no Zod, no rate-limit, no auth) — (b) dynamic sensitive authenticated route without ownership and not staff-only');
+lines.push('- **P1** : (a) sensitive public route with partial controls (Zod and/or rate-limit) but no auth — (b) sensitive mutation without Zod validation — (c) sensitive authenticated route without role guard or ownership — (d) disabled webhook (501 status) — (e) PUBLIC_BY_DESIGN route missing baseline controls');
+lines.push('- **PUBLIC** : allow-listed with Zod + rate-limit + route-specific controls verified');
+lines.push('- **P2** : sensitive authenticated route with guards (includes static public documents, deprecated, catalog)');
+lines.push('- **OK** : non-sensitive route');
 lines.push('');
 lines.push('## Synthèse');
 lines.push('');

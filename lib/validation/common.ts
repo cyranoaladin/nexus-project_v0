@@ -75,3 +75,59 @@ export const optionalString = z.string().trim().optional().or(z.literal('').tran
  * Required non-empty string
  */
 export const nonEmptyString = z.string().trim().min(1, 'This field is required');
+
+/**
+ * Strict date string validator:
+ * - YYYY-MM-DD: round-trip check (parsed year/month/day must match input components)
+ *   to reject rolled-over dates like 2024-02-31, 2023-02-29
+ * - Datetime: must include timezone offset or Z (rejects timezone-less like 2024-01-01T12:00:00),
+ *   and applies the same round-trip check on the date portion to reject rolled-over datetimes
+ *   like 2024-02-31T10:30:00Z
+ */
+export function isStrictDateString(v: string): boolean {
+  const dateOnlyMatch = v.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (dateOnlyMatch) {
+    const [, yearStr, monthStr, dayStr] = dateOnlyMatch;
+    return isValidDateComponents(Number(yearStr), Number(monthStr), Number(dayStr));
+  }
+  const datetimeMatch = v.match(/^(\d{4})-(\d{2})-(\d{2})T.+$/);
+  if (datetimeMatch) {
+    // Datetime must have timezone offset (Z or ±HH:MM)
+    if (!/[Zz]$|[+-]\d{2}:\d{2}$/.test(v)) return false;
+    if (isNaN(Date.parse(v))) return false;
+    // Validate time portion (reject hours >= 24, minutes >= 60, seconds >= 60)
+    // Handles both HH:MM:SS and HH:MM (seconds optional)
+    const timeMatch = v.match(/T(\d{2}):(\d{2})(?::(\d{2}))?/);
+    if (timeMatch) {
+      const h = Number(timeMatch[1]), m = Number(timeMatch[2]), s = Number(timeMatch[3] ?? '0');
+      if (h >= 24 || m >= 60 || s >= 60) return false;
+    }
+    // Round-trip check on date portion to reject rolled-over datetimes
+    const [, yearStr, monthStr, dayStr] = datetimeMatch;
+    return isValidDateComponents(Number(yearStr), Number(monthStr), Number(dayStr));
+  }
+  return false;
+}
+
+function isValidDateComponents(year: number, month: number, day: number): boolean {
+  const d = new Date(0);
+  d.setUTCFullYear(year, month - 1, day);
+  return d.getUTCFullYear() === year && d.getUTCMonth() === month - 1 && d.getUTCDate() === day;
+}
+
+export const strictDateSchema = z.string().refine(isStrictDateString, {
+  message: 'Date invalide (YYYY-MM-DD strict ou ISO datetime avec timezone)',
+});
+
+/**
+ * Civil date schema: accepts ONLY YYYY-MM-DD format (no datetime).
+ * Use for fields like issuedAt, dueAt where time component is meaningless.
+ */
+export const civilDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
+  message: 'Format attendu : YYYY-MM-DD (date uniquement, sans heure)',
+}).refine((v) => {
+  const [yearStr, monthStr, dayStr] = v.split('-');
+  return isValidDateComponents(Number(yearStr), Number(monthStr), Number(dayStr));
+}, {
+  message: 'Date invalide (YYYY-MM-DD strict, pas de roll-over)',
+});
