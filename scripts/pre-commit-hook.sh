@@ -100,8 +100,12 @@ is_value_allowlisted() {
     [[ -z "$val" ]] && continue
     local stripped="${val#\"}"
     stripped="${stripped#\'}"
-    # Command substitution: $( or backtick → not a literal secret
-    if [[ -n "$stripped" ]] && { [[ "$stripped" == '$('* ]] || [[ "$stripped" == '`'* ]]; }; then
+    # Command substitution exception: ONLY the legitimate pattern from gate-all.sh
+    # is safe: NEXTAUTH_SECRET="$(node -p "require('dotenv')...")".
+    # The grep extraction truncates at whitespace, so we see "$(node" not "$(node -p".
+    # Any other substitution (e.g. $(printf %s secret)) goes through the normal
+    # allowlist check — a secret INSIDE a substitution is still a secret.
+    if [[ -n "$stripped" ]] && [[ "$stripped" =~ ^\$\(node ]]; then
       continue
     fi
     # This is a literal value — check allowlist
