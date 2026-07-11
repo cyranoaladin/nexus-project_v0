@@ -13,6 +13,7 @@
 | Statut | Sens |
 |---|---|
 | `APPROVED` | preuve documentaire présente et décision enregistrée |
+| `DESIGN_BASELINE_DEFINED` | contrat de conception arrêté, sans implémentation ni preuve de production |
 | `PENDING_EVIDENCE` | décision connue, preuve technique/opérationnelle absente |
 | `OWNER_INPUT_REQUIRED` | donnée que seul le responsable peut fournir |
 | `APPROVED_PENDING_LEGAL_TEXT_ALIGNMENT` | principe approuvé, texte contractuel non aligné |
@@ -87,7 +88,7 @@ Les trois premières gates autorisent seulement la prochaine phase de **concepti
 
 | Identifiant | Propriétaire | Preuve attendue | Statut | Condition de blocage | Date de validation | Mécanisme concerné |
 |---|---|---|---|---|---|---|
-| `GATE-SEC-BASE-001` | `SOL` | écarts guards/date/documents/webhook du drift résolus ou contournés explicitement | `PENDING_EVIDENCE` | dépendance à un durcissement absent de `origin/main` | — | socle API sécurité |
+| `GATE-SEC-BASE-001` | `SOL` | [socle minimal V2 défini](../audits/2026-07-pre-rentree-security-baseline.md), puis SHA d'implémentation, tests IDOR et audit de routes | `DESIGN_BASELINE_DEFINED` | bloque toute activation ; dépendance implicite à une branche non fusionnée ou contrôle non implémenté | 2026-07-11 (conception) | guards fail-closed, politiques ABAC, tests API |
 | `GATE-RBAC-001` | `SOL` | matrice admin/parent/élève/coach/assistante, 401/403/404 et IDOR | `PENDING_EVIDENCE` | accès hors famille/cohorte/académie | — | guards/query scopes |
 | `GATE-ID-001` | `SOL` | multi-responsables, vérification, révocation, fusion auditée | `PENDING_EVIDENCE` | liaison automatique par email/téléphone | — | identité/relations/audit |
 | `GATE-CAPACITY-001` | `SOL` | tests transactionnels de cinquième/sixième place | `PENDING_EVIDENCE` | surcapacité ou double enrollment | — | verrou/Serializable/unique |
