@@ -71,12 +71,74 @@ describe('audit-api-guards route classification', () => {
       `,
     });
 
-    expect(rows.get('app/api/assessments/comment-only/route.ts')).toEqual(expect.objectContaining({ risk: 'P0' }));
+    // Has Zod but no real rate-limit call → P1 (partial controls), not P0
+    expect(rows.get('app/api/assessments/comment-only/route.ts')).toEqual(expect.objectContaining({ risk: 'P1' }));
   });
 
-  it('keeps public sensitive routes with Zod and rate limit at P1, not OK', () => {
+  it('classifies allow-listed public routes as PUBLIC (bilan-gratuit with honeypot)', () => {
     const rows = runAuditOnFixtures({
-      'app/api/assessments/submit/route.ts': `
+      'app/api/bilan-gratuit/route.ts': `
+        import { z } from 'zod';
+        import { guardRateLimitAsync } from '@/lib/rate-limit';
+        const schema = z.object({ email: z.string().email() });
+        export async function POST(request: Request) {
+          const blocked = await guardRateLimitAsync(request, { preset: 'api' });
+          if (blocked) return blocked;
+          const body = schema.parse(await request.json());
+          if (body.honeypot) return Response.json({ ok: true });
+          return Response.json({ ok: true });
+        }
+      `,
+    });
+
+    expect(rows.get('app/api/bilan-gratuit/route.ts')).toEqual(expect.objectContaining({ risk: 'PUBLIC' }));
+  });
+
+  it('public sensitive route WITHOUT controls → P0', () => {
+    const rows = runAuditOnFixtures({
+      'app/api/billing/checkout/route.ts': `
+        export async function POST(request: Request) {
+          return Response.json({ ok: true });
+        }
+      `,
+    });
+
+    expect(rows.get('app/api/billing/checkout/route.ts')).toEqual(expect.objectContaining({ risk: 'P0' }));
+  });
+
+  it('public sensitive route with Zod only (no rate-limit) → P1', () => {
+    const rows = runAuditOnFixtures({
+      'app/api/billing/checkout/route.ts': `
+        import { z } from 'zod';
+        const schema = z.object({ email: z.string().email() });
+        export async function POST(request) {
+          schema.parse(await request.json());
+          return Response.json({ ok: true });
+        }
+      `,
+    });
+
+    expect(rows.get('app/api/billing/checkout/route.ts')).toEqual(expect.objectContaining({ risk: 'P1' }));
+  });
+
+  it('public sensitive route with rate-limit only (no Zod) → P1', () => {
+    const rows = runAuditOnFixtures({
+      'app/api/billing/checkout/route.ts': `
+        import { guardRateLimitAsync } from '@/lib/rate-limit';
+        export async function POST(request) {
+          const blocked = await guardRateLimitAsync(request, { preset: 'api' });
+          if (blocked) return blocked;
+          return Response.json({ ok: true });
+        }
+      `,
+    });
+
+    expect(rows.get('app/api/billing/checkout/route.ts')).toEqual(expect.objectContaining({ risk: 'P1' }));
+  });
+
+  it('public sensitive route WITH partial controls (Zod+rate-limit) → P1', () => {
+    const rows = runAuditOnFixtures({
+      'app/api/billing/checkout/route.ts': `
         import { z } from 'zod';
         import { guardRateLimitAsync } from '@/lib/rate-limit';
         const schema = z.object({ email: z.string().email() });
@@ -89,7 +151,7 @@ describe('audit-api-guards route classification', () => {
       `,
     });
 
-    expect(rows.get('app/api/assessments/submit/route.ts')).toEqual(expect.objectContaining({ risk: 'P1' }));
+    expect(rows.get('app/api/billing/checkout/route.ts')).toEqual(expect.objectContaining({ risk: 'P1' }));
   });
 
   it('does not promote disabled ClicToPay webhook beyond P1', () => {
@@ -151,5 +213,86 @@ describe('audit-api-guards route classification', () => {
 
     expect(rows.get('app/api/admin/documents/route.ts')?.risk).not.toBe('P0');
     expect(rows.get('app/api/admin/documents/route.ts')?.risk).not.toBe('OK');
+  });
+
+  it('detects staff roles regardless of order — dynamic path outside admin/assistante/', () => {
+    const rows = runAuditOnFixtures({
+      'app/api/some/billing/[id]/route.ts': `
+        import { requireAnyRole } from '@/lib/guards';
+        export async function POST() {
+          await requireAnyRole(['ASSISTANTE', 'ADMIN']);
+          return Response.json({ ok: true });
+        }
+      `,
+    });
+
+    // Dynamic + sensitive + auth + role BUT staff-only by content → NOT P0
+    expect(rows.get('app/api/some/billing/[id]/route.ts')?.risk).not.toBe('P0');
+  });
+
+  it('mixed-role guard (PARENT+ADMIN+ASSISTANTE) is NOT staff-only', () => {
+    const rows = runAuditOnFixtures({
+      'app/api/some/invoices/[id]/route.ts': `
+        import { requireAnyRole } from '@/lib/guards';
+        export async function GET() {
+          await requireAnyRole(['PARENT', 'ADMIN', 'ASSISTANTE']);
+          return Response.json({ ok: true });
+        }
+      `,
+    });
+
+    // Mixed-role should NOT be classified as staff-only → dynamic+sensitive+no ownership = P0
+    expect(rows.get('app/api/some/invoices/[id]/route.ts')?.risk).toBe('P0');
+  });
+
+  it('PUBLIC_BY_DESIGN without rate-limit degrades to P1', () => {
+    const rows = runAuditOnFixtures({
+      'app/api/bilan-gratuit/route.ts': `
+        import { z } from 'zod';
+        const schema = z.object({ email: z.string().email() });
+        export async function POST(request: Request) {
+          const body = schema.parse(await request.json());
+          if (body.honeypot) return Response.json({ ok: true });
+          return Response.json({ ok: true });
+        }
+      `,
+    });
+
+    // Has Zod + honeypot but NO rate-limit → P1
+    expect(rows.get('app/api/bilan-gratuit/route.ts')?.risk).toBe('P1');
+  });
+
+  it('path under admin/ with non-staff role in source is NOT staff-only', () => {
+    const rows = runAuditOnFixtures({
+      'app/api/admin/invoices/[id]/route.ts': `
+        import { requireAnyRole } from '@/lib/guards';
+        export async function GET() {
+          await requireAnyRole(['PARENT', 'ADMIN', 'ASSISTANTE']);
+          return Response.json({ ok: true });
+        }
+      `,
+    });
+
+    // Despite being under /admin/, PARENT in roles means NOT staff-only → P0
+    expect(rows.get('app/api/admin/invoices/[id]/route.ts')?.risk).toBe('P0');
+  });
+
+  it('resolves re-exports from index.ts barrel files', () => {
+    const rows = runAuditOnFixtures({
+      'app/api/coach/barrel/[studentId]/route.ts': `
+        export { GET } from './handlers';
+      `,
+      'app/api/coach/barrel/[studentId]/handlers/index.ts': `
+        import { requireRole } from '@/lib/guards';
+        import { assertCoachCanAccessStudent } from '@/lib/rbac/coach-student-access';
+        export async function GET() {
+          const session = await requireRole('COACH');
+          await assertCoachCanAccessStudent({ coachUserId: session.user.id, studentId: 'student-1' });
+          return Response.json({ ok: true });
+        }
+      `,
+    });
+
+    expect(rows.get('app/api/coach/barrel/[studentId]/route.ts')?.risk).not.toBe('P0');
   });
 });

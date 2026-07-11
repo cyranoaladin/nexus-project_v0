@@ -16,10 +16,16 @@ jest.mock('@/lib/guards', () => ({
 jest.mock('@/lib/prisma', () => ({
   prisma: {
     bilan: {
-      findUnique: jest.fn(),
+      findFirst: jest.fn(),
       update: jest.fn(),
     },
   },
+}));
+
+// Mock ownership — ADMIN sees everything
+jest.mock('@/lib/security/ownership', () => ({
+  buildBilanWriteWhere: jest.fn((id: string) => ({ id })),
+  buildBilanReadWhere: jest.fn((id: string) => ({ id })),
 }));
 
 // Mock the generator
@@ -34,7 +40,7 @@ import { BilanGenerator } from '@/lib/bilan/generator';
 
 const mockPrisma = prisma as unknown as {
   bilan: {
-    findUnique: jest.Mock;
+    findFirst: jest.Mock;
     update: jest.Mock;
   };
 };
@@ -68,7 +74,7 @@ describe('F50: /api/bilans/generate', () => {
 
   describe('POST /api/bilans/generate', () => {
     it('should start generation for pending bilan', async () => {
-      mockPrisma.bilan.findUnique.mockResolvedValue(mockBilan);
+      mockPrisma.bilan.findFirst.mockResolvedValue(mockBilan);
       mockPrisma.bilan.update.mockResolvedValue({ ...mockBilan, status: 'GENERATING', progress: 25 });
 
       const request = new NextRequest('http://localhost:3000/api/bilans/generate', {
@@ -113,11 +119,11 @@ describe('F50: /api/bilans/generate', () => {
 
       expect(response.status).toBe(400);
       expect(body.error).toContain('Données');
-      expect(mockPrisma.bilan.findUnique).not.toHaveBeenCalled();
+      expect(mockPrisma.bilan.findFirst).not.toHaveBeenCalled();
     });
 
     it('should return 404 for non-existent bilan', async () => {
-      mockPrisma.bilan.findUnique.mockResolvedValue(null);
+      mockPrisma.bilan.findFirst.mockResolvedValue(null);
 
       const request = new NextRequest('http://localhost:3000/api/bilans/generate', {
         method: 'POST',
@@ -131,7 +137,7 @@ describe('F50: /api/bilans/generate', () => {
 
     it('should return 409 if already generating', async () => {
       const generatingBilan = { ...mockBilan, status: 'GENERATING' };
-      mockPrisma.bilan.findUnique.mockResolvedValue(generatingBilan);
+      mockPrisma.bilan.findFirst.mockResolvedValue(generatingBilan);
 
       const request = new NextRequest('http://localhost:3000/api/bilans/generate', {
         method: 'POST',
@@ -147,7 +153,7 @@ describe('F50: /api/bilans/generate', () => {
 
     it('should support force regeneration for completed bilan', async () => {
       const completedBilan = { ...mockBilan, status: 'COMPLETED' };
-      mockPrisma.bilan.findUnique.mockResolvedValue(completedBilan);
+      mockPrisma.bilan.findFirst.mockResolvedValue(completedBilan);
       mockPrisma.bilan.update.mockResolvedValue({ ...completedBilan, status: 'GENERATING' });
 
       const request = new NextRequest('http://localhost:3000/api/bilans/generate', {
@@ -163,7 +169,7 @@ describe('F50: /api/bilans/generate', () => {
 
   describe('GET /api/bilans/generate', () => {
     it('should return generation status', async () => {
-      mockPrisma.bilan.findUnique.mockResolvedValue({
+      mockPrisma.bilan.findFirst.mockResolvedValue({
         ...mockBilan,
         status: 'COMPLETED',
         progress: 100,
@@ -202,7 +208,7 @@ describe('F50: /api/bilans/generate', () => {
 
       expect(response.status).toBe(400);
       expect(body.error).toContain('Données');
-      expect(mockPrisma.bilan.findUnique).not.toHaveBeenCalled();
+      expect(mockPrisma.bilan.findFirst).not.toHaveBeenCalled();
     });
   });
 });

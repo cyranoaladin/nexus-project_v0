@@ -1,29 +1,42 @@
 import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
-import { NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { NextRequest, NextResponse } from 'next/server';
+import { requireRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
+import { UserRole } from '@prisma/client';
+import { parseJsonBody, JSON_BODY_EMPTY } from '@/lib/api/helpers';
+import { z } from 'zod';
+
+const dismissPayloadSchema = z.object({}).strict();
 
 /**
  * POST /api/bilan-gratuit/dismiss
  * Marks the bilan gratuit banner as dismissed for the current parent.
+ * Body must be empty (Zod strict: rejects non-empty payloads).
  */
-export async function POST() {
+export async function POST(request: NextRequest) {
   try {
-    let session: any = null;
-    try {
-      session = await auth();
-    } catch {
-      // auth() can throw UntrustedHost in standalone mode
-    }
+    const sessionOrError = await requireRole(UserRole.PARENT);
+    if (isErrorResponse(sessionOrError)) return sessionOrError;
 
-    if (!session?.user?.id || session.user.role !== 'PARENT') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    // Empty body = valid dismiss. Non-empty must be valid empty JSON {}.
+    // Malformed JSON = 400.
+    let rawBody: unknown;
+    try {
+      rawBody = await parseJsonBody(request);
+    } catch {
+      return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
+    }
+    if (rawBody !== JSON_BODY_EMPTY) {
+      const parsed = dismissPayloadSchema.safeParse(rawBody);
+      if (!parsed.success) {
+        return NextResponse.json({ error: 'Le corps de la requête doit être vide' }, { status: 400 });
+      }
     }
 
     await prisma.parentProfile.update({
-      where: { userId: session.user.id },
+      where: { userId: sessionOrError.user.id },
       data: { bilanGratuitDismissedAt: new Date() },
     });
 

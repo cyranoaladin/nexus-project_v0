@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma';
 import { guardRateLimitAsync } from '@/lib/rate-limit';
 import { SessionStatus } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
+import { parseJsonBody } from '@/lib/api/helpers';
 import { z } from 'zod';
 
 const videoSessionActionSchema = z.object({
@@ -26,11 +27,12 @@ function safeErrorSummary(error: unknown) {
 
 export async function POST(request: NextRequest) {
   try {
-    const blocked = await guardRateLimitAsync(request, {
+    // IP-based rate-limit first — blocks anonymous abuse before auth()
+    const ipBlocked = await guardRateLimitAsync(request, {
       preset: 'api',
       keySuffix: 'session-video',
     });
-    if (blocked) return blocked;
+    if (ipBlocked) return ipBlocked;
 
     const session = await auth();
 
@@ -38,7 +40,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
-    const body = await request.json().catch(() => null);
+    // Refine with userId-based rate-limit post-auth
+    const userBlocked = await guardRateLimitAsync(request, {
+      preset: 'api',
+      keySuffix: 'session-video',
+      userId: session.user.id,
+    });
+    if (userBlocked) return userBlocked;
+
+    let body: unknown;
+    try {
+      body = await parseJsonBody(request);
+    } catch {
+      return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
+    }
     const parsedBody = videoSessionActionSchema.safeParse(body);
     if (!parsedBody.success) {
       return NextResponse.json({ error: 'Paramètres manquants' }, { status: 400 });

@@ -8,13 +8,15 @@ import { serializeError } from '@/lib/utils/serialize-error';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
+import { parseJsonBody } from '@/lib/api/helpers';
 import { z } from 'zod';
+import { BilanType, BilanStatus } from '@/lib/bilan/types';
 
 export const dynamic = 'force-dynamic';
 
 const listBilansQuerySchema = z.object({
-  type: z.string().trim().min(1).max(80).optional(),
-  status: z.string().trim().min(1).max(80).optional(),
+  type: z.nativeEnum(BilanType).optional(),
+  status: z.nativeEnum(BilanStatus).optional(),
   subject: z.string().trim().min(1).max(80).optional(),
   studentId: z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/).optional(),
   stageId: z.string().trim().regex(/^[A-Za-z0-9_-]{1,191}$/).optional(),
@@ -25,7 +27,7 @@ const listBilansQuerySchema = z.object({
 }).strict();
 
 const createBilanBodySchema = z.object({
-  type: z.string().trim().min(1).max(80),
+  type: z.nativeEnum(BilanType),
   subject: z.string().trim().min(1).max(80),
   studentEmail: z.string().trim().email(),
   studentName: z.string().trim().min(1).max(180),
@@ -133,7 +135,13 @@ export async function POST(request: NextRequest) {
   if (isErrorResponse(authResponse)) return authResponse;
 
   try {
-    const parsedBody = createBilanBodySchema.safeParse(await request.json());
+    let rawBody: unknown;
+    try {
+      rawBody = await parseJsonBody(request);
+    } catch {
+      return validationFailed();
+    }
+    const parsedBody = createBilanBodySchema.safeParse(rawBody);
     if (!parsedBody.success) return validationFailed();
     const body = parsedBody.data;
 

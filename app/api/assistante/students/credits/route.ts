@@ -7,18 +7,14 @@ import { auth } from '@/auth';
 import type { CreditTransaction } from '@prisma/client';
 import { z } from 'zod';
 
-const ALLOWED_STAFF_CREDIT_TYPES = new Set([
+const STAFF_CREDIT_TYPES = [
   'CREDIT_ADD',
   'CREDIT_REFUND',
   'MANUAL_ADJUSTMENT',
   'MONTHLY_ALLOCATION',
-]);
-const staffCreditTypeSchema = z.enum([
-  'CREDIT_ADD',
-  'CREDIT_REFUND',
-  'MANUAL_ADJUSTMENT',
-  'MONTHLY_ALLOCATION',
-]);
+] as const;
+const staffCreditTypeSchema = z.enum(STAFF_CREDIT_TYPES);
+
 const idSchema = z.string().trim().min(1).max(100).regex(/^[A-Za-z0-9_-]+$/);
 const studentCreditsQuerySchema = z.object({
   studentId: idSchema.optional(),
@@ -154,21 +150,6 @@ export async function POST(request: NextRequest) {
     }
     const { studentId, amount, type, description } = parsedBody.data;
 
-    if (!ALLOWED_STAFF_CREDIT_TYPES.has(type)) {
-      return NextResponse.json(
-        { error: 'Invalid credit type' },
-        { status: 400 }
-      );
-    }
-
-    const parsedAmount = amount;
-    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
-      return NextResponse.json(
-        { error: 'Invalid credit amount' },
-        { status: 400 }
-      );
-    }
-
     // Validate student exists
     const student = await prisma.student.findUnique({
       where: { id: studentId }
@@ -186,7 +167,7 @@ export async function POST(request: NextRequest) {
       data: {
         studentId,
         type,
-        amount: parsedAmount,
+        amount,
         description: `${description} (par ${session.user.firstName} ${session.user.lastName})`
       },
       include: {
