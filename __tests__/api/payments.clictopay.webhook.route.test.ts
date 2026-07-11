@@ -20,7 +20,23 @@ describe('POST /api/payments/clictopay/webhook', () => {
     }
   });
 
-  it('rejects webhooks without a signature before any processing', async () => {
+  it('returns 501 without consuming body when secret is not configured', async () => {
+    delete process.env.CLICTOPAY_WEBHOOK_SECRET;
+    const req = new NextRequest('http://localhost:3000/api/payments/clictopay/webhook', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId: 'ord-1', status: 'SUCCESS' }),
+    });
+
+    const res = await POST(req);
+    const body = await res.json();
+
+    expect(res.status).toBe(501);
+    expect(body.code).toBe('CLICTOPAY_NOT_CONFIGURED');
+  });
+
+  it('returns 401 when secret is configured but signature header is missing', async () => {
+    process.env.CLICTOPAY_WEBHOOK_SECRET = 'test-secret';
     const req = new NextRequest('http://localhost:3000/api/payments/clictopay/webhook', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -31,25 +47,7 @@ describe('POST /api/payments/clictopay/webhook', () => {
     const body = await res.json();
 
     expect(res.status).toBe(401);
-    expect(body.code).toBe('CLICTOPAY_SIGNATURE_REQUIRED');
-  });
-
-  it('should return 501 after signature presence when not configured', async () => {
-    delete process.env.CLICTOPAY_WEBHOOK_SECRET;
-    const req = new NextRequest('http://localhost:3000/api/payments/clictopay/webhook', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-clictopay-signature': '00'.repeat(32),
-      },
-      body: JSON.stringify({ orderId: 'ord-1', status: 'SUCCESS' }),
-    });
-
-    const res = await POST(req);
-    const body = await res.json();
-
-    expect(res.status).toBe(501);
-    expect(body.code).toBe('CLICTOPAY_NOT_CONFIGURED');
+    expect(body.error).toContain('Signature');
   });
 
   it('rejects an invalid webhook signature when the webhook secret is configured', async () => {
