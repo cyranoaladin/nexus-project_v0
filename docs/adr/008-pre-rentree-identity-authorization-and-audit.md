@@ -34,4 +34,6 @@ Les politiques et query scopes deviennent des dépendances obligatoires de toute
 
 Fail-closed, CSRF sur cookie, webhook signé/secret obligatoire, PII minimisée. Si le socle ne peut être prouvé, les flags API/public/dashboards V2 restent off. Rollback : révoquer/ignorer les grants V2 et conserver relations/audit ; V1 continue via ses relations historiques.
 
+Le backfill M3 classe le FK explicite `Student.parentId` comme candidat legacy, avec statut `PENDING_VERIFICATION` et droits vides. Il ne crée jamais une relation `VERIFIED`, un compte ou une fusion par email/téléphone sans revue humaine auditée.
+
 Références : [audit sécurité](../audits/2026-07-pre-rentree-security-baseline.md), [autorisation](../specs/pre-rentree-2026-authorization-matrix.md), [rétention](../specs/pre-rentree-2026-data-classification-retention.md).

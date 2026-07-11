@@ -26,7 +26,7 @@
 |---|---|
 | Dépendances | M0 GO, schéma/ADR revus |
 | Fichiers futurs | `prisma/schema.prisma`, une migration Prisma additive |
-| Migration | enums et tables V2 ; FK de base `Restrict/SetNull`; aucun drop/rename |
+| Migration | **21 modèles et 19 enums** du noyau ; FK de base `Restrict/SetNull`; aucun drop/rename |
 | Données | zéro ligne |
 | Risques | nom collision, enum irréversible à court terme, cascade accidentelle |
 | Tests | `prisma validate`, migrate fresh DB, introspection, V1 tests |
@@ -39,7 +39,7 @@
 |---|---|
 | Dépendances | M1, `btree_gist` vérifiée |
 | Fichiers futurs | migration SQL manuelle contrôlée, catalogue erreurs contraintes |
-| Migration | checks argent/dates/cardinalités, index partiels, exclusions planning, FKs complémentaires |
+| Migration | modèle `PreRentreeStudentScheduleClaim`, checks argent/dates/cardinalités, index partiels et exclusions planning |
 | Données | zéro ou tables vides |
 | Risques | Prisma ne représente pas exclusions/partiels ; drift si migration modifiée après apply |
 | Tests | toutes violations, concurrence, `prisma migrate diff`, explain requêtes critiques |
@@ -50,9 +50,9 @@
 
 | Élément | Contrat |
 |---|---|
-| Dépendances | M2, politiques ABAC/guards implémentés |
-| Fichiers futurs | service relation, policies, tests ; migration table déjà M1 ou isolée si retenu |
-| Données | aucune relation auto-créée depuis email ; backfill éventuel séparé en `PROPOSED` seulement après plan owner |
+| Dépendances | M1 ; politiques M0A avant backfill/accès ; intégration séquentielle après M2 recommandée |
+| Fichiers futurs | modèle/table relation M:N, colonnes Application/Enrollment, policies, scripts inventory/plan/apply/verify, tests |
+| Données | candidat issu de `Student.parentId` en `PENDING_VERIFICATION`, jamais relation VERIFIED par email ; backfill hors migration |
 | Risques | faux rattachement, perte accès, confusion `Student.parentId` |
 | Tests | plusieurs enfants/responsables, droits, expiration, IDOR, V1 continue via parentId |
 | Rollback | flag relation V2 off ; lignes conservées/révoquées, aucune écriture V1 compensatoire |
@@ -148,6 +148,10 @@
 ## Données exclusivement 2026 V2
 
 Édition, modules/variantes/règles, cohortes/séances/ressources, demandes/sélections, propositions/snapshots, inscriptions/affectations/holds/waitlist, relations responsables utilisées par V2, paiements/remboursements V2, présences/bilans, communications/outbox/audit/materialisation.
+
+## Réduction validée pour M0–M3
+
+La [revue de complexité](../audits/2026-07-pre-rentree-v2-complexity-review.md) retient 21 modèles en M1, 1 en M2, 1 en M3 et diffère 17 modèles. M1 n'écrit aucune inscription avant M3 ; les fonctionnalités associées aux modèles différés restent bloquées par gate.
 
 ## Rollback global
 

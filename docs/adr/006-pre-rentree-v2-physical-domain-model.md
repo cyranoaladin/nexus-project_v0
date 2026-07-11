@@ -40,3 +40,5 @@ Positives : agrégats/états explicites, historique intact, autorisation relatio
 ## Migration et rollback
 
 Lots M0–M10 de [la stratégie additive](../specs/pre-rentree-2026-additive-migration-plan.md). Flags off par défaut ; rollback applicatif et archivage logique, aucune suppression de tables avec données.
+
+La revue M0–M3 ne crée pas les 40 modèles en une fois : M1 en retient 21, M2 ajoute le claim élève, M3 la relation responsable et 17 modèles restent derrière des gates. Cette séquence ne change pas le modèle cible ; elle applique YAGNI à la première migration.

@@ -14,8 +14,8 @@ Références : [ADR 005](../adr/005-pre-rentree-source-of-truth-and-application-
 
 | Propriétaire | Mandat exclusif |
 |---|---|
-| **Sol** | domaine, Prisma/migrations, template et upsert, API, transactions, capacité, identité, RBAC, paiement et contrats serveur |
-| **Terra** | catalogue/pricing, contenu éditorial, frontend public, SEO, analytics et conversion |
+| **Sol** | architecture domaine, sécurité/RBAC, règles critiques, transactions, capacité, identité et revue xhigh de Prisma/SQL/paiement |
+| **Terra** | implémentation infra/Prisma déléguée par lot sous revue Sol ; catalogue/pricing, contenu éditorial, frontend public, SEO, analytics et conversion |
 | **Luna** | intégration des quatre dashboards, navigation authentifiée, accessibilité et recette E2E transverse |
 
 « Propriétaire » signifie responsable de l'écriture et de la revue du périmètre, pas propriétaire de la décision métier. Toute décision reste soumise au responsable Nexus.
@@ -44,7 +44,7 @@ Références : [ADR 005](../adr/005-pre-rentree-source-of-truth-and-application-
 
 L'ordre « Terra puis Sol » de la phase 1 signifie : Terra publie les identifiants produits et règles via l'API de `lib/pricing.ts`; Sol ne code aucun prix et consomme ce contrat. La landing page Terra n'est fusionnée qu'en phase 4.
 
-Toute future branche repart d'un `origin/main` fraîchement fetché. Sol traite d'abord `GATE-SEC-BASE-001` : aucun lot ne peut présumer disponibles les durcissements présents dans `11ac38c` mais absents du `main` synchronisé.
+Toute future branche repart d'un `origin/main` fraîchement fetché. Sol traite d'abord `GATE-SEC-BASE-001` : la branche locale `g-sec/api-guards` peut contenir des invariants en avance, mais aucun lot ne les présume fusionnés et tout écart est réévalué sur la baseline réelle.
 
 ## 4. Carte Sol — domaine, données et API
 
@@ -189,3 +189,18 @@ Un propriétaire ne remet son lot que si :
 - les flags sont désactivés par défaut avant décision de publication ;
 - le rollback du lot est documenté ;
 - aucune condition de publication encore `PENDING_EVIDENCE`, `OWNER_INPUT_REQUIRED` ou `APPROVED_PENDING_LEGAL_TEXT_ALIGNMENT` n'a été traitée comme approuvée.
+
+## 12. Ownership spécifique M0–M3
+
+Le [plan branches/worktrees](../plans/pre-rentree-2026-m0-m3-branch-and-ownership-plan.md) précise les réservations de fichiers et prévaut pour M0–M3 :
+
+| Lot | Writer | Reviewer | Fichiers réservés | Ordre |
+|---|---|---|---|---:|
+| M0A | Sol xhigh | Sol sécurité indépendant si disponible | guards/RBAC/authorization/tests sécurité | parallèle initial |
+| M0B/M0C | Terra high | Sol xhigh | scripts DB, package/lock, Docker/CI outillage | avant M1 |
+| M0D | Terra high | Sol | compose test/factories/Jest DB | avant validation M1 |
+| M1 | Terra high | Sol xhigh | schema + migration core + tests M1 | premier writer Prisma |
+| M2 | Sol xhigh ou Terra high | Sol obligatoire | schema claim + migration integrity + tests | après M1 |
+| M3 | Terra high pour code, Sol xhigh pour règles | Sol sécurité | schema guardian + migration/scripts/policies/tests | après M1, backfill après M0A |
+
+M2 et M3 peuvent préparer leurs tests en parallèle après M1, mais jamais écrire simultanément `prisma/schema.prisma` ou les migrations. Les worktrees futurs ne sont pas créés pendant la phase documentaire.

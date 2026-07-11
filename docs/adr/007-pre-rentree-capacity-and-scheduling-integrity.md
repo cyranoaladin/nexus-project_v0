@@ -28,6 +28,8 @@ Validation métier serveur plus contraintes PostgreSQL d'exclusion `tstzrange [)
 
 SQL brut paramétré et migrations SQL complémentaires sont nécessaires ; M0 doit prouver extension/privilèges. La contention est limitée par le faible volume et répartie par cohorte. Les tests doivent utiliser PostgreSQL réel et plusieurs connexions.
 
+Si `btree_gist` n'est pas installable sur une cible, M0B exige une ADR de fallback par triggers DB avec advisory locks et tests concurrents. Une validation applicative seule n'est jamais considérée équivalente.
+
 ## Preuve et rollback
 
 Sous lock, la seconde transaction observe l'insertion de la première : jamais plus de cinq consommateurs. Les exclusions arbitrent les courses planning. Rollback : flags commandes off, drainage, holds libérés/expirés, contraintes retirées seulement par migration contrôlée après preuve ; données conservées.

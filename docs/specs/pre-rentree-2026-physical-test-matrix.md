@@ -6,6 +6,20 @@
 - Tous les tests DB utilisent PostgreSQL 15 avec migrations réelles ; SQLite/mocks ne prouvent ni exclusions, ni locks.
 - Chaque lot M0–M10 a un test de rollback et conserve un rapport.
 
+## Exécution M0–M3
+
+| ID | Preuve | Résultat attendu |
+|---|---|---|
+| PHY-M0A-001 | inventaire guards, auth fail-closed, IDOR, redaction | `VERIFIED_IN_TEST`, aucune route V2 exposée |
+| PHY-M0B-001 | PG15, btree_gist/fallback, backup/restore | capability GO et restore comparé |
+| PHY-M0C-001 | Node20, Prisma CLI/Client 6.19.2, drift | versions exactes, diff vide |
+| PHY-M0D-001 | DB isolée, factories, lanes fresh/V1 | aucune PII/régression |
+| PHY-M1-COUNT | schéma core | exactement 21 modèles/19 enums |
+| PHY-M2-COUNT | intégrité | exactement un modèle claim + SQL nommé |
+| PHY-M3-COUNT | identité | exactement un modèle relation + FKs prévues |
+
+Le détail des commandes est dans [le plan de tests M0–M3](../plans/pre-rentree-2026-m0-m3-test-execution-plan.md).
+
 ## Schéma, template et domaine
 
 | ID | Scénario | Niveau | Résultat attendu |

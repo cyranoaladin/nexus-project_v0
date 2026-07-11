@@ -3,7 +3,7 @@
 ## Statut
 
 - Date : 11 juillet 2026
-- Phase : préparation de la conception physique
+- Phase : planification exécutable M0–M3
 - Publication : **BLOCKED**
 - Développement DRAFT : autorisable après conception physique et mission explicite
 - Référence de décision : [OWNER-022](../decisions/pre-rentree-2026-owner-approval.md#owner-022--conditions-de-publication)
@@ -14,6 +14,8 @@
 |---|---|
 | `APPROVED` | preuve documentaire présente et décision enregistrée |
 | `DESIGN_BASELINE_DEFINED` | contrat de conception arrêté, sans implémentation ni preuve de production |
+| `IMPLEMENTATION_PLAN_DEFINED` | tâches, owners, tests et rollback arrêtés ; aucune implémentation prouvée |
+| `VERIFIED_IN_TEST` | implémentation et preuves vertes en environnement isolé ; production non validée |
 | `PENDING_EVIDENCE` | décision connue, preuve technique/opérationnelle absente |
 | `OWNER_INPUT_REQUIRED` | donnée que seul le responsable peut fournir |
 | `APPROVED_PENDING_LEGAL_TEXT_ALIGNMENT` | principe approuvé, texte contractuel non aligné |
@@ -77,7 +79,7 @@ Les trois premières gates autorisent seulement la prochaine phase de **concepti
 
 | Identifiant | Propriétaire | Preuve attendue | Statut | Condition de blocage | Date de validation | Mécanisme concerné |
 |---|---|---|---|---|---|---|
-| `GATE-SCHEMA-001` | `SOL` | conception physique additive revue, sans suppression V1 | `PENDING_EVIDENCE` | surcharge V1, relation manquante ou opération destructive | — | Prisma/SQL futur |
+| `GATE-SCHEMA-001` | `SOL` | conception physique et [plan M1–M3](../plans/2026-07-pre-rentree-m0-m3-implementation-plan.md) revus, sans suppression V1 | `IMPLEMENTATION_PLAN_DEFINED` | surcharge V1, relation manquante ou opération destructive | 2026-07-11 (plan) | Prisma/SQL futur |
 | `GATE-TEMPLATE-001` | `SOL` | template validé, versionné, checksum, 12 modules/60 séances | `PENDING_EVIDENCE` | divergence ou lecture frontend directe | — | loader/upsert |
 | `GATE-UPSERT-001` | `SOL` | deuxième upsert = zéro création et mutation inattendue | `PENDING_EVIDENCE` | doublon édition/module/séance | — | transaction/contraintes uniques |
 | `GATE-MIG-001` | `SOL` | migration additive testée sur base test et copie anonymisée | `PENDING_EVIDENCE` | perte/requalification V1 ou rollback impraticable | — | Prisma/SQL/backfill |
@@ -122,6 +124,20 @@ Les trois premières gates autorisent seulement la prochaine phase de **concepti
 | `GATE-RELEASE-001` | `RESPONSABLE_NEXUS` | toutes gates publication approuvées et décision finale horodatée | `PENDING_EVIDENCE` | une gate requise n'est pas `APPROVED` | — | release record/flags |
 
 ## Règle de passage
+
+### Gates d'implémentation M0–M3
+
+| Identifiant | Preuve attendue | Statut | Bloque |
+|---|---|---|---|
+| `GATE-M0A-SECURITY-001` | [plan sécurité](../plans/pre-rentree-2026-m0a-security-implementation-plan.md), puis tests guards/IDOR/redaction | `IMPLEMENTATION_PLAN_DEFINED` | toute route V2 jusqu'à `VERIFIED_IN_TEST` |
+| `GATE-M0B-DB-001` | [capacité DB](../plans/pre-rentree-2026-m0b-database-capability-plan.md), preuves PG15/extension/fallback | `IMPLEMENTATION_PLAN_DEFINED` | M1 deploy et M2 |
+| `GATE-M0C-TOOLCHAIN-001` | [plan Prisma](../plans/pre-rentree-2026-m0c-prisma-toolchain-plan.md), Node20/Prisma6.19.2/drift | `IMPLEMENTATION_PLAN_DEFINED` | création migration M1 |
+| `GATE-M0D-TEST-001` | [environnement test](../plans/pre-rentree-2026-m0d-test-environment-plan.md), lanes fresh/V1 | `IMPLEMENTATION_PLAN_DEFINED` | validation M1–M3 |
+| `GATE-M1-CORE-001` | 21 modèles, 19 enums, DDL additif | `IMPLEMENTATION_PLAN_DEFINED` | M2/M3 |
+| `GATE-M2-INTEGRITY-001` | claim, checks, indexes, exclusions/concurrence | `IMPLEMENTATION_PLAN_DEFINED` | services de capacité/planning |
+| `GATE-M3-GUARDIAN-001` | relation M:N, backfill candidat, policies/IDOR | `IMPLEMENTATION_PLAN_DEFINED` | inscription/lecture parent V2 |
+
+Ces statuts prouvent seulement que le travail est planifié. Chaque ligne revient à `PENDING_EVIDENCE` si sa baseline ou son contrat change, puis passe à `VERIFIED_IN_TEST` uniquement avec SHA et sorties de tests.
 
 1. La conception physique peut commencer avec `GATE-GOV-001`, `GATE-BASE-001` et `GATE-ADR-001` approuvées.
 2. Une branche DRAFT peut être développée seulement dans une phase explicitement autorisée, flags désactivés.
