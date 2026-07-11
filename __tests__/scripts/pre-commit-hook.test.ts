@@ -118,4 +118,31 @@ describe('pre-commit-hook allowlist', () => {
     );
     expect(exitCode).toBe(1);
   });
+
+  // ── File-scoped substitution tests (regression proof) ──
+
+  it('blocks $(node -e ...) in a NON-allowlisted file (RED proof)', () => {
+    // A $(node ...) substitution in a file that is NOT in the allowlist
+    // must be blocked — there is NO global $(node exemption.
+    const content = 'NEXTAUTH_SECRET=$(node -e "real-secret")';
+    const exitCode = runAllowlistCheck(
+      'scripts/other.sh',
+      'NEXTAUTH_SECRET=',
+      content
+    );
+    expect(exitCode).toBe(1);
+  });
+
+  it('blocks SMTP_PASSWORD=$(node ...) in gate-all.sh (pattern not allowlisted)', () => {
+    // gate-all.sh allowlists NEXTAUTH_SECRET= and POSTGRES_PASSWORD=,
+    // but NOT SMTP_PASSWORD= — a $(node) substitution for an un-allowlisted
+    // pattern must be blocked even in an allowlisted file.
+    const content = 'SMTP_PASSWORD=$(node -e "something")';
+    const exitCode = runAllowlistCheck(
+      'scripts/gate-all.sh',
+      'SMTP_PASSWORD=',
+      content
+    );
+    expect(exitCode).toBe(1);
+  });
 });
