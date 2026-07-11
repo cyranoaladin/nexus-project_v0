@@ -44,7 +44,7 @@ Références : [ADR 005](../adr/005-pre-rentree-source-of-truth-and-application-
 
 L'ordre « Terra puis Sol » de la phase 1 signifie : Terra publie les identifiants produits et règles via l'API de `lib/pricing.ts`; Sol ne code aucun prix et consomme ce contrat. La landing page Terra n'est fusionnée qu'en phase 4.
 
-Toute future branche repart d'un `origin/main` fraîchement fetché. Sol traite d'abord `GATE-SEC-BASE-001` : la branche locale `g-sec/api-guards` peut contenir des invariants en avance, mais aucun lot ne les présume fusionnés et tout écart est réévalué sur la baseline réelle.
+Toute future branche repart d'un `origin/main` fraîchement fetché. Sol traite d'abord `GATE-SEC-BASE-001` : les invariants de sécurité de `g-sec/api-guards` sont désormais fusionnés sur main (`b2ea32f0b`, `ac02f548b`). La revue dédiée Pré-rentrée (M0A-R) vérifiera leur adéquation aux exigences V2.
 
 ## 4. Carte Sol — domaine, données et API
 

@@ -1,37 +1,59 @@
-# Pré-rentrée 2026 M0A Security Implementation Plan
+# Pré-rentrée 2026 M0A-R — Security Review and Gap Closure
 
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents are explicitly authorized) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Faire passer `GATE-SEC-BASE-001` de `DESIGN_BASELINE_DEFINED` à `VERIFIED_IN_TEST` sans exposer de route V2 et sans régresser V1.
+**Goal:** Faire passer `GATE-SEC-BASE-001` de `IMPLEMENTED_ON_MAIN_PENDING_DEDICATED_REVIEW` à `VERIFIED_IN_TEST` sans exposer de route V2 et sans régresser V1.
 
-**Architecture:** Les guards globaux restent compatibles V1 ; une couche V2 additive combine authentification fail-closed, RBAC, ABAC et portée de requête. Les ressources sont filtrées avant lecture, les refus sont minimisés et auditables, et les invariants de la branche locale de sécurité sont réévalués plutôt que cherry-pickés.
+**Architecture:** Le socle de sécurité (guards, ownership, IDOR, documents, factures, webhook) est désormais présent sur main suite à la fusion de G-SEC/G-PAY. M0A-R vérifie ce socle pour les exigences Pré-rentrée, ferme les écarts démontrés, et déclare les types V2 en DENY par défaut sans ouvrir de route.
 
 **Tech Stack:** NextAuth 5 beta, Next.js Route Handlers, TypeScript, Zod, Prisma 6.19.2, Jest, PostgreSQL 15.
 
 ---
 
-## État observé
+### Supersession — 2026-07-11
 
-- `origin/main` contient `lib/guards.ts`, `lib/api-guard.ts`, `lib/rbac.ts` et des tests RBAC/IDOR étendus.
-- `requireAuth()` appelle actuellement `auth()` sans convertir toute exception en refus uniforme.
-- Les helpers parent V1 utilisent `Student.parentId`; la V2 devra utiliser exclusivement `PreRentreeGuardianRelationship` après M3.
-- Le coach V1 est porté par `CoachStudentAssignment`; la V2 devra vérifier `PreRentreeTeacherAssignment` et la cohorte.
-- Le webhook ClicToPay vérifie la signature seulement si le secret existe : l'absence de secret doit devenir fail-closed avant toute activation.
-- `origin/main` vaut `db04d23f3e645a2052e41e5a679a8b9443cf8dc9`. La branche locale `g-sec/api-guards` inspectée à `8f3356f1f45eed4c45327d852a9a3b516e3eff2f` contient de nombreux commits supplémentaires : download realpath/storage root, instrumentation/guards, validation date, seed/test DB guards, webhook et gates. Elle est une source de cas de test, jamais une dépendance ou un lot à cherry-picker.
+> Ce plan remplace la version originale qui décrivait M0A comme une implémentation
+> générale du socle de sécurité à partir de zéro. Depuis :
+>
+> - G-SEC fusionné (`b2ea32f0b`) : guards, IDOR bilans, document download RBAC,
+>   audit script, parseJsonBody, date validation, pre-commit hook, seed guard
+> - G-PAY fusionné (`ac02f548b`) : webhook HMAC-SHA256 + timingSafeEqual,
+>   init guard, fail-closed 501, PaymentMethodsNote
+> - Post-merge (`c90b142c8`) : matrice P0=0/P1=2, POST-MERGE-CHORES tracker
+>
+> Réconciliation complète : [`2026-07-pre-rentree-current-main-security-reconciliation.md`](../audits/2026-07-pre-rentree-current-main-security-reconciliation.md)
 
-## Inventaire de routes à figer
+## État observé (après réconciliation)
 
-| Famille | Chemins actuels à inventorier | Invariant |
+- `origin/main` vaut `c90b142c88d69bdc600f3f848b44ca0317c00242` et contient les hardenings G-SEC/G-PAY fusionnés.
+- `lib/guards.ts` fournit `requireAuth`, `requireRole`, `requireAnyRole`, `isErrorResponse`, `isOwner`, `isStaff`, et des guards de propriété (parent, coach, student, invoice).
+- `lib/api/helpers.ts` fournit `parseJsonBody` avec discrimination empty/malformed.
+- `lib/documents/storage-root.ts` centralise le chemin de stockage.
+- `lib/invoice/not-found.ts` fournit `buildInvoiceAccessWhere` et `notFoundResponse` (404 sans fuite).
+- `lib/validation/common.ts` fournit `civilDateSchema` et `strictDateSchema` avec round-trip.
+- Route download documents avec RBAC complet, realpath, containment, nosniff, no-store.
+- Webhook ClicToPay avec HMAC-SHA256, timingSafeEqual, secret-first, fail-closed 501.
+- Init ClicToPay avec requireAnyRole + Zod + fail-closed.
+- Script audit guards : P0=0, P1=2 (assessments/submit, webhook business logic).
+- Les helpers parent V1 utilisent `Student.parentId`; la V2 devra utiliser `PreRentreeGuardianRelationship` après M3.
+- Le coach V1 est porté par `CoachStudentAssignment`; la V2 devra vérifier `PreRentreeTeacherAssignment`.
+- La branche locale `g-sec/api-guards` est désormais obsolète comme référence : ses apports sont sur main.
+
+## Inventaire de routes — état actuel
+
+L'inventaire est désormais présent sur main via `docs/security/API_GUARD_INVENTORY.md` (176 routes, P0=0, P1=2) et le script `scripts/security/audit-api-guards.mjs`.
+
+| Famille | Chemins | Statut sur main |
 |---|---|---|
-| Stage public | `app/api/stages/**` | public explicite, validation/rate limit, aucune confiance prix/capacité client |
-| Stage staff | `app/api/admin/stages/**`, `app/api/assistante/stages/route.ts` | rôle + portée + mutation auditée |
-| Stage coach/parent/élève | `app/api/coach/stages/route.ts`, `app/api/parent/stages/route.ts`, `app/api/student/stages/route.ts`, `app/api/eleve/stages/route.ts` | aucune lecture globale, propriété avant lecture |
-| Factures | `app/api/admin/invoices/**`, `app/api/invoices/**` | admin/finance ou responsable autorisé, 404 sans oracle |
-| Documents | `app/api/admin/documents/route.ts`, `app/api/documents/[id]/route.ts`, `app/api/student/documents/**`, routes coach/NPC | scope DB, chemin canonique, aucune fuite PII/path |
-| Paiements | `app/api/payments/clictopay/**`, `app/api/payments/validate/route.ts` | preuve serveur, signature obligatoire, idempotence |
-| Identité | `app/api/parent/children/route.ts`, `app/api/coach/students/**` | V1 inchangé ; futur V2 relation/affectation vérifiée |
+| Stage public | `app/api/stages/**` | PUBLIC_BY_DESIGN (inscrire) + P2 |
+| Stage staff | `app/api/admin/stages/**`, `app/api/assistante/stages/route.ts` | P2 avec guards |
+| Stage coach/parent/élève | `app/api/coach/stages/route.ts`, etc. | P2 avec guards |
+| Factures | `app/api/admin/invoices/**`, `app/api/invoices/**` | P2, scope ADMIN/ASSISTANTE/PARENT |
+| Documents | routes admin/student/coach/NPC | P2, download RBAC complet |
+| Paiements | `app/api/payments/clictopay/**` | P1 (webhook stub), init P2 |
+| Identité | `app/api/parent/children/route.ts`, `app/api/coach/students/**` | P2, V1 scope |
 
-La preuve future sera `docs/evidence/pre-rentree-2026/m0a-route-guard-inventory.md`, générée/revue à partir de `rg --files app/api` et du script existant d'audit des guards s'il est présent sur la baseline d'implémentation.
+La revue M0A-R validera cet inventaire pour les exigences spécifiques Pré-rentrée V2 sans recréer l'inventaire from scratch.
 
 ## Fonctions et signatures futures
 
@@ -96,116 +118,96 @@ export function redactSecurityMetadata(
 
 Le loader DB n'est activé qu'après M1/M3. Avant, les tests du moteur pur utilisent des fixtures typées ; aucune route V2 n'est créée.
 
-## Séquence TDD atomique
+## Séquence M0A-R — Revue et fermeture des écarts
 
-### Task 1: Figer l'inventaire et les tests de non-régression V1
+> Les tâches originales (Task 1–8) sont reclassées ci-dessous. Les éléments déjà
+> implémentés sur main ne sont pas recréés ; seule la revue et les écarts sont traités.
 
-**Files:**
-- Create: `docs/evidence/pre-rentree-2026/m0a-route-guard-inventory.md`
-- Modify: `__tests__/architecture/site-architecture-guards.test.ts`
-- Test: `__tests__/lib/guards.complete.test.ts`, `__tests__/lib/rbac.coverage.test.ts`
+### R-01: Vérifier l'inventaire des guards existant (ex SEC-01)
 
-- [ ] Énumérer toutes les routes et classer `PUBLIC`, `AUTH_ONLY`, `RBAC`, `RBAC_ABAC`, `WEBHOOK`.
-- [ ] Ajouter un test échouant si une nouvelle route mutante n'a ni guard ni allowlist publique justifiée.
-- [ ] Exécuter `npm test -- --runInBand __tests__/architecture/site-architecture-guards.test.ts` ; attendu avant correction : échec sur toute route non classée.
-- [ ] Compléter uniquement l'instrumentation/allowlist avec justification ; ne pas assouplir un guard.
-- [ ] Exécuter les trois suites ; attendu : PASS.
-- [ ] Commit recommandé : `test(security): freeze API guard inventory`.
+**Statut :** `ALREADY_IMPLEMENTED_REVIEW_ONLY`
 
-### Task 2: Rendre l'authentification centrale fail-closed
+L'inventaire existe (`API_GUARD_INVENTORY.md`, 176 routes, P0=0, P1=2). Le script
+`audit-api-guards.mjs` détecte les routes non classées. Le test
+`audit-api-guards.classification.test.ts` couvre la classification.
 
-**Files:**
-- Modify: `lib/guards.ts`
-- Modify: `lib/api-guard.ts`
-- Test: `__tests__/lib/guards.complete.test.ts`, `__tests__/lib/guards.test.ts`
+- [ ] Exécuter le script d'audit et vérifier P0=0.
+- [ ] Vérifier que les routes Pré-rentrée futures ne sont pas pré-ouvertes.
+- [ ] Documenter les résultats dans la preuve M0A-R.
 
-- [ ] Écrire les tests : `auth()` lève, session sans id/rôle/email, rôle inconnu, réponse sans détail interne.
-- [ ] Vérifier l'échec des nouveaux tests.
-- [ ] Encapsuler l'appel auth, retourner 401 uniforme et logger seulement `requestId/reasonCode` redacted.
-- [ ] Conserver les signatures V1 publiques ou fournir un adaptateur compatible.
-- [ ] Rejouer toutes les suites guards/RBAC ; attendu : aucune régression.
-- [ ] Commit : `fix(security): make API authentication fail closed`.
+### R-02: Vérifier l'authentification fail-closed (ex SEC-02)
 
-### Task 3: Créer le moteur RBAC/ABAC V2 pur
+**Statut :** `ALREADY_IMPLEMENTED_REVIEW_ONLY`
 
-**Files:**
-- Create: `lib/stages/v2/authorization/types.ts`
-- Create: `lib/stages/v2/authorization/policies.ts`
-- Create: `lib/stages/v2/authorization/errors.ts`
-- Test: `__tests__/lib/stages/v2/authorization/policies.test.ts`
+`requireAuth`, `requireAnyRole` retournent 401/403 NextResponse. Session vérifie
+id, role, email. Les tests existants couvrent les cas d'erreur.
 
-- [ ] Écrire une table de tests pour visiteur, élève, parent, coach, pédagogie, assistante, finance, admin.
-- [ ] Tester finance absente coach/élève et séparation pédagogie/finance.
-- [ ] Implémenter `authorizePreRentree` en données déclaratives, défaut deny.
-- [ ] Refuser action, ressource, état ou grant inconnus.
-- [ ] Exécuter la suite unitaire ; attendu : PASS et couverture de chaque cellule de la matrice.
-- [ ] Commit : `feat(security): add pre-rentree V2 policy engine`.
+- [ ] Relire `lib/guards.ts` et confirmer la couverture fail-closed.
+- [ ] Exécuter les tests guards existants.
+- [ ] Vérifier l'absence de chemin d'exception non converti en 401.
+- [ ] Documenter les résultats.
 
-### Task 4: Ajouter les loaders de portée sans accès par email
+### R-03: Déclarer les types V2 authorization en DENY par défaut (ex SEC-03)
 
-**Files:**
-- Create: `lib/stages/v2/authorization/context.ts`
-- Create: `lib/stages/v2/authorization/scope.ts`
-- Test: `__tests__/integration/pre-rentree-v2-authorization-scope.db.test.ts`
+**Statut :** `PRE_RENTREE_SPECIFIC` — à implémenter uniquement quand les routes V2 existent
 
-- [ ] Après M1/M3 seulement, écrire les tests DB parent VERIFIED/expiré/révoqué et coach affecté/non affecté.
-- [ ] Implémenter des `findFirst({ where: { id, ...scope } })`, jamais `findUnique` suivi d'un contrôle tardif.
-- [ ] Vérifier que l'email/téléphone n'apparaît dans aucune condition d'autorité.
-- [ ] Retourner `null` hors portée pour produire un 404 sans oracle.
-- [ ] Commit : `feat(security): scope pre-rentree resources by verified relations`.
+Les types (`PreRentreeAction`, `PreRentreeResource`, `PreRentreeSubject`,
+`AuthorizationDecision`) restent documentés dans les fonctions et signatures futures
+ci-dessus. Ils seront implémentés dans le cadre de M1+ quand les routes V2 seront créées.
 
-### Task 5: Journaliser les refus sans PII
+- [ ] Confirmer qu'aucune route V2 n'existe sur la branche.
+- [ ] Confirmer qu'aucun type V2 ne doit être implémenté sans consommateur.
+- [ ] Reclasser en `DEFERRED_TO_M1`.
 
-**Files:**
-- Create: `lib/security/redaction.ts`
-- Create: `lib/stages/v2/authorization/security-audit.ts`
-- Test: `__tests__/lib/security/redaction.test.ts`
+### R-04: Scope loaders ABAC DB (ex SEC-04)
 
-- [ ] Tester email, téléphone, token, signature, localPath et payload fournisseur.
-- [ ] Implémenter une allowlist de métadonnées (`requestId`, action, resourceType, reasonCode, actorId hashé si nécessaire).
-- [ ] Interdire le spread d'un body/request/error brut dans le logger.
-- [ ] Vérifier snapshots de logs.
-- [ ] Commit : `feat(security): redact authorization audit metadata`.
+**Statut :** `DEFERRED_TO_M3`
 
-### Task 6: Fermer les écarts factures et documents de la baseline
+Dépend du modèle `PreRentreeGuardianRelationship` (M3) et `PreRentreeTeacherAssignment` (M1).
+Les guards V1 (`requireParentOwnsStudent`, `requireCoachAssignedToStudent`) restent actifs.
 
-**Files:**
-- Review/Modify only if failing: `app/api/admin/invoices/**`, `app/api/invoices/**`, `lib/invoice/**`
-- Review/Modify only if failing: `app/api/documents/[id]/route.ts`, `app/api/student/documents/[id]/download/route.ts`, `app/api/admin/documents/route.ts`
-- Possible Create: `lib/documents/storage-root.ts`
-- Tests: `__tests__/api/admin.invoices*.test.ts`, `__tests__/lib/invoice/*.test.ts`, `__tests__/api/documents*.test.ts`, `__tests__/security/path-traversal.test.ts`
+### R-05: Redaction PII (ex SEC-05)
 
-- [ ] Rejouer d'abord les tests existants et comparer les invariants avec `g-sec/api-guards` en lecture seule.
-- [ ] Ajouter des tests 404 oracle, parent direct propriétaire, coach hors scope, realpath racine/candidat, symlink et fichier absent.
-- [ ] Implémenter uniquement les invariants manquants sur la baseline courante ; aucun cherry-pick massif.
-- [ ] Vérifier `Cache-Control: private, no-store` et absence de `localPath` dans les DTO/logs.
-- [ ] Commit : `fix(security): close invoice and document ownership gaps`.
+**Statut :** `GAP_CLOSURE_REQUIRED`
 
-### Task 7: Rendre ClicToPay strictement fail-closed
+Aucun helper `lib/security/redaction.ts` n'existe. Les logs webhook sont minimaux
+mais aucun audit exhaustif n'a vérifié l'absence de PII dans tous les logs.
 
-**Files:**
-- Modify: `app/api/payments/clictopay/webhook/route.ts`
-- Possible Create: `lib/payments/clictopay/verify-webhook.ts`
-- Test: `__tests__/api/payments.clictopay.webhook.route.test.ts`
+- [ ] Évaluer le risque réel : les routes hardened loggent-elles des PII ?
+- [ ] Si écart démontré, créer le helper et les tests.
+- [ ] Si non démontré, documenter comme risque P2 à traiter dans un lot dédié.
 
-- [ ] Tester secret absent, signature absente/invalide, corps modifié, replay, doublon exact et erreur de parse.
-- [ ] Exiger le secret avant toute mutation et lire le corps brut une seule fois.
-- [ ] Ne pas implémenter la mutation paiement V2 dans M0A ; conserver 501 après authentification si le fournisseur reste non configuré.
-- [ ] Logger event id/hash et code, jamais secret/body complet.
-- [ ] Commit : `fix(payments): fail closed when ClicToPay webhook is unconfigured`.
+### R-06: Vérifier factures et documents (ex SEC-06)
 
-### Task 8: Gate de sécurité et non-régression
+**Statut :** `ALREADY_IMPLEMENTED_REVIEW_ONLY`
 
-**Files:**
-- Create: `docs/evidence/pre-rentree-2026/m0a-security-verification.md`
-- Modify after evidence: `docs/specs/pre-rentree-2026-activation-gates.md`
+`buildInvoiceAccessWhere`, `notFoundResponse`, download RBAC, realpath, storage-root
+sont tous sur main avec tests (286 lignes download, 134 lignes date, access-scope).
 
-- [ ] Exécuter `npm test -- --runInBand __tests__/lib/guards.complete.test.ts __tests__/lib/rbac.coverage.test.ts`.
-- [ ] Exécuter les suites IDOR, documents, factures et webhook ciblées.
-- [ ] Exécuter `npm run typecheck` et le test d'architecture des guards.
-- [ ] Enregistrer SHA, commandes, nombres de tests, écarts connus et reviewer.
-- [ ] Marquer `VERIFIED_IN_TEST` uniquement si tous les P0/P1 sont verts et M3 confirme les scopes parent.
-- [ ] Commit : `docs(security): record M0A verification evidence`.
+- [ ] Exécuter les tests documents et factures existants.
+- [ ] Vérifier `Cache-Control: private, no-store` et absence de `localPath` dans les DTO.
+- [ ] Documenter les résultats.
+
+### R-07: Vérifier webhook ClicToPay (ex SEC-07)
+
+**Statut :** `ALREADY_IMPLEMENTED_REVIEW_ONLY` + `GAP_CLOSURE_REQUIRED` (hex validation)
+
+Signature HMAC-SHA256 + timingSafeEqual + secret-first + fail-closed 501 sont sur main.
+Écart identifié : validation format hex du header signature (POST-MERGE-CHORES).
+
+- [ ] Exécuter les tests webhook existants.
+- [ ] Évaluer si la validation hex est un risque P0/P1 justifiant une correction M0A-R.
+- [ ] Documenter les limites (payload parsing, idempotence, state machine) comme `DEFERRED_TO_PAYMENT_EVIDENCE`.
+
+### R-08: Gate de sécurité et preuve (ex SEC-08)
+
+**Statut :** `STILL_REQUIRED`
+
+- [ ] Exécuter toutes les suites de tests sécurité (guards, IDOR, documents, factures, webhook).
+- [ ] Exécuter typecheck et script d'audit.
+- [ ] Enregistrer SHA, commandes, nombres de tests, écarts connus.
+- [ ] Marquer `VERIFIED_IN_TEST` uniquement si tous les P0 sont verts.
+- [ ] Les scopes parent V2 restent bloqués jusqu'à M3.
 
 ## Responsabilités et compatibilité
 
@@ -222,6 +224,6 @@ V1 conserve `Student.parentId`, `CoachStudentAssignment` et ses policies existan
 
 ## Critères GO/NO-GO
 
-GO M0A : inventaire complet, auth fail-closed, moteur deny-by-default, redaction, factures/documents/webhook sans P0, tests IDOR verts, revue Sol xhigh, preuve datée. NO-GO : route mutante non classée, scope par email, coach global, secret webhook optionnel, finance exposée, test P0 skippé ou dépendance à une branche non fusionnée.
+GO M0A-R : inventaire vérifié P0=0, auth fail-closed confirmé, factures/documents/webhook sans P0, tests IDOR verts, revue Sol xhigh, preuve datée, écarts fermés ou documentés. NO-GO : route mutante non classée, scope par email, coach global, finance exposée, test P0 skippé, écart P0 non documenté.
 
-Une route V2 reste interdite tant que M0A n'est pas implémenté, testé, revu et `VERIFIED_IN_TEST`; la validation production est une gate ultérieure distincte.
+Une route V2 reste interdite tant que M0A-R n'est pas vérifié et `VERIFIED_IN_TEST` ; la validation production est une gate ultérieure distincte. Les politiques parent M:N restent bloquées jusqu'à M3.

@@ -148,7 +148,7 @@ Commandes et résultats : [test execution](pre-rentree-2026-m0-m3-test-execution
 
 | Gate | Entrée | Sortie requise |
 |---|---|---|
-| SEC-BASE | DESIGN_BASELINE_DEFINED | VERIFIED_IN_TEST avant route V2 |
+| SEC-BASE | IMPLEMENTED_ON_MAIN_PENDING_DEDICATED_REVIEW | VERIFIED_IN_TEST avant route V2 |
 | DB-CAPABILITY | PENDING_EVIDENCE | PG15 + extension/fallback prouvé |
 | BACKUP | PENDING_EVIDENCE | restore comparé |
 | TOOLCHAIN | nouveau | Node20/Prisma6.19.2/drift |

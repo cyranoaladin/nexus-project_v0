@@ -2,7 +2,7 @@
 
 ## Statut
 
-Proposé pour implémentation. `GATE-SEC-BASE-001` est `DESIGN_BASELINE_DEFINED`, non implémenté. Date : 11 juillet 2026.
+Proposé pour implémentation. `GATE-SEC-BASE-001` est `IMPLEMENTED_ON_MAIN_PENDING_DEDICATED_REVIEW` (socle G-SEC/G-PAY fusionné, revue dédiée Pré-rentrée en attente). Date initiale : 11 juillet 2026 ; réconciliation : 11 juillet 2026.
 
 ## Contexte
 

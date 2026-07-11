@@ -14,7 +14,7 @@
 
 | Lot | Branche future | Worktree recommandé | Modèle/raisonnement | Entrée |
 |---|---|---|---|---|
-| M0A | `security/pre-rentree-2026-m0a` | `/home/alaeddine/Bureau/nexus-wt-pre-rentree-m0a` | Sol xhigh | plan approuvé, baseline fetchée |
+| M0A-R | `security/pre-rentree-2026-m0a-review` | `/home/alaeddine/Bureau/nexus-wt-pre-rentree-m0a-review` | Sol xhigh | plan recadré approuvé, baseline `integration/pre-rentree-2026-current` |
 | M0B/C | `infra/pre-rentree-2026-m0b-m0c` | `/home/alaeddine/Bureau/nexus-wt-pre-rentree-m0bc` | Terra high, revue Sol xhigh | plan approuvé |
 | M0D | `test/pre-rentree-2026-m0d` | `/home/alaeddine/Bureau/nexus-wt-pre-rentree-m0d` | Terra high, revue Sol | M0B/C contrats stables |
 | M1 | `feat/pre-rentree-2026-m1-schema` | `/home/alaeddine/Bureau/nexus-wt-pre-rentree-m1` | Terra high, revue Sol xhigh | M0B/M0C GO |
@@ -27,7 +27,7 @@ Chaque branche part du SHA intégré réellement approuvé, pas du SHA documenta
 
 | Lot | Écriture exclusive | Lecture/revue | Interdit |
 |---|---|---|---|
-| M0A | `lib/guards.ts`, `lib/api-guard.ts`, `lib/rbac*`, `lib/stages/v2/authorization/**`, routes/tests sécurité ciblés | toutes routes | schema/migrations/pricing/pages |
+| M0A-R | `lib/security/redaction.ts` (si écart), tests sécurité ciblés, docs evidence | toutes routes, `lib/guards.ts` (lecture) | schema/migrations/pricing/pages, réécriture guards existants |
 | M0B | scripts `m0b`, compose test DB, preuves DB | Docker/CI | production write, schema Prisma |
 | M0C | `package*.json`, Dockerfiles, CI/toolchain scripts | schema/migrations | upgrade Prisma autre que 6.19.2, db push |
 | M0D | compose test, factories, Jest config, tests migration | schema en lecture | données réelles, app routes |
@@ -41,18 +41,18 @@ Chaque branche part du SHA intégré réellement approuvé, pas du SHA documenta
 
 ```text
 Plan approuvé
- ├─ M0A sécurité ───────────────┐
+ ├─ M0A-R revue sécurité ───────┐
  ├─ M0B capacités ─┐           │
  └─ M0C outillage ─┴─ M0D ── M1 core ─┬─ M2 intégrité
                                       └─ M3 schema ── M3 backfill
-M0A VERIFIED_IN_TEST ────────────────────────────────┘
+M0A-R VERIFIED_IN_TEST ───────────────────────────────┘
 ```
 
 Ordre de fusion recommandé : M0C → M0B/M0D → M0A → M1 → M2 → M3 schema → M3 backfill/policies. M0A/M0B peuvent être préparés en parallèle ; l'ordre final s'adapte aux conflits, mais M1 n'est jamais fusionné avant M0B/C GO, M2 jamais avant M1, backfill M3 jamais avant M0A.
 
 ## Commits attendus
 
-- M0A : inventaire tests, auth fail-closed, policy engine, scope/redaction, gaps docs/factures/webhook, preuve.
+- M0A-R : vérification inventaire, confirmation auth fail-closed, redaction PII si écart, preuve tests sécurité.
 - M0B/C : toolchain pin, DB probe, exclusion proof, backup/restore proof, harness.
 - M0D : DB guard, stack, factories, lanes migration.
 - M1 : catalogue, planning, application, contrat, capacité/audit, migration finale.
@@ -65,7 +65,7 @@ Un commit ne mélange pas schema et correction UI/pricing. Les commits de travai
 
 | Branche | Gate entrée | Gate sortie |
 |---|---|---|
-| M0A | `DESIGN_BASELINE_DEFINED` | `VERIFIED_IN_TEST` |
+| M0A-R | `IMPLEMENTED_ON_MAIN_PENDING_DEDICATED_REVIEW` | `VERIFIED_IN_TEST` |
 | M0B | baseline DB accessible read-only | DB capability + backup/restore GO |
 | M0C | lockfile audité | Node/Prisma/drift GO |
 | M0D | M0B/C contrats | test harness GO |

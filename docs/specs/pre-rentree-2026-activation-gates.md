@@ -19,6 +19,7 @@
 | `PENDING_EVIDENCE` | décision connue, preuve technique/opérationnelle absente |
 | `OWNER_INPUT_REQUIRED` | donnée que seul le responsable peut fournir |
 | `APPROVED_PENDING_LEGAL_TEXT_ALIGNMENT` | principe approuvé, texte contractuel non aligné |
+| `IMPLEMENTED_ON_MAIN_PENDING_DEDICATED_REVIEW` | socle fusionné sur main, revue dédiée Pré-rentrée non encore exécutée |
 | `BLOCKED` | condition bloquante en échec explicite |
 
 Une gate `APPROVED` peut redevenir bloquante si son SHA, sa version, sa preuve ou la décision associée change.
@@ -90,7 +91,7 @@ Les trois premières gates autorisent seulement la prochaine phase de **concepti
 
 | Identifiant | Propriétaire | Preuve attendue | Statut | Condition de blocage | Date de validation | Mécanisme concerné |
 |---|---|---|---|---|---|---|
-| `GATE-SEC-BASE-001` | `SOL` | [socle minimal V2 défini](../audits/2026-07-pre-rentree-security-baseline.md), puis SHA d'implémentation, tests IDOR et audit de routes | `DESIGN_BASELINE_DEFINED` | bloque toute activation ; dépendance implicite à une branche non fusionnée ou contrôle non implémenté | 2026-07-11 (conception) | guards fail-closed, politiques ABAC, tests API |
+| `GATE-SEC-BASE-001` | `SOL` | [socle minimal V2 défini](../audits/2026-07-pre-rentree-security-baseline.md) + [réconciliation](../audits/2026-07-pre-rentree-current-main-security-reconciliation.md), SHA d'implémentation G-SEC/G-PAY, tests IDOR et audit de routes | `IMPLEMENTED_ON_MAIN_PENDING_DEDICATED_REVIEW` | bloque toute activation V2 ; socle fusionné mais revue dédiée Pré-rentrée non exécutée ; politiques parent M:N bloquées jusqu'à M3 | 2026-07-11 (réconciliation) | guards fail-closed, politiques ABAC, tests API |
 | `GATE-RBAC-001` | `SOL` | matrice admin/parent/élève/coach/assistante, 401/403/404 et IDOR | `PENDING_EVIDENCE` | accès hors famille/cohorte/académie | — | guards/query scopes |
 | `GATE-ID-001` | `SOL` | multi-responsables, vérification, révocation, fusion auditée | `PENDING_EVIDENCE` | liaison automatique par email/téléphone | — | identité/relations/audit |
 | `GATE-CAPACITY-001` | `SOL` | tests transactionnels de cinquième/sixième place | `PENDING_EVIDENCE` | surcapacité ou double enrollment | — | verrou/Serializable/unique |
@@ -129,7 +130,7 @@ Les trois premières gates autorisent seulement la prochaine phase de **concepti
 
 | Identifiant | Preuve attendue | Statut | Bloque |
 |---|---|---|---|
-| `GATE-M0A-SECURITY-001` | [plan sécurité](../plans/pre-rentree-2026-m0a-security-implementation-plan.md), puis tests guards/IDOR/redaction | `IMPLEMENTATION_PLAN_DEFINED` | toute route V2 jusqu'à `VERIFIED_IN_TEST` |
+| `GATE-M0A-SECURITY-001` | [plan sécurité recadré M0A-R](../plans/pre-rentree-2026-m0a-security-implementation-plan.md), revue des hardenings G-SEC/G-PAY, fermeture des écarts, tests | `IMPLEMENTATION_PLAN_DEFINED` | toute route V2 jusqu'à `VERIFIED_IN_TEST` |
 | `GATE-M0B-DB-001` | [capacité DB](../plans/pre-rentree-2026-m0b-database-capability-plan.md), preuves PG15/extension/fallback | `IMPLEMENTATION_PLAN_DEFINED` | M1 deploy et M2 |
 | `GATE-M0C-TOOLCHAIN-001` | [plan Prisma](../plans/pre-rentree-2026-m0c-prisma-toolchain-plan.md), Node20/Prisma6.19.2/drift | `IMPLEMENTATION_PLAN_DEFINED` | création migration M1 |
 | `GATE-M0D-TEST-001` | [environnement test](../plans/pre-rentree-2026-m0d-test-environment-plan.md), lanes fresh/V1 | `IMPLEMENTATION_PLAN_DEFINED` | validation M1–M3 |

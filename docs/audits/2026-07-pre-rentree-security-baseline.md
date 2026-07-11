@@ -2,17 +2,37 @@
 
 ## Date et périmètre
 
-- Audit : 11 juillet 2026, fuseau `Africa/Tunis`.
-- Référence `origin/main` : `db04d23f3e645a2052e41e5a679a8b9443cf8dc9`.
+- Audit initial : 11 juillet 2026, fuseau `Africa/Tunis`.
+- Référence initiale `origin/main` : `db04d23f3e645a2052e41e5a679a8b9443cf8dc9`.
 - Branche de sécurité inspectée en lecture seule : `g-sec/api-guards`, `8f3356f1f45eed4c45327d852a9a3b516e3eff2f`.
-- Aucun commit de cette branche n'est présumé fusionné ; aucune garantie qui lui est propre n'est créditée à `origin/main`.
 - Périmètre : guards API, Stage V1, documents, factures, paiements et webhook ClicToPay, audit et risques IDOR.
+
+### Supersession — 2026-07-11
+
+> **Les conclusions ci-dessous ont été rédigées avant la fusion de G-SEC et G-PAY sur main.**
+> Depuis, trois commits de hardening ont été fusionnés :
+>
+> - `b2ea32f0b` — fix(api-security): G-SEC hardening (13 review rounds)
+> - `ac02f548b` — fix(payments): G-PAY fail-closed hardening
+> - `c90b142c8` — chore(docs): post-merge matrix + chores tracker
+>
+> `origin/main` actuel : `c90b142c88d69bdc600f3f848b44ca0317c00242`.
+>
+> Les garanties précédemment attribuées uniquement à `g-sec/api-guards` sont désormais
+> présentes sur main. Le document de réconciliation détaillé est :
+> [`2026-07-pre-rentree-current-main-security-reconciliation.md`](2026-07-pre-rentree-current-main-security-reconciliation.md).
+>
+> Le statut de GATE-SEC-BASE-001 passe de `DESIGN_BASELINE_DEFINED` à
+> `IMPLEMENTED_ON_MAIN_PENDING_DEDICATED_REVIEW`. Voir le document d'activation gates
+> pour la définition complète de ce statut.
 
 ## Verdict du gate
 
-`GATE-SEC-BASE-001 = DESIGN_BASELINE_DEFINED`.
+`GATE-SEC-BASE-001 = IMPLEMENTED_ON_MAIN_PENDING_DEDICATED_REVIEW`.
 
-Ce statut signifie que le contrat minimal exigé par V2 est défini et que l'architecture actuelle permet de l'implémenter de façon additive. Il ne signifie ni `IMPLEMENTED`, ni `VERIFIED_IN_PRODUCTION`. Le développement en `DRAFT` peut être préparé ; toute exposition V2 reste bloquée jusqu'à preuve des contrôles décrits ici.
+Ce statut signifie qu'un socle de sécurité substantiel a été fusionné sur main (G-SEC + G-PAY), mais qu'il n'a pas encore été vérifié spécifiquement pour les exigences Pré-rentrée V2. Il ne signifie ni `VERIFIED_IN_TEST`, ni `VERIFIED_IN_PRODUCTION`. Les futures politiques parent M:N restent bloquées jusqu'à M3. Aucune API Pré-rentrée V2 n'est ouverte. Aucune activation production n'est autorisée.
+
+> Statut précédent : `DESIGN_BASELINE_DEFINED` (avant fusion G-SEC/G-PAY sur main).
 
 ## Garanties réellement disponibles dans origin/main
 
@@ -28,9 +48,12 @@ Ce statut signifie que le contrat minimal exigé par V2 est défini et que l'arc
 | Planning | `btree_gist` et contrainte d'exclusion existent pour `SessionBooking` | aucune garantie équivalente pour `StageSession`, salle, élève ou cohorte |
 | Audit | journaux spécialisés (`BusinessConfigAudit`, événements facture, `NpcAuditLog`) | pas de journal V2 générique et corrélé |
 
-## Garanties présentes uniquement sur g-sec/api-guards
+## Garanties précédemment sur g-sec/api-guards uniquement — désormais sur main
 
-La branche renforce notamment les téléchargements de documents, les périmètres de stockage, la portée facture et certains chemins paiement/webhook. Les fichiers concernés comprennent `app/api/documents/[id]/download/route.ts`, `lib/documents/storage-root.ts`, les routes ClicToPay, les guards et les routes de facture. Ces apports constituent des références de conception, pas une dépendance V2 : la migration V2 devra revalider les invariants sur sa propre base Git.
+> **Mise à jour :** Les garanties ci-dessous sont maintenant présentes sur `origin/main`
+> (`c90b142c8`) suite à la fusion de G-SEC (`b2ea32f0b`) et G-PAY (`ac02f548b`).
+
+La branche a renforcé les téléchargements de documents (route `/api/documents/[id]/download` avec RBAC complet, realpath, containment), les périmètres de stockage (`lib/documents/storage-root.ts`), la portée facture (`buildInvoiceAccessWhere`, `notFoundResponse`), les paiements/webhook ClicToPay (signature HMAC-SHA256, `timingSafeEqual`, fail-closed 501), l'audit des guards (`audit-api-guards.mjs` avec P0=0) et la validation JSON/date (`parseJsonBody`, `civilDateSchema`). Ces éléments sont désormais la baseline de référence sur main. La revue V2 dédiée (M0A-R) vérifiera leur adéquation aux exigences spécifiques Pré-rentrée.
 
 ## Garanties absentes ou insuffisantes partout
 

@@ -14,70 +14,39 @@
 
 `G` dans les tickets signifie : aucun pricing, frontend, dashboard, API V2 publique, table/colonne V1, migration déjà appliquée, secret ou donnée réelle. Aucun push/merge sans mandat. Tout fichier non listé nécessite arrêt et revue d'ownership.
 
-## M0A sécurité
+## M0A-R sécurité — revue et fermeture des écarts
 
-### SEC-01 — Inventaire des routes
+> **Supersession :** Les tickets SEC-01 à SEC-07 ont été reclassés après fusion de
+> G-SEC/G-PAY sur main. Voir le [plan M0A-R recadré](pre-rentree-2026-m0a-security-implementation-plan.md)
+> et la [réconciliation](../audits/2026-07-pre-rentree-current-main-security-reconciliation.md).
 
-- **Objectif/étapes :** générer classification → test route non classée rouge → compléter allowlist justifiée → preuve.
-- **Modèle :** Sol xhigh. **Taille :** S. **Parallèle :** oui avec DB/toolchain.
-- **Fichiers autorisés :** `docs/evidence/**`, test architecture guards, script audit existant ciblé. **Interdits :** G + logique route.
-- **Dépendances/gates :** baseline propre ; entrée SEC DESIGN, sortie inventaire complet.
-- **Tests/acceptation :** chaque route PUBLIC/AUTH/RBAC/ABAC/WEBHOOK ; zéro mutante sans contrôle.
-- **Rollback/risques :** revert test/inventaire ; risque allowlist trop large, revue Sol.
+### SEC-01 — Inventaire des routes → `ALREADY_IMPLEMENTED_REVIEW_ONLY`
 
-### SEC-02 — Auth fail-closed
+Inventaire existant : `API_GUARD_INVENTORY.md` (176 routes, P0=0, P1=2), script `audit-api-guards.mjs`, test `audit-api-guards.classification.test.ts`. M0A-R exécute le script et vérifie l'absence de routes V2 pré-ouvertes.
 
-- **Objectif/étapes :** tests auth throw/session invalide → patch `lib/guards.ts`/`api-guard.ts` → suites V1.
-- **Modèle :** Sol xhigh. **Taille :** M. **Parallèle :** après SEC-01.
-- **Fichiers autorisés :** deux guards et tests guards. **Interdits :** G + RBAC métier.
-- **Dépendances/gates :** SEC-01 ; sortie aucun chemin auth ouvert sur exception.
-- **Tests/acceptation :** 401 uniforme, log redacted, API V1 verte.
-- **Rollback/risques :** revert compatible ; risque signature guard, couvert par tests complets.
+### SEC-02 — Auth fail-closed → `ALREADY_IMPLEMENTED_REVIEW_ONLY`
 
-### SEC-03 — Moteur policy V2
+Guards `requireAuth`/`requireAnyRole` retournent 401/403, session vérifie id/role/email. Tests existants. M0A-R relit et confirme.
 
-- **Objectif/étapes :** matrice tests → types/policies deny-by-default → couverture cellules.
-- **Modèle :** Sol xhigh. **Taille :** M. **Parallèle :** avec SEC-02 après types figés.
-- **Fichiers autorisés :** `lib/stages/v2/authorization/{types,policies,errors}.ts`, tests unitaires. **Interdits :** G + Prisma/routes.
-- **Dépendances/gates :** matrice autorisation ; sortie policy pure complète.
-- **Tests/acceptation :** huit rôles, finance/pédagogie séparées, inconnu refusé.
-- **Rollback/risques :** supprimer module non consommé ; risque rôle implicite.
+### SEC-03 — Moteur policy V2 → `DEFERRED_TO_M1`
 
-### SEC-04 — Scopes ABAC DB
+Les types `PreRentreeAction`/`PreRentreeResource`/`AuthorizationDecision` restent documentés mais ne seront implémentés qu'avec les routes V2 (M1+). Créer un module sans consommateur violerait YAGNI.
 
-- **Objectif/étapes :** fixtures M1/M3 → tests parent/coach IDOR → loaders `findFirst` scoped.
-- **Modèle :** Sol xhigh. **Taille :** M. **Parallèle :** non, après M1/M3 schema.
-- **Fichiers autorisés :** authorization context/scope + tests DB. **Interdits :** G + email authority.
-- **Dépendances/gates :** SEC-03, M1, M3 ; sortie scopes VERIFIED/assigned.
-- **Tests/acceptation :** 404 hors scope, relations dates/droits, coach cohorte uniquement.
-- **Rollback/risques :** flag API off ; risque oracle/N+1.
+### SEC-04 — Scopes ABAC DB → `DEFERRED_TO_M3`
 
-### SEC-05 — Redaction des refus
+Dépend de `PreRentreeGuardianRelationship` (M3) et `PreRentreeTeacherAssignment` (M1). Guards V1 actifs.
 
-- **Objectif/étapes :** snapshots PII → allowlist metadata → audit refus.
-- **Modèle :** Sol xhigh. **Taille :** S. **Parallèle :** oui après SEC-03.
-- **Fichiers autorisés :** `lib/security/redaction.ts`, audit authorization, tests. **Interdits :** G + payload brut.
-- **Dépendances/gates :** SEC-03 ; sortie logs sans email/tel/token/path.
-- **Tests/acceptation :** snapshots redacted, requestId/reasonCode présents.
-- **Rollback/risques :** revert module ; risque diagnostic insuffisant, conserver codes.
+### SEC-05 — Redaction des refus → `GAP_CLOSURE_REQUIRED`
 
-### SEC-06 — Factures/documents
+Aucun helper redaction n'existe. M0A-R évalue le risque réel et corrige si écart P0/P1 démontré.
 
-- **Objectif/étapes :** tests oracle/path/symlink → comparer g-sec read-only → corriger invariants manquants.
-- **Modèle :** Sol xhigh. **Taille :** M. **Parallèle :** après SEC-01.
-- **Fichiers autorisés :** routes/lib facture/document ciblés et tests. **Interdits :** G + cherry-pick massif.
-- **Dépendances/gates :** inventaire ; sortie IDOR/storage verts.
-- **Tests/acceptation :** parent direct, 404, realpath, no localPath.
-- **Rollback/risques :** revert par route ; risque régression téléchargement V1.
+### SEC-06 — Factures/documents → `ALREADY_IMPLEMENTED_REVIEW_ONLY`
 
-### SEC-07 — Webhook fail-closed et preuve M0A
+`buildInvoiceAccessWhere`, `notFoundResponse`, download RBAC, realpath, storage-root sur main avec tests. M0A-R exécute et vérifie.
 
-- **Objectif/étapes :** tests secret/signature/replay → verifier helper → preuve/gate.
-- **Modèle :** Sol xhigh. **Taille :** M. **Parallèle :** webhook oui, gate après SEC-02..06.
-- **Fichiers autorisés :** webhook/helper/tests/docs gate. **Interdits :** G + mutation paiement V2.
-- **Dépendances/gates :** SEC-01 ; sortie M0A VERIFIED_IN_TEST après toutes suites.
-- **Tests/acceptation :** secret absent=refus, 501 configuré sans mutation, P0 verts.
-- **Rollback/risques :** désactiver fournisseur/revert ; risque fournisseur non documenté.
+### SEC-07 — Webhook fail-closed → `ALREADY_IMPLEMENTED_REVIEW_ONLY` + `GAP_CLOSURE_REQUIRED` (hex)
+
+Signature HMAC + timingSafeEqual + fail-closed 501 sur main. Écart : validation hex. Payload parsing, idempotence, state machine → `DEFERRED_TO_PAYMENT_EVIDENCE`.
 
 ## M0B/M0C/M0D
 

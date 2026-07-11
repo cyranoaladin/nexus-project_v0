@@ -10,6 +10,11 @@
 - Merge-base : `6060a3e6300123731c2231c8b8aee7af76de0169`
 - Verdict : **dérive réelle, sans invalidation du modèle métier ; qualification de sécurité requise avant implémentation**
 
+> **Supersession 2026-07-11 :** Depuis cet audit, les commits G-SEC (`b2ea32f0b`) et
+> G-PAY (`ac02f548b`) ont été fusionnés sur main. Les conclusions de dérive ci-dessous
+> sont historiques. Le webhook est désormais fail-closed (501 sans secret). Voir
+> [`2026-07-pre-rentree-current-main-security-reconciliation.md`](2026-07-pre-rentree-current-main-security-reconciliation.md).
+
 Ce rapport complète l'[audit système initial](./2026-07-pre-rentree-system-impact-audit.md). Il n'autorise aucune modification applicative.
 
 ## Résumé exécutif
