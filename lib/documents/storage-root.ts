@@ -7,7 +7,8 @@ import { resolve } from 'path';
  * Env-configurable via DOCUMENT_STORAGE_ROOT, defaults to cwd/storage/documents.
  */
 export function getDocumentStorageRoot(): string {
-  return process.env.DOCUMENT_STORAGE_ROOT || resolve(process.cwd(), 'storage', 'documents');
+  // resolve() ensures a relative env value becomes absolute against cwd
+  return resolve(process.env.DOCUMENT_STORAGE_ROOT || resolve(process.cwd(), 'storage', 'documents'));
 }
 
 /** Legacy prefix stored in DB by older upload routes (/app/storage/documents/). */

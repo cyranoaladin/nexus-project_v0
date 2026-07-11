@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { mkdir, writeFile } from 'fs/promises';
 import path from 'path';
+import { getDocumentStorageRoot } from '@/lib/documents/storage-root';
 import { requireRole, isErrorResponse } from '@/lib/guards';
 import { assertCoachCanAccessStudent } from '@/lib/rbac/coach-student-access';
 import { prisma } from '@/lib/prisma';
@@ -252,10 +253,10 @@ export async function POST(request: Request, { params }: RouteParams) {
       const sanitizedTitle = sanitizeFilenamePart(validatedMeta.title);
       const extension = sanitizeFilenamePart(file.name.split('.').pop() || 'pdf');
       const filename = `${sanitizedTitle}-${timestamp}.${extension}`;
-      const localPath = `/app/storage/documents/${student.userId}/${filename}`;
-
-      // Save file to disk
-      const uploadDir = path.join(process.cwd(), 'storage', 'documents', student.userId);
+      // Write to STORAGE_ROOT and store the absolute path in DB
+      const storageRoot = getDocumentStorageRoot();
+      const uploadDir = path.join(storageRoot, student.userId);
+      const localPath = path.join(uploadDir, filename);
       await mkdir(uploadDir, { recursive: true });
 
       const buffer = Buffer.from(await file.arrayBuffer());

@@ -22,18 +22,15 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
 // ── Hard guard: refuse to seed anything other than the disposable e2e database ──
 // Parsed BEFORE new PrismaClient() — no connection is made if the target is wrong.
-const _seedDbUrl = process.env.DATABASE_URL ?? '';
-const _seedUrlMatch = _seedDbUrl.match(/:\/\/[^@]*@([^:/]+):(\d+)\/([^?]+)/);
-const _seedHost = _seedUrlMatch?.[1] ?? '';
-const _seedPort = _seedUrlMatch?.[2] ?? '';
-const _seedDb = _seedUrlMatch?.[3] ?? '';
-const _allowedHosts = new Set(['localhost', '127.0.0.1', '::1']);
+import { isAllowedSeedTarget } from '../lib/e2e/seed-guard';
 
-if (!_allowedHosts.has(_seedHost) || _seedPort !== '5435' || _seedDb !== 'nexus_e2e') {
+const _seedTarget = isAllowedSeedTarget(process.env.DATABASE_URL ?? '');
+
+if (!_seedTarget.ok) {
+  // Never log the raw URL (may contain credentials)
   console.error(
-    `✗ Refusing to run destructive seed against ${_seedHost}:${_seedPort}/${_seedDb}\n` +
-    `  This script only targets the disposable e2e database 127.0.0.1:5435/nexus_e2e.\n` +
-    `  Got DATABASE_URL: ${_seedDbUrl.slice(0, 80)}...`
+    `✗ Refusing to run destructive seed against ${_seedTarget.host}:${_seedTarget.port}/${_seedTarget.db}\n` +
+    `  Expected target: nexus_e2e on a local or compose-internal host.`
   );
   process.exit(1);
 }
@@ -41,7 +38,7 @@ if (!_allowedHosts.has(_seedHost) || _seedPort !== '5435' || _seedDb !== 'nexus_
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log(`🌱 Seeding E2E database: ${_seedHost}:${_seedPort}/${_seedDb}\n`);
+  console.log(`🌱 Seeding E2E database: ${_seedTarget.host}:${_seedTarget.port}/${_seedTarget.db}\n`);
 
   // =============================================================================
   // CLEANUP
