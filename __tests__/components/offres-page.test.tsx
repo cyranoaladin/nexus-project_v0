@@ -63,13 +63,14 @@ describe('OffresPage', () => {
     expect(screen.getAllByRole('link', { name: /demander un bilan/i }).length).toBeGreaterThan(0);
   });
 
-  it('surfaces ClicToPay card payment without exposing bank identifiers publicly', () => {
+  it('surfaces fail-closed payment guidance without exposing ClicToPay or bank identifiers publicly', () => {
     const { container } = render(<OffresPage />);
 
-    expect(screen.getByText(new RegExp(CGV_POLICY.payment.provider, 'i'))).toBeInTheDocument();
-    expect(screen.getByText(new RegExp(CGV_POLICY.payment.bank, 'i'))).toBeInTheDocument();
-    expect(screen.getByText(CGV_POLICY.payment.acceptedCards)).toBeInTheDocument();
-    expect(screen.getByText(CGV_POLICY.payment.cardFee)).toBeInTheDocument();
+    expect(screen.getByText(/paiement confirmé après validation pédagogique/i)).toBeInTheDocument();
+    expect(screen.queryByText(new RegExp(CGV_POLICY.payment.provider, 'i'))).not.toBeInTheDocument();
+    expect(screen.queryByText(new RegExp(CGV_POLICY.payment.bank, 'i'))).not.toBeInTheDocument();
+    expect(screen.queryByText(CGV_POLICY.payment.acceptedCards)).not.toBeInTheDocument();
+    expect(screen.queryByText(CGV_POLICY.payment.cardFee)).not.toBeInTheDocument();
     expect(container.textContent).not.toContain(LEGAL.billing.rib);
     expect(container.textContent).not.toContain(LEGAL.billing.iban);
   });

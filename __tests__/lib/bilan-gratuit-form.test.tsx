@@ -64,13 +64,14 @@ describe('BilanGratuitPage', () => {
     expect(screen.queryByLabelText(/mot de passe/i)).not.toBeInTheDocument();
   });
 
-  it('shows card payment policy for a selected offer without public RIB/IBAN', async () => {
+  it('shows fail-closed payment guidance for a selected offer without public ClicToPay or RIB/IBAN', async () => {
     const { container } = render(await BilanGratuitPage({ searchParams: Promise.resolve({ offer: 'term-spe-simple' }) }));
 
     expect(screen.getByText(/offre repérée/i)).toBeInTheDocument();
-    expect(screen.getByText(new RegExp(CGV_POLICY.payment.provider, 'i'))).toBeInTheDocument();
-    expect(screen.getByText(new RegExp(CGV_POLICY.payment.bank, 'i'))).toBeInTheDocument();
-    expect(screen.getByText(CGV_POLICY.payment.cardFee)).toBeInTheDocument();
+    expect(screen.getByText(/paiement confirmé après validation pédagogique/i)).toBeInTheDocument();
+    expect(screen.queryByText(new RegExp(CGV_POLICY.payment.provider, 'i'))).not.toBeInTheDocument();
+    expect(screen.queryByText(new RegExp(CGV_POLICY.payment.bank, 'i'))).not.toBeInTheDocument();
+    expect(screen.queryByText(CGV_POLICY.payment.cardFee)).not.toBeInTheDocument();
     expect(container.textContent).not.toContain(LEGAL.billing.rib);
     expect(container.textContent).not.toContain(LEGAL.billing.iban);
   });
