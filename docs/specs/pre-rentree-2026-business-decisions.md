@@ -1,29 +1,29 @@
-# Décisions métier à valider — Pré-rentrée 2026
+# Décisions métier enregistrées — Pré-rentrée 2026
 
 ## Statut
 
-**Propositions argumentées — aucune décision ci-dessous n'est réputée acceptée.**
+**APPROVED — décisions enregistrées le 11 juillet 2026.**
 
-Le responsable Nexus doit renseigner `ACCEPTÉE`, `REFUSÉE` ou `À REVOIR`, la date et l'auteur pour chaque décision. L'implémentation reste interdite avant cet arbitrage.
+Les analyses et options ci-dessous sont conservées pour expliquer l'arbitrage. Le registre normatif est [OWNER-001 à OWNER-022](../decisions/pre-rentree-2026-owner-approval.md). L'approbation autorise la préparation de la conception physique ; elle n'autorise ni implémentation dans cette phase ni publication commerciale.
 
 ## Tableau de synthèse
 
 | # | Décision | Recommandation | Blocage restant | Statut |
 |---:|---|---|---|---|
-| 1 | Tarification | 480 / 900 / 1 350 / 1 800 TND, sous réserve de coût direct et politique de remise | Coût enseignant, salle, matériel, cannibalisation | À valider |
-| 2 | `intensif-renfort` | Le conserver historique ; créer des produits Pré-rentrée 10 h distincts | Noms/codes produits | À valider |
-| 3 | Modalité | Présentiel Mutuelleville uniquement ; online = cohorte distincte | Capacité/équipement réels | À valider |
-| 4 | Sous le seuil de 3 | Confirmation au plus tard le 10 août 2026 à 18:00, remboursement/report explicite | Délai de remboursement et moyen de paiement | À valider |
-| 5 | Terminale/EDS | Deux spécialités + option Maths séparée ; validation de cohérence | UX et cas particuliers candidats libres | À valider |
-| 6 | Compatibilité pédagogique | Incompatible par défaut, règle déclarative et arbitrage historisé | Autorité pédagogique et règles initiales | À valider |
-| 7 | Enseignants/salles | Ressources et équipements obligatoires avant confirmation | Identités, coûts, inventaire matériel | À valider |
-| 8 | Anciennes dates | Campagne corrective segmentée, choix maintien/modification/remboursement | Liste des familles et paiements déjà reçus | À valider |
+| 1 | Tarification | 480 / 900 / 1 350 / 1 800 TND ; publication conditionnée aux coûts/marges | Coût enseignant, salle, matériel, marge, cannibalisation | `APPROVED` OWNER-003 |
+| 2 | `intensif-renfort` | Le conserver historique ; créer des produits Pré-rentrée 10 h distincts | Liste finale des codes modules | `APPROVED` OWNER-008/009 |
+| 3 | Modalité | Présentiel Mutuelleville uniquement ; online = cohorte distincte | Capacité/équipement réels | `APPROVED` OWNER-007 |
+| 4 | Sous le seuil de 3 | Confirmation au plus tard le 10 août 2026 à 18:00, remboursement/report explicite | Alignement CGV du délai de remboursement | `APPROVED` OWNER-006 |
+| 5 | Terminale/EDS | Deux spécialités + option Maths séparée ; validation de cohérence | Matrice des cas particuliers | `APPROVED` OWNER-011 |
+| 6 | Compatibilité pédagogique | Incompatible par défaut, règle déclarative et arbitrage historisé | Matrice initiale à produire | `APPROVED` OWNER-012 |
+| 7 | Enseignants/salles | Ressources et équipements obligatoires avant confirmation | Identités, coûts, inventaire matériel | `APPROVED` OWNER-013 |
+| 8 | Anciennes dates | Campagne corrective segmentée, choix maintien/modification/remboursement | Liste des familles et paiements déjà reçus | `APPROVED` OWNER-020 |
 
 ## Grille d'impact complète
 
 Cette grille garantit que chaque arbitrage est évalué selon les mêmes dimensions. Les sections suivantes apportent les calculs et règles détaillés.
 
-| # | Contexte et options | Avantages | Inconvénients | Risque principal | Impact technique | Impact commercial | Impact pédagogique | Impact logistique | Recommandation | Décision propriétaire attendue |
+| # | Contexte et options | Avantages | Inconvénients | Risque principal | Impact technique | Impact commercial | Impact pédagogique | Impact logistique | Recommandation historique | Arbitrage requis avant OWNER |
 |---:|---|---|---|---|---|---|---|---|---|---|
 | 1 | Quatre prix proposés ; conserver, ajuster ou refuser | Lisibilité, 45–48 TND/h, packs simples | Packs 2–4 déjà au plancher ; marge inconnue | Vendre à marge insuffisante ou contourner une remise | Nouveaux produits/getters et snapshot de devis | Positionnement saisonnier à protéger des offres annuelles | 10 h financées par matière | Rentabilité variable à 3/4/5 élèves | Valider conditionnellement après coûts et marge cible | Prix, acompte, remises, marge minimale |
 | 2 | Réutiliser, surcharger ou remplacer `intensif-renfort` | Nouveau produit : sens exact et historique intact | Codes et tests supplémentaires | Recalcul ou confusion des réservations 15 h | Discriminant/catalogue V2, V1 inchangé | Offre Pré-rentrée plus compréhensible | Alignement cinq séances/10 h | Capacité par cohorte | Créer des produits 10 h séparés | Maintien V1 et codes V2 |
@@ -88,9 +88,9 @@ Le seuil de rentabilité en élèves est :
 
 Le prix horaire est proche des stages historiques (47–48 TND/h) et inférieur/égal aux planchers des formules annuelles. Le risque de cannibalisation est modéré si le produit est présenté comme saisonnier, sans suivi annuel ni substitution à l'accompagnement continu. Il devient élevé si la communication laisse croire que 40 h remplacent l'année ou si des remises additionnelles font passer sous 45 TND/h.
 
-### Recommandation
+### Recommandation historique
 
-Adopter l'hypothèse comme **base commerciale conditionnelle**, uniquement après fourniture de :
+La recommandation antérieure était d'adopter l'hypothèse comme base conditionnelle après fourniture de :
 
 - coût enseignant chargé par heure et temps de préparation ;
 - coût des salles, ordinateurs, consommables Physique-Chimie et frais de paiement ;
@@ -98,9 +98,9 @@ Adopter l'hypothèse comme **base commerciale conditionnelle**, uniquement aprè
 - règle d'éligibilité aux remises et Carte Nexus ;
 - comparaison documentée avec les offres annuelles.
 
-### Décision attendue
+### Décision enregistrée
 
-Confirmer les quatre prix, la méthode d'acompte, l'absence de remise sous plancher et le seuil de marge cible.
+OWNER-003 et OWNER-004 approuvent les quatre prix et l'acompte canonique. `GATE-FIN-001` et `GATE-FIN-002` maintiennent le blocage de publication tant que coûts et marge cible restent `OWNER_INPUT_REQUIRED`.
 
 ## Décision 2 — Format historique `intensif-renfort`
 
@@ -125,9 +125,9 @@ Option 3. Conserver `intensif-renfort` inchangé. Créer un code de module 10 h 
 - Pédagogique : le produit correspond réellement à cinq séances de deux heures.
 - Logistique : capacité gérée par cohorte, pas par ancien format.
 
-### Décision attendue
+### Décision enregistrée
 
-Valider le maintien historique et les nouveaux codes produits.
+OWNER-008 conserve les formats historiques. OWNER-009 approuve `PRE_RENTREE_2026`, `PRE2026_PACK_1` à `PRE2026_PACK_4` et le patron `PRE2026_{LEVEL}_{SUBJECT}_{VARIANT}` ; la liste des segments est à figer en conception physique.
 
 ## Décision 3 — Modalité
 
@@ -143,23 +143,23 @@ Option 1 au lancement. Si une offre online est réellement dotée, utiliser l'op
 
 Une cohorte online doit avoir son propre enseignant, ses cinq séances, sa capacité, son tarif, sa liste d'attente et son lien sécurisé. Le frontend ne peut afficher « ou en ligne » qu'après ouverture effective.
 
-### Décision attendue
+### Décision enregistrée
 
-Confirmer « présentiel à Mutuelleville » et retirer toute promesse online non dotée.
+OWNER-007 approuve le présentiel à Mutuelleville, interdit l'hybride et exige une cohorte distincte pour toute offre online future.
 
 ## Décision 4 — Groupe sous le seuil de trois
 
-### Workflow proposé
+### Workflow approuvé
 
 1. `DEMANDE_RECUE` : aucun compte obligatoire, aucun groupe promis.
 2. `PREINSCRIPTION_QUALIFIEE` : matières/parcours confirmés.
 3. `ACOMPTE_EN_ATTENTE` ou `ACOMPTE_RECU_REMBOURSABLE` : preuve liée à la demande.
 4. `GROUPE_EN_CONSTITUTION` tant que l'effectif est inférieur à trois.
 5. **Date limite : lundi 10 août 2026 à 18:00 `Africa/Tunis`**.
-6. Au seuil et avec ressources : `COHORTE_CONFIRMEE`.
-7. Sous seuil ou sans ressources : `COHORTE_NON_OUVERTE`, information le 11 août au plus tard.
+6. Au seuil et avec ressources : la cohorte peut passer à `CONFIRMED` après les autres gates.
+7. Sous seuil ou sans ressources : résultat métier « cohorte non ouverte », sans transition vers `CONFIRMED`, information le 11 août au plus tard.
 8. Choix explicite : remboursement intégral, report vers un produit identifié ou maintien sur liste d'attente. Aucun report par défaut.
-9. Remboursement initié dans un délai contractuel à valider, avec preuve et journal.
+9. Remboursement initié sous cinq jours ouvrés maximum selon la recommandation `APPROVED_PENDING_LEGAL_TEXT_ALIGNMENT`, avec preuve et journal ; la publication attend l'alignement CGV.
 
 Les demandes reçues après le 10 août ne peuvent rejoindre que des cohortes déjà confirmées avec place disponible.
 
@@ -174,13 +174,13 @@ Les demandes reçues après le 10 août ne peuvent rejoindre que des cohortes d�
 
 Accepter un acompte remboursable après qualification, avec échéance T-7, CGV explicites et report uniquement par consentement traçable.
 
-### Décision attendue
+### Décision enregistrée
 
-Valider la date, le délai de remboursement, le moyen de remboursement et le texte CGV.
+OWNER-006 approuve la date et le remboursement intégral par défaut. La recommandation d'initier le remboursement sous cinq jours ouvrés est `APPROVED_PENDING_LEGAL_TEXT_ALIGNMENT` jusqu'à alignement des CGV.
 
 ## Décision 5 — Terminale, spécialités et option Maths
 
-### Règle académique proposée
+### Règle académique approuvée
 
 - `specialties` contient normalement exactement deux EDS conservés en Terminale.
 - `mathOption` vaut `AUCUNE`, `EXPERTES` ou `COMPLEMENTAIRES`.
@@ -202,9 +202,9 @@ Séparer dans le contrat de formulaire :
 - les matières de stage souhaitées ;
 - un statut d'arbitrage si le souhait ne correspond pas au parcours académique.
 
-### Décision attendue
+### Décision enregistrée
 
-Valider ces invariants et les exceptions candidats libres/changement d'EDS.
+OWNER-011 approuve les invariants. Les exceptions restent soumises à la matrice déclarative et à `RESPONSABLE_PEDAGOGIQUE`, sans autoriser l'affichage de trois EDS.
 
 ## Décision 6 — Compatibilité pédagogique
 
@@ -220,9 +220,9 @@ Option 3. Une règle contient : variantes source/cible, objectifs communs, diff�
 
 Un tronc commun n'est autorisé que si le responsable pédagogique documente les objectifs, supports et modalités de différenciation. Sinon, groupes distincts.
 
-### Décision attendue
+### Décision enregistrée
 
-Nommer l'autorité d'approbation et valider la matrice initiale.
+OWNER-012 nomme `RESPONSABLE_PEDAGOGIQUE`. La règle « incompatible par défaut » est approuvée ; la matrice initiale reste une preuve d'activation à produire.
 
 ## Décision 7 — Enseignants et salles
 
@@ -242,9 +242,9 @@ Nommer l'autorité d'approbation et valider la matrice initiale.
 
 Une cohorte sans l'un de ces éléments reste non confirmée. Une salle texte ou un coach assigné au stage entier ne suffit pas. Aucun second groupe ne doit être créé par duplication d'une cohorte existante.
 
-### Décision attendue
+### Décision enregistrée
 
-Fournir les enseignants, coûts, salles, capacités et inventaires d'équipement.
+OWNER-013 approuve le gate de ressources. Les enseignants, coûts, salles et inventaires restent des entrées opérationnelles obligatoires avant confirmation/publication.
 
 ## Décision 8 — Familles informées du 24–28 août
 
@@ -270,25 +270,28 @@ Journaliser le modèle/version du message, canal, destinataire interne référen
 
 Générer la liste depuis les données réelles, faire relire le message par le responsable Nexus, envoyer une campagne coordonnée, puis bloquer toute confirmation tant que la famille n'a pas répondu.
 
-### Décision attendue
+### Décision enregistrée
 
-Valider le message, les droits de remboursement, les canaux et le responsable de campagne.
+OWNER-020 approuve la segmentation et la cohérence multicanal. Aucun envoi n'est autorisé dans cette phase ; inventaire, message et droits doivent encore passer les gates de communication et juridiques.
 
 ## Registre de validation
 
 | Décision | Choix du responsable | Auteur | Date | Commentaire/condition |
 |---:|---|---|---|---|
-| 1 | À renseigner | — | — | — |
-| 2 | À renseigner | — | — | — |
-| 3 | À renseigner | — | — | — |
-| 4 | À renseigner | — | — | — |
-| 5 | À renseigner | — | — | — |
-| 6 | À renseigner | — | — | — |
-| 7 | À renseigner | — | — | — |
-| 8 | À renseigner | — | — | — |
+| 1 | `APPROVED` | Responsable Nexus | 2026-07-11 | OWNER-003/004 ; publication financière encore bloquée |
+| 2 | `APPROVED` | Responsable Nexus | 2026-07-11 | OWNER-008/009 |
+| 3 | `APPROVED` | Responsable Nexus | 2026-07-11 | OWNER-007 |
+| 4 | `APPROVED` | Responsable Nexus | 2026-07-11 | OWNER-006 ; texte légal en attente |
+| 5 | `APPROVED` | Responsable Nexus | 2026-07-11 | OWNER-011 |
+| 6 | `APPROVED` | Responsable Nexus | 2026-07-11 | OWNER-012 |
+| 7 | `APPROVED` | Responsable Nexus | 2026-07-11 | OWNER-013 ; ressources à fournir |
+| 8 | `APPROVED` | Responsable Nexus | 2026-07-11 | OWNER-020 ; campagne non envoyée |
 
 ## Références
 
 - [Audit d'impact système](../audits/2026-07-pre-rentree-system-impact-audit.md)
 - [Contrat de sources de vérité](pre-rentree-2026-source-of-truth-contract.md)
 - [Stratégie de migration](pre-rentree-2026-migration-strategy.md)
+- [Registre owner](../decisions/pre-rentree-2026-owner-approval.md)
+- [Gates d'activation](pre-rentree-2026-activation-gates.md)
+- [Unit economics](pre-rentree-2026-unit-economics-inputs.md)

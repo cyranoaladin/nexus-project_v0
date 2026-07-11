@@ -3,12 +3,12 @@
 ## Statut et objectif
 
 - Date : 11 juillet 2026
-- Statut : **PROPOSÉ — applicable seulement après validation métier et lancement explicite de l'implémentation**
+- Statut : **APPROVED comme contrat de propriété futur — aucune implémentation autorisée dans cette phase**
 - Objet : permettre des lots Sol/Terra/Luna sans écriture concurrente, source dupliquée ni ordre de fusion implicite.
 
 Cette carte ne donne aucune autorisation d'implémenter. Elle prépare le futur découpage. Les chemins marqués « futur » n'existent pas nécessairement et leurs noms devront être confirmés lors de la revue de conception.
 
-Références : [ADR 005](../adr/005-pre-rentree-source-of-truth-and-application-integration.md), [carte d'impact](./pre-rentree-2026-system-impact-map.md), [contrat des sources](./pre-rentree-2026-source-of-truth-contract.md) et [matrice de tests](./pre-rentree-2026-test-matrix.md).
+Références : [ADR 005](../adr/005-pre-rentree-source-of-truth-and-application-integration.md), [décisions owner](../decisions/pre-rentree-2026-owner-approval.md), [audit de dérive](../audits/2026-07-pre-rentree-main-drift-audit.md), [contrat des sources](./pre-rentree-2026-source-of-truth-contract.md), [gates](./pre-rentree-2026-activation-gates.md) et [matrice de tests](./pre-rentree-2026-test-matrix.md).
 
 ## 1. Mandats
 
@@ -34,7 +34,7 @@ Références : [ADR 005](../adr/005-pre-rentree-source-of-truth-and-application-
 
 | Ordre | Phase | Condition d'entrée | Propriétaire principal |
 |---:|---|---|---|
-| 0 | décisions | décisions BIZ et ADR 005 acceptées | responsable Nexus |
+| 0 | décisions | OWNER-001 à OWNER-022 et ADR 005 acceptées | responsable Nexus |
 | 1 | contrats commerciaux et domaine | catalogue, types, invariants et DTO approuvés | Terra puis Sol |
 | 2 | stockage et services derrière flags | migration additive, upsert, API privées et tests | Sol |
 | 3 | dashboards derrière flags | API stables et fixtures V1/V2 disponibles | Luna |
@@ -43,6 +43,8 @@ Références : [ADR 005](../adr/005-pre-rentree-source-of-truth-and-application-
 | 6 | activation | gates G0 à G5 verts et décision de publication | responsable Nexus |
 
 L'ordre « Terra puis Sol » de la phase 1 signifie : Terra publie les identifiants produits et règles via l'API de `lib/pricing.ts`; Sol ne code aucun prix et consomme ce contrat. La landing page Terra n'est fusionnée qu'en phase 4.
+
+Toute future branche repart d'un `origin/main` fraîchement fetché. Sol traite d'abord `GATE-SEC-BASE-001` : aucun lot ne peut présumer disponibles les durcissements présents dans `11ac38c` mais absents du `main` synchronisé.
 
 ## 4. Carte Sol — domaine, données et API
 
@@ -57,6 +59,7 @@ L'ordre « Terra puis Sol » de la phase 1 signifie : Terra publie les identifia
 | `lib/stages/inscription-schema.ts` | 2 | Sol exclusif | contrat public | collecte minimale, aucun prix client fiable | 2 |
 | `lib/stages/public.ts` | 2 | Sol exclusif | composition DB/pricing/contenu | aucun accès direct JSON dans le routeur | 2 |
 | `lib/auth/**`, `lib/rbac*`, guards associés | 2 | Sol exclusif ciblé | matrice RBAC/IDOR | aucune permission large pour débloquer l'UI | 2 |
+| guards/date civile/documents/webhook identifiés par le drift | 1-2 | Sol exclusif ciblé | `GATE-SEC-BASE-001` | ne pas copier aveuglément depuis `11ac38c` | avant toute API V2 |
 | `app/api/stages/**` | 2 | Sol exclusif | services V2 et DTO | aucune logique de prix/capacité locale | 2 |
 | `app/api/admin/stages/**` | 2 | Sol exclusif | autorisations admin, audit | aucune mutation dangereuse sans transaction/audit | 2 |
 | `app/api/coach/stages/route.ts` | 2 | Sol exclusif | affectations de cohorte | pas de finance/PII familiale superflue | 2 |
@@ -77,7 +80,7 @@ L'ordre « Terra puis Sol » de la phase 1 signifie : Terra publie les identifia
 
 | Fichier ou dossier | Phase | Droit d'écriture | Dépendances | Interdictions | Fusion |
 |---|---:|---|---|---|---:|
-| `data/pricing.canonical.json` | 1 | Terra exclusif, après décision | validation tarifs | aucun montant avant approbation propriétaire | 1a |
+| `data/pricing.canonical.json` | 1 | Terra exclusif, dans une phase future | OWNER-003, gates financières et mission explicite | aucune publication avant marge/coûts validés | 1a |
 | `lib/pricing.ts` | 1 | Terra exclusif | JSON canonique | conserver l'encapsulation, aucun import client direct | 1a |
 | `lib/pricing-client.ts` ou équivalent | 1 | Terra exclusif | getters publics minimaux | aucune règle de confiance financière client | 1a |
 | `data/pricing-client-data.generated.json` | 1 | générateur Terra uniquement | catalogue validé | aucune édition manuelle | 1a |
@@ -90,6 +93,8 @@ L'ordre « Terra puis Sol » de la phase 1 signifie : Terra publie les identifia
 | `app/stages/_lib/business-config.ts` | 1/4 | Terra exclusif | décision `BusinessConfig` | aucune priorité silencieuse sur le canonique | 1a/4 |
 | `app/stages/_lib/constants.ts` | 4 | Terra exclusif | contrat non-hardcoding | aucune constante métier PR26 | 4 |
 | `app/stages/[stageSlug]/page.tsx` | 4 | Terra exclusif | vue publique Sol | préserver le rendu V1 discriminé | 4 |
+| `app/stages/pre-rentree-2026/page.tsx` (futur) | 4 | Terra exclusif | DTO public Sol, gates publication | aucune date/prix/capacité locale | 4 |
+| `app/pre-rentree/**` ou configuration de redirection (futur) | 4 | Terra exclusif | route canonique disponible | aucune seconde landing indépendante | 4 |
 | `app/stages/[stageSlug]/inscription/page.tsx` | 4 | Terra exclusif | API demande Sol | pas de création de compte obligatoire | 4 |
 | `components/stages/PublicStageCard.tsx` | 4 | Terra exclusif | DTO public | aucune date/prix de secours | 4 |
 | `components/stages/StageInscriptionForm.tsx` | 4 | Terra exclusif | Zod/erreurs API | pas de PII en analytics ou URL | 4 |
@@ -153,7 +158,7 @@ Toute modification d'un contrat partagé incrémente sa version ou reste compati
 
 | Zone | Propriétaire final | Procédure |
 |---|---|---|
-| `BusinessConfig` contre catalogue | Terra pour la politique, Sol pour l'application serveur | décision propriétaire puis deux commits séquencés |
+| `BusinessConfig` contre catalogue | Terra pour le catalogue, Sol pour allowlist/fail-closed | OWNER-016 interdit tout override contractuel ; tests Sol avant consommation Terra |
 | DTO dashboards dans routes API | Sol | Luna ouvre une demande de contrat/tests, pas une édition parallèle |
 | calendrier partagé public/dashboard | Sol produit les données ; Luna possède le composant partagé ; Terra possède l'enveloppe publique | fusion Sol, puis Luna, puis Terra |
 | redirection `/stages/[slug]` V1/V2 | Sol pour résolution, Terra pour rendu | DTO discriminé fusionné avant UI |
@@ -183,4 +188,4 @@ Un propriétaire ne remet son lot que si :
 - les parcours V1 concernés ont une preuve de non-régression ;
 - les flags sont désactivés par défaut avant décision de publication ;
 - le rollback du lot est documenté ;
-- aucune décision « PROPOSÉE » n'a été implémentée comme si elle était acceptée.
+- aucune condition de publication encore `PENDING_EVIDENCE`, `OWNER_INPUT_REQUIRED` ou `APPROVED_PENDING_LEGAL_TEXT_ALIGNMENT` n'a été traitée comme approuvée.

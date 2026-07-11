@@ -2,7 +2,9 @@
 
 ## Statut
 
-**PROPOSÉ — validation du responsable Nexus requise avant implémentation**
+**ACCEPTÉ — OWNER-016, OWNER-017, OWNER-018 et OWNER-019, le 11 juillet 2026**
+
+Cette ADR autorise la phase suivante de conception physique, pas une modification Prisma ou une publication dans la phase courante.
 
 ## Date
 
@@ -19,9 +21,9 @@ Le modèle historique représente correctement une offre simple, mais pas une é
 
 La Pré-rentrée 2026 exige en outre une création reproductible du planning socle, sans faire d'un fichier de seed une source opérationnelle concurrente de la base.
 
-## Décision proposée
+## Décision adoptée
 
-Adopter l'architecture suivante après validation métier :
+L'architecture adoptée est :
 
 1. **Catalogue et règles commerciales** : `data/pricing.canonical.json`, accessible uniquement par `lib/pricing.ts`, reste la source canonique des produits, prix, planchers, acomptes, arrondis et remises.
 2. **Définition initiale de campagne** : un template versionné, typé et validé décrit la Pré-rentrée 2026. Il ne contient pas de données personnelles et n'est jamais lu par le frontend.
@@ -31,7 +33,7 @@ Adopter l'architecture suivante après validation métier :
 6. **Historique** : les stages V1 gardent leur sens. La Pré-rentrée utilise un agrégat V2 distinct. Une édition métier ne peut exister simultanément en V1 et V2.
 7. **Dérivation** : nombre de séances, volumes horaires, places, statuts de capacité, charges, total, acompte et solde sont calculés par des fonctions centrales. Les snapshots ne servent qu'à expliquer un engagement historique.
 
-Cette décision ne valide ni les prix proposés, ni le schéma physique futur, ni l'ouverture d'une cohorte.
+Les prix sont approuvés séparément par OWNER-003 mais restent non publiables avant validation financière. Cette décision ne valide ni le schéma physique futur, ni l'ouverture d'une cohorte.
 
 ## Options étudiées
 
@@ -51,7 +53,7 @@ Inconvénients : création manuelle risquée de 60 séances ; audit Git absent ;
 
 Avantages : revue et reproductibilité avant publication ; transactions et contraintes en exploitation ; aucun accès frontend au template ; checksum explicable ; rollback applicatif possible.
 
-Inconvénients : nécessite validation, commande d'import, versionnement et règles d'écart après matérialisation. **Option recommandée**.
+Inconvénients : nécessite validation, commande d'import, versionnement et règles d'écart après matérialisation. **Option retenue**.
 
 ## Frontières architecturales
 
@@ -100,7 +102,7 @@ Ces noms sont des concepts de domaine, pas une autorisation de modifier Prisma.
 - Le serveur résout le produit et recalcule total, acompte, remises, plancher et solde.
 - Le devis accepté enregistre produit/version, règles appliquées et montants comme snapshot historique.
 - Un snapshot n'est pas réinjecté dans le catalogue et n'est pas recalculé rétroactivement.
-- `BusinessConfig` ne peut surcharger une règle Pré-rentrée sans un périmètre, une version publiée et une priorité explicitement validés. À défaut, cette édition l'ignore.
+- `BusinessConfig` ne peut surcharger aucun prix, acompte, remise, date, horaire, durée, capacité, seuil, code produit ou règle académique Pré-rentrée. Tout conflit échoue explicitement ; seuls les flags et paramètres non contractuels allowlistés sont admis.
 - Réservation, consommation de capacité et création de l'engagement financier doivent partager une frontière transactionnelle cohérente ; les effets externes utilisent une outbox idempotente.
 
 ## Règles d'idempotence et d'unicité
@@ -176,16 +178,18 @@ La séquence et les contrôles sont définis dans la [stratégie de migration](.
 7. données V2 conservées pour audit, aucune suppression automatique ;
 8. restauration de sauvegarde uniquement pour un incident de données confirmé.
 
-## Décisions encore attendues
+## Entrées encore attendues avant publication
 
-- validation des tarifs et de la marge cible ;
-- résolution de la portée de `BusinessConfig` ;
-- date limite, remboursement et report sous le seuil ;
-- politique de liaison et de fusion des identités ;
-- visibilité financière élève ;
-- règles de compatibilité pédagogique et autorité de validation ;
-- stratégie de communication aux familles déjà informées ;
-- modèle physique V2 et politique d'archivage.
+Les choix d'architecture et de métier sont enregistrés dans le registre owner. Restent des preuves ou données d'activation, pas des décisions implicites :
+
+- coûts directs et marge cible ;
+- CGV alignées sur remboursement/report ;
+- enseignants, disponibilités, salles et équipements ;
+- matrice pédagogique initiale approuvée ;
+- conception physique V2 additive ;
+- implémentation et tests des identités, capacités, paiements et autorisations ;
+- politique de rétention ;
+- campagne corrective et preview publique.
 
 ## Références
 
@@ -194,6 +198,9 @@ La séquence et les contrôles sont définis dans la [stratégie de migration](.
 - [décisions métier](../specs/pre-rentree-2026-business-decisions.md)
 - [ADR 004 — ressources et cohortes](./004-pre-rentree-modules-cohortes-seances-ressources.md)
 - [matrice de tests](../specs/pre-rentree-2026-test-matrix.md)
+- [décisions owner](../decisions/pre-rentree-2026-owner-approval.md)
+- [gates d'activation](../specs/pre-rentree-2026-activation-gates.md)
+- [audit de dérive de main](../audits/2026-07-pre-rentree-main-drift-audit.md)
 
 ## Rollback de la décision
 

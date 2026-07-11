@@ -2,7 +2,9 @@
 
 ## Statut
 
-Plan de conception uniquement. Aucune migration Prisma n'est créée ou exécutée dans cette phase.
+**APPROVED comme stratégie cible par OWNER-018 et OWNER-019.** Aucune migration Prisma n'est créée ou exécutée dans cette phase. Le schéma physique reste la sortie de la phase suivante.
+
+Baseline synchronisée : `origin/main` à `db04d23f3e645a2052e41e5a679a8b9443cf8dc9`. L'[audit de dérive](../audits/2026-07-pre-rentree-main-drift-audit.md) montre que certains helpers de sécurité de la base `11ac38c` n'existent pas sur ce SHA ; aucune migration ou API ne doit les présumer disponibles.
 
 ## Objectifs
 
@@ -18,7 +20,7 @@ Plan de conception uniquement. Aucune migration Prisma n'est créée ou exécut�
 Pendant la transition :
 
 - `Stage` et ses relations restent l'autorité des éditions historiques V1 ;
-- les agrégats V2 sont l'autorité exclusive de `pre-rentree-2026` ;
+- les agrégats V2 sont l'autorité exclusive de l'édition interne `PRE_RENTREE_2026`, exposée par le slug centralisé `pre-rentree-2026` ;
 - un registre d'unicité interdit le même `editionCode` dans V1 et V2 ;
 - le query service renvoie un discriminant `LEGACY_STAGE` ou `EDITION_V2` ;
 - aucune écriture miroir n'est autorisée ;
@@ -40,7 +42,7 @@ Aucun backfill automatique ne transforme leur sens.
 
 ## Données à créer uniquement pour 2026 V2
 
-- édition `pre-rentree-2026` ;
+- édition `PRE_RENTREE_2026` et mapping vers le slug public `pre-rentree-2026` ;
 - version/checksum du template ;
 - 12 modules et variantes ;
 - cohortes socles logistiques, distinctes de leur ouverture commerciale ;
@@ -65,12 +67,12 @@ La requalification n'est jamais automatique si niveau, matières, parent ou parc
 
 ### Phase 0 — Décisions et inventaire
 
-- accepter décisions métier et ADR ;
+- vérifier le registre owner approuvé et l'ADR acceptée ;
 - exporter en lecture seule compteurs V1, réservations/paiements concernés et checksums ;
 - confirmer coûts, salles, enseignants, CGV et communication ;
 - définir métriques de succès et propriétaire du rollback.
 
-Gate : aucune implémentation sans validation owner.
+Gate : conception physique autorisée ; implémentation toujours soumise à une mission distincte et aux gates concernées.
 
 ### Phase 1 — Migration additive
 
@@ -81,6 +83,8 @@ Gate : aucune implémentation sans validation owner.
 - déployer avec feature flag désactivé.
 
 Gate : migration testée sur base de test et copie anonymisée.
+
+La branche de cette future phase doit repartir d'un `origin/main` fraîchement fetché. `GATE-SEC-BASE-001` doit interdire toute dépendance implicite aux guards, helpers de date, stockage document ou webhook présents uniquement dans l'ancienne base auditée.
 
 ### Phase 2 — Domaine et template
 
@@ -223,7 +227,7 @@ Réponse : date civile + timezone d'édition, construction serveur des instants,
 
 ## Feature flags
 
-Flags conceptuels, source opérationnelle à valider :
+Flags conceptuels approuvés comme usage autorisé de `BusinessConfig` par OWNER-016 :
 
 - `preRentree2026.readEnabled` ;
 - `preRentree2026.publicLandingEnabled` ;
@@ -232,6 +236,8 @@ Flags conceptuels, source opérationnelle à valider :
 - `preRentree2026.dashboardEnabled`.
 
 Le flag de landing doit pouvoir désactiver uniquement la nouvelle édition sans casser `/stages` historique. Aucun flag ne change les prix.
+
+Les flags public, API/paiement et dashboards restent indépendants. Leur état initial est désactivé ; un conflit avec le catalogue, le template ou la DB échoue au lieu de réécrire une valeur contractuelle.
 
 ## Validation avant bascule
 
@@ -264,6 +270,14 @@ Le flag de landing doit pouvoir désactiver uniquement la nouvelle édition sans
 - restaurer depuis sauvegarde seulement avec validation explicite si corruption ;
 - aucun rollback ne remet la date de début au 24 août.
 
+## Archivage logique
+
+- les éditions/cohortes/demandes utilisent des transitions et, si nécessaire, `archivedAt` ;
+- aucune suppression physique ordinaire d'une édition avec inscription, paiement, présence, communication ou document ;
+- paiements, factures, preuves et transitions restent immuables selon la politique de rétention ;
+- une archive n'est plus publiable mais reste consultable par les rôles autorisés ;
+- la future conception doit empêcher les hard deletes en cascade contraires à OWNER-019.
+
 ## Critères de sortie de coexistence
 
 - aucun write V1 pour la Pré-rentrée ;
@@ -278,3 +292,6 @@ Le flag de landing doit pouvoir désactiver uniquement la nouvelle édition sans
 - [ADR 005](../adr/005-pre-rentree-source-of-truth-and-application-integration.md)
 - [Matrice de tests](pre-rentree-2026-test-matrix.md)
 - [Propriété des fichiers](pre-rentree-2026-file-ownership-map.md)
+- [Décisions owner](../decisions/pre-rentree-2026-owner-approval.md)
+- [Gates d'activation](pre-rentree-2026-activation-gates.md)
+- [Audit de dérive de main](../audits/2026-07-pre-rentree-main-drift-audit.md)

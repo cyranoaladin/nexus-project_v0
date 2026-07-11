@@ -2,7 +2,7 @@
 
 ## Statut
 
-Spécification proposée. Aucun écran, compte ou modèle n'est créé dans cette phase.
+**APPROVED comme contrat cible par OWNER-014 et OWNER-015.** Aucun écran, compte ou modèle n'est créé dans cette phase. Les détails physiques de relation, vérification et révocation restent à concevoir additivement.
 
 ## Invariants d'identité
 
@@ -97,7 +97,7 @@ Une inscription est confirmée lorsque : identité liée, variante qualifiée, c
 - solde et facture réconciliés ;
 - cohortes clôturées ;
 - présence/bilan conservés selon politique ;
-- données de lead non nécessaires supprimées/anonymisées selon la politique à valider.
+- données de lead non nécessaires supprimées/anonymisées selon la politique de rétention encore attendue sous `GATE-RETENTION-001`.
 
 ## Détection et fusion de doublons
 
@@ -141,7 +141,7 @@ Une inscription est confirmée lorsque : identité liée, variante qualifiée, c
 - déclarer un paiement via un produit serveur ;
 - choisir remboursement/report lorsqu'offert ;
 - télécharger facture/documents ;
-- inviter un second responsable si politique validée.
+- inviter un second responsable selon ses droits, avec vérification et audit.
 
 ### Autorisation
 
@@ -225,6 +225,8 @@ Bien que non demandé comme rôle final séparé, il existe dans le dépôt et d
 - aucune modification de catalogue, template, règle pédagogique ou migration ;
 - escalade admin/pédagogie pour arbitrages.
 
+La dérive entre la base auditée et `origin/main` modifie actuellement certains scopes de facture pour `ASSISTANTE`. Aucun droit financier de ce rôle ne doit être déduit de l'UI existante : il sera explicitement fixé et testé dans la matrice RBAC de la branche d'implémentation.
+
 ## Matrice de visibilité
 
 | Donnée/action | Public | Parent | Élève | Coach | Assistante | Admin |
@@ -280,3 +282,6 @@ Chaque envoi possède clé idempotente, version de template, audience, canal, st
 - [Audit système](../audits/2026-07-pre-rentree-system-impact-audit.md)
 - [Carte d'impact](pre-rentree-2026-system-impact-map.md)
 - [Matrice de tests](pre-rentree-2026-test-matrix.md)
+- [Décisions owner](../decisions/pre-rentree-2026-owner-approval.md)
+- [Gates d'activation](pre-rentree-2026-activation-gates.md)
+- [Audit de dérive de main](../audits/2026-07-pre-rentree-main-drift-audit.md)

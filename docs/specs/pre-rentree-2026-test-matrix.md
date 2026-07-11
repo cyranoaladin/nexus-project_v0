@@ -3,7 +3,7 @@
 ## Statut
 
 - Date : 11 juillet 2026
-- Statut : **PROPOSÉ — aucun test applicatif n'est implémenté dans cette phase**
+- Statut : **APPROVED comme contrat de recette — aucun test applicatif n'est implémenté dans cette phase**
 - Fuseau de référence : `Africa/Tunis`
 - Périmètre : planning socle, variantes, identité, API, tableaux de bord, frontend public, pricing et historique
 
@@ -13,7 +13,10 @@ Documents liés :
 - [contrat des sources de vérité](./pre-rentree-2026-source-of-truth-contract.md) ;
 - [intégration utilisateurs et dashboards](./pre-rentree-2026-user-dashboard-integration.md) ;
 - [stratégie de migration](./pre-rentree-2026-migration-strategy.md) ;
-- [audit d'impact](../audits/2026-07-pre-rentree-system-impact-audit.md).
+- [audit d'impact](../audits/2026-07-pre-rentree-system-impact-audit.md) ;
+- [audit de dérive de main](../audits/2026-07-pre-rentree-main-drift-audit.md) ;
+- [décisions owner](../decisions/pre-rentree-2026-owner-approval.md) ;
+- [gates d'activation](./pre-rentree-2026-activation-gates.md).
 
 ## 1. Principes de recette
 
@@ -55,14 +58,14 @@ Documents liés :
 
 ## 4. Matrice B — pricing
 
-Les valeurs chiffrées de `PRI-01` à `PRI-04` sont des **hypothèses à valider par le responsable Nexus**. Les tests ne seront activés qu'après publication dans le catalogue canonique.
+Les valeurs chiffrées de `PRI-01` à `PRI-04` sont **approuvées par OWNER-003**, mais ne sont ni implémentées ni publiables tant que les produits canoniques et les gates financières ne sont pas validés.
 
 | ID | Scénario | Résultat attendu | Niveau |
 |---|---|---|---|
-| PRI-01 | Une matière, 10 h, hypothèse 480 TND | 48 TND/h ; acompte canonique 140 ; solde 340 | unitaire |
-| PRI-02 | Deux matières, 20 h, hypothèse 900 TND | 45 TND/h ; acompte 270 ; solde 630 | unitaire |
-| PRI-03 | Trois matières, 30 h, hypothèse 1 350 TND | 45 TND/h ; acompte 410 ; solde 940 | unitaire |
-| PRI-04 | Quatre matières, 40 h, hypothèse 1 800 TND | 45 TND/h ; acompte 540 ; solde 1 260 | unitaire |
+| PRI-01 | Une matière, 10 h, prix approuvé 480 TND | 48 TND/h ; acompte canonique 140 ; solde 340 | unitaire |
+| PRI-02 | Deux matières, 20 h, prix approuvé 900 TND | 45 TND/h ; acompte 270 ; solde 630 | unitaire |
+| PRI-03 | Trois matières, 30 h, prix approuvé 1 350 TND | 45 TND/h ; acompte 410 ; solde 940 | unitaire |
+| PRI-04 | Quatre matières, 40 h, prix approuvé 1 800 TND | 45 TND/h ; acompte 540 ; solde 1 260 | unitaire |
 | PRI-05 | Appliquer le plancher stage | aucun prix effectif sous le plancher canonique | propriété |
 | PRI-06 | Appliquer l'arrondi de l'acompte | une seule fonction canonique produit le résultat | contrat |
 | PRI-07 | Client altère `price`, `deposit` ou `discount` | valeurs ignorées ; recalcul serveur | sécurité API |
@@ -71,6 +74,8 @@ Les valeurs chiffrées de `PRI-01` à `PRI-04` sont des **hypothèses à valider
 | PRI-10 | Catalogue absent ou produit non publié | échec fermé, aucun ancien prix de secours | intégration |
 | PRI-11 | Rejouer une demande avec même clé d'idempotence | un devis/une écriture financière, même résultat | intégration |
 | PRI-12 | Modifier ultérieurement le catalogue | devis accepté et historique gardent leur snapshot explicable | non-régression |
+| PRI-13 | `BusinessConfig` tente de redéfinir prix/acompte/remise | conflit explicite, valeur canonique jamais remplacée | contrat/sécurité |
+| PRI-14 | Calculer un prix avant validation des coûts/marges | calcul DRAFT permis, publication/CTA paiement bloqués | intégration |
 
 ## 5. Matrice C — planning et ressources
 
@@ -157,6 +162,13 @@ Les valeurs chiffrées de `PRI-01` à `PRI-04` sont des **hypothèses à valider
 | API-16 | Logs d'erreur et notifications | pas d'email, téléphone, nom de mineur ou payload complet | sécurité |
 | API-17 | Prix client différent du serveur | le serveur gagne et journalise l'anomalie sans PII | sécurité |
 | API-18 | Publication sans checksum de template | refus explicite | intégration |
+| API-19 | `auth()` lève une exception | réponse fermée et uniforme, aucune erreur 500 ou donnée exposée | sécurité/drift |
+| API-20 | Webhook ClicToPay sans secret | endpoint désactivé avant consommation/effet métier | sécurité/drift |
+| API-21 | Webhook signé rejoué | aucun double paiement, facture ou notification | sécurité/idempotence |
+| API-22 | Date civile invalide ou ambiguë | rejet avant construction d'un instant `Africa/Tunis` | contrat/drift |
+| API-23 | Document de cohorte demandé sans audience autorisée | 404/403 uniforme, aucun chemin local exposé | IDOR/drift |
+| API-24 | Remboursement sous seuil | intégral, lié à l'inscription, preuve et choix report absent par défaut | intégration |
+| API-25 | Archiver une édition avec engagements | archive logique ; hard delete/cascade refusé | domaine/sécurité |
 
 ## 9. Matrice G — frontend public
 
@@ -178,6 +190,10 @@ Les valeurs chiffrées de `PRI-01` à `PRI-04` sont des **hypothèses à valider
 | WEB-14 | Analytics | événements consentis et sans PII ; soumission dédupliquée | analytics |
 | WEB-15 | Formulaire invalide | erreurs proches des champs, focus déplacé, saisie conservée | accessibilité |
 | WEB-16 | Navigateur dans un autre fuseau | horaires affichés en heure de Tunis | E2E |
+| WEB-17 | Ouvrir `/stages/pre-rentree-2026` sous flag actif | route canonique, contenu V2 et canonical SEO cohérents | E2E |
+| WEB-18 | Ouvrir `/pre-rentree` | redirection vers la route canonique, sans boucle | E2E |
+| WEB-19 | Parcours depuis navbar, accueil, `/stages`, `/offres` | page dédiée accessible en un clic depuis chaque surface | E2E |
+| WEB-20 | Vérifier les libellés académiques | aucun « EAF Terminale », « EDS NSI Seconde » ou « trois EDS » | contenu/a11y |
 
 ## 10. Matrice H — non-régression
 
@@ -195,19 +211,21 @@ Les valeurs chiffrées de `PRI-01` à `PRI-04` sont des **hypothèses à valider
 | NRG-10 | Autres campagnes | slugs, métadonnées et CTA non réécrits par l'upsert PR26 | intégration |
 | NRG-11 | Anciennes factures/paiements | montants et audit immuables | intégration |
 | NRG-12 | Base sans modèle V2 après rollback applicatif | application historique démarre et reste opérante | rollback |
+| NRG-13 | Comparer le SHA cible aux durcissements de la base auditée | aucune dépendance à un helper absent de `origin/main` | architecture/drift |
+| NRG-14 | `BusinessConfig` historique contient une clé contractuelle | PR26 échoue explicitement sans modifier les autres campagnes | contrat |
 
-## 11. Quality gates proposés
+## 11. Quality gates
 
 | Gate | Condition de passage |
 |---|---|
-| G0 — contrat | décisions propriétaire publiées, catalogue validé, schémas Zod et invariants relus |
+| G0 — contrat | décisions owner enregistrées, catalogue validé, schémas Zod et invariants relus |
 | G1 — domaine | `DOM-*`, `PRI-*`, `PLN-*` et tests de migration verts |
 | G2 — sécurité | matrice RBAC/IDOR, concurrence, idempotence et absence de PII vertes |
 | G3 — intégration | quatre dashboards et frontend public consomment les mêmes vues serveur |
 | G4 — non-régression | historique V1, offres annuelles, auth et autres campagnes verts |
-| G5 — publication | répétition de l'upsert sans diff, checksum conforme, smoke et rollback répétés |
+| G5 — publication | toutes les gates du registre approuvées, répétition de l'upsert sans diff, checksum conforme, smoke et rollback répétés |
 
-Un échec de `PLN-13`, `PLN-14`, `IDN-11`, `API-07`, `API-13`, `API-14`, `API-15`, `NRG-07` ou `NRG-11` est bloquant P0.
+Un échec de `PLN-13`, `PLN-14`, `IDN-11`, `API-07`, `API-13`, `API-14`, `API-15`, `API-19`, `API-20`, `API-21`, `API-23`, `NRG-07` ou `NRG-11` est bloquant P0.
 
 ## 12. Commandes cibles pour la future implémentation
 

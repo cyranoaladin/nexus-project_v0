@@ -2,7 +2,9 @@
 
 ## Statut
 
-Contrat architectural proposé. Il devient normatif uniquement après acceptation de [l'ADR 005](../adr/005-pre-rentree-source-of-truth-and-application-integration.md).
+**APPROVED — contrat normatif accepté par OWNER-016 et OWNER-017 le 11 juillet 2026.**
+
+L'acceptation autorise la conception physique. Les prix approuvés ne sont pas encore présents dans le catalogue et restent non publiables avant les [gates financières](pre-rentree-2026-activation-gates.md).
 
 ## Principes
 
@@ -21,18 +23,20 @@ Contrat architectural proposé. Il devient normatif uniquement après acceptatio
 
 **Accès serveur :** getters/services de `lib/pricing.ts`.
 
-**Accès client :** projection générée minimale, jamais import direct.
+**Accès client Pré-rentrée :** DTO serveur calculé, jamais import direct du JSON. La projection pricing générée existante peut rester utilisée par les surfaces historiques qui en dépendent, sans devenir la source PR26.
 **Écriture :** processus catalogue versionné, review métier et tests de plancher/échéancier.
 
 Les montants de `Stage`, `StageReservation`, `Payment`, `InvoiceItem` et devis sont des snapshots opérationnels/historiques. Ils ne définissent pas le prix courant.
 
-`BusinessConfig` constitue aujourd'hui une capacité d'override des règles pricing. Pour la Pré-rentrée :
+`BusinessConfig` constitue aujourd'hui une capacité d'override des règles pricing. OWNER-016 fige pour la Pré-rentrée :
 
 - aucun override runtime ne peut modifier un prix produit ;
 - les règles effectives utilisées au calcul sont résolues par un service unique ;
 - la version et le checksum des règles sont enregistrés dans le devis ;
-- si les overrides génériques restent autorisés, leur champ d'application doit exclure explicitement les produits Pré-rentrée ou passer par une publication de catalogue ;
+- les overrides génériques doivent exclure explicitement les produits Pré-rentrée ; une modification contractuelle passe uniquement par le catalogue et son processus de publication ;
 - l'interface ne peut annoncer « source canonique » tout en utilisant silencieusement un override DB.
+
+`BusinessConfig` peut porter les feature flags et options opérationnelles non contractuelles autorisées. Il ne peut redéfinir prix, acompte, remise, dates, horaires, durée, capacité, seuil, codes produits, matières, niveaux ou règles académiques. Tout conflit échoue explicitement.
 
 ### Données opérationnelles
 
@@ -46,7 +50,7 @@ Le frontend ne déduit jamais qu'une cohorte existe depuis un module de template
 
 **Recommandation :** fichier versionné déclaratif + upsert idempotent + DB opérationnelle.
 
-Contrat proposé :
+Contrat approuvé :
 
 - fichier futur `data/stages/pre-rentree-2026.template.json` ;
 - schéma Zod et type TypeScript dans un loader serveur ;
@@ -57,6 +61,8 @@ Contrat proposé :
 - mode dry-run affichant créations/mises à jour/refus ;
 - refus si une donnée opérationnelle modifiée diverge sans stratégie explicite ;
 - aucun import depuis `app/**` ou `components/**`.
+
+Identifiants approuvés par OWNER-009 : édition `PRE_RENTREE_2026`, packs `PRE2026_PACK_1` à `PRE2026_PACK_4`, modules selon `PRE2026_{LEVEL}_{SUBJECT}_{VARIANT}`. Le registre exhaustif des segments est une sortie de conception physique ; aucun segment ne doit être inventé localement avant cette validation.
 
 Après le premier upsert réussi, la base est l'autorité. Une nouvelle version de template produit une migration déclarative contrôlée, jamais une réinitialisation.
 
@@ -105,6 +111,7 @@ Un CMS n'est pas recommandé pour cette édition avant qu'un workflow de validat
 - `StagePlanningStatus` et `StageApplicationStatus` partagés ;
 - `TerminaleAcademicProfile` avec `specialties` et `mathOption` séparés ;
 - DTO par audience, jamais type Prisma sérialisé directement.
+- codes d'édition, pack et module validés par un registre central typé, jamais par comparaison de chaînes locale.
 
 ## Services uniques
 
@@ -186,3 +193,6 @@ Un snapshot est immuable, daté et relié à sa version. Il ne remplace jamais l
 - [Décisions métier](pre-rentree-2026-business-decisions.md)
 - [Carte d'impact](pre-rentree-2026-system-impact-map.md)
 - [Matrice de tests](pre-rentree-2026-test-matrix.md)
+- [Décisions owner](../decisions/pre-rentree-2026-owner-approval.md)
+- [Gates d'activation](pre-rentree-2026-activation-gates.md)
+- [Audit de dérive de main](../audits/2026-07-pre-rentree-main-drift-audit.md)
