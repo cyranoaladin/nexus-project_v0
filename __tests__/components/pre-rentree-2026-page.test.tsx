@@ -28,7 +28,7 @@ describe('Pré-rentrée 2026 page', () => {
 
     expect(screen.getByRole('heading', { level: 1, name: dto.content.hero.h1 })).toBeInTheDocument();
     expect(screen.getByText(/Statut de campagne.*PRE_REGISTRATION_OPEN/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Aucun paiement en ligne n'est demandé/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Aucun paiement en ligne n[’']est demandé/i).length).toBeGreaterThan(0);
     expect(container.textContent).not.toMatch(/15\s*h(?:eures)?/i);
     expect(container.textContent).not.toMatch(/places? restantes?/i);
   });
