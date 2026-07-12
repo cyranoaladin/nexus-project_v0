@@ -1,4 +1,8 @@
 import { LEGAL } from '@/lib/legal';
+import {
+  formatCampaignVenue,
+  formatFrenchDecisionDate,
+} from '@/lib/campaigns/pre-rentree-2026/presentation';
 
 function fullDate(date: string): string {
   return new Intl.DateTimeFormat('fr-TN', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Africa/Tunis' })
@@ -14,14 +18,14 @@ export function PracticalInformation({ campaign, blocks, capacity, pack, deposit
   content: { audience: string; material: string; preRegistrationNotice: string; noOnlinePaymentNotice: string; groupNotOpenedProcedure: string };
   cgvPath: string;
 }) {
-  const decision = new Intl.DateTimeFormat('fr-TN', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Tunis' }).format(new Date(campaign.decisionDeadline));
+  const decision = formatFrenchDecisionDate(campaign.decisionDeadline);
   return (
     <section className="bg-lux-paper px-4 py-14 md:py-20" aria-labelledby="practical-heading">
       <div className="mx-auto max-w-6xl">
         <h2 id="practical-heading" className="font-fraunces text-3xl text-lux-ink md:text-4xl">Informations pratiques et conditions</h2>
         <dl className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           <div><dt className="font-semibold text-lux-ink">Classes de rentrée</dt><dd className="mt-1 text-sm text-lux-slate">{content.audience}</dd></div>
-          <div><dt className="font-semibold text-lux-ink">Lieu</dt><dd className="mt-1 text-sm text-lux-slate">{campaign.venue.name} · {campaign.venue.neighborhood}, {campaign.venue.city}</dd></div>
+          <div><dt className="font-semibold text-lux-ink">Lieu</dt><dd className="mt-1 text-sm text-lux-slate">{formatCampaignVenue(campaign.venue)}</dd></div>
           <div><dt className="font-semibold text-lux-ink">Dates</dt><dd className="mt-1 text-sm text-lux-slate">Du {fullDate(campaign.startDate)} au {fullDate(campaign.endDate)} · aucun cours les {campaign.noClassDates.map(fullDate).join(' et ')}</dd></div>
           <div><dt className="font-semibold text-lux-ink">Horaires</dt><dd className="mt-1 text-sm text-lux-slate">{blocks.map((block) => `Bloc ${block.id} ${block.startTime}–${block.endTime}`).join(' · ')}</dd></div>
           <div><dt className="font-semibold text-lux-ink">Volume par matière</dt><dd className="mt-1 text-sm text-lux-slate">{pack?.totalHours} heures selon le créneau choisi</dd></div>
