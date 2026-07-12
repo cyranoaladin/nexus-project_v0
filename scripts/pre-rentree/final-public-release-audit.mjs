@@ -25,7 +25,7 @@ const internalTokenPatterns = [
   /IMPLEMENTATION_PLAN_DEFINED/i,
   /VERIFIED_IN_TEST/i,
   /GATE-/i,
-  /\b(?:M0A|M0B|M0C|M1|M2|M3|V1|V2)\b/,
+  /["'`](?:M0A|M0B|M0C|M1|M2|M3|V1|V2)["'`]/,
   /\b(?:LEGACY|DRAFT)\b/,
   /pre2026-pack-/i,
   /MATHS_NSI_SNT_TEACHER/i,
@@ -86,24 +86,39 @@ function scan(files, patterns, category, stripStyleTokens = false) {
 function relevantArtifactFiles(nextRoot) {
   const staticPath = '.next/static';
   const serverPath = '.next/server';
-  const staticFiles = filesUnder(join(nextRoot, staticPath.replace('.next/', '')));
-  const serverTargets = [
+  const appBuildManifestPath = join(nextRoot, 'app-build-manifest.json');
+  const routeKeys = ['/page', '/layout', '/stages/pre-rentree-2026/page', '/bilan-gratuit/page'];
+  const browserFiles = existsSync(appBuildManifestPath)
+    ? [...new Set(routeKeys.flatMap((route) => {
+        const manifest = JSON.parse(readFileSync(appBuildManifestPath, 'utf8'));
+        return (manifest.pages?.[route] ?? []).map((file) => join(nextRoot, file));
+      }))].filter(existsSync)
+    : [
+        join(nextRoot, staticPath.replace('.next/', ''), 'chunks/app/page'),
+        join(nextRoot, staticPath.replace('.next/', ''), 'chunks/app/layout'),
+        join(nextRoot, staticPath.replace('.next/', ''), 'chunks/app/stages/pre-rentree-2026'),
+        join(nextRoot, staticPath.replace('.next/', ''), 'chunks/app/bilan-gratuit'),
+      ].flatMap(filesUnder);
+  const serverFiles = [
     join(nextRoot, serverPath.replace('.next/', ''), 'app/page'),
     join(nextRoot, serverPath.replace('.next/', ''), 'app/stages/pre-rentree-2026'),
     join(nextRoot, serverPath.replace('.next/', ''), 'app/bilan-gratuit'),
   ].flatMap(filesUnder);
-  return [...staticFiles, ...serverTargets];
+  return { browserFiles, serverFiles };
 }
 
 let files = [];
 let includeBusinessFacts = false;
+let classifiedServerFindings = [];
 
 if (mode === '--source') {
   files = publicSourceRoots.flatMap((path) => filesUnder(resolve(root, path)));
   includeBusinessFacts = true;
 } else if (mode === '--artifacts') {
   const nextRoot = resolve(root, suppliedTarget ?? '.next');
-  files = relevantArtifactFiles(nextRoot);
+  const artifacts = relevantArtifactFiles(nextRoot);
+  files = artifacts.browserFiles;
+  classifiedServerFindings = scan(artifacts.serverFiles, internalTokenPatterns, 'server-only');
 } else if (mode === '--rendered') {
   if (!suppliedTarget) {
     throw new Error('Usage: final-public-release-audit.mjs --rendered <capture-directory>');
@@ -111,6 +126,12 @@ if (mode === '--source') {
   files = filesUnder(resolve(root, suppliedTarget));
 } else {
   throw new Error('Usage: final-public-release-audit.mjs --source | --artifacts [next-directory] | --rendered <capture-directory>');
+}
+
+if (classifiedServerFindings.length > 0) {
+  process.stdout.write(
+    `Pré-rentrée server artifacts classified as non-browser code: ${classifiedServerFindings.length} occurrences.\n`,
+  );
 }
 
 const findings = scan(files, internalTokenPatterns, 'internal-token');

@@ -3,7 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 import fs from 'node:fs';
 
 const CAMPAIGN_PATH = '/stages/pre-rentree-2026';
-const EVIDENCE_DIR = '/tmp/nexus-pre-rentree-2026-planning-ui';
+const EVIDENCE_DIR = '/tmp/nexus-pre-rentree-2026-final-integrated-release';
 
 async function openConfigurator(page: Page, level: 'Seconde' | 'Première' | 'Terminale') {
   await page.goto(CAMPAIGN_PATH);
@@ -15,6 +15,7 @@ async function completePremiereProfile(page: Page) {
   await page.getByRole('radio', { name: 'Voie générale', exact: true }).click();
   await page.getByRole('radio', { name: 'Maths EDS', exact: true }).click();
   await page.getByRole('radio', { name: 'EAF voie générale', exact: true }).click();
+  await page.getByRole('radio', { name: 'NSI et Physique-Chimie envisagées', exact: true }).click();
   await page.locator('#configurateur').getByRole('button', { name: 'Continuer' }).click();
 }
 
@@ -135,7 +136,7 @@ test.describe('Landing Pré-rentrée 2026', () => {
     await expect(page.getByText(/validation du groupe par l'équipe Nexus/i)).toBeVisible();
     const bilan = page.getByRole('link', { name: 'Poursuivre vers le bilan prérempli' });
     const bilanHref = await bilan.getAttribute('href');
-    expect(bilanHref).toContain('pack=pre2026-pack-4');
+    expect(bilanHref).toContain('pack=PACK_4');
     expect(bilanHref).toContain('niveau=TERMINALE');
     expect(bilanHref).not.toMatch(/prix|price/i);
 
@@ -146,7 +147,7 @@ test.describe('Landing Pré-rentrée 2026', () => {
     expect(message).toContain('Classe de rentrée : Entrée en Terminale');
     expect(message).toContain('Volume : 40 heures');
     expect(message).toContain('Pack : 4 matières');
-    expect(message).not.toContain('pre2026-pack-4');
+    expect(message).not.toContain('PACK_4');
     expect(message).toContain('lun. 17 août');
     expect(message).not.toMatch(/email|téléphone|établissement/i);
 
@@ -156,6 +157,37 @@ test.describe('Landing Pré-rentrée 2026', () => {
     await expect(page.getByText('Classe de rentrée : Entrée en Terminale')).toBeVisible();
     await expect(page.getByText(/Préremplissage modifiable · Pré-rentrée 2026/)).toBeVisible();
     await expect(page.getByText(/Offre repérée.*4 matières/)).toBeVisible();
+  });
+
+  test('couvre le tunnel parent homepage vers landing, résumé et bilan prérempli', async ({ page }) => {
+    await page.goto('/');
+    await page.getByTestId('pre-rentree-home-spotlight').getByRole('link', {
+      name: 'Découvrir la Pré-rentrée 2026',
+    }).click();
+    await expect(page).toHaveURL(new RegExp(`${CAMPAIGN_PATH}$`));
+
+    const configurator = page.locator('#configurateur');
+    await configurator.getByRole('radio', { name: 'Entrée en Seconde' }).click();
+    await configurator.getByRole('button', { name: 'Continuer' }).click();
+    await configurator.getByRole('checkbox', { name: /Mathématiques/i }).click();
+    await configurator.getByRole('button', { name: 'Voir mon résumé' }).click();
+    const bilan = configurator.getByRole('link', { name: 'Poursuivre vers le bilan prérempli' });
+    await expect(bilan).toHaveAttribute('href', /pack=PACK_1/);
+    await bilan.click();
+
+    await expect(page).toHaveURL(/\/bilan-gratuit\?/);
+    await expect(page.getByText('Classe de rentrée : Entrée en Seconde')).toBeVisible();
+    await expect(page.getByText(/Préremplissage modifiable · Pré-rentrée 2026/)).toBeVisible();
+  });
+
+  test('bloque une contradiction certaine de profil avant le choix des matières', async ({ page }) => {
+    await openConfigurator(page, 'Terminale');
+    await page.getByRole('radio', { name: 'Maths expertes' }).click();
+
+    await expect(page.locator('#configurateur').getByRole('alert')).toContainText(
+      'Maths expertes nécessite la spécialité Mathématiques conservée.',
+    );
+    await expect(page.locator('#configurateur').getByRole('button', { name: 'Continuer' })).toBeDisabled();
   });
 
   test('rend planning, programmes et FAQ accessibles au clavier', async ({ page }) => {
