@@ -47,4 +47,36 @@ describe('Pré-rentrée analytics contract', () => {
     expect(calls[9]?.[2]).toEqual({ pack_code: 'pre2026-pack-2', entry_level: 'premiere', subject_count: 2 });
     expect(serialized).not.toMatch(/"level"|"track"|"subject"|"count"|"pack_id"|"view"/);
   });
+
+  it('emits the four homepage campaign events with only the approved dimensions', () => {
+    const gtag = jest.fn();
+    (window as unknown as { gtag: jest.Mock }).gtag = gtag;
+    const context = {
+      cta_location: 'home_spotlight' as const,
+      viewport_category: 'mobile' as const,
+      destination: 'campaign_landing' as const,
+      campaign_id: 'pre-rentree-2026',
+    };
+
+    track.preRentreeHomeSpotlightView(context);
+    track.preRentreeHomeSpotlightClicked(context);
+    track.preRentreeHomePlanningClicked({ ...context, destination: 'campaign_planning' });
+    track.preRentreeNavClicked({ ...context, cta_location: 'navbar' });
+
+    expect(gtag.mock.calls.map((call) => call[1])).toEqual([
+      'pre_rentree_home_spotlight_view',
+      'pre_rentree_home_spotlight_clicked',
+      'pre_rentree_home_planning_clicked',
+      'pre_rentree_nav_clicked',
+    ]);
+    for (const call of gtag.mock.calls) {
+      expect(Object.keys(call[2]).sort()).toEqual([
+        'campaign_id',
+        'cta_location',
+        'destination',
+        'viewport_category',
+      ]);
+    }
+    expect(JSON.stringify(gtag.mock.calls)).not.toMatch(/name|email|phone|telephone|school|user_id|url|text/i);
+  });
 });

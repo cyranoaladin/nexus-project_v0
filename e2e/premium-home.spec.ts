@@ -7,11 +7,10 @@ test.describe('Premium Home Journey', () => {
     });
 
     test('Hero Section loads with premium content', async ({ page }) => {
-        const heroSection = page.locator('main > section').first();
-        await expect(heroSection).toBeVisible({ timeout: 10000 });
-
         const heading = page.getByRole('heading', { name: /préparer le bac français/i });
         await expect(heading).toBeVisible({ timeout: 10000 });
+        const heroSection = heading.locator('xpath=ancestor::section[1]');
+        await expect(heroSection).toBeVisible({ timeout: 10000 });
 
         // Verify reassurance items in hero
         await expect(heroSection.getByText('Cellule Cyclades')).toBeVisible({ timeout: 10000 });

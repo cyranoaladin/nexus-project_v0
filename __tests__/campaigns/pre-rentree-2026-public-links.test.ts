@@ -7,11 +7,18 @@ const read = (file: string) => fs.readFileSync(path.join(root, file), 'utf8');
 describe('Pré-rentrée public access and routing', () => {
   it.each([
     'components/layout/CorporateNavbar.tsx',
-    'app/HomePageClient.tsx',
+    'components/marketing/PreRentreeCampaignSpotlight.tsx',
     'app/stages/Stages2026Page.tsx',
     'app/offres/page.tsx',
   ])('links directly to the canonical campaign from %s', (file) => {
-    expect(read(file)).toMatch(/\/stages\/pre-rentree-2026|campaign\.path|preRentree\.campaign\.canonicalPath/);
+    expect(read(file)).toMatch(
+      /\/stages\/pre-rentree-2026|campaign\.(?:path|campaignPath)|preRentree\.campaign\.canonicalPath/,
+    );
+  });
+
+  it('wires the canonical campaign spotlight into the homepage', () => {
+    const source = read('app/HomePageClient.tsx');
+    expect(source).toContain('<PreRentreeCampaignSpotlight campaign={campaign} />');
   });
 
   it('uses a permanent short-route redirect', () => {
