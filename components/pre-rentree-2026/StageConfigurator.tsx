@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 import { toPreRentreeEntryLevel, track } from '@/lib/analytics';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import {
@@ -19,6 +20,14 @@ import {
   type SelectionSummary,
 } from '@/lib/campaigns/pre-rentree-2026/configurator';
 import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
+import {
+  formatCampaignStatus,
+  formatDetailedDates,
+  formatPresenceRange,
+} from '@/lib/campaigns/pre-rentree-2026/presentation';
+import { getSubjectTheme } from '@/lib/campaigns/pre-rentree-2026/subject-theme';
+import { SubjectBadge } from './SubjectBadge';
+import { useCampaignExperience } from './CampaignExperienceContext';
 
 interface ProfileOption {
   id: string;
@@ -79,19 +88,6 @@ function ChoiceCard({
   );
 }
 
-function formatDate(date: string): string {
-  return new Intl.DateTimeFormat('fr-TN', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-    timeZone: 'Africa/Tunis',
-  }).format(new Date(`${date}T12:00:00+01:00`));
-}
-
-function campaignStatusLabel(status: string): string {
-  return status === 'PRE_REGISTRATION_OPEN' ? 'Pré-inscription ouverte' : 'Statut indisponible';
-}
-
 function SummaryCard({
   summary,
   profileComplete,
@@ -149,7 +145,7 @@ function SummaryCard({
     <div aria-live="polite" className="max-h-[calc(100dvh-6rem)] overflow-y-auto rounded-2xl border border-lux-gold/40 bg-lux-paper p-5 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="font-semibold text-lux-ink">Votre résumé</h3>
-        <span className="rounded-full bg-lux-evergreen/10 px-3 py-1 text-xs font-semibold text-lux-evergreen">{campaignStatusLabel(status)}</span>
+        <span className="rounded-full bg-lux-evergreen/10 px-3 py-1 text-xs font-semibold text-lux-evergreen">{formatCampaignStatus(status)}</span>
       </div>
       <button
         type="button"
@@ -170,9 +166,9 @@ function SummaryCard({
       </dl>
       <ul className="mt-4 space-y-2 border-t border-lux-line pt-4 text-xs text-lux-slate">
         {summary.scheduleLines.map((line) => (
-          <li key={line.subjectId}>
-            <strong className="text-lux-ink">{line.subjectLabel}</strong><br />
-            {line.dates.map(formatDate).join(', ')} · {line.startTime}–{line.endTime}
+          <li key={line.subjectId} aria-label={`${line.subjectLabel} : ${formatDetailedDates(line.dates)}, ${line.startTime} à ${line.endTime}`}>
+            <SubjectBadge subjectId={line.subjectId} label={line.subjectLabel} /><br />
+            <span className="mt-1 inline-block">{formatPresenceRange(line.dates)} · {line.startTime}–{line.endTime}</span>
           </li>
         ))}
       </ul>
@@ -235,6 +231,7 @@ export default function StageConfigurator({
   const [profile, setProfile] = useState<AcademicProfileSelection>({});
   const [subjectIds, setSubjectIds] = useState<string[]>([]);
   const [mobileSummaryOpen, setMobileSummaryOpen] = useState(false);
+  const { setConfiguredEntryLevel } = useCampaignExperience();
 
   const availableSubjects = useMemo(
     () => (level ? subjects.filter((subject) => subject.levels.includes(level)) : []),
@@ -264,6 +261,7 @@ export default function StageConfigurator({
 
   function chooseLevel(nextLevel: EntryLevelCode) {
     setLevel(nextLevel);
+    setConfiguredEntryLevel(nextLevel);
     setProfile({});
     setSubjectIds([]);
     setMobileSummaryOpen(false);
@@ -299,7 +297,7 @@ export default function StageConfigurator({
     <section className="bg-white px-4 py-14 md:py-20" aria-labelledby="configurator-heading">
       <div className="mx-auto max-w-6xl">
         <div className="max-w-3xl">
-          <p className="sr-only">Statut de campagne : {campaignStatus}</p>
+          <p className="sr-only">Statut de campagne : {formatCampaignStatus(campaignStatus)}</p>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-lux-gold-deep">Pré-inscription sans paiement</p>
           <h2 id="configurator-heading" className="mt-3 font-fraunces text-3xl text-lux-ink md:text-4xl">Composer le stage de votre enfant</h2>
           <p className="mt-3 text-lux-slate">Sélectionnez la classe de rentrée, le profil et les matières pour obtenir un résumé exact.</p>
@@ -360,9 +358,20 @@ export default function StageConfigurator({
                     const first = slots[0];
                     const label = subject.labelByLevel?.[level] ?? subject.label;
                     const hours = packs.find((pack) => pack.subjectsCount === 1)?.totalHours;
+                    const theme = getSubjectTheme(subject.id, label);
                     return (
-                      <article key={subject.id} className={`min-h-11 rounded-xl border-2 p-4 ${selected ? 'border-lux-gold bg-lux-gold/10' : 'border-lux-line bg-white'}`}>
-                        <label className="flex cursor-pointer items-start gap-3"><input className="mt-1 h-4 w-4 accent-lux-gold" type="checkbox" checked={selected} onChange={() => toggleSubject(subject.id)} /><span><strong className="block text-lux-ink">{label}</strong><span className="mt-1 block text-sm text-lux-slate">{subject.summaryByLevel[level]}</span><span className="mt-2 block text-sm text-lux-slate">{slots.length} séances · {hours} heures</span>{first && <span className="block text-sm text-lux-slate">Semaine {first.week} · {first.startTime}–{first.endTime}</span>}</span></label>
+                      <article
+                        key={subject.id}
+                        data-subject-family={theme.family}
+                        className={cn(
+                          'min-h-11 rounded-xl border-2 p-4',
+                          theme.printClass,
+                          selected
+                            ? 'border-lux-gold bg-lux-gold/10'
+                            : `${theme.borderClass} ${theme.surfaceClass}`,
+                        )}
+                      >
+                        <label className="flex cursor-pointer items-start gap-3"><input className="mt-1 h-4 w-4 accent-lux-gold" type="checkbox" checked={selected} onChange={() => toggleSubject(subject.id)} /><span><SubjectBadge subjectId={subject.id} label={label} /><span className="mt-2 block text-sm text-lux-slate">{subject.summaryByLevel[level]}</span><span className="mt-2 block text-sm text-lux-slate">{slots.length} séances · {hours} heures</span>{first && <span className="block text-sm text-lux-slate">Semaine {first.week} · {first.startTime}–{first.endTime}</span>}</span></label>
                         <a className="mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-lux-gold-deep underline" href={`#programme-${level.toLowerCase()}-${subject.id.toLowerCase()}`}>Consulter le programme</a>
                       </article>
                     );

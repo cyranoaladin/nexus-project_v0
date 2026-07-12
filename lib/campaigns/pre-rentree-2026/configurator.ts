@@ -47,6 +47,26 @@ export interface LandingScheduleSlot {
   sessionNumber: number;
 }
 
+export interface LandingModuleSlot {
+  level: EntryLevelCode;
+  subject: string;
+  block: string;
+  room: string;
+}
+
+export interface LandingScheduleWeek {
+  week: number;
+  weekLabel: string;
+  weekStart: string;
+  weekEnd: string;
+  slots: LandingModuleSlot[];
+}
+
+export interface LandingTeacherRole {
+  subjects: string[];
+  maxHoursPerDay: number;
+}
+
 export interface ScheduleSummaryLine {
   subjectId: string;
   subjectLabel: string;

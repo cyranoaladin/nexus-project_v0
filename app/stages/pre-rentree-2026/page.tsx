@@ -11,6 +11,7 @@ import { NexusMethodSection } from '@/components/pre-rentree-2026/NexusMethodSec
 import { PracticalInformation } from '@/components/pre-rentree-2026/PracticalInformation';
 import { CampaignFAQ } from '@/components/pre-rentree-2026/CampaignFAQ';
 import { FinalCampaignCTA } from '@/components/pre-rentree-2026/FinalCampaignCTA';
+import { CampaignExperienceProvider } from '@/components/pre-rentree-2026/CampaignExperienceContext';
 import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
 
 export function generateMetadata(): Metadata {
@@ -65,21 +66,31 @@ export default function PreRentree2026Page() {
         schedule={dto.schedule}
         whatsappMessage={dto.contact.whatsappMessage}
       />
-      <div id="configurateur" className="scroll-mt-24">
-        <StageConfigurator
-          levels={dto.levels}
-          subjects={dto.subjects}
-          packs={dto.packs}
-          schedule={dto.schedule}
-          academicProfiles={dto.academicProfiles}
-          groupCompositionNotice={dto.content.practical.groupCompositionNotice}
-          campaignStatus={dto.status}
-        />
-      </div>
-      <div id="planning" className="scroll-mt-24">
-        <ScheduleSection schedule={dto.schedule} levels={dto.levels} subjects={dto.subjects} blocks={dto.blocks} />
-      </div>
-      <ProgramsSection modules={dto.modules} levels={dto.levels} subjects={dto.subjects} />
+      <CampaignExperienceProvider>
+        <div id="configurateur" className="scroll-mt-24">
+          <StageConfigurator
+            levels={dto.levels}
+            subjects={dto.subjects}
+            packs={dto.packs}
+            schedule={dto.schedule}
+            academicProfiles={dto.academicProfiles}
+            groupCompositionNotice={dto.content.practical.groupCompositionNotice}
+            campaignStatus={dto.status}
+          />
+        </div>
+        <div id="planning" className="scroll-mt-24">
+          <ScheduleSection
+            schedule={dto.schedule}
+            scheduleWeeks={dto.scheduleWeeks}
+            levels={dto.levels}
+            subjects={dto.subjects}
+            blocks={dto.blocks}
+            roomRoles={dto.roomRoles}
+            teacherRoles={dto.teacherRoles}
+          />
+        </div>
+        <ProgramsSection modules={dto.modules} levels={dto.levels} subjects={dto.subjects} />
+      </CampaignExperienceProvider>
       <div id="tarifs" className="scroll-mt-24">
         <PricingSection packs={dto.packs} depositPercentage={dto.pricingRules.depositPercentage} />
       </div>
