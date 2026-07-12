@@ -56,6 +56,24 @@ test.describe('Landing Pré-rentrée 2026', () => {
     }
   });
 
+  test('utilise une seule barre campagne mobile et la masque dans les tunnels', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    await page.locator('main > section').nth(4).scrollIntoViewIfNeeded();
+
+    const quickActions = page.getByRole('navigation', { name: 'Actions rapides' });
+    await expect(quickActions).toBeVisible();
+    await expect(
+      quickActions.getByRole('link', { name: 'Pré-rentrée 2026 — Voir les stages' }),
+    ).toHaveAttribute('href', CAMPAIGN_PATH);
+    await expect(page.getByRole('link', { name: 'Pré-rentrée 2026 — Voir les stages' })).toHaveCount(1);
+
+    await page.goto(CAMPAIGN_PATH);
+    await page.locator('#configurateur').scrollIntoViewIfNeeded();
+    await expect(page.getByRole('navigation', { name: 'Actions rapides' })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'Pré-rentrée 2026 — Voir les stages' })).toHaveCount(0);
+  });
+
   test('couvre les profils Seconde, Première et Terminale sans profil fictif', async ({ page }) => {
     await openConfigurator(page, 'Seconde');
     await expect(page.locator('#configurateur').getByRole('checkbox')).toHaveCount(4);
@@ -125,6 +143,16 @@ test.describe('Landing Pré-rentrée 2026', () => {
     await faq.press('Enter');
     await expect(faq).toHaveAttribute('aria-expanded', 'true');
     await expect(page.getByRole('region', { name: 'Mon enfant peut-il suivre plusieurs matières ?' })).toBeVisible();
+  });
+
+  test('ne laisse pas la bulle globale masquer les programmes ou la FAQ', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto(CAMPAIGN_PATH);
+    await page.locator('#planning').scrollIntoViewIfNeeded();
+
+    await expect(
+      page.getByRole('link', { name: /Échangez avec un conseiller Nexus/i }),
+    ).toHaveCount(0);
   });
 
   test('reste utilisable à 390 px et 320 px, sans paiement ni disponibilité inventée', async ({ page }) => {

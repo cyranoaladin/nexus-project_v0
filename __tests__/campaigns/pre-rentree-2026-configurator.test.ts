@@ -74,6 +74,27 @@ describe('Pré-rentrée configurator logic', () => {
     expect(summary.scheduleLines[0]?.dates).toHaveLength(5);
   });
 
+  it('uses DTO labels for the parent-facing academic profile', () => {
+    const profileLabels = Object.fromEntries([
+      ...dto.academicProfiles.PREMIERE.voies,
+      ...dto.academicProfiles.PREMIERE.mathsProfiles,
+      ...dto.academicProfiles.PREMIERE.eafProfiles,
+    ].map((option) => [option.id, option.label]));
+    const summary = buildSelectionSummary({
+      level: 'PREMIERE',
+      profile: { voie: 'GENERALE', mathsProfile: 'MATHS_EDS', eafProfile: 'EAF_GENERALE' },
+      profileLabels,
+      subjectIds: ['MATHEMATIQUES'],
+      levels: dto.levels,
+      subjects: dto.subjects,
+      packs: dto.packs,
+      schedule: dto.schedule,
+    });
+
+    expect(summary.profileLabel).toBe('Voie générale, Maths EDS, EAF voie générale');
+    expect(summary.profileLabel).not.toContain('_');
+  });
+
   it('builds a validated bilan URL without price or PII', () => {
     const url = buildBilanUrl({
       packId: 'pre2026-pack-2',

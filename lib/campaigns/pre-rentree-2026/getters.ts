@@ -106,6 +106,18 @@ export function getPreRentreeLandingDTO() {
   const schedule = getPreRentreeSchedule();
   const packs = getPreRentreePackOptions();
   const pricingRules = getRules();
+  const subjects = campaign.subjects.map((subject) => ({
+    ...subject,
+    summaryByLevel: Object.fromEntries(subject.levels.map((level) => {
+      const campaignModule = modules.find(
+        (module) => module.level === level && module.subjectId === subject.id,
+      );
+      if (!campaignModule) {
+        throw new Error(`Missing campaign module for ${level}/${subject.id}`);
+      }
+      return [level, campaignModule.subtitle];
+    })),
+  }));
 
   return {
     campaign: {
@@ -121,7 +133,7 @@ export function getPreRentreeLandingDTO() {
       venue: campaign.venue,
     },
     levels: campaign.levels,
-    subjects: campaign.subjects,
+    subjects,
     blocks: campaign.blocks,
     capacity: campaign.capacity,
     academicProfiles: campaign.academicProfiles,

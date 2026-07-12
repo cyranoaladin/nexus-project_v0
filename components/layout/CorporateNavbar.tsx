@@ -556,14 +556,6 @@ export function CorporateNavbar() {
         </div>
       </div>
 
-      {pathname !== '/stages/pre-rentree-2026' && pathname !== '/bilan-gratuit' && (
-        <Link
-          href="/stages/pre-rentree-2026"
-          className="fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-40 flex min-h-11 items-center justify-center rounded-full border border-lux-gold/40 bg-lux-ink/95 px-5 py-3 text-sm font-semibold text-lux-gold-wash shadow-xl backdrop-blur md:hidden"
-        >
-          Pré-rentrée 2026 — Voir les stages
-        </Link>
-      )}
     </>
   );
 }

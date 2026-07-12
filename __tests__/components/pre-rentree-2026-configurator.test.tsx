@@ -57,6 +57,7 @@ describe('Pré-rentrée stage configurator', () => {
     expect(screen.getByText(`${pack?.price.toLocaleString('fr-TN')} TND`)).toBeInTheDocument();
     expect(screen.getByText(`Acompte : ${pack?.deposit.toLocaleString('fr-TN')} TND`)).toBeInTheDocument();
     expect(screen.getByText(`Solde : ${pack?.balance.toLocaleString('fr-TN')} TND`)).toBeInTheDocument();
+    expect(screen.getByText('Pré-inscription ouverte')).toBeInTheDocument();
     expect(screen.getByText(/validation du groupe par l'équipe Nexus/i)).toBeInTheDocument();
 
     const bilan = screen.getByRole('link', { name: /Poursuivre vers le bilan/i });
@@ -73,6 +74,9 @@ describe('Pré-rentrée stage configurator', () => {
 
     expect(screen.queryByText(/EDS NSI Seconde/i)).not.toBeInTheDocument();
     expect(screen.getByRole('checkbox', { name: /Initiation informatique, algorithmique et SNT/i })).toBeInTheDocument();
+    expect(screen.getByText(dto.modules.find(
+      (campaignModule) => campaignModule.level === 'SECONDE' && campaignModule.subjectId === 'NSI',
+    )?.subtitle ?? '')).toBeInTheDocument();
     expect(screen.getAllByRole('checkbox')).toHaveLength(4);
   });
 
@@ -89,6 +93,16 @@ describe('Pré-rentrée stage configurator', () => {
     expect(specialties[0]).toBeChecked();
     expect(specialties[1]).toBeChecked();
     expect(specialties[2]).not.toBeChecked();
+  });
+
+  it('reports an incomplete pedagogical profile before subject selection', async () => {
+    const user = userEvent.setup();
+    renderConfigurator();
+
+    await user.click(screen.getByRole('radio', { name: 'Première' }));
+    await user.click(screen.getByRole('button', { name: 'Continuer' }));
+
+    expect(screen.getByText(/Complétez le profil pédagogique/i)).toBeInTheDocument();
   });
 
   it('keeps the persistent mobile summary collapsible', async () => {

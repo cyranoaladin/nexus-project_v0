@@ -57,4 +57,15 @@ describe('Pré-rentrée 2026 landing DTO', () => {
       }
     }
   });
+
+  it('derives a pedagogical summary for every level-specific subject card', () => {
+    const { subjects } = getPreRentreeLandingDTO();
+
+    for (const subject of subjects) {
+      for (const level of subject.levels) {
+        expect(subject.summaryByLevel[level]).toEqual(expect.any(String));
+        expect(subject.summaryByLevel[level].length).toBeGreaterThan(20);
+      }
+    }
+  });
 });

@@ -16,6 +16,7 @@ export interface LandingSubject {
   label: string;
   levels: string[];
   labelByLevel?: Record<string, string>;
+  summaryByLevel: Record<string, string>;
 }
 
 export interface LandingPack {
@@ -113,20 +114,26 @@ function subjectLabel(subject: LandingSubject, level: string): string {
   return subject.labelByLevel?.[level] ?? subject.label;
 }
 
-export function formatAcademicProfile(profile: AcademicProfileSelection): string {
+export function formatAcademicProfile(
+  profile: AcademicProfileSelection,
+  labels: Readonly<Record<string, string>> = {},
+): string {
   const values = [
     profile.voie,
     profile.mathsProfile,
     profile.eafProfile,
     ...(profile.retainedSpecialties ?? []),
     profile.mathsOption,
-  ].filter((value): value is string => Boolean(value) && value !== 'AUCUNE');
-  return values.length > 0 ? values.join(', ') : 'Tronc commun';
+  ].filter((value): value is string => Boolean(value));
+  return values.length > 0
+    ? values.map((value) => labels[value] ?? value).join(', ')
+    : 'Tronc commun';
 }
 
 export function buildSelectionSummary(input: {
   level: string;
   profile: AcademicProfileSelection;
+  profileLabels?: Readonly<Record<string, string>>;
   subjectIds: string[];
   levels: readonly LandingLevel[];
   subjects: readonly LandingSubject[];
@@ -158,7 +165,7 @@ export function buildSelectionSummary(input: {
     levelLabel:
       input.levels.find((level) => level.id === input.level)?.label ?? input.level,
     profile: input.profile,
-    profileLabel: formatAcademicProfile(input.profile),
+    profileLabel: formatAcademicProfile(input.profile, input.profileLabels),
     subjectIds: input.subjectIds,
     subjectLabels: selectedSubjects.map((subject) => subjectLabel(subject, input.level)),
     pack,

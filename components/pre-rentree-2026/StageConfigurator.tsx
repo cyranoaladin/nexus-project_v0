@@ -87,8 +87,13 @@ function formatDate(date: string): string {
   }).format(new Date(`${date}T12:00:00+01:00`));
 }
 
+function campaignStatusLabel(status: string): string {
+  return status === 'PRE_REGISTRATION_OPEN' ? 'Pré-inscription ouverte' : 'Statut indisponible';
+}
+
 function SummaryCard({
   summary,
+  profileComplete,
   notice,
   status,
   expanded,
@@ -96,6 +101,7 @@ function SummaryCard({
   onNavigate,
 }: {
   summary: SelectionSummary | null;
+  profileComplete: boolean;
   notice: string;
   status: string;
   expanded: boolean;
@@ -107,6 +113,15 @@ function SummaryCard({
       <div aria-live="polite" className="rounded-2xl border border-lux-line bg-lux-paper p-5">
         <h3 className="font-semibold text-lux-ink">Votre résumé</h3>
         <p className="mt-2 text-sm text-lux-slate">Choisissez d'abord la classe de rentrée.</p>
+      </div>
+    );
+  }
+
+  if (!profileComplete) {
+    return (
+      <div aria-live="polite" className="rounded-2xl border border-lux-line bg-lux-paper p-5">
+        <h3 className="font-semibold text-lux-ink">Votre résumé</h3>
+        <p className="mt-2 text-sm text-lux-slate">Complétez le profil pédagogique pour poursuivre.</p>
       </div>
     );
   }
@@ -133,7 +148,7 @@ function SummaryCard({
     <div aria-live="polite" className="max-h-[calc(100dvh-6rem)] overflow-y-auto rounded-2xl border border-lux-gold/40 bg-lux-paper p-5 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="font-semibold text-lux-ink">Votre résumé</h3>
-        <span className="rounded-full bg-lux-evergreen/10 px-3 py-1 text-xs font-semibold text-lux-evergreen">{status}</span>
+        <span className="rounded-full bg-lux-evergreen/10 px-3 py-1 text-xs font-semibold text-lux-evergreen">{campaignStatusLabel(status)}</span>
       </div>
       <button
         type="button"
@@ -220,12 +235,22 @@ export default function StageConfigurator({
     () => (level ? subjects.filter((subject) => subject.levels.includes(level)) : []),
     [level, subjects],
   );
+  const profileLabels = useMemo(
+    () => Object.fromEntries([
+      ...academicProfiles.PREMIERE.voies,
+      ...academicProfiles.PREMIERE.mathsProfiles,
+      ...academicProfiles.PREMIERE.eafProfiles,
+      ...academicProfiles.TERMINALE.retainedSpecialties.options,
+      ...academicProfiles.TERMINALE.mathsOptions,
+    ].map((option) => [option.id, option.label])),
+    [academicProfiles],
+  );
   const summary = useMemo(
     () =>
       level
-        ? buildSelectionSummary({ level, profile, subjectIds, levels, subjects, packs, schedule })
+        ? buildSelectionSummary({ level, profile, profileLabels, subjectIds, levels, subjects, packs, schedule })
         : null,
-    [level, profile, subjectIds, levels, subjects, packs, schedule],
+    [level, profile, profileLabels, subjectIds, levels, subjects, packs, schedule],
   );
   const profileComplete =
     level === 'SECONDE' ||
@@ -326,7 +351,7 @@ export default function StageConfigurator({
                     const hours = packs.find((pack) => pack.subjectsCount === 1)?.totalHours;
                     return (
                       <label key={subject.id} className={`min-h-11 cursor-pointer rounded-xl border-2 p-4 ${selected ? 'border-lux-gold bg-lux-gold/10' : 'border-lux-line bg-white'}`}>
-                        <span className="flex items-start gap-3"><input className="mt-1 h-4 w-4 accent-lux-gold" type="checkbox" checked={selected} onChange={() => toggleSubject(subject.id)} /><span><strong className="block text-lux-ink">{label}</strong><span className="mt-1 block text-sm text-lux-slate">{slots.length} séances · {hours} heures</span>{first && <span className="block text-sm text-lux-slate">Semaine {first.week} · {first.startTime}–{first.endTime}</span>}<a className="mt-2 inline-block text-sm font-semibold text-lux-gold-deep underline" href={`#programme-${subject.id.toLowerCase()}`}>Consulter le programme</a></span></span>
+                        <span className="flex items-start gap-3"><input className="mt-1 h-4 w-4 accent-lux-gold" type="checkbox" checked={selected} onChange={() => toggleSubject(subject.id)} /><span><strong className="block text-lux-ink">{label}</strong><span className="mt-1 block text-sm text-lux-slate">{subject.summaryByLevel[level]}</span><span className="mt-2 block text-sm text-lux-slate">{slots.length} séances · {hours} heures</span>{first && <span className="block text-sm text-lux-slate">Semaine {first.week} · {first.startTime}–{first.endTime}</span>}<a className="mt-2 inline-block text-sm font-semibold text-lux-gold-deep underline" href={`#programme-${subject.id.toLowerCase()}`}>Consulter le programme</a></span></span>
                       </label>
                     );
                   })}
@@ -347,6 +372,7 @@ export default function StageConfigurator({
           <aside className="sticky bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-10 lg:top-24 lg:bottom-auto" aria-label="Résumé persistant">
             <SummaryCard
               summary={summary}
+              profileComplete={profileComplete}
               notice={groupCompositionNotice}
               status={campaignStatus}
               expanded={mobileSummaryOpen}
