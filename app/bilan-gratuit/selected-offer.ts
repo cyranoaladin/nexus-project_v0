@@ -6,6 +6,7 @@ import {
   getEffectivePrice,
   getPack,
   getPonctuelOffer,
+  getPreRentreePacks,
   getStageFormat,
 } from '@/lib/pricing';
 
@@ -29,9 +30,10 @@ export function resolveProgrammeLabel(programme: string | null | undefined) {
     hybride: 'Hybride',
     immersion: 'Immersion',
     'pack-specialise': 'Pack spécialisé',
+    'pre-rentree-2026': 'Pré-rentrée 2026',
   };
 
-  return labels[programme] ?? programme;
+  return labels[programme] ?? null;
 }
 
 export function resolveSelectedOfferContext(id: string | null | undefined): SelectedOfferContext | null {
@@ -84,6 +86,17 @@ export function resolveSelectedOfferContext(id: string | null | undefined): Sele
       solde: coaching.payment.solde,
       solde_schedule: coaching.payment.solde_schedule,
       full_at_booking: coaching.payment.full_at_booking,
+    };
+  }
+
+  const preRentreePack = getPreRentreePacks().find((candidate) => candidate.id === id);
+  if (preRentreePack) {
+    return {
+      id: preRentreePack.id,
+      title: preRentreePack.title,
+      price: preRentreePack.price_per_student,
+      deposit: preRentreePack.payment.deposit,
+      solde: preRentreePack.payment.solde,
     };
   }
 

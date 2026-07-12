@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { CheckCircle2, GraduationCap, Phone } from 'lucide-react';
 import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
-import { toast, Toaster } from 'sonner';
+import { toast } from 'sonner';
 import { track } from '@/lib/analytics';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { Card, CardContent } from '@/components/ui/card';
@@ -68,16 +68,25 @@ const initialFormData: FormData = {
 type BilanStrategiqueClientProps = {
   programme?: string | null;
   selectedOffer?: SelectedOfferContext | null;
+  prefill?: {
+    studentGrade: string;
+    subjects: string[];
+    contextLabel: string;
+  } | null;
 };
 
 export function BilanStrategiqueClient({
   programme = null,
   selectedOffer = null,
+  prefill = null,
 }: BilanStrategiqueClientProps) {
   const router = useRouter();
 
-  const [formData, setFormData] = useState<FormData>(initialFormData);
-  const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
+  const [formData, setFormData] = useState<FormData>(() => ({
+    ...initialFormData,
+    studentGrade: prefill?.studentGrade ?? '',
+  }));
+  const [selectedSubjects, setSelectedSubjects] = useState<string[]>(() => prefill?.subjects ?? []);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [honeypot, setHoneypot] = useState('');
@@ -170,6 +179,11 @@ export function BilanStrategiqueClient({
           <Card className="border-lux-line bg-lux-white text-lux-ink lux-shadow">
             <CardContent className="p-6 sm:p-8">
               <form onSubmit={onSubmit} noValidate className="space-y-8">
+                {prefill && (
+                  <div className="rounded-2xl border border-lux-gold/30 bg-lux-gold/10 p-4 text-sm text-lux-ink">
+                    Préremplissage modifiable · {prefill.contextLabel} · {selectedOffer?.title}
+                  </div>
+                )}
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="parentFirstName" className="text-lux-ink">Prénom du parent</Label>

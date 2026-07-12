@@ -64,6 +64,26 @@ describe('BilanGratuitPage', () => {
     expect(screen.queryByLabelText(/mot de passe/i)).not.toBeInTheDocument();
   });
 
+  it('prefills a validated Pré-rentrée selection while keeping fields editable', async () => {
+    await renderPage({
+      programme: 'pre-rentree-2026',
+      pack: 'pre2026-pack-2',
+      niveau: 'PREMIERE',
+      matieres: 'MATHEMATIQUES,FRANCAIS',
+      voie: 'GENERALE',
+      profil_maths: 'MATHS_EDS',
+      profil_eaf: 'EAF_GENERALE',
+      price: '1',
+    });
+
+    expect(screen.getByText(/Contexte repéré.*Pré-rentrée 2026/i)).toBeInTheDocument();
+    expect(screen.getByText(/Offre repérée.*Pré-Rentrée 2026.*2 matières/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('Classe')).toHaveValue('premiere');
+    expect(screen.getByLabelText('Mathématiques')).toBeChecked();
+    expect(screen.getByLabelText('Français')).toBeChecked();
+    expect(screen.queryByText(/1 TND/)).not.toBeInTheDocument();
+  });
+
   it('shows fail-closed payment guidance for a selected offer without public ClicToPay or RIB/IBAN', async () => {
     const { container } = render(await BilanGratuitPage({ searchParams: Promise.resolve({ offer: 'term-spe-simple' }) }));
 

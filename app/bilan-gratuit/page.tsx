@@ -13,6 +13,7 @@ import {
   resolveSelectedOfferContext,
   type SelectedOfferContext,
 } from './selected-offer';
+import { parsePreRentreeBilanPrefill, type CampaignSearchParams } from '@/lib/campaigns/pre-rentree-2026/bilan-prefill';
 
 export const metadata: Metadata = {
   title: 'Bilan stratégique gratuit | Nexus Réussite',
@@ -30,10 +31,7 @@ export const metadata: Metadata = {
 };
 
 type BilanGratuitPageProps = {
-  searchParams?: Promise<{
-    programme?: string;
-    offer?: string;
-  }>;
+  searchParams?: Promise<CampaignSearchParams>;
 };
 
 function SelectedOfferSummary({ selectedOffer }: { selectedOffer: SelectedOfferContext }) {
@@ -114,8 +112,11 @@ function BilanHero({
 
 export default async function BilanGratuitPage({ searchParams }: BilanGratuitPageProps) {
   const params = await searchParams;
-  const programme = params?.programme ?? null;
-  const offerId = params?.offer ?? null;
+  const preRentreePrefill = parsePreRentreeBilanPrefill(params);
+  const rawProgramme = typeof params?.programme === 'string' ? params.programme : null;
+  const programme = preRentreePrefill?.programme ?? (rawProgramme === 'pre-rentree-2026' ? null : rawProgramme);
+  const legacyOffer = typeof params?.offer === 'string' ? params.offer : null;
+  const offerId = preRentreePrefill?.packId ?? legacyOffer;
   const programmeLabel = resolveProgrammeLabel(programme);
   const selectedOffer = resolveSelectedOfferContext(offerId);
 
@@ -123,7 +124,15 @@ export default async function BilanGratuitPage({ searchParams }: BilanGratuitPag
     <main className="luxury min-h-screen" id="main-content">
       <CorporateNavbar />
       <BilanHero programmeLabel={programmeLabel} selectedOffer={selectedOffer} />
-      <BilanStrategiqueClient programme={programme} selectedOffer={selectedOffer} />
+      <BilanStrategiqueClient
+        programme={programme}
+        selectedOffer={selectedOffer}
+        prefill={preRentreePrefill ? {
+          studentGrade: preRentreePrefill.level.toLowerCase(),
+          subjects: preRentreePrefill.subjectIds,
+          contextLabel: programmeLabel ?? 'Pré-rentrée 2026',
+        } : null}
+      />
     </main>
   );
 }
