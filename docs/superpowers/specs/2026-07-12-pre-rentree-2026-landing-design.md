@@ -49,4 +49,3 @@ Le worktree de livraison contenait déjà quatre commits partiels au début de c
 - Tests composants pour le rendu, les profils, le résumé, les onglets et les accordéons.
 - Playwright sur les routes, les quatre accès, les parcours des trois niveaux, les largeurs 390/320 et l'absence de paiement ou disponibilité fictive.
 - Typecheck, lint, tests campagne/pricing, build, contrôle sitemap/liens/métadonnées/secrets, captures temporaires et `git diff --check`.
-

@@ -162,4 +162,3 @@
 - [ ] Vérifier l'absence de changement Prisma, migration, API V2, paiement, disponibilité inventée, montant/numéro dans les composants, secrets, symlinks et opérations Git.
 - [ ] Documenter commandes, résultats, captures et risques restants.
 - [ ] Commit: `docs(pre-rentree): record landing implementation and visual evidence`.
-
