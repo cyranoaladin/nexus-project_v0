@@ -1,5 +1,7 @@
 # Audit d'impact système — Pré-rentrée 2026
 
+> **Document historique supersédé pour la landing urgente.** Les recommandations d'architecture opérationnelle restent documentaires et ne sont pas nécessaires au parcours public sans base livré par `01d989eb0`. La landing demeure en mode pré-inscription : aucun paiement, confirmation automatique, Prisma ou API Pré-rentrée V2 n'a été activé.
+
 ## Statut
 
 **READY_FOR_OWNER_DECISION** — audit documentaire du 11 juillet 2026, sans modification applicative, Prisma, tarifaire ou de production.

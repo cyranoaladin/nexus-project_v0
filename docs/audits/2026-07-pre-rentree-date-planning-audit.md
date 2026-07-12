@@ -1,5 +1,7 @@
 # Audit dates et planning — Pré-rentrée 2026
 
+> **Document historique supersédé pour l'état applicatif.** Le constat ci-dessous décrit le dépôt au 11 juillet 2026 avant l'intégration du contrat et de la landing. Depuis le commit contractuel `8db358926` et la landing `01d989eb0`, les surfaces publiques actives utilisent le stage du 17 au 28 août 2026, 12 modules et 60 séances de deux heures. Ne pas réutiliser les anciennes mentions « 24–28 août » ou « 15 heures » dans une communication publique.
+
 ## Date
 
 11 juillet 2026 — fuseau de référence `Africa/Tunis`.
