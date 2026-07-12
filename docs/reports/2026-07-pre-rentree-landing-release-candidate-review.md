@@ -1,5 +1,7 @@
 # Revue release candidate — Landing Pré-rentrée 2026
 
+> **Supersédé le 12 juillet 2026 pour la décision de preview.** Le blocage Next.js `15.5.12` décrit ci-dessous a été levé par la finalisation sur `fix/pre-rentree-2026-finalize-preview`. La preuve normative est [le rapport final de readiness](./2026-07-pre-rentree-final-preview-readiness.md). Le présent rapport reste conservé comme état historique de la RC source.
+
 ## Date et statut
 
 12 juillet 2026, fuseau `Africa/Tunis`.
@@ -118,6 +120,18 @@ Les derniers gates globaux sont consignés dans le rapport final de l'agent apr�
 - [ ] Salles disponibles, ou page maintenue en pré-inscription.
 - [ ] Conditions commerciales validées.
 - [ ] Visuels validés.
+
+## Addendum de finalisation — 12 juillet 2026
+
+- Approche 2 appliquée : codes internes `SECONDE`, `PREMIERE`, `TERMINALE` conservés comme codes de classe d'entrée 2026-2027.
+- Textes publics, DTO, bilan, WhatsApp et analytics `entry_level` requalifiés et testés.
+- Douze modules, 60 séances, trois rôles non nominatifs, charges 60/30/30 h et deux salles verrouillés par contrat.
+- Next.js monté exactement de `15.5.12` à `15.5.18`, sans changement de React, React DOM, Prisma ou autre dépendance directe.
+- Audit avant : 17 vulnérabilités runtime déclarées (9 hautes, 7 modérées, 1 faible), dont les avis Next App Router/Middleware bloquants.
+- Audit après : 17 vulnérabilités déclarées (8 hautes, 8 modérées, 1 faible) ; les avis directs Next 15.5.12 ont disparu. L'entrée `next` restante est l'agrégation modérée du PostCSS embarqué, sans chemin de requête publique identifié.
+- 533 suites/6 643 tests globaux, 11 E2E Chromium, build Next 15.5.18 et smokes standalone verts.
+- Captures finales inspectées dans `/tmp/nexus-pre-rentree-2026-final-preview`.
+- Statut technique final : `READY_FOR_PREVIEW_DEPLOYMENT`. La validation de preview et les validations opérationnelles de disponibilité restent de la responsabilité du propriétaire ; aucun push, déploiement ou activation publique n'a été effectué.
 
 ## Rollback
 

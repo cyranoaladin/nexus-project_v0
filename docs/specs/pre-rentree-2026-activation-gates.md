@@ -2,9 +2,10 @@
 
 ## Statut
 
-- Date : 11 juillet 2026
-- Phase : planification exécutable M0–M3
-- Publication : **BLOCKED**
+- Date : 12 juillet 2026
+- Phase : release candidate landing prête pour preview ; M0–M3 V2 reste hors périmètre
+- Déploiement preview : **READY_FOR_PREVIEW_DEPLOYMENT** sur la branche de finalisation
+- Publication publique : **BLOCKED** jusqu'à validation propriétaire et gates opérationnelles
 - Développement DRAFT : autorisable après conception physique et mission explicite
 - Référence de décision : [OWNER-022](../decisions/pre-rentree-2026-owner-approval.md#owner-022--conditions-de-publication)
 
@@ -42,7 +43,7 @@ Les trois premières gates autorisent seulement la prochaine phase de **concepti
 |---|---|---|---|---|---|---|
 | `GATE-FIN-001` | `RESPONSABLE_NEXUS` | coûts enseignant, salle, matériel, supports, admin, paiement/remboursement | `OWNER_INPUT_REQUIRED` | une valeur requise reste inconnue | — | unit economics |
 | `GATE-FIN-002` | `RESPONSABLE_NEXUS` | marge brute et contributive cibles approuvées à 3/4/5 élèves | `OWNER_INPUT_REQUIRED` | marge cible absente ou seuil > 5 élèves | — | décision de publication |
-| `GATE-PRICE-001` | `TERRA` | produits `PRE2026_PACK_1` à `PRE2026_PACK_4` dans le catalogue canonique et getters | `PENDING_EVIDENCE` | prix absent, divergent ou import JSON direct | — | pricing canonique |
+| `GATE-PRICE-001` | `TERRA` | produits `PRE2026_PACK_1` à `PRE2026_PACK_4` dans le catalogue canonique et getters | `VERIFIED_IN_TEST` | prix absent, divergent ou import JSON direct | 2026-07-12 (RC landing) | pricing canonique |
 | `GATE-PRICE-002` | `SOL` | recalcul serveur, plancher, remises non cumulables, prix client ignoré | `PENDING_EVIDENCE` | montant navigateur accepté ou plancher franchi | — | `StagePricingService`/API |
 | `GATE-DEPOSIT-001` | `SOL` | acompte 30 %, arrondi canonique, solde exact, preuve liée à l'inscription | `PENDING_EVIDENCE` | constante frontend, paiement orphelin ou somme divergente | — | pricing/paiement/facture |
 | `GATE-CANNIB-001` | `RESPONSABLE_NEXUS` | comparaison approuvée avec offres annuelles et règles de Carte Nexus | `OWNER_INPUT_REQUIRED` | offre saisonnière cannibalise ou remise ambiguë | — | catalogue/positionnement |
@@ -62,7 +63,7 @@ Les trois premières gates autorisent seulement la prochaine phase de **concepti
 |---|---|---|---|---|---|---|
 | `GATE-PED-001` | `RESPONSABLE_PEDAGOGIQUE` | matrice versionnée des variantes et compatibilités | `PENDING_EVIDENCE` | fusion sans règle ou objectifs incompatibles | — | qualification/cohorte |
 | `GATE-PED-002` | `RESPONSABLE_PEDAGOGIQUE` | règles Terminale `specialties`/`mathOption` et cas exceptionnels | `PENDING_EVIDENCE` | trois EDS ou combinaison incohérente acceptée | — | validation déclarative |
-| `GATE-PED-003` | `RESPONSABLE_PEDAGOGIQUE` | terminologie Seconde/Première/Terminale relue | `PENDING_EVIDENCE` | présence de « EDS NSI Seconde », « EAF Terminale » ou d'un libellé ambigu | — | contenu/DTO/template |
+| `GATE-PED-003` | `RESPONSABLE_PEDAGOGIQUE` | terminologie et transitions d'entrée Seconde/Première/Terminale relues | `VERIFIED_IN_TEST` | présence de « EDS NSI Seconde », « EAF Terminale » ou d'un libellé ambigu | 2026-07-12 (RC landing) | contenu/DTO/template |
 | `GATE-PED-004` | `RESPONSABLE_PEDAGOGIQUE` | différenciation documentée pour chaque fusion autorisée | `PENDING_EVIDENCE` | tronc commun non justifié | — | version de compatibilité/audit |
 
 ## Gates enseignants, salles et équipements
@@ -81,7 +82,7 @@ Les trois premières gates autorisent seulement la prochaine phase de **concepti
 | Identifiant | Propriétaire | Preuve attendue | Statut | Condition de blocage | Date de validation | Mécanisme concerné |
 |---|---|---|---|---|---|---|
 | `GATE-SCHEMA-001` | `SOL` | conception physique et [plan M1–M3](../plans/2026-07-pre-rentree-m0-m3-implementation-plan.md) revus, sans suppression V1 | `IMPLEMENTATION_PLAN_DEFINED` | surcharge V1, relation manquante ou opération destructive | 2026-07-11 (plan) | Prisma/SQL futur |
-| `GATE-TEMPLATE-001` | `SOL` | template validé, versionné, checksum, 12 modules/60 séances | `PENDING_EVIDENCE` | divergence ou lecture frontend directe | — | loader/upsert |
+| `GATE-TEMPLATE-001` | `SOL` | manifeste/contenu landing validés, 12 modules/60 séances | `VERIFIED_IN_TEST` | divergence ou lecture frontend directe | 2026-07-12 (périmètre landing, sans upsert V2) | loader serveur/contrats |
 | `GATE-UPSERT-001` | `SOL` | deuxième upsert = zéro création et mutation inattendue | `PENDING_EVIDENCE` | doublon édition/module/séance | — | transaction/contraintes uniques |
 | `GATE-MIG-001` | `SOL` | migration additive testée sur base test et copie anonymisée | `PENDING_EVIDENCE` | perte/requalification V1 ou rollback impraticable | — | Prisma/SQL/backfill |
 | `GATE-ARCHIVE-001` | `SOL` | archivage logique et protection contre hard delete en cascade | `PENDING_EVIDENCE` | suppression d'engagement, présence ou document | — | statuts/FK/service commande |
@@ -92,6 +93,7 @@ Les trois premières gates autorisent seulement la prochaine phase de **concepti
 | Identifiant | Propriétaire | Preuve attendue | Statut | Condition de blocage | Date de validation | Mécanisme concerné |
 |---|---|---|---|---|---|---|
 | `GATE-SEC-BASE-001` | `SOL` | [socle V2](../audits/2026-07-pre-rentree-security-baseline.md) + [réconciliation](../audits/2026-07-pre-rentree-current-main-security-reconciliation.md) + [preuves M0A-R2](../reports/2026-07-m0a-r2-command-exit-code-audit.md) + [audit Stage V1](../audits/2026-07-m0a-r-stage-v1-route-security-audit.md) | `VERIFIED_IN_TEST` | typecheck 0, lint 0, 773 tests pass (0 fail), build 0, P0=0, HMAC binaire, redaction PII consolidée, hex validation ; parent M:N bloqué M3 | 2026-07-12 (M0A-R2) | guards fail-closed, PII redaction consolidée, HMAC décodé, tests API |
+| `GATE-RUNTIME-NEXT-001` | `SOL` | Next.js exact, audit runtime, tests globaux, E2E, build et standalone | `VERIFIED_IN_TEST` | avis Next App Router/Middleware, vulnérabilité critique exploitable ou haute accessible publiquement | 2026-07-12 (`15.5.18`, 6 643 tests, 11 E2E) | runtime preview landing |
 | `GATE-RBAC-001` | `SOL` | matrice admin/parent/élève/coach/assistante, 401/403/404 et IDOR | `PENDING_EVIDENCE` | accès hors famille/cohorte/académie | — | guards/query scopes |
 | `GATE-ID-001` | `SOL` | multi-responsables, vérification, révocation, fusion auditée | `PENDING_EVIDENCE` | liaison automatique par email/téléphone | — | identité/relations/audit |
 | `GATE-CAPACITY-001` | `SOL` | tests transactionnels de cinquième/sixième place | `PENDING_EVIDENCE` | surcapacité ou double enrollment | — | verrou/Serializable/unique |
@@ -105,12 +107,12 @@ Les trois premières gates autorisent seulement la prochaine phase de **concepti
 |---|---|---|---|---|---|---|
 | `GATE-DTO-001` | `SOL` | DTO serveur publics et par rôle, `LEGACY_STAGE`/`EDITION_V2` | `PENDING_EVIDENCE` | Prisma/JSON direct ou finance exposée | — | query services/API |
 | `GATE-DASH-001` | `LUNA` | quatre dashboards cohérents, finance limitée admin/parent | `PENDING_EVIDENCE` | divergence ou accès coach/élève financier | — | dashboards/RBAC |
-| `GATE-PUBLIC-001` | `TERRA` | `/stages/pre-rentree-2026` et redirection `/pre-rentree` sous flag | `PENDING_EVIDENCE` | ancienne date, prix local ou route incohérente | — | Next routes/SEO |
-| `GATE-NAV-001` | `TERRA` | accès en un clic depuis navbar, accueil, `/stages`, `/offres` | `PENDING_EVIDENCE` | lien cassé ou page activée trop tôt | — | navigation/feature flag |
-| `GATE-A11Y-001` | `LUNA` | clavier, lecteur d'écran, labels, contrastes | `PENDING_EVIDENCE` | défaut bloquant WCAG ou formulaire non nommé | — | Playwright/axe |
-| `GATE-MOBILE-001` | `LUNA` | 320 px, 390 px, tablette, desktop sans overflow | `PENDING_EVIDENCE` | CTA/formulaire/planning inutilisable | — | E2E responsive |
+| `GATE-PUBLIC-001` | `TERRA` | `/stages/pre-rentree-2026` et redirection `/pre-rentree` sous flag | `VERIFIED_IN_TEST` | ancienne date, prix local ou route incohérente | 2026-07-12 | Next routes/SEO |
+| `GATE-NAV-001` | `TERRA` | accès en un clic depuis navbar, accueil, `/stages`, `/offres` | `VERIFIED_IN_TEST` | lien cassé ou page activée trop tôt | 2026-07-12 | navigation/feature flag |
+| `GATE-A11Y-001` | `LUNA` | clavier, lecteur d'écran, labels, contrastes | `VERIFIED_IN_TEST` | défaut bloquant WCAG ou formulaire non nommé | 2026-07-12 (clavier, axe, zoom 200 %) | Playwright/axe |
+| `GATE-MOBILE-001` | `LUNA` | 320 px, 390 px, tablette, desktop sans overflow | `VERIFIED_IN_TEST` | CTA/formulaire/planning inutilisable | 2026-07-12 | E2E responsive |
 | `GATE-NRG-001` | `LUNA` + `SOL` | tests V1, formats historiques, auth, pricing annuel, dashboards | `PENDING_EVIDENCE` | une donnée ou surface V1 change de sens | — | non-régression |
-| `GATE-TEST-001` | `LUNA` | matrice complète domaine/API/pricing/UI verte | `PENDING_EVIDENCE` | scénario P0 rouge/skippé | — | CI/test matrix |
+| `GATE-TEST-001` | `LUNA` | matrice landing/domaine/API/pricing/UI verte | `VERIFIED_IN_TEST` | scénario P0 rouge/skippé | 2026-07-12 (533 suites, 6 643 tests, aucun test Jest skippé) | CI/test matrix |
 | `GATE-PREVIEW-001` | `RESPONSABLE_NEXUS` | preview DRAFT relue et acceptée | `PENDING_EVIDENCE` | contenu, prix, planning ou CTA non approuvé | — | environnement preview |
 
 ## Gates communication, exploitation et rollback

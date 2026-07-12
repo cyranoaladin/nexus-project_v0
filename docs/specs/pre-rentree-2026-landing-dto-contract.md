@@ -1,268 +1,128 @@
-# Contrat DTO — Landing page pre-rentree 2026
+# Contrat DTO — Landing Pré-rentrée 2026
 
-> Version : 1.0.0
-> Statut : DRAFT
-> Derniere mise a jour : 2026-07-12
+> Version : 1.1.0
+>
+> Statut : `VERIFIED_IN_TEST`
+>
+> Dernière mise à jour : 2026-07-12
 
----
+## Invariant de niveau
 
-## 1. Interface principale
+`SECONDE`, `PREMIERE` et `TERMINALE` restent les identifiants techniques stables. Dans tout le périmètre Pré-rentrée 2026, `level` est un **code de classe d'entrée 2026-2027**, jamais la classe actuelle :
 
-```typescript
-interface PreRentreeLandingDTO {
-  campaign: {
-    id: string;                    // "pre-rentree-2026"
-    version: string;               // "1.0.0"
-    status: CampaignStatus;
-    canonicalPath: string;         // "/stages/pre-rentree-2026"
-    timezone: string;             // "Africa/Tunis"
-    startDate: string;            // "2026-08-17" (ISO 8601 date)
-    endDate: string;              // "2026-08-28"
-    noClassDates: string[];       // ["2026-08-22", "2026-08-23"]
-    decisionDeadline: string;     // "2026-08-10T18:00:00+01:00"
-    venue: Venue;
+| Classe actuelle | `level` | Libellé public |
+|---|---|---|
+| Troisième | `SECONDE` | Entrée en Seconde |
+| Seconde | `PREMIERE` | Entrée en Première |
+| Première | `TERMINALE` | Entrée en Terminale |
+
+Le DTO ne crée pas de second identifiant concurrent. `entryLevelSemantics.kind = "ENTRY_LEVEL"` rend la sémantique explicite, et `entry_level` est réservé au contrat analytics.
+
+## Sources de vérité
+
+| Nature | Source |
+|---|---|
+| campagne, niveaux, profils, planning, rôles, salles, contenus publics | `data/campaigns/pre-rentree-2026.json` validé par `schema.ts` |
+| programmes des 12 modules et 60 séances | `content/pre-rentree-2026/modules.json` validé par `schema.ts` |
+| prix, acompte, solde et règles commerciales tarifaires | getters de `lib/pricing.ts` |
+| coordonnées et adresse pédagogique | `lib/legal.ts` et helper WhatsApp central |
+| composition serveur du DTO | `lib/campaigns/pre-rentree-2026/getters.ts` |
+
+Les composants client ne lisent ni le JSON de pricing ni le manifeste brut.
+
+## Forme publique utile
+
+```ts
+type EntryLevelCode = 'SECONDE' | 'PREMIERE' | 'TERMINALE';
+
+interface EntryLevelSemantics {
+  kind: 'ENTRY_LEVEL';
+  schoolYear: '2026-2027';
+  currentToEntry: {
+    TROISIEME: 'SECONDE';
+    SECONDE: 'PREMIERE';
+    PREMIERE: 'TERMINALE';
   };
-
-  levels: Array<{
-    id: string;                   // "seconde" | "premiere" | "terminale"
-    label: string;                // "Seconde" | "Premiere" | "Terminale"
-    track?: string;               // "generale" | "technologique" (if applicable)
-  }>;
-
-  subjects: Array<{
-    id: string;                   // "maths" | "pc" | "nsi" | "francais"
-    label: string;                // "Mathematiques" | "Physique-Chimie" | "NSI" | "Francais"
-    levels: string[];             // ["seconde", "premiere", "terminale"]
-  }>;
-
-  packs: Array<{
-    id: string;                   // "pre2026-pack-1" through "pre2026-pack-4"
-    subjects: number;             // 1 | 2 | 3 | 4
-    totalHours: number;           // 10 | 20 | 30 | 40
-    price: number;                // in TND: 480 | 900 | 1350 | 1800
-    deposit: number;              // in TND: 140 | 270 | 410 | 540
-    balance: number;              // in TND: 340 | 630 | 940 | 1260
-  }>;
-
-  schedule: {
-    weeks: Array<{
-      label: string;              // "Semaine 1" | "Semaine 2"
-      startDate: string;          // "2026-08-17" | "2026-08-24"
-      endDate: string;            // "2026-08-21" | "2026-08-28"
-      slots: Array<{
-        date: string;             // ISO date of each day (repeated for each day)
-        level: string;            // "seconde" | "premiere" | "terminale"
-        subject: string;          // subject id
-        block: string;            // "A" | "B" | "C" | "D"
-        startTime: string;        // "08:30" | "10:45" | "13:30" | "15:45"
-        endTime: string;          // "10:30" | "12:45" | "15:30" | "17:45"
-        room: string;             // "salle-1" | "salle-2"
-      }>;
-    }>;
-  };
-
-  modules: Array<{
-    id: string;                   // e.g. "pre2026-terminale-maths"
-    level: string;
-    subject: string;
-    title: string;                // e.g. "Mathematiques Terminale — Pre-rentree"
-    sessions: Array<{
-      number: number;             // 1-5
-      title: string;              // e.g. "Fonctions et limites"
-      objective: string;          // e.g. "Revoir les notions fondamentales de limites"
-    }>;
-  }>;
-
-  content: {
-    hero: {
-      surtitre: string;
-      h1: string;
-      subtitle: string;
-      keyFacts: Array<{ icon: string; text: string }>;
-    };
-    method: {
-      positionnement: string;
-      groupeReduit: string;
-      entrainement: string;
-      bilan: string;
-    };
-    practicalInfo: {
-      lieu: string;
-      dates: string;
-      horaires: string;
-      materiel: string;
-      paiement: string;
-      seuil: string;
-      confirmation: string;
-      contact: string;
-    };
-    faq: Array<{
-      question: string;
-      answer: string;
-    }>;
-  };
-
-  seo: {
-    title: string;                // "Stages de pre-rentree 2026 a Tunis | Nexus Reussite"
-    description: string;
-    canonical: string;            // "/stages/pre-rentree-2026"
-    ogImage: string;              // path to OG image
-  };
-
-  cta: {
-    primary: {
-      label: string;              // "Composer le stage de mon enfant"
-      action: string;             // "#configurateur"
-    };
-    whatsapp: {
-      number: string;             // international format without +
-      message: string;            // pre-filled message
-    };
-    bilanGratuit: {
-      path: string;               // "/bilan-gratuit"
-    };
-  };
-
-  status: CampaignStatus;
 }
 
-type CampaignStatus =
-  | 'DRAFT'
-  | 'PRE_REGISTRATION_OPEN'
-  | 'REGISTRATION_OPEN'
-  | 'FULL'
-  | 'CLOSED'
-  | 'ARCHIVED';
+interface LandingLevel {
+  /** Code stable de classe d'entrée 2026-2027. */
+  id: EntryLevelCode;
+  label: 'Entrée en Seconde' | 'Entrée en Première' | 'Entrée en Terminale';
+}
 
-interface Venue {
-  name: string;                   // "Mutuelleville"
-  city: string;                   // "Tunis"
-  country: string;                // "TN"
-  format: 'presentiel';
+interface SelectionSummary {
+  /** Code stable de classe d'entrée 2026-2027. */
+  level: EntryLevelCode;
+  levelLabel: string;
+  profile: AcademicProfileSelection;
+  profileLabel: string;
+  subjectIds: string[];
+  subjectLabels: string[];
+  pack: LandingPack | null;
+  totalHours: number;
+  sessionCount: number;
+  dates: string[];
+  scheduleLines: ScheduleSummaryLine[];
+  requiresValidation: boolean;
 }
 ```
 
----
+Le DTO complet expose également : campagne, dates, lieu, capacité 3–5, profils, quatre packs, planning développé, modules, contenus, SEO, CTA, flags et références légales.
 
-## 2. Etats de la campagne
+## Ressources contractuelles
 
-| Statut | Description | Comportement landing |
-|--------|-------------|---------------------|
-| `DRAFT` | Campagne en preparation | Page non accessible (404 ou redirect) |
-| `PRE_REGISTRATION_OPEN` | Les familles peuvent se pre-inscrire | Configurateur actif, CTA "Pre-inscrire" |
-| `REGISTRATION_OPEN` | Inscriptions confirmees, acomptes recus | CTA "Finaliser l'inscription" |
-| `FULL` | Tous les groupes sont complets | CTA "Liste d'attente" |
-| `CLOSED` | Inscriptions fermees (post-deadline) | Affichage informatif, pas de CTA d'inscription |
-| `ARCHIVED` | Campagne terminee | Redirect 301 vers /stages |
+Le manifeste accepte exactement :
 
----
+- `MATHS_NSI_SNT_TEACHER` pour Mathématiques, NSI et l'initiation informatique/algorithmique/SNT ;
+- `FRENCH_TEACHER` pour les trois modules de Français/Expression ;
+- `PHYSICS_CHEMISTRY_TEACHER` pour les trois modules de Physique-Chimie ;
+- `salle-1` pour Mathématiques/NSI/SNT ;
+- `salle-2` pour Français en semaine 1 puis Physique-Chimie en semaine 2.
 
-## 3. Flux de donnees
+Aucun nom personnel n'est stocké dans le manifeste. Le planning développé produit 60 séances et ne dépasse jamais deux salles simultanées.
 
-```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────────────┐
-│   Manifest      │     │   Pricing       │     │   PreRentreeLandingDTO  │
-│   (YAML/JSON)   │────>│   Engine        │────>│   (server component)    │
-│                 │     │                 │     │                         │
-│ - levels        │     │ - pack rules    │     │ - Hydrated DTO          │
-│ - subjects      │     │ - deposit calc  │     │ - Static content        │
-│ - schedule      │     │ - exclusions    │     │ - SEO meta              │
-│ - modules       │     │                 │     │ - CTA states            │
-│ - venue         │     │                 │     │                         │
-└─────────────────┘     └─────────────────┘     └─────────────────────────┘
-        │                                                 │
-        │                                                 │
-        v                                                 v
-┌─────────────────┐                           ┌─────────────────────────┐
-│   Admin CMS     │                           │   Client components     │
-│   (status mgmt) │                           │                         │
-│                 │                           │ - Configurateur         │
-│ - DRAFT         │                           │ - PricingTable          │
-│ - OPEN          │                           │ - Schedule              │
-│ - FULL          │                           │ - FAQ                   │
-│ - CLOSED        │                           │                         │
-└─────────────────┘                           └─────────────────────────┘
-```
+## Packs
 
-### 3.1 Manifest → DTO
+`getPreRentreePackOptions()` résout les quatre produits depuis `lib/pricing.ts` :
 
-Le manifest est la source de verite pour les donnees structurelles (niveaux, matieres, creneaux, modules). Il est lu au build time (ISR) ou au request time (SSR) selon la strategie de cache choisie.
+| Pack | Matières | Volume | Prix | Acompte | Solde |
+|---|---:|---:|---:|---:|---:|
+| 1 | 1 | 10 h | 480 TND | 140 TND | 340 TND |
+| 2 | 2 | 20 h | 900 TND | 270 TND | 630 TND |
+| 3 | 3 | 30 h | 1 350 TND | 410 TND | 940 TND |
+| 4 | 4 | 40 h | 1 800 TND | 540 TND | 1 260 TND |
 
-### 3.2 Pricing Engine → DTO
+Ces montants documentent la sortie approuvée ; ils ne sont pas codés dans les composants.
 
-Le pricing engine calcule les packs a partir des regles :
-- `price = f(nb_subjects)` (lookup table)
-- `deposit = ceil(price * 0.30 / 10) * 10`
-- `balance = price - deposit`
+## Bilan prérempli
 
-### 3.3 Status → DTO
+L'URL utilise les paramètres normalisés existants :
 
-Le statut de la campagne est gere par l'admin et determine le comportement des CTA. Le DTO expose `status` en racine pour que les composants client puissent adapter leur rendu.
+- `programme=pre-rentree-2026` ;
+- `pack` ;
+- `niveau` contenant le code interne de **classe d'entrée** ;
+- `matieres` ;
+- les champs de profil autorisés selon le niveau.
 
----
+`PreRentreeCampaignContextSchema` conserve `level` pour compatibilité et le documente explicitement comme classe d'entrée. Le parent voit « Classe de rentrée », peut modifier les données et l'API existante reçoit un contexte normalisé.
 
-## 4. Validation
+Le parseur refuse les prix, acomptes, soldes, PII libre, valeurs inconnues, doublons de matières, pack incohérent et profil incompatible. Aucune API Pré-rentrée V2 n'est créée.
 
-Le DTO est valide par un schema Zod au build time :
+## WhatsApp
 
-```typescript
-import { z } from 'zod';
+`buildWhatsAppMessage()` reçoit uniquement un `SelectionSummary`, puis `buildWhatsAppUrl()` centralise le numéro. Le message affiche le libellé public de classe d'entrée, le profil, les matières, le volume, les dates/horaire, le pack lisible, le prix et l'acompte. Il n'affiche ni code pack technique, ni PII, ni numéro codé dans le composant.
 
-const CampaignStatusSchema = z.enum([
-  'DRAFT',
-  'PRE_REGISTRATION_OPEN',
-  'REGISTRATION_OPEN',
-  'FULL',
-  'CLOSED',
-  'ARCHIVED',
-]);
+## Validation
 
-const PreRentreeLandingDTOSchema = z.object({
-  campaign: z.object({
-    id: z.string(),
-    version: z.string(),
-    status: CampaignStatusSchema,
-    canonicalPath: z.string().startsWith('/'),
-    timezone: z.literal('Africa/Tunis'),
-    startDate: z.string().date(),
-    endDate: z.string().date(),
-    noClassDates: z.array(z.string().date()),
-    decisionDeadline: z.string().datetime({ offset: true }),
-    venue: z.object({
-      name: z.string(),
-      city: z.string(),
-      country: z.string().length(2),
-      format: z.literal('presentiel'),
-    }),
-  }),
-  levels: z.array(z.object({
-    id: z.string(),
-    label: z.string(),
-    track: z.string().optional(),
-  })).min(1),
-  subjects: z.array(z.object({
-    id: z.string(),
-    label: z.string(),
-    levels: z.array(z.string()).min(1),
-  })).min(1),
-  packs: z.array(z.object({
-    id: z.string(),
-    subjects: z.number().int().min(1).max(4),
-    totalHours: z.number().int(),
-    price: z.number().positive(),
-    deposit: z.number().positive(),
-    balance: z.number().positive(),
-  })).length(4),
-  status: CampaignStatusSchema,
-  // ... remaining fields validated similarly
-});
-```
+Les schémas Zod imposent notamment :
 
----
+- exactement trois niveaux et leurs libellés publics ;
+- `entryLevelSemantics` strict ;
+- exactement trois rôles enseignants non nominatifs ;
+- exactement deux rôles de salle ;
+- quatre matières, quatre packs, deux semaines ;
+- 12 modules et cinq séances par module ;
+- dates, capacité, flags et SEO contractuels.
 
-## 5. Notes d'implementation
-
-1. Le DTO est construit cote serveur uniquement. Aucune donnee sensible (prix brut, marges) ne transite au-dela de ce qui est affiche.
-2. Le champ `modules[].sessions` est optionnel en phase DRAFT (le contenu pedagogique peut etre ajoute progressivement).
-3. Le champ `schedule.weeks[].slots` est expanse : chaque jour de la semaine genere ses propres entrees (5 jours x N creneaux par semaine).
-4. Le `status` en racine est un alias de `campaign.status` pour faciliter l'acces cote client.
+Les tests de finalisation vérifient les 45 configurations, la correspondance pack/prix, le préremplissage, WhatsApp, les transitions pédagogiques et les ressources.

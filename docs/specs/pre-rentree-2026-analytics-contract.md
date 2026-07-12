@@ -1,180 +1,95 @@
-# Contrat analytics — Stages de pre-rentree 2026
+# Contrat analytics — Pré-rentrée 2026
 
-> Version : 1.0.0
-> Statut : DRAFT
-> Derniere mise a jour : 2026-07-12
+> Version : 1.1.0
+>
+> Statut : `VERIFIED_IN_TEST`
+>
+> Dernière mise à jour : 2026-07-12
 
----
+## Sémantique canonique
 
-## 1. Principes
+Les codes internes `SECONDE`, `PREMIERE` et `TERMINALE` désignent la classe d'entrée à la rentrée 2026-2027. Ils sont normalisés pour les analytics en :
 
-- **Zero PII** : aucune donnee personnelle n'est transmise dans les evenements analytics.
-- **Event-driven** : chaque interaction utilisateur significative emet un evenement nomme.
-- **Prefixe** : tous les evenements de cette campagne sont prefixes `pre_rentree_`.
-- **Destination** : Google Analytics 4 (ou equivalent configure dans le projet).
+| Code interne | `entry_level` | Transition scolaire |
+|---|---|---|
+| `SECONDE` | `seconde` | Troisième → Seconde |
+| `PREMIERE` | `premiere` | Seconde → Première |
+| `TERMINALE` | `terminale` | Première → Terminale |
 
----
+`entry_level` est la seule propriété publique de niveau. Les événements ne transmettent jamais la classe actuelle.
 
-## 2. Evenements
+## Propriétés autorisées
 
-### 2.1 pre_rentree_page_view
+L'allowlist de la campagne est fermée :
 
-Declenchement : chargement de la page `/stages/pre-rentree-2026`.
+- `entry_level` ;
+- `normalized_track` ;
+- `subject_code` ;
+- `subject_count` ;
+- `pack_code` ;
+- `cta_location` ;
+- `schedule_view_type`.
 
-| Propriete | Type | Description |
-|-----------|------|-------------|
-| _(aucune propriete custom)_ | — | Evenement de page view standard |
+Aucun nom de propriété historique (`level`, `track`, `subject`, `count`, `pack_id`, `module_id`, `view`) ne doit être émis par un événement Pré-rentrée.
 
----
+## Événements
 
-### 2.2 pre_rentree_level_selected
+| Événement | Déclenchement | Propriétés |
+|---|---|---|
+| `pre_rentree_page_view` | premier montage de la page canonique | aucune |
+| `pre_rentree_level_selected` | choix de la classe de rentrée | `entry_level` |
+| `pre_rentree_track_selected` | choix d'un profil/voie normalisé | `entry_level`, `normalized_track` |
+| `pre_rentree_subject_selected` | ajout ou retrait d'une matière | `entry_level`, `subject_code`, `subject_count` |
+| `pre_rentree_schedule_viewed` | consultation du planning | `schedule_view_type` (`by_level` ou `by_week`) |
+| `pre_rentree_program_viewed` | ouverture d'un programme | `entry_level`, `subject_code` |
+| `pre_rentree_price_summary_viewed` | affichage du résumé pack | `pack_code` |
+| `pre_rentree_bilan_clicked` | clic vers le bilan | `cta_location`, `pack_code` optionnel |
+| `pre_rentree_whatsapp_clicked` | clic WhatsApp | `cta_location`, `pack_code` optionnel |
+| `pre_rentree_preregistration_started` | ouverture du bilan prérempli | `pack_code`, `entry_level`, `subject_count` |
 
-Declenchement : l'utilisateur selectionne un niveau dans le configurateur (etape 1).
+Le `pre_rentree_page_view` est protégé contre le double montage React Strict Mode et ne doit être envoyé qu'une fois par chargement de page.
 
-| Propriete | Type | Valeurs possibles |
-|-----------|------|-------------------|
-| `level` | string | `seconde` \| `premiere` \| `terminale` |
+## Données interdites
 
----
+Les événements ne contiennent jamais :
 
-### 2.3 pre_rentree_track_selected
+- nom ou prénom ;
+- email ;
+- téléphone ;
+- établissement ;
+- identifiant familial, parent ou élève ;
+- classe actuelle ;
+- texte libre ;
+- paramètres d'URL non normalisés.
 
-Declenchement : l'utilisateur selectionne une voie dans le configurateur (etape 2).
+## Contrat TypeScript
 
-| Propriete | Type | Valeurs possibles |
-|-----------|------|-------------------|
-| `track` | string | `generale` \| `technologique` |
+La source exécutable est `lib/analytics.ts`. Le normaliseur `toPreRentreeEntryLevel()` accepte uniquement les trois codes internes stables et lève une erreur sur toute autre valeur.
 
----
-
-### 2.4 pre_rentree_subject_selected
-
-Declenchement : l'utilisateur coche ou decoche une matiere dans le configurateur (etape 3).
-
-| Propriete | Type | Description |
-|-----------|------|-------------|
-| `subject` | string | `maths` \| `pc` \| `nsi` \| `francais` |
-| `count` | number | Nombre total de matieres selectionnees (1-4) |
-
----
-
-### 2.5 pre_rentree_schedule_viewed
-
-Declenchement : l'utilisateur consulte l'emploi du temps (section horaires ou CTA "Voir les horaires").
-
-| Propriete | Type | Valeurs possibles |
-|-----------|------|-------------------|
-| `view` | string | `by_level` \| `by_week` |
-
----
-
-### 2.6 pre_rentree_program_viewed
-
-Declenchement : l'utilisateur ouvre le detail d'un module pedagogique.
-
-| Propriete | Type | Description |
-|-----------|------|-------------|
-| `module_id` | string | Identifiant du module (ex: `pre2026-terminale-maths`) |
-
----
-
-### 2.7 pre_rentree_price_summary_viewed
-
-Declenchement : l'utilisateur atteint l'etape resume du configurateur ou scrolle jusqu'au tableau tarifaire.
-
-| Propriete | Type | Description |
-|-----------|------|-------------|
-| `pack_id` | string | Identifiant du pack affiche (ex: `pre2026-pack-2`) |
-
----
-
-### 2.8 pre_rentree_bilan_clicked
-
-Declenchement : clic sur le CTA "Demander un bilan gratuit".
-
-| Propriete | Type | Description |
-|-----------|------|-------------|
-| _(aucune propriete custom)_ | — | — |
-
----
-
-### 2.9 pre_rentree_whatsapp_clicked
-
-Declenchement : clic sur le CTA WhatsApp.
-
-| Propriete | Type | Description |
-|-----------|------|-------------|
-| _(aucune propriete custom)_ | — | — |
-
----
-
-### 2.10 pre_rentree_preregistration_started
-
-Declenchement : l'utilisateur clique sur "Pre-inscrire mon enfant" (debut du formulaire).
-
-| Propriete | Type | Description |
-|-----------|------|-------------|
-| _(aucune propriete custom)_ | — | — |
-
----
-
-### 2.11 pre_rentree_preregistration_submitted
-
-Declenchement : soumission reussie du formulaire de pre-inscription.
-
-| Propriete | Type | Description |
-|-----------|------|-------------|
-| `level` | string | `seconde` \| `premiere` \| `terminale` |
-| `subject_count` | number | Nombre de matieres choisies (1-4) |
-
----
-
-## 3. Donnees JAMAIS transmises
-
-Les donnees suivantes ne doivent **en aucun cas** etre incluses dans les evenements analytics :
-
-| Donnee | Raison |
-|--------|--------|
-| Nom de l'eleve ou du parent | PII |
-| Adresse e-mail | PII |
-| Numero de telephone | PII |
-| Nom de l'etablissement scolaire | PII indirect |
-| Contenu de champs texte libre | PII potentiel |
-| Identifiant eleve (student ID) | PII |
-| Identifiant parent (parent ID) | PII |
-
----
-
-## 4. Implementation
-
-```typescript
-// lib/analytics/pre-rentree-events.ts
+```ts
+type PreRentreeEntryLevel = 'seconde' | 'premiere' | 'terminale';
 
 type PreRentreeEvent =
-  | { name: 'pre_rentree_page_view' }
-  | { name: 'pre_rentree_level_selected'; properties: { level: string } }
-  | { name: 'pre_rentree_track_selected'; properties: { track: string } }
-  | { name: 'pre_rentree_subject_selected'; properties: { subject: string; count: number } }
-  | { name: 'pre_rentree_schedule_viewed'; properties: { view: 'by_level' | 'by_week' } }
-  | { name: 'pre_rentree_program_viewed'; properties: { module_id: string } }
-  | { name: 'pre_rentree_price_summary_viewed'; properties: { pack_id: string } }
-  | { name: 'pre_rentree_bilan_clicked' }
-  | { name: 'pre_rentree_whatsapp_clicked' }
-  | { name: 'pre_rentree_preregistration_started' }
-  | { name: 'pre_rentree_preregistration_submitted'; properties: { level: string; subject_count: number } };
-
-export function trackPreRentreeEvent(event: PreRentreeEvent): void {
-  // Implementation via gtag, posthog, or internal analytics
-}
+  | { name: 'pre_rentree_page_view'; params: Record<string, never> }
+  | { name: 'pre_rentree_level_selected'; params: { entry_level: PreRentreeEntryLevel } }
+  | {
+      name: 'pre_rentree_track_selected';
+      params: { entry_level: PreRentreeEntryLevel; normalized_track: string };
+    }
+  | {
+      name: 'pre_rentree_subject_selected';
+      params: {
+        entry_level: PreRentreeEntryLevel;
+        subject_code: string;
+        subject_count: number;
+      };
+    };
 ```
 
----
+## Preuves
 
-## 5. Tests de conformite
+- `__tests__/campaigns/pre-rentree-2026-analytics.test.ts` verrouille les noms, valeurs, propriétés et l'absence de PII.
+- `__tests__/components/pre-rentree-2026-page.test.tsx` verrouille l'émission unique du page view sous Strict Mode.
+- La qualification finale du 12 juillet 2026 compte 92 tests ciblés SEO/analytics/sécurité verts et 6 643 tests globaux verts.
 
-Avant mise en production, verifier :
-
-1. Aucun evenement ne contient de champ PII (audit du dataLayer).
-2. Chaque interaction listee ci-dessus emet bien un evenement.
-3. Les valeurs de proprietes sont conformes aux enums definies.
-4. Les evenements sont visibles dans le debugger GA4 (ou equivalent).
+L'observation dans le debugger de l'outil analytics réel reste une vérification de preview, car aucun environnement externe n'a été modifié pendant cette release candidate.
