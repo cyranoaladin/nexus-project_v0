@@ -285,7 +285,7 @@ export default function StageConfigurator({
   const buttonClass = 'min-h-11 rounded-lg px-5 py-3 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lux-gold';
 
   return (
-    <section id="configurateur" className="scroll-mt-24 bg-white px-4 py-14 md:py-20" aria-labelledby="configurator-heading">
+    <section className="bg-white px-4 py-14 md:py-20" aria-labelledby="configurator-heading">
       <div className="mx-auto max-w-6xl">
         <div className="max-w-3xl">
           <p className="sr-only">Statut de campagne : {campaignStatus}</p>
@@ -315,8 +315,8 @@ export default function StageConfigurator({
             {step === 2 && level === 'PREMIERE' && (
               <div className="space-y-6">
                 <fieldset><legend className="font-semibold text-lux-ink">Voie</legend><div className={`mt-3 ${inputClass}`}>{academicProfiles.PREMIERE.voies.map((option) => <ChoiceCard key={option.id} name="voie" option={option} checked={profile.voie === option.id} onChange={() => { setProfile((value) => ({ ...value, voie: option.id })); track.preRentreeTrackSelected(option.id.toLowerCase()); }} />)}</div></fieldset>
-                <fieldset><legend className="font-semibold text-lux-ink">Profil Mathématiques</legend><div className={`mt-3 ${inputClass}`}>{academicProfiles.PREMIERE.mathsProfiles.map((option) => <ChoiceCard key={option.id} name="maths-profile" option={option} checked={profile.mathsProfile === option.id} onChange={() => setProfile((value) => ({ ...value, mathsProfile: option.id }))} />)}</div></fieldset>
-                <fieldset><legend className="font-semibold text-lux-ink">Profil Français EAF</legend><div className={`mt-3 ${inputClass}`}>{academicProfiles.PREMIERE.eafProfiles.map((option) => <ChoiceCard key={option.id} name="eaf-profile" option={option} checked={profile.eafProfile === option.id} onChange={() => setProfile((value) => ({ ...value, eafProfile: option.id }))} />)}</div></fieldset>
+                <fieldset><legend className="font-semibold text-lux-ink">Profil Mathématiques</legend><div className={`mt-3 ${inputClass}`}>{academicProfiles.PREMIERE.mathsProfiles.map((option) => <ChoiceCard key={option.id} name="maths-profile" option={option} checked={profile.mathsProfile === option.id} onChange={() => { setProfile((value) => ({ ...value, mathsProfile: option.id })); track.preRentreeTrackSelected(option.id.toLowerCase()); }} />)}</div></fieldset>
+                <fieldset><legend className="font-semibold text-lux-ink">Profil Français EAF</legend><div className={`mt-3 ${inputClass}`}>{academicProfiles.PREMIERE.eafProfiles.map((option) => <ChoiceCard key={option.id} name="eaf-profile" option={option} checked={profile.eafProfile === option.id} onChange={() => { setProfile((value) => ({ ...value, eafProfile: option.id })); track.preRentreeTrackSelected(option.id.toLowerCase()); }} />)}</div></fieldset>
                 <div className="flex justify-between gap-3"><button type="button" className={`${buttonClass} border border-lux-line`} onClick={() => continueTo(getPreviousConfiguratorStep(step, level))}>Retour</button><button type="button" className={`${buttonClass} lux-cta-reserve disabled:opacity-50`} disabled={!profileComplete} onClick={() => continueTo(3)}>Continuer</button></div>
               </div>
             )}
@@ -328,13 +328,13 @@ export default function StageConfigurator({
                   <div className="mt-3 grid gap-3 sm:grid-cols-3">
                     {academicProfiles.TERMINALE.retainedSpecialties.options.map((option) => (
                       <label key={option.id} className="flex min-h-11 items-center rounded-xl border border-lux-line bg-white px-4 py-3 text-sm text-lux-ink">
-                        <input className="mr-3 h-4 w-4 accent-lux-gold" type="checkbox" checked={profile.retainedSpecialties?.includes(option.id) ?? false} onChange={() => setProfile((value) => ({ ...value, retainedSpecialties: toggleLimitedSelection(value.retainedSpecialties ?? [], option.id, academicProfiles.TERMINALE.retainedSpecialties.maxSelections) }))} />
+                        <input className="mr-3 h-4 w-4 accent-lux-gold" type="checkbox" checked={profile.retainedSpecialties?.includes(option.id) ?? false} onChange={() => { setProfile((value) => ({ ...value, retainedSpecialties: toggleLimitedSelection(value.retainedSpecialties ?? [], option.id, academicProfiles.TERMINALE.retainedSpecialties.maxSelections) })); track.preRentreeTrackSelected(option.id.toLowerCase()); }} />
                         {option.label}
                       </label>
                     ))}
                   </div>
                 </fieldset>
-                <fieldset><legend className="font-semibold text-lux-ink">Option de Mathématiques</legend><div className="mt-3 grid gap-3 sm:grid-cols-3">{academicProfiles.TERMINALE.mathsOptions.map((option) => <ChoiceCard key={option.id} name="maths-option" option={option} checked={profile.mathsOption === option.id} onChange={() => setProfile((value) => ({ ...value, mathsOption: option.id }))} />)}</div></fieldset>
+                <fieldset><legend className="font-semibold text-lux-ink">Option de Mathématiques</legend><div className="mt-3 grid gap-3 sm:grid-cols-3">{academicProfiles.TERMINALE.mathsOptions.map((option) => <ChoiceCard key={option.id} name="maths-option" option={option} checked={profile.mathsOption === option.id} onChange={() => { setProfile((value) => ({ ...value, mathsOption: option.id })); track.preRentreeTrackSelected(option.id.toLowerCase()); }} />)}</div></fieldset>
                 <div className="flex justify-between gap-3"><button type="button" className={`${buttonClass} border border-lux-line`} onClick={() => continueTo(1)}>Retour</button><button type="button" className={`${buttonClass} lux-cta-reserve disabled:opacity-50`} disabled={!profileComplete} onClick={() => continueTo(3)}>Continuer</button></div>
               </div>
             )}
@@ -350,9 +350,10 @@ export default function StageConfigurator({
                     const label = subject.labelByLevel?.[level] ?? subject.label;
                     const hours = packs.find((pack) => pack.subjectsCount === 1)?.totalHours;
                     return (
-                      <label key={subject.id} className={`min-h-11 cursor-pointer rounded-xl border-2 p-4 ${selected ? 'border-lux-gold bg-lux-gold/10' : 'border-lux-line bg-white'}`}>
-                        <span className="flex items-start gap-3"><input className="mt-1 h-4 w-4 accent-lux-gold" type="checkbox" checked={selected} onChange={() => toggleSubject(subject.id)} /><span><strong className="block text-lux-ink">{label}</strong><span className="mt-1 block text-sm text-lux-slate">{subject.summaryByLevel[level]}</span><span className="mt-2 block text-sm text-lux-slate">{slots.length} séances · {hours} heures</span>{first && <span className="block text-sm text-lux-slate">Semaine {first.week} · {first.startTime}–{first.endTime}</span>}<a className="mt-2 inline-block text-sm font-semibold text-lux-gold-deep underline" href={`#programme-${subject.id.toLowerCase()}`}>Consulter le programme</a></span></span>
-                      </label>
+                      <article key={subject.id} className={`min-h-11 rounded-xl border-2 p-4 ${selected ? 'border-lux-gold bg-lux-gold/10' : 'border-lux-line bg-white'}`}>
+                        <label className="flex cursor-pointer items-start gap-3"><input className="mt-1 h-4 w-4 accent-lux-gold" type="checkbox" checked={selected} onChange={() => toggleSubject(subject.id)} /><span><strong className="block text-lux-ink">{label}</strong><span className="mt-1 block text-sm text-lux-slate">{subject.summaryByLevel[level]}</span><span className="mt-2 block text-sm text-lux-slate">{slots.length} séances · {hours} heures</span>{first && <span className="block text-sm text-lux-slate">Semaine {first.week} · {first.startTime}–{first.endTime}</span>}</span></label>
+                        <a className="mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-lux-gold-deep underline" href={`#programme-${level.toLowerCase()}-${subject.id.toLowerCase()}`}>Consulter le programme</a>
+                      </article>
                     );
                   })}
                 </div>

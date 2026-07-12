@@ -322,7 +322,7 @@
       "title": "Mathématiques Première",
       "subtitle": "Maîtriser les suites, la dérivation et les probabilités pour préparer le Bac",
       "prerequisites": "Les acquis de Seconde en fonctions, calcul littéral et probabilités.",
-      "differentiation": "Parcours distincts pour le profil Maths EDS et le profil hors EDS, après validation pédagogique.",
+      "differentiation": "Activités et niveau d'exigence adaptés au profil Maths EDS ou hors EDS après validation pédagogique.",
       "quickAssessment": "Exercice type ciblé, corrigé avec une grille de méthode et de rédaction.",
       "sessions": [
         {
@@ -400,7 +400,7 @@
       "title": "Français — Préparation aux EAF",
       "subtitle": "Se préparer méthodiquement aux Épreuves Anticipées de Français (écrit et oral)",
       "prerequisites": "Une lecture régulière et les bases de l'analyse de texte acquises en Seconde.",
-      "differentiation": "Sujets et méthodes adaptés aux voies générale et technologique après validation du groupe.",
+      "differentiation": "Exercice correspondant à la voie générale ou technologique, confirmé après validation pédagogique du groupe.",
       "quickAssessment": "Paragraphe rédigé ou passage oral bref évalué selon les attendus EAF.",
       "sessions": [
         {
@@ -418,16 +418,16 @@
         },
         {
           "number": 2,
-          "title": "Dissertation et contraction de texte",
-          "objective": "Comprendre les attendus de la dissertation littéraire et de la contraction",
+          "title": "Dissertation ou contraction de texte, selon la voie",
+          "objective": "Comprendre les attendus de l'exercice écrit correspondant à la voie déclarée",
           "topics": [
             "Analyse du sujet et problématisation",
             "Plan dialectique et plan thématique",
             "Contraction de texte : méthode et ratio",
             "Essai littéraire : argumentation et références"
           ],
-          "method": "Exercices ciblés sur chaque étape avec modèles annotés",
-          "deliverable": "Plan détaillé de dissertation et contraction rédigée"
+          "method": "Exercices ciblés sur la dissertation en voie générale ou la contraction et l'essai en voie technologique",
+          "deliverable": "Plan détaillé de dissertation ou contraction rédigée, selon la voie"
         },
         {
           "number": 3,

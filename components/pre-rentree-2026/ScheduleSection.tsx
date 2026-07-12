@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type KeyboardEvent } from 'react';
+import { useRef, useState, type KeyboardEvent } from 'react';
 import { track } from '@/lib/analytics';
 import type {
   LandingLevel,
@@ -59,6 +59,7 @@ export function ScheduleSection({
 }) {
   const [view, setView] = useState<ScheduleView>('by_level');
   const [level, setLevel] = useState(levels[0]?.id ?? 'SECONDE');
+  const viewTabsRef = useRef<Array<HTMLButtonElement | null>>([]);
 
   function selectView(next: ScheduleView) {
     setView(next);
@@ -66,9 +67,12 @@ export function ScheduleSection({
   }
 
   function handleViewKeys(event: KeyboardEvent<HTMLButtonElement>) {
-    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
     event.preventDefault();
-    selectView(view === 'by_level' ? 'by_week' : 'by_level');
+    const nextIndex = event.key === 'Home' || event.key === 'ArrowLeft' ? 0 : 1;
+    const nextView: ScheduleView = nextIndex === 0 ? 'by_level' : 'by_week';
+    selectView(nextView);
+    viewTabsRef.current[nextIndex]?.focus();
   }
 
   const levelSlots = schedule.filter((slot) => slot.level === level);
@@ -88,9 +92,10 @@ export function ScheduleSection({
 
         <div className="mt-6 inline-flex rounded-xl border border-lux-line bg-lux-paper p-1" role="tablist" aria-label="Vue du planning">
           {([['by_level', 'Par niveau'], ['by_week', 'Par semaine']] as const).map(
-            ([id, label]) => (
+            ([id, label], index) => (
               <button
                 key={id}
+                ref={(element) => { viewTabsRef.current[index] = element; }}
                 id={`schedule-view-${id}`}
                 role="tab"
                 aria-selected={view === id}

@@ -3,6 +3,7 @@ import 'server-only';
 import campaignManifest from '@/data/campaigns/pre-rentree-2026.json';
 import modulesData from '@/content/pre-rentree-2026/modules.json';
 import { getPreRentreePacks, getRules } from '@/lib/pricing';
+import { LEGAL } from '@/lib/legal';
 import {
   PreRentreeCampaignManifestSchema,
   PreRentreeModulesSchema,
@@ -130,7 +131,11 @@ export function getPreRentreeLandingDTO() {
       endDate: campaign.endDate,
       noClassDates: campaign.noClassDates,
       decisionDeadline: campaign.decisionDeadline,
-      venue: campaign.venue,
+      venue: {
+        name: `${LEGAL.entity.tradeName} — ${LEGAL.addresses.pedagogique.neighborhood}`,
+        neighborhood: LEGAL.addresses.pedagogique.neighborhood,
+        city: LEGAL.addresses.pedagogique.city,
+      },
     },
     levels: campaign.levels,
     subjects,

@@ -14,6 +14,8 @@ import {
   type SelectedOfferContext,
 } from './selected-offer';
 import { parsePreRentreeBilanPrefill, type CampaignSearchParams } from '@/lib/campaigns/pre-rentree-2026/bilan-prefill';
+import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
+import { formatAcademicProfile } from '@/lib/campaigns/pre-rentree-2026/configurator';
 
 export const metadata: Metadata = {
   title: 'Bilan stratégique gratuit | Nexus Réussite',
@@ -119,6 +121,14 @@ export default async function BilanGratuitPage({ searchParams }: BilanGratuitPag
   const offerId = preRentreePrefill?.packId ?? legacyOffer;
   const programmeLabel = resolveProgrammeLabel(programme);
   const selectedOffer = resolveSelectedOfferContext(offerId);
+  const campaignDto = preRentreePrefill ? getPreRentreeLandingDTO() : null;
+  const profileLabels = campaignDto ? Object.fromEntries([
+    ...campaignDto.academicProfiles.PREMIERE.voies,
+    ...campaignDto.academicProfiles.PREMIERE.mathsProfiles,
+    ...campaignDto.academicProfiles.PREMIERE.eafProfiles,
+    ...campaignDto.academicProfiles.TERMINALE.retainedSpecialties.options,
+    ...campaignDto.academicProfiles.TERMINALE.mathsOptions,
+  ].map((option) => [option.id, option.label])) : {};
 
   return (
     <main className="luxury min-h-screen" id="main-content">
@@ -131,6 +141,8 @@ export default async function BilanGratuitPage({ searchParams }: BilanGratuitPag
           studentGrade: preRentreePrefill.level.toLowerCase(),
           subjects: preRentreePrefill.subjectIds,
           contextLabel: programmeLabel ?? 'Pré-rentrée 2026',
+          profileLabel: formatAcademicProfile(preRentreePrefill.profile, profileLabels),
+          campaignContext: preRentreePrefill,
         } : null}
       />
     </main>

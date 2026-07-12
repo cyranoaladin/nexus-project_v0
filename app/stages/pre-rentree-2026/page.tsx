@@ -65,15 +65,17 @@ export default function PreRentree2026Page() {
         schedule={dto.schedule}
         whatsappMessage={dto.contact.whatsappMessage}
       />
-      <StageConfigurator
-        levels={dto.levels}
-        subjects={dto.subjects}
-        packs={dto.packs}
-        schedule={dto.schedule}
-        academicProfiles={dto.academicProfiles}
-        groupCompositionNotice={dto.content.practical.groupCompositionNotice}
-        campaignStatus={dto.status}
-      />
+      <div id="configurateur" className="scroll-mt-24">
+        <StageConfigurator
+          levels={dto.levels}
+          subjects={dto.subjects}
+          packs={dto.packs}
+          schedule={dto.schedule}
+          academicProfiles={dto.academicProfiles}
+          groupCompositionNotice={dto.content.practical.groupCompositionNotice}
+          campaignStatus={dto.status}
+        />
+      </div>
       <div id="planning" className="scroll-mt-24">
         <ScheduleSection schedule={dto.schedule} levels={dto.levels} subjects={dto.subjects} blocks={dto.blocks} />
       </div>

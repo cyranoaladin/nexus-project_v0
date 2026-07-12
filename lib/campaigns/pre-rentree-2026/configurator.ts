@@ -200,15 +200,21 @@ export function buildBilanUrl(input: {
 }
 
 export function buildWhatsAppMessage(summary: SelectionSummary): string {
+  const formatDate = (date: string) => new Intl.DateTimeFormat('fr-TN', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'long',
+    timeZone: 'Africa/Tunis',
+  }).format(new Date(`${date}T12:00:00+01:00`));
   const schedule = summary.scheduleLines
     .map(
       (line) =>
-        `${line.subjectLabel} : ${line.dates.join(', ')} · ${line.startTime}–${line.endTime}`,
+        `${line.subjectLabel} : ${line.dates.map(formatDate).join(', ')} · ${line.startTime}–${line.endTime}`,
     )
     .join('\n');
   const pack = summary.pack;
   const pricing = pack
-    ? `Pack : ${pack.id}\nTarif indicatif : ${pack.price} TND\nAcompte : ${pack.deposit} TND`
+    ? `Pack : ${pack.subjectsCount} ${pack.subjectsCount === 1 ? 'matière' : 'matières'}\nTarif indicatif : ${pack.price} TND\nAcompte : ${pack.deposit} TND`
     : 'Tarif indicatif : à confirmer';
 
   return [

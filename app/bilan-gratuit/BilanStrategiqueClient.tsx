@@ -17,6 +17,7 @@ import { ConseillerCard, ProcessSteps } from '@/components/marketing/acadomia-in
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { LEGAL } from '@/lib/legal';
 import type { SelectedOfferContext } from './selected-offer';
+import type { PreRentreeBilanPrefill } from '@/lib/campaigns/pre-rentree-2026/bilan-prefill';
 
 const SUBJECTS = [
   { value: 'MATHEMATIQUES', label: 'Mathématiques' },
@@ -72,6 +73,8 @@ type BilanStrategiqueClientProps = {
     studentGrade: string;
     subjects: string[];
     contextLabel: string;
+    profileLabel: string;
+    campaignContext: PreRentreeBilanPrefill;
   } | null;
 };
 
@@ -146,6 +149,7 @@ export function BilanStrategiqueClient({
         subjects: selectedSubjects,
         website: honeypot,
         offerId: selectedOffer?.id,
+        campaignContext: prefill?.campaignContext,
       };
 
       const response = await fetch('/api/bilan-gratuit', {
@@ -181,7 +185,11 @@ export function BilanStrategiqueClient({
               <form onSubmit={onSubmit} noValidate className="space-y-8">
                 {prefill && (
                   <div className="rounded-2xl border border-lux-gold/30 bg-lux-gold/10 p-4 text-sm text-lux-ink">
-                    Préremplissage modifiable · {prefill.contextLabel} · {selectedOffer?.title}
+                    <p>Préremplissage modifiable · {prefill.contextLabel} · {selectedOffer?.title}</p>
+                    <p className="mt-1">Profil pédagogique : {prefill.profileLabel}</p>
+                    <Link className="mt-2 inline-flex min-h-11 items-center font-semibold underline" href="/stages/pre-rentree-2026#configurateur">
+                      Modifier la configuration complète
+                    </Link>
                   </div>
                 )}
                 <div className="grid gap-4 md:grid-cols-2">
