@@ -5,6 +5,7 @@
     {
       "id": "seconde-mathematiques",
       "level": "SECONDE",
+      "subjectId": "MATHEMATIQUES",
       "subject": "Mathématiques",
       "title": "Mathématiques Seconde",
       "subtitle": "Consolider les bases du calcul et découvrir les fonctions pour réussir son entrée au lycée",
@@ -82,6 +83,7 @@
     {
       "id": "seconde-francais",
       "level": "SECONDE",
+      "subjectId": "FRANCAIS",
       "subject": "Français",
       "title": "Français Seconde",
       "subtitle": "Développer l'expression écrite structurée et les fondamentaux de l'analyse de texte",
@@ -159,6 +161,7 @@
     {
       "id": "seconde-informatique-snt",
       "level": "SECONDE",
+      "subjectId": "NSI",
       "subject": "Informatique (SNT)",
       "title": "Initiation informatique, algorithmique et SNT",
       "subtitle": "Découvrir la pensée algorithmique et les bases de la programmation Python",
@@ -236,6 +239,7 @@
     {
       "id": "seconde-physique-chimie",
       "level": "SECONDE",
+      "subjectId": "PHYSIQUE_CHIMIE",
       "subject": "Physique-Chimie",
       "title": "Physique-Chimie Seconde",
       "subtitle": "Acquérir les réflexes scientifiques et maîtriser les grandeurs fondamentales",
@@ -313,6 +317,7 @@
     {
       "id": "premiere-mathematiques",
       "level": "PREMIERE",
+      "subjectId": "MATHEMATIQUES",
       "subject": "Mathématiques",
       "title": "Mathématiques Première",
       "subtitle": "Maîtriser les suites, la dérivation et les probabilités pour préparer le Bac",
@@ -390,6 +395,7 @@
     {
       "id": "premiere-francais-eaf",
       "level": "PREMIERE",
+      "subjectId": "FRANCAIS",
       "subject": "Français (EAF)",
       "title": "Français — Préparation aux EAF",
       "subtitle": "Se préparer méthodiquement aux Épreuves Anticipées de Français (écrit et oral)",
@@ -467,6 +473,7 @@
     {
       "id": "premiere-nsi",
       "level": "PREMIERE",
+      "subjectId": "NSI",
       "subject": "NSI",
       "title": "NSI Première — Numérique et Sciences Informatiques",
       "subtitle": "Consolider les fondamentaux de la programmation et de l'algorithmique",
@@ -544,6 +551,7 @@
     {
       "id": "premiere-physique-chimie",
       "level": "PREMIERE",
+      "subjectId": "PHYSIQUE_CHIMIE",
       "subject": "Physique-Chimie",
       "title": "Physique-Chimie Première",
       "subtitle": "Approfondir la chimie quantitative et la mécanique pour l'épreuve de spécialité",
@@ -621,6 +629,7 @@
     {
       "id": "terminale-mathematiques",
       "level": "TERMINALE",
+      "subjectId": "MATHEMATIQUES",
       "subject": "Mathématiques",
       "title": "Mathématiques Terminale",
       "subtitle": "Préparer les notions clés du programme de Terminale pour aborder l'année sereinement",
@@ -698,6 +707,7 @@
     {
       "id": "terminale-expression-ecrite-oral",
       "level": "TERMINALE",
+      "subjectId": "FRANCAIS",
       "subject": "Expression écrite argumentation et oral",
       "title": "Expression écrite, argumentation et maîtrise de l'oral",
       "subtitle": "Développer les compétences transversales d'expression pour le Grand Oral et le supérieur",
@@ -775,6 +785,7 @@
     {
       "id": "terminale-nsi",
       "level": "TERMINALE",
+      "subjectId": "NSI",
       "subject": "NSI",
       "title": "NSI Terminale — Numérique et Sciences Informatiques",
       "subtitle": "Aborder les structures de données avancées et préparer l'épreuve pratique",
@@ -852,6 +863,7 @@
     {
       "id": "terminale-physique-chimie",
       "level": "TERMINALE",
+      "subjectId": "PHYSIQUE_CHIMIE",
       "subject": "Physique-Chimie",
       "title": "Physique-Chimie Terminale",
       "subtitle": "Préparer les chapitres fondamentaux de Terminale pour un démarrage efficace",

@@ -1,96 +1,48 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type KeyboardEvent } from 'react';
+import { track } from '@/lib/analytics';
+import type { LandingLevel, LandingSubject } from '@/lib/campaigns/pre-rentree-2026/configurator';
 
-interface ProgramsSectionProps {
-  modules: Array<{
-    id: string;
-    level: string;
-    subject: string;
-    title: string;
-    subtitle: string;
-    sessions: Array<{ number: number; title: string; objective: string }>;
-  }>;
-  levels: Array<{ id: string; label: string }>;
+interface CampaignModule {
+  id: string;
+  level: string;
+  subjectId: string;
+  subject: string;
+  title: string;
+  subtitle: string;
+  prerequisites: string;
+  differentiation: string;
+  quickAssessment: string;
+  sessions: Array<{ number: number; title: string; objective: string; topics: string[]; method: string; deliverable: string }>;
 }
 
-export function ProgramsSection({ modules, levels }: ProgramsSectionProps) {
-  const [activeLevel, setActiveLevel] = useState(levels[0]?.id ?? 'SECONDE');
+export function ProgramsSection({ modules, levels }: { modules: CampaignModule[]; levels: LandingLevel[]; subjects: LandingSubject[] }) {
+  const [level, setLevel] = useState(levels[0]?.id ?? 'SECONDE');
   const [openModule, setOpenModule] = useState<string | null>(null);
+  const visibleModules = modules.filter((campaignModule) => campaignModule.level === level);
 
-  const filteredModules = modules.filter(m => m.level === activeLevel);
+  function handleLevelKeys(event: KeyboardEvent<HTMLButtonElement>, index: number) {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const nextIndex = event.key === 'Home' ? 0 : event.key === 'End' ? levels.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + levels.length) % levels.length;
+    setLevel(levels[nextIndex].id);
+    setOpenModule(null);
+  }
 
   return (
-    <section className="bg-lux-paper py-14 md:py-20 px-4" aria-labelledby="programs-heading">
+    <section className="bg-lux-paper px-4 py-14 md:py-20" aria-labelledby="programs-heading">
       <div className="mx-auto max-w-6xl">
-        <h2 id="programs-heading" className="font-fraunces text-2xl md:text-3xl text-lux-ink mb-6">
-          Programmes détaillés
-        </h2>
-
-        <div role="tablist" aria-label="Filtrer par niveau" className="flex gap-2 mb-8 flex-wrap">
-          {levels.map(level => (
-            <button
-              key={level.id}
-              role="tab"
-              aria-selected={activeLevel === level.id}
-              onClick={() => { setActiveLevel(level.id); setOpenModule(null); }}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors min-h-[44px] ${
-                activeLevel === level.id
-                  ? 'bg-lux-ink text-lux-on-dark'
-                  : 'bg-white text-lux-ink hover:bg-lux-ink/5'
-              }`}
-            >
-              {level.label}
-            </button>
-          ))}
+        <h2 id="programs-heading" className="font-fraunces text-3xl text-lux-ink md:text-4xl">Programmes détaillés</h2>
+        <p className="mt-3 max-w-3xl text-lux-slate">Consultez un module à la fois pour garder une lecture claire des objectifs et des cinq séances.</p>
+        <div className="mt-6 flex flex-wrap gap-2" role="tablist" aria-label="Filtrer les programmes par niveau">
+          {levels.map((option, index) => <button key={option.id} id={`program-level-${option.id}`} role="tab" aria-selected={level === option.id} aria-controls="program-list" tabIndex={level === option.id ? 0 : -1} onKeyDown={(event) => handleLevelKeys(event, index)} onClick={() => { setLevel(option.id); setOpenModule(null); }} className={`min-h-11 rounded-lg px-4 py-2 text-sm font-semibold ${level === option.id ? 'bg-lux-ink text-lux-ivory' : 'border border-lux-line bg-white text-lux-ink'}`}>{option.label}</button>)}
         </div>
-
-        <div className="space-y-3">
-          {filteredModules.map(mod => {
-            const isOpen = openModule === mod.id;
-            const panelId = `program-panel-${mod.id}`;
-            const buttonId = `program-button-${mod.id}`;
-
-            return (
-              <div key={mod.id} className="rounded-xl border border-lux-line bg-white overflow-hidden">
-                <button
-                  id={buttonId}
-                  aria-expanded={isOpen}
-                  aria-controls={panelId}
-                  onClick={() => setOpenModule(isOpen ? null : mod.id)}
-                  className="flex w-full items-center justify-between p-5 text-left min-h-[44px]"
-                >
-                  <div>
-                    <h3 className="font-semibold text-lux-ink">{mod.title}</h3>
-                    <p className="text-sm text-lux-slate mt-0.5">{mod.subtitle}</p>
-                  </div>
-                  <span className="ml-4 shrink-0 text-lux-slate" aria-hidden="true">
-                    {isOpen ? '▲' : '▼'}
-                  </span>
-                </button>
-                <div
-                  id={panelId}
-                  role="region"
-                  aria-labelledby={buttonId}
-                  hidden={!isOpen}
-                  className="border-t border-lux-line p-5"
-                >
-                  <ol className="space-y-4">
-                    {mod.sessions.map(session => (
-                      <li key={session.number} className="flex gap-3">
-                        <span className="shrink-0 w-7 h-7 flex items-center justify-center rounded-full bg-lux-gold/10 text-xs font-semibold text-lux-gold-deep">
-                          {session.number}
-                        </span>
-                        <div>
-                          <p className="font-medium text-sm text-lux-ink">{session.title}</p>
-                          <p className="text-sm text-lux-slate">{session.objective}</p>
-                        </div>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              </div>
-            );
+        <div id="program-list" role="tabpanel" aria-labelledby={`program-level-${level}`} className="mt-8 space-y-3">
+          {visibleModules.map((campaignModule) => {
+            const open = openModule === campaignModule.id;
+            const panelId = `program-panel-${campaignModule.id}`;
+            return <article key={campaignModule.id} id={`programme-${campaignModule.subjectId.toLowerCase()}`} className="scroll-mt-24 overflow-hidden rounded-2xl border border-lux-line bg-white"><h3><button type="button" className="flex min-h-11 w-full items-start justify-between gap-4 p-5 text-left" aria-expanded={open} aria-controls={panelId} onClick={() => { setOpenModule(open ? null : campaignModule.id); if (!open) track.preRentreeProgramViewed(campaignModule.level.toLowerCase(), campaignModule.subjectId.toLowerCase()); }}><span><span className="block font-semibold text-lux-ink">{campaignModule.title}</span><span className="mt-1 block text-sm font-normal text-lux-slate">{campaignModule.subtitle}</span></span><span aria-hidden="true">{open ? '−' : '+'}</span></button></h3><div id={panelId} role="region" aria-label={`Détail ${campaignModule.title}`} hidden={!open} className="border-t border-lux-line p-5"><dl className="grid gap-4 text-sm md:grid-cols-3"><div><dt className="font-semibold text-lux-ink">Prérequis</dt><dd className="mt-1 text-lux-slate">{campaignModule.prerequisites}</dd></div><div><dt className="font-semibold text-lux-ink">Différenciation</dt><dd className="mt-1 text-lux-slate">{campaignModule.differentiation}</dd></div><div><dt className="font-semibold text-lux-ink">Évaluation rapide</dt><dd className="mt-1 text-lux-slate">{campaignModule.quickAssessment}</dd></div></dl><ol className="mt-6 space-y-5">{campaignModule.sessions.map((session) => <li key={session.number} className="rounded-xl bg-lux-paper p-4"><h4 className="font-semibold text-lux-ink">Séance {session.number} · {session.title}</h4><p className="mt-2 text-sm text-lux-slate"><strong>Objectif :</strong> {session.objective}</p><p className="mt-2 text-sm text-lux-slate"><strong>Notions :</strong> {session.topics.join(' · ')}</p><p className="mt-2 text-sm text-lux-slate"><strong>Méthode et activité :</strong> {session.method}</p><p className="mt-2 text-sm text-lux-slate"><strong>Livrable :</strong> {session.deliverable}</p></li>)}</ol></div></article>;
           })}
         </div>
       </div>

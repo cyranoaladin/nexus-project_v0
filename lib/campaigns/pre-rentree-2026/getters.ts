@@ -2,7 +2,7 @@ import 'server-only';
 
 import campaignManifest from '@/data/campaigns/pre-rentree-2026.json';
 import modulesData from '@/content/pre-rentree-2026/modules.json';
-import { getPreRentreePacks } from '@/lib/pricing';
+import { getPreRentreePacks, getRules } from '@/lib/pricing';
 import {
   PreRentreeCampaignManifestSchema,
   PreRentreeModulesSchema,
@@ -105,6 +105,7 @@ export function getPreRentreeLandingDTO() {
   const modules = getPreRentreeModules();
   const schedule = getPreRentreeSchedule();
   const packs = getPreRentreePackOptions();
+  const pricingRules = getRules();
 
   return {
     campaign: {
@@ -125,6 +126,9 @@ export function getPreRentreeLandingDTO() {
     capacity: campaign.capacity,
     academicProfiles: campaign.academicProfiles,
     packs,
+    pricingRules: {
+      depositPercentage: pricingRules.payment.deposit_pct_stage,
+    },
     schedule,
     modules,
     content: campaign.content,
@@ -132,6 +136,7 @@ export function getPreRentreeLandingDTO() {
     cta: campaign.cta,
     contact: campaign.contact,
     featureFlags: campaign.featureFlags,
+    legalRefs: campaign.legalRefs,
     status: campaign.status,
   };
 }

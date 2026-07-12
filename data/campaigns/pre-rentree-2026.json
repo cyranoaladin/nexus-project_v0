@@ -163,7 +163,7 @@
     "modules": "content/pre-rentree-2026/modules.json"
   },
   "legalRefs": {
-    "cgv": "/mentions-legales",
+    "cgv": "/conditions-generales",
     "commercialTerms": "docs/legal/pre-rentree-2026-commercial-terms-gap-analysis.md"
   },
   "analyticsEventPrefix": "pre_rentree"

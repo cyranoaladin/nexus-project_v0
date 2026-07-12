@@ -1,51 +1,15 @@
-interface PricingSectionProps {
-  packs: Array<{
-    id: string;
-    subjectsCount: number;
-    totalHours: number;
-    price: number;
-    deposit: number;
-    balance: number;
-  }>;
-}
+import type { LandingPack } from '@/lib/campaigns/pre-rentree-2026/configurator';
 
-export function PricingSection({ packs }: PricingSectionProps) {
+export function PricingSection({ packs, depositPercentage }: { packs: LandingPack[]; depositPercentage: number }) {
   return (
-    <section className="bg-lux-paper py-14 md:py-20 px-4" aria-labelledby="pricing-heading">
+    <section className="bg-lux-paper px-4 py-14 md:py-20" aria-labelledby="pricing-heading">
       <div className="mx-auto max-w-6xl">
-        <h2 id="pricing-heading" className="font-fraunces text-2xl md:text-3xl text-lux-ink mb-2">
-          Tarifs
-        </h2>
-        <p className="text-lux-slate mb-8">
-          Acompte de 30 % à l'inscription. Groupes de 3 à 5 élèves. Tarifs non cumulables avec les remises automatiques.
-        </p>
-
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {packs.map((pack) => (
-            <div
-              key={pack.id}
-              className="rounded-xl border border-lux-line bg-white p-6 flex flex-col"
-            >
-              <p className="text-sm font-medium text-lux-slate mb-1">
-                {pack.subjectsCount} {pack.subjectsCount === 1 ? 'matière' : 'matières'}
-              </p>
-              <p className="text-sm text-lux-slate mb-4">{pack.totalHours} heures</p>
-              <p className="font-fraunces text-2xl text-lux-ink mb-1">
-                {pack.price.toLocaleString('fr-TN')} TND
-              </p>
-              <div className="mt-auto pt-4 border-t border-lux-line text-sm text-lux-slate space-y-1">
-                <p>Acompte : {pack.deposit} TND</p>
-                <p>Solde : {pack.balance} TND</p>
-              </div>
-            </div>
-          ))}
+        <h2 id="pricing-heading" className="font-fraunces text-3xl text-lux-ink md:text-4xl">Tarifs Pré-rentrée</h2>
+        <p className="mt-3 text-lux-slate">Acompte de {depositPercentage} % · pré-inscription sans paiement en ligne · tarifs non cumulables avec les remises automatiques.</p>
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {packs.map((pack) => <article key={pack.id} className="flex flex-col rounded-2xl border border-lux-line bg-white p-6"><h3 className="font-semibold text-lux-ink">{pack.subjectsCount} {pack.subjectsCount === 1 ? 'matière' : 'matières'}</h3><p className="mt-1 text-sm text-lux-slate">{pack.totalHours} heures</p><p className="mt-5 font-fraunces text-3xl text-lux-ink">{pack.price.toLocaleString('fr-TN')} TND</p><p className="mt-1 text-sm text-lux-slate">Tarif par élève</p><p className="text-sm text-lux-slate">{pack.pricePerHour.toLocaleString('fr-TN')} TND/h</p><dl className="mt-5 space-y-2 border-t border-lux-line pt-4 text-sm"><div className="flex justify-between gap-3"><dt className="text-lux-slate">Acompte</dt><dd className="font-medium text-lux-ink">{pack.deposit.toLocaleString('fr-TN')} TND</dd></div><div className="flex justify-between gap-3"><dt className="text-lux-slate">Solde</dt><dd className="font-medium text-lux-ink">{pack.balance.toLocaleString('fr-TN')} TND</dd></div></dl></article>)}
         </div>
-
-        <div className="mt-6 text-sm text-lux-slate space-y-1">
-          <p>Groupe ouvert à partir de 3 élèves, maximum 5.</p>
-          <p>La demande sans acompte ne bloque pas une place.</p>
-          <p>Pré-inscription sans paiement en ligne.</p>
-        </div>
+        <ul className="mt-6 space-y-1 text-sm text-lux-slate"><li>Groupe ouvert selon le seuil indiqué dans les informations pratiques.</li><li>Une demande sans acompte ne bloque pas une place.</li><li>La Carte Nexus et les remises automatiques ne s'appliquent pas à ces packs.</li></ul>
       </div>
     </section>
   );

@@ -176,6 +176,7 @@ const ModuleSession = z.object({
 const CampaignModule = z.object({
   id: z.string().min(1),
   level: z.enum(['SECONDE', 'PREMIERE', 'TERMINALE']),
+  subjectId: z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS']),
   subject: z.string().min(1),
   title: z.string().min(1),
   subtitle: z.string().min(1),
