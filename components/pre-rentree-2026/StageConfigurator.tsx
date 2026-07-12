@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { track } from '@/lib/analytics';
+import { toPreRentreeEntryLevel, track } from '@/lib/analytics';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import {
   buildBilanUrl,
@@ -18,6 +18,7 @@ import {
   type LandingSubject,
   type SelectionSummary,
 } from '@/lib/campaigns/pre-rentree-2026/configurator';
+import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
 
 interface ProfileOption {
   id: string;
@@ -162,7 +163,7 @@ function SummaryCard({
       </button>
       <div id="campaign-selection-summary" className={`${expanded ? 'block' : 'hidden'} lg:block`}>
       <dl className="mt-4 space-y-2 text-sm">
-        <div className="flex justify-between gap-4"><dt className="text-lux-slate">Niveau</dt><dd className="text-right font-medium text-lux-ink">{summary.levelLabel}</dd></div>
+        <div className="flex justify-between gap-4"><dt className="text-lux-slate">Classe de rentrée</dt><dd className="text-right font-medium text-lux-ink">{summary.levelLabel}</dd></div>
         <div className="flex justify-between gap-4"><dt className="text-lux-slate">Profil</dt><dd className="text-right font-medium text-lux-ink">{summary.profileLabel}</dd></div>
         <div className="flex justify-between gap-4"><dt className="text-lux-slate">Matières</dt><dd className="text-right font-medium text-lux-ink">{summary.subjectLabels.join(', ')}</dd></div>
         <div className="flex justify-between gap-4"><dt className="text-lux-slate">Volume</dt><dd className="font-medium text-lux-ink">{summary.sessionCount} séances · {summary.totalHours} heures</dd></div>
@@ -192,7 +193,11 @@ function SummaryCard({
           onClick={() => {
             onNavigate();
             track.preRentreeBilanClicked('configurator_summary', pack.id);
-            track.preRentreePreregistrationStarted(pack.id, summary.level, summary.subjectIds.length);
+            track.preRentreePreregistrationStarted(
+              pack.id,
+              toPreRentreeEntryLevel(summary.level),
+              summary.subjectIds.length,
+            );
           }}
           className="lux-cta-reserve flex min-h-11 items-center justify-center rounded-lg px-4 py-3 text-center text-sm font-semibold"
         >
@@ -226,7 +231,7 @@ export default function StageConfigurator({
   campaignStatus,
 }: StageConfiguratorProps) {
   const [step, setStep] = useState(1);
-  const [level, setLevel] = useState<string | null>(null);
+  const [level, setLevel] = useState<EntryLevelCode | null>(null);
   const [profile, setProfile] = useState<AcademicProfileSelection>({});
   const [subjectIds, setSubjectIds] = useState<string[]>([]);
   const [mobileSummaryOpen, setMobileSummaryOpen] = useState(false);
@@ -257,12 +262,12 @@ export default function StageConfigurator({
     (level === 'PREMIERE' && Boolean(profile.voie && profile.mathsProfile && profile.eafProfile)) ||
     (level === 'TERMINALE' && Boolean(profile.mathsOption));
 
-  function chooseLevel(nextLevel: string) {
+  function chooseLevel(nextLevel: EntryLevelCode) {
     setLevel(nextLevel);
     setProfile({});
     setSubjectIds([]);
     setMobileSummaryOpen(false);
-    track.preRentreeLevelSelected(nextLevel.toLowerCase());
+    track.preRentreeLevelSelected(toPreRentreeEntryLevel(nextLevel));
   }
 
   function toggleSubject(subjectId: string) {
@@ -270,7 +275,13 @@ export default function StageConfigurator({
       ? subjectIds.filter((id) => id !== subjectId)
       : [...subjectIds, subjectId];
     setSubjectIds(next);
-    track.preRentreeSubjectSelected(subjectId.toLowerCase(), next.length);
+    if (level) {
+      track.preRentreeSubjectSelected(
+        toPreRentreeEntryLevel(level),
+        subjectId.toLowerCase(),
+        next.length,
+      );
+    }
   }
 
   function continueTo(nextStep: number) {
@@ -291,7 +302,7 @@ export default function StageConfigurator({
           <p className="sr-only">Statut de campagne : {campaignStatus}</p>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-lux-gold-deep">Pré-inscription sans paiement</p>
           <h2 id="configurator-heading" className="mt-3 font-fraunces text-3xl text-lux-ink md:text-4xl">Composer le stage de votre enfant</h2>
-          <p className="mt-3 text-lux-slate">Sélectionnez le niveau, le profil et les matières pour obtenir un résumé exact.</p>
+          <p className="mt-3 text-lux-slate">Sélectionnez la classe de rentrée, le profil et les matières pour obtenir un résumé exact.</p>
         </div>
 
         <div className="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
@@ -314,9 +325,9 @@ export default function StageConfigurator({
 
             {step === 2 && level === 'PREMIERE' && (
               <div className="space-y-6">
-                <fieldset><legend className="font-semibold text-lux-ink">Voie</legend><div className={`mt-3 ${inputClass}`}>{academicProfiles.PREMIERE.voies.map((option) => <ChoiceCard key={option.id} name="voie" option={option} checked={profile.voie === option.id} onChange={() => { setProfile((value) => ({ ...value, voie: option.id })); track.preRentreeTrackSelected(option.id.toLowerCase()); }} />)}</div></fieldset>
-                <fieldset><legend className="font-semibold text-lux-ink">Profil Mathématiques</legend><div className={`mt-3 ${inputClass}`}>{academicProfiles.PREMIERE.mathsProfiles.map((option) => <ChoiceCard key={option.id} name="maths-profile" option={option} checked={profile.mathsProfile === option.id} onChange={() => { setProfile((value) => ({ ...value, mathsProfile: option.id })); track.preRentreeTrackSelected(option.id.toLowerCase()); }} />)}</div></fieldset>
-                <fieldset><legend className="font-semibold text-lux-ink">Profil Français EAF</legend><div className={`mt-3 ${inputClass}`}>{academicProfiles.PREMIERE.eafProfiles.map((option) => <ChoiceCard key={option.id} name="eaf-profile" option={option} checked={profile.eafProfile === option.id} onChange={() => { setProfile((value) => ({ ...value, eafProfile: option.id })); track.preRentreeTrackSelected(option.id.toLowerCase()); }} />)}</div></fieldset>
+                <fieldset><legend className="font-semibold text-lux-ink">Voie</legend><div className={`mt-3 ${inputClass}`}>{academicProfiles.PREMIERE.voies.map((option) => <ChoiceCard key={option.id} name="voie" option={option} checked={profile.voie === option.id} onChange={() => { setProfile((value) => ({ ...value, voie: option.id })); track.preRentreeTrackSelected('premiere', option.id.toLowerCase()); }} />)}</div></fieldset>
+                <fieldset><legend className="font-semibold text-lux-ink">Profil Mathématiques</legend><div className={`mt-3 ${inputClass}`}>{academicProfiles.PREMIERE.mathsProfiles.map((option) => <ChoiceCard key={option.id} name="maths-profile" option={option} checked={profile.mathsProfile === option.id} onChange={() => { setProfile((value) => ({ ...value, mathsProfile: option.id })); track.preRentreeTrackSelected('premiere', option.id.toLowerCase()); }} />)}</div></fieldset>
+                <fieldset><legend className="font-semibold text-lux-ink">Profil Français EAF</legend><div className={`mt-3 ${inputClass}`}>{academicProfiles.PREMIERE.eafProfiles.map((option) => <ChoiceCard key={option.id} name="eaf-profile" option={option} checked={profile.eafProfile === option.id} onChange={() => { setProfile((value) => ({ ...value, eafProfile: option.id })); track.preRentreeTrackSelected('premiere', option.id.toLowerCase()); }} />)}</div></fieldset>
                 <div className="flex justify-between gap-3"><button type="button" className={`${buttonClass} border border-lux-line`} onClick={() => continueTo(getPreviousConfiguratorStep(step, level))}>Retour</button><button type="button" className={`${buttonClass} lux-cta-reserve disabled:opacity-50`} disabled={!profileComplete} onClick={() => continueTo(3)}>Continuer</button></div>
               </div>
             )}
@@ -328,13 +339,13 @@ export default function StageConfigurator({
                   <div className="mt-3 grid gap-3 sm:grid-cols-3">
                     {academicProfiles.TERMINALE.retainedSpecialties.options.map((option) => (
                       <label key={option.id} className="flex min-h-11 items-center rounded-xl border border-lux-line bg-white px-4 py-3 text-sm text-lux-ink">
-                        <input className="mr-3 h-4 w-4 accent-lux-gold" type="checkbox" checked={profile.retainedSpecialties?.includes(option.id) ?? false} onChange={() => { setProfile((value) => ({ ...value, retainedSpecialties: toggleLimitedSelection(value.retainedSpecialties ?? [], option.id, academicProfiles.TERMINALE.retainedSpecialties.maxSelections) })); track.preRentreeTrackSelected(option.id.toLowerCase()); }} />
+                        <input className="mr-3 h-4 w-4 accent-lux-gold" type="checkbox" checked={profile.retainedSpecialties?.includes(option.id) ?? false} onChange={() => { setProfile((value) => ({ ...value, retainedSpecialties: toggleLimitedSelection(value.retainedSpecialties ?? [], option.id, academicProfiles.TERMINALE.retainedSpecialties.maxSelections) })); track.preRentreeTrackSelected('terminale', option.id.toLowerCase()); }} />
                         {option.label}
                       </label>
                     ))}
                   </div>
                 </fieldset>
-                <fieldset><legend className="font-semibold text-lux-ink">Option de Mathématiques</legend><div className="mt-3 grid gap-3 sm:grid-cols-3">{academicProfiles.TERMINALE.mathsOptions.map((option) => <ChoiceCard key={option.id} name="maths-option" option={option} checked={profile.mathsOption === option.id} onChange={() => { setProfile((value) => ({ ...value, mathsOption: option.id })); track.preRentreeTrackSelected(option.id.toLowerCase()); }} />)}</div></fieldset>
+                <fieldset><legend className="font-semibold text-lux-ink">Option de Mathématiques</legend><div className="mt-3 grid gap-3 sm:grid-cols-3">{academicProfiles.TERMINALE.mathsOptions.map((option) => <ChoiceCard key={option.id} name="maths-option" option={option} checked={profile.mathsOption === option.id} onChange={() => { setProfile((value) => ({ ...value, mathsOption: option.id })); track.preRentreeTrackSelected('terminale', option.id.toLowerCase()); }} />)}</div></fieldset>
                 <div className="flex justify-between gap-3"><button type="button" className={`${buttonClass} border border-lux-line`} onClick={() => continueTo(1)}>Retour</button><button type="button" className={`${buttonClass} lux-cta-reserve disabled:opacity-50`} disabled={!profileComplete} onClick={() => continueTo(3)}>Continuer</button></div>
               </div>
             )}

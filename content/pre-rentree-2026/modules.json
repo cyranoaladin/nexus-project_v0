@@ -7,20 +7,20 @@
       "level": "SECONDE",
       "subjectId": "MATHEMATIQUES",
       "subject": "Mathématiques",
-      "title": "Mathématiques Seconde",
-      "subtitle": "Consolider les bases du calcul et découvrir les fonctions pour réussir son entrée au lycée",
-      "prerequisites": "Les acquis fondamentaux du collège ; un diagnostic en début de module précise les priorités.",
+      "title": "Mathématiques — Entrée en Seconde",
+      "subtitle": "Entrée en Seconde — consolider les acquis de Troisième et découvrir progressivement les attentes du lycée",
+      "prerequisites": "Les acquis de Troisième et du collège ; un diagnostic en début de module précise les priorités.",
       "differentiation": "Exercices à paliers et aides graduées selon la maîtrise du calcul et de la rédaction.",
       "quickAssessment": "Exercice court de calcul et de raisonnement corrigé à la fin de chaque séance.",
       "sessions": [
         {
           "number": 1,
-          "title": "Calcul littéral et techniques de factorisation",
-          "objective": "Maîtriser le développement, la factorisation et les identités remarquables",
+          "title": "Calcul, proportionnalité et calcul littéral",
+          "objective": "Consolider le calcul numérique, la proportionnalité, le développement et la factorisation",
           "topics": [
             "Développement et réduction d'expressions",
             "Factorisation par facteur commun et identités remarquables",
-            "Fractions et puissances",
+            "Fractions, puissances et proportionnalité",
             "Résolution d'équations produit-nul"
           ],
           "method": "Exercices guidés progressifs avec correction commentée",
@@ -85,9 +85,9 @@
       "level": "SECONDE",
       "subjectId": "FRANCAIS",
       "subject": "Français",
-      "title": "Français Seconde",
-      "subtitle": "Développer l'expression écrite structurée et les fondamentaux de l'analyse de texte",
-      "prerequisites": "Les compétences de lecture et d'écriture attendues en fin de collège.",
+      "title": "Français — Entrée en Seconde",
+      "subtitle": "Entrée en Seconde — consolider compréhension, expression, grammaire et argumentation pour aborder les méthodes du lycée",
+      "prerequisites": "Les compétences de lecture et d'écriture attendues en fin de Troisième et de collège.",
       "differentiation": "Textes, consignes et attendus de rédaction ajustés au niveau de maîtrise observé.",
       "quickAssessment": "Production brève ou question d'analyse relue avec une grille de critères.",
       "sessions": [
@@ -164,8 +164,8 @@
       "subjectId": "NSI",
       "subject": "Informatique (SNT)",
       "title": "Initiation informatique, algorithmique et SNT",
-      "subtitle": "Découvrir la pensée algorithmique et les bases de la programmation Python",
-      "prerequisites": "Aucune expérience de programmation n'est requise ; savoir utiliser un navigateur et un clavier suffit.",
+      "subtitle": "Entrée en Seconde — découvrir la pensée algorithmique, la SNT et les bases de la programmation Python",
+      "prerequisites": "Aucun prérequis informatique ou NSI ; les usages numériques courants acquis au collège suffisent.",
       "differentiation": "Défis progressifs et extensions facultatives pour les élèves déjà familiers avec le code.",
       "quickAssessment": "Programme court à exécuter, expliquer ou corriger en fin de séance.",
       "sessions": [
@@ -241,9 +241,9 @@
       "level": "SECONDE",
       "subjectId": "PHYSIQUE_CHIMIE",
       "subject": "Physique-Chimie",
-      "title": "Physique-Chimie Seconde",
-      "subtitle": "Acquérir les réflexes scientifiques et maîtriser les grandeurs fondamentales",
-      "prerequisites": "Les notions scientifiques et les outils de calcul du collège.",
+      "title": "Physique-Chimie — Entrée en Seconde",
+      "subtitle": "Entrée en Seconde — consolider unités, grandeurs et raisonnement scientifique avant les méthodes du lycée",
+      "prerequisites": "Les notions scientifiques et les outils de calcul travaillés en Troisième et au collège.",
       "differentiation": "Données, schémas et niveaux de guidage adaptés aux acquis diagnostiqués.",
       "quickAssessment": "Question scientifique courte avec justification des unités et de la démarche.",
       "sessions": [
@@ -319,8 +319,8 @@
       "level": "PREMIERE",
       "subjectId": "MATHEMATIQUES",
       "subject": "Mathématiques",
-      "title": "Mathématiques Première",
-      "subtitle": "Maîtriser les suites, la dérivation et les probabilités pour préparer le Bac",
+      "title": "Mathématiques — Entrée en Première",
+      "subtitle": "Entrée en Première — consolider les acquis de Seconde et découvrir suites, dérivation et probabilités selon le profil déclaré",
       "prerequisites": "Les acquis de Seconde en fonctions, calcul littéral et probabilités.",
       "differentiation": "Activités et niveau d'exigence adaptés au profil Maths EDS ou hors EDS après validation pédagogique.",
       "quickAssessment": "Exercice type ciblé, corrigé avec une grille de méthode et de rédaction.",
@@ -398,7 +398,7 @@
       "subjectId": "FRANCAIS",
       "subject": "Français (EAF)",
       "title": "Français — Préparation aux EAF",
-      "subtitle": "Se préparer méthodiquement aux Épreuves Anticipées de Français (écrit et oral)",
+      "subtitle": "Entrée en Première — découvrir les attendus des futures Épreuves Anticipées de Français, à l’écrit et à l’oral",
       "prerequisites": "Une lecture régulière et les bases de l'analyse de texte acquises en Seconde.",
       "differentiation": "Exercice correspondant à la voie générale ou technologique, confirmé après validation pédagogique du groupe.",
       "quickAssessment": "Paragraphe rédigé ou passage oral bref évalué selon les attendus EAF.",
@@ -475,68 +475,68 @@
       "level": "PREMIERE",
       "subjectId": "NSI",
       "subject": "NSI",
-      "title": "NSI Première — Numérique et Sciences Informatiques",
-      "subtitle": "Consolider les fondamentaux de la programmation et de l'algorithmique",
-      "prerequisites": "Les bases de Python et de l'algorithmique de Seconde ; une remise à niveau est prévue si nécessaire.",
+      "title": "NSI — Entrée en Première",
+      "subtitle": "Entrée en Première — commencer l’EDS NSI par l’algorithmique, Python et les concepts fondamentaux",
+      "prerequisites": "Aucun prérequis NSI ou Python obligatoire ; les repères éventuellement découverts en SNT en Seconde sont repris depuis les fondamentaux.",
       "differentiation": "Exercices à difficulté progressive et défis d'approfondissement pour les profils avancés.",
       "quickAssessment": "Fonction Python ou raisonnement algorithmique court testé en fin de séance.",
       "sessions": [
         {
           "number": 1,
-          "title": "Types construits : listes, tuples et dictionnaires",
-          "objective": "Maîtriser les structures de données Python essentielles",
-          "topics": [
-            "Listes : création, accès, parcours, méthodes",
-            "Tuples et immutabilité",
-            "Dictionnaires : clés, valeurs, itération",
-            "Compréhensions de listes"
-          ],
-          "method": "Exercices progressifs de manipulation avec cas concrets",
-          "deliverable": "Série d'exercices résolus sur les types construits"
+        "title": "Algorithmique et premiers programmes Python",
+        "objective": "Découvrir comment décomposer un problème et écrire un premier programme Python",
+        "topics": [
+          "Algorithme, instruction et ordre d’exécution",
+          "Variables, types simples et affectation",
+          "Entrées, sorties et expressions",
+          "Lecture et test d’un programme court"
+        ],
+        "method": "Démonstration guidée puis écriture progressive de programmes très courts",
+        "deliverable": "Premier programme Python commenté et fiche de vocabulaire algorithmique"
         },
         {
           "number": 2,
-          "title": "Algorithmes de tri et de recherche",
-          "objective": "Implémenter et comparer les algorithmes de tri et de recherche au programme",
-          "topics": [
-            "Recherche séquentielle et dichotomique",
-            "Tri par sélection",
-            "Tri par insertion",
-            "Notion de complexité (comparaisons)"
-          ],
-          "method": "Implémentation pas-à-pas puis comparaison expérimentale",
-          "deliverable": "Implémentations commentées des algorithmes avec tests"
+        "title": "Conditions et boucles",
+        "objective": "Écrire des programmes qui prennent une décision et répètent un traitement",
+        "topics": [
+          "Expressions booléennes",
+          "Structures conditionnelles if, elif, else",
+          "Boucles for et while",
+          "Traces d’exécution et terminaison"
+        ],
+        "method": "Prédiction de traces puis exercices Python à paliers",
+        "deliverable": "Programme interactif utilisant conditions et boucles"
         },
         {
           "number": 3,
-          "title": "Tables de données et traitement",
-          "objective": "Charger, filtrer et traiter des données tabulaires en Python",
-          "topics": [
-            "Fichiers CSV et lecture en Python",
-            "Représentation en table (liste de dictionnaires)",
-            "Recherche, filtrage et tri de données",
-            "Agrégation simple (comptage, moyenne)"
-          ],
-          "method": "Travail sur un jeu de données réel avec exercices progressifs",
-          "deliverable": "Script Python de traitement de données complet et commenté"
+        "title": "Fonctions et décomposition d’un problème",
+        "objective": "Comprendre l’intérêt des fonctions et structurer une solution en sous-problèmes",
+        "topics": [
+          "Définition et appel d’une fonction",
+          "Paramètres et valeur de retour",
+          "Portée élémentaire des variables",
+          "Tests simples et cas limites"
+        ],
+        "method": "Refactorisation guidée d’un programme puis exercices de décomposition",
+        "deliverable": "Bibliothèque de fonctions courtes accompagnées de tests"
         },
         {
           "number": 4,
-          "title": "Architecture web : client-serveur",
-          "objective": "Comprendre l'architecture web et les interactions client-serveur",
-          "topics": [
-            "Modèle client-serveur et protocole HTTP",
-            "Requêtes GET et POST",
-            "Formulaires HTML et traitement côté serveur",
-            "Introduction à Flask (route simple)"
-          ],
-          "method": "Démonstration puis création d'une application web minimale",
-          "deliverable": "Mini-application web Flask fonctionnelle"
+        "title": "Listes, parcours et recherche",
+        "objective": "Manipuler une collection simple et construire un premier algorithme de recherche",
+        "topics": [
+          "Création et accès aux éléments d’une liste",
+          "Parcours par indices et par valeurs",
+          "Accumulation et recherche séquentielle",
+          "Introduction à l’efficacité d’un algorithme"
+        ],
+        "method": "Manipulations guidées puis résolution d’un problème de recherche",
+        "deliverable": "Algorithme de recherche commenté et jeu de tests"
         },
         {
           "number": 5,
           "title": "Mini-projet intégrateur NSI",
-          "objective": "Mobiliser l'ensemble des compétences dans un projet cohérent",
+        "objective": "Mobiliser les fondamentaux découverts dans un projet accessible aux débutants",
           "topics": [
             "Définition du cahier des charges",
             "Structuration du code en fonctions",
@@ -544,7 +544,7 @@
             "Documentation et présentation"
           ],
           "method": "Pédagogie par projet avec accompagnement personnalisé",
-          "deliverable": "Projet NSI documenté et fonctionnel, prêt pour présentation"
+        "deliverable": "Mini-projet Python documenté, testé et présenté au groupe"
         }
       ]
     },
@@ -553,8 +553,8 @@
       "level": "PREMIERE",
       "subjectId": "PHYSIQUE_CHIMIE",
       "subject": "Physique-Chimie",
-      "title": "Physique-Chimie Première",
-      "subtitle": "Approfondir la chimie quantitative et la mécanique pour l'épreuve de spécialité",
+      "title": "Physique-Chimie — Entrée en Première",
+      "subtitle": "Entrée en Première — partir des acquis de Seconde pour préparer les premières notions de l’EDS Physique-Chimie",
       "prerequisites": "Les grandeurs, unités et méthodes expérimentales travaillées en Seconde.",
       "differentiation": "Guidage calculatoire, schémas et problèmes d'approfondissement selon le profil déclaré.",
       "quickAssessment": "Question de modélisation ou calcul scientifique commenté en fin de séance.",
@@ -631,10 +631,10 @@
       "level": "TERMINALE",
       "subjectId": "MATHEMATIQUES",
       "subject": "Mathématiques",
-      "title": "Mathématiques Terminale",
-      "subtitle": "Préparer les notions clés du programme de Terminale pour aborder l'année sereinement",
+      "title": "Mathématiques — Entrée en Terminale",
+      "subtitle": "Entrée en Terminale — partir des acquis de Première et préparer les premières notions selon le parcours déclaré : EDS Mathématiques et options associées",
       "prerequisites": "Les acquis de Première en dérivation, suites, probabilités et géométrie.",
-      "differentiation": "Exercices différenciés pour Maths EDS, Maths expertes et Maths complémentaires après validation.",
+      "differentiation": "Exercices différenciés selon l’EDS Mathématiques déclaré ; Maths expertes et Maths complémentaires sont des options, jamais des EDS supplémentaires.",
       "quickAssessment": "Exercice de synthèse court analysé selon la démarche, le calcul et la rédaction.",
       "sessions": [
         {
@@ -710,8 +710,8 @@
       "subjectId": "FRANCAIS",
       "subject": "Expression écrite argumentation et oral",
       "title": "Expression écrite, argumentation et maîtrise de l'oral",
-      "subtitle": "Développer les compétences transversales d'expression pour le Grand Oral et le supérieur",
-      "prerequisites": "Savoir organiser un paragraphe et présenter une idée à l'oral.",
+      "subtitle": "Entrée en Terminale — développer les compétences transversales d'expression pour le futur Grand Oral et le supérieur",
+      "prerequisites": "Les compétences d’expression écrite et orale travaillées jusqu’en Première ; savoir organiser un paragraphe et présenter une idée.",
       "differentiation": "Sujets, temps de préparation et niveau d'étayage adaptés à l'aisance écrite et orale.",
       "quickAssessment": "Prise de parole ou synthèse courte avec retour sur structure, précision et expression.",
       "sessions": [
@@ -787,10 +787,10 @@
       "level": "TERMINALE",
       "subjectId": "NSI",
       "subject": "NSI",
-      "title": "NSI Terminale — Numérique et Sciences Informatiques",
-      "subtitle": "Aborder les structures de données avancées et préparer l'épreuve pratique",
+      "title": "NSI — Entrée en Terminale",
+      "subtitle": "Entrée en Terminale — pour les élèves conservant l’EDS NSI, aborder les structures de données et la future épreuve pratique",
       "prerequisites": "Les bases de Python, des fonctions, des listes et de l'algorithmique de Première NSI.",
-      "differentiation": "Implémentations guidées puis variantes d'optimisation selon l'autonomie de l'élève.",
+      "differentiation": "Profil Première NSI déclaré et compatibilité du groupe soumis à validation pédagogique ; implémentations guidées puis variantes selon l'autonomie.",
       "quickAssessment": "Code court à compléter, tester et expliquer à l'issue de chaque séance.",
       "sessions": [
         {
@@ -865,10 +865,10 @@
       "level": "TERMINALE",
       "subjectId": "PHYSIQUE_CHIMIE",
       "subject": "Physique-Chimie",
-      "title": "Physique-Chimie Terminale",
-      "subtitle": "Préparer les chapitres fondamentaux de Terminale pour un démarrage efficace",
+      "title": "Physique-Chimie — Entrée en Terminale",
+      "subtitle": "Entrée en Terminale — pour les élèves conservant l’EDS Physique-Chimie, préparer les premières notions à partir des acquis de Première",
       "prerequisites": "Les acquis de Première en mécanique, chimie quantitative et exploitation de données.",
-      "differentiation": "Aides graduées, calculs intermédiaires et problèmes d'approfondissement selon le profil.",
+      "differentiation": "Spécialité Physique-Chimie conservée et compatibilité du groupe soumises à validation pédagogique ; aides graduées selon le profil.",
       "quickAssessment": "Mini-problème scientifique corrigé sur la modélisation, les unités et la conclusion.",
       "sessions": [
         {

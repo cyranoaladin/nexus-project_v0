@@ -1,7 +1,10 @@
 import '@testing-library/jest-dom';
+import { StrictMode } from 'react';
 import { render, screen } from '@testing-library/react';
 import PreRentree2026Page, { generateMetadata } from '@/app/stages/pre-rentree-2026/page';
+import { CampaignPageTracker } from '@/components/pre-rentree-2026/CampaignPageTracker';
 import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
+import { track } from '@/lib/analytics';
 
 jest.mock('@/lib/analytics', () => ({
   track: {
@@ -22,6 +25,20 @@ jest.mock('@/components/layout/CorporateNavbar', () => ({ CorporateNavbar: () =>
 jest.mock('@/components/layout/CorporateFooter', () => ({ CorporateFooter: () => <footer>Pied de page</footer> }));
 
 describe('Pré-rentrée 2026 page', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('emits one page view when React replays effects in Strict Mode', () => {
+    render(
+      <StrictMode>
+        <CampaignPageTracker />
+      </StrictMode>,
+    );
+
+    expect(track.preRentreePageView).toHaveBeenCalledTimes(1);
+  });
+
   it('renders the contract H1, campaign status and no online payment', () => {
     const dto = getPreRentreeLandingDTO();
     const { container } = render(<PreRentree2026Page />);

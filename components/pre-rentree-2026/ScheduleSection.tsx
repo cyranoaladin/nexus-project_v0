@@ -86,12 +86,12 @@ export function ScheduleSection({
           Planning
         </h2>
         <p className="mt-3 max-w-3xl text-lux-slate">
-          Deux lectures du même planning : par niveau pour choisir les matières,
+          Deux lectures du même planning : par classe de rentrée pour choisir les matières,
           ou par semaine pour visualiser les blocs quotidiens.
         </p>
 
         <div className="mt-6 inline-flex rounded-xl border border-lux-line bg-lux-paper p-1" role="tablist" aria-label="Vue du planning">
-          {([['by_level', 'Par niveau'], ['by_week', 'Par semaine']] as const).map(
+          {([['by_level', 'Par classe de rentrée'], ['by_week', 'Par semaine']] as const).map(
             ([id, label], index) => (
               <button
                 key={id}
@@ -113,7 +113,7 @@ export function ScheduleSection({
 
         {view === 'by_level' && (
           <div id="schedule-by_level" role="tabpanel" aria-labelledby="schedule-view-by_level" className="mt-8">
-            <div className="flex flex-wrap gap-2" aria-label="Choisir un niveau">
+            <div className="flex flex-wrap gap-2" aria-label="Choisir une classe de rentrée">
               {levels.map((option) => (
                 <button
                   key={option.id}

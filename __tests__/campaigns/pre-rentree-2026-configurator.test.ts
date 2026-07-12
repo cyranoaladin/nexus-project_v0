@@ -10,6 +10,8 @@ import {
   toggleLimitedSelection,
   type AcademicProfileSelection,
 } from '@/lib/campaigns/pre-rentree-2026/configurator';
+import { parsePreRentreeBilanPrefill } from '@/lib/campaigns/pre-rentree-2026/bilan-prefill';
+import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
 
 const dto = getPreRentreeLandingDTO();
 
@@ -25,9 +27,19 @@ describe('Pré-rentrée configurator logic', () => {
         const subjectIds: string[] = availableSubjects
           .filter((_, index) => (mask & (1 << index)) !== 0)
           .map((subject) => subject.id);
+        const profile: AcademicProfileSelection = level.id === 'SECONDE'
+          ? {}
+          : level.id === 'PREMIERE'
+            ? { voie: 'GENERALE', mathsProfile: 'MATHS_EDS', eafProfile: 'EAF_GENERALE' }
+            : {
+                retainedSpecialties: subjectIds
+                  .filter((subjectId) => ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI'].includes(subjectId))
+                  .slice(0, 2),
+                mathsOption: 'AUCUNE',
+              };
         const summary = buildSelectionSummary({
           level: level.id,
-          profile: {},
+          profile,
           subjectIds,
           levels: dto.levels,
           subjects: dto.subjects,
@@ -42,13 +54,52 @@ describe('Pré-rentrée configurator logic', () => {
         );
 
         expect(summary.pack).toEqual(pack);
+        expect(summary.level).toBe(level.id);
+        expect(summary.levelLabel).toBe(level.label);
+        expect(summary.profile).toEqual(profile);
+        expect(summary.subjectIds).toEqual(subjectIds);
+        expect(summary.subjectLabels).toHaveLength(subjectIds.length);
         expect(summary.totalHours).toBe(pack?.totalHours);
         expect(summary.sessionCount).toBe(selectedSlots.length);
+        expect(summary.sessionCount).toBe(subjectIds.length * 5);
         expect(summary.dates).toEqual(
           [...new Set(selectedSlots.map((slot) => slot.date))].sort(),
         );
         expect(summary.scheduleLines).toHaveLength(subjectIds.length);
         expect(summary.scheduleLines.every((line) => line.dates.length === 5)).toBe(true);
+        expect(summary.scheduleLines.every((line) => line.startTime && line.endTime && line.week)).toBe(true);
+        expect(summary.pack?.price).toBe(pack?.price);
+        expect(summary.pack?.deposit).toBe(pack?.deposit);
+        expect(summary.pack?.balance).toBe(pack?.balance);
+        expect(summary.requiresValidation).toBe(
+          requiresPedagogicalValidation(level.id, profile, subjectIds),
+        );
+
+        const bilanUrl = buildBilanUrl({
+          packId: pack?.id ?? '',
+          level: level.id,
+          subjectIds,
+          profile,
+        });
+        const bilanParams = Object.fromEntries(new URL(bilanUrl, 'https://nexusreussite.academy').searchParams);
+        const normalizedProfile = profile.retainedSpecialties?.length === 0
+          ? { ...profile, retainedSpecialties: undefined }
+          : profile;
+        expect(parsePreRentreeBilanPrefill(bilanParams)).toEqual({
+          programme: 'pre-rentree-2026',
+          packId: pack?.id,
+          level: level.id,
+          subjectIds,
+          profile: normalizedProfile,
+        });
+
+        const whatsapp = buildWhatsAppMessage(summary);
+        expect(whatsapp).toContain(`Classe de rentrée : ${level.label}`);
+        expect(whatsapp).toContain(`Volume : ${pack?.totalHours} heures`);
+        expect(whatsapp).toContain(`Pack : ${subjectIds.length} ${subjectIds.length === 1 ? 'matière' : 'matières'}`);
+        expect(whatsapp).toContain(`Tarif indicatif : ${pack?.price} TND`);
+        expect(whatsapp).toContain(`Acompte : ${pack?.deposit} TND`);
+        expect(whatsapp).not.toContain(pack?.id);
         configurationCount += 1;
       }
     }
@@ -67,6 +118,21 @@ describe('Pré-rentrée configurator logic', () => {
 
     expect(pack?.subjectsCount).toBe(count);
     expect(pack?.id).toBe(`pre2026-pack-${count}`);
+  });
+
+  it('locks the four approved prices, deposits and balances from the canonical DTO', () => {
+    expect(dto.packs.map((pack) => ({
+      subjectsCount: pack.subjectsCount,
+      totalHours: pack.totalHours,
+      price: pack.price,
+      deposit: pack.deposit,
+      balance: pack.balance,
+    }))).toEqual([
+      { subjectsCount: 1, totalHours: 10, price: 480, deposit: 140, balance: 340 },
+      { subjectsCount: 2, totalHours: 20, price: 900, deposit: 270, balance: 630 },
+      { subjectsCount: 3, totalHours: 30, price: 1350, deposit: 410, balance: 940 },
+      { subjectsCount: 4, totalHours: 40, price: 1800, deposit: 540, balance: 1260 },
+    ]);
   });
 
   it('does not fall back to another price when no pack matches', () => {
@@ -91,8 +157,17 @@ describe('Pré-rentrée configurator logic', () => {
     ['TERMINALE', { retainedSpecialties: ['MATHEMATIQUES'] }],
     ['TERMINALE', { mathsOption: 'MATHS_EXPERTES' }],
     ['TERMINALE', { mathsOption: 'MATHS_COMPLEMENTAIRES' }],
-  ] as Array<[string, AcademicProfileSelection]>)('flags %s profile for pedagogical validation', (level, profile) => {
+  ] as Array<[EntryLevelCode, AcademicProfileSelection]>)('flags %s profile for pedagogical validation', (level, profile) => {
     expect(requiresPedagogicalValidation(level, profile)).toBe(true);
+  });
+
+  it('requires validation when Terminale NSI or Physics-Chemistry is not a retained specialty', () => {
+    expect(requiresPedagogicalValidation('TERMINALE', { mathsOption: 'AUCUNE' }, ['NSI'])).toBe(true);
+    expect(requiresPedagogicalValidation('TERMINALE', { mathsOption: 'AUCUNE' }, ['PHYSIQUE_CHIMIE'])).toBe(true);
+    expect(requiresPedagogicalValidation('TERMINALE', {
+      retainedSpecialties: ['NSI', 'PHYSIQUE_CHIMIE'],
+      mathsOption: 'AUCUNE',
+    }, ['NSI', 'PHYSIQUE_CHIMIE'])).toBe(false);
   });
 
   it('builds a 40-hour summary from DTO schedule and pack data', () => {
@@ -133,6 +208,7 @@ describe('Pré-rentrée configurator logic', () => {
     });
 
     expect(summary.profileLabel).toBe('Voie générale, Maths EDS, EAF voie générale');
+    expect(summary.levelLabel).toBe('Entrée en Première');
     expect(summary.profileLabel).not.toContain('_');
   });
 
@@ -162,6 +238,8 @@ describe('Pré-rentrée configurator logic', () => {
 
     const message = buildWhatsAppMessage(summary);
     expect(message).toContain('Pré-rentrée Nexus 2026');
+    expect(message).toContain('Classe de rentrée : Entrée en Première');
+    expect(message).not.toContain('Niveau :');
     expect(message).toContain('20 heures');
     expect(message).toContain('Pack : 2 matières');
     expect(message).not.toContain('pre2026-pack-2');

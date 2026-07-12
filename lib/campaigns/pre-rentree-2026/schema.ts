@@ -1,5 +1,10 @@
 import { z } from 'zod';
 
+/** Stable internal codes for the pupil's entry class in school year 2026-2027. */
+export const ENTRY_LEVEL_IDS = ['SECONDE', 'PREMIERE', 'TERMINALE'] as const;
+export const EntryLevelCode = z.enum(ENTRY_LEVEL_IDS);
+export type EntryLevelCode = z.infer<typeof EntryLevelCode>;
+
 export const CampaignStatus = z.enum([
   'DRAFT',
   'PRE_REGISTRATION_OPEN',
@@ -17,20 +22,31 @@ const TimeSlot = z.object({
   endTime: z.string().regex(/^\d{2}:\d{2}$/),
 });
 
-const Level = z.object({
-  id: z.enum(['SECONDE', 'PREMIERE', 'TERMINALE']),
-  label: z.string(),
-});
+const Level = z.discriminatedUnion('id', [
+  z.object({ id: z.literal('SECONDE'), label: z.literal('Entrée en Seconde') }),
+  z.object({ id: z.literal('PREMIERE'), label: z.literal('Entrée en Première') }),
+  z.object({ id: z.literal('TERMINALE'), label: z.literal('Entrée en Terminale') }),
+]);
+
+const LevelSemantics = z.object({
+  kind: z.literal('ENTRY_LEVEL'),
+  schoolYear: z.literal('2026-2027'),
+  currentToEntry: z.object({
+    TROISIEME: z.literal('SECONDE'),
+    SECONDE: z.literal('PREMIERE'),
+    PREMIERE: z.literal('TERMINALE'),
+  }).strict(),
+}).strict();
 
 const Subject = z.object({
   id: z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS']),
   label: z.string(),
-  levels: z.array(z.string()),
+  levels: z.array(EntryLevelCode),
   labelByLevel: z.record(z.string()).optional(),
 });
 
 const ScheduleSlot = z.object({
-  level: z.enum(['SECONDE', 'PREMIERE', 'TERMINALE']),
+  level: EntryLevelCode,
   subject: z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS']),
   block: z.enum(['A', 'B', 'C', 'D']),
   room: z.string(),
@@ -104,6 +120,7 @@ const CampaignContent = z.object({
     description: z.string().min(1),
   })).length(4),
   practical: z.object({
+    audience: z.string().min(1),
     material: z.string().min(1),
     preRegistrationNotice: z.string().min(1),
     noOnlinePaymentNotice: z.string().min(1),
@@ -136,14 +153,28 @@ export const PreRentreeCampaignManifestSchema = z.object({
   decisionDeadline: z.string(),
   venue: Venue,
   levels: z.array(Level).length(3),
+  entryLevelSemantics: LevelSemantics,
   subjects: z.array(Subject).length(4),
   blocks: z.array(TimeSlot).length(4),
   schedule: z.array(WeekSchedule).length(2),
-  roomRoles: z.record(z.array(z.string())),
-  teacherRoles: z.record(z.object({
-    subjects: z.array(z.string()),
-    maxHoursPerDay: z.number(),
-  })),
+  roomRoles: z.object({
+    'salle-1': z.tuple([z.literal('MATHEMATIQUES'), z.literal('NSI')]),
+    'salle-2': z.tuple([z.literal('FRANCAIS'), z.literal('PHYSIQUE_CHIMIE')]),
+  }).strict(),
+  teacherRoles: z.object({
+    MATHS_NSI_SNT_TEACHER: z.object({
+      subjects: z.tuple([z.literal('MATHEMATIQUES'), z.literal('NSI')]),
+      maxHoursPerDay: z.literal(6),
+    }),
+    FRENCH_TEACHER: z.object({
+      subjects: z.tuple([z.literal('FRANCAIS')]),
+      maxHoursPerDay: z.literal(6),
+    }),
+    PHYSICS_CHEMISTRY_TEACHER: z.object({
+      subjects: z.tuple([z.literal('PHYSIQUE_CHIMIE')]),
+      maxHoursPerDay: z.literal(6),
+    }),
+  }).strict(),
   capacity: Capacity,
   packProductIds: z.array(z.string()).length(4),
   academicProfiles: AcademicProfiles,
@@ -175,7 +206,7 @@ const ModuleSession = z.object({
 
 const CampaignModule = z.object({
   id: z.string().min(1),
-  level: z.enum(['SECONDE', 'PREMIERE', 'TERMINALE']),
+  level: EntryLevelCode,
   subjectId: z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS']),
   subject: z.string().min(1),
   title: z.string().min(1),

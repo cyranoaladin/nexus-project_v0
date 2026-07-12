@@ -141,6 +141,9 @@ export default async function BilanGratuitPage({ searchParams }: BilanGratuitPag
           studentGrade: preRentreePrefill.level.toLowerCase(),
           subjects: preRentreePrefill.subjectIds,
           contextLabel: programmeLabel ?? 'Pré-rentrée 2026',
+          entryLevelLabel: campaignDto?.levels.find(
+            (level) => level.id === preRentreePrefill.level,
+          )?.label ?? preRentreePrefill.level,
           profileLabel: formatAcademicProfile(preRentreePrefill.profile, profileLabels),
           campaignContext: preRentreePrefill,
         } : null}

@@ -70,7 +70,8 @@ describe('BilanGratuitPage', () => {
 
     expect(screen.getByText(/Contexte repéré.*Pré-rentrée 2026/i)).toBeInTheDocument();
     expect(screen.getByText(/Offre repérée.*Pré-Rentrée 2026.*2 matières/i)).toBeInTheDocument();
-    expect(screen.getByLabelText('Classe')).toHaveValue('premiere');
+    expect(screen.getByText('Classe de rentrée : Entrée en Première')).toBeInTheDocument();
+    expect(screen.getByLabelText('Classe de rentrée')).toHaveValue('premiere');
     expect(screen.getByLabelText('Mathématiques')).toBeChecked();
     expect(screen.getByLabelText('Français')).toBeChecked();
     expect(screen.getByText(/Profil pédagogique.*Voie générale, Maths EDS, EAF voie générale/i)).toBeInTheDocument();

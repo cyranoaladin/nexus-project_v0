@@ -29,7 +29,7 @@ describe('Pré-rentrée 2026 landing DTO', () => {
     expect(dto.capacity).toEqual({ minPerCohort: 3, maxPerCohort: 5 });
     expect(dto.blocks).toHaveLength(4);
     expect(dto.content.hero.subtitle).toContain(
-      'initiation informatique, algorithmique et SNT en Seconde',
+      'initiation informatique, algorithmique et SNT pour l’entrée en Seconde',
     );
     expect(dto.content.hero.subtitle).not.toMatch(/NSI en Seconde|EDS NSI/i);
   });

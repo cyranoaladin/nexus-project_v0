@@ -6,6 +6,7 @@ import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getter
 import { track } from '@/lib/analytics';
 
 jest.mock('@/lib/analytics', () => ({
+  toPreRentreeEntryLevel: (level: string) => level.toLowerCase(),
   track: {
     preRentreeLevelSelected: jest.fn(),
     preRentreeTrackSelected: jest.fn(),
@@ -38,7 +39,8 @@ describe('Pré-rentrée stage configurator', () => {
     const user = userEvent.setup();
     renderConfigurator();
 
-    await user.click(screen.getByRole('radio', { name: 'Première' }));
+    expect(screen.getByRole('group', { name: 'Classe de rentrée 2026' })).toBeInTheDocument();
+    await user.click(screen.getByRole('radio', { name: 'Entrée en Première' }));
     await user.click(screen.getByRole('button', { name: 'Continuer' }));
     expect(screen.getByRole('radio', { name: 'Voie générale' })).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: 'Maths EDS' })).toBeInTheDocument();
@@ -47,8 +49,8 @@ describe('Pré-rentrée stage configurator', () => {
     await user.click(screen.getByRole('radio', { name: 'Voie générale' }));
     await user.click(screen.getByRole('radio', { name: 'Maths EDS' }));
     await user.click(screen.getByRole('radio', { name: 'EAF voie générale' }));
-    expect(track.preRentreeTrackSelected).toHaveBeenCalledWith('maths_eds');
-    expect(track.preRentreeTrackSelected).toHaveBeenCalledWith('eaf_generale');
+    expect(track.preRentreeTrackSelected).toHaveBeenCalledWith('premiere', 'maths_eds');
+    expect(track.preRentreeTrackSelected).toHaveBeenCalledWith('premiere', 'eaf_generale');
     await user.click(screen.getByRole('button', { name: 'Continuer' }));
 
     expect(screen.getAllByRole('checkbox')).toHaveLength(4);
@@ -72,7 +74,7 @@ describe('Pré-rentrée stage configurator', () => {
     const user = userEvent.setup();
     renderConfigurator();
 
-    await user.click(screen.getByRole('radio', { name: 'Première' }));
+    await user.click(screen.getByRole('radio', { name: 'Entrée en Première' }));
     await user.click(screen.getByRole('button', { name: 'Continuer' }));
     await user.click(screen.getByRole('radio', { name: 'Voie générale' }));
     await user.click(screen.getByRole('radio', { name: 'Maths EDS' }));
@@ -88,7 +90,7 @@ describe('Pré-rentrée stage configurator', () => {
     const user = userEvent.setup();
     renderConfigurator();
 
-    await user.click(screen.getByRole('radio', { name: 'Seconde' }));
+    await user.click(screen.getByRole('radio', { name: 'Entrée en Seconde' }));
     await user.click(screen.getByRole('button', { name: 'Continuer' }));
 
     expect(screen.queryByText(/EDS NSI Seconde/i)).not.toBeInTheDocument();
@@ -102,7 +104,7 @@ describe('Pré-rentrée stage configurator', () => {
   it('limits Terminale retained specialties to two', async () => {
     const user = userEvent.setup();
     renderConfigurator();
-    await user.click(screen.getByRole('radio', { name: 'Terminale' }));
+    await user.click(screen.getByRole('radio', { name: 'Entrée en Terminale' }));
     await user.click(screen.getByRole('button', { name: 'Continuer' }));
 
     const specialties = screen.getAllByRole('checkbox');
@@ -118,7 +120,7 @@ describe('Pré-rentrée stage configurator', () => {
     const user = userEvent.setup();
     renderConfigurator();
 
-    await user.click(screen.getByRole('radio', { name: 'Première' }));
+    await user.click(screen.getByRole('radio', { name: 'Entrée en Première' }));
     await user.click(screen.getByRole('button', { name: 'Continuer' }));
 
     expect(screen.getByText(/Complétez le profil pédagogique/i)).toBeInTheDocument();
@@ -128,7 +130,7 @@ describe('Pré-rentrée stage configurator', () => {
     const user = userEvent.setup();
     renderConfigurator();
 
-    await user.click(screen.getByRole('radio', { name: 'Seconde' }));
+    await user.click(screen.getByRole('radio', { name: 'Entrée en Seconde' }));
     await user.click(screen.getByRole('button', { name: 'Continuer' }));
     await user.click(screen.getByRole('checkbox', { name: /Mathématiques/i }));
 

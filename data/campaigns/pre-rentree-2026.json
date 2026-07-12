@@ -15,10 +15,19 @@
     "neighborhood": "Mutuelleville"
   },
   "levels": [
-    { "id": "SECONDE", "label": "Seconde" },
-    { "id": "PREMIERE", "label": "Première" },
-    { "id": "TERMINALE", "label": "Terminale" }
+    { "id": "SECONDE", "label": "Entrée en Seconde" },
+    { "id": "PREMIERE", "label": "Entrée en Première" },
+    { "id": "TERMINALE", "label": "Entrée en Terminale" }
   ],
+  "entryLevelSemantics": {
+    "kind": "ENTRY_LEVEL",
+    "schoolYear": "2026-2027",
+    "currentToEntry": {
+      "TROISIEME": "SECONDE",
+      "SECONDE": "PREMIERE",
+      "PREMIERE": "TERMINALE"
+    }
+  },
   "subjects": [
     { "id": "MATHEMATIQUES", "label": "Mathématiques", "levels": ["SECONDE", "PREMIERE", "TERMINALE"] },
     { "id": "PHYSIQUE_CHIMIE", "label": "Physique-Chimie", "levels": ["SECONDE", "PREMIERE", "TERMINALE"] },
@@ -50,12 +59,13 @@
     ]}
   ],
   "roomRoles": {
-    "salle-1": ["Mathématiques", "NSI"],
-    "salle-2": ["Français", "Physique-Chimie"]
+    "salle-1": ["MATHEMATIQUES", "NSI"],
+    "salle-2": ["FRANCAIS", "PHYSIQUE_CHIMIE"]
   },
   "teacherRoles": {
-    "maths-nsi": { "subjects": ["MATHEMATIQUES", "NSI"], "maxHoursPerDay": 6 },
-    "francais-pc": { "subjects": ["FRANCAIS", "PHYSIQUE_CHIMIE"], "maxHoursPerDay": 6 }
+    "MATHS_NSI_SNT_TEACHER": { "subjects": ["MATHEMATIQUES", "NSI"], "maxHoursPerDay": 6 },
+    "FRENCH_TEACHER": { "subjects": ["FRANCAIS"], "maxHoursPerDay": 6 },
+    "PHYSICS_CHEMISTRY_TEACHER": { "subjects": ["PHYSIQUE_CHIMIE"], "maxHoursPerDay": 6 }
   },
   "capacity": {
     "minPerCohort": 3,
@@ -100,7 +110,7 @@
     "hero": {
       "eyebrow": "Stages de pré-rentrée 2026 · Mutuelleville, Tunis",
       "h1": "Deux semaines pour préparer sérieusement la rentrée",
-      "subtitle": "Du 17 au 28 août 2026, pour les élèves entrant en Seconde, Première ou Terminale. Une à quatre matières au choix : Mathématiques, Physique-Chimie, Français et informatique/NSI — initiation informatique, algorithmique et SNT en Seconde."
+      "subtitle": "Du 17 au 28 août 2026, pour les élèves entrant en Seconde, Première ou Terminale. Une à quatre matières au choix : Mathématiques, Physique-Chimie, Français et informatique/NSI — initiation informatique, algorithmique et SNT pour l’entrée en Seconde."
     },
     "method": [
       { "title": "Positionnement", "description": "Un diagnostic des acquis permet d'identifier les priorités de travail avant le démarrage du module." },
@@ -109,19 +119,20 @@
       { "title": "Bilan et recommandations de rentrée", "description": "Le stage se termine par une synthèse des acquis observés et des recommandations de travail pour la rentrée." }
     ],
     "practical": {
+      "audience": "Pour les élèves entrant en Seconde, Première ou Terminale à la rentrée 2026-2027.",
       "material": "Un cahier, une trousse complète et une calculatrice pour les matières concernées. Les supports de travail sont fournis par Nexus.",
-      "preRegistrationNotice": "La pré-inscription transmet votre demande à l’équipe Nexus. Elle ne garantit pas une place tant que le groupe, le profil pédagogique et l’acompte n’ont pas été confirmés.",
+      "preRegistrationNotice": "La pré-inscription transmet votre demande à l’équipe Nexus. Elle ne garantit pas une place : la confirmation intervient après validation administrative et pédagogique, puis réception de l’acompte.",
       "noOnlinePaymentNotice": "Aucun paiement en ligne n’est demandé sur cette page. Les conditions contractuelles applicables sont communiquées avant confirmation.",
       "groupCompositionNotice": "Le créneau est indiqué dès maintenant. La composition pédagogique du groupe est confirmée après étude des profils et des effectifs.",
       "groupNotOpenedProcedure": "Si le seuil d'ouverture n'est pas atteint, l'équipe Nexus informe la famille et rembourse intégralement tout acompte déjà versé. Une alternative peut être proposée sans conversion automatique."
     },
     "faq": [
-      { "question": "Mon enfant peut-il suivre plusieurs matières ?", "answer": "Oui, une à quatre matières peuvent être choisies. Les créneaux du planning socle ne se chevauchent pas pour un même niveau." },
+      { "question": "Mon enfant entrant en Seconde, Première ou Terminale peut-il suivre plusieurs matières ?", "answer": "Oui, une à quatre matières peuvent être choisies. Les créneaux du planning socle ne se chevauchent pas pour une même classe de rentrée." },
       { "question": "Le stage dure-t-il une ou deux semaines ?", "answer": "La campagne s'étend sur deux semaines. Chaque matière est organisée sur une semaine avec cinq séances de deux heures ; la présence dépend donc des matières choisies." },
-      { "question": "Quelle est la différence entre SNT et NSI en Seconde ?", "answer": "En Seconde, le module est une initiation à l'informatique, à l'algorithmique et à la SNT. Il ne s'agit pas d'un enseignement de spécialité NSI." },
-      { "question": "Comment choisir le profil de Mathématiques en Première ?", "answer": "Le parent déclare Maths EDS ou Maths hors EDS. Le créneau est commun, puis la composition pédagogique du groupe est validée selon les profils et les effectifs." },
+      { "question": "Quelle est la différence entre SNT et NSI pour une entrée en Seconde ?", "answer": "Pour une entrée en Seconde, le module est une initiation à l'informatique, à l'algorithmique et à la SNT. Il ne s'agit pas d'un enseignement de spécialité NSI." },
+      { "question": "Comment choisir le profil de Mathématiques pour une entrée en Première ?", "answer": "Le parent déclare Maths EDS ou Maths hors EDS pour la classe de rentrée. Le créneau est commun, puis la composition pédagogique du groupe est validée selon les profils et les effectifs." },
       { "question": "Le Français EAF convient-il aux voies générale et technologique ?", "answer": "Les deux profils sont prévus. La voie déclarée permet à l'équipe d'adapter les exercices et de confirmer une composition de groupe cohérente." },
-      { "question": "Quelles options de Mathématiques sont prévues en Terminale ?", "answer": "Le formulaire distingue l'absence d'option, Maths expertes et Maths complémentaires. La spécialité Mathématiques conservée est déclarée séparément." },
+      { "question": "Quelles options de Mathématiques sont prévues pour une entrée en Terminale ?", "answer": "Le formulaire distingue l'absence d'option, Maths expertes et Maths complémentaires pour la classe de rentrée. La spécialité Mathématiques conservée est déclarée séparément." },
       { "question": "À partir de combien d'élèves un groupe ouvre-t-il ?", "answer": "Un groupe ouvre à partir de trois élèves et accueille au maximum cinq élèves. La décision est communiquée après étude des demandes." },
       { "question": "Comment fonctionne l'acompte ?", "answer": "L'acompte applicable au pack est communiqué dans le résumé. Il est demandé après validation du profil et du groupe, et vient en déduction du solde." },
       { "question": "Que se passe-t-il si le groupe n'ouvre pas ?", "answer": "Tout acompte déjà versé est intégralement remboursé. Une alternative peut être proposée, mais aucun report n'est automatique." },

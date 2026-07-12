@@ -240,7 +240,7 @@ export function HomePageClient({ campaign }: { campaign?: { eyebrow: string; sub
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-lux-gold-deep">{campaign.eyebrow}</p>
             <p className="mt-2 max-w-3xl text-sm text-lux-slate">{campaign.subtitle}</p>
-            <p className="mt-2 text-sm font-medium text-lux-ink">{campaign.levelCount} niveaux · {campaign.subjectCount} matières · groupes limités à {campaign.groupMax}</p>
+            <p className="mt-2 text-sm font-medium text-lux-ink">{campaign.levelCount} classes de rentrée · {campaign.subjectCount} matières · groupes limités à {campaign.groupMax}</p>
           </div>
           <Link href={campaign.path} className="lux-cta-reserve inline-flex min-h-11 shrink-0 items-center justify-center rounded-lg px-5 py-3 text-sm font-semibold">Découvrir les stages <ArrowRight className="ml-2 h-4 w-4" /></Link>
         </div>

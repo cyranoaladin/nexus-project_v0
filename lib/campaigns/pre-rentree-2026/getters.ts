@@ -8,7 +8,7 @@ import {
   PreRentreeCampaignManifestSchema,
   PreRentreeModulesSchema,
 } from './schema';
-import type { PreRentreeCampaignManifest } from './schema';
+import type { EntryLevelCode, PreRentreeCampaignManifest } from './schema';
 
 /**
  * Get the validated campaign manifest.
@@ -32,7 +32,7 @@ export function getPreRentreeSchedule() {
   const campaign = getPreRentreeCampaign();
   const sessions: Array<{
     date: string;
-    level: string;
+    level: EntryLevelCode;
     subject: string;
     block: string;
     startTime: string;
@@ -125,6 +125,7 @@ export function getPreRentreeLandingDTO() {
       id: campaign.campaignId,
       version: campaign.version,
       status: campaign.status,
+      entryLevelSemantics: campaign.entryLevelSemantics,
       canonicalPath: campaign.canonicalPath,
       timezone: campaign.timezone,
       startDate: campaign.startDate,

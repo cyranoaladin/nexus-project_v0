@@ -73,6 +73,7 @@ type BilanStrategiqueClientProps = {
     studentGrade: string;
     subjects: string[];
     contextLabel: string;
+    entryLevelLabel: string;
     profileLabel: string;
     campaignContext: PreRentreeBilanPrefill;
   } | null;
@@ -186,6 +187,7 @@ export function BilanStrategiqueClient({
                 {prefill && (
                   <div className="rounded-2xl border border-lux-gold/30 bg-lux-gold/10 p-4 text-sm text-lux-ink">
                     <p>Préremplissage modifiable · {prefill.contextLabel} · {selectedOffer?.title}</p>
+                    <p className="mt-1">Classe de rentrée : {prefill.entryLevelLabel}</p>
                     <p className="mt-1">Profil pédagogique : {prefill.profileLabel}</p>
                     <Link className="mt-2 inline-flex min-h-11 items-center font-semibold underline" href="/stages/pre-rentree-2026#configurateur">
                       Modifier la configuration complète
@@ -249,7 +251,7 @@ export function BilanStrategiqueClient({
                     {errors.studentFirstName && <p className="text-sm text-red-500">{errors.studentFirstName}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="studentGrade" className="text-lux-ink">Classe</Label>
+                    <Label htmlFor="studentGrade" className="text-lux-ink">{prefill ? 'Classe de rentrée' : 'Classe'}</Label>
                     <select
                       id="studentGrade"
                       value={formData.studentGrade}
@@ -259,7 +261,7 @@ export function BilanStrategiqueClient({
                       <option value="">Choisir une classe</option>
                       {GRADES.map((grade) => (
                         <option key={grade.value} value={grade.value}>
-                          {grade.label}
+                          {prefill && grade.value !== 'troisieme' ? `Entrée en ${grade.label}` : grade.label}
                         </option>
                       ))}
                     </select>

@@ -1,9 +1,9 @@
 import { z } from 'zod';
+import { ENTRY_LEVEL_IDS } from './schema';
 
 type SearchValue = string | string[] | undefined;
 export type CampaignSearchParams = Record<string, SearchValue>;
 
-const LEVEL_IDS = ['SECONDE', 'PREMIERE', 'TERMINALE'] as const;
 const SUBJECT_IDS = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS'] as const;
 const PACK_IDS = [
   'pre2026-pack-1',
@@ -21,7 +21,7 @@ const TERMINALE_MATHS_OPTION_IDS = [
   'MATHS_COMPLEMENTAIRES',
 ] as const;
 
-const LEVELS = new Set<string>(LEVEL_IDS);
+const LEVELS = new Set<string>(ENTRY_LEVEL_IDS);
 const SUBJECTS = new Set<string>(SUBJECT_IDS);
 const PACKS = new Set<string>(PACK_IDS);
 const VOIES = new Set<string>(VOIE_IDS);
@@ -33,7 +33,8 @@ const TERMINALE_MATHS_OPTIONS = new Set<string>(TERMINALE_MATHS_OPTION_IDS);
 export const PreRentreeCampaignContextSchema = z.object({
   programme: z.literal('pre-rentree-2026'),
   packId: z.enum(PACK_IDS),
-  level: z.enum(LEVEL_IDS),
+  /** Stable code for the pupil's 2026-2027 entry class, never the current class. */
+  level: z.enum(ENTRY_LEVEL_IDS),
   subjectIds: z.array(z.enum(SUBJECT_IDS)).min(1).max(4),
   profile: z.object({
     voie: z.enum(VOIE_IDS).optional(),

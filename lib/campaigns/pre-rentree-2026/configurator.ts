@@ -1,3 +1,5 @@
+import type { EntryLevelCode } from './schema';
+
 export interface AcademicProfileSelection {
   voie?: string;
   mathsProfile?: string;
@@ -7,14 +9,15 @@ export interface AcademicProfileSelection {
 }
 
 export interface LandingLevel {
-  id: string;
+  /** Stable code for the 2026-2027 entry class. */
+  id: EntryLevelCode;
   label: string;
 }
 
 export interface LandingSubject {
   id: string;
   label: string;
-  levels: string[];
+  levels: EntryLevelCode[];
   labelByLevel?: Record<string, string>;
   summaryByLevel: Record<string, string>;
 }
@@ -33,7 +36,8 @@ export interface LandingPack {
 
 export interface LandingScheduleSlot {
   date: string;
-  level: string;
+  /** Stable code for the 2026-2027 entry class. */
+  level: EntryLevelCode;
   subject: string;
   block: string;
   startTime: string;
@@ -53,7 +57,7 @@ export interface ScheduleSummaryLine {
 }
 
 export interface SelectionSummary {
-  level: string;
+  level: EntryLevelCode;
   levelLabel: string;
   profile: AcademicProfileSelection;
   profileLabel: string;
@@ -67,12 +71,12 @@ export interface SelectionSummary {
   requiresValidation: boolean;
 }
 
-export function getNextConfiguratorStep(step: number, level: string | null): number {
+export function getNextConfiguratorStep(step: number, level: EntryLevelCode | null): number {
   if (step === 1 && level === 'SECONDE') return 3;
   return Math.min(step + 1, 4);
 }
 
-export function getPreviousConfiguratorStep(step: number, level: string | null): number {
+export function getPreviousConfiguratorStep(step: number, level: EntryLevelCode | null): number {
   if (step === 3 && level === 'SECONDE') return 1;
   return Math.max(step - 1, 1);
 }
@@ -97,20 +101,24 @@ export function toggleLimitedSelection(
 }
 
 export function requiresPedagogicalValidation(
-  level: string | null,
+  level: EntryLevelCode | null,
   profile: AcademicProfileSelection,
+  subjectIds: readonly string[] = [],
 ): boolean {
   if (level === 'PREMIERE') {
     return Boolean(profile.mathsProfile || profile.eafProfile);
   }
   if (level !== 'TERMINALE') return false;
+  const retainedSpecialties = profile.retainedSpecialties ?? [];
   return Boolean(
     profile.retainedSpecialties?.includes('MATHEMATIQUES') ||
-      (profile.mathsOption && profile.mathsOption !== 'AUCUNE'),
+      (profile.mathsOption && profile.mathsOption !== 'AUCUNE') ||
+      (subjectIds.includes('NSI') && !retainedSpecialties.includes('NSI')) ||
+      (subjectIds.includes('PHYSIQUE_CHIMIE') && !retainedSpecialties.includes('PHYSIQUE_CHIMIE')),
   );
 }
 
-function subjectLabel(subject: LandingSubject, level: string): string {
+function subjectLabel(subject: LandingSubject, level: EntryLevelCode): string {
   return subject.labelByLevel?.[level] ?? subject.label;
 }
 
@@ -131,7 +139,7 @@ export function formatAcademicProfile(
 }
 
 export function buildSelectionSummary(input: {
-  level: string;
+  level: EntryLevelCode;
   profile: AcademicProfileSelection;
   profileLabels?: Readonly<Record<string, string>>;
   subjectIds: string[];
@@ -173,13 +181,13 @@ export function buildSelectionSummary(input: {
     sessionCount: scheduleLines.reduce((total, line) => total + line.dates.length, 0),
     dates,
     scheduleLines,
-    requiresValidation: requiresPedagogicalValidation(input.level, input.profile),
+    requiresValidation: requiresPedagogicalValidation(input.level, input.profile, input.subjectIds),
   };
 }
 
 export function buildBilanUrl(input: {
   packId: string;
-  level: string;
+  level: EntryLevelCode;
   subjectIds: string[];
   profile: AcademicProfileSelection;
 }): string {
@@ -220,7 +228,7 @@ export function buildWhatsAppMessage(summary: SelectionSummary): string {
   return [
     'Bonjour, je souhaite des informations sur la Pré-rentrée Nexus 2026.',
     '',
-    `Niveau : ${summary.levelLabel}`,
+    `Classe de rentrée : ${summary.levelLabel}`,
     `Profil : ${summary.profileLabel}`,
     `Matières : ${summary.subjectLabels.join(', ')}`,
     `Volume : ${summary.totalHours} heures`,

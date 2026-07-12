@@ -8,6 +8,7 @@ import { PricingSection } from '@/components/pre-rentree-2026/PricingSection';
 import { CampaignFAQ } from '@/components/pre-rentree-2026/CampaignFAQ';
 
 jest.mock('@/lib/analytics', () => ({
+  toPreRentreeEntryLevel: (level: string) => level.toLowerCase(),
   track: {
     preRentreeScheduleViewed: jest.fn(),
     preRentreeProgramViewed: jest.fn(),
@@ -17,7 +18,7 @@ jest.mock('@/lib/analytics', () => ({
 const dto = getPreRentreeLandingDTO();
 
 describe('Pré-rentrée landing sections', () => {
-  it('offers accessible schedule views by level and by week', async () => {
+  it('offers accessible schedule views by entry class and by week', async () => {
     const user = userEvent.setup();
     render(
       <ScheduleSection
@@ -28,9 +29,9 @@ describe('Pré-rentrée landing sections', () => {
       />,
     );
 
-    expect(screen.getByRole('tab', { name: 'Par niveau' })).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByRole('button', { name: 'Seconde' })).toBeInTheDocument();
-    const levelTab = screen.getByRole('tab', { name: 'Par niveau' });
+    expect(screen.getByRole('tab', { name: 'Par classe de rentrée' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('button', { name: 'Entrée en Seconde' })).toBeInTheDocument();
+    const levelTab = screen.getByRole('tab', { name: 'Par classe de rentrée' });
     const weekTab = screen.getByRole('tab', { name: 'Par semaine' });
     levelTab.focus();
     await user.keyboard('{ArrowRight}');
@@ -61,11 +62,11 @@ describe('Pré-rentrée landing sections', () => {
     window.location.hash = '#programme-premiere-mathematiques';
     fireEvent(window, new HashChangeEvent('hashchange'));
 
-    expect(screen.getByRole('tab', { name: 'Première' })).toHaveAttribute(
+    expect(screen.getByRole('tab', { name: 'Entrée en Première' })).toHaveAttribute(
       'aria-selected',
       'true',
     );
-    expect(screen.getByRole('button', { name: /Mathématiques Première/i })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: /Mathématiques — Entrée en Première/i })).toHaveAttribute(
       'aria-expanded',
       'true',
     );
