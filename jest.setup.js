@@ -358,7 +358,17 @@ jest.mock('next/image', () => {
   return {
     __esModule: true,
     default: React.forwardRef((props, ref) => {
-      const { fill, priority, quality, placeholder, blurDataURL, loader, ...rest } = props;
+      const {
+        fill,
+        priority,
+        quality,
+        placeholder,
+        blurDataURL,
+        loader,
+        fetchPriority,
+        unoptimized,
+        ...rest
+      } = props;
       // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
       return React.createElement('img', { ...rest, ref });
     }),
