@@ -1,611 +1,328 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { track } from '@/lib/analytics';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
+import {
+  buildBilanUrl,
+  buildSelectionSummary,
+  buildWhatsAppMessage,
+  getNextConfiguratorStep,
+  getPreviousConfiguratorStep,
+  toggleLimitedSelection,
+  type AcademicProfileSelection,
+  type LandingLevel,
+  type LandingPack,
+  type LandingScheduleSlot,
+  type LandingSubject,
+  type SelectionSummary,
+} from '@/lib/campaigns/pre-rentree-2026/configurator';
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   Types
-   ─────────────────────────────────────────────────────────────────────────── */
-
-interface LevelOption {
+interface ProfileOption {
   id: string;
   label: string;
 }
 
-interface SubjectOption {
-  id: string;
-  label: string;
-  levels: string[];
-  labelByLevel?: Record<string, string>;
-}
-
-interface Pack {
-  id: string;
-  subjectsCount: number;
-  totalHours: number;
-  price: number;
-  deposit: number;
-  balance: number;
-}
-
-interface ScheduleSlot {
-  date: string;
-  level: string;
-  subject: string;
-  block: string;
-  startTime: string;
-  endTime: string;
-  room: string;
-  week: number;
-  sessionNumber: number;
-}
-
-interface Module {
-  id: string;
-  level: string;
-  subject: string;
-  title: string;
-  subtitle: string;
-  sessions: Array<{ number: number; title: string; objective: string }>;
+interface AcademicProfiles {
+  SECONDE: Record<string, never>;
+  PREMIERE: {
+    voies: ProfileOption[];
+    mathsProfiles: ProfileOption[];
+    eafProfiles: ProfileOption[];
+  };
+  TERMINALE: {
+    retainedSpecialties: {
+      label: string;
+      minSelections: number;
+      maxSelections: number;
+      options: ProfileOption[];
+    };
+    mathsOptions: ProfileOption[];
+  };
 }
 
 interface StageConfiguratorProps {
-  levels: LevelOption[];
-  subjects: SubjectOption[];
-  packs: Pack[];
-  schedule: ScheduleSlot[];
-  modules: Module[];
+  levels: LandingLevel[];
+  subjects: LandingSubject[];
+  packs: LandingPack[];
+  schedule: LandingScheduleSlot[];
+  academicProfiles: AcademicProfiles;
+  groupCompositionNotice: string;
+  campaignStatus: string;
 }
 
-interface AcademicTrack {
-  voie?: string;
-  mathsOption?: string;
+function ChoiceCard({
+  name,
+  option,
+  checked,
+  onChange,
+}: {
+  name: string;
+  option: ProfileOption;
+  checked: boolean;
+  onChange: () => void;
+}) {
+  return (
+    <label className={`flex min-h-11 cursor-pointer items-center rounded-xl border-2 px-4 py-3 ${checked ? 'border-lux-gold bg-lux-gold/10' : 'border-lux-line bg-white'}`}>
+      <input
+        className="mr-3 h-4 w-4 accent-lux-gold"
+        type="radio"
+        name={name}
+        value={option.id}
+        checked={checked}
+        onChange={onChange}
+      />
+      <span className="text-sm font-medium text-lux-ink">{option.label}</span>
+    </label>
+  );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   Helpers
-   ─────────────────────────────────────────────────────────────────────────── */
-
-function needsTrackStep(level: string | null): boolean {
-  return level === 'premiere' || level === 'terminale';
+function formatDate(date: string): string {
+  return new Intl.DateTimeFormat('fr-TN', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    timeZone: 'Africa/Tunis',
+  }).format(new Date(`${date}T12:00:00+01:00`));
 }
 
-function needsValidation(
-  level: string | null,
-  track: AcademicTrack,
-): boolean {
-  if (level === 'premiere' && track.mathsOption) return true;
-  if (level === 'terminale' && track.mathsOption && track.mathsOption !== 'aucune') return true;
-  return false;
-}
+function SummaryCard({
+  summary,
+  notice,
+  status,
+}: {
+  summary: SelectionSummary | null;
+  notice: string;
+  status: string;
+}) {
+  if (!summary) {
+    return (
+      <div aria-live="polite" className="rounded-2xl border border-lux-line bg-lux-paper p-5">
+        <h3 className="font-semibold text-lux-ink">Votre résumé</h3>
+        <p className="mt-2 text-sm text-lux-slate">Choisissez d'abord la classe de rentrée.</p>
+      </div>
+    );
+  }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   Component
-   ─────────────────────────────────────────────────────────────────────────── */
+  if (!summary.pack) {
+    return (
+      <div aria-live="polite" className="rounded-2xl border border-lux-line bg-lux-paper p-5">
+        <h3 className="font-semibold text-lux-ink">Votre résumé</h3>
+        <p className="mt-2 text-sm text-lux-slate">Sélectionnez au moins une matière pour afficher le pack.</p>
+      </div>
+    );
+  }
+
+  const bilanUrl = buildBilanUrl({
+    packId: summary.pack.id,
+    level: summary.level,
+    subjectIds: summary.subjectIds,
+    profile: summary.profile,
+  });
+  const whatsappUrl = buildWhatsAppUrl(buildWhatsAppMessage(summary), { exactMessage: true });
+
+  return (
+    <div aria-live="polite" className="rounded-2xl border border-lux-gold/40 bg-lux-paper p-5 shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3 className="font-semibold text-lux-ink">Votre résumé</h3>
+        <span className="rounded-full bg-lux-evergreen/10 px-3 py-1 text-xs font-semibold text-lux-evergreen">{status}</span>
+      </div>
+      <dl className="mt-4 space-y-2 text-sm">
+        <div className="flex justify-between gap-4"><dt className="text-lux-slate">Niveau</dt><dd className="text-right font-medium text-lux-ink">{summary.levelLabel}</dd></div>
+        <div className="flex justify-between gap-4"><dt className="text-lux-slate">Profil</dt><dd className="text-right font-medium text-lux-ink">{summary.profileLabel}</dd></div>
+        <div className="flex justify-between gap-4"><dt className="text-lux-slate">Matières</dt><dd className="text-right font-medium text-lux-ink">{summary.subjectLabels.join(', ')}</dd></div>
+        <div className="flex justify-between gap-4"><dt className="text-lux-slate">Volume</dt><dd className="font-medium text-lux-ink">{summary.sessionCount} séances · {summary.totalHours} heures</dd></div>
+      </dl>
+      <ul className="mt-4 space-y-2 border-t border-lux-line pt-4 text-xs text-lux-slate">
+        {summary.scheduleLines.map((line) => (
+          <li key={line.subjectId}>
+            <strong className="text-lux-ink">{line.subjectLabel}</strong><br />
+            {line.dates.map(formatDate).join(', ')} · {line.startTime}–{line.endTime}
+          </li>
+        ))}
+      </ul>
+      <div className="mt-4 rounded-xl bg-white p-4">
+        <p className="font-fraunces text-2xl text-lux-ink">{summary.pack.price.toLocaleString('fr-TN')} TND</p>
+        <p className="mt-1 text-sm text-lux-slate">Acompte : {summary.pack.deposit.toLocaleString('fr-TN')} TND</p>
+        <p className="text-sm text-lux-slate">Solde : {summary.pack.balance.toLocaleString('fr-TN')} TND</p>
+      </div>
+      {summary.requiresValidation && (
+        <div className="mt-4 rounded-xl border border-lux-gold/30 bg-lux-gold/10 p-3 text-sm text-lux-ink">
+          <p className="font-semibold">Profil pédagogique déclaré — validation du groupe par l'équipe Nexus.</p>
+          <p className="mt-1 text-lux-slate">{notice}</p>
+        </div>
+      )}
+      <div className="mt-5 grid gap-3">
+        <Link
+          href={bilanUrl}
+          onClick={() => {
+            track.preRentreeBilanClicked('configurator_summary', summary.pack?.id);
+            track.preRentreePreregistrationStarted(summary.pack!.id, summary.level, summary.subjectIds.length);
+          }}
+          className="lux-cta-reserve flex min-h-11 items-center justify-center rounded-lg px-4 py-3 text-center text-sm font-semibold"
+        >
+          Poursuivre vers le bilan prérempli
+        </Link>
+        <a
+          href={whatsappUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => track.preRentreeWhatsAppClicked('configurator_summary', summary.pack?.id)}
+          className="flex min-h-11 items-center justify-center rounded-lg border border-lux-evergreen px-4 py-3 text-center text-sm font-semibold text-lux-evergreen"
+        >
+          Vérifier sur WhatsApp <span className="sr-only">(nouvel onglet)</span>
+        </a>
+      </div>
+    </div>
+  );
+}
 
 export default function StageConfigurator({
   levels,
   subjects,
   packs,
   schedule,
-  modules,
+  academicProfiles,
+  groupCompositionNotice,
+  campaignStatus,
 }: StageConfiguratorProps) {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
-  const [academicTrack, setAcademicTrack] = useState<AcademicTrack>({});
-  const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
+  const [step, setStep] = useState(1);
+  const [level, setLevel] = useState<string | null>(null);
+  const [profile, setProfile] = useState<AcademicProfileSelection>({});
+  const [subjectIds, setSubjectIds] = useState<string[]>([]);
 
-  /* ── Derived data ──────────────────────────────────────────────────────── */
-
-  const availableSubjects = useMemo(() => {
-    if (!selectedLevel) return [];
-    return subjects.filter((s) => s.levels.includes(selectedLevel));
-  }, [selectedLevel, subjects]);
-
-  const matchedPack = useMemo(() => {
-    if (selectedSubjects.length === 0) return null;
-    return (
-      packs.find((p) => p.subjectsCount === selectedSubjects.length) ??
-      packs[packs.length - 1] // fallback to largest pack
-    );
-  }, [selectedSubjects.length, packs]);
-
-  const selectedScheduleSlots = useMemo(() => {
-    if (!selectedLevel) return [];
-    return schedule.filter(
-      (slot) =>
-        slot.level === selectedLevel &&
-        selectedSubjects.includes(slot.subject),
-    );
-  }, [schedule, selectedLevel, selectedSubjects]);
-
-  const getSubjectLabel = useCallback(
-    (subject: SubjectOption): string => {
-      if (selectedLevel && subject.labelByLevel?.[selectedLevel]) {
-        return subject.labelByLevel[selectedLevel];
-      }
-      return subject.label;
-    },
-    [selectedLevel],
+  const availableSubjects = useMemo(
+    () => (level ? subjects.filter((subject) => subject.levels.includes(level)) : []),
+    [level, subjects],
   );
-
-  const getSubjectScheduleInfo = useCallback(
-    (subjectId: string) => {
-      const slots = schedule.filter(
-        (s) => s.level === selectedLevel && s.subject === subjectId,
-      );
-      if (slots.length === 0) return null;
-      const weeks = [...new Set(slots.map((s) => s.week))];
-      const firstSlot = slots[0];
-      return {
-        week: weeks.length === 1 ? `Semaine ${weeks[0]}` : `Semaines ${weeks.join(' et ')}`,
-        time: `${firstSlot.startTime}–${firstSlot.endTime}`,
-      };
-    },
-    [schedule, selectedLevel],
+  const summary = useMemo(
+    () =>
+      level
+        ? buildSelectionSummary({ level, profile, subjectIds, levels, subjects, packs, schedule })
+        : null,
+    [level, profile, subjectIds, levels, subjects, packs, schedule],
   );
+  const profileComplete =
+    level === 'SECONDE' ||
+    (level === 'PREMIERE' && Boolean(profile.voie && profile.mathsProfile && profile.eafProfile)) ||
+    (level === 'TERMINALE' && Boolean(profile.mathsOption));
 
-  /* ── Navigation ────────────────────────────────────────────────────────── */
+  function chooseLevel(nextLevel: string) {
+    setLevel(nextLevel);
+    setProfile({});
+    setSubjectIds([]);
+    track.preRentreeLevelSelected(nextLevel.toLowerCase());
+  }
 
-  const effectiveStep = useMemo(() => {
-    // For Seconde, skip step 2
-    if (currentStep === 2 && !needsTrackStep(selectedLevel)) return 3;
-    return currentStep;
-  }, [currentStep, selectedLevel]);
+  function toggleSubject(subjectId: string) {
+    const next = subjectIds.includes(subjectId)
+      ? subjectIds.filter((id) => id !== subjectId)
+      : [...subjectIds, subjectId];
+    setSubjectIds(next);
+    track.preRentreeSubjectSelected(subjectId.toLowerCase(), next.length);
+  }
 
-  function goNext() {
-    if (currentStep === 1 && !needsTrackStep(selectedLevel)) {
-      setCurrentStep(3);
-    } else {
-      setCurrentStep((s) => Math.min(s + 1, 4));
+  function continueTo(nextStep: number) {
+    setStep(nextStep);
+    if (nextStep === 4 && summary?.pack) {
+      track.preRentreePriceSummaryViewed(summary.pack.id);
     }
   }
 
-  function goBack() {
-    if (currentStep === 3 && !needsTrackStep(selectedLevel)) {
-      setCurrentStep(1);
-    } else {
-      setCurrentStep((s) => Math.max(s - 1, 1));
-    }
-  }
-
-  /* ── Handlers ──────────────────────────────────────────────────────────── */
-
-  function handleLevelChange(levelId: string) {
-    setSelectedLevel(levelId);
-    setAcademicTrack({});
-    setSelectedSubjects([]);
-  }
-
-  function handleSubjectToggle(subjectId: string) {
-    setSelectedSubjects((prev) =>
-      prev.includes(subjectId)
-        ? prev.filter((id) => id !== subjectId)
-        : [...prev, subjectId],
-    );
-  }
-
-  /* ── WhatsApp message ──────────────────────────────────────────────────── */
-
-  const whatsAppUrl = useMemo(() => {
-    if (!selectedLevel || selectedSubjects.length === 0) return '#';
-    const levelLabel = levels.find((l) => l.id === selectedLevel)?.label ?? selectedLevel;
-    const subjectLabels = selectedSubjects
-      .map((id) => {
-        const s = subjects.find((sub) => sub.id === id);
-        return s ? getSubjectLabel(s) : id;
-      })
-      .join(', ');
-    const hours = matchedPack?.totalHours ?? '—';
-    const price = matchedPack?.price ?? '—';
-    const context = `le stage pré-rentrée 2026 (${levelLabel}, ${subjectLabels}, ${hours}h, ${price} TND)`;
-    return buildWhatsAppUrl(context);
-  }, [selectedLevel, selectedSubjects, levels, subjects, matchedPack, getSubjectLabel]);
-
-  /* ── CTA URL ───────────────────────────────────────────────────────────── */
-
-  const bilanUrl = useMemo(() => {
-    if (!selectedLevel) return '/bilan-gratuit';
-    const params = new URLSearchParams({
-      programme: 'pre-rentree-2026',
-      level: selectedLevel,
-    });
-    if (selectedSubjects.length > 0) {
-      params.set('subjects', selectedSubjects.join(','));
-    }
-    return `/bilan-gratuit?${params.toString()}`;
-  }, [selectedLevel, selectedSubjects]);
-
-  /* ── Step indicators ───────────────────────────────────────────────────── */
-
-  const totalSteps = needsTrackStep(selectedLevel) ? 4 : 3;
-  const displayStep = useMemo(() => {
-    if (!needsTrackStep(selectedLevel)) {
-      if (currentStep >= 3) return currentStep - 1;
-    }
-    return currentStep;
-  }, [currentStep, selectedLevel]);
-
-  /* ── Render ────────────────────────────────────────────────────────────── */
+  const inputClass = 'grid gap-3 sm:grid-cols-2';
+  const buttonClass = 'min-h-11 rounded-lg px-5 py-3 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lux-gold';
 
   return (
-    <section
-      className="mx-auto w-full max-w-3xl rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 md:p-8"
-      aria-label="Configurateur de stage pré-rentrée"
-    >
-      {/* Step indicator */}
-      <div className="mb-6 flex items-center justify-center gap-2" aria-hidden="true">
-        {Array.from({ length: totalSteps }, (_, i) => (
-          <div
-            key={i}
-            className={`h-2 w-8 rounded-full transition-colors ${
-              i + 1 <= displayStep ? 'bg-brand-600' : 'bg-neutral-200'
-            }`}
-          />
-        ))}
+    <section id="configurateur" className="scroll-mt-24 bg-white px-4 py-14 md:py-20" aria-labelledby="configurator-heading">
+      <div className="mx-auto max-w-6xl">
+        <div className="max-w-3xl">
+          <p className="sr-only">Statut de campagne : {campaignStatus}</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-lux-gold-deep">Pré-inscription sans paiement</p>
+          <h2 id="configurator-heading" className="mt-3 font-fraunces text-3xl text-lux-ink md:text-4xl">Composer le stage de votre enfant</h2>
+          <p className="mt-3 text-lux-slate">Sélectionnez le niveau, le profil et les matières pour obtenir un résumé exact.</p>
+        </div>
+
+        <div className="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="rounded-2xl border border-lux-line bg-lux-paper p-5 sm:p-7">
+            <p className="mb-6 text-sm font-medium text-lux-slate">Étape {level === 'SECONDE' && step >= 3 ? step - 1 : step} sur {level === 'SECONDE' ? 3 : 4}</p>
+
+            {step === 1 && (
+              <fieldset>
+                <legend className="font-semibold text-lux-ink">Classe de rentrée 2026</legend>
+                <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                  {levels.map((option) => (
+                    <ChoiceCard key={option.id} name="level" option={option} checked={level === option.id} onChange={() => chooseLevel(option.id)} />
+                  ))}
+                </div>
+                <div className="mt-6 flex justify-end">
+                  <button type="button" className={`${buttonClass} lux-cta-reserve disabled:opacity-50`} disabled={!level} onClick={() => continueTo(getNextConfiguratorStep(step, level))}>Continuer</button>
+                </div>
+              </fieldset>
+            )}
+
+            {step === 2 && level === 'PREMIERE' && (
+              <div className="space-y-6">
+                <fieldset><legend className="font-semibold text-lux-ink">Voie</legend><div className={`mt-3 ${inputClass}`}>{academicProfiles.PREMIERE.voies.map((option) => <ChoiceCard key={option.id} name="voie" option={option} checked={profile.voie === option.id} onChange={() => { setProfile((value) => ({ ...value, voie: option.id })); track.preRentreeTrackSelected(option.id.toLowerCase()); }} />)}</div></fieldset>
+                <fieldset><legend className="font-semibold text-lux-ink">Profil Mathématiques</legend><div className={`mt-3 ${inputClass}`}>{academicProfiles.PREMIERE.mathsProfiles.map((option) => <ChoiceCard key={option.id} name="maths-profile" option={option} checked={profile.mathsProfile === option.id} onChange={() => setProfile((value) => ({ ...value, mathsProfile: option.id }))} />)}</div></fieldset>
+                <fieldset><legend className="font-semibold text-lux-ink">Profil Français EAF</legend><div className={`mt-3 ${inputClass}`}>{academicProfiles.PREMIERE.eafProfiles.map((option) => <ChoiceCard key={option.id} name="eaf-profile" option={option} checked={profile.eafProfile === option.id} onChange={() => setProfile((value) => ({ ...value, eafProfile: option.id }))} />)}</div></fieldset>
+                <div className="flex justify-between gap-3"><button type="button" className={`${buttonClass} border border-lux-line`} onClick={() => continueTo(getPreviousConfiguratorStep(step, level))}>Retour</button><button type="button" className={`${buttonClass} lux-cta-reserve disabled:opacity-50`} disabled={!profileComplete} onClick={() => continueTo(3)}>Continuer</button></div>
+              </div>
+            )}
+
+            {step === 2 && level === 'TERMINALE' && (
+              <div className="space-y-6">
+                <fieldset>
+                  <legend className="font-semibold text-lux-ink">{academicProfiles.TERMINALE.retainedSpecialties.label} — deux maximum</legend>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                    {academicProfiles.TERMINALE.retainedSpecialties.options.map((option) => (
+                      <label key={option.id} className="flex min-h-11 items-center rounded-xl border border-lux-line bg-white px-4 py-3 text-sm text-lux-ink">
+                        <input className="mr-3 h-4 w-4 accent-lux-gold" type="checkbox" checked={profile.retainedSpecialties?.includes(option.id) ?? false} onChange={() => setProfile((value) => ({ ...value, retainedSpecialties: toggleLimitedSelection(value.retainedSpecialties ?? [], option.id, academicProfiles.TERMINALE.retainedSpecialties.maxSelections) }))} />
+                        {option.label}
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+                <fieldset><legend className="font-semibold text-lux-ink">Option de Mathématiques</legend><div className="mt-3 grid gap-3 sm:grid-cols-3">{academicProfiles.TERMINALE.mathsOptions.map((option) => <ChoiceCard key={option.id} name="maths-option" option={option} checked={profile.mathsOption === option.id} onChange={() => setProfile((value) => ({ ...value, mathsOption: option.id }))} />)}</div></fieldset>
+                <div className="flex justify-between gap-3"><button type="button" className={`${buttonClass} border border-lux-line`} onClick={() => continueTo(1)}>Retour</button><button type="button" className={`${buttonClass} lux-cta-reserve disabled:opacity-50`} disabled={!profileComplete} onClick={() => continueTo(3)}>Continuer</button></div>
+              </div>
+            )}
+
+            {step === 3 && level && (
+              <fieldset>
+                <legend className="font-semibold text-lux-ink">Matières — une à quatre</legend>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  {availableSubjects.map((subject) => {
+                    const selected = subjectIds.includes(subject.id);
+                    const slots = schedule.filter((slot) => slot.level === level && slot.subject === subject.id);
+                    const first = slots[0];
+                    const label = subject.labelByLevel?.[level] ?? subject.label;
+                    const hours = packs.find((pack) => pack.subjectsCount === 1)?.totalHours;
+                    return (
+                      <label key={subject.id} className={`min-h-11 cursor-pointer rounded-xl border-2 p-4 ${selected ? 'border-lux-gold bg-lux-gold/10' : 'border-lux-line bg-white'}`}>
+                        <span className="flex items-start gap-3"><input className="mt-1 h-4 w-4 accent-lux-gold" type="checkbox" checked={selected} onChange={() => toggleSubject(subject.id)} /><span><strong className="block text-lux-ink">{label}</strong><span className="mt-1 block text-sm text-lux-slate">{slots.length} séances · {hours} heures</span>{first && <span className="block text-sm text-lux-slate">Semaine {first.week} · {first.startTime}–{first.endTime}</span>}<a className="mt-2 inline-block text-sm font-semibold text-lux-gold-deep underline" href={`#programme-${subject.id.toLowerCase()}`}>Consulter le programme</a></span></span>
+                      </label>
+                    );
+                  })}
+                </div>
+                <div className="mt-6 flex justify-between gap-3"><button type="button" className={`${buttonClass} border border-lux-line`} onClick={() => continueTo(getPreviousConfiguratorStep(step, level))}>Retour</button><button type="button" className={`${buttonClass} lux-cta-reserve disabled:opacity-50`} disabled={subjectIds.length === 0} onClick={() => continueTo(4)}>Voir mon résumé</button></div>
+              </fieldset>
+            )}
+
+            {step === 4 && (
+              <div>
+                <h3 className="font-semibold text-lux-ink">Résumé de votre sélection</h3>
+                <p className="mt-2 text-sm text-lux-slate">Vous pouvez modifier vos choix avant de poursuivre vers le formulaire.</p>
+                <button type="button" className={`${buttonClass} mt-5 border border-lux-line`} onClick={() => continueTo(3)}>Modifier les matières</button>
+              </div>
+            )}
+          </div>
+
+          <aside className="sticky bottom-3 z-10 lg:top-24 lg:bottom-auto" aria-label="Résumé persistant">
+            <SummaryCard summary={summary} notice={groupCompositionNotice} status={campaignStatus} />
+          </aside>
+        </div>
       </div>
-      <p className="mb-6 text-center text-sm text-neutral-500">
-        Étape {displayStep} sur {totalSteps}
-      </p>
-
-      {/* ─── Step 1: Level ──────────────────────────────────────────────── */}
-      {currentStep === 1 && (
-        <fieldset className="space-y-4">
-          <legend className="mb-2 text-lg font-semibold text-neutral-900">
-            Classe de rentrée
-          </legend>
-          <div className="grid gap-3 sm:grid-cols-3">
-            {levels.map((level) => (
-              <label
-                key={level.id}
-                className={`flex min-h-[44px] cursor-pointer items-center justify-center rounded-lg border-2 px-4 py-3 text-center font-medium transition-colors ${
-                  selectedLevel === level.id
-                    ? 'border-brand-600 bg-brand-50 text-brand-700'
-                    : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="level"
-                  value={level.id}
-                  checked={selectedLevel === level.id}
-                  onChange={() => handleLevelChange(level.id)}
-                  className="sr-only"
-                />
-                {level.label}
-              </label>
-            ))}
-          </div>
-          <div className="mt-6 flex justify-end">
-            <button
-              type="button"
-              onClick={goNext}
-              disabled={!selectedLevel}
-              className="min-h-[44px] min-w-[44px] rounded-lg bg-brand-600 px-6 py-3 font-medium text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Continuer
-            </button>
-          </div>
-        </fieldset>
-      )}
-
-      {/* ─── Step 2: Academic Track ─────────────────────────────────────── */}
-      {currentStep === 2 && needsTrackStep(selectedLevel) && (
-        <div className="space-y-6">
-          {selectedLevel === 'premiere' && (
-            <>
-              <fieldset className="space-y-3">
-                <legend className="mb-2 text-lg font-semibold text-neutral-900">
-                  Voie
-                </legend>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {[
-                    { id: 'generale', label: 'Générale' },
-                    { id: 'technologique', label: 'Technologique' },
-                  ].map((option) => (
-                    <label
-                      key={option.id}
-                      className={`flex min-h-[44px] cursor-pointer items-center justify-center rounded-lg border-2 px-4 py-3 text-center font-medium transition-colors ${
-                        academicTrack.voie === option.id
-                          ? 'border-brand-600 bg-brand-50 text-brand-700'
-                          : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="voie"
-                        value={option.id}
-                        checked={academicTrack.voie === option.id}
-                        onChange={() =>
-                          setAcademicTrack((prev) => ({ ...prev, voie: option.id }))
-                        }
-                        className="sr-only"
-                      />
-                      {option.label}
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
-
-              <fieldset className="space-y-3">
-                <legend className="mb-2 text-lg font-semibold text-neutral-900">
-                  Mathématiques
-                </legend>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {[
-                    { id: 'eds', label: 'EDS Maths (spécialité)' },
-                    { id: 'hors-eds', label: 'Hors EDS Maths' },
-                  ].map((option) => (
-                    <label
-                      key={option.id}
-                      className={`flex min-h-[44px] cursor-pointer items-center justify-center rounded-lg border-2 px-4 py-3 text-center font-medium transition-colors ${
-                        academicTrack.mathsOption === option.id
-                          ? 'border-brand-600 bg-brand-50 text-brand-700'
-                          : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="mathsOption"
-                        value={option.id}
-                        checked={academicTrack.mathsOption === option.id}
-                        onChange={() =>
-                          setAcademicTrack((prev) => ({ ...prev, mathsOption: option.id }))
-                        }
-                        className="sr-only"
-                      />
-                      {option.label}
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
-            </>
-          )}
-
-          {selectedLevel === 'terminale' && (
-            <fieldset className="space-y-3">
-              <legend className="mb-2 text-lg font-semibold text-neutral-900">
-                Option Mathématiques
-              </legend>
-              <div className="grid gap-3 sm:grid-cols-3">
-                {[
-                  { id: 'aucune', label: 'Aucune' },
-                  { id: 'expertes', label: 'Maths expertes' },
-                  { id: 'complementaires', label: 'Maths complémentaires' },
-                ].map((option) => (
-                  <label
-                    key={option.id}
-                    className={`flex min-h-[44px] cursor-pointer items-center justify-center rounded-lg border-2 px-4 py-3 text-center font-medium transition-colors ${
-                      academicTrack.mathsOption === option.id
-                        ? 'border-brand-600 bg-brand-50 text-brand-700'
-                        : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="mathsOption"
-                      value={option.id}
-                      checked={academicTrack.mathsOption === option.id}
-                      onChange={() =>
-                        setAcademicTrack((prev) => ({ ...prev, mathsOption: option.id }))
-                      }
-                      className="sr-only"
-                    />
-                    {option.label}
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-          )}
-
-          <div className="mt-6 flex justify-between">
-            <button
-              type="button"
-              onClick={goBack}
-              className="min-h-[44px] min-w-[44px] rounded-lg border border-neutral-300 px-6 py-3 font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
-            >
-              Retour
-            </button>
-            <button
-              type="button"
-              onClick={goNext}
-              className="min-h-[44px] min-w-[44px] rounded-lg bg-brand-600 px-6 py-3 font-medium text-white transition-colors hover:bg-brand-700"
-            >
-              Continuer
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ─── Step 3: Subjects ───────────────────────────────────────────── */}
-      {currentStep === 3 && (
-        <fieldset className="space-y-4">
-          <legend className="mb-2 text-lg font-semibold text-neutral-900">
-            Matières
-          </legend>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {availableSubjects.map((subject) => {
-              const isSelected = selectedSubjects.includes(subject.id);
-              const scheduleInfo = getSubjectScheduleInfo(subject.id);
-              return (
-                <label
-                  key={subject.id}
-                  className={`flex min-h-[44px] cursor-pointer flex-col rounded-lg border-2 px-4 py-3 transition-colors ${
-                    isSelected
-                      ? 'border-brand-600 bg-brand-50'
-                      : 'border-neutral-200 bg-white hover:border-neutral-300'
-                  }`}
-                >
-                  <span className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      name="subjects"
-                      value={subject.id}
-                      checked={isSelected}
-                      onChange={() => handleSubjectToggle(subject.id)}
-                      className="h-4 w-4 rounded border-neutral-300 text-brand-600 focus:ring-brand-500"
-                    />
-                    <span className="font-medium text-neutral-900">
-                      {getSubjectLabel(subject)}
-                    </span>
-                  </span>
-                  <span className="mt-1 pl-6 text-sm text-neutral-500">
-                    5 séances · 10 heures
-                  </span>
-                  {scheduleInfo && (
-                    <span className="mt-0.5 pl-6 text-xs text-neutral-400">
-                      {scheduleInfo.week} · {scheduleInfo.time}
-                    </span>
-                  )}
-                </label>
-              );
-            })}
-          </div>
-          <div className="mt-6 flex justify-between">
-            <button
-              type="button"
-              onClick={goBack}
-              className="min-h-[44px] min-w-[44px] rounded-lg border border-neutral-300 px-6 py-3 font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
-            >
-              Retour
-            </button>
-            <button
-              type="button"
-              onClick={goNext}
-              disabled={selectedSubjects.length === 0}
-              className="min-h-[44px] min-w-[44px] rounded-lg bg-brand-600 px-6 py-3 font-medium text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Voir le récapitulatif
-            </button>
-          </div>
-        </fieldset>
-      )}
-
-      {/* ─── Step 4: Summary ────────────────────────────────────────────── */}
-      {currentStep === 4 && (
-        <div className="space-y-6" aria-live="polite">
-          <h2 className="text-lg font-semibold text-neutral-900">Récapitulatif</h2>
-
-          {/* Selection summary */}
-          <div className="rounded-lg bg-neutral-50 p-4 text-sm">
-            <dl className="space-y-2">
-              <div className="flex justify-between">
-                <dt className="font-medium text-neutral-600">Niveau</dt>
-                <dd className="text-neutral-900">
-                  {levels.find((l) => l.id === selectedLevel)?.label ?? '—'}
-                </dd>
-              </div>
-              {needsTrackStep(selectedLevel) && (
-                <>
-                  {academicTrack.voie && (
-                    <div className="flex justify-between">
-                      <dt className="font-medium text-neutral-600">Voie</dt>
-                      <dd className="capitalize text-neutral-900">
-                        {academicTrack.voie}
-                      </dd>
-                    </div>
-                  )}
-                  {academicTrack.mathsOption && (
-                    <div className="flex justify-between">
-                      <dt className="font-medium text-neutral-600">Maths</dt>
-                      <dd className="capitalize text-neutral-900">
-                        {academicTrack.mathsOption}
-                      </dd>
-                    </div>
-                  )}
-                </>
-              )}
-              <div className="flex justify-between">
-                <dt className="font-medium text-neutral-600">Matières</dt>
-                <dd className="text-right text-neutral-900">
-                  {selectedSubjects
-                    .map((id) => {
-                      const s = subjects.find((sub) => sub.id === id);
-                      return s ? getSubjectLabel(s) : id;
-                    })
-                    .join(', ')}
-                </dd>
-              </div>
-            </dl>
-          </div>
-
-          {/* Pack pricing */}
-          {matchedPack && (
-            <div className="rounded-lg border border-brand-200 bg-brand-50 p-4">
-              <div className="flex items-baseline justify-between">
-                <span className="text-sm font-medium text-brand-700">
-                  {matchedPack.totalHours}h de stage
-                </span>
-                <span className="text-2xl font-bold text-brand-800">
-                  {matchedPack.price} TND
-                </span>
-              </div>
-              <div className="mt-2 flex justify-between text-sm text-brand-600">
-                <span>Acompte à l&apos;inscription</span>
-                <span className="font-medium">{matchedPack.deposit} TND</span>
-              </div>
-              <div className="flex justify-between text-sm text-brand-600">
-                <span>Solde avant le début</span>
-                <span className="font-medium">{matchedPack.balance} TND</span>
-              </div>
-            </div>
-          )}
-
-          {/* Schedule */}
-          {selectedScheduleSlots.length > 0 && (
-            <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-neutral-700">Planning</h3>
-              <ul className="space-y-1 text-sm text-neutral-600">
-                {selectedScheduleSlots.map((slot, i) => (
-                  <li key={i} className="flex items-center gap-2">
-                    <span className="inline-block h-2 w-2 rounded-full bg-brand-400" aria-hidden="true" />
-                    <span>
-                      {slot.date} · {slot.startTime}–{slot.endTime} · {slot.subject}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Validation notice */}
-          {needsValidation(selectedLevel, academicTrack) && (
-            <p className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-              Profil pédagogique déclaré — validation du groupe par l&apos;équipe Nexus.
-            </p>
-          )}
-
-          {/* CTAs */}
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Link
-              href={bilanUrl}
-              className="flex min-h-[44px] flex-1 items-center justify-center rounded-lg bg-brand-600 px-6 py-3 text-center font-medium text-white transition-colors hover:bg-brand-700"
-            >
-              Continuer vers le bilan
-            </Link>
-            <a
-              href={whatsAppUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex min-h-[44px] flex-1 items-center justify-center rounded-lg border-2 border-green-600 px-6 py-3 text-center font-medium text-green-700 transition-colors hover:bg-green-50"
-            >
-              Contacter sur WhatsApp
-            </a>
-          </div>
-
-          {/* Back button */}
-          <div className="flex justify-start">
-            <button
-              type="button"
-              onClick={goBack}
-              className="min-h-[44px] min-w-[44px] rounded-lg border border-neutral-300 px-6 py-3 font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
-            >
-              Modifier ma sélection
-            </button>
-          </div>
-        </div>
-      )}
     </section>
   );
 }
