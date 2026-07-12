@@ -59,6 +59,10 @@ const publicOrphanPolicy = {
     status: 'alias redirect',
     reason: 'Alias applicatif vers /programme/maths-1ere; aucun lien interne ne devrait viser l’alias.',
   },
+  '/pre-rentree': {
+    status: 'alias redirect permanent',
+    reason: 'Alias court permanent vers /stages/pre-rentree-2026, hors sitemap et sans contenu duplique.',
+  },
   '/programme/maths-1ere-stmg': {
     status: 'noindex programme eleve',
     reason: 'Redirect vers cockpit eleve, hors sitemap et noindex explicite.',

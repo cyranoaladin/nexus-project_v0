@@ -1,4 +1,5 @@
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
+import { WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
 import type { LandingPack, LandingScheduleSlot } from '@/lib/campaigns/pre-rentree-2026/configurator';
 
 function compactDateRange(startDate: string, endDate: string): string {
@@ -16,7 +17,7 @@ function sessionDuration(start: string, end: string): number {
 }
 
 export function PreRentreeHero({ campaign, content, capacity, packs, schedule, whatsappMessage }: {
-  campaign: { startDate: string; endDate: string; venue: { neighborhood: string } };
+  campaign: { canonicalPath: string; startDate: string; endDate: string; venue: { neighborhood: string } };
   content: { eyebrow: string; h1: string; subtitle: string };
   capacity: { minPerCohort: number; maxPerCohort: number };
   packs: LandingPack[];
@@ -45,9 +46,9 @@ export function PreRentreeHero({ campaign, content, capacity, packs, schedule, w
           <li className="rounded-full bg-white/10 px-4 py-2">{singlePack?.subjectsCount} à {maximumSubjects} matières · {singlePack?.totalHours} h chacune</li>
         </ul>
         <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-          <a href="#configurateur" className="lux-cta-reserve inline-flex min-h-11 items-center justify-center rounded-lg px-6 py-3 text-sm font-semibold">Composer le stage de mon enfant</a>
-          <a href="#planning" className="inline-flex min-h-11 items-center justify-center rounded-lg border border-white/30 px-6 py-3 text-sm font-semibold text-lux-on-dark">Voir les horaires</a>
-          <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center justify-center rounded-lg border border-lux-evergreen bg-lux-evergreen/10 px-6 py-3 text-sm font-semibold text-green-300">Poser une question <span className="sr-only">(nouvel onglet)</span></a>
+          <a href={`${campaign.canonicalPath}#configurateur`} className="lux-cta-reserve inline-flex min-h-11 items-center justify-center rounded-lg px-6 py-3 text-sm font-semibold">Composer le stage de mon enfant</a>
+          <a href={`${campaign.canonicalPath}#planning`} className="inline-flex min-h-11 items-center justify-center rounded-lg border border-white/30 px-6 py-3 text-sm font-semibold text-lux-on-dark">Voir les horaires</a>
+          <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center justify-center rounded-lg border border-lux-evergreen bg-lux-evergreen/10 px-6 py-3 text-sm font-semibold" style={{ color: WHATSAPP_BRAND_GREEN }}>Poser une question <span className="sr-only">(nouvel onglet)</span></a>
         </div>
         <p className="mt-5 text-sm text-lux-on-dark-muted">Groupes limités à {capacity.maxPerCohort} élèves.</p>
       </div>

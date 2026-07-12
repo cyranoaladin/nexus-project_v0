@@ -1,6 +1,7 @@
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
+import { WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
 
-export function FinalCampaignCTA() {
+export function FinalCampaignCTA({ campaignPath }: { campaignPath: string }) {
   const whatsappUrl = buildWhatsAppUrl('les stages de pré-rentrée 2026');
 
   return (
@@ -14,7 +15,7 @@ export function FinalCampaignCTA() {
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <a
-            href="#configurateur"
+            href={`${campaignPath}#configurateur`}
             className="inline-flex items-center justify-center rounded-lg bg-lux-gold px-6 py-3 text-sm font-semibold text-lux-ink hover:bg-lux-gold-bright transition-colors min-h-[44px]"
           >
             Composer le stage
@@ -29,7 +30,8 @@ export function FinalCampaignCTA() {
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center rounded-lg bg-[#25D366]/10 border border-[#25D366]/30 px-6 py-3 text-sm font-semibold text-[#25D366] hover:bg-[#25D366]/20 transition-colors min-h-[44px]"
+            className="inline-flex min-h-[44px] items-center justify-center rounded-lg border bg-white/5 px-6 py-3 text-sm font-semibold transition-colors hover:bg-white/10"
+            style={{ borderColor: WHATSAPP_BRAND_GREEN, color: WHATSAPP_BRAND_GREEN }}
           >
             WhatsApp
           </a>

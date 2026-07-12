@@ -92,7 +92,7 @@ export default function PreRentree2026Page() {
         cgvPath={dto.legalRefs.cgv}
       />
       <CampaignFAQ items={dto.content.faq} />
-      <FinalCampaignCTA />
+      <FinalCampaignCTA campaignPath={dto.campaign.canonicalPath} />
       <CorporateFooter />
     </main>
   );
