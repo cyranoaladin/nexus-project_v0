@@ -1,7 +1,6 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 import BilanGratuitPage from '../../app/bilan-gratuit/page';
 import { CGV_POLICY } from '@/lib/cgv-policy';
 import { LEGAL } from '@/lib/legal';
@@ -29,17 +28,10 @@ jest.mock('sonner', () => ({
   Toaster: () => null,
 }));
 
-jest.mock('framer-motion', () => ({
-  motion: new Proxy({}, {
-    get: (_target, prop) => (props: any) => React.createElement(prop as any, props, props.children),
-  }),
-  useReducedMotion: () => false,
-}));
-
 describe('BilanGratuitPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (global as any).fetch = mockFetch;
+    global.fetch = mockFetch as unknown as typeof fetch;
     mockFetch.mockResolvedValue({
       ok: true,
       json: async () => ({ success: true, parentId: 'parent-1', studentId: 'student-1' }),
