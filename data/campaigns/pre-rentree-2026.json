@@ -63,7 +63,7 @@
   },
   "packProductIds": ["pre2026-pack-1", "pre2026-pack-2", "pre2026-pack-3", "pre2026-pack-4"],
   "contact": {
-    "whatsapp": "+21620123456",
+    "whatsappChannel": "WHATSAPP_PRIMARY",
     "whatsappMessage": "Bonjour, je souhaite des informations sur les stages de pré-rentrée 2026.",
     "email": "contact@nexusreussite.academy"
   },

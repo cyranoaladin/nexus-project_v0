@@ -56,7 +56,7 @@ const Capacity = z.object({
 });
 
 const Contact = z.object({
-  whatsapp: z.string(),
+  whatsappChannel: z.string(),
   whatsappMessage: z.string(),
   email: z.string().email(),
 });

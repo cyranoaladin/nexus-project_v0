@@ -145,8 +145,9 @@ describe('Stage Calendar 2026-2027', () => {
   it('pack-based stages reference valid pack product IDs', () => {
     for (const stage of calendar) {
       if (stage.format_id !== null) continue;
-      expect(stage.pack_product_ids).toBeDefined();
-      expect(stage.pack_product_ids.length).toBeGreaterThan(0);
+      const packIds = (stage as unknown as { pack_product_ids?: string[] }).pack_product_ids;
+      expect(packIds).toBeDefined();
+      expect(packIds!.length).toBeGreaterThan(0);
     }
   });
 
