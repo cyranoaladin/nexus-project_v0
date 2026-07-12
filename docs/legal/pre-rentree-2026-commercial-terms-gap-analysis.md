@@ -16,7 +16,7 @@ Ce document identifie les ecarts entre les Conditions Generales de Vente (CGV) a
 
 | # | Clause pre-rentree 2026 | Couverture CGV actuelle | Ecart | Action requise |
 |---|------------------------|------------------------|-------|----------------|
-| 1 | Acompte de 30 % a la pre-inscription | CGV mentionnent un acompte mais sans pourcentage fixe pour les stages | **ECART** : pourcentage et arrondi non specifies | Ajouter clause stage : "30 % arrondi au 10 TND superieur" |
+| 1 | Acompte de 30 % apres validation administrative et pedagogique | CGV mentionnent un acompte mais sans pourcentage fixe pour les stages | **ECART** : pourcentage, arrondi et ordre des etapes non specifies | Ajouter clause stage : "30 % arrondi a la dizaine la plus proche, demande apres validation" |
 | 2 | Groupe ouvre a 3 eleves minimum | Non couvert dans les CGV | **ECART** : seuil d'ouverture absent | Ajouter clause : seuil minimal, consequences |
 | 3 | Groupe limite a 5 eleves maximum | Non couvert dans les CGV | **ECART** : capacite maximale absente | Ajouter clause : capacite, liste d'attente |
 | 4 | Date limite de decision : 10 aout 2026 a 18:00 | CGV ne mentionnent pas de deadline specifique par campagne | **ECART** : deadline absente | Clause annexe par campagne |
@@ -33,12 +33,12 @@ Ce document identifie les ecarts entre les Conditions Generales de Vente (CGV) a
 
 ## 3. Detail des ecarts critiques
 
-### 3.1 Acompte 30 % arrondi
+### 3.1 Acompte 30 % arrondi et ordre des etapes
 
 **Situation actuelle** : les CGV mentionnent qu'un acompte peut etre demande sans preciser le montant pour les stages collectifs.
 
 **Clause proposee** :
-> Pour les stages collectifs, un acompte de 30 % du tarif TTC est exige a la pre-inscription. Le montant est arrondi au 10 TND superieur. L'acompte est encaisse des reception. Il est restituable uniquement dans les cas prevus a l'article [X] (annulation par le prestataire, non-ouverture du groupe).
+> La pre-inscription constitue une demande et ne reserve pas de place. Apres validation administrative et pedagogique par Nexus Reussite, un acompte egal a 30 % du tarif TTC, arrondi a la dizaine de dinars la plus proche, est demande a la famille. La place n'est confirmee qu'apres reception de cet acompte et confirmation ecrite de Nexus Reussite. L'acompte est rembourse integralement lorsque Nexus Reussite decide de ne pas ouvrir le groupe, selon le delai contractuel valide dans l'annexe de campagne.
 
 ### 3.2 Seuil d'ouverture et capacite maximale
 
