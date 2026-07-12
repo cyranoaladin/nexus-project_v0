@@ -167,10 +167,10 @@ export interface CarteNexus {
 export interface StageCalendarEntry {
   id: string;
   title: string;
-  format_id: string;
+  format_id: string | null;
   format_label: string;
   half_days: number;
-  hours: number;
+  hours: number | null;
   date_start: string;
   date_end: string;
   dates_display: string;

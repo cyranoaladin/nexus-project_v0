@@ -83,6 +83,7 @@ export function CorporateNavbar() {
 
   useEffect(() => {
     if (!isOpen) return;
+    const menuTrigger = menuTriggerRef.current;
 
     // Focus the close button on open (after transition starts)
     requestAnimationFrame(() => {
@@ -121,7 +122,7 @@ export function CorporateNavbar() {
       document.removeEventListener('keydown', onKeyDown);
       document.body.style.overflow = '';
       // Restore focus to trigger
-      menuTriggerRef.current?.focus();
+      menuTrigger?.focus();
     };
   }, [isOpen]);
 
@@ -230,6 +231,13 @@ export function CorporateNavbar() {
               fetchPriority="high"
               unoptimized
             />
+          </Link>
+
+          <Link
+            href="/stages/pre-rentree-2026"
+            className="hidden min-h-11 items-center rounded-full border border-lux-gold/40 bg-lux-gold/10 px-4 py-2 text-xs font-semibold text-lux-gold-wash transition-colors hover:bg-lux-gold/20 lg:inline-flex"
+          >
+            Pré-rentrée 2026
           </Link>
 
           {/* Desktop Rubriques + Sous-rubriques */}
@@ -547,6 +555,15 @@ export function CorporateNavbar() {
           </div>
         </div>
       </div>
+
+      {pathname !== '/stages/pre-rentree-2026' && pathname !== '/bilan-gratuit' && (
+        <Link
+          href="/stages/pre-rentree-2026"
+          className="fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-40 flex min-h-11 items-center justify-center rounded-full border border-lux-gold/40 bg-lux-ink/95 px-5 py-3 text-sm font-semibold text-lux-gold-wash shadow-xl backdrop-blur md:hidden"
+        >
+          Pré-rentrée 2026 — Voir les stages
+        </Link>
+      )}
     </>
   );
 }
