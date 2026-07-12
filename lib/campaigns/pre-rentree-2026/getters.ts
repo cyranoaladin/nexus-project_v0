@@ -2,8 +2,11 @@ import 'server-only';
 
 import campaignManifest from '@/data/campaigns/pre-rentree-2026.json';
 import modulesData from '@/content/pre-rentree-2026/modules.json';
-import pricingData from '@/data/pricing.canonical.json';
-import { PreRentreeCampaignManifestSchema } from './schema';
+import { getPreRentreePacks } from '@/lib/pricing';
+import {
+  PreRentreeCampaignManifestSchema,
+  PreRentreeModulesSchema,
+} from './schema';
 import type { PreRentreeCampaignManifest } from './schema';
 
 /**
@@ -18,7 +21,7 @@ export function getPreRentreeCampaign(): PreRentreeCampaignManifest {
  * Get the 12 module programs with their 60 sessions.
  */
 export function getPreRentreeModules() {
-  return modulesData.modules;
+  return PreRentreeModulesSchema.parse(modulesData).modules;
 }
 
 /**
@@ -48,7 +51,10 @@ export function getPreRentreeSchedule() {
       if (campaign.noClassDates.includes(dateStr)) continue;
 
       for (const slot of weekSchedule.slots) {
-        const block = campaign.blocks.find(b => b.id === slot.block)!;
+        const block = campaign.blocks.find((candidate) => candidate.id === slot.block);
+        if (!block) {
+          throw new Error(`Unknown campaign block: ${slot.block}`);
+        }
         sessions.push({
           date: dateStr,
           level: slot.level,
@@ -74,21 +80,19 @@ export function getPreRentreeSchedule() {
  * Prices come from pricing.canonical.json via product IDs.
  */
 export function getPreRentreePackOptions() {
-  const packs = (pricingData as any).pre_rentree_packs as Array<{
-    id: string;
-    subjects_count: number;
-    total_hours: number;
-    price_per_student: number;
-    payment: { deposit: number; solde: number };
-  }>;
+  const campaign = getPreRentreeCampaign();
+  const packs = getPreRentreePacks(campaign.packProductIds);
 
-  return packs.map(p => ({
-    id: p.id,
-    subjectsCount: p.subjects_count,
-    totalHours: p.total_hours,
-    price: p.price_per_student,
-    deposit: p.payment.deposit,
-    balance: p.payment.solde,
+  return packs.map((pack) => ({
+    id: pack.id,
+    subjectsCount: pack.subjects_count,
+    totalHours: pack.total_hours,
+    price: pack.price_per_student,
+    deposit: pack.payment.deposit,
+    balance: pack.payment.solde,
+    pricePerHour: pack.price_per_student_hour,
+    groupMinOpen: pack.group_min_open,
+    groupMax: pack.group_max,
   }));
 }
 
@@ -117,20 +121,14 @@ export function getPreRentreeLandingDTO() {
     },
     levels: campaign.levels,
     subjects: campaign.subjects,
+    blocks: campaign.blocks,
+    capacity: campaign.capacity,
+    academicProfiles: campaign.academicProfiles,
     packs,
     schedule,
-    modules: modules.map((m: any) => ({
-      id: m.id,
-      level: m.level,
-      subject: m.subject,
-      title: m.title,
-      subtitle: m.subtitle,
-      sessions: m.sessions.map((s: any) => ({
-        number: s.number,
-        title: s.title,
-        objective: s.objective,
-      })),
-    })),
+    modules,
+    content: campaign.content,
+    seo: campaign.seo,
     cta: campaign.cta,
     contact: campaign.contact,
     featureFlags: campaign.featureFlags,

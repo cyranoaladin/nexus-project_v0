@@ -70,6 +70,59 @@ const FeatureFlags = z.object({
   enablePayment: z.boolean(),
 });
 
+const ProfileOption = z.object({
+  id: z.string().min(1),
+  label: z.string().min(1),
+});
+
+const AcademicProfiles = z.object({
+  SECONDE: z.object({}).strict(),
+  PREMIERE: z.object({
+    voies: z.array(ProfileOption).length(2),
+    mathsProfiles: z.array(ProfileOption).length(2),
+    eafProfiles: z.array(ProfileOption).length(2),
+  }),
+  TERMINALE: z.object({
+    retainedSpecialties: z.object({
+      label: z.string().min(1),
+      minSelections: z.literal(0),
+      maxSelections: z.literal(2),
+      options: z.array(ProfileOption).min(3),
+    }),
+    mathsOptions: z.array(ProfileOption).length(3),
+  }),
+});
+
+const CampaignContent = z.object({
+  hero: z.object({
+    eyebrow: z.string().min(1),
+    h1: z.string().min(1),
+    subtitle: z.string().min(1),
+  }),
+  method: z.array(z.object({
+    title: z.string().min(1),
+    description: z.string().min(1),
+  })).length(4),
+  practical: z.object({
+    material: z.string().min(1),
+    preRegistrationNotice: z.string().min(1),
+    noOnlinePaymentNotice: z.string().min(1),
+    groupCompositionNotice: z.string().min(1),
+    groupNotOpenedProcedure: z.string().min(1),
+  }),
+  faq: z.array(z.object({
+    question: z.string().min(1),
+    answer: z.string().min(1),
+  })).length(16),
+});
+
+const SeoContract = z.object({
+  title: z.string().min(1),
+  description: z.string().min(1),
+  canonical: z.literal('/stages/pre-rentree-2026'),
+  ogImage: z.string().startsWith('/'),
+});
+
 export const PreRentreeCampaignManifestSchema = z.object({
   campaignId: z.literal('pre-rentree-2026'),
   version: z.string(),
@@ -93,6 +146,9 @@ export const PreRentreeCampaignManifestSchema = z.object({
   })),
   capacity: Capacity,
   packProductIds: z.array(z.string()).length(4),
+  academicProfiles: AcademicProfiles,
+  content: CampaignContent,
+  seo: SeoContract,
   contact: Contact,
   cta: z.object({
     primary: z.object({ label: z.string(), action: z.string() }),
@@ -107,3 +163,32 @@ export const PreRentreeCampaignManifestSchema = z.object({
 });
 
 export type PreRentreeCampaignManifest = z.infer<typeof PreRentreeCampaignManifestSchema>;
+
+const ModuleSession = z.object({
+  number: z.number().int().min(1).max(5),
+  title: z.string().min(1),
+  objective: z.string().min(1),
+  topics: z.array(z.string().min(1)).min(1),
+  method: z.string().min(1),
+  deliverable: z.string().min(1),
+});
+
+const CampaignModule = z.object({
+  id: z.string().min(1),
+  level: z.enum(['SECONDE', 'PREMIERE', 'TERMINALE']),
+  subject: z.string().min(1),
+  title: z.string().min(1),
+  subtitle: z.string().min(1),
+  prerequisites: z.string().min(1),
+  differentiation: z.string().min(1),
+  quickAssessment: z.string().min(1),
+  sessions: z.array(ModuleSession).length(5),
+});
+
+export const PreRentreeModulesSchema = z.object({
+  version: z.string().min(1),
+  generatedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  modules: z.array(CampaignModule).length(12),
+});
+
+export type PreRentreeCampaignModule = z.infer<typeof CampaignModule>;

@@ -8,6 +8,9 @@
       "subject": "Mathématiques",
       "title": "Mathématiques Seconde",
       "subtitle": "Consolider les bases du calcul et découvrir les fonctions pour réussir son entrée au lycée",
+      "prerequisites": "Les acquis fondamentaux du collège ; un diagnostic en début de module précise les priorités.",
+      "differentiation": "Exercices à paliers et aides graduées selon la maîtrise du calcul et de la rédaction.",
+      "quickAssessment": "Exercice court de calcul et de raisonnement corrigé à la fin de chaque séance.",
       "sessions": [
         {
           "number": 1,
@@ -82,6 +85,9 @@
       "subject": "Français",
       "title": "Français Seconde",
       "subtitle": "Développer l'expression écrite structurée et les fondamentaux de l'analyse de texte",
+      "prerequisites": "Les compétences de lecture et d'écriture attendues en fin de collège.",
+      "differentiation": "Textes, consignes et attendus de rédaction ajustés au niveau de maîtrise observé.",
+      "quickAssessment": "Production brève ou question d'analyse relue avec une grille de critères.",
       "sessions": [
         {
           "number": 1,
@@ -156,6 +162,9 @@
       "subject": "Informatique (SNT)",
       "title": "Initiation informatique, algorithmique et SNT",
       "subtitle": "Découvrir la pensée algorithmique et les bases de la programmation Python",
+      "prerequisites": "Aucune expérience de programmation n'est requise ; savoir utiliser un navigateur et un clavier suffit.",
+      "differentiation": "Défis progressifs et extensions facultatives pour les élèves déjà familiers avec le code.",
+      "quickAssessment": "Programme court à exécuter, expliquer ou corriger en fin de séance.",
       "sessions": [
         {
           "number": 1,
@@ -230,6 +239,9 @@
       "subject": "Physique-Chimie",
       "title": "Physique-Chimie Seconde",
       "subtitle": "Acquérir les réflexes scientifiques et maîtriser les grandeurs fondamentales",
+      "prerequisites": "Les notions scientifiques et les outils de calcul du collège.",
+      "differentiation": "Données, schémas et niveaux de guidage adaptés aux acquis diagnostiqués.",
+      "quickAssessment": "Question scientifique courte avec justification des unités et de la démarche.",
       "sessions": [
         {
           "number": 1,
@@ -304,6 +316,9 @@
       "subject": "Mathématiques",
       "title": "Mathématiques Première",
       "subtitle": "Maîtriser les suites, la dérivation et les probabilités pour préparer le Bac",
+      "prerequisites": "Les acquis de Seconde en fonctions, calcul littéral et probabilités.",
+      "differentiation": "Parcours distincts pour le profil Maths EDS et le profil hors EDS, après validation pédagogique.",
+      "quickAssessment": "Exercice type ciblé, corrigé avec une grille de méthode et de rédaction.",
       "sessions": [
         {
           "number": 1,
@@ -378,6 +393,9 @@
       "subject": "Français (EAF)",
       "title": "Français — Préparation aux EAF",
       "subtitle": "Se préparer méthodiquement aux Épreuves Anticipées de Français (écrit et oral)",
+      "prerequisites": "Une lecture régulière et les bases de l'analyse de texte acquises en Seconde.",
+      "differentiation": "Sujets et méthodes adaptés aux voies générale et technologique après validation du groupe.",
+      "quickAssessment": "Paragraphe rédigé ou passage oral bref évalué selon les attendus EAF.",
       "sessions": [
         {
           "number": 1,
@@ -452,6 +470,9 @@
       "subject": "NSI",
       "title": "NSI Première — Numérique et Sciences Informatiques",
       "subtitle": "Consolider les fondamentaux de la programmation et de l'algorithmique",
+      "prerequisites": "Les bases de Python et de l'algorithmique de Seconde ; une remise à niveau est prévue si nécessaire.",
+      "differentiation": "Exercices à difficulté progressive et défis d'approfondissement pour les profils avancés.",
+      "quickAssessment": "Fonction Python ou raisonnement algorithmique court testé en fin de séance.",
       "sessions": [
         {
           "number": 1,
@@ -526,6 +547,9 @@
       "subject": "Physique-Chimie",
       "title": "Physique-Chimie Première",
       "subtitle": "Approfondir la chimie quantitative et la mécanique pour l'épreuve de spécialité",
+      "prerequisites": "Les grandeurs, unités et méthodes expérimentales travaillées en Seconde.",
+      "differentiation": "Guidage calculatoire, schémas et problèmes d'approfondissement selon le profil déclaré.",
+      "quickAssessment": "Question de modélisation ou calcul scientifique commenté en fin de séance.",
       "sessions": [
         {
           "number": 1,
@@ -600,6 +624,9 @@
       "subject": "Mathématiques",
       "title": "Mathématiques Terminale",
       "subtitle": "Préparer les notions clés du programme de Terminale pour aborder l'année sereinement",
+      "prerequisites": "Les acquis de Première en dérivation, suites, probabilités et géométrie.",
+      "differentiation": "Exercices différenciés pour Maths EDS, Maths expertes et Maths complémentaires après validation.",
+      "quickAssessment": "Exercice de synthèse court analysé selon la démarche, le calcul et la rédaction.",
       "sessions": [
         {
           "number": 1,
@@ -674,6 +701,9 @@
       "subject": "Expression écrite argumentation et oral",
       "title": "Expression écrite, argumentation et maîtrise de l'oral",
       "subtitle": "Développer les compétences transversales d'expression pour le Grand Oral et le supérieur",
+      "prerequisites": "Savoir organiser un paragraphe et présenter une idée à l'oral.",
+      "differentiation": "Sujets, temps de préparation et niveau d'étayage adaptés à l'aisance écrite et orale.",
+      "quickAssessment": "Prise de parole ou synthèse courte avec retour sur structure, précision et expression.",
       "sessions": [
         {
           "number": 1,
@@ -748,6 +778,9 @@
       "subject": "NSI",
       "title": "NSI Terminale — Numérique et Sciences Informatiques",
       "subtitle": "Aborder les structures de données avancées et préparer l'épreuve pratique",
+      "prerequisites": "Les bases de Python, des fonctions, des listes et de l'algorithmique de Première NSI.",
+      "differentiation": "Implémentations guidées puis variantes d'optimisation selon l'autonomie de l'élève.",
+      "quickAssessment": "Code court à compléter, tester et expliquer à l'issue de chaque séance.",
       "sessions": [
         {
           "number": 1,
@@ -822,6 +855,9 @@
       "subject": "Physique-Chimie",
       "title": "Physique-Chimie Terminale",
       "subtitle": "Préparer les chapitres fondamentaux de Terminale pour un démarrage efficace",
+      "prerequisites": "Les acquis de Première en mécanique, chimie quantitative et exploitation de données.",
+      "differentiation": "Aides graduées, calculs intermédiaires et problèmes d'approfondissement selon le profil.",
+      "quickAssessment": "Mini-problème scientifique corrigé sur la modélisation, les unités et la conclusion.",
       "sessions": [
         {
           "number": 1,
