@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
 import { ScheduleSection } from '@/components/pre-rentree-2026/ScheduleSection';
@@ -30,7 +30,11 @@ describe('Pré-rentrée landing sections', () => {
 
     expect(screen.getByRole('tab', { name: 'Par niveau' })).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByRole('button', { name: 'Seconde' })).toBeInTheDocument();
-    await user.click(screen.getByRole('tab', { name: 'Par semaine' }));
+    const levelTab = screen.getByRole('tab', { name: 'Par niveau' });
+    const weekTab = screen.getByRole('tab', { name: 'Par semaine' });
+    levelTab.focus();
+    await user.keyboard('{ArrowRight}');
+    expect(weekTab).toHaveFocus();
     expect(screen.getByText('Semaine 1')).toBeInTheDocument();
     expect(screen.getByText('Semaine 2')).toBeInTheDocument();
     expect(screen.getAllByText(/Bloc A/).length).toBeGreaterThan(0);
@@ -49,6 +53,22 @@ describe('Pré-rentrée landing sections', () => {
     expect(screen.getByText(firstModule?.quickAssessment ?? '')).toBeInTheDocument();
     expect(screen.getByText(firstModule?.sessions[0]?.method ?? '')).toBeInTheDocument();
     expect(screen.getByText(firstModule?.sessions[0]?.deliverable ?? '')).toBeInTheDocument();
+  });
+
+  it('opens the level-specific module targeted by the configurator hash', () => {
+    render(<ProgramsSection modules={dto.modules} levels={dto.levels} subjects={dto.subjects} />);
+
+    window.location.hash = '#programme-premiere-mathematiques';
+    fireEvent(window, new HashChangeEvent('hashchange'));
+
+    expect(screen.getByRole('tab', { name: 'Première' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    expect(screen.getByRole('button', { name: /Mathématiques Première/i })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
   });
 
   it('renders four canonical packs with hourly price, deposit and balance', () => {

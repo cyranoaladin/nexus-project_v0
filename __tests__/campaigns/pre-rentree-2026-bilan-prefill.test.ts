@@ -37,6 +37,8 @@ describe('Pré-rentrée bilan prefill parser', () => {
     { programme: 'pre-rentree-2026', pack: 'pre2026-pack-1', niveau: 'AUTRE', matieres: 'FRANCAIS' },
     { programme: 'pre-rentree-2026', pack: 'pre2026-pack-1', niveau: 'SECONDE', matieres: 'AUTRE' },
     { programme: 'pre-rentree-2026', pack: 'pre2026-pack-4', niveau: 'SECONDE', matieres: 'MATHEMATIQUES,FRANCAIS,NSI,PHYSIQUE_CHIMIE,AUTRE' },
+    { programme: 'pre-rentree-2026', pack: 'pre2026-pack-1', niveau: 'PREMIERE', matieres: 'FRANCAIS', voie: 'GENERALE', profil_maths: 'MATHS_EDS' },
+    { programme: 'pre-rentree-2026', pack: 'pre2026-pack-1', niveau: 'TERMINALE', matieres: 'MATHEMATIQUES', voie: 'GENERALE', option_maths: 'AUCUNE' },
   ])('rejects invalid or oversized values: %#', (params) => {
     expect(parsePreRentreeBilanPrefill(params)).toBeNull();
   });

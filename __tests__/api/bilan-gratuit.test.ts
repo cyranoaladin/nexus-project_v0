@@ -137,6 +137,58 @@ describe('/api/bilan-gratuit', () => {
     );
   });
 
+  it('persists the validated campaign context as an actionable contact lead', async () => {
+    const userCreate = jest.fn()
+      .mockResolvedValueOnce({
+        id: 'parent-123',
+        email: 'jean.dupont@test.com',
+        firstName: 'Jean',
+        lastName: 'Dupont',
+      })
+      .mockResolvedValueOnce({
+        id: 'student-123',
+        email: 'marie.dupont.test@nexus-student.local',
+        firstName: 'Marie',
+        lastName: 'Dupont',
+      });
+    const contactLeadCreate = jest.fn().mockResolvedValue({ id: 'lead-123' });
+
+    jest.spyOn(prisma.user, 'findUnique').mockResolvedValue(null as never);
+    jest.spyOn(prisma, '$transaction').mockImplementation(async (callback) => {
+      if (typeof callback !== 'function') throw new Error('Transaction callback required');
+      return callback({
+        user: { create: userCreate },
+        parentProfile: { create: jest.fn().mockResolvedValue({ id: 'parent-profile-123' }) },
+        student: { create: jest.fn().mockResolvedValue({ id: 'student-profile-123' }) },
+        contactLead: { create: contactLeadCreate },
+      } as never);
+    });
+
+    const response = await POST(buildRequest({
+      ...validRequestData,
+      campaignContext: {
+        programme: 'pre-rentree-2026',
+        packId: 'pre2026-pack-2',
+        level: 'PREMIERE',
+        subjectIds: ['MATHEMATIQUES', 'FRANCAIS'],
+        profile: {
+          voie: 'GENERALE',
+          mathsProfile: 'MATHS_EDS',
+          eafProfile: 'EAF_GENERALE',
+        },
+      },
+    }));
+
+    expect(response.status).toBe(200);
+    expect(contactLeadCreate).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        source: 'pre-rentree-2026',
+        interest: expect.stringContaining('pre2026-pack-2'),
+        profile: expect.stringContaining('MATHS_EDS'),
+      }),
+    });
+  });
+
   it('ignores an injected parentPassword and still creates inactive accounts', async () => {
     const userCreate = jest.fn()
       .mockResolvedValueOnce({

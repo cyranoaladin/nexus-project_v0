@@ -1,4 +1,5 @@
 import { getPreRentreePacks } from '@/lib/pricing';
+import { LEGAL } from '@/lib/legal';
 import {
   getPreRentreeCampaign,
   getPreRentreeLandingDTO,
@@ -27,6 +28,20 @@ describe('Pré-rentrée 2026 landing DTO', () => {
     expect(dto.seo.canonical).toBe('/stages/pre-rentree-2026');
     expect(dto.capacity).toEqual({ minPerCohort: 3, maxPerCohort: 5 });
     expect(dto.blocks).toHaveLength(4);
+    expect(dto.content.hero.subtitle).toContain(
+      'initiation informatique, algorithmique et SNT en Seconde',
+    );
+    expect(dto.content.hero.subtitle).not.toMatch(/NSI en Seconde|EDS NSI/i);
+  });
+
+  it('uses the canonical pedagogical address in the landing DTO', () => {
+    const { venue } = getPreRentreeLandingDTO().campaign;
+
+    expect(venue).toEqual({
+      name: `${LEGAL.entity.tradeName} — ${LEGAL.addresses.pedagogique.neighborhood}`,
+      neighborhood: LEGAL.addresses.pedagogique.neighborhood,
+      city: LEGAL.addresses.pedagogique.city,
+    });
   });
 
   it('exposes normalized academic profiles without a Seconde EDS', () => {
@@ -56,6 +71,17 @@ describe('Pré-rentrée 2026 landing DTO', () => {
         expect(session.deliverable.length).toBeGreaterThan(0);
       }
     }
+  });
+
+  it('distinguishes Première EAF exercises without promising both tracks at once', () => {
+    const eaf = getPreRentreeLandingDTO().modules.find(
+      (campaignModule) => campaignModule.id === 'premiere-francais-eaf',
+    );
+    const trackSession = eaf?.sessions[1];
+
+    expect(trackSession?.title).toContain('selon la voie');
+    expect(trackSession?.deliverable).toMatch(/ ou /i);
+    expect(eaf?.differentiation).toMatch(/validation pédagogique/i);
   });
 
   it('derives a pedagogical summary for every level-specific subject card', () => {

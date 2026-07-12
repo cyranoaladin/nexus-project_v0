@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import StageConfigurator from '@/components/pre-rentree-2026/StageConfigurator';
 import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
+import { track } from '@/lib/analytics';
 
 jest.mock('@/lib/analytics', () => ({
   track: {
@@ -46,6 +47,8 @@ describe('Pré-rentrée stage configurator', () => {
     await user.click(screen.getByRole('radio', { name: 'Voie générale' }));
     await user.click(screen.getByRole('radio', { name: 'Maths EDS' }));
     await user.click(screen.getByRole('radio', { name: 'EAF voie générale' }));
+    expect(track.preRentreeTrackSelected).toHaveBeenCalledWith('maths_eds');
+    expect(track.preRentreeTrackSelected).toHaveBeenCalledWith('eaf_generale');
     await user.click(screen.getByRole('button', { name: 'Continuer' }));
 
     expect(screen.getAllByRole('checkbox')).toHaveLength(4);
@@ -63,6 +66,22 @@ describe('Pré-rentrée stage configurator', () => {
     const bilan = screen.getByRole('link', { name: /Poursuivre vers le bilan/i });
     expect(bilan).toHaveAttribute('href', expect.stringContaining('pack=pre2026-pack-2'));
     expect(bilan.getAttribute('href')).not.toMatch(/price|prix/i);
+  });
+
+  it('links to a level-specific program without nesting an action inside the choice label', async () => {
+    const user = userEvent.setup();
+    renderConfigurator();
+
+    await user.click(screen.getByRole('radio', { name: 'Première' }));
+    await user.click(screen.getByRole('button', { name: 'Continuer' }));
+    await user.click(screen.getByRole('radio', { name: 'Voie générale' }));
+    await user.click(screen.getByRole('radio', { name: 'Maths EDS' }));
+    await user.click(screen.getByRole('radio', { name: 'EAF voie générale' }));
+    await user.click(screen.getByRole('button', { name: 'Continuer' }));
+
+    const link = screen.getAllByRole('link', { name: 'Consulter le programme' })[0];
+    expect(link).toHaveAttribute('href', '#programme-premiere-mathematiques');
+    expect(link.closest('label')).toBeNull();
   });
 
   it('skips EDS profiles for Seconde and shows four level-specific subjects', async () => {

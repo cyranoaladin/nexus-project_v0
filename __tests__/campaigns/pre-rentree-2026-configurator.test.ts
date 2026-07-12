@@ -14,6 +14,47 @@ import {
 const dto = getPreRentreeLandingDTO();
 
 describe('Pré-rentrée configurator logic', () => {
+  it('builds all 45 level and subject configurations from DTO facts', () => {
+    let configurationCount = 0;
+    for (const level of dto.levels) {
+      const availableSubjects = dto.subjects.filter((subject) =>
+        subject.levels.includes(level.id),
+      );
+
+      for (let mask = 1; mask < 2 ** availableSubjects.length; mask += 1) {
+        const subjectIds: string[] = availableSubjects
+          .filter((_, index) => (mask & (1 << index)) !== 0)
+          .map((subject) => subject.id);
+        const summary = buildSelectionSummary({
+          level: level.id,
+          profile: {},
+          subjectIds,
+          levels: dto.levels,
+          subjects: dto.subjects,
+          packs: dto.packs,
+          schedule: dto.schedule,
+        });
+        const pack = dto.packs.find(
+          (candidate) => candidate.subjectsCount === subjectIds.length,
+        );
+        const selectedSlots = dto.schedule.filter(
+          (slot) => slot.level === level.id && subjectIds.includes(slot.subject),
+        );
+
+        expect(summary.pack).toEqual(pack);
+        expect(summary.totalHours).toBe(pack?.totalHours);
+        expect(summary.sessionCount).toBe(selectedSlots.length);
+        expect(summary.dates).toEqual(
+          [...new Set(selectedSlots.map((slot) => slot.date))].sort(),
+        );
+        expect(summary.scheduleLines).toHaveLength(subjectIds.length);
+        expect(summary.scheduleLines.every((line) => line.dates.length === 5)).toBe(true);
+        configurationCount += 1;
+      }
+    }
+    expect(configurationCount).toBe(45);
+  });
+
   it('skips the profile step only for Seconde', () => {
     expect(getNextConfiguratorStep(1, 'SECONDE')).toBe(3);
     expect(getPreviousConfiguratorStep(3, 'SECONDE')).toBe(1);
@@ -122,7 +163,10 @@ describe('Pré-rentrée configurator logic', () => {
     const message = buildWhatsAppMessage(summary);
     expect(message).toContain('Pré-rentrée Nexus 2026');
     expect(message).toContain('20 heures');
-    expect(message).toContain('pre2026-pack-2');
+    expect(message).toContain('Pack : 2 matières');
+    expect(message).not.toContain('pre2026-pack-2');
+    expect(message).toContain('lun. 17 août');
+    expect(message).not.toContain('2026-08-17');
     expect(message).toContain(String(summary.pack?.deposit));
     expect(message).not.toMatch(/@|\+216|99192829/);
   });

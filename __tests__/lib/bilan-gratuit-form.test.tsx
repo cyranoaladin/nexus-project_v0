@@ -73,7 +73,36 @@ describe('BilanGratuitPage', () => {
     expect(screen.getByLabelText('Classe')).toHaveValue('premiere');
     expect(screen.getByLabelText('Mathématiques')).toBeChecked();
     expect(screen.getByLabelText('Français')).toBeChecked();
+    expect(screen.getByText(/Profil pédagogique.*Voie générale, Maths EDS, EAF voie générale/i)).toBeInTheDocument();
     expect(screen.queryByText(/1 TND/)).not.toBeInTheDocument();
+
+    fillInput('parentFirstName', 'Jean');
+    fillInput('parentLastName', 'Dupont');
+    fillInput('parentEmail', 'jean.dupont@example.com');
+    fillInput('parentPhone', '+21699192829');
+    fillInput('studentFirstName', 'Marie');
+    fillInput('studentSchool', 'Lycée Victor Hugo');
+    fillInput('objectives', 'Préparer sérieusement la rentrée scolaire');
+    await userEvent.click(screen.getByRole('checkbox', { name: /j.*accepte/i }));
+    await userEvent.click(screen.getByRole('button', { name: /demander mon bilan stratégique gratuit/i }));
+
+    await waitFor(() => {
+      const request = mockFetch.mock.calls[0]?.[1];
+      const payload = JSON.parse(String(request?.body)) as Record<string, unknown>;
+      expect(payload).toMatchObject({
+        campaignContext: {
+          programme: 'pre-rentree-2026',
+          packId: 'pre2026-pack-2',
+          level: 'PREMIERE',
+          subjectIds: ['MATHEMATIQUES', 'FRANCAIS'],
+          profile: {
+            voie: 'GENERALE',
+            mathsProfile: 'MATHS_EDS',
+            eafProfile: 'EAF_GENERALE',
+          },
+        },
+      });
+    });
   });
 
   it('shows fail-closed payment guidance for a selected offer without public ClicToPay or RIB/IBAN', async () => {

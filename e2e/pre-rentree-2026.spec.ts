@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 import fs from 'node:fs';
 
 const CAMPAIGN_PATH = '/stages/pre-rentree-2026';
@@ -85,6 +86,8 @@ test.describe('Landing Pré-rentrée 2026', () => {
     await expect(page.getByRole('radio', { name: 'EAF voie technologique' })).toBeVisible();
     await completePremiereProfile(page);
     await expect(page.locator('#configurateur').getByRole('checkbox')).toHaveCount(4);
+    await page.locator('#configurateur').getByRole('link', { name: 'Consulter le programme' }).first().click();
+    await expect(page.getByRole('button', { name: /Mathématiques Première/i })).toHaveAttribute('aria-expanded', 'true');
 
     await openConfigurator(page, 'Terminale');
     await expect(page.getByRole('radio', { name: 'Maths expertes' })).toBeVisible();
@@ -114,7 +117,9 @@ test.describe('Landing Pré-rentrée 2026', () => {
     expect(whatsappHref).toMatch(/^https:\/\/wa\.me\/21699192829\?text=/);
     const message = decodeURIComponent(new URL(whatsappHref ?? '').searchParams.get('text') ?? '');
     expect(message).toContain('Volume : 40 heures');
-    expect(message).toContain('Pack : pre2026-pack-4');
+    expect(message).toContain('Pack : 4 matières');
+    expect(message).not.toContain('pre2026-pack-4');
+    expect(message).toContain('lun. 17 août');
     expect(message).not.toMatch(/email|téléphone|établissement/i);
 
     await bilan.click();
@@ -153,6 +158,26 @@ test.describe('Landing Pré-rentrée 2026', () => {
     await expect(
       page.getByRole('link', { name: /Échangez avec un conseiller Nexus/i }),
     ).toHaveCount(0);
+  });
+
+  test('ne présente aucune violation axe sérieuse ou critique', async ({ page }) => {
+    await page.goto(CAMPAIGN_PATH);
+    const results = await new AxeBuilder({ page }).analyze();
+    const blockingViolations = results.violations.filter(
+      (violation) => violation.impact === 'serious' || violation.impact === 'critical',
+    );
+    expect(blockingViolations).toEqual([]);
+  });
+
+  test('reste lisible avec un zoom navigateur à 200 %', async ({ page }) => {
+    await page.setViewportSize({ width: 720, height: 500 });
+    await page.goto(CAMPAIGN_PATH);
+    const client = await page.context().newCDPSession(page);
+    await client.send('Emulation.setPageScaleFactor', { pageScaleFactor: 2 });
+
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Composer le stage de mon enfant' })).toBeVisible();
+    await expectNoHorizontalOverflow(page);
   });
 
   test('reste utilisable à 390 px et 320 px, sans paiement ni disponibilité inventée', async ({ page }) => {
@@ -218,7 +243,7 @@ test.describe('Landing Pré-rentrée 2026', () => {
 
     const programme = page.getByRole('button', { name: /Mathématiques Seconde/i });
     await programme.click();
-    await page.locator('#programme-mathematiques').screenshot({ path: `${EVIDENCE_DIR}/program-open.png` });
+    await page.locator('#programme-seconde-mathematiques').screenshot({ path: `${EVIDENCE_DIR}/program-open.png` });
 
     const faq = page.getByRole('button', { name: 'Mon enfant peut-il suivre plusieurs matières ?' });
     await faq.click();
