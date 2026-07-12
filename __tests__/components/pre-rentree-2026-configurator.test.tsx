@@ -62,12 +62,15 @@ describe('Pré-rentrée stage configurator', () => {
     expect(screen.getByText(`${pack?.price.toLocaleString('fr-TN')} TND`)).toBeInTheDocument();
     expect(screen.getByText(`Acompte : ${pack?.deposit.toLocaleString('fr-TN')} TND`)).toBeInTheDocument();
     expect(screen.getByText(`Solde : ${pack?.balance.toLocaleString('fr-TN')} TND`)).toBeInTheDocument();
-    expect(screen.getByText('Pré-inscription ouverte')).toBeInTheDocument();
+    expect(screen.getAllByText('Pré-inscriptions ouvertes').length).toBeGreaterThan(0);
+    expect(document.body.textContent).not.toContain('PRE_REGISTRATION_OPEN');
     expect(screen.getByText(/validation du groupe par l'équipe Nexus/i)).toBeInTheDocument();
 
     const bilan = screen.getByRole('link', { name: /Poursuivre vers le bilan/i });
     expect(bilan).toHaveAttribute('href', expect.stringContaining('pack=pre2026-pack-2'));
     expect(bilan.getAttribute('href')).not.toMatch(/price|prix/i);
+    expect(screen.getByText('Du lundi 17 au vendredi 21 août · 10:45–12:45')).toBeInTheDocument();
+    expect(screen.getByText('(nouvel onglet)')).toHaveClass('sr-only');
   });
 
   it('links to a level-specific program without nesting an action inside the choice label', async () => {
@@ -99,6 +102,30 @@ describe('Pré-rentrée stage configurator', () => {
       (campaignModule) => campaignModule.level === 'SECONDE' && campaignModule.subjectId === 'NSI',
     )?.subtitle ?? '')).toBeInTheDocument();
     expect(screen.getAllByRole('checkbox')).toHaveLength(4);
+  });
+
+  it('uses the four centralized subject themes in choices and summary', async () => {
+    const user = userEvent.setup();
+    const { container } = render(
+      <StageConfigurator
+        levels={dto.levels}
+        subjects={dto.subjects}
+        packs={dto.packs}
+        schedule={dto.schedule}
+        academicProfiles={dto.academicProfiles}
+        groupCompositionNotice={dto.content.practical.groupCompositionNotice}
+        campaignStatus={dto.status}
+      />,
+    );
+
+    await user.click(screen.getByRole('radio', { name: 'Entrée en Seconde' }));
+    await user.click(screen.getByRole('button', { name: 'Continuer' }));
+
+    for (const family of ['MATHEMATIQUES', 'FRANCAIS', 'NSI_SNT', 'PHYSIQUE_CHIMIE']) {
+      expect(container.querySelector(`[data-subject-family="${family}"]`)).toBeInTheDocument();
+    }
+    await user.click(screen.getByRole('checkbox', { name: /Mathématiques/i }));
+    expect(container.querySelectorAll('[data-subject-family="MATHEMATIQUES"]').length).toBeGreaterThanOrEqual(2);
   });
 
   it('limits Terminale retained specialties to two', async () => {

@@ -32,6 +32,17 @@ describe('Pré-rentrée 2026 landing DTO', () => {
       'initiation informatique, algorithmique et SNT pour l’entrée en Seconde',
     );
     expect(dto.content.hero.subtitle).not.toMatch(/NSI en Seconde|EDS NSI/i);
+    expect(dto.scheduleWeeks).toHaveLength(2);
+    expect(dto.scheduleWeeks.flatMap((week) => week.slots)).toHaveLength(12);
+    expect(dto.roomRoles).toEqual({
+      'salle-1': ['MATHEMATIQUES', 'NSI'],
+      'salle-2': ['FRANCAIS', 'PHYSIQUE_CHIMIE'],
+    });
+    expect(Object.keys(dto.teacherRoles)).toEqual([
+      'MATHS_NSI_SNT_TEACHER',
+      'FRENCH_TEACHER',
+      'PHYSICS_CHEMISTRY_TEACHER',
+    ]);
   });
 
   it('uses the canonical pedagogical address in the landing DTO', () => {

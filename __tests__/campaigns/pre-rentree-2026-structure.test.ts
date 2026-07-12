@@ -31,6 +31,13 @@ describe('Pré-rentrée landing structural guardrails', () => {
     expect(violations).toEqual([]);
   });
 
+  it('keeps approved dates and time slots out of the new schedule component', () => {
+    const source = fs.readFileSync(path.join(root, 'components/pre-rentree-2026/ScheduleSection.tsx'), 'utf8');
+    expect(source).not.toMatch(/2026-08-(?:17|21|24|28)/);
+    expect(source).not.toMatch(/(?:08:30|10:30|10:45|12:45|13:30|15:30|15:45|17:45)/);
+    expect(source).not.toMatch(/\b(?:480|900|1350|1800)\b/);
+  });
+
   it('introduces no bypass comments, TODOs or explicit any in campaign code', () => {
     const campaignFiles = [
       ...componentFiles,

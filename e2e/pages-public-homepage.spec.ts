@@ -45,9 +45,10 @@ test.describe('Homepage (/) - Landing Nexus Reussite', () => {
     await expect(page.locator('section a[href="/offres"]').first()).toBeVisible();
   });
 
-  test('9 sections principales dans <main>', async ({ page }) => {
+  test('10 sections principales dans <main>, dont la campagne Pré-rentrée', async ({ page }) => {
     const sections = page.locator('main > section');
-    await expect(sections).toHaveCount(9);
+    await expect(sections).toHaveCount(10);
+    await expect(page.getByRole('region', { name: 'Campagne Pré-rentrée 2026' })).toBeVisible();
   });
 
   test('2 WA links at load, 3 visible after scroll (+ bubble), MobileStickyBar in DOM but hidden', async ({ page }) => {

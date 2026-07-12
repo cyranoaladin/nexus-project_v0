@@ -1,12 +1,14 @@
 import '@testing-library/jest-dom';
 import { StrictMode } from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import PreRentree2026Page, { generateMetadata } from '@/app/stages/pre-rentree-2026/page';
 import { CampaignPageTracker } from '@/components/pre-rentree-2026/CampaignPageTracker';
 import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
 import { track } from '@/lib/analytics';
 
 jest.mock('@/lib/analytics', () => ({
+  toPreRentreeEntryLevel: (level: string) => level.toLowerCase(),
   track: {
     preRentreePageView: jest.fn(),
     preRentreeLevelSelected: jest.fn(),
@@ -44,7 +46,8 @@ describe('Pré-rentrée 2026 page', () => {
     const { container } = render(<PreRentree2026Page />);
 
     expect(screen.getByRole('heading', { level: 1, name: dto.content.hero.h1 })).toBeInTheDocument();
-    expect(screen.getByText(/Statut de campagne.*PRE_REGISTRATION_OPEN/i)).toBeInTheDocument();
+    expect(screen.getByText(/Statut de campagne.*Pré-inscriptions ouvertes/i)).toBeInTheDocument();
+    expect(container.textContent).not.toContain('PRE_REGISTRATION_OPEN');
     expect(screen.getAllByText(/Aucun paiement en ligne n[’']est demandé/i).length).toBeGreaterThan(0);
     expect(container.textContent).not.toMatch(/15\s*h(?:eures)?/i);
     expect(container.textContent).not.toMatch(/places? restantes?/i);
@@ -67,5 +70,29 @@ describe('Pré-rentrée 2026 page', () => {
     const json = structured?.textContent ?? '';
     expect(json).toContain('FAQPage');
     expect(json).not.toMatch(/availability|AggregateOffer|rating/i);
+  });
+
+  it('synchronizes configured entry class with planning and programs without mutating the form from tabs', async () => {
+    const user = userEvent.setup();
+    render(<PreRentree2026Page />);
+
+    const planning = screen.getByRole('heading', { name: 'Planning et emplois du temps' }).closest('section');
+    const programs = screen.getByRole('heading', { name: 'Programmes détaillés' }).closest('section');
+    if (!planning || !programs) throw new Error('Campaign sections missing');
+
+    expect(screen.getByRole('radio', { name: 'Entrée en Seconde' })).not.toBeChecked();
+    expect(within(planning).getByRole('tab', { name: 'Entrée en Seconde' })).toHaveAttribute('aria-selected', 'true');
+    expect(within(programs).getByRole('tab', { name: 'Entrée en Seconde' })).toHaveAttribute('aria-selected', 'true');
+
+    await user.click(screen.getByRole('radio', { name: 'Entrée en Première' }));
+    expect(within(planning).getByRole('tab', { name: 'Entrée en Première' })).toHaveAttribute('aria-selected', 'true');
+    expect(within(programs).getByRole('tab', { name: 'Entrée en Première' })).toHaveAttribute('aria-selected', 'true');
+
+    await user.click(within(planning).getByRole('tab', { name: 'Entrée en Terminale' }));
+    expect(screen.getByRole('radio', { name: 'Entrée en Première' })).toBeChecked();
+    expect(within(programs).getByRole('tab', { name: 'Entrée en Première' })).toHaveAttribute('aria-selected', 'true');
+
+    await user.click(within(programs).getByRole('tab', { name: 'Entrée en Terminale' }));
+    expect(screen.getByRole('radio', { name: 'Entrée en Première' })).toBeChecked();
   });
 });

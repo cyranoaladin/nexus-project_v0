@@ -3,7 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 import fs from 'node:fs';
 
 const CAMPAIGN_PATH = '/stages/pre-rentree-2026';
-const EVIDENCE_DIR = '/tmp/nexus-pre-rentree-2026-final-preview';
+const EVIDENCE_DIR = '/tmp/nexus-pre-rentree-2026-planning-ui';
 
 async function openConfigurator(page: Page, level: 'Seconde' | 'Première' | 'Terminale') {
   await page.goto(CAMPAIGN_PATH);
@@ -31,6 +31,33 @@ async function expectNoHorizontalOverflow(page: Page) {
     document: document.documentElement.scrollWidth,
   }));
   expect(dimensions.document).toBeLessThanOrEqual(dimensions.viewport);
+}
+
+async function expectNoBlockingAxeViolations(page: Page, include?: string) {
+  const builder = new AxeBuilder({ page });
+  const results = await (include ? builder.include(include) : builder).analyze();
+  const blockingViolations = results.violations.filter(
+    (violation) => violation.impact === 'serious' || violation.impact === 'critical',
+  );
+  expect(blockingViolations).toEqual([]);
+}
+
+async function captureSection(page: Page, selector: string, path: string) {
+  const headerDisplays = await page.locator('header').evaluateAll((headers) => headers.map((header) => {
+    const element = header as HTMLElement;
+    const current = element.style.display;
+    element.style.display = 'none';
+    return current;
+  }));
+  try {
+    await page.locator(selector).screenshot({ path });
+  } finally {
+    await page.locator('header').evaluateAll((headers, displays) => {
+      headers.forEach((header, index) => {
+        (header as HTMLElement).style.display = displays[index] ?? '';
+      });
+    }, headerDisplays);
+  }
 }
 
 test.describe('Landing Pré-rentrée 2026', () => {
@@ -136,8 +163,13 @@ test.describe('Landing Pré-rentrée 2026', () => {
     const levelView = page.getByRole('tab', { name: 'Par classe de rentrée' });
     await levelView.focus();
     await levelView.press('ArrowRight');
-    await expect(page.getByRole('tab', { name: 'Par semaine' })).toHaveAttribute('aria-selected', 'true');
-    await expect(page.getByRole('tabpanel', { name: 'Par semaine' })).toContainText('Bloc A');
+    await expect(page.getByRole('tab', { name: 'Emploi du temps par semaine' })).toHaveAttribute('aria-selected', 'true');
+    await expect(page.getByRole('tab', { name: 'Semaine 1 · 17–21 août' })).toHaveAttribute('aria-selected', 'true');
+    await expect(page.getByRole('table', { name: 'Emploi du temps — Semaine 1 · 17–21 août' })).toContainText('Bloc A');
+    const weekOne = page.getByRole('tab', { name: 'Semaine 1 · 17–21 août' });
+    await weekOne.focus();
+    await weekOne.press('End');
+    await expect(page.getByRole('tab', { name: 'Semaine 2 · 24–28 août' })).toHaveAttribute('aria-selected', 'true');
 
     const programme = page.getByRole('button', { name: /Mathématiques — Entrée en Seconde/i });
     await programme.focus();
@@ -152,6 +184,30 @@ test.describe('Landing Pré-rentrée 2026', () => {
     await expect(page.getByRole('region', { name: /Mon enfant entrant en Seconde, Première ou Terminale/i })).toBeVisible();
   });
 
+  test('synchronise configurateur, planning et programmes sans muter le formulaire depuis les vues', async ({ page }) => {
+    await page.goto(CAMPAIGN_PATH);
+    const configurator = page.locator('#configurateur');
+    const planning = page.locator('#planning');
+    const programs = page.locator('#programmes');
+
+    await expect(configurator.getByRole('radio', { name: 'Entrée en Seconde' })).not.toBeChecked();
+    await expect(planning.getByRole('tab', { name: 'Entrée en Seconde' })).toHaveAttribute('aria-selected', 'true');
+    await expect(programs.getByRole('tab', { name: 'Entrée en Seconde' })).toHaveAttribute('aria-selected', 'true');
+
+    await configurator.getByRole('radio', { name: 'Entrée en Première' }).click();
+    await expect(planning.getByRole('tab', { name: 'Entrée en Première' })).toHaveAttribute('aria-selected', 'true');
+    await expect(programs.getByRole('tab', { name: 'Entrée en Première' })).toHaveAttribute('aria-selected', 'true');
+
+    await planning.getByRole('tab', { name: 'Entrée en Terminale' }).click();
+    await expect(configurator.getByRole('radio', { name: 'Entrée en Première' })).toBeChecked();
+    await expect(programs.getByRole('tab', { name: 'Entrée en Première' })).toHaveAttribute('aria-selected', 'true');
+
+    await programs.getByRole('tab', { name: 'Entrée en Terminale' }).click();
+    await expect(configurator.getByRole('radio', { name: 'Entrée en Première' })).toBeChecked();
+    await planning.getByRole('tab', { name: 'Entrée en Première' }).click();
+    await expect(planning.getByRole('table', { name: 'Planning — Entrée en Première' })).toBeVisible();
+  });
+
   test('ne laisse pas la bulle globale masquer les programmes ou la FAQ', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto(CAMPAIGN_PATH);
@@ -162,13 +218,16 @@ test.describe('Landing Pré-rentrée 2026', () => {
     ).toHaveCount(0);
   });
 
-  test('ne présente aucune violation axe sérieuse ou critique', async ({ page }) => {
+  test('ne présente aucune violation axe sérieuse ou critique dans les vues de campagne', async ({ page }) => {
     await page.goto(CAMPAIGN_PATH);
-    const results = await new AxeBuilder({ page }).analyze();
-    const blockingViolations = results.violations.filter(
-      (violation) => violation.impact === 'serious' || violation.impact === 'critical',
-    );
-    expect(blockingViolations).toEqual([]);
+    await expectNoBlockingAxeViolations(page, '#planning');
+    await page.getByRole('tab', { name: 'Emploi du temps par semaine' }).click();
+    await expectNoBlockingAxeViolations(page, '#planning');
+    await page.getByRole('tab', { name: 'Semaine 2 · 24–28 août' }).click();
+    await expectNoBlockingAxeViolations(page, '#planning');
+    await page.locator('#configurateur').getByRole('radio', { name: 'Entrée en Première' }).click();
+    await expectNoBlockingAxeViolations(page, '#configurateur');
+    await expectNoBlockingAxeViolations(page, '#programmes');
   });
 
   test('reste lisible avec un zoom navigateur à 200 %', async ({ page }) => {
@@ -198,63 +257,57 @@ test.describe('Landing Pré-rentrée 2026', () => {
       await summaryToggle.click();
       await expect(page.getByRole('link', { name: 'Poursuivre vers le bilan prérempli' })).toBeVisible();
       await page.getByRole('button', { name: 'Réduire le résumé' }).click();
+      await page.locator('#planning').scrollIntoViewIfNeeded();
+      await expect(page.locator('#planning').getByRole('article', { name: /Mathématiques, semaine 1/i })).toBeVisible();
+      await expect(page.locator('#planning').getByRole('table', { name: 'Planning — Entrée en Seconde' })).not.toBeVisible();
       await expectNoHorizontalOverflow(page);
     }
   });
 
   test('produit les captures de preuve non commitées', async ({ page }) => {
     fs.mkdirSync(EVIDENCE_DIR, { recursive: true });
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto(CAMPAIGN_PATH);
+    await page.evaluate(() => document.fonts.ready);
+    const planning = page.locator('#planning');
+    for (const { level, slug } of [
+      { level: 'Seconde', slug: 'seconde' },
+      { level: 'Première', slug: 'premiere' },
+      { level: 'Terminale', slug: 'terminale' },
+    ] as const) {
+      await planning.getByRole('tab', { name: `Entrée en ${level}` }).click();
+      await captureSection(page, '#planning', `${EVIDENCE_DIR}/planning-par-classe-${slug}-desktop.png`);
+    }
+    await planning.getByRole('tab', { name: 'Emploi du temps par semaine' }).click();
+    await captureSection(page, '#planning', `${EVIDENCE_DIR}/emploi-du-temps-semaine-1-desktop.png`);
+    await planning.getByRole('tab', { name: 'Semaine 2 · 24–28 août' }).click();
+    await captureSection(page, '#planning', `${EVIDENCE_DIR}/emploi-du-temps-semaine-2-desktop.png`);
 
     for (const viewport of [
-      { name: 'desktop-1440x1000', width: 1440, height: 1000 },
-      { name: 'tablet-768x1024', width: 768, height: 1024 },
-      { name: 'mobile-390x844', width: 390, height: 844 },
-      { name: 'mobile-320x800', width: 320, height: 800 },
+      { name: 'planning-tablette.png', width: 768, height: 1024 },
+      { name: 'planning-mobile-390.png', width: 390, height: 844 },
+      { name: 'planning-mobile-320.png', width: 320, height: 800 },
     ]) {
       await page.setViewportSize(viewport);
       await page.goto(CAMPAIGN_PATH);
       await page.evaluate(() => document.fonts.ready);
-      await page.screenshot({ path: `${EVIDENCE_DIR}/${viewport.name}.png`, fullPage: true });
+      await captureSection(page, '#planning', `${EVIDENCE_DIR}/${viewport.name}`);
     }
+
+    await page.setViewportSize({ width: 720, height: 500 });
+    await page.goto(CAMPAIGN_PATH);
+    const client = await page.context().newCDPSession(page);
+    await client.send('Emulation.setPageScaleFactor', { pageScaleFactor: 2 });
+    await captureSection(page, '#planning', `${EVIDENCE_DIR}/planning-zoom-200.png`);
+    await client.send('Emulation.setPageScaleFactor', { pageScaleFactor: 1 });
+    await client.detach();
 
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto(CAMPAIGN_PATH);
-    await page.locator('main > section').first().screenshot({ path: `${EVIDENCE_DIR}/hero.png` });
-    await page.locator('#configurateur').screenshot({ path: `${EVIDENCE_DIR}/configurator-empty.png` });
-
-    await openConfigurator(page, 'Seconde');
-    await page.locator('#configurateur').screenshot({ path: `${EVIDENCE_DIR}/entry-seconde.png` });
-
-    await openConfigurator(page, 'Première');
-    await completePremiereProfile(page);
-    await page.locator('#configurateur').screenshot({ path: `${EVIDENCE_DIR}/entry-premiere.png` });
-    const twoSubjects = page.locator('#configurateur').getByRole('checkbox');
-    await twoSubjects.nth(0).click();
-    await twoSubjects.nth(1).click();
-    await page.getByRole('button', { name: 'Voir mon résumé' }).click();
-    await page.locator('#configurateur').screenshot({ path: `${EVIDENCE_DIR}/configurator-two-subjects.png` });
-
-    await openConfigurator(page, 'Terminale');
-    await completeTerminaleProfile(page);
-    await page.locator('#configurateur').screenshot({ path: `${EVIDENCE_DIR}/entry-terminale.png` });
-    const fourSubjects = page.locator('#configurateur').getByRole('checkbox');
-    for (let index = 0; index < 4; index += 1) await fourSubjects.nth(index).click();
-    await page.getByRole('button', { name: 'Voir mon résumé' }).click();
-    await page.locator('#configurateur').screenshot({ path: `${EVIDENCE_DIR}/configurator-four-subjects.png` });
-
-    const planning = page.locator('#planning');
-    for (const level of ['Seconde', 'Première', 'Terminale']) {
-      await planning.getByRole('button', { name: `Entrée en ${level}` }).click();
-      await planning.screenshot({ path: `${EVIDENCE_DIR}/planning-${level.toLowerCase()}.png` });
-    }
-
-    const programme = page.getByRole('button', { name: /Mathématiques — Entrée en Seconde/i });
-    await programme.click();
-    await page.locator('#programme-seconde-mathematiques').screenshot({ path: `${EVIDENCE_DIR}/program-open.png` });
-
-    const faq = page.getByRole('button', { name: /Mon enfant entrant en Seconde, Première ou Terminale/i });
-    await faq.click();
-    await page.locator('section[aria-labelledby="faq-heading"]').screenshot({ path: `${EVIDENCE_DIR}/faq.png` });
-    await page.getByRole('heading', { name: 'Prêt à préparer la rentrée ?' }).locator('..').screenshot({ path: `${EVIDENCE_DIR}/final-cta.png` });
+    await page.locator('#configurateur').getByRole('radio', { name: 'Entrée en Première' }).click();
+    await expect(page.locator('#planning').getByRole('tab', { name: 'Entrée en Première' })).toHaveAttribute('aria-selected', 'true');
+    await page.screenshot({ path: `${EVIDENCE_DIR}/configurateur-planning-synchronise.png`, fullPage: true });
+    await expect(page.locator('#programmes').getByRole('tab', { name: 'Entrée en Première' })).toHaveAttribute('aria-selected', 'true');
+    await captureSection(page, '#programmes', `${EVIDENCE_DIR}/programmes-synchronises.png`);
   });
 });
