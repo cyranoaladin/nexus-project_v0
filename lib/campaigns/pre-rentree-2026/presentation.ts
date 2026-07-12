@@ -111,3 +111,35 @@ export function formatDetailedDates(dates: readonly string[]): string {
     .map((date) => weekdayDayMonthFormatter.format(campaignDate(date)))
     .join(', ');
 }
+
+export function formatCampaignDateCartouche(start: string, end: string) {
+  const startParts = dateParts(start);
+  const endParts = dateParts(end);
+  const sameMonth = startParts.month === endParts.month;
+  const sameYear = startParts.year === endParts.year;
+  const days = sameMonth
+    ? `${startParts.day}–${endParts.day}`
+    : `${startParts.day} ${startParts.month}–${endParts.day} ${endParts.month}`;
+  const month = sameMonth
+    ? endParts.month.toLocaleUpperCase('fr-FR')
+    : `${startParts.month}–${endParts.month}`.toLocaleUpperCase('fr-FR');
+  const year = sameYear ? endParts.year : `${startParts.year}–${endParts.year}`;
+  const period = sameMonth
+    ? `${startParts.day} au ${endParts.day} ${endParts.month}`
+    : `${startParts.day} ${startParts.month} au ${endParts.day} ${endParts.month}`;
+
+  return {
+    days,
+    month,
+    year,
+    accessibleLabel: `Du ${period} ${year}.`,
+    chipLabel: `du ${period}`,
+  };
+}
+
+export function formatEntryClassList(labels: readonly string[]): string {
+  const classes = labels.map((label) => label.replace(/^Entrée en /, ''));
+  if (classes.length === 0) return '';
+  if (classes.length === 1) return `Entrée en ${classes[0]}`;
+  return `Entrée en ${classes.slice(0, -1).join(', ')} ou ${classes.at(-1)}`;
+}

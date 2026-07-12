@@ -9,6 +9,12 @@ import {
   PreRentreeModulesSchema,
 } from './schema';
 import type { EntryLevelCode, PreRentreeCampaignManifest } from './schema';
+import type { PreRentreeHomepageSpotlightDTO } from './homepage-spotlight';
+import {
+  formatCampaignDateCartouche,
+  formatCampaignStatus,
+  formatEntryClassList,
+} from './presentation';
 
 /**
  * Get the validated campaign manifest.
@@ -159,5 +165,37 @@ export function getPreRentreeLandingDTO() {
     featureFlags: campaign.featureFlags,
     legalRefs: campaign.legalRefs,
     status: campaign.status,
+  };
+}
+
+export function getPreRentreeHomepageSpotlightDTO(): PreRentreeHomepageSpotlightDTO {
+  const dto = getPreRentreeLandingDTO();
+  const date = formatCampaignDateCartouche(dto.campaign.startDate, dto.campaign.endDate);
+  const singleSubjectPack = dto.packs.find((pack) => pack.subjectsCount === 1);
+  if (!singleSubjectPack) {
+    throw new Error('Missing single-subject Pré-rentrée pack');
+  }
+  const subjectOrder = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'FRANCAIS', 'NSI'];
+  const subjectFamilies = subjectOrder.map((subjectId) => {
+    const subject = dto.subjects.find((candidate) => candidate.id === subjectId);
+    if (!subject) throw new Error(`Missing Pré-rentrée subject: ${subjectId}`);
+    return subject.id === 'NSI' ? `${subject.label}/SNT` : subject.label;
+  });
+
+  return {
+    campaignId: dto.campaign.id,
+    ariaLabel: `Campagne Pré-rentrée ${date.year}`,
+    title: `Stages de pré-rentrée ${date.year}`,
+    primaryCtaLabel: `Découvrir la Pré-rentrée ${date.year}`,
+    publicStatus: formatCampaignStatus(dto.status),
+    date,
+    entryClassesLabel: formatEntryClassList(dto.levels.map((level) => level.label)),
+    subjectFamiliesLabel: subjectFamilies.join(' · '),
+    capacityLabel: `${dto.capacity.minPerCohort} à ${dto.capacity.maxPerCohort} élèves`,
+    volumeLabel: `${singleSubjectPack.totalHours} h par matière`,
+    venueLabel: dto.campaign.venue.neighborhood,
+    editorialLine: dto.content.hero.h1,
+    campaignPath: dto.campaign.canonicalPath,
+    planningPath: `${dto.campaign.canonicalPath}#planning`,
   };
 }

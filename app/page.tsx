@@ -2,7 +2,7 @@ import { OG_DEFAULT_IMAGE } from '@/lib/seo';
 import type { Metadata } from 'next';
 
 import { HomePageClient } from './HomePageClient';
-import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
+import { getPreRentreeHomepageSpotlightDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
 
 export const metadata: Metadata = {
   title: 'Nexus Réussite | Accompagnement académique premium à Tunis',
@@ -29,13 +29,5 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
-  const campaign = getPreRentreeLandingDTO();
-  return <HomePageClient campaign={{
-    eyebrow: campaign.content.hero.eyebrow,
-    subtitle: campaign.content.hero.subtitle,
-    levelCount: campaign.levels.length,
-    subjectCount: campaign.subjects.length,
-    groupMax: campaign.capacity.maxPerCohort,
-    path: campaign.campaign.canonicalPath,
-  }} />;
+  return <HomePageClient campaign={getPreRentreeHomepageSpotlightDTO()} />;
 }

@@ -12,6 +12,20 @@
  */
 
 export type PreRentreeEntryLevel = 'seconde' | 'premiere' | 'terminale';
+export type ViewportCategory = 'mobile' | 'tablet' | 'desktop';
+
+export interface PreRentreeHomepageEventParams {
+  cta_location: 'home_spotlight' | 'navbar';
+  viewport_category: ViewportCategory;
+  destination: 'campaign_landing' | 'campaign_planning';
+  campaign_id: string;
+}
+
+export function getViewportCategory(width = typeof window === 'undefined' ? 1024 : window.innerWidth): ViewportCategory {
+  if (width < 640) return 'mobile';
+  if (width < 1024) return 'tablet';
+  return 'desktop';
+}
 
 export function toPreRentreeEntryLevel(level: string): PreRentreeEntryLevel {
   switch (level) {
@@ -64,7 +78,11 @@ type NexusEvent =
   | { name: 'pre_rentree_price_summary_viewed'; params: { pack_code: string } }
   | { name: 'pre_rentree_bilan_clicked'; params: { cta_location: string; pack_code?: string } }
   | { name: 'pre_rentree_whatsapp_clicked'; params: { cta_location: string; pack_code?: string } }
-  | { name: 'pre_rentree_preregistration_started'; params: { pack_code: string; entry_level: PreRentreeEntryLevel; subject_count: number } };
+  | { name: 'pre_rentree_preregistration_started'; params: { pack_code: string; entry_level: PreRentreeEntryLevel; subject_count: number } }
+  | { name: 'pre_rentree_home_spotlight_view'; params: PreRentreeHomepageEventParams }
+  | { name: 'pre_rentree_home_spotlight_clicked'; params: PreRentreeHomepageEventParams }
+  | { name: 'pre_rentree_home_planning_clicked'; params: PreRentreeHomepageEventParams }
+  | { name: 'pre_rentree_nav_clicked'; params: PreRentreeHomepageEventParams };
 
 /**
  * Send an analytics event.
@@ -209,6 +227,18 @@ export const track = {
 
   preRentreePreregistrationStarted: (pack_code: string, entry_level: PreRentreeEntryLevel, subject_count: number) =>
     sendEvent({ name: 'pre_rentree_preregistration_started', params: { pack_code, entry_level, subject_count } }),
+
+  preRentreeHomeSpotlightView: (params: PreRentreeHomepageEventParams) =>
+    sendEvent({ name: 'pre_rentree_home_spotlight_view', params }),
+
+  preRentreeHomeSpotlightClicked: (params: PreRentreeHomepageEventParams) =>
+    sendEvent({ name: 'pre_rentree_home_spotlight_clicked', params }),
+
+  preRentreeHomePlanningClicked: (params: PreRentreeHomepageEventParams) =>
+    sendEvent({ name: 'pre_rentree_home_planning_clicked', params }),
+
+  preRentreeNavClicked: (params: PreRentreeHomepageEventParams) =>
+    sendEvent({ name: 'pre_rentree_nav_clicked', params }),
 };
 
 export { sendEvent };

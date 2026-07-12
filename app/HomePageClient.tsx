@@ -23,6 +23,8 @@ import {
   TransparencyBanner,
 } from '@/components/marketing/acadomia-inspired';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
+import { PreRentreeCampaignSpotlight } from '@/components/marketing/PreRentreeCampaignSpotlight';
+import type { PreRentreeHomepageSpotlightDTO } from '@/lib/campaigns/pre-rentree-2026/homepage-spotlight';
 
 // ── Router par niveau (near hero) ──
 
@@ -36,11 +38,12 @@ const levelRoutes = [
 
 function LevelRouter() {
   return (
-    <section className="bg-lux-white px-4 py-10 md:px-6">
+    <section className="border-t border-lux-line bg-lux-white px-4 py-10 md:px-6 md:py-14">
       <div className="mx-auto max-w-6xl">
-        <p className="mb-5 text-center text-sm font-semibold text-lux-ink">
+        <p className="text-center text-xs font-semibold uppercase tracking-[0.16em] text-lux-gold-deep">Accompagnement à l’année</p>
+        <h2 className="mb-5 mt-2 text-center font-fraunces text-2xl text-lux-ink">
           Mon enfant est en…
-        </p>
+        </h2>
         <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-5">
           {levelRoutes.map((route) => (
             <Link
@@ -225,26 +228,17 @@ function getFaqItems(rules: { group_max: number; group_min_open: Record<string, 
 
 // ── Main ──
 
-export function HomePageClient({ campaign }: { campaign?: { eyebrow: string; subtitle: string; levelCount: number; subjectCount: number; groupMax: number; path: string } }) {
+export function HomePageClient({ campaign }: { campaign?: PreRentreeHomepageSpotlightDTO }) {
   const faqItems = getFaqItems(getRules());
 
   return (
     <main className="luxury" id="main-content">
       <CorporateNavbar />
 
+      {campaign && <PreRentreeCampaignSpotlight campaign={campaign} />}
+
       {/* 1. Hero (bg-lux-ink) — H1 SEO + slogan + CTA */}
       <HeroSection />
-
-      {campaign && <section className="bg-lux-white px-4 py-6 md:px-6" aria-label="Campagne Pré-rentrée 2026">
-        <div className="mx-auto flex max-w-6xl flex-col gap-5 rounded-2xl border border-lux-gold/30 bg-lux-paper p-5 lux-shadow sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-lux-gold-deep">{campaign.eyebrow}</p>
-            <p className="mt-2 max-w-3xl text-sm text-lux-slate">{campaign.subtitle}</p>
-            <p className="mt-2 text-sm font-medium text-lux-ink">{campaign.levelCount} classes de rentrée · {campaign.subjectCount} matières · groupes limités à {campaign.groupMax}</p>
-          </div>
-          <Link href={campaign.path} className="lux-cta-reserve inline-flex min-h-11 shrink-0 items-center justify-center rounded-lg px-5 py-3 text-sm font-semibold">Découvrir les stages <ArrowRight className="ml-2 h-4 w-4" /></Link>
-        </div>
-      </section>}
 
       {/* 2. Router par niveau (bg-lux-white) — navigation immédiate */}
       <LevelRouter />
