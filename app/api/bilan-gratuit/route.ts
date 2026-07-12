@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
               email: validatedData.parentEmail,
               phone: validatedData.parentPhone,
               profile: JSON.stringify(validatedData.campaignContext.profile),
-              interest: `${validatedData.campaignContext.packId} · ${validatedData.campaignContext.level} · ${validatedData.campaignContext.subjectIds.join(', ')}`,
+              interest: `${validatedData.campaignContext.packCode} · ${validatedData.campaignContext.level} · ${validatedData.campaignContext.subjectIds.join(', ')}`,
               source: validatedData.campaignContext.programme,
             },
           })

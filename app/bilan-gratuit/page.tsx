@@ -118,7 +118,7 @@ export default async function BilanGratuitPage({ searchParams }: BilanGratuitPag
   const rawProgramme = typeof params?.programme === 'string' ? params.programme : null;
   const programme = preRentreePrefill?.programme ?? (rawProgramme === 'pre-rentree-2026' ? null : rawProgramme);
   const legacyOffer = typeof params?.offer === 'string' ? params.offer : null;
-  const offerId = preRentreePrefill?.packId ?? legacyOffer;
+  const offerId = preRentreePrefill?.packCode ?? legacyOffer;
   const programmeLabel = resolveProgrammeLabel(programme);
   const selectedOffer = resolveSelectedOfferContext(offerId);
   const campaignDto = preRentreePrefill ? getPreRentreeLandingDTO() : null;
@@ -126,6 +126,7 @@ export default async function BilanGratuitPage({ searchParams }: BilanGratuitPag
     ...campaignDto.academicProfiles.PREMIERE.voies,
     ...campaignDto.academicProfiles.PREMIERE.mathsProfiles,
     ...campaignDto.academicProfiles.PREMIERE.eafProfiles,
+    ...campaignDto.academicProfiles.PREMIERE.specialtyPlans,
     ...campaignDto.academicProfiles.TERMINALE.retainedSpecialties.options,
     ...campaignDto.academicProfiles.TERMINALE.mathsOptions,
   ].map((option) => [option.id, option.label])) : {};

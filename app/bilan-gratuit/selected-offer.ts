@@ -89,10 +89,15 @@ export function resolveSelectedOfferContext(id: string | null | undefined): Sele
     };
   }
 
-  const preRentreePack = getPreRentreePacks().find((candidate) => candidate.id === id);
+  const preRentreeMatch = /^PACK_([1-4])$/.exec(id);
+  const preRentreePack = preRentreeMatch
+    ? getPreRentreePacks().find(
+        (candidate) => candidate.subjects_count === Number(preRentreeMatch[1]),
+      )
+    : undefined;
   if (preRentreePack) {
     return {
-      id: preRentreePack.id,
+      id,
       title: preRentreePack.title,
       price: preRentreePack.price_per_student,
       deposit: preRentreePack.payment.deposit,

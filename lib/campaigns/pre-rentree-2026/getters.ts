@@ -10,6 +10,7 @@ import {
 } from './schema';
 import type { EntryLevelCode, PreRentreeCampaignManifest } from './schema';
 import type { PreRentreeHomepageSpotlightDTO } from './homepage-spotlight';
+import type { LandingPack } from './configurator';
 import {
   formatCampaignDateCartouche,
   formatCampaignStatus,
@@ -91,7 +92,7 @@ export function getPreRentreePackOptions() {
   const packs = getPreRentreePacks(campaign.packProductIds);
 
   return packs.map((pack) => ({
-    id: pack.id,
+    code: `PACK_${pack.subjects_count}` as LandingPack['code'],
     subjectsCount: pack.subjects_count,
     totalHours: pack.total_hours,
     price: pack.price_per_student,
@@ -125,12 +126,58 @@ export function getPreRentreeLandingDTO() {
       return [level, campaignModule.subtitle];
     })),
   }));
+  const educatorKeys = Object.keys(campaign.teacherRoles);
+  const expectedEducatorKeys = [
+    'MATHS_NSI_SNT_TEACHER',
+    'FRENCH_TEACHER',
+    'PHYSICS_CHEMISTRY_TEACHER',
+  ];
+  if (JSON.stringify(educatorKeys) !== JSON.stringify(expectedEducatorKeys)) {
+    throw new Error('Unexpected Pré-rentrée staffing contract');
+  }
+  if (
+    !campaign.roomRoles['salle-1']?.includes('MATHEMATIQUES') ||
+    !campaign.roomRoles['salle-1']?.includes('NSI') ||
+    !campaign.roomRoles['salle-2']?.includes('FRANCAIS') ||
+    !campaign.roomRoles['salle-2']?.includes('PHYSIQUE_CHIMIE')
+  ) {
+    throw new Error('Unexpected Pré-rentrée room contract');
+  }
+  const organization = {
+    educators: [
+      {
+        title: 'Enseignant Mathématiques / NSI / SNT',
+        details: [
+          'Semaine 1 : Mathématiques',
+          'Semaine 2 : SNT et NSI',
+          'Six créneaux de module au total · aucune simultanéité',
+        ],
+      },
+      {
+        title: 'Enseignant de Français',
+        details: [
+          'Semaine 1',
+          'Français Seconde · EAF Première · expression et oral Terminale',
+        ],
+      },
+      {
+        title: 'Enseignant de Physique-Chimie',
+        details: [
+          'Semaine 2',
+          'Entrée en Seconde · Entrée en Première · Entrée en Terminale',
+        ],
+      },
+    ],
+    rooms: [
+      { label: 'Salle 1', details: 'Mathématiques / NSI / SNT' },
+      { label: 'Salle 2', details: 'Français puis Physique-Chimie' },
+    ],
+  };
 
   return {
     campaign: {
       id: campaign.campaignId,
       version: campaign.version,
-      status: campaign.status,
       entryLevelSemantics: campaign.entryLevelSemantics,
       canonicalPath: campaign.canonicalPath,
       timezone: campaign.timezone,
@@ -148,8 +195,7 @@ export function getPreRentreeLandingDTO() {
     subjects,
     blocks: campaign.blocks,
     scheduleWeeks: campaign.schedule,
-    roomRoles: campaign.roomRoles,
-    teacherRoles: campaign.teacherRoles,
+    organization,
     capacity: campaign.capacity,
     academicProfiles: campaign.academicProfiles,
     packs,
@@ -164,7 +210,7 @@ export function getPreRentreeLandingDTO() {
     contact: campaign.contact,
     featureFlags: campaign.featureFlags,
     legalRefs: campaign.legalRefs,
-    status: campaign.status,
+    publicStatus: formatCampaignStatus(campaign.status),
   };
 }
 
@@ -187,7 +233,7 @@ export function getPreRentreeHomepageSpotlightDTO(): PreRentreeHomepageSpotlight
     ariaLabel: `Campagne Pré-rentrée ${date.year}`,
     title: `Stages de pré-rentrée ${date.year}`,
     primaryCtaLabel: `Découvrir la Pré-rentrée ${date.year}`,
-    publicStatus: formatCampaignStatus(dto.status),
+    publicStatus: dto.publicStatus,
     date,
     entryClassesLabel: formatEntryClassList(dto.levels.map((level) => level.label)),
     subjectFamiliesLabel: subjectFamilies.join(' · '),

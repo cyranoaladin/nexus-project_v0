@@ -9,8 +9,10 @@ import {
   buildBilanUrl,
   buildSelectionSummary,
   buildWhatsAppMessage,
+  classifyProfileSubjectCompatibility,
   getNextConfiguratorStep,
   getPreviousConfiguratorStep,
+  isAcademicProfileComplete,
   toggleLimitedSelection,
   type AcademicProfileSelection,
   type LandingLevel,
@@ -21,7 +23,6 @@ import {
 } from '@/lib/campaigns/pre-rentree-2026/configurator';
 import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
 import {
-  formatCampaignStatus,
   formatDetailedDates,
   formatPresenceRange,
 } from '@/lib/campaigns/pre-rentree-2026/presentation';
@@ -40,6 +41,7 @@ interface AcademicProfiles {
     voies: ProfileOption[];
     mathsProfiles: ProfileOption[];
     eafProfiles: ProfileOption[];
+    specialtyPlans: ProfileOption[];
   };
   TERMINALE: {
     retainedSpecialties: {
@@ -59,7 +61,7 @@ interface StageConfiguratorProps {
   schedule: LandingScheduleSlot[];
   academicProfiles: AcademicProfiles;
   groupCompositionNotice: string;
-  campaignStatus: string;
+  campaignPublicStatus: string;
 }
 
 function ChoiceCard({
@@ -92,7 +94,7 @@ function SummaryCard({
   summary,
   profileComplete,
   notice,
-  status,
+  publicStatus,
   expanded,
   onToggle,
   onNavigate,
@@ -100,7 +102,7 @@ function SummaryCard({
   summary: SelectionSummary | null;
   profileComplete: boolean;
   notice: string;
-  status: string;
+  publicStatus: string;
   expanded: boolean;
   onToggle: () => void;
   onNavigate: () => void;
@@ -133,7 +135,7 @@ function SummaryCard({
   }
 
   const bilanUrl = buildBilanUrl({
-    packId: summary.pack.id,
+    packCode: summary.pack.code,
     level: summary.level,
     subjectIds: summary.subjectIds,
     profile: summary.profile,
@@ -145,7 +147,7 @@ function SummaryCard({
     <div aria-live="polite" className="max-h-[calc(100dvh-6rem)] overflow-y-auto rounded-2xl border border-lux-gold/40 bg-lux-paper p-5 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="font-semibold text-lux-ink">Votre résumé</h3>
-        <span className="rounded-full bg-lux-evergreen/10 px-3 py-1 text-xs font-semibold text-lux-evergreen">{formatCampaignStatus(status)}</span>
+        <span className="rounded-full bg-lux-evergreen/10 px-3 py-1 text-xs font-semibold text-lux-evergreen">{publicStatus}</span>
       </div>
       <button
         type="button"
@@ -188,9 +190,9 @@ function SummaryCard({
           href={bilanUrl}
           onClick={() => {
             onNavigate();
-            track.preRentreeBilanClicked('configurator_summary', pack.id);
+            track.preRentreeBilanClicked('configurator_summary', pack.code);
             track.preRentreePreregistrationStarted(
-              pack.id,
+              pack.code,
               toPreRentreeEntryLevel(summary.level),
               summary.subjectIds.length,
             );
@@ -205,7 +207,7 @@ function SummaryCard({
           rel="noopener noreferrer"
           onClick={() => {
             onNavigate();
-            track.preRentreeWhatsAppClicked('configurator_summary', pack.id);
+            track.preRentreeWhatsAppClicked('configurator_summary', pack.code);
           }}
           className="flex min-h-11 items-center justify-center rounded-lg border border-lux-evergreen px-4 py-3 text-center text-sm font-semibold text-lux-evergreen"
         >
@@ -224,7 +226,7 @@ export default function StageConfigurator({
   schedule,
   academicProfiles,
   groupCompositionNotice,
-  campaignStatus,
+  campaignPublicStatus,
 }: StageConfiguratorProps) {
   const [step, setStep] = useState(1);
   const [level, setLevel] = useState<EntryLevelCode | null>(null);
@@ -242,6 +244,7 @@ export default function StageConfigurator({
       ...academicProfiles.PREMIERE.voies,
       ...academicProfiles.PREMIERE.mathsProfiles,
       ...academicProfiles.PREMIERE.eafProfiles,
+      ...academicProfiles.PREMIERE.specialtyPlans,
       ...academicProfiles.TERMINALE.retainedSpecialties.options,
       ...academicProfiles.TERMINALE.mathsOptions,
     ].map((option) => [option.id, option.label])),
@@ -254,10 +257,14 @@ export default function StageConfigurator({
         : null,
     [level, profile, profileLabels, subjectIds, levels, subjects, packs, schedule],
   );
-  const profileComplete =
-    level === 'SECONDE' ||
-    (level === 'PREMIERE' && Boolean(profile.voie && profile.mathsProfile && profile.eafProfile)) ||
-    (level === 'TERMINALE' && Boolean(profile.mathsOption));
+  const profileComplete = isAcademicProfileComplete(level, profile);
+  const compatibility = useMemo(
+    () => level
+      ? classifyProfileSubjectCompatibility(level, profile, subjectIds)
+      : { status: 'COMPATIBLE' as const, messages: [] },
+    [level, profile, subjectIds],
+  );
+  const profileIncompatible = compatibility.status === 'INCOMPATIBLE';
 
   function chooseLevel(nextLevel: EntryLevelCode) {
     setLevel(nextLevel);
@@ -286,7 +293,7 @@ export default function StageConfigurator({
     setStep(nextStep);
     if (nextStep === 4 && summary?.pack) {
       setMobileSummaryOpen(true);
-      track.preRentreePriceSummaryViewed(summary.pack.id);
+      track.preRentreePriceSummaryViewed(summary.pack.code);
     }
   }
 
@@ -297,7 +304,7 @@ export default function StageConfigurator({
     <section className="bg-white px-4 py-14 md:py-20" aria-labelledby="configurator-heading">
       <div className="mx-auto max-w-6xl">
         <div className="max-w-3xl">
-          <p className="sr-only">Statut de campagne : {formatCampaignStatus(campaignStatus)}</p>
+          <p className="sr-only">Statut de campagne : {campaignPublicStatus}</p>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-lux-gold-deep">Pré-inscription sans paiement</p>
           <h2 id="configurator-heading" className="mt-3 font-fraunces text-3xl text-lux-ink md:text-4xl">Composer le stage de votre enfant</h2>
           <p className="mt-3 text-lux-slate">Sélectionnez la classe de rentrée, le profil et les matières pour obtenir un résumé exact.</p>
@@ -326,7 +333,9 @@ export default function StageConfigurator({
                 <fieldset><legend className="font-semibold text-lux-ink">Voie</legend><div className={`mt-3 ${inputClass}`}>{academicProfiles.PREMIERE.voies.map((option) => <ChoiceCard key={option.id} name="voie" option={option} checked={profile.voie === option.id} onChange={() => { setProfile((value) => ({ ...value, voie: option.id })); track.preRentreeTrackSelected('premiere', option.id.toLowerCase()); }} />)}</div></fieldset>
                 <fieldset><legend className="font-semibold text-lux-ink">Profil Mathématiques</legend><div className={`mt-3 ${inputClass}`}>{academicProfiles.PREMIERE.mathsProfiles.map((option) => <ChoiceCard key={option.id} name="maths-profile" option={option} checked={profile.mathsProfile === option.id} onChange={() => { setProfile((value) => ({ ...value, mathsProfile: option.id })); track.preRentreeTrackSelected('premiere', option.id.toLowerCase()); }} />)}</div></fieldset>
                 <fieldset><legend className="font-semibold text-lux-ink">Profil Français EAF</legend><div className={`mt-3 ${inputClass}`}>{academicProfiles.PREMIERE.eafProfiles.map((option) => <ChoiceCard key={option.id} name="eaf-profile" option={option} checked={profile.eafProfile === option.id} onChange={() => { setProfile((value) => ({ ...value, eafProfile: option.id })); track.preRentreeTrackSelected('premiere', option.id.toLowerCase()); }} />)}</div></fieldset>
-                <div className="flex justify-between gap-3"><button type="button" className={`${buttonClass} border border-lux-line`} onClick={() => continueTo(getPreviousConfiguratorStep(step, level))}>Retour</button><button type="button" className={`${buttonClass} lux-cta-reserve disabled:opacity-50`} disabled={!profileComplete} onClick={() => continueTo(3)}>Continuer</button></div>
+                <fieldset><legend className="font-semibold text-lux-ink">Enseignements envisagés en Première</legend><div className={`mt-3 ${inputClass}`}>{academicProfiles.PREMIERE.specialtyPlans.map((option) => <ChoiceCard key={option.id} name="premiere-specialty-plan" option={option} checked={profile.premiereSpecialtyPlan === option.id} onChange={() => { setProfile((value) => ({ ...value, premiereSpecialtyPlan: option.id })); track.preRentreeTrackSelected('premiere', option.id.toLowerCase()); }} />)}</div></fieldset>
+                {profileIncompatible && <p role="alert" className="rounded-xl border border-lux-gold/40 bg-lux-gold/10 p-3 text-sm text-lux-ink">{compatibility.messages.join(' ')}</p>}
+                <div className="flex justify-between gap-3"><button type="button" className={`${buttonClass} border border-lux-line`} onClick={() => continueTo(getPreviousConfiguratorStep(step, level))}>Retour</button><button type="button" className={`${buttonClass} lux-cta-reserve disabled:opacity-50`} disabled={!profileComplete || profileIncompatible} onClick={() => continueTo(3)}>Continuer</button></div>
               </div>
             )}
 
@@ -344,7 +353,8 @@ export default function StageConfigurator({
                   </div>
                 </fieldset>
                 <fieldset><legend className="font-semibold text-lux-ink">Option de Mathématiques</legend><div className="mt-3 grid gap-3 sm:grid-cols-3">{academicProfiles.TERMINALE.mathsOptions.map((option) => <ChoiceCard key={option.id} name="maths-option" option={option} checked={profile.mathsOption === option.id} onChange={() => { setProfile((value) => ({ ...value, mathsOption: option.id })); track.preRentreeTrackSelected('terminale', option.id.toLowerCase()); }} />)}</div></fieldset>
-                <div className="flex justify-between gap-3"><button type="button" className={`${buttonClass} border border-lux-line`} onClick={() => continueTo(1)}>Retour</button><button type="button" className={`${buttonClass} lux-cta-reserve disabled:opacity-50`} disabled={!profileComplete} onClick={() => continueTo(3)}>Continuer</button></div>
+                {profileIncompatible && <p role="alert" className="rounded-xl border border-lux-gold/40 bg-lux-gold/10 p-3 text-sm text-lux-ink">{compatibility.messages.join(' ')}</p>}
+                <div className="flex justify-between gap-3"><button type="button" className={`${buttonClass} border border-lux-line`} onClick={() => continueTo(1)}>Retour</button><button type="button" className={`${buttonClass} lux-cta-reserve disabled:opacity-50`} disabled={!profileComplete || profileIncompatible} onClick={() => continueTo(3)}>Continuer</button></div>
               </div>
             )}
 
@@ -395,7 +405,7 @@ export default function StageConfigurator({
               summary={summary}
               profileComplete={profileComplete}
               notice={groupCompositionNotice}
-              status={campaignStatus}
+              publicStatus={campaignPublicStatus}
               expanded={mobileSummaryOpen}
               onToggle={() => setMobileSummaryOpen((open) => !open)}
               onNavigate={() => setMobileSummaryOpen(false)}

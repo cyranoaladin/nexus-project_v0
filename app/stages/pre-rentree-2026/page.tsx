@@ -75,7 +75,7 @@ export default function PreRentree2026Page() {
             schedule={dto.schedule}
             academicProfiles={dto.academicProfiles}
             groupCompositionNotice={dto.content.practical.groupCompositionNotice}
-            campaignStatus={dto.status}
+            campaignPublicStatus={dto.publicStatus}
           />
         </div>
         <div id="planning" className="scroll-mt-24">
@@ -85,8 +85,7 @@ export default function PreRentree2026Page() {
             levels={dto.levels}
             subjects={dto.subjects}
             blocks={dto.blocks}
-            roomRoles={dto.roomRoles}
-            teacherRoles={dto.teacherRoles}
+            organization={dto.organization}
           />
         </div>
         <ProgramsSection modules={dto.modules} levels={dto.levels} subjects={dto.subjects} />

@@ -86,6 +86,12 @@
       "eafProfiles": [
         { "id": "EAF_GENERALE", "label": "EAF voie générale" },
         { "id": "EAF_TECHNOLOGIQUE", "label": "EAF voie technologique" }
+      ],
+      "specialtyPlans": [
+        { "id": "AUCUNE_NSI_PC", "label": "Ni NSI ni Physique-Chimie envisagée" },
+        { "id": "NSI", "label": "NSI envisagée" },
+        { "id": "PHYSIQUE_CHIMIE", "label": "Physique-Chimie envisagée" },
+        { "id": "NSI_PHYSIQUE_CHIMIE", "label": "NSI et Physique-Chimie envisagées" }
       ]
     },
     "TERMINALE": {

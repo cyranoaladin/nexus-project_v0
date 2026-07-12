@@ -14,7 +14,7 @@ import type {
   LandingScheduleSlot,
   LandingScheduleWeek,
   LandingSubject,
-  LandingTeacherRole,
+  LandingPublicOrganization,
 } from '@/lib/campaigns/pre-rentree-2026/configurator';
 import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -38,37 +38,6 @@ interface ModuleRow {
   sessionCount: number;
   hours: number;
 }
-
-type RoomRoles = Record<string, readonly string[]>;
-type TeacherRoles = Record<string, LandingTeacherRole>;
-
-const TEACHER_ROLE_PRESENTATION: Readonly<Record<string, {
-  title: string;
-  details: string[];
-}>> = {
-  MATHS_NSI_SNT_TEACHER: {
-    title: 'Enseignant Mathématiques / NSI / SNT',
-    details: [
-      'Semaine 1 : Mathématiques',
-      'Semaine 2 : SNT et NSI',
-      'Six créneaux de module au total · aucune simultanéité',
-    ],
-  },
-  FRENCH_TEACHER: {
-    title: 'Enseignant de Français',
-    details: [
-      'Semaine 1',
-      'Français Seconde · EAF Première · expression et oral Terminale',
-    ],
-  },
-  PHYSICS_CHEMISTRY_TEACHER: {
-    title: 'Enseignant de Physique-Chimie',
-    details: [
-      'Semaine 2',
-      'Entrée en Seconde · Entrée en Première · Entrée en Terminale',
-    ],
-  },
-};
 
 function durationHours(start: string, end: string): number {
   const [startHour = 0, startMinute = 0] = start.split(':').map(Number);
@@ -294,29 +263,25 @@ function WeekMobileList({
   );
 }
 
-function Organization({ teacherRoles, roomRoles }: { teacherRoles: TeacherRoles; roomRoles: RoomRoles }) {
-  const roles = Object.keys(teacherRoles)
-    .map((roleId) => TEACHER_ROLE_PRESENTATION[roleId])
-    .filter((role): role is NonNullable<typeof role> => Boolean(role));
-  const salleOne = roomRoles['salle-1'] ?? [];
-  const salleTwo = roomRoles['salle-2'] ?? [];
+function Organization({ organization }: { organization: LandingPublicOrganization }) {
   return (
     <section className="mt-12 border-t border-lux-line pt-8" aria-labelledby="organization-heading">
       <h3 id="organization-heading" className="font-fraunces text-2xl text-lux-ink">Organisation pédagogique</h3>
       <div className="mt-5 grid gap-4 lg:grid-cols-3">
-        {roles.map((role) => (
-          <article key={role.title} data-testid="teacher-role" className="rounded-2xl border border-lux-line bg-lux-paper p-5">
-            <h4 className="font-semibold text-lux-ink">{role.title}</h4>
+        {organization.educators.map((educator) => (
+          <article key={educator.title} data-testid="teacher-role" className="rounded-2xl border border-lux-line bg-lux-paper p-5">
+            <h4 className="font-semibold text-lux-ink">{educator.title}</h4>
             <ul className="mt-3 space-y-1 text-sm text-lux-slate">
-              {role.details.map((detail) => <li key={detail}>{detail}</li>)}
+              {educator.details.map((detail) => <li key={detail}>{detail}</li>)}
             </ul>
           </article>
         ))}
       </div>
       <div className="mt-4 rounded-2xl border border-lux-line bg-white p-5 text-sm text-lux-slate">
         <p className="font-semibold text-lux-ink">Deux salles pédagogiques</p>
-        <p className="mt-2">Salle 1 · {salleOne.includes('MATHEMATIQUES') ? 'Mathématiques' : ''} / {salleOne.includes('NSI') ? 'NSI / SNT' : ''}</p>
-        <p className="mt-1">Salle 2 · {salleTwo.includes('FRANCAIS') ? 'Français' : ''} puis {salleTwo.includes('PHYSIQUE_CHIMIE') ? 'Physique-Chimie' : ''}</p>
+        {organization.rooms.map((room) => (
+          <p key={room.label} className="mt-1">{room.label} · {room.details}</p>
+        ))}
       </div>
     </section>
   );
@@ -328,16 +293,14 @@ export function ScheduleSection({
   levels,
   subjects,
   blocks,
-  roomRoles,
-  teacherRoles,
+  organization,
 }: {
   schedule: LandingScheduleSlot[];
   scheduleWeeks: LandingScheduleWeek[];
   levels: LandingLevel[];
   subjects: LandingSubject[];
   blocks: Block[];
-  roomRoles: RoomRoles;
-  teacherRoles: TeacherRoles;
+  organization: LandingPublicOrganization;
 }) {
   const { configuredEntryLevel } = useCampaignExperience();
   const initialLevel = levels[0]?.id ?? 'SECONDE';
@@ -401,7 +364,7 @@ export function ScheduleSection({
           </TabsContent>
         </Tabs>
 
-        <Organization teacherRoles={teacherRoles} roomRoles={roomRoles} />
+        <Organization organization={organization} />
       </div>
     </section>
   );

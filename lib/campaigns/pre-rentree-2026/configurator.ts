@@ -4,8 +4,20 @@ export interface AcademicProfileSelection {
   voie?: string;
   mathsProfile?: string;
   eafProfile?: string;
+  premiereSpecialtyPlan?: string;
   retainedSpecialties?: string[];
   mathsOption?: string;
+}
+
+export type ProfileSubjectCompatibilityStatus =
+  | 'COMPATIBLE'
+  | 'COMPATIBLE_WITH_DIFFERENTIATION'
+  | 'REQUIRES_PEDAGOGICAL_REVIEW'
+  | 'INCOMPATIBLE';
+
+export interface ProfileSubjectCompatibility {
+  status: ProfileSubjectCompatibilityStatus;
+  messages: string[];
 }
 
 export interface LandingLevel {
@@ -23,7 +35,7 @@ export interface LandingSubject {
 }
 
 export interface LandingPack {
-  id: string;
+  code: 'PACK_1' | 'PACK_2' | 'PACK_3' | 'PACK_4';
   subjectsCount: number;
   totalHours: number;
   price: number;
@@ -62,9 +74,15 @@ export interface LandingScheduleWeek {
   slots: LandingModuleSlot[];
 }
 
-export interface LandingTeacherRole {
-  subjects: string[];
-  maxHoursPerDay: number;
+export interface LandingPublicOrganization {
+  educators: Array<{
+    title: string;
+    details: string[];
+  }>;
+  rooms: Array<{
+    label: string;
+    details: string;
+  }>;
 }
 
 export interface ScheduleSummaryLine {
@@ -120,22 +138,116 @@ export function toggleLimitedSelection(
   return [...selection, value];
 }
 
+export function isAcademicProfileComplete(
+  level: EntryLevelCode | null,
+  profile: AcademicProfileSelection,
+): boolean {
+  if (level === 'SECONDE') return true;
+  if (level === 'PREMIERE') {
+    return Boolean(
+      profile.voie &&
+      profile.mathsProfile &&
+      profile.eafProfile &&
+      profile.premiereSpecialtyPlan,
+    );
+  }
+  if (level === 'TERMINALE') return Boolean(profile.mathsOption);
+  return false;
+}
+
+function premierePlansSubject(plan: string | undefined, subject: string): boolean {
+  if (subject === 'NSI') {
+    return plan === 'NSI' || plan === 'NSI_PHYSIQUE_CHIMIE';
+  }
+  if (subject === 'PHYSIQUE_CHIMIE') {
+    return plan === 'PHYSIQUE_CHIMIE' || plan === 'NSI_PHYSIQUE_CHIMIE';
+  }
+  return true;
+}
+
+export function classifyProfileSubjectCompatibility(
+  level: EntryLevelCode,
+  profile: AcademicProfileSelection,
+  subjectIds: readonly string[],
+): ProfileSubjectCompatibility {
+  const messages: string[] = [];
+
+  if (level === 'PREMIERE') {
+    const eafContradiction =
+      (profile.voie === 'GENERALE' && profile.eafProfile === 'EAF_TECHNOLOGIQUE') ||
+      (profile.voie === 'TECHNOLOGIQUE' && profile.eafProfile === 'EAF_GENERALE');
+    if (eafContradiction) {
+      return {
+        status: 'INCOMPATIBLE',
+        messages: ['Le profil de Français EAF doit correspondre à la voie déclarée.'],
+      };
+    }
+
+    if (
+      subjectIds.some(
+        (subject) =>
+          (subject === 'NSI' || subject === 'PHYSIQUE_CHIMIE') &&
+          !premierePlansSubject(profile.premiereSpecialtyPlan, subject),
+      )
+    ) {
+      messages.push(
+        'Une matière non déclarée parmi les enseignements envisagés nécessite une validation pédagogique.',
+      );
+      return { status: 'REQUIRES_PEDAGOGICAL_REVIEW', messages };
+    }
+
+    if (subjectIds.includes('MATHEMATIQUES') || subjectIds.includes('FRANCAIS')) {
+      return {
+        status: 'COMPATIBLE_WITH_DIFFERENTIATION',
+        messages: ['Les exercices sont différenciés selon le profil déclaré.'],
+      };
+    }
+    return { status: 'COMPATIBLE', messages };
+  }
+
+  if (level === 'TERMINALE') {
+    const retained = profile.retainedSpecialties ?? [];
+    if (profile.mathsOption === 'MATHS_EXPERTES' && !retained.includes('MATHEMATIQUES')) {
+      return {
+        status: 'INCOMPATIBLE',
+        messages: ['Maths expertes nécessite la spécialité Mathématiques conservée.'],
+      };
+    }
+    if (profile.mathsOption === 'MATHS_COMPLEMENTAIRES' && retained.includes('MATHEMATIQUES')) {
+      return {
+        status: 'INCOMPATIBLE',
+        messages: ['Maths complémentaires ne se cumule pas avec la spécialité Mathématiques conservée.'],
+      };
+    }
+    if (
+      (subjectIds.includes('NSI') && !retained.includes('NSI')) ||
+      (subjectIds.includes('PHYSIQUE_CHIMIE') && !retained.includes('PHYSIQUE_CHIMIE'))
+    ) {
+      return {
+        status: 'REQUIRES_PEDAGOGICAL_REVIEW',
+        messages: [
+          'Une matière de spécialité non conservée nécessite une validation pédagogique avant confirmation.',
+        ],
+      };
+    }
+    if (subjectIds.includes('MATHEMATIQUES')) {
+      return {
+        status: 'COMPATIBLE_WITH_DIFFERENTIATION',
+        messages: ['Le module de Mathématiques est différencié selon la spécialité et l’option déclarées.'],
+      };
+    }
+  }
+
+  return { status: 'COMPATIBLE', messages };
+}
+
 export function requiresPedagogicalValidation(
   level: EntryLevelCode | null,
   profile: AcademicProfileSelection,
   subjectIds: readonly string[] = [],
 ): boolean {
-  if (level === 'PREMIERE') {
-    return Boolean(profile.mathsProfile || profile.eafProfile);
-  }
-  if (level !== 'TERMINALE') return false;
-  const retainedSpecialties = profile.retainedSpecialties ?? [];
-  return Boolean(
-    profile.retainedSpecialties?.includes('MATHEMATIQUES') ||
-      (profile.mathsOption && profile.mathsOption !== 'AUCUNE') ||
-      (subjectIds.includes('NSI') && !retainedSpecialties.includes('NSI')) ||
-      (subjectIds.includes('PHYSIQUE_CHIMIE') && !retainedSpecialties.includes('PHYSIQUE_CHIMIE')),
-  );
+  if (!level || level === 'SECONDE') return false;
+  return classifyProfileSubjectCompatibility(level, profile, subjectIds).status !== 'COMPATIBLE';
 }
 
 function subjectLabel(subject: LandingSubject, level: EntryLevelCode): string {
@@ -150,6 +262,7 @@ export function formatAcademicProfile(
     profile.voie,
     profile.mathsProfile,
     profile.eafProfile,
+    profile.premiereSpecialtyPlan,
     ...(profile.retainedSpecialties ?? []),
     profile.mathsOption,
   ].filter((value): value is string => Boolean(value));
@@ -169,35 +282,47 @@ export function buildSelectionSummary(input: {
   schedule: readonly LandingScheduleSlot[];
 }): SelectionSummary {
   const pack = selectPackBySubjectCount(input.packs, input.subjectIds.length);
-  const selectedSubjects = input.subjectIds
-    .map((id) => input.subjects.find((subject) => subject.id === id))
-    .filter((subject): subject is LandingSubject => Boolean(subject));
+  if (input.subjectIds.length > 0 && !pack) {
+    throw new Error(`Missing canonical campaign pack for ${input.subjectIds.length} subjects`);
+  }
+  const selectedSubjects = input.subjectIds.map((id) => {
+    const subject = input.subjects.find((candidate) => candidate.id === id);
+    if (!subject) throw new Error(`Unknown campaign subject: ${id}`);
+    return subject;
+  });
   const scheduleLines = selectedSubjects.map((subject) => {
     const slots = input.schedule.filter(
       (slot) => slot.level === input.level && slot.subject === subject.id,
     );
+    if (slots.length !== 5) {
+      throw new Error(`Missing campaign schedule for ${input.level}/${subject.id}`);
+    }
     const first = slots[0];
+    if (!first) throw new Error(`Missing campaign schedule for ${input.level}/${subject.id}`);
     return {
       subjectId: subject.id,
       subjectLabel: subjectLabel(subject, input.level),
       dates: [...new Set(slots.map((slot) => slot.date))].sort(),
-      startTime: first?.startTime ?? '',
-      endTime: first?.endTime ?? '',
-      week: first?.week ?? 0,
+      startTime: first.startTime,
+      endTime: first.endTime,
+      week: first.week,
     };
   });
   const dates = [...new Set(scheduleLines.flatMap((line) => line.dates))].sort();
 
   return {
     level: input.level,
-    levelLabel:
-      input.levels.find((level) => level.id === input.level)?.label ?? input.level,
+    levelLabel: (() => {
+      const level = input.levels.find((candidate) => candidate.id === input.level);
+      if (!level) throw new Error(`Unknown campaign entry level: ${input.level}`);
+      return level.label;
+    })(),
     profile: input.profile,
     profileLabel: formatAcademicProfile(input.profile, input.profileLabels),
     subjectIds: input.subjectIds,
     subjectLabels: selectedSubjects.map((subject) => subjectLabel(subject, input.level)),
     pack,
-    totalHours: pack?.totalHours ?? 0,
+    totalHours: pack ? pack.totalHours : 0,
     sessionCount: scheduleLines.reduce((total, line) => total + line.dates.length, 0),
     dates,
     scheduleLines,
@@ -206,20 +331,23 @@ export function buildSelectionSummary(input: {
 }
 
 export function buildBilanUrl(input: {
-  packId: string;
+  packCode: LandingPack['code'];
   level: EntryLevelCode;
   subjectIds: string[];
   profile: AcademicProfileSelection;
 }): string {
   const params = new URLSearchParams({
     programme: 'pre-rentree-2026',
-    pack: input.packId,
+    pack: input.packCode,
     niveau: input.level,
     matieres: input.subjectIds.join(','),
   });
   if (input.profile.voie) params.set('voie', input.profile.voie);
   if (input.profile.mathsProfile) params.set('profil_maths', input.profile.mathsProfile);
   if (input.profile.eafProfile) params.set('profil_eaf', input.profile.eafProfile);
+  if (input.profile.premiereSpecialtyPlan) {
+    params.set('projet_specialites', input.profile.premiereSpecialtyPlan);
+  }
   if (input.profile.retainedSpecialties?.length) {
     params.set('specialites', input.profile.retainedSpecialties.join(','));
   }

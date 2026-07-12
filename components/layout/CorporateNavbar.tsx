@@ -183,7 +183,7 @@ export function CorporateNavbar() {
     {
       title: 'Programmes',
       items: [
-        { label: 'Pré-rentrée 2026', href: '/stages/pre-rentree-2026', desc: '17–28 août · Mutuelleville', isPage: true },
+        { label: 'Pré-rentrée 2026', href: '/stages/pre-rentree-2026', desc: 'Stage intensif de rentrée', isPage: true },
         { label: 'Stages intensifs', href: '/stages', desc: 'Toutes les vacances', isPage: true },
         { label: 'Plateforme ARIA', href: '/plateforme-aria', desc: 'Ressources & parcours en ligne', isPage: true },
         { label: 'Accompagnement scolaire', href: '/accompagnement-scolaire', desc: 'Suivi personnalisé', isPage: true },
