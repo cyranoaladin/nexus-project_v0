@@ -1,0 +1,894 @@
+{
+  "version": "2026-pre-rentree-v1",
+  "generatedAt": "2026-07-12",
+  "modules": [
+    {
+      "id": "seconde-mathematiques",
+      "level": "SECONDE",
+      "subject": "Mathématiques",
+      "title": "Mathématiques Seconde",
+      "subtitle": "Consolider les bases du calcul et découvrir les fonctions pour réussir son entrée au lycée",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Calcul littéral et techniques de factorisation",
+          "objective": "Maîtriser le développement, la factorisation et les identités remarquables",
+          "topics": [
+            "Développement et réduction d'expressions",
+            "Factorisation par facteur commun et identités remarquables",
+            "Fractions et puissances",
+            "Résolution d'équations produit-nul"
+          ],
+          "method": "Exercices guidés progressifs avec correction commentée",
+          "deliverable": "Fiche méthode calcul littéral avec exemples types résolus"
+        },
+        {
+          "number": 2,
+          "title": "Fonctions : lecture graphique et vocabulaire",
+          "objective": "Savoir lire et interpréter une courbe, maîtriser le vocabulaire des fonctions",
+          "topics": [
+            "Image, antécédent, lecture graphique",
+            "Tableau de variations et sens de variation",
+            "Extremums et intervalles",
+            "Fonctions de référence (carré, inverse, affine)"
+          ],
+          "method": "Alternance lecture graphique interactive et exercices d'application",
+          "deliverable": "Carte mentale du vocabulaire des fonctions avec exemples graphiques"
+        },
+        {
+          "number": 3,
+          "title": "Équations, inéquations et résolution de problèmes",
+          "objective": "Résoudre des équations et inéquations du premier et second degré simples",
+          "topics": [
+            "Équations du premier degré et mise en équation",
+            "Inéquations et représentation sur un axe",
+            "Systèmes de deux équations à deux inconnues",
+            "Problèmes concrets modélisés par des équations"
+          ],
+          "method": "Méthode pas-à-pas avec problèmes contextualisés",
+          "deliverable": "Fiche réflexe résolution d'équations et d'inéquations"
+        },
+        {
+          "number": 4,
+          "title": "Géométrie repérée et vecteurs",
+          "objective": "Se repérer dans le plan, calculer distances et coordonnées de milieux",
+          "topics": [
+            "Repère orthonormé et coordonnées",
+            "Distance entre deux points et milieu d'un segment",
+            "Introduction aux vecteurs et coordonnées de vecteurs",
+            "Colinéarité et alignement"
+          ],
+          "method": "Exercices guidés avec représentations graphiques systématiques",
+          "deliverable": "Formulaire géométrie repérée avec schémas annotés"
+        },
+        {
+          "number": 5,
+          "title": "Rédaction mathématique et méthodologie d'épreuve",
+          "objective": "Structurer un raisonnement et rédiger proprement une solution",
+          "topics": [
+            "Rédaction d'une démonstration",
+            "Connecteurs logiques et justification",
+            "Gestion du temps en devoir surveillé",
+            "Entraînement sur sujet type avec correction détaillée"
+          ],
+          "method": "Pratique autonome sur sujet complet avec auto-évaluation guidée",
+          "deliverable": "Grille d'auto-évaluation de la rédaction mathématique"
+        }
+      ]
+    },
+    {
+      "id": "seconde-francais",
+      "level": "SECONDE",
+      "subject": "Français",
+      "title": "Français Seconde",
+      "subtitle": "Développer l'expression écrite structurée et les fondamentaux de l'analyse de texte",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Expression écrite structurée : le paragraphe argumenté",
+          "objective": "Rédiger un paragraphe argumenté clair avec exemples pertinents",
+          "topics": [
+            "Structure argument-exemple-analyse",
+            "Connecteurs logiques et transitions",
+            "Registres de langue et précision du vocabulaire",
+            "Exercices de rédaction chronométrés"
+          ],
+          "method": "Modélisation puis pratique guidée avec feedback immédiat",
+          "deliverable": "Fiche méthode du paragraphe argumenté avec modèles"
+        },
+        {
+          "number": 2,
+          "title": "Compréhension et analyse de texte littéraire",
+          "objective": "Identifier les procédés d'écriture et formuler une interprétation",
+          "topics": [
+            "Repérage des champs lexicaux et figures de style",
+            "Identification du registre et du ton",
+            "Analyse de la structure narrative ou argumentative",
+            "Formulation d'hypothèses interprétatives"
+          ],
+          "method": "Lecture active guidée sur extraits variés (roman, poésie, théâtre)",
+          "deliverable": "Boîte à outils des procédés littéraires avec exemples"
+        },
+        {
+          "number": 3,
+          "title": "Argumentation : convaincre et persuader",
+          "objective": "Distinguer les stratégies argumentatives et les mobiliser à l'écrit",
+          "topics": [
+            "Thèse, arguments, exemples",
+            "Concession et réfutation",
+            "Argumentation directe vs indirecte",
+            "Rédaction d'un développement argumenté"
+          ],
+          "method": "Analyse de textes argumentatifs puis production écrite encadrée",
+          "deliverable": "Plan-type d'un développement argumenté réutilisable"
+        },
+        {
+          "number": 4,
+          "title": "Grammaire au service de l'expression",
+          "objective": "Maîtriser les outils grammaticaux essentiels pour le lycée",
+          "topics": [
+            "Proposition subordonnée et types de phrases complexes",
+            "Valeurs des temps verbaux",
+            "Accords complexes (participe passé, relatif)",
+            "Ponctuation expressive et stylistique"
+          ],
+          "method": "Exercices ciblés puis réinvestissement en production écrite",
+          "deliverable": "Mémo grammaire lycée avec erreurs fréquentes à éviter"
+        },
+        {
+          "number": 5,
+          "title": "Initiation au commentaire de texte",
+          "objective": "Comprendre la méthode du commentaire composé et en rédiger une partie",
+          "topics": [
+            "Différence entre paraphrase et analyse",
+            "Construction d'un axe de lecture",
+            "Rédaction d'un sous-partie de commentaire",
+            "Introduction et conclusion : principes"
+          ],
+          "method": "Travail progressif sur un extrait : du brouillon à la rédaction",
+          "deliverable": "Modèle de brouillon commentaire avec étapes clés"
+        }
+      ]
+    },
+    {
+      "id": "seconde-informatique-snt",
+      "level": "SECONDE",
+      "subject": "Informatique (SNT)",
+      "title": "Initiation informatique, algorithmique et SNT",
+      "subtitle": "Découvrir la pensée algorithmique et les bases de la programmation Python",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Découverte algorithmique et pensée computationnelle",
+          "objective": "Comprendre ce qu'est un algorithme et décomposer un problème en étapes",
+          "topics": [
+            "Notion d'algorithme dans la vie quotidienne",
+            "Décomposition d'un problème en sous-problèmes",
+            "Pseudo-code et organigrammes",
+            "Premiers pas dans l'environnement Python"
+          ],
+          "method": "Activités débranchées puis découverte de l'éditeur Python",
+          "deliverable": "Premier programme Python fonctionnel commenté"
+        },
+        {
+          "number": 2,
+          "title": "Variables, types et structures conditionnelles",
+          "objective": "Manipuler variables et conditions pour créer des programmes interactifs",
+          "topics": [
+            "Variables : affectation, types (int, float, str, bool)",
+            "Entrées/sorties (input, print)",
+            "Structures conditionnelles (if/elif/else)",
+            "Opérateurs de comparaison et logiques"
+          ],
+          "method": "Exercices progressifs avec validation par exécution",
+          "deliverable": "Mini-programme interactif (quiz ou calculatrice simple)"
+        },
+        {
+          "number": 3,
+          "title": "Boucles et itérations",
+          "objective": "Utiliser les boucles for et while pour automatiser des traitements",
+          "topics": [
+            "Boucle for et fonction range()",
+            "Boucle while et condition d'arrêt",
+            "Accumulateurs et compteurs",
+            "Boucles imbriquées simples"
+          ],
+          "method": "Exercices guidés et pratique autonome avec défis progressifs",
+          "deliverable": "Programme utilisant des boucles (table de multiplication, motifs)"
+        },
+        {
+          "number": 4,
+          "title": "Représentation des données et web",
+          "objective": "Comprendre comment les données sont représentées et circulant sur le web",
+          "topics": [
+            "Représentation binaire et encodage des caractères",
+            "Formats de données (texte, image, son)",
+            "Architecture web : client, serveur, URL",
+            "HTML de base et notion de page web"
+          ],
+          "method": "Démonstrations interactives et manipulation de fichiers",
+          "deliverable": "Mini page HTML personnelle créée et comprise"
+        },
+        {
+          "number": 5,
+          "title": "Projet intégrateur : mini-programme Python",
+          "objective": "Réaliser un petit projet mobilisant l'ensemble des notions vues",
+          "topics": [
+            "Cahier des charges d'un mini-projet",
+            "Structuration du code (fonctions simples)",
+            "Test et débogage",
+            "Présentation et documentation du code"
+          ],
+          "method": "Pédagogie par projet avec accompagnement individualisé",
+          "deliverable": "Programme Python finalisé et documenté (jeu ou utilitaire)"
+        }
+      ]
+    },
+    {
+      "id": "seconde-physique-chimie",
+      "level": "SECONDE",
+      "subject": "Physique-Chimie",
+      "title": "Physique-Chimie Seconde",
+      "subtitle": "Acquérir les réflexes scientifiques et maîtriser les grandeurs fondamentales",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Grandeurs, unités et conversions",
+          "objective": "Maîtriser les unités du SI, les préfixes et les conversions essentielles",
+          "topics": [
+            "Système international d'unités (SI)",
+            "Préfixes et puissances de 10",
+            "Conversions d'unités courantes",
+            "Chiffres significatifs et ordre de grandeur"
+          ],
+          "method": "Exercices systématiques avec progression de difficulté",
+          "deliverable": "Fiche réflexe unités et conversions avec tableau synthétique"
+        },
+        {
+          "number": 2,
+          "title": "Constitution de la matière : atomes et molécules",
+          "objective": "Décrire la structure de l'atome et comprendre la formation des molécules",
+          "topics": [
+            "Structure de l'atome (noyau, électrons, notation)",
+            "Tableau périodique simplifié et familles chimiques",
+            "Liaison covalente et formules de Lewis simples",
+            "Molécules courantes et nomenclature de base"
+          ],
+          "method": "Modélisation avec schémas et exercices d'application directe",
+          "deliverable": "Carte mémo atomes-molécules avec schémas de Lewis essentiels"
+        },
+        {
+          "number": 3,
+          "title": "Forces et introduction au mouvement",
+          "objective": "Identifier les forces et décrire qualitativement un mouvement",
+          "topics": [
+            "Notion de force et effets sur un objet",
+            "Poids, réaction du support, tension d'un fil",
+            "Diagramme objets-interactions",
+            "Description d'un mouvement (trajectoire, vitesse)"
+          ],
+          "method": "Exercices guidés avec schématisation systématique des forces",
+          "deliverable": "Méthode de construction d'un diagramme de forces"
+        },
+        {
+          "number": 4,
+          "title": "Calcul scientifique et exploitation de mesures",
+          "objective": "Utiliser les outils mathématiques pour exploiter des résultats expérimentaux",
+          "topics": [
+            "Proportionnalité et formules littérales",
+            "Lecture et tracé de graphiques",
+            "Exploitation d'un graphique (pente, ordonnée à l'origine)",
+            "Incertitudes et précision de mesure"
+          ],
+          "method": "Travail sur données expérimentales réelles avec analyse guidée",
+          "deliverable": "Fiche méthode exploitation de graphiques et formules"
+        },
+        {
+          "number": 5,
+          "title": "Démarche expérimentale et résolution de problèmes",
+          "objective": "Appliquer la démarche scientifique complète sur un problème concret",
+          "topics": [
+            "Étapes de la démarche expérimentale",
+            "Formulation d'hypothèses et protocole",
+            "Rédaction d'un compte-rendu scientifique",
+            "Entraînement sur exercice type devoir"
+          ],
+          "method": "Mise en situation expérimentale simulée puis rédaction encadrée",
+          "deliverable": "Modèle de rédaction scientifique structurée"
+        }
+      ]
+    },
+    {
+      "id": "premiere-mathematiques",
+      "level": "PREMIERE",
+      "subject": "Mathématiques",
+      "title": "Mathématiques Première",
+      "subtitle": "Maîtriser les suites, la dérivation et les probabilités pour préparer le Bac",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Suites arithmétiques et géométriques",
+          "objective": "Reconnaître, modéliser et calculer avec les suites arithmétiques et géométriques",
+          "topics": [
+            "Définition explicite et par récurrence",
+            "Suite arithmétique : raison, terme général, somme",
+            "Suite géométrique : raison, terme général, somme",
+            "Modélisation de situations concrètes par des suites"
+          ],
+          "method": "Cours dialogué puis exercices d'application avec difficulté croissante",
+          "deliverable": "Fiche formulaire suites avec arbre décisionnel de reconnaissance"
+        },
+        {
+          "number": 2,
+          "title": "Nombre dérivé et tangente",
+          "objective": "Calculer un nombre dérivé et déterminer l'équation d'une tangente",
+          "topics": [
+            "Taux de variation et passage à la limite",
+            "Nombre dérivé en un point",
+            "Équation de la tangente",
+            "Interprétation graphique de la dérivée"
+          ],
+          "method": "Approche graphique puis formalisation avec exercices types",
+          "deliverable": "Méthode pas-à-pas pour déterminer une équation de tangente"
+        },
+        {
+          "number": 3,
+          "title": "Dérivation et étude de fonctions",
+          "objective": "Dériver les fonctions usuelles et dresser un tableau de variations",
+          "topics": [
+            "Dérivées des fonctions de référence",
+            "Opérations sur les dérivées (somme, produit, quotient)",
+            "Signe de la dérivée et variations",
+            "Tableau de variations complet"
+          ],
+          "method": "Exercices guidés progressifs et pratique autonome",
+          "deliverable": "Tableau récapitulatif des dérivées et méthode d'étude de fonction"
+        },
+        {
+          "number": 4,
+          "title": "Probabilités conditionnelles",
+          "objective": "Calculer des probabilités conditionnelles et utiliser un arbre pondéré",
+          "topics": [
+            "Probabilité conditionnelle : définition et notation",
+            "Arbres de probabilités pondérés",
+            "Formule des probabilités totales",
+            "Indépendance de deux événements"
+          ],
+          "method": "Résolution de problèmes concrets avec modélisation par arbre",
+          "deliverable": "Fiche méthode probabilités conditionnelles avec schémas types"
+        },
+        {
+          "number": 5,
+          "title": "Rédaction et stratégie d'épreuve",
+          "objective": "Rédiger efficacement et gérer son temps sur un sujet de mathématiques",
+          "topics": [
+            "Rédaction rigoureuse d'une démonstration",
+            "Lecture d'énoncé et identification des attendus",
+            "Stratégie de résolution et gestion du temps",
+            "Entraînement sur sujet type Bac"
+          ],
+          "method": "Sujet chronométré suivi d'une correction détaillée et personnalisée",
+          "deliverable": "Copie corrigée annotée avec grille de compétences évaluées"
+        }
+      ]
+    },
+    {
+      "id": "premiere-francais-eaf",
+      "level": "PREMIERE",
+      "subject": "Français (EAF)",
+      "title": "Français — Préparation aux EAF",
+      "subtitle": "Se préparer méthodiquement aux Épreuves Anticipées de Français (écrit et oral)",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Le commentaire composé : méthode complète",
+          "objective": "Maîtriser la méthode du commentaire de la lecture à la rédaction",
+          "topics": [
+            "Lecture analytique et repérage des procédés",
+            "Construction d'un plan en deux ou trois axes",
+            "Rédaction de l'introduction et de la conclusion",
+            "Intégration des citations et analyse stylistique"
+          ],
+          "method": "Travail méthodique sur un texte complet avec brouillon guidé",
+          "deliverable": "Commentaire composé rédigé intégralement avec auto-évaluation"
+        },
+        {
+          "number": 2,
+          "title": "Dissertation et contraction de texte",
+          "objective": "Comprendre les attendus de la dissertation littéraire et de la contraction",
+          "topics": [
+            "Analyse du sujet et problématisation",
+            "Plan dialectique et plan thématique",
+            "Contraction de texte : méthode et ratio",
+            "Essai littéraire : argumentation et références"
+          ],
+          "method": "Exercices ciblés sur chaque étape avec modèles annotés",
+          "deliverable": "Plan détaillé de dissertation et contraction rédigée"
+        },
+        {
+          "number": 3,
+          "title": "Explication linéaire : technique et pratique",
+          "objective": "Réaliser une explication linéaire structurée en vue de l'oral",
+          "topics": [
+            "Structure de l'explication linéaire (mouvements du texte)",
+            "Analyse des procédés au fil du texte",
+            "Formulation des micro-interprétations",
+            "Transition entre les mouvements"
+          ],
+          "method": "Pratique sur extraits des œuvres au programme avec feedback",
+          "deliverable": "Explication linéaire complète rédigée et chronométrée"
+        },
+        {
+          "number": 4,
+          "title": "Grammaire stylistique et question de grammaire",
+          "objective": "Maîtriser la question de grammaire de l'oral des EAF",
+          "topics": [
+            "Interrogation et négation",
+            "Subordonnées circonstancielles et relatives",
+            "Analyse de phrase complexe",
+            "Valeurs des modes et des temps"
+          ],
+          "method": "Exercices d'analyse grammaticale sur extraits littéraires",
+          "deliverable": "Fiche synthèse des points de grammaire au programme de l'oral"
+        },
+        {
+          "number": 5,
+          "title": "Oral des EAF : explication et entretien",
+          "objective": "Se préparer à l'épreuve orale complète (explication + entretien)",
+          "topics": [
+            "Présentation orale de l'explication linéaire (12 min)",
+            "Gestion du temps et de la voix",
+            "Entretien : défendre son parcours et son œuvre choisie",
+            "Simulation d'oral avec questions du jury"
+          ],
+          "method": "Simulation d'oral en conditions réelles avec feedback détaillé",
+          "deliverable": "Grille de progression orale personnalisée et conseils ciblés"
+        }
+      ]
+    },
+    {
+      "id": "premiere-nsi",
+      "level": "PREMIERE",
+      "subject": "NSI",
+      "title": "NSI Première — Numérique et Sciences Informatiques",
+      "subtitle": "Consolider les fondamentaux de la programmation et de l'algorithmique",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Types construits : listes, tuples et dictionnaires",
+          "objective": "Maîtriser les structures de données Python essentielles",
+          "topics": [
+            "Listes : création, accès, parcours, méthodes",
+            "Tuples et immutabilité",
+            "Dictionnaires : clés, valeurs, itération",
+            "Compréhensions de listes"
+          ],
+          "method": "Exercices progressifs de manipulation avec cas concrets",
+          "deliverable": "Série d'exercices résolus sur les types construits"
+        },
+        {
+          "number": 2,
+          "title": "Algorithmes de tri et de recherche",
+          "objective": "Implémenter et comparer les algorithmes de tri et de recherche au programme",
+          "topics": [
+            "Recherche séquentielle et dichotomique",
+            "Tri par sélection",
+            "Tri par insertion",
+            "Notion de complexité (comparaisons)"
+          ],
+          "method": "Implémentation pas-à-pas puis comparaison expérimentale",
+          "deliverable": "Implémentations commentées des algorithmes avec tests"
+        },
+        {
+          "number": 3,
+          "title": "Tables de données et traitement",
+          "objective": "Charger, filtrer et traiter des données tabulaires en Python",
+          "topics": [
+            "Fichiers CSV et lecture en Python",
+            "Représentation en table (liste de dictionnaires)",
+            "Recherche, filtrage et tri de données",
+            "Agrégation simple (comptage, moyenne)"
+          ],
+          "method": "Travail sur un jeu de données réel avec exercices progressifs",
+          "deliverable": "Script Python de traitement de données complet et commenté"
+        },
+        {
+          "number": 4,
+          "title": "Architecture web : client-serveur",
+          "objective": "Comprendre l'architecture web et les interactions client-serveur",
+          "topics": [
+            "Modèle client-serveur et protocole HTTP",
+            "Requêtes GET et POST",
+            "Formulaires HTML et traitement côté serveur",
+            "Introduction à Flask (route simple)"
+          ],
+          "method": "Démonstration puis création d'une application web minimale",
+          "deliverable": "Mini-application web Flask fonctionnelle"
+        },
+        {
+          "number": 5,
+          "title": "Mini-projet intégrateur NSI",
+          "objective": "Mobiliser l'ensemble des compétences dans un projet cohérent",
+          "topics": [
+            "Définition du cahier des charges",
+            "Structuration du code en fonctions",
+            "Tests et validation",
+            "Documentation et présentation"
+          ],
+          "method": "Pédagogie par projet avec accompagnement personnalisé",
+          "deliverable": "Projet NSI documenté et fonctionnel, prêt pour présentation"
+        }
+      ]
+    },
+    {
+      "id": "premiere-physique-chimie",
+      "level": "PREMIERE",
+      "subject": "Physique-Chimie",
+      "title": "Physique-Chimie Première",
+      "subtitle": "Approfondir la chimie quantitative et la mécanique pour l'épreuve de spécialité",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Quantité de matière et concentration",
+          "objective": "Maîtriser la mole, les calculs de quantité et les concentrations",
+          "topics": [
+            "Mole et nombre d'Avogadro",
+            "Masse molaire et volume molaire",
+            "Concentration molaire et massique",
+            "Dilution et préparation de solutions"
+          ],
+          "method": "Exercices de calcul systématiques avec progression de difficulté",
+          "deliverable": "Fiche formulaire quantité de matière avec méthode de résolution"
+        },
+        {
+          "number": 2,
+          "title": "Réactions chimiques et stœchiométrie",
+          "objective": "Équilibrer une réaction et réaliser un bilan de matière",
+          "topics": [
+            "Équation de réaction et équilibrage",
+            "Tableau d'avancement",
+            "Réactif limitant et avancement maximal",
+            "Rendement d'une réaction"
+          ],
+          "method": "Méthode pas-à-pas du tableau d'avancement sur exemples variés",
+          "deliverable": "Méthode complète du tableau d'avancement avec exercices résolus"
+        },
+        {
+          "number": 3,
+          "title": "Champs et forces : gravitation et électrostatique",
+          "objective": "Caractériser les champs de gravitation et électrostatique",
+          "topics": [
+            "Notion de champ (scalaire et vectoriel)",
+            "Champ de gravitation et pesanteur",
+            "Force et champ électrostatique",
+            "Lignes de champ et cartographie"
+          ],
+          "method": "Schématisation systématique et exercices d'application",
+          "deliverable": "Tableau comparatif gravitation/électrostatique avec schémas"
+        },
+        {
+          "number": 4,
+          "title": "Énergie mécanique et conservation",
+          "objective": "Appliquer le principe de conservation de l'énergie mécanique",
+          "topics": [
+            "Énergie cinétique et théorème de l'énergie cinétique",
+            "Énergie potentielle de pesanteur",
+            "Énergie mécanique et conservation",
+            "Transferts d'énergie et frottements"
+          ],
+          "method": "Résolution de problèmes avec bilan énergétique schématisé",
+          "deliverable": "Méthode de résolution par bilan énergétique avec exemples"
+        },
+        {
+          "number": 5,
+          "title": "Exploitation de documents scientifiques",
+          "objective": "Extraire des informations et résoudre un problème à partir de documents",
+          "topics": [
+            "Lecture critique de graphiques et tableaux",
+            "Extraction d'informations pertinentes",
+            "Mise en relation de données multi-documents",
+            "Rédaction structurée d'une résolution de problème"
+          ],
+          "method": "Entraînement sur exercices type Bac avec correction détaillée",
+          "deliverable": "Copie type corrigée avec grille de notation explicitée"
+        }
+      ]
+    },
+    {
+      "id": "terminale-mathematiques",
+      "level": "TERMINALE",
+      "subject": "Mathématiques",
+      "title": "Mathématiques Terminale",
+      "subtitle": "Préparer les notions clés du programme de Terminale pour aborder l'année sereinement",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Limites et continuité",
+          "objective": "Calculer des limites et comprendre la notion de continuité",
+          "topics": [
+            "Limites en l'infini et limites finies",
+            "Formes indéterminées et levée d'indétermination",
+            "Asymptotes horizontales et verticales",
+            "Continuité et théorème des valeurs intermédiaires"
+          ],
+          "method": "Cours structuré puis exercices d'application avec corrigés détaillés",
+          "deliverable": "Fiche méthode limites avec tableau des formes indéterminées"
+        },
+        {
+          "number": 2,
+          "title": "Dérivation avancée et fonctions composées",
+          "objective": "Dériver des fonctions composées et mener des études complètes",
+          "topics": [
+            "Dérivée de fonctions composées",
+            "Fonction exponentielle et ses propriétés",
+            "Fonction logarithme népérien",
+            "Étude complète de fonction avec exponentielle ou logarithme"
+          ],
+          "method": "Exercices guidés avec complexité progressive",
+          "deliverable": "Tableau des dérivées avancées et étude de fonction complète rédigée"
+        },
+        {
+          "number": 3,
+          "title": "Suites récurrentes et convergence",
+          "objective": "Étudier le comportement à l'infini des suites récurrentes",
+          "topics": [
+            "Suites récurrentes du type u(n+1) = f(u(n))",
+            "Sens de variation d'une suite récurrente",
+            "Convergence et limite d'une suite",
+            "Raisonnement par récurrence"
+          ],
+          "method": "Méthode graphique puis formalisation avec exercices types Bac",
+          "deliverable": "Méthode complète d'étude d'une suite récurrente"
+        },
+        {
+          "number": 4,
+          "title": "Probabilités : loi binomiale et espérance",
+          "objective": "Modéliser une situation par une loi binomiale et calculer ses paramètres",
+          "topics": [
+            "Épreuve de Bernoulli et schéma de Bernoulli",
+            "Loi binomiale : paramètres et calculs",
+            "Espérance, variance, écart-type",
+            "Applications et modélisation"
+          ],
+          "method": "Problèmes contextualisés avec utilisation de la calculatrice",
+          "deliverable": "Fiche synthèse loi binomiale avec exercices types résolus"
+        },
+        {
+          "number": 5,
+          "title": "Géométrie dans l'espace",
+          "objective": "Se repérer dans l'espace et résoudre des problèmes de géométrie vectorielle",
+          "topics": [
+            "Repère orthonormé de l'espace",
+            "Vecteurs de l'espace et coordonnées",
+            "Équation cartésienne d'un plan",
+            "Droites et plans : positions relatives"
+          ],
+          "method": "Visualisation 3D puis exercices de calcul avec schémas",
+          "deliverable": "Formulaire géométrie dans l'espace avec méthodes de résolution"
+        }
+      ]
+    },
+    {
+      "id": "terminale-expression-ecrite-oral",
+      "level": "TERMINALE",
+      "subject": "Expression écrite argumentation et oral",
+      "title": "Expression écrite, argumentation et maîtrise de l'oral",
+      "subtitle": "Développer les compétences transversales d'expression pour le Grand Oral et le supérieur",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Argumentation structurée et raisonnement logique",
+          "objective": "Construire une argumentation rigoureuse sur des sujets complexes",
+          "topics": [
+            "Structure argumentative avancée (thèse, antithèse, synthèse)",
+            "Types de raisonnement (déductif, inductif, par analogie)",
+            "Connecteurs logiques et enchaînements",
+            "Rédaction d'un développement argumenté de 40 lignes"
+          ],
+          "method": "Analyse de modèles puis production écrite avec feedback personnalisé",
+          "deliverable": "Développement argumenté complet évalué et annoté"
+        },
+        {
+          "number": 2,
+          "title": "Analyse de textes et documents non littéraires",
+          "objective": "Extraire, confronter et synthétiser des informations de documents variés",
+          "topics": [
+            "Lecture critique de documents scientifiques et journalistiques",
+            "Identification des biais et des intentions de l'auteur",
+            "Confrontation de sources et recoupement",
+            "Rédaction d'une analyse structurée"
+          ],
+          "method": "Travail sur corpus documentaire avec grille d'analyse guidée",
+          "deliverable": "Analyse de document rédigée avec méthode de lecture critique"
+        },
+        {
+          "number": 3,
+          "title": "Expression orale : structuration et diction",
+          "objective": "Structurer un propos oral et maîtriser sa diction et sa posture",
+          "topics": [
+            "Structuration d'une intervention orale (5 min)",
+            "Techniques de diction (articulation, rythme, pauses)",
+            "Gestion du regard et de la posture",
+            "Utilisation de notes et de support"
+          ],
+          "method": "Exercices de prise de parole filmés avec auto-analyse",
+          "deliverable": "Fiche personnalisée de progression orale avec objectifs ciblés"
+        },
+        {
+          "number": 4,
+          "title": "Synthèse de documents",
+          "objective": "Rédiger une synthèse fidèle et structurée à partir d'un corpus",
+          "topics": [
+            "Méthodologie de la synthèse (lecture, confrontation, plan)",
+            "Reformulation sans paraphrase ni opinion personnelle",
+            "Organisation thématique du propos",
+            "Rédaction fluide avec transitions"
+          ],
+          "method": "Exercice complet de synthèse sur corpus de 3-4 documents",
+          "deliverable": "Synthèse rédigée avec grille d'auto-évaluation"
+        },
+        {
+          "number": 5,
+          "title": "Préparation à l'entretien : Grand Oral et au-delà",
+          "objective": "Se préparer à l'épreuve du Grand Oral et aux entretiens d'orientation",
+          "topics": [
+            "Structure du Grand Oral (présentation + échange + orientation)",
+            "Formulation et défense d'une problématique",
+            "Réponse aux questions déstabilisantes",
+            "Simulation complète en conditions d'examen"
+          ],
+          "method": "Simulation d'entretien en conditions réelles avec jury",
+          "deliverable": "Grille d'évaluation Grand Oral complétée avec axes d'amélioration"
+        }
+      ]
+    },
+    {
+      "id": "terminale-nsi",
+      "level": "TERMINALE",
+      "subject": "NSI",
+      "title": "NSI Terminale — Numérique et Sciences Informatiques",
+      "subtitle": "Aborder les structures de données avancées et préparer l'épreuve pratique",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Structures de données : piles, files et arbres",
+          "objective": "Implémenter et utiliser les structures de données linéaires et arborescentes",
+          "topics": [
+            "Piles : principe LIFO et implémentation",
+            "Files : principe FIFO et implémentation",
+            "Arbres binaires : vocabulaire et parcours",
+            "Arbres binaires de recherche (ABR)"
+          ],
+          "method": "Implémentation guidée puis exercices d'utilisation",
+          "deliverable": "Implémentations Python des structures avec tests unitaires"
+        },
+        {
+          "number": 2,
+          "title": "Récursivité : principes et applications",
+          "objective": "Concevoir et analyser des algorithmes récursifs",
+          "topics": [
+            "Principe de récursivité et cas de base",
+            "Pile d'appels et déroulement d'exécution",
+            "Exemples classiques (factorielle, Fibonacci, puissance)",
+            "Récursivité sur les arbres (parcours, hauteur)"
+          ],
+          "method": "Visualisation de la pile d'appels puis exercices progressifs",
+          "deliverable": "Catalogue d'algorithmes récursifs commentés et testés"
+        },
+        {
+          "number": 3,
+          "title": "Bases de données et SQL",
+          "objective": "Modéliser des données et écrire des requêtes SQL courantes",
+          "topics": [
+            "Modèle relationnel et schéma de base",
+            "Requêtes SELECT, WHERE, ORDER BY",
+            "Jointures entre tables",
+            "INSERT, UPDATE, DELETE et contraintes d'intégrité"
+          ],
+          "method": "Exercices sur base de données concrète avec requêtes progressives",
+          "deliverable": "Série de requêtes SQL résolues sur une base exemple"
+        },
+        {
+          "number": 4,
+          "title": "Protocoles réseaux et sécurité",
+          "objective": "Comprendre les protocoles réseau et les enjeux de sécurité",
+          "topics": [
+            "Modèle TCP/IP et encapsulation",
+            "Adressage IP et routage simplifié",
+            "Protocoles applicatifs (HTTP, DNS)",
+            "Chiffrement symétrique et asymétrique (principes)"
+          ],
+          "method": "Analyse de trames et exercices de routage sur schéma réseau",
+          "deliverable": "Schéma récapitulatif des protocoles avec exercices résolus"
+        },
+        {
+          "number": 5,
+          "title": "Méthodologie de l'épreuve pratique NSI",
+          "objective": "Se préparer efficacement à l'épreuve pratique du Bac NSI",
+          "topics": [
+            "Format de l'épreuve et attendus",
+            "Stratégie de résolution (lecture, pseudo-code, implémentation)",
+            "Gestion du temps sur les deux exercices",
+            "Entraînement sur sujets types avec correction"
+          ],
+          "method": "Simulation d'épreuve en conditions réelles puis correction détaillée",
+          "deliverable": "Deux exercices d'épreuve pratique résolus avec méthode"
+        }
+      ]
+    },
+    {
+      "id": "terminale-physique-chimie",
+      "level": "TERMINALE",
+      "subject": "Physique-Chimie",
+      "title": "Physique-Chimie Terminale",
+      "subtitle": "Préparer les chapitres fondamentaux de Terminale pour un démarrage efficace",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Acides-bases et pH",
+          "objective": "Comprendre les réactions acido-basiques et calculer le pH de solutions",
+          "topics": [
+            "Couples acide-base et réaction acido-basique",
+            "pH et concentration en ions H3O+",
+            "Acides forts, acides faibles et constante Ka",
+            "Solutions tampon (introduction)"
+          ],
+          "method": "Exercices de calcul progressifs avec interprétation des résultats",
+          "deliverable": "Fiche méthode acides-bases avec exercices types résolus"
+        },
+        {
+          "number": 2,
+          "title": "Cinétique chimique : vitesse et facteurs",
+          "objective": "Décrire l'évolution temporelle d'une réaction et ses facteurs cinétiques",
+          "topics": [
+            "Vitesse de réaction et suivi temporel",
+            "Facteurs cinétiques (température, concentration, catalyseur)",
+            "Temps de demi-réaction",
+            "Exploitation de courbes cinétiques"
+          ],
+          "method": "Analyse de données expérimentales et exercices d'exploitation",
+          "deliverable": "Méthode d'exploitation d'une courbe cinétique avec exemples"
+        },
+        {
+          "number": 3,
+          "title": "Mécanique newtonienne",
+          "objective": "Appliquer les lois de Newton pour étudier des mouvements",
+          "topics": [
+            "Deuxième loi de Newton (somme des forces = ma)",
+            "Mouvement dans un champ de pesanteur uniforme",
+            "Mouvement d'un projectile",
+            "Mouvement circulaire uniforme (introduction)"
+          ],
+          "method": "Résolution méthodique de problèmes avec schématisation systématique",
+          "deliverable": "Méthode de résolution mécanique newtonienne avec problèmes résolus"
+        },
+        {
+          "number": 4,
+          "title": "Ondes et optique",
+          "objective": "Caractériser une onde et comprendre les phénomènes optiques fondamentaux",
+          "topics": [
+            "Ondes mécaniques : célérité, période, longueur d'onde",
+            "Phénomène de diffraction",
+            "Interférences (conditions constructives/destructives)",
+            "Lois de Snell-Descartes et dispersion"
+          ],
+          "method": "Schématisation et calculs sur situations expérimentales concrètes",
+          "deliverable": "Formulaire ondes-optique avec schémas explicatifs"
+        },
+        {
+          "number": 5,
+          "title": "Résolution de problèmes scientifiques",
+          "objective": "Maîtriser la méthodologie de résolution de problème type Bac",
+          "topics": [
+            "Analyse d'un énoncé et extraction de données",
+            "Choix du modèle et mise en équation",
+            "Résolution et vérification de cohérence",
+            "Rédaction structurée de la solution"
+          ],
+          "method": "Entraînement sur problèmes type Bac avec correction critériée",
+          "deliverable": "Problème résolu intégralement avec grille de notation explicitée"
+        }
+      ]
+    }
+  ]
+}

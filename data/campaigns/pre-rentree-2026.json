@@ -1,0 +1,92 @@
+{
+  "campaignId": "pre-rentree-2026",
+  "version": "1.0.0",
+  "status": "PRE_REGISTRATION_OPEN",
+  "canonicalPath": "/stages/pre-rentree-2026",
+  "shortPath": "/pre-rentree",
+  "timezone": "Africa/Tunis",
+  "startDate": "2026-08-17",
+  "endDate": "2026-08-28",
+  "noClassDates": ["2026-08-22", "2026-08-23"],
+  "decisionDeadline": "2026-08-10T18:00:00+01:00",
+  "venue": {
+    "name": "Nexus Réussite — Mutuelleville",
+    "city": "Tunis",
+    "neighborhood": "Mutuelleville"
+  },
+  "levels": [
+    { "id": "SECONDE", "label": "Seconde" },
+    { "id": "PREMIERE", "label": "Première" },
+    { "id": "TERMINALE", "label": "Terminale" }
+  ],
+  "subjects": [
+    { "id": "MATHEMATIQUES", "label": "Mathématiques", "levels": ["SECONDE", "PREMIERE", "TERMINALE"] },
+    { "id": "PHYSIQUE_CHIMIE", "label": "Physique-Chimie", "levels": ["SECONDE", "PREMIERE", "TERMINALE"] },
+    { "id": "NSI", "label": "NSI", "levels": ["SECONDE", "PREMIERE", "TERMINALE"], "labelByLevel": { "SECONDE": "Initiation informatique, algorithmique et SNT" } },
+    { "id": "FRANCAIS", "label": "Français", "levels": ["SECONDE", "PREMIERE", "TERMINALE"], "labelByLevel": { "PREMIERE": "Français — EAF", "TERMINALE": "Expression écrite, argumentation et maîtrise de l'oral" } }
+  ],
+  "blocks": [
+    { "id": "A", "startTime": "08:30", "endTime": "10:30" },
+    { "id": "B", "startTime": "10:45", "endTime": "12:45" },
+    { "id": "C", "startTime": "13:30", "endTime": "15:30" },
+    { "id": "D", "startTime": "15:45", "endTime": "17:45" }
+  ],
+  "schedule": [
+    { "week": 1, "weekLabel": "Semaine 1 — 17 au 21 août", "weekStart": "2026-08-17", "weekEnd": "2026-08-21", "slots": [
+      { "level": "SECONDE", "subject": "MATHEMATIQUES", "block": "A", "room": "salle-1" },
+      { "level": "SECONDE", "subject": "FRANCAIS", "block": "B", "room": "salle-2" },
+      { "level": "PREMIERE", "subject": "MATHEMATIQUES", "block": "B", "room": "salle-1" },
+      { "level": "PREMIERE", "subject": "FRANCAIS", "block": "C", "room": "salle-2" },
+      { "level": "TERMINALE", "subject": "MATHEMATIQUES", "block": "C", "room": "salle-1" },
+      { "level": "TERMINALE", "subject": "FRANCAIS", "block": "D", "room": "salle-2" }
+    ]},
+    { "week": 2, "weekLabel": "Semaine 2 — 24 au 28 août", "weekStart": "2026-08-24", "weekEnd": "2026-08-28", "slots": [
+      { "level": "SECONDE", "subject": "NSI", "block": "A", "room": "salle-1" },
+      { "level": "SECONDE", "subject": "PHYSIQUE_CHIMIE", "block": "B", "room": "salle-2" },
+      { "level": "PREMIERE", "subject": "NSI", "block": "B", "room": "salle-1" },
+      { "level": "PREMIERE", "subject": "PHYSIQUE_CHIMIE", "block": "C", "room": "salle-2" },
+      { "level": "TERMINALE", "subject": "NSI", "block": "C", "room": "salle-1" },
+      { "level": "TERMINALE", "subject": "PHYSIQUE_CHIMIE", "block": "D", "room": "salle-2" }
+    ]}
+  ],
+  "roomRoles": {
+    "salle-1": ["Mathématiques", "NSI"],
+    "salle-2": ["Français", "Physique-Chimie"]
+  },
+  "teacherRoles": {
+    "maths-nsi": { "subjects": ["MATHEMATIQUES", "NSI"], "maxHoursPerDay": 6 },
+    "francais-pc": { "subjects": ["FRANCAIS", "PHYSIQUE_CHIMIE"], "maxHoursPerDay": 6 }
+  },
+  "capacity": {
+    "minPerCohort": 3,
+    "maxPerCohort": 5
+  },
+  "packProductIds": ["pre2026-pack-1", "pre2026-pack-2", "pre2026-pack-3", "pre2026-pack-4"],
+  "contact": {
+    "whatsapp": "+21620123456",
+    "whatsappMessage": "Bonjour, je souhaite des informations sur les stages de pré-rentrée 2026.",
+    "email": "contact@nexusreussite.academy"
+  },
+  "cta": {
+    "primary": { "label": "Composer le stage de mon enfant", "action": "scroll_to_configurator" },
+    "secondary": { "label": "Voir les horaires", "action": "scroll_to_schedule" },
+    "whatsapp": { "label": "Poser une question", "action": "open_whatsapp" },
+    "bilanGratuit": { "label": "Bilan gratuit", "path": "/bilan-gratuit" }
+  },
+  "featureFlags": {
+    "showPricing": true,
+    "showSchedule": true,
+    "showPrograms": true,
+    "enablePreRegistration": true,
+    "showAvailability": false,
+    "enablePayment": false
+  },
+  "contentRefs": {
+    "modules": "content/pre-rentree-2026/modules.json"
+  },
+  "legalRefs": {
+    "cgv": "/mentions-legales",
+    "commercialTerms": "docs/legal/pre-rentree-2026-commercial-terms-gap-analysis.md"
+  },
+  "analyticsEventPrefix": "pre_rentree"
+}
