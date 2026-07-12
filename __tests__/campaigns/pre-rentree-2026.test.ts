@@ -150,19 +150,12 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       }
     });
 
-    it('teacher max 6h/day (3 blocks)', () => {
+    it('each declared teacher role stays at or below 6h/day', () => {
       for (const week of schedule) {
-        // maths-nsi teacher handles MATHEMATIQUES and NSI
-        const mathNsiBlocks = week.slots.filter(
-          s => s.subject === 'MATHEMATIQUES' || s.subject === 'NSI'
-        );
-        expect(mathNsiBlocks.length).toBeLessThanOrEqual(3);
-
-        // francais-pc teacher handles FRANCAIS and PHYSIQUE_CHIMIE
-        const frPcBlocks = week.slots.filter(
-          s => s.subject === 'FRANCAIS' || s.subject === 'PHYSIQUE_CHIMIE'
-        );
-        expect(frPcBlocks.length).toBeLessThanOrEqual(3);
+        for (const role of Object.values(campaignManifest.teacherRoles)) {
+          const roleBlocks = week.slots.filter((slot) => role.subjects.includes(slot.subject));
+          expect(roleBlocks.length * 2).toBeLessThanOrEqual(role.maxHoursPerDay);
+        }
       }
     });
   });

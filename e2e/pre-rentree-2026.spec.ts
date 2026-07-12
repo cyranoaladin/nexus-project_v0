@@ -3,11 +3,11 @@ import AxeBuilder from '@axe-core/playwright';
 import fs from 'node:fs';
 
 const CAMPAIGN_PATH = '/stages/pre-rentree-2026';
-const EVIDENCE_DIR = '/tmp/nexus-pre-rentree-2026-evidence';
+const EVIDENCE_DIR = '/tmp/nexus-pre-rentree-2026-final-preview';
 
 async function openConfigurator(page: Page, level: 'Seconde' | 'Première' | 'Terminale') {
   await page.goto(CAMPAIGN_PATH);
-  await page.locator('#configurateur').getByRole('radio', { name: level }).click();
+  await page.locator('#configurateur').getByRole('radio', { name: `Entrée en ${level}` }).click();
   await page.locator('#configurateur').getByRole('button', { name: 'Continuer' }).click();
 }
 
@@ -87,7 +87,7 @@ test.describe('Landing Pré-rentrée 2026', () => {
     await completePremiereProfile(page);
     await expect(page.locator('#configurateur').getByRole('checkbox')).toHaveCount(4);
     await page.locator('#configurateur').getByRole('link', { name: 'Consulter le programme' }).first().click();
-    await expect(page.getByRole('button', { name: /Mathématiques Première/i })).toHaveAttribute('aria-expanded', 'true');
+    await expect(page.getByRole('button', { name: /Mathématiques — Entrée en Première/i })).toHaveAttribute('aria-expanded', 'true');
 
     await openConfigurator(page, 'Terminale');
     await expect(page.getByRole('radio', { name: 'Maths expertes' })).toBeVisible();
@@ -116,6 +116,7 @@ test.describe('Landing Pré-rentrée 2026', () => {
     const whatsappHref = await whatsapp.getAttribute('href');
     expect(whatsappHref).toMatch(/^https:\/\/wa\.me\/21699192829\?text=/);
     const message = decodeURIComponent(new URL(whatsappHref ?? '').searchParams.get('text') ?? '');
+    expect(message).toContain('Classe de rentrée : Entrée en Terminale');
     expect(message).toContain('Volume : 40 heures');
     expect(message).toContain('Pack : 4 matières');
     expect(message).not.toContain('pre2026-pack-4');
@@ -125,29 +126,30 @@ test.describe('Landing Pré-rentrée 2026', () => {
     await bilan.click();
     await expect(page).toHaveURL(/\/bilan-gratuit\?/);
     await expect(page.locator('#studentGrade')).toHaveValue('terminale');
+    await expect(page.getByText('Classe de rentrée : Entrée en Terminale')).toBeVisible();
     await expect(page.getByText(/Préremplissage modifiable · Pré-rentrée 2026/)).toBeVisible();
     await expect(page.getByText(/Offre repérée.*4 matières/)).toBeVisible();
   });
 
   test('rend planning, programmes et FAQ accessibles au clavier', async ({ page }) => {
     await page.goto(CAMPAIGN_PATH);
-    const levelView = page.getByRole('tab', { name: 'Par niveau' });
+    const levelView = page.getByRole('tab', { name: 'Par classe de rentrée' });
     await levelView.focus();
     await levelView.press('ArrowRight');
     await expect(page.getByRole('tab', { name: 'Par semaine' })).toHaveAttribute('aria-selected', 'true');
     await expect(page.getByRole('tabpanel', { name: 'Par semaine' })).toContainText('Bloc A');
 
-    const programme = page.getByRole('button', { name: /Mathématiques Seconde/i });
+    const programme = page.getByRole('button', { name: /Mathématiques — Entrée en Seconde/i });
     await programme.focus();
     await programme.press('Enter');
     await expect(programme).toHaveAttribute('aria-expanded', 'true');
     await expect(page.getByRole('region', { name: /Détail Mathématiques/i })).toContainText('Séance 5');
 
-    const faq = page.getByRole('button', { name: 'Mon enfant peut-il suivre plusieurs matières ?' });
+    const faq = page.getByRole('button', { name: /Mon enfant entrant en Seconde, Première ou Terminale/i });
     await faq.focus();
     await faq.press('Enter');
     await expect(faq).toHaveAttribute('aria-expanded', 'true');
-    await expect(page.getByRole('region', { name: 'Mon enfant peut-il suivre plusieurs matières ?' })).toBeVisible();
+    await expect(page.getByRole('region', { name: /Mon enfant entrant en Seconde, Première ou Terminale/i })).toBeVisible();
   });
 
   test('ne laisse pas la bulle globale masquer les programmes ou la FAQ', async ({ page }) => {
@@ -188,7 +190,7 @@ test.describe('Landing Pré-rentrée 2026', () => {
       await expect(page.getByText('Aucun paiement en ligne n’est demandé sur cette page.')).toBeVisible();
       await expect(page.getByText(/places restantes/i)).toHaveCount(0);
 
-      await page.locator('#configurateur').getByRole('radio', { name: 'Seconde' }).click();
+      await page.locator('#configurateur').getByRole('radio', { name: 'Entrée en Seconde' }).click();
       await page.locator('#configurateur').getByRole('button', { name: 'Continuer' }).click();
       await page.locator('#configurateur').getByRole('checkbox').first().click();
       const summaryToggle = page.getByRole('button', { name: 'Afficher le résumé' });
@@ -220,8 +222,12 @@ test.describe('Landing Pré-rentrée 2026', () => {
     await page.locator('main > section').first().screenshot({ path: `${EVIDENCE_DIR}/hero.png` });
     await page.locator('#configurateur').screenshot({ path: `${EVIDENCE_DIR}/configurator-empty.png` });
 
+    await openConfigurator(page, 'Seconde');
+    await page.locator('#configurateur').screenshot({ path: `${EVIDENCE_DIR}/entry-seconde.png` });
+
     await openConfigurator(page, 'Première');
     await completePremiereProfile(page);
+    await page.locator('#configurateur').screenshot({ path: `${EVIDENCE_DIR}/entry-premiere.png` });
     const twoSubjects = page.locator('#configurateur').getByRole('checkbox');
     await twoSubjects.nth(0).click();
     await twoSubjects.nth(1).click();
@@ -230,6 +236,7 @@ test.describe('Landing Pré-rentrée 2026', () => {
 
     await openConfigurator(page, 'Terminale');
     await completeTerminaleProfile(page);
+    await page.locator('#configurateur').screenshot({ path: `${EVIDENCE_DIR}/entry-terminale.png` });
     const fourSubjects = page.locator('#configurateur').getByRole('checkbox');
     for (let index = 0; index < 4; index += 1) await fourSubjects.nth(index).click();
     await page.getByRole('button', { name: 'Voir mon résumé' }).click();
@@ -237,15 +244,15 @@ test.describe('Landing Pré-rentrée 2026', () => {
 
     const planning = page.locator('#planning');
     for (const level of ['Seconde', 'Première', 'Terminale']) {
-      await planning.getByRole('button', { name: level }).click();
+      await planning.getByRole('button', { name: `Entrée en ${level}` }).click();
       await planning.screenshot({ path: `${EVIDENCE_DIR}/planning-${level.toLowerCase()}.png` });
     }
 
-    const programme = page.getByRole('button', { name: /Mathématiques Seconde/i });
+    const programme = page.getByRole('button', { name: /Mathématiques — Entrée en Seconde/i });
     await programme.click();
     await page.locator('#programme-seconde-mathematiques').screenshot({ path: `${EVIDENCE_DIR}/program-open.png` });
 
-    const faq = page.getByRole('button', { name: 'Mon enfant peut-il suivre plusieurs matières ?' });
+    const faq = page.getByRole('button', { name: /Mon enfant entrant en Seconde, Première ou Terminale/i });
     await faq.click();
     await page.locator('section[aria-labelledby="faq-heading"]').screenshot({ path: `${EVIDENCE_DIR}/faq.png` });
     await page.getByRole('heading', { name: 'Prêt à préparer la rentrée ?' }).locator('..').screenshot({ path: `${EVIDENCE_DIR}/final-cta.png` });
