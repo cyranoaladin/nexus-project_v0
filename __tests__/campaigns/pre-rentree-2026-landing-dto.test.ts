@@ -32,17 +32,22 @@ describe('Pré-rentrée 2026 landing DTO', () => {
       'initiation informatique, algorithmique et SNT pour l’entrée en Seconde',
     );
     expect(dto.content.hero.subtitle).not.toMatch(/NSI en Seconde|EDS NSI/i);
+    expect(dto.packs.map((pack) => pack.code)).toEqual(['PACK_1', 'PACK_2', 'PACK_3', 'PACK_4']);
+    expect(JSON.stringify(dto.packs)).not.toContain('pre2026-pack-');
+    expect(dto.publicStatus).toBe('Pré-inscriptions ouvertes');
+    expect(dto).not.toHaveProperty('status');
     expect(dto.scheduleWeeks).toHaveLength(2);
     expect(dto.scheduleWeeks.flatMap((week) => week.slots)).toHaveLength(12);
-    expect(dto.roomRoles).toEqual({
-      'salle-1': ['MATHEMATIQUES', 'NSI'],
-      'salle-2': ['FRANCAIS', 'PHYSIQUE_CHIMIE'],
-    });
-    expect(Object.keys(dto.teacherRoles)).toEqual([
-      'MATHS_NSI_SNT_TEACHER',
-      'FRENCH_TEACHER',
-      'PHYSICS_CHEMISTRY_TEACHER',
+    expect(dto.organization.educators).toHaveLength(3);
+    expect(dto.organization.rooms).toEqual([
+      { label: 'Salle 1', details: 'Mathématiques / NSI / SNT' },
+      { label: 'Salle 2', details: 'Français puis Physique-Chimie' },
     ]);
+    expect(JSON.stringify(dto.organization)).not.toMatch(
+      /MATHS_NSI_SNT_TEACHER|FRENCH_TEACHER|PHYSICS_CHEMISTRY_TEACHER|teacherRole|roomRole/,
+    );
+    expect(dto).not.toHaveProperty('teacherRoles');
+    expect(dto).not.toHaveProperty('roomRoles');
   });
 
   it('uses the canonical pedagogical address in the landing DTO', () => {
@@ -62,6 +67,7 @@ describe('Pré-rentrée 2026 landing DTO', () => {
     expect(academicProfiles.PREMIERE.voies).toHaveLength(2);
     expect(academicProfiles.PREMIERE.mathsProfiles).toHaveLength(2);
     expect(academicProfiles.PREMIERE.eafProfiles).toHaveLength(2);
+    expect(academicProfiles.PREMIERE.specialtyPlans).toHaveLength(4);
     expect(academicProfiles.TERMINALE.retainedSpecialties.maxSelections).toBe(2);
     expect(academicProfiles.TERMINALE.mathsOptions).toHaveLength(3);
     expect(JSON.stringify(academicProfiles.SECONDE)).not.toMatch(/EDS.*NSI|NSI.*EDS/i);

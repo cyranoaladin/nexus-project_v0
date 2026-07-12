@@ -29,7 +29,7 @@ function renderConfigurator() {
       schedule={dto.schedule}
       academicProfiles={dto.academicProfiles}
       groupCompositionNotice={dto.content.practical.groupCompositionNotice}
-      campaignStatus={dto.status}
+      campaignPublicStatus={dto.publicStatus}
     />,
   );
 }
@@ -49,6 +49,7 @@ describe('Pré-rentrée stage configurator', () => {
     await user.click(screen.getByRole('radio', { name: 'Voie générale' }));
     await user.click(screen.getByRole('radio', { name: 'Maths EDS' }));
     await user.click(screen.getByRole('radio', { name: 'EAF voie générale' }));
+    await user.click(screen.getByRole('radio', { name: 'NSI et Physique-Chimie envisagées' }));
     expect(track.preRentreeTrackSelected).toHaveBeenCalledWith('premiere', 'maths_eds');
     expect(track.preRentreeTrackSelected).toHaveBeenCalledWith('premiere', 'eaf_generale');
     await user.click(screen.getByRole('button', { name: 'Continuer' }));
@@ -67,7 +68,7 @@ describe('Pré-rentrée stage configurator', () => {
     expect(screen.getByText(/validation du groupe par l'équipe Nexus/i)).toBeInTheDocument();
 
     const bilan = screen.getByRole('link', { name: /Poursuivre vers le bilan/i });
-    expect(bilan).toHaveAttribute('href', expect.stringContaining('pack=pre2026-pack-2'));
+    expect(bilan).toHaveAttribute('href', expect.stringContaining('pack=PACK_2'));
     expect(bilan.getAttribute('href')).not.toMatch(/price|prix/i);
     expect(screen.getByText('Du lundi 17 au vendredi 21 août · 10:45–12:45')).toBeInTheDocument();
     expect(screen.getByText('(nouvel onglet)')).toHaveClass('sr-only');
@@ -82,6 +83,7 @@ describe('Pré-rentrée stage configurator', () => {
     await user.click(screen.getByRole('radio', { name: 'Voie générale' }));
     await user.click(screen.getByRole('radio', { name: 'Maths EDS' }));
     await user.click(screen.getByRole('radio', { name: 'EAF voie générale' }));
+    await user.click(screen.getByRole('radio', { name: 'NSI et Physique-Chimie envisagées' }));
     await user.click(screen.getByRole('button', { name: 'Continuer' }));
 
     const link = screen.getAllByRole('link', { name: 'Consulter le programme' })[0];
@@ -114,7 +116,7 @@ describe('Pré-rentrée stage configurator', () => {
         schedule={dto.schedule}
         academicProfiles={dto.academicProfiles}
         groupCompositionNotice={dto.content.practical.groupCompositionNotice}
-        campaignStatus={dto.status}
+        campaignPublicStatus={dto.publicStatus}
       />,
     );
 
@@ -141,6 +143,20 @@ describe('Pré-rentrée stage configurator', () => {
     expect(specialties[0]).toBeChecked();
     expect(specialties[1]).toBeChecked();
     expect(specialties[2]).not.toBeChecked();
+  });
+
+  it('blocks a certain Terminale Maths option contradiction before subject selection', async () => {
+    const user = userEvent.setup();
+    renderConfigurator();
+
+    await user.click(screen.getByRole('radio', { name: 'Entrée en Terminale' }));
+    await user.click(screen.getByRole('button', { name: 'Continuer' }));
+    await user.click(screen.getByRole('radio', { name: 'Maths expertes' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Maths expertes nécessite la spécialité Mathématiques conservée.',
+    );
+    expect(screen.getByRole('button', { name: 'Continuer' })).toBeDisabled();
   });
 
   it('reports an incomplete pedagogical profile before subject selection', async () => {

@@ -18,10 +18,10 @@ describe('Pré-rentrée analytics contract', () => {
     track.preRentreeSubjectSelected('premiere', 'mathematiques', 2);
     track.preRentreeScheduleViewed('by_week');
     track.preRentreeProgramViewed('premiere', 'mathematiques');
-    track.preRentreePriceSummaryViewed('pre2026-pack-2');
-    track.preRentreeBilanClicked('configurator_summary', 'pre2026-pack-2');
-    track.preRentreeWhatsAppClicked('configurator_summary', 'pre2026-pack-2');
-    track.preRentreePreregistrationStarted('pre2026-pack-2', 'premiere', 2);
+    track.preRentreePriceSummaryViewed('PACK_2');
+    track.preRentreeBilanClicked('configurator_summary', 'PACK_2');
+    track.preRentreeWhatsAppClicked('configurator_summary', 'PACK_2');
+    track.preRentreePreregistrationStarted('PACK_2', 'premiere', 2);
 
     const calls = gtag.mock.calls;
     expect(calls.map((call) => call[1])).toEqual([
@@ -43,8 +43,8 @@ describe('Pré-rentrée analytics contract', () => {
     expect(calls[3]?.[2]).toEqual({ entry_level: 'premiere', subject_code: 'mathematiques', subject_count: 2 });
     expect(calls[4]?.[2]).toEqual({ schedule_view_type: 'by_week' });
     expect(calls[5]?.[2]).toEqual({ entry_level: 'premiere', subject_code: 'mathematiques' });
-    expect(calls[6]?.[2]).toEqual({ pack_code: 'pre2026-pack-2' });
-    expect(calls[9]?.[2]).toEqual({ pack_code: 'pre2026-pack-2', entry_level: 'premiere', subject_count: 2 });
+    expect(calls[6]?.[2]).toEqual({ pack_code: 'PACK_2' });
+    expect(calls[9]?.[2]).toEqual({ pack_code: 'PACK_2', entry_level: 'premiere', subject_count: 2 });
     expect(serialized).not.toMatch(/"level"|"track"|"subject"|"count"|"pack_id"|"view"/);
   });
 

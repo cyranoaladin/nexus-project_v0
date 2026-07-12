@@ -26,8 +26,7 @@ function renderSchedule() {
       levels={dto.levels}
       subjects={dto.subjects}
       blocks={dto.blocks}
-      roomRoles={dto.roomRoles}
-      teacherRoles={dto.teacherRoles}
+      organization={dto.organization}
     />,
   );
 }

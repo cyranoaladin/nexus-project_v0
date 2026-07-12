@@ -59,12 +59,13 @@ describe('BilanGratuitPage', () => {
   it('prefills a validated Pré-rentrée selection while keeping fields editable', async () => {
     await renderPage({
       programme: 'pre-rentree-2026',
-      pack: 'pre2026-pack-2',
+      pack: 'PACK_2',
       niveau: 'PREMIERE',
       matieres: 'MATHEMATIQUES,FRANCAIS',
       voie: 'GENERALE',
       profil_maths: 'MATHS_EDS',
       profil_eaf: 'EAF_GENERALE',
+      projet_specialites: 'NSI_PHYSIQUE_CHIMIE',
       price: '1',
     });
 
@@ -93,13 +94,14 @@ describe('BilanGratuitPage', () => {
       expect(payload).toMatchObject({
         campaignContext: {
           programme: 'pre-rentree-2026',
-          packId: 'pre2026-pack-2',
+          packCode: 'PACK_2',
           level: 'PREMIERE',
           subjectIds: ['MATHEMATIQUES', 'FRANCAIS'],
           profile: {
             voie: 'GENERALE',
             mathsProfile: 'MATHS_EDS',
             eafProfile: 'EAF_GENERALE',
+            premiereSpecialtyPlan: 'NSI_PHYSIQUE_CHIMIE',
           },
         },
       });

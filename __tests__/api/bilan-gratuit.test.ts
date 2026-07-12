@@ -168,13 +168,14 @@ describe('/api/bilan-gratuit', () => {
       ...validRequestData,
       campaignContext: {
         programme: 'pre-rentree-2026',
-        packId: 'pre2026-pack-2',
+        packCode: 'PACK_2',
         level: 'PREMIERE',
         subjectIds: ['MATHEMATIQUES', 'FRANCAIS'],
         profile: {
           voie: 'GENERALE',
           mathsProfile: 'MATHS_EDS',
           eafProfile: 'EAF_GENERALE',
+          premiereSpecialtyPlan: 'NSI_PHYSIQUE_CHIMIE',
         },
       },
     }));
@@ -183,7 +184,7 @@ describe('/api/bilan-gratuit', () => {
     expect(contactLeadCreate).toHaveBeenCalledWith({
       data: expect.objectContaining({
         source: 'pre-rentree-2026',
-        interest: expect.stringContaining('pre2026-pack-2'),
+        interest: expect.stringContaining('PACK_2'),
         profile: expect.stringContaining('MATHS_EDS'),
       }),
     });

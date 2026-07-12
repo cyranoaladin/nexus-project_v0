@@ -6,25 +6,27 @@ describe('Pré-rentrée bilan prefill parser', () => {
   it('accepts only normalized campaign identifiers', () => {
     const result = parsePreRentreeBilanPrefill({
       programme: 'pre-rentree-2026',
-      pack: 'pre2026-pack-2',
+      pack: 'PACK_2',
       niveau: 'PREMIERE',
       matieres: 'MATHEMATIQUES,FRANCAIS',
       voie: 'GENERALE',
       profil_maths: 'MATHS_EDS',
       profil_eaf: 'EAF_GENERALE',
+      projet_specialites: 'NSI_PHYSIQUE_CHIMIE',
       price: '1',
       email: 'parent@example.com',
     });
 
     expect(result).toEqual({
       programme: 'pre-rentree-2026',
-      packId: 'pre2026-pack-2',
+      packCode: 'PACK_2',
       level: 'PREMIERE',
       subjectIds: ['MATHEMATIQUES', 'FRANCAIS'],
       profile: {
         voie: 'GENERALE',
         mathsProfile: 'MATHS_EDS',
         eafProfile: 'EAF_GENERALE',
+        premiereSpecialtyPlan: 'NSI_PHYSIQUE_CHIMIE',
       },
     });
     expect(result).not.toHaveProperty('price');
@@ -32,13 +34,13 @@ describe('Pré-rentrée bilan prefill parser', () => {
   });
 
   it.each([
-    { programme: 'other', pack: 'pre2026-pack-1', niveau: 'SECONDE', matieres: 'FRANCAIS' },
+    { programme: 'other', pack: 'PACK_1', niveau: 'SECONDE', matieres: 'FRANCAIS' },
     { programme: 'pre-rentree-2026', pack: 'unknown', niveau: 'SECONDE', matieres: 'FRANCAIS' },
-    { programme: 'pre-rentree-2026', pack: 'pre2026-pack-1', niveau: 'AUTRE', matieres: 'FRANCAIS' },
-    { programme: 'pre-rentree-2026', pack: 'pre2026-pack-1', niveau: 'SECONDE', matieres: 'AUTRE' },
-    { programme: 'pre-rentree-2026', pack: 'pre2026-pack-4', niveau: 'SECONDE', matieres: 'MATHEMATIQUES,FRANCAIS,NSI,PHYSIQUE_CHIMIE,AUTRE' },
-    { programme: 'pre-rentree-2026', pack: 'pre2026-pack-1', niveau: 'PREMIERE', matieres: 'FRANCAIS', voie: 'GENERALE', profil_maths: 'MATHS_EDS' },
-    { programme: 'pre-rentree-2026', pack: 'pre2026-pack-1', niveau: 'TERMINALE', matieres: 'MATHEMATIQUES', voie: 'GENERALE', option_maths: 'AUCUNE' },
+    { programme: 'pre-rentree-2026', pack: 'PACK_1', niveau: 'AUTRE', matieres: 'FRANCAIS' },
+    { programme: 'pre-rentree-2026', pack: 'PACK_1', niveau: 'SECONDE', matieres: 'AUTRE' },
+    { programme: 'pre-rentree-2026', pack: 'PACK_4', niveau: 'SECONDE', matieres: 'MATHEMATIQUES,FRANCAIS,NSI,PHYSIQUE_CHIMIE,AUTRE' },
+    { programme: 'pre-rentree-2026', pack: 'PACK_1', niveau: 'PREMIERE', matieres: 'FRANCAIS', voie: 'GENERALE', profil_maths: 'MATHS_EDS' },
+    { programme: 'pre-rentree-2026', pack: 'PACK_1', niveau: 'TERMINALE', matieres: 'MATHEMATIQUES', voie: 'GENERALE', option_maths: 'AUCUNE' },
   ])('rejects invalid or oversized values: %#', (params) => {
     expect(parsePreRentreeBilanPrefill(params)).toBeNull();
   });
@@ -47,7 +49,7 @@ describe('Pré-rentrée bilan prefill parser', () => {
     expect(
       parsePreRentreeBilanPrefill({
         programme: 'pre-rentree-2026',
-        pack: 'pre2026-pack-2',
+        pack: 'PACK_2',
         niveau: 'SECONDE',
         matieres: 'FRANCAIS,FRANCAIS',
       }),
@@ -56,8 +58,8 @@ describe('Pré-rentrée bilan prefill parser', () => {
 
   it('resolves the selected pack price only from the canonical catalogue', () => {
     const pack = getPreRentreeLandingDTO().packs[1];
-    expect(resolveSelectedOfferContext(pack.id)).toEqual({
-      id: pack.id,
+    expect(resolveSelectedOfferContext('PACK_2')).toEqual({
+      id: 'PACK_2',
       title: expect.stringContaining('Pré-Rentrée 2026'),
       price: pack.price,
       deposit: pack.deposit,
