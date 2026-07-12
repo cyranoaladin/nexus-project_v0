@@ -91,10 +91,16 @@ function SummaryCard({
   summary,
   notice,
   status,
+  expanded,
+  onToggle,
+  onNavigate,
 }: {
   summary: SelectionSummary | null;
   notice: string;
   status: string;
+  expanded: boolean;
+  onToggle: () => void;
+  onNavigate: () => void;
 }) {
   if (!summary) {
     return (
@@ -121,13 +127,25 @@ function SummaryCard({
     profile: summary.profile,
   });
   const whatsappUrl = buildWhatsAppUrl(buildWhatsAppMessage(summary), { exactMessage: true });
+  const pack = summary.pack;
 
   return (
-    <div aria-live="polite" className="rounded-2xl border border-lux-gold/40 bg-lux-paper p-5 shadow-sm">
+    <div aria-live="polite" className="max-h-[calc(100dvh-6rem)] overflow-y-auto rounded-2xl border border-lux-gold/40 bg-lux-paper p-5 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="font-semibold text-lux-ink">Votre résumé</h3>
         <span className="rounded-full bg-lux-evergreen/10 px-3 py-1 text-xs font-semibold text-lux-evergreen">{status}</span>
       </div>
+      <button
+        type="button"
+        aria-expanded={expanded}
+        aria-controls="campaign-selection-summary"
+        onClick={onToggle}
+        className="mt-3 flex min-h-11 w-full items-center justify-between rounded-lg border border-lux-line bg-white px-4 py-2 text-left text-sm font-semibold text-lux-ink lg:hidden"
+      >
+        <span>{expanded ? 'Réduire le résumé' : 'Afficher le résumé'}</span>
+        <span aria-hidden="true">{expanded ? '−' : '+'}</span>
+      </button>
+      <div id="campaign-selection-summary" className={`${expanded ? 'block' : 'hidden'} lg:block`}>
       <dl className="mt-4 space-y-2 text-sm">
         <div className="flex justify-between gap-4"><dt className="text-lux-slate">Niveau</dt><dd className="text-right font-medium text-lux-ink">{summary.levelLabel}</dd></div>
         <div className="flex justify-between gap-4"><dt className="text-lux-slate">Profil</dt><dd className="text-right font-medium text-lux-ink">{summary.profileLabel}</dd></div>
@@ -143,9 +161,9 @@ function SummaryCard({
         ))}
       </ul>
       <div className="mt-4 rounded-xl bg-white p-4">
-        <p className="font-fraunces text-2xl text-lux-ink">{summary.pack.price.toLocaleString('fr-TN')} TND</p>
-        <p className="mt-1 text-sm text-lux-slate">Acompte : {summary.pack.deposit.toLocaleString('fr-TN')} TND</p>
-        <p className="text-sm text-lux-slate">Solde : {summary.pack.balance.toLocaleString('fr-TN')} TND</p>
+        <p className="font-fraunces text-2xl text-lux-ink">{pack.price.toLocaleString('fr-TN')} TND</p>
+        <p className="mt-1 text-sm text-lux-slate">Acompte : {pack.deposit.toLocaleString('fr-TN')} TND</p>
+        <p className="text-sm text-lux-slate">Solde : {pack.balance.toLocaleString('fr-TN')} TND</p>
       </div>
       {summary.requiresValidation && (
         <div className="mt-4 rounded-xl border border-lux-gold/30 bg-lux-gold/10 p-3 text-sm text-lux-ink">
@@ -157,8 +175,9 @@ function SummaryCard({
         <Link
           href={bilanUrl}
           onClick={() => {
-            track.preRentreeBilanClicked('configurator_summary', summary.pack?.id);
-            track.preRentreePreregistrationStarted(summary.pack!.id, summary.level, summary.subjectIds.length);
+            onNavigate();
+            track.preRentreeBilanClicked('configurator_summary', pack.id);
+            track.preRentreePreregistrationStarted(pack.id, summary.level, summary.subjectIds.length);
           }}
           className="lux-cta-reserve flex min-h-11 items-center justify-center rounded-lg px-4 py-3 text-center text-sm font-semibold"
         >
@@ -168,11 +187,15 @@ function SummaryCard({
           href={whatsappUrl}
           target="_blank"
           rel="noopener noreferrer"
-          onClick={() => track.preRentreeWhatsAppClicked('configurator_summary', summary.pack?.id)}
+          onClick={() => {
+            onNavigate();
+            track.preRentreeWhatsAppClicked('configurator_summary', pack.id);
+          }}
           className="flex min-h-11 items-center justify-center rounded-lg border border-lux-evergreen px-4 py-3 text-center text-sm font-semibold text-lux-evergreen"
         >
           Vérifier sur WhatsApp <span className="sr-only">(nouvel onglet)</span>
         </a>
+      </div>
       </div>
     </div>
   );
@@ -191,6 +214,7 @@ export default function StageConfigurator({
   const [level, setLevel] = useState<string | null>(null);
   const [profile, setProfile] = useState<AcademicProfileSelection>({});
   const [subjectIds, setSubjectIds] = useState<string[]>([]);
+  const [mobileSummaryOpen, setMobileSummaryOpen] = useState(false);
 
   const availableSubjects = useMemo(
     () => (level ? subjects.filter((subject) => subject.levels.includes(level)) : []),
@@ -212,6 +236,7 @@ export default function StageConfigurator({
     setLevel(nextLevel);
     setProfile({});
     setSubjectIds([]);
+    setMobileSummaryOpen(false);
     track.preRentreeLevelSelected(nextLevel.toLowerCase());
   }
 
@@ -226,6 +251,7 @@ export default function StageConfigurator({
   function continueTo(nextStep: number) {
     setStep(nextStep);
     if (nextStep === 4 && summary?.pack) {
+      setMobileSummaryOpen(true);
       track.preRentreePriceSummaryViewed(summary.pack.id);
     }
   }
@@ -318,8 +344,15 @@ export default function StageConfigurator({
             )}
           </div>
 
-          <aside className="sticky bottom-3 z-10 lg:top-24 lg:bottom-auto" aria-label="Résumé persistant">
-            <SummaryCard summary={summary} notice={groupCompositionNotice} status={campaignStatus} />
+          <aside className="sticky bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-10 lg:top-24 lg:bottom-auto" aria-label="Résumé persistant">
+            <SummaryCard
+              summary={summary}
+              notice={groupCompositionNotice}
+              status={campaignStatus}
+              expanded={mobileSummaryOpen}
+              onToggle={() => setMobileSummaryOpen((open) => !open)}
+              onNavigate={() => setMobileSummaryOpen(false)}
+            />
           </aside>
         </div>
       </div>

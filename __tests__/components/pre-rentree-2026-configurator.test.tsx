@@ -90,4 +90,19 @@ describe('Pré-rentrée stage configurator', () => {
     expect(specialties[1]).toBeChecked();
     expect(specialties[2]).not.toBeChecked();
   });
+
+  it('keeps the persistent mobile summary collapsible', async () => {
+    const user = userEvent.setup();
+    renderConfigurator();
+
+    await user.click(screen.getByRole('radio', { name: 'Seconde' }));
+    await user.click(screen.getByRole('button', { name: 'Continuer' }));
+    await user.click(screen.getByRole('checkbox', { name: /Mathématiques/i }));
+
+    const toggle = screen.getByRole('button', { name: /Afficher le résumé/i });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByRole('link', { name: /Poursuivre vers le bilan/i })).toBeInTheDocument();
+  });
 });
