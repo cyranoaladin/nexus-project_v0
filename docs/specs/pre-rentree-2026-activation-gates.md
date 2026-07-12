@@ -91,7 +91,7 @@ Les trois premières gates autorisent seulement la prochaine phase de **concepti
 
 | Identifiant | Propriétaire | Preuve attendue | Statut | Condition de blocage | Date de validation | Mécanisme concerné |
 |---|---|---|---|---|---|---|
-| `GATE-SEC-BASE-001` | `SOL` | [socle V2](../audits/2026-07-pre-rentree-security-baseline.md) + [réconciliation](../audits/2026-07-pre-rentree-current-main-security-reconciliation.md) + [preuves M0A-R](../reports/2026-07-m0a-r-final-test-evidence.md) + [audit Stage V1](../audits/2026-07-m0a-r-stage-v1-route-security-audit.md) | `VERIFIED_IN_TEST` | bloque toute activation V2 ; socle vérifié par M0A-R avec 630 tests passés, P0=0, redaction PII, validation hex ClicToPay ; politiques parent M:N bloquées jusqu'à M3 | 2026-07-11 (M0A-R) | guards fail-closed, PII redaction, hex validation, tests API |
+| `GATE-SEC-BASE-001` | `SOL` | [socle V2](../audits/2026-07-pre-rentree-security-baseline.md) + [réconciliation](../audits/2026-07-pre-rentree-current-main-security-reconciliation.md) + [preuves M0A-R2](../reports/2026-07-m0a-r2-command-exit-code-audit.md) + [audit Stage V1](../audits/2026-07-m0a-r-stage-v1-route-security-audit.md) | `VERIFIED_IN_TEST` | typecheck 0, lint 0, 773 tests pass (0 fail), build 0, P0=0, HMAC binaire, redaction PII consolidée, hex validation ; parent M:N bloqué M3 | 2026-07-12 (M0A-R2) | guards fail-closed, PII redaction consolidée, HMAC décodé, tests API |
 | `GATE-RBAC-001` | `SOL` | matrice admin/parent/élève/coach/assistante, 401/403/404 et IDOR | `PENDING_EVIDENCE` | accès hors famille/cohorte/académie | — | guards/query scopes |
 | `GATE-ID-001` | `SOL` | multi-responsables, vérification, révocation, fusion auditée | `PENDING_EVIDENCE` | liaison automatique par email/téléphone | — | identité/relations/audit |
 | `GATE-CAPACITY-001` | `SOL` | tests transactionnels de cinquième/sixième place | `PENDING_EVIDENCE` | surcapacité ou double enrollment | — | verrou/Serializable/unique |
@@ -130,7 +130,7 @@ Les trois premières gates autorisent seulement la prochaine phase de **concepti
 
 | Identifiant | Preuve attendue | Statut | Bloque |
 |---|---|---|---|
-| `GATE-M0A-SECURITY-001` | [plan M0A-R](../plans/pre-rentree-2026-m0a-security-implementation-plan.md) + [preuves](../reports/2026-07-m0a-r-final-test-evidence.md) + [baseline](../reports/2026-07-m0a-r-baseline-test-evidence.md) + [audit Stage V1](../audits/2026-07-m0a-r-stage-v1-route-security-audit.md) | `VERIFIED_IN_TEST` | revue complétée : P0=0, 630 tests passés, PII redaction + hex validation ajoutés, 30 routes Stage V1 classifiées |
+| `GATE-M0A-SECURITY-001` | [plan M0A-R](../plans/pre-rentree-2026-m0a-security-implementation-plan.md) + [audit R2](../reports/2026-07-m0a-r2-command-exit-code-audit.md) + [audit Stage V1](../audits/2026-07-m0a-r-stage-v1-route-security-audit.md) | `VERIFIED_IN_TEST` | typecheck 0, lint 0, build 0, 773 tests/0 fail, redaction consolidée, HMAC binaire, 30 routes classifiées |
 | `GATE-M0B-DB-001` | [capacité DB](../plans/pre-rentree-2026-m0b-database-capability-plan.md), preuves PG15/extension/fallback | `IMPLEMENTATION_PLAN_DEFINED` | M1 deploy et M2 |
 | `GATE-M0C-TOOLCHAIN-001` | [plan Prisma](../plans/pre-rentree-2026-m0c-prisma-toolchain-plan.md), Node20/Prisma6.19.2/drift | `IMPLEMENTATION_PLAN_DEFINED` | création migration M1 |
 | `GATE-M0D-TEST-001` | [environnement test](../plans/pre-rentree-2026-m0d-test-environment-plan.md), lanes fresh/V1 | `IMPLEMENTATION_PLAN_DEFINED` | validation M1–M3 |
