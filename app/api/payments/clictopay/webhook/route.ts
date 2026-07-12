@@ -39,16 +39,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Signature invalide' }, { status: 401 });
     }
 
-    // NOW consume the body for HMAC verification
+    // NOW consume the body for HMAC verification.
+    // Decode hex signature to binary (32 bytes) — regex already validated format.
+    // Compare decoded buffers, not hex strings, per cryptographic best practice.
     const rawBody = await request.text();
-    const expected = createHmac('sha256', secret).update(rawBody).digest('hex');
-    // Normalize to lowercase for case-insensitive comparison
-    const sigLower = signature.toLowerCase();
+    const expectedBuf = createHmac('sha256', secret).update(rawBody).digest();
+    const signatureBuf = Buffer.from(signature.toLowerCase(), 'hex');
     let signatureValid = false;
     try {
-      signatureValid = timingSafeEqual(Buffer.from(sigLower), Buffer.from(expected));
+      signatureValid = timingSafeEqual(signatureBuf, expectedBuf);
     } catch {
-      // Length mismatch — definitely invalid
+      // Length mismatch — should not happen since both are 32 bytes after hex decode
     }
     if (!signatureValid) {
       logger.warn('[ClicToPay Webhook] Invalid signature');
