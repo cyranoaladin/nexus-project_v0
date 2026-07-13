@@ -34,6 +34,11 @@ BLOCKED_PATTERNS=(
   "get-users-temp\.mjs$"
 )
 
+is_safe_env_example_path() {
+  local file="$1"
+  [[ "$file" =~ (^|/)\.env(\.[^/]+)*\.example$ ]]
+}
+
 # ─── Vérification des fichiers stagés ────────────────────────────────────────
 STAGED_FILES=$(git diff --cached --name-only 2>/dev/null || true)
 
@@ -46,6 +51,17 @@ STAGED_ADDED_MODIFIED=$(git diff --cached --name-only --diff-filter=AM 2>/dev/nu
 
 for pattern in "${BLOCKED_PATTERNS[@]}"; do
   MATCHES=$(echo "$STAGED_ADDED_MODIFIED" | grep -E "$pattern" || true)
+  if [[ "$pattern" == "\.env\." && -n "$MATCHES" ]]; then
+    FILTERED_MATCHES=""
+    while IFS= read -r matched_file; do
+      [[ -z "$matched_file" ]] && continue
+      if is_safe_env_example_path "$matched_file"; then
+        continue
+      fi
+      FILTERED_MATCHES+="${matched_file}"$'\n'
+    done <<< "$MATCHES"
+    MATCHES="${FILTERED_MATCHES%$'\n'}"
+  fi
   if [[ -n "$MATCHES" ]]; then
     echo -e "${RED}[BLOCKED]${NC} Fichier(s) sensible(s) détecté(s) :"
     echo "$MATCHES" | while read -r f; do
@@ -204,6 +220,12 @@ for pattern in "${WARN_PATTERNS[@]}"; do
     echo -e "  Utilisez ${YELLOW}git commit --no-verify${NC} si c'est intentionnel."
   fi
 done
+
+if command -v node >/dev/null 2>&1 && [[ -f scripts/security/check-telegram-secrets.mjs ]]; then
+  if ! node scripts/security/check-telegram-secrets.mjs .; then
+    BLOCKED=true
+  fi
+fi
 
 if $BLOCKED; then
   echo ""

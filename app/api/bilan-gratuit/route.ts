@@ -121,7 +121,20 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      return { parentUser, studentUser, student };
+      const campaignLead = validatedData.campaignContext
+        ? await tx.contactLead.create({
+            data: {
+              name: `${validatedData.parentFirstName} ${validatedData.parentLastName}`,
+              email: validatedData.parentEmail,
+              phone: validatedData.parentPhone,
+              profile: JSON.stringify(validatedData.campaignContext.profile),
+              interest: `${validatedData.campaignContext.packCode} · ${validatedData.campaignContext.level} · ${validatedData.campaignContext.subjectIds.join(', ')}`,
+              source: validatedData.campaignContext.programme,
+            },
+          })
+        : null;
+
+      return { parentUser, studentUser, student, campaignLead };
     });
 
     // Envoyer email de bienvenue

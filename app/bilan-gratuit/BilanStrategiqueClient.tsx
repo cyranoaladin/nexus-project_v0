@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { CheckCircle2, GraduationCap, Phone } from 'lucide-react';
 import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
-import { toast, Toaster } from 'sonner';
+import { toast } from 'sonner';
 import { track } from '@/lib/analytics';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { Card, CardContent } from '@/components/ui/card';
@@ -17,6 +17,7 @@ import { ConseillerCard, ProcessSteps } from '@/components/marketing/acadomia-in
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { LEGAL } from '@/lib/legal';
 import type { SelectedOfferContext } from './selected-offer';
+import type { PreRentreeBilanPrefill } from '@/lib/campaigns/pre-rentree-2026/bilan-prefill';
 
 const SUBJECTS = [
   { value: 'MATHEMATIQUES', label: 'Mathématiques' },
@@ -68,16 +69,28 @@ const initialFormData: FormData = {
 type BilanStrategiqueClientProps = {
   programme?: string | null;
   selectedOffer?: SelectedOfferContext | null;
+  prefill?: {
+    studentGrade: string;
+    subjects: string[];
+    contextLabel: string;
+    entryLevelLabel: string;
+    profileLabel: string;
+    campaignContext: PreRentreeBilanPrefill;
+  } | null;
 };
 
 export function BilanStrategiqueClient({
   programme = null,
   selectedOffer = null,
+  prefill = null,
 }: BilanStrategiqueClientProps) {
   const router = useRouter();
 
-  const [formData, setFormData] = useState<FormData>(initialFormData);
-  const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
+  const [formData, setFormData] = useState<FormData>(() => ({
+    ...initialFormData,
+    studentGrade: prefill?.studentGrade ?? '',
+  }));
+  const [selectedSubjects, setSelectedSubjects] = useState<string[]>(() => prefill?.subjects ?? []);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [honeypot, setHoneypot] = useState('');
@@ -137,6 +150,7 @@ export function BilanStrategiqueClient({
         subjects: selectedSubjects,
         website: honeypot,
         offerId: selectedOffer?.id,
+        campaignContext: prefill?.campaignContext,
       };
 
       const response = await fetch('/api/bilan-gratuit', {
@@ -170,6 +184,16 @@ export function BilanStrategiqueClient({
           <Card className="border-lux-line bg-lux-white text-lux-ink lux-shadow">
             <CardContent className="p-6 sm:p-8">
               <form onSubmit={onSubmit} noValidate className="space-y-8">
+                {prefill && (
+                  <div className="rounded-2xl border border-lux-gold/30 bg-lux-gold/10 p-4 text-sm text-lux-ink">
+                    <p>Préremplissage modifiable · {prefill.contextLabel} · {selectedOffer?.title}</p>
+                    <p className="mt-1">Classe de rentrée : {prefill.entryLevelLabel}</p>
+                    <p className="mt-1">Profil pédagogique : {prefill.profileLabel}</p>
+                    <Link className="mt-2 inline-flex min-h-11 items-center font-semibold underline" href="/stages/pre-rentree-2026#configurateur">
+                      Modifier la configuration complète
+                    </Link>
+                  </div>
+                )}
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="parentFirstName" className="text-lux-ink">Prénom du parent</Label>
@@ -227,7 +251,7 @@ export function BilanStrategiqueClient({
                     {errors.studentFirstName && <p className="text-sm text-red-500">{errors.studentFirstName}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="studentGrade" className="text-lux-ink">Classe</Label>
+                    <Label htmlFor="studentGrade" className="text-lux-ink">{prefill ? 'Classe de rentrée' : 'Classe'}</Label>
                     <select
                       id="studentGrade"
                       value={formData.studentGrade}
@@ -237,7 +261,7 @@ export function BilanStrategiqueClient({
                       <option value="">Choisir une classe</option>
                       {GRADES.map((grade) => (
                         <option key={grade.value} value={grade.value}>
-                          {grade.label}
+                          {prefill && grade.value !== 'troisieme' ? `Entrée en ${grade.label}` : grade.label}
                         </option>
                       ))}
                     </select>

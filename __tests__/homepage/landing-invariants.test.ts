@@ -8,7 +8,7 @@
  * - Image alt texts: pages-public-homepage.spec.ts
  */
 
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
 const root = join(__dirname, '..', '..');
@@ -16,6 +16,7 @@ const root = join(__dirname, '..', '..');
 describe('Landing page business invariants', () => {
   const homeClient = readFileSync(join(root, 'app/HomePageClient.tsx'), 'utf8');
   const heroSection = readFileSync(join(root, 'components/premium/HeroSection.tsx'), 'utf8');
+  const spotlightPath = join(root, 'components/marketing/PreRentreeCampaignSpotlight.tsx');
 
   test('hero CTA primary links to /recommandation', () => {
     expect(heroSection).toContain('href="/recommandation"');
@@ -56,5 +57,12 @@ describe('Landing page business invariants', () => {
     for (const item of trustItems) {
       expect(item).not.toMatch(/\d{3,}\s*TND/);
     }
+  });
+
+  test('homepage delegates the priority campaign to its dedicated component', () => {
+    expect(homeClient).toContain('PreRentreeCampaignSpotlight');
+    expect(existsSync(spotlightPath)).toBe(true);
+    expect(homeClient.indexOf('<PreRentreeCampaignSpotlight')).toBeLessThan(homeClient.indexOf('<HeroSection'));
+    expect(homeClient.indexOf('<PreRentreeCampaignSpotlight')).toBeLessThan(homeClient.indexOf('<LevelRouter'));
   });
 });

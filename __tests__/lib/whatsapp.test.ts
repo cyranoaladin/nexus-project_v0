@@ -20,6 +20,14 @@ describe('lib/whatsapp', () => {
         "j'ai une question sur l'offre Terminale Duo"
       );
     });
+
+    it('encodes an exact campaign message without adding personal data', () => {
+      const message = 'Bonjour, Pré-rentrée 2026.\nNiveau : Première\nPack : pre2026-pack-2';
+      const url = buildWhatsAppUrl(message, { exactMessage: true });
+
+      expect(new URL(url).searchParams.get('text')).toBe(message);
+      expect(url).not.toContain('+216');
+    });
   });
 
   describe('getWhatsAppNumber', () => {

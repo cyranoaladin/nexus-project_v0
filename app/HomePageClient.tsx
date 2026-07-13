@@ -23,6 +23,8 @@ import {
   TransparencyBanner,
 } from '@/components/marketing/acadomia-inspired';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
+import { PreRentreeCampaignSpotlight } from '@/components/marketing/PreRentreeCampaignSpotlight';
+import type { PreRentreeHomepageSpotlightDTO } from '@/lib/campaigns/pre-rentree-2026/homepage-spotlight';
 
 // ── Router par niveau (near hero) ──
 
@@ -36,11 +38,12 @@ const levelRoutes = [
 
 function LevelRouter() {
   return (
-    <section className="bg-lux-white px-4 py-10 md:px-6">
+    <section className="border-t border-lux-line bg-lux-white px-4 py-10 md:px-6 md:py-14">
       <div className="mx-auto max-w-6xl">
-        <p className="mb-5 text-center text-sm font-semibold text-lux-ink">
+        <p className="text-center text-xs font-semibold uppercase tracking-[0.16em] text-lux-gold-deep">Accompagnement à l’année</p>
+        <h2 className="mb-5 mt-2 text-center font-fraunces text-2xl text-lux-ink">
           Mon enfant est en…
-        </p>
+        </h2>
         <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-5">
           {levelRoutes.map((route) => (
             <Link
@@ -225,12 +228,14 @@ function getFaqItems(rules: { group_max: number; group_min_open: Record<string, 
 
 // ── Main ──
 
-export function HomePageClient() {
+export function HomePageClient({ campaign }: { campaign?: PreRentreeHomepageSpotlightDTO }) {
   const faqItems = getFaqItems(getRules());
 
   return (
     <main className="luxury" id="main-content">
       <CorporateNavbar />
+
+      {campaign && <PreRentreeCampaignSpotlight campaign={campaign} />}
 
       {/* 1. Hero (bg-lux-ink) — H1 SEO + slogan + CTA */}
       <HeroSection />

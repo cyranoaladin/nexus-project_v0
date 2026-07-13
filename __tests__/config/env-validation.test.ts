@@ -148,8 +148,8 @@ describe('Feature Flags', () => {
     }
   });
 
-  it('TELEGRAM_DISABLED should be "true" or "false" if set', () => {
-    const val = process.env.TELEGRAM_DISABLED;
+  it('TELEGRAM_NOTIFICATIONS_ENABLED should be "true" or "false" if set', () => {
+    const val = process.env.TELEGRAM_NOTIFICATIONS_ENABLED;
     if (val) {
       expect(['true', 'false']).toContain(val);
     }

@@ -11,6 +11,8 @@ const baseURL =
 const e2eDatabaseUrl =
   process.env.E2E_DATABASE_URL ??
   'postgresql://postgres:postgres@127.0.0.1:5435/nexus_e2e?schema=public';
+const previewUsername = process.env.PLAYWRIGHT_HTTP_USERNAME;
+const previewPassword = process.env.PLAYWRIGHT_HTTP_PASSWORD;
 
 export default defineConfig({
   testDir: './e2e',
@@ -28,6 +30,9 @@ export default defineConfig({
   use: {
     baseURL,
     trace: 'on-first-retry',
+    ...(previewUsername && previewPassword
+      ? { httpCredentials: { username: previewUsername, password: previewPassword } }
+      : {}),
   },
   projects: [
     {

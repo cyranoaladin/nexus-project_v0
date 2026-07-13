@@ -167,10 +167,10 @@ export interface CarteNexus {
 export interface StageCalendarEntry {
   id: string;
   title: string;
-  format_id: string;
+  format_id: string | null;
   format_label: string;
   half_days: number;
-  hours: number;
+  hours: number | null;
   date_start: string;
   date_end: string;
   dates_display: string;
@@ -189,6 +189,25 @@ export interface SpecialProgram {
   price_per_student: number;
   price_per_student_hour: number;
   payment: { deposit: number; solde: number };
+}
+
+export interface PreRentreePack {
+  id: string;
+  title: string;
+  edition_id: string;
+  subjects_count: number;
+  hours_per_subject: number;
+  total_hours: number;
+  sessions_per_subject: number;
+  session_duration_h: number;
+  group_max: number;
+  group_min_open: number;
+  price_per_student: number;
+  price_per_student_hour: number;
+  floor_type: string;
+  payment: { deposit: number; solde: number };
+  discount_exclusions: string[];
+  non_cumulable: boolean;
 }
 
 export interface AriaAddon {
@@ -237,6 +256,7 @@ export interface PricingData {
   coaching: CoachingOffer[];
   packs: Pack[];
   special_programs: SpecialProgram[];
+  pre_rentree_packs: PreRentreePack[];
   aria_addon: AriaAddon;
   operational_aria_addons: Record<string, OperationalAriaAddon>;
   subscription_tiers: SubscriptionTier[];
@@ -536,6 +556,19 @@ export function applyCarteDiscount(unitPrice: number, hours: number | null): num
 }
 
 // ── Special programs ──
+
+export function getPreRentreePacks(productIds?: readonly string[]): PreRentreePack[] {
+  if (!productIds) return data.pre_rentree_packs.map(stripInternal);
+
+  const byId = new Map(data.pre_rentree_packs.map((pack) => [pack.id, pack]));
+  return productIds.map((id) => {
+    const pack = byId.get(id);
+    if (!pack) {
+      throw new Error(`Unknown Pré-rentrée pricing product: ${id}`);
+    }
+    return stripInternal(pack);
+  });
+}
 
 export function getSpecialPrograms(): SpecialProgram[] {
   return data.special_programs;

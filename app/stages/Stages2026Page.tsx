@@ -27,9 +27,10 @@ interface Stages2026PageProps {
   rules: Rules;
   passIntensifs: Pack[];
   formatMap: Record<string, { format: StageFormat; priceValidated: boolean }>;
+  campaign?: { id: string; path: string; eyebrow: string; subtitle: string; levels: string[]; subjects: string[]; groupMax: number };
 }
 
-export default function Stages2026Page({ calendar, rules, passIntensifs, formatMap }: Stages2026PageProps) {
+export default function Stages2026Page({ calendar, rules, passIntensifs, formatMap, campaign }: Stages2026PageProps) {
 
   return (
     <main className="luxury" id="main-content">
@@ -46,11 +47,10 @@ export default function Stages2026Page({ calendar, rules, passIntensifs, formatM
           <p className="mt-4 max-w-3xl text-base text-lux-on-dark-muted">
             Des stages structurés, calés sur les vacances du calendrier officiel,
             pour progresser en groupe de {rules.group_max} maximum.
-            Unité : la demi-journée de 3 h.
+            Les volumes et horaires sont précisés pour chaque campagne.
           </p>
           <p className="mt-2 text-sm text-lux-on-dark-subtle">
-            Matières : Maths · NSI · Français (EAF) · Philo
-            &mdash; inscrits en réseau AEFE et candidats libres
+            Présentiel à Mutuelleville ou en ligne selon la formule recommandée.
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <Link href="/bilan-gratuit?source=stages" className="lux-cta-reserve rounded-lg px-6 py-3.5 text-sm font-semibold">
@@ -68,6 +68,16 @@ export default function Stages2026Page({ calendar, rules, passIntensifs, formatM
         </div>
       </section>
 
+      {campaign && <section className="bg-lux-white px-4 py-10 md:px-6" aria-labelledby="pre-rentree-card-title">
+        <div className="mx-auto max-w-5xl rounded-2xl border border-lux-gold/30 bg-lux-paper p-6 lux-shadow md:p-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-lux-gold-deep">{campaign.eyebrow}</p>
+          <h2 id="pre-rentree-card-title" className="mt-3 font-fraunces text-3xl text-lux-ink">Pré-rentrée 2026 en première position</h2>
+          <p className="mt-3 max-w-3xl text-lux-slate">{campaign.subtitle}</p>
+          <p className="mt-3 text-sm text-lux-ink">{campaign.levels.join(' · ')} · {campaign.subjects.join(' · ')} · groupes limités à {campaign.groupMax}</p>
+          <Link href={campaign.path} className="lux-cta-reserve mt-6 inline-flex min-h-11 items-center rounded-lg px-6 py-3 text-sm font-semibold">Découvrir la Pré-rentrée 2026 <ArrowRight className="ml-2 h-4 w-4" /></Link>
+        </div>
+      </section>}
+
       {/* Calendrier 2026-2027 */}
       <section className="bg-lux-paper py-14 px-4 md:px-6" aria-label="Calendrier des stages 2026-2027">
         <div className="mx-auto max-w-5xl">
@@ -75,8 +85,8 @@ export default function Stages2026Page({ calendar, rules, passIntensifs, formatM
             Calendrier 2026-2027
           </h2>
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {calendar.map((stage) => {
-              const entry = formatMap[stage.format_id];
+            {calendar.filter((stage) => stage.id !== campaign?.id).map((stage) => {
+              const entry = stage.format_id ? formatMap[stage.format_id] : undefined;
               const price = entry?.priceValidated ? entry.format.price_per_student : null;
               return (
                 <Card key={stage.id} className="border-lux-line bg-lux-ink text-lux-ivory">

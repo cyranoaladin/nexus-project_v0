@@ -35,16 +35,9 @@ export function createRequestLogger(context: {
   return logger.child(context);
 }
 
-export function sanitizeLogData(data: Record<string, unknown>): Record<string, unknown> {
-  const sensitiveKeys = ['password', 'token', 'apikey', 'secret', 'creditcard', 'ssn'];
-  const sanitized = { ...data };
-  
-  for (const key of Object.keys(sanitized)) {
-    const lowerKey = key.toLowerCase();
-    if (sensitiveKeys.some(sk => lowerKey.includes(sk))) {
-      sanitized[key] = '[REDACTED]';
-    }
-  }
-  
-  return sanitized;
-}
+/**
+ * Sanitize log data by redacting sensitive fields (PII + credentials).
+ * Delegates to the canonical redaction implementation.
+ * @see lib/security/redact-for-logging.ts
+ */
+export { redactForLogging as sanitizeLogData } from '@/lib/security/redact-for-logging';

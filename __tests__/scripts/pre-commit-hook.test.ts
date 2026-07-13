@@ -53,7 +53,31 @@ function readFunctionFromHook(): string {
   return hook.slice(start, end);
 }
 
+function runSafeExamplePathCheck(file: string): number {
+  const hook = readFileSync(hookPath, 'utf8');
+  const start = hook.indexOf('is_safe_env_example_path()');
+  const end = hook.indexOf('\n}', start) + 2;
+  const source = start >= 0 && end > start ? hook.slice(start, end) : '';
+  try {
+    execSync(`bash -c '${source.replace(/'/g, "'\\''")}\nis_safe_env_example_path "${file}"'`, {
+      stdio: 'pipe',
+    });
+    return 0;
+  } catch (err: unknown) {
+    const error = err as { status?: number };
+    return error.status ?? 1;
+  }
+}
+
 describe('pre-commit-hook allowlist', () => {
+  it('allows only explicit environment example filenames through the path gate', () => {
+    expect(runSafeExamplePathCheck('.env.example')).toBe(0);
+    expect(runSafeExamplePathCheck('.env.production.example')).toBe(0);
+    expect(runSafeExamplePathCheck('config/.env.preview.example')).toBe(0);
+    expect(runSafeExamplePathCheck('.env')).toBe(1);
+    expect(runSafeExamplePathCheck('.env.production')).toBe(1);
+  });
+
   it('exempts benign POSTGRES password in real gate-all.sh', () => {
     const exitCode = runAllowlistCheck(
       'scripts/gate-all.sh',

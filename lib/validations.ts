@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { PreRentreeCampaignContextSchema } from '@/lib/campaigns/pre-rentree-2026/bilan-prefill';
 
 // Define Subject enum locally to avoid client/server mismatch
 const Subject = {
@@ -42,7 +43,8 @@ export const bilanGratuitSchema = z.object({
 
   // Consentements
   acceptTerms: z.boolean().refine(val => val === true, 'Vous devez accepter les conditions'),
-  acceptNewsletter: z.boolean().optional()
+  acceptNewsletter: z.boolean().optional(),
+  campaignContext: PreRentreeCampaignContextSchema.optional(),
 });
 
 export type BilanGratuitData = z.infer<typeof bilanGratuitSchema>;
