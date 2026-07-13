@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { PRE_RENTREE_2026_NAVIGATION } from './navigation';
 
 /** Stable internal codes for the pupil's entry class in school year 2026-2027. */
 export const ENTRY_LEVEL_IDS = ['SECONDE', 'PREMIERE', 'TERMINALE'] as const;
@@ -123,6 +124,12 @@ const CampaignContent = z.object({
   practical: z.object({
     audience: z.string().min(1),
     material: z.string().min(1),
+    materialsBySubject: z.object({
+      MATHEMATIQUES: z.object({ label: z.string().min(1), description: z.string().min(1) }),
+      FRANCAIS: z.object({ label: z.string().min(1), description: z.string().min(1) }),
+      NSI: z.object({ label: z.string().min(1), description: z.string().min(1) }),
+      PHYSIQUE_CHIMIE: z.object({ label: z.string().min(1), description: z.string().min(1) }),
+    }).strict(),
     preRegistrationNotice: z.string().min(1),
     noOnlinePaymentNotice: z.string().min(1),
     groupCompositionNotice: z.string().min(1),
@@ -142,10 +149,10 @@ const SeoContract = z.object({
 });
 
 export const PreRentreeCampaignManifestSchema = z.object({
-  campaignId: z.literal('pre-rentree-2026'),
+  campaignId: z.literal(PRE_RENTREE_2026_NAVIGATION.campaignId),
   version: z.string(),
   status: CampaignStatus,
-  canonicalPath: z.literal('/stages/pre-rentree-2026'),
+  canonicalPath: z.literal(PRE_RENTREE_2026_NAVIGATION.path),
   shortPath: z.literal('/pre-rentree'),
   timezone: z.literal('Africa/Tunis'),
   startDate: z.literal('2026-08-17'),

@@ -124,6 +124,36 @@ test.describe('Landing Pré-rentrée 2026', () => {
     await expect(page.locator('#configurateur').getByRole('checkbox')).toHaveCount(4);
   });
 
+  test('ouvre les douze programmes depuis leur CTA canonique', async ({ page }) => {
+    const scenarios: Array<{
+      level: 'Seconde' | 'Première' | 'Terminale';
+      completeProfile?: (target: Page) => Promise<void>;
+    }> = [
+      { level: 'Seconde' },
+      { level: 'Première', completeProfile: completePremiereProfile },
+      { level: 'Terminale', completeProfile: completeTerminaleProfile },
+    ];
+
+    for (const scenario of scenarios) {
+      await openConfigurator(page, scenario.level);
+      if (scenario.completeProfile) await scenario.completeProfile(page);
+
+      const programmeLinks = page.locator('#configurateur').getByRole('link', { name: 'Consulter le programme' });
+      await expect(programmeLinks).toHaveCount(4);
+      const hrefs = await programmeLinks.evaluateAll((links) => links.map((link) => link.getAttribute('href')));
+
+      for (let index = 0; index < 4; index += 1) {
+        const href = hrefs[index];
+        if (!href) throw new Error(`Ancre programme absente pour ${scenario.level}, matière ${index + 1}`);
+
+        await page.goto(`${CAMPAIGN_PATH}${href}`);
+        const module = page.locator(href);
+        await expect(module).toBeVisible();
+        await expect(module.getByRole('button')).toHaveAttribute('aria-expanded', 'true');
+      }
+    }
+  });
+
   test('compose quatre matières, résout le pack 40 h et préremplit le bilan sans prix URL', async ({ page }) => {
     await openConfigurator(page, 'Terminale');
     await completeTerminaleProfile(page);
@@ -178,6 +208,33 @@ test.describe('Landing Pré-rentrée 2026', () => {
     await expect(page).toHaveURL(/\/bilan-gratuit\?/);
     await expect(page.getByText('Classe de rentrée : Entrée en Seconde')).toBeVisible();
     await expect(page.getByText(/Préremplissage modifiable · Pré-rentrée 2026/)).toBeVisible();
+  });
+
+  test('prépare un contexte bilan recalculé après modification parent sans soumission réseau', async ({ page }) => {
+    await page.goto('/bilan-gratuit?programme=pre-rentree-2026&pack=PACK_2&niveau=PREMIERE&matieres=MATHEMATIQUES,FRANCAIS&voie=GENERALE&profil_maths=MATHS_EDS&profil_eaf=EAF_GENERALE&projet_specialites=NSI_PHYSIQUE_CHIMIE');
+    await page.getByLabel('Français').click();
+    await page.locator('#parentFirstName').fill('Test');
+    await page.locator('#parentLastName').fill('Navigateur');
+    await page.locator('#parentEmail').fill('test-navigateur@example.invalid');
+    await page.locator('#parentPhone').fill('+21699192829');
+    await page.locator('#studentFirstName').fill('Élève');
+    await page.locator('#studentSchool').fill('Établissement de test');
+    await page.locator('#objectives').fill('Préparer la rentrée avec méthode.');
+    await page.getByRole('checkbox', { name: /j.*accepte/i }).click();
+
+    const requestPromise = page.waitForRequest((request) => request.url().endsWith('/api/bilan-gratuit'));
+    await page.route('**/api/bilan-gratuit', (route) => route.abort());
+    await page.getByRole('button', { name: /demander mon bilan stratégique gratuit/i }).click();
+    const request = await requestPromise;
+    const payload = request.postDataJSON() as {
+      campaignContext: { packCode: string; level: string; subjectIds: string[] } | null;
+    };
+
+    expect(payload.campaignContext).toMatchObject({
+      packCode: 'PACK_1',
+      level: 'PREMIERE',
+      subjectIds: ['MATHEMATIQUES'],
+    });
   });
 
   test('bloque une contradiction certaine de profil avant le choix des matières', async ({ page }) => {
