@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { ENTRY_LEVEL_IDS } from './schema';
 import { classifyProfileSubjectCompatibility } from './configurator';
+import { PRE_RENTREE_2026_NAVIGATION } from './navigation';
 
 type SearchValue = string | string[] | undefined;
 export type CampaignSearchParams = Record<string, SearchValue>;
@@ -39,7 +40,7 @@ const TERMINALE_SPECIALTIES = new Set<string>(TERMINALE_SPECIALTY_IDS);
 const TERMINALE_MATHS_OPTIONS = new Set<string>(TERMINALE_MATHS_OPTION_IDS);
 
 export const PreRentreeCampaignContextSchema = z.object({
-  programme: z.literal('pre-rentree-2026'),
+  programme: z.literal(PRE_RENTREE_2026_NAVIGATION.campaignId),
   packCode: z.enum(PACK_CODES),
   /** Stable code for the pupil's 2026-2027 entry class, never the current class. */
   level: z.enum(ENTRY_LEVEL_IDS),
@@ -96,6 +97,56 @@ export const PreRentreeCampaignContextSchema = z.object({
 
 export type PreRentreeBilanPrefill = z.infer<typeof PreRentreeCampaignContextSchema>;
 
+function toEntryLevel(studentGrade: string): PreRentreeBilanPrefill['level'] | null {
+  const normalized = studentGrade
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+  if (normalized === 'seconde') return 'SECONDE';
+  if (normalized === 'premiere') return 'PREMIERE';
+  if (normalized === 'terminale') return 'TERMINALE';
+  return null;
+}
+
+/**
+ * Rebuilds the optional campaign lead context from the fields actually sent by
+ * the parent. The URL prefill is only an initial selection, never a source of
+ * truth after the form has been edited.
+ */
+export function synchronizePreRentreeCampaignContext({
+  campaignContext,
+  studentGrade,
+  subjects,
+}: {
+  campaignContext: PreRentreeBilanPrefill | undefined;
+  studentGrade: string;
+  subjects: readonly string[];
+}): PreRentreeBilanPrefill | null {
+  if (!campaignContext) return null;
+
+  const level = toEntryLevel(studentGrade);
+  if (!level || level !== campaignContext.level) return null;
+
+  if (
+    subjects.length < 1 ||
+    subjects.length > 4 ||
+    new Set(subjects).size !== subjects.length ||
+    subjects.some((subject) => !SUBJECTS.has(subject))
+  ) {
+    return null;
+  }
+
+  const parsed = PreRentreeCampaignContextSchema.safeParse({
+    programme: campaignContext.programme,
+    packCode: `PACK_${subjects.length}`,
+    level,
+    subjectIds: subjects,
+    profile: campaignContext.profile,
+  });
+  return parsed.success ? parsed.data : null;
+}
+
 function scalar(value: SearchValue, maximumLength = 64): string | null {
   if (typeof value !== 'string' || value.length === 0 || value.length > maximumLength) {
     return null;
@@ -113,7 +164,7 @@ function optionalAllowed(value: SearchValue, allowed: ReadonlySet<string>): stri
 export function parsePreRentreeBilanPrefill(
   params: CampaignSearchParams | undefined,
 ): PreRentreeBilanPrefill | null {
-  if (!params || scalar(params.programme) !== 'pre-rentree-2026') return null;
+  if (!params || scalar(params.programme) !== PRE_RENTREE_2026_NAVIGATION.campaignId) return null;
   const packCode = scalar(params.pack);
   const level = scalar(params.niveau);
   const subjectsValue = scalar(params.matieres, 160);
@@ -176,7 +227,7 @@ export function parsePreRentreeBilanPrefill(
   }
 
   const parsed = PreRentreeCampaignContextSchema.safeParse({
-    programme: 'pre-rentree-2026',
+    programme: PRE_RENTREE_2026_NAVIGATION.campaignId,
     packCode,
     level,
     subjectIds,
