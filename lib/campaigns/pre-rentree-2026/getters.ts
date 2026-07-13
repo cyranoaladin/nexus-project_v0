@@ -114,18 +114,27 @@ export function getPreRentreeLandingDTO() {
   const schedule = getPreRentreeSchedule();
   const packs = getPreRentreePackOptions();
   const pricingRules = getRules();
-  const subjects = campaign.subjects.map((subject) => ({
-    ...subject,
-    summaryByLevel: Object.fromEntries(subject.levels.map((level) => {
+  const subjects = campaign.subjects.map((subject) => {
+    const subjectModules = subject.levels.map((level) => {
       const campaignModule = modules.find(
         (module) => module.level === level && module.subjectId === subject.id,
       );
       if (!campaignModule) {
         throw new Error(`Missing campaign module for ${level}/${subject.id}`);
       }
-      return [level, campaignModule.subtitle];
-    })),
-  }));
+      return [level, campaignModule] as const;
+    });
+
+    return {
+      ...subject,
+      summaryByLevel: Object.fromEntries(
+        subjectModules.map(([level, campaignModule]) => [level, campaignModule.subtitle]),
+      ),
+      moduleIdsByLevel: Object.fromEntries(
+        subjectModules.map(([level, campaignModule]) => [level, campaignModule.id]),
+      ),
+    };
+  });
   const educatorKeys = Object.keys(campaign.teacherRoles);
   const expectedEducatorKeys = [
     'MATHS_NSI_SNT_TEACHER',
@@ -150,7 +159,7 @@ export function getPreRentreeLandingDTO() {
         details: [
           'Semaine 1 : Mathématiques',
           'Semaine 2 : SNT et NSI',
-          'Six créneaux de module au total · aucune simultanéité',
+          'Des créneaux répartis pour assurer la continuité pédagogique.',
         ],
       },
       {
