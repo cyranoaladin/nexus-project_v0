@@ -38,9 +38,8 @@ env:
   # CI optimizations
   CI: true
   FORCE_COLOR: 1
-  # Telegram credentials (optional - for notifications)
-  TELEGRAM_API_KEY: ${{ secrets.TELEGRAM_API_KEY }}
-  TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+  # Optional notifications are fail-closed in CI and never receive credentials.
+  TELEGRAM_NOTIFICATIONS_ENABLED: 'false'
 
 jobs:
   # ===========================================================================
@@ -63,6 +62,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Scan the current tree for Telegram credentials
+        run: npm run security:telegram
 
       - name: Run ESLint
         run: npm run lint

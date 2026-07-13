@@ -64,6 +64,7 @@ describe('Acadomia-inspired public marketing guardrails', () => {
 
     // MobileStickyBar must be mobile-only
     expect(stickyBar).toContain('md:hidden');
+    expect(stickyBar).toContain('motion-reduce:animate-none');
     // FloatingAdvisorBubble must be desktop-only
     expect(bubble).toMatch(/hidden\s[^"]*md:inline-flex/);
   });

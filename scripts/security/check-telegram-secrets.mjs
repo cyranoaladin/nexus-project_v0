@@ -11,6 +11,13 @@ const ignoredDirectories = new Set([
   'playwright-report',
   'test-results',
 ]);
+const nonBrowserNextBuildPrefixes = [
+  '.next/server',
+  '.next/standalone',
+  '.next/cache',
+  '.next/diagnostics',
+  '.next/types',
+];
 const findings = [];
 const publicTelegramVariable = ['NEXT', 'PUBLIC', 'TELEGRAM'].join('_');
 const legacyOptOutFlag = ['TELEGRAM', 'DISABLED'].join('_');
@@ -61,6 +68,11 @@ function walk(target) {
     return;
   }
   if (!targetStat.isDirectory()) return;
+
+  const relativeTarget = relative(scanRoot, target).replaceAll('\\', '/');
+  if (nonBrowserNextBuildPrefixes.some(
+    (prefix) => relativeTarget === prefix || relativeTarget.startsWith(`${prefix}/`),
+  )) return;
 
   for (const entry of readdirSync(target, { withFileTypes: true })) {
     if (entry.isSymbolicLink()) continue;
