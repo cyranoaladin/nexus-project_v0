@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -60,5 +60,34 @@ describe('Telegram secret scanner', () => {
     expect(result.status).toBe(1);
     expect(output).toContain('config.ts');
     expect(output).not.toContain(publicVariable);
+  });
+
+  it('classifies bundled server code outside the browser artifact scan', () => {
+    const serverDirectory = join(root, '.next', 'server', 'chunks');
+    const bundledServerCall = [
+      'https://api.telegram.org/',
+      'bot${process.env.TELEGRAM_BOT_TOKEN}',
+      '/sendMessage',
+    ].join('');
+    mkdirSync(serverDirectory, { recursive: true });
+    writeFileSync(join(serverDirectory, 'route.js'), `const url = \`${bundledServerCall}\`;\n`);
+
+    const result = runScanner(root);
+
+    expect(result.status).toBe(0);
+  });
+
+  it('continues to reject credentials in browser chunks', () => {
+    const staticDirectory = join(root, '.next', 'static', 'chunks');
+    const syntheticToken = `${'12345678'}:${'A'.repeat(35)}`;
+    mkdirSync(staticDirectory, { recursive: true });
+    writeFileSync(join(staticDirectory, 'client.js'), `const value = '${syntheticToken}';\n`);
+
+    const result = runScanner(root);
+    const output = `${result.stdout}${result.stderr}`;
+
+    expect(result.status).toBe(1);
+    expect(output).toContain('.next/static/chunks/client.js');
+    expect(output).not.toContain(syntheticToken);
   });
 });

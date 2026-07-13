@@ -58,6 +58,7 @@ const MIGRATED_PUBLIC_PAGES = [
   // Sitemap pages using shared lux components (LandingNiche, Stages2026Page)
   'app/stages/page.tsx',
   'app/stages/Stages2026Page.tsx',
+  'app/stages/pre-rentree-2026/page.tsx',
   'app/grand-oral/page.tsx',
   'app/reussir-eaf/page.tsx',
   'app/candidat-libre-bac-francais/page.tsx',
@@ -74,7 +75,18 @@ const MIGRATED_PUBLIC_COMPONENTS = [
   'components/layout/CorporateFooter.tsx',
   'components/stages/StageInscriptionForm.tsx',
   'components/marketing/LandingNiche.tsx',
+  'components/marketing/PreRentreeCampaignSpotlight.tsx',
   'components/stages/PublicStageCard.tsx',
+  'components/pre-rentree-2026/CampaignFAQ.tsx',
+  'components/pre-rentree-2026/CampaignPageTracker.tsx',
+  'components/pre-rentree-2026/FinalCampaignCTA.tsx',
+  'components/pre-rentree-2026/NexusMethodSection.tsx',
+  'components/pre-rentree-2026/PracticalInformation.tsx',
+  'components/pre-rentree-2026/PreRentreeHero.tsx',
+  'components/pre-rentree-2026/PricingSection.tsx',
+  'components/pre-rentree-2026/ProgramsSection.tsx',
+  'components/pre-rentree-2026/ScheduleSection.tsx',
+  'components/pre-rentree-2026/StageConfigurator.tsx',
 ];
 
 // Pages publiques PAS encore migrées — allowlist décroissante
@@ -248,6 +260,7 @@ describe('Public lux-* charte guard', () => {
     // redirects (no rendering)
     'app/conditions/page.tsx',
     'app/maths-1ere/page.tsx',
+    'app/pre-rentree/page.tsx',
     // dynamic-auth (requires auth, not public marketing)
     'app/admin/directeur/page.tsx',
     'app/assessments/[id]/processing/page.tsx',

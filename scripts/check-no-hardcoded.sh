@@ -66,11 +66,14 @@ if [ "$COUNT" -gt 0 ]; then
   FAIL=1
 fi
 
-# 9. Hardcoded stage period names + year (must derive from stage_calendar)
-COUNT=$(grep -rnEi "(Pré-rentrée|Toussaint|Noël|Février|Printemps|Sprint.?final)\s*(20[0-9]{2}|août|avril|octobre|décembre|janvier|février|mai)" app/ components/ --include="*.ts" --include="*.tsx" 2>/dev/null | grep -v "node_modules\|.next\|test\|spec\|__tests__\|pricing.canonical\|pricing.ts\|//.*stage\|layout\.tsx.*description\|metadata" | wc -l)
+# 9. Hardcoded stage period names + year (must derive from stage_calendar).
+# The dedicated Pré-rentrée landing is contract-backed rather than calendar-backed;
+# only its exact campaign name is allowed on the explicitly listed public surfaces.
+CAMPAIGN_NAME_ALLOWLIST="^(app/HomePageClient\.tsx|app/stages/Stages2026Page\.tsx|app/bilan-gratuit/page\.tsx|app/bilan-gratuit/selected-offer\.ts|app/offres/page\.tsx|components/layout/CorporateNavbar\.tsx|components/marketing/MobileStickyBar\.tsx|components/pre-rentree-2026/[^:]+):[0-9]+:.*[Pp]ré-rentrée 2026"
+COUNT=$(grep -rnEi "(Pré-rentrée|Toussaint|Noël|Février|Printemps|Sprint.?final)\s*(20[0-9]{2}|août|avril|octobre|décembre|janvier|février|mai)" app/ components/ --include="*.ts" --include="*.tsx" 2>/dev/null | grep -v "node_modules\|.next\|test\|spec\|__tests__\|pricing.canonical\|pricing.ts\|//.*stage\|layout\.tsx.*description\|metadata" | grep -vE "$CAMPAIGN_NAME_ALLOWLIST" | wc -l)
 if [ "$COUNT" -gt 0 ]; then
   echo "FAIL: $COUNT hardcoded stage period+year names"
-  grep -rnEi "(Pré-rentrée|Toussaint|Noël|Février|Printemps|Sprint.?final)\s*(20[0-9]{2}|août|avril|octobre|décembre|janvier|février|mai)" app/ components/ --include="*.ts" --include="*.tsx" 2>/dev/null | grep -v "node_modules\|.next\|test\|spec\|__tests__\|pricing.canonical\|pricing.ts\|//.*stage\|layout\.tsx.*description\|metadata"
+  grep -rnEi "(Pré-rentrée|Toussaint|Noël|Février|Printemps|Sprint.?final)\s*(20[0-9]{2}|août|avril|octobre|décembre|janvier|février|mai)" app/ components/ --include="*.ts" --include="*.tsx" 2>/dev/null | grep -v "node_modules\|.next\|test\|spec\|__tests__\|pricing.canonical\|pricing.ts\|//.*stage\|layout\.tsx.*description\|metadata" | grep -vE "$CAMPAIGN_NAME_ALLOWLIST"
   FAIL=1
 fi
 

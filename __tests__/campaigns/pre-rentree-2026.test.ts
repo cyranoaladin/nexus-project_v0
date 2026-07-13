@@ -1,0 +1,242 @@
+/**
+ * Pre-Rentrée 2026 Campaign Contract Tests
+ *
+ * Validates: manifest, schedule, pricing, terminology, collisions, constraints.
+ */
+
+import campaignManifest from '@/data/campaigns/pre-rentree-2026.json';
+import modulesData from '@/content/pre-rentree-2026/modules.json';
+import pricingData from '@/data/pricing.canonical.json';
+import { PreRentreeCampaignManifestSchema } from '@/lib/campaigns/pre-rentree-2026/schema';
+
+describe('Pre-Rentrée 2026 Campaign Contract', () => {
+  describe('Manifest validation', () => {
+    it('validates against Zod schema', () => {
+      const result = PreRentreeCampaignManifestSchema.safeParse(campaignManifest);
+      if (!result.success) {
+        console.error(result.error.issues);
+      }
+      expect(result.success).toBe(true);
+    });
+
+    it('has correct dates', () => {
+      expect(campaignManifest.startDate).toBe('2026-08-17');
+      expect(campaignManifest.endDate).toBe('2026-08-28');
+      expect(campaignManifest.noClassDates).toContain('2026-08-22');
+      expect(campaignManifest.noClassDates).toContain('2026-08-23');
+    });
+
+    it('has exactly 3 levels', () => {
+      expect(campaignManifest.levels).toHaveLength(3);
+    });
+
+    it('has exactly 4 subjects', () => {
+      expect(campaignManifest.subjects).toHaveLength(4);
+    });
+
+    it('has exactly 4 time blocks', () => {
+      expect(campaignManifest.blocks).toHaveLength(4);
+    });
+
+    it('has exactly 2 weeks', () => {
+      expect(campaignManifest.schedule).toHaveLength(2);
+    });
+  });
+
+  describe('Modules', () => {
+    const modules = (modulesData as any).modules;
+
+    it('has exactly 12 modules', () => {
+      expect(modules).toHaveLength(12);
+    });
+
+    it('each module has exactly 5 sessions', () => {
+      for (const mod of modules) {
+        expect(mod.sessions).toHaveLength(5);
+      }
+    });
+
+    it('total sessions = 60', () => {
+      const total = modules.reduce((sum: number, m: any) => sum + m.sessions.length, 0);
+      expect(total).toBe(60);
+    });
+
+    it('has 4 modules per level', () => {
+      const byLevel = { SECONDE: 0, PREMIERE: 0, TERMINALE: 0 };
+      for (const mod of modules) {
+        byLevel[mod.level as keyof typeof byLevel]++;
+      }
+      expect(byLevel.SECONDE).toBe(4);
+      expect(byLevel.PREMIERE).toBe(4);
+      expect(byLevel.TERMINALE).toBe(4);
+    });
+
+    it('never uses "EAF Terminale"', () => {
+      for (const mod of modules) {
+        if (mod.level === 'TERMINALE') {
+          expect(mod.title).not.toContain('EAF');
+          expect(mod.subject).not.toContain('EAF');
+        }
+      }
+    });
+
+    it('never uses "NSI EDS Seconde" or "EDS NSI Seconde"', () => {
+      for (const mod of modules) {
+        if (mod.level === 'SECONDE' && mod.subject.includes('nformatique')) {
+          expect(mod.title).not.toMatch(/NSI.*EDS|EDS.*NSI/i);
+        }
+      }
+    });
+
+    it('Seconde informatique uses "Initiation informatique" terminology', () => {
+      const secInfo = modules.find(
+        (m: any) => m.level === 'SECONDE' && (m.subject.includes('nformatique') || m.subject.includes('SNT'))
+      );
+      expect(secInfo).toBeDefined();
+      expect(secInfo.title).toMatch(/[Ii]nitiation.*informatique|algorithmique.*SNT/i);
+    });
+  });
+
+  describe('Schedule constraints', () => {
+    const schedule = campaignManifest.schedule;
+    const blocks = campaignManifest.blocks;
+
+    it('no room collision within a week', () => {
+      for (const week of schedule) {
+        const roomBlockPairs = week.slots.map(s => `${s.room}-${s.block}`);
+        const unique = new Set(roomBlockPairs);
+        expect(unique.size).toBe(roomBlockPairs.length);
+      }
+    });
+
+    it('max 2 rooms per block', () => {
+      for (const week of schedule) {
+        const roomsPerBlock: Record<string, Set<string>> = {};
+        for (const slot of week.slots) {
+          if (!roomsPerBlock[slot.block]) roomsPerBlock[slot.block] = new Set();
+          roomsPerBlock[slot.block].add(slot.room);
+        }
+        for (const [, rooms] of Object.entries(roomsPerBlock)) {
+          expect(rooms.size).toBeLessThanOrEqual(2);
+        }
+      }
+    });
+
+    it('no level has more than 2 blocks per day (4h max)', () => {
+      for (const week of schedule) {
+        const blocksPerLevel: Record<string, number> = {};
+        for (const slot of week.slots) {
+          blocksPerLevel[slot.level] = (blocksPerLevel[slot.level] || 0) + 1;
+        }
+        for (const [, count] of Object.entries(blocksPerLevel)) {
+          // Per day: max 2 blocks = 4h (each block is 2h)
+          expect(count).toBeLessThanOrEqual(2);
+        }
+      }
+    });
+
+    it('Maths and NSI never in same block (same teacher)', () => {
+      for (const week of schedule) {
+        const blockSubjects: Record<string, string[]> = {};
+        for (const slot of week.slots) {
+          if (!blockSubjects[slot.block]) blockSubjects[slot.block] = [];
+          blockSubjects[slot.block].push(slot.subject);
+        }
+        for (const [, subjects] of Object.entries(blockSubjects)) {
+          const hasMaths = subjects.includes('MATHEMATIQUES');
+          const hasNSI = subjects.includes('NSI');
+          expect(hasMaths && hasNSI).toBe(false);
+        }
+      }
+    });
+
+    it('each declared teacher role stays at or below 6h/day', () => {
+      for (const week of schedule) {
+        for (const role of Object.values(campaignManifest.teacherRoles)) {
+          const roleBlocks = week.slots.filter((slot) => role.subjects.includes(slot.subject));
+          expect(roleBlocks.length * 2).toBeLessThanOrEqual(role.maxHoursPerDay);
+        }
+      }
+    });
+  });
+
+  describe('Pricing', () => {
+    const packs = (pricingData as any).pre_rentree_packs;
+
+    it('has exactly 4 pack products', () => {
+      expect(packs).toHaveLength(4);
+    });
+
+    it('pack IDs match manifest', () => {
+      const ids = packs.map((p: any) => p.id);
+      expect(ids).toEqual(campaignManifest.packProductIds);
+    });
+
+    it('deposit + balance = price for each pack', () => {
+      for (const pack of packs) {
+        expect(pack.payment.deposit + pack.payment.solde).toBe(pack.price_per_student);
+      }
+    });
+
+    it('price per hour >= 45 TND floor', () => {
+      for (const pack of packs) {
+        expect(pack.price_per_student_hour).toBeGreaterThanOrEqual(45);
+      }
+    });
+
+    it('deposit is 30% rounded to 10 TND', () => {
+      for (const pack of packs) {
+        const rawDeposit = pack.price_per_student * 0.3;
+        const expected = Math.round(rawDeposit / 10) * 10;
+        expect(pack.payment.deposit).toBe(expected);
+      }
+    });
+
+    it('all packs exclude automatic discounts', () => {
+      for (const pack of packs) {
+        expect(pack.non_cumulable).toBe(true);
+        expect(pack.discount_exclusions).toContain('carte_nexus');
+      }
+    });
+
+    it('no price values in the manifest itself', () => {
+      const manifestStr = JSON.stringify(campaignManifest);
+      // Should not contain actual TND amounts
+      expect(manifestStr).not.toContain('"480"');
+      expect(manifestStr).not.toContain('"900"');
+      expect(manifestStr).not.toContain('"1350"');
+      expect(manifestStr).not.toContain('"1800"');
+    });
+  });
+
+  describe('Terminology guards', () => {
+    it('manifest subject labels respect pedagogy rules', () => {
+      const nsi = campaignManifest.subjects.find(s => s.id === 'NSI');
+      expect(nsi?.labelByLevel?.SECONDE).toContain('Initiation');
+      expect(nsi?.labelByLevel?.SECONDE).not.toContain('EDS');
+    });
+
+    it('Terminale français is never labeled EAF', () => {
+      const fr = campaignManifest.subjects.find(s => s.id === 'FRANCAIS');
+      expect(fr?.labelByLevel?.TERMINALE).not.toContain('EAF');
+      expect(fr?.labelByLevel?.TERMINALE).toContain('Expression');
+    });
+  });
+
+  describe('No PII in campaign data', () => {
+    it('manifest contains no personal emails or phones (only public contact)', () => {
+      const str = JSON.stringify(campaignManifest);
+      // Only the public contact email is allowed
+      const emails = str.match(/[a-z0-9.]+@[a-z]+\.[a-z]+/g) || [];
+      expect(emails.every(e => e === 'contact@nexusreussite.academy')).toBe(true);
+      // WhatsApp is a generic business number, not personal
+      const phones = str.match(/\+216\d{8}/g) || [];
+      expect(phones.length).toBeLessThanOrEqual(1); // only business whatsapp
+    });
+
+    it('modules contain no personal data', () => {
+      const str = JSON.stringify(modulesData);
+      expect(str).not.toMatch(/@[a-z]+\.[a-z]+/);
+    });
+  });
+});

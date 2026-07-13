@@ -113,7 +113,7 @@ describe('Logger System', () => {
   });
 
   describe('sanitizeLogData', () => {
-    it('should redact password field', () => {
+    it('should redact password and email fields', () => {
       const data = {
         email: 'user@example.com',
         password: 'secret123'
@@ -121,7 +121,7 @@ describe('Logger System', () => {
 
       const sanitized = sanitizeLogData(data);
 
-      expect(sanitized.email).toBe('user@example.com');
+      expect(sanitized.email).toBe('[REDACTED]');
       expect(sanitized.password).toBe('[REDACTED]');
     });
 
@@ -218,7 +218,6 @@ describe('Logger System', () => {
     it('should not modify non-sensitive fields', () => {
       const data = {
         userId: 'user-123',
-        email: 'user@example.com',
         role: 'ADMIN',
         action: 'update',
         timestamp: '2026-02-02T10:00:00Z'
@@ -249,7 +248,7 @@ describe('Logger System', () => {
       expect(sanitized).toEqual({});
     });
 
-    it('should handle multiple sensitive fields', () => {
+    it('should handle multiple sensitive fields including email', () => {
       const data = {
         userId: 'user-123',
         password: 'pass123',
@@ -261,7 +260,7 @@ describe('Logger System', () => {
       const sanitized = sanitizeLogData(data);
 
       expect(sanitized.userId).toBe('user-123');
-      expect(sanitized.email).toBe('user@example.com');
+      expect(sanitized.email).toBe('[REDACTED]');
       expect(sanitized.password).toBe('[REDACTED]');
       expect(sanitized.token).toBe('[REDACTED]');
       expect(sanitized.apiKey).toBe('[REDACTED]');
