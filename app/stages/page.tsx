@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getStageCalendar, getStageFormat, isFormatPriceValidated, getPacks, getRules } from '@/lib/pricing';
 import Stages2026Page from './Stages2026Page';
+import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
 
 export const metadata: Metadata = {
   title: 'Stages 2026/2027 | Nexus Réussite',
@@ -13,8 +14,10 @@ export default function StagesPage() {
   const calendar = getStageCalendar();
   const rules = getRules();
   const passIntensifs = getPacks().filter((pack) => pack.id.startsWith('pass-intensifs'));
+  const campaign = getPreRentreeLandingDTO();
 
-  const formatIds = [...new Set(calendar.map((e) => e.format_id))];
+  const formatIds = [...new Set(calendar.map((entry) => entry.format_id))]
+    .filter((id): id is string => typeof id === 'string');
   const formatMap: Record<string, { format: NonNullable<ReturnType<typeof getStageFormat>>; priceValidated: boolean }> = {};
   for (const id of formatIds) {
     const format = getStageFormat(id);
@@ -23,5 +26,19 @@ export default function StagesPage() {
     }
   }
 
-  return <Stages2026Page calendar={calendar} rules={rules} passIntensifs={passIntensifs} formatMap={formatMap} />;
+  return <Stages2026Page
+    calendar={calendar}
+    rules={rules}
+    passIntensifs={passIntensifs}
+    formatMap={formatMap}
+    campaign={{
+      id: campaign.campaign.id,
+      path: campaign.campaign.canonicalPath,
+      eyebrow: campaign.content.hero.eyebrow,
+      subtitle: campaign.content.hero.subtitle,
+      levels: campaign.levels.map((level) => level.label),
+      subjects: campaign.subjects.map((subject) => subject.label),
+      groupMax: campaign.capacity.maxPerCohort,
+    }}
+  />;
 }

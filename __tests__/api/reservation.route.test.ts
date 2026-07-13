@@ -24,12 +24,17 @@ jest.mock('@/lib/csrf', () => ({
   checkBodySize: jest.fn().mockReturnValue(null),
 }));
 
+jest.mock('@/lib/telegram/client', () => ({
+  telegramSendMessage: jest.fn(),
+}));
+
 jest.mock('@/auth', () => ({
   auth: jest.fn(),
 }));
 
 import { POST } from '@/app/api/reservation/route';
 import { prisma } from '@/lib/prisma';
+import { telegramSendMessage } from '@/lib/telegram/client';
 
 function makeRequest(body?: any) {
   return {
@@ -57,6 +62,11 @@ describe('POST /api/reservation', () => {
     // No existing reservation by default
     (prisma.stageReservation.findUnique as jest.Mock).mockResolvedValue(null);
     (prisma.stageReservation.create as jest.Mock).mockResolvedValue({ id: 'res-1' });
+    (telegramSendMessage as jest.Mock).mockResolvedValue({
+      ok: true,
+      skipped: true,
+      status: 'disabled',
+    });
   });
 
   it('returns 400 when missing fields', async () => {
@@ -73,5 +83,20 @@ describe('POST /api/reservation', () => {
 
     expect(response.status).toBe(201);
     expect(body.success).toBe(true);
+    expect(prisma.stageReservation.create).toHaveBeenCalledTimes(1);
+    expect(telegramSendMessage).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the reservation when the secondary Telegram notification fails', async () => {
+    (telegramSendMessage as jest.Mock).mockResolvedValue({
+      ok: false,
+      status: 'failed',
+      error: 'request_failed',
+    });
+
+    const response = await POST(makeRequest(validBody));
+
+    expect(response.status).toBe(201);
+    expect(prisma.stageReservation.create).toHaveBeenCalledTimes(1);
   });
 });

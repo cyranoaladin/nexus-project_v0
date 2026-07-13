@@ -1,28 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import StagesPage from '@/app/stages/page';
 
-jest.mock('framer-motion', () => ({
-  motion: new Proxy(
-    {},
-    {
-      get: (_target, prop) => {
-        return ({ children, ...rest }: any) => (
-          <div data-motion={String(prop)} {...rest}>
-            {children}
-          </div>
-        );
-      },
-    },
-  ),
-  AnimatePresence: ({ children }: any) => <>{children}</>,
-  useAnimation: () => ({ start: jest.fn() }),
-  useInView: () => [null, true],
-}));
-
-jest.mock('@/components/ui/button', () => ({
-  Button: ({ children }: any) => <>{children}</>,
-}));
-
 jest.mock('@/components/layout/CorporateNavbar', () => ({
   CorporateNavbar: () => <div data-testid="navbar">Navbar</div>,
 }));
@@ -38,13 +16,14 @@ describe('Stages page — 2026/2027', () => {
     expect(screen.getByTestId('navbar')).toBeInTheDocument();
     expect(screen.getByTestId('footer')).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/Viser.*Atteindre.*passer/i);
-    expect(screen.getByText(/Pré-Rentrée/)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Pré-rentrée 2026 en première position/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Découvrir la Pré-rentrée 2026/i })).toHaveAttribute('href', '/stages/pre-rentree-2026');
     expect(screen.getByText(/Toussaint/)).toBeInTheDocument();
     expect(screen.getByText(/Noël/)).toBeInTheDocument();
     expect(screen.getByText(/Février/)).toBeInTheDocument();
     expect(screen.getByText(/Printemps \/ Prépa-Bac/)).toBeInTheDocument();
-    // Verify exact dates are displayed
-    expect(screen.getByText(/24.*août 2026/)).toBeInTheDocument();
+    expect(screen.getByText(/Du 17 au 28 août 2026/)).toBeInTheDocument();
+    expect(screen.queryByText(/Pré-Rentrée du 24 au 28 août/i)).not.toBeInTheDocument();
     expect(screen.getByText(/26.*avr.*7 mai 2027/)).toBeInTheDocument();
   });
 });

@@ -118,6 +118,36 @@ describe('validateEnv', () => {
       const result = validateEnv();
       expect(result.warnings.some((w) => w.includes('NEXTAUTH_SECRET'))).toBe(true);
     });
+
+    it('accepts disabled Telegram notifications without token or chat ID', () => {
+      setNodeEnv('production');
+      process.env.DATABASE_URL = 'postgresql://prod';
+      process.env.NEXTAUTH_SECRET = 'a'.repeat(32);
+      process.env.NEXTAUTH_URL = 'https://nexusreussite.academy';
+      process.env.TELEGRAM_NOTIFICATIONS_ENABLED = 'false';
+      delete process.env.TELEGRAM_BOT_TOKEN;
+      delete process.env.TELEGRAM_CHAT_ID;
+
+      const validateEnv = loadValidateEnv();
+      const result = validateEnv();
+
+      expect(result.missing.some((item) => item.includes('TELEGRAM'))).toBe(false);
+      expect(result.warnings.some((item) => item.includes('TELEGRAM'))).toBe(false);
+    });
+
+    it('rejects enabled Telegram notifications without token and chat ID', () => {
+      setNodeEnv('production');
+      process.env.DATABASE_URL = 'postgresql://prod';
+      process.env.NEXTAUTH_SECRET = 'a'.repeat(32);
+      process.env.NEXTAUTH_URL = 'https://nexusreussite.academy';
+      process.env.TELEGRAM_NOTIFICATIONS_ENABLED = 'true';
+      delete process.env.TELEGRAM_BOT_TOKEN;
+      delete process.env.TELEGRAM_CHAT_ID;
+
+      const validateEnv = loadValidateEnv();
+
+      expect(() => validateEnv()).toThrow('FATAL');
+    });
   });
 
   describe('RECOMMENDED vars', () => {
@@ -148,7 +178,8 @@ describe('validateEnv', () => {
       process.env.SMTP_HOST = 'smtp.example.com';
       process.env.SMTP_FROM = 'noreply@example.com';
       process.env.CLICTOPAY_API_KEY = 'key';
-      process.env.TELEGRAM_BOT_TOKEN = 'token';
+      process.env.TELEGRAM_NOTIFICATIONS_ENABLED = 'false';
+      delete process.env.TELEGRAM_BOT_TOKEN;
       delete process.env.LLM_MODE;
       delete process.env.SENTRY_DSN;
 

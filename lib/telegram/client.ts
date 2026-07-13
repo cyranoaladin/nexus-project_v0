@@ -1,13 +1,12 @@
-import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * Telegram Bot API client for Nexus Réussite.
  *
  * Reads TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID from environment.
- * When TELEGRAM_DISABLED=true (or NODE_ENV=test), all operations are skipped.
+ * Network operations are enabled only when TELEGRAM_NOTIFICATIONS_ENABLED=true.
  *
  * Security:
  * - Token is never logged.
- * - Message content is never logged (only success/failure + chat_id).
+ * - Message content and destination are never logged.
  */
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -28,44 +27,45 @@ export interface TelegramChat {
 
 export interface TelegramSendResult {
   ok: boolean;
+  status: 'disabled' | 'sent' | 'unavailable' | 'failed';
   skipped?: boolean;
   messageId?: number;
-  error?: string;
+  error?: 'configuration_unavailable' | 'request_failed';
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 /**
- * Returns true when Telegram operations are disabled.
+ * Telegram is opt-in. Missing, malformed, or false values disable all requests.
  */
-export function isTelegramDisabled(): boolean {
-  const explicit = process.env.TELEGRAM_DISABLED;
-  if (explicit === 'true') return true;
-  if (explicit === 'false') return false;
-  return process.env.NODE_ENV === 'test';
+export function areTelegramNotificationsEnabled(): boolean {
+  return process.env.TELEGRAM_NOTIFICATIONS_ENABLED === 'true';
 }
 
-/**
- * Build the base URL for Bot API calls.
- * @throws Error if TELEGRAM_BOT_TOKEN is not set.
- */
-function baseUrl(): string {
+function requireToken(): string {
+  if (!areTelegramNotificationsEnabled()) {
+    throw new Error('Telegram notifications are disabled');
+  }
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token) {
     throw new Error('[telegram] TELEGRAM_BOT_TOKEN is not set');
   }
-  return `https://api.telegram.org/bot${token}`;
+  return token;
 }
 
 /**
  * Generic Bot API call with timeout.
  */
-async function apiCall<T>(method: string, body?: Record<string, unknown>): Promise<T> {
+async function apiCall<T>(
+  token: string,
+  method: string,
+  body?: Record<string, unknown>,
+): Promise<T> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 10_000);
 
   try {
-    const url = `${baseUrl()}/${method}`;
+    const url = `https://api.telegram.org/bot${token}/${method}`;
     const response = await fetch(url, {
       method: body ? 'POST' : 'GET',
       headers: body ? { 'Content-Type': 'application/json' } : undefined,
@@ -74,8 +74,7 @@ async function apiCall<T>(method: string, body?: Record<string, unknown>): Promi
     });
 
     if (!response.ok) {
-      const text = await response.text().catch(() => '');
-      throw new Error(`Telegram API ${method} failed: ${response.status} ${text}`);
+      throw new Error(`Telegram API ${method} failed: ${response.status}`);
     }
 
     const json = (await response.json()) as { ok: boolean; result: T };
@@ -96,7 +95,7 @@ async function apiCall<T>(method: string, body?: Record<string, unknown>): Promi
  * Returns bot info if valid.
  */
 export async function telegramGetMe(): Promise<TelegramBotInfo> {
-  return apiCall<TelegramBotInfo>('getMe');
+  return apiCall<TelegramBotInfo>(requireToken(), 'getMe');
 }
 
 /**
@@ -105,7 +104,7 @@ export async function telegramGetMe(): Promise<TelegramBotInfo> {
  * Returns raw updates array (caller should extract chat.id).
  */
 export async function telegramGetUpdates(limit = 10): Promise<unknown[]> {
-  return apiCall<unknown[]>('getUpdates', { limit, timeout: 0 });
+  return apiCall<unknown[]>(requireToken(), 'getUpdates', { limit, timeout: 0 });
 }
 
 /**
@@ -113,13 +112,13 @@ export async function telegramGetUpdates(limit = 10): Promise<unknown[]> {
  * Validates that the bot has access to the chat.
  */
 export async function telegramGetChat(chatId: string | number): Promise<TelegramChat> {
-  return apiCall<TelegramChat>('getChat', { chat_id: chatId });
+  return apiCall<TelegramChat>(requireToken(), 'getChat', { chat_id: chatId });
 }
 
 /**
  * Send a text message to a chat.
  *
- * When TELEGRAM_DISABLED=true, returns { ok: true, skipped: true }.
+ * When notifications are not explicitly enabled, returns a disabled result.
  *
  * @param chatId - Target chat ID (defaults to TELEGRAM_CHAT_ID env var)
  * @param text - Message text (Markdown supported)
@@ -130,28 +129,31 @@ export async function telegramSendMessage(
   text: string,
   opts?: { parseMode?: 'Markdown' | 'MarkdownV2' | 'HTML'; disableNotification?: boolean }
 ): Promise<TelegramSendResult> {
-  if (isTelegramDisabled()) {
-    return { ok: true, skipped: true };
+  if (!areTelegramNotificationsEnabled()) {
+    return { ok: true, skipped: true, status: 'disabled' };
   }
 
+  const token = process.env.TELEGRAM_BOT_TOKEN;
   const resolvedChatId = chatId || process.env.TELEGRAM_CHAT_ID;
-  if (!resolvedChatId) {
-    console.error('[telegram] No chat_id provided and TELEGRAM_CHAT_ID not set');
-    return { ok: false, error: 'No chat_id provided and TELEGRAM_CHAT_ID not set' };
+  if (!token || !resolvedChatId) {
+    return {
+      ok: false,
+      status: 'unavailable',
+      error: 'configuration_unavailable',
+    };
   }
 
   try {
-    const result = await apiCall<{ message_id: number }>('sendMessage', {
+    const result = await apiCall<{ message_id: number }>(token, 'sendMessage', {
       chat_id: resolvedChatId,
       text,
       parse_mode: opts?.parseMode ?? 'Markdown',
       disable_notification: opts?.disableNotification ?? false,
     });
 
-    return { ok: true, messageId: result.message_id };
-  } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : 'unknown';
-    console.error('[telegram] Send failed:', serializeError(errorMsg));
-    return { ok: false, error: errorMsg };
+    return { ok: true, messageId: result.message_id, status: 'sent' };
+  } catch {
+    console.error('[telegram] notification failed', { code: 'request_failed' });
+    return { ok: false, status: 'failed', error: 'request_failed' };
   }
 }

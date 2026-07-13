@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
 
@@ -15,9 +16,18 @@ import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-log
  * - Only renders on mobile (hidden md:hidden).
  */
 export function MobileStickyBar() {
+  const pathname = usePathname();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    if (
+      pathname.startsWith('/stages/pre-rentree-2026') ||
+      pathname.startsWith('/bilan-gratuit')
+    ) {
+      setVisible(false);
+      return;
+    }
+
     let heroOut = false;
     let footerIn = false;
     let formFocused = false;
@@ -75,23 +85,23 @@ export function MobileStickyBar() {
       document.removeEventListener('focusin', handleFocusIn);
       document.removeEventListener('focusout', handleFocusOut);
     };
-  }, []);
+  }, [pathname]);
 
   if (!visible) return null;
 
   return (
     <nav
       aria-label="Actions rapides"
-      className="fixed inset-x-0 bottom-0 z-40 md:hidden animate-in slide-in-from-bottom duration-300"
+      className="fixed inset-x-0 bottom-0 z-40 animate-in slide-in-from-bottom duration-300 motion-reduce:animate-none md:hidden"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       <div className="flex items-center gap-3 border-t border-lux-line bg-lux-white px-4 py-3 lux-shadow">
         <Link
-          href="/bilan-gratuit"
+          href="/stages/pre-rentree-2026"
           className="lux-cta-reserve flex-1 rounded-lg px-4 py-3 text-center text-sm font-semibold"
           tabIndex={0}
         >
-          Bilan gratuit
+          Pré-rentrée 2026 — Voir les stages
         </Link>
         <a
           href={buildWhatsAppUrl()}

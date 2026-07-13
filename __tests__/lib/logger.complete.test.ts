@@ -62,10 +62,10 @@ describe('createRequestLogger', () => {
 // ─── sanitizeLogData ─────────────────────────────────────────────────────────
 
 describe('sanitizeLogData', () => {
-  it('should redact password fields', () => {
+  it('should redact password and email fields (PII)', () => {
     const data = { email: 'test@example.com', password: 'secret123' };
     const sanitized = sanitizeLogData(data);
-    expect(sanitized.email).toBe('test@example.com');
+    expect(sanitized.email).toBe('[REDACTED]');
     expect(sanitized.password).toBe('[REDACTED]');
   });
 
@@ -111,7 +111,7 @@ describe('sanitizeLogData', () => {
   });
 
   it('should not modify non-sensitive fields', () => {
-    const data = { email: 'test@example.com', role: 'ADMIN', firstName: 'John' };
+    const data = { userId: 'user-1', role: 'ADMIN', action: 'update' };
     const sanitized = sanitizeLogData(data);
     expect(sanitized).toEqual(data);
   });
@@ -145,7 +145,7 @@ describe('sanitizeLogData', () => {
     };
     const sanitized = sanitizeLogData(data);
     expect(sanitized.userId).toBe('user-1');
-    expect(sanitized.email).toBe('test@example.com');
+    expect(sanitized.email).toBe('[REDACTED]');
     expect(sanitized.password).toBe('[REDACTED]');
     expect(sanitized.role).toBe('ADMIN');
     expect(sanitized.authToken).toBe('[REDACTED]');

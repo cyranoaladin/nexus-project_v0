@@ -38,10 +38,19 @@ describe('POST /api/payments/clictopay/webhook', () => {
     expect(textMock).not.toHaveBeenCalled();
   });
 
-  it('consumes body only when signature is present for HMAC verification', async () => {
+  it('consumes body only when signature is valid hex format for HMAC verification', async () => {
+    // Use a valid 64-char hex string (wrong value) to reach HMAC verification
+    const fakeHex = 'a'.repeat(64);
+    const { req, textMock } = makeRequest({ secret: 'test-secret', signature: fakeHex, body: '{"ok":true}' });
+    const res = await POST(req);
+    expect(res.status).toBe(401); // wrong HMAC
+    expect(textMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects non-hex signature without consuming body', async () => {
     const { req, textMock } = makeRequest({ secret: 'test-secret', signature: 'bad-sig', body: '{"ok":true}' });
     const res = await POST(req);
-    expect(res.status).toBe(401); // bad sig
-    expect(textMock).toHaveBeenCalledTimes(1);
+    expect(res.status).toBe(401);
+    expect(textMock).not.toHaveBeenCalled();
   });
 });

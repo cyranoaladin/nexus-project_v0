@@ -262,11 +262,30 @@ jest.mock('@/components/ui/tabs', () => {
     },
     TabsTrigger: function TabsTrigger({ value, children, ...props }) {
       const context = React.useContext(TabsContext);
+      const selected = context.selectedValue === value;
+      function handleKeyDown(event) {
+        if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+        event.preventDefault();
+        const tabs = Array.from(event.currentTarget.parentElement?.querySelectorAll('[role="tab"]') ?? []);
+        const currentIndex = tabs.indexOf(event.currentTarget);
+        const nextIndex = event.key === 'Home'
+          ? 0
+          : event.key === 'End'
+            ? tabs.length - 1
+            : (currentIndex + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+        const next = tabs[nextIndex];
+        next?.focus();
+        next?.click();
+      }
       return (
         <button
           role="tab"
           aria-label={value}
+          aria-selected={selected}
+          aria-controls={`panel-${value}`}
+          tabIndex={selected ? 0 : -1}
           onClick={() => context.onValueChange(value)}
+          onKeyDown={handleKeyDown}
           {...props}
         >
           {children}
@@ -276,7 +295,7 @@ jest.mock('@/components/ui/tabs', () => {
     TabsContent: function TabsContent({ children, value, ...props }) {
       const context = React.useContext(TabsContext);
       if (context.selectedValue !== value) return null;
-      return <div role="tabpanel" data-value={value} {...props}>{children}</div>;
+      return <div role="tabpanel" id={`panel-${value}`} data-value={value} {...props}>{children}</div>;
     },
   };
 });
@@ -358,7 +377,17 @@ jest.mock('next/image', () => {
   return {
     __esModule: true,
     default: React.forwardRef((props, ref) => {
-      const { fill, priority, quality, placeholder, blurDataURL, loader, ...rest } = props;
+      const {
+        fill,
+        priority,
+        quality,
+        placeholder,
+        blurDataURL,
+        loader,
+        fetchPriority,
+        unoptimized,
+        ...rest
+      } = props;
       // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
       return React.createElement('img', { ...rest, ref });
     }),
