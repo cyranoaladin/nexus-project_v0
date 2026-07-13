@@ -27,6 +27,7 @@ export const LEGAL = {
     pedagogique: {
       label: 'Centre pédagogique',
       full: 'Mutuelleville, Tunis',
+      neighborhood: 'Mutuelleville',
       city: 'Tunis',
       note: 'Les rendez-vous pédagogiques et cours en présentiel sont confirmés à Mutuelleville.',
     },

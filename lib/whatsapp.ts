@@ -15,8 +15,13 @@ const WHATSAPP_NUMBER =
  *   Typically the offer title or page subject.
  *   When omitted the message falls back to a generic greeting.
  */
-export function buildWhatsAppUrl(context?: string): string {
-  const message = context
+export function buildWhatsAppUrl(
+  context?: string,
+  options?: { exactMessage?: boolean },
+): string {
+  const message = options?.exactMessage && context
+    ? context
+    : context
     ? `Bonjour Nexus Réussite, j'ai une question sur ${context}.`
     : "Bonjour Nexus Réussite, j'ai une question sur l'accompagnement.";
 

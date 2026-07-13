@@ -37,6 +37,7 @@ import {
 import { PaymentMethodsNote } from '@/components/marketing/PaymentMethodsNote';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import OffersFiltersClient from './_components/OffersFiltersClient';
+import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
 
 // ── Category filter ──
 
@@ -170,6 +171,7 @@ export default function OffresPage() {
   const coachingOffers = getCoachingOffers();
   const packs = getPacks();
   const carte = getCarte();
+  const preRentree = getPreRentreeLandingDTO();
 
   return (
     <main className="luxury" id="main-content">
@@ -395,6 +397,9 @@ export default function OffresPage() {
             <p className="mt-3 text-sm text-lux-slate">
               {stageEditions.length} éditions par an, {stageFormats.length} formats. Groupes de {rules.group_max} max.
             </p>
+            <Link href={preRentree.campaign.canonicalPath} className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-lux-gold-deep underline">
+              Découvrir la Pré-rentrée 2026 <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
           </div>
 
           {/* Formats grid */}

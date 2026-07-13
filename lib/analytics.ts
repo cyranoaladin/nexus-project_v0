@@ -11,6 +11,35 @@
  *   track.signinSuccess('PARENT');
  */
 
+export type PreRentreeEntryLevel = 'seconde' | 'premiere' | 'terminale';
+export type ViewportCategory = 'mobile' | 'tablet' | 'desktop';
+
+export interface PreRentreeHomepageEventParams {
+  cta_location: 'home_spotlight' | 'navbar';
+  viewport_category: ViewportCategory;
+  destination: 'campaign_landing' | 'campaign_planning';
+  campaign_id: string;
+}
+
+export function getViewportCategory(width = typeof window === 'undefined' ? 1024 : window.innerWidth): ViewportCategory {
+  if (width < 640) return 'mobile';
+  if (width < 1024) return 'tablet';
+  return 'desktop';
+}
+
+export function toPreRentreeEntryLevel(level: string): PreRentreeEntryLevel {
+  switch (level) {
+    case 'SECONDE':
+      return 'seconde';
+    case 'PREMIERE':
+      return 'premiere';
+    case 'TERMINALE':
+      return 'terminale';
+    default:
+      throw new Error(`Unknown entry level: ${level}`);
+  }
+}
+
 /** All trackable event types with their required parameters */
 type NexusEvent =
   | { name: 'page_view'; params: { path: string; referrer?: string } }
@@ -39,7 +68,21 @@ type NexusEvent =
   | { name: 'bilan_pallier2_step'; params: { step_number: number; step_name: string } }
   | { name: 'bilan_pallier2_success'; params: { student_id?: string } }
   | { name: 'bilan_pallier2_error'; params: { error_type: string } }
-  | { name: 'scroll_depth'; params: { page: string; depth: number } };
+  | { name: 'scroll_depth'; params: { page: string; depth: number } }
+  | { name: 'pre_rentree_page_view'; params: Record<string, never> }
+  | { name: 'pre_rentree_level_selected'; params: { entry_level: PreRentreeEntryLevel } }
+  | { name: 'pre_rentree_track_selected'; params: { entry_level: PreRentreeEntryLevel; normalized_track: string } }
+  | { name: 'pre_rentree_subject_selected'; params: { entry_level: PreRentreeEntryLevel; subject_code: string; subject_count: number } }
+  | { name: 'pre_rentree_schedule_viewed'; params: { schedule_view_type: 'by_level' | 'by_week' } }
+  | { name: 'pre_rentree_program_viewed'; params: { entry_level: PreRentreeEntryLevel; subject_code: string } }
+  | { name: 'pre_rentree_price_summary_viewed'; params: { pack_code: string } }
+  | { name: 'pre_rentree_bilan_clicked'; params: { cta_location: string; pack_code?: string } }
+  | { name: 'pre_rentree_whatsapp_clicked'; params: { cta_location: string; pack_code?: string } }
+  | { name: 'pre_rentree_preregistration_started'; params: { pack_code: string; entry_level: PreRentreeEntryLevel; subject_count: number } }
+  | { name: 'pre_rentree_home_spotlight_view'; params: PreRentreeHomepageEventParams }
+  | { name: 'pre_rentree_home_spotlight_clicked'; params: PreRentreeHomepageEventParams }
+  | { name: 'pre_rentree_home_planning_clicked'; params: PreRentreeHomepageEventParams }
+  | { name: 'pre_rentree_nav_clicked'; params: PreRentreeHomepageEventParams };
 
 /**
  * Send an analytics event.
@@ -154,6 +197,48 @@ export const track = {
   /** Track scroll depth */
   scrollDepth: (page: string, depth: number) =>
     sendEvent({ name: 'scroll_depth', params: { page, depth } }),
+
+  preRentreePageView: () =>
+    sendEvent({ name: 'pre_rentree_page_view', params: {} }),
+
+  preRentreeLevelSelected: (entry_level: PreRentreeEntryLevel) =>
+    sendEvent({ name: 'pre_rentree_level_selected', params: { entry_level } }),
+
+  preRentreeTrackSelected: (entry_level: PreRentreeEntryLevel, normalized_track: string) =>
+    sendEvent({ name: 'pre_rentree_track_selected', params: { entry_level, normalized_track } }),
+
+  preRentreeSubjectSelected: (entry_level: PreRentreeEntryLevel, subject_code: string, subject_count: number) =>
+    sendEvent({ name: 'pre_rentree_subject_selected', params: { entry_level, subject_code, subject_count } }),
+
+  preRentreeScheduleViewed: (schedule_view_type: 'by_level' | 'by_week') =>
+    sendEvent({ name: 'pre_rentree_schedule_viewed', params: { schedule_view_type } }),
+
+  preRentreeProgramViewed: (entry_level: PreRentreeEntryLevel, subject_code: string) =>
+    sendEvent({ name: 'pre_rentree_program_viewed', params: { entry_level, subject_code } }),
+
+  preRentreePriceSummaryViewed: (pack_code: string) =>
+    sendEvent({ name: 'pre_rentree_price_summary_viewed', params: { pack_code } }),
+
+  preRentreeBilanClicked: (cta_location: string, pack_code?: string) =>
+    sendEvent({ name: 'pre_rentree_bilan_clicked', params: { cta_location, pack_code } }),
+
+  preRentreeWhatsAppClicked: (cta_location: string, pack_code?: string) =>
+    sendEvent({ name: 'pre_rentree_whatsapp_clicked', params: { cta_location, pack_code } }),
+
+  preRentreePreregistrationStarted: (pack_code: string, entry_level: PreRentreeEntryLevel, subject_count: number) =>
+    sendEvent({ name: 'pre_rentree_preregistration_started', params: { pack_code, entry_level, subject_count } }),
+
+  preRentreeHomeSpotlightView: (params: PreRentreeHomepageEventParams) =>
+    sendEvent({ name: 'pre_rentree_home_spotlight_view', params }),
+
+  preRentreeHomeSpotlightClicked: (params: PreRentreeHomepageEventParams) =>
+    sendEvent({ name: 'pre_rentree_home_spotlight_clicked', params }),
+
+  preRentreeHomePlanningClicked: (params: PreRentreeHomepageEventParams) =>
+    sendEvent({ name: 'pre_rentree_home_planning_clicked', params }),
+
+  preRentreeNavClicked: (params: PreRentreeHomepageEventParams) =>
+    sendEvent({ name: 'pre_rentree_nav_clicked', params }),
 };
 
 export { sendEvent };

@@ -3,10 +3,14 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, Phone, ChevronDown, LogIn, UserPlus } from "lucide-react";
+import { CalendarDays, Menu, X, Phone, ChevronDown, LogIn, UserPlus } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { PREPARATION_LINKS } from '@/content/marketing/preparation-links';
 import { LEGAL } from '@/lib/legal';
+import { getViewportCategory, track } from '@/lib/analytics';
+
+const PRE_RENTREE_CAMPAIGN_PATH = '/stages/pre-rentree-2026';
+const PRE_RENTREE_CAMPAIGN_ID = PRE_RENTREE_CAMPAIGN_PATH.split('/').at(-1) ?? 'pre-rentree';
 
 export function CorporateNavbar() {
   const pathname = usePathname();
@@ -83,6 +87,7 @@ export function CorporateNavbar() {
 
   useEffect(() => {
     if (!isOpen) return;
+    const menuTrigger = menuTriggerRef.current;
 
     // Focus the close button on open (after transition starts)
     requestAnimationFrame(() => {
@@ -121,7 +126,7 @@ export function CorporateNavbar() {
       document.removeEventListener('keydown', onKeyDown);
       document.body.style.overflow = '';
       // Restore focus to trigger
-      menuTriggerRef.current?.focus();
+      menuTrigger?.focus();
     };
   }, [isOpen]);
 
@@ -137,8 +142,8 @@ export function CorporateNavbar() {
   const chromeMenuItemActive = 'bg-white/10 text-white';
   const chromeHeader = 'fixed top-0 left-0 right-0 z-50 bg-lux-ink/88 backdrop-blur-md border-b border-white/10 shadow-[0_12px_40px_rgba(7,26,58,0.18)] transition-all duration-500';
   const chromeCta = 'hidden md:flex items-center gap-2 rounded-full bg-lux-gold px-5 py-2.5 text-xs font-semibold text-lux-ink transition-all hover:bg-lux-gold-bright shadow-[0_12px_30px_rgba(191,160,106,0.18)]';
-  const chromeMobileCta = 'md:hidden inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-xs font-semibold text-white transition-colors hover:border-lux-gold/40 hover:bg-white/10 min-h-[44px]';
-  const chromeMenuButton = 'md:hidden flex items-center gap-2 text-white transition-colors duration-300 hover:text-lux-gold-wash group';
+  const chromeMobileCta = 'md:hidden inline-flex min-h-11 items-center gap-1.5 rounded-full border border-lux-gold/60 bg-lux-gold/15 px-3 py-2 text-[0.68rem] font-semibold text-lux-gold-wash transition-colors hover:bg-lux-gold/25 lux-focus';
+  const chromeMenuButton = 'md:hidden flex min-h-11 min-w-11 items-center justify-center gap-2 text-white transition-colors duration-300 hover:text-lux-gold-wash group lux-focus';
 
   useEffect(() => {
     const onMouseDown = (event: MouseEvent) => {
@@ -178,6 +183,7 @@ export function CorporateNavbar() {
     {
       title: 'Programmes',
       items: [
+        { label: 'Pré-rentrée 2026', href: '/stages/pre-rentree-2026', desc: 'Stage intensif de rentrée', isPage: true },
         { label: 'Stages intensifs', href: '/stages', desc: 'Toutes les vacances', isPage: true },
         { label: 'Plateforme ARIA', href: '/plateforme-aria', desc: 'Ressources & parcours en ligne', isPage: true },
         { label: 'Accompagnement scolaire', href: '/accompagnement-scolaire', desc: 'Suivi personnalisé', isPage: true },
@@ -216,7 +222,7 @@ export function CorporateNavbar() {
       <header
         className={chromeHeader}
       >
-        <div className="flex items-center justify-between px-6 lg:px-12 py-4">
+        <div className="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-12">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3">
             <Image
@@ -224,11 +230,26 @@ export function CorporateNavbar() {
               alt="Nexus Réussite"
               width={180}
               height={65}
-              className="h-10 w-auto md:h-12"
+              className="h-8 w-auto sm:h-10 md:h-12"
               priority
               fetchPriority="high"
               unoptimized
             />
+          </Link>
+
+          <Link
+            href={PRE_RENTREE_CAMPAIGN_PATH}
+            data-testid="pre-rentree-nav-desktop"
+            onClick={() => track.preRentreeNavClicked({
+              cta_location: 'navbar',
+              viewport_category: getViewportCategory(),
+              destination: 'campaign_landing',
+              campaign_id: PRE_RENTREE_CAMPAIGN_ID,
+            })}
+            className="hidden min-h-11 items-center gap-2 rounded-full border border-lux-gold/60 bg-lux-gold/15 px-4 py-2 text-xs font-semibold text-lux-gold-wash transition-colors hover:border-lux-gold hover:bg-lux-gold/25 lux-focus lg:inline-flex"
+          >
+            <CalendarDays className="h-4 w-4" aria-hidden="true" />
+            Pré-rentrée 2026
           </Link>
 
           {/* Desktop Rubriques + Sous-rubriques */}
@@ -298,7 +319,7 @@ export function CorporateNavbar() {
           </div>
 
           {/* Right Side */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             {/* Connexion Dropdown - Desktop */}
             <div
               ref={connexionRef}
@@ -375,14 +396,20 @@ export function CorporateNavbar() {
               <span>Bilan gratuit</span>
             </Link>
 
-            {/* Sign-in Button - Mobile */}
+            {/* Priority campaign - Mobile */}
             <Link
-              href="/auth/signin"
+              href={PRE_RENTREE_CAMPAIGN_PATH}
               className={chromeMobileCta}
-              aria-label="Se connecter"
+              data-testid="pre-rentree-nav-mobile"
+              onClick={() => track.preRentreeNavClicked({
+                cta_location: 'navbar',
+                viewport_category: getViewportCategory(),
+                destination: 'campaign_landing',
+                campaign_id: PRE_RENTREE_CAMPAIGN_ID,
+              })}
             >
-              <LogIn className="w-3.5 h-3.5" aria-hidden="true" />
-              <span>Connexion</span>
+              <CalendarDays className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              <span>Pré-rentrée 2026</span>
             </Link>
 
             {/* Menu Button - Mobile */}
@@ -394,7 +421,7 @@ export function CorporateNavbar() {
               aria-expanded={isOpen}
               aria-controls="primary-menu"
             >
-              <span className="font-mono text-xs uppercase tracking-[0.14em] group-hover:tracking-[0.2em] transition-all text-neutral-300">Menu</span>
+              <span className="hidden font-mono text-xs uppercase tracking-[0.14em] text-neutral-300 transition-all group-hover:tracking-[0.2em] min-[370px]:inline">Menu</span>
               <Menu className="w-6 h-6" aria-hidden="true" />
             </button>
           </div>
@@ -546,6 +573,7 @@ export function CorporateNavbar() {
           </div>
         </div>
       </div>
+
     </>
   );
 }

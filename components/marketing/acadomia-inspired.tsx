@@ -238,8 +238,11 @@ export function FloatingAdvisorBubble() {
   const [blocked, setBlocked] = useState(false);
 
   useEffect(() => {
-    // Hide entirely on /recommandation (redundant + covers wizard options)
-    if (window.location.pathname.startsWith('/recommandation')) {
+    // Hide where a contextual conversion flow already occupies the page.
+    if (
+      window.location.pathname.startsWith('/recommandation') ||
+      window.location.pathname.startsWith('/stages/pre-rentree-2026')
+    ) {
       setBlocked(true);
       return;
     }

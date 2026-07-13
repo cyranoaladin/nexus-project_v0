@@ -1,5 +1,5 @@
 {
-  "version": "2026-2027.1",
+  "version": "2026-2027.2",
   "_note": "SOURCE DE VÉRITÉ UNIQUE des prix, effectifs, acomptes et échéanciers Nexus Réussite. Aucun montant TND ne doit être codé en dur dans les composants ou pages. Toute modification doit repasser le validateur pricing-canonical-validator.test.ts. Après modification, régénérer les extraits client : node scripts/generate-pricing-client-data.js",
   "currency": "TND",
   "rules": {
@@ -656,27 +656,37 @@
   "stage_calendar": [
     {
       "id": "pre-rentree-2026",
-      "title": "Pré-Rentrée",
-      "format_id": "intensif-renfort",
-      "format_label": "INTENSIF 15 h",
-      "half_days": 5,
-      "hours": 15,
-      "date_start": "2026-08-24",
+      "title": "Pré-Rentrée 2026",
+      "format_id": null,
+      "format_label": "PACKS 10–40 h (1 à 4 matières)",
+      "half_days": 10,
+      "hours": null,
+      "date_start": "2026-08-17",
       "date_end": "2026-08-28",
-      "dates_display": "Lun. 24 → ven. 28 août 2026",
-      "weeks": null,
-      "objective": "Reprendre le rythme et prendre de l’avance avant la rentrée.",
+      "dates_display": "Lun. 17 → ven. 28 août 2026 (hors 22-23 août)",
+      "weeks": [
+        "2026-08-17/2026-08-21",
+        "2026-08-24/2026-08-28"
+      ],
+      "objective": "Deux semaines pour préparer sérieusement la rentrée : consolider les fondamentaux et acquérir les méthodes du lycée.",
       "audience": [
-        "inscrit réseau AEFE",
-        "candidat libre"
+        "entrant en Seconde",
+        "entrant en Première",
+        "entrant en Terminale"
       ],
       "subjects": [
-        "Maths",
+        "Mathématiques",
+        "Physique-Chimie",
         "NSI",
-        "Français (EAF)",
-        "Philo"
+        "Français"
       ],
-      "notes": null
+      "notes": "Produit dédié avec packs 1–4 matières. Ne pas confondre avec les formats intensifs génériques.",
+      "pack_product_ids": [
+        "pre2026-pack-1",
+        "pre2026-pack-2",
+        "pre2026-pack-3",
+        "pre2026-pack-4"
+      ]
     },
     {
       "id": "toussaint-2026",
@@ -1466,5 +1476,111 @@
     "plateformeAn": "à partir de 590 TND / an",
     "stagesBase": "dès 420 TND",
     "parrainage": "150 à 300 TND"
-  }
+  },
+  "pre_rentree_packs": [
+    {
+      "id": "pre2026-pack-1",
+      "title": "Pré-Rentrée 2026 — 1 matière",
+      "edition_id": "pre-rentree-2026",
+      "subjects_count": 1,
+      "hours_per_subject": 10,
+      "total_hours": 10,
+      "sessions_per_subject": 5,
+      "session_duration_h": 2,
+      "group_max": 5,
+      "group_min_open": 3,
+      "price_per_student": 480,
+      "price_per_student_hour": 48,
+      "floor_type": "stage",
+      "payment": {
+        "deposit": 140,
+        "solde": 340
+      },
+      "discount_exclusions": [
+        "carte_nexus",
+        "fratrie",
+        "ancien_eleve",
+        "parrainage"
+      ],
+      "non_cumulable": true
+    },
+    {
+      "id": "pre2026-pack-2",
+      "title": "Pré-Rentrée 2026 — 2 matières",
+      "edition_id": "pre-rentree-2026",
+      "subjects_count": 2,
+      "hours_per_subject": 10,
+      "total_hours": 20,
+      "sessions_per_subject": 5,
+      "session_duration_h": 2,
+      "group_max": 5,
+      "group_min_open": 3,
+      "price_per_student": 900,
+      "price_per_student_hour": 45,
+      "floor_type": "stage",
+      "payment": {
+        "deposit": 270,
+        "solde": 630
+      },
+      "discount_exclusions": [
+        "carte_nexus",
+        "fratrie",
+        "ancien_eleve",
+        "parrainage"
+      ],
+      "non_cumulable": true
+    },
+    {
+      "id": "pre2026-pack-3",
+      "title": "Pré-Rentrée 2026 — 3 matières",
+      "edition_id": "pre-rentree-2026",
+      "subjects_count": 3,
+      "hours_per_subject": 10,
+      "total_hours": 30,
+      "sessions_per_subject": 5,
+      "session_duration_h": 2,
+      "group_max": 5,
+      "group_min_open": 3,
+      "price_per_student": 1350,
+      "price_per_student_hour": 45,
+      "floor_type": "stage",
+      "payment": {
+        "deposit": 410,
+        "solde": 940
+      },
+      "discount_exclusions": [
+        "carte_nexus",
+        "fratrie",
+        "ancien_eleve",
+        "parrainage"
+      ],
+      "non_cumulable": true
+    },
+    {
+      "id": "pre2026-pack-4",
+      "title": "Pré-Rentrée 2026 — 4 matières",
+      "edition_id": "pre-rentree-2026",
+      "subjects_count": 4,
+      "hours_per_subject": 10,
+      "total_hours": 40,
+      "sessions_per_subject": 5,
+      "session_duration_h": 2,
+      "group_max": 5,
+      "group_min_open": 3,
+      "price_per_student": 1800,
+      "price_per_student_hour": 45,
+      "floor_type": "stage",
+      "payment": {
+        "deposit": 540,
+        "solde": 1260
+      },
+      "discount_exclusions": [
+        "carte_nexus",
+        "fratrie",
+        "ancien_eleve",
+        "parrainage"
+      ],
+      "non_cumulable": true
+    }
+  ]
 }

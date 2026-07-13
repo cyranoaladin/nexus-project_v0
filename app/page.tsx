@@ -2,6 +2,7 @@ import { OG_DEFAULT_IMAGE } from '@/lib/seo';
 import type { Metadata } from 'next';
 
 import { HomePageClient } from './HomePageClient';
+import { getPreRentreeHomepageSpotlightDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
 
 export const metadata: Metadata = {
   title: 'Nexus Réussite | Accompagnement académique premium à Tunis',
@@ -28,5 +29,5 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
-  return <HomePageClient />;
+  return <HomePageClient campaign={getPreRentreeHomepageSpotlightDTO()} />;
 }
