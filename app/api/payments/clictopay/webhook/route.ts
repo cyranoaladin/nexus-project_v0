@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { createHmac, timingSafeEqual } from 'crypto';
 import { logger } from '@/lib/logger';
+import { redactForLogging } from '@/lib/security/redact-for-logging';
 
 /**
  * POST /api/payments/clictopay/webhook
@@ -30,14 +31,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Signature manquante' }, { status: 401 });
     }
 
-    // NOW consume the body for HMAC verification
+    // Validate hex format before any cryptographic operation.
+    // HMAC-SHA256 produces 64 hex characters. Reject malformed signatures
+    // before Buffer.from() to prevent silent truncation.
+    if (!/^[0-9a-f]{64}$/i.test(signature)) {
+      logger.warn('[ClicToPay Webhook] Signature format invalide');
+      return NextResponse.json({ error: 'Signature invalide' }, { status: 401 });
+    }
+
+    // NOW consume the body for HMAC verification.
+    // Decode hex signature to binary (32 bytes) — regex already validated format.
+    // Compare decoded buffers, not hex strings, per cryptographic best practice.
     const rawBody = await request.text();
-    const expected = createHmac('sha256', secret).update(rawBody).digest('hex');
+    const expectedBuf = createHmac('sha256', secret).update(rawBody).digest();
+    const signatureBuf = Buffer.from(signature.toLowerCase(), 'hex');
     let signatureValid = false;
     try {
-      signatureValid = timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
+      signatureValid = timingSafeEqual(signatureBuf, expectedBuf);
     } catch {
-      // Length mismatch — definitely invalid
+      // Length mismatch — should not happen since both are 32 bytes after hex decode
     }
     if (!signatureValid) {
       logger.warn('[ClicToPay Webhook] Invalid signature');
@@ -54,7 +66,10 @@ export async function POST(request: NextRequest) {
       { status: 501 }
     );
   } catch (error) {
-    logger.error({ err: error }, '[ClicToPay Webhook] Erreur');
+    const safeErr = error instanceof Error
+      ? { name: error.name, message: error.message }
+      : { message: 'Unknown error' };
+    logger.error(redactForLogging(safeErr), '[ClicToPay Webhook] Erreur');
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
       { status: 500 }
