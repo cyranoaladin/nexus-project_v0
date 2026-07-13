@@ -89,7 +89,10 @@ describe('/api/bilan-gratuit', () => {
       } as any);
     });
 
-    const response = await POST(buildRequest(validRequestData));
+    const response = await POST(buildRequest({
+      ...validRequestData,
+      campaignContext: null,
+    }));
     const body = await response.json();
 
     expect(response.status).toBe(200);
@@ -137,7 +140,7 @@ describe('/api/bilan-gratuit', () => {
     );
   });
 
-  it('persists the validated campaign context as an actionable contact lead', async () => {
+  it('persists a campaign lead rebuilt from the submitted grade and subjects', async () => {
     const userCreate = jest.fn()
       .mockResolvedValueOnce({
         id: 'parent-123',
@@ -166,11 +169,13 @@ describe('/api/bilan-gratuit', () => {
 
     const response = await POST(buildRequest({
       ...validRequestData,
+      studentGrade: 'Première',
+      subjects: ['MATHEMATIQUES', 'FRANCAIS'],
       campaignContext: {
         programme: 'pre-rentree-2026',
-        packCode: 'PACK_2',
+        packCode: 'PACK_1',
         level: 'PREMIERE',
-        subjectIds: ['MATHEMATIQUES', 'FRANCAIS'],
+        subjectIds: ['MATHEMATIQUES'],
         profile: {
           voie: 'GENERALE',
           mathsProfile: 'MATHS_EDS',
@@ -184,7 +189,7 @@ describe('/api/bilan-gratuit', () => {
     expect(contactLeadCreate).toHaveBeenCalledWith({
       data: expect.objectContaining({
         source: 'pre-rentree-2026',
-        interest: expect.stringContaining('PACK_2'),
+        interest: 'PACK_2 · PREMIERE · MATHEMATIQUES, FRANCAIS',
         profile: expect.stringContaining('MATHS_EDS'),
       }),
     });

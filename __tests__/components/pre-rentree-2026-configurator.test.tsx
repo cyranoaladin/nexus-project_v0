@@ -183,4 +183,15 @@ describe('Pré-rentrée stage configurator', () => {
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByRole('link', { name: /Poursuivre vers le bilan/i })).toBeInTheDocument();
   });
+
+  it('shows the public campaign status without an internal status label', async () => {
+    const user = userEvent.setup();
+    renderConfigurator();
+
+    await user.click(screen.getByRole('radio', { name: 'Entrée en Seconde' }));
+    await user.click(screen.getByRole('button', { name: 'Continuer' }));
+    await user.click(screen.getByRole('checkbox', { name: /Mathématiques/i }));
+    expect(screen.getByText('Pré-inscriptions ouvertes')).toBeInTheDocument();
+    expect(document.body.textContent).not.toContain('Statut de campagne');
+  });
 });

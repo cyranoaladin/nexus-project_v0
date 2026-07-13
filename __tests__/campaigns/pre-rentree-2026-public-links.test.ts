@@ -12,7 +12,7 @@ describe('Pré-rentrée public access and routing', () => {
     'app/offres/page.tsx',
   ])('links directly to the canonical campaign from %s', (file) => {
     expect(read(file)).toMatch(
-      /\/stages\/pre-rentree-2026|campaign\.(?:path|campaignPath)|preRentree\.campaign\.canonicalPath/,
+      /\/stages\/pre-rentree-2026|PRE_RENTREE_2026_NAVIGATION\.path|campaign\.(?:path|campaignPath)|preRentree\.campaign\.canonicalPath/,
     );
   });
 

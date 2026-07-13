@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
 import { ScheduleSection } from '@/components/pre-rentree-2026/ScheduleSection';
@@ -142,6 +142,40 @@ describe('Pré-rentrée landing sections', () => {
       'aria-expanded',
       'true',
     );
+  });
+
+  it.each(dto.modules)('opens %s from a canonical program hash', async (campaignModule) => {
+    render(<ProgramsSection modules={dto.modules} levels={dto.levels} subjects={dto.subjects} />);
+    window.location.hash = `#programme-${campaignModule.id}`;
+    fireEvent(window, new HashChangeEvent('hashchange'));
+
+    const level = dto.levels.find((candidate) => candidate.id === campaignModule.level);
+    await waitFor(() => {
+      expect(screen.getByRole('tab', { name: level?.label ?? campaignModule.level })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      expect(screen.getByRole('button', { name: new RegExp(campaignModule.title) })).toHaveAttribute(
+        'aria-expanded',
+        'true',
+      );
+    });
+  });
+
+  it('opens a canonical program hash on the initial page render', async () => {
+    const campaignModule = dto.modules.find((candidate) => candidate.id === 'terminale-physique-chimie');
+    if (!campaignModule) throw new Error('Module Terminale Physique-Chimie absent');
+
+    window.history.replaceState({}, '', `#programme-${campaignModule.id}`);
+    render(<ProgramsSection modules={dto.modules} levels={dto.levels} subjects={dto.subjects} />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('tab', { name: 'Entrée en Terminale' })).toHaveAttribute('aria-selected', 'true');
+      expect(screen.getByRole('button', { name: new RegExp(campaignModule.title) })).toHaveAttribute(
+        'aria-expanded',
+        'true',
+      );
+    });
   });
 
   it('renders four canonical packs with hourly price, deposit and balance', () => {

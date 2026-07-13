@@ -1,3 +1,4 @@
+import * as bilanPrefill from '@/lib/campaigns/pre-rentree-2026/bilan-prefill';
 import { parsePreRentreeBilanPrefill } from '@/lib/campaigns/pre-rentree-2026/bilan-prefill';
 import { resolveSelectedOfferContext } from '@/app/bilan-gratuit/selected-offer';
 import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
@@ -65,5 +66,58 @@ describe('Pré-rentrée bilan prefill parser', () => {
       deposit: pack.deposit,
       solde: pack.balance,
     });
+  });
+
+  it('rebuilds the campaign context from the submitted grade and subjects', () => {
+    type ContextSynchronizer = (input: {
+      campaignContext: {
+        programme: 'pre-rentree-2026';
+        packCode: 'PACK_1' | 'PACK_2' | 'PACK_3' | 'PACK_4';
+        level: 'SECONDE' | 'PREMIERE' | 'TERMINALE';
+        subjectIds: Array<'MATHEMATIQUES' | 'PHYSIQUE_CHIMIE' | 'NSI' | 'FRANCAIS'>;
+        profile: Record<string, unknown>;
+      };
+      studentGrade: string;
+      subjects: string[];
+    }) => unknown;
+    const synchronize = (bilanPrefill as unknown as {
+      synchronizePreRentreeCampaignContext?: ContextSynchronizer;
+    }).synchronizePreRentreeCampaignContext;
+
+    expect(synchronize).toBeDefined();
+    if (!synchronize) return;
+
+    const initial = {
+      programme: 'pre-rentree-2026' as const,
+      packCode: 'PACK_1' as const,
+      level: 'SECONDE' as const,
+      subjectIds: ['MATHEMATIQUES'] as Array<'MATHEMATIQUES'>,
+      profile: {},
+    };
+
+    for (const subjectIds of [
+      ['MATHEMATIQUES'],
+      ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE'],
+      ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'FRANCAIS'],
+      ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'FRANCAIS', 'NSI'],
+    ]) {
+      expect(synchronize({
+        campaignContext: initial,
+        studentGrade: 'seconde',
+        subjects: subjectIds,
+      })).toEqual({
+        programme: 'pre-rentree-2026',
+        packCode: `PACK_${subjectIds.length}`,
+        level: 'SECONDE',
+        subjectIds,
+        profile: {},
+      });
+    }
+
+    expect(synchronize({
+      campaignContext: initial,
+      studentGrade: 'premiere',
+      subjects: ['MATHEMATIQUES'],
+    })).toBeNull();
   });
 });
