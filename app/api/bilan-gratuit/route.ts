@@ -7,6 +7,7 @@ import { UserRole } from '@/types/enums';
 import { guardRateLimitAsync } from '@/lib/rate-limit';
 import { checkCsrf, checkBodySize } from '@/lib/csrf';
 import { serializeError } from '@/lib/utils/serialize-error';
+import { synchronizePreRentreeCampaignContext } from '@/lib/campaigns/pre-rentree-2026/bilan-prefill';
 import { createId } from '@paralleldrive/cuid2';
 import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
@@ -37,6 +38,11 @@ export async function POST(request: NextRequest) {
 
     // Validation des données
     const validatedData = bilanGratuitSchema.parse(body);
+    const campaignContext = synchronizePreRentreeCampaignContext({
+      campaignContext: validatedData.campaignContext ?? undefined,
+      studentGrade: validatedData.studentGrade,
+      subjects: validatedData.subjects,
+    });
 
     // Vérifier si l'email parent existe déjà
     let existingUser = null;
@@ -121,15 +127,15 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      const campaignLead = validatedData.campaignContext
+      const campaignLead = campaignContext
         ? await tx.contactLead.create({
             data: {
               name: `${validatedData.parentFirstName} ${validatedData.parentLastName}`,
               email: validatedData.parentEmail,
               phone: validatedData.parentPhone,
-              profile: JSON.stringify(validatedData.campaignContext.profile),
-              interest: `${validatedData.campaignContext.packCode} · ${validatedData.campaignContext.level} · ${validatedData.campaignContext.subjectIds.join(', ')}`,
-              source: validatedData.campaignContext.programme,
+              profile: JSON.stringify(campaignContext.profile),
+              interest: `${campaignContext.packCode} · ${campaignContext.level} · ${campaignContext.subjectIds.join(', ')}`,
+              source: campaignContext.programme,
             },
           })
         : null;

@@ -304,7 +304,6 @@ export default function StageConfigurator({
     <section className="bg-white px-4 py-14 md:py-20" aria-labelledby="configurator-heading">
       <div className="mx-auto max-w-6xl">
         <div className="max-w-3xl">
-          <p className="sr-only">Statut de campagne : {campaignPublicStatus}</p>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-lux-gold-deep">Pré-inscription sans paiement</p>
           <h2 id="configurator-heading" className="mt-3 font-fraunces text-3xl text-lux-ink md:text-4xl">Composer le stage de votre enfant</h2>
           <p className="mt-3 text-lux-slate">Sélectionnez la classe de rentrée, le profil et les matières pour obtenir un résumé exact.</p>
@@ -382,7 +381,7 @@ export default function StageConfigurator({
                         )}
                       >
                         <label className="flex cursor-pointer items-start gap-3"><input className="mt-1 h-4 w-4 accent-lux-gold" type="checkbox" checked={selected} onChange={() => toggleSubject(subject.id)} /><span><SubjectBadge subjectId={subject.id} label={label} /><span className="mt-2 block text-sm text-lux-slate">{subject.summaryByLevel[level]}</span><span className="mt-2 block text-sm text-lux-slate">{slots.length} séances · {hours} heures</span>{first && <span className="block text-sm text-lux-slate">Semaine {first.week} · {first.startTime}–{first.endTime}</span>}</span></label>
-                        <a className="mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-lux-gold-deep underline" href={`#programme-${level.toLowerCase()}-${subject.id.toLowerCase()}`}>Consulter le programme</a>
+                        <a className="mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-lux-gold-deep underline" href={`#programme-${subject.moduleIdsByLevel[level]}`}>Consulter le programme</a>
                       </article>
                     );
                   })}

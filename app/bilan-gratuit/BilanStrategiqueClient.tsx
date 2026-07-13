@@ -17,7 +17,10 @@ import { ConseillerCard, ProcessSteps } from '@/components/marketing/acadomia-in
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { LEGAL } from '@/lib/legal';
 import type { SelectedOfferContext } from './selected-offer';
-import type { PreRentreeBilanPrefill } from '@/lib/campaigns/pre-rentree-2026/bilan-prefill';
+import {
+  synchronizePreRentreeCampaignContext,
+  type PreRentreeBilanPrefill,
+} from '@/lib/campaigns/pre-rentree-2026/bilan-prefill';
 
 const SUBJECTS = [
   { value: 'MATHEMATIQUES', label: 'Mathématiques' },
@@ -145,12 +148,17 @@ export function BilanStrategiqueClient({
 
     setIsSubmitting(true);
     try {
+      const campaignContext = synchronizePreRentreeCampaignContext({
+        campaignContext: prefill?.campaignContext,
+        studentGrade: formData.studentGrade,
+        subjects: selectedSubjects,
+      });
       const payload = {
         ...formData,
         subjects: selectedSubjects,
         website: honeypot,
         offerId: selectedOffer?.id,
-        campaignContext: prefill?.campaignContext,
+        ...(campaignContext ? { campaignContext } : {}),
       };
 
       const response = await fetch('/api/bilan-gratuit', {

@@ -41,12 +41,12 @@ describe('Pré-rentrée 2026 page', () => {
     expect(track.preRentreePageView).toHaveBeenCalledTimes(1);
   });
 
-  it('renders the contract H1, campaign status and no online payment', () => {
+  it('renders the contract H1 without internal campaign copy or online payment', () => {
     const dto = getPreRentreeLandingDTO();
     const { container } = render(<PreRentree2026Page />);
 
     expect(screen.getByRole('heading', { level: 1, name: dto.content.hero.h1 })).toBeInTheDocument();
-    expect(screen.getByText(/Statut de campagne.*Pré-inscriptions ouvertes/i)).toBeInTheDocument();
+    expect(container.textContent).not.toMatch(/Statut de campagne/i);
     expect(container.textContent).not.toContain('PRE_REGISTRATION_OPEN');
     expect(screen.getAllByText(/Aucun paiement en ligne n[’']est demandé/i).length).toBeGreaterThan(0);
     expect(container.textContent).not.toMatch(/15\s*h(?:eures)?/i);
