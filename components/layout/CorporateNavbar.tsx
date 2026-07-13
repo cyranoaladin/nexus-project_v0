@@ -8,9 +8,7 @@ import { usePathname } from "next/navigation";
 import { PREPARATION_LINKS } from '@/content/marketing/preparation-links';
 import { LEGAL } from '@/lib/legal';
 import { getViewportCategory, track } from '@/lib/analytics';
-
-const PRE_RENTREE_CAMPAIGN_PATH = '/stages/pre-rentree-2026';
-const PRE_RENTREE_CAMPAIGN_ID = PRE_RENTREE_CAMPAIGN_PATH.split('/').at(-1) ?? 'pre-rentree';
+import { PRE_RENTREE_2026_NAVIGATION } from '@/lib/campaigns/pre-rentree-2026/navigation';
 
 export function CorporateNavbar() {
   const pathname = usePathname();
@@ -183,7 +181,7 @@ export function CorporateNavbar() {
     {
       title: 'Programmes',
       items: [
-        { label: 'Pré-rentrée 2026', href: '/stages/pre-rentree-2026', desc: 'Stage intensif de rentrée', isPage: true },
+        { label: PRE_RENTREE_2026_NAVIGATION.label, href: PRE_RENTREE_2026_NAVIGATION.path, desc: 'Stage intensif de rentrée', isPage: true },
         { label: 'Stages intensifs', href: '/stages', desc: 'Toutes les vacances', isPage: true },
         { label: 'Plateforme ARIA', href: '/plateforme-aria', desc: 'Ressources & parcours en ligne', isPage: true },
         { label: 'Accompagnement scolaire', href: '/accompagnement-scolaire', desc: 'Suivi personnalisé', isPage: true },
@@ -238,18 +236,18 @@ export function CorporateNavbar() {
           </Link>
 
           <Link
-            href={PRE_RENTREE_CAMPAIGN_PATH}
+            href={PRE_RENTREE_2026_NAVIGATION.path}
             data-testid="pre-rentree-nav-desktop"
             onClick={() => track.preRentreeNavClicked({
               cta_location: 'navbar',
               viewport_category: getViewportCategory(),
               destination: 'campaign_landing',
-              campaign_id: PRE_RENTREE_CAMPAIGN_ID,
+              campaign_id: PRE_RENTREE_2026_NAVIGATION.campaignId,
             })}
             className="hidden min-h-11 items-center gap-2 rounded-full border border-lux-gold/60 bg-lux-gold/15 px-4 py-2 text-xs font-semibold text-lux-gold-wash transition-colors hover:border-lux-gold hover:bg-lux-gold/25 lux-focus lg:inline-flex"
           >
             <CalendarDays className="h-4 w-4" aria-hidden="true" />
-            Pré-rentrée 2026
+            {PRE_RENTREE_2026_NAVIGATION.label}
           </Link>
 
           {/* Desktop Rubriques + Sous-rubriques */}
@@ -398,18 +396,18 @@ export function CorporateNavbar() {
 
             {/* Priority campaign - Mobile */}
             <Link
-              href={PRE_RENTREE_CAMPAIGN_PATH}
+              href={PRE_RENTREE_2026_NAVIGATION.path}
               className={chromeMobileCta}
               data-testid="pre-rentree-nav-mobile"
               onClick={() => track.preRentreeNavClicked({
                 cta_location: 'navbar',
                 viewport_category: getViewportCategory(),
                 destination: 'campaign_landing',
-                campaign_id: PRE_RENTREE_CAMPAIGN_ID,
+                campaign_id: PRE_RENTREE_2026_NAVIGATION.campaignId,
               })}
             >
               <CalendarDays className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-              <span>Pré-rentrée 2026</span>
+              <span>{PRE_RENTREE_2026_NAVIGATION.label}</span>
             </Link>
 
             {/* Menu Button - Mobile */}
