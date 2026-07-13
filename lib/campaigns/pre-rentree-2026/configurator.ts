@@ -1,4 +1,5 @@
 import type { EntryLevelCode } from './schema';
+import { PRE_RENTREE_2026_NAVIGATION } from './navigation';
 
 export interface AcademicProfileSelection {
   voie?: string;
@@ -32,6 +33,7 @@ export interface LandingSubject {
   levels: EntryLevelCode[];
   labelByLevel?: Record<string, string>;
   summaryByLevel: Record<string, string>;
+  moduleIdsByLevel: Record<string, string>;
 }
 
 export interface LandingPack {
@@ -337,7 +339,7 @@ export function buildBilanUrl(input: {
   profile: AcademicProfileSelection;
 }): string {
   const params = new URLSearchParams({
-    programme: 'pre-rentree-2026',
+    programme: PRE_RENTREE_2026_NAVIGATION.campaignId,
     pack: input.packCode,
     niveau: input.level,
     matieres: input.subjectIds.join(','),
