@@ -108,6 +108,74 @@ describe('BilanGratuitPage', () => {
     });
   });
 
+  it('recalculates the campaign pack after a parent removes a prefilled subject', async () => {
+    const user = userEvent.setup();
+    await renderPage({
+      programme: 'pre-rentree-2026',
+      pack: 'PACK_2',
+      niveau: 'PREMIERE',
+      matieres: 'MATHEMATIQUES,FRANCAIS',
+      voie: 'GENERALE',
+      profil_maths: 'MATHS_EDS',
+      profil_eaf: 'EAF_GENERALE',
+      projet_specialites: 'NSI_PHYSIQUE_CHIMIE',
+    });
+
+    fillInput('parentFirstName', 'Jean');
+    fillInput('parentLastName', 'Dupont');
+    fillInput('parentEmail', 'jean.dupont@example.com');
+    fillInput('parentPhone', '+21699192829');
+    fillInput('studentFirstName', 'Marie');
+    fillInput('studentSchool', 'Lycée Victor Hugo');
+    fillInput('objectives', 'Préparer sérieusement la rentrée scolaire');
+    await user.click(screen.getByLabelText('Français'));
+    await user.click(screen.getByRole('checkbox', { name: /j.*accepte/i }));
+    await user.click(screen.getByRole('button', { name: /demander mon bilan stratégique gratuit/i }));
+
+    await waitFor(() => {
+      const request = mockFetch.mock.calls[0]?.[1];
+      const payload = JSON.parse(String(request?.body)) as Record<string, unknown>;
+      expect(payload).toMatchObject({
+        campaignContext: {
+          packCode: 'PACK_1',
+          level: 'PREMIERE',
+          subjectIds: ['MATHEMATIQUES'],
+        },
+      });
+    });
+  });
+
+  it('omits the campaign context after a parent changes the entry class', async () => {
+    const user = userEvent.setup();
+    await renderPage({
+      programme: 'pre-rentree-2026',
+      pack: 'PACK_2',
+      niveau: 'PREMIERE',
+      matieres: 'MATHEMATIQUES,FRANCAIS',
+      voie: 'GENERALE',
+      profil_maths: 'MATHS_EDS',
+      profil_eaf: 'EAF_GENERALE',
+      projet_specialites: 'NSI_PHYSIQUE_CHIMIE',
+    });
+
+    fillInput('parentFirstName', 'Jean');
+    fillInput('parentLastName', 'Dupont');
+    fillInput('parentEmail', 'jean.dupont@example.com');
+    fillInput('parentPhone', '+21699192829');
+    fillInput('studentFirstName', 'Marie');
+    fillInput('studentSchool', 'Lycée Victor Hugo');
+    fillInput('objectives', 'Préparer sérieusement la rentrée scolaire');
+    fireEvent.change(screen.getByLabelText('Classe de rentrée'), { target: { value: 'terminale' } });
+    await user.click(screen.getByRole('checkbox', { name: /j.*accepte/i }));
+    await user.click(screen.getByRole('button', { name: /demander mon bilan stratégique gratuit/i }));
+
+    await waitFor(() => {
+      const request = mockFetch.mock.calls[0]?.[1];
+      const payload = JSON.parse(String(request?.body)) as Record<string, unknown>;
+      expect(payload).not.toHaveProperty('campaignContext');
+    });
+  });
+
   it('shows fail-closed payment guidance for a selected offer without public ClicToPay or RIB/IBAN', async () => {
     const { container } = render(await BilanGratuitPage({ searchParams: Promise.resolve({ offer: 'term-spe-simple' }) }));
 
@@ -148,6 +216,10 @@ describe('BilanGratuitPage', () => {
         }),
       );
     });
+
+    const request = mockFetch.mock.calls[0]?.[1];
+    const payload = JSON.parse(String(request?.body)) as Record<string, unknown>;
+    expect(payload).not.toHaveProperty('campaignContext');
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith('/bilan-gratuit/confirmation');
