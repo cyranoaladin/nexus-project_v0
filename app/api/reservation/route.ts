@@ -7,6 +7,7 @@ import { auth } from '@/auth';
 import { guardRateLimit } from '@/lib/rate-limit';
 import { checkCsrf, checkBodySize } from '@/lib/csrf';
 import { NextRequest, NextResponse } from 'next/server';
+import { telegramSendMessage } from '@/lib/telegram/client';
 
 /**
  * Sanitize user input for Telegram MarkdownV1.
@@ -15,11 +16,7 @@ function sanitizeTelegram(str: string): string {
   return str.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
 }
 
-/**
- * Send Telegram notification (non-blocking side-effect).
- * Never throws — logs errors silently.
- */
-async function notifyTelegram(data: {
+function buildTelegramMessage(data: {
   parent: string;
   phone: string;
   classe: string;
@@ -28,17 +25,12 @@ async function notifyTelegram(data: {
   email: string;
   isUpdate: boolean;
   paymentMethod?: string | null;
-}): Promise<boolean> {
-  try {
-    const token = process.env.TELEGRAM_BOT_TOKEN;
-    const chatId = process.env.TELEGRAM_CHAT_ID;
-    if (!token || !chatId) return false;
-
+}): string {
     const tag = data.isUpdate ? '🔄 MISE À JOUR RÉSERVATION' : '🚨 NOUVEAU LEAD CHAUD (Site Web)';
     const paymentTag = data.paymentMethod === 'bank_transfer'
       ? '\n🏦 *Paiement :* Virement bancaire (en attente de vérification)'
       : '';
-    const message = `
+    return `
 ${tag} 🚨
 ➖➖➖➖➖➖➖➖➖➖➖
 👤 *Parent :* ${sanitizeTelegram(data.parent)}
@@ -50,25 +42,6 @@ ${tag} 🚨
 ➖➖➖➖➖➖➖➖➖➖➖
 _Ce prospect attend votre appel !_
 `;
-
-    const response = await fetch(
-      `https://api.telegram.org/bot${token}/sendMessage`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: chatId, text: message, parse_mode: 'Markdown' }),
-      }
-    );
-
-    if (!response.ok) {
-      console.error('[reservation] Telegram error:', response.status);
-      return false;
-    }
-    return true;
-  } catch (err) {
-    console.error('[reservation] Telegram failed:', err instanceof Error ? err.message : 'unknown');
-    return false;
-  }
 }
 
 /**
@@ -166,16 +139,25 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Telegram notification (non-blocking side-effect)
-    const telegramSent = await notifyTelegram({
-      parent: data.parent,
-      phone: data.phone,
-      classe: data.classe,
-      academyTitle: data.academyTitle,
-      price: data.price,
-      email: data.email,
-      isUpdate,
-      paymentMethod: data.paymentMethod,
-    });
+    let telegramSent = false;
+    try {
+      const telegramResult = await telegramSendMessage(
+        undefined,
+        buildTelegramMessage({
+          parent: data.parent,
+          phone: data.phone,
+          classe: data.classe,
+          academyTitle: data.academyTitle,
+          price: data.price,
+          email: data.email,
+          isUpdate,
+          paymentMethod: data.paymentMethod,
+        }),
+      );
+      telegramSent = telegramResult.status === 'sent';
+    } catch {
+      telegramSent = false;
+    }
 
     // 5. Update telegram tracking
     if (telegramSent && !isUpdate) {

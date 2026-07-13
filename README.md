@@ -956,7 +956,7 @@ docker compose -f docker-compose.v2.yml -f docker-compose.prod.v2.yml up -d [ser
 | `MAIL_DISABLED` | Désactiver emails | `false` |
 | `TELEGRAM_BOT_TOKEN` | Bot Telegram (notifications) | — |
 | `TELEGRAM_CHAT_ID` | Chat ID Telegram | — |
-| `TELEGRAM_DISABLED` | Désactiver Telegram | `false` |
+| `TELEGRAM_NOTIFICATIONS_ENABLED` | Activer explicitement les notifications Telegram | `false` |
 | `AUTH_TRUST_HOST` | Trust host header (CI/proxy) | `true` |
 | `LLM_MODE` | Mode LLM (live/mock) | `live` |
 | `NEXT_TELEMETRY_DISABLED` | Désactiver télémétrie Next.js | `1` |

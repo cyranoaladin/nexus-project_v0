@@ -69,8 +69,8 @@ Pour que les emails n'atterrissent pas en spam :
 | Variable | Exemple | Description |
 |---|---|---|
 | `TELEGRAM_BOT_TOKEN` | *(secret)* | Token du bot (depuis @BotFather) |
-| `TELEGRAM_CHAT_ID` | `-100123456789` | ID du chat/groupe/channel cible |
-| `TELEGRAM_DISABLED` | `true` / `false` | Désactive l'envoi (défaut: `true` en `NODE_ENV=test`) |
+| `TELEGRAM_CHAT_ID` | *(secret de configuration)* | Destination gérée hors Git |
+| `TELEGRAM_NOTIFICATIONS_ENABLED` | `true` / `false` | Active explicitement l'envoi (défaut sûr : `false`) |
 
 ### Architecture
 
@@ -79,32 +79,18 @@ lib/telegram/client.ts          ← Client Bot API (getMe, getUpdates, getChat, 
 scripts/verify-telegram.mjs     ← Script de vérification des identifiants
 ```
 
-### Vérification des identifiants
+### Réactivation contrôlée
 
-```bash
-# Vérifier le token et le chat_id
-node scripts/verify-telegram.mjs
-
-# Sortie attendue :
-# ✅ Bot verified: @your_bot_username (ID: 123456)
-# ✅ Chat verified: type=group title="Nexus Leads" (ID: -100123456)
-```
-
-### Procédure pour obtenir le chat_id
-
-1. Créer un bot via [@BotFather](https://t.me/BotFather) → copier le token
-2. Ajouter le bot dans le groupe cible
-3. Envoyer un message dans le groupe
-4. Lancer `node scripts/verify-telegram.mjs` (sans `TELEGRAM_CHAT_ID`)
-5. Le script affiche les `chat_id` trouvés dans les updates récents
-6. Ajouter `TELEGRAM_CHAT_ID=<id>` dans `.env`
+La réactivation exige une fenêtre dédiée : rotation du credential, stockage privé,
+validation sans message réel, puis activation explicite du flag. Aucun utilitaire du
+dépôt ne découvre ou n'affiche les destinations Telegram.
 
 ### Sécurité
 
-- **Aucun envoi en CI/test** : `TELEGRAM_DISABLED` est `true` par défaut quand `NODE_ENV=test`.
-- **Token jamais loggé** : seul le `message_id` est affiché après envoi.
+- **Aucun envoi implicite** : `TELEGRAM_NOTIFICATIONS_ENABLED` doit valoir exactement `true`. Sans ce flag, aucun appel réseau Telegram n'est effectué.
+- **Token jamais loggé** : les erreurs utilisent uniquement un code interne stable.
 - **Contenu jamais loggé** : le texte du message n'apparaît pas dans les logs.
-- Le script `verify-telegram.mjs` n'affiche que les `chat_id`, types et titres — jamais le contenu des messages.
+- **Destination jamais loggée** : aucun identifiant de conversation n'apparaît dans les logs.
 
 ---
 
