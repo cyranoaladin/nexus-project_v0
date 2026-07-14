@@ -8,7 +8,7 @@ import { mergePaymentMetadata, parsePaymentMetadata } from '@/lib/utils';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import path from 'path';
-import { getDocumentStorageRoot } from '@/lib/documents/storage-root';
+import { getDocumentStorageRoot, toRelativeStoragePath } from '@/lib/documents/storage-root';
 import { writeFile, mkdir } from 'fs/promises';
 import {
   renderInvoicePDF,
@@ -186,8 +186,8 @@ async function generateInvoicePDFAndDocument(
     await mkdir(DOCUMENTS_DIR, { recursive: true });
     const sanitizedNumber = invoice.number.replace(/[^a-zA-Z0-9-]/g, '_');
     const uniqueFileName = `facture-${sanitizedNumber}-${invoice.id}.pdf`;
-    const documentPath = path.join(DOCUMENTS_DIR, uniqueFileName);
-    await writeFile(documentPath, pdfBuffer);
+    const documentAbsPath = path.join(DOCUMENTS_DIR, uniqueFileName);
+    await writeFile(documentAbsPath, pdfBuffer);
 
     const userDocument = await prisma.userDocument.create({
       data: {
@@ -195,7 +195,7 @@ async function generateInvoicePDFAndDocument(
         originalName: `facture-${invoice.number}.pdf`,
         mimeType: 'application/pdf',
         sizeBytes: pdfBuffer.length,
-        localPath: documentPath,
+        localPath: toRelativeStoragePath(documentAbsPath),
         userId: paymentUserId,
         uploadedById: validatorUserId,
       },
