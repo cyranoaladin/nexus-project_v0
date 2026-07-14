@@ -33,6 +33,8 @@ describe('canonical bilan lifecycle', () => {
     { from: 'SUBMITTED', action: 'MARK_SCORING_FAILED', actor: 'WORKER', to: 'SCORING_FAILED' },
     { from: 'SCORING_FAILED', action: 'RETRY_SCORING', actor: 'WORKER', to: 'SUBMITTED' },
     { from: 'SCORED', action: 'CREATE_REPORT', actor: 'WORKER', to: 'REPORT_PENDING_REVIEW' },
+    { from: 'SCORED', action: 'MARK_REPORT_GENERATION_FAILED', actor: 'WORKER', to: 'REPORT_GENERATION_FAILED' },
+    { from: 'REPORT_GENERATION_FAILED', action: 'RETRY_REPORT_GENERATION', actor: 'WORKER', to: 'SCORED' },
     { from: 'REPORT_PENDING_REVIEW', action: 'VALIDATE_REPORT', actor: 'COACH', to: 'COACH_VALIDATED' },
     { from: 'REPORT_PENDING_REVIEW', action: 'REJECT_REPORT', actor: 'COACH', to: 'COACH_REJECTED' },
     { from: 'COACH_REJECTED', action: 'REQUEST_REGENERATION', actor: 'COACH', to: 'SCORED' },
@@ -43,6 +45,8 @@ describe('canonical bilan lifecycle', () => {
   const illegalTransitions: TransitionFixture[] = [
     { from: 'DRAFT', action: 'SUBMIT', actor: 'PARENT', to: 'SUBMITTED' },
     { from: 'SUBMITTED', action: 'SCORE', actor: 'STUDENT', to: 'SCORED' },
+    { from: 'SCORED', action: 'MARK_REPORT_GENERATION_FAILED', actor: 'COACH', to: 'REPORT_GENERATION_FAILED' },
+    { from: 'REPORT_GENERATION_FAILED', action: 'RETRY_REPORT_GENERATION', actor: 'STUDENT', to: 'SCORED' },
     { from: 'REPORT_PENDING_REVIEW', action: 'PUBLISH_REPORT', actor: 'COACH', to: 'PUBLISHED' },
     { from: 'COACH_REJECTED', action: 'CREATE_REPORT', actor: 'WORKER', to: 'REPORT_PENDING_REVIEW' },
     { from: 'PUBLISHED', action: 'VALIDATE_REPORT', actor: 'COACH', to: 'COACH_VALIDATED' },
@@ -95,6 +99,26 @@ describe('canonical bilan schemas', () => {
     }).success).toBe(true);
   });
 
+  it('enforces report validation audit timestamps', () => {
+    const generatedAt = '2026-07-14T09:00:00.000Z';
+    const baseRevision = {
+      id: 'report-1', attemptId: 'attempt-1', revision: 1, generatedAt, evidence: [],
+    };
+
+    expect(reportRevisionSchema.safeParse({
+      ...baseRevision, status: 'REPORT_PENDING_REVIEW', validatedAt: '2026-07-14T09:01:00.000Z',
+    }).success).toBe(false);
+    expect(reportRevisionSchema.safeParse({
+      ...baseRevision, status: 'COACH_REJECTED', validatedAt: '2026-07-14T09:01:00.000Z',
+    }).success).toBe(false);
+    expect(reportRevisionSchema.safeParse({
+      ...baseRevision, status: 'COACH_VALIDATED', validatedAt: '2026-07-14T08:59:00.000Z',
+    }).success).toBe(false);
+    expect(reportRevisionSchema.safeParse({
+      ...baseRevision, status: 'PUBLISHED', validatedAt: '2026-07-14T09:01:00.000Z',
+    }).success).toBe(true);
+  });
+
   it('requires regeneration to create the next pending revision with a fresh identity', () => {
     const previousRevision = {
       id: 'report-1',
@@ -121,6 +145,40 @@ describe('canonical bilan schemas', () => {
     expect(reportRegenerationSchema.safeParse({
       previousRevision,
       nextRevision: { ...nextRevision, revision: previousRevision.revision },
+    }).success).toBe(false);
+
+    const publishedRevision = {
+      ...previousRevision,
+      id: 'report-3',
+      revision: 3,
+      status: 'PUBLISHED' as const,
+      validatedAt: '2026-07-14T09:01:00.000Z',
+    };
+    const postPublicationCorrection = {
+      ...nextRevision,
+      id: 'report-4',
+      revision: 4,
+    };
+
+    expect(isFreshReportRevision(publishedRevision, postPublicationCorrection)).toBe(true);
+    expect(reportRegenerationSchema.safeParse({
+      previousRevision: publishedRevision,
+      nextRevision: postPublicationCorrection,
+    }).success).toBe(true);
+    const pendingRevision = { ...previousRevision, status: 'REPORT_PENDING_REVIEW' as const };
+    const validatedRevision = {
+      ...previousRevision, status: 'COACH_VALIDATED' as const, validatedAt: '2026-07-14T09:01:00.000Z',
+    };
+
+    expect(isFreshReportRevision(pendingRevision, nextRevision)).toBe(false);
+    expect(isFreshReportRevision(validatedRevision, nextRevision)).toBe(false);
+    expect(reportRegenerationSchema.safeParse({
+      previousRevision: pendingRevision,
+      nextRevision,
+    }).success).toBe(false);
+    expect(reportRegenerationSchema.safeParse({
+      previousRevision: validatedRevision,
+      nextRevision,
     }).success).toBe(false);
   });
 });

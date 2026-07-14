@@ -61,11 +61,29 @@ export const reportRevisionSchema = z.object({
   generatedAt: isoTimestampSchema,
   validatedAt: isoTimestampSchema.optional(),
   evidence: z.array(evidenceItemSchema),
-}).strict().superRefine(({ status, validatedAt }, context) => {
-  if ((status === 'COACH_VALIDATED' || status === 'PUBLISHED') && !validatedAt) {
+}).strict().superRefine(({ generatedAt, status, validatedAt }, context) => {
+  const requiresValidation = status === 'COACH_VALIDATED' || status === 'PUBLISHED';
+
+  if (requiresValidation && !validatedAt) {
     context.addIssue({
       code: z.ZodIssueCode.custom,
       message: 'validatedAt is required for validated or published revisions',
+      path: ['validatedAt'],
+    });
+  }
+
+  if (!requiresValidation && validatedAt) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'validatedAt is only permitted for validated or published revisions',
+      path: ['validatedAt'],
+    });
+  }
+
+  if (validatedAt && new Date(validatedAt).getTime() < new Date(generatedAt).getTime()) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'validatedAt cannot be earlier than generatedAt',
       path: ['validatedAt'],
     });
   }
