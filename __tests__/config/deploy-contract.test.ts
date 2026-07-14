@@ -43,8 +43,8 @@ describe('production deployment contract', () => {
     expect(dockerfile).not.toContain('FROM node:18-alpine AS base');
   });
 
-  it('keeps the git-pull deploy helper aligned with the real production host and systemd service', () => {
-    const deployScript = read('scripts/deploy-git-pull.sh');
+  it('keeps the legacy git-pull deploy helper at its deprecated location', () => {
+    const deployScript = read('scripts/legacy/deploy-git-pull.sh');
 
     expect(deployScript).toContain('REMOTE_HOST="root@88.99.254.59"');
     expect(deployScript).toContain('REMOTE_DIR="/opt/nexus"');
@@ -55,7 +55,7 @@ describe('production deployment contract', () => {
 
   it('forbids destructive docker commands in active production scripts', () => {
     const activeScripts = [
-      'scripts/deploy-git-pull.sh',
+      'scripts/legacy/deploy-git-pull.sh',
       'scripts/deploy-production-safe.sh',
     ];
 
