@@ -1515,7 +1515,7 @@ model ReportArtifact {
   // This pointer is set only after a reviewed revision is published. SetNull
   // protects the artifact if a deliberately purged revision is ever removed.
   currentPublishedRevisionId String?         @unique
-  currentPublishedRevision   ReportRevision? @relation("ReportArtifactCurrentPublishedRevision", fields: [currentPublishedRevisionId], references: [id], onDelete: SetNull)
+  currentPublishedRevision   ReportRevision? @relation("ReportArtifactCurrentPublishedRevision", fields: [currentPublishedRevisionId, id], references: [id, reportArtifactId], onDelete: Restrict)
   publishedAt                DateTime?
 
   revisions ReportRevision[] @relation("ReportArtifactRevisions")
@@ -1525,6 +1525,7 @@ model ReportArtifact {
 
   @@index([studentId, status, createdAt])
   @@index([assessmentAttemptId])
+  @@unique([currentPublishedRevisionId, id])
   @@map("canonical_report_artifacts")
 }
 
@@ -1552,6 +1553,7 @@ model ReportRevision {
 
   @@index([reportArtifactId, createdAt])
   @@index([scoreSnapshotId])
+  @@unique([id, reportArtifactId])
   @@map("canonical_report_revisions")
 }
 
