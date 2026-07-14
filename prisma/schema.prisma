@@ -189,6 +189,10 @@ model User {
   // Notification relations
   notifications SessionNotification[] @relation("UserNotifications")
 
+  // Canonical bilans audit trail
+  parentStudentLinks ParentStudentLink[] @relation("CanonicalParentUser")
+  notificationOutbox NotificationOutbox[]
+
   // Entitlements (product access rights)
   entitlements Entitlement[]
 
@@ -310,6 +314,11 @@ model Student {
   // Generated Reports (Legacy EAF/Premium)
   generatedReports GeneratedPedagogicalReport[]
 
+  // Canonical bilans audit trail
+  parentLinks                 ParentStudentLink[]
+  canonicalAssessmentAttempts CanonicalAssessmentAttempt[]
+  reportArtifacts             ReportArtifact[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -362,6 +371,9 @@ model CoachProfile {
 
   // Generated Reports (Legacy EAF/Premium)
   generatedReports GeneratedPedagogicalReport[]
+
+  // Canonical bilans audit trail
+  reportReviews ReportReview[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1330,6 +1342,282 @@ enum BilanStatus {
   GENERATING
   COMPLETED
   FAILED
+}
+
+// ─── Canonical bilans persistence ───────────────────────────────────────────
+// These models are deliberately independent from legacy Assessment, Diagnostic,
+// Bilan and GeneratedPedagogicalReport records. Every historical decision keeps
+// the exact versions and checksums used to make it reproducible.
+
+enum ParentStudentLinkState {
+  PENDING_PARENT_CONSENT
+  VERIFIED
+  REVOKED
+  EXPIRED
+}
+
+enum CanonicalAssessmentAttemptStatus {
+  IN_PROGRESS
+  SUBMITTED
+  SCORED
+  INVALIDATED
+}
+
+enum EvidenceItemKind {
+  ANSWER
+  SELF_ASSESSMENT
+  OBSERVATION
+  SCORE_COMPONENT
+}
+
+enum ReportArtifactStatus {
+  DRAFT
+  PENDING_REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ReportRevisionStatus {
+  DRAFT
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum ReportReviewDecision {
+  APPROVED
+  REJECTED
+  CHANGES_REQUESTED
+}
+
+enum CanonicalOutboxStatus {
+  PENDING
+  LEASED
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum CanonicalJobType {
+  SCORE_ATTEMPT
+  GENERATE_REPORT
+  PUBLISH_REPORT
+  SEND_NOTIFICATION
+}
+
+enum CanonicalNotificationEventType {
+  QUESTIONNAIRE_SUBMITTED
+  REPORT_GENERATED
+  REPORT_REVIEW_REQUESTED
+  REPORT_PUBLISHED
+}
+
+enum NotificationChannel {
+  WHATSAPP
+}
+
+model ParentStudentLink {
+  id           String                 @id @default(cuid())
+  parentUserId String
+  parentUser   User                   @relation("CanonicalParentUser", fields: [parentUserId], references: [id], onDelete: Restrict)
+  studentId    String
+  student      Student                @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  state        ParentStudentLinkState @default(PENDING_PARENT_CONSENT)
+
+  requestedAt   DateTime  @default(now())
+  consentedAt   DateTime?
+  verifiedAt    DateTime?
+  revokedAt     DateTime?
+  expiresAt     DateTime?
+  revokedReason String?   @db.Text
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([parentUserId, state])
+  @@index([studentId, state])
+  @@map("canonical_parent_student_links")
+}
+
+model CanonicalAssessmentAttempt {
+  id        String                           @id @default(cuid())
+  studentId String
+  student   Student                          @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  status    CanonicalAssessmentAttemptStatus @default(IN_PROGRESS)
+
+  subject     Subject
+  gradeLevel  GradeLevel
+  answers     Json
+  submittedAt DateTime?
+
+  // Sealed provenance captured with the submitted answers.
+  curriculumId           String
+  curriculumVersion      String
+  assessmentPackId       String
+  assessmentPackVersion  String
+  assessmentPackChecksum String
+  scoringPolicyId        String
+  scoringPolicyVersion   String
+
+  scoreSnapshots  ScoreSnapshot[]
+  reportArtifacts ReportArtifact[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([studentId, status, createdAt])
+  @@index([assessmentPackId, assessmentPackVersion])
+  @@map("canonical_assessment_attempts")
+}
+
+model ScoreSnapshot {
+  id                  String                     @id @default(cuid())
+  assessmentAttemptId String
+  assessmentAttempt   CanonicalAssessmentAttempt @relation(fields: [assessmentAttemptId], references: [id], onDelete: Restrict)
+
+  scoringPolicyId       String
+  scoringPolicyVersion  String
+  scoringPolicyChecksum String
+  score                 Float
+  result                Json
+  scoredAt              DateTime @default(now())
+
+  evidenceItems   EvidenceItem[]
+  reportRevisions ReportRevision[]
+
+  createdAt DateTime @default(now())
+
+  @@index([assessmentAttemptId, scoredAt])
+  @@map("canonical_score_snapshots")
+}
+
+model EvidenceItem {
+  id              String           @id @default(cuid())
+  scoreSnapshotId String
+  scoreSnapshot   ScoreSnapshot    @relation(fields: [scoreSnapshotId], references: [id], onDelete: Restrict)
+  kind            EvidenceItemKind
+  competencyId    String?
+  sourceKey       String
+  payload         Json
+  createdAt       DateTime         @default(now())
+
+  @@index([scoreSnapshotId, kind])
+  @@map("canonical_evidence_items")
+}
+
+model ReportArtifact {
+  id                  String                     @id @default(cuid())
+  studentId           String
+  student             Student                    @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  assessmentAttemptId String
+  assessmentAttempt   CanonicalAssessmentAttempt @relation(fields: [assessmentAttemptId], references: [id], onDelete: Restrict)
+  status              ReportArtifactStatus       @default(DRAFT)
+
+  // This pointer is set only after a reviewed revision is published. SetNull
+  // protects the artifact if a deliberately purged revision is ever removed.
+  currentPublishedRevisionId String?         @unique
+  currentPublishedRevision   ReportRevision? @relation("ReportArtifactCurrentPublishedRevision", fields: [currentPublishedRevisionId], references: [id], onDelete: SetNull)
+  publishedAt                DateTime?
+
+  revisions ReportRevision[] @relation("ReportArtifactRevisions")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([studentId, status, createdAt])
+  @@index([assessmentAttemptId])
+  @@map("canonical_report_artifacts")
+}
+
+model ReportRevision {
+  id               String               @id @default(cuid())
+  reportArtifactId String
+  reportArtifact   ReportArtifact       @relation("ReportArtifactRevisions", fields: [reportArtifactId], references: [id], onDelete: Restrict)
+  scoreSnapshotId  String
+  scoreSnapshot    ScoreSnapshot        @relation(fields: [scoreSnapshotId], references: [id], onDelete: Restrict)
+  status           ReportRevisionStatus @default(DRAFT)
+
+  // Immutable generation provenance.
+  reportPackId          String
+  reportPackVersion     String
+  corpusManifestId      String
+  corpusManifestVersion String
+  promptRevision        String
+  contextChecksum       String
+  content               Json
+
+  currentForArtifact ReportArtifact? @relation("ReportArtifactCurrentPublishedRevision")
+  reviews            ReportReview[]
+
+  createdAt DateTime @default(now())
+
+  @@index([reportArtifactId, createdAt])
+  @@index([scoreSnapshotId])
+  @@map("canonical_report_revisions")
+}
+
+model ReportReview {
+  id               String               @id @default(cuid())
+  reportRevisionId String
+  reportRevision   ReportRevision       @relation(fields: [reportRevisionId], references: [id], onDelete: Restrict)
+  coachId          String
+  coach            CoachProfile         @relation(fields: [coachId], references: [id], onDelete: Restrict)
+  decision         ReportReviewDecision
+  motif            String               @db.Text
+  reviewedAt       DateTime             @default(now())
+  createdAt        DateTime             @default(now())
+
+  @@index([reportRevisionId, reviewedAt])
+  @@index([coachId, reviewedAt])
+  @@map("canonical_report_reviews")
+}
+
+model JobOutbox {
+  id             String                @id @default(cuid())
+  jobType        CanonicalJobType
+  aggregateType  String
+  aggregateId    String
+  sourceEventKey String
+  idempotencyKey String                @unique
+  status         CanonicalOutboxStatus @default(PENDING)
+  payload        Json
+  availableAt    DateTime              @default(now())
+  leaseOwner     String?
+  leaseExpiresAt DateTime?
+  attemptCount   Int                   @default(0)
+  completedAt    DateTime?
+  lastError      String?               @db.Text
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+
+  @@index([status, availableAt])
+  @@index([status, leaseExpiresAt])
+  @@index([aggregateType, aggregateId])
+  @@map("canonical_job_outbox")
+}
+
+model NotificationOutbox {
+  id              String                         @id @default(cuid())
+  eventType       CanonicalNotificationEventType
+  sourceEventKey  String
+  recipientUserId String
+  recipientUser   User                           @relation(fields: [recipientUserId], references: [id], onDelete: Restrict)
+  channel         NotificationChannel
+  status          CanonicalOutboxStatus          @default(PENDING)
+  payload         Json
+  availableAt     DateTime                       @default(now())
+  leaseOwner      String?
+  leaseExpiresAt  DateTime?
+  attemptCount    Int                            @default(0)
+  sentAt          DateTime?
+  lastError       String?                        @db.Text
+  createdAt       DateTime                       @default(now())
+  updatedAt       DateTime                       @updatedAt
+
+  @@unique([eventType, sourceEventKey, recipientUserId])
+  @@index([status, availableAt])
+  @@index([status, leaseExpiresAt])
+  @@index([recipientUserId, createdAt])
+  @@map("canonical_notification_outbox")
 }
 
 model Bilan {
