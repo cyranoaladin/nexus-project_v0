@@ -10,23 +10,33 @@ umask 077
 # Usage:
 #   ./scripts/release/build-immutable-release.sh <SHA> [releases_dir]
 
+CANONICAL_RELEASES_ROOT="/var/www/nexus-releases"
+
 # ── Input validation ──
 
 SHA="${1:-}"
-RELEASES_DIR="${2:-/var/www/nexus-releases}"
+RELEASES_DIR="${2:-$CANONICAL_RELEASES_ROOT}"
 
 if [[ -z "$SHA" ]]; then
   echo "❌ Usage: $0 <SHA> [releases_dir]" >&2
   exit 1
 fi
 
-# SHA must be exactly 40 hex chars
 if [[ ! "$SHA" =~ ^[0-9a-f]{40}$ ]]; then
-  echo "❌ Invalid SHA (must be 40 hex chars): ${SHA:0:10}..." >&2
+  echo "❌ Invalid SHA (must be 40 lowercase hex chars)" >&2
   exit 1
 fi
 
-# Releases dir must be absolute
+# ── User check: must be exactly nexusapp ──
+
+CURRENT_USER=$(id -un)
+if [[ "$CURRENT_USER" != "nexusapp" ]]; then
+  echo "❌ Must run as nexusapp (current: $CURRENT_USER)" >&2
+  exit 1
+fi
+
+# ── Releases dir validation ──
+
 if [[ ! "$RELEASES_DIR" = /* ]]; then
   echo "❌ RELEASES_DIR must be absolute" >&2
   exit 1
@@ -34,22 +44,39 @@ fi
 
 # Refuse dangerous roots
 case "$RELEASES_DIR" in
-  /|/var|/var/www|/tmp|/root)
+  /|/var|/var/www|/tmp|/root|/etc|/home)
     echo "❌ RELEASES_DIR too broad: $RELEASES_DIR" >&2
     exit 1
     ;;
 esac
 
-# Refuse root
-if [[ "$(id -un)" = "root" ]]; then
-  echo "❌ Refusing to build as root. Run as nexusapp." >&2
+if [[ ! -d "$RELEASES_DIR" ]]; then
+  echo "❌ RELEASES_DIR does not exist: $RELEASES_DIR" >&2
+  exit 1
+fi
+
+# Resolve with realpath and verify containment under canonical root
+RESOLVED_DIR=$(realpath "$RELEASES_DIR" 2>/dev/null) || {
+  echo "❌ Cannot resolve RELEASES_DIR" >&2; exit 1
+}
+RESOLVED_CANONICAL=$(realpath "$CANONICAL_RELEASES_ROOT" 2>/dev/null) || {
+  echo "❌ Cannot resolve canonical root" >&2; exit 1
+}
+
+# Containment: resolved dir must be exactly the canonical root or a child
+# Use trailing slash to prevent prefix attacks (e.g. /var/www/nexus-releases-evil)
+if [[ "$RESOLVED_DIR" != "$RESOLVED_CANONICAL" ]] && \
+   [[ "$RESOLVED_DIR" != "$RESOLVED_CANONICAL/"* ]]; then
+  echo "❌ RELEASES_DIR outside canonical root" >&2
   exit 1
 fi
 
 RELEASE_DIR="${RELEASES_DIR}/${SHA}"
 
-if [[ -d "$RELEASE_DIR" ]]; then
-  echo "❌ Release already exists: $RELEASE_DIR" >&2
+# ── Collision check: reject any existing target (dir, file, symlink, broken symlink) ──
+
+if [[ -e "$RELEASE_DIR" || -L "$RELEASE_DIR" ]]; then
+  echo "❌ Target already exists: $RELEASE_DIR" >&2
   exit 1
 fi
 
@@ -58,17 +85,15 @@ fi
 TMP_DIR=$(mktemp -d "${RELEASES_DIR}/.build-${SHA:0:12}-XXXXXX")
 
 cleanup() {
-  if [[ -d "$TMP_DIR" ]]; then
+  if [[ -n "${TMP_DIR:-}" && -d "$TMP_DIR" ]]; then
     rm -rf "$TMP_DIR"
-    echo "🧹 Cleaned up temp dir"
   fi
 }
 trap cleanup EXIT INT TERM HUP
 
 echo "Building release for SHA: $SHA"
-echo "Temp: $TMP_DIR"
 
-# ── Clone exact SHA (not just branch head) ──
+# ── Clone exact SHA ──
 
 git init "$TMP_DIR" --quiet
 git -C "$TMP_DIR" remote add origin "https://github.com/cyranoaladin/nexus-project_v0.git"
@@ -80,7 +105,6 @@ if [[ "$ACTUAL_SHA" != "$SHA" ]]; then
   echo "❌ SHA mismatch after checkout: expected $SHA, got $ACTUAL_SHA" >&2
   exit 1
 fi
-echo "✅ Checked out exact SHA: $SHA"
 
 # ── Build ──
 
@@ -109,18 +133,17 @@ if [[ "$MANIFEST_VERIFIED" != "true" ]]; then
   exit 1
 fi
 
-# ── Verify target doesn't exist (race check) ──
+# ── Final collision check before move ──
 
-if [[ -d "$RELEASE_DIR" ]]; then
-  echo "❌ Release appeared during build (race): $RELEASE_DIR" >&2
+if [[ -e "$RELEASE_DIR" || -L "$RELEASE_DIR" ]]; then
+  echo "❌ Target appeared during build (race): $RELEASE_DIR" >&2
   exit 1
 fi
 
 # ── Atomic finalize ──
 
 mv "$TMP_DIR" "$RELEASE_DIR"
-# Disarm the trap — TMP_DIR no longer exists
-TMP_DIR=""
+TMP_DIR=""  # disarm trap
 
 echo ""
 echo "RELEASE_BUILD_COMPLETE=true"
