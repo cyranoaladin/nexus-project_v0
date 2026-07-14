@@ -10,6 +10,23 @@ jest.mock('@/auth', () => ({
   auth: jest.fn(),
 }));
 
+jest.mock('@/lib/documents/secure-file-access', () => ({
+  resolveSecurePath: jest.fn(),
+  SecureFileAccessError: class SecureFileAccessError extends Error {
+    code: string;
+    constructor(code: string, message: string) {
+      super(message);
+      this.code = code;
+      this.name = 'SecureFileAccessError';
+    }
+  },
+}));
+
+jest.mock('@/lib/documents/storage-root', () => ({
+  getDocumentStorageRoot: () => '/mock/storage/root',
+  LEGACY_STORAGE_PREFIX: '/app/storage/documents/',
+}));
+
 jest.mock('fs/promises', () => ({
   readFile: jest.fn(),
 }));
@@ -21,10 +38,12 @@ jest.mock('node:fs/promises', () => ({
 import { GET } from '@/app/api/documents/[id]/route';
 import { auth } from '@/auth';
 import { readFile } from 'fs/promises';
+import { resolveSecurePath, SecureFileAccessError } from '@/lib/documents/secure-file-access';
 import { NextRequest } from 'next/server';
 
 const mockAuth = auth as jest.Mock;
 const mockReadFile = readFile as jest.Mock;
+const mockResolveSecurePath = resolveSecurePath as jest.Mock;
 
 let prisma: any;
 
@@ -32,6 +51,8 @@ beforeEach(async () => {
   const mod = await import('@/lib/prisma');
   prisma = (mod as any).prisma;
   jest.clearAllMocks();
+  // Default: resolveSecurePath succeeds and returns a safe path
+  mockResolveSecurePath.mockResolvedValue({ canonicalPath: '/mock/storage/root/file.pdf', sizeBytes: 1024 });
 });
 
 function mockDocumentLookup(document: unknown) {
@@ -63,7 +84,7 @@ describe('GET /api/documents/[id]', () => {
   it('should return 404 when user is not owner and not staff without reading file', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'other-user', role: 'ELEVE' } } as any);
     mockDocumentLookup({
-      id: 'doc-1', userId: 'u1', localPath: '/app/storage/documents/test.pdf',
+      id: 'doc-1', userId: 'u1', localPath: 'test.pdf',
       mimeType: 'application/pdf', originalName: 'test.pdf', sizeBytes: 1024,
     });
 
@@ -75,7 +96,7 @@ describe('GET /api/documents/[id]', () => {
   it('should return document for owner', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'u1', role: 'ELEVE' } } as any);
     mockDocumentLookup({
-      id: 'doc-1', userId: 'u1', localPath: '/app/storage/documents/test.pdf',
+      id: 'doc-1', userId: 'u1', localPath: 'test.pdf',
       mimeType: 'application/pdf', originalName: 'test.pdf', sizeBytes: 1024,
     });
     mockReadFile.mockResolvedValue(Buffer.from('fake-pdf-content') as any);
@@ -86,12 +107,13 @@ describe('GET /api/documents/[id]', () => {
     expect(res.headers.get('Content-Type')).toBe('application/pdf');
     expect(res.headers.get('Content-Disposition')).toContain('test.pdf');
     expect(res.headers.get('X-Content-Type-Options')).toBe('nosniff');
+    expect(res.headers.get('Cache-Control')).toBe('private, no-store');
   });
 
   it('should return document for ADMIN', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'admin-1', role: 'ADMIN' } } as any);
     mockDocumentLookup({
-      id: 'doc-1', userId: 'u1', localPath: '/app/storage/documents/test.pdf',
+      id: 'doc-1', userId: 'u1', localPath: 'test.pdf',
       mimeType: 'application/pdf', originalName: 'test.pdf', sizeBytes: 1024,
     });
     mockReadFile.mockResolvedValue(Buffer.from('fake-pdf-content') as any);
@@ -103,7 +125,7 @@ describe('GET /api/documents/[id]', () => {
   it('should return document for ASSISTANTE', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'assist-1', role: 'ASSISTANTE' } } as any);
     mockDocumentLookup({
-      id: 'doc-1', userId: 'u1', localPath: '/app/storage/documents/test.pdf',
+      id: 'doc-1', userId: 'u1', localPath: 'test.pdf',
       mimeType: 'application/pdf', originalName: 'test.pdf', sizeBytes: 1024,
     });
     mockReadFile.mockResolvedValue(Buffer.from('fake-pdf-content') as any);
@@ -112,26 +134,45 @@ describe('GET /api/documents/[id]', () => {
     expect(res.status).toBe(200);
   });
 
+  it('should return 404 when containment check fails (path traversal)', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'u1', role: 'ELEVE' } } as any);
+    mockDocumentLookup({
+      id: 'doc-1', userId: 'u1', localPath: '../../../etc/passwd',
+      mimeType: 'application/pdf', originalName: 'evil.pdf', sizeBytes: 1024,
+    });
+    mockResolveSecurePath.mockRejectedValue(
+      new SecureFileAccessError('PATH_ESCAPE', 'Path escapes storage root')
+    );
+
+    const res = await GET(...makeRequest('doc-1'));
+    expect(res.status).toBe(404);
+    expect(mockReadFile).not.toHaveBeenCalled();
+  });
+
   it('should return 404 when file missing on disk', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'u1', role: 'ELEVE' } } as any);
     mockDocumentLookup({
-      id: 'doc-1', userId: 'u1', localPath: '/app/storage/documents/missing.pdf',
+      id: 'doc-1', userId: 'u1', localPath: 'missing.pdf',
       mimeType: 'application/pdf', originalName: 'missing.pdf', sizeBytes: 1024,
     });
-    mockReadFile.mockRejectedValue(new Error('ENOENT: no such file'));
+    mockResolveSecurePath.mockRejectedValue(
+      new SecureFileAccessError('FILE_NOT_FOUND', 'File does not exist')
+    );
 
     const res = await GET(...makeRequest('doc-1'));
     expect(res.status).toBe(404);
   });
 
-  it('should not log local file paths when file content is missing', async () => {
+  it('should not log local file paths when containment fails', async () => {
     const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
     mockAuth.mockResolvedValue({ user: { id: 'u1', role: 'ELEVE' } } as any);
     mockDocumentLookup({
       id: 'doc-1', userId: 'u1', localPath: '/app/storage/documents/private/missing.pdf',
       mimeType: 'application/pdf', originalName: 'missing.pdf', sizeBytes: 1024,
     });
-    mockReadFile.mockRejectedValue(Object.assign(new Error('ENOENT: /app/storage/documents/private/missing.pdf'), { code: 'ENOENT' }));
+    mockResolveSecurePath.mockRejectedValue(
+      new SecureFileAccessError('FILE_NOT_FOUND', 'File does not exist')
+    );
 
     const res = await GET(...makeRequest('doc-1'));
 

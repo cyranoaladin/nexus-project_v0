@@ -5,6 +5,11 @@ import { readFile } from 'fs/promises';
 import { UserRole } from '@prisma/client';
 import { serializeError } from '@/lib/utils/serialize-error';
 import { z } from 'zod';
+import { getDocumentStorageRoot, LEGACY_STORAGE_PREFIX } from '@/lib/documents/storage-root';
+import {
+  resolveSecurePath,
+  SecureFileAccessError,
+} from '@/lib/documents/secure-file-access';
 
 const routeParamsSchema = z.object({
   id: z.string().min(1).max(128).regex(/^[A-Za-z0-9_-]+$/),
@@ -91,19 +96,31 @@ export async function GET(
     }
 
     try {
-      const fileBuffer = await readFile(document.localPath);
+      const storageRoot = getDocumentStorageRoot();
+      const { canonicalPath, sizeBytes } = await resolveSecurePath(
+        storageRoot,
+        document.localPath,
+        { legacyPrefixToStrip: LEGACY_STORAGE_PREFIX },
+      );
+
+      const fileBuffer = await readFile(canonicalPath);
 
       return new NextResponse(fileBuffer, {
         headers: {
           'Content-Type': safeContentType(document.mimeType),
           'Content-Disposition': `inline; filename="${safeFilename(document.originalName)}"`,
-          'Content-Length': document.sizeBytes.toString(),
+          'Content-Length': sizeBytes.toString(),
           'X-Content-Type-Options': 'nosniff',
+          'Cache-Control': 'private, no-store',
         },
       });
-    } catch (fsError) {
-      const code = fsError instanceof Error && 'code' in fsError
-        ? String((fsError as NodeJS.ErrnoException).code)
+    } catch (err) {
+      if (err instanceof SecureFileAccessError) {
+        console.error('[documents] containment check failed', { documentId: document.id, code: err.code });
+        return new NextResponse('File content not found', { status: 404 });
+      }
+      const code = err instanceof Error && 'code' in err
+        ? String((err as NodeJS.ErrnoException).code)
         : 'UNKNOWN';
       console.error('[File Read Error] File content unavailable', { documentId: document.id, code });
       return new NextResponse('File content not found', { status: 404 });

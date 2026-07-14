@@ -1,7 +1,7 @@
 import { GET } from '@/app/api/student/documents/[id]/download/route';
 import { requireRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
-import { writeFile, unlink, mkdtemp } from 'fs/promises';
+import { writeFile, unlink, mkdtemp, mkdir } from 'fs/promises';
 import * as os from 'os';
 import * as path from 'path';
 
@@ -14,6 +14,13 @@ jest.mock('@/lib/prisma', () => ({
   prisma: {
     userDocument: { findFirst: jest.fn() },
   },
+}));
+
+// Mock storage root to point to our temp directory
+let testStorageRoot: string;
+jest.mock('@/lib/documents/storage-root', () => ({
+  getDocumentStorageRoot: () => testStorageRoot,
+  LEGACY_STORAGE_PREFIX: '/app/storage/documents/',
 }));
 
 const mockEleveSession = {
@@ -31,10 +38,11 @@ function makeParams(id: string) {
 }
 
 describe('GET /api/student/documents/[id]/download', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.clearAllMocks();
     (requireRole as jest.Mock).mockResolvedValue(mockEleveSession);
     (isErrorResponse as unknown as jest.Mock).mockReturnValue(false);
+    testStorageRoot = await mkdtemp(path.join(os.tmpdir(), 'nexus-doc-test-'));
   });
 
   it('returns 401 when unauthenticated', async () => {
@@ -70,15 +78,14 @@ describe('GET /api/student/documents/[id]/download', () => {
   });
 
   it('streams file with correct Content-Type and Content-Disposition', async () => {
-    const tmpDir = await mkdtemp(path.join(os.tmpdir(), 'nexus-test-'));
-    const tmpFile = path.join(tmpDir, 'fiche.pdf');
+    const tmpFile = path.join(testStorageRoot, 'fiche.pdf');
     await writeFile(tmpFile, Buffer.from('%PDF-1.4 fake content'));
 
     (prisma.userDocument.findFirst as jest.Mock).mockResolvedValue({
       id: 'doc-1',
       originalName: 'fiche revision.pdf',
       mimeType: 'application/pdf',
-      localPath: tmpFile,
+      localPath: 'fiche.pdf', // relative to storage root
     });
 
     const response = await GET({} as any, makeParams('doc-1'));
@@ -89,33 +96,34 @@ describe('GET /api/student/documents/[id]/download', () => {
     expect(response.headers.get('Content-Type')).toBe('application/pdf');
     expect(response.headers.get('Content-Disposition')).toContain('attachment');
     expect(response.headers.get('Cache-Control')).toBe('private, no-store');
+    expect(response.headers.get('X-Content-Type-Options')).toBe('nosniff');
   });
 
-  it('returns 500 when file does not exist on disk', async () => {
+  it('returns 404 when file does not exist on disk', async () => {
     (prisma.userDocument.findFirst as jest.Mock).mockResolvedValue({
       id: 'doc-1',
       originalName: 'missing.pdf',
       mimeType: 'application/pdf',
-      localPath: '/tmp/nexus-nonexistent-file-that-should-never-exist.pdf',
+      localPath: 'nonexistent-file.pdf',
     });
 
     const response = await GET({} as any, makeParams('doc-1'));
     const body = await response.json();
 
-    expect(response.status).toBe(500);
+    // SecureFileAccessError with FILE_NOT_FOUND → 404
+    expect(response.status).toBe(404);
     expect(body.error).toBe('File unavailable');
   });
 
   it('falls back to application/octet-stream when mimeType is null', async () => {
-    const tmpDir = await mkdtemp(path.join(os.tmpdir(), 'nexus-test-'));
-    const tmpFile = path.join(tmpDir, 'export.bin');
+    const tmpFile = path.join(testStorageRoot, 'export.bin');
     await writeFile(tmpFile, Buffer.from('\x00\x01\x02'));
 
     (prisma.userDocument.findFirst as jest.Mock).mockResolvedValue({
       id: 'doc-2',
       originalName: 'export.bin',
       mimeType: null,
-      localPath: tmpFile,
+      localPath: 'export.bin',
     });
 
     const response = await GET({} as any, makeParams('doc-2'));
@@ -125,19 +133,67 @@ describe('GET /api/student/documents/[id]/download', () => {
     expect(response.headers.get('Content-Type')).toBe('application/octet-stream');
   });
 
+  it('rejects path traversal attempts via localPath', async () => {
+    // Even if a malicious localPath ends up in DB
+    (prisma.userDocument.findFirst as jest.Mock).mockResolvedValue({
+      id: 'doc-evil',
+      originalName: 'evil.pdf',
+      mimeType: 'application/pdf',
+      localPath: '../../../etc/passwd',
+    });
+
+    const response = await GET({} as any, makeParams('doc-evil'));
+    const body = await response.json();
+
+    expect(response.status).toBe(404);
+    expect(body.error).toBe('File unavailable');
+  });
+
+  it('rejects absolute path in localPath', async () => {
+    (prisma.userDocument.findFirst as jest.Mock).mockResolvedValue({
+      id: 'doc-abs',
+      originalName: 'abs.pdf',
+      mimeType: 'application/pdf',
+      localPath: '/etc/passwd',
+    });
+
+    const response = await GET({} as any, makeParams('doc-abs'));
+    const body = await response.json();
+
+    expect(response.status).toBe(404);
+    expect(body.error).toBe('File unavailable');
+  });
+
+  it('handles legacy /app/storage/documents/ prefix', async () => {
+    const tmpFile = path.join(testStorageRoot, 'legacy.pdf');
+    await writeFile(tmpFile, Buffer.from('%PDF legacy'));
+
+    (prisma.userDocument.findFirst as jest.Mock).mockResolvedValue({
+      id: 'doc-legacy',
+      originalName: 'legacy.pdf',
+      mimeType: 'application/pdf',
+      localPath: '/app/storage/documents/legacy.pdf',
+    });
+
+    const response = await GET({} as any, makeParams('doc-legacy'));
+
+    await unlink(tmpFile).catch(() => null);
+
+    expect(response.status).toBe(200);
+  });
+
   describe('Coach resource ownership (Lot C)', () => {
     it('allows student to download self-uploaded document', async () => {
-      const tmpDir = await mkdtemp(path.join(os.tmpdir(), 'nexus-test-'));
-      const tmpFile = path.join(tmpDir, 'self-uploaded.pdf');
+      const tmpFile = path.join(testStorageRoot, 'self-uploaded.pdf');
       await writeFile(tmpFile, Buffer.from('%PDF-1.4 self uploaded'));
 
       (prisma.userDocument.findFirst as jest.Mock).mockResolvedValue({
         id: 'doc-self',
         originalName: 'my-upload.pdf',
         mimeType: 'application/pdf',
-        localPath: tmpFile,
-        userId: 'user-eleve-1',  // recipient is the student
-        uploadedById: 'user-eleve-1',  // uploader is also the student
+        localPath: 'self-uploaded.pdf',
+        userId: 'user-eleve-1',
+        uploadedById: 'user-eleve-1',
       });
 
       const response = await GET({} as any, makeParams('doc-self'));
@@ -148,17 +204,16 @@ describe('GET /api/student/documents/[id]/download', () => {
     });
 
     it('allows student to download coach-uploaded resource', async () => {
-      const tmpDir = await mkdtemp(path.join(os.tmpdir(), 'nexus-test-'));
-      const tmpFile = path.join(tmpDir, 'coach-resource.pdf');
+      const tmpFile = path.join(testStorageRoot, 'coach-resource.pdf');
       await writeFile(tmpFile, Buffer.from('%PDF-1.4 coach uploaded'));
 
       (prisma.userDocument.findFirst as jest.Mock).mockResolvedValue({
         id: 'doc-coach',
         originalName: 'coach-resource.pdf',
         mimeType: 'application/pdf',
-        localPath: tmpFile,
-        userId: 'user-eleve-1',  // recipient is the student (ownership check)
-        uploadedById: 'coach-user-123',  // uploader is the coach
+        localPath: 'coach-resource.pdf',
+        userId: 'user-eleve-1',
+        uploadedById: 'coach-user-123',
         uploadedBy: { role: 'COACH' },
       });
 
@@ -170,7 +225,6 @@ describe('GET /api/student/documents/[id]/download', () => {
     });
 
     it('denies access when student tries to download another student document', async () => {
-      // Document belongs to a different student
       (prisma.userDocument.findFirst as jest.Mock).mockResolvedValue(null);
 
       const response = await GET({} as any, makeParams('doc-other-student'));
@@ -181,16 +235,14 @@ describe('GET /api/student/documents/[id]/download', () => {
     });
 
     it('verifies ownership is enforced via userId not uploadedById', async () => {
-      // Even if uploader matches current user, if recipient doesn't match → denied
       (prisma.userDocument.findFirst as jest.Mock).mockResolvedValue(null);
 
       await GET({} as any, makeParams('doc-not-recipient'));
 
-      // The query should filter by userId (recipient), not uploadedById
       expect(prisma.userDocument.findFirst).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            userId: 'user-eleve-1',  // Must be the recipient
+            userId: 'user-eleve-1',
           }),
         })
       );
