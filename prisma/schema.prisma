@@ -1358,8 +1358,15 @@ enum ParentStudentLinkState {
 
 enum CanonicalAssessmentAttemptStatus {
   IN_PROGRESS
+  DRAFT
   SUBMITTED
+  SCORING_FAILED
   SCORED
+  REPORT_PENDING_REVIEW
+  REPORT_GENERATION_FAILED
+  COACH_VALIDATED
+  COACH_REJECTED
+  PUBLISHED
   INVALIDATED
 }
 
@@ -1380,6 +1387,7 @@ enum ReportArtifactStatus {
 enum ReportRevisionStatus {
   DRAFT
   PENDING_REVIEW
+  COACH_VALIDATED
   APPROVED
   REJECTED
 }
@@ -1466,6 +1474,7 @@ model CanonicalAssessmentAttempt {
 
   @@index([studentId, status, createdAt])
   @@index([assessmentPackId, assessmentPackVersion])
+  @@unique([id, studentId])
   @@map("canonical_assessment_attempts")
 }
 
@@ -1509,7 +1518,7 @@ model ReportArtifact {
   studentId           String
   student             Student                    @relation(fields: [studentId], references: [id], onDelete: Restrict)
   assessmentAttemptId String
-  assessmentAttempt   CanonicalAssessmentAttempt @relation(fields: [assessmentAttemptId], references: [id], onDelete: Restrict)
+  assessmentAttempt   CanonicalAssessmentAttempt @relation(fields: [assessmentAttemptId, studentId], references: [id, studentId], onDelete: Restrict)
   status              ReportArtifactStatus       @default(DRAFT)
 
   // This pointer is set only after a reviewed revision is published. SetNull
