@@ -84,7 +84,13 @@ function isNonEmpty(value: string | undefined): value is string {
 }
 
 function isValidDate(value: string | undefined): value is string {
-  return Boolean(value && isoDate.test(value) && !Number.isNaN(Date.parse(value)));
+  if (!value || !isoDate.test(value)) return false;
+
+  const [year, month, day] = value.split('-').map(Number);
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+  return parsed.getUTCFullYear() === year
+    && parsed.getUTCMonth() === month - 1
+    && parsed.getUTCDate() === day;
 }
 
 function isChecksum(value: string | undefined): value is string {
@@ -193,9 +199,11 @@ export function resolveEligiblePack(
   selection: PackSelection,
   packs: readonly CurriculumPack[] = allPacks,
 ): CurriculumPack {
-  const pack = packs.find((candidate) => matchesSelection(candidate, selection));
-  if (!pack) fail('PACK_NOT_ELIGIBLE');
-  if (pack.status !== 'PUBLISHED') fail('PACK_NOT_PUBLISHED');
+  const matchingPacks = packs.filter((candidate) => matchesSelection(candidate, selection));
+  if (!matchingPacks.length) fail('PACK_NOT_ELIGIBLE');
+
+  const pack = matchingPacks.find((candidate) => candidate.status === 'PUBLISHED');
+  if (!pack) fail('PACK_NOT_PUBLISHED');
 
   validatePack(pack);
   return JSON.parse(JSON.stringify(pack)) as CurriculumPack;

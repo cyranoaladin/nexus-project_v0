@@ -63,6 +63,13 @@ describe('versioned curriculum catalogue', () => {
     expectCatalogError(() => resolveEligiblePack(selection), 'PACK_NOT_PUBLISHED');
   });
 
+  it('selects the published pack when a review-required match appears first', () => {
+    const reviewRequiredPack = createPublishedPack({ id: 'nsi-terminale-review', status: 'REVIEW_REQUIRED' });
+    const publishedPack = createPublishedPack({ id: 'nsi-terminale-published' });
+
+    expect(resolveEligiblePack(selection, [reviewRequiredPack, publishedPack]).id).toBe('nsi-terminale-published');
+  });
+
   it('reports NSI seconde as not eligible', () => {
     expectCatalogError(() => resolveEligiblePack({ ...selection, grade: 'SECONDE' }), 'PACK_NOT_ELIGIBLE');
   });
@@ -77,6 +84,14 @@ describe('versioned curriculum catalogue', () => {
   it('rejects a published pack without complete regulatory metadata', () => {
     const pack = createPublishedPack({
       regulatory: { ...createPublishedPack().regulatory, officialSourceIdentifier: '' },
+    });
+
+    expectCatalogError(() => validatePack(pack), 'PACK_INVALID_REGULATORY_METADATA');
+  });
+
+  it('rejects impossible ISO calendar dates in regulatory metadata', () => {
+    const pack = createPublishedPack({
+      regulatory: { ...createPublishedPack().regulatory, consultedAt: '2026-02-30' },
     });
 
     expectCatalogError(() => validatePack(pack), 'PACK_INVALID_REGULATORY_METADATA');
