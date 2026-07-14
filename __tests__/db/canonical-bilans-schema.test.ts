@@ -314,6 +314,35 @@ describe('canonical bilans persistence schema', () => {
         data: { answers: { q1: 'A' } },
       }),
     ).rejects.toThrow(/immutable|append-only/i);
+
+    const retry = await prisma.canonicalAssessmentAttempt.update({
+      where: { id: attempt.id },
+      data: { status: 'SUBMITTED' },
+    });
+    expect(retry.status).toBe('SUBMITTED');
+    const scored = await prisma.canonicalAssessmentAttempt.update({
+      where: { id: attempt.id },
+      data: { status: 'SCORED' },
+    });
+    expect(scored.status).toBe('SCORED');
+    await expect(
+      prisma.canonicalAssessmentAttempt.update({
+        where: { id: attempt.id },
+        data: { status: 'SUBMITTED' },
+      }),
+    ).rejects.toThrow(/lifecycle|transition/i);
+    const invalidated = await prisma.canonicalAssessmentAttempt.update({
+      where: { id: attempt.id },
+      data: { status: 'INVALIDATED' },
+    });
+    expect(invalidated.status).toBe('INVALIDATED');
+    await expect(
+      prisma.$executeRaw`
+        UPDATE "canonical_assessment_attempts"
+        SET "status" = 'SUBMITTED'::"CanonicalAssessmentAttemptStatus"
+        WHERE "id" = ${attempt.id}
+      `,
+    ).rejects.toThrow(/lifecycle|transition/i);
   });
 
   it('rejects a published revision pointer to another artifact and protects the pointed revision', async () => {
