@@ -70,7 +70,15 @@ function main() {
       }
       copyRecursiveSync(nextStaticDir, standaloneStaticDir);
     } else {
-      console.warn('⚠️  Le dossier .next/static est introuvable. Avez-vous bien exécuté "next build" ?');
+      console.error('❌ FATAL: .next/static is missing — next build did not produce static assets');
+      process.exit(1);
+    }
+
+    // Verify the copy succeeded — standalone static must contain JS chunks
+    const standaloneChunksDir = path.join(standaloneStaticDir, 'chunks');
+    if (!fs.existsSync(standaloneChunksDir) || fs.readdirSync(standaloneChunksDir).filter(f => f.endsWith('.js')).length === 0) {
+      console.error('❌ FATAL: standalone .next/static/chunks/ is empty after copy');
+      process.exit(1);
     }
 
     console.log('✅ Assets publics copiés avec succès !');
