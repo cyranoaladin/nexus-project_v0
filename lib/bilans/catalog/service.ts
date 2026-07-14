@@ -4,6 +4,7 @@ import { MATHS_NSI_V1_PACKS } from './fixtures/maths-nsi.v1';
 export const CATALOG_ERROR_CODES = [
   'PACK_NOT_ELIGIBLE',
   'PACK_NOT_PUBLISHED',
+  'PACK_AMBIGUOUS_SELECTION',
   'PACK_INVALID_VERSIONING',
   'PACK_INVALID_REGULATORY_METADATA',
   'PACK_INVALID_PEDAGOGICAL_REVIEW',
@@ -140,10 +141,12 @@ function validateCompetencies(pack: CurriculumPack): void {
   }
 
   const questionIds = new Set(pack.questionIds);
+  const referencedQuestionIds = new Set(pack.competencies.flatMap((competency) => competency.questionIds));
   if (!pack.questionIds.length || pack.questionIds.some((id) => !isNonEmpty(id))
     || questionIds.size !== pack.questionIds.length
     || pack.competencies.some((competency) => !competency.questionIds.length
-      || competency.questionIds.some((questionId) => !questionIds.has(questionId)))) {
+      || competency.questionIds.some((questionId) => !questionIds.has(questionId)))
+    || pack.questionIds.some((questionId) => !referencedQuestionIds.has(questionId))) {
     fail('PACK_INVALID_QUESTION_REFERENCES');
   }
 
@@ -202,8 +205,10 @@ export function resolveEligiblePack(
   const matchingPacks = packs.filter((candidate) => matchesSelection(candidate, selection));
   if (!matchingPacks.length) fail('PACK_NOT_ELIGIBLE');
 
-  const pack = matchingPacks.find((candidate) => candidate.status === 'PUBLISHED');
-  if (!pack) fail('PACK_NOT_PUBLISHED');
+  const publishedPacks = matchingPacks.filter((candidate) => candidate.status === 'PUBLISHED');
+  if (!publishedPacks.length) fail('PACK_NOT_PUBLISHED');
+  if (publishedPacks.length > 1) fail('PACK_AMBIGUOUS_SELECTION');
+  const [pack] = publishedPacks;
 
   validatePack(pack);
   return JSON.parse(JSON.stringify(pack)) as CurriculumPack;
