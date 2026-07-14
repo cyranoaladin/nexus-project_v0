@@ -40,6 +40,7 @@ export const BILAN_ERROR_CODES = [
   'BILAN_INVALID_TRANSITION',
   'BILAN_INVALID_ACTOR',
   'BILAN_CATALOG_VERSION_MISMATCH',
+  'BILAN_INVALID_REPORT_REVISION',
   'BILAN_REPORT_NOT_VALIDATED',
   'BILAN_NOTIFICATION_NOT_SUPPORTED',
 ] as const;
@@ -93,6 +94,11 @@ export type ReportRevision = Readonly<{
   generatedAt: string;
   validatedAt?: string;
   evidence: ReadonlyArray<EvidenceItem>;
+}>;
+
+export type ReportRegeneration = Readonly<{
+  previousRevision: ReportRevision;
+  nextRevision: ReportRevision;
 }>;
 
 export type NotificationEvent = Readonly<{

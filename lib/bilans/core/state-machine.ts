@@ -2,6 +2,7 @@ import type {
   LifecycleActor,
   LifecycleStatus,
   LifecycleTransition,
+  ReportRevision,
   TransitionAction,
 } from './types';
 
@@ -42,4 +43,20 @@ export function isLegalTransition(candidate: LifecycleTransition): boolean {
     && transition.actor === candidate.actor
     && transition.to === candidate.to
   ));
+}
+
+/**
+ * A regeneration preserves the scored attempt but must create a distinct,
+ * sequential revision for a new coach review.
+ */
+export function isFreshReportRevision(
+  previousRevision: ReportRevision,
+  nextRevision: ReportRevision,
+): boolean {
+  return (
+    previousRevision.attemptId === nextRevision.attemptId
+    && previousRevision.id !== nextRevision.id
+    && nextRevision.revision === previousRevision.revision + 1
+    && nextRevision.status === 'REPORT_PENDING_REVIEW'
+  );
 }
