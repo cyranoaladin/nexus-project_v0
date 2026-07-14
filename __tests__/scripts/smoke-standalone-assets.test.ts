@@ -14,6 +14,16 @@ import { createServer } from 'net';
 
 const SMOKE_SCRIPT = join(__dirname, '../../scripts/release/smoke-standalone-assets.mjs');
 
+function isProcessAlive(pid: number): boolean {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ESRCH') return false;
+    throw error;
+  }
+}
+
 let testDir: string;
 let smokePort: number;
 
@@ -225,11 +235,11 @@ describe('smoke-standalone-assets behavioral', () => {
   }, 60000);
 
   test('L: clean shutdown confirms process termination via PID', async () => {
-    // Server fixture writes its PID to a temp file
     const pidFile = join(testDir, 'server.pid');
+    const pidWrite = `require('fs').writeFileSync('${pidFile.replace(/\\/g, '\\\\')}', String(process.pid));`;
     const serverWithPid = makeServerJs({}).replace(
       "server.listen(",
-      `require('fs').writeFileSync('${pidFile.replace(/\\/g, '\\\\')}', String(process.pid));\nserver.listen(`
+      `${pidWrite}\nserver.listen(`
     );
     await createBuildDir(serverWithPid);
 
@@ -238,15 +248,15 @@ describe('smoke-standalone-assets behavioral', () => {
     expect(output).toContain('SERVER_SHUTDOWN_CONFIRMED=true');
     expect(output).toContain('SERVER_ORPHAN_PROCESS_COUNT=0');
 
-    // Verify process is actually gone
-    const { readFileSync } = require('fs');
-    try {
-      const pid = parseInt(readFileSync(pidFile, 'utf8').trim());
-      // signal 0 checks existence without killing
-      try { process.kill(pid, 0); fail(`Process ${pid} still alive`); } catch { /* expected — process gone */ }
-    } catch { /* PID file may not exist if server didn't write it — acceptable */ }
+    // PID file MUST exist
+    const { existsSync, readFileSync } = require('fs');
+    expect(existsSync(pidFile)).toBe(true);
 
-    // Verify port is free
+    const pid = parseInt(readFileSync(pidFile, 'utf8').trim(), 10);
+    expect(Number.isInteger(pid)).toBe(true);
+    expect(isProcessAlive(pid)).toBe(false);
+
+    // Port must be free
     const net = require('net');
     const probe = net.createServer();
     await new Promise<void>((resolve, reject) => {
@@ -256,16 +266,48 @@ describe('smoke-standalone-assets behavioral', () => {
   }, 60000);
 
   test('M: server ignoring SIGTERM is killed with SIGKILL', async () => {
-    // Fixture that traps SIGTERM and ignores it
-    const stubbornServer = makeServerJs({}).replace(
-      "process.on('SIGTERM'",
-      "process.on('SIGTERM', () => { /* ignore SIGTERM */ }); process.on('SIGTERM_ORIG'"
-    );
-    await createBuildDir(stubbornServer);
+    const pidFile = join(testDir, 'stubborn.pid');
+    // Fixture: writes PID, ignores SIGTERM completely
+    const stubbornJs = `
+const http = require('http');
+const fs = require('fs');
+fs.writeFileSync('${pidFile.replace(/\\/g, '\\\\')}', String(process.pid));
+process.on('SIGTERM', () => { /* intentionally ignored */ });
+const pages = {
+  '/': { status: 200, body: '<html><script src="/_next/static/chunks/main-abc.js"></script><link href="/_next/static/css/style.css" rel="stylesheet"></html>' },
+  '/stages': { status: 200, body: '<html><script src="/_next/static/chunks/main-abc.js"></script><link href="/_next/static/css/style.css" rel="stylesheet"></html>' },
+  '/bilan-gratuit': { status: 200, body: '<html><script src="/_next/static/chunks/main-abc.js"></script><link href="/_next/static/css/style.css" rel="stylesheet"></html>' },
+  '/api/health': { status: 200, body: '{"status":"ok"}' },
+  '/_next/static/chunks/main-abc.js': { status: 200, body: 'console.log(1)', ct: 'application/javascript; charset=utf-8' },
+  '/_next/static/css/style.css': { status: 200, body: 'body{}', ct: 'text/css; charset=utf-8' },
+};
+const server = http.createServer((req, res) => {
+  const r = pages[req.url];
+  if (r) { res.writeHead(r.status, { 'Content-Type': r.ct || 'text/html' }); res.end(r.body); }
+  else { res.writeHead(404); res.end('Not Found'); }
+});
+server.listen(parseInt(process.env.PORT || '3199'), '127.0.0.1');
+`;
+    await createBuildDir(stubbornJs);
 
     const { code, output } = runSmoke(smokePort);
     expect(code).toBe(0);
     expect(output).toContain('SERVER_SHUTDOWN_CONFIRMED=true');
-    // SIGKILL may or may not be needed depending on timing
+    expect(output).toContain('SERVER_SHUTDOWN_USED_SIGKILL=true');
+    expect(output).toContain('SERVER_ORPHAN_PROCESS_COUNT=0');
+
+    // PID must be gone
+    const { existsSync, readFileSync } = require('fs');
+    expect(existsSync(pidFile)).toBe(true);
+    const pid = parseInt(readFileSync(pidFile, 'utf8').trim(), 10);
+    expect(isProcessAlive(pid)).toBe(false);
+
+    // Port must be free
+    const net = require('net');
+    const probe = net.createServer();
+    await new Promise<void>((resolve, reject) => {
+      probe.once('error', reject);
+      probe.listen(smokePort, '127.0.0.1', () => { probe.close(); resolve(); });
+    });
   }, 60000);
 });
