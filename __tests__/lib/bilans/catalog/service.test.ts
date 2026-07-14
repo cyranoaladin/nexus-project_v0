@@ -1,5 +1,6 @@
 import {
   CatalogError,
+  allPacks,
   resolveEligiblePack,
   validatePack,
   type CurriculumPack,
@@ -12,13 +13,15 @@ const selection = {
 };
 
 function expectCatalogError(action: () => unknown, code: string): void {
-  expect(action).toThrow(CatalogError);
-
+  let error: unknown;
   try {
     action();
-  } catch (error) {
-    expect(error).toMatchObject({ code });
+  } catch (caught) {
+    error = caught;
   }
+
+  expect(error).toBeInstanceOf(CatalogError);
+  expect(error).toMatchObject({ code });
 }
 
 function createPublishedPack(overrides: Partial<CurriculumPack> = {}): CurriculumPack {
@@ -70,6 +73,23 @@ describe('versioned curriculum catalogue', () => {
     expect(resolveEligiblePack(selection, [reviewRequiredPack, publishedPack]).id).toBe('nsi-terminale-published');
   });
 
+  it('rejects an ambiguous selection with multiple published packs', () => {
+    expectCatalogError(
+      () => resolveEligiblePack(selection, [createPublishedPack({ id: 'nsi-a' }), createPublishedPack({ id: 'nsi-b' })]),
+      'PACK_AMBIGUOUS_SELECTION',
+    );
+  });
+
+  it('does not allow importers to promote a review-required catalogue pack', () => {
+    const nsiTerminalePack = allPacks.find((pack) => pack.selection.subject === 'NSI' && pack.selection.grade === 'TERMINALE');
+    expect(nsiTerminalePack).toBeDefined();
+
+    expect(() => {
+      (nsiTerminalePack as CurriculumPack).status = 'PUBLISHED';
+    }).toThrow(TypeError);
+    expectCatalogError(() => resolveEligiblePack(selection), 'PACK_NOT_PUBLISHED');
+  });
+
   it('reports NSI seconde as not eligible', () => {
     expectCatalogError(() => resolveEligiblePack({ ...selection, grade: 'SECONDE' }), 'PACK_NOT_ELIGIBLE');
   });
@@ -95,6 +115,12 @@ describe('versioned curriculum catalogue', () => {
     });
 
     expectCatalogError(() => validatePack(pack), 'PACK_INVALID_REGULATORY_METADATA');
+  });
+
+  it('rejects a global question that no competency references', () => {
+    const pack = createPublishedPack({ questionIds: ['q-algorithmique', 'q-sql', 'q-orphan'] });
+
+    expectCatalogError(() => validatePack(pack), 'PACK_INVALID_QUESTION_REFERENCES');
   });
 
   it('rejects cyclic competency prerequisites', () => {

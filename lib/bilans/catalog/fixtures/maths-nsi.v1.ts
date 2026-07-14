@@ -21,6 +21,14 @@ function checksum(content: unknown): string {
   return `sha256:${createHash('sha256').update(JSON.stringify(content)).digest('hex')}`;
 }
 
+function deepFreeze<T>(value: T): T {
+  if (value && typeof value === 'object' && !Object.isFrozen(value)) {
+    for (const nestedValue of Object.values(value)) deepFreeze(nestedValue);
+    Object.freeze(value);
+  }
+  return value;
+}
+
 function normalizedSubject(track: DiagnosticDefinition['track']): CatalogSubject {
   return track === 'nsi' ? 'NSI' : 'MATHEMATIQUES';
 }
@@ -69,10 +77,10 @@ function adaptDefinition(definition: DiagnosticDefinition): CurriculumPack {
  * A normalized, deliberately unpublished adaptation of the current Maths/NSI
  * diagnostics. The legacy definitions are not re-exported by the catalogue.
  */
-export const MATHS_NSI_V1_PACKS: readonly CurriculumPack[] = [
+export const MATHS_NSI_V1_PACKS: readonly CurriculumPack[] = deepFreeze([
   MATHS_PREMIERE_P2,
   MATHS_TERMINALE_P2,
   NSI_PREMIERE_P2,
   NSI_TERMINALE_P2,
-].map(adaptDefinition);
+].map(adaptDefinition));
 import { createHash } from 'node:crypto';
