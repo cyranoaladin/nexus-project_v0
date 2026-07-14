@@ -279,6 +279,43 @@ describe('canonical bilans persistence schema', () => {
     );
   });
 
+  it('rejects an attempt lifecycle rollback before immutable provenance can be changed', async () => {
+    const { parentProfile } = await createTestParent();
+    const { student } = await createTestStudent(parentProfile.id, {
+      student: { gradeLevel: 'PREMIERE' },
+    });
+    const attempt = await prisma.canonicalAssessmentAttempt.create({
+      data: {
+        studentId: student.id,
+        status: 'SUBMITTED',
+        subject: 'MATHEMATIQUES',
+        gradeLevel: 'PREMIERE',
+        curriculumId: 'lycee-general',
+        curriculumVersion: '2026.1',
+        assessmentPackId: 'maths-premiere-diagnostic',
+        assessmentPackVersion: '3.2.0',
+        assessmentPackChecksum: 'sha256:assessment-pack',
+        scoringPolicyId: 'mastery-v1',
+        scoringPolicyVersion: '1.0.0',
+        submittedAt: new Date(),
+        answers: { q1: 'B' },
+      },
+    });
+
+    await expect(
+      prisma.canonicalAssessmentAttempt.update({
+        where: { id: attempt.id },
+        data: { status: 'IN_PROGRESS' },
+      }),
+    ).rejects.toThrow(/lifecycle|rollback|immutable/i);
+    await expect(
+      prisma.canonicalAssessmentAttempt.update({
+        where: { id: attempt.id },
+        data: { answers: { q1: 'A' } },
+      }),
+    ).rejects.toThrow(/immutable|append-only/i);
+  });
+
   it('rejects a published revision pointer to another artifact and protects the pointed revision', async () => {
     const { parentProfile } = await createTestParent();
     const { student } = await createTestStudent(parentProfile.id, {
@@ -372,6 +409,13 @@ describe('canonical bilans persistence schema', () => {
         INSERT INTO "canonical_notification_outbox"
           ("id", "eventType", "sourceEventKey", "recipientUserId", "channel", "payload", "updatedAt")
         VALUES ('missing-source-event', 'REPORT_PUBLISHED', NULL, ${parentUser.id}, 'WHATSAPP', '{}'::jsonb, NOW())
+      `,
+    ).rejects.toThrow(/null|not-null/i);
+    await expect(
+      prisma.$executeRaw`
+        INSERT INTO "canonical_job_outbox"
+          ("id", "jobType", "aggregateType", "aggregateId", "sourceEventKey", "idempotencyKey", "payload", "updatedAt")
+        VALUES ('missing-job-source-event', 'GENERATE_REPORT', 'ReportArtifact', 'artifact-2', NULL, 'artifact-2.generate', '{}'::jsonb, NOW())
       `,
     ).rejects.toThrow(/null|not-null/i);
   });
