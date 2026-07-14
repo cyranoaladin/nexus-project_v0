@@ -38,51 +38,71 @@ describe('production deployment contract', () => {
 
   it('uses the Node 20 base image expected by production', () => {
     const dockerfile = read('Dockerfile');
-
     expect(dockerfile).toContain('FROM node:20-alpine AS base');
     expect(dockerfile).not.toContain('FROM node:18-alpine AS base');
   });
 
-  it('keeps the legacy git-pull deploy helper at its deprecated location', () => {
-    const deployScript = read('scripts/legacy/deploy-git-pull.sh');
-
-    expect(deployScript).toContain('REMOTE_HOST="root@88.99.254.59"');
-    expect(deployScript).toContain('REMOTE_DIR="/opt/nexus"');
-    expect(deployScript).toContain('systemctl restart nexus-app');
-    expect(deployScript).toContain('git checkout main');
-    expect(deployScript).toContain('git pull origin main');
+  it('has five legacy deploy scripts in scripts/legacy/', () => {
+    const legacyScripts = [
+      'scripts/legacy/deploy-git-pull.sh',
+      'scripts/legacy/deploy-files-only.sh',
+      'scripts/legacy/deploy-incremental.sh',
+      'scripts/legacy/deploy-production-safe.sh',
+      'scripts/legacy/deploy.sh',
+    ];
+    for (const s of legacyScripts) {
+      expect(fs.existsSync(path.join(rootDir, s))).toBe(true);
+    }
   });
 
-  it('forbids destructive docker commands in active production scripts', () => {
-    const activeScripts = [
+  it('has no old deploy scripts at scripts/ root', () => {
+    const oldNames = [
+      'deploy-git-pull.sh',
+      'deploy-files-only.sh',
+      'deploy-incremental.sh',
+      'deploy-production-safe.sh',
+      'deploy.sh',
+    ];
+    for (const name of oldNames) {
+      expect(fs.existsSync(path.join(rootDir, 'scripts', name))).toBe(false);
+    }
+  });
+
+  it('build-immutable-release.sh is the only active release builder', () => {
+    const builder = read('scripts/release/build-immutable-release.sh');
+    expect(builder).toContain('npm run release:build');
+    expect(builder).toContain('RELEASE_SHA');
+    expect(builder).toContain('id -un');
+    expect(builder).toContain('mktemp -d');
+    expect(builder).toContain('trap cleanup');
+    expect(builder).not.toContain('ln -snf');
+    expect(builder).not.toContain('pm2 reload');
+  });
+
+  it('forbids destructive docker commands in legacy scripts', () => {
+    const legacyScripts = [
       'scripts/legacy/deploy-git-pull.sh',
       'scripts/legacy/deploy-production-safe.sh',
     ];
-
-    for (const scriptPath of activeScripts) {
+    for (const scriptPath of legacyScripts) {
       try {
         const script = read(scriptPath);
         expect(script).not.toMatch(/down --volumes/);
         expect(script).not.toMatch(/docker volume rm/);
         expect(script).not.toMatch(/system prune --volumes/);
-      } catch (error) {
-        // Script doesn't exist, that's fine
-      }
+      } catch { /* script may not exist */ }
     }
   });
 
-  it('ensures legacy dangerous scripts are not in scripts/ root', () => {
+  it('ensures no dangerous patterns in scripts/ root .sh files', () => {
     const dangerousPatterns = ['down --volumes', 'docker volume rm', 'system prune --volumes'];
     const scriptsDir = path.join(rootDir, 'scripts');
-
     const scriptFiles = fs.readdirSync(scriptsDir)
       .filter(file => file.endsWith('.sh'))
       .filter(file => !file.startsWith('.'));
 
     for (const file of scriptFiles) {
-      const scriptPath = path.join(scriptsDir, file);
       const script = read(`scripts/${file}`);
-
       for (const pattern of dangerousPatterns) {
         expect(script).not.toMatch(new RegExp(pattern));
       }
