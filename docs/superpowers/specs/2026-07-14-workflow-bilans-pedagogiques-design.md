@@ -2,7 +2,7 @@
 
 **Statut :** validé par le produit le 14 juillet 2026  
 **Dépôt cible :** `nexus-project_v0-bilans-security`  
-**Portée :** lycée général français, de la Seconde à la Terminale ; Maths, Physique-Chimie, NSI, Français, SVT et SES en priorité.
+**Portée :** lycée général français, de la Seconde à la Terminale. La plateforme est conçue pour toutes les matières et spécialités ; Maths, Physique-Chimie, NSI, Français, SVT et SES constituent les six premiers packs publiés.
 
 ## 1. Objectif produit
 
@@ -37,7 +37,7 @@ Le produit ne promet aucun résultat scolaire. Il fournit un diagnostic document
 | Première générale | Enseignements et spécialités Maths, Physique-Chimie, NSI, Français, SVT et SES selon le parcours de l'élève. |
 | Terminale générale | Spécialités Maths, Physique-Chimie, NSI, SVT et SES ; continuité du Français via les acquis de Première et l'historique de l'élève. |
 
-Le catalogue enregistre le type d'enseignement (commun, spécialité, option), la voie, l'année scolaire et la période d'effet. Les options supplémentaires ne sont pas implicites : elles sont des packs explicites quand Nexus décide de les commercialiser et de les faire valider.
+Le catalogue enregistre le type d'enseignement (commun, spécialité, option), la voie, l'année scolaire et la période d'effet. Les options supplémentaires ne sont pas implicites : elles sont des packs explicites quand Nexus décide de les commercialiser et de les faire valider. Un élève ne peut démarrer qu'un pack publié et éligible à son niveau, sa voie, son année scolaire et ses spécialités déclarées. Une matière ou spécialité non encore publiée est reconnue par le catalogue, mais n'ouvre pas de questionnaire ; elle est ajoutée au même workflow après revue pédagogique et golden set.
 
 ### Référentiels
 
@@ -63,7 +63,7 @@ Le catalogue est validé par schémas Zod/JSON Schema, contrôle des identifiant
 
 ## 5. Modèle métier et source de vérité opérationnelle
 
-Le dossier élève et les relations d'accès sont les sources de vérité opérationnelles. Une tentative est immuable après soumission ; une correction ou une nouvelle passation crée une nouvelle révision/tentative, jamais une réécriture silencieuse.
+Le dossier élève et les relations d'accès sont les sources de vérité opérationnelles. Une tentative est immuable après soumission ; aucune correction ne modifie ses réponses ou son score. Une nouvelle passation crée une nouvelle tentative. Une révision concerne uniquement le rapport produit à partir d'une même tentative : elle peut être régénérée ou enrichie, mais garde les mêmes réponses et le même `ScoreSnapshot`.
 
 Les objets canoniques sont :
 
@@ -80,14 +80,19 @@ Les objets canoniques sont :
 
 Les identifiants immuables et les relations de base de données remplacent tout fallback par e-mail, nom normalisé ou paramètre URL. Les lectures et mutations suivent toujours la relation authentifiée demandant l'accès.
 
+Chaque `AssessmentAttempt` scelle, au moment de `SUBMITTED`, les identifiants et versions de `CurriculumVersion`, `AssessmentPack` et `ScoringPolicy`, ainsi que le checksum du pack. Chaque `ReportArtifact` scelle les identifiants et versions du `ReportPack` et du `CorpusManifest`, la révision de prompt, le checksum du contexte d'entrée et la référence du `ScoreSnapshot`. Une suppression ou une nouvelle version de catalogue ne change jamais ces références historiques.
+
 ## 6. Parcours utilisateur et machine à états
 
 ### Inscription et rattachement
 
 1. L'élève s'authentifie ; à défaut, il crée un compte.
-2. Un parent est invité ou crée un compte, puis confirme le rattachement à l'élève selon le protocole de vérification Nexus.
-3. Un administrateur ou l'assistante attribue un coach référent lorsque nécessaire.
-4. L'élève ne peut commencer qu'un `AssessmentPack` compatible avec son parcours scolaire déclaré et ses droits.
+2. L'élève crée une demande de rattachement avec le contact du parent ; le lien est `PENDING_PARENT_CONSENT` et n'accorde aucun accès.
+3. Le parent invité s'authentifie ou crée son compte, accepte le rattachement et prouve la maîtrise du canal de contact. Le lien devient `VERIFIED` après le contrôle Nexus requis pour les mineurs.
+4. Le parent ou Nexus peut demander la révocation ; seul Nexus applique la révocation après contrôle. Un lien invité non accepté expire. `REVOKED` et `EXPIRED` retirent immédiatement tout accès futur sans réécrire l'historique d'audit.
+5. Un parent non vérifié n'accède à aucun dossier ni bilan. Les informations de preuve et les délais de conservation sont séparés des réponses pédagogiques et suivent la politique de protection des mineurs de Nexus.
+6. Un administrateur attribue un coach référent lorsque nécessaire.
+7. L'élève ne peut commencer qu'un `AssessmentPack` compatible avec son parcours scolaire déclaré et ses droits.
 
 ### Passation, génération et publication
 
@@ -96,11 +101,11 @@ Les identifiants immuables et les relations de base de données remplacent tout 
 - `DRAFT` : brouillon autosauvegardé, visible uniquement par l'élève.
 - `SUBMITTED` : réponses scellées ; le coach est averti de la soumission.
 - `SCORED` : `ScoreSnapshot` et preuves sont produits de façon déterministe.
-- `REPORT_PENDING_REVIEW` : le bilan structuré est produit ou régénéré ; il est visible seulement au coach référent.
-- `COACH_VALIDATED` : le coach autorisé valide la révision ; il peut aussi demander une nouvelle révision, qui retourne à `REPORT_PENDING_REVIEW`.
+- `REPORT_PENDING_REVIEW` : une `ReportRevision` est produite ou régénérée ; elle est visible seulement au coach référent.
+- `COACH_VALIDATED` : le coach autorisé valide une révision précise ; il peut aussi la refuser avec motif. Une demande de régénération crée une nouvelle `ReportRevision` et retourne à `REPORT_PENDING_REVIEW`, sans modifier la tentative ni le score.
 - `PUBLISHED` : l'élève et les parents liés peuvent consulter la révision validée ; leurs notifications sont mises dans l'outbox WhatsApp.
 
-Les états d'échec techniques sont explicites et réessayables (`SCORING_FAILED`, `REPORT_GENERATION_FAILED`, `NOTIFICATION_FAILED`). Ils conservent les entrées déjà persistées et ne donnent jamais un faux statut publié. Les transitions sont vérifiées côté serveur et journalisées.
+Les états d'échec techniques sont explicites et réessayables : `SCORING_FAILED` repart vers `SUBMITTED` avec les mêmes réponses après un retry worker ; `REPORT_GENERATION_FAILED` repart vers `SCORED` puis crée une nouvelle révision, ou produit le fallback déterministe ; `NOTIFICATION_FAILED` ne change jamais l'état publié et ne relance que l'outbox. Seul le worker autorisé effectue ces reprises, avec clé d'idempotence et tentatives bornées. Un coach ne corrige pas les réponses soumises : il peut refuser une révision ou demander une nouvelle passation à l'élève. Les transitions sont vérifiées côté serveur et journalisées.
 
 ## 7. Autorisations et notifications
 
@@ -109,7 +114,8 @@ Les états d'échec techniques sont explicites et réessayables (`SCORING_FAILED
 | Élève | Démarrer, sauvegarder et soumettre ses questionnaires ; voir ses propres bilans publiés et plans de travail. |
 | Parent vérifié | Voir les seuls bilans publiés des élèves auxquels il est rattaché. |
 | Coach référent | Lire les dossiers des élèves qui lui sont attribués, commenter, valider, refuser et demander une régénération. |
-| Admin / assistante | Gérer les relations, le catalogue, les versions, les exceptions opérationnelles et l'audit, selon le RBAC existant. |
+| Assistante | Gérer les demandes de rattachement, les attributions coach-élève et les relances opérationnelles ; elle ne peut ni publier un bilan ni modifier le catalogue. |
+| Admin | Gérer les rôles, les révocations, les exceptions de publication tracées, les versions de catalogue et les journaux d'audit ; toute publication exceptionnelle exige un motif et est journalisée. |
 
 Les événements WhatsApp sont :
 
@@ -142,10 +148,11 @@ Le dépôt possède aujourd'hui des flux `Assessment` et `Diagnostic` concurrent
 1. introduire les contrats canoniques et le catalogue sans supprimer les flux en production ;
 2. adapter les routes et écrans universels vers les nouveaux services ;
 3. porter les packs Maths et NSI existants vers le catalogue ;
-4. mettre les autres flux en lecture seule, puis les migrer par scripts idempotents avec rapport de correspondance et rollback ;
-5. déprécier les anciennes routes seulement après bascule et vérification des données.
+4. basculer chaque pack de façon atomique : à partir de sa date de bascule, le workflow canonique est la seule source de vérité en écriture pour ce pack et le legacy devient lecture seule ; aucune double écriture ni synchronisation bidirectionnelle n'est autorisée ;
+5. migrer les historiques par scripts idempotents avec rapport de correspondance, identifiants de provenance et rollback ; les liens historiques résolvent vers un adaptateur de lecture ou vers l'artefact canonique migré ;
+6. déprécier les anciennes routes seulement après bascule et vérification des données.
 
-Les prix, l'authentification, le RBAC, les relations parent-élève et les dashboards existants restent intégrés via leurs services canoniques ; aucune page ne contourne les garde-fous d'accès existants.
+Les prix, l'authentification, le RBAC, les relations parent-élève et les dashboards existants restent intégrés via leurs services canoniques ; aucune page ne contourne les garde-fous d'accès existants. Le journal de migration indique pour chaque paquet la source de lecture, l'état de bascule et l'artefact de rollback.
 
 ## 10. Qualité, sécurité et critères d'acceptation
 
@@ -170,7 +177,24 @@ Les prix, l'authentification, le RBAC, les relations parent-élève et les dashb
 - les six matières prioritaires disposent chacune d'un parcours de contenu revu avant mise à disposition ;
 - toute évolution réglementaire crée une nouvelle version de curriculum sans modifier l'historique.
 
-## 11. Ordre de livraison
+## 11. Contrats d'intégration et exploitation
+
+Les frontières de modules sont explicites :
+
+| Interface | Commande / événement | Garantie |
+| --- | --- | --- |
+| Catalogue → passation | `resolveEligiblePack(student, selection)` | Retourne un pack publié figé ou une erreur d'éligibilité explicite. |
+| Passation → scoring | `submitAttempt` / `AttemptSubmitted` | Crée une tentative immuable, une seule fois par clé de soumission. |
+| Scoring → rapport | `ScoreAttempt` / `AttemptScored` | Produit un score déterministe lié aux versions scellées. |
+| Rapport → revue | `GenerateReportRevision` / `ReportReadyForReview` | Crée une révision non publiée, validée par schéma ou fallback. |
+| Revue → publication | `ValidateReportRevision` / `ReportPublished` | Vérifie l'assignation coach-élève et ne publie que la révision validée. |
+| Publication → WhatsApp | `ReportPublished` / `NotificationRequested` | Crée une outbox dédoublonnée ; l'échec d'envoi ne modifie pas le bilan. |
+
+Les erreurs sont des codes stables, non des messages de fournisseur. Le personnel dispose d'une file de relance pour les échecs de génération, les validations en attente et les notifications non livrées ; l'alerte opérationnelle ne révèle pas de contenu pédagogique sensible.
+
+Les réponses, pièces de preuve, rapports et PDF suivent une politique de conservation versionnée. Les demandes d'export, de suppression et de pseudonymisation passent par une procédure d'administration auditée, sans effacer les traces minimales légalement requises ni rompre les contraintes de référentiel.
+
+## 12. Ordre de livraison
 
 1. Contrats, états, migration de données minimale, RBAC et outbox.
 2. Catalogue versionné, validation et graphe de prérequis.
