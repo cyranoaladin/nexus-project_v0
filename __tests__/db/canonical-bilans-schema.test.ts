@@ -115,7 +115,7 @@ describe('canonical bilans persistence schema', () => {
       data: {
         reportArtifactId: artifact.id,
         scoreSnapshotId: score.id,
-        status: 'COACH_VALIDATED',
+        status: 'PENDING_REVIEW',
         reportPackId: 'maths-diagnostic-report',
         reportPackVersion: '2.0.0',
         corpusManifestId: 'lycee-general-corpus',
@@ -133,6 +133,10 @@ describe('canonical bilans persistence schema', () => {
         motif: 'Recommandations vérifiées.',
       },
     });
+    const validatedRevision = await prisma.reportRevision.update({
+      where: { id: revision.id },
+      data: { status: 'COACH_VALIDATED' },
+    });
     const published = await prisma.reportArtifact.update({
       where: { id: artifact.id },
       data: { currentPublishedRevisionId: revision.id, status: 'PUBLISHED', publishedAt: new Date() },
@@ -140,7 +144,7 @@ describe('canonical bilans persistence schema', () => {
     });
 
     expect(parentLink.state).toBe('VERIFIED');
-    expect(review.reportRevisionId).toBe(revision.id);
+    expect(review.reportRevisionId).toBe(validatedRevision.id);
     expect(published.currentPublishedRevision.contextChecksum).toBe('sha256:report-context');
   });
 
@@ -389,7 +393,7 @@ describe('canonical bilans persistence schema', () => {
       data: {
         reportArtifactId: firstArtifact.id,
         scoreSnapshotId: score.id,
-        status: 'COACH_VALIDATED',
+        status: 'PENDING_REVIEW',
         reportPackId: 'maths-diagnostic-report',
         reportPackVersion: '2.0.0',
         corpusManifestId: 'lycee-general-corpus',
@@ -401,6 +405,10 @@ describe('canonical bilans persistence schema', () => {
     });
     await prisma.reportReview.create({
       data: { reportRevisionId: firstRevision.id, coachId: coachProfile.id, decision: 'APPROVED', motif: 'Validé.' },
+    });
+    await prisma.reportRevision.update({
+      where: { id: firstRevision.id },
+      data: { status: 'COACH_VALIDATED' },
     });
 
     await expect(
@@ -423,7 +431,7 @@ describe('canonical bilans persistence schema', () => {
       curriculumId: 'lycee-general', curriculumVersion: '2026.1', assessmentPackId: 'maths-terminal', assessmentPackVersion: '1', assessmentPackChecksum: 'checksum', scoringPolicyId: 'policy', scoringPolicyVersion: '1', submittedAt: new Date(), answers: {},
     } });
     const score = await prisma.scoreSnapshot.create({ data: { assessmentAttemptId: attempt.id, scoringPolicyId: 'policy', scoringPolicyVersion: '1', scoringPolicyChecksum: 'checksum', score: 50, result: {} } });
-    const createRevision = async (status: 'DRAFT' | 'COACH_VALIDATED' | 'REJECTED') => {
+    const createRevision = async (status: 'DRAFT' | 'PENDING_REVIEW' | 'REJECTED') => {
       const artifact = await prisma.reportArtifact.create({ data: { studentId: student.id, assessmentAttemptId: attempt.id } });
       const revision = await prisma.reportRevision.create({ data: { reportArtifactId: artifact.id, scoreSnapshotId: score.id, status, reportPackId: 'report', reportPackVersion: '1', corpusManifestId: 'corpus', corpusManifestVersion: '1', promptRevision: 'prompt', contextChecksum: `${status}-checksum`, content: {} } });
       return { artifact, revision };
@@ -433,10 +441,11 @@ describe('canonical bilans persistence schema', () => {
     const rejected = await createRevision('REJECTED');
     await prisma.reportReview.create({ data: { reportRevisionId: rejected.revision.id, coachId: coachProfile.id, decision: 'REJECTED', motif: 'À corriger.' } });
     await expect(prisma.reportArtifact.update({ where: { id: rejected.artifact.id }, data: { status: 'PUBLISHED', currentPublishedRevisionId: rejected.revision.id, publishedAt: new Date() } })).rejects.toThrow(/publication|approved|validated/i);
-    const unreviewed = await createRevision('COACH_VALIDATED');
+    const unreviewed = await createRevision('PENDING_REVIEW');
     await expect(prisma.reportArtifact.update({ where: { id: unreviewed.artifact.id }, data: { status: 'PUBLISHED', currentPublishedRevisionId: unreviewed.revision.id, publishedAt: new Date() } })).rejects.toThrow(/publication|approved|validated/i);
-    const approved = await createRevision('COACH_VALIDATED');
+    const approved = await createRevision('PENDING_REVIEW');
     await prisma.reportReview.create({ data: { reportRevisionId: approved.revision.id, coachId: coachProfile.id, decision: 'APPROVED', motif: 'Validé.' } });
+    await prisma.reportRevision.update({ where: { id: approved.revision.id }, data: { status: 'COACH_VALIDATED' } });
     await expect(prisma.reportArtifact.update({ where: { id: approved.artifact.id }, data: { status: 'PUBLISHED', currentPublishedRevisionId: approved.revision.id } })).rejects.toThrow(/publishedAt|publication/i);
   });
 
@@ -468,6 +477,23 @@ describe('canonical bilans persistence schema', () => {
     const review = await prisma.reportReview.create({ data: { reportRevisionId: revision.id, coachId: coachProfile.id, decision: 'APPROVED', motif: 'Validé.' } });
     await expect(prisma.reportReview.update({ where: { id: review.id }, data: { motif: 'Modifié.' } })).rejects.toThrow(/append-only|immutable/i);
     await expect(prisma.reportReview.delete({ where: { id: review.id } })).rejects.toThrow(/append-only|immutable/i);
+  });
+
+  it('forbids reassigning an artifact to another attempt after its first revision', async () => {
+    const { parentProfile } = await createTestParent();
+    const { student } = await createTestStudent(parentProfile.id, { student: { gradeLevel: 'PREMIERE' } });
+    const createAttempt = () => prisma.canonicalAssessmentAttempt.create({ data: {
+      studentId: student.id, status: 'SUBMITTED', subject: 'MATHEMATIQUES', gradeLevel: 'PREMIERE', curriculumId: 'lycee-general', curriculumVersion: '2026.1', assessmentPackId: 'maths-premiere', assessmentPackVersion: '1', assessmentPackChecksum: 'checksum', scoringPolicyId: 'policy', scoringPolicyVersion: '1', submittedAt: new Date(), answers: {},
+    } });
+    const firstAttempt = await createAttempt();
+    const secondAttempt = await createAttempt();
+    const score = await prisma.scoreSnapshot.create({ data: { assessmentAttemptId: firstAttempt.id, scoringPolicyId: 'policy', scoringPolicyVersion: '1', scoringPolicyChecksum: 'checksum', score: 50, result: {} } });
+    const artifact = await prisma.reportArtifact.create({ data: { studentId: student.id, assessmentAttemptId: firstAttempt.id } });
+    await prisma.reportRevision.create({ data: { reportArtifactId: artifact.id, scoreSnapshotId: score.id, status: 'PENDING_REVIEW', reportPackId: 'report', reportPackVersion: '1', corpusManifestId: 'corpus', corpusManifestVersion: '1', promptRevision: 'prompt', contextChecksum: 'reassignment', content: {} } });
+    await expect(prisma.reportArtifact.update({
+      where: { id: artifact.id },
+      data: { assessmentAttemptId: secondAttempt.id },
+    })).rejects.toThrow(/reassign|attempt|revision/i);
   });
 
   it('persists legal canonical worker transitions and retries', async () => {
