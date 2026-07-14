@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { isFreshReportRevision } from './state-machine';
 import {
   BILAN_ERROR_CODES,
   LIFECYCLE_ACTORS,
@@ -66,6 +67,19 @@ export const reportRevisionSchema = z.object({
       code: z.ZodIssueCode.custom,
       message: 'validatedAt is required for validated or published revisions',
       path: ['validatedAt'],
+    });
+  }
+});
+
+export const reportRegenerationSchema = z.object({
+  previousRevision: reportRevisionSchema,
+  nextRevision: reportRevisionSchema,
+}).strict().superRefine(({ previousRevision, nextRevision }, context) => {
+  if (!isFreshReportRevision(previousRevision, nextRevision)) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'BILAN_INVALID_REPORT_REVISION',
+      path: ['nextRevision'],
     });
   }
 });

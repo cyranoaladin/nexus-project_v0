@@ -3,11 +3,13 @@ import {
   catalogRefSchema,
   evidenceItemSchema,
   notificationEventSchema,
+  reportRegenerationSchema,
   reportRevisionSchema,
   scoreSnapshotSchema,
 } from '@/lib/bilans/core/schemas';
 import {
   getLegalTransition,
+  isFreshReportRevision,
   isLegalTransition,
 } from '@/lib/bilans/core/state-machine';
 import type {
@@ -91,5 +93,34 @@ describe('canonical bilan schemas', () => {
       validatedAt: '2026-07-14T09:10:00.000Z',
       evidence: [{ skillId: 'algebra.linear', status: 'MASTERED', rationale: 'Réponse exacte.' }],
     }).success).toBe(true);
+  });
+
+  it('requires regeneration to create the next pending revision with a fresh identity', () => {
+    const previousRevision = {
+      id: 'report-1',
+      attemptId: 'attempt-1',
+      revision: 1,
+      status: 'COACH_REJECTED' as const,
+      generatedAt: '2026-07-14T09:00:00.000Z',
+      evidence: [],
+    };
+    const nextRevision = {
+      ...previousRevision,
+      id: 'report-2',
+      revision: 2,
+      status: 'REPORT_PENDING_REVIEW' as const,
+      generatedAt: '2026-07-14T09:05:00.000Z',
+    };
+
+    expect(isFreshReportRevision(previousRevision, nextRevision)).toBe(true);
+    expect(reportRegenerationSchema.safeParse({ previousRevision, nextRevision }).success).toBe(true);
+    expect(reportRegenerationSchema.safeParse({
+      previousRevision,
+      nextRevision: { ...nextRevision, id: previousRevision.id },
+    }).success).toBe(false);
+    expect(reportRegenerationSchema.safeParse({
+      previousRevision,
+      nextRevision: { ...nextRevision, revision: previousRevision.revision },
+    }).success).toBe(false);
   });
 });
