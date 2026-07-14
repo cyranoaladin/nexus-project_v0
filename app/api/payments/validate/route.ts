@@ -97,7 +97,7 @@ function buildMinimalPdfBuffer(message: string): Buffer {
 }
 
 /** Base directory for secure document storage (coffre-fort) */
-const DOCUMENTS_DIR = getDocumentStorageRoot();
+function getDocumentsDir() { return getDocumentStorageRoot(); }
 
 const validatePaymentSchema = z.object({
   paymentId: z.string(),
@@ -183,10 +183,10 @@ async function generateInvoicePDFAndDocument(
     });
 
     // Store in coffre-fort (storage/documents/) + create UserDocument
-    await mkdir(DOCUMENTS_DIR, { recursive: true });
+    await mkdir(getDocumentsDir(), { recursive: true });
     const sanitizedNumber = invoice.number.replace(/[^a-zA-Z0-9-]/g, '_');
     const uniqueFileName = `facture-${sanitizedNumber}-${invoice.id}.pdf`;
-    const documentAbsPath = path.join(DOCUMENTS_DIR, uniqueFileName);
+    const documentAbsPath = path.join(getDocumentsDir(), uniqueFileName);
     await writeFile(documentAbsPath, pdfBuffer);
 
     const userDocument = await prisma.userDocument.create({

@@ -9,16 +9,11 @@ import { isAbsolute, resolve, relative } from 'path';
  * Dev/test: falls back to cwd/storage/documents.
  */
 
-const IS_PRODUCTION = process.env.NODE_ENV === 'production';
-
-let _cachedRoot: string | undefined;
-
 export function getDocumentStorageRoot(): string {
-  if (_cachedRoot) return _cachedRoot;
-
   const envValue = process.env.DOCUMENT_STORAGE_ROOT;
+  const isProduction = process.env.NODE_ENV === 'production';
 
-  if (IS_PRODUCTION) {
+  if (isProduction) {
     if (!envValue) {
       throw new Error(
         'DOCUMENT_STORAGE_ROOT is required in production. ' +
@@ -30,19 +25,10 @@ export function getDocumentStorageRoot(): string {
         'DOCUMENT_STORAGE_ROOT must be an absolute path in production.'
       );
     }
-    _cachedRoot = envValue;
-  } else {
-    _cachedRoot = envValue
-      ? resolve(envValue)
-      : resolve(process.cwd(), 'storage', 'documents');
+    return envValue;
   }
 
-  return _cachedRoot;
-}
-
-/** Reset cached root — for testing only. */
-export function _resetStorageRootCache(): void {
-  _cachedRoot = undefined;
+  return envValue ? resolve(envValue) : resolve(process.cwd(), 'storage', 'documents');
 }
 
 /** Legacy prefix stored in DB by older upload routes (/app/storage/documents/). */
