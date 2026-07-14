@@ -22,6 +22,7 @@ export const LEGAL_TRANSITIONS: readonly LifecycleTransition[] = [
   { from: 'REPORT_PENDING_REVIEW', action: 'VALIDATE_REPORT', actor: 'COACH', to: 'COACH_VALIDATED' },
   { from: 'REPORT_PENDING_REVIEW', action: 'REJECT_REPORT', actor: 'COACH', to: 'COACH_REJECTED' },
   { from: 'COACH_REJECTED', action: 'REQUEST_REGENERATION', actor: 'COACH', to: 'SCORED' },
+  { from: 'PUBLISHED', action: 'REQUEST_REGENERATION', actor: 'COACH', to: 'SCORED' },
   { from: 'SCORED', action: 'REGENERATE_REPORT', actor: 'WORKER', to: 'REPORT_PENDING_REVIEW' },
   { from: 'COACH_VALIDATED', action: 'PUBLISH_REPORT', actor: 'COACH', to: 'PUBLISHED' },
 ];
