@@ -56,7 +56,7 @@ describe('production deployment contract', () => {
   it('forbids destructive docker commands in active production scripts', () => {
     const activeScripts = [
       'scripts/legacy/deploy-git-pull.sh',
-      'scripts/deploy-production-safe.sh',
+      'scripts/legacy/deploy-production-safe.sh',
     ];
 
     for (const scriptPath of activeScripts) {
