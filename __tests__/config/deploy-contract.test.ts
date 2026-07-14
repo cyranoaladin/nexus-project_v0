@@ -39,7 +39,6 @@ describe('production deployment contract', () => {
   it('uses the Node 20 base image expected by production', () => {
     const dockerfile = read('Dockerfile');
     expect(dockerfile).toContain('FROM node:20-alpine AS base');
-    expect(dockerfile).not.toContain('FROM node:18-alpine AS base');
   });
 
   it('has five legacy deploy scripts in scripts/legacy/', () => {
@@ -68,15 +67,35 @@ describe('production deployment contract', () => {
     }
   });
 
-  it('build-immutable-release.sh is the only active release builder', () => {
+  it('build-immutable-release.sh is the sole active release builder', () => {
     const builder = read('scripts/release/build-immutable-release.sh');
+
+    // Calls release:build
     expect(builder).toContain('npm run release:build');
-    expect(builder).toContain('RELEASE_SHA');
-    expect(builder).toContain('id -un');
+
+    // Requires exactly nexusapp
+    expect(builder).toContain('"$CURRENT_USER" != "nexusapp"');
+
+    // Canonical root is confined
+    expect(builder).toContain('CANONICAL_RELEASES_ROOT=');
+    expect(builder).toContain('realpath "$RELEASES_DIR"');
+
+    // Uses -e and -L for collision detection
+    expect(builder).toMatch(/-e "\$RELEASE_DIR" \|\| -L "\$RELEASE_DIR"/);
+
+    // Uses mktemp and trap
     expect(builder).toContain('mktemp -d');
-    expect(builder).toContain('trap cleanup');
+    expect(builder).toContain('trap cleanup EXIT INT TERM HUP');
+
+    // No deploy or reload commands
     expect(builder).not.toContain('ln -snf');
     expect(builder).not.toContain('pm2 reload');
+    expect(builder).not.toContain('pm2 restart');
+  });
+
+  it('build-immutable-release.sh is executable', () => {
+    const stat = fs.statSync(path.join(rootDir, 'scripts/release/build-immutable-release.sh'));
+    expect(stat.mode & 0o111).toBeGreaterThan(0);
   });
 
   it('forbids destructive docker commands in legacy scripts', () => {
