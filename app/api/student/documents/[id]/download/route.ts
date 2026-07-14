@@ -1,13 +1,14 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { readFile } from 'fs/promises';
+import { createReadStream } from 'fs';
+import { Readable } from 'stream';
 import { UserRole } from '@prisma/client';
 import { requireRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
 import { getDocumentStorageRoot, LEGACY_STORAGE_PREFIX } from '@/lib/documents/storage-root';
 import {
-  resolveSecurePath,
+  openSecureDocument,
   SecureFileAccessError,
   safeContentType,
   safeFilename,
@@ -26,7 +27,7 @@ export async function GET(
   const doc = await prisma.userDocument.findFirst({
     where: {
       id,
-      userId: session.user.id, // strict ownership — prevents access to other students' docs
+      userId: session.user.id, // strict ownership
     },
     select: {
       id: true,
@@ -40,23 +41,11 @@ export async function GET(
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 
+  let secureDoc;
   try {
     const storageRoot = getDocumentStorageRoot();
-    const { canonicalPath } = await resolveSecurePath(storageRoot, doc.localPath, {
+    secureDoc = await openSecureDocument(storageRoot, doc.localPath, {
       legacyPrefixToStrip: LEGACY_STORAGE_PREFIX,
-    });
-
-    const buffer = await readFile(canonicalPath);
-    const safeName = safeFilename(doc.originalName);
-
-    return new NextResponse(buffer, {
-      headers: {
-        'Content-Type': safeContentType(doc.mimeType),
-        'Content-Disposition': `attachment; filename="${safeName}"`,
-        'X-Content-Type-Options': 'nosniff',
-        'Cache-Control': 'private, no-store',
-        'Content-Length': buffer.length.toString(),
-      },
     });
   } catch (err) {
     if (err instanceof SecureFileAccessError) {
@@ -66,10 +55,26 @@ export async function GET(
       });
       return NextResponse.json({ error: 'File unavailable' }, { status: 404 });
     }
-    const code = err instanceof Error && 'code' in err
-      ? String((err as NodeJS.ErrnoException).code)
-      : 'UNKNOWN';
-    console.error('[student/documents/download] file read failed', { documentId: id, code });
+    console.error('[student/documents/download] unexpected error', { documentId: id });
+    return NextResponse.json({ error: 'File unavailable' }, { status: 500 });
+  }
+
+  try {
+    const stream = secureDoc.handle.createReadStream();
+    const webStream = Readable.toWeb(stream) as ReadableStream;
+
+    return new NextResponse(webStream, {
+      headers: {
+        'Content-Type': safeContentType(doc.mimeType),
+        'Content-Disposition': `attachment; filename="${safeFilename(doc.originalName)}"`,
+        'Content-Length': secureDoc.sizeBytes.toString(),
+        'X-Content-Type-Options': 'nosniff',
+        'Cache-Control': 'private, no-store',
+      },
+    });
+  } catch {
+    await secureDoc.handle.close().catch(() => {});
+    console.error('[student/documents/download] stream error', { documentId: id });
     return NextResponse.json({ error: 'File unavailable' }, { status: 500 });
   }
 }

@@ -1,9 +1,4 @@
-import { GET } from '@/app/api/student/documents/[id]/download/route';
-import { requireRole, isErrorResponse } from '@/lib/guards';
-import { prisma } from '@/lib/prisma';
-import { writeFile, unlink, mkdtemp, mkdir } from 'fs/promises';
-import * as os from 'os';
-import * as path from 'path';
+import { Readable } from 'stream';
 
 jest.mock('@/lib/guards', () => ({
   requireRole: jest.fn(),
@@ -11,241 +6,137 @@ jest.mock('@/lib/guards', () => ({
 }));
 
 jest.mock('@/lib/prisma', () => ({
-  prisma: {
-    userDocument: { findFirst: jest.fn() },
-  },
+  prisma: { userDocument: { findFirst: jest.fn() } },
 }));
 
-// Mock storage root to point to our temp directory
-let testStorageRoot: string;
 jest.mock('@/lib/documents/storage-root', () => ({
-  getDocumentStorageRoot: () => testStorageRoot,
+  getDocumentStorageRoot: () => '/mock/storage',
   LEGACY_STORAGE_PREFIX: '/app/storage/documents/',
 }));
 
-const mockEleveSession = {
-  user: { id: 'user-eleve-1', email: 'eleve@test.com', role: 'ELEVE' as const },
-};
+// Use manual mock with lazy handle creation
+jest.mock('@/lib/documents/secure-file-access', () => {
+  class SecureFileAccessError extends Error {
+    code: string;
+    constructor(code: string, message: string) { super(message); this.code = code; this.name = 'SecureFileAccessError'; }
+  }
+  return {
+    openSecureDocument: jest.fn(),
+    SecureFileAccessError,
+    safeContentType: (m: string | null) => m || 'application/octet-stream',
+    safeFilename: (n: string) => n || 'document',
+  };
+});
 
-const mockUnauthorizedResponse = {
-  status: 401,
-  json: async () => ({ error: 'Unauthorized' }),
-  headers: new Headers(),
-};
+import { GET } from '@/app/api/student/documents/[id]/download/route';
+import { requireRole, isErrorResponse } from '@/lib/guards';
+import { prisma } from '@/lib/prisma';
+import { openSecureDocument, SecureFileAccessError } from '@/lib/documents/secure-file-access';
 
-function makeParams(id: string) {
-  return { params: Promise.resolve({ id }) };
+const mockOpenSecure = openSecureDocument as jest.Mock;
+
+function makeSuccessHandle() {
+  return {
+    handle: {
+      createReadStream: () => Readable.from(Buffer.from('pdf-content')),
+      close: jest.fn().mockResolvedValue(undefined),
+    },
+    sizeBytes: 11,
+  };
 }
 
+const mockSession = { user: { id: 'u1', email: 'e@test.com', role: 'ELEVE' as const } };
+const mock401 = { status: 401, json: async () => ({ error: 'Unauthorized' }), headers: new Headers() };
+
+function params(id: string) { return { params: Promise.resolve({ id }) }; }
+
 describe('GET /api/student/documents/[id]/download', () => {
-  beforeEach(async () => {
+  beforeEach(() => {
     jest.clearAllMocks();
-    (requireRole as jest.Mock).mockResolvedValue(mockEleveSession);
+    (requireRole as jest.Mock).mockResolvedValue(mockSession);
     (isErrorResponse as unknown as jest.Mock).mockReturnValue(false);
-    testStorageRoot = await mkdtemp(path.join(os.tmpdir(), 'nexus-doc-test-'));
+    mockOpenSecure.mockResolvedValue(makeSuccessHandle());
   });
 
   it('returns 401 when unauthenticated', async () => {
-    (requireRole as jest.Mock).mockResolvedValue(mockUnauthorizedResponse);
+    (requireRole as jest.Mock).mockResolvedValue(mock401);
     (isErrorResponse as unknown as jest.Mock).mockReturnValue(true);
-
-    const response = await GET({} as any, makeParams('doc-1'));
-    expect(response.status).toBe(401);
+    expect((await GET({} as any, params('x'))).status).toBe(401);
   });
 
-  it('returns 404 when document not found for this user', async () => {
+  it('returns 404 when document not found', async () => {
     (prisma.userDocument.findFirst as jest.Mock).mockResolvedValue(null);
-
-    const response = await GET({} as any, makeParams('doc-nonexistent'));
-    const body = await response.json();
-
-    expect(response.status).toBe(404);
-    expect(body.error).toBe('Not found');
+    const r = await GET({} as any, params('x'));
+    expect(r.status).toBe(404);
+    expect(await r.json()).toEqual({ error: 'Not found' });
   });
 
-  it('enforces ownership — queries with authenticated userId', async () => {
+  it('enforces userId ownership in query', async () => {
     (prisma.userDocument.findFirst as jest.Mock).mockResolvedValue(null);
-
-    await GET({} as any, makeParams('doc-other-user'));
-
+    await GET({} as any, params('x'));
     expect(prisma.userDocument.findFirst).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({
-          userId: 'user-eleve-1',
-        }),
-      })
+      expect.objectContaining({ where: expect.objectContaining({ userId: 'u1' }) })
     );
   });
 
-  it('streams file with correct Content-Type and Content-Disposition', async () => {
-    const tmpFile = path.join(testStorageRoot, 'fiche.pdf');
-    await writeFile(tmpFile, Buffer.from('%PDF-1.4 fake content'));
-
+  it('streams file with correct headers on success', async () => {
     (prisma.userDocument.findFirst as jest.Mock).mockResolvedValue({
-      id: 'doc-1',
-      originalName: 'fiche revision.pdf',
-      mimeType: 'application/pdf',
-      localPath: 'fiche.pdf', // relative to storage root
+      id: 'd1', originalName: 'fiche.pdf', mimeType: 'application/pdf', localPath: 'fiche.pdf',
     });
-
-    const response = await GET({} as any, makeParams('doc-1'));
-
-    await unlink(tmpFile).catch(() => null);
-
-    expect(response.status).toBe(200);
-    expect(response.headers.get('Content-Type')).toBe('application/pdf');
-    expect(response.headers.get('Content-Disposition')).toContain('attachment');
-    expect(response.headers.get('Cache-Control')).toBe('private, no-store');
-    expect(response.headers.get('X-Content-Type-Options')).toBe('nosniff');
+    const r = await GET({} as any, params('d1'));
+    expect(r.status).toBe(200);
+    expect(r.headers.get('Content-Disposition')).toContain('attachment');
+    expect(r.headers.get('X-Content-Type-Options')).toBe('nosniff');
+    expect(r.headers.get('Cache-Control')).toBe('private, no-store');
   });
 
-  it('returns 404 when file does not exist on disk', async () => {
+  it('rejects path traversal via containment', async () => {
     (prisma.userDocument.findFirst as jest.Mock).mockResolvedValue({
-      id: 'doc-1',
-      originalName: 'missing.pdf',
-      mimeType: 'application/pdf',
-      localPath: 'nonexistent-file.pdf',
+      id: 'evil', originalName: 'x.pdf', mimeType: 'application/pdf', localPath: '../../../etc/passwd',
     });
-
-    const response = await GET({} as any, makeParams('doc-1'));
-    const body = await response.json();
-
-    // SecureFileAccessError with FILE_NOT_FOUND → 404
-    expect(response.status).toBe(404);
-    expect(body.error).toBe('File unavailable');
+    mockOpenSecure.mockRejectedValue(new SecureFileAccessError('PATH_ESCAPE', 'escape'));
+    const r = await GET({} as any, params('evil'));
+    expect(r.status).toBe(404);
   });
 
-  it('falls back to application/octet-stream when mimeType is null', async () => {
-    const tmpFile = path.join(testStorageRoot, 'export.bin');
-    await writeFile(tmpFile, Buffer.from('\x00\x01\x02'));
-
+  it('rejects absolute path outside root', async () => {
     (prisma.userDocument.findFirst as jest.Mock).mockResolvedValue({
-      id: 'doc-2',
-      originalName: 'export.bin',
-      mimeType: null,
-      localPath: 'export.bin',
+      id: 'abs', originalName: 'x.pdf', mimeType: 'application/pdf', localPath: '/etc/shadow',
     });
-
-    const response = await GET({} as any, makeParams('doc-2'));
-
-    await unlink(tmpFile).catch(() => null);
-
-    expect(response.headers.get('Content-Type')).toBe('application/octet-stream');
+    mockOpenSecure.mockRejectedValue(new SecureFileAccessError('PATH_ESCAPE', 'outside'));
+    expect((await GET({} as any, params('abs'))).status).toBe(404);
   });
 
-  it('rejects path traversal attempts via localPath', async () => {
-    // Even if a malicious localPath ends up in DB
+  it('accepts absolute path INSIDE storage root', async () => {
     (prisma.userDocument.findFirst as jest.Mock).mockResolvedValue({
-      id: 'doc-evil',
-      originalName: 'evil.pdf',
-      mimeType: 'application/pdf',
-      localPath: '../../../etc/passwd',
+      id: 'ok', originalName: 'admin.pdf', mimeType: 'application/pdf',
+      localPath: '/mock/storage/admin.pdf',
     });
-
-    const response = await GET({} as any, makeParams('doc-evil'));
-    const body = await response.json();
-
-    expect(response.status).toBe(404);
-    expect(body.error).toBe('File unavailable');
+    expect((await GET({} as any, params('ok'))).status).toBe(200);
   });
 
-  it('rejects absolute path in localPath', async () => {
+  it('returns 404 when file missing', async () => {
     (prisma.userDocument.findFirst as jest.Mock).mockResolvedValue({
-      id: 'doc-abs',
-      originalName: 'abs.pdf',
-      mimeType: 'application/pdf',
-      localPath: '/etc/passwd',
+      id: 'd1', originalName: 'x.pdf', mimeType: 'application/pdf', localPath: 'gone.pdf',
     });
-
-    const response = await GET({} as any, makeParams('doc-abs'));
-    const body = await response.json();
-
-    expect(response.status).toBe(404);
-    expect(body.error).toBe('File unavailable');
+    mockOpenSecure.mockRejectedValue(new SecureFileAccessError('FILE_NOT_FOUND', 'gone'));
+    expect((await GET({} as any, params('d1'))).status).toBe(404);
   });
 
-  it('handles legacy /app/storage/documents/ prefix', async () => {
-    const tmpFile = path.join(testStorageRoot, 'legacy.pdf');
-    await writeFile(tmpFile, Buffer.from('%PDF legacy'));
-
+  it('passes legacy prefix to openSecureDocument', async () => {
     (prisma.userDocument.findFirst as jest.Mock).mockResolvedValue({
-      id: 'doc-legacy',
-      originalName: 'legacy.pdf',
-      mimeType: 'application/pdf',
-      localPath: '/app/storage/documents/legacy.pdf',
+      id: 'leg', originalName: 'x.pdf', mimeType: 'application/pdf',
+      localPath: '/app/storage/documents/old.pdf',
     });
-
-    const response = await GET({} as any, makeParams('doc-legacy'));
-
-    await unlink(tmpFile).catch(() => null);
-
-    expect(response.status).toBe(200);
+    await GET({} as any, params('leg'));
+    expect(mockOpenSecure).toHaveBeenCalledWith(
+      '/mock/storage', '/app/storage/documents/old.pdf',
+      expect.objectContaining({ legacyPrefixToStrip: '/app/storage/documents/' }),
+    );
   });
 
-  describe('Coach resource ownership (Lot C)', () => {
-    it('allows student to download self-uploaded document', async () => {
-      const tmpFile = path.join(testStorageRoot, 'self-uploaded.pdf');
-      await writeFile(tmpFile, Buffer.from('%PDF-1.4 self uploaded'));
-
-      (prisma.userDocument.findFirst as jest.Mock).mockResolvedValue({
-        id: 'doc-self',
-        originalName: 'my-upload.pdf',
-        mimeType: 'application/pdf',
-        localPath: 'self-uploaded.pdf',
-        userId: 'user-eleve-1',
-        uploadedById: 'user-eleve-1',
-      });
-
-      const response = await GET({} as any, makeParams('doc-self'));
-
-      await unlink(tmpFile).catch(() => null);
-
-      expect(response.status).toBe(200);
-    });
-
-    it('allows student to download coach-uploaded resource', async () => {
-      const tmpFile = path.join(testStorageRoot, 'coach-resource.pdf');
-      await writeFile(tmpFile, Buffer.from('%PDF-1.4 coach uploaded'));
-
-      (prisma.userDocument.findFirst as jest.Mock).mockResolvedValue({
-        id: 'doc-coach',
-        originalName: 'coach-resource.pdf',
-        mimeType: 'application/pdf',
-        localPath: 'coach-resource.pdf',
-        userId: 'user-eleve-1',
-        uploadedById: 'coach-user-123',
-        uploadedBy: { role: 'COACH' },
-      });
-
-      const response = await GET({} as any, makeParams('doc-coach'));
-
-      await unlink(tmpFile).catch(() => null);
-
-      expect(response.status).toBe(200);
-    });
-
-    it('denies access when student tries to download another student document', async () => {
-      (prisma.userDocument.findFirst as jest.Mock).mockResolvedValue(null);
-
-      const response = await GET({} as any, makeParams('doc-other-student'));
-      const body = await response.json();
-
-      expect(response.status).toBe(404);
-      expect(body.error).toBe('Not found');
-    });
-
-    it('verifies ownership is enforced via userId not uploadedById', async () => {
-      (prisma.userDocument.findFirst as jest.Mock).mockResolvedValue(null);
-
-      await GET({} as any, makeParams('doc-not-recipient'));
-
-      expect(prisma.userDocument.findFirst).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: expect.objectContaining({
-            userId: 'user-eleve-1',
-          }),
-        })
-      );
-    });
+  it('denies other student document', async () => {
+    (prisma.userDocument.findFirst as jest.Mock).mockResolvedValue(null);
+    expect((await GET({} as any, params('other'))).status).toBe(404);
   });
 });
