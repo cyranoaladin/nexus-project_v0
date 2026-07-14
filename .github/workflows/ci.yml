@@ -354,9 +354,10 @@ jobs:
           NODE_ENV: production
           RATE_LIMIT_DISABLE: '1'
         run: |
-          # Copy static assets for standalone mode
-          cp -r .next/static .next/standalone/.next/static 2>/dev/null || true
-          cp -r public .next/standalone/public 2>/dev/null || true
+          # Static assets are already copied by npm run build (copy-public-assets.js)
+          # Verify they exist — fail-closed, do not silently tolerate missing assets
+          test -d .next/standalone/.next/static/chunks || { echo "❌ standalone static missing"; exit 1; }
+          test -d .next/standalone/public || { echo "❌ standalone public missing"; exit 1; }
           # Use standalone server (next start doesn't work with output:standalone)
           node .next/standalone/server.js &
           echo $! > .next-server.pid
@@ -557,15 +558,24 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate
 
-      - name: Build Next.js production bundle
+      - name: Apply database migrations
         env:
-          # Mock DB URL for build (not used at build time)
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_prod
-          NEXTAUTH_URL: http://localhost:3000
+        run: npx prisma migrate deploy
+
+      - name: Build and smoke standalone production artifact
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_prod
+          NEXTAUTH_URL: http://127.0.0.1:3199
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
+          AUTH_TRUST_HOST: 'true'
           OPENAI_API_KEY: sk-test-mock-key-for-ci-build-only
           NODE_ENV: production
-        run: npm run build
+          RELEASE_SHA: ${{ github.sha }}
+          SMOKE_PORT: '3199'
+          TELEGRAM_NOTIFICATIONS_ENABLED: 'false'
+          PAYMENTS_ENABLED: 'false'
+        run: npm run release:build
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
