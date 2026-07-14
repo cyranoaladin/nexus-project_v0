@@ -81,7 +81,7 @@ Les objets canoniques sont :
 
 Les identifiants immuables et les relations de base de données remplacent tout fallback par e-mail, nom normalisé ou paramètre URL. Les lectures et mutations suivent toujours la relation authentifiée demandant l'accès.
 
-Chaque `AssessmentAttempt` scelle, au moment de `SUBMITTED`, les identifiants et versions de `CurriculumVersion`, `AssessmentPack` et `ScoringPolicy`, ainsi que le checksum du pack. Chaque `ReportArtifact` scelle les identifiants et versions du `ReportPack` et du `CorpusManifest`, la révision de prompt, le checksum du contexte d'entrée et la référence du `ScoreSnapshot`. Une suppression ou une nouvelle version de catalogue ne change jamais ces références historiques.
+Chaque `AssessmentAttempt` scelle, au moment de `SUBMITTED`, les identifiants et versions de `CurriculumVersion`, `AssessmentPack` et `ScoringPolicy`, ainsi que le checksum du pack. Chaque `ReportRevision` scelle les identifiants et versions du `ReportPack` et du `CorpusManifest`, la révision de prompt, le checksum du contexte d'entrée et la référence du `ScoreSnapshot`. Une suppression ou une nouvelle version de catalogue ne change jamais ces références historiques.
 
 ## 6. Parcours utilisateur et machine à états
 
@@ -103,7 +103,7 @@ Chaque `AssessmentAttempt` scelle, au moment de `SUBMITTED`, les identifiants et
 - `SUBMITTED` : réponses scellées ; le coach est averti de la soumission.
 - `SCORED` : `ScoreSnapshot` et preuves sont produits de façon déterministe.
 - `REPORT_PENDING_REVIEW` : une `ReportRevision` immuable est produite ou régénérée ; elle est visible seulement au coach référent.
-- `COACH_VALIDATED` : le coach autorisé valide une révision précise. Une demande de régénération ou un refus crée l'état terminal `COACH_REJECTED` sur cette révision avec motif, puis crée une nouvelle `ReportRevision` en `REPORT_PENDING_REVIEW`, sans modifier la tentative ni le score.
+- `COACH_VALIDATED` : le coach autorisé valide une révision précise. Un refus crée l'état terminal `COACH_REJECTED` sur cette révision avec motif et ne crée rien automatiquement. Une demande explicite de régénération crée alors une nouvelle `ReportRevision` en `REPORT_PENDING_REVIEW`, sans modifier la tentative ni le score.
 - `PUBLISHED` : l'élève et les parents liés peuvent consulter la révision validée ; leurs notifications sont mises dans l'outbox WhatsApp.
 
 Après publication, le `ReportArtifact` conserve la dernière `ReportRevision` publiée. Une correction crée une nouvelle révision non publiée, à revoir ; elle remplace explicitement la révision courante seulement après une nouvelle validation et publication. La nouvelle publication produit un événement WhatsApp distinct. Les états d'échec techniques sont explicites et réessayables : `SCORING_FAILED` repart vers `SUBMITTED` avec les mêmes réponses après un retry worker ; `REPORT_GENERATION_FAILED` repart vers `SCORED` puis crée une nouvelle révision, ou produit le fallback déterministe ; `NOTIFICATION_FAILED` ne change jamais l'état publié et ne relance que l'outbox. Seul le worker autorisé effectue ces reprises, avec clé d'idempotence et tentatives bornées. Un coach ne corrige pas les réponses soumises : il peut refuser une révision ou demander une nouvelle passation à l'élève. Les transitions sont vérifiées côté serveur et journalisées.
