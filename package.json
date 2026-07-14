@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && node scripts/copy-public-assets.js",
+    "build": "next build && node scripts/copy-public-assets.js && node scripts/release/verify-standalone-artifact.mjs",
     "build:base": "next build",
-    "build:gate": "next build 2>&1 | tee build-output.log && node scripts/copy-public-assets.js && bash scripts/check-bundle-weight.sh build-output.log",
+    "build:unsafe-local-only": "next build",
+    "build:gate": "next build 2>&1 | tee build-output.log && node scripts/copy-public-assets.js && node scripts/release/verify-standalone-artifact.mjs && bash scripts/check-bundle-weight.sh build-output.log",
+    "release:build": "next build && node scripts/copy-public-assets.js && node scripts/release/verify-standalone-artifact.mjs",
     "start": "next start",
     "start:prod": "node .next/standalone/server.js",
     "lint": "next lint --max-warnings 300",
