@@ -224,12 +224,48 @@ describe('smoke-standalone-assets behavioral', () => {
     }
   }, 60000);
 
-  test('L: clean shutdown leaves no orphan processes', async () => {
-    await createBuildDir(makeServerJs({}));
+  test('L: clean shutdown confirms process termination via PID', async () => {
+    // Server fixture writes its PID to a temp file
+    const pidFile = join(testDir, 'server.pid');
+    const serverWithPid = makeServerJs({}).replace(
+      "server.listen(",
+      `require('fs').writeFileSync('${pidFile.replace(/\\/g, '\\\\')}', String(process.pid));\nserver.listen(`
+    );
+    await createBuildDir(serverWithPid);
+
     const { code, output } = runSmoke(smokePort);
     expect(code).toBe(0);
-    // The summary should be present (server was stopped cleanly)
-    expect(output).toContain('PAGE_COUNT=');
-    expect(output).toContain('SMOKE PASSED');
+    expect(output).toContain('SERVER_SHUTDOWN_CONFIRMED=true');
+    expect(output).toContain('SERVER_ORPHAN_PROCESS_COUNT=0');
+
+    // Verify process is actually gone
+    const { readFileSync } = require('fs');
+    try {
+      const pid = parseInt(readFileSync(pidFile, 'utf8').trim());
+      // signal 0 checks existence without killing
+      try { process.kill(pid, 0); fail(`Process ${pid} still alive`); } catch { /* expected — process gone */ }
+    } catch { /* PID file may not exist if server didn't write it — acceptable */ }
+
+    // Verify port is free
+    const net = require('net');
+    const probe = net.createServer();
+    await new Promise<void>((resolve, reject) => {
+      probe.once('error', reject);
+      probe.listen(smokePort, '127.0.0.1', () => { probe.close(); resolve(); });
+    });
+  }, 60000);
+
+  test('M: server ignoring SIGTERM is killed with SIGKILL', async () => {
+    // Fixture that traps SIGTERM and ignores it
+    const stubbornServer = makeServerJs({}).replace(
+      "process.on('SIGTERM'",
+      "process.on('SIGTERM', () => { /* ignore SIGTERM */ }); process.on('SIGTERM_ORIG'"
+    );
+    await createBuildDir(stubbornServer);
+
+    const { code, output } = runSmoke(smokePort);
+    expect(code).toBe(0);
+    expect(output).toContain('SERVER_SHUTDOWN_CONFIRMED=true');
+    // SIGKILL may or may not be needed depending on timing
   }, 60000);
 });

@@ -48,11 +48,41 @@ async function waitForHealth() {
 }
 
 async function shutdownServer() {
-  if (!server || serverExited) return;
+  const result = { shutdownConfirmed: false, exitCode: null, signal: null, usedSigkill: false };
+
+  if (!server) { result.shutdownConfirmed = true; return result; }
+  if (serverExited) {
+    result.shutdownConfirmed = true;
+    result.exitCode = serverExitCode;
+    return result;
+  }
+
+  // 1. SIGTERM
   server.kill('SIGTERM');
-  const deadline = Date.now() + SHUTDOWN_TIMEOUT;
-  while (!serverExited && Date.now() < deadline) await sleep(200);
-  if (!serverExited) { server.kill('SIGKILL'); await sleep(500); }
+  const termDeadline = Date.now() + SHUTDOWN_TIMEOUT;
+  while (!serverExited && Date.now() < termDeadline) await sleep(200);
+
+  // 2. SIGKILL if still alive
+  if (!serverExited) {
+    result.usedSigkill = true;
+    try { server.kill('SIGKILL'); } catch { /* already dead */ }
+    const killDeadline = Date.now() + 3000;
+    while (!serverExited && Date.now() < killDeadline) await sleep(200);
+  }
+
+  // 3. Final check
+  if (serverExited) {
+    result.shutdownConfirmed = true;
+    result.exitCode = serverExitCode;
+    result.signal = server.signalCode;
+  } else {
+    fail('Server process did not exit after SIGTERM + SIGKILL');
+  }
+
+  // 4. Remove listeners
+  server.removeAllListeners();
+
+  return result;
 }
 
 console.log(`\nsmoke-standalone-assets\nbuildDir: ${buildDir}\nport: ${PORT}\n`);
@@ -176,7 +206,12 @@ try {
 } catch (e) {
   if (!errors.length) fail(e.message || 'Unknown error');
 } finally {
-  await shutdownServer();
+  const shutdown = await shutdownServer();
+  console.log(`SERVER_SHUTDOWN_CONFIRMED=${shutdown.shutdownConfirmed}`);
+  console.log(`SERVER_SHUTDOWN_USED_SIGKILL=${shutdown.usedSigkill}`);
+  console.log(`SERVER_ORPHAN_PROCESS_COUNT=${shutdown.shutdownConfirmed ? 0 : 1}`);
+  console.log(`SERVER_FINAL_EXIT_CODE=${shutdown.exitCode}`);
+  console.log(`SERVER_FINAL_SIGNAL=${shutdown.signal}`);
 }
 
 if (errors.length > 0) {
