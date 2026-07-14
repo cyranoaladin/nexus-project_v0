@@ -17,6 +17,8 @@ export const LEGAL_TRANSITIONS: readonly LifecycleTransition[] = [
   { from: 'SUBMITTED', action: 'MARK_SCORING_FAILED', actor: 'WORKER', to: 'SCORING_FAILED' },
   { from: 'SCORING_FAILED', action: 'RETRY_SCORING', actor: 'WORKER', to: 'SUBMITTED' },
   { from: 'SCORED', action: 'CREATE_REPORT', actor: 'WORKER', to: 'REPORT_PENDING_REVIEW' },
+  { from: 'SCORED', action: 'MARK_REPORT_GENERATION_FAILED', actor: 'WORKER', to: 'REPORT_GENERATION_FAILED' },
+  { from: 'REPORT_GENERATION_FAILED', action: 'RETRY_REPORT_GENERATION', actor: 'WORKER', to: 'SCORED' },
   { from: 'REPORT_PENDING_REVIEW', action: 'VALIDATE_REPORT', actor: 'COACH', to: 'COACH_VALIDATED' },
   { from: 'REPORT_PENDING_REVIEW', action: 'REJECT_REPORT', actor: 'COACH', to: 'COACH_REJECTED' },
   { from: 'COACH_REJECTED', action: 'REQUEST_REGENERATION', actor: 'COACH', to: 'SCORED' },
@@ -46,14 +48,16 @@ export function isLegalTransition(candidate: LifecycleTransition): boolean {
 }
 
 /**
- * A regeneration preserves the scored attempt but must create a distinct,
- * sequential revision for a new coach review.
+ * A corrective regeneration after a refusal or publication preserves the
+ * scored attempt but must create a distinct, sequential coach-review revision.
  */
 export function isFreshReportRevision(
   previousRevision: ReportRevision,
   nextRevision: ReportRevision,
 ): boolean {
   return (
+    (previousRevision.status === 'COACH_REJECTED' || previousRevision.status === 'PUBLISHED')
+    &&
     previousRevision.attemptId === nextRevision.attemptId
     && previousRevision.id !== nextRevision.id
     && nextRevision.revision === previousRevision.revision + 1
