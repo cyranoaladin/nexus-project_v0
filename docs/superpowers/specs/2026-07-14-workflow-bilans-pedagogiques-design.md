@@ -74,8 +74,9 @@ Les objets canoniques sont :
 | `AssessmentAttempt` | Contexte de passation, pack appliqué, réponses, horodatages et statut. |
 | `ScoreSnapshot` | Résultat déterministe, par compétence et domaine, calculé à partir d'une tentative. |
 | `EvidenceItem` | Réponse, score, compétence et règle ayant motivé une conclusion. |
-| `ReportArtifact` | Bilan structuré par audience, versionné, avec état de validation et rendu. |
-| `ReportReview` | Décision, commentaire, coach valideur et date de validation/refus. |
+| `ReportArtifact` | Agrégat d'un bilan pour une tentative et une audience ; il référence la révision publiée courante, si elle existe. |
+| `ReportRevision` | Contenu structuré immuable d'une version de l'artefact, ses versions scellées, son rendu et son état de revue. |
+| `ReportReview` | Décision, commentaire, coach valideur et date de validation/refus, liés à une `ReportRevision` précise. |
 | `NotificationOutbox` | Événement WhatsApp idempotent, consentement, destinataire, statut fournisseur et journal d'envoi. |
 
 Les identifiants immuables et les relations de base de données remplacent tout fallback par e-mail, nom normalisé ou paramètre URL. Les lectures et mutations suivent toujours la relation authentifiée demandant l'accès.
@@ -101,11 +102,11 @@ Chaque `AssessmentAttempt` scelle, au moment de `SUBMITTED`, les identifiants et
 - `DRAFT` : brouillon autosauvegardé, visible uniquement par l'élève.
 - `SUBMITTED` : réponses scellées ; le coach est averti de la soumission.
 - `SCORED` : `ScoreSnapshot` et preuves sont produits de façon déterministe.
-- `REPORT_PENDING_REVIEW` : une `ReportRevision` est produite ou régénérée ; elle est visible seulement au coach référent.
-- `COACH_VALIDATED` : le coach autorisé valide une révision précise ; il peut aussi la refuser avec motif. Une demande de régénération crée une nouvelle `ReportRevision` et retourne à `REPORT_PENDING_REVIEW`, sans modifier la tentative ni le score.
+- `REPORT_PENDING_REVIEW` : une `ReportRevision` immuable est produite ou régénérée ; elle est visible seulement au coach référent.
+- `COACH_VALIDATED` : le coach autorisé valide une révision précise. Une demande de régénération ou un refus crée l'état terminal `COACH_REJECTED` sur cette révision avec motif, puis crée une nouvelle `ReportRevision` en `REPORT_PENDING_REVIEW`, sans modifier la tentative ni le score.
 - `PUBLISHED` : l'élève et les parents liés peuvent consulter la révision validée ; leurs notifications sont mises dans l'outbox WhatsApp.
 
-Les états d'échec techniques sont explicites et réessayables : `SCORING_FAILED` repart vers `SUBMITTED` avec les mêmes réponses après un retry worker ; `REPORT_GENERATION_FAILED` repart vers `SCORED` puis crée une nouvelle révision, ou produit le fallback déterministe ; `NOTIFICATION_FAILED` ne change jamais l'état publié et ne relance que l'outbox. Seul le worker autorisé effectue ces reprises, avec clé d'idempotence et tentatives bornées. Un coach ne corrige pas les réponses soumises : il peut refuser une révision ou demander une nouvelle passation à l'élève. Les transitions sont vérifiées côté serveur et journalisées.
+Après publication, le `ReportArtifact` conserve la dernière `ReportRevision` publiée. Une correction crée une nouvelle révision non publiée, à revoir ; elle remplace explicitement la révision courante seulement après une nouvelle validation et publication. La nouvelle publication produit un événement WhatsApp distinct. Les états d'échec techniques sont explicites et réessayables : `SCORING_FAILED` repart vers `SUBMITTED` avec les mêmes réponses après un retry worker ; `REPORT_GENERATION_FAILED` repart vers `SCORED` puis crée une nouvelle révision, ou produit le fallback déterministe ; `NOTIFICATION_FAILED` ne change jamais l'état publié et ne relance que l'outbox. Seul le worker autorisé effectue ces reprises, avec clé d'idempotence et tentatives bornées. Un coach ne corrige pas les réponses soumises : il peut refuser une révision ou demander une nouvelle passation à l'élève. Les transitions sont vérifiées côté serveur et journalisées.
 
 ## 7. Autorisations et notifications
 
@@ -115,7 +116,7 @@ Les états d'échec techniques sont explicites et réessayables : `SCORING_FAILE
 | Parent vérifié | Voir les seuls bilans publiés des élèves auxquels il est rattaché. |
 | Coach référent | Lire les dossiers des élèves qui lui sont attribués, commenter, valider, refuser et demander une régénération. |
 | Assistante | Gérer les demandes de rattachement, les attributions coach-élève et les relances opérationnelles ; elle ne peut ni publier un bilan ni modifier le catalogue. |
-| Admin | Gérer les rôles, les révocations, les exceptions de publication tracées, les versions de catalogue et les journaux d'audit ; toute publication exceptionnelle exige un motif et est journalisée. |
+| Admin | Gérer les rôles, les révocations, les versions de catalogue et les journaux d'audit ; il ne peut ni valider ni publier à la place du coach référent. |
 
 Les événements WhatsApp sont :
 
@@ -123,7 +124,7 @@ Les événements WhatsApp sont :
 2. bilan prêt à revoir vers le coach référent ;
 3. bilan validé et publié vers le parent vérifié et l'élève.
 
-L'envoi est créé dans une outbox transactionnelle, dédoublonné par une clé d'événement, puis livré par un worker. La préférence de contact, le consentement, le numéro vérifié, le statut de livraison et les erreurs du fournisseur sont tracés. Le contenu se limite à l'événement et à une invitation à se connecter à Nexus.
+L'envoi est créé dans une outbox transactionnelle, dédoublonné par la clé `(eventType, reportRevisionId, recipientUserId)`, puis livré par un worker. La préférence de contact, le consentement, le numéro vérifié, le statut de livraison et les erreurs du fournisseur sont tracés. Le contenu se limite à l'événement et à une invitation à se connecter à Nexus.
 
 ## 8. Génération de bilan et résilience
 
@@ -149,7 +150,7 @@ Le dépôt possède aujourd'hui des flux `Assessment` et `Diagnostic` concurrent
 2. adapter les routes et écrans universels vers les nouveaux services ;
 3. porter les packs Maths et NSI existants vers le catalogue ;
 4. basculer chaque pack de façon atomique : à partir de sa date de bascule, le workflow canonique est la seule source de vérité en écriture pour ce pack et le legacy devient lecture seule ; aucune double écriture ni synchronisation bidirectionnelle n'est autorisée ;
-5. migrer les historiques par scripts idempotents avec rapport de correspondance, identifiants de provenance et rollback ; les liens historiques résolvent vers un adaptateur de lecture ou vers l'artefact canonique migré ;
+5. migrer les historiques par scripts idempotents avec rapport de correspondance, identifiants de provenance et rollback d'import avant validation de la migration ; un rollback de déploiement n'efface jamais les données canoniques déjà créées ; les liens historiques résolvent vers un adaptateur de lecture ou vers l'artefact canonique migré ;
 6. déprécier les anciennes routes seulement après bascule et vérification des données.
 
 Les prix, l'authentification, le RBAC, les relations parent-élève et les dashboards existants restent intégrés via leurs services canoniques ; aucune page ne contourne les garde-fous d'accès existants. Le journal de migration indique pour chaque paquet la source de lecture, l'état de bascule et l'artefact de rollback.
