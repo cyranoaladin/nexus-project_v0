@@ -3,7 +3,7 @@ var transport = {
   verify: jest.fn(),
 };
 
-jest.mock('nodemailer', () => {
+jest.mock('nodemailer9', () => {
   transport = {
     sendMail: jest.fn(),
     verify: jest.fn(),

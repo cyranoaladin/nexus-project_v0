@@ -2,7 +2,7 @@ var transport = {
   sendMail: jest.fn(),
 };
 
-jest.mock('nodemailer', () => {
+jest.mock('nodemailer9', () => {
   const localTransport = { sendMail: jest.fn() };
   (globalThis as any).__emailTransport = localTransport;
   return {

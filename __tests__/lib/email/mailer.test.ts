@@ -9,7 +9,7 @@ var mockSendMail = jest.fn();
 var mockVerify = jest.fn();
 /* eslint-enable no-var */
 
-jest.mock('nodemailer', () => {
+jest.mock('nodemailer9', () => {
   mockSendMail = jest.fn();
   mockVerify = jest.fn();
   return {
