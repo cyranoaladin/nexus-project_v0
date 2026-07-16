@@ -1,18 +1,46 @@
 #!/usr/bin/env node
 
+/**
+ * validate-next-traces.js — Validates Next.js output file tracing manifests.
+ *
+ * For each .nft.json manifest, checks references for:
+ * - errors: secret key files, real .env files, .worktrees, .git
+ * - warnings: __tests__, __mocks__, e2e, fixtures (traced but not shipped)
+ * - outsideRoot: references that resolve outside outputFileTracingRoot
+ *
+ * Errors block the build. Warnings are informational.
+ */
+
 const fs = require('node:fs');
 const path = require('node:path');
 
 const root = path.resolve(process.argv[2] ?? '.next');
+
+// Determine outputFileTracingRoot (defaults to project root, i.e. parent of .next)
+const projectRoot = path.resolve(root, '..');
+
 const manifests = [];
 const malformed = [];
 const missing = [];
-const forbidden = [];
-// Forbidden paths in trace references. Note: Next.js may include __tests__ and
-// .env.example paths in .nft.json manifests but does NOT copy them to standalone.
-// The real gate is audit-production-artifact.js which checks actual standalone output.
-// Only flag actual secret files (not .example templates).
-const forbiddenPath = /\.(pem|key|p12|pfx)$/i;
+const errors = [];
+const warnings = [];
+const outsideRoot = [];
+
+// Hard errors: actual secrets or unsafe content in traces.
+const errorPatterns = [
+  { pattern: /\.(pem|key|p12|pfx)$/i, reason: 'secret key file' },
+  { pattern: /(^|\/)\.env(?!\.example|\.sample|\.template)(\.|$)/i, reason: 'real .env file' },
+  { pattern: /(^|\/)\.worktrees(\/|$)/, reason: '.worktrees directory' },
+  { pattern: /(^|\/)\.git(\/|$)/, reason: '.git directory' },
+];
+
+// Soft warnings: test/mock files that Next.js traces but doesn't ship.
+const warningPatterns = [
+  { pattern: /(^|\/)__tests__(\/|$)/, reason: 'test file reference' },
+  { pattern: /(^|\/)__mocks__(\/|$)/, reason: 'mock file reference' },
+  { pattern: /(^|\/)e2e(\/|$)/, reason: 'e2e file reference' },
+  { pattern: /(^|\/)fixtures?(\/|$)/, reason: 'fixture reference' },
+];
 
 function walk(directory) {
   for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
@@ -28,7 +56,7 @@ if (!fs.existsSync(root) || !fs.statSync(root).isDirectory()) {
 }
 walk(root);
 
-let references = 0;
+let referenceCount = 0;
 for (const manifestPath of manifests) {
   const relativeManifest = path.relative(root, manifestPath).split(path.sep).join('/');
   let manifest;
@@ -43,14 +71,32 @@ for (const manifestPath of manifests) {
     continue;
   }
   for (const reference of manifest.files) {
-    references += 1;
+    referenceCount += 1;
     const resolved = path.resolve(path.dirname(manifestPath), reference);
     const normalized = resolved.split(path.sep).join('/');
+
     if (!fs.existsSync(resolved)) {
       missing.push({ manifest: relativeManifest, reference });
+      continue;
     }
-    if (forbiddenPath.test(normalized)) {
-      forbidden.push({ manifest: relativeManifest, reference });
+
+    // Check if reference is outside project root
+    const relative = path.relative(projectRoot, resolved);
+    if (relative.startsWith('..')) {
+      outsideRoot.push({ manifest: relativeManifest, reference, resolved });
+    }
+
+    // Check error patterns
+    const errorMatch = errorPatterns.find(({ pattern }) => pattern.test(normalized));
+    if (errorMatch) {
+      errors.push({ manifest: relativeManifest, reference, reason: errorMatch.reason });
+      continue;
+    }
+
+    // Check warning patterns
+    const warnMatch = warningPatterns.find(({ pattern }) => pattern.test(normalized));
+    if (warnMatch) {
+      warnings.push({ manifest: relativeManifest, reference, reason: warnMatch.reason });
     }
   }
 }
@@ -58,15 +104,17 @@ for (const manifestPath of manifests) {
 const report = {
   root,
   manifests: manifests.length,
-  references,
+  references: referenceCount,
   malformed,
   missing,
-  forbidden,
+  errors,
+  warnings: warnings.length,
+  outsideRoot: outsideRoot.length,
   passed:
     manifests.length > 0 &&
     malformed.length === 0 &&
     missing.length === 0 &&
-    forbidden.length === 0,
+    errors.length === 0,
 };
 process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
 if (!report.passed) process.exit(1);

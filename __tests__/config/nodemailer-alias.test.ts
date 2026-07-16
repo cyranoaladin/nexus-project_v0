@@ -36,9 +36,17 @@ describe('SMTP transport dependency boundary', () => {
     expect(lockfile.packages?.['node_modules/nodemailer']).toBeUndefined();
   });
 
-  it('verifies nodemailer9 exports createTransport at runtime', () => {
+  it('verifies nodemailer9 runtime exports: createTransport, createTestAccount', () => {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const nm = require('nodemailer9');
     expect(typeof nm.createTransport).toBe('function');
+    expect(typeof nm.createTestAccount).toBe('function');
+
+    // Verify createTransport returns an object with sendMail, verify, close
+    const transporter = nm.createTransport({ jsonTransport: true });
+    expect(typeof transporter.sendMail).toBe('function');
+    expect(typeof transporter.verify).toBe('function');
+    expect(typeof transporter.close).toBe('function');
+    transporter.close();
   });
 });

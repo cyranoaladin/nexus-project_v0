@@ -3,8 +3,9 @@
 /**
  * audit-production-artifact.js — Validates standalone artifact content.
  *
- * Checks: forbidden packages, symlinks, .env files (real, not examples),
- * secret key files, total size.
+ * Checks: forbidden packages, forbidden directories, symlinks, .env files,
+ * secret key files, source maps, filesystem errors, size limits.
+ * All filesystem errors are fatal (no silent catch).
  */
 
 const fs = require('node:fs');
@@ -12,38 +13,64 @@ const path = require('node:path');
 
 const root = path.resolve(process.argv[2] ?? '.next/standalone');
 
-// Forbidden packages that must never ship to production.
 const forbiddenPackagePattern = /(^|\/)node_modules\/(?:@emnapi\/runtime|@img\/sharp-wasm32)(\/|$)/;
 
-// Real .env files (not .example templates) and secret key files.
-const secretFilePattern = /(?:^|\/)\.env(?:\.local|\.production\.local|\.development\.local)$|\.(pem|key|p12|pfx)$/i;
+// Directories that must never appear anywhere in the artifact.
+const forbiddenDirs = new Set([
+  '.worktrees', '.git', 'e2e', '__tests__', '__mocks__',
+  'playwright-report', 'test-results', 'coverage',
+]);
+
+// File names/patterns that must never appear.
+const forbiddenFilePatterns = [
+  /^docker-compose.*\.ya?ml$/i,
+  /^Dockerfile/,
+  /\.patch$/,
+  /\.log$/,
+  /^canonical-bilans-pack\.json$/,
+];
+
+// .env files: refuse all except explicitly safe suffixes.
+const envSafeSuffixes = ['.example', '.sample', '.template'];
+function isEnvForbidden(name) {
+  if (!/^\.env/i.test(name)) return false;
+  return !envSafeSuffixes.some((s) => name.endsWith(s));
+}
+
+// Secret key files.
+const secretKeyPattern = /\.(pem|key|p12|pfx)$/i;
+
+// Source maps in app code.
+const sourceMapPattern = /\.js\.map$/;
 
 const findings = [];
+const topLevelDirs = [];
 let fileCount = 0;
 let totalSize = 0;
-const MAX_TOTAL_SIZE = 500 * 1024 * 1024; // 500 MB
+const MAX_TOTAL_SIZE = 500 * 1024 * 1024;
 
-function walk(directory) {
-  let entries;
-  try {
-    entries = fs.readdirSync(directory, { withFileTypes: true });
-  } catch {
-    return;
-  }
+function walk(directory, depth = 0) {
+  const entries = fs.readdirSync(directory, { withFileTypes: true });
 
   for (const entry of entries) {
     const fullPath = path.join(directory, entry.name);
     const relativePath = path.relative(root, fullPath).split(path.sep).join('/');
 
+    if (depth === 0 && entry.isDirectory()) {
+      topLevelDirs.push(entry.name);
+    }
+
+    // Forbidden directories
+    if (entry.isDirectory() && forbiddenDirs.has(entry.name)) {
+      findings.push({ path: relativePath, reason: `forbidden directory: ${entry.name}` });
+      continue;
+    }
+
     // Symlink check
-    try {
-      const lstats = fs.lstatSync(fullPath);
-      if (lstats.isSymbolicLink()) {
-        findings.push({ path: relativePath, reason: 'symlink found in artifact' });
-        continue;
-      }
-    } catch {
-      // ignore stat errors
+    const lstats = fs.lstatSync(fullPath);
+    if (lstats.isSymbolicLink()) {
+      findings.push({ path: relativePath, reason: 'symlink found in artifact' });
+      continue;
     }
 
     // Forbidden packages
@@ -52,22 +79,37 @@ function walk(directory) {
       continue;
     }
 
-    // Real secret files (not .example templates)
-    if (secretFilePattern.test(relativePath)) {
-      findings.push({ path: relativePath, reason: 'secret file in artifact' });
+    // .env files
+    if (isEnvForbidden(entry.name)) {
+      findings.push({ path: relativePath, reason: `forbidden .env file: ${entry.name}` });
+      continue;
+    }
+
+    // Secret key files
+    if (secretKeyPattern.test(entry.name)) {
+      findings.push({ path: relativePath, reason: 'secret key file in artifact' });
+      continue;
+    }
+
+    // Forbidden file patterns
+    const matchedPattern = forbiddenFilePatterns.find((p) => p.test(entry.name));
+    if (matchedPattern) {
+      findings.push({ path: relativePath, reason: `forbidden file pattern: ${entry.name}` });
+      continue;
+    }
+
+    // Source maps in app code (allow in node_modules)
+    if (sourceMapPattern.test(entry.name) && !relativePath.startsWith('node_modules/')) {
+      findings.push({ path: relativePath, reason: 'source map in app artifact' });
       continue;
     }
 
     if (entry.isFile()) {
       fileCount++;
-      try {
-        totalSize += fs.statSync(fullPath).size;
-      } catch {
-        // ignore
-      }
+      totalSize += lstats.size;
     }
 
-    if (entry.isDirectory()) walk(fullPath);
+    if (entry.isDirectory()) walk(fullPath, depth + 1);
   }
 }
 
@@ -84,6 +126,7 @@ if (totalSize > MAX_TOTAL_SIZE) {
 
 const report = {
   root,
+  topLevelDirs: topLevelDirs.sort(),
   fileCount,
   totalSizeMB: +(totalSize / 1024 / 1024).toFixed(1),
   findings: findings.sort((a, b) => a.path.localeCompare(b.path)),
