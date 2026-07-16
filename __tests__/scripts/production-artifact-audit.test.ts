@@ -16,36 +16,40 @@ function runAudit(files: string[]) {
   return spawnSync(process.execPath, [auditScript, root], { encoding: 'utf8' });
 }
 
-describe('production standalone allowlist audit', () => {
-  it('accepts declared standalone runtime roots', () => {
+describe('production standalone artifact audit', () => {
+  it('accepts a clean standalone tree', () => {
     const result = runAudit([
       'server.js',
       'package.json',
       '.next/server/app.js',
       'node_modules/next/package.json',
       'public/logo.png',
-      'data/pricing.canonical.json',
-      'docs/00_INDEX.md',
-      'lib/diagnostics/definition.json',
-      'programmes/generated/maths.json',
-      'src/static-pages/tool/index.html',
-      'Nexus_Reussite_Accueil.html',
     ]);
 
     expect(result.status).toBe(0);
   });
 
   it.each([
-    ['storage/documents/test.pdf', 'storage'],
-    ['node_modules/@emnapi/runtime/package.json', '@emnapi/runtime'],
-    ['node_modules/@img/sharp-wasm32/package.json', 'sharp-wasm32'],
-    ['unexpected.txt', 'unexpected.txt'],
-    ['.env.production', '.env'],
-    ['secrets.pem', '.pem'],
-  ])('rejects forbidden or non-allowlisted content: %s', (relativePath, expectedInOutput) => {
+    ['node_modules/@emnapi/runtime/package.json', 'forbidden package'],
+    ['node_modules/@img/sharp-wasm32/package.json', 'forbidden package'],
+    ['.env.local', 'secret file'],
+    ['.env.production.local', 'secret file'],
+    ['secrets.pem', 'secret file'],
+    ['tls.key', 'secret file'],
+  ])('rejects forbidden content: %s', (relativePath, expectedReason) => {
     const result = runAudit(['server.js', relativePath]);
 
     expect(result.status).not.toBe(0);
-    expect(result.stdout).toContain(expectedInOutput);
+    expect(result.stdout).toContain(expectedReason);
+  });
+
+  it('accepts .env.example templates (not real secrets)', () => {
+    const result = runAudit([
+      'server.js',
+      '.env.example',
+      '.env.ci.example',
+    ]);
+
+    expect(result.status).toBe(0);
   });
 });
