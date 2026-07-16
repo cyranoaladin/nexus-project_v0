@@ -36,11 +36,40 @@ describe('production deployment contract', () => {
     }
   });
 
-  it('uses the Node 20 base image expected by production', () => {
+  it('uses the pinned Node 22.23.1 base image expected by production', () => {
     const dockerfile = read('Dockerfile');
 
-    expect(dockerfile).toContain('FROM node:20-alpine AS base');
+    expect(dockerfile).toContain(
+      'FROM node:22.23.1-alpine@sha256:16e22a550f3863206a3f701448c45f7912c6896a62de43add43bb9c86130c3e2 AS base',
+    );
     expect(dockerfile).not.toContain('FROM node:18-alpine AS base');
+  });
+
+  it('keeps the Alpine dependency proof on the same pinned base', () => {
+    const verifier = read('Dockerfile.dependencies');
+
+    expect(verifier).toContain(
+      'FROM node:22.23.1-alpine@sha256:16e22a550f3863206a3f701448c45f7912c6896a62de43add43bb9c86130c3e2',
+    );
+    expect(verifier).toContain('COPY package.json package-lock.json .npmrc ./');
+    expect(verifier).toContain('RUN npm ci');
+    expect(verifier).toContain('npm audit --omit=dev --audit-level=high');
+    expect(verifier).toContain('validate-npm-tree.js');
+  });
+
+  it('mounts official PDFs outside the image as a read-only volume', () => {
+    const compose = read('docker-compose.prod.yml');
+    const dockerfile = read('Dockerfile.prod');
+
+    expect(compose).toContain(
+      'OFFICIAL_PDF_STORAGE_ROOT: /var/lib/nexus/official-pdfs',
+    );
+    expect(compose).toContain(
+      './programmes:/var/lib/nexus/official-pdfs/programmes:ro',
+    );
+    expect(dockerfile).toMatch(
+      /RUN mkdir -p .*\/var\/lib\/nexus\/official-pdfs/,
+    );
   });
 
   it('keeps the git-pull deploy helper aligned with the real production host and systemd service', () => {
