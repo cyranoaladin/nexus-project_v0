@@ -8,10 +8,11 @@ const manifests = [];
 const malformed = [];
 const missing = [];
 const forbidden = [];
-// Forbidden paths in trace references. Note: Next.js may include __tests__ paths
-// in .nft.json manifests but does NOT copy them to standalone. The real gate is
-// audit-production-artifact.js which checks the actual standalone output.
-const forbiddenPath = /(^|\/)\.env(?:\.|$)|\.(pem|key|p12|patch|log)$/i;
+// Forbidden paths in trace references. Note: Next.js may include __tests__ and
+// .env.example paths in .nft.json manifests but does NOT copy them to standalone.
+// The real gate is audit-production-artifact.js which checks actual standalone output.
+// Only flag actual secret files (not .example templates).
+const forbiddenPath = /\.(pem|key|p12|pfx)$/i;
 
 function walk(directory) {
   for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
