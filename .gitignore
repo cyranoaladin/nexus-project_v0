@@ -113,6 +113,7 @@ docs/audits/*attestation-travail*.md
 *.csv
 !examples/**/*.csv
 !fixtures/**/*.csv
+!docs/bilans/COMPONENT_DECISIONS.csv
 
 # ─── Scratch / Temp ──────────────────────────────────────────────────────
 scratch/
