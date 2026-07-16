@@ -7,7 +7,7 @@ import { serializeError } from '@/lib/utils/serialize-error';
  * In dev without SMTP_HOST, falls back to localhost:1025 (MailHog/MailCatcher).
  */
 
-import nodemailer from 'nodemailer';
+import nodemailer from 'nodemailer9';
 import { LEGAL } from '@/lib/legal';
 import {
   getInvoiceEmailSubject,
