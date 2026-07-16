@@ -60,8 +60,9 @@ function walk(directory, depth = 0) {
       topLevelDirs.push(entry.name);
     }
 
-    // Forbidden directories
-    if (entry.isDirectory() && forbiddenDirs.has(entry.name)) {
+    // Forbidden directories (skip checks inside node_modules — packages may contain .git metadata)
+    const inNodeModules = relativePath.startsWith('node_modules/');
+    if (entry.isDirectory() && forbiddenDirs.has(entry.name) && !inNodeModules) {
       findings.push({ path: relativePath, reason: `forbidden directory: ${entry.name}` });
       continue;
     }
@@ -79,27 +80,29 @@ function walk(directory, depth = 0) {
       continue;
     }
 
-    // .env files
-    if (isEnvForbidden(entry.name)) {
+    // .env files (only outside node_modules — packages may ship .env examples)
+    if (!inNodeModules && isEnvForbidden(entry.name)) {
       findings.push({ path: relativePath, reason: `forbidden .env file: ${entry.name}` });
       continue;
     }
 
-    // Secret key files
+    // Secret key files (check everywhere)
     if (secretKeyPattern.test(entry.name)) {
       findings.push({ path: relativePath, reason: 'secret key file in artifact' });
       continue;
     }
 
-    // Forbidden file patterns
-    const matchedPattern = forbiddenFilePatterns.find((p) => p.test(entry.name));
-    if (matchedPattern) {
-      findings.push({ path: relativePath, reason: `forbidden file pattern: ${entry.name}` });
-      continue;
+    // Forbidden file patterns (only outside node_modules)
+    if (!inNodeModules) {
+      const matchedPattern = forbiddenFilePatterns.find((p) => p.test(entry.name));
+      if (matchedPattern) {
+        findings.push({ path: relativePath, reason: `forbidden file pattern: ${entry.name}` });
+        continue;
+      }
     }
 
     // Source maps in app code (allow in node_modules)
-    if (sourceMapPattern.test(entry.name) && !relativePath.startsWith('node_modules/')) {
+    if (sourceMapPattern.test(entry.name) && !inNodeModules) {
       findings.push({ path: relativePath, reason: 'source map in app artifact' });
       continue;
     }
