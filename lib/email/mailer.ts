@@ -11,9 +11,9 @@
  * - Logs never contain recipient addresses or message bodies.
  */
 
-import nodemailer from 'nodemailer';
-import type Mail from 'nodemailer/lib/mailer';
-import type SMTPTransport from 'nodemailer/lib/smtp-transport';
+import nodemailer from 'nodemailer9';
+import type Mail from 'nodemailer9/lib/mailer';
+import type SMTPTransport from 'nodemailer9/lib/smtp-transport';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 

@@ -9,7 +9,7 @@
 
 const mockSendMail = jest.fn().mockResolvedValue({ messageId: 'test-msg-id' });
 
-jest.mock('nodemailer', () => {
+jest.mock('nodemailer9', () => {
   return {
     __esModule: true,
     default: {
