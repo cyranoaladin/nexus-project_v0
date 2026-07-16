@@ -413,7 +413,7 @@ jobs:
           AUTH_TRUST_HOST: 'true'
           OPENAI_API_KEY: sk-test-mock-key-for-ci-build-only
           NODE_ENV: production
-        run: npm run build
+        run: npm run build:e2e
 
       - name: Start Next.js server in background
         env:
