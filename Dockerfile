@@ -2,9 +2,9 @@
 # Version: 2.1 (Finalisé pour la production avec Prisma)
 
 # === ÉTAPE 1: Image de Base ===
-# On part d'une image Node.js version 20, alignée avec la production.
+# On part de la version Node.js LTS alignée avec la production.
 # On la nomme "base" pour pouvoir s'y référer plus tard.
-FROM node:20-alpine AS base
+FROM node:22.23.1-alpine@sha256:16e22a550f3863206a3f701448c45f7912c6896a62de43add43bb9c86130c3e2 AS base
 # On installe les dépendances système nécessaires pour Prisma
 RUN apk add --no-cache openssl
 
@@ -13,7 +13,7 @@ RUN apk add --no-cache openssl
 # On utilise l'image "base" pour cette étape et on la nomme "deps".
 FROM base AS deps
 WORKDIR /app
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json* .npmrc ./
 # On installe TOUTES les dépendances, y compris les devDependencies, car nous en avons besoin pour le build.
 RUN npm ci
 
@@ -47,7 +47,7 @@ ENV HOSTNAME=0.0.0.0
 
 # [CORRECTION IMPORTANTE] On réinstalle UNIQUEMENT les dépendances de production
 # pour ne pas inclure les outils de build (comme le CLI Prisma, TypeScript, etc.) dans l'image finale.
-COPY --from=builder /app/package.json /app/package-lock.json* ./
+COPY --from=builder /app/package.json /app/package-lock.json* /app/.npmrc ./
 RUN npm ci --omit=dev
 
 # On copie les artefacts de build depuis l'étape "builder".
