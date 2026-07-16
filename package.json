@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/check-production-build-env.js && next build && node scripts/copy-public-assets.js",
+    "build": "node scripts/check-production-build-env.js && next build && node scripts/copy-public-assets.js && node scripts/validate-next-traces.js .next && node scripts/audit-production-artifact.js .next/standalone && node scripts/release/verify-standalone-artifact.mjs",
     "build:base": "next build",
     "build:gate": "next build 2>&1 | tee build-output.log && node scripts/copy-public-assets.js && bash scripts/check-bundle-weight.sh build-output.log",
     "start": "next start",
@@ -55,7 +55,8 @@
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
     "check-config": "node scripts/check-config.js",
-    "security:repo": "bash scripts/security/check-no-private-keys.sh",
+    "security:telegram": "node scripts/security/check-telegram-secrets.mjs .",
+    "security:repo": "bash scripts/security/check-no-private-keys.sh && npm run security:telegram",
     "sbom:runtime": "node scripts/generate-runtime-sbom.js --output security/sbom/runtime.cdx.json",
     "artifact:audit": "node scripts/audit-production-artifact.js .next/standalone",
     "artifact:traces": "node scripts/validate-next-traces.js .next",

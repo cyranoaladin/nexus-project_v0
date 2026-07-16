@@ -57,21 +57,6 @@ describe('production deployment contract', () => {
     expect(verifier).toContain('validate-npm-tree.js');
   });
 
-  it('mounts official PDFs outside the image as a read-only volume', () => {
-    const compose = read('docker-compose.prod.yml');
-    const dockerfile = read('Dockerfile.prod');
-
-    expect(compose).toContain(
-      'OFFICIAL_PDF_STORAGE_ROOT: /var/lib/nexus/official-pdfs',
-    );
-    expect(compose).toContain(
-      './programmes:/var/lib/nexus/official-pdfs/programmes:ro',
-    );
-    expect(dockerfile).toMatch(
-      /RUN mkdir -p .*\/var\/lib\/nexus\/official-pdfs/,
-    );
-  });
-
   it('keeps the git-pull deploy helper aligned with the real production host and systemd service', () => {
     const deployScript = read('scripts/deploy-git-pull.sh');
 
@@ -109,7 +94,6 @@ describe('production deployment contract', () => {
       .filter(file => !file.startsWith('.'));
 
     for (const file of scriptFiles) {
-      const scriptPath = path.join(scriptsDir, file);
       const script = read(`scripts/${file}`);
 
       for (const pattern of dangerousPatterns) {

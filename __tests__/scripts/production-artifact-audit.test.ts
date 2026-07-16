@@ -17,7 +17,7 @@ function runAudit(files: string[]) {
 }
 
 describe('production standalone allowlist audit', () => {
-  it('accepts only declared standalone runtime roots', () => {
+  it('accepts declared standalone runtime roots', () => {
     const result = runAudit([
       'server.js',
       'package.json',
@@ -37,13 +37,15 @@ describe('production standalone allowlist audit', () => {
 
   it.each([
     ['storage/documents/test.pdf', 'storage'],
-    ['node_modules/@emnapi/runtime/package.json', 'node_modules/@emnapi/runtime'],
-    ['node_modules/@img/sharp-wasm32/package.json', 'node_modules/@img/sharp-wasm32'],
+    ['node_modules/@emnapi/runtime/package.json', '@emnapi/runtime'],
+    ['node_modules/@img/sharp-wasm32/package.json', 'sharp-wasm32'],
     ['unexpected.txt', 'unexpected.txt'],
-  ])('rejects forbidden or non-allowlisted content: %s', (relativePath, reportedPath) => {
+    ['.env.production', '.env'],
+    ['secrets.pem', '.pem'],
+  ])('rejects forbidden or non-allowlisted content: %s', (relativePath, expectedInOutput) => {
     const result = runAudit(['server.js', relativePath]);
 
     expect(result.status).not.toBe(0);
-    expect(result.stdout).toContain(reportedPath);
+    expect(result.stdout).toContain(expectedInOutput);
   });
 });

@@ -1,115 +1,71 @@
 #!/usr/bin/env node
 
 /**
- * Script pour copier les assets publics dans le build standalone
- * Ce script résout le problème des images manquantes en production
- * avec output: 'standalone'
+ * Copy public assets into the standalone build output.
+ * Fail-closed: exits non-zero if standalone, static, or chunks are missing.
  */
 
 const fs = require('fs');
 const path = require('path');
-const { serializeError } = require('./serialize-error.cjs');
 
 function copyRecursiveSync(src, dest) {
-  const exists = fs.existsSync(src);
-  const stats = exists && fs.statSync(src);
-  const isDirectory = exists && stats.isDirectory();
-
-  if (isDirectory) {
-    // Créer le dossier de destination s'il n'existe pas
-    if (!fs.existsSync(dest)) {
-      fs.mkdirSync(dest, { recursive: true });
+  const stats = fs.statSync(src);
+  if (stats.isDirectory()) {
+    if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
+    for (const child of fs.readdirSync(src)) {
+      copyRecursiveSync(path.join(src, child), path.join(dest, child));
     }
-
-    // Copier récursivement tous les fichiers
-    fs.readdirSync(src).forEach((childItemName) => {
-      copyRecursiveSync(
-        path.join(src, childItemName),
-        path.join(dest, childItemName)
-      );
-    });
   } else {
-    // Copier le fichier
     fs.copyFileSync(src, dest);
   }
 }
 
 function main() {
-  const publicDir = path.join(__dirname, '..', 'public');
-  const standaloneDir = path.join(__dirname, '..', '.next', 'standalone');
+  const root = path.resolve(__dirname, '..');
+  const publicDir = path.join(root, 'public');
+  const standaloneDir = path.join(root, '.next', 'standalone');
   const standalonePublicDir = path.join(standaloneDir, 'public');
-  const nextStaticDir = path.join(__dirname, '..', '.next', 'static');
+  const nextStaticDir = path.join(root, '.next', 'static');
   const standaloneNextDir = path.join(standaloneDir, '.next');
   const standaloneStaticDir = path.join(standaloneNextDir, 'static');
 
-  console.log('🚀 Copie des assets publics pour le build standalone...');
-
-  // Vérifier que le dossier public existe
   if (!fs.existsSync(publicDir)) {
-    console.error('❌ Erreur: Le dossier public/ n\'existe pas');
+    console.error('FATAL: public/ directory does not exist');
     process.exit(1);
   }
 
-  // Vérifier que le build standalone existe
   if (!fs.existsSync(standaloneDir)) {
-    console.warn('⚠️  Le dossier .next/standalone n\'existe pas encore');
-    console.warn('   Les assets seront disponibles via le dossier public/ standard');
-    console.log('✅ Build terminé (mode standard, pas standalone)');
-    process.exit(0);
-  }
-
-  try {
-    // Copier le dossier public vers standalone/public
-    copyRecursiveSync(publicDir, standalonePublicDir);
-
-    // Copier également les assets Next (_next/static) indispensables aux chunks JS/CSS
-    if (fs.existsSync(nextStaticDir)) {
-      // Créer .next dans standalone si nécessaire
-      if (!fs.existsSync(standaloneNextDir)) {
-        fs.mkdirSync(standaloneNextDir, { recursive: true });
-      }
-      copyRecursiveSync(nextStaticDir, standaloneStaticDir);
-    } else {
-      console.warn('⚠️  Le dossier .next/static est introuvable. Avez-vous bien exécuté "next build" ?');
-    }
-
-    console.log('✅ Assets publics copiés avec succès !');
-    console.log(`   Source: ${publicDir}`);
-    console.log(`   Destination: ${standalonePublicDir}`);
-
-    // Vérifier que les images principales sont bien copiées
-    const keyImages = [
-      'images/logo_slogan_nexus.webp',
-      'images/logo_nexus_reussite.png',
-      'images/logo_slogan_nexus_x3.png'
-    ];
-
-    keyImages.forEach(img => {
-      const imgPath = path.join(standalonePublicDir, img);
-      if (fs.existsSync(imgPath)) {
-        const stats = fs.statSync(imgPath);
-        console.log(`   ✓ ${img} (${Math.round(stats.size / 1024)} KB)`);
-      } else {
-        console.warn(`   ⚠️  ${img} manquant`);
-      }
-    });
-
-    // Vérifier qu'un chunk statique est bien présent
-    try {
-      const staticChunksDir = path.join(standaloneStaticDir, 'chunks');
-      if (fs.existsSync(staticChunksDir)) {
-        const entries = fs.readdirSync(staticChunksDir);
-        const sample = entries.find((f) => f.endsWith('.js'));
-        if (sample) {
-          console.log(`   ✓ Exemple de chunk présent: chunks/${sample}`);
-        }
-      }
-    } catch { }
-
-  } catch (error) {
-    console.error('❌ Erreur lors de la copie:', serializeError(error));
+    console.error('FATAL: .next/standalone does not exist — build did not produce standalone output');
     process.exit(1);
   }
+
+  if (!fs.existsSync(nextStaticDir)) {
+    console.error('FATAL: .next/static does not exist — build output is incomplete');
+    process.exit(1);
+  }
+
+  // Copy public/ -> standalone/public
+  copyRecursiveSync(publicDir, standalonePublicDir);
+
+  // Copy .next/static -> standalone/.next/static
+  if (!fs.existsSync(standaloneNextDir)) fs.mkdirSync(standaloneNextDir, { recursive: true });
+  copyRecursiveSync(nextStaticDir, standaloneStaticDir);
+
+  // Verify chunks exist after copy
+  const chunksDir = path.join(standaloneStaticDir, 'chunks');
+  if (!fs.existsSync(chunksDir)) {
+    console.error('FATAL: .next/standalone/.next/static/chunks missing after copy');
+    process.exit(1);
+  }
+
+  const jsChunks = fs.readdirSync(chunksDir).filter((f) => f.endsWith('.js'));
+  if (jsChunks.length === 0) {
+    console.error('FATAL: no .js chunks found in standalone static output');
+    process.exit(1);
+  }
+
+  console.log('Public assets and static chunks copied to standalone.');
+  console.log(`  chunks: ${jsChunks.length} JS files`);
 }
 
 main();
