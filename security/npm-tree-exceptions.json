@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "exceptions": [
+    {
+      "type": "extraneous",
+      "name": "@emnapi/runtime",
+      "version": "1.11.2",
+      "path": "node_modules/@emnapi/runtime",
+      "reason": "npm optional WASM dependency materialization bug",
+      "upstreamIssue": "npm/cli#8128",
+      "platform": {
+        "node": "22.23.1",
+        "npm": "10.9.8",
+        "os": "linux",
+        "arch": "x64"
+      },
+      "artifactAllowed": false,
+      "expiresOn": "2026-09-30"
+    }
+  ]
+}
