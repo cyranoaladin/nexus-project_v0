@@ -515,7 +515,6 @@ jobs:
 
       # --- SEMGREP ---
       - name: Run Semgrep
-        continue-on-error: true
         uses: returntocorp/semgrep-action@v1
         with:
           config: >-
@@ -525,15 +524,29 @@ jobs:
             p/nextjs
 
       # --- OSV SCANNER (Google) ---
-      - name: Install OSV Scanner
+      - name: Install and verify OSV Scanner
         run: |
           curl -sSL https://github.com/google/osv-scanner/releases/download/v1.9.0/osv-scanner_linux_amd64 -o osv-scanner
+          echo "d9c1deedc23372a25049458e1e2f2bb9ad4098e2e2038118b9fec42f28f93ffb  osv-scanner" | sha256sum -c
           chmod +x osv-scanner
 
       - name: Run OSV Scanner
-        continue-on-error: true
         run: |
-          ./osv-scanner --lockfile=package-lock.json --format=json --output=osv-report.json || true
+          set +e
+          ./osv-scanner --lockfile=package-lock.json --format=json --output=osv-report.json
+          osv_code=$?
+          set -e
+          echo "OSV_EXIT_CODE=$osv_code"
+          if [ "$osv_code" -eq 0 ]; then
+            echo "OSV Scanner: no vulnerabilities found"
+          elif [ "$osv_code" -eq 1 ]; then
+            echo "OSV Scanner: vulnerabilities detected"
+            cat osv-report.json | head -100
+            exit 1
+          else
+            echo "OSV Scanner: scanner error (code=$osv_code)"
+            exit 1
+          fi
 
       - name: Upload OSV report
         if: always()
@@ -675,8 +688,14 @@ jobs:
             FAIL=1
           fi
 
-          # Security: informational only
-          echo "INFO security: ${{ needs.security.result }} (allowed to fail)"
+          # Security: required
+          SEC_RESULT="${{ needs.security.result }}"
+          if [ "$SEC_RESULT" != "success" ]; then
+            echo "FAIL security: $SEC_RESULT"
+            FAIL=1
+          else
+            echo "OK security: $SEC_RESULT"
+          fi
 
           if [ "$FAIL" -ne 0 ]; then
             echo ""
