@@ -113,7 +113,9 @@ docs/audits/*attestation-travail*.md
 *.csv
 !examples/**/*.csv
 !fixtures/**/*.csv
-!docs/bilans/COMPONENT_DECISIONS.csv
+
+# ─── Generated SBOM (produced by CI, not committed) ─────────────────────
+security/sbom/
 
 # ─── Scratch / Temp ──────────────────────────────────────────────────────
 scratch/

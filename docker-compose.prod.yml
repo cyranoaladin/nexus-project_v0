@@ -125,18 +125,8 @@ services:
       RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-60000}
       RATE_LIMIT_MAX: ${RATE_LIMIT_MAX:-60}
 
-      # Redis (BullMQ enqueue from app)
-      REDIS_URL: redis://nexus-redis-prod:6379
-
-      # Bilans security
-      LEGACY_DIAGNOSTIC_SHARE_ENABLED: ${LEGACY_DIAGNOSTIC_SHARE_ENABLED:-false}
-      BILAN_TOKEN_SECRET: ${BILAN_TOKEN_SECRET:-}
-
       # Public URL (for client-side)
       NEXT_PUBLIC_APP_URL: ${NEXTAUTH_URL}
-
-      # Official PDFs are runtime data, not build artifacts.
-      OFFICIAL_PDF_STORAGE_ROOT: /var/lib/nexus/official-pdfs
 
     # SECURITY: Only expose port for nginx reverse proxy, not publicly
     ports:
@@ -147,8 +137,6 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
-      redis:
-        condition: service_healthy
 
     networks:
       - nexus-network
@@ -157,7 +145,6 @@ services:
       - uploads_data:/app/uploads
       - logs_data:/app/logs
       - ./storage:/app/storage
-      - ./programmes:/var/lib/nexus/official-pdfs/programmes:ro
 
     # Healthcheck verifies app responds
     healthcheck:
@@ -166,62 +153,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-
-  # ========================================
-  # Redis (BullMQ - Bilans Worker)
-  # ========================================
-  redis:
-    image: redis:7-alpine
-    container_name: nexus-redis-prod
-    restart: unless-stopped
-    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy noeviction
-    volumes:
-      - redis_data_prod:/data
-    networks:
-      - nexus-network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # ========================================
-  # Bilans Worker - Durable Job Processor
-  # ========================================
-  bilans-worker:
-    build:
-      context: .
-      dockerfile: services/bilans-worker/Dockerfile
-    container_name: nexus-bilans-worker-prod
-    restart: unless-stopped
-    environment:
-      NODE_ENV: production
-      DATABASE_URL: postgresql://${POSTGRES_USER:-nexus_user}:${POSTGRES_PASSWORD}@nexus-postgres-prod:5432/${POSTGRES_DB:-nexus_reussite_prod}?schema=public
-      REDIS_URL: redis://nexus-redis-prod:6379
-      LLM_MODE: ${LLM_MODE:-off}
-      BILAN_TOKEN_SECRET: ${BILAN_TOKEN_SECRET:-}
-      WHATSAPP_API_URL: ${WHATSAPP_API_URL:-}
-      WHATSAPP_API_TOKEN: ${WHATSAPP_API_TOKEN:-}
-    depends_on:
-      postgres:
-        condition: service_healthy
-      migrate:
-        condition: service_completed_successfully
-      redis:
-        condition: service_healthy
-    networks:
-      - nexus-network
-    healthcheck:
-      test: ["CMD", "node", "-e", "console.log('healthy')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
 
   # ========================================
   # NPC Worker - AI Job Processor
@@ -314,9 +245,6 @@ volumes:
     #   type: none
     #   device: /mnt/data/postgres
     #   o: bind
-
-  redis_data_prod:
-    driver: local
 
   uploads_data:
     driver: local

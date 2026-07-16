@@ -28,6 +28,8 @@ const exceptionFile = {
     name: '@emnapi/runtime',
     version: '1.11.2',
     path: 'node_modules/@emnapi/runtime',
+    reason: 'npm optional WASM dependency materialization bug',
+    upstreamIssue: 'npm/cli#8128',
     platform: {
       node: '22.23.1',
       npm: '10.9.8',
@@ -38,6 +40,8 @@ const exceptionFile = {
     expiresOn: '2026-09-30',
   }],
 };
+
+const emptyExceptions = { schemaVersion: 1, exceptions: [] };
 
 describe('validate-npm-tree', () => {
   it('accepts only the exact unexpired @emnapi/runtime exception', () => {
@@ -88,5 +92,43 @@ describe('validate-npm-tree', () => {
 
     expect(result.status).not.toBe(0);
     expect(result.stderr).toContain('more than one allowed extraneous');
+  });
+
+  it('passes with a clean tree and no exceptions', () => {
+    const result = runValidator(
+      { name: 'root', path: '/repo', dependencies: { foo: { version: '1.0.0', path: '/repo/node_modules/foo' } } },
+      emptyExceptions,
+    );
+
+    expect(result.status).toBe(0);
+  });
+
+  it('fails when tree is clean but stale exceptions remain', () => {
+    const result = runValidator(
+      { name: 'root', path: '/repo', dependencies: {} },
+      exceptionFile,
+    );
+
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain('stale');
+  });
+
+  it('rejects exceptions missing required schema fields', () => {
+    const badSchema = {
+      schemaVersion: 1,
+      exceptions: [{
+        type: 'extraneous',
+        name: '@emnapi/runtime',
+        // missing: version, path, reason, upstreamIssue, platform, artifactAllowed, expiresOn
+      }],
+    };
+
+    const result = runValidator(
+      { name: 'root', path: '/repo', dependencies: {} },
+      badSchema,
+    );
+
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain('missing required field');
   });
 });

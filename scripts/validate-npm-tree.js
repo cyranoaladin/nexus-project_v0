@@ -26,6 +26,30 @@ if (!treePath || !exceptionsPath) {
 
 const tree = JSON.parse(fs.readFileSync(treePath, 'utf8'));
 const exceptionsDocument = JSON.parse(fs.readFileSync(exceptionsPath, 'utf8'));
+
+// --- Schema validation for exceptions document ---
+const requiredExceptionFields = ['type', 'name', 'version', 'path', 'reason', 'upstreamIssue', 'platform', 'artifactAllowed', 'expiresOn'];
+const requiredPlatformFields = ['node', 'npm', 'os', 'arch'];
+
+if (typeof exceptionsDocument.schemaVersion !== 'number' || exceptionsDocument.schemaVersion !== 1) {
+  fail(`exceptions document must have schemaVersion: 1, got ${exceptionsDocument.schemaVersion}`);
+}
+
+for (const exception of exceptionsDocument.exceptions || []) {
+  for (const field of requiredExceptionFields) {
+    if (exception[field] === undefined || exception[field] === null) {
+      fail(`exception ${exception.name || '(unknown)'} missing required field: ${field}`);
+    }
+  }
+  if (exception.platform) {
+    for (const field of requiredPlatformFields) {
+      if (!exception.platform[field]) {
+        fail(`exception ${exception.name} platform missing: ${field}`);
+      }
+    }
+  }
+}
+
 const rootPath = path.resolve(tree.path || process.cwd());
 const findings = [];
 const rootProblems = tree.problems || [];
@@ -58,7 +82,6 @@ for (const problem of rootProblems) {
 
 const allowed = exceptionsDocument.exceptions || [];
 const today = new Date().toISOString().slice(0, 10);
-const unmatched = [];
 const currentPlatform = {
   node: process.versions.node,
   npm: execFileSync(process.env.npm_execpath ? process.execPath : 'npm', process.env.npm_execpath
@@ -68,6 +91,7 @@ const currentPlatform = {
   arch: os.arch(),
 };
 
+// Validate each exception declaration
 for (const exception of allowed) {
   if (exception.expiresOn < today) fail(`npm tree exception expired on ${exception.expiresOn}`);
   if (exception.artifactAllowed !== false) fail(`npm tree exception must set artifactAllowed=false: ${exception.name}`);
@@ -78,37 +102,57 @@ for (const exception of allowed) {
   }
 }
 
+// Match findings to exceptions
+const usedExceptions = new Set();
+const unmatched = [];
+
 for (const finding of findings) {
-  const matchingException = allowed.find((exception) =>
+  const matchIdx = allowed.findIndex((exception) =>
     exception.type === finding.type &&
     exception.name === finding.name &&
     exception.version === finding.version &&
     exception.path === finding.path &&
     exception.expiresOn >= today,
   );
-  if (!matchingException) unmatched.push(finding);
+  if (matchIdx === -1) {
+    unmatched.push(finding);
+  } else {
+    usedExceptions.add(matchIdx);
+  }
 }
 
-const usedAllowed = allowed.filter((exception) => findings.some((finding) =>
-  exception.type === finding.type &&
-  exception.name === finding.name &&
-  exception.version === finding.version &&
-  exception.path === finding.path,
-));
-const allowedFindingCount = findings.filter((finding) => allowed.some((exception) =>
-  exception.type === finding.type &&
-  exception.name === finding.name &&
-  exception.version === finding.version &&
-  exception.path === finding.path,
-)).length;
+// Core rules:
+// 1. Zero findings + zero exceptions = clean tree (pass)
+// 2. Zero findings + non-zero exceptions = stale exceptions (fail)
+// 3. Exactly 1 finding matched by exactly 1 exception = controlled (pass)
+// 4. Any unmatched finding = fail
+// 5. Any unused exception = fail (stale)
+// 6. More than 1 matched finding = fail
 
-if (allowed.length !== 1 || usedAllowed.length > 1 || unmatched.length > 0 || allowedFindingCount > 1) {
-  for (const finding of unmatched) fail(`npm tree ${finding.type}: ${finding.name}@${finding.version} ${finding.path}`);
-  if (allowed.length !== 1) fail(`expected exactly one exception, found ${allowed.length}`);
-  if (usedAllowed.length > 1) fail('more than one exception was used');
-  if (allowedFindingCount > 1) fail('more than one allowed extraneous finding was found');
+const matchedFindingCount = findings.length - unmatched.length;
+
+if (findings.length === 0 && allowed.length > 0) {
+  fail(`tree is clean but ${allowed.length} exception(s) still declared — remove stale exceptions`);
 }
 
+if (unmatched.length > 0) {
+  for (const finding of unmatched) {
+    fail(`npm tree ${finding.type}: ${finding.name}@${finding.version} ${finding.path}`);
+  }
+}
+
+if (matchedFindingCount > 1) {
+  fail(`more than one allowed extraneous finding was found (${matchedFindingCount})`);
+}
+
+const unusedExceptions = allowed.filter((_, idx) => !usedExceptions.has(idx));
+if (unusedExceptions.length > 0) {
+  for (const unused of unusedExceptions) {
+    fail(`unused exception: ${unused.name}@${unused.version} — remove it or the anomaly has been resolved`);
+  }
+}
+
+// Artifact forbidden-package check
 if (artifactPath) {
   const forbidden = ['@emnapi/runtime', 'sharp-wasm32'];
   const stack = [artifactPath];
@@ -124,4 +168,8 @@ if (artifactPath) {
 }
 
 if (process.exitCode) process.exit();
-process.stdout.write(`${JSON.stringify({ findings, rootProblems, allowedException: usedAllowed[0] || null }, null, 2)}\n`);
+process.stdout.write(`${JSON.stringify({
+  findings,
+  rootProblems,
+  allowedException: allowed.length > 0 && usedExceptions.size > 0 ? allowed[[...usedExceptions][0]] : null,
+}, null, 2)}\n`);

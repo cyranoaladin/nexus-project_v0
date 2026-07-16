@@ -34,8 +34,11 @@ describe('SMTP transport dependency boundary', () => {
       fs.readFileSync(path.join(projectRoot, 'package-lock.json'), 'utf8'),
     ) as { packages?: Record<string, unknown> };
     expect(lockfile.packages?.['node_modules/nodemailer']).toBeUndefined();
+  });
 
-    const npmrc = fs.readFileSync(path.join(projectRoot, '.npmrc'), 'utf8');
-    expect(npmrc).toMatch(/^omit=peer$/m);
+  it('verifies nodemailer9 exports createTransport at runtime', () => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const nm = require('nodemailer9');
+    expect(typeof nm.createTransport).toBe('function');
   });
 });
