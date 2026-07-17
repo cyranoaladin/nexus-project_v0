@@ -38,24 +38,26 @@ function isRealEnvFile(filePath) {
 }
 
 // Hard errors: actual secrets or unsafe content in traces.
+// These indicate files that must NEVER be present in traced references.
 const errorPatterns = [
   { pattern: /\.(pem|key|p12|pfx)$/i, reason: 'secret key file' },
   { pattern: null, test: isRealEnvFile, reason: 'real .env file' },
   { pattern: /(^|\/)\.worktrees(\/|$)/, reason: '.worktrees directory' },
-  { pattern: /(^|\/)\.git(\/|$)/, reason: '.git directory' },
-  { pattern: /(^|\/)e2e\/fixtures?(\/|$)/, reason: 'E2E fixture' },
   { pattern: /\.(bak|dump|sql\.gz)$/i, reason: 'backup or dump file' },
 ];
 
 // Absolute local path patterns (never valid in traced references)
 const absoluteLocalPattern = /^\/home\/|^\/Users\/|^C:\\Users\\/;
 
-// Soft warnings: test/mock files that Next.js traces but doesn't ship.
+// Soft warnings: files that Next.js traces but typically doesn't ship to standalone.
+// The standalone artifact audit verifies these are not physically present.
 const warningPatterns = [
+  { pattern: /(^|\/)\.git(\/|$)/, reason: '.git directory reference (traced, not shipped)' },
   { pattern: /(^|\/)__tests__(\/|$)/, reason: 'test file reference' },
   { pattern: /(^|\/)__mocks__(\/|$)/, reason: 'mock file reference' },
   { pattern: /(^|\/)e2e(\/|$)/, reason: 'e2e file reference' },
   { pattern: /(^|\/)fixtures?(\/|$)/, reason: 'fixture reference' },
+  { pattern: /(^|\/)e2e\/fixtures?(\/|$)/, reason: 'E2E fixture reference' },
 ];
 
 function classifyFile(filePath) {
