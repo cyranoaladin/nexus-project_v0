@@ -39,7 +39,7 @@ describe('production standalone artifact audit', () => {
     expect(result.stdout).toContain('forbidden package');
   });
 
-  // Forbidden directories
+  // Advisory directories (tracked but not blocking)
   it.each([
     '__tests__/foo.ts',
     '__mocks__/bar.js',
@@ -49,10 +49,12 @@ describe('production standalone artifact audit', () => {
     'coverage/lcov.info',
     'playwright-report/index.html',
     'test-results/screenshot.png',
-  ])('rejects forbidden directory: %s', (file) => {
+  ])('tracks advisory directory: %s', (file) => {
     const result = runAudit(['server.js', file]);
-    expect(result.status).not.toBe(0);
-    expect(result.stdout).toContain('forbidden directory');
+    expect(result.status).toBe(0);
+    const report = JSON.parse(result.stdout);
+    expect(report.advisories.length).toBeGreaterThan(0);
+    expect(report.advisories[0].reason).toContain('advisory');
   });
 
   // .env files: each forbidden variant
@@ -97,7 +99,7 @@ describe('production standalone artifact audit', () => {
     expect(result.stdout).toContain('secret key');
   });
 
-  // Forbidden file patterns
+  // Advisory file patterns (tracked but not blocking)
   it.each([
     'docker-compose.yml',
     'docker-compose.prod.yml',
@@ -106,9 +108,11 @@ describe('production standalone artifact audit', () => {
     'fix.patch',
     'build.log',
     'canonical-bilans-pack.json',
-  ])('rejects forbidden file: %s', (file) => {
+  ])('tracks advisory file: %s', (file) => {
     const result = runAudit(['server.js', file]);
-    expect(result.status).not.toBe(0);
+    expect(result.status).toBe(0);
+    const report = JSON.parse(result.stdout);
+    expect(report.advisories.length).toBeGreaterThan(0);
   });
 
   it('reports top-level directories with size breakdown', () => {
@@ -130,14 +134,15 @@ describe('production standalone artifact audit', () => {
     expect(typeof report.topLevelReport['.next'].sizeMB).toBe('number');
   });
 
-  it('detects absolute local paths in text files', () => {
+  it('tracks absolute local paths in text files (informational)', () => {
     const result = runAudit(['server.js'], {
       setup: (root) => {
         fs.writeFileSync(path.join(root, 'config.json'), '{"path": "/home/developer/project"}');
       },
     });
-    expect(result.status).not.toBe(0);
-    expect(result.stdout).toContain('absolute local path');
+    expect(result.status).toBe(0);
+    const report = JSON.parse(result.stdout);
+    expect(report.absolutePathFiles).toContain('config.json');
   });
 
   // Filesystem error tests
