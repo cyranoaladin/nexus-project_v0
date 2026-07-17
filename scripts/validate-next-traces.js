@@ -29,10 +29,18 @@ const warnings = [];
 const outsideRoot = [];
 const referenceDetails = [];
 
+// Safe .env suffixes — files ending with these are not considered real secrets.
+const envSafeSuffixes = ['.example', '.sample', '.template'];
+function isRealEnvFile(filePath) {
+  const name = path.basename(filePath);
+  if (!/^\.env/i.test(name)) return false;
+  return !envSafeSuffixes.some((s) => name.endsWith(s));
+}
+
 // Hard errors: actual secrets or unsafe content in traces.
 const errorPatterns = [
   { pattern: /\.(pem|key|p12|pfx)$/i, reason: 'secret key file' },
-  { pattern: /(^|\/)\.env(?!\.example|\.sample|\.template)(\.|$)/i, reason: 'real .env file' },
+  { pattern: null, test: isRealEnvFile, reason: 'real .env file' },
   { pattern: /(^|\/)\.worktrees(\/|$)/, reason: '.worktrees directory' },
   { pattern: /(^|\/)\.git(\/|$)/, reason: '.git directory' },
   { pattern: /(^|\/)e2e\/fixtures?(\/|$)/, reason: 'E2E fixture' },
@@ -136,7 +144,9 @@ for (const manifestPath of manifests) {
     });
 
     // Check error patterns
-    const errorMatch = errorPatterns.find(({ pattern }) => pattern.test(normalized));
+    const errorMatch = errorPatterns.find(({ pattern, test: testFn }) =>
+      testFn ? testFn(normalized) : pattern.test(normalized),
+    );
     if (errorMatch) {
       errors.push({ manifest: relativeManifest, reference, resolved, reason: errorMatch.reason, category });
       continue;
