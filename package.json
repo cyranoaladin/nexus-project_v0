@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "node scripts/check-production-build-env.js && next build && node scripts/copy-public-assets.js && node scripts/validate-next-traces.js .next && node scripts/audit-production-artifact.js .next/standalone && node scripts/release/verify-standalone-artifact.mjs",
     "build:base": "next build",
-    "build:e2e": "node scripts/check-production-build-env.js --mode=e2e && next build && node scripts/copy-public-assets.js && node scripts/audit-production-artifact.js .next/standalone && node scripts/release/verify-standalone-artifact.mjs",
+    "build:e2e": "node scripts/check-production-build-env.js --mode=e2e && next build && node scripts/copy-public-assets.js && node scripts/validate-next-traces.js .next && node scripts/audit-production-artifact.js .next/standalone && node scripts/release/verify-standalone-artifact.mjs",
     "build:gate": "next build 2>&1 | tee build-output.log && node scripts/copy-public-assets.js && bash scripts/check-bundle-weight.sh build-output.log",
     "start": "next start",
     "start:prod": "node .next/standalone/server.js",
