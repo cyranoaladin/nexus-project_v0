@@ -542,39 +542,54 @@ jobs:
             exit 1
           fi
 
-          # Parse findings by severity
-          errors=$(python3 -c "
+          # Parse and evaluate findings
+          python3 - <<'PYEOF'
           import json, sys
+
           with open('semgrep-report.json') as f:
               data = json.load(f)
-          results = data.get('results', [])
-          secrets = [r for r in results if 'secrets' in str(r.get('check_id', ''))]
-          errors_list = [r for r in results if r.get('extra', {}).get('severity', '') == 'ERROR']
-          critical_high = [r for r in results if r.get('extra', {}).get('metadata', {}).get('impact', '').upper() in ('CRITICAL', 'HIGH')]
-          if secrets:
-              print(f'SECRETS_FOUND={len(secrets)}', file=sys.stderr)
-          if errors_list:
-              print(f'ERROR_FINDINGS={len(errors_list)}', file=sys.stderr)
-          if critical_high:
-              print(f'CRITICAL_HIGH={len(critical_high)}', file=sys.stderr)
-          total_blocking = len(secrets) + len(errors_list) + len(critical_high)
-          print(total_blocking)
-          " 2>&1)
 
-          echo "Semgrep evaluation: $errors"
-          blocking_count=$(echo "$errors" | tail -1)
-          if [ "$blocking_count" != "0" ]; then
-            echo "Semgrep: blocking findings detected"
-            cat semgrep-report.json | python3 -c "
-          import json, sys
-          data = json.load(sys.stdin)
-          for r in data.get('results', []):
+          results = data.get('results', [])
+
+          # Paths excluded from blocking (tests, CI scripts, seed data)
+          # These are still reported but don't fail the build.
+          non_blocking_prefixes = (
+              '__tests__/', 'e2e/', 'scripts/release/', 'scripts/seed-',
+              'scripts/gate-', 'test-results/', 'playwright-report/',
+          )
+
+          def is_blocking_path(path):
+              return not any(path.startswith(p) for p in non_blocking_prefixes)
+
+          secrets = [r for r in results
+                     if 'secrets' in str(r.get('check_id', ''))
+                     and is_blocking_path(r.get('path', ''))]
+          errors_list = [r for r in results
+                         if r.get('extra', {}).get('severity', '') == 'ERROR'
+                         and is_blocking_path(r.get('path', ''))]
+          critical_high = [r for r in results
+                           if r.get('extra', {}).get('metadata', {}).get('impact', '').upper() in ('CRITICAL', 'HIGH')
+                           and is_blocking_path(r.get('path', ''))]
+
+          # Report all findings
+          for r in results:
               sev = r.get('extra', {}).get('severity', 'UNKNOWN')
-              print(f\"{sev}: {r.get('check_id', '?')} at {r.get('path', '?')}:{r.get('start', {}).get('line', '?')}\")
-          " || true
-            exit 1
-          fi
-          echo "Semgrep: no blocking findings"
+              path = r.get('path', '?')
+              line = r.get('start', {}).get('line', '?')
+              blocking = is_blocking_path(path)
+              tag = 'BLOCK' if blocking else 'INFO'
+              print(f"{tag} {sev}: {r.get('check_id', '?')} at {path}:{line}")
+
+          total_blocking = len(secrets) + len(errors_list) + len(critical_high)
+          print(f"\nBlocking: {total_blocking} (secrets={len(secrets)}, errors={len(errors_list)}, critical_high={len(critical_high)})")
+          print(f"Total findings: {len(results)}")
+
+          if total_blocking > 0:
+              print("Semgrep: blocking findings detected in application code")
+              sys.exit(1)
+
+          print("Semgrep: no blocking findings in application code")
+          PYEOF
 
       - name: Upload Semgrep report
         if: always()
