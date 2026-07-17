@@ -163,8 +163,11 @@ function walk(directory, depth = 0) {
         topLevelStats[topLevel].totalSize += lstats.size;
       }
 
-      // Check text files for absolute local paths (only outside node_modules, small files)
-      if (!inNodeModules && isTextFile(entry.name) && lstats.size < 512 * 1024) {
+      // Check text files for absolute local paths.
+      // Skip node_modules (third-party code) and .next/ build output (Next.js
+      // embeds build-time absolute paths in server manifests and chunks).
+      const inNextBuild = relativePath.startsWith('.next/');
+      if (!inNodeModules && !inNextBuild && isTextFile(entry.name) && lstats.size < 512 * 1024) {
         try {
           const content = fs.readFileSync(fullPath, 'utf8');
           if (absolutePathPattern.test(content)) {
