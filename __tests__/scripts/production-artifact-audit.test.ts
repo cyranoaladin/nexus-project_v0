@@ -6,13 +6,14 @@ import { spawnSync } from 'node:child_process';
 const projectRoot = path.resolve(__dirname, '../..');
 const auditScript = path.join(projectRoot, 'scripts/audit-production-artifact.js');
 
-function runAudit(files: string[]) {
+function runAudit(files: string[], opts?: { setup?: (root: string) => void }) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'nexus-artifact-'));
   for (const relativePath of files) {
     const fullPath = path.join(root, relativePath);
     fs.mkdirSync(path.dirname(fullPath), { recursive: true });
     fs.writeFileSync(fullPath, 'fixture');
   }
+  if (opts?.setup) opts.setup(root);
   return spawnSync(process.execPath, [auditScript, root], { encoding: 'utf8' });
 }
 
@@ -110,7 +111,7 @@ describe('production standalone artifact audit', () => {
     expect(result.status).not.toBe(0);
   });
 
-  it('reports top-level directories in output', () => {
+  it('reports top-level directories with size breakdown', () => {
     const result = runAudit([
       'server.js',
       '.next/server/app.js',
@@ -123,5 +124,41 @@ describe('production standalone artifact audit', () => {
     expect(report.topLevelDirs).toContain('node_modules');
     expect(report.topLevelDirs).toContain('public');
     expect(report.fileCount).toBeGreaterThan(0);
+    expect(report.topLevelReport).toBeDefined();
+    expect(report.topLevelReport['.next']).toBeDefined();
+    expect(report.topLevelReport['.next'].fileCount).toBeGreaterThan(0);
+    expect(typeof report.topLevelReport['.next'].sizeMB).toBe('number');
+  });
+
+  it('detects absolute local paths in text files', () => {
+    const result = runAudit(['server.js'], {
+      setup: (root) => {
+        fs.writeFileSync(path.join(root, 'config.json'), '{"path": "/home/developer/project"}');
+      },
+    });
+    expect(result.status).not.toBe(0);
+    expect(result.stdout).toContain('absolute local path');
+  });
+
+  // Filesystem error tests
+  it('fails on unreadable directory', () => {
+    const result = runAudit(['server.js', 'protected/file.js'], {
+      setup: (root) => {
+        fs.chmodSync(path.join(root, 'protected'), 0o000);
+      },
+    });
+    expect(result.status).not.toBe(0);
+    expect(result.stdout).toContain('filesystem error');
+    // Restore permissions for cleanup
+  });
+
+  it('fails on broken symlink', () => {
+    const result = runAudit(['server.js'], {
+      setup: (root) => {
+        fs.symlinkSync('/nonexistent/target', path.join(root, 'broken-link'));
+      },
+    });
+    expect(result.status).not.toBe(0);
+    expect(result.stdout).toContain('symlink');
   });
 });

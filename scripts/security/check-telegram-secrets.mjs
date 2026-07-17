@@ -46,6 +46,8 @@ function record(file, content, code, pattern) {
 function inspectFile(file) {
   const buffer = readFileSync(file);
   if (buffer.includes(0)) return;
+  // Skip files larger than 256 MB to avoid V8 string length limit
+  if (buffer.length > 256 * 1024 * 1024) return;
   const content = buffer.toString('utf8');
   for (const rule of rules) record(file, content, rule.code, rule.pattern);
 
