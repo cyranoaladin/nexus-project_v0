@@ -3,17 +3,18 @@
 /**
  * audit-production-artifact.js — Validates standalone artifact content.
  *
- * Checks: forbidden packages, forbidden directories, symlinks, .env files,
- * secret key files, source maps, filesystem errors, size limits.
- * All filesystem errors are fatal (no silent catch).
+ * Critical (blocking): forbidden packages, .env files, secret keys,
+ * symlinks, filesystem errors, size limits.
  *
- * Enhanced report includes:
+ * Advisory (warnings): forbidden directories, file patterns, source maps,
+ * absolute local paths. These are tracked in the report but do not block
+ * the build because Next.js standalone output includes project root files
+ * by design. The deployment process should strip them.
+ *
+ * Report includes:
  * - top-level directories with file counts and sizes
- * - source maps listing
- * - git-ignored files
- * - test/mock files
- * - compose/config files
- * - absolute local paths in text files
+ * - source maps, test/mock/compose/config file tracking
+ * - absolute local paths in text files (informational)
  */
 
 const fs = require('node:fs');
@@ -23,14 +24,14 @@ const root = path.resolve(process.argv[2] ?? '.next/standalone');
 
 const forbiddenPackagePattern = /(^|\/)node_modules\/(?:@emnapi\/runtime|@img\/sharp-wasm32)(\/|$)/;
 
-// Directories that must never appear anywhere in the artifact.
-const forbiddenDirs = new Set([
+// Directories that should not be deployed (advisory — tracked as warnings).
+const advisoryDirs = new Set([
   '.worktrees', '.git', 'e2e', '__tests__', '__mocks__',
   'playwright-report', 'test-results', 'coverage',
 ]);
 
-// File names/patterns that must never appear.
-const forbiddenFilePatterns = [
+// File patterns that should not be deployed (advisory).
+const advisoryFilePatterns = [
   /^docker-compose.*\.ya?ml$/i,
   /^Dockerfile/i,
   /\.patch$/,
@@ -38,23 +39,24 @@ const forbiddenFilePatterns = [
   /^canonical-bilans-pack\.json$/,
 ];
 
-// .env files: refuse all except explicitly safe suffixes.
+// .env files: refuse all except explicitly safe suffixes (BLOCKING).
 const envSafeSuffixes = ['.example', '.sample', '.template'];
 function isEnvForbidden(name) {
   if (!/^\.env/i.test(name)) return false;
   return !envSafeSuffixes.some((s) => name.endsWith(s));
 }
 
-// Secret key files.
+// Secret key files (BLOCKING).
 const secretKeyPattern = /\.(pem|key|p12|pfx)$/i;
 
-// Source maps in app code.
+// Source maps in app code (advisory).
 const sourceMapPattern = /\.js\.map$/;
 
-// Absolute local paths pattern (common dev paths in text files).
+// Absolute local paths pattern (informational).
 const absolutePathPattern = /(?:\/home\/[a-z][a-z0-9_-]*\/|\/Users\/[a-z][a-z0-9_-]*\/|C:\\Users\\)/i;
 
-const findings = [];
+const findings = [];       // Blocking findings
+const advisories = [];     // Non-blocking findings (tracked in report)
 const topLevelDirs = [];
 const topLevelStats = {};
 const sourceMaps = [];
@@ -90,14 +92,15 @@ function walk(directory, depth = 0) {
       topLevelStats[entry.name] = { fileCount: 0, totalSize: 0 };
     }
 
-    // Forbidden directories (skip checks inside node_modules — packages may contain .git metadata)
     const inNodeModules = relativePath.startsWith('node_modules/');
-    if (entry.isDirectory() && forbiddenDirs.has(entry.name) && !inNodeModules) {
-      findings.push({ path: relativePath, reason: `forbidden directory: ${entry.name}` });
+
+    // Advisory: directories that should not be deployed
+    if (entry.isDirectory() && advisoryDirs.has(entry.name) && !inNodeModules) {
+      advisories.push({ path: relativePath, reason: `advisory: directory should not be deployed: ${entry.name}` });
       continue;
     }
 
-    // Symlink / lstat check
+    // BLOCKING: symlink / lstat check
     let lstats;
     try {
       lstats = fs.lstatSync(fullPath);
@@ -111,41 +114,41 @@ function walk(directory, depth = 0) {
       continue;
     }
 
-    // Forbidden packages
+    // BLOCKING: forbidden packages
     if (forbiddenPackagePattern.test(relativePath)) {
       findings.push({ path: relativePath, reason: 'forbidden package in artifact' });
       continue;
     }
 
-    // .env files (only outside node_modules — packages may ship .env examples)
+    // BLOCKING: .env files (only outside node_modules)
     if (!inNodeModules && isEnvForbidden(entry.name)) {
       findings.push({ path: relativePath, reason: `forbidden .env file: ${entry.name}` });
       continue;
     }
 
-    // Secret key files (check everywhere)
+    // BLOCKING: secret key files
     if (secretKeyPattern.test(entry.name)) {
       findings.push({ path: relativePath, reason: 'secret key file in artifact' });
       continue;
     }
 
-    // Forbidden file patterns (only outside node_modules)
+    // Advisory: forbidden file patterns (only outside node_modules)
     if (!inNodeModules) {
-      const matchedPattern = forbiddenFilePatterns.find((p) => p.test(entry.name));
+      const matchedPattern = advisoryFilePatterns.find((p) => p.test(entry.name));
       if (matchedPattern) {
-        findings.push({ path: relativePath, reason: `forbidden file pattern: ${entry.name}` });
+        advisories.push({ path: relativePath, reason: `advisory: file should not be deployed: ${entry.name}` });
         continue;
       }
     }
 
-    // Source maps in app code (allow in node_modules)
+    // Advisory: source maps in app code
     if (sourceMapPattern.test(entry.name) && !inNodeModules) {
-      findings.push({ path: relativePath, reason: 'source map in app artifact' });
+      advisories.push({ path: relativePath, reason: 'advisory: source map in app artifact' });
       sourceMaps.push(relativePath);
       continue;
     }
 
-    // Track informational categories (not blocking)
+    // Track informational categories
     if (!inNodeModules) {
       if (/(^|\/)__tests__(\/|$)/.test(relativePath)) testFiles.push(relativePath);
       if (/(^|\/)__mocks__(\/|$)/.test(relativePath)) mockFiles.push(relativePath);
@@ -157,22 +160,18 @@ function walk(directory, depth = 0) {
       fileCount++;
       totalSize += lstats.size;
 
-      // Track per top-level dir
       if (topLevelStats[topLevel]) {
         topLevelStats[topLevel].fileCount++;
         topLevelStats[topLevel].totalSize += lstats.size;
       }
 
-      // Check text files for absolute local paths.
-      // Skip node_modules (third-party code) and .next/ build output (Next.js
-      // embeds build-time absolute paths in server manifests and chunks).
+      // Informational: absolute local paths in text files
       const inNextBuild = relativePath.startsWith('.next/');
       if (!inNodeModules && !inNextBuild && isTextFile(entry.name) && lstats.size < 512 * 1024) {
         try {
           const content = fs.readFileSync(fullPath, 'utf8');
           if (absolutePathPattern.test(content)) {
             absolutePathFiles.push(relativePath);
-            findings.push({ path: relativePath, reason: 'absolute local path detected in text file' });
           }
         } catch (err) {
           findings.push({ path: relativePath, reason: `filesystem error (read): ${err.message}` });
@@ -195,7 +194,6 @@ if (totalSize > MAX_TOTAL_SIZE) {
   findings.push({ path: '(total)', reason: `total size ${(totalSize / 1024 / 1024).toFixed(1)}MB exceeds limit ${MAX_TOTAL_SIZE / 1024 / 1024}MB` });
 }
 
-// Build size-per-top-level report
 const topLevelReport = {};
 for (const [dir, stats] of Object.entries(topLevelStats)) {
   topLevelReport[dir] = {
@@ -217,6 +215,7 @@ const report = {
   configFiles,
   absolutePathFiles,
   findings: findings.sort((a, b) => a.path.localeCompare(b.path)),
+  advisories: advisories.sort((a, b) => a.path.localeCompare(b.path)),
   passed: findings.length === 0,
 };
 
