@@ -101,9 +101,11 @@ for (const manifestPath of manifests) {
     const resolved = path.resolve(path.dirname(manifestPath), reference);
     const normalized = resolved.split(path.sep).join('/');
 
-    // Check for absolute local paths in the reference itself
-    if (absoluteLocalPattern.test(normalized)) {
-      errors.push({ manifest: relativeManifest, reference, resolved, reason: 'absolute local path' });
+    // Check for absolute local paths in the raw reference (before resolution).
+    // Resolved paths are always absolute (path.resolve), so only check the
+    // original manifest reference string for hardcoded local paths.
+    if (absoluteLocalPattern.test(reference)) {
+      errors.push({ manifest: relativeManifest, reference, resolved, reason: 'absolute local path in manifest' });
       continue;
     }
 
