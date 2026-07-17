@@ -3,18 +3,15 @@
 /**
  * audit-production-artifact.js — Validates standalone artifact content.
  *
- * Critical (blocking): forbidden packages, .env files, secret keys,
- * symlinks, filesystem errors, size limits.
- *
- * Advisory (warnings): forbidden directories, file patterns, source maps,
- * absolute local paths. These are tracked in the report but do not block
- * the build because Next.js standalone output includes project root files
- * by design. The deployment process should strip them.
+ * Critical (blocking): forbidden packages, forbidden directories,
+ * forbidden file patterns, .env files, secret keys, symlinks,
+ * filesystem errors, size limits.
  *
  * Report includes:
  * - top-level directories with file counts and sizes
  * - source maps, test/mock/compose/config file tracking
- * - absolute local paths in text files (informational)
+ * - absolute local paths in text files
+ * - gitignored files detected in artifact
  */
 
 const fs = require('node:fs');
@@ -24,14 +21,14 @@ const root = path.resolve(process.argv[2] ?? '.next/standalone');
 
 const forbiddenPackagePattern = /(^|\/)node_modules\/(?:@emnapi\/runtime|@img\/sharp-wasm32)(\/|$)/;
 
-// Directories that should not be deployed (advisory — tracked as warnings).
-const advisoryDirs = new Set([
+// Directories forbidden in standalone artifact (BLOCKING).
+const forbiddenDirs = new Set([
   '.worktrees', '.git', 'e2e', '__tests__', '__mocks__',
   'playwright-report', 'test-results', 'coverage',
 ]);
 
-// File patterns that should not be deployed (advisory).
-const advisoryFilePatterns = [
+// File patterns forbidden in standalone artifact (BLOCKING).
+const forbiddenFilePatterns = [
   /^docker-compose.*\.ya?ml$/i,
   /^Dockerfile/i,
   /\.patch$/,
@@ -56,7 +53,6 @@ const sourceMapPattern = /\.js\.map$/;
 const absolutePathPattern = /(?:\/home\/[a-z][a-z0-9_-]*\/|\/Users\/[a-z][a-z0-9_-]*\/|C:\\Users\\)/i;
 
 const findings = [];       // Blocking findings
-const advisories = [];     // Non-blocking findings (tracked in report)
 const topLevelDirs = [];
 const topLevelStats = {};
 const sourceMaps = [];
@@ -65,9 +61,25 @@ const mockFiles = [];
 const composeFiles = [];
 const configFiles = [];
 const absolutePathFiles = [];
+const gitIgnoredFiles = [];
 let fileCount = 0;
 let totalSize = 0;
 const MAX_TOTAL_SIZE = 500 * 1024 * 1024;
+
+// Common gitignored patterns (for detection in artifact).
+const gitIgnoredPatterns = [
+  /^\.DS_Store$/,
+  /^Thumbs\.db$/,
+  /^\.eslintcache$/,
+  /^\.tsbuildinfo$/,
+  /\.swp$/,
+  /~$/,
+  /^npm-debug\.log/,
+  /^yarn-debug\.log/,
+  /^yarn-error\.log/,
+  /^\.npm$/,
+  /^\.yarn$/,
+];
 
 function isTextFile(name) {
   return /\.(js|ts|tsx|jsx|json|yml|yaml|md|txt|css|html|env|mjs|cjs|toml|cfg|ini|sh)$/i.test(name);
@@ -94,9 +106,9 @@ function walk(directory, depth = 0) {
 
     const inNodeModules = relativePath.startsWith('node_modules/');
 
-    // Advisory: directories that should not be deployed
-    if (entry.isDirectory() && advisoryDirs.has(entry.name) && !inNodeModules) {
-      advisories.push({ path: relativePath, reason: `advisory: directory should not be deployed: ${entry.name}` });
+    // BLOCKING: directories forbidden in standalone artifact
+    if (entry.isDirectory() && forbiddenDirs.has(entry.name) && !inNodeModules) {
+      findings.push({ path: relativePath, reason: `forbidden directory in artifact: ${entry.name}` });
       continue;
     }
 
@@ -132,20 +144,23 @@ function walk(directory, depth = 0) {
       continue;
     }
 
-    // Advisory: forbidden file patterns (only outside node_modules)
+    // BLOCKING: forbidden file patterns (only outside node_modules)
     if (!inNodeModules) {
-      const matchedPattern = advisoryFilePatterns.find((p) => p.test(entry.name));
+      const matchedPattern = forbiddenFilePatterns.find((p) => p.test(entry.name));
       if (matchedPattern) {
-        advisories.push({ path: relativePath, reason: `advisory: file should not be deployed: ${entry.name}` });
+        findings.push({ path: relativePath, reason: `forbidden file in artifact: ${entry.name}` });
         continue;
       }
     }
 
-    // Advisory: source maps in app code
+    // Track source maps in app code (informational)
     if (sourceMapPattern.test(entry.name) && !inNodeModules) {
-      advisories.push({ path: relativePath, reason: 'advisory: source map in app artifact' });
       sourceMaps.push(relativePath);
-      continue;
+    }
+
+    // Track gitignored files in artifact (informational)
+    if (!inNodeModules && gitIgnoredPatterns.some((p) => p.test(entry.name))) {
+      gitIgnoredFiles.push(relativePath);
     }
 
     // Track informational categories
@@ -214,8 +229,8 @@ const report = {
   composeFiles,
   configFiles,
   absolutePathFiles,
+  gitIgnoredFiles,
   findings: findings.sort((a, b) => a.path.localeCompare(b.path)),
-  advisories: advisories.sort((a, b) => a.path.localeCompare(b.path)),
   passed: findings.length === 0,
 };
 

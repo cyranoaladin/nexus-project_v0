@@ -39,7 +39,7 @@ describe('production standalone artifact audit', () => {
     expect(result.stdout).toContain('forbidden package');
   });
 
-  // Advisory directories (tracked but not blocking)
+  // Forbidden directories (blocking)
   it.each([
     '__tests__/foo.ts',
     '__mocks__/bar.js',
@@ -49,12 +49,10 @@ describe('production standalone artifact audit', () => {
     'coverage/lcov.info',
     'playwright-report/index.html',
     'test-results/screenshot.png',
-  ])('tracks advisory directory: %s', (file) => {
+  ])('rejects forbidden directory: %s', (file) => {
     const result = runAudit(['server.js', file]);
-    expect(result.status).toBe(0);
-    const report = JSON.parse(result.stdout);
-    expect(report.advisories.length).toBeGreaterThan(0);
-    expect(report.advisories[0].reason).toContain('advisory');
+    expect(result.status).not.toBe(0);
+    expect(result.stdout).toContain('forbidden directory');
   });
 
   // .env files: each forbidden variant
@@ -99,7 +97,7 @@ describe('production standalone artifact audit', () => {
     expect(result.stdout).toContain('secret key');
   });
 
-  // Advisory file patterns (tracked but not blocking)
+  // Forbidden file patterns (blocking)
   it.each([
     'docker-compose.yml',
     'docker-compose.prod.yml',
@@ -108,11 +106,10 @@ describe('production standalone artifact audit', () => {
     'fix.patch',
     'build.log',
     'canonical-bilans-pack.json',
-  ])('tracks advisory file: %s', (file) => {
+  ])('rejects forbidden file: %s', (file) => {
     const result = runAudit(['server.js', file]);
-    expect(result.status).toBe(0);
-    const report = JSON.parse(result.stdout);
-    expect(report.advisories.length).toBeGreaterThan(0);
+    expect(result.status).not.toBe(0);
+    expect(result.stdout).toContain('forbidden file');
   });
 
   it('reports top-level directories with size breakdown', () => {
@@ -165,5 +162,29 @@ describe('production standalone artifact audit', () => {
     });
     expect(result.status).not.toBe(0);
     expect(result.stdout).toContain('symlink');
+  });
+
+  it('fails when a file is deleted during audit (race condition)', () => {
+    // We can't truly simulate a race, but we test that lstat errors
+    // on a file that disappears are caught as findings.
+    const result = runAudit(['server.js'], {
+      setup: (root) => {
+        // Create a file then make its parent unreadable after creation
+        const subdir = path.join(root, 'vanishing');
+        fs.mkdirSync(subdir);
+        fs.writeFileSync(path.join(subdir, 'ghost.js'), 'content');
+        fs.chmodSync(subdir, 0o000);
+      },
+    });
+    expect(result.status).not.toBe(0);
+    expect(result.stdout).toContain('filesystem error');
+  });
+
+  it('reports gitignored files found in artifact', () => {
+    const result = runAudit(['server.js', '.DS_Store', '.eslintcache']);
+    expect(result.status).toBe(0);
+    const report = JSON.parse(result.stdout);
+    expect(report.gitIgnoredFiles).toContain('.DS_Store');
+    expect(report.gitIgnoredFiles).toContain('.eslintcache');
   });
 });
