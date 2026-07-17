@@ -3,11 +3,13 @@
 /**
  * validate-next-traces.js — Validates Next.js output file tracing manifests.
  *
- * For each .nft.json manifest, checks references for:
- * - errors: secret key files, real .env files, .worktrees, .git
- * - warnings: __tests__, __mocks__, e2e, fixtures (traced but not shipped)
+ * For each .nft.json manifest, resolves each reference and classifies it:
+ * - errors: secret key files, real .env files, .worktrees, .git,
+ *           private keys, fixtures E2E, backup/dump, absolute local paths
+ * - warnings: __tests__, __mocks__ (only if standalone audit proves they aren't copied)
  * - outsideRoot: references that resolve outside outputFileTracingRoot
  *
+ * Report structure: { errors, warnings, references, outsideRoot }
  * Errors block the build. Warnings are informational.
  */
 
@@ -25,6 +27,7 @@ const missing = [];
 const errors = [];
 const warnings = [];
 const outsideRoot = [];
+const referenceDetails = [];
 
 // Hard errors: actual secrets or unsafe content in traces.
 const errorPatterns = [
@@ -32,7 +35,12 @@ const errorPatterns = [
   { pattern: /(^|\/)\.env(?!\.example|\.sample|\.template)(\.|$)/i, reason: 'real .env file' },
   { pattern: /(^|\/)\.worktrees(\/|$)/, reason: '.worktrees directory' },
   { pattern: /(^|\/)\.git(\/|$)/, reason: '.git directory' },
+  { pattern: /(^|\/)e2e\/fixtures?(\/|$)/, reason: 'E2E fixture' },
+  { pattern: /\.(bak|dump|sql\.gz)$/i, reason: 'backup or dump file' },
 ];
+
+// Absolute local path patterns (never valid in traced references)
+const absoluteLocalPattern = /^\/home\/|^\/Users\/|^C:\\Users\\/;
 
 // Soft warnings: test/mock files that Next.js traces but doesn't ship.
 const warningPatterns = [
@@ -42,8 +50,26 @@ const warningPatterns = [
   { pattern: /(^|\/)fixtures?(\/|$)/, reason: 'fixture reference' },
 ];
 
+function classifyFile(filePath) {
+  const ext = path.extname(filePath).toLowerCase();
+  if (['.js', '.mjs', '.cjs'].includes(ext)) return 'javascript';
+  if (['.ts', '.tsx'].includes(ext)) return 'typescript';
+  if (['.json'].includes(ext)) return 'json';
+  if (['.node'].includes(ext)) return 'native-addon';
+  if (['.css', '.scss', '.sass'].includes(ext)) return 'style';
+  if (['.wasm'].includes(ext)) return 'wasm';
+  return 'other';
+}
+
 function walk(directory) {
-  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+  let entries;
+  try {
+    entries = fs.readdirSync(directory, { withFileTypes: true });
+  } catch (err) {
+    errors.push({ manifest: '(walk)', reference: directory, reason: `filesystem error: ${err.message}` });
+    return;
+  }
+  for (const entry of entries) {
     const fullPath = path.join(directory, entry.name);
     if (entry.isDirectory()) walk(fullPath);
     else if (entry.name.endsWith('.nft.json')) manifests.push(fullPath);
@@ -75,41 +101,63 @@ for (const manifestPath of manifests) {
     const resolved = path.resolve(path.dirname(manifestPath), reference);
     const normalized = resolved.split(path.sep).join('/');
 
-    if (!fs.existsSync(resolved)) {
+    // Check for absolute local paths in the reference itself
+    if (absoluteLocalPattern.test(normalized)) {
+      errors.push({ manifest: relativeManifest, reference, resolved, reason: 'absolute local path' });
+      continue;
+    }
+
+    const exists = fs.existsSync(resolved);
+    if (!exists) {
       missing.push({ manifest: relativeManifest, reference });
       continue;
     }
 
     // Check if reference is outside project root
     const relative = path.relative(projectRoot, resolved);
-    if (relative.startsWith('..')) {
+    const isOutside = relative.startsWith('..');
+    if (isOutside) {
       outsideRoot.push({ manifest: relativeManifest, reference, resolved });
     }
+
+    // Classify
+    const category = classifyFile(resolved);
+
+    // Record reference detail
+    referenceDetails.push({
+      manifest: relativeManifest,
+      reference,
+      resolved,
+      insideRoot: !isOutside,
+      exists: true,
+      category,
+    });
 
     // Check error patterns
     const errorMatch = errorPatterns.find(({ pattern }) => pattern.test(normalized));
     if (errorMatch) {
-      errors.push({ manifest: relativeManifest, reference, reason: errorMatch.reason });
+      errors.push({ manifest: relativeManifest, reference, resolved, reason: errorMatch.reason, category });
       continue;
     }
 
     // Check warning patterns
     const warnMatch = warningPatterns.find(({ pattern }) => pattern.test(normalized));
     if (warnMatch) {
-      warnings.push({ manifest: relativeManifest, reference, reason: warnMatch.reason });
+      warnings.push({ manifest: relativeManifest, reference, resolved, reason: warnMatch.reason, category });
     }
   }
 }
 
 const report = {
   root,
+  projectRoot,
   manifests: manifests.length,
   references: referenceCount,
   malformed,
   missing,
   errors,
-  warnings: warnings.length,
-  outsideRoot: outsideRoot.length,
+  warnings,
+  outsideRoot,
   passed:
     manifests.length > 0 &&
     malformed.length === 0 &&

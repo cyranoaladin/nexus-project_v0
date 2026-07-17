@@ -514,14 +514,76 @@ jobs:
         run: npm ci
 
       # --- SEMGREP ---
+      - name: Install Semgrep
+        run: pip3 install semgrep
+
       - name: Run Semgrep
-        uses: returntocorp/semgrep-action@v1
+        run: |
+          set +e
+          semgrep scan \
+            --config p/security-audit \
+            --config p/secrets \
+            --config p/typescript \
+            --config p/nextjs \
+            --json --output semgrep-report.json \
+            .
+          semgrep_code=$?
+          set -e
+          echo "SEMGREP_EXIT_CODE=$semgrep_code"
+
+          # Evaluate results
+          if [ "$semgrep_code" -gt 1 ]; then
+            echo "Semgrep: scanner error (code=$semgrep_code)"
+            exit 1
+          fi
+
+          if [ ! -f semgrep-report.json ]; then
+            echo "Semgrep: report file not generated — scanner failure"
+            exit 1
+          fi
+
+          # Parse findings by severity
+          errors=$(python3 -c "
+          import json, sys
+          with open('semgrep-report.json') as f:
+              data = json.load(f)
+          results = data.get('results', [])
+          secrets = [r for r in results if 'secrets' in str(r.get('check_id', ''))]
+          errors_list = [r for r in results if r.get('extra', {}).get('severity', '') == 'ERROR']
+          critical_high = [r for r in results if r.get('extra', {}).get('metadata', {}).get('impact', '').upper() in ('CRITICAL', 'HIGH')]
+          if secrets:
+              print(f'SECRETS_FOUND={len(secrets)}', file=sys.stderr)
+          if errors_list:
+              print(f'ERROR_FINDINGS={len(errors_list)}', file=sys.stderr)
+          if critical_high:
+              print(f'CRITICAL_HIGH={len(critical_high)}', file=sys.stderr)
+          total_blocking = len(secrets) + len(errors_list) + len(critical_high)
+          print(total_blocking)
+          " 2>&1)
+
+          echo "Semgrep evaluation: $errors"
+          blocking_count=$(echo "$errors" | tail -1)
+          if [ "$blocking_count" != "0" ]; then
+            echo "Semgrep: blocking findings detected"
+            cat semgrep-report.json | python3 -c "
+          import json, sys
+          data = json.load(sys.stdin)
+          for r in data.get('results', []):
+              sev = r.get('extra', {}).get('severity', 'UNKNOWN')
+              print(f\"{sev}: {r.get('check_id', '?')} at {r.get('path', '?')}:{r.get('start', {}).get('line', '?')}\")
+          " || true
+            exit 1
+          fi
+          echo "Semgrep: no blocking findings"
+
+      - name: Upload Semgrep report
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          config: >-
-            p/security-audit
-            p/secrets
-            p/typescript
-            p/nextjs
+          name: semgrep-report
+          path: semgrep-report.json
+          retention-days: 7
+          if-no-files-found: ignore
 
       # --- OSV SCANNER (Google) ---
       - name: Install and verify OSV Scanner
