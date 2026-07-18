@@ -1,0 +1,122 @@
+{
+  "REPO_SHA": "a1192c8dccf8eaa6ae223265a3bc9ceb56a6fff0",
+  "CAMPAIGN_VERSION": "1.0.0",
+  "CAMPAIGN_SOURCE_SHA256": "ddaee64cfd3231491597c40b514b6d52ee41529d1056d635087796176535ea5d",
+  "MODULES_VERSION": "2026-pre-rentree-v1",
+  "MODULES_SOURCE_SHA256": "891e75b032ad035d22a3f2569d78d707ca56f4a73c3465ee5aeab589466f541e",
+  "PRICING_VERSION": "2026-2027.2",
+  "PRICING_SOURCE_SHA256": "2581c06f0781b3642c40c36bf9da0582ce63ed7f95ca9ef02756350281af46c4",
+  "LEGAL_SOURCE_STATUS": "MISSING_APPROVED_COMMERCIAL_TERMS",
+  "V4_ARTIFACT_COUNT": 7,
+  "canonicalSources": [
+    {
+      "path": "repo:data/campaigns/pre-rentree-2026.json",
+      "sha256": "ddaee64cfd3231491597c40b514b6d52ee41529d1056d635087796176535ea5d",
+      "size": 13921,
+      "role": "CAMPAIGN"
+    },
+    {
+      "path": "repo:content/pre-rentree-2026/modules.json",
+      "sha256": "891e75b032ad035d22a3f2569d78d707ca56f4a73c3465ee5aeab589466f541e",
+      "size": 46926,
+      "role": "MODULES"
+    },
+    {
+      "path": "repo:data/pricing.canonical.json",
+      "sha256": "2581c06f0781b3642c40c36bf9da0582ce63ed7f95ca9ef02756350281af46c4",
+      "size": 43800,
+      "role": "PRICING"
+    },
+    {
+      "path": "repo:lib/legal.ts",
+      "sha256": "9088ae498e82282709226a39f1195bec161487290aa46c4a572d8b7d0d4735fd",
+      "size": 2268,
+      "role": "LEGAL_AND_CONTACT"
+    }
+  ],
+  "legalSources": [
+    {
+      "path": "repo:lib/legal.ts",
+      "sha256": "9088ae498e82282709226a39f1195bec161487290aa46c4a572d8b7d0d4735fd",
+      "size": 2268,
+      "status": "PRESENT"
+    },
+    {
+      "path": "repo:docs/legal/pre-rentree-2026-commercial-terms-gap-analysis.md",
+      "status": "MISSING",
+      "sha256": null
+    }
+  ],
+  "logos": [
+    {
+      "path": "v4:logo.png",
+      "sha256": "c4cfe5ba9380a6b10236db2caad713683ddb1cfed6303b2c202f6a51317f02a0",
+      "size": 18455,
+      "role": "COMPACT"
+    },
+    {
+      "path": "v4:logo_slogan_nexus.png",
+      "sha256": "81855d6817f93537262e08c2e8037d1ccc8eac14b0b611ba4686f9c28ba34315",
+      "size": 67975,
+      "role": "SLOGAN"
+    }
+  ],
+  "v4Generators": [
+    {
+      "path": "v4:outputs/generate_all_pdfs.py",
+      "sha256": "4e52903c244dc5325c3cb4271b67a8059ff581161b632cde4ab550cbc41c826a",
+      "size": 50373,
+      "role": "PRIMARY_GENERATOR"
+    },
+    {
+      "path": "v4:outputs/essentiel.html",
+      "sha256": "8b47bd978f83c67a84a90a1fc06d4e16845de59798f2f78287983fef577cb561",
+      "size": 8198,
+      "role": "SEPARATE_ESSENTIEL_PIPELINE"
+    }
+  ],
+  "v4Pdfs": [
+    {
+      "path": "v4:outputs/NexusReussite_PreRentree2026_DossierAccueil_PRINT.pdf",
+      "sha256": "fb8fdfdb0a6322442e0f607372ca2dd42673e30a7a93056b7966cdaf1442e48d",
+      "size": 150952,
+      "pageCount": 4
+    },
+    {
+      "path": "v4:outputs/NexusReussite_PreRentree2026_Essentiel.pdf",
+      "sha256": "09263bb4fa657395ea94762c95197df3910e9bb812f54e668c4b8c9d7973bad5",
+      "size": 138850,
+      "pageCount": 1
+    },
+    {
+      "path": "v4:outputs/NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf",
+      "sha256": "7d6dd707f123992b3d9255d9771c9e5307146e99772ca803349650d8c20ceabe",
+      "size": 174023,
+      "pageCount": 4
+    },
+    {
+      "path": "v4:outputs/NexusReussite_PreRentree2026_Programme_Premiere.pdf",
+      "sha256": "c29bfdf4305a367feb01434d434ed1a0bced881405e5f1e3c9b02970eac3dfcd",
+      "size": 156225,
+      "pageCount": 3
+    },
+    {
+      "path": "v4:outputs/NexusReussite_PreRentree2026_Programme_Seconde.pdf",
+      "sha256": "4090cb31e6ce4a621aceb7a37d8bf994d77b73de71f7b1e2bb2d78bf2f462273",
+      "size": 155679,
+      "pageCount": 3
+    },
+    {
+      "path": "v4:outputs/NexusReussite_PreRentree2026_Programme_Terminale.pdf",
+      "sha256": "3f5ac4bce29232ed0290d4dc57f797c530e4171a416c66aac8839d4564a9999a",
+      "size": 156410,
+      "pageCount": 3
+    },
+    {
+      "path": "v4:outputs/NexusReussite_PreRentree2026_Tarifs.pdf",
+      "sha256": "92675ac85207539897a818a65a7fb4b9d75c7f7d37fef7161e7d17fc184425b8",
+      "size": 139558,
+      "pageCount": 2
+    }
+  ]
+}
