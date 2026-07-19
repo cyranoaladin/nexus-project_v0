@@ -1,0 +1,90 @@
+{
+  "HTML_DOCUMENT_COUNT": 6,
+  "ACCESSIBILITY_ISSUE_COUNT": 0,
+  "DOCUMENTS": [
+    {
+      "HTML_FILE": "NexusReussite_PreRentree2026_Essentiel_PUBLIC.html",
+      "ISSUES": []
+    },
+    {
+      "HTML_FILE": "NexusReussite_PreRentree2026_Planning_PUBLIC.html",
+      "ISSUES": []
+    },
+    {
+      "HTML_FILE": "NexusReussite_PreRentree2026_Programme_Seconde_PUBLIC.html",
+      "ISSUES": []
+    },
+    {
+      "HTML_FILE": "NexusReussite_PreRentree2026_Programme_Premiere_PUBLIC.html",
+      "ISSUES": []
+    },
+    {
+      "HTML_FILE": "NexusReussite_PreRentree2026_Programme_Terminale_PUBLIC.html",
+      "ISSUES": []
+    },
+    {
+      "HTML_FILE": "NexusReussite_PreRentree2026_Tarifs_PUBLIC.html",
+      "ISSUES": []
+    }
+  ],
+  "STYLESHEET": {
+    "CONTRAST_CHECKS": [
+      {
+        "COLOR_TOKEN": "navy",
+        "FOREGROUND": "#071a3a",
+        "BACKGROUND": "#FFFFFF",
+        "CONTRAST_RATIO": 17.243,
+        "WCAG_AA_NORMAL_TEXT": true
+      },
+      {
+        "COLOR_TOKEN": "ink",
+        "FOREGROUND": "#172033",
+        "BACKGROUND": "#FFFFFF",
+        "CONTRAST_RATIO": 16.268,
+        "WCAG_AA_NORMAL_TEXT": true
+      },
+      {
+        "COLOR_TOKEN": "muted",
+        "FOREGROUND": "#566176",
+        "BACKGROUND": "#FFFFFF",
+        "CONTRAST_RATIO": 6.237,
+        "WCAG_AA_NORMAL_TEXT": true
+      },
+      {
+        "COLOR_TOKEN": "maths",
+        "FOREGROUND": "#1b64b0",
+        "BACKGROUND": "#FFFFFF",
+        "CONTRAST_RATIO": 6.006,
+        "WCAG_AA_NORMAL_TEXT": true
+      },
+      {
+        "COLOR_TOKEN": "francais",
+        "FOREGROUND": "#8a2743",
+        "BACKGROUND": "#FFFFFF",
+        "CONTRAST_RATIO": 8.565,
+        "WCAG_AA_NORMAL_TEXT": true
+      },
+      {
+        "COLOR_TOKEN": "nsi",
+        "FOREGROUND": "#6f42c1",
+        "BACKGROUND": "#FFFFFF",
+        "CONTRAST_RATIO": 6.511,
+        "WCAG_AA_NORMAL_TEXT": true
+      },
+      {
+        "COLOR_TOKEN": "pc",
+        "FOREGROUND": "#16847a",
+        "BACKGROUND": "#FFFFFF",
+        "CONTRAST_RATIO": 4.55,
+        "WCAG_AA_NORMAL_TEXT": true
+      }
+    ],
+    "CONTRAST_FAILURE_COUNT": 0,
+    "MINIMUM_DECLARED_FONT_SIZE_PT": 8.0,
+    "MINIMUM_FONT_THRESHOLD_PT": 8,
+    "MINIMUM_FONT_SIZE_PASS": true,
+    "FOCUS_INDICATOR_PRESENT": true,
+    "PRINT_AND_SCREEN_STYLES_PRESENT": true
+  },
+  "PDF_IS_NOT_THE_ONLY_ACCESS_PATH": true
+}

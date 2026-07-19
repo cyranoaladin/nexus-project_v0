@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexusreussite.academy/schemas/pre-rentree-2026-publication.snapshot.schema.json",
+  "title": "Nexus Réussite Pré-rentrée 2026 publication snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "sourceRepoSha",
+    "generatedAt",
+    "provenance",
+    "campaign",
+    "levels",
+    "subjects",
+    "blocks",
+    "schedule",
+    "academicProfiles",
+    "packs",
+    "modules",
+    "content",
+    "labels",
+    "cta",
+    "contact",
+    "legal",
+    "approvedPublicClaims",
+    "assets",
+    "document"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "sourceRepoSha": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "provenance": { "type": "object" },
+    "campaign": { "type": "object" },
+    "levels": { "type": "array", "minItems": 3, "maxItems": 3 },
+    "subjects": { "type": "array", "minItems": 4, "maxItems": 4 },
+    "blocks": { "type": "array", "minItems": 4, "maxItems": 4 },
+    "schedule": {
+      "type": "object",
+      "required": ["weeks", "sessions"],
+      "properties": {
+        "weeks": { "type": "array", "minItems": 2, "maxItems": 2 },
+        "sessions": { "type": "array", "minItems": 60, "maxItems": 60 }
+      }
+    },
+    "academicProfiles": { "type": "object" },
+    "packs": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "subjectCount", "title", "hoursPerSubject", "totalHours",
+          "sessionsPerSubject", "sessionDurationHours", "groupMin", "groupMax",
+          "price", "deposit", "balance", "pricePerHour"
+        ],
+        "properties": {
+          "subjectCount": { "type": "integer", "minimum": 1, "maximum": 4 },
+          "title": { "type": "string", "minLength": 1 },
+          "hoursPerSubject": { "type": "number", "exclusiveMinimum": 0 },
+          "totalHours": { "type": "number", "exclusiveMinimum": 0 },
+          "sessionsPerSubject": { "type": "integer", "minimum": 1 },
+          "sessionDurationHours": { "type": "number", "exclusiveMinimum": 0 },
+          "groupMin": { "type": "integer", "minimum": 1 },
+          "groupMax": { "type": "integer", "minimum": 1 },
+          "price": { "type": "integer", "minimum": 0 },
+          "deposit": { "type": "integer", "minimum": 0 },
+          "balance": { "type": "integer", "minimum": 0 },
+          "pricePerHour": { "type": "number", "exclusiveMinimum": 0 }
+        }
+      }
+    },
+    "modules": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "required": ["id", "level", "subjectId", "title", "subtitle", "prerequisites", "differentiation", "quickAssessment", "sessions"],
+        "properties": {
+          "sessions": { "type": "array", "minItems": 5, "maxItems": 5 }
+        }
+      }
+    },
+    "content": { "type": "object" },
+    "labels": { "type": "object" },
+    "cta": { "type": "object" },
+    "contact": { "type": "object" },
+    "legal": { "type": "object" },
+    "approvedPublicClaims": { "type": "array", "minItems": 1 },
+    "assets": { "type": "object" },
+    "document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version", "editDate", "publicClassification", "privateClassification",
+        "qrTarget", "outputs"
+      ],
+      "properties": {
+        "version": { "const": "v5-canonical" },
+        "editDate": { "type": "string", "format": "date" },
+        "publicClassification": { "const": "PUBLIC" },
+        "privateClassification": { "const": "PRIVÉ" },
+        "qrTarget": { "type": "string", "format": "uri" },
+        "outputs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["publicPdf", "publicHtml", "social", "privatePdf"],
+          "properties": {
+            "publicPdf": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["essential", "planning", "programSeconde", "programPremiere", "programTerminale", "pricing"],
+              "properties": {
+                "essential": { "type": "string", "pattern": "\\.pdf$" },
+                "planning": { "type": "string", "pattern": "\\.pdf$" },
+                "programSeconde": { "type": "string", "pattern": "\\.pdf$" },
+                "programPremiere": { "type": "string", "pattern": "\\.pdf$" },
+                "programTerminale": { "type": "string", "pattern": "\\.pdf$" },
+                "pricing": { "type": "string", "pattern": "\\.pdf$" }
+              }
+            },
+            "publicHtml": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["essential", "planning", "programSeconde", "programPremiere", "programTerminale", "pricing"],
+              "properties": {
+                "essential": { "type": "string", "pattern": "\\.html$" },
+                "planning": { "type": "string", "pattern": "\\.html$" },
+                "programSeconde": { "type": "string", "pattern": "\\.html$" },
+                "programPremiere": { "type": "string", "pattern": "\\.html$" },
+                "programTerminale": { "type": "string", "pattern": "\\.html$" },
+                "pricing": { "type": "string", "pattern": "\\.html$" }
+              }
+            },
+            "social": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["feed", "story", "monochrome", "altText"],
+              "properties": {
+                "feed": { "type": "string", "pattern": "\\.png$" },
+                "story": { "type": "string", "pattern": "\\.png$" },
+                "monochrome": { "type": "string", "pattern": "\\.png$" },
+                "altText": { "type": "string", "pattern": "\\.json$" }
+              }
+            },
+            "privatePdf": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["print", "fillable"],
+              "properties": {
+                "print": { "type": "string", "pattern": "\\.pdf$" },
+                "fillable": { "type": "string", "pattern": "\\.pdf$" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

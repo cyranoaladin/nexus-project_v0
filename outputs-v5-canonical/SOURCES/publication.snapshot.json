@@ -1,0 +1,2474 @@
+{
+  "schemaVersion": "1.0.0",
+  "sourceRepoSha": "a1192c8dccf8eaa6ae223265a3bc9ceb56a6fff0",
+  "generatedAt": "2026-07-14T12:00:48+01:00",
+  "provenance": {
+    "campaign": {
+      "path": "data/campaigns/pre-rentree-2026.json",
+      "version": "1.0.0",
+      "sha256": "ddaee64cfd3231491597c40b514b6d52ee41529d1056d635087796176535ea5d"
+    },
+    "modules": {
+      "path": "content/pre-rentree-2026/modules.json",
+      "version": "2026-pre-rentree-v1",
+      "sha256": "891e75b032ad035d22a3f2569d78d707ca56f4a73c3465ee5aeab589466f541e"
+    },
+    "pricing": {
+      "path": "data/pricing.canonical.json",
+      "version": "2026-2027.2",
+      "sha256": "2581c06f0781b3642c40c36bf9da0582ce63ed7f95ca9ef02756350281af46c4"
+    },
+    "legal": {
+      "path": "lib/legal.ts",
+      "version": "LEGAL",
+      "sha256": "9088ae498e82282709226a39f1195bec161487290aa46c4a572d8b7d0d4735fd"
+    },
+    "contact": {
+      "path": "lib/legal.ts",
+      "version": "LEGAL.contact",
+      "sha256": "9088ae498e82282709226a39f1195bec161487290aa46c4a572d8b7d0d4735fd"
+    }
+  },
+  "campaign": {
+    "id": "pre-rentree-2026",
+    "version": "1.0.0",
+    "schoolYear": "2026-2027",
+    "timezone": "Africa/Tunis",
+    "publicationMode": "PRE_REGISTRATION_ONLY",
+    "startDate": "2026-08-17",
+    "endDate": "2026-08-28",
+    "noClassDates": [
+      "2026-08-22",
+      "2026-08-23"
+    ],
+    "decisionDeadline": "2026-08-10T18:00:00+01:00",
+    "venue": {
+      "name": "Nexus Réussite — Mutuelleville",
+      "neighborhood": "Mutuelleville",
+      "city": "Tunis"
+    },
+    "capacity": {
+      "min": 3,
+      "max": 5
+    }
+  },
+  "levels": [
+    {
+      "id": "SECONDE",
+      "label": "Entrée en Seconde"
+    },
+    {
+      "id": "PREMIERE",
+      "label": "Entrée en Première"
+    },
+    {
+      "id": "TERMINALE",
+      "label": "Entrée en Terminale"
+    }
+  ],
+  "subjects": [
+    {
+      "id": "MATHEMATIQUES",
+      "label": "Mathématiques",
+      "publicLabelByLevel": {
+        "SECONDE": "Mathématiques",
+        "PREMIERE": "Mathématiques",
+        "TERMINALE": "Mathématiques"
+      },
+      "abbreviation": "MATHS",
+      "color": "#1B64B0"
+    },
+    {
+      "id": "PHYSIQUE_CHIMIE",
+      "label": "Physique-Chimie",
+      "publicLabelByLevel": {
+        "SECONDE": "Physique-Chimie",
+        "PREMIERE": "Physique-Chimie",
+        "TERMINALE": "Physique-Chimie"
+      },
+      "abbreviation": "PC",
+      "color": "#16847A"
+    },
+    {
+      "id": "NSI",
+      "label": "NSI",
+      "labelByLevel": {
+        "SECONDE": "Initiation informatique, algorithmique et SNT"
+      },
+      "publicLabelByLevel": {
+        "SECONDE": "Initiation informatique, algorithmique et SNT",
+        "PREMIERE": "NSI",
+        "TERMINALE": "NSI"
+      },
+      "abbreviation": "NSI/SNT",
+      "color": "#6F42C1"
+    },
+    {
+      "id": "FRANCAIS",
+      "label": "Français",
+      "labelByLevel": {
+        "PREMIERE": "Français — EAF",
+        "TERMINALE": "Expression écrite, argumentation et maîtrise de l'oral"
+      },
+      "publicLabelByLevel": {
+        "SECONDE": "Français",
+        "PREMIERE": "Français — EAF",
+        "TERMINALE": "Expression écrite, argumentation et maîtrise de l'oral"
+      },
+      "abbreviation": "FR",
+      "color": "#8A2743"
+    }
+  ],
+  "blocks": [
+    {
+      "id": "A",
+      "startTime": "08:30",
+      "endTime": "10:30"
+    },
+    {
+      "id": "B",
+      "startTime": "10:45",
+      "endTime": "12:45"
+    },
+    {
+      "id": "C",
+      "startTime": "13:30",
+      "endTime": "15:30"
+    },
+    {
+      "id": "D",
+      "startTime": "15:45",
+      "endTime": "17:45"
+    }
+  ],
+  "schedule": {
+    "weeks": [
+      {
+        "week": 1,
+        "label": "Semaine 1 — 17 au 21 août",
+        "startDate": "2026-08-17",
+        "endDate": "2026-08-21",
+        "slots": [
+          {
+            "level": "SECONDE",
+            "subjectId": "MATHEMATIQUES",
+            "subjectLabel": "Mathématiques",
+            "blockId": "A",
+            "startTime": "08:30",
+            "endTime": "10:30",
+            "roomLabel": "Salle 1"
+          },
+          {
+            "level": "SECONDE",
+            "subjectId": "FRANCAIS",
+            "subjectLabel": "Français",
+            "blockId": "B",
+            "startTime": "10:45",
+            "endTime": "12:45",
+            "roomLabel": "Salle 2"
+          },
+          {
+            "level": "PREMIERE",
+            "subjectId": "MATHEMATIQUES",
+            "subjectLabel": "Mathématiques",
+            "blockId": "B",
+            "startTime": "10:45",
+            "endTime": "12:45",
+            "roomLabel": "Salle 1"
+          },
+          {
+            "level": "PREMIERE",
+            "subjectId": "FRANCAIS",
+            "subjectLabel": "Français — EAF",
+            "blockId": "C",
+            "startTime": "13:30",
+            "endTime": "15:30",
+            "roomLabel": "Salle 2"
+          },
+          {
+            "level": "TERMINALE",
+            "subjectId": "MATHEMATIQUES",
+            "subjectLabel": "Mathématiques",
+            "blockId": "C",
+            "startTime": "13:30",
+            "endTime": "15:30",
+            "roomLabel": "Salle 1"
+          },
+          {
+            "level": "TERMINALE",
+            "subjectId": "FRANCAIS",
+            "subjectLabel": "Expression écrite, argumentation et maîtrise de l'oral",
+            "blockId": "D",
+            "startTime": "15:45",
+            "endTime": "17:45",
+            "roomLabel": "Salle 2"
+          }
+        ]
+      },
+      {
+        "week": 2,
+        "label": "Semaine 2 — 24 au 28 août",
+        "startDate": "2026-08-24",
+        "endDate": "2026-08-28",
+        "slots": [
+          {
+            "level": "SECONDE",
+            "subjectId": "NSI",
+            "subjectLabel": "Initiation informatique, algorithmique et SNT",
+            "blockId": "A",
+            "startTime": "08:30",
+            "endTime": "10:30",
+            "roomLabel": "Salle 1"
+          },
+          {
+            "level": "SECONDE",
+            "subjectId": "PHYSIQUE_CHIMIE",
+            "subjectLabel": "Physique-Chimie",
+            "blockId": "B",
+            "startTime": "10:45",
+            "endTime": "12:45",
+            "roomLabel": "Salle 2"
+          },
+          {
+            "level": "PREMIERE",
+            "subjectId": "NSI",
+            "subjectLabel": "NSI",
+            "blockId": "B",
+            "startTime": "10:45",
+            "endTime": "12:45",
+            "roomLabel": "Salle 1"
+          },
+          {
+            "level": "PREMIERE",
+            "subjectId": "PHYSIQUE_CHIMIE",
+            "subjectLabel": "Physique-Chimie",
+            "blockId": "C",
+            "startTime": "13:30",
+            "endTime": "15:30",
+            "roomLabel": "Salle 2"
+          },
+          {
+            "level": "TERMINALE",
+            "subjectId": "NSI",
+            "subjectLabel": "NSI",
+            "blockId": "C",
+            "startTime": "13:30",
+            "endTime": "15:30",
+            "roomLabel": "Salle 1"
+          },
+          {
+            "level": "TERMINALE",
+            "subjectId": "PHYSIQUE_CHIMIE",
+            "subjectLabel": "Physique-Chimie",
+            "blockId": "D",
+            "startTime": "15:45",
+            "endTime": "17:45",
+            "roomLabel": "Salle 2"
+          }
+        ]
+      }
+    ],
+    "sessions": [
+      {
+        "date": "2026-08-17",
+        "week": 1,
+        "level": "SECONDE",
+        "subjectId": "MATHEMATIQUES",
+        "subjectLabel": "Mathématiques",
+        "blockId": "A",
+        "startTime": "08:30",
+        "endTime": "10:30",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 1
+      },
+      {
+        "date": "2026-08-17",
+        "week": 1,
+        "level": "SECONDE",
+        "subjectId": "FRANCAIS",
+        "subjectLabel": "Français",
+        "blockId": "B",
+        "startTime": "10:45",
+        "endTime": "12:45",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 1
+      },
+      {
+        "date": "2026-08-17",
+        "week": 1,
+        "level": "PREMIERE",
+        "subjectId": "MATHEMATIQUES",
+        "subjectLabel": "Mathématiques",
+        "blockId": "B",
+        "startTime": "10:45",
+        "endTime": "12:45",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 1
+      },
+      {
+        "date": "2026-08-17",
+        "week": 1,
+        "level": "PREMIERE",
+        "subjectId": "FRANCAIS",
+        "subjectLabel": "Français — EAF",
+        "blockId": "C",
+        "startTime": "13:30",
+        "endTime": "15:30",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 1
+      },
+      {
+        "date": "2026-08-17",
+        "week": 1,
+        "level": "TERMINALE",
+        "subjectId": "MATHEMATIQUES",
+        "subjectLabel": "Mathématiques",
+        "blockId": "C",
+        "startTime": "13:30",
+        "endTime": "15:30",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 1
+      },
+      {
+        "date": "2026-08-17",
+        "week": 1,
+        "level": "TERMINALE",
+        "subjectId": "FRANCAIS",
+        "subjectLabel": "Expression écrite, argumentation et maîtrise de l'oral",
+        "blockId": "D",
+        "startTime": "15:45",
+        "endTime": "17:45",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 1
+      },
+      {
+        "date": "2026-08-18",
+        "week": 1,
+        "level": "SECONDE",
+        "subjectId": "MATHEMATIQUES",
+        "subjectLabel": "Mathématiques",
+        "blockId": "A",
+        "startTime": "08:30",
+        "endTime": "10:30",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 2
+      },
+      {
+        "date": "2026-08-18",
+        "week": 1,
+        "level": "SECONDE",
+        "subjectId": "FRANCAIS",
+        "subjectLabel": "Français",
+        "blockId": "B",
+        "startTime": "10:45",
+        "endTime": "12:45",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 2
+      },
+      {
+        "date": "2026-08-18",
+        "week": 1,
+        "level": "PREMIERE",
+        "subjectId": "MATHEMATIQUES",
+        "subjectLabel": "Mathématiques",
+        "blockId": "B",
+        "startTime": "10:45",
+        "endTime": "12:45",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 2
+      },
+      {
+        "date": "2026-08-18",
+        "week": 1,
+        "level": "PREMIERE",
+        "subjectId": "FRANCAIS",
+        "subjectLabel": "Français — EAF",
+        "blockId": "C",
+        "startTime": "13:30",
+        "endTime": "15:30",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 2
+      },
+      {
+        "date": "2026-08-18",
+        "week": 1,
+        "level": "TERMINALE",
+        "subjectId": "MATHEMATIQUES",
+        "subjectLabel": "Mathématiques",
+        "blockId": "C",
+        "startTime": "13:30",
+        "endTime": "15:30",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 2
+      },
+      {
+        "date": "2026-08-18",
+        "week": 1,
+        "level": "TERMINALE",
+        "subjectId": "FRANCAIS",
+        "subjectLabel": "Expression écrite, argumentation et maîtrise de l'oral",
+        "blockId": "D",
+        "startTime": "15:45",
+        "endTime": "17:45",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 2
+      },
+      {
+        "date": "2026-08-19",
+        "week": 1,
+        "level": "SECONDE",
+        "subjectId": "MATHEMATIQUES",
+        "subjectLabel": "Mathématiques",
+        "blockId": "A",
+        "startTime": "08:30",
+        "endTime": "10:30",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 3
+      },
+      {
+        "date": "2026-08-19",
+        "week": 1,
+        "level": "SECONDE",
+        "subjectId": "FRANCAIS",
+        "subjectLabel": "Français",
+        "blockId": "B",
+        "startTime": "10:45",
+        "endTime": "12:45",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 3
+      },
+      {
+        "date": "2026-08-19",
+        "week": 1,
+        "level": "PREMIERE",
+        "subjectId": "MATHEMATIQUES",
+        "subjectLabel": "Mathématiques",
+        "blockId": "B",
+        "startTime": "10:45",
+        "endTime": "12:45",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 3
+      },
+      {
+        "date": "2026-08-19",
+        "week": 1,
+        "level": "PREMIERE",
+        "subjectId": "FRANCAIS",
+        "subjectLabel": "Français — EAF",
+        "blockId": "C",
+        "startTime": "13:30",
+        "endTime": "15:30",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 3
+      },
+      {
+        "date": "2026-08-19",
+        "week": 1,
+        "level": "TERMINALE",
+        "subjectId": "MATHEMATIQUES",
+        "subjectLabel": "Mathématiques",
+        "blockId": "C",
+        "startTime": "13:30",
+        "endTime": "15:30",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 3
+      },
+      {
+        "date": "2026-08-19",
+        "week": 1,
+        "level": "TERMINALE",
+        "subjectId": "FRANCAIS",
+        "subjectLabel": "Expression écrite, argumentation et maîtrise de l'oral",
+        "blockId": "D",
+        "startTime": "15:45",
+        "endTime": "17:45",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 3
+      },
+      {
+        "date": "2026-08-20",
+        "week": 1,
+        "level": "SECONDE",
+        "subjectId": "MATHEMATIQUES",
+        "subjectLabel": "Mathématiques",
+        "blockId": "A",
+        "startTime": "08:30",
+        "endTime": "10:30",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 4
+      },
+      {
+        "date": "2026-08-20",
+        "week": 1,
+        "level": "SECONDE",
+        "subjectId": "FRANCAIS",
+        "subjectLabel": "Français",
+        "blockId": "B",
+        "startTime": "10:45",
+        "endTime": "12:45",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 4
+      },
+      {
+        "date": "2026-08-20",
+        "week": 1,
+        "level": "PREMIERE",
+        "subjectId": "MATHEMATIQUES",
+        "subjectLabel": "Mathématiques",
+        "blockId": "B",
+        "startTime": "10:45",
+        "endTime": "12:45",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 4
+      },
+      {
+        "date": "2026-08-20",
+        "week": 1,
+        "level": "PREMIERE",
+        "subjectId": "FRANCAIS",
+        "subjectLabel": "Français — EAF",
+        "blockId": "C",
+        "startTime": "13:30",
+        "endTime": "15:30",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 4
+      },
+      {
+        "date": "2026-08-20",
+        "week": 1,
+        "level": "TERMINALE",
+        "subjectId": "MATHEMATIQUES",
+        "subjectLabel": "Mathématiques",
+        "blockId": "C",
+        "startTime": "13:30",
+        "endTime": "15:30",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 4
+      },
+      {
+        "date": "2026-08-20",
+        "week": 1,
+        "level": "TERMINALE",
+        "subjectId": "FRANCAIS",
+        "subjectLabel": "Expression écrite, argumentation et maîtrise de l'oral",
+        "blockId": "D",
+        "startTime": "15:45",
+        "endTime": "17:45",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 4
+      },
+      {
+        "date": "2026-08-21",
+        "week": 1,
+        "level": "SECONDE",
+        "subjectId": "MATHEMATIQUES",
+        "subjectLabel": "Mathématiques",
+        "blockId": "A",
+        "startTime": "08:30",
+        "endTime": "10:30",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 5
+      },
+      {
+        "date": "2026-08-21",
+        "week": 1,
+        "level": "SECONDE",
+        "subjectId": "FRANCAIS",
+        "subjectLabel": "Français",
+        "blockId": "B",
+        "startTime": "10:45",
+        "endTime": "12:45",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 5
+      },
+      {
+        "date": "2026-08-21",
+        "week": 1,
+        "level": "PREMIERE",
+        "subjectId": "MATHEMATIQUES",
+        "subjectLabel": "Mathématiques",
+        "blockId": "B",
+        "startTime": "10:45",
+        "endTime": "12:45",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 5
+      },
+      {
+        "date": "2026-08-21",
+        "week": 1,
+        "level": "PREMIERE",
+        "subjectId": "FRANCAIS",
+        "subjectLabel": "Français — EAF",
+        "blockId": "C",
+        "startTime": "13:30",
+        "endTime": "15:30",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 5
+      },
+      {
+        "date": "2026-08-21",
+        "week": 1,
+        "level": "TERMINALE",
+        "subjectId": "MATHEMATIQUES",
+        "subjectLabel": "Mathématiques",
+        "blockId": "C",
+        "startTime": "13:30",
+        "endTime": "15:30",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 5
+      },
+      {
+        "date": "2026-08-21",
+        "week": 1,
+        "level": "TERMINALE",
+        "subjectId": "FRANCAIS",
+        "subjectLabel": "Expression écrite, argumentation et maîtrise de l'oral",
+        "blockId": "D",
+        "startTime": "15:45",
+        "endTime": "17:45",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 5
+      },
+      {
+        "date": "2026-08-24",
+        "week": 2,
+        "level": "SECONDE",
+        "subjectId": "NSI",
+        "subjectLabel": "Initiation informatique, algorithmique et SNT",
+        "blockId": "A",
+        "startTime": "08:30",
+        "endTime": "10:30",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 1
+      },
+      {
+        "date": "2026-08-24",
+        "week": 2,
+        "level": "SECONDE",
+        "subjectId": "PHYSIQUE_CHIMIE",
+        "subjectLabel": "Physique-Chimie",
+        "blockId": "B",
+        "startTime": "10:45",
+        "endTime": "12:45",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 1
+      },
+      {
+        "date": "2026-08-24",
+        "week": 2,
+        "level": "PREMIERE",
+        "subjectId": "NSI",
+        "subjectLabel": "NSI",
+        "blockId": "B",
+        "startTime": "10:45",
+        "endTime": "12:45",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 1
+      },
+      {
+        "date": "2026-08-24",
+        "week": 2,
+        "level": "PREMIERE",
+        "subjectId": "PHYSIQUE_CHIMIE",
+        "subjectLabel": "Physique-Chimie",
+        "blockId": "C",
+        "startTime": "13:30",
+        "endTime": "15:30",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 1
+      },
+      {
+        "date": "2026-08-24",
+        "week": 2,
+        "level": "TERMINALE",
+        "subjectId": "NSI",
+        "subjectLabel": "NSI",
+        "blockId": "C",
+        "startTime": "13:30",
+        "endTime": "15:30",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 1
+      },
+      {
+        "date": "2026-08-24",
+        "week": 2,
+        "level": "TERMINALE",
+        "subjectId": "PHYSIQUE_CHIMIE",
+        "subjectLabel": "Physique-Chimie",
+        "blockId": "D",
+        "startTime": "15:45",
+        "endTime": "17:45",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 1
+      },
+      {
+        "date": "2026-08-25",
+        "week": 2,
+        "level": "SECONDE",
+        "subjectId": "NSI",
+        "subjectLabel": "Initiation informatique, algorithmique et SNT",
+        "blockId": "A",
+        "startTime": "08:30",
+        "endTime": "10:30",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 2
+      },
+      {
+        "date": "2026-08-25",
+        "week": 2,
+        "level": "SECONDE",
+        "subjectId": "PHYSIQUE_CHIMIE",
+        "subjectLabel": "Physique-Chimie",
+        "blockId": "B",
+        "startTime": "10:45",
+        "endTime": "12:45",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 2
+      },
+      {
+        "date": "2026-08-25",
+        "week": 2,
+        "level": "PREMIERE",
+        "subjectId": "NSI",
+        "subjectLabel": "NSI",
+        "blockId": "B",
+        "startTime": "10:45",
+        "endTime": "12:45",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 2
+      },
+      {
+        "date": "2026-08-25",
+        "week": 2,
+        "level": "PREMIERE",
+        "subjectId": "PHYSIQUE_CHIMIE",
+        "subjectLabel": "Physique-Chimie",
+        "blockId": "C",
+        "startTime": "13:30",
+        "endTime": "15:30",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 2
+      },
+      {
+        "date": "2026-08-25",
+        "week": 2,
+        "level": "TERMINALE",
+        "subjectId": "NSI",
+        "subjectLabel": "NSI",
+        "blockId": "C",
+        "startTime": "13:30",
+        "endTime": "15:30",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 2
+      },
+      {
+        "date": "2026-08-25",
+        "week": 2,
+        "level": "TERMINALE",
+        "subjectId": "PHYSIQUE_CHIMIE",
+        "subjectLabel": "Physique-Chimie",
+        "blockId": "D",
+        "startTime": "15:45",
+        "endTime": "17:45",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 2
+      },
+      {
+        "date": "2026-08-26",
+        "week": 2,
+        "level": "SECONDE",
+        "subjectId": "NSI",
+        "subjectLabel": "Initiation informatique, algorithmique et SNT",
+        "blockId": "A",
+        "startTime": "08:30",
+        "endTime": "10:30",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 3
+      },
+      {
+        "date": "2026-08-26",
+        "week": 2,
+        "level": "SECONDE",
+        "subjectId": "PHYSIQUE_CHIMIE",
+        "subjectLabel": "Physique-Chimie",
+        "blockId": "B",
+        "startTime": "10:45",
+        "endTime": "12:45",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 3
+      },
+      {
+        "date": "2026-08-26",
+        "week": 2,
+        "level": "PREMIERE",
+        "subjectId": "NSI",
+        "subjectLabel": "NSI",
+        "blockId": "B",
+        "startTime": "10:45",
+        "endTime": "12:45",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 3
+      },
+      {
+        "date": "2026-08-26",
+        "week": 2,
+        "level": "PREMIERE",
+        "subjectId": "PHYSIQUE_CHIMIE",
+        "subjectLabel": "Physique-Chimie",
+        "blockId": "C",
+        "startTime": "13:30",
+        "endTime": "15:30",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 3
+      },
+      {
+        "date": "2026-08-26",
+        "week": 2,
+        "level": "TERMINALE",
+        "subjectId": "NSI",
+        "subjectLabel": "NSI",
+        "blockId": "C",
+        "startTime": "13:30",
+        "endTime": "15:30",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 3
+      },
+      {
+        "date": "2026-08-26",
+        "week": 2,
+        "level": "TERMINALE",
+        "subjectId": "PHYSIQUE_CHIMIE",
+        "subjectLabel": "Physique-Chimie",
+        "blockId": "D",
+        "startTime": "15:45",
+        "endTime": "17:45",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 3
+      },
+      {
+        "date": "2026-08-27",
+        "week": 2,
+        "level": "SECONDE",
+        "subjectId": "NSI",
+        "subjectLabel": "Initiation informatique, algorithmique et SNT",
+        "blockId": "A",
+        "startTime": "08:30",
+        "endTime": "10:30",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 4
+      },
+      {
+        "date": "2026-08-27",
+        "week": 2,
+        "level": "SECONDE",
+        "subjectId": "PHYSIQUE_CHIMIE",
+        "subjectLabel": "Physique-Chimie",
+        "blockId": "B",
+        "startTime": "10:45",
+        "endTime": "12:45",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 4
+      },
+      {
+        "date": "2026-08-27",
+        "week": 2,
+        "level": "PREMIERE",
+        "subjectId": "NSI",
+        "subjectLabel": "NSI",
+        "blockId": "B",
+        "startTime": "10:45",
+        "endTime": "12:45",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 4
+      },
+      {
+        "date": "2026-08-27",
+        "week": 2,
+        "level": "PREMIERE",
+        "subjectId": "PHYSIQUE_CHIMIE",
+        "subjectLabel": "Physique-Chimie",
+        "blockId": "C",
+        "startTime": "13:30",
+        "endTime": "15:30",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 4
+      },
+      {
+        "date": "2026-08-27",
+        "week": 2,
+        "level": "TERMINALE",
+        "subjectId": "NSI",
+        "subjectLabel": "NSI",
+        "blockId": "C",
+        "startTime": "13:30",
+        "endTime": "15:30",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 4
+      },
+      {
+        "date": "2026-08-27",
+        "week": 2,
+        "level": "TERMINALE",
+        "subjectId": "PHYSIQUE_CHIMIE",
+        "subjectLabel": "Physique-Chimie",
+        "blockId": "D",
+        "startTime": "15:45",
+        "endTime": "17:45",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 4
+      },
+      {
+        "date": "2026-08-28",
+        "week": 2,
+        "level": "SECONDE",
+        "subjectId": "NSI",
+        "subjectLabel": "Initiation informatique, algorithmique et SNT",
+        "blockId": "A",
+        "startTime": "08:30",
+        "endTime": "10:30",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 5
+      },
+      {
+        "date": "2026-08-28",
+        "week": 2,
+        "level": "SECONDE",
+        "subjectId": "PHYSIQUE_CHIMIE",
+        "subjectLabel": "Physique-Chimie",
+        "blockId": "B",
+        "startTime": "10:45",
+        "endTime": "12:45",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 5
+      },
+      {
+        "date": "2026-08-28",
+        "week": 2,
+        "level": "PREMIERE",
+        "subjectId": "NSI",
+        "subjectLabel": "NSI",
+        "blockId": "B",
+        "startTime": "10:45",
+        "endTime": "12:45",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 5
+      },
+      {
+        "date": "2026-08-28",
+        "week": 2,
+        "level": "PREMIERE",
+        "subjectId": "PHYSIQUE_CHIMIE",
+        "subjectLabel": "Physique-Chimie",
+        "blockId": "C",
+        "startTime": "13:30",
+        "endTime": "15:30",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 5
+      },
+      {
+        "date": "2026-08-28",
+        "week": 2,
+        "level": "TERMINALE",
+        "subjectId": "NSI",
+        "subjectLabel": "NSI",
+        "blockId": "C",
+        "startTime": "13:30",
+        "endTime": "15:30",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 5
+      },
+      {
+        "date": "2026-08-28",
+        "week": 2,
+        "level": "TERMINALE",
+        "subjectId": "PHYSIQUE_CHIMIE",
+        "subjectLabel": "Physique-Chimie",
+        "blockId": "D",
+        "startTime": "15:45",
+        "endTime": "17:45",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 5
+      }
+    ]
+  },
+  "academicProfiles": {
+    "SECONDE": {},
+    "PREMIERE": {
+      "voies": [
+        {
+          "id": "GENERALE",
+          "label": "Voie générale"
+        },
+        {
+          "id": "TECHNOLOGIQUE",
+          "label": "Voie technologique"
+        }
+      ],
+      "mathsProfiles": [
+        {
+          "id": "MATHS_EDS",
+          "label": "Maths EDS"
+        },
+        {
+          "id": "MATHS_HORS_EDS",
+          "label": "Maths hors EDS"
+        }
+      ],
+      "eafProfiles": [
+        {
+          "id": "EAF_GENERALE",
+          "label": "EAF voie générale"
+        },
+        {
+          "id": "EAF_TECHNOLOGIQUE",
+          "label": "EAF voie technologique"
+        }
+      ],
+      "specialtyPlans": [
+        {
+          "id": "AUCUNE_NSI_PC",
+          "label": "Ni NSI ni Physique-Chimie envisagée"
+        },
+        {
+          "id": "NSI",
+          "label": "NSI envisagée"
+        },
+        {
+          "id": "PHYSIQUE_CHIMIE",
+          "label": "Physique-Chimie envisagée"
+        },
+        {
+          "id": "NSI_PHYSIQUE_CHIMIE",
+          "label": "NSI et Physique-Chimie envisagées"
+        }
+      ]
+    },
+    "TERMINALE": {
+      "retainedSpecialties": {
+        "label": "Spécialités conservées",
+        "minSelections": 0,
+        "maxSelections": 2,
+        "options": [
+          {
+            "id": "MATHEMATIQUES",
+            "label": "Mathématiques"
+          },
+          {
+            "id": "PHYSIQUE_CHIMIE",
+            "label": "Physique-Chimie"
+          },
+          {
+            "id": "NSI",
+            "label": "NSI"
+          }
+        ]
+      },
+      "mathsOptions": [
+        {
+          "id": "AUCUNE",
+          "label": "Aucune"
+        },
+        {
+          "id": "MATHS_EXPERTES",
+          "label": "Maths expertes"
+        },
+        {
+          "id": "MATHS_COMPLEMENTAIRES",
+          "label": "Maths complémentaires"
+        }
+      ]
+    }
+  },
+  "packs": [
+    {
+      "subjectCount": 1,
+      "title": "Pré-Rentrée 2026 — 1 matière",
+      "hoursPerSubject": 10,
+      "totalHours": 10,
+      "sessionsPerSubject": 5,
+      "sessionDurationHours": 2,
+      "groupMin": 3,
+      "groupMax": 5,
+      "price": 480,
+      "deposit": 140,
+      "balance": 340,
+      "pricePerHour": 48
+    },
+    {
+      "subjectCount": 2,
+      "title": "Pré-Rentrée 2026 — 2 matières",
+      "hoursPerSubject": 10,
+      "totalHours": 20,
+      "sessionsPerSubject": 5,
+      "sessionDurationHours": 2,
+      "groupMin": 3,
+      "groupMax": 5,
+      "price": 900,
+      "deposit": 270,
+      "balance": 630,
+      "pricePerHour": 45
+    },
+    {
+      "subjectCount": 3,
+      "title": "Pré-Rentrée 2026 — 3 matières",
+      "hoursPerSubject": 10,
+      "totalHours": 30,
+      "sessionsPerSubject": 5,
+      "sessionDurationHours": 2,
+      "groupMin": 3,
+      "groupMax": 5,
+      "price": 1350,
+      "deposit": 410,
+      "balance": 940,
+      "pricePerHour": 45
+    },
+    {
+      "subjectCount": 4,
+      "title": "Pré-Rentrée 2026 — 4 matières",
+      "hoursPerSubject": 10,
+      "totalHours": 40,
+      "sessionsPerSubject": 5,
+      "sessionDurationHours": 2,
+      "groupMin": 3,
+      "groupMax": 5,
+      "price": 1800,
+      "deposit": 540,
+      "balance": 1260,
+      "pricePerHour": 45
+    }
+  ],
+  "modules": [
+    {
+      "id": "seconde-mathematiques",
+      "level": "SECONDE",
+      "subjectId": "MATHEMATIQUES",
+      "subject": "Mathématiques",
+      "title": "Mathématiques — Entrée en Seconde",
+      "subtitle": "Entrée en Seconde — consolider les acquis de Troisième et découvrir progressivement les attentes du lycée",
+      "prerequisites": "Les acquis de Troisième et du collège ; un diagnostic en début de module précise les priorités.",
+      "differentiation": "Exercices à paliers et aides graduées selon la maîtrise du calcul et de la rédaction.",
+      "quickAssessment": "Exercice court de calcul et de raisonnement corrigé à la fin de chaque séance.",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Calcul, proportionnalité et calcul littéral",
+          "objective": "Consolider le calcul numérique, la proportionnalité, le développement et la factorisation",
+          "topics": [
+            "Développement et réduction d'expressions",
+            "Factorisation par facteur commun et identités remarquables",
+            "Fractions, puissances et proportionnalité",
+            "Résolution d'équations produit-nul"
+          ],
+          "method": "Exercices guidés progressifs avec correction commentée",
+          "deliverable": "Fiche méthode calcul littéral avec exemples types résolus"
+        },
+        {
+          "number": 2,
+          "title": "Fonctions : lecture graphique et vocabulaire",
+          "objective": "Savoir lire et interpréter une courbe, maîtriser le vocabulaire des fonctions",
+          "topics": [
+            "Image, antécédent, lecture graphique",
+            "Tableau de variations et sens de variation",
+            "Extremums et intervalles",
+            "Fonctions de référence (carré, inverse, affine)"
+          ],
+          "method": "Alternance lecture graphique interactive et exercices d'application",
+          "deliverable": "Carte mentale du vocabulaire des fonctions avec exemples graphiques"
+        },
+        {
+          "number": 3,
+          "title": "Équations, inéquations et résolution de problèmes",
+          "objective": "Résoudre des équations et inéquations du premier et second degré simples",
+          "topics": [
+            "Équations du premier degré et mise en équation",
+            "Inéquations et représentation sur un axe",
+            "Systèmes de deux équations à deux inconnues",
+            "Problèmes concrets modélisés par des équations"
+          ],
+          "method": "Méthode pas-à-pas avec problèmes contextualisés",
+          "deliverable": "Fiche réflexe résolution d'équations et d'inéquations"
+        },
+        {
+          "number": 4,
+          "title": "Géométrie repérée et vecteurs",
+          "objective": "Se repérer dans le plan, calculer distances et coordonnées de milieux",
+          "topics": [
+            "Repère orthonormé et coordonnées",
+            "Distance entre deux points et milieu d'un segment",
+            "Introduction aux vecteurs et coordonnées de vecteurs",
+            "Colinéarité et alignement"
+          ],
+          "method": "Exercices guidés avec représentations graphiques systématiques",
+          "deliverable": "Formulaire géométrie repérée avec schémas annotés"
+        },
+        {
+          "number": 5,
+          "title": "Rédaction mathématique et méthodologie d'épreuve",
+          "objective": "Structurer un raisonnement et rédiger proprement une solution",
+          "topics": [
+            "Rédaction d'une démonstration",
+            "Connecteurs logiques et justification",
+            "Gestion du temps en devoir surveillé",
+            "Entraînement sur sujet type avec correction détaillée"
+          ],
+          "method": "Pratique autonome sur sujet complet avec auto-évaluation guidée",
+          "deliverable": "Grille d'auto-évaluation de la rédaction mathématique"
+        }
+      ]
+    },
+    {
+      "id": "seconde-francais",
+      "level": "SECONDE",
+      "subjectId": "FRANCAIS",
+      "subject": "Français",
+      "title": "Français — Entrée en Seconde",
+      "subtitle": "Entrée en Seconde — consolider compréhension, expression, grammaire et argumentation pour aborder les méthodes du lycée",
+      "prerequisites": "Les compétences de lecture et d'écriture attendues en fin de Troisième et de collège.",
+      "differentiation": "Textes, consignes et attendus de rédaction ajustés au niveau de maîtrise observé.",
+      "quickAssessment": "Production brève ou question d'analyse relue avec une grille de critères.",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Expression écrite structurée : le paragraphe argumenté",
+          "objective": "Rédiger un paragraphe argumenté clair avec exemples pertinents",
+          "topics": [
+            "Structure argument-exemple-analyse",
+            "Connecteurs logiques et transitions",
+            "Registres de langue et précision du vocabulaire",
+            "Exercices de rédaction chronométrés"
+          ],
+          "method": "Modélisation puis pratique guidée avec feedback immédiat",
+          "deliverable": "Fiche méthode du paragraphe argumenté avec modèles"
+        },
+        {
+          "number": 2,
+          "title": "Compréhension et analyse de texte littéraire",
+          "objective": "Identifier les procédés d'écriture et formuler une interprétation",
+          "topics": [
+            "Repérage des champs lexicaux et figures de style",
+            "Identification du registre et du ton",
+            "Analyse de la structure narrative ou argumentative",
+            "Formulation d'hypothèses interprétatives"
+          ],
+          "method": "Lecture active guidée sur extraits variés (roman, poésie, théâtre)",
+          "deliverable": "Boîte à outils des procédés littéraires avec exemples"
+        },
+        {
+          "number": 3,
+          "title": "Argumentation : convaincre et persuader",
+          "objective": "Distinguer les stratégies argumentatives et les mobiliser à l'écrit",
+          "topics": [
+            "Thèse, arguments, exemples",
+            "Concession et réfutation",
+            "Argumentation directe vs indirecte",
+            "Rédaction d'un développement argumenté"
+          ],
+          "method": "Analyse de textes argumentatifs puis production écrite encadrée",
+          "deliverable": "Plan-type d'un développement argumenté réutilisable"
+        },
+        {
+          "number": 4,
+          "title": "Grammaire au service de l'expression",
+          "objective": "Maîtriser les outils grammaticaux essentiels pour le lycée",
+          "topics": [
+            "Proposition subordonnée et types de phrases complexes",
+            "Valeurs des temps verbaux",
+            "Accords complexes (participe passé, relatif)",
+            "Ponctuation expressive et stylistique"
+          ],
+          "method": "Exercices ciblés puis réinvestissement en production écrite",
+          "deliverable": "Mémo grammaire lycée avec erreurs fréquentes à éviter"
+        },
+        {
+          "number": 5,
+          "title": "Initiation au commentaire de texte",
+          "objective": "Comprendre la méthode du commentaire composé et en rédiger une partie",
+          "topics": [
+            "Différence entre paraphrase et analyse",
+            "Construction d'un axe de lecture",
+            "Rédaction d'un sous-partie de commentaire",
+            "Introduction et conclusion : principes"
+          ],
+          "method": "Travail progressif sur un extrait : du brouillon à la rédaction",
+          "deliverable": "Modèle de brouillon commentaire avec étapes clés"
+        }
+      ]
+    },
+    {
+      "id": "seconde-informatique-snt",
+      "level": "SECONDE",
+      "subjectId": "NSI",
+      "subject": "Informatique (SNT)",
+      "title": "Initiation informatique, algorithmique et SNT",
+      "subtitle": "Entrée en Seconde — découvrir la pensée algorithmique, la SNT et les bases de la programmation Python",
+      "prerequisites": "Aucun prérequis informatique ou NSI ; les usages numériques courants acquis au collège suffisent.",
+      "differentiation": "Défis progressifs et extensions facultatives pour les élèves déjà familiers avec le code.",
+      "quickAssessment": "Programme court à exécuter, expliquer ou corriger en fin de séance.",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Découverte algorithmique et pensée computationnelle",
+          "objective": "Comprendre ce qu'est un algorithme et décomposer un problème en étapes",
+          "topics": [
+            "Notion d'algorithme dans la vie quotidienne",
+            "Décomposition d'un problème en sous-problèmes",
+            "Pseudo-code et organigrammes",
+            "Premiers pas dans l'environnement Python"
+          ],
+          "method": "Activités débranchées puis découverte de l'éditeur Python",
+          "deliverable": "Premier programme Python fonctionnel commenté"
+        },
+        {
+          "number": 2,
+          "title": "Variables, types et structures conditionnelles",
+          "objective": "Manipuler variables et conditions pour créer des programmes interactifs",
+          "topics": [
+            "Variables : affectation, types (int, float, str, bool)",
+            "Entrées/sorties (input, print)",
+            "Structures conditionnelles (if/elif/else)",
+            "Opérateurs de comparaison et logiques"
+          ],
+          "method": "Exercices progressifs avec validation par exécution",
+          "deliverable": "Mini-programme interactif (quiz ou calculatrice simple)"
+        },
+        {
+          "number": 3,
+          "title": "Boucles et itérations",
+          "objective": "Utiliser les boucles for et while pour automatiser des traitements",
+          "topics": [
+            "Boucle for et fonction range()",
+            "Boucle while et condition d'arrêt",
+            "Accumulateurs et compteurs",
+            "Boucles imbriquées simples"
+          ],
+          "method": "Exercices guidés et pratique autonome avec défis progressifs",
+          "deliverable": "Programme utilisant des boucles (table de multiplication, motifs)"
+        },
+        {
+          "number": 4,
+          "title": "Représentation des données et web",
+          "objective": "Comprendre comment les données sont représentées et circulant sur le web",
+          "topics": [
+            "Représentation binaire et encodage des caractères",
+            "Formats de données (texte, image, son)",
+            "Architecture web : client, serveur, URL",
+            "HTML de base et notion de page web"
+          ],
+          "method": "Démonstrations interactives et manipulation de fichiers",
+          "deliverable": "Mini page HTML personnelle créée et comprise"
+        },
+        {
+          "number": 5,
+          "title": "Projet intégrateur : mini-programme Python",
+          "objective": "Réaliser un petit projet mobilisant l'ensemble des notions vues",
+          "topics": [
+            "Cahier des charges d'un mini-projet",
+            "Structuration du code (fonctions simples)",
+            "Test et débogage",
+            "Présentation et documentation du code"
+          ],
+          "method": "Pédagogie par projet avec accompagnement individualisé",
+          "deliverable": "Programme Python finalisé et documenté (jeu ou utilitaire)"
+        }
+      ]
+    },
+    {
+      "id": "seconde-physique-chimie",
+      "level": "SECONDE",
+      "subjectId": "PHYSIQUE_CHIMIE",
+      "subject": "Physique-Chimie",
+      "title": "Physique-Chimie — Entrée en Seconde",
+      "subtitle": "Entrée en Seconde — consolider unités, grandeurs et raisonnement scientifique avant les méthodes du lycée",
+      "prerequisites": "Les notions scientifiques et les outils de calcul travaillés en Troisième et au collège.",
+      "differentiation": "Données, schémas et niveaux de guidage adaptés aux acquis diagnostiqués.",
+      "quickAssessment": "Question scientifique courte avec justification des unités et de la démarche.",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Grandeurs, unités et conversions",
+          "objective": "Maîtriser les unités du SI, les préfixes et les conversions essentielles",
+          "topics": [
+            "Système international d'unités (SI)",
+            "Préfixes et puissances de 10",
+            "Conversions d'unités courantes",
+            "Chiffres significatifs et ordre de grandeur"
+          ],
+          "method": "Exercices systématiques avec progression de difficulté",
+          "deliverable": "Fiche réflexe unités et conversions avec tableau synthétique"
+        },
+        {
+          "number": 2,
+          "title": "Constitution de la matière : atomes et molécules",
+          "objective": "Décrire la structure de l'atome et comprendre la formation des molécules",
+          "topics": [
+            "Structure de l'atome (noyau, électrons, notation)",
+            "Tableau périodique simplifié et familles chimiques",
+            "Liaison covalente et formules de Lewis simples",
+            "Molécules courantes et nomenclature de base"
+          ],
+          "method": "Modélisation avec schémas et exercices d'application directe",
+          "deliverable": "Carte mémo atomes-molécules avec schémas de Lewis essentiels"
+        },
+        {
+          "number": 3,
+          "title": "Forces et introduction au mouvement",
+          "objective": "Identifier les forces et décrire qualitativement un mouvement",
+          "topics": [
+            "Notion de force et effets sur un objet",
+            "Poids, réaction du support, tension d'un fil",
+            "Diagramme objets-interactions",
+            "Description d'un mouvement (trajectoire, vitesse)"
+          ],
+          "method": "Exercices guidés avec schématisation systématique des forces",
+          "deliverable": "Méthode de construction d'un diagramme de forces"
+        },
+        {
+          "number": 4,
+          "title": "Calcul scientifique et exploitation de mesures",
+          "objective": "Utiliser les outils mathématiques pour exploiter des résultats expérimentaux",
+          "topics": [
+            "Proportionnalité et formules littérales",
+            "Lecture et tracé de graphiques",
+            "Exploitation d'un graphique (pente, ordonnée à l'origine)",
+            "Incertitudes et précision de mesure"
+          ],
+          "method": "Travail sur données expérimentales réelles avec analyse guidée",
+          "deliverable": "Fiche méthode exploitation de graphiques et formules"
+        },
+        {
+          "number": 5,
+          "title": "Démarche expérimentale et résolution de problèmes",
+          "objective": "Appliquer la démarche scientifique complète sur un problème concret",
+          "topics": [
+            "Étapes de la démarche expérimentale",
+            "Formulation d'hypothèses et protocole",
+            "Rédaction d'un compte-rendu scientifique",
+            "Entraînement sur exercice type devoir"
+          ],
+          "method": "Mise en situation expérimentale simulée puis rédaction encadrée",
+          "deliverable": "Modèle de rédaction scientifique structurée"
+        }
+      ]
+    },
+    {
+      "id": "premiere-mathematiques",
+      "level": "PREMIERE",
+      "subjectId": "MATHEMATIQUES",
+      "subject": "Mathématiques",
+      "title": "Mathématiques — Entrée en Première",
+      "subtitle": "Entrée en Première — consolider les acquis de Seconde et découvrir suites, dérivation et probabilités selon le profil déclaré",
+      "prerequisites": "Les acquis de Seconde en fonctions, calcul littéral et probabilités.",
+      "differentiation": "Activités et niveau d'exigence adaptés au profil Maths EDS ou hors EDS après validation pédagogique.",
+      "quickAssessment": "Exercice type ciblé, corrigé avec une grille de méthode et de rédaction.",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Suites arithmétiques et géométriques",
+          "objective": "Reconnaître, modéliser et calculer avec les suites arithmétiques et géométriques",
+          "topics": [
+            "Définition explicite et par récurrence",
+            "Suite arithmétique : raison, terme général, somme",
+            "Suite géométrique : raison, terme général, somme",
+            "Modélisation de situations concrètes par des suites"
+          ],
+          "method": "Cours dialogué puis exercices d'application avec difficulté croissante",
+          "deliverable": "Fiche formulaire suites avec arbre décisionnel de reconnaissance"
+        },
+        {
+          "number": 2,
+          "title": "Nombre dérivé et tangente",
+          "objective": "Calculer un nombre dérivé et déterminer l'équation d'une tangente",
+          "topics": [
+            "Taux de variation et passage à la limite",
+            "Nombre dérivé en un point",
+            "Équation de la tangente",
+            "Interprétation graphique de la dérivée"
+          ],
+          "method": "Approche graphique puis formalisation avec exercices types",
+          "deliverable": "Méthode pas-à-pas pour déterminer une équation de tangente"
+        },
+        {
+          "number": 3,
+          "title": "Dérivation et étude de fonctions",
+          "objective": "Dériver les fonctions usuelles et dresser un tableau de variations",
+          "topics": [
+            "Dérivées des fonctions de référence",
+            "Opérations sur les dérivées (somme, produit, quotient)",
+            "Signe de la dérivée et variations",
+            "Tableau de variations complet"
+          ],
+          "method": "Exercices guidés progressifs et pratique autonome",
+          "deliverable": "Tableau récapitulatif des dérivées et méthode d'étude de fonction"
+        },
+        {
+          "number": 4,
+          "title": "Probabilités conditionnelles",
+          "objective": "Calculer des probabilités conditionnelles et utiliser un arbre pondéré",
+          "topics": [
+            "Probabilité conditionnelle : définition et notation",
+            "Arbres de probabilités pondérés",
+            "Formule des probabilités totales",
+            "Indépendance de deux événements"
+          ],
+          "method": "Résolution de problèmes concrets avec modélisation par arbre",
+          "deliverable": "Fiche méthode probabilités conditionnelles avec schémas types"
+        },
+        {
+          "number": 5,
+          "title": "Rédaction et stratégie d'épreuve",
+          "objective": "Rédiger efficacement et gérer son temps sur un sujet de mathématiques",
+          "topics": [
+            "Rédaction rigoureuse d'une démonstration",
+            "Lecture d'énoncé et identification des attendus",
+            "Stratégie de résolution et gestion du temps",
+            "Entraînement sur sujet type Bac"
+          ],
+          "method": "Sujet chronométré suivi d'une correction détaillée et personnalisée",
+          "deliverable": "Copie corrigée annotée avec grille de compétences évaluées"
+        }
+      ]
+    },
+    {
+      "id": "premiere-francais-eaf",
+      "level": "PREMIERE",
+      "subjectId": "FRANCAIS",
+      "subject": "Français (EAF)",
+      "title": "Français — Préparation aux EAF",
+      "subtitle": "Entrée en Première — découvrir les attendus des futures Épreuves Anticipées de Français, à l’écrit et à l’oral",
+      "prerequisites": "Une lecture régulière et les bases de l'analyse de texte acquises en Seconde.",
+      "differentiation": "Exercice correspondant à la voie générale ou technologique, confirmé après validation pédagogique du groupe.",
+      "quickAssessment": "Paragraphe rédigé ou passage oral bref évalué selon les attendus EAF.",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Le commentaire composé : méthode complète",
+          "objective": "Maîtriser la méthode du commentaire de la lecture à la rédaction",
+          "topics": [
+            "Lecture analytique et repérage des procédés",
+            "Construction d'un plan en deux ou trois axes",
+            "Rédaction de l'introduction et de la conclusion",
+            "Intégration des citations et analyse stylistique"
+          ],
+          "method": "Travail méthodique sur un texte complet avec brouillon guidé",
+          "deliverable": "Commentaire composé rédigé intégralement avec auto-évaluation"
+        },
+        {
+          "number": 2,
+          "title": "Dissertation ou contraction de texte, selon la voie",
+          "objective": "Comprendre les attendus de l'exercice écrit correspondant à la voie déclarée",
+          "topics": [
+            "Analyse du sujet et problématisation",
+            "Plan dialectique et plan thématique",
+            "Contraction de texte : méthode et ratio",
+            "Essai littéraire : argumentation et références"
+          ],
+          "method": "Exercices ciblés sur la dissertation en voie générale ou la contraction et l'essai en voie technologique",
+          "deliverable": "Plan détaillé de dissertation ou contraction rédigée, selon la voie"
+        },
+        {
+          "number": 3,
+          "title": "Explication linéaire : technique et pratique",
+          "objective": "Réaliser une explication linéaire structurée en vue de l'oral",
+          "topics": [
+            "Structure de l'explication linéaire (mouvements du texte)",
+            "Analyse des procédés au fil du texte",
+            "Formulation des micro-interprétations",
+            "Transition entre les mouvements"
+          ],
+          "method": "Pratique sur extraits des œuvres au programme avec feedback",
+          "deliverable": "Explication linéaire complète rédigée et chronométrée"
+        },
+        {
+          "number": 4,
+          "title": "Grammaire stylistique et question de grammaire",
+          "objective": "Maîtriser la question de grammaire de l'oral des EAF",
+          "topics": [
+            "Interrogation et négation",
+            "Subordonnées circonstancielles et relatives",
+            "Analyse de phrase complexe",
+            "Valeurs des modes et des temps"
+          ],
+          "method": "Exercices d'analyse grammaticale sur extraits littéraires",
+          "deliverable": "Fiche synthèse des points de grammaire au programme de l'oral"
+        },
+        {
+          "number": 5,
+          "title": "Oral des EAF : explication et entretien",
+          "objective": "Se préparer à l'épreuve orale complète (explication + entretien)",
+          "topics": [
+            "Présentation orale de l'explication linéaire (12 min)",
+            "Gestion du temps et de la voix",
+            "Entretien : défendre son parcours et son œuvre choisie",
+            "Simulation d'oral avec questions du jury"
+          ],
+          "method": "Simulation d'oral en conditions réelles avec feedback détaillé",
+          "deliverable": "Grille de progression orale personnalisée et conseils ciblés"
+        }
+      ]
+    },
+    {
+      "id": "premiere-nsi",
+      "level": "PREMIERE",
+      "subjectId": "NSI",
+      "subject": "NSI",
+      "title": "NSI — Entrée en Première",
+      "subtitle": "Entrée en Première — commencer l’EDS NSI par l’algorithmique, Python et les concepts fondamentaux",
+      "prerequisites": "Aucun prérequis NSI ou Python obligatoire ; les repères éventuellement découverts en SNT en Seconde sont repris depuis les fondamentaux.",
+      "differentiation": "Exercices à difficulté progressive et défis d'approfondissement pour les profils avancés.",
+      "quickAssessment": "Fonction Python ou raisonnement algorithmique court testé en fin de séance.",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Algorithmique et premiers programmes Python",
+          "objective": "Découvrir comment décomposer un problème et écrire un premier programme Python",
+          "topics": [
+            "Algorithme, instruction et ordre d’exécution",
+            "Variables, types simples et affectation",
+            "Entrées, sorties et expressions",
+            "Lecture et test d’un programme court"
+          ],
+          "method": "Démonstration guidée puis écriture progressive de programmes très courts",
+          "deliverable": "Premier programme Python commenté et fiche de vocabulaire algorithmique"
+        },
+        {
+          "number": 2,
+          "title": "Conditions et boucles",
+          "objective": "Écrire des programmes qui prennent une décision et répètent un traitement",
+          "topics": [
+            "Expressions booléennes",
+            "Structures conditionnelles if, elif, else",
+            "Boucles for et while",
+            "Traces d’exécution et terminaison"
+          ],
+          "method": "Prédiction de traces puis exercices Python à paliers",
+          "deliverable": "Programme interactif utilisant conditions et boucles"
+        },
+        {
+          "number": 3,
+          "title": "Fonctions et décomposition d’un problème",
+          "objective": "Comprendre l’intérêt des fonctions et structurer une solution en sous-problèmes",
+          "topics": [
+            "Définition et appel d’une fonction",
+            "Paramètres et valeur de retour",
+            "Portée élémentaire des variables",
+            "Tests simples et cas limites"
+          ],
+          "method": "Refactorisation guidée d’un programme puis exercices de décomposition",
+          "deliverable": "Bibliothèque de fonctions courtes accompagnées de tests"
+        },
+        {
+          "number": 4,
+          "title": "Listes, parcours et recherche",
+          "objective": "Manipuler une collection simple et construire un premier algorithme de recherche",
+          "topics": [
+            "Création et accès aux éléments d’une liste",
+            "Parcours par indices et par valeurs",
+            "Accumulation et recherche séquentielle",
+            "Introduction à l’efficacité d’un algorithme"
+          ],
+          "method": "Manipulations guidées puis résolution d’un problème de recherche",
+          "deliverable": "Algorithme de recherche commenté et jeu de tests"
+        },
+        {
+          "number": 5,
+          "title": "Mini-projet intégrateur NSI",
+          "objective": "Mobiliser les fondamentaux découverts dans un projet accessible aux débutants",
+          "topics": [
+            "Définition du cahier des charges",
+            "Structuration du code en fonctions",
+            "Tests et validation",
+            "Documentation et présentation"
+          ],
+          "method": "Pédagogie par projet avec accompagnement personnalisé",
+          "deliverable": "Mini-projet Python documenté, testé et présenté au groupe"
+        }
+      ]
+    },
+    {
+      "id": "premiere-physique-chimie",
+      "level": "PREMIERE",
+      "subjectId": "PHYSIQUE_CHIMIE",
+      "subject": "Physique-Chimie",
+      "title": "Physique-Chimie — Entrée en Première",
+      "subtitle": "Entrée en Première — partir des acquis de Seconde pour préparer les premières notions de l’EDS Physique-Chimie",
+      "prerequisites": "Les grandeurs, unités et méthodes expérimentales travaillées en Seconde.",
+      "differentiation": "Guidage calculatoire, schémas et problèmes d'approfondissement selon le profil déclaré.",
+      "quickAssessment": "Question de modélisation ou calcul scientifique commenté en fin de séance.",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Quantité de matière et concentration",
+          "objective": "Maîtriser la mole, les calculs de quantité et les concentrations",
+          "topics": [
+            "Mole et nombre d'Avogadro",
+            "Masse molaire et volume molaire",
+            "Concentration molaire et massique",
+            "Dilution et préparation de solutions"
+          ],
+          "method": "Exercices de calcul systématiques avec progression de difficulté",
+          "deliverable": "Fiche formulaire quantité de matière avec méthode de résolution"
+        },
+        {
+          "number": 2,
+          "title": "Réactions chimiques et stœchiométrie",
+          "objective": "Équilibrer une réaction et réaliser un bilan de matière",
+          "topics": [
+            "Équation de réaction et équilibrage",
+            "Tableau d'avancement",
+            "Réactif limitant et avancement maximal",
+            "Rendement d'une réaction"
+          ],
+          "method": "Méthode pas-à-pas du tableau d'avancement sur exemples variés",
+          "deliverable": "Méthode complète du tableau d'avancement avec exercices résolus"
+        },
+        {
+          "number": 3,
+          "title": "Champs et forces : gravitation et électrostatique",
+          "objective": "Caractériser les champs de gravitation et électrostatique",
+          "topics": [
+            "Notion de champ (scalaire et vectoriel)",
+            "Champ de gravitation et pesanteur",
+            "Force et champ électrostatique",
+            "Lignes de champ et cartographie"
+          ],
+          "method": "Schématisation systématique et exercices d'application",
+          "deliverable": "Tableau comparatif gravitation/électrostatique avec schémas"
+        },
+        {
+          "number": 4,
+          "title": "Énergie mécanique et conservation",
+          "objective": "Appliquer le principe de conservation de l'énergie mécanique",
+          "topics": [
+            "Énergie cinétique et théorème de l'énergie cinétique",
+            "Énergie potentielle de pesanteur",
+            "Énergie mécanique et conservation",
+            "Transferts d'énergie et frottements"
+          ],
+          "method": "Résolution de problèmes avec bilan énergétique schématisé",
+          "deliverable": "Méthode de résolution par bilan énergétique avec exemples"
+        },
+        {
+          "number": 5,
+          "title": "Exploitation de documents scientifiques",
+          "objective": "Extraire des informations et résoudre un problème à partir de documents",
+          "topics": [
+            "Lecture critique de graphiques et tableaux",
+            "Extraction d'informations pertinentes",
+            "Mise en relation de données multi-documents",
+            "Rédaction structurée d'une résolution de problème"
+          ],
+          "method": "Entraînement sur exercices type Bac avec correction détaillée",
+          "deliverable": "Copie type corrigée avec grille de notation explicitée"
+        }
+      ]
+    },
+    {
+      "id": "terminale-mathematiques",
+      "level": "TERMINALE",
+      "subjectId": "MATHEMATIQUES",
+      "subject": "Mathématiques",
+      "title": "Mathématiques — Entrée en Terminale",
+      "subtitle": "Entrée en Terminale — partir des acquis de Première et préparer les premières notions selon le parcours déclaré : EDS Mathématiques et options associées",
+      "prerequisites": "Les acquis de Première en dérivation, suites, probabilités et géométrie.",
+      "differentiation": "Exercices différenciés selon l’EDS Mathématiques déclaré ; Maths expertes et Maths complémentaires sont des options, jamais des EDS supplémentaires.",
+      "quickAssessment": "Exercice de synthèse court analysé selon la démarche, le calcul et la rédaction.",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Limites et continuité",
+          "objective": "Calculer des limites et comprendre la notion de continuité",
+          "topics": [
+            "Limites en l'infini et limites finies",
+            "Formes indéterminées et levée d'indétermination",
+            "Asymptotes horizontales et verticales",
+            "Continuité et théorème des valeurs intermédiaires"
+          ],
+          "method": "Cours structuré puis exercices d'application avec corrigés détaillés",
+          "deliverable": "Fiche méthode limites avec tableau des formes indéterminées"
+        },
+        {
+          "number": 2,
+          "title": "Dérivation avancée et fonctions composées",
+          "objective": "Dériver des fonctions composées et mener des études complètes",
+          "topics": [
+            "Dérivée de fonctions composées",
+            "Fonction exponentielle et ses propriétés",
+            "Fonction logarithme népérien",
+            "Étude complète de fonction avec exponentielle ou logarithme"
+          ],
+          "method": "Exercices guidés avec complexité progressive",
+          "deliverable": "Tableau des dérivées avancées et étude de fonction complète rédigée"
+        },
+        {
+          "number": 3,
+          "title": "Suites récurrentes et convergence",
+          "objective": "Étudier le comportement à l'infini des suites récurrentes",
+          "topics": [
+            "Suites récurrentes du type u(n+1) = f(u(n))",
+            "Sens de variation d'une suite récurrente",
+            "Convergence et limite d'une suite",
+            "Raisonnement par récurrence"
+          ],
+          "method": "Méthode graphique puis formalisation avec exercices types Bac",
+          "deliverable": "Méthode complète d'étude d'une suite récurrente"
+        },
+        {
+          "number": 4,
+          "title": "Probabilités : loi binomiale et espérance",
+          "objective": "Modéliser une situation par une loi binomiale et calculer ses paramètres",
+          "topics": [
+            "Épreuve de Bernoulli et schéma de Bernoulli",
+            "Loi binomiale : paramètres et calculs",
+            "Espérance, variance, écart-type",
+            "Applications et modélisation"
+          ],
+          "method": "Problèmes contextualisés avec utilisation de la calculatrice",
+          "deliverable": "Fiche synthèse loi binomiale avec exercices types résolus"
+        },
+        {
+          "number": 5,
+          "title": "Géométrie dans l'espace",
+          "objective": "Se repérer dans l'espace et résoudre des problèmes de géométrie vectorielle",
+          "topics": [
+            "Repère orthonormé de l'espace",
+            "Vecteurs de l'espace et coordonnées",
+            "Équation cartésienne d'un plan",
+            "Droites et plans : positions relatives"
+          ],
+          "method": "Visualisation 3D puis exercices de calcul avec schémas",
+          "deliverable": "Formulaire géométrie dans l'espace avec méthodes de résolution"
+        }
+      ]
+    },
+    {
+      "id": "terminale-expression-ecrite-oral",
+      "level": "TERMINALE",
+      "subjectId": "FRANCAIS",
+      "subject": "Expression écrite argumentation et oral",
+      "title": "Expression écrite, argumentation et maîtrise de l'oral",
+      "subtitle": "Entrée en Terminale — développer les compétences transversales d'expression pour le futur Grand Oral et le supérieur",
+      "prerequisites": "Les compétences d’expression écrite et orale travaillées jusqu’en Première ; savoir organiser un paragraphe et présenter une idée.",
+      "differentiation": "Sujets, temps de préparation et niveau d'étayage adaptés à l'aisance écrite et orale.",
+      "quickAssessment": "Prise de parole ou synthèse courte avec retour sur structure, précision et expression.",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Argumentation structurée et raisonnement logique",
+          "objective": "Construire une argumentation rigoureuse sur des sujets complexes",
+          "topics": [
+            "Structure argumentative avancée (thèse, antithèse, synthèse)",
+            "Types de raisonnement (déductif, inductif, par analogie)",
+            "Connecteurs logiques et enchaînements",
+            "Rédaction d'un développement argumenté de 40 lignes"
+          ],
+          "method": "Analyse de modèles puis production écrite avec feedback personnalisé",
+          "deliverable": "Développement argumenté complet évalué et annoté"
+        },
+        {
+          "number": 2,
+          "title": "Analyse de textes et documents non littéraires",
+          "objective": "Extraire, confronter et synthétiser des informations de documents variés",
+          "topics": [
+            "Lecture critique de documents scientifiques et journalistiques",
+            "Identification des biais et des intentions de l'auteur",
+            "Confrontation de sources et recoupement",
+            "Rédaction d'une analyse structurée"
+          ],
+          "method": "Travail sur corpus documentaire avec grille d'analyse guidée",
+          "deliverable": "Analyse de document rédigée avec méthode de lecture critique"
+        },
+        {
+          "number": 3,
+          "title": "Expression orale : structuration et diction",
+          "objective": "Structurer un propos oral et maîtriser sa diction et sa posture",
+          "topics": [
+            "Structuration d'une intervention orale (5 min)",
+            "Techniques de diction (articulation, rythme, pauses)",
+            "Gestion du regard et de la posture",
+            "Utilisation de notes et de support"
+          ],
+          "method": "Exercices de prise de parole filmés avec auto-analyse",
+          "deliverable": "Fiche personnalisée de progression orale avec objectifs ciblés"
+        },
+        {
+          "number": 4,
+          "title": "Synthèse de documents",
+          "objective": "Rédiger une synthèse fidèle et structurée à partir d'un corpus",
+          "topics": [
+            "Méthodologie de la synthèse (lecture, confrontation, plan)",
+            "Reformulation sans paraphrase ni opinion personnelle",
+            "Organisation thématique du propos",
+            "Rédaction fluide avec transitions"
+          ],
+          "method": "Exercice complet de synthèse sur corpus de 3-4 documents",
+          "deliverable": "Synthèse rédigée avec grille d'auto-évaluation"
+        },
+        {
+          "number": 5,
+          "title": "Préparation à l'entretien : Grand Oral et au-delà",
+          "objective": "Se préparer à l'épreuve du Grand Oral et aux entretiens d'orientation",
+          "topics": [
+            "Structure du Grand Oral (présentation + échange + orientation)",
+            "Formulation et défense d'une problématique",
+            "Réponse aux questions déstabilisantes",
+            "Simulation complète en conditions d'examen"
+          ],
+          "method": "Simulation d'entretien en conditions réelles avec jury",
+          "deliverable": "Grille d'évaluation Grand Oral complétée avec axes d'amélioration"
+        }
+      ]
+    },
+    {
+      "id": "terminale-nsi",
+      "level": "TERMINALE",
+      "subjectId": "NSI",
+      "subject": "NSI",
+      "title": "NSI — Entrée en Terminale",
+      "subtitle": "Entrée en Terminale — pour les élèves conservant l’EDS NSI, aborder les structures de données et la future épreuve pratique",
+      "prerequisites": "Les bases de Python, des fonctions, des listes et de l'algorithmique de Première NSI.",
+      "differentiation": "Profil Première NSI déclaré et compatibilité du groupe soumis à validation pédagogique ; implémentations guidées puis variantes selon l'autonomie.",
+      "quickAssessment": "Code court à compléter, tester et expliquer à l'issue de chaque séance.",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Structures de données : piles, files et arbres",
+          "objective": "Implémenter et utiliser les structures de données linéaires et arborescentes",
+          "topics": [
+            "Piles : principe LIFO et implémentation",
+            "Files : principe FIFO et implémentation",
+            "Arbres binaires : vocabulaire et parcours",
+            "Arbres binaires de recherche (ABR)"
+          ],
+          "method": "Implémentation guidée puis exercices d'utilisation",
+          "deliverable": "Implémentations Python des structures avec tests unitaires"
+        },
+        {
+          "number": 2,
+          "title": "Récursivité : principes et applications",
+          "objective": "Concevoir et analyser des algorithmes récursifs",
+          "topics": [
+            "Principe de récursivité et cas de base",
+            "Pile d'appels et déroulement d'exécution",
+            "Exemples classiques (factorielle, Fibonacci, puissance)",
+            "Récursivité sur les arbres (parcours, hauteur)"
+          ],
+          "method": "Visualisation de la pile d'appels puis exercices progressifs",
+          "deliverable": "Catalogue d'algorithmes récursifs commentés et testés"
+        },
+        {
+          "number": 3,
+          "title": "Bases de données et SQL",
+          "objective": "Modéliser des données et écrire des requêtes SQL courantes",
+          "topics": [
+            "Modèle relationnel et schéma de base",
+            "Requêtes SELECT, WHERE, ORDER BY",
+            "Jointures entre tables",
+            "INSERT, UPDATE, DELETE et contraintes d'intégrité"
+          ],
+          "method": "Exercices sur base de données concrète avec requêtes progressives",
+          "deliverable": "Série de requêtes SQL résolues sur une base exemple"
+        },
+        {
+          "number": 4,
+          "title": "Protocoles réseaux et sécurité",
+          "objective": "Comprendre les protocoles réseau et les enjeux de sécurité",
+          "topics": [
+            "Modèle TCP/IP et encapsulation",
+            "Adressage IP et routage simplifié",
+            "Protocoles applicatifs (HTTP, DNS)",
+            "Chiffrement symétrique et asymétrique (principes)"
+          ],
+          "method": "Analyse de trames et exercices de routage sur schéma réseau",
+          "deliverable": "Schéma récapitulatif des protocoles avec exercices résolus"
+        },
+        {
+          "number": 5,
+          "title": "Méthodologie de l'épreuve pratique NSI",
+          "objective": "Se préparer efficacement à l'épreuve pratique du Bac NSI",
+          "topics": [
+            "Format de l'épreuve et attendus",
+            "Stratégie de résolution (lecture, pseudo-code, implémentation)",
+            "Gestion du temps sur les deux exercices",
+            "Entraînement sur sujets types avec correction"
+          ],
+          "method": "Simulation d'épreuve en conditions réelles puis correction détaillée",
+          "deliverable": "Deux exercices d'épreuve pratique résolus avec méthode"
+        }
+      ]
+    },
+    {
+      "id": "terminale-physique-chimie",
+      "level": "TERMINALE",
+      "subjectId": "PHYSIQUE_CHIMIE",
+      "subject": "Physique-Chimie",
+      "title": "Physique-Chimie — Entrée en Terminale",
+      "subtitle": "Entrée en Terminale — pour les élèves conservant l’EDS Physique-Chimie, préparer les premières notions à partir des acquis de Première",
+      "prerequisites": "Les acquis de Première en mécanique, chimie quantitative et exploitation de données.",
+      "differentiation": "Spécialité Physique-Chimie conservée et compatibilité du groupe soumises à validation pédagogique ; aides graduées selon le profil.",
+      "quickAssessment": "Mini-problème scientifique corrigé sur la modélisation, les unités et la conclusion.",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Acides-bases et pH",
+          "objective": "Comprendre les réactions acido-basiques et calculer le pH de solutions",
+          "topics": [
+            "Couples acide-base et réaction acido-basique",
+            "pH et concentration en ions H3O+",
+            "Acides forts, acides faibles et constante Ka",
+            "Solutions tampon (introduction)"
+          ],
+          "method": "Exercices de calcul progressifs avec interprétation des résultats",
+          "deliverable": "Fiche méthode acides-bases avec exercices types résolus"
+        },
+        {
+          "number": 2,
+          "title": "Cinétique chimique : vitesse et facteurs",
+          "objective": "Décrire l'évolution temporelle d'une réaction et ses facteurs cinétiques",
+          "topics": [
+            "Vitesse de réaction et suivi temporel",
+            "Facteurs cinétiques (température, concentration, catalyseur)",
+            "Temps de demi-réaction",
+            "Exploitation de courbes cinétiques"
+          ],
+          "method": "Analyse de données expérimentales et exercices d'exploitation",
+          "deliverable": "Méthode d'exploitation d'une courbe cinétique avec exemples"
+        },
+        {
+          "number": 3,
+          "title": "Mécanique newtonienne",
+          "objective": "Appliquer les lois de Newton pour étudier des mouvements",
+          "topics": [
+            "Deuxième loi de Newton (somme des forces = ma)",
+            "Mouvement dans un champ de pesanteur uniforme",
+            "Mouvement d'un projectile",
+            "Mouvement circulaire uniforme (introduction)"
+          ],
+          "method": "Résolution méthodique de problèmes avec schématisation systématique",
+          "deliverable": "Méthode de résolution mécanique newtonienne avec problèmes résolus"
+        },
+        {
+          "number": 4,
+          "title": "Ondes et optique",
+          "objective": "Caractériser une onde et comprendre les phénomènes optiques fondamentaux",
+          "topics": [
+            "Ondes mécaniques : célérité, période, longueur d'onde",
+            "Phénomène de diffraction",
+            "Interférences (conditions constructives/destructives)",
+            "Lois de Snell-Descartes et dispersion"
+          ],
+          "method": "Schématisation et calculs sur situations expérimentales concrètes",
+          "deliverable": "Formulaire ondes-optique avec schémas explicatifs"
+        },
+        {
+          "number": 5,
+          "title": "Résolution de problèmes scientifiques",
+          "objective": "Maîtriser la méthodologie de résolution de problème type Bac",
+          "topics": [
+            "Analyse d'un énoncé et extraction de données",
+            "Choix du modèle et mise en équation",
+            "Résolution et vérification de cohérence",
+            "Rédaction structurée de la solution"
+          ],
+          "method": "Entraînement sur problèmes type Bac avec correction critériée",
+          "deliverable": "Problème résolu intégralement avec grille de notation explicitée"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "hero": {
+      "eyebrow": "Stages de pré-rentrée 2026 · Mutuelleville, Tunis",
+      "h1": "Deux semaines pour préparer sérieusement la rentrée",
+      "subtitle": "Du 17 au 28 août 2026, pour les élèves entrant en Seconde, Première ou Terminale. Une à quatre matières au choix : Mathématiques, Physique-Chimie, Français et informatique/NSI — initiation informatique, algorithmique et SNT pour l’entrée en Seconde."
+    },
+    "method": [
+      {
+        "title": "Positionnement",
+        "description": "Un diagnostic des acquis permet d'identifier les priorités de travail avant le démarrage du module."
+      },
+      {
+        "title": "Travail guidé en groupe réduit",
+        "description": "Les notions sont reprises dans un groupe de trois à cinq élèves, avec des consignes et des aides adaptées."
+      },
+      {
+        "title": "Entraînement et correction",
+        "description": "Chaque séance alterne méthode, exercices progressifs et correction explicite pour consolider les réflexes."
+      },
+      {
+        "title": "Bilan et recommandations de rentrée",
+        "description": "Le stage se termine par une synthèse des acquis observés et des recommandations de travail pour la rentrée."
+      }
+    ],
+    "practical": {
+      "audience": "Pour les élèves entrant en Seconde, Première ou Terminale à la rentrée 2026-2027.",
+      "material": "Un cahier, une trousse complète et une calculatrice pour les matières concernées. Les supports de travail sont fournis par Nexus.",
+      "materialsBySubject": {
+        "MATHEMATIQUES": {
+          "label": "Mathématiques",
+          "description": "Un cahier, une trousse complète et une calculatrice."
+        },
+        "FRANCAIS": {
+          "label": "Français",
+          "description": "Un cahier et une trousse complète."
+        },
+        "NSI": {
+          "label": "NSI/SNT",
+          "description": "Pour les modules NSI/SNT, l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire."
+        },
+        "PHYSIQUE_CHIMIE": {
+          "label": "Physique-Chimie",
+          "description": "Un cahier, une trousse complète et une calculatrice. L’accompagnement est théorique et méthodologique : analyse de données expérimentales, étude de protocoles, simulation et raisonnement scientifique. Aucune séance de laboratoire n’est annoncée."
+        }
+      },
+      "preRegistrationNotice": "Pré-inscription sans paiement. Cette demande ne réserve pas une place et ne forme pas un contrat. La confirmation intervient après validation administrative et pédagogique et communication des conditions applicables.",
+      "noOnlinePaymentNotice": "Aucun paiement en ligne n’est demandé sur cette page. Les conditions contractuelles applicables sont communiquées avant confirmation.",
+      "groupCompositionNotice": "Le créneau est indiqué dès maintenant. La composition pédagogique du groupe est confirmée après étude des profils et des effectifs.",
+      "groupNotOpenedProcedure": "Si Nexus Réussite décide de ne pas ouvrir le groupe, la famille est informée. Les éventuelles sommes déjà reçues sont restituées selon les conditions communiquées avant confirmation."
+    },
+    "faq": [
+      {
+        "question": "Mon enfant entrant en Seconde, Première ou Terminale peut-il suivre plusieurs matières ?",
+        "answer": "Oui, une à quatre matières peuvent être choisies. Les créneaux du planning socle ne se chevauchent pas pour une même classe de rentrée."
+      },
+      {
+        "question": "Le stage dure-t-il une ou deux semaines ?",
+        "answer": "La campagne s'étend sur deux semaines. Chaque matière est organisée sur une semaine avec cinq séances de deux heures ; la présence dépend donc des matières choisies."
+      },
+      {
+        "question": "Quelle est la différence entre SNT et NSI pour une entrée en Seconde ?",
+        "answer": "Pour une entrée en Seconde, le module est une initiation à l'informatique, à l'algorithmique et à la SNT. Il ne s'agit pas d'un enseignement de spécialité NSI."
+      },
+      {
+        "question": "Comment choisir le profil de Mathématiques pour une entrée en Première ?",
+        "answer": "Le parent déclare Maths EDS ou Maths hors EDS pour la classe de rentrée. Le créneau est commun, puis la composition pédagogique du groupe est validée selon les profils et les effectifs."
+      },
+      {
+        "question": "Le Français EAF convient-il aux voies générale et technologique ?",
+        "answer": "Les deux profils sont prévus. La voie déclarée permet à l'équipe d'adapter les exercices et de confirmer une composition de groupe cohérente."
+      },
+      {
+        "question": "Quelles options de Mathématiques sont prévues pour une entrée en Terminale ?",
+        "answer": "Le formulaire distingue l'absence d'option, Maths expertes et Maths complémentaires pour la classe de rentrée. La spécialité Mathématiques conservée est déclarée séparément."
+      },
+      {
+        "question": "À partir de combien d'élèves un groupe ouvre-t-il ?",
+        "answer": "Un groupe ouvre à partir de trois élèves et accueille au maximum cinq élèves. La décision est communiquée après étude des demandes."
+      },
+      {
+        "question": "Comment fonctionne l'acompte ?",
+        "answer": "L'acompte applicable au pack est communiqué dans le résumé. Il est demandé après validation du profil et du groupe, et vient en déduction du solde."
+      },
+      {
+        "question": "Que se passe-t-il si le groupe n'ouvre pas ?",
+        "answer": "Si Nexus Réussite décide de ne pas ouvrir le groupe, la famille est informée. Les éventuelles sommes déjà reçues sont restituées selon les conditions communiquées avant confirmation."
+      },
+      {
+        "question": "Un report vers un autre stage est-il possible ?",
+        "answer": "Les modalités d’annulation, d’absence, de report et d’interruption sont communiquées avant toute confirmation."
+      },
+      {
+        "question": "Existe-t-il une liste d'attente ?",
+        "answer": "Une demande peut être placée en liste d'attente si un groupe atteint sa capacité. Cela ne constitue pas une confirmation de place."
+      },
+      {
+        "question": "Que se passe-t-il en cas d'absence ?",
+        "answer": "Les modalités applicables aux absences et au rattrapage éventuel sont communiquées avant toute confirmation. Aucun rattrapage n’est garanti par la pré-inscription."
+      },
+      {
+        "question": "Quel matériel faut-il apporter ?",
+        "answer": "Un cahier, une trousse complète et une calculatrice sont utiles selon les matières. Pour les modules NSI/SNT, l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire. En Physique-Chimie, les séances sont théoriques et méthodologiques ; aucune séance de laboratoire n’est annoncée."
+      },
+      {
+        "question": "Que faire si le groupe demandé est complet ?",
+        "answer": "L'équipe peut proposer une liste d'attente ou une autre solution pédagogique. Aucune disponibilité en temps réel n'est annoncée sur cette page."
+      },
+      {
+        "question": "La pré-inscription engage-t-elle financièrement ?",
+        "answer": "Non. La demande est transmise sans paiement, ne réserve pas une place et ne forme pas un contrat. Les conditions applicables sont communiquées avant toute confirmation."
+      },
+      {
+        "question": "Comment obtenir un conseil personnalisé ?",
+        "answer": "Vous pouvez demander un bilan gratuit ou écrire sur WhatsApp. L'équipe vérifie alors les matières et le profil les plus adaptés."
+      }
+    ],
+    "adaptationNotice": "Le programme et le niveau des exercices sont adaptés au profil déclaré et à la composition pédagogique du groupe.",
+    "recordingConsentNotice": "Tout enregistrement pédagogique est facultatif et soumis à un consentement séparé."
+  },
+  "labels": {
+    "deposit": "Acompte",
+    "balance": "Solde",
+    "price": "Prix"
+  },
+  "cta": {
+    "primary": "Se pré-inscrire ou demander un conseil",
+    "whatsapp": "Poser une question",
+    "bilanLabel": "Bilan gratuit",
+    "bilanPath": "/bilan-gratuit"
+  },
+  "contact": {
+    "phone": "+216 99 19 28 29",
+    "phoneRaw": "+21699192829",
+    "email": "contact@nexusreussite.academy",
+    "whatsappUrl": "https://wa.me/21699192829",
+    "canonicalUrl": "https://nexusreussite.academy/stages/pre-rentree-2026",
+    "domain": "nexusreussite.academy"
+  },
+  "legal": {
+    "status": "MISSING_APPROVED_COMMERCIAL_TERMS",
+    "commercialTermsPath": "docs/legal/pre-rentree-2026-commercial-terms-gap-analysis.md",
+    "contractualDossierPublicationBlocked": true,
+    "termsVersion": null,
+    "effectiveDate": null,
+    "ownerApprovalReference": null,
+    "legalApprovalReference": null,
+    "privacyNoticeComplete": false
+  },
+  "approvedPublicClaims": [
+    {
+      "id": "hero-title",
+      "type": "MARKETING",
+      "text": "Deux semaines pour préparer sérieusement la rentrée",
+      "source": {
+        "path": "data/campaigns/pre-rentree-2026.json",
+        "pointer": "/content/hero/h1"
+      }
+    },
+    {
+      "id": "hero-subtitle",
+      "type": "DATES_AND_AUDIENCE",
+      "text": "Du 17 au 28 août 2026, pour les élèves entrant en Seconde, Première ou Terminale. Une à quatre matières au choix : Mathématiques, Physique-Chimie, Français et informatique/NSI — initiation informatique, algorithmique et SNT pour l’entrée en Seconde.",
+      "source": {
+        "path": "data/campaigns/pre-rentree-2026.json",
+        "pointer": "/content/hero/subtitle"
+      }
+    },
+    {
+      "id": "audience",
+      "type": "AUDIENCE",
+      "text": "Pour les élèves entrant en Seconde, Première ou Terminale à la rentrée 2026-2027.",
+      "source": {
+        "path": "data/campaigns/pre-rentree-2026.json",
+        "pointer": "/content/practical/audience"
+      }
+    },
+    {
+      "id": "material",
+      "type": "MATERIAL",
+      "text": "Un cahier, une trousse complète et une calculatrice pour les matières concernées. Les supports de travail sont fournis par Nexus.",
+      "source": {
+        "path": "data/campaigns/pre-rentree-2026.json",
+        "pointer": "/content/practical/material"
+      }
+    },
+    {
+      "id": "pre-registration",
+      "type": "PRE_REGISTRATION",
+      "text": "Pré-inscription sans paiement. Cette demande ne réserve pas une place et ne forme pas un contrat. La confirmation intervient après validation administrative et pédagogique et communication des conditions applicables.",
+      "source": {
+        "path": "data/campaigns/pre-rentree-2026.json",
+        "pointer": "/content/practical/preRegistrationNotice"
+      }
+    },
+    {
+      "id": "no-online-payment",
+      "type": "PRE_REGISTRATION",
+      "text": "Aucun paiement en ligne n’est demandé sur cette page. Les conditions contractuelles applicables sont communiquées avant confirmation.",
+      "source": {
+        "path": "data/campaigns/pre-rentree-2026.json",
+        "pointer": "/content/practical/noOnlinePaymentNotice"
+      }
+    },
+    {
+      "id": "group-composition",
+      "type": "CAPACITY",
+      "text": "Le créneau est indiqué dès maintenant. La composition pédagogique du groupe est confirmée après étude des profils et des effectifs.",
+      "source": {
+        "path": "data/campaigns/pre-rentree-2026.json",
+        "pointer": "/content/practical/groupCompositionNotice"
+      }
+    },
+    {
+      "id": "method-1",
+      "type": "METHOD",
+      "text": "Positionnement. Un diagnostic des acquis permet d'identifier les priorités de travail avant le démarrage du module.",
+      "source": {
+        "path": "data/campaigns/pre-rentree-2026.json",
+        "pointer": "/content/method/0"
+      }
+    },
+    {
+      "id": "method-2",
+      "type": "METHOD",
+      "text": "Travail guidé en groupe réduit. Les notions sont reprises dans un groupe de trois à cinq élèves, avec des consignes et des aides adaptées.",
+      "source": {
+        "path": "data/campaigns/pre-rentree-2026.json",
+        "pointer": "/content/method/1"
+      }
+    },
+    {
+      "id": "method-3",
+      "type": "METHOD",
+      "text": "Entraînement et correction. Chaque séance alterne méthode, exercices progressifs et correction explicite pour consolider les réflexes.",
+      "source": {
+        "path": "data/campaigns/pre-rentree-2026.json",
+        "pointer": "/content/method/2"
+      }
+    },
+    {
+      "id": "method-4",
+      "type": "METHOD",
+      "text": "Bilan et recommandations de rentrée. Le stage se termine par une synthèse des acquis observés et des recommandations de travail pour la rentrée.",
+      "source": {
+        "path": "data/campaigns/pre-rentree-2026.json",
+        "pointer": "/content/method/3"
+      }
+    },
+    {
+      "id": "material-mathematiques",
+      "type": "MATERIAL",
+      "text": "Mathématiques. Un cahier, une trousse complète et une calculatrice.",
+      "source": {
+        "path": "data/campaigns/pre-rentree-2026.json",
+        "pointer": "/content/practical/materialsBySubject/MATHEMATIQUES"
+      }
+    },
+    {
+      "id": "material-francais",
+      "type": "MATERIAL",
+      "text": "Français. Un cahier et une trousse complète.",
+      "source": {
+        "path": "data/campaigns/pre-rentree-2026.json",
+        "pointer": "/content/practical/materialsBySubject/FRANCAIS"
+      }
+    },
+    {
+      "id": "material-nsi",
+      "type": "MATERIAL",
+      "text": "NSI/SNT. Pour les modules NSI/SNT, l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire.",
+      "source": {
+        "path": "data/campaigns/pre-rentree-2026.json",
+        "pointer": "/content/practical/materialsBySubject/NSI"
+      }
+    },
+    {
+      "id": "material-physique-chimie",
+      "type": "MATERIAL",
+      "text": "Physique-Chimie. Un cahier, une trousse complète et une calculatrice. L’accompagnement est théorique et méthodologique : analyse de données expérimentales, étude de protocoles, simulation et raisonnement scientifique. Aucune séance de laboratoire n’est annoncée.",
+      "source": {
+        "path": "data/campaigns/pre-rentree-2026.json",
+        "pointer": "/content/practical/materialsBySubject/PHYSIQUE_CHIMIE"
+      }
+    },
+    {
+      "id": "group-size",
+      "type": "CAPACITY",
+      "text": "Groupes de 3 à 5 élèves",
+      "source": {
+        "path": "data/campaigns/pre-rentree-2026.json",
+        "pointer": "/capacity"
+      }
+    },
+    {
+      "id": "decision-deadline",
+      "type": "DEADLINE",
+      "text": "Décision communiquée le 10 août à 18 h.",
+      "source": {
+        "path": "data/campaigns/pre-rentree-2026.json",
+        "pointer": "/decisionDeadline"
+      }
+    },
+    {
+      "id": "adaptation-notice",
+      "type": "PEDAGOGY",
+      "text": "Le programme et le niveau des exercices sont adaptés au profil déclaré et à la composition pédagogique du groupe.",
+      "source": {
+        "path": "OWNER_MISSION",
+        "pointer": "/PHASE_4/adaptation-notice"
+      }
+    },
+    {
+      "id": "recording-consent",
+      "type": "CONSENT",
+      "text": "Tout enregistrement pédagogique est facultatif et soumis à un consentement séparé.",
+      "source": {
+        "path": "OWNER_MISSION",
+        "pointer": "/PHASE_4/enregistrement-oral"
+      }
+    },
+    {
+      "id": "public-cta",
+      "type": "CTA",
+      "text": "Se pré-inscrire ou demander un conseil",
+      "source": {
+        "path": "OWNER_MISSION",
+        "pointer": "/PHASE_5/CTA"
+      }
+    }
+  ],
+  "assets": {
+    "logos": [
+      {
+        "id": "logo-slogan",
+        "path": "public/logo_slogan_nexus.png",
+        "sha256": "81855d6817f93537262e08c2e8037d1ccc8eac14b0b611ba4686f9c28ba34315"
+      },
+      {
+        "id": "logo-compact",
+        "path": "public/images/logo_nexus_reussite.png",
+        "sha256": "50e74738d63743153b6da26fda1db0578359bce5af5c3f4bc6a1411114030598"
+      }
+    ],
+    "fonts": [
+      {
+        "id": "DM Sans Variable",
+        "path": "app/fonts/DMSans-Variable.woff2",
+        "sha256": "ca72d2bcea8f4daa783dbdfa2d9b46068c3ce38168e05918fb867aa453b4f890"
+      },
+      {
+        "id": "Fraunces Variable",
+        "path": "app/fonts/Fraunces-Variable.woff2",
+        "sha256": "7234ed860a9cc83045413c4faee63c960a8f2d1917adcf728119307d56e0d783"
+      },
+      {
+        "id": "IBM Plex Mono Regular",
+        "path": "app/fonts/IBMPlexMono-Regular.woff2",
+        "sha256": "08949f728dc52d528e69b1667d15c89a5686a4ee9a296ff90983985f99c380f7"
+      }
+    ]
+  },
+  "document": {
+    "version": "v5-canonical",
+    "editDate": "2026-07-14",
+    "publicClassification": "PUBLIC",
+    "privateClassification": "PRIVÉ",
+    "qrTarget": "https://nexusreussite.academy/stages/pre-rentree-2026",
+    "outputs": {
+      "publicPdf": {
+        "essential": "NexusReussite_PreRentree2026_Essentiel_PUBLIC.pdf",
+        "planning": "NexusReussite_PreRentree2026_Planning_PUBLIC.pdf",
+        "programSeconde": "NexusReussite_PreRentree2026_Programme_Seconde_PUBLIC.pdf",
+        "programPremiere": "NexusReussite_PreRentree2026_Programme_Premiere_PUBLIC.pdf",
+        "programTerminale": "NexusReussite_PreRentree2026_Programme_Terminale_PUBLIC.pdf",
+        "pricing": "NexusReussite_PreRentree2026_Tarifs_PUBLIC.pdf"
+      },
+      "publicHtml": {
+        "essential": "NexusReussite_PreRentree2026_Essentiel_PUBLIC.html",
+        "planning": "NexusReussite_PreRentree2026_Planning_PUBLIC.html",
+        "programSeconde": "NexusReussite_PreRentree2026_Programme_Seconde_PUBLIC.html",
+        "programPremiere": "NexusReussite_PreRentree2026_Programme_Premiere_PUBLIC.html",
+        "programTerminale": "NexusReussite_PreRentree2026_Programme_Terminale_PUBLIC.html",
+        "pricing": "NexusReussite_PreRentree2026_Tarifs_PUBLIC.html"
+      },
+      "social": {
+        "feed": "NexusReussite_PreRentree2026_Feed_1080x1350_PUBLIC.png",
+        "story": "NexusReussite_PreRentree2026_Story_1080x1920_PUBLIC.png",
+        "monochrome": "NexusReussite_PreRentree2026_Flyer_NB_1080x1350_PUBLIC.png",
+        "altText": "NexusReussite_PreRentree2026_VisuelsSociaux_AltText_PUBLIC.json"
+      },
+      "privatePdf": {
+        "print": "NexusReussite_PreRentree2026_DossierConfirmation_PRINT.pdf",
+        "fillable": "NexusReussite_PreRentree2026_DossierConfirmation_FILLABLE.pdf"
+      }
+    }
+  }
+}

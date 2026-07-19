@@ -1,0 +1,19 @@
+{
+  "RUN_COUNT": 2,
+  "AUDITED_FILE_COUNT_PER_RUN": 109,
+  "BYTE_FOR_BYTE_MATCH": true,
+  "FIRST_TREE_INVENTORY_SHA256": "29fbd33e7cb3d6bfc46926126b3c7284d5f27e65792ef8908e402b6320767451",
+  "SECOND_TREE_INVENTORY_SHA256": "29fbd33e7cb3d6bfc46926126b3c7284d5f27e65792ef8908e402b6320767451",
+  "SIDE_CAR_FILES_EXCLUDED_FROM_INVENTORY": [
+    "AUDIT/reproducibility-report.json",
+    "AUDIT/manual-visual-review.json",
+    "AUDIT/final-delivery-report.md",
+    "AUDIT/GOVERNANCE/review-manifest.json",
+    "AUDIT/GOVERNANCE/owner-approval.template.json",
+    "AUDIT/GOVERNANCE/owner-approval.schema.json",
+    "AUDIT/GOVERNANCE/owner-approval.json",
+    "AUDIT/GOVERNANCE/release-decision.json"
+  ],
+  "COMMAND": "python scripts/pre-rentree/generate_documents.py --snapshot generated/pre-rentree-2026-publication.snapshot.json --output outputs-v5-canonical",
+  "VERIFIED_ON": "2026-07-19"
+}
