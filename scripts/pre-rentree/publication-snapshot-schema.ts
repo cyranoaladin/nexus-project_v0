@@ -183,6 +183,20 @@ export const PublicationSnapshotSchema = z.object({
     publicClassification: z.literal('PUBLIC'),
     privateClassification: z.literal('PRIVÉ'),
     qrTarget: z.string().url(),
+    outputs: z.object({
+      publicPdf: z.record(z.string().endsWith('.pdf')),
+      publicHtml: z.record(z.string().endsWith('.html')),
+      social: z.object({
+        feed: z.string().endsWith('.png'),
+        story: z.string().endsWith('.png'),
+        monochrome: z.string().endsWith('.png'),
+        altText: z.string().endsWith('.json'),
+      }).strict(),
+      privatePdf: z.object({
+        print: z.string().endsWith('.pdf'),
+        fillable: z.string().endsWith('.pdf'),
+      }).strict(),
+    }).strict(),
   }).strict(),
 }).strict();
 

@@ -148,7 +148,6 @@ export function deriveApprovedPublicClaims(campaign: PreRentreeCampaignManifest)
     ['pre-registration', 'PRE_REGISTRATION', campaign.content.practical.preRegistrationNotice, '/content/practical/preRegistrationNotice'],
     ['no-online-payment', 'PRE_REGISTRATION', campaign.content.practical.noOnlinePaymentNotice, '/content/practical/noOnlinePaymentNotice'],
     ['group-composition', 'CAPACITY', campaign.content.practical.groupCompositionNotice, '/content/practical/groupCompositionNotice'],
-    ['group-not-opened', 'PRE_REGISTRATION', campaign.content.practical.groupNotOpenedProcedure, '/content/practical/groupNotOpenedProcedure'],
     ...campaign.content.method.map((item, index) => [
       `method-${index + 1}`,
       'METHOD',

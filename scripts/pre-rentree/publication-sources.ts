@@ -161,6 +161,34 @@ export function compileCanonicalPublication(options: CompileOptions): Publicatio
       publicClassification: 'PUBLIC' as const,
       privateClassification: 'PRIVÉ' as const,
       qrTarget: canonicalUrl,
+      outputs: {
+        publicPdf: {
+          essential: 'NexusReussite_PreRentree2026_Essentiel_PUBLIC.pdf',
+          planning: 'NexusReussite_PreRentree2026_Planning_PUBLIC.pdf',
+          programSeconde: 'NexusReussite_PreRentree2026_Programme_Seconde_PUBLIC.pdf',
+          programPremiere: 'NexusReussite_PreRentree2026_Programme_Premiere_PUBLIC.pdf',
+          programTerminale: 'NexusReussite_PreRentree2026_Programme_Terminale_PUBLIC.pdf',
+          pricing: 'NexusReussite_PreRentree2026_Tarifs_PUBLIC.pdf',
+        },
+        publicHtml: {
+          essential: 'NexusReussite_PreRentree2026_Essentiel_PUBLIC.html',
+          planning: 'NexusReussite_PreRentree2026_Planning_PUBLIC.html',
+          programSeconde: 'NexusReussite_PreRentree2026_Programme_Seconde_PUBLIC.html',
+          programPremiere: 'NexusReussite_PreRentree2026_Programme_Premiere_PUBLIC.html',
+          programTerminale: 'NexusReussite_PreRentree2026_Programme_Terminale_PUBLIC.html',
+          pricing: 'NexusReussite_PreRentree2026_Tarifs_PUBLIC.html',
+        },
+        social: {
+          feed: 'NexusReussite_PreRentree2026_Feed_1080x1350_PUBLIC.png',
+          story: 'NexusReussite_PreRentree2026_Story_1080x1920_PUBLIC.png',
+          monochrome: 'NexusReussite_PreRentree2026_Flyer_NB_1080x1350_PUBLIC.png',
+          altText: 'NexusReussite_PreRentree2026_VisuelsSociaux_AltText_PUBLIC.json',
+        },
+        privatePdf: {
+          print: 'NexusReussite_PreRentree2026_DossierConfirmation_PRINT.pdf',
+          fillable: 'NexusReussite_PreRentree2026_DossierConfirmation_FILLABLE.pdf',
+        },
+      },
     },
   };
 

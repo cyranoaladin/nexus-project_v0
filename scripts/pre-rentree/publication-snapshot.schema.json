@@ -44,7 +44,34 @@
       }
     },
     "academicProfiles": { "type": "object" },
-    "packs": { "type": "array", "minItems": 4, "maxItems": 4 },
+    "packs": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "subjectCount", "title", "hoursPerSubject", "totalHours",
+          "sessionsPerSubject", "sessionDurationHours", "groupMin", "groupMax",
+          "price", "deposit", "balance", "pricePerHour"
+        ],
+        "properties": {
+          "subjectCount": { "type": "integer", "minimum": 1, "maximum": 4 },
+          "title": { "type": "string", "minLength": 1 },
+          "hoursPerSubject": { "type": "number", "exclusiveMinimum": 0 },
+          "totalHours": { "type": "number", "exclusiveMinimum": 0 },
+          "sessionsPerSubject": { "type": "integer", "minimum": 1 },
+          "sessionDurationHours": { "type": "number", "exclusiveMinimum": 0 },
+          "groupMin": { "type": "integer", "minimum": 1 },
+          "groupMax": { "type": "integer", "minimum": 1 },
+          "price": { "type": "integer", "minimum": 0 },
+          "deposit": { "type": "integer", "minimum": 0 },
+          "balance": { "type": "integer", "minimum": 0 },
+          "pricePerHour": { "type": "number", "exclusiveMinimum": 0 }
+        }
+      }
+    },
     "modules": {
       "type": "array",
       "minItems": 12,
@@ -64,6 +91,73 @@
     "legal": { "type": "object" },
     "approvedPublicClaims": { "type": "array", "minItems": 1 },
     "assets": { "type": "object" },
-    "document": { "type": "object" }
+    "document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version", "editDate", "publicClassification", "privateClassification",
+        "qrTarget", "outputs"
+      ],
+      "properties": {
+        "version": { "const": "v5-canonical" },
+        "editDate": { "type": "string", "format": "date" },
+        "publicClassification": { "const": "PUBLIC" },
+        "privateClassification": { "const": "PRIVÉ" },
+        "qrTarget": { "type": "string", "format": "uri" },
+        "outputs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["publicPdf", "publicHtml", "social", "privatePdf"],
+          "properties": {
+            "publicPdf": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["essential", "planning", "programSeconde", "programPremiere", "programTerminale", "pricing"],
+              "properties": {
+                "essential": { "type": "string", "pattern": "\\.pdf$" },
+                "planning": { "type": "string", "pattern": "\\.pdf$" },
+                "programSeconde": { "type": "string", "pattern": "\\.pdf$" },
+                "programPremiere": { "type": "string", "pattern": "\\.pdf$" },
+                "programTerminale": { "type": "string", "pattern": "\\.pdf$" },
+                "pricing": { "type": "string", "pattern": "\\.pdf$" }
+              }
+            },
+            "publicHtml": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["essential", "planning", "programSeconde", "programPremiere", "programTerminale", "pricing"],
+              "properties": {
+                "essential": { "type": "string", "pattern": "\\.html$" },
+                "planning": { "type": "string", "pattern": "\\.html$" },
+                "programSeconde": { "type": "string", "pattern": "\\.html$" },
+                "programPremiere": { "type": "string", "pattern": "\\.html$" },
+                "programTerminale": { "type": "string", "pattern": "\\.html$" },
+                "pricing": { "type": "string", "pattern": "\\.html$" }
+              }
+            },
+            "social": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["feed", "story", "monochrome", "altText"],
+              "properties": {
+                "feed": { "type": "string", "pattern": "\\.png$" },
+                "story": { "type": "string", "pattern": "\\.png$" },
+                "monochrome": { "type": "string", "pattern": "\\.png$" },
+                "altText": { "type": "string", "pattern": "\\.json$" }
+              }
+            },
+            "privatePdf": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["print", "fillable"],
+              "properties": {
+                "print": { "type": "string", "pattern": "\\.pdf$" },
+                "fillable": { "type": "string", "pattern": "\\.pdf$" }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }

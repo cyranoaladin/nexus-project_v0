@@ -104,6 +104,30 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     expect(new Set(snapshot.approvedPublicClaims.map((claim) => claim.id)).size).toBe(
       snapshot.approvedPublicClaims.length,
     );
+    expect(snapshot.approvedPublicClaims.map((claim) => claim.id)).not.toContain('group-not-opened');
+    expect(snapshot.approvedPublicClaims.map((claim) => claim.text).join(' ')).not.toMatch(
+      /sommes déjà reçues|restituées selon les conditions/i,
+    );
+  });
+
+  it('carries the exact public and social output names outside the renderer', () => {
+    const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha });
+
+    expect(Object.values(snapshot.document.outputs.publicPdf)).toEqual([
+      'NexusReussite_PreRentree2026_Essentiel_PUBLIC.pdf',
+      'NexusReussite_PreRentree2026_Planning_PUBLIC.pdf',
+      'NexusReussite_PreRentree2026_Programme_Seconde_PUBLIC.pdf',
+      'NexusReussite_PreRentree2026_Programme_Premiere_PUBLIC.pdf',
+      'NexusReussite_PreRentree2026_Programme_Terminale_PUBLIC.pdf',
+      'NexusReussite_PreRentree2026_Tarifs_PUBLIC.pdf',
+    ]);
+    expect(Object.values(snapshot.document.outputs.publicHtml).every((name) => name.endsWith('.html'))).toBe(true);
+    expect(snapshot.document.outputs.social).toEqual({
+      feed: 'NexusReussite_PreRentree2026_Feed_1080x1350_PUBLIC.png',
+      story: 'NexusReussite_PreRentree2026_Story_1080x1920_PUBLIC.png',
+      monochrome: 'NexusReussite_PreRentree2026_Flyer_NB_1080x1350_PUBLIC.png',
+      altText: 'NexusReussite_PreRentree2026_VisuelsSociaux_AltText_PUBLIC.json',
+    });
   });
 
   it('writes a validated snapshot atomically from the explicit CLI root', () => {
