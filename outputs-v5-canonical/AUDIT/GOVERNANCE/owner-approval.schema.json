@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexusreussite.academy/schemas/pre-rentree-2026-owner-approval.schema.json",
+  "title": "Pré-rentrée 2026 owner review record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "campaignId",
+    "decision",
+    "reviewManifestSha256",
+    "repoSha",
+    "snapshotSha256",
+    "generatorSha256",
+    "reviewedBy",
+    "reviewerRole",
+    "decidedAt",
+    "decisionReference",
+    "findings"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "campaignId": { "type": "string", "minLength": 1 },
+    "decision": { "enum": ["PENDING", "APPROVED", "REJECTED"] },
+    "reviewManifestSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "repoSha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "snapshotSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "generatorSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "reviewedBy": {
+      "oneOf": [
+        { "type": "string", "minLength": 2 },
+        { "type": "null" }
+      ]
+    },
+    "reviewerRole": {
+      "oneOf": [
+        { "type": "string", "minLength": 2 },
+        { "type": "null" }
+      ]
+    },
+    "decidedAt": {
+      "oneOf": [
+        { "type": "string", "format": "date-time" },
+        { "type": "null" }
+      ]
+    },
+    "decisionReference": {
+      "oneOf": [
+        { "type": "string", "minLength": 3 },
+        { "type": "null" }
+      ]
+    },
+    "findings": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "decision": { "const": "PENDING" } } },
+      "then": {
+        "properties": {
+          "reviewedBy": { "type": "null" },
+          "reviewerRole": { "type": "null" },
+          "decidedAt": { "type": "null" },
+          "decisionReference": { "type": "null" }
+        }
+      },
+      "else": {
+        "properties": {
+          "reviewedBy": { "type": "string", "minLength": 2 },
+          "reviewerRole": { "type": "string", "minLength": 2 },
+          "decidedAt": { "type": "string", "format": "date-time" },
+          "decisionReference": { "type": "string", "minLength": 3 }
+        }
+      }
+    }
+  ]
+}

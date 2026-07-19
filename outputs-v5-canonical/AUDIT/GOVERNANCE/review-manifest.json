@@ -1,0 +1,191 @@
+{
+  "schemaVersion": "1.0.0",
+  "campaignId": "pre-rentree-2026",
+  "documentVersion": "v5-canonical",
+  "repoSha": "a1192c8dccf8eaa6ae223265a3bc9ceb56a6fff0",
+  "snapshotSha256": "891f5b330b428bab783902e72c0186909f49c99a0836458609afcdd22754fef4",
+  "generatorSha256": "b9a5bb30d172b756f2b567f9666e41223ceb51987c355c83cb39c81b5e507fc0",
+  "governanceModuleSha256": "17e662a9e9b0abcf00eba7aab1bf98ac79918da8380327425953078a1768c3de",
+  "governanceCliSha256": "b22ed521160deb5911c03f0de0400eb7543b695c8cd5eaae0e729a6334ebc6e5",
+  "approvalSchemaSha256": "3bab598da98bf1073c1e97ac25dc6c6ce047e4f8a68f79e1ff3b705c6bba9edf",
+  "publicStatus": "PDF_PACKAGE_READY_FOR_OWNER_REVIEW",
+  "privateStatus": "BLOCKED_BY_LEGAL_TERMS",
+  "contractualDossierPublicationBlocked": true,
+  "artifactCount": 29,
+  "artifacts": [
+    {
+      "path": "AUDIT/VISUAL/v4-v5-comparison-sheet.png",
+      "role": "VISUAL_EVIDENCE",
+      "sha256": "dacce7b0d75af3585129aca761d306d41a1952b86f8545efd765f97764d042ae",
+      "fileSize": 429332
+    },
+    {
+      "path": "AUDIT/VISUAL/visual-contact-sheet.png",
+      "role": "VISUAL_EVIDENCE",
+      "sha256": "4f11bfd9fcd21f804580ced3cc0f832bae1923f605d693d4766099c89e6fe3ca",
+      "fileSize": 1059521
+    },
+    {
+      "path": "AUDIT/accessibility-report.json",
+      "role": "AUDIT_EVIDENCE",
+      "sha256": "d8f02c7d69b5e85082f5e41c498113bc22a8ee69e01a7eb804d23a87afaca4ba",
+      "fileSize": 2348
+    },
+    {
+      "path": "AUDIT/content-gate-report.json",
+      "role": "AUDIT_EVIDENCE",
+      "sha256": "b99285ac96ee6d70acd01503057ce7947d285b92f92ba6a1cebe59726d4685e9",
+      "fileSize": 1345
+    },
+    {
+      "path": "AUDIT/document-build-manifest.json",
+      "role": "AUDIT_EVIDENCE",
+      "sha256": "f0c51495b6f6bb862960df9a47d702124db51ac64b9fcf68159011af3c79e26d",
+      "fileSize": 8554
+    },
+    {
+      "path": "AUDIT/final-report.json",
+      "role": "AUDIT_EVIDENCE",
+      "sha256": "2bc45bfe3edd3a40117ce8261573e580f5db9f40f22518def356a3ded248cb47",
+      "fileSize": 1648
+    },
+    {
+      "path": "AUDIT/manual-visual-review.json",
+      "role": "AUDIT_EVIDENCE",
+      "sha256": "2b7a449838ec9b3f15604d2225e245b0c462119a0d50119199e42bdd7616179c",
+      "fileSize": 969
+    },
+    {
+      "path": "AUDIT/pdf-qa-report.json",
+      "role": "AUDIT_EVIDENCE",
+      "sha256": "82cb994ad7981051523b189ca5923a35d1ed238ee61cb8fab895a51bdd416736",
+      "fileSize": 7630
+    },
+    {
+      "path": "AUDIT/reproducibility-report.json",
+      "role": "AUDIT_EVIDENCE",
+      "sha256": "f3735f32af923ec35b10283344fb5700409fbed071cfd47912fd37fb07e1a635",
+      "fileSize": 889
+    },
+    {
+      "path": "AUDIT/social-visual-qa-report.json",
+      "role": "AUDIT_EVIDENCE",
+      "sha256": "3cf725a9ccc7be66b0bbc4eab6bdf85c8fe0f131a0b40008b7148bae6ec15504",
+      "fileSize": 1240
+    },
+    {
+      "path": "AUDIT/visual-qa-report.json",
+      "role": "AUDIT_EVIDENCE",
+      "sha256": "09e43369c1c9b18ef49b6f93177664f0b844742e08d40b3306caed7669beb9b9",
+      "fileSize": 26984
+    },
+    {
+      "path": "PUBLIC/HTML/NexusReussite_PreRentree2026_Essentiel_PUBLIC.html",
+      "role": "ACCESSIBLE_HTML",
+      "sha256": "3cea8eda319e40aad241c6a5f112527f139d8666353f1be4741e9e4c665abb72",
+      "fileSize": 6090
+    },
+    {
+      "path": "PUBLIC/HTML/NexusReussite_PreRentree2026_Planning_PUBLIC.html",
+      "role": "ACCESSIBLE_HTML",
+      "sha256": "c43dc210d5a1c184fed47b7348fecdc90386e27f8baf9399164515c5fb4e3876",
+      "fileSize": 9392
+    },
+    {
+      "path": "PUBLIC/HTML/NexusReussite_PreRentree2026_Programme_Premiere_PUBLIC.html",
+      "role": "ACCESSIBLE_HTML",
+      "sha256": "b9d46750d0f04c6e9024c682217d6d0cc1e72983da7bbf2286853f4a6cfaa35f",
+      "fileSize": 19666
+    },
+    {
+      "path": "PUBLIC/HTML/NexusReussite_PreRentree2026_Programme_Seconde_PUBLIC.html",
+      "role": "ACCESSIBLE_HTML",
+      "sha256": "c7f8613b19f518ed1587dcfd9a09b09ed495eceecf59a68097cbf664cf4f7bb6",
+      "fileSize": 19642
+    },
+    {
+      "path": "PUBLIC/HTML/NexusReussite_PreRentree2026_Programme_Terminale_PUBLIC.html",
+      "role": "ACCESSIBLE_HTML",
+      "sha256": "3a9c647fe4a43e85292f1ea179b9970755947083a7d8ba984ae859189735b08e",
+      "fileSize": 20139
+    },
+    {
+      "path": "PUBLIC/HTML/NexusReussite_PreRentree2026_Tarifs_PUBLIC.html",
+      "role": "ACCESSIBLE_HTML",
+      "sha256": "63b2887fe7134b634c3b7794095f0bd6c61db9c771ab341bdfe238844e1e7937",
+      "fileSize": 5094
+    },
+    {
+      "path": "PUBLIC/NexusReussite_PreRentree2026_Essentiel_PUBLIC.pdf",
+      "role": "PUBLIC_PDF",
+      "sha256": "b2c7e68003c1416e27bfbfae892abd1d27d53be689b0434f4e033541abe90bd3",
+      "fileSize": 267491
+    },
+    {
+      "path": "PUBLIC/NexusReussite_PreRentree2026_Planning_PUBLIC.pdf",
+      "role": "PUBLIC_PDF",
+      "sha256": "1fc148482189246a201a492b2f0539f98aa53e3aad3ef62e3f54a9867c69cceb",
+      "fileSize": 311775
+    },
+    {
+      "path": "PUBLIC/NexusReussite_PreRentree2026_Programme_Premiere_PUBLIC.pdf",
+      "role": "PUBLIC_PDF",
+      "sha256": "80633f9fca19240871f7f43f0c0554d114d038de04376e2dedaa107f19c706d6",
+      "fileSize": 368083
+    },
+    {
+      "path": "PUBLIC/NexusReussite_PreRentree2026_Programme_Seconde_PUBLIC.pdf",
+      "role": "PUBLIC_PDF",
+      "sha256": "291e99f3a834972495c4809826a5a39d3a6641b0a329e4822d899934ae7061e9",
+      "fileSize": 368793
+    },
+    {
+      "path": "PUBLIC/NexusReussite_PreRentree2026_Programme_Terminale_PUBLIC.pdf",
+      "role": "PUBLIC_PDF",
+      "sha256": "d43b1fc53cb1675aee07494b0f84966f900812679bce2754f51b27ab49023ac3",
+      "fileSize": 370483
+    },
+    {
+      "path": "PUBLIC/NexusReussite_PreRentree2026_Tarifs_PUBLIC.pdf",
+      "role": "PUBLIC_PDF",
+      "sha256": "d1b7bdc180352cc89e0efa54c218b8f0a20b3c50e8ed823d5ac8cd30bc25ea0d",
+      "fileSize": 327326
+    },
+    {
+      "path": "PUBLIC/SOCIAL/NexusReussite_PreRentree2026_Feed_1080x1350_PUBLIC.png",
+      "role": "SOCIAL_ASSET",
+      "sha256": "a75020e0f0aa8363a30e96aa59a8672ad18c9bf6716f23dbb5e7f2c518f7a9de",
+      "fileSize": 117731
+    },
+    {
+      "path": "PUBLIC/SOCIAL/NexusReussite_PreRentree2026_Flyer_NB_1080x1350_PUBLIC.png",
+      "role": "SOCIAL_ASSET",
+      "sha256": "16116df402b7b93f24846bb41c98cad3ecca11854f38289a70796922b4e1392b",
+      "fileSize": 95111
+    },
+    {
+      "path": "PUBLIC/SOCIAL/NexusReussite_PreRentree2026_Story_1080x1920_PUBLIC.png",
+      "role": "SOCIAL_ASSET",
+      "sha256": "cf9a4b48040a7e57ab4f891466631ba8a072b2c80b556010408bbb9d1cee990d",
+      "fileSize": 121634
+    },
+    {
+      "path": "PUBLIC/SOCIAL/NexusReussite_PreRentree2026_VisuelsSociaux_AltText_PUBLIC.json",
+      "role": "SOCIAL_ASSET",
+      "sha256": "32bb20d4f319db748320c9211ea4b725dd703b81d9c37affec30bd6670cd9a70",
+      "fileSize": 1149
+    },
+    {
+      "path": "SOURCES/GENERATOR/generate_documents.py",
+      "role": "REPRODUCIBILITY_SOURCE",
+      "sha256": "b9a5bb30d172b756f2b567f9666e41223ceb51987c355c83cb39c81b5e507fc0",
+      "fileSize": 11817
+    },
+    {
+      "path": "SOURCES/publication.snapshot.json",
+      "role": "REPRODUCIBILITY_SOURCE",
+      "sha256": "891f5b330b428bab783902e72c0186909f49c99a0836458609afcdd22754fef4",
+      "fileSize": 95418
+    }
+  ]
+}

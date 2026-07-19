@@ -1,0 +1,22 @@
+{
+  "REVIEWED_ON": "2026-07-19",
+  "PDF_PAGE_COUNT": 33,
+  "PDF_PAGE_CHECKSUM_COUNT": 33,
+  "SOCIAL_VISUAL_COUNT": 3,
+  "MANUAL_PAGE_REVIEW_COMPLETE": true,
+  "MANUAL_SOCIAL_REVIEW_COMPLETE": true,
+  "CONTACT_SHEET_SHA256": "4f11bfd9fcd21f804580ced3cc0f832bae1923f605d693d4766099c89e6fe3ca",
+  "V4_V5_COMPARISON_SHEET_SHA256": "dacce7b0d75af3585129aca761d306d41a1952b86f8545efd765f97764d042ae",
+  "SOCIAL_SHA256": {
+    "feed": "a75020e0f0aa8363a30e96aa59a8672ad18c9bf6716f23dbb5e7f2c518f7a9de",
+    "story": "cf9a4b48040a7e57ab4f891466631ba8a072b2c80b556010408bbb9d1cee990d",
+    "monochrome": "16116df402b7b93f24846bb41c98cad3ecca11854f38289a70796922b4e1392b"
+  },
+  "DEFECTS_FOUND_AND_FIXED": [
+    "Compteur de page dupliqué et erroné dans le footer fixe",
+    "Titre du visuel 1080×1350 coupé sur les bords",
+    "Légendes trop longues et chevauchées sur la planche de contact"
+  ],
+  "REMAINING_VISUAL_DEFECT_COUNT": 0,
+  "OWNER_REVIEW_RECOMMENDED": true
+}
