@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import shutil
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -264,3 +266,58 @@ def evaluate_owner_approval(
     if decision == "PENDING":
         return _decision_report(manifest, "PENDING", True, False, [])
     return _decision_report(manifest, decision, True, True, [])
+
+
+def _atomic_bytes(path: Path, content: bytes) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(f".{path.name}.tmp-{os.getpid()}")
+    try:
+        temporary.write_bytes(content)
+        with temporary.open("rb") as handle:
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+    except BaseException:
+        temporary.unlink(missing_ok=True)
+        raise
+
+
+def atomic_json(path: Path, value: dict[str, Any]) -> None:
+    content = (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
+    _atomic_bytes(Path(path), content)
+
+
+def write_governance_bundle(package_root: Path, schema_path: Path) -> dict[str, Any]:
+    package_root = Path(package_root).resolve()
+    schema_path = Path(schema_path).resolve()
+    if schema_path.is_symlink() or not schema_path.is_file():
+        raise FileNotFoundError(f"Missing approval schema: {schema_path}")
+
+    manifest = build_review_manifest(package_root)
+    schema = _load_json(schema_path)
+    governance_root = package_root / "AUDIT/GOVERNANCE"
+    approval_path = governance_root / "owner-approval.json"
+    if approval_path.is_symlink():
+        raise ValueError("Symbolic links are not allowed for owner-approval.json")
+    approval = _load_json(approval_path) if approval_path.is_file() else None
+    decision = evaluate_owner_approval(manifest, approval, schema)
+
+    atomic_json(governance_root / "review-manifest.json", manifest)
+    atomic_json(
+        governance_root / "owner-approval.template.json",
+        build_pending_approval_template(manifest),
+    )
+    schema_destination = governance_root / "owner-approval.schema.json"
+    temporary_schema = schema_destination.with_name(
+        f".{schema_destination.name}.copy-{os.getpid()}"
+    )
+    try:
+        schema_destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(schema_path, temporary_schema)
+        with temporary_schema.open("rb") as handle:
+            os.fsync(handle.fileno())
+        os.replace(temporary_schema, schema_destination)
+    except BaseException:
+        temporary_schema.unlink(missing_ok=True)
+        raise
+    atomic_json(governance_root / "release-decision.json", decision)
+    return decision
