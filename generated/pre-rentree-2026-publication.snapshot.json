@@ -2288,15 +2288,6 @@
       }
     },
     {
-      "id": "group-not-opened",
-      "type": "PRE_REGISTRATION",
-      "text": "Si Nexus Réussite décide de ne pas ouvrir le groupe, la famille est informée. Les éventuelles sommes déjà reçues sont restituées selon les conditions communiquées avant confirmation.",
-      "source": {
-        "path": "data/campaigns/pre-rentree-2026.json",
-        "pointer": "/content/practical/groupNotOpenedProcedure"
-      }
-    },
-    {
       "id": "method-1",
       "type": "METHOD",
       "text": "Positionnement. Un diagnostic des acquis permet d'identifier les priorités de travail avant le démarrage du module.",
@@ -2450,6 +2441,34 @@
     "editDate": "2026-07-14",
     "publicClassification": "PUBLIC",
     "privateClassification": "PRIVÉ",
-    "qrTarget": "https://nexusreussite.academy/stages/pre-rentree-2026"
+    "qrTarget": "https://nexusreussite.academy/stages/pre-rentree-2026",
+    "outputs": {
+      "publicPdf": {
+        "essential": "NexusReussite_PreRentree2026_Essentiel_PUBLIC.pdf",
+        "planning": "NexusReussite_PreRentree2026_Planning_PUBLIC.pdf",
+        "programSeconde": "NexusReussite_PreRentree2026_Programme_Seconde_PUBLIC.pdf",
+        "programPremiere": "NexusReussite_PreRentree2026_Programme_Premiere_PUBLIC.pdf",
+        "programTerminale": "NexusReussite_PreRentree2026_Programme_Terminale_PUBLIC.pdf",
+        "pricing": "NexusReussite_PreRentree2026_Tarifs_PUBLIC.pdf"
+      },
+      "publicHtml": {
+        "essential": "NexusReussite_PreRentree2026_Essentiel_PUBLIC.html",
+        "planning": "NexusReussite_PreRentree2026_Planning_PUBLIC.html",
+        "programSeconde": "NexusReussite_PreRentree2026_Programme_Seconde_PUBLIC.html",
+        "programPremiere": "NexusReussite_PreRentree2026_Programme_Premiere_PUBLIC.html",
+        "programTerminale": "NexusReussite_PreRentree2026_Programme_Terminale_PUBLIC.html",
+        "pricing": "NexusReussite_PreRentree2026_Tarifs_PUBLIC.html"
+      },
+      "social": {
+        "feed": "NexusReussite_PreRentree2026_Feed_1080x1350_PUBLIC.png",
+        "story": "NexusReussite_PreRentree2026_Story_1080x1920_PUBLIC.png",
+        "monochrome": "NexusReussite_PreRentree2026_Flyer_NB_1080x1350_PUBLIC.png",
+        "altText": "NexusReussite_PreRentree2026_VisuelsSociaux_AltText_PUBLIC.json"
+      },
+      "privatePdf": {
+        "print": "NexusReussite_PreRentree2026_DossierConfirmation_PRINT.pdf",
+        "fillable": "NexusReussite_PreRentree2026_DossierConfirmation_FILLABLE.pdf"
+      }
+    }
   }
 }
