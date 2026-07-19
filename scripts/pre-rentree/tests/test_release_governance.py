@@ -49,19 +49,46 @@ def _write_json(path: Path, value: object) -> None:
 @pytest.fixture()
 def review_package(tmp_path: Path) -> Path:
     package = tmp_path / "outputs-v5-canonical"
-    pdf = package / "PUBLIC/Nexus_Public.pdf"
-    html = package / "PUBLIC/HTML/Nexus_Public.html"
-    feed = package / "PUBLIC/SOCIAL/feed.png"
-    alt = package / "PUBLIC/SOCIAL/alt.json"
+    public_pdf = {
+        "essential": "Nexus_Public.pdf",
+        "planning": "Nexus_Planning.pdf",
+        "programSeconde": "Nexus_Seconde.pdf",
+        "programPremiere": "Nexus_Premiere.pdf",
+        "programTerminale": "Nexus_Terminale.pdf",
+        "pricing": "Nexus_Tarifs.pdf",
+    }
+    public_html = {
+        key: filename.removesuffix(".pdf") + ".html"
+        for key, filename in public_pdf.items()
+    }
+    social = {
+        "feed": "feed.png",
+        "story": "story.png",
+        "monochrome": "monochrome.png",
+        "altText": "alt.json",
+    }
+    pdf = package / "PUBLIC" / public_pdf["essential"]
+    html = package / "PUBLIC/HTML" / public_html["essential"]
+    feed = package / "PUBLIC/SOCIAL" / social["feed"]
+    alt = package / "PUBLIC/SOCIAL" / social["altText"]
     generator = package / "SOURCES/GENERATOR/generate_documents.py"
     contact_sheet = package / "AUDIT/VISUAL/visual-contact-sheet.png"
     comparison_sheet = package / "AUDIT/VISUAL/v4-v5-comparison-sheet.png"
 
+    for filename in public_pdf.values():
+        path = package / "PUBLIC" / filename
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(f"canonical-pdf:{filename}".encode("utf-8"))
+    for filename in public_html.values():
+        path = package / "PUBLIC/HTML" / filename
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(f"<html lang='fr'><h1>{filename}</h1></html>".encode("utf-8"))
+    for filename in social.values():
+        path = package / "PUBLIC/SOCIAL" / filename
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(f"social:{filename}".encode("utf-8"))
+
     for path, content in (
-        (pdf, b"canonical-pdf"),
-        (html, b"<html lang='fr'><h1>Document</h1></html>"),
-        (feed, b"social-image"),
-        (alt, b'{"feed":"Texte alternatif"}\n'),
         (generator, b"print('generator')\n"),
         (contact_sheet, b"contact-sheet"),
         (comparison_sheet, b"comparison-sheet"),
@@ -77,9 +104,9 @@ def review_package(tmp_path: Path) -> Path:
             "document": {
                 "version": "v5-canonical",
                 "outputs": {
-                    "publicPdf": {"essential": pdf.name},
-                    "publicHtml": {"essential": html.name},
-                    "social": {"feed": feed.name, "altText": alt.name},
+                    "publicPdf": public_pdf,
+                    "publicHtml": public_html,
+                    "social": social,
                 },
             },
         },
@@ -91,7 +118,13 @@ def review_package(tmp_path: Path) -> Path:
             "SNAPSHOT_SHA256": _sha256(snapshot),
             "GENERATOR_SHA256": _sha256(generator),
             "DOCUMENT_VERSION": "v5-canonical",
-            "PDF_FILES": [{"PDF_FILE": pdf.name, "PDF_SHA256": _sha256(pdf)}],
+            "PDF_FILES": [
+                {
+                    "PDF_FILE": filename,
+                    "PDF_SHA256": _sha256(package / "PUBLIC" / filename),
+                }
+                for filename in public_pdf.values()
+            ],
         },
     )
     _write_json(
@@ -100,11 +133,26 @@ def review_package(tmp_path: Path) -> Path:
             "PUBLIC_STATUS": "PDF_PACKAGE_READY_FOR_OWNER_REVIEW",
             "PRIVATE_STATUS": "BLOCKED_BY_LEGAL_TERMS",
             "CONTRACTUAL_DOSSIER_PUBLICATION_BLOCKED": True,
+            "MODULE_SESSION_MISMATCH_COUNT": 0,
+            "PUBLIC_CLAIM_WITHOUT_SOURCE_COUNT": 0,
+            "LEGAL_POLICY_CONFLICT_COUNT": 0,
+            "HARDCODED_BUSINESS_VALUE_COUNT": 0,
+            "PRICE_MISMATCH_COUNT": 0,
+            "DEPOSIT_LABEL_MISMATCH_COUNT": 0,
+            "SCHEDULE_MISMATCH_COUNT": 0,
+            "CONTACT_MISMATCH_COUNT": 0,
+            "QR_LINK_MISMATCH_COUNT": 0,
+            "VISUAL_DEFECT_COUNT": 0,
+            "UNAPPROVED_CONTRACTUAL_CLAIM_COUNT": 0,
+            "ACCESSIBILITY_ISSUE_COUNT": 0,
+            "OUTPUT_MANIFEST_COMPLETE": True,
+            "ALL_PDF_SHA256_RECORDED": True,
         },
     )
     for name in (
         "content-gate-report.json",
         "pdf-qa-report.json",
+        "reproducibility-report.json",
         "visual-qa-report.json",
         "social-visual-qa-report.json",
         "accessibility-report.json",
@@ -115,6 +163,10 @@ def review_package(tmp_path: Path) -> Path:
         {
             "CONTACT_SHEET_SHA256": _sha256(contact_sheet),
             "V4_V5_COMPARISON_SHEET_SHA256": _sha256(comparison_sheet),
+            "SOCIAL_SHA256": {
+                key: _sha256(package / "PUBLIC/SOCIAL" / social[key])
+                for key in ("feed", "story", "monochrome")
+            },
         },
     )
     return package
@@ -130,6 +182,11 @@ def test_build_review_manifest_is_complete_sorted_and_hash_bound(review_package:
     assert manifest["campaignId"] == "pre-rentree-2026"
     assert manifest["publicStatus"] == "PDF_PACKAGE_READY_FOR_OWNER_REVIEW"
     assert manifest["privateStatus"] == "BLOCKED_BY_LEGAL_TERMS"
+    assert manifest["governanceModuleSha256"] == _sha256(MODULE_PATH)
+    assert manifest["governanceCliSha256"] == _sha256(CLI_PATH)
+    assert manifest["approvalSchemaSha256"] == _sha256(
+        SCRIPT_DIR / "owner-approval.schema.json"
+    )
     assert paths == sorted(paths)
     assert {
         "PUBLIC/Nexus_Public.pdf",
@@ -142,6 +199,7 @@ def test_build_review_manifest_is_complete_sorted_and_hash_bound(review_package:
         "AUDIT/VISUAL/v4-v5-comparison-sheet.png",
         "AUDIT/document-build-manifest.json",
         "AUDIT/final-report.json",
+        "AUDIT/reproducibility-report.json",
     } <= set(paths)
     assert all(item["sha256"] == _sha256(review_package / item["path"]) for item in manifest["artifacts"])
 
@@ -162,6 +220,32 @@ def test_build_review_manifest_rejects_pdf_hash_drift(review_package: Path):
         module.build_review_manifest(review_package)
 
 
+def test_build_review_manifest_rejects_failed_public_gate(review_package: Path):
+    module = _load_module()
+    final_report_path = review_package / "AUDIT/final-report.json"
+    final_report = json.loads(final_report_path.read_text(encoding="utf-8"))
+    final_report["PRICE_MISMATCH_COUNT"] = 1
+    _write_json(final_report_path, final_report)
+
+    with pytest.raises(ValueError, match="Final report gate failed: PRICE_MISMATCH_COUNT"):
+        module.build_review_manifest(review_package)
+
+
+def test_build_review_manifest_requires_exact_public_output_keys(review_package: Path):
+    module = _load_module()
+    snapshot_path = review_package / "SOURCES/publication.snapshot.json"
+    snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
+    snapshot["document"]["outputs"]["publicHtml"].pop("programTerminale")
+    _write_json(snapshot_path, snapshot)
+    build_manifest_path = review_package / "AUDIT/document-build-manifest.json"
+    build_manifest = json.loads(build_manifest_path.read_text(encoding="utf-8"))
+    build_manifest["SNAPSHOT_SHA256"] = _sha256(snapshot_path)
+    _write_json(build_manifest_path, build_manifest)
+
+    with pytest.raises(ValueError, match="Unexpected public HTML output keys"):
+        module.build_review_manifest(review_package)
+
+
 def test_build_review_manifest_rejects_symlinked_artifact(review_package: Path, tmp_path: Path):
     module = _load_module()
     feed = review_package / "PUBLIC/SOCIAL/feed.png"
@@ -171,6 +255,22 @@ def test_build_review_manifest_rejects_symlinked_artifact(review_package: Path, 
     feed.symlink_to(outside)
 
     with pytest.raises(ValueError, match="Symbolic links are not allowed"):
+        module.build_review_manifest(review_package)
+
+
+def test_build_review_manifest_rejects_stale_manual_visual_evidence(review_package: Path):
+    module = _load_module()
+    (review_package / "AUDIT/VISUAL/visual-contact-sheet.png").write_bytes(b"changed")
+
+    with pytest.raises(ValueError, match="Manual visual hash mismatch"):
+        module.build_review_manifest(review_package)
+
+
+def test_build_review_manifest_rejects_stale_manual_social_evidence(review_package: Path):
+    module = _load_module()
+    (review_package / "PUBLIC/SOCIAL/feed.png").write_bytes(b"changed")
+
+    with pytest.raises(ValueError, match="Manual social hash mismatch: feed"):
         module.build_review_manifest(review_package)
 
 
@@ -209,8 +309,10 @@ def test_absent_approval_is_pending_and_template_is_not_an_approval(review_packa
         "PUBLIC_STATUS": "PDF_PACKAGE_READY_FOR_OWNER_REVIEW",
         "PRIVATE_STATUS": "BLOCKED_BY_LEGAL_TERMS",
         "CONTRACTUAL_DOSSIER_PUBLICATION_BLOCKED": True,
+        "REVIEW_MANIFEST_SHA256": module.review_manifest_sha256(manifest),
         "APPROVAL_RECORD_PRESENT": False,
         "APPROVAL_RECORD_VALID": False,
+        "APPROVAL_DECISION_REFERENCE": None,
         "VALIDATION_ERRORS": [],
     }
 
@@ -225,6 +327,8 @@ def test_approved_owner_record_is_valid_only_for_current_manifest(review_package
 
     assert decision["OWNER_REVIEW_DECISION"] == "APPROVED"
     assert decision["APPROVAL_RECORD_VALID"] is True
+    assert decision["APPROVAL_DECISION_REFERENCE"] == "OWNER-PRERENTREE-2026-001"
+    assert decision["REVIEW_MANIFEST_SHA256"] == module.review_manifest_sha256(manifest)
     assert decision["PUBLIC_STATUS"] == "PDF_PACKAGE_READY_FOR_OWNER_REVIEW"
     assert decision["PRIVATE_STATUS"] == "BLOCKED_BY_LEGAL_TERMS"
 
@@ -293,6 +397,19 @@ def test_writes_pending_governance_bundle_without_human_approval(review_package:
     ] == "PENDING"
 
 
+def test_approval_binding_is_the_sha256_of_the_exact_review_manifest_file(review_package: Path):
+    module = _load_module()
+    module.write_governance_bundle(review_package, SCRIPT_DIR / "owner-approval.schema.json")
+    governance = review_package / "AUDIT/GOVERNANCE"
+    template = json.loads(
+        (governance / "owner-approval.template.json").read_text(encoding="utf-8")
+    )
+
+    assert template["reviewManifestSha256"] == _sha256(
+        governance / "review-manifest.json"
+    )
+
+
 def test_governance_bundle_never_overwrites_human_approval(review_package: Path):
     module = _load_module()
     manifest = module.build_review_manifest(review_package)
@@ -309,6 +426,33 @@ def test_governance_bundle_never_overwrites_human_approval(review_package: Path)
 
     assert approval_path.read_bytes() == before
     assert decision["OWNER_REVIEW_DECISION"] == "APPROVED"
+
+
+def test_malformed_human_approval_is_reported_invalid_without_overwrite(review_package: Path):
+    module = _load_module()
+    approval_path = review_package / "AUDIT/GOVERNANCE/owner-approval.json"
+    approval_path.parent.mkdir(parents=True, exist_ok=True)
+    approval_path.write_text("{not-json", encoding="utf-8")
+    before = approval_path.read_bytes()
+
+    decision = module.write_governance_bundle(
+        review_package,
+        SCRIPT_DIR / "owner-approval.schema.json",
+    )
+
+    assert decision["OWNER_REVIEW_DECISION"] == "INVALID"
+    assert decision["APPROVAL_RECORD_PRESENT"] is True
+    assert decision["VALIDATION_ERRORS"]
+    assert approval_path.read_bytes() == before
+
+
+def test_governance_bundle_rejects_unbound_approval_schema(review_package: Path, tmp_path: Path):
+    module = _load_module()
+    alternate_schema = tmp_path / "alternate.schema.json"
+    alternate_schema.write_text('{"type":"object"}\n', encoding="utf-8")
+
+    with pytest.raises(ValueError, match="Approval schema hash mismatch"):
+        module.write_governance_bundle(review_package, alternate_schema)
 
 
 def test_atomic_json_cleans_temporary_file_when_replace_fails(tmp_path: Path, monkeypatch):

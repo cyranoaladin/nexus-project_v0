@@ -33,6 +33,34 @@ REPO_ROOT = SCRIPT_DIR.parents[1]
 SCHEMA_PATH = SCRIPT_DIR / "publication-snapshot.schema.json"
 V4_ROOT = REPO_ROOT.parent
 
+REPRODUCIBLE_PYTHON_SOURCES = (
+    "audit_v4.py",
+    "document_assets.py",
+    "document_audit.py",
+    "document_model.py",
+    "document_renderer.py",
+    "document_templates.py",
+    "generate_documents.py",
+)
+
+REPRODUCIBLE_TYPESCRIPT_SOURCES = (
+    "build-publication-snapshot.ts",
+    "publication-derivations.ts",
+    "publication-snapshot-schema.ts",
+    "publication-sources.ts",
+)
+
+REPRODUCIBLE_TEST_SOURCES = (
+    "test_audit_v4.py",
+    "test_document_assets.py",
+    "test_document_audit.py",
+    "test_document_model.py",
+    "test_document_renderer.py",
+    "test_document_templates.py",
+    "test_generate_documents.py",
+    "test_visual_audit.py",
+)
+
 
 def _atomic_json(path: Path, value: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -72,12 +100,16 @@ def _copy_reproducible_sources(snapshot_path: Path, package_root: Path) -> None:
     shutil.copyfile(SCHEMA_PATH, sources / "publication-snapshot.schema.json")
     shutil.copyfile(SCRIPT_DIR / "templates/document.css", sources / "CSS/document.css")
     shutil.copyfile(SCRIPT_DIR / "requirements.lock", sources / "requirements.lock")
-    for source in sorted(SCRIPT_DIR.glob("*.py")):
-        shutil.copyfile(source, sources / "GENERATOR" / source.name)
-    for source in sorted(SCRIPT_DIR.glob("*.ts")):
-        shutil.copyfile(source, sources / "GENERATOR" / source.name)
-    for source in sorted((SCRIPT_DIR / "tests").glob("test_*.py")):
-        shutil.copyfile(source, sources / "TESTS" / source.name)
+    for filename in (*REPRODUCIBLE_PYTHON_SOURCES, *REPRODUCIBLE_TYPESCRIPT_SOURCES):
+        source = SCRIPT_DIR / filename
+        if not source.is_file():
+            raise FileNotFoundError(f"Missing reproducible generator source: {source}")
+        shutil.copyfile(source, sources / "GENERATOR" / filename)
+    for filename in REPRODUCIBLE_TEST_SOURCES:
+        source = SCRIPT_DIR / "tests" / filename
+        if not source.is_file():
+            raise FileNotFoundError(f"Missing reproducible generator test: {source}")
+        shutil.copyfile(source, sources / "TESTS" / filename)
 
 
 def _write_private_block(snapshot: dict[str, Any], package_root: Path) -> None:

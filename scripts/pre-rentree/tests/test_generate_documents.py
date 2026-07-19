@@ -9,7 +9,11 @@ import pytest
 SCRIPT_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SCRIPT_DIR))
 
-from generate_documents import _validate_output_target, build_package  # noqa: E402
+from generate_documents import (  # noqa: E402
+    _copy_reproducible_sources,
+    _validate_output_target,
+    build_package,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -125,3 +129,37 @@ def test_failed_build_cleans_temporary_directories_and_preserves_existing_output
 def test_rejects_output_anywhere_inside_git_metadata():
     with pytest.raises(ValueError, match="Unsafe output target"):
         _validate_output_target(REPO_ROOT / ".git" / "nested-output")
+
+
+def test_reproducible_source_inventory_is_explicit_and_excludes_governance_sidecars(
+    tmp_path: Path,
+):
+    package = tmp_path / "package"
+
+    _copy_reproducible_sources(SNAPSHOT, package)
+
+    assert {path.name for path in (package / "SOURCES/GENERATOR").glob("*.py")} == {
+        "audit_v4.py",
+        "document_assets.py",
+        "document_audit.py",
+        "document_model.py",
+        "document_renderer.py",
+        "document_templates.py",
+        "generate_documents.py",
+    }
+    assert {path.name for path in (package / "SOURCES/GENERATOR").glob("*.ts")} == {
+        "build-publication-snapshot.ts",
+        "publication-derivations.ts",
+        "publication-snapshot-schema.ts",
+        "publication-sources.ts",
+    }
+    assert {path.name for path in (package / "SOURCES/TESTS").glob("test_*.py")} == {
+        "test_audit_v4.py",
+        "test_document_assets.py",
+        "test_document_audit.py",
+        "test_document_model.py",
+        "test_document_renderer.py",
+        "test_document_templates.py",
+        "test_generate_documents.py",
+        "test_visual_audit.py",
+    }

@@ -12,6 +12,11 @@ from typing import Any, Iterable
 from jsonschema import Draft202012Validator, FormatChecker
 
 
+SCRIPT_DIR = Path(__file__).resolve().parent
+GOVERNANCE_MODULE_PATH = SCRIPT_DIR / "release_governance.py"
+GOVERNANCE_CLI_PATH = SCRIPT_DIR / "verify_release_approvals.py"
+APPROVAL_SCHEMA_PATH = SCRIPT_DIR / "owner-approval.schema.json"
+
 REQUIRED_AUDIT_FILES = (
     "AUDIT/accessibility-report.json",
     "AUDIT/content-gate-report.json",
@@ -19,6 +24,7 @@ REQUIRED_AUDIT_FILES = (
     "AUDIT/final-report.json",
     "AUDIT/manual-visual-review.json",
     "AUDIT/pdf-qa-report.json",
+    "AUDIT/reproducibility-report.json",
     "AUDIT/social-visual-qa-report.json",
     "AUDIT/visual-qa-report.json",
 )
@@ -27,6 +33,42 @@ REQUIRED_VISUAL_FILES = (
     "AUDIT/VISUAL/v4-v5-comparison-sheet.png",
     "AUDIT/VISUAL/visual-contact-sheet.png",
 )
+
+REQUIRED_ZERO_GATES = (
+    "ACCESSIBILITY_ISSUE_COUNT",
+    "CONTACT_MISMATCH_COUNT",
+    "DEPOSIT_LABEL_MISMATCH_COUNT",
+    "HARDCODED_BUSINESS_VALUE_COUNT",
+    "LEGAL_POLICY_CONFLICT_COUNT",
+    "MODULE_SESSION_MISMATCH_COUNT",
+    "PRICE_MISMATCH_COUNT",
+    "PUBLIC_CLAIM_WITHOUT_SOURCE_COUNT",
+    "QR_LINK_MISMATCH_COUNT",
+    "SCHEDULE_MISMATCH_COUNT",
+    "UNAPPROVED_CONTRACTUAL_CLAIM_COUNT",
+    "VISUAL_DEFECT_COUNT",
+)
+
+REQUIRED_TRUE_GATES = (
+    "ALL_PDF_SHA256_RECORDED",
+    "OUTPUT_MANIFEST_COMPLETE",
+)
+
+EXPECTED_PUBLIC_DOCUMENT_KEYS = {
+    "essential",
+    "planning",
+    "programPremiere",
+    "programSeconde",
+    "programTerminale",
+    "pricing",
+}
+
+EXPECTED_SOCIAL_KEYS = {
+    "altText",
+    "feed",
+    "monochrome",
+    "story",
+}
 
 
 def sha256_file(path: Path) -> str:
@@ -63,12 +105,16 @@ def _safe_file(package_root: Path, relative_path: str) -> Path:
     return resolved
 
 
-def _values(mapping: Any, label: str) -> tuple[str, ...]:
+def _values(mapping: Any, label: str, expected_keys: set[str]) -> tuple[str, ...]:
     if not isinstance(mapping, dict) or not mapping:
         raise ValueError(f"Snapshot has no {label} outputs")
+    if set(mapping) != expected_keys:
+        raise ValueError(f"Unexpected {label} output keys")
     values = tuple(mapping.values())
     if not all(isinstance(value, str) and value for value in values):
         raise ValueError(f"Snapshot has invalid {label} output names")
+    if len(set(values)) != len(values):
+        raise ValueError(f"Snapshot has duplicate {label} output names")
     return values
 
 
@@ -79,9 +125,17 @@ def required_review_paths(
 ) -> tuple[str, ...]:
     del package_root
     outputs = snapshot.get("document", {}).get("outputs", {})
-    pdf_names = _values(outputs.get("publicPdf"), "public PDF")
-    html_names = _values(outputs.get("publicHtml"), "public HTML")
-    social_names = _values(outputs.get("social"), "social")
+    pdf_names = _values(
+        outputs.get("publicPdf"),
+        "public PDF",
+        EXPECTED_PUBLIC_DOCUMENT_KEYS,
+    )
+    html_names = _values(
+        outputs.get("publicHtml"),
+        "public HTML",
+        EXPECTED_PUBLIC_DOCUMENT_KEYS,
+    )
+    social_names = _values(outputs.get("social"), "social", EXPECTED_SOCIAL_KEYS)
     manifest_pdf_names = tuple(
         record.get("PDF_FILE", "")
         for record in document_manifest.get("PDF_FILES", [])
@@ -136,6 +190,12 @@ def build_review_manifest(package_root: Path) -> dict[str, Any]:
         raise ValueError(f"Unexpected private package status: {private_status}")
     if final_report.get("CONTRACTUAL_DOSSIER_PUBLICATION_BLOCKED") is not True:
         raise ValueError("Private contractual dossier must remain blocked")
+    for gate in REQUIRED_ZERO_GATES:
+        if final_report.get(gate) != 0:
+            raise ValueError(f"Final report gate failed: {gate}")
+    for gate in REQUIRED_TRUE_GATES:
+        if final_report.get(gate) is not True:
+            raise ValueError(f"Final report gate failed: {gate}")
 
     snapshot_hash = sha256_file(snapshot_path)
     generator_hash = sha256_file(generator_path)
@@ -155,6 +215,24 @@ def build_review_manifest(package_root: Path) -> dict[str, Any]:
         if sha256_file(resolved[f"PUBLIC/{name}"]) != expected_hash:
             raise ValueError(f"PDF hash mismatch: {name}")
 
+    manual_visual = _load_json(resolved["AUDIT/manual-visual-review.json"])
+    visual_bindings = {
+        "CONTACT_SHEET_SHA256": "AUDIT/VISUAL/visual-contact-sheet.png",
+        "V4_V5_COMPARISON_SHEET_SHA256": "AUDIT/VISUAL/v4-v5-comparison-sheet.png",
+    }
+    for field, relative_path in visual_bindings.items():
+        if manual_visual.get(field) != sha256_file(resolved[relative_path]):
+            raise ValueError(f"Manual visual hash mismatch: {field}")
+
+    social_hashes = manual_visual.get("SOCIAL_SHA256")
+    if not isinstance(social_hashes, dict):
+        raise ValueError("Manual social hash evidence is missing")
+    social_outputs = snapshot["document"]["outputs"]["social"]
+    for key in ("feed", "story", "monochrome"):
+        relative_path = f"PUBLIC/SOCIAL/{social_outputs[key]}"
+        if social_hashes.get(key) != sha256_file(resolved[relative_path]):
+            raise ValueError(f"Manual social hash mismatch: {key}")
+
     artifacts = [
         {
             "path": relative,
@@ -171,6 +249,9 @@ def build_review_manifest(package_root: Path) -> dict[str, Any]:
         "repoSha": build_manifest.get("REPO_SHA"),
         "snapshotSha256": snapshot_hash,
         "generatorSha256": generator_hash,
+        "governanceModuleSha256": sha256_file(GOVERNANCE_MODULE_PATH),
+        "governanceCliSha256": sha256_file(GOVERNANCE_CLI_PATH),
+        "approvalSchemaSha256": sha256_file(APPROVAL_SCHEMA_PATH),
         "publicStatus": public_status,
         "privateStatus": private_status,
         "contractualDossierPublicationBlocked": True,
@@ -179,14 +260,12 @@ def build_review_manifest(package_root: Path) -> dict[str, Any]:
     }
 
 
+def _json_bytes(value: dict[str, Any]) -> bytes:
+    return (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
+
+
 def review_manifest_sha256(manifest: dict[str, Any]) -> str:
-    encoded = json.dumps(
-        manifest,
-        ensure_ascii=False,
-        sort_keys=True,
-        separators=(",", ":"),
-    ).encode("utf-8")
-    return hashlib.sha256(encoded).hexdigest()
+    return hashlib.sha256(_json_bytes(manifest)).hexdigest()
 
 
 def build_pending_approval_template(manifest: dict[str, Any]) -> dict[str, Any]:
@@ -212,6 +291,7 @@ def _decision_report(
     present: bool,
     valid: bool,
     errors: list[str],
+    decision_reference: str | None = None,
 ) -> dict[str, Any]:
     return {
         "OWNER_REVIEW_DECISION": owner_decision,
@@ -220,8 +300,10 @@ def _decision_report(
         "CONTRACTUAL_DOSSIER_PUBLICATION_BLOCKED": manifest[
             "contractualDossierPublicationBlocked"
         ],
+        "REVIEW_MANIFEST_SHA256": review_manifest_sha256(manifest),
         "APPROVAL_RECORD_PRESENT": present,
         "APPROVAL_RECORD_VALID": valid,
+        "APPROVAL_DECISION_REFERENCE": decision_reference,
         "VALIDATION_ERRORS": errors,
     }
 
@@ -265,7 +347,14 @@ def evaluate_owner_approval(
     decision = approval["decision"]
     if decision == "PENDING":
         return _decision_report(manifest, "PENDING", True, False, [])
-    return _decision_report(manifest, decision, True, True, [])
+    return _decision_report(
+        manifest,
+        decision,
+        True,
+        True,
+        [],
+        decision_reference=approval["decisionReference"],
+    )
 
 
 def _atomic_bytes(path: Path, content: bytes) -> None:
@@ -282,8 +371,7 @@ def _atomic_bytes(path: Path, content: bytes) -> None:
 
 
 def atomic_json(path: Path, value: dict[str, Any]) -> None:
-    content = (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
-    _atomic_bytes(Path(path), content)
+    _atomic_bytes(Path(path), _json_bytes(value))
 
 
 def write_governance_bundle(package_root: Path, schema_path: Path) -> dict[str, Any]:
@@ -293,13 +381,27 @@ def write_governance_bundle(package_root: Path, schema_path: Path) -> dict[str, 
         raise FileNotFoundError(f"Missing approval schema: {schema_path}")
 
     manifest = build_review_manifest(package_root)
+    if sha256_file(schema_path) != manifest["approvalSchemaSha256"]:
+        raise ValueError("Approval schema hash mismatch")
     schema = _load_json(schema_path)
     governance_root = package_root / "AUDIT/GOVERNANCE"
     approval_path = governance_root / "owner-approval.json"
     if approval_path.is_symlink():
         raise ValueError("Symbolic links are not allowed for owner-approval.json")
-    approval = _load_json(approval_path) if approval_path.is_file() else None
-    decision = evaluate_owner_approval(manifest, approval, schema)
+    approval: dict[str, Any] | None = None
+    approval_error: str | None = None
+    if approval_path.exists() and not approval_path.is_file():
+        approval_error = "owner-approval.json is not a regular file"
+    elif approval_path.is_file():
+        try:
+            approval = _load_json(approval_path)
+        except (json.JSONDecodeError, UnicodeDecodeError, ValueError) as error:
+            approval_error = f"Invalid owner-approval.json: {error}"
+    decision = (
+        _decision_report(manifest, "INVALID", True, False, [approval_error])
+        if approval_error
+        else evaluate_owner_approval(manifest, approval, schema)
+    )
 
     atomic_json(governance_root / "review-manifest.json", manifest)
     atomic_json(
