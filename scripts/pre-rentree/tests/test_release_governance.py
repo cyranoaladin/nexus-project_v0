@@ -1,6 +1,8 @@
 import hashlib
 import importlib.util
 import json
+import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -10,6 +12,7 @@ import pytest
 SCRIPT_DIR = Path(__file__).resolve().parents[1]
 REPO_ROOT = Path(__file__).resolve().parents[3]
 MODULE_PATH = SCRIPT_DIR / "release_governance.py"
+CLI_PATH = SCRIPT_DIR / "verify_release_approvals.py"
 
 
 def _load_module():
@@ -269,3 +272,104 @@ def test_decision_report_never_claims_automatic_distribution_authority(review_pa
     assert "ready_to_distribute" not in report
     assert "distribution_authorized" not in report
     assert "prêt à diffuser" not in report
+
+
+def test_writes_pending_governance_bundle_without_human_approval(review_package: Path):
+    module = _load_module()
+    write_bundle = _require(module, "write_governance_bundle")
+
+    decision = write_bundle(review_package, SCRIPT_DIR / "owner-approval.schema.json")
+
+    governance = review_package / "AUDIT/GOVERNANCE"
+    assert decision["OWNER_REVIEW_DECISION"] == "PENDING"
+    assert {
+        "review-manifest.json",
+        "owner-approval.template.json",
+        "owner-approval.schema.json",
+        "release-decision.json",
+    } == {path.name for path in governance.iterdir()}
+    assert json.loads((governance / "owner-approval.template.json").read_text(encoding="utf-8"))[
+        "decision"
+    ] == "PENDING"
+
+
+def test_governance_bundle_never_overwrites_human_approval(review_package: Path):
+    module = _load_module()
+    manifest = module.build_review_manifest(review_package)
+    governance = review_package / "AUDIT/GOVERNANCE"
+    approval_path = governance / "owner-approval.json"
+    approval = _final_approval(module, manifest)
+    _write_json(approval_path, approval)
+    before = approval_path.read_bytes()
+
+    decision = module.write_governance_bundle(
+        review_package,
+        SCRIPT_DIR / "owner-approval.schema.json",
+    )
+
+    assert approval_path.read_bytes() == before
+    assert decision["OWNER_REVIEW_DECISION"] == "APPROVED"
+
+
+def test_atomic_json_cleans_temporary_file_when_replace_fails(tmp_path: Path, monkeypatch):
+    module = _load_module()
+    atomic_json = _require(module, "atomic_json")
+    destination = tmp_path / "record.json"
+
+    def fail_replace(_source, _destination):
+        raise OSError("replace failed")
+
+    monkeypatch.setattr(module.os, "replace", fail_replace)
+    with pytest.raises(OSError, match="replace failed"):
+        atomic_json(destination, {"value": 1})
+
+    assert not list(tmp_path.glob(".record.json.tmp-*"))
+
+
+def test_cli_is_cwd_independent_and_strict_mode_blocks_pending(
+    review_package: Path,
+    tmp_path: Path,
+):
+    assert CLI_PATH.is_file(), "verify_release_approvals.py must exist"
+    package_from_repo = os.path.relpath(review_package, REPO_ROOT)
+    command = [sys.executable, str(CLI_PATH), "--package", package_from_repo]
+
+    normal = subprocess.run(command, cwd=tmp_path, capture_output=True, text=True)
+    strict = subprocess.run(
+        [*command, "--require-owner-approval"],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+    )
+
+    assert normal.returncode == 0
+    assert "OWNER_REVIEW_DECISION=PENDING" in normal.stdout
+    assert strict.returncode == 3
+    assert "OWNER_REVIEW_DECISION=PENDING" in strict.stdout
+
+
+def test_cli_strict_mode_accepts_current_approved_record(review_package: Path, tmp_path: Path):
+    assert CLI_PATH.is_file(), "verify_release_approvals.py must exist"
+    module = _load_module()
+    manifest = module.build_review_manifest(review_package)
+    _write_json(
+        review_package / "AUDIT/GOVERNANCE/owner-approval.json",
+        _final_approval(module, manifest),
+    )
+    package_from_repo = os.path.relpath(review_package, REPO_ROOT)
+
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(CLI_PATH),
+            "--package",
+            package_from_repo,
+            "--require-owner-approval",
+        ],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+    )
+
+    assert completed.returncode == 0
+    assert "OWNER_REVIEW_DECISION=APPROVED" in completed.stdout
