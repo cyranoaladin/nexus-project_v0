@@ -23,6 +23,17 @@ def _load_module():
     return module
 
 
+def _require(module, name: str):
+    assert hasattr(module, name), f"release_governance.{name} must exist"
+    return getattr(module, name)
+
+
+def _load_approval_schema() -> dict:
+    path = SCRIPT_DIR / "owner-approval.schema.json"
+    assert path.is_file(), "owner-approval.schema.json must exist"
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
 def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -158,3 +169,103 @@ def test_build_review_manifest_rejects_symlinked_artifact(review_package: Path, 
 
     with pytest.raises(ValueError, match="Symbolic links are not allowed"):
         module.build_review_manifest(review_package)
+
+
+def _final_approval(module, manifest: dict, decision: str = "APPROVED") -> dict:
+    manifest_hash = _require(module, "review_manifest_sha256")(manifest)
+    return {
+        "schemaVersion": "1.0.0",
+        "campaignId": manifest["campaignId"],
+        "decision": decision,
+        "reviewManifestSha256": manifest_hash,
+        "repoSha": manifest["repoSha"],
+        "snapshotSha256": manifest["snapshotSha256"],
+        "generatorSha256": manifest["generatorSha256"],
+        "reviewedBy": "Responsable Nexus",
+        "reviewerRole": "Propriétaire",
+        "decidedAt": "2026-07-19T18:00:00+01:00",
+        "decisionReference": "OWNER-PRERENTREE-2026-001",
+        "findings": [],
+    }
+
+
+def test_absent_approval_is_pending_and_template_is_not_an_approval(review_package: Path):
+    module = _load_module()
+    manifest = module.build_review_manifest(review_package)
+    template = _require(module, "build_pending_approval_template")(manifest)
+    evaluate = _require(module, "evaluate_owner_approval")
+    schema = _load_approval_schema()
+
+    decision = evaluate(manifest, None, schema)
+
+    assert template["decision"] == "PENDING"
+    assert template["reviewedBy"] is None
+    assert template["reviewManifestSha256"] == module.review_manifest_sha256(manifest)
+    assert decision == {
+        "OWNER_REVIEW_DECISION": "PENDING",
+        "PUBLIC_STATUS": "PDF_PACKAGE_READY_FOR_OWNER_REVIEW",
+        "PRIVATE_STATUS": "BLOCKED_BY_LEGAL_TERMS",
+        "CONTRACTUAL_DOSSIER_PUBLICATION_BLOCKED": True,
+        "APPROVAL_RECORD_PRESENT": False,
+        "APPROVAL_RECORD_VALID": False,
+        "VALIDATION_ERRORS": [],
+    }
+
+
+def test_approved_owner_record_is_valid_only_for_current_manifest(review_package: Path):
+    module = _load_module()
+    manifest = module.build_review_manifest(review_package)
+    schema = _load_approval_schema()
+    approval = _final_approval(module, manifest)
+
+    decision = module.evaluate_owner_approval(manifest, approval, schema)
+
+    assert decision["OWNER_REVIEW_DECISION"] == "APPROVED"
+    assert decision["APPROVAL_RECORD_VALID"] is True
+    assert decision["PUBLIC_STATUS"] == "PDF_PACKAGE_READY_FOR_OWNER_REVIEW"
+    assert decision["PRIVATE_STATUS"] == "BLOCKED_BY_LEGAL_TERMS"
+
+
+def test_changed_manifest_makes_prior_approval_stale(review_package: Path):
+    module = _load_module()
+    manifest = module.build_review_manifest(review_package)
+    schema = _load_approval_schema()
+    approval = _final_approval(module, manifest)
+    manifest["artifacts"][0]["sha256"] = "f" * 64
+
+    decision = module.evaluate_owner_approval(manifest, approval, schema)
+
+    assert decision["OWNER_REVIEW_DECISION"] == "STALE"
+    assert decision["APPROVAL_RECORD_VALID"] is False
+
+
+def test_rejected_and_invalid_owner_records_remain_non_approvals(review_package: Path):
+    module = _load_module()
+    manifest = module.build_review_manifest(review_package)
+    schema = _load_approval_schema()
+    rejected = _final_approval(module, manifest, decision="REJECTED")
+    invalid = _final_approval(module, manifest)
+    invalid["reviewedBy"] = ""
+
+    rejected_decision = module.evaluate_owner_approval(manifest, rejected, schema)
+    invalid_decision = module.evaluate_owner_approval(manifest, invalid, schema)
+
+    assert rejected_decision["OWNER_REVIEW_DECISION"] == "REJECTED"
+    assert rejected_decision["APPROVAL_RECORD_VALID"] is True
+    assert invalid_decision["OWNER_REVIEW_DECISION"] == "INVALID"
+    assert invalid_decision["APPROVAL_RECORD_VALID"] is False
+    assert invalid_decision["VALIDATION_ERRORS"]
+
+
+def test_decision_report_never_claims_automatic_distribution_authority(review_package: Path):
+    module = _load_module()
+    manifest = module.build_review_manifest(review_package)
+    schema = _load_approval_schema()
+    report = json.dumps(
+        module.evaluate_owner_approval(manifest, _final_approval(module, manifest), schema),
+        ensure_ascii=False,
+    ).casefold()
+
+    assert "ready_to_distribute" not in report
+    assert "distribution_authorized" not in report
+    assert "prêt à diffuser" not in report

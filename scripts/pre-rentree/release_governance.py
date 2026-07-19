@@ -7,6 +7,8 @@ import json
 from pathlib import Path
 from typing import Any, Iterable
 
+from jsonschema import Draft202012Validator, FormatChecker
+
 
 REQUIRED_AUDIT_FILES = (
     "AUDIT/accessibility-report.json",
@@ -173,3 +175,92 @@ def build_review_manifest(package_root: Path) -> dict[str, Any]:
         "artifactCount": len(artifacts),
         "artifacts": artifacts,
     }
+
+
+def review_manifest_sha256(manifest: dict[str, Any]) -> str:
+    encoded = json.dumps(
+        manifest,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def build_pending_approval_template(manifest: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "schemaVersion": "1.0.0",
+        "campaignId": manifest["campaignId"],
+        "decision": "PENDING",
+        "reviewManifestSha256": review_manifest_sha256(manifest),
+        "repoSha": manifest["repoSha"],
+        "snapshotSha256": manifest["snapshotSha256"],
+        "generatorSha256": manifest["generatorSha256"],
+        "reviewedBy": None,
+        "reviewerRole": None,
+        "decidedAt": None,
+        "decisionReference": None,
+        "findings": [],
+    }
+
+
+def _decision_report(
+    manifest: dict[str, Any],
+    owner_decision: str,
+    present: bool,
+    valid: bool,
+    errors: list[str],
+) -> dict[str, Any]:
+    return {
+        "OWNER_REVIEW_DECISION": owner_decision,
+        "PUBLIC_STATUS": manifest["publicStatus"],
+        "PRIVATE_STATUS": manifest["privateStatus"],
+        "CONTRACTUAL_DOSSIER_PUBLICATION_BLOCKED": manifest[
+            "contractualDossierPublicationBlocked"
+        ],
+        "APPROVAL_RECORD_PRESENT": present,
+        "APPROVAL_RECORD_VALID": valid,
+        "VALIDATION_ERRORS": errors,
+    }
+
+
+def evaluate_owner_approval(
+    manifest: dict[str, Any],
+    approval: dict[str, Any] | None,
+    schema: dict[str, Any],
+) -> dict[str, Any]:
+    if approval is None:
+        return _decision_report(manifest, "PENDING", False, False, [])
+
+    validator = Draft202012Validator(schema, format_checker=FormatChecker())
+    schema_errors = sorted(validator.iter_errors(approval), key=lambda error: list(error.path))
+    if schema_errors:
+        errors = [
+            f"/{'/'.join(str(part) for part in error.path)}: {error.message}"
+            for error in schema_errors
+        ]
+        return _decision_report(manifest, "INVALID", True, False, errors)
+
+    expected_bindings = {
+        "campaignId": manifest["campaignId"],
+        "reviewManifestSha256": review_manifest_sha256(manifest),
+        "repoSha": manifest["repoSha"],
+        "snapshotSha256": manifest["snapshotSha256"],
+        "generatorSha256": manifest["generatorSha256"],
+    }
+    stale_fields = [
+        field for field, expected in expected_bindings.items() if approval.get(field) != expected
+    ]
+    if stale_fields:
+        return _decision_report(
+            manifest,
+            "STALE",
+            True,
+            False,
+            [f"Approval binding mismatch: {field}" for field in stale_fields],
+        )
+
+    decision = approval["decision"]
+    if decision == "PENDING":
+        return _decision_report(manifest, "PENDING", True, False, [])
+    return _decision_report(manifest, decision, True, True, [])
