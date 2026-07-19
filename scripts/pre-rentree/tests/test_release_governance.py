@@ -373,3 +373,78 @@ def test_cli_strict_mode_accepts_current_approved_record(review_package: Path, t
 
     assert completed.returncode == 0
     assert "OWNER_REVIEW_DECISION=APPROVED" in completed.stdout
+
+
+def test_operational_review_kit_is_explicitly_non_public_and_not_approved():
+    operations = REPO_ROOT / "docs/operations/pre-rentree-2026"
+    expected = {
+        "README.md",
+        "owner-review-checklist.md",
+        "legal-review-request.md",
+        "privacy-review-request.md",
+    }
+    assert operations.is_dir(), "operational review kit must exist"
+    assert expected == {path.name for path in operations.iterdir() if path.is_file()}
+    for name in expected:
+        text = (operations / name).read_text(encoding="utf-8")
+        assert "NON PUBLIC" in text
+        assert "STATUS: APPROVED" not in text
+
+
+def test_owner_checklist_covers_every_public_output_and_hash_bound_decision():
+    checklist = (
+        REPO_ROOT / "docs/operations/pre-rentree-2026/owner-review-checklist.md"
+    ).read_text(encoding="utf-8")
+    snapshot = json.loads(
+        (REPO_ROOT / "generated/pre-rentree-2026-publication.snapshot.json").read_text(
+            encoding="utf-8"
+        )
+    )
+
+    for group in ("publicPdf", "publicHtml", "social"):
+        for filename in snapshot["document"]["outputs"][group].values():
+            assert filename in checklist
+    assert "reviewManifestSha256" in checklist
+    assert "owner-approval.json" in checklist
+
+
+def test_legal_request_lists_decision_options_and_required_approval_metadata():
+    request = (
+        REPO_ROOT / "docs/operations/pre-rentree-2026/legal-review-request.md"
+    ).read_text(encoding="utf-8")
+
+    for marker in ("À APPROUVER", "À CORRIGER", "À REFUSER"):
+        assert marker in request
+    for field in (
+        "TERMS_VERSION",
+        "EFFECTIVE_DATE",
+        "OWNER_APPROVAL_REFERENCE",
+        "LEGAL_APPROVAL_REFERENCE",
+    ):
+        assert field in request
+    assert "NON CANONIQUE" in request
+
+
+def test_privacy_request_covers_complete_versioned_notice_fields():
+    request = (
+        REPO_ROOT / "docs/operations/pre-rentree-2026/privacy-review-request.md"
+    ).read_text(encoding="utf-8").casefold()
+
+    for expected in (
+        "responsable de traitement",
+        "finalités",
+        "base juridique",
+        "obligatoire ou facultatif",
+        "destinataires",
+        "durée de conservation",
+        "droits",
+        "contact",
+        "version",
+    ):
+        assert expected in request
+
+
+def test_review_kit_does_not_create_missing_canonical_legal_source():
+    assert not (
+        REPO_ROOT / "docs/legal/pre-rentree-2026-commercial-terms-gap-analysis.md"
+    ).exists()
