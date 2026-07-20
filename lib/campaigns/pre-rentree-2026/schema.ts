@@ -139,6 +139,8 @@ const CampaignContent = z.object({
     noOnlinePaymentNotice: z.string().min(1),
     groupCompositionNotice: z.string().min(1),
     groupNotOpenedProcedure: z.string().min(1),
+    adaptationNotice: z.string().min(1),
+    recordingConsentNotice: z.string().min(1),
   }),
   faq: z.array(z.object({
     question: z.string().min(1),

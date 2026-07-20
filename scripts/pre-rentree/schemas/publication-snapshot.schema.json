@@ -8,6 +8,10 @@
           "type": "string",
           "const": "1.0.0"
         },
+        "sourceSetSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
         "sourceRepoSha": {
           "type": "string",
           "pattern": "^[a-f0-9]{40}$"
@@ -35,8 +39,7 @@
                   "minLength": 1
                 },
                 "sha256": {
-                  "type": "string",
-                  "pattern": "^[a-f0-9]{64}$"
+                  "$ref": "#/definitions/PublicationSnapshot/properties/sourceSetSha256"
                 }
               },
               "required": [
@@ -60,6 +63,24 @@
             },
             "parentGuide": {
               "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+            },
+            "pedagogyFramework": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+            },
+            "offers": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+            },
+            "capabilities": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+            },
+            "manuals": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+            },
+            "communication": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+            },
+            "whatsapp": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
             }
           },
           "required": [
@@ -68,7 +89,13 @@
             "pricing",
             "legal",
             "contact",
-            "parentGuide"
+            "parentGuide",
+            "pedagogyFramework",
+            "offers",
+            "capabilities",
+            "manuals",
+            "communication",
+            "whatsapp"
           ],
           "additionalProperties": false
         },
@@ -93,7 +120,10 @@
             },
             "publicationMode": {
               "type": "string",
-              "const": "PRE_REGISTRATION_ONLY"
+              "enum": [
+                "REVIEW",
+                "RELEASE"
+              ]
             },
             "startDate": {
               "type": "string",
@@ -135,19 +165,77 @@
               ],
               "additionalProperties": false
             },
-            "capacity": {
+            "capacityByOffer": {
               "type": "object",
               "properties": {
-                "min": {
-                  "type": "integer"
+                "FONDATIONS": {
+                  "type": "object",
+                  "properties": {
+                    "min": {
+                      "type": "number",
+                      "const": 4
+                    },
+                    "max": {
+                      "type": "number",
+                      "const": 6
+                    }
+                  },
+                  "required": [
+                    "min",
+                    "max"
+                  ],
+                  "additionalProperties": false
                 },
-                "max": {
-                  "type": "integer"
+                "PREMIUM": {
+                  "type": "object",
+                  "properties": {
+                    "min": {
+                      "type": "number",
+                      "const": 3
+                    },
+                    "max": {
+                      "type": "number",
+                      "const": 5
+                    }
+                  },
+                  "required": [
+                    "min",
+                    "max"
+                  ],
+                  "additionalProperties": false
                 }
               },
               "required": [
-                "min",
-                "max"
+                "FONDATIONS",
+                "PREMIUM"
+              ],
+              "additionalProperties": false
+            },
+            "operationalGates": {
+              "type": "object",
+              "properties": {
+                "roomAssignmentsValidated": {
+                  "type": "boolean"
+                },
+                "teacherAssignmentsValidated": {
+                  "type": "boolean"
+                },
+                "noTeacherConflict": {
+                  "type": "boolean"
+                },
+                "noRoomConflict": {
+                  "type": "boolean"
+                },
+                "dailyLoadValid": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "roomAssignmentsValidated",
+                "teacherAssignmentsValidated",
+                "noTeacherConflict",
+                "noRoomConflict",
+                "dailyLoadValid"
               ],
               "additionalProperties": false
             }
@@ -163,7 +251,8 @@
             "noClassDates",
             "decisionDeadline",
             "venue",
-            "capacity"
+            "capacityByOffer",
+            "operationalGates"
           ],
           "additionalProperties": false
         },
@@ -175,6 +264,7 @@
               "id": {
                 "type": "string",
                 "enum": [
+                  "TROISIEME",
                   "SECONDE",
                   "PREMIERE",
                   "TERMINALE"
@@ -191,8 +281,8 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 3,
-          "maxItems": 3
+          "minItems": 4,
+          "maxItems": 4
         },
         "subjects": {
           "type": "array",
@@ -205,7 +295,8 @@
                   "MATHEMATIQUES",
                   "FRANCAIS",
                   "NSI",
-                  "PHYSIQUE_CHIMIE"
+                  "PHYSIQUE_CHIMIE",
+                  "PHILOSOPHIE"
                 ]
               },
               "label": {
@@ -242,8 +333,8 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 4,
-          "maxItems": 4
+          "minItems": 5,
+          "maxItems": 5
         },
         "blocks": {
           "type": "array",
@@ -346,8 +437,7 @@
                       ],
                       "additionalProperties": false
                     },
-                    "minItems": 6,
-                    "maxItems": 6
+                    "minItems": 1
                   }
                 },
                 "required": [
@@ -424,8 +514,8 @@
                 ],
                 "additionalProperties": false
               },
-              "minItems": 60,
-              "maxItems": 60
+              "minItems": 70,
+              "maxItems": 70
             }
           },
           "required": [
@@ -621,8 +711,975 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 12,
-          "maxItems": 12
+          "minItems": 14,
+          "maxItems": 14
+        },
+        "pedagogy": {
+          "type": "object",
+          "properties": {
+            "positioningTests": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^POS\\-"
+                  },
+                  "moduleId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "version": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "durationMinutes": {
+                    "type": "integer",
+                    "minimum": 15,
+                    "maximum": 60
+                  },
+                  "materialAllowed": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "domains": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 5,
+                    "maxItems": 5
+                  },
+                  "questions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "number": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 5
+                        },
+                        "domain": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "prompt": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "correction": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "points": {
+                          "type": "integer",
+                          "exclusiveMinimum": true,
+                          "minimum": 0
+                        },
+                        "errorTypes": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "minItems": 3
+                        }
+                      },
+                      "required": [
+                        "number",
+                        "domain",
+                        "prompt",
+                        "correction",
+                        "points",
+                        "errorTypes"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minItems": 5,
+                    "maxItems": 5
+                  },
+                  "totalPoints": {
+                    "type": "number",
+                    "const": 20
+                  },
+                  "rubric": {
+                    "type": "object",
+                    "properties": {
+                      "ACQUIS": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "FRAGILE": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "LACUNE": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "ACQUIS",
+                      "FRAGILE",
+                      "LACUNE"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "errorTypes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 3
+                  },
+                  "coherenceChecks": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 3
+                  },
+                  "anonymousSample": {
+                    "type": "object",
+                    "properties": {
+                      "sampleId": {
+                        "type": "string",
+                        "pattern": "^SAMPLE-ANON-\\d{2}$"
+                      },
+                      "response": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "assessment": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "sampleId",
+                      "response",
+                      "assessment"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "id",
+                  "moduleId",
+                  "version",
+                  "durationMinutes",
+                  "materialAllowed",
+                  "domains",
+                  "questions",
+                  "totalPoints",
+                  "rubric",
+                  "errorTypes",
+                  "coherenceChecks",
+                  "anonymousSample"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 14,
+              "maxItems": 14
+            },
+            "quickAssessments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^QA\\-"
+                  },
+                  "sessionRef": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "durationMinutes": {
+                    "type": "integer",
+                    "minimum": 5,
+                    "maximum": 10
+                  },
+                  "domain": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "prompt": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "correction": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "successCriterion": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "expectedLevel": {
+                    "$ref": "#/definitions/PublicationSnapshot/properties/levels/items/properties/id"
+                  },
+                  "captureMode": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "id",
+                  "sessionRef",
+                  "durationMinutes",
+                  "domain",
+                  "prompt",
+                  "correction",
+                  "successCriterion",
+                  "expectedLevel",
+                  "captureMode"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 70,
+              "maxItems": 70
+            },
+            "sessionDeliverables": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^DEL\\-"
+                  },
+                  "sessionRef": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "objective": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "instructions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 3
+                  },
+                  "expectedEvidence": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 2
+                  },
+                  "selfCheck": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 3
+                  }
+                },
+                "required": [
+                  "id",
+                  "sessionRef",
+                  "title",
+                  "objective",
+                  "instructions",
+                  "expectedEvidence",
+                  "selfCheck"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 70,
+              "maxItems": 70
+            }
+          },
+          "required": [
+            "positioningTests",
+            "quickAssessments",
+            "sessionDeliverables"
+          ],
+          "additionalProperties": false
+        },
+        "offers": {
+          "type": "object",
+          "properties": {
+            "schemaVersion": {
+              "type": "string",
+              "const": "1.0.0"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "campaignId": {
+              "type": "string",
+              "const": "pre-rentree-2026"
+            },
+            "depositRate": {
+              "type": "number",
+              "const": 0.3
+            },
+            "levels": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "level": {
+                    "type": "string",
+                    "enum": [
+                      "TROISIEME",
+                      "SECONDE",
+                      "PREMIERE",
+                      "TERMINALE"
+                    ]
+                  },
+                  "range": {
+                    "type": "string",
+                    "enum": [
+                      "FONDATIONS",
+                      "PREMIUM"
+                    ]
+                  },
+                  "signature": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "subjects": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "MATHEMATIQUES",
+                        "PHYSIQUE_CHIMIE",
+                        "NSI",
+                        "FRANCAIS",
+                        "PHILOSOPHIE"
+                      ]
+                    },
+                    "minItems": 1,
+                    "maxItems": 4
+                  },
+                  "pricing": {
+                    "type": "object",
+                    "properties": {
+                      "model": {
+                        "type": "string",
+                        "enum": [
+                          "PER_SUBJECT",
+                          "PACK_BY_SUBJECT_COUNT"
+                        ]
+                      },
+                      "productIds": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "minItems": 1,
+                        "maxItems": 4
+                      },
+                      "multiSubjectDiscount": {
+                        "type": "boolean"
+                      },
+                      "maximumSubjects": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 4
+                      }
+                    },
+                    "required": [
+                      "model",
+                      "productIds",
+                      "multiSubjectDiscount",
+                      "maximumSubjects"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "capacity": {
+                    "type": "object",
+                    "properties": {
+                      "min": {
+                        "type": "integer",
+                        "minimum": 3,
+                        "maximum": 4
+                      },
+                      "max": {
+                        "type": "integer",
+                        "minimum": 5,
+                        "maximum": 6
+                      }
+                    },
+                    "required": [
+                      "min",
+                      "max"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "serviceCapabilityIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "level",
+                  "range",
+                  "signature",
+                  "subjects",
+                  "pricing",
+                  "capacity",
+                  "serviceCapabilityIds"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 4,
+              "maxItems": 4
+            }
+          },
+          "required": [
+            "schemaVersion",
+            "version",
+            "campaignId",
+            "depositRate",
+            "levels"
+          ],
+          "additionalProperties": false
+        },
+        "offerPricing": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "level": {
+                "$ref": "#/definitions/PublicationSnapshot/properties/levels/items/properties/id"
+              },
+              "range": {
+                "type": "string",
+                "enum": [
+                  "FONDATIONS",
+                  "PREMIUM"
+                ]
+              },
+              "subjectCount": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "totalHours": {
+                "type": "integer",
+                "exclusiveMinimum": true,
+                "minimum": 0
+              },
+              "price": {
+                "type": "integer",
+                "exclusiveMinimum": true,
+                "minimum": 0
+              },
+              "deposit": {
+                "type": "integer",
+                "exclusiveMinimum": true,
+                "minimum": 0
+              },
+              "balance": {
+                "type": "integer",
+                "exclusiveMinimum": true,
+                "minimum": 0
+              },
+              "pricePerHour": {
+                "type": "number",
+                "exclusiveMinimum": true,
+                "minimum": 0
+              }
+            },
+            "required": [
+              "level",
+              "range",
+              "subjectCount",
+              "totalHours",
+              "price",
+              "deposit",
+              "balance",
+              "pricePerHour"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 14,
+          "maxItems": 14
+        },
+        "capabilities": {
+          "type": "object",
+          "properties": {
+            "schemaVersion": {
+              "type": "string",
+              "const": "1.0.0"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "capabilities": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                  },
+                  "label": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "designed": {
+                    "type": "boolean"
+                  },
+                  "implemented": {
+                    "type": "boolean"
+                  },
+                  "tested": {
+                    "type": "boolean"
+                  },
+                  "operationallyReady": {
+                    "type": "boolean"
+                  },
+                  "ownerApproved": {
+                    "type": "boolean"
+                  },
+                  "publiclyCommitted": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "id",
+                  "label",
+                  "designed",
+                  "implemented",
+                  "tested",
+                  "operationallyReady",
+                  "ownerApproved",
+                  "publiclyCommitted"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "schemaVersion",
+            "version",
+            "capabilities"
+          ],
+          "additionalProperties": false
+        },
+        "manuals": {
+          "type": "object",
+          "properties": {
+            "schemaVersion": {
+              "type": "string",
+              "const": "1.0.0"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "manuals": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "subject": {
+                    "type": "string",
+                    "enum": [
+                      "MATHEMATIQUES",
+                      "NSI"
+                    ]
+                  },
+                  "level": {
+                    "type": "string",
+                    "enum": [
+                      "PREMIERE",
+                      "TERMINALE"
+                    ]
+                  },
+                  "sourceRepository": {
+                    "type": "string",
+                    "const": "cyranoaladin/manuels-nexus"
+                  },
+                  "sourceCommitSha": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "const": ""
+                      },
+                      {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{40}$"
+                      }
+                    ]
+                  },
+                  "edition": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "printReady": {
+                    "type": "boolean"
+                  },
+                  "ownerApproved": {
+                    "type": "boolean"
+                  },
+                  "stockReady": {
+                    "type": "boolean"
+                  },
+                  "pageCount": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "exclusiveMinimum": true,
+                        "minimum": 0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "studentCopiesOrdered": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "reserveCopies": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "id",
+                  "subject",
+                  "level",
+                  "sourceRepository",
+                  "sourceCommitSha",
+                  "edition",
+                  "printReady",
+                  "ownerApproved",
+                  "stockReady",
+                  "pageCount",
+                  "studentCopiesOrdered",
+                  "reserveCopies"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 4,
+              "maxItems": 4
+            }
+          },
+          "required": [
+            "schemaVersion",
+            "version",
+            "manuals"
+          ],
+          "additionalProperties": false
+        },
+        "communication": {
+          "type": "object",
+          "properties": {
+            "schemaVersion": {
+              "type": "string",
+              "const": "1.0.0"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "locale": {
+              "type": "string",
+              "const": "fr-TN"
+            },
+            "formats": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 7
+            },
+            "publications": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "publicGate": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "id",
+                  "title",
+                  "publicGate",
+                  "text"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 13
+            },
+            "carousels": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "slides": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "body": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "title",
+                        "body"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minItems": 4
+                  }
+                },
+                "required": [
+                  "id",
+                  "slides"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 8,
+              "maxItems": 8
+            },
+            "stories": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 12
+            },
+            "reels": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "durationSeconds": {
+                    "type": "integer",
+                    "minimum": 20,
+                    "maximum": 35
+                  },
+                  "captionsRequired": {
+                    "type": "boolean",
+                    "const": true
+                  },
+                  "publicGate": {
+                    "$ref": "#/definitions/PublicationSnapshot/properties/communication/properties/publications/items/properties/publicGate"
+                  },
+                  "scenes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 4
+                  }
+                },
+                "required": [
+                  "id",
+                  "title",
+                  "durationSeconds",
+                  "captionsRequired",
+                  "publicGate",
+                  "scenes"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 3,
+              "maxItems": 3
+            },
+            "altTextTemplate": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "schemaVersion",
+            "version",
+            "locale",
+            "formats",
+            "publications",
+            "carousels",
+            "stories",
+            "reels",
+            "altTextTemplate"
+          ],
+          "additionalProperties": false
+        },
+        "whatsapp": {
+          "type": "object",
+          "properties": {
+            "schemaVersion": {
+              "type": "string",
+              "const": "1.0.0"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "locale": {
+              "type": "string",
+              "const": "fr-TN"
+            },
+            "keywords": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 7,
+              "maxItems": 7
+            },
+            "tracking": {
+              "type": "object",
+              "properties": {
+                "campaign": {
+                  "type": "string",
+                  "const": "pre-rentree-2026"
+                },
+                "source": {
+                  "type": "string",
+                  "const": "whatsapp"
+                },
+                "medium": {
+                  "type": "string",
+                  "const": "conversation"
+                }
+              },
+              "required": [
+                "campaign",
+                "source",
+                "medium"
+              ],
+              "additionalProperties": false
+            },
+            "scripts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                  },
+                  "purpose": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "publicGate": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "text": {
+                    "type": "string",
+                    "minLength": 40
+                  }
+                },
+                "required": [
+                  "id",
+                  "purpose",
+                  "publicGate",
+                  "text"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 24,
+              "maxItems": 24
+            }
+          },
+          "required": [
+            "schemaVersion",
+            "version",
+            "locale",
+            "keywords",
+            "tracking",
+            "scripts"
+          ],
+          "additionalProperties": false
         },
         "content": {
           "type": "object",
@@ -736,7 +1793,7 @@
           "properties": {
             "primary": {
               "type": "string",
-              "const": "Se pré-inscrire ou demander un conseil"
+              "const": "Demander un parcours ou un conseil"
             },
             "whatsapp": {
               "type": "string",
@@ -945,73 +2002,6 @@
               "type": "string",
               "format": "date-time"
             },
-            "capabilities": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "string",
-                    "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
-                  },
-                  "label": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "designed": {
-                    "type": "boolean"
-                  },
-                  "implemented": {
-                    "type": "boolean"
-                  },
-                  "tested": {
-                    "type": "boolean"
-                  },
-                  "operationallyReady": {
-                    "type": "boolean"
-                  },
-                  "ownerApproved": {
-                    "type": "boolean"
-                  },
-                  "publiclyCommitted": {
-                    "type": "boolean"
-                  },
-                  "publicLabel": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "minLength": 1
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "evidence": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "minItems": 1
-                  }
-                },
-                "required": [
-                  "id",
-                  "label",
-                  "designed",
-                  "implemented",
-                  "tested",
-                  "operationallyReady",
-                  "ownerApproved",
-                  "publiclyCommitted",
-                  "publicLabel",
-                  "evidence"
-                ],
-                "additionalProperties": false
-              },
-              "minItems": 1
-            },
             "sections": {
               "type": "array",
               "items": {
@@ -1153,7 +2143,6 @@
             "documentPackageVersion",
             "documentEditionDate",
             "snapshotBuiltAt",
-            "capabilities",
             "sections"
           ],
           "additionalProperties": false
@@ -1173,7 +2162,7 @@
                     "type": "string"
                   },
                   "sha256": {
-                    "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign/properties/sha256"
+                    "$ref": "#/definitions/PublicationSnapshot/properties/sourceSetSha256"
                   }
                 },
                 "required": [
@@ -1197,7 +2186,7 @@
                     "type": "string"
                   },
                   "sha256": {
-                    "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign/properties/sha256"
+                    "$ref": "#/definitions/PublicationSnapshot/properties/sourceSetSha256"
                   }
                 },
                 "required": [
@@ -1344,6 +2333,7 @@
       },
       "required": [
         "schemaVersion",
+        "sourceSetSha256",
         "sourceRepoSha",
         "sourceCommitDate",
         "snapshotBuiltAt",
@@ -1356,6 +2346,13 @@
         "academicProfiles",
         "packs",
         "modules",
+        "pedagogy",
+        "offers",
+        "offerPricing",
+        "capabilities",
+        "manuals",
+        "communication",
+        "whatsapp",
         "content",
         "labels",
         "cta",

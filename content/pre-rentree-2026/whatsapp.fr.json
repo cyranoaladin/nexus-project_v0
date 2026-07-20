@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "1.0.0",
+  "version": "2026-whatsapp-fr-v1",
+  "locale": "fr-TN",
+  "keywords": ["PROGRAMME", "3E", "SECONDE", "PREMIERE", "TERMINALE", "FONDATIONS", "PREMIUM"],
+  "tracking": {"campaign":"pre-rentree-2026","source":"whatsapp","medium":"conversation"},
+  "scripts": [
+    {"id":"reponse-initiale","purpose":"Réponse automatique initiale","publicGate":null,"text":"Bonjour, merci d’avoir contacté Nexus Réussite. Indiquez la classe de rentrée et les matières envisagées ; nous vous enverrons le programme ou un conseil adapté."},
+    {"id":"demande-niveau-matiere","purpose":"Demande de niveau et matière","publicGate":null,"text":"Pour vous orienter, pouvez-vous préciser la classe de rentrée 2026-2027 et les matières recherchées ? Cette demande d’information ne réserve pas de place."},
+    {"id":"presentation-fondations","purpose":"Présentation Fondations","publicGate":null,"text":"Nexus Fondations concerne l’entrée en 3e et en Seconde : cinq séances de deux heures par matière, progression par paliers et groupe de quatre à six élèves."},
+    {"id":"presentation-premium","purpose":"Présentation Premium","publicGate":"OWNER_APPROVAL","text":"Nexus Premium concerne l’entrée en Première et Terminale. Les services renforcés restent présentés en mode revue tant que leur capacité opérationnelle et leur validation ne sont pas acquises."},
+    {"id":"tarif-3e","purpose":"Tarif 3e","publicGate":null,"text":"Pour l’entrée en 3e, une matière Fondations coûte 350 TND : acompte exact 105 TND après validation, puis solde de 245 TND. Deux matières coûtent 700 TND."},
+    {"id":"tarif-seconde","purpose":"Tarif Seconde","publicGate":null,"text":"Pour l’entrée en Seconde, une matière Fondations coûte 400 TND : acompte exact 120 TND après validation, puis solde de 280 TND. Les matières s’additionnent sans remise."},
+    {"id":"tarif-premiere","purpose":"Tarif Première","publicGate":null,"text":"Pour l’entrée en Première, Premium propose 1 à 4 matières : 480, 900, 1 350 ou 1 800 TND. L’acompte exact est calculé à 30 % du pack validé."},
+    {"id":"tarif-terminale","purpose":"Tarif Terminale","publicGate":null,"text":"Pour l’entrée en Terminale, Premium propose 1 à 4 matières : 480, 900, 1 350 ou 1 800 TND, avec un acompte exact de 30 % après validation du parcours."},
+    {"id":"objection-prix","purpose":"Réponse à l’objection prix","publicGate":null,"text":"Le tarif couvre un parcours de cinq séances en groupe réduit, avec programme structuré et productions de séance. Nous pouvons d’abord vérifier le besoin et proposer le nombre de matières pertinent."},
+    {"id":"explication-acompte","purpose":"Explication du 30 %","publicGate":null,"text":"La demande d’information est gratuite. Après validation du parcours et transmission des conditions, l’acompte correspond exactement à 30 % du total et sa réception réserve la place."},
+    {"id":"proposition-parcours","purpose":"Proposition de parcours","publicGate":null,"text":"Voici la proposition de parcours issue de l’étude pédagogique : {LEVEL}, {SUBJECTS}, {SCHEDULE}, total {PRICE} TND, acompte {DEPOSIT} TND et solde {BALANCE} TND. Validité : {HOLD_UNTIL}."},
+    {"id":"relance-sans-reponse","purpose":"Relance sans réponse","publicGate":null,"text":"Bonjour, souhaitez-vous toujours recevoir un conseil pour la pré-rentrée ? Nous pouvons revoir les matières ou répondre à une question, sans engagement ni réservation automatique."},
+    {"id":"relance-avant-expiration","purpose":"Relance avant expiration","publicGate":null,"text":"La proposition transmise arrive à échéance à {HOLD_UNTIL}. Sans réception de l’acompte après acceptation des conditions, la place ne sera pas considérée comme réservée."},
+    {"id":"confirmation-acompte","purpose":"Confirmation d’acompte","publicGate":"PAYMENT_RECEIVED","text":"Nous confirmons la réception de l’acompte de {DEPOSIT} TND pour le parcours validé. La référence de paiement figure sur le reçu transmis séparément."},
+    {"id":"confirmation-place","purpose":"Confirmation de place","publicGate":"PAYMENT_RECEIVED","text":"Votre inscription est confirmée et la place est réservée pour {LEVEL} — {SUBJECTS}. Le planning et l’échéance du solde figurent dans la confirmation."},
+    {"id":"groupe-attente","purpose":"Groupe en attente","publicGate":null,"text":"Le groupe demandé n’a pas encore atteint son seuil d’ouverture. Votre demande reste suivie, sans transfert automatique vers une autre matière ou un autre créneau."},
+    {"id":"groupe-confirme","purpose":"Groupe confirmé","publicGate":"STAFFING_AND_ROOMS_VALIDATED","text":"Le groupe {GROUP_ID} est confirmé. Vous recevrez la fiche pratique avec horaires, matériel et consignes avant le démarrage du premier module."},
+    {"id":"groupe-non-ouvert","purpose":"Groupe non ouvert","publicGate":"LEGAL_APPROVAL","text":"Nexus a décidé de ne pas ouvrir le groupe {GROUP_ID}. Les suites applicables sont traitées conformément aux conditions validées et communiquées à la famille."},
+    {"id":"demande-solde","purpose":"Demande de solde","publicGate":"LEGAL_APPROVAL","text":"Le solde de {BALANCE} TND est attendu selon l’échéance indiquée dans votre confirmation. Merci d’utiliser la référence {PAYMENT_REFERENCE}."},
+    {"id":"rappel-pratique","purpose":"Rappel pratique","publicGate":"STAFFING_AND_ROOMS_VALIDATED","text":"Rappel avant le stage : {DATES}, {SCHEDULE}, à Mutuelleville. Apportez le matériel indiqué pour chaque matière ; un ordinateur est demandé pour NSI/SNT."},
+    {"id":"information-diagnostic","purpose":"Information diagnostic","publicGate":"PEDAGOGY_OPERATIONALLY_READY","text":"Le positionnement {TEST_CODE} permet d’identifier les domaines à travailler. Durée, matériel et modalités figurent sur le sujet transmis par Nexus."},
+    {"id":"information-manuel","purpose":"Information manuel","publicGate":"MANUALS_READY","text":"Le manuel lié au module {MODULE_ID} est prêt, approuvé et disponible en stock. Les modalités de remise figurent dans votre confirmation de parcours."},
+    {"id":"message-apres-stage","purpose":"Message après stage","publicGate":"FOLLOW_UP_OPERATIONALLY_READY","text":"Le module est terminé. Les documents de synthèse effectivement prévus pour votre offre seront transmis après relecture, selon le calendrier indiqué par Nexus."},
+    {"id":"demande-temoignage","purpose":"Demande de témoignage","publicGate":"PRIVACY_APPROVAL","text":"Si vous le souhaitez, vous pouvez partager un retour sur l’organisation et la méthode. Toute utilisation publique fera l’objet d’une autorisation distincte et facultative."}
+  ]
+}
