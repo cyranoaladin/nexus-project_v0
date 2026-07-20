@@ -151,6 +151,19 @@ def _evidenced_text(snapshot: dict[str, Any], section_id: str, block_id: str) ->
     )
 
 
+def _evidenced_list(snapshot: dict[str, Any], section_id: str) -> str:
+    section = _guide_section(snapshot, section_id)
+    items = []
+    for block in section["blocks"]:
+        if block["kind"] != "EVIDENCED_TEXT" or not block["evidenceRefs"]:
+            raise ValueError(f"Parent-guide list contains a non-evidenced block: {section_id}/{block['id']}")
+        items.append(
+            f'<li data-editorial-block="{escape_text(block["id"])}" '
+            f'data-source-path="{_source_attr(*block["evidenceRefs"])}">{escape_text(block["text"])}</li>'
+        )
+    return f'<ul class="why-list">{"".join(items)}</ul>'
+
+
 def _essentials(snapshot: dict[str, Any]) -> str:
     campaign = snapshot["campaign"]
     pack = snapshot["packs"][0]
@@ -193,7 +206,7 @@ def _pedagogy(snapshot: dict[str, Any]) -> str:
     <section id="pourquoi" class="page-section">
       <p class="section-kicker">Reprendre le rythme avec méthode</p>
       <h2>{escape_text(_guide_section(snapshot, 'pourquoi')['title'])}</h2>
-      {_evidenced_text(snapshot, 'pourquoi', 'reprise-progressive')}
+      {_evidenced_list(snapshot, 'pourquoi')}
     </section>
     <section id="fonctionnement" class="page-section">
       <p class="section-kicker">Un cadre lisible</p>
@@ -225,7 +238,7 @@ def _level_profile(snapshot: dict[str, Any], level_id: str) -> str:
         elif isinstance(value, dict) and "options" in value:
             labels = ", ".join(item["label"] for item in value["options"])
             groups.append(f'<li>{escape_text(value["label"])} : {escape_text(labels)}</li>')
-    return f'<aside class="profile-note"><h3>Profil déclaré</h3><ul>{"".join(groups)}</ul></aside>'
+    return f'<div class="profile-note" role="note"><h3>Profil déclaré</h3><ul>{"".join(groups)}</ul></div>'
 
 
 def _level_schedule(snapshot: dict[str, Any], level_id: str) -> str:

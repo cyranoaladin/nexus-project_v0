@@ -1,5 +1,11 @@
 # Journal des changements
 
+## 5.1.0-rc.2 — 20 juillet 2026
+
+- développe les cinq objectifs sobres de la page « Pourquoi une pré-rentrée ? » ;
+- retire le lien d’évitement de la surface PDF tout en le conservant dans le HTML ;
+- corrige le contraste des repères et le débordement mobile détectés par Axe/Playwright.
+
 ## 5.1.0-rc.1 — 20 juillet 2026
 
 - création du Guide Parents complet comme document principal ;

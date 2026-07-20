@@ -31,8 +31,8 @@
     },
     "parentGuide": {
       "path": "content/pre-rentree-2026/parent-guide.fr.json",
-      "version": "2026-parent-guide-fr-v1",
-      "sha256": "bf0d0cba300b71989cb33e9ec81608db9b4018929d5b411bdced87a44d266856"
+      "version": "2026-parent-guide-fr-v2",
+      "sha256": "df332e10242463b0f11d422bb495df91ddc62edb849e6f9887852e4cfb4163d1"
     }
   },
   "campaign": {
@@ -2415,10 +2415,10 @@
   ],
   "parentGuide": {
     "schemaVersion": "1.0.0",
-    "contentVersion": "2026-parent-guide-fr-v1",
+    "contentVersion": "2026-parent-guide-fr-v2",
     "locale": "fr-TN",
     "status": "DRAFT_FOR_OWNER_REVIEW",
-    "documentPackageVersion": "5.1.0-rc.1",
+    "documentPackageVersion": "5.1.0-rc.2",
     "documentEditionDate": "2026-07-20",
     "snapshotBuiltAt": "2026-07-20T08:00:00+01:00",
     "capabilities": [
@@ -2785,9 +2785,43 @@
           {
             "id": "reprise-progressive",
             "kind": "EVIDENCED_TEXT",
-            "text": "La pré-rentrée propose une reprise progressive des acquis, la consolidation des automatismes et un premier travail sur les méthodes attendues dans la classe de rentrée.",
+            "text": "Reprendre progressivement les acquis après la coupure estivale.",
             "evidenceRefs": [
-              "/content/method",
+              "/modules"
+            ]
+          },
+          {
+            "id": "consolider-automatismes",
+            "kind": "EVIDENCED_TEXT",
+            "text": "Consolider les automatismes utiles avant les premiers chapitres de la rentrée.",
+            "evidenceRefs": [
+              "/modules"
+            ]
+          },
+          {
+            "id": "methodes-niveau",
+            "kind": "EVIDENCED_TEXT",
+            "text": "Découvrir ou reprendre les méthodes attendues dans la classe d’entrée.",
+            "evidenceRefs": [
+              "/levels",
+              "/modules"
+            ]
+          },
+          {
+            "id": "identifier-priorites",
+            "kind": "EVIDENCED_TEXT",
+            "text": "Identifier les priorités de travail grâce au positionnement et aux évaluations rapides.",
+            "evidenceRefs": [
+              "/content/method/0",
+              "/modules"
+            ]
+          },
+          {
+            "id": "preparer-transition",
+            "kind": "EVIDENCED_TEXT",
+            "text": "Préparer la transition vers le lycée ou la classe supérieure avec des repères concrets.",
+            "evidenceRefs": [
+              "/levels",
               "/modules"
             ]
           }
@@ -2979,7 +3013,7 @@
     ]
   },
   "document": {
-    "documentPackageVersion": "5.1.0-rc.1",
+    "documentPackageVersion": "5.1.0-rc.2",
     "documentEditionDate": "2026-07-20",
     "publicClassification": "PUBLIC",
     "qrTarget": "https://nexusreussite.academy/stages/pre-rentree-2026",

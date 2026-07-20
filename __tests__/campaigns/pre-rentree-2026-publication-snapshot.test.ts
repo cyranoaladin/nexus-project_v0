@@ -44,7 +44,7 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     expect(snapshot.provenance.campaign.version).toBe('1.0.1');
     expect(snapshot.provenance.modules.version).toBe('2026-pre-rentree-v1');
     expect(snapshot.provenance.pricing.version).toBe('2026-2027.2');
-    expect(snapshot.provenance.parentGuide.version).toBe('2026-parent-guide-fr-v1');
+    expect(snapshot.provenance.parentGuide.version).toBe('2026-parent-guide-fr-v2');
     expect(Object.values(snapshot.provenance).every((source) => /^[a-f0-9]{64}$/.test(source.sha256))).toBe(true);
     expect(() => PublicationSnapshotSchema.parse(snapshot)).not.toThrow();
   });
@@ -62,10 +62,10 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     expect(schema.properties.sections.items.additionalProperties).toBe(false);
     expect(source).toMatchObject({
       schemaVersion: '1.0.0',
-      contentVersion: '2026-parent-guide-fr-v1',
+      contentVersion: '2026-parent-guide-fr-v2',
       locale: 'fr-TN',
       status: 'DRAFT_FOR_OWNER_REVIEW',
-      documentPackageVersion: '5.1.0-rc.1',
+      documentPackageVersion: '5.1.0-rc.2',
     });
     expect(snapshot.parentGuide.sections.map((section) => section.id)).toEqual([
       'essentiel',
@@ -90,7 +90,10 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     expect(snapshot.sourceCommitDate).toMatch(/^\d{4}-\d{2}-\d{2}T/);
     expect(snapshot.snapshotBuiltAt).toBe('2026-07-20T08:00:00+01:00');
     expect(snapshot.document.documentEditionDate).toBe('2026-07-20');
-    expect(snapshot.document.documentPackageVersion).toBe('5.1.0-rc.1');
+    expect(snapshot.document.documentPackageVersion).toBe('5.1.0-rc.2');
+
+    const why = snapshot.parentGuide.sections.find((section) => section.id === 'pourquoi');
+    expect(why?.blocks).toHaveLength(5);
     expect(snapshot.reviews).toEqual({
       ownerReviewedAt: null,
       legalReviewedAt: null,
