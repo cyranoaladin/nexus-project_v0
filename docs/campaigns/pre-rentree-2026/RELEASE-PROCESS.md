@@ -2,31 +2,42 @@
 
 ## Build local
 
-Installer les dépendances Node avec `npm ci`, puis Python avec `python -m pip install -r scripts/pre-rentree/requirements.lock`. Depuis la racine Git, exécuter `npm run pre-rentree:ci`. Les programmes documentaires résolvent leurs entrées depuis la racine du dépôt et non depuis un répertoire courant implicite.
+Après `npm ci` et `python -m pip install -r scripts/pre-rentree/requirements.lock`, exécuter `npm run pre-rentree:ci`. Le compilateur lit les sources structurées, valide leurs conflits puis construit le snapshot. Le renderer Python ne reçoit que ce snapshot.
 
-Les sorties sont atomiquement publiées sous `.artifacts/pre-rentree-2026/`. Un échec conserve le dernier paquet complet et supprime le staging partiel.
+Les sorties sont préparées dans un répertoire temporaire, puis remplacent atomiquement `.artifacts/pre-rentree-2026/build`. Un échec conserve le dernier paquet complet et supprime le staging.
+
+## Contenu de l’artefact REVIEW
+
+- Guide Parents et dix annexes en PDF/HTML ;
+- trois visuels sociaux de revue et leurs textes alternatifs ;
+- 14 tests de positionnement, 70 évaluations rapides et 70 livrables matérialisés ;
+- kit WhatsApp (24 scripts) et kit Facebook/Instagram/Reels ;
+- CRM vierge, onze gabarits anonymes et modèle économique XLSX à hypothèses non inventées ;
+- audits PDF, HTML, accessibilité, visuel, sécurité et reproductibilité ;
+- matrices de sources, capacités, preuves et affectation.
+
+Aucun de ces éléments de revue n’autorise une diffusion familiale.
 
 ## Dates et reproductibilité
 
-- `sourceCommitDate` date le SHA source canonique ;
-- `snapshotBuiltAt` date l’édition versionnée du snapshot ;
-- `documentEditionDate` alimente la surface publique (« Édition juillet 2026 ») ;
-- `documentsBuiltAt` et les dates d’audit appartiennent aux rapports externes ;
-- `ownerReviewedAt`, `legalReviewedAt` et `privacyReviewedAt` restent nuls avant action humaine.
+- `sourceRepoSha` : ancre de provenance non auto-référentielle ;
+- `sourceCommitDate` : date de cette ancre ;
+- `snapshotBuiltAt` : date versionnée de compilation éditoriale ;
+- `documentEditionDate` : date visible dans les documents ;
+- `documentsBuiltAt` et `automatedVisualAuditAt` : heures externes au contenu déterministe ;
+- `assistantVisualReviewAt`, `ownerReviewedAt`, `legalReviewedAt`, `privacyReviewedAt` : nuls tant qu’aucune action correspondante n’a eu lieu.
 
-Le renderer convertit `documentEditionDate` à minuit UTC avant le rendu PDF ; le résultat ne dépend donc pas du fuseau de la machine. La CI fixe également `SOURCE_DATE_EPOCH` et un test exécute cette conversion sous UTC et `Africa/Tunis`.
-
-Deux builds du même commit sont comparés par SHA-256. Le paquet parents utilise la date d’édition, un ordre stable et doit rester identique entre les environnements verrouillés. Le paquet de revue contient les heures réelles de build et d’audit : son empreinte est propre à chaque exécution et reste consignée dans le résumé du workflow, sans modifier les documents familiaux.
+La CI fixe `SOURCE_DATE_EPOCH`. Deux builds ayant le même snapshot, les mêmes sources et dépendances produisent les mêmes documents publics. Les heures réelles restent dans des rapports externes ; elles ne modifient pas le PDF.
 
 ## Paquets
 
-- `NexusReussite_PreRentree2026_PARENT_PACKAGE.zip` : documents familiaux et assets nécessaires ;
-- `NexusReussite_PreRentree2026_REVIEW_PACKAGE.zip` : paquet parents, audits, preuves visuelles et cartes de sources.
+- `NexusReussite_PreRentree2026_PARENT_PACKAGE.zip` : documents familiaux candidats et assets hors ligne ;
+- `NexusReussite_PreRentree2026_REVIEW_PACKAGE.zip` : paquet précédent plus artefacts pédagogiques, opérationnels, communication et audits.
 
-Aucun paquet privé n’est produit.
+Aucun paquet privé n’est produit. La CI téléverse les ZIP pendant 14 jours, sans release GitHub ni déploiement.
 
 ## Revue et invalidation
 
-Le manifest de revue enregistre l’empreinte de chaque artefact. Le modèle d’approbation reste `PENDING` et sans identité. Toute modification change le manifest et rend une approbation antérieure obsolète. La validation propriétaire ne vaut ni validation juridique ni autorisation de diffusion.
+Le manifest lie la revue aux SHA-256. Toute modification rend une décision antérieure obsolète. Seuls le schéma, un template vide et le vérificateur d’approbation sont versionnés ; Codex ne crée ni identité ni décision humaine.
 
-La publication documentaire future et le déploiement du site sont deux opérations distinctes. Ce workflow n’effectue aucune des deux.
+Passer de REVIEW à RELEASE exige les revues propriétaire, juridique et confidentialité, la validation des affectations, et les gates opérationnels des promesses retenues. La publication documentaire et le déploiement du site restent deux actions séparées et manuelles.

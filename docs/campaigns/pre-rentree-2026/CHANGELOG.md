@@ -1,22 +1,26 @@
 # Journal des changements
 
+## 6.0.0-rc.1 — 20 juillet 2026
+
+- ajoute Nexus Fondations pour l’entrée en 3e et en Seconde ;
+- maintient Nexus Premium pour l’entrée en Première et en Terminale ;
+- porte le catalogue à 14 modules et 70 séances ;
+- conserve l’initiation informatique/algorithmique/SNT en Seconde ;
+- remplace le Français Terminale par la Philosophie ;
+- adopte les acomptes exacts de 30 % : 105, 120, 144, 270, 405 et 540 TND selon les offres ;
+- distingue demande d’information, qualification, proposition et réservation après acompte ;
+- matérialise 14 tests, 70 évaluations rapides et 70 livrables dans l’artefact de revue ;
+- ajoute le registre de quatre manuels avec publicité bloquée tant que le stock manque ;
+- ajoute les kits WhatsApp et réseaux, le CRM vierge, les gabarits anonymes et le modèle économique ;
+- aligne la page `/stages/pre-rentree-2026` sur les sources canoniques ;
+- maintient la branche, les documents et le site en mode REVIEW.
+
 ## 5.1.0-rc.2 — 20 juillet 2026
 
-- développe les cinq objectifs sobres de la page « Pourquoi une pré-rentrée ? » ;
-- retire le lien d’évitement de la surface PDF tout en le conservant dans le HTML ;
-- corrige le contraste des repères et le débordement mobile détectés par Axe/Playwright.
+- corrige le contraste, le débordement mobile et plusieurs défauts PDF/HTML.
 
 ## 5.1.0-rc.1 — 20 juillet 2026
 
-- création du Guide Parents complet comme document principal ;
-- conservation de six brochures comme annexes générées ;
-- ajout du contrat éditorial fermé et de la matrice Parcours 360 ;
-- séparation des dates source, snapshot, édition et revues ;
-- retrait du jargon technique visible et des affirmations commerciales non approuvées ;
-- clarification de la séquence pré-inscription, confirmation, acompte et solde ;
-- suppression des sorties, copies du générateur, tests et CSS suivies dans Git ;
-- déplacement des artefacts sous `.artifacts/` et dans GitHub Actions ;
-- suppression du faux répertoire privé ;
-- ajout des paquets déterministes, de la CI dédiée et des contrôles de dépôt.
+- introduit le Guide Parents principal, la source unique du générateur, les artefacts non suivis et la CI documentaire.
 
-La v4 reste un état historique de comparaison et n’est utilisée par aucun compilateur.
+La v4 reste un état historique de comparaison et n’alimente aucun compilateur.

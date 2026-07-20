@@ -7,6 +7,12 @@ on:
       - "data/campaigns/pre-rentree-2026.json"
       - "data/pricing.canonical.json"
       - "lib/legal.ts"
+      - "lib/analytics.ts"
+      - "lib/campaigns/pre-rentree-2026/**"
+      - "app/stages/pre-rentree-2026/**"
+      - "components/pre-rentree-2026/**"
+      - "components/marketing/PreRentreeCampaignSpotlight.tsx"
+      - "__tests__/**/*pre-rentree-2026*"
       - "scripts/pre-rentree/**"
       - "generated/pre-rentree-2026/**"
       - "docs/campaigns/pre-rentree-2026/**"
@@ -16,6 +22,7 @@ on:
   push:
     branches:
       - codex/pre-rentree-2026-v5-canonical
+      - main
   workflow_dispatch:
 
 permissions:
@@ -34,18 +41,18 @@ jobs:
       PYTHONDONTWRITEBYTECODE: "1"
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           fetch-depth: 0
 
       - name: Set up Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
           node-version: "20"
           cache: npm
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.12"
           cache: pip
@@ -82,7 +89,7 @@ jobs:
           PY
 
       - name: Upload parent package
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: pre-rentree-2026-parent-package
           path: .artifacts/pre-rentree-2026/packages/NexusReussite_PreRentree2026_PARENT_PACKAGE.zip
@@ -90,7 +97,7 @@ jobs:
           retention-days: 14
 
       - name: Upload owner-review package
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: pre-rentree-2026-owner-review-package
           path: .artifacts/pre-rentree-2026/packages/NexusReussite_PreRentree2026_REVIEW_PACKAGE.zip

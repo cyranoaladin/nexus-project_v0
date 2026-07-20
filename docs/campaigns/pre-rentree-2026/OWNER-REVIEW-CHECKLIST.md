@@ -3,9 +3,9 @@
 Cette checklist est un processus public de gouvernance ; elle n’est pas une preuve d’approbation.
 
 - [ ] Lire le Guide Parents PDF et HTML.
-- [ ] Vérifier les douze modules et soixante séances avec l’équipe pédagogique.
+- [ ] Vérifier les quatorze modules et soixante-dix séances avec l’équipe pédagogique.
 - [ ] Vérifier planning, capacités, tarifs, acompte et solde.
-- [ ] Vérifier la séquence pré-inscription, validation, confirmation et paiement.
+- [ ] Vérifier la séquence demande d’information, qualification, proposition, réservation et paiement.
 - [ ] Contrôler les rasters, la planche de contact et les captures bureau/mobile.
 - [ ] Confirmer que les engagements Parcours 360 restent limités aux capacités opérationnelles.
 - [ ] Examiner les versions niveaux de gris et les visuels sociaux.
