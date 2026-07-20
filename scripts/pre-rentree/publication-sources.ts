@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { PreRentreeCampaignManifestSchema, PreRentreeModulesSchema } from '@/lib/campaigns/pre-rentree-2026/schema';
 import { LEGAL } from '@/lib/legal';
 import type { PreRentreePack } from '@/lib/pricing';
+import { buildWhatsAppContactUrl } from '@/lib/whatsapp';
 
 import {
   deriveApprovedPublicClaims,
@@ -194,7 +195,7 @@ export function compileCanonicalPublication(options: CompileOptions): Publicatio
       email: LEGAL.contact.email,
       addressLabel: LEGAL.addresses.pedagogique.label,
       address: LEGAL.addresses.pedagogique.full,
-      whatsappUrl: `https://wa.me/${LEGAL.contact.whatsappNumber}`,
+      whatsappUrl: buildWhatsAppContactUrl(LEGAL.contact.whatsappNumber),
       canonicalUrl,
       domain: LEGAL.web.domain,
     },
