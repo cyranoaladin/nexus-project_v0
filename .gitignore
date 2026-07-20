@@ -118,6 +118,7 @@ docs/audits/*attestation-travail*.md
 !fixtures/**/*.csv
 !audit/**/*.csv
 !content/**/*.csv
+!assets/campaigns/**/*.csv
 
 # ─── Scratch / Temp ──────────────────────────────────────────────────────
 scratch/
