@@ -5,6 +5,8 @@
   "scripts": {
     "pre-rentree:clean": "python scripts/pre-rentree/clean_artifacts.py .artifacts/pre-rentree-2026",
     "pre-rentree:snapshot": "tsx scripts/pre-rentree/generate-publication-json-schema.ts --output scripts/pre-rentree/schemas/publication-snapshot.schema.json && tsx scripts/pre-rentree/build-publication-snapshot.ts --repo-root . --source-repo-sha a1192c8dccf8eaa6ae223265a3bc9ceb56a6fff0 --output generated/pre-rentree-2026/publication.snapshot.json",
+    "pre-rentree:commercial-contract": "tsx --conditions=react-server scripts/pre-rentree/build-commercial-contract.ts --output .artifacts/pre-rentree-2026/commercial-contract.snapshot.json",
+    "pre-rentree:week-one": "npm run pre-rentree:commercial-contract && python scripts/pre-rentree/render_week_one_kit.py --content content/pre-rentree-2026/week-one-campaign.fr.json --commercial .artifacts/pre-rentree-2026/commercial-contract.snapshot.json --output assets/campaigns/pre-rentree-2026/week-one",
     "pre-rentree:test:ts": "jest --config jest.unit.config.js --runInBand --testPathPattern='pre-rentree-2026'",
     "pre-rentree:test:py": "python -m pytest scripts/pre-rentree/tests -q",
     "pre-rentree:build": "python scripts/pre-rentree/generate_documents.py --snapshot generated/pre-rentree-2026/publication.snapshot.json --output .artifacts/pre-rentree-2026/build",
