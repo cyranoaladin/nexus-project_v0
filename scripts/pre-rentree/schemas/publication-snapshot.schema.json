@@ -1,163 +1,1376 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://nexusreussite.academy/schemas/pre-rentree-2026-publication.snapshot.schema.json",
-  "title": "Nexus Réussite Pré-rentrée 2026 publication snapshot",
-  "type": "object",
-  "additionalProperties": false,
-  "required": [
-    "schemaVersion",
-    "sourceRepoSha",
-    "generatedAt",
-    "provenance",
-    "campaign",
-    "levels",
-    "subjects",
-    "blocks",
-    "schedule",
-    "academicProfiles",
-    "packs",
-    "modules",
-    "content",
-    "labels",
-    "cta",
-    "contact",
-    "legal",
-    "approvedPublicClaims",
-    "assets",
-    "document"
-  ],
-  "properties": {
-    "schemaVersion": { "const": "1.0.0" },
-    "sourceRepoSha": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
-    "generatedAt": { "type": "string", "format": "date-time" },
-    "provenance": { "type": "object" },
-    "campaign": { "type": "object" },
-    "levels": { "type": "array", "minItems": 3, "maxItems": 3 },
-    "subjects": { "type": "array", "minItems": 4, "maxItems": 4 },
-    "blocks": { "type": "array", "minItems": 4, "maxItems": 4 },
-    "schedule": {
+  "$ref": "#/definitions/PublicationSnapshot",
+  "definitions": {
+    "PublicationSnapshot": {
       "type": "object",
-      "required": ["weeks", "sessions"],
       "properties": {
-        "weeks": { "type": "array", "minItems": 2, "maxItems": 2 },
-        "sessions": { "type": "array", "minItems": 60, "maxItems": 60 }
-      }
-    },
-    "academicProfiles": { "type": "object" },
-    "packs": {
-      "type": "array",
-      "minItems": 4,
-      "maxItems": 4,
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "subjectCount", "title", "hoursPerSubject", "totalHours",
-          "sessionsPerSubject", "sessionDurationHours", "groupMin", "groupMax",
-          "price", "deposit", "balance", "pricePerHour"
-        ],
-        "properties": {
-          "subjectCount": { "type": "integer", "minimum": 1, "maximum": 4 },
-          "title": { "type": "string", "minLength": 1 },
-          "hoursPerSubject": { "type": "number", "exclusiveMinimum": 0 },
-          "totalHours": { "type": "number", "exclusiveMinimum": 0 },
-          "sessionsPerSubject": { "type": "integer", "minimum": 1 },
-          "sessionDurationHours": { "type": "number", "exclusiveMinimum": 0 },
-          "groupMin": { "type": "integer", "minimum": 1 },
-          "groupMax": { "type": "integer", "minimum": 1 },
-          "price": { "type": "integer", "minimum": 0 },
-          "deposit": { "type": "integer", "minimum": 0 },
-          "balance": { "type": "integer", "minimum": 0 },
-          "pricePerHour": { "type": "number", "exclusiveMinimum": 0 }
-        }
-      }
-    },
-    "modules": {
-      "type": "array",
-      "minItems": 12,
-      "maxItems": 12,
-      "items": {
-        "type": "object",
-        "required": ["id", "level", "subjectId", "title", "subtitle", "prerequisites", "differentiation", "quickAssessment", "sessions"],
-        "properties": {
-          "sessions": { "type": "array", "minItems": 5, "maxItems": 5 }
-        }
-      }
-    },
-    "content": { "type": "object" },
-    "labels": { "type": "object" },
-    "cta": { "type": "object" },
-    "contact": { "type": "object" },
-    "legal": { "type": "object" },
-    "approvedPublicClaims": { "type": "array", "minItems": 1 },
-    "assets": { "type": "object" },
-    "document": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "version", "editDate", "publicClassification", "privateClassification",
-        "qrTarget", "outputs"
-      ],
-      "properties": {
-        "version": { "const": "v5-canonical" },
-        "editDate": { "type": "string", "format": "date" },
-        "publicClassification": { "const": "PUBLIC" },
-        "privateClassification": { "const": "PRIVÉ" },
-        "qrTarget": { "type": "string", "format": "uri" },
-        "outputs": {
+        "schemaVersion": {
+          "type": "string",
+          "const": "1.0.0"
+        },
+        "sourceRepoSha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "sourceCommitDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "snapshotBuiltAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "provenance": {
           "type": "object",
-          "additionalProperties": false,
-          "required": ["publicPdf", "publicHtml", "social", "privatePdf"],
           "properties": {
-            "publicPdf": {
+            "campaign": {
               "type": "object",
-              "additionalProperties": false,
-              "required": ["essential", "planning", "programSeconde", "programPremiere", "programTerminale", "pricing"],
               "properties": {
-                "essential": { "type": "string", "pattern": "\\.pdf$" },
-                "planning": { "type": "string", "pattern": "\\.pdf$" },
-                "programSeconde": { "type": "string", "pattern": "\\.pdf$" },
-                "programPremiere": { "type": "string", "pattern": "\\.pdf$" },
-                "programTerminale": { "type": "string", "pattern": "\\.pdf$" },
-                "pricing": { "type": "string", "pattern": "\\.pdf$" }
-              }
+                "path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "version": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              },
+              "required": [
+                "path",
+                "version",
+                "sha256"
+              ],
+              "additionalProperties": false
             },
-            "publicHtml": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": ["essential", "planning", "programSeconde", "programPremiere", "programTerminale", "pricing"],
-              "properties": {
-                "essential": { "type": "string", "pattern": "\\.html$" },
-                "planning": { "type": "string", "pattern": "\\.html$" },
-                "programSeconde": { "type": "string", "pattern": "\\.html$" },
-                "programPremiere": { "type": "string", "pattern": "\\.html$" },
-                "programTerminale": { "type": "string", "pattern": "\\.html$" },
-                "pricing": { "type": "string", "pattern": "\\.html$" }
-              }
+            "modules": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
             },
-            "social": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": ["feed", "story", "monochrome", "altText"],
-              "properties": {
-                "feed": { "type": "string", "pattern": "\\.png$" },
-                "story": { "type": "string", "pattern": "\\.png$" },
-                "monochrome": { "type": "string", "pattern": "\\.png$" },
-                "altText": { "type": "string", "pattern": "\\.json$" }
-              }
+            "pricing": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
             },
-            "privatePdf": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": ["print", "fillable"],
-              "properties": {
-                "print": { "type": "string", "pattern": "\\.pdf$" },
-                "fillable": { "type": "string", "pattern": "\\.pdf$" }
-              }
+            "legal": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+            },
+            "contact": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+            },
+            "parentGuide": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
             }
-          }
+          },
+          "required": [
+            "campaign",
+            "modules",
+            "pricing",
+            "legal",
+            "contact",
+            "parentGuide"
+          ],
+          "additionalProperties": false
+        },
+        "campaign": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "const": "pre-rentree-2026"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "schoolYear": {
+              "type": "string",
+              "minLength": 1
+            },
+            "timezone": {
+              "type": "string",
+              "const": "Africa/Tunis"
+            },
+            "publicationMode": {
+              "type": "string",
+              "const": "PRE_REGISTRATION_ONLY"
+            },
+            "startDate": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "endDate": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/campaign/properties/startDate"
+            },
+            "noClassDates": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PublicationSnapshot/properties/campaign/properties/startDate"
+              }
+            },
+            "decisionDeadline": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "venue": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "neighborhood": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "city": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "name",
+                "neighborhood",
+                "city"
+              ],
+              "additionalProperties": false
+            },
+            "capacity": {
+              "type": "object",
+              "properties": {
+                "min": {
+                  "type": "integer"
+                },
+                "max": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "min",
+                "max"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "id",
+            "version",
+            "schoolYear",
+            "timezone",
+            "publicationMode",
+            "startDate",
+            "endDate",
+            "noClassDates",
+            "decisionDeadline",
+            "venue",
+            "capacity"
+          ],
+          "additionalProperties": false
+        },
+        "levels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "enum": [
+                  "SECONDE",
+                  "PREMIERE",
+                  "TERMINALE"
+                ]
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "id",
+              "label"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "subjects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "enum": [
+                  "MATHEMATIQUES",
+                  "FRANCAIS",
+                  "NSI",
+                  "PHYSIQUE_CHIMIE"
+                ]
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "labelByLevel": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "publicLabelByLevel": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "abbreviation": {
+                "type": "string",
+                "minLength": 1
+              },
+              "color": {
+                "type": "string",
+                "pattern": "^#[A-Fa-f0-9]{6}$"
+              }
+            },
+            "required": [
+              "id",
+              "label",
+              "publicLabelByLevel",
+              "abbreviation",
+              "color"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "blocks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "enum": [
+                  "A",
+                  "B",
+                  "C",
+                  "D"
+                ]
+              },
+              "startTime": {
+                "type": "string",
+                "pattern": "^\\d{2}:\\d{2}$"
+              },
+              "endTime": {
+                "$ref": "#/definitions/PublicationSnapshot/properties/blocks/items/properties/startTime"
+              }
+            },
+            "required": [
+              "id",
+              "startTime",
+              "endTime"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "schedule": {
+          "type": "object",
+          "properties": {
+            "weeks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "week": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 2
+                  },
+                  "label": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "startDate": {
+                    "$ref": "#/definitions/PublicationSnapshot/properties/campaign/properties/startDate"
+                  },
+                  "endDate": {
+                    "$ref": "#/definitions/PublicationSnapshot/properties/campaign/properties/startDate"
+                  },
+                  "slots": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "level": {
+                          "$ref": "#/definitions/PublicationSnapshot/properties/levels/items/properties/id"
+                        },
+                        "subjectId": {
+                          "$ref": "#/definitions/PublicationSnapshot/properties/subjects/items/properties/id"
+                        },
+                        "subjectLabel": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "blockId": {
+                          "type": "string",
+                          "enum": [
+                            "A",
+                            "B",
+                            "C",
+                            "D"
+                          ]
+                        },
+                        "startTime": {
+                          "$ref": "#/definitions/PublicationSnapshot/properties/blocks/items/properties/startTime"
+                        },
+                        "endTime": {
+                          "$ref": "#/definitions/PublicationSnapshot/properties/blocks/items/properties/startTime"
+                        },
+                        "roomLabel": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "level",
+                        "subjectId",
+                        "subjectLabel",
+                        "blockId",
+                        "startTime",
+                        "endTime",
+                        "roomLabel"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minItems": 6,
+                    "maxItems": 6
+                  }
+                },
+                "required": [
+                  "week",
+                  "label",
+                  "startDate",
+                  "endDate",
+                  "slots"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "sessions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "date": {
+                    "$ref": "#/definitions/PublicationSnapshot/properties/campaign/properties/startDate"
+                  },
+                  "week": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 2
+                  },
+                  "level": {
+                    "$ref": "#/definitions/PublicationSnapshot/properties/levels/items/properties/id"
+                  },
+                  "subjectId": {
+                    "$ref": "#/definitions/PublicationSnapshot/properties/subjects/items/properties/id"
+                  },
+                  "subjectLabel": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "blockId": {
+                    "type": "string",
+                    "enum": [
+                      "A",
+                      "B",
+                      "C",
+                      "D"
+                    ]
+                  },
+                  "startTime": {
+                    "$ref": "#/definitions/PublicationSnapshot/properties/blocks/items/properties/startTime"
+                  },
+                  "endTime": {
+                    "$ref": "#/definitions/PublicationSnapshot/properties/blocks/items/properties/startTime"
+                  },
+                  "roomLabel": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sessionNumber": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5
+                  }
+                },
+                "required": [
+                  "date",
+                  "week",
+                  "level",
+                  "subjectId",
+                  "subjectLabel",
+                  "blockId",
+                  "startTime",
+                  "endTime",
+                  "roomLabel",
+                  "sessionNumber"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 60,
+              "maxItems": 60
+            }
+          },
+          "required": [
+            "weeks",
+            "sessions"
+          ],
+          "additionalProperties": false
+        },
+        "academicProfiles": {
+          "type": "object",
+          "additionalProperties": {}
+        },
+        "packs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "subjectCount": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "hoursPerSubject": {
+                "type": "number",
+                "exclusiveMinimum": true,
+                "minimum": 0
+              },
+              "totalHours": {
+                "type": "number",
+                "exclusiveMinimum": true,
+                "minimum": 0
+              },
+              "sessionsPerSubject": {
+                "type": "integer",
+                "exclusiveMinimum": true,
+                "minimum": 0
+              },
+              "sessionDurationHours": {
+                "type": "number",
+                "exclusiveMinimum": true,
+                "minimum": 0
+              },
+              "groupMin": {
+                "type": "integer",
+                "exclusiveMinimum": true,
+                "minimum": 0
+              },
+              "groupMax": {
+                "type": "integer",
+                "exclusiveMinimum": true,
+                "minimum": 0
+              },
+              "price": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "deposit": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "balance": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "pricePerHour": {
+                "type": "number",
+                "exclusiveMinimum": true,
+                "minimum": 0
+              }
+            },
+            "required": [
+              "subjectCount",
+              "title",
+              "hoursPerSubject",
+              "totalHours",
+              "sessionsPerSubject",
+              "sessionDurationHours",
+              "groupMin",
+              "groupMax",
+              "price",
+              "deposit",
+              "balance",
+              "pricePerHour"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "modules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "level": {
+                "$ref": "#/definitions/PublicationSnapshot/properties/levels/items/properties/id"
+              },
+              "subjectId": {
+                "$ref": "#/definitions/PublicationSnapshot/properties/subjects/items/properties/id"
+              },
+              "subject": {
+                "type": "string",
+                "minLength": 1
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "subtitle": {
+                "type": "string",
+                "minLength": 1
+              },
+              "prerequisites": {
+                "type": "string",
+                "minLength": 1
+              },
+              "differentiation": {
+                "type": "string",
+                "minLength": 1
+              },
+              "quickAssessment": {
+                "type": "string",
+                "minLength": 1
+              },
+              "sessions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "number": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 5
+                    },
+                    "title": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "objective": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "topics": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "minItems": 1
+                    },
+                    "method": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "deliverable": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "number",
+                    "title",
+                    "objective",
+                    "topics",
+                    "method",
+                    "deliverable"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 5,
+                "maxItems": 5
+              }
+            },
+            "required": [
+              "id",
+              "level",
+              "subjectId",
+              "subject",
+              "title",
+              "subtitle",
+              "prerequisites",
+              "differentiation",
+              "quickAssessment",
+              "sessions"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 12,
+          "maxItems": 12
+        },
+        "content": {
+          "type": "object",
+          "properties": {
+            "hero": {
+              "type": "object",
+              "properties": {
+                "eyebrow": {
+                  "type": "string"
+                },
+                "h1": {
+                  "type": "string"
+                },
+                "subtitle": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "eyebrow",
+                "h1",
+                "subtitle"
+              ],
+              "additionalProperties": false
+            },
+            "method": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "title",
+                  "description"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "practical": {
+              "type": "object",
+              "additionalProperties": {}
+            },
+            "faq": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "question": {
+                    "type": "string"
+                  },
+                  "answer": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "question",
+                  "answer"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "adaptationNotice": {
+              "type": "string",
+              "minLength": 1
+            },
+            "recordingConsentNotice": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "hero",
+            "method",
+            "practical",
+            "faq",
+            "adaptationNotice",
+            "recordingConsentNotice"
+          ],
+          "additionalProperties": false
+        },
+        "labels": {
+          "type": "object",
+          "properties": {
+            "deposit": {
+              "type": "string",
+              "const": "Acompte"
+            },
+            "balance": {
+              "type": "string",
+              "const": "Solde"
+            },
+            "price": {
+              "type": "string",
+              "const": "Prix"
+            }
+          },
+          "required": [
+            "deposit",
+            "balance",
+            "price"
+          ],
+          "additionalProperties": false
+        },
+        "cta": {
+          "type": "object",
+          "properties": {
+            "primary": {
+              "type": "string",
+              "const": "Se pré-inscrire ou demander un conseil"
+            },
+            "whatsapp": {
+              "type": "string",
+              "minLength": 1
+            },
+            "bilanLabel": {
+              "type": "string",
+              "minLength": 1
+            },
+            "bilanPath": {
+              "type": "string",
+              "pattern": "^\\/"
+            }
+          },
+          "required": [
+            "primary",
+            "whatsapp",
+            "bilanLabel",
+            "bilanPath"
+          ],
+          "additionalProperties": false
+        },
+        "contact": {
+          "type": "object",
+          "properties": {
+            "phone": {
+              "type": "string",
+              "minLength": 1
+            },
+            "phoneRaw": {
+              "type": "string",
+              "minLength": 1
+            },
+            "email": {
+              "type": "string",
+              "format": "email"
+            },
+            "addressLabel": {
+              "type": "string",
+              "minLength": 1
+            },
+            "address": {
+              "type": "string",
+              "minLength": 1
+            },
+            "whatsappUrl": {
+              "type": "string",
+              "format": "uri"
+            },
+            "canonicalUrl": {
+              "type": "string",
+              "format": "uri"
+            },
+            "domain": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "phone",
+            "phoneRaw",
+            "email",
+            "addressLabel",
+            "address",
+            "whatsappUrl",
+            "canonicalUrl",
+            "domain"
+          ],
+          "additionalProperties": false
+        },
+        "legal": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "APPROVED",
+                "MISSING_APPROVED_COMMERCIAL_TERMS",
+                "UNAPPROVED_COMMERCIAL_TERMS"
+              ]
+            },
+            "commercialTermsPath": {
+              "type": "string",
+              "minLength": 1
+            },
+            "contractualDossierPublicationBlocked": {
+              "type": "boolean"
+            },
+            "termsVersion": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "effectiveDate": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/PublicationSnapshot/properties/campaign/properties/startDate"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "ownerApprovalReference": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "legalApprovalReference": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "privacyNoticeComplete": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "status",
+            "commercialTermsPath",
+            "contractualDossierPublicationBlocked",
+            "termsVersion",
+            "effectiveDate",
+            "ownerApprovalReference",
+            "legalApprovalReference",
+            "privacyNoticeComplete"
+          ],
+          "additionalProperties": false
+        },
+        "approvedPublicClaims": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]*$"
+              },
+              "type": {
+                "type": "string",
+                "minLength": 1
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "pointer": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "path",
+                  "pointer"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "text",
+              "source"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        },
+        "parentGuide": {
+          "type": "object",
+          "properties": {
+            "schemaVersion": {
+              "type": "string",
+              "const": "1.0.0"
+            },
+            "contentVersion": {
+              "type": "string",
+              "minLength": 1
+            },
+            "locale": {
+              "type": "string",
+              "const": "fr-TN"
+            },
+            "status": {
+              "type": "string",
+              "const": "DRAFT_FOR_OWNER_REVIEW"
+            },
+            "documentPackageVersion": {
+              "type": "string",
+              "pattern": "^\\d+\\.\\d+\\.\\d+-rc\\.\\d+$"
+            },
+            "documentEditionDate": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/campaign/properties/startDate"
+            },
+            "snapshotBuiltAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "capabilities": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                  },
+                  "label": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "designed": {
+                    "type": "boolean"
+                  },
+                  "implemented": {
+                    "type": "boolean"
+                  },
+                  "tested": {
+                    "type": "boolean"
+                  },
+                  "operationallyReady": {
+                    "type": "boolean"
+                  },
+                  "ownerApproved": {
+                    "type": "boolean"
+                  },
+                  "publiclyCommitted": {
+                    "type": "boolean"
+                  },
+                  "publicLabel": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "evidence": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "id",
+                  "label",
+                  "designed",
+                  "implemented",
+                  "tested",
+                  "operationallyReady",
+                  "ownerApproved",
+                  "publiclyCommitted",
+                  "publicLabel",
+                  "evidence"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1
+            },
+            "sections": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "blocks": {
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                            },
+                            "kind": {
+                              "type": "string",
+                              "const": "EVIDENCED_TEXT"
+                            },
+                            "text": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "evidenceRefs": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "pattern": "^\\/"
+                              },
+                              "minItems": 1
+                            },
+                            "capabilityId": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "kind",
+                            "text",
+                            "evidenceRefs"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                            },
+                            "kind": {
+                              "type": "string",
+                              "const": "EVIDENCED_PROCEDURE"
+                            },
+                            "steps": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "text": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "evidenceRefs": {
+                                    "type": "array",
+                                    "items": {
+                                      "$ref": "#/definitions/PublicationSnapshot/properties/parentGuide/properties/sections/items/properties/blocks/items/anyOf/0/properties/evidenceRefs/items"
+                                    },
+                                    "minItems": 1
+                                  }
+                                },
+                                "required": [
+                                  "text",
+                                  "evidenceRefs"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "minItems": 1
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "kind",
+                            "steps"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                            },
+                            "kind": {
+                              "type": "string",
+                              "const": "DYNAMIC_REFERENCE"
+                            },
+                            "sourceRef": {
+                              "$ref": "#/definitions/PublicationSnapshot/properties/parentGuide/properties/sections/items/properties/blocks/items/anyOf/0/properties/evidenceRefs/items"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "kind",
+                            "sourceRef"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "id",
+                  "title",
+                  "blocks"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "schemaVersion",
+            "contentVersion",
+            "locale",
+            "status",
+            "documentPackageVersion",
+            "documentEditionDate",
+            "snapshotBuiltAt",
+            "capabilities",
+            "sections"
+          ],
+          "additionalProperties": false
+        },
+        "assets": {
+          "type": "object",
+          "properties": {
+            "logos": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign/properties/sha256"
+                  }
+                },
+                "required": [
+                  "id",
+                  "path",
+                  "sha256"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1
+            },
+            "fonts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign/properties/sha256"
+                  }
+                },
+                "required": [
+                  "id",
+                  "path",
+                  "sha256"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "logos",
+            "fonts"
+          ],
+          "additionalProperties": false
+        },
+        "document": {
+          "type": "object",
+          "properties": {
+            "documentPackageVersion": {
+              "type": "string",
+              "pattern": "^\\d+\\.\\d+\\.\\d+-rc\\.\\d+$"
+            },
+            "documentEditionDate": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/campaign/properties/startDate"
+            },
+            "publicClassification": {
+              "type": "string",
+              "const": "PUBLIC"
+            },
+            "qrTarget": {
+              "type": "string",
+              "format": "uri"
+            },
+            "outputs": {
+              "type": "object",
+              "properties": {
+                "publicPdf": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string",
+                    "pattern": "\\.pdf$"
+                  }
+                },
+                "publicHtml": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string",
+                    "pattern": "\\.html$"
+                  }
+                },
+                "social": {
+                  "type": "object",
+                  "properties": {
+                    "feed": {
+                      "type": "string",
+                      "pattern": "\\.png$"
+                    },
+                    "story": {
+                      "type": "string",
+                      "pattern": "\\.png$"
+                    },
+                    "monochrome": {
+                      "type": "string",
+                      "pattern": "\\.png$"
+                    },
+                    "altText": {
+                      "type": "string",
+                      "pattern": "\\.json$"
+                    }
+                  },
+                  "required": [
+                    "feed",
+                    "story",
+                    "monochrome",
+                    "altText"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "publicPdf",
+                "publicHtml",
+                "social"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "documentPackageVersion",
+            "documentEditionDate",
+            "publicClassification",
+            "qrTarget",
+            "outputs"
+          ],
+          "additionalProperties": false
+        },
+        "reviews": {
+          "type": "object",
+          "properties": {
+            "ownerReviewedAt": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "legalReviewedAt": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "privacyReviewedAt": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "ownerReviewedAt",
+            "legalReviewedAt",
+            "privacyReviewedAt"
+          ],
+          "additionalProperties": false
         }
-      }
+      },
+      "required": [
+        "schemaVersion",
+        "sourceRepoSha",
+        "sourceCommitDate",
+        "snapshotBuiltAt",
+        "provenance",
+        "campaign",
+        "levels",
+        "subjects",
+        "blocks",
+        "schedule",
+        "academicProfiles",
+        "packs",
+        "modules",
+        "content",
+        "labels",
+        "cta",
+        "contact",
+        "legal",
+        "approvedPublicClaims",
+        "parentGuide",
+        "assets",
+        "document",
+        "reviews"
+      ],
+      "additionalProperties": false
     }
-  }
+  },
+  "$schema": "https://json-schema.org/draft/2019-09/schema#",
+  "$id": "https://nexusreussite.academy/schemas/pre-rentree-2026-publication.snapshot.schema.json",
+  "title": "Nexus Réussite Pré-rentrée 2026 publication snapshot"
 }

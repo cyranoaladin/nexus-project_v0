@@ -17,15 +17,107 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     expect(() => PublicationSnapshotSchema.parse({})).toThrow();
   });
 
+  it('exports a closed JSON Schema from the runtime snapshot contract', () => {
+    const schema = JSON.parse(
+      readFileSync(join(root, 'scripts/pre-rentree/schemas/publication-snapshot.schema.json'), 'utf8'),
+    );
+    const openObjectPaths: string[] = [];
+    const visit = (value: unknown, path: string) => {
+      if (!value || typeof value !== 'object') return;
+      const record = value as Record<string, unknown>;
+      if (record.type === 'object' && record.properties && record.additionalProperties !== false) {
+        openObjectPaths.push(path);
+      }
+      Object.entries(record).forEach(([key, child]) => visit(child, `${path}/${key}`));
+    };
+    visit(schema, '');
+
+    expect(openObjectPaths).toEqual([]);
+    expect(JSON.stringify(schema)).toContain('documentPackageVersion');
+    expect(JSON.stringify(schema)).not.toContain('generatedAt');
+  });
+
   it('compiles canonical source versions, hashes, and repository provenance', () => {
     const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha });
 
     expect(snapshot.sourceRepoSha).toBe('a1192c8dccf8eaa6ae223265a3bc9ceb56a6fff0');
-    expect(snapshot.provenance.campaign.version).toBe('1.0.0');
+    expect(snapshot.provenance.campaign.version).toBe('1.0.1');
     expect(snapshot.provenance.modules.version).toBe('2026-pre-rentree-v1');
     expect(snapshot.provenance.pricing.version).toBe('2026-2027.2');
+    expect(snapshot.provenance.parentGuide.version).toBe('2026-parent-guide-fr-v1');
     expect(Object.values(snapshot.provenance).every((source) => /^[a-f0-9]{64}$/.test(source.sha256))).toBe(true);
     expect(() => PublicationSnapshotSchema.parse(snapshot)).not.toThrow();
+  });
+
+  it('loads a closed, versioned French parent-guide contract with valid evidence references', () => {
+    const schema = JSON.parse(
+      readFileSync(join(root, 'content/pre-rentree-2026/parent-guide.schema.json'), 'utf8'),
+    );
+    const source = JSON.parse(
+      readFileSync(join(root, 'content/pre-rentree-2026/parent-guide.fr.json'), 'utf8'),
+    );
+    const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha });
+
+    expect(schema.additionalProperties).toBe(false);
+    expect(schema.properties.sections.items.additionalProperties).toBe(false);
+    expect(source).toMatchObject({
+      schemaVersion: '1.0.0',
+      contentVersion: '2026-parent-guide-fr-v1',
+      locale: 'fr-TN',
+      status: 'DRAFT_FOR_OWNER_REVIEW',
+      documentPackageVersion: '5.1.0-rc.1',
+    });
+    expect(snapshot.parentGuide.sections.map((section) => section.id)).toEqual([
+      'essentiel',
+      'pourquoi',
+      'fonctionnement',
+      'parcours',
+      'planning',
+      'tarifs',
+      'pre-inscription',
+      'pratique',
+      'faq',
+      'contact',
+    ]);
+    expect(snapshot.parentGuide.sections.flatMap((section) => section.blocks)
+      .filter((block) => block.kind === 'EVIDENCED_TEXT')
+      .every((block) => block.evidenceRefs.length > 0)).toBe(true);
+  });
+
+  it('separates source, snapshot, edition, build, and review dates', () => {
+    const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha });
+
+    expect(snapshot.sourceCommitDate).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+    expect(snapshot.snapshotBuiltAt).toBe('2026-07-20T08:00:00+01:00');
+    expect(snapshot.document.documentEditionDate).toBe('2026-07-20');
+    expect(snapshot.document.documentPackageVersion).toBe('5.1.0-rc.1');
+    expect(snapshot.reviews).toEqual({
+      ownerReviewedAt: null,
+      legalReviewedAt: null,
+      privacyReviewedAt: null,
+    });
+    expect(snapshot).not.toHaveProperty('generatedAt');
+  });
+
+  it('exposes only publicly committed Parcours 360 labels to the renderer', () => {
+    const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha });
+    const committed = snapshot.parentGuide.capabilities.filter((item) => item.publiclyCommitted);
+    const unavailable = snapshot.parentGuide.capabilities.filter((item) => !item.publiclyCommitted);
+
+    expect(committed.map((item) => item.id)).toEqual(expect.arrayContaining([
+      'positionnement-initial',
+      'objectifs-de-travail',
+      'evaluations-rapides',
+      'supports-et-livrables',
+      'synthese-et-recommandations',
+    ]));
+    expect(unavailable.map((item) => item.id)).toEqual(expect.arrayContaining([
+      'bilan-parents-personnalise',
+      'bilan-eleve-personnalise',
+      'plan-action-annuel-personnalise',
+      'douze-tests-disciplinaires-finalises',
+    ]));
+    expect(unavailable.every((item) => item.publicLabel === null)).toBe(true);
   });
 
   it('copies all twelve canonical modules and sixty sessions without editorial drift', () => {
@@ -92,6 +184,7 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     expect(snapshot.contact).toEqual(expect.objectContaining({
       phone: '+216 99 19 28 29',
       email: 'contact@nexusreussite.academy',
+      address: 'Mutuelleville, Tunis',
       canonicalUrl: 'https://nexusreussite.academy/stages/pre-rentree-2026',
     }));
   });
@@ -114,6 +207,7 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha });
 
     expect(Object.values(snapshot.document.outputs.publicPdf)).toEqual([
+      'NexusReussite_PreRentree2026_GuideParents_COMPLET_PUBLIC.pdf',
       'NexusReussite_PreRentree2026_Essentiel_PUBLIC.pdf',
       'NexusReussite_PreRentree2026_Planning_PUBLIC.pdf',
       'NexusReussite_PreRentree2026_Programme_Seconde_PUBLIC.pdf',
@@ -121,7 +215,9 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
       'NexusReussite_PreRentree2026_Programme_Terminale_PUBLIC.pdf',
       'NexusReussite_PreRentree2026_Tarifs_PUBLIC.pdf',
     ]);
-    expect(Object.values(snapshot.document.outputs.publicHtml).every((name) => name.endsWith('.html'))).toBe(true);
+    expect(Object.values(snapshot.document.outputs.publicHtml)).toContain(
+      'NexusReussite_PreRentree2026_GuideParents_COMPLET_PUBLIC.html',
+    );
     expect(snapshot.document.outputs.social).toEqual({
       feed: 'NexusReussite_PreRentree2026_Feed_1080x1350_PUBLIC.png',
       story: 'NexusReussite_PreRentree2026_Story_1080x1920_PUBLIC.png',

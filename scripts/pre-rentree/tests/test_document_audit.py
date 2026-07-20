@@ -22,7 +22,7 @@ from document_renderer import render_public_pdfs, write_public_html  # noqa: E40
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-SNAPSHOT_PATH = REPO_ROOT / "generated/pre-rentree-2026-publication.snapshot.json"
+SNAPSHOT_PATH = REPO_ROOT / "generated/pre-rentree-2026/publication.snapshot.json"
 SCHEMA_PATH = REPO_ROOT / "scripts/pre-rentree/schemas/publication-snapshot.schema.json"
 SNAPSHOT = load_snapshot(SNAPSHOT_PATH, SCHEMA_PATH)
 

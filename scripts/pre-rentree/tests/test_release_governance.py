@@ -540,7 +540,7 @@ def test_owner_checklist_covers_every_public_output_and_hash_bound_decision():
         REPO_ROOT / "docs/operations/pre-rentree-2026/owner-review-checklist.md"
     ).read_text(encoding="utf-8")
     snapshot = json.loads(
-        (REPO_ROOT / "generated/pre-rentree-2026-publication.snapshot.json").read_text(
+        (REPO_ROOT / "generated/pre-rentree-2026/publication.snapshot.json").read_text(
             encoding="utf-8"
         )
     )
