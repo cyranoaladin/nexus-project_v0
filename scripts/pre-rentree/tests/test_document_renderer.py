@@ -1,8 +1,10 @@
 import hashlib
+import os
 import re
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 from pypdf import PdfReader
@@ -12,7 +14,7 @@ sys.path.insert(0, str(SCRIPT_DIR))
 
 from document_assets import generate_qr, prepare_assets  # noqa: E402
 from document_model import load_snapshot  # noqa: E402
-from document_renderer import render_public_pdfs, write_public_html  # noqa: E402
+from document_renderer import _source_date_epoch, render_public_pdfs, write_public_html  # noqa: E402
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -84,3 +86,19 @@ def test_repeated_render_is_byte_deterministic(tmp_path: Path):
     assert {key: sha256(path) for key, path in first.items()} == {
         key: sha256(path) for key, path in second.items()
     }
+
+
+def test_source_date_epoch_uses_utc_independently_of_host_timezone():
+    previous_timezone = os.environ.get("TZ")
+    try:
+        for timezone_name in ("UTC", "Africa/Tunis"):
+            os.environ["TZ"] = timezone_name
+            time.tzset()
+            with _source_date_epoch("2026-07-20"):
+                assert os.environ["SOURCE_DATE_EPOCH"] == "1784505600"
+    finally:
+        if previous_timezone is None:
+            os.environ.pop("TZ", None)
+        else:
+            os.environ["TZ"] = previous_timezone
+        time.tzset()

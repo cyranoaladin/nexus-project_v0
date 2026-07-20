@@ -8,7 +8,7 @@ import os
 import re
 import subprocess
 from contextlib import contextmanager
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -48,7 +48,10 @@ def write_public_html(snapshot: dict[str, Any], output_dir: Path) -> dict[str, P
 @contextmanager
 def _source_date_epoch(iso_timestamp: str):
     previous = os.environ.get("SOURCE_DATE_EPOCH")
-    epoch = str(int(datetime.fromisoformat(iso_timestamp).timestamp()))
+    instant = datetime.fromisoformat(iso_timestamp)
+    if instant.tzinfo is None:
+        instant = instant.replace(tzinfo=timezone.utc)
+    epoch = str(int(instant.timestamp()))
     os.environ["SOURCE_DATE_EPOCH"] = epoch
     try:
         yield
