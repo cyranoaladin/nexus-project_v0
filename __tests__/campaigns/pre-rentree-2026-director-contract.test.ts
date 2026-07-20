@@ -110,4 +110,21 @@ describe('Pré-rentrée 2026 director contract', () => {
       pack.payment.deposit + pack.payment.solde === pack.price_per_student
     ))).toBe(true);
   });
+
+  it('keeps campaign governance documentation aligned with fourteen modules', () => {
+    const documentation = [
+      'docs/campaigns/pre-rentree-2026/README.md',
+      'docs/campaigns/pre-rentree-2026/SOURCE-OF-TRUTH-MAP.md',
+      'docs/campaigns/pre-rentree-2026/PARENT-GUIDE-SOURCE-MAP.md',
+      'docs/campaigns/pre-rentree-2026/PARCOURS360-CAPABILITY-MATRIX.md',
+      'docs/campaigns/pre-rentree-2026/VALUE-PROOF-MATRIX.md',
+      'docs/campaigns/pre-rentree-2026/STAFFING-MATRIX.md',
+    ].map((path) => readFileSync(join(root, path), 'utf8')).join('\n');
+
+    expect(documentation).toMatch(/14 modules|quatorze modules/i);
+    expect(documentation).toMatch(/70 séances|soixante-dix séances/i);
+    expect(documentation).not.toMatch(/12 modules|douze modules|60 séances|soixante séances/i);
+    expect(documentation).toContain('OWNER_REVIEW=PENDING');
+    expect(documentation).toContain('TEACHER_ASSIGNMENTS_VALIDATED=false');
+  });
 });

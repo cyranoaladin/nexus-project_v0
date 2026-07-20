@@ -1,4 +1,4 @@
-# Pré-rentrée 2026 — chaîne documentaire
+# Pré-rentrée 2026 — release candidate de revue
 
 ## Statut
 
@@ -8,45 +8,55 @@ OWNER_REVIEW=PENDING
 LEGAL_REVIEW=PENDING
 PRIVACY_REVIEW=PENDING
 PRIVATE_CONTRACTUAL_PACKAGE=BLOCKED
+ROOM_ASSIGNMENTS_VALIDATED=false
+TEACHER_ASSIGNMENTS_VALIDATED=false
 MERGE=NOT_PERFORMED
 DEPLOYMENT=NOT_PERFORMED
 PUBLIC_DISTRIBUTION=NOT_AUTHORIZED
 ```
 
-Le Guide Parents complet est le document principal. Les brochures Essentiel, Planning, Programmes par niveau et Tarifs sont des annexes produites par le même renderer.
+La campagne en mode `REVIEW` comprend quatre niveaux, quatorze modules et soixante-dix séances. Le Guide Parents est le document principal ; les documents courts et les programmes de niveau sont des annexes issues du même snapshot.
 
-## Sources et architecture
+## Sources
 
-- campagne : `data/campaigns/pre-rentree-2026.json` ;
-- programmes : `content/pre-rentree-2026/modules.json` ;
-- tarifs : `data/pricing.canonical.json` ;
-- identité et contact : `lib/legal.ts` ;
-- contenu éditorial : `content/pre-rentree-2026/parent-guide.fr.json` ;
-- compilateur et renderer uniques : `scripts/pre-rentree/` ;
-- snapshot suivi : `generated/pre-rentree-2026/publication.snapshot.json` ;
-- sorties locales ignorées : `.artifacts/pre-rentree-2026/`.
+- campagne, planning, CTA et modalités : `data/campaigns/pre-rentree-2026.json` ;
+- quatorze programmes : `content/pre-rentree-2026/modules.json` ;
+- prix et acomptes : `data/pricing.canonical.json` ;
+- offres Fondations/Premium : `content/pre-rentree-2026/offers.json` ;
+- capacités et garde-fous : `content/pre-rentree-2026/capabilities.json` ;
+- manuels : `content/pre-rentree-2026/manuals.registry.json` ;
+- contenus éditoriaux et communication : `content/pre-rentree-2026/*.fr.json` ;
+- identité et contacts publics : `lib/legal.ts` ;
+- compilateur, renderer et audits : `scripts/pre-rentree/`.
+
+Le seul dérivé suivi est `generated/pre-rentree-2026/publication.snapshot.json`. Tous les PDF, HTML, images, kits, tests pédagogiques matérialisés, formulaires de revue, CSV, XLSX et ZIP sont générés sous `.artifacts/pre-rentree-2026/` ou comme artefacts GitHub Actions.
 
 ## Commandes
 
 ```bash
+npm run pre-rentree:clean
 npm run pre-rentree:snapshot
+npm run pre-rentree:test:ts
+npm run pre-rentree:test:py
 npm run pre-rentree:build
 npm run pre-rentree:audit
 npm run pre-rentree:package
 npm run pre-rentree:verify
+npm run pre-rentree:ci
 ```
 
-Le workflow GitHub Actions téléverse les paquets famille et revue sans publier de release et sans déployer.
+## Frontière de publication
 
-## Règles de frontière
+Le dépôt est public. Les gabarits d’inscription et le CRM sont anonymes, marqués pour revue et uniquement présents dans l’artefact propriétaire. Aucun dossier contractuel nominatif n’est produit. Le planning familial porte un avertissement tant que salles et enseignants ne sont pas affectés et validés. Les manuels ne sont pas annoncés tant que les quatre gates d’impression, d’approbation et de stock ne sont pas satisfaits.
 
-Le dépôt étant public, il ne contient aucune sortie prétendument privée. Les lacunes de conformité sont décrites dans [`COMPLIANCE-GAPS.md`](COMPLIANCE-GAPS.md). Aucun dossier de confirmation contractuel n’est produit avant validation juridique et confidentialité.
-
-## Références
+## Navigation
 
 - [Carte des sources](SOURCE-OF-TRUTH-MAP.md)
 - [Carte du Guide Parents](PARENT-GUIDE-SOURCE-MAP.md)
 - [Matrice Parcours 360](PARCOURS360-CAPABILITY-MATRIX.md)
+- [Matrice de preuves](VALUE-PROOF-MATRIX.md)
+- [Matrice d’affectation](STAFFING-MATRIX.md)
+- [Lacunes de conformité](COMPLIANCE-GAPS.md)
 - [Processus de release](RELEASE-PROCESS.md)
 - [Checklist propriétaire](OWNER-REVIEW-CHECKLIST.md)
 - [Décisions restantes](DECISIONS-REQUIRED.md)

@@ -5,7 +5,7 @@
   "scripts": {
     "pre-rentree:clean": "python scripts/pre-rentree/clean_artifacts.py .artifacts/pre-rentree-2026",
     "pre-rentree:snapshot": "tsx scripts/pre-rentree/generate-publication-json-schema.ts --output scripts/pre-rentree/schemas/publication-snapshot.schema.json && tsx scripts/pre-rentree/build-publication-snapshot.ts --repo-root . --source-repo-sha a1192c8dccf8eaa6ae223265a3bc9ceb56a6fff0 --output generated/pre-rentree-2026/publication.snapshot.json",
-    "pre-rentree:test:ts": "jest --config jest.unit.config.js --runInBand __tests__/campaigns/pre-rentree-2026-publication-snapshot.test.ts __tests__/campaigns/pre-rentree-2026-manifest.test.ts __tests__/campaigns/pre-rentree-2026-modules.test.ts __tests__/pricing/pre-rentree-2026-canonical.test.ts",
+    "pre-rentree:test:ts": "jest --config jest.unit.config.js --runInBand --testPathPattern='pre-rentree-2026'",
     "pre-rentree:test:py": "python -m pytest scripts/pre-rentree/tests -q",
     "pre-rentree:build": "python scripts/pre-rentree/generate_documents.py --snapshot generated/pre-rentree-2026/publication.snapshot.json --output .artifacts/pre-rentree-2026/build",
     "pre-rentree:audit": "python scripts/pre-rentree/verify_reproducibility.py --snapshot generated/pre-rentree-2026/publication.snapshot.json --reference .artifacts/pre-rentree-2026/build --output-report .artifacts/pre-rentree-2026/build/REVIEW/AUDIT/reproducibility-report.json && python scripts/pre-rentree/verify_release.py --artifact-root .artifacts/pre-rentree-2026/build --repo-root . --write-governance",
