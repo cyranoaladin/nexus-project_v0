@@ -123,6 +123,11 @@ def test_build_manifest_records_every_public_pdf(package: Path, tmp_path: Path):
     assert manifest_path.is_file()
     assert len(manifest["REPO_SHA"]) == 40
     assert manifest["SOURCE_REPO_SHA"] == SNAPSHOT["sourceRepoSha"]
+    assert manifest["CREATED_AT"] == manifest["DOCUMENTS_BUILT_AT"]
+    assert manifest["ASSISTANT_VISUAL_REVIEW_AT"] is None
+    assert manifest["OWNER_REVIEWED_AT"] is None
+    assert manifest["LEGAL_REVIEWED_AT"] is None
+    assert manifest["PRIVACY_REVIEWED_AT"] is None
     assert len(manifest["PDF_FILES"]) == 7
     assert all(len(record["PDF_SHA256"]) == 64 for record in manifest["PDF_FILES"])
     assert all(record["PUBLIC_OR_PRIVATE"] == "PUBLIC" for record in manifest["PDF_FILES"])

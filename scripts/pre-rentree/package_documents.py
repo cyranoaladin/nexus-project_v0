@@ -21,6 +21,10 @@ DOCUMENTATION_FILES = (
     "SOURCE-OF-TRUTH-MAP.md",
     "COMPLIANCE-GAPS.md",
 )
+MAX_PUBLIC_PDF_BYTES = 10 * 1024 * 1024
+MAX_REVIEW_IMAGE_BYTES = 10 * 1024 * 1024
+MAX_PARENT_PACKAGE_BYTES = 75 * 1024 * 1024
+MAX_REVIEW_PACKAGE_BYTES = 250 * 1024 * 1024
 
 
 def _sha256(path: Path) -> str:
@@ -81,6 +85,14 @@ def package_documents(artifact_root: Path, output: Path, repo_root: Path) -> dic
         raise ValueError("Public PDF inventory differs from the snapshot")
     if {path.name for path in (public / "HTML").glob("*.html")} != expected_html:
         raise ValueError("Public HTML inventory differs from the snapshot")
+    oversized_pdfs = [path.name for path in public.glob("*.pdf") if path.stat().st_size > MAX_PUBLIC_PDF_BYTES]
+    oversized_review_images = [
+        path.relative_to(artifact_root).as_posix()
+        for path in review.rglob("*.png")
+        if path.stat().st_size > MAX_REVIEW_IMAGE_BYTES
+    ]
+    if oversized_pdfs or oversized_review_images:
+        raise ValueError(f"Artifact size budget exceeded: {oversized_pdfs + oversized_review_images}")
 
     readme = (
         "Nexus Réussite — Stages de pré-rentrée 2026\n"
@@ -90,6 +102,10 @@ def package_documents(artifact_root: Path, output: Path, repo_root: Path) -> dic
     parent_entries = [(path.name, path.read_bytes()) for path in sorted(public.glob("*.pdf"))]
     parent_entries += _relative_entries(public / "HTML", "HTML/")
     parent_entries += _relative_entries(public / "ASSETS", "ASSETS/")
+    parent_entries += [
+        ("THIRD_PARTY_NOTICES.md", (repo_root / "THIRD_PARTY_NOTICES.md").read_bytes()),
+        ("LICENSES/OFL-1.1.txt", (repo_root / "licenses/fonts/OFL-1.1.txt").read_bytes()),
+    ]
     parent_entries.append(("LISEZ-MOI.txt", readme))
     _write_zip(parent_path, parent_entries, edition)
 
@@ -105,10 +121,24 @@ def package_documents(artifact_root: Path, output: Path, repo_root: Path) -> dic
     review_entries += _relative_entries(public / "SOCIAL", "PUBLIC/SOCIAL/")
     review_entries += documentation
     _write_zip(review_path, review_entries, edition)
+    if parent_path.stat().st_size > MAX_PARENT_PACKAGE_BYTES:
+        raise ValueError("Parent package exceeds its size budget")
+    if review_path.stat().st_size > MAX_REVIEW_PACKAGE_BYTES:
+        raise ValueError("Owner-review package exceeds its size budget")
 
     return {
-        "parent": {"file": parent_path.name, "sha256": _sha256(parent_path), "fileSize": parent_path.stat().st_size},
-        "review": {"file": review_path.name, "sha256": _sha256(review_path), "fileSize": review_path.stat().st_size},
+        "parent": {
+            "file": parent_path.name,
+            "sha256": _sha256(parent_path),
+            "fileSize": parent_path.stat().st_size,
+            "fileCount": len(parent_entries),
+        },
+        "review": {
+            "file": review_path.name,
+            "sha256": _sha256(review_path),
+            "fileSize": review_path.stat().st_size,
+            "fileCount": len(review_entries),
+        },
     }
 
 
