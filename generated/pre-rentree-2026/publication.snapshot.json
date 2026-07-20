@@ -1,12 +1,13 @@
 {
   "schemaVersion": "1.0.0",
   "sourceRepoSha": "a1192c8dccf8eaa6ae223265a3bc9ceb56a6fff0",
-  "generatedAt": "2026-07-14T12:00:48+01:00",
+  "sourceCommitDate": "2026-07-14T12:00:48+01:00",
+  "snapshotBuiltAt": "2026-07-20T08:00:00+01:00",
   "provenance": {
     "campaign": {
       "path": "data/campaigns/pre-rentree-2026.json",
-      "version": "1.0.0",
-      "sha256": "ddaee64cfd3231491597c40b514b6d52ee41529d1056d635087796176535ea5d"
+      "version": "1.0.1",
+      "sha256": "989ab398f855b5fc2896ae4af49df890e005e763e30e15fa0deb1001b21b2191"
     },
     "modules": {
       "path": "content/pre-rentree-2026/modules.json",
@@ -27,11 +28,16 @@
       "path": "lib/legal.ts",
       "version": "LEGAL.contact",
       "sha256": "9088ae498e82282709226a39f1195bec161487290aa46c4a572d8b7d0d4735fd"
+    },
+    "parentGuide": {
+      "path": "content/pre-rentree-2026/parent-guide.fr.json",
+      "version": "2026-parent-guide-fr-v1",
+      "sha256": "bf0d0cba300b71989cb33e9ec81608db9b4018929d5b411bdced87a44d266856"
     }
   },
   "campaign": {
     "id": "pre-rentree-2026",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "schoolYear": "2026-2027",
     "timezone": "Africa/Tunis",
     "publicationMode": "PRE_REGISTRATION_ONLY",
@@ -2117,13 +2123,13 @@
         },
         "PHYSIQUE_CHIMIE": {
           "label": "Physique-Chimie",
-          "description": "Un cahier, une trousse complète et une calculatrice. L’accompagnement est théorique et méthodologique : analyse de données expérimentales, étude de protocoles, simulation et raisonnement scientifique. Aucune séance de laboratoire n’est annoncée."
+          "description": "Un cahier, une trousse complète et une calculatrice. L’accompagnement est théorique et méthodologique : analyse de données expérimentales, étude de protocoles, simulation et raisonnement scientifique. Aucune activité pratique en laboratoire n’est annoncée."
         }
       },
       "preRegistrationNotice": "Pré-inscription sans paiement. Cette demande ne réserve pas une place et ne forme pas un contrat. La confirmation intervient après validation administrative et pédagogique et communication des conditions applicables.",
       "noOnlinePaymentNotice": "Aucun paiement en ligne n’est demandé sur cette page. Les conditions contractuelles applicables sont communiquées avant confirmation.",
       "groupCompositionNotice": "Le créneau est indiqué dès maintenant. La composition pédagogique du groupe est confirmée après étude des profils et des effectifs.",
-      "groupNotOpenedProcedure": "Si Nexus Réussite décide de ne pas ouvrir le groupe, la famille est informée. Les éventuelles sommes déjà reçues sont restituées selon les conditions communiquées avant confirmation."
+      "groupNotOpenedProcedure": "Si Nexus Réussite décide de ne pas ouvrir le groupe, la famille est informée. Les conditions applicables sont communiquées avant toute confirmation."
     },
     "faq": [
       {
@@ -2160,7 +2166,7 @@
       },
       {
         "question": "Que se passe-t-il si le groupe n'ouvre pas ?",
-        "answer": "Si Nexus Réussite décide de ne pas ouvrir le groupe, la famille est informée. Les éventuelles sommes déjà reçues sont restituées selon les conditions communiquées avant confirmation."
+        "answer": "Si Nexus Réussite décide de ne pas ouvrir le groupe, la famille est informée. Les conditions applicables sont communiquées avant toute confirmation."
       },
       {
         "question": "Un report vers un autre stage est-il possible ?",
@@ -2176,7 +2182,7 @@
       },
       {
         "question": "Quel matériel faut-il apporter ?",
-        "answer": "Un cahier, une trousse complète et une calculatrice sont utiles selon les matières. Pour les modules NSI/SNT, l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire. En Physique-Chimie, les séances sont théoriques et méthodologiques ; aucune séance de laboratoire n’est annoncée."
+        "answer": "Un cahier, une trousse complète et une calculatrice sont utiles selon les matières. Pour les modules NSI/SNT, l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire. En Physique-Chimie, les séances sont théoriques et méthodologiques ; aucune activité pratique en laboratoire n’est annoncée."
       },
       {
         "question": "Que faire si le groupe demandé est complet ?",
@@ -2209,6 +2215,8 @@
     "phone": "+216 99 19 28 29",
     "phoneRaw": "+21699192829",
     "email": "contact@nexusreussite.academy",
+    "addressLabel": "Centre pédagogique",
+    "address": "Mutuelleville, Tunis",
     "whatsappUrl": "https://wa.me/21699192829",
     "canonicalUrl": "https://nexusreussite.academy/stages/pre-rentree-2026",
     "domain": "nexusreussite.academy"
@@ -2353,7 +2361,7 @@
     {
       "id": "material-physique-chimie",
       "type": "MATERIAL",
-      "text": "Physique-Chimie. Un cahier, une trousse complète et une calculatrice. L’accompagnement est théorique et méthodologique : analyse de données expérimentales, étude de protocoles, simulation et raisonnement scientifique. Aucune séance de laboratoire n’est annoncée.",
+      "text": "Physique-Chimie. Un cahier, une trousse complète et une calculatrice. L’accompagnement est théorique et méthodologique : analyse de données expérimentales, étude de protocoles, simulation et raisonnement scientifique. Aucune activité pratique en laboratoire n’est annoncée.",
       "source": {
         "path": "data/campaigns/pre-rentree-2026.json",
         "pointer": "/content/practical/materialsBySubject/PHYSIQUE_CHIMIE"
@@ -2405,6 +2413,540 @@
       }
     }
   ],
+  "parentGuide": {
+    "schemaVersion": "1.0.0",
+    "contentVersion": "2026-parent-guide-fr-v1",
+    "locale": "fr-TN",
+    "status": "DRAFT_FOR_OWNER_REVIEW",
+    "documentPackageVersion": "5.1.0-rc.1",
+    "documentEditionDate": "2026-07-20",
+    "snapshotBuiltAt": "2026-07-20T08:00:00+01:00",
+    "capabilities": [
+      {
+        "id": "positionnement-initial",
+        "label": "Positionnement initial",
+        "designed": true,
+        "implemented": true,
+        "tested": true,
+        "operationallyReady": true,
+        "ownerApproved": true,
+        "publiclyCommitted": true,
+        "publicLabel": "Un positionnement initial aide à identifier les priorités de travail.",
+        "evidence": [
+          "data/campaigns/pre-rentree-2026.json#/content/method/0"
+        ]
+      },
+      {
+        "id": "objectifs-de-travail",
+        "label": "Objectifs de travail par séance",
+        "designed": true,
+        "implemented": true,
+        "tested": true,
+        "operationallyReady": true,
+        "ownerApproved": true,
+        "publiclyCommitted": true,
+        "publicLabel": "Chaque séance poursuit un objectif de travail explicite.",
+        "evidence": [
+          "content/pre-rentree-2026/modules.json#/modules"
+        ]
+      },
+      {
+        "id": "travail-guide",
+        "label": "Travail guidé en groupe réduit",
+        "designed": true,
+        "implemented": true,
+        "tested": true,
+        "operationallyReady": true,
+        "ownerApproved": true,
+        "publiclyCommitted": true,
+        "publicLabel": "Les séances associent travail guidé, consignes adaptées et groupe réduit.",
+        "evidence": [
+          "data/campaigns/pre-rentree-2026.json#/content/method/1"
+        ]
+      },
+      {
+        "id": "exercices-et-corrections",
+        "label": "Exercices progressifs et corrections explicites",
+        "designed": true,
+        "implemented": true,
+        "tested": true,
+        "operationallyReady": true,
+        "ownerApproved": true,
+        "publiclyCommitted": true,
+        "publicLabel": "Les séances alternent méthode, exercices progressifs et correction explicite.",
+        "evidence": [
+          "data/campaigns/pre-rentree-2026.json#/content/method/2"
+        ]
+      },
+      {
+        "id": "evaluations-rapides",
+        "label": "Évaluations rapides",
+        "designed": true,
+        "implemented": true,
+        "tested": true,
+        "operationallyReady": true,
+        "ownerApproved": true,
+        "publiclyCommitted": true,
+        "publicLabel": "Chaque module prévoit une modalité d’évaluation rapide.",
+        "evidence": [
+          "content/pre-rentree-2026/modules.json#/modules"
+        ]
+      },
+      {
+        "id": "supports-et-livrables",
+        "label": "Supports et livrables",
+        "designed": true,
+        "implemented": true,
+        "tested": true,
+        "operationallyReady": true,
+        "ownerApproved": true,
+        "publiclyCommitted": true,
+        "publicLabel": "Les supports de travail sont fournis et chaque séance prévoit un livrable.",
+        "evidence": [
+          "data/campaigns/pre-rentree-2026.json#/content/practical/material",
+          "content/pre-rentree-2026/modules.json#/modules"
+        ]
+      },
+      {
+        "id": "synthese-et-recommandations",
+        "label": "Synthèse et recommandations de rentrée",
+        "designed": true,
+        "implemented": true,
+        "tested": true,
+        "operationallyReady": true,
+        "ownerApproved": true,
+        "publiclyCommitted": true,
+        "publicLabel": "Le stage se termine par une synthèse des acquis observés et des recommandations de travail.",
+        "evidence": [
+          "data/campaigns/pre-rentree-2026.json#/content/method/3"
+        ]
+      },
+      {
+        "id": "questionnaire-famille",
+        "label": "Questionnaire famille Parcours 360",
+        "designed": true,
+        "implemented": false,
+        "tested": false,
+        "operationallyReady": false,
+        "ownerApproved": false,
+        "publiclyCommitted": false,
+        "publicLabel": null,
+        "evidence": [
+          "docs/superpowers/specs/2026-07-19-parcours-360-v0-design.md"
+        ]
+      },
+      {
+        "id": "entretien-de-profil",
+        "label": "Entretien de profil Parcours 360",
+        "designed": true,
+        "implemented": false,
+        "tested": false,
+        "operationallyReady": false,
+        "ownerApproved": false,
+        "publiclyCommitted": false,
+        "publicLabel": null,
+        "evidence": [
+          "docs/superpowers/specs/2026-07-19-parcours-360-v0-design.md"
+        ]
+      },
+      {
+        "id": "douze-tests-disciplinaires-finalises",
+        "label": "Douze tests disciplinaires finalisés",
+        "designed": false,
+        "implemented": false,
+        "tested": false,
+        "operationallyReady": false,
+        "ownerApproved": false,
+        "publiclyCommitted": false,
+        "publicLabel": null,
+        "evidence": [
+          "docs/superpowers/specs/2026-07-19-parcours-360-v0-design.md#hors-perimetre"
+        ]
+      },
+      {
+        "id": "scoring-par-domaine",
+        "label": "Scoring par domaine pour la campagne",
+        "designed": true,
+        "implemented": false,
+        "tested": false,
+        "operationallyReady": false,
+        "ownerApproved": false,
+        "publiclyCommitted": false,
+        "publicLabel": null,
+        "evidence": [
+          "docs/superpowers/specs/2026-07-19-parcours-360-v0-design.md"
+        ]
+      },
+      {
+        "id": "typologie-des-erreurs",
+        "label": "Typologie des erreurs par module",
+        "designed": true,
+        "implemented": false,
+        "tested": false,
+        "operationallyReady": false,
+        "ownerApproved": false,
+        "publiclyCommitted": false,
+        "publicLabel": null,
+        "evidence": [
+          "docs/superpowers/specs/2026-07-19-parcours-360-v0-design.md"
+        ]
+      },
+      {
+        "id": "bilan-initial-personnalise",
+        "label": "Bilan initial personnalisé",
+        "designed": true,
+        "implemented": false,
+        "tested": false,
+        "operationallyReady": false,
+        "ownerApproved": false,
+        "publiclyCommitted": false,
+        "publicLabel": null,
+        "evidence": [
+          "docs/superpowers/specs/2026-07-19-parcours-360-v0-design.md"
+        ]
+      },
+      {
+        "id": "feuille-route-cinq-seances",
+        "label": "Feuille de route personnalisée des cinq séances",
+        "designed": true,
+        "implemented": false,
+        "tested": false,
+        "operationallyReady": false,
+        "ownerApproved": false,
+        "publiclyCommitted": false,
+        "publicLabel": null,
+        "evidence": [
+          "docs/superpowers/specs/2026-07-19-parcours-360-v0-design.md"
+        ]
+      },
+      {
+        "id": "suivi-de-seance",
+        "label": "Suivi nominatif de séance",
+        "designed": true,
+        "implemented": false,
+        "tested": false,
+        "operationallyReady": false,
+        "ownerApproved": false,
+        "publiclyCommitted": false,
+        "publicLabel": null,
+        "evidence": [
+          "docs/superpowers/specs/2026-07-19-parcours-360-v0-design.md"
+        ]
+      },
+      {
+        "id": "bilan-parents-personnalise",
+        "label": "Bilan parents personnalisé",
+        "designed": true,
+        "implemented": false,
+        "tested": false,
+        "operationallyReady": false,
+        "ownerApproved": false,
+        "publiclyCommitted": false,
+        "publicLabel": null,
+        "evidence": [
+          "docs/superpowers/specs/2026-07-19-parcours-360-v0-design.md"
+        ]
+      },
+      {
+        "id": "bilan-eleve-personnalise",
+        "label": "Bilan élève personnalisé",
+        "designed": true,
+        "implemented": false,
+        "tested": false,
+        "operationallyReady": false,
+        "ownerApproved": false,
+        "publiclyCommitted": false,
+        "publicLabel": null,
+        "evidence": [
+          "docs/superpowers/specs/2026-07-19-parcours-360-v0-design.md"
+        ]
+      },
+      {
+        "id": "plan-action-annuel-personnalise",
+        "label": "Plan d’action annuel personnalisé",
+        "designed": true,
+        "implemented": false,
+        "tested": false,
+        "operationallyReady": false,
+        "ownerApproved": false,
+        "publiclyCommitted": false,
+        "publicLabel": null,
+        "evidence": [
+          "docs/superpowers/specs/2026-07-19-parcours-360-v0-design.md"
+        ]
+      },
+      {
+        "id": "generation-pdf-parcours360",
+        "label": "Génération des quatre PDF Parcours 360",
+        "designed": true,
+        "implemented": false,
+        "tested": false,
+        "operationallyReady": false,
+        "ownerApproved": false,
+        "publiclyCommitted": false,
+        "publicLabel": null,
+        "evidence": [
+          "docs/superpowers/specs/2026-07-19-parcours-360-v0-design.md"
+        ]
+      },
+      {
+        "id": "relecture-humaine-nominative",
+        "label": "Relecture humaine nominative",
+        "designed": true,
+        "implemented": false,
+        "tested": false,
+        "operationallyReady": false,
+        "ownerApproved": false,
+        "publiclyCommitted": false,
+        "publicLabel": null,
+        "evidence": [
+          "docs/superpowers/specs/2026-07-19-parcours-360-v0-design.md"
+        ]
+      },
+      {
+        "id": "diffusion-famille-parcours360",
+        "label": "Diffusion des documents Parcours 360 à la famille",
+        "designed": true,
+        "implemented": false,
+        "tested": false,
+        "operationallyReady": false,
+        "ownerApproved": false,
+        "publiclyCommitted": false,
+        "publicLabel": null,
+        "evidence": [
+          "docs/superpowers/specs/2026-07-19-parcours-360-v0-design.md"
+        ]
+      },
+      {
+        "id": "stockage-parcours360",
+        "label": "Stockage conforme des documents Parcours 360",
+        "designed": true,
+        "implemented": false,
+        "tested": false,
+        "operationallyReady": false,
+        "ownerApproved": false,
+        "publiclyCommitted": false,
+        "publicLabel": null,
+        "evidence": [
+          "docs/superpowers/specs/2026-07-19-parcours-360-v0-design.md"
+        ]
+      },
+      {
+        "id": "conformite-donnees-parcours360",
+        "label": "Conformité des données Parcours 360",
+        "designed": true,
+        "implemented": false,
+        "tested": false,
+        "operationallyReady": false,
+        "ownerApproved": false,
+        "publiclyCommitted": false,
+        "publicLabel": null,
+        "evidence": [
+          "docs/superpowers/specs/2026-07-19-parcours-360-v0-design.md"
+        ]
+      },
+      {
+        "id": "disponibilite-avant-stage",
+        "label": "Disponibilité opérationnelle complète avant le 17 août",
+        "designed": true,
+        "implemented": false,
+        "tested": false,
+        "operationallyReady": false,
+        "ownerApproved": false,
+        "publiclyCommitted": false,
+        "publicLabel": null,
+        "evidence": [
+          "docs/superpowers/specs/2026-07-19-parcours-360-v0-design.md"
+        ]
+      }
+    ],
+    "sections": [
+      {
+        "id": "essentiel",
+        "title": "L’essentiel en une page",
+        "blocks": [
+          {
+            "id": "une-matiere-une-semaine",
+            "kind": "EVIDENCED_TEXT",
+            "text": "Chaque matière comprend cinq séances de deux heures organisées sur une semaine ; la campagne complète se déroule sur deux semaines.",
+            "evidenceRefs": [
+              "/packs/0/sessionsPerSubject",
+              "/packs/0/sessionDurationHours",
+              "/packs/0/hoursPerSubject",
+              "/schedule/weeks"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "pourquoi",
+        "title": "Pourquoi une pré-rentrée ?",
+        "blocks": [
+          {
+            "id": "reprise-progressive",
+            "kind": "EVIDENCED_TEXT",
+            "text": "La pré-rentrée propose une reprise progressive des acquis, la consolidation des automatismes et un premier travail sur les méthodes attendues dans la classe de rentrée.",
+            "evidenceRefs": [
+              "/content/method",
+              "/modules"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "fonctionnement",
+        "title": "Comment fonctionne l’accompagnement ?",
+        "blocks": [
+          {
+            "id": "methode-pedagogique",
+            "kind": "EVIDENCED_TEXT",
+            "text": "Le travail associe positionnement initial, objectifs explicites, accompagnement guidé, exercices progressifs, corrections, évaluations rapides, supports, livrables, synthèse et recommandations.",
+            "evidenceRefs": [
+              "/content/method",
+              "/modules"
+            ],
+            "capabilityId": "positionnement-initial"
+          }
+        ]
+      },
+      {
+        "id": "parcours",
+        "title": "Choisir le parcours de son enfant",
+        "blocks": [
+          {
+            "id": "niveaux-et-matieres",
+            "kind": "DYNAMIC_REFERENCE",
+            "sourceRef": "/levels"
+          }
+        ]
+      },
+      {
+        "id": "planning",
+        "title": "Planning des deux semaines",
+        "blocks": [
+          {
+            "id": "repartition-semaines",
+            "kind": "EVIDENCED_TEXT",
+            "text": "Mathématiques et Français sont programmés pendant la première semaine ; informatique, NSI ou SNT et Physique-Chimie pendant la seconde. La présence dépend des matières choisies.",
+            "evidenceRefs": [
+              "/schedule/weeks",
+              "/subjects"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "tarifs",
+        "title": "Tarifs des stages de pré-rentrée 2026",
+        "blocks": [
+          {
+            "id": "formules-tarifaires",
+            "kind": "DYNAMIC_REFERENCE",
+            "sourceRef": "/packs"
+          }
+        ]
+      },
+      {
+        "id": "pre-inscription",
+        "title": "Pré-inscription et confirmation",
+        "blocks": [
+          {
+            "id": "procedure-confirmation",
+            "kind": "EVIDENCED_PROCEDURE",
+            "steps": [
+              {
+                "text": "La famille transmet une demande de pré-inscription sans paiement.",
+                "evidenceRefs": [
+                  "/content/practical/preRegistrationNotice"
+                ]
+              },
+              {
+                "text": "Nexus étudie le niveau, les matières et le profil pédagogique déclaré.",
+                "evidenceRefs": [
+                  "/academicProfiles",
+                  "/content/practical/groupCompositionNotice"
+                ]
+              },
+              {
+                "text": "Nexus vérifie les effectifs et la cohérence pédagogique du groupe.",
+                "evidenceRefs": [
+                  "/campaign/capacity",
+                  "/content/practical/groupCompositionNotice"
+                ]
+              },
+              {
+                "text": "La décision d’ouverture et la proposition de parcours sont communiquées.",
+                "evidenceRefs": [
+                  "/campaign/decisionDeadline",
+                  "/content/practical/groupCompositionNotice"
+                ]
+              },
+              {
+                "text": "Les conditions applicables sont transmises avant toute confirmation.",
+                "evidenceRefs": [
+                  "/content/practical/noOnlinePaymentNotice",
+                  "/legal"
+                ]
+              },
+              {
+                "text": "La famille confirme ensuite l’inscription selon la proposition validée.",
+                "evidenceRefs": [
+                  "/content/practical/preRegistrationNotice"
+                ]
+              },
+              {
+                "text": "L’acompte correspondant au pack validé est alors demandé.",
+                "evidenceRefs": [
+                  "/packs",
+                  "/content/faq"
+                ]
+              },
+              {
+                "text": "Le solde est réglé selon les conditions contractuelles communiquées.",
+                "evidenceRefs": [
+                  "/packs",
+                  "/legal"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "pratique",
+        "title": "Informations pratiques",
+        "blocks": [
+          {
+            "id": "materiel-et-lieu",
+            "kind": "DYNAMIC_REFERENCE",
+            "sourceRef": "/content/practical"
+          }
+        ]
+      },
+      {
+        "id": "faq",
+        "title": "Questions fréquentes",
+        "blocks": [
+          {
+            "id": "questions-parents",
+            "kind": "DYNAMIC_REFERENCE",
+            "sourceRef": "/content/faq"
+          }
+        ]
+      },
+      {
+        "id": "contact",
+        "title": "Se pré-inscrire ou demander un conseil",
+        "blocks": [
+          {
+            "id": "coordonnees-et-qr",
+            "kind": "DYNAMIC_REFERENCE",
+            "sourceRef": "/contact"
+          }
+        ]
+      }
+    ]
+  },
   "assets": {
     "logos": [
       {
@@ -2437,13 +2979,13 @@
     ]
   },
   "document": {
-    "version": "v5-canonical",
-    "editDate": "2026-07-14",
+    "documentPackageVersion": "5.1.0-rc.1",
+    "documentEditionDate": "2026-07-20",
     "publicClassification": "PUBLIC",
-    "privateClassification": "PRIVÉ",
     "qrTarget": "https://nexusreussite.academy/stages/pre-rentree-2026",
     "outputs": {
       "publicPdf": {
+        "parentGuide": "NexusReussite_PreRentree2026_GuideParents_COMPLET_PUBLIC.pdf",
         "essential": "NexusReussite_PreRentree2026_Essentiel_PUBLIC.pdf",
         "planning": "NexusReussite_PreRentree2026_Planning_PUBLIC.pdf",
         "programSeconde": "NexusReussite_PreRentree2026_Programme_Seconde_PUBLIC.pdf",
@@ -2452,6 +2994,7 @@
         "pricing": "NexusReussite_PreRentree2026_Tarifs_PUBLIC.pdf"
       },
       "publicHtml": {
+        "parentGuide": "NexusReussite_PreRentree2026_GuideParents_COMPLET_PUBLIC.html",
         "essential": "NexusReussite_PreRentree2026_Essentiel_PUBLIC.html",
         "planning": "NexusReussite_PreRentree2026_Planning_PUBLIC.html",
         "programSeconde": "NexusReussite_PreRentree2026_Programme_Seconde_PUBLIC.html",
@@ -2464,11 +3007,12 @@
         "story": "NexusReussite_PreRentree2026_Story_1080x1920_PUBLIC.png",
         "monochrome": "NexusReussite_PreRentree2026_Flyer_NB_1080x1350_PUBLIC.png",
         "altText": "NexusReussite_PreRentree2026_VisuelsSociaux_AltText_PUBLIC.json"
-      },
-      "privatePdf": {
-        "print": "NexusReussite_PreRentree2026_DossierConfirmation_PRINT.pdf",
-        "fillable": "NexusReussite_PreRentree2026_DossierConfirmation_FILLABLE.pdf"
       }
     }
+  },
+  "reviews": {
+    "ownerReviewedAt": null,
+    "legalReviewedAt": null,
+    "privacyReviewedAt": null
   }
 }

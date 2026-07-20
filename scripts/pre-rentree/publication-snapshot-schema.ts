@@ -90,16 +90,83 @@ const ClaimSchema = z.object({
   source: SourceEvidenceSchema,
 }).strict();
 
+const EvidenceReferenceSchema = z.string().startsWith('/');
+
+const ParentGuideBlockSchema = z.discriminatedUnion('kind', [
+  z.object({
+    id: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    kind: z.literal('EVIDENCED_TEXT'),
+    text: z.string().min(1),
+    evidenceRefs: z.array(EvidenceReferenceSchema).min(1),
+    capabilityId: z.string().optional(),
+  }).strict(),
+  z.object({
+    id: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    kind: z.literal('EVIDENCED_PROCEDURE'),
+    steps: z.array(z.object({
+      text: z.string().min(1),
+      evidenceRefs: z.array(EvidenceReferenceSchema).min(1),
+    }).strict()).min(1),
+  }).strict(),
+  z.object({
+    id: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    kind: z.literal('DYNAMIC_REFERENCE'),
+    sourceRef: EvidenceReferenceSchema,
+  }).strict(),
+]);
+
+const CapabilitySchema = z.object({
+  id: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  label: z.string().min(1),
+  designed: z.boolean(),
+  implemented: z.boolean(),
+  tested: z.boolean(),
+  operationallyReady: z.boolean(),
+  ownerApproved: z.boolean(),
+  publiclyCommitted: z.boolean(),
+  publicLabel: z.string().min(1).nullable(),
+  evidence: z.array(z.string().min(1)).min(1),
+}).strict().superRefine((capability, context) => {
+  if (capability.publiclyCommitted) {
+    if (!capability.publicLabel) {
+      context.addIssue({ code: z.ZodIssueCode.custom, message: 'A public capability requires a public label' });
+    }
+    if (!capability.implemented || !capability.tested || !capability.operationallyReady || !capability.ownerApproved) {
+      context.addIssue({ code: z.ZodIssueCode.custom, message: 'A public capability must be implemented, tested, ready, and approved' });
+    }
+  } else if (capability.publicLabel !== null) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: 'A non-public capability cannot expose a public label' });
+  }
+});
+
+export const ParentGuideContentSchema = z.object({
+  schemaVersion: z.literal('1.0.0'),
+  contentVersion: z.string().min(1),
+  locale: z.literal('fr-TN'),
+  status: z.literal('DRAFT_FOR_OWNER_REVIEW'),
+  documentPackageVersion: z.string().regex(/^\d+\.\d+\.\d+-rc\.\d+$/),
+  documentEditionDate: IsoDate,
+  snapshotBuiltAt: z.string().datetime({ offset: true }),
+  capabilities: z.array(CapabilitySchema).min(1),
+  sections: z.array(z.object({
+    id: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    title: z.string().min(1),
+    blocks: z.array(ParentGuideBlockSchema).min(1),
+  }).strict()).min(1),
+}).strict();
+
 export const PublicationSnapshotSchema = z.object({
   schemaVersion: z.literal('1.0.0'),
   sourceRepoSha: z.string().regex(/^[a-f0-9]{40}$/),
-  generatedAt: z.string().datetime({ offset: true }),
+  sourceCommitDate: z.string().datetime({ offset: true }),
+  snapshotBuiltAt: z.string().datetime({ offset: true }),
   provenance: z.object({
     campaign: SourceProvenanceSchema,
     modules: SourceProvenanceSchema,
     pricing: SourceProvenanceSchema,
     legal: SourceProvenanceSchema,
     contact: SourceProvenanceSchema,
+    parentGuide: SourceProvenanceSchema,
   }).strict(),
   campaign: z.object({
     id: z.literal('pre-rentree-2026'),
@@ -158,6 +225,8 @@ export const PublicationSnapshotSchema = z.object({
     phone: z.string().min(1),
     phoneRaw: z.string().min(1),
     email: z.string().email(),
+    addressLabel: z.string().min(1),
+    address: z.string().min(1),
     whatsappUrl: z.string().url(),
     canonicalUrl: z.string().url(),
     domain: z.string().min(1),
@@ -173,15 +242,15 @@ export const PublicationSnapshotSchema = z.object({
     privacyNoticeComplete: z.boolean(),
   }).strict(),
   approvedPublicClaims: z.array(ClaimSchema).min(1),
+  parentGuide: ParentGuideContentSchema,
   assets: z.object({
     logos: z.array(z.object({ id: z.string(), path: z.string(), sha256: Sha256 }).strict()).min(1),
     fonts: z.array(z.object({ id: z.string(), path: z.string(), sha256: Sha256 }).strict()).min(1),
   }).strict(),
   document: z.object({
-    version: z.literal('v5-canonical'),
-    editDate: IsoDate,
+    documentPackageVersion: z.string().regex(/^\d+\.\d+\.\d+-rc\.\d+$/),
+    documentEditionDate: IsoDate,
     publicClassification: z.literal('PUBLIC'),
-    privateClassification: z.literal('PRIVÉ'),
     qrTarget: z.string().url(),
     outputs: z.object({
       publicPdf: z.record(z.string().endsWith('.pdf')),
@@ -192,11 +261,12 @@ export const PublicationSnapshotSchema = z.object({
         monochrome: z.string().endsWith('.png'),
         altText: z.string().endsWith('.json'),
       }).strict(),
-      privatePdf: z.object({
-        print: z.string().endsWith('.pdf'),
-        fillable: z.string().endsWith('.pdf'),
-      }).strict(),
     }).strict(),
+  }).strict(),
+  reviews: z.object({
+    ownerReviewedAt: z.string().datetime({ offset: true }).nullable(),
+    legalReviewedAt: z.string().datetime({ offset: true }).nullable(),
+    privacyReviewedAt: z.string().datetime({ offset: true }).nullable(),
   }).strict(),
 }).strict();
 

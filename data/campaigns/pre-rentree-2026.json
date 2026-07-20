@@ -1,6 +1,6 @@
 {
   "campaignId": "pre-rentree-2026",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "PRE_REGISTRATION_OPEN",
   "canonicalPath": "/stages/pre-rentree-2026",
   "shortPath": "/pre-rentree",
@@ -131,12 +131,12 @@
         "MATHEMATIQUES": { "label": "Mathématiques", "description": "Un cahier, une trousse complète et une calculatrice." },
         "FRANCAIS": { "label": "Français", "description": "Un cahier et une trousse complète." },
         "NSI": { "label": "NSI/SNT", "description": "Pour les modules NSI/SNT, l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire." },
-        "PHYSIQUE_CHIMIE": { "label": "Physique-Chimie", "description": "Un cahier, une trousse complète et une calculatrice. L’accompagnement est théorique et méthodologique : analyse de données expérimentales, étude de protocoles, simulation et raisonnement scientifique. Aucune séance de laboratoire n’est annoncée." }
+        "PHYSIQUE_CHIMIE": { "label": "Physique-Chimie", "description": "Un cahier, une trousse complète et une calculatrice. L’accompagnement est théorique et méthodologique : analyse de données expérimentales, étude de protocoles, simulation et raisonnement scientifique. Aucune activité pratique en laboratoire n’est annoncée." }
       },
       "preRegistrationNotice": "Pré-inscription sans paiement. Cette demande ne réserve pas une place et ne forme pas un contrat. La confirmation intervient après validation administrative et pédagogique et communication des conditions applicables.",
       "noOnlinePaymentNotice": "Aucun paiement en ligne n’est demandé sur cette page. Les conditions contractuelles applicables sont communiquées avant confirmation.",
       "groupCompositionNotice": "Le créneau est indiqué dès maintenant. La composition pédagogique du groupe est confirmée après étude des profils et des effectifs.",
-      "groupNotOpenedProcedure": "Si Nexus Réussite décide de ne pas ouvrir le groupe, la famille est informée. Les éventuelles sommes déjà reçues sont restituées selon les conditions communiquées avant confirmation."
+      "groupNotOpenedProcedure": "Si Nexus Réussite décide de ne pas ouvrir le groupe, la famille est informée. Les conditions applicables sont communiquées avant toute confirmation."
     },
     "faq": [
       { "question": "Mon enfant entrant en Seconde, Première ou Terminale peut-il suivre plusieurs matières ?", "answer": "Oui, une à quatre matières peuvent être choisies. Les créneaux du planning socle ne se chevauchent pas pour une même classe de rentrée." },
@@ -147,11 +147,11 @@
       { "question": "Quelles options de Mathématiques sont prévues pour une entrée en Terminale ?", "answer": "Le formulaire distingue l'absence d'option, Maths expertes et Maths complémentaires pour la classe de rentrée. La spécialité Mathématiques conservée est déclarée séparément." },
       { "question": "À partir de combien d'élèves un groupe ouvre-t-il ?", "answer": "Un groupe ouvre à partir de trois élèves et accueille au maximum cinq élèves. La décision est communiquée après étude des demandes." },
       { "question": "Comment fonctionne l'acompte ?", "answer": "L'acompte applicable au pack est communiqué dans le résumé. Il est demandé après validation du profil et du groupe, et vient en déduction du solde." },
-      { "question": "Que se passe-t-il si le groupe n'ouvre pas ?", "answer": "Si Nexus Réussite décide de ne pas ouvrir le groupe, la famille est informée. Les éventuelles sommes déjà reçues sont restituées selon les conditions communiquées avant confirmation." },
+      { "question": "Que se passe-t-il si le groupe n'ouvre pas ?", "answer": "Si Nexus Réussite décide de ne pas ouvrir le groupe, la famille est informée. Les conditions applicables sont communiquées avant toute confirmation." },
       { "question": "Un report vers un autre stage est-il possible ?", "answer": "Les modalités d’annulation, d’absence, de report et d’interruption sont communiquées avant toute confirmation." },
       { "question": "Existe-t-il une liste d'attente ?", "answer": "Une demande peut être placée en liste d'attente si un groupe atteint sa capacité. Cela ne constitue pas une confirmation de place." },
       { "question": "Que se passe-t-il en cas d'absence ?", "answer": "Les modalités applicables aux absences et au rattrapage éventuel sont communiquées avant toute confirmation. Aucun rattrapage n’est garanti par la pré-inscription." },
-      { "question": "Quel matériel faut-il apporter ?", "answer": "Un cahier, une trousse complète et une calculatrice sont utiles selon les matières. Pour les modules NSI/SNT, l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire. En Physique-Chimie, les séances sont théoriques et méthodologiques ; aucune séance de laboratoire n’est annoncée." },
+      { "question": "Quel matériel faut-il apporter ?", "answer": "Un cahier, une trousse complète et une calculatrice sont utiles selon les matières. Pour les modules NSI/SNT, l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire. En Physique-Chimie, les séances sont théoriques et méthodologiques ; aucune activité pratique en laboratoire n’est annoncée." },
       { "question": "Que faire si le groupe demandé est complet ?", "answer": "L'équipe peut proposer une liste d'attente ou une autre solution pédagogique. Aucune disponibilité en temps réel n'est annoncée sur cette page." },
       { "question": "La pré-inscription engage-t-elle financièrement ?", "answer": "Non. La demande est transmise sans paiement, ne réserve pas une place et ne forme pas un contrat. Les conditions applicables sont communiquées avant toute confirmation." },
       { "question": "Comment obtenir un conseil personnalisé ?", "answer": "Vous pouvez demander un bilan gratuit ou écrire sur WhatsApp. L'équipe vérifie alors les matières et le profil les plus adaptés." }

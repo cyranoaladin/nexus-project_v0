@@ -1,0 +1,136 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nexusreussite.academy/schemas/pre-rentree-2026-parent-guide-fr.schema.json",
+  "title": "Contenu éditorial du Guide Parents Pré-rentrée 2026",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "contentVersion",
+    "locale",
+    "status",
+    "documentPackageVersion",
+    "documentEditionDate",
+    "snapshotBuiltAt",
+    "capabilities",
+    "sections"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "contentVersion": { "type": "string", "minLength": 1 },
+    "locale": { "const": "fr-TN" },
+    "status": { "const": "DRAFT_FOR_OWNER_REVIEW" },
+    "documentPackageVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+-rc\\.[0-9]+$" },
+    "documentEditionDate": { "type": "string", "format": "date" },
+    "snapshotBuiltAt": { "type": "string", "format": "date-time" },
+    "capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "label",
+          "designed",
+          "implemented",
+          "tested",
+          "operationallyReady",
+          "ownerApproved",
+          "publiclyCommitted",
+          "publicLabel",
+          "evidence"
+        ],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+          "label": { "type": "string", "minLength": 1 },
+          "designed": { "type": "boolean" },
+          "implemented": { "type": "boolean" },
+          "tested": { "type": "boolean" },
+          "operationallyReady": { "type": "boolean" },
+          "ownerApproved": { "type": "boolean" },
+          "publiclyCommitted": { "type": "boolean" },
+          "publicLabel": { "type": ["string", "null"] },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "sections": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "blocks"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+          "title": { "type": "string", "minLength": 1 },
+          "blocks": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["id", "kind", "text", "evidenceRefs"],
+                  "properties": {
+                    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+                    "kind": { "const": "EVIDENCED_TEXT" },
+                    "text": { "type": "string", "minLength": 1 },
+                    "evidenceRefs": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": { "type": "string", "pattern": "^/" }
+                    },
+                    "capabilityId": { "type": "string" }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["id", "kind", "steps"],
+                  "properties": {
+                    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+                    "kind": { "const": "EVIDENCED_PROCEDURE" },
+                    "steps": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["text", "evidenceRefs"],
+                        "properties": {
+                          "text": { "type": "string", "minLength": 1 },
+                          "evidenceRefs": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": { "type": "string", "pattern": "^/" }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["id", "kind", "sourceRef"],
+                  "properties": {
+                    "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+                    "kind": { "const": "DYNAMIC_REFERENCE" },
+                    "sourceRef": { "type": "string", "pattern": "^/" }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

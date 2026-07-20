@@ -497,7 +497,7 @@ def build_document_manifest(
     package_root = Path(package_root).resolve()
     script_dir = Path(__file__).resolve().parent
     repo_root = script_dir.parents[1]
-    snapshot_path = Path(snapshot_path or repo_root / "generated/pre-rentree-2026-publication.snapshot.json").resolve()
+    snapshot_path = Path(snapshot_path or repo_root / "generated/pre-rentree-2026/publication.snapshot.json").resolve()
     generator_path = Path(generator_path or script_dir / "generate_documents.py").resolve()
     if not generator_path.is_file():
         generator_path = script_dir / "document_renderer.py"

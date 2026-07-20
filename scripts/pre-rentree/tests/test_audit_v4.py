@@ -14,7 +14,7 @@ from audit_v4 import REQUIRED_CLAIM_TYPES, build_v4_audit  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 V4_ROOT = REPO_ROOT.parent
-SNAPSHOT = REPO_ROOT / "generated/pre-rentree-2026-publication.snapshot.json"
+SNAPSHOT = REPO_ROOT / "generated/pre-rentree-2026/publication.snapshot.json"
 
 
 def sha256(path: Path) -> str:
