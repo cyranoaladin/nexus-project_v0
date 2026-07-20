@@ -21,11 +21,29 @@ def test_document_contract_schemas_are_closed_and_centralized() -> None:
     assert {path.name for path in SCHEMA_DIR.glob("*.json")} == expected
     for filename in expected:
         schema = json.loads((SCHEMA_DIR / filename).read_text(encoding="utf-8"))
-        assert schema["additionalProperties"] is False
+        open_objects: list[str] = []
+
+        def visit(value: object, path: str) -> None:
+            if not isinstance(value, dict):
+                return
+            if value.get("type") == "object" and "properties" in value:
+                if value.get("additionalProperties") is not False:
+                    open_objects.append(path)
+            for key, child in value.items():
+                visit(child, f"{path}/{key}")
+
+        visit(schema, "")
+        assert open_objects == [], (filename, open_objects)
 
 
 def test_release_entrypoints_are_explicit_cli_programs() -> None:
-    for filename in ("package_documents.py", "verify_release.py"):
+    for filename in (
+        "generate_documents.py",
+        "package_documents.py",
+        "verify_release.py",
+        "verify_reproducibility.py",
+        "verify_repository_hygiene.py",
+    ):
         result = subprocess.run(
             [sys.executable, str(SCRIPT_DIR / filename), "--help"],
             cwd=REPO_ROOT,

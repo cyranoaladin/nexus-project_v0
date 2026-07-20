@@ -2,7 +2,7 @@
 
 ## Build local
 
-Installer les dépendances Node avec `npm ci`, puis Python avec `python -m pip install -r scripts/pre-rentree/requirements.lock`. Exécuter `npm run pre-rentree:ci` depuis n’importe quel répertoire de travail : les chemins sont résolus depuis la racine Git.
+Installer les dépendances Node avec `npm ci`, puis Python avec `python -m pip install -r scripts/pre-rentree/requirements.lock`. Depuis la racine Git, exécuter `npm run pre-rentree:ci`. Les programmes documentaires résolvent leurs entrées depuis la racine du dépôt et non depuis un répertoire courant implicite.
 
 Les sorties sont atomiquement publiées sous `.artifacts/pre-rentree-2026/`. Un échec conserve le dernier paquet complet et supprime le staging partiel.
 
