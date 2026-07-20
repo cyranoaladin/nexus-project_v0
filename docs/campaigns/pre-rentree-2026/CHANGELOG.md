@@ -1,5 +1,10 @@
 # Journal des changements
 
+## 6.0.0-rc.3 — 20 juillet 2026
+
+- supprime la page d’en-tête vide avant les couvertures de la brochure et de l’Essentiel ;
+- exige la présence du titre, de l’année et du lieu sur la première page des documents à couverture.
+
 ## 6.0.0-rc.2 — 20 juillet 2026
 
 - conserve le bandeau de revue sur la couverture sans créer de page vide ;

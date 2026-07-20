@@ -73,7 +73,7 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
       contentVersion: '2026-parent-guide-fr-v4',
       locale: 'fr-TN',
       status: 'DRAFT_FOR_OWNER_REVIEW',
-      documentPackageVersion: '6.0.0-rc.2',
+      documentPackageVersion: '6.0.0-rc.3',
     });
     expect(snapshot.parentGuide.sections.map((section) => section.id)).toEqual([
       'essentiel',
@@ -102,7 +102,7 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     expect(snapshot.sourceCommitDate).toMatch(/^\d{4}-\d{2}-\d{2}T/);
     expect(snapshot.snapshotBuiltAt).toBe('2026-07-20T18:00:00+01:00');
     expect(snapshot.document.documentEditionDate).toBe('2026-07-20');
-    expect(snapshot.document.documentPackageVersion).toBe('6.0.0-rc.2');
+    expect(snapshot.document.documentPackageVersion).toBe('6.0.0-rc.3');
 
     const why = snapshot.parentGuide.sections.find((section) => section.id === 'pourquoi');
     expect(why?.blocks).toHaveLength(3);

@@ -713,12 +713,15 @@ def build_visual_qa(
                 defects.append({"CODE": "UNEXPECTED_PAGE_DIMENSIONS", **record})
             if geometry["DARK_PIXEL_RATIO"] < 0.001 or not _normalized(page_text):
                 defects.append({"CODE": "BLANK_OR_NON_EXTRACTABLE_PAGE", **record})
-            if (
-                page_number == 1
-                and key in {"parentGuide", "brochureParents", "essential"}
-                and len(_normalized(page_text).split()) < 24
-            ):
-                defects.append({"CODE": "EMPTY_OR_INCOMPLETE_COVER", **record})
+            if page_number == 1 and key in {"parentGuide", "brochureParents", "essential"}:
+                normalized_cover = _normalized(page_text).casefold()
+                expected_cover = (
+                    "stages de pré-rentrée",
+                    str(snapshot["campaign"]["startDate"][:4]),
+                    snapshot["campaign"]["venue"]["neighborhood"].casefold(),
+                )
+                if not all(token in normalized_cover for token in expected_cover):
+                    defects.append({"CODE": "EMPTY_OR_INCOMPLETE_COVER", **record})
             normalized_page_text = re.sub(
                 r"(?<=\w)-\s+(?=\w)",
                 "-",

@@ -1,6 +1,6 @@
 # Matrice de capacité Fondations / Premium 360
 
-Source exécutable : `content/pre-rentree-2026/capabilities.json`. Statut : `6.0.0-rc.2`, 20 juillet 2026.
+Source exécutable : `content/pre-rentree-2026/capabilities.json`. Statut : `6.0.0-rc.3`, 20 juillet 2026.
 
 | Capacité | DESIGNED | IMPLEMENTED | TESTED | OPERATIONALLY_READY | OWNER_APPROVED | PUBLICLY_COMMITTED |
 | --- | :---: | :---: | :---: | :---: | :---: | :---: |
