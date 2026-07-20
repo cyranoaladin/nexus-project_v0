@@ -1,4 +1,8 @@
-import { buildWhatsAppUrl, getWhatsAppNumber } from '@/lib/whatsapp';
+import {
+  buildWhatsAppContactUrl,
+  buildWhatsAppUrl,
+  getWhatsAppNumber,
+} from '@/lib/whatsapp';
 
 describe('lib/whatsapp', () => {
   describe('buildWhatsAppUrl', () => {
@@ -33,6 +37,14 @@ describe('lib/whatsapp', () => {
   describe('getWhatsAppNumber', () => {
     it('returns the number as a string', () => {
       expect(getWhatsAppNumber()).toBe('21699192829');
+    });
+  });
+
+  describe('buildWhatsAppContactUrl', () => {
+    it('uses the supplied canonical public number', () => {
+      expect(buildWhatsAppContactUrl('21699192829')).toBe(
+        'https://wa.me/21699192829',
+      );
     });
   });
 });

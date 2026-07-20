@@ -107,8 +107,8 @@ describe('Pré-rentrée 2026 entry-level invariant', () => {
     expect(practical.preRegistrationNotice).toMatch(/ne réserve pas une place/i);
     expect(practical.preRegistrationNotice).toMatch(/ne forme pas un contrat/i);
     expect(faq).toMatch(/ne réserve pas une place/i);
-    expect(practical.groupNotOpenedProcedure).toMatch(/sommes déjà reçues sont restituées/i);
-    expect(practical.groupNotOpenedProcedure).toMatch(/conditions communiquées avant confirmation/i);
+    expect(practical.groupNotOpenedProcedure).toMatch(/conditions applicables.*avant toute confirmation/i);
+    expect(practical.groupNotOpenedProcedure).not.toMatch(/rembours|restitu/i);
     expect(faq).toMatch(/modalités d’annulation.*communiquées avant toute confirmation/i);
     expect(campaignManifest.featureFlags.enablePayment).toBe(false);
     expect(publicContract).not.toMatch(/résultat scolaire garanti|garantie de résultat/i);
