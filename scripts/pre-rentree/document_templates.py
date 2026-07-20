@@ -123,7 +123,7 @@ def _shell(
     )
     review_banner = ""
     if snapshot["campaign"]["publicationMode"] == "REVIEW":
-        review_banner = '<aside class="review-banner" role="note">Document de revue — diffusion interdite</aside>'
+        review_banner = '<p class="review-banner" role="note">Document de revue — diffusion interdite</p>'
     return f"""<!doctype html>
 <html lang="fr">
 <head>
@@ -140,14 +140,13 @@ def _shell(
 </head>
 <body class="{escape_text(body_class)}">
   <a class="skip-link" href="#contenu">Aller au contenu</a>
-  {review_banner}
   <header class="document-header">
     <img src="../ASSETS/logo-slogan.png" alt="Nexus Réussite">
     <div><strong>{escape_text(short_title)}</strong><br><span>{_edition_label(snapshot)}</span></div>
     <a class="header-contact" href="{safe_url('tel:' + contact['phoneRaw'])}">{escape_text(contact['phone'])}</a>
   </header>
   <nav class="document-nav" aria-label="Dans ce document"><ul>{nav}</ul></nav>
-  <main id="contenu">{body}</main>
+  <main id="contenu">{review_banner}{body}</main>
   {_footer(snapshot, short_title)}
 </body>
 </html>

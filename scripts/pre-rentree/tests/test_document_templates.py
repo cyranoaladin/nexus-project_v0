@@ -43,6 +43,15 @@ def test_renders_the_eleven_accessible_review_html_documents():
             assert table.find("th", scope="col") or table.find("th", scope="row")
 
 
+def test_review_banner_is_contained_by_the_main_landmark():
+    documents = render_public_documents(SNAPSHOT)
+    for document in documents.values():
+        soup = BeautifulSoup(document.html, "html.parser")
+        banner = soup.select_one("main .review-banner")
+        assert banner is not None
+        assert "diffusion interdite" in banner.get_text(" ", strip=True)
+
+
 def test_complete_parent_guide_contains_every_required_family_section():
     documents = render_public_documents(SNAPSHOT)
     guide_name = SNAPSHOT["document"]["outputs"]["publicHtml"]["parentGuide"]
