@@ -1,14 +1,15 @@
-import { serializeError } from '@/lib/utils/serialize-error';
-export const dynamic = 'force-dynamic';
-
 import { NextRequest, NextResponse } from 'next/server';
 import { UserRole } from '@prisma/client';
 import { requireRole, isErrorResponse } from '@/lib/guards';
 import { getRegisteredSlugs, getOfficialPdf } from '@/lib/programme/official-pdfs';
+import { resolveOfficialPdfRelativePath } from '@/lib/programme/official-pdf-path';
 import { isOfficialPdfAllowedFor } from '@/lib/programme/access';
 import { prisma } from '@/lib/prisma';
 import { readFile, stat } from 'fs/promises';
 import { join } from 'path';
+import { serializeError } from '@/lib/utils/serialize-error';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(
   request: NextRequest,
@@ -66,14 +67,13 @@ export async function GET(
     // Build absolute file path
     const filePath = join(
       process.cwd(),
-      pdfMetadata.baseDir,
-      pdfMetadata.filename
+      'programmes',
+      resolveOfficialPdfRelativePath(pdfMetadata)
     );
 
     // Check if file exists and get its stats
-    let fileStats;
     try {
-      fileStats = await stat(filePath);
+      await stat(filePath);
     } catch (error) {
       console.error(`[official-pdf] File not found: ${filePath}`, serializeError(error));
       return NextResponse.json(

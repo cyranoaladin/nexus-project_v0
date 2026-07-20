@@ -101,4 +101,21 @@ describe('production deployment contract', () => {
       }
     }
   });
+
+  it('requires an explicit release SHA for the builder gate', () => {
+    const dockerfile = read('Dockerfile');
+    const dockerignore = read('.dockerignore');
+    const builderAndRunner = dockerfile.split('FROM base AS builder')[1];
+    const [builderStage, runnerStage] = builderAndRunner.split('FROM base AS runner');
+
+    expect(dockerignore.split(/\r?\n/)).toContain('.git');
+    expect(builderStage).toContain('ARG RELEASE_SHA');
+    expect(builderStage).not.toMatch(/ARG RELEASE_SHA\s*=/);
+    expect(builderStage).toContain("grep -Eq '^[0-9a-fA-F]{40}([0-9a-fA-F]{24})?$'");
+    expect(builderStage).toContain('RELEASE_SHA="$RELEASE_SHA" npm run build');
+    expect(runnerStage).not.toContain('ENV RELEASE_SHA');
+    expect(runnerStage).toContain(
+      'COPY --from=builder /app/release-manifest.json ./release-manifest.json',
+    );
+  });
 });

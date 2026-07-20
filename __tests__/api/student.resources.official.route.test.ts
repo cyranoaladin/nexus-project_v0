@@ -2,10 +2,20 @@
  * @jest-environment node
  *
  * Tests for GET /api/student/resources/official/[slug]
- * 10 cases: auth, slug validation, track/level gating, filesystem errors, happy path
+ * 11 cases: auth, slug validation, track/level gating, filesystem errors, happy path
  */
 
 // 1. Mocks au top — JAMAIS dans beforeEach
+jest.mock('fs/promises', () => ({
+  stat: jest.fn(),
+  readFile: jest.fn(),
+}));
+
+jest.mock('node:fs/promises', () => ({
+  stat: jest.fn(),
+  readFile: jest.fn(),
+}));
+
 jest.mock('@/lib/guards', () => ({
   requireRole: jest.fn(),
   isErrorResponse: jest.fn(),
@@ -26,6 +36,10 @@ jest.mock('@/lib/programme/official-pdfs', () => ({
   OFFICIAL_PDFS: {},
 }));
 
+jest.mock('@/lib/utils/serialize-error', () => ({
+  serializeError: jest.fn(() => ({ message: 'redacted' })),
+}));
+
 // Note: isOfficialPdfAllowedFor is NOT mocked — we test the real access logic
 
 // 2. Imports after mocks
@@ -36,6 +50,10 @@ import { GET } from '@/app/api/student/resources/official/[slug]/route';
 import { NextRequest, NextResponse } from 'next/server';
 import { UserRole, GradeLevel, AcademicTrack } from '@prisma/client';
 import type { OfficialPdfMetadata } from '@/lib/programme/official-pdfs';
+import { serializeError } from '@/lib/utils/serialize-error';
+import { readFile, stat } from 'fs/promises';
+import { resolveOfficialPdfRelativePath } from '@/lib/programme/official-pdf-path';
+import { join } from 'path';
 
 // 3. Mock references
 const mockRequireRole = jest.mocked(requireRole);
@@ -43,6 +61,9 @@ const mockIsErrorResponse = jest.mocked(isErrorResponse);
 const mockStudentFind = jest.mocked(prisma.student.findUnique);
 const mockGetSlugs = jest.mocked(getRegisteredSlugs);
 const mockGetPdf = jest.mocked(getOfficialPdf);
+const mockStat = stat as jest.Mock;
+const mockReadFile = readFile as jest.Mock;
+const mockSerializeError = jest.mocked(serializeError);
 
 // 4. Fixtures — real slugs from Lot B mapping
 const edsAutoSlug = 'bo-annexe-automatismes-eam-2025-2026-session-2027';
@@ -54,7 +75,7 @@ const edsAutoMeta: OfficialPdfMetadata = {
   slug: edsAutoSlug,
   filename: 'bo-annexe-automatismes-eam-2025-2026-session-2027.pdf',
   baseDir: 'programmes/automatismes-eds-premiere',
-  title: 'Annexe automatismes — Épreuve anticipée de mathématiques',
+  title: 'Annexe automatismes Epreuve anterieure de mathematiques',
   category: 'AUTOMATISMES',
   level: 'PREMIERE',
   track: 'EDS_GENERALE',
@@ -101,6 +122,8 @@ describe('GET /api/student/resources/official/[slug]', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockGetSlugs.mockReturnValue(new Set([edsAutoSlug, declicSlug, bothTrackMeta.slug]));
+    mockStat.mockResolvedValue({ size: fakePdfBuffer.length } as never);
+    mockReadFile.mockResolvedValue(fakePdfBuffer as never);
   });
 
   describe('Authentication', () => {
@@ -205,7 +228,7 @@ describe('GET /api/student/resources/official/[slug]', () => {
     });
   });
 
-  describe('Filesystem behavior (real FS)', () => {
+  describe('Filesystem behavior (mocked)', () => {
     const setupValidEdsRequest = () => {
       mockRequireRole.mockResolvedValue(buildSession('user-eds'));
       mockIsErrorResponse.mockReturnValue(false);
@@ -216,28 +239,48 @@ describe('GET /api/student/resources/official/[slug]', () => {
       mockGetPdf.mockReturnValue(edsAutoMeta);
     };
 
-    it('returns 404 or 500 when PDF file is missing on disk', async () => {
+    it('returns 404 when the PDF file is missing on disk', async () => {
       setupValidEdsRequest();
+      mockStat.mockRejectedValueOnce(new Error('missing'));
 
       const res = await GET(buildReq(edsAutoSlug), buildCtx(edsAutoSlug));
 
-      expect([404, 500]).toContain(res.status);
+      expect(res.status).toBe(404);
+      expect(mockReadFile).not.toHaveBeenCalled();
     });
 
-    it('handles file system errors gracefully', async () => {
-      // This test verifies the outer catch block handles unexpected errors
+    it('returns 500 when reading the PDF fails unexpectedly', async () => {
+      // This test verifies the outer catch block handles unexpected errors after
+      // the file exists
       setupValidEdsRequest();
-      // The route has a try/catch that returns 500 for any unexpected error
+      mockReadFile.mockRejectedValueOnce(new Error('read failure'));
 
       const res = await GET(buildReq(edsAutoSlug), buildCtx(edsAutoSlug));
 
-      // Real filesystem access might fail with various errors
-      // Route should handle gracefully (either 404 for ENOENT or 500 for others)
-      expect(res.status === 404 || res.status === 500).toBe(true);
+      expect(res.status).toBe(500);
+      expect(mockSerializeError).toHaveBeenCalled();
+    });
+
+    it('rejects invalid PDF metadata before filesystem access', async () => {
+      setupValidEdsRequest();
+      mockGetPdf.mockReturnValue({
+        ...edsAutoMeta,
+        baseDir: 'programmes/../secrets',
+      });
+
+      const res = await GET(buildReq(edsAutoSlug), buildCtx(edsAutoSlug));
+      const body = await res.json();
+
+      expect(res.status).toBe(500);
+      expect(body).toEqual({ error: 'Internal server error' });
+      expect(JSON.stringify(body)).not.toContain(process.cwd());
+      expect(mockSerializeError).toHaveBeenCalled();
+      expect(mockStat).not.toHaveBeenCalled();
+      expect(mockReadFile).not.toHaveBeenCalled();
     });
   });
 
-  describe('Happy path (integration)', () => {
+  describe('Happy path', () => {
     it('verifies correct function calls for EDS Première student', async () => {
       mockRequireRole.mockResolvedValue(buildSession('user-eds'));
       mockIsErrorResponse.mockReturnValue(false);
@@ -256,8 +299,17 @@ describe('GET /api/student/resources/official/[slug]', () => {
       });
       expect(mockGetSlugs).toHaveBeenCalled();
       expect(mockGetPdf).toHaveBeenCalledWith(edsAutoSlug);
+      const expectedPath = join(
+        process.cwd(),
+        'programmes',
+        resolveOfficialPdfRelativePath(edsAutoMeta)
+      );
 
-      expect(res.status).not.toBe(403);
+      expect(mockStat).toHaveBeenCalledWith(expectedPath);
+      expect(mockReadFile).toHaveBeenCalledWith(expectedPath);
+      expect(res.status).toBe(200);
+
+      await res.arrayBuffer();
     });
   });
 });
