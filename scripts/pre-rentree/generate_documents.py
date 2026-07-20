@@ -118,10 +118,13 @@ def _browser_review(snapshot: dict[str, Any], package_root: Path) -> dict[str, A
             str(output),
         ],
         cwd=REPO_ROOT,
-        check=True,
+        check=False,
         capture_output=True,
         text=True,
     )
+    if completed.returncode != 0:
+        detail = completed.stderr.strip() or completed.stdout.strip() or "no diagnostic output"
+        raise RuntimeError(f"Browser review failed: {detail}")
     if not completed.stdout.strip():
         raise RuntimeError("Browser review did not return a result")
     return json.loads(completed.stdout)
