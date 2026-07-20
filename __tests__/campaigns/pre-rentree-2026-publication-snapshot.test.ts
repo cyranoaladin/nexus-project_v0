@@ -42,7 +42,7 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
 
     expect((snapshot as unknown as { sourceSetSha256?: string }).sourceSetSha256).toMatch(/^[a-f0-9]{64}$/);
     expect(snapshot.sourceRepoSha).toBe('a1192c8dccf8eaa6ae223265a3bc9ceb56a6fff0');
-    expect(snapshot.provenance.campaign.version).toBe('2.0.0');
+    expect(snapshot.provenance.campaign.version).toBe('2.0.1');
     expect(snapshot.provenance.modules.version).toBe('2026-pre-rentree-v2');
     expect(snapshot.provenance.pricing.version).toBe('2026-2027.3');
     expect(snapshot.provenance.parentGuide.version).toBe('2026-parent-guide-fr-v3');

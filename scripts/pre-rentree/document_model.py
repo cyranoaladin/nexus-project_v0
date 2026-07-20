@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-from jsonschema import Draft202012Validator, FormatChecker
+from jsonschema import Draft201909Validator, FormatChecker
 
 
 class SnapshotValidationError(ValueError):
@@ -18,7 +18,7 @@ class SnapshotValidationError(ValueError):
 def load_snapshot(snapshot_path: Path, schema_path: Path) -> dict[str, Any]:
     snapshot = json.loads(Path(snapshot_path).read_text(encoding="utf-8"))
     schema = json.loads(Path(schema_path).read_text(encoding="utf-8"))
-    validator = Draft202012Validator(schema, format_checker=FormatChecker())
+    validator = Draft201909Validator(schema, format_checker=FormatChecker())
     errors = sorted(validator.iter_errors(snapshot), key=lambda error: list(error.path))
     if errors:
         detail = "; ".join(error.message for error in errors[:5])

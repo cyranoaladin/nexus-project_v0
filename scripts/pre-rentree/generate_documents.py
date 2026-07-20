@@ -25,6 +25,7 @@ from document_audit import (
 )
 from document_model import load_snapshot
 from document_renderer import render_public_pdfs, write_public_html
+from operational_artifacts import generate_review_artifacts
 from verify_release import write_review_governance
 
 
@@ -143,6 +144,7 @@ def _build_in_staging(
     write_public_html(snapshot, html)
     render_public_pdfs(snapshot, html, public)
     generate_social_visuals(snapshot, assets, social)
+    generate_review_artifacts(snapshot, package_root / "REVIEW")
 
     content_report = build_content_gate_report(snapshot, package_root, SCRIPT_DIR)
     _atomic_json(audit / "content-gate-report.json", content_report)

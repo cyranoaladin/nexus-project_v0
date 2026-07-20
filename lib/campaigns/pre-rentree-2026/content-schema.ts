@@ -160,5 +160,57 @@ export const PreRentreeCommunicationSchema = z.object({
   altTextTemplate: z.string().min(1),
 }).strict();
 
+const OperationalFieldType = z.enum([
+  'TEXT', 'LONG_TEXT', 'PHONE', 'EMAIL', 'DATE', 'DATETIME', 'SELECT', 'RADIO',
+  'CHECKBOX', 'AMOUNT', 'IDENTIFIER',
+]);
+
+export const PreRentreeOperationsSchema = z.object({
+  schemaVersion: z.literal('1.0.0'),
+  version: z.string().min(1),
+  locale: z.literal('fr-TN'),
+  reviewForms: z.array(z.object({
+    id: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    title: z.string().min(1),
+    purpose: z.string().min(1),
+    privacyGate: z.boolean(),
+    fields: z.array(z.object({
+      id: z.string().regex(/^[a-z][A-Za-z0-9]*$/),
+      label: z.string().min(1),
+      type: OperationalFieldType,
+      required: z.boolean(),
+    }).strict()).min(1),
+  }).strict()).length(11),
+  crm: z.object({
+    statuses: z.tuple([
+      z.literal('NEW'), z.literal('CONTACTED'), z.literal('QUALIFIED'),
+      z.literal('PROGRAM_SENT'), z.literal('PATH_PROPOSED'), z.literal('PENDING_DEPOSIT'),
+      z.literal('RESERVED'), z.literal('WAITLIST'), z.literal('GROUP_CONFIRMED'),
+      z.literal('BALANCE_PENDING'), z.literal('FULLY_PAID'), z.literal('COMPLETED'),
+      z.literal('CANCELLED'), z.literal('REFUNDED'),
+    ]),
+    fields: z.array(z.object({
+      id: z.string().regex(/^[a-z][A-Za-z0-9]*$/),
+      label: z.string().min(1),
+      type: z.enum(['TEXT', 'DATE', 'DATETIME', 'ENUM', 'BOOLEAN', 'AMOUNT']),
+      required: z.boolean(),
+    }).strict()).min(20),
+  }).strict(),
+  economicModel: z.object({
+    currency: z.literal('TND'),
+    inputs: z.array(z.object({
+      id: z.string().regex(/^[a-z][A-Za-z0-9]*$/),
+      label: z.string().min(1),
+      unit: z.enum(['TND', 'HOURS', 'RATE']),
+      value: z.null(),
+    }).strict()).min(15),
+    acquisitionScenarios: z.tuple([
+      z.object({ id: z.literal('LOW'), inputId: z.string().min(1) }).strict(),
+      z.object({ id: z.literal('MEDIUM'), inputId: z.string().min(1) }).strict(),
+      z.object({ id: z.literal('HIGH'), inputId: z.string().min(1) }).strict(),
+    ]),
+  }).strict(),
+}).strict();
+
 export type PreRentreeOfferRange = z.infer<typeof OfferRange>;
 export type PreRentreePedagogyFramework = z.infer<typeof PreRentreePedagogyFrameworkSchema>;
