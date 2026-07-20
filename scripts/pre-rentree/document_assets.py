@@ -184,6 +184,17 @@ def _social_image(
             gray.putalpha(alpha)
             logo = gray
         image.paste(logo, (int((width - logo.width) / 2), int(height * 0.055)), logo)
+        if snapshot["campaign"]["publicationMode"] == "REVIEW":
+            _draw_centered(
+                draw,
+                "Document de revue — diffusion interdite",
+                small_font,
+                width // 2,
+                int(height * 0.17),
+                ink,
+                int(width * 0.84),
+                6,
+            )
 
         current = int(height * 0.22)
         current = _draw_centered(
@@ -206,7 +217,11 @@ def _social_image(
         subjects = " · ".join(subject["label"] for subject in snapshot["subjects"])
         current = _draw_centered(draw, subjects, small_font, width // 2, current, ink, int(width * 0.86), 7)
 
-        group_claim = next(claim for claim in snapshot["approvedPublicClaims"] if claim["id"] == "group-size")
+        capacities = snapshot["campaign"]["capacityByOffer"]
+        group_text = (
+            f'Fondations : {capacities["FONDATIONS"]["min"]} à {capacities["FONDATIONS"]["max"]} élèves · '
+            f'Premium : {capacities["PREMIUM"]["min"]} à {capacities["PREMIUM"]["max"]} élèves'
+        )
         box_top = int(height * 0.70)
         box_bottom = int(height * 0.82)
         draw.rounded_rectangle(
@@ -215,7 +230,7 @@ def _social_image(
             outline=accent,
             width=max(3, width // 300),
         )
-        _draw_centered(draw, group_claim["text"], body_font, width // 2, box_top + int(height * 0.025), ink, int(width * 0.72), 8)
+        _draw_centered(draw, group_text, body_font, width // 2, box_top + int(height * 0.025), ink, int(width * 0.72), 8)
         _draw_centered(
             draw,
             snapshot["cta"]["primary"],
@@ -261,6 +276,8 @@ def generate_social_visuals(
         f'{snapshot["content"]["hero"]["subtitle"]} '
         f'{snapshot["cta"]["primary"]}.'
     )
+    if snapshot["campaign"]["publicationMode"] == "REVIEW":
+        alt_base = f"Document de revue, diffusion interdite. {alt_base}"
     alt = {
         "feed": alt_base,
         "story": alt_base,

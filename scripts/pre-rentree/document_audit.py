@@ -22,12 +22,10 @@ from document_model import format_amount
 
 
 BLOCKED_PUBLIC_PATTERNS = (
-    ("RESERVATION_CTA", re.compile(r"\bréserver\b", re.IGNORECASE)),
     ("ANNUAL_CARRYOVER", re.compile(r"acompte reportable sur l[’']année suivante", re.IGNORECASE)),
     ("ANNUAL_DEDUCTION", re.compile(r"déductible du parcours annuel", re.IGNORECASE)),
     ("MARKET_COMPARISON", re.compile(r"même zone tarifaire que le marché", re.IGNORECASE)),
     ("FILMED_ORAL", re.compile(r"oral filmé", re.IGNORECASE)),
-    ("DEPOSIT_PERCENT", re.compile(r"acompte\s*\(?(?:de\s*)?30\s*%", re.IGNORECASE)),
     ("INTERNAL_NOTE", re.compile(r"note interne|\bà valider\b", re.IGNORECASE)),
     ("DRAFT_TOKEN", re.compile(r"\bDRAFT\b")),
     ("STATUS_TOKEN", re.compile(r"PRE_REGISTRATION_OPEN")),
@@ -359,6 +357,7 @@ def build_content_gate_report(
     session_method_mismatches = 0
     session_deliverable_mismatches = 0
     level_to_key = {
+        "TROISIEME": "programTroisieme",
         "SECONDE": "programSeconde",
         "PREMIERE": "programPremiere",
         "TERMINALE": "programTerminale",
@@ -400,11 +399,11 @@ def build_content_gate_report(
         session_deliverable_mismatches,
     ))
 
-    pricing_text = html_text["pricing"]
+    pricing_text = html_text["pricingReservation"]
     price_mismatches = sum(
         format_amount(value) not in pricing_text
-        for pack in snapshot["packs"]
-        for value in (pack["price"], pack["deposit"], pack["balance"], pack["pricePerHour"])
+        for option in snapshot["offerPricing"]
+        for value in (option["price"], option["deposit"], option["balance"], option["pricePerHour"])
     )
     planning_text = _normalized(html_text["planning"])
     schedule_mismatches = sum(
@@ -439,7 +438,7 @@ def build_content_gate_report(
     unmapped_claim_count = len(unknown_claims) + len(invalid_source_paths)
     blocked = scan_blocked_public_terms(package_root / "PUBLIC")
     contractual_codes = {
-        "ANNUAL_CARRYOVER", "ANNUAL_DEDUCTION", "MARKET_COMPARISON", "DEPOSIT_PERCENT",
+        "ANNUAL_CARRYOVER", "ANNUAL_DEDUCTION", "MARKET_COMPARISON",
     }
     qr_path = package_root / "PUBLIC/ASSETS/qr-canonical.png"
     qr_mismatch = int(not qr_path.is_file() or decode_qr(qr_path) != snapshot["document"]["qrTarget"])
@@ -453,6 +452,13 @@ def build_content_gate_report(
     report = {
         "MODULE_COUNT": len(snapshot["modules"]),
         "SESSION_COUNT": sum(len(module["sessions"]) for module in snapshot["modules"]),
+        "POSITIONING_TEST_COUNT": len(snapshot["pedagogy"]["positioningTests"]),
+        "QUICK_ASSESSMENT_COUNT": len(snapshot["pedagogy"]["quickAssessments"]),
+        "SESSION_DELIVERABLE_COUNT": len(snapshot["pedagogy"]["sessionDeliverables"]),
+        "DEPOSIT_ROUNDING_ERROR_COUNT": sum(
+            option["deposit"] * 10 != option["price"] * 3
+            for option in snapshot["offerPricing"]
+        ),
         "PUBLIC_CLAIM_WITHOUT_SOURCE_COUNT": unmapped_claim_count,
         "UNMAPPED_PUBLIC_CLAIM_COUNT": unmapped_claim_count,
         "RENDERED_CLAIM_ID_COUNT": len(rendered_claim_ids),
@@ -473,7 +479,7 @@ def build_content_gate_report(
         "HARDCODED_PRICE_COUNT": hardcoded_counts["PRICE"],
         "HARDCODED_SCHEDULE_SLOT_COUNT": hardcoded_counts["SCHEDULE_SLOT"],
         "HARDCODED_PROGRAM_SESSION_COUNT": hardcoded_counts["PROGRAM_SESSION"],
-        "DEPOSIT_LABEL_MISMATCH_COUNT": sum("Acompte (30 %)" in text for text in html_text.values()),
+        "DEPOSIT_LABEL_MISMATCH_COUNT": int("Acompte 30 %" not in pricing_text),
         "UNAPPROVED_CONTRACTUAL_CLAIM_COUNT": sum(item["code"] in contractual_codes for item in blocked),
         "QR_LINK_MISMATCH_COUNT": qr_mismatch,
         "CONTRACTUAL_DOSSIER_PUBLICATION_BLOCKED": snapshot["legal"]["contractualDossierPublicationBlocked"],

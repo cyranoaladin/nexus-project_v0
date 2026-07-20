@@ -62,8 +62,8 @@ def test_packages_exact_parent_surface_and_review_evidence_deterministically(tmp
     with zipfile.ZipFile(first / "NexusReussite_PreRentree2026_PARENT_PACKAGE.zip") as archive:
         names = set(archive.namelist())
         assert "LISEZ-MOI.txt" in names
-        assert len([name for name in names if name.endswith(".pdf")]) == 7
-        assert len([name for name in names if name.endswith(".html")]) == 7
+        assert len([name for name in names if name.endswith(".pdf")]) == 11
+        assert len([name for name in names if name.endswith(".html")]) == 11
         assert "ASSETS/document.css" in names
         assert "THIRD_PARTY_NOTICES.md" in names
         assert "LICENSES/OFL-1.1.txt" in names

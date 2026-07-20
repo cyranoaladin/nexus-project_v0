@@ -26,7 +26,7 @@ SCHEMA_PATH = REPO_ROOT / "scripts/pre-rentree/schemas/publication-snapshot.sche
 def test_loads_the_canonical_snapshot_against_the_portable_schema():
     snapshot = load_snapshot(SNAPSHOT_PATH, SCHEMA_PATH)
     assert snapshot["sourceRepoSha"] == "a1192c8dccf8eaa6ae223265a3bc9ceb56a6fff0"
-    assert len(snapshot["modules"]) == 12
+    assert len(snapshot["modules"]) == 14
 
 
 def test_rejects_an_incomplete_snapshot(tmp_path: Path):

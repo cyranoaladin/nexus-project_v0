@@ -30,6 +30,7 @@
   --francais: #84253f;
   --nsi: #6741b4;
   --pc: #14776f;
+  --philo: #7a4f21;
 }
 
 @page {
@@ -56,6 +57,18 @@ html {
   line-height: 1.48;
 }
 body { margin: 0; }
+.review-banner {
+  background: #7b1e2b;
+  color: #fff;
+  font-family: "Nexus Mono", monospace;
+  font-size: 8.5pt;
+  font-weight: 700;
+  letter-spacing: .04em;
+  margin-bottom: 3mm;
+  padding: 2mm 4mm;
+  text-align: center;
+  text-transform: uppercase;
+}
 a { color: var(--navy); text-decoration-thickness: .08em; text-underline-offset: .14em; }
 a:focus-visible, summary:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
 h1, h2, h3, h4 { break-after: avoid; color: var(--navy); line-height: 1.16; }
@@ -182,6 +195,7 @@ section, article, table, details { break-inside: auto; }
 .subject-FRANCAIS { --subject-color: var(--francais); }
 .subject-NSI { --subject-color: var(--nsi); }
 .subject-PHYSIQUE_CHIMIE { --subject-color: var(--pc); }
+.subject-PHILOSOPHIE { --subject-color: var(--philo); }
 .program-module > h3 { font-family: "Nexus Serif", serif; font-size: 21pt; }
 .module-subtitle { color: var(--muted); font-size: 11pt; }
 .program-meta { display: grid; gap: 3mm; grid-template-columns: repeat(3, minmax(0, 1fr)); }
