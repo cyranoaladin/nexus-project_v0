@@ -54,6 +54,7 @@ def test_review_banner_is_contained_by_the_main_landmark():
         if cover is not None:
             assert banner.parent == cover
             assert cover.find("h1") is not None
+            assert "cover-document" in (soup.body.get("class") or [])
 
 
 def test_complete_parent_guide_contains_every_required_family_section():

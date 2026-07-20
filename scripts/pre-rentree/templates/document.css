@@ -272,7 +272,7 @@ details p { margin-bottom: 0; }
 @media print {
   .skip-link { display: none; }
   .document-nav { display: none; }
-  .parent-guide > .document-header { display: none; }
+  .cover-document > .document-header { display: none; }
   details > * { display: block; }
 }
 

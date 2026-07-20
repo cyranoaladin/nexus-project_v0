@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "sourceSetSha256": "59c644f93fe179c8854a2f9057b0aae00b536e3e18b455081648d9cb3c244afb",
+  "sourceSetSha256": "f3ab0693c34f0ba2c3d746d5fd6d12b7c44e4f29db62c3bee55b8aaa2f5f07eb",
   "sourceRepoSha": "a1192c8dccf8eaa6ae223265a3bc9ceb56a6fff0",
   "sourceCommitDate": "2026-07-14T12:00:48+01:00",
   "snapshotBuiltAt": "2026-07-20T18:00:00+01:00",
@@ -33,7 +33,7 @@
     "parentGuide": {
       "path": "content/pre-rentree-2026/parent-guide.fr.json",
       "version": "2026-parent-guide-fr-v4",
-      "sha256": "d2dc93189079699f3c9c276b8b31065e9b024d30e7e88c66194e2588722670ea"
+      "sha256": "8f731311ab119886fe124376addf43f53f291d1a125a02884e158149cff825e6"
     },
     "pedagogyFramework": {
       "path": "content/pre-rentree-2026/pedagogy-framework.fr.json",
@@ -8240,7 +8240,7 @@
     "contentVersion": "2026-parent-guide-fr-v4",
     "locale": "fr-TN",
     "status": "DRAFT_FOR_OWNER_REVIEW",
-    "documentPackageVersion": "6.0.0-rc.2",
+    "documentPackageVersion": "6.0.0-rc.3",
     "documentEditionDate": "2026-07-20",
     "snapshotBuiltAt": "2026-07-20T18:00:00+01:00",
     "sections": [
@@ -8662,7 +8662,7 @@
     ]
   },
   "document": {
-    "documentPackageVersion": "6.0.0-rc.2",
+    "documentPackageVersion": "6.0.0-rc.3",
     "documentEditionDate": "2026-07-20",
     "publicClassification": "PUBLIC",
     "qrTarget": "https://nexusreussite.academy/stages/pre-rentree-2026",

@@ -499,18 +499,18 @@ def _parent_guide(snapshot: dict[str, Any], filename: str) -> HtmlDocument:
         + _procedure(snapshot) + _manuals(snapshot) + _practical(snapshot) + _faq(snapshot) + _final_contact(snapshot)
     )
     year = _campaign_year(snapshot)
-    return _document(snapshot, filename, f"Guide Parents — Stages de pré-rentrée {year}", f"Guide Parents · Pré-rentrée {year}", body, nav, body_class="parent-guide")
+    return _document(snapshot, filename, f"Guide Parents — Stages de pré-rentrée {year}", f"Guide Parents · Pré-rentrée {year}", body, nav, body_class="parent-guide cover-document")
 
 
 def _brochure(snapshot: dict[str, Any], filename: str) -> HtmlDocument:
     nav = (("essentiel", "L’essentiel"), ("offres", "Les offres"), ("tarifs", "Tarifs"), ("reservation", "Réservation"), ("contact", "Contact"))
     body = _cover(snapshot) + _essentials(snapshot) + _offers_comparison(snapshot) + _pedagogy(snapshot) + _pricing(snapshot) + _procedure(snapshot) + _final_contact(snapshot)
-    return _document(snapshot, filename, f"Brochure Parents — Pré-rentrée {_campaign_year(snapshot)}", "Brochure Parents", body, nav, body_class="short-brochure")
+    return _document(snapshot, filename, f"Brochure Parents — Pré-rentrée {_campaign_year(snapshot)}", "Brochure Parents", body, nav, body_class="short-brochure cover-document")
 
 
 def _essential(snapshot: dict[str, Any], filename: str) -> HtmlDocument:
     nav = (("essentiel", "L’essentiel"), ("contact", "Contact"))
-    return _document(snapshot, filename, f"Pré-rentrée {_campaign_year(snapshot)} — L’essentiel", "L’essentiel", _cover(snapshot) + _essentials(snapshot) + _final_contact(snapshot), nav)
+    return _document(snapshot, filename, f"Pré-rentrée {_campaign_year(snapshot)} — L’essentiel", "L’essentiel", _cover(snapshot) + _essentials(snapshot) + _final_contact(snapshot), nav, body_class="cover-document")
 
 
 def _comparison(snapshot: dict[str, Any], filename: str) -> HtmlDocument:
