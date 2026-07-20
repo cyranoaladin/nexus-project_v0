@@ -11,10 +11,7 @@ jest.mock('fs/promises', () => ({
   readFile: jest.fn(),
 }));
 
-jest.mock('node:fs/promises', () => ({
-  stat: jest.fn(),
-  readFile: jest.fn(),
-}));
+jest.mock('node:fs/promises', () => jest.requireMock('fs/promises'));
 
 jest.mock('@/lib/guards', () => ({
   requireRole: jest.fn(),
