@@ -34,8 +34,11 @@ COPY . .
 # On fournit un secret factice pour le build (le vrai secret est injecté au runtime via .env)
 ARG NEXTAUTH_SECRET=build-time-placeholder
 ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+ARG RELEASE_SHA
 # On lance le build de Next.js.
-RUN npm run build
+RUN printf '%s' "$RELEASE_SHA" \
+      | grep -Eq '^[0-9a-fA-F]{40}([0-9a-fA-F]{24})?$' \
+    && RELEASE_SHA="$RELEASE_SHA" npm run build
 
 
 # === ÉTAPE 4: Création de l'Image Finale de Production ===
@@ -59,6 +62,7 @@ COPY --from=builder /app/.next/static ./.next/static
 # Ces deux éléments sont nécessaires au runtime pour que Prisma fonctionne.
 COPY --from=builder /app/node_modules/.prisma ./.prisma
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/release-manifest.json ./release-manifest.json
 
 # On copie les scripts pour les tests E2E et maintenance
 COPY --from=builder /app/scripts ./scripts
