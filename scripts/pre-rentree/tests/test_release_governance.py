@@ -36,6 +36,7 @@ def _artifact(root: Path) -> Path:
     gates = {
         key: 0 for key in (
             "ACCESSIBILITY_ISSUE_COUNT", "CONTACT_MISMATCH_COUNT", "DEPOSIT_LABEL_MISMATCH_COUNT",
+            "BROWSER_ACCESSIBILITY_ISSUE_COUNT",
             "HARDCODED_BUSINESS_VALUE_COUNT", "LEGAL_POLICY_CONFLICT_COUNT", "MODULE_SESSION_MISMATCH_COUNT",
             "PRICE_MISMATCH_COUNT", "PUBLIC_CLAIM_WITHOUT_SOURCE_COUNT", "QR_LINK_MISMATCH_COUNT",
             "SCHEDULE_MISMATCH_COUNT", "UNAPPROVED_CONTRACTUAL_CLAIM_COUNT", "VISUAL_DEFECT_COUNT",
@@ -57,6 +58,14 @@ def _artifact(root: Path) -> Path:
         "MERGE": "NOT_PERFORMED",
         "DEPLOYMENT": "NOT_PERFORMED",
         "PUBLIC_DISTRIBUTION": "NOT_AUTHORIZED",
+    })
+    _write(artifact / "REVIEW/VISUAL/browser-accessibility-report.json", {
+        "AUTOMATED_BROWSER_ACCESSIBILITY_CHECK": "PASS",
+        "AXE_VIOLATION_COUNT": 0,
+    })
+    _write(artifact / "REVIEW/AUDIT/reproducibility-report.json", {
+        "REPRODUCIBLE_PUBLIC_BUILD": True,
+        "MISMATCH_COUNT": 0,
     })
     return artifact
 

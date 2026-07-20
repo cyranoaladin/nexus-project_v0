@@ -7,14 +7,14 @@ import json
 import math
 import re
 import subprocess
-from datetime import date
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
 import weasyprint
 from bs4 import BeautifulSoup
-from PIL import Image, ImageChops, ImageDraw, ImageFont, ImageStat
+from PIL import Image, ImageChops, ImageDraw, ImageFont
 from pypdf import PdfReader
 
 from document_assets import decode_qr
@@ -249,11 +249,6 @@ def scan_blocked_public_terms(public_root: Path) -> list[dict[str, str]]:
             if match := pattern.search(text):
                 findings.append({"file": path.name, "code": code, "match": match.group(0)})
     return findings
-
-
-def _format_date(value: str) -> str:
-    parsed = date.fromisoformat(value)
-    return f"{parsed.day:02d}/{parsed.month:02d}/{parsed.year}"
 
 
 def _json_pointer_exists(document: Any, pointer: str) -> bool:
@@ -522,14 +517,21 @@ def build_document_manifest(
         "SOURCE_COMMIT_DATE": snapshot["sourceCommitDate"],
         "SNAPSHOT_BUILT_AT": snapshot["snapshotBuiltAt"],
         "DOCUMENT_EDITION_DATE": snapshot["document"]["documentEditionDate"],
-        "CREATED_AT": snapshot["snapshotBuiltAt"],
+        "DOCUMENTS_BUILT_AT": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "AUTOMATED_VISUAL_AUDIT_AT": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "ASSISTANT_VISUAL_REVIEW_AT": None,
+        "OWNER_REVIEWED_AT": snapshot["reviews"]["ownerReviewedAt"],
+        "LEGAL_REVIEWED_AT": snapshot["reviews"]["legalReviewedAt"],
+        "PRIVACY_REVIEWED_AT": snapshot["reviews"]["privacyReviewedAt"],
         "DOCUMENT_VERSION": snapshot["document"]["documentPackageVersion"],
         "PDF_FILES": pdf_records,
         "ALL_PDF_SHA256_RECORDED": len(pdf_records) == len(snapshot["document"]["outputs"]["publicPdf"]) and all(record["PDF_SHA256"] for record in pdf_records),
     }
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    temporary = output_path.with_name(f".{output_path.name}.tmp")
+    temporary.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    temporary.replace(output_path)
     return manifest
 
 

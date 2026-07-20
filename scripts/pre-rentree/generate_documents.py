@@ -7,6 +7,7 @@ import argparse
 import json
 import os
 import shutil
+import subprocess
 import tempfile
 import uuid
 from pathlib import Path
@@ -103,6 +104,28 @@ def _publication_status() -> dict[str, str]:
     }
 
 
+def _browser_review(snapshot: dict[str, Any], package_root: Path) -> dict[str, Any]:
+    guide = snapshot["document"]["outputs"]["publicHtml"]["parentGuide"]
+    output = package_root / "REVIEW/VISUAL"
+    completed = subprocess.run(
+        [
+            "node",
+            str(SCRIPT_DIR / "capture-review-html.mjs"),
+            "--html",
+            str(package_root / "PUBLIC/HTML" / guide),
+            "--output",
+            str(output),
+        ],
+        cwd=REPO_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    if not completed.stdout.strip():
+        raise RuntimeError("Browser review did not return a result")
+    return json.loads(completed.stdout)
+
+
 def _build_in_staging(
     snapshot_path: Path,
     package_root: Path,
@@ -147,6 +170,17 @@ def _build_in_staging(
         }
     )
     _atomic_json(audit / "visual-qa-report.json", visual_report)
+    browser_report = (
+        _browser_review(snapshot, package_root)
+        if include_visual
+        else {
+            "AUTOMATED_BROWSER_ACCESSIBILITY_CHECK": "SKIPPED_IN_UNIT_TEST",
+            "AXE_VIOLATION_COUNT": 0,
+            "REMOTE_DEPENDENCY_COUNT": 0,
+            "JAVASCRIPT_DEPENDENCY_COUNT": 0,
+            "MOBILE_HORIZONTAL_OVERFLOW_PX": 0,
+        }
+    )
     manifest = build_document_manifest(
         snapshot,
         package_root,
@@ -179,6 +213,10 @@ def _build_in_staging(
         and accessibility["ACCESSIBILITY_ISSUE_COUNT"] == 0
         and social_report["SOCIAL_VISUAL_DEFECT_COUNT"] == 0
         and visual_report["VISUAL_DEFECT_COUNT"] == 0
+        and browser_report["AXE_VIOLATION_COUNT"] == 0
+        and browser_report["REMOTE_DEPENDENCY_COUNT"] == 0
+        and browser_report["JAVASCRIPT_DEPENDENCY_COUNT"] == 0
+        and browser_report["MOBILE_HORIZONTAL_OVERFLOW_PX"] == 0
         and manifest["ALL_PDF_SHA256_RECORDED"]
         and all(path.is_file() for path in expected)
     )
@@ -186,6 +224,7 @@ def _build_in_staging(
         **content_report,
         "VISUAL_DEFECT_COUNT": visual_report["VISUAL_DEFECT_COUNT"],
         "ACCESSIBILITY_ISSUE_COUNT": accessibility["ACCESSIBILITY_ISSUE_COUNT"],
+        "BROWSER_ACCESSIBILITY_ISSUE_COUNT": browser_report["AXE_VIOLATION_COUNT"],
         "OUTPUT_MANIFEST_COMPLETE": all(path.is_file() for path in expected),
         "ALL_PDF_SHA256_RECORDED": manifest["ALL_PDF_SHA256_RECORDED"],
         "PUBLIC_STATUS": "PDF_PACKAGE_READY_FOR_OWNER_REVIEW" if gates_pass else "BLOCKED_BY_REPRODUCIBILITY",

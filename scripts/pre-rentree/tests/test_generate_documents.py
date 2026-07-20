@@ -74,6 +74,7 @@ def test_records_all_final_gates_without_copying_repository_sources(built_packag
         "VISUAL_DEFECT_COUNT",
         "UNAPPROVED_CONTRACTUAL_CLAIM_COUNT",
         "ACCESSIBILITY_ISSUE_COUNT",
+        "BROWSER_ACCESSIBILITY_ISSUE_COUNT",
     )
     assert {key: final_report[key] for key in zero_gates} == {key: 0 for key in zero_gates}
     assert final_report["OUTPUT_MANIFEST_COMPLETE"] is True
