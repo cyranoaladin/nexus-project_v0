@@ -22,7 +22,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: pre-rentree-documents-${{ github.head_ref || github.ref_name }}
+  group: pre-rentree-documents-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
