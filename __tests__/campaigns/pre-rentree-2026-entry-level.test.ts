@@ -4,6 +4,7 @@ import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getter
 import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
 
 const entryLabels = {
+  TROISIEME: 'Entrée en 3e',
   SECONDE: 'Entrée en Seconde',
   PREMIERE: 'Entrée en Première',
   TERMINALE: 'Entrée en Terminale',
@@ -12,6 +13,7 @@ const entryLabels = {
 describe('Pré-rentrée 2026 entry-level invariant', () => {
   it('defines stable level codes as 2026-2027 entry classes', () => {
     expect(campaignManifest.levels).toEqual([
+      { id: 'TROISIEME', label: entryLabels.TROISIEME },
       { id: 'SECONDE', label: entryLabels.SECONDE },
       { id: 'PREMIERE', label: entryLabels.PREMIERE },
       { id: 'TERMINALE', label: entryLabels.TERMINALE },
@@ -20,6 +22,7 @@ describe('Pré-rentrée 2026 entry-level invariant', () => {
       kind: 'ENTRY_LEVEL',
       schoolYear: '2026-2027',
       currentToEntry: {
+        QUATRIEME: 'TROISIEME',
         TROISIEME: 'SECONDE',
         SECONDE: 'PREMIERE',
         PREMIERE: 'TERMINALE',
@@ -31,21 +34,24 @@ describe('Pré-rentrée 2026 entry-level invariant', () => {
   it('keeps hero, SEO, FAQ and practical information explicit', () => {
     const dto = getPreRentreeLandingDTO();
     expect(dto.content.hero.subtitle).toContain(
-      'élèves entrant en Seconde, Première ou Terminale',
+      'élèves entrant en 3e, Seconde, Première ou Terminale',
     );
     expect(dto.seo.description).toContain(
-      'élèves entrant en Seconde, Première ou Terminale',
+      'élèves entrant en 3e, Seconde, Première ou Terminale',
     );
     expect(dto.content.practical.audience).toContain(
-      'élèves entrant en Seconde, Première ou Terminale',
+      'élèves entrant en 3e, Seconde, Première ou Terminale',
     );
-    expect(JSON.stringify(dto.content.faq)).toContain('entrant en Seconde, Première ou Terminale');
+    expect(JSON.stringify(dto.content.faq)).toContain('entrant en 3e, Seconde, Première ou Terminale');
   });
 
   it('presents every module as preparation for its entry class', () => {
     for (const campaignModule of modulesData.modules) {
       const entryLabel = entryLabels[campaignModule.level as EntryLevelCode];
       expect(`${campaignModule.title} ${campaignModule.subtitle}`).toContain(entryLabel);
+      if (campaignModule.level === 'TROISIEME') {
+        expect(campaignModule.prerequisites).toMatch(/4e/i);
+      }
       if (campaignModule.level === 'SECONDE') {
         expect(campaignModule.prerequisites).toMatch(/Troisième|collège/i);
         expect(campaignModule.prerequisites).not.toMatch(/programme de Seconde|acquis de Seconde/i);
@@ -72,8 +78,8 @@ describe('Pré-rentrée 2026 entry-level invariant', () => {
     const secondeMaths = modulesData.modules.find((candidate) => candidate.id === 'seconde-mathematiques');
     const premiereFrench = modulesData.modules.find((candidate) => candidate.id === 'premiere-francais-eaf');
     const terminaleMaths = modulesData.modules.find((candidate) => candidate.id === 'terminale-mathematiques');
-    const terminaleExpression = modulesData.modules.find(
-      (candidate) => candidate.id === 'terminale-expression-ecrite-oral',
+    const terminalePhilosophy = modulesData.modules.find(
+      (candidate) => candidate.id === 'terminale-philosophie',
     );
 
     expect(JSON.stringify(secondeMaths)).toMatch(/proportionnalité/i);
@@ -82,9 +88,7 @@ describe('Pré-rentrée 2026 entry-level invariant', () => {
     expect(terminaleMaths?.differentiation).toMatch(
       /Maths expertes et Maths complémentaires sont des options/i,
     );
-    expect(terminaleExpression?.title).toBe(
-      "Expression écrite, argumentation et maîtrise de l'oral",
-    );
+    expect(terminalePhilosophy?.title).toBe('Philosophie — Entrée en Terminale');
   });
 
   it('targets retained specialties for Terminale NSI and Physics-Chemistry', () => {
@@ -102,7 +106,7 @@ describe('Pré-rentrée 2026 entry-level invariant', () => {
     const publicContract = `${JSON.stringify(practical)} ${faq}`;
 
     expect(campaignManifest.decisionDeadline).toBe('2026-08-10T18:00:00+01:00');
-    expect(practical.preRegistrationNotice).toMatch(/validation administrative et pédagogique/i);
+    expect(practical.preRegistrationNotice).toMatch(/qualification pédagogique/i);
     expect(practical.preRegistrationNotice).toMatch(/sans paiement/i);
     expect(practical.preRegistrationNotice).toMatch(/ne réserve pas une place/i);
     expect(practical.preRegistrationNotice).toMatch(/ne forme pas un contrat/i);

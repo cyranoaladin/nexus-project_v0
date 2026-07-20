@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "1.0.0",
+  "version": "2026-capabilities-v1",
+  "capabilities": [
+    {"id":"questionnaire-scolaire-court","label":"Questionnaire scolaire court","designed":true,"implemented":false,"tested":false,"operationallyReady":false,"ownerApproved":false,"publiclyCommitted":false},
+    {"id":"test-flash","label":"Test flash de positionnement","designed":true,"implemented":false,"tested":false,"operationallyReady":false,"ownerApproved":false,"publiclyCommitted":false},
+    {"id":"objectifs-seance","label":"Objectifs explicites par séance","designed":true,"implemented":true,"tested":true,"operationallyReady":true,"ownerApproved":false,"publiclyCommitted":false},
+    {"id":"livrables-seance","label":"Livrable par séance","designed":true,"implemented":false,"tested":false,"operationallyReady":false,"ownerApproved":false,"publiclyCommitted":false},
+    {"id":"evaluations-rapides","label":"Évaluation rapide par séance","designed":true,"implemented":false,"tested":false,"operationallyReady":false,"ownerApproved":false,"publiclyCommitted":false},
+    {"id":"adaptation-par-paliers","label":"Adaptation par paliers","designed":true,"implemented":true,"tested":false,"operationallyReady":false,"ownerApproved":false,"publiclyCommitted":false},
+    {"id":"bilan-fondations","label":"Bilan Fondations — synthèse et priorités","designed":true,"implemented":false,"tested":false,"operationallyReady":false,"ownerApproved":false,"publiclyCommitted":false},
+    {"id":"priorites-rentree","label":"Trois priorités de rentrée","designed":true,"implemented":false,"tested":false,"operationallyReady":false,"ownerApproved":false,"publiclyCommitted":false},
+    {"id":"questionnaire-famille","label":"Questionnaire famille","designed":true,"implemented":false,"tested":false,"operationallyReady":false,"ownerApproved":false,"publiclyCommitted":false},
+    {"id":"test-positionnement-matiere","label":"Test de positionnement par matière","designed":true,"implemented":false,"tested":false,"operationallyReady":false,"ownerApproved":false,"publiclyCommitted":false},
+    {"id":"entretien-profil-si-necessaire","label":"Entretien court de profil lorsque nécessaire","designed":true,"implemented":false,"tested":false,"operationallyReady":false,"ownerApproved":false,"publiclyCommitted":false},
+    {"id":"diagnostic-domaines","label":"Diagnostic par domaines","designed":true,"implemented":false,"tested":false,"operationallyReady":false,"ownerApproved":false,"publiclyCommitted":false},
+    {"id":"feuille-route","label":"Feuille de route des cinq séances","designed":true,"implemented":false,"tested":false,"operationallyReady":false,"ownerApproved":false,"publiclyCommitted":false},
+    {"id":"suivi-seance","label":"Suivi des domaines travaillés","designed":true,"implemented":false,"tested":false,"operationallyReady":false,"ownerApproved":false,"publiclyCommitted":false},
+    {"id":"bilan-parents","label":"Bilan parents","designed":true,"implemented":false,"tested":false,"operationallyReady":false,"ownerApproved":false,"publiclyCommitted":false},
+    {"id":"bilan-eleve","label":"Bilan élève","designed":true,"implemented":false,"tested":false,"operationallyReady":false,"ownerApproved":false,"publiclyCommitted":false},
+    {"id":"plan-action-premieres-semaines","label":"Plan d’action pour les premières semaines","designed":true,"implemented":false,"tested":false,"operationallyReady":false,"ownerApproved":false,"publiclyCommitted":false},
+    {"id":"recommandations-annuelles","label":"Recommandations annuelles","designed":true,"implemented":false,"tested":false,"operationallyReady":false,"ownerApproved":false,"publiclyCommitted":false},
+    {"id":"generation-pdf","label":"Génération des documents de suivi","designed":true,"implemented":false,"tested":false,"operationallyReady":false,"ownerApproved":false,"publiclyCommitted":false},
+    {"id":"relecture-humaine","label":"Relecture humaine nominative","designed":true,"implemented":false,"tested":false,"operationallyReady":false,"ownerApproved":false,"publiclyCommitted":false},
+    {"id":"diffusion-famille","label":"Diffusion sécurisée à la famille","designed":true,"implemented":false,"tested":false,"operationallyReady":false,"ownerApproved":false,"publiclyCommitted":false},
+    {"id":"stockage-conforme","label":"Stockage conforme","designed":true,"implemented":false,"tested":false,"operationallyReady":false,"ownerApproved":false,"publiclyCommitted":false},
+    {"id":"rgpd-operationnel","label":"Processus de confidentialité opérationnel","designed":true,"implemented":false,"tested":false,"operationallyReady":false,"ownerApproved":false,"publiclyCommitted":false}
+  ]
+}

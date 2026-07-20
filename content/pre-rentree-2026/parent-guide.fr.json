@@ -394,7 +394,7 @@
           "steps": [
             { "text": "La famille transmet une demande de pré-inscription sans paiement.", "evidenceRefs": ["/content/practical/preRegistrationNotice"] },
             { "text": "Nexus étudie le niveau, les matières et le profil pédagogique déclaré.", "evidenceRefs": ["/academicProfiles", "/content/practical/groupCompositionNotice"] },
-            { "text": "Nexus vérifie les effectifs et la cohérence pédagogique du groupe.", "evidenceRefs": ["/campaign/capacity", "/content/practical/groupCompositionNotice"] },
+            { "text": "Nexus vérifie les effectifs et la cohérence pédagogique du groupe.", "evidenceRefs": ["/campaign/capacityByOffer", "/content/practical/groupCompositionNotice"] },
             { "text": "La décision d’ouverture et la proposition de parcours sont communiquées.", "evidenceRefs": ["/campaign/decisionDeadline", "/content/practical/groupCompositionNotice"] },
             { "text": "Les conditions applicables sont transmises avant toute confirmation.", "evidenceRefs": ["/content/practical/noOnlinePaymentNotice", "/legal"] },
             { "text": "La famille confirme ensuite l’inscription selon la proposition validée.", "evidenceRefs": ["/content/practical/preRegistrationNotice"] },

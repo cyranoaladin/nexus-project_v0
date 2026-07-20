@@ -2,7 +2,10 @@ import 'server-only';
 
 import campaignManifest from '@/data/campaigns/pre-rentree-2026.json';
 import modulesData from '@/content/pre-rentree-2026/modules.json';
-import { getPreRentreePacks, getRules } from '@/lib/pricing';
+import offersData from '@/content/pre-rentree-2026/offers.json';
+import capabilitiesData from '@/content/pre-rentree-2026/capabilities.json';
+import manualsData from '@/content/pre-rentree-2026/manuals.registry.json';
+import { getPreRentreeFoundationsProducts, getPreRentreePacks, getRules } from '@/lib/pricing';
 import { LEGAL } from '@/lib/legal';
 import {
   PreRentreeCampaignManifestSchema,
@@ -11,6 +14,11 @@ import {
 import type { EntryLevelCode, PreRentreeCampaignManifest } from './schema';
 import type { PreRentreeHomepageSpotlightDTO } from './homepage-spotlight';
 import type { LandingPack } from './configurator';
+import {
+  PreRentreeCapabilitiesSchema,
+  PreRentreeManualsRegistrySchema,
+  PreRentreeOffersSchema,
+} from './content-schema';
 import {
   formatCampaignDateCartouche,
   formatCampaignStatus,
@@ -104,6 +112,51 @@ export function getPreRentreePackOptions() {
   }));
 }
 
+export function getPreRentreeOfferOptions(): LandingPack[] {
+  const offers = PreRentreeOffersSchema.parse(offersData);
+  const options: LandingPack[] = [];
+  for (const offer of offers.levels) {
+    if (offer.pricing.model === 'PER_SUBJECT') {
+      const [unit] = getPreRentreeFoundationsProducts(offer.pricing.productIds);
+      if (!unit || unit.level !== offer.level) {
+        throw new Error(`Missing Fondations pricing product for ${offer.level}`);
+      }
+      for (let count = 1; count <= offer.pricing.maximumSubjects; count += 1) {
+        options.push({
+          code: `PACK_${count}` as LandingPack['code'],
+          level: offer.level,
+          range: offer.range,
+          subjectsCount: count,
+          totalHours: unit.hours_per_subject * count,
+          price: unit.price_per_student * count,
+          deposit: unit.payment.deposit * count,
+          balance: unit.payment.solde * count,
+          pricePerHour: unit.price_per_student_hour,
+          groupMinOpen: unit.group_min_open,
+          groupMax: unit.group_max,
+        });
+      }
+      continue;
+    }
+    for (const pack of getPreRentreePacks(offer.pricing.productIds)) {
+      options.push({
+        code: `PACK_${pack.subjects_count}` as LandingPack['code'],
+        level: offer.level,
+        range: offer.range,
+        subjectsCount: pack.subjects_count,
+        totalHours: pack.total_hours,
+        price: pack.price_per_student,
+        deposit: pack.payment.deposit,
+        balance: pack.payment.solde,
+        pricePerHour: pack.price_per_student_hour,
+        groupMinOpen: pack.group_min_open,
+        groupMax: pack.group_max,
+      });
+    }
+  }
+  return options;
+}
+
 /**
  * Get the full landing page DTO.
  * Combines manifest + modules + pricing into a single server-rendered payload.
@@ -113,6 +166,10 @@ export function getPreRentreeLandingDTO() {
   const modules = getPreRentreeModules();
   const schedule = getPreRentreeSchedule();
   const packs = getPreRentreePackOptions();
+  const offerOptions = getPreRentreeOfferOptions();
+  const offers = PreRentreeOffersSchema.parse(offersData);
+  const capabilities = PreRentreeCapabilitiesSchema.parse(capabilitiesData);
+  const manuals = PreRentreeManualsRegistrySchema.parse(manualsData);
   const pricingRules = getRules();
   const subjects = campaign.subjects.map((subject) => {
     const subjectModules = subject.levels.map((level) => {
@@ -135,51 +192,20 @@ export function getPreRentreeLandingDTO() {
       ),
     };
   });
-  const educatorKeys = Object.keys(campaign.teacherRoles);
-  const expectedEducatorKeys = [
-    'MATHS_NSI_SNT_TEACHER',
-    'FRENCH_TEACHER',
-    'PHYSICS_CHEMISTRY_TEACHER',
-  ];
-  if (JSON.stringify(educatorKeys) !== JSON.stringify(expectedEducatorKeys)) {
-    throw new Error('Unexpected Pré-rentrée staffing contract');
-  }
   if (
     !campaign.roomRoles['salle-1']?.includes('MATHEMATIQUES') ||
     !campaign.roomRoles['salle-1']?.includes('NSI') ||
     !campaign.roomRoles['salle-2']?.includes('FRANCAIS') ||
+    !campaign.roomRoles['salle-2']?.includes('PHILOSOPHIE') ||
     !campaign.roomRoles['salle-2']?.includes('PHYSIQUE_CHIMIE')
   ) {
     throw new Error('Unexpected Pré-rentrée room contract');
   }
   const organization = {
-    educators: [
-      {
-        title: 'Enseignant Mathématiques / NSI / SNT',
-        details: [
-          'Semaine 1 : Mathématiques',
-          'Semaine 2 : SNT et NSI',
-          'Des créneaux répartis pour assurer la continuité pédagogique.',
-        ],
-      },
-      {
-        title: 'Enseignant de Français',
-        details: [
-          'Semaine 1',
-          'Français Seconde · EAF Première · expression et oral Terminale',
-        ],
-      },
-      {
-        title: 'Enseignant de Physique-Chimie',
-        details: [
-          'Semaine 2',
-          'Entrée en Seconde · Entrée en Première · Entrée en Terminale',
-        ],
-      },
-    ],
+    educators: [],
     rooms: [
       { label: 'Salle 1', details: 'Mathématiques / NSI / SNT' },
-      { label: 'Salle 2', details: 'Français puis Physique-Chimie' },
+      { label: 'Salle 2', details: 'Français, Philosophie et Physique-Chimie' },
     ],
   };
 
@@ -205,9 +231,17 @@ export function getPreRentreeLandingDTO() {
     blocks: campaign.blocks,
     scheduleWeeks: campaign.schedule,
     organization,
-    capacity: campaign.capacity,
+    capacityByOffer: campaign.capacityByOffer,
+    operationalGates: campaign.operationalGates,
     academicProfiles: campaign.academicProfiles,
     packs,
+    offerOptions,
+    offers: offers.levels,
+    capabilities: capabilities.capabilities,
+    manuals: manuals.manuals.map((manual) => ({
+      ...manual,
+      publiclyAdvertisable: manual.printReady && manual.ownerApproved && manual.stockReady,
+    })),
     pricingRules: {
       depositPercentage: pricingRules.payment.deposit_pct_stage,
     },
@@ -246,7 +280,7 @@ export function getPreRentreeHomepageSpotlightDTO(): PreRentreeHomepageSpotlight
     date,
     entryClassesLabel: formatEntryClassList(dto.levels.map((level) => level.label)),
     subjectFamiliesLabel: subjectFamilies.join(' · '),
-    capacityLabel: `${dto.capacity.minPerCohort} à ${dto.capacity.maxPerCohort} élèves`,
+    capacityLabel: `Fondations : ${dto.capacityByOffer.FONDATIONS.minPerCohort} à ${dto.capacityByOffer.FONDATIONS.maxPerCohort} élèves · Premium : ${dto.capacityByOffer.PREMIUM.minPerCohort} à ${dto.capacityByOffer.PREMIUM.maxPerCohort} élèves`,
     volumeLabel: `${singleSubjectPack.totalHours} h par matière`,
     venueLabel: dto.campaign.venue.neighborhood,
     editorialLine: dto.content.hero.h1,

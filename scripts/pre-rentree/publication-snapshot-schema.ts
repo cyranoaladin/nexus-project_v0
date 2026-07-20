@@ -3,8 +3,8 @@ import { z } from 'zod';
 const Sha256 = z.string().regex(/^[a-f0-9]{64}$/);
 const IsoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const Time = z.string().regex(/^\d{2}:\d{2}$/);
-const EntryLevel = z.enum(['SECONDE', 'PREMIERE', 'TERMINALE']);
-const SubjectId = z.enum(['MATHEMATIQUES', 'FRANCAIS', 'NSI', 'PHYSIQUE_CHIMIE']);
+const EntryLevel = z.enum(['TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE']);
+const SubjectId = z.enum(['MATHEMATIQUES', 'FRANCAIS', 'NSI', 'PHYSIQUE_CHIMIE', 'PHILOSOPHIE']);
 
 const SourceEvidenceSchema = z.object({
   path: z.string().min(1),
@@ -80,7 +80,7 @@ const ScheduleWeekSchema = z.object({
     startTime: Time,
     endTime: Time,
     roomLabel: z.string().min(1),
-  }).strict()).length(6),
+  }).strict()).min(1),
 }).strict();
 
 const ClaimSchema = z.object({
@@ -173,7 +173,7 @@ export const PublicationSnapshotSchema = z.object({
     version: z.string().min(1),
     schoolYear: z.string().min(1),
     timezone: z.literal('Africa/Tunis'),
-    publicationMode: z.literal('PRE_REGISTRATION_ONLY'),
+    publicationMode: z.enum(['REVIEW', 'RELEASE']),
     startDate: IsoDate,
     endDate: IsoDate,
     noClassDates: z.array(IsoDate),
@@ -183,9 +183,12 @@ export const PublicationSnapshotSchema = z.object({
       neighborhood: z.string().min(1),
       city: z.string().min(1),
     }).strict(),
-    capacity: z.object({ min: z.number().int(), max: z.number().int() }).strict(),
+    capacityByOffer: z.object({
+      FONDATIONS: z.object({ min: z.literal(4), max: z.literal(6) }).strict(),
+      PREMIUM: z.object({ min: z.literal(3), max: z.literal(5) }).strict(),
+    }).strict(),
   }).strict(),
-  levels: z.array(z.object({ id: EntryLevel, label: z.string().min(1) }).strict()).length(3),
+  levels: z.array(z.object({ id: EntryLevel, label: z.string().min(1) }).strict()).length(4),
   subjects: z.array(z.object({
     id: SubjectId,
     label: z.string().min(1),
@@ -193,15 +196,15 @@ export const PublicationSnapshotSchema = z.object({
     publicLabelByLevel: z.record(z.string()),
     abbreviation: z.string().min(1),
     color: z.string().regex(/^#[A-Fa-f0-9]{6}$/),
-  }).strict()).length(4),
+  }).strict()).length(5),
   blocks: z.array(z.object({ id: z.enum(['A', 'B', 'C', 'D']), startTime: Time, endTime: Time }).strict()).length(4),
   schedule: z.object({
     weeks: z.array(ScheduleWeekSchema).length(2),
-    sessions: z.array(ScheduleSessionSchema).length(60),
+    sessions: z.array(ScheduleSessionSchema).length(70),
   }).strict(),
   academicProfiles: z.record(z.unknown()),
   packs: z.array(PackSchema).length(4),
-  modules: z.array(ModuleSchema).length(12),
+  modules: z.array(ModuleSchema).length(14),
   content: z.object({
     hero: z.object({ eyebrow: z.string(), h1: z.string(), subtitle: z.string() }).strict(),
     method: z.array(z.object({ title: z.string(), description: z.string() }).strict()),

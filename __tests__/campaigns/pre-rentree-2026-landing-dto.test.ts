@@ -25,22 +25,25 @@ describe('Pré-rentrée 2026 landing DTO', () => {
     expect(dto.content.practical.preRegistrationNotice).toContain('ne réserve pas une place');
     expect(dto.content.practical.preRegistrationNotice).toContain('ne forme pas un contrat');
     expect(dto.seo.canonical).toBe('/stages/pre-rentree-2026');
-    expect(dto.capacity).toEqual({ minPerCohort: 3, maxPerCohort: 5 });
+    expect(dto.capacityByOffer).toEqual({
+      FONDATIONS: { minPerCohort: 4, maxPerCohort: 6 },
+      PREMIUM: { minPerCohort: 3, maxPerCohort: 5 },
+    });
     expect(dto.blocks).toHaveLength(4);
     expect(dto.content.hero.subtitle).toContain(
-      'initiation informatique, algorithmique et SNT pour l’entrée en Seconde',
+      'Nexus Fondations en 3e et Seconde',
     );
     expect(dto.content.hero.subtitle).not.toMatch(/NSI en Seconde|EDS NSI/i);
     expect(dto.packs.map((pack) => pack.code)).toEqual(['PACK_1', 'PACK_2', 'PACK_3', 'PACK_4']);
     expect(JSON.stringify(dto.packs)).not.toContain('pre2026-pack-');
-    expect(dto.publicStatus).toBe('Pré-inscriptions ouvertes');
+    expect(dto.publicStatus).toBe('Campagne en préparation');
     expect(dto).not.toHaveProperty('status');
     expect(dto.scheduleWeeks).toHaveLength(2);
-    expect(dto.scheduleWeeks.flatMap((week) => week.slots)).toHaveLength(12);
-    expect(dto.organization.educators).toHaveLength(3);
+    expect(dto.scheduleWeeks.flatMap((week) => week.slots)).toHaveLength(14);
+    expect(dto.organization.educators).toHaveLength(0);
     expect(dto.organization.rooms).toEqual([
       { label: 'Salle 1', details: 'Mathématiques / NSI / SNT' },
-      { label: 'Salle 2', details: 'Français puis Physique-Chimie' },
+      { label: 'Salle 2', details: 'Français, Philosophie et Physique-Chimie' },
     ]);
     expect(JSON.stringify(dto.organization)).not.toMatch(
       /MATHS_NSI_SNT_TEACHER|FRENCH_TEACHER|PHYSICS_CHEMISTRY_TEACHER|teacherRole|roomRole/,
@@ -75,7 +78,7 @@ describe('Pré-rentrée 2026 landing DTO', () => {
   it('keeps all pedagogical fields for every module session', () => {
     const { modules } = getPreRentreeLandingDTO();
 
-    expect(modules).toHaveLength(12);
+    expect(modules).toHaveLength(14);
     for (const campaignModule of modules) {
       expect(campaignModule.prerequisites.length).toBeGreaterThan(0);
       expect(campaignModule.differentiation.length).toBeGreaterThan(0);

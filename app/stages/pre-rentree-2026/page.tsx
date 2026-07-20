@@ -61,7 +61,7 @@ export default function PreRentree2026Page() {
       <PreRentreeHero
         campaign={dto.campaign}
         content={dto.content.hero}
-        capacity={dto.capacity}
+        capacityByOffer={dto.capacityByOffer}
         packs={dto.packs}
         schedule={dto.schedule}
         whatsappMessage={dto.contact.whatsappMessage}
@@ -71,7 +71,7 @@ export default function PreRentree2026Page() {
           <StageConfigurator
             levels={dto.levels}
             subjects={dto.subjects}
-            packs={dto.packs}
+            packs={dto.offerOptions}
             schedule={dto.schedule}
             academicProfiles={dto.academicProfiles}
             groupCompositionNotice={dto.content.practical.groupCompositionNotice}
@@ -97,7 +97,7 @@ export default function PreRentree2026Page() {
       <PracticalInformation
         campaign={dto.campaign}
         blocks={dto.blocks}
-        capacity={dto.capacity}
+        capacityByOffer={dto.capacityByOffer}
         pack={dto.packs.find((pack) => pack.subjectsCount === 1)}
         depositPercentage={dto.pricingRules.depositPercentage}
         content={dto.content.practical}

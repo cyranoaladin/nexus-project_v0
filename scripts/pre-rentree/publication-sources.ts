@@ -165,7 +165,16 @@ export function compileCanonicalPublication(options: CompileOptions): Publicatio
         neighborhood: LEGAL.addresses.pedagogique.neighborhood,
         city: LEGAL.addresses.pedagogique.city,
       },
-      capacity: { min: campaign.capacity.minPerCohort, max: campaign.capacity.maxPerCohort },
+      capacityByOffer: {
+        FONDATIONS: {
+          min: campaign.capacityByOffer.FONDATIONS.minPerCohort,
+          max: campaign.capacityByOffer.FONDATIONS.maxPerCohort,
+        },
+        PREMIUM: {
+          min: campaign.capacityByOffer.PREMIUM.minPerCohort,
+          max: campaign.capacityByOffer.PREMIUM.maxPerCohort,
+        },
+      },
     },
     levels: campaign.levels,
     subjects: deriveSubjects(campaign),

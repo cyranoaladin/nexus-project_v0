@@ -36,6 +36,7 @@ interface ProfileOption {
 }
 
 interface AcademicProfiles {
+  TROISIEME: Record<string, never>;
   SECONDE: Record<string, never>;
   PREMIERE: {
     voies: ProfileOption[];
