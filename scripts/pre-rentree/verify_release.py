@@ -20,6 +20,7 @@ REVIEW_SCHEMA = SCRIPT_DIR / "schemas/review-manifest.schema.json"
 APPROVAL_SCHEMA = SCRIPT_DIR / "schemas/owner-approval.schema.json"
 ZERO_GATES = (
     "ACCESSIBILITY_ISSUE_COUNT",
+    "BROWSER_ACCESSIBILITY_ISSUE_COUNT",
     "CONTACT_MISMATCH_COUNT",
     "DEPOSIT_LABEL_MISMATCH_COUNT",
     "HARDCODED_BUSINESS_VALUE_COUNT",
@@ -223,6 +224,12 @@ def verify_artifact_release(artifact_root: Path, repo_root: Path) -> dict[str, A
     artifact_root = Path(artifact_root).resolve()
     _validate_final_report(artifact_root)
     status = _json(artifact_root / "REVIEW/AUDIT/publication-status.json")
+    browser = _json(artifact_root / "REVIEW/VISUAL/browser-accessibility-report.json")
+    reproducibility = _json(artifact_root / "REVIEW/AUDIT/reproducibility-report.json")
+    if browser.get("AUTOMATED_BROWSER_ACCESSIBILITY_CHECK") != "PASS":
+        raise ValueError("Browser accessibility and responsive review did not pass")
+    if reproducibility.get("REPRODUCIBLE_PUBLIC_BUILD") is not True:
+        raise ValueError("Public document build is not reproducible")
     files = _safe_artifact_files(artifact_root)
     forbidden_sources = [path for path in files if path.suffix.lower() in {".py", ".ts", ".tsx", ".zip"}]
     forbidden_private = [
@@ -245,6 +252,8 @@ def verify_artifact_release(artifact_root: Path, repo_root: Path) -> dict[str, A
         "FORBIDDEN_SOURCE_COPY_COUNT": len(forbidden_sources),
         "FORBIDDEN_PRIVATE_PATH_COUNT": len(forbidden_private),
         "SECRET_FINDING_COUNT": len(secret_findings),
+        "REPRODUCIBLE_PUBLIC_BUILD": True,
+        "AUTOMATED_BROWSER_ACCESSIBILITY_CHECK": "PASS",
         "REVIEW_MANIFEST_SHA256": review_manifest_sha256(manifest),
     }
 

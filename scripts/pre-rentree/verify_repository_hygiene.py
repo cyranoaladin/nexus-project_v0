@@ -68,16 +68,41 @@ def verify(repo_root: Path) -> tuple[list[str], list[str]]:
     return sorted(generated), sorted(duplicates)
 
 
+def audit_repository(repo_root: Path) -> dict[str, object]:
+    generated, duplicates = verify(repo_root)
+    tracked = _tracked_paths(repo_root.resolve())
+    private_directories = sorted(
+        path.as_posix()
+        for path in tracked
+        if any(part.upper() == "PRIVATE" for part in path.parts)
+        and path.as_posix().startswith(("outputs-v5-canonical/", "artifacts/", ".artifacts/"))
+    )
+    return {
+        "TRACKED_GENERATED_OUTPUT_COUNT": len(generated),
+        "TRACKED_GENERATED_OUTPUTS": generated,
+        "DUPLICATE_DOCUMENT_SOURCE_COUNT": len(duplicates),
+        "DUPLICATE_DOCUMENT_SOURCES": duplicates,
+        "TRACKED_PRIVATE_DIRECTORY_COUNT": len(private_directories),
+        "TRACKED_PRIVATE_DIRECTORIES": private_directories,
+        "PASS": not generated and not duplicates and not private_directories,
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo-root", required=True, type=Path)
     args = parser.parse_args()
-    generated, duplicates = verify(args.repo_root)
-    print(f"TRACKED_GENERATED_ARTIFACT_COUNT={len(generated)}")
-    print(f"DUPLICATE_DOCUMENT_SOURCE_COUNT={len(duplicates)}")
-    for finding in (*generated, *duplicates):
+    report = audit_repository(args.repo_root)
+    print(f"TRACKED_GENERATED_ARTIFACT_COUNT={report['TRACKED_GENERATED_OUTPUT_COUNT']}")
+    print(f"DUPLICATE_DOCUMENT_SOURCE_COUNT={report['DUPLICATE_DOCUMENT_SOURCE_COUNT']}")
+    print(f"TRACKED_PRIVATE_DIRECTORY_COUNT={report['TRACKED_PRIVATE_DIRECTORY_COUNT']}")
+    for finding in (
+        *report["TRACKED_GENERATED_OUTPUTS"],
+        *report["DUPLICATE_DOCUMENT_SOURCES"],
+        *report["TRACKED_PRIVATE_DIRECTORIES"],
+    ):
         print(f"ERROR={finding}")
-    raise SystemExit(1 if generated or duplicates else 0)
+    raise SystemExit(0 if report["PASS"] else 1)
 
 
 if __name__ == "__main__":
