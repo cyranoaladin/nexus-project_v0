@@ -31,7 +31,11 @@ Le résultat est accepté lorsque :
 - l'appel `readFile` reste alimenté par un chemin dont le préfixe
   `process.cwd()/programmes` est statiquement visible par le traceur ;
 - les tests de la route et du résolveur passent ;
-- `npm run build` réussit dans l'étape Docker `builder`, audits compris.
+- le builder reçoit explicitement le SHA de release malgré l'exclusion de
+  `.git` du contexte Docker ;
+- `npm run build` réussit dans l'étape Docker `builder`, audits compris ;
+- l'image runner finale contient `/app/release-manifest.json`, marqué vérifié
+  et portant exactement le SHA fourni au build.
 
 ## Hors périmètre
 
@@ -115,6 +119,24 @@ const filePath = join(
 Le segment statique `programmes` borne l'analyse de `node-file-trace`. Le helper
 séparé garde la validation testable sans cacher au traceur le préfixe statique.
 
+### Provenance du build Docker
+
+Le gate `verify-standalone-artifact.mjs` exige `RELEASE_SHA`. Comme `.git` est
+volontairement absent du contexte Docker, le `Dockerfile` déclare sans valeur
+par défaut `ARG RELEASE_SHA` dans l'étape `builder`. Avant le build, il exige un
+hash Git hexadécimal de 40 ou 64 caractères, puis transmet la valeur uniquement
+au processus `npm run build`. Les valeurs vides, `unknown`, non hexadécimales ou
+de mauvaise longueur échouent avant la compilation.
+
+Le SHA n'est pas conservé comme variable d'environnement du runner. Le gate
+l'inscrit dans `/app/release-manifest.json` de l'étape builder, puis le
+`Dockerfile` copie ce fichier à la racine de l'image runner. La provenance reste
+donc consultable dans l'image finale sans devenir une variable d'environnement.
+
+La commande de vérification fournit
+`--build-arg RELEASE_SHA="$(git rev-parse HEAD)"`. `.dockerignore` doit continuer
+d'exclure `.git`. Aucun fallback fictif ou valeur `unknown` n'est autorisé.
+
 ## Flux et erreurs
 
 Le flux HTTP reste : authentification → profil → whitelist du slug → métadonnée
@@ -140,9 +162,16 @@ Le développement suit TDD :
 4. ajouter à `__tests__/api/student.resources.official.route.test.ts` un cas de
    métadonnée invalide qui vérifie le statut 500, le corps générique sans chemin
    local, l'appel à `serializeError` et l'absence d'appel à `stat`/`readFile` ;
-5. exécuter les tests de la route, TypeScript, lint et scans de sécurité ;
-6. exécuter la suite Jest complète sous Node 22.23.1 ;
-7. exécuter le build Docker `builder`, puis inspecter précisément
+5. ajouter à `__tests__/config/deploy-contract.test.ts` un test qui vérifie
+   `.git` dans `.dockerignore`, `ARG RELEASE_SHA` sans défaut dans le builder,
+   la validation hexadécimale 40/64, l'absence de `ENV RELEASE_SHA` dans le
+   runner et la copie de `release-manifest.json` ; observer son échec, puis
+   modifier le `Dockerfile` ;
+6. exécuter les tests de la route, TypeScript, lint et scans de sécurité ;
+7. exécuter la suite Jest complète sous Node 22.23.1 ;
+8. construire l'image Docker finale, extraire son `release-manifest.json` et
+   vérifier `ARTIFACT_VERIFIED=true` ainsi que le SHA exact, puis inspecter
+   précisément
    `.next/server/app/api/student/resources/official/[slug]/route.js.nft.json` :
    le manifeste doit contenir au plus 500 références, zéro référence correspondant
    aux motifs interdits par `validate-next-traces.js`, et au moins un PDF sous
