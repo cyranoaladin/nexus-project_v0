@@ -22,7 +22,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: pre-rentree-documents-${{ github.ref }}
+  group: pre-rentree-documents-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -96,4 +96,3 @@ jobs:
           path: .artifacts/pre-rentree-2026/packages/NexusReussite_PreRentree2026_REVIEW_PACKAGE.zip
           if-no-files-found: error
           retention-days: 14
-
