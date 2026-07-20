@@ -10,7 +10,6 @@ SCRIPT_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SCRIPT_DIR))
 
 from generate_documents import (  # noqa: E402
-    _copy_reproducible_sources,
     _validate_output_target,
     build_package,
 )
@@ -26,14 +25,14 @@ def sha256(path: Path) -> str:
 
 @pytest.fixture(scope="module")
 def built_package(tmp_path_factory: pytest.TempPathFactory) -> Path:
-    output = tmp_path_factory.mktemp("atomic-build") / "outputs-v5-canonical"
+    output = tmp_path_factory.mktemp("atomic-build") / "pre-rentree-2026"
     before = {path.name: sha256(path) for path in sorted((REPO_ROOT.parent / "outputs").glob("*.pdf"))}
-    build_package(SNAPSHOT, output)
+    build_package(SNAPSHOT, output, include_visual=False)
     assert {path.name: sha256(path) for path in sorted((REPO_ROOT.parent / "outputs").glob("*.pdf"))} == before
     return output
 
 
-def test_builds_complete_public_tree_and_legally_blocks_private_pdfs(built_package: Path):
+def test_builds_complete_public_tree_and_records_private_package_block(built_package: Path):
     snapshot = json.loads(SNAPSHOT.read_text(encoding="utf-8"))
 
     assert {path.name for path in (built_package / "PUBLIC").glob("*.pdf")} == set(
@@ -45,31 +44,23 @@ def test_builds_complete_public_tree_and_legally_blocks_private_pdfs(built_packa
     assert {path.name for path in (built_package / "PUBLIC/SOCIAL").iterdir()} == set(
         snapshot["document"]["outputs"]["social"].values()
     )
-    assert not list((built_package / "PRIVATE").glob("*.pdf"))
-    private_status = json.loads((built_package / "PRIVATE/publication-blocked.json").read_text(encoding="utf-8"))
-    assert private_status["CONTRACTUAL_DOSSIER_PUBLICATION_BLOCKED"] is True
-    assert private_status["STATUS"] == "BLOCKED_BY_LEGAL_TERMS"
+    assert (built_package / "PUBLIC/ASSETS/document.css").is_file()
+    assert not (built_package / "SOURCES").exists()
+    assert not (built_package / "PRIVATE").exists()
+    assert not list(built_package.rglob("*DossierConfirmation*"))
+    status = json.loads((built_package / "REVIEW/AUDIT/publication-status.json").read_text(encoding="utf-8"))
+    assert status["PUBLIC_DOCUMENT_PACKAGE"] == "READY_FOR_OWNER_REVIEW"
+    assert status["OWNER_REVIEW"] == "PENDING"
+    assert status["LEGAL_REVIEW"] == "PENDING"
+    assert status["PRIVACY_REVIEW"] == "PENDING"
+    assert status["PRIVATE_CONTRACTUAL_PACKAGE"] == "BLOCKED"
+    assert status["MERGE"] == "NOT_PERFORMED"
+    assert status["DEPLOYMENT"] == "NOT_PERFORMED"
+    assert status["PUBLIC_DISTRIBUTION"] == "NOT_AUTHORIZED"
 
 
-def test_copies_reproducible_sources_and_records_all_final_gates(built_package: Path):
-    required_sources = (
-        "publication.snapshot.json",
-        "publication-snapshot.schema.json",
-        "GENERATOR/generate_documents.py",
-        "CSS/document.css",
-        "HTML/PRIVATE_TEMPLATE/DossierConfirmation_STRUCTURE_NON_PUBLIABLE.html",
-        "requirements.lock",
-    )
-    assert all((built_package / "SOURCES" / relative).is_file() for relative in required_sources)
-    assert any((built_package / "SOURCES/TESTS").glob("test_*.py"))
-    assert {
-        "build-publication-snapshot.ts",
-        "publication-derivations.ts",
-        "publication-snapshot-schema.ts",
-        "publication-sources.ts",
-    } <= {path.name for path in (built_package / "SOURCES/GENERATOR").glob("*.ts")}
-
-    final_report = json.loads((built_package / "AUDIT/final-report.json").read_text(encoding="utf-8"))
+def test_records_all_final_gates_without_copying_repository_sources(built_package: Path):
+    final_report = json.loads((built_package / "REVIEW/AUDIT/final-report.json").read_text(encoding="utf-8"))
     zero_gates = (
         "MODULE_SESSION_MISMATCH_COUNT",
         "PUBLIC_CLAIM_WITHOUT_SOURCE_COUNT",
@@ -89,6 +80,9 @@ def test_copies_reproducible_sources_and_records_all_final_gates(built_package: 
     assert final_report["ALL_PDF_SHA256_RECORDED"] is True
     assert final_report["PUBLIC_STATUS"] == "PDF_PACKAGE_READY_FOR_OWNER_REVIEW"
     assert final_report["PRIVATE_STATUS"] == "BLOCKED_BY_LEGAL_TERMS"
+    forbidden_suffixes = {".py", ".ts", ".tsx", ".jsonc"}
+    copied_source_files = [path for path in built_package.rglob("*") if path.suffix in forbidden_suffixes]
+    assert copied_source_files == []
 
 
 def test_cli_is_independent_of_current_working_directory(tmp_path: Path):
@@ -101,6 +95,7 @@ def test_cli_is_independent_of_current_working_directory(tmp_path: Path):
             "generated/pre-rentree-2026/publication.snapshot.json",
             "--output",
             str(output),
+            "--skip-visual",
         ],
         cwd=tmp_path,
         check=True,
@@ -131,35 +126,7 @@ def test_rejects_output_anywhere_inside_git_metadata():
         _validate_output_target(REPO_ROOT / ".git" / "nested-output")
 
 
-def test_reproducible_source_inventory_is_explicit_and_excludes_governance_sidecars(
-    tmp_path: Path,
-):
-    package = tmp_path / "package"
-
-    _copy_reproducible_sources(SNAPSHOT, package)
-
-    assert {path.name for path in (package / "SOURCES/GENERATOR").glob("*.py")} == {
-        "audit_v4.py",
-        "document_assets.py",
-        "document_audit.py",
-        "document_model.py",
-        "document_renderer.py",
-        "document_templates.py",
-        "generate_documents.py",
-    }
-    assert {path.name for path in (package / "SOURCES/GENERATOR").glob("*.ts")} == {
-        "build-publication-snapshot.ts",
-        "publication-derivations.ts",
-        "publication-snapshot-schema.ts",
-        "publication-sources.ts",
-    }
-    assert {path.name for path in (package / "SOURCES/TESTS").glob("test_*.py")} == {
-        "test_audit_v4.py",
-        "test_document_assets.py",
-        "test_document_audit.py",
-        "test_document_model.py",
-        "test_document_renderer.py",
-        "test_document_templates.py",
-        "test_generate_documents.py",
-        "test_visual_audit.py",
-    }
+def test_build_contains_no_duplicate_generator_test_or_css_copy(built_package: Path):
+    assert not list(built_package.rglob("*.py"))
+    assert not list(built_package.rglob("*.ts"))
+    assert list(built_package.rglob("document.css")) == [built_package / "PUBLIC/ASSETS/document.css"]

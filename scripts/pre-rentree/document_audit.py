@@ -103,8 +103,8 @@ def audit_pdf(path: Path, snapshot: dict[str, Any]) -> dict[str, Any]:
         "LINK_TARGETS": _pdf_links(reader),
         "SECRET_FINDING_COUNT": sum(bool(re.search(pattern, text)) for pattern in secret_patterns),
         "PII_TEST_FINDING_COUNT": sum(bool(re.search(pattern, text, re.IGNORECASE)) for pattern in pii_test_patterns),
-        "CREATED_AT": snapshot["generatedAt"],
-        "DOCUMENT_VERSION": snapshot["document"]["version"],
+        "DOCUMENT_EDITION_DATE": snapshot["document"]["documentEditionDate"],
+        "DOCUMENT_VERSION": snapshot["document"]["documentPackageVersion"],
         "PUBLIC_OR_PRIVATE": snapshot["document"]["publicClassification"],
     }
 
@@ -129,7 +129,7 @@ def audit_html_accessibility(path: Path) -> list[str]:
             issues.append(f"IMAGE_{index}_WITHOUT_ALT")
     for index, link in enumerate(soup.find_all("a", href=True), start=1):
         parsed = urlparse(link["href"])
-        if parsed.scheme not in {"https", "mailto", "tel"}:
+        if parsed.scheme not in {"https", "mailto", "tel"} and not link["href"].startswith("#"):
             issues.append(f"LINK_{index}_UNSUPPORTED_SCHEME")
         if not link.get_text(" ", strip=True):
             issues.append(f"LINK_{index}_WITHOUT_TEXT")
@@ -230,7 +230,9 @@ def audit_social_visuals(snapshot: dict[str, Any], social_root: Path) -> dict[st
 
 
 def _public_text_files(root: Path):
-    yield from sorted(root.rglob("*.html"))
+    for html_path in sorted(root.rglob("*.html")):
+        soup = BeautifulSoup(html_path.read_text(encoding="utf-8"), "html.parser")
+        yield html_path, soup.get_text(" ")
     for pdf in sorted(root.glob("*.pdf")):
         reader = PdfReader(str(pdf))
         yield pdf, "\n".join(page.extract_text() or "" for page in reader.pages)
@@ -405,14 +407,11 @@ def build_content_gate_report(
     )
     planning_text = _normalized(html_text["planning"])
     schedule_mismatches = sum(
-        any(
-            _normalized(value) not in planning_text
-            for value in (
-                session["subjectLabel"], session["startTime"], session["endTime"],
-                session["roomLabel"], _format_date(session["date"]),
-            )
-        )
-        for session in snapshot["schedule"]["sessions"]
+        any(_normalized(value) not in planning_text for value in (
+            week["label"], slot["subjectLabel"], slot["startTime"], slot["endTime"], slot["roomLabel"],
+        ))
+        for week in snapshot["schedule"]["weeks"]
+        for slot in week["slots"]
     )
     contact_mismatches = sum(
         any(value not in text for value in (
@@ -428,9 +427,10 @@ def build_content_gate_report(
     }
     unknown_claims = rendered_claim_ids - approved_claim_ids
     rendered_source_paths = {
-        node["data-source-path"]
+        pointer
         for soup in html_soup.values()
         for node in soup.select("[data-source-path]")
+        for pointer in node["data-source-path"].split()
     }
     invalid_source_paths = {
         pointer for pointer in rendered_source_paths if not _json_pointer_exists(snapshot, pointer)
@@ -440,7 +440,7 @@ def build_content_gate_report(
     contractual_codes = {
         "ANNUAL_CARRYOVER", "ANNUAL_DEDUCTION", "MARKET_COMPARISON", "DEPOSIT_PERCENT",
     }
-    qr_path = package_root / "SOURCES/ASSETS/qr-canonical.png"
+    qr_path = package_root / "PUBLIC/ASSETS/qr-canonical.png"
     qr_mismatch = int(not qr_path.is_file() or decode_qr(qr_path) != snapshot["document"]["qrTarget"])
     qr_mismatch += int(snapshot["contact"]["canonicalUrl"] not in html_text["essential"])
 
@@ -510,16 +510,22 @@ def build_document_manifest(
         "QPDF_VERSION": subprocess.run(["qpdf", "--version"], check=True, capture_output=True, text=True).stdout.splitlines()[0],
     }
     manifest = {
-        "REPO_SHA": snapshot["sourceRepoSha"],
+        "REPO_SHA": subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=repo_root, check=True, capture_output=True, text=True,
+        ).stdout.strip(),
+        "SOURCE_REPO_SHA": snapshot["sourceRepoSha"],
         "SNAPSHOT_SHA256": _sha256(snapshot_path),
         "GENERATOR_SHA256": _sha256(generator_path),
         "FONT_IDENTIFIERS": sorted({font for record in pdf_records for font in record["FONT_IDENTIFIERS"]}),
         **tool_versions,
         "QR_TARGET": snapshot["document"]["qrTarget"],
-        "CREATED_AT": snapshot["generatedAt"],
-        "DOCUMENT_VERSION": snapshot["document"]["version"],
+        "SOURCE_COMMIT_DATE": snapshot["sourceCommitDate"],
+        "SNAPSHOT_BUILT_AT": snapshot["snapshotBuiltAt"],
+        "DOCUMENT_EDITION_DATE": snapshot["document"]["documentEditionDate"],
+        "CREATED_AT": snapshot["snapshotBuiltAt"],
+        "DOCUMENT_VERSION": snapshot["document"]["documentPackageVersion"],
         "PDF_FILES": pdf_records,
-        "ALL_PDF_SHA256_RECORDED": len(pdf_records) == 6 and all(record["PDF_SHA256"] for record in pdf_records),
+        "ALL_PDF_SHA256_RECORDED": len(pdf_records) == len(snapshot["document"]["outputs"]["publicPdf"]) and all(record["PDF_SHA256"] for record in pdf_records),
     }
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -622,31 +628,9 @@ def _contact_sheet(
     return destination
 
 
-def _normalized_pixel_difference(first: Path, second: Path) -> float:
-    first_image = _thumbnail(first, (300, 424)).convert("L")
-    second_image = _thumbnail(second, (300, 424)).convert("L")
-    difference = ImageChops.difference(first_image, second_image)
-    return round(ImageStat.Stat(difference).mean[0] / 255, 8)
-
-
-def _v4_equivalent(v5_key: str, v4_root: Path) -> Path | None:
-    fragments = {
-        "essential": "Essentiel",
-        "planning": "Planning_InfosPratiques",
-        "programSeconde": "Programme_Seconde",
-        "programPremiere": "Programme_Premiere",
-        "programTerminale": "Programme_Terminale",
-        "pricing": "Tarifs",
-    }
-    fragment = fragments[v5_key]
-    matches = sorted(v4_root.glob(f"*{fragment}*.pdf"))
-    return matches[0] if matches else None
-
-
 def build_visual_qa(
     snapshot: dict[str, Any],
     public_root: Path,
-    v4_root: Path,
     output_root: Path,
     dpi: int = 200,
 ) -> dict[str, Any]:
@@ -659,17 +643,13 @@ def build_visual_qa(
     if dpi < 72:
         raise ValueError("Visual QA requires at least 72 DPI")
     public_root = Path(public_root).resolve()
-    v4_root = Path(v4_root).resolve()
     output_root = Path(output_root).resolve()
     raster_root = output_root / "RASTERS_200_DPI"
-    comparison_root = output_root / "V4_COMPARISON_RASTERS"
     output_root.mkdir(parents=True, exist_ok=True)
 
     evidence: list[dict[str, Any]] = []
     contact_entries: list[tuple[str, Path]] = []
     defects: list[dict[str, Any]] = []
-    first_v5_pages: dict[str, Path] = {}
-
     for key, filename in snapshot["document"]["outputs"]["publicPdf"].items():
         pdf_path = public_root / filename
         if not pdf_path.is_file():
@@ -683,8 +663,6 @@ def build_visual_qa(
                 "EXPECTED": len(reader.pages),
                 "ACTUAL": len(raster_pages),
             })
-        if raster_pages:
-            first_v5_pages[key] = raster_pages[0]
         for page_number, image_path in enumerate(raster_pages, start=1):
             geometry = _ink_geometry(image_path)
             page_text = reader.pages[page_number - 1].extract_text() or ""
@@ -712,11 +690,7 @@ def build_visual_qa(
                 "-",
                 _normalized(page_text),
             )
-            footer_tokens = (
-                snapshot["campaign"]["id"],
-                snapshot["document"]["version"],
-                snapshot["sourceRepoSha"][:8],
-            )
+            footer_tokens = (snapshot["contact"]["phone"], snapshot["contact"]["domain"])
             if not all(token in normalized_page_text for token in footer_tokens):
                 defects.append({"CODE": "MISSING_PAGE_FOOTER_METADATA", **record})
             page_counters = re.findall(
@@ -732,42 +706,17 @@ def build_visual_qa(
 
     contact_sheet = _contact_sheet(contact_entries, output_root / "visual-contact-sheet.png")
 
-    comparison_entries: list[tuple[str, Path]] = []
-    comparisons: list[dict[str, Any]] = []
-    for key, v5_page in first_v5_pages.items():
-        v4_pdf = _v4_equivalent(key, v4_root)
-        if v4_pdf is None:
-            comparisons.append({"DOCUMENT_KEY": key, "V4_STATUS": "MISSING", "V5_SHA256": _sha256(v5_page)})
-            comparison_entries.append((f"v5 {key}", v5_page))
-            continue
-        v4_pages = _rasterize_pdf(v4_pdf, comparison_root / key, min(dpi, 100))
-        v4_page = v4_pages[0]
-        comparisons.append({
-            "DOCUMENT_KEY": key,
-            "V4_FILE": v4_pdf.name,
-            "V4_PAGE_SHA256": _sha256(v4_page),
-            "V5_FILE": snapshot["document"]["outputs"]["publicPdf"][key],
-            "V5_PAGE_SHA256": _sha256(v5_page),
-            "NORMALIZED_FIRST_PAGE_PIXEL_DIFFERENCE": _normalized_pixel_difference(v4_page, v5_page),
-        })
-        comparison_entries.extend(((f"v4 {key}", v4_page), (f"v5 {key}", v5_page)))
-    comparison_sheet = _contact_sheet(
-        comparison_entries,
-        output_root / "v4-v5-comparison-sheet.png",
-        columns=2,
-    )
-
     report = {
         "DPI": dpi,
         "PAGE_EVIDENCE": evidence,
         "CONTACT_SHEET": contact_sheet.relative_to(output_root).as_posix(),
-        "V4_V5_COMPARISON_SHEET": comparison_sheet.relative_to(output_root).as_posix(),
-        "VISUAL_DIFF_REPORT": "visual-diff-report.json",
-        "V4_V5_COMPARISONS": comparisons,
+        "VISUAL_REPORT": "visual-qa-report.json",
         "AUTOMATED_DEFECTS": defects,
         "VISUAL_DEFECT_COUNT": len(defects),
-        "MANUAL_PAGE_REVIEW_REQUIRED": True,
+        "AUTOMATED_VISUAL_CHECK": "PASS" if not defects else "FAIL",
+        "ASSISTANT_VISUAL_REVIEW": "PENDING",
+        "OWNER_VISUAL_REVIEW": "PENDING",
     }
-    diff_path = output_root / report["VISUAL_DIFF_REPORT"]
+    diff_path = output_root / report["VISUAL_REPORT"]
     diff_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return report

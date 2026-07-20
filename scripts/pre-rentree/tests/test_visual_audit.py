@@ -15,7 +15,6 @@ from document_renderer import render_public_pdfs, write_public_html  # noqa: E40
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-V4_ROOT = REPO_ROOT.parent / "outputs"
 SNAPSHOT = load_snapshot(
     REPO_ROOT / "generated/pre-rentree-2026/publication.snapshot.json",
     REPO_ROOT / "scripts/pre-rentree/schemas/publication-snapshot.schema.json",
@@ -25,25 +24,24 @@ SNAPSHOT = load_snapshot(
 @pytest.fixture(scope="module")
 def rendered_package(tmp_path_factory: pytest.TempPathFactory) -> Path:
     root = tmp_path_factory.mktemp("visual-audit-package")
-    assets = root / "SOURCES/ASSETS"
-    css = root / "SOURCES/CSS"
+    assets = root / "PUBLIC/ASSETS"
+    css = assets
     html = root / "PUBLIC/HTML"
     prepare_assets(SNAPSHOT, REPO_ROOT, assets)
     generate_qr(SNAPSHOT, assets)
-    css.mkdir(parents=True)
+    css.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(SCRIPT_DIR / "templates/document.css", css / "document.css")
     write_public_html(SNAPSHOT, html)
     render_public_pdfs(SNAPSHOT, html, root / "PUBLIC")
     return root
 
 
-def test_generates_200_dpi_page_checksums_contact_sheet_and_v4_comparison(
+def test_generates_200_dpi_page_checksums_and_contact_sheet(
     rendered_package: Path, tmp_path: Path,
 ):
     report = build_visual_qa(
         SNAPSHOT,
         rendered_package / "PUBLIC",
-        V4_ROOT,
         tmp_path,
         dpi=200,
     )
@@ -55,8 +53,8 @@ def test_generates_200_dpi_page_checksums_contact_sheet_and_v4_comparison(
     assert all(page["WIDTH"] > 1600 and page["HEIGHT"] > 2300 for page in report["PAGE_EVIDENCE"])
     assert all(page["CONTACT_SHEET_LABEL"] and len(page["CONTACT_SHEET_LABEL"]) < 48 for page in report["PAGE_EVIDENCE"])
     assert (tmp_path / report["CONTACT_SHEET"]).is_file()
-    assert (tmp_path / report["V4_V5_COMPARISON_SHEET"]).is_file()
-    assert (tmp_path / report["VISUAL_DIFF_REPORT"]).is_file()
+    assert (tmp_path / report["VISUAL_REPORT"]).is_file()
     assert Image.open(tmp_path / report["CONTACT_SHEET"]).width > 500
     assert report["VISUAL_DEFECT_COUNT"] == 0
-    assert report["MANUAL_PAGE_REVIEW_REQUIRED"] is True
+    assert report["ASSISTANT_VISUAL_REVIEW"] == "PENDING"
+    assert report["OWNER_VISUAL_REVIEW"] == "PENDING"

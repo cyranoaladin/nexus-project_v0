@@ -54,6 +54,7 @@ def _footer(snapshot: dict[str, Any], short_title: str) -> str:
       <span>{escape_text(short_title)} · {_edition_label(snapshot)}</span>
       <span class="footer-contact">
         <a href="{safe_url('tel:' + contact['phoneRaw'])}">{escape_text(contact['phone'])}</a> ·
+        <a href="{safe_url('mailto:' + contact['email'])}">{escape_text(contact['email'])}</a> ·
         <a href="{safe_url(contact['canonicalUrl'])}">{escape_text(contact['domain'])}</a>
       </span>
     </footer>"""
@@ -262,14 +263,16 @@ def _session_card(module: dict[str, Any], session: dict[str, Any]) -> str:
 def _program_module(snapshot: dict[str, Any], module: dict[str, Any], *, guide: bool) -> str:
     sessions = "".join(_session_card(module, session) for session in module["sessions"])
     extra_class = " guide-program" if guide else ""
+    heading = "h3" if guide else "h2"
+    meta_heading = "h4" if guide else "h3"
     return f"""
     <article class="program-module subject-{escape_text(module['subjectId'])}{extra_class}" data-module-id="{escape_text(module['id'])}">
       <p class="subject-band">{_subject_badge(snapshot, module['subjectId'], module['level'])}</p>
-      <h3>{escape_text(module['title'])}</h3><p class="module-subtitle">{escape_text(module['subtitle'])}</p>
+      <{heading}>{escape_text(module['title'])}</{heading}><p class="module-subtitle">{escape_text(module['subtitle'])}</p>
       <div class="program-meta">
-        <section><h4>Prérequis</h4><p>{escape_text(module['prerequisites'])}</p></section>
-        <section><h4>Différenciation</h4><p>{escape_text(module['differentiation'])}</p></section>
-        <section><h4>Évaluation rapide</h4><p>{escape_text(module['quickAssessment'])}</p></section>
+        <section><{meta_heading}>Prérequis</{meta_heading}><p>{escape_text(module['prerequisites'])}</p></section>
+        <section><{meta_heading}>Différenciation</{meta_heading}><p>{escape_text(module['differentiation'])}</p></section>
+        <section><{meta_heading}>Évaluation rapide</{meta_heading}><p>{escape_text(module['quickAssessment'])}</p></section>
       </div>
       <div class="session-list">{sessions}</div>
     </article>"""
