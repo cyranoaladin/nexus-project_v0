@@ -9,7 +9,7 @@
 | 12 modules et 60 séances | `content/pre-rentree-2026/modules.json` | Pédagogie | `2026-pre-rentree-v1` | guide et programmes | comparaison exacte des champs |
 | Prix, acompte, solde, heures | `data/pricing.canonical.json`, `pre_rentree_packs` | Tarification | `2026-2027.2` | snapshot et tarifs | arithmétique et valeurs exactes |
 | Identité, adresse, contact | `lib/legal.ts`, `LEGAL` | Direction | `LEGAL` | snapshot, documents | audit contact |
-| Structure et transitions | `content/pre-rentree-2026/parent-guide.fr.json` | Éditorial | `2026-parent-guide-fr-v1` | Guide Parents | schéma fermé et evidence refs |
+| Structure et transitions | `content/pre-rentree-2026/parent-guide.fr.json` | Éditorial | `2026-parent-guide-fr-v2` | Guide Parents | schéma fermé et evidence refs |
 | Conditions contractuelles | source approuvée absente | Juridique | absente | aucun document public | package privé bloqué |
 | Notice de confidentialité | source approuvée absente | Responsable de traitement | absente | aucun formulaire | package privé bloqué |
 

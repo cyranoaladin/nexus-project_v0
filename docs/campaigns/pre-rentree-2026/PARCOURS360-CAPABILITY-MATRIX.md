@@ -1,6 +1,6 @@
 # Matrice de capacité Parcours 360 — Pré-rentrée 2026
 
-Statut de la matrice : `5.1.0-rc.1` — 20 juillet 2026.
+Statut de la matrice : `5.1.0-rc.2` — 20 juillet 2026.
 
 Cette matrice décrit uniquement ce qui peut être annoncé pour les stages de pré-rentrée d’août 2026. Une capacité conçue, codée ou testée dans un autre parcours Nexus ne devient pas automatiquement une capacité opérationnelle de cette campagne.
 

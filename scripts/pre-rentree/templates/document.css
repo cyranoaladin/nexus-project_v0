@@ -23,7 +23,7 @@
   --ink: #172033;
   --ivory: #fbf7ee;
   --sand: #eee4d0;
-  --gold: #9a7415;
+  --gold: #876000;
   --rule: #d4d8df;
   --muted: #4c586c;
   --maths: #1b64b0;
@@ -44,8 +44,7 @@
 }
 
 @page cover {
-  margin: 0;
-  @bottom-right { content: none; }
+  margin: 0 0 12mm;
 }
 
 * { box-sizing: border-box; }
@@ -166,6 +165,8 @@ section, article, table, details { break-inside: auto; }
 .method-list h3, .method-list p { margin: 0; }
 .check-list { columns: 2; padding-left: 5mm; }
 .check-list li { break-inside: avoid; margin-bottom: 2mm; }
+.why-list { display: grid; gap: 4mm; grid-template-columns: repeat(2, minmax(0, 1fr)); list-style: none; padding: 0; }
+.why-list li { background: var(--ivory); border-left: 1mm solid var(--gold); break-inside: avoid; padding: 5mm; }
 
 .programs-section > h2 { break-before: page; font-size: 28pt; }
 .level-guide { break-before: page; }
@@ -245,6 +246,7 @@ details p { margin-bottom: 0; }
 }
 
 @media print {
+  .skip-link { display: none; }
   .document-nav { display: none; }
   .parent-guide > .document-header { display: none; }
   details > * { display: block; }
@@ -259,7 +261,9 @@ details p { margin-bottom: 0; }
   .cover { margin: -20px -20px 0; min-height: auto; padding: 56px 24px; }
   .cover h1 { font-size: 2.4rem; }
   .cover-action, .contact-grid, .fact-grid, .material-grid, .week-grid,
-  .program-meta, .session-card header, .session-card dl > div { grid-template-columns: 1fr; }
+  .program-meta, .session-card header, .session-card dl > div, .why-list { grid-template-columns: 1fr; }
+  .final-contact > *, .contact-grid > * { min-width: 0; }
+  .contact-grid a { overflow-wrap: anywhere; }
   .check-list, .faq-list, .toc ol { columns: 1; }
   .table-scroll { overflow-x: auto; }
   table { display: block; max-width: 100%; overflow-x: auto; }
