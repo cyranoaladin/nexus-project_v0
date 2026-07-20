@@ -20,7 +20,7 @@ from document_model import (  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SNAPSHOT_PATH = REPO_ROOT / "generated/pre-rentree-2026-publication.snapshot.json"
-SCHEMA_PATH = REPO_ROOT / "scripts/pre-rentree/publication-snapshot.schema.json"
+SCHEMA_PATH = REPO_ROOT / "scripts/pre-rentree/schemas/publication-snapshot.schema.json"
 
 
 def test_loads_the_canonical_snapshot_against_the_portable_schema():

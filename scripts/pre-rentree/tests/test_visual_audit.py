@@ -18,7 +18,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 V4_ROOT = REPO_ROOT.parent / "outputs"
 SNAPSHOT = load_snapshot(
     REPO_ROOT / "generated/pre-rentree-2026-publication.snapshot.json",
-    REPO_ROOT / "scripts/pre-rentree/publication-snapshot.schema.json",
+    REPO_ROOT / "scripts/pre-rentree/schemas/publication-snapshot.schema.json",
 )
 
 
