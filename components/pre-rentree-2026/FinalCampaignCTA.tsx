@@ -1,7 +1,7 @@
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
 
-export function FinalCampaignCTA({ campaignPath }: { campaignPath: string }) {
+export function FinalCampaignCTA({ campaignPath, ctaLabel }: { campaignPath: string; ctaLabel: string }) {
   const whatsappUrl = buildWhatsAppUrl('les stages de pré-rentrée 2026');
 
   return (
@@ -18,13 +18,7 @@ export function FinalCampaignCTA({ campaignPath }: { campaignPath: string }) {
             href={`${campaignPath}#configurateur`}
             className="inline-flex items-center justify-center rounded-lg bg-lux-gold px-6 py-3 text-sm font-semibold text-lux-ink hover:bg-lux-gold-bright transition-colors min-h-[44px]"
           >
-            Composer le stage
-          </a>
-          <a
-            href="/bilan-gratuit?programme=pre-rentree-2026"
-            className="inline-flex items-center justify-center rounded-lg border border-white/20 px-6 py-3 text-sm font-semibold text-lux-on-dark hover:bg-white/5 transition-colors min-h-[44px]"
-          >
-            Bilan gratuit
+            {ctaLabel}
           </a>
           <a
             href={whatsappUrl}

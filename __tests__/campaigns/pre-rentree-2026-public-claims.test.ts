@@ -35,7 +35,7 @@ describe('Pré-rentrée public service and CTA claims', () => {
     expect(content.practical.preRegistrationNotice).toMatch(/ne forme pas un contrat/i);
   });
 
-  it('keeps campaign calls to action non-transactional and free of reservation wording', () => {
+  it('keeps request CTAs non-transactional and excludes the unapproved public form', () => {
     const files = [
       'components/pre-rentree-2026/PreRentreeHero.tsx',
       'components/pre-rentree-2026/StageConfigurator.tsx',
@@ -45,8 +45,8 @@ describe('Pré-rentrée public service and CTA claims', () => {
     const source = files.map((file) => readFileSync(join(root, file), 'utf8')).join('\n');
 
     expect(source).toContain('Composer le stage');
-    expect(source).toContain('Poursuivre vers le bilan prérempli');
+    expect(source).toContain('Demander ce parcours sur WhatsApp');
     expect(source).toContain('WhatsApp');
-    expect(source).not.toMatch(/>\s*Réserver|>\s*Payer|ClicToPay/i);
+    expect(source).not.toMatch(/bilan-gratuit|>\s*Payer|ClicToPay/i);
   });
 });

@@ -333,7 +333,7 @@ export function buildSelectionSummary(input: {
     sessionCount: scheduleLines.reduce((total, line) => total + line.dates.length, 0),
     dates,
     scheduleLines,
-    requiresValidation: requiresPedagogicalValidation(input.level, input.profile, input.subjectIds),
+    requiresValidation: true,
   };
 }
 

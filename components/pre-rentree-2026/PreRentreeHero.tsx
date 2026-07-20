@@ -16,13 +16,14 @@ function sessionDuration(start: string, end: string): number {
   return (endHour * 60 + endMinute - startHour * 60 - startMinute) / 60;
 }
 
-export function PreRentreeHero({ campaign, content, capacityByOffer, packs, schedule, whatsappMessage }: {
+export function PreRentreeHero({ campaign, content, capacityByOffer, packs, schedule, whatsappMessage, primaryCta }: {
   campaign: { canonicalPath: string; startDate: string; endDate: string; venue: { neighborhood: string } };
   content: { eyebrow: string; h1: string; subtitle: string };
   capacityByOffer: Record<'FONDATIONS' | 'PREMIUM', { minPerCohort: number; maxPerCohort: number }>;
   packs: LandingPack[];
   schedule: LandingScheduleSlot[];
   whatsappMessage: string;
+  primaryCta: string;
 }) {
   const firstModule = schedule.filter(
     (slot) => slot.level === schedule[0]?.level && slot.subject === schedule[0]?.subject,
@@ -47,7 +48,7 @@ export function PreRentreeHero({ campaign, content, capacityByOffer, packs, sche
           <li className="rounded-full bg-white/10 px-4 py-2">{singlePack?.subjectsCount} à {maximumSubjects} matières · {singlePack?.totalHours} h chacune</li>
         </ul>
         <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-          <a href={`${campaign.canonicalPath}#configurateur`} className="lux-cta-reserve inline-flex min-h-11 items-center justify-center rounded-lg px-6 py-3 text-sm font-semibold">Composer le stage de mon enfant</a>
+          <a href={`${campaign.canonicalPath}#configurateur`} className="lux-cta-reserve inline-flex min-h-11 items-center justify-center rounded-lg px-6 py-3 text-sm font-semibold">{primaryCta}</a>
           <a href={`${campaign.canonicalPath}#planning`} className="inline-flex min-h-11 items-center justify-center rounded-lg border border-white/30 px-6 py-3 text-sm font-semibold text-lux-on-dark">Voir les horaires</a>
           <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center justify-center rounded-lg border border-lux-evergreen bg-lux-evergreen/10 px-6 py-3 text-sm font-semibold" style={{ color: WHATSAPP_BRAND_GREEN }}>Poser une question <span className="sr-only">(nouvel onglet)</span></a>
         </div>

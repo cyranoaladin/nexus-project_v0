@@ -34,14 +34,14 @@ export function getPreRentreeCampaign(): PreRentreeCampaignManifest {
 }
 
 /**
- * Get the 12 module programs with their 60 sessions.
+ * Get the 14 module programs with their 70 sessions.
  */
 export function getPreRentreeModules() {
   return PreRentreeModulesSchema.parse(modulesData).modules;
 }
 
 /**
- * Get the schedule expanded to all 60 individual sessions.
+ * Get the schedule expanded to all 70 individual sessions.
  */
 export function getPreRentreeSchedule() {
   const campaign = getPreRentreeCampaign();
@@ -254,6 +254,7 @@ export function getPreRentreeLandingDTO() {
     featureFlags: campaign.featureFlags,
     legalRefs: campaign.legalRefs,
     publicStatus: formatCampaignStatus(campaign.status),
+    publicationMode: campaign.status === 'DRAFT' ? 'REVIEW' as const : 'RELEASE' as const,
   };
 }
 
@@ -264,7 +265,7 @@ export function getPreRentreeHomepageSpotlightDTO(): PreRentreeHomepageSpotlight
   if (!singleSubjectPack) {
     throw new Error('Missing single-subject Pré-rentrée pack');
   }
-  const subjectOrder = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'FRANCAIS', 'NSI'];
+  const subjectOrder = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'FRANCAIS', 'NSI', 'PHILOSOPHIE'];
   const subjectFamilies = subjectOrder.map((subjectId) => {
     const subject = dto.subjects.find((candidate) => candidate.id === subjectId);
     if (!subject) throw new Error(`Missing Pré-rentrée subject: ${subjectId}`);
