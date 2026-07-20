@@ -1,0 +1,41 @@
+repository,model,purpose,current_chain,keep_adapt_migrate,key_gap,evidence
+nexus-project_v0,User,Authentication and role,All,Keep,No teacher/pedagogical-manager roles,prisma/schema.prisma
+nexus-project_v0,ParentProfile,Parent profile and children,Family,Adapt,One parent relation per student,prisma/schema.prisma
+nexus-project_v0,Student,Canonical business student,All,Keep,Required parentId and profile curriculum too coarse,prisma/schema.prisma
+nexus-project_v0,CoachProfile,Coach identity,Staff,Keep,UserId versus profileId conventions coexist,prisma/schema.prisma
+nexus-project_v0,CoachStudentAssignment,Time-bounded assignment,Coach access,Keep,Must be used uniformly with active window/subject,prisma/schema.prisma
+nexus-project_v0,Assessment,Public assessment response score and three reports,Assessment,Migrate via adapter,Monolith identity JSON score report publication,prisma/schema.prisma
+nexus-project_v0,DomainScore,Assessment domain aggregate,Assessment,Migrate,No item evidence/versioned rule,prisma/schema.prisma
+nexus-project_v0,SkillScore,Assessment skill aggregate,Assessment,Migrate,No response/rule provenance,prisma/schema.prisma
+nexus-project_v0,Diagnostic,Specialized diagnostic and reports,Pallier2,Migrate via adapter,Raw PII and mixed audiences,prisma/schema.prisma
+nexus-project_v0,Bilan,Generic combined score/report/publication,Bilan/Stages,Transitional only,Not a real canonical aggregate,prisma/schema.prisma
+nexus-project_v0,StageBilan,Stage-specific three reports,Stages,Migrate via adapter,Global isPublished and duplicated content,prisma/schema.prisma
+nexus-project_v0,EafPreparationReport,Coach EAF preparation workflow,EAF,Keep specialized producer,No canonical evidence/review/publication,prisma/schema.prisma
+nexus-project_v0,GeneratedPedagogicalReport,Stage generation job and artifact,Stage reports,Adapt/export,No claim lease retries versions publications,prisma/schema.prisma
+nexus-project_v0,CopySubmission,Uploaded copy source,NPC,Keep producer,Must map human-validated evidence only,prisma/schema.prisma
+nexus-project_v0,AiProcessingJob,DB job,NPC,Adapt or replace consumer,Retry state/lease defects,prisma/schema.prisma
+nexus-project_v0,PedagogicalReport,NPC analysis,NPC,Keep historical/export,LLM-generated score cannot be canonical,prisma/schema.prisma
+nexus-project_v0,CompetenceMatrix,NPC competence output,NPC,Keep as candidate evidence,Needs provenance/human validation,prisma/schema.prisma
+nexus-project_v0,RemediationRoadmap,NPC recommendations,NPC,Keep as draft input,Not canonical publication,prisma/schema.prisma
+nexus-project_v0,target:DiagnosticDefinition,Published immutable definition,Canonical,Create additive,Does not exist,Target architecture
+nexus-project_v0,target:AssessmentAttempt,Assignment snapshot and lifecycle,Canonical,Create additive,Does not exist,Target architecture
+nexus-project_v0,target:AssessmentResponse,Itemized semantic response,Canonical,Create additive,Does not exist,Target architecture
+nexus-project_v0,target:SkillEvidence,Traceable evidence,Canonical,Create additive,Does not exist,Target architecture
+nexus-project_v0,target:ScoringRun,Versioned deterministic execution,Canonical,Create additive,Does not exist,Target architecture
+nexus-project_v0,target:ScoreSnapshot,Immutable score result,Canonical,Create additive,Does not exist,Target architecture
+nexus-project_v0,target:ReportJob,Durable work item,Canonical,Create additive,Does not exist,Target architecture
+nexus-project_v0,target:ReportVersion,Audience-specific immutable report,Canonical,Create additive,Does not exist,Target architecture
+nexus-project_v0,target:HumanReview,Version-specific decision,Canonical,Create additive,Does not exist,Target architecture
+nexus-project_v0,target:ReportPublication,Audience-specific publication/revocation,Canonical,Create additive,Does not exist,Target architecture
+nexus-project_v0,target:GuardianStudentLink,Verified N-N family link,Canonical family,Create additive,Does not exist,Target architecture
+nexus-project_v0,target:LegacyEntityLink,Historical ID mapping,Migration,Create additive,Does not exist,Target architecture
+nexus-project_v0,target:OutboxEvent,Transactional async delivery,Operations,Create additive,Does not exist,Target architecture
+Interface_NSI_Bilan_Support_Suivi,Student,Email-keyed student,NSI prototype,Do not import,Email primary identity,apps/web/prisma/schema.prisma
+Interface_NSI_Bilan_Support_Suivi,Attempt,Questionnaire attempt,NSI prototype,Pattern only,Competes with Bilan submission path,apps/web/prisma/schema.prisma
+Interface_NSI_Bilan_Support_Suivi,Score,Attempt score,NSI prototype,Pattern only,Needs evidence/version contract,apps/web/prisma/schema.prisma
+Interface_NSI_Bilan_Support_Suivi,Report,Student/teacher report and S3 URL,NSI prototype,Pattern only,No parent/review; PII S3 key,apps/web/prisma/schema.prisma
+Interface_NSI_Bilan_Support_Suivi,Bilan,Entry questionnaire/report state,NSI prototype,Do not import,Second competing pipeline,apps/web/prisma/schema.prisma
+Interface_NSI_Bilan_Support_Suivi,Evaluation,Teacher evaluation,NSI prototype,Producer pattern,Separate lifecycle,apps/web/prisma/schema.prisma
+Interface_NSI_Bilan_Support_Suivi,EvaluationBilan,Evaluation result,NSI prototype,Producer pattern,Matching/fallback complexity,apps/web/prisma/schema.prisma
+Interface_Maths_2025_2026,JSON correction records,Static results,Maths correction,Do not import raw,Contains names/emails and LLM awarded points,JSON shape inspection
+Interface_Maths_2025_2026_Fixed,JSON correction records,Static results,Maths correction,Do not import raw,Contains names/emails and unsafe public matching,JSON shape inspection
