@@ -34,18 +34,18 @@ jobs:
       PYTHONDONTWRITEBYTECODE: "1"
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "20"
           cache: npm
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
@@ -82,7 +82,7 @@ jobs:
           PY
 
       - name: Upload parent package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: pre-rentree-2026-parent-package
           path: .artifacts/pre-rentree-2026/packages/NexusReussite_PreRentree2026_PARENT_PACKAGE.zip
@@ -90,7 +90,7 @@ jobs:
           retention-days: 14
 
       - name: Upload owner-review package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: pre-rentree-2026-owner-review-package
           path: .artifacts/pre-rentree-2026/packages/NexusReussite_PreRentree2026_REVIEW_PACKAGE.zip

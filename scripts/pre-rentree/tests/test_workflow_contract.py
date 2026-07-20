@@ -17,5 +17,12 @@ def test_document_workflow_is_read_only_reproducible_and_uploads_two_packages():
     assert "pre-rentree-2026-owner-review-package" in text
     assert "retention-days: 14" in text
     assert "github.event_name" in text and "github.ref" in text
+    for node24_action in (
+        "actions/checkout@v5",
+        "actions/setup-node@v5",
+        "actions/setup-python@v6",
+        "actions/upload-artifact@v6",
+    ):
+        assert node24_action in text
     assert "deploy" not in text.casefold()
     assert "release" not in text.casefold()
