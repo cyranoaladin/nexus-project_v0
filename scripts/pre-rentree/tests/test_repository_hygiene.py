@@ -11,7 +11,7 @@ from verify_repository_hygiene import audit_repository  # noqa: E402
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
-def test_repository_contains_no_tracked_document_outputs_or_duplicate_sources():
+def test_repository_contains_no_tracked_document_outputs_or_duplicate_sources_or_tests():
     report = audit_repository(REPO_ROOT)
 
     assert report["TRACKED_GENERATED_OUTPUT_COUNT"] == 0

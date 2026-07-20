@@ -15,7 +15,7 @@ FORBIDDEN_TRACKED_PREFIXES = (
     "outputs-v5-canonical/",
 )
 CANONICAL_SOURCE_ROOT = Path("scripts/pre-rentree")
-SOURCE_SUFFIXES = {".py", ".ts", ".css"}
+SOURCE_SUFFIXES = {".py", ".ts", ".tsx", ".mjs", ".css"}
 
 
 def _tracked_paths(repo_root: Path) -> list[Path]:
@@ -50,22 +50,24 @@ def verify(repo_root: Path) -> tuple[list[str], list[str]]:
         for path in tracked
         if path.is_relative_to(CANONICAL_SOURCE_ROOT)
         and path.suffix in SOURCE_SUFFIXES
-        and "tests" not in path.parts
         and (root / path).is_file()
     ]
     candidates_by_hash: dict[str, list[str]] = {}
     for path in tracked:
-        if path.is_relative_to(CANONICAL_SOURCE_ROOT) or not (root / path).is_file():
+        if not (root / path).is_file():
             continue
         if path.suffix not in SOURCE_SUFFIXES:
             continue
         candidates_by_hash.setdefault(_sha256(root / path), []).append(path.as_posix())
 
-    duplicates: list[str] = []
+    duplicate_pairs: set[tuple[str, str]] = set()
     for source in canonical:
         for duplicate in candidates_by_hash.get(_sha256(root / source), []):
-            duplicates.append(f"{source.as_posix()} == {duplicate}")
-    return sorted(generated), sorted(duplicates)
+            if duplicate == source.as_posix():
+                continue
+            duplicate_pairs.add(tuple(sorted((source.as_posix(), duplicate))))
+    duplicates = [f"{first} == {second}" for first, second in sorted(duplicate_pairs)]
+    return sorted(generated), duplicates
 
 
 def audit_repository(repo_root: Path) -> dict[str, object]:

@@ -14,6 +14,8 @@ Le compilateur TypeScript lit uniquement les sources canoniques et produit `gene
 
 ## Commandes
 
-Les commandes de premier niveau `npm run pre-rentree:*` couvrent nettoyage, snapshot, tests, build, audit, paquets et vérification. Le build complet écrit sous `.artifacts/pre-rentree-2026/` avec staging et remplacement atomique.
+Depuis la racine du dépôt, les commandes de premier niveau `npm run pre-rentree:*` couvrent nettoyage, snapshot, tests, build, audit, paquets et vérification. `npm run pre-rentree:ci` exécute la chaîne complète. Le build écrit sous `.artifacts/pre-rentree-2026/` avec staging et remplacement atomique ; l’audit produit un second build public et compare les empreintes avant packaging.
+
+Le build complet utilise Chromium localement pour Axe, la capture bureau/mobile et la vérification de l’absence de débordement. Aucun appel réseau n’est nécessaire au rendu.
 
 Le HTML accessible est la référence d’accessibilité. Le pipeline ne revendique pas une conformité PDF/UA faute de validation dédiée avec un outil approprié.
