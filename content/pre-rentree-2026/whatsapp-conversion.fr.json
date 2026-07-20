@@ -1,0 +1,189 @@
+{
+  "schemaVersion": "1.0.0",
+  "version": "2026-whatsapp-conversion-v1",
+  "campaignId": "pre-rentree-2026",
+  "locale": "fr-TN",
+  "channel": "WHATSAPP",
+  "scripts": [
+    {
+      "id": "qualification",
+      "purpose": "Qualifier le besoin avec le minimum de données",
+      "funnelStage": "QUALIFICATION",
+      "template": "Pour vous orienter correctement, pouvez-vous m'indiquer la classe de rentrée, la ou les matières recherchées et si l'élève est scolarisé dans un établissement du système français ou candidat libre ? Nous n'avons pas besoin de bulletin ni de document d'identité à ce stade.",
+      "requiredGate": null,
+      "crmEvent": "LEAD_QUALIFICATION_REQUESTED",
+      "proofIds": []
+    },
+    {
+      "id": "short-answer",
+      "purpose": "Réponse initiale courte",
+      "funnelStage": "QUALIFICATION",
+      "template": "Merci. Pour une entrée en {entryLevel} en {subjects}, le parcours correspondant comprend {hours} heures organisées en {sessions} séances, dans un groupe de {groupMax} élèves maximum. Je peux vous envoyer le détail des objectifs et vérifier les horaires adaptés.",
+      "requiredGate": null,
+      "crmEvent": "PROGRAM_SUMMARY_SENT",
+      "proofIds": ["PRF-PRE2026-FIVE-SESSIONS"]
+    },
+    {
+      "id": "detailed-answer",
+      "purpose": "Réponse initiale développée",
+      "funnelStage": "CONSIDERATION",
+      "template": "Le stage en {subjects} pour une entrée en {entryLevel} représente {hours} heures, organisées en {sessions} séances. Chaque séance suit un objectif annoncé, un temps d'entraînement et une correction. Le groupe accueille jusqu'à {groupMax} élèves. Le tarif du parcours est de {price} TND, avec un acompte de {deposit} TND pour confirmer la réservation après validation du parcours. Souhaitez-vous recevoir les objectifs ou vérifier les horaires en premier ?",
+      "requiredGate": null,
+      "crmEvent": "PROGRAM_DETAILS_SENT",
+      "proofIds": ["PRF-PRE2026-FIVE-SESSIONS", "PRF-PRE2026-STRUCTURED-SESSIONS", "PRF-PRE2026-DEPOSIT-30"]
+    },
+    {
+      "id": "objection-price",
+      "purpose": "Répondre à l'objection tarifaire",
+      "funnelStage": "OBJECTION",
+      "template": "Je comprends votre question sur le prix. Le tarif de {price} TND ne finance pas seulement un volume horaire : il couvre {sessions} séances structurées, des objectifs annoncés, un temps d'entraînement, une correction et un groupe limité à {groupMax} élèves. L'acompte est de {deposit} TND. Je peux vous envoyer le programme pour que vous compariez le contenu concret avant de décider.",
+      "requiredGate": null,
+      "crmEvent": "OBJECTION_PRICE_ANSWERED",
+      "proofIds": ["PRF-PRE2026-STRUCTURED-SESSIONS", "PRF-PRE2026-DEPOSIT-30"]
+    },
+    {
+      "id": "objection-distance",
+      "purpose": "Répondre à l'objection distance",
+      "funnelStage": "OBJECTION",
+      "template": "Le stage se déroule chez Nexus Réussite à Mutuelleville. Avant toute réservation, nous vérifions avec vous les créneaux pour éviter un déplacement incompatible avec l'organisation familiale. Souhaitez-vous me préciser votre zone de départ et les horaires à éviter ?",
+      "requiredGate": null,
+      "crmEvent": "OBJECTION_DISTANCE_ANSWERED",
+      "proofIds": ["PRF-PRE2026-DATES-VENUE"]
+    },
+    {
+      "id": "objection-schedule",
+      "purpose": "Répondre à l'objection horaire",
+      "funnelStage": "OBJECTION",
+      "template": "Les dix heures sont réparties en cinq séances. Pour une entrée en {entryLevel} en {subjects}, je vérifie le créneau correspondant avant de vous proposer une réservation. Pouvez-vous m'indiquer les jours ou horaires impossibles ?",
+      "requiredGate": null,
+      "crmEvent": "OBJECTION_SCHEDULE_ANSWERED",
+      "proofIds": ["PRF-PRE2026-FIVE-SESSIONS"]
+    },
+    {
+      "id": "objection-group",
+      "purpose": "Expliquer l'effectif",
+      "funnelStage": "OBJECTION",
+      "template": "Le groupe est limité à {groupMax} élèves pour ce parcours. Cette limite permet d'organiser les échanges et la correction sans présenter le stage comme un cours individuel. Je peux aussi vous expliquer le déroulement type d'une séance.",
+      "requiredGate": null,
+      "crmEvent": "OBJECTION_GROUP_ANSWERED",
+      "proofIds": []
+    },
+    {
+      "id": "objection-classic-course",
+      "purpose": "Comparer sans dénigrer les cours classiques",
+      "funnelStage": "OBJECTION",
+      "template": "Un cours classique peut très bien convenir lorsqu'un besoin ponctuel est déjà identifié. Le stage Nexus répond à un autre usage : organiser {hours} heures en {sessions} étapes, annoncer les objectifs, entraîner puis corriger dans un groupe limité. Le bon choix dépend surtout du besoin de l'élève. Souhaitez-vous que je vous envoie le programme pour comparer sur des éléments concrets ?",
+      "requiredGate": null,
+      "crmEvent": "OBJECTION_COMPARISON_ANSWERED",
+      "proofIds": ["PRF-PRE2026-FIVE-SESSIONS", "PRF-PRE2026-STRUCTURED-SESSIONS"]
+    },
+    {
+      "id": "deposit-explanation",
+      "purpose": "Expliquer l'acompte",
+      "funnelStage": "CONVERSION",
+      "template": "L'acompte représente 30 % du parcours, soit {deposit} TND pour cette sélection. La demande d'information ne réserve pas de place. La réservation devient effective après validation du niveau, de la matière, du créneau et réception de l'acompte.",
+      "requiredGate": null,
+      "crmEvent": "DEPOSIT_RULE_EXPLAINED",
+      "proofIds": ["PRF-PRE2026-DEPOSIT-30"]
+    },
+    {
+      "id": "payment-method",
+      "purpose": "Expliquer la modalité de paiement sans exposer de donnée bancaire",
+      "funnelStage": "CONVERSION",
+      "template": "Après validation du parcours, l'équipe Nexus vous transmet la modalité de règlement confirmée pour l'acompte de {deposit} TND. N'envoyez aucune donnée de carte bancaire ni document d'identité dans cette conversation. La réservation n'est confirmée qu'après réception et enregistrement du règlement.",
+      "requiredGate": null,
+      "crmEvent": "PAYMENT_INSTRUCTIONS_REQUESTED",
+      "proofIds": ["PRF-PRE2026-DEPOSIT-30"]
+    },
+    {
+      "id": "follow-up-j1",
+      "purpose": "Relance utile à J+1",
+      "funnelStage": "FOLLOW_UP",
+      "template": "Bonjour, je reviens vers vous à propos du stage de {subjects} pour l'entrée en {entryLevel}. Souhaitez-vous recevoir les objectifs des cinq séances ou vérifier d'abord les horaires ? Je n'insisterai pas si le projet n'est plus d'actualité.",
+      "requiredGate": "CONTACT_CONSENT",
+      "crmEvent": "FOLLOW_UP_J1_SENT",
+      "proofIds": ["PRF-PRE2026-FIVE-SESSIONS"]
+    },
+    {
+      "id": "follow-up-j3",
+      "purpose": "Relance de décision à J+3",
+      "funnelStage": "FOLLOW_UP",
+      "template": "Bonjour, avez-vous pu consulter le programme de {subjects} ? Si le format ne correspond pas au besoin de votre enfant, dites-le-moi simplement. Sinon, je peux vérifier le groupe adapté et récapituler le tarif avant toute décision.",
+      "requiredGate": "CONTACT_CONSENT",
+      "crmEvent": "FOLLOW_UP_J3_SENT",
+      "proofIds": []
+    },
+    {
+      "id": "follow-up-j7",
+      "purpose": "Dernière relance à J+7",
+      "funnelStage": "FOLLOW_UP",
+      "template": "Bonjour, dernier message concernant la pré-rentrée en {subjects} pour l'entrée en {entryLevel}. Si vous souhaitez reprendre l'échange, répondez simplement avec le niveau et la matière. Sans réponse, nous clôturerons cette demande et aucune autre relance ne sera programmée.",
+      "requiredGate": "CONTACT_CONSENT",
+      "crmEvent": "FOLLOW_UP_J7_SENT",
+      "proofIds": []
+    },
+    {
+      "id": "reservation-confirmed",
+      "purpose": "Confirmer une réservation après acompte reçu",
+      "funnelStage": "RESERVATION",
+      "template": "Votre réservation est confirmée pour l'entrée en {entryLevel}, matière {subjects}. L'acompte de {deposit} TND a été enregistré. Nous vous transmettrons séparément le récapitulatif du créneau et les informations pratiques. Merci de nous signaler rapidement toute contrainte nouvelle.",
+      "requiredGate": "DEPOSIT_RECEIVED",
+      "crmEvent": "RESERVATION_CONFIRMED",
+      "proofIds": ["PRF-PRE2026-DEPOSIT-30"]
+    },
+    {
+      "id": "before-stage",
+      "purpose": "Rappel pratique avant le stage",
+      "funnelStage": "ONBOARDING",
+      "template": "Rappel pour le stage de {subjects}, entrée en {entryLevel} : merci de vérifier le créneau indiqué dans votre confirmation et de prévoir le matériel scolaire habituel. Le stage se déroule à Nexus Réussite, Mutuelleville. En cas d'empêchement, prévenez-nous dès que possible sur ce numéro.",
+      "requiredGate": "RESERVATION_CONFIRMED",
+      "crmEvent": "PRE_STAGE_MESSAGE_SENT",
+      "proofIds": ["PRF-PRE2026-DATES-VENUE"]
+    },
+    {
+      "id": "after-stage",
+      "purpose": "Clôture après le stage",
+      "funnelStage": "RETENTION",
+      "template": "Le stage de {subjects} est terminé. Merci pour votre confiance. Si vous souhaitez partager une question sur les points travaillés ou demander un rendez-vous pour envisager la suite, répondez à ce message. Aucun accompagnement annuel ni avantage n'est activé automatiquement.",
+      "requiredGate": "STAGE_COMPLETED",
+      "crmEvent": "POST_STAGE_MESSAGE_SENT",
+      "proofIds": []
+    }
+  ],
+  "objectionMatrix": [
+    {"objection": "Le tarif est trop élevé", "responseScriptId": "objection-price", "proofIds": ["PRF-PRE2026-STRUCTURED-SESSIONS", "PRF-PRE2026-DEPOSIT-30"], "offerScope": ["ALL"], "cta": "Envoyer le programme détaillé", "crmEvent": "OBJECTION_PRICE_ANSWERED"},
+    {"objection": "Mutuelleville est trop loin", "responseScriptId": "objection-distance", "proofIds": ["PRF-PRE2026-DATES-VENUE"], "offerScope": ["ALL"], "cta": "Vérifier les créneaux avant de décider", "crmEvent": "OBJECTION_DISTANCE_ANSWERED"},
+    {"objection": "Les horaires risquent de ne pas convenir", "responseScriptId": "objection-schedule", "proofIds": ["PRF-PRE2026-FIVE-SESSIONS"], "offerScope": ["ALL"], "cta": "Indiquer les contraintes horaires", "crmEvent": "OBJECTION_SCHEDULE_ANSWERED"},
+    {"objection": "Le groupe est-il vraiment réduit ?", "responseScriptId": "objection-group", "proofIds": ["PRF-PRE2026-3E-350-APPROVED", "PRF-PRE2026-SECONDE-400", "PRF-PRE2026-PREMIUM-PACKS"], "offerScope": ["ALL"], "cta": "Expliquer le déroulement d'une séance", "crmEvent": "OBJECTION_GROUP_ANSWERED"},
+    {"objection": "Un cours classique coûte moins cher", "responseScriptId": "objection-classic-course", "proofIds": ["PRF-PRE2026-FIVE-SESSIONS", "PRF-PRE2026-STRUCTURED-SESSIONS"], "offerScope": ["ALL"], "cta": "Comparer le programme et le besoin", "crmEvent": "OBJECTION_COMPARISON_ANSWERED"}
+  ],
+  "crm": {
+    "leadStatuses": ["NEW", "CONTACTED", "QUALIFIED", "PROGRAM_SENT", "PATH_PROPOSED", "PENDING_DEPOSIT", "RESERVED", "WAITLIST", "GROUP_CONFIRMED", "BALANCE_PENDING", "FULLY_PAID", "COMPLETED", "CANCELLED", "REFUNDED"],
+    "events": [
+      {"id": "LEAD_QUALIFICATION_REQUESTED", "requiresConsent": false},
+      {"id": "PROGRAM_SUMMARY_SENT", "requiresConsent": false},
+      {"id": "PROGRAM_DETAILS_SENT", "requiresConsent": false},
+      {"id": "OBJECTION_PRICE_ANSWERED", "requiresConsent": false},
+      {"id": "OBJECTION_DISTANCE_ANSWERED", "requiresConsent": false},
+      {"id": "OBJECTION_SCHEDULE_ANSWERED", "requiresConsent": false},
+      {"id": "OBJECTION_GROUP_ANSWERED", "requiresConsent": false},
+      {"id": "OBJECTION_COMPARISON_ANSWERED", "requiresConsent": false},
+      {"id": "DEPOSIT_RULE_EXPLAINED", "requiresConsent": false},
+      {"id": "PAYMENT_INSTRUCTIONS_REQUESTED", "requiresConsent": false},
+      {"id": "FOLLOW_UP_SCHEDULED", "requiresConsent": true},
+      {"id": "FOLLOW_UP_J1_SENT", "requiresConsent": true},
+      {"id": "FOLLOW_UP_J3_SENT", "requiresConsent": true},
+      {"id": "FOLLOW_UP_J7_SENT", "requiresConsent": true},
+      {"id": "RESERVATION_CONFIRMED", "requiresConsent": false},
+      {"id": "PRE_STAGE_MESSAGE_SENT", "requiresConsent": false},
+      {"id": "POST_STAGE_MESSAGE_SENT", "requiresConsent": false}
+    ]
+  },
+  "privacy": {
+    "requiredLeadFields": ["entryLevel", "subjectIds", "schoolStatus", "parentContact", "contactConsent"],
+    "optionalLeadFields": ["preferredTimes", "schoolName"],
+    "forbiddenFields": ["studentHealthData", "studentPassword", "bankCardData", "identityDocument"],
+    "retentionRule": "Conserver uniquement les données nécessaires au suivi de la demande selon la politique de rétention approuvée.",
+    "stopRule": "Après la relance J+7 sans réponse, clôturer la demande et ne plus relancer."
+  }
+}
