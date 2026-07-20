@@ -82,6 +82,15 @@ def audit_pdf(path: Path, snapshot: dict[str, Any]) -> dict[str, Any]:
         r"\b(?:sk|ghp)_[A-Za-z0-9]{20,}\b",
     )
     pii_test_patterns = (r"test@example\.", r"\b(?:Alice|Bob) Test\b", r"\b00000000\b")
+    ligature_corruption_patterns = (
+        r"\bpro\s+l\b",
+        r"\bidenti\s+er\b",
+        r"\bcon\s+rm(?:e|er|ation|ées?)?\b",
+        r"\bdé\s+nit(?:if|ion)?\b",
+        r"\bdif\s+cult(?:é|és)?\b",
+        r"\bplani\s+cation\b",
+        r"\bspéci\s+que\b",
+    )
     metadata = reader.metadata
     catalog = reader.trailer["/Root"]
     mark_info = catalog.get("/MarkInfo") or {}
@@ -103,6 +112,10 @@ def audit_pdf(path: Path, snapshot: dict[str, Any]) -> dict[str, Any]:
         "TAGGED_PDF": tagged_pdf,
         "PDF_UA_IDENTIFIER_PRESENT": "pdfuaid:part" in xmp,
         "BROKEN_GLYPH_COUNT": text.count("\ufffd"),
+        "LIGATURE_CORRUPTION_COUNT": sum(
+            len(re.findall(pattern, text, re.IGNORECASE))
+            for pattern in ligature_corruption_patterns
+        ),
         "FONT_IDENTIFIERS": _font_identifiers(path),
         "LINK_TARGETS": _pdf_links(reader),
         "SECRET_FINDING_COUNT": sum(bool(re.search(pattern, text)) for pattern in secret_patterns),
@@ -700,6 +713,12 @@ def build_visual_qa(
                 defects.append({"CODE": "UNEXPECTED_PAGE_DIMENSIONS", **record})
             if geometry["DARK_PIXEL_RATIO"] < 0.001 or not _normalized(page_text):
                 defects.append({"CODE": "BLANK_OR_NON_EXTRACTABLE_PAGE", **record})
+            if (
+                page_number == 1
+                and key in {"parentGuide", "brochureParents", "essential"}
+                and len(_normalized(page_text).split()) < 24
+            ):
+                defects.append({"CODE": "EMPTY_OR_INCOMPLETE_COVER", **record})
             normalized_page_text = re.sub(
                 r"(?<=\w)-\s+(?=\w)",
                 "-",

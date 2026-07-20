@@ -1,6 +1,6 @@
 {
   "campaignId": "pre-rentree-2026",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "status": "DRAFT",
   "canonicalPath": "/stages/pre-rentree-2026",
   "shortPath": "/pre-rentree",
@@ -176,7 +176,7 @@
       { "question": "Quel matériel faut-il apporter ?", "answer": "Un cahier, une trousse complète et une calculatrice sont utiles selon les matières. Pour les modules NSI/SNT, l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire. En Physique-Chimie, les séances sont théoriques et méthodologiques ; aucune activité pratique en laboratoire n’est annoncée." },
       { "question": "Que faire si le groupe demandé est complet ?", "answer": "L'équipe peut proposer une liste d'attente ou une autre solution pédagogique. Aucune disponibilité en temps réel n'est annoncée sur cette page." },
       { "question": "La demande d’information engage-t-elle financièrement ?", "answer": "Non. La demande est transmise sans paiement, ne réserve pas une place et ne forme pas un contrat. Une réservation n’intervient qu’après validation du parcours, communication des conditions et réception de l’acompte." },
-      { "question": "Comment obtenir un conseil personnalisé ?", "answer": "Vous pouvez demander un bilan gratuit ou écrire sur WhatsApp. L'équipe vérifie alors les matières et le profil les plus adaptés." }
+      { "question": "Comment obtenir un conseil personnalisé ?", "answer": "Vous pouvez demander un conseil ou écrire sur WhatsApp. L'équipe vérifie alors les matières et le profil les plus adaptés." }
     ]
   },
   "seo": {

@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0.0",
-  "sourceSetSha256": "72b8a7da5259d9af211b53bad4be6ea032550a9c33d71180d53780927f4aa30e",
+  "sourceSetSha256": "59c644f93fe179c8854a2f9057b0aae00b536e3e18b455081648d9cb3c244afb",
   "sourceRepoSha": "a1192c8dccf8eaa6ae223265a3bc9ceb56a6fff0",
   "sourceCommitDate": "2026-07-14T12:00:48+01:00",
-  "snapshotBuiltAt": "2026-07-20T12:00:00+01:00",
+  "snapshotBuiltAt": "2026-07-20T18:00:00+01:00",
   "provenance": {
     "campaign": {
       "path": "data/campaigns/pre-rentree-2026.json",
-      "version": "2.0.1",
-      "sha256": "3ee46562903edacc7be68ac8bf85dfae0cfc733ae2173446318e9f23e0ebe1e1"
+      "version": "2.0.2",
+      "sha256": "3193273beea8d781ed5de2cad3c67600104bca6f98dc0e38770e84dd71b97263"
     },
     "modules": {
       "path": "content/pre-rentree-2026/modules.json",
@@ -32,8 +32,8 @@
     },
     "parentGuide": {
       "path": "content/pre-rentree-2026/parent-guide.fr.json",
-      "version": "2026-parent-guide-fr-v3",
-      "sha256": "424cbd29f51499ee73ee90c348706e003d086e7394b1b575e7763dfe87b8fb7d"
+      "version": "2026-parent-guide-fr-v4",
+      "sha256": "d2dc93189079699f3c9c276b8b31065e9b024d30e7e88c66194e2588722670ea"
     },
     "pedagogyFramework": {
       "path": "content/pre-rentree-2026/pedagogy-framework.fr.json",
@@ -73,7 +73,7 @@
   },
   "campaign": {
     "id": "pre-rentree-2026",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "schoolYear": "2026-2027",
     "timezone": "Africa/Tunis",
     "publicationMode": "REVIEW",
@@ -7998,7 +7998,7 @@
       },
       {
         "question": "Comment obtenir un conseil personnalisé ?",
-        "answer": "Vous pouvez demander un bilan gratuit ou écrire sur WhatsApp. L'équipe vérifie alors les matières et le profil les plus adaptés."
+        "answer": "Vous pouvez demander un conseil ou écrire sur WhatsApp. L'équipe vérifie alors les matières et le profil les plus adaptés."
       }
     ],
     "adaptationNotice": "Le programme et le niveau des exercices sont adaptés au profil déclaré et à la composition pédagogique du groupe.",
@@ -8237,12 +8237,12 @@
   ],
   "parentGuide": {
     "schemaVersion": "1.0.0",
-    "contentVersion": "2026-parent-guide-fr-v3",
+    "contentVersion": "2026-parent-guide-fr-v4",
     "locale": "fr-TN",
     "status": "DRAFT_FOR_OWNER_REVIEW",
-    "documentPackageVersion": "6.0.0-rc.1",
+    "documentPackageVersion": "6.0.0-rc.2",
     "documentEditionDate": "2026-07-20",
-    "snapshotBuiltAt": "2026-07-20T12:00:00+01:00",
+    "snapshotBuiltAt": "2026-07-20T18:00:00+01:00",
     "sections": [
       {
         "id": "essentiel",
@@ -8310,9 +8310,10 @@
           {
             "id": "capacites-gatees",
             "kind": "EVIDENCED_TEXT",
-            "text": "Les services renforcés ne deviennent des engagements publics que lorsqu’ils sont testés, opérationnels et approuvés.",
+            "text": "Le contenu précis du parcours est communiqué après l’étude du profil et avant toute confirmation.",
             "evidenceRefs": [
-              "/capabilities"
+              "/offers/levels",
+              "/content/practical/preRegistrationNotice"
             ]
           }
         ]
@@ -8563,7 +8564,7 @@
           {
             "id": "manuels-bloques",
             "kind": "EVIDENCED_TEXT",
-            "text": "Aucun manuel n’est annoncé comme offert tant que le fichier d’impression, l’approbation propriétaire et le stock ne sont pas tous validés.",
+            "text": "Aucun manuel n’est inclus dans l’offre présentée dans cette édition.",
             "evidenceRefs": [
               "/manuals/manuals"
             ]
@@ -8661,7 +8662,7 @@
     ]
   },
   "document": {
-    "documentPackageVersion": "6.0.0-rc.1",
+    "documentPackageVersion": "6.0.0-rc.2",
     "documentEditionDate": "2026-07-20",
     "publicClassification": "PUBLIC",
     "qrTarget": "https://nexusreussite.academy/stages/pre-rentree-2026",

@@ -161,6 +161,9 @@ def _build_in_staging(
             for filename in snapshot["document"]["outputs"]["publicPdf"].values()
         ],
     }
+    ligature_corruption_count = sum(
+        record["LIGATURE_CORRUPTION_COUNT"] for record in pdf_report["DOCUMENTS"]
+    )
     _atomic_json(audit / "pdf-qa-report.json", pdf_report)
     social_report = audit_social_visuals(snapshot, social)
     _atomic_json(audit / "social-visual-qa-report.json", social_report)
@@ -217,6 +220,7 @@ def _build_in_staging(
         all(content_report[name] == 0 for name in zero_gates)
         and accessibility["ACCESSIBILITY_ISSUE_COUNT"] == 0
         and social_report["SOCIAL_VISUAL_DEFECT_COUNT"] == 0
+        and ligature_corruption_count == 0
         and visual_report["VISUAL_DEFECT_COUNT"] == 0
         and browser_report["AXE_VIOLATION_COUNT"] == 0
         and browser_report["REMOTE_DEPENDENCY_COUNT"] == 0
@@ -230,6 +234,7 @@ def _build_in_staging(
         "VISUAL_DEFECT_COUNT": visual_report["VISUAL_DEFECT_COUNT"],
         "ACCESSIBILITY_ISSUE_COUNT": accessibility["ACCESSIBILITY_ISSUE_COUNT"],
         "BROWSER_ACCESSIBILITY_ISSUE_COUNT": browser_report["AXE_VIOLATION_COUNT"],
+        "LIGATURE_CORRUPTION_COUNT": ligature_corruption_count,
         "OUTPUT_MANIFEST_COMPLETE": all(path.is_file() for path in expected),
         "ALL_PDF_SHA256_RECORDED": manifest["ALL_PDF_SHA256_RECORDED"],
         "PUBLIC_STATUS": "PDF_PACKAGE_READY_FOR_OWNER_REVIEW" if gates_pass else "BLOCKED_BY_REPRODUCIBILITY",

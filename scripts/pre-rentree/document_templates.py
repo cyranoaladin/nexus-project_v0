@@ -106,6 +106,12 @@ def _footer(snapshot: dict[str, Any], short_title: str) -> str:
     </footer>"""
 
 
+def _review_banner(snapshot: dict[str, Any]) -> str:
+    if snapshot["campaign"]["publicationMode"] != "REVIEW":
+        return ""
+    return '<p class="review-banner" role="note">Document de revue — diffusion interdite</p>'
+
+
 def _shell(
     snapshot: dict[str, Any],
     title: str,
@@ -121,9 +127,7 @@ def _shell(
         f'<li><a href="#{escape_text(anchor)}">{escape_text(label)}</a></li>'
         for anchor, label in navigation
     )
-    review_banner = ""
-    if snapshot["campaign"]["publicationMode"] == "REVIEW":
-        review_banner = '<p class="review-banner" role="note">Document de revue — diffusion interdite</p>'
+    review_banner = "" if 'class="cover"' in body else _review_banner(snapshot)
     return f"""<!doctype html>
 <html lang="fr">
 <head>
@@ -162,6 +166,7 @@ def _cover(snapshot: dict[str, Any]) -> str:
     )
     return f"""
     <section id="couverture" class="cover" data-source-path="{_source_attr('/campaign', '/levels', '/subjects', '/contact')}">
+      {_review_banner(snapshot)}
       <img class="cover-logo" src="../ASSETS/logo-slogan.png" alt="Nexus Réussite">
       <p class="eyebrow">{escape_text(campaign['venue']['neighborhood'])}, {escape_text(campaign['venue']['city'])}</p>
       <h1>Stages de pré-rentrée {_campaign_year(snapshot)}</h1>
@@ -427,7 +432,7 @@ def _manuals(snapshot: dict[str, Any]) -> str:
         cards = "".join(f'<li>{escape_text(item["subject"])} · {escape_text(item["level"])}</li>' for item in eligible)
         copy = f'<p>Les manuels suivants sont confirmés :</p><ul>{cards}</ul>'
     else:
-        copy = '<p>Aucun manuel n’est annoncé comme offert dans ce document de revue.</p>'
+        copy = ""
     return f'<section id="manuels" class="page-section"><h2>{escape_text(_guide_section(snapshot, "manuels")["title"])}</h2>{copy}{_evidenced_text(snapshot, "manuels", "manuels-bloques")}</section>'
 
 
@@ -493,29 +498,31 @@ def _parent_guide(snapshot: dict[str, Any], filename: str) -> HtmlDocument:
         + _level_guides(snapshot) + _global_planning(snapshot) + _pricing(snapshot)
         + _procedure(snapshot) + _manuals(snapshot) + _practical(snapshot) + _faq(snapshot) + _final_contact(snapshot)
     )
-    return _document(snapshot, filename, "Guide Parents — Stages de pré-rentrée 2026", "Guide Parents · Pré-rentrée 2026", body, nav, body_class="parent-guide")
+    year = _campaign_year(snapshot)
+    return _document(snapshot, filename, f"Guide Parents — Stages de pré-rentrée {year}", f"Guide Parents · Pré-rentrée {year}", body, nav, body_class="parent-guide")
 
 
 def _brochure(snapshot: dict[str, Any], filename: str) -> HtmlDocument:
     nav = (("essentiel", "L’essentiel"), ("offres", "Les offres"), ("tarifs", "Tarifs"), ("reservation", "Réservation"), ("contact", "Contact"))
     body = _cover(snapshot) + _essentials(snapshot) + _offers_comparison(snapshot) + _pedagogy(snapshot) + _pricing(snapshot) + _procedure(snapshot) + _final_contact(snapshot)
-    return _document(snapshot, filename, "Brochure Parents — Pré-rentrée 2026", "Brochure Parents", body, nav, body_class="short-brochure")
+    return _document(snapshot, filename, f"Brochure Parents — Pré-rentrée {_campaign_year(snapshot)}", "Brochure Parents", body, nav, body_class="short-brochure")
 
 
 def _essential(snapshot: dict[str, Any], filename: str) -> HtmlDocument:
     nav = (("essentiel", "L’essentiel"), ("contact", "Contact"))
-    return _document(snapshot, filename, "Pré-rentrée 2026 — L’essentiel", "L’essentiel", _cover(snapshot) + _essentials(snapshot) + _final_contact(snapshot), nav)
+    return _document(snapshot, filename, f"Pré-rentrée {_campaign_year(snapshot)} — L’essentiel", "L’essentiel", _cover(snapshot) + _essentials(snapshot) + _final_contact(snapshot), nav)
 
 
 def _comparison(snapshot: dict[str, Any], filename: str) -> HtmlDocument:
     nav = (("offres", "Fondations ou Premium"), ("tarifs", "Tarifs"), ("contact", "Contact"))
     body = '<section class="annex-title"><h1>Fondations ou Premium ?</h1></section>' + _offers_comparison(snapshot) + _pricing(snapshot) + _final_contact(snapshot)
-    return _document(snapshot, filename, "Fondations ou Premium — Pré-rentrée 2026", "Fondations ou Premium", body, nav)
+    return _document(snapshot, filename, f"Fondations ou Premium — Pré-rentrée {_campaign_year(snapshot)}", "Fondations ou Premium", body, nav)
 
 
 def _planning_annex(snapshot: dict[str, Any], filename: str) -> HtmlDocument:
-    body = '<section class="annex-title"><h1>Planning des stages de pré-rentrée 2026</h1></section>' + _global_planning(snapshot)
-    return _document(snapshot, filename, "Planning — Stages de pré-rentrée 2026", "Planning", body, (("planning", "Planning"),))
+    year = _campaign_year(snapshot)
+    body = f'<section class="annex-title"><h1>Planning des stages de pré-rentrée {year}</h1></section>' + _global_planning(snapshot)
+    return _document(snapshot, filename, f"Planning — Stages de pré-rentrée {year}", "Planning", body, (("planning", "Planning"),))
 
 
 def _program_annex(snapshot: dict[str, Any], level_id: str, filename: str) -> HtmlDocument:
@@ -529,12 +536,12 @@ def _program_annex(snapshot: dict[str, Any], level_id: str, filename: str) -> Ht
 def _pricing_annex(snapshot: dict[str, Any], filename: str) -> HtmlDocument:
     body = '<section class="annex-title"><h1>Tarifs et réservation</h1></section>' + _pricing(snapshot) + _procedure(snapshot) + _final_contact(snapshot)
     nav = (("tarifs", "Tarifs"), ("reservation", "Réservation"), ("contact", "Contact"))
-    return _document(snapshot, filename, "Tarifs et réservation — Pré-rentrée 2026", "Tarifs et réservation", body, nav)
+    return _document(snapshot, filename, f"Tarifs et réservation — Pré-rentrée {_campaign_year(snapshot)}", "Tarifs et réservation", body, nav)
 
 
 def _faq_annex(snapshot: dict[str, Any], filename: str) -> HtmlDocument:
     body = '<section class="annex-title"><h1>Questions des parents</h1></section>' + _faq(snapshot) + _final_contact(snapshot)
-    return _document(snapshot, filename, "FAQ Parents — Pré-rentrée 2026", "FAQ Parents", body, (("faq", "FAQ"), ("contact", "Contact")))
+    return _document(snapshot, filename, f"FAQ Parents — Pré-rentrée {_campaign_year(snapshot)}", "FAQ Parents", body, (("faq", "FAQ"), ("contact", "Contact")))
 
 
 def render_public_documents(snapshot: dict[str, Any]) -> dict[str, HtmlDocument]:
