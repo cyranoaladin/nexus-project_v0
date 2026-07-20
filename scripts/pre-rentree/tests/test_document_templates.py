@@ -23,10 +23,10 @@ def normalized_text(markup: str) -> str:
     return " ".join(BeautifulSoup(markup, "html.parser").get_text(" ").split())
 
 
-def test_renders_the_seven_accessible_public_html_documents():
+def test_renders_the_eleven_accessible_review_html_documents():
     documents = render_public_documents(SNAPSHOT)
     assert set(documents) == set(SNAPSHOT["document"]["outputs"]["publicHtml"].values())
-    assert len(documents) == 7
+    assert len(documents) == 11
     for filename, document in documents.items():
         soup = BeautifulSoup(document.html, "html.parser")
         assert soup.html and soup.html.get("lang") == "fr"
@@ -55,10 +55,12 @@ def test_complete_parent_guide_contains_every_required_family_section():
         "essentiel",
         "pourquoi",
         "fonctionnement",
-        "parcours",
+        "offres",
+        "catalogue",
         "planning",
         "tarifs",
-        "pre-inscription",
+        "reservation",
+        "manuels",
         "pratique",
         "faq",
         "contact",
@@ -68,15 +70,15 @@ def test_complete_parent_guide_contains_every_required_family_section():
         level["id"] for level in SNAPSHOT["levels"]
     }
     module_nodes = guide.select("article.program-module[data-module-id]")
-    assert len(module_nodes) == 12
+    assert len(module_nodes) == 14
     assert {node.get("data-module-id") for node in module_nodes} == {
         module["id"] for module in SNAPSHOT["modules"]
     }
     sessions = guide.select("article.session-card[data-session-number]")
-    assert len(sessions) == 60
-    assert len({(node.get("data-module-id"), node.get("data-session-number")) for node in sessions}) == 60
-    procedure = guide.select("#pre-inscription ol.procedure > li")
-    assert len(procedure) == 8
+    assert len(sessions) == 70
+    assert len({(node.get("data-module-id"), node.get("data-session-number")) for node in sessions}) == 70
+    procedure = guide.select("#reservation ol.procedure > li")
+    assert len(procedure) == 4
     assert all(item.get("data-source-path") for item in procedure)
     assert len(guide.select("#faq details")) == len(SNAPSHOT["content"]["faq"])
     assert SNAPSHOT["cta"]["primary"] in text
@@ -87,7 +89,7 @@ def test_complete_parent_guide_contains_every_required_family_section():
 
 def test_parent_guide_factual_blocks_have_valid_evidence_and_capability_gates():
     guide = SNAPSHOT["parentGuide"]
-    capabilities = {item["id"]: item for item in guide["capabilities"]}
+    capabilities = {item["id"]: item for item in SNAPSHOT["capabilities"]["capabilities"]}
     for section in guide["sections"]:
         for block in section["blocks"]:
             if block["kind"] == "EVIDENCED_TEXT":
@@ -95,7 +97,7 @@ def test_parent_guide_factual_blocks_have_valid_evidence_and_capability_gates():
             if block.get("capabilityId"):
                 capability = capabilities[block["capabilityId"]]
                 assert capability["publiclyCommitted"] is True
-                assert capability["publicLabel"]
+                assert capability["label"]
 
 
 def test_program_documents_copy_every_canonical_module_session_field_verbatim():
@@ -147,12 +149,12 @@ def test_public_html_contains_exact_prices_and_safe_pre_registration_copy_only()
     text = normalized_text(rendered)
     raw_text = BeautifulSoup(rendered, "html.parser").get_text(" ")
 
-    for amount in (480, 900, 1350, 1800, 140, 270, 410, 540, 340, 630, 940, 1260):
+    for amount in (350, 400, 480, 900, 1350, 1800, 105, 120, 144, 270, 405, 540, 245, 280, 336, 630, 945, 1260):
         grouped = f"{amount:,}".replace(",", "\u00a0")
         assert grouped in raw_text
     assert SNAPSHOT["cta"]["primary"] in text
     assert SNAPSHOT["content"]["practical"]["preRegistrationNotice"] in text
-    assert "Acompte (30 %)" not in text
+    assert "Acompte 30 %" in text
     assert "avant de réserver" not in text.casefold()
     assert "acompte reportable sur l’année suivante" not in text.casefold()
     assert "déductible du parcours annuel" not in text.casefold()
@@ -163,16 +165,11 @@ def test_public_html_contains_exact_prices_and_safe_pre_registration_copy_only()
     assert not re.search(r"pre2026-pack-|MATHS_NSI_SNT_TEACHER|salle-[12]", rendered)
 
     pricing = BeautifulSoup(
-        documents[SNAPSHOT["document"]["outputs"]["publicHtml"]["pricing"]].html,
+        documents[SNAPSHOT["document"]["outputs"]["publicHtml"]["pricingReservation"]].html,
         "html.parser",
     )
-    summary = pricing.select_one('.format-summary[data-source-path="/packs/0"]')
-    assert summary is not None
-    summary_text = normalized_text(str(summary))
-    reference_pack = SNAPSHOT["packs"][0]
-    assert f'{reference_pack["sessionsPerSubject"]} séances par matière' in summary_text
-    assert f'{reference_pack["sessionDurationHours"]} h par séance' in summary_text
-    assert f'{reference_pack["hoursPerSubject"]} h par matière' in summary_text
+    assert len(pricing.select("table.tariffs-table")) == 3
+    assert all(row.get("data-source-path") == "/offerPricing" for row in pricing.select("table.tariffs-table tbody tr"))
 
 
 def test_every_rendered_public_claim_id_exists_in_the_snapshot_registry():
@@ -188,7 +185,7 @@ def test_every_rendered_public_claim_id_exists_in_the_snapshot_registry():
     assert sum(
         len(BeautifulSoup(document.html, "html.parser").select('[data-claim-id="public-cta"]'))
         for document in documents.values()
-    ) == 2
+    ) >= 2
 
     essential = BeautifulSoup(documents[SNAPSHOT["document"]["outputs"]["publicHtml"]["essential"]].html, "html.parser")
     cover_dates = essential.select_one("#couverture[data-source-path] .cover-dates")
@@ -206,7 +203,7 @@ def test_family_surfaces_hide_release_jargon_and_unapproved_promises():
     blocked_visible_terms = (
         "canonical", "canonique", "snapshot", "manifest", "campaignid", "sourcereposha",
         "non public", "draft", "owner approval", "legal approval", "commit", "branch", "sha",
-        "v5-canonical", "tarifs canoniques", "acompte de 30 %", "oral filmé",
+        "v5-canonical", "tarifs canoniques", "oral filmé", "release candidate",
         "résultats garantis", "progression garantie", "rattrapage garanti", "séance de laboratoire",
         "quatre documents personnalisés",
     )
@@ -224,8 +221,8 @@ def test_renderer_sources_contain_no_campaign_business_literals():
     python_source = "\n".join(path.read_text(encoding="utf-8") for path in paths[:2])
     all_source = "\n".join(path.read_text(encoding="utf-8") for path in paths)
     numeric_literals = (
-        r"\b480\b|\b900\b|\b1350\b|\b1800\b",
-        r"\b140\b|\b270\b|\b410\b|\b540\b",
+        r"\b350\b|\b400\b|\b480\b|\b900\b|\b1350\b|\b1800\b",
+        r"\b105\b|\b120\b|\b144\b|\b270\b|\b405\b|\b540\b",
     )
     blocked_literals = (
         r"2026-08-(?:10|17|28)",

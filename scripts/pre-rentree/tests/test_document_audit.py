@@ -107,12 +107,16 @@ def test_content_gates_are_computed_from_rendered_documents(package: Path):
         "QR_LINK_MISMATCH_COUNT",
     )
     assert {key: report[key] for key in expected_zero} == {key: 0 for key in expected_zero}
-    assert report["MODULE_COUNT"] == 12
-    assert report["SESSION_COUNT"] == 60
+    assert report["MODULE_COUNT"] == 14
+    assert report["SESSION_COUNT"] == 70
+    assert report["POSITIONING_TEST_COUNT"] == 14
+    assert report["QUICK_ASSESSMENT_COUNT"] == 70
+    assert report["SESSION_DELIVERABLE_COUNT"] == 70
+    assert report["DEPOSIT_ROUNDING_ERROR_COUNT"] == 0
     assert report["CONTRACTUAL_DOSSIER_PUBLICATION_BLOCKED"] is True
     assert [report[f"PRICE_{index}"] for index in range(1, 5)] == [480, 900, 1350, 1800]
-    assert [report[f"DEPOSIT_{index}"] for index in range(1, 5)] == [140, 270, 410, 540]
-    assert [report[f"BALANCE_{index}"] for index in range(1, 5)] == [340, 630, 940, 1260]
+    assert [report[f"DEPOSIT_{index}"] for index in range(1, 5)] == [144, 270, 405, 540]
+    assert [report[f"BALANCE_{index}"] for index in range(1, 5)] == [336, 630, 945, 1260]
     assert [report[f"PRICE_PER_HOUR_{index}"] for index in range(1, 5)] == [48, 45, 45, 45]
 
 
@@ -128,7 +132,7 @@ def test_build_manifest_records_every_public_pdf(package: Path, tmp_path: Path):
     assert manifest["OWNER_REVIEWED_AT"] is None
     assert manifest["LEGAL_REVIEWED_AT"] is None
     assert manifest["PRIVACY_REVIEWED_AT"] is None
-    assert len(manifest["PDF_FILES"]) == 7
+    assert len(manifest["PDF_FILES"]) == 11
     assert all(len(record["PDF_SHA256"]) == 64 for record in manifest["PDF_FILES"])
     assert all(record["PUBLIC_OR_PRIVATE"] == "PUBLIC" for record in manifest["PDF_FILES"])
     assert manifest["ALL_PDF_SHA256_RECORDED"] is True

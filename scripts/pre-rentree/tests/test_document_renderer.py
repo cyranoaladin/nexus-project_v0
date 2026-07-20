@@ -42,7 +42,7 @@ def build_fixture(root: Path) -> tuple[dict[str, Path], dict[str, Path]]:
     return html, pdf
 
 
-def test_renders_exact_seven_html_and_pdf_output_names(tmp_path: Path):
+def test_renders_exact_eleven_html_and_pdf_output_names(tmp_path: Path):
     html, pdf = build_fixture(tmp_path)
 
     assert {path.name for path in html.values()} == set(SNAPSHOT["document"]["outputs"]["publicHtml"].values())
@@ -51,9 +51,9 @@ def test_renders_exact_seven_html_and_pdf_output_names(tmp_path: Path):
 
     guide = pdf["parentGuide"]
     reader = PdfReader(str(guide))
-    assert 24 <= len(reader.pages) <= 40
+    assert 24 <= len(reader.pages) <= 56
     text = "\n".join(page.extract_text() or "" for page in reader.pages)
-    assert len(re.findall(r"Séance\s+[1-5]", text)) >= 60
+    assert len(re.findall(r"Séance\s+[1-5]", text)) >= 70
 
 
 def test_pdf_has_a4_pages_metadata_language_fonts_links_and_extractable_text(tmp_path: Path):
@@ -69,7 +69,7 @@ def test_pdf_has_a4_pages_metadata_language_fonts_links_and_extractable_text(tmp
         assert abs(float(page.mediabox.width) - 595.28) < 1
         assert abs(float(page.mediabox.height) - 841.89) < 1
     text = "\n".join(page.extract_text() or "" for page in reader.pages)
-    assert re.sub(r"\s+", " ", SNAPSHOT["content"]["hero"]["h1"]) in re.sub(r"\s+", " ", text)
+    assert "Stages de pré-rentrée 2026" in re.sub(r"\s+", " ", text)
     assert SNAPSHOT["contact"]["email"] in text
     assert any("/Annots" in page for page in reader.pages)
     fonts = subprocess.run(["pdffonts", str(essential)], check=True, capture_output=True, text=True).stdout
