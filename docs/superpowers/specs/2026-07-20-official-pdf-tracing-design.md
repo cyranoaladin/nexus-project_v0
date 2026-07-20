@@ -25,7 +25,7 @@ d'authentification, d'autorisation ou de cache de la route.
 
 Le résultat est accepté lorsque :
 
-- toute métadonnée PDF produit un chemin relatif strictement contenu sous
+- toute métadonnée PDF produit un chemin lexicalement contenu sous
   `programmes/` ;
 - les métadonnées qui tentent de sortir de cette racine sont rejetées ;
 - l'appel `readFile` reste alimenté par un chemin dont le préfixe
@@ -75,16 +75,29 @@ Créer `lib/programme/official-pdf-path.ts` avec une fonction pure :
 resolveOfficialPdfRelativePath(metadata: OfficialPdfMetadata): string
 ```
 
-La fonction :
+La fonction valide les valeurs brutes avant toute normalisation :
 
-1. interprète `baseDir` et `filename` comme des segments POSIX issus du registre ;
-2. exige que `baseDir` soit `programmes` ou commence par `programmes/` ;
-3. retire ce préfixe pour obtenir un chemin relatif à la racine autorisée ;
-4. normalise le chemin ;
-5. rejette les chemins absolus, vides ou commençant par `..` ;
-6. retourne uniquement le chemin relatif interne.
+1. `baseDir` et `filename` doivent être non vides et ne contenir ni caractère
+   NUL ni antislash ;
+2. `baseDir` doit être exactement `programmes` ou commencer par
+   `programmes/` ; `programmes-malicious` est donc refusé ;
+3. chaque segment POSIX de `baseDir` doit être non vide et différent de `.` et
+   `..` ; les séparateurs répétés, les traversées et les chemins absolus sont
+   refusés au lieu d'être corrigés silencieusement ;
+4. `filename` doit être un basename POSIX strict : il ne peut contenir ni `/`
+   ni sous-répertoire, et ne peut être `.` ou `..` ;
+5. le préfixe `programmes` est retiré de `baseDir`, puis le sous-répertoire
+   validé et `filename` sont joints avec `path.posix.join` ;
+6. le résultat retourné est non vide, relatif et ne commence jamais par `..`.
 
 Le helper ne fait aucun accès disque et ne dépend pas de l'environnement.
+
+Cette garantie est volontairement **lexicale**. Les liens symboliques sont
+interdits dans l'artefact de production par `audit-production-artifact.js`, qui
+parcourt l'arbre standalone et bloque tout symlink. Le changement ne prétend
+pas sécuriser un checkout de développement contenant volontairement un symlink
+sous `programmes/` ; la combinaison validation lexicale + audit sans symlink est
+la garantie de production.
 
 ### Route
 
@@ -111,21 +124,30 @@ PDF privée.
 Une métadonnée invalide est une erreur de configuration serveur. Elle est
 capturée par le bloc externe existant et produit une réponse 500 générique, sans
 exposer de chemin local au client. Les logs passent toujours par
-`serializeError`.
+`serializeError`. Le rejet intervient avant tout appel à `stat` ou `readFile`.
 
 ## Stratégie de tests
 
 Le développement suit TDD :
 
-1. tests unitaires du helper pour un sous-répertoire valide, la racine
-   `programmes`, un `baseDir` hors racine et des traversées via le nom de fichier ;
+1. créer `__tests__/lib/programme/official-pdf-path.test.ts` avec des cas
+   tabulaires pour la racine valide, un sous-répertoire valide,
+   `programmes-malicious`, un chemin absolu, des segments `.`/`..`, des
+   séparateurs répétés, un antislash, un nom vide et un nom contenant un
+   sous-répertoire ;
 2. exécution en rouge avant création du helper ;
 3. implémentation minimale ;
-4. tests de la route, TypeScript, lint et scans de sécurité ;
-5. suite Jest complète sous Node 22.23.1 ;
-6. build Docker `builder`, puis inspection du manifeste pour confirmer que les
-   références ne couvrent plus le dépôt complet et que les audits restent
-   bloquants.
+4. ajouter à `__tests__/api/student.resources.official.route.test.ts` un cas de
+   métadonnée invalide qui vérifie le statut 500, le corps générique sans chemin
+   local, l'appel à `serializeError` et l'absence d'appel à `stat`/`readFile` ;
+5. exécuter les tests de la route, TypeScript, lint et scans de sécurité ;
+6. exécuter la suite Jest complète sous Node 22.23.1 ;
+7. exécuter le build Docker `builder`, puis inspecter précisément
+   `.next/server/app/api/student/resources/official/[slug]/route.js.nft.json` :
+   le manifeste doit contenir au plus 500 références, zéro référence correspondant
+   aux motifs interdits par `validate-next-traces.js`, et au moins un PDF sous
+   `programmes/` ; `validate-next-traces.js` et
+   `audit-production-artifact.js` doivent tous deux retourner un succès.
 
 ## Publication
 
