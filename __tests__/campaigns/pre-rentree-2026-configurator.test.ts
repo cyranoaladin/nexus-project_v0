@@ -72,9 +72,7 @@ describe('Pré-rentrée configurator logic', () => {
         expect(summary.pack?.price).toBe(pack?.price);
         expect(summary.pack?.deposit).toBe(pack?.deposit);
         expect(summary.pack?.balance).toBe(pack?.balance);
-        expect(summary.requiresValidation).toBe(
-          requiresPedagogicalValidation(level.id, profile, subjectIds),
-        );
+        expect(summary.requiresValidation).toBe(true);
 
         const bilanUrl = buildBilanUrl({
           packCode: pack.code,

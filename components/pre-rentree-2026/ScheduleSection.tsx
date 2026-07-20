@@ -294,6 +294,7 @@ export function ScheduleSection({
   subjects,
   blocks,
   organization,
+  operationalGates,
 }: {
   schedule: LandingScheduleSlot[];
   scheduleWeeks: LandingScheduleWeek[];
@@ -301,6 +302,13 @@ export function ScheduleSection({
   subjects: LandingSubject[];
   blocks: Block[];
   organization: LandingPublicOrganization;
+  operationalGates: {
+    roomAssignmentsValidated: boolean;
+    teacherAssignmentsValidated: boolean;
+    noTeacherConflict: boolean;
+    noRoomConflict: boolean;
+    dailyLoadValid: boolean;
+  };
 }) {
   const { configuredEntryLevel } = useCampaignExperience();
   const initialLevel = levels[0]?.id ?? 'SECONDE';
@@ -317,6 +325,9 @@ export function ScheduleSection({
       <div className="mx-auto max-w-6xl">
         <h2 id="schedule-heading" className="font-fraunces text-3xl text-lux-ink md:text-4xl">Planning et emplois du temps</h2>
         <p className="mt-3 max-w-3xl text-lux-slate">Consultez les créneaux par classe de rentrée ou visualisez l’occupation des deux salles sur chaque semaine.</p>
+        {(!operationalGates.roomAssignmentsValidated || !operationalGates.teacherAssignmentsValidated) && (
+          <p role="note" className="mt-5 rounded-xl border border-lux-gold/40 bg-lux-gold/10 p-4 text-sm text-lux-ink">Planning de revue : les affectations finales des salles et des enseignants ne sont pas encore validées.</p>
+        )}
         <SubjectLegend />
 
         <Tabs

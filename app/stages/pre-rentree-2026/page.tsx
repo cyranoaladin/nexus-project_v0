@@ -11,6 +11,7 @@ import { NexusMethodSection } from '@/components/pre-rentree-2026/NexusMethodSec
 import { PracticalInformation } from '@/components/pre-rentree-2026/PracticalInformation';
 import { CampaignFAQ } from '@/components/pre-rentree-2026/CampaignFAQ';
 import { FinalCampaignCTA } from '@/components/pre-rentree-2026/FinalCampaignCTA';
+import { OffersSection } from '@/components/pre-rentree-2026/OffersSection';
 import { CampaignExperienceProvider } from '@/components/pre-rentree-2026/CampaignExperienceContext';
 import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
 
@@ -54,6 +55,11 @@ export default function PreRentree2026Page() {
     <main id="main-content" className="min-h-screen overflow-x-clip bg-lux-paper">
       <CorporateNavbar />
       <CampaignPageTracker />
+      {dto.publicationMode === 'REVIEW' && (
+        <aside className="bg-amber-100 px-4 py-3 pt-24 text-center text-sm font-semibold text-amber-950" role="status">
+          Page de revue — diffusion interdite
+        </aside>
+      )}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd).replace(/</g, '\\u003c') }}
@@ -62,10 +68,12 @@ export default function PreRentree2026Page() {
         campaign={dto.campaign}
         content={dto.content.hero}
         capacityByOffer={dto.capacityByOffer}
-        packs={dto.packs}
+        packs={dto.offerOptions}
         schedule={dto.schedule}
         whatsappMessage={dto.contact.whatsappMessage}
+        primaryCta={dto.cta.primary.label}
       />
+      <OffersSection offers={dto.offers} levels={dto.levels} capabilities={dto.capabilities} />
       <CampaignExperienceProvider>
         <div id="configurateur" className="scroll-mt-24">
           <StageConfigurator
@@ -86,12 +94,18 @@ export default function PreRentree2026Page() {
             subjects={dto.subjects}
             blocks={dto.blocks}
             organization={dto.organization}
+            operationalGates={dto.operationalGates}
           />
         </div>
         <ProgramsSection modules={dto.modules} levels={dto.levels} subjects={dto.subjects} />
       </CampaignExperienceProvider>
       <div id="tarifs" className="scroll-mt-24">
-        <PricingSection packs={dto.packs} depositPercentage={dto.pricingRules.depositPercentage} />
+        <PricingSection
+          packs={dto.offerOptions}
+          levels={dto.levels}
+          depositPercentage={dto.pricingRules.depositPercentage}
+          campaignYear={dto.campaign.startDate.slice(0, 4)}
+        />
       </div>
       <NexusMethodSection steps={dto.content.method} />
       <PracticalInformation
@@ -104,7 +118,7 @@ export default function PreRentree2026Page() {
         cgvPath={dto.legalRefs.cgv}
       />
       <CampaignFAQ items={dto.content.faq} />
-      <FinalCampaignCTA campaignPath={dto.campaign.canonicalPath} />
+      <FinalCampaignCTA campaignPath={dto.campaign.canonicalPath} ctaLabel={dto.cta.primary.label} />
       <CorporateFooter />
     </main>
   );

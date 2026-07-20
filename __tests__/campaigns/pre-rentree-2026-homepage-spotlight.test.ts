@@ -44,7 +44,7 @@ describe('Pré-rentrée homepage spotlight DTO', () => {
         chipLabel: 'du 17 au 28 août',
       },
       entryClassesLabel: 'Entrée en 3e, Seconde, Première ou Terminale',
-      subjectFamiliesLabel: 'Mathématiques · Physique-Chimie · Français · NSI/SNT',
+      subjectFamiliesLabel: 'Mathématiques · Physique-Chimie · Français · NSI/SNT · Philosophie',
       capacityLabel: 'Fondations : 4 à 6 élèves · Premium : 3 à 5 élèves',
       volumeLabel: '10 h par matière',
       venueLabel: 'Mutuelleville',

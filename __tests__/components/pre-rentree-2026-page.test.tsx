@@ -81,8 +81,8 @@ describe('Pré-rentrée 2026 page', () => {
     if (!planning || !programs) throw new Error('Campaign sections missing');
 
     expect(screen.getByRole('radio', { name: 'Entrée en Seconde' })).not.toBeChecked();
-    expect(within(planning).getByRole('tab', { name: 'Entrée en Seconde' })).toHaveAttribute('aria-selected', 'true');
-    expect(within(programs).getByRole('tab', { name: 'Entrée en Seconde' })).toHaveAttribute('aria-selected', 'true');
+    expect(within(planning).getByRole('tab', { name: 'Entrée en 3e' })).toHaveAttribute('aria-selected', 'true');
+    expect(within(programs).getByRole('tab', { name: 'Entrée en 3e' })).toHaveAttribute('aria-selected', 'true');
 
     await user.click(screen.getByRole('radio', { name: 'Entrée en Première' }));
     expect(within(planning).getByRole('tab', { name: 'Entrée en Première' })).toHaveAttribute('aria-selected', 'true');
