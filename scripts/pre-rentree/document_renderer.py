@@ -61,20 +61,22 @@ def _source_date_epoch(iso_timestamp: str):
 
 def _stable_pdf_html(html_path: Path, package_root: Path) -> tuple[str, Any]:
     soup = BeautifulSoup(html_path.read_text(encoding="utf-8"), "html.parser")
+    assets_dir = package_root / "ASSETS"
     stylesheet = soup.find("link", rel="stylesheet")
     if stylesheet is None or not stylesheet.get("href"):
         raise ValueError(f"Document has no stylesheet: {html_path}")
     css_path = (html_path.parent / stylesheet["href"]).resolve()
     if not css_path.is_relative_to(package_root) or not css_path.is_file():
         raise ValueError(f"Stylesheet escapes package root: {css_path}")
-    css = css_path.read_text(encoding="utf-8").replace("../ASSETS/", "nexus-asset:")
+    css = css_path.read_text(encoding="utf-8")
+    css = re.sub(r"/\* PDF_IGNORE_START \*/.*?/\* PDF_IGNORE_END \*/", "", css, flags=re.DOTALL)
+    for asset_path in assets_dir.iterdir():
+        css = css.replace(f'url("{asset_path.name}")', f'url("nexus-asset:{asset_path.name}")')
     style = soup.new_tag("style")
     style.string = css
     stylesheet.replace_with(style)
     for image in soup.find_all("img"):
         image["src"] = f'nexus-asset:{Path(image.get("src", "")).name}'
-
-    assets_dir = package_root / "SOURCES/ASSETS"
 
     def fetcher(url: str):
         if not url.startswith("nexus-asset:"):
@@ -138,9 +140,9 @@ def render_public_pdfs(
     pdf_names = snapshot["document"]["outputs"]["publicPdf"]
     font_config = FontConfiguration()
     rendered: dict[str, Path] = {}
-    package_root = html_dir.parents[1]
+    package_root = html_dir.parent
 
-    with _source_date_epoch(snapshot["generatedAt"]):
+    with _source_date_epoch(snapshot["document"]["documentEditionDate"]):
         for key, pdf_name in pdf_names.items():
             html_path = html_dir / html_names[key]
             if not html_path.is_file():
@@ -148,15 +150,13 @@ def render_public_pdfs(
             destination = output_dir / pdf_name
             temporary = destination.with_name(f".{destination.name}.tmp-{os.getpid()}")
             identifier = hashlib.sha256(
-                f'{snapshot["sourceRepoSha"]}:{snapshot["document"]["version"]}:{pdf_name}'.encode("utf-8"),
+                f'{snapshot["sourceRepoSha"]}:{snapshot["document"]["documentPackageVersion"]}:{pdf_name}'.encode("utf-8"),
             ).digest()
             stable_html, fetcher = _stable_pdf_html(html_path, package_root)
             HTML(string=stable_html, base_url="nexus-document:", url_fetcher=fetcher).write_pdf(
                 str(temporary),
                 font_config=font_config,
                 pdf_identifier=identifier,
-                pdf_variant="pdf/ua-1",
-                pdf_tags=True,
                 custom_metadata=True,
                 presentational_hints=True,
                 full_fonts=True,

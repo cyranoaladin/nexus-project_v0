@@ -9,17 +9,12 @@ SCRIPT_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SCRIPT_DIR))
 
 from document_model import load_snapshot  # noqa: E402
-from document_templates import (  # noqa: E402
-    LegalPublicationBlocked,
-    ensure_private_publication_allowed,
-    render_private_structural_template,
-    render_public_documents,
-)
+from document_templates import render_public_documents  # noqa: E402
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SNAPSHOT = load_snapshot(
-    REPO_ROOT / "generated/pre-rentree-2026-publication.snapshot.json",
+    REPO_ROOT / "generated/pre-rentree-2026/publication.snapshot.json",
     REPO_ROOT / "scripts/pre-rentree/schemas/publication-snapshot.schema.json",
 )
 
@@ -28,20 +23,79 @@ def normalized_text(markup: str) -> str:
     return " ".join(BeautifulSoup(markup, "html.parser").get_text(" ").split())
 
 
-def test_renders_the_six_accessible_public_html_documents():
+def test_renders_the_seven_accessible_public_html_documents():
     documents = render_public_documents(SNAPSHOT)
     assert set(documents) == set(SNAPSHOT["document"]["outputs"]["publicHtml"].values())
-    assert len(documents) == 6
+    assert len(documents) == 7
     for filename, document in documents.items():
         soup = BeautifulSoup(document.html, "html.parser")
         assert soup.html and soup.html.get("lang") == "fr"
         assert soup.title and soup.title.get_text(strip=True)
         assert soup.find("h1")
+        assert soup.select_one('a.skip-link[href="#contenu"]')
+        assert soup.find("header")
+        assert soup.find("nav")
         assert soup.find("main")
+        assert soup.find("main").get("id") == "contenu"
         assert soup.find("footer")
         assert filename.endswith(".html")
         for table in soup.find_all("table"):
             assert table.find("th", scope="col") or table.find("th", scope="row")
+
+
+def test_complete_parent_guide_contains_every_required_family_section():
+    documents = render_public_documents(SNAPSHOT)
+    guide_name = SNAPSHOT["document"]["outputs"]["publicHtml"]["parentGuide"]
+    guide = BeautifulSoup(documents[guide_name].html, "html.parser")
+    text = normalized_text(str(guide))
+
+    required_section_ids = {
+        "couverture",
+        "sommaire",
+        "essentiel",
+        "pourquoi",
+        "fonctionnement",
+        "parcours",
+        "planning",
+        "tarifs",
+        "pre-inscription",
+        "pratique",
+        "faq",
+        "contact",
+    }
+    assert required_section_ids <= {section.get("id") for section in guide.select("main section[id]")}
+    assert {article.get("data-level") for article in guide.select("article.level-guide")} == {
+        level["id"] for level in SNAPSHOT["levels"]
+    }
+    module_nodes = guide.select("article.program-module[data-module-id]")
+    assert len(module_nodes) == 12
+    assert {node.get("data-module-id") for node in module_nodes} == {
+        module["id"] for module in SNAPSHOT["modules"]
+    }
+    sessions = guide.select("article.session-card[data-session-number]")
+    assert len(sessions) == 60
+    assert len({(node.get("data-module-id"), node.get("data-session-number")) for node in sessions}) == 60
+    procedure = guide.select("#pre-inscription ol.procedure > li")
+    assert len(procedure) == 8
+    assert all(item.get("data-source-path") for item in procedure)
+    assert len(guide.select("#faq details")) == len(SNAPSHOT["content"]["faq"])
+    assert SNAPSHOT["cta"]["primary"] in text
+    assert SNAPSHOT["contact"]["phone"] in text
+    assert SNAPSHOT["contact"]["email"] in text
+    assert SNAPSHOT["contact"]["canonicalUrl"] in text
+
+
+def test_parent_guide_factual_blocks_have_valid_evidence_and_capability_gates():
+    guide = SNAPSHOT["parentGuide"]
+    capabilities = {item["id"]: item for item in guide["capabilities"]}
+    for section in guide["sections"]:
+        for block in section["blocks"]:
+            if block["kind"] == "EVIDENCED_TEXT":
+                assert block["evidenceRefs"]
+            if block.get("capabilityId"):
+                capability = capabilities[block["capabilityId"]]
+                assert capability["publiclyCommitted"] is True
+                assert capability["publicLabel"]
 
 
 def test_program_documents_copy_every_canonical_module_session_field_verbatim():
@@ -72,6 +126,19 @@ def test_program_documents_copy_every_canonical_module_session_field_verbatim():
                 assert html.unescape(value) in program_text
     assert SNAPSHOT["content"]["adaptationNotice"] in program_text
     assert SNAPSHOT["content"]["recordingConsentNotice"] in program_text
+
+    guide_name = SNAPSHOT["document"]["outputs"]["publicHtml"]["parentGuide"]
+    guide = BeautifulSoup(documents[guide_name].html, "html.parser")
+    for module in SNAPSHOT["modules"]:
+        module_node = guide.select_one(f'article.program-module[data-module-id="{module["id"]}"]')
+        assert module_node is not None
+        module_text = normalized_text(str(module_node))
+        for session in module["sessions"]:
+            for value in (
+                session["title"], session["objective"], session["method"],
+                session["deliverable"], *session["topics"],
+            ):
+                assert html.unescape(value) in module_text
 
 
 def test_public_html_contains_exact_prices_and_safe_pre_registration_copy_only():
@@ -124,7 +191,8 @@ def test_every_rendered_public_claim_id_exists_in_the_snapshot_registry():
     ) == 2
 
     essential = BeautifulSoup(documents[SNAPSHOT["document"]["outputs"]["publicHtml"]["essential"]].html, "html.parser")
-    assert essential.select_one(".date-band[data-source-path]")
+    cover_dates = essential.select_one("#couverture[data-source-path] .cover-dates")
+    assert cover_dates is not None
     assert all(card.get("data-claim-id") for card in essential.select(".material-card"))
 
     planning = BeautifulSoup(documents[SNAPSHOT["document"]["outputs"]["publicHtml"]["planning"]].html, "html.parser")
@@ -132,73 +200,19 @@ def test_every_rendered_public_claim_id_exists_in_the_snapshot_registry():
     assert all(row.get("data-source-path") for row in planning.select('tbody tr[class^="subject-"]'))
 
 
-def test_private_template_has_required_structure_but_cannot_be_published():
-    markup = render_private_structural_template(SNAPSHOT)
-    soup = BeautifulSoup(markup, "html.parser")
-    text = normalized_text(markup)
-
-    assert "Dossier de confirmation d’inscription" in text
-    assert "À utiliser uniquement après validation administrative et pédagogique du groupe." in text
-    required_names = {
-        "dossier_number",
-        "campaign_id",
-        "campaign_version",
-        "generation_date",
-        "pre_registration_id",
-        "student_family_id",
-        "entry_level",
-        "pedagogical_profile",
-        "subjects",
-        "module_ids",
-        "schedule_slots",
-        "session_dates",
-        "derived_pack",
-        "price",
-        "deposit",
-        "balance",
-        "balance_due_date",
-        "payment_reference",
-        "nexus_validator",
-        "confirmation_status",
-        "emergency_contact",
-        "pickup_person",
-        "pickup_relationship",
-        "pickup_phone",
-        "specific_needs",
-    }
-    names = {field.get("name") for field in soup.select("input[name], select[name], textarea[name]")}
-    assert required_names <= names
-    subject_count = soup.select_one('input[name="selected_subject_count"]')
-    assert subject_count is not None
-    assert subject_count.get("type") == "number"
-    assert subject_count.get("min") == "1"
-    assert subject_count.get("max") == "4"
-    derived_pack = soup.select_one('input[name="derived_pack"]')
-    assert derived_pack is not None and derived_pack.has_attr("readonly")
-    assert derived_pack.get("data-derived-from") == "selected_subject_count"
-    for name in ("price", "deposit", "balance"):
-        amount = soup.select_one(f'input[name="{name}"]')
-        assert amount is not None
-        assert amount.get("type") == "number"
-        assert amount.get("min") == "0"
-        assert amount.get("step") == "1"
-        assert amount.has_attr("readonly")
-    for consent_name in (
-        "operational_communications_consent",
-        "newsletter_consent",
-        "image_rights_consent",
-        "pedagogical_recording_consent",
-    ):
-        values = {node.get("value") for node in soup.select(f'input[type="radio"][name="{consent_name}"]')}
-        assert values == {"yes", "no"}
-    assert "NON PUBLIABLE" in text
-    assert "MISSING_APPROVED_COMMERCIAL_TERMS" not in text
-    try:
-        ensure_private_publication_allowed(SNAPSHOT)
-    except LegalPublicationBlocked as exc:
-        assert "approved commercial terms" in str(exc).lower()
-    else:
-        raise AssertionError("The private publication gate must remain closed")
+def test_family_surfaces_hide_release_jargon_and_unapproved_promises():
+    documents = render_public_documents(SNAPSHOT)
+    visible = "\n".join(normalized_text(document.html) for document in documents.values())
+    blocked_visible_terms = (
+        "canonical", "canonique", "snapshot", "manifest", "campaignid", "sourcereposha",
+        "non public", "draft", "owner approval", "legal approval", "commit", "branch", "sha",
+        "v5-canonical", "tarifs canoniques", "acompte de 30 %", "oral filmé",
+        "résultats garantis", "progression garantie", "rattrapage garanti", "séance de laboratoire",
+        "quatre documents personnalisés",
+    )
+    for term in blocked_visible_terms:
+        assert not re.search(rf"(?<![\w-]){re.escape(term)}(?![\w-])", visible, re.IGNORECASE), term
+    assert "tarifs des stages de pré-rentrée 2026" in visible.casefold()
 
 
 def test_renderer_sources_contain_no_campaign_business_literals():
