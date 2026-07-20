@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0.0",
-  "sourceSetSha256": "a737b5a7b6d109512091c4be16ff483b4cfe4306f97070695b0093a41e181928",
+  "sourceSetSha256": "72b8a7da5259d9af211b53bad4be6ea032550a9c33d71180d53780927f4aa30e",
   "sourceRepoSha": "a1192c8dccf8eaa6ae223265a3bc9ceb56a6fff0",
   "sourceCommitDate": "2026-07-14T12:00:48+01:00",
   "snapshotBuiltAt": "2026-07-20T12:00:00+01:00",
   "provenance": {
     "campaign": {
       "path": "data/campaigns/pre-rentree-2026.json",
-      "version": "2.0.0",
-      "sha256": "53405646edd60de53af5c37ea1ef6db1a6790116d3559ed825de25cbbb737be9"
+      "version": "2.0.1",
+      "sha256": "3ee46562903edacc7be68ac8bf85dfae0cfc733ae2173446318e9f23e0ebe1e1"
     },
     "modules": {
       "path": "content/pre-rentree-2026/modules.json",
@@ -64,11 +64,16 @@
       "path": "content/pre-rentree-2026/whatsapp.fr.json",
       "version": "2026-whatsapp-fr-v1",
       "sha256": "6e06aaa75511c35e3798b83df1edcc117684675e55d761af956b67b98701baed"
+    },
+    "operations": {
+      "path": "content/pre-rentree-2026/operations.fr.json",
+      "version": "1.0.0",
+      "sha256": "41c75d293a47717782ad94bf8f0f5d9682834b30c3baab8500a95452de65e78b"
     }
   },
   "campaign": {
     "id": "pre-rentree-2026",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "schoolYear": "2026-2027",
     "timezone": "Africa/Tunis",
     "publicationMode": "REVIEW",
@@ -7230,6 +7235,650 @@
       }
     ]
   },
+  "operations": {
+    "schemaVersion": "1.0.0",
+    "version": "1.0.0",
+    "locale": "fr-TN",
+    "reviewForms": [
+      {
+        "id": "demande-information",
+        "title": "Formulaire de demande d’information",
+        "purpose": "Recueillir uniquement les éléments nécessaires au premier contact.",
+        "privacyGate": true,
+        "fields": [
+          {
+            "id": "requestId",
+            "label": "Identifiant de demande",
+            "type": "IDENTIFIER",
+            "required": true
+          },
+          {
+            "id": "entryLevel",
+            "label": "Classe de rentrée",
+            "type": "SELECT",
+            "required": true
+          },
+          {
+            "id": "subjects",
+            "label": "Matières envisagées",
+            "type": "CHECKBOX",
+            "required": true
+          },
+          {
+            "id": "contactChannel",
+            "label": "Canal de réponse souhaité",
+            "type": "SELECT",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "qualification-pedagogique",
+        "title": "Fiche de qualification pédagogique",
+        "purpose": "Vérifier le niveau, le profil et la compatibilité du parcours sans diagnostic médical.",
+        "privacyGate": true,
+        "fields": [
+          {
+            "id": "requestId",
+            "label": "Identifiant de demande",
+            "type": "IDENTIFIER",
+            "required": true
+          },
+          {
+            "id": "academicProfile",
+            "label": "Profil pédagogique déclaré",
+            "type": "LONG_TEXT",
+            "required": true
+          },
+          {
+            "id": "needs",
+            "label": "Besoins scolaires strictement nécessaires",
+            "type": "LONG_TEXT",
+            "required": false
+          },
+          {
+            "id": "validatorRole",
+            "label": "Rôle du validateur Nexus",
+            "type": "TEXT",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "proposition-parcours",
+        "title": "Proposition de parcours",
+        "purpose": "Formaliser le parcours proposé et sa durée de maintien.",
+        "privacyGate": true,
+        "fields": [
+          {
+            "id": "proposalId",
+            "label": "Identifiant de proposition",
+            "type": "IDENTIFIER",
+            "required": true
+          },
+          {
+            "id": "moduleIds",
+            "label": "Modules proposés",
+            "type": "CHECKBOX",
+            "required": true
+          },
+          {
+            "id": "schedule",
+            "label": "Créneaux proposés",
+            "type": "LONG_TEXT",
+            "required": true
+          },
+          {
+            "id": "expiresAt",
+            "label": "Expiration de la proposition",
+            "type": "DATETIME",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "recapitulatif-tarifaire",
+        "title": "Récapitulatif tarifaire",
+        "purpose": "Présenter le prix, l’acompte exact et le solde du parcours validé.",
+        "privacyGate": true,
+        "fields": [
+          {
+            "id": "proposalId",
+            "label": "Identifiant de proposition",
+            "type": "IDENTIFIER",
+            "required": true
+          },
+          {
+            "id": "totalPrice",
+            "label": "Prix total",
+            "type": "AMOUNT",
+            "required": true
+          },
+          {
+            "id": "deposit",
+            "label": "Acompte de 30 %",
+            "type": "AMOUNT",
+            "required": true
+          },
+          {
+            "id": "balance",
+            "label": "Solde",
+            "type": "AMOUNT",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "demande-acompte",
+        "title": "Demande d’acompte",
+        "purpose": "Demander l’acompte après validation du parcours et transmission des conditions.",
+        "privacyGate": true,
+        "fields": [
+          {
+            "id": "proposalId",
+            "label": "Identifiant de proposition",
+            "type": "IDENTIFIER",
+            "required": true
+          },
+          {
+            "id": "deposit",
+            "label": "Montant de l’acompte",
+            "type": "AMOUNT",
+            "required": true
+          },
+          {
+            "id": "paymentDeadline",
+            "label": "Échéance de l’acompte",
+            "type": "DATETIME",
+            "required": true
+          },
+          {
+            "id": "termsReference",
+            "label": "Référence des conditions transmises",
+            "type": "IDENTIFIER",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "recu-acompte",
+        "title": "Reçu d’acompte",
+        "purpose": "Tracer l’encaissement sans stocker de donnée bancaire.",
+        "privacyGate": true,
+        "fields": [
+          {
+            "id": "receiptId",
+            "label": "Numéro de reçu",
+            "type": "IDENTIFIER",
+            "required": true
+          },
+          {
+            "id": "amountReceived",
+            "label": "Montant reçu",
+            "type": "AMOUNT",
+            "required": true
+          },
+          {
+            "id": "receivedAt",
+            "label": "Date de réception",
+            "type": "DATETIME",
+            "required": true
+          },
+          {
+            "id": "paymentReference",
+            "label": "Référence de paiement",
+            "type": "IDENTIFIER",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "confirmation-reservation",
+        "title": "Confirmation de réservation",
+        "purpose": "Confirmer la place après réception de l’acompte.",
+        "privacyGate": true,
+        "fields": [
+          {
+            "id": "reservationId",
+            "label": "Identifiant de réservation",
+            "type": "IDENTIFIER",
+            "required": true
+          },
+          {
+            "id": "groupId",
+            "label": "Identifiant du groupe",
+            "type": "IDENTIFIER",
+            "required": true
+          },
+          {
+            "id": "confirmedModules",
+            "label": "Modules confirmés",
+            "type": "CHECKBOX",
+            "required": true
+          },
+          {
+            "id": "confirmedAt",
+            "label": "Date de confirmation",
+            "type": "DATETIME",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "reglement-solde",
+        "title": "Règlement du solde",
+        "purpose": "Tracer le montant restant et l’échéance contractuellement communiquée.",
+        "privacyGate": true,
+        "fields": [
+          {
+            "id": "reservationId",
+            "label": "Identifiant de réservation",
+            "type": "IDENTIFIER",
+            "required": true
+          },
+          {
+            "id": "balance",
+            "label": "Solde à régler",
+            "type": "AMOUNT",
+            "required": true
+          },
+          {
+            "id": "balanceDeadline",
+            "label": "Échéance exacte",
+            "type": "DATETIME",
+            "required": true
+          },
+          {
+            "id": "balanceStatus",
+            "label": "Statut du solde",
+            "type": "SELECT",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "fiche-pratique",
+        "title": "Fiche pratique avant le stage",
+        "purpose": "Transmettre les informations nécessaires à la présence au stage.",
+        "privacyGate": true,
+        "fields": [
+          {
+            "id": "reservationId",
+            "label": "Identifiant de réservation",
+            "type": "IDENTIFIER",
+            "required": true
+          },
+          {
+            "id": "datesAndTimes",
+            "label": "Dates et horaires",
+            "type": "LONG_TEXT",
+            "required": true
+          },
+          {
+            "id": "room",
+            "label": "Salle confirmée",
+            "type": "TEXT",
+            "required": true
+          },
+          {
+            "id": "material",
+            "label": "Matériel à apporter",
+            "type": "LONG_TEXT",
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "consentements-confidentialite",
+        "title": "Consentements et notice de confidentialité",
+        "purpose": "Séparer les usages nécessaires des choix facultatifs, après validation confidentialité.",
+        "privacyGate": true,
+        "fields": [
+          {
+            "id": "operationalCommunications",
+            "label": "Communications opérationnelles",
+            "type": "RADIO",
+            "required": true
+          },
+          {
+            "id": "newsletterConsent",
+            "label": "Newsletter facultative",
+            "type": "RADIO",
+            "required": false
+          },
+          {
+            "id": "imageConsent",
+            "label": "Droit à l’image facultatif",
+            "type": "RADIO",
+            "required": false
+          },
+          {
+            "id": "pedagogicalRecordingConsent",
+            "label": "Enregistrement pédagogique facultatif",
+            "type": "RADIO",
+            "required": false
+          }
+        ]
+      },
+      {
+        "id": "urgence",
+        "title": "Fiche d’urgence strictement nécessaire",
+        "purpose": "Recueillir après confirmation les coordonnées indispensables à la sécurité.",
+        "privacyGate": true,
+        "fields": [
+          {
+            "id": "emergencyContact",
+            "label": "Contact d’urgence",
+            "type": "TEXT",
+            "required": true
+          },
+          {
+            "id": "emergencyPhone",
+            "label": "Téléphone d’urgence",
+            "type": "PHONE",
+            "required": true
+          },
+          {
+            "id": "authorizedPickup",
+            "label": "Personne autorisée à récupérer l’élève",
+            "type": "TEXT",
+            "required": false
+          },
+          {
+            "id": "relationship",
+            "label": "Lien avec l’élève",
+            "type": "TEXT",
+            "required": false
+          },
+          {
+            "id": "strictNeeds",
+            "label": "Besoins spécifiques strictement nécessaires",
+            "type": "LONG_TEXT",
+            "required": false
+          }
+        ]
+      }
+    ],
+    "crm": {
+      "statuses": [
+        "NEW",
+        "CONTACTED",
+        "QUALIFIED",
+        "PROGRAM_SENT",
+        "PATH_PROPOSED",
+        "PENDING_DEPOSIT",
+        "RESERVED",
+        "WAITLIST",
+        "GROUP_CONFIRMED",
+        "BALANCE_PENDING",
+        "FULLY_PAID",
+        "COMPLETED",
+        "CANCELLED",
+        "REFUNDED"
+      ],
+      "fields": [
+        {
+          "id": "leadId",
+          "label": "Identifiant lead",
+          "type": "TEXT",
+          "required": true
+        },
+        {
+          "id": "createdAt",
+          "label": "Date",
+          "type": "DATETIME",
+          "required": true
+        },
+        {
+          "id": "source",
+          "label": "Source",
+          "type": "ENUM",
+          "required": true
+        },
+        {
+          "id": "campaign",
+          "label": "Campagne",
+          "type": "TEXT",
+          "required": true
+        },
+        {
+          "id": "level",
+          "label": "Niveau",
+          "type": "ENUM",
+          "required": true
+        },
+        {
+          "id": "subjects",
+          "label": "Matières",
+          "type": "TEXT",
+          "required": true
+        },
+        {
+          "id": "range",
+          "label": "Gamme",
+          "type": "ENUM",
+          "required": true
+        },
+        {
+          "id": "status",
+          "label": "Statut",
+          "type": "ENUM",
+          "required": true
+        },
+        {
+          "id": "teacherRole",
+          "label": "Rôle enseignant",
+          "type": "TEXT",
+          "required": false
+        },
+        {
+          "id": "groupId",
+          "label": "Groupe",
+          "type": "TEXT",
+          "required": false
+        },
+        {
+          "id": "amount",
+          "label": "Montant",
+          "type": "AMOUNT",
+          "required": true
+        },
+        {
+          "id": "expectedDeposit",
+          "label": "Acompte attendu",
+          "type": "AMOUNT",
+          "required": true
+        },
+        {
+          "id": "receivedDeposit",
+          "label": "Acompte reçu",
+          "type": "AMOUNT",
+          "required": false
+        },
+        {
+          "id": "reservationDate",
+          "label": "Date de réservation",
+          "type": "DATETIME",
+          "required": false
+        },
+        {
+          "id": "balance",
+          "label": "Solde",
+          "type": "AMOUNT",
+          "required": true
+        },
+        {
+          "id": "manualEligible",
+          "label": "Manuel éligible",
+          "type": "BOOLEAN",
+          "required": true
+        },
+        {
+          "id": "manualDelivered",
+          "label": "Manuel remis",
+          "type": "BOOLEAN",
+          "required": true
+        },
+        {
+          "id": "followUpAt",
+          "label": "Prochaine relance",
+          "type": "DATETIME",
+          "required": false
+        },
+        {
+          "id": "outcome",
+          "label": "Résultat",
+          "type": "TEXT",
+          "required": false
+        },
+        {
+          "id": "reservedRevenue",
+          "label": "Chiffre d’affaires réservé",
+          "type": "AMOUNT",
+          "required": false
+        },
+        {
+          "id": "collectedRevenue",
+          "label": "Chiffre d’affaires encaissé",
+          "type": "AMOUNT",
+          "required": false
+        },
+        {
+          "id": "acquisitionCost",
+          "label": "Coût d’acquisition",
+          "type": "AMOUNT",
+          "required": false
+        }
+      ]
+    },
+    "economicModel": {
+      "currency": "TND",
+      "inputs": [
+        {
+          "id": "teacherHourlyCost",
+          "label": "Coût enseignant par heure",
+          "unit": "TND",
+          "value": null
+        },
+        {
+          "id": "preparationHoursPerModule",
+          "label": "Heures de préparation par module",
+          "unit": "HOURS",
+          "value": null
+        },
+        {
+          "id": "correctionHoursPerStudent",
+          "label": "Heures de correction par élève",
+          "unit": "HOURS",
+          "value": null
+        },
+        {
+          "id": "diagnosisHoursPerStudent",
+          "label": "Heures de diagnostic par élève",
+          "unit": "HOURS",
+          "value": null
+        },
+        {
+          "id": "reportHoursPerStudent",
+          "label": "Heures de bilan par élève",
+          "unit": "HOURS",
+          "value": null
+        },
+        {
+          "id": "printingCostPerStudent",
+          "label": "Impression des supports par élève",
+          "unit": "TND",
+          "value": null
+        },
+        {
+          "id": "manualUnitCost",
+          "label": "Coût unitaire d’un manuel",
+          "unit": "TND",
+          "value": null
+        },
+        {
+          "id": "manualEligibleShare",
+          "label": "Part des élèves recevant un manuel",
+          "unit": "RATE",
+          "value": null
+        },
+        {
+          "id": "roomHourlyCost",
+          "label": "Coût de salle par heure",
+          "unit": "TND",
+          "value": null
+        },
+        {
+          "id": "administrationCostPerStudent",
+          "label": "Administration par élève",
+          "unit": "TND",
+          "value": null
+        },
+        {
+          "id": "advertisingFixedCost",
+          "label": "Budget publicitaire fixe",
+          "unit": "TND",
+          "value": null
+        },
+        {
+          "id": "paymentCommissionRate",
+          "label": "Commission de paiement",
+          "unit": "RATE",
+          "value": null
+        },
+        {
+          "id": "contingencyRate",
+          "label": "Taux d’imprévus",
+          "unit": "RATE",
+          "value": null
+        },
+        {
+          "id": "taxRate",
+          "label": "Taux de fiscalité applicable",
+          "unit": "RATE",
+          "value": null
+        },
+        {
+          "id": "otherFixedCosts",
+          "label": "Autres coûts fixes",
+          "unit": "TND",
+          "value": null
+        },
+        {
+          "id": "cacLow",
+          "label": "Coût d’acquisition faible",
+          "unit": "TND",
+          "value": null
+        },
+        {
+          "id": "cacMedium",
+          "label": "Coût d’acquisition moyen",
+          "unit": "TND",
+          "value": null
+        },
+        {
+          "id": "cacHigh",
+          "label": "Coût d’acquisition élevé",
+          "unit": "TND",
+          "value": null
+        }
+      ],
+      "acquisitionScenarios": [
+        {
+          "id": "LOW",
+          "inputId": "cacLow"
+        },
+        {
+          "id": "MEDIUM",
+          "inputId": "cacMedium"
+        },
+        {
+          "id": "HIGH",
+          "inputId": "cacHigh"
+        }
+      ]
+    }
+  },
   "content": {
     "hero": {
       "eyebrow": "Stages de pré-rentrée 2026 · Mutuelleville, Tunis",
@@ -7333,7 +7982,7 @@
       },
       {
         "question": "Que se passe-t-il en cas d'absence ?",
-        "answer": "Les modalités applicables aux absences et au rattrapage éventuel sont communiquées avant toute confirmation. Aucun rattrapage n’est garanti par la pré-inscription."
+        "answer": "Les modalités applicables aux absences et au rattrapage éventuel sont communiquées avant toute confirmation. Aucun rattrapage n’est garanti au stade de la demande d’information."
       },
       {
         "question": "Quel matériel faut-il apporter ?",

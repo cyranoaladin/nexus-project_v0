@@ -18,4 +18,6 @@ Depuis la racine du dépôt, les commandes de premier niveau `npm run pre-rentre
 
 Le build complet utilise Chromium localement pour Axe, la capture bureau/mobile et la vérification de l’absence de débordement. Aucun appel réseau n’est nécessaire au rendu.
 
+Le paquet de revue matérialise aussi les quatorze tests de positionnement, les soixante-dix évaluations rapides, les soixante-dix livrables, les kits de communication, un CRM vierge, onze gabarits anonymes et le modèle économique XLSX. Ces sorties ne sont jamais suivies dans Git et ne constituent pas une autorisation de publication ou de collecte nominative.
+
 Le HTML accessible est la référence d’accessibilité. Le pipeline ne revendique pas une conformité PDF/UA faute de validation dédiée avec un outil approprié.

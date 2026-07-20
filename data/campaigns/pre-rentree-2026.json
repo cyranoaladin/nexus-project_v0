@@ -1,6 +1,6 @@
 {
   "campaignId": "pre-rentree-2026",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "status": "DRAFT",
   "canonicalPath": "/stages/pre-rentree-2026",
   "shortPath": "/pre-rentree",
@@ -172,7 +172,7 @@
       { "question": "Que se passe-t-il si le groupe n'ouvre pas ?", "answer": "Si Nexus Réussite décide de ne pas ouvrir le groupe, la famille est informée. Les conditions applicables sont communiquées avant toute confirmation." },
       { "question": "Un report vers un autre stage est-il possible ?", "answer": "Les modalités d’annulation, d’absence, de report et d’interruption sont communiquées avant toute confirmation." },
       { "question": "Existe-t-il une liste d'attente ?", "answer": "Une demande peut être placée en liste d'attente si un groupe atteint sa capacité. Cela ne constitue pas une confirmation de place." },
-      { "question": "Que se passe-t-il en cas d'absence ?", "answer": "Les modalités applicables aux absences et au rattrapage éventuel sont communiquées avant toute confirmation. Aucun rattrapage n’est garanti par la pré-inscription." },
+      { "question": "Que se passe-t-il en cas d'absence ?", "answer": "Les modalités applicables aux absences et au rattrapage éventuel sont communiquées avant toute confirmation. Aucun rattrapage n’est garanti au stade de la demande d’information." },
       { "question": "Quel matériel faut-il apporter ?", "answer": "Un cahier, une trousse complète et une calculatrice sont utiles selon les matières. Pour les modules NSI/SNT, l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire. En Physique-Chimie, les séances sont théoriques et méthodologiques ; aucune activité pratique en laboratoire n’est annoncée." },
       { "question": "Que faire si le groupe demandé est complet ?", "answer": "L'équipe peut proposer une liste d'attente ou une autre solution pédagogique. Aucune disponibilité en temps réel n'est annoncée sur cette page." },
       { "question": "La demande d’information engage-t-elle financièrement ?", "answer": "Non. La demande est transmise sans paiement, ne réserve pas une place et ne forme pas un contrat. Une réservation n’intervient qu’après validation du parcours, communication des conditions et réception de l’acompte." },

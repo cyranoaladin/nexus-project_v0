@@ -4,6 +4,7 @@ import {
   PreRentreeCommunicationSchema,
   PreRentreeManualsRegistrySchema,
   PreRentreeOffersSchema,
+  PreRentreeOperationsSchema,
   PreRentreeWhatsAppSchema,
 } from '@/lib/campaigns/pre-rentree-2026/content-schema';
 
@@ -210,6 +211,7 @@ export const PublicationSnapshotSchema = z.object({
     manuals: SourceProvenanceSchema,
     communication: SourceProvenanceSchema,
     whatsapp: SourceProvenanceSchema,
+    operations: SourceProvenanceSchema,
   }).strict(),
   campaign: z.object({
     id: z.literal('pre-rentree-2026'),
@@ -275,6 +277,7 @@ export const PublicationSnapshotSchema = z.object({
   manuals: PreRentreeManualsRegistrySchema,
   communication: PreRentreeCommunicationSchema,
   whatsapp: PreRentreeWhatsAppSchema,
+  operations: PreRentreeOperationsSchema,
   content: z.object({
     hero: z.object({ eyebrow: z.string(), h1: z.string(), subtitle: z.string() }).strict(),
     method: z.array(z.object({ title: z.string(), description: z.string() }).strict()),

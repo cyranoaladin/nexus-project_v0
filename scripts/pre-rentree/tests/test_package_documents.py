@@ -67,6 +67,7 @@ def test_packages_exact_parent_surface_and_review_evidence_deterministically(tmp
         assert "ASSETS/document.css" in names
         assert "THIRD_PARTY_NOTICES.md" in names
         assert "LICENSES/OFL-1.1.txt" in names
+        assert "package-manifest.json" in names
         assert not any(name.startswith("REVIEW/") or name.startswith("SOCIAL/") for name in names)
         assert not any(name.endswith((".py", ".ts", ".tsx")) for name in names)
 
@@ -77,9 +78,18 @@ def test_packages_exact_parent_surface_and_review_evidence_deterministically(tmp
         assert "REVIEW/VISUAL/visual-contact-sheet.png" in names
         assert "DOCUMENTATION/PARENT-GUIDE-SOURCE-MAP.md" in names
         assert "DOCUMENTATION/PARCOURS360-CAPABILITY-MATRIX.md" in names
+        assert "DOCUMENTATION/VALUE-PROOF-MATRIX.md" in names
+        assert "DOCUMENTATION/STAFFING-MATRIX.md" in names
         assert "PUBLIC/SOCIAL/feed.png" in names
+        assert "package-manifest.json" in names
         assert not any(name.endswith((".py", ".ts", ".tsx")) for name in names)
         assert not any("PRIVATE" in name.upper() for name in names)
 
     assert first_result["parent"]["fileCount"] == len(zipfile.ZipFile(first / "NexusReussite_PreRentree2026_PARENT_PACKAGE.zip").namelist())
     assert first_result["review"]["fileCount"] == len(zipfile.ZipFile(first / "NexusReussite_PreRentree2026_REVIEW_PACKAGE.zip").namelist())
+    index = json.loads((first / "package-index.json").read_text(encoding="utf-8"))
+    assert [item["file"] for item in index["packages"]] == [
+        "NexusReussite_PreRentree2026_PARENT_PACKAGE.zip",
+        "NexusReussite_PreRentree2026_REVIEW_PACKAGE.zip",
+    ]
+    assert all(len(item["sha256"]) == 64 for item in index["packages"])

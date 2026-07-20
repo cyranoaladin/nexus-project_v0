@@ -22,6 +22,7 @@ import {
   PreRentreeCommunicationSchema,
   PreRentreeManualsRegistrySchema,
   PreRentreeOffersSchema,
+  PreRentreeOperationsSchema,
   PreRentreePedagogyFrameworkSchema,
   PreRentreeWhatsAppSchema,
 } from '@/lib/campaigns/pre-rentree-2026/content-schema';
@@ -108,6 +109,7 @@ export function compileCanonicalPublication(options: CompileOptions): Publicatio
   const manualsSource = readSource(repoRoot, 'content/pre-rentree-2026/manuals.registry.json');
   const communicationSource = readSource(repoRoot, 'content/pre-rentree-2026/communication.fr.json');
   const whatsappSource = readSource(repoRoot, 'content/pre-rentree-2026/whatsapp.fr.json');
+  const operationsSource = readSource(repoRoot, 'content/pre-rentree-2026/operations.fr.json');
 
   const campaign = PreRentreeCampaignManifestSchema.parse(JSON.parse(campaignSource.bytes.toString('utf8')));
   const modulesDocument = PreRentreeModulesSchema.parse(JSON.parse(modulesSource.bytes.toString('utf8')));
@@ -134,6 +136,9 @@ export function compileCanonicalPublication(options: CompileOptions): Publicatio
   );
   const whatsapp = PreRentreeWhatsAppSchema.parse(
     JSON.parse(whatsappSource.bytes.toString('utf8')),
+  );
+  const operations = PreRentreeOperationsSchema.parse(
+    JSON.parse(operationsSource.bytes.toString('utf8')),
   );
   const packById = new Map(pricingDocument.pre_rentree_packs.map((pack) => [pack.id, pack]));
   const packs = campaign.packProductIds.map((id) => {
@@ -170,6 +175,7 @@ export function compileCanonicalPublication(options: CompileOptions): Publicatio
     ['content/pre-rentree-2026/manuals.registry.json', manualsSource.sha256],
     ['content/pre-rentree-2026/modules.json', modulesSource.sha256],
     ['content/pre-rentree-2026/offers.json', offersSource.sha256],
+    ['content/pre-rentree-2026/operations.fr.json', operationsSource.sha256],
     ['content/pre-rentree-2026/parent-guide.fr.json', parentGuideSource.sha256],
     ['content/pre-rentree-2026/pedagogy-framework.fr.json', pedagogyFrameworkSource.sha256],
     ['content/pre-rentree-2026/whatsapp.fr.json', whatsappSource.sha256],
@@ -260,6 +266,11 @@ export function compileCanonicalPublication(options: CompileOptions): Publicatio
         version: whatsapp.version,
         sha256: whatsappSource.sha256,
       },
+      operations: {
+        path: 'content/pre-rentree-2026/operations.fr.json',
+        version: operations.version,
+        sha256: operationsSource.sha256,
+      },
     },
     campaign: {
       id: campaign.campaignId,
@@ -302,6 +313,7 @@ export function compileCanonicalPublication(options: CompileOptions): Publicatio
     manuals,
     communication,
     whatsapp,
+    operations,
     content: {
       hero: campaign.content.hero,
       method: campaign.content.method,

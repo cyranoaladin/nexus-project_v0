@@ -81,6 +81,9 @@
             },
             "whatsapp": {
               "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+            },
+            "operations": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
             }
           },
           "required": [
@@ -95,7 +98,8 @@
             "capabilities",
             "manuals",
             "communication",
-            "whatsapp"
+            "whatsapp",
+            "operations"
           ],
           "additionalProperties": false
         },
@@ -1681,6 +1685,330 @@
           ],
           "additionalProperties": false
         },
+        "operations": {
+          "type": "object",
+          "properties": {
+            "schemaVersion": {
+              "type": "string",
+              "const": "1.0.0"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "locale": {
+              "type": "string",
+              "const": "fr-TN"
+            },
+            "reviewForms": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "purpose": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "privacyGate": {
+                    "type": "boolean"
+                  },
+                  "fields": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[a-z][A-Za-z0-9]*$"
+                        },
+                        "label": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "TEXT",
+                            "LONG_TEXT",
+                            "PHONE",
+                            "EMAIL",
+                            "DATE",
+                            "DATETIME",
+                            "SELECT",
+                            "RADIO",
+                            "CHECKBOX",
+                            "AMOUNT",
+                            "IDENTIFIER"
+                          ]
+                        },
+                        "required": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "label",
+                        "type",
+                        "required"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "id",
+                  "title",
+                  "purpose",
+                  "privacyGate",
+                  "fields"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 11,
+              "maxItems": 11
+            },
+            "crm": {
+              "type": "object",
+              "properties": {
+                "statuses": {
+                  "type": "array",
+                  "minItems": 14,
+                  "maxItems": 14,
+                  "items": [
+                    {
+                      "type": "string",
+                      "const": "NEW"
+                    },
+                    {
+                      "type": "string",
+                      "const": "CONTACTED"
+                    },
+                    {
+                      "type": "string",
+                      "const": "QUALIFIED"
+                    },
+                    {
+                      "type": "string",
+                      "const": "PROGRAM_SENT"
+                    },
+                    {
+                      "type": "string",
+                      "const": "PATH_PROPOSED"
+                    },
+                    {
+                      "type": "string",
+                      "const": "PENDING_DEPOSIT"
+                    },
+                    {
+                      "type": "string",
+                      "const": "RESERVED"
+                    },
+                    {
+                      "type": "string",
+                      "const": "WAITLIST"
+                    },
+                    {
+                      "type": "string",
+                      "const": "GROUP_CONFIRMED"
+                    },
+                    {
+                      "type": "string",
+                      "const": "BALANCE_PENDING"
+                    },
+                    {
+                      "type": "string",
+                      "const": "FULLY_PAID"
+                    },
+                    {
+                      "type": "string",
+                      "const": "COMPLETED"
+                    },
+                    {
+                      "type": "string",
+                      "const": "CANCELLED"
+                    },
+                    {
+                      "type": "string",
+                      "const": "REFUNDED"
+                    }
+                  ]
+                },
+                "fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][A-Za-z0-9]*$"
+                      },
+                      "label": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "TEXT",
+                          "DATE",
+                          "DATETIME",
+                          "ENUM",
+                          "BOOLEAN",
+                          "AMOUNT"
+                        ]
+                      },
+                      "required": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "label",
+                      "type",
+                      "required"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "minItems": 20
+                }
+              },
+              "required": [
+                "statuses",
+                "fields"
+              ],
+              "additionalProperties": false
+            },
+            "economicModel": {
+              "type": "object",
+              "properties": {
+                "currency": {
+                  "type": "string",
+                  "const": "TND"
+                },
+                "inputs": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][A-Za-z0-9]*$"
+                      },
+                      "label": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "unit": {
+                        "type": "string",
+                        "enum": [
+                          "TND",
+                          "HOURS",
+                          "RATE"
+                        ]
+                      },
+                      "value": {
+                        "type": "null"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "label",
+                      "unit",
+                      "value"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "minItems": 15
+                },
+                "acquisitionScenarios": {
+                  "type": "array",
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "items": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "const": "LOW"
+                        },
+                        "inputId": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "inputId"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "const": "MEDIUM"
+                        },
+                        "inputId": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "inputId"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "const": "HIGH"
+                        },
+                        "inputId": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "inputId"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "currency",
+                "inputs",
+                "acquisitionScenarios"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "schemaVersion",
+            "version",
+            "locale",
+            "reviewForms",
+            "crm",
+            "economicModel"
+          ],
+          "additionalProperties": false
+        },
         "content": {
           "type": "object",
           "properties": {
@@ -2353,6 +2681,7 @@
         "manuals",
         "communication",
         "whatsapp",
+        "operations",
         "content",
         "labels",
         "cta",

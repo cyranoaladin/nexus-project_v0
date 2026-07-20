@@ -18,6 +18,8 @@ REVIEW_PACKAGE = "NexusReussite_PreRentree2026_REVIEW_PACKAGE.zip"
 DOCUMENTATION_FILES = (
     "PARENT-GUIDE-SOURCE-MAP.md",
     "PARCOURS360-CAPABILITY-MATRIX.md",
+    "VALUE-PROOF-MATRIX.md",
+    "STAFFING-MATRIX.md",
     "SOURCE-OF-TRUTH-MAP.md",
     "COMPLIANCE-GAPS.md",
 )
@@ -64,6 +66,57 @@ def _relative_entries(root: Path, prefix: str = "") -> list[tuple[str, bytes]]:
     ]
 
 
+def _with_manifest(entries: list[tuple[str, bytes]], package_type: str) -> list[tuple[str, bytes]]:
+    if any(name == "package-manifest.json" for name, _ in entries):
+        raise ValueError("Package entries already contain a manifest")
+    records = [
+        {
+            "path": name,
+            "sha256": hashlib.sha256(content).hexdigest(),
+            "fileSize": len(content),
+        }
+        for name, content in sorted(entries)
+    ]
+    manifest = {
+        "schemaVersion": "1.0.0",
+        "packageType": package_type,
+        "fileCount": len(records),
+        "files": records,
+    }
+    payload = (json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    return [*entries, ("package-manifest.json", payload)]
+
+
+def _verify_compressed_package(path: Path) -> None:
+    with zipfile.ZipFile(path) as archive:
+        archive.testzip()
+        names = archive.namelist()
+        if names.count("package-manifest.json") != 1:
+            raise ValueError(f"Missing or duplicate package manifest: {path.name}")
+        manifest = json.loads(archive.read("package-manifest.json"))
+        records = {record["path"]: record for record in manifest["files"]}
+        payload_names = set(names) - {"package-manifest.json"}
+        if payload_names != set(records) or manifest["fileCount"] != len(payload_names):
+            raise ValueError(f"Package inventory mismatch after compression: {path.name}")
+        for name in sorted(payload_names):
+            content = archive.read(name)
+            record = records[name]
+            if record["fileSize"] != len(content) or record["sha256"] != hashlib.sha256(content).hexdigest():
+                raise ValueError(f"Package entry mismatch after compression: {path.name}:{name}")
+
+
+def _atomic_index(path: Path, value: dict[str, object]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(f".{path.name}.tmp-{os.getpid()}")
+    try:
+        temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        with temporary.open("rb") as handle:
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
 def package_documents(artifact_root: Path, output: Path, repo_root: Path) -> dict[str, dict[str, int | str]]:
     artifact_root = Path(artifact_root).resolve()
     output = Path(output).resolve()
@@ -96,8 +149,9 @@ def package_documents(artifact_root: Path, output: Path, repo_root: Path) -> dic
 
     readme = (
         "Nexus Réussite — Stages de pré-rentrée 2026\n"
-        "Ouvrez en priorité le Guide Parents complet. Les six autres documents sont des annexes.\n"
-        "La pré-inscription ne réserve pas de place et ne forme pas un contrat.\n"
+        "Ouvrez en priorité le Guide Parents complet. Les dix autres documents sont des annexes.\n"
+        "La demande d’information ne réserve pas de place, n’exige aucun paiement et ne forme pas un contrat.\n"
+        "Ces documents sont des candidats de revue ; leur diffusion reste interdite avant autorisation.\n"
     ).encode("utf-8")
     parent_entries = [(path.name, path.read_bytes()) for path in sorted(public.glob("*.pdf"))]
     parent_entries += _relative_entries(public / "HTML", "HTML/")
@@ -107,7 +161,9 @@ def package_documents(artifact_root: Path, output: Path, repo_root: Path) -> dic
         ("LICENSES/OFL-1.1.txt", (repo_root / "licenses/fonts/OFL-1.1.txt").read_bytes()),
     ]
     parent_entries.append(("LISEZ-MOI.txt", readme))
+    parent_entries = _with_manifest(parent_entries, "PARENT_REVIEW_CANDIDATE")
     _write_zip(parent_path, parent_entries, edition)
+    _verify_compressed_package(parent_path)
 
     documentation_root = repo_root / "docs/campaigns/pre-rentree-2026"
     documentation = []
@@ -120,13 +176,15 @@ def package_documents(artifact_root: Path, output: Path, repo_root: Path) -> dic
     review_entries += _relative_entries(review, "REVIEW/")
     review_entries += _relative_entries(public / "SOCIAL", "PUBLIC/SOCIAL/")
     review_entries += documentation
+    review_entries = _with_manifest(review_entries, "OWNER_REVIEW")
     _write_zip(review_path, review_entries, edition)
+    _verify_compressed_package(review_path)
     if parent_path.stat().st_size > MAX_PARENT_PACKAGE_BYTES:
         raise ValueError("Parent package exceeds its size budget")
     if review_path.stat().st_size > MAX_REVIEW_PACKAGE_BYTES:
         raise ValueError("Owner-review package exceeds its size budget")
 
-    return {
+    result = {
         "parent": {
             "file": parent_path.name,
             "sha256": _sha256(parent_path),
@@ -140,6 +198,11 @@ def package_documents(artifact_root: Path, output: Path, repo_root: Path) -> dic
             "fileCount": len(review_entries),
         },
     }
+    _atomic_index(output / "package-index.json", {
+        "schemaVersion": "1.0.0",
+        "packages": [result["parent"], result["review"]],
+    })
+    return result
 
 
 def build_parser() -> argparse.ArgumentParser:
