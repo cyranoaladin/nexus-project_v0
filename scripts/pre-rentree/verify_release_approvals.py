@@ -12,7 +12,7 @@ from release_governance import write_governance_bundle
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parents[1]
-APPROVAL_SCHEMA = SCRIPT_DIR / "owner-approval.schema.json"
+APPROVAL_SCHEMA = SCRIPT_DIR / "schemas/owner-approval.schema.json"
 
 
 def _resolve_from_repo(path: Path) -> Path:

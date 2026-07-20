@@ -32,7 +32,7 @@ def _require(module, name: str):
 
 
 def _load_approval_schema() -> dict:
-    path = SCRIPT_DIR / "owner-approval.schema.json"
+    path = SCRIPT_DIR / "schemas/owner-approval.schema.json"
     assert path.is_file(), "owner-approval.schema.json must exist"
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -185,7 +185,7 @@ def test_build_review_manifest_is_complete_sorted_and_hash_bound(review_package:
     assert manifest["governanceModuleSha256"] == _sha256(MODULE_PATH)
     assert manifest["governanceCliSha256"] == _sha256(CLI_PATH)
     assert manifest["approvalSchemaSha256"] == _sha256(
-        SCRIPT_DIR / "owner-approval.schema.json"
+        SCRIPT_DIR / "schemas/owner-approval.schema.json"
     )
     assert paths == sorted(paths)
     assert {
@@ -382,7 +382,7 @@ def test_writes_pending_governance_bundle_without_human_approval(review_package:
     module = _load_module()
     write_bundle = _require(module, "write_governance_bundle")
 
-    decision = write_bundle(review_package, SCRIPT_DIR / "owner-approval.schema.json")
+    decision = write_bundle(review_package, SCRIPT_DIR / "schemas/owner-approval.schema.json")
 
     governance = review_package / "AUDIT/GOVERNANCE"
     assert decision["OWNER_REVIEW_DECISION"] == "PENDING"
@@ -399,7 +399,7 @@ def test_writes_pending_governance_bundle_without_human_approval(review_package:
 
 def test_approval_binding_is_the_sha256_of_the_exact_review_manifest_file(review_package: Path):
     module = _load_module()
-    module.write_governance_bundle(review_package, SCRIPT_DIR / "owner-approval.schema.json")
+    module.write_governance_bundle(review_package, SCRIPT_DIR / "schemas/owner-approval.schema.json")
     governance = review_package / "AUDIT/GOVERNANCE"
     template = json.loads(
         (governance / "owner-approval.template.json").read_text(encoding="utf-8")
@@ -421,7 +421,7 @@ def test_governance_bundle_never_overwrites_human_approval(review_package: Path)
 
     decision = module.write_governance_bundle(
         review_package,
-        SCRIPT_DIR / "owner-approval.schema.json",
+        SCRIPT_DIR / "schemas/owner-approval.schema.json",
     )
 
     assert approval_path.read_bytes() == before
@@ -437,7 +437,7 @@ def test_malformed_human_approval_is_reported_invalid_without_overwrite(review_p
 
     decision = module.write_governance_bundle(
         review_package,
-        SCRIPT_DIR / "owner-approval.schema.json",
+        SCRIPT_DIR / "schemas/owner-approval.schema.json",
     )
 
     assert decision["OWNER_REVIEW_DECISION"] == "INVALID"

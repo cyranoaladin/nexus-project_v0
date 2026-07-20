@@ -30,7 +30,7 @@ from document_templates import render_private_structural_template
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parents[1]
-SCHEMA_PATH = SCRIPT_DIR / "publication-snapshot.schema.json"
+SCHEMA_PATH = SCRIPT_DIR / "schemas/publication-snapshot.schema.json"
 V4_ROOT = REPO_ROOT.parent
 
 REPRODUCIBLE_PYTHON_SOURCES = (

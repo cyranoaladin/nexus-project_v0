@@ -15,7 +15,7 @@ from jsonschema import Draft202012Validator, FormatChecker
 SCRIPT_DIR = Path(__file__).resolve().parent
 GOVERNANCE_MODULE_PATH = SCRIPT_DIR / "release_governance.py"
 GOVERNANCE_CLI_PATH = SCRIPT_DIR / "verify_release_approvals.py"
-APPROVAL_SCHEMA_PATH = SCRIPT_DIR / "owner-approval.schema.json"
+APPROVAL_SCHEMA_PATH = SCRIPT_DIR / "schemas/owner-approval.schema.json"
 
 REQUIRED_AUDIT_FILES = (
     "AUDIT/accessibility-report.json",
