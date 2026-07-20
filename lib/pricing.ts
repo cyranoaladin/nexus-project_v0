@@ -225,6 +225,15 @@ export interface PreRentreeFoundationsProduct {
   price_per_student: number;
   price_per_student_hour: number;
   floor_type: string;
+  commercial_exception?: {
+    exception_id: string;
+    edition_id: string;
+    status: 'APPROVED' | 'PENDING' | 'REJECTED';
+    approved_at: string;
+    approved_by_role: string;
+    scope: string;
+    justification: string;
+  };
   payment: { deposit: number; solde: number };
   multi_subject_discount: false;
 }

@@ -17,6 +17,7 @@
       "single": 50,
       "multi": 45,
       "college": 40,
+      "stage_college": 40,
       "stage": 45,
       "coaching_1to1": 180,
       "carte_member": 40,
@@ -1599,6 +1600,15 @@
       "price_per_student": 350,
       "price_per_student_hour": 35,
       "floor_type": "stage_college",
+      "commercial_exception": {
+        "exception_id": "PRE2026-3E-350",
+        "edition_id": "pre-rentree-2026",
+        "status": "APPROVED",
+        "approved_at": "2026-07-20",
+        "approved_by_role": "DIRECTION_NEXUS_REUSSITE",
+        "scope": "Entrée en 3e, Mathématiques ou Français, 10 heures, groupe de 4 à 6 élèves",
+        "justification": "Décision commerciale propriétaire limitée à la Pré-rentrée 2026 ; le plancher global stage_college reste inchangé."
+      },
       "payment": {
         "deposit": 105,
         "solde": 245
