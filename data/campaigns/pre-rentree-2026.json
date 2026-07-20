@@ -155,8 +155,10 @@
       },
       "preRegistrationNotice": "La demande d’information est transmise sans paiement. Elle ne réserve pas une place et ne forme pas un contrat. Après qualification pédagogique, Nexus transmet une proposition de parcours et les conditions applicables.",
       "noOnlinePaymentNotice": "Aucun paiement en ligne n’est demandé au stade de la demande d’information. Après validation du parcours, le versement de l’acompte exact de 30 % confirme l’inscription et réserve la place.",
-      "groupCompositionNotice": "Les créneaux présentés dans cette release candidate restent soumis à validation des salles et des affectations enseignantes. La composition pédagogique du groupe est confirmée après étude des profils et des effectifs.",
-      "groupNotOpenedProcedure": "Si Nexus Réussite décide de ne pas ouvrir le groupe, la famille est informée. Les conditions applicables sont communiquées avant toute confirmation."
+      "groupCompositionNotice": "Les créneaux présentés dans ce document de revue restent soumis à validation des salles et des affectations enseignantes. La composition pédagogique du groupe est confirmée après étude des profils et des effectifs.",
+      "groupNotOpenedProcedure": "Si Nexus Réussite décide de ne pas ouvrir le groupe, la famille est informée. Les conditions applicables sont communiquées avant toute confirmation.",
+      "adaptationNotice": "Le programme et le niveau des exercices sont adaptés au profil déclaré et à la composition pédagogique du groupe.",
+      "recordingConsentNotice": "Tout enregistrement pédagogique est facultatif et soumis à un consentement séparé."
     },
     "faq": [
       { "question": "Mon enfant entrant en 3e, Seconde, Première ou Terminale peut-il suivre plusieurs matières ?", "answer": "Oui. Fondations permet de choisir les matières disponibles au niveau concerné, sans remise multimatières. Premium propose des packs d’une à quatre matières. Le planning définitif reste soumis aux validations opérationnelles." },

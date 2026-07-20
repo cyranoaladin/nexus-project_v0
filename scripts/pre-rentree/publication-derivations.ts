@@ -1,4 +1,6 @@
 import type { PreRentreeCampaignManifest } from '@/lib/campaigns/pre-rentree-2026/schema';
+import type { PreRentreeCampaignModule } from '@/lib/campaigns/pre-rentree-2026/schema';
+import type { PreRentreePedagogyFramework } from '@/lib/campaigns/pre-rentree-2026/content-schema';
 import type { PreRentreePack } from '@/lib/pricing';
 
 const SUBJECT_PUBLICATION_STYLE = {
@@ -129,6 +131,87 @@ export function derivePacks(packs: PreRentreePack[]) {
   });
 }
 
+export function derivePedagogyArtifacts(
+  modules: readonly PreRentreeCampaignModule[],
+  framework: PreRentreePedagogyFramework,
+) {
+  const codeByModule = new Map(framework.moduleCodes.map((entry) => [entry.moduleId, entry]));
+  const quickAssessments: Array<Record<string, unknown>> = [];
+  const sessionDeliverables: Array<Record<string, unknown>> = [];
+  const positioningTests = modules.map((module, moduleIndex) => {
+    const code = codeByModule.get(module.id);
+    if (!code) throw new Error(`Missing positioning-test code for ${module.id}`);
+    const pattern = framework.subjectPatterns[module.subjectId];
+    const questions = module.sessions.map((session) => {
+      const sessionRef = `${module.id}#session-${session.number}`;
+      const topics = session.topics.join(', ');
+      quickAssessments.push({
+        id: `QA-${module.id}-${session.number}`,
+        sessionRef,
+        durationMinutes: framework.quickAssessmentDurationMinutes,
+        domain: session.topics[0],
+        prompt: `${pattern.taskLead} ${session.objective.toLocaleLowerCase('fr-FR')}. En cinq à dix minutes, produisez une réponse autonome qui utilise au moins deux éléments parmi : ${topics}.`,
+        correction: `${pattern.correctionLead} : ${topics}. Une réponse partielle est reprise avec l’élève avant la séance suivante.`,
+        successCriterion: `La démarche répond à l’objectif « ${session.objective} » et mobilise correctement au moins deux notions annoncées.`,
+        expectedLevel: module.level,
+        captureMode: 'Grille ACQUIS / FRAGILE / LACUNE et commentaire factuel court',
+      });
+      sessionDeliverables.push({
+        id: `DEL-${module.id}-${session.number}`,
+        sessionRef,
+        title: session.deliverable,
+        objective: session.objective,
+        instructions: [
+          `Relire l’objectif de la séance : ${session.objective}.`,
+          `Réaliser la production « ${session.deliverable} » en suivant cette méthode : ${session.method}.`,
+          `Faire apparaître explicitement les notions suivantes : ${topics}.`,
+          'Relire, corriger puis dater la version finale avant de la ranger dans le dossier de stage.',
+        ],
+        expectedEvidence: [
+          `Une production complète correspondant à « ${session.deliverable} ».`,
+          `Une trace de vérification portant sur ${session.topics.slice(0, 2).join(' et ')}.`,
+        ],
+        selfCheck: [
+          'J’ai traité toutes les étapes de la consigne.',
+          'J’ai utilisé le vocabulaire et les notions de la séance.',
+          'J’ai vérifié ma production et corrigé les erreurs repérées.',
+        ],
+      });
+      return {
+        number: session.number,
+        domain: session.topics[0],
+        prompt: `${pattern.taskLead} ${session.objective.toLocaleLowerCase('fr-FR')}. Votre production doit mobiliser : ${topics}.`,
+        correction: `${pattern.correctionLead} : ${topics}. La méthode attendue est : ${session.method}.`,
+        points: 4,
+        errorTypes: pattern.errorTypes,
+      };
+    });
+    return {
+      id: code.code,
+      moduleId: module.id,
+      version: framework.version,
+      durationMinutes: framework.positioningDurationMinutes,
+      materialAllowed: code.material,
+      domains: module.sessions.map((session) => session.topics[0]),
+      questions,
+      totalPoints: questions.reduce((sum, question) => sum + question.points, 0),
+      rubric: framework.rubric,
+      errorTypes: pattern.errorTypes,
+      coherenceChecks: [
+        'Cinq domaines évalués et cinq questions présentes.',
+        'Le total du barème vaut 20 points.',
+        'Chaque question possède un corrigé et une typologie d’erreurs.',
+      ],
+      anonymousSample: {
+        sampleId: `SAMPLE-ANON-${String(moduleIndex + 1).padStart(2, '0')}`,
+        ...framework.anonymousSample,
+      },
+    };
+  });
+
+  return { positioningTests, quickAssessments, sessionDeliverables };
+}
+
 export function derivePublicationMode(campaign: PreRentreeCampaignManifest) {
   if (campaign.featureFlags.enablePayment) {
     throw new Error('The public campaign page cannot collect payment');
@@ -183,20 +266,20 @@ export function deriveApprovedPublicClaims(campaign: PreRentreeCampaignManifest)
     {
       id: 'adaptation-notice',
       type: 'PEDAGOGY',
-      text: 'Le programme et le niveau des exercices sont adaptés au profil déclaré et à la composition pédagogique du groupe.',
-      source: { path: 'OWNER_MISSION', pointer: '/PHASE_4/adaptation-notice' },
+      text: campaign.content.practical.adaptationNotice,
+      source: { path: 'data/campaigns/pre-rentree-2026.json', pointer: '/content/practical/adaptationNotice' },
     },
     {
       id: 'recording-consent',
       type: 'CONSENT',
-      text: 'Tout enregistrement pédagogique est facultatif et soumis à un consentement séparé.',
-      source: { path: 'OWNER_MISSION', pointer: '/PHASE_4/enregistrement-oral' },
+      text: campaign.content.practical.recordingConsentNotice,
+      source: { path: 'data/campaigns/pre-rentree-2026.json', pointer: '/content/practical/recordingConsentNotice' },
     },
     {
       id: 'public-cta',
       type: 'CTA',
-      text: 'Se pré-inscrire ou demander un conseil',
-      source: { path: 'OWNER_MISSION', pointer: '/PHASE_5/CTA' },
+      text: campaign.cta.primary.label,
+      source: { path: 'data/campaigns/pre-rentree-2026.json', pointer: '/cta/primary/label' },
     },
   ];
 }

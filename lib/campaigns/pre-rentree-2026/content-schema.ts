@@ -79,4 +79,86 @@ export const PreRentreeCapabilitiesSchema = z.object({
   }
 });
 
+const PedagogyPatternSchema = z.object({
+  taskLead: z.string().min(1),
+  correctionLead: z.string().min(1),
+  errorTypes: z.array(z.string().min(1)).min(3),
+}).strict();
+
+export const PreRentreePedagogyFrameworkSchema = z.object({
+  schemaVersion: z.literal('1.0.0'),
+  version: z.string().min(1),
+  locale: z.literal('fr-TN'),
+  positioningDurationMinutes: z.number().int().min(15).max(60),
+  quickAssessmentDurationMinutes: z.number().int().min(5).max(10),
+  moduleCodes: z.array(z.object({
+    moduleId: z.string().min(1),
+    code: z.string().regex(/^POS-(?:3|2|1|T)-(?:MATH|FR|PC|SNT|NSI|PHILO)$/),
+    material: z.string().min(1),
+  }).strict()).length(14),
+  subjectPatterns: z.object({
+    MATHEMATIQUES: PedagogyPatternSchema,
+    PHYSIQUE_CHIMIE: PedagogyPatternSchema,
+    NSI: PedagogyPatternSchema,
+    FRANCAIS: PedagogyPatternSchema,
+    PHILOSOPHIE: PedagogyPatternSchema,
+  }).strict(),
+  rubric: z.object({
+    ACQUIS: z.string().min(1),
+    FRAGILE: z.string().min(1),
+    LACUNE: z.string().min(1),
+  }).strict(),
+  anonymousSample: z.object({
+    response: z.string().min(1),
+    assessment: z.string().min(1),
+  }).strict(),
+}).strict();
+
+export const PreRentreeWhatsAppSchema = z.object({
+  schemaVersion: z.literal('1.0.0'),
+  version: z.string().min(1),
+  locale: z.literal('fr-TN'),
+  keywords: z.array(z.string().min(1)).length(7),
+  tracking: z.object({
+    campaign: z.literal('pre-rentree-2026'),
+    source: z.literal('whatsapp'),
+    medium: z.literal('conversation'),
+  }).strict(),
+  scripts: z.array(z.object({
+    id: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    purpose: z.string().min(1),
+    publicGate: z.string().min(1).nullable(),
+    text: z.string().min(40),
+  }).strict()).length(24),
+}).strict();
+
+const PublicGate = z.string().min(1).nullable();
+export const PreRentreeCommunicationSchema = z.object({
+  schemaVersion: z.literal('1.0.0'),
+  version: z.string().min(1),
+  locale: z.literal('fr-TN'),
+  formats: z.array(z.string().min(1)).min(7),
+  publications: z.array(z.object({
+    id: z.string().min(1),
+    title: z.string().min(1),
+    publicGate: PublicGate,
+    text: z.string().min(1),
+  }).strict()).min(13),
+  carousels: z.array(z.object({
+    id: z.string().min(1),
+    slides: z.array(z.object({ title: z.string().min(1), body: z.string().min(1) }).strict()).min(4),
+  }).strict()).length(8),
+  stories: z.array(z.object({ id: z.string().min(1) }).strict()).min(12),
+  reels: z.array(z.object({
+    id: z.string().min(1),
+    title: z.string().min(1),
+    durationSeconds: z.number().int().min(20).max(35),
+    captionsRequired: z.literal(true),
+    publicGate: PublicGate,
+    scenes: z.array(z.string().min(1)).min(4),
+  }).strict()).length(3),
+  altTextTemplate: z.string().min(1),
+}).strict();
+
 export type PreRentreeOfferRange = z.infer<typeof OfferRange>;
+export type PreRentreePedagogyFramework = z.infer<typeof PreRentreePedagogyFrameworkSchema>;

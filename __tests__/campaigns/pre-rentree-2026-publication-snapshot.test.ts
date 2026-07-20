@@ -40,12 +40,19 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
   it('compiles canonical source versions, hashes, and repository provenance', () => {
     const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha });
 
+    expect((snapshot as unknown as { sourceSetSha256?: string }).sourceSetSha256).toMatch(/^[a-f0-9]{64}$/);
     expect(snapshot.sourceRepoSha).toBe('a1192c8dccf8eaa6ae223265a3bc9ceb56a6fff0');
     expect(snapshot.provenance.campaign.version).toBe('2.0.0');
     expect(snapshot.provenance.modules.version).toBe('2026-pre-rentree-v2');
     expect(snapshot.provenance.pricing.version).toBe('2026-2027.3');
-    expect(snapshot.provenance.parentGuide.version).toBe('2026-parent-guide-fr-v2');
+    expect(snapshot.provenance.parentGuide.version).toBe('2026-parent-guide-fr-v3');
     expect(Object.values(snapshot.provenance).every((source) => /^[a-f0-9]{64}$/.test(source.sha256))).toBe(true);
+    expect(Object.keys(snapshot.provenance)).toEqual(expect.arrayContaining([
+      'offers',
+      'capabilities',
+      'manuals',
+      'pedagogyFramework',
+    ]));
     expect(() => PublicationSnapshotSchema.parse(snapshot)).not.toThrow();
   });
 
@@ -59,22 +66,27 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha });
 
     expect(schema.additionalProperties).toBe(false);
-    expect(schema.properties.sections.items.additionalProperties).toBe(false);
+    expect(schema.properties.sections.items.$ref).toBe('#/$defs/section');
+    expect(schema.$defs.section.additionalProperties).toBe(false);
     expect(source).toMatchObject({
       schemaVersion: '1.0.0',
-      contentVersion: '2026-parent-guide-fr-v2',
+      contentVersion: '2026-parent-guide-fr-v3',
       locale: 'fr-TN',
       status: 'DRAFT_FOR_OWNER_REVIEW',
-      documentPackageVersion: '5.1.0-rc.2',
+      documentPackageVersion: '6.0.0-rc.1',
     });
     expect(snapshot.parentGuide.sections.map((section) => section.id)).toEqual([
       'essentiel',
+      'offres',
       'pourquoi',
       'fonctionnement',
-      'parcours',
+      'parcours-fondations',
+      'parcours-premium',
+      'catalogue',
       'planning',
       'tarifs',
-      'pre-inscription',
+      'reservation',
+      'manuels',
       'pratique',
       'faq',
       'contact',
@@ -88,12 +100,12 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha });
 
     expect(snapshot.sourceCommitDate).toMatch(/^\d{4}-\d{2}-\d{2}T/);
-    expect(snapshot.snapshotBuiltAt).toBe('2026-07-20T08:00:00+01:00');
+    expect(snapshot.snapshotBuiltAt).toBe('2026-07-20T12:00:00+01:00');
     expect(snapshot.document.documentEditionDate).toBe('2026-07-20');
-    expect(snapshot.document.documentPackageVersion).toBe('5.1.0-rc.2');
+    expect(snapshot.document.documentPackageVersion).toBe('6.0.0-rc.1');
 
     const why = snapshot.parentGuide.sections.find((section) => section.id === 'pourquoi');
-    expect(why?.blocks).toHaveLength(5);
+    expect(why?.blocks).toHaveLength(3);
     expect(snapshot.reviews).toEqual({
       ownerReviewedAt: null,
       legalReviewedAt: null,
@@ -104,23 +116,17 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
 
   it('exposes only publicly committed Parcours 360 labels to the renderer', () => {
     const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha });
-    const committed = snapshot.parentGuide.capabilities.filter((item) => item.publiclyCommitted);
-    const unavailable = snapshot.parentGuide.capabilities.filter((item) => !item.publiclyCommitted);
+    const committed = snapshot.capabilities.capabilities.filter((item) => item.publiclyCommitted);
+    const unavailable = snapshot.capabilities.capabilities.filter((item) => !item.publiclyCommitted);
 
-    expect(committed.map((item) => item.id)).toEqual(expect.arrayContaining([
-      'positionnement-initial',
-      'objectifs-de-travail',
-      'evaluations-rapides',
-      'supports-et-livrables',
-      'synthese-et-recommandations',
-    ]));
+    expect(committed).toEqual([]);
     expect(unavailable.map((item) => item.id)).toEqual(expect.arrayContaining([
-      'bilan-parents-personnalise',
-      'bilan-eleve-personnalise',
-      'plan-action-annuel-personnalise',
-      'douze-tests-disciplinaires-finalises',
+      'bilan-parents',
+      'bilan-eleve',
+      'plan-action-premieres-semaines',
+      'test-positionnement-matiere',
     ]));
-    expect(unavailable.every((item) => item.publicLabel === null)).toBe(true);
+    expect(unavailable.every((item) => item.publiclyCommitted === false)).toBe(true);
   });
 
   it('copies all fourteen canonical modules and seventy sessions without editorial drift', () => {
@@ -132,6 +138,36 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     expect(snapshot.modules).toEqual(canonical.modules);
     expect(snapshot.modules).toHaveLength(14);
     expect(snapshot.modules.flatMap((module) => module.sessions)).toHaveLength(70);
+  });
+
+  it('materializes fourteen positioning tests, seventy quick assessments and seventy deliverables', () => {
+    const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha }) as unknown as {
+      pedagogy?: {
+        positioningTests: Array<{
+          id: string;
+          questions: Array<{ prompt: string; correction: string; points: number }>;
+          rubric: Record<string, string>;
+          anonymousSample: { sampleId: string; response: string; assessment: string };
+        }>;
+        quickAssessments: Array<{ sessionRef: string; prompt: string; correction: string; successCriterion: string }>;
+        sessionDeliverables: Array<{ sessionRef: string; instructions: string[]; expectedEvidence: string[]; selfCheck: string[] }>;
+      };
+    };
+
+    expect(snapshot.pedagogy?.positioningTests).toHaveLength(14);
+    expect(snapshot.pedagogy?.positioningTests.flatMap((test) => test.questions)).toHaveLength(70);
+    expect(snapshot.pedagogy?.positioningTests.every((test) => (
+      test.questions.every((question) => question.prompt && question.correction && question.points > 0) &&
+      Object.keys(test.rubric).length === 3 &&
+      /^SAMPLE-ANON-/.test(test.anonymousSample.sampleId)
+    ))).toBe(true);
+    expect(snapshot.pedagogy?.quickAssessments).toHaveLength(70);
+    expect(snapshot.pedagogy?.sessionDeliverables).toHaveLength(70);
+    expect(new Set(snapshot.pedagogy?.quickAssessments.map((item) => item.sessionRef)).size).toBe(70);
+    expect(new Set(snapshot.pedagogy?.sessionDeliverables.map((item) => item.sessionRef)).size).toBe(70);
+    expect(snapshot.pedagogy?.sessionDeliverables.every((item) => (
+      item.instructions.length >= 3 && item.expectedEvidence.length >= 2 && item.selfCheck.length >= 3
+    ))).toBe(true);
   });
 
   it('expands the canonical schedule to seventy dated sessions', () => {
@@ -174,13 +210,24 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     ]);
     expect(snapshot.labels.deposit).toBe('Acompte');
     expect(snapshot.labels.deposit).not.toMatch(/30\s*%/);
+    expect(snapshot.offerPricing.filter((item) => item.range === 'FONDATIONS').map((item) => [
+      item.level, item.subjectCount, item.price, item.deposit, item.balance,
+    ])).toEqual([
+      ['TROISIEME', 1, 350, 105, 245],
+      ['TROISIEME', 2, 700, 210, 490],
+      ['SECONDE', 1, 400, 120, 280],
+      ['SECONDE', 2, 800, 240, 560],
+      ['SECONDE', 3, 1200, 360, 840],
+      ['SECONDE', 4, 1600, 480, 1120],
+    ]);
+    expect(snapshot.offerPricing.every((item) => item.deposit === item.price * 0.3)).toBe(true);
   });
 
   it('derives REVIEW publication and blocks absent approved terms', () => {
     const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha });
 
     expect(snapshot.campaign.publicationMode).toBe('REVIEW');
-    expect(snapshot.cta.primary).toBe('Se pré-inscrire ou demander un conseil');
+    expect(snapshot.cta.primary).toBe('Demander un parcours ou un conseil');
     expect(snapshot.legal.status).toBe('MISSING_APPROVED_COMMERCIAL_TERMS');
     expect(snapshot.legal.contractualDossierPublicationBlocked).toBe(true);
     expect(snapshot.legal.termsVersion).toBeNull();
@@ -210,22 +257,26 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha });
 
     expect(Object.values(snapshot.document.outputs.publicPdf)).toEqual([
-      'NexusReussite_PreRentree2026_GuideParents_COMPLET_PUBLIC.pdf',
-      'NexusReussite_PreRentree2026_Essentiel_PUBLIC.pdf',
-      'NexusReussite_PreRentree2026_Planning_PUBLIC.pdf',
-      'NexusReussite_PreRentree2026_Programme_Seconde_PUBLIC.pdf',
-      'NexusReussite_PreRentree2026_Programme_Premiere_PUBLIC.pdf',
-      'NexusReussite_PreRentree2026_Programme_Terminale_PUBLIC.pdf',
-      'NexusReussite_PreRentree2026_Tarifs_PUBLIC.pdf',
+      'NexusReussite_PreRentree2026_GuideParents_COMPLET.pdf',
+      'NexusReussite_PreRentree2026_BrochureParents.pdf',
+      'NexusReussite_PreRentree2026_Essentiel.pdf',
+      'NexusReussite_PreRentree2026_Fondations_vs_Premium.pdf',
+      'NexusReussite_PreRentree2026_Tarifs_Reservation.pdf',
+      'Programme_Entree_3e.pdf',
+      'Programme_Entree_Seconde.pdf',
+      'Programme_Entree_Premiere.pdf',
+      'Programme_Entree_Terminale.pdf',
+      'Planning_PreRentree2026.pdf',
+      'FAQ_Parents_PreRentree2026.pdf',
     ]);
     expect(Object.values(snapshot.document.outputs.publicHtml)).toContain(
-      'NexusReussite_PreRentree2026_GuideParents_COMPLET_PUBLIC.html',
+      'NexusReussite_PreRentree2026_GuideParents_COMPLET.html',
     );
     expect(snapshot.document.outputs.social).toEqual({
-      feed: 'NexusReussite_PreRentree2026_Feed_1080x1350_PUBLIC.png',
-      story: 'NexusReussite_PreRentree2026_Story_1080x1920_PUBLIC.png',
-      monochrome: 'NexusReussite_PreRentree2026_Flyer_NB_1080x1350_PUBLIC.png',
-      altText: 'NexusReussite_PreRentree2026_VisuelsSociaux_AltText_PUBLIC.json',
+      feed: 'NexusReussite_PreRentree2026_Feed_1080x1350.png',
+      story: 'NexusReussite_PreRentree2026_Story_1080x1920.png',
+      monochrome: 'NexusReussite_PreRentree2026_Flyer_NB_1080x1350.png',
+      altText: 'NexusReussite_PreRentree2026_VisuelsSociaux_AltText.json',
     });
   });
 
