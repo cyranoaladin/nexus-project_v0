@@ -527,6 +527,7 @@ def build_document_manifest(
         "PDF_FILES": pdf_records,
         "ALL_PDF_SHA256_RECORDED": len(pdf_records) == len(snapshot["document"]["outputs"]["publicPdf"]) and all(record["PDF_SHA256"] for record in pdf_records),
     }
+    manifest["CREATED_AT"] = manifest["DOCUMENTS_BUILT_AT"]
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     temporary = output_path.with_name(f".{output_path.name}.tmp")
