@@ -26,10 +26,10 @@ describe('PreRentreeCampaignSpotlight', () => {
     const campaign = within(spotlight);
 
     expect(campaign.getByRole('heading', { level: 2, name: 'Stages de pré-rentrée 2026' })).toBeVisible();
-    expect(campaign.getByText('Pré-inscriptions ouvertes')).toBeVisible();
-    expect(campaign.getByText('Entrée en Seconde, Première ou Terminale')).toBeVisible();
-    expect(campaign.getByText('Mathématiques · Physique-Chimie · Français · NSI/SNT')).toBeVisible();
-    expect(campaign.getByText('3 à 5 élèves')).toBeVisible();
+    expect(campaign.getByText('Campagne en préparation')).toBeVisible();
+    expect(campaign.getByText('Entrée en 3e, Seconde, Première ou Terminale')).toBeVisible();
+    expect(campaign.getByText('Mathématiques · Physique-Chimie · Français · NSI/SNT · Philosophie')).toBeVisible();
+    expect(campaign.getByText('Fondations : 4 à 6 élèves · Premium : 3 à 5 élèves')).toBeVisible();
     expect(campaign.getByText('10 h par matière')).toBeVisible();
     expect(campaign.getByText('Mutuelleville')).toBeVisible();
     expect(campaign.getByText('du 17 au 28 août')).toBeVisible();
