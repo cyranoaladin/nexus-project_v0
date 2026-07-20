@@ -6,7 +6,7 @@ import { PRE_RENTREE_2026_NAVIGATION } from './navigation';
 type SearchValue = string | string[] | undefined;
 export type CampaignSearchParams = Record<string, SearchValue>;
 
-const SUBJECT_IDS = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS'] as const;
+const SUBJECT_IDS = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'PHILOSOPHIE'] as const;
 const PACK_CODES = [
   'PACK_1',
   'PACK_2',
@@ -68,7 +68,7 @@ export const PreRentreeCampaignContextSchema = z.object({
 
   const { profile } = context;
   const invalidProfile =
-    (context.level === 'SECONDE' && Object.keys(profile).length > 0) ||
+    ((context.level === 'TROISIEME' || context.level === 'SECONDE') && Object.keys(profile).length > 0) ||
     (context.level === 'PREMIERE' &&
       (!profile.voie || !profile.mathsProfile || !profile.eafProfile || !profile.premiereSpecialtyPlan ||
         profile.mathsOption || profile.retainedSpecialties)) ||
@@ -103,6 +103,7 @@ function toEntryLevel(studentGrade: string): PreRentreeBilanPrefill['level'] | n
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '');
+  if (normalized === '3e' || normalized === 'troisieme') return 'TROISIEME';
   if (normalized === 'seconde') return 'SECONDE';
   if (normalized === 'premiere') return 'PREMIERE';
   if (normalized === 'terminale') return 'TERMINALE';
@@ -218,7 +219,7 @@ export function parsePreRentreeBilanPrefill(
   }
 
   if (
-    (level === 'SECONDE' &&
+    ((level === 'TROISIEME' || level === 'SECONDE') &&
       (voie || mathsProfile || eafProfile || premiereSpecialtyPlan || mathsOption || retainedSpecialties)) ||
     (level === 'PREMIERE' && (mathsOption || retainedSpecialties)) ||
     (level === 'TERMINALE' && (voie || mathsProfile || eafProfile || premiereSpecialtyPlan))

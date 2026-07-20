@@ -41,9 +41,9 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha });
 
     expect(snapshot.sourceRepoSha).toBe('a1192c8dccf8eaa6ae223265a3bc9ceb56a6fff0');
-    expect(snapshot.provenance.campaign.version).toBe('1.0.1');
-    expect(snapshot.provenance.modules.version).toBe('2026-pre-rentree-v1');
-    expect(snapshot.provenance.pricing.version).toBe('2026-2027.2');
+    expect(snapshot.provenance.campaign.version).toBe('2.0.0');
+    expect(snapshot.provenance.modules.version).toBe('2026-pre-rentree-v2');
+    expect(snapshot.provenance.pricing.version).toBe('2026-2027.3');
     expect(snapshot.provenance.parentGuide.version).toBe('2026-parent-guide-fr-v2');
     expect(Object.values(snapshot.provenance).every((source) => /^[a-f0-9]{64}$/.test(source.sha256))).toBe(true);
     expect(() => PublicationSnapshotSchema.parse(snapshot)).not.toThrow();
@@ -123,24 +123,24 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     expect(unavailable.every((item) => item.publicLabel === null)).toBe(true);
   });
 
-  it('copies all twelve canonical modules and sixty sessions without editorial drift', () => {
+  it('copies all fourteen canonical modules and seventy sessions without editorial drift', () => {
     const canonical = JSON.parse(
       readFileSync(join(root, 'content/pre-rentree-2026/modules.json'), 'utf8'),
     );
     const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha });
 
     expect(snapshot.modules).toEqual(canonical.modules);
-    expect(snapshot.modules).toHaveLength(12);
-    expect(snapshot.modules.flatMap((module) => module.sessions)).toHaveLength(60);
+    expect(snapshot.modules).toHaveLength(14);
+    expect(snapshot.modules.flatMap((module) => module.sessions)).toHaveLength(70);
   });
 
-  it('expands the canonical schedule to sixty dated sessions', () => {
+  it('expands the canonical schedule to seventy dated sessions', () => {
     const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha });
 
-    expect(snapshot.schedule.sessions).toHaveLength(60);
+    expect(snapshot.schedule.sessions).toHaveLength(70);
     expect(snapshot.schedule.sessions[0]).toMatchObject({
       date: '2026-08-17',
-      level: 'SECONDE',
+      level: 'TROISIEME',
       subjectId: 'MATHEMATIQUES',
       blockId: 'A',
       startTime: '08:30',
@@ -167,19 +167,19 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
       pack.balance,
       pack.pricePerHour,
     ])).toEqual([
-      [1, 480, 140, 340, 48],
+      [1, 480, 144, 336, 48],
       [2, 900, 270, 630, 45],
-      [3, 1350, 410, 940, 45],
+      [3, 1350, 405, 945, 45],
       [4, 1800, 540, 1260, 45],
     ]);
     expect(snapshot.labels.deposit).toBe('Acompte');
     expect(snapshot.labels.deposit).not.toMatch(/30\s*%/);
   });
 
-  it('derives pre-registration-only publication and blocks absent approved terms', () => {
+  it('derives REVIEW publication and blocks absent approved terms', () => {
     const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha });
 
-    expect(snapshot.campaign.publicationMode).toBe('PRE_REGISTRATION_ONLY');
+    expect(snapshot.campaign.publicationMode).toBe('REVIEW');
     expect(snapshot.cta.primary).toBe('Se pré-inscrire ou demander un conseil');
     expect(snapshot.legal.status).toBe('MISSING_APPROVED_COMMERCIAL_TERMS');
     expect(snapshot.legal.contractualDossierPublicationBlocked).toBe(true);

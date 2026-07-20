@@ -16,10 +16,10 @@ function sessionDuration(start: string, end: string): number {
   return (endHour * 60 + endMinute - startHour * 60 - startMinute) / 60;
 }
 
-export function PreRentreeHero({ campaign, content, capacity, packs, schedule, whatsappMessage }: {
+export function PreRentreeHero({ campaign, content, capacityByOffer, packs, schedule, whatsappMessage }: {
   campaign: { canonicalPath: string; startDate: string; endDate: string; venue: { neighborhood: string } };
   content: { eyebrow: string; h1: string; subtitle: string };
-  capacity: { minPerCohort: number; maxPerCohort: number };
+  capacityByOffer: Record<'FONDATIONS' | 'PREMIUM', { minPerCohort: number; maxPerCohort: number }>;
   packs: LandingPack[];
   schedule: LandingScheduleSlot[];
   whatsappMessage: string;
@@ -41,7 +41,8 @@ export function PreRentreeHero({ campaign, content, capacity, packs, schedule, w
         <ul className="mt-8 flex flex-wrap gap-3 text-sm text-lux-on-dark">
           <li className="rounded-full bg-white/10 px-4 py-2">{compactDateRange(campaign.startDate, campaign.endDate)}</li>
           <li className="rounded-full bg-white/10 px-4 py-2">{firstModule.length} séances de {duration} h par matière</li>
-          <li className="rounded-full bg-white/10 px-4 py-2">Groupes de {capacity.minPerCohort} à {capacity.maxPerCohort} élèves</li>
+          <li className="rounded-full bg-white/10 px-4 py-2">Fondations · {capacityByOffer.FONDATIONS.minPerCohort} à {capacityByOffer.FONDATIONS.maxPerCohort} élèves</li>
+          <li className="rounded-full bg-white/10 px-4 py-2">Premium · {capacityByOffer.PREMIUM.minPerCohort} à {capacityByOffer.PREMIUM.maxPerCohort} élèves</li>
           <li className="rounded-full bg-white/10 px-4 py-2">Présentiel à {campaign.venue.neighborhood}</li>
           <li className="rounded-full bg-white/10 px-4 py-2">{singlePack?.subjectsCount} à {maximumSubjects} matières · {singlePack?.totalHours} h chacune</li>
         </ul>
@@ -50,7 +51,7 @@ export function PreRentreeHero({ campaign, content, capacity, packs, schedule, w
           <a href={`${campaign.canonicalPath}#planning`} className="inline-flex min-h-11 items-center justify-center rounded-lg border border-white/30 px-6 py-3 text-sm font-semibold text-lux-on-dark">Voir les horaires</a>
           <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center justify-center rounded-lg border border-lux-evergreen bg-lux-evergreen/10 px-6 py-3 text-sm font-semibold" style={{ color: WHATSAPP_BRAND_GREEN }}>Poser une question <span className="sr-only">(nouvel onglet)</span></a>
         </div>
-        <p className="mt-5 text-sm text-lux-on-dark-muted">Groupes limités à {capacity.maxPerCohort} élèves.</p>
+        <p className="mt-5 text-sm text-lux-on-dark-muted">Fondations : six élèves maximum · Premium : cinq élèves maximum.</p>
       </div>
     </section>
   );

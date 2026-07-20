@@ -210,6 +210,25 @@ export interface PreRentreePack {
   non_cumulable: boolean;
 }
 
+export interface PreRentreeFoundationsProduct {
+  id: string;
+  title: string;
+  edition_id: string;
+  level: 'TROISIEME' | 'SECONDE';
+  subjects_count: 1;
+  hours_per_subject: 10;
+  total_hours: 10;
+  sessions_per_subject: 5;
+  session_duration_h: 2;
+  group_max: 6;
+  group_min_open: 4;
+  price_per_student: number;
+  price_per_student_hour: number;
+  floor_type: string;
+  payment: { deposit: number; solde: number };
+  multi_subject_discount: false;
+}
+
 export interface AriaAddon {
   price_monthly: number;
   subjects: string[];
@@ -257,6 +276,7 @@ export interface PricingData {
   packs: Pack[];
   special_programs: SpecialProgram[];
   pre_rentree_packs: PreRentreePack[];
+  pre_rentree_foundations: PreRentreeFoundationsProduct[];
   aria_addon: AriaAddon;
   operational_aria_addons: Record<string, OperationalAriaAddon>;
   subscription_tiers: SubscriptionTier[];
@@ -567,6 +587,18 @@ export function getPreRentreePacks(productIds?: readonly string[]): PreRentreePa
       throw new Error(`Unknown Pré-rentrée pricing product: ${id}`);
     }
     return stripInternal(pack);
+  });
+}
+
+export function getPreRentreeFoundationsProducts(
+  productIds?: readonly string[],
+): PreRentreeFoundationsProduct[] {
+  if (!productIds) return data.pre_rentree_foundations.map(stripInternal);
+  const byId = new Map(data.pre_rentree_foundations.map((product) => [product.id, product]));
+  return productIds.map((id) => {
+    const product = byId.get(id);
+    if (!product) throw new Error(`Unknown Pré-rentrée Fondations pricing product: ${id}`);
+    return stripInternal(product);
   });
 }
 

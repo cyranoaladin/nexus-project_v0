@@ -6,6 +6,7 @@ const SUBJECT_PUBLICATION_STYLE = {
   FRANCAIS: { abbreviation: 'FR', color: '#8A2743' },
   NSI: { abbreviation: 'NSI/SNT', color: '#6F42C1' },
   PHYSIQUE_CHIMIE: { abbreviation: 'PC', color: '#16847A' },
+  PHILOSOPHIE: { abbreviation: 'PHILO', color: '#8A5A28' },
 } as const;
 
 const PUBLIC_ROOM_LABELS: Record<string, string> = {
@@ -40,8 +41,8 @@ export function deriveSchedule(campaign: PreRentreeCampaignManifest) {
   const sessions: Array<{
     date: string;
     week: number;
-    level: 'SECONDE' | 'PREMIERE' | 'TERMINALE';
-    subjectId: 'MATHEMATIQUES' | 'PHYSIQUE_CHIMIE' | 'NSI' | 'FRANCAIS';
+    level: PreRentreeCampaignManifest['levels'][number]['id'];
+    subjectId: PreRentreeCampaignManifest['subjects'][number]['id'];
     subjectLabel: string;
     blockId: 'A' | 'B' | 'C' | 'D';
     startTime: string;
@@ -129,14 +130,12 @@ export function derivePacks(packs: PreRentreePack[]) {
 }
 
 export function derivePublicationMode(campaign: PreRentreeCampaignManifest) {
-  if (
-    campaign.status !== 'PRE_REGISTRATION_OPEN' ||
-    !campaign.featureFlags.enablePreRegistration ||
-    campaign.featureFlags.enablePayment
-  ) {
-    throw new Error('Campaign is not in the canonical pre-registration-only state');
+  if (campaign.featureFlags.enablePayment) {
+    throw new Error('The public campaign page cannot collect payment');
   }
-  return 'PRE_REGISTRATION_ONLY' as const;
+  if (campaign.status === 'DRAFT') return 'REVIEW' as const;
+  if (campaign.status === 'REGISTRATION_OPEN') return 'RELEASE' as const;
+  throw new Error(`Unsupported publication state: ${campaign.status}`);
 }
 
 export function deriveApprovedPublicClaims(campaign: PreRentreeCampaignManifest) {
@@ -169,12 +168,12 @@ export function deriveApprovedPublicClaims(campaign: PreRentreeCampaignManifest)
       text,
       source: { path: 'data/campaigns/pre-rentree-2026.json', pointer },
     })),
-    {
-      id: 'group-size',
+    ...Object.entries(campaign.capacityByOffer).map(([range, capacity]) => ({
+      id: `group-size-${range.toLowerCase()}`,
       type: 'CAPACITY',
-      text: `Groupes de ${campaign.capacity.minPerCohort} à ${campaign.capacity.maxPerCohort} élèves`,
-      source: { path: 'data/campaigns/pre-rentree-2026.json', pointer: '/capacity' },
-    },
+      text: `${range === 'FONDATIONS' ? 'Fondations' : 'Premium'} : groupes de ${capacity.minPerCohort} à ${capacity.maxPerCohort} élèves`,
+      source: { path: 'data/campaigns/pre-rentree-2026.json', pointer: `/capacityByOffer/${range}` },
+    })),
     {
       id: 'decision-deadline',
       type: 'DEADLINE',

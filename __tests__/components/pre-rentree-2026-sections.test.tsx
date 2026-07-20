@@ -100,7 +100,7 @@ describe('Pré-rentrée landing sections', () => {
       <PracticalInformation
         campaign={dto.campaign}
         blocks={dto.blocks}
-        capacity={dto.capacity}
+        capacityByOffer={dto.capacityByOffer}
         pack={dto.packs.find((pack) => pack.subjectsCount === 1)}
         depositPercentage={dto.pricingRules.depositPercentage}
         content={dto.content.practical}

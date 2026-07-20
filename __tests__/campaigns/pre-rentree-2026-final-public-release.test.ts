@@ -35,7 +35,7 @@ describe('Pré-rentrée final public release gates', () => {
     expect(source).toContain('.next/server');
   });
 
-  it('publishes a non-contractual pre-registration notice and no unapproved legal clause', () => {
+  it('publishes a non-contractual information-request notice and no unapproved legal clause', () => {
     const manifest = JSON.parse(
       readFileSync(manifestPath, 'utf8'),
     ) as PublicCampaignManifest;
@@ -46,7 +46,7 @@ describe('Pré-rentrée final public release gates', () => {
     ].join(' ');
 
     expect(rules.preRegistrationNotice).toBe(
-      'Pré-inscription sans paiement. Cette demande ne réserve pas une place et ne forme pas un contrat. La confirmation intervient après validation administrative et pédagogique et communication des conditions applicables.',
+      'La demande d’information est transmise sans paiement. Elle ne réserve pas une place et ne forme pas un contrat. Après qualification pédagogique, Nexus transmet une proposition de parcours et les conditions applicables.',
     );
     expect(rules.groupNotOpenedProcedure).toBe(
       'Si Nexus Réussite décide de ne pas ouvrir le groupe, la famille est informée. Les conditions applicables sont communiquées avant toute confirmation.',

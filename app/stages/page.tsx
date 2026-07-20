@@ -38,7 +38,7 @@ export default function StagesPage() {
       subtitle: campaign.content.hero.subtitle,
       levels: campaign.levels.map((level) => level.label),
       subjects: campaign.subjects.map((subject) => subject.label),
-      groupMax: campaign.capacity.maxPerCohort,
+      groupMax: campaign.capacityByOffer.FONDATIONS.maxPerCohort,
     }}
   />;
 }
