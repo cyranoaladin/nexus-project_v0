@@ -14,7 +14,9 @@ Les sorties sont atomiquement publiées sous `.artifacts/pre-rentree-2026/`. Un 
 - `documentsBuiltAt` et les dates d’audit appartiennent aux rapports externes ;
 - `ownerReviewedAt`, `legalReviewedAt` et `privacyReviewedAt` restent nuls avant action humaine.
 
-La CI fixe `SOURCE_DATE_EPOCH`. Deux builds du même commit sont comparés par SHA-256. Les ZIP utilisent la date d’édition et un ordre stable.
+Le renderer convertit `documentEditionDate` à minuit UTC avant le rendu PDF ; le résultat ne dépend donc pas du fuseau de la machine. La CI fixe également `SOURCE_DATE_EPOCH` et un test exécute cette conversion sous UTC et `Africa/Tunis`.
+
+Deux builds du même commit sont comparés par SHA-256. Le paquet parents utilise la date d’édition, un ordre stable et doit rester identique entre les environnements verrouillés. Le paquet de revue contient les heures réelles de build et d’audit : son empreinte est propre à chaque exécution et reste consignée dans le résumé du workflow, sans modifier les documents familiaux.
 
 ## Paquets
 
