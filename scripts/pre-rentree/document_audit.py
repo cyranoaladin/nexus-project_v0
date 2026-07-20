@@ -34,6 +34,12 @@ BLOCKED_PUBLIC_PATTERNS = (
     ("PACK_CODE", re.compile(r"pre2026-pack-|\bPACK_[1-4]\b", re.IGNORECASE)),
     ("INTERNAL_ASSIGNMENT", re.compile(r"MATHS_NSI_SNT_TEACHER|FRENCH_TEACHER|PHYSICS_CHEMISTRY_TEACHER|salle-[12]", re.IGNORECASE)),
 )
+PRIVATE_KEY_PATTERN = "".join((
+    "-----BEGIN ",
+    "(?:RSA |EC |OPENSSH )?",
+    "PRIVATE",
+    " KEY-----",
+))
 
 
 def _sha256(path: Path) -> str:
@@ -72,7 +78,7 @@ def audit_pdf(path: Path, snapshot: dict[str, Any]) -> dict[str, Any]:
         for page in reader.pages
     )
     secret_patterns = (
-        r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----",
+        PRIVATE_KEY_PATTERN,
         r"\bAKIA[0-9A-Z]{16}\b",
         r"postgres(?:ql)?://[^\s]+",
         r"\b(?:sk|ghp)_[A-Za-z0-9]{20,}\b",
