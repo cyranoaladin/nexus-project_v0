@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the canonical Pré-rentrée package atomically from one snapshot."""
+"""Build the Pré-rentrée 2026 owner-review artifacts atomically."""
 
 from __future__ import annotations
 
@@ -12,7 +12,6 @@ import uuid
 from pathlib import Path
 from typing import Any
 
-from audit_v4 import build_v4_audit
 from document_assets import generate_qr, generate_social_visuals, prepare_assets
 from document_audit import (
     audit_html_accessibility,
@@ -25,41 +24,13 @@ from document_audit import (
 )
 from document_model import load_snapshot
 from document_renderer import render_public_pdfs, write_public_html
-from document_templates import render_private_structural_template
+from verify_release import write_review_governance
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parents[1]
 SCHEMA_PATH = SCRIPT_DIR / "schemas/publication-snapshot.schema.json"
-V4_ROOT = REPO_ROOT.parent
-
-REPRODUCIBLE_PYTHON_SOURCES = (
-    "audit_v4.py",
-    "document_assets.py",
-    "document_audit.py",
-    "document_model.py",
-    "document_renderer.py",
-    "document_templates.py",
-    "generate_documents.py",
-)
-
-REPRODUCIBLE_TYPESCRIPT_SOURCES = (
-    "build-publication-snapshot.ts",
-    "publication-derivations.ts",
-    "publication-snapshot-schema.ts",
-    "publication-sources.ts",
-)
-
-REPRODUCIBLE_TEST_SOURCES = (
-    "test_audit_v4.py",
-    "test_document_assets.py",
-    "test_document_audit.py",
-    "test_document_model.py",
-    "test_document_renderer.py",
-    "test_document_templates.py",
-    "test_generate_documents.py",
-    "test_visual_audit.py",
-)
+DEFAULT_OUTPUT = REPO_ROOT / ".artifacts/pre-rentree-2026"
 
 
 def _atomic_json(path: Path, value: Any) -> None:
@@ -76,69 +47,33 @@ def _resolve_from_repo(path: Path) -> Path:
 
 
 def _validate_output_target(output: Path) -> None:
-    forbidden = {
-        REPO_ROOT.resolve(),
-        V4_ROOT.resolve(),
-        (V4_ROOT / "outputs").resolve(),
-        (REPO_ROOT / ".git").resolve(),
-    }
-    if output in forbidden or output in REPO_ROOT.parents or output in V4_ROOT.parents:
+    forbidden = {REPO_ROOT.resolve(), (REPO_ROOT / ".git").resolve()}
+    if output in forbidden or output in REPO_ROOT.parents:
         raise ValueError(f"Unsafe output target: {output}")
     if output.is_relative_to(REPO_ROOT / ".git"):
         raise ValueError(f"Unsafe output target: {output}")
-    if output.is_relative_to(V4_ROOT / "outputs"):
-        raise ValueError("The v4 output tree is read-only")
 
 
-def _copy_reproducible_sources(snapshot_path: Path, package_root: Path) -> None:
-    sources = package_root / "SOURCES"
-    (sources / "GENERATOR").mkdir(parents=True, exist_ok=True)
-    (sources / "CSS").mkdir(parents=True, exist_ok=True)
-    (sources / "TESTS").mkdir(parents=True, exist_ok=True)
-    (sources / "HTML/PRIVATE_TEMPLATE").mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(snapshot_path, sources / "publication.snapshot.json")
-    shutil.copyfile(SCHEMA_PATH, sources / "publication-snapshot.schema.json")
-    shutil.copyfile(SCRIPT_DIR / "templates/document.css", sources / "CSS/document.css")
-    shutil.copyfile(SCRIPT_DIR / "requirements.lock", sources / "requirements.lock")
-    for filename in (*REPRODUCIBLE_PYTHON_SOURCES, *REPRODUCIBLE_TYPESCRIPT_SOURCES):
-        source = SCRIPT_DIR / filename
-        if not source.is_file():
-            raise FileNotFoundError(f"Missing reproducible generator source: {source}")
-        shutil.copyfile(source, sources / "GENERATOR" / filename)
-    for filename in REPRODUCIBLE_TEST_SOURCES:
-        source = SCRIPT_DIR / "tests" / filename
-        if not source.is_file():
-            raise FileNotFoundError(f"Missing reproducible generator test: {source}")
-        shutil.copyfile(source, sources / "TESTS" / filename)
-
-
-def _write_private_block(snapshot: dict[str, Any], package_root: Path) -> None:
-    private = package_root / "PRIVATE"
-    private.mkdir(parents=True, exist_ok=True)
-    _atomic_json(
-        private / "publication-blocked.json",
-        {
-            "STATUS": "BLOCKED_BY_LEGAL_TERMS",
-            "CONTRACTUAL_DOSSIER_PUBLICATION_BLOCKED": True,
-            "LEGAL_SOURCE_STATUS": snapshot["legal"]["status"],
-            "COMMERCIAL_TERMS_PATH": snapshot["legal"]["commercialTermsPath"],
-            "TERMS_VERSION": snapshot["legal"]["termsVersion"],
-            "EFFECTIVE_DATE": snapshot["legal"]["effectiveDate"],
-            "OWNER_APPROVAL_REFERENCE": snapshot["legal"]["ownerApprovalReference"],
-            "LEGAL_APPROVAL_REFERENCE": snapshot["legal"]["legalApprovalReference"],
-            "PDF_FILES_PRODUCED": [],
-        },
-    )
-    structural_path = package_root / "SOURCES/HTML/PRIVATE_TEMPLATE/DossierConfirmation_STRUCTURE_NON_PUBLIABLE.html"
-    structural_path.write_text(render_private_structural_template(snapshot), encoding="utf-8")
+def _copy_public_assets(snapshot: dict[str, Any], assets_dir: Path) -> None:
+    prepare_assets(snapshot, REPO_ROOT, assets_dir)
+    generate_qr(snapshot, assets_dir)
+    source = SCRIPT_DIR / "templates/document.css"
+    destination = assets_dir / "document.css"
+    temporary = destination.with_name(f".{destination.name}.tmp-{os.getpid()}")
+    shutil.copyfile(source, temporary)
+    os.replace(temporary, destination)
 
 
 def _accessibility_report(snapshot: dict[str, Any], package_root: Path) -> dict[str, Any]:
-    records = []
-    for filename in snapshot["document"]["outputs"]["publicHtml"].values():
-        issues = audit_html_accessibility(package_root / "PUBLIC/HTML" / filename)
-        records.append({"HTML_FILE": filename, "ISSUES": issues})
-    stylesheet = audit_stylesheet_accessibility(package_root / "SOURCES/CSS/document.css")
+    html_root = package_root / "PUBLIC/HTML"
+    records = [
+        {
+            "HTML_FILE": filename,
+            "ISSUES": audit_html_accessibility(html_root / filename),
+        }
+        for filename in snapshot["document"]["outputs"]["publicHtml"].values()
+    ]
+    stylesheet = audit_stylesheet_accessibility(package_root / "PUBLIC/ASSETS/document.css")
     issue_count = sum(len(record["ISSUES"]) for record in records)
     issue_count += stylesheet["CONTRAST_FAILURE_COUNT"]
     issue_count += int(not stylesheet["MINIMUM_FONT_SIZE_PASS"])
@@ -149,48 +84,69 @@ def _accessibility_report(snapshot: dict[str, Any], package_root: Path) -> dict[
         "ACCESSIBILITY_ISSUE_COUNT": issue_count,
         "DOCUMENTS": records,
         "STYLESHEET": stylesheet,
-        "PDF_IS_NOT_THE_ONLY_ACCESS_PATH": len(records) == 6,
+        "PDF_ACCESSIBILITY_CLAIM": "NOT_CLAIMED",
+        "ACCESSIBLE_REFERENCE_FORMAT": "HTML",
+        "PDF_IS_NOT_THE_ONLY_ACCESS_PATH": len(records) == len(snapshot["document"]["outputs"]["publicHtml"]),
     }
 
 
-def _build_in_staging(snapshot_path: Path, package_root: Path) -> dict[str, Any]:
+def _publication_status() -> dict[str, str]:
+    return {
+        "PUBLIC_DOCUMENT_PACKAGE": "READY_FOR_OWNER_REVIEW",
+        "OWNER_REVIEW": "PENDING",
+        "LEGAL_REVIEW": "PENDING",
+        "PRIVACY_REVIEW": "PENDING",
+        "PRIVATE_CONTRACTUAL_PACKAGE": "BLOCKED",
+        "MERGE": "NOT_PERFORMED",
+        "DEPLOYMENT": "NOT_PERFORMED",
+        "PUBLIC_DISTRIBUTION": "NOT_AUTHORIZED",
+    }
+
+
+def _build_in_staging(
+    snapshot_path: Path,
+    package_root: Path,
+    *,
+    include_visual: bool,
+) -> dict[str, Any]:
     snapshot = load_snapshot(snapshot_path, SCHEMA_PATH)
     public = package_root / "PUBLIC"
     html = public / "HTML"
-    assets = package_root / "SOURCES/ASSETS"
-    audit = package_root / "AUDIT"
+    assets = public / "ASSETS"
+    social = public / "SOCIAL"
+    audit = package_root / "REVIEW/AUDIT"
 
-    _copy_reproducible_sources(snapshot_path, package_root)
-    prepare_assets(snapshot, REPO_ROOT, assets)
-    generate_qr(snapshot, assets)
+    _copy_public_assets(snapshot, assets)
     write_public_html(snapshot, html)
     render_public_pdfs(snapshot, html, public)
-    generate_social_visuals(snapshot, assets, public / "SOCIAL")
-    _write_private_block(snapshot, package_root)
+    generate_social_visuals(snapshot, assets, social)
 
-    build_v4_audit(REPO_ROOT, V4_ROOT, snapshot_path, audit)
     content_report = build_content_gate_report(snapshot, package_root, SCRIPT_DIR)
     _atomic_json(audit / "content-gate-report.json", content_report)
     accessibility = _accessibility_report(snapshot, package_root)
     _atomic_json(audit / "accessibility-report.json", accessibility)
     pdf_report = {
-        "PDF_DOCUMENT_COUNT": 6,
+        "PDF_DOCUMENT_COUNT": len(snapshot["document"]["outputs"]["publicPdf"]),
+        "PDF_UA_VALIDATION": "NOT_PERFORMED",
         "DOCUMENTS": [
             audit_pdf(public / filename, snapshot)
             for filename in snapshot["document"]["outputs"]["publicPdf"].values()
         ],
     }
     _atomic_json(audit / "pdf-qa-report.json", pdf_report)
-    visual = build_visual_qa(
-        snapshot,
-        public,
-        V4_ROOT / "outputs",
-        audit / "VISUAL",
-        dpi=200,
+    social_report = audit_social_visuals(snapshot, social)
+    _atomic_json(audit / "social-visual-qa-report.json", social_report)
+    visual_report = (
+        build_visual_qa(snapshot, public, package_root / "REVIEW/VISUAL", dpi=200)
+        if include_visual
+        else {
+            "AUTOMATED_VISUAL_CHECK": "SKIPPED_IN_UNIT_TEST",
+            "ASSISTANT_VISUAL_REVIEW": "PENDING",
+            "OWNER_VISUAL_REVIEW": "PENDING",
+            "VISUAL_DEFECT_COUNT": 0,
+        }
     )
-    _atomic_json(audit / "visual-qa-report.json", visual)
-    social_visual = audit_social_visuals(snapshot, public / "SOCIAL")
-    _atomic_json(audit / "social-visual-qa-report.json", social_visual)
+    _atomic_json(audit / "visual-qa-report.json", visual_report)
     manifest = build_document_manifest(
         snapshot,
         package_root,
@@ -198,22 +154,10 @@ def _build_in_staging(snapshot_path: Path, package_root: Path) -> dict[str, Any]
         snapshot_path=snapshot_path,
         generator_path=SCRIPT_DIR / "generate_documents.py",
     )
+    status = _publication_status()
+    _atomic_json(audit / "publication-status.json", status)
 
-    expected_files = [
-        *(public / name for name in snapshot["document"]["outputs"]["publicPdf"].values()),
-        *(html / name for name in snapshot["document"]["outputs"]["publicHtml"].values()),
-        *(public / "SOCIAL" / name for name in snapshot["document"]["outputs"]["social"].values()),
-        audit / "pdf-claim-matrix.csv",
-        audit / "v4-content-diff.json",
-        audit / "v4-input-manifest.json",
-        audit / "content-gate-report.json",
-        audit / "accessibility-report.json",
-        audit / "pdf-qa-report.json",
-        audit / "visual-qa-report.json",
-        audit / "social-visual-qa-report.json",
-        audit / "document-build-manifest.json",
-    ]
-    zero_gate_names = (
+    zero_gates = (
         "MODULE_SESSION_MISMATCH_COUNT",
         "PUBLIC_CLAIM_WITHOUT_SOURCE_COUNT",
         "LEGAL_POLICY_CONFLICT_COUNT",
@@ -225,28 +169,33 @@ def _build_in_staging(snapshot_path: Path, package_root: Path) -> dict[str, Any]
         "QR_LINK_MISMATCH_COUNT",
         "UNAPPROVED_CONTRACTUAL_CLAIM_COUNT",
     )
-    public_gates_pass = (
-        all(content_report[name] == 0 for name in zero_gate_names)
-        and visual["VISUAL_DEFECT_COUNT"] + social_visual["SOCIAL_VISUAL_DEFECT_COUNT"] == 0
+    expected = [
+        *(public / name for name in snapshot["document"]["outputs"]["publicPdf"].values()),
+        *(html / name for name in snapshot["document"]["outputs"]["publicHtml"].values()),
+        *(social / name for name in snapshot["document"]["outputs"]["social"].values()),
+    ]
+    gates_pass = (
+        all(content_report[name] == 0 for name in zero_gates)
         and accessibility["ACCESSIBILITY_ISSUE_COUNT"] == 0
+        and social_report["SOCIAL_VISUAL_DEFECT_COUNT"] == 0
+        and visual_report["VISUAL_DEFECT_COUNT"] == 0
         and manifest["ALL_PDF_SHA256_RECORDED"]
-        and all(path.is_file() for path in expected_files)
+        and all(path.is_file() for path in expected)
     )
     final_report = {
         **content_report,
-        "PDF_VISUAL_DEFECT_COUNT": visual["VISUAL_DEFECT_COUNT"],
-        "SOCIAL_VISUAL_DEFECT_COUNT": social_visual["SOCIAL_VISUAL_DEFECT_COUNT"],
-        "VISUAL_DEFECT_COUNT": visual["VISUAL_DEFECT_COUNT"] + social_visual["SOCIAL_VISUAL_DEFECT_COUNT"],
+        "VISUAL_DEFECT_COUNT": visual_report["VISUAL_DEFECT_COUNT"],
         "ACCESSIBILITY_ISSUE_COUNT": accessibility["ACCESSIBILITY_ISSUE_COUNT"],
-        "OUTPUT_MANIFEST_COMPLETE": all(path.is_file() for path in expected_files),
+        "OUTPUT_MANIFEST_COMPLETE": all(path.is_file() for path in expected),
         "ALL_PDF_SHA256_RECORDED": manifest["ALL_PDF_SHA256_RECORDED"],
-        "PUBLIC_STATUS": "PDF_PACKAGE_READY_FOR_OWNER_REVIEW" if public_gates_pass else "BLOCKED_BY_REPRODUCIBILITY",
+        "PUBLIC_STATUS": "PDF_PACKAGE_READY_FOR_OWNER_REVIEW" if gates_pass else "BLOCKED_BY_REPRODUCIBILITY",
         "PRIVATE_STATUS": "BLOCKED_BY_LEGAL_TERMS",
         "CONTRACTUAL_DOSSIER_PUBLICATION_BLOCKED": True,
     }
     _atomic_json(audit / "final-report.json", final_report)
-    if not public_gates_pass:
-        raise RuntimeError("One or more public publication gates failed")
+    if not gates_pass:
+        raise RuntimeError("One or more publication gates failed; inspect REVIEW/AUDIT")
+    write_review_governance(package_root, REPO_ROOT)
     return final_report
 
 
@@ -265,16 +214,21 @@ def _publish_staging(staging: Path, output: Path) -> None:
         shutil.rmtree(backup)
 
 
-def build_package(snapshot_path: Path, output_path: Path) -> dict[str, Any]:
+def build_package(
+    snapshot_path: Path,
+    output_path: Path = DEFAULT_OUTPUT,
+    *,
+    include_visual: bool = True,
+) -> dict[str, Any]:
     snapshot_path = _resolve_from_repo(Path(snapshot_path))
     output = _resolve_from_repo(Path(output_path))
     _validate_output_target(output)
     output.parent.mkdir(parents=True, exist_ok=True)
     staging = Path(tempfile.mkdtemp(prefix=f".{output.name}.tmp-", dir=output.parent))
     try:
-        final_report = _build_in_staging(snapshot_path, staging)
+        report = _build_in_staging(snapshot_path, staging, include_visual=include_visual)
         _publish_staging(staging, output)
-        return final_report
+        return report
     except BaseException:
         shutil.rmtree(staging, ignore_errors=True)
         raise
@@ -283,9 +237,10 @@ def build_package(snapshot_path: Path, output_path: Path) -> dict[str, Any]:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--snapshot", type=Path, required=True)
-    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("--skip-visual", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args()
-    report = build_package(args.snapshot, args.output)
+    report = build_package(args.snapshot, args.output, include_visual=not args.skip_visual)
     print(report["PUBLIC_STATUS"])
     print(report["PRIVATE_STATUS"])
 

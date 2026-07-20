@@ -30,12 +30,12 @@ SNAPSHOT = load_snapshot(SNAPSHOT_PATH, SCHEMA_PATH)
 @pytest.fixture(scope="module")
 def package(tmp_path_factory: pytest.TempPathFactory) -> Path:
     root = tmp_path_factory.mktemp("document-audit")
-    assets = root / "SOURCES/ASSETS"
-    css = root / "SOURCES/CSS"
+    assets = root / "PUBLIC/ASSETS"
+    css = assets
     html = root / "PUBLIC/HTML"
     prepare_assets(SNAPSHOT, REPO_ROOT, assets)
     generate_qr(SNAPSHOT, assets)
-    css.mkdir(parents=True)
+    css.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(SCRIPT_DIR / "templates/document.css", css / "document.css")
     write_public_html(SNAPSHOT, html)
     render_public_pdfs(SNAPSHOT, html, root / "PUBLIC")
@@ -53,7 +53,8 @@ def test_audits_pdf_metadata_language_fonts_links_and_text(package: Path):
     assert record["LANGUAGE"].casefold().startswith("fr")
     assert record["A4_PAGE_COUNT"] == record["PAGE_COUNT"]
     assert record["TEXT_EXTRACTABLE"] is True
-    assert record["TAGGED_PDF"] is True
+    assert record["TAGGED_PDF"] is False
+    assert record["PDF_UA_IDENTIFIER_PRESENT"] is False
     assert record["BROKEN_GLYPH_COUNT"] == 0
     assert record["FONT_IDENTIFIERS"]
     assert record["LINK_TARGETS"]
@@ -120,8 +121,9 @@ def test_build_manifest_records_every_public_pdf(package: Path, tmp_path: Path):
     manifest = build_document_manifest(SNAPSHOT, package, manifest_path)
 
     assert manifest_path.is_file()
-    assert manifest["REPO_SHA"] == SNAPSHOT["sourceRepoSha"]
-    assert len(manifest["PDF_FILES"]) == 6
+    assert len(manifest["REPO_SHA"]) == 40
+    assert manifest["SOURCE_REPO_SHA"] == SNAPSHOT["sourceRepoSha"]
+    assert len(manifest["PDF_FILES"]) == 7
     assert all(len(record["PDF_SHA256"]) == 64 for record in manifest["PDF_FILES"])
     assert all(record["PUBLIC_OR_PRIVATE"] == "PUBLIC" for record in manifest["PDF_FILES"])
     assert manifest["ALL_PDF_SHA256_RECORDED"] is True

@@ -247,7 +247,6 @@ details p { margin-bottom: 0; }
 @media print {
   .document-nav { display: none; }
   .parent-guide > .document-header { display: none; }
-  .parent-guide > .family-footer { display: none; }
   details > * { display: block; }
 }
 
