@@ -55,6 +55,8 @@ html {
   font-family: "Nexus Sans", sans-serif;
   font-size: 10.25pt;
   line-height: 1.48;
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "clig" 0, "dlig" 0;
 }
 body { margin: 0; }
 .review-banner {
@@ -120,7 +122,15 @@ section, article, table, details { break-inside: auto; }
   min-height: 271mm;
   padding: 22mm 22mm 18mm;
   page: cover;
+  position: relative;
   break-after: page;
+}
+.cover .review-banner {
+  left: 0;
+  margin: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
 }
 .cover-logo { height: 20mm; margin-bottom: 22mm; object-fit: contain; object-position: left center; width: 62mm; }
 .cover .eyebrow, .section-kicker {

@@ -50,6 +50,10 @@ def test_review_banner_is_contained_by_the_main_landmark():
         banner = soup.select_one("main .review-banner")
         assert banner is not None
         assert "diffusion interdite" in banner.get_text(" ", strip=True)
+        cover = soup.select_one("main .cover")
+        if cover is not None:
+            assert banner.parent == cover
+            assert cover.find("h1") is not None
 
 
 def test_complete_parent_guide_contains_every_required_family_section():

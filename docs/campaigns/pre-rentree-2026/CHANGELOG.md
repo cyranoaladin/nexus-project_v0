@@ -1,5 +1,12 @@
 # Journal des changements
 
+## 6.0.0-rc.2 — 20 juillet 2026
+
+- conserve le bandeau de revue sur la couverture sans créer de page vide ;
+- désactive les ligatures typographiques susceptibles de corrompre le texte PDF extrait ;
+- remplace le jargon de capacité par une formulation destinée aux familles ;
+- retire la dernière mention du bilan gratuit dans la FAQ de campagne.
+
 ## 6.0.0-rc.1 — 20 juillet 2026
 
 - ajoute Nexus Fondations pour l’entrée en 3e et en Seconde ;

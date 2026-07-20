@@ -42,10 +42,10 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
 
     expect((snapshot as unknown as { sourceSetSha256?: string }).sourceSetSha256).toMatch(/^[a-f0-9]{64}$/);
     expect(snapshot.sourceRepoSha).toBe('a1192c8dccf8eaa6ae223265a3bc9ceb56a6fff0');
-    expect(snapshot.provenance.campaign.version).toBe('2.0.1');
+    expect(snapshot.provenance.campaign.version).toBe('2.0.2');
     expect(snapshot.provenance.modules.version).toBe('2026-pre-rentree-v2');
     expect(snapshot.provenance.pricing.version).toBe('2026-2027.3');
-    expect(snapshot.provenance.parentGuide.version).toBe('2026-parent-guide-fr-v3');
+    expect(snapshot.provenance.parentGuide.version).toBe('2026-parent-guide-fr-v4');
     expect(Object.values(snapshot.provenance).every((source) => /^[a-f0-9]{64}$/.test(source.sha256))).toBe(true);
     expect(Object.keys(snapshot.provenance)).toEqual(expect.arrayContaining([
       'offers',
@@ -70,10 +70,10 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     expect(schema.$defs.section.additionalProperties).toBe(false);
     expect(source).toMatchObject({
       schemaVersion: '1.0.0',
-      contentVersion: '2026-parent-guide-fr-v3',
+      contentVersion: '2026-parent-guide-fr-v4',
       locale: 'fr-TN',
       status: 'DRAFT_FOR_OWNER_REVIEW',
-      documentPackageVersion: '6.0.0-rc.1',
+      documentPackageVersion: '6.0.0-rc.2',
     });
     expect(snapshot.parentGuide.sections.map((section) => section.id)).toEqual([
       'essentiel',
@@ -100,9 +100,9 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha });
 
     expect(snapshot.sourceCommitDate).toMatch(/^\d{4}-\d{2}-\d{2}T/);
-    expect(snapshot.snapshotBuiltAt).toBe('2026-07-20T12:00:00+01:00');
+    expect(snapshot.snapshotBuiltAt).toBe('2026-07-20T18:00:00+01:00');
     expect(snapshot.document.documentEditionDate).toBe('2026-07-20');
-    expect(snapshot.document.documentPackageVersion).toBe('6.0.0-rc.1');
+    expect(snapshot.document.documentPackageVersion).toBe('6.0.0-rc.2');
 
     const why = snapshot.parentGuide.sections.find((section) => section.id === 'pourquoi');
     expect(why?.blocks).toHaveLength(3);

@@ -56,6 +56,7 @@ def test_audits_pdf_metadata_language_fonts_links_and_text(package: Path):
     assert record["TAGGED_PDF"] is False
     assert record["PDF_UA_IDENTIFIER_PRESENT"] is False
     assert record["BROKEN_GLYPH_COUNT"] == 0
+    assert record["LIGATURE_CORRUPTION_COUNT"] == 0
     assert record["FONT_IDENTIFIERS"]
     assert record["LINK_TARGETS"]
     assert SNAPSHOT["contact"]["canonicalUrl"] in record["LINK_TARGETS"]

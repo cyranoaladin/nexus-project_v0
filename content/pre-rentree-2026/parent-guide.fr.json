@@ -1,11 +1,11 @@
 {
   "schemaVersion":"1.0.0",
-  "contentVersion":"2026-parent-guide-fr-v3",
+  "contentVersion":"2026-parent-guide-fr-v4",
   "locale":"fr-TN",
   "status":"DRAFT_FOR_OWNER_REVIEW",
-  "documentPackageVersion":"6.0.0-rc.1",
+  "documentPackageVersion":"6.0.0-rc.2",
   "documentEditionDate":"2026-07-20",
-  "snapshotBuiltAt":"2026-07-20T12:00:00+01:00",
+  "snapshotBuiltAt":"2026-07-20T18:00:00+01:00",
   "sections":[
     {
       "id":"essentiel",
@@ -23,7 +23,7 @@
       "blocks":[
         {"id":"fondations-positionnement","kind":"EVIDENCED_TEXT","text":"Nexus Fondations accompagne l’entrée en 3e et en Seconde avec une progression par paliers dans un groupe de quatre à six élèves.","evidenceRefs":["/offers/levels","/campaign/capacityByOffer/FONDATIONS"]},
         {"id":"premium-positionnement","kind":"EVIDENCED_TEXT","text":"Nexus Premium concerne l’entrée en Première et en Terminale, dans un groupe de trois à cinq élèves.","evidenceRefs":["/offers/levels","/campaign/capacityByOffer/PREMIUM"]},
-        {"id":"capacites-gatees","kind":"EVIDENCED_TEXT","text":"Les services renforcés ne deviennent des engagements publics que lorsqu’ils sont testés, opérationnels et approuvés.","evidenceRefs":["/capabilities"]}
+        {"id":"capacites-gatees","kind":"EVIDENCED_TEXT","text":"Le contenu précis du parcours est communiqué après l’étude du profil et avant toute confirmation.","evidenceRefs":["/offers/levels","/content/practical/preRegistrationNotice"]}
       ]
     },
     {
@@ -106,7 +106,7 @@
       "title":"Manuels Nexus",
       "blocks":[
         {"id":"registre-manuels","kind":"DYNAMIC_REFERENCE","sourceRef":"/manuals"},
-        {"id":"manuels-bloques","kind":"EVIDENCED_TEXT","text":"Aucun manuel n’est annoncé comme offert tant que le fichier d’impression, l’approbation propriétaire et le stock ne sont pas tous validés.","evidenceRefs":["/manuals/manuals"]}
+        {"id":"manuels-bloques","kind":"EVIDENCED_TEXT","text":"Aucun manuel n’est inclus dans l’offre présentée dans cette édition.","evidenceRefs":["/manuals/manuals"]}
       ]
     },
     {

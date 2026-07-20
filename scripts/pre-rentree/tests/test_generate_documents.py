@@ -65,6 +65,7 @@ def test_records_all_final_gates_without_copying_repository_sources(built_packag
         "MODULE_SESSION_MISMATCH_COUNT",
         "PUBLIC_CLAIM_WITHOUT_SOURCE_COUNT",
         "LEGAL_POLICY_CONFLICT_COUNT",
+        "LIGATURE_CORRUPTION_COUNT",
         "HARDCODED_BUSINESS_VALUE_COUNT",
         "PRICE_MISMATCH_COUNT",
         "DEPOSIT_LABEL_MISMATCH_COUNT",
