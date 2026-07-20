@@ -42,6 +42,10 @@ audit-captures*/
 *.lhr*.json
 *.trace.zip
 e2e/.auth/*.json
+.artifacts/
+artifacts/pre-rentree-2026/
+outputs-v5-canonical/
+
 # Archives
 *.tgz
 
@@ -63,9 +67,6 @@ tsconfig.tsbuildinfo
 
 # Misc
 .next-*.pid
-*.tgz
-playwright-report/
-test-results/
 
 # Prisma (Database artifacts)
 prisma/*.db
@@ -82,7 +83,7 @@ backup_*.sql
 backup_*.sql.gz
 # But keep Prisma migration SQL files
 !prisma/migrations/**/*.sql
-n# Incident / forensic dumps with real DB data
+# Incident / forensic dumps with real DB data
 incident-forensics/
 e2e/.credentials.json
 
@@ -113,6 +114,8 @@ docs/audits/*attestation-travail*.md
 *.csv
 !examples/**/*.csv
 !fixtures/**/*.csv
+!audit/**/*.csv
+!content/**/*.csv
 
 # ─── Scratch / Temp ──────────────────────────────────────────────────────
 scratch/
