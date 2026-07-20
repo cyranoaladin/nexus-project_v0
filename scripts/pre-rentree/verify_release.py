@@ -33,6 +33,12 @@ ZERO_GATES = (
     "UNAPPROVED_CONTRACTUAL_CLAIM_COUNT",
     "VISUAL_DEFECT_COUNT",
 )
+PRIVATE_KEY_MARKER = b"".join((
+    b"-----BEGIN ",
+    b"(?:RSA |EC |OPENSSH )?",
+    b"PRIVATE",
+    b" KEY-----",
+))
 
 
 def _sha256(path: Path) -> str:
@@ -237,9 +243,12 @@ def verify_artifact_release(artifact_root: Path, repo_root: Path) -> dict[str, A
         if any(part.upper() == "PRIVATE" for part in path.relative_to(artifact_root).parts)
         or "DOSSIERCONFIRMATION" in path.name.upper()
     ]
-    secret_pattern = re.compile(
-        rb"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|\bAKIA[0-9A-Z]{16}\b|\b(?:ghp|sk)_[A-Za-z0-9]{20,}\b|/home/[^/\s]+/"
-    )
+    secret_pattern = re.compile(b"|".join((
+        PRIVATE_KEY_MARKER,
+        rb"\bAKIA[0-9A-Z]{16}\b",
+        rb"\b(?:ghp|sk)_[A-Za-z0-9]{20,}\b",
+        rb"/home/[^/\s]+/",
+    )))
     secret_findings = [path for path in files if secret_pattern.search(path.read_bytes())]
     if forbidden_sources or forbidden_private or secret_findings:
         raise ValueError("Release artifact contains a forbidden source, private path, or secret pattern")
