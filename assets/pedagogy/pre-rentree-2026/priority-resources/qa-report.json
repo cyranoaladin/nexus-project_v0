@@ -1,0 +1,1142 @@
+{
+  "version": "2026-priority-resources-v1",
+  "blankPageCount": 0,
+  "missingFontCount": 0,
+  "overflowCount": 0,
+  "missingAssetCount": 0,
+  "minimumContrastRatio": 5.46,
+  "humanValidationPendingCount": 6,
+  "documents": [
+    {
+      "moduleId": "troisieme-mathematiques",
+      "documentId": "positioningStudent",
+      "pageCount": 2,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 915,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 721,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "fonts": [
+        "BYEMKX+Fraunces-Bold",
+        "COFXSS+DM-Sans",
+        "ESYRSQ+DM-Sans-Ultra-Bold",
+        "GOCTSR+Fraunces-Bold",
+        "HAPLPK+DM-Sans",
+        "HUHQIP+Noto-Sans",
+        "LSMRDX+DM-Sans",
+        "QVTEIT+DM-Sans-Ultra-Bold",
+        "RRKWUZ+Fraunces-Bold",
+        "SQWQYE+DM-Sans",
+        "UGIWDU+DM-Sans-Bold",
+        "WAKGUO+DM-Sans-Bold",
+        "WURXTE+DM-Sans"
+      ],
+      "blankPageCount": 0,
+      "missingFont": false,
+      "overflowCount": 0
+    },
+    {
+      "moduleId": "troisieme-mathematiques",
+      "documentId": "positioningTeacher",
+      "pageCount": 2,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1227,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 979,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "fonts": [
+        "BYEMKX+Fraunces-Bold",
+        "COFXSS+DM-Sans",
+        "ESYRSQ+DM-Sans-Ultra-Bold",
+        "GOCTSR+Fraunces-Bold",
+        "HAPLPK+DM-Sans",
+        "HUHQIP+Noto-Sans",
+        "LSMRDX+DM-Sans",
+        "QVTEIT+DM-Sans-Ultra-Bold",
+        "RRKWUZ+Fraunces-Bold",
+        "SQWQYE+DM-Sans",
+        "UGIWDU+DM-Sans-Bold",
+        "WAKGUO+DM-Sans-Bold",
+        "WURXTE+DM-Sans"
+      ],
+      "blankPageCount": 0,
+      "missingFont": false,
+      "overflowCount": 0
+    },
+    {
+      "moduleId": "troisieme-mathematiques",
+      "documentId": "workbookStudent",
+      "pageCount": 4,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1850,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 662,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 3,
+          "textCharacters": 752,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 4,
+          "textCharacters": 943,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "fonts": [
+        "BYEMKX+Fraunces-Bold",
+        "COFXSS+DM-Sans",
+        "DJVQHR+DM-Sans-Bold",
+        "ESYRSQ+DM-Sans-Ultra-Bold",
+        "GOCTSR+Fraunces-Bold",
+        "HAPLPK+DM-Sans",
+        "HUHQIP+Noto-Sans",
+        "LSMRDX+DM-Sans",
+        "QVTEIT+DM-Sans-Ultra-Bold",
+        "RRKWUZ+Fraunces-Bold",
+        "SQWQYE+DM-Sans",
+        "UGIWDU+DM-Sans-Bold",
+        "WAKGUO+DM-Sans-Bold",
+        "WURXTE+DM-Sans",
+        "XDZRPJ+DM-Sans"
+      ],
+      "blankPageCount": 0,
+      "missingFont": false,
+      "overflowCount": 0
+    },
+    {
+      "moduleId": "troisieme-mathematiques",
+      "documentId": "guideTeacher",
+      "pageCount": 4,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1855,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 837,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 3,
+          "textCharacters": 878,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 4,
+          "textCharacters": 1132,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "fonts": [
+        "BYEMKX+Fraunces-Bold",
+        "COFXSS+DM-Sans",
+        "DJVQHR+DM-Sans-Bold",
+        "ESYRSQ+DM-Sans-Ultra-Bold",
+        "GOCTSR+Fraunces-Bold",
+        "HAPLPK+DM-Sans",
+        "HUHQIP+Noto-Sans",
+        "LSMRDX+DM-Sans",
+        "QVTEIT+DM-Sans-Ultra-Bold",
+        "RRKWUZ+Fraunces-Bold",
+        "SQWQYE+DM-Sans",
+        "UGIWDU+DM-Sans-Bold",
+        "WAKGUO+DM-Sans-Bold",
+        "WURXTE+DM-Sans",
+        "XDZRPJ+DM-Sans",
+        "XKQQSR+DejaVu-Sans"
+      ],
+      "blankPageCount": 0,
+      "missingFont": false,
+      "overflowCount": 0
+    },
+    {
+      "moduleId": "troisieme-francais",
+      "documentId": "positioningStudent",
+      "pageCount": 2,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1308,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 743,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "fonts": [
+        "BYEMKX+Fraunces-Bold",
+        "COFXSS+DM-Sans",
+        "ESYRSQ+DM-Sans-Ultra-Bold",
+        "GOCTSR+Fraunces-Bold",
+        "HAPLPK+DM-Sans",
+        "LSMRDX+DM-Sans",
+        "QVTEIT+DM-Sans-Ultra-Bold",
+        "RRKWUZ+Fraunces-Bold",
+        "SQWQYE+DM-Sans",
+        "UGIWDU+DM-Sans-Bold",
+        "WAKGUO+DM-Sans-Bold",
+        "WURXTE+DM-Sans"
+      ],
+      "blankPageCount": 0,
+      "missingFont": false,
+      "overflowCount": 0
+    },
+    {
+      "moduleId": "troisieme-francais",
+      "documentId": "positioningTeacher",
+      "pageCount": 2,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1399,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 1077,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "fonts": [
+        "BYEMKX+Fraunces-Bold",
+        "COFXSS+DM-Sans",
+        "ESYRSQ+DM-Sans-Ultra-Bold",
+        "GOCTSR+Fraunces-Bold",
+        "HAPLPK+DM-Sans",
+        "LSMRDX+DM-Sans",
+        "QVTEIT+DM-Sans-Ultra-Bold",
+        "RRKWUZ+Fraunces-Bold",
+        "SQWQYE+DM-Sans",
+        "UGIWDU+DM-Sans-Bold",
+        "WAKGUO+DM-Sans-Bold",
+        "WURXTE+DM-Sans"
+      ],
+      "blankPageCount": 0,
+      "missingFont": false,
+      "overflowCount": 0
+    },
+    {
+      "moduleId": "troisieme-francais",
+      "documentId": "workbookStudent",
+      "pageCount": 4,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1843,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 679,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 3,
+          "textCharacters": 743,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 4,
+          "textCharacters": 1017,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "fonts": [
+        "BYEMKX+Fraunces-Bold",
+        "COFXSS+DM-Sans",
+        "DJVQHR+DM-Sans-Bold",
+        "ESYRSQ+DM-Sans-Ultra-Bold",
+        "GOCTSR+Fraunces-Bold",
+        "HAPLPK+DM-Sans",
+        "LSMRDX+DM-Sans",
+        "QVTEIT+DM-Sans-Ultra-Bold",
+        "RRKWUZ+Fraunces-Bold",
+        "SQWQYE+DM-Sans",
+        "UGIWDU+DM-Sans-Bold",
+        "WAKGUO+DM-Sans-Bold",
+        "WURXTE+DM-Sans",
+        "XDZRPJ+DM-Sans"
+      ],
+      "blankPageCount": 0,
+      "missingFont": false,
+      "overflowCount": 0
+    },
+    {
+      "moduleId": "troisieme-francais",
+      "documentId": "guideTeacher",
+      "pageCount": 4,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1840,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 943,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 3,
+          "textCharacters": 1025,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 4,
+          "textCharacters": 1127,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "fonts": [
+        "BYEMKX+Fraunces-Bold",
+        "COFXSS+DM-Sans",
+        "DJVQHR+DM-Sans-Bold",
+        "ESYRSQ+DM-Sans-Ultra-Bold",
+        "GOCTSR+Fraunces-Bold",
+        "HAPLPK+DM-Sans",
+        "LSMRDX+DM-Sans",
+        "QVTEIT+DM-Sans-Ultra-Bold",
+        "RRKWUZ+Fraunces-Bold",
+        "SQWQYE+DM-Sans",
+        "UGIWDU+DM-Sans-Bold",
+        "WAKGUO+DM-Sans-Bold",
+        "WURXTE+DM-Sans",
+        "XDZRPJ+DM-Sans",
+        "XKQQSR+DejaVu-Sans"
+      ],
+      "blankPageCount": 0,
+      "missingFont": false,
+      "overflowCount": 0
+    },
+    {
+      "moduleId": "seconde-mathematiques",
+      "documentId": "positioningStudent",
+      "pageCount": 2,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 879,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 764,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "fonts": [
+        "BYEMKX+Fraunces-Bold",
+        "COFXSS+DM-Sans",
+        "ESYRSQ+DM-Sans-Ultra-Bold",
+        "GOCTSR+Fraunces-Bold",
+        "HAPLPK+DM-Sans",
+        "LSMRDX+DM-Sans",
+        "QVTEIT+DM-Sans-Ultra-Bold",
+        "RRKWUZ+Fraunces-Bold",
+        "SQWQYE+DM-Sans",
+        "UGIWDU+DM-Sans-Bold",
+        "WAKGUO+DM-Sans-Bold",
+        "WURXTE+DM-Sans"
+      ],
+      "blankPageCount": 0,
+      "missingFont": false,
+      "overflowCount": 0
+    },
+    {
+      "moduleId": "seconde-mathematiques",
+      "documentId": "positioningTeacher",
+      "pageCount": 2,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1180,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 1023,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "fonts": [
+        "BYEMKX+Fraunces-Bold",
+        "COFXSS+DM-Sans",
+        "ESYRSQ+DM-Sans-Ultra-Bold",
+        "GOCTSR+Fraunces-Bold",
+        "HAPLPK+DM-Sans",
+        "LSMRDX+DM-Sans",
+        "QVTEIT+DM-Sans-Ultra-Bold",
+        "RRKWUZ+Fraunces-Bold",
+        "SQWQYE+DM-Sans",
+        "UGIWDU+DM-Sans-Bold",
+        "WAKGUO+DM-Sans-Bold",
+        "WURXTE+DM-Sans",
+        "XKQQSR+DejaVu-Sans"
+      ],
+      "blankPageCount": 0,
+      "missingFont": false,
+      "overflowCount": 0
+    },
+    {
+      "moduleId": "seconde-mathematiques",
+      "documentId": "workbookStudent",
+      "pageCount": 4,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1835,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 711,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 3,
+          "textCharacters": 722,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 4,
+          "textCharacters": 1014,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "fonts": [
+        "BYEMKX+Fraunces-Bold",
+        "COFXSS+DM-Sans",
+        "DJVQHR+DM-Sans-Bold",
+        "ESYRSQ+DM-Sans-Ultra-Bold",
+        "GOCTSR+Fraunces-Bold",
+        "HAPLPK+DM-Sans",
+        "LSMRDX+DM-Sans",
+        "QVTEIT+DM-Sans-Ultra-Bold",
+        "RRKWUZ+Fraunces-Bold",
+        "SQWQYE+DM-Sans",
+        "UGIWDU+DM-Sans-Bold",
+        "WAKGUO+DM-Sans-Bold",
+        "WURXTE+DM-Sans",
+        "XDZRPJ+DM-Sans"
+      ],
+      "blankPageCount": 0,
+      "missingFont": false,
+      "overflowCount": 0
+    },
+    {
+      "moduleId": "seconde-mathematiques",
+      "documentId": "guideTeacher",
+      "pageCount": 4,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1786,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 894,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 3,
+          "textCharacters": 827,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 4,
+          "textCharacters": 1142,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "fonts": [
+        "BYEMKX+Fraunces-Bold",
+        "COFXSS+DM-Sans",
+        "DJVQHR+DM-Sans-Bold",
+        "ESYRSQ+DM-Sans-Ultra-Bold",
+        "GOCTSR+Fraunces-Bold",
+        "HAPLPK+DM-Sans",
+        "LSMRDX+DM-Sans",
+        "QVTEIT+DM-Sans-Ultra-Bold",
+        "RRKWUZ+Fraunces-Bold",
+        "SQWQYE+DM-Sans",
+        "UGIWDU+DM-Sans-Bold",
+        "WAKGUO+DM-Sans-Bold",
+        "WURXTE+DM-Sans",
+        "XDZRPJ+DM-Sans",
+        "XKQQSR+DejaVu-Sans"
+      ],
+      "blankPageCount": 0,
+      "missingFont": false,
+      "overflowCount": 0
+    },
+    {
+      "moduleId": "seconde-physique-chimie",
+      "documentId": "positioningStudent",
+      "pageCount": 2,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 932,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 807,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "fonts": [
+        "BYEMKX+Fraunces-Bold",
+        "COFXSS+DM-Sans",
+        "ESYRSQ+DM-Sans-Ultra-Bold",
+        "GOCTSR+Fraunces-Bold",
+        "HAPLPK+DM-Sans",
+        "HUHQIP+Noto-Sans",
+        "LSMRDX+DM-Sans",
+        "QVTEIT+DM-Sans-Ultra-Bold",
+        "RRKWUZ+Fraunces-Bold",
+        "SQWQYE+DM-Sans",
+        "UGIWDU+DM-Sans-Bold",
+        "WAKGUO+DM-Sans-Bold",
+        "WURXTE+DM-Sans"
+      ],
+      "blankPageCount": 0,
+      "missingFont": false,
+      "overflowCount": 0
+    },
+    {
+      "moduleId": "seconde-physique-chimie",
+      "documentId": "positioningTeacher",
+      "pageCount": 2,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1170,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 1156,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "fonts": [
+        "BYEMKX+Fraunces-Bold",
+        "COFXSS+DM-Sans",
+        "ESYRSQ+DM-Sans-Ultra-Bold",
+        "GOCTSR+Fraunces-Bold",
+        "HAPLPK+DM-Sans",
+        "HUHQIP+Noto-Sans",
+        "LSMRDX+DM-Sans",
+        "QVTEIT+DM-Sans-Ultra-Bold",
+        "RRKWUZ+Fraunces-Bold",
+        "SQWQYE+DM-Sans",
+        "UGIWDU+DM-Sans-Bold",
+        "WAKGUO+DM-Sans-Bold",
+        "WURXTE+DM-Sans"
+      ],
+      "blankPageCount": 0,
+      "missingFont": false,
+      "overflowCount": 0
+    },
+    {
+      "moduleId": "seconde-physique-chimie",
+      "documentId": "workbookStudent",
+      "pageCount": 4,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1875,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 688,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 3,
+          "textCharacters": 814,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 4,
+          "textCharacters": 1075,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "fonts": [
+        "BYEMKX+Fraunces-Bold",
+        "COFXSS+DM-Sans",
+        "DJVQHR+DM-Sans-Bold",
+        "ESYRSQ+DM-Sans-Ultra-Bold",
+        "GOCTSR+Fraunces-Bold",
+        "HAPLPK+DM-Sans",
+        "HUHQIP+Noto-Sans",
+        "LSMRDX+DM-Sans",
+        "QVTEIT+DM-Sans-Ultra-Bold",
+        "RRKWUZ+Fraunces-Bold",
+        "SQWQYE+DM-Sans",
+        "UGIWDU+DM-Sans-Bold",
+        "WAKGUO+DM-Sans-Bold",
+        "WURXTE+DM-Sans",
+        "XDZRPJ+DM-Sans"
+      ],
+      "blankPageCount": 0,
+      "missingFont": false,
+      "overflowCount": 0
+    },
+    {
+      "moduleId": "seconde-physique-chimie",
+      "documentId": "guideTeacher",
+      "pageCount": 4,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1849,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 886,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 3,
+          "textCharacters": 1009,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 4,
+          "textCharacters": 1217,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "fonts": [
+        "BYEMKX+Fraunces-Bold",
+        "COFXSS+DM-Sans",
+        "DJVQHR+DM-Sans-Bold",
+        "ESYRSQ+DM-Sans-Ultra-Bold",
+        "GOCTSR+Fraunces-Bold",
+        "HAPLPK+DM-Sans",
+        "HUHQIP+Noto-Sans",
+        "LSMRDX+DM-Sans",
+        "QVTEIT+DM-Sans-Ultra-Bold",
+        "RRKWUZ+Fraunces-Bold",
+        "SQWQYE+DM-Sans",
+        "UGIWDU+DM-Sans-Bold",
+        "WAKGUO+DM-Sans-Bold",
+        "WURXTE+DM-Sans",
+        "XDZRPJ+DM-Sans",
+        "XKQQSR+DejaVu-Sans"
+      ],
+      "blankPageCount": 0,
+      "missingFont": false,
+      "overflowCount": 0
+    },
+    {
+      "moduleId": "premiere-mathematiques",
+      "documentId": "positioningStudent",
+      "pageCount": 2,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 931,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 783,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "fonts": [
+        "BYEMKX+Fraunces-Bold",
+        "COFXSS+DM-Sans",
+        "ESYRSQ+DM-Sans-Ultra-Bold",
+        "GOCTSR+Fraunces-Bold",
+        "HAPLPK+DM-Sans",
+        "HUHQIP+Noto-Sans",
+        "LSMRDX+DM-Sans",
+        "QVTEIT+DM-Sans-Ultra-Bold",
+        "RRKWUZ+Fraunces-Bold",
+        "SQWQYE+DM-Sans",
+        "UGIWDU+DM-Sans-Bold",
+        "WAKGUO+DM-Sans-Bold",
+        "WURXTE+DM-Sans"
+      ],
+      "blankPageCount": 0,
+      "missingFont": false,
+      "overflowCount": 0
+    },
+    {
+      "moduleId": "premiere-mathematiques",
+      "documentId": "positioningTeacher",
+      "pageCount": 2,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1188,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 1006,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "fonts": [
+        "BYEMKX+Fraunces-Bold",
+        "COFXSS+DM-Sans",
+        "ESYRSQ+DM-Sans-Ultra-Bold",
+        "GOCTSR+Fraunces-Bold",
+        "HAPLPK+DM-Sans",
+        "HUHQIP+Noto-Sans",
+        "LSMRDX+DM-Sans",
+        "QVTEIT+DM-Sans-Ultra-Bold",
+        "RRKWUZ+Fraunces-Bold",
+        "SQWQYE+DM-Sans",
+        "UGIWDU+DM-Sans-Bold",
+        "WAKGUO+DM-Sans-Bold",
+        "WURXTE+DM-Sans",
+        "XKQQSR+DejaVu-Sans"
+      ],
+      "blankPageCount": 0,
+      "missingFont": false,
+      "overflowCount": 0
+    },
+    {
+      "moduleId": "premiere-mathematiques",
+      "documentId": "workbookStudent",
+      "pageCount": 4,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1886,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 724,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 3,
+          "textCharacters": 716,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 4,
+          "textCharacters": 1043,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "fonts": [
+        "BYEMKX+Fraunces-Bold",
+        "COFXSS+DM-Sans",
+        "DJVQHR+DM-Sans-Bold",
+        "ESYRSQ+DM-Sans-Ultra-Bold",
+        "GOCTSR+Fraunces-Bold",
+        "HAPLPK+DM-Sans",
+        "HUHQIP+Noto-Sans",
+        "LSMRDX+DM-Sans",
+        "QVTEIT+DM-Sans-Ultra-Bold",
+        "RRKWUZ+Fraunces-Bold",
+        "SQWQYE+DM-Sans",
+        "UGIWDU+DM-Sans-Bold",
+        "WAKGUO+DM-Sans-Bold",
+        "WURXTE+DM-Sans",
+        "XDZRPJ+DM-Sans"
+      ],
+      "blankPageCount": 0,
+      "missingFont": false,
+      "overflowCount": 0
+    },
+    {
+      "moduleId": "premiere-mathematiques",
+      "documentId": "guideTeacher",
+      "pageCount": 4,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1838,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 917,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 3,
+          "textCharacters": 845,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 4,
+          "textCharacters": 1192,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "fonts": [
+        "BYEMKX+Fraunces-Bold",
+        "COFXSS+DM-Sans",
+        "DJVQHR+DM-Sans-Bold",
+        "ESYRSQ+DM-Sans-Ultra-Bold",
+        "GOCTSR+Fraunces-Bold",
+        "HAPLPK+DM-Sans",
+        "HUHQIP+Noto-Sans",
+        "LSMRDX+DM-Sans",
+        "QVTEIT+DM-Sans-Ultra-Bold",
+        "RRKWUZ+Fraunces-Bold",
+        "SQWQYE+DM-Sans",
+        "UGIWDU+DM-Sans-Bold",
+        "WAKGUO+DM-Sans-Bold",
+        "WURXTE+DM-Sans",
+        "XDZRPJ+DM-Sans",
+        "XKQQSR+DejaVu-Sans"
+      ],
+      "blankPageCount": 0,
+      "missingFont": false,
+      "overflowCount": 0
+    },
+    {
+      "moduleId": "terminale-mathematiques",
+      "documentId": "positioningStudent",
+      "pageCount": 2,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 944,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 799,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "fonts": [
+        "BYEMKX+Fraunces-Bold",
+        "COFXSS+DM-Sans",
+        "ESYRSQ+DM-Sans-Ultra-Bold",
+        "GOCTSR+Fraunces-Bold",
+        "HAPLPK+DM-Sans",
+        "HUHQIP+Noto-Sans",
+        "LSMRDX+DM-Sans",
+        "QVTEIT+DM-Sans-Ultra-Bold",
+        "RRKWUZ+Fraunces-Bold",
+        "SQWQYE+DM-Sans",
+        "UGIWDU+DM-Sans-Bold",
+        "WAKGUO+DM-Sans-Bold",
+        "WURXTE+DM-Sans",
+        "XKQQSR+DejaVu-Sans"
+      ],
+      "blankPageCount": 0,
+      "missingFont": false,
+      "overflowCount": 0
+    },
+    {
+      "moduleId": "terminale-mathematiques",
+      "documentId": "positioningTeacher",
+      "pageCount": 2,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1223,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 1059,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "fonts": [
+        "BYEMKX+Fraunces-Bold",
+        "COFXSS+DM-Sans",
+        "ESYRSQ+DM-Sans-Ultra-Bold",
+        "GOCTSR+Fraunces-Bold",
+        "HAPLPK+DM-Sans",
+        "HUHQIP+Noto-Sans",
+        "LSMRDX+DM-Sans",
+        "QVTEIT+DM-Sans-Ultra-Bold",
+        "RRKWUZ+Fraunces-Bold",
+        "SQWQYE+DM-Sans",
+        "UGIWDU+DM-Sans-Bold",
+        "WAKGUO+DM-Sans-Bold",
+        "WURXTE+DM-Sans",
+        "XKQQSR+DejaVu-Sans"
+      ],
+      "blankPageCount": 0,
+      "missingFont": false,
+      "overflowCount": 0
+    },
+    {
+      "moduleId": "terminale-mathematiques",
+      "documentId": "workbookStudent",
+      "pageCount": 4,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1826,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 713,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 3,
+          "textCharacters": 671,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 4,
+          "textCharacters": 1085,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "fonts": [
+        "BYEMKX+Fraunces-Bold",
+        "COFXSS+DM-Sans",
+        "DJVQHR+DM-Sans-Bold",
+        "ESYRSQ+DM-Sans-Ultra-Bold",
+        "GOCTSR+Fraunces-Bold",
+        "HAPLPK+DM-Sans",
+        "HUHQIP+Noto-Sans",
+        "LSMRDX+DM-Sans",
+        "QVTEIT+DM-Sans-Ultra-Bold",
+        "RRKWUZ+Fraunces-Bold",
+        "SQWQYE+DM-Sans",
+        "UGIWDU+DM-Sans-Bold",
+        "WAKGUO+DM-Sans-Bold",
+        "WURXTE+DM-Sans",
+        "XDZRPJ+DM-Sans",
+        "XKQQSR+DejaVu-Sans"
+      ],
+      "blankPageCount": 0,
+      "missingFont": false,
+      "overflowCount": 0
+    },
+    {
+      "moduleId": "terminale-mathematiques",
+      "documentId": "guideTeacher",
+      "pageCount": 4,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1791,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 898,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 3,
+          "textCharacters": 803,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 4,
+          "textCharacters": 1169,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "fonts": [
+        "BYEMKX+Fraunces-Bold",
+        "COFXSS+DM-Sans",
+        "DJVQHR+DM-Sans-Bold",
+        "ESYRSQ+DM-Sans-Ultra-Bold",
+        "GOCTSR+Fraunces-Bold",
+        "HAPLPK+DM-Sans",
+        "HUHQIP+Noto-Sans",
+        "LSMRDX+DM-Sans",
+        "QVTEIT+DM-Sans-Ultra-Bold",
+        "RRKWUZ+Fraunces-Bold",
+        "SQWQYE+DM-Sans",
+        "UGIWDU+DM-Sans-Bold",
+        "WAKGUO+DM-Sans-Bold",
+        "WURXTE+DM-Sans",
+        "XDZRPJ+DM-Sans",
+        "XKQQSR+DejaVu-Sans"
+      ],
+      "blankPageCount": 0,
+      "missingFont": false,
+      "overflowCount": 0
+    }
+  ]
+}

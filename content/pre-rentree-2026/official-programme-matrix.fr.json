@@ -1,0 +1,247 @@
+{
+  "version": "2026-official-programme-matrix-v1",
+  "schoolYear": "2026-2027",
+  "scope": "Référentiel interne d'alignement des modules Nexus de pré-rentrée ; il ne constitue pas une autorisation de publication commerciale.",
+  "officialSources": [
+    {
+      "officialProgrammeId": "BO2020-CYCLE4-MATHS",
+      "title": "Programme de mathématiques du cycle 4 applicable à la 3e en 2026-2027",
+      "url": "https://www.education.gouv.fr/bo/20/Hebdo31/MENE2018714A.htm",
+      "publisher": "Ministère de l'Éducation nationale",
+      "applicationNote": "Le programme publié le 5 mars 2026 entre progressivement en vigueur et ne s'applique en 3e qu'en 2028-2029."
+    },
+    {
+      "officialProgrammeId": "BO2020-CYCLE4-FRANCAIS",
+      "title": "Programme de français du cycle 4 applicable à la 3e en 2026-2027",
+      "url": "https://www.education.gouv.fr/bo/20/Hebdo31/MENE2018714A.htm",
+      "publisher": "Ministère de l'Éducation nationale",
+      "applicationNote": "Le programme publié le 5 mars 2026 entre progressivement en vigueur et ne s'applique en 3e qu'en 2028-2029."
+    },
+    {
+      "officialProgrammeId": "BO2026-LYCEE-MATHS-SECONDE",
+      "title": "Programme de mathématiques de Seconde applicable à partir de 2026-2027",
+      "url": "https://www.education.gouv.fr/sites/default/files/document/boenjs_14_ok.pdf-515480.pdf",
+      "publisher": "Ministère de l'Éducation nationale",
+      "applicationNote": "Application en Seconde à la rentrée 2026."
+    },
+    {
+      "officialProgrammeId": "BO2026-LYCEE-MATHS-PREMIERE",
+      "title": "Programme de mathématiques de Première applicable à partir de 2026-2027",
+      "url": "https://www.education.gouv.fr/sites/default/files/document/boenjs_14_ok.pdf-515480.pdf",
+      "publisher": "Ministère de l'Éducation nationale",
+      "applicationNote": "Application en Première à la rentrée 2026."
+    },
+    {
+      "officialProgrammeId": "BO2019-LYCEE-MATHS-TERMINALE",
+      "title": "Programme de mathématiques de Terminale applicable en 2026-2027",
+      "url": "https://www.education.gouv.fr/au-bo-special-du-22-janvier-2019-programmes-d-enseignement-du-lycee-general-et-technologique-455475",
+      "publisher": "Ministère de l'Éducation nationale",
+      "applicationNote": "Le programme publié en 2026 ne s'applique en Terminale qu'à partir de 2027-2028."
+    },
+    {
+      "officialProgrammeId": "BO2019-LYCEE-FRANCAIS-SECONDE",
+      "title": "Programme de français de Seconde",
+      "url": "https://eduscol.education.gouv.fr/5793/programmes-et-ressources-en-francais-voie-gt?menu_id=2117",
+      "publisher": "Ministère de l'Éducation nationale",
+      "applicationNote": "Programme en vigueur pour l'année scolaire 2026-2027."
+    },
+    {
+      "officialProgrammeId": "BO2019-LYCEE-FRANCAIS-PREMIERE",
+      "title": "Programme de français de Première et œuvres 2026-2027",
+      "url": "https://www.education.gouv.fr/bo/2025/Hebdo30/MENE2518792N",
+      "publisher": "Ministère de l'Éducation nationale",
+      "applicationNote": "Le cadrage des œuvres 2026-2027 complète le programme de Première."
+    },
+    {
+      "officialProgrammeId": "BO2019-LYCEE-SNT-SECONDE",
+      "title": "Programme de sciences numériques et technologie de Seconde",
+      "url": "https://sti.eduscol.education.fr/textes/programme-denseignement-en-snt",
+      "publisher": "Ministère de l'Éducation nationale",
+      "applicationNote": "Référence pédagogique interne uniquement : SNT est exclue de l'offre publique Seconde Pré-rentrée 2026."
+    },
+    {
+      "officialProgrammeId": "BO2019-LYCEE-PC-SECONDE",
+      "title": "Programme de physique-chimie de Seconde",
+      "url": "https://eduscol.education.fr/document/22663/download",
+      "publisher": "Ministère de l'Éducation nationale",
+      "applicationNote": "Programme en vigueur pour l'année scolaire 2026-2027."
+    },
+    {
+      "officialProgrammeId": "BO2019-LYCEE-PC-PREMIERE",
+      "title": "Programme de physique-chimie de Première générale",
+      "url": "https://www.education.gouv.fr/au-bo-special-du-22-janvier-2019-programmes-d-enseignement-du-lycee-general-et-technologique-455475",
+      "publisher": "Ministère de l'Éducation nationale",
+      "applicationNote": "Programme en vigueur pour l'année scolaire 2026-2027."
+    },
+    {
+      "officialProgrammeId": "BO2019-LYCEE-PC-TERMINALE",
+      "title": "Programme de physique-chimie de Terminale générale",
+      "url": "https://www.education.gouv.fr/au-bo-special-du-22-janvier-2019-programmes-d-enseignement-du-lycee-general-et-technologique-455475",
+      "publisher": "Ministère de l'Éducation nationale",
+      "applicationNote": "Programme en vigueur pour l'année scolaire 2026-2027."
+    },
+    {
+      "officialProgrammeId": "BO2019-LYCEE-NSI-PREMIERE",
+      "title": "Programme de numérique et sciences informatiques de Première",
+      "url": "https://eduscol.education.fr/cid59678/presentation-isn.html",
+      "publisher": "Ministère de l'Éducation nationale",
+      "applicationNote": "Programme en vigueur pour l'année scolaire 2026-2027."
+    },
+    {
+      "officialProgrammeId": "BO2019-LYCEE-NSI-TERMINALE",
+      "title": "Programme de numérique et sciences informatiques de Terminale",
+      "url": "https://eduscol.education.fr/cid59678/presentation-isn.html",
+      "publisher": "Ministère de l'Éducation nationale",
+      "applicationNote": "Programme en vigueur pour l'année scolaire 2026-2027."
+    },
+    {
+      "officialProgrammeId": "BO2020-LYCEE-PHILOSOPHIE-TERMINALE",
+      "title": "Programme de philosophie de Terminale générale",
+      "url": "https://www.education.gouv.fr/au-bo-special-du-13-fevrier-2020-programmes-d-enseignement-de-terminale-generale-et-technologique-289717",
+      "publisher": "Ministère de l'Éducation nationale",
+      "applicationNote": "Programme en vigueur pour l'année scolaire 2026-2027."
+    }
+  ],
+  "rows": [
+    {
+      "moduleId": "troisieme-mathematiques",
+      "level": "TROISIEME",
+      "subject": "Mathématiques",
+      "officialProgrammeId": "BO2020-CYCLE4-MATHS",
+      "applicationSchoolYear": "2026-2027",
+      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "alignmentSummary": "Consolider nombres, calcul littéral, fonctions, géométrie et résolution de problèmes attendus au cycle 4 avant l'entrée en 3e.",
+      "publicOfferEligible": true
+    },
+    {
+      "moduleId": "troisieme-francais",
+      "level": "TROISIEME",
+      "subject": "Français",
+      "officialProgrammeId": "BO2020-CYCLE4-FRANCAIS",
+      "applicationSchoolYear": "2026-2027",
+      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "alignmentSummary": "Renforcer compréhension, interprétation, grammaire, orthographe et écriture argumentée attendues au cycle 4.",
+      "publicOfferEligible": true
+    },
+    {
+      "moduleId": "seconde-mathematiques",
+      "level": "SECONDE",
+      "subject": "Mathématiques",
+      "officialProgrammeId": "BO2026-LYCEE-MATHS-SECONDE",
+      "applicationSchoolYear": "2026-2027",
+      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "alignmentSummary": "Installer calcul algébrique, fonctions, géométrie, probabilités et raisonnement conformément au nouveau programme de Seconde.",
+      "publicOfferEligible": true
+    },
+    {
+      "moduleId": "seconde-francais",
+      "level": "SECONDE",
+      "subject": "Français",
+      "officialProgrammeId": "BO2019-LYCEE-FRANCAIS-SECONDE",
+      "applicationSchoolYear": "2026-2027",
+      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "alignmentSummary": "Préparer lecture analytique, culture littéraire, expression écrite et maîtrise de la langue au lycée.",
+      "publicOfferEligible": true
+    },
+    {
+      "moduleId": "seconde-informatique-snt",
+      "level": "SECONDE",
+      "subject": "Sciences numériques et technologie",
+      "officialProgrammeId": "BO2019-LYCEE-SNT-SECONDE",
+      "applicationSchoolYear": "2026-2027",
+      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "alignmentSummary": "Référence interne aux thèmes SNT et à l'algorithmique ; ce module ne peut pas être publié dans l'offre Seconde 2026.",
+      "publicOfferEligible": false
+    },
+    {
+      "moduleId": "seconde-physique-chimie",
+      "level": "SECONDE",
+      "subject": "Physique-Chimie",
+      "officialProgrammeId": "BO2019-LYCEE-PC-SECONDE",
+      "applicationSchoolYear": "2026-2027",
+      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "alignmentSummary": "Sécuriser mesures, unités, modèles de la matière, mouvement, énergie et démarche scientifique avant la Seconde.",
+      "publicOfferEligible": true
+    },
+    {
+      "moduleId": "premiere-mathematiques",
+      "level": "PREMIERE",
+      "subject": "Mathématiques",
+      "officialProgrammeId": "BO2026-LYCEE-MATHS-PREMIERE",
+      "applicationSchoolYear": "2026-2027",
+      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "alignmentSummary": "Préparer algèbre, analyse, suites, géométrie, probabilités et algorithmique du nouveau programme de Première.",
+      "publicOfferEligible": true
+    },
+    {
+      "moduleId": "premiere-francais-eaf",
+      "level": "PREMIERE",
+      "subject": "Français",
+      "officialProgrammeId": "BO2019-LYCEE-FRANCAIS-PREMIERE",
+      "applicationSchoolYear": "2026-2027",
+      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "alignmentSummary": "Structurer analyse, dissertation, commentaire, oral et appropriation des œuvres inscrites au programme 2026-2027.",
+      "publicOfferEligible": true
+    },
+    {
+      "moduleId": "premiere-nsi",
+      "level": "PREMIERE",
+      "subject": "NSI",
+      "officialProgrammeId": "BO2019-LYCEE-NSI-PREMIERE",
+      "applicationSchoolYear": "2026-2027",
+      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "alignmentSummary": "Introduire représentation des données, algorithmique, programmation, architectures et interaction homme-machine.",
+      "publicOfferEligible": true
+    },
+    {
+      "moduleId": "premiere-physique-chimie",
+      "level": "PREMIERE",
+      "subject": "Physique-Chimie",
+      "officialProgrammeId": "BO2019-LYCEE-PC-PREMIERE",
+      "applicationSchoolYear": "2026-2027",
+      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "alignmentSummary": "Consolider quantités de matière, transformations, mouvement, interactions, énergie, ondes et démarche expérimentale.",
+      "publicOfferEligible": true
+    },
+    {
+      "moduleId": "terminale-mathematiques",
+      "level": "TERMINALE",
+      "subject": "Mathématiques",
+      "officialProgrammeId": "BO2019-LYCEE-MATHS-TERMINALE",
+      "applicationSchoolYear": "2026-2027",
+      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "alignmentSummary": "Réactiver dérivation, suites, probabilités, géométrie et raisonnement nécessaires au programme de Terminale encore applicable.",
+      "publicOfferEligible": true
+    },
+    {
+      "moduleId": "terminale-philosophie",
+      "level": "TERMINALE",
+      "subject": "Philosophie",
+      "officialProgrammeId": "BO2020-LYCEE-PHILOSOPHIE-TERMINALE",
+      "applicationSchoolYear": "2026-2027",
+      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "alignmentSummary": "Installer problématisation, conceptualisation, argumentation et lecture philosophique à partir des notions du programme.",
+      "publicOfferEligible": true
+    },
+    {
+      "moduleId": "terminale-nsi",
+      "level": "TERMINALE",
+      "subject": "NSI",
+      "officialProgrammeId": "BO2019-LYCEE-NSI-TERMINALE",
+      "applicationSchoolYear": "2026-2027",
+      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "alignmentSummary": "Réactiver structures de données, bases de données, architectures, réseaux et conception d'algorithmes avant la Terminale.",
+      "publicOfferEligible": true
+    },
+    {
+      "moduleId": "terminale-physique-chimie",
+      "level": "TERMINALE",
+      "subject": "Physique-Chimie",
+      "officialProgrammeId": "BO2019-LYCEE-PC-TERMINALE",
+      "applicationSchoolYear": "2026-2027",
+      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "alignmentSummary": "Réactiver transformations, mécanique, énergie, ondes, signaux et méthodes quantitatives nécessaires au programme de Terminale.",
+      "publicOfferEligible": true
+    }
+  ]
+}
