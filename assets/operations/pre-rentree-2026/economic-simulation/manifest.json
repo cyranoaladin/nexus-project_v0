@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "1.0.0",
+  "campaignId": "pre-rentree-2026",
+  "status": "REVIEW_INPUTS_REQUIRED",
+  "inventory": {
+    "simulationRows": 52,
+    "assets": 9
+  },
+  "qa": {
+    "pages": 4,
+    "blankPages": 0,
+    "missingFonts": 0,
+    "overflowFindings": 0
+  },
+  "assets": [
+    {
+      "path": "economic-simulation.csv",
+      "bytes": 7336,
+      "sha256": "9ff944f66a165514ae6b30cc344ae246fe1c97d39dcb21a0002e5a31beccd45f"
+    },
+    {
+      "path": "economic-simulation.html",
+      "bytes": 19276,
+      "sha256": "7b34374c040ec772d73d1a91f4dca3cff6e27b5031f85e0564f65a14db5a20be"
+    },
+    {
+      "path": "economic-simulation.json",
+      "bytes": 47089,
+      "sha256": "19e80d262cc498b2be02816c62a64692bd03485128ff94593d828438d5a53892"
+    },
+    {
+      "path": "economic-simulation.pdf",
+      "bytes": 36550,
+      "sha256": "89524ba744e6943f056c980dc89aceb84e0c39eca68e8d53c4fa0cd71cc9ab12"
+    },
+    {
+      "path": "rendered/page-01.png",
+      "bytes": 91021,
+      "sha256": "61b3325b970ccfe60ce07682b21c49dfd6b4a79119c25ffaa9f0fa16c90de512",
+      "width": 1137,
+      "height": 804
+    },
+    {
+      "path": "rendered/page-02.png",
+      "bytes": 129749,
+      "sha256": "a44c9613f3f35c447c00dcd9e00f9f398799ba7e6e199dcc2a7768c3b4e73345",
+      "width": 1137,
+      "height": 804
+    },
+    {
+      "path": "rendered/page-03.png",
+      "bytes": 131520,
+      "sha256": "7c16efb18c1a59876a5981f741b4d54aa9a6528b8b01c0347173714760e22a42",
+      "width": 1137,
+      "height": 804
+    },
+    {
+      "path": "rendered/page-04.png",
+      "bytes": 73579,
+      "sha256": "6718672e49fd84241f6bd81426a99916e5817674186db584a01e9edec9a4583c",
+      "width": 1137,
+      "height": 804
+    },
+    {
+      "path": "visual-review/contact-sheet.png",
+      "bytes": 307385,
+      "sha256": "19b08a1817a66dae007746037377e3814aa5e15fd20ce5a3c301006a23fce691",
+      "width": 1088,
+      "height": 830
+    }
+  ]
+}

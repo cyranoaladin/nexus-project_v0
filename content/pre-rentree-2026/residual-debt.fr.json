@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "1.0.0",
+  "campaignId": "pre-rentree-2026",
+  "assessedAt": "2026-07-20",
+  "verdict": "BLOCKED",
+  "rule": "Tout P0 restant bloque PUBLIC_READY.",
+  "items": [
+    {
+      "debtId": "DEBT-PRE2026-PAYMENT-METHOD",
+      "priority": "P0",
+      "category": "OPERATIONS",
+      "decisionId": "DEC-PRE2026-PAYMENT-METHOD",
+      "description": "Le canal ou lien de règlement de l'acompte, son rapprochement et le justificatif ne sont pas encore validés.",
+      "owner": "OPERATIONS_NEXUS_REUSSITE",
+      "dueAt": "2026-07-24",
+      "derogation": "Aucune dérogation de publication : le script WhatsApp reste générique, ne collecte aucune donnée bancaire et le parcours de réservation reste en revue.",
+      "exitCriteria": "Modalité documentée, testée, approuvée et reliée au message de confirmation."
+    },
+    {
+      "debtId": "DEBT-PRE2026-CAMPAIGN-SIGNOFF",
+      "priority": "P0",
+      "category": "MARKETING",
+      "decisionId": "DEC-PRE2026-CAMPAIGN-OWNER-SIGNOFF",
+      "description": "Les 36 contenus de la campagne complète sont READY_FOR_OWNER_REVIEW mais ne portent pas encore de bon à publier humain enregistré.",
+      "owner": "RESPONSABLE_COMMUNICATION_NEXUS_REUSSITE",
+      "dueAt": "2026-07-22",
+      "derogation": "Aucune dérogation de publication : les pages de campagne restent noindex et le package reste REVIEW.",
+      "exitCriteria": "Revue du manifeste, des rendus et des textes, puis approbateur et date enregistrés."
+    },
+    {
+      "debtId": "DEBT-PRE2026-LEGAL-SIGNOFF",
+      "priority": "P0",
+      "category": "LEGAL",
+      "decisionId": "DEC-PRE2026-LEGAL-SIGNOFF",
+      "description": "Les conditions de réservation et d'acompte attendent la validation juridique finale.",
+      "owner": "LEGAL_REVIEWER",
+      "dueAt": "2026-07-31",
+      "derogation": "Aucune dérogation de publication pour les conditions ; les documents parent restent en revue.",
+      "exitCriteria": "Avis juridique enregistré et documents régénérés sans réserve bloquante."
+    },
+    {
+      "debtId": "DEBT-PRE2026-PEDAGOGY-SIGNOFF",
+      "priority": "P0",
+      "category": "PEDAGOGY",
+      "decisionId": "DEC-PRE2026-PEDAGOGY-SIGNOFF",
+      "description": "Les six modules prioritaires disposent de ressources complètes mais attendent une validation humaine matière par matière.",
+      "owner": "PEDAGOGICAL_VALIDATOR",
+      "dueAt": "2026-08-03",
+      "derogation": "Aucune ressource n'est qualifiée READY ; elles restent READY_FOR_PEDAGOGICAL_REVIEW.",
+      "exitCriteria": "Exactitude, programme, durée, barème et corrigés validés avec identité et date."
+    },
+    {
+      "debtId": "DEBT-PRE2026-ECONOMIC-INPUTS",
+      "priority": "P0",
+      "category": "ECONOMICS",
+      "decisionId": "DEC-PRE2026-ECONOMIC-INPUTS",
+      "description": "Les coûts propriétaires nécessaires à la marge brute et au seuil de rentabilité ne sont pas confirmés.",
+      "owner": "DIRECTION_NEXUS_REUSSITE",
+      "dueAt": "2026-07-31",
+      "derogation": "Aucune valeur n'est inventée : seuls le prix et le chiffre d'affaires dérivés du référentiel sont calculés ; marge et seuil restent vides.",
+      "exitCriteria": "Dix-huit hypothèses économiques validées, simulation recalculée et revue propriétaire."
+    },
+    {
+      "debtId": "DEBT-PRE2026-MANUAL-BENEFIT",
+      "priority": "P1",
+      "category": "COMMERCIAL",
+      "decisionId": "DEC-PRE2026-MANUAL-BENEFIT",
+      "description": "Le bénéfice futur des manuels Maths/NSI n'a pas toutes ses conditions opérationnelles.",
+      "owner": "DIRECTION_NEXUS_REUSSITE",
+      "dueAt": "2026-07-31",
+      "derogation": "Dérogation conservatrice approuvée par la règle de publication : bénéfice préparé techniquement mais HIDDEN.",
+      "exitCriteria": "BAT, droits, stock, remise, éligibilité et traçabilité approuvés."
+    },
+    {
+      "debtId": "DEBT-PRE2026-ANNUAL-DISCOUNT",
+      "priority": "P1",
+      "category": "COMMERCIAL",
+      "decisionId": "DEC-PRE2026-ANNUAL-DISCOUNT",
+      "description": "Les conditions de la remise annuelle future de 10 % ne sont pas complètes.",
+      "owner": "DIRECTION_NEXUS_REUSSITE",
+      "dueAt": "2026-07-31",
+      "derogation": "Dérogation conservatrice approuvée par la règle de publication : avantage préparé techniquement mais HIDDEN.",
+      "exitCriteria": "Éligibilité, période, non-cumul, plafond, plancher et preuve d'usage approuvés."
+    },
+    {
+      "debtId": "DEBT-REPO-LEGACY-LINT-WARNINGS",
+      "priority": "P2",
+      "category": "ENGINEERING",
+      "decisionId": null,
+      "description": "Le dépôt conserve 293 avertissements ESLint historiques hors du périmètre Pré-rentrée ; aucun nouvel avertissement n'est introduit par ce périmètre.",
+      "owner": "ENGINEERING_NEXUS_REUSSITE",
+      "dueAt": "2026-09-30",
+      "derogation": "Tolérance temporaire du budget ESLint existant de 300 avertissements ; la commande reste bloquante sur toute erreur.",
+      "exitCriteria": "Réduction progressive du budget puis suppression des avertissements historiques."
+    }
+  ],
+  "summary": {
+    "P0": 5,
+    "P1": 2,
+    "P2": 1
+  }
+}
