@@ -1,6 +1,11 @@
 {
   "version": "2026-pre-rentree-v2",
   "generatedAt": "2026-07-20",
+  "resourcePolicy": {
+    "generatedDefaultStatus": "DRAFT",
+    "classroomReadyRequiresHumanValidation": true,
+    "promotionRule": "Un fichier généré ne devient jamais CLASSROOM_READY sans contenu spécifique, corrigé, barème et validation pédagogique nominative."
+  },
   "modules": [
     {
       "id": "troisieme-mathematiques",

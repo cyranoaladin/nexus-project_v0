@@ -1,0 +1,102 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="author" content="Nexus Réussite"><meta name="description" content="Ressource pédagogique spécifique premiere-mathematiques"><title>Mathématiques — Entrée en Première · guideTeacher</title><style>@font-face {
+  font-family: "DM Sans";
+  src: url("../fonts/DMSans.ttf") format("truetype");
+  font-weight: 300 800;
+}
+
+@font-face {
+  font-family: "Fraunces";
+  src: url("../fonts/Fraunces.ttf") format("truetype");
+  font-weight: 500 750;
+}
+
+@page {
+  size: A4 portrait;
+  margin: 12mm 14mm 14mm;
+
+  @bottom-left {
+    content: "Nexus Réussite · Ressource pédagogique · Pré-rentrée 2026";
+    color: #526176;
+    font-family: "DM Sans", sans-serif;
+    font-size: 7pt;
+  }
+
+  @bottom-right {
+    content: "Page " counter(page) " / " counter(pages);
+    color: #526176;
+    font-family: "DM Sans", sans-serif;
+    font-size: 7pt;
+  }
+}
+
+:root {
+  --blue: #0b1f3a;
+  --red: #c9252d;
+  --ivory: #f7f2e8;
+  --paper: #fffdf8;
+  --ink: #172033;
+  --muted: #526176;
+  --line: #d7dce4;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--paper); color: var(--ink); font: 8.3pt/1.36 "DM Sans", sans-serif; }
+body { margin: 0; }
+.sheet { break-after: page; min-height: 245mm; position: relative; }
+.sheet:last-child { break-after: auto; }
+.masthead { align-items: center; border-bottom: 1.4mm solid var(--blue); display: flex; justify-content: space-between; margin-bottom: 5mm; padding-bottom: 2.5mm; }
+.brand { color: var(--blue); font-family: "Fraunces", serif; font-size: 13pt; font-weight: 700; }
+.document-kind { color: var(--red); font-size: 7pt; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.eyebrow { color: var(--red); font-size: 7pt; font-weight: 800; letter-spacing: .08em; margin: 0 0 1.5mm; text-transform: uppercase; }
+h1, h2, h3 { color: var(--blue); font-family: "Fraunces", serif; }
+h1 { font-size: 21pt; line-height: 1.08; margin: 0 0 2mm; }
+h2 { font-size: 13pt; line-height: 1.15; margin: 0 0 2.5mm; }
+h3 { font-size: 10.5pt; line-height: 1.2; margin: 0 0 1.5mm; }
+p { margin: 0 0 2mm; }
+.subtitle { color: var(--muted); font-size: 10pt; font-weight: 650; margin-bottom: 4mm; }
+.meta { display: grid; gap: 2mm; grid-template-columns: repeat(4, 1fr); margin-bottom: 4mm; }
+.meta div { background: var(--ivory); border-radius: 1.5mm; padding: 2mm 2.5mm; }
+.meta span { color: var(--muted); display: block; font-size: 6.5pt; text-transform: uppercase; }
+.meta strong { color: var(--blue); font-size: 8pt; }
+.notice { background: #edf2f8; border-left: 2mm solid var(--blue); border-radius: 1.5mm; margin-bottom: 4mm; padding: 3mm; }
+.warning { background: #fff0f0; border-left-color: var(--red); }
+.grid { display: grid; gap: 3mm; grid-template-columns: repeat(2, 1fr); }
+.card { border: .25mm solid var(--line); border-radius: 2mm; break-inside: avoid; margin-bottom: 3mm; padding: 3mm; }
+.card p:last-child, .card ul:last-child { margin-bottom: 0; }
+.tag { background: var(--blue); border-radius: 9mm; color: white; display: inline-block; font-size: 6.5pt; font-weight: 750; margin-bottom: 1.5mm; padding: .8mm 2mm; }
+.points { color: var(--red); float: right; font-weight: 800; }
+.answer { background: #f3f6f9; border-radius: 1.2mm; margin-top: 2mm; padding: 2mm; }
+.lines { background: repeating-linear-gradient(to bottom, transparent 0, transparent 7mm, #d7dce4 7.1mm, transparent 7.2mm); height: 29mm; margin-top: 2mm; }
+ul, ol { margin: 1.5mm 0 2mm; padding-left: 5mm; }
+li { margin-bottom: 1mm; }
+table { border-collapse: collapse; font-size: 7.2pt; width: 100%; }
+th { background: var(--blue); color: white; padding: 1.7mm; text-align: left; }
+td { border-bottom: .2mm solid var(--line); padding: 1.6mm; vertical-align: top; }
+.rubric td:last-child, .rubric th:last-child { text-align: center; width: 17mm; }
+.footer-note { border-top: .2mm solid var(--line); color: var(--muted); font-size: 6.8pt; margin-top: 3mm; padding-top: 1.5mm; }
+.status { background: #fff0f0; border: .25mm solid #e5a4a7; color: #7b1419; font-weight: 750; padding: 2.5mm; }
+</style></head><body><section class="sheet">
+<header class="masthead"><div class="brand">Nexus Réussite</div><div class="document-kind">Guide de séance · version enseignant · conduite des activités</div></header>
+<p class="eyebrow">Pré-rentrée 2026 · Entrée en Première</p>
+<h1>Mathématiques</h1>
+<p class="subtitle">Fonctions, variations et premières suites</p>
+<div class="meta"><div><span>Module</span><strong>premiere-mathematiques</strong></div><div><span>Durée du parcours</span><strong>10 heures</strong></div><div><span>Difficulté</span><strong>Consolidation Seconde à spécialité Première</strong></div><div><span>Référence</span><strong>BO2026-LYCEE-MATHS-PREMIERE</strong></div></div>
+<div class="notice"><strong>Intention pédagogique</strong><p>Faire expliciter les procédures, observer les obstacles et adapter la reprise à partir du test de positionnement.</p></div><article class="card"><span class="tag">Consolidation</span><span class="points">45 min</span><h3>1M-A1 · Même courbe, trois langages</h3><p><strong>Objectif :</strong> Relier courbe, tableau de variations et phrases mathématiques.</p><p><strong>Déroulé enseignant :</strong> Faire préciser intervalles, valeurs et sens de variation ; bannir les formulations ambiguës.</p><p><strong>Production attendue :</strong> Tableau exact et cinq assertions correctement justifiées.</p><p><strong>Support directement exploitable :</strong> Tracer puis exploiter f(x)=x³-3x sur [-2;2] à partir des points (-2;-2), (-1;2), (0;0), (1;-2), (2;2). La courbe est croissante sur [-2;-1], décroissante sur [-1;1], puis croissante sur [1;2].</p><p><strong>Supports :</strong> Courbe Nexus, Gabarit de tableau</p></article><article class="card"><span class="tag">Approfondissement</span><span class="points">55 min</span><h3>1M-A2 · Suites de croissance</h3><p><strong>Objectif :</strong> Comparer croissance additive et multiplicative.</p><p><strong>Déroulé enseignant :</strong> Faire distinguer suite arithmétique et géométrique sans généraliser à partir d&#x27;un seul terme.</p><p><strong>Production attendue :</strong> Deux modèles, un tableau et une comparaison argumentée.</p><p><strong>Support directement exploitable :</strong> Population fictive A : 1 000 individus au départ et +120 par année. Population fictive B : 800 au départ et +12 % par année. Définir a₀ et b₀, écrire les récurrences, calculer les termes de rang 0 à 5 puis comparer.</p><p><strong>Supports :</strong> Scénarios de population fictifs, Tableur facultatif</p></article><p class="footer-note">Les durées sont indicatives et doivent rester compatibles avec le parcours total de dix heures.</p></section><section class="sheet">
+<header class="masthead"><div class="brand">Nexus Réussite</div><div class="document-kind">Guide de séance · version enseignant · corrigés 1/2</div></header>
+<p class="eyebrow">Pré-rentrée 2026 · Entrée en Première</p>
+<h1>Mathématiques</h1>
+<p class="subtitle">Fonctions, variations et premières suites</p>
+<div class="meta"><div><span>Module</span><strong>premiere-mathematiques</strong></div><div><span>Durée du parcours</span><strong>10 heures</strong></div><div><span>Difficulté</span><strong>Consolidation Seconde à spécialité Première</strong></div><div><span>Référence</span><strong>BO2026-LYCEE-MATHS-PREMIERE</strong></div></div>
+<div class="grid"><article class="card"><span class="tag">Consolidation</span><span class="points">5 pt · 12 min</span><h3>1M-E1 · Formes d&#x27;un trinôme</h3><p>Développer (x-2)(x+5), puis calculer sa valeur pour x=2 en choisissant la forme efficace.</p><div class="answer"><strong>Correction spécifique :</strong> x²+3x-10 ; pour x=2, la forme factorisée donne immédiatement 0.</div></article><article class="card"><span class="tag">Consolidation</span><span class="points">4 pt · 10 min</span><h3>1M-E2 · Variation et encadrement</h3><p>f est décroissante sur [1;6], f(1)=9 et f(6)=2. Encadrer f(4).</p><div class="answer"><strong>Correction spécifique :</strong> Comme 1≤4≤6 et f décroît, 2=f(6)≤f(4)≤f(1)=9.</div></article></div><p class="footer-note">Attribuer les points à la démarche lorsqu’elle est explicitée, même en présence d’une erreur finale isolée.</p></section><section class="sheet">
+<header class="masthead"><div class="brand">Nexus Réussite</div><div class="document-kind">Guide de séance · version enseignant · corrigés 2/2</div></header>
+<p class="eyebrow">Pré-rentrée 2026 · Entrée en Première</p>
+<h1>Mathématiques</h1>
+<p class="subtitle">Fonctions, variations et premières suites</p>
+<div class="meta"><div><span>Module</span><strong>premiere-mathematiques</strong></div><div><span>Durée du parcours</span><strong>10 heures</strong></div><div><span>Difficulté</span><strong>Consolidation Seconde à spécialité Première</strong></div><div><span>Référence</span><strong>BO2026-LYCEE-MATHS-PREMIERE</strong></div></div>
+<div class="grid"><article class="card"><span class="tag">Consolidation</span><span class="points">5 pt · 12 min</span><h3>1M-E3 · Suite arithmétique</h3><p>u₀=12 et uₙ₊₁=uₙ-2,5. Calculer u₄ et donner uₙ en fonction de n.</p><div class="answer"><strong>Correction spécifique :</strong> u₄=12-4×2,5=2 ; uₙ=12-2,5n.</div></article><article class="card"><span class="tag">Approfondissement</span><span class="points">5 pt · 12 min</span><h3>1M-E4 · Suite géométrique</h3><p>v₀=80 et vₙ₊₁=1,05vₙ. Calculer v₂ et interpréter le facteur 1,05.</p><div class="answer"><strong>Correction spécifique :</strong> v₂=80×1,05²=88,2. Le facteur correspond à une hausse de 5 % à chaque étape.</div></article></div><p class="footer-note">Consigner l’erreur dominante et la prochaine action d’entraînement.</p></section><section class="sheet">
+<header class="masthead"><div class="brand">Nexus Réussite</div><div class="document-kind">Guide de séance · version enseignant · production et bilan</div></header>
+<p class="eyebrow">Pré-rentrée 2026 · Entrée en Première</p>
+<h1>Mathématiques</h1>
+<p class="subtitle">Fonctions, variations et premières suites</p>
+<div class="meta"><div><span>Module</span><strong>premiere-mathematiques</strong></div><div><span>Durée du parcours</span><strong>10 heures</strong></div><div><span>Difficulté</span><strong>Consolidation Seconde à spécialité Première</strong></div><div><span>Référence</span><strong>BO2026-LYCEE-MATHS-PREMIERE</strong></div></div>
+<article class="card"><h2>Comparer deux évolutions</h2><p><strong>Attendu :</strong> La croissance multiplicative peut finir par dépasser la croissance additive ; la conclusion dépend des valeurs initiales, des paramètres et de l&#x27;horizon choisi.</p></article><table class="rubric"><thead><tr><th>Critère</th><th>Descripteur</th><th>Points</th></tr></thead><tbody><tr><td>Définition des modèles</td><td>Indices, termes initiaux et récurrences exacts.</td><td>4</td></tr><tr><td>Calcul et représentation</td><td>Valeurs et graphique cohérents.</td><td>4</td></tr><tr><td>Interprétation</td><td>Comparaison précise et limites explicites.</td><td>4</td></tr></tbody></table><article class="card"><h2>Observation du bilan</h2><ul><li>Algèbre</li><li>Fonctions</li><li>Suites</li><li>Raisonnement</li></ul></article><div class="status">Statut : PENDING_HUMAN_VALIDATION · Rôle requis : RESPONSABLE_PEDAGOGIQUE_MATHEMATIQUES</div><article class="card"><h3>Contrôle pédagogique nominatif</h3><ul><li>☐ Alignement programme Première 2026</li><li>☐ Exactitude</li><li>☐ Progressivité</li><li>☐ Notation des suites</li></ul><p>Validé par : ____________________ · Date : ____________________ · Signature : ____________________</p></article></section></body></html>
