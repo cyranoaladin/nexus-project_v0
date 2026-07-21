@@ -7,7 +7,7 @@ const rules = getRules();
 export const metadata: Metadata = {
   title: 'Offres & Tarifs — Catalogue 2026/2027 | Nexus Réussite',
   description:
-    `Tous les parcours, stages intensifs, Pass et formules Nexus Réussite. Groupes de ${rules.group_max} max, tarifs en TND, échéanciers transparents. Enseignants qualifiés, plateforme ARIA.`,
+    `Catalogue Nexus Réussite 2026/2027 : services, effectifs, tarifs en TND et modalités présentés offre par offre. Capacité générale plafonnée à ${rules.group_max} lorsque l’offre l’indique.`,
   keywords: [
     'tarifs accompagnement scolaire Tunis',
     'prix bac français',

@@ -1,6 +1,5 @@
 import 'server-only';
 
-import campaignManifest from '@/data/campaigns/pre-rentree-2026.json';
 import modulesData from '@/content/pre-rentree-2026/modules.json';
 import offersData from '@/content/pre-rentree-2026/offers.json';
 import capabilitiesData from '@/content/pre-rentree-2026/capabilities.json';
@@ -8,10 +7,9 @@ import manualsData from '@/content/pre-rentree-2026/manuals.registry.json';
 import { getPreRentreeFoundationsProducts, getPreRentreePacks, getRules } from '@/lib/pricing';
 import { LEGAL } from '@/lib/legal';
 import {
-  PreRentreeCampaignManifestSchema,
   PreRentreeModulesSchema,
 } from './schema';
-import type { EntryLevelCode, PreRentreeCampaignManifest } from './schema';
+import type { EntryLevelCode } from './schema';
 import type { PreRentreeHomepageSpotlightDTO } from './homepage-spotlight';
 import type { LandingPack } from './configurator';
 import {
@@ -20,22 +18,19 @@ import {
   PreRentreeOffersSchema,
 } from './content-schema';
 import {
-  formatCampaignDateCartouche,
   formatCampaignStatus,
   formatEntryClassList,
 } from './presentation';
+import { getPreRentreeCampaign } from './campaign-source';
+import { getPreRentreePublicSurfaceDTO } from './public-surface';
+
+export { getPreRentreeCampaign } from './campaign-source';
 
 /**
  * Get the validated campaign manifest.
  * Server-only — never import from client components.
  */
-export function getPreRentreeCampaign(): PreRentreeCampaignManifest {
-  return PreRentreeCampaignManifestSchema.parse(campaignManifest);
-}
-
-/**
- * Get the 14 module programs with their 70 sessions.
- */
+/** Get the 14 module programs with their 70 sessions. */
 export function getPreRentreeModules() {
   return PreRentreeModulesSchema.parse(modulesData).modules;
 }
@@ -259,33 +254,44 @@ export function getPreRentreeLandingDTO() {
 }
 
 export function getPreRentreeHomepageSpotlightDTO(): PreRentreeHomepageSpotlightDTO {
-  const dto = getPreRentreeLandingDTO();
-  const date = formatCampaignDateCartouche(dto.campaign.startDate, dto.campaign.endDate);
-  const singleSubjectPack = dto.packs.find((pack) => pack.subjectsCount === 1);
-  if (!singleSubjectPack) {
-    throw new Error('Missing single-subject Pré-rentrée pack');
-  }
+  const dto = getPreRentreePublicSurfaceDTO();
+  const publicOffers = dto.offers;
+  const start = new Date(`${dto.startDate}T12:00:00+01:00`);
+  const day = new Intl.DateTimeFormat('fr-TN', { day: 'numeric', timeZone: 'Africa/Tunis' }).format(start);
+  const month = new Intl.DateTimeFormat('fr-TN', { month: 'long', timeZone: 'Africa/Tunis' }).format(start);
+  const year = new Intl.DateTimeFormat('fr-TN', { year: 'numeric', timeZone: 'Africa/Tunis' }).format(start);
+  const date = {
+    days: day,
+    month: month.toLocaleUpperCase('fr-TN'),
+    year,
+    accessibleLabel: `À partir du ${day} ${month} ${year}.`,
+    chipLabel: `dès le ${day} ${month}`,
+  };
   const subjectOrder = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'FRANCAIS', 'NSI', 'PHILOSOPHIE'];
-  const subjectFamilies = subjectOrder.map((subjectId) => {
-    const subject = dto.subjects.find((candidate) => candidate.id === subjectId);
+  const availableSubjectIds = new Set<string>(publicOffers.flatMap((offer) => offer.subjects));
+  const subjectFamilies = subjectOrder.filter((subjectId) => availableSubjectIds.has(subjectId)).map((subjectId) => {
+    const subject = dto.levels.flatMap((level) => level.subjects).find((candidate) => candidate.id === subjectId);
     if (!subject) throw new Error(`Missing Pré-rentrée subject: ${subjectId}`);
-    return subject.id === 'NSI' ? `${subject.label}/SNT` : subject.label;
+    return subject.label;
   });
+  const foundations = publicOffers.filter((offer) => offer.pricingKind === 'FOUNDATIONS');
+  const premium = publicOffers.filter((offer) => offer.pricingKind === 'PREMIUM_PACK');
 
   return {
-    campaignId: dto.campaign.id,
+    campaignId: dto.campaignId,
     ariaLabel: `Campagne Pré-rentrée ${date.year}`,
     title: `Stages de pré-rentrée ${date.year}`,
     primaryCtaLabel: `Découvrir la Pré-rentrée ${date.year}`,
-    publicStatus: dto.publicStatus,
+    publicStatus: formatCampaignStatus(dto.publication.sourceStatus),
     date,
     entryClassesLabel: formatEntryClassList(dto.levels.map((level) => level.label)),
     subjectFamiliesLabel: subjectFamilies.join(' · '),
-    capacityLabel: `Fondations : ${dto.capacityByOffer.FONDATIONS.minPerCohort} à ${dto.capacityByOffer.FONDATIONS.maxPerCohort} élèves · Premium : ${dto.capacityByOffer.PREMIUM.minPerCohort} à ${dto.capacityByOffer.PREMIUM.maxPerCohort} élèves`,
-    volumeLabel: `${singleSubjectPack.totalHours} h par matière`,
-    venueLabel: dto.campaign.venue.neighborhood,
-    editorialLine: dto.content.hero.h1,
-    campaignPath: dto.campaign.canonicalPath,
-    planningPath: `${dto.campaign.canonicalPath}#planning`,
+    capacityLabel: `Fondations : ${Math.min(...foundations.map((offer) => offer.groupMin))} à ${Math.max(...foundations.map((offer) => offer.groupMax))} élèves · Premium : ${Math.min(...premium.map((offer) => offer.groupMin))} à ${Math.max(...premium.map((offer) => offer.groupMax))} élèves`,
+    volumeLabel: `${Math.min(...publicOffers.map((offer) => offer.hours / (offer.subjectCount ?? 1)))} h par matière`,
+    venueLabel: dto.venueNeighborhood,
+    editorialLine: dto.promise,
+    campaignPath: dto.canonicalPath,
+    secondaryCtaLabel: 'Voir les offres',
+    secondaryCtaPath: `${dto.canonicalPath}#offres-pre-rentree`,
   };
 }

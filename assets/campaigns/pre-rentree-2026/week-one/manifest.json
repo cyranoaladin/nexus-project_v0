@@ -437,9 +437,9 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 82257,
-      "sha256": "b8cab7cf04d0dfa52f32bf8158aefcb8d2589e618453fa8dada0617449706eb3",
-      "altText": "Plan 4 du Reel : 3e & Seconde · jusqu'à 6 élèves"
+      "bytes": 80643,
+      "sha256": "7c1f0ae15dc9a0d6cea28203a005e984700c1e4901a98b782cd4c09c04a1ad52",
+      "altText": "Plan 4 du Reel : 3e & Seconde · effectifs limités"
     },
     {
       "assetId": "week1-reel-frame-05-png",
@@ -448,9 +448,9 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 79453,
-      "sha256": "05b9847daa34d357c1f78b80cc61c59233f0aead744fe687a5beb3f48db66ebb",
-      "altText": "Plan 5 du Reel : Première & Terminale · jusqu'à 5 élèves"
+      "bytes": 78266,
+      "sha256": "e09a3951a7ecf5c35444bc4b79dc1d2d8bf6bf30c72681c204adb0bfad79731b",
+      "altText": "Plan 5 du Reel : Première & Terminale · effectifs limités"
     },
     {
       "assetId": "week1-reel-frame-06-png",
@@ -492,8 +492,8 @@
       "format": "SRT",
       "width": null,
       "height": null,
-      "bytes": 672,
-      "sha256": "e160f2e04f871450cd8fc84f1c80af236fbd4783e291acf8b1b0d00d2315b575",
+      "bytes": 679,
+      "sha256": "a73627577f57029f2423ee7f511c376f547a3d8d0b1cda8bf8b6825757fd343c",
       "altText": "Sous-titres français du Reel"
     },
     {
@@ -503,8 +503,8 @@
       "format": "MP4",
       "width": null,
       "height": null,
-      "bytes": 341051,
-      "sha256": "5487585c45822ca647481d1ce1611b69eb9fac4fd4b16afec6faa79cdf897dde",
+      "bytes": 339085,
+      "sha256": "1496bb9b140206456f53745471d48819d209dd199c6fd26c65be9161f911f945",
       "altText": "Reel motion design de trente secondes"
     },
     {
@@ -514,8 +514,8 @@
       "format": "MARKDOWN",
       "width": null,
       "height": null,
-      "bytes": 3203,
-      "sha256": "e70b48aa2b8f3de4df96dfb83bb8330f2c3267a957ab4a37d9402549d5a1a479",
+      "bytes": 3208,
+      "sha256": "d18035756fe03ef0eef1981516e32f0eb2c3beb1dab28ce6a1673ebdf6cfa195",
       "altText": "Script complet du Reel"
     },
     {
@@ -525,8 +525,8 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 526452,
-      "sha256": "246a886db0681e351a87c19129b25f2fa0c53dd20945f13fd64631bc3abaad35",
+      "bytes": 526318,
+      "sha256": "1d2ecd7bc911740c3256cd3787d2e42da0447ed7a8fe6bb3ed4ab2e94dd50bea",
       "altText": "Storyboard complet du Reel"
     },
     {
@@ -1009,8 +1009,8 @@
       "format": "PNG",
       "width": 840,
       "height": 964,
-      "bytes": 82942,
-      "sha256": "3077adbe70cc675afcf53e67df0b6e3f4b57d7e95452d7d3dbeeb19fcc81b67a",
+      "bytes": 82859,
+      "sha256": "797626ab6f7e3a2bdf5b590b43bf43a2f6fea19f437d29e90e2f267a6c70650f",
       "altText": "Planche de contrôle reel"
     },
     {

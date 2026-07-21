@@ -35,16 +35,16 @@ Montage : Icônes vectorielles simples : cible, crayon, coche.
 ### 14–20 s
 
 Plan : Deux cartes Fondations avec les niveaux 3e et Seconde.
-Voix off : En 3e et en Seconde, les groupes accueillent jusqu'à six élèves.
-Texte : 3e & Seconde · jusqu'à 6 élèves
+Voix off : En 3e et en Seconde, les effectifs sont limités.
+Texte : 3e & Seconde · effectifs limités
 Transition : Les cartes montent depuis le bas en léger décalage.
 Montage : Conserver une marge basse libre pour l'interface Meta.
 
 ### 20–25 s
 
 Plan : Deux cartes Premium avec les niveaux Première et Terminale.
-Voix off : En Première et Terminale, jusqu'à cinq.
-Texte : Première & Terminale · jusqu'à 5 élèves
+Voix off : En Première et Terminale, les effectifs sont également limités.
+Texte : Première & Terminale · effectifs limités
 Transition : Passage du rouge au bleu par masque vertical.
 Montage : Rythme posé, lisibilité prioritaire sur mobile.
 

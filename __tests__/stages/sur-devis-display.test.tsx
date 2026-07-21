@@ -53,7 +53,7 @@ function buildStagesProps() {
     subtitle: campaignDto.content.hero.subtitle,
     levels: campaignDto.levels.map((level) => level.label),
     subjects: campaignDto.subjects.map((subject) => subject.label),
-    groupMax: campaignDto.capacityByOffer.FONDATIONS.maxPerCohort,
+    capacityLabel: `Fondations : ${campaignDto.capacityByOffer.FONDATIONS.minPerCohort} à ${campaignDto.capacityByOffer.FONDATIONS.maxPerCohort} élèves · Premium : ${campaignDto.capacityByOffer.PREMIUM.minPerCohort} à ${campaignDto.capacityByOffer.PREMIUM.maxPerCohort} élèves`,
   };
   return { calendar, rules, passIntensifs, formatMap, campaign };
 }

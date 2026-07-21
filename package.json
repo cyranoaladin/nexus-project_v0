@@ -10,6 +10,7 @@
     "pre-rentree:parent-documents": "npm run pre-rentree:commercial-contract && python scripts/pre-rentree/render_parent_document_kit.py --content content/pre-rentree-2026/parent-documents.fr.json --commercial .artifacts/pre-rentree-2026/commercial-contract.snapshot.json --output assets/campaigns/pre-rentree-2026/parent-documents",
     "pre-rentree:full-campaign": "npm run pre-rentree:commercial-contract && python scripts/pre-rentree/render_full_campaign.py --content content/pre-rentree-2026/full-campaign.fr.json --commercial .artifacts/pre-rentree-2026/commercial-contract.snapshot.json --output assets/campaigns/pre-rentree-2026/full-campaign",
     "pre-rentree:priority-resources": "python scripts/pre-rentree/render_priority_resource_kit.py --content content/pre-rentree-2026/priority-resources.fr.json --matrix content/pre-rentree-2026/official-programme-matrix.fr.json --output assets/pedagogy/pre-rentree-2026/priority-resources",
+    "pre-rentree:public-qa-manifest": "node scripts/pre-rentree/build_public_qa_manifest.mjs",
     "pre-rentree:test:ts": "jest --config jest.unit.config.js --runInBand --testPathPattern='pre-rentree-2026'",
     "pre-rentree:test:py": "python -m pytest scripts/pre-rentree/tests -q",
     "pre-rentree:build": "python scripts/pre-rentree/generate_documents.py --snapshot generated/pre-rentree-2026/publication.snapshot.json --output .artifacts/pre-rentree-2026/build",

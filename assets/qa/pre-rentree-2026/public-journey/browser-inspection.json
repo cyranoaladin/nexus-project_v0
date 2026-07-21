@@ -1,0 +1,219 @@
+{
+  "target": "http://localhost:3017",
+  "results": [
+    {
+      "route": "/",
+      "viewport": {
+        "id": "desktop",
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "screenshot": "home-desktop.png",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "title": "Nexus Réussite | Accompagnement académique premium à Tunis",
+      "documentWidth": 1432,
+      "viewportWidth": 1432,
+      "horizontalOverflow": false,
+      "brokenImages": [],
+      "clippedText": [],
+      "h1": "Préparer le bac français avec méthode, suivi et exigence."
+    },
+    {
+      "route": "/stages",
+      "viewport": {
+        "id": "desktop",
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "screenshot": "stages-desktop.png",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "title": "Stages 2026/2027 | Nexus Réussite",
+      "documentWidth": 1432,
+      "viewportWidth": 1432,
+      "horizontalOverflow": false,
+      "brokenImages": [],
+      "clippedText": [],
+      "h1": "Viser. Atteindre. Dépasser."
+    },
+    {
+      "route": "/stages/pre-rentree-2026",
+      "viewport": {
+        "id": "desktop",
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "screenshot": "campaign-desktop.png",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "title": "Stages de pré-rentrée 2026 à Mutuelleville | Nexus Réussite",
+      "documentWidth": 1432,
+      "viewportWidth": 1432,
+      "horizontalOverflow": false,
+      "brokenImages": [],
+      "clippedText": [],
+      "h1": "Stages de pré-rentrée 2026"
+    },
+    {
+      "route": "/offres",
+      "viewport": {
+        "id": "desktop",
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "screenshot": "offers-desktop.png",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "title": "Offres & Tarifs — Catalogue 2026/2027 | Nexus Réussite",
+      "documentWidth": 1432,
+      "viewportWidth": 1432,
+      "horizontalOverflow": false,
+      "brokenImages": [],
+      "clippedText": [],
+      "h1": "Offres & tarifs"
+    },
+    {
+      "route": "/accompagnement-scolaire",
+      "viewport": {
+        "id": "desktop",
+        "width": 1440,
+        "height": 1000
+      },
+      "status": 200,
+      "screenshot": "accompaniment-desktop.png",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "title": "Accompagnement scolaire | Nexus Réussite",
+      "documentWidth": 1432,
+      "viewportWidth": 1432,
+      "horizontalOverflow": false,
+      "brokenImages": [],
+      "clippedText": [],
+      "h1": "Trouver un cadre adapté au besoin réel"
+    },
+    {
+      "route": "/",
+      "viewport": {
+        "id": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "screenshot": "home-mobile.png",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "title": "Nexus Réussite | Accompagnement académique premium à Tunis",
+      "documentWidth": 382,
+      "viewportWidth": 382,
+      "horizontalOverflow": false,
+      "brokenImages": [],
+      "clippedText": [],
+      "h1": "Préparer le bac français avec méthode, suivi et exigence."
+    },
+    {
+      "route": "/stages",
+      "viewport": {
+        "id": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "screenshot": "stages-mobile.png",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "title": "Stages 2026/2027 | Nexus Réussite",
+      "documentWidth": 382,
+      "viewportWidth": 382,
+      "horizontalOverflow": false,
+      "brokenImages": [],
+      "clippedText": [],
+      "h1": "Viser. Atteindre. Dépasser."
+    },
+    {
+      "route": "/stages/pre-rentree-2026",
+      "viewport": {
+        "id": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "screenshot": "campaign-mobile.png",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "title": "Stages de pré-rentrée 2026 à Mutuelleville | Nexus Réussite",
+      "documentWidth": 382,
+      "viewportWidth": 382,
+      "horizontalOverflow": false,
+      "brokenImages": [],
+      "clippedText": [],
+      "h1": "Stages de pré-rentrée 2026"
+    },
+    {
+      "route": "/offres",
+      "viewport": {
+        "id": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "screenshot": "offers-mobile.png",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "title": "Offres & Tarifs — Catalogue 2026/2027 | Nexus Réussite",
+      "documentWidth": 382,
+      "viewportWidth": 382,
+      "horizontalOverflow": false,
+      "brokenImages": [],
+      "clippedText": [],
+      "h1": "Offres & tarifs"
+    },
+    {
+      "route": "/accompagnement-scolaire",
+      "viewport": {
+        "id": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "screenshot": "accompaniment-mobile.png",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "title": "Accompagnement scolaire | Nexus Réussite",
+      "documentWidth": 382,
+      "viewportWidth": 382,
+      "horizontalOverflow": false,
+      "brokenImages": [],
+      "clippedText": [],
+      "h1": "Trouver un cadre adapté au besoin réel"
+    }
+  ],
+  "campaignChecks": {
+    "desktop": {
+      "offerCards": 13,
+      "whatsappLinks": 15,
+      "whatsappLinksCanonical": true,
+      "secondeContainsSnt": false,
+      "bannedPublicTokens": [],
+      "hiddenBenefitsVisible": false,
+      "robots": "noindex, nofollow, nocache",
+      "hasFaqSchema": true,
+      "hasOfferListSchema": true
+    },
+    "mobile": {
+      "offerCards": 13,
+      "whatsappLinks": 15,
+      "whatsappLinksCanonical": true,
+      "secondeContainsSnt": false,
+      "bannedPublicTokens": [],
+      "hiddenBenefitsVisible": false,
+      "robots": "noindex, nofollow, nocache",
+      "hasFaqSchema": true,
+      "hasOfferListSchema": true
+    }
+  }
+}
