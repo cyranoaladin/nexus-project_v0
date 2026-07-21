@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "sourceSetSha256": "f3ab0693c34f0ba2c3d746d5fd6d12b7c44e4f29db62c3bee55b8aaa2f5f07eb",
+  "sourceSetSha256": "609403f4c506330728cb6985d0aaaf60f5de387df70c095a3c52df8314f4f3b8",
   "sourceRepoSha": "a1192c8dccf8eaa6ae223265a3bc9ceb56a6fff0",
   "sourceCommitDate": "2026-07-14T12:00:48+01:00",
   "snapshotBuiltAt": "2026-07-20T18:00:00+01:00",
@@ -13,12 +13,12 @@
     "modules": {
       "path": "content/pre-rentree-2026/modules.json",
       "version": "2026-pre-rentree-v2",
-      "sha256": "7d3428e26abfccc776c886534e93837bc5e8131c004a62f0bf7a76ae2fe1d24b"
+      "sha256": "3cf7b773744d11a39d4a717dc5483a8e924ed02dc819b0f2a062287ac17ae5c6"
     },
     "pricing": {
       "path": "data/pricing.canonical.json",
       "version": "2026-2027.3",
-      "sha256": "7ee6f59b0c48d1ef141ab1773127d3cb7ab42d572dff0e4935b8923d33c1c5dd"
+      "sha256": "5a53e14c92f7bda1ff06525a29c961dc0c447d8f4cefd43eb415b3e893193bc6"
     },
     "legal": {
       "path": "lib/legal.ts",
