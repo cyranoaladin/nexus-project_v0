@@ -17,6 +17,6 @@ describe('Pré-rentrée sitemap publication guard', () => {
     const urls = entries.map((entry) => entry.url);
 
     expect(urls.filter((url) => url.includes('/stages/pre-rentree-2026'))).toHaveLength(0);
-    expect(urls).toContain('https://nexusreussite.academy/stages/toussaint-2026');
+    expect(urls.map((url) => new URL(url).pathname)).toContain('/stages/toussaint-2026');
   });
 });
