@@ -4,17 +4,35 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SCRIPT = REPO_ROOT / "scripts/pre-rentree/render_economic_simulation.py"
-COMMERCIAL = REPO_ROOT / ".artifacts/pre-rentree-2026/commercial-contract.snapshot.json"
 OPERATIONS = REPO_ROOT / "content/pre-rentree-2026/operations.fr.json"
 
 
-def test_economic_simulation_is_complete_but_fail_closed_without_cost_inputs(tmp_path: Path):
+@pytest.fixture(scope="module")
+def commercial_snapshot(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    output = tmp_path_factory.mktemp("commercial") / "commercial-contract.snapshot.json"
+    subprocess.run(
+        [
+            str(REPO_ROOT / "node_modules/.bin/tsx"),
+            "--conditions=react-server",
+            str(REPO_ROOT / "scripts/pre-rentree/build-commercial-contract.ts"),
+            "--output",
+            str(output),
+        ],
+        cwd=REPO_ROOT,
+        check=True,
+    )
+    return output
+
+
+def test_economic_simulation_is_complete_but_fail_closed_without_cost_inputs(tmp_path: Path, commercial_snapshot: Path):
     output = tmp_path / "economic"
     subprocess.run(
-        [sys.executable, str(SCRIPT), "--commercial", str(COMMERCIAL), "--operations", str(OPERATIONS), "--output", str(output)],
+        [sys.executable, str(SCRIPT), "--commercial", str(commercial_snapshot), "--operations", str(OPERATIONS), "--output", str(output)],
         cwd=REPO_ROOT,
         check=True,
     )
@@ -50,7 +68,7 @@ def test_economic_simulation_is_complete_but_fail_closed_without_cost_inputs(tmp
     assert (output / "visual-review/contact-sheet.png").is_file()
 
 
-def test_economic_simulation_calculates_validated_costs_and_break_even(tmp_path: Path):
+def test_economic_simulation_calculates_validated_costs_and_break_even(tmp_path: Path, commercial_snapshot: Path):
     operations = json.loads(OPERATIONS.read_text(encoding="utf-8"))
     values = {
         "teacherHourlyCost": 20,
@@ -78,7 +96,7 @@ def test_economic_simulation_calculates_validated_costs_and_break_even(tmp_path:
     operations_path.write_text(json.dumps(operations), encoding="utf-8")
     output = tmp_path / "calculated"
     subprocess.run(
-        [sys.executable, str(SCRIPT), "--commercial", str(COMMERCIAL), "--operations", str(operations_path), "--output", str(output)],
+        [sys.executable, str(SCRIPT), "--commercial", str(commercial_snapshot), "--operations", str(operations_path), "--output", str(output)],
         cwd=REPO_ROOT,
         check=True,
     )
