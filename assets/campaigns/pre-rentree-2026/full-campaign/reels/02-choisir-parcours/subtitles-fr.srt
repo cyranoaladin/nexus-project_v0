@@ -1,0 +1,23 @@
+1
+00:00:00,000 --> 00:00:05,000
+Quel stage choisir pour la pré-rentrée ?
+
+2
+00:00:05,000 --> 00:00:10,000
+Commencez par la classe d'entrée : 3e, Seconde, Première ou Terminale.
+
+3
+00:00:10,000 --> 00:00:15,000
+Ajoutez ensuite la matière prioritaire.
+
+4
+00:00:15,000 --> 00:00:20,000
+Enfin, dites-nous ce que l'élève souhaite reprendre : un fondamental, une méthode ou un entraînement ciblé.
+
+5
+00:00:20,000 --> 00:00:25,000
+Nexus vérifie alors les matières réellement disponibles et le format correspondant.
+
+6
+00:00:25,000 --> 00:00:30,000
+Envoyez simplement niveau, matière et priorité sur WhatsApp.
