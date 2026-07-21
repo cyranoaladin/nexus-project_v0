@@ -103,7 +103,7 @@
       "publicEffect": "HIDDEN",
       "responsibleRole": "DIRECTION_NEXUS_REUSSITE",
       "decidedAt": null,
-      "nextReviewAt": null,
+      "nextReviewAt": "2026-07-31",
       "reason": "BAT, approbation propriétaire, stock, remise et traçabilité restent à valider."
     },
     {
@@ -113,7 +113,7 @@
       "publicEffect": "HIDDEN",
       "responsibleRole": "DIRECTION_NEXUS_REUSSITE",
       "decidedAt": null,
-      "nextReviewAt": null,
+      "nextReviewAt": "2026-07-31",
       "reason": "Éligibilité, période, non-cumul, plafond, plancher et preuve d'usage restent à approuver."
     },
     {
@@ -123,7 +123,7 @@
       "publicEffect": "PACKAGE_REVIEW",
       "responsibleRole": "LEGAL_REVIEWER",
       "decidedAt": null,
-      "nextReviewAt": null,
+      "nextReviewAt": "2026-07-31",
       "reason": "Les conditions de réservation et d'acompte nécessitent une validation juridique finale."
     },
     {
@@ -133,8 +133,38 @@
       "publicEffect": "RESOURCES_DRAFT",
       "responsibleRole": "PEDAGOGICAL_VALIDATOR",
       "decidedAt": null,
-      "nextReviewAt": null,
+      "nextReviewAt": "2026-08-03",
       "reason": "Les ressources générées doivent être relues matière par matière."
+    },
+    {
+      "decisionId": "DEC-PRE2026-ECONOMIC-INPUTS",
+      "subject": "Validation des hypothèses de coûts de la Pré-rentrée",
+      "status": "PENDING",
+      "publicEffect": "PACKAGE_REVIEW",
+      "responsibleRole": "DIRECTION_NEXUS_REUSSITE",
+      "decidedAt": null,
+      "nextReviewAt": "2026-07-31",
+      "reason": "La rémunération enseignante, la préparation, la correction, les supports, l'acquisition, les coûts fixes et la fiscalité doivent être validés avant de calculer la marge ou le seuil de rentabilité."
+    },
+    {
+      "decisionId": "DEC-PRE2026-PAYMENT-METHOD",
+      "subject": "Modalité opérationnelle de règlement de l'acompte",
+      "status": "PENDING",
+      "publicEffect": "PACKAGE_REVIEW",
+      "responsibleRole": "OPERATIONS_NEXUS_REUSSITE",
+      "decidedAt": null,
+      "nextReviewAt": "2026-07-24",
+      "reason": "Le canal ou lien de paiement, le rapprochement du règlement et le justificatif à remettre doivent être confirmés avant l'ouverture des réservations. Le parcours WhatsApp reste générique et n'expose aucune donnée bancaire."
+    },
+    {
+      "decisionId": "DEC-PRE2026-CAMPAIGN-OWNER-SIGNOFF",
+      "subject": "Bon à publier de la campagne et des créations",
+      "status": "PENDING",
+      "publicEffect": "PACKAGE_REVIEW",
+      "responsibleRole": "RESPONSABLE_COMMUNICATION_NEXUS_REUSSITE",
+      "decidedAt": null,
+      "nextReviewAt": "2026-07-22",
+      "reason": "Les 36 contenus de la campagne complète sont prêts pour la revue du responsable mais ne portent pas encore de validation humaine enregistrée."
     }
   ]
 }
