@@ -288,8 +288,8 @@
         "start": 14,
         "end": 20,
         "plan": "Deux cartes Fondations avec les niveaux 3e et Seconde.",
-        "voiceOver": "En 3e et en Seconde, les groupes accueillent jusqu'à six élèves.",
-        "onScreenText": "3e & Seconde · jusqu'à 6 élèves",
+        "voiceOver": "En 3e et en Seconde, les effectifs sont limités.",
+        "onScreenText": "3e & Seconde · effectifs limités",
         "transition": "Les cartes montent depuis le bas en léger décalage.",
         "editing": "Conserver une marge basse libre pour l'interface Meta."
       },
@@ -297,8 +297,8 @@
         "start": 20,
         "end": 25,
         "plan": "Deux cartes Premium avec les niveaux Première et Terminale.",
-        "voiceOver": "En Première et Terminale, jusqu'à cinq.",
-        "onScreenText": "Première & Terminale · jusqu'à 5 élèves",
+        "voiceOver": "En Première et Terminale, les effectifs sont également limités.",
+        "onScreenText": "Première & Terminale · effectifs limités",
         "transition": "Passage du rouge au bleu par masque vertical.",
         "editing": "Rythme posé, lisibilité prioritaire sur mobile."
       },

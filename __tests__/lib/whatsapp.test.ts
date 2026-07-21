@@ -1,6 +1,7 @@
 import {
   buildWhatsAppContactUrl,
   buildWhatsAppUrl,
+  getWhatsAppDisplayNumber,
   getWhatsAppNumber,
 } from '@/lib/whatsapp';
 
@@ -37,6 +38,12 @@ describe('lib/whatsapp', () => {
   describe('getWhatsAppNumber', () => {
     it('returns the number as a string', () => {
       expect(getWhatsAppNumber()).toBe('21699192829');
+    });
+  });
+
+  describe('getWhatsAppDisplayNumber', () => {
+    it('formats the canonical public contact without duplicating it in page copy', () => {
+      expect(getWhatsAppDisplayNumber()).toBe('99 192 829');
     });
   });
 

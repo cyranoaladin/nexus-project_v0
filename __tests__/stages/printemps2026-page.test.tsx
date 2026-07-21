@@ -22,7 +22,7 @@ describe('Stages page — 2026/2027', () => {
     expect(screen.getByText(/Noël/)).toBeInTheDocument();
     expect(screen.getByText(/Février/)).toBeInTheDocument();
     expect(screen.getByText(/Printemps \/ Prépa-Bac/)).toBeInTheDocument();
-    expect(screen.getByText(/Du 17 au 28 août 2026/)).toBeInTheDocument();
+    expect(screen.getByText(/Dès le 17 août 2026/)).toBeInTheDocument();
     expect(screen.queryByText(/Pré-Rentrée du 24 au 28 août/i)).not.toBeInTheDocument();
     expect(screen.getByText(/26.*avr.*7 mai 2027/)).toBeInTheDocument();
   });
