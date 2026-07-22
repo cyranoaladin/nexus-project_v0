@@ -1,7 +1,168 @@
 {
-  "version": "2026-pre-rentree-v1",
-  "generatedAt": "2026-07-12",
+  "version": "2026-pre-rentree-v2-svt",
+  "generatedAt": "2026-07-20",
+  "resourcePolicy": {
+    "generatedDefaultStatus": "DRAFT",
+    "classroomReadyRequiresHumanValidation": true,
+    "promotionRule": "Un fichier généré ne devient jamais CLASSROOM_READY sans contenu spécifique, corrigé, barème et validation pédagogique nominative."
+  },
   "modules": [
+    {
+      "id": "troisieme-mathematiques",
+      "level": "TROISIEME",
+      "subjectId": "MATHEMATIQUES",
+      "subject": "Mathématiques",
+      "title": "Mathématiques — Entrée en 3e",
+      "subtitle": "Nexus Fondations — consolider les acquis de 4e et préparer progressivement les attendus du DNB",
+      "prerequisites": "Les acquis de 4e en calcul, géométrie, fonctions et traitement de données ; le test flash précise les priorités.",
+      "differentiation": "Exercices organisés en trois paliers, aides graduées et défis de consolidation selon le test flash.",
+      "quickAssessment": "Une activité de cinq à dix minutes vérifie le domaine travaillé à la fin de chaque séance.",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Nombres, fractions, puissances et calcul",
+          "objective": "Sécuriser les priorités opératoires et les calculs avec fractions, nombres relatifs et puissances",
+          "topics": [
+            "Priorités opératoires",
+            "Fractions et nombres relatifs",
+            "Puissances de 10",
+            "Calcul mental et estimation"
+          ],
+          "method": "Test flash puis exercices à paliers avec verbalisation des stratégies",
+          "deliverable": "Fiche réflexe de calcul avec série corrigée"
+        },
+        {
+          "number": 2,
+          "title": "Calcul littéral, équations et problèmes",
+          "objective": "Transformer une expression et résoudre une équation simple dans un problème",
+          "topics": [
+            "Réduction et développement",
+            "Distributivité",
+            "Équations du premier degré",
+            "Mise en équation"
+          ],
+          "method": "Exemples guidés, entraînement progressif puis problème contextualisé",
+          "deliverable": "Carte méthode calcul littéral et problème entièrement corrigé"
+        },
+        {
+          "number": 3,
+          "title": "Géométrie et théorèmes",
+          "objective": "Choisir et appliquer Pythagore, Thalès et leurs réciproques dans une rédaction rigoureuse",
+          "topics": [
+            "Pythagore",
+            "Thalès",
+            "Réciproques",
+            "Rédaction d'une démonstration"
+          ],
+          "method": "Tri de situations, schémas codés et démonstrations à compléter puis autonomes",
+          "deliverable": "Fiche de choix des théorèmes avec deux démonstrations corrigées"
+        },
+        {
+          "number": 4,
+          "title": "Fonctions, statistiques et probabilités",
+          "objective": "Lire et interpréter des données, une courbe et une situation aléatoire simple",
+          "topics": [
+            "Image et antécédent",
+            "Lecture graphique",
+            "Moyenne et médiane",
+            "Probabilité d'un événement"
+          ],
+          "method": "Lecture de représentations puis exercices courts de modélisation",
+          "deliverable": "Fiche de lecture de données et exercice de synthèse corrigé"
+        },
+        {
+          "number": 5,
+          "title": "Méthodologie DNB et sujet d'entraînement",
+          "objective": "Organiser son temps, justifier ses réponses et traiter un sujet transversal",
+          "topics": [
+            "Lecture du sujet",
+            "Gestion du temps",
+            "Rédaction et unités",
+            "Vérification des résultats"
+          ],
+          "method": "Sujet d'entraînement chronométré puis correction critériée",
+          "deliverable": "Sujet DNB corrigé et grille personnelle de vigilance"
+        }
+      ]
+    },
+    {
+      "id": "troisieme-francais",
+      "level": "TROISIEME",
+      "subjectId": "FRANCAIS",
+      "subject": "Français",
+      "title": "Français — Entrée en 3e",
+      "subtitle": "Nexus Fondations — consolider la langue, la lecture et l'écriture pour préparer la classe de 3e et le DNB",
+      "prerequisites": "Les acquis de 4e en compréhension, grammaire, orthographe et rédaction ; le test flash précise les besoins.",
+      "differentiation": "Textes, aides de rédaction et exercices de langue proposés en trois paliers de difficulté.",
+      "quickAssessment": "Une consigne courte de lecture, langue ou écriture vérifie l'objectif de chaque séance.",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Compréhension et interprétation",
+          "objective": "Prélever des indices, formuler une interprétation et la justifier par le texte",
+          "topics": [
+            "Repérage des informations",
+            "Implicite",
+            "Citation et justification",
+            "Réponse rédigée"
+          ],
+          "method": "Lecture active, questions graduées et mise en commun des preuves textuelles",
+          "deliverable": "Grille de lecture active et réponses corrigées"
+        },
+        {
+          "number": 2,
+          "title": "Grammaire, accords et réécriture",
+          "objective": "Analyser la phrase et appliquer les accords dans une transformation de texte",
+          "topics": [
+            "Classes et fonctions",
+            "Accords dans le groupe nominal",
+            "Accord sujet-verbe",
+            "Réécriture"
+          ],
+          "method": "Manipulations de phrases puis réécriture commentée",
+          "deliverable": "Fiche d'accords et exercice de réécriture corrigé"
+        },
+        {
+          "number": 3,
+          "title": "Dictée et maîtrise de la langue",
+          "objective": "Mobiliser une méthode de relecture pour corriger les erreurs fréquentes",
+          "topics": [
+            "Homophones grammaticaux",
+            "Terminaisons verbales",
+            "Accords",
+            "Ponctuation"
+          ],
+          "method": "Dictée négociée, classement des erreurs et seconde version corrigée",
+          "deliverable": "Grille personnelle de relecture et dictée corrigée"
+        },
+        {
+          "number": 4,
+          "title": "Rédaction et organisation des idées",
+          "objective": "Construire un texte cohérent avec un plan, des paragraphes et des exemples précis",
+          "topics": [
+            "Analyse du sujet",
+            "Recherche d'idées",
+            "Plan et paragraphes",
+            "Enrichissement de l'expression"
+          ],
+          "method": "Plan guidé, rédaction par étapes puis révision avec grille",
+          "deliverable": "Production rédigée annotée et grille de relecture"
+        },
+        {
+          "number": 5,
+          "title": "Méthodologie DNB et sujet d'entraînement",
+          "objective": "Coordonner compréhension, langue et rédaction dans un entraînement complet",
+          "topics": [
+            "Gestion du temps",
+            "Barème",
+            "Justification",
+            "Relecture finale"
+          ],
+          "method": "Sujet d'entraînement chronométré puis correction méthodique",
+          "deliverable": "Sujet DNB corrigé et trois priorités de rentrée"
+        }
+      ]
+    },
     {
       "id": "seconde-mathematiques",
       "level": "SECONDE",
@@ -483,60 +644,60 @@
       "sessions": [
         {
           "number": 1,
-        "title": "Algorithmique et premiers programmes Python",
-        "objective": "Découvrir comment décomposer un problème et écrire un premier programme Python",
-        "topics": [
-          "Algorithme, instruction et ordre d’exécution",
-          "Variables, types simples et affectation",
-          "Entrées, sorties et expressions",
-          "Lecture et test d’un programme court"
-        ],
-        "method": "Démonstration guidée puis écriture progressive de programmes très courts",
-        "deliverable": "Premier programme Python commenté et fiche de vocabulaire algorithmique"
+          "title": "Algorithmique et premiers programmes Python",
+          "objective": "Découvrir comment décomposer un problème et écrire un premier programme Python",
+          "topics": [
+            "Algorithme, instruction et ordre d’exécution",
+            "Variables, types simples et affectation",
+            "Entrées, sorties et expressions",
+            "Lecture et test d’un programme court"
+          ],
+          "method": "Démonstration guidée puis écriture progressive de programmes très courts",
+          "deliverable": "Premier programme Python commenté et fiche de vocabulaire algorithmique"
         },
         {
           "number": 2,
-        "title": "Conditions et boucles",
-        "objective": "Écrire des programmes qui prennent une décision et répètent un traitement",
-        "topics": [
-          "Expressions booléennes",
-          "Structures conditionnelles if, elif, else",
-          "Boucles for et while",
-          "Traces d’exécution et terminaison"
-        ],
-        "method": "Prédiction de traces puis exercices Python à paliers",
-        "deliverable": "Programme interactif utilisant conditions et boucles"
+          "title": "Conditions et boucles",
+          "objective": "Écrire des programmes qui prennent une décision et répètent un traitement",
+          "topics": [
+            "Expressions booléennes",
+            "Structures conditionnelles if, elif, else",
+            "Boucles for et while",
+            "Traces d’exécution et terminaison"
+          ],
+          "method": "Prédiction de traces puis exercices Python à paliers",
+          "deliverable": "Programme interactif utilisant conditions et boucles"
         },
         {
           "number": 3,
-        "title": "Fonctions et décomposition d’un problème",
-        "objective": "Comprendre l’intérêt des fonctions et structurer une solution en sous-problèmes",
-        "topics": [
-          "Définition et appel d’une fonction",
-          "Paramètres et valeur de retour",
-          "Portée élémentaire des variables",
-          "Tests simples et cas limites"
-        ],
-        "method": "Refactorisation guidée d’un programme puis exercices de décomposition",
-        "deliverable": "Bibliothèque de fonctions courtes accompagnées de tests"
+          "title": "Fonctions et décomposition d’un problème",
+          "objective": "Comprendre l’intérêt des fonctions et structurer une solution en sous-problèmes",
+          "topics": [
+            "Définition et appel d’une fonction",
+            "Paramètres et valeur de retour",
+            "Portée élémentaire des variables",
+            "Tests simples et cas limites"
+          ],
+          "method": "Refactorisation guidée d’un programme puis exercices de décomposition",
+          "deliverable": "Bibliothèque de fonctions courtes accompagnées de tests"
         },
         {
           "number": 4,
-        "title": "Listes, parcours et recherche",
-        "objective": "Manipuler une collection simple et construire un premier algorithme de recherche",
-        "topics": [
-          "Création et accès aux éléments d’une liste",
-          "Parcours par indices et par valeurs",
-          "Accumulation et recherche séquentielle",
-          "Introduction à l’efficacité d’un algorithme"
-        ],
-        "method": "Manipulations guidées puis résolution d’un problème de recherche",
-        "deliverable": "Algorithme de recherche commenté et jeu de tests"
+          "title": "Listes, parcours et recherche",
+          "objective": "Manipuler une collection simple et construire un premier algorithme de recherche",
+          "topics": [
+            "Création et accès aux éléments d’une liste",
+            "Parcours par indices et par valeurs",
+            "Accumulation et recherche séquentielle",
+            "Introduction à l’efficacité d’un algorithme"
+          ],
+          "method": "Manipulations guidées puis résolution d’un problème de recherche",
+          "deliverable": "Algorithme de recherche commenté et jeu de tests"
         },
         {
           "number": 5,
           "title": "Mini-projet intégrateur NSI",
-        "objective": "Mobiliser les fondamentaux découverts dans un projet accessible aux débutants",
+          "objective": "Mobiliser les fondamentaux découverts dans un projet accessible aux débutants",
           "topics": [
             "Définition du cahier des charges",
             "Structuration du code en fonctions",
@@ -544,7 +705,7 @@
             "Documentation et présentation"
           ],
           "method": "Pédagogie par projet avec accompagnement personnalisé",
-        "deliverable": "Mini-projet Python documenté, testé et présenté au groupe"
+          "deliverable": "Mini-projet Python documenté, testé et présenté au groupe"
         }
       ]
     },
@@ -705,80 +866,80 @@
       ]
     },
     {
-      "id": "terminale-expression-ecrite-oral",
+      "id": "terminale-philosophie",
       "level": "TERMINALE",
-      "subjectId": "FRANCAIS",
-      "subject": "Expression écrite argumentation et oral",
-      "title": "Expression écrite, argumentation et maîtrise de l'oral",
-      "subtitle": "Entrée en Terminale — développer les compétences transversales d'expression pour le futur Grand Oral et le supérieur",
-      "prerequisites": "Les compétences d’expression écrite et orale travaillées jusqu’en Première ; savoir organiser un paragraphe et présenter une idée.",
-      "differentiation": "Sujets, temps de préparation et niveau d'étayage adaptés à l'aisance écrite et orale.",
-      "quickAssessment": "Prise de parole ou synthèse courte avec retour sur structure, précision et expression.",
+      "subjectId": "PHILOSOPHIE",
+      "subject": "Philosophie",
+      "title": "Philosophie — Entrée en Terminale",
+      "subtitle": "Nexus Premium — découvrir les exigences de la dissertation et de l'explication de texte en Terminale",
+      "prerequisites": "Les compétences d’argumentation et de lecture acquises en Première ; aucun cours préalable de philosophie n'est requis.",
+      "differentiation": "Questions, exemples et niveaux d'étayage adaptés à la maîtrise de l'argumentation et de l'expression écrite.",
+      "quickAssessment": "Une problématisation, un argument ou une étape d'explication est rédigé puis corrigé en fin de séance.",
       "sessions": [
         {
           "number": 1,
-          "title": "Argumentation structurée et raisonnement logique",
-          "objective": "Construire une argumentation rigoureuse sur des sujets complexes",
+          "title": "Comprendre une notion et problématiser une question",
+          "objective": "Distinguer opinion, question et problème philosophique à partir d'une notion",
           "topics": [
-            "Structure argumentative avancée (thèse, antithèse, synthèse)",
-            "Types de raisonnement (déductif, inductif, par analogie)",
-            "Connecteurs logiques et enchaînements",
-            "Rédaction d'un développement argumenté de 40 lignes"
+            "Notion, distinction conceptuelle et définition",
+            "Présupposés d'une question",
+            "Tension et formulation d'un problème",
+            "Construction d'une introduction"
           ],
-          "method": "Analyse de modèles puis production écrite avec feedback personnalisé",
-          "deliverable": "Développement argumenté complet évalué et annoté"
+          "method": "Analyse collective de questions puis ateliers de reformulation et de problématisation",
+          "deliverable": "Fiche méthode de problématisation et introduction corrigée"
         },
         {
           "number": 2,
-          "title": "Analyse de textes et documents non littéraires",
-          "objective": "Extraire, confronter et synthétiser des informations de documents variés",
+          "title": "Analyser un sujet et construire une dissertation",
+          "objective": "Délimiter un sujet et élaborer un plan qui répond progressivement au problème",
           "topics": [
-            "Lecture critique de documents scientifiques et journalistiques",
-            "Identification des biais et des intentions de l'auteur",
-            "Confrontation de sources et recoupement",
-            "Rédaction d'une analyse structurée"
+            "Analyse des termes du sujet",
+            "Types de sujets",
+            "Progression du raisonnement",
+            "Plan détaillé et transitions"
           ],
-          "method": "Travail sur corpus documentaire avec grille d'analyse guidée",
-          "deliverable": "Analyse de document rédigée avec méthode de lecture critique"
+          "method": "Décomposition guidée de sujets puis construction comparée de plans",
+          "deliverable": "Plan détaillé de dissertation avec transitions rédigées"
         },
         {
           "number": 3,
-          "title": "Expression orale : structuration et diction",
-          "objective": "Structurer un propos oral et maîtriser sa diction et sa posture",
+          "title": "Organiser une argumentation et mobiliser des exemples",
+          "objective": "Rédiger un développement précis qui articule argument, objection et exemple",
           "topics": [
-            "Structuration d'une intervention orale (5 min)",
-            "Techniques de diction (articulation, rythme, pauses)",
-            "Gestion du regard et de la posture",
-            "Utilisation de notes et de support"
+            "Thèse et argument",
+            "Objection et réponse",
+            "Exemple analysé",
+            "Connecteurs et précision de l'expression"
           ],
-          "method": "Exercices de prise de parole filmés avec auto-analyse",
-          "deliverable": "Fiche personnalisée de progression orale avec objectifs ciblés"
+          "method": "Analyse de paragraphes modèles puis rédaction et révision critériée",
+          "deliverable": "Développement argumenté annoté avec banque d'exemples"
         },
         {
           "number": 4,
-          "title": "Synthèse de documents",
-          "objective": "Rédiger une synthèse fidèle et structurée à partir d'un corpus",
+          "title": "Expliquer un texte philosophique",
+          "objective": "Dégager le problème, la thèse et les étapes de l'argumentation d'un texte",
           "topics": [
-            "Méthodologie de la synthèse (lecture, confrontation, plan)",
-            "Reformulation sans paraphrase ni opinion personnelle",
-            "Organisation thématique du propos",
-            "Rédaction fluide avec transitions"
+            "Question et thèse du texte",
+            "Structure argumentative",
+            "Explication précise d'un passage",
+            "Évitement de la paraphrase"
           ],
-          "method": "Exercice complet de synthèse sur corpus de 3-4 documents",
-          "deliverable": "Synthèse rédigée avec grille d'auto-évaluation"
+          "method": "Lecture linéaire guidée puis rédaction d'une étape d'explication",
+          "deliverable": "Carte argumentative du texte et passage expliqué"
         },
         {
           "number": 5,
-          "title": "Préparation à l'entretien : Grand Oral et au-delà",
-          "objective": "Se préparer à l'épreuve du Grand Oral et aux entretiens d'orientation",
+          "title": "Entraînement type bac et correction méthodique",
+          "objective": "Choisir une démarche, produire un devoir partiel et utiliser une grille de correction",
           "topics": [
-            "Structure du Grand Oral (présentation + échange + orientation)",
-            "Formulation et défense d'une problématique",
-            "Réponse aux questions déstabilisantes",
-            "Simulation complète en conditions d'examen"
+            "Choix entre dissertation et explication",
+            "Gestion du temps",
+            "Cohérence du raisonnement",
+            "Relecture et amélioration"
           ],
-          "method": "Simulation d'entretien en conditions réelles avec jury",
-          "deliverable": "Grille d'évaluation Grand Oral complétée avec axes d'amélioration"
+          "method": "Entraînement chronométré puis correction collective et reprise individuelle",
+          "deliverable": "Copie d'entraînement corrigée et plan personnel de progrès"
         }
       ]
     },
@@ -935,6 +1096,162 @@
           ],
           "method": "Entraînement sur problèmes type Bac avec correction critériée",
           "deliverable": "Problème résolu intégralement avec grille de notation explicitée"
+        }
+      ]
+    },
+    {
+      "id": "premiere-svt",
+      "level": "PREMIERE",
+      "subjectId": "SVT",
+      "subject": "SVT",
+      "title": "SVT — Entrée en Première",
+      "subtitle": "Nexus Premium — consolider les fondamentaux de SVT et préparer les attendus de la spécialité",
+      "prerequisites": "Les acquis de Seconde en SVT : organisation du vivant, énergie, génétique et écosystèmes ; le test flash précise les priorités.",
+      "differentiation": "Exercices organisés en trois paliers pour réactiver les méthodes de lecture de documents, de schémas et de raisonnement scientifique.",
+      "quickAssessment": "Une activité de cinq à dix minutes vérifie la compétence travaillée à la fin de chaque séance.",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Organisation du vivant et cellule",
+          "objective": "Réactiver la structure cellulaire, la notion de niveau d’organisation et les méthodes d’observation",
+          "topics": [
+            "Cellule procaryote/eucaryote",
+            "Organisation des organismes",
+            "Observation et schémas",
+            "Vocabulaire de la biologie"
+          ],
+          "method": "Test flash puis lecture de documents et schémas à compléter",
+          "deliverable": "Fiche réflexe cellule et organisation du vivant"
+        },
+        {
+          "number": 2,
+          "title": "Métabolisme et énergie",
+          "objective": "Relier les échanges énergétiques et les transformations de la matière dans les êtres vivants",
+          "topics": [
+            "Photosynthèse et respiration",
+            "Matière et énergie",
+            "Croissance et reproduction",
+            "Notion de cycle biogéochimique"
+          ],
+          "method": "Exemples guidés et exercices de lecture de cycles et de schémas",
+          "deliverable": "Carte méthode énergie et métabolisme"
+        },
+        {
+          "number": 3,
+          "title": "Génétique et expression du patrimoine génétique",
+          "objective": "Réactiver la notion de gène, d’ADN, de transcription-traduction et d’hérédité simple",
+          "topics": [
+            "ADN, gène, chromosome",
+            "Transcription et traduction",
+            "Hérédité mendélienne",
+            "Mutations et variation"
+          ],
+          "method": "Schémas commentés et petits problèmes d’hérédité",
+          "deliverable": "Fiche de synthèse génétique avec exercices corrigés"
+        },
+        {
+          "number": 4,
+          "title": "Écologie et interactions",
+          "objective": "Relier les interactions entre organismes et les grands équilibres écologiques",
+          "topics": [
+            "Réseaux trophiques",
+            "Flux de matière et énergie",
+            "Cycles biogéochimiques",
+            "Relations durables et action humaine"
+          ],
+          "method": "Lecture de documents puis construction de réseaux et de cycles",
+          "deliverable": "Fiche écologie et interactions corrigée"
+        },
+        {
+          "number": 5,
+          "title": "Méthodologie et sujet d’entraînement",
+          "objective": "Organiser son temps, lire un document scientifique et rédiger une réponse argumentée",
+          "topics": [
+            "Lecture de documents SVT",
+            "Gestion du temps",
+            "Rédaction scientifique",
+            "Vérification des résultats"
+          ],
+          "method": "Sujet d’entraînement chronométré puis correction critériée",
+          "deliverable": "Sujet SVT corrigé et grille personnelle de vigilance"
+        }
+      ]
+    },
+    {
+      "id": "terminale-svt",
+      "level": "TERMINALE",
+      "subjectId": "SVT",
+      "subject": "SVT",
+      "title": "SVT — Entrée en Terminale",
+      "subtitle": "Nexus Premium — cibler les attendus de Terminale et consolider les méthodes de la spécialité",
+      "prerequisites": "Les acquis de Première en SVT : organisation du vivant, génétique, énergie et écologie ; le test flash précise les domaines à renforcer.",
+      "differentiation": "Exercices organisés par domaine et par palier pour réactiver les raisonnements attendus en Terminale.",
+      "quickAssessment": "Une consigne courte de lecture, schéma ou raisonnement vérifie l’objectif de chaque séance.",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Génétique et évolution",
+          "objective": "Réactiver les mécanismes moléculaires, la variabilité et les grandeurs évolutives",
+          "topics": [
+            "Expression du génome",
+            "Régulation génique",
+            "Mutations et variation",
+            "Dynamique des populations"
+          ],
+          "method": "Schémas et petits problèmes numériques guidés",
+          "deliverable": "Fiche génétique-évolution corrigée"
+        },
+        {
+          "number": 2,
+          "title": "Énergie et métabolisme",
+          "objective": "Relier les conversions d’énergie, la croissance et l’homéostasie dans les organismes",
+          "topics": [
+            "Respiration et photosynthèse",
+            "Transferts d’énergie",
+            "Homéostasie",
+            "Signalisation cellulaire"
+          ],
+          "method": "Lecture de schémas et exercices de raisonnement",
+          "deliverable": "Fiche métabolisme et énergie corrigée"
+        },
+        {
+          "number": 3,
+          "title": "Écologie et interactions durables",
+          "objective": "Analyser les interactions, les flux et les pressions anthropiques à l’échelle des écosystèmes",
+          "topics": [
+            "Réseaux trophiques et flux",
+            "Dynamiques de populations",
+            "Biodiversité et pressions",
+            "Durabilité des actions"
+          ],
+          "method": "Lecture de documents et construction d’arguments",
+          "deliverable": "Fiche écologie et durabilité corrigée"
+        },
+        {
+          "number": 4,
+          "title": "Patrimoine génétique et reproduction",
+          "objective": "Consolider les mécanismes de reproduction, de transmission et d’expression du génome",
+          "topics": [
+            "Mitose et méiose",
+            "Fécondation",
+            "Transmission chromosomique",
+            "Expression génique"
+          ],
+          "method": "Comparaison de schémas et problèmes de transmission",
+          "deliverable": "Fiche patrimoine génétique corrigée"
+        },
+        {
+          "number": 5,
+          "title": "Bilan et sujet d’entraînement",
+          "objective": "Organiser ses connaissances et traiter un sujet type de spécialité SVT",
+          "topics": [
+            "Lecture de documents complexes",
+            "Raisonnement à plusieurs niveaux",
+            "Rédaction scientifique",
+            "Gestion du temps"
+          ],
+          "method": "Sujet d’entraînement chronométré puis correction critériée",
+          "deliverable": "Sujet SVT corrigé et plan d’action rentrée"
         }
       ]
     }

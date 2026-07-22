@@ -18,5 +18,6 @@ export interface PreRentreeHomepageSpotlightDTO {
   venueLabel: string;
   editorialLine: string;
   campaignPath: string;
-  planningPath: string;
+  secondaryCtaLabel: string;
+  secondaryCtaPath: string;
 }

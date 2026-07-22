@@ -25,7 +25,7 @@ function renderConfigurator() {
     <StageConfigurator
       levels={dto.levels}
       subjects={dto.subjects}
-      packs={dto.packs}
+      packs={dto.offerOptions}
       schedule={dto.schedule}
       academicProfiles={dto.academicProfiles}
       groupCompositionNotice={dto.content.practical.groupCompositionNotice}
@@ -54,23 +54,21 @@ describe('Pré-rentrée stage configurator', () => {
     expect(track.preRentreeTrackSelected).toHaveBeenCalledWith('premiere', 'eaf_generale');
     await user.click(screen.getByRole('button', { name: 'Continuer' }));
 
-    expect(screen.getAllByRole('checkbox')).toHaveLength(4);
+    expect(screen.getAllByRole('checkbox')).toHaveLength(5);
     await user.click(screen.getByRole('checkbox', { name: /Mathématiques/i }));
     await user.click(screen.getByRole('checkbox', { name: /Français.*EAF/i }));
     await user.click(screen.getByRole('button', { name: /Voir mon résumé/i }));
 
-    const pack = dto.packs.find((candidate) => candidate.subjectsCount === 2);
+    const pack = dto.offerOptions.find((candidate) => candidate.level === 'PREMIERE' && candidate.subjectsCount === 2);
     expect(screen.getByText(`${pack?.price.toLocaleString('fr-TN')} TND`)).toBeInTheDocument();
     expect(screen.getByText(`Acompte : ${pack?.deposit.toLocaleString('fr-TN')} TND`)).toBeInTheDocument();
     expect(screen.getByText(`Solde : ${pack?.balance.toLocaleString('fr-TN')} TND`)).toBeInTheDocument();
-    expect(screen.getAllByText('Pré-inscriptions ouvertes').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Campagne en préparation').length).toBeGreaterThan(0);
     expect(document.body.textContent).not.toContain('PRE_REGISTRATION_OPEN');
     expect(screen.getByText(/validation du groupe par l'équipe Nexus/i)).toBeInTheDocument();
 
-    const bilan = screen.getByRole('link', { name: /Poursuivre vers le bilan/i });
-    expect(bilan).toHaveAttribute('href', expect.stringContaining('pack=PACK_2'));
-    expect(bilan.getAttribute('href')).not.toMatch(/price|prix/i);
-    expect(screen.getByText('Du lundi 17 au vendredi 21 août · 10:45–12:45')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Demander ce parcours sur WhatsApp/i })).toHaveAttribute('href', expect.stringContaining('wa.me'));
+    expect(screen.getByText('Du lundi 17 au vendredi 21 août · 13:30–15:30')).toBeInTheDocument();
     expect(screen.getByText('(nouvel onglet)')).toHaveClass('sr-only');
   });
 
@@ -112,7 +110,7 @@ describe('Pré-rentrée stage configurator', () => {
       <StageConfigurator
         levels={dto.levels}
         subjects={dto.subjects}
-        packs={dto.packs}
+        packs={dto.offerOptions}
         schedule={dto.schedule}
         academicProfiles={dto.academicProfiles}
         groupCompositionNotice={dto.content.practical.groupCompositionNotice}
@@ -181,7 +179,7 @@ describe('Pré-rentrée stage configurator', () => {
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
     await user.click(toggle);
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
-    expect(screen.getByRole('link', { name: /Poursuivre vers le bilan/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Demander ce parcours sur WhatsApp/i })).toBeInTheDocument();
   });
 
   it('shows the public campaign status without an internal status label', async () => {
@@ -191,7 +189,7 @@ describe('Pré-rentrée stage configurator', () => {
     await user.click(screen.getByRole('radio', { name: 'Entrée en Seconde' }));
     await user.click(screen.getByRole('button', { name: 'Continuer' }));
     await user.click(screen.getByRole('checkbox', { name: /Mathématiques/i }));
-    expect(screen.getByText('Pré-inscriptions ouvertes')).toBeInTheDocument();
+    expect(screen.getByText('Campagne en préparation')).toBeInTheDocument();
     expect(document.body.textContent).not.toContain('Statut de campagne');
   });
 });

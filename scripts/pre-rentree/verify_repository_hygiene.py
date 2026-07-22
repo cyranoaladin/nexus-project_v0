@@ -1,0 +1,111 @@
+#!/usr/bin/env python3
+"""Fail when generated document outputs or exact source copies are tracked."""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import subprocess
+from pathlib import Path
+
+
+FORBIDDEN_TRACKED_PREFIXES = (
+    ".artifacts/",
+    "artifacts/pre-rentree-2026/",
+    "outputs-v5-canonical/",
+)
+CANONICAL_SOURCE_ROOT = Path("scripts/pre-rentree")
+SOURCE_SUFFIXES = {".py", ".ts", ".tsx", ".mjs", ".css"}
+
+
+def _tracked_paths(repo_root: Path) -> list[Path]:
+    result = subprocess.run(
+        ["git", "ls-files", "-z"],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+    )
+    return [Path(value.decode("utf-8")) for value in result.stdout.split(b"\0") if value]
+
+
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def verify(repo_root: Path) -> tuple[list[str], list[str]]:
+    root = repo_root.resolve()
+    tracked = _tracked_paths(root)
+    generated = [
+        path.as_posix()
+        for path in tracked
+        if any(path.as_posix().startswith(prefix) for prefix in FORBIDDEN_TRACKED_PREFIXES)
+    ]
+
+    canonical = [
+        path
+        for path in tracked
+        if path.is_relative_to(CANONICAL_SOURCE_ROOT)
+        and path.suffix in SOURCE_SUFFIXES
+        and (root / path).is_file()
+    ]
+    candidates_by_hash: dict[str, list[str]] = {}
+    for path in tracked:
+        if not (root / path).is_file():
+            continue
+        if path.suffix not in SOURCE_SUFFIXES:
+            continue
+        candidates_by_hash.setdefault(_sha256(root / path), []).append(path.as_posix())
+
+    duplicate_pairs: set[tuple[str, str]] = set()
+    for source in canonical:
+        for duplicate in candidates_by_hash.get(_sha256(root / source), []):
+            if duplicate == source.as_posix():
+                continue
+            duplicate_pairs.add(tuple(sorted((source.as_posix(), duplicate))))
+    duplicates = [f"{first} == {second}" for first, second in sorted(duplicate_pairs)]
+    return sorted(generated), duplicates
+
+
+def audit_repository(repo_root: Path) -> dict[str, object]:
+    generated, duplicates = verify(repo_root)
+    tracked = _tracked_paths(repo_root.resolve())
+    private_directories = sorted(
+        path.as_posix()
+        for path in tracked
+        if any(part.upper() == "PRIVATE" for part in path.parts)
+        and path.as_posix().startswith(("outputs-v5-canonical/", "artifacts/", ".artifacts/"))
+    )
+    return {
+        "TRACKED_GENERATED_OUTPUT_COUNT": len(generated),
+        "TRACKED_GENERATED_OUTPUTS": generated,
+        "DUPLICATE_DOCUMENT_SOURCE_COUNT": len(duplicates),
+        "DUPLICATE_DOCUMENT_SOURCES": duplicates,
+        "TRACKED_PRIVATE_DIRECTORY_COUNT": len(private_directories),
+        "TRACKED_PRIVATE_DIRECTORIES": private_directories,
+        "PASS": not generated and not duplicates and not private_directories,
+    }
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--repo-root", required=True, type=Path)
+    args = parser.parse_args()
+    report = audit_repository(args.repo_root)
+    print(f"TRACKED_GENERATED_ARTIFACT_COUNT={report['TRACKED_GENERATED_OUTPUT_COUNT']}")
+    print(f"DUPLICATE_DOCUMENT_SOURCE_COUNT={report['DUPLICATE_DOCUMENT_SOURCE_COUNT']}")
+    print(f"TRACKED_PRIVATE_DIRECTORY_COUNT={report['TRACKED_PRIVATE_DIRECTORY_COUNT']}")
+    for finding in (
+        *report["TRACKED_GENERATED_OUTPUTS"],
+        *report["DUPLICATE_DOCUMENT_SOURCES"],
+        *report["TRACKED_PRIVATE_DIRECTORIES"],
+    ):
+        print(f"ERROR={finding}")
+    raise SystemExit(0 if report["PASS"] else 1)
+
+
+if __name__ == "__main__":
+    main()

@@ -7,13 +7,13 @@
 
 // Mock nodemailer before importing
 const mockSendMail = jest.fn().mockResolvedValue({ messageId: 'test-id' });
-jest.mock('nodemailer', () => ({
+jest.mock('nodemailer9', () => ({
   createTransport: jest.fn(() => ({
     sendMail: mockSendMail,
   })),
 }));
 
-import nodemailer from 'nodemailer';
+import nodemailer from 'nodemailer9';
 import {
   sendWelcomeParentEmail,
   sendCreditExpirationReminder,

@@ -8,7 +8,7 @@
  * Source: lib/email-service.ts
  */
 
-jest.mock('nodemailer', () => {
+jest.mock('nodemailer9', () => {
   const sendMail = jest.fn().mockResolvedValue({ messageId: 'mock-id' });
   const verify = jest.fn().mockResolvedValue(true);
   return {
@@ -26,7 +26,7 @@ import {
   sendSessionReportNotification,
 } from '@/lib/email-service';
 
-const { __mockSendMail: mockSendMail, __mockVerify: mockVerify } = require('nodemailer');
+const { __mockSendMail: mockSendMail, __mockVerify: mockVerify } = require('nodemailer9');
 
 beforeEach(() => {
   jest.clearAllMocks();

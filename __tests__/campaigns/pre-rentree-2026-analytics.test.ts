@@ -1,11 +1,11 @@
 import { toPreRentreeEntryLevel, track } from '@/lib/analytics';
 
 describe('Pré-rentrée analytics contract', () => {
-  it('normalizes only the three stable entry-level identifiers', () => {
+  it('normalizes the four stable entry-level identifiers', () => {
+    expect(toPreRentreeEntryLevel('TROISIEME')).toBe('troisieme');
     expect(toPreRentreeEntryLevel('SECONDE')).toBe('seconde');
     expect(toPreRentreeEntryLevel('PREMIERE')).toBe('premiere');
     expect(toPreRentreeEntryLevel('TERMINALE')).toBe('terminale');
-    expect(() => toPreRentreeEntryLevel('TROISIEME')).toThrow('Unknown entry level');
   });
 
   it('emits the ten campaign events with normalized non-PII properties', () => {

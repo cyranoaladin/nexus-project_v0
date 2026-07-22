@@ -107,6 +107,11 @@ export type EleveBilanSubject =
   | 'MANAGEMENT'
   | 'SGN'
   | 'FRANCAIS'
+  | 'SVT'
+  | 'SES'
+  | 'EMC'
+  | 'HISTOIRE_GEOGRAPHIE'
+  | 'PHILOSOPHIE'
   | 'MIXTE';
 
 export type EleveBilan = {

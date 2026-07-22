@@ -25,10 +25,21 @@ export function buildWhatsAppUrl(
     ? `Bonjour Nexus Réussite, j'ai une question sur ${context}.`
     : "Bonjour Nexus Réussite, j'ai une question sur l'accompagnement.";
 
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  return `${buildWhatsAppContactUrl()}?text=${encodeURIComponent(message)}`;
+}
+
+/** Build the canonical click-to-chat endpoint without a pre-filled message. */
+export function buildWhatsAppContactUrl(number = WHATSAPP_NUMBER): string {
+  return `https://wa.me/${number}`;
 }
 
 /** Expose the number for tel: links (formatted). */
 export function getWhatsAppNumber(): string {
   return WHATSAPP_NUMBER;
+}
+
+/** Format the canonical Tunisian mobile number for visible public copy. */
+export function getWhatsAppDisplayNumber(): string {
+  const localNumber = WHATSAPP_NUMBER.replace(/^216/, '');
+  return localNumber.replace(/^(\d{2})(\d{3})(\d{3})$/, '$1 $2 $3');
 }

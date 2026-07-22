@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import nodemailer from 'nodemailer9';
 import { LEGAL, compactBankIdentifier } from '@/lib/legal';
 import { serializeError } from '@/lib/utils/serialize-error';
 

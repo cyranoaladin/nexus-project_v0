@@ -19,6 +19,10 @@ const allowedFiles: Record<string, { contentType: string; path: string }> = {
     contentType: 'text/css; charset=utf-8',
     path: path.join(toolDir, 'styles.css'),
   },
+  'tailwind-build.css': {
+    contentType: 'text/css; charset=utf-8',
+    path: path.join(toolDir, 'tailwind-build.css'),
+  },
 };
 
 interface RouteParams {

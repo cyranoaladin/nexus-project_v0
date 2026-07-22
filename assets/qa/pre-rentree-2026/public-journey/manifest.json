@@ -1,0 +1,118 @@
+{
+  "schemaVersion": "1.0.0",
+  "campaignId": "pre-rentree-2026",
+  "purpose": "Rendered desktop and mobile inspection of the canonical public journey",
+  "generatedBy": "scripts/pre-rentree/build_public_qa_manifest.mjs",
+  "files": [
+    {
+      "path": "assets/qa/pre-rentree-2026/public-journey/accompaniment-desktop.png",
+      "mediaType": "image/png",
+      "width": 1440,
+      "height": 1000,
+      "bytes": 139623,
+      "sha256": "70455a8d8f70423aeb9bf00d93e25c93e0d2d04bf61ebfe4a34bc935b200677b"
+    },
+    {
+      "path": "assets/qa/pre-rentree-2026/public-journey/accompaniment-mobile.png",
+      "mediaType": "image/png",
+      "width": 390,
+      "height": 844,
+      "bytes": 72375,
+      "sha256": "695645308769adcec4f6df80e5e2653d78c0ac382cf54ef9d9bff42c82c79c33"
+    },
+    {
+      "path": "assets/qa/pre-rentree-2026/public-journey/browser-inspection.json",
+      "mediaType": "application/json",
+      "bytes": 5938,
+      "sha256": "5f8e550bf922d8af3d4fcafa5921542a2805ff650ceaf18b21292247b85a3562"
+    },
+    {
+      "path": "assets/qa/pre-rentree-2026/public-journey/campaign-desktop-contact-sheet.png",
+      "mediaType": "image/png",
+      "width": 1872,
+      "height": 1077,
+      "bytes": 653081,
+      "sha256": "06a134f78294e845e5a332b539bf3f2b9a96d8cfd85f000ce006df83a5e9a931"
+    },
+    {
+      "path": "assets/qa/pre-rentree-2026/public-journey/campaign-desktop.png",
+      "mediaType": "image/png",
+      "width": 1432,
+      "height": 7534,
+      "bytes": 1012480,
+      "sha256": "2c750b6202799c1ac8c21826d39a72ab946e86fa26bbd246a4a34ca1fe854ce1"
+    },
+    {
+      "path": "assets/qa/pre-rentree-2026/public-journey/campaign-mobile-contact-sheet.png",
+      "mediaType": "image/png",
+      "width": 1218,
+      "height": 4767,
+      "bytes": 1107145,
+      "sha256": "665e5fc4b9b0358ccec20825b11c9c6c26819d8104f60577e5ef0c2378ea230e"
+    },
+    {
+      "path": "assets/qa/pre-rentree-2026/public-journey/campaign-mobile.png",
+      "mediaType": "image/png",
+      "width": 382,
+      "height": 14229,
+      "bytes": 1021911,
+      "sha256": "7abefed83ec7f4c687b832b7840e399cfc8d1d19e79e47b6bec7e6ddd5efccd6"
+    },
+    {
+      "path": "assets/qa/pre-rentree-2026/public-journey/home-desktop.png",
+      "mediaType": "image/png",
+      "width": 1440,
+      "height": 1000,
+      "bytes": 296899,
+      "sha256": "1d5e01112d24b116e98f18ca2d3e03fe23a0be45ecceb1799bf2e1909635b9d3"
+    },
+    {
+      "path": "assets/qa/pre-rentree-2026/public-journey/home-mobile.png",
+      "mediaType": "image/png",
+      "width": 390,
+      "height": 844,
+      "bytes": 89925,
+      "sha256": "e4f142f31b1f28288f8ad146f3fa7b37a4eaf4d2da6828a68344fdb77a2a85cb"
+    },
+    {
+      "path": "assets/qa/pre-rentree-2026/public-journey/offers-desktop.png",
+      "mediaType": "image/png",
+      "width": 1440,
+      "height": 1000,
+      "bytes": 146092,
+      "sha256": "ee6aaf23a504f3506d4a8740a95c57c60e6bf09deac47ed37a189217964520b4"
+    },
+    {
+      "path": "assets/qa/pre-rentree-2026/public-journey/offers-mobile.png",
+      "mediaType": "image/png",
+      "width": 390,
+      "height": 844,
+      "bytes": 80291,
+      "sha256": "6ee6b050d16f74fa6de69a80ef332b797606c0619d587470f9df3419e6246f21"
+    },
+    {
+      "path": "assets/qa/pre-rentree-2026/public-journey/public-route-contact-sheet.png",
+      "mediaType": "image/png",
+      "width": 1856,
+      "height": 668,
+      "bytes": 380337,
+      "sha256": "52effcc3af426c5dbf9e5cf304492f5fe0b54f807b9d99fcf2b9e1e2df94234b"
+    },
+    {
+      "path": "assets/qa/pre-rentree-2026/public-journey/stages-desktop.png",
+      "mediaType": "image/png",
+      "width": 1440,
+      "height": 1000,
+      "bytes": 136989,
+      "sha256": "db2fdc7558227c122a932a0192c28c60f641b8153e51b55a964cd743e0d0b4a1"
+    },
+    {
+      "path": "assets/qa/pre-rentree-2026/public-journey/stages-mobile.png",
+      "mediaType": "image/png",
+      "width": 390,
+      "height": 844,
+      "bytes": 69221,
+      "sha256": "3331b8f978f179d3c021bd2f968a386f57a7b99cc4112e93c340a4c18f094d9d"
+    }
+  ]
+}

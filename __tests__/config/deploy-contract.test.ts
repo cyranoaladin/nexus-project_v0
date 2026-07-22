@@ -36,11 +36,25 @@ describe('production deployment contract', () => {
     }
   });
 
-  it('uses the Node 20 base image expected by production', () => {
+  it('uses the pinned Node 22.23.1 base image expected by production', () => {
     const dockerfile = read('Dockerfile');
 
-    expect(dockerfile).toContain('FROM node:20-alpine AS base');
+    expect(dockerfile).toContain(
+      'FROM node:22.23.1-alpine@sha256:16e22a550f3863206a3f701448c45f7912c6896a62de43add43bb9c86130c3e2 AS base',
+    );
     expect(dockerfile).not.toContain('FROM node:18-alpine AS base');
+  });
+
+  it('keeps the Alpine dependency proof on the same pinned base', () => {
+    const verifier = read('Dockerfile.dependencies');
+
+    expect(verifier).toContain(
+      'FROM node:22.23.1-alpine@sha256:16e22a550f3863206a3f701448c45f7912c6896a62de43add43bb9c86130c3e2',
+    );
+    expect(verifier).toContain('COPY package.json package-lock.json .npmrc ./');
+    expect(verifier).toContain('RUN npm ci');
+    expect(verifier).toContain('npm audit --omit=dev --audit-level=high');
+    expect(verifier).toContain('validate-npm-tree.js');
   });
 
   it('keeps the git-pull deploy helper aligned with the real production host and systemd service', () => {
@@ -80,12 +94,28 @@ describe('production deployment contract', () => {
       .filter(file => !file.startsWith('.'));
 
     for (const file of scriptFiles) {
-      const scriptPath = path.join(scriptsDir, file);
       const script = read(`scripts/${file}`);
 
       for (const pattern of dangerousPatterns) {
         expect(script).not.toMatch(new RegExp(pattern));
       }
     }
+  });
+
+  it('requires an explicit release SHA for the builder gate', () => {
+    const dockerfile = read('Dockerfile');
+    const dockerignore = read('.dockerignore');
+    const builderAndRunner = dockerfile.split('FROM base AS builder')[1];
+    const [builderStage, runnerStage] = builderAndRunner.split('FROM base AS runner');
+
+    expect(dockerignore.split(/\r?\n/)).toContain('.git');
+    expect(builderStage).toContain('ARG RELEASE_SHA');
+    expect(builderStage).not.toMatch(/ARG RELEASE_SHA\s*=/);
+    expect(builderStage).toContain("grep -Eq '^[0-9a-fA-F]{40}([0-9a-fA-F]{24})?$'");
+    expect(builderStage).toContain('RELEASE_SHA="$RELEASE_SHA" npm run build');
+    expect(runnerStage).not.toContain('ENV RELEASE_SHA');
+    expect(runnerStage).toContain(
+      'COPY --from=builder /app/release-manifest.json ./release-manifest.json',
+    );
   });
 });

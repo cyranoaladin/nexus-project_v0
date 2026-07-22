@@ -2,9 +2,9 @@
 # Version: 2.1 (Finalisé pour la production avec Prisma)
 
 # === ÉTAPE 1: Image de Base ===
-# On part d'une image Node.js version 20, alignée avec la production.
+# On part de la version Node.js LTS alignée avec la production.
 # On la nomme "base" pour pouvoir s'y référer plus tard.
-FROM node:20-alpine AS base
+FROM node:22.23.1-alpine@sha256:16e22a550f3863206a3f701448c45f7912c6896a62de43add43bb9c86130c3e2 AS base
 # On installe les dépendances système nécessaires pour Prisma
 RUN apk add --no-cache openssl
 
@@ -13,7 +13,7 @@ RUN apk add --no-cache openssl
 # On utilise l'image "base" pour cette étape et on la nomme "deps".
 FROM base AS deps
 WORKDIR /app
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json* .npmrc ./
 # On installe TOUTES les dépendances, y compris les devDependencies, car nous en avons besoin pour le build.
 RUN npm ci
 
@@ -34,8 +34,11 @@ COPY . .
 # On fournit un secret factice pour le build (le vrai secret est injecté au runtime via .env)
 ARG NEXTAUTH_SECRET=build-time-placeholder
 ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+ARG RELEASE_SHA
 # On lance le build de Next.js.
-RUN npm run build
+RUN printf '%s' "$RELEASE_SHA" \
+      | grep -Eq '^[0-9a-fA-F]{40}([0-9a-fA-F]{24})?$' \
+    && RELEASE_SHA="$RELEASE_SHA" npm run build
 
 
 # === ÉTAPE 4: Création de l'Image Finale de Production ===
@@ -47,7 +50,7 @@ ENV HOSTNAME=0.0.0.0
 
 # [CORRECTION IMPORTANTE] On réinstalle UNIQUEMENT les dépendances de production
 # pour ne pas inclure les outils de build (comme le CLI Prisma, TypeScript, etc.) dans l'image finale.
-COPY --from=builder /app/package.json /app/package-lock.json* ./
+COPY --from=builder /app/package.json /app/package-lock.json* /app/.npmrc ./
 RUN npm ci --omit=dev
 
 # On copie les artefacts de build depuis l'étape "builder".
@@ -59,6 +62,7 @@ COPY --from=builder /app/.next/static ./.next/static
 # Ces deux éléments sont nécessaires au runtime pour que Prisma fonctionne.
 COPY --from=builder /app/node_modules/.prisma ./.prisma
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/release-manifest.json ./release-manifest.json
 
 # On copie les scripts pour les tests E2E et maintenance
 COPY --from=builder /app/scripts ./scripts

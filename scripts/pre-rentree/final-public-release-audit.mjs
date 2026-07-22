@@ -8,13 +8,17 @@ const mode = process.argv[2];
 const suppliedTarget = process.argv[3];
 
 const publicSourceRoots = [
-  'components/pre-rentree-2026',
+  'components/pre-rentree-2026/CanonicalOfferCatalogue.tsx',
+  'components/pre-rentree-2026/CampaignFAQ.tsx',
+  'components/pre-rentree-2026/CampaignPageTracker.tsx',
   'components/marketing/PreRentreeCampaignSpotlight.tsx',
   'components/layout/CorporateNavbar.tsx',
   'app/stages/pre-rentree-2026',
+  'app/stages/page.tsx',
+  'app/stages/Stages2026Page.tsx',
+  'app/offres/page.tsx',
+  'app/accompagnement-scolaire/page.tsx',
   'app/HomePageClient.tsx',
-  'app/bilan-gratuit',
-  'lib/campaigns/pre-rentree-2026/configurator.ts',
   'lib/analytics.ts',
 ];
 
@@ -87,7 +91,7 @@ function relevantArtifactFiles(nextRoot) {
   const staticPath = '.next/static';
   const serverPath = '.next/server';
   const appBuildManifestPath = join(nextRoot, 'app-build-manifest.json');
-  const routeKeys = ['/page', '/layout', '/stages/pre-rentree-2026/page', '/bilan-gratuit/page'];
+  const routeKeys = ['/page', '/layout', '/stages/pre-rentree-2026/page'];
   const browserFiles = existsSync(appBuildManifestPath)
     ? [...new Set(routeKeys.flatMap((route) => {
         const manifest = JSON.parse(readFileSync(appBuildManifestPath, 'utf8'));
@@ -97,12 +101,10 @@ function relevantArtifactFiles(nextRoot) {
         join(nextRoot, staticPath.replace('.next/', ''), 'chunks/app/page'),
         join(nextRoot, staticPath.replace('.next/', ''), 'chunks/app/layout'),
         join(nextRoot, staticPath.replace('.next/', ''), 'chunks/app/stages/pre-rentree-2026'),
-        join(nextRoot, staticPath.replace('.next/', ''), 'chunks/app/bilan-gratuit'),
       ].flatMap(filesUnder);
   const serverFiles = [
     join(nextRoot, serverPath.replace('.next/', ''), 'app/page'),
     join(nextRoot, serverPath.replace('.next/', ''), 'app/stages/pre-rentree-2026'),
-    join(nextRoot, serverPath.replace('.next/', ''), 'app/bilan-gratuit'),
   ].flatMap(filesUnder);
   return { browserFiles, serverFiles };
 }

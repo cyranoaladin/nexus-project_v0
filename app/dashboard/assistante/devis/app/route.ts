@@ -14,13 +14,14 @@ function buildToolHtml(html: string) {
   return html
     .replace('href="../Visuels/nexus_icon.svg"', 'href="/images/logo_slogan_nexus_x3.png"')
     .replace('href="styles.css"', 'href="/dashboard/assistante/devis/assets/styles.css"')
+    .replace('href="tailwind-build.css"', 'href="/dashboard/assistante/devis/assets/tailwind-build.css"')
     .replace('src="app.js"', 'src="/dashboard/assistante/devis/assets/app.js"');
 }
 
 function toolContentSecurityPolicy() {
   return [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
     "font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com",
     "img-src 'self' data: https: blob:",

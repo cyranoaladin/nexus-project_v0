@@ -1,0 +1,102 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="author" content="Nexus Réussite"><meta name="description" content="Ressource pédagogique spécifique troisieme-mathematiques"><title>Mathématiques — Entrée en 3e · workbookStudent</title><style>@font-face {
+  font-family: "DM Sans";
+  src: url("../fonts/DMSans.ttf") format("truetype");
+  font-weight: 300 800;
+}
+
+@font-face {
+  font-family: "Fraunces";
+  src: url("../fonts/Fraunces.ttf") format("truetype");
+  font-weight: 500 750;
+}
+
+@page {
+  size: A4 portrait;
+  margin: 12mm 14mm 14mm;
+
+  @bottom-left {
+    content: "Nexus Réussite · Ressource pédagogique · Pré-rentrée 2026";
+    color: #526176;
+    font-family: "DM Sans", sans-serif;
+    font-size: 7pt;
+  }
+
+  @bottom-right {
+    content: "Page " counter(page) " / " counter(pages);
+    color: #526176;
+    font-family: "DM Sans", sans-serif;
+    font-size: 7pt;
+  }
+}
+
+:root {
+  --blue: #0b1f3a;
+  --red: #c9252d;
+  --ivory: #f7f2e8;
+  --paper: #fffdf8;
+  --ink: #172033;
+  --muted: #526176;
+  --line: #d7dce4;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--paper); color: var(--ink); font: 8.3pt/1.36 "DM Sans", sans-serif; }
+body { margin: 0; }
+.sheet { break-after: page; min-height: 245mm; position: relative; }
+.sheet:last-child { break-after: auto; }
+.masthead { align-items: center; border-bottom: 1.4mm solid var(--blue); display: flex; justify-content: space-between; margin-bottom: 5mm; padding-bottom: 2.5mm; }
+.brand { color: var(--blue); font-family: "Fraunces", serif; font-size: 13pt; font-weight: 700; }
+.document-kind { color: var(--red); font-size: 7pt; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.eyebrow { color: var(--red); font-size: 7pt; font-weight: 800; letter-spacing: .08em; margin: 0 0 1.5mm; text-transform: uppercase; }
+h1, h2, h3 { color: var(--blue); font-family: "Fraunces", serif; }
+h1 { font-size: 21pt; line-height: 1.08; margin: 0 0 2mm; }
+h2 { font-size: 13pt; line-height: 1.15; margin: 0 0 2.5mm; }
+h3 { font-size: 10.5pt; line-height: 1.2; margin: 0 0 1.5mm; }
+p { margin: 0 0 2mm; }
+.subtitle { color: var(--muted); font-size: 10pt; font-weight: 650; margin-bottom: 4mm; }
+.meta { display: grid; gap: 2mm; grid-template-columns: repeat(4, 1fr); margin-bottom: 4mm; }
+.meta div { background: var(--ivory); border-radius: 1.5mm; padding: 2mm 2.5mm; }
+.meta span { color: var(--muted); display: block; font-size: 6.5pt; text-transform: uppercase; }
+.meta strong { color: var(--blue); font-size: 8pt; }
+.notice { background: #edf2f8; border-left: 2mm solid var(--blue); border-radius: 1.5mm; margin-bottom: 4mm; padding: 3mm; }
+.warning { background: #fff0f0; border-left-color: var(--red); }
+.grid { display: grid; gap: 3mm; grid-template-columns: repeat(2, 1fr); }
+.card { border: .25mm solid var(--line); border-radius: 2mm; break-inside: avoid; margin-bottom: 3mm; padding: 3mm; }
+.card p:last-child, .card ul:last-child { margin-bottom: 0; }
+.tag { background: var(--blue); border-radius: 9mm; color: white; display: inline-block; font-size: 6.5pt; font-weight: 750; margin-bottom: 1.5mm; padding: .8mm 2mm; }
+.points { color: var(--red); float: right; font-weight: 800; }
+.answer { background: #f3f6f9; border-radius: 1.2mm; margin-top: 2mm; padding: 2mm; }
+.lines { background: repeating-linear-gradient(to bottom, transparent 0, transparent 7mm, #d7dce4 7.1mm, transparent 7.2mm); height: 29mm; margin-top: 2mm; }
+ul, ol { margin: 1.5mm 0 2mm; padding-left: 5mm; }
+li { margin-bottom: 1mm; }
+table { border-collapse: collapse; font-size: 7.2pt; width: 100%; }
+th { background: var(--blue); color: white; padding: 1.7mm; text-align: left; }
+td { border-bottom: .2mm solid var(--line); padding: 1.6mm; vertical-align: top; }
+.rubric td:last-child, .rubric th:last-child { text-align: center; width: 17mm; }
+.footer-note { border-top: .2mm solid var(--line); color: var(--muted); font-size: 6.8pt; margin-top: 3mm; padding-top: 1.5mm; }
+.status { background: #fff0f0; border: .25mm solid #e5a4a7; color: #7b1419; font-weight: 750; padding: 2.5mm; }
+</style></head><body><section class="sheet">
+<header class="masthead"><div class="brand">Nexus Réussite</div><div class="document-kind">Cahier d’activités · version élève · activités</div></header>
+<p class="eyebrow">Pré-rentrée 2026 · Entrée en 3e</p>
+<h1>Mathématiques</h1>
+<p class="subtitle">Nombres, fractions, puissances et calcul raisonné</p>
+<div class="meta"><div><span>Module</span><strong>troisieme-mathematiques</strong></div><div><span>Durée du parcours</span><strong>10 heures</strong></div><div><span>Difficulté</span><strong>Fondamental à consolidation</strong></div><div><span>Référence</span><strong>BO2020-CYCLE4-MATHS</strong></div></div>
+<div class="notice"><strong>Parcours structuré</strong><p>Lis l’objectif avant de commencer, garde une trace de la méthode et prépare la production attendue pour la mise en commun.</p></div><article class="card"><span class="tag">Consolidation</span><span class="points">35 min</span><h3>3M-A1 · Cartes d&#x27;erreurs</h3><p><strong>Objectif :</strong> Identifier et corriger des erreurs de calcul fréquentes.</p><p><strong>Consigne :</strong> Par binômes, classer six calculs en corrects ou incorrects, expliquer chaque choix puis corriger les erreurs.</p><p><strong>À remettre :</strong> Une justification écrite par carte et une règle reformulée avec les mots de l&#x27;élève.</p><p><strong>Support directement exploitable :</strong> Cartes à découper : A. 8+3×4=44 ; B. 5/6+1/3=7/6 ; C. (-3)²=-9 ; D. 2³×2²=2⁵ ; E. 4(x+2)=4x+2 ; F. 18-2(5-1)=10. Pour chacune : verdict, correction et règle utilisée.</p><p><strong>Supports :</strong> Cartes de calcul imprimées, Feuille de justification</p></article><article class="card"><span class="tag">Approfondissement</span><span class="points">45 min</span><h3>3M-A2 · Budget de sortie</h3><p><strong>Objectif :</strong> Mobiliser fractions et proportionnalité dans une situation complète.</p><p><strong>Consigne :</strong> Calculer le coût total pour différents effectifs, comparer deux offres et justifier le choix le plus économique.</p><p><strong>À remettre :</strong> Un tableau de calcul cohérent et une décision argumentée.</p><p><strong>Support directement exploitable :</strong> Données : transport A = 180 TND + 12 TND par élève ; transport B = 300 TND forfaitaires. Repas = 15 TND par élève, musée = 9 TND par élève. Comparer les totaux pour 12, 18 et 24 élèves, puis retenir une option.</p><p><strong>Supports :</strong> Fiche budget, Calculatrice pour la vérification finale</p></article><p class="footer-note">Les supports et jeux de données cités sont inclus dans cette ressource ; aucune manipulation non décrite n’est requise.</p></section><section class="sheet">
+<header class="masthead"><div class="brand">Nexus Réussite</div><div class="document-kind">Cahier d’activités · version élève · entraînement 1/2</div></header>
+<p class="eyebrow">Pré-rentrée 2026 · Entrée en 3e</p>
+<h1>Mathématiques</h1>
+<p class="subtitle">Nombres, fractions, puissances et calcul raisonné</p>
+<div class="meta"><div><span>Module</span><strong>troisieme-mathematiques</strong></div><div><span>Durée du parcours</span><strong>10 heures</strong></div><div><span>Difficulté</span><strong>Fondamental à consolidation</strong></div><div><span>Référence</span><strong>BO2020-CYCLE4-MATHS</strong></div></div>
+<div class="grid"><article class="card"><span class="tag">Fondamental</span><span class="points">4 pt · 8 min</span><h3>3M-E1 · Chaîne de calcul</h3><p>Calculer B = 7 + 2 × 5² - 18 ÷ 3.</p><div class="lines" aria-label="Zone de réponse"></div></article><article class="card"><span class="tag">Consolidation</span><span class="points">4 pt · 10 min</span><h3>3M-E2 · Fraction d&#x27;un trajet</h3><p>Lina parcourt 3/8 d&#x27;un trajet le matin et 1/4 l&#x27;après-midi. Quelle fraction reste-t-il ?</p><div class="lines" aria-label="Zone de réponse"></div></article></div><p class="footer-note">Rédige les étapes et réserve les dix dernières minutes à la relecture.</p></section><section class="sheet">
+<header class="masthead"><div class="brand">Nexus Réussite</div><div class="document-kind">Cahier d’activités · version élève · entraînement 2/2</div></header>
+<p class="eyebrow">Pré-rentrée 2026 · Entrée en 3e</p>
+<h1>Mathématiques</h1>
+<p class="subtitle">Nombres, fractions, puissances et calcul raisonné</p>
+<div class="meta"><div><span>Module</span><strong>troisieme-mathematiques</strong></div><div><span>Durée du parcours</span><strong>10 heures</strong></div><div><span>Difficulté</span><strong>Fondamental à consolidation</strong></div><div><span>Référence</span><strong>BO2020-CYCLE4-MATHS</strong></div></div>
+<div class="grid"><article class="card"><span class="tag">Consolidation</span><span class="points">5 pt · 12 min</span><h3>3M-E3 · Programme de calcul</h3><p>On choisit x, on le triple puis on ajoute 4. Écrire l&#x27;expression et trouver x si le résultat vaut 25.</p><div class="lines" aria-label="Zone de réponse"></div></article><article class="card"><span class="tag">Approfondissement</span><span class="points">5 pt · 12 min</span><h3>3M-E4 · Échelle</h3><p>Sur un plan à l&#x27;échelle 1:500, une longueur mesure 7,2 cm. Donner la longueur réelle en mètres.</p><div class="lines" aria-label="Zone de réponse"></div></article></div><p class="footer-note">Utilise le vocabulaire de la discipline et indique précisément ce qui reste à reprendre.</p></section><section class="sheet">
+<header class="masthead"><div class="brand">Nexus Réussite</div><div class="document-kind">Cahier d’activités · version élève · production finale</div></header>
+<p class="eyebrow">Pré-rentrée 2026 · Entrée en 3e</p>
+<h1>Mathématiques</h1>
+<p class="subtitle">Nombres, fractions, puissances et calcul raisonné</p>
+<div class="meta"><div><span>Module</span><strong>troisieme-mathematiques</strong></div><div><span>Durée du parcours</span><strong>10 heures</strong></div><div><span>Difficulté</span><strong>Fondamental à consolidation</strong></div><div><span>Référence</span><strong>BO2020-CYCLE4-MATHS</strong></div></div>
+<article class="card"><span class="points">35 min</span><h2>Fiche méthode : sécuriser un calcul</h2><p>Créer une fiche illustrée par deux exemples qui explique comment lire, effectuer et contrôler un calcul mêlant fractions, puissances ou parenthèses.</p></article><table class="rubric"><thead><tr><th>Critère</th><th>Indicateur de réussite</th><th>Points</th></tr></thead><tbody><tr><td>Méthode exacte</td><td>Les étapes sont mathématiquement correctes.</td><td>4</td></tr><tr><td>Exemples corrigés</td><td>Deux exemples complets et contrôlés.</td><td>4</td></tr><tr><td>Clarté</td><td>Notation et mise en page lisibles.</td><td>2</td></tr></tbody></table><article class="card"><h2>Bilan élève · 10 minutes</h2><ol><li>Je sais maintenant…</li><li>L&#x27;erreur que je peux éviter…</li><li>La méthode que je dois encore entraîner…</li></ol><div class="lines"></div></article><p class="footer-note">Production à remettre à l’enseignant pour retour pédagogique.</p></section></body></html>
