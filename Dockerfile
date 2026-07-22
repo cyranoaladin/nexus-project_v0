@@ -34,7 +34,8 @@ COPY . .
 # On fournit un secret factice pour le build (le vrai secret est injecté au runtime via .env)
 ARG NEXTAUTH_SECRET=build-time-placeholder
 ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-ARG RELEASE_SHA
+# Default non-release SHA so that `docker build .` works; override via --build-arg for real releases.
+ARG RELEASE_SHA=0000000000000000000000000000000000000000
 # On lance le build de Next.js.
 RUN printf '%s' "$RELEASE_SHA" \
       | grep -Eq '^[0-9a-fA-F]{40}([0-9a-fA-F]{24})?$' \
