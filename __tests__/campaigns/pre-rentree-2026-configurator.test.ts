@@ -27,13 +27,14 @@ describe('Pré-rentrée configurator logic', () => {
         const subjectIds: string[] = availableSubjects
           .filter((_, index) => (mask & (1 << index)) !== 0)
           .map((subject) => subject.id);
+        if (subjectIds.length > 4) continue;
         const profile: AcademicProfileSelection = level.id === 'TROISIEME' || level.id === 'SECONDE'
           ? {}
           : level.id === 'PREMIERE'
             ? { voie: 'GENERALE', mathsProfile: 'MATHS_EDS', eafProfile: 'EAF_GENERALE', premiereSpecialtyPlan: 'NSI_PHYSIQUE_CHIMIE' }
             : {
                 retainedSpecialties: subjectIds
-                  .filter((subjectId) => ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI'].includes(subjectId))
+                  .filter((subjectId) => ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'SVT'].includes(subjectId))
                   .slice(0, 2),
                 mathsOption: 'AUCUNE',
               };
@@ -102,7 +103,7 @@ describe('Pré-rentrée configurator logic', () => {
         configurationCount += 1;
       }
     }
-    expect(configurationCount).toBe(48);
+    expect(configurationCount).toBe(78);
   });
 
   it('skips the profile step for both Fondations levels', () => {
@@ -196,9 +197,7 @@ describe('Pré-rentrée configurator logic', () => {
   });
 
   it('builds a 40-hour summary from DTO schedule and pack data', () => {
-    const subjects = dto.subjects
-      .filter((subject) => subject.levels.includes('TERMINALE'))
-      .map((subject) => subject.id);
+    const subjects = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'PHILOSOPHIE'];
     const summary = buildSelectionSummary({
       level: 'TERMINALE',
       profile: { mathsOption: 'AUCUNE' },

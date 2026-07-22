@@ -6,8 +6,8 @@ import { join } from 'node:path';
 const expectedSubjects = {
   TROISIEME: ['FRANCAIS', 'MATHEMATIQUES'],
   SECONDE: ['FRANCAIS', 'MATHEMATIQUES', 'PHYSIQUE_CHIMIE'],
-  PREMIERE: ['FRANCAIS', 'MATHEMATIQUES', 'NSI', 'PHYSIQUE_CHIMIE'],
-  TERMINALE: ['MATHEMATIQUES', 'NSI', 'PHILOSOPHIE', 'PHYSIQUE_CHIMIE'],
+  PREMIERE: ['FRANCAIS', 'MATHEMATIQUES', 'NSI', 'PHYSIQUE_CHIMIE', 'SVT'],
+  TERMINALE: ['MATHEMATIQUES', 'NSI', 'PHILOSOPHIE', 'PHYSIQUE_CHIMIE', 'SVT'],
 };
 
 describe('Pré-rentrée 2026 central public-surface adapter', () => {

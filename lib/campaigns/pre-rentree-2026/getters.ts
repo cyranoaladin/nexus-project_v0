@@ -200,7 +200,7 @@ export function getPreRentreeLandingDTO() {
     educators: [],
     rooms: [
       { label: 'Salle 1', details: 'Mathématiques / NSI / SNT' },
-      { label: 'Salle 2', details: 'Français, Philosophie et Physique-Chimie' },
+      { label: 'Salle 2', details: 'Français, Philosophie, Physique-Chimie et SVT' },
     ],
   };
 
@@ -267,7 +267,7 @@ export function getPreRentreeHomepageSpotlightDTO(): PreRentreeHomepageSpotlight
     accessibleLabel: `À partir du ${day} ${month} ${year}.`,
     chipLabel: `dès le ${day} ${month}`,
   };
-  const subjectOrder = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'FRANCAIS', 'NSI', 'PHILOSOPHIE'];
+  const subjectOrder = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'FRANCAIS', 'NSI', 'PHILOSOPHIE', 'SVT'];
   const availableSubjectIds = new Set<string>(publicOffers.flatMap((offer) => offer.subjects));
   const subjectFamilies = subjectOrder.filter((subjectId) => availableSubjectIds.has(subjectId)).map((subjectId) => {
     const subject = dto.levels.flatMap((level) => level.subjects).find((candidate) => candidate.id === subjectId);

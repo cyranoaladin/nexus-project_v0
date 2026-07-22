@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { EntryLevelCode } from './schema';
 
 export const OfferRange = z.enum(['FONDATIONS', 'PREMIUM']);
-const SubjectId = z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'PHILOSOPHIE']);
+const SubjectId = z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'PHILOSOPHIE', 'SVT']);
 
 export const PreRentreeOffersSchema = z.object({
   schemaVersion: z.literal('1.0.0'),
@@ -13,7 +13,7 @@ export const PreRentreeOffersSchema = z.object({
     level: EntryLevelCode,
     range: OfferRange,
     signature: z.string().min(1),
-    subjects: z.array(SubjectId).min(1).max(4),
+    subjects: z.array(SubjectId).min(1).max(5),
     pricing: z.object({
       model: z.enum(['PER_SUBJECT', 'PACK_BY_SUBJECT_COUNT']),
       productIds: z.array(z.string().min(1)).min(1).max(4),
@@ -93,15 +93,16 @@ export const PreRentreePedagogyFrameworkSchema = z.object({
   quickAssessmentDurationMinutes: z.number().int().min(5).max(10),
   moduleCodes: z.array(z.object({
     moduleId: z.string().min(1),
-    code: z.string().regex(/^POS-(?:3|2|1|T)-(?:MATH|FR|PC|SNT|NSI|PHILO)$/),
+    code: z.string().regex(/^POS-(?:3|2|1|T)-(?:MATH|FR|PC|SNT|NSI|PHILO|SVT)$/),
     material: z.string().min(1),
-  }).strict()).length(14),
+  }).strict()).length(16),
   subjectPatterns: z.object({
     MATHEMATIQUES: PedagogyPatternSchema,
     PHYSIQUE_CHIMIE: PedagogyPatternSchema,
     NSI: PedagogyPatternSchema,
     FRANCAIS: PedagogyPatternSchema,
     PHILOSOPHIE: PedagogyPatternSchema,
+    SVT: PedagogyPatternSchema,
   }).strict(),
   rubric: z.object({
     ACQUIS: z.string().min(1),

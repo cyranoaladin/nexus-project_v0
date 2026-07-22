@@ -9,6 +9,7 @@ const SUBJECT_PUBLICATION_STYLE = {
   NSI: { abbreviation: 'NSI/SNT', color: '#6F42C1' },
   PHYSIQUE_CHIMIE: { abbreviation: 'PC', color: '#16847A' },
   PHILOSOPHIE: { abbreviation: 'PHILO', color: '#8A5A28' },
+  SVT: { abbreviation: 'SVT', color: '#047857' },
 } as const;
 
 const PUBLIC_ROOM_LABELS: Record<string, string> = {
@@ -46,7 +47,7 @@ export function deriveSchedule(campaign: PreRentreeCampaignManifest) {
     level: PreRentreeCampaignManifest['levels'][number]['id'];
     subjectId: PreRentreeCampaignManifest['subjects'][number]['id'];
     subjectLabel: string;
-    blockId: 'A' | 'B' | 'C' | 'D';
+    blockId: 'A' | 'B' | 'C' | 'D' | 'E';
     startTime: string;
     endTime: string;
     roomLabel: string;

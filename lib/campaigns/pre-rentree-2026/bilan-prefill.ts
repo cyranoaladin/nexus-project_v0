@@ -6,7 +6,7 @@ import { PRE_RENTREE_2026_NAVIGATION } from './navigation';
 type SearchValue = string | string[] | undefined;
 export type CampaignSearchParams = Record<string, SearchValue>;
 
-const SUBJECT_IDS = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'PHILOSOPHIE'] as const;
+const SUBJECT_IDS = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'PHILOSOPHIE', 'SVT'] as const;
 const PACK_CODES = [
   'PACK_1',
   'PACK_2',
@@ -22,7 +22,7 @@ const PREMIERE_SPECIALTY_PLAN_IDS = [
   'PHYSIQUE_CHIMIE',
   'NSI_PHYSIQUE_CHIMIE',
 ] as const;
-const TERMINALE_SPECIALTY_IDS = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI'] as const;
+const TERMINALE_SPECIALTY_IDS = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'SVT'] as const;
 const TERMINALE_MATHS_OPTION_IDS = [
   'AUCUNE',
   'MATHS_EXPERTES',
