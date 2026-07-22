@@ -14,6 +14,7 @@ const SubjectSchema = z.enum([
   'NSI',
   'FRANCAIS',
   'PHILOSOPHIE',
+  'SVT',
 ]);
 
 const OfferSourceSchema = z.object({
@@ -21,7 +22,7 @@ const OfferSourceSchema = z.object({
   pricingId: z.string().min(1),
   pricingKind: z.enum(['FOUNDATIONS', 'PREMIUM_PACK']),
   level: z.enum(['TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE']),
-  subjects: z.array(SubjectSchema).min(1).max(4),
+  subjects: z.array(SubjectSchema).min(1).max(5),
   subjectCount: z.number().int().min(1).max(4).optional(),
   audience: z.array(z.string().min(1)).min(1),
   objectives: z.array(z.string().min(1)).min(1),

@@ -10,6 +10,7 @@ const SUBJECT_LABELS = {
   NSI: 'NSI',
   FRANCAIS: 'Français',
   PHILOSOPHIE: 'Philosophie',
+  SVT: 'SVT',
 } as const;
 
 const LEVEL_LABELS = {

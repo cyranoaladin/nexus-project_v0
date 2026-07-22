@@ -3,7 +3,8 @@ export type SubjectFamily =
   | 'FRANCAIS'
   | 'NSI_SNT'
   | 'PHYSIQUE_CHIMIE'
-  | 'PHILOSOPHIE';
+  | 'PHILOSOPHIE'
+  | 'SVT';
 
 export interface SubjectTheme {
   family: SubjectFamily;
@@ -57,6 +58,16 @@ export const SUBJECT_THEMES: Readonly<Record<SubjectFamily, SubjectTheme>> = {
     markerClass: 'bg-teal-800 text-white',
     printClass: 'print:border-slate-500 print:bg-white print:text-black',
   },
+  SVT: {
+    family: 'SVT',
+    label: 'SVT',
+    marker: 'SVT',
+    surfaceClass: 'bg-emerald-50',
+    borderClass: 'border-emerald-300',
+    textClass: 'text-emerald-950',
+    markerClass: 'bg-emerald-800 text-white',
+    printClass: 'print:border-slate-500 print:bg-white print:text-black',
+  },
   PHILOSOPHIE: {
     family: 'PHILOSOPHIE',
     label: 'Philosophie',
@@ -74,6 +85,7 @@ export function getSubjectFamily(subjectId: string): SubjectFamily {
   if (subjectId === 'FRANCAIS') return 'FRANCAIS';
   if (subjectId === 'NSI') return 'NSI_SNT';
   if (subjectId === 'PHILOSOPHIE') return 'PHILOSOPHIE';
+  if (subjectId === 'SVT') return 'SVT';
   return 'PHYSIQUE_CHIMIE';
 }
 

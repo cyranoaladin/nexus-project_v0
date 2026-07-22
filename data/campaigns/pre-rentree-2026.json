@@ -7,7 +7,10 @@
   "timezone": "Africa/Tunis",
   "startDate": "2026-08-17",
   "endDate": "2026-08-28",
-  "noClassDates": ["2026-08-22", "2026-08-23"],
+  "noClassDates": [
+    "2026-08-22",
+    "2026-08-23"
+  ],
   "decisionDeadline": "2026-08-10T18:00:00+01:00",
   "venue": {
     "name": "Nexus Réussite — Mutuelleville",
@@ -15,10 +18,22 @@
     "neighborhood": "Mutuelleville"
   },
   "levels": [
-    { "id": "TROISIEME", "label": "Entrée en 3e" },
-    { "id": "SECONDE", "label": "Entrée en Seconde" },
-    { "id": "PREMIERE", "label": "Entrée en Première" },
-    { "id": "TERMINALE", "label": "Entrée en Terminale" }
+    {
+      "id": "TROISIEME",
+      "label": "Entrée en 3e"
+    },
+    {
+      "id": "SECONDE",
+      "label": "Entrée en Seconde"
+    },
+    {
+      "id": "PREMIERE",
+      "label": "Entrée en Première"
+    },
+    {
+      "id": "TERMINALE",
+      "label": "Entrée en Terminale"
+    }
   ],
   "entryLevelSemantics": {
     "kind": "ENTRY_LEVEL",
@@ -31,56 +46,322 @@
     }
   },
   "subjects": [
-    { "id": "MATHEMATIQUES", "label": "Mathématiques", "levels": ["TROISIEME", "SECONDE", "PREMIERE", "TERMINALE"] },
-    { "id": "PHYSIQUE_CHIMIE", "label": "Physique-Chimie", "levels": ["SECONDE", "PREMIERE", "TERMINALE"] },
-    { "id": "NSI", "label": "NSI", "levels": ["SECONDE", "PREMIERE", "TERMINALE"], "labelByLevel": { "SECONDE": "Initiation informatique, algorithmique et SNT" } },
-    { "id": "FRANCAIS", "label": "Français", "levels": ["TROISIEME", "SECONDE", "PREMIERE"], "labelByLevel": { "PREMIERE": "Français — préparation à l’EAF" } },
-    { "id": "PHILOSOPHIE", "label": "Philosophie", "levels": ["TERMINALE"] }
+    {
+      "id": "MATHEMATIQUES",
+      "label": "Mathématiques",
+      "levels": [
+        "TROISIEME",
+        "SECONDE",
+        "PREMIERE",
+        "TERMINALE"
+      ]
+    },
+    {
+      "id": "PHYSIQUE_CHIMIE",
+      "label": "Physique-Chimie",
+      "levels": [
+        "SECONDE",
+        "PREMIERE",
+        "TERMINALE"
+      ]
+    },
+    {
+      "id": "NSI",
+      "label": "NSI",
+      "levels": [
+        "SECONDE",
+        "PREMIERE",
+        "TERMINALE"
+      ],
+      "labelByLevel": {
+        "SECONDE": "Initiation informatique, algorithmique et SNT"
+      }
+    },
+    {
+      "id": "FRANCAIS",
+      "label": "Français",
+      "levels": [
+        "TROISIEME",
+        "SECONDE",
+        "PREMIERE"
+      ],
+      "labelByLevel": {
+        "PREMIERE": "Français — préparation à l’EAF"
+      }
+    },
+    {
+      "id": "PHILOSOPHIE",
+      "label": "Philosophie",
+      "levels": [
+        "TERMINALE"
+      ]
+    },
+    {
+      "id": "SVT",
+      "label": "SVT",
+      "levels": [
+        "PREMIERE",
+        "TERMINALE"
+      ]
+    }
   ],
   "blocks": [
-    { "id": "A", "startTime": "08:30", "endTime": "10:30" },
-    { "id": "B", "startTime": "10:45", "endTime": "12:45" },
-    { "id": "C", "startTime": "13:30", "endTime": "15:30" },
-    { "id": "D", "startTime": "15:45", "endTime": "17:45" }
+    {
+      "id": "A",
+      "startTime": "08:30",
+      "endTime": "10:30"
+    },
+    {
+      "id": "B",
+      "startTime": "10:45",
+      "endTime": "12:45"
+    },
+    {
+      "id": "C",
+      "startTime": "13:30",
+      "endTime": "15:30"
+    },
+    {
+      "id": "D",
+      "startTime": "15:45",
+      "endTime": "17:45"
+    },
+    {
+      "id": "E",
+      "startTime": "18:00",
+      "endTime": "20:00"
+    }
   ],
   "schedule": [
-    { "week": 1, "weekLabel": "Semaine 1 — 17 au 21 août", "weekStart": "2026-08-17", "weekEnd": "2026-08-21", "slots": [
-      { "level": "TROISIEME", "subject": "MATHEMATIQUES", "block": "A", "room": "salle-1", "teacherRole": "MATHS_TEACHER_A" },
-      { "level": "SECONDE", "subject": "FRANCAIS", "block": "A", "room": "salle-2", "teacherRole": "FRENCH_TEACHER_A" },
-      { "level": "SECONDE", "subject": "MATHEMATIQUES", "block": "B", "room": "salle-1", "teacherRole": "MATHS_TEACHER_A" },
-      { "level": "TROISIEME", "subject": "FRANCAIS", "block": "B", "room": "salle-2", "teacherRole": "FRENCH_TEACHER_A" },
-      { "level": "PREMIERE", "subject": "MATHEMATIQUES", "block": "C", "room": "salle-1", "teacherRole": "MATHS_TEACHER_B" },
-      { "level": "TERMINALE", "subject": "PHILOSOPHIE", "block": "C", "room": "salle-2", "teacherRole": "PHILOSOPHY_TEACHER" },
-      { "level": "TERMINALE", "subject": "MATHEMATIQUES", "block": "D", "room": "salle-1", "teacherRole": "MATHS_TEACHER_B" },
-      { "level": "PREMIERE", "subject": "FRANCAIS", "block": "D", "room": "salle-2", "teacherRole": "FRENCH_TEACHER_B" }
-    ]},
-    { "week": 2, "weekLabel": "Semaine 2 — 24 au 28 août", "weekStart": "2026-08-24", "weekEnd": "2026-08-28", "slots": [
-      { "level": "SECONDE", "subject": "NSI", "block": "A", "room": "salle-1", "teacherRole": "COMPUTER_SCIENCE_TEACHER_A" },
-      { "level": "PREMIERE", "subject": "PHYSIQUE_CHIMIE", "block": "A", "room": "salle-2", "teacherRole": "PHYSICS_CHEMISTRY_TEACHER_A" },
-      { "level": "PREMIERE", "subject": "NSI", "block": "B", "room": "salle-1", "teacherRole": "COMPUTER_SCIENCE_TEACHER_A" },
-      { "level": "SECONDE", "subject": "PHYSIQUE_CHIMIE", "block": "B", "room": "salle-2", "teacherRole": "PHYSICS_CHEMISTRY_TEACHER_A" },
-      { "level": "TERMINALE", "subject": "NSI", "block": "C", "room": "salle-1", "teacherRole": "COMPUTER_SCIENCE_TEACHER_B" },
-      { "level": "TERMINALE", "subject": "PHYSIQUE_CHIMIE", "block": "D", "room": "salle-2", "teacherRole": "PHYSICS_CHEMISTRY_TEACHER_B" }
-    ]}
+    {
+      "week": 1,
+      "weekLabel": "Semaine 1 — 17 au 21 août",
+      "weekStart": "2026-08-17",
+      "weekEnd": "2026-08-21",
+      "slots": [
+        {
+          "level": "TROISIEME",
+          "subject": "MATHEMATIQUES",
+          "block": "A",
+          "room": "salle-1",
+          "teacherRole": "MATHS_TEACHER_A"
+        },
+        {
+          "level": "SECONDE",
+          "subject": "FRANCAIS",
+          "block": "A",
+          "room": "salle-2",
+          "teacherRole": "FRENCH_TEACHER_A"
+        },
+        {
+          "level": "SECONDE",
+          "subject": "MATHEMATIQUES",
+          "block": "B",
+          "room": "salle-1",
+          "teacherRole": "MATHS_TEACHER_A"
+        },
+        {
+          "level": "TROISIEME",
+          "subject": "FRANCAIS",
+          "block": "B",
+          "room": "salle-2",
+          "teacherRole": "FRENCH_TEACHER_A"
+        },
+        {
+          "level": "PREMIERE",
+          "subject": "MATHEMATIQUES",
+          "block": "C",
+          "room": "salle-1",
+          "teacherRole": "MATHS_TEACHER_B"
+        },
+        {
+          "level": "TERMINALE",
+          "subject": "PHILOSOPHIE",
+          "block": "C",
+          "room": "salle-2",
+          "teacherRole": "PHILOSOPHY_TEACHER"
+        },
+        {
+          "level": "TERMINALE",
+          "subject": "MATHEMATIQUES",
+          "block": "D",
+          "room": "salle-1",
+          "teacherRole": "MATHS_TEACHER_B"
+        },
+        {
+          "level": "PREMIERE",
+          "subject": "FRANCAIS",
+          "block": "D",
+          "room": "salle-2",
+          "teacherRole": "FRENCH_TEACHER_B"
+        },
+        {
+          "level": "PREMIERE",
+          "subject": "SVT",
+          "block": "E",
+          "room": "salle-2",
+          "teacherRole": "SVT_TEACHER_A"
+        }
+      ]
+    },
+    {
+      "week": 2,
+      "weekLabel": "Semaine 2 — 24 au 28 août",
+      "weekStart": "2026-08-24",
+      "weekEnd": "2026-08-28",
+      "slots": [
+        {
+          "level": "SECONDE",
+          "subject": "NSI",
+          "block": "A",
+          "room": "salle-1",
+          "teacherRole": "COMPUTER_SCIENCE_TEACHER_A"
+        },
+        {
+          "level": "PREMIERE",
+          "subject": "PHYSIQUE_CHIMIE",
+          "block": "A",
+          "room": "salle-2",
+          "teacherRole": "PHYSICS_CHEMISTRY_TEACHER_A"
+        },
+        {
+          "level": "PREMIERE",
+          "subject": "NSI",
+          "block": "B",
+          "room": "salle-1",
+          "teacherRole": "COMPUTER_SCIENCE_TEACHER_A"
+        },
+        {
+          "level": "SECONDE",
+          "subject": "PHYSIQUE_CHIMIE",
+          "block": "B",
+          "room": "salle-2",
+          "teacherRole": "PHYSICS_CHEMISTRY_TEACHER_A"
+        },
+        {
+          "level": "TERMINALE",
+          "subject": "NSI",
+          "block": "C",
+          "room": "salle-1",
+          "teacherRole": "COMPUTER_SCIENCE_TEACHER_B"
+        },
+        {
+          "level": "TERMINALE",
+          "subject": "PHYSIQUE_CHIMIE",
+          "block": "D",
+          "room": "salle-2",
+          "teacherRole": "PHYSICS_CHEMISTRY_TEACHER_B"
+        },
+        {
+          "level": "TERMINALE",
+          "subject": "SVT",
+          "block": "E",
+          "room": "salle-2",
+          "teacherRole": "SVT_TEACHER_B"
+        }
+      ]
+    }
   ],
   "roomRoles": {
-    "salle-1": ["MATHEMATIQUES", "NSI"],
-    "salle-2": ["FRANCAIS", "PHILOSOPHIE", "PHYSIQUE_CHIMIE"]
+    "salle-1": [
+      "MATHEMATIQUES",
+      "NSI"
+    ],
+    "salle-2": [
+      "FRANCAIS",
+      "PHILOSOPHIE",
+      "PHYSIQUE_CHIMIE",
+      "SVT"
+    ]
   },
   "teacherRoles": {
-    "MATHS_TEACHER_A": { "subjects": ["MATHEMATIQUES"], "maxHoursPerDay": 6, "assigned": false },
-    "MATHS_TEACHER_B": { "subjects": ["MATHEMATIQUES"], "maxHoursPerDay": 6, "assigned": false },
-    "FRENCH_TEACHER_A": { "subjects": ["FRANCAIS"], "maxHoursPerDay": 6, "assigned": false },
-    "FRENCH_TEACHER_B": { "subjects": ["FRANCAIS"], "maxHoursPerDay": 6, "assigned": false },
-    "PHILOSOPHY_TEACHER": { "subjects": ["PHILOSOPHIE"], "maxHoursPerDay": 6, "assigned": false },
-    "COMPUTER_SCIENCE_TEACHER_A": { "subjects": ["NSI"], "maxHoursPerDay": 6, "assigned": false },
-    "COMPUTER_SCIENCE_TEACHER_B": { "subjects": ["NSI"], "maxHoursPerDay": 6, "assigned": false },
-    "PHYSICS_CHEMISTRY_TEACHER_A": { "subjects": ["PHYSIQUE_CHIMIE"], "maxHoursPerDay": 6, "assigned": false },
-    "PHYSICS_CHEMISTRY_TEACHER_B": { "subjects": ["PHYSIQUE_CHIMIE"], "maxHoursPerDay": 6, "assigned": false }
+    "MATHS_TEACHER_A": {
+      "subjects": [
+        "MATHEMATIQUES"
+      ],
+      "maxHoursPerDay": 6,
+      "assigned": false
+    },
+    "MATHS_TEACHER_B": {
+      "subjects": [
+        "MATHEMATIQUES"
+      ],
+      "maxHoursPerDay": 6,
+      "assigned": false
+    },
+    "FRENCH_TEACHER_A": {
+      "subjects": [
+        "FRANCAIS"
+      ],
+      "maxHoursPerDay": 6,
+      "assigned": false
+    },
+    "FRENCH_TEACHER_B": {
+      "subjects": [
+        "FRANCAIS"
+      ],
+      "maxHoursPerDay": 6,
+      "assigned": false
+    },
+    "PHILOSOPHY_TEACHER": {
+      "subjects": [
+        "PHILOSOPHIE"
+      ],
+      "maxHoursPerDay": 6,
+      "assigned": false
+    },
+    "COMPUTER_SCIENCE_TEACHER_A": {
+      "subjects": [
+        "NSI"
+      ],
+      "maxHoursPerDay": 6,
+      "assigned": false
+    },
+    "COMPUTER_SCIENCE_TEACHER_B": {
+      "subjects": [
+        "NSI"
+      ],
+      "maxHoursPerDay": 6,
+      "assigned": false
+    },
+    "PHYSICS_CHEMISTRY_TEACHER_A": {
+      "subjects": [
+        "PHYSIQUE_CHIMIE"
+      ],
+      "maxHoursPerDay": 6,
+      "assigned": false
+    },
+    "PHYSICS_CHEMISTRY_TEACHER_B": {
+      "subjects": [
+        "PHYSIQUE_CHIMIE"
+      ],
+      "maxHoursPerDay": 6,
+      "assigned": false
+    },
+    "SVT_TEACHER_A": {
+      "subjects": [
+        "SVT"
+      ],
+      "maxHoursPerDay": 6,
+      "assigned": false
+    },
+    "SVT_TEACHER_B": {
+      "subjects": [
+        "SVT"
+      ],
+      "maxHoursPerDay": 6,
+      "assigned": false
+    }
   },
   "capacityByOffer": {
-    "FONDATIONS": { "minPerCohort": 4, "maxPerCohort": 6 },
-    "PREMIUM": { "minPerCohort": 3, "maxPerCohort": 5 }
+    "FONDATIONS": {
+      "minPerCohort": 4,
+      "maxPerCohort": 6
+    },
+    "PREMIUM": {
+      "minPerCohort": 3,
+      "maxPerCohort": 5
+    }
   },
   "operationalGates": {
     "roomAssignmentsValidated": false,
@@ -89,28 +370,63 @@
     "noRoomConflict": true,
     "dailyLoadValid": true
   },
-  "packProductIds": ["pre2026-pack-1", "pre2026-pack-2", "pre2026-pack-3", "pre2026-pack-4"],
+  "packProductIds": [
+    "pre2026-pack-1",
+    "pre2026-pack-2",
+    "pre2026-pack-3",
+    "pre2026-pack-4"
+  ],
   "academicProfiles": {
     "TROISIEME": {},
     "SECONDE": {},
     "PREMIERE": {
       "voies": [
-        { "id": "GENERALE", "label": "Voie générale" },
-        { "id": "TECHNOLOGIQUE", "label": "Voie technologique" }
+        {
+          "id": "GENERALE",
+          "label": "Voie générale"
+        },
+        {
+          "id": "TECHNOLOGIQUE",
+          "label": "Voie technologique"
+        }
       ],
       "mathsProfiles": [
-        { "id": "MATHS_EDS", "label": "Maths EDS" },
-        { "id": "MATHS_HORS_EDS", "label": "Maths hors EDS" }
+        {
+          "id": "MATHS_EDS",
+          "label": "Maths EDS"
+        },
+        {
+          "id": "MATHS_HORS_EDS",
+          "label": "Maths hors EDS"
+        }
       ],
       "eafProfiles": [
-        { "id": "EAF_GENERALE", "label": "EAF voie générale" },
-        { "id": "EAF_TECHNOLOGIQUE", "label": "EAF voie technologique" }
+        {
+          "id": "EAF_GENERALE",
+          "label": "EAF voie générale"
+        },
+        {
+          "id": "EAF_TECHNOLOGIQUE",
+          "label": "EAF voie technologique"
+        }
       ],
       "specialtyPlans": [
-        { "id": "AUCUNE_NSI_PC", "label": "Ni NSI ni Physique-Chimie envisagée" },
-        { "id": "NSI", "label": "NSI envisagée" },
-        { "id": "PHYSIQUE_CHIMIE", "label": "Physique-Chimie envisagée" },
-        { "id": "NSI_PHYSIQUE_CHIMIE", "label": "NSI et Physique-Chimie envisagées" }
+        {
+          "id": "AUCUNE_NSI_PC",
+          "label": "Ni NSI ni Physique-Chimie envisagée"
+        },
+        {
+          "id": "NSI",
+          "label": "NSI envisagée"
+        },
+        {
+          "id": "PHYSIQUE_CHIMIE",
+          "label": "Physique-Chimie envisagée"
+        },
+        {
+          "id": "NSI_PHYSIQUE_CHIMIE",
+          "label": "NSI et Physique-Chimie envisagées"
+        }
       ]
     },
     "TERMINALE": {
@@ -119,15 +435,33 @@
         "minSelections": 0,
         "maxSelections": 2,
         "options": [
-          { "id": "MATHEMATIQUES", "label": "Mathématiques" },
-          { "id": "PHYSIQUE_CHIMIE", "label": "Physique-Chimie" },
-          { "id": "NSI", "label": "NSI" }
+          {
+            "id": "MATHEMATIQUES",
+            "label": "Mathématiques"
+          },
+          {
+            "id": "PHYSIQUE_CHIMIE",
+            "label": "Physique-Chimie"
+          },
+          {
+            "id": "NSI",
+            "label": "NSI"
+          }
         ]
       },
       "mathsOptions": [
-        { "id": "AUCUNE", "label": "Aucune" },
-        { "id": "MATHS_EXPERTES", "label": "Maths expertes" },
-        { "id": "MATHS_COMPLEMENTAIRES", "label": "Maths complémentaires" }
+        {
+          "id": "AUCUNE",
+          "label": "Aucune"
+        },
+        {
+          "id": "MATHS_EXPERTES",
+          "label": "Maths expertes"
+        },
+        {
+          "id": "MATHS_COMPLEMENTAIRES",
+          "label": "Maths complémentaires"
+        }
       ]
     }
   },
@@ -138,20 +472,51 @@
       "subtitle": "Du 17 au 28 août 2026, pour les élèves entrant en 3e, Seconde, Première ou Terminale. Nexus Fondations en 3e et Seconde ; Nexus Premium en Première et Terminale."
     },
     "method": [
-      { "title": "Positionnement", "description": "Un diagnostic des acquis permet d'identifier les priorités de travail avant le démarrage du module." },
-      { "title": "Travail guidé en groupe réduit", "description": "Les notions sont reprises dans un groupe de trois à cinq élèves, avec des consignes et des aides adaptées." },
-      { "title": "Entraînement et correction", "description": "Chaque séance alterne méthode, exercices progressifs et correction explicite pour consolider les réflexes." },
-      { "title": "Bilan et recommandations de rentrée", "description": "Le stage se termine par une synthèse des acquis observés et des recommandations de travail pour la rentrée." }
+      {
+        "title": "Positionnement",
+        "description": "Un diagnostic des acquis permet d'identifier les priorités de travail avant le démarrage du module."
+      },
+      {
+        "title": "Travail guidé en groupe réduit",
+        "description": "Les notions sont reprises dans un groupe de trois à cinq élèves, avec des consignes et des aides adaptées."
+      },
+      {
+        "title": "Entraînement et correction",
+        "description": "Chaque séance alterne méthode, exercices progressifs et correction explicite pour consolider les réflexes."
+      },
+      {
+        "title": "Bilan et recommandations de rentrée",
+        "description": "Le stage se termine par une synthèse des acquis observés et des recommandations de travail pour la rentrée."
+      }
     ],
     "practical": {
       "audience": "Pour les élèves entrant en 3e, Seconde, Première ou Terminale à la rentrée 2026-2027.",
       "material": "Un cahier, une trousse complète et une calculatrice pour les matières concernées. Les supports de travail sont fournis par Nexus.",
       "materialsBySubject": {
-        "MATHEMATIQUES": { "label": "Mathématiques", "description": "Un cahier, une trousse complète et une calculatrice." },
-        "FRANCAIS": { "label": "Français", "description": "Un cahier et une trousse complète." },
-        "NSI": { "label": "NSI/SNT", "description": "Pour les modules NSI/SNT, l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire." },
-        "PHYSIQUE_CHIMIE": { "label": "Physique-Chimie", "description": "Un cahier, une trousse complète et une calculatrice. L’accompagnement est théorique et méthodologique : analyse de données expérimentales, étude de protocoles, simulation et raisonnement scientifique. Aucune activité pratique en laboratoire n’est annoncée." },
-        "PHILOSOPHIE": { "label": "Philosophie", "description": "Un cahier, une trousse complète et, si possible, un classeur pour organiser les notions, méthodes et entraînements." }
+        "MATHEMATIQUES": {
+          "label": "Mathématiques",
+          "description": "Un cahier, une trousse complète et une calculatrice."
+        },
+        "FRANCAIS": {
+          "label": "Français",
+          "description": "Un cahier et une trousse complète."
+        },
+        "NSI": {
+          "label": "NSI/SNT",
+          "description": "Pour les modules NSI/SNT, l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire."
+        },
+        "PHYSIQUE_CHIMIE": {
+          "label": "Physique-Chimie",
+          "description": "Un cahier, une trousse complète et une calculatrice. L’accompagnement est théorique et méthodologique : analyse de données expérimentales, étude de protocoles, simulation et raisonnement scientifique. Aucune activité pratique en laboratoire n’est annoncée."
+        },
+        "PHILOSOPHIE": {
+          "label": "Philosophie",
+          "description": "Un cahier, une trousse complète et, si possible, un classeur pour organiser les notions, méthodes et entraînements."
+        },
+        "SVT": {
+          "label": "SVT",
+          "description": "Un cahier, une trousse complète et une calculatrice. Les séances sont centrées sur la lecture de documents scientifiques, la méthode et la résolution de problèmes."
+        }
       },
       "preRegistrationNotice": "La demande d’information est transmise sans paiement. Elle ne réserve pas une place et ne forme pas un contrat. Après qualification pédagogique, Nexus transmet une proposition de parcours et les conditions applicables.",
       "noOnlinePaymentNotice": "Aucun paiement en ligne n’est demandé au stade de la demande d’information. Après validation du parcours, le versement de l’acompte exact de 30 % confirme l’inscription et réserve la place.",
@@ -161,22 +526,70 @@
       "recordingConsentNotice": "Tout enregistrement pédagogique est facultatif et soumis à un consentement séparé."
     },
     "faq": [
-      { "question": "Mon enfant entrant en 3e, Seconde, Première ou Terminale peut-il suivre plusieurs matières ?", "answer": "Oui. Fondations permet de choisir les matières disponibles au niveau concerné, sans remise multimatières. Premium propose des packs d’une à quatre matières. Le planning définitif reste soumis aux validations opérationnelles." },
-      { "question": "Le stage dure-t-il une ou deux semaines ?", "answer": "La campagne s'étend sur deux semaines. Chaque matière est organisée sur une semaine avec cinq séances de deux heures ; la présence dépend donc des matières choisies." },
-      { "question": "Quelle est la différence entre SNT et NSI pour une entrée en Seconde ?", "answer": "Pour une entrée en Seconde, le module est une initiation à l'informatique, à l'algorithmique et à la SNT. Il ne s'agit pas d'un enseignement de spécialité NSI." },
-      { "question": "Comment choisir le profil de Mathématiques pour une entrée en Première ?", "answer": "Le parent déclare Maths EDS ou Maths hors EDS pour la classe de rentrée. Le créneau est commun, puis la composition pédagogique du groupe est validée selon les profils et les effectifs." },
-      { "question": "Le Français EAF convient-il aux voies générale et technologique ?", "answer": "Les deux profils sont prévus. La voie déclarée permet à l'équipe d'adapter les exercices et de confirmer une composition de groupe cohérente." },
-      { "question": "Quelles options de Mathématiques sont prévues pour une entrée en Terminale ?", "answer": "Le formulaire distingue l'absence d'option, Maths expertes et Maths complémentaires pour la classe de rentrée. La spécialité Mathématiques conservée est déclarée séparément." },
-      { "question": "À partir de combien d'élèves un groupe ouvre-t-il ?", "answer": "Un groupe Fondations ouvre à partir de quatre inscriptions confirmées et accueille au maximum six élèves. Un groupe Premium ouvre à partir de trois inscriptions confirmées et accueille au maximum cinq élèves." },
-      { "question": "Comment fonctionne l'acompte ?", "answer": "Après validation du parcours et transmission des conditions applicables, l’acompte correspond exactement à 30 % du tarif total. Sa réception confirme l’inscription et réserve la place." },
-      { "question": "Que se passe-t-il si le groupe n'ouvre pas ?", "answer": "Si Nexus Réussite décide de ne pas ouvrir le groupe, la famille est informée. Les conditions applicables sont communiquées avant toute confirmation." },
-      { "question": "Un report vers un autre stage est-il possible ?", "answer": "Les modalités d’annulation, d’absence, de report et d’interruption sont communiquées avant toute confirmation." },
-      { "question": "Existe-t-il une liste d'attente ?", "answer": "Une demande peut être placée en liste d'attente si un groupe atteint sa capacité. Cela ne constitue pas une confirmation de place." },
-      { "question": "Que se passe-t-il en cas d'absence ?", "answer": "Les modalités applicables aux absences et au rattrapage éventuel sont communiquées avant toute confirmation. Aucun rattrapage n’est garanti au stade de la demande d’information." },
-      { "question": "Quel matériel faut-il apporter ?", "answer": "Un cahier, une trousse complète et une calculatrice sont utiles selon les matières. Pour les modules NSI/SNT, l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire. En Physique-Chimie, les séances sont théoriques et méthodologiques ; aucune activité pratique en laboratoire n’est annoncée." },
-      { "question": "Que faire si le groupe demandé est complet ?", "answer": "L'équipe peut proposer une liste d'attente ou une autre solution pédagogique. Aucune disponibilité en temps réel n'est annoncée sur cette page." },
-      { "question": "La demande d’information engage-t-elle financièrement ?", "answer": "Non. La demande est transmise sans paiement, ne réserve pas une place et ne forme pas un contrat. Une réservation n’intervient qu’après validation du parcours, communication des conditions et réception de l’acompte." },
-      { "question": "Comment obtenir un conseil personnalisé ?", "answer": "Vous pouvez demander un conseil ou écrire sur WhatsApp. L'équipe vérifie alors les matières et le profil les plus adaptés." }
+      {
+        "question": "Mon enfant entrant en 3e, Seconde, Première ou Terminale peut-il suivre plusieurs matières ?",
+        "answer": "Oui. Fondations permet de choisir les matières disponibles au niveau concerné, sans remise multimatières. Premium propose des packs d’une à quatre matières. Le planning définitif reste soumis aux validations opérationnelles."
+      },
+      {
+        "question": "Le stage dure-t-il une ou deux semaines ?",
+        "answer": "La campagne s'étend sur deux semaines. Chaque matière est organisée sur une semaine avec cinq séances de deux heures ; la présence dépend donc des matières choisies."
+      },
+      {
+        "question": "Quelle est la différence entre SNT et NSI pour une entrée en Seconde ?",
+        "answer": "Pour une entrée en Seconde, le module est une initiation à l'informatique, à l'algorithmique et à la SNT. Il ne s'agit pas d'un enseignement de spécialité NSI."
+      },
+      {
+        "question": "Comment choisir le profil de Mathématiques pour une entrée en Première ?",
+        "answer": "Le parent déclare Maths EDS ou Maths hors EDS pour la classe de rentrée. Le créneau est commun, puis la composition pédagogique du groupe est validée selon les profils et les effectifs. SVT est proposée pour une entrée en Première ou Terminale selon les groupes formés."
+      },
+      {
+        "question": "Le Français EAF convient-il aux voies générale et technologique ?",
+        "answer": "Les deux profils sont prévus. La voie déclarée permet à l'équipe d'adapter les exercices et de confirmer une composition de groupe cohérente."
+      },
+      {
+        "question": "Quelles options de Mathématiques sont prévues pour une entrée en Terminale ?",
+        "answer": "Le formulaire distingue l'absence d'option, Maths expertes et Maths complémentaires pour la classe de rentrée. La spécialité Mathématiques conservée est déclarée séparément."
+      },
+      {
+        "question": "À partir de combien d'élèves un groupe ouvre-t-il ?",
+        "answer": "Un groupe Fondations ouvre à partir de quatre inscriptions confirmées et accueille au maximum six élèves. Un groupe Premium ouvre à partir de trois inscriptions confirmées et accueille au maximum cinq élèves."
+      },
+      {
+        "question": "Comment fonctionne l'acompte ?",
+        "answer": "Après validation du parcours et transmission des conditions applicables, l’acompte correspond exactement à 30 % du tarif total. Sa réception confirme l’inscription et réserve la place."
+      },
+      {
+        "question": "Que se passe-t-il si le groupe n'ouvre pas ?",
+        "answer": "Si Nexus Réussite décide de ne pas ouvrir le groupe, la famille est informée. Les conditions applicables sont communiquées avant toute confirmation."
+      },
+      {
+        "question": "Un report vers un autre stage est-il possible ?",
+        "answer": "Les modalités d’annulation, d’absence, de report et d’interruption sont communiquées avant toute confirmation."
+      },
+      {
+        "question": "Existe-t-il une liste d'attente ?",
+        "answer": "Une demande peut être placée en liste d'attente si un groupe atteint sa capacité. Cela ne constitue pas une confirmation de place."
+      },
+      {
+        "question": "Que se passe-t-il en cas d'absence ?",
+        "answer": "Les modalités applicables aux absences et au rattrapage éventuel sont communiquées avant toute confirmation. Aucun rattrapage n’est garanti au stade de la demande d’information."
+      },
+      {
+        "question": "Quel matériel faut-il apporter ?",
+        "answer": "Un cahier, une trousse complète et une calculatrice sont utiles selon les matières. Pour les modules NSI/SNT, l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire. En Physique-Chimie, les séances sont théoriques et méthodologiques ; aucune activité pratique en laboratoire n’est annoncée."
+      },
+      {
+        "question": "Que faire si le groupe demandé est complet ?",
+        "answer": "L'équipe peut proposer une liste d'attente ou une autre solution pédagogique. Aucune disponibilité en temps réel n'est annoncée sur cette page."
+      },
+      {
+        "question": "La demande d’information engage-t-elle financièrement ?",
+        "answer": "Non. La demande est transmise sans paiement, ne réserve pas une place et ne forme pas un contrat. Une réservation n’intervient qu’après validation du parcours, communication des conditions et réception de l’acompte."
+      },
+      {
+        "question": "Comment obtenir un conseil personnalisé ?",
+        "answer": "Vous pouvez demander un conseil ou écrire sur WhatsApp. L'équipe vérifie alors les matières et le profil les plus adaptés."
+      }
     ]
   },
   "seo": {
@@ -191,10 +604,22 @@
     "email": "contact@nexusreussite.academy"
   },
   "cta": {
-    "primary": { "label": "Demander un parcours ou un conseil", "action": "scroll_to_configurator" },
-    "secondary": { "label": "Voir les horaires", "action": "scroll_to_schedule" },
-    "whatsapp": { "label": "Poser une question", "action": "open_whatsapp" },
-    "bilanGratuit": { "label": "Bilan gratuit", "path": "/bilan-gratuit" }
+    "primary": {
+      "label": "Demander un parcours ou un conseil",
+      "action": "scroll_to_configurator"
+    },
+    "secondary": {
+      "label": "Voir les horaires",
+      "action": "scroll_to_schedule"
+    },
+    "whatsapp": {
+      "label": "Poser une question",
+      "action": "open_whatsapp"
+    },
+    "bilanGratuit": {
+      "label": "Bilan gratuit",
+      "path": "/bilan-gratuit"
+    }
   },
   "featureFlags": {
     "showPricing": true,
