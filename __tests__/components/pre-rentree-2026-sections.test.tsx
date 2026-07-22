@@ -33,17 +33,18 @@ function renderSchedule() {
 }
 
 describe('Pré-rentrée landing sections', () => {
-  it('renders the five-subject legend and accessible level tables', async () => {
+  it('renders the six-subject legend and accessible level tables', async () => {
     const user = userEvent.setup();
     renderSchedule();
 
     expect(screen.getByRole('heading', { name: 'Planning et emplois du temps' })).toBeInTheDocument();
     const legend = screen.getByRole('list', { name: 'Légende des matières' });
-    expect(within(legend).getAllByRole('listitem')).toHaveLength(5);
+    expect(within(legend).getAllByRole('listitem')).toHaveLength(6);
     expect(within(legend).getByText('Mathématiques')).toBeInTheDocument();
     expect(within(legend).getByText('Français / Expression')).toBeInTheDocument();
     expect(within(legend).getByText('NSI / SNT')).toBeInTheDocument();
     expect(within(legend).getByText('Physique-Chimie')).toBeInTheDocument();
+    expect(within(legend).getByText('SVT')).toBeInTheDocument();
     expect(within(legend).getByText('Philosophie')).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Par classe de rentrée' })).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByRole('tab', { name: 'Entrée en 3e' })).toHaveAttribute('aria-selected', 'true');
@@ -64,23 +65,23 @@ describe('Pré-rentrée landing sections', () => {
     expect(weekTab).toHaveAttribute('aria-selected', 'true');
   });
 
-  it('renders both weekly timetables with four blocks and two rooms', async () => {
+  it('renders both weekly timetables with five blocks and two rooms', async () => {
     const user = userEvent.setup();
     renderSchedule();
     await user.click(screen.getByRole('tab', { name: 'Emploi du temps par semaine' }));
 
     expect(screen.getByRole('tab', { name: 'Semaine 1 · 17–21 août' })).toHaveAttribute('aria-selected', 'true');
     const weekOne = screen.getByRole('table', { name: 'Emploi du temps — Semaine 1 · 17–21 août' });
-    expect(within(weekOne).getAllByRole('row')).toHaveLength(5);
+    expect(within(weekOne).getAllByRole('row')).toHaveLength(6);
     expect(within(weekOne).getByRole('columnheader', { name: 'Salle 1' })).toBeInTheDocument();
     expect(within(weekOne).getByRole('columnheader', { name: 'Salle 2' })).toBeInTheDocument();
-    expect(within(weekOne).queryAllByText('Libre')).toHaveLength(0);
+    expect(within(weekOne).queryAllByText('Libre')).toHaveLength(1);
     expect(within(weekOne).getByText('Français — préparation à l’EAF')).toBeInTheDocument();
 
     await user.click(screen.getByRole('tab', { name: 'Semaine 2 · 24–28 août' }));
     const weekTwo = screen.getByRole('table', { name: 'Emploi du temps — Semaine 2 · 24–28 août' });
-    expect(within(weekTwo).getAllByRole('row')).toHaveLength(5);
-    expect(within(weekTwo).getAllByText('Libre')).toHaveLength(2);
+    expect(within(weekTwo).getAllByRole('row')).toHaveLength(6);
+    expect(within(weekTwo).getAllByText('Libre')).toHaveLength(3);
     expect(within(weekTwo).getByText('Initiation informatique, algorithmique et SNT')).toBeInTheDocument();
     expect(within(weekTwo).getAllByText('Physique-Chimie')).toHaveLength(3);
   });
@@ -166,8 +167,9 @@ describe('Pré-rentrée landing sections', () => {
     const campaignModule = dto.modules.find((candidate) => candidate.id === 'terminale-physique-chimie');
     if (!campaignModule) throw new Error('Module Terminale Physique-Chimie absent');
 
-    window.history.replaceState({}, '', `#programme-${campaignModule.id}`);
+    window.location.hash = `#programme-${campaignModule.id}`;
     render(<ProgramsSection modules={dto.modules} levels={dto.levels} subjects={dto.subjects} />);
+    fireEvent(window, new HashChangeEvent('hashchange'));
 
     await waitFor(() => {
       expect(screen.getByRole('tab', { name: 'Entrée en Terminale' })).toHaveAttribute('aria-selected', 'true');

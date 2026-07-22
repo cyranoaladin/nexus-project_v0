@@ -15,7 +15,7 @@ DEPLOYMENT=NOT_PERFORMED
 PUBLIC_DISTRIBUTION=NOT_AUTHORIZED
 ```
 
-La campagne en mode `REVIEW` comprend quatre niveaux, quatorze modules et soixante-dix séances. Le Guide Parents est le document principal ; les documents courts et les programmes de niveau sont des annexes issues du même snapshot.
+La campagne en mode `REVIEW` comprend quatre niveaux, seize modules et quatre-vingts séances. Le Guide Parents est le document principal ; les documents courts et les programmes de niveau sont des annexes issues du même snapshot.
 
 ## Sources
 

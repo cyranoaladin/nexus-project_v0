@@ -242,6 +242,26 @@
       "nexusSessionNumbers": [1, 2, 3, 4, 5],
       "alignmentSummary": "Réactiver transformations, mécanique, énergie, ondes, signaux et méthodes quantitatives nécessaires au programme de Terminale.",
       "publicOfferEligible": true
+    },
+    {
+      "moduleId": "premiere-svt",
+      "level": "PREMIERE",
+      "subject": "SVT",
+      "officialProgrammeId": "BO2019-LYCEE-SVT-PREMIERE",
+      "applicationSchoolYear": "2026-2027",
+      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "alignmentSummary": "Installer méthodes et concepts fondamentaux de SVT pour l'entrée en Première : documents, raisonnement et vocabulaire scientifique.",
+      "publicOfferEligible": true
+    },
+    {
+      "moduleId": "terminale-svt",
+      "level": "TERMINALE",
+      "subject": "SVT",
+      "officialProgrammeId": "BO2019-LYCEE-SVT-TERMINALE",
+      "applicationSchoolYear": "2026-2027",
+      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "alignmentSummary": "Réactiver méthodes et raisonnement SVT pour l'entrée en Terminale : documents, modélisation et argumentation scientifique.",
+      "publicOfferEligible": true
     }
   ]
 }

@@ -54,7 +54,7 @@ describe('Pré-rentrée stage configurator', () => {
     expect(track.preRentreeTrackSelected).toHaveBeenCalledWith('premiere', 'eaf_generale');
     await user.click(screen.getByRole('button', { name: 'Continuer' }));
 
-    expect(screen.getAllByRole('checkbox')).toHaveLength(4);
+    expect(screen.getAllByRole('checkbox')).toHaveLength(5);
     await user.click(screen.getByRole('checkbox', { name: /Mathématiques/i }));
     await user.click(screen.getByRole('checkbox', { name: /Français.*EAF/i }));
     await user.click(screen.getByRole('button', { name: /Voir mon résumé/i }));
