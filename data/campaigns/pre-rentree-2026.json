@@ -215,7 +215,7 @@
         {
           "level": "PREMIERE",
           "subject": "NSI",
-          "block": "B",
+          "block": "D",
           "room": "salle-1",
           "teacherRole": "COMPUTER_SCIENCE_TEACHER_A"
         },
@@ -243,9 +243,16 @@
         {
           "level": "TERMINALE",
           "subject": "SVT",
-          "block": "E",
-          "room": "salle-2",
+          "block": "B",
+          "room": "salle-1",
           "teacherRole": "SVT_TEACHER_B"
+        },
+        {
+          "level": "PREMIERE",
+          "subject": "SVT",
+          "block": "C",
+          "room": "salle-2",
+          "teacherRole": "SVT_TEACHER_A"
         }
       ]
     }
@@ -253,7 +260,8 @@
   "roomRoles": {
     "salle-1": [
       "MATHEMATIQUES",
-      "NSI"
+      "NSI",
+      "SVT"
     ],
     "salle-2": [
       "FRANCAIS",
