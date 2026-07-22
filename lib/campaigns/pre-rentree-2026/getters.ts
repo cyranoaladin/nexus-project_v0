@@ -267,7 +267,7 @@ export function getPreRentreeHomepageSpotlightDTO(): PreRentreeHomepageSpotlight
     accessibleLabel: `À partir du ${day} ${month} ${year}.`,
     chipLabel: `dès le ${day} ${month}`,
   };
-  const subjectOrder = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'SVT', 'SES', 'FRANCAIS', 'PHILOSOPHIE', 'NSI', 'HISTOIRE_GEOGRAPHIE', 'EMC'];
+  const subjectOrder = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'FRANCAIS', 'NSI', 'PHILOSOPHIE'];
   const availableSubjectIds = new Set<string>(publicOffers.flatMap((offer) => offer.subjects));
   const subjectFamilies = subjectOrder.filter((subjectId) => availableSubjectIds.has(subjectId)).map((subjectId) => {
     const subject = dto.levels.flatMap((level) => level.subjects).find((candidate) => candidate.id === subjectId);
