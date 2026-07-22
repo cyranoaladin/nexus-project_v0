@@ -197,11 +197,11 @@ describe('Pré-rentrée landing sections', () => {
     }
   });
 
-  it('renders all sixteen contract FAQ items as accessible accordions', async () => {
+  it('renders all seventeen contract FAQ items as accessible accordions', async () => {
     const user = userEvent.setup();
     render(<CampaignFAQ items={dto.content.faq} />);
     const buttons = screen.getAllByRole('button');
-    expect(buttons).toHaveLength(16);
+    expect(buttons).toHaveLength(17);
     await user.click(buttons[0]);
     expect(buttons[0]).toHaveAttribute('aria-expanded', 'true');
   });

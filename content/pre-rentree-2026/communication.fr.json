@@ -9,8 +9,8 @@
     {"id":"premium","title":"Nexus Premium","publicGate":"OWNER_APPROVAL","text":"Entrée en Première ou Terminale : une proposition de parcours en petit groupe. Les services renforcés ne sont publiés qu’après validation de leur capacité opérationnelle."},
     {"id":"troisieme","title":"Entrée en 3e","publicGate":null,"text":"Mathématiques ou Français, dix heures par matière, 350 TND. Demandez le programme Fondations et les horaires proposés."},
     {"id":"seconde","title":"Entrée en Seconde","publicGate":null,"text":"Mathématiques, Français, Physique-Chimie ou initiation à l’informatique, à l’algorithmique et à la SNT : 400 TND par matière."},
-    {"id":"premiere","title":"Entrée en Première","publicGate":null,"text":"Mathématiques, Physique-Chimie, NSI ou Français — préparation à l’EAF. Packs Premium de une à quatre matières."},
-    {"id":"terminale","title":"Entrée en Terminale","publicGate":null,"text":"Mathématiques, Physique-Chimie, NSI ou Philosophie. Le parcours tient compte des spécialités conservées et des options de Mathématiques."},
+    {"id":"premiere","title":"Entrée en Première","publicGate":null,"text":"Mathématiques, Physique-Chimie, NSI, Français (préparation à l’EAF) ou SVT. Packs Premium de 1 à 4 matières au choix parmi 5."},
+    {"id":"terminale","title":"Entrée en Terminale","publicGate":null,"text":"Mathématiques, Physique-Chimie, NSI, Philosophie ou SVT. Packs Premium de 1 à 4 matières au choix parmi 5 ; le parcours tient compte des spécialités conservées et des options de Mathématiques."},
     {"id":"snt","title":"SNT en Seconde","publicGate":null,"text":"Une initiation à l’informatique, à l’algorithmique et à la SNT — jamais présentée comme une spécialité NSI de Seconde."},
     {"id":"philosophie","title":"Philosophie en Terminale","publicGate":null,"text":"Découvrir la problématisation, la dissertation, l’argumentation et l’explication de texte avant la rentrée."},
     {"id":"manuels","title":"Manuels Nexus","publicGate":"MANUALS_READY","text":"Cette publication reste bloquée jusqu’à validation impression, approbation propriétaire et confirmation du stock pour les quatre manuels éligibles."},
@@ -24,8 +24,8 @@
     {"id":"premium","slides":[{"title":"Premium","body":"Entrée en Première et Terminale."},{"title":"Cibler","body":"Profil et matières."},{"title":"Approfondir","body":"Enjeux de spécialité et d’examen."},{"title":"Gate","body":"Services publiés après validation."}]},
     {"id":"troisieme","slides":[{"title":"Entrée en 3e","body":"Nexus Fondations."},{"title":"Mathématiques","body":"Cinq objectifs progressifs."},{"title":"Français","body":"Lecture, langue et rédaction."},{"title":"Tarif","body":"350 TND par matière."}]},
     {"id":"seconde","slides":[{"title":"Entrée en Seconde","body":"Nexus Fondations."},{"title":"Quatre matières","body":"Maths, Français, PC, SNT."},{"title":"SNT","body":"Initiation, pas EDS NSI."},{"title":"Tarif","body":"400 TND par matière."}]},
-    {"id":"premiere","slides":[{"title":"Entrée en Première","body":"Nexus Premium."},{"title":"Profils","body":"Voie, Maths et EAF."},{"title":"Quatre matières","body":"Maths, PC, NSI, Français."},{"title":"Packs","body":"Une à quatre matières."}]},
-    {"id":"terminale","slides":[{"title":"Entrée en Terminale","body":"Nexus Premium."},{"title":"Profils","body":"Spécialités et options Maths."},{"title":"Philosophie","body":"Méthodes du bac."},{"title":"Packs","body":"Maximum quatre matières."}]},
+    {"id":"premiere","slides":[{"title":"Entrée en Première","body":"Nexus Premium."},{"title":"Profils","body":"Voie, Maths et EAF."},{"title":"Cinq matières au choix","body":"Maths, PC, NSI, Français, SVT."},{"title":"Packs","body":"1 à 4 matières au choix parmi 5."}]},
+    {"id":"terminale","slides":[{"title":"Entrée en Terminale","body":"Nexus Premium."},{"title":"Profils","body":"Spécialités et options Maths."},{"title":"Philosophie","body":"Méthodes du bac."},{"title":"Packs","body":"1 à 4 matières au choix parmi 5 (dont SVT)."}]},
     {"id":"contenu-tarif","slides":[{"title":"D’abord le besoin","body":"Niveau et matières."},{"title":"Puis la méthode","body":"Cinq séances structurées."},{"title":"Format","body":"Fondations ou Premium."},{"title":"Tarif","body":"Prix et acompte exacts depuis la source."}]}
   ],
   "stories":[

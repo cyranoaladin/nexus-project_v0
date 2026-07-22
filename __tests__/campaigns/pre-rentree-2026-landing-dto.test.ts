@@ -21,7 +21,7 @@ describe('Pré-rentrée 2026 landing DTO', () => {
       'Deux semaines pour préparer sérieusement la rentrée',
     );
     expect(dto.content.method).toHaveLength(4);
-    expect(dto.content.faq).toHaveLength(16);
+    expect(dto.content.faq).toHaveLength(17);
     expect(dto.content.practical.preRegistrationNotice).toContain('ne réserve pas une place');
     expect(dto.content.practical.preRegistrationNotice).toContain('ne forme pas un contrat');
     expect(dto.seo.canonical).toBe('/stages/pre-rentree-2026');
