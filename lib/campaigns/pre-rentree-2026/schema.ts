@@ -146,7 +146,7 @@ const CampaignContent = z.object({
   faq: z.array(z.object({
     question: z.string().min(1),
     answer: z.string().min(1),
-  })).length(16),
+  })).length(17),
 });
 
 const SeoContract = z.object({

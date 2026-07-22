@@ -121,7 +121,7 @@
     {
       "documentId": "fiche-premiere",
       "title": "Entrée en Première — fiche parcours",
-      "subtitle": "Un parcours de une à quatre matières, choisi selon les priorités de l'élève",
+      "subtitle": "Un parcours de 1 à 4 matières au choix parmi 5, selon les priorités de l'élève",
       "purpose": "Expliquer les packs canoniques de Première et les matières réellement disponibles.",
       "audience": "Élèves entrant en Première et candidats libres lorsque le parcours est compatible.",
       "offerIds": ["pre2026-premiere-pack-1", "pre2026-premiere-pack-2", "pre2026-premiere-pack-3", "pre2026-premiere-pack-4"],
@@ -130,7 +130,7 @@
       "sections": [
         {
           "heading": "Choisir les matières utiles",
-          "paragraphs": ["Le parcours Première se compose de une à quatre matières parmi celles autorisées pour ce niveau. Le choix doit tenir compte des spécialités, du parcours de français et des prérequis à consolider.", "Chaque matière ajoute dix heures de travail, organisées en cinq séances. Le tarif et l'acompte sont calculés par pack, sans addition manuelle de prix dispersés."],
+          "paragraphs": ["Le parcours Première se compose de 1 à 4 matières au choix parmi les cinq autorisées pour ce niveau (Mathématiques, Physique-Chimie, NSI, Français, SVT). Le choix doit tenir compte des spécialités, du parcours de français et des prérequis à consolider.", "Chaque matière ajoute dix heures de travail, organisées en cinq séances. Le tarif et l'acompte sont calculés par pack, sans addition manuelle de prix dispersés."],
           "bullets": ["Mathématiques", "Physique-chimie", "NSI", "Français"]
         },
         {
@@ -157,7 +157,7 @@
       "sections": [
         {
           "heading": "Prioriser avant une année exigeante",
-          "paragraphs": ["La pré-rentrée n'anticipe pas toute l'année de Terminale. Elle aide à reprendre les prérequis, retrouver des automatismes et installer une méthode de travail avant les premiers chapitres.", "Le parcours peut comporter de une à quatre matières autorisées pour la Terminale. Une priorité bien définie rend les dix heures de chaque matière plus cohérentes."],
+          "paragraphs": ["La pré-rentrée n'anticipe pas toute l'année de Terminale. Elle aide à reprendre les prérequis, retrouver des automatismes et installer une méthode de travail avant les premiers chapitres.", "Le parcours peut comporter de 1 à 4 matières au choix parmi les cinq autorisées pour la Terminale (Mathématiques, Physique-Chimie, NSI, Philosophie, SVT). Une priorité bien définie rend les dix heures de chaque matière plus cohérentes."],
           "bullets": ["Mathématiques", "Physique-chimie", "NSI", "Philosophie"]
         },
         {
@@ -189,8 +189,8 @@
         },
         {
           "heading": "Premium : Première et Terminale",
-          "paragraphs": ["Premium correspond aux niveaux d'entrée en Première et Terminale. La famille choisit un pack de une à quatre matières parmi celles autorisées pour le niveau.", "La capacité Premium est plus resserrée. Le prix, le volume et l'acompte sont dérivés du pack choisi, ce qui permet une proposition commerciale lisible."],
-          "bullets": ["Une à quatre matières", "Dix heures par matière", "Pack tarifaire canonique", "Effectif Premium limité"]
+          "paragraphs": ["Premium correspond aux niveaux d'entrée en Première et Terminale. La famille choisit un pack de 1 à 4 matières au choix parmi les cinq autorisées pour le niveau (SVT incluse en Première et Terminale).", "La capacité Premium est plus resserrée. Le prix, le volume et l'acompte sont dérivés du pack choisi, ce qui permet une proposition commerciale lisible."],
+          "bullets": ["1 à 4 matières au choix parmi 5", "Dix heures par matière", "Pack tarifaire canonique", "Effectif Premium limité"]
         },
         {
           "heading": "Le point commun : la structure",

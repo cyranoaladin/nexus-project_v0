@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "sourceSetSha256": "6cfc4c55b4f77224dc4aed72d58de5d0be38e40dbc6d642e10cc7504073543c8",
+  "sourceSetSha256": "970248c82f22ec22b711f01a2995c0677d050ca3dc8e41143338316ea6916519",
   "sourceRepoSha": "a1192c8dccf8eaa6ae223265a3bc9ceb56a6fff0",
   "sourceCommitDate": "2026-07-14T12:00:48+01:00",
   "snapshotBuiltAt": "2026-07-20T18:00:00+01:00",
@@ -8,7 +8,7 @@
     "campaign": {
       "path": "data/campaigns/pre-rentree-2026.json",
       "version": "2.0.2",
-      "sha256": "2179a4dbaa172e14a804ca3200e085d7f97de2131c8881394f031fe2a119d6d3"
+      "sha256": "8a12ce5a18782863ef37aa7cb76980353b948ae549a7bd0f893f955bbf5b399b"
     },
     "modules": {
       "path": "content/pre-rentree-2026/modules.json",
@@ -58,12 +58,12 @@
     "communication": {
       "path": "content/pre-rentree-2026/communication.fr.json",
       "version": "2026-communication-fr-v1",
-      "sha256": "3fda5f8f512a1947aa8d11ee26fafb042028dffdcaf82f8e14b1d73fcc467a20"
+      "sha256": "faa23bacf9844cde490d12c11b9ed19f720f182280a92bf867580096d36ce13a"
     },
     "whatsapp": {
       "path": "content/pre-rentree-2026/whatsapp.fr.json",
       "version": "2026-whatsapp-fr-v1",
-      "sha256": "6e06aaa75511c35e3798b83df1edcc117684675e55d761af956b67b98701baed"
+      "sha256": "415b5abde9093cbfe8e413d8bc051faba7b49fa73da0a3a7c7f9ed6ea5532453"
     },
     "operations": {
       "path": "content/pre-rentree-2026/operations.fr.json",
@@ -7608,13 +7608,13 @@
         "id": "premiere",
         "title": "Entrée en Première",
         "publicGate": null,
-        "text": "Mathématiques, Physique-Chimie, NSI ou Français — préparation à l’EAF. Packs Premium de une à quatre matières."
+        "text": "Mathématiques, Physique-Chimie, NSI, Français (préparation à l’EAF) ou SVT. Packs Premium de 1 à 4 matières au choix parmi 5."
       },
       {
         "id": "terminale",
         "title": "Entrée en Terminale",
         "publicGate": null,
-        "text": "Mathématiques, Physique-Chimie, NSI ou Philosophie. Le parcours tient compte des spécialités conservées et des options de Mathématiques."
+        "text": "Mathématiques, Physique-Chimie, NSI, Philosophie ou SVT. Packs Premium de 1 à 4 matières au choix parmi 5 ; le parcours tient compte des spécialités conservées et des options de Mathématiques."
       },
       {
         "id": "snt",
@@ -7771,12 +7771,12 @@
             "body": "Voie, Maths et EAF."
           },
           {
-            "title": "Quatre matières",
-            "body": "Maths, PC, NSI, Français."
+            "title": "Cinq matières au choix",
+            "body": "Maths, PC, NSI, Français, SVT."
           },
           {
             "title": "Packs",
-            "body": "Une à quatre matières."
+            "body": "1 à 4 matières au choix parmi 5."
           }
         ]
       },
@@ -7797,7 +7797,7 @@
           },
           {
             "title": "Packs",
-            "body": "Maximum quatre matières."
+            "body": "1 à 4 matières au choix parmi 5 (dont SVT)."
           }
         ]
       },
@@ -7963,13 +7963,13 @@
         "id": "tarif-premiere",
         "purpose": "Tarif Première",
         "publicGate": null,
-        "text": "Pour l’entrée en Première, Premium propose 1 à 4 matières : 480, 900, 1 350 ou 1 800 TND. L’acompte exact est calculé à 30 % du pack validé."
+        "text": "Pour l’entrée en Première, Premium propose 1 à 4 matières au choix parmi 5 (Mathématiques, Physique-Chimie, NSI, Français, SVT) : 480, 900, 1 350 ou 1 800 TND. L’acompte exact est calculé à 30 % du pack validé."
       },
       {
         "id": "tarif-terminale",
         "purpose": "Tarif Terminale",
         "publicGate": null,
-        "text": "Pour l’entrée en Terminale, Premium propose 1 à 4 matières : 480, 900, 1 350 ou 1 800 TND, avec un acompte exact de 30 % après validation du parcours."
+        "text": "Pour l’entrée en Terminale, Premium propose 1 à 4 matières au choix parmi 5 (Mathématiques, Physique-Chimie, NSI, Philosophie, SVT) : 480, 900, 1 350 ou 1 800 TND, avec un acompte exact de 30 % après validation du parcours."
       },
       {
         "id": "objection-prix",
@@ -8797,6 +8797,10 @@
       {
         "question": "Quelles options de Mathématiques sont prévues pour une entrée en Terminale ?",
         "answer": "Le formulaire distingue l'absence d'option, Maths expertes et Maths complémentaires pour la classe de rentrée. La spécialité Mathématiques conservée est déclarée séparément."
+      },
+      {
+        "question": "La SVT est-elle proposée, et à quels niveaux ?",
+        "answer": "La SVT est proposée en Première et en Terminale uniquement ; elle ne fait pas partie des matières de 3e et de Seconde. Elle compte comme l'une des matières du pack Premium : le parcours réunit de 1 à 4 matières au choix parmi les cinq disponibles à ces niveaux. Le seuil d'ouverture d'un groupe SVT est identique à celui des autres matières et la décision d'ouverture est communiquée au plus tard le 10 août à 18 h."
       },
       {
         "question": "À partir de combien d'élèves un groupe ouvre-t-il ?",

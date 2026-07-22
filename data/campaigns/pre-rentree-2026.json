@@ -547,6 +547,10 @@
         "answer": "Le formulaire distingue l'absence d'option, Maths expertes et Maths complémentaires pour la classe de rentrée. La spécialité Mathématiques conservée est déclarée séparément."
       },
       {
+        "question": "La SVT est-elle proposée, et à quels niveaux ?",
+        "answer": "La SVT est proposée en Première et en Terminale uniquement ; elle ne fait pas partie des matières de 3e et de Seconde. Elle compte comme l'une des matières du pack Premium : le parcours réunit de 1 à 4 matières au choix parmi les cinq disponibles à ces niveaux. Le seuil d'ouverture d'un groupe SVT est identique à celui des autres matières et la décision d'ouverture est communiquée au plus tard le 10 août à 18 h."
+      },
+      {
         "question": "À partir de combien d'élèves un groupe ouvre-t-il ?",
         "answer": "Un groupe Fondations ouvre à partir de quatre inscriptions confirmées et accueille au maximum six élèves. Un groupe Premium ouvre à partir de trois inscriptions confirmées et accueille au maximum cinq élèves."
       },
