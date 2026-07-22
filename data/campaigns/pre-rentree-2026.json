@@ -125,11 +125,6 @@
       "id": "D",
       "startTime": "15:45",
       "endTime": "17:45"
-    },
-    {
-      "id": "E",
-      "startTime": "18:00",
-      "endTime": "20:00"
     }
   ],
   "schedule": [
@@ -194,13 +189,6 @@
           "block": "D",
           "room": "salle-2",
           "teacherRole": "FRENCH_TEACHER_B"
-        },
-        {
-          "level": "PREMIERE",
-          "subject": "SVT",
-          "block": "E",
-          "room": "salle-2",
-          "teacherRole": "SVT_TEACHER_A"
         }
       ]
     },
