@@ -1864,7 +1864,7 @@
       "total_hours": 10,
       "sessions_per_subject": 5,
       "session_duration_h": 2,
-      "group_max": 6,
+      "group_max": 5,
       "group_min_open": 4,
       "price_per_student": 350,
       "price_per_student_hour": 35,
@@ -1875,7 +1875,7 @@
         "status": "APPROVED",
         "approved_at": "2026-07-20",
         "approved_by_role": "DIRECTION_NEXUS_REUSSITE",
-        "scope": "Entrée en 3e, Mathématiques ou Français, 10 heures, groupe de 4 à 6 élèves",
+        "scope": "Entrée en 3e, Mathématiques ou Français, 10 heures, groupe de 4 à 5 élèves",
         "justification": "Décision commerciale propriétaire limitée à la Pré-rentrée 2026 ; le plancher global stage_college reste inchangé."
       },
       "payment": {
@@ -1894,7 +1894,7 @@
       "total_hours": 10,
       "sessions_per_subject": 5,
       "session_duration_h": 2,
-      "group_max": 6,
+      "group_max": 5,
       "group_min_open": 4,
       "price_per_student": 400,
       "price_per_student_hour": 40,
