@@ -165,10 +165,7 @@ async function main() {
     exception,
   });
   const serialized = `${JSON.stringify(sbom, null, 2)}\n`;
-  const { Spec, Validation } = require(path.join(
-    projectRoot,
-    'node_modules/@cyclonedx/cyclonedx-npm/node_modules/@cyclonedx/cyclonedx-library',
-  ));
+  const { Spec, Validation } = require('@cyclonedx/cyclonedx-library');
   const validationError = await new Validation.JsonValidator(
     Spec.Version.v1dot6,
   ).validate(serialized);
