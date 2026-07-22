@@ -18,44 +18,11 @@
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Tailwind CSS (pre-built, no CDN in production) -->
+  <link rel="stylesheet" href="tailwind-build.css">
   
   <!-- Custom Styles -->
   <link rel="stylesheet" href="styles.css">
-  
-  <!-- Tailwind Config -->
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            serif: ['Playfair Display', 'serif'],
-          },
-          colors: {
-            nexus: {
-              navy: '#1e3a5f',
-              'navy-dark': '#0f1f33',
-              'navy-light': '#2d4a6f',
-              gold: '#c9a24d',
-              'gold-light': '#f4e8c1',
-              'gold-deep': '#8b7355',
-              cream: '#faf8f3',
-              'cream-dark': '#f0ebe3',
-              slate: '#64748b',
-            }
-          },
-          boxShadow: {
-            'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
-            'elevated': '0 10px 40px -10px rgba(30, 58, 95, 0.15)',
-            'gold': '0 4px 15px -2px rgba(201, 162, 77, 0.3)',
-          }
-        }
-      }
-    }
-  </script>
 </head>
 <body class="bg-nexus-cream dark:bg-slate-900 text-slate-700 dark:text-slate-200 antialiased min-h-screen">
 
@@ -1210,6 +1177,16 @@
   <!-- ============================================ -->
   <!-- JAVASCRIPT -->
   <!-- ============================================ -->
+  <script>
+    // Guard: prevent browser extension evmAsk.js from throwing "Cannot redefine property: ethereum"
+    try {
+      Object.defineProperty(window, 'ethereum', {
+        configurable: false,
+        writable: false,
+        value: window.ethereum || undefined,
+      });
+    } catch (_) { /* already defined by another extension */ }
+  </script>
   <script src="app.js"></script>
 </body>
 </html>

@@ -1514,7 +1514,7 @@ function collectQuoteData() {
     studentName: getFieldValue('studentName', 'Élève à préciser'),
     parentName: getFieldValue('parentName', 'Responsable à préciser'),
     whatsapp: getFieldValue('whatsapp', 'À préciser'),
-    email: getFieldValue('email', 'À préciser'),
+    email: getFieldValue('email', '') || undefined,
     advisor: getFieldValue('advisor', 'Nexus Réussite'),
     level: getSelectText('level'),
     status: getSelectText('status'),
@@ -1534,7 +1534,11 @@ function collectQuoteData() {
     economie: 0,
     hasDirectionOverride: Boolean(document.getElementById('cumulDir')?.checked),
     offer: finalOffer,
-    alternatives
+    alternatives: alternatives.map(alt => ({
+      label: alt.label || 'Offre alternative',
+      desc: alt.desc || '',
+      annualDisplay: alt.annualDisplay || alt.display || 'Tarif à valider'
+    }))
   };
 }
 

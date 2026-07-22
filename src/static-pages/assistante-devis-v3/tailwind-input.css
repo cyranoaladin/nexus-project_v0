@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', sans-serif;
+  --font-serif: 'Playfair Display', serif;
+
+  --color-nexus-navy: #1e3a5f;
+  --color-nexus-navy-dark: #0f1f33;
+  --color-nexus-navy-light: #2d4a6f;
+  --color-nexus-gold: #c9a24d;
+  --color-nexus-gold-light: #f4e8c1;
+  --color-nexus-gold-deep: #8b7355;
+  --color-nexus-cream: #faf8f3;
+  --color-nexus-cream-dark: #f0ebe3;
+  --color-nexus-slate: #64748b;
+
+  --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  --shadow-elevated: 0 10px 40px -10px rgba(30, 58, 95, 0.15);
+  --shadow-gold: 0 4px 15px -2px rgba(201, 162, 77, 0.3);
+}
