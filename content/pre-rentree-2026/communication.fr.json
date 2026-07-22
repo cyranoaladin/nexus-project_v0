@@ -5,7 +5,7 @@
   "formats":["1080x1350","1080x1920","1080x1080","A4","WHATSAPP_THUMBNAIL","WEB_BANNER","REEL_9_16"],
   "publications":[
     {"id":"generale","title":"Pré-rentrée 2026","publicGate":null,"text":"Quatre niveaux, deux formats et cinq séances de deux heures par matière, du 17 au 28 août à Mutuelleville. Demandez le programme correspondant à la classe de rentrée."},
-    {"id":"fondations","title":"Nexus Fondations","publicGate":null,"text":"Entrée en 3e ou Seconde : reprendre les bases, installer une méthode et préparer le passage dans un groupe de quatre à six élèves."},
+    {"id":"fondations","title":"Nexus Fondations","publicGate":null,"text":"Entrée en 3e ou Seconde : reprendre les bases, installer une méthode et préparer le passage dans un groupe de quatre à cinq élèves."},
     {"id":"premium","title":"Nexus Premium","publicGate":"OWNER_APPROVAL","text":"Entrée en Première ou Terminale : une proposition de parcours en petit groupe. Les services renforcés ne sont publiés qu’après validation de leur capacité opérationnelle."},
     {"id":"troisieme","title":"Entrée en 3e","publicGate":null,"text":"Mathématiques ou Français, dix heures par matière, 350 TND. Demandez le programme Fondations et les horaires proposés."},
     {"id":"seconde","title":"Entrée en Seconde","publicGate":null,"text":"Mathématiques, Français, Physique-Chimie ou initiation à l’informatique, à l’algorithmique et à la SNT : 400 TND par matière."},
