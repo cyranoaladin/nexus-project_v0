@@ -9,10 +9,10 @@ function fullDate(date: string): string {
     .format(new Date(`${date}T12:00:00+01:00`));
 }
 
-export function PracticalInformation({ campaign, blocks, capacity, pack, depositPercentage, content, cgvPath }: {
+export function PracticalInformation({ campaign, blocks, capacityByOffer, pack, depositPercentage, content, cgvPath }: {
   campaign: { startDate: string; endDate: string; noClassDates: string[]; decisionDeadline: string; venue: { name: string; neighborhood: string; city: string } };
   blocks: Array<{ id: string; startTime: string; endTime: string }>;
-  capacity: { minPerCohort: number; maxPerCohort: number };
+  capacityByOffer: Record<'FONDATIONS' | 'PREMIUM', { minPerCohort: number; maxPerCohort: number }>;
   pack: { totalHours: number } | undefined;
   depositPercentage: number;
   content: {
@@ -38,7 +38,7 @@ export function PracticalInformation({ campaign, blocks, capacity, pack, deposit
           <div><dt className="font-semibold text-lux-ink">Volume par matière</dt><dd className="mt-1 text-sm text-lux-slate">{pack?.totalHours} heures selon le créneau choisi</dd></div>
           <div className="sm:col-span-2"><dt className="font-semibold text-lux-ink">Matériel et modalités par matière</dt><dd className="mt-1 text-sm text-lux-slate"><p>{content.material}</p><ul className="mt-3 space-y-2">{Object.values(content.materialsBySubject).map((material) => <li key={material.label}><span className="font-medium text-lux-ink">{material.label} :</span> {material.description}</li>)}</ul></dd></div>
           <div><dt className="font-semibold text-lux-ink">Contact</dt><dd className="mt-1 text-sm text-lux-slate"><a className="underline" href={`mailto:${LEGAL.contact.email}`}>{LEGAL.contact.email}</a> · <a className="underline" href={`tel:${LEGAL.contact.phoneRaw}`}>{LEGAL.contact.phone}</a></dd></div>
-          <div><dt className="font-semibold text-lux-ink">Ouverture du groupe</dt><dd className="mt-1 text-sm text-lux-slate">À partir de {capacity.minPerCohort} élèves, maximum {capacity.maxPerCohort}. Décision le {decision}.</dd></div>
+          <div><dt className="font-semibold text-lux-ink">Ouverture du groupe</dt><dd className="mt-1 text-sm text-lux-slate">Fondations : {capacityByOffer.FONDATIONS.minPerCohort} à {capacityByOffer.FONDATIONS.maxPerCohort} élèves. Premium : {capacityByOffer.PREMIUM.minPerCohort} à {capacityByOffer.PREMIUM.maxPerCohort} élèves. Décision le {decision}.</dd></div>
           <div><dt className="font-semibold text-lux-ink">Acompte</dt><dd className="mt-1 text-sm text-lux-slate">{depositPercentage} % selon le pack, demandé après validation du groupe et du profil.</dd></div>
           <div><dt className="font-semibold text-lux-ink">Si le groupe n'ouvre pas</dt><dd className="mt-1 text-sm text-lux-slate">{content.groupNotOpenedProcedure}</dd></div>
         </dl>

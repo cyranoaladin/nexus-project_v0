@@ -11,7 +11,7 @@
  *   track.signinSuccess('PARENT');
  */
 
-export type PreRentreeEntryLevel = 'seconde' | 'premiere' | 'terminale';
+export type PreRentreeEntryLevel = 'troisieme' | 'seconde' | 'premiere' | 'terminale';
 export type ViewportCategory = 'mobile' | 'tablet' | 'desktop';
 
 export interface PreRentreeHomepageEventParams {
@@ -29,6 +29,8 @@ export function getViewportCategory(width = typeof window === 'undefined' ? 1024
 
 export function toPreRentreeEntryLevel(level: string): PreRentreeEntryLevel {
   switch (level) {
+    case 'TROISIEME':
+      return 'troisieme';
     case 'SECONDE':
       return 'seconde';
     case 'PREMIERE':

@@ -74,7 +74,7 @@ export function PreRentreeCampaignSpotlight({ campaign }: { campaign: PreRentree
             <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
           </Link>
           <Link
-            href={campaign.planningPath}
+            href={campaign.secondaryCtaPath}
             onClick={() => track.preRentreeHomePlanningClicked({
               cta_location: 'home_spotlight',
               viewport_category: getViewportCategory(),
@@ -83,7 +83,7 @@ export function PreRentreeCampaignSpotlight({ campaign }: { campaign: PreRentree
             })}
             className="inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-lux-gold/60 bg-white px-4 py-3 text-center text-sm font-semibold text-lux-ink transition-colors hover:bg-lux-gold/10 lux-focus"
           >
-            Voir le planning
+            {campaign.secondaryCtaLabel}
           </Link>
         </div>
       </div>

@@ -1,0 +1,13 @@
+file '/home/alaeddine/Documents/Nexus_Reussite/canonical-repo-a1192c8d/assets/campaigns/pre-rentree-2026/week-one/reel/frames/frame-01.png'
+duration 4
+file '/home/alaeddine/Documents/Nexus_Reussite/canonical-repo-a1192c8d/assets/campaigns/pre-rentree-2026/week-one/reel/frames/frame-02.png'
+duration 5
+file '/home/alaeddine/Documents/Nexus_Reussite/canonical-repo-a1192c8d/assets/campaigns/pre-rentree-2026/week-one/reel/frames/frame-03.png'
+duration 5
+file '/home/alaeddine/Documents/Nexus_Reussite/canonical-repo-a1192c8d/assets/campaigns/pre-rentree-2026/week-one/reel/frames/frame-04.png'
+duration 6
+file '/home/alaeddine/Documents/Nexus_Reussite/canonical-repo-a1192c8d/assets/campaigns/pre-rentree-2026/week-one/reel/frames/frame-05.png'
+duration 5
+file '/home/alaeddine/Documents/Nexus_Reussite/canonical-repo-a1192c8d/assets/campaigns/pre-rentree-2026/week-one/reel/frames/frame-06.png'
+duration 5
+file '/home/alaeddine/Documents/Nexus_Reussite/canonical-repo-a1192c8d/assets/campaigns/pre-rentree-2026/week-one/reel/frames/frame-06.png'

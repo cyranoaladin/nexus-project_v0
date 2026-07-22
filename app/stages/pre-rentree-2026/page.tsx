@@ -1,110 +1,143 @@
 import type { Metadata } from 'next';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
-import { CampaignPageTracker } from '@/components/pre-rentree-2026/CampaignPageTracker';
-import { PreRentreeHero } from '@/components/pre-rentree-2026/PreRentreeHero';
-import StageConfigurator from '@/components/pre-rentree-2026/StageConfigurator';
-import { ScheduleSection } from '@/components/pre-rentree-2026/ScheduleSection';
-import { ProgramsSection } from '@/components/pre-rentree-2026/ProgramsSection';
-import { PricingSection } from '@/components/pre-rentree-2026/PricingSection';
-import { NexusMethodSection } from '@/components/pre-rentree-2026/NexusMethodSection';
-import { PracticalInformation } from '@/components/pre-rentree-2026/PracticalInformation';
 import { CampaignFAQ } from '@/components/pre-rentree-2026/CampaignFAQ';
-import { FinalCampaignCTA } from '@/components/pre-rentree-2026/FinalCampaignCTA';
-import { CampaignExperienceProvider } from '@/components/pre-rentree-2026/CampaignExperienceContext';
-import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
+import { CampaignPageTracker } from '@/components/pre-rentree-2026/CampaignPageTracker';
+import { CanonicalOfferCatalogue } from '@/components/pre-rentree-2026/CanonicalOfferCatalogue';
+import { buildWhatsAppUrl } from '@/lib/whatsapp';
+import { getPreRentreePublicSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
 
 export function generateMetadata(): Metadata {
-  const { seo } = getPreRentreeLandingDTO();
+  const dto = getPreRentreePublicSurfaceDTO();
   return {
-    title: seo.title,
-    description: seo.description,
-    alternates: { canonical: seo.canonical },
+    title: dto.seo.title,
+    description: dto.seo.description,
+    alternates: { canonical: dto.seo.canonical },
+    robots: dto.publication.indexable
+      ? { index: true, follow: true }
+      : { index: false, follow: false, nocache: true },
     openGraph: {
       type: 'website',
-      title: seo.title,
-      description: seo.description,
-      url: seo.canonical,
+      title: dto.seo.title,
+      description: dto.seo.description,
+      url: dto.seo.canonical,
       siteName: 'Nexus Réussite',
       locale: 'fr_FR',
-      images: [{ url: seo.ogImage, alt: seo.title }],
+      images: [{ url: dto.seo.image, alt: dto.title }],
     },
     twitter: {
       card: 'summary_large_image',
-      title: seo.title,
-      description: seo.description,
-      images: [seo.ogImage],
+      title: dto.seo.title,
+      description: dto.seo.description,
+      images: [dto.seo.image],
     },
   };
 }
 
 export default function PreRentree2026Page() {
-  const dto = getPreRentreeLandingDTO();
-  const faqJsonLd = {
+  const dto = getPreRentreePublicSurfaceDTO();
+  const whatsappUrl = buildWhatsAppUrl(dto.contact.whatsappMessage, { exactMessage: true });
+  const structuredData = {
     '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: dto.content.faq.map((item) => ({
-      '@type': 'Question',
-      name: item.question,
-      acceptedAnswer: { '@type': 'Answer', text: item.answer },
-    })),
+    '@graph': [
+      {
+        '@type': 'FAQPage',
+        mainEntity: dto.faq.map((item) => ({
+          '@type': 'Question',
+          name: item.question,
+          acceptedAnswer: { '@type': 'Answer', text: item.answer },
+        })),
+      },
+      {
+        '@type': 'ItemList',
+        name: dto.title,
+        itemListElement: dto.offers.map((offer, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          item: {
+            '@type': 'Course',
+            name: `${offer.levelLabel} · ${offer.pricingKind === 'FOUNDATIONS' ? offer.subjectLabels[0] : `${offer.subjectCount} ${offer.subjectCount === 1 ? 'matière' : 'matières'}`}`,
+            description: offer.objectives.join('. '),
+            provider: { '@type': 'EducationalOrganization', name: 'Nexus Réussite' },
+            offers: {
+              '@type': 'Offer',
+              price: offer.price,
+              priceCurrency: offer.currency,
+              url: `${dto.canonicalPath}#offres-pre-rentree`,
+            },
+          },
+        })),
+      },
+    ],
   };
 
   return (
     <main id="main-content" className="min-h-screen overflow-x-clip bg-lux-paper">
       <CorporateNavbar />
       <CampaignPageTracker />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd).replace(/</g, '\\u003c') }}
-      />
-      <PreRentreeHero
-        campaign={dto.campaign}
-        content={dto.content.hero}
-        capacity={dto.capacity}
-        packs={dto.packs}
-        schedule={dto.schedule}
-        whatsappMessage={dto.contact.whatsappMessage}
-      />
-      <CampaignExperienceProvider>
-        <div id="configurateur" className="scroll-mt-24">
-          <StageConfigurator
-            levels={dto.levels}
-            subjects={dto.subjects}
-            packs={dto.packs}
-            schedule={dto.schedule}
-            academicProfiles={dto.academicProfiles}
-            groupCompositionNotice={dto.content.practical.groupCompositionNotice}
-            campaignPublicStatus={dto.publicStatus}
-          />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, '\\u003c') }} />
+
+      <section className="bg-lux-ink px-4 pb-16 pt-28 md:px-6 md:pb-24 md:pt-32" aria-labelledby="pre-rentree-heading">
+        <div className="mx-auto max-w-6xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-lux-gold-wash">{dto.startLabel} · {dto.venue}</p>
+          <h1 id="pre-rentree-heading" className="mt-4 max-w-4xl font-fraunces text-4xl text-lux-on-dark md:text-6xl">{dto.title}</h1>
+          <p className="mt-6 max-w-3xl text-xl leading-8 text-lux-on-dark-muted">{dto.promise}</p>
+          <p className="mt-4 max-w-3xl text-sm leading-6 text-lux-on-dark-subtle">{dto.audience}</p>
+          <ul className="mt-8 flex flex-wrap gap-3 text-sm text-lux-on-dark">
+            {dto.levels.map((level) => <li key={level.id} className="rounded-full bg-white/10 px-4 py-2">{level.label}</li>)}
+            <li className="rounded-full bg-white/10 px-4 py-2">Effectifs annoncés offre par offre</li>
+          </ul>
+          <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+            <a href="#offres-pre-rentree" className="lux-cta-reserve inline-flex min-h-11 items-center justify-center rounded-lg px-6 py-3 text-sm font-semibold">Voir les offres et tarifs</a>
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center justify-center rounded-lg border border-lux-line/50 px-6 py-3 text-sm font-semibold text-lux-on-dark">WhatsApp {dto.contact.whatsappDisplay}</a>
+          </div>
         </div>
-        <div id="planning" className="scroll-mt-24">
-          <ScheduleSection
-            schedule={dto.schedule}
-            scheduleWeeks={dto.scheduleWeeks}
-            levels={dto.levels}
-            subjects={dto.subjects}
-            blocks={dto.blocks}
-            organization={dto.organization}
-          />
+      </section>
+
+      <section className="bg-white px-4 py-14 md:px-6 md:py-20" aria-labelledby="subjects-heading">
+        <div className="mx-auto max-w-6xl">
+          <h2 id="subjects-heading" className="font-fraunces text-3xl text-lux-ink md:text-4xl">Matières disponibles selon le niveau</h2>
+          <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+            {dto.levels.map((level) => (
+              <article key={level.id} className="rounded-2xl border border-lux-line bg-lux-paper p-5">
+                <h3 className="font-fraunces text-xl text-lux-ink">{level.label}</h3>
+                <ul className="mt-4 space-y-2 text-sm text-lux-slate">{level.subjects.map((subject) => <li key={subject.id}>{subject.label}</li>)}</ul>
+              </article>
+            ))}
+          </div>
         </div>
-        <ProgramsSection modules={dto.modules} levels={dto.levels} subjects={dto.subjects} />
-      </CampaignExperienceProvider>
-      <div id="tarifs" className="scroll-mt-24">
-        <PricingSection packs={dto.packs} depositPercentage={dto.pricingRules.depositPercentage} />
+      </section>
+
+      <div id="offres-pre-rentree" className="scroll-mt-24">
+        <CanonicalOfferCatalogue data={dto} />
       </div>
-      <NexusMethodSection steps={dto.content.method} />
-      <PracticalInformation
-        campaign={dto.campaign}
-        blocks={dto.blocks}
-        capacity={dto.capacity}
-        pack={dto.packs.find((pack) => pack.subjectsCount === 1)}
-        depositPercentage={dto.pricingRules.depositPercentage}
-        content={dto.content.practical}
-        cgvPath={dto.legalRefs.cgv}
-      />
-      <CampaignFAQ items={dto.content.faq} />
-      <FinalCampaignCTA campaignPath={dto.campaign.canonicalPath} />
+
+      <section className="bg-lux-ink px-4 py-14 md:px-6 md:py-20" aria-labelledby="method-heading">
+        <div className="mx-auto max-w-6xl">
+          <h2 id="method-heading" className="font-fraunces text-3xl text-lux-on-dark md:text-4xl">Ce qui distingue les dix heures Nexus</h2>
+          <p className="mt-3 max-w-3xl text-lux-on-dark-muted">Le volume horaire est associé à une organisation explicite et à des éléments réellement inclus dans les offres publiées.</p>
+          <ol className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            {dto.method.map((item, index) => <li key={item} className="rounded-xl border border-white/15 bg-white/5 p-4 text-sm text-lux-on-dark"><span className="mb-2 block font-fraunces text-2xl text-lux-gold-wash">{index + 1}</span>{item}</li>)}
+          </ol>
+        </div>
+      </section>
+
+      <section className="bg-white px-4 py-14 md:px-6 md:py-20" aria-labelledby="reservation-heading">
+        <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-2">
+          <article className="rounded-2xl border border-lux-line bg-lux-paper p-6">
+            <h2 id="reservation-heading" className="font-fraunces text-2xl text-lux-ink">Réservation et acompte</h2>
+            <p className="mt-4 font-semibold text-lux-ink">{dto.reservation.rule}</p>
+            <p className="mt-3 text-sm leading-6 text-lux-slate">{dto.reservation.explanation}</p>
+          </article>
+          <article className="rounded-2xl border border-lux-line bg-lux-paper p-6">
+            <h2 className="font-fraunces text-2xl text-lux-ink">Demander le bon parcours</h2>
+            <p className="mt-4 text-sm leading-6 text-lux-slate">Indiquez la classe de rentrée, la ou les matières recherchées et le statut scolaire. L’équipe vérifie ensuite l’offre applicable.</p>
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="lux-cta-reserve mt-6 inline-flex min-h-11 items-center justify-center rounded-lg px-5 py-3 text-sm font-semibold">Écrire au {dto.contact.whatsappDisplay}</a>
+          </article>
+        </div>
+      </section>
+
+      <CampaignFAQ items={[...dto.faq]} />
       <CorporateFooter />
     </main>
   );

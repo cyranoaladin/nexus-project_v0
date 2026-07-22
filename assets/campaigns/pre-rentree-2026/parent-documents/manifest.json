@@ -1,0 +1,915 @@
+{
+  "schemaVersion": "1.0.0",
+  "version": "2026-parent-documents-v1",
+  "campaignId": "pre-rentree-2026",
+  "documentIds": [
+    "brochure-generale",
+    "guide-parent",
+    "fiche-3e",
+    "fiche-seconde",
+    "fiche-premiere",
+    "fiche-terminale",
+    "comparatif-fondations-premium",
+    "inclusions-options-exclusions",
+    "justification-tarifaire",
+    "faq-commerciale",
+    "procedure-inscription",
+    "conditions-reservation-acompte",
+    "accompagnements-annuels",
+    "passerelle-stage-annuel"
+  ],
+  "documents": [
+    {
+      "documentId": "brochure-generale",
+      "offerIds": [
+        "pre2026-3e-mathematiques",
+        "pre2026-3e-francais",
+        "pre2026-seconde-mathematiques",
+        "pre2026-seconde-physique-chimie",
+        "pre2026-seconde-francais",
+        "pre2026-premiere-pack-1",
+        "pre2026-premiere-pack-2",
+        "pre2026-premiere-pack-3",
+        "pre2026-premiere-pack-4",
+        "pre2026-terminale-pack-1",
+        "pre2026-terminale-pack-2",
+        "pre2026-terminale-pack-3",
+        "pre2026-terminale-pack-4"
+      ],
+      "proofIds": [
+        "PRF-PRE2026-DATES-VENUE",
+        "PRF-PRE2026-WHATSAPP",
+        "PRF-PRE2026-DEPOSIT-30",
+        "PRF-PRE2026-3E-350-APPROVED",
+        "PRF-PRE2026-SECONDE-400",
+        "PRF-PRE2026-PREMIUM-PACKS",
+        "PRF-PRE2026-FIVE-SESSIONS",
+        "PRF-PRE2026-STRUCTURED-SESSIONS"
+      ],
+      "html": "sources/brochure-generale.html",
+      "pdf": "pdf/brochure-generale.pdf",
+      "pageCount": 3
+    },
+    {
+      "documentId": "guide-parent",
+      "offerIds": [
+        "pre2026-3e-mathematiques",
+        "pre2026-3e-francais",
+        "pre2026-seconde-mathematiques",
+        "pre2026-seconde-physique-chimie",
+        "pre2026-seconde-francais",
+        "pre2026-premiere-pack-1",
+        "pre2026-premiere-pack-2",
+        "pre2026-premiere-pack-3",
+        "pre2026-premiere-pack-4",
+        "pre2026-terminale-pack-1",
+        "pre2026-terminale-pack-2",
+        "pre2026-terminale-pack-3",
+        "pre2026-terminale-pack-4"
+      ],
+      "proofIds": [
+        "PRF-PRE2026-DATES-VENUE",
+        "PRF-PRE2026-WHATSAPP",
+        "PRF-PRE2026-DEPOSIT-30",
+        "PRF-PRE2026-FIVE-SESSIONS",
+        "PRF-PRE2026-STRUCTURED-SESSIONS"
+      ],
+      "html": "sources/guide-parent.html",
+      "pdf": "pdf/guide-parent.pdf",
+      "pageCount": 2
+    },
+    {
+      "documentId": "fiche-3e",
+      "offerIds": [
+        "pre2026-3e-mathematiques",
+        "pre2026-3e-francais"
+      ],
+      "proofIds": [
+        "PRF-PRE2026-DATES-VENUE",
+        "PRF-PRE2026-WHATSAPP",
+        "PRF-PRE2026-DEPOSIT-30",
+        "PRF-PRE2026-3E-350-APPROVED",
+        "PRF-PRE2026-FIVE-SESSIONS",
+        "PRF-PRE2026-STRUCTURED-SESSIONS"
+      ],
+      "html": "sources/fiche-3e.html",
+      "pdf": "pdf/fiche-3e.pdf",
+      "pageCount": 2
+    },
+    {
+      "documentId": "fiche-seconde",
+      "offerIds": [
+        "pre2026-seconde-mathematiques",
+        "pre2026-seconde-physique-chimie",
+        "pre2026-seconde-francais"
+      ],
+      "proofIds": [
+        "PRF-PRE2026-DATES-VENUE",
+        "PRF-PRE2026-WHATSAPP",
+        "PRF-PRE2026-DEPOSIT-30",
+        "PRF-PRE2026-SECONDE-400",
+        "PRF-PRE2026-FIVE-SESSIONS",
+        "PRF-PRE2026-STRUCTURED-SESSIONS"
+      ],
+      "html": "sources/fiche-seconde.html",
+      "pdf": "pdf/fiche-seconde.pdf",
+      "pageCount": 2
+    },
+    {
+      "documentId": "fiche-premiere",
+      "offerIds": [
+        "pre2026-premiere-pack-1",
+        "pre2026-premiere-pack-2",
+        "pre2026-premiere-pack-3",
+        "pre2026-premiere-pack-4"
+      ],
+      "proofIds": [
+        "PRF-PRE2026-DATES-VENUE",
+        "PRF-PRE2026-WHATSAPP",
+        "PRF-PRE2026-DEPOSIT-30",
+        "PRF-PRE2026-PREMIUM-PACKS",
+        "PRF-PRE2026-FIVE-SESSIONS",
+        "PRF-PRE2026-STRUCTURED-SESSIONS"
+      ],
+      "html": "sources/fiche-premiere.html",
+      "pdf": "pdf/fiche-premiere.pdf",
+      "pageCount": 2
+    },
+    {
+      "documentId": "fiche-terminale",
+      "offerIds": [
+        "pre2026-terminale-pack-1",
+        "pre2026-terminale-pack-2",
+        "pre2026-terminale-pack-3",
+        "pre2026-terminale-pack-4"
+      ],
+      "proofIds": [
+        "PRF-PRE2026-DATES-VENUE",
+        "PRF-PRE2026-WHATSAPP",
+        "PRF-PRE2026-DEPOSIT-30",
+        "PRF-PRE2026-PREMIUM-PACKS",
+        "PRF-PRE2026-FIVE-SESSIONS",
+        "PRF-PRE2026-STRUCTURED-SESSIONS"
+      ],
+      "html": "sources/fiche-terminale.html",
+      "pdf": "pdf/fiche-terminale.pdf",
+      "pageCount": 2
+    },
+    {
+      "documentId": "comparatif-fondations-premium",
+      "offerIds": [
+        "pre2026-3e-mathematiques",
+        "pre2026-seconde-mathematiques",
+        "pre2026-premiere-pack-1",
+        "pre2026-premiere-pack-2",
+        "pre2026-premiere-pack-3",
+        "pre2026-premiere-pack-4"
+      ],
+      "proofIds": [
+        "PRF-PRE2026-3E-350-APPROVED",
+        "PRF-PRE2026-SECONDE-400",
+        "PRF-PRE2026-PREMIUM-PACKS",
+        "PRF-PRE2026-FIVE-SESSIONS",
+        "PRF-PRE2026-STRUCTURED-SESSIONS"
+      ],
+      "html": "sources/comparatif-fondations-premium.html",
+      "pdf": "pdf/comparatif-fondations-premium.pdf",
+      "pageCount": 2
+    },
+    {
+      "documentId": "inclusions-options-exclusions",
+      "offerIds": [
+        "pre2026-3e-mathematiques",
+        "pre2026-seconde-mathematiques",
+        "pre2026-premiere-pack-1"
+      ],
+      "proofIds": [
+        "PRF-PRE2026-DEPOSIT-30",
+        "PRF-PRE2026-FIVE-SESSIONS",
+        "PRF-PRE2026-STRUCTURED-SESSIONS"
+      ],
+      "html": "sources/inclusions-options-exclusions.html",
+      "pdf": "pdf/inclusions-options-exclusions.pdf",
+      "pageCount": 2
+    },
+    {
+      "documentId": "justification-tarifaire",
+      "offerIds": [
+        "pre2026-3e-mathematiques",
+        "pre2026-seconde-mathematiques",
+        "pre2026-premiere-pack-1",
+        "pre2026-premiere-pack-2",
+        "pre2026-premiere-pack-3",
+        "pre2026-premiere-pack-4"
+      ],
+      "proofIds": [
+        "PRF-PRE2026-3E-350-APPROVED",
+        "PRF-PRE2026-SECONDE-400",
+        "PRF-PRE2026-PREMIUM-PACKS",
+        "PRF-PRE2026-FIVE-SESSIONS",
+        "PRF-PRE2026-STRUCTURED-SESSIONS"
+      ],
+      "html": "sources/justification-tarifaire.html",
+      "pdf": "pdf/justification-tarifaire.pdf",
+      "pageCount": 2
+    },
+    {
+      "documentId": "faq-commerciale",
+      "offerIds": [
+        "pre2026-3e-mathematiques",
+        "pre2026-seconde-mathematiques",
+        "pre2026-premiere-pack-1",
+        "pre2026-terminale-pack-1"
+      ],
+      "proofIds": [
+        "PRF-PRE2026-DATES-VENUE",
+        "PRF-PRE2026-WHATSAPP",
+        "PRF-PRE2026-DEPOSIT-30",
+        "PRF-PRE2026-FIVE-SESSIONS",
+        "PRF-PRE2026-STRUCTURED-SESSIONS"
+      ],
+      "html": "sources/faq-commerciale.html",
+      "pdf": "pdf/faq-commerciale.pdf",
+      "pageCount": 2
+    },
+    {
+      "documentId": "procedure-inscription",
+      "offerIds": [
+        "pre2026-3e-mathematiques",
+        "pre2026-seconde-mathematiques",
+        "pre2026-premiere-pack-1",
+        "pre2026-terminale-pack-1"
+      ],
+      "proofIds": [
+        "PRF-PRE2026-WHATSAPP",
+        "PRF-PRE2026-DEPOSIT-30"
+      ],
+      "html": "sources/procedure-inscription.html",
+      "pdf": "pdf/procedure-inscription.pdf",
+      "pageCount": 2
+    },
+    {
+      "documentId": "conditions-reservation-acompte",
+      "offerIds": [
+        "pre2026-3e-mathematiques",
+        "pre2026-seconde-mathematiques",
+        "pre2026-premiere-pack-1",
+        "pre2026-terminale-pack-1"
+      ],
+      "proofIds": [
+        "PRF-PRE2026-DEPOSIT-30",
+        "PRF-PRE2026-WHATSAPP"
+      ],
+      "html": "sources/conditions-reservation-acompte.html",
+      "pdf": "pdf/conditions-reservation-acompte.pdf",
+      "pageCount": 2
+    },
+    {
+      "documentId": "accompagnements-annuels",
+      "offerIds": [
+        "pre2026-3e-mathematiques",
+        "pre2026-seconde-mathematiques",
+        "pre2026-premiere-pack-1",
+        "pre2026-terminale-pack-1"
+      ],
+      "proofIds": [
+        "PRF-PRE2026-WHATSAPP",
+        "PRF-PRE2026-STRUCTURED-SESSIONS"
+      ],
+      "html": "sources/accompagnements-annuels.html",
+      "pdf": "pdf/accompagnements-annuels.pdf",
+      "pageCount": 1
+    },
+    {
+      "documentId": "passerelle-stage-annuel",
+      "offerIds": [
+        "pre2026-3e-mathematiques",
+        "pre2026-seconde-mathematiques",
+        "pre2026-premiere-pack-1",
+        "pre2026-terminale-pack-1"
+      ],
+      "proofIds": [
+        "PRF-PRE2026-WHATSAPP",
+        "PRF-PRE2026-STRUCTURED-SESSIONS"
+      ],
+      "html": "sources/passerelle-stage-annuel.html",
+      "pdf": "pdf/passerelle-stage-annuel.pdf",
+      "pageCount": 1
+    }
+  ],
+  "sourceVersion": "2026-parent-documents-v1",
+  "commercialContractVersion": "2026-pre-rentree-commercial-v1",
+  "sourceInputs": [
+    "content/pre-rentree-2026/parent-documents.fr.json",
+    "scripts/pre-rentree/templates/parent-document.css",
+    "scripts/pre-rentree/render_parent_document_kit.py"
+  ],
+  "status": "READY_FOR_OWNER_REVIEW",
+  "assets": [
+    {
+      "assetId": "parent-accompagnements-annuels-pdf",
+      "path": "pdf/accompagnements-annuels.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 281689,
+      "sha256": "c0d8cf07c064be60464d304fcc77d20ed1426da9de006415e8eb0f08bda0dbbd",
+      "documentId": "accompagnements-annuels",
+      "pageCount": 1
+    },
+    {
+      "assetId": "parent-brochure-generale-pdf",
+      "path": "pdf/brochure-generale.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 307052,
+      "sha256": "b2316bc42b6a87485936afa72161deaf774c2543d6285ee5c92b35b470fe5a64",
+      "documentId": "brochure-generale",
+      "pageCount": 3
+    },
+    {
+      "assetId": "parent-comparatif-fondations-premium-pdf",
+      "path": "pdf/comparatif-fondations-premium.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 303157,
+      "sha256": "edb734e0877a3b07b0e8f7c067b9bd05584188546ddb319fe195ed59a606fe9a",
+      "documentId": "comparatif-fondations-premium",
+      "pageCount": 2
+    },
+    {
+      "assetId": "parent-conditions-reservation-acompte-pdf",
+      "path": "pdf/conditions-reservation-acompte.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 302725,
+      "sha256": "220d755e638e1c526fb730e2164ee7bfa18f4c1f491b893a91d94950c4726327",
+      "documentId": "conditions-reservation-acompte",
+      "pageCount": 2
+    },
+    {
+      "assetId": "parent-faq-commerciale-pdf",
+      "path": "pdf/faq-commerciale.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 303737,
+      "sha256": "868e2d9b55684ec9307d5724e1f2289b47233160346b9eea6b12d12f26449d06",
+      "documentId": "faq-commerciale",
+      "pageCount": 2
+    },
+    {
+      "assetId": "parent-fiche-3e-pdf",
+      "path": "pdf/fiche-3e.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 301964,
+      "sha256": "ee55c86873498737e1f7d3f1a80896401bffc4caec5dc4e54bb0b2c1e451e989",
+      "documentId": "fiche-3e",
+      "pageCount": 2
+    },
+    {
+      "assetId": "parent-fiche-premiere-pdf",
+      "path": "pdf/fiche-premiere.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 302892,
+      "sha256": "d694d596194750a20524b88a784b9fb0454221f585fa2f99a8938a84b88ed434",
+      "documentId": "fiche-premiere",
+      "pageCount": 2
+    },
+    {
+      "assetId": "parent-fiche-seconde-pdf",
+      "path": "pdf/fiche-seconde.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 302525,
+      "sha256": "b226012b0927b6aa8e7397f17ee97096cdfcbc3eaaf343e0d5841f219925fc47",
+      "documentId": "fiche-seconde",
+      "pageCount": 2
+    },
+    {
+      "assetId": "parent-fiche-terminale-pdf",
+      "path": "pdf/fiche-terminale.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 303386,
+      "sha256": "d0c15e8e3767da9bfe5912e68119d9fa3ce0c5cc0c2814b87b1b7b7bebc430a1",
+      "documentId": "fiche-terminale",
+      "pageCount": 2
+    },
+    {
+      "assetId": "parent-guide-parent-pdf",
+      "path": "pdf/guide-parent.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 305357,
+      "sha256": "d7886fc9a79b8c58510318a97ba7ccf37dd486ac1aa9de3ac7687bfa23e75e80",
+      "documentId": "guide-parent",
+      "pageCount": 2
+    },
+    {
+      "assetId": "parent-inclusions-options-exclusions-pdf",
+      "path": "pdf/inclusions-options-exclusions.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 302379,
+      "sha256": "c416ef816b538f2ff0548ee7b45cce1027228484dc62765c873c1bb067cad392",
+      "documentId": "inclusions-options-exclusions",
+      "pageCount": 2
+    },
+    {
+      "assetId": "parent-justification-tarifaire-pdf",
+      "path": "pdf/justification-tarifaire.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 303630,
+      "sha256": "84d7407232fd37e7d159a5b8e8eca61ea9e46964a97e79240ce60a7caf758a5e",
+      "documentId": "justification-tarifaire",
+      "pageCount": 2
+    },
+    {
+      "assetId": "parent-passerelle-stage-annuel-pdf",
+      "path": "pdf/passerelle-stage-annuel.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 282157,
+      "sha256": "245e76a5b11fed6c75034b0a634b842e7d3d0a320cb4c6a03b279657fd5583b5",
+      "documentId": "passerelle-stage-annuel",
+      "pageCount": 1
+    },
+    {
+      "assetId": "parent-procedure-inscription-pdf",
+      "path": "pdf/procedure-inscription.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 302462,
+      "sha256": "fba674115178952a09baa7382ee383c9f973cb143335972789a6cf3935dbaf7d",
+      "documentId": "procedure-inscription",
+      "pageCount": 2
+    },
+    {
+      "assetId": "parent-documents-qa-report",
+      "path": "qa-report.json",
+      "role": "quality-report",
+      "format": "JSON",
+      "bytes": 14270,
+      "sha256": "ed4a07d507d3fc8f82f0bea1bf8d009b718adbbb4a252ad3d4aee23b741e9107"
+    },
+    {
+      "assetId": "parent-accompagnements-annuels-page-01",
+      "path": "rendered/accompagnements-annuels/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 623210,
+      "sha256": "3d4848f932582b19684018c563c117552ffb7dd9a968a0fd745c1fa3dd871d47",
+      "documentId": "accompagnements-annuels",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "parent-brochure-generale-page-01",
+      "path": "rendered/brochure-generale/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 424299,
+      "sha256": "9e63afdfdcb4942ef40a0194b34045c5601759ad4b220e9a2b19c9cb3534c7dc",
+      "documentId": "brochure-generale",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "parent-brochure-generale-page-02",
+      "path": "rendered/brochure-generale/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 413745,
+      "sha256": "e384fa1a9826e1c5bdd7fde48e731fa040e7f2454a0bffcd03ff7e018a60ce84",
+      "documentId": "brochure-generale",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "parent-brochure-generale-page-03",
+      "path": "rendered/brochure-generale/page-03.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 331065,
+      "sha256": "e33efa2550b2cbb14c15d6740634bc6f78b967a2fda5a016e1320b06bd451c48",
+      "documentId": "brochure-generale",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "parent-comparatif-fondations-premium-page-01",
+      "path": "rendered/comparatif-fondations-premium/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 569777,
+      "sha256": "4b8a70fd7635da0eb45f8576738e179e1111647a68e5c0af4d77b9edbc519dda",
+      "documentId": "comparatif-fondations-premium",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "parent-comparatif-fondations-premium-page-02",
+      "path": "rendered/comparatif-fondations-premium/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 269165,
+      "sha256": "6ed3a74ac1118c6a2f8916794696a5f0e0befbc0fee8abccf23cefa100eb60c5",
+      "documentId": "comparatif-fondations-premium",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "parent-conditions-reservation-acompte-page-01",
+      "path": "rendered/conditions-reservation-acompte/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 494459,
+      "sha256": "de2ce05035aa63a476db86d918dffffa7cd2bd6f935ea0b3701f1ceb2e469115",
+      "documentId": "conditions-reservation-acompte",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "parent-conditions-reservation-acompte-page-02",
+      "path": "rendered/conditions-reservation-acompte/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 290895,
+      "sha256": "bbbcea8c5fb8a3f4d6030d017b92ecc2aaa6d63a9a7b3113ed51f936adc26376",
+      "documentId": "conditions-reservation-acompte",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "parent-faq-commerciale-page-01",
+      "path": "rendered/faq-commerciale/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 507580,
+      "sha256": "6fa38194399800280a13186bba326ba952ee5a3b858a94292a430f970dca4f52",
+      "documentId": "faq-commerciale",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "parent-faq-commerciale-page-02",
+      "path": "rendered/faq-commerciale/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 271419,
+      "sha256": "0f3526c98b98b4a86b28b4a0d454820b2838be9a8a76d3ad1ae8513f1e54e98a",
+      "documentId": "faq-commerciale",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "parent-fiche-3e-page-01",
+      "path": "rendered/fiche-3e/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 415780,
+      "sha256": "9fbbad91f802c84c5f39533d541d162542f78749fde0cb7afdb1f29c0e6d7fd1",
+      "documentId": "fiche-3e",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "parent-fiche-3e-page-02",
+      "path": "rendered/fiche-3e/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 262200,
+      "sha256": "a8b1d4e5a0332c4f36895ac444332a449bb8ed72a2d15e9b7f5c63e2a873f024",
+      "documentId": "fiche-3e",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "parent-fiche-premiere-page-01",
+      "path": "rendered/fiche-premiere/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 522828,
+      "sha256": "b1eb4cf9b41e5fa930e8bd56df1760e157e0b27c9881276d4ad574f7e65cd8df",
+      "documentId": "fiche-premiere",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "parent-fiche-premiere-page-02",
+      "path": "rendered/fiche-premiere/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 270892,
+      "sha256": "a9df2f4d37af183d5e29c754ee60dafd3947c64dd4c432271486f61a8d3cb348",
+      "documentId": "fiche-premiere",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "parent-fiche-seconde-page-01",
+      "path": "rendered/fiche-seconde/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 498135,
+      "sha256": "2ae5201903553bc99da63147942e136e90b7093fc07fb2878f27486e76364251",
+      "documentId": "fiche-seconde",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "parent-fiche-seconde-page-02",
+      "path": "rendered/fiche-seconde/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 285775,
+      "sha256": "f61b17c7908882af0fb02a92450f45ab2d55509f43584687ba75a0aa45233fdb",
+      "documentId": "fiche-seconde",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "parent-fiche-terminale-page-01",
+      "path": "rendered/fiche-terminale/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 525128,
+      "sha256": "e8b232991ebf1d6da8691ef2a9cba9be451db965264bb8636d0e72c9d1cdcbfd",
+      "documentId": "fiche-terminale",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "parent-fiche-terminale-page-02",
+      "path": "rendered/fiche-terminale/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 264081,
+      "sha256": "f86e733e00dad14f2be71125c68d4ec834ee3342b91dfd3323b57af067cc1009",
+      "documentId": "fiche-terminale",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "parent-guide-parent-page-01",
+      "path": "rendered/guide-parent/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 422868,
+      "sha256": "b9b6102ec35c8baefabd6663729874d4ece8c9bcae556ea3c6f143d5510929e6",
+      "documentId": "guide-parent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "parent-guide-parent-page-02",
+      "path": "rendered/guide-parent/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 695066,
+      "sha256": "9a5697953e5b6e733ab76ec141466173e8afda6a8cda9c125bf1e399669ede10",
+      "documentId": "guide-parent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "parent-inclusions-options-exclusions-page-01",
+      "path": "rendered/inclusions-options-exclusions/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 474249,
+      "sha256": "e49756f72ba67ec44c27dfa8b6a38b2fde86184c9f7028745db054ff035ad5c3",
+      "documentId": "inclusions-options-exclusions",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "parent-inclusions-options-exclusions-page-02",
+      "path": "rendered/inclusions-options-exclusions/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 280193,
+      "sha256": "c8f0fda72f77189dab8758ecca012422f3519e7579889c4069b3c27cf34195ee",
+      "documentId": "inclusions-options-exclusions",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "parent-justification-tarifaire-page-01",
+      "path": "rendered/justification-tarifaire/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 577030,
+      "sha256": "b704f35912a089596e663a522e161dca08eb59800649dc9ec9e8042fa212bef5",
+      "documentId": "justification-tarifaire",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "parent-justification-tarifaire-page-02",
+      "path": "rendered/justification-tarifaire/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 267108,
+      "sha256": "88949e050b8cdc4d733b457a0894fe3a40555c767a59520bc9a67c7160078c91",
+      "documentId": "justification-tarifaire",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "parent-passerelle-stage-annuel-page-01",
+      "path": "rendered/passerelle-stage-annuel/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 634157,
+      "sha256": "fc8f3b0cb4265bd8a46d7212364b7a48165aafa170fee921e41c39e4701e6295",
+      "documentId": "passerelle-stage-annuel",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "parent-procedure-inscription-page-01",
+      "path": "rendered/procedure-inscription/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 483513,
+      "sha256": "344b7218affa678f52cfc4e67192871c5dca397e47d1bb0ed7406903577c7f86",
+      "documentId": "procedure-inscription",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "parent-procedure-inscription-page-02",
+      "path": "rendered/procedure-inscription/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 240908,
+      "sha256": "4f885f0b5fdf0292a22dbd6e6def148b8ff8f4d7a97bfa61936e8c037664305a",
+      "documentId": "procedure-inscription",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "parent-accompagnements-annuels-html",
+      "path": "sources/accompagnements-annuels.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 402767,
+      "sha256": "c57f147aa9169963ffeb3ec9e8ef731d3ee5ad86fb864e9493f657369e7000fe",
+      "documentId": "accompagnements-annuels"
+    },
+    {
+      "assetId": "parent-brochure-generale-html",
+      "path": "sources/brochure-generale.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 406561,
+      "sha256": "fe2e51624251a8611f39a2d2375e504b86771e689746c9db89fb98c80402247e",
+      "documentId": "brochure-generale"
+    },
+    {
+      "assetId": "parent-comparatif-fondations-premium-html",
+      "path": "sources/comparatif-fondations-premium.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 404508,
+      "sha256": "f0e86eb29099c411c3d1f717ed04834638880f114df3ab09fb65a28dc84c69c4",
+      "documentId": "comparatif-fondations-premium"
+    },
+    {
+      "assetId": "parent-conditions-reservation-acompte-html",
+      "path": "sources/conditions-reservation-acompte.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 403977,
+      "sha256": "a31016f8b7fdc7b1bc2b8f373f7d0758ed74dc0a1f431bb9200a74695f8219f1",
+      "documentId": "conditions-reservation-acompte"
+    },
+    {
+      "assetId": "parent-faq-commerciale-html",
+      "path": "sources/faq-commerciale.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 403986,
+      "sha256": "d2ecf0d966cc2df8c90b0426283866ca1bd4e1f0d2bc0d3db957f903916277ba",
+      "documentId": "faq-commerciale"
+    },
+    {
+      "assetId": "parent-fiche-3e-html",
+      "path": "sources/fiche-3e.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 403439,
+      "sha256": "760b9aa6e9423e2bea86245f73a96bfb02fe3fd6287de6e3aad246b66ad410f8",
+      "documentId": "fiche-3e"
+    },
+    {
+      "assetId": "parent-fiche-premiere-html",
+      "path": "sources/fiche-premiere.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 404080,
+      "sha256": "78b48da1036d6baa8111e8190b39333a88cfc3f580052edb7b9d40f12f8b58be",
+      "documentId": "fiche-premiere"
+    },
+    {
+      "assetId": "parent-fiche-seconde-html",
+      "path": "sources/fiche-seconde.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 403877,
+      "sha256": "4ddc2b82dcdad7a3f3abc8adb65753af8c801bc09aa0a1c9a88b35ff9901e834",
+      "documentId": "fiche-seconde"
+    },
+    {
+      "assetId": "parent-fiche-terminale-html",
+      "path": "sources/fiche-terminale.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 404051,
+      "sha256": "30c8f4e16ba2edcdf36faa14db99d39c9aa6a42661df7b6991f4f18c56caaa97",
+      "documentId": "fiche-terminale"
+    },
+    {
+      "assetId": "parent-font-dmsans",
+      "path": "sources/fonts/DMSans.ttf",
+      "role": "licensed-font",
+      "format": "TTF",
+      "bytes": 150248,
+      "sha256": "443f322e92b9428796a4aeacebd427fba4d392a386c2154f718d489ed3855fa1"
+    },
+    {
+      "assetId": "parent-font-fraunces",
+      "path": "sources/fonts/Fraunces.ttf",
+      "role": "licensed-font",
+      "format": "TTF",
+      "bytes": 113616,
+      "sha256": "1ae9d8d92e729b4eb6384e48b8297793ffe7ea0369edb024fb199d3b362cfd69"
+    },
+    {
+      "assetId": "parent-font-license-ofl",
+      "path": "sources/fonts/OFL-1.1.txt",
+      "role": "font-license",
+      "format": "TXT",
+      "bytes": 4008,
+      "sha256": "74ba2e8a3e010fa81dc24958b23ad2dc885638b0b2da37ae4a2299e76b6b69f7"
+    },
+    {
+      "assetId": "parent-guide-parent-html",
+      "path": "sources/guide-parent.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 406537,
+      "sha256": "f306566284de238ba479d148f4f76aa70bc3160a77fefcc65bc507dbe66d287e",
+      "documentId": "guide-parent"
+    },
+    {
+      "assetId": "parent-inclusions-options-exclusions-html",
+      "path": "sources/inclusions-options-exclusions.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 403793,
+      "sha256": "9c8fc4cba9e9452a1e04e6c21c7201a3c78c2c994b88c839e8fd33ef0d050e3c",
+      "documentId": "inclusions-options-exclusions"
+    },
+    {
+      "assetId": "parent-justification-tarifaire-html",
+      "path": "sources/justification-tarifaire.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 404477,
+      "sha256": "3efa1a229c77c9a582807170627d2c4ff6643b374e7ebf98843a96e02885dfa3",
+      "documentId": "justification-tarifaire"
+    },
+    {
+      "assetId": "parent-passerelle-stage-annuel-html",
+      "path": "sources/passerelle-stage-annuel.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 402845,
+      "sha256": "f41c74ba7b01cfd9568678db852c1ce6c9d06c46efcfd99cbffb3db9156a96fb",
+      "documentId": "passerelle-stage-annuel"
+    },
+    {
+      "assetId": "parent-procedure-inscription-html",
+      "path": "sources/procedure-inscription.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 403822,
+      "sha256": "c8265c6eecda7392007a1240caad80a70adf61a2d874ec6b91a0e64352c5cb43",
+      "documentId": "procedure-inscription"
+    },
+    {
+      "assetId": "parent-documents-contact-sheet",
+      "path": "visual-review/parent-documents-contact-sheet.png",
+      "role": "visual-review",
+      "format": "PNG",
+      "bytes": 1517583,
+      "sha256": "62798ddae06eb73e168b922df786130c0f16d9b425e59ba8264f6c33bd62a00a",
+      "width": 1400,
+      "height": 3500
+    }
+  ]
+}

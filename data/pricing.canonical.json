@@ -1,5 +1,5 @@
 {
-  "version": "2026-2027.2",
+  "version": "2026-2027.3",
   "_note": "SOURCE DE VÉRITÉ UNIQUE des prix, effectifs, acomptes et échéanciers Nexus Réussite. Aucun montant TND ne doit être codé en dur dans les composants ou pages. Toute modification doit repasser le validateur pricing-canonical-validator.test.ts. Après modification, régénérer les extraits client : node scripts/generate-pricing-client-data.js",
   "currency": "TND",
   "rules": {
@@ -17,6 +17,7 @@
       "single": 50,
       "multi": 45,
       "college": 40,
+      "stage_college": 40,
       "stage": 45,
       "coaching_1to1": 180,
       "carte_member": 40,
@@ -1493,8 +1494,8 @@
       "price_per_student_hour": 48,
       "floor_type": "stage",
       "payment": {
-        "deposit": 140,
-        "solde": 340
+        "deposit": 144,
+        "solde": 336
       },
       "discount_exclusions": [
         "carte_nexus",
@@ -1545,8 +1546,8 @@
       "price_per_student_hour": 45,
       "floor_type": "stage",
       "payment": {
-        "deposit": 410,
-        "solde": 940
+        "deposit": 405,
+        "solde": 945
       },
       "discount_exclusions": [
         "carte_nexus",
@@ -1581,6 +1582,59 @@
         "parrainage"
       ],
       "non_cumulable": true
+    }
+  ],
+  "pre_rentree_foundations": [
+    {
+      "id": "pre2026-foundations-3e-subject",
+      "title": "Pré-rentrée 2026 — Fondations entrée en 3e — 1 matière",
+      "edition_id": "pre-rentree-2026",
+      "level": "TROISIEME",
+      "subjects_count": 1,
+      "hours_per_subject": 10,
+      "total_hours": 10,
+      "sessions_per_subject": 5,
+      "session_duration_h": 2,
+      "group_max": 6,
+      "group_min_open": 4,
+      "price_per_student": 350,
+      "price_per_student_hour": 35,
+      "floor_type": "stage_college",
+      "commercial_exception": {
+        "exception_id": "PRE2026-3E-350",
+        "edition_id": "pre-rentree-2026",
+        "status": "APPROVED",
+        "approved_at": "2026-07-20",
+        "approved_by_role": "DIRECTION_NEXUS_REUSSITE",
+        "scope": "Entrée en 3e, Mathématiques ou Français, 10 heures, groupe de 4 à 6 élèves",
+        "justification": "Décision commerciale propriétaire limitée à la Pré-rentrée 2026 ; le plancher global stage_college reste inchangé."
+      },
+      "payment": {
+        "deposit": 105,
+        "solde": 245
+      },
+      "multi_subject_discount": false
+    },
+    {
+      "id": "pre2026-foundations-seconde-subject",
+      "title": "Pré-rentrée 2026 — Fondations entrée en Seconde — 1 matière",
+      "edition_id": "pre-rentree-2026",
+      "level": "SECONDE",
+      "subjects_count": 1,
+      "hours_per_subject": 10,
+      "total_hours": 10,
+      "sessions_per_subject": 5,
+      "session_duration_h": 2,
+      "group_max": 6,
+      "group_min_open": 4,
+      "price_per_student": 400,
+      "price_per_student_hour": 40,
+      "floor_type": "stage_college",
+      "payment": {
+        "deposit": 120,
+        "solde": 280
+      },
+      "multi_subject_discount": false
     }
   ]
 }

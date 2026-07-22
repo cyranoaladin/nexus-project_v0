@@ -17,9 +17,9 @@ const pillars = [
   'Prise d’avance',
   'Remise à niveau',
   'Stages par matière',
-  'Présentiel à Mutuelleville ou en ligne',
+  'Modalité précisée pour chaque campagne',
   'Groupes réduits',
-  'Bilan et pré-inscription',
+  'Objectifs et volumes annoncés',
 ];
 
 interface Stages2026PageProps {
@@ -27,7 +27,7 @@ interface Stages2026PageProps {
   rules: Rules;
   passIntensifs: Pack[];
   formatMap: Record<string, { format: StageFormat; priceValidated: boolean }>;
-  campaign?: { id: string; path: string; eyebrow: string; subtitle: string; levels: string[]; subjects: string[]; groupMax: number };
+  campaign?: { id: string; path: string; eyebrow: string; subtitle: string; levels: string[]; subjects: string[]; capacityLabel: string };
 }
 
 export default function Stages2026Page({ calendar, rules, passIntensifs, formatMap, campaign }: Stages2026PageProps) {
@@ -50,12 +50,12 @@ export default function Stages2026Page({ calendar, rules, passIntensifs, formatM
             Les volumes et horaires sont précisés pour chaque campagne.
           </p>
           <p className="mt-2 text-sm text-lux-on-dark-subtle">
-            Présentiel à Mutuelleville ou en ligne selon la formule recommandée.
+            Le lieu et les modalités sont précisés pour chaque campagne publiée.
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <Link href="/bilan-gratuit?source=stages" className="lux-cta-reserve rounded-lg px-6 py-3.5 text-sm font-semibold">
-              Pré-inscription
-            </Link>
+            <a href={buildWhatsAppUrl('les stages Nexus')} target="_blank" rel="noopener noreferrer" className="lux-cta-reserve rounded-lg px-6 py-3.5 text-sm font-semibold">
+              Demander un stage
+            </a>
             <a href={buildWhatsAppUrl('les stages Nexus')} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-lg border border-lux-line/40 px-6 py-3.5 text-sm font-semibold text-lux-ivory min-h-[44px]">
               <WhatsAppLogo className="mr-2 h-4 w-4" style={{ color: WHATSAPP_BRAND_GREEN }} />
               Écrire sur WhatsApp
@@ -73,7 +73,8 @@ export default function Stages2026Page({ calendar, rules, passIntensifs, formatM
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-lux-gold-deep">{campaign.eyebrow}</p>
           <h2 id="pre-rentree-card-title" className="mt-3 font-fraunces text-3xl text-lux-ink">Pré-rentrée 2026 en première position</h2>
           <p className="mt-3 max-w-3xl text-lux-slate">{campaign.subtitle}</p>
-          <p className="mt-3 text-sm text-lux-ink">{campaign.levels.join(' · ')} · {campaign.subjects.join(' · ')} · groupes limités à {campaign.groupMax}</p>
+          <p className="mt-3 text-sm text-lux-ink">{campaign.levels.join(' · ')} · {campaign.subjects.join(' · ')}</p>
+          <p className="mt-2 text-sm font-semibold text-lux-ink">{campaign.capacityLabel}</p>
           <Link href={campaign.path} className="lux-cta-reserve mt-6 inline-flex min-h-11 items-center rounded-lg px-6 py-3 text-sm font-semibold">Découvrir la Pré-rentrée 2026 <ArrowRight className="ml-2 h-4 w-4" /></Link>
         </div>
       </section>}
@@ -181,19 +182,19 @@ export default function Stages2026Page({ calendar, rules, passIntensifs, formatM
                 <MapPin className="h-4 w-4" />
                 <span className="text-xs font-semibold uppercase tracking-[0.2em]">Format</span>
               </div>
-              <h2 className="mt-3 text-2xl font-fraunces text-lux-ivory">Mutuelleville ou en ligne</h2>
+              <h2 className="mt-3 text-2xl font-fraunces text-lux-ivory">Modalités précisées par campagne</h2>
               <p className="mt-3 text-sm text-lux-on-dark-muted">
-                Les stages sont pensés pour fonctionner en présentiel à Mutuelleville ou à distance selon la formule recommandée.
+                Chaque campagne indique son lieu, son volume, ses matières et ses conditions avant la demande de réservation.
               </p>
               <div className="mt-6 space-y-3 text-sm text-lux-on-dark-muted">
-                <div>Groupes de {rules.group_max} pour garder un vrai suivi.</div>
-                <div>Bilan avant inscription pour orienter le bon niveau.</div>
-                <div>Préparation méthodique par matière et par objectif.</div>
+                <div>Capacité du groupe annoncée pour l’offre concernée.</div>
+                <div>Matières et volume précisés avant confirmation.</div>
+                <div>Conditions de réservation communiquées avec le parcours.</div>
               </div>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link href="/bilan-gratuit?source=stages" className="lux-cta-reserve rounded-lg px-6 py-3.5 text-sm font-semibold">
-                  Demander un bilan
-                </Link>
+                <a href={buildWhatsAppUrl('les stages Nexus')} target="_blank" rel="noopener noreferrer" className="lux-cta-reserve rounded-lg px-6 py-3.5 text-sm font-semibold">
+                  Demander un stage
+                </a>
                 <Button asChild variant="outline" className="border-lux-line/40 text-lux-ivory hover:bg-white/5">
                   <Link href="/offres#section-intensifs">
                     Voir tous les formats & tarifs
@@ -236,14 +237,11 @@ export default function Stages2026Page({ calendar, rules, passIntensifs, formatM
 
       <section className="bg-lux-paper py-14 px-4 md:px-6">
         <div className="mx-auto max-w-5xl rounded-2xl border border-lux-line bg-lux-white p-6 md:p-8">
-          <h2 className="text-2xl font-fraunces text-lux-ink">Prêt à sécuriser une place ?</h2>
+          <h2 className="text-2xl font-fraunces text-lux-ink">Besoin d’identifier le bon stage ?</h2>
           <p className="mt-2 text-sm text-lux-slate">
-            Un bilan gratuit permet de confirmer le bon stage, le bon niveau et le bon rythme de travail.
+            Indiquez la classe de rentrée et la matière recherchée sur WhatsApp pour recevoir l’offre applicable.
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <Link href="/bilan-gratuit?source=stages" className="lux-cta-reserve rounded-lg px-6 py-3.5 text-sm font-semibold">
-              Pré-inscription
-            </Link>
             <a href={buildWhatsAppUrl('les stages Nexus')} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-lg border border-lux-line px-6 py-3.5 text-sm font-semibold text-lux-ink min-h-[44px]">
               <WhatsAppLogo className="mr-2 h-4 w-4" style={{ color: WHATSAPP_BRAND_GREEN }} />
               WhatsApp

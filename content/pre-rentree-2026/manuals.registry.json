@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "1.0.0",
+  "version": "2026-manuals-registry-v1",
+  "manuals": [
+    {
+      "id": "manual-maths-premiere-2026",
+      "subject": "MATHEMATIQUES",
+      "level": "PREMIERE",
+      "sourceRepository": "cyranoaladin/manuels-nexus",
+      "sourceCommitSha": "",
+      "edition": "2026-2027",
+      "printReady": false,
+      "ownerApproved": false,
+      "stockReady": false,
+      "pageCount": null,
+      "studentCopiesOrdered": 0,
+      "reserveCopies": 0
+    },
+    {
+      "id": "manual-maths-terminale-2026",
+      "subject": "MATHEMATIQUES",
+      "level": "TERMINALE",
+      "sourceRepository": "cyranoaladin/manuels-nexus",
+      "sourceCommitSha": "",
+      "edition": "2026-2027",
+      "printReady": false,
+      "ownerApproved": false,
+      "stockReady": false,
+      "pageCount": null,
+      "studentCopiesOrdered": 0,
+      "reserveCopies": 0
+    },
+    {
+      "id": "manual-nsi-premiere-2026",
+      "subject": "NSI",
+      "level": "PREMIERE",
+      "sourceRepository": "cyranoaladin/manuels-nexus",
+      "sourceCommitSha": "",
+      "edition": "2026-2027",
+      "printReady": false,
+      "ownerApproved": false,
+      "stockReady": false,
+      "pageCount": null,
+      "studentCopiesOrdered": 0,
+      "reserveCopies": 0
+    },
+    {
+      "id": "manual-nsi-terminale-2026",
+      "subject": "NSI",
+      "level": "TERMINALE",
+      "sourceRepository": "cyranoaladin/manuels-nexus",
+      "sourceCommitSha": "",
+      "edition": "2026-2027",
+      "printReady": false,
+      "ownerApproved": false,
+      "stockReady": false,
+      "pageCount": null,
+      "studentCopiesOrdered": 0,
+      "reserveCopies": 0
+    }
+  ]
+}

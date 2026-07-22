@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0.0",
+  "version": "2026-full-campaign-v1",
+  "missingAssetCount": 0,
+  "wrongDimensionCount": 0,
+  "overflowCount": 0,
+  "contrastFailures": 0,
+  "brokenReferenceCount": 0,
+  "brokenReferences": [],
+  "minimumContrastRatio": 12.73,
+  "safeZones": {
+    "reels": "250 px haut, 360 px bas, 90 px latéraux",
+    "stories": "éléments essentiels contenus entre 250 et 1560 px"
+  },
+  "rights": "Aucune photographie ni média tiers ; logo officiel et polices OFL uniquement."
+}

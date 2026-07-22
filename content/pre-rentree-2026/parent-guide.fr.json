@@ -1,0 +1,135 @@
+{
+  "schemaVersion":"1.0.0",
+  "contentVersion":"2026-parent-guide-fr-v4",
+  "locale":"fr-TN",
+  "status":"DRAFT_FOR_OWNER_REVIEW",
+  "documentPackageVersion":"6.0.0-rc.3",
+  "documentEditionDate":"2026-07-20",
+  "snapshotBuiltAt":"2026-07-20T18:00:00+01:00",
+  "sections":[
+    {
+      "id":"essentiel",
+      "title":"L’essentiel",
+      "blocks":[
+        {"id":"dates-lieu","kind":"EVIDENCED_TEXT","text":"La campagne se déroule du 17 au 28 août 2026 à Mutuelleville, avec une pause les 22 et 23 août.","evidenceRefs":["/campaign/startDate","/campaign/endDate","/campaign/noClassDates","/campaign/venue"]},
+        {"id":"quatre-niveaux","kind":"EVIDENCED_TEXT","text":"Les parcours concernent les élèves entrant en 3e, Seconde, Première ou Terminale.","evidenceRefs":["/levels"]},
+        {"id":"format-matiere","kind":"EVIDENCED_TEXT","text":"Chaque matière comprend cinq séances de deux heures, soit dix heures organisées sur une semaine.","evidenceRefs":["/modules","/packs/0/sessionsPerSubject","/packs/0/sessionDurationHours","/packs/0/hoursPerSubject"]},
+        {"id":"groupes","kind":"DYNAMIC_REFERENCE","sourceRef":"/campaign/capacityByOffer"}
+      ]
+    },
+    {
+      "id":"offres",
+      "title":"Fondations ou Premium ?",
+      "blocks":[
+        {"id":"fondations-positionnement","kind":"EVIDENCED_TEXT","text":"Nexus Fondations accompagne l’entrée en 3e et en Seconde avec une progression par paliers dans un groupe de quatre à six élèves.","evidenceRefs":["/offers/levels","/campaign/capacityByOffer/FONDATIONS"]},
+        {"id":"premium-positionnement","kind":"EVIDENCED_TEXT","text":"Nexus Premium concerne l’entrée en Première et en Terminale, dans un groupe de trois à cinq élèves.","evidenceRefs":["/offers/levels","/campaign/capacityByOffer/PREMIUM"]},
+        {"id":"capacites-gatees","kind":"EVIDENCED_TEXT","text":"Le contenu précis du parcours est communiqué après l’étude du profil et avant toute confirmation.","evidenceRefs":["/offers/levels","/content/practical/preRegistrationNotice"]}
+      ]
+    },
+    {
+      "id":"pourquoi",
+      "title":"Pourquoi une pré-rentrée ?",
+      "blocks":[
+        {"id":"reprendre","kind":"EVIDENCED_TEXT","text":"Reprendre progressivement les acquis et identifier les priorités avant les premiers chapitres.","evidenceRefs":["/modules","/pedagogy/positioningTests"]},
+        {"id":"methodes","kind":"EVIDENCED_TEXT","text":"Travailler les méthodes attendues dans la classe de rentrée sans promettre un résultat scolaire garanti.","evidenceRefs":["/modules"]},
+        {"id":"transition","kind":"EVIDENCED_TEXT","text":"Préparer la transition vers le brevet, le lycée, les spécialités, l’EAF, le baccalauréat ou la Philosophie selon le niveau.","evidenceRefs":["/modules"]}
+      ]
+    },
+    {
+      "id":"fonctionnement",
+      "title":"Comment se déroule le travail ?",
+      "blocks":[
+        {"id":"positionnement","kind":"EVIDENCED_TEXT","text":"Un positionnement structuré est prévu pour chaque module ; sa mise en œuvre publique reste soumise aux validations opérationnelles.","evidenceRefs":["/pedagogy/positioningTests","/capabilities"]},
+        {"id":"progression","kind":"EVIDENCED_TEXT","text":"Les cinq séances suivent des objectifs explicites, un travail guidé, une correction et une évaluation rapide.","evidenceRefs":["/modules","/pedagogy/quickAssessments"]},
+        {"id":"livrables","kind":"EVIDENCED_TEXT","text":"Chaque séance possède une fiche de livrable matérialisée avec consignes, preuves attendues et auto-vérification.","evidenceRefs":["/pedagogy/sessionDeliverables"]}
+      ]
+    },
+    {
+      "id":"parcours-fondations",
+      "title":"Le parcours Fondations",
+      "blocks":[
+        {"id":"fondations-services","kind":"DYNAMIC_REFERENCE","sourceRef":"/offers/levels/0/serviceCapabilityIds"},
+        {"id":"fondations-gate","kind":"EVIDENCED_TEXT","text":"Le questionnaire, le bilan d’une page et les trois priorités de rentrée restent hors promesse ferme tant que leur processus n’est pas opérationnel et approuvé.","evidenceRefs":["/capabilities"]}
+      ]
+    },
+    {
+      "id":"parcours-premium",
+      "title":"Le parcours Premium 360",
+      "blocks":[
+        {"id":"premium-services","kind":"DYNAMIC_REFERENCE","sourceRef":"/offers/levels/2/serviceCapabilityIds"},
+        {"id":"premium-gate","kind":"EVIDENCED_TEXT","text":"Les bilans personnalisés, la feuille de route et le plan d’action ne sont pas annoncés comme inclus tant que les tests, modèles, responsables de relecture, dry-runs et capacités de production ne sont pas validés.","evidenceRefs":["/capabilities"]}
+      ]
+    },
+    {
+      "id":"catalogue",
+      "title":"Choisir son parcours par niveau",
+      "blocks":[
+        {"id":"catalogue-offres","kind":"DYNAMIC_REFERENCE","sourceRef":"/offers/levels"},
+        {"id":"catalogue-programmes","kind":"DYNAMIC_REFERENCE","sourceRef":"/modules"},
+        {"id":"adaptation","kind":"EVIDENCED_TEXT","text":"Le programme et le niveau des exercices sont adaptés au profil déclaré et à la composition pédagogique du groupe.","evidenceRefs":["/modules","/campaign/operationalGates"]}
+      ]
+    },
+    {
+      "id":"planning",
+      "title":"Organisation des deux semaines",
+      "blocks":[
+        {"id":"semaine-une","kind":"EVIDENCED_TEXT","text":"La semaine du 17 au 21 août regroupe Mathématiques, Français et Philosophie selon le niveau.","evidenceRefs":["/schedule/weeks/0"]},
+        {"id":"semaine-deux","kind":"EVIDENCED_TEXT","text":"La semaine du 24 au 28 août regroupe informatique/SNT/NSI et Physique-Chimie.","evidenceRefs":["/schedule/weeks/1"]},
+        {"id":"planning-brouillon","kind":"EVIDENCED_TEXT","text":"Le planning est un brouillon de revue tant que les affectations de salles et d’enseignants ne sont pas validées.","evidenceRefs":["/campaign/operationalGates"]},
+        {"id":"planning-detail","kind":"DYNAMIC_REFERENCE","sourceRef":"/schedule"}
+      ]
+    },
+    {
+      "id":"tarifs",
+      "title":"Tarifs des stages de pré-rentrée 2026",
+      "blocks":[
+        {"id":"tarifs-offres","kind":"DYNAMIC_REFERENCE","sourceRef":"/offers"},
+        {"id":"tarifs-premium","kind":"DYNAMIC_REFERENCE","sourceRef":"/packs"},
+        {"id":"acompte-exact","kind":"EVIDENCED_TEXT","text":"L’acompte correspond exactement à 30 % du total validé ; le solde complète le prix sans erreur d’arrondi.","evidenceRefs":["/offers/depositRate","/packs"]}
+      ]
+    },
+    {
+      "id":"reservation",
+      "title":"De la demande d’information à la réservation",
+      "blocks":[
+        {"id":"reservation-etapes","kind":"EVIDENCED_PROCEDURE","steps":[
+          {"text":"La famille demande le programme ou un conseil, sans paiement ni réservation.","evidenceRefs":["/content/practical/preRegistrationNotice"]},
+          {"text":"Nexus qualifie le niveau, les matières, le profil, le planning et la cohérence du groupe.","evidenceRefs":["/academicProfiles","/campaign/operationalGates"]},
+          {"text":"Nexus transmet une proposition de parcours avec prix, acompte, solde et conditions applicables.","evidenceRefs":["/offers","/packs","/legal"]},
+          {"text":"Après validation du parcours et réception de l’acompte exact, l’inscription est confirmée et la place réservée.","evidenceRefs":["/content/practical/noOnlinePaymentNotice","/offers/depositRate"]}
+        ]},
+        {"id":"conditions-manquantes","kind":"EVIDENCED_TEXT","text":"Les règles d’annulation, d’absence, de report, de remboursement et l’échéance contractuelle du solde restent exclues tant qu’une version juridique approuvée manque.","evidenceRefs":["/legal"]}
+      ]
+    },
+    {
+      "id":"manuels",
+      "title":"Manuels Nexus",
+      "blocks":[
+        {"id":"registre-manuels","kind":"DYNAMIC_REFERENCE","sourceRef":"/manuals"},
+        {"id":"manuels-bloques","kind":"EVIDENCED_TEXT","text":"Aucun manuel n’est inclus dans l’offre présentée dans cette édition.","evidenceRefs":["/manuals/manuals"]}
+      ]
+    },
+    {
+      "id":"pratique",
+      "title":"Informations pratiques",
+      "blocks":[
+        {"id":"materiel","kind":"DYNAMIC_REFERENCE","sourceRef":"/content/practical/materialsBySubject"},
+        {"id":"physique","kind":"EVIDENCED_TEXT","text":"Les séances de Physique-Chimie sont théoriques et méthodologiques ; aucune activité de laboratoire n’est annoncée.","evidenceRefs":["/content/practical/materialsBySubject/PHYSIQUE_CHIMIE"]},
+        {"id":"informatique","kind":"EVIDENCED_TEXT","text":"Un ordinateur portable est demandé pour NSI/SNT ; les postes de secours sont disponibles en nombre limité.","evidenceRefs":["/content/practical/materialsBySubject/NSI"]}
+      ]
+    },
+    {
+      "id":"faq",
+      "title":"Questions fréquentes",
+      "blocks":[{"id":"faq-source","kind":"DYNAMIC_REFERENCE","sourceRef":"/content/faq"}]
+    },
+    {
+      "id":"contact",
+      "title":"Demander le programme ou un conseil",
+      "blocks":[
+        {"id":"contact-source","kind":"DYNAMIC_REFERENCE","sourceRef":"/contact"},
+        {"id":"cta-final","kind":"EVIDENCED_TEXT","text":"Demander un parcours ou un conseil.","evidenceRefs":["/cta"]}
+      ]
+    }
+  ]
+}

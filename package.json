@@ -3,6 +3,23 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "pre-rentree:clean": "python scripts/pre-rentree/clean_artifacts.py .artifacts/pre-rentree-2026",
+    "pre-rentree:snapshot": "tsx scripts/pre-rentree/generate-publication-json-schema.ts --output scripts/pre-rentree/schemas/publication-snapshot.schema.json && tsx scripts/pre-rentree/build-publication-snapshot.ts --repo-root . --source-repo-sha a1192c8dccf8eaa6ae223265a3bc9ceb56a6fff0 --output generated/pre-rentree-2026/publication.snapshot.json",
+    "pre-rentree:commercial-contract": "tsx --conditions=react-server scripts/pre-rentree/build-commercial-contract.ts --output .artifacts/pre-rentree-2026/commercial-contract.snapshot.json",
+    "pre-rentree:week-one": "npm run pre-rentree:commercial-contract && python scripts/pre-rentree/render_week_one_kit.py --content content/pre-rentree-2026/week-one-campaign.fr.json --commercial .artifacts/pre-rentree-2026/commercial-contract.snapshot.json --output assets/campaigns/pre-rentree-2026/week-one",
+    "pre-rentree:parent-documents": "npm run pre-rentree:commercial-contract && python scripts/pre-rentree/render_parent_document_kit.py --content content/pre-rentree-2026/parent-documents.fr.json --commercial .artifacts/pre-rentree-2026/commercial-contract.snapshot.json --output assets/campaigns/pre-rentree-2026/parent-documents",
+    "pre-rentree:full-campaign": "npm run pre-rentree:commercial-contract && python scripts/pre-rentree/render_full_campaign.py --content content/pre-rentree-2026/full-campaign.fr.json --commercial .artifacts/pre-rentree-2026/commercial-contract.snapshot.json --output assets/campaigns/pre-rentree-2026/full-campaign",
+    "pre-rentree:priority-resources": "python scripts/pre-rentree/render_priority_resource_kit.py --content content/pre-rentree-2026/priority-resources.fr.json --matrix content/pre-rentree-2026/official-programme-matrix.fr.json --output assets/pedagogy/pre-rentree-2026/priority-resources",
+    "pre-rentree:economic-simulation": "npm run pre-rentree:commercial-contract && python scripts/pre-rentree/render_economic_simulation.py --commercial .artifacts/pre-rentree-2026/commercial-contract.snapshot.json --operations content/pre-rentree-2026/operations.fr.json --output assets/operations/pre-rentree-2026/economic-simulation",
+    "pre-rentree:release-inventory": "python scripts/pre-rentree/build_release_inventory.py --repo-root . --output assets/campaigns/pre-rentree-2026/release-inventory.json",
+    "pre-rentree:public-qa-manifest": "node scripts/pre-rentree/build_public_qa_manifest.mjs",
+    "pre-rentree:test:ts": "jest --config jest.unit.config.js --runInBand --testPathPattern='pre-rentree-2026'",
+    "pre-rentree:test:py": "python -m pytest scripts/pre-rentree/tests -q",
+    "pre-rentree:build": "python scripts/pre-rentree/generate_documents.py --snapshot generated/pre-rentree-2026/publication.snapshot.json --output .artifacts/pre-rentree-2026/build",
+    "pre-rentree:audit": "python scripts/pre-rentree/verify_reproducibility.py --snapshot generated/pre-rentree-2026/publication.snapshot.json --reference .artifacts/pre-rentree-2026/build --output-report .artifacts/pre-rentree-2026/build/REVIEW/AUDIT/reproducibility-report.json && python scripts/pre-rentree/verify_release.py --artifact-root .artifacts/pre-rentree-2026/build --repo-root . --write-governance",
+    "pre-rentree:package": "python scripts/pre-rentree/package_documents.py --artifact-root .artifacts/pre-rentree-2026/build --output .artifacts/pre-rentree-2026/packages --repo-root .",
+    "pre-rentree:verify": "python scripts/pre-rentree/verify_repository_hygiene.py --repo-root . && python scripts/pre-rentree/verify_release.py --artifact-root .artifacts/pre-rentree-2026/build --repo-root .",
+    "pre-rentree:ci": "npm run pre-rentree:clean && npm run pre-rentree:snapshot && npm run pre-rentree:test:ts && npm run pre-rentree:test:py && npm run typecheck && npm run security:repo && npm run pre-rentree:build && npm run pre-rentree:audit && npm run pre-rentree:package && npm run pre-rentree:verify",
     "dev": "next dev",
     "build": "node scripts/check-production-build-env.js && next build && node scripts/copy-public-assets.js && node scripts/validate-next-traces.js .next && node scripts/audit-production-artifact.js .next/standalone && node scripts/release/verify-standalone-artifact.mjs",
     "build:base": "next build",
@@ -175,7 +192,8 @@
     "pino-pretty": "^13.1.3",
     "prisma": "6.19.3",
     "tailwindcss": "^4.1.18",
-    "typescript": "^5"
+    "typescript": "^5",
+    "zod-to-json-schema": "^3.25.2"
   },
   "jest": {
     "setupFiles": [

@@ -16,7 +16,7 @@ import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
 const dto = getPreRentreeLandingDTO();
 
 describe('Pré-rentrée configurator logic', () => {
-  it('builds all 45 level and subject configurations from DTO facts', () => {
+  it('builds all 48 level and subject configurations from DTO facts', () => {
     let configurationCount = 0;
     for (const level of dto.levels) {
       const availableSubjects = dto.subjects.filter((subject) =>
@@ -27,7 +27,7 @@ describe('Pré-rentrée configurator logic', () => {
         const subjectIds: string[] = availableSubjects
           .filter((_, index) => (mask & (1 << index)) !== 0)
           .map((subject) => subject.id);
-        const profile: AcademicProfileSelection = level.id === 'SECONDE'
+        const profile: AcademicProfileSelection = level.id === 'TROISIEME' || level.id === 'SECONDE'
           ? {}
           : level.id === 'PREMIERE'
             ? { voie: 'GENERALE', mathsProfile: 'MATHS_EDS', eafProfile: 'EAF_GENERALE', premiereSpecialtyPlan: 'NSI_PHYSIQUE_CHIMIE' }
@@ -43,11 +43,11 @@ describe('Pré-rentrée configurator logic', () => {
           subjectIds,
           levels: dto.levels,
           subjects: dto.subjects,
-          packs: dto.packs,
+          packs: dto.offerOptions,
           schedule: dto.schedule,
         });
-        const pack = dto.packs.find(
-          (candidate) => candidate.subjectsCount === subjectIds.length,
+        const pack = dto.offerOptions.find(
+          (candidate) => candidate.level === level.id && candidate.subjectsCount === subjectIds.length,
         );
         if (!pack) throw new Error(`Missing test pack for ${subjectIds.length} subjects`);
         const selectedSlots = dto.schedule.filter(
@@ -72,9 +72,7 @@ describe('Pré-rentrée configurator logic', () => {
         expect(summary.pack?.price).toBe(pack?.price);
         expect(summary.pack?.deposit).toBe(pack?.deposit);
         expect(summary.pack?.balance).toBe(pack?.balance);
-        expect(summary.requiresValidation).toBe(
-          requiresPedagogicalValidation(level.id, profile, subjectIds),
-        );
+        expect(summary.requiresValidation).toBe(true);
 
         const bilanUrl = buildBilanUrl({
           packCode: pack.code,
@@ -104,10 +102,12 @@ describe('Pré-rentrée configurator logic', () => {
         configurationCount += 1;
       }
     }
-    expect(configurationCount).toBe(45);
+    expect(configurationCount).toBe(48);
   });
 
-  it('skips the profile step only for Seconde', () => {
+  it('skips the profile step for both Fondations levels', () => {
+    expect(getNextConfiguratorStep(1, 'TROISIEME')).toBe(3);
+    expect(getPreviousConfiguratorStep(3, 'TROISIEME')).toBe(1);
     expect(getNextConfiguratorStep(1, 'SECONDE')).toBe(3);
     expect(getPreviousConfiguratorStep(3, 'SECONDE')).toBe(1);
     expect(getNextConfiguratorStep(1, 'PREMIERE')).toBe(2);
@@ -129,9 +129,9 @@ describe('Pré-rentrée configurator logic', () => {
       deposit: pack.deposit,
       balance: pack.balance,
     }))).toEqual([
-      { subjectsCount: 1, totalHours: 10, price: 480, deposit: 140, balance: 340 },
+      { subjectsCount: 1, totalHours: 10, price: 480, deposit: 144, balance: 336 },
       { subjectsCount: 2, totalHours: 20, price: 900, deposit: 270, balance: 630 },
-      { subjectsCount: 3, totalHours: 30, price: 1350, deposit: 410, balance: 940 },
+      { subjectsCount: 3, totalHours: 30, price: 1350, deposit: 405, balance: 945 },
       { subjectsCount: 4, totalHours: 40, price: 1800, deposit: 540, balance: 1260 },
     ]);
   });
@@ -147,7 +147,7 @@ describe('Pré-rentrée configurator logic', () => {
       profile: {},
       levels: dto.levels,
       subjects: dto.subjects,
-      packs: dto.packs,
+      packs: dto.offerOptions,
       schedule: dto.schedule,
     };
 
@@ -164,7 +164,7 @@ describe('Pré-rentrée configurator logic', () => {
     expect(() => buildSelectionSummary({
       ...base,
       subjectIds: ['MATHEMATIQUES'],
-      packs: dto.packs.filter((pack) => pack.subjectsCount !== 1),
+      packs: dto.offerOptions.filter((pack) => pack.subjectsCount !== 1),
     })).toThrow('Missing canonical campaign pack');
   });
 
@@ -196,14 +196,16 @@ describe('Pré-rentrée configurator logic', () => {
   });
 
   it('builds a 40-hour summary from DTO schedule and pack data', () => {
-    const subjects = dto.subjects.map((subject) => subject.id);
+    const subjects = dto.subjects
+      .filter((subject) => subject.levels.includes('TERMINALE'))
+      .map((subject) => subject.id);
     const summary = buildSelectionSummary({
       level: 'TERMINALE',
       profile: { mathsOption: 'AUCUNE' },
       subjectIds: subjects,
       levels: dto.levels,
       subjects: dto.subjects,
-      packs: dto.packs,
+      packs: dto.offerOptions,
       schedule: dto.schedule,
     });
 
@@ -229,7 +231,7 @@ describe('Pré-rentrée configurator logic', () => {
       subjectIds: ['MATHEMATIQUES'],
       levels: dto.levels,
       subjects: dto.subjects,
-      packs: dto.packs,
+      packs: dto.offerOptions,
       schedule: dto.schedule,
     });
 
@@ -258,7 +260,7 @@ describe('Pré-rentrée configurator logic', () => {
       subjectIds: ['MATHEMATIQUES', 'FRANCAIS'],
       levels: dto.levels,
       subjects: dto.subjects,
-      packs: dto.packs,
+      packs: dto.offerOptions,
       schedule: dto.schedule,
     });
 

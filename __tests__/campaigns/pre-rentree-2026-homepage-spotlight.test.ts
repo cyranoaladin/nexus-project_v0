@@ -20,7 +20,8 @@ interface HomepageSpotlightContract {
   venueLabel: string;
   editorialLine: string;
   campaignPath: string;
-  planningPath: string;
+  secondaryCtaLabel: string;
+  secondaryCtaPath: string;
 }
 
 describe('Pré-rentrée homepage spotlight DTO', () => {
@@ -35,22 +36,23 @@ describe('Pré-rentrée homepage spotlight DTO', () => {
       ariaLabel: 'Campagne Pré-rentrée 2026',
       title: 'Stages de pré-rentrée 2026',
       primaryCtaLabel: 'Découvrir la Pré-rentrée 2026',
-      publicStatus: 'Pré-inscriptions ouvertes',
+      publicStatus: 'Campagne en préparation',
       date: {
-        days: '17–28',
+        days: '17',
         month: 'AOÛT',
         year: '2026',
-        accessibleLabel: 'Du 17 au 28 août 2026.',
-        chipLabel: 'du 17 au 28 août',
+        accessibleLabel: 'À partir du 17 août 2026.',
+        chipLabel: 'dès le 17 août',
       },
-      entryClassesLabel: 'Entrée en Seconde, Première ou Terminale',
-      subjectFamiliesLabel: 'Mathématiques · Physique-Chimie · Français · NSI/SNT',
-      capacityLabel: '3 à 5 élèves',
+      entryClassesLabel: 'Entrée en 3e, Seconde, Première ou Terminale',
+      subjectFamiliesLabel: 'Mathématiques · Physique-Chimie · Français · NSI · Philosophie',
+      capacityLabel: 'Fondations : 4 à 6 élèves · Premium : 3 à 5 élèves',
       volumeLabel: '10 h par matière',
       venueLabel: 'Mutuelleville',
-      editorialLine: 'Deux semaines pour préparer sérieusement la rentrée',
+      editorialLine: 'Reprendre les fondamentaux. Structurer sa méthode. Aborder la rentrée avec confiance.',
       campaignPath: '/stages/pre-rentree-2026',
-      planningPath: '/stages/pre-rentree-2026#planning',
+      secondaryCtaLabel: 'Voir les offres',
+      secondaryCtaPath: '/stages/pre-rentree-2026#offres-pre-rentree',
     });
   });
 });
