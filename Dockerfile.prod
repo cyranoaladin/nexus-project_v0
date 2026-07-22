@@ -24,13 +24,16 @@ COPY . .
 # Générer le client Prisma
 RUN npx prisma generate
 
+# Release SHA (non-release default for local builds; override via --build-arg for real releases)
+ARG RELEASE_SHA=0000000000000000000000000000000000000000
+
 # Variables d'environnement pour le build
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 # Build de l'application Next.js
-RUN npm run build
+RUN RELEASE_SHA="$RELEASE_SHA" npm run build
 
 # Stage 2.5: Migrator (includes full Prisma CLI dependency graph)
 FROM deps AS migrator
