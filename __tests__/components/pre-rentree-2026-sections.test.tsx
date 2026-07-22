@@ -65,23 +65,23 @@ describe('Pré-rentrée landing sections', () => {
     expect(weekTab).toHaveAttribute('aria-selected', 'true');
   });
 
-  it('renders both weekly timetables with five blocks and two rooms', async () => {
+  it('renders both weekly timetables with four blocks and two rooms', async () => {
     const user = userEvent.setup();
     renderSchedule();
     await user.click(screen.getByRole('tab', { name: 'Emploi du temps par semaine' }));
 
     expect(screen.getByRole('tab', { name: 'Semaine 1 · 17–21 août' })).toHaveAttribute('aria-selected', 'true');
     const weekOne = screen.getByRole('table', { name: 'Emploi du temps — Semaine 1 · 17–21 août' });
-    expect(within(weekOne).getAllByRole('row')).toHaveLength(6);
+    expect(within(weekOne).getAllByRole('row')).toHaveLength(5);
     expect(within(weekOne).getByRole('columnheader', { name: 'Salle 1' })).toBeInTheDocument();
     expect(within(weekOne).getByRole('columnheader', { name: 'Salle 2' })).toBeInTheDocument();
-    expect(within(weekOne).queryAllByText('Libre')).toHaveLength(1);
+    expect(within(weekOne).queryAllByText('Libre')).toHaveLength(0);
     expect(within(weekOne).getByText('Français — préparation à l’EAF')).toBeInTheDocument();
 
     await user.click(screen.getByRole('tab', { name: 'Semaine 2 · 24–28 août' }));
     const weekTwo = screen.getByRole('table', { name: 'Emploi du temps — Semaine 2 · 24–28 août' });
-    expect(within(weekTwo).getAllByRole('row')).toHaveLength(6);
-    expect(within(weekTwo).getAllByText('Libre')).toHaveLength(3);
+    expect(within(weekTwo).getAllByRole('row')).toHaveLength(5);
+    expect(within(weekTwo).queryAllByText('Libre')).toHaveLength(0);
     expect(within(weekTwo).getByText('Initiation informatique, algorithmique et SNT')).toBeInTheDocument();
     expect(within(weekTwo).getAllByText('Physique-Chimie')).toHaveLength(3);
   });
@@ -90,7 +90,7 @@ describe('Pré-rentrée landing sections', () => {
     renderSchedule();
     const organization = screen.getByRole('region', { name: 'Organisation pédagogique' });
     expect(within(organization).queryAllByTestId('teacher-role')).toHaveLength(0);
-    expect(within(organization).getByText(/Salle 1.*Mathématiques.*NSI.*SNT/i)).toBeInTheDocument();
+    expect(within(organization).getByText(/Salle 1.*Mathématiques.*NSI.*SVT/i)).toBeInTheDocument();
     expect(within(organization).getByText(/Salle 2.*Français.*Physique-Chimie/i)).toBeInTheDocument();
     expect(organization.textContent).not.toMatch(/MATHS_NSI_SNT_TEACHER|FRENCH_TEACHER|PHYSICS_CHEMISTRY_TEACHER/);
     expect(organization.textContent).not.toMatch(/60\s*h|30\s*h/);

@@ -81,7 +81,10 @@ describe('Pré-rentrée 2026 — operationalGates recalculés sur données réel
     const levels = new Set(svt.map((s) => s.level));
     expect(levels.has('PREMIERE')).toBe(true);
     expect(levels.has('TERMINALE')).toBe(true);
-    // Constat factuel : la SVT est placée sur le bloc E (18:00-20:00), 5e créneau du soir.
-    expect(new Set(svt.map((s) => s.block))).toEqual(new Set(['E']));
+    // D4-final : SVT en journée. Terminale SVT -> S2/bloc B/salle-1 ; Première SVT -> S2/bloc C/salle-2.
+    const byLevel = Object.fromEntries(svt.map((s) => [s.level, { block: s.block, room: s.room }]));
+    expect(byLevel.TERMINALE).toEqual({ block: 'B', room: 'salle-1' });
+    expect(byLevel.PREMIERE).toEqual({ block: 'C', room: 'salle-2' });
+    expect(svt.every((s) => s.block !== 'E')).toBe(true);
   });
 });
