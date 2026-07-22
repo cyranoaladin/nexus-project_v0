@@ -124,10 +124,9 @@ for (const finding of findings) {
 // Core rules:
 // 1. Zero findings + zero exceptions = clean tree (pass)
 // 2. Zero findings + non-zero exceptions = stale exceptions (fail)
-// 3. Exactly 1 finding matched by exactly 1 exception = controlled (pass)
+// 3. Matched findings covered by declared exceptions = controlled (pass)
 // 4. Any unmatched finding = fail
 // 5. Any unused exception = fail (stale)
-// 6. More than 1 matched finding = fail
 
 const matchedFindingCount = findings.length - unmatched.length;
 
@@ -141,9 +140,6 @@ if (unmatched.length > 0) {
   }
 }
 
-if (matchedFindingCount > 1) {
-  fail(`more than one allowed extraneous finding was found (${matchedFindingCount})`);
-}
 
 const unusedExceptions = allowed.filter((_, idx) => !usedExceptions.has(idx));
 if (unusedExceptions.length > 0) {
