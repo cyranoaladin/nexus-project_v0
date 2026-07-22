@@ -1,0 +1,184 @@
+{
+  "schemaVersion": "1.0.0",
+  "campaignId": "pre-rentree-2026",
+  "documentPurpose": "Registre des arbitrages validés par le propriétaire avant production et publication.",
+  "approvedAt": "2026-07-22",
+  "approvedByRole": "project_owner",
+  "releaseStatus": "REVIEW",
+  "ownerDecisionsComplete": false,
+  "repositoryPolicy": {
+    "allSourcesInsideCanonicalRepository": true,
+    "allGeneratedDocumentsInsideCanonicalRepository": true,
+    "externalWorktreesForbidden": true,
+    "externalPublicationFoldersForbidden": true,
+    "unprovenClaimsForbidden": true
+  },
+  "decisions": {
+    "secondeSubjects": {
+      "status": "approved_for_publication",
+      "decision": "exclude_snt",
+      "subjects": [
+        "Mathématiques",
+        "Physique-Chimie",
+        "Français"
+      ],
+      "excludedSubjects": [
+        "SNT",
+        "Initiation informatique"
+      ],
+      "publicRule": "La SNT et l'initiation informatique ne doivent apparaître dans aucun support de la campagne 2026."
+    },
+    "calendar": {
+      "status": "approved_for_publication",
+      "startDate": "2026-08-17",
+      "endDate": "2026-08-28",
+      "pauseDates": [
+        "2026-08-22",
+        "2026-08-23"
+      ],
+      "deliveryMode": "presentiel",
+      "location": "Mutuelleville, Tunis",
+      "publishedDailyTimeSlots": [
+        {
+          "start": "08:30",
+          "end": "10:30"
+        },
+        {
+          "start": "10:45",
+          "end": "12:45"
+        },
+        {
+          "start": "13:30",
+          "end": "15:30"
+        },
+        {
+          "start": "15:45",
+          "end": "17:45"
+        }
+      ],
+      "groupSubjectRoomAssignments": {
+        "status": "to_confirm",
+        "publicRule": "Ne pas inventer les affectations de groupes, matières, enseignants ou salles."
+      }
+    },
+    "visualIdentity": {
+      "status": "approved_for_publication",
+      "campaignCharter": "JPO-2026",
+      "logoPath": "public/images/logo_slogan_nexus_x3.png",
+      "tagline": "Viser. Atteindre. Dépasser.",
+      "titleFont": "Fraunces",
+      "bodyFont": "DM Sans",
+      "colors": {
+        "navy": "#071A3A",
+        "secondaryNavy": "#0E2547",
+        "ivory": "#F7F4ED",
+        "paper": "#FBFAF5",
+        "gold": "#BFA06A",
+        "deepGold": "#7A6535",
+        "validationGreen": "#1E5F4B",
+        "secondaryText": "#5A6B82"
+      },
+      "redUsage": "Réservé au logo et aux alertes ponctuelles.",
+      "campaignScopeOnly": true
+    },
+    "pedagogicalServices": {
+      "status": "owner_approved_target_scope",
+      "serviceModel": "cumulative_A_plus_B_plus_C",
+      "targetInclusion": "all_enrolled_students",
+      "components": [
+        {
+          "code": "A",
+          "name": "Socle pédagogique prouvé",
+          "selected": true,
+          "targetInclusion": "all_enrolled_students",
+          "publicationStatus": "approved_for_publication",
+          "includedServices": [
+            "5 séances structurées de 2 heures",
+            "10 heures par matière",
+            "Objectifs annoncés pour chaque séance",
+            "Entraînement guidé",
+            "Correction et explicitation en séance",
+            "Consignes et exercices préparés",
+            "Travail orienté vers les priorités observées"
+          ]
+        },
+        {
+          "code": "B",
+          "name": "Socle avec positionnement initial",
+          "selected": true,
+          "targetInclusion": "all_enrolled_students",
+          "publicationStatus": "blocked_until_operational_validation",
+          "includedServices": [
+            "Positionnement initial",
+            "Identification des forces et priorités",
+            "Ajustement des objectifs de travail"
+          ],
+          "releaseGates": [
+            "Outils de positionnement validés par matière",
+            "Procédure commune testée pour tous les groupes",
+            "Consignes enseignants validées",
+            "Traçabilité des résultats définie",
+            "Traitement des données et confidentialité validés"
+          ],
+          "publicRule": "Ne pas présenter le positionnement comme garanti avant validation de tous les gates."
+        },
+        {
+          "code": "C",
+          "name": "Parcours complet avec bilan parents",
+          "selected": true,
+          "targetInclusion": "all_enrolled_students",
+          "publicationStatus": "blocked_until_operational_validation",
+          "includedServices": [
+            "Suivi des acquis pendant le stage",
+            "Bilan final écrit destiné aux parents",
+            "Synthèse des points d'appui et priorités",
+            "Plan d'action pour la rentrée"
+          ],
+          "releaseGates": [
+            "Chaîne Parcours 360 validée de bout en bout",
+            "Modèle de bilan parents validé",
+            "Processus de relecture humaine défini",
+            "Responsable de validation affecté",
+            "Stockage sécurisé opérationnel",
+            "Durée de conservation définie",
+            "Notice de confidentialité validée",
+            "Tests PDF et contrôle qualité réussis",
+            "Capacité de production confirmée pour tous les élèves"
+          ],
+          "publicRule": "Ne pas présenter le bilan parents ou le plan d'action comme garantis avant validation de tous les gates."
+        }
+      ],
+      "commercialRule": "Les composantes A, B et C constituent ensemble le parcours cible approuvé. Les supports publics ne peuvent annoncer B et C comme prestations garanties qu'après validation opérationnelle de leurs gates."
+    }
+  },
+  "remainingReleaseGates": [
+    {
+      "id": "pedagogical_program_validation",
+      "status": "to_confirm"
+    },
+    {
+      "id": "teacher_assignments",
+      "status": "to_confirm"
+    },
+    {
+      "id": "teacher_qualification_evidence",
+      "status": "to_confirm"
+    },
+    {
+      "id": "cancellation_and_refund_terms",
+      "status": "to_confirm"
+    },
+    {
+      "id": "privacy_notice_and_data_retention",
+      "status": "to_confirm"
+    },
+    {
+      "id": "positioning_workflow",
+      "status": "to_implement_and_validate"
+    },
+    {
+      "id": "parent_report_workflow",
+      "status": "to_implement_and_validate"
+    }
+  ]
+}
