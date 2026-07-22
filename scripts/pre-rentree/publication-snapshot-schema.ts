@@ -12,7 +12,7 @@ const Sha256 = z.string().regex(/^[a-f0-9]{64}$/);
 const IsoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const Time = z.string().regex(/^\d{2}:\d{2}$/);
 const EntryLevel = z.enum(['TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE']);
-const SubjectId = z.enum(['MATHEMATIQUES', 'FRANCAIS', 'NSI', 'PHYSIQUE_CHIMIE', 'PHILOSOPHIE']);
+const SubjectId = z.enum(['MATHEMATIQUES', 'FRANCAIS', 'NSI', 'PHYSIQUE_CHIMIE', 'PHILOSOPHIE', 'SVT']);
 
 const SourceEvidenceSchema = z.object({
   path: z.string().min(1),
@@ -68,7 +68,7 @@ const ScheduleSessionSchema = z.object({
   level: EntryLevel,
   subjectId: SubjectId,
   subjectLabel: z.string().min(1),
-  blockId: z.enum(['A', 'B', 'C', 'D']),
+  blockId: z.enum(['A', 'B', 'C', 'D', 'E']),
   startTime: Time,
   endTime: Time,
   roomLabel: z.string().min(1),
@@ -84,7 +84,7 @@ const ScheduleWeekSchema = z.object({
     level: EntryLevel,
     subjectId: SubjectId,
     subjectLabel: z.string().min(1),
-    blockId: z.enum(['A', 'B', 'C', 'D']),
+    blockId: z.enum(['A', 'B', 'C', 'D', 'E']),
     startTime: Time,
     endTime: Time,
     roomLabel: z.string().min(1),
@@ -248,19 +248,19 @@ export const PublicationSnapshotSchema = z.object({
     publicLabelByLevel: z.record(z.string()),
     abbreviation: z.string().min(1),
     color: z.string().regex(/^#[A-Fa-f0-9]{6}$/),
-  }).strict()).length(5),
-  blocks: z.array(z.object({ id: z.enum(['A', 'B', 'C', 'D']), startTime: Time, endTime: Time }).strict()).length(4),
+  }).strict()).length(6),
+  blocks: z.array(z.object({ id: z.enum(['A', 'B', 'C', 'D', 'E']), startTime: Time, endTime: Time }).strict()).length(5),
   schedule: z.object({
     weeks: z.array(ScheduleWeekSchema).length(2),
-    sessions: z.array(ScheduleSessionSchema).length(70),
+    sessions: z.array(ScheduleSessionSchema).length(80),
   }).strict(),
   academicProfiles: z.record(z.unknown()),
   packs: z.array(PackSchema).length(4),
-  modules: z.array(ModuleSchema).length(14),
+  modules: z.array(ModuleSchema).length(16),
   pedagogy: z.object({
-    positioningTests: z.array(PositioningTestSchema).length(14),
-    quickAssessments: z.array(QuickAssessmentSchema).length(70),
-    sessionDeliverables: z.array(SessionDeliverableSchema).length(70),
+    positioningTests: z.array(PositioningTestSchema).length(16),
+    quickAssessments: z.array(QuickAssessmentSchema).length(80),
+    sessionDeliverables: z.array(SessionDeliverableSchema).length(80),
   }).strict(),
   offers: PreRentreeOffersSchema,
   offerPricing: z.array(z.object({

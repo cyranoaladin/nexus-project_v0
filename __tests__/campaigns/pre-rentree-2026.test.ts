@@ -30,12 +30,12 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       expect(campaignManifest.levels).toHaveLength(4);
     });
 
-    it('has exactly 5 subject families', () => {
-      expect(campaignManifest.subjects).toHaveLength(5);
+    it('has exactly 6 subject families', () => {
+      expect(campaignManifest.subjects).toHaveLength(6);
     });
 
-    it('has exactly 4 time blocks', () => {
-      expect(campaignManifest.blocks).toHaveLength(4);
+    it('has exactly 5 time blocks', () => {
+      expect(campaignManifest.blocks).toHaveLength(5);
     });
 
     it('has exactly 2 weeks', () => {
@@ -46,8 +46,8 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
   describe('Modules', () => {
     const modules = (modulesData as any).modules;
 
-    it('has exactly 14 modules', () => {
-      expect(modules).toHaveLength(14);
+    it('has exactly 16 modules', () => {
+      expect(modules).toHaveLength(16);
     });
 
     it('each module has exactly 5 sessions', () => {
@@ -56,20 +56,20 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       }
     });
 
-    it('total sessions = 70', () => {
+    it('total sessions = 80', () => {
       const total = modules.reduce((sum: number, m: any) => sum + m.sessions.length, 0);
-      expect(total).toBe(70);
+      expect(total).toBe(80);
     });
 
-    it('has 4 modules per level', () => {
+    it('has 4 modules per level except Première and Terminale with SVT', () => {
       const byLevel = { TROISIEME: 0, SECONDE: 0, PREMIERE: 0, TERMINALE: 0 };
       for (const mod of modules) {
         byLevel[mod.level as keyof typeof byLevel]++;
       }
       expect(byLevel.TROISIEME).toBe(2);
       expect(byLevel.SECONDE).toBe(4);
-      expect(byLevel.PREMIERE).toBe(4);
-      expect(byLevel.TERMINALE).toBe(4);
+      expect(byLevel.PREMIERE).toBe(5);
+      expect(byLevel.TERMINALE).toBe(5);
     });
 
     it('never uses "EAF Terminale"', () => {
@@ -123,15 +123,15 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       }
     });
 
-    it('no level has more than 2 blocks per day (4h max)', () => {
+    it('no level has more than 3 blocks per day (6h max)', () => {
       for (const week of schedule) {
         const blocksPerLevel: Record<string, number> = {};
         for (const slot of week.slots) {
           blocksPerLevel[slot.level] = (blocksPerLevel[slot.level] || 0) + 1;
         }
         for (const [, count] of Object.entries(blocksPerLevel)) {
-          // Per day: max 2 blocks = 4h (each block is 2h)
-          expect(count).toBeLessThanOrEqual(2);
+          // Per day: max 3 blocks = 6h (each block is 2h) to accommodate the optional SVT evening block
+          expect(count).toBeLessThanOrEqual(3);
         }
       }
     });

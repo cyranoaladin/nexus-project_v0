@@ -31,8 +31,8 @@ describe('Pré-rentrée 2026 director contract', () => {
     expect(offers.levels.map((offer) => [offer.level, offer.range, offer.subjects.length])).toEqual([
       ['TROISIEME', 'FONDATIONS', 2],
       ['SECONDE', 'FONDATIONS', 4],
-      ['PREMIERE', 'PREMIUM', 4],
-      ['TERMINALE', 'PREMIUM', 4],
+      ['PREMIERE', 'PREMIUM', 5],
+      ['TERMINALE', 'PREMIUM', 5],
     ]);
     expect(offers.levels.slice(0, 2).every((offer) => (
       offer.pricing.model === 'PER_SUBJECT' && offer.capacity.min === 4 && offer.capacity.max === 6
@@ -54,7 +54,7 @@ describe('Pré-rentrée 2026 director contract', () => {
     ))).toBe(true);
   });
 
-  it('publishes four entry levels, fourteen modules and seventy sessions', () => {
+  it('publishes four entry levels, sixteen modules and eighty sessions', () => {
     const campaign = readJson<{
       levels: Array<{ id: string }>;
       subjects: Array<{ id: string; levels: string[] }>;
@@ -69,8 +69,8 @@ describe('Pré-rentrée 2026 director contract', () => {
       'PREMIERE',
       'TERMINALE',
     ]);
-    expect(modules).toHaveLength(14);
-    expect(modules.flatMap((module) => module.sessions)).toHaveLength(70);
+    expect(modules).toHaveLength(16);
+    expect(modules.flatMap((module) => module.sessions)).toHaveLength(80);
     expect(modules.every((module) => module.sessions.length === 5)).toBe(true);
     expect(modules).toContainEqual(expect.objectContaining({
       id: 'seconde-informatique-snt',
@@ -111,7 +111,7 @@ describe('Pré-rentrée 2026 director contract', () => {
     ))).toBe(true);
   });
 
-  it('keeps campaign governance documentation aligned with fourteen modules', () => {
+  it('keeps campaign governance documentation aligned with sixteen modules and eighty sessions', () => {
     const documentation = [
       'docs/campaigns/pre-rentree-2026/README.md',
       'docs/campaigns/pre-rentree-2026/SOURCE-OF-TRUTH-MAP.md',
@@ -121,8 +121,8 @@ describe('Pré-rentrée 2026 director contract', () => {
       'docs/campaigns/pre-rentree-2026/STAFFING-MATRIX.md',
     ].map((path) => readFileSync(join(root, path), 'utf8')).join('\n');
 
-    expect(documentation).toMatch(/14 modules|quatorze modules/i);
-    expect(documentation).toMatch(/70 séances|soixante-dix séances/i);
+    expect(documentation).toMatch(/16 modules|seize modules/i);
+    expect(documentation).toMatch(/80 séances|quatre-vingts séances/i);
     expect(documentation).not.toMatch(/12 modules|douze modules|60 séances|soixante séances/i);
     expect(documentation).toContain('OWNER_REVIEW=PENDING');
     expect(documentation).toContain('TEACHER_ASSIGNMENTS_VALIDATED=false');
