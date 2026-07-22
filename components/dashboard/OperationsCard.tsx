@@ -27,7 +27,7 @@ export function OperationsCard() {
 
     async function fetchMetrics() {
       try {
-        const res = await fetch('/api/assistant/dashboard');
+        const res = await fetch('/api/assistante/dashboard');
         if (!res.ok) return;
         const json = await res.json();
         if (cancelled) return;

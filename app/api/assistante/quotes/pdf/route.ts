@@ -34,7 +34,7 @@ const quotePayloadSchema = z.object({
   studentName: z.string().trim().min(1).max(160),
   parentName: z.string().trim().min(1).max(160),
   whatsapp: z.string().trim().max(80),
-  email: z.string().trim().email().max(180),
+  email: z.string().trim().email().max(180).optional(),
   advisor: z.string().trim().max(160),
   level: z.string().trim().max(120),
   status: z.string().trim().max(120),
