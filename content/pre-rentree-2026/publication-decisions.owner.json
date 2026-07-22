@@ -57,8 +57,9 @@
         }
       ],
       "groupSubjectRoomAssignments": {
-        "status": "to_confirm",
-        "publicRule": "Ne pas inventer les affectations de groupes, matières, enseignants ou salles."
+        "status": "subject_and_room_confirmed_teachers_pending",
+        "confirmedBy": "decisions.scheduleGridFinal",
+        "publicRule": "Les affectations matière/salle/créneau sont désormais actées par la direction (voir scheduleGridFinal). Les noms d'enseignants restent à confirmer et ne figurent dans aucun support public."
       }
     },
     "visualIdentity": {
@@ -149,6 +150,76 @@
         }
       ],
       "commercialRule": "Les composantes A, B et C constituent ensemble le parcours cible approuvé. Les supports publics ne peuvent annoncer B et C comme prestations garanties qu'après validation opérationnelle de leurs gates."
+    },
+    "svtTeacherRoles": {
+      "status": "approved_with_pending_assignment",
+      "decision": "abstract_roles_until_named",
+      "reference": "D1",
+      "roles": {
+        "SVT_TEACHER_A": { "level": "PREMIERE", "assignedName": null },
+        "SVT_TEACHER_B": { "level": "TERMINALE", "assignedName": null }
+      },
+      "nameInjectionPoints": [
+        "data/campaigns/pre-rentree-2026.json → teacherRoles.SVT_TEACHER_A (Première) : renseigner le nom et passer assigned:true lors de l'affectation",
+        "data/campaigns/pre-rentree-2026.json → teacherRoles.SVT_TEACHER_B (Terminale) : idem",
+        "Aucun support public n'expose le nom : les rôles restent abstraits côté contenus/PDF/SEO."
+      ],
+      "publicRule": "Aucun nom, diplôme ou statut enseignant ne figure dans un support public tant que l'affectation n'est pas validée. Aucune mention de rémunération enseignant nulle part.",
+      "owner": "direction",
+      "decidedAt": "2026-07-22T19:15:59Z"
+    },
+    "svtProgramValidation": {
+      "status": "draft_until_owner_validation",
+      "decision": "svt_programs_watermarked_draft",
+      "reference": "D2",
+      "scope": ["premiere-svt", "terminale-svt"],
+      "publicRule": "Les programmes SVT (Première, Terminale) restent en DRAFT filigrané tant que la direction pédagogique ne les a pas validés (gate pedagogical_program_validation).",
+      "owner": "direction",
+      "decidedAt": "2026-07-22T19:15:59Z"
+    },
+    "subjectSelectionCap": {
+      "status": "approved_for_publication",
+      "decision": "cap_four_subjects",
+      "reference": "D3",
+      "maxSubjectsPerPack": 4,
+      "availableSubjectsPremiereTerminale": 5,
+      "publicWording": "1 à 4 matières au choix parmi 5",
+      "publicRule": "Aucun pack 5 matières. La sélection est plafonnée à 4 matières ; la SVT est la 5e matière disponible en Première et Terminale uniquement.",
+      "owner": "direction",
+      "decidedAt": "2026-07-22T19:15:59Z"
+    },
+    "scheduleGridFinal": {
+      "status": "approved_for_publication",
+      "decision": "svt_daytime_placement_with_single_permutation",
+      "reference": "D4-final",
+      "supersedes": "toutes versions antérieures de D4",
+      "eveningBlockE": "refused_definitively",
+      "roomConventionSalle1MathsNsiOnly": "lifted",
+      "authorizedPermutationWeek2": "1ère NSI : bloc B/salle-1 → bloc D/salle-1",
+      "svtPlacements": {
+        "SVT_TERMINALE": "Semaine 2, bloc B, salle-1",
+        "SVT_PREMIERE": "Semaine 2, bloc C, salle-2"
+      },
+      "week2TargetGrid": {
+        "A": { "salle-1": "SECONDE/NSI", "salle-2": "PREMIERE/PHYSIQUE_CHIMIE" },
+        "B": { "salle-1": "TERMINALE/SVT", "salle-2": "SECONDE/PHYSIQUE_CHIMIE" },
+        "C": { "salle-1": "TERMINALE/NSI", "salle-2": "PREMIERE/SVT" },
+        "D": { "salle-1": "PREMIERE/NSI", "salle-2": "TERMINALE/PHYSIQUE_CHIMIE" }
+      },
+      "week1": "unchanged",
+      "referenceGrid": "data/campaigns/pre-rentree-2026.json",
+      "knownCrossBranchItem": "La présence de NSI/SNT en Seconde reste à réconcilier avec decisions.secondeSubjects (hors périmètre de cette branche ; traité sur la branche JPO).",
+      "terminaleLoadNote": "Un Terminale prenant NSI+PC+SVT cumule blocs B+C+D = 6h/jour (plafond dailyLoadValid = 6h, accepté au maximum). Décision de charge éventuelle : assumer 6h ou plafonner à 2 matières scientifiques/jour.",
+      "owner": "direction",
+      "decidedAt": "2026-07-22T19:15:59Z"
+    },
+    "deploymentAuthorization": {
+      "status": "locked",
+      "decision": "no_deploy_without_written_go",
+      "reference": "D5",
+      "publicRule": "Aucun merge, aucun déploiement, aucune régénération de site en production sans GO écrit de la direction.",
+      "owner": "direction",
+      "decidedAt": "2026-07-22T19:15:59Z"
     }
   },
   "remainingReleaseGates": [
