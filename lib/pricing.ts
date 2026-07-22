@@ -56,6 +56,7 @@ export interface AnnualOffer {
   id: string;
   level: string;
   track: string;
+  audience?: string[];
   /** Controls how pricing renders: 'monthly_first' (default for tutorat), 'annual' (plateforme) */
   pricing_display?: 'monthly_first' | 'annual';
   title: string;
@@ -403,6 +404,18 @@ export function getOffersByLevel(level: string): AnnualOffer[] {
 
 export function getOffersByTrack(track: string): AnnualOffer[] {
   return data.offers.filter((o) => o.track === track);
+}
+
+export function getOffersByAudience(audience: string): AnnualOffer[] {
+  return data.offers.filter((o) => !o.audience || o.audience.includes(audience));
+}
+
+export function getOffersByLevelAndAudience(level: string, audience: string): AnnualOffer[] {
+  const normalized = normalizePricingLevel(level);
+  if (!normalized) return [];
+  return data.offers.filter(
+    (o) => normalizePricingLevel(o.level) === normalized && (!o.audience || o.audience.includes(audience)),
+  );
 }
 
 export function getStageFormats(): StageFormat[] {

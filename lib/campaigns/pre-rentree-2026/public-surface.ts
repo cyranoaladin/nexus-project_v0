@@ -10,6 +10,10 @@ const SUBJECT_LABELS = {
   NSI: 'NSI',
   FRANCAIS: 'Français',
   PHILOSOPHIE: 'Philosophie',
+  SVT: 'SVT (Sciences de la Vie et de la Terre)',
+  SES: 'SES (Sciences Économiques et Sociales)',
+  EMC: 'EMC (Enseignement Moral et Civique)',
+  HISTOIRE_GEOGRAPHIE: 'Histoire-Géographie',
 } as const;
 
 const LEVEL_LABELS = {

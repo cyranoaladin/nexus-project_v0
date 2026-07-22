@@ -42,6 +42,11 @@ const SUBJECT_TO_BILAN_SUBJECT: Record<string, EleveBilanSubject> = {
   MANAGEMENT: 'MANAGEMENT',
   SGN: 'SGN',
   FRANCAIS: 'FRANCAIS',
+  SVT: 'SVT',
+  SES: 'SES',
+  EMC: 'EMC',
+  HISTOIRE_GEOGRAPHIE: 'HISTOIRE_GEOGRAPHIE',
+  PHILOSOPHIE: 'PHILOSOPHIE',
 };
 
 const SUBJECT_LABELS: Record<EleveBilanSubject, string> = {
@@ -52,6 +57,11 @@ const SUBJECT_LABELS: Record<EleveBilanSubject, string> = {
   MANAGEMENT: 'Management',
   SGN: 'Sciences de gestion et numérique',
   FRANCAIS: 'Français',
+  SVT: 'SVT (Sciences de la Vie et de la Terre)',
+  SES: 'SES (Sciences Économiques et Sociales)',
+  EMC: 'EMC (Enseignement Moral et Civique)',
+  HISTOIRE_GEOGRAPHIE: 'Histoire-Géographie',
+  PHILOSOPHIE: 'Philosophie',
   MIXTE: 'Multi-matières',
 };
 
