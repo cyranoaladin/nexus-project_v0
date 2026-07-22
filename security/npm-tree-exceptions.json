@@ -4,7 +4,7 @@
     {
       "type": "extraneous",
       "name": "@emnapi/runtime",
-      "version": "1.11.2",
+      "version": "1.8.1",
       "path": "node_modules/@emnapi/runtime",
       "reason": "npm optional WASM dependency materialization bug",
       "upstreamIssue": "npm/cli#8128",
