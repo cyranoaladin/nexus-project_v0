@@ -51,7 +51,7 @@ const Subject = z.object({
 const ScheduleSlot = z.object({
   level: EntryLevelCode,
   subject: z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'PHILOSOPHIE', 'SVT']),
-  block: z.enum(['A', 'B', 'C', 'D', 'E']),
+  block: z.enum(['A', 'B', 'C', 'D']),
   room: z.string(),
   teacherRole: z.string().min(1),
 }).strict();
@@ -171,7 +171,7 @@ export const PreRentreeCampaignManifestSchema = z.object({
   levels: z.array(Level).length(4),
   entryLevelSemantics: LevelSemantics,
   subjects: z.array(Subject).length(6),
-  blocks: z.array(TimeSlot).length(5),
+  blocks: z.array(TimeSlot).length(4),
   schedule: z.array(WeekSchedule).length(2),
   roomRoles: z.record(z.array(z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'PHILOSOPHIE', 'SVT'])).min(1)),
   teacherRoles: z.record(z.object({

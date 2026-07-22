@@ -186,9 +186,9 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     });
     expect(snapshot.schedule.sessions.at(-1)).toMatchObject({
       date: '2026-08-28',
-      level: 'TERMINALE',
+      level: 'PREMIERE',
       subjectId: 'SVT',
-      blockId: 'E',
+      blockId: 'C',
       sessionNumber: 5,
     });
   });

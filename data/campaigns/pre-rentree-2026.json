@@ -125,11 +125,6 @@
       "id": "D",
       "startTime": "15:45",
       "endTime": "17:45"
-    },
-    {
-      "id": "E",
-      "startTime": "18:00",
-      "endTime": "20:00"
     }
   ],
   "schedule": [
@@ -194,13 +189,6 @@
           "block": "D",
           "room": "salle-2",
           "teacherRole": "FRENCH_TEACHER_B"
-        },
-        {
-          "level": "PREMIERE",
-          "subject": "SVT",
-          "block": "E",
-          "room": "salle-2",
-          "teacherRole": "SVT_TEACHER_A"
         }
       ]
     },
@@ -227,7 +215,7 @@
         {
           "level": "PREMIERE",
           "subject": "NSI",
-          "block": "B",
+          "block": "D",
           "room": "salle-1",
           "teacherRole": "COMPUTER_SCIENCE_TEACHER_A"
         },
@@ -255,9 +243,16 @@
         {
           "level": "TERMINALE",
           "subject": "SVT",
-          "block": "E",
-          "room": "salle-2",
+          "block": "B",
+          "room": "salle-1",
           "teacherRole": "SVT_TEACHER_B"
+        },
+        {
+          "level": "PREMIERE",
+          "subject": "SVT",
+          "block": "C",
+          "room": "salle-2",
+          "teacherRole": "SVT_TEACHER_A"
         }
       ]
     }
@@ -265,7 +260,8 @@
   "roomRoles": {
     "salle-1": [
       "MATHEMATIQUES",
-      "NSI"
+      "NSI",
+      "SVT"
     ],
     "salle-2": [
       "FRANCAIS",
