@@ -1,0 +1,1221 @@
+{
+  "metadata": {
+    "lotId": "jpo-pre-rentree-2026-lot-1",
+    "version": "2026.07.21-jpo-lot1-v1",
+    "generatedAt": "2026-07-21T23:03:30+01:00",
+    "locale": "fr-TN",
+    "documentStatus": "READY_FOR_OWNER_REVIEW",
+    "audiences": [
+      "PARENTS",
+      "EQUIPE_JPO"
+    ],
+    "notice": "Source unique du Lot 1 JPO. Les supports HTML, PDF et Markdown sont des vues dérivées de ce fichier."
+  },
+  "campaign": {
+    "name": {
+      "value": "Stages de pré-rentrée 2026 — Nexus Réussite",
+      "status": "CONFIRMED",
+      "source": "instruction propriétaire JPO 2026-07-21",
+      "publicWording": "Stages de pré-rentrée 2026 — Nexus Réussite",
+      "internalNote": "Nom canonique du lot."
+    },
+    "schoolYear": {
+      "value": "2026-2027",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/official-programme-matrix.fr.json#/schoolYear",
+      "publicWording": "Préparer la rentrée 2026-2027",
+      "internalNote": "Ne pas présenter le stage comme une offre de l'année scolaire précédente."
+    },
+    "positioning": {
+      "value": "Reprendre les acquis utiles, structurer la méthode et préparer les premières semaines de la classe d'entrée.",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers",
+      "publicWording": "Une reprise structurée pour réactiver les acquis, travailler les méthodes attendues et aborder la rentrée avec des repères clairs.",
+      "internalNote": "Engagement de moyens uniquement ; aucune promesse de note, progression ou résultat."
+    },
+    "deliveryMode": {
+      "value": "PRESENTIEL",
+      "status": "CONFIRMED",
+      "source": "instruction propriétaire JPO 2026-07-21",
+      "publicWording": "Stage en présentiel au centre pédagogique Nexus Réussite — Mutuelleville.",
+      "internalNote": "Ne pas annoncer de distanciel."
+    }
+  },
+  "brand": {
+    "palette": {
+      "value": {
+        "nightBlue": "#071A3A",
+        "secondaryBlue": "#0E2547",
+        "ivory": "#F7F4ED",
+        "paper": "#FBFAF5",
+        "gold": "#BFA06A",
+        "deepGold": "#7A6535",
+        "evergreen": "#1E5F4B",
+        "mutedText": "#5A6B82"
+      },
+      "status": "CONFIRMED",
+      "source": "instruction propriétaire JPO 2026-07-21",
+      "publicWording": "Charte académique premium Nexus Réussite.",
+      "internalNote": "Rouge réservé au logo et aux avertissements ponctuels."
+    },
+    "typography": {
+      "value": {
+        "headings": "Fraunces",
+        "body": "DM Sans",
+        "fallbackHeadings": "Georgia, serif",
+        "fallbackBody": "Arial, sans-serif"
+      },
+      "status": "CONFIRMED",
+      "source": "app/layout.tsx; app/fonts/Fraunces-Variable.woff2; app/fonts/DMSans-Variable.woff2",
+      "publicWording": "",
+      "internalNote": "Polices locales utilisées avec fallbacks PDF."
+    },
+    "primaryLogo": {
+      "value": "public/images/logo_slogan_nexus_x3.png",
+      "status": "CONFIRMED",
+      "source": "instruction propriétaire JPO 2026-07-21",
+      "publicWording": "Nexus Réussite",
+      "internalNote": "Logo principal des PDF."
+    }
+  },
+  "contacts": [
+    {
+      "id": "public-whatsapp",
+      "value": {
+        "display": "+216 99 19 28 29",
+        "url": "https://wa.me/21699192829"
+      },
+      "status": "CONFIRMED",
+      "source": "AGENTS.md#coordonnees-publiques; content/pre-rentree-2026/proofs.registry.json#/proofs/1",
+      "publicWording": "WhatsApp : +216 99 19 28 29",
+      "internalNote": "Canal principal de qualification. Ne demander aucune donnée bancaire ou pièce d'identité."
+    },
+    {
+      "id": "public-email",
+      "value": "contact@nexusreussite.academy",
+      "status": "CONFIRMED",
+      "source": "AGENTS.md#coordonnees-publiques",
+      "publicWording": "contact@nexusreussite.academy",
+      "internalNote": "Adresse générique de campagne."
+    },
+    {
+      "id": "public-venue",
+      "value": "Centre pédagogique Nexus Réussite — Mutuelleville",
+      "status": "CONFIRMED",
+      "source": "instruction propriétaire JPO 2026-07-21; content/pre-rentree-2026/proofs.registry.json#/proofs/0",
+      "publicWording": "Centre pédagogique Nexus Réussite — Mutuelleville",
+      "internalNote": "Ne publier aucune adresse de rue non confirmée et ne pas confondre avec le siège administratif."
+    }
+  ],
+  "confirmedFacts": [
+    {
+      "id": "start-date",
+      "value": "2026-08-17",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/proofs.registry.json#/proofs/0",
+      "publicWording": "Début des stages : 17 août 2026.",
+      "internalNote": "Seule date détaillée publiable dans le lot."
+    },
+    {
+      "id": "format-per-subject",
+      "value": {
+        "hours": 10,
+        "sessions": 5,
+        "sessionDurationHours": 2
+      },
+      "status": "CONFIRMED",
+      "source": "data/pricing.canonical.json#/pre_rentree_foundations; data/pricing.canonical.json#/pre_rentree_packs",
+      "publicWording": "10 heures par matière, organisées en 5 séances de 2 heures.",
+      "internalNote": "Structure commune à Fondations et Premium."
+    },
+    {
+      "id": "group-foundations",
+      "value": {
+        "minimumToOpen": 4,
+        "maximum": 6
+      },
+      "status": "CONFIRMED",
+      "source": "data/pricing.canonical.json#/pre_rentree_foundations",
+      "publicWording": "Fondations : groupe de 4 à 6 élèves.",
+      "internalNote": "Le groupe n'ouvre pas en dessous du seuil canonique."
+    },
+    {
+      "id": "group-premium",
+      "value": {
+        "minimumToOpen": 3,
+        "maximum": 5
+      },
+      "status": "CONFIRMED",
+      "source": "data/pricing.canonical.json#/pre_rentree_packs",
+      "publicWording": "Premium : groupe de {pricing.rules.group_size.premium_min} à {pricing.rules.group_size.premium_max} élèves.",
+      "internalNote": "Ne pas présenter Premium comme du cours individuel."
+    },
+    {
+      "id": "session-method",
+      "value": [
+        "Objectif annoncé",
+        "Entraînement",
+        "Correction pédagogique"
+      ],
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/proofs.registry.json#/proofs/7",
+      "publicWording": "Chaque séance suit un objectif annoncé, un temps d'entraînement et une correction pédagogique.",
+      "internalNote": "Ne pas étendre ce socle à des services non contractualisés."
+    }
+  ],
+  "levels": [
+    {
+      "id": "TROISIEME",
+      "label": "Entrée en 3e",
+      "value": {
+        "formula": "FONDATIONS",
+        "disciplines": [
+          "MATHEMATIQUES",
+          "FRANCAIS"
+        ],
+        "programmeSummary": [
+          "Mathématiques : nombres et calcul, calcul littéral, géométrie, fonctions, données et méthode DNB.",
+          "Français : compréhension, langue, orthographe, écriture et méthode DNB."
+        ]
+      },
+      "status": "REVIEW_REQUIRED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers/0-1; content/pre-rentree-2026/official-programme-matrix.fr.json#/rows/0-1; content/pre-rentree-2026/modules.json#/modules/0-1",
+      "publicWording": "Entrée en 3e : Mathématiques ou Français, avec un programme progressif centré sur les acquis utiles de 4e et les méthodes attendues en 3e.",
+      "internalNote": "Matières et offre confirmées. Détail des modules formulé prudemment car les ressources restent DRAFT jusqu'à validation pédagogique humaine."
+    },
+    {
+      "id": "SECONDE",
+      "label": "Entrée en Seconde",
+      "value": {
+        "formula": "FONDATIONS",
+        "disciplines": [
+          "MATHEMATIQUES",
+          "PHYSIQUE_CHIMIE",
+          "FRANCAIS"
+        ],
+        "programmeSummary": [
+          "Mathématiques : calcul, fonctions, équations, géométrie repérée et rédaction.",
+          "Physique-Chimie : grandeurs, unités, matière, mouvement, mesures et démarche scientifique.",
+          "Français : expression structurée, lecture analytique, argumentation, langue et initiation au commentaire."
+        ]
+      },
+      "status": "REVIEW_REQUIRED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers/2-4; content/pre-rentree-2026/official-programme-matrix.fr.json#/rows/2-5; content/pre-rentree-2026/modules.json#/modules/2-5",
+      "publicWording": "Entrée en Seconde : Mathématiques, Physique-Chimie ou Français. La SNT ne fait pas partie de l'offre.",
+      "internalNote": "Exclusion SNT impérative. Détail des modules sous réserve de validation pédagogique humaine."
+    },
+    {
+      "id": "PREMIERE",
+      "label": "Entrée en Première",
+      "value": {
+        "formula": "PREMIUM",
+        "disciplines": [
+          "MATHEMATIQUES",
+          "PHYSIQUE_CHIMIE",
+          "NSI",
+          "FRANCAIS"
+        ],
+        "programmeSummary": [
+          "Mathématiques : suites, dérivation, étude de fonctions, probabilités et stratégie de résolution.",
+          "Physique-Chimie : quantité de matière, transformations, interactions, énergie et lecture scientifique.",
+          "NSI : algorithmique, Python, conditions, boucles, fonctions et listes.",
+          "Français : méthodes de l'EAF, commentaire, dissertation ou contraction selon la voie, explication linéaire et oral."
+        ]
+      },
+      "status": "REVIEW_REQUIRED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers/5-8; content/pre-rentree-2026/official-programme-matrix.fr.json#/rows/6-9; content/pre-rentree-2026/modules.json#/modules/6-9",
+      "publicWording": "Entrée en Première : de 1 à 4 matières parmi Mathématiques, Physique-Chimie, NSI et Français.",
+      "internalNote": "Compatibilité du parcours à vérifier, notamment pour les candidats libres. Détail des modules sous validation pédagogique."
+    },
+    {
+      "id": "TERMINALE",
+      "label": "Entrée en Terminale",
+      "value": {
+        "formula": "PREMIUM",
+        "disciplines": [
+          "MATHEMATIQUES",
+          "PHYSIQUE_CHIMIE",
+          "NSI",
+          "PHILOSOPHIE"
+        ],
+        "programmeSummary": [
+          "Mathématiques : limites, dérivation, suites, probabilités et géométrie dans l'espace.",
+          "Physique-Chimie : transformations, cinétique, mécanique, ondes et résolution de problèmes.",
+          "NSI : structures de données, récursivité, bases de données, réseaux et méthode d'épreuve.",
+          "Philosophie : problématisation, dissertation, argumentation, explication de texte et entraînement méthodique."
+        ]
+      },
+      "status": "REVIEW_REQUIRED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers/9-12; content/pre-rentree-2026/official-programme-matrix.fr.json#/rows/10-13; content/pre-rentree-2026/modules.json#/modules/10-13",
+      "publicWording": "Entrée en Terminale : de 1 à 4 matières parmi Mathématiques, Physique-Chimie, NSI et Philosophie.",
+      "internalNote": "Ne pas promettre une préparation exhaustive du programme de Terminale. Détail des modules sous validation pédagogique."
+    }
+  ],
+  "disciplines": [
+    {
+      "id": "MATHEMATIQUES",
+      "value": [
+        "TROISIEME",
+        "SECONDE",
+        "PREMIERE",
+        "TERMINALE"
+      ],
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers",
+      "publicWording": "Mathématiques — disponible de l'entrée en 3e à l'entrée en Terminale.",
+      "internalNote": "Le programme varie selon la classe d'entrée."
+    },
+    {
+      "id": "FRANCAIS",
+      "value": [
+        "TROISIEME",
+        "SECONDE",
+        "PREMIERE"
+      ],
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers",
+      "publicWording": "Français — disponible en 3e, Seconde et Première.",
+      "internalNote": "En Première, préparation méthodologique aux EAF."
+    },
+    {
+      "id": "PHYSIQUE_CHIMIE",
+      "value": [
+        "SECONDE",
+        "PREMIERE",
+        "TERMINALE"
+      ],
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers",
+      "publicWording": "Physique-Chimie — disponible de la Seconde à la Terminale.",
+      "internalNote": "Aucune activité pratique de laboratoire annoncée."
+    },
+    {
+      "id": "NSI",
+      "value": [
+        "PREMIERE",
+        "TERMINALE"
+      ],
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers",
+      "publicWording": "NSI — disponible en Première et Terminale.",
+      "internalNote": "Ne jamais l'afficher en Seconde et ne jamais la remplacer par SNT."
+    },
+    {
+      "id": "PHILOSOPHIE",
+      "value": [
+        "TERMINALE"
+      ],
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers",
+      "publicWording": "Philosophie — disponible en Terminale.",
+      "internalNote": "Approche méthodologique d'entrée dans la discipline."
+    },
+    {
+      "id": "SNT",
+      "value": false,
+      "status": "PROHIBITED",
+      "source": "content/pre-rentree-2026/proofs.registry.json#/decisions/0; instruction propriétaire JPO 2026-07-21",
+      "publicWording": "La SNT ne fait pas partie de l'offre Seconde.",
+      "internalNote": "Masquer totalement comme offre ; la phrase d'exclusion sert uniquement à répondre à une question."
+    }
+  ],
+  "formulas": [
+    {
+      "id": "FONDATIONS",
+      "value": {
+        "levels": [
+          "TROISIEME",
+          "SECONDE"
+        ],
+        "pricingModel": "PAR_MATIERE",
+        "hoursPerSubject": 10,
+        "sessionsPerSubject": 5,
+        "sessionDurationHours": 2,
+        "groupMinimum": 4,
+        "groupMaximum": 6
+      },
+      "status": "CONFIRMED",
+      "source": "data/pricing.canonical.json#/pre_rentree_foundations; content/pre-rentree-2026/commercial-contract.fr.json#/offers/0-4",
+      "publicWording": "Fondations — entrée en 3e et en Seconde : inscription par matière, 10 heures, 5 séances de 2 heures, groupe de 4 à 6 élèves.",
+      "internalNote": "Aucune remise multimatières."
+    },
+    {
+      "id": "PREMIUM",
+      "value": {
+        "levels": [
+          "PREMIERE",
+          "TERMINALE"
+        ],
+        "pricingModel": "PACK_SELON_NOMBRE_DE_MATIERES",
+        "hoursPerSubject": 10,
+        "sessionsPerSubject": 5,
+        "sessionDurationHours": 2,
+        "groupMinimum": 3,
+        "groupMaximum": 5,
+        "subjectCounts": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "status": "CONFIRMED",
+      "source": "data/pricing.canonical.json#/pre_rentree_packs; content/pre-rentree-2026/commercial-contract.fr.json#/offers/5-12",
+      "publicWording": "Premium — entrée en Première et Terminale : pack de 1 à 4 matières, 10 heures par matière, effectif défini par la règle canonique pricing.rules.group_size.",
+      "internalNote": "Le pack dépend du nombre de matières compatibles avec le niveau."
+    }
+  ],
+  "pricing": {
+    "sourceOfTruth": "data/pricing.canonical.json",
+    "currency": "TND",
+    "canonicalVersion": "2026-2027.3",
+    "derivedSnapshot": [
+      {
+        "id": "pre2026-foundations-3e-subject",
+        "value": {
+          "price": 350,
+          "deposit": 105,
+          "balance": 245,
+          "unit": "par matière"
+        },
+        "status": "CONFIRMED",
+        "source": "data/pricing.canonical.json#/pre_rentree_foundations/0",
+        "publicWording": "Entrée en 3e : 350 TND par matière — acompte 105 TND — solde 245 TND.",
+        "internalNote": "Exception commerciale approuvée PRE2026-3E-350."
+      },
+      {
+        "id": "pre2026-foundations-seconde-subject",
+        "value": {
+          "price": 400,
+          "deposit": 120,
+          "balance": 280,
+          "unit": "par matière"
+        },
+        "status": "CONFIRMED",
+        "source": "data/pricing.canonical.json#/pre_rentree_foundations/1",
+        "publicWording": "Entrée en Seconde : 400 TND par matière — acompte 120 TND — solde 280 TND.",
+        "internalNote": "Tarif par matière, sans remise multimatières."
+      },
+      {
+        "id": "pre2026-pack-1",
+        "value": {
+          "subjects": 1,
+          "totalHours": 10,
+          "price": 480,
+          "deposit": 144,
+          "balance": 336
+        },
+        "status": "CONFIRMED",
+        "source": "data/pricing.canonical.json#/pre_rentree_packs/0",
+        "publicWording": "Premium 1 matière : 480 TND — acompte 144 TND — solde 336 TND.",
+        "internalNote": "Pack non cumulable."
+      },
+      {
+        "id": "pre2026-pack-2",
+        "value": {
+          "subjects": 2,
+          "totalHours": 20,
+          "price": 900,
+          "deposit": 270,
+          "balance": 630
+        },
+        "status": "CONFIRMED",
+        "source": "data/pricing.canonical.json#/pre_rentree_packs/1",
+        "publicWording": "Premium 2 matières : 900 TND — acompte 270 TND — solde 630 TND.",
+        "internalNote": "Pack non cumulable."
+      },
+      {
+        "id": "pre2026-pack-3",
+        "value": {
+          "subjects": 3,
+          "totalHours": 30,
+          "price": 1350,
+          "deposit": 405,
+          "balance": 945
+        },
+        "status": "CONFIRMED",
+        "source": "data/pricing.canonical.json#/pre_rentree_packs/2",
+        "publicWording": "Premium 3 matières : 1 350 TND — acompte 405 TND — solde 945 TND.",
+        "internalNote": "Pack non cumulable."
+      },
+      {
+        "id": "pre2026-pack-4",
+        "value": {
+          "subjects": 4,
+          "totalHours": 40,
+          "price": 1800,
+          "deposit": 540,
+          "balance": 1260
+        },
+        "status": "CONFIRMED",
+        "source": "data/pricing.canonical.json#/pre_rentree_packs/3",
+        "publicWording": "Premium 4 matières : 1 800 TND — acompte 540 TND — solde 1 260 TND.",
+        "internalNote": "Pack non cumulable."
+      }
+    ],
+    "discountPolicy": {
+      "value": {
+        "packsNonCumulative": true,
+        "announcedDiscounts": []
+      },
+      "status": "CONFIRMED",
+      "source": "data/pricing.canonical.json#/pre_rentree_packs/*/discount_exclusions; instruction propriétaire JPO 2026-07-21",
+      "publicWording": "Les packs ne sont pas cumulables. Aucune remise fratrie, ancien élève, carte ou parrainage n'est annoncée pour cette campagne.",
+      "internalNote": "Ignorer les règles générales de réduction : les packs Pré-rentrée les excluent."
+    }
+  },
+  "inclusions": [
+    {
+      "id": "time-and-structure",
+      "value": "10 heures par matière en 5 séances de 2 heures",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers/*/included",
+      "publicWording": "Le volume annoncé et cinq séances structurées de deux heures.",
+      "internalNote": "Socle commun."
+    },
+    {
+      "id": "pedagogy",
+      "value": [
+        "Objectifs annoncés",
+        "Entraînement en séance",
+        "Correction en séance"
+      ],
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers/*/included",
+      "publicWording": "Des objectifs annoncés, un entraînement actif et une correction pédagogique en séance.",
+      "internalNote": "Ne pas promettre des livrables formels non opérationnels."
+    },
+    {
+      "id": "session-supports",
+      "value": "Consignes et exercices utilisés pendant les séances",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers/*/supports",
+      "publicWording": "Les consignes et exercices utilisés pendant les séances.",
+      "internalNote": "Ne pas annoncer un manuel ou un pack numérique."
+    },
+    {
+      "id": "limited-follow-up",
+      "value": "Orientation vers les priorités de travail observées pendant le stage",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers/*/followUp",
+      "publicWording": "Une orientation vers les priorités de travail observées pendant le stage.",
+      "internalNote": "Ce n'est ni un bilan parent formel ni un suivi régulier."
+    }
+  ],
+  "exclusions": [
+    {
+      "id": "digital-services",
+      "value": [
+        "ARIA",
+        "Plateforme numérique",
+        "Replay",
+        "Dashboard parent"
+      ],
+      "status": "PROHIBITED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers/*/excluded; instruction propriétaire JPO 2026-07-21",
+      "publicWording": "Les services numériques, ARIA, les replays et un dashboard parent ne sont pas inclus dans l'offre présentée.",
+      "internalNote": "Ne jamais les utiliser comme argument de vente du stage."
+    },
+    {
+      "id": "parent-reporting",
+      "value": "Suivi parent régulier ou bilan parent formel",
+      "status": "PROHIBITED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers/*/excluded; content/pre-rentree-2026/capabilities.json#/capabilities/14",
+      "publicWording": "Un suivi parent régulier et un bilan parent formel ne sont pas inclus.",
+      "internalNote": "On peut orienter sur des priorités observées sans promettre un bilan."
+    },
+    {
+      "id": "annual-support",
+      "value": "Accompagnement annuel",
+      "status": "PROHIBITED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers/*/excluded",
+      "publicWording": "L'accompagnement annuel est distinct et n'est pas activé automatiquement.",
+      "internalNote": "Toute continuité doit faire l'objet d'une proposition séparée."
+    },
+    {
+      "id": "result-guarantee",
+      "value": "Toute garantie de progression, de note, de mention ou de résultat",
+      "status": "PROHIBITED",
+      "source": "AGENTS.md#promesse-marketing-canonique; instruction propriétaire JPO 2026-07-21",
+      "publicWording": "Nexus s'engage sur le cadre, la méthode et le travail proposé, jamais sur un résultat scolaire garanti.",
+      "internalNote": "Aucune statistique de réussite non démontrée."
+    }
+  ],
+  "methodology": [
+    {
+      "id": "reactivate",
+      "value": "Réactivation ciblée des acquis utiles",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers/*/objectives",
+      "publicWording": "Réactiver les acquis indispensables avant les premiers chapitres.",
+      "internalNote": "Ne pas transformer en diagnostic formel garanti."
+    },
+    {
+      "id": "objective",
+      "value": "Objectif annoncé pour chaque séance",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/proofs.registry.json#/proofs/7",
+      "publicWording": "Comprendre ce que l'on travaille et pourquoi.",
+      "internalNote": "Capacité opérationnelle documentée."
+    },
+    {
+      "id": "practice",
+      "value": "Entraînement guidé et progressif",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers/*/included",
+      "publicWording": "S'entraîner sur des exercices progressifs dans un cadre collectif limité.",
+      "internalNote": "L'adaptation par paliers reste une intention de module ; ne pas la promettre systématiquement."
+    },
+    {
+      "id": "correction",
+      "value": "Correction pédagogique en séance",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/proofs.registry.json#/proofs/7",
+      "publicWording": "Comprendre les erreurs et reprendre la démarche.",
+      "internalNote": "Ne pas promettre de copie annotée individualisée."
+    },
+    {
+      "id": "programme-detail",
+      "value": "Contenus détaillés des cinq séances par matière",
+      "status": "REVIEW_REQUIRED",
+      "source": "content/pre-rentree-2026/modules.json#/resourcePolicy",
+      "publicWording": "Le programme présenté donne les axes de travail prévus ; il est ajusté au groupe et validé pédagogiquement avant usage.",
+      "internalNote": "Modules DRAFT : ne jamais qualifier les ressources de CLASSROOM_READY sans validation humaine nominative."
+    }
+  ],
+  "teacherQuality": [
+    {
+      "id": "prepared-sequences",
+      "value": "Séquences de cinq séances préparées avec objectifs, sujets et méthodes",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/modules.json#/modules; content/pre-rentree-2026/proofs.registry.json#/proofs/7",
+      "publicWording": "Des séances préparées, organisées autour d'objectifs, d'entraînement et de correction.",
+      "internalNote": "Parler de préparation pédagogique, pas d'un enseignant nominativement validé."
+    },
+    {
+      "id": "programme-alignment",
+      "value": "Alignement interne aux programmes applicables 2026-2027",
+      "status": "REVIEW_REQUIRED",
+      "source": "content/pre-rentree-2026/official-programme-matrix.fr.json",
+      "publicWording": "Des axes de travail préparés en cohérence avec les attendus du système français pour 2026-2027.",
+      "internalNote": "La matrice est interne et ne constitue pas une autorisation commerciale ; conserver une formulation prudente."
+    },
+    {
+      "id": "pedagogical-practice",
+      "value": "Objectifs explicites, entraînement et correction",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/proofs.registry.json#/proofs/7",
+      "publicWording": "Une pédagogie lisible : objectif, mise au travail, correction.",
+      "internalNote": "Critère documenté au niveau de la séance."
+    },
+    {
+      "id": "resource-validation",
+      "value": "Validation pédagogique humaine matière par matière",
+      "status": "REVIEW_REQUIRED",
+      "source": "content/pre-rentree-2026/modules.json#/resourcePolicy; content/pre-rentree-2026/residual-debt.fr.json#/items/3",
+      "publicWording": "Les ressources détaillées font l'objet d'une validation pédagogique avant utilisation.",
+      "internalNote": "Validation encore en attente au 21 juillet 2026. Ne pas dire qu'elle est acquise."
+    },
+    {
+      "id": "teacher-selection-criteria",
+      "value": "Critères propriétaires de sélection et de maîtrise disciplinaire",
+      "status": "OWNER_DECISION_REQUIRED",
+      "source": "absence de preuve dans le registre canonique au 2026-07-21",
+      "publicWording": "L'affectation de l'enseignant est confirmée avec le groupe.",
+      "internalNote": "Faire valider par la direction les critères précis avant de publier « sélection », « qualifié » ou « expertise »."
+    },
+    {
+      "id": "teacher-names",
+      "value": null,
+      "status": "PROHIBITED",
+      "source": "instruction propriétaire JPO 2026-07-21; data/campaigns/pre-rentree-2026.json#/operationalGates/teacherAssignmentsValidated",
+      "publicWording": "Les affectations enseignantes sont communiquées avec la confirmation du groupe.",
+      "internalNote": "Aucun nom ne doit être publié tant qu'il n'est pas affecté et autorisé."
+    }
+  ],
+  "registration": [
+    {
+      "id": "step-1",
+      "value": "Qualifier le niveau, la matière et le statut scolaire avec le minimum de données",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/whatsapp-conversion.fr.json#/scripts/0",
+      "publicWording": "1. Indiquer la classe d'entrée, la ou les matières recherchées et le statut scolaire.",
+      "internalNote": "Aucun bulletin complet, document d'identité, mot de passe ou donnée bancaire au premier contact."
+    },
+    {
+      "id": "step-2",
+      "value": "Vérifier la compatibilité du parcours et la constitution du groupe",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/parent-documents.fr.json#/documents/10",
+      "publicWording": "2. Nexus vérifie l'offre compatible et le groupe adapté.",
+      "internalNote": "Aucune disponibilité temps réel ne doit être annoncée."
+    },
+    {
+      "id": "step-3",
+      "value": "Transmettre une proposition écrite avec volume, prix, acompte, solde et informations disponibles",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/parent-documents.fr.json#/documents/10-11",
+      "publicWording": "3. La famille reçoit une proposition écrite et les informations applicables.",
+      "internalNote": "La proposition doit rester prudente sur les modalités contractuelles non validées."
+    },
+    {
+      "id": "step-4",
+      "value": "Confirmer après validation du parcours et traitement de l'acompte selon la modalité écrite",
+      "status": "REVIEW_REQUIRED",
+      "source": "content/pre-rentree-2026/proofs.registry.json#/proofs/2; content/pre-rentree-2026/residual-debt.fr.json#/items/0",
+      "publicWording": "4. La confirmation intervient après validation du parcours et selon les modalités écrites transmises par Nexus.",
+      "internalNote": "Le canal, le rapprochement et le justificatif de paiement restent à finaliser."
+    },
+    {
+      "id": "contractual-notice",
+      "value": "Les modalités contractuelles complètes sont communiquées par écrit avant toute confirmation et tout paiement.",
+      "status": "OWNER_DECISION_REQUIRED",
+      "source": "instruction propriétaire JPO 2026-07-21; content/pre-rentree-2026/residual-debt.fr.json#/items/0,2",
+      "publicWording": "Les modalités contractuelles complètes sont communiquées par écrit avant toute confirmation et tout paiement.",
+      "internalNote": "Réponse obligatoire pour paiement, échéance du solde, annulation, absence, report et remboursement."
+    }
+  ],
+  "planning": [
+    {
+      "id": "confirmed-start",
+      "value": "2026-08-17",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/proofs.registry.json#/proofs/0",
+      "publicWording": "Les stages commencent le 17 août 2026.",
+      "internalNote": "Date de début confirmée."
+    },
+    {
+      "id": "detailed-schedule",
+      "value": null,
+      "status": "OWNER_DECISION_REQUIRED",
+      "source": "instruction propriétaire JPO 2026-07-21; data/campaigns/pre-rentree-2026.json#/operationalGates",
+      "publicWording": "Le planning définitif est communiqué après constitution et validation des groupes.",
+      "internalNote": "Ne publier ni date de fin, ni jours, ni horaires détaillés dans le lot JPO. Affectations salles et enseignants non validées."
+    },
+    {
+      "id": "street-address",
+      "value": null,
+      "status": "OWNER_DECISION_REQUIRED",
+      "source": "instruction propriétaire JPO 2026-07-21",
+      "publicWording": "Centre pédagogique Nexus Réussite — Mutuelleville.",
+      "internalNote": "Ne jamais inventer ou reprendre une adresse de rue."
+    }
+  ],
+  "faq": [
+    {
+      "id": "faq-01",
+      "value": "Quels niveaux sont concernés ?",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers",
+      "publicWording": "Les stages concernent les élèves entrant en 3e, Seconde, Première ou Terminale à la rentrée 2026-2027.",
+      "internalNote": ""
+    },
+    {
+      "id": "faq-02",
+      "value": "Quelles matières en 3e ?",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers/0-1",
+      "publicWording": "Mathématiques ou Français.",
+      "internalNote": "Tarification par matière."
+    },
+    {
+      "id": "faq-03",
+      "value": "Quelles matières en Seconde ?",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers/2-4",
+      "publicWording": "Mathématiques, Physique-Chimie ou Français. La SNT n'est pas proposée.",
+      "internalNote": "Exclusion SNT impérative."
+    },
+    {
+      "id": "faq-04",
+      "value": "Quelles matières en Première ?",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers/5-8",
+      "publicWording": "Mathématiques, Physique-Chimie, NSI et Français, de une à quatre matières.",
+      "internalNote": "Vérifier la compatibilité avec le profil."
+    },
+    {
+      "id": "faq-05",
+      "value": "Quelles matières en Terminale ?",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers/9-12",
+      "publicWording": "Mathématiques, Physique-Chimie, NSI et Philosophie, de une à quatre matières.",
+      "internalNote": "Vérifier la compatibilité avec le profil."
+    },
+    {
+      "id": "faq-06",
+      "value": "Quel est le volume par matière ?",
+      "status": "CONFIRMED",
+      "source": "data/pricing.canonical.json#/pre_rentree_foundations; data/pricing.canonical.json#/pre_rentree_packs",
+      "publicWording": "10 heures par matière, en 5 séances de 2 heures.",
+      "internalNote": ""
+    },
+    {
+      "id": "faq-07",
+      "value": "Quand les stages commencent-ils ?",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/proofs.registry.json#/proofs/0",
+      "publicWording": "Le 17 août 2026.",
+      "internalNote": "Ne pas donner de date de fin détaillée."
+    },
+    {
+      "id": "faq-08",
+      "value": "Quels sont les jours et horaires ?",
+      "status": "OWNER_DECISION_REQUIRED",
+      "source": "instruction propriétaire JPO 2026-07-21",
+      "publicWording": "Le planning définitif est communiqué après constitution et validation des groupes.",
+      "internalNote": "Réponse canonique obligatoire."
+    },
+    {
+      "id": "faq-09",
+      "value": "Où se déroulent les stages ?",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/proofs.registry.json#/proofs/0",
+      "publicWording": "Au centre pédagogique Nexus Réussite — Mutuelleville.",
+      "internalNote": "Pas d'adresse de rue."
+    },
+    {
+      "id": "faq-10",
+      "value": "Existe-t-il une formule à distance ?",
+      "status": "PROHIBITED",
+      "source": "instruction propriétaire JPO 2026-07-21",
+      "publicWording": "Non. L'offre JPO présentée est en présentiel à Mutuelleville.",
+      "internalNote": "Ne pas annoncer de distanciel."
+    },
+    {
+      "id": "faq-11",
+      "value": "Quelle différence entre Fondations et Premium ?",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/offers.json#/levels",
+      "publicWording": "Fondations concerne la 3e et la Seconde, avec une inscription par matière et des groupes de 4 à 6. Premium concerne la Première et la Terminale, avec des packs de 1 à 4 matières et des groupes de 3 à 5.",
+      "internalNote": "Différence de niveau, de modèle tarifaire et de capacité ; ne pas hiérarchiser les élèves."
+    },
+    {
+      "id": "faq-12",
+      "value": "À partir de combien d'élèves un groupe ouvre-t-il ?",
+      "status": "CONFIRMED",
+      "source": "data/pricing.canonical.json#/pre_rentree_foundations; data/pricing.canonical.json#/pre_rentree_packs",
+      "publicWording": "Fondations ouvre à partir de 4 élèves ; Premium à partir de 3 élèves.",
+      "internalNote": ""
+    },
+    {
+      "id": "faq-13",
+      "value": "Combien d'élèves au maximum ?",
+      "status": "CONFIRMED",
+      "source": "data/pricing.canonical.json#/pre_rentree_foundations; data/pricing.canonical.json#/pre_rentree_packs",
+      "publicWording": "6 élèves maximum en Fondations et 5 maximum en Premium.",
+      "internalNote": ""
+    },
+    {
+      "id": "faq-14",
+      "value": "Quel est le tarif en 3e ?",
+      "status": "CONFIRMED",
+      "source": "data/pricing.canonical.json#/pre_rentree_foundations/0",
+      "publicWording": "350 TND par matière, avec un acompte de 105 TND et un solde de 245 TND.",
+      "internalNote": ""
+    },
+    {
+      "id": "faq-15",
+      "value": "Quel est le tarif en Seconde ?",
+      "status": "CONFIRMED",
+      "source": "data/pricing.canonical.json#/pre_rentree_foundations/1",
+      "publicWording": "400 TND par matière, avec un acompte de 120 TND et un solde de 280 TND.",
+      "internalNote": ""
+    },
+    {
+      "id": "faq-16",
+      "value": "Quels sont les tarifs Premium ?",
+      "status": "CONFIRMED",
+      "source": "data/pricing.canonical.json#/pre_rentree_packs",
+      "publicWording": "1 matière : 480 TND ; 2 : 900 TND ; 3 : 1 350 TND ; 4 : 1 800 TND. Les acomptes sont respectivement 144, 270, 405 et 540 TND.",
+      "internalNote": "Toujours donner le solde avec le tarif complet."
+    },
+    {
+      "id": "faq-17",
+      "value": "À quoi correspond l'acompte ?",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/proofs.registry.json#/proofs/2; data/pricing.canonical.json#/pre_rentree_foundations; data/pricing.canonical.json#/pre_rentree_packs",
+      "publicWording": "Il correspond à 30 % du parcours validé. Son montant exact figure dans la proposition écrite.",
+      "internalNote": "La modalité opérationnelle de règlement reste à confirmer."
+    },
+    {
+      "id": "faq-18",
+      "value": "Quand et comment paie-t-on l'acompte et le solde ?",
+      "status": "OWNER_DECISION_REQUIRED",
+      "source": "content/pre-rentree-2026/residual-debt.fr.json#/items/0; instruction propriétaire JPO 2026-07-21",
+      "publicWording": "Les modalités contractuelles complètes sont communiquées par écrit avant toute confirmation et tout paiement.",
+      "internalNote": "Ne donner aucun canal, échéance ou procédure non validés."
+    },
+    {
+      "id": "faq-19",
+      "value": "Y a-t-il une remise ?",
+      "status": "CONFIRMED",
+      "source": "data/pricing.canonical.json#/pre_rentree_packs/*/discount_exclusions; instruction propriétaire JPO 2026-07-21",
+      "publicWording": "Aucune remise fratrie, ancien élève, carte ou parrainage n'est annoncée. Les packs ne sont pas cumulables.",
+      "internalNote": ""
+    },
+    {
+      "id": "faq-20",
+      "value": "Qu'est-ce qui est inclus ?",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers/*/included",
+      "publicWording": "Le volume prévu, cinq séances par matière, des objectifs annoncés, l'entraînement et la correction en séance, ainsi que les consignes et exercices utilisés.",
+      "internalNote": ""
+    },
+    {
+      "id": "faq-21",
+      "value": "Quels supports sont remis ?",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers/*/supports",
+      "publicWording": "Les consignes et exercices utilisés pendant les séances.",
+      "internalNote": "Ne pas promettre manuel, replay ou espace numérique."
+    },
+    {
+      "id": "faq-22",
+      "value": "Y a-t-il un bilan parent ou un suivi régulier ?",
+      "status": "PROHIBITED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers/*/excluded; content/pre-rentree-2026/capabilities.json",
+      "publicWording": "Non dans l'offre présentée. Une orientation vers les priorités observées peut être formulée, sans constituer un bilan parent formel.",
+      "internalNote": ""
+    },
+    {
+      "id": "faq-23",
+      "value": "ARIA, une plateforme ou des replays sont-ils inclus ?",
+      "status": "PROHIBITED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers/*/excluded; instruction propriétaire JPO 2026-07-21",
+      "publicWording": "Non. Ces services ne sont pas inclus dans l'offre JPO présentée.",
+      "internalNote": ""
+    },
+    {
+      "id": "faq-24",
+      "value": "Qui sont les enseignants ?",
+      "status": "OWNER_DECISION_REQUIRED",
+      "source": "data/campaigns/pre-rentree-2026.json#/operationalGates/teacherAssignmentsValidated",
+      "publicWording": "Les affectations enseignantes sont communiquées avec la confirmation du groupe.",
+      "internalNote": "Aucun nom non affecté et non autorisé."
+    },
+    {
+      "id": "faq-25",
+      "value": "Comment Nexus encadre-t-il la qualité pédagogique ?",
+      "status": "REVIEW_REQUIRED",
+      "source": "content/pre-rentree-2026/modules.json#/resourcePolicy; content/pre-rentree-2026/official-programme-matrix.fr.json; content/pre-rentree-2026/proofs.registry.json#/proofs/7",
+      "publicWording": "Par des séances préparées, des objectifs explicites, un travail aligné sur les attendus du niveau et une validation pédagogique des ressources avant utilisation.",
+      "internalNote": "Ne pas dire que la validation est déjà terminée ; critères de sélection enseignants encore à formaliser."
+    },
+    {
+      "id": "faq-26",
+      "value": "Le stage garantit-il une progression ou un résultat ?",
+      "status": "PROHIBITED",
+      "source": "AGENTS.md#promesse-marketing-canonique",
+      "publicWording": "Non. Nexus s'engage sur un cadre, une méthode et un travail structuré, pas sur une note ou un résultat garanti.",
+      "internalNote": ""
+    },
+    {
+      "id": "faq-27",
+      "value": "Comment choisir les matières ?",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/whatsapp-conversion.fr.json#/scripts/0; content/pre-rentree-2026/parent-documents.fr.json#/documents/1",
+      "publicWording": "Commencez par la classe d'entrée, la matière prioritaire et le besoin concret. L'équipe vérifie ensuite l'offre compatible.",
+      "internalNote": "Éviter de pousser automatiquement le pack le plus large."
+    },
+    {
+      "id": "faq-28",
+      "value": "Les candidats libres sont-ils concernés ?",
+      "status": "REVIEW_REQUIRED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers/5-12",
+      "publicWording": "Oui, selon la compatibilité du parcours et des épreuves préparées, vérifiée avant confirmation.",
+      "internalNote": "Ne pas promettre une compatibilité automatique."
+    },
+    {
+      "id": "faq-29",
+      "value": "Comment s'inscrire ?",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/whatsapp-conversion.fr.json#/scripts/0; content/pre-rentree-2026/parent-documents.fr.json#/documents/10",
+      "publicWording": "Écrivez sur WhatsApp avec la classe d'entrée, la ou les matières et le statut scolaire. Nexus vérifie le parcours puis transmet une proposition écrite.",
+      "internalNote": "Demande d'information sans réservation automatique."
+    },
+    {
+      "id": "faq-30",
+      "value": "Quelles sont les règles d'annulation, de report ou de remboursement ?",
+      "status": "OWNER_DECISION_REQUIRED",
+      "source": "content/pre-rentree-2026/residual-debt.fr.json#/items/2; instruction propriétaire JPO 2026-07-21",
+      "publicWording": "Les modalités contractuelles complètes sont communiquées par écrit avant toute confirmation et tout paiement.",
+      "internalNote": "Ne jamais improviser une règle."
+    }
+  ],
+  "objections": [
+    {
+      "id": "obj-01-price",
+      "value": "Le tarif est trop élevé.",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/whatsapp-conversion.fr.json#/objectionMatrix/0",
+      "publicWording": "Le tarif couvre un parcours structuré : cinq séances, des objectifs annoncés, de l'entraînement, une correction et un groupe limité. Nous pouvons vous remettre le programme pour comparer le contenu concret.",
+      "internalNote": "Ne pas dénigrer les concurrents et ne pas inventer de remise."
+    },
+    {
+      "id": "obj-02-classic-course",
+      "value": "Un cours classique coûte moins cher.",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/whatsapp-conversion.fr.json#/objectionMatrix/4",
+      "publicWording": "Les deux formats répondent à des besoins différents. Le stage organise dix heures en cinq étapes avec objectifs, entraînement et correction. Le bon choix dépend du besoin de l'élève.",
+      "internalNote": "Comparer les cadres, pas les personnes."
+    },
+    {
+      "id": "obj-03-group",
+      "value": "Mon enfant a besoin d'individuel.",
+      "status": "CONFIRMED",
+      "source": "data/pricing.canonical.json#/pre_rentree_foundations; data/pricing.canonical.json#/pre_rentree_packs",
+      "publicWording": "Le stage est collectif en groupe réduit, pas individuel. Fondations accueille 4 à 6 élèves et Premium 3 à 5. Si ce cadre ne correspond pas au besoin, nous le disons clairement.",
+      "internalNote": "Ne pas survendre l'individualisation."
+    },
+    {
+      "id": "obj-04-schedule",
+      "value": "Les horaires risquent de ne pas convenir.",
+      "status": "OWNER_DECISION_REQUIRED",
+      "source": "instruction propriétaire JPO 2026-07-21",
+      "publicWording": "Le planning définitif est communiqué après constitution et validation des groupes. Nous pouvons noter vos contraintes avant la proposition.",
+      "internalNote": "Ne promettre aucun créneau."
+    },
+    {
+      "id": "obj-05-distance",
+      "value": "Mutuelleville est trop loin.",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/whatsapp-conversion.fr.json#/objectionMatrix/1",
+      "publicWording": "Le stage est en présentiel à Mutuelleville. Nous pouvons noter les contraintes de déplacement avant de poursuivre la qualification.",
+      "internalNote": "Ne pas proposer de distanciel."
+    },
+    {
+      "id": "obj-06-unsure-subject",
+      "value": "Nous ne savons pas quelle matière choisir.",
+      "status": "CONFIRMED",
+      "source": "content/pre-rentree-2026/parent-documents.fr.json#/documents/1",
+      "publicWording": "Commencez par la difficulté ou la transition la plus concrète pour la rentrée. Une matière bien choisie peut être plus utile qu'un pack trop large.",
+      "internalNote": "Qualifier avant de vendre."
+    },
+    {
+      "id": "obj-07-results",
+      "value": "Pouvez-vous garantir une progression ?",
+      "status": "PROHIBITED",
+      "source": "AGENTS.md#promesse-marketing-canonique",
+      "publicWording": "Nous ne garantissons ni note ni résultat. Nous nous engageons sur le cadre, les objectifs, l'entraînement et la correction proposés.",
+      "internalNote": "Aucune statistique non démontrée."
+    },
+    {
+      "id": "obj-08-digital",
+      "value": "La plateforme, ARIA ou les replays sont-ils inclus ?",
+      "status": "PROHIBITED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers/*/excluded",
+      "publicWording": "Non. L'offre présentée porte sur les séances en présentiel et leurs supports de travail.",
+      "internalNote": "Ne pas ajouter de service implicite."
+    },
+    {
+      "id": "obj-09-snt",
+      "value": "Je veux inscrire mon enfant en SNT en Seconde.",
+      "status": "PROHIBITED",
+      "source": "content/pre-rentree-2026/proofs.registry.json#/decisions/0",
+      "publicWording": "La SNT ne fait pas partie de l'offre Seconde 2026. Nous pouvons vérifier si l'une des trois matières proposées correspond à la priorité de rentrée.",
+      "internalNote": "Ne pas requalifier en NSI."
+    },
+    {
+      "id": "obj-10-payment-discount",
+      "value": "Quel geste commercial ou quelle modalité de paiement proposez-vous ?",
+      "status": "OWNER_DECISION_REQUIRED",
+      "source": "data/pricing.canonical.json#/pre_rentree_packs/*/discount_exclusions; content/pre-rentree-2026/residual-debt.fr.json#/items/0",
+      "publicWording": "Les tarifs et acomptes affichés sont ceux de la campagne. Aucune remise fratrie, ancien élève, carte ou parrainage n'est annoncée. Les modalités contractuelles complètes sont communiquées par écrit avant toute confirmation et tout paiement.",
+      "internalNote": "Ne négocier ni calendrier ni canal au comptoir sans décision propriétaire écrite."
+    }
+  ],
+  "safeAnswers": [
+    {
+      "id": "safe-planning",
+      "value": "Planning non finalisé",
+      "status": "OWNER_DECISION_REQUIRED",
+      "source": "instruction propriétaire JPO 2026-07-21",
+      "publicWording": "Le planning définitif est communiqué après constitution et validation des groupes.",
+      "internalNote": "Utiliser mot pour mot."
+    },
+    {
+      "id": "safe-contract",
+      "value": "Modalités de paiement, annulation ou remboursement non finalisées",
+      "status": "OWNER_DECISION_REQUIRED",
+      "source": "instruction propriétaire JPO 2026-07-21",
+      "publicWording": "Les modalités contractuelles complètes sont communiquées par écrit avant toute confirmation et tout paiement.",
+      "internalNote": "Utiliser mot pour mot."
+    },
+    {
+      "id": "safe-teacher",
+      "value": "Affectation enseignante non validée",
+      "status": "OWNER_DECISION_REQUIRED",
+      "source": "data/campaigns/pre-rentree-2026.json#/operationalGates/teacherAssignmentsValidated",
+      "publicWording": "Les affectations enseignantes sont communiquées avec la confirmation du groupe.",
+      "internalNote": "Aucun nom."
+    },
+    {
+      "id": "safe-capacity",
+      "value": "Disponibilité non vérifiée",
+      "status": "REVIEW_REQUIRED",
+      "source": "data/campaigns/pre-rentree-2026.json#/featureFlags/showAvailability",
+      "publicWording": "Nous vérifions la constitution du groupe avant de confirmer une place.",
+      "internalNote": "Ne pas créer de fausse urgence."
+    },
+    {
+      "id": "safe-programme",
+      "value": "Programme détaillé en validation pédagogique",
+      "status": "REVIEW_REQUIRED",
+      "source": "content/pre-rentree-2026/modules.json#/resourcePolicy",
+      "publicWording": "Les axes présentés indiquent le travail prévu ; le contenu détaillé est validé pédagogiquement avant utilisation et ajusté au groupe.",
+      "internalNote": "Ne pas dire CLASSROOM_READY."
+    },
+    {
+      "id": "safe-candidate",
+      "value": "Compatibilité candidat libre à vérifier",
+      "status": "REVIEW_REQUIRED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers/5-12",
+      "publicWording": "La compatibilité du parcours avec les épreuves préparées est vérifiée avant confirmation.",
+      "internalNote": ""
+    }
+  ],
+  "ownerDecisionsPending": [
+    {
+      "id": "owner-payment-method",
+      "value": "Canal de règlement, rapprochement et justificatif de paiement",
+      "status": "OWNER_DECISION_REQUIRED",
+      "source": "content/pre-rentree-2026/residual-debt.fr.json#/items/0",
+      "publicWording": "Les modalités contractuelles complètes sont communiquées par écrit avant toute confirmation et tout paiement.",
+      "internalNote": "P0 — propriétaire : Opérations Nexus Réussite."
+    },
+    {
+      "id": "owner-legal",
+      "value": "Validation juridique des conditions commerciales, annulation, absence, report et remboursement",
+      "status": "OWNER_DECISION_REQUIRED",
+      "source": "content/pre-rentree-2026/residual-debt.fr.json#/items/2",
+      "publicWording": "Les modalités contractuelles complètes sont communiquées par écrit avant toute confirmation et tout paiement.",
+      "internalNote": "P0 — propriétaire : revue juridique."
+    },
+    {
+      "id": "owner-planning",
+      "value": "Fin, jours, horaires, salles et affectations enseignantes",
+      "status": "OWNER_DECISION_REQUIRED",
+      "source": "instruction propriétaire JPO 2026-07-21; data/campaigns/pre-rentree-2026.json#/operationalGates",
+      "publicWording": "Le planning définitif est communiqué après constitution et validation des groupes.",
+      "internalNote": "Décision direction/opérations."
+    },
+    {
+      "id": "owner-teacher-criteria",
+      "value": "Critères publiables de sélection, de maîtrise disciplinaire et d'autorisation nominative des enseignants",
+      "status": "OWNER_DECISION_REQUIRED",
+      "source": "absence de preuve au 2026-07-21",
+      "publicWording": "Les affectations enseignantes sont communiquées avec la confirmation du groupe.",
+      "internalNote": "Décision direction/pédagogie."
+    },
+    {
+      "id": "owner-pedagogy",
+      "value": "Validation humaine matière par matière des ressources DRAFT",
+      "status": "OWNER_DECISION_REQUIRED",
+      "source": "content/pre-rentree-2026/residual-debt.fr.json#/items/3",
+      "publicWording": "Les ressources détaillées sont validées pédagogiquement avant utilisation.",
+      "internalNote": "P0 — propriétaire : validateur pédagogique."
+    },
+    {
+      "id": "owner-street-address",
+      "value": "Adresse de rue du centre pédagogique",
+      "status": "OWNER_DECISION_REQUIRED",
+      "source": "instruction propriétaire JPO 2026-07-21",
+      "publicWording": "Centre pédagogique Nexus Réussite — Mutuelleville.",
+      "internalNote": "Ne pas publier avant confirmation écrite."
+    },
+    {
+      "id": "owner-lot-signoff",
+      "value": "Revue propriétaire du lot JPO avant utilisation externe",
+      "status": "OWNER_DECISION_REQUIRED",
+      "source": "content/pre-rentree-2026/residual-debt.fr.json#/items/1",
+      "publicWording": "",
+      "internalNote": "Le lot reste READY_FOR_OWNER_REVIEW et ne doit jamais être marqué APPROVED ou FINAL."
+    }
+  ],
+  "prohibitedClaims": [
+    {
+      "id": "claim-results",
+      "value": [
+        "Garantie réussite",
+        "Garantie progression",
+        "Promesse absolue de mention à l’examen",
+        "100 % Bac ou remboursé",
+        "Toute statistique de réussite non démontrée"
+      ],
+      "status": "PROHIBITED",
+      "source": "AGENTS.md#promesse-marketing-canonique; instruction propriétaire JPO 2026-07-21",
+      "publicWording": "Nexus s'engage sur le cadre, la méthode et le travail proposé, jamais sur un résultat garanti.",
+      "internalNote": ""
+    },
+    {
+      "id": "claim-services",
+      "value": [
+        "ARIA incluse",
+        "Plateforme incluse",
+        "Replay inclus",
+        "Dashboard parent inclus",
+        "Bilan parent régulier inclus"
+      ],
+      "status": "PROHIBITED",
+      "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers/*/excluded",
+      "publicWording": "Les inclusions sont limitées au périmètre écrit de l'offre.",
+      "internalNote": ""
+    },
+    {
+      "id": "claim-commercial",
+      "value": [
+        "800 TND",
+        "450 TND",
+        "Réduction fratrie",
+        "Remise ancien élève",
+        "Remise carte Nexus",
+        "Parrainage",
+        "Packs cumulables"
+      ],
+      "status": "PROHIBITED",
+      "source": "data/pricing.canonical.json#/pre_rentree_foundations; data/pricing.canonical.json#/pre_rentree_packs; instruction propriétaire JPO 2026-07-21",
+      "publicWording": "Seuls les tarifs et acomptes de la grille JPO canonique sont annoncés.",
+      "internalNote": ""
+    },
+    {
+      "id": "claim-unconfirmed",
+      "value": [
+        "Date de fin détaillée",
+        "Jours et horaires détaillés",
+        "Adresse de rue",
+        "Distanciel",
+        "Nom d'enseignant non affecté",
+        "Témoignage non authentifié",
+        "Modalité de paiement non validée",
+        "Politique d'annulation ou remboursement non validée",
+        "SNT en Seconde"
+      ],
+      "status": "PROHIBITED",
+      "source": "instruction propriétaire JPO 2026-07-21",
+      "publicWording": "Utiliser les réponses prudentes du cockpit.",
+      "internalNote": ""
+    }
+  ],
+  "sourceReferences": [
+    "AGENTS.md",
+    "data/pricing.canonical.json",
+    "data/campaigns/pre-rentree-2026.json",
+    "content/pre-rentree-2026/commercial-contract.fr.json",
+    "content/pre-rentree-2026/proofs.registry.json",
+    "content/pre-rentree-2026/offers.json",
+    "content/pre-rentree-2026/modules.json",
+    "content/pre-rentree-2026/official-programme-matrix.fr.json",
+    "content/pre-rentree-2026/capabilities.json",
+    "content/pre-rentree-2026/residual-debt.fr.json",
+    "content/pre-rentree-2026/parent-guide.fr.json",
+    "content/pre-rentree-2026/parent-documents.fr.json",
+    "content/pre-rentree-2026/whatsapp-conversion.fr.json",
+    "content/pre-rentree-2026/full-campaign.fr.json",
+    "app/globals.css",
+    "app/layout.tsx",
+    "scripts/pre-rentree/templates/parent-document.css",
+    "public/images/logo_slogan_nexus_x3.png",
+    "public/images/logo_slogan_nexus.webp"
+  ]
+}
