@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "sourceSetSha256": "970248c82f22ec22b711f01a2995c0677d050ca3dc8e41143338316ea6916519",
+  "sourceSetSha256": "77e95bc61a58dc7ea9d3db43ef11b1f8d03259a4f68c566b26b6aff17626f367",
   "sourceRepoSha": "a1192c8dccf8eaa6ae223265a3bc9ceb56a6fff0",
   "sourceCommitDate": "2026-07-14T12:00:48+01:00",
   "snapshotBuiltAt": "2026-07-20T18:00:00+01:00",
@@ -18,7 +18,7 @@
     "pricing": {
       "path": "data/pricing.canonical.json",
       "version": "2026-2027.4",
-      "sha256": "6506c6de76428fb5113a43a00bb03a7e6334d579dbc9dc4baafc2622d36c8839"
+      "sha256": "4541d4448b431e47b4fff389fc26a493ce41733e9e57bbc5573364f88155abb2"
     },
     "legal": {
       "path": "lib/legal.ts",
@@ -33,7 +33,7 @@
     "parentGuide": {
       "path": "content/pre-rentree-2026/parent-guide.fr.json",
       "version": "2026-parent-guide-fr-v4",
-      "sha256": "8f731311ab119886fe124376addf43f53f291d1a125a02884e158149cff825e6"
+      "sha256": "d35fad01049a5c8c397208ef7cb38eb6852c2627cd340185ca4d36f10cf6ed66"
     },
     "pedagogyFramework": {
       "path": "content/pre-rentree-2026/pedagogy-framework.fr.json",
@@ -58,12 +58,12 @@
     "communication": {
       "path": "content/pre-rentree-2026/communication.fr.json",
       "version": "2026-communication-fr-v1",
-      "sha256": "faa23bacf9844cde490d12c11b9ed19f720f182280a92bf867580096d36ce13a"
+      "sha256": "9722f6669eabba2fb672dbc173109575f12cf05d5ae5661ea1244e261f898f58"
     },
     "whatsapp": {
       "path": "content/pre-rentree-2026/whatsapp.fr.json",
       "version": "2026-whatsapp-fr-v1",
-      "sha256": "415b5abde9093cbfe8e413d8bc051faba7b49fa73da0a3a7c7f9ed6ea5532453"
+      "sha256": "06539891f74c99a25731a8e39f7732f6c3b0344f7e7b108be330da2e1eff0dd0"
     },
     "operations": {
       "path": "content/pre-rentree-2026/operations.fr.json",
@@ -7584,7 +7584,7 @@
         "id": "fondations",
         "title": "Nexus Fondations",
         "publicGate": null,
-        "text": "Entrée en 3e ou Seconde : reprendre les bases, installer une méthode et préparer le passage dans un groupe de quatre à six élèves."
+        "text": "Entrée en 3e ou Seconde : reprendre les bases, installer une méthode et préparer le passage dans un groupe de quatre à cinq élèves."
       },
       {
         "id": "premium",
@@ -7939,7 +7939,7 @@
         "id": "presentation-fondations",
         "purpose": "Présentation Fondations",
         "publicGate": null,
-        "text": "Nexus Fondations concerne l’entrée en 3e et en Seconde : cinq séances de deux heures par matière, progression par paliers et groupe de quatre à six élèves."
+        "text": "Nexus Fondations concerne l’entrée en 3e et en Seconde : cinq séances de deux heures par matière, progression par paliers et groupe de quatre à cinq élèves."
       },
       {
         "id": "presentation-premium",
@@ -9143,7 +9143,7 @@
           {
             "id": "fondations-positionnement",
             "kind": "EVIDENCED_TEXT",
-            "text": "Nexus Fondations accompagne l’entrée en 3e et en Seconde avec une progression par paliers dans un groupe de quatre à six élèves.",
+            "text": "Nexus Fondations accompagne l’entrée en 3e et en Seconde avec une progression par paliers dans un groupe de quatre à cinq élèves.",
             "evidenceRefs": [
               "/offers/levels",
               "/campaign/capacityByOffer/FONDATIONS"

@@ -21,7 +21,7 @@
       "id":"offres",
       "title":"Fondations ou Premium ?",
       "blocks":[
-        {"id":"fondations-positionnement","kind":"EVIDENCED_TEXT","text":"Nexus Fondations accompagne l’entrée en 3e et en Seconde avec une progression par paliers dans un groupe de quatre à six élèves.","evidenceRefs":["/offers/levels","/campaign/capacityByOffer/FONDATIONS"]},
+        {"id":"fondations-positionnement","kind":"EVIDENCED_TEXT","text":"Nexus Fondations accompagne l’entrée en 3e et en Seconde avec une progression par paliers dans un groupe de quatre à cinq élèves.","evidenceRefs":["/offers/levels","/campaign/capacityByOffer/FONDATIONS"]},
         {"id":"premium-positionnement","kind":"EVIDENCED_TEXT","text":"Nexus Premium concerne l’entrée en Première et en Terminale, dans un groupe de trois à cinq élèves.","evidenceRefs":["/offers/levels","/campaign/capacityByOffer/PREMIUM"]},
         {"id":"capacites-gatees","kind":"EVIDENCED_TEXT","text":"Le contenu précis du parcours est communiqué après l’étude du profil et avant toute confirmation.","evidenceRefs":["/offers/levels","/content/practical/preRegistrationNotice"]}
       ]
