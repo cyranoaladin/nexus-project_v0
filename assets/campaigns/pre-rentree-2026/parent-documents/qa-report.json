@@ -1,0 +1,582 @@
+{
+  "version": "2026-parent-documents-v1",
+  "documentCount": 14,
+  "blankPageCount": 0,
+  "missingWhatsappLinkCount": 0,
+  "overflowBlockCount": 0,
+  "minimumContrastRatio": 5.46,
+  "fontSubstitutionCount": 0,
+  "documents": [
+    {
+      "documentId": "brochure-generale",
+      "pageCount": 3,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1170,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 1752,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 3,
+          "textCharacters": 1243,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "blankPageCount": 0,
+      "fonts": [
+        "CNFKHC+DM-Sans",
+        "EDVEEU+Fraunces-Bold",
+        "FBDHBJ+DM-Sans-Bold",
+        "FEVOEG+DM-Sans-Ultra-Bold",
+        "FIEHIG+DM-Sans-Bold",
+        "JYUNAY+DM-Sans",
+        "LPEJKQ+DM-Sans",
+        "LSMRDX+DM-Sans",
+        "MCFERP+DM-Sans",
+        "PSJSZX+Fraunces-Bold",
+        "PXWNHA+DM-Sans",
+        "RRKWUZ+Fraunces-Bold",
+        "SLNVBR+DM-Sans-Ultra-Bold",
+        "SMOXOK+Fraunces-Bold",
+        "SRWVEY+DM-Sans-Bold",
+        "WXKVHA+DM-Sans-Ultra-Bold"
+      ],
+      "fontCount": 16,
+      "overflowBlockCount": 0,
+      "whatsappLinkPresent": true
+    },
+    {
+      "documentId": "guide-parent",
+      "pageCount": 2,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1177,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 2892,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "blankPageCount": 0,
+      "fonts": [
+        "CNFKHC+DM-Sans",
+        "EDVEEU+Fraunces-Bold",
+        "FBDHBJ+DM-Sans-Bold",
+        "FEVOEG+DM-Sans-Ultra-Bold",
+        "FIEHIG+DM-Sans-Bold",
+        "JYUNAY+DM-Sans",
+        "LPEJKQ+DM-Sans",
+        "LSMRDX+DM-Sans",
+        "MCFERP+DM-Sans",
+        "PSJSZX+Fraunces-Bold",
+        "PXWNHA+DM-Sans",
+        "RRKWUZ+Fraunces-Bold",
+        "SLNVBR+DM-Sans-Ultra-Bold",
+        "SMOXOK+Fraunces-Bold",
+        "SRWVEY+DM-Sans-Bold",
+        "WXKVHA+DM-Sans-Ultra-Bold"
+      ],
+      "fontCount": 16,
+      "overflowBlockCount": 0,
+      "whatsappLinkPresent": true
+    },
+    {
+      "documentId": "fiche-3e",
+      "pageCount": 2,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1225,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 981,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "blankPageCount": 0,
+      "fonts": [
+        "CNFKHC+DM-Sans",
+        "EDVEEU+Fraunces-Bold",
+        "FBDHBJ+DM-Sans-Bold",
+        "FEVOEG+DM-Sans-Ultra-Bold",
+        "FIEHIG+DM-Sans-Bold",
+        "JYUNAY+DM-Sans",
+        "LPEJKQ+DM-Sans",
+        "LSMRDX+DM-Sans",
+        "MCFERP+DM-Sans",
+        "PSJSZX+Fraunces-Bold",
+        "PXWNHA+DM-Sans",
+        "RRKWUZ+Fraunces-Bold",
+        "SLNVBR+DM-Sans-Ultra-Bold",
+        "SMOXOK+Fraunces-Bold",
+        "SRWVEY+DM-Sans-Bold",
+        "WXKVHA+DM-Sans-Ultra-Bold"
+      ],
+      "fontCount": 16,
+      "overflowBlockCount": 0,
+      "whatsappLinkPresent": true
+    },
+    {
+      "documentId": "fiche-seconde",
+      "pageCount": 2,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1486,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 1075,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "blankPageCount": 0,
+      "fonts": [
+        "CNFKHC+DM-Sans",
+        "EDVEEU+Fraunces-Bold",
+        "FBDHBJ+DM-Sans-Bold",
+        "FEVOEG+DM-Sans-Ultra-Bold",
+        "FIEHIG+DM-Sans-Bold",
+        "JYUNAY+DM-Sans",
+        "LPEJKQ+DM-Sans",
+        "LSMRDX+DM-Sans",
+        "MCFERP+DM-Sans",
+        "PSJSZX+Fraunces-Bold",
+        "PXWNHA+DM-Sans",
+        "RRKWUZ+Fraunces-Bold",
+        "SLNVBR+DM-Sans-Ultra-Bold",
+        "SMOXOK+Fraunces-Bold",
+        "SRWVEY+DM-Sans-Bold",
+        "WXKVHA+DM-Sans-Ultra-Bold"
+      ],
+      "fontCount": 16,
+      "overflowBlockCount": 0,
+      "whatsappLinkPresent": true
+    },
+    {
+      "documentId": "fiche-premiere",
+      "pageCount": 2,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1644,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 1000,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "blankPageCount": 0,
+      "fonts": [
+        "CNFKHC+DM-Sans",
+        "EDVEEU+Fraunces-Bold",
+        "FBDHBJ+DM-Sans-Bold",
+        "FEVOEG+DM-Sans-Ultra-Bold",
+        "FIEHIG+DM-Sans-Bold",
+        "JYUNAY+DM-Sans",
+        "LPEJKQ+DM-Sans",
+        "LSMRDX+DM-Sans",
+        "MCFERP+DM-Sans",
+        "PSJSZX+Fraunces-Bold",
+        "PXWNHA+DM-Sans",
+        "RRKWUZ+Fraunces-Bold",
+        "SLNVBR+DM-Sans-Ultra-Bold",
+        "SMOXOK+Fraunces-Bold",
+        "SRWVEY+DM-Sans-Bold",
+        "WXKVHA+DM-Sans-Ultra-Bold"
+      ],
+      "fontCount": 16,
+      "overflowBlockCount": 0,
+      "whatsappLinkPresent": true
+    },
+    {
+      "documentId": "fiche-terminale",
+      "pageCount": 2,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1676,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 992,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "blankPageCount": 0,
+      "fonts": [
+        "CNFKHC+DM-Sans",
+        "EDVEEU+Fraunces-Bold",
+        "FBDHBJ+DM-Sans-Bold",
+        "FEVOEG+DM-Sans-Ultra-Bold",
+        "FIEHIG+DM-Sans-Bold",
+        "JYUNAY+DM-Sans",
+        "LPEJKQ+DM-Sans",
+        "LSMRDX+DM-Sans",
+        "MCFERP+DM-Sans",
+        "PSJSZX+Fraunces-Bold",
+        "PXWNHA+DM-Sans",
+        "RRKWUZ+Fraunces-Bold",
+        "SLNVBR+DM-Sans-Ultra-Bold",
+        "SMOXOK+Fraunces-Bold",
+        "SRWVEY+DM-Sans-Bold",
+        "WXKVHA+DM-Sans-Ultra-Bold"
+      ],
+      "fontCount": 16,
+      "overflowBlockCount": 0,
+      "whatsappLinkPresent": true
+    },
+    {
+      "documentId": "comparatif-fondations-premium",
+      "pageCount": 2,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1855,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 1020,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "blankPageCount": 0,
+      "fonts": [
+        "CNFKHC+DM-Sans",
+        "EDVEEU+Fraunces-Bold",
+        "FBDHBJ+DM-Sans-Bold",
+        "FEVOEG+DM-Sans-Ultra-Bold",
+        "FIEHIG+DM-Sans-Bold",
+        "JYUNAY+DM-Sans",
+        "LPEJKQ+DM-Sans",
+        "LSMRDX+DM-Sans",
+        "MCFERP+DM-Sans",
+        "PSJSZX+Fraunces-Bold",
+        "PXWNHA+DM-Sans",
+        "RRKWUZ+Fraunces-Bold",
+        "SLNVBR+DM-Sans-Ultra-Bold",
+        "SMOXOK+Fraunces-Bold",
+        "SRWVEY+DM-Sans-Bold",
+        "WXKVHA+DM-Sans-Ultra-Bold"
+      ],
+      "fontCount": 16,
+      "overflowBlockCount": 0,
+      "whatsappLinkPresent": true
+    },
+    {
+      "documentId": "inclusions-options-exclusions",
+      "pageCount": 2,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1438,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 1052,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "blankPageCount": 0,
+      "fonts": [
+        "CNFKHC+DM-Sans",
+        "EDVEEU+Fraunces-Bold",
+        "FBDHBJ+DM-Sans-Bold",
+        "FEVOEG+DM-Sans-Ultra-Bold",
+        "FIEHIG+DM-Sans-Bold",
+        "JYUNAY+DM-Sans",
+        "LPEJKQ+DM-Sans",
+        "LSMRDX+DM-Sans",
+        "MCFERP+DM-Sans",
+        "PSJSZX+Fraunces-Bold",
+        "PXWNHA+DM-Sans",
+        "RRKWUZ+Fraunces-Bold",
+        "SLNVBR+DM-Sans-Ultra-Bold",
+        "SMOXOK+Fraunces-Bold",
+        "SRWVEY+DM-Sans-Bold",
+        "WXKVHA+DM-Sans-Ultra-Bold"
+      ],
+      "fontCount": 16,
+      "overflowBlockCount": 0,
+      "whatsappLinkPresent": true
+    },
+    {
+      "documentId": "justification-tarifaire",
+      "pageCount": 2,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1840,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 1004,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "blankPageCount": 0,
+      "fonts": [
+        "CNFKHC+DM-Sans",
+        "EDVEEU+Fraunces-Bold",
+        "FBDHBJ+DM-Sans-Bold",
+        "FEVOEG+DM-Sans-Ultra-Bold",
+        "FIEHIG+DM-Sans-Bold",
+        "JYUNAY+DM-Sans",
+        "LPEJKQ+DM-Sans",
+        "LSMRDX+DM-Sans",
+        "MCFERP+DM-Sans",
+        "PSJSZX+Fraunces-Bold",
+        "PXWNHA+DM-Sans",
+        "RRKWUZ+Fraunces-Bold",
+        "SLNVBR+DM-Sans-Ultra-Bold",
+        "SMOXOK+Fraunces-Bold",
+        "SRWVEY+DM-Sans-Bold",
+        "WXKVHA+DM-Sans-Ultra-Bold"
+      ],
+      "fontCount": 16,
+      "overflowBlockCount": 0,
+      "whatsappLinkPresent": true
+    },
+    {
+      "documentId": "faq-commerciale",
+      "pageCount": 2,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1552,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 1002,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "blankPageCount": 0,
+      "fonts": [
+        "CNFKHC+DM-Sans",
+        "EDVEEU+Fraunces-Bold",
+        "FBDHBJ+DM-Sans-Bold",
+        "FEVOEG+DM-Sans-Ultra-Bold",
+        "FIEHIG+DM-Sans-Bold",
+        "JYUNAY+DM-Sans",
+        "LPEJKQ+DM-Sans",
+        "LSMRDX+DM-Sans",
+        "MCFERP+DM-Sans",
+        "PSJSZX+Fraunces-Bold",
+        "PXWNHA+DM-Sans",
+        "RRKWUZ+Fraunces-Bold",
+        "SLNVBR+DM-Sans-Ultra-Bold",
+        "SMOXOK+Fraunces-Bold",
+        "SRWVEY+DM-Sans-Bold",
+        "WXKVHA+DM-Sans-Ultra-Bold"
+      ],
+      "fontCount": 16,
+      "overflowBlockCount": 0,
+      "whatsappLinkPresent": true
+    },
+    {
+      "documentId": "procedure-inscription",
+      "pageCount": 2,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1520,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 901,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "blankPageCount": 0,
+      "fonts": [
+        "CNFKHC+DM-Sans",
+        "EDVEEU+Fraunces-Bold",
+        "FBDHBJ+DM-Sans-Bold",
+        "FEVOEG+DM-Sans-Ultra-Bold",
+        "FIEHIG+DM-Sans-Bold",
+        "JYUNAY+DM-Sans",
+        "LPEJKQ+DM-Sans",
+        "LSMRDX+DM-Sans",
+        "MCFERP+DM-Sans",
+        "PSJSZX+Fraunces-Bold",
+        "PXWNHA+DM-Sans",
+        "RRKWUZ+Fraunces-Bold",
+        "SLNVBR+DM-Sans-Ultra-Bold",
+        "SMOXOK+Fraunces-Bold",
+        "SRWVEY+DM-Sans-Bold",
+        "WXKVHA+DM-Sans-Ultra-Bold"
+      ],
+      "fontCount": 16,
+      "overflowBlockCount": 0,
+      "whatsappLinkPresent": true
+    },
+    {
+      "documentId": "conditions-reservation-acompte",
+      "pageCount": 2,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1516,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        },
+        {
+          "page": 2,
+          "textCharacters": 1043,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "blankPageCount": 0,
+      "fonts": [
+        "CNFKHC+DM-Sans",
+        "EDVEEU+Fraunces-Bold",
+        "FBDHBJ+DM-Sans-Bold",
+        "FEVOEG+DM-Sans-Ultra-Bold",
+        "FIEHIG+DM-Sans-Bold",
+        "JYUNAY+DM-Sans",
+        "LPEJKQ+DM-Sans",
+        "LSMRDX+DM-Sans",
+        "MCFERP+DM-Sans",
+        "PSJSZX+Fraunces-Bold",
+        "PXWNHA+DM-Sans",
+        "RRKWUZ+Fraunces-Bold",
+        "SLNVBR+DM-Sans-Ultra-Bold",
+        "SMOXOK+Fraunces-Bold",
+        "SRWVEY+DM-Sans-Bold",
+        "WXKVHA+DM-Sans-Ultra-Bold"
+      ],
+      "fontCount": 16,
+      "overflowBlockCount": 0,
+      "whatsappLinkPresent": true
+    },
+    {
+      "documentId": "accompagnements-annuels",
+      "pageCount": 1,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1901,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "blankPageCount": 0,
+      "fonts": [
+        "CNFKHC+DM-Sans",
+        "EDVEEU+Fraunces-Bold",
+        "FEVOEG+DM-Sans-Ultra-Bold",
+        "FIEHIG+DM-Sans-Bold",
+        "JYUNAY+DM-Sans",
+        "LPEJKQ+DM-Sans",
+        "MCFERP+DM-Sans",
+        "PSJSZX+Fraunces-Bold",
+        "RRKWUZ+Fraunces-Bold",
+        "SLNVBR+DM-Sans-Ultra-Bold",
+        "SRWVEY+DM-Sans-Bold"
+      ],
+      "fontCount": 11,
+      "overflowBlockCount": 0,
+      "whatsappLinkPresent": true
+    },
+    {
+      "documentId": "passerelle-stage-annuel",
+      "pageCount": 1,
+      "pages": [
+        {
+          "page": 1,
+          "textCharacters": 1966,
+          "blank": false,
+          "width": 1240,
+          "height": 1755
+        }
+      ],
+      "blankPageCount": 0,
+      "fonts": [
+        "CNFKHC+DM-Sans",
+        "EDVEEU+Fraunces-Bold",
+        "FEVOEG+DM-Sans-Ultra-Bold",
+        "FIEHIG+DM-Sans-Bold",
+        "JYUNAY+DM-Sans",
+        "LPEJKQ+DM-Sans",
+        "MCFERP+DM-Sans",
+        "PSJSZX+Fraunces-Bold",
+        "RRKWUZ+Fraunces-Bold",
+        "SLNVBR+DM-Sans-Ultra-Bold",
+        "SRWVEY+DM-Sans-Bold"
+      ],
+      "fontCount": 11,
+      "overflowBlockCount": 0,
+      "whatsappLinkPresent": true
+    }
+  ]
+}

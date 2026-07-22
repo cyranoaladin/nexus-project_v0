@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "1.0.0",
+  "version": "2026-offers-v1",
+  "campaignId": "pre-rentree-2026",
+  "depositRate": 0.3,
+  "levels": [
+    {
+      "level": "TROISIEME",
+      "range": "FONDATIONS",
+      "signature": "Reprendre les bases. Installer la méthode. Réussir le passage.",
+      "subjects": ["MATHEMATIQUES", "FRANCAIS"],
+      "pricing": {
+        "model": "PER_SUBJECT",
+        "productIds": ["pre2026-foundations-3e-subject"],
+        "multiSubjectDiscount": false,
+        "maximumSubjects": 2
+      },
+      "capacity": {"min": 4, "max": 6},
+      "serviceCapabilityIds": [
+        "questionnaire-scolaire-court",
+        "test-flash",
+        "objectifs-seance",
+        "livrables-seance",
+        "evaluations-rapides",
+        "adaptation-par-paliers",
+        "bilan-fondations",
+        "priorites-rentree"
+      ]
+    },
+    {
+      "level": "SECONDE",
+      "range": "FONDATIONS",
+      "signature": "Reprendre les bases. Installer la méthode. Réussir le passage.",
+      "subjects": ["MATHEMATIQUES", "PHYSIQUE_CHIMIE", "FRANCAIS", "NSI"],
+      "pricing": {
+        "model": "PER_SUBJECT",
+        "productIds": ["pre2026-foundations-seconde-subject"],
+        "multiSubjectDiscount": false,
+        "maximumSubjects": 4
+      },
+      "capacity": {"min": 4, "max": 6},
+      "serviceCapabilityIds": [
+        "questionnaire-scolaire-court",
+        "test-flash",
+        "objectifs-seance",
+        "livrables-seance",
+        "evaluations-rapides",
+        "adaptation-par-paliers",
+        "bilan-fondations",
+        "priorites-rentree"
+      ]
+    },
+    {
+      "level": "PREMIERE",
+      "range": "PREMIUM",
+      "signature": "Diagnostiquer. Cibler. Approfondir. Préparer l’année.",
+      "subjects": ["MATHEMATIQUES", "PHYSIQUE_CHIMIE", "NSI", "FRANCAIS"],
+      "pricing": {
+        "model": "PACK_BY_SUBJECT_COUNT",
+        "productIds": ["pre2026-pack-1", "pre2026-pack-2", "pre2026-pack-3", "pre2026-pack-4"],
+        "multiSubjectDiscount": true,
+        "maximumSubjects": 4
+      },
+      "capacity": {"min": 3, "max": 5},
+      "serviceCapabilityIds": [
+        "questionnaire-famille",
+        "test-positionnement-matiere",
+        "entretien-profil-si-necessaire",
+        "diagnostic-domaines",
+        "feuille-route",
+        "suivi-seance",
+        "livrables-seance",
+        "evaluations-rapides",
+        "bilan-parents",
+        "bilan-eleve",
+        "plan-action-premieres-semaines",
+        "recommandations-annuelles"
+      ]
+    },
+    {
+      "level": "TERMINALE",
+      "range": "PREMIUM",
+      "signature": "Diagnostiquer. Cibler. Approfondir. Préparer l’année.",
+      "subjects": ["MATHEMATIQUES", "PHYSIQUE_CHIMIE", "NSI", "PHILOSOPHIE"],
+      "pricing": {
+        "model": "PACK_BY_SUBJECT_COUNT",
+        "productIds": ["pre2026-pack-1", "pre2026-pack-2", "pre2026-pack-3", "pre2026-pack-4"],
+        "multiSubjectDiscount": true,
+        "maximumSubjects": 4
+      },
+      "capacity": {"min": 3, "max": 5},
+      "serviceCapabilityIds": [
+        "questionnaire-famille",
+        "test-positionnement-matiere",
+        "entretien-profil-si-necessaire",
+        "diagnostic-domaines",
+        "feuille-route",
+        "suivi-seance",
+        "livrables-seance",
+        "evaluations-rapides",
+        "bilan-parents",
+        "bilan-eleve",
+        "plan-action-premieres-semaines",
+        "recommandations-annuelles"
+      ]
+    }
+  ]
+}

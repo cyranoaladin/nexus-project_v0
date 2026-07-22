@@ -1,0 +1,1624 @@
+{
+  "schemaVersion": "1.0.0",
+  "version": "2026-priority-resources-v1",
+  "status": "READY_FOR_PEDAGOGICAL_REVIEW",
+  "schoolYear": "2026-2027",
+  "modules": [
+    {
+      "moduleId": "troisieme-mathematiques",
+      "programmeId": "BO2020-CYCLE4-MATHS",
+      "status": "READY_FOR_PEDAGOGICAL_REVIEW",
+      "validationStatus": "PENDING_HUMAN_VALIDATION",
+      "documents": {
+        "positioningStudent": {
+          "html": "sources/troisieme-mathematiques/positioningStudent.html",
+          "pdf": "pdf/troisieme-mathematiques/positioningStudent.pdf",
+          "pageCount": 2
+        },
+        "positioningTeacher": {
+          "html": "sources/troisieme-mathematiques/positioningTeacher.html",
+          "pdf": "pdf/troisieme-mathematiques/positioningTeacher.pdf",
+          "pageCount": 2
+        },
+        "workbookStudent": {
+          "html": "sources/troisieme-mathematiques/workbookStudent.html",
+          "pdf": "pdf/troisieme-mathematiques/workbookStudent.pdf",
+          "pageCount": 4
+        },
+        "guideTeacher": {
+          "html": "sources/troisieme-mathematiques/guideTeacher.html",
+          "pdf": "pdf/troisieme-mathematiques/guideTeacher.pdf",
+          "pageCount": 4
+        }
+      }
+    },
+    {
+      "moduleId": "troisieme-francais",
+      "programmeId": "BO2020-CYCLE4-FRANCAIS",
+      "status": "READY_FOR_PEDAGOGICAL_REVIEW",
+      "validationStatus": "PENDING_HUMAN_VALIDATION",
+      "documents": {
+        "positioningStudent": {
+          "html": "sources/troisieme-francais/positioningStudent.html",
+          "pdf": "pdf/troisieme-francais/positioningStudent.pdf",
+          "pageCount": 2
+        },
+        "positioningTeacher": {
+          "html": "sources/troisieme-francais/positioningTeacher.html",
+          "pdf": "pdf/troisieme-francais/positioningTeacher.pdf",
+          "pageCount": 2
+        },
+        "workbookStudent": {
+          "html": "sources/troisieme-francais/workbookStudent.html",
+          "pdf": "pdf/troisieme-francais/workbookStudent.pdf",
+          "pageCount": 4
+        },
+        "guideTeacher": {
+          "html": "sources/troisieme-francais/guideTeacher.html",
+          "pdf": "pdf/troisieme-francais/guideTeacher.pdf",
+          "pageCount": 4
+        }
+      }
+    },
+    {
+      "moduleId": "seconde-mathematiques",
+      "programmeId": "BO2026-LYCEE-MATHS-SECONDE",
+      "status": "READY_FOR_PEDAGOGICAL_REVIEW",
+      "validationStatus": "PENDING_HUMAN_VALIDATION",
+      "documents": {
+        "positioningStudent": {
+          "html": "sources/seconde-mathematiques/positioningStudent.html",
+          "pdf": "pdf/seconde-mathematiques/positioningStudent.pdf",
+          "pageCount": 2
+        },
+        "positioningTeacher": {
+          "html": "sources/seconde-mathematiques/positioningTeacher.html",
+          "pdf": "pdf/seconde-mathematiques/positioningTeacher.pdf",
+          "pageCount": 2
+        },
+        "workbookStudent": {
+          "html": "sources/seconde-mathematiques/workbookStudent.html",
+          "pdf": "pdf/seconde-mathematiques/workbookStudent.pdf",
+          "pageCount": 4
+        },
+        "guideTeacher": {
+          "html": "sources/seconde-mathematiques/guideTeacher.html",
+          "pdf": "pdf/seconde-mathematiques/guideTeacher.pdf",
+          "pageCount": 4
+        }
+      }
+    },
+    {
+      "moduleId": "seconde-physique-chimie",
+      "programmeId": "BO2019-LYCEE-PC-SECONDE",
+      "status": "READY_FOR_PEDAGOGICAL_REVIEW",
+      "validationStatus": "PENDING_HUMAN_VALIDATION",
+      "documents": {
+        "positioningStudent": {
+          "html": "sources/seconde-physique-chimie/positioningStudent.html",
+          "pdf": "pdf/seconde-physique-chimie/positioningStudent.pdf",
+          "pageCount": 2
+        },
+        "positioningTeacher": {
+          "html": "sources/seconde-physique-chimie/positioningTeacher.html",
+          "pdf": "pdf/seconde-physique-chimie/positioningTeacher.pdf",
+          "pageCount": 2
+        },
+        "workbookStudent": {
+          "html": "sources/seconde-physique-chimie/workbookStudent.html",
+          "pdf": "pdf/seconde-physique-chimie/workbookStudent.pdf",
+          "pageCount": 4
+        },
+        "guideTeacher": {
+          "html": "sources/seconde-physique-chimie/guideTeacher.html",
+          "pdf": "pdf/seconde-physique-chimie/guideTeacher.pdf",
+          "pageCount": 4
+        }
+      }
+    },
+    {
+      "moduleId": "premiere-mathematiques",
+      "programmeId": "BO2026-LYCEE-MATHS-PREMIERE",
+      "status": "READY_FOR_PEDAGOGICAL_REVIEW",
+      "validationStatus": "PENDING_HUMAN_VALIDATION",
+      "documents": {
+        "positioningStudent": {
+          "html": "sources/premiere-mathematiques/positioningStudent.html",
+          "pdf": "pdf/premiere-mathematiques/positioningStudent.pdf",
+          "pageCount": 2
+        },
+        "positioningTeacher": {
+          "html": "sources/premiere-mathematiques/positioningTeacher.html",
+          "pdf": "pdf/premiere-mathematiques/positioningTeacher.pdf",
+          "pageCount": 2
+        },
+        "workbookStudent": {
+          "html": "sources/premiere-mathematiques/workbookStudent.html",
+          "pdf": "pdf/premiere-mathematiques/workbookStudent.pdf",
+          "pageCount": 4
+        },
+        "guideTeacher": {
+          "html": "sources/premiere-mathematiques/guideTeacher.html",
+          "pdf": "pdf/premiere-mathematiques/guideTeacher.pdf",
+          "pageCount": 4
+        }
+      }
+    },
+    {
+      "moduleId": "terminale-mathematiques",
+      "programmeId": "BO2019-LYCEE-MATHS-TERMINALE",
+      "status": "READY_FOR_PEDAGOGICAL_REVIEW",
+      "validationStatus": "PENDING_HUMAN_VALIDATION",
+      "documents": {
+        "positioningStudent": {
+          "html": "sources/terminale-mathematiques/positioningStudent.html",
+          "pdf": "pdf/terminale-mathematiques/positioningStudent.pdf",
+          "pageCount": 2
+        },
+        "positioningTeacher": {
+          "html": "sources/terminale-mathematiques/positioningTeacher.html",
+          "pdf": "pdf/terminale-mathematiques/positioningTeacher.pdf",
+          "pageCount": 2
+        },
+        "workbookStudent": {
+          "html": "sources/terminale-mathematiques/workbookStudent.html",
+          "pdf": "pdf/terminale-mathematiques/workbookStudent.pdf",
+          "pageCount": 4
+        },
+        "guideTeacher": {
+          "html": "sources/terminale-mathematiques/guideTeacher.html",
+          "pdf": "pdf/terminale-mathematiques/guideTeacher.pdf",
+          "pageCount": 4
+        }
+      }
+    }
+  ],
+  "sourceInputs": [
+    "content/pre-rentree-2026/priority-resources.fr.json",
+    "content/pre-rentree-2026/official-programme-matrix.fr.json",
+    "scripts/pre-rentree/templates/priority-resource.css",
+    "scripts/pre-rentree/render_priority_resource_kit.py"
+  ],
+  "assets": [
+    {
+      "assetId": "priority-premiere-mathematiques-guideTeacher-pdf",
+      "path": "pdf/premiere-mathematiques/guideTeacher.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 87775,
+      "sha256": "ee70995f60cbcf14470e243b9233b1e9cf0914715d9c292a5b264056bbc0b80d",
+      "moduleId": "premiere-mathematiques",
+      "documentId": "guideTeacher",
+      "pageCount": 4
+    },
+    {
+      "assetId": "priority-premiere-mathematiques-positioningStudent-pdf",
+      "path": "pdf/premiere-mathematiques/positioningStudent.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 91324,
+      "sha256": "fa7fd7fdac6a5147d115585059df8604c46b3bf9a3a913caee0c491489a27d1f",
+      "moduleId": "premiere-mathematiques",
+      "documentId": "positioningStudent",
+      "pageCount": 2
+    },
+    {
+      "assetId": "priority-premiere-mathematiques-positioningTeacher-pdf",
+      "path": "pdf/premiere-mathematiques/positioningTeacher.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 66763,
+      "sha256": "64b5b8580f80196cce654e4189a91bd0985cb015dc5e07173e5d4a57c155ccaa",
+      "moduleId": "premiere-mathematiques",
+      "documentId": "positioningTeacher",
+      "pageCount": 2
+    },
+    {
+      "assetId": "priority-premiere-mathematiques-workbookStudent-pdf",
+      "path": "pdf/premiere-mathematiques/workbookStudent.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 107843,
+      "sha256": "e18968e8b2dc3f42aab02e6141d425310cfc288d288e8130315b5558a66826b5",
+      "moduleId": "premiere-mathematiques",
+      "documentId": "workbookStudent",
+      "pageCount": 4
+    },
+    {
+      "assetId": "priority-seconde-mathematiques-guideTeacher-pdf",
+      "path": "pdf/seconde-mathematiques/guideTeacher.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 85228,
+      "sha256": "daff63463600a75475b9b6e05f129455ac3bd7ed4ce11dc79b733871f30c1a24",
+      "moduleId": "seconde-mathematiques",
+      "documentId": "guideTeacher",
+      "pageCount": 4
+    },
+    {
+      "assetId": "priority-seconde-mathematiques-positioningStudent-pdf",
+      "path": "pdf/seconde-mathematiques/positioningStudent.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 88876,
+      "sha256": "1a7ce979b18013d20cbc2a022cd0c4e9b5044bf54c9ab296b854c5d748715ffb",
+      "moduleId": "seconde-mathematiques",
+      "documentId": "positioningStudent",
+      "pageCount": 2
+    },
+    {
+      "assetId": "priority-seconde-mathematiques-positioningTeacher-pdf",
+      "path": "pdf/seconde-mathematiques/positioningTeacher.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 64249,
+      "sha256": "1c6554dfd18067808eb13bf5b0db14174833faf4e014b24cff9b99981f22afef",
+      "moduleId": "seconde-mathematiques",
+      "documentId": "positioningTeacher",
+      "pageCount": 2
+    },
+    {
+      "assetId": "priority-seconde-mathematiques-workbookStudent-pdf",
+      "path": "pdf/seconde-mathematiques/workbookStudent.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 106152,
+      "sha256": "7df2960d958ee32210c4face049753a9a5b2a8a5d2b13246a90f9f555e48e575",
+      "moduleId": "seconde-mathematiques",
+      "documentId": "workbookStudent",
+      "pageCount": 4
+    },
+    {
+      "assetId": "priority-seconde-physique-chimie-guideTeacher-pdf",
+      "path": "pdf/seconde-physique-chimie/guideTeacher.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 88968,
+      "sha256": "af75159b0b220d494d8454be56504ceb759cf411eb8f704f9bc31d5e8ed02edb",
+      "moduleId": "seconde-physique-chimie",
+      "documentId": "guideTeacher",
+      "pageCount": 4
+    },
+    {
+      "assetId": "priority-seconde-physique-chimie-positioningStudent-pdf",
+      "path": "pdf/seconde-physique-chimie/positioningStudent.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 90030,
+      "sha256": "a346ca6414227a0616921cf4ca8631bee494cf6695380689422245f0aa8eee7b",
+      "moduleId": "seconde-physique-chimie",
+      "documentId": "positioningStudent",
+      "pageCount": 2
+    },
+    {
+      "assetId": "priority-seconde-physique-chimie-positioningTeacher-pdf",
+      "path": "pdf/seconde-physique-chimie/positioningTeacher.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 64338,
+      "sha256": "de2398cf23e468f5edb46ac8ee4eb80e2b95347640f88fc8867ef40f927703cd",
+      "moduleId": "seconde-physique-chimie",
+      "documentId": "positioningTeacher",
+      "pageCount": 2
+    },
+    {
+      "assetId": "priority-seconde-physique-chimie-workbookStudent-pdf",
+      "path": "pdf/seconde-physique-chimie/workbookStudent.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 109304,
+      "sha256": "1db1c22be83496d3849b7931564f6375a99fcbfc82b069409affbd7b138380ba",
+      "moduleId": "seconde-physique-chimie",
+      "documentId": "workbookStudent",
+      "pageCount": 4
+    },
+    {
+      "assetId": "priority-terminale-mathematiques-guideTeacher-pdf",
+      "path": "pdf/terminale-mathematiques/guideTeacher.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 88411,
+      "sha256": "7a27028889965a1f62cd73728c143e2db5433eecf862adc36618f6e9284fa569",
+      "moduleId": "terminale-mathematiques",
+      "documentId": "guideTeacher",
+      "pageCount": 4
+    },
+    {
+      "assetId": "priority-terminale-mathematiques-positioningStudent-pdf",
+      "path": "pdf/terminale-mathematiques/positioningStudent.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 93273,
+      "sha256": "ea41af3b4d0102d24c34b143eb37fe889f6cd4ab328ede0226e1c46b7149d639",
+      "moduleId": "terminale-mathematiques",
+      "documentId": "positioningStudent",
+      "pageCount": 2
+    },
+    {
+      "assetId": "priority-terminale-mathematiques-positioningTeacher-pdf",
+      "path": "pdf/terminale-mathematiques/positioningTeacher.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 66973,
+      "sha256": "efdf9e9883dbfa358e4b4edadaf4077c7233c06ca9f918e1fed3803f38bcba3a",
+      "moduleId": "terminale-mathematiques",
+      "documentId": "positioningTeacher",
+      "pageCount": 2
+    },
+    {
+      "assetId": "priority-terminale-mathematiques-workbookStudent-pdf",
+      "path": "pdf/terminale-mathematiques/workbookStudent.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 110290,
+      "sha256": "8a8b0cf9204ca6f5f506cd9a191bbefb1e5778ffe0428b9d3e94bd63f9d3fad2",
+      "moduleId": "terminale-mathematiques",
+      "documentId": "workbookStudent",
+      "pageCount": 4
+    },
+    {
+      "assetId": "priority-troisieme-francais-guideTeacher-pdf",
+      "path": "pdf/troisieme-francais/guideTeacher.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 84095,
+      "sha256": "7b266013f20dd55e2b0e52c87cf57d0bfb1dcd2cff15e213d3338baf3514b5e1",
+      "moduleId": "troisieme-francais",
+      "documentId": "guideTeacher",
+      "pageCount": 4
+    },
+    {
+      "assetId": "priority-troisieme-francais-positioningStudent-pdf",
+      "path": "pdf/troisieme-francais/positioningStudent.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 89596,
+      "sha256": "d1c2de8575a06e3fb9afb5b73f951f641d93ec3140bb6781bb5e63fa35df516d",
+      "moduleId": "troisieme-francais",
+      "documentId": "positioningStudent",
+      "pageCount": 2
+    },
+    {
+      "assetId": "priority-troisieme-francais-positioningTeacher-pdf",
+      "path": "pdf/troisieme-francais/positioningTeacher.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 61764,
+      "sha256": "b578fd0c0a171579fc7c6abd02920e9ad0cb5606e438d940dadb5c7d7ac1d3c8",
+      "moduleId": "troisieme-francais",
+      "documentId": "positioningTeacher",
+      "pageCount": 2
+    },
+    {
+      "assetId": "priority-troisieme-francais-workbookStudent-pdf",
+      "path": "pdf/troisieme-francais/workbookStudent.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 103905,
+      "sha256": "8948fd3f7037672f15b04ebd7ba0e2e84d40fd7b7c7a2542e035c1faebf9988d",
+      "moduleId": "troisieme-francais",
+      "documentId": "workbookStudent",
+      "pageCount": 4
+    },
+    {
+      "assetId": "priority-troisieme-mathematiques-guideTeacher-pdf",
+      "path": "pdf/troisieme-mathematiques/guideTeacher.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 87348,
+      "sha256": "cb56816998496cb6b881801e98b7adc5f9a44542a5fe9f1d81134234ad221002",
+      "moduleId": "troisieme-mathematiques",
+      "documentId": "guideTeacher",
+      "pageCount": 4
+    },
+    {
+      "assetId": "priority-troisieme-mathematiques-positioningStudent-pdf",
+      "path": "pdf/troisieme-mathematiques/positioningStudent.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 89627,
+      "sha256": "565e43c75177e8cdd3d8f4a351ad9050d4ef35b3258184b2b6c76f2fbc0aeb11",
+      "moduleId": "troisieme-mathematiques",
+      "documentId": "positioningStudent",
+      "pageCount": 2
+    },
+    {
+      "assetId": "priority-troisieme-mathematiques-positioningTeacher-pdf",
+      "path": "pdf/troisieme-mathematiques/positioningTeacher.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 62989,
+      "sha256": "5dfa4b30ee0720664e8d7466f805f6e873bc02c620ba8ae0d2d968f38ef1dc85",
+      "moduleId": "troisieme-mathematiques",
+      "documentId": "positioningTeacher",
+      "pageCount": 2
+    },
+    {
+      "assetId": "priority-troisieme-mathematiques-workbookStudent-pdf",
+      "path": "pdf/troisieme-mathematiques/workbookStudent.pdf",
+      "role": "final-pdf",
+      "format": "PDF",
+      "bytes": 107705,
+      "sha256": "9e9e56aa077353ecdd7f6195dd3e1e5ade4ec38ad0c2e9342a91906f7f92c0e2",
+      "moduleId": "troisieme-mathematiques",
+      "documentId": "workbookStudent",
+      "pageCount": 4
+    },
+    {
+      "assetId": "priority-qa-report",
+      "path": "qa-report.json",
+      "role": "quality-report",
+      "format": "JSON",
+      "bytes": 27252,
+      "sha256": "b2e68b2d40cf276daef5d88664400a5c2c99bd479e024b914d8215e2531a44b9"
+    },
+    {
+      "assetId": "priority-premiere-mathematiques-guideTeacher-page-01",
+      "path": "rendered/premiere-mathematiques/guideTeacher/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 496064,
+      "sha256": "5a8a41c6e9840be59fb5d30304df17afb16aa9328a62f89e3893493705531755",
+      "moduleId": "premiere-mathematiques",
+      "documentId": "guideTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-premiere-mathematiques-guideTeacher-page-02",
+      "path": "rendered/premiere-mathematiques/guideTeacher/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 274311,
+      "sha256": "6d0102d57973cd516c4fb83fb714372b70ccaf1781e8f3af253ab797395b3922",
+      "moduleId": "premiere-mathematiques",
+      "documentId": "guideTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-premiere-mathematiques-guideTeacher-page-03",
+      "path": "rendered/premiere-mathematiques/guideTeacher/page-03.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 255368,
+      "sha256": "0769dca11703c78d2fe583b7979149a550b5fc8b169988ea7208252b8fa889a5",
+      "moduleId": "premiere-mathematiques",
+      "documentId": "guideTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-premiere-mathematiques-guideTeacher-page-04",
+      "path": "rendered/premiere-mathematiques/guideTeacher/page-04.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 342679,
+      "sha256": "a203961e14fd16967b7875bf36eed17860c41cfe845765e6323d0c524768821b",
+      "moduleId": "premiere-mathematiques",
+      "documentId": "guideTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-premiere-mathematiques-positioningStudent-page-01",
+      "path": "rendered/premiere-mathematiques/positioningStudent/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 280894,
+      "sha256": "c32f18ae6f691d51cf9eac9d46f41a312fa477b2566b914bba1965dcee61a29e",
+      "moduleId": "premiere-mathematiques",
+      "documentId": "positioningStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-premiere-mathematiques-positioningStudent-page-02",
+      "path": "rendered/premiere-mathematiques/positioningStudent/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 231113,
+      "sha256": "7d997de6270c9e372fbe3c58ba91cd5e280550f6d2564e194eece5647714a9d5",
+      "moduleId": "premiere-mathematiques",
+      "documentId": "positioningStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-premiere-mathematiques-positioningTeacher-page-01",
+      "path": "rendered/premiere-mathematiques/positioningTeacher/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 349239,
+      "sha256": "9b2598243555279b3aa2b456e27c2a69a4ee0f7a7d46e25c96bf776489b51a41",
+      "moduleId": "premiere-mathematiques",
+      "documentId": "positioningTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-premiere-mathematiques-positioningTeacher-page-02",
+      "path": "rendered/premiere-mathematiques/positioningTeacher/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 300159,
+      "sha256": "fb090e15c9551222eaa6378e7931f28eac9f6f5af6395f3ffbff1edce941222a",
+      "moduleId": "premiere-mathematiques",
+      "documentId": "positioningTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-premiere-mathematiques-workbookStudent-page-01",
+      "path": "rendered/premiere-mathematiques/workbookStudent/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 501051,
+      "sha256": "1d2d7c3c7585123f8dc52788091049e0dfb45749d3ef3228c74a717c34abee56",
+      "moduleId": "premiere-mathematiques",
+      "documentId": "workbookStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-premiere-mathematiques-workbookStudent-page-02",
+      "path": "rendered/premiere-mathematiques/workbookStudent/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 221411,
+      "sha256": "fe4a34e0cb655a2c6aa0c9172dcda4642b259a197c7a50803112995389021f45",
+      "moduleId": "premiere-mathematiques",
+      "documentId": "workbookStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-premiere-mathematiques-workbookStudent-page-03",
+      "path": "rendered/premiere-mathematiques/workbookStudent/page-03.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 215715,
+      "sha256": "7b04886b9009fec9417d59760ba298c9911e8879906bf6de9d385c3082780c25",
+      "moduleId": "premiere-mathematiques",
+      "documentId": "workbookStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-premiere-mathematiques-workbookStudent-page-04",
+      "path": "rendered/premiere-mathematiques/workbookStudent/page-04.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 299363,
+      "sha256": "b8a547aded1540e8b76504ab720c2b49eb0c3cba75a17e1314255f483ba5fca5",
+      "moduleId": "premiere-mathematiques",
+      "documentId": "workbookStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-seconde-mathematiques-guideTeacher-page-01",
+      "path": "rendered/seconde-mathematiques/guideTeacher/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 490396,
+      "sha256": "8533e7c5732ba2594fcc4f1b0c59d87bf477e3d30e1de802a9ff18682e236b8b",
+      "moduleId": "seconde-mathematiques",
+      "documentId": "guideTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-seconde-mathematiques-guideTeacher-page-02",
+      "path": "rendered/seconde-mathematiques/guideTeacher/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 268394,
+      "sha256": "f688dae1d89e28bb2eb82c878faf5d3e807e3b97602f9731422ee95fd5ce2f14",
+      "moduleId": "seconde-mathematiques",
+      "documentId": "guideTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-seconde-mathematiques-guideTeacher-page-03",
+      "path": "rendered/seconde-mathematiques/guideTeacher/page-03.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 258220,
+      "sha256": "2ff124d6a765c0d36c767700561473cb2bde3adc0ac2ba1971b53c2968852999",
+      "moduleId": "seconde-mathematiques",
+      "documentId": "guideTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-seconde-mathematiques-guideTeacher-page-04",
+      "path": "rendered/seconde-mathematiques/guideTeacher/page-04.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 332321,
+      "sha256": "61e80c80b2d7c1d9908d5b08e4abf7372ec6fa6f517b71a97739a2468ebf879c",
+      "moduleId": "seconde-mathematiques",
+      "documentId": "guideTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-seconde-mathematiques-positioningStudent-page-01",
+      "path": "rendered/seconde-mathematiques/positioningStudent/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 265459,
+      "sha256": "fec33ab9291fd4d4b27161115e6d6a8516720a04dd7dd3f04acbb11eca6eecce",
+      "moduleId": "seconde-mathematiques",
+      "documentId": "positioningStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-seconde-mathematiques-positioningStudent-page-02",
+      "path": "rendered/seconde-mathematiques/positioningStudent/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 233194,
+      "sha256": "2c3f518b9cc9c91d84a7c0e61fd68e2f2268de0852a7e776cce9c38cd632ec59",
+      "moduleId": "seconde-mathematiques",
+      "documentId": "positioningStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-seconde-mathematiques-positioningTeacher-page-01",
+      "path": "rendered/seconde-mathematiques/positioningTeacher/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 341990,
+      "sha256": "f10d82c213a206723a3bf41d52fb0be22f529cebe1cc2a0e11f53abcd51162fe",
+      "moduleId": "seconde-mathematiques",
+      "documentId": "positioningTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-seconde-mathematiques-positioningTeacher-page-02",
+      "path": "rendered/seconde-mathematiques/positioningTeacher/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 312029,
+      "sha256": "1c687f4d0973d0aa424d21fa096c7fb311290f15f5813bbcfa5fb5ddbe277f70",
+      "moduleId": "seconde-mathematiques",
+      "documentId": "positioningTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-seconde-mathematiques-workbookStudent-page-01",
+      "path": "rendered/seconde-mathematiques/workbookStudent/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 489772,
+      "sha256": "eaf6a495ca2a03d0f79e2bbce83adff0704f5afde62604dc0b7e9e9fa00134dc",
+      "moduleId": "seconde-mathematiques",
+      "documentId": "workbookStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-seconde-mathematiques-workbookStudent-page-02",
+      "path": "rendered/seconde-mathematiques/workbookStudent/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 219100,
+      "sha256": "0588fdb8ae3a20739459e5c80056621739c378174c4ca6622b88f2d30f852364",
+      "moduleId": "seconde-mathematiques",
+      "documentId": "workbookStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-seconde-mathematiques-workbookStudent-page-03",
+      "path": "rendered/seconde-mathematiques/workbookStudent/page-03.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 223359,
+      "sha256": "e5e8104207dcd3e29f0c3d263221bc0f2ee93ce14a6430299116828c05cf9ff2",
+      "moduleId": "seconde-mathematiques",
+      "documentId": "workbookStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-seconde-mathematiques-workbookStudent-page-04",
+      "path": "rendered/seconde-mathematiques/workbookStudent/page-04.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 297712,
+      "sha256": "641ad670b3c043a70b798445dc184fb278428c4b5bf902989ca9964baa854f6f",
+      "moduleId": "seconde-mathematiques",
+      "documentId": "workbookStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-seconde-physique-chimie-guideTeacher-page-01",
+      "path": "rendered/seconde-physique-chimie/guideTeacher/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 501613,
+      "sha256": "f005124feb145b78117b9007e9ce8cf4848e044fcbcee0f9d2ff5529dd7b5b5e",
+      "moduleId": "seconde-physique-chimie",
+      "documentId": "guideTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-seconde-physique-chimie-guideTeacher-page-02",
+      "path": "rendered/seconde-physique-chimie/guideTeacher/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 266979,
+      "sha256": "b1e4418c4de6fc1e47a3a624fdf47174f3a89ed955f8dbde1399ed760b78e4b7",
+      "moduleId": "seconde-physique-chimie",
+      "documentId": "guideTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-seconde-physique-chimie-guideTeacher-page-03",
+      "path": "rendered/seconde-physique-chimie/guideTeacher/page-03.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 296408,
+      "sha256": "5bb828f8a172d1834ba87999ea00e6a81e7e475e4acdf08330791d398978de4e",
+      "moduleId": "seconde-physique-chimie",
+      "documentId": "guideTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-seconde-physique-chimie-guideTeacher-page-04",
+      "path": "rendered/seconde-physique-chimie/guideTeacher/page-04.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 351072,
+      "sha256": "dc5948ade37a7ba28fb49d93fe011584ff5767b5cd6a67184f4364f4940555af",
+      "moduleId": "seconde-physique-chimie",
+      "documentId": "guideTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-seconde-physique-chimie-positioningStudent-page-01",
+      "path": "rendered/seconde-physique-chimie/positioningStudent/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 282138,
+      "sha256": "993e809714709d2e9554179369e339fda1cd2726dd1f580854cb77b4d40a2971",
+      "moduleId": "seconde-physique-chimie",
+      "documentId": "positioningStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-seconde-physique-chimie-positioningStudent-page-02",
+      "path": "rendered/seconde-physique-chimie/positioningStudent/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 243228,
+      "sha256": "f9ad84a1117d62cdb1d7628addc2018ef07cc71639e8543fcb93f048f30ee0b8",
+      "moduleId": "seconde-physique-chimie",
+      "documentId": "positioningStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-seconde-physique-chimie-positioningTeacher-page-01",
+      "path": "rendered/seconde-physique-chimie/positioningTeacher/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 347772,
+      "sha256": "99d45b9ab50e71c1144e75d2d27a35e301747d1c1a1fd2114c08e3fc51c3bde5",
+      "moduleId": "seconde-physique-chimie",
+      "documentId": "positioningTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-seconde-physique-chimie-positioningTeacher-page-02",
+      "path": "rendered/seconde-physique-chimie/positioningTeacher/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 340614,
+      "sha256": "ccdad042caee3eef6717af9dc671e9a957d99e1e4678fe2e8bd607134864192d",
+      "moduleId": "seconde-physique-chimie",
+      "documentId": "positioningTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-seconde-physique-chimie-workbookStudent-page-01",
+      "path": "rendered/seconde-physique-chimie/workbookStudent/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 501343,
+      "sha256": "f35d8c15aeb9f05e2f27f81565fe41ebef36a39d9143bd5d0a7defe44a182e10",
+      "moduleId": "seconde-physique-chimie",
+      "documentId": "workbookStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-seconde-physique-chimie-workbookStudent-page-02",
+      "path": "rendered/seconde-physique-chimie/workbookStudent/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 214990,
+      "sha256": "bc9fd366a37e28fdb41bc2fa41ba16e8c1e1dbf07f207e1079602a1f3a08f499",
+      "moduleId": "seconde-physique-chimie",
+      "documentId": "workbookStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-seconde-physique-chimie-workbookStudent-page-03",
+      "path": "rendered/seconde-physique-chimie/workbookStudent/page-03.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 241641,
+      "sha256": "c50fee5195b87f376e07ac05a667d313cdf4b4ececc793fe59a8a8d91287fac0",
+      "moduleId": "seconde-physique-chimie",
+      "documentId": "workbookStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-seconde-physique-chimie-workbookStudent-page-04",
+      "path": "rendered/seconde-physique-chimie/workbookStudent/page-04.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 310491,
+      "sha256": "83b16a17458985a18904ee793d1bb319a81f4d1a89b60f8e9cb40744a976fc90",
+      "moduleId": "seconde-physique-chimie",
+      "documentId": "workbookStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-terminale-mathematiques-guideTeacher-page-01",
+      "path": "rendered/terminale-mathematiques/guideTeacher/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 485641,
+      "sha256": "ff894eb81e31e9548e5ebb117035e8cd462552f0fc39514f1193b79603ed406c",
+      "moduleId": "terminale-mathematiques",
+      "documentId": "guideTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-terminale-mathematiques-guideTeacher-page-02",
+      "path": "rendered/terminale-mathematiques/guideTeacher/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 268953,
+      "sha256": "b58522362f02ee7366a9af09824fbf4ea878edf1aa5ab0d5ef4f6908d28ec7f4",
+      "moduleId": "terminale-mathematiques",
+      "documentId": "guideTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-terminale-mathematiques-guideTeacher-page-03",
+      "path": "rendered/terminale-mathematiques/guideTeacher/page-03.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 252199,
+      "sha256": "fa61f235b118fb496eff8615296ced58af1bce39f6bd8fe3b832f9f3e720a2ce",
+      "moduleId": "terminale-mathematiques",
+      "documentId": "guideTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-terminale-mathematiques-guideTeacher-page-04",
+      "path": "rendered/terminale-mathematiques/guideTeacher/page-04.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 342419,
+      "sha256": "dfb2669c5abd581eb1a23dadf6d4e1b3c6b51d31fcae6df4ea64d990d15ef1bb",
+      "moduleId": "terminale-mathematiques",
+      "documentId": "guideTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-terminale-mathematiques-positioningStudent-page-01",
+      "path": "rendered/terminale-mathematiques/positioningStudent/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 280384,
+      "sha256": "e7d9df7668f1eabf65db56fde8aa5f7b4c887dee5efb90bda693565640dd2526",
+      "moduleId": "terminale-mathematiques",
+      "documentId": "positioningStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-terminale-mathematiques-positioningStudent-page-02",
+      "path": "rendered/terminale-mathematiques/positioningStudent/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 242341,
+      "sha256": "266062fdc45b3f36690e9707bc20b9ed7a9a6900394c4e7f618ea6564ea87c56",
+      "moduleId": "terminale-mathematiques",
+      "documentId": "positioningStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-terminale-mathematiques-positioningTeacher-page-01",
+      "path": "rendered/terminale-mathematiques/positioningTeacher/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 359047,
+      "sha256": "31b226493ec52745a21cd92d9b3243db4011b49cae246bc116d62f47818cbbf4",
+      "moduleId": "terminale-mathematiques",
+      "documentId": "positioningTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-terminale-mathematiques-positioningTeacher-page-02",
+      "path": "rendered/terminale-mathematiques/positioningTeacher/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 320836,
+      "sha256": "da4635a699d4a29293cf25d8ff7f2c7205d16a2575d8073bd478dfd985039ef3",
+      "moduleId": "terminale-mathematiques",
+      "documentId": "positioningTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-terminale-mathematiques-workbookStudent-page-01",
+      "path": "rendered/terminale-mathematiques/workbookStudent/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 483998,
+      "sha256": "896fd84f57986516a6d4077b9ddcc28c6b202e4307e947abb41cb4308c1c3fa3",
+      "moduleId": "terminale-mathematiques",
+      "documentId": "workbookStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-terminale-mathematiques-workbookStudent-page-02",
+      "path": "rendered/terminale-mathematiques/workbookStudent/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 218915,
+      "sha256": "017858958040fb9a7133b449533e4a592ff46b0bc2f7f2ebd1240ffa79202afd",
+      "moduleId": "terminale-mathematiques",
+      "documentId": "workbookStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-terminale-mathematiques-workbookStudent-page-03",
+      "path": "rendered/terminale-mathematiques/workbookStudent/page-03.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 211953,
+      "sha256": "e864a3925e3e9a690c532e9d043741ebbe19532906df43e8f67c34a1d3afb847",
+      "moduleId": "terminale-mathematiques",
+      "documentId": "workbookStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-terminale-mathematiques-workbookStudent-page-04",
+      "path": "rendered/terminale-mathematiques/workbookStudent/page-04.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 313091,
+      "sha256": "95b6bb6b4df119240e7dc9fd29b6b35a98389e0c0a8793c9516b27f5589a079d",
+      "moduleId": "terminale-mathematiques",
+      "documentId": "workbookStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-troisieme-francais-guideTeacher-page-01",
+      "path": "rendered/troisieme-francais/guideTeacher/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 481954,
+      "sha256": "c9663383bae505e1f993f224ff9872290fedef9582b85f06ff4b55b63ebc1a77",
+      "moduleId": "troisieme-francais",
+      "documentId": "guideTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-troisieme-francais-guideTeacher-page-02",
+      "path": "rendered/troisieme-francais/guideTeacher/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 267150,
+      "sha256": "483c5884db088e2c6b9b2902ef08b7de6005b2c0b323318aea4a217da77d1b6d",
+      "moduleId": "troisieme-francais",
+      "documentId": "guideTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-troisieme-francais-guideTeacher-page-03",
+      "path": "rendered/troisieme-francais/guideTeacher/page-03.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 294563,
+      "sha256": "843fe5660ed889fda8e4e061a3ccfa7b07da33dbb14b64f0883bb500dc679ec3",
+      "moduleId": "troisieme-francais",
+      "documentId": "guideTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-troisieme-francais-guideTeacher-page-04",
+      "path": "rendered/troisieme-francais/guideTeacher/page-04.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 313503,
+      "sha256": "52aa89b286a2edc31110513e6c184ee66a092a357ca98e4de1d18fb0e724fb70",
+      "moduleId": "troisieme-francais",
+      "documentId": "guideTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-troisieme-francais-positioningStudent-page-01",
+      "path": "rendered/troisieme-francais/positioningStudent/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 361121,
+      "sha256": "483949f9625cffb53561e2a573f10e2dcf7f13313e360f06bc1f809aa04f2c41",
+      "moduleId": "troisieme-francais",
+      "documentId": "positioningStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-troisieme-francais-positioningStudent-page-02",
+      "path": "rendered/troisieme-francais/positioningStudent/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 216664,
+      "sha256": "96538fa1f423b7965f8260624bbb28ee0e1f9bc44e9b7bd00aa5a83a37a971de",
+      "moduleId": "troisieme-francais",
+      "documentId": "positioningStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-troisieme-francais-positioningTeacher-page-01",
+      "path": "rendered/troisieme-francais/positioningTeacher/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 392441,
+      "sha256": "d4ca9138e31ac839ef3850756432405765743eee64b6993e0dab8838de070533",
+      "moduleId": "troisieme-francais",
+      "documentId": "positioningTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-troisieme-francais-positioningTeacher-page-02",
+      "path": "rendered/troisieme-francais/positioningTeacher/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 310594,
+      "sha256": "b45abd3302c0ea9c281612796ef672495d8e99c5560668f095868b906425f166",
+      "moduleId": "troisieme-francais",
+      "documentId": "positioningTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-troisieme-francais-workbookStudent-page-01",
+      "path": "rendered/troisieme-francais/workbookStudent/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 478302,
+      "sha256": "779d0be062fb877c24759725b0857083917566414b76f05b5694b72bf36afe17",
+      "moduleId": "troisieme-francais",
+      "documentId": "workbookStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-troisieme-francais-workbookStudent-page-02",
+      "path": "rendered/troisieme-francais/workbookStudent/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 198194,
+      "sha256": "5908d60ddb39d2d3390d2584a7baa48f1c764f3df55dbfb880d25d3f3466469a",
+      "moduleId": "troisieme-francais",
+      "documentId": "workbookStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-troisieme-francais-workbookStudent-page-03",
+      "path": "rendered/troisieme-francais/workbookStudent/page-03.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 217046,
+      "sha256": "2b4ad4d702d0733dcf8344b085b4aa110c26e5889ba220fa6234145193dc3ced",
+      "moduleId": "troisieme-francais",
+      "documentId": "workbookStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-troisieme-francais-workbookStudent-page-04",
+      "path": "rendered/troisieme-francais/workbookStudent/page-04.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 285925,
+      "sha256": "5b038354bc51865ae03c25f81e2cae483733a8a6cfca6bd556c38f6e32a1c6f5",
+      "moduleId": "troisieme-francais",
+      "documentId": "workbookStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-troisieme-mathematiques-guideTeacher-page-01",
+      "path": "rendered/troisieme-mathematiques/guideTeacher/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 491508,
+      "sha256": "35d85d01a75ed39d8d7c1a5e2cd62c3731d08b829d5425c488c3b7a213b092f0",
+      "moduleId": "troisieme-mathematiques",
+      "documentId": "guideTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-troisieme-mathematiques-guideTeacher-page-02",
+      "path": "rendered/troisieme-mathematiques/guideTeacher/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 244772,
+      "sha256": "4492089b6a0db489802ff22b02616966a5c33ef1fd61f6447724f7814159eb3a",
+      "moduleId": "troisieme-mathematiques",
+      "documentId": "guideTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-troisieme-mathematiques-guideTeacher-page-03",
+      "path": "rendered/troisieme-mathematiques/guideTeacher/page-03.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 256882,
+      "sha256": "d4a55d90f37989687dc3d0b579c4df3eaa3722bb8db27b1df399af9d2b7b5533",
+      "moduleId": "troisieme-mathematiques",
+      "documentId": "guideTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-troisieme-mathematiques-guideTeacher-page-04",
+      "path": "rendered/troisieme-mathematiques/guideTeacher/page-04.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 325526,
+      "sha256": "29b26be4a1341b7a0a2b3c314585f0938d95708b40f2a4d4d911d47b9c9b3189",
+      "moduleId": "troisieme-mathematiques",
+      "documentId": "guideTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-troisieme-mathematiques-positioningStudent-page-01",
+      "path": "rendered/troisieme-mathematiques/positioningStudent/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 270717,
+      "sha256": "a6dc8c647317f1ed18d29b94aafef389b861321dc852f06e6c277632ad91d3b2",
+      "moduleId": "troisieme-mathematiques",
+      "documentId": "positioningStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-troisieme-mathematiques-positioningStudent-page-02",
+      "path": "rendered/troisieme-mathematiques/positioningStudent/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 222015,
+      "sha256": "a156d744ea21de8878ec3f243027f1e242f4e085c0aba8095618d83dc4d4a75a",
+      "moduleId": "troisieme-mathematiques",
+      "documentId": "positioningStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-troisieme-mathematiques-positioningTeacher-page-01",
+      "path": "rendered/troisieme-mathematiques/positioningTeacher/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 350507,
+      "sha256": "4acbf8b72d22281eadc045dfe40a39655ab7d5ff6839b63c9f43dc91ebcec75a",
+      "moduleId": "troisieme-mathematiques",
+      "documentId": "positioningTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-troisieme-mathematiques-positioningTeacher-page-02",
+      "path": "rendered/troisieme-mathematiques/positioningTeacher/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 296784,
+      "sha256": "f9599b9b8ba97405ab356a7da509bfe13e1797f44dfe7ada133c0120acfefaa4",
+      "moduleId": "troisieme-mathematiques",
+      "documentId": "positioningTeacher",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-troisieme-mathematiques-workbookStudent-page-01",
+      "path": "rendered/troisieme-mathematiques/workbookStudent/page-01.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 485588,
+      "sha256": "c8d2e4d351600e01b5e3be9b095cf014c78dc14078fc2afd9bdc9daa934a20a9",
+      "moduleId": "troisieme-mathematiques",
+      "documentId": "workbookStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-troisieme-mathematiques-workbookStudent-page-02",
+      "path": "rendered/troisieme-mathematiques/workbookStudent/page-02.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 200494,
+      "sha256": "d265481fb768729db3ab805d8f0e48ae24273aafc41a24f0dcbe84b05b6713a3",
+      "moduleId": "troisieme-mathematiques",
+      "documentId": "workbookStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-troisieme-mathematiques-workbookStudent-page-03",
+      "path": "rendered/troisieme-mathematiques/workbookStudent/page-03.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 219630,
+      "sha256": "ec0faebc5d1454a7ce30b886c05c7d43727bf5b2c74c2a0f1311746b8af906e1",
+      "moduleId": "troisieme-mathematiques",
+      "documentId": "workbookStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-troisieme-mathematiques-workbookStudent-page-04",
+      "path": "rendered/troisieme-mathematiques/workbookStudent/page-04.png",
+      "role": "visual-inspection",
+      "format": "PNG",
+      "bytes": 279187,
+      "sha256": "019d5254575c23f2a33219cb50209e16b9dc0f437ae5c56ec91dea12f42e0065",
+      "moduleId": "troisieme-mathematiques",
+      "documentId": "workbookStudent",
+      "width": 1240,
+      "height": 1755
+    },
+    {
+      "assetId": "priority-font-dmsans",
+      "path": "sources/fonts/DMSans.ttf",
+      "role": "licensed-font",
+      "format": "TTF",
+      "bytes": 150248,
+      "sha256": "443f322e92b9428796a4aeacebd427fba4d392a386c2154f718d489ed3855fa1"
+    },
+    {
+      "assetId": "priority-font-fraunces",
+      "path": "sources/fonts/Fraunces.ttf",
+      "role": "licensed-font",
+      "format": "TTF",
+      "bytes": 113616,
+      "sha256": "1ae9d8d92e729b4eb6384e48b8297793ffe7ea0369edb024fb199d3b362cfd69"
+    },
+    {
+      "assetId": "priority-font-license-ofl",
+      "path": "sources/fonts/OFL-1.1.txt",
+      "role": "font-license",
+      "format": "TXT",
+      "bytes": 4008,
+      "sha256": "74ba2e8a3e010fa81dc24958b23ad2dc885638b0b2da37ae4a2299e76b6b69f7"
+    },
+    {
+      "assetId": "priority-premiere-mathematiques-guideTeacher-html",
+      "path": "sources/premiere-mathematiques/guideTeacher.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 11893,
+      "sha256": "3936a9b623a79fb9606f96918e0f0b74e4ad6b2d480cef678690683acd9ff469",
+      "moduleId": "premiere-mathematiques",
+      "documentId": "guideTeacher"
+    },
+    {
+      "assetId": "priority-premiere-mathematiques-positioningStudent-html",
+      "path": "sources/premiere-mathematiques/positioningStudent.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 7576,
+      "sha256": "758ea1c6542753005e27b8876b77a679578bbcdb5c06e463aa880552e63ecbd5",
+      "moduleId": "premiere-mathematiques",
+      "documentId": "positioningStudent"
+    },
+    {
+      "assetId": "priority-premiere-mathematiques-positioningTeacher-html",
+      "path": "sources/premiere-mathematiques/positioningTeacher.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 8154,
+      "sha256": "7add7d5b6abbd6ef090b07a78554f0cd6e11c7509263595d74fc0530f5832fe5",
+      "moduleId": "premiere-mathematiques",
+      "documentId": "positioningTeacher"
+    },
+    {
+      "assetId": "priority-premiere-mathematiques-workbookStudent-html",
+      "path": "sources/premiere-mathematiques/workbookStudent.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 11467,
+      "sha256": "7c133f44d85682271adc01e6c3a2e4bd3e379a2bfe89647d3381be58c0c2570d",
+      "moduleId": "premiere-mathematiques",
+      "documentId": "workbookStudent"
+    },
+    {
+      "assetId": "priority-seconde-mathematiques-guideTeacher-html",
+      "path": "sources/seconde-mathematiques/guideTeacher.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 11724,
+      "sha256": "ebc828e609d99442941706d2918dd9647b0185f2d5032983293629dab4f0fe1d",
+      "moduleId": "seconde-mathematiques",
+      "documentId": "guideTeacher"
+    },
+    {
+      "assetId": "priority-seconde-mathematiques-positioningStudent-html",
+      "path": "sources/seconde-mathematiques/positioningStudent.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 7488,
+      "sha256": "328c5445370a8385c7928829a87ab5669c1b64a753ab97efb1901b31022e70ed",
+      "moduleId": "seconde-mathematiques",
+      "documentId": "positioningStudent"
+    },
+    {
+      "assetId": "priority-seconde-mathematiques-positioningTeacher-html",
+      "path": "sources/seconde-mathematiques/positioningTeacher.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 8154,
+      "sha256": "8727ba4aaff53db61a23b072eebdb8ebcebaaf068794e85a717b6ecbec79975f",
+      "moduleId": "seconde-mathematiques",
+      "documentId": "positioningTeacher"
+    },
+    {
+      "assetId": "priority-seconde-mathematiques-workbookStudent-html",
+      "path": "sources/seconde-mathematiques/workbookStudent.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 11367,
+      "sha256": "7b70a307343d4e6c85b7ce81ed37f96032c6eda412d024db1d630cb89b168170",
+      "moduleId": "seconde-mathematiques",
+      "documentId": "workbookStudent"
+    },
+    {
+      "assetId": "priority-seconde-physique-chimie-guideTeacher-html",
+      "path": "sources/seconde-physique-chimie/guideTeacher.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 12083,
+      "sha256": "b11661a3601e75530a02a1fa1ba1a0b9f23300cfe4d3ad033e7a3954f9f12314",
+      "moduleId": "seconde-physique-chimie",
+      "documentId": "guideTeacher"
+    },
+    {
+      "assetId": "priority-seconde-physique-chimie-positioningStudent-html",
+      "path": "sources/seconde-physique-chimie/positioningStudent.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 7591,
+      "sha256": "96f5cfcfe200153250e6c718288a8c04e31bcc6acda9142b40f2266ebe9792a8",
+      "moduleId": "seconde-physique-chimie",
+      "documentId": "positioningStudent"
+    },
+    {
+      "assetId": "priority-seconde-physique-chimie-positioningTeacher-html",
+      "path": "sources/seconde-physique-chimie/positioningTeacher.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 8313,
+      "sha256": "a76cf1fa1db08ac2955d3c7b65fa47d76c5bcee890249a2c3c4a6bdb4d02045c",
+      "moduleId": "seconde-physique-chimie",
+      "documentId": "positioningTeacher"
+    },
+    {
+      "assetId": "priority-seconde-physique-chimie-workbookStudent-html",
+      "path": "sources/seconde-physique-chimie/workbookStudent.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 11571,
+      "sha256": "490dcb8a648f632359bd257314d35647aa8a4f89017f858f928ab96a2715c4df",
+      "moduleId": "seconde-physique-chimie",
+      "documentId": "workbookStudent"
+    },
+    {
+      "assetId": "priority-terminale-mathematiques-guideTeacher-html",
+      "path": "sources/terminale-mathematiques/guideTeacher.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 11774,
+      "sha256": "433cd8f7cf7ff3c31017f5e514ae75b67656b18800e2c81778c08b387d014c40",
+      "moduleId": "terminale-mathematiques",
+      "documentId": "guideTeacher"
+    },
+    {
+      "assetId": "priority-terminale-mathematiques-positioningStudent-html",
+      "path": "sources/terminale-mathematiques/positioningStudent.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 7625,
+      "sha256": "a6222fc939beecaa381969350e41f467d636ede5b61472afc15f16d354a27397",
+      "moduleId": "terminale-mathematiques",
+      "documentId": "positioningStudent"
+    },
+    {
+      "assetId": "priority-terminale-mathematiques-positioningTeacher-html",
+      "path": "sources/terminale-mathematiques/positioningTeacher.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 8272,
+      "sha256": "8ab232cc79b0adebed543ba495486570187e002531e1c2c349d955c071a8d4f6",
+      "moduleId": "terminale-mathematiques",
+      "documentId": "positioningTeacher"
+    },
+    {
+      "assetId": "priority-terminale-mathematiques-workbookStudent-html",
+      "path": "sources/terminale-mathematiques/workbookStudent.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 11413,
+      "sha256": "e747780dd91a17efc05a91eada01a54cfc0ee6f7e187fc802e8ee1e6b030ce7f",
+      "moduleId": "terminale-mathematiques",
+      "documentId": "workbookStudent"
+    },
+    {
+      "assetId": "priority-troisieme-francais-guideTeacher-html",
+      "path": "sources/troisieme-francais/guideTeacher.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 12050,
+      "sha256": "a30cd1b29fad7a1f448dd5eb5e30315d71089c15dbbcd4e0a6e898583a04924c",
+      "moduleId": "troisieme-francais",
+      "documentId": "guideTeacher"
+    },
+    {
+      "assetId": "priority-troisieme-francais-positioningStudent-html",
+      "path": "sources/troisieme-francais/positioningStudent.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 7950,
+      "sha256": "3e54052b90c68db8d1a61548aa8ba29bd5ec81e6a889d38c785d68d499162e01",
+      "moduleId": "troisieme-francais",
+      "documentId": "positioningStudent"
+    },
+    {
+      "assetId": "priority-troisieme-francais-positioningTeacher-html",
+      "path": "sources/troisieme-francais/positioningTeacher.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 8429,
+      "sha256": "b3255f4fd571acb4704e50eda97f6b3e3c7e6195d3c63a77f6e7681151db0b16",
+      "moduleId": "troisieme-francais",
+      "documentId": "positioningTeacher"
+    },
+    {
+      "assetId": "priority-troisieme-francais-workbookStudent-html",
+      "path": "sources/troisieme-francais/workbookStudent.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 11384,
+      "sha256": "baa023b723ca1f03c7165f8f8751e59d815916fb741f5df21722d117ca76bd07",
+      "moduleId": "troisieme-francais",
+      "documentId": "workbookStudent"
+    },
+    {
+      "assetId": "priority-troisieme-mathematiques-guideTeacher-html",
+      "path": "sources/troisieme-mathematiques/guideTeacher.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 11784,
+      "sha256": "7ae91909f98c5274f26810ea7551832cac036586e88953305ad6a2928bc92ea9",
+      "moduleId": "troisieme-mathematiques",
+      "documentId": "guideTeacher"
+    },
+    {
+      "assetId": "priority-troisieme-mathematiques-positioningStudent-html",
+      "path": "sources/troisieme-mathematiques/positioningStudent.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 7482,
+      "sha256": "7b1e30359c0eaa49435c1113b5004db67d4e82e7b4cd18cb82de4371425ebf56",
+      "moduleId": "troisieme-mathematiques",
+      "documentId": "positioningStudent"
+    },
+    {
+      "assetId": "priority-troisieme-mathematiques-positioningTeacher-html",
+      "path": "sources/troisieme-mathematiques/positioningTeacher.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 8149,
+      "sha256": "7104c4e9faeb994865307441938da9cf3d096399c589614095c02c8cca582033",
+      "moduleId": "troisieme-mathematiques",
+      "documentId": "positioningTeacher"
+    },
+    {
+      "assetId": "priority-troisieme-mathematiques-workbookStudent-html",
+      "path": "sources/troisieme-mathematiques/workbookStudent.html",
+      "role": "editable-source",
+      "format": "HTML",
+      "bytes": 11298,
+      "sha256": "4178e67e2e4236f04f8affeac8fedc7f17c1a73101f38bbea53ca30f47d85d1b",
+      "moduleId": "troisieme-mathematiques",
+      "documentId": "workbookStudent"
+    },
+    {
+      "assetId": "priority-contact-sheet-01",
+      "path": "visual-review/priority-resources-contact-sheet-01.png",
+      "role": "visual-review",
+      "format": "PNG",
+      "bytes": 450684,
+      "sha256": "a674f44f24b2d6105a44e0be97e03ce638eae7222bb9004f9cd0b0ae147ba286",
+      "width": 1120,
+      "height": 2000
+    },
+    {
+      "assetId": "priority-contact-sheet-02",
+      "path": "visual-review/priority-resources-contact-sheet-02.png",
+      "role": "visual-review",
+      "format": "PNG",
+      "bytes": 452386,
+      "sha256": "85dcf7616a84faa4fdc644951a23ac6b09d3a9ac1350106fb1dbd0cff35f74fd",
+      "width": 1120,
+      "height": 2000
+    },
+    {
+      "assetId": "priority-contact-sheet-03",
+      "path": "visual-review/priority-resources-contact-sheet-03.png",
+      "role": "visual-review",
+      "format": "PNG",
+      "bytes": 464527,
+      "sha256": "2bc6d2b30382f3d9222de6e30885442316dca9f8efa7cb66224524a09f86f29e",
+      "width": 1120,
+      "height": 2000
+    },
+    {
+      "assetId": "priority-contact-sheet-04",
+      "path": "visual-review/priority-resources-contact-sheet-04.png",
+      "role": "visual-review",
+      "format": "PNG",
+      "bytes": 266427,
+      "sha256": "a349766ac981c7fb0ebad41cc2f6a561939a3fb32725453692635c90af37d417",
+      "width": 1120,
+      "height": 1200
+    }
+  ]
+}

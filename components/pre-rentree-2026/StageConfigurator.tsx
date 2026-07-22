@@ -1,12 +1,10 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { toPreRentreeEntryLevel, track } from '@/lib/analytics';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import {
-  buildBilanUrl,
   buildSelectionSummary,
   buildWhatsAppMessage,
   classifyProfileSubjectCompatibility,
@@ -36,6 +34,7 @@ interface ProfileOption {
 }
 
 interface AcademicProfiles {
+  TROISIEME: Record<string, never>;
   SECONDE: Record<string, never>;
   PREMIERE: {
     voies: ProfileOption[];
@@ -134,12 +133,6 @@ function SummaryCard({
     );
   }
 
-  const bilanUrl = buildBilanUrl({
-    packCode: summary.pack.code,
-    level: summary.level,
-    subjectIds: summary.subjectIds,
-    profile: summary.profile,
-  });
   const whatsappUrl = buildWhatsAppUrl(buildWhatsAppMessage(summary), { exactMessage: true });
   const pack = summary.pack;
 
@@ -186,21 +179,6 @@ function SummaryCard({
         </div>
       )}
       <div className="mt-5 grid gap-3">
-        <Link
-          href={bilanUrl}
-          onClick={() => {
-            onNavigate();
-            track.preRentreeBilanClicked('configurator_summary', pack.code);
-            track.preRentreePreregistrationStarted(
-              pack.code,
-              toPreRentreeEntryLevel(summary.level),
-              summary.subjectIds.length,
-            );
-          }}
-          className="lux-cta-reserve flex min-h-11 items-center justify-center rounded-lg px-4 py-3 text-center text-sm font-semibold"
-        >
-          Poursuivre vers le bilan prérempli
-        </Link>
         <a
           href={whatsappUrl}
           target="_blank"
@@ -209,9 +187,9 @@ function SummaryCard({
             onNavigate();
             track.preRentreeWhatsAppClicked('configurator_summary', pack.code);
           }}
-          className="flex min-h-11 items-center justify-center rounded-lg border border-lux-evergreen px-4 py-3 text-center text-sm font-semibold text-lux-evergreen"
+          className="lux-cta-reserve flex min-h-11 items-center justify-center rounded-lg px-4 py-3 text-center text-sm font-semibold"
         >
-          Vérifier sur WhatsApp <span className="sr-only">(nouvel onglet)</span>
+          Demander ce parcours sur WhatsApp <span className="sr-only">(nouvel onglet)</span>
         </a>
       </div>
       </div>
@@ -304,19 +282,19 @@ export default function StageConfigurator({
     <section className="bg-white px-4 py-14 md:py-20" aria-labelledby="configurator-heading">
       <div className="mx-auto max-w-6xl">
         <div className="max-w-3xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-lux-gold-deep">Pré-inscription sans paiement</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-lux-gold-deep">Demande d’information sans paiement</p>
           <h2 id="configurator-heading" className="mt-3 font-fraunces text-3xl text-lux-ink md:text-4xl">Composer le stage de votre enfant</h2>
           <p className="mt-3 text-lux-slate">Sélectionnez la classe de rentrée, le profil et les matières pour obtenir un résumé exact.</p>
         </div>
 
         <div className="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
           <div className="rounded-2xl border border-lux-line bg-lux-paper p-5 sm:p-7">
-            <p className="mb-6 text-sm font-medium text-lux-slate">Étape {level === 'SECONDE' && step >= 3 ? step - 1 : step} sur {level === 'SECONDE' ? 3 : 4}</p>
+            <p className="mb-6 text-sm font-medium text-lux-slate">Étape {(level === 'TROISIEME' || level === 'SECONDE') && step >= 3 ? step - 1 : step} sur {level === 'TROISIEME' || level === 'SECONDE' ? 3 : 4}</p>
 
             {step === 1 && (
               <fieldset>
                 <legend className="font-semibold text-lux-ink">Classe de rentrée 2026</legend>
-                <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {levels.map((option) => (
                     <ChoiceCard key={option.id} name="level" option={option} checked={level === option.id} onChange={() => chooseLevel(option.id)} />
                   ))}
@@ -366,7 +344,7 @@ export default function StageConfigurator({
                     const slots = schedule.filter((slot) => slot.level === level && slot.subject === subject.id);
                     const first = slots[0];
                     const label = subject.labelByLevel?.[level] ?? subject.label;
-                    const hours = packs.find((pack) => pack.subjectsCount === 1)?.totalHours;
+                    const hours = packs.find((pack) => pack.subjectsCount === 1 && pack.level === level)?.totalHours;
                     const theme = getSubjectTheme(subject.id, label);
                     return (
                       <article
@@ -393,7 +371,7 @@ export default function StageConfigurator({
             {step === 4 && (
               <div>
                 <h3 className="font-semibold text-lux-ink">Résumé de votre sélection</h3>
-                <p className="mt-2 text-sm text-lux-slate">Vous pouvez modifier vos choix avant de poursuivre vers le formulaire.</p>
+                <p className="mt-2 text-sm text-lux-slate">Vous pouvez modifier vos choix avant d’envoyer votre demande.</p>
                 <button type="button" className={`${buttonClass} mt-5 border border-lux-line`} onClick={() => continueTo(3)}>Modifier les matières</button>
               </div>
             )}

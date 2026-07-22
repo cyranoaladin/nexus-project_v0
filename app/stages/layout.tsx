@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Stages 2026/2027 | Nexus Réussite",
   description:
-    "Stages de prérentrée, Toussaint, hiver, printemps et sprint final. Groupes réduits, présentiel à Mutuelleville ou en ligne.",
+    "Stages 2026/2027 Nexus Réussite : campagnes, matières, volumes, effectifs et conditions présentés offre par offre.",
   alternates: { canonical: '/stages' },
   openGraph: {
     images: [OG_DEFAULT_IMAGE],

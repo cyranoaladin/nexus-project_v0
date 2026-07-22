@@ -1,0 +1,2702 @@
+{
+  "$ref": "#/definitions/PublicationSnapshot",
+  "definitions": {
+    "PublicationSnapshot": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "const": "1.0.0"
+        },
+        "sourceSetSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "sourceRepoSha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "sourceCommitDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "snapshotBuiltAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "provenance": {
+          "type": "object",
+          "properties": {
+            "campaign": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "version": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "sha256": {
+                  "$ref": "#/definitions/PublicationSnapshot/properties/sourceSetSha256"
+                }
+              },
+              "required": [
+                "path",
+                "version",
+                "sha256"
+              ],
+              "additionalProperties": false
+            },
+            "modules": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+            },
+            "pricing": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+            },
+            "legal": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+            },
+            "contact": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+            },
+            "parentGuide": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+            },
+            "pedagogyFramework": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+            },
+            "offers": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+            },
+            "capabilities": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+            },
+            "manuals": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+            },
+            "communication": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+            },
+            "whatsapp": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+            },
+            "operations": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+            }
+          },
+          "required": [
+            "campaign",
+            "modules",
+            "pricing",
+            "legal",
+            "contact",
+            "parentGuide",
+            "pedagogyFramework",
+            "offers",
+            "capabilities",
+            "manuals",
+            "communication",
+            "whatsapp",
+            "operations"
+          ],
+          "additionalProperties": false
+        },
+        "campaign": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "const": "pre-rentree-2026"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "schoolYear": {
+              "type": "string",
+              "minLength": 1
+            },
+            "timezone": {
+              "type": "string",
+              "const": "Africa/Tunis"
+            },
+            "publicationMode": {
+              "type": "string",
+              "enum": [
+                "REVIEW",
+                "RELEASE"
+              ]
+            },
+            "startDate": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "endDate": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/campaign/properties/startDate"
+            },
+            "noClassDates": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PublicationSnapshot/properties/campaign/properties/startDate"
+              }
+            },
+            "decisionDeadline": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "venue": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "neighborhood": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "city": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "name",
+                "neighborhood",
+                "city"
+              ],
+              "additionalProperties": false
+            },
+            "capacityByOffer": {
+              "type": "object",
+              "properties": {
+                "FONDATIONS": {
+                  "type": "object",
+                  "properties": {
+                    "min": {
+                      "type": "number",
+                      "const": 4
+                    },
+                    "max": {
+                      "type": "number",
+                      "const": 6
+                    }
+                  },
+                  "required": [
+                    "min",
+                    "max"
+                  ],
+                  "additionalProperties": false
+                },
+                "PREMIUM": {
+                  "type": "object",
+                  "properties": {
+                    "min": {
+                      "type": "number",
+                      "const": 3
+                    },
+                    "max": {
+                      "type": "number",
+                      "const": 5
+                    }
+                  },
+                  "required": [
+                    "min",
+                    "max"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "FONDATIONS",
+                "PREMIUM"
+              ],
+              "additionalProperties": false
+            },
+            "operationalGates": {
+              "type": "object",
+              "properties": {
+                "roomAssignmentsValidated": {
+                  "type": "boolean"
+                },
+                "teacherAssignmentsValidated": {
+                  "type": "boolean"
+                },
+                "noTeacherConflict": {
+                  "type": "boolean"
+                },
+                "noRoomConflict": {
+                  "type": "boolean"
+                },
+                "dailyLoadValid": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "roomAssignmentsValidated",
+                "teacherAssignmentsValidated",
+                "noTeacherConflict",
+                "noRoomConflict",
+                "dailyLoadValid"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "id",
+            "version",
+            "schoolYear",
+            "timezone",
+            "publicationMode",
+            "startDate",
+            "endDate",
+            "noClassDates",
+            "decisionDeadline",
+            "venue",
+            "capacityByOffer",
+            "operationalGates"
+          ],
+          "additionalProperties": false
+        },
+        "levels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "enum": [
+                  "TROISIEME",
+                  "SECONDE",
+                  "PREMIERE",
+                  "TERMINALE"
+                ]
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "id",
+              "label"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "subjects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "enum": [
+                  "MATHEMATIQUES",
+                  "FRANCAIS",
+                  "NSI",
+                  "PHYSIQUE_CHIMIE",
+                  "PHILOSOPHIE"
+                ]
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "labelByLevel": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "publicLabelByLevel": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "abbreviation": {
+                "type": "string",
+                "minLength": 1
+              },
+              "color": {
+                "type": "string",
+                "pattern": "^#[A-Fa-f0-9]{6}$"
+              }
+            },
+            "required": [
+              "id",
+              "label",
+              "publicLabelByLevel",
+              "abbreviation",
+              "color"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 5,
+          "maxItems": 5
+        },
+        "blocks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "enum": [
+                  "A",
+                  "B",
+                  "C",
+                  "D"
+                ]
+              },
+              "startTime": {
+                "type": "string",
+                "pattern": "^\\d{2}:\\d{2}$"
+              },
+              "endTime": {
+                "$ref": "#/definitions/PublicationSnapshot/properties/blocks/items/properties/startTime"
+              }
+            },
+            "required": [
+              "id",
+              "startTime",
+              "endTime"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "schedule": {
+          "type": "object",
+          "properties": {
+            "weeks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "week": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 2
+                  },
+                  "label": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "startDate": {
+                    "$ref": "#/definitions/PublicationSnapshot/properties/campaign/properties/startDate"
+                  },
+                  "endDate": {
+                    "$ref": "#/definitions/PublicationSnapshot/properties/campaign/properties/startDate"
+                  },
+                  "slots": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "level": {
+                          "$ref": "#/definitions/PublicationSnapshot/properties/levels/items/properties/id"
+                        },
+                        "subjectId": {
+                          "$ref": "#/definitions/PublicationSnapshot/properties/subjects/items/properties/id"
+                        },
+                        "subjectLabel": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "blockId": {
+                          "type": "string",
+                          "enum": [
+                            "A",
+                            "B",
+                            "C",
+                            "D"
+                          ]
+                        },
+                        "startTime": {
+                          "$ref": "#/definitions/PublicationSnapshot/properties/blocks/items/properties/startTime"
+                        },
+                        "endTime": {
+                          "$ref": "#/definitions/PublicationSnapshot/properties/blocks/items/properties/startTime"
+                        },
+                        "roomLabel": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "level",
+                        "subjectId",
+                        "subjectLabel",
+                        "blockId",
+                        "startTime",
+                        "endTime",
+                        "roomLabel"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "week",
+                  "label",
+                  "startDate",
+                  "endDate",
+                  "slots"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "sessions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "date": {
+                    "$ref": "#/definitions/PublicationSnapshot/properties/campaign/properties/startDate"
+                  },
+                  "week": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 2
+                  },
+                  "level": {
+                    "$ref": "#/definitions/PublicationSnapshot/properties/levels/items/properties/id"
+                  },
+                  "subjectId": {
+                    "$ref": "#/definitions/PublicationSnapshot/properties/subjects/items/properties/id"
+                  },
+                  "subjectLabel": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "blockId": {
+                    "type": "string",
+                    "enum": [
+                      "A",
+                      "B",
+                      "C",
+                      "D"
+                    ]
+                  },
+                  "startTime": {
+                    "$ref": "#/definitions/PublicationSnapshot/properties/blocks/items/properties/startTime"
+                  },
+                  "endTime": {
+                    "$ref": "#/definitions/PublicationSnapshot/properties/blocks/items/properties/startTime"
+                  },
+                  "roomLabel": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sessionNumber": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5
+                  }
+                },
+                "required": [
+                  "date",
+                  "week",
+                  "level",
+                  "subjectId",
+                  "subjectLabel",
+                  "blockId",
+                  "startTime",
+                  "endTime",
+                  "roomLabel",
+                  "sessionNumber"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 70,
+              "maxItems": 70
+            }
+          },
+          "required": [
+            "weeks",
+            "sessions"
+          ],
+          "additionalProperties": false
+        },
+        "academicProfiles": {
+          "type": "object",
+          "additionalProperties": {}
+        },
+        "packs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "subjectCount": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "hoursPerSubject": {
+                "type": "number",
+                "exclusiveMinimum": true,
+                "minimum": 0
+              },
+              "totalHours": {
+                "type": "number",
+                "exclusiveMinimum": true,
+                "minimum": 0
+              },
+              "sessionsPerSubject": {
+                "type": "integer",
+                "exclusiveMinimum": true,
+                "minimum": 0
+              },
+              "sessionDurationHours": {
+                "type": "number",
+                "exclusiveMinimum": true,
+                "minimum": 0
+              },
+              "groupMin": {
+                "type": "integer",
+                "exclusiveMinimum": true,
+                "minimum": 0
+              },
+              "groupMax": {
+                "type": "integer",
+                "exclusiveMinimum": true,
+                "minimum": 0
+              },
+              "price": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "deposit": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "balance": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "pricePerHour": {
+                "type": "number",
+                "exclusiveMinimum": true,
+                "minimum": 0
+              }
+            },
+            "required": [
+              "subjectCount",
+              "title",
+              "hoursPerSubject",
+              "totalHours",
+              "sessionsPerSubject",
+              "sessionDurationHours",
+              "groupMin",
+              "groupMax",
+              "price",
+              "deposit",
+              "balance",
+              "pricePerHour"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "modules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "level": {
+                "$ref": "#/definitions/PublicationSnapshot/properties/levels/items/properties/id"
+              },
+              "subjectId": {
+                "$ref": "#/definitions/PublicationSnapshot/properties/subjects/items/properties/id"
+              },
+              "subject": {
+                "type": "string",
+                "minLength": 1
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "subtitle": {
+                "type": "string",
+                "minLength": 1
+              },
+              "prerequisites": {
+                "type": "string",
+                "minLength": 1
+              },
+              "differentiation": {
+                "type": "string",
+                "minLength": 1
+              },
+              "quickAssessment": {
+                "type": "string",
+                "minLength": 1
+              },
+              "sessions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "number": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 5
+                    },
+                    "title": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "objective": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "topics": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "minItems": 1
+                    },
+                    "method": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "deliverable": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "number",
+                    "title",
+                    "objective",
+                    "topics",
+                    "method",
+                    "deliverable"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 5,
+                "maxItems": 5
+              }
+            },
+            "required": [
+              "id",
+              "level",
+              "subjectId",
+              "subject",
+              "title",
+              "subtitle",
+              "prerequisites",
+              "differentiation",
+              "quickAssessment",
+              "sessions"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 14,
+          "maxItems": 14
+        },
+        "pedagogy": {
+          "type": "object",
+          "properties": {
+            "positioningTests": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^POS\\-"
+                  },
+                  "moduleId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "version": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "durationMinutes": {
+                    "type": "integer",
+                    "minimum": 15,
+                    "maximum": 60
+                  },
+                  "materialAllowed": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "domains": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 5,
+                    "maxItems": 5
+                  },
+                  "questions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "number": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 5
+                        },
+                        "domain": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "prompt": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "correction": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "points": {
+                          "type": "integer",
+                          "exclusiveMinimum": true,
+                          "minimum": 0
+                        },
+                        "errorTypes": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "minItems": 3
+                        }
+                      },
+                      "required": [
+                        "number",
+                        "domain",
+                        "prompt",
+                        "correction",
+                        "points",
+                        "errorTypes"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minItems": 5,
+                    "maxItems": 5
+                  },
+                  "totalPoints": {
+                    "type": "number",
+                    "const": 20
+                  },
+                  "rubric": {
+                    "type": "object",
+                    "properties": {
+                      "ACQUIS": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "FRAGILE": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "LACUNE": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "ACQUIS",
+                      "FRAGILE",
+                      "LACUNE"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "errorTypes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 3
+                  },
+                  "coherenceChecks": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 3
+                  },
+                  "anonymousSample": {
+                    "type": "object",
+                    "properties": {
+                      "sampleId": {
+                        "type": "string",
+                        "pattern": "^SAMPLE-ANON-\\d{2}$"
+                      },
+                      "response": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "assessment": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "sampleId",
+                      "response",
+                      "assessment"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "id",
+                  "moduleId",
+                  "version",
+                  "durationMinutes",
+                  "materialAllowed",
+                  "domains",
+                  "questions",
+                  "totalPoints",
+                  "rubric",
+                  "errorTypes",
+                  "coherenceChecks",
+                  "anonymousSample"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 14,
+              "maxItems": 14
+            },
+            "quickAssessments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^QA\\-"
+                  },
+                  "sessionRef": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "durationMinutes": {
+                    "type": "integer",
+                    "minimum": 5,
+                    "maximum": 10
+                  },
+                  "domain": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "prompt": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "correction": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "successCriterion": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "expectedLevel": {
+                    "$ref": "#/definitions/PublicationSnapshot/properties/levels/items/properties/id"
+                  },
+                  "captureMode": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "id",
+                  "sessionRef",
+                  "durationMinutes",
+                  "domain",
+                  "prompt",
+                  "correction",
+                  "successCriterion",
+                  "expectedLevel",
+                  "captureMode"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 70,
+              "maxItems": 70
+            },
+            "sessionDeliverables": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^DEL\\-"
+                  },
+                  "sessionRef": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "objective": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "instructions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 3
+                  },
+                  "expectedEvidence": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 2
+                  },
+                  "selfCheck": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 3
+                  }
+                },
+                "required": [
+                  "id",
+                  "sessionRef",
+                  "title",
+                  "objective",
+                  "instructions",
+                  "expectedEvidence",
+                  "selfCheck"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 70,
+              "maxItems": 70
+            }
+          },
+          "required": [
+            "positioningTests",
+            "quickAssessments",
+            "sessionDeliverables"
+          ],
+          "additionalProperties": false
+        },
+        "offers": {
+          "type": "object",
+          "properties": {
+            "schemaVersion": {
+              "type": "string",
+              "const": "1.0.0"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "campaignId": {
+              "type": "string",
+              "const": "pre-rentree-2026"
+            },
+            "depositRate": {
+              "type": "number",
+              "const": 0.3
+            },
+            "levels": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "level": {
+                    "type": "string",
+                    "enum": [
+                      "TROISIEME",
+                      "SECONDE",
+                      "PREMIERE",
+                      "TERMINALE"
+                    ]
+                  },
+                  "range": {
+                    "type": "string",
+                    "enum": [
+                      "FONDATIONS",
+                      "PREMIUM"
+                    ]
+                  },
+                  "signature": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "subjects": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "MATHEMATIQUES",
+                        "PHYSIQUE_CHIMIE",
+                        "NSI",
+                        "FRANCAIS",
+                        "PHILOSOPHIE"
+                      ]
+                    },
+                    "minItems": 1,
+                    "maxItems": 4
+                  },
+                  "pricing": {
+                    "type": "object",
+                    "properties": {
+                      "model": {
+                        "type": "string",
+                        "enum": [
+                          "PER_SUBJECT",
+                          "PACK_BY_SUBJECT_COUNT"
+                        ]
+                      },
+                      "productIds": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "minItems": 1,
+                        "maxItems": 4
+                      },
+                      "multiSubjectDiscount": {
+                        "type": "boolean"
+                      },
+                      "maximumSubjects": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 4
+                      }
+                    },
+                    "required": [
+                      "model",
+                      "productIds",
+                      "multiSubjectDiscount",
+                      "maximumSubjects"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "capacity": {
+                    "type": "object",
+                    "properties": {
+                      "min": {
+                        "type": "integer",
+                        "minimum": 3,
+                        "maximum": 4
+                      },
+                      "max": {
+                        "type": "integer",
+                        "minimum": 5,
+                        "maximum": 6
+                      }
+                    },
+                    "required": [
+                      "min",
+                      "max"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "serviceCapabilityIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "level",
+                  "range",
+                  "signature",
+                  "subjects",
+                  "pricing",
+                  "capacity",
+                  "serviceCapabilityIds"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 4,
+              "maxItems": 4
+            }
+          },
+          "required": [
+            "schemaVersion",
+            "version",
+            "campaignId",
+            "depositRate",
+            "levels"
+          ],
+          "additionalProperties": false
+        },
+        "offerPricing": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "level": {
+                "$ref": "#/definitions/PublicationSnapshot/properties/levels/items/properties/id"
+              },
+              "range": {
+                "type": "string",
+                "enum": [
+                  "FONDATIONS",
+                  "PREMIUM"
+                ]
+              },
+              "subjectCount": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4
+              },
+              "totalHours": {
+                "type": "integer",
+                "exclusiveMinimum": true,
+                "minimum": 0
+              },
+              "price": {
+                "type": "integer",
+                "exclusiveMinimum": true,
+                "minimum": 0
+              },
+              "deposit": {
+                "type": "integer",
+                "exclusiveMinimum": true,
+                "minimum": 0
+              },
+              "balance": {
+                "type": "integer",
+                "exclusiveMinimum": true,
+                "minimum": 0
+              },
+              "pricePerHour": {
+                "type": "number",
+                "exclusiveMinimum": true,
+                "minimum": 0
+              }
+            },
+            "required": [
+              "level",
+              "range",
+              "subjectCount",
+              "totalHours",
+              "price",
+              "deposit",
+              "balance",
+              "pricePerHour"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 14,
+          "maxItems": 14
+        },
+        "capabilities": {
+          "type": "object",
+          "properties": {
+            "schemaVersion": {
+              "type": "string",
+              "const": "1.0.0"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "capabilities": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                  },
+                  "label": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "designed": {
+                    "type": "boolean"
+                  },
+                  "implemented": {
+                    "type": "boolean"
+                  },
+                  "tested": {
+                    "type": "boolean"
+                  },
+                  "operationallyReady": {
+                    "type": "boolean"
+                  },
+                  "ownerApproved": {
+                    "type": "boolean"
+                  },
+                  "publiclyCommitted": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "id",
+                  "label",
+                  "designed",
+                  "implemented",
+                  "tested",
+                  "operationallyReady",
+                  "ownerApproved",
+                  "publiclyCommitted"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "schemaVersion",
+            "version",
+            "capabilities"
+          ],
+          "additionalProperties": false
+        },
+        "manuals": {
+          "type": "object",
+          "properties": {
+            "schemaVersion": {
+              "type": "string",
+              "const": "1.0.0"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "manuals": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "subject": {
+                    "type": "string",
+                    "enum": [
+                      "MATHEMATIQUES",
+                      "NSI"
+                    ]
+                  },
+                  "level": {
+                    "type": "string",
+                    "enum": [
+                      "PREMIERE",
+                      "TERMINALE"
+                    ]
+                  },
+                  "sourceRepository": {
+                    "type": "string",
+                    "const": "cyranoaladin/manuels-nexus"
+                  },
+                  "sourceCommitSha": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "const": ""
+                      },
+                      {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{40}$"
+                      }
+                    ]
+                  },
+                  "edition": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "printReady": {
+                    "type": "boolean"
+                  },
+                  "ownerApproved": {
+                    "type": "boolean"
+                  },
+                  "stockReady": {
+                    "type": "boolean"
+                  },
+                  "pageCount": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "exclusiveMinimum": true,
+                        "minimum": 0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "studentCopiesOrdered": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "reserveCopies": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "id",
+                  "subject",
+                  "level",
+                  "sourceRepository",
+                  "sourceCommitSha",
+                  "edition",
+                  "printReady",
+                  "ownerApproved",
+                  "stockReady",
+                  "pageCount",
+                  "studentCopiesOrdered",
+                  "reserveCopies"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 4,
+              "maxItems": 4
+            }
+          },
+          "required": [
+            "schemaVersion",
+            "version",
+            "manuals"
+          ],
+          "additionalProperties": false
+        },
+        "communication": {
+          "type": "object",
+          "properties": {
+            "schemaVersion": {
+              "type": "string",
+              "const": "1.0.0"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "locale": {
+              "type": "string",
+              "const": "fr-TN"
+            },
+            "formats": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 7
+            },
+            "publications": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "publicGate": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "id",
+                  "title",
+                  "publicGate",
+                  "text"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 13
+            },
+            "carousels": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "slides": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "body": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "title",
+                        "body"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minItems": 4
+                  }
+                },
+                "required": [
+                  "id",
+                  "slides"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 8,
+              "maxItems": 8
+            },
+            "stories": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 12
+            },
+            "reels": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "durationSeconds": {
+                    "type": "integer",
+                    "minimum": 20,
+                    "maximum": 35
+                  },
+                  "captionsRequired": {
+                    "type": "boolean",
+                    "const": true
+                  },
+                  "publicGate": {
+                    "$ref": "#/definitions/PublicationSnapshot/properties/communication/properties/publications/items/properties/publicGate"
+                  },
+                  "scenes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 4
+                  }
+                },
+                "required": [
+                  "id",
+                  "title",
+                  "durationSeconds",
+                  "captionsRequired",
+                  "publicGate",
+                  "scenes"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 3,
+              "maxItems": 3
+            },
+            "altTextTemplate": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "schemaVersion",
+            "version",
+            "locale",
+            "formats",
+            "publications",
+            "carousels",
+            "stories",
+            "reels",
+            "altTextTemplate"
+          ],
+          "additionalProperties": false
+        },
+        "whatsapp": {
+          "type": "object",
+          "properties": {
+            "schemaVersion": {
+              "type": "string",
+              "const": "1.0.0"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "locale": {
+              "type": "string",
+              "const": "fr-TN"
+            },
+            "keywords": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 7,
+              "maxItems": 7
+            },
+            "tracking": {
+              "type": "object",
+              "properties": {
+                "campaign": {
+                  "type": "string",
+                  "const": "pre-rentree-2026"
+                },
+                "source": {
+                  "type": "string",
+                  "const": "whatsapp"
+                },
+                "medium": {
+                  "type": "string",
+                  "const": "conversation"
+                }
+              },
+              "required": [
+                "campaign",
+                "source",
+                "medium"
+              ],
+              "additionalProperties": false
+            },
+            "scripts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                  },
+                  "purpose": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "publicGate": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "text": {
+                    "type": "string",
+                    "minLength": 40
+                  }
+                },
+                "required": [
+                  "id",
+                  "purpose",
+                  "publicGate",
+                  "text"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 24,
+              "maxItems": 24
+            }
+          },
+          "required": [
+            "schemaVersion",
+            "version",
+            "locale",
+            "keywords",
+            "tracking",
+            "scripts"
+          ],
+          "additionalProperties": false
+        },
+        "operations": {
+          "type": "object",
+          "properties": {
+            "schemaVersion": {
+              "type": "string",
+              "const": "1.0.0"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "locale": {
+              "type": "string",
+              "const": "fr-TN"
+            },
+            "reviewForms": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "purpose": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "privacyGate": {
+                    "type": "boolean"
+                  },
+                  "fields": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[a-z][A-Za-z0-9]*$"
+                        },
+                        "label": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "TEXT",
+                            "LONG_TEXT",
+                            "PHONE",
+                            "EMAIL",
+                            "DATE",
+                            "DATETIME",
+                            "SELECT",
+                            "RADIO",
+                            "CHECKBOX",
+                            "AMOUNT",
+                            "IDENTIFIER"
+                          ]
+                        },
+                        "required": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "label",
+                        "type",
+                        "required"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "id",
+                  "title",
+                  "purpose",
+                  "privacyGate",
+                  "fields"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 11,
+              "maxItems": 11
+            },
+            "crm": {
+              "type": "object",
+              "properties": {
+                "statuses": {
+                  "type": "array",
+                  "minItems": 14,
+                  "maxItems": 14,
+                  "items": [
+                    {
+                      "type": "string",
+                      "const": "NEW"
+                    },
+                    {
+                      "type": "string",
+                      "const": "CONTACTED"
+                    },
+                    {
+                      "type": "string",
+                      "const": "QUALIFIED"
+                    },
+                    {
+                      "type": "string",
+                      "const": "PROGRAM_SENT"
+                    },
+                    {
+                      "type": "string",
+                      "const": "PATH_PROPOSED"
+                    },
+                    {
+                      "type": "string",
+                      "const": "PENDING_DEPOSIT"
+                    },
+                    {
+                      "type": "string",
+                      "const": "RESERVED"
+                    },
+                    {
+                      "type": "string",
+                      "const": "WAITLIST"
+                    },
+                    {
+                      "type": "string",
+                      "const": "GROUP_CONFIRMED"
+                    },
+                    {
+                      "type": "string",
+                      "const": "BALANCE_PENDING"
+                    },
+                    {
+                      "type": "string",
+                      "const": "FULLY_PAID"
+                    },
+                    {
+                      "type": "string",
+                      "const": "COMPLETED"
+                    },
+                    {
+                      "type": "string",
+                      "const": "CANCELLED"
+                    },
+                    {
+                      "type": "string",
+                      "const": "REFUNDED"
+                    }
+                  ]
+                },
+                "fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][A-Za-z0-9]*$"
+                      },
+                      "label": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "TEXT",
+                          "DATE",
+                          "DATETIME",
+                          "ENUM",
+                          "BOOLEAN",
+                          "AMOUNT"
+                        ]
+                      },
+                      "required": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "label",
+                      "type",
+                      "required"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "minItems": 20
+                }
+              },
+              "required": [
+                "statuses",
+                "fields"
+              ],
+              "additionalProperties": false
+            },
+            "economicModel": {
+              "type": "object",
+              "properties": {
+                "currency": {
+                  "type": "string",
+                  "const": "TND"
+                },
+                "inputs": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][A-Za-z0-9]*$"
+                      },
+                      "label": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "unit": {
+                        "type": "string",
+                        "enum": [
+                          "TND",
+                          "HOURS",
+                          "RATE"
+                        ]
+                      },
+                      "value": {
+                        "type": "null"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "label",
+                      "unit",
+                      "value"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "minItems": 15
+                },
+                "acquisitionScenarios": {
+                  "type": "array",
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "items": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "const": "LOW"
+                        },
+                        "inputId": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "inputId"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "const": "MEDIUM"
+                        },
+                        "inputId": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "inputId"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "const": "HIGH"
+                        },
+                        "inputId": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "inputId"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "currency",
+                "inputs",
+                "acquisitionScenarios"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "schemaVersion",
+            "version",
+            "locale",
+            "reviewForms",
+            "crm",
+            "economicModel"
+          ],
+          "additionalProperties": false
+        },
+        "content": {
+          "type": "object",
+          "properties": {
+            "hero": {
+              "type": "object",
+              "properties": {
+                "eyebrow": {
+                  "type": "string"
+                },
+                "h1": {
+                  "type": "string"
+                },
+                "subtitle": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "eyebrow",
+                "h1",
+                "subtitle"
+              ],
+              "additionalProperties": false
+            },
+            "method": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "title",
+                  "description"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "practical": {
+              "type": "object",
+              "additionalProperties": {}
+            },
+            "faq": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "question": {
+                    "type": "string"
+                  },
+                  "answer": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "question",
+                  "answer"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "adaptationNotice": {
+              "type": "string",
+              "minLength": 1
+            },
+            "recordingConsentNotice": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "hero",
+            "method",
+            "practical",
+            "faq",
+            "adaptationNotice",
+            "recordingConsentNotice"
+          ],
+          "additionalProperties": false
+        },
+        "labels": {
+          "type": "object",
+          "properties": {
+            "deposit": {
+              "type": "string",
+              "const": "Acompte"
+            },
+            "balance": {
+              "type": "string",
+              "const": "Solde"
+            },
+            "price": {
+              "type": "string",
+              "const": "Prix"
+            }
+          },
+          "required": [
+            "deposit",
+            "balance",
+            "price"
+          ],
+          "additionalProperties": false
+        },
+        "cta": {
+          "type": "object",
+          "properties": {
+            "primary": {
+              "type": "string",
+              "const": "Demander un parcours ou un conseil"
+            },
+            "whatsapp": {
+              "type": "string",
+              "minLength": 1
+            },
+            "bilanLabel": {
+              "type": "string",
+              "minLength": 1
+            },
+            "bilanPath": {
+              "type": "string",
+              "pattern": "^\\/"
+            }
+          },
+          "required": [
+            "primary",
+            "whatsapp",
+            "bilanLabel",
+            "bilanPath"
+          ],
+          "additionalProperties": false
+        },
+        "contact": {
+          "type": "object",
+          "properties": {
+            "phone": {
+              "type": "string",
+              "minLength": 1
+            },
+            "phoneRaw": {
+              "type": "string",
+              "minLength": 1
+            },
+            "email": {
+              "type": "string",
+              "format": "email"
+            },
+            "addressLabel": {
+              "type": "string",
+              "minLength": 1
+            },
+            "address": {
+              "type": "string",
+              "minLength": 1
+            },
+            "whatsappUrl": {
+              "type": "string",
+              "format": "uri"
+            },
+            "canonicalUrl": {
+              "type": "string",
+              "format": "uri"
+            },
+            "domain": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "phone",
+            "phoneRaw",
+            "email",
+            "addressLabel",
+            "address",
+            "whatsappUrl",
+            "canonicalUrl",
+            "domain"
+          ],
+          "additionalProperties": false
+        },
+        "legal": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "APPROVED",
+                "MISSING_APPROVED_COMMERCIAL_TERMS",
+                "UNAPPROVED_COMMERCIAL_TERMS"
+              ]
+            },
+            "commercialTermsPath": {
+              "type": "string",
+              "minLength": 1
+            },
+            "contractualDossierPublicationBlocked": {
+              "type": "boolean"
+            },
+            "termsVersion": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "effectiveDate": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/PublicationSnapshot/properties/campaign/properties/startDate"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "ownerApprovalReference": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "legalApprovalReference": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "privacyNoticeComplete": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "status",
+            "commercialTermsPath",
+            "contractualDossierPublicationBlocked",
+            "termsVersion",
+            "effectiveDate",
+            "ownerApprovalReference",
+            "legalApprovalReference",
+            "privacyNoticeComplete"
+          ],
+          "additionalProperties": false
+        },
+        "approvedPublicClaims": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]*$"
+              },
+              "type": {
+                "type": "string",
+                "minLength": 1
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "pointer": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "path",
+                  "pointer"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "text",
+              "source"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        },
+        "parentGuide": {
+          "type": "object",
+          "properties": {
+            "schemaVersion": {
+              "type": "string",
+              "const": "1.0.0"
+            },
+            "contentVersion": {
+              "type": "string",
+              "minLength": 1
+            },
+            "locale": {
+              "type": "string",
+              "const": "fr-TN"
+            },
+            "status": {
+              "type": "string",
+              "const": "DRAFT_FOR_OWNER_REVIEW"
+            },
+            "documentPackageVersion": {
+              "type": "string",
+              "pattern": "^\\d+\\.\\d+\\.\\d+-rc\\.\\d+$"
+            },
+            "documentEditionDate": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/campaign/properties/startDate"
+            },
+            "snapshotBuiltAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "sections": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "blocks": {
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                            },
+                            "kind": {
+                              "type": "string",
+                              "const": "EVIDENCED_TEXT"
+                            },
+                            "text": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "evidenceRefs": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "pattern": "^\\/"
+                              },
+                              "minItems": 1
+                            },
+                            "capabilityId": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "kind",
+                            "text",
+                            "evidenceRefs"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                            },
+                            "kind": {
+                              "type": "string",
+                              "const": "EVIDENCED_PROCEDURE"
+                            },
+                            "steps": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "text": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "evidenceRefs": {
+                                    "type": "array",
+                                    "items": {
+                                      "$ref": "#/definitions/PublicationSnapshot/properties/parentGuide/properties/sections/items/properties/blocks/items/anyOf/0/properties/evidenceRefs/items"
+                                    },
+                                    "minItems": 1
+                                  }
+                                },
+                                "required": [
+                                  "text",
+                                  "evidenceRefs"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "minItems": 1
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "kind",
+                            "steps"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                            },
+                            "kind": {
+                              "type": "string",
+                              "const": "DYNAMIC_REFERENCE"
+                            },
+                            "sourceRef": {
+                              "$ref": "#/definitions/PublicationSnapshot/properties/parentGuide/properties/sections/items/properties/blocks/items/anyOf/0/properties/evidenceRefs/items"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "kind",
+                            "sourceRef"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "id",
+                  "title",
+                  "blocks"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "schemaVersion",
+            "contentVersion",
+            "locale",
+            "status",
+            "documentPackageVersion",
+            "documentEditionDate",
+            "snapshotBuiltAt",
+            "sections"
+          ],
+          "additionalProperties": false
+        },
+        "assets": {
+          "type": "object",
+          "properties": {
+            "logos": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "$ref": "#/definitions/PublicationSnapshot/properties/sourceSetSha256"
+                  }
+                },
+                "required": [
+                  "id",
+                  "path",
+                  "sha256"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1
+            },
+            "fonts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "$ref": "#/definitions/PublicationSnapshot/properties/sourceSetSha256"
+                  }
+                },
+                "required": [
+                  "id",
+                  "path",
+                  "sha256"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "logos",
+            "fonts"
+          ],
+          "additionalProperties": false
+        },
+        "document": {
+          "type": "object",
+          "properties": {
+            "documentPackageVersion": {
+              "type": "string",
+              "pattern": "^\\d+\\.\\d+\\.\\d+-rc\\.\\d+$"
+            },
+            "documentEditionDate": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/campaign/properties/startDate"
+            },
+            "publicClassification": {
+              "type": "string",
+              "const": "PUBLIC"
+            },
+            "qrTarget": {
+              "type": "string",
+              "format": "uri"
+            },
+            "outputs": {
+              "type": "object",
+              "properties": {
+                "publicPdf": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string",
+                    "pattern": "\\.pdf$"
+                  }
+                },
+                "publicHtml": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string",
+                    "pattern": "\\.html$"
+                  }
+                },
+                "social": {
+                  "type": "object",
+                  "properties": {
+                    "feed": {
+                      "type": "string",
+                      "pattern": "\\.png$"
+                    },
+                    "story": {
+                      "type": "string",
+                      "pattern": "\\.png$"
+                    },
+                    "monochrome": {
+                      "type": "string",
+                      "pattern": "\\.png$"
+                    },
+                    "altText": {
+                      "type": "string",
+                      "pattern": "\\.json$"
+                    }
+                  },
+                  "required": [
+                    "feed",
+                    "story",
+                    "monochrome",
+                    "altText"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "publicPdf",
+                "publicHtml",
+                "social"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "documentPackageVersion",
+            "documentEditionDate",
+            "publicClassification",
+            "qrTarget",
+            "outputs"
+          ],
+          "additionalProperties": false
+        },
+        "reviews": {
+          "type": "object",
+          "properties": {
+            "ownerReviewedAt": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "legalReviewedAt": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "privacyReviewedAt": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "ownerReviewedAt",
+            "legalReviewedAt",
+            "privacyReviewedAt"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "sourceSetSha256",
+        "sourceRepoSha",
+        "sourceCommitDate",
+        "snapshotBuiltAt",
+        "provenance",
+        "campaign",
+        "levels",
+        "subjects",
+        "blocks",
+        "schedule",
+        "academicProfiles",
+        "packs",
+        "modules",
+        "pedagogy",
+        "offers",
+        "offerPricing",
+        "capabilities",
+        "manuals",
+        "communication",
+        "whatsapp",
+        "operations",
+        "content",
+        "labels",
+        "cta",
+        "contact",
+        "legal",
+        "approvedPublicClaims",
+        "parentGuide",
+        "assets",
+        "document",
+        "reviews"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2019-09/schema#",
+  "$id": "https://nexusreussite.academy/schemas/pre-rentree-2026-publication.snapshot.schema.json",
+  "title": "Nexus Réussite Pré-rentrée 2026 publication snapshot"
+}

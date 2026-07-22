@@ -1,0 +1,451 @@
+[
+  {
+    "family": "publications",
+    "id": "01-annonce-generale",
+    "assetId": "full-post-01-annonce-generale",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-DATES-VENUE",
+      "PRF-PRE2026-FIVE-SESSIONS",
+      "PRF-PRE2026-STRUCTURED-SESSIONS"
+    ],
+    "publicationDate": "2026-07-20"
+  },
+  {
+    "family": "publications",
+    "id": "02-entree-3e",
+    "assetId": "full-post-02-entree-3e",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-3E-350-APPROVED",
+      "PRF-PRE2026-FIVE-SESSIONS",
+      "PRF-PRE2026-STRUCTURED-SESSIONS"
+    ],
+    "publicationDate": "2026-07-22"
+  },
+  {
+    "family": "publications",
+    "id": "03-entree-seconde",
+    "assetId": "full-post-03-entree-seconde",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-SECONDE-400",
+      "PRF-PRE2026-FIVE-SESSIONS",
+      "PRF-PRE2026-STRUCTURED-SESSIONS"
+    ],
+    "publicationDate": "2026-07-24"
+  },
+  {
+    "family": "publications",
+    "id": "04-entree-premiere",
+    "assetId": "full-post-04-entree-premiere",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-PREMIUM-PACKS",
+      "PRF-PRE2026-FIVE-SESSIONS",
+      "PRF-PRE2026-STRUCTURED-SESSIONS"
+    ],
+    "publicationDate": "2026-07-27"
+  },
+  {
+    "family": "publications",
+    "id": "05-entree-terminale",
+    "assetId": "full-post-05-entree-terminale",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-PREMIUM-PACKS",
+      "PRF-PRE2026-FIVE-SESSIONS",
+      "PRF-PRE2026-STRUCTURED-SESSIONS"
+    ],
+    "publicationDate": "2026-07-29"
+  },
+  {
+    "family": "publications",
+    "id": "06-methode-nexus",
+    "assetId": "full-post-06-methode-nexus",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-STRUCTURED-SESSIONS",
+      "PRF-PRE2026-FIVE-SESSIONS"
+    ],
+    "publicationDate": "2026-07-31"
+  },
+  {
+    "family": "publications",
+    "id": "07-valeur-tarif",
+    "assetId": "full-post-07-valeur-tarif",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-FIVE-SESSIONS",
+      "PRF-PRE2026-STRUCTURED-SESSIONS"
+    ],
+    "publicationDate": "2026-08-03"
+  },
+  {
+    "family": "publications",
+    "id": "08-dix-heures",
+    "assetId": "full-post-08-dix-heures",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-FIVE-SESSIONS",
+      "PRF-PRE2026-STRUCTURED-SESSIONS"
+    ],
+    "publicationDate": "2026-08-05"
+  },
+  {
+    "family": "publications",
+    "id": "09-effectifs-limites",
+    "assetId": "full-post-09-effectifs-limites",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-3E-350-APPROVED",
+      "PRF-PRE2026-SECONDE-400",
+      "PRF-PRE2026-PREMIUM-PACKS"
+    ],
+    "publicationDate": "2026-08-07"
+  },
+  {
+    "family": "publications",
+    "id": "10-reservation-acompte",
+    "assetId": "full-post-10-reservation-acompte",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-DEPOSIT-30",
+      "PRF-PRE2026-WHATSAPP"
+    ],
+    "publicationDate": "2026-08-10"
+  },
+  {
+    "family": "publications",
+    "id": "11-checklist-parent",
+    "assetId": "full-post-11-checklist-parent",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-WHATSAPP",
+      "PRF-PRE2026-DATES-VENUE"
+    ],
+    "publicationDate": "2026-08-12"
+  },
+  {
+    "family": "publications",
+    "id": "12-rappel-avant-stage",
+    "assetId": "full-post-12-rappel-avant-stage",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-DATES-VENUE",
+      "PRF-PRE2026-WHATSAPP",
+      "PRF-PRE2026-DEPOSIT-30"
+    ],
+    "publicationDate": "2026-08-15"
+  },
+  {
+    "family": "publications",
+    "id": "13-demarrage",
+    "assetId": "full-post-13-demarrage",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-DATES-VENUE",
+      "PRF-PRE2026-WHATSAPP",
+      "PRF-PRE2026-FIVE-SESSIONS"
+    ],
+    "publicationDate": "2026-08-17"
+  },
+  {
+    "family": "carousels",
+    "id": "01-methode",
+    "assetId": "full-carousel-01-methode",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-FIVE-SESSIONS",
+      "PRF-PRE2026-STRUCTURED-SESSIONS"
+    ],
+    "publicationDate": "2026-07-21"
+  },
+  {
+    "family": "carousels",
+    "id": "02-entree-3e",
+    "assetId": "full-carousel-02-entree-3e",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-3E-350-APPROVED",
+      "PRF-PRE2026-FIVE-SESSIONS",
+      "PRF-PRE2026-DEPOSIT-30"
+    ],
+    "publicationDate": "2026-07-23"
+  },
+  {
+    "family": "carousels",
+    "id": "03-entree-seconde",
+    "assetId": "full-carousel-03-entree-seconde",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-SECONDE-400",
+      "PRF-PRE2026-FIVE-SESSIONS",
+      "PRF-PRE2026-STRUCTURED-SESSIONS"
+    ],
+    "publicationDate": "2026-07-25"
+  },
+  {
+    "family": "carousels",
+    "id": "04-premiere",
+    "assetId": "full-carousel-04-premiere",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-PREMIUM-PACKS",
+      "PRF-PRE2026-FIVE-SESSIONS"
+    ],
+    "publicationDate": "2026-07-28"
+  },
+  {
+    "family": "carousels",
+    "id": "05-terminale",
+    "assetId": "full-carousel-05-terminale",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-PREMIUM-PACKS",
+      "PRF-PRE2026-FIVE-SESSIONS"
+    ],
+    "publicationDate": "2026-07-30"
+  },
+  {
+    "family": "carousels",
+    "id": "06-choisir-parcours",
+    "assetId": "full-carousel-06-choisir-parcours",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-WHATSAPP",
+      "PRF-PRE2026-DATES-VENUE"
+    ],
+    "publicationDate": "2026-08-02"
+  },
+  {
+    "family": "carousels",
+    "id": "07-valeur",
+    "assetId": "full-carousel-07-valeur",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-FIVE-SESSIONS",
+      "PRF-PRE2026-STRUCTURED-SESSIONS",
+      "PRF-PRE2026-PREMIUM-PACKS"
+    ],
+    "publicationDate": "2026-08-06"
+  },
+  {
+    "family": "carousels",
+    "id": "08-reservation",
+    "assetId": "full-carousel-08-reservation",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-DEPOSIT-30",
+      "PRF-PRE2026-WHATSAPP"
+    ],
+    "publicationDate": "2026-08-11"
+  },
+  {
+    "family": "stories",
+    "id": "01-decouverte",
+    "assetId": "full-story-01-decouverte",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-DATES-VENUE",
+      "PRF-PRE2026-FIVE-SESSIONS"
+    ],
+    "publicationDate": "2026-07-20"
+  },
+  {
+    "family": "stories",
+    "id": "02-entree-3e",
+    "assetId": "full-story-02-entree-3e",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-3E-350-APPROVED",
+      "PRF-PRE2026-WHATSAPP"
+    ],
+    "publicationDate": "2026-07-22"
+  },
+  {
+    "family": "stories",
+    "id": "03-entree-seconde",
+    "assetId": "full-story-03-entree-seconde",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-SECONDE-400",
+      "PRF-PRE2026-WHATSAPP"
+    ],
+    "publicationDate": "2026-07-24"
+  },
+  {
+    "family": "stories",
+    "id": "04-premiere",
+    "assetId": "full-story-04-premiere",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-PREMIUM-PACKS",
+      "PRF-PRE2026-WHATSAPP"
+    ],
+    "publicationDate": "2026-07-27"
+  },
+  {
+    "family": "stories",
+    "id": "05-terminale",
+    "assetId": "full-story-05-terminale",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-PREMIUM-PACKS",
+      "PRF-PRE2026-WHATSAPP"
+    ],
+    "publicationDate": "2026-07-29"
+  },
+  {
+    "family": "stories",
+    "id": "06-methode",
+    "assetId": "full-story-06-methode",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-STRUCTURED-SESSIONS"
+    ],
+    "publicationDate": "2026-07-31"
+  },
+  {
+    "family": "stories",
+    "id": "07-dix-heures",
+    "assetId": "full-story-07-dix-heures",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-FIVE-SESSIONS",
+      "PRF-PRE2026-STRUCTURED-SESSIONS"
+    ],
+    "publicationDate": "2026-08-04"
+  },
+  {
+    "family": "stories",
+    "id": "08-tarifs",
+    "assetId": "full-story-08-tarifs",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-3E-350-APPROVED",
+      "PRF-PRE2026-SECONDE-400",
+      "PRF-PRE2026-PREMIUM-PACKS"
+    ],
+    "publicationDate": "2026-08-06"
+  },
+  {
+    "family": "stories",
+    "id": "09-effectifs",
+    "assetId": "full-story-09-effectifs",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-3E-350-APPROVED",
+      "PRF-PRE2026-SECONDE-400",
+      "PRF-PRE2026-PREMIUM-PACKS"
+    ],
+    "publicationDate": "2026-08-08"
+  },
+  {
+    "family": "stories",
+    "id": "10-questions",
+    "assetId": "full-story-10-questions",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-DATES-VENUE",
+      "PRF-PRE2026-WHATSAPP"
+    ],
+    "publicationDate": "2026-08-10"
+  },
+  {
+    "family": "stories",
+    "id": "11-reservation",
+    "assetId": "full-story-11-reservation",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-DEPOSIT-30",
+      "PRF-PRE2026-WHATSAPP"
+    ],
+    "publicationDate": "2026-08-12"
+  },
+  {
+    "family": "stories",
+    "id": "12-demarrage",
+    "assetId": "full-story-12-demarrage",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-DATES-VENUE",
+      "PRF-PRE2026-WHATSAPP",
+      "PRF-PRE2026-DEPOSIT-30"
+    ],
+    "publicationDate": "2026-08-15"
+  },
+  {
+    "family": "reels",
+    "id": "01-methode",
+    "assetId": "full-reel-01-methode",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-FIVE-SESSIONS",
+      "PRF-PRE2026-STRUCTURED-SESSIONS",
+      "PRF-PRE2026-DATES-VENUE"
+    ],
+    "publicationDate": "2026-07-26"
+  },
+  {
+    "family": "reels",
+    "id": "02-choisir-parcours",
+    "assetId": "full-reel-02-choisir-parcours",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-WHATSAPP",
+      "PRF-PRE2026-PREMIUM-PACKS",
+      "PRF-PRE2026-3E-350-APPROVED",
+      "PRF-PRE2026-SECONDE-400"
+    ],
+    "publicationDate": "2026-08-02"
+  },
+  {
+    "family": "reels",
+    "id": "03-reservation",
+    "assetId": "full-reel-03-reservation",
+    "owner": "Responsable communication Nexus Réussite",
+    "status": "READY_FOR_OWNER_REVIEW",
+    "proofIds": [
+      "PRF-PRE2026-DEPOSIT-30",
+      "PRF-PRE2026-WHATSAPP",
+      "PRF-PRE2026-DATES-VENUE"
+    ],
+    "publicationDate": "2026-08-13"
+  }
+]

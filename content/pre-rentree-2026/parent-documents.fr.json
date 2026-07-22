@@ -1,0 +1,392 @@
+{
+  "schemaVersion": "1.0.0",
+  "version": "2026-parent-documents-v1",
+  "campaignId": "pre-rentree-2026",
+  "locale": "fr-TN",
+  "editionDate": "2026-07-20",
+  "contact": {
+    "label": "WhatsApp Nexus Réussite",
+    "display": "99 192 829",
+    "url": "https://wa.me/21699192829"
+  },
+  "documents": [
+    {
+      "documentId": "brochure-generale",
+      "title": "Stages de pré-rentrée 2026",
+      "subtitle": "Reprendre les fondamentaux, structurer sa méthode et aborder la rentrée avec confiance",
+      "purpose": "Donner aux familles une vue complète des parcours de pré-rentrée disponibles à Mutuelleville dès le 17 août 2026.",
+      "audience": "Parents et élèves du système français en Tunisie, ainsi que candidats libres lorsque le parcours le permet.",
+      "offerIds": ["pre2026-3e-mathematiques", "pre2026-3e-francais", "pre2026-seconde-mathematiques", "pre2026-seconde-physique-chimie", "pre2026-seconde-francais", "pre2026-premiere-pack-1", "pre2026-premiere-pack-2", "pre2026-premiere-pack-3", "pre2026-premiere-pack-4", "pre2026-terminale-pack-1", "pre2026-terminale-pack-2", "pre2026-terminale-pack-3", "pre2026-terminale-pack-4"],
+      "proofIds": ["PRF-PRE2026-DATES-VENUE", "PRF-PRE2026-WHATSAPP", "PRF-PRE2026-DEPOSIT-30", "PRF-PRE2026-3E-350-APPROVED", "PRF-PRE2026-SECONDE-400", "PRF-PRE2026-PREMIUM-PACKS", "PRF-PRE2026-FIVE-SESSIONS", "PRF-PRE2026-STRUCTURED-SESSIONS"],
+      "cta": "Recevoir le parcours adapté sur WhatsApp",
+      "sections": [
+        {
+          "heading": "Une reprise structurée avant la rentrée",
+          "paragraphs": ["Une pré-rentrée utile ne consiste pas à accumuler des heures. Elle remet l'élève en activité avec une progression claire, des objectifs annoncés et des exercices choisis pour réactiver les acquis.", "Chez Nexus Réussite, chaque matière est organisée en cinq séances de deux heures. L'élève travaille, s'entraîne et corrige en séance dans un groupe dont l'effectif maximal est connu avant l'inscription."],
+          "bullets": ["Démarrage à partir du 17 août 2026", "Centre pédagogique Nexus Réussite à Mutuelleville", "Entrée en 3e, Seconde, Première et Terminale", "Matières disponibles selon le niveau"]
+        },
+        {
+          "heading": "Ce que l'élève vit pendant les dix heures",
+          "paragraphs": ["Les séances suivent un fil conducteur : réactivation, méthode, entraînement, correction et mise en autonomie progressive. Les consignes et exercices utilisés pendant le stage constituent les supports de travail effectivement remis.", "La taille du groupe permet de conserver un cadre collectif tout en laissant une place aux questions et à la correction. Aucun résultat scolaire n'est promis : Nexus s'engage sur le cadre, l'organisation et le travail réellement proposé."],
+          "bullets": ["Objectifs explicites", "Cinq séances organisées", "Entraînement et correction en séance", "Priorités de travail observées pendant le stage"]
+        },
+        {
+          "heading": "Choisir puis réserver",
+          "paragraphs": ["La famille indique le niveau, la ou les matières recherchées et le statut scolaire de l'élève. Nexus vérifie ensuite qu'une offre correspond au besoin et qu'un groupe adapté peut être proposé.", "Une demande d'information ne réserve pas de place. La réservation devient effective après confirmation du parcours et réception de l'acompte correspondant à trente pour cent du montant validé."],
+          "bullets": ["Écrire sur WhatsApp", "Préciser niveau et matière", "Recevoir une proposition claire", "Verser l'acompte pour confirmer la réservation"]
+        }
+      ]
+    },
+    {
+      "documentId": "guide-parent",
+      "title": "Guide parent — bien choisir sa pré-rentrée",
+      "subtitle": "Les repères concrets pour choisir un parcours cohérent avec le niveau et les priorités de votre enfant",
+      "purpose": "Aider les parents à comprendre le format, poser les bonnes questions et finaliser une inscription sans ambiguïté.",
+      "audience": "Parents d'élèves entrant en 3e, Seconde, Première ou Terminale.",
+      "offerIds": ["pre2026-3e-mathematiques", "pre2026-3e-francais", "pre2026-seconde-mathematiques", "pre2026-seconde-physique-chimie", "pre2026-seconde-francais", "pre2026-premiere-pack-1", "pre2026-premiere-pack-2", "pre2026-premiere-pack-3", "pre2026-premiere-pack-4", "pre2026-terminale-pack-1", "pre2026-terminale-pack-2", "pre2026-terminale-pack-3", "pre2026-terminale-pack-4"],
+      "proofIds": ["PRF-PRE2026-DATES-VENUE", "PRF-PRE2026-WHATSAPP", "PRF-PRE2026-DEPOSIT-30", "PRF-PRE2026-FIVE-SESSIONS", "PRF-PRE2026-STRUCTURED-SESSIONS"],
+      "cta": "Échanger avec Nexus sur WhatsApp",
+      "sections": [
+        {
+          "heading": "Commencer par le besoin, pas par le volume",
+          "paragraphs": ["Le premier choix porte sur la priorité de rentrée : reprendre des automatismes, consolider l'expression, retrouver une démarche scientifique ou préparer une matière de spécialité. Une matière bien choisie peut être plus utile qu'un programme trop large.", "Le niveau indiqué est toujours le niveau d'entrée à la rentrée. Cette précision détermine les matières disponibles, les objectifs et le format commercial applicable."],
+          "bullets": ["Quel est le niveau d'entrée ?", "Quelle matière demande une reprise prioritaire ?", "L'élève est-il scolarisé ou candidat libre ?", "Qu'attendez-vous concrètement des dix heures ?"]
+        },
+        {
+          "heading": "Lire une offre Nexus",
+          "paragraphs": ["Chaque ligne tarifaire correspond à un format précis : nombre de matières, nombre total d'heures, cinq séances par matière, effectif minimal et maximal, acompte et solde. Les matières autorisées dépendent du niveau.", "Les éléments inclus sont ceux annoncés noir sur blanc. Un service numérique, un suivi parent régulier ou un accompagnement annuel ne doit pas être supposé inclus lorsqu'il n'apparaît pas dans la proposition transmise."],
+          "bullets": ["Vérifier la matière et le niveau", "Vérifier le nombre d'heures", "Lire inclusions et exclusions", "Contrôler le montant de l'acompte avant paiement"]
+        },
+        {
+          "heading": "Avant de confirmer",
+          "paragraphs": ["Demandez le parcours écrit correspondant au profil de l'élève. Il doit préciser la matière ou le nombre de matières, le tarif, l'acompte et le lieu. Les horaires sont communiqués dans l'échange de confirmation.", "La place n'est réservée qu'après validation du parcours et réception de l'acompte. Conservez le message de confirmation et la preuve du paiement communiquée selon la modalité indiquée par Nexus."],
+          "bullets": ["Parcours validé", "Coordonnées parent minimales", "Acompte reçu", "Confirmation de réservation conservée"]
+        }
+      ]
+    },
+    {
+      "documentId": "fiche-3e",
+      "title": "Entrée en 3e — fiche parcours",
+      "subtitle": "Mathématiques ou français, dix heures structurées par matière",
+      "purpose": "Présenter clairement les deux matières disponibles pour l'entrée en 3e et le cadre de travail associé.",
+      "audience": "Familles d'élèves entrant en 3e dans le système français en Tunisie.",
+      "offerIds": ["pre2026-3e-mathematiques", "pre2026-3e-francais"],
+      "proofIds": ["PRF-PRE2026-DATES-VENUE", "PRF-PRE2026-WHATSAPP", "PRF-PRE2026-DEPOSIT-30", "PRF-PRE2026-3E-350-APPROVED", "PRF-PRE2026-FIVE-SESSIONS", "PRF-PRE2026-STRUCTURED-SESSIONS"],
+      "cta": "Vérifier le groupe 3e sur WhatsApp",
+      "sections": [
+        {
+          "heading": "Deux priorités possibles",
+          "paragraphs": ["En mathématiques, le parcours vise à réactiver les automatismes essentiels, structurer la résolution de problèmes et préparer les attendus de la rentrée.", "En français, le travail porte sur les bases de langue, la lecture et la compréhension, puis la construction d'une réponse rédigée plus claire."],
+          "bullets": ["Mathématiques", "Français", "Une inscription par matière", "Cinq séances de deux heures"]
+        },
+        {
+          "heading": "Un groupe réellement limité",
+          "paragraphs": ["Le groupe ouvre à partir de l'effectif minimal prévu et ne dépasse pas l'effectif maximal indiqué dans l'offre. Cette organisation permet l'entraînement collectif, les questions et la correction en séance.", "Les supports remis correspondent aux consignes et exercices utilisés pendant les séances. L'orientation finale porte sur les priorités de travail observées pendant le stage."],
+          "bullets": ["Objectifs annoncés", "Travail guidé", "Exercices en séance", "Correction expliquée"]
+        },
+        {
+          "heading": "Réserver le parcours",
+          "paragraphs": ["Indiquez sur WhatsApp le nom du parent, le prénom de l'élève, l'entrée en 3e et la matière souhaitée. Nexus vérifie le groupe adapté avant d'envoyer la confirmation commerciale.", "La demande seule ne réserve pas la place. L'acompte représente trente pour cent du tarif validé et confirme la réservation après réception."],
+          "bullets": ["Niveau : entrée en 3e", "Matière choisie", "Centre de Mutuelleville", "Démarrage à partir du 17 août"]
+        }
+      ]
+    },
+    {
+      "documentId": "fiche-seconde",
+      "title": "Entrée en Seconde — fiche parcours",
+      "subtitle": "Mathématiques, physique-chimie ou français, selon la priorité de rentrée",
+      "purpose": "Présenter les trois matières disponibles et la transition méthodologique vers le lycée.",
+      "audience": "Familles d'élèves entrant en Seconde dans le système français en Tunisie.",
+      "offerIds": ["pre2026-seconde-mathematiques", "pre2026-seconde-physique-chimie", "pre2026-seconde-francais"],
+      "proofIds": ["PRF-PRE2026-DATES-VENUE", "PRF-PRE2026-WHATSAPP", "PRF-PRE2026-DEPOSIT-30", "PRF-PRE2026-SECONDE-400", "PRF-PRE2026-FIVE-SESSIONS", "PRF-PRE2026-STRUCTURED-SESSIONS"],
+      "cta": "Choisir la priorité Seconde sur WhatsApp",
+      "sections": [
+        {
+          "heading": "Préparer le passage au lycée",
+          "paragraphs": ["L'entrée en Seconde change le rythme, le niveau de rédaction attendu et la place accordée à la méthode. Le stage aide l'élève à remettre en route les acquis utiles avant les premiers chapitres.", "Le choix de matière doit correspondre à une priorité réelle. Mathématiques, physique-chimie et français sont les seules matières proposées dans ce parcours Seconde."],
+          "bullets": ["Mathématiques : fondamentaux et rédaction", "Physique-chimie : unités et raisonnement scientifique", "Français : analyse et expression", "Cinq séances par matière"]
+        },
+        {
+          "heading": "La méthode pendant les séances",
+          "paragraphs": ["Chaque séance annonce son objectif, propose un temps de travail et organise la correction. L'élève n'est pas seulement exposé à un contenu : il produit, compare sa démarche et comprend les points à reprendre.", "Le groupe respecte la capacité maximale publiée. Les consignes et exercices de séance sont remis comme supports ; aucun service non mentionné n'est ajouté implicitement à l'offre."],
+          "bullets": ["Progression structurée", "Entraînement actif", "Correction en séance", "Repères pour poursuivre le travail"]
+        },
+        {
+          "heading": "Demande et confirmation",
+          "paragraphs": ["Dans le premier message, précisez l'entrée en Seconde, la matière prioritaire et l'établissement ou le statut scolaire. Ces informations suffisent pour une première qualification et évitent de collecter des données inutiles.", "Nexus transmet le parcours et les informations de réservation. L'acompte de trente pour cent doit être reçu pour que la place soit réservée."],
+          "bullets": ["Message de qualification", "Vérification du groupe", "Proposition commerciale", "Confirmation après acompte"]
+        }
+      ]
+    },
+    {
+      "documentId": "fiche-premiere",
+      "title": "Entrée en Première — fiche parcours",
+      "subtitle": "Un parcours de une à quatre matières, choisi selon les priorités de l'élève",
+      "purpose": "Expliquer les packs canoniques de Première et les matières réellement disponibles.",
+      "audience": "Élèves entrant en Première et candidats libres lorsque le parcours est compatible.",
+      "offerIds": ["pre2026-premiere-pack-1", "pre2026-premiere-pack-2", "pre2026-premiere-pack-3", "pre2026-premiere-pack-4"],
+      "proofIds": ["PRF-PRE2026-DATES-VENUE", "PRF-PRE2026-WHATSAPP", "PRF-PRE2026-DEPOSIT-30", "PRF-PRE2026-PREMIUM-PACKS", "PRF-PRE2026-FIVE-SESSIONS", "PRF-PRE2026-STRUCTURED-SESSIONS"],
+      "cta": "Composer le parcours Première sur WhatsApp",
+      "sections": [
+        {
+          "heading": "Choisir les matières utiles",
+          "paragraphs": ["Le parcours Première se compose de une à quatre matières parmi celles autorisées pour ce niveau. Le choix doit tenir compte des spécialités, du parcours de français et des prérequis à consolider.", "Chaque matière ajoute dix heures de travail, organisées en cinq séances. Le tarif et l'acompte sont calculés par pack, sans addition manuelle de prix dispersés."],
+          "bullets": ["Mathématiques", "Physique-chimie", "NSI", "Français"]
+        },
+        {
+          "heading": "Un cadre Premium en groupe réduit",
+          "paragraphs": ["Les groupes Première suivent les capacités Premium indiquées dans l'offre. Les séances mettent l'accent sur les prérequis, la méthode et l'entraînement avant les premières évaluations de l'année.", "Le pack comprend les heures, les objectifs, les exercices et leur correction en séance. Les services numériques et l'accompagnement annuel restent distincts lorsqu'ils ne sont pas explicitement inclus."],
+          "bullets": ["Cinq séances par matière", "Objectifs annoncés", "Entraînement encadré", "Correction pédagogique"]
+        },
+        {
+          "heading": "Construire la demande",
+          "paragraphs": ["Indiquez les matières envisagées et, pour un candidat libre, les épreuves préparées. Nexus vérifie la compatibilité avant de confirmer le pack et son organisation.", "La proposition précise le nombre de matières, le volume total, le tarif, l'acompte et le solde. La réservation n'est acquise qu'après réception de l'acompte."],
+          "bullets": ["Liste des matières", "Statut scolaire", "Pack proposé", "Confirmation écrite"]
+        }
+      ]
+    },
+    {
+      "documentId": "fiche-terminale",
+      "title": "Entrée en Terminale — fiche parcours",
+      "subtitle": "Cibler les prérequis et reprendre une méthode de travail avant l'année du baccalauréat",
+      "purpose": "Expliquer les packs canoniques de Terminale sans promesse de résultat scolaire.",
+      "audience": "Élèves entrant en Terminale et candidats libres lorsque le parcours est compatible.",
+      "offerIds": ["pre2026-terminale-pack-1", "pre2026-terminale-pack-2", "pre2026-terminale-pack-3", "pre2026-terminale-pack-4"],
+      "proofIds": ["PRF-PRE2026-DATES-VENUE", "PRF-PRE2026-WHATSAPP", "PRF-PRE2026-DEPOSIT-30", "PRF-PRE2026-PREMIUM-PACKS", "PRF-PRE2026-FIVE-SESSIONS", "PRF-PRE2026-STRUCTURED-SESSIONS"],
+      "cta": "Composer le parcours Terminale sur WhatsApp",
+      "sections": [
+        {
+          "heading": "Prioriser avant une année exigeante",
+          "paragraphs": ["La pré-rentrée n'anticipe pas toute l'année de Terminale. Elle aide à reprendre les prérequis, retrouver des automatismes et installer une méthode de travail avant les premiers chapitres.", "Le parcours peut comporter de une à quatre matières autorisées pour la Terminale. Une priorité bien définie rend les dix heures de chaque matière plus cohérentes."],
+          "bullets": ["Mathématiques", "Physique-chimie", "NSI", "Philosophie"]
+        },
+        {
+          "heading": "Ce que comprend le pack",
+          "paragraphs": ["Chaque matière comprend cinq séances structurées, avec objectifs, entraînement et correction. Les supports sont les consignes et exercices effectivement utilisés pendant ces séances.", "Le format collectif conserve un effectif Premium limité. Nexus ne promet ni note, ni mention, ni résultat à l'examen ; la proposition porte sur un cadre de travail exigeant et lisible."],
+          "bullets": ["Dix heures par matière", "Cinq séances", "Groupe Premium limité", "Correction en séance"]
+        },
+        {
+          "heading": "Valider la composition du pack",
+          "paragraphs": ["Le message de départ précise les matières, les spécialités et le statut scolaire. Pour un candidat libre, Nexus confirme d'abord que le parcours collectif correspond aux épreuves préparées.", "Après qualification, la famille reçoit le pack applicable. La place est réservée lorsque le parcours est validé et que l'acompte de trente pour cent est reçu."],
+          "bullets": ["Matières confirmées", "Pack canonique", "Acompte calculé", "Réservation confirmée"]
+        }
+      ]
+    },
+    {
+      "documentId": "comparatif-fondations-premium",
+      "title": "Fondations ou Premium ?",
+      "subtitle": "Deux cadres de pré-rentrée, choisis selon le niveau d'entrée",
+      "purpose": "Permettre aux parents de comprendre la différence de niveau, de capacité et de composition entre les offres.",
+      "audience": "Familles comparant les parcours 3e et Seconde avec les parcours Première et Terminale.",
+      "offerIds": ["pre2026-3e-mathematiques", "pre2026-seconde-mathematiques", "pre2026-premiere-pack-1", "pre2026-premiere-pack-2", "pre2026-premiere-pack-3", "pre2026-premiere-pack-4"],
+      "proofIds": ["PRF-PRE2026-3E-350-APPROVED", "PRF-PRE2026-SECONDE-400", "PRF-PRE2026-PREMIUM-PACKS", "PRF-PRE2026-FIVE-SESSIONS", "PRF-PRE2026-STRUCTURED-SESSIONS"],
+      "cta": "Identifier le cadre adapté sur WhatsApp",
+      "sections": [
+        {
+          "heading": "Fondations : 3e et Seconde",
+          "paragraphs": ["Fondations correspond aux niveaux d'entrée en 3e et en Seconde. L'inscription se fait par matière, pour dix heures organisées en cinq séances.", "Le groupe respecte la capacité Fondations. Les matières disponibles sont définies niveau par niveau et ne sont pas interchangeables."],
+          "bullets": ["Entrée en 3e : mathématiques ou français", "Entrée en Seconde : mathématiques, physique-chimie ou français", "Tarif par matière", "Effectif limité selon l'offre"]
+        },
+        {
+          "heading": "Premium : Première et Terminale",
+          "paragraphs": ["Premium correspond aux niveaux d'entrée en Première et Terminale. La famille choisit un pack de une à quatre matières parmi celles autorisées pour le niveau.", "La capacité Premium est plus resserrée. Le prix, le volume et l'acompte sont dérivés du pack choisi, ce qui permet une proposition commerciale lisible."],
+          "bullets": ["Une à quatre matières", "Dix heures par matière", "Pack tarifaire canonique", "Effectif Premium limité"]
+        },
+        {
+          "heading": "Le point commun : la structure",
+          "paragraphs": ["Les deux cadres reposent sur cinq séances par matière, des objectifs annoncés, un entraînement et une correction. La différence ne constitue pas un jugement de valeur sur l'élève : elle adapte l'offre au niveau et au nombre de matières.", "Le bon choix est celui qui correspond au niveau d'entrée et aux priorités réelles. Nexus peut aider à le formuler au cours d'un échange bref sur WhatsApp."],
+          "bullets": ["Même exigence de clarté", "Organisation par objectifs", "Entraînement réel", "Réservation par acompte"]
+        }
+      ]
+    },
+    {
+      "documentId": "inclusions-options-exclusions",
+      "title": "Ce qui est inclus, optionnel ou exclu",
+      "subtitle": "Un tableau de lecture simple pour éviter les suppositions avant l'inscription",
+      "purpose": "Rendre le périmètre commercial du stage explicite et vérifiable.",
+      "audience": "Parents souhaitant comparer la prestation réelle au-delà du seul nombre d'heures.",
+      "offerIds": ["pre2026-3e-mathematiques", "pre2026-seconde-mathematiques", "pre2026-premiere-pack-1"],
+      "proofIds": ["PRF-PRE2026-DEPOSIT-30", "PRF-PRE2026-FIVE-SESSIONS", "PRF-PRE2026-STRUCTURED-SESSIONS"],
+      "cta": "Demander le détail de votre parcours",
+      "sections": [
+        {
+          "heading": "Toujours inclus dans l'offre publiée",
+          "paragraphs": ["Le volume horaire validé, cinq séances de deux heures par matière, des objectifs annoncés, l'entraînement et la correction en séance constituent le socle commun.", "Les consignes et exercices utilisés pendant les séances servent de supports remis. Une orientation vers les priorités observées peut être formulée sans devenir un bilan formel non prévu."],
+          "bullets": ["Heures et séances annoncées", "Objectifs de travail", "Exercices", "Correction en séance"]
+        },
+        {
+          "heading": "Optionnel uniquement si écrit",
+          "paragraphs": ["Un élément optionnel n'est jamais présumé. S'il existe pour un parcours particulier, il doit apparaître dans la proposition transmise à la famille avec son périmètre et son prix éventuel.", "L'absence d'option dans une offre signifie que le stage se limite aux éléments inclus. Cette transparence protège le choix du parent et l'organisation pédagogique."],
+          "bullets": ["Option nommée", "Périmètre précis", "Prix éventuel confirmé", "Accord avant ajout"]
+        },
+        {
+          "heading": "Distinct du stage",
+          "paragraphs": ["Les services numériques, le suivi parent régulier et l'accompagnement annuel sont distincts lorsqu'ils ne sont pas explicitement inclus. Leur existence dans l'écosystème Nexus ne suffit pas à les ajouter au stage.", "La proposition reçue sur WhatsApp reste le document de référence pour le parcours choisi. En cas de doute, demandez une reformulation écrite avant de verser l'acompte."],
+          "bullets": ["Pas d'inclusion implicite", "Pas de promesse de résultat", "Pas d'accompagnement annuel automatique", "Confirmation écrite avant paiement"]
+        }
+      ]
+    },
+    {
+      "documentId": "justification-tarifaire",
+      "title": "Comprendre le tarif du stage",
+      "subtitle": "Le prix correspond à une organisation pédagogique complète, pas à un simple compteur d'heures",
+      "purpose": "Répondre à l'objection tarifaire sans dénigrer d'autres formes d'accompagnement.",
+      "audience": "Parents comparant le stage Nexus à d'autres solutions de soutien ou de cours.",
+      "offerIds": ["pre2026-3e-mathematiques", "pre2026-seconde-mathematiques", "pre2026-premiere-pack-1", "pre2026-premiere-pack-2", "pre2026-premiere-pack-3", "pre2026-premiere-pack-4"],
+      "proofIds": ["PRF-PRE2026-3E-350-APPROVED", "PRF-PRE2026-SECONDE-400", "PRF-PRE2026-PREMIUM-PACKS", "PRF-PRE2026-FIVE-SESSIONS", "PRF-PRE2026-STRUCTURED-SESSIONS"],
+      "cta": "Comparer le parcours correspondant à votre besoin",
+      "sections": [
+        {
+          "heading": "Dix heures avec une progression annoncée",
+          "paragraphs": ["Le volume est organisé en cinq séances. Cette répartition permet d'installer un rythme, de reprendre une notion, de s'entraîner puis de corriger avant de poursuivre.", "Le tarif ne promet aucune note. Il finance un cadre collectif limité, une progression préparée, des objectifs, des supports de séance et un travail de correction."],
+          "bullets": ["Progression", "Préparation des séances", "Entraînement", "Correction"]
+        },
+        {
+          "heading": "Un groupe dont la capacité est connue",
+          "paragraphs": ["L'effectif minimal rend l'ouverture du groupe viable ; l'effectif maximal protège les conditions de travail annoncées. Ces deux informations figurent dans l'offre et diffèrent entre Fondations et Premium.", "Un cours individuel, un cours collectif plus large et un stage structuré répondent à des besoins différents. La comparaison utile porte sur le cadre, les objectifs et ce qui est effectivement inclus."],
+          "bullets": ["Seuil d'ouverture explicite", "Plafond de groupe explicite", "Cadre collectif", "Périmètre écrit"]
+        },
+        {
+          "heading": "Un prix et un acompte lisibles",
+          "paragraphs": ["Le montant est dérivé du niveau ou du pack canonique. L'acompte correspond à trente pour cent et le solde complète exactement le prix validé.", "Avant toute confirmation, Nexus indique le parcours choisi, son volume, son prix, l'acompte et le solde. La famille peut ainsi décider sur une base claire."],
+          "bullets": ["Tarif canonique", "Acompte exact", "Solde annoncé", "Aucune réservation sans acompte"]
+        }
+      ]
+    },
+    {
+      "documentId": "faq-commerciale",
+      "title": "Questions fréquentes — pré-rentrée 2026",
+      "subtitle": "Des réponses courtes et précises avant de choisir votre parcours",
+      "purpose": "Répondre aux questions commerciales courantes avec les seules informations approuvées.",
+      "audience": "Parents et élèves en phase de découverte ou de décision.",
+      "offerIds": ["pre2026-3e-mathematiques", "pre2026-seconde-mathematiques", "pre2026-premiere-pack-1", "pre2026-terminale-pack-1"],
+      "proofIds": ["PRF-PRE2026-DATES-VENUE", "PRF-PRE2026-WHATSAPP", "PRF-PRE2026-DEPOSIT-30", "PRF-PRE2026-FIVE-SESSIONS", "PRF-PRE2026-STRUCTURED-SESSIONS"],
+      "cta": "Poser une question sur WhatsApp",
+      "sections": [
+        {
+          "heading": "Quand et où ont lieu les stages ?",
+          "paragraphs": ["Les stages commencent à partir du 17 août 2026 au centre pédagogique Nexus Réussite à Mutuelleville. Les horaires correspondant au groupe sont communiqués pendant la confirmation du parcours.", "Le présentiel à Mutuelleville est le lieu annoncé pour cette campagne. Une famille éloignée peut décrire sa contrainte avant de poursuivre la qualification."],
+          "bullets": ["Dès le 17 août", "Mutuelleville", "Horaires confirmés avec le groupe", "Contact WhatsApp"]
+        },
+        {
+          "heading": "Comment choisir la matière ?",
+          "paragraphs": ["Commencez par le niveau d'entrée et la priorité principale. Les matières disponibles sont limitées par niveau ; Nexus ne propose pas une matière lorsqu'elle n'appartient pas à l'offre canonique.", "En Première et Terminale, le nombre de matières détermine le pack. Pour un candidat libre, la compatibilité du parcours est vérifiée avant confirmation."],
+          "bullets": ["Niveau d'entrée", "Matière prioritaire", "Statut scolaire", "Pack si plusieurs matières"]
+        },
+        {
+          "heading": "Le premier message réserve-t-il une place ?",
+          "paragraphs": ["Non. Le premier message ouvre une demande d'information et permet de qualifier le besoin. La place n'est pas réservée tant que le parcours n'est pas confirmé et que l'acompte n'a pas été reçu.", "L'acompte représente trente pour cent du montant validé. Le message de confirmation récapitule l'offre, l'acompte, le solde et les informations pratiques disponibles."],
+          "bullets": ["Demande d'information", "Qualification", "Proposition", "Acompte puis confirmation"]
+        }
+      ]
+    },
+    {
+      "documentId": "procedure-inscription",
+      "title": "Procédure d'inscription",
+      "subtitle": "De la première demande à la confirmation de réservation",
+      "purpose": "Donner une procédure courte, actionnable et respectueuse de la minimisation des données.",
+      "audience": "Familles prêtes à demander ou confirmer un parcours.",
+      "offerIds": ["pre2026-3e-mathematiques", "pre2026-seconde-mathematiques", "pre2026-premiere-pack-1", "pre2026-terminale-pack-1"],
+      "proofIds": ["PRF-PRE2026-WHATSAPP", "PRF-PRE2026-DEPOSIT-30"],
+      "cta": "Démarrer la demande sur WhatsApp",
+      "sections": [
+        {
+          "heading": "1. Envoyer les informations utiles",
+          "paragraphs": ["Indiquez le prénom de l'élève, le niveau d'entrée, la ou les matières recherchées et le statut scolaire. Un numéro de parent joignable suffit pour le premier contact.", "N'envoyez pas de document d'identité, de bulletin complet ou de donnée sensible dans le premier message. Nexus demande uniquement une information supplémentaire lorsqu'elle est nécessaire à la qualification."],
+          "bullets": ["Prénom", "Niveau d'entrée", "Matière", "Statut scolaire"]
+        },
+        {
+          "heading": "2. Recevoir la proposition",
+          "paragraphs": ["Nexus vérifie la matière, le niveau, le pack éventuel et la cohérence du groupe. La réponse précise le format, le volume, le tarif, l'acompte et le solde.", "Si aucune offre approuvée ne correspond au besoin, la demande n'est pas transformée artificiellement en réservation. Une autre orientation peut être proposée séparément."],
+          "bullets": ["Offre compatible", "Matières exactes", "Tarif et acompte", "Informations pratiques"]
+        },
+        {
+          "heading": "3. Confirmer la réservation",
+          "paragraphs": ["Suivez la modalité de paiement communiquée dans l'échange validé. La réservation devient effective lorsque l'acompte est reçu et rapproché de la demande.", "Conservez le message de confirmation. Il sert de récapitulatif pour le niveau, la matière ou le pack, le lieu et les informations transmises avant le stage."],
+          "bullets": ["Parcours accepté", "Acompte reçu", "Confirmation envoyée", "Message conservé"]
+        }
+      ]
+    },
+    {
+      "documentId": "conditions-reservation-acompte",
+      "title": "Conditions de réservation et d'acompte",
+      "subtitle": "Les règles commerciales approuvées pour confirmer une place",
+      "purpose": "Distinguer clairement une demande, une proposition et une réservation confirmée.",
+      "audience": "Parents ayant reçu ou demandé une proposition de parcours.",
+      "offerIds": ["pre2026-3e-mathematiques", "pre2026-seconde-mathematiques", "pre2026-premiere-pack-1", "pre2026-terminale-pack-1"],
+      "proofIds": ["PRF-PRE2026-DEPOSIT-30", "PRF-PRE2026-WHATSAPP"],
+      "cta": "Recevoir le montant exact de l'acompte",
+      "sections": [
+        {
+          "heading": "La demande n'est pas une réservation",
+          "paragraphs": ["Un message, une demande de programme ou une demande de disponibilité ne bloque pas une place. Cette étape permet uniquement de qualifier le besoin et de vérifier l'offre applicable.", "La proposition devient réservable lorsqu'elle identifie clairement le niveau, la matière ou le pack, le volume, le prix et l'acompte."],
+          "bullets": ["Demande reçue", "Besoin qualifié", "Offre proposée", "Aucune place bloquée à ce stade"]
+        },
+        {
+          "heading": "L'acompte confirme la place",
+          "paragraphs": ["L'acompte correspond à trente pour cent du prix validé. Il est calculé depuis la même source commerciale que le tarif, afin d'éviter un montant incohérent.", "La réservation est confirmée après réception et rapprochement de l'acompte avec la demande. Le solde correspond au reste du prix annoncé."],
+          "bullets": ["Acompte de trente pour cent", "Montant communiqué par Nexus", "Réception vérifiée", "Confirmation écrite"]
+        },
+        {
+          "heading": "Ce document ne remplace pas les conditions particulières",
+          "paragraphs": ["Les seules règles présentées ici sont celles qui ont été approuvées pour la campagne : taux d'acompte et absence de réservation sans acompte. Toute autre condition applicable doit être communiquée avant paiement.", "En l'absence d'une condition écrite, ne supposez pas une politique d'annulation, de report ou de remboursement. Demandez la condition applicable à votre proposition avant de confirmer."],
+          "bullets": ["Lire la proposition", "Demander les conditions applicables", "Vérifier le montant", "Conserver la confirmation"]
+        }
+      ]
+    },
+    {
+      "documentId": "accompagnements-annuels",
+      "title": "Après le stage : les accompagnements annuels Nexus",
+      "subtitle": "Une décision distincte, construite à partir des besoins de l'année",
+      "purpose": "Présenter la possibilité d'un accompagnement annuel sans l'ajouter implicitement au stage.",
+      "audience": "Familles souhaitant envisager une continuité de travail après la pré-rentrée.",
+      "offerIds": ["pre2026-3e-mathematiques", "pre2026-seconde-mathematiques", "pre2026-premiere-pack-1", "pre2026-terminale-pack-1"],
+      "proofIds": ["PRF-PRE2026-WHATSAPP", "PRF-PRE2026-STRUCTURED-SESSIONS"],
+      "cta": "Demander un échange sur l'année scolaire",
+      "sections": [
+        {
+          "heading": "Le stage reste un parcours autonome",
+          "paragraphs": ["S'inscrire au stage n'inscrit pas automatiquement l'élève à une formule annuelle. Le stage possède son propre volume, son prix, ses inclusions et sa règle de réservation.", "Cette séparation permet à la famille d'évaluer l'expérience et de décider ensuite si un accompagnement plus long correspond au besoin."],
+          "bullets": ["Aucun engagement annuel automatique", "Aucune inclusion implicite", "Décision séparée", "Proposition écrite nécessaire"]
+        },
+        {
+          "heading": "Construire la suite à partir des priorités",
+          "paragraphs": ["Les observations faites pendant le travail peuvent aider à formuler des priorités : régularité, méthode, automatisation, expression ou besoin ciblé dans une matière.", "Ces observations ne valent pas à elles seules inscription annuelle. Nexus doit présenter une offre distincte avec son rythme, son périmètre, ses conditions et son tarif applicables."],
+          "bullets": ["Priorités observées", "Objectif de l'année", "Rythme compatible", "Offre distincte"]
+        },
+        {
+          "heading": "Les questions à poser",
+          "paragraphs": ["Demandez quelles matières sont disponibles pour le niveau, quel est le rythme proposé, quels services sont effectivement inclus et comment la famille sera informée. Une réponse écrite facilite la comparaison.", "Nexus peut organiser un échange après le stage. La famille reste libre d'accepter ou non la proposition annuelle après avoir pris connaissance de son périmètre complet."],
+          "bullets": ["Matières", "Rythme", "Inclusions", "Conditions et tarif"]
+        }
+      ]
+    },
+    {
+      "documentId": "passerelle-stage-annuel",
+      "title": "Passerelle du stage vers l'accompagnement annuel",
+      "subtitle": "Transformer les priorités observées en une décision claire, sans engagement automatique",
+      "purpose": "Décrire une transition commerciale respectueuse entre une expérience ponctuelle et une proposition annuelle distincte.",
+      "audience": "Familles ayant terminé le stage ou souhaitant anticiper la suite.",
+      "offerIds": ["pre2026-3e-mathematiques", "pre2026-seconde-mathematiques", "pre2026-premiere-pack-1", "pre2026-terminale-pack-1"],
+      "proofIds": ["PRF-PRE2026-WHATSAPP", "PRF-PRE2026-STRUCTURED-SESSIONS"],
+      "cta": "Planifier l'échange de continuité",
+      "sections": [
+        {
+          "heading": "1. Reprendre les faits du stage",
+          "paragraphs": ["L'échange part des objectifs travaillés, des exercices réalisés et des priorités observées. Il ne doit pas transformer une impression ponctuelle en promesse de résultat.", "La famille peut compléter ces observations avec les contraintes de l'année : emploi du temps, matières prioritaires, statut scolaire et disponibilité réaliste."],
+          "bullets": ["Objectifs travaillés", "Difficultés rencontrées", "Points d'appui", "Contraintes de l'année"]
+        },
+        {
+          "heading": "2. Formuler une proposition distincte",
+          "paragraphs": ["Si une continuité est pertinente, Nexus présente une offre annuelle séparée. Cette offre doit nommer le niveau, les matières, le rythme, les inclusions, les exclusions, le tarif et les conditions applicables.", "Aucun avantage commercial futur n'est déduit automatiquement du stage. Seule une condition explicitement approuvée et inscrite dans la proposition peut être prise en compte."],
+          "bullets": ["Offre identifiée", "Périmètre complet", "Tarif applicable", "Conditions écrites"]
+        },
+        {
+          "heading": "3. Laisser une décision éclairée",
+          "paragraphs": ["La famille examine la proposition annuelle indépendamment du stage. Elle peut demander une clarification sur un service, un rythme ou une condition avant de s'engager.", "La passerelle est réussie lorsqu'elle rend la suite compréhensible, pas lorsqu'elle crée une pression. Le CTA WhatsApp sert à ouvrir l'échange et à transmettre une proposition vérifiable."],
+          "bullets": ["Temps de lecture", "Questions possibles", "Accord explicite", "Confirmation séparée"]
+        }
+      ]
+    }
+  ]
+}

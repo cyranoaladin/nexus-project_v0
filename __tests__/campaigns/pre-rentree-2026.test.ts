@@ -26,12 +26,12 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       expect(campaignManifest.noClassDates).toContain('2026-08-23');
     });
 
-    it('has exactly 3 levels', () => {
-      expect(campaignManifest.levels).toHaveLength(3);
+    it('has exactly 4 levels', () => {
+      expect(campaignManifest.levels).toHaveLength(4);
     });
 
-    it('has exactly 4 subjects', () => {
-      expect(campaignManifest.subjects).toHaveLength(4);
+    it('has exactly 5 subject families', () => {
+      expect(campaignManifest.subjects).toHaveLength(5);
     });
 
     it('has exactly 4 time blocks', () => {
@@ -46,8 +46,8 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
   describe('Modules', () => {
     const modules = (modulesData as any).modules;
 
-    it('has exactly 12 modules', () => {
-      expect(modules).toHaveLength(12);
+    it('has exactly 14 modules', () => {
+      expect(modules).toHaveLength(14);
     });
 
     it('each module has exactly 5 sessions', () => {
@@ -56,16 +56,17 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       }
     });
 
-    it('total sessions = 60', () => {
+    it('total sessions = 70', () => {
       const total = modules.reduce((sum: number, m: any) => sum + m.sessions.length, 0);
-      expect(total).toBe(60);
+      expect(total).toBe(70);
     });
 
     it('has 4 modules per level', () => {
-      const byLevel = { SECONDE: 0, PREMIERE: 0, TERMINALE: 0 };
+      const byLevel = { TROISIEME: 0, SECONDE: 0, PREMIERE: 0, TERMINALE: 0 };
       for (const mod of modules) {
         byLevel[mod.level as keyof typeof byLevel]++;
       }
+      expect(byLevel.TROISIEME).toBe(2);
       expect(byLevel.SECONDE).toBe(4);
       expect(byLevel.PREMIERE).toBe(4);
       expect(byLevel.TERMINALE).toBe(4);
@@ -152,8 +153,8 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
 
     it('each declared teacher role stays at or below 6h/day', () => {
       for (const week of schedule) {
-        for (const role of Object.values(campaignManifest.teacherRoles)) {
-          const roleBlocks = week.slots.filter((slot) => role.subjects.includes(slot.subject));
+        for (const [roleId, role] of Object.entries(campaignManifest.teacherRoles)) {
+          const roleBlocks = week.slots.filter((slot) => slot.teacherRole === roleId);
           expect(roleBlocks.length * 2).toBeLessThanOrEqual(role.maxHoursPerDay);
         }
       }
@@ -184,11 +185,10 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       }
     });
 
-    it('deposit is 30% rounded to 10 TND', () => {
+    it('deposit is exactly 30%', () => {
       for (const pack of packs) {
         const rawDeposit = pack.price_per_student * 0.3;
-        const expected = Math.round(rawDeposit / 10) * 10;
-        expect(pack.payment.deposit).toBe(expected);
+        expect(pack.payment.deposit).toBe(rawDeposit);
       }
     });
 
@@ -216,10 +216,10 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       expect(nsi?.labelByLevel?.SECONDE).not.toContain('EDS');
     });
 
-    it('Terminale français is never labeled EAF', () => {
+    it('replaces Terminale French with Philosophy', () => {
       const fr = campaignManifest.subjects.find(s => s.id === 'FRANCAIS');
-      expect(fr?.labelByLevel?.TERMINALE).not.toContain('EAF');
-      expect(fr?.labelByLevel?.TERMINALE).toContain('Expression');
+      expect(fr?.levels).not.toContain('TERMINALE');
+      expect(campaignManifest.subjects.find(s => s.id === 'PHILOSOPHIE')?.levels).toEqual(['TERMINALE']);
     });
   });
 

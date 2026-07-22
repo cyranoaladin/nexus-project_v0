@@ -17,7 +17,7 @@ describe('Pré-rentrée practical information', () => {
       'théorique et méthodologique',
     );
     expect(materialsBySubject.PHYSIQUE_CHIMIE.description).toContain(
-      'Aucune séance de laboratoire n’est annoncée',
+      'Aucune activité pratique en laboratoire n’est annoncée',
     );
     expect(JSON.stringify(dto.organization)).not.toContain('Six créneaux de module au total');
     expect(JSON.stringify(dto.organization)).not.toContain('aucune simultanéité');
