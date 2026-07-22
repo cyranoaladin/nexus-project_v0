@@ -199,7 +199,7 @@ export function getPreRentreeLandingDTO() {
   const organization = {
     educators: [],
     rooms: [
-      { label: 'Salle 1', details: 'Mathématiques / NSI / SNT' },
+      { label: 'Salle 1', details: 'Mathématiques, NSI et SVT' },
       { label: 'Salle 2', details: 'Français, Philosophie, Physique-Chimie et SVT' },
     ],
   };

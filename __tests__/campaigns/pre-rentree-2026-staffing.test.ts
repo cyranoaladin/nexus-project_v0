@@ -55,7 +55,7 @@ describe('Pré-rentrée 2026 staffing and room contract', () => {
 
   it('uses exactly two logical rooms with no collision', () => {
     expect(campaignManifest.roomRoles).toEqual({
-      'salle-1': ['MATHEMATIQUES', 'NSI'],
+      'salle-1': ['MATHEMATIQUES', 'NSI', 'SVT'],
       'salle-2': ['FRANCAIS', 'PHILOSOPHIE', 'PHYSIQUE_CHIMIE', 'SVT'],
     });
     expect(new Set(sessions.map((session) => session.room))).toEqual(new Set(['salle-1', 'salle-2']));

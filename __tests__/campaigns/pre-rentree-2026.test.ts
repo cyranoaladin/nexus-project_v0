@@ -34,8 +34,8 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       expect(campaignManifest.subjects).toHaveLength(6);
     });
 
-    it('has exactly 5 time blocks', () => {
-      expect(campaignManifest.blocks).toHaveLength(5);
+    it('has exactly 4 time blocks', () => {
+      expect(campaignManifest.blocks).toHaveLength(4);
     });
 
     it('has exactly 2 weeks', () => {

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "sourceSetSha256": "609403f4c506330728cb6985d0aaaf60f5de387df70c095a3c52df8314f4f3b8",
+  "sourceSetSha256": "6cfc4c55b4f77224dc4aed72d58de5d0be38e40dbc6d642e10cc7504073543c8",
   "sourceRepoSha": "a1192c8dccf8eaa6ae223265a3bc9ceb56a6fff0",
   "sourceCommitDate": "2026-07-14T12:00:48+01:00",
   "snapshotBuiltAt": "2026-07-20T18:00:00+01:00",
@@ -8,12 +8,12 @@
     "campaign": {
       "path": "data/campaigns/pre-rentree-2026.json",
       "version": "2.0.2",
-      "sha256": "3193273beea8d781ed5de2cad3c67600104bca6f98dc0e38770e84dd71b97263"
+      "sha256": "2179a4dbaa172e14a804ca3200e085d7f97de2131c8881394f031fe2a119d6d3"
     },
     "modules": {
       "path": "content/pre-rentree-2026/modules.json",
-      "version": "2026-pre-rentree-v2",
-      "sha256": "3cf7b773744d11a39d4a717dc5483a8e924ed02dc819b0f2a062287ac17ae5c6"
+      "version": "2026-pre-rentree-v2-svt",
+      "sha256": "6c6f1092887df3b6445dc12b9885e578e28b6d632b30abdc624619b9e5e18137"
     },
     "pricing": {
       "path": "data/pricing.canonical.json",
@@ -38,12 +38,12 @@
     "pedagogyFramework": {
       "path": "content/pre-rentree-2026/pedagogy-framework.fr.json",
       "version": "2026-pedagogy-framework-v1",
-      "sha256": "59200e479e14b8823a887606b6b74dd41a84a8e0e1ee6df05b2c4a0844f3f192"
+      "sha256": "e47cbd70efcc156c93c0de95e57584e170ca0fb61f3bb59a77bf8271a14c0343"
     },
     "offers": {
       "path": "content/pre-rentree-2026/offers.json",
       "version": "2026-offers-v1",
-      "sha256": "41e849a01bc82a59db00cfb5ed9d497add7f6adf462b06e55fe6f0eb8a418e79"
+      "sha256": "a7f3eb7297a1c93984e65becd4d83e3cf233778b34f0172ad6230201209d2c95"
     },
     "capabilities": {
       "path": "content/pre-rentree-2026/capabilities.json",
@@ -191,6 +191,18 @@
       },
       "abbreviation": "PHILO",
       "color": "#8A5A28"
+    },
+    {
+      "id": "SVT",
+      "label": "SVT",
+      "publicLabelByLevel": {
+        "TROISIEME": "SVT",
+        "SECONDE": "SVT",
+        "PREMIERE": "SVT",
+        "TERMINALE": "SVT"
+      },
+      "abbreviation": "SVT",
+      "color": "#047857"
     }
   ],
   "blocks": [
@@ -325,9 +337,9 @@
             "level": "PREMIERE",
             "subjectId": "NSI",
             "subjectLabel": "NSI",
-            "blockId": "B",
-            "startTime": "10:45",
-            "endTime": "12:45",
+            "blockId": "D",
+            "startTime": "15:45",
+            "endTime": "17:45",
             "roomLabel": "Salle 1"
           },
           {
@@ -355,6 +367,24 @@
             "blockId": "D",
             "startTime": "15:45",
             "endTime": "17:45",
+            "roomLabel": "Salle 2"
+          },
+          {
+            "level": "TERMINALE",
+            "subjectId": "SVT",
+            "subjectLabel": "SVT",
+            "blockId": "B",
+            "startTime": "10:45",
+            "endTime": "12:45",
+            "roomLabel": "Salle 1"
+          },
+          {
+            "level": "PREMIERE",
+            "subjectId": "SVT",
+            "subjectLabel": "SVT",
+            "blockId": "C",
+            "startTime": "13:30",
+            "endTime": "15:30",
             "roomLabel": "Salle 2"
           }
         ]
@@ -871,9 +901,9 @@
         "level": "PREMIERE",
         "subjectId": "NSI",
         "subjectLabel": "NSI",
-        "blockId": "B",
-        "startTime": "10:45",
-        "endTime": "12:45",
+        "blockId": "D",
+        "startTime": "15:45",
+        "endTime": "17:45",
         "roomLabel": "Salle 1",
         "sessionNumber": 1
       },
@@ -914,6 +944,30 @@
         "sessionNumber": 1
       },
       {
+        "date": "2026-08-24",
+        "week": 2,
+        "level": "TERMINALE",
+        "subjectId": "SVT",
+        "subjectLabel": "SVT",
+        "blockId": "B",
+        "startTime": "10:45",
+        "endTime": "12:45",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 1
+      },
+      {
+        "date": "2026-08-24",
+        "week": 2,
+        "level": "PREMIERE",
+        "subjectId": "SVT",
+        "subjectLabel": "SVT",
+        "blockId": "C",
+        "startTime": "13:30",
+        "endTime": "15:30",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 1
+      },
+      {
         "date": "2026-08-25",
         "week": 2,
         "level": "SECONDE",
@@ -943,9 +997,9 @@
         "level": "PREMIERE",
         "subjectId": "NSI",
         "subjectLabel": "NSI",
-        "blockId": "B",
-        "startTime": "10:45",
-        "endTime": "12:45",
+        "blockId": "D",
+        "startTime": "15:45",
+        "endTime": "17:45",
         "roomLabel": "Salle 1",
         "sessionNumber": 2
       },
@@ -986,6 +1040,30 @@
         "sessionNumber": 2
       },
       {
+        "date": "2026-08-25",
+        "week": 2,
+        "level": "TERMINALE",
+        "subjectId": "SVT",
+        "subjectLabel": "SVT",
+        "blockId": "B",
+        "startTime": "10:45",
+        "endTime": "12:45",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 2
+      },
+      {
+        "date": "2026-08-25",
+        "week": 2,
+        "level": "PREMIERE",
+        "subjectId": "SVT",
+        "subjectLabel": "SVT",
+        "blockId": "C",
+        "startTime": "13:30",
+        "endTime": "15:30",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 2
+      },
+      {
         "date": "2026-08-26",
         "week": 2,
         "level": "SECONDE",
@@ -1015,9 +1093,9 @@
         "level": "PREMIERE",
         "subjectId": "NSI",
         "subjectLabel": "NSI",
-        "blockId": "B",
-        "startTime": "10:45",
-        "endTime": "12:45",
+        "blockId": "D",
+        "startTime": "15:45",
+        "endTime": "17:45",
         "roomLabel": "Salle 1",
         "sessionNumber": 3
       },
@@ -1058,6 +1136,30 @@
         "sessionNumber": 3
       },
       {
+        "date": "2026-08-26",
+        "week": 2,
+        "level": "TERMINALE",
+        "subjectId": "SVT",
+        "subjectLabel": "SVT",
+        "blockId": "B",
+        "startTime": "10:45",
+        "endTime": "12:45",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 3
+      },
+      {
+        "date": "2026-08-26",
+        "week": 2,
+        "level": "PREMIERE",
+        "subjectId": "SVT",
+        "subjectLabel": "SVT",
+        "blockId": "C",
+        "startTime": "13:30",
+        "endTime": "15:30",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 3
+      },
+      {
         "date": "2026-08-27",
         "week": 2,
         "level": "SECONDE",
@@ -1087,9 +1189,9 @@
         "level": "PREMIERE",
         "subjectId": "NSI",
         "subjectLabel": "NSI",
-        "blockId": "B",
-        "startTime": "10:45",
-        "endTime": "12:45",
+        "blockId": "D",
+        "startTime": "15:45",
+        "endTime": "17:45",
         "roomLabel": "Salle 1",
         "sessionNumber": 4
       },
@@ -1130,6 +1232,30 @@
         "sessionNumber": 4
       },
       {
+        "date": "2026-08-27",
+        "week": 2,
+        "level": "TERMINALE",
+        "subjectId": "SVT",
+        "subjectLabel": "SVT",
+        "blockId": "B",
+        "startTime": "10:45",
+        "endTime": "12:45",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 4
+      },
+      {
+        "date": "2026-08-27",
+        "week": 2,
+        "level": "PREMIERE",
+        "subjectId": "SVT",
+        "subjectLabel": "SVT",
+        "blockId": "C",
+        "startTime": "13:30",
+        "endTime": "15:30",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 4
+      },
+      {
         "date": "2026-08-28",
         "week": 2,
         "level": "SECONDE",
@@ -1159,9 +1285,9 @@
         "level": "PREMIERE",
         "subjectId": "NSI",
         "subjectLabel": "NSI",
-        "blockId": "B",
-        "startTime": "10:45",
-        "endTime": "12:45",
+        "blockId": "D",
+        "startTime": "15:45",
+        "endTime": "17:45",
         "roomLabel": "Salle 1",
         "sessionNumber": 5
       },
@@ -1198,6 +1324,30 @@
         "blockId": "D",
         "startTime": "15:45",
         "endTime": "17:45",
+        "roomLabel": "Salle 2",
+        "sessionNumber": 5
+      },
+      {
+        "date": "2026-08-28",
+        "week": 2,
+        "level": "TERMINALE",
+        "subjectId": "SVT",
+        "subjectLabel": "SVT",
+        "blockId": "B",
+        "startTime": "10:45",
+        "endTime": "12:45",
+        "roomLabel": "Salle 1",
+        "sessionNumber": 5
+      },
+      {
+        "date": "2026-08-28",
+        "week": 2,
+        "level": "PREMIERE",
+        "subjectId": "SVT",
+        "subjectLabel": "SVT",
+        "blockId": "C",
+        "startTime": "13:30",
+        "endTime": "15:30",
         "roomLabel": "Salle 2",
         "sessionNumber": 5
       }
@@ -2440,6 +2590,162 @@
           ],
           "method": "Entraînement sur problèmes type Bac avec correction critériée",
           "deliverable": "Problème résolu intégralement avec grille de notation explicitée"
+        }
+      ]
+    },
+    {
+      "id": "premiere-svt",
+      "level": "PREMIERE",
+      "subjectId": "SVT",
+      "subject": "SVT",
+      "title": "SVT — Entrée en Première",
+      "subtitle": "Nexus Premium — consolider les fondamentaux de SVT et préparer les attendus de la spécialité",
+      "prerequisites": "Les acquis de Seconde en SVT : organisation du vivant, énergie, génétique et écosystèmes ; le test flash précise les priorités.",
+      "differentiation": "Exercices organisés en trois paliers pour réactiver les méthodes de lecture de documents, de schémas et de raisonnement scientifique.",
+      "quickAssessment": "Une activité de cinq à dix minutes vérifie la compétence travaillée à la fin de chaque séance.",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Organisation du vivant et cellule",
+          "objective": "Réactiver la structure cellulaire, la notion de niveau d’organisation et les méthodes d’observation",
+          "topics": [
+            "Cellule procaryote/eucaryote",
+            "Organisation des organismes",
+            "Observation et schémas",
+            "Vocabulaire de la biologie"
+          ],
+          "method": "Test flash puis lecture de documents et schémas à compléter",
+          "deliverable": "Fiche réflexe cellule et organisation du vivant"
+        },
+        {
+          "number": 2,
+          "title": "Métabolisme et énergie",
+          "objective": "Relier les échanges énergétiques et les transformations de la matière dans les êtres vivants",
+          "topics": [
+            "Photosynthèse et respiration",
+            "Matière et énergie",
+            "Croissance et reproduction",
+            "Notion de cycle biogéochimique"
+          ],
+          "method": "Exemples guidés et exercices de lecture de cycles et de schémas",
+          "deliverable": "Carte méthode énergie et métabolisme"
+        },
+        {
+          "number": 3,
+          "title": "Génétique et expression du patrimoine génétique",
+          "objective": "Réactiver la notion de gène, d’ADN, de transcription-traduction et d’hérédité simple",
+          "topics": [
+            "ADN, gène, chromosome",
+            "Transcription et traduction",
+            "Hérédité mendélienne",
+            "Mutations et variation"
+          ],
+          "method": "Schémas commentés et petits problèmes d’hérédité",
+          "deliverable": "Fiche de synthèse génétique avec exercices corrigés"
+        },
+        {
+          "number": 4,
+          "title": "Écologie et interactions",
+          "objective": "Relier les interactions entre organismes et les grands équilibres écologiques",
+          "topics": [
+            "Réseaux trophiques",
+            "Flux de matière et énergie",
+            "Cycles biogéochimiques",
+            "Relations durables et action humaine"
+          ],
+          "method": "Lecture de documents puis construction de réseaux et de cycles",
+          "deliverable": "Fiche écologie et interactions corrigée"
+        },
+        {
+          "number": 5,
+          "title": "Méthodologie et sujet d’entraînement",
+          "objective": "Organiser son temps, lire un document scientifique et rédiger une réponse argumentée",
+          "topics": [
+            "Lecture de documents SVT",
+            "Gestion du temps",
+            "Rédaction scientifique",
+            "Vérification des résultats"
+          ],
+          "method": "Sujet d’entraînement chronométré puis correction critériée",
+          "deliverable": "Sujet SVT corrigé et grille personnelle de vigilance"
+        }
+      ]
+    },
+    {
+      "id": "terminale-svt",
+      "level": "TERMINALE",
+      "subjectId": "SVT",
+      "subject": "SVT",
+      "title": "SVT — Entrée en Terminale",
+      "subtitle": "Nexus Premium — cibler les attendus de Terminale et consolider les méthodes de la spécialité",
+      "prerequisites": "Les acquis de Première en SVT : organisation du vivant, génétique, énergie et écologie ; le test flash précise les domaines à renforcer.",
+      "differentiation": "Exercices organisés par domaine et par palier pour réactiver les raisonnements attendus en Terminale.",
+      "quickAssessment": "Une consigne courte de lecture, schéma ou raisonnement vérifie l’objectif de chaque séance.",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Génétique et évolution",
+          "objective": "Réactiver les mécanismes moléculaires, la variabilité et les grandeurs évolutives",
+          "topics": [
+            "Expression du génome",
+            "Régulation génique",
+            "Mutations et variation",
+            "Dynamique des populations"
+          ],
+          "method": "Schémas et petits problèmes numériques guidés",
+          "deliverable": "Fiche génétique-évolution corrigée"
+        },
+        {
+          "number": 2,
+          "title": "Énergie et métabolisme",
+          "objective": "Relier les conversions d’énergie, la croissance et l’homéostasie dans les organismes",
+          "topics": [
+            "Respiration et photosynthèse",
+            "Transferts d’énergie",
+            "Homéostasie",
+            "Signalisation cellulaire"
+          ],
+          "method": "Lecture de schémas et exercices de raisonnement",
+          "deliverable": "Fiche métabolisme et énergie corrigée"
+        },
+        {
+          "number": 3,
+          "title": "Écologie et interactions durables",
+          "objective": "Analyser les interactions, les flux et les pressions anthropiques à l’échelle des écosystèmes",
+          "topics": [
+            "Réseaux trophiques et flux",
+            "Dynamiques de populations",
+            "Biodiversité et pressions",
+            "Durabilité des actions"
+          ],
+          "method": "Lecture de documents et construction d’arguments",
+          "deliverable": "Fiche écologie et durabilité corrigée"
+        },
+        {
+          "number": 4,
+          "title": "Patrimoine génétique et reproduction",
+          "objective": "Consolider les mécanismes de reproduction, de transmission et d’expression du génome",
+          "topics": [
+            "Mitose et méiose",
+            "Fécondation",
+            "Transmission chromosomique",
+            "Expression génique"
+          ],
+          "method": "Comparaison de schémas et problèmes de transmission",
+          "deliverable": "Fiche patrimoine génétique corrigée"
+        },
+        {
+          "number": 5,
+          "title": "Bilan et sujet d’entraînement",
+          "objective": "Organiser ses connaissances et traiter un sujet type de spécialité SVT",
+          "topics": [
+            "Lecture de documents complexes",
+            "Raisonnement à plusieurs niveaux",
+            "Rédaction scientifique",
+            "Gestion du temps"
+          ],
+          "method": "Sujet d’entraînement chronométré puis correction critériée",
+          "deliverable": "Sujet SVT corrigé et plan d’action rentrée"
         }
       ]
     }
@@ -3887,6 +4193,212 @@
           "response": "L’élève propose une démarche pertinente mais omet une justification et la vérification finale.",
           "assessment": "FRAGILE — reprendre la justification des étapes et la vérification du résultat."
         }
+      },
+      {
+        "id": "POS-1-SVT",
+        "moduleId": "premiere-svt",
+        "version": "2026-pedagogy-framework-v1",
+        "durationMinutes": 45,
+        "materialAllowed": "Feuille de sujet, brouillon, trousse et calculatrice usuelle",
+        "domains": [
+          "Cellule procaryote/eucaryote",
+          "Photosynthèse et respiration",
+          "ADN, gène, chromosome",
+          "Réseaux trophiques",
+          "Lecture de documents SVT"
+        ],
+        "questions": [
+          {
+            "number": 1,
+            "domain": "Cellule procaryote/eucaryote",
+            "prompt": "À partir d’un document scientifique ou d’un schéma, montrez que vous savez réactiver la structure cellulaire, la notion de niveau d’organisation et les méthodes d’observation. Votre production doit mobiliser : Cellule procaryote/eucaryote, Organisation des organismes, Observation et schémas, Vocabulaire de la biologie.",
+            "correction": "La réponse doit utiliser les données, mobiliser le vocabulaire SVT, structurer un raisonnement et formuler une conclusion explicite : Cellule procaryote/eucaryote, Organisation des organismes, Observation et schémas, Vocabulaire de la biologie. La méthode attendue est : Test flash puis lecture de documents et schémas à compléter.",
+            "points": 4,
+            "errorTypes": [
+              "Données non utilisées",
+              "Vocabulaire imprécis",
+              "Raisonnement non structuré",
+              "Conclusion absente ou non justifiée"
+            ]
+          },
+          {
+            "number": 2,
+            "domain": "Photosynthèse et respiration",
+            "prompt": "À partir d’un document scientifique ou d’un schéma, montrez que vous savez relier les échanges énergétiques et les transformations de la matière dans les êtres vivants. Votre production doit mobiliser : Photosynthèse et respiration, Matière et énergie, Croissance et reproduction, Notion de cycle biogéochimique.",
+            "correction": "La réponse doit utiliser les données, mobiliser le vocabulaire SVT, structurer un raisonnement et formuler une conclusion explicite : Photosynthèse et respiration, Matière et énergie, Croissance et reproduction, Notion de cycle biogéochimique. La méthode attendue est : Exemples guidés et exercices de lecture de cycles et de schémas.",
+            "points": 4,
+            "errorTypes": [
+              "Données non utilisées",
+              "Vocabulaire imprécis",
+              "Raisonnement non structuré",
+              "Conclusion absente ou non justifiée"
+            ]
+          },
+          {
+            "number": 3,
+            "domain": "ADN, gène, chromosome",
+            "prompt": "À partir d’un document scientifique ou d’un schéma, montrez que vous savez réactiver la notion de gène, d’adn, de transcription-traduction et d’hérédité simple. Votre production doit mobiliser : ADN, gène, chromosome, Transcription et traduction, Hérédité mendélienne, Mutations et variation.",
+            "correction": "La réponse doit utiliser les données, mobiliser le vocabulaire SVT, structurer un raisonnement et formuler une conclusion explicite : ADN, gène, chromosome, Transcription et traduction, Hérédité mendélienne, Mutations et variation. La méthode attendue est : Schémas commentés et petits problèmes d’hérédité.",
+            "points": 4,
+            "errorTypes": [
+              "Données non utilisées",
+              "Vocabulaire imprécis",
+              "Raisonnement non structuré",
+              "Conclusion absente ou non justifiée"
+            ]
+          },
+          {
+            "number": 4,
+            "domain": "Réseaux trophiques",
+            "prompt": "À partir d’un document scientifique ou d’un schéma, montrez que vous savez relier les interactions entre organismes et les grands équilibres écologiques. Votre production doit mobiliser : Réseaux trophiques, Flux de matière et énergie, Cycles biogéochimiques, Relations durables et action humaine.",
+            "correction": "La réponse doit utiliser les données, mobiliser le vocabulaire SVT, structurer un raisonnement et formuler une conclusion explicite : Réseaux trophiques, Flux de matière et énergie, Cycles biogéochimiques, Relations durables et action humaine. La méthode attendue est : Lecture de documents puis construction de réseaux et de cycles.",
+            "points": 4,
+            "errorTypes": [
+              "Données non utilisées",
+              "Vocabulaire imprécis",
+              "Raisonnement non structuré",
+              "Conclusion absente ou non justifiée"
+            ]
+          },
+          {
+            "number": 5,
+            "domain": "Lecture de documents SVT",
+            "prompt": "À partir d’un document scientifique ou d’un schéma, montrez que vous savez organiser son temps, lire un document scientifique et rédiger une réponse argumentée. Votre production doit mobiliser : Lecture de documents SVT, Gestion du temps, Rédaction scientifique, Vérification des résultats.",
+            "correction": "La réponse doit utiliser les données, mobiliser le vocabulaire SVT, structurer un raisonnement et formuler une conclusion explicite : Lecture de documents SVT, Gestion du temps, Rédaction scientifique, Vérification des résultats. La méthode attendue est : Sujet d’entraînement chronométré puis correction critériée.",
+            "points": 4,
+            "errorTypes": [
+              "Données non utilisées",
+              "Vocabulaire imprécis",
+              "Raisonnement non structuré",
+              "Conclusion absente ou non justifiée"
+            ]
+          }
+        ],
+        "totalPoints": 20,
+        "rubric": {
+          "ACQUIS": "La démarche est autonome, exacte et explicitement justifiée.",
+          "FRAGILE": "La démarche est engagée mais une notion, une étape ou la justification reste incomplète.",
+          "LACUNE": "La démarche pertinente n’est pas identifiée ou les notions indispensables ne sont pas mobilisées."
+        },
+        "errorTypes": [
+          "Données non utilisées",
+          "Vocabulaire imprécis",
+          "Raisonnement non structuré",
+          "Conclusion absente ou non justifiée"
+        ],
+        "coherenceChecks": [
+          "Cinq domaines évalués et cinq questions présentes.",
+          "Le total du barème vaut 20 points.",
+          "Chaque question possède un corrigé et une typologie d’erreurs."
+        ],
+        "anonymousSample": {
+          "sampleId": "SAMPLE-ANON-15",
+          "response": "L’élève propose une démarche pertinente mais omet une justification et la vérification finale.",
+          "assessment": "FRAGILE — reprendre la justification des étapes et la vérification du résultat."
+        }
+      },
+      {
+        "id": "POS-T-SVT",
+        "moduleId": "terminale-svt",
+        "version": "2026-pedagogy-framework-v1",
+        "durationMinutes": 45,
+        "materialAllowed": "Feuille de sujet, brouillon, trousse et calculatrice usuelle",
+        "domains": [
+          "Expression du génome",
+          "Respiration et photosynthèse",
+          "Réseaux trophiques et flux",
+          "Mitose et méiose",
+          "Lecture de documents complexes"
+        ],
+        "questions": [
+          {
+            "number": 1,
+            "domain": "Expression du génome",
+            "prompt": "À partir d’un document scientifique ou d’un schéma, montrez que vous savez réactiver les mécanismes moléculaires, la variabilité et les grandeurs évolutives. Votre production doit mobiliser : Expression du génome, Régulation génique, Mutations et variation, Dynamique des populations.",
+            "correction": "La réponse doit utiliser les données, mobiliser le vocabulaire SVT, structurer un raisonnement et formuler une conclusion explicite : Expression du génome, Régulation génique, Mutations et variation, Dynamique des populations. La méthode attendue est : Schémas et petits problèmes numériques guidés.",
+            "points": 4,
+            "errorTypes": [
+              "Données non utilisées",
+              "Vocabulaire imprécis",
+              "Raisonnement non structuré",
+              "Conclusion absente ou non justifiée"
+            ]
+          },
+          {
+            "number": 2,
+            "domain": "Respiration et photosynthèse",
+            "prompt": "À partir d’un document scientifique ou d’un schéma, montrez que vous savez relier les conversions d’énergie, la croissance et l’homéostasie dans les organismes. Votre production doit mobiliser : Respiration et photosynthèse, Transferts d’énergie, Homéostasie, Signalisation cellulaire.",
+            "correction": "La réponse doit utiliser les données, mobiliser le vocabulaire SVT, structurer un raisonnement et formuler une conclusion explicite : Respiration et photosynthèse, Transferts d’énergie, Homéostasie, Signalisation cellulaire. La méthode attendue est : Lecture de schémas et exercices de raisonnement.",
+            "points": 4,
+            "errorTypes": [
+              "Données non utilisées",
+              "Vocabulaire imprécis",
+              "Raisonnement non structuré",
+              "Conclusion absente ou non justifiée"
+            ]
+          },
+          {
+            "number": 3,
+            "domain": "Réseaux trophiques et flux",
+            "prompt": "À partir d’un document scientifique ou d’un schéma, montrez que vous savez analyser les interactions, les flux et les pressions anthropiques à l’échelle des écosystèmes. Votre production doit mobiliser : Réseaux trophiques et flux, Dynamiques de populations, Biodiversité et pressions, Durabilité des actions.",
+            "correction": "La réponse doit utiliser les données, mobiliser le vocabulaire SVT, structurer un raisonnement et formuler une conclusion explicite : Réseaux trophiques et flux, Dynamiques de populations, Biodiversité et pressions, Durabilité des actions. La méthode attendue est : Lecture de documents et construction d’arguments.",
+            "points": 4,
+            "errorTypes": [
+              "Données non utilisées",
+              "Vocabulaire imprécis",
+              "Raisonnement non structuré",
+              "Conclusion absente ou non justifiée"
+            ]
+          },
+          {
+            "number": 4,
+            "domain": "Mitose et méiose",
+            "prompt": "À partir d’un document scientifique ou d’un schéma, montrez que vous savez consolider les mécanismes de reproduction, de transmission et d’expression du génome. Votre production doit mobiliser : Mitose et méiose, Fécondation, Transmission chromosomique, Expression génique.",
+            "correction": "La réponse doit utiliser les données, mobiliser le vocabulaire SVT, structurer un raisonnement et formuler une conclusion explicite : Mitose et méiose, Fécondation, Transmission chromosomique, Expression génique. La méthode attendue est : Comparaison de schémas et problèmes de transmission.",
+            "points": 4,
+            "errorTypes": [
+              "Données non utilisées",
+              "Vocabulaire imprécis",
+              "Raisonnement non structuré",
+              "Conclusion absente ou non justifiée"
+            ]
+          },
+          {
+            "number": 5,
+            "domain": "Lecture de documents complexes",
+            "prompt": "À partir d’un document scientifique ou d’un schéma, montrez que vous savez organiser ses connaissances et traiter un sujet type de spécialité svt. Votre production doit mobiliser : Lecture de documents complexes, Raisonnement à plusieurs niveaux, Rédaction scientifique, Gestion du temps.",
+            "correction": "La réponse doit utiliser les données, mobiliser le vocabulaire SVT, structurer un raisonnement et formuler une conclusion explicite : Lecture de documents complexes, Raisonnement à plusieurs niveaux, Rédaction scientifique, Gestion du temps. La méthode attendue est : Sujet d’entraînement chronométré puis correction critériée.",
+            "points": 4,
+            "errorTypes": [
+              "Données non utilisées",
+              "Vocabulaire imprécis",
+              "Raisonnement non structuré",
+              "Conclusion absente ou non justifiée"
+            ]
+          }
+        ],
+        "totalPoints": 20,
+        "rubric": {
+          "ACQUIS": "La démarche est autonome, exacte et explicitement justifiée.",
+          "FRAGILE": "La démarche est engagée mais une notion, une étape ou la justification reste incomplète.",
+          "LACUNE": "La démarche pertinente n’est pas identifiée ou les notions indispensables ne sont pas mobilisées."
+        },
+        "errorTypes": [
+          "Données non utilisées",
+          "Vocabulaire imprécis",
+          "Raisonnement non structuré",
+          "Conclusion absente ou non justifiée"
+        ],
+        "coherenceChecks": [
+          "Cinq domaines évalués et cinq questions présentes.",
+          "Le total du barème vaut 20 points.",
+          "Chaque question possède un corrigé et une typologie d’erreurs."
+        ],
+        "anonymousSample": {
+          "sampleId": "SAMPLE-ANON-16",
+          "response": "L’élève propose une démarche pertinente mais omet une justification et la vérification finale.",
+          "assessment": "FRAGILE — reprendre la justification des étapes et la vérification du résultat."
+        }
       }
     ],
     "quickAssessments": [
@@ -4657,6 +5169,116 @@
         "prompt": "À partir d’une situation scientifique de votre choix, montrez comment vous savez maîtriser la méthodologie de résolution de problème type bac. En cinq à dix minutes, produisez une réponse autonome qui utilise au moins deux éléments parmi : Analyse d'un énoncé et extraction de données, Choix du modèle et mise en équation, Résolution et vérification de cohérence, Rédaction structurée de la solution.",
         "correction": "La réponse doit identifier les grandeurs, expliciter le modèle, conserver les unités et mobiliser : Analyse d'un énoncé et extraction de données, Choix du modèle et mise en équation, Résolution et vérification de cohérence, Rédaction structurée de la solution. Une réponse partielle est reprise avec l’élève avant la séance suivante.",
         "successCriterion": "La démarche répond à l’objectif « Maîtriser la méthodologie de résolution de problème type Bac » et mobilise correctement au moins deux notions annoncées.",
+        "expectedLevel": "TERMINALE",
+        "captureMode": "Grille ACQUIS / FRAGILE / LACUNE et commentaire factuel court"
+      },
+      {
+        "id": "QA-premiere-svt-1",
+        "sessionRef": "premiere-svt#session-1",
+        "durationMinutes": 8,
+        "domain": "Cellule procaryote/eucaryote",
+        "prompt": "À partir d’un document scientifique ou d’un schéma, montrez que vous savez réactiver la structure cellulaire, la notion de niveau d’organisation et les méthodes d’observation. En cinq à dix minutes, produisez une réponse autonome qui utilise au moins deux éléments parmi : Cellule procaryote/eucaryote, Organisation des organismes, Observation et schémas, Vocabulaire de la biologie.",
+        "correction": "La réponse doit utiliser les données, mobiliser le vocabulaire SVT, structurer un raisonnement et formuler une conclusion explicite : Cellule procaryote/eucaryote, Organisation des organismes, Observation et schémas, Vocabulaire de la biologie. Une réponse partielle est reprise avec l’élève avant la séance suivante.",
+        "successCriterion": "La démarche répond à l’objectif « Réactiver la structure cellulaire, la notion de niveau d’organisation et les méthodes d’observation » et mobilise correctement au moins deux notions annoncées.",
+        "expectedLevel": "PREMIERE",
+        "captureMode": "Grille ACQUIS / FRAGILE / LACUNE et commentaire factuel court"
+      },
+      {
+        "id": "QA-premiere-svt-2",
+        "sessionRef": "premiere-svt#session-2",
+        "durationMinutes": 8,
+        "domain": "Photosynthèse et respiration",
+        "prompt": "À partir d’un document scientifique ou d’un schéma, montrez que vous savez relier les échanges énergétiques et les transformations de la matière dans les êtres vivants. En cinq à dix minutes, produisez une réponse autonome qui utilise au moins deux éléments parmi : Photosynthèse et respiration, Matière et énergie, Croissance et reproduction, Notion de cycle biogéochimique.",
+        "correction": "La réponse doit utiliser les données, mobiliser le vocabulaire SVT, structurer un raisonnement et formuler une conclusion explicite : Photosynthèse et respiration, Matière et énergie, Croissance et reproduction, Notion de cycle biogéochimique. Une réponse partielle est reprise avec l’élève avant la séance suivante.",
+        "successCriterion": "La démarche répond à l’objectif « Relier les échanges énergétiques et les transformations de la matière dans les êtres vivants » et mobilise correctement au moins deux notions annoncées.",
+        "expectedLevel": "PREMIERE",
+        "captureMode": "Grille ACQUIS / FRAGILE / LACUNE et commentaire factuel court"
+      },
+      {
+        "id": "QA-premiere-svt-3",
+        "sessionRef": "premiere-svt#session-3",
+        "durationMinutes": 8,
+        "domain": "ADN, gène, chromosome",
+        "prompt": "À partir d’un document scientifique ou d’un schéma, montrez que vous savez réactiver la notion de gène, d’adn, de transcription-traduction et d’hérédité simple. En cinq à dix minutes, produisez une réponse autonome qui utilise au moins deux éléments parmi : ADN, gène, chromosome, Transcription et traduction, Hérédité mendélienne, Mutations et variation.",
+        "correction": "La réponse doit utiliser les données, mobiliser le vocabulaire SVT, structurer un raisonnement et formuler une conclusion explicite : ADN, gène, chromosome, Transcription et traduction, Hérédité mendélienne, Mutations et variation. Une réponse partielle est reprise avec l’élève avant la séance suivante.",
+        "successCriterion": "La démarche répond à l’objectif « Réactiver la notion de gène, d’ADN, de transcription-traduction et d’hérédité simple » et mobilise correctement au moins deux notions annoncées.",
+        "expectedLevel": "PREMIERE",
+        "captureMode": "Grille ACQUIS / FRAGILE / LACUNE et commentaire factuel court"
+      },
+      {
+        "id": "QA-premiere-svt-4",
+        "sessionRef": "premiere-svt#session-4",
+        "durationMinutes": 8,
+        "domain": "Réseaux trophiques",
+        "prompt": "À partir d’un document scientifique ou d’un schéma, montrez que vous savez relier les interactions entre organismes et les grands équilibres écologiques. En cinq à dix minutes, produisez une réponse autonome qui utilise au moins deux éléments parmi : Réseaux trophiques, Flux de matière et énergie, Cycles biogéochimiques, Relations durables et action humaine.",
+        "correction": "La réponse doit utiliser les données, mobiliser le vocabulaire SVT, structurer un raisonnement et formuler une conclusion explicite : Réseaux trophiques, Flux de matière et énergie, Cycles biogéochimiques, Relations durables et action humaine. Une réponse partielle est reprise avec l’élève avant la séance suivante.",
+        "successCriterion": "La démarche répond à l’objectif « Relier les interactions entre organismes et les grands équilibres écologiques » et mobilise correctement au moins deux notions annoncées.",
+        "expectedLevel": "PREMIERE",
+        "captureMode": "Grille ACQUIS / FRAGILE / LACUNE et commentaire factuel court"
+      },
+      {
+        "id": "QA-premiere-svt-5",
+        "sessionRef": "premiere-svt#session-5",
+        "durationMinutes": 8,
+        "domain": "Lecture de documents SVT",
+        "prompt": "À partir d’un document scientifique ou d’un schéma, montrez que vous savez organiser son temps, lire un document scientifique et rédiger une réponse argumentée. En cinq à dix minutes, produisez une réponse autonome qui utilise au moins deux éléments parmi : Lecture de documents SVT, Gestion du temps, Rédaction scientifique, Vérification des résultats.",
+        "correction": "La réponse doit utiliser les données, mobiliser le vocabulaire SVT, structurer un raisonnement et formuler une conclusion explicite : Lecture de documents SVT, Gestion du temps, Rédaction scientifique, Vérification des résultats. Une réponse partielle est reprise avec l’élève avant la séance suivante.",
+        "successCriterion": "La démarche répond à l’objectif « Organiser son temps, lire un document scientifique et rédiger une réponse argumentée » et mobilise correctement au moins deux notions annoncées.",
+        "expectedLevel": "PREMIERE",
+        "captureMode": "Grille ACQUIS / FRAGILE / LACUNE et commentaire factuel court"
+      },
+      {
+        "id": "QA-terminale-svt-1",
+        "sessionRef": "terminale-svt#session-1",
+        "durationMinutes": 8,
+        "domain": "Expression du génome",
+        "prompt": "À partir d’un document scientifique ou d’un schéma, montrez que vous savez réactiver les mécanismes moléculaires, la variabilité et les grandeurs évolutives. En cinq à dix minutes, produisez une réponse autonome qui utilise au moins deux éléments parmi : Expression du génome, Régulation génique, Mutations et variation, Dynamique des populations.",
+        "correction": "La réponse doit utiliser les données, mobiliser le vocabulaire SVT, structurer un raisonnement et formuler une conclusion explicite : Expression du génome, Régulation génique, Mutations et variation, Dynamique des populations. Une réponse partielle est reprise avec l’élève avant la séance suivante.",
+        "successCriterion": "La démarche répond à l’objectif « Réactiver les mécanismes moléculaires, la variabilité et les grandeurs évolutives » et mobilise correctement au moins deux notions annoncées.",
+        "expectedLevel": "TERMINALE",
+        "captureMode": "Grille ACQUIS / FRAGILE / LACUNE et commentaire factuel court"
+      },
+      {
+        "id": "QA-terminale-svt-2",
+        "sessionRef": "terminale-svt#session-2",
+        "durationMinutes": 8,
+        "domain": "Respiration et photosynthèse",
+        "prompt": "À partir d’un document scientifique ou d’un schéma, montrez que vous savez relier les conversions d’énergie, la croissance et l’homéostasie dans les organismes. En cinq à dix minutes, produisez une réponse autonome qui utilise au moins deux éléments parmi : Respiration et photosynthèse, Transferts d’énergie, Homéostasie, Signalisation cellulaire.",
+        "correction": "La réponse doit utiliser les données, mobiliser le vocabulaire SVT, structurer un raisonnement et formuler une conclusion explicite : Respiration et photosynthèse, Transferts d’énergie, Homéostasie, Signalisation cellulaire. Une réponse partielle est reprise avec l’élève avant la séance suivante.",
+        "successCriterion": "La démarche répond à l’objectif « Relier les conversions d’énergie, la croissance et l’homéostasie dans les organismes » et mobilise correctement au moins deux notions annoncées.",
+        "expectedLevel": "TERMINALE",
+        "captureMode": "Grille ACQUIS / FRAGILE / LACUNE et commentaire factuel court"
+      },
+      {
+        "id": "QA-terminale-svt-3",
+        "sessionRef": "terminale-svt#session-3",
+        "durationMinutes": 8,
+        "domain": "Réseaux trophiques et flux",
+        "prompt": "À partir d’un document scientifique ou d’un schéma, montrez que vous savez analyser les interactions, les flux et les pressions anthropiques à l’échelle des écosystèmes. En cinq à dix minutes, produisez une réponse autonome qui utilise au moins deux éléments parmi : Réseaux trophiques et flux, Dynamiques de populations, Biodiversité et pressions, Durabilité des actions.",
+        "correction": "La réponse doit utiliser les données, mobiliser le vocabulaire SVT, structurer un raisonnement et formuler une conclusion explicite : Réseaux trophiques et flux, Dynamiques de populations, Biodiversité et pressions, Durabilité des actions. Une réponse partielle est reprise avec l’élève avant la séance suivante.",
+        "successCriterion": "La démarche répond à l’objectif « Analyser les interactions, les flux et les pressions anthropiques à l’échelle des écosystèmes » et mobilise correctement au moins deux notions annoncées.",
+        "expectedLevel": "TERMINALE",
+        "captureMode": "Grille ACQUIS / FRAGILE / LACUNE et commentaire factuel court"
+      },
+      {
+        "id": "QA-terminale-svt-4",
+        "sessionRef": "terminale-svt#session-4",
+        "durationMinutes": 8,
+        "domain": "Mitose et méiose",
+        "prompt": "À partir d’un document scientifique ou d’un schéma, montrez que vous savez consolider les mécanismes de reproduction, de transmission et d’expression du génome. En cinq à dix minutes, produisez une réponse autonome qui utilise au moins deux éléments parmi : Mitose et méiose, Fécondation, Transmission chromosomique, Expression génique.",
+        "correction": "La réponse doit utiliser les données, mobiliser le vocabulaire SVT, structurer un raisonnement et formuler une conclusion explicite : Mitose et méiose, Fécondation, Transmission chromosomique, Expression génique. Une réponse partielle est reprise avec l’élève avant la séance suivante.",
+        "successCriterion": "La démarche répond à l’objectif « Consolider les mécanismes de reproduction, de transmission et d’expression du génome » et mobilise correctement au moins deux notions annoncées.",
+        "expectedLevel": "TERMINALE",
+        "captureMode": "Grille ACQUIS / FRAGILE / LACUNE et commentaire factuel court"
+      },
+      {
+        "id": "QA-terminale-svt-5",
+        "sessionRef": "terminale-svt#session-5",
+        "durationMinutes": 8,
+        "domain": "Lecture de documents complexes",
+        "prompt": "À partir d’un document scientifique ou d’un schéma, montrez que vous savez organiser ses connaissances et traiter un sujet type de spécialité svt. En cinq à dix minutes, produisez une réponse autonome qui utilise au moins deux éléments parmi : Lecture de documents complexes, Raisonnement à plusieurs niveaux, Rédaction scientifique, Gestion du temps.",
+        "correction": "La réponse doit utiliser les données, mobiliser le vocabulaire SVT, structurer un raisonnement et formuler une conclusion explicite : Lecture de documents complexes, Raisonnement à plusieurs niveaux, Rédaction scientifique, Gestion du temps. Une réponse partielle est reprise avec l’élève avant la séance suivante.",
+        "successCriterion": "La démarche répond à l’objectif « Organiser ses connaissances et traiter un sujet type de spécialité SVT » et mobilise correctement au moins deux notions annoncées.",
         "expectedLevel": "TERMINALE",
         "captureMode": "Grille ACQUIS / FRAGILE / LACUNE et commentaire factuel court"
       }
@@ -6131,6 +6753,216 @@
           "J’ai utilisé le vocabulaire et les notions de la séance.",
           "J’ai vérifié ma production et corrigé les erreurs repérées."
         ]
+      },
+      {
+        "id": "DEL-premiere-svt-1",
+        "sessionRef": "premiere-svt#session-1",
+        "title": "Fiche réflexe cellule et organisation du vivant",
+        "objective": "Réactiver la structure cellulaire, la notion de niveau d’organisation et les méthodes d’observation",
+        "instructions": [
+          "Relire l’objectif de la séance : Réactiver la structure cellulaire, la notion de niveau d’organisation et les méthodes d’observation.",
+          "Réaliser la production « Fiche réflexe cellule et organisation du vivant » en suivant cette méthode : Test flash puis lecture de documents et schémas à compléter.",
+          "Faire apparaître explicitement les notions suivantes : Cellule procaryote/eucaryote, Organisation des organismes, Observation et schémas, Vocabulaire de la biologie.",
+          "Relire, corriger puis dater la version finale avant de la ranger dans le dossier de stage."
+        ],
+        "expectedEvidence": [
+          "Une production complète correspondant à « Fiche réflexe cellule et organisation du vivant ».",
+          "Une trace de vérification portant sur Cellule procaryote/eucaryote et Organisation des organismes."
+        ],
+        "selfCheck": [
+          "J’ai traité toutes les étapes de la consigne.",
+          "J’ai utilisé le vocabulaire et les notions de la séance.",
+          "J’ai vérifié ma production et corrigé les erreurs repérées."
+        ]
+      },
+      {
+        "id": "DEL-premiere-svt-2",
+        "sessionRef": "premiere-svt#session-2",
+        "title": "Carte méthode énergie et métabolisme",
+        "objective": "Relier les échanges énergétiques et les transformations de la matière dans les êtres vivants",
+        "instructions": [
+          "Relire l’objectif de la séance : Relier les échanges énergétiques et les transformations de la matière dans les êtres vivants.",
+          "Réaliser la production « Carte méthode énergie et métabolisme » en suivant cette méthode : Exemples guidés et exercices de lecture de cycles et de schémas.",
+          "Faire apparaître explicitement les notions suivantes : Photosynthèse et respiration, Matière et énergie, Croissance et reproduction, Notion de cycle biogéochimique.",
+          "Relire, corriger puis dater la version finale avant de la ranger dans le dossier de stage."
+        ],
+        "expectedEvidence": [
+          "Une production complète correspondant à « Carte méthode énergie et métabolisme ».",
+          "Une trace de vérification portant sur Photosynthèse et respiration et Matière et énergie."
+        ],
+        "selfCheck": [
+          "J’ai traité toutes les étapes de la consigne.",
+          "J’ai utilisé le vocabulaire et les notions de la séance.",
+          "J’ai vérifié ma production et corrigé les erreurs repérées."
+        ]
+      },
+      {
+        "id": "DEL-premiere-svt-3",
+        "sessionRef": "premiere-svt#session-3",
+        "title": "Fiche de synthèse génétique avec exercices corrigés",
+        "objective": "Réactiver la notion de gène, d’ADN, de transcription-traduction et d’hérédité simple",
+        "instructions": [
+          "Relire l’objectif de la séance : Réactiver la notion de gène, d’ADN, de transcription-traduction et d’hérédité simple.",
+          "Réaliser la production « Fiche de synthèse génétique avec exercices corrigés » en suivant cette méthode : Schémas commentés et petits problèmes d’hérédité.",
+          "Faire apparaître explicitement les notions suivantes : ADN, gène, chromosome, Transcription et traduction, Hérédité mendélienne, Mutations et variation.",
+          "Relire, corriger puis dater la version finale avant de la ranger dans le dossier de stage."
+        ],
+        "expectedEvidence": [
+          "Une production complète correspondant à « Fiche de synthèse génétique avec exercices corrigés ».",
+          "Une trace de vérification portant sur ADN, gène, chromosome et Transcription et traduction."
+        ],
+        "selfCheck": [
+          "J’ai traité toutes les étapes de la consigne.",
+          "J’ai utilisé le vocabulaire et les notions de la séance.",
+          "J’ai vérifié ma production et corrigé les erreurs repérées."
+        ]
+      },
+      {
+        "id": "DEL-premiere-svt-4",
+        "sessionRef": "premiere-svt#session-4",
+        "title": "Fiche écologie et interactions corrigée",
+        "objective": "Relier les interactions entre organismes et les grands équilibres écologiques",
+        "instructions": [
+          "Relire l’objectif de la séance : Relier les interactions entre organismes et les grands équilibres écologiques.",
+          "Réaliser la production « Fiche écologie et interactions corrigée » en suivant cette méthode : Lecture de documents puis construction de réseaux et de cycles.",
+          "Faire apparaître explicitement les notions suivantes : Réseaux trophiques, Flux de matière et énergie, Cycles biogéochimiques, Relations durables et action humaine.",
+          "Relire, corriger puis dater la version finale avant de la ranger dans le dossier de stage."
+        ],
+        "expectedEvidence": [
+          "Une production complète correspondant à « Fiche écologie et interactions corrigée ».",
+          "Une trace de vérification portant sur Réseaux trophiques et Flux de matière et énergie."
+        ],
+        "selfCheck": [
+          "J’ai traité toutes les étapes de la consigne.",
+          "J’ai utilisé le vocabulaire et les notions de la séance.",
+          "J’ai vérifié ma production et corrigé les erreurs repérées."
+        ]
+      },
+      {
+        "id": "DEL-premiere-svt-5",
+        "sessionRef": "premiere-svt#session-5",
+        "title": "Sujet SVT corrigé et grille personnelle de vigilance",
+        "objective": "Organiser son temps, lire un document scientifique et rédiger une réponse argumentée",
+        "instructions": [
+          "Relire l’objectif de la séance : Organiser son temps, lire un document scientifique et rédiger une réponse argumentée.",
+          "Réaliser la production « Sujet SVT corrigé et grille personnelle de vigilance » en suivant cette méthode : Sujet d’entraînement chronométré puis correction critériée.",
+          "Faire apparaître explicitement les notions suivantes : Lecture de documents SVT, Gestion du temps, Rédaction scientifique, Vérification des résultats.",
+          "Relire, corriger puis dater la version finale avant de la ranger dans le dossier de stage."
+        ],
+        "expectedEvidence": [
+          "Une production complète correspondant à « Sujet SVT corrigé et grille personnelle de vigilance ».",
+          "Une trace de vérification portant sur Lecture de documents SVT et Gestion du temps."
+        ],
+        "selfCheck": [
+          "J’ai traité toutes les étapes de la consigne.",
+          "J’ai utilisé le vocabulaire et les notions de la séance.",
+          "J’ai vérifié ma production et corrigé les erreurs repérées."
+        ]
+      },
+      {
+        "id": "DEL-terminale-svt-1",
+        "sessionRef": "terminale-svt#session-1",
+        "title": "Fiche génétique-évolution corrigée",
+        "objective": "Réactiver les mécanismes moléculaires, la variabilité et les grandeurs évolutives",
+        "instructions": [
+          "Relire l’objectif de la séance : Réactiver les mécanismes moléculaires, la variabilité et les grandeurs évolutives.",
+          "Réaliser la production « Fiche génétique-évolution corrigée » en suivant cette méthode : Schémas et petits problèmes numériques guidés.",
+          "Faire apparaître explicitement les notions suivantes : Expression du génome, Régulation génique, Mutations et variation, Dynamique des populations.",
+          "Relire, corriger puis dater la version finale avant de la ranger dans le dossier de stage."
+        ],
+        "expectedEvidence": [
+          "Une production complète correspondant à « Fiche génétique-évolution corrigée ».",
+          "Une trace de vérification portant sur Expression du génome et Régulation génique."
+        ],
+        "selfCheck": [
+          "J’ai traité toutes les étapes de la consigne.",
+          "J’ai utilisé le vocabulaire et les notions de la séance.",
+          "J’ai vérifié ma production et corrigé les erreurs repérées."
+        ]
+      },
+      {
+        "id": "DEL-terminale-svt-2",
+        "sessionRef": "terminale-svt#session-2",
+        "title": "Fiche métabolisme et énergie corrigée",
+        "objective": "Relier les conversions d’énergie, la croissance et l’homéostasie dans les organismes",
+        "instructions": [
+          "Relire l’objectif de la séance : Relier les conversions d’énergie, la croissance et l’homéostasie dans les organismes.",
+          "Réaliser la production « Fiche métabolisme et énergie corrigée » en suivant cette méthode : Lecture de schémas et exercices de raisonnement.",
+          "Faire apparaître explicitement les notions suivantes : Respiration et photosynthèse, Transferts d’énergie, Homéostasie, Signalisation cellulaire.",
+          "Relire, corriger puis dater la version finale avant de la ranger dans le dossier de stage."
+        ],
+        "expectedEvidence": [
+          "Une production complète correspondant à « Fiche métabolisme et énergie corrigée ».",
+          "Une trace de vérification portant sur Respiration et photosynthèse et Transferts d’énergie."
+        ],
+        "selfCheck": [
+          "J’ai traité toutes les étapes de la consigne.",
+          "J’ai utilisé le vocabulaire et les notions de la séance.",
+          "J’ai vérifié ma production et corrigé les erreurs repérées."
+        ]
+      },
+      {
+        "id": "DEL-terminale-svt-3",
+        "sessionRef": "terminale-svt#session-3",
+        "title": "Fiche écologie et durabilité corrigée",
+        "objective": "Analyser les interactions, les flux et les pressions anthropiques à l’échelle des écosystèmes",
+        "instructions": [
+          "Relire l’objectif de la séance : Analyser les interactions, les flux et les pressions anthropiques à l’échelle des écosystèmes.",
+          "Réaliser la production « Fiche écologie et durabilité corrigée » en suivant cette méthode : Lecture de documents et construction d’arguments.",
+          "Faire apparaître explicitement les notions suivantes : Réseaux trophiques et flux, Dynamiques de populations, Biodiversité et pressions, Durabilité des actions.",
+          "Relire, corriger puis dater la version finale avant de la ranger dans le dossier de stage."
+        ],
+        "expectedEvidence": [
+          "Une production complète correspondant à « Fiche écologie et durabilité corrigée ».",
+          "Une trace de vérification portant sur Réseaux trophiques et flux et Dynamiques de populations."
+        ],
+        "selfCheck": [
+          "J’ai traité toutes les étapes de la consigne.",
+          "J’ai utilisé le vocabulaire et les notions de la séance.",
+          "J’ai vérifié ma production et corrigé les erreurs repérées."
+        ]
+      },
+      {
+        "id": "DEL-terminale-svt-4",
+        "sessionRef": "terminale-svt#session-4",
+        "title": "Fiche patrimoine génétique corrigée",
+        "objective": "Consolider les mécanismes de reproduction, de transmission et d’expression du génome",
+        "instructions": [
+          "Relire l’objectif de la séance : Consolider les mécanismes de reproduction, de transmission et d’expression du génome.",
+          "Réaliser la production « Fiche patrimoine génétique corrigée » en suivant cette méthode : Comparaison de schémas et problèmes de transmission.",
+          "Faire apparaître explicitement les notions suivantes : Mitose et méiose, Fécondation, Transmission chromosomique, Expression génique.",
+          "Relire, corriger puis dater la version finale avant de la ranger dans le dossier de stage."
+        ],
+        "expectedEvidence": [
+          "Une production complète correspondant à « Fiche patrimoine génétique corrigée ».",
+          "Une trace de vérification portant sur Mitose et méiose et Fécondation."
+        ],
+        "selfCheck": [
+          "J’ai traité toutes les étapes de la consigne.",
+          "J’ai utilisé le vocabulaire et les notions de la séance.",
+          "J’ai vérifié ma production et corrigé les erreurs repérées."
+        ]
+      },
+      {
+        "id": "DEL-terminale-svt-5",
+        "sessionRef": "terminale-svt#session-5",
+        "title": "Sujet SVT corrigé et plan d’action rentrée",
+        "objective": "Organiser ses connaissances et traiter un sujet type de spécialité SVT",
+        "instructions": [
+          "Relire l’objectif de la séance : Organiser ses connaissances et traiter un sujet type de spécialité SVT.",
+          "Réaliser la production « Sujet SVT corrigé et plan d’action rentrée » en suivant cette méthode : Sujet d’entraînement chronométré puis correction critériée.",
+          "Faire apparaître explicitement les notions suivantes : Lecture de documents complexes, Raisonnement à plusieurs niveaux, Rédaction scientifique, Gestion du temps.",
+          "Relire, corriger puis dater la version finale avant de la ranger dans le dossier de stage."
+        ],
+        "expectedEvidence": [
+          "Une production complète correspondant à « Sujet SVT corrigé et plan d’action rentrée ».",
+          "Une trace de vérification portant sur Lecture de documents complexes et Raisonnement à plusieurs niveaux."
+        ],
+        "selfCheck": [
+          "J’ai traité toutes les étapes de la consigne.",
+          "J’ai utilisé le vocabulaire et les notions de la séance.",
+          "J’ai vérifié ma production et corrigé les erreurs repérées."
+        ]
       }
     ]
   },
@@ -6212,7 +7044,8 @@
           "MATHEMATIQUES",
           "PHYSIQUE_CHIMIE",
           "NSI",
-          "FRANCAIS"
+          "FRANCAIS",
+          "SVT"
         ],
         "pricing": {
           "model": "PACK_BY_SUBJECT_COUNT",
@@ -6252,7 +7085,8 @@
           "MATHEMATIQUES",
           "PHYSIQUE_CHIMIE",
           "NSI",
-          "PHILOSOPHIE"
+          "PHILOSOPHIE",
+          "SVT"
         ],
         "pricing": {
           "model": "PACK_BY_SUBJECT_COUNT",
@@ -7926,6 +8760,10 @@
         "PHILOSOPHIE": {
           "label": "Philosophie",
           "description": "Un cahier, une trousse complète et, si possible, un classeur pour organiser les notions, méthodes et entraînements."
+        },
+        "SVT": {
+          "label": "SVT",
+          "description": "Un cahier, une trousse complète et une calculatrice. Les séances sont centrées sur la lecture de documents scientifiques, la méthode et la résolution de problèmes."
         }
       },
       "preRegistrationNotice": "La demande d’information est transmise sans paiement. Elle ne réserve pas une place et ne forme pas un contrat. Après qualification pédagogique, Nexus transmet une proposition de parcours et les conditions applicables.",
@@ -7950,7 +8788,7 @@
       },
       {
         "question": "Comment choisir le profil de Mathématiques pour une entrée en Première ?",
-        "answer": "Le parent déclare Maths EDS ou Maths hors EDS pour la classe de rentrée. Le créneau est commun, puis la composition pédagogique du groupe est validée selon les profils et les effectifs."
+        "answer": "Le parent déclare Maths EDS ou Maths hors EDS pour la classe de rentrée. Le créneau est commun, puis la composition pédagogique du groupe est validée selon les profils et les effectifs. SVT est proposée pour une entrée en Première ou Terminale selon les groupes formés."
       },
       {
         "question": "Le Français EAF convient-il aux voies générale et technologique ?",
@@ -8178,6 +9016,15 @@
       "source": {
         "path": "data/campaigns/pre-rentree-2026.json",
         "pointer": "/content/practical/materialsBySubject/PHILOSOPHIE"
+      }
+    },
+    {
+      "id": "material-svt",
+      "type": "MATERIAL",
+      "text": "SVT. Un cahier, une trousse complète et une calculatrice. Les séances sont centrées sur la lecture de documents scientifiques, la méthode et la résolution de problèmes.",
+      "source": {
+        "path": "data/campaigns/pre-rentree-2026.json",
+        "pointer": "/content/practical/materialsBySubject/SVT"
       }
     },
     {

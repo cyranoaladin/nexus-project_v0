@@ -300,7 +300,8 @@
                   "FRANCAIS",
                   "NSI",
                   "PHYSIQUE_CHIMIE",
-                  "PHILOSOPHIE"
+                  "PHILOSOPHIE",
+                  "SVT"
                 ]
               },
               "label": {
@@ -337,8 +338,8 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 5,
-          "maxItems": 5
+          "minItems": 6,
+          "maxItems": 6
         },
         "blocks": {
           "type": "array",
@@ -518,8 +519,8 @@
                 ],
                 "additionalProperties": false
               },
-              "minItems": 70,
-              "maxItems": 70
+              "minItems": 80,
+              "maxItems": 80
             }
           },
           "required": [
@@ -715,8 +716,8 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 14,
-          "maxItems": 14
+          "minItems": 16,
+          "maxItems": 16
         },
         "pedagogy": {
           "type": "object",
@@ -888,8 +889,8 @@
                 ],
                 "additionalProperties": false
               },
-              "minItems": 14,
-              "maxItems": 14
+              "minItems": 16,
+              "maxItems": 16
             },
             "quickAssessments": {
               "type": "array",
@@ -946,8 +947,8 @@
                 ],
                 "additionalProperties": false
               },
-              "minItems": 70,
-              "maxItems": 70
+              "minItems": 80,
+              "maxItems": 80
             },
             "sessionDeliverables": {
               "type": "array",
@@ -1006,8 +1007,8 @@
                 ],
                 "additionalProperties": false
               },
-              "minItems": 70,
-              "maxItems": 70
+              "minItems": 80,
+              "maxItems": 80
             }
           },
           "required": [
@@ -1070,11 +1071,12 @@
                         "PHYSIQUE_CHIMIE",
                         "NSI",
                         "FRANCAIS",
-                        "PHILOSOPHIE"
+                        "PHILOSOPHIE",
+                        "SVT"
                       ]
                     },
                     "minItems": 1,
-                    "maxItems": 4
+                    "maxItems": 5
                   },
                   "pricing": {
                     "type": "object",

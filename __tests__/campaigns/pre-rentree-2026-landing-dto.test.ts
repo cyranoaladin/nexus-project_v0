@@ -29,7 +29,7 @@ describe('Pré-rentrée 2026 landing DTO', () => {
       FONDATIONS: { minPerCohort: 4, maxPerCohort: 6 },
       PREMIUM: { minPerCohort: 3, maxPerCohort: 5 },
     });
-    expect(dto.blocks).toHaveLength(5);
+    expect(dto.blocks).toHaveLength(4);
     expect(dto.content.hero.subtitle).toContain(
       'Nexus Fondations en 3e et Seconde',
     );
@@ -42,7 +42,7 @@ describe('Pré-rentrée 2026 landing DTO', () => {
     expect(dto.scheduleWeeks.flatMap((week) => week.slots)).toHaveLength(16);
     expect(dto.organization.educators).toHaveLength(0);
     expect(dto.organization.rooms).toEqual([
-      { label: 'Salle 1', details: 'Mathématiques / NSI / SNT' },
+      { label: 'Salle 1', details: 'Mathématiques, NSI et SVT' },
       { label: 'Salle 2', details: 'Français, Philosophie, Physique-Chimie et SVT' },
     ]);
     expect(JSON.stringify(dto.organization)).not.toMatch(
