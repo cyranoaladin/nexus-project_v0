@@ -56,6 +56,7 @@ export interface AnnualOffer {
   id: string;
   level: string;
   track: string;
+  audience?: string[];
   /** Controls how pricing renders: 'monthly_first' (default for tutorat), 'annual' (plateforme) */
   pricing_display?: 'monthly_first' | 'annual';
   title: string;
@@ -210,6 +211,34 @@ export interface PreRentreePack {
   non_cumulable: boolean;
 }
 
+export interface PreRentreeFoundationsProduct {
+  id: string;
+  title: string;
+  edition_id: string;
+  level: 'TROISIEME' | 'SECONDE';
+  subjects_count: 1;
+  hours_per_subject: 10;
+  total_hours: 10;
+  sessions_per_subject: 5;
+  session_duration_h: 2;
+  group_max: 6;
+  group_min_open: 4;
+  price_per_student: number;
+  price_per_student_hour: number;
+  floor_type: string;
+  commercial_exception?: {
+    exception_id: string;
+    edition_id: string;
+    status: 'APPROVED' | 'PENDING' | 'REJECTED';
+    approved_at: string;
+    approved_by_role: string;
+    scope: string;
+    justification: string;
+  };
+  payment: { deposit: number; solde: number };
+  multi_subject_discount: false;
+}
+
 export interface AriaAddon {
   price_monthly: number;
   subjects: string[];
@@ -257,6 +286,7 @@ export interface PricingData {
   packs: Pack[];
   special_programs: SpecialProgram[];
   pre_rentree_packs: PreRentreePack[];
+  pre_rentree_foundations: PreRentreeFoundationsProduct[];
   aria_addon: AriaAddon;
   operational_aria_addons: Record<string, OperationalAriaAddon>;
   subscription_tiers: SubscriptionTier[];
@@ -374,6 +404,18 @@ export function getOffersByLevel(level: string): AnnualOffer[] {
 
 export function getOffersByTrack(track: string): AnnualOffer[] {
   return data.offers.filter((o) => o.track === track);
+}
+
+export function getOffersByAudience(audience: string): AnnualOffer[] {
+  return data.offers.filter((o) => !o.audience || o.audience.includes(audience));
+}
+
+export function getOffersByLevelAndAudience(level: string, audience: string): AnnualOffer[] {
+  const normalized = normalizePricingLevel(level);
+  if (!normalized) return [];
+  return data.offers.filter(
+    (o) => normalizePricingLevel(o.level) === normalized && (!o.audience || o.audience.includes(audience)),
+  );
 }
 
 export function getStageFormats(): StageFormat[] {
@@ -567,6 +609,18 @@ export function getPreRentreePacks(productIds?: readonly string[]): PreRentreePa
       throw new Error(`Unknown Pré-rentrée pricing product: ${id}`);
     }
     return stripInternal(pack);
+  });
+}
+
+export function getPreRentreeFoundationsProducts(
+  productIds?: readonly string[],
+): PreRentreeFoundationsProduct[] {
+  if (!productIds) return data.pre_rentree_foundations.map(stripInternal);
+  const byId = new Map(data.pre_rentree_foundations.map((product) => [product.id, product]));
+  return productIds.map((id) => {
+    const product = byId.get(id);
+    if (!product) throw new Error(`Unknown Pré-rentrée Fondations pricing product: ${id}`);
+    return stripInternal(product);
   });
 }
 

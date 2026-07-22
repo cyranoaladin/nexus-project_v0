@@ -1,0 +1,66 @@
+id,domain,requirement,current_evidence,current_status,target_acceptance,priority
+REQ-001,Product,Single production application nexus-project_v0,Primary repo and production observed,PARTIAL,No new portal/database/deployment,P0
+REQ-002,Frontend,Integrated student dashboard diagnostic,No generic catalogue; standalone portals,GAP,Authenticated dashboard catalogue and attempt,P1
+REQ-003,Frontend,Integrated parent child reports,Child selector exists; no report library,PARTIAL,Only active PARENT publications per linked child,P1
+REQ-004,Frontend,Integrated Nexus review,Several coach specialist panels,PARTIAL,Unified evidence/review queue,P1
+REQ-005,Family,One parent several children,ParentProfile children exists,MET,Regression tests,P1
+REQ-006,Family,Several guardians per child,Student parentId required,GAP,Verified N-N link with history/revocation,P1
+REQ-007,Identity,Student identity derived from session,Stage routes do; public Assessment does not,PARTIAL,No client identity in authenticated path,P0
+REQ-008,Ownership,Coach active assignment required,Some helpers correct; Bilan create/generate not,FAIL,PostgreSQL coach A/B tests,P0
+REQ-009,Ownership,Parent child ownership,Direct parent checks exist,PARTIAL,Guardian link permission in DB query,P0
+REQ-010,Audience,Student sees only STUDENT,Assessment/Diagnostic return parent too,FAIL,Negative projection contract tests,P0
+REQ-011,Audience,Parent sees only PARENT published,PDF checks published/direct parent,PARTIAL,Versioned publication via guardian link,P0
+REQ-012,Audience,Internal report remains internal,Sanitizers partial,PARTIAL,No internal fields in external DTOs,P0
+REQ-013,Assignment,Use year/level/track/options/subjects,Coded profiles/definitions partial,GAP,Server assignment snapshot,P1
+REQ-014,Curriculum,Previous and target curricula snapshot,Local resolver only and not runtime,GAP,Immutable IDs/checksums on attempt,P1
+REQ-015,Curriculum,Unknown future year fails closed,2035 accepted,FAIL,UNKNOWN_CURRICULUM test,P0
+REQ-016,Curriculum,Maths 2026 transition,Registry dates and official sources,PARTIAL,Archived checksummed sources and cohort tests,P1
+REQ-017,Curriculum,PC/French/NSI/SNT coverage,No complete registry,GAP,Reviewed versions and definitions,P1
+REQ-018,Attempt,Start and resume,Special draft forms only,PARTIAL,Generic attempt lifecycle,P1
+REQ-019,Attempt,Autosave,Route-specific upserts,PARTIAL,Optimistic revisions and recovery,P1
+REQ-020,Attempt,Idempotent submit,Assessment no key,FAIL,Same key replay and conflict tests,P0
+REQ-021,Response,Distinguish not studied/dont know/blank,Current statuses too coarse; NSP bug,FAIL,Typed semantic enum and scoring tests,P0
+REQ-022,Security,Do not ship correct answers,Assessment client import includes isCorrect,FAIL,Server question projection and bundle check,P0
+REQ-023,Scoring,Deterministic and LLM-independent,Several deterministic engines,PARTIAL,Versioned ScoringRun/Snapshot,P0
+REQ-024,Scoring,Fail closed on invalid contract,SafeParse only logs,FAIL,Atomic rejection and test,P0
+REQ-025,Evidence,Item-to-skill/rule/source trace,Only JSON/aggregates,FAIL,Persist SkillEvidence,P1
+REQ-026,Scoring,Separate mastery and coverage,score-diagnostic partially does,PARTIAL,Canonical axes with invariants,P1
+REQ-027,Metacognition,Compare self estimate/performance,Some diagnostic deltas,PARTIAL,Separate per-skill gap,P1
+REQ-028,Quality,Data quality and diagnostic confidence,Legacy indices incomplete/misnamed,PARTIAL,Versioned quality/trust rules,P1
+REQ-029,Result,Score accessible despite enrichment failure,Legacy often retains score but status couples,PARTIAL,Score endpoint independent of report,P0
+REQ-030,Async,Durable jobs,Fire-and-forget/stage partial/ NPC defect,FAIL,Outbox plus claimed jobs,P0
+REQ-031,Async,Atomic claim and lease,None effective,FAIL,Concurrency/crash tests,P0
+REQ-032,Async,Retry backoff DLQ,Prototype only; NPC retry broken,FAIL,Bounded retry and audited requeue,P0
+REQ-033,Async,Immutable job inputs,Stage context rereads latest,FAIL,Snapshot IDs/checksum only,P0
+REQ-034,RAG,Backend actually identified,Chroma confirmed in production,PARTIAL,Commit/config/corpus ADR,P1
+REQ-035,RAG,Coherent collection/dimension,Names and 768/3072 diverge,FAIL,Manifest and startup validation,P1
+REQ-036,RAG,Full filters and citations,Only subject/level/track and lost metadata,FAIL,Persist source/chunk/page/version/score/checksum,P1
+REQ-037,RAG,Empty distinct from error,Client returns [] for both,FAIL,Typed outcome contract,P1
+REQ-038,RAG,Prompt injection defense,Documents inserted raw,FAIL,Data delimiters/sanitization/tests,P1
+REQ-039,LLM,Structured validated output,Mistral/NPC structured; legacy Markdown,PARTIAL,All report enrichment strict schema,P1
+REQ-040,LLM,Evidence IDs and citations,Not enforced,FAIL,Schema reference validation,P1
+REQ-041,LLM,PII minimization,Names/emails/comments sent in contexts,FAIL,Pseudonymous context and data register,P0
+REQ-042,LLM,Timeout retry fallback,Inconsistent; deterministic fallback partial,PARTIAL,Bounded calls and complete fallback,P1
+REQ-043,LLM,Prompt/model/checksum trace,Mistral prompt version partial,PARTIAL,Stored on ReportVersion,P1
+REQ-044,Agents,No unjustified multi-agent,Current services/workers not true agents,MET,ADR retains bounded services,P2
+REQ-045,Reports,Versioned per audience,Three columns/global flags,FAIL,Immutable ReportVersion audience,P1
+REQ-046,Review,Human review parent,Special validation only,FAIL,HumanReview before PARENT publish,P1
+REQ-047,Publication,Separate and revocable,Global isPublished,FAIL,ReportPublication per audience/history,P1
+REQ-048,PDF,Private durable storage,Local/on-demand; no Nexus storage observed,FAIL,Object artifact + signed access/restore,P1
+REQ-049,Security,Audit mutations/transitions,Fragmented logs,PARTIAL,Append-only AuditEvent without PII,P1
+REQ-050,Privacy,RGPD retention/deletion/DPA,Not proven,UNKNOWN,Approved policy and tested jobs,P1
+REQ-051,Accessibility,Keyboard/screen reader/resume,Certain axe tests; diagnostic generic absent,PARTIAL,Playwright axe and accommodations,P1
+REQ-052,Testing,Unit/property scoring,Numerous unit tests but no canonical properties,PARTIAL,Golden/property suites,P1
+REQ-053,Testing,PostgreSQL IDOR,Real test files exist; not run this session,UNKNOWN,Green against isolated Postgres,P0
+REQ-054,Testing,Worker concurrency,None canonical,GAP,Two-worker/lease/crash suite,P0
+REQ-055,Testing,RAG/LLM contract real staging,Mocks only in executed set,UNKNOWN,Authorized staging evidence,P1
+REQ-056,Testing,E2E role journeys,Playwright files exist; not run,UNKNOWN,Student/parent/coach journeys green,P1
+REQ-057,Production,Known deployed commit,Production read confirmed,MET,Release records keep commit/artefact,P1
+REQ-058,Production,Health for DB/queue/RAG/storage,Services healthy individually; full pipeline unknown,PARTIAL,Protected composite health + alerts,P1
+REQ-059,Production,Backup and restore,Dossiers/runbooks only,UNKNOWN,Timestamped successful restore drill,P0
+REQ-060,Migration,Additive reversible coexistence,No canonical migration yet,GAP,Feature flags/backfill/shadow/rollback,P1
+REQ-061,Migration,Historical IDs preserved,No actual canonical links,GAP,LegacyEntityLink uniqueness/checksum,P1
+REQ-062,Migration,NPC supplies evidence without parallel report,NPC separate,GAP,Validated evidence adapter,P1
+REQ-063,Questions,AI questions require pedagogical review,No canonical workflow,GAP,Draft/review/approved/published states,P1
+REQ-064,Pedagogy,Limits of diagnosis displayed,Legacy texts variable,PARTIAL,Deterministic limitations based on quality,P1
+REQ-065,Operations,No production mutation in reconstruction,Read-only checks only,MET,Final Git/prod confirmation,P0

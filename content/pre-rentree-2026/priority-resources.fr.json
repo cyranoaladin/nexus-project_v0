@@ -1,0 +1,252 @@
+{
+  "version": "2026-priority-resources-v1",
+  "locale": "fr-TN",
+  "status": "READY_FOR_PEDAGOGICAL_REVIEW",
+  "statusPolicy": "La génération et les contrôles techniques ne valent pas validation pédagogique. Chaque module reste en attente d'une validation humaine nominative.",
+  "contact": {
+    "display": "99 192 829",
+    "location": "Nexus Réussite, Mutuelleville"
+  },
+  "modules": [
+    {
+      "moduleId": "troisieme-mathematiques",
+      "title": "Mathématiques — Entrée en 3e",
+      "level": "Entrée en 3e",
+      "subject": "Mathématiques",
+      "focus": "Nombres, fractions, puissances et calcul raisonné",
+      "programmeMatrixRef": "BO2020-CYCLE4-MATHS",
+      "durationMinutes": 600,
+      "difficultyRange": "Fondamental à consolidation",
+      "status": "READY_FOR_PEDAGOGICAL_REVIEW",
+      "positioning": {
+        "durationMinutes": 25,
+        "totalPoints": 12,
+        "student": {
+          "instructions": "Travaille sans calculatrice, écris toutes les étapes utiles et simplifie chaque résultat. Si tu bloques, indique précisément l'étape qui pose problème au lieu de laisser la question vide."
+        },
+        "teacher": {
+          "administration": "Distribuer le sujet sans rappel préalable. Observer la stratégie, la lisibilité et le contrôle du résultat sans intervenir sur le contenu.",
+          "interpretationBands": ["0–4 : reprendre les automatismes", "5–8 : consolider les procédures", "9–12 : approfondir le raisonnement"]
+        },
+        "questions": [
+          {"id": "3M-P1", "skill": "Priorités opératoires", "prompt": "Calculer A = 18 - 3 × (5 - 2).", "answer": "A = 18 - 3 × 3 = 18 - 9 = 9.", "points": 2, "difficulty": "Fondamental", "correctionGuidance": "1 point pour la parenthèse, 1 point pour le résultat."},
+          {"id": "3M-P2", "skill": "Fractions", "prompt": "Calculer et simplifier 5/6 - 1/4.", "answer": "5/6 - 1/4 = 10/12 - 3/12 = 7/12.", "points": 2, "difficulty": "Fondamental", "correctionGuidance": "Accepter tout dénominateur commun correct suivi de la simplification."},
+          {"id": "3M-P3", "skill": "Puissances", "prompt": "Écrire 3² × 3⁴ sous la forme d'une puissance puis calculer.", "answer": "3² × 3⁴ = 3⁶ = 729.", "points": 2, "difficulty": "Consolidation", "correctionGuidance": "1 point pour 3⁶, 1 point pour 729."},
+          {"id": "3M-P4", "skill": "Calcul littéral", "prompt": "Réduire 4x + 7 - 2x + 3.", "answer": "4x - 2x + 7 + 3 = 2x + 10.", "points": 2, "difficulty": "Fondamental", "correctionGuidance": "Vérifier le regroupement des termes de même nature."},
+          {"id": "3M-P5", "skill": "Équation", "prompt": "Résoudre 5x - 7 = 18.", "answer": "5x = 25, donc x = 5.", "points": 2, "difficulty": "Consolidation", "correctionGuidance": "1 point pour l'isolement, 1 point pour la solution."},
+          {"id": "3M-P6", "skill": "Proportionnalité", "prompt": "Une recette pour 4 personnes utilise 300 g de farine. Quelle masse faut-il pour 6 personnes ?", "answer": "300 × 6 / 4 = 450 g.", "points": 2, "difficulty": "Consolidation", "correctionGuidance": "Valider une procédure proportionnelle explicitée et l'unité."}
+        ]
+      },
+      "activities": [
+        {"id": "3M-A1", "title": "Cartes d'erreurs", "durationMinutes": 35, "difficulty": "Consolidation", "objective": "Identifier et corriger des erreurs de calcul fréquentes.", "studentInstructions": "Par binômes, classer six calculs en corrects ou incorrects, expliquer chaque choix puis corriger les erreurs.", "teacherFlow": "Faire verbaliser les priorités et les propriétés avant la mise en commun. Noter les stratégies de contrôle.", "materials": ["Cartes de calcul imprimées", "Feuille de justification"], "resourceContent": "Cartes à découper : A. 8+3×4=44 ; B. 5/6+1/3=7/6 ; C. (-3)²=-9 ; D. 2³×2²=2⁵ ; E. 4(x+2)=4x+2 ; F. 18-2(5-1)=10. Pour chacune : verdict, correction et règle utilisée.", "expectedOutcome": "Une justification écrite par carte et une règle reformulée avec les mots de l'élève."},
+        {"id": "3M-A2", "title": "Budget de sortie", "durationMinutes": 45, "difficulty": "Approfondissement", "objective": "Mobiliser fractions et proportionnalité dans une situation complète.", "studentInstructions": "Calculer le coût total pour différents effectifs, comparer deux offres et justifier le choix le plus économique.", "teacherFlow": "Imposer une phrase de conclusion appuyée sur les calculs et faire contrôler l'ordre de grandeur.", "materials": ["Fiche budget", "Calculatrice pour la vérification finale"], "resourceContent": "Données : transport A = 180 TND + 12 TND par élève ; transport B = 300 TND forfaitaires. Repas = 15 TND par élève, musée = 9 TND par élève. Comparer les totaux pour 12, 18 et 24 élèves, puis retenir une option.", "expectedOutcome": "Un tableau de calcul cohérent et une décision argumentée."}
+      ],
+      "exercises": [
+        {"id": "3M-E1", "title": "Chaîne de calcul", "prompt": "Calculer B = 7 + 2 × 5² - 18 ÷ 3.", "correction": "B = 7 + 2 × 25 - 6 = 7 + 50 - 6 = 51.", "points": 4, "durationMinutes": 8, "difficulty": "Fondamental"},
+        {"id": "3M-E2", "title": "Fraction d'un trajet", "prompt": "Lina parcourt 3/8 d'un trajet le matin et 1/4 l'après-midi. Quelle fraction reste-t-il ?", "correction": "3/8 + 1/4 = 3/8 + 2/8 = 5/8 ; il reste 3/8 du trajet.", "points": 4, "durationMinutes": 10, "difficulty": "Consolidation"},
+        {"id": "3M-E3", "title": "Programme de calcul", "prompt": "On choisit x, on le triple puis on ajoute 4. Écrire l'expression et trouver x si le résultat vaut 25.", "correction": "Expression : 3x + 4. Équation : 3x + 4 = 25, donc 3x = 21 et x = 7.", "points": 5, "durationMinutes": 12, "difficulty": "Consolidation"},
+        {"id": "3M-E4", "title": "Échelle", "prompt": "Sur un plan à l'échelle 1:500, une longueur mesure 7,2 cm. Donner la longueur réelle en mètres.", "correction": "7,2 × 500 = 3 600 cm, soit 36 m.", "points": 5, "durationMinutes": 12, "difficulty": "Approfondissement"}
+      ],
+      "finalProduction": {
+        "title": "Fiche méthode : sécuriser un calcul",
+        "durationMinutes": 35,
+        "prompt": "Créer une fiche illustrée par deux exemples qui explique comment lire, effectuer et contrôler un calcul mêlant fractions, puissances ou parenthèses.",
+        "criteria": [{"label": "Méthode exacte", "points": 4, "descriptor": "Les étapes sont mathématiquement correctes."}, {"label": "Exemples corrigés", "points": 4, "descriptor": "Deux exemples complets et contrôlés."}, {"label": "Clarté", "points": 2, "descriptor": "Notation et mise en page lisibles."}],
+        "expectedAnswer": "Une procédure en trois temps : repérer les priorités, calculer ligne par ligne, vérifier signe et ordre de grandeur."
+      },
+      "bilan": {"durationMinutes": 10, "studentPrompts": ["Je sais maintenant…", "L'erreur que je peux éviter…", "La méthode que je dois encore entraîner…"], "teacherObservationFields": ["Automatismes", "Justification", "Autonomie", "Prochaine étape"]},
+      "validation": {"status": "PENDING_HUMAN_VALIDATION", "requiredRole": "RESPONSABLE_PEDAGOGIQUE_MATHEMATIQUES", "checklist": ["Exactitude des corrigés", "Cohérence du barème", "Adéquation au niveau", "Faisabilité en 10 heures"], "validatedBy": null, "validatedAt": null}
+    },
+    {
+      "moduleId": "troisieme-francais",
+      "title": "Français — Entrée en 3e",
+      "level": "Entrée en 3e",
+      "subject": "Français",
+      "focus": "Comprendre, interpréter et écrire avec précision",
+      "programmeMatrixRef": "BO2020-CYCLE4-FRANCAIS",
+      "durationMinutes": 600,
+      "difficultyRange": "Fondamental à consolidation",
+      "status": "READY_FOR_PEDAGOGICAL_REVIEW",
+      "positioning": {
+        "durationMinutes": 30,
+        "totalPoints": 12,
+        "student": {"instructions": "Lis deux fois le texte original proposé, réponds par des phrases complètes et cite les mots qui justifient ton interprétation. Relis ensuite l'accord des verbes et des groupes nominaux."},
+        "teacher": {"administration": "Lire seulement la consigne générale. Ne pas expliquer le vocabulaire avant que l'élève ait formulé une hypothèse en contexte.", "interpretationBands": ["0–4 : étayer la compréhension explicite", "5–8 : consolider langue et justification", "9–12 : approfondir interprétation et style"]},
+        "supportText": "À sept heures, le quartier semblait retenir son souffle. Nour descendit l'escalier avec son carnet sous le bras. Dans la cour, le vieux figuier projetait une ombre immense, comme s'il voulait lui barrer le passage. Elle hésita, puis écrivit une première phrase. Le portail grinça : la journée pouvait commencer.",
+        "questions": [
+          {"id": "3F-P1", "skill": "Compréhension explicite", "prompt": "Quel objet Nour emporte-t-elle ?", "answer": "Elle emporte un carnet sous le bras.", "points": 1, "difficulty": "Fondamental", "correctionGuidance": "Exiger l'objet exact."},
+          {"id": "3F-P2", "skill": "Inférence", "prompt": "Quel sentiment peut expliquer son hésitation ? Justifier par un indice.", "answer": "Une inquiétude ou une appréhension est possible ; l'ombre semble lui barrer le passage et elle hésite.", "points": 3, "difficulty": "Consolidation", "correctionGuidance": "1 point sentiment plausible, 2 points justification textuelle."},
+          {"id": "3F-P3", "skill": "Figure de style", "prompt": "Identifier la figure dans « le quartier semblait retenir son souffle ».", "answer": "C'est une personnification : un comportement humain est attribué au quartier.", "points": 2, "difficulty": "Consolidation", "correctionGuidance": "1 point identification, 1 point explication."},
+          {"id": "3F-P4", "skill": "Grammaire", "prompt": "Donner le sujet et le temps du verbe « projetait ».", "answer": "Sujet : le vieux figuier ; temps : imparfait de l'indicatif.", "points": 2, "difficulty": "Fondamental", "correctionGuidance": "Un point par élément."},
+          {"id": "3F-P5", "skill": "Réécriture", "prompt": "Réécrire « Elle hésita, puis écrivit » avec « Elles ».", "answer": "Elles hésitèrent, puis écrivirent.", "points": 2, "difficulty": "Consolidation", "correctionGuidance": "Un point par terminaison correcte."},
+          {"id": "3F-P6", "skill": "Écriture", "prompt": "Écrire deux phrases qui prolongent la scène en conservant le point de vue.", "answer": "Réponse ouverte : cohérence avec Nour, narration à la troisième personne et enchaînement compréhensible.", "points": 2, "difficulty": "Consolidation", "correctionGuidance": "1 point cohérence, 1 point correction de la langue."}
+        ]
+      },
+      "activities": [
+        {"id": "3F-A1", "title": "Enquête dans le texte", "durationMinutes": 40, "difficulty": "Consolidation", "objective": "Distinguer observation, inférence et interprétation.", "studentInstructions": "Surligner trois faits, formuler deux inférences et associer chaque inférence à un indice précis.", "teacherFlow": "Refuser les réponses sans indice et modéliser la formule « je pense… parce que le texte dit… ».", "materials": ["Texte original Nexus", "Trois couleurs"], "resourceContent": "Support : le texte original du positionnement, de « À sept heures » à « la journée pouvait commencer ». Tableau à remplir en trois colonnes : fait observable ; mots exacts du texte ; interprétation prudente.", "expectedOutcome": "Un tableau fait / indice / interprétation correctement renseigné."},
+        {"id": "3F-A2", "title": "Atelier de réécriture", "durationMinutes": 50, "difficulty": "Approfondissement", "objective": "Enrichir une narration sans perdre sa cohérence.", "studentInstructions": "Transformer un paragraphe neutre en scène de tension avec deux perceptions sensorielles et une comparaison.", "teacherFlow": "Faire lire les versions, puis discuter l'effet produit par chaque choix de langue.", "materials": ["Paragraphe source original", "Grille de relecture"], "resourceContent": "Paragraphe original Nexus : « Sami entra dans la salle. Une fenêtre était ouverte. Il posa son sac sur une table et regarda le couloir. Une porte se ferma. Il attendit. » Grille : cohérence, deux sens, comparaison, temps du récit, ponctuation.", "expectedOutcome": "Un paragraphe de 100 à 130 mots avec procédés repérables."}
+      ],
+      "exercises": [
+        {"id": "3F-E1", "title": "Valeurs des temps", "prompt": "Expliquer l'emploi de l'imparfait dans « projetait » et du passé simple dans « hésita ».", "correction": "L'imparfait installe le décor ou une action durable ; le passé simple marque une action brève qui fait avancer le récit.", "points": 4, "durationMinutes": 10, "difficulty": "Consolidation"},
+        {"id": "3F-E2", "title": "Accords", "prompt": "Corriger : « Les portes entrouvert laisse passer des lumières pâle. »", "correction": "Les portes entrouvertes laissent passer des lumières pâles.", "points": 4, "durationMinutes": 8, "difficulty": "Fondamental"},
+        {"id": "3F-E3", "title": "Justifier une interprétation", "prompt": "Montrer en quatre lignes que le décor reflète l'état d'esprit de Nour.", "correction": "Le quartier silencieux, l'ombre immense et le passage qui paraît barré traduisent son appréhension. L'ouverture du portail et la phrase écrite marquent ensuite le passage à l'action.", "points": 5, "durationMinutes": 12, "difficulty": "Approfondissement"},
+        {"id": "3F-E4", "title": "Ponctuation expressive", "prompt": "Ponctuer et mettre en paragraphes : nour se retourna quelqu'un avait parlé qui est là demanda-t-elle", "correction": "Nour se retourna. Quelqu'un avait parlé. « Qui est là ? » demanda-t-elle.", "points": 5, "durationMinutes": 10, "difficulty": "Consolidation"}
+      ],
+      "finalProduction": {"title": "Récit bref : franchir le portail", "durationMinutes": 50, "prompt": "Écrire 180 à 220 mots qui prolongent le texte, font évoluer l'émotion de Nour et utilisent au moins une comparaison, une perception sensorielle et un dialogue correctement ponctué.", "criteria": [{"label": "Cohérence du récit", "points": 4, "descriptor": "Situation, progression et point de vue maîtrisés."}, {"label": "Choix d'écriture", "points": 4, "descriptor": "Procédés demandés intégrés avec effet."}, {"label": "Maîtrise de la langue", "points": 4, "descriptor": "Syntaxe, accords et ponctuation relus."}], "expectedAnswer": "Production personnelle respectant la continuité du texte original et les trois contraintes d'écriture."},
+      "bilan": {"durationMinutes": 10, "studentPrompts": ["L'indice textuel que j'ai bien utilisé…", "La règle de langue que j'ai corrigée…", "Mon prochain objectif d'écriture…"], "teacherObservationFields": ["Compréhension", "Justification", "Langue", "Écriture"]},
+      "validation": {"status": "PENDING_HUMAN_VALIDATION", "requiredRole": "RESPONSABLE_PEDAGOGIQUE_FRANCAIS", "checklist": ["Texte original et droits vérifiés", "Corrigés recevables", "Barème équilibré", "Adéquation au cycle 4"], "validatedBy": null, "validatedAt": null}
+    },
+    {
+      "moduleId": "seconde-mathematiques",
+      "title": "Mathématiques — Entrée en Seconde",
+      "level": "Entrée en Seconde",
+      "subject": "Mathématiques",
+      "focus": "Calcul algébrique, équations et fonctions",
+      "programmeMatrixRef": "BO2026-LYCEE-MATHS-SECONDE",
+      "durationMinutes": 600,
+      "difficultyRange": "Consolidation collège à transition lycée",
+      "status": "READY_FOR_PEDAGOGICAL_REVIEW",
+      "positioning": {
+        "durationMinutes": 30,
+        "totalPoints": 12,
+        "student": {"instructions": "Justifie les transformations algébriques et indique les ensembles de solutions. La calculatrice n'est utile que pour contrôler un résultat obtenu d'abord par le raisonnement."},
+        "teacher": {"administration": "Observer le passage du langage courant au langage algébrique, la tenue des égalités et le contrôle des solutions.", "interpretationBands": ["0–4 : reprendre calcul et égalité", "5–8 : consolider les méthodes", "9–12 : préparer la modélisation"]},
+        "questions": [
+          {"id": "2M-P1", "skill": "Développement", "prompt": "Développer et réduire 3(2x - 5) + 4x.", "answer": "6x - 15 + 4x = 10x - 15.", "points": 2, "difficulty": "Fondamental", "correctionGuidance": "Vérifier la distributivité sur les deux termes."},
+          {"id": "2M-P2", "skill": "Factorisation", "prompt": "Factoriser 12x² - 8x.", "answer": "12x² - 8x = 4x(3x - 2).", "points": 2, "difficulty": "Consolidation", "correctionGuidance": "Accepter tout facteur commun correct, valoriser le facteur maximal."},
+          {"id": "2M-P3", "skill": "Équation", "prompt": "Résoudre 4(2x - 1) = 3x + 11.", "answer": "8x - 4 = 3x + 11, donc 5x = 15 et x = 3.", "points": 2, "difficulty": "Consolidation", "correctionGuidance": "Contrôler la conservation de l'égalité."},
+          {"id": "2M-P4", "skill": "Fonction", "prompt": "Pour f(x)=2x²-3, calculer f(-2).", "answer": "f(-2)=2×(-2)²-3=8-3=5.", "points": 2, "difficulty": "Fondamental", "correctionGuidance": "Le carré porte sur -2 ; repérer l'erreur de signe."},
+          {"id": "2M-P5", "skill": "Lecture graphique", "prompt": "Une courbe passe par A(3; -1). Traduire cette information avec f.", "answer": "f(3) = -1 ; -1 est l'image de 3.", "points": 2, "difficulty": "Fondamental", "correctionGuidance": "Accepter l'égalité ou la phrase exacte."},
+          {"id": "2M-P6", "skill": "Modélisation", "prompt": "Un taxi facture 4 TND puis 1,5 TND par kilomètre. Exprimer le prix P(x).", "answer": "P(x)=4+1,5x pour x≥0.", "points": 2, "difficulty": "Consolidation", "correctionGuidance": "1 point expression, 1 point interprétation des termes ou domaine."}
+        ]
+      },
+      "activities": [
+        {"id": "2M-A1", "title": "Expressions équivalentes", "durationMinutes": 45, "difficulty": "Consolidation", "objective": "Choisir entre forme développée et factorisée.", "studentInstructions": "Associer huit expressions équivalentes puis expliquer quelle forme facilite un calcul, une résolution ou une étude de signe.", "teacherFlow": "Faire vérifier les associations par substitution avant la preuve algébrique.", "materials": ["Cartes d'expressions", "Tableau de justification"], "resourceContent": "Cartes : A=(x+2)(x+5), B=x²+7x+10, C=3(x-4)+2x, D=5x-12, E=(2x-1)², F=4x²-4x+1, G=6x+9, H=3(2x+3). Former quatre paires puis choisir une valeur de x pour vérifier chaque paire.", "expectedOutcome": "Quatre identités justifiées et un choix de forme argumenté."},
+        {"id": "2M-A2", "title": "Deux forfaits", "durationMinutes": 50, "difficulty": "Approfondissement", "objective": "Modéliser et comparer deux fonctions affines.", "studentInstructions": "Exprimer deux tarifs, construire un tableau de valeurs, déterminer le seuil d'égalité et rédiger un conseil selon l'usage.", "teacherFlow": "Relier calcul, graphique et interprétation sans présenter l'intersection comme une simple recette.", "materials": ["Fiche de données", "Papier quadrillé"], "resourceContent": "Forfait Atlas : 18 TND fixes puis 0,60 TND par unité. Forfait Carthage : 6 TND fixes puis 1,20 TND par unité. Étudier x=0, 10, 20, 30 et 40, résoudre l'égalité et conseiller trois usages : 8, 22 et 35 unités.", "expectedOutcome": "Deux expressions, un graphique cohérent et une conclusion contextualisée."}
+      ],
+      "exercises": [
+        {"id": "2M-E1", "title": "Trois formes", "prompt": "Pour E=(x+3)(2x-1), développer E puis calculer E pour x=-3 sans développer.", "correction": "E=2x²+5x-3. Pour x=-3, le facteur x+3 vaut 0, donc E=0.", "points": 5, "durationMinutes": 12, "difficulty": "Consolidation"},
+        {"id": "2M-E2", "title": "Équation-problème", "prompt": "Un rectangle a une longueur x+4 et une largeur 5. Son périmètre vaut 34. Trouver x.", "correction": "2[(x+4)+5]=34, donc 2x+18=34, 2x=16 et x=8.", "points": 5, "durationMinutes": 12, "difficulty": "Consolidation"},
+        {"id": "2M-E3", "title": "Images et antécédents", "prompt": "Soit g(x)=-3x+6. Calculer g(4), puis trouver l'antécédent de 0.", "correction": "g(4)=-12+6=-6. Résoudre -3x+6=0 donne x=2.", "points": 4, "durationMinutes": 10, "difficulty": "Fondamental"},
+        {"id": "2M-E4", "title": "Choix de forfait", "prompt": "A(x)=12+0,8x et B(x)=5+1,5x. Pour quelle valeur de x les prix sont-ils égaux ?", "correction": "12+0,8x=5+1,5x, donc 7=0,7x et x=10.", "points": 5, "durationMinutes": 12, "difficulty": "Approfondissement"}
+      ],
+      "finalProduction": {"title": "Note de décision entre deux offres", "durationMinutes": 45, "prompt": "À partir de deux formules tarifaires données, produire une page avec modèles algébriques, seuil de comparaison, représentation et recommandation pour trois profils.", "criteria": [{"label": "Modélisation", "points": 4, "descriptor": "Variables et expressions sont définies."}, {"label": "Résolution et contrôle", "points": 4, "descriptor": "Seuil exact et vérifié."}, {"label": "Interprétation", "points": 4, "descriptor": "Conseils reliés aux domaines de validité."}], "expectedAnswer": "Une décision nuancée : l'offre choisie dépend du nombre d'unités et le point d'égalité sépare les domaines avantageux."},
+      "bilan": {"durationMinutes": 10, "studentPrompts": ["La forme algébrique que je choisis mieux…", "Le contrôle qui m'évite une erreur…", "Le passage au lycée que je veux encore travailler…"], "teacherObservationFields": ["Calcul", "Égalité", "Fonctions", "Modélisation"]},
+      "validation": {"status": "PENDING_HUMAN_VALIDATION", "requiredRole": "RESPONSABLE_PEDAGOGIQUE_MATHEMATIQUES", "checklist": ["Alignement programme 2026", "Exactitude des corrigés", "Progressivité", "Charge compatible avec 10 heures"], "validatedBy": null, "validatedAt": null}
+    },
+    {
+      "moduleId": "seconde-physique-chimie",
+      "title": "Physique-Chimie — Entrée en Seconde",
+      "level": "Entrée en Seconde",
+      "subject": "Physique-Chimie",
+      "focus": "Mesurer, convertir, modéliser et argumenter",
+      "programmeMatrixRef": "BO2019-LYCEE-PC-SECONDE",
+      "durationMinutes": 600,
+      "difficultyRange": "Consolidation collège à transition lycée",
+      "status": "READY_FOR_PEDAGOGICAL_REVIEW",
+      "positioning": {
+        "durationMinutes": 30,
+        "totalPoints": 12,
+        "student": {"instructions": "Écris les unités à chaque étape, présente la formule littérale avant l'application numérique et donne un résultat avec un nombre de chiffres cohérent avec les données."},
+        "teacher": {"administration": "Aucun matériel de laboratoire n'est requis. Observer unités, ordre de grandeur, isolement de l'inconnue et qualité de l'argumentation.", "interpretationBands": ["0–4 : reprendre unités et calcul", "5–8 : consolider la mise en équation", "9–12 : approfondir modèle et critique"]},
+        "questions": [
+          {"id": "2PC-P1", "skill": "Conversion", "prompt": "Convertir 72 km·h⁻¹ en m·s⁻¹.", "answer": "72 ÷ 3,6 = 20 m·s⁻¹.", "points": 2, "difficulty": "Fondamental", "correctionGuidance": "Valider 20 et l'unité."},
+          {"id": "2PC-P2", "skill": "Notation scientifique", "prompt": "Écrire 0,00042 en notation scientifique.", "answer": "4,2 × 10⁻⁴.", "points": 2, "difficulty": "Fondamental", "correctionGuidance": "Mantisse entre 1 et 10."},
+          {"id": "2PC-P3", "skill": "Masse volumique", "prompt": "Un objet de 270 g occupe 100 cm³. Calculer sa masse volumique.", "answer": "ρ=m/V=270/100=2,70 g·cm⁻³.", "points": 2, "difficulty": "Consolidation", "correctionGuidance": "Formule, valeur et unité attendues."},
+          {"id": "2PC-P4", "skill": "Vitesse", "prompt": "Un mobile parcourt 150 m en 12 s. Calculer sa vitesse moyenne.", "answer": "v=d/t=150/12=12,5 m·s⁻¹.", "points": 2, "difficulty": "Consolidation", "correctionGuidance": "Accepter 12,5 avec formule et unité."},
+          {"id": "2PC-P5", "skill": "Atome", "prompt": "Un atome possède 8 protons et 10 électrons. Quelle est sa charge globale ?", "answer": "Il porte deux charges élémentaires négatives : c'est un ion de charge 2−.", "points": 2, "difficulty": "Consolidation", "correctionGuidance": "Relier l'excès de deux électrons au signe négatif."},
+          {"id": "2PC-P6", "skill": "Protocole", "prompt": "Donner deux précautions pour mesurer correctement 50 mL avec une éprouvette graduée.", "answer": "Poser l'éprouvette verticalement sur une surface plane et lire le bas du ménisque à hauteur des yeux.", "points": 2, "difficulty": "Fondamental", "correctionGuidance": "Un point par précaution pertinente."}
+        ]
+      },
+      "activities": [
+        {"id": "2PC-A1", "title": "Laboratoire sur papier : quel matériau ?", "durationMinutes": 45, "difficulty": "Consolidation", "objective": "Exploiter des mesures et discuter leur précision.", "studentInstructions": "À partir de trois couples masse-volume, calculer les masses volumiques, comparer à une table et identifier les matériaux probables.", "teacherFlow": "Faire conserver les unités, interroger les écarts et distinguer mesure de valeur de référence.", "materials": ["Jeu de données Nexus", "Table de masses volumiques"], "resourceContent": "Mesures : échantillon A, m=78,0 g et V=10,0 cm³ ; B, m=27,2 g et V=10,0 cm³ ; C, m=89,0 g et V=10,0 cm³. Références en g·cm⁻³ : aluminium 2,70 ; fer 7,87 ; cuivre 8,96. Identifier et commenter l'écart.", "expectedOutcome": "Tableau complété, matériau identifié et réserve formulée sur la précision."},
+        {"id": "2PC-A2", "title": "Trajet et modèle", "durationMinutes": 50, "difficulty": "Approfondissement", "objective": "Relier données, calcul de vitesse et représentation.", "studentInstructions": "Exploiter un relevé distance-temps, calculer trois vitesses moyennes et décrire les phases du mouvement.", "teacherFlow": "Faire distinguer vitesse moyenne et vitesse instantanée ; ne pas surinterpréter les données.", "materials": ["Tableau distance-temps", "Papier millimétré"], "resourceContent": "Relevé : t(s)=0, 5, 10, 15, 20, 25 ; d(m)=0, 20, 50, 80, 80, 95. Calculer les vitesses moyennes sur [0;10], [10;15] et [15;20], tracer les points et décrire mouvement, arrêt et reprise.", "expectedOutcome": "Calculs avec unités, graphique légendé et description prudente."}
+      ],
+      "exercises": [
+        {"id": "2PC-E1", "title": "Chaîne de conversions", "prompt": "Convertir 2,5 L en m³ et 3,6×10⁵ mg en kg.", "correction": "2,5 L = 2,5×10⁻³ m³ ; 3,6×10⁵ mg = 0,36 kg.", "points": 4, "durationMinutes": 10, "difficulty": "Fondamental"},
+        {"id": "2PC-E2", "title": "Identifier un liquide", "prompt": "Un liquide de masse 92 g occupe 100 mL. Calculer ρ et comparer à 1,00 g·mL⁻¹.", "correction": "ρ=92/100=0,92 g·mL⁻¹ ; il est moins dense que l'eau selon ces données.", "points": 5, "durationMinutes": 12, "difficulty": "Consolidation"},
+        {"id": "2PC-E3", "title": "Distance de freinage", "prompt": "À 20 m·s⁻¹, un véhicule s'arrête en 3,5 s. En supposant une vitesse moyenne de 10 m·s⁻¹ pendant le freinage, estimer la distance.", "correction": "d=v_moy×t=10×3,5=35 m. Le résultat dépend de l'hypothèse de vitesse moyenne.", "points": 5, "durationMinutes": 12, "difficulty": "Approfondissement"},
+        {"id": "2PC-E4", "title": "Résultat crédible ?", "prompt": "Un élève annonce qu'une bouteille de 1,5 L d'eau a une masse de 0,15 kg. Critiquer ce résultat.", "correction": "Avec ρ≈1 kg·L⁻¹, 1,5 L d'eau a une masse proche de 1,5 kg. 0,15 kg est dix fois trop faible.", "points": 4, "durationMinutes": 10, "difficulty": "Consolidation"}
+      ],
+      "finalProduction": {"title": "Compte rendu d'identification sur données", "durationMinutes": 50, "prompt": "Rédiger un compte rendu qui exploite un jeu de mesures masse-volume pour identifier un échantillon, explicite les calculs et discute une source d'incertitude. Aucun protocole réel n'est prétendu.", "criteria": [{"label": "Données et unités", "points": 4, "descriptor": "Grandeurs identifiées et conversions exactes."}, {"label": "Modèle et calcul", "points": 4, "descriptor": "Formule, application et résultat cohérents."}, {"label": "Analyse critique", "points": 4, "descriptor": "Conclusion prudente et limite identifiée."}], "expectedAnswer": "Le matériau le plus compatible est celui dont la masse volumique de référence est la plus proche, sous réserve des incertitudes de mesure."},
+      "bilan": {"durationMinutes": 10, "studentPrompts": ["L'unité que je dois surveiller…", "Le contrôle d'ordre de grandeur que j'utilise…", "La limite du modèle que je peux expliquer…"], "teacherObservationFields": ["Unités", "Calcul littéral", "Ordre de grandeur", "Argumentation"]},
+      "validation": {"status": "PENDING_HUMAN_VALIDATION", "requiredRole": "RESPONSABLE_PEDAGOGIQUE_PHYSIQUE_CHIMIE", "checklist": ["Exactitude scientifique", "Sécurité et absence de manipulation implicite", "Barème", "Alignement Seconde"], "validatedBy": null, "validatedAt": null}
+    },
+    {
+      "moduleId": "premiere-mathematiques",
+      "title": "Mathématiques — Entrée en Première",
+      "level": "Entrée en Première",
+      "subject": "Mathématiques",
+      "focus": "Fonctions, variations et premières suites",
+      "programmeMatrixRef": "BO2026-LYCEE-MATHS-PREMIERE",
+      "durationMinutes": 600,
+      "difficultyRange": "Consolidation Seconde à spécialité Première",
+      "status": "READY_FOR_PEDAGOGICAL_REVIEW",
+      "positioning": {
+        "durationMinutes": 30,
+        "totalPoints": 12,
+        "student": {"instructions": "Présente les calculs sans sauter les égalités, distingue conjecture et preuve, et justifie chaque lecture de variation ou de signe à partir des données fournies."},
+        "teacher": {"administration": "Observer calcul algébrique, vocabulaire fonctionnel et capacité à relier formule, tableau et raisonnement.", "interpretationBands": ["0–4 : reprendre prérequis de Seconde", "5–8 : consolider fonctions et calcul", "9–12 : engager suites et démonstration"]},
+        "questions": [
+          {"id": "1M-P1", "skill": "Identité remarquable", "prompt": "Développer (2x-3)².", "answer": "(2x-3)²=4x²-12x+9.", "points": 2, "difficulty": "Fondamental", "correctionGuidance": "Contrôler le terme double -12x."},
+          {"id": "1M-P2", "skill": "Second degré", "prompt": "Factoriser x²-9 puis résoudre x²-9=0.", "answer": "x²-9=(x-3)(x+3), donc x=-3 ou x=3.", "points": 2, "difficulty": "Consolidation", "correctionGuidance": "1 point factorisation, 1 point solutions."},
+          {"id": "1M-P3", "skill": "Fonction affine", "prompt": "Déterminer le coefficient directeur de la droite passant par A(1;2) et B(5;10).", "answer": "m=(10-2)/(5-1)=8/4=2.", "points": 2, "difficulty": "Fondamental", "correctionGuidance": "Valider formule et résultat."},
+          {"id": "1M-P4", "skill": "Variations", "prompt": "Si f est croissante sur [0;5] et f(2)=3, f(4) peut-il valoir 1 ?", "answer": "Non : 2<4 et f croissante impliquent f(2)≤f(4), donc f(4)≥3.", "points": 2, "difficulty": "Consolidation", "correctionGuidance": "Exiger la relation d'ordre."},
+          {"id": "1M-P5", "skill": "Suite", "prompt": "Une suite vérifie u₀=5 et uₙ₊₁=uₙ+3. Calculer u₁ et u₂.", "answer": "u₁=8 et u₂=11.", "points": 2, "difficulty": "Fondamental", "correctionGuidance": "Un point par terme."},
+          {"id": "1M-P6", "skill": "Algorithmique", "prompt": "Que renvoie l'algorithme : s=0 ; pour k de 1 à 4, s=s+k ; afficher s ?", "answer": "Il renvoie 1+2+3+4=10.", "points": 2, "difficulty": "Consolidation", "correctionGuidance": "Accepter une trace complète ou la somme explicitée."}
+        ]
+      },
+      "activities": [
+        {"id": "1M-A1", "title": "Même courbe, trois langages", "durationMinutes": 45, "difficulty": "Consolidation", "objective": "Relier courbe, tableau de variations et phrases mathématiques.", "studentInstructions": "À partir d'une courbe fournie, construire le tableau de variations puis rédiger quatre assertions vraies et une assertion fausse à réfuter.", "teacherFlow": "Faire préciser intervalles, valeurs et sens de variation ; bannir les formulations ambiguës.", "materials": ["Courbe Nexus", "Gabarit de tableau"], "resourceContent": "Tracer puis exploiter f(x)=x³-3x sur [-2;2] à partir des points (-2;-2), (-1;2), (0;0), (1;-2), (2;2). La courbe est croissante sur [-2;-1], décroissante sur [-1;1], puis croissante sur [1;2].", "expectedOutcome": "Tableau exact et cinq assertions correctement justifiées."},
+        {"id": "1M-A2", "title": "Suites de croissance", "durationMinutes": 55, "difficulty": "Approfondissement", "objective": "Comparer croissance additive et multiplicative.", "studentInstructions": "Modéliser deux évolutions par récurrence, calculer six termes, représenter et expliquer pourquoi les écarts changent.", "teacherFlow": "Faire distinguer suite arithmétique et géométrique sans généraliser à partir d'un seul terme.", "materials": ["Scénarios de population fictifs", "Tableur facultatif"], "resourceContent": "Population fictive A : 1 000 individus au départ et +120 par année. Population fictive B : 800 au départ et +12 % par année. Définir a₀ et b₀, écrire les récurrences, calculer les termes de rang 0 à 5 puis comparer.", "expectedOutcome": "Deux modèles, un tableau et une comparaison argumentée."}
+      ],
+      "exercises": [
+        {"id": "1M-E1", "title": "Formes d'un trinôme", "prompt": "Développer (x-2)(x+5), puis calculer sa valeur pour x=2 en choisissant la forme efficace.", "correction": "x²+3x-10 ; pour x=2, la forme factorisée donne immédiatement 0.", "points": 5, "durationMinutes": 12, "difficulty": "Consolidation"},
+        {"id": "1M-E2", "title": "Variation et encadrement", "prompt": "f est décroissante sur [1;6], f(1)=9 et f(6)=2. Encadrer f(4).", "correction": "Comme 1≤4≤6 et f décroît, 2=f(6)≤f(4)≤f(1)=9.", "points": 4, "durationMinutes": 10, "difficulty": "Consolidation"},
+        {"id": "1M-E3", "title": "Suite arithmétique", "prompt": "u₀=12 et uₙ₊₁=uₙ-2,5. Calculer u₄ et donner uₙ en fonction de n.", "correction": "u₄=12-4×2,5=2 ; uₙ=12-2,5n.", "points": 5, "durationMinutes": 12, "difficulty": "Consolidation"},
+        {"id": "1M-E4", "title": "Suite géométrique", "prompt": "v₀=80 et vₙ₊₁=1,05vₙ. Calculer v₂ et interpréter le facteur 1,05.", "correction": "v₂=80×1,05²=88,2. Le facteur correspond à une hausse de 5 % à chaque étape.", "points": 5, "durationMinutes": 12, "difficulty": "Approfondissement"}
+      ],
+      "finalProduction": {"title": "Comparer deux évolutions", "durationMinutes": 50, "prompt": "Rédiger une analyse comparant une évolution additive et une évolution multiplicative : définir les suites, calculer, représenter six termes et conclure sans extrapolation abusive.", "criteria": [{"label": "Définition des modèles", "points": 4, "descriptor": "Indices, termes initiaux et récurrences exacts."}, {"label": "Calcul et représentation", "points": 4, "descriptor": "Valeurs et graphique cohérents."}, {"label": "Interprétation", "points": 4, "descriptor": "Comparaison précise et limites explicites."}], "expectedAnswer": "La croissance multiplicative peut finir par dépasser la croissance additive ; la conclusion dépend des valeurs initiales, des paramètres et de l'horizon choisi."},
+      "bilan": {"durationMinutes": 10, "studentPrompts": ["Je distingue désormais…", "La justification d'une variation que je maîtrise…", "Le prérequis à reprendre avant la Première…"], "teacherObservationFields": ["Algèbre", "Fonctions", "Suites", "Raisonnement"]},
+      "validation": {"status": "PENDING_HUMAN_VALIDATION", "requiredRole": "RESPONSABLE_PEDAGOGIQUE_MATHEMATIQUES", "checklist": ["Alignement programme Première 2026", "Exactitude", "Progressivité", "Notation des suites"], "validatedBy": null, "validatedAt": null}
+    },
+    {
+      "moduleId": "terminale-mathematiques",
+      "title": "Mathématiques — Entrée en Terminale",
+      "level": "Entrée en Terminale",
+      "subject": "Mathématiques",
+      "focus": "Dérivation, suites, probabilités et raisonnement",
+      "programmeMatrixRef": "BO2019-LYCEE-MATHS-TERMINALE",
+      "durationMinutes": 600,
+      "difficultyRange": "Consolidation Première à transition Terminale",
+      "status": "READY_FOR_PEDAGOGICAL_REVIEW",
+      "positioning": {
+        "durationMinutes": 35,
+        "totalPoints": 12,
+        "student": {"instructions": "Rédige chaque argument, nomme les propriétés utilisées et contrôle les résultats numériques. Une réponse exacte sans justification ne permet pas d'évaluer la méthode attendue en Terminale."},
+        "teacher": {"administration": "Observer la maîtrise des prérequis de Première et la qualité des chaînes logiques. Ne pas introduire de notion nouvelle pendant le diagnostic.", "interpretationBands": ["0–4 : reprise ciblée des prérequis", "5–8 : consolidation avant Terminale", "9–12 : approfondissement et autonomie"]},
+        "questions": [
+          {"id": "TM-P1", "skill": "Dérivation", "prompt": "Dériver f(x)=3x³-5x²+2x-7.", "answer": "f'(x)=9x²-10x+2.", "points": 2, "difficulty": "Fondamental", "correctionGuidance": "Vérifier chaque terme et la constante."},
+          {"id": "TM-P2", "skill": "Tangente", "prompt": "Pour g(x)=x²+1, donner l'équation de la tangente en x=2.", "answer": "g(2)=5, g'(x)=2x donc g'(2)=4 ; y=4(x-2)+5=4x-3.", "points": 2, "difficulty": "Consolidation", "correctionGuidance": "Valeur, pente et équation attendues."},
+          {"id": "TM-P3", "skill": "Suite arithmétique", "prompt": "u₀=7 et uₙ₊₁=uₙ+4. Donner uₙ puis u₁₀.", "answer": "uₙ=7+4n et u₁₀=47.", "points": 2, "difficulty": "Fondamental", "correctionGuidance": "Un point formule, un point valeur."},
+          {"id": "TM-P4", "skill": "Suite géométrique", "prompt": "v₁=6 et la raison vaut 2. Donner vₙ pour n≥1.", "answer": "vₙ=6×2ⁿ⁻¹.", "points": 2, "difficulty": "Consolidation", "correctionGuidance": "Contrôler le décalage n-1."},
+          {"id": "TM-P5", "skill": "Probabilités conditionnelles", "prompt": "P(A)=0,4 et P(B|A)=0,7. Calculer P(A∩B).", "answer": "P(A∩B)=P(A)×P(B|A)=0,4×0,7=0,28.", "points": 2, "difficulty": "Consolidation", "correctionGuidance": "Formule et valeur attendues."},
+          {"id": "TM-P6", "skill": "Logique", "prompt": "La réciproque de « si n est multiple de 4, alors n est pair » est-elle vraie ?", "answer": "Non. La réciproque serait « si n est pair, alors n est multiple de 4 » ; 6 est un contre-exemple.", "points": 2, "difficulty": "Approfondissement", "correctionGuidance": "Exiger formulation et contre-exemple."}
+        ]
+      },
+      "activities": [
+        {"id": "TM-A1", "title": "De la dérivée au tableau", "durationMinutes": 55, "difficulty": "Consolidation", "objective": "Construire une étude de variations complète.", "studentInstructions": "Dériver une fonction polynomiale, étudier le signe de la dérivée, dresser le tableau de variations et vérifier deux valeurs.", "teacherFlow": "Faire séparer calcul de dérivée, résolution du signe et interprétation ; exiger les valeurs aux bornes.", "materials": ["Fiche fonction", "Gabarit de tableau"], "resourceContent": "Fonction support : f(x)=x³-3x²-9x+5 sur [-3;5]. Utiliser f'(x)=3(x+1)(x-3), déterminer son signe, calculer f(-3), f(-1), f(3), f(5), puis dresser le tableau complet.", "expectedOutcome": "Étude structurée sans confusion entre signe de f et signe de f'."},
+        {"id": "TM-A2", "title": "Arbre pondéré et décision", "durationMinutes": 50, "difficulty": "Approfondissement", "objective": "Modéliser une situation par probabilités conditionnelles.", "studentInstructions": "Construire l'arbre d'un contrôle qualité, calculer deux intersections puis une probabilité conditionnelle inverse.", "teacherFlow": "Faire verbaliser le sens de chaque branche et contrôler les sommes aux nœuds.", "materials": ["Scénario fictif Nexus", "Gabarit d'arbre"], "resourceContent": "Scénario fictif : 40 % des pièces viennent de l'atelier A, les autres de B. Le taux de défaut est de 3 % pour A et 1 % pour B. Construire l'arbre, calculer P(A∩D), P(B∩D), P(D), puis P(A|D).", "expectedOutcome": "Arbre complet, calculs justifiés et interprétation en contexte."}
+      ],
+      "exercises": [
+        {"id": "TM-E1", "title": "Variations d'un polynôme", "prompt": "Pour f(x)=x³-3x²-9x+5, calculer f' puis factoriser f'.", "correction": "f'(x)=3x²-6x-9=3(x²-2x-3)=3(x-3)(x+1).", "points": 5, "durationMinutes": 12, "difficulty": "Consolidation"},
+        {"id": "TM-E2", "title": "Tangente horizontale", "prompt": "Pour h(x)=x³-3x, déterminer les abscisses où la tangente est horizontale.", "correction": "h'(x)=3x²-3=3(x-1)(x+1). La dérivée s'annule pour x=-1 et x=1.", "points": 5, "durationMinutes": 12, "difficulty": "Consolidation"},
+        {"id": "TM-E3", "title": "Somme arithmétique", "prompt": "Calculer 5+8+11+…+50.", "correction": "Suite de raison 3 : 50=5+3×15, donc 16 termes. Somme =16(5+50)/2=440.", "points": 6, "durationMinutes": 15, "difficulty": "Approfondissement"},
+        {"id": "TM-E4", "title": "Probabilité totale", "prompt": "P(A)=0,3, P(B|A)=0,8 et P(B|Ā)=0,2. Calculer P(B).", "correction": "P(B)=0,3×0,8+0,7×0,2=0,24+0,14=0,38.", "points": 5, "durationMinutes": 12, "difficulty": "Consolidation"}
+      ],
+      "finalProduction": {"title": "Dossier de modélisation : évolution et risque", "durationMinutes": 55, "prompt": "Résoudre un dossier combinant une suite d'évolution et un arbre probabiliste : définir les variables, conduire les calculs, contrôler deux résultats et formuler une conclusion limitée aux données.", "criteria": [{"label": "Modèles", "points": 4, "descriptor": "Suite et arbre correctement définis."}, {"label": "Calculs justifiés", "points": 5, "descriptor": "Propriétés nommées et résultats contrôlés."}, {"label": "Conclusion", "points": 3, "descriptor": "Interprétation précise sans généralisation."}], "expectedAnswer": "Une solution structurée distinguant le modèle d'évolution du modèle probabiliste et explicitant les hypothèses de chacun."},
+      "bilan": {"durationMinutes": 10, "studentPrompts": ["Le prérequis de Première que je maîtrise…", "La justification que je dois rendre plus rigoureuse…", "Mon plan de reprise avant la Terminale…"], "teacherObservationFields": ["Dérivation", "Suites", "Probabilités", "Rigueur"]},
+      "validation": {"status": "PENDING_HUMAN_VALIDATION", "requiredRole": "RESPONSABLE_PEDAGOGIQUE_MATHEMATIQUES", "checklist": ["Alignement Terminale 2019 applicable", "Exactitude", "Prérequis de Première", "Barème et charge"], "validatedBy": null, "validatedAt": null}
+    }
+  ]
+}

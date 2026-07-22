@@ -197,7 +197,7 @@ export function BilanStrategiqueClient({
                     <p>Préremplissage modifiable · {prefill.contextLabel} · {selectedOffer?.title}</p>
                     <p className="mt-1">Classe de rentrée : {prefill.entryLevelLabel}</p>
                     <p className="mt-1">Profil pédagogique : {prefill.profileLabel}</p>
-                    <Link className="mt-2 inline-flex min-h-11 items-center font-semibold underline" href="/stages/pre-rentree-2026#configurateur">
+                    <Link className="mt-2 inline-flex min-h-11 items-center font-semibold underline" href="/stages/pre-rentree-2026#offres-pre-rentree">
                       Modifier la configuration complète
                     </Link>
                   </div>

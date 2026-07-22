@@ -7,15 +7,15 @@ import { getPreRentreeHomepageSpotlightDTO } from '@/lib/campaigns/pre-rentree-2
 export const metadata: Metadata = {
   title: 'Nexus Réussite | Accompagnement académique premium à Tunis',
   description:
-    "Accompagnement académique premium pour les élèves du système français à Tunis : groupes réduits, méthode structurée, bilans individualisés et suivi parent clair.",
+    "Accompagnement académique pour les élèves du système français à Tunis : parcours, matières, formats et conditions présentés offre par offre.",
   keywords:
-    'Nexus Réussite, bac français, Tunis, accompagnement scolaire, candidats libres, Première, Terminale, ARIA',
+    'Nexus Réussite, bac français, Tunis, accompagnement scolaire, candidats libres, Première, Terminale',
   alternates: { canonical: '/' },
   openGraph: {
     images: [OG_DEFAULT_IMAGE],
     title: 'Nexus Réussite | Accompagnement académique premium à Tunis',
     description:
-      "Un cadre exigeant pour progresser avec méthode, suivi clair et groupes réduits.",
+      "Des parcours académiques dont les matières, formats et conditions sont présentés offre par offre.",
     type: 'website',
     url: 'https://nexusreussite.academy',
   },
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Nexus Réussite | Accompagnement académique premium à Tunis',
     description:
-      "Groupes réduits, méthode structurée, bilans individualisés et suivi parent clair pour les élèves du système français à Tunis.",
+      "Parcours académiques, stages et conditions présentés offre par offre pour les élèves du système français à Tunis.",
   },
   robots: { index: true, follow: true },
 };

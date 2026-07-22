@@ -36,12 +36,14 @@ describe('Pré-rentrée 2026 public presentation contracts', () => {
       .toBe('Du lundi 17 au vendredi 21 août');
   });
 
-  it('defines exactly four accessible subject families from one source', () => {
+  it('defines exactly six accessible subject families from one source', () => {
     expect(Object.keys(SUBJECT_THEMES)).toEqual([
       'MATHEMATIQUES',
       'FRANCAIS',
       'NSI_SNT',
       'PHYSIQUE_CHIMIE',
+      'SVT',
+      'PHILOSOPHIE',
     ]);
     for (const theme of Object.values(SUBJECT_THEMES)) {
       expect(theme.label).toEqual(expect.any(String));

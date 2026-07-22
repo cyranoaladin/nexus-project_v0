@@ -1,0 +1,178 @@
+{
+  "timezone": "Africa/Tunis",
+  "days": [
+    {
+      "day": "J1",
+      "date": "2026-07-20",
+      "time": "19:00",
+      "channel": [
+        "Facebook",
+        "Instagram"
+      ],
+      "audience": "Parents d'élèves de 3e à Terminale",
+      "level": "TOUS",
+      "funnelStage": "DISCOVERY",
+      "objective": "Faire connaître les stages et ouvrir des conversations qualifiées",
+      "assetId": "week1-main-portrait",
+      "body": "Annonce principale : cinq séances structurées par matière, dès le 17 août à Mutuelleville.",
+      "cta": "Recevoir le programme sur WhatsApp",
+      "utm": "utm_source=meta&utm_medium=social_organic&utm_campaign=pre_rentree_2026&utm_content=j1_annonce",
+      "whatsappScriptId": "wa-week1-discovery",
+      "expectedKpi": [
+        "portée",
+        "clics WhatsApp",
+        "conversations initiées"
+      ],
+      "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%20Nexus%20R%C3%A9ussite%2C%20je%20souhaite%20recevoir%20le%20programme%20de%20pr%C3%A9-rentr%C3%A9e.%20Mon%20enfant%20entre%20en%20%5Bniveau%5D%20et%20s%27int%C3%A9resse%20%C3%A0%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dj1_annonce"
+    },
+    {
+      "day": "J2",
+      "date": "2026-07-21",
+      "time": "19:00",
+      "channel": [
+        "Facebook",
+        "Instagram",
+        "Story"
+      ],
+      "audience": "Parents d'élèves entrant en 3e ou Seconde",
+      "level": "TROISIEME_SECONDE",
+      "funnelStage": "CONSIDERATION",
+      "objective": "Présenter les matières, les groupes et les tarifs Fondations",
+      "assetId": "week1-carousel-slide-04",
+      "body": "Mathématiques et Français en 3e ; Mathématiques, Physique-Chimie et Français en Seconde. Dix heures par matière.",
+      "cta": "Vérifier le groupe adapté",
+      "utm": "utm_source=meta&utm_medium=social_organic&utm_campaign=pre_rentree_2026&utm_content=j2_fondations",
+      "whatsappScriptId": "wa-week1-foundations",
+      "expectedKpi": [
+        "enregistrements",
+        "clics WhatsApp",
+        "demandes par matière"
+      ],
+      "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20%5B3e/Seconde%5D.%20Je%20souhaite%20v%C3%A9rifier%20les%20horaires%20et%20le%20groupe%20pour%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dj2_fondations"
+    },
+    {
+      "day": "J3",
+      "date": "2026-07-22",
+      "time": "19:30",
+      "channel": [
+        "Facebook",
+        "Instagram"
+      ],
+      "audience": "Parents et élèves entrant en Première ou Terminale",
+      "level": "PREMIERE_TERMINALE",
+      "funnelStage": "CONSIDERATION",
+      "objective": "Expliquer les parcours Premium de une à quatre matières",
+      "assetId": "week1-carousel-slide-06",
+      "body": "Une à quatre matières selon le niveau, dix heures par matière et jusqu'à cinq élèves par groupe.",
+      "cta": "Composer le parcours sur WhatsApp",
+      "utm": "utm_source=meta&utm_medium=social_organic&utm_campaign=pre_rentree_2026&utm_content=j3_premium",
+      "whatsappScriptId": "wa-week1-premium",
+      "expectedKpi": [
+        "enregistrements",
+        "clics WhatsApp",
+        "demandes de parcours"
+      ],
+      "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20%5BPremi%C3%A8re/Terminale%5D.%20Nous%20envisageons%20%5Bnombre%5D%20mati%C3%A8re%28s%29%20%3A%20%5Bmati%C3%A8res%5D.%20Pouvez-vous%20nous%20orienter%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dj3_premium"
+    },
+    {
+      "day": "J4",
+      "date": "2026-07-23",
+      "time": "18:30",
+      "channel": [
+        "Instagram Reel",
+        "Facebook Reel",
+        "Story"
+      ],
+      "audience": "Parents comparant plusieurs solutions de préparation",
+      "level": "TOUS",
+      "funnelStage": "EDUCATION",
+      "objective": "Montrer la structure pédagogique des dix heures",
+      "assetId": "week1-reel-method",
+      "body": "Un objectif, un temps de recherche, une correction : le Reel montre comment les cinq séances donnent un cap au travail.",
+      "cta": "Demander le programme détaillé",
+      "utm": "utm_source=meta&utm_medium=reel&utm_campaign=pre_rentree_2026&utm_content=j4_methode",
+      "whatsappScriptId": "wa-week1-method",
+      "expectedKpi": [
+        "vues à 50 %",
+        "vues complètes",
+        "clics WhatsApp"
+      ],
+      "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20comprendre%20le%20programme%20des%20cinq%20s%C3%A9ances%20en%20%5Bmati%C3%A8re%5D%20pour%20une%20entr%C3%A9e%20en%20%5Bniveau%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dreel%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dj4_methode"
+    },
+    {
+      "day": "J5",
+      "date": "2026-07-24",
+      "time": "19:00",
+      "channel": [
+        "Facebook",
+        "Instagram"
+      ],
+      "audience": "Parents ayant consulté les tarifs",
+      "level": "TOUS",
+      "funnelStage": "OBJECTION",
+      "objective": "Répondre à l'objection prix par la structure et les effectifs",
+      "assetId": "week1-carousel-slide-07",
+      "body": "Le forfait finance un cadre de cinq séances, des objectifs annoncés, de l'entraînement, une correction et un effectif réellement limité selon le parcours.",
+      "cta": "Comparer le parcours adapté",
+      "utm": "utm_source=meta&utm_medium=social_organic&utm_campaign=pre_rentree_2026&utm_content=j5_valeur",
+      "whatsappScriptId": "wa-week1-price",
+      "expectedKpi": [
+        "temps de lecture",
+        "enregistrements",
+        "conversations qualifiées"
+      ],
+      "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20comparer%20le%20contenu%20et%20le%20tarif%20du%20parcours%20adapt%C3%A9%20%C3%A0%20une%20entr%C3%A9e%20en%20%5Bniveau%5D%2C%20mati%C3%A8re%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dj5_valeur"
+    },
+    {
+      "day": "J6",
+      "date": "2026-07-25",
+      "time": "11:00",
+      "channel": [
+        "Instagram",
+        "Story",
+        "WhatsApp Status"
+      ],
+      "audience": "Parents souhaitant comprendre le contenu pédagogique",
+      "level": "TOUS",
+      "funnelStage": "PROOF",
+      "objective": "Apporter une preuve pédagogique concrète",
+      "assetId": "week1-story-methode-03",
+      "body": "Exemple de structure : objectif annoncé, entraînement guidé et correction centrée sur la compréhension de l'erreur.",
+      "cta": "Recevoir le programme de la matière",
+      "utm": "utm_source=meta&utm_medium=story&utm_campaign=pre_rentree_2026&utm_content=j6_preuve_pedagogique",
+      "whatsappScriptId": "wa-week1-proof",
+      "expectedKpi": [
+        "réponses Story",
+        "clics WhatsApp",
+        "demandes de programme"
+      ],
+      "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20pouvez-vous%20m%27envoyer%20les%20objectifs%20du%20programme%20de%20pr%C3%A9-rentr%C3%A9e%20en%20%5Bmati%C3%A8re%5D%20pour%20le%20niveau%20%5Bniveau%5D%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dj6_preuve_pedagogique"
+    },
+    {
+      "day": "J7",
+      "date": "2026-07-26",
+      "time": "18:00",
+      "channel": [
+        "Facebook",
+        "Instagram",
+        "Story",
+        "WhatsApp Status"
+      ],
+      "audience": "Parents ayant interagi pendant la semaine",
+      "level": "TOUS",
+      "funnelStage": "CONVERSION",
+      "objective": "Rappeler les effectifs et expliquer la réservation",
+      "assetId": "week1-carousel-slide-08",
+      "body": "Les effectifs sont limités par groupe. Une conversation permet de vérifier le parcours ; la réservation devient effective après validation et acompte de 30 %.",
+      "cta": "Vérifier le parcours sur WhatsApp",
+      "utm": "utm_source=meta&utm_medium=social_organic&utm_campaign=pre_rentree_2026&utm_content=j7_reservation",
+      "whatsappScriptId": "wa-week1-reservation",
+      "expectedKpi": [
+        "clics WhatsApp",
+        "parcours validés",
+        "acomptes attendus"
+      ],
+      "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20v%C3%A9rifier%20la%20disponibilit%C3%A9%20et%20les%20%C3%A9tapes%20de%20r%C3%A9servation%20pour%20%5Bniveau%5D%20en%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dj7_reservation"
+    }
+  ]
+}

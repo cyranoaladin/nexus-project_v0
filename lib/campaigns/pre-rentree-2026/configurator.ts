@@ -46,6 +46,8 @@ export interface LandingPack {
   pricePerHour: number;
   groupMinOpen: number;
   groupMax: number;
+  level?: EntryLevelCode;
+  range?: 'FONDATIONS' | 'PREMIUM';
 }
 
 export interface LandingScheduleSlot {
@@ -112,20 +114,23 @@ export interface SelectionSummary {
 }
 
 export function getNextConfiguratorStep(step: number, level: EntryLevelCode | null): number {
-  if (step === 1 && level === 'SECONDE') return 3;
+  if (step === 1 && (level === 'TROISIEME' || level === 'SECONDE')) return 3;
   return Math.min(step + 1, 4);
 }
 
 export function getPreviousConfiguratorStep(step: number, level: EntryLevelCode | null): number {
-  if (step === 3 && level === 'SECONDE') return 1;
+  if (step === 3 && (level === 'TROISIEME' || level === 'SECONDE')) return 1;
   return Math.max(step - 1, 1);
 }
 
 export function selectPackBySubjectCount(
   packs: readonly LandingPack[],
   subjectCount: number,
+  level?: EntryLevelCode,
 ): LandingPack | null {
-  return packs.find((pack) => pack.subjectsCount === subjectCount) ?? null;
+  return packs.find((pack) => (
+    pack.subjectsCount === subjectCount && (!level || !pack.level || pack.level === level)
+  )) ?? null;
 }
 
 export function toggleLimitedSelection(
@@ -144,7 +149,7 @@ export function isAcademicProfileComplete(
   level: EntryLevelCode | null,
   profile: AcademicProfileSelection,
 ): boolean {
-  if (level === 'SECONDE') return true;
+  if (level === 'TROISIEME' || level === 'SECONDE') return true;
   if (level === 'PREMIERE') {
     return Boolean(
       profile.voie &&
@@ -248,7 +253,7 @@ export function requiresPedagogicalValidation(
   profile: AcademicProfileSelection,
   subjectIds: readonly string[] = [],
 ): boolean {
-  if (!level || level === 'SECONDE') return false;
+  if (!level || level === 'TROISIEME' || level === 'SECONDE') return false;
   return classifyProfileSubjectCompatibility(level, profile, subjectIds).status !== 'COMPATIBLE';
 }
 
@@ -283,7 +288,7 @@ export function buildSelectionSummary(input: {
   packs: readonly LandingPack[];
   schedule: readonly LandingScheduleSlot[];
 }): SelectionSummary {
-  const pack = selectPackBySubjectCount(input.packs, input.subjectIds.length);
+  const pack = selectPackBySubjectCount(input.packs, input.subjectIds.length, input.level);
   if (input.subjectIds.length > 0 && !pack) {
     throw new Error(`Missing canonical campaign pack for ${input.subjectIds.length} subjects`);
   }
@@ -328,7 +333,7 @@ export function buildSelectionSummary(input: {
     sessionCount: scheduleLines.reduce((total, line) => total + line.dates.length, 0),
     dates,
     scheduleLines,
-    requiresValidation: requiresPedagogicalValidation(input.level, input.profile, input.subjectIds),
+    requiresValidation: true,
   };
 }
 

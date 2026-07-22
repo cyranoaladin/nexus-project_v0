@@ -1,6 +1,10 @@
 # Nexus Réussite — Plateforme de Pilotage Éducatif
 
-> **Source de vérité unique** — Dernière mise à jour : 17 avril 2026
+> **Vue d’ensemble de l’application** — Dernière mise à jour : 20 juillet 2026
+
+La navigation documentaire globale se trouve dans [`docs/INDEX.md`](docs/INDEX.md). La campagne et la chaîne documentaire Pré-rentrée 2026 sont décrites dans [`docs/campaigns/pre-rentree-2026/README.md`](docs/campaigns/pre-rentree-2026/README.md).
+
+Commandes principales de la campagne : `npm run pre-rentree:build` et `npm run pre-rentree:verify`. Les sources applicatives, les sources de campagne et les documents générés ont des périmètres distincts ; les artefacts locaux restent sous `.artifacts/` et ne sont pas suivis dans Git.
 
 **Nexus Réussite** est une plateforme SaaS de pilotage éducatif pour le marché tunisien (lycée → baccalauréat). Elle combine **coachs Agrégés/Certifiés**, une **IA pédagogique (ARIA)** et des **dashboards temps réel par rôle**.
 

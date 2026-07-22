@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
+import { getPreRentreePublicSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
 
 export const dynamic = 'force-dynamic';
 
@@ -7,6 +8,7 @@ const BASE_URL = process.env.NEXTAUTH_URL || 'https://nexusreussite.academy';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
+  const preRentree = getPreRentreePublicSurfaceDTO();
 
   // Public pages with their priorities and change frequencies
   const publicPages: MetadataRoute.Sitemap = [
@@ -24,12 +26,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${BASE_URL}/stages`,
-      lastModified: now,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    {
-      url: `${BASE_URL}/stages/pre-rentree-2026`,
       lastModified: now,
       changeFrequency: 'weekly',
       priority: 0.9,
@@ -138,6 +134,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
+  if (preRentree.publication.indexable) {
+    publicPages.push({
+      url: `${BASE_URL}${preRentree.canonicalPath}`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    });
+  }
+
   // Dynamic stage entries from DB
   let stageEntries: MetadataRoute.Sitemap = [];
   try {
@@ -145,7 +150,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       where: { isVisible: true },
       select: { slug: true, updatedAt: true },
     });
-    stageEntries = stages.flatMap((stage) => [
+    stageEntries = stages.flatMap((stage) => {
+      if (stage.slug === 'pre-rentree-2026' && !preRentree.publication.indexable) return [];
+      return [
       {
         url: `${BASE_URL}/stages/${stage.slug}`,
         lastModified: stage.updatedAt,
@@ -158,7 +165,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: 'weekly' as const,
         priority: 0.7,
       },
-    ]);
+      ];
+    });
   } catch {
     // Fallback silencieux si DB indisponible (prerender ou CI)
   }

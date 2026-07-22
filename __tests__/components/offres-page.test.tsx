@@ -1,7 +1,6 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import OffresPage from '@/app/offres/page';
-import { getRules } from '@/lib/pricing';
 import { CGV_POLICY } from '@/lib/cgv-policy';
 import { LEGAL } from '@/lib/legal';
 
@@ -40,13 +39,11 @@ jest.mock('framer-motion', () => {
 
 describe('OffresPage', () => {
   it('renders the active catalogue without legacy campaign copy', () => {
-    const groupMax = getRules().group_max;
-
     const { container } = render(<OffresPage />);
 
     expect(screen.getByRole('heading', { name: /offres & tarifs/i })).toBeInTheDocument();
     expect(screen.getByText(/catalogue 2026\/2027/i)).toBeInTheDocument();
-    expect(screen.getByText(new RegExp(`groupes de ${groupMax} maximum`, 'i'))).toBeInTheDocument();
+    expect(screen.getByText(/capacité précisée par offre/i)).toBeInTheDocument();
     expect(screen.getByText(/accompagnement annuel — scolarisés/i)).toBeInTheDocument();
     expect(screen.getByText(/parcours candidats libres/i)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /trois paliers numériques/i })).toBeInTheDocument();
@@ -58,9 +55,8 @@ describe('OffresPage', () => {
   it('exposes actionable CTAs to the conversion funnel', () => {
     render(<OffresPage />);
 
-    expect(screen.getAllByRole('link', { name: /réserver ma place/i }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('link', { name: /demander cette offre/i }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole('link', { name: /poser une question/i }).length).toBeGreaterThan(0);
-    expect(screen.getAllByRole('link', { name: /demander un bilan/i }).length).toBeGreaterThan(0);
   });
 
   it('surfaces fail-closed payment guidance without exposing ClicToPay or bank identifiers publicly', () => {

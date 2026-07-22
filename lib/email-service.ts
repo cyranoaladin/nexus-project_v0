@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import nodemailer from 'nodemailer9';
 import type { Prisma } from '@prisma/client';
 import { serializeError } from '@/lib/utils/serialize-error';
 

@@ -1,0 +1,160 @@
+{
+  "schemaVersion": "1.0.0",
+  "version": "2026-pedagogy-framework-v1",
+  "locale": "fr-TN",
+  "positioningDurationMinutes": 45,
+  "quickAssessmentDurationMinutes": 8,
+  "moduleCodes": [
+    {
+      "moduleId": "troisieme-mathematiques",
+      "code": "POS-3-MATH",
+      "material": "Feuille de sujet, brouillon, trousse et calculatrice usuelle"
+    },
+    {
+      "moduleId": "troisieme-francais",
+      "code": "POS-3-FR",
+      "material": "Feuille de sujet, brouillon, trousse et dictionnaire non autorisé"
+    },
+    {
+      "moduleId": "seconde-mathematiques",
+      "code": "POS-2-MATH",
+      "material": "Feuille de sujet, brouillon, trousse et calculatrice usuelle"
+    },
+    {
+      "moduleId": "seconde-physique-chimie",
+      "code": "POS-2-PC",
+      "material": "Feuille de sujet, brouillon, trousse et calculatrice usuelle"
+    },
+    {
+      "moduleId": "seconde-francais",
+      "code": "POS-2-FR",
+      "material": "Feuille de sujet, brouillon et trousse"
+    },
+    {
+      "moduleId": "seconde-informatique-snt",
+      "code": "POS-2-SNT",
+      "material": "Feuille de sujet et ordinateur avec Python 3 si disponible"
+    },
+    {
+      "moduleId": "premiere-mathematiques",
+      "code": "POS-1-MATH",
+      "material": "Feuille de sujet, brouillon, trousse et calculatrice usuelle"
+    },
+    {
+      "moduleId": "premiere-physique-chimie",
+      "code": "POS-1-PC",
+      "material": "Feuille de sujet, brouillon, trousse et calculatrice usuelle"
+    },
+    {
+      "moduleId": "premiere-nsi",
+      "code": "POS-1-NSI",
+      "material": "Feuille de sujet et ordinateur avec Python 3"
+    },
+    {
+      "moduleId": "premiere-francais-eaf",
+      "code": "POS-1-FR",
+      "material": "Feuille de sujet, brouillon et trousse"
+    },
+    {
+      "moduleId": "terminale-mathematiques",
+      "code": "POS-T-MATH",
+      "material": "Feuille de sujet, brouillon, trousse et calculatrice usuelle"
+    },
+    {
+      "moduleId": "terminale-physique-chimie",
+      "code": "POS-T-PC",
+      "material": "Feuille de sujet, brouillon, trousse et calculatrice usuelle"
+    },
+    {
+      "moduleId": "terminale-nsi",
+      "code": "POS-T-NSI",
+      "material": "Feuille de sujet et ordinateur avec Python 3"
+    },
+    {
+      "moduleId": "terminale-philosophie",
+      "code": "POS-T-PHILO",
+      "material": "Feuille de sujet, brouillon et trousse"
+    },
+    {
+      "moduleId": "premiere-svt",
+      "code": "POS-1-SVT",
+      "material": "Feuille de sujet, brouillon, trousse et calculatrice usuelle"
+    },
+    {
+      "moduleId": "terminale-svt",
+      "code": "POS-T-SVT",
+      "material": "Feuille de sujet, brouillon, trousse et calculatrice usuelle"
+    }
+  ],
+  "subjectPatterns": {
+    "MATHEMATIQUES": {
+      "taskLead": "Construisez puis résolvez un exemple simple qui montre que vous savez",
+      "correctionLead": "La réponse doit présenter une démarche justifiée, des calculs lisibles, une vérification et mobiliser",
+      "errorTypes": [
+        "Erreur de calcul",
+        "Méthode non justifiée",
+        "Confusion de notion",
+        "Conclusion ou unité absente"
+      ]
+    },
+    "PHYSIQUE_CHIMIE": {
+      "taskLead": "À partir d’une situation scientifique de votre choix, montrez comment vous savez",
+      "correctionLead": "La réponse doit identifier les grandeurs, expliciter le modèle, conserver les unités et mobiliser",
+      "errorTypes": [
+        "Grandeur ou unité incorrecte",
+        "Modèle inadapté",
+        "Calcul non justifié",
+        "Conclusion non interprétée"
+      ]
+    },
+    "NSI": {
+      "taskLead": "Écrivez un court algorithme, programme ou schéma commenté pour montrer que vous savez",
+      "correctionLead": "La production doit être exécutable ou traçable, expliquer ses choix, prévoir un test et mobiliser",
+      "errorTypes": [
+        "Trace d’exécution incorrecte",
+        "Structure de contrôle inadaptée",
+        "Test absent",
+        "Vocabulaire informatique imprécis"
+      ]
+    },
+    "FRANCAIS": {
+      "taskLead": "Rédigez une réponse courte et structurée qui montre que vous savez",
+      "correctionLead": "La réponse doit être organisée, justifiée par un exemple ou une citation, relue et mobiliser",
+      "errorTypes": [
+        "Réponse non justifiée",
+        "Organisation insuffisante",
+        "Erreur de langue récurrente",
+        "Consigne partiellement traitée"
+      ]
+    },
+    "PHILOSOPHIE": {
+      "taskLead": "Rédigez un paragraphe argumenté qui montre que vous savez",
+      "correctionLead": "La réponse doit définir les termes, formuler un problème, développer un argument et mobiliser",
+      "errorTypes": [
+        "Opinion sans argument",
+        "Terme non défini",
+        "Exemple non analysé",
+        "Paraphrase ou plan descriptif"
+      ]
+    },
+    "SVT": {
+      "taskLead": "À partir d’un document scientifique ou d’un schéma, montrez que vous savez",
+      "correctionLead": "La réponse doit utiliser les données, mobiliser le vocabulaire SVT, structurer un raisonnement et formuler une conclusion explicite",
+      "errorTypes": [
+        "Données non utilisées",
+        "Vocabulaire imprécis",
+        "Raisonnement non structuré",
+        "Conclusion absente ou non justifiée"
+      ]
+    }
+  },
+  "rubric": {
+    "ACQUIS": "La démarche est autonome, exacte et explicitement justifiée.",
+    "FRAGILE": "La démarche est engagée mais une notion, une étape ou la justification reste incomplète.",
+    "LACUNE": "La démarche pertinente n’est pas identifiée ou les notions indispensables ne sont pas mobilisées."
+  },
+  "anonymousSample": {
+    "response": "L’élève propose une démarche pertinente mais omet une justification et la vérification finale.",
+    "assessment": "FRAGILE — reprendre la justification des étapes et la vérification du résultat."
+  }
+}

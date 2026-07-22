@@ -1,0 +1,102 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="author" content="Nexus Réussite"><meta name="description" content="Ressource pédagogique spécifique terminale-mathematiques"><title>Mathématiques — Entrée en Terminale · workbookStudent</title><style>@font-face {
+  font-family: "DM Sans";
+  src: url("../fonts/DMSans.ttf") format("truetype");
+  font-weight: 300 800;
+}
+
+@font-face {
+  font-family: "Fraunces";
+  src: url("../fonts/Fraunces.ttf") format("truetype");
+  font-weight: 500 750;
+}
+
+@page {
+  size: A4 portrait;
+  margin: 12mm 14mm 14mm;
+
+  @bottom-left {
+    content: "Nexus Réussite · Ressource pédagogique · Pré-rentrée 2026";
+    color: #526176;
+    font-family: "DM Sans", sans-serif;
+    font-size: 7pt;
+  }
+
+  @bottom-right {
+    content: "Page " counter(page) " / " counter(pages);
+    color: #526176;
+    font-family: "DM Sans", sans-serif;
+    font-size: 7pt;
+  }
+}
+
+:root {
+  --blue: #0b1f3a;
+  --red: #c9252d;
+  --ivory: #f7f2e8;
+  --paper: #fffdf8;
+  --ink: #172033;
+  --muted: #526176;
+  --line: #d7dce4;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--paper); color: var(--ink); font: 8.3pt/1.36 "DM Sans", sans-serif; }
+body { margin: 0; }
+.sheet { break-after: page; min-height: 245mm; position: relative; }
+.sheet:last-child { break-after: auto; }
+.masthead { align-items: center; border-bottom: 1.4mm solid var(--blue); display: flex; justify-content: space-between; margin-bottom: 5mm; padding-bottom: 2.5mm; }
+.brand { color: var(--blue); font-family: "Fraunces", serif; font-size: 13pt; font-weight: 700; }
+.document-kind { color: var(--red); font-size: 7pt; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.eyebrow { color: var(--red); font-size: 7pt; font-weight: 800; letter-spacing: .08em; margin: 0 0 1.5mm; text-transform: uppercase; }
+h1, h2, h3 { color: var(--blue); font-family: "Fraunces", serif; }
+h1 { font-size: 21pt; line-height: 1.08; margin: 0 0 2mm; }
+h2 { font-size: 13pt; line-height: 1.15; margin: 0 0 2.5mm; }
+h3 { font-size: 10.5pt; line-height: 1.2; margin: 0 0 1.5mm; }
+p { margin: 0 0 2mm; }
+.subtitle { color: var(--muted); font-size: 10pt; font-weight: 650; margin-bottom: 4mm; }
+.meta { display: grid; gap: 2mm; grid-template-columns: repeat(4, 1fr); margin-bottom: 4mm; }
+.meta div { background: var(--ivory); border-radius: 1.5mm; padding: 2mm 2.5mm; }
+.meta span { color: var(--muted); display: block; font-size: 6.5pt; text-transform: uppercase; }
+.meta strong { color: var(--blue); font-size: 8pt; }
+.notice { background: #edf2f8; border-left: 2mm solid var(--blue); border-radius: 1.5mm; margin-bottom: 4mm; padding: 3mm; }
+.warning { background: #fff0f0; border-left-color: var(--red); }
+.grid { display: grid; gap: 3mm; grid-template-columns: repeat(2, 1fr); }
+.card { border: .25mm solid var(--line); border-radius: 2mm; break-inside: avoid; margin-bottom: 3mm; padding: 3mm; }
+.card p:last-child, .card ul:last-child { margin-bottom: 0; }
+.tag { background: var(--blue); border-radius: 9mm; color: white; display: inline-block; font-size: 6.5pt; font-weight: 750; margin-bottom: 1.5mm; padding: .8mm 2mm; }
+.points { color: var(--red); float: right; font-weight: 800; }
+.answer { background: #f3f6f9; border-radius: 1.2mm; margin-top: 2mm; padding: 2mm; }
+.lines { background: repeating-linear-gradient(to bottom, transparent 0, transparent 7mm, #d7dce4 7.1mm, transparent 7.2mm); height: 29mm; margin-top: 2mm; }
+ul, ol { margin: 1.5mm 0 2mm; padding-left: 5mm; }
+li { margin-bottom: 1mm; }
+table { border-collapse: collapse; font-size: 7.2pt; width: 100%; }
+th { background: var(--blue); color: white; padding: 1.7mm; text-align: left; }
+td { border-bottom: .2mm solid var(--line); padding: 1.6mm; vertical-align: top; }
+.rubric td:last-child, .rubric th:last-child { text-align: center; width: 17mm; }
+.footer-note { border-top: .2mm solid var(--line); color: var(--muted); font-size: 6.8pt; margin-top: 3mm; padding-top: 1.5mm; }
+.status { background: #fff0f0; border: .25mm solid #e5a4a7; color: #7b1419; font-weight: 750; padding: 2.5mm; }
+</style></head><body><section class="sheet">
+<header class="masthead"><div class="brand">Nexus Réussite</div><div class="document-kind">Cahier d’activités · version élève · activités</div></header>
+<p class="eyebrow">Pré-rentrée 2026 · Entrée en Terminale</p>
+<h1>Mathématiques</h1>
+<p class="subtitle">Dérivation, suites, probabilités et raisonnement</p>
+<div class="meta"><div><span>Module</span><strong>terminale-mathematiques</strong></div><div><span>Durée du parcours</span><strong>10 heures</strong></div><div><span>Difficulté</span><strong>Consolidation Première à transition Terminale</strong></div><div><span>Référence</span><strong>BO2019-LYCEE-MATHS-TERMINALE</strong></div></div>
+<div class="notice"><strong>Parcours structuré</strong><p>Lis l’objectif avant de commencer, garde une trace de la méthode et prépare la production attendue pour la mise en commun.</p></div><article class="card"><span class="tag">Consolidation</span><span class="points">55 min</span><h3>TM-A1 · De la dérivée au tableau</h3><p><strong>Objectif :</strong> Construire une étude de variations complète.</p><p><strong>Consigne :</strong> Dériver une fonction polynomiale, étudier le signe de la dérivée, dresser le tableau de variations et vérifier deux valeurs.</p><p><strong>À remettre :</strong> Étude structurée sans confusion entre signe de f et signe de f&#x27;.</p><p><strong>Support directement exploitable :</strong> Fonction support : f(x)=x³-3x²-9x+5 sur [-3;5]. Utiliser f&#x27;(x)=3(x+1)(x-3), déterminer son signe, calculer f(-3), f(-1), f(3), f(5), puis dresser le tableau complet.</p><p><strong>Supports :</strong> Fiche fonction, Gabarit de tableau</p></article><article class="card"><span class="tag">Approfondissement</span><span class="points">50 min</span><h3>TM-A2 · Arbre pondéré et décision</h3><p><strong>Objectif :</strong> Modéliser une situation par probabilités conditionnelles.</p><p><strong>Consigne :</strong> Construire l&#x27;arbre d&#x27;un contrôle qualité, calculer deux intersections puis une probabilité conditionnelle inverse.</p><p><strong>À remettre :</strong> Arbre complet, calculs justifiés et interprétation en contexte.</p><p><strong>Support directement exploitable :</strong> Scénario fictif : 40 % des pièces viennent de l&#x27;atelier A, les autres de B. Le taux de défaut est de 3 % pour A et 1 % pour B. Construire l&#x27;arbre, calculer P(A∩D), P(B∩D), P(D), puis P(A|D).</p><p><strong>Supports :</strong> Scénario fictif Nexus, Gabarit d&#x27;arbre</p></article><p class="footer-note">Les supports et jeux de données cités sont inclus dans cette ressource ; aucune manipulation non décrite n’est requise.</p></section><section class="sheet">
+<header class="masthead"><div class="brand">Nexus Réussite</div><div class="document-kind">Cahier d’activités · version élève · entraînement 1/2</div></header>
+<p class="eyebrow">Pré-rentrée 2026 · Entrée en Terminale</p>
+<h1>Mathématiques</h1>
+<p class="subtitle">Dérivation, suites, probabilités et raisonnement</p>
+<div class="meta"><div><span>Module</span><strong>terminale-mathematiques</strong></div><div><span>Durée du parcours</span><strong>10 heures</strong></div><div><span>Difficulté</span><strong>Consolidation Première à transition Terminale</strong></div><div><span>Référence</span><strong>BO2019-LYCEE-MATHS-TERMINALE</strong></div></div>
+<div class="grid"><article class="card"><span class="tag">Consolidation</span><span class="points">5 pt · 12 min</span><h3>TM-E1 · Variations d&#x27;un polynôme</h3><p>Pour f(x)=x³-3x²-9x+5, calculer f&#x27; puis factoriser f&#x27;.</p><div class="lines" aria-label="Zone de réponse"></div></article><article class="card"><span class="tag">Consolidation</span><span class="points">5 pt · 12 min</span><h3>TM-E2 · Tangente horizontale</h3><p>Pour h(x)=x³-3x, déterminer les abscisses où la tangente est horizontale.</p><div class="lines" aria-label="Zone de réponse"></div></article></div><p class="footer-note">Rédige les étapes et réserve les dix dernières minutes à la relecture.</p></section><section class="sheet">
+<header class="masthead"><div class="brand">Nexus Réussite</div><div class="document-kind">Cahier d’activités · version élève · entraînement 2/2</div></header>
+<p class="eyebrow">Pré-rentrée 2026 · Entrée en Terminale</p>
+<h1>Mathématiques</h1>
+<p class="subtitle">Dérivation, suites, probabilités et raisonnement</p>
+<div class="meta"><div><span>Module</span><strong>terminale-mathematiques</strong></div><div><span>Durée du parcours</span><strong>10 heures</strong></div><div><span>Difficulté</span><strong>Consolidation Première à transition Terminale</strong></div><div><span>Référence</span><strong>BO2019-LYCEE-MATHS-TERMINALE</strong></div></div>
+<div class="grid"><article class="card"><span class="tag">Approfondissement</span><span class="points">6 pt · 15 min</span><h3>TM-E3 · Somme arithmétique</h3><p>Calculer 5+8+11+…+50.</p><div class="lines" aria-label="Zone de réponse"></div></article><article class="card"><span class="tag">Consolidation</span><span class="points">5 pt · 12 min</span><h3>TM-E4 · Probabilité totale</h3><p>P(A)=0,3, P(B|A)=0,8 et P(B|Ā)=0,2. Calculer P(B).</p><div class="lines" aria-label="Zone de réponse"></div></article></div><p class="footer-note">Utilise le vocabulaire de la discipline et indique précisément ce qui reste à reprendre.</p></section><section class="sheet">
+<header class="masthead"><div class="brand">Nexus Réussite</div><div class="document-kind">Cahier d’activités · version élève · production finale</div></header>
+<p class="eyebrow">Pré-rentrée 2026 · Entrée en Terminale</p>
+<h1>Mathématiques</h1>
+<p class="subtitle">Dérivation, suites, probabilités et raisonnement</p>
+<div class="meta"><div><span>Module</span><strong>terminale-mathematiques</strong></div><div><span>Durée du parcours</span><strong>10 heures</strong></div><div><span>Difficulté</span><strong>Consolidation Première à transition Terminale</strong></div><div><span>Référence</span><strong>BO2019-LYCEE-MATHS-TERMINALE</strong></div></div>
+<article class="card"><span class="points">55 min</span><h2>Dossier de modélisation : évolution et risque</h2><p>Résoudre un dossier combinant une suite d&#x27;évolution et un arbre probabiliste : définir les variables, conduire les calculs, contrôler deux résultats et formuler une conclusion limitée aux données.</p></article><table class="rubric"><thead><tr><th>Critère</th><th>Indicateur de réussite</th><th>Points</th></tr></thead><tbody><tr><td>Modèles</td><td>Suite et arbre correctement définis.</td><td>4</td></tr><tr><td>Calculs justifiés</td><td>Propriétés nommées et résultats contrôlés.</td><td>5</td></tr><tr><td>Conclusion</td><td>Interprétation précise sans généralisation.</td><td>3</td></tr></tbody></table><article class="card"><h2>Bilan élève · 10 minutes</h2><ol><li>Le prérequis de Première que je maîtrise…</li><li>La justification que je dois rendre plus rigoureuse…</li><li>Mon plan de reprise avant la Terminale…</li></ol><div class="lines"></div></article><p class="footer-note">Production à remettre à l’enseignant pour retour pédagogique.</p></section></body></html>

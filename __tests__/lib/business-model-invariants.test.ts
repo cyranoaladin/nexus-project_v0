@@ -54,8 +54,8 @@ describe('T16.3 — Échéancier somme == annuel', () => {
       expect(total).toBe(o.price_annual);
       checked++;
     }
-    // 16 annual offers have deposit+installments (4 without: 2nde-coaching + 3 plateformes)
-    expect(checked).toBe(16);
+    // 26 annual offers have deposit+installments (4 without: 2nde-coaching + 3 plateformes)
+    expect(checked).toBe(26);
   });
 
   test('stage format deposit + solde == price_per_student', () => {
