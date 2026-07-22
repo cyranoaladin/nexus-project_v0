@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "version": "2026-offers-v1",
+  "version": "2026-offers-v2",
   "campaignId": "pre-rentree-2026",
   "depositRate": 0.3,
   "levels": [
@@ -8,14 +8,22 @@
       "level": "TROISIEME",
       "range": "FONDATIONS",
       "signature": "Reprendre les bases. Installer la méthode. Réussir le passage.",
-      "subjects": ["MATHEMATIQUES", "FRANCAIS"],
+      "subjects": [
+        "MATHEMATIQUES",
+        "FRANCAIS"
+      ],
       "pricing": {
         "model": "PER_SUBJECT",
-        "productIds": ["pre2026-foundations-3e-subject"],
+        "productIds": [
+          "pre2026-foundations-3e-subject"
+        ],
         "multiSubjectDiscount": false,
         "maximumSubjects": 2
       },
-      "capacity": {"min": 4, "max": 6},
+      "capacity": {
+        "min": 4,
+        "max": 6
+      },
       "serviceCapabilityIds": [
         "questionnaire-scolaire-court",
         "test-flash",
@@ -31,14 +39,23 @@
       "level": "SECONDE",
       "range": "FONDATIONS",
       "signature": "Reprendre les bases. Installer la méthode. Réussir le passage.",
-      "subjects": ["MATHEMATIQUES", "PHYSIQUE_CHIMIE", "FRANCAIS", "NSI"],
+      "subjects": [
+        "MATHEMATIQUES",
+        "PHYSIQUE_CHIMIE",
+        "FRANCAIS"
+      ],
       "pricing": {
         "model": "PER_SUBJECT",
-        "productIds": ["pre2026-foundations-seconde-subject"],
+        "productIds": [
+          "pre2026-foundations-seconde-subject"
+        ],
         "multiSubjectDiscount": false,
-        "maximumSubjects": 4
+        "maximumSubjects": 3
       },
-      "capacity": {"min": 4, "max": 6},
+      "capacity": {
+        "min": 4,
+        "max": 6
+      },
       "serviceCapabilityIds": [
         "questionnaire-scolaire-court",
         "test-flash",
@@ -48,20 +65,34 @@
         "adaptation-par-paliers",
         "bilan-fondations",
         "priorites-rentree"
-      ]
+      ],
+      "ownerDecisionRef": "publication-decisions.owner.json#/decisions/secondeSubjects"
     },
     {
       "level": "PREMIERE",
       "range": "PREMIUM",
       "signature": "Diagnostiquer. Cibler. Approfondir. Préparer l’année.",
-      "subjects": ["MATHEMATIQUES", "PHYSIQUE_CHIMIE", "NSI", "FRANCAIS"],
+      "subjects": [
+        "MATHEMATIQUES",
+        "PHYSIQUE_CHIMIE",
+        "NSI",
+        "FRANCAIS"
+      ],
       "pricing": {
         "model": "PACK_BY_SUBJECT_COUNT",
-        "productIds": ["pre2026-pack-1", "pre2026-pack-2", "pre2026-pack-3", "pre2026-pack-4"],
+        "productIds": [
+          "pre2026-pack-1",
+          "pre2026-pack-2",
+          "pre2026-pack-3",
+          "pre2026-pack-4"
+        ],
         "multiSubjectDiscount": true,
         "maximumSubjects": 4
       },
-      "capacity": {"min": 3, "max": 5},
+      "capacity": {
+        "min": 3,
+        "max": 5
+      },
       "serviceCapabilityIds": [
         "questionnaire-famille",
         "test-positionnement-matiere",
@@ -81,14 +112,27 @@
       "level": "TERMINALE",
       "range": "PREMIUM",
       "signature": "Diagnostiquer. Cibler. Approfondir. Préparer l’année.",
-      "subjects": ["MATHEMATIQUES", "PHYSIQUE_CHIMIE", "NSI", "PHILOSOPHIE"],
+      "subjects": [
+        "MATHEMATIQUES",
+        "PHYSIQUE_CHIMIE",
+        "NSI",
+        "PHILOSOPHIE"
+      ],
       "pricing": {
         "model": "PACK_BY_SUBJECT_COUNT",
-        "productIds": ["pre2026-pack-1", "pre2026-pack-2", "pre2026-pack-3", "pre2026-pack-4"],
+        "productIds": [
+          "pre2026-pack-1",
+          "pre2026-pack-2",
+          "pre2026-pack-3",
+          "pre2026-pack-4"
+        ],
         "multiSubjectDiscount": true,
         "maximumSubjects": 4
       },
-      "capacity": {"min": 3, "max": 5},
+      "capacity": {
+        "min": 3,
+        "max": 5
+      },
       "serviceCapabilityIds": [
         "questionnaire-famille",
         "test-positionnement-matiere",
