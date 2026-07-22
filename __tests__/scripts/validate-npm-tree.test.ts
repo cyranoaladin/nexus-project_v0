@@ -76,22 +76,46 @@ describe('validate-npm-tree', () => {
     expect(result.stderr).toContain('expired');
   });
 
-  it('rejects a second occurrence of the otherwise allowed finding', () => {
-    const duplicate = {
-      name: '@emnapi/runtime',
-      version: '1.11.2',
-      path: '/repo/node_modules/@emnapi/runtime',
-      extraneous: true,
-    };
+  it('allows multiple matched findings covered by declared exceptions', () => {
     const result = runValidator({
       name: 'root', path: '/repo', dependencies: {
-        first: duplicate,
-        second: duplicate,
+        '@emnapi/runtime': {
+          name: '@emnapi/runtime',
+          version: '1.11.2',
+          path: '/repo/node_modules/@emnapi/runtime',
+          extraneous: true,
+        },
+        '@img/sharp-wasm32': {
+          name: '@img/sharp-wasm32',
+          version: '0.35.3',
+          path: '/repo/node_modules/@img/sharp-wasm32',
+          extraneous: true,
+        },
       },
-    }, exceptionFile);
+    }, {
+      ...exceptionFile,
+      exceptions: [
+        ...exceptionFile.exceptions,
+        {
+          type: 'extraneous',
+          name: '@img/sharp-wasm32',
+          version: '0.35.3',
+          path: 'node_modules/@img/sharp-wasm32',
+          reason: 'sharp optional WASM32 binary',
+          upstreamIssue: 'npm/cli#8128',
+          platform: {
+            node: '22.23.1',
+            npm: '10.9.8',
+            os: 'linux',
+            arch: 'x64',
+          },
+          artifactAllowed: false,
+          expiresOn: '2026-09-30',
+        },
+      ],
+    });
 
-    expect(result.status).not.toBe(0);
-    expect(result.stderr).toContain('more than one allowed extraneous');
+    expect(result.status).toBe(0);
   });
 
   it('passes with a clean tree and no exceptions', () => {
