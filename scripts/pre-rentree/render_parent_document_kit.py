@@ -29,6 +29,7 @@ SUBJECTS = {
     "PHYSIQUE_CHIMIE": "Physique-chimie",
     "NSI": "NSI",
     "PHILOSOPHIE": "Philosophie",
+    "SVT": "SVT",
 }
 LEVELS = {
     "TROISIEME": "Entrée en 3e",
