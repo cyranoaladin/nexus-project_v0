@@ -17,8 +17,8 @@
     },
     "pricing": {
       "path": "data/pricing.canonical.json",
-      "version": "2026-2027.3",
-      "sha256": "5a53e14c92f7bda1ff06525a29c961dc0c447d8f4cefd43eb415b3e893193bc6"
+      "version": "2026-2027.4",
+      "sha256": "6506c6de76428fb5113a43a00bb03a7e6334d579dbc9dc4baafc2622d36c8839"
     },
     "legal": {
       "path": "lib/legal.ts",
