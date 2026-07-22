@@ -125,7 +125,7 @@
     "commander": "^14.0.3",
     "date-fns": "^4.1.0",
     "framer-motion": "^11.18.2",
-    "js-yaml": "^4.2.2",
+    "js-yaml": "^4.1.1",
     "jsonwebtoken": "^9.0.2",
     "katex": "^0.16.28",
     "lucide-react": "^0.536.0",
@@ -154,7 +154,7 @@
     "redis": "^4.7.1",
     "remark-gfm": "^4.0.1",
     "server-only": "0.0.1",
-    "sharp": "^0.35.3",
+    "sharp": "^0.33.5",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.6.0",
     "tar": "^7.5.20",
@@ -207,8 +207,6 @@
     "defu": "6.1.7",
     "effect": "3.22.0",
     "form-data": "4.0.6",
-    "sharp": "^0.35.3",
-    "nodemailer": "^9.0.3",
     "@next/eslint-plugin-next": {
       "glob": "^10.5.0"
     },
