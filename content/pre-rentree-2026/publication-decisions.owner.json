@@ -238,6 +238,36 @@
       "owner": "direction",
       "decidedAt": "2026-07-22T19:15:59Z"
     },
+    "pricingGrid": {
+      "status": "approved_for_publication",
+      "decision": "production_grid_20260720_confirmed",
+      "reference": "B-7 (arbitrage résolu)",
+      "supersedes": "Toute grille tarifaire alternative, notamment la variante 3-5/140 (périmée, interdite).",
+      "sourceCommit": "d0ce22411",
+      "canonicalSource": "data/pricing.canonical.json",
+      "premium": {
+        "packs": "pre_rentree_packs",
+        "group_min_open": 3,
+        "group_max": 5,
+        "prices_tnd": [480, 900, 1350, 1800],
+        "deposit_pct": 30,
+        "deposits_tnd": [144, 270, 405, 540]
+      },
+      "foundations": {
+        "packs": "pre_rentree_foundations",
+        "group_min_open": 4,
+        "group_max": 6,
+        "prices_tnd": [350, 400],
+        "deposit_pct": 30,
+        "deposits_tnd": [105, 120],
+        "commercialException": "PRE2026-3E-350",
+        "approvedAt": "2026-07-20",
+        "approvedByRole": "DIRECTION_NEXUS_REUSSITE"
+      },
+      "publicRule": "La grille production est la référence unique. Aucune autre grille ne doit apparaître sur la page, le PDF, le configurateur ou la FAQ.",
+      "owner": "direction",
+      "decidedAt": "2026-07-20T00:00:00Z"
+    },
     "deploymentAuthorization": {
       "status": "locked",
       "decision": "no_deploy_without_written_go",
