@@ -5,12 +5,12 @@ repo_root="$(git rev-parse --show-toplevel)"
 cd "$repo_root"
 
 patterns=(
-  "88.99.254.""59"
-  "46.202.171.""14"
-  "root@""88.99.254.59"
+  "88.99.""254.59"
+  "46.202.""171.14"
+  "root@""88.99.""254.59"
   "/var/www/""nexus-project_v0"
   "/var/www/""nexus-releases"
-  "/usr/local/libexec/""nexus-prod-launcher"
+  "/usr/local/libexec/""nexus-""prod-launcher"
   "nexus-""prod"
 )
 
