@@ -632,7 +632,7 @@ def make_tarifs_body():
 
     body += "<h2>Ce que le tarif comprend</h2>"
     body += """<ul class="check-list" style="margin-bottom:14px;">
-        <li>5 séances de 2 h par matière avec un <strong>enseignant en exercice dans le système français</strong></li>
+        <li>5 séances de 2 h par matière avec un <strong>enseignant certifié ou agrégé de l'Éducation nationale française, en exercice</strong></li>
         <li>Groupe de <strong>3 à 5 élèves maximum</strong></li>
         <li><strong>Diagnostic de positionnement</strong> en début de module</li>
         <li><strong>Tous les supports fournis</strong> : fiches de méthode, exercices corrigés, sujets d'entraînement</li>
@@ -660,7 +660,7 @@ def make_tarifs_body():
     </tbody></table></div>"""
 
     body += "<h2>Le tarif en perspective</h2>"
-    body += '<p style="font-size:9.5pt; line-height:1.6; margin-bottom:14px;">À <strong>45–48 TND de l\'heure par élève</strong>, le stage se situe dans la même zone tarifaire horaire qu\'un cours particulier classique du marché. La différence n\'est pas le prix de l\'heure — c\'est ce qu\'elle contient : un enseignant en exercice dans le système français, un programme écrit séance par séance, un groupe de 3 à 5 pour maintenir l\'attention individuelle, des supports conçus pour le stage, et un bilan écrit remis aux parents.</p>'
+    body += '<p style="font-size:9.5pt; line-height:1.6; margin-bottom:14px;">À <strong>45–48 TND de l\'heure par élève</strong>, le stage se situe dans la même zone tarifaire horaire qu\'un cours particulier classique du marché. La différence n\'est pas le prix de l\'heure — c\'est ce qu\'elle contient : un enseignant certifié ou agrégé de l\'Éducation nationale française en exercice, un programme écrit séance par séance, un groupe de 3 à 5 pour maintenir l\'attention individuelle, des supports conçus pour le stage, et un bilan écrit remis aux parents.</p>'
 
     body += f"""<p style="font-size:9pt; margin-top:14px; line-height:1.7; border-top:1px solid #E0E0E0; padding-top:8px;">
         Téléphone / WhatsApp : <a href="tel:+21699192829">+216 99 19 28 29</a> ·

@@ -104,7 +104,7 @@ describe('Pré-rentrée landing sections', () => {
     renderSchedule();
     const organization = screen.getByRole('region', { name: 'Organisation pédagogique' });
     expect(within(organization).queryAllByTestId('teacher-role')).toHaveLength(0);
-    expect(within(organization).getByText(/Salle 1.*Mathématiques.*NSI.*SVT/i)).toBeInTheDocument();
+    expect(within(organization).getByText(/Salle 1.*Mathématiques.*NSI.*SNT.*SVT/i)).toBeInTheDocument();
     expect(within(organization).getByText(/Salle 2.*Français.*Physique-Chimie/i)).toBeInTheDocument();
     expect(organization.textContent).not.toMatch(/MATHS_NSI_SNT_TEACHER|FRENCH_TEACHER|PHYSICS_CHEMISTRY_TEACHER/);
     expect(organization.textContent).not.toMatch(/60\s*h|30\s*h/);

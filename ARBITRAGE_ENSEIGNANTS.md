@@ -21,5 +21,5 @@ Lors du contrôle qualité des PDF, la mention du statut enseignant « certifié
 
 **Option 2 — Maintenir la suppression** : aucun support n'affirme le statut tant que la preuve n'est pas actée.
 
-## En attente d'arbitrage
-Aucun support publié n'affirme le statut (état actuel = Option 2), **mais** la formulation n'est pas détruite : elle est conservée ici et en variante désactivée dans le code. À toi de trancher.
+## Décision appliquée (audit direction R4)
+**Option 1 RESTAURÉE** (position par défaut direction) : la formulation « enseignant certifié ou agrégé de l'Éducation nationale française, en exercice » est **rétablie** sur les supports commerciaux (Tarifs, Flyer). Aucun gate technique du dépôt ne l'interdit (le contrôle qui l'avait retirée était le mien, pas un gate). La preuve de statut relève de la direction.
