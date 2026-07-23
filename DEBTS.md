@@ -11,8 +11,8 @@
 ## Corrections techniques acquises
 
 - Fondations : 4 à 6 élèves, maximum 6 ; Premium : 3 à 5, maximum 5.
-- Seconde : Mathématiques, Français et Physique-Chimie uniquement ; aucune SNT ou initiation informatique.
-- Première et Terminale conservent la NSI.
+- Seconde : Mathématiques, Français, Physique-Chimie **et « initiation informatique / algorithmique / SNT »** (module de 5 séances, `subjectId` NSI, label public SNT) — R2 rétabli le 2026-07-23.
+- Première et Terminale conservent la **NSI** (spécialité), intitulé distinct du module SNT de Seconde ; ne pas confondre.
 - Tarifs, acompte et solde sont dérivés du pricing canonique et testés.
 - Provenance documentaire séparée en ancre métier, commit construit et empreinte des sources.
 - Modules Maths révisés marqués comme propositions ; SVT maintenue en DRAFT.
@@ -31,12 +31,16 @@ Statut : **RÉSOLU**. La grille tarifaire de référence est la **grille product
 
 Source de vérité : `data/pricing.canonical.json`. Cohérence vérifiée : page, configurateur et FAQ lisent les prix depuis le canonique (aucun montant codé en dur, aucune fuite de la grille périmée). Le gate humain « tarifs » reste validé. Traçé aussi dans `content/pre-rentree-2026/publication-decisions.owner.json` → `decisions.pricingGrid`.
 
+### R2 — Module informatique Seconde · **RÉSOLU** (décision direction 2026-07-23)
+
+Le module **« initiation informatique / algorithmique / SNT »** (`seconde-informatique-snt`, 5 séances, `subjectId` NSI, label public SNT) est **réintégré** à l'offre Seconde, portant celle-ci à **quatre matières**. Retiré involontairement par le commit `66feafed0` (bundlé avec l'alignement capacités R1) puis gaté hors offre publique (`DEC-PRE2026-SECONDE-SNT: CLOSED_EXCLUDED`) : le retrait amputait l'offre Seconde d'un quart. Restauration **chirurgicale** (dimension SNT uniquement ; l'alignement capacités 4→6 / grille R1 reste scellé). Créneau rétabli en semaine 2, bloc A/salle-1 (`teacherRole` COMPUTER_SCIENCE_TEACHER_A). Intitulé Seconde **SNT** ≠ spécialité **NSI** Première/Terminale : distinction codée (labels de module). Tracé : `owner.json → decisions.secondeSubjects`, `proofs.registry → DEC-PRE2026-SECONDE-SNT (OPEN_INCLUDED / VISIBLE)`.
+
 ## P0 humains encore ouverts
 
 | Référence | Gate | État | Preuve de sortie attendue | Responsable |
 |---|---|---:|---|---|
 | B-1 | Affectations enseignants | ❌ | Affectation et disponibilité confirmées pour chaque matière et créneau, conservées hors supports publics | Direction pédagogique et opérations |
-| B-1 bis | Qualifications | ❌ | Contrôle individuel documenté ; aucun statut certifié/agrégé publié avant preuve | Direction pédagogique |
+| B-1 bis | Qualifications (affectation individuelle) | ❌ | Contrôle **individuel** documenté par enseignant affecté. NB : distinct de la **mention collective** « certifiés/agrégés » qui, elle, est **autorisée** sur les supports commerciaux (R4, preuve sous responsabilité direction) — ce gate ne la bloque pas. | Direction pédagogique |
 | B-2 | Validation SVT | ❌ | Validation écrite d'un enseignant SVT qualifié ; les deux PDF restent DRAFT jusque-là | Direction pédagogique |
 | M-1 | Validation Maths | ❌ | Revue écrite des modules Maths Seconde et Première révisés à partir des BO 2019/2026 | Direction pédagogique |
 | O-1 | Salles | ❌ | Salles et capacités validées pour chaque créneau | Direction des opérations |
@@ -53,9 +57,11 @@ Les seuls gates humains actuellement validés sont la capacité et les tarifs.
 
 ## Arbitrages éditoriaux
 
-### Statut « certifiés / agrégés »
+### Statut « certifiés / agrégés » — **RÉSOLU (R4, décision direction 2026-07-23)**
 
-La formulation publique active est : « Enseignants expérimentés, en exercice dans le système français ». La variante « enseignants certifiés ou agrégés de l'Éducation nationale française, en exercice » est conservée désactivée dans le générateur. Sa restauration exige une preuve individuelle contrôlée et une décision écrite ; voir `ARBITRAGE_ENSEIGNANTS.md`.
+La mention **« enseignants certifiés ou agrégés de l'Éducation nationale française, en exercice »** est **rétablie** sur les supports commerciaux de la campagne pré-rentrée (Tarifs, Flyer, Planning). C'est le différenciateur central de Nexus, revendiqué par la direction ; la preuve du statut relève de la direction.
+
+Distinction essentielle actée : le **STATUT** est une **qualification collective** de l'équipe — il ne nomme personne et reste compatible avec l'anonymat nominatif (aucun nom d'enseignant en public). Le filtre qui avait retiré la mention (test contract `assert not in`) la confondait avec une donnée nominative : c'est le **filtre** qui a été corrigé, pas le contenu. La formulation dégradée « expérimentés, en exercice dans le système français » n'est plus la référence pour ces supports. Le site marketing général (hors campagne) n'a jamais porté la mention et n'est pas concerné. Voir `content/pre-rentree-2026/publication-decisions.owner.json` → `decisions.teacherStatusStatement`, `ARBITRAGE_ENSEIGNANTS.md`.
 
 ### Affectations, salles et rôles
 

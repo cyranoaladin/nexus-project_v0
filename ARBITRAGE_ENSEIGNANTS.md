@@ -26,6 +26,16 @@ Elle reste désactivée dans le générateur et n'est injectée dans aucun suppo
 1. **Restaurer après preuve** : contrôler individuellement le statut des personnes effectivement affectées, enregistrer la preuve, lever le gate `qualifications`, puis régénérer les supports sur un SHA identifié.
 2. **Maintenir la formulation prudente** : conserver « Enseignants expérimentés, en exercice dans le système français ».
 
-## État retenu dans la PR #74
+## Décision direction — R4 (2026-07-23)
 
-L'option 2 est active, conformément à l'instruction de ne pas publier de statut non prouvé. Ce choix technique n'est pas un GO commercial ; la direction conserve l'arbitrage final, mais aucune restauration ne peut précéder la preuve.
+**Option 1 retenue sur les supports commerciaux de la campagne pré-rentrée (Tarifs, Flyer, Planning).** La mention **« enseignants certifiés ou agrégés de l'Éducation nationale française, en exercice »** est **rétablie** : c'est le différenciateur central de Nexus, revendiqué par la direction, qui assume la responsabilité de la preuve.
+
+Distinction actée (corrige la confusion d'origine) :
+- Le **STATUT** certifié/agrégé est une **qualification collective** de l'équipe. Il ne nomme personne → compatible avec l'anonymat nominatif maintenu.
+- Le **NOM** d'un enseignant reste **interdit** en public (rôles abstraits).
+- Le filtre fautif était le test `assert "enseignants certifiés" not in ...` (`test_legacy_pdf_generator_contract.py`), qui bannissait la phrase de statut comme « claim non prouvé » : c'est le **filtre** qui a été corrigé (inversé pour vérifier la présence), pas le contenu.
+- Le gate `teacher_qualification_evidence` porte sur l'affectation **individuelle**, pas sur la mention collective : il ne la bloque pas.
+
+**Périmètre site marketing général** (HomePageClient, equipe, stages, premium) : ces surfaces portaient « Agrégés et Certifiés » avant dégradation (« remove fabricated trust claims / fail closed »). Leur restauration relève de la **même décision** mais constitue un périmètre distinct — **en attente d'arbitrage direction** avant application (impact production + tests e2e).
+
+Tracé : `content/pre-rentree-2026/publication-decisions.owner.json → decisions.teacherStatusStatement`, `DEBTS.md`.

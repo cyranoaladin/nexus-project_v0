@@ -16,17 +16,23 @@
   "decisions": {
     "secondeSubjects": {
       "status": "approved_for_publication",
-      "decision": "exclude_snt",
+      "decision": "include_informatics_snt",
+      "reference": "R2 (décision direction 2026-07-23)",
+      "supersedes": "Décision antérieure exclude_snt — retrait involontaire du module « Initiation informatique, algorithmique et SNT » en Seconde, propagé par le commit 66feafed0. La direction rétablit la matière : la retirer ampute l'offre Seconde d'un quart.",
       "subjects": [
         "Mathématiques",
         "Physique-Chimie",
-        "Français"
+        "Français",
+        "Initiation informatique / algorithmique / SNT"
       ],
-      "excludedSubjects": [
-        "SNT",
-        "Initiation informatique"
-      ],
-      "publicRule": "La SNT et l'initiation informatique ne doivent apparaître dans aucun support de la campagne 2026."
+      "excludedSubjects": [],
+      "levelLabels": {
+        "SECONDE": "Initiation informatique / algorithmique / SNT",
+        "PREMIERE_TERMINALE": "NSI"
+      },
+      "publicRule": "L'entrée en Seconde propose quatre matières, dont « initiation informatique / algorithmique / SNT » (module de 5 séances, subjectId NSI, label public SNT). En Première et Terminale, l'informatique est la spécialité « NSI » : les deux intitulés sont distincts et ne doivent jamais être confondus.",
+      "owner": "direction",
+      "decidedAt": "2026-07-23T00:00:00Z"
     },
     "calendar": {
       "status": "approved_for_publication",
@@ -164,9 +170,22 @@
         "data/campaigns/pre-rentree-2026.json → teacherRoles.SVT_TEACHER_B (Terminale) : idem",
         "Aucun support public n'expose le nom : les rôles restent abstraits côté contenus/PDF/SEO."
       ],
-      "publicRule": "Aucun nom, diplôme ou statut enseignant ne figure dans un support public tant que l'affectation n'est pas validée. Aucune mention de rémunération enseignant nulle part.",
+      "publicRule": "Aucun NOM d'enseignant ni donnée nominative (nom, initiale, diplôme individuel) ne figure dans un support public tant que l'affectation n'est pas validée : les rôles restent abstraits. Cette règle vise l'identité individuelle, PAS la qualification collective de l'équipe — voir teacherStatusStatement (R4). Aucune mention de rémunération enseignant nulle part.",
       "owner": "direction",
       "decidedAt": "2026-07-22T19:15:59Z"
+    },
+    "teacherStatusStatement": {
+      "status": "approved_for_publication",
+      "decision": "collective_status_authorized_on_commercial_supports",
+      "reference": "R4 (décision direction 2026-07-23)",
+      "authorizedWording": "enseignants certifiés ou agrégés de l'Éducation nationale française, en exercice",
+      "scope": "Supports commerciaux de la campagne pré-rentrée 2026 (Tarifs, Flyer, Planning). L'extension au site marketing général (HomePageClient, equipe, stages, premium) — qui portait « Agrégés et Certifiés » avant dégradation en « expérimentés » par a5ad5c273/b5c957133 (« fail closed / remove unproven claims ») — est une décision de périmètre distincte, en attente d'arbitrage direction.",
+      "distinctionFromAnonymity": "Le STATUT (certifié/agrégé) est une qualification COLLECTIVE de l'équipe : il ne nomme personne et est donc compatible avec l'anonymat nominatif maintenu (svtTeacherRoles). Le NOM d'un enseignant reste interdit en public.",
+      "evidenceResponsibility": "La preuve du statut relève de la direction. Le gate teacher_qualification_evidence porte sur l'affectation individuelle documentée, non sur cette mention collective : il ne bloque pas la mention.",
+      "supersedes": "Formulation dégradée « enseignants expérimentés, en exercice dans le système français » et le contrôle interne (non-gate du dépôt) qui l'avait imposée.",
+      "publicRule": "La mention « enseignants certifiés ou agrégés de l'Éducation nationale française, en exercice » est autorisée sur les supports commerciaux de la campagne. Aucun filtre ne doit la retirer en la confondant avec une donnée nominative.",
+      "owner": "direction",
+      "decidedAt": "2026-07-23T00:00:00Z"
     },
     "svtProgramValidation": {
       "status": "draft_until_owner_validation",
@@ -226,14 +245,14 @@
         "SVT_PREMIERE": "Semaine 2, bloc C, salle-2"
       },
       "week2TargetGrid": {
-        "A": { "salle-1": "LIBRE", "salle-2": "PREMIERE/PHYSIQUE_CHIMIE" },
+        "A": { "salle-1": "SECONDE/NSI", "salle-2": "PREMIERE/PHYSIQUE_CHIMIE" },
         "B": { "salle-1": "TERMINALE/SVT", "salle-2": "SECONDE/PHYSIQUE_CHIMIE" },
         "C": { "salle-1": "TERMINALE/NSI", "salle-2": "PREMIERE/SVT" },
         "D": { "salle-1": "PREMIERE/NSI", "salle-2": "TERMINALE/PHYSIQUE_CHIMIE" }
       },
       "week1": "unchanged",
       "referenceGrid": "data/campaigns/pre-rentree-2026.json",
-      "knownCrossBranchItem": "Résolu le 2026-07-23 : le créneau informatique de Seconde est supprimé ; le bloc A/salle-1 de la semaine 2 reste libre.",
+      "knownCrossBranchItem": "Rétabli le 2026-07-23 (R2) : le créneau « initiation informatique / algorithmique / SNT » de Seconde est restauré en semaine 2, bloc A/salle-1 (subject NSI, teacherRole COMPUTER_SCIENCE_TEACHER_A). Ce créneau ne relève pas de la spécialité NSI Première/Terminale.",
       "terminaleLoadNote": "Un Terminale prenant NSI+PC+SVT cumule blocs B+C+D = 6h/jour (plafond dailyLoadValid = 6h, accepté au maximum). Décision de charge éventuelle : assumer 6h ou plafonner à 2 matières scientifiques/jour.",
       "owner": "direction",
       "decidedAt": "2026-07-22T19:15:59Z"
@@ -288,7 +307,8 @@
     },
     {
       "id": "teacher_qualification_evidence",
-      "status": "to_confirm"
+      "status": "to_confirm",
+      "scope": "Porte sur la preuve d'affectation INDIVIDUELLE documentée. Ne bloque PAS la mention collective « certifiés ou agrégés » autorisée sur les supports commerciaux (voir decisions.teacherStatusStatement, R4)."
     },
     {
       "id": "cancellation_and_refund_terms",

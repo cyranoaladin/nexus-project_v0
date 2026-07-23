@@ -89,12 +89,12 @@
     {
       "decisionId": "DEC-PRE2026-SECONDE-SNT",
       "subject": "Communication publique SNT en Seconde",
-      "status": "CLOSED_EXCLUDED",
-      "publicEffect": "HIDDEN",
+      "status": "OPEN_INCLUDED",
+      "publicEffect": "VISIBLE",
       "responsibleRole": "DIRECTION_NEXUS_REUSSITE",
-      "decidedAt": "2026-07-20",
+      "decidedAt": "2026-07-23",
       "nextReviewAt": null,
-      "reason": "La matière n'appartient pas à l'offre Seconde approuvée."
+      "reason": "R2 — La direction réintègre le module « initiation informatique / algorithmique / SNT » (5 séances, subjectId NSI, label public SNT) dans l'offre Seconde. Distinct de la spécialité NSI de Première/Terminale."
     },
     {
       "decisionId": "DEC-PRE2026-MANUAL-BENEFIT",
