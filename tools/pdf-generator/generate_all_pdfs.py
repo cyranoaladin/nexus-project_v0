@@ -34,6 +34,12 @@ _DECISIONS = json.loads((REPO_ROOT / "content" / "pre-rentree-2026" / "publicati
 # decisions.svtProgramValidation.status à "approved_for_publication" dans publication-decisions.owner.json.
 SVT_DRAFT = _DECISIONS.get("svtProgramValidation", {}).get("status") == "draft_until_owner_validation"
 
+# Variante commerciale DÉSACTIVÉE (arbitrage direction en attente — voir ARBITRAGE_ENSEIGNANTS.md).
+# NE PAS réactiver sans lever le gate teacher_qualification_evidence.
+ENSEIGNANT_STATUT_COMMERCIAL = "enseignants certifiés ou agrégés de l'Éducation nationale française, en exercice"
+# Formulation actuellement publiée (sans affirmation de statut non prouvée) :
+ENSEIGNANT_STATUT_PUBLIE = "enseignants en exercice dans le système français"
+
 DRAFT_CSS = """
 .draft-watermark {
     position: fixed;
