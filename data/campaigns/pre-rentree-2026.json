@@ -529,6 +529,10 @@
         "answer": "Le parent déclare Maths EDS ou Maths hors EDS pour la classe de rentrée. Le créneau est commun, puis la composition pédagogique du groupe est validée selon les profils et les effectifs. SVT est proposée pour une entrée en Première ou Terminale selon les groupes formés."
       },
       {
+        "question": "Y a-t-il une épreuve de mathématiques en fin de Première ?",
+        "answer": "Oui. Une épreuve terminale anticipée de mathématiques est passée en fin de Première. Le module de stage propose des priorités et des méthodes de rentrée utiles à sa préparation progressive ; il ne promet ni couverture du programme annuel ni résultat."
+      },
+      {
         "question": "Le Français EAF convient-il aux voies générale et technologique ?",
         "answer": "Les deux profils sont prévus. La voie déclarée permet à l'équipe d'adapter les exercices et de confirmer une composition de groupe cohérente."
       },
@@ -566,7 +570,7 @@
       },
       {
         "question": "Quel matériel faut-il apporter ?",
-        "answer": "Un cahier, une trousse complète et une calculatrice sont utiles selon les matières. Pour les modules NSI de Première et Terminale, l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire. En Physique-Chimie, les séances sont théoriques et méthodologiques ; aucune activité pratique en laboratoire n’est annoncée."
+        "answer": "Un cahier et une trousse complète sont utiles dans toutes les matières. En SVT : calculatrice scientifique simple recommandée, non obligatoire sauf consigne de l'enseignant. Pour les modules NSI de Première et Terminale, l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire. En Physique-Chimie, les séances sont théoriques et méthodologiques ; aucune activité pratique en laboratoire n’est annoncée."
       },
       {
         "question": "Que faire si le groupe demandé est complet ?",
