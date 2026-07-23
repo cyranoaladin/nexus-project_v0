@@ -21,7 +21,7 @@
       "id":"offres",
       "title":"Fondations ou Premium ?",
       "blocks":[
-        {"id":"fondations-positionnement","kind":"EVIDENCED_TEXT","text":"Nexus Fondations accompagne l’entrée en 3e et en Seconde avec une progression par paliers dans un groupe de quatre à cinq élèves.","evidenceRefs":["/offers/levels","/campaign/capacityByOffer/FONDATIONS"]},
+        {"id":"fondations-positionnement","kind":"EVIDENCED_TEXT","text":"Nexus Fondations accompagne l’entrée en 3e et en Seconde avec une progression par paliers dans un groupe de quatre à six élèves.","evidenceRefs":["/offers/levels","/campaign/capacityByOffer/FONDATIONS"]},
         {"id":"premium-positionnement","kind":"EVIDENCED_TEXT","text":"Nexus Premium concerne l’entrée en Première et en Terminale, dans un groupe de trois à cinq élèves.","evidenceRefs":["/offers/levels","/campaign/capacityByOffer/PREMIUM"]},
         {"id":"capacites-gatees","kind":"EVIDENCED_TEXT","text":"Le contenu précis du parcours est communiqué après l’étude du profil et avant toute confirmation.","evidenceRefs":["/offers/levels","/content/practical/preRegistrationNotice"]}
       ]
@@ -74,7 +74,7 @@
       "title":"Organisation des deux semaines",
       "blocks":[
         {"id":"semaine-une","kind":"EVIDENCED_TEXT","text":"La semaine du 17 au 21 août regroupe Mathématiques, Français et Philosophie selon le niveau.","evidenceRefs":["/schedule/weeks/0"]},
-        {"id":"semaine-deux","kind":"EVIDENCED_TEXT","text":"La semaine du 24 au 28 août regroupe informatique/SNT/NSI et Physique-Chimie.","evidenceRefs":["/schedule/weeks/1"]},
+        {"id":"semaine-deux","kind":"EVIDENCED_TEXT","text":"La semaine du 24 au 28 août regroupe NSI, Physique-Chimie et SVT selon le niveau.","evidenceRefs":["/schedule/weeks/1"]},
         {"id":"planning-brouillon","kind":"EVIDENCED_TEXT","text":"Le planning est un brouillon de revue tant que les affectations de salles et d’enseignants ne sont pas validées.","evidenceRefs":["/campaign/operationalGates"]},
         {"id":"planning-detail","kind":"DYNAMIC_REFERENCE","sourceRef":"/schedule"}
       ]
@@ -115,7 +115,7 @@
       "blocks":[
         {"id":"materiel","kind":"DYNAMIC_REFERENCE","sourceRef":"/content/practical/materialsBySubject"},
         {"id":"physique","kind":"EVIDENCED_TEXT","text":"Les séances de Physique-Chimie sont théoriques et méthodologiques ; aucune activité de laboratoire n’est annoncée.","evidenceRefs":["/content/practical/materialsBySubject/PHYSIQUE_CHIMIE"]},
-        {"id":"informatique","kind":"EVIDENCED_TEXT","text":"Un ordinateur portable est demandé pour NSI/SNT ; les postes de secours sont disponibles en nombre limité.","evidenceRefs":["/content/practical/materialsBySubject/NSI"]}
+        {"id":"informatique","kind":"EVIDENCED_TEXT","text":"Un ordinateur portable est demandé pour les modules NSI ; les postes de secours sont disponibles en nombre limité.","evidenceRefs":["/content/practical/materialsBySubject/NSI"]}
       ]
     },
     {

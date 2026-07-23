@@ -201,8 +201,8 @@
       },
       "status": "REVIEW_REQUIRED",
       "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers/2-4; content/pre-rentree-2026/official-programme-matrix.fr.json#/rows/2-5; content/pre-rentree-2026/modules.json#/modules/2-5",
-      "publicWording": "Entrée en Seconde : Mathématiques, Physique-Chimie ou Français. La SNT ne fait pas partie de l'offre.",
-      "internalNote": "Exclusion SNT impérative. Détail des modules sous réserve de validation pédagogique humaine."
+      "publicWording": "Entrée en Seconde : Mathématiques, Physique-Chimie ou Français.",
+      "internalNote": "Détail des modules sous réserve de validation pédagogique humaine."
     },
     {
       "id": "PREMIERE",
@@ -298,7 +298,7 @@
       "status": "CONFIRMED",
       "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers",
       "publicWording": "NSI — disponible en Première et Terminale.",
-      "internalNote": "Ne jamais l'afficher en Seconde et ne jamais la remplacer par SNT."
+      "internalNote": "Discipline proposée uniquement en Première et Terminale."
     },
     {
       "id": "PHILOSOPHIE",
@@ -309,14 +309,6 @@
       "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers",
       "publicWording": "Philosophie — disponible en Terminale.",
       "internalNote": "Approche méthodologique d'entrée dans la discipline."
-    },
-    {
-      "id": "SNT",
-      "value": false,
-      "status": "PROHIBITED",
-      "source": "content/pre-rentree-2026/proofs.registry.json#/decisions/0; instruction propriétaire JPO 2026-07-21",
-      "publicWording": "La SNT ne fait pas partie de l'offre Seconde.",
-      "internalNote": "Masquer totalement comme offre ; la phrase d'exclusion sert uniquement à répondre à une question."
     }
   ],
   "formulas": [
@@ -723,8 +715,8 @@
       "value": "Quelles matières en Seconde ?",
       "status": "CONFIRMED",
       "source": "content/pre-rentree-2026/commercial-contract.fr.json#/offers/2-4",
-      "publicWording": "Mathématiques, Physique-Chimie ou Français. La SNT n'est pas proposée.",
-      "internalNote": "Exclusion SNT impérative."
+      "publicWording": "Mathématiques, Physique-Chimie ou Français.",
+      "internalNote": "Tarification Fondations par matière."
     },
     {
       "id": "faq-04",
@@ -1009,14 +1001,6 @@
       "internalNote": "Ne pas ajouter de service implicite."
     },
     {
-      "id": "obj-09-snt",
-      "value": "Je veux inscrire mon enfant en SNT en Seconde.",
-      "status": "PROHIBITED",
-      "source": "content/pre-rentree-2026/proofs.registry.json#/decisions/0",
-      "publicWording": "La SNT ne fait pas partie de l'offre Seconde 2026. Nous pouvons vérifier si l'une des trois matières proposées correspond à la priorité de rentrée.",
-      "internalNote": "Ne pas requalifier en NSI."
-    },
-    {
       "id": "obj-10-payment-discount",
       "value": "Quel geste commercial ou quelle modalité de paiement proposez-vous ?",
       "status": "OWNER_DECISION_REQUIRED",
@@ -1188,8 +1172,7 @@
         "Nom d'enseignant non affecté",
         "Témoignage non authentifié",
         "Modalité de paiement non validée",
-        "Politique d'annulation ou remboursement non validée",
-        "SNT en Seconde"
+        "Politique d'annulation ou remboursement non validée"
       ],
       "status": "PROHIBITED",
       "source": "instruction propriétaire JPO 2026-07-21",

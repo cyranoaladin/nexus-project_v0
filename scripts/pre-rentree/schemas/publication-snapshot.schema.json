@@ -526,8 +526,8 @@
                 ],
                 "additionalProperties": false
               },
-              "minItems": 80,
-              "maxItems": 80
+              "minItems": 75,
+              "maxItems": 75
             }
           },
           "required": [
@@ -723,8 +723,8 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 16,
-          "maxItems": 16
+          "minItems": 15,
+          "maxItems": 15
         },
         "pedagogy": {
           "type": "object",
@@ -896,8 +896,8 @@
                 ],
                 "additionalProperties": false
               },
-              "minItems": 16,
-              "maxItems": 16
+              "minItems": 15,
+              "maxItems": 15
             },
             "quickAssessments": {
               "type": "array",
@@ -954,8 +954,8 @@
                 ],
                 "additionalProperties": false
               },
-              "minItems": 80,
-              "maxItems": 80
+              "minItems": 75,
+              "maxItems": 75
             },
             "sessionDeliverables": {
               "type": "array",
@@ -1014,8 +1014,8 @@
                 ],
                 "additionalProperties": false
               },
-              "minItems": 80,
-              "maxItems": 80
+              "minItems": 75,
+              "maxItems": 75
             }
           },
           "required": [
@@ -1232,8 +1232,8 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 14,
-          "maxItems": 14
+          "minItems": 13,
+          "maxItems": 13
         },
         "capabilities": {
           "type": "object",

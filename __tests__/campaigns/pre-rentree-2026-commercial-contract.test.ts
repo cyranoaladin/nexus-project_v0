@@ -36,7 +36,7 @@ describe('Pré-rentrée 2026 canonical commercial publication contract', () => {
       hours: 10,
       sessions: 5,
       groupMin: 4,
-      groupMax: 5,
+      groupMax: 6,
     });
     expect(byId.get('pre2026-seconde-physique-chimie')).toMatchObject({ price: 400, deposit: 120 });
     expect(byId.get('pre2026-premiere-pack-1')).toMatchObject({ price: 480, deposit: 144, groupMax: 5 });

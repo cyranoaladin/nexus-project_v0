@@ -30,13 +30,13 @@ export { getPreRentreeCampaign } from './campaign-source';
  * Get the validated campaign manifest.
  * Server-only — never import from client components.
  */
-/** Get the 14 module programs with their 70 sessions. */
+/** Get the 15 module programs with their 75 sessions. */
 export function getPreRentreeModules() {
   return PreRentreeModulesSchema.parse(modulesData).modules;
 }
 
 /**
- * Get the schedule expanded to all 70 individual sessions.
+ * Get the schedule expanded to all 75 individual sessions.
  */
 export function getPreRentreeSchedule() {
   const campaign = getPreRentreeCampaign();

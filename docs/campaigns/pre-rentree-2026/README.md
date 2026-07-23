@@ -15,12 +15,12 @@ DEPLOYMENT=NOT_PERFORMED
 PUBLIC_DISTRIBUTION=NOT_AUTHORIZED
 ```
 
-La campagne en mode `REVIEW` comprend quatre niveaux, seize modules et quatre-vingts séances. Le Guide Parents est le document principal ; les documents courts et les programmes de niveau sont des annexes issues du même snapshot.
+La campagne en mode `REVIEW` comprend quatre niveaux, quinze modules et soixante-quinze séances. Le Guide Parents est le document principal ; les documents courts et les programmes de niveau sont des annexes issues du même snapshot.
 
 ## Sources
 
 - campagne, planning, CTA et modalités : `data/campaigns/pre-rentree-2026.json` ;
-- quatorze programmes : `content/pre-rentree-2026/modules.json` ;
+- quinze programmes : `content/pre-rentree-2026/modules.json` ;
 - prix et acomptes : `data/pricing.canonical.json` ;
 - offres Fondations/Premium : `content/pre-rentree-2026/offers.json` ;
 - capacités et garde-fous : `content/pre-rentree-2026/capabilities.json` ;

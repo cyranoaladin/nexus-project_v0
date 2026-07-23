@@ -19,6 +19,13 @@ QR_CODE = str(_qr) if _qr.exists() else ""
 
 # Horaires read EXCLUSIVELY from the sealed campaign JSON (D4-final) — never from .md.
 CAMPAIGN = json.loads((REPO_ROOT / "data" / "campaigns" / "pre-rentree-2026.json").read_text(encoding="utf-8"))
+PRICING = json.loads((REPO_ROOT / "data" / "pricing.canonical.json").read_text(encoding="utf-8"))
+PRE_RENTREE_PACKS = tuple(PRICING["pre_rentree_packs"])
+PRE_RENTREE_FOUNDATIONS = tuple(PRICING["pre_rentree_foundations"])
+STARTING_PRICE = min(
+    offer["price_per_student"]
+    for offer in (*PRE_RENTREE_FOUNDATIONS, *PRE_RENTREE_PACKS)
+)
 _BLOCK_TIMES = {b["id"]: (b["startTime"], b["endTime"]) for b in CAMPAIGN["blocks"]}
 SCHEDULE = []
 for _wk in CAMPAIGN["schedule"]:
@@ -38,7 +45,27 @@ SVT_DRAFT = _DECISIONS.get("svtProgramValidation", {}).get("status") == "draft_u
 # NE PAS réactiver sans lever le gate teacher_qualification_evidence.
 ENSEIGNANT_STATUT_COMMERCIAL = "enseignants certifiés ou agrégés de l'Éducation nationale française, en exercice"
 # Formulation actuellement publiée (sans affirmation de statut non prouvée) :
-ENSEIGNANT_STATUT_PUBLIE = "enseignants en exercice dans le système français"
+ENSEIGNANT_STATUT_PUBLIE = "enseignants expérimentés, en exercice dans le système français"
+
+
+def format_tnd(amount):
+    """Format an integer TND amount without duplicating pricing data."""
+    return f"{amount:,}".replace(",", "&#8239;")
+
+
+def premium_pack_rows():
+    """Build the premium tariff rows exclusively from canonical pricing."""
+    return [
+        {
+            "subjects": pack["subjects_count"],
+            "hours": pack["total_hours"],
+            "price": pack["price_per_student"],
+            "hourly": pack["price_per_student_hour"],
+            "deposit": pack["payment"]["deposit"],
+            "balance": pack["payment"]["solde"],
+        }
+        for pack in PRE_RENTREE_PACKS
+    ]
 
 DRAFT_CSS = """
 .draft-watermark {
@@ -270,7 +297,7 @@ def make_cover(title, subtitle=""):
             Mutuelleville, Tunis
         </div>
         <div class="cover-band">
-            Groupes de 3 à 5 élèves · 10&nbsp;h par matière · À partir de 480&nbsp;TND<br>
+            Fondations : 4 à 6 élèves · Premium : 3 à 5 élèves · 10&nbsp;h par matière · À partir de {format_tnd(STARTING_PRICE)}&nbsp;TND<br>
             <a href="https://nexusreussite.academy/stages/pre-rentree-2026" style="color:#C9A227; font-size:9pt;">nexusreussite.academy/stages/pre-rentree-2026</a>
         </div>
     </div>
@@ -347,13 +374,6 @@ PROGRAMMES = {
                 ("3. Convaincre et persuader", "Mobiliser les stratégies argumentatives", "Thèse/arguments/exemples, concession, réfutation", "Plan-type d'un développement argumenté"),
                 ("4. Grammaire de l'expression", "Maîtriser les outils grammaticaux du lycée", "Subordonnées, temps verbaux, accords complexes, ponctuation", "Mémo grammaire lycée"),
                 ("5. Initiation au commentaire", "Comprendre la méthode du commentaire composé", "Paraphrase vs analyse, axe de lecture, intro/conclusion", "Modèle de brouillon commentaire"),
-            ]),
-            ("Informatique — initiation algorithmique, Python et SNT", None, [
-                ("1. Pensée algorithmique", "Comprendre et décomposer un algorithme", "Algorithme, sous-problèmes, pseudo-code, découverte Python", "Premier programme Python commenté"),
-                ("2. Variables et conditions", "Créer des programmes interactifs", "Types (int, float, str, bool), input/print, if/elif/else", "Mini-programme interactif (quiz, calculatrice)"),
-                ("3. Boucles", "Automatiser des traitements", "for et range(), while, accumulateurs, boucles imbriquées", "Programme à boucles (tables, motifs)"),
-                ("4. Données et web", "Comprendre la représentation et la circulation des données", "Binaire, encodage, formats, client/serveur/URL, HTML de base", "Mini page HTML personnelle"),
-                ("5. Projet intégrateur", "Mobiliser toutes les notions", "Cahier des charges, fonctions simples, test, documentation", "Programme Python finalisé (jeu ou utilitaire)"),
             ]),
             ("Physique-Chimie", "unités, matière et raisonnement scientifique", [
                 ("1. Grandeurs et conversions", "Maîtriser les unités SI et les conversions", "Préfixes, puissances de 10, chiffres significatifs, ordres de grandeur", "Fiche réflexe unités et conversions"),
@@ -435,8 +455,9 @@ def make_programme_body(level_name, data):
     """Generate HTML body for a programme PDF."""
     header_title = f"Programme · Entrée en {level_name}"
     intro_text = ("Chaque séance suit le même cadre : un objectif annoncé, des notions travaillées, "
-                  "une méthode active, et un <strong>livrable</strong> que l'élève emporte. "
-                  "Un diagnostic est réalisé en début de module et un <strong>bilan écrit est remis aux parents</strong> à l'issue du stage.")
+                  "une méthode active, un entraînement progressif et une correction explicite. "
+                  "Ces priorités, prérequis et méthodes sont sélectionnés pour préparer la rentrée ; "
+                  "le stage ne prétend pas couvrir le programme annuel.")
 
     body = make_cover(f"Programme détaillé", f"Entrée en {level_name}")
     body += make_header(header_title)
@@ -477,9 +498,8 @@ def make_planning_body():
         }
         if subject_key in base:
             return base[subject_key]
-        # NSI: "Informatique / SNT" for Seconde, "NSI" for Première/Terminale
         if subject_key == 'NSI':
-            return 'Informatique / SNT' if level_key == 'SECONDE' else 'NSI'
+            return 'NSI'
         return subject_key
 
     subject_map = None  # use subject_label() instead
@@ -493,14 +513,14 @@ def make_planning_body():
     <tbody>
         <tr><td style="width:25%; font-weight:700; color:#071A3A">Dates</td><td>Du lundi 17 au vendredi 28 août 2026 — <em>aucun cours les 22 et 23 août</em></td></tr>
         <tr><td style="font-weight:700; color:#071A3A">Lieu</td><td>Centre Nexus Réussite, Mutuelleville, Tunis</td></tr>
-        <tr><td style="font-weight:700; color:#071A3A">Public</td><td>Élèves entrant en Seconde, Première ou Terminale (rentrée 2026-2027)</td></tr>
-        <tr><td style="font-weight:700; color:#071A3A">Format</td><td>1 à 4 matières au choix parmi 5 (SVT en Première et Terminale) · 5 séances de 2 h par matière · 10 h par matière</td></tr>
-        <tr><td style="font-weight:700; color:#071A3A">Effectif</td><td>Groupes de 3 à 5 élèves maximum</td></tr>
+        <tr><td style="font-weight:700; color:#071A3A">Public</td><td>Élèves entrant en 3e, Seconde, Première ou Terminale (rentrée 2026-2027)</td></tr>
+        <tr><td style="font-weight:700; color:#071A3A">Format</td><td>5 séances de 2 h par matière · 10 h par matière · matières proposées selon le niveau</td></tr>
+        <tr><td style="font-weight:700; color:#071A3A">Effectif</td><td>Fondations (3e et Seconde) : 4 à 6 élèves, maximum 6 · Premium (Première et Terminale) : 3 à 5 élèves, maximum 5</td></tr>
         <tr><td style="font-weight:700; color:#071A3A">Blocs horaires</td><td>A : 08:30–10:30 · B : 10:45–12:45 · C : 13:30–15:30 · D : 15:45–17:45</td></tr>
     </tbody></table>"""
 
     # Planning per level
-    for level_key, level_label in [('SECONDE', 'Seconde'), ('PREMIERE', 'Première'), ('TERMINALE', 'Terminale')]:
+    for level_key, level_label in [('TROISIEME', '3e'), ('SECONDE', 'Seconde'), ('PREMIERE', 'Première'), ('TERMINALE', 'Terminale')]:
         slots = [s for s in SCHEDULE if s['level'] == level_key]
         slots.sort(key=lambda s: (s['week'], ['A','B','C','D'].index(s['block'])))
 
@@ -562,7 +582,9 @@ def make_planning_body():
 
     # Organisation pédagogique
     body += "<h2>Organisation pédagogique</h2>"
-    body += "<p style='font-size:9.5pt; margin-bottom:12px;'>Trois enseignants, deux salles, une continuité : l'enseignant de Mathématiques assure aussi les modules NSI/SNT (semaine 1 : mathématiques ; semaine 2 : informatique) ; l'enseignant de Français couvre la semaine 1 (Français Seconde, EAF Première, expression et oral Terminale) ; l'enseignant de Physique-Chimie couvre la semaine 2 pour les trois niveaux.</p>"
+    body += (f"<p style='font-size:9.5pt; margin-bottom:12px;'>{ENSEIGNANT_STATUT_PUBLIE.capitalize()}. "
+             "Les affectations par matière et créneau sont contrôlées en interne avant toute autorisation de publication ; "
+             "aucun nom ni code de rôle interne n'est publié.</p>")
 
     # Matériel
     body += "<h2>Matériel à apporter</h2>"
@@ -571,7 +593,7 @@ def make_planning_body():
     <tbody>
         <tr><td>Mathématiques</td><td>Cahier, trousse complète, calculatrice</td></tr>
         <tr><td>Français</td><td>Cahier, trousse complète</td></tr>
-        <tr><td>NSI / SNT</td><td><strong>Ordinateur portable personnel</strong> (deux postes de secours disponibles — prévenir Nexus avant le stage si nécessaire)</td></tr>
+        <tr><td>NSI</td><td><strong>Ordinateur portable personnel</strong> (deux postes de secours disponibles — prévenir Nexus avant le stage si nécessaire)</td></tr>
         <tr><td>Physique-Chimie</td><td>Cahier, trousse complète, calculatrice — accompagnement théorique et méthodologique ; pas de séance de laboratoire</td></tr>
     </tbody></table>
     <p style="font-size:9.5pt; margin-bottom:12px;"><strong>Les supports de travail sont fournis par Nexus</strong> (fiches, exercices, sujets).</p>"""
@@ -579,19 +601,18 @@ def make_planning_body():
     # Ouverture des groupes
     body += "<h2>Ouverture des groupes</h2>"
     body += """<ol style="font-size:9.5pt; padding-left:18px; margin-bottom:12px; line-height:1.6;">
-        <li>Un groupe ouvre <strong>à partir de 3 élèves</strong> et accueille <strong>5 élèves maximum</strong>.</li>
-        <li>Décision d'ouverture communiquée le <strong>10 août 2026 à 18 h 00</strong>.</li>
-        <li><strong>Si le groupe n'ouvre pas</strong> : la famille est informée immédiatement et les sommes déjà reçues sont <strong>intégralement restituées</strong>, ou reportées sur un autre module au choix de la famille.</li>
-        <li>La pré-inscription en ligne est <strong>sans paiement</strong> : elle ne bloque pas une place et n'engage pas la famille. L'acompte (30 %) n'est demandé qu'après validation du groupe et du profil.</li>
+        <li>Fondations : ouverture à partir de <strong>4 élèves</strong>, <strong>6 élèves maximum</strong>.</li>
+        <li>Premium : ouverture à partir de <strong>3 élèves</strong>, <strong>5 élèves maximum</strong>.</li>
+        <li>L'ouverture, le créneau, la salle et l'affectation pédagogique doivent être confirmés avant publication.</li>
+        <li>Tant que les conditions de paiement, reçu, annulation et remboursement ne sont pas validées, le parcours reste une <strong>demande d'information sans paiement</strong>.</li>
     </ol>"""
 
     # Déroulé type
     body += "<h2>Déroulé type d'un module (la méthode Nexus)</h2>"
     body += """<ol style="font-size:9.5pt; padding-left:18px; margin-bottom:12px; line-height:1.6;">
-        <li><strong>Positionnement</strong> — diagnostic des acquis au démarrage pour cibler les priorités.</li>
         <li><strong>Travail guidé en groupe réduit</strong> — reprise des notions avec consignes et aides différenciées.</li>
         <li><strong>Entraînement et correction</strong> — chaque séance alterne méthode, exercices progressifs et correction explicite.</li>
-        <li><strong>Bilan et recommandations</strong> — synthèse écrite des acquis observés et plan de travail pour la rentrée, <strong>remis aux parents</strong>.</li>
+        <li><strong>Repères de travail</strong> — les supports et corrections aident l'élève à poursuivre son travail à la rentrée.</li>
     </ol>"""
 
     # Contact
@@ -622,45 +643,45 @@ def make_tarifs_body():
     <thead><tr>
         <th>Pack</th><th>Volume</th><th style="text-align:right">Prix total</th><th style="text-align:right">Soit par heure</th><th style="text-align:right">Acompte (30 %)</th><th style="text-align:right">Solde</th>
     </tr></thead>
-    <tbody>
-        <tr><td><strong>1 matière</strong></td><td>10 h</td><td style="text-align:right; font-weight:700; color:#071A3A">480 TND</td><td style="text-align:right">48 TND/h</td><td style="text-align:right">140 TND</td><td style="text-align:right">340 TND</td></tr>
-        <tr><td><strong>2 matières</strong></td><td>20 h</td><td style="text-align:right; font-weight:700; color:#071A3A">900 TND</td><td style="text-align:right">45 TND/h</td><td style="text-align:right">270 TND</td><td style="text-align:right">630 TND</td></tr>
-        <tr><td><strong>3 matières</strong></td><td>30 h</td><td style="text-align:right; font-weight:700; color:#071A3A">1&#8239;350 TND</td><td style="text-align:right">45 TND/h</td><td style="text-align:right">410 TND</td><td style="text-align:right">940 TND</td></tr>
-        <tr><td><strong>4 matières</strong></td><td>40 h</td><td style="text-align:right; font-weight:700; color:#071A3A">1&#8239;800 TND</td><td style="text-align:right">45 TND/h</td><td style="text-align:right">540 TND</td><td style="text-align:right">1&#8239;260 TND</td></tr>
-    </tbody></table>
-    <p style="font-size:7.5pt; color:#666; font-style:italic; margin-bottom:14px;">Tarifs par élève, toutes matières au choix parmi Mathématiques, Physique-Chimie, Français, NSI/SNT. Non cumulables avec la Carte Nexus et les remises automatiques.</p>"""
+    <tbody>"""
+    for row in premium_pack_rows():
+        body += (
+            f'<tr><td><strong>{row["subjects"]} matière'
+            f'{"s" if row["subjects"] > 1 else ""}</strong></td>'
+            f'<td>{row["hours"]} h</td>'
+            f'<td style="text-align:right; font-weight:700; color:#071A3A">{format_tnd(row["price"])} TND</td>'
+            f'<td style="text-align:right">{format_tnd(row["hourly"])} TND/h</td>'
+            f'<td style="text-align:right">{format_tnd(row["deposit"])} TND</td>'
+            f'<td style="text-align:right">{format_tnd(row["balance"])} TND</td></tr>'
+        )
+    body += """</tbody></table>
+    <p style="font-size:7.5pt; color:#666; font-style:italic; margin-bottom:14px;">Tarifs Premium par élève, pour les matières approuvées du niveau. Non cumulables avec la Carte Nexus et les remises automatiques.</p>"""
 
     body += "<h2>Ce que le tarif comprend</h2>"
     body += """<ul class="check-list" style="margin-bottom:14px;">
-        <li>5 séances de 2 h par matière avec un <strong>enseignant en exercice dans le système français</strong></li>
-        <li>Groupe de <strong>3 à 5 élèves maximum</strong></li>
-        <li><strong>Diagnostic de positionnement</strong> en début de module</li>
+        <li>5 séances de 2 h par matière avec des <strong>enseignants expérimentés, en exercice dans le système français</strong></li>
+        <li>Premium : groupe de <strong>3 à 5 élèves, maximum 5</strong></li>
         <li><strong>Tous les supports fournis</strong> : fiches de méthode, exercices corrigés, sujets d'entraînement</li>
         <li>Un <strong>livrable par séance</strong> que l'élève conserve</li>
-        <li><strong>Bilan individualisé écrit remis aux parents</strong> en fin de stage, avec recommandations pour la rentrée</li>
     </ul>"""
 
     body += "<h2>Modalités de paiement</h2>"
     body += """<ol style="font-size:9.5pt; padding-left:18px; margin-bottom:14px; line-height:1.6;">
-        <li><strong>Pré-inscription en ligne : gratuite et sans engagement.</strong> Aucun paiement n'est demandé sur le site.</li>
-        <li><strong>Acompte de 30 %</strong> demandé uniquement après validation du groupe (à partir de 3 élèves) et du profil de l'élève.</li>
-        <li><strong>Solde</strong> réglé avant le début du stage.</li>
-        <li>Paiement au centre (Mutuelleville) ou selon les modalités communiquées à la confirmation.</li>
+        <li>Le site propose uniquement une <strong>demande d'information sans paiement</strong>.</li>
+        <li>Les montants d'acompte et de solde ci-dessus sont issus de la grille tarifaire canonique.</li>
+        <li>Les modalités de paiement, de reçu, d'annulation et de remboursement doivent être validées avant activation d'une réservation.</li>
     </ol>"""
 
     body += '<div style="break-inside:avoid;">'
-    body += "<h2>Nos garanties</h2>"
-    body += """<table>
-    <thead><tr><th>Situation</th><th>Ce qui se passe</th></tr></thead>
-    <tbody>
-        <tr><td>Le groupe n'atteint pas 3 élèves</td><td><strong>Acompte intégralement remboursé</strong>, ou reporté sur un autre module au choix de la famille</td></tr>
-        <tr><td>Vous poursuivez avec Nexus à l'année</td><td><strong>L'acompte du stage est déductible</strong> du parcours annuel</td></tr>
-        <tr><td>Vous préférez reporter</td><td>Acompte <strong>reportable sur l'année suivante</strong></td></tr>
-        <tr><td>Groupe complet (5 élèves)</td><td>Liste d'attente + proposition d'un créneau alternatif</td></tr>
-    </tbody></table></div>"""
+    body += "<h2>Avant toute réservation</h2>"
+    body += """<p style="font-size:9.5pt; line-height:1.6; margin-bottom:14px;">
+        L'ouverture du groupe, le créneau, la salle, l'affectation pédagogique et les conditions contractuelles
+        doivent être confirmés. En attendant, aucune demande d'information ne bloque une place et aucun paiement
+        n'est demandé en ligne.
+    </p></div>"""
 
     body += "<h2>Le tarif en perspective</h2>"
-    body += '<p style="font-size:9.5pt; line-height:1.6; margin-bottom:14px;">À <strong>45–48 TND de l\'heure par élève</strong>, le stage se situe dans la même zone tarifaire horaire qu\'un cours particulier classique du marché. La différence n\'est pas le prix de l\'heure — c\'est ce qu\'elle contient : un enseignant en exercice dans le système français, un programme écrit séance par séance, un groupe de 3 à 5 pour maintenir l\'attention individuelle, des supports conçus pour le stage, et un bilan écrit remis aux parents.</p>'
+    body += '<p style="font-size:9.5pt; line-height:1.6; margin-bottom:14px;">Le tarif Premium correspond à 10 heures par matière, en groupe de 3 à 5 élèves, maximum 5. Il comprend un programme écrit séance par séance, des entraînements progressifs, des corrections explicites et les supports du stage.</p>'
 
     body += f"""<p style="font-size:9pt; margin-top:14px; line-height:1.7; border-top:1px solid #E0E0E0; padding-top:8px;">
         Téléphone / WhatsApp : <a href="tel:+21699192829">+216 99 19 28 29</a> ·
@@ -685,7 +706,7 @@ def make_dossier_accueil_body():
     </div>
     <hr style="border:none; border-top:2px solid #333; margin:12px 0;">
     <p style="font-size:10.5pt; line-height:1.7; margin-bottom:20px;"><strong>Madame, Monsieur,</strong><br><br>
-    Merci de votre confiance. Ce dossier récapitule l'inscription de votre enfant au stage de pré-rentrée Nexus Réussite, du 17 au 28 août 2026 à Mutuelleville. Vous y trouverez le programme détaillé de chaque matière choisie, le planning des séances, les conditions financières et nos engagements. Notre principe est simple : <strong>vous savez ce que vous payez, ce que votre enfant va travailler séance par séance, et vous recevez un bilan écrit à la fin.</strong></p>
+    Merci de votre confiance. Ce dossier de revue présente le stage de pré-rentrée Nexus Réussite, du 17 au 28 août 2026 à Mutuelleville. Vous y trouverez le programme détaillé de chaque matière proposée, le planning des séances et la grille tarifaire. Toute inscription reste désactivée tant que les validations pédagogiques, opérationnelles, contractuelles et de publication ne sont pas réunies.</p>
     <p style="font-size:10.5pt; text-align:right;">L'équipe Nexus Réussite</p>
     """
 
@@ -707,6 +728,7 @@ def make_dossier_accueil_body():
     # Classe de rentrée with CSS checkboxes
     body += '<p style="font-size:10pt; margin:10px 0 4px 0; font-weight:600; color:#071A3A;">Classe de rentrée 2026</p>'
     body += '<p style="font-size:10pt; margin-bottom:8px;">'
+    body += '<span class="checkbox"></span> 3e &nbsp;&nbsp; '
     body += '<span class="checkbox"></span> Seconde &nbsp;&nbsp; '
     body += '<span class="checkbox"></span> Première &nbsp;&nbsp; '
     body += '<span class="checkbox"></span> Terminale</p>'
@@ -740,14 +762,18 @@ def make_dossier_accueil_body():
     body += '<span class="checkbox"></span> Mathématiques &nbsp;&nbsp; '
     body += '<span class="checkbox"></span> Physique-Chimie &nbsp;&nbsp; '
     body += '<span class="checkbox"></span> Français &nbsp;&nbsp; '
-    body += '<span class="checkbox"></span> NSI/SNT</p>'
+    body += '<span class="checkbox"></span> NSI (Première/Terminale) &nbsp;&nbsp; '
+    body += '<span class="checkbox"></span> SVT (Première/Terminale)</p>'
 
     body += '<p style="font-size:10pt; margin:6px 0 4px 0; font-weight:700; color:#071A3A;">Pack</p>'
     body += '<p style="font-size:10pt;">'
-    body += '<span class="checkbox"></span> 1 matière (480 TND) &nbsp;&nbsp; '
-    body += '<span class="checkbox"></span> 2 matières (900 TND) &nbsp;&nbsp; '
-    body += '<span class="checkbox"></span> 3 matières (1&#8239;350 TND) &nbsp;&nbsp; '
-    body += '<span class="checkbox"></span> 4 matières (1&#8239;800 TND)</p>'
+    for pack in PRE_RENTREE_PACKS:
+        plural = "s" if pack["subjects_count"] > 1 else ""
+        body += (
+            f'<span class="checkbox"></span> {pack["subjects_count"]} matière{plural} '
+            f'({format_tnd(pack["price_per_student"])} TND) &nbsp;&nbsp; '
+        )
+    body += '</p>'
 
     # Page 3 - Récapitulatif financier + Informations pratiques (merged)
     body += '<div class="page-break"></div>'
@@ -764,7 +790,7 @@ def make_dossier_accueil_body():
     body += '</tbody></table>'
 
     body += '<div style="background:#F5F6F8; border:1px solid #DDD; padding:8px 12px; margin:10px 0; font-size:9pt; line-height:1.5;">'
-    body += '<strong>Rappel des garanties</strong> : si le groupe de votre enfant n\'atteint pas 3 élèves (décision communiquée le 10 août 2026 à 18 h), l\'acompte est intégralement remboursé ou reporté sur un autre module, à votre choix. L\'acompte est déductible d\'un parcours annuel Nexus souscrit ensuite.'
+    body += '<strong>Document de revue</strong> : aucune demande d\'information ne bloque une place et aucun paiement ne doit être collecté avant validation des conditions de paiement, de reçu, d\'annulation et de remboursement.'
     body += '</div>'
 
     body += "<h2>Informations pratiques (à conserver par la famille)</h2>"
@@ -773,10 +799,9 @@ def make_dossier_accueil_body():
         <tr><td style="width:25%; font-weight:700; color:#071A3A; padding:6px;">Lieu</td><td style="padding:6px;">Centre Nexus Réussite, Mutuelleville, Tunis</td></tr>
         <tr><td style="font-weight:700; color:#071A3A; padding:6px;">Dates</td><td style="padding:6px;">Du 17 au 28 août 2026 (pas de cours les 22 et 23 août)</td></tr>
         <tr><td style="font-weight:700; color:#071A3A; padding:6px;">Arrivée</td><td style="padding:6px;">10 minutes avant le début du créneau</td></tr>
-        <tr><td style="font-weight:700; color:#071A3A; padding:6px;">Matériel</td><td style="padding:6px;">Cahier et trousse pour toutes les matières ; calculatrice pour Mathématiques et Physique-Chimie ; <strong>ordinateur portable pour NSI/SNT</strong> (nous prévenir si besoin d'un poste de secours)</td></tr>
+        <tr><td style="font-weight:700; color:#071A3A; padding:6px;">Matériel</td><td style="padding:6px;">Cahier et trousse pour toutes les matières ; calculatrice pour Mathématiques et Physique-Chimie ; <strong>ordinateur portable pour NSI</strong> (nous prévenir si besoin d'un poste de secours)</td></tr>
         <tr><td style="font-weight:700; color:#071A3A; padding:6px;">Supports</td><td style="padding:6px;">Toutes les fiches et exercices sont fournis par Nexus</td></tr>
         <tr><td style="font-weight:700; color:#071A3A; padding:6px;">Absence</td><td style="padding:6px;">Prévenir au +216 99 19 28 29 ; les supports de la séance manquée sont remis à l'élève</td></tr>
-        <tr><td style="font-weight:700; color:#071A3A; padding:6px;">Bilan</td><td style="padding:6px;">Un bilan individualisé écrit vous est remis à l'issue du stage, avec des recommandations de travail pour la rentrée</td></tr>
     </tbody></table>"""
     body += '<p style="font-size:10pt; margin-top:14px; line-height:1.7;"><strong>Contact pendant le stage</strong> : +216 99 19 28 29 (téléphone et WhatsApp) · contact@nexusreussite.academy</p>'
 
