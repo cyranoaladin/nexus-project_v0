@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import {
+  PRE_RENTREE_REQUIRED_GATE_IDS,
   filterPreRentreeFromPublicStages,
   getPreRentreeReleaseGate,
   isPreRentreeProtectedPublicPath,
@@ -14,13 +15,28 @@ import { getPublicPreRentreeDocuments } from '@/lib/campaigns/pre-rentree-2026/d
 
 describe('Pré-rentrée 2026 single public release gate', () => {
   it('fails closed until the owner sets PUBLIC_READY explicitly', () => {
-    expect(getPreRentreeReleaseGate()).toEqual({
-      releaseStatus: 'READY_FOR_REVIEW',
-      isPublicReady: false,
-    });
+    const gate = getPreRentreeReleaseGate();
+    expect(gate.releaseStatus).toBe('READY_FOR_REVIEW');
+    expect(gate.requiredPublicStatus).toBe('PUBLIC_READY');
+    expect(gate.isPublicReady).toBe(false);
+    expect(gate.gates.map(({ id }) => id)).toEqual(PRE_RENTREE_REQUIRED_GATE_IDS);
+    expect(gate.unmetGateIds).toContain('publication_authorization');
     expect(getPreRentreePublicSurfaceDTO()).toBeNull();
     expect(getPublicPreRentreeDocuments()).toEqual([]);
     expect(compilePreRentreeReviewSurfaceDTO().offers.length).toBeGreaterThan(0);
+  });
+
+  it('requires dated evidence for every satisfied release gate', () => {
+    const gate = getPreRentreeReleaseGate();
+    for (const item of gate.gates) {
+      expect(item.evidence.length).toBeGreaterThan(0);
+      expect(item.owner.length).toBeGreaterThan(0);
+      if (item.value) {
+        expect(item.validatedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      } else {
+        expect(item.validatedAt).toBeNull();
+      }
+    }
   });
 
   it.each([
