@@ -28,7 +28,20 @@ const tree = JSON.parse(fs.readFileSync(treePath, 'utf8'));
 const exceptionsDocument = JSON.parse(fs.readFileSync(exceptionsPath, 'utf8'));
 
 // --- Schema validation for exceptions document ---
-const requiredExceptionFields = ['type', 'name', 'version', 'path', 'reason', 'upstreamIssue', 'platform', 'artifactAllowed', 'expiresOn'];
+const requiredExceptionFields = [
+  'type',
+  'name',
+  'version',
+  'path',
+  'reason',
+  'upstreamIssue',
+  'platform',
+  'artifactAllowed',
+  'owner',
+  'approvedOn',
+  'reviewBy',
+  'expiresOn',
+];
 const requiredPlatformFields = ['node', 'npm', 'os', 'arch'];
 
 if (typeof exceptionsDocument.schemaVersion !== 'number' || exceptionsDocument.schemaVersion !== 1) {
@@ -95,6 +108,14 @@ const currentPlatform = {
 for (const exception of allowed) {
   if (exception.expiresOn < today) fail(`npm tree exception expired on ${exception.expiresOn}`);
   if (exception.artifactAllowed !== false) fail(`npm tree exception must set artifactAllowed=false: ${exception.name}`);
+  for (const field of ['approvedOn', 'reviewBy', 'expiresOn']) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(exception[field])) {
+      fail(`npm tree exception ${field} must be YYYY-MM-DD: ${exception.name}`);
+    }
+  }
+  if (exception.reviewBy > exception.expiresOn) {
+    fail(`npm tree exception reviewBy must be on or before expiresOn: ${exception.name}`);
+  }
   for (const [key, value] of Object.entries(currentPlatform)) {
     if (exception.platform?.[key] !== value) {
       fail(`npm tree exception platform mismatch for ${key}: expected ${exception.platform?.[key]}, got ${value}`);

@@ -1,10 +1,16 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 
 const projectRoot = path.resolve(__dirname, '../..');
 const validator = path.join(projectRoot, 'scripts/validate-npm-tree.js');
+const testPlatform = {
+  node: process.versions.node,
+  npm: execFileSync('npm', ['--version'], { encoding: 'utf8' }).trim(),
+  os: os.platform(),
+  arch: os.arch(),
+};
 
 function writeJson(file: string, value: unknown): void {
   fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
@@ -30,13 +36,11 @@ const exceptionFile = {
     path: 'node_modules/@emnapi/runtime',
     reason: 'npm optional WASM dependency materialization bug',
     upstreamIssue: 'npm/cli#8128',
-    platform: {
-      node: '22.23.1',
-      npm: '10.9.8',
-      os: 'linux',
-      arch: 'x64',
-    },
+    platform: testPlatform,
     artifactAllowed: false,
+    owner: 'SECURITY_OWNER',
+    approvedOn: '2026-07-23',
+    reviewBy: '2026-09-15',
     expiresOn: '2026-09-30',
   }],
 };
@@ -103,13 +107,11 @@ describe('validate-npm-tree', () => {
           path: 'node_modules/@img/sharp-wasm32',
           reason: 'sharp optional WASM32 binary',
           upstreamIssue: 'npm/cli#8128',
-          platform: {
-            node: '22.23.1',
-            npm: '10.9.8',
-            os: 'linux',
-            arch: 'x64',
-          },
+          platform: testPlatform,
           artifactAllowed: false,
+          owner: 'SECURITY_OWNER',
+          approvedOn: '2026-07-23',
+          reviewBy: '2026-09-15',
           expiresOn: '2026-09-30',
         },
       ],
@@ -154,5 +156,34 @@ describe('validate-npm-tree', () => {
 
     expect(result.status).not.toBe(0);
     expect(result.stderr).toContain('missing required field');
+  });
+
+  it.each(['owner', 'approvedOn', 'reviewBy'])(
+    'rejects exceptions missing governance field %s',
+    (field) => {
+      const missingGovernance = JSON.parse(JSON.stringify(exceptionFile));
+      delete missingGovernance.exceptions[0][field];
+
+      const result = runValidator(
+        { name: 'root', path: '/repo', dependencies: {} },
+        missingGovernance,
+      );
+
+      expect(result.status).not.toBe(0);
+      expect(result.stderr).toContain(`missing required field: ${field}`);
+    },
+  );
+
+  it('rejects a review date after the exception expiry', () => {
+    const invalidReviewWindow = JSON.parse(JSON.stringify(exceptionFile));
+    invalidReviewWindow.exceptions[0].reviewBy = '2026-10-01';
+
+    const result = runValidator(
+      { name: 'root', path: '/repo', dependencies: {} },
+      invalidReviewWindow,
+    );
+
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain('reviewBy must be on or before expiresOn');
   });
 });
