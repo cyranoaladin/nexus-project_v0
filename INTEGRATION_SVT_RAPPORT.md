@@ -51,5 +51,25 @@ ba358c341 docs: audit planning SVT
 ```
 Isolement respecté (clone hors dossier indexé) ; 3 commits fantômes Windsurf/Devin réauthorés proprement ; cherry-pick codex classé « touche donnée de campagne → cherry-pick » (règle appliquée).
 
+## Audit direction (A–D) — corrections avant push
+
+**A. Conformité programmes officiels** — `CONFORMITE_PROGRAMMES.md` produit (mapping notion par notion vs BO n°14 du 2/4/2026, vérifié sur le BO PDF officiel). Constats : Maths Seconde **manque le thème « Statistiques et probabilités »** (majeur 2026) + valeur absolue + second degré ; Maths Première : ajouter second degré/discriminant + exponentielle + **épreuve anticipée fin de Première**, sinus/cosinus non annoncés (✅). SVT alignée BO 25/7/2019 (3 thèmes) — « Corps humain et santé » sous-représenté. Français/NSI/PC : **aucun changement 2026** (vérifié) ; Français Première ne nomme **aucune œuvre** (✅). Toutes les corrections maths = **PROPOSITIONS scellées** (`mathsProgramConformity2026`), non publiées.
+
+**B. Mention « certifiés/agrégés »** — `ARBITRAGE_ENSEIGNANTS.md` : 3 suppressions listées, formulation conservée en variante désactivée. **2 options en attente d'arbitrage.**
+
+**C. Dépôt de destination** — cible `cyranoaladin/nexus-project_v0` **validée** (ancêtre commun `e137009e8`, `d0ce2241` dans son main). `canonical-repo-a1192c8d` est une mainline **divergente** (dette N-12). Push sur **branche neuve** `feat/svt-integration-clean`, zéro force.
+
+**D. Plannings — complétude & accessibilité**
+- D1 ✅ Les **3 grilles par niveau sont montées côté serveur** (masquées en CSS via `hidden`, plus via Radix qui démontait) — test dédié.
+- D2 ✅ Liens de **téléchargement PDF** (Planning, 3 programmes, Tarifs, Flyer) dans les sections planning **et** programmes, libellés + poids ; servis depuis `/public` (SVT DRAFT exclu).
+- D3 ✅ Test de **cohérence croisée automatisée** créneaux JSON ↔ PDF Planning (échec si divergence).
+- D4 ✅ Grille ci-dessous ; Terminale NSI+PC+SVT = **6 h consécutives** (B+C+D, au plafond).
+- D5 ✅ **Aucun nom réel** dans les données publiques (rôles abstraits, `educators=[]`).
+- D6 → dette N-9 (politique d'affectations, position par défaut : conserver salles+créneaux+rôles abstraits).
+
+### Grille finale complète (D4)
+**Semaine 1** — A : 3e Maths (s1) / 2nde Français (s2) · B : 2nde Maths (s1) / 3e Français (s2) · C : 1ère Maths (s1) / Term Philo (s2) · D : Term Maths (s1) / 1ère Français (s2).
+**Semaine 2** — A : 2nde NSI (s1) / 1ère PC (s2) · B : **Term SVT (s1)** / 2nde PC (s2) · C : Term NSI (s1) / **1ère SVT (s2)** · D : 1ère NSI (s1) / Term PC (s2).
+
 ## Dettes bloquantes restantes → `DEBTS.md`
 **B-1** noms SVT · **B-2** levée DRAFT D2 (commande fournie) · **B-6** calculatrice SVT. Non bloquantes : N-2 test provenance (PR séparée), N-3 dette codex jpo, N-4 SNT Seconde, N-7 granularité programmes, N-8 group_max/Docker. Coordination : `COORDINATION_JPO.md` · Runbook : `DEPLOY_RUNBOOK.md` · Notifications : `NOTIFICATIONS_FAMILLES.md`.
