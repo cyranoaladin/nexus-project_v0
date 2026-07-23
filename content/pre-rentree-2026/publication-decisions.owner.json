@@ -186,14 +186,15 @@
       "terminaleUnchanged": "Programme maths Terminale inchangé (application rentrée 2027-2028).",
       "proposedChanges": {
         "seconde-mathematiques": [
-          "AJOUTER thème « Statistiques et probabilités » (statistique descriptive variable continue, statistiques bivariées, probabilités) — absent, thème majeur 2026",
-          "AJOUTER valeur absolue (nombres réels)",
-          "AJOUTER modélisation quadratique / second degré"
+          "CONSERVER statistique descriptive et valeur absolue, déjà présentes en 2019",
+          "ÉTENDRE aux séries continues regroupées en classes (histogramme, fréquences cumulées)",
+          "AJOUTER le croisement de deux variables qualitatives et les fréquences conditionnelles",
+          "AJOUTER probabilités conditionnelles et arbres pondérés",
+          "NE PAS présenter le second degré ou la modélisation quadratique comme une nouveauté de Seconde"
         ],
         "premiere-mathematiques": [
-          "AJOUTER second degré / discriminant (maintenu en Première)",
-          "MENTIONNER la fonction exponentielle (nouveauté Première 2026)",
-          "NE PAS annoncer les fonctions sinus/cosinus (approfondissement Terminale) — déjà absentes",
+          "CONSERVER second degré, discriminant et fonction exponentielle, déjà présents en 2019 et maintenus en 2026",
+          "NE PAS annoncer l'étude des fonctions sinus/cosinus, retirée de Première en 2026 ; conserver seulement le cercle trigonométrique et les valeurs remarquables si nécessaire",
           "AJOUTER à l'objectif + FAQ la mention de l'épreuve anticipée de maths de fin de Première (fait, pas une promesse)"
         ]
       },

@@ -123,8 +123,8 @@
       "officialProgrammeId": "BO2026-LYCEE-MATHS-SECONDE",
       "applicationSchoolYear": "2026-2027",
       "nexusSessionNumbers": [1, 2, 3, 4, 5],
-      "alignmentSummary": "Installer calcul algébrique, fonctions, géométrie, probabilités et raisonnement conformément au nouveau programme de Seconde.",
-      "publicOfferEligible": true
+      "alignmentSummary": "PROPOSITION : priorités de calcul algébrique, fonctions, géométrie, statistiques continues et croisées, puis probabilités conditionnelles selon le programme 2026.",
+      "publicOfferEligible": false
     },
     {
       "moduleId": "seconde-francais",
@@ -153,8 +153,8 @@
       "officialProgrammeId": "BO2026-LYCEE-MATHS-PREMIERE",
       "applicationSchoolYear": "2026-2027",
       "nexusSessionNumbers": [1, 2, 3, 4, 5],
-      "alignmentSummary": "Préparer algèbre, analyse, suites, géométrie, probabilités et algorithmique du nouveau programme de Première.",
-      "publicOfferEligible": true
+      "alignmentSummary": "PROPOSITION : second degré et discriminant, suites, exponentielle, dérivation, probabilités conditionnelles et méthodes de l'épreuve anticipée ; fonctions sinus/cosinus non annoncées.",
+      "publicOfferEligible": false
     },
     {
       "moduleId": "premiere-francais-eaf",
@@ -233,8 +233,8 @@
       "officialProgrammeId": "BO2019-LYCEE-SVT-PREMIERE",
       "applicationSchoolYear": "2026-2027",
       "nexusSessionNumbers": [1, 2, 3, 4, 5],
-      "alignmentSummary": "Installer méthodes et concepts fondamentaux de SVT pour l'entrée en Première : documents, raisonnement et vocabulaire scientifique.",
-      "publicOfferEligible": true
+      "alignmentSummary": "DRAFT : priorités réparties sur les trois thèmes officiels du BO 2019 ; validation d'un enseignant SVT qualifié requise.",
+      "publicOfferEligible": false
     },
     {
       "moduleId": "terminale-svt",
@@ -243,8 +243,8 @@
       "officialProgrammeId": "BO2019-LYCEE-SVT-TERMINALE",
       "applicationSchoolYear": "2026-2027",
       "nexusSessionNumbers": [1, 2, 3, 4, 5],
-      "alignmentSummary": "Réactiver méthodes et raisonnement SVT pour l'entrée en Terminale : documents, modélisation et argumentation scientifique.",
-      "publicOfferEligible": true
+      "alignmentSummary": "DRAFT : priorités réparties sur les trois thèmes officiels du BO 2019, dont une séance dédiée au corps humain et à la santé ; validation d'un enseignant SVT qualifié requise.",
+      "publicOfferEligible": false
     }
   ]
 }

@@ -630,6 +630,21 @@
                 "type": "string",
                 "minLength": 1
               },
+              "publicationStatus": {
+                "type": "string",
+                "enum": [
+                  "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION",
+                  "DRAFT_PENDING_QUALIFIED_TEACHER_VALIDATION"
+                ]
+              },
+              "objective": {
+                "type": "string",
+                "minLength": 1
+              },
+              "equipment": {
+                "type": "string",
+                "minLength": 1
+              },
               "level": {
                 "$ref": "#/definitions/PublicationSnapshot/properties/levels/items/properties/id"
               },

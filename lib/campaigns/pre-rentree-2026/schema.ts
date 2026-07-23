@@ -153,7 +153,7 @@ const CampaignContent = z.object({
   faq: z.array(z.object({
     question: z.string().min(1),
     answer: z.string().min(1),
-  })).length(17),
+  })).length(18),
 });
 
 const SeoContract = z.object({
@@ -225,6 +225,9 @@ const ModuleSession = z.object({
 
 const CampaignModule = z.object({
   id: z.string().min(1),
+  publicationStatus: z.enum(['PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION', 'DRAFT_PENDING_QUALIFIED_TEACHER_VALIDATION']).optional(),
+  objective: z.string().min(1).optional(),
+  equipment: z.string().min(1).optional(),
   level: EntryLevelCode,
   subjectId: z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'PHILOSOPHIE', 'SVT']),
   subject: z.string().min(1),
