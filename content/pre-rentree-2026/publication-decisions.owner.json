@@ -237,6 +237,20 @@
       "owner": "direction",
       "decidedAt": "2026-07-22T19:15:59Z"
     },
+    "commercialGridFinal": {
+      "status": "approved_for_publication",
+      "decision": "production_grid_20260720_confirmed",
+      "reference": "R1 (arbitrage direction définitif)",
+      "supersedes": "toute grille 3-5/140 énoncée en audit — NON retenue",
+      "grid": {
+        "premiumPacks": { "groups": "3 à 5", "prices_TND": [480, 900, 1350, 1800], "deposits_TND": [144, 270, 405, 540], "depositRule": "30% exact" },
+        "fondations": { "groups": "4 à 6", "prices_TND": [350, 400], "deposits_TND": [105, 120], "commercialException": "approved_by DIRECTION_NEXUS_REUSSITE, 2026-07-20" }
+      },
+      "referenceSource": "data/pricing.canonical.json (= production d0ce2241)",
+      "publicRule": "Grille de production du 20/07/2026 = référence unique. Les PDF v3 antérieurs sont périmés sur ce point et doivent être régénérés depuis pricing.canonical.json. Aucune modification de l'offre sans décision direction.",
+      "owner": "direction",
+      "decidedAt": "2026-07-23T00:00:00Z"
+    },
     "deploymentAuthorization": {
       "status": "locked",
       "decision": "no_deploy_without_written_go",
