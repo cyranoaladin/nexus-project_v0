@@ -1,41 +1,29 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import HomePage from '@/app/page';
 
 const root = join(__dirname, '..', '..');
 const componentPath = join(root, 'components/marketing/PreRentreeCampaignSpotlight.tsx');
 
 describe('PreRentreeCampaignSpotlight', () => {
-  it('is rendered before the permanent hero and level router', () => {
+  it('keeps the campaign absent until PUBLIC_READY while preserving the permanent homepage', () => {
     const { container } = render(<HomePage />);
-    const spotlight = screen.getByRole('region', { name: 'Campagne Pré-rentrée 2026' });
     const hero = container.querySelector('[data-hero]');
     const router = screen.getByText('Mon enfant est en…').closest('section');
 
-    expect(spotlight).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Campagne Pré-rentrée 2026' })).not.toBeInTheDocument();
     expect(hero).not.toBeNull();
     expect(router).not.toBeNull();
-    expect(spotlight.compareDocumentPosition(hero as Node) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(spotlight.compareDocumentPosition(router as Node) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it('renders the exact campaign hierarchy and canonical actions', () => {
-    render(<HomePage />);
-    const spotlight = screen.getByRole('region', { name: 'Campagne Pré-rentrée 2026' });
-    const campaign = within(spotlight);
+  it('does not expose campaign copy or navigation while owner gates are open', () => {
+    const { container } = render(<HomePage />);
 
-    expect(campaign.getByRole('heading', { level: 2, name: 'Stages de pré-rentrée 2026' })).toBeVisible();
-    expect(campaign.getByText('Campagne en préparation')).toBeVisible();
-    expect(campaign.getByText('Entrée en 3e, Seconde, Première ou Terminale')).toBeVisible();
-    expect(campaign.getByText('Mathématiques · Physique-Chimie · Français · NSI · Philosophie · SVT')).toBeVisible();
-    expect(campaign.getByText('Fondations : 4 à 6 élèves · Premium : 3 à 5 élèves')).toBeVisible();
-    expect(campaign.getByText('10 h par matière')).toBeVisible();
-    expect(campaign.getByText('Mutuelleville')).toBeVisible();
-    expect(campaign.getByText('dès le 17 août')).toBeVisible();
-    expect(campaign.getByText('À partir du 17 août 2026.')).toHaveClass('sr-only');
-    expect(campaign.getByRole('link', { name: 'Découvrir la Pré-rentrée 2026' })).toHaveAttribute('href', '/stages/pre-rentree-2026');
-    expect(campaign.getByRole('link', { name: 'Voir les offres' })).toHaveAttribute('href', '/stages/pre-rentree-2026#offres-pre-rentree');
+    expect(screen.queryByRole('heading', { name: 'Stages de pré-rentrée 2026' })).not.toBeInTheDocument();
+    expect(screen.queryByText('Fondations : 4 à 6 élèves · Premium : 3 à 5 élèves')).not.toBeInTheDocument();
+    expect(container.querySelector('a[href="/stages/pre-rentree-2026"]')).toBeNull();
+    expect(container.querySelector('a[href^="/stages/pre-rentree-2026#"]')).toBeNull();
   });
 
   it('contains no copied commercial data or direct source imports', () => {
