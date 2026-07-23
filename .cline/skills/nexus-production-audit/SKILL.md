@@ -1,5 +1,5 @@
 ---
-name: nexus-production-audit
+name: <PROCESS_NAME>uction-audit
 description: Use when auditing the Nexus production server, PM2, deployment, generated report storage, environment variables, LaTeX availability, Nginx, or database deployment readiness.
 ---
 

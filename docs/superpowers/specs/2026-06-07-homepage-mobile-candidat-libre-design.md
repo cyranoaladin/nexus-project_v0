@@ -2,7 +2,7 @@
 
 ## Contexte
 
-La page d'accueil `nexusreussite.academy` est rendue par Next.js depuis `app/page.tsx`, qui injecte le fichier statique `Nexus_Reussite_Accueil.html`. La production tourne derrière Nginx vers le process PM2 `nexus-prod` sur `127.0.0.1:3001`.
+La page d'accueil `nexusreussite.academy` est rendue par Next.js depuis `app/page.tsx`, qui injecte le fichier statique `Nexus_Reussite_Accueil.html`. La production tourne derrière Nginx vers le process PM2 `<PROCESS_NAME>` sur `127.0.0.1:3001`.
 
 Audit mobile initial sur `https://nexusreussite.academy`:
 

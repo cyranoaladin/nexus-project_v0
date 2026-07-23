@@ -31,11 +31,10 @@ COPY prisma ./prisma/
 RUN npx prisma generate
 # On copie le reste du code de l'application.
 COPY . .
-# On fournit un secret factice pour le build (le vrai secret est injecté au runtime via .env)
-ARG NEXTAUTH_SECRET=build-time-placeholder
-ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-# Default non-release SHA so that `docker build .` works; override via --build-arg for real releases.
-ARG RELEASE_SHA=0000000000000000000000000000000000000000
+# Optional build argument; the real runtime secret is never baked into the image.
+ARG NEXTAUTH_SECRET
+# Required build provenance; callers must pass the exact repository commit.
+ARG RELEASE_SHA
 # On lance le build de Next.js.
 RUN printf '%s' "$RELEASE_SHA" \
       | grep -Eq '^[0-9a-fA-F]{40}([0-9a-fA-F]{24})?$' \

@@ -9,7 +9,7 @@
 
 ```
 ┌─────────────────────┐     ┌──────────────────────┐
-│  Host (88.99.254.59) │     │  Docker Network       │
+│  Host (<PROD_HOST>) │     │  Docker Network       │
 │                     │     │                      │
 │  /opt/nexus         │     │  nexus-next-app      │
 │  ├── prisma/        │     │  (port 3000 interne) │

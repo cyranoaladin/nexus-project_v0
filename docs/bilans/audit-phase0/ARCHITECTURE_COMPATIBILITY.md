@@ -38,7 +38,7 @@ Commandes probantes : `sed/nl` sur `package.json`, `next.config.*`, `instrumenta
 
 ## Production observée le 2026-07-11
 
-Commande SSH en lecture seule sur l'hôte documenté `88.99.254.59` : PM2 indique `nexus-prod|online`, script `.next/standalone/server.js`, cwd `/var/www/nexus-project_v0`, un processus, 102 redémarrages ; repo production `main` au commit `1b8219b1...`. Chroma 1.1.1, ingestor, Ollama 0.3.13 sont healthy et exposés seulement en loopback (`8000`, `18001`, `11434`). PostgreSQL Nexus est healthy sur loopback `5435`. La liste filtrée des clés PM2 ne montrait que `NEXTAUTH_URL`; les autres valeurs peuvent être chargées par fichiers et restent `UNKNOWN_PRODUCTION_FACT`.
+Commande SSH en lecture seule sur l'hôte documenté `<PROD_HOST>` : PM2 indique `<PROCESS_NAME>|online`, script `.next/standalone/server.js`, cwd `<APP_DIR>`, un processus, 102 redémarrages ; repo production `main` au commit `1b8219b1...`. Chroma 1.1.1, ingestor, Ollama 0.3.13 sont healthy et exposés seulement en loopback (`8000`, `18001`, `11434`). PostgreSQL Nexus est healthy sur loopback `5435`. La liste filtrée des clés PM2 ne montrait que `NEXTAUTH_URL`; les autres valeurs peuvent être chargées par fichiers et restent `UNKNOWN_PRODUCTION_FACT`.
 
 Le chemin `private/generated-reports` et les alternatives inspectées n'existaient pas. La production tourne sous PM2, alors que `docker-compose.prod.yml` décrit aussi un conteneur Next : la documentation n'est pas une source unique de vérité. Aucun worker durable du nouveau rapport n'a été observé. Les sauvegardes, la persistance Redis pertinente pour Nexus, le stockage objet, les URL signées et la procédure de rollback de la future chaîne sont `UNKNOWN_PRODUCTION_FACT`.
 

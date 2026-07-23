@@ -8,7 +8,7 @@ Commandes principales de la campagne : `npm run pre-rentree:build` et `npm run p
 
 **Nexus Réussite** est une plateforme SaaS de pilotage éducatif pour le marché tunisien (lycée → baccalauréat). Elle combine **coachs Agrégés/Certifiés**, une **IA pédagogique (ARIA)** et des **dashboards temps réel par rôle**.
 
-**Production** : `https://nexusreussite.academy` · **Serveur** : Hetzner Dedicated (88.99.254.59)
+**Production** : `https://nexusreussite.academy` · **Serveur** : Hetzner Dedicated (<PROD_HOST>)
 
 ---
 
@@ -859,15 +859,15 @@ npx playwright test --project=chromium  # E2E Chromium only
 ### Infrastructure Production
 
 ```
-Serveur: 88.99.254.59 (Hetzner Dedicated, i7-8700 12 cores, 62GB RAM)
+Serveur: <PROD_HOST> (Hetzner Dedicated, i7-8700 12 cores, 62GB RAM)
 Domaine: https://nexusreussite.academy
 SSL: Let's Encrypt (auto-renew)
 Reverse Proxy: Nginx → 127.0.0.1:3001
 
 Application Next.js (PM2 standalone):
-├── nexus-prod          PM2 cluster, port 3001, node .next/standalone/server.js
+├── <PROCESS_NAME>          PM2 cluster, port 3001, node .next/standalone/server.js
 │                       pm2 startup systemd (survie reboot)
-│                       Chemin: /var/www/nexus-project_v0
+│                       Chemin: <APP_DIR>
 ├── PostgreSQL          port 5435 (DB principale)
 ├── ollama              (llama3.2:latest, phi3:mini, nomic-embed-text)
 ├── chromadb            (collection: ressources_pedagogiques_terminale, 211 chunks)
@@ -884,17 +884,17 @@ rag-ingestor, Korrigo) tournent en Docker.
 ### Déploiement Nexus (PM2)
 
 ```bash
-# Sur nexus-prod (ssh nexus-prod)
-cd /var/www/nexus-project_v0
+# Sur <PROCESS_NAME> (ssh <PROCESS_NAME>)
+cd <APP_DIR>
 git fetch origin && git reset --hard origin/main
 npx next build
 cp -r .next/static .next/standalone/.next/static
 cp -r public .next/standalone/public
-pm2 restart nexus-prod
+pm2 restart <PROCESS_NAME>
 pm2 save
 ```
 
-- **PM2 process** : `nexus-prod`, mode cluster, port 3001
+- **PM2 process** : `<PROCESS_NAME>`, mode cluster, port 3001
 - **Persistance reboot** : `pm2 startup systemd` + `pm2 save`
 - **Healthcheck** : `curl http://127.0.0.1:3001/api/health`
 - **Nginx** : reverse proxy TLS → 127.0.0.1:3001 (ne pose aucun en-tête sécurité, tout vient du middleware Next.js)

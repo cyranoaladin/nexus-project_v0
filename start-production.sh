@@ -3,6 +3,8 @@ set -e
 
 echo "🚀 Starting Nexus Réussite Production (PM2 Managed)..."
 
+PM2_APP_NAME="${PM2_APP_NAME:-nexus-app}"
+
 # 1. Database Migration (Critical for pgvector)
 echo "📦 Applying database migrations..."
 if [ -f "prisma/schema.prisma" ]; then
@@ -16,7 +18,7 @@ fi
 echo "🔄 Managing process..."
 if [ -f "ecosystem.config.js" ]; then
     # Stop existing instance if running
-    npx pm2 delete nexus-prod 2>/dev/null || true
+    npx pm2 delete "$PM2_APP_NAME" 2>/dev/null || true
     
     # Start new instance
     npx pm2 start ecosystem.config.js --env production

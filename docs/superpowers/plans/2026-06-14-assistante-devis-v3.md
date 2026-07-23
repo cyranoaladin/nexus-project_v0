@@ -58,7 +58,7 @@
 ### Task 3: Verification And Deploy
 
 **Files:**
-- Production server: `/var/www/nexus-project_v0`
+- Production server: `<APP_DIR>`
 
 - [ ] **Step 1: Run unit tests**
   Run focused navigation/auth tests.

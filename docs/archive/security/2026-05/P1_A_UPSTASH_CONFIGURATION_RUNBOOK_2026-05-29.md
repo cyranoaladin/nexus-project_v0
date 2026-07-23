@@ -36,17 +36,17 @@ Activer le mode distribué du rate limiting public P1-A en production, sans modi
 
 ### Backup `.env`
 ```bash
-cd /var/www/nexus-project_v0
+cd <APP_DIR>
 TS="$(date +%Y%m%d%H%M%S)"
 mkdir -p /root/nexus-backups
-cp -a /var/www/nexus-project_v0/.env "/root/nexus-backups/env-before-upstash-$TS"
+cp -a <APP_DIR>/.env "/root/nexus-backups/env-before-upstash-$TS"
 chmod 600 "/root/nexus-backups/env-before-upstash-$TS"
 echo "ENV_BACKUP=/root/nexus-backups/env-before-upstash-$TS"
 ```
 
 ### Édition manuelle
 ```bash
-cd /var/www/nexus-project_v0
+cd <APP_DIR>
 nano .env
 ```
 
@@ -54,7 +54,7 @@ Ne jamais coller les valeurs Upstash dans un ticket, un commit, un rapport Markd
 
 ### Vérification présence sans secrets
 ```bash
-cd /var/www/nexus-project_v0
+cd <APP_DIR>
 grep -q '^UPSTASH_REDIS_REST_URL=' .env && echo 'UPSTASH_REDIS_REST_URL=present' || echo 'UPSTASH_REDIS_REST_URL=missing'
 grep -q '^UPSTASH_REDIS_REST_TOKEN=' .env && echo 'UPSTASH_REDIS_REST_TOKEN=present' || echo 'UPSTASH_REDIS_REST_TOKEN=missing'
 grep -q '^RATE_LIMIT_DISABLE=1' .env && echo 'RATE_LIMIT_DISABLE_1=present' || echo 'RATE_LIMIT_DISABLE_1=absent'
@@ -62,9 +62,9 @@ grep -q '^RATE_LIMIT_DISABLE=1' .env && echo 'RATE_LIMIT_DISABLE_1=present' || e
 
 ### Reload contrôlé
 ```bash
-pm2 reload nexus-prod --update-env
+pm2 reload <PROCESS_NAME> --update-env
 sleep 8
-pm2 status nexus-prod --no-color
+pm2 status <PROCESS_NAME> --no-color
 curl -so /dev/null -w "api_health:%{http_code}\n" http://127.0.0.1:3001/api/health
 ```
 
@@ -87,7 +87,7 @@ echo
 
 ### Logs filtrés
 ```bash
-pm2 logs nexus-prod --lines 120 --nostream \
+pm2 logs <PROCESS_NAME> --lines 120 --nostream \
   | grep -iE 'error|exception|crash|fatal|rate|limit|upstash|contact' \
   | grep -v 'CredentialsSignin\|RAG\|EAI_AGAIN\|CLICTOPAY\|favicon' \
   || echo 'Aucune nouvelle erreur critique filtrée'
@@ -105,10 +105,10 @@ pm2 logs nexus-prod --lines 120 --nostream \
 
 ### Commandes rollback
 ```bash
-cd /var/www/nexus-project_v0
+cd <APP_DIR>
 cp -a /root/nexus-backups/env-before-upstash-<TS> .env
 chmod 600 .env
-pm2 reload nexus-prod --update-env
+pm2 reload <PROCESS_NAME> --update-env
 sleep 8
 curl -so /dev/null -w "api_health:%{http_code}\n" http://127.0.0.1:3001/api/health
 ```

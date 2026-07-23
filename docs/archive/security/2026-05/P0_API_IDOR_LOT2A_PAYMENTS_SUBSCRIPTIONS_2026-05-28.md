@@ -215,7 +215,7 @@ Commit déployé :
 - Production avant pull : `1f37eeb0 fix(security): enforce API ownership checks lot 1`.
 - Branche : `main`.
 - Worktree production : propre.
-- PM2 `nexus-prod` : online.
+- PM2 `<PROCESS_NAME>` : online.
 - Port applicatif : `127.0.0.1:3001`.
 - Santé locale `/api/health` : 200.
 - Site public `/` : 200.
@@ -242,7 +242,7 @@ Vérifications serveur :
 - `npm run typecheck` : OK.
 - Tests ciblés Lot 2A : 17 suites, 98 tests OK.
 - `npm run build` : OK.
-- PM2 `nexus-prod` : online après reload.
+- PM2 `<PROCESS_NAME>` : online après reload.
 - Port : `127.0.0.1:3001`, pas de retour à `0.0.0.0:3001`.
 
 Smoke production :
@@ -271,7 +271,7 @@ Smoke production :
 | `/prisma/schema.prisma` | 404 |
 
 Logs :
-- `pm2 logs nexus-prod --lines 160 --nostream` filtré : aucune erreur critique applicative nouvelle.
+- `pm2 logs <PROCESS_NAME> --lines 160 --nostream` filtré : aucune erreur critique applicative nouvelle.
 
 ClicToPay :
 - Le paiement carte n'est pas product-ready.

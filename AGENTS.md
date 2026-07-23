@@ -377,8 +377,8 @@ Règles :
 Production :
 
 - Domaine : `https://nexusreussite.academy`
-- Serveur : `root@88.99.254.59`
-- Chemin probable : `/var/www/nexus-project_v0`
+- Serveur : `root@<PROD_HOST>`
+- Chemin probable : `<APP_DIR>`
 
 Règles strictes :
 
