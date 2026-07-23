@@ -6,7 +6,6 @@ const read = (file: string) => fs.readFileSync(path.join(root, file), 'utf8');
 
 describe('Pré-rentrée public access and routing', () => {
   it.each([
-    'components/layout/CorporateNavbar.tsx',
     'components/marketing/PreRentreeCampaignSpotlight.tsx',
     'app/stages/Stages2026Page.tsx',
     'app/offres/page.tsx',
@@ -14,6 +13,13 @@ describe('Pré-rentrée public access and routing', () => {
     expect(read(file)).toMatch(
       /\/stages\/pre-rentree-2026|PRE_RENTREE_2026_NAVIGATION\.path|campaign\.(?:path|campaignPath)|preRentree\.(?:campaign\.)?canonicalPath/,
     );
+  });
+
+  it.each([
+    'components/layout/CorporateNavbar.tsx',
+    'components/marketing/MobileStickyBar.tsx',
+  ])('does not bypass the release gate from permanent navigation in %s', (file) => {
+    expect(read(file)).not.toMatch(/href=["']\/stages\/pre-rentree-2026/);
   });
 
   it('wires the canonical campaign spotlight into the homepage', () => {
