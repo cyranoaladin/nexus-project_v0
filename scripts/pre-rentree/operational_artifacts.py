@@ -10,7 +10,6 @@ from datetime import date
 from html import escape
 from pathlib import Path
 from typing import Any, Iterable
-from xml.sax.saxutils import escape as xml_escape
 
 
 def _atomic_text(path: Path, content: str) -> None:
@@ -27,6 +26,11 @@ def _atomic_text(path: Path, content: str) -> None:
 
 def _atomic_json(path: Path, value: Any) -> None:
     _atomic_text(path, json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n")
+
+
+def _xml_text(value: str) -> str:
+    """Escape XML text nodes without importing an XML parser."""
+    return escape(value, quote=False)
 
 
 def _review_html(title: str, body: str) -> str:
@@ -183,10 +187,10 @@ def _materialize_crm(operations: dict[str, Any], root: Path) -> None:
 
 def _cell(reference: str, value: Any = None, *, formula: str | None = None) -> str:
     if formula is not None:
-        return f'<c r="{reference}"><f>{xml_escape(formula)}</f><v></v></c>'
+        return f'<c r="{reference}"><f>{_xml_text(formula)}</f><v></v></c>'
     if isinstance(value, (int, float)) and not isinstance(value, bool):
         return f'<c r="{reference}"><v>{value}</v></c>'
-    return f'<c r="{reference}" t="inlineStr"><is><t>{xml_escape(str(value or ""))}</t></is></c>'
+    return f'<c r="{reference}" t="inlineStr"><is><t>{_xml_text(str(value or ""))}</t></is></c>'
 
 
 def _row(number: int, cells: Iterable[str]) -> str:
