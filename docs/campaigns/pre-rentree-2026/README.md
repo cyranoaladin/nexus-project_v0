@@ -29,7 +29,7 @@ La campagne en mode `REVIEW` comprend quatre niveaux, seize modules et quatre-vi
 - identité et contacts publics : `lib/legal.ts` ;
 - compilateur, renderer et audits : `scripts/pre-rentree/`.
 
-Le seul dérivé suivi est `generated/pre-rentree-2026/publication.snapshot.json`. Tous les PDF, HTML, images, kits, tests pédagogiques matérialisés, formulaires de revue, CSV, XLSX et ZIP sont générés sous `.artifacts/pre-rentree-2026/` ou comme artefacts GitHub Actions.
+Aucun dérivé documentaire n’est suivi. Le snapshot, les PDF, HTML, images, kits, tests pédagogiques matérialisés, formulaires de revue, CSV, XLSX et ZIP sont générés sous `.artifacts/pre-rentree-2026/` ou comme artefacts GitHub Actions.
 
 ## Commandes
 

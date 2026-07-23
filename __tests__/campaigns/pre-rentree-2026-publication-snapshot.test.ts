@@ -7,7 +7,7 @@ import { PublicationSnapshotSchema } from '@/scripts/pre-rentree/publication-sna
 import { compilePublicationSnapshot } from '@/scripts/pre-rentree/build-publication-snapshot';
 
 const root = process.cwd();
-const sourceRepoSha = execFileSync('git', ['rev-parse', 'origin/main'], {
+const repositoryCommitSha = execFileSync('git', ['rev-parse', 'HEAD'], {
   cwd: root,
   encoding: 'utf8',
 }).trim();
@@ -38,16 +38,24 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
   });
 
   it('compiles canonical source versions, hashes, and repository provenance', () => {
-    const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha });
+    const snapshot = compilePublicationSnapshot({ repoRoot: root, repositoryCommitSha });
 
     expect((snapshot as unknown as { sourceSetSha256?: string }).sourceSetSha256).toMatch(/^[a-f0-9]{64}$/);
-    expect(snapshot.sourceRepoSha).toBe('a1192c8dccf8eaa6ae223265a3bc9ceb56a6fff0');
+    expect(snapshot.sourceAnchorSha).toMatch(/^[a-f0-9]{40}$/);
+    expect(snapshot.repositoryCommitSha).toBe(repositoryCommitSha);
+    expect(() => execFileSync('git', [
+      'merge-base',
+      '--is-ancestor',
+      snapshot.sourceAnchorSha,
+      snapshot.repositoryCommitSha,
+    ], { cwd: root })).not.toThrow();
     expect(snapshot.provenance.campaign.version).toBe('2.0.2');
     expect(snapshot.provenance.modules.version).toBe('2026-pre-rentree-v2-svt');
     expect(snapshot.provenance.pricing.version).toBe('2026-2027.4');
     expect(snapshot.provenance.parentGuide.version).toBe('2026-parent-guide-fr-v4');
     expect(Object.values(snapshot.provenance).every((source) => /^[a-f0-9]{64}$/.test(source.sha256))).toBe(true);
     expect(Object.keys(snapshot.provenance)).toEqual(expect.arrayContaining([
+      'sourceAnchor',
       'offers',
       'capabilities',
       'manuals',
@@ -63,7 +71,7 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     const source = JSON.parse(
       readFileSync(join(root, 'content/pre-rentree-2026/parent-guide.fr.json'), 'utf8'),
     );
-    const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha });
+    const snapshot = compilePublicationSnapshot({ repoRoot: root, repositoryCommitSha });
 
     expect(schema.additionalProperties).toBe(false);
     expect(schema.properties.sections.items.$ref).toBe('#/$defs/section');
@@ -97,9 +105,9 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
   });
 
   it('separates source, snapshot, edition, build, and review dates', () => {
-    const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha });
+    const snapshot = compilePublicationSnapshot({ repoRoot: root, repositoryCommitSha });
 
-    expect(snapshot.sourceCommitDate).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+    expect(snapshot.repositoryCommitDate).toMatch(/^\d{4}-\d{2}-\d{2}T/);
     expect(snapshot.snapshotBuiltAt).toBe('2026-07-20T18:00:00+01:00');
     expect(snapshot.document.documentEditionDate).toBe('2026-07-20');
     expect(snapshot.document.documentPackageVersion).toBe('6.0.0-rc.3');
@@ -115,7 +123,7 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
   });
 
   it('exposes only publicly committed Parcours 360 labels to the renderer', () => {
-    const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha });
+    const snapshot = compilePublicationSnapshot({ repoRoot: root, repositoryCommitSha });
     const committed = snapshot.capabilities.capabilities.filter((item) => item.publiclyCommitted);
     const unavailable = snapshot.capabilities.capabilities.filter((item) => !item.publiclyCommitted);
 
@@ -133,7 +141,7 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     const canonical = JSON.parse(
       readFileSync(join(root, 'content/pre-rentree-2026/modules.json'), 'utf8'),
     );
-    const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha });
+    const snapshot = compilePublicationSnapshot({ repoRoot: root, repositoryCommitSha });
 
     expect(snapshot.modules).toEqual(canonical.modules);
     expect(snapshot.modules).toHaveLength(16);
@@ -141,7 +149,7 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
   });
 
   it('materializes sixteen positioning tests, eighty quick assessments and eighty deliverables', () => {
-    const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha }) as unknown as {
+    const snapshot = compilePublicationSnapshot({ repoRoot: root, repositoryCommitSha }) as unknown as {
       pedagogy?: {
         positioningTests: Array<{
           id: string;
@@ -171,7 +179,7 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
   });
 
   it('expands the canonical schedule to eighty dated sessions', () => {
-    const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha });
+    const snapshot = compilePublicationSnapshot({ repoRoot: root, repositoryCommitSha });
 
     expect(snapshot.schedule.sessions).toHaveLength(80);
     expect(snapshot.schedule.sessions[0]).toMatchObject({
@@ -194,7 +202,7 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
   });
 
   it('selects the four canonical packs with exact amounts and neutral deposit labels', () => {
-    const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha });
+    const snapshot = compilePublicationSnapshot({ repoRoot: root, repositoryCommitSha });
 
     expect(snapshot.packs.map((pack) => [
       pack.subjectCount,
@@ -224,7 +232,7 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
   });
 
   it('derives REVIEW publication and blocks absent approved terms', () => {
-    const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha });
+    const snapshot = compilePublicationSnapshot({ repoRoot: root, repositoryCommitSha });
 
     expect(snapshot.campaign.publicationMode).toBe('REVIEW');
     expect(snapshot.cta.primary).toBe('Demander un parcours ou un conseil');
@@ -240,7 +248,7 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
   });
 
   it('maps every approved public claim to an existing canonical source', () => {
-    const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha });
+    const snapshot = compilePublicationSnapshot({ repoRoot: root, repositoryCommitSha });
 
     expect(snapshot.approvedPublicClaims.length).toBeGreaterThan(0);
     expect(snapshot.approvedPublicClaims.every((claim) => claim.source.path && claim.source.pointer)).toBe(true);
@@ -254,7 +262,7 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
   });
 
   it('carries the exact public and social output names outside the renderer', () => {
-    const snapshot = compilePublicationSnapshot({ repoRoot: root, sourceRepoSha });
+    const snapshot = compilePublicationSnapshot({ repoRoot: root, repositoryCommitSha });
 
     expect(Object.values(snapshot.document.outputs.publicPdf)).toEqual([
       'NexusReussite_PreRentree2026_GuideParents_COMPLET.pdf',
@@ -289,12 +297,25 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
       '--tsconfig', join(root, 'tsconfig.json'),
       join(root, 'scripts/pre-rentree/build-publication-snapshot.ts'),
       '--repo-root', root,
-      '--source-repo-sha', sourceRepoSha,
+      '--repository-commit-sha', repositoryCommitSha,
       '--output', output,
     ], { cwd: outputDirectory, encoding: 'utf8' });
 
     const parsed = JSON.parse(readFileSync(output, 'utf8'));
     expect(() => PublicationSnapshotSchema.parse(parsed)).not.toThrow();
-    expect(parsed.sourceRepoSha).toBe(sourceRepoSha);
+    expect(parsed.repositoryCommitSha).toBe(repositoryCommitSha);
+  });
+
+  it('keeps the deterministic source-set hash independent from the built commit', () => {
+    const parentCommitSha = execFileSync('git', ['rev-parse', 'HEAD^'], {
+      cwd: root,
+      encoding: 'utf8',
+    }).trim();
+    const current = compilePublicationSnapshot({ repoRoot: root, repositoryCommitSha });
+    const parent = compilePublicationSnapshot({ repoRoot: root, repositoryCommitSha: parentCommitSha });
+
+    expect(current.sourceSetSha256).toBe(parent.sourceSetSha256);
+    expect(current.sourceAnchorSha).toBe(parent.sourceAnchorSha);
+    expect(current.repositoryCommitSha).not.toBe(parent.repositoryCommitSha);
   });
 });

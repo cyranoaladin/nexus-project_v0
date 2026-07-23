@@ -13,7 +13,7 @@ from generate_documents import build_package  # noqa: E402
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-SNAPSHOT = REPO_ROOT / "generated/pre-rentree-2026/publication.snapshot.json"
+SNAPSHOT = REPO_ROOT / ".artifacts/pre-rentree-2026/publication.snapshot.json"
 
 
 @pytest.fixture(scope="module")

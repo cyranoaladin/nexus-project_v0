@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexusreussite.academy/schemas/pre-rentree-2026-source-anchor.schema.json",
+  "title": "Pré-rentrée 2026 source anchor",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "campaignId",
+    "sourceAnchorSha",
+    "declaredByRole",
+    "declaredAt",
+    "purpose"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "campaignId": {
+      "const": "pre-rentree-2026"
+    },
+    "sourceAnchorSha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "declaredByRole": {
+      "const": "PROJECT_OWNER"
+    },
+    "declaredAt": {
+      "type": "string",
+      "format": "date"
+    },
+    "purpose": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

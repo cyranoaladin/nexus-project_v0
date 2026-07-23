@@ -292,10 +292,21 @@ jest.mock('@/components/ui/tabs', () => {
         </button>
       );
     },
-    TabsContent: function TabsContent({ children, value, ...props }) {
+    TabsContent: function TabsContent({ children, value, forceMount = false, ...props }) {
       const context = React.useContext(TabsContext);
-      if (context.selectedValue !== value) return null;
-      return <div role="tabpanel" id={`panel-${value}`} data-value={value} {...props}>{children}</div>;
+      const selected = context.selectedValue === value;
+      if (!forceMount && !selected) return null;
+      return (
+        <div
+          role="tabpanel"
+          id={`panel-${value}`}
+          data-value={value}
+          hidden={!selected}
+          {...props}
+        >
+          {children}
+        </div>
+      );
     },
   };
 });

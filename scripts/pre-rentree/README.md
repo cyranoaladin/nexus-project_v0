@@ -10,7 +10,7 @@
 
 ## Contrat
 
-Le compilateur TypeScript lit uniquement les sources canoniques et produit `generated/pre-rentree-2026/publication.snapshot.json`. Le renderer Python reçoit ce snapshot et ne résout aucune valeur métier depuis le HTML, un PDF antérieur ou le réseau.
+Le compilateur TypeScript lit uniquement les sources canoniques et produit `.artifacts/pre-rentree-2026/publication.snapshot.json`. Le renderer Python reçoit ce snapshot et ne résout aucune valeur métier depuis le HTML, un PDF antérieur ou le réseau.
 
 ## Commandes
 

@@ -39,6 +39,7 @@ jobs:
     env:
       SOURCE_DATE_EPOCH: "1784505600"
       PYTHONDONTWRITEBYTECODE: "1"
+      PRE_RENTREE_REPOSITORY_COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

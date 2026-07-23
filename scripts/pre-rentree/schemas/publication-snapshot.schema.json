@@ -12,11 +12,14 @@
           "type": "string",
           "pattern": "^[a-f0-9]{64}$"
         },
-        "sourceRepoSha": {
+        "sourceAnchorSha": {
           "type": "string",
           "pattern": "^[a-f0-9]{40}$"
         },
-        "sourceCommitDate": {
+        "repositoryCommitSha": {
+          "$ref": "#/definitions/PublicationSnapshot/properties/sourceAnchorSha"
+        },
+        "repositoryCommitDate": {
           "type": "string",
           "format": "date-time"
         },
@@ -27,7 +30,7 @@
         "provenance": {
           "type": "object",
           "properties": {
-            "campaign": {
+            "sourceAnchor": {
               "type": "object",
               "properties": {
                 "path": {
@@ -49,44 +52,48 @@
               ],
               "additionalProperties": false
             },
+            "campaign": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
+            },
             "modules": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "pricing": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "legal": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "contact": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "parentGuide": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "pedagogyFramework": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "offers": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "capabilities": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "manuals": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "communication": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "whatsapp": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "operations": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             }
           },
           "required": [
+            "sourceAnchor",
             "campaign",
             "modules",
             "pricing",
@@ -2664,8 +2671,9 @@
       "required": [
         "schemaVersion",
         "sourceSetSha256",
-        "sourceRepoSha",
-        "sourceCommitDate",
+        "sourceAnchorSha",
+        "repositoryCommitSha",
+        "repositoryCommitDate",
         "snapshotBuiltAt",
         "provenance",
         "campaign",

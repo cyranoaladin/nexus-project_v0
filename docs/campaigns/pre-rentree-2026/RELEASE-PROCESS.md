@@ -20,8 +20,10 @@ Aucun de ces éléments de revue n’autorise une diffusion familiale.
 
 ## Dates et reproductibilité
 
-- `sourceRepoSha` : ancre de provenance non auto-référentielle ;
-- `sourceCommitDate` : date de cette ancre ;
+- `sourceAnchorSha` : ancre métier immuable déclarée dans une source propriétaire versionnée ;
+- `repositoryCommitSha` : commit réellement construit, injecté explicitement par le workflow ;
+- `repositoryCommitDate` : date de ce commit construit ;
+- `sourceSetSha256` : empreinte déterministe des sources documentaires ;
 - `snapshotBuiltAt` : date versionnée de compilation éditoriale ;
 - `documentEditionDate` : date visible dans les documents ;
 - `documentsBuiltAt` et `automatedVisualAuditAt` : heures externes au contenu déterministe ;

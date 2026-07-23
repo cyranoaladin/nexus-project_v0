@@ -8,7 +8,7 @@ import type { PublicationSnapshot } from './publication-snapshot-schema';
 
 export function compilePublicationSnapshot(options: {
   repoRoot: string;
-  sourceRepoSha: string;
+  repositoryCommitSha: string;
 }): PublicationSnapshot {
   return compileCanonicalPublication(options);
 }
@@ -35,9 +35,9 @@ function argument(name: string) {
 
 export function main() {
   const repoRoot = argument('--repo-root');
-  const sourceRepoSha = argument('--source-repo-sha');
+  const repositoryCommitSha = argument('--repository-commit-sha');
   const output = argument('--output');
-  const snapshot = compilePublicationSnapshot({ repoRoot, sourceRepoSha });
+  const snapshot = compilePublicationSnapshot({ repoRoot, repositoryCommitSha });
   writeSnapshotAtomic(snapshot, output);
   process.stdout.write(`${resolve(output)}\n`);
 }

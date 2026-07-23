@@ -79,6 +79,16 @@ describe('Pré-rentrée landing sections', () => {
     );
   });
 
+  it('does not leak the Radix forceMount control prop to the DOM', () => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    renderSchedule();
+
+    const messages = consoleError.mock.calls.flat().map(String).join('\n');
+    consoleError.mockRestore();
+    expect(messages).not.toMatch(/forceMount/i);
+  });
+
   it('renders both weekly timetables with four blocks and two rooms', async () => {
     const user = userEvent.setup();
     renderSchedule();
