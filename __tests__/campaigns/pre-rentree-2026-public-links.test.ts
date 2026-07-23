@@ -30,7 +30,8 @@ describe('Pré-rentrée public access and routing', () => {
 
   it('guards the canonical sitemap route behind the publication status', () => {
     const source = read('app/sitemap.ts');
-    expect(source).toContain('preRentree.publication.indexable');
+    expect(source).toContain('getPreRentreeReleaseGate().isPublicReady');
+    expect(source).toContain('preRentree?.publication.indexable');
     expect(source).toContain('preRentree.canonicalPath');
     expect(source).not.toMatch(/\$\{BASE_URL\}\/pre-rentree[`']/);
   });

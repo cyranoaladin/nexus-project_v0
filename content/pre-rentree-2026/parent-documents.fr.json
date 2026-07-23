@@ -309,28 +309,28 @@
     },
     {
       "documentId": "conditions-reservation-acompte",
-      "title": "Conditions de réservation et d'acompte",
-      "subtitle": "Les règles commerciales approuvées pour confirmer une place",
-      "purpose": "Distinguer clairement une demande, une proposition et une réservation confirmée.",
-      "audience": "Parents ayant reçu ou demandé une proposition de parcours.",
+      "title": "Tarifs et demande d'information",
+      "subtitle": "Comprendre la grille sans activer une réservation",
+      "purpose": "Distinguer clairement les montants tarifaires d'un parcours de réservation non activé.",
+      "audience": "Parents souhaitant comprendre la grille tarifaire.",
       "offerIds": ["pre2026-3e-mathematiques", "pre2026-seconde-mathematiques", "pre2026-premiere-pack-1", "pre2026-terminale-pack-1"],
       "proofIds": ["PRF-PRE2026-DEPOSIT-30", "PRF-PRE2026-WHATSAPP"],
-      "cta": "Recevoir le montant exact de l'acompte",
+      "cta": "Demander la grille tarifaire",
       "sections": [
         {
-          "heading": "La demande n'est pas une réservation",
-          "paragraphs": ["Un message, une demande de programme ou une demande de disponibilité ne bloque pas une place. Cette étape permet uniquement de qualifier le besoin et de vérifier l'offre applicable.", "La proposition devient réservable lorsqu'elle identifie clairement le niveau, la matière ou le pack, le volume, le prix et l'acompte."],
-          "bullets": ["Demande reçue", "Besoin qualifié", "Offre proposée", "Aucune place bloquée à ce stade"]
+          "heading": "La demande reste informative",
+          "paragraphs": ["Un message, une demande de programme ou une question sur les horaires ne bloque pas une place. Cette étape sert uniquement à comprendre le besoin et l'offre applicable.", "Le niveau, la matière ou le pack, le volume, le prix, l'acompte et le solde peuvent être expliqués sans ouvrir une réservation."],
+          "bullets": ["Demande reçue", "Besoin compris", "Grille expliquée", "Aucune place bloquée"]
         },
         {
-          "heading": "L'acompte confirme la place",
-          "paragraphs": ["L'acompte correspond à trente pour cent du prix validé. Il est calculé depuis la même source commerciale que le tarif, afin d'éviter un montant incohérent.", "La réservation est confirmée après réception et rapprochement de l'acompte avec la demande. Le solde correspond au reste du prix annoncé."],
-          "bullets": ["Acompte de trente pour cent", "Montant communiqué par Nexus", "Réception vérifiée", "Confirmation écrite"]
+          "heading": "Les montants restent tarifaires",
+          "paragraphs": ["L'acompte correspond à trente pour cent du prix affiché et le solde complète exactement ce prix. Ces montants sont calculés depuis la même source commerciale.", "Ils n'autorisent pas une collecte : paiement, reçu, rapprochement, annulation et remboursement doivent être validés avant activation d'une réservation."],
+          "bullets": ["Prix canonique", "Acompte de trente pour cent", "Solde exact", "Aucun paiement activé"]
         },
         {
-          "heading": "Ce document ne remplace pas les conditions particulières",
-          "paragraphs": ["Les seules règles présentées ici sont celles qui ont été approuvées pour la campagne : taux d'acompte et absence de réservation sans acompte. Toute autre condition applicable doit être communiquée avant paiement.", "En l'absence d'une condition écrite, ne supposez pas une politique d'annulation, de report ou de remboursement. Demandez la condition applicable à votre proposition avant de confirmer."],
-          "bullets": ["Lire la proposition", "Demander les conditions applicables", "Vérifier le montant", "Conserver la confirmation"]
+          "heading": "Ce document n'est pas contractuel",
+          "paragraphs": ["La grille ne remplace pas des conditions contractuelles approuvées. Tant qu'elles manquent, Nexus limite le parcours à une demande d'information sans paiement.", "Aucune politique d'annulation, de report ou de remboursement ne doit être supposée à partir de cette présentation."],
+          "bullets": ["Lire la grille", "Poser ses questions", "Vérifier le montant", "Attendre les validations"]
         }
       ]
     },
@@ -346,7 +346,7 @@
       "sections": [
         {
           "heading": "Le stage reste un parcours autonome",
-          "paragraphs": ["S'inscrire au stage n'inscrit pas automatiquement l'élève à une formule annuelle. Le stage possède son propre volume, son prix, ses inclusions et sa règle de réservation.", "Cette séparation permet à la famille d'évaluer l'expérience et de décider ensuite si un accompagnement plus long correspond au besoin."],
+          "paragraphs": ["Participer au stage n'inscrit pas automatiquement l'élève à une formule annuelle. Le stage possède son propre volume, son prix et ses inclusions.", "Cette séparation permet à la famille d'évaluer l'expérience et de décider ensuite si un accompagnement plus long correspond au besoin."],
           "bullets": ["Aucun engagement annuel automatique", "Aucune inclusion implicite", "Décision séparée", "Proposition écrite nécessaire"]
         },
         {

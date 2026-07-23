@@ -83,6 +83,7 @@ describe('Pré-rentrée 2026 priority pedagogical resources', () => {
     expect(row('seconde-mathematiques').officialProgrammeId).toBe('BO2026-LYCEE-MATHS-SECONDE');
     expect(row('premiere-mathematiques').officialProgrammeId).toBe('BO2026-LYCEE-MATHS-PREMIERE');
     expect(row('terminale-mathematiques').officialProgrammeId).toBe('BO2019-LYCEE-MATHS-TERMINALE');
-    expect(row('seconde-informatique-snt').publicOfferEligible).toBe(false);
+    expect(row('seconde-informatique-snt')).toBeUndefined();
+    expect(matrix.rows.some((item: { moduleId: string }) => /seconde.*(?:snt|informatique)/i.test(item.moduleId))).toBe(false);
   });
 });

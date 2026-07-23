@@ -29,5 +29,5 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
-  return <HomePageClient campaign={getPreRentreeHomepageSpotlightDTO()} />;
+  return <HomePageClient campaign={getPreRentreeHomepageSpotlightDTO() ?? undefined} />;
 }

@@ -90,13 +90,13 @@
     },
     {
       "id":"reservation",
-      "title":"De la demande d’information à la réservation",
+      "title":"Demander une information",
       "blocks":[
         {"id":"reservation-etapes","kind":"EVIDENCED_PROCEDURE","steps":[
           {"text":"La famille demande le programme ou un conseil, sans paiement ni réservation.","evidenceRefs":["/content/practical/preRegistrationNotice"]},
           {"text":"Nexus qualifie le niveau, les matières, le profil, le planning et la cohérence du groupe.","evidenceRefs":["/academicProfiles","/campaign/operationalGates"]},
-          {"text":"Nexus transmet une proposition de parcours avec prix, acompte, solde et conditions applicables.","evidenceRefs":["/offers","/packs","/legal"]},
-          {"text":"Après validation du parcours et réception de l’acompte exact, l’inscription est confirmée et la place réservée.","evidenceRefs":["/content/practical/noOnlinePaymentNotice","/offers/depositRate"]}
+          {"text":"Nexus peut transmettre le programme, la grille tarifaire et les informations validées disponibles.","evidenceRefs":["/offers","/packs"]},
+          {"text":"Aucune réservation ni collecte de paiement n’est activée tant que les conditions contractuelles, le reçu et le rapprochement ne sont pas validés.","evidenceRefs":["/content/practical/noOnlinePaymentNotice","/legal"]}
         ]},
         {"id":"conditions-manquantes","kind":"EVIDENCED_TEXT","text":"Les règles d’annulation, d’absence, de report, de remboursement et l’échéance contractuelle du solde restent exclues tant qu’une version juridique approuvée manque.","evidenceRefs":["/legal"]}
       ]

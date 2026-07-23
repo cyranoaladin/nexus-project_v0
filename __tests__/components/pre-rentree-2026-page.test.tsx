@@ -3,7 +3,7 @@ import { StrictMode } from 'react';
 import { render, screen, within } from '@testing-library/react';
 import PreRentree2026Page, { generateMetadata } from '@/app/stages/pre-rentree-2026/page';
 import { CampaignPageTracker } from '@/components/pre-rentree-2026/CampaignPageTracker';
-import { getPreRentreePublicSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
+import { compilePreRentreeReviewSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
 import { track } from '@/lib/analytics';
 
 jest.mock('@/lib/analytics', () => ({
@@ -12,6 +12,9 @@ jest.mock('@/lib/analytics', () => ({
 
 jest.mock('@/components/layout/CorporateNavbar', () => ({ CorporateNavbar: () => <nav>Navigation</nav> }));
 jest.mock('@/components/layout/CorporateFooter', () => ({ CorporateFooter: () => <footer>Pied de page</footer> }));
+jest.mock('@/lib/campaigns/pre-rentree-2026/release-gate', () => ({
+  getPreRentreeReleaseGate: () => ({ releaseStatus: 'PUBLIC_READY', isPublicReady: true }),
+}));
 
 describe('Pré-rentrée 2026 canonical public page', () => {
   beforeEach(() => jest.clearAllMocks());
@@ -22,7 +25,7 @@ describe('Pré-rentrée 2026 canonical public page', () => {
   });
 
   it('renders only approved commercial content and the canonical WhatsApp CTA', () => {
-    const dto = getPreRentreePublicSurfaceDTO();
+    const dto = compilePreRentreeReviewSurfaceDTO();
     const { container } = render(<PreRentree2026Page />);
 
     expect(screen.getByRole('heading', { level: 1, name: dto.title })).toBeInTheDocument();
@@ -37,7 +40,7 @@ describe('Pré-rentrée 2026 canonical public page', () => {
   });
 
   it('renders all thirteen canonical offers with price, deposit, inclusions and exclusions', () => {
-    const dto = getPreRentreePublicSurfaceDTO();
+    const dto = compilePreRentreeReviewSurfaceDTO();
     render(<PreRentree2026Page />);
     const catalogue = document.querySelector<HTMLElement>('#offres-pre-rentree');
     if (!catalogue) throw new Error('Canonical offer catalogue missing');
@@ -52,7 +55,7 @@ describe('Pré-rentrée 2026 canonical public page', () => {
   });
 
   it('derives SEO metadata and fail-closed robots from the public adapter', () => {
-    const dto = getPreRentreePublicSurfaceDTO();
+    const dto = compilePreRentreeReviewSurfaceDTO();
     const metadata = generateMetadata();
 
     expect(metadata.title).toBe(dto.seo.title);

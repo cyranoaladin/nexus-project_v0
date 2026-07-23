@@ -41,20 +41,20 @@ describe('Pré-rentrée 2026 WhatsApp conversion journey', () => {
     expect(message).not.toMatch(/SNT|manuel offert|remise annuelle|garanti/i);
   });
 
-  it('requires a received deposit before using the reservation confirmation', () => {
+  it('requires the complete reservation workflow before using the confirmation', () => {
     expect(() => buildWhatsAppConversionMessage('reservation-confirmed', {
       offerId: 'pre2026-seconde-francais',
       entryLevel: 'Seconde',
       subjects: 'Français',
       schoolStatus: 'scolarisé',
-    })).toThrow(/DEPOSIT_RECEIVED/);
+    })).toThrow(/RESERVATION_WORKFLOW_READY/);
 
     expect(buildWhatsAppConversionMessage('reservation-confirmed', {
       offerId: 'pre2026-seconde-francais',
       entryLevel: 'Seconde',
       subjects: 'Français',
       schoolStatus: 'scolarisé',
-      satisfiedGates: ['DEPOSIT_RECEIVED'],
+      satisfiedGates: ['RESERVATION_WORKFLOW_READY'],
     })).toContain('réservation est confirmée');
   });
 

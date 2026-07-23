@@ -57,7 +57,7 @@ const specializedPacks: SpecializedPack[] = [
     ],
     expert: {
       pseudonyme: "Vector",
-      titre: "Coach Certifié en Mathématiques",
+      titre: "Enseignant expérimenté en Mathématiques",
       citation: "Un problème de Bac est un jeu avec des règles précises. Je ne vous apprends pas seulement à jouer, je vous apprends à gagner en anticipant chaque coup.",
       specialites: ["Candidat Libre", "Accompagnement personnalisé", "Méthodologie"]
     }

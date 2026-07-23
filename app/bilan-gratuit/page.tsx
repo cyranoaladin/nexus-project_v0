@@ -16,6 +16,7 @@ import {
 import { parsePreRentreeBilanPrefill, type CampaignSearchParams } from '@/lib/campaigns/pre-rentree-2026/bilan-prefill';
 import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
 import { formatAcademicProfile } from '@/lib/campaigns/pre-rentree-2026/configurator';
+import { getPreRentreeReleaseGate } from '@/lib/campaigns/pre-rentree-2026/release-gate';
 
 export const metadata: Metadata = {
   title: 'Bilan stratégique gratuit | Nexus Réussite',
@@ -114,10 +115,14 @@ function BilanHero({
 
 export default async function BilanGratuitPage({ searchParams }: BilanGratuitPageProps) {
   const params = await searchParams;
-  const preRentreePrefill = parsePreRentreeBilanPrefill(params);
+  const preRentreePublic = getPreRentreeReleaseGate().isPublicReady;
+  const preRentreePrefill = preRentreePublic ? parsePreRentreeBilanPrefill(params) : null;
   const rawProgramme = typeof params?.programme === 'string' ? params.programme : null;
   const programme = preRentreePrefill?.programme ?? (rawProgramme === 'pre-rentree-2026' ? null : rawProgramme);
-  const legacyOffer = typeof params?.offer === 'string' ? params.offer : null;
+  const rawLegacyOffer = typeof params?.offer === 'string' ? params.offer : null;
+  const legacyOffer = !preRentreePublic && rawLegacyOffer?.startsWith('pre2026-')
+    ? null
+    : rawLegacyOffer;
   const offerId = preRentreePrefill?.packCode ?? legacyOffer;
   const programmeLabel = resolveProgrammeLabel(programme);
   const selectedOffer = resolveSelectedOfferContext(offerId);

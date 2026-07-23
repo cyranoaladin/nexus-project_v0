@@ -26,7 +26,7 @@ interface HomepageSpotlightContract {
 
 describe('Pré-rentrée homepage spotlight DTO', () => {
   it('derives the complete public spotlight contract from canonical campaign data', () => {
-    const getter = Reflect.get(campaignGetters, 'getPreRentreeHomepageSpotlightDTO');
+    const getter = Reflect.get(campaignGetters, 'compilePreRentreeReviewHomepageSpotlightDTO');
     expect(typeof getter).toBe('function');
     if (typeof getter !== 'function') return;
 

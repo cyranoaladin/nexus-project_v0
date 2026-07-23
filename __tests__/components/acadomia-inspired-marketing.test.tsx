@@ -67,7 +67,7 @@ describe('Acadomia-inspired marketing components', () => {
     expect(
       screen.getByText("Chaque parcours Nexus, c'est plus que des heures de cours :")
     ).toBeInTheDocument();
-    expect(screen.getByText('Enseignants agrégés & certifiés, spécialistes de l’épreuve')).toBeInTheDocument();
+    expect(screen.getByText('Enseignants expérimentés, en exercice dans le système français')).toBeInTheDocument();
     expect(screen.getByText('Corrections sur grilles officielles & bacs blancs')).toBeInTheDocument();
     expect(screen.getByText('Accès à la plateforme ARIA')).toBeInTheDocument();
     expect(screen.getByText('Cellule Cyclades (candidats libres)')).toBeInTheDocument();

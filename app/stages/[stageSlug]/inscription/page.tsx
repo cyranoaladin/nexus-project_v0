@@ -7,6 +7,7 @@ import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { StageInscriptionForm } from '@/components/stages/StageInscriptionForm';
 import { formatStageDateRange, formatStagePrice, getPublicStageBySlug } from '@/lib/stages/public';
+import { canExposePublicStageSlug } from '@/lib/campaigns/pre-rentree-2026/release-gate';
 
 type PageProps = {
   params: Promise<{ stageSlug: string }>;
@@ -14,6 +15,7 @@ type PageProps = {
 
 export default async function StageInscriptionPage({ params }: PageProps) {
   const { stageSlug } = await params;
+  if (!canExposePublicStageSlug(stageSlug)) notFound();
   const stage = await getPublicStageBySlug(stageSlug);
 
   if (!stage) {

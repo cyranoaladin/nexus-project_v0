@@ -18,6 +18,7 @@ import {
 } from '@/lib/stages/public';
 import { LEGAL } from '@/lib/legal';
 import { OG_DEFAULT_IMAGE } from '@/lib/seo';
+import { canExposePublicStageSlug } from '@/lib/campaigns/pre-rentree-2026/release-gate';
 
 type PageProps = {
   params: Promise<{ stageSlug: string }>;
@@ -27,6 +28,12 @@ const BASE_URL = process.env.NEXTAUTH_URL || 'https://nexusreussite.academy';
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { stageSlug } = await params;
+  if (!canExposePublicStageSlug(stageSlug)) {
+    return {
+      title: 'Stage introuvable | Nexus Réussite',
+      robots: { index: false, follow: false, nocache: true },
+    };
+  }
   const stage = await getPublicStageBySlug(stageSlug);
 
   if (!stage) {
@@ -53,6 +60,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function StageDetailPage({ params }: PageProps) {
   const { stageSlug } = await params;
+  if (!canExposePublicStageSlug(stageSlug)) notFound();
   const stage = await getPublicStageBySlug(stageSlug);
 
   if (!stage) {

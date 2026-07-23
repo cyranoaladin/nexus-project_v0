@@ -21,3 +21,8 @@ export const PRE_RENTREE_DOCUMENTS: readonly PreRentreeDocument[] = [
 ] as const;
 
 export const PRE_RENTREE_PROGRAMME_DOCUMENTS = PRE_RENTREE_DOCUMENTS.filter((d) => d.kind === 'programme');
+
+export function getPublicPreRentreeDocuments(): readonly PreRentreeDocument[] {
+  return getPreRentreeReleaseGate().isPublicReady ? PRE_RENTREE_DOCUMENTS : [];
+}
+import { getPreRentreeReleaseGate } from './release-gate';

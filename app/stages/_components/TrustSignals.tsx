@@ -11,7 +11,7 @@ function getSignals(groupMax: number) {
   {
     icon: Award,
     title: "Intervenants du système français",
-    copy: "Agrégés et certifiés, formés aux épreuves, orientés méthode et résultats. Pas des répétiteurs.",
+    copy: "Enseignants expérimentés, en exercice dans le système français, orientés méthode et progression.",
   },
   {
     icon: BookOpenCheck,

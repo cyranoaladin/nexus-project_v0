@@ -775,18 +775,13 @@ def make_dossier_accueil_body():
         )
     body += '</p>'
 
-    # Page 3 - Récapitulatif financier + Informations pratiques (merged)
+    # Page 3 - Repères tarifaires + Informations pratiques (merged)
     body += '<div class="page-break"></div>'
     body += make_header("Dossier d'accueil famille")
-    body += "<h2>Récapitulatif financier</h2>"
+    body += "<h2>Repères tarifaires</h2>"
     body += '<table class="form-table"><tbody>'
-    for label in ["Pack choisi", "Acompte versé ce jour (30 %)", "Solde à régler avant le 1er jour du stage"]:
+    for label in ["Pack envisagé", "Tarif public", "Acompte indicatif dans la grille (30 %)"]:
         body += f'<tr><td style="width:50%; font-weight:600; color:#071A3A; padding:6px;">{label}</td><td style="border-bottom:1px solid #333; height:8mm; padding:6px; text-align:right;"><span style="color:#999; font-size:8pt;">TND</span></td></tr>'
-
-    body += '<tr><td style="width:50%; font-weight:600; color:#071A3A; padding:6px;">Mode de règlement de l\'acompte</td><td style="padding:6px;">'
-    body += '<span class="checkbox"></span> Espèces &nbsp;&nbsp; '
-    body += '<span class="checkbox"></span> Chèque &nbsp;&nbsp; '
-    body += '<span class="checkbox"></span> Virement</td></tr>'
     body += '</tbody></table>'
 
     body += '<div style="background:#F5F6F8; border:1px solid #DDD; padding:8px 12px; margin:10px 0; font-size:9pt; line-height:1.5;">'
@@ -805,26 +800,18 @@ def make_dossier_accueil_body():
     </tbody></table>"""
     body += '<p style="font-size:10pt; margin-top:14px; line-height:1.7;"><strong>Contact pendant le stage</strong> : +216 99 19 28 29 (téléphone et WhatsApp) · contact@nexusreussite.academy</p>'
 
-    # Page 5 - Consentements et signature
+    # Page 5 - Demande d'information
     body += '<div class="page-break"></div>'
     body += make_header("Dossier d'accueil famille")
-    body += "<h2>Consentements et signature</h2>"
-    body += '<div style="font-size:10pt; line-height:2.2;">'
-    body += '<p><span class="checkbox"></span> J\'ai pris connaissance du programme, du planning et des conditions financières remises dans ce dossier.</p>'
-    body += '<p><span class="checkbox"></span> J\'ai pris connaissance des conditions générales (nexusreussite.academy/conditions-generales).</p>'
-    body += '<p><span class="checkbox"></span> J\'accepte que Nexus Réussite me contacte par WhatsApp/téléphone/email pour le suivi du stage.</p>'
-    body += '<p><span class="checkbox"></span> <em>(Facultatif)</em> J\'accepte de recevoir les conseils mensuels et informations Nexus Réussite.</p>'
-    body += '<p><em>(Facultatif)</em> J\'autorise Nexus Réussite à utiliser d\'éventuelles photos de groupe où figure mon enfant sur ses supports de communication : &nbsp; <span class="checkbox"></span> Oui &nbsp; <span class="checkbox"></span> Non</p>'
+    body += "<h2>Demander les informations du stage</h2>"
+    body += '<p style="font-size:10pt; line-height:1.8;">Indiquez uniquement le niveau d’entrée et la matière recherchée. L’équipe peut alors transmettre le programme, les horaires et la grille tarifaire disponibles.</p>'
+    body += '<p style="font-size:10pt; line-height:1.8;"><strong>Aucun paiement n’est demandé et aucune place n’est bloquée par cette demande d’information.</strong></p>'
+    body += '<div style="margin-top:22px; padding:16px; border:1px solid #C9A227; background:#FBFAF5;">'
+    body += '<p style="font-size:11pt; margin:0 0 8px 0;"><strong>WhatsApp :</strong> +216 99 19 28 29</p>'
+    body += '<p style="font-size:11pt; margin:0;"><strong>Email :</strong> contact@nexusreussite.academy</p>'
     body += '</div>'
 
-    body += '<div style="margin-top:30px; font-size:10pt;">'
-    body += '<p>Fait à Tunis, le <span style="border-bottom:1px solid #333; display:inline-block; width:10mm;">&nbsp;</span> / <span style="border-bottom:1px solid #333; display:inline-block; width:10mm;">&nbsp;</span> / 2026</p>'
-    body += '<div style="display:flex; justify-content:space-between; margin-top:25px;">'
-    body += '<div><strong>Signature du responsable légal</strong><br><br><br><br><span style="border-bottom:1px solid #333; display:inline-block; width:55mm;">&nbsp;</span></div>'
-    body += '<div><strong>Pour Nexus Réussite</strong><br><br><br><br><span style="border-bottom:1px solid #333; display:inline-block; width:55mm;">&nbsp;</span></div>'
-    body += '</div></div>'
-
-    body += f'<p style="font-size:7.5pt; color:#999; margin-top:30px; border-top:1px solid #E0E0E0; padding-top:6px;">Nexus Réussite — marque exploitée par STE M&amp;M ACADEMY SUARL · Siège : Immeuble VENUS, Appt C13, Centre Urbain Nord, 1082 Tunis. Les données collectées servent exclusivement à la gestion pédagogique et administrative du stage.</p>'
+    body += f'<p style="font-size:7.5pt; color:#999; margin-top:30px; border-top:1px solid #E0E0E0; padding-top:6px;">Nexus Réussite — marque exploitée par STE M&amp;M ACADEMY SUARL · Siège : Immeuble VENUS, Appt C13, Centre Urbain Nord, 1082 Tunis.</p>'
 
     return body
 
