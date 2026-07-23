@@ -177,6 +177,30 @@
       "owner": "direction",
       "decidedAt": "2026-07-22T19:15:59Z"
     },
+    "mathsProgramConformity2026": {
+      "status": "proposed_pending_validation",
+      "decision": "align_maths_seconde_premiere_on_BO_2026_hebdo14",
+      "reference": "A (audit conformité)",
+      "officialSource": "BO n°14 du 2 avril 2026 (MENE2602914A Seconde, MENE2602917A spécialité Première)",
+      "appliesTo": ["seconde-mathematiques", "premiere-mathematiques"],
+      "terminaleUnchanged": "Programme maths Terminale inchangé (application rentrée 2027-2028).",
+      "proposedChanges": {
+        "seconde-mathematiques": [
+          "AJOUTER thème « Statistiques et probabilités » (statistique descriptive variable continue, statistiques bivariées, probabilités) — absent, thème majeur 2026",
+          "AJOUTER valeur absolue (nombres réels)",
+          "AJOUTER modélisation quadratique / second degré"
+        ],
+        "premiere-mathematiques": [
+          "AJOUTER second degré / discriminant (maintenu en Première)",
+          "MENTIONNER la fonction exponentielle (nouveauté Première 2026)",
+          "NE PAS annoncer les fonctions sinus/cosinus (approfondissement Terminale) — déjà absentes",
+          "AJOUTER à l'objectif + FAQ la mention de l'épreuve anticipée de maths de fin de Première (fait, pas une promesse)"
+        ]
+      },
+      "publicRule": "Ces corrections sont des PROPOSITIONS. Les modules maths Seconde/Première ne doivent pas être publiés comme validés conformité 2026 tant que la direction pédagogique n'a pas approuvé (statut -> approved_for_publication). Détail: CONFORMITE_PROGRAMMES.md.",
+      "owner": "direction",
+      "decidedAt": "2026-07-23T00:00:00Z"
+    },
     "subjectSelectionCap": {
       "status": "approved_for_publication",
       "decision": "cap_four_subjects",
