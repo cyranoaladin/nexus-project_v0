@@ -1,30 +1,64 @@
-# DEBTS — Intégration SVT Pré-rentrée 2026 (`feat/svt-integration-final`)
+# Dettes et gates — Pré-rentrée 2026 · PR #74
 
-## Résolues avec le paquet de transfert
-- ✅ **B-3** — Programmes SVT Première/Terminale générés depuis les données du dépôt (`modules.json`), **filigrane DRAFT pleine page** piloté par la décision D2.
-- ✅ **B-4** — Programmes Français & Physique-Chimie (3 niveaux) : contenus livrés dans les PDF « Programme_{Niveau} » (source charte v3, contenu pédagogique valide).
-- ✅ **B-5** — PDF Planning généré (grilles par niveau AVEC SVT + vue semaine×bloc×salle + repères + organisation en rôles abstraits) ; **cross-check horaires PDF↔JSON = PASS**.
+## État au 23 juillet 2026
 
-## Bloquantes restantes (décision direction)
+- Branche : `feat/svt-integration-clean`.
+- Statut de release : `READY_FOR_REVIEW`.
+- Verdict de publication : `BLOCKED`.
+- `PUBLIC_READY` est interdit sans toutes les preuves et un GO écrit du propriétaire.
+- Le site, les API, les téléchargements, le SEO et la préinscription restent fail-closed.
 
-| # | Dette | Nature |
-|---|---|---|
-| B-1 | **Noms enseignants SVT** | `SVT_TEACHER_A` (Première), `SVT_TEACHER_B` (Terminale) abstraits (`assigned:false`). Injection : `data/campaigns/pre-rentree-2026.json → teacherRoles.SVT_TEACHER_A/B`. Aucun support public n'expose de nom. |
-| B-2 | **Levée du DRAFT SVT (D2)** | Programmes SVT en filigrane « DOCUMENT DE TRAVAIL » tant que `decisions.svtProgramValidation.status = "draft_until_owner_validation"`. **Commande de régénération sans filigrane** : passer ce statut à `"approved_for_publication"` puis relancer `python tools/pdf-generator/generate_all_pdfs.py` (les PDF SVT sortiront sans filigrane et sans suffixe `_DRAFT`). |
-| B-6 | **Matériel SVT — calculatrice** | Le PDF Planning liste le matériel par matière. Pour la SVT : cahier + trousse ; **calculatrice oui/non = décision direction** (à trancher avant impression). |
+## Corrections techniques acquises
 
-## Non bloquantes (constats / harmonisation)
+- Fondations : 4 à 6 élèves, maximum 6 ; Premium : 3 à 5, maximum 5.
+- Seconde : Mathématiques, Français et Physique-Chimie uniquement ; aucune SNT ou initiation informatique.
+- Première et Terminale conservent la NSI.
+- Tarifs, acompte et solde sont dérivés du pricing canonique et testés.
+- Provenance documentaire séparée en ancre métier, commit construit et empreinte des sources.
+- Modules Maths révisés marqués comme propositions ; SVT maintenue en DRAFT.
+- Kit, PDF, rasters, planches contact et manifestes régénérés.
+- Formulation matériel SVT validée dans les sources : « Calculatrice scientifique simple recommandée, non obligatoire sauf consigne de l'enseignant. »
+- Les anciennes cibles et commandes d'exploitation ont été neutralisées dans l'arbre courant ; les helpers publics échouent volontairement.
 
-| # | Dette | Nature |
-|---|---|---|
-| N-1 | **Charge Terminale 6 h** | Terminale NSI+PC+SVT = B+C+D = 6 h/jour (plafond `dailyLoadValid`=6, accepté au max). Actée `scheduleGridFinal.terminaleLoadNote`. Option : plafonner à 2 sciences/jour. |
-| N-2 | **Test `publication-snapshot › provenance`** | Rouge : `git rev-parse origin/main` (`a0db57a7…`) ≠ pin `a1192c8…` (origin/main a avancé sous le multi-agents). **Stratégie** : découpler le pin de `origin/main` (l.10 du test) — pin sur tag de release ou merge-base figé. **Non corrigé** ici (pin de provenance orthogonal à la SVT) → à traiter en PR `fix/publication-snapshot-provenance`. |
-| N-3 | **Dette codex (jpo-2026)** | 6 énumérations Première/Terminale sans SVT + « 1 à 4 » sans « parmi 5 » dans `jpo-2026/master.fr.json` (l. ~227, 250, 364, 734, 742, 790). **Constaté, non corrigé** — chaînes exactes dans `content/pre-rentree-2026/COORDINATION_JPO.md`. |
-| N-4 | **SNT en Seconde vs `secondeSubjects`** | Grille conserve un créneau Seconde NSI/SNT vs `decisions.secondeSubjects` (exclut SNT). Hors périmètre SVT — réconciliation branche JPO. |
-| N-7 | **Granularité programmes** | Les programmes Français/PC sont livrés dans des PDF **par niveau** (tous sujets d'un niveau) et non par-matière isolée ; les programmes SVT sont, eux, en PDF dédiés (filigrane DRAFT). Choix de format à confirmer si des PDF mono-matière Français/PC sont exigés. |
-| N-8 | **c5f726fc0 (group_max 6→5 + Docker)** | Commit codex cherry-pické (`00204ac6c`, `-x`) car il touche `data/pricing.canonical.json` (donnée de campagne). Sa **propagation textuelle** « 4 à 6 »→« 4 à 5 » a été appliquée (25 remplacements, hors jpo-2026). Les changements Docker/RELEASE_SHA embarqués sont infra (orthogonaux) mais indissociables du commit. |
-| N-6 | **Archive PDF** | Régénération WeasyPrint écrase en place ; versions antérieures préservées en git (commits `44b50059c`, `fb6ab5cae`) — fait office d'archive datée. Pas de dossier `archive/` binaire dupliqué. |
-| **N-9** | **Politique d'affectations publiées (D6)** | La production publie **salles + créneaux + rôles abstraits** ; la décision D4 côté jpo interdit de publier les affectations. **Décision direction requise.** **Position par défaut retenue** : on conserve la publication actuelle (salles + créneaux + rôles abstraits « Enseignant de SVT », aucun nom) — utile aux familles et déjà en ligne. |
-| **N-10** | **Arbitrage « certifiés / agrégés » (B)** | Mention de statut enseignant retirée de 3 supports PDF (règle : statut non prouvé). Formulation conservée en variante désactivée (`ENSEIGNANT_STATUT_COMMERCIAL`) + `data/Nexus_Reussite_Accueil.html` (hors périmètre) la conserve. **2 options à trancher** — détail : `ARBITRAGE_ENSEIGNANTS.md`. |
-| **N-11** | **Conformité programmes maths 2026 (A)** | Modules Maths Seconde/Première à aligner sur le BO n°14 du 2 avril 2026 (stats/probabilités, valeur absolue, second degré en Seconde ; second degré/exponentielle + épreuve anticipée en Première). **PROPOSITIONS** scellées (`mathsProgramConformity2026`), non publiées — validation direction pédagogique requise. Détail : `CONFORMITE_PROGRAMMES.md`. SVT : thème « Corps humain et santé » sous-représenté. |
-| **N-12** | **Second dépôt canonique divergent (C)** | `canonical-repo-a1192c8d` (→ aussi `cyranoaladin/Nexus`) ne contient pas la base `d0ce2241`/`e137009e8` de cette branche. Le push cible `cyranoaladin/nexus-project_v0` (ancêtre commun `e137009e8` confirmé). **Réconciliation des deux mainlines = décision direction.** |
+## P0 humains encore ouverts
+
+| Référence | Gate | État | Preuve de sortie attendue | Responsable |
+|---|---|---:|---|---|
+| B-1 | Affectations enseignants | ❌ | Affectation et disponibilité confirmées pour chaque matière et créneau, conservées hors supports publics | Direction pédagogique et opérations |
+| B-1 bis | Qualifications | ❌ | Contrôle individuel documenté ; aucun statut certifié/agrégé publié avant preuve | Direction pédagogique |
+| B-2 | Validation SVT | ❌ | Validation écrite d'un enseignant SVT qualifié ; les deux PDF restent DRAFT jusque-là | Direction pédagogique |
+| M-1 | Validation Maths | ❌ | Revue écrite des modules Maths Seconde et Première révisés à partir des BO 2019/2026 | Direction pédagogique |
+| O-1 | Salles | ❌ | Salles et capacités validées pour chaque créneau | Direction des opérations |
+| O-2 | Paiement et reçu | ❌ | Parcours d'encaissement, rapprochement et reçu testés | Direction des opérations |
+| J-1 | Annulation/remboursement | ❌ | Conditions et CGV approuvées | Direction et conseil juridique |
+| J-2 | Confidentialité/rétention | ❌ | Notice, finalités, durées et droits validés | Responsable confidentialité |
+| Q-1 | Téléchargements | ❌ | Manifestes, liens, poids, checksums et contrôle E2E final verts | Qualité documentaire |
+| Q-2 | Téléphone, WhatsApp, formulaires | ❌ | Parcours de contact testés sans collecte excessive | Communication et technique |
+| C-1 | Manuels/remise annuelle | ❌ | Conditions, stock, éligibilité et non-cumul validés ; avantages masqués jusque-là | Direction commerciale |
+| C-2 | Date de lancement | ❌ | Date écrite par le propriétaire ; J1…J29 sont calculés depuis cette date | Propriétaire |
+| D-5 | Autorisation de publication | ❌ | GO écrit, daté, rattaché au SHA exact | Propriétaire |
+
+Les seuls gates humains actuellement validés sont la capacité et les tarifs.
+
+## Arbitrages éditoriaux
+
+### Statut « certifiés / agrégés »
+
+La formulation publique active est : « Enseignants expérimentés, en exercice dans le système français ». La variante « enseignants certifiés ou agrégés de l'Éducation nationale française, en exercice » est conservée désactivée dans le générateur. Sa restauration exige une preuve individuelle contrôlée et une décision écrite ; voir `ARBITRAGE_ENSEIGNANTS.md`.
+
+### Affectations, salles et rôles
+
+La politique actuelle est fail-closed : aucun nom réel ni code de rôle interne n'est public. Les créneaux et salles ne peuvent être exposés qu'après validation du gate `rooms`; si des rôles sont ensuite affichés, ils restent abstraits. La position métier antérieure « publier salles + créneaux + rôles abstraits » est conservée comme option, pas comme autorisation.
+
+## P1/P2 bornées
+
+| Dette | Priorité | Sortie attendue |
+|---|---:|---|
+| Réconciliation des dépôts divergents | P1 | Chantier séparé ; aucune réconciliation dans la PR go-live |
+| Purge de l'historique Git contenant d'anciens détails d'infrastructure | P1 | Décision propriétaire et procédure dédiée ; impossible ici sans réécriture/force-push interdits |
+| Runbook privé et rollback staging | P1 | Runbook hors dépôt public et exercice staging daté ; aucune cible staging fournie dans cette mission |
+| Warnings ESLint historiques | P2 | Réduction progressive sans relever le budget ni neutraliser le lint |
+
+## Verdict
+
+`BLOCKED` jusqu'à clôture des contrôles automatisables de la PR et résolution des gates humaines P0. Un feu vert technique ne vaut ni GO commercial ni autorisation de publication.

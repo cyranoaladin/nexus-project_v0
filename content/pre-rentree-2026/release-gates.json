@@ -102,8 +102,9 @@
       "id": "downloads",
       "value": false,
       "evidence": [
-        "assets/campaigns/pre-rentree-2026/review/public-qa-manifest.json",
-        "assets/campaigns/pre-rentree-2026/review/release-inventory.json"
+        "assets/campaigns/pre-rentree-2026/documents-final/manifest.json",
+        "assets/campaigns/pre-rentree-2026/release-inventory.json",
+        "assets/campaigns/pre-rentree-2026/review/QA-REPORT.md"
       ],
       "owner": "Responsable qualité documentaire",
       "validatedAt": null

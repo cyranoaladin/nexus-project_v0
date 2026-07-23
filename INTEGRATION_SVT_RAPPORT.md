@@ -1,75 +1,70 @@
-# INTEGRATION SVT — Pré-rentrée 2026 · Rapport final
+# Intégration SVT — rapport de release candidate
 
-- **Branche** : `feat/svt-integration-final` (clone isolé `/tmp/nexus-svt-work`, hors dossier indexé).
-- **Base** : `e137009e8` (production `d0ce2241` + SVT + CI).
-- **Décisions** : D1–D5 scellées ; SVT DRAFT tant que D2 non levée ; aucun envoi famille ; aucun merge/déploiement.
+## Périmètre
 
-## Grille finale (D4-final)
+- PR : #74.
+- Branche : `feat/svt-integration-clean`.
+- SHA source de l'inventaire : `0264261bbf1a8d6de01eeae01691479a50f4fbf8`.
+- Campagne : 15 modules, 75 séances, exactement 5 séances par module.
+- SVT : Première et Terminale uniquement, documents DRAFT jusqu'à validation humaine.
+- Seconde : aucune SNT ni initiation informatique.
 
-Blocs A 08:30–10:30 · B 10:45–12:45 · C 13:30–15:30 · D 15:45–17:45 (**pas de bloc E**).
+## Grille finale complète
 
-**Semaine 2** — A : 2nde NSI / 1ère PC · **B : Term SVT (s1)** / 2nde PC · C : Term NSI / **1ère SVT (s2)** · D : 1ère NSI (permuté) / Term PC. Semaine 1 inchangée.
+Blocs : A 08:30–10:30 · B 10:45–12:45 · C 13:30–15:30 · D 15:45–17:45.
 
-## Matrice de preuves (relancée intégralement)
+### Semaine 1 — 17 au 21 août
 
-| # | Preuve | Résultat |
+| Bloc | Salle 1 | Salle 2 |
 |---|---|---|
-| P1 | Suite `pre-rentree-2026` (jest) | **228/229** (1 rouge = provenance origin/main, dette N-2) |
-| P2 | 4 gates données réelles | ✅ noRoom / noTeacher / noLevel / dailyLoad |
-| P3 | `tsc --noEmit` | ✅ 0 erreur |
-| P4 | Régression cap 4 matières | ✅ 5→4 sans « Missing canonical campaign pack » |
-| P5 | Snapshot régénéré | ✅ 4 blocs, 80 séances, FAQ 17 |
-| P6 | SVT dans docs parents régénérés | ✅ fiches Première/Terminale (5×) |
-| P7 | Textes/SEO « au choix parmi 5 » + SVT | ✅ communication, whatsapp, parent-documents, FAQ |
-| P8 | **Cross-check horaires PDF↔JSON (Planning)** | ✅ **PASS** — tous les créneaux du JSON présents, aucun horaire du soir, SVT Première C / Terminale B |
-| P9 | Interdits sur 9 PDF (rémunération, « à valider », « formation », agrégé/certifié, 120) | ✅ AUCUN |
-| P10 | Poids PDF < 2 Mo | ✅ (75–444 Ko) |
+| A | 3e — Mathématiques | Seconde — Français |
+| B | Seconde — Mathématiques | 3e — Français |
+| C | Première — Mathématiques | Terminale — Philosophie |
+| D | Terminale — Mathématiques | Première — Français |
 
-## Documents produits (charte v3, `assets/campaigns/pre-rentree-2026/documents-final/`)
+### Semaine 2 — 24 au 28 août
 
-| PDF | B- | Note |
+| Bloc | Salle 1 | Salle 2 |
 |---|---|---|
-| Programme_Seconde / Premiere / Terminale | B-4 | Français & PC inclus par niveau |
-| Programme_SVT_Première_DRAFT / _Terminale_DRAFT | B-3 | Filigrane « DOCUMENT DE TRAVAIL » piloté par D2 |
-| Planning_InfosPratiques | B-5 | Grilles par niveau + vue semaine×bloc×salle + rôles abstraits ; horaires ex-JSON |
-| Tarifs · DossierAccueil_PRINT · FlyerEssentiel | 5c/5d/5e | « 1 à 4 au choix parmi 5 », SVT, effectifs à jour |
+| A | — | Première — Physique-Chimie |
+| B | Terminale — SVT | Seconde — Physique-Chimie |
+| C | Terminale — NSI | Première — SVT |
+| D | Première — NSI | Terminale — Physique-Chimie |
 
-Générateur porté et adapté : `tools/pdf-generator/generate_all_pdfs.py` (horaires **exclusivement** ex-`data/campaigns/pre-rentree-2026.json`, labels SVT/Philo, réclames enseignant non prouvées retirées).
+Cas explicite Terminale : un élève choisissant SVT, NSI et Physique-Chimie en semaine 2 suit B + C + D, soit **6 heures consécutives**. La grille respecte le plafond technique de 6 h, mais l'acceptation pédagogique de cette charge reste une décision humaine.
 
-## Historique (propre, consolidé)
-```
-71a4acc61 chore: propage group_max Fondations 6->5 (suite cherry-pick)
-16a931c5b feat(pdf): porte le générateur v3 et produit les documents SVT (B-3/B-4/B-5)
-00204ac6c fix(codex): group_max 5 + RELEASE_SHA (cherry-pick -x c5f726fc0)
-6cee21cbd docs: coordination codex, dettes, runbook, notifications, rapport
-fb6ab5cae feat: régénère les documents parents avec SVT
-44b50059c feat: textes/SEO SVT — énumérations + FAQ (D3)
-ba358c341 docs: audit planning SVT
-53f529bd9 fix: plafonne la sélection à 4 matières (D3)
-91e14d404 feat: grille SVT en journée + 4 gates (D4-final)
-5a48a70df chore: scelle les décisions direction D1-D5
-```
-Isolement respecté (clone hors dossier indexé) ; 3 commits fantômes Windsurf/Devin réauthorés proprement ; cherry-pick codex classé « touche donnée de campagne → cherry-pick » (règle appliquée).
+## Quatre gates de cohérence de grille
 
-## Audit direction (A–D) — corrections avant push
+| Gate | Résultat calculé | Limite |
+|---|---:|---|
+| Aucun conflit de salle | ✅ | Les salles ne sont pas encore validées opérationnellement |
+| Aucun conflit de rôle enseignant | ✅ | Les rôles ne sont pas encore affectés à des personnes |
+| Aucun conflit de niveau | ✅ | Un niveau n'a pas deux matières sur le même bloc |
+| Charge quotidienne ≤ 6 h | ✅ | Le cas Terminale est exactement au plafond |
 
-**A. Conformité programmes officiels** — `CONFORMITE_PROGRAMMES.md` produit (mapping notion par notion vs BO n°14 du 2/4/2026, vérifié sur le BO PDF officiel). Constats : Maths Seconde **manque le thème « Statistiques et probabilités »** (majeur 2026) + valeur absolue + second degré ; Maths Première : ajouter second degré/discriminant + exponentielle + **épreuve anticipée fin de Première**, sinus/cosinus non annoncés (✅). SVT alignée BO 25/7/2019 (3 thèmes) — « Corps humain et santé » sous-représenté. Français/NSI/PC : **aucun changement 2026** (vérifié) ; Français Première ne nomme **aucune œuvre** (✅). Toutes les corrections maths = **PROPOSITIONS scellées** (`mathsProgramConformity2026`), non publiées.
+Les gates opérationnels `teacherAssignmentsValidated` et `roomAssignmentsValidated` restent à `false`. Aucun nom réel n'est présent dans les données publiques ; les codes de rôles sont internes.
 
-**B. Mention « certifiés/agrégés »** — `ARBITRAGE_ENSEIGNANTS.md` : 3 suppressions listées, formulation conservée en variante désactivée. **2 options en attente d'arbitrage.**
+## Conformité pédagogique
 
-**C. Dépôt de destination** — cible `cyranoaladin/nexus-project_v0` **validée** (ancêtre commun `e137009e8`, `d0ce2241` dans son main). `canonical-repo-a1192c8d` est une mainline **divergente** (dette N-12). Push sur **branche neuve** `feat/svt-integration-clean`, zéro force.
+- Les deux modules SVT sont mappés aux trois thèmes du BO du 25 juillet 2019.
+- Horaires annuels de référence : 4 h en Première et 6 h en Terminale.
+- « Corps humain et santé » est désormais explicite dans le mapping, sans prétendre couvrir l'année en dix heures.
+- Formulation matériel : « Calculatrice scientifique simple recommandée, non obligatoire sauf consigne de l'enseignant. »
+- Les PDF SVT portent un filigrane de travail et sont exclus des six téléchargements publics candidats.
 
-**D. Plannings — complétude & accessibilité**
-- D1 ✅ Les **3 grilles par niveau sont montées côté serveur** (masquées en CSS via `hidden`, plus via Radix qui démontait) — test dédié.
-- D2 ✅ Liens de **téléchargement PDF** (Planning, 3 programmes, Tarifs, Flyer) dans les sections planning **et** programmes, libellés + poids ; servis depuis `/public` (SVT DRAFT exclu).
-- D3 ✅ Test de **cohérence croisée automatisée** créneaux JSON ↔ PDF Planning (échec si divergence).
-- D4 ✅ Grille ci-dessous ; Terminale NSI+PC+SVT = **6 h consécutives** (B+C+D, au plafond).
-- D5 ✅ **Aucun nom réel** dans les données publiques (rôles abstraits, `educators=[]`).
-- D6 → dette N-9 (politique d'affectations, position par défaut : conserver salles+créneaux+rôles abstraits).
+## Documents et kit
 
-### Grille finale complète (D4)
-**Semaine 1** — A : 3e Maths (s1) / 2nde Français (s2) · B : 2nde Maths (s1) / 3e Français (s2) · C : 1ère Maths (s1) / Term Philo (s2) · D : Term Maths (s1) / 1ère Français (s2).
-**Semaine 2** — A : 2nde NSI (s1) / 1ère PC (s2) · B : **Term SVT (s1)** / 2nde PC (s2) · C : Term NSI (s1) / **1ère SVT (s2)** · D : 1ère NSI (s1) / Term PC (s2).
+- Documents finaux : 9 PDF, 28 pages, tous rasterisés.
+- Téléchargements publics candidats : Flyer, Planning, Programmes Seconde/Première/Terminale et Tarifs, avec poids et SHA-256 issus du manifeste.
+- Semaine 1 : 91 assets, calendrier relatif, date de lancement non autorisée.
+- Campagne complète : 347 assets, J1…J29 relatifs, trois MP4 avec SRT/storyboards.
+- Inventaire de release : 317 fichiers publics candidats ; les sources, rendus QA, ressources enseignants et éléments internes restent classés hors kit public.
+- Tous ces éléments restent inaccessibles publiquement tant que le gate serveur n'est pas `PUBLIC_READY`.
 
-## Dettes bloquantes restantes → `DEBTS.md`
-**B-1** noms SVT · **B-2** levée DRAFT D2 (commande fournie) · **B-6** calculatrice SVT. Non bloquantes : N-2 test provenance (PR séparée), N-3 dette codex jpo, N-4 SNT Seconde, N-7 granularité programmes, N-8 group_max/Docker. Coordination : `COORDINATION_JPO.md` · Runbook : `DEPLOY_RUNBOOK.md` · Notifications : `NOTIFICATIONS_FAMILLES.md`.
+## Sécurité de publication
+
+Le gate unique couvre le site, les API, les téléchargements, le SEO, les métadonnées et la préinscription. `enablePreRegistration=false`. Les anciens helpers d'exploitation du dépôt public sont neutralisés ; aucune commande de production n'a été lancée.
+
+## Statut
+
+`BLOCKED` : validations pédagogiques Maths/SVT, enseignants, qualifications, salles, juridique, confidentialité, paiement, lancement et autorisation propriétaire restent ouvertes.

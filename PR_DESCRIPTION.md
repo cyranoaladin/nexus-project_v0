@@ -1,35 +1,57 @@
-# feat: Intégration SVT — Stages pré-rentrée 2026
+# Pré-rentrée 2026 — release candidate sous gates
 
-## Résumé
-Intègre la SVT (Première et Terminale) à la campagne pré-rentrée 2026 : offre, grille, textes/SEO, documents PDF, sous les décisions direction D1–D5 scellées. **Aucun déploiement / envoi famille — en attente de GO.**
+## Statut
 
-## Décisions appliquées (scellées dans `publication-decisions.owner.json`)
-- **D1** rôles enseignants SVT abstraits (noms à injecter).
-- **D2** programmes SVT en DRAFT filigrané jusqu'à validation pédagogique.
-- **D3** plafond 4 matières — « 1 à 4 matières au choix parmi 5 ».
-- **D4-final** grille jour : SVT Terminale S2/B/salle-1, SVT Première S2/C/salle-2, permutation 1ère NSI B→D, **bloc E (soir) refusé**, convention salle-1 levée.
-- **D5** aucun merge/déploiement sans GO écrit.
+**BLOCKED — READY_FOR_REVIEW uniquement.** Cette PR ne doit être ni fusionnée, ni déployée, ni publiée tant que les gates humains listés ci-dessous ne sont pas clos. `PUBLIC_READY` exige un GO écrit du propriétaire.
 
-## Contenu
-- **Grille** : 4 blocs A–D, 4 gates verts (noRoom/noTeacher/noLevel/dailyLoad), snapshot régénéré.
-- **Configurateur** : sélection plafonnée à 4 matières (corrige le crash « Missing canonical campaign pack » à 5) + tests de régression.
-- **Textes/SEO** (hors `jpo-2026`, périmètre codex) : SVT + « au choix parmi 5 » ; nouvelle FAQ SVT.
-- **PDF** (`assets/campaigns/pre-rentree-2026/documents-final/`) : 3 programmes par niveau, 2 programmes SVT DRAFT, Planning (cross-check horaires PDF↔JSON PASS), Tarifs, Dossier, Flyer. Générateur porté dans `tools/pdf-generator/`.
-- **Cherry-pick** `-x c5f726fc0` (group_max Fondations 6→5 + Docker) + propagation « 4 à 6 »→« 4 à 5 ».
+## Corrections P0
 
-## Preuves
-228/229 tests verts (le rouge = pin de provenance couplé à `origin/main`, dette N-2, orthogonal). `tsc` propre. Interdits PDF : aucun. Poids < 2 Mo.
+- Next.js corrigé et actions GitHub épinglées pour Node 24.
+- Provenance reproductible : `sourceAnchorSha`, `repositoryCommitSha`, `sourceSetSha256`.
+- Fondations 4–6 (max 6), Premium 3–5 (max 5).
+- SNT/initiation informatique supprimée de la Seconde ; NSI conservée en Première et Terminale.
+- Tarifs dérivés du référentiel canonique : 480 = 144 + 336 ; 1 350 = 405 + 945.
+- Promesses non validées masquées ; formulation publique enseignants prudente.
+- Gate serveur unique sur site, API, téléchargements, SEO, métadonnées et préinscription.
+- Modules Maths proposés pour validation sur les BO 2019/2026 ; SVT maintenue en DRAFT.
+- Trois grilles présentes dans le HTML initial ; téléchargements explicites dans Planning et Programmes.
+- Kit marketing/documentaire régénéré avec calendrier relatif à une date de lancement non encore autorisée.
+- Détails d'infrastructure neutralisés dans l'arbre courant ; scripts d'exploitation publics fail-closed.
 
-## Audit direction (A–D)
-- **A. Conformité BO 2026** : `CONFORMITE_PROGRAMMES.md` (Maths Seconde/Première vs BO n°14 du 2/4/2026, SVT vs BO 2019). Corrections maths = **propositions scellées non publiées** (`mathsProgramConformity2026`). Français Première : aucune œuvre nommée ✅.
-- **B. « certifiés/agrégés »** : `ARBITRAGE_ENSEIGNANTS.md`, 2 options en attente d'arbitrage (formulation conservée désactivée).
-- **C. Dépôt** : cible `cyranoaladin/nexus-project_v0` validée (ancêtre commun `e137009e8`) ; push sur **branche neuve**, zéro force.
-- **D. Plannings** : 3 grilles rendues côté serveur (D1), liens de téléchargement PDF (D2), test cohérence croisée JSON↔PDF (D3), aucun nom réel exposé (D5).
+## Preuves locales acquises
 
-## Dettes bloquantes avant GO (voir `DEBTS.md`)
-- B-1 noms enseignants SVT · B-2 levée DRAFT D2 · B-6 calculatrice SVT.
+- TypeScript ciblé : 51 tests verts sur documents, sections, gate, planning et release.
+- Python ciblé : 26 tests verts sur calendrier, campagnes, PDF et inventaire.
+- Contrat déploiement/environnement : 26 tests verts.
+- `npm run typecheck` : vert sur les derniers lots.
+- `npm run security:repo` : clés privées, topologie publique et secrets Telegram — vert.
+- Documents : 9 PDF / 28 pages rasterisées ; 6 téléchargements publics candidats synchronisés par SHA-256.
+- Planning : JSON ↔ PDF contrôlé ; quatre invariants de grille verts.
 
-## Hors périmètre
-`content/pre-rentree-2026/jpo-2026/**` (agent codex) → chaînes à appliquer dans `COORDINATION_JPO.md`.
+La suite exhaustive, le build, l'E2E et les workflows GitHub doivent encore être rejoués sur le SHA final avant toute montée de statut.
 
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
+## Gates humains ouverts
+
+- Revue pédagogique Maths.
+- Revue pédagogique SVT qualifiée et levée des DRAFT.
+- Affectations, disponibilités, qualifications, salles et capacités opérationnelles.
+- Revue marketing/commerciale et date de lancement.
+- Paiement, reçu, CGV, annulation/remboursement.
+- Confidentialité et rétention.
+- Validation des téléchargements, téléphones, WhatsApp et formulaires.
+- Conditions manuels/remise annuelle.
+- Autorisation écrite de publication par le propriétaire.
+- Runbook privé et rollback staging testés.
+
+## Relectures demandées
+
+- [ ] Direction pédagogique Maths
+- [ ] Enseignant SVT qualifié
+- [ ] Marketing/commercial
+- [ ] Juridique/confidentialité
+- [ ] Technique/sécurité
+- [ ] Propriétaire — GO publication rattaché au SHA exact
+
+## Interdictions
+
+Aucun merge, aucun déploiement, aucun envoi famille et aucune activation de préinscription ne sont autorisés par cette PR.

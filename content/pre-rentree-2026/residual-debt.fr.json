@@ -1,74 +1,118 @@
 {
   "schemaVersion": "1.0.0",
   "campaignId": "pre-rentree-2026",
-  "assessedAt": "2026-07-20",
+  "assessedAt": "2026-07-23",
   "verdict": "BLOCKED",
-  "rule": "Tout P0 restant bloque PUBLIC_READY.",
+  "rule": "Tout P0 restant bloque PUBLIC_READY ; un feu vert technique ne vaut pas GO commercial.",
   "items": [
     {
       "debtId": "DEBT-PRE2026-PAYMENT-METHOD",
       "priority": "P0",
       "category": "OPERATIONS",
       "decisionId": "DEC-PRE2026-PAYMENT-METHOD",
-      "description": "Le canal ou lien de règlement de l'acompte, son rapprochement et le justificatif ne sont pas encore validés.",
+      "description": "Le paiement, le rapprochement et le reçu ne sont pas démontrés de bout en bout.",
       "owner": "OPERATIONS_NEXUS_REUSSITE",
-      "dueAt": "2026-07-24",
-      "derogation": "Aucune dérogation de publication : le script WhatsApp reste générique, ne collecte aucune donnée bancaire et le parcours de réservation reste en revue.",
-      "exitCriteria": "Modalité documentée, testée, approuvée et reliée au message de confirmation."
+      "dueAt": "2026-07-31",
+      "derogation": "Aucune réservation ni collecte bancaire ; le parcours public reste une demande d'information.",
+      "exitCriteria": "Parcours documenté, testé et approuvé avec preuve de reçu."
     },
     {
-      "debtId": "DEBT-PRE2026-CAMPAIGN-SIGNOFF",
+      "debtId": "DEBT-PRE2026-PEDAGOGY-MATHS",
       "priority": "P0",
-      "category": "MARKETING",
-      "decisionId": "DEC-PRE2026-CAMPAIGN-OWNER-SIGNOFF",
-      "description": "Les 36 contenus de la campagne complète sont READY_FOR_OWNER_REVIEW mais ne portent pas encore de bon à publier humain enregistré.",
-      "owner": "RESPONSABLE_COMMUNICATION_NEXUS_REUSSITE",
-      "dueAt": "2026-07-22",
-      "derogation": "Aucune dérogation de publication : les pages de campagne restent noindex et le package reste REVIEW.",
-      "exitCriteria": "Revue du manifeste, des rendus et des textes, puis approbateur et date enregistrés."
+      "category": "PEDAGOGY",
+      "decisionId": "DEC-PRE2026-PEDAGOGY-MATHS",
+      "description": "Les modules Maths Seconde et Première révisés selon les BO 2019/2026 restent des propositions.",
+      "owner": "DIRECTION_PEDAGOGIQUE",
+      "dueAt": "2026-08-03",
+      "derogation": "Filigrane PROPOSITION et gate serveur fermé.",
+      "exitCriteria": "Validation écrite notion par notion, signée et datée."
     },
     {
-      "debtId": "DEBT-PRE2026-LEGAL-SIGNOFF",
+      "debtId": "DEBT-PRE2026-PEDAGOGY-SVT",
+      "priority": "P0",
+      "category": "PEDAGOGY",
+      "decisionId": "DEC-PRE2026-PEDAGOGY-SVT",
+      "description": "Les modules et PDF SVT restent DRAFT.",
+      "owner": "ENSEIGNANT_SVT_QUALIFIE",
+      "dueAt": "2026-08-03",
+      "derogation": "Les PDF DRAFT sont exclus des téléchargements publics candidats.",
+      "exitCriteria": "Validation explicite d'un enseignant SVT qualifié, identité et date enregistrées."
+    },
+    {
+      "debtId": "DEBT-PRE2026-STAFFING",
+      "priority": "P0",
+      "category": "OPERATIONS",
+      "decisionId": "DEC-PRE2026-STAFFING",
+      "description": "Affectations, disponibilités et qualifications ne sont pas confirmées pour chaque matière et créneau.",
+      "owner": "DIRECTION_PEDAGOGIQUE_ET_OPERATIONS",
+      "dueAt": "2026-08-03",
+      "derogation": "Aucun nom réel ni statut certifié/agrégé n'est publié.",
+      "exitCriteria": "Matrice interne complète et preuves de qualification contrôlées."
+    },
+    {
+      "debtId": "DEBT-PRE2026-ROOMS",
+      "priority": "P0",
+      "category": "OPERATIONS",
+      "decisionId": "DEC-PRE2026-ROOMS",
+      "description": "Les salles de la grille ne sont pas validées opérationnellement.",
+      "owner": "DIRECTION_OPERATIONS",
+      "dueAt": "2026-08-03",
+      "derogation": "Le gate serveur empêche leur exposition publique.",
+      "exitCriteria": "Salle, capacité et disponibilité confirmées pour chaque bloc."
+    },
+    {
+      "debtId": "DEBT-PRE2026-LEGAL",
       "priority": "P0",
       "category": "LEGAL",
       "decisionId": "DEC-PRE2026-LEGAL-SIGNOFF",
-      "description": "Les conditions de réservation et d'acompte attendent la validation juridique finale.",
+      "description": "CGV, annulation et remboursement attendent la validation juridique.",
       "owner": "LEGAL_REVIEWER",
       "dueAt": "2026-07-31",
-      "derogation": "Aucune dérogation de publication pour les conditions ; les documents parent restent en revue.",
-      "exitCriteria": "Avis juridique enregistré et documents régénérés sans réserve bloquante."
+      "derogation": "Documents non contractuels et réservation désactivée.",
+      "exitCriteria": "Avis juridique enregistré et documents régénérés."
     },
     {
-      "debtId": "DEBT-PRE2026-PEDAGOGY-SIGNOFF",
+      "debtId": "DEBT-PRE2026-PRIVACY",
       "priority": "P0",
-      "category": "PEDAGOGY",
-      "decisionId": "DEC-PRE2026-PEDAGOGY-SIGNOFF",
-      "description": "Les six modules prioritaires disposent de ressources complètes mais attendent une validation humaine matière par matière.",
-      "owner": "PEDAGOGICAL_VALIDATOR",
-      "dueAt": "2026-08-03",
-      "derogation": "Aucune ressource n'est qualifiée READY ; elles restent READY_FOR_PEDAGOGICAL_REVIEW.",
-      "exitCriteria": "Exactitude, programme, durée, barème et corrigés validés avec identité et date."
-    },
-    {
-      "debtId": "DEBT-PRE2026-ECONOMIC-INPUTS",
-      "priority": "P0",
-      "category": "ECONOMICS",
-      "decisionId": "DEC-PRE2026-ECONOMIC-INPUTS",
-      "description": "Les coûts propriétaires nécessaires à la marge brute et au seuil de rentabilité ne sont pas confirmés.",
-      "owner": "DIRECTION_NEXUS_REUSSITE",
+      "category": "PRIVACY",
+      "decisionId": "DEC-PRE2026-PRIVACY",
+      "description": "Finalités, minimisation, rétention et droits des familles ne sont pas validés.",
+      "owner": "RESPONSABLE_CONFIDENTIALITE",
       "dueAt": "2026-07-31",
-      "derogation": "Aucune valeur n'est inventée : seuls le prix et le chiffre d'affaires dérivés du référentiel sont calculés ; marge et seuil restent vides.",
-      "exitCriteria": "Dix-huit hypothèses économiques validées, simulation recalculée et revue propriétaire."
+      "derogation": "Préinscription désactivée ; aucun élargissement de collecte.",
+      "exitCriteria": "Notice et durées validées, parcours formulaires retesté."
+    },
+    {
+      "debtId": "DEBT-PRE2026-LAUNCH-SIGNOFF",
+      "priority": "P0",
+      "category": "GOVERNANCE",
+      "decisionId": "DEC-PRE2026-CAMPAIGN-OWNER-SIGNOFF",
+      "description": "La date de lancement et le GO de publication ne sont pas autorisés.",
+      "owner": "OWNER_NEXUS_REUSSITE",
+      "dueAt": "2026-08-03",
+      "derogation": "Calendriers relatifs J1 à J29 et releaseStatus READY_FOR_REVIEW.",
+      "exitCriteria": "Date et GO écrits rattachés au SHA exact après toutes les revues."
+    },
+    {
+      "debtId": "DEBT-PRE2026-DOWNLOADS-CONTACT",
+      "priority": "P0",
+      "category": "QUALITY",
+      "decisionId": "DEC-PRE2026-DOWNLOADS-CONTACT",
+      "description": "Les téléchargements, liens, téléphones, WhatsApp et formulaires attendent le contrôle final sur le SHA publié.",
+      "owner": "QUALITY_COMMUNICATION_TECHNIQUE",
+      "dueAt": "2026-08-03",
+      "derogation": "Gate serveur fermé.",
+      "exitCriteria": "E2E, liens, poids, checksums et parcours de contact verts."
     },
     {
       "debtId": "DEBT-PRE2026-MANUAL-BENEFIT",
       "priority": "P1",
       "category": "COMMERCIAL",
       "decisionId": "DEC-PRE2026-MANUAL-BENEFIT",
-      "description": "Le bénéfice futur des manuels Maths/NSI n'a pas toutes ses conditions opérationnelles.",
+      "description": "Le bénéfice futur des manuels n'a pas ses conditions opérationnelles.",
       "owner": "DIRECTION_NEXUS_REUSSITE",
-      "dueAt": "2026-07-31",
-      "derogation": "Dérogation conservatrice approuvée par la règle de publication : bénéfice préparé techniquement mais HIDDEN.",
+      "dueAt": "2026-08-07",
+      "derogation": "Avantage masqué.",
       "exitCriteria": "BAT, droits, stock, remise, éligibilité et traçabilité approuvés."
     },
     {
@@ -76,27 +120,60 @@
       "priority": "P1",
       "category": "COMMERCIAL",
       "decisionId": "DEC-PRE2026-ANNUAL-DISCOUNT",
-      "description": "Les conditions de la remise annuelle future de 10 % ne sont pas complètes.",
+      "description": "Les conditions de la remise annuelle ne sont pas complètes.",
       "owner": "DIRECTION_NEXUS_REUSSITE",
-      "dueAt": "2026-07-31",
-      "derogation": "Dérogation conservatrice approuvée par la règle de publication : avantage préparé techniquement mais HIDDEN.",
-      "exitCriteria": "Éligibilité, période, non-cumul, plafond, plancher et preuve d'usage approuvés."
+      "dueAt": "2026-08-07",
+      "derogation": "Avantage masqué.",
+      "exitCriteria": "Éligibilité, période, non-cumul, plafond et preuve d'usage approuvés."
+    },
+    {
+      "debtId": "DEBT-REPO-RECONCILIATION",
+      "priority": "P1",
+      "category": "ENGINEERING",
+      "decisionId": null,
+      "description": "Les dépôts divergents doivent être réconciliés hors de cette PR go-live.",
+      "owner": "ENGINEERING_OWNER",
+      "dueAt": "2026-09-30",
+      "derogation": "nexus-project_v0 reste la source de release de cette campagne.",
+      "exitCriteria": "ADR, stratégie d'historique et migration validées."
+    },
+    {
+      "debtId": "DEBT-INFRA-PRIVATE-RUNBOOK",
+      "priority": "P1",
+      "category": "OPERATIONS",
+      "decisionId": null,
+      "description": "Le runbook privé et le rollback staging ne sont pas fournis.",
+      "owner": "OPERATIONS_OWNER",
+      "dueAt": "2026-08-07",
+      "derogation": "Tous les helpers publics de production échouent volontairement.",
+      "exitCriteria": "Runbook privé approuvé et rollback staging exécuté avec preuve."
+    },
+    {
+      "debtId": "DEBT-INFRA-GIT-HISTORY",
+      "priority": "P1",
+      "category": "SECURITY",
+      "decisionId": null,
+      "description": "L'historique Git contient encore d'anciens détails d'infrastructure malgré leur neutralisation dans l'arbre courant.",
+      "owner": "SECURITY_OWNER",
+      "dueAt": "2026-09-30",
+      "derogation": "Aucune réécriture ni force-push n'est autorisé dans cette mission.",
+      "exitCriteria": "Décision propriétaire et purge d'historique coordonnée séparément."
     },
     {
       "debtId": "DEBT-REPO-LEGACY-LINT-WARNINGS",
       "priority": "P2",
       "category": "ENGINEERING",
       "decisionId": null,
-      "description": "Le dépôt conserve 293 avertissements ESLint historiques hors du périmètre Pré-rentrée ; aucun nouvel avertissement n'est introduit par ce périmètre.",
+      "description": "Le dépôt conserve un budget historique d'avertissements ESLint.",
       "owner": "ENGINEERING_NEXUS_REUSSITE",
       "dueAt": "2026-09-30",
-      "derogation": "Tolérance temporaire du budget ESLint existant de 300 avertissements ; la commande reste bloquante sur toute erreur.",
-      "exitCriteria": "Réduction progressive du budget puis suppression des avertissements historiques."
+      "derogation": "Le lint reste bloquant sur toute erreur et le budget n'est pas relevé.",
+      "exitCriteria": "Réduction progressive puis suppression du budget."
     }
   ],
   "summary": {
-    "P0": 5,
-    "P1": 2,
+    "P0": 9,
+    "P1": 5,
     "P2": 1
   }
 }
