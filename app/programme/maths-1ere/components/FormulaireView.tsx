@@ -186,7 +186,7 @@ export function FormulaireView() {
       </div>
 
       <div className="mt-12 text-center pb-8">
-        <p className="text-slate-500 text-sm mb-6">Nexus Réussite — Outil de révision certifié conforme au B.O.</p>
+        <p className="text-slate-500 text-sm mb-6">Nexus Réussite — Outil de révision conçu en référence au B.O.</p>
         <button 
           onClick={() => {
             window.print();

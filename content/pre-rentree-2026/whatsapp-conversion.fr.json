@@ -27,7 +27,7 @@
       "id": "detailed-answer",
       "purpose": "Réponse initiale développée",
       "funnelStage": "CONSIDERATION",
-      "template": "Le stage en {subjects} pour une entrée en {entryLevel} représente {hours} heures, organisées en {sessions} séances. Chaque séance suit un objectif annoncé, un temps d'entraînement et une correction. Le groupe accueille jusqu'à {groupMax} élèves. Le tarif du parcours est de {price} TND, avec un acompte de {deposit} TND pour confirmer la réservation après validation du parcours. Souhaitez-vous recevoir les objectifs ou vérifier les horaires en premier ?",
+      "template": "Le stage en {subjects} pour une entrée en {entryLevel} représente {hours} heures, organisées en {sessions} séances. Chaque séance suit un objectif annoncé, un temps d'entraînement et une correction. Le groupe accueille jusqu'à {groupMax} élèves. Le tarif du parcours est de {price} TND ; la grille tarifaire indique aussi un acompte de {deposit} TND, sans paiement demandé à ce stade. Souhaitez-vous recevoir les objectifs ou vérifier les horaires en premier ?",
       "requiredGate": null,
       "crmEvent": "PROGRAM_DETAILS_SENT",
       "proofIds": ["PRF-PRE2026-FIVE-SESSIONS", "PRF-PRE2026-STRUCTURED-SESSIONS", "PRF-PRE2026-DEPOSIT-30"]
@@ -45,7 +45,7 @@
       "id": "objection-distance",
       "purpose": "Répondre à l'objection distance",
       "funnelStage": "OBJECTION",
-      "template": "Le stage se déroule chez Nexus Réussite à Mutuelleville. Avant toute réservation, nous vérifions avec vous les créneaux pour éviter un déplacement incompatible avec l'organisation familiale. Souhaitez-vous me préciser votre zone de départ et les horaires à éviter ?",
+      "template": "Le stage se déroule chez Nexus Réussite à Mutuelleville. Avant toute décision, nous vérifions avec vous les créneaux pour éviter un déplacement incompatible avec l'organisation familiale. Souhaitez-vous me préciser votre zone de départ et les horaires à éviter ?",
       "requiredGate": null,
       "crmEvent": "OBJECTION_DISTANCE_ANSWERED",
       "proofIds": ["PRF-PRE2026-DATES-VENUE"]
@@ -54,7 +54,7 @@
       "id": "objection-schedule",
       "purpose": "Répondre à l'objection horaire",
       "funnelStage": "OBJECTION",
-      "template": "Les dix heures sont réparties en cinq séances. Pour une entrée en {entryLevel} en {subjects}, je vérifie le créneau correspondant avant de vous proposer une réservation. Pouvez-vous m'indiquer les jours ou horaires impossibles ?",
+      "template": "Les dix heures sont réparties en cinq séances. Pour une entrée en {entryLevel} en {subjects}, je vérifie le créneau correspondant avant de vous transmettre les informations disponibles. Pouvez-vous m'indiquer les jours ou horaires impossibles ?",
       "requiredGate": null,
       "crmEvent": "OBJECTION_SCHEDULE_ANSWERED",
       "proofIds": ["PRF-PRE2026-FIVE-SESSIONS"]
@@ -81,8 +81,8 @@
       "id": "deposit-explanation",
       "purpose": "Expliquer l'acompte",
       "funnelStage": "CONVERSION",
-      "template": "L'acompte représente 30 % du parcours, soit {deposit} TND pour cette sélection. La demande d'information ne réserve pas de place. La réservation devient effective après validation du niveau, de la matière, du créneau et réception de l'acompte.",
-      "requiredGate": null,
+      "template": "L'acompte prévu par la grille tarifaire représente 30 % du parcours, soit {deposit} TND pour cette sélection. Ce message ne doit être utilisé qu'après validation des conditions contractuelles, du reçu et du rapprochement. Avant cela, seule une demande d'information sans paiement est proposée.",
+      "requiredGate": "RESERVATION_WORKFLOW_READY",
       "crmEvent": "DEPOSIT_RULE_EXPLAINED",
       "proofIds": ["PRF-PRE2026-DEPOSIT-30"]
     },
@@ -90,8 +90,8 @@
       "id": "payment-method",
       "purpose": "Expliquer la modalité de paiement sans exposer de donnée bancaire",
       "funnelStage": "CONVERSION",
-      "template": "Après validation du parcours, l'équipe Nexus vous transmet la modalité de règlement confirmée pour l'acompte de {deposit} TND. N'envoyez aucune donnée de carte bancaire ni document d'identité dans cette conversation. La réservation n'est confirmée qu'après réception et enregistrement du règlement.",
-      "requiredGate": null,
+      "template": "Après validation complète du parcours et du workflow contractuel, l'équipe Nexus peut transmettre une modalité de règlement confirmée pour l'acompte de {deposit} TND. N'envoyez aucune donnée de carte bancaire ni document d'identité dans cette conversation. Ce message reste bloqué tant que les conditions, le reçu et le rapprochement ne sont pas opérationnels.",
+      "requiredGate": "RESERVATION_WORKFLOW_READY",
       "crmEvent": "PAYMENT_INSTRUCTIONS_REQUESTED",
       "proofIds": ["PRF-PRE2026-DEPOSIT-30"]
     },
@@ -127,7 +127,7 @@
       "purpose": "Confirmer une réservation après acompte reçu",
       "funnelStage": "RESERVATION",
       "template": "Votre réservation est confirmée pour l'entrée en {entryLevel}, matière {subjects}. L'acompte de {deposit} TND a été enregistré. Nous vous transmettrons séparément le récapitulatif du créneau et les informations pratiques. Merci de nous signaler rapidement toute contrainte nouvelle.",
-      "requiredGate": "DEPOSIT_RECEIVED",
+      "requiredGate": "RESERVATION_WORKFLOW_READY",
       "crmEvent": "RESERVATION_CONFIRMED",
       "proofIds": ["PRF-PRE2026-DEPOSIT-30"]
     },

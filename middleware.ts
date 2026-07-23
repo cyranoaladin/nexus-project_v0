@@ -2,6 +2,10 @@ import NextAuth from 'next-auth';
 import { NextResponse } from 'next/server';
 import { authConfig } from './auth.config';
 import { applySecurityHeaders } from '@/lib/security-headers';
+import {
+  getPreRentreeReleaseGate,
+  isPreRentreeProtectedPublicPath,
+} from '@/lib/campaigns/pre-rentree-2026/release-gate';
 
 const { auth } = NextAuth(authConfig);
 
@@ -9,6 +13,16 @@ export default auth((req) => {
   const pathname = req.nextUrl.pathname;
   const isLoggedIn = !!req.auth?.user;
   const role = (req.auth?.user as any)?.role;
+
+  if (
+    !getPreRentreeReleaseGate().isPublicReady
+    && isPreRentreeProtectedPublicPath(pathname)
+  ) {
+    return new NextResponse(null, {
+      status: 404,
+      headers: { 'X-Robots-Tag': 'noindex, nofollow, noarchive' },
+    });
+  }
 
   const isProtectedPath =
     pathname.startsWith('/dashboard') ||

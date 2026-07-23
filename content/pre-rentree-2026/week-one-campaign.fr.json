@@ -40,10 +40,10 @@
       "Vérifier le parcours adapté"
     ],
     "facebook": {
-      "body": "La rentrée ne se prépare pas en accumulant des heures au hasard. Elle se prépare avec un objectif clair pour chaque séance, un groupe réellement limité et un travail qui permet à l'élève de comprendre ce qu'il sait déjà faire et ce qu'il doit encore consolider. Du 17 août 2026 à Mutuelleville, Nexus Réussite propose des stages de pré-rentrée pour les élèves entrant en 3e, Seconde, Première ou Terminale. Chaque matière représente dix heures organisées en cinq séances de deux heures. En 3e, les parcours concernent les Mathématiques et le Français. En Seconde, ils concernent les Mathématiques, la Physique-Chimie et le Français. En Première et Terminale, les matières disponibles dépendent du niveau et du parcours choisi. Les séances articulent objectifs annoncés, entraînement et correction. Les effectifs sont limités à six élèves en Fondations et cinq en Premium. Pour connaître le programme, les horaires compatibles et le montant correspondant au parcours de votre enfant, écrivez-nous sur WhatsApp. Une demande seule ne réserve pas une place : la réservation devient effective après validation du parcours et règlement de l'acompte de 30 %."
+      "body": "La rentrée ne se prépare pas en accumulant des heures au hasard. Elle se prépare avec un objectif clair pour chaque séance, un groupe réellement limité et un travail qui permet à l'élève de comprendre ce qu'il sait déjà faire et ce qu'il doit encore consolider. Du 17 août 2026 à Mutuelleville, Nexus Réussite propose des stages de pré-rentrée pour les élèves entrant en 3e, Seconde, Première ou Terminale. Chaque matière représente dix heures organisées en cinq séances de deux heures. En 3e, les parcours concernent les Mathématiques et le Français. En Seconde, ils concernent les Mathématiques, la Physique-Chimie et le Français. En Première et Terminale, les matières disponibles dépendent du niveau et du parcours choisi. Les séances articulent objectifs annoncés, entraînement et correction. Les effectifs sont limités à six élèves en Fondations et cinq en Premium. Pour recevoir le programme, les horaires et le tarif correspondant au parcours de votre enfant, écrivez-nous sur WhatsApp. Cette demande reste sans paiement et ne bloque aucune place."
     },
     "instagram": {
-      "body": "Préparer la rentrée, ce n'est pas seulement ajouter des heures de cours. C'est savoir quoi reprendre, dans quel ordre et avec quelle méthode. Dès le 17 août à Mutuelleville, les stages Nexus Réussite proposent cinq séances de deux heures par matière, en effectifs limités. 3e : Mathématiques ou Français. Seconde : Mathématiques, Physique-Chimie ou Français. Première et Terminale : parcours de une à quatre matières selon le niveau. Objectifs clairs, entraînement et correction structurent les dix heures. Écrivez-nous sur WhatsApp pour recevoir le programme et vérifier le parcours adapté. La place est réservée après validation et acompte de 30 %."
+      "body": "Préparer la rentrée, ce n'est pas seulement ajouter des heures de cours. C'est savoir quoi reprendre, dans quel ordre et avec quelle méthode. Dès le 17 août à Mutuelleville, les stages Nexus Réussite proposent cinq séances de deux heures par matière, en effectifs limités. 3e : Mathématiques ou Français. Seconde : Mathématiques, Physique-Chimie ou Français. Première et Terminale : parcours de une à quatre matières selon le niveau. Objectifs clairs, entraînement et correction structurent les dix heures. Écrivez-nous sur WhatsApp pour recevoir le programme, les horaires et le tarif. Aucun paiement n'est demandé à ce stade."
     },
     "metaAds": {
       "body": "Dès le 17 août à Mutuelleville : dix heures structurées par matière, cinq séances et des effectifs limités pour préparer la rentrée de la 3e à la Terminale. Recevez le programme et vérifiez le parcours adapté sur WhatsApp."
@@ -130,10 +130,10 @@
       {
         "id": "08",
         "title": "Trouvons le bon parcours",
-        "body": "Indiquez le niveau et les matières sur WhatsApp. La réservation est confirmée après validation du parcours et acompte de 30 %.",
+        "body": "Indiquez le niveau et les matières sur WhatsApp pour recevoir le programme, les horaires et le tarif. La demande reste sans paiement.",
         "eyebrow": "99 192 829",
-        "altText": "Slide finale invitant les parents à contacter Nexus Réussite sur WhatsApp et expliquant la réservation par acompte.",
-        "proofIds": ["PRF-PRE2026-WHATSAPP", "PRF-PRE2026-DEPOSIT-30"]
+        "altText": "Slide finale invitant les parents à demander les informations sur WhatsApp sans paiement.",
+        "proofIds": ["PRF-PRE2026-WHATSAPP"]
       }
     ]
   },
@@ -213,7 +213,7 @@
       },
       {
         "id": "offres",
-        "title": "Niveaux, tarifs et réservation",
+        "title": "Niveaux, programmes et tarifs",
         "frames": [
           {
             "id": "offres-01",
@@ -239,13 +239,13 @@
           },
           {
             "id": "offres-03",
-            "eyebrow": "RÉSERVER",
-            "text": "Écrivez le niveau et la matière au 99 192 829. La place est réservée après validation et acompte de 30 %.",
+            "eyebrow": "S'INFORMER",
+            "text": "Écrivez le niveau et la matière au 99 192 829 pour recevoir le programme, les horaires et le tarif.",
             "interaction": "Lien : ouvrir WhatsApp",
             "durationSeconds": 8,
             "cta": "Écrire sur WhatsApp",
-            "altText": "Story finale avec le numéro WhatsApp et la règle de réservation après acompte.",
-            "proofIds": ["PRF-PRE2026-WHATSAPP", "PRF-PRE2026-DEPOSIT-30"]
+            "altText": "Story finale avec le numéro WhatsApp pour demander les informations du stage.",
+            "proofIds": ["PRF-PRE2026-WHATSAPP"]
           }
         ]
       }
@@ -434,14 +434,14 @@
         "channel": ["Facebook", "Instagram", "Story", "WhatsApp Status"],
         "audience": "Parents ayant interagi pendant la semaine",
         "level": "TOUS",
-        "funnelStage": "CONVERSION",
-        "objective": "Rappeler les effectifs et expliquer la réservation",
+        "funnelStage": "CONSIDERATION",
+        "objective": "Rappeler les effectifs et inviter à demander les informations",
         "assetId": "week1-carousel-slide-08",
-        "body": "Les effectifs sont limités par groupe. Une conversation permet de vérifier le parcours ; la réservation devient effective après validation et acompte de 30 %.",
-        "cta": "Vérifier le parcours sur WhatsApp",
-        "utm": "utm_source=meta&utm_medium=social_organic&utm_campaign=pre_rentree_2026&utm_content=j7_reservation",
+        "body": "Les effectifs sont limités par groupe. Une conversation permet de recevoir le programme, les horaires et le tarif sans paiement.",
+        "cta": "Demander les informations sur WhatsApp",
+        "utm": "utm_source=meta&utm_medium=social_organic&utm_campaign=pre_rentree_2026&utm_content=j7_information",
         "whatsappScriptId": "wa-week1-reservation",
-        "expectedKpi": ["clics WhatsApp", "parcours validés", "acomptes attendus"]
+        "expectedKpi": ["clics WhatsApp", "demandes d'information qualifiées"]
       }
     ]
   },
@@ -472,7 +472,7 @@
     },
     {
       "id": "wa-week1-reservation",
-      "text": "Bonjour, je souhaite vérifier la disponibilité et les étapes de réservation pour [niveau] en [matière]."
+      "text": "Bonjour, je souhaite recevoir le programme, les horaires et le tarif pour [niveau] en [matière]."
     }
   ]
 }

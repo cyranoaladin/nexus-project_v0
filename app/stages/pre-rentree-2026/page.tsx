@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { CampaignFAQ } from '@/components/pre-rentree-2026/CampaignFAQ';
@@ -6,9 +7,22 @@ import { CampaignPageTracker } from '@/components/pre-rentree-2026/CampaignPageT
 import { CanonicalOfferCatalogue } from '@/components/pre-rentree-2026/CanonicalOfferCatalogue';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { getPreRentreePublicSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
+import { getPreRentreeReleaseGate } from '@/lib/campaigns/pre-rentree-2026/release-gate';
 
 export function generateMetadata(): Metadata {
+  if (!getPreRentreeReleaseGate().isPublicReady) {
+    return {
+      title: 'Contenu indisponible | Nexus Réussite',
+      robots: { index: false, follow: false, nocache: true },
+    };
+  }
   const dto = getPreRentreePublicSurfaceDTO();
+  if (!dto) {
+    return {
+      title: 'Contenu indisponible | Nexus Réussite',
+      robots: { index: false, follow: false, nocache: true },
+    };
+  }
   return {
     title: dto.seo.title,
     description: dto.seo.description,
@@ -36,6 +50,7 @@ export function generateMetadata(): Metadata {
 
 export default function PreRentree2026Page() {
   const dto = getPreRentreePublicSurfaceDTO();
+  if (!dto) notFound();
   const whatsappUrl = buildWhatsAppUrl(dto.contact.whatsappMessage, { exactMessage: true });
   const structuredData = {
     '@context': 'https://schema.org',
@@ -125,7 +140,7 @@ export default function PreRentree2026Page() {
       <section className="bg-white px-4 py-14 md:px-6 md:py-20" aria-labelledby="reservation-heading">
         <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-2">
           <article className="rounded-2xl border border-lux-line bg-lux-paper p-6">
-            <h2 id="reservation-heading" className="font-fraunces text-2xl text-lux-ink">Réservation et acompte</h2>
+            <h2 id="reservation-heading" className="font-fraunces text-2xl text-lux-ink">Demande d&apos;information</h2>
             <p className="mt-4 font-semibold text-lux-ink">{dto.reservation.rule}</p>
             <p className="mt-3 text-sm leading-6 text-lux-slate">{dto.reservation.explanation}</p>
           </article>

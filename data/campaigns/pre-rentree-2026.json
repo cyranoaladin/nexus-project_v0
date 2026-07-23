@@ -2,6 +2,7 @@
   "campaignId": "pre-rentree-2026",
   "version": "2.0.3",
   "status": "DRAFT",
+  "releaseStatus": "READY_FOR_REVIEW",
   "canonicalPath": "/stages/pre-rentree-2026",
   "shortPath": "/pre-rentree",
   "timezone": "Africa/Tunis",
@@ -504,7 +505,7 @@
         }
       },
       "preRegistrationNotice": "La demande d’information est transmise sans paiement. Elle ne réserve pas une place et ne forme pas un contrat. Après qualification pédagogique, Nexus transmet une proposition de parcours et les conditions applicables.",
-      "noOnlinePaymentNotice": "Aucun paiement en ligne n’est demandé au stade de la demande d’information. Après validation du parcours, le versement de l’acompte exact de 30 % confirme l’inscription et réserve la place.",
+      "noOnlinePaymentNotice": "Le parcours public est limité à une demande d’information sans paiement. Les acomptes et soldes restent affichés comme éléments tarifaires ; aucune réservation ni collecte n’est activée avant validation des conditions contractuelles, du reçu et du rapprochement.",
       "groupCompositionNotice": "Les créneaux présentés dans ce document de revue restent soumis à validation des salles et des affectations enseignantes. La composition pédagogique du groupe est confirmée après étude des profils et des effectifs.",
       "groupNotOpenedProcedure": "Si Nexus Réussite décide de ne pas ouvrir le groupe, la famille est informée. Les conditions applicables sont communiquées avant toute confirmation.",
       "adaptationNotice": "Le programme et le niveau des exercices sont adaptés au profil déclaré et à la composition pédagogique du groupe.",
@@ -544,8 +545,8 @@
         "answer": "Un groupe Fondations ouvre à partir de quatre inscriptions confirmées et accueille au maximum six élèves. Un groupe Premium ouvre à partir de trois inscriptions confirmées et accueille au maximum cinq élèves."
       },
       {
-        "question": "Comment fonctionne l'acompte ?",
-        "answer": "Après validation du parcours et transmission des conditions applicables, l’acompte correspond exactement à 30 % du tarif total. Sa réception confirme l’inscription et réserve la place."
+        "question": "Puis-je réserver ou payer depuis le site ?",
+        "answer": "Non. Le site permet uniquement une demande d’information sans paiement. Les acomptes et soldes affichés sont des éléments de la grille tarifaire ; aucune réservation ni collecte n’est activée avant validation des conditions contractuelles, du reçu et du rapprochement."
       },
       {
         "question": "Que se passe-t-il si le groupe n'ouvre pas ?",
@@ -573,7 +574,7 @@
       },
       {
         "question": "La demande d’information engage-t-elle financièrement ?",
-        "answer": "Non. La demande est transmise sans paiement, ne réserve pas une place et ne forme pas un contrat. Une réservation n’intervient qu’après validation du parcours, communication des conditions et réception de l’acompte."
+        "answer": "Non. La demande est transmise sans paiement, ne réserve pas une place et ne forme pas un contrat. L’activation d’une réservation dépend de validations contractuelles et opérationnelles qui ne sont pas acquises."
       },
       {
         "question": "Comment obtenir un conseil personnalisé ?",

@@ -1,12 +1,12 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { getPreRentreePublicSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
+import { compilePreRentreeReviewSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
 
 const root = process.cwd();
 
 describe('Pré-rentrée public service and CTA claims', () => {
   it('limits included services to the deliverables supported by the campaign contract', () => {
-    const dto = getPreRentreePublicSurfaceDTO();
+    const dto = compilePreRentreeReviewSurfaceDTO();
     const publicCopy = JSON.stringify({
       method: dto.method,
       offers: dto.offers,
@@ -24,10 +24,11 @@ describe('Pré-rentrée public service and CTA claims', () => {
   });
 
   it('qualifies absence, wait-list and pre-registration statements without promising a place', () => {
-    const dto = getPreRentreePublicSurfaceDTO();
+    const dto = compilePreRentreeReviewSurfaceDTO();
     expect(dto.reservation.depositPercentage).toBe(30);
-    expect(dto.reservation.rule).toBe('Une demande sans acompte ne réserve pas la place.');
-    expect(dto.faq.find((item) => /acompte/i.test(item.question))?.answer).toMatch(/réservation est confirmée après qualification/i);
+    expect(dto.reservation.enabled).toBe(false);
+    expect(dto.reservation.rule).toMatch(/demande d.information sans paiement/i);
+    expect(dto.faq.find((item) => /réserver ou payer/i.test(item.question))?.answer).toMatch(/aucune réservation ni collecte de paiement/i);
   });
 
   it('keeps request CTAs non-transactional and excludes the unapproved public form', () => {

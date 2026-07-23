@@ -17,6 +17,13 @@ export const CampaignStatus = z.enum([
 
 export type CampaignStatus = z.infer<typeof CampaignStatus>;
 
+export const CampaignReleaseStatus = z.enum([
+  'INTERNAL_DRAFT',
+  'READY_FOR_REVIEW',
+  'READY_FOR_OWNER_GO',
+  'PUBLIC_READY',
+]);
+
 const TimeSlot = z.object({
   id: z.string(),
   startTime: z.string().regex(/^\d{2}:\d{2}$/),
@@ -160,6 +167,7 @@ export const PreRentreeCampaignManifestSchema = z.object({
   campaignId: z.literal(PRE_RENTREE_2026_NAVIGATION.campaignId),
   version: z.string(),
   status: CampaignStatus,
+  releaseStatus: CampaignReleaseStatus,
   canonicalPath: z.literal(PRE_RENTREE_2026_NAVIGATION.path),
   shortPath: z.literal('/pre-rentree'),
   timezone: z.literal('Africa/Tunis'),

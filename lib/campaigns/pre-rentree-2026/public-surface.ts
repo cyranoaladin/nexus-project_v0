@@ -3,6 +3,7 @@ import 'server-only';
 import { compileCommercialPublicationContract } from './commercial-contract';
 import { getPreRentreeCampaign } from './campaign-source';
 import { getWhatsAppDisplayNumber } from '@/lib/whatsapp';
+import { getPreRentreeReleaseGate } from './release-gate';
 
 const SUBJECT_LABELS = {
   MATHEMATIQUES: 'Mathématiques',
@@ -35,7 +36,7 @@ function uniqueSorted<T extends string>(values: T[]): T[] {
  * Single fail-closed adapter for every public Pré-rentrée surface.
  * It deliberately exposes only approved offers and approved proof references.
  */
-export function getPreRentreePublicSurfaceDTO() {
+export function compilePreRentreeReviewSurfaceDTO() {
   const campaign = getPreRentreeCampaign();
   const contract = compileCommercialPublicationContract();
   const approvedProofIds = contract.proofs.proofs
@@ -128,9 +129,10 @@ export function getPreRentreePublicSurfaceDTO() {
       'Des consignes et exercices utilisés pendant les séances',
     ],
     reservation: {
+      enabled: false,
       depositPercentage: 30,
-      rule: 'Une demande sans acompte ne réserve pas la place.',
-      explanation: 'Après qualification du niveau et de la matière, le versement de l’acompte exact confirme la réservation. Le solde correspond au montant restant affiché pour l’offre.',
+      rule: 'Le parcours public est limité à une demande d’information sans paiement.',
+      explanation: 'Les acomptes et soldes affichés proviennent de la grille tarifaire, mais aucune réservation ni collecte de paiement ne peut être activée avant validation des conditions contractuelles, du reçu et du rapprochement.',
     },
     contact: {
       whatsappDisplay: getWhatsAppDisplayNumber(),
@@ -168,8 +170,8 @@ export function getPreRentreePublicSurfaceDTO() {
         answer: `Les offres Fondations accueillent de ${Math.min(...foundationExamples.map((offer) => offer.groupMin))} à ${Math.max(...foundationExamples.map((offer) => offer.groupMax))} élèves. Les offres Premium accueillent de ${Math.min(...premiumExamples.map((offer) => offer.groupMin))} à ${Math.max(...premiumExamples.map((offer) => offer.groupMax))} élèves. La capacité exacte figure sur chaque offre.`,
       },
       {
-        question: 'Comment fonctionne l’acompte de réservation ?',
-        answer: 'L’acompte représente exactement 30 % du tarif affiché. Une demande sans acompte ne réserve pas la place ; la réservation est confirmée après qualification et réception de cet acompte.',
+        question: 'Puis-je réserver ou payer depuis le site ?',
+        answer: 'Non. Le site permet uniquement de demander une information. Les montants d’acompte et de solde sont des éléments de la grille tarifaire ; aucune réservation ni collecte de paiement n’est activée tant que les conditions contractuelles et opérationnelles ne sont pas validées.',
       },
       {
         question: 'Comment connaître le tarif exact du parcours ?',
@@ -179,4 +181,9 @@ export function getPreRentreePublicSurfaceDTO() {
   } as const;
 }
 
-export type PreRentreePublicSurfaceDTO = ReturnType<typeof getPreRentreePublicSurfaceDTO>;
+export type PreRentreePublicSurfaceDTO = ReturnType<typeof compilePreRentreeReviewSurfaceDTO>;
+
+export function getPreRentreePublicSurfaceDTO(): PreRentreePublicSurfaceDTO | null {
+  if (!getPreRentreeReleaseGate().isPublicReady) return null;
+  return compilePreRentreeReviewSurfaceDTO();
+}

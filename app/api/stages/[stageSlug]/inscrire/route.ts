@@ -8,6 +8,7 @@ import { computeReservationStatus } from '@/lib/stages/capacity';
 import { publicStageInscriptionSchema } from '@/lib/stages/inscription-schema';
 import { guardRateLimitAsync } from '@/lib/rate-limit';
 import { z } from 'zod';
+import { getPreRentreeReleaseGate } from '@/lib/campaigns/pre-rentree-2026/release-gate';
 
 const stageInscriptionParamsSchema = z.object({
   stageSlug: z.string().trim().min(1).max(120).regex(/^[a-z0-9][a-z0-9-]*$/),
@@ -22,6 +23,9 @@ export async function POST(
     return NextResponse.json({ error: 'Paramètres de stage invalides' }, { status: 400 });
   }
   const { stageSlug } = parsedParams.data;
+  if (stageSlug === 'pre-rentree-2026' && !getPreRentreeReleaseGate().isPublicReady) {
+    return NextResponse.json({ error: 'Stage introuvable' }, { status: 404 });
+  }
 
   const blocked = await guardRateLimitAsync(req, { preset: 'api', keySuffix: `stage-inscrire:${stageSlug}` });
   if (blocked) return blocked;

@@ -7,9 +7,9 @@ function getPillars(rules: { group_max: number; group_min_open: Record<string, n
   return [
   {
     icon: GraduationCap,
-    title: 'Enseignants agrégés & certifiés',
+    title: 'Enseignants expérimentés',
     description:
-      'Agrégés et certifiés de l\'enseignement français à l\'étranger, spécialistes de chaque épreuve.',
+      'Enseignants expérimentés, en exercice dans le système français, affectés selon la discipline et le parcours.',
   },
   {
     icon: Users,

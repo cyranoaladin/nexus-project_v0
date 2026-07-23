@@ -141,7 +141,7 @@ class FullCampaignRenderer(KitRenderer):
             "07-valeur-tarif": "Comparer le contenu réel du stage",
             "08-dix-heures": "Cinq séances pour avancer par étapes",
             "09-effectifs-limites": "Un effectif défini pour chaque parcours",
-            "10-reservation-acompte": "Demander, vérifier, puis réserver",
+            "10-reservation-acompte": "Demander le programme et la grille",
             "11-checklist-parent": "Trois informations pour commencer",
             "12-rappel-avant-stage": "Le stage commence le 17 août",
             "13-demarrage": "Les stages commencent aujourd'hui",
@@ -425,7 +425,7 @@ class FullCampaignRenderer(KitRenderer):
         return {
             "DISCOVERY": "Portée utile, lecture vidéo et visites de profil",
             "CONSIDERATION": "Enregistrements, réponses et conversations WhatsApp qualifiées",
-            "CONVERSION": "Demandes qualifiées et réservations confirmées après acompte",
+            "CONVERSION": "Demandes d'information qualifiées",
         }[stage]
 
     @staticmethod

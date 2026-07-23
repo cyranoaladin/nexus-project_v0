@@ -22,7 +22,11 @@ import {
   formatEntryClassList,
 } from './presentation';
 import { getPreRentreeCampaign } from './campaign-source';
-import { getPreRentreePublicSurfaceDTO } from './public-surface';
+import {
+  compilePreRentreeReviewSurfaceDTO,
+  getPreRentreePublicSurfaceDTO,
+  type PreRentreePublicSurfaceDTO,
+} from './public-surface';
 
 export { getPreRentreeCampaign } from './campaign-source';
 
@@ -253,8 +257,7 @@ export function getPreRentreeLandingDTO() {
   };
 }
 
-export function getPreRentreeHomepageSpotlightDTO(): PreRentreeHomepageSpotlightDTO {
-  const dto = getPreRentreePublicSurfaceDTO();
+function buildPreRentreeHomepageSpotlightDTO(dto: PreRentreePublicSurfaceDTO): PreRentreeHomepageSpotlightDTO {
   const publicOffers = dto.offers;
   const start = new Date(`${dto.startDate}T12:00:00+01:00`);
   const day = new Intl.DateTimeFormat('fr-TN', { day: 'numeric', timeZone: 'Africa/Tunis' }).format(start);
@@ -294,4 +297,13 @@ export function getPreRentreeHomepageSpotlightDTO(): PreRentreeHomepageSpotlight
     secondaryCtaLabel: 'Voir les offres',
     secondaryCtaPath: `${dto.canonicalPath}#offres-pre-rentree`,
   };
+}
+
+export function compilePreRentreeReviewHomepageSpotlightDTO(): PreRentreeHomepageSpotlightDTO {
+  return buildPreRentreeHomepageSpotlightDTO(compilePreRentreeReviewSurfaceDTO());
+}
+
+export function getPreRentreeHomepageSpotlightDTO(): PreRentreeHomepageSpotlightDTO | null {
+  const dto = getPreRentreePublicSurfaceDTO();
+  return dto ? buildPreRentreeHomepageSpotlightDTO(dto) : null;
 }

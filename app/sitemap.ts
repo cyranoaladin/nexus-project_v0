@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
 import { getPreRentreePublicSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
+import { getPreRentreeReleaseGate } from '@/lib/campaigns/pre-rentree-2026/release-gate';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,7 +9,9 @@ const BASE_URL = process.env.NEXTAUTH_URL || 'https://nexusreussite.academy';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
-  const preRentree = getPreRentreePublicSurfaceDTO();
+  const preRentree = getPreRentreeReleaseGate().isPublicReady
+    ? getPreRentreePublicSurfaceDTO()
+    : null;
 
   // Public pages with their priorities and change frequencies
   const publicPages: MetadataRoute.Sitemap = [
@@ -134,7 +137,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  if (preRentree.publication.indexable) {
+  if (preRentree?.publication.indexable) {
     publicPages.push({
       url: `${BASE_URL}${preRentree.canonicalPath}`,
       lastModified: now,
@@ -151,7 +154,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       select: { slug: true, updatedAt: true },
     });
     stageEntries = stages.flatMap((stage) => {
-      if (stage.slug === 'pre-rentree-2026' && !preRentree.publication.indexable) return [];
+      if (stage.slug === 'pre-rentree-2026' && !preRentree?.publication.indexable) return [];
       return [
       {
         url: `${BASE_URL}/stages/${stage.slug}`,
