@@ -305,7 +305,7 @@ export function FloatingAdvisorBubble() {
 
 export function AccompagnementInclus({ compact = false }: { compact?: boolean }) {
   const items = [
-    'Enseignants agrégés & certifiés, spécialistes de l’épreuve',
+    'Enseignants expérimentés, en exercice dans le système français',
     'Corrections sur grilles officielles & bacs blancs',
     'Accès à la plateforme ARIA',
     'Bilans réguliers & suivi parent',

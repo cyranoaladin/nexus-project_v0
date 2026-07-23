@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { CGV_POLICY } from '@/lib/cgv-policy';
 import { LEGAL } from '@/lib/legal';
+import { PRICING_RULES } from '@/lib/pricing-client';
 
 test.describe('/offres — Page Tarifs', () => {
   test.beforeEach(async ({ page }) => {
@@ -31,7 +32,9 @@ test.describe('/offres — Page Tarifs', () => {
   });
 
   test('les 4 repères de transparence sont visibles', async ({ page }) => {
-    await expect(page.getByText(/Groupes\s+de\s+5\s+maximum/).first()).toBeVisible();
+    await expect(
+      page.getByText(new RegExp(`${PRICING_RULES.group_max}\\s+élèves\\s+max`, 'i')).first(),
+    ).toBeVisible();
     await expect(page.getByText(/Tarifs\s+en\s+TND/).first()).toBeVisible();
     await expect(page.getByText(/Acompte\s+30\s*%/).first()).toBeVisible();
     await expect(page.getByText(/[ÉE]ch[ée]anciers\s+transparents/).first()).toBeVisible();

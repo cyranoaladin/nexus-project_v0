@@ -20,6 +20,8 @@ from typing import Any
 from fontTools.ttLib import TTFont
 from PIL import Image, ImageDraw, ImageFont
 
+from campaign_calendar import resolve_publication_date
+
 
 BLUE = "#0B1F3A"
 RED = "#C9252D"
@@ -29,7 +31,7 @@ INK = "#172033"
 MUTED = "#536072"
 WHITE = "#FFFFFF"
 VERSION = "2026-week-one-v1"
-FIXED_PDF_DATE = "D:20260720000000+01'00'"
+FIXED_PDF_DATE = "D:20000101000000Z"
 
 
 @dataclass
@@ -43,9 +45,33 @@ class Asset:
 
 
 class KitRenderer:
-    def __init__(self, repo_root: Path, content_path: Path, commercial_path: Path, output: Path):
+    def __init__(
+        self,
+        repo_root: Path,
+        content_path: Path,
+        commercial_path: Path,
+        output: Path,
+        launch_date: str | None = None,
+    ):
         self.repo_root = repo_root
         self.content = json.loads(content_path.read_text(encoding="utf-8"))
+        configured_launch_date = self.content.get("launchDate")
+        if launch_date and configured_launch_date and launch_date != configured_launch_date:
+            raise ValueError("CLI launch date conflicts with the content launch date")
+        self.launch_date = launch_date or configured_launch_date
+        self.launch_date_status = (
+            "OWNER_AUTHORIZED"
+            if self.launch_date
+            else self.content["launchDateStatus"]
+        )
+        for day in self.content["calendar"]["days"]:
+            resolved = resolve_publication_date(
+                self.launch_date,
+                day["publicationDayOffset"],
+            )
+            if resolved["publicationDay"] != day["day"]:
+                raise ValueError(f"Relative calendar mismatch for {day['day']}")
+            day["date"] = resolved["publicationDate"]
         self.commercial = json.loads(commercial_path.read_text(encoding="utf-8"))
         self.output = output
         self.assets: list[Asset] = []
@@ -396,7 +422,7 @@ class KitRenderer:
                 "ffmpeg", "-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", str(concat),
                 "-i", str(audio), "-vf", "fps=30,format=yuv420p", "-af", "apad=pad_dur=30,atrim=duration=30",
                 "-c:v", "libx264", "-preset", "medium", "-crf", "20", "-c:a", "aac", "-b:a", "128k",
-                "-t", "30", "-movflags", "+faststart", "-metadata", "creation_time=2026-07-20T00:00:00Z",
+                "-t", "30", "-movflags", "+faststart", "-metadata", "creation_time=2000-01-01T00:00:00Z",
                 "-map_metadata", "-1", str(output),
             ], check=True)
 
@@ -426,15 +452,16 @@ class KitRenderer:
         self.register(calendar_json, "week1-calendar-json", "publication-calendar", "Calendrier de publication de la première semaine")
         calendar_csv = calendar_dir / "week-one-calendar.csv"
         with calendar_csv.open("w", encoding="utf-8", newline="") as handle:
-            writer = csv.writer(handle)
+            writer = csv.writer(handle, lineterminator="\n")
             writer.writerow(["jour", "date", "heure", "canal", "audience", "niveau", "tunnel", "objectif", "assetId", "texte", "CTA", "UTM", "scriptWhatsApp", "KPI"])
             for day in calendar["days"]:
-                writer.writerow([day["day"], day["date"], day["time"], " | ".join(day["channel"]), day["audience"], day["level"], day["funnelStage"], day["objective"], day["assetId"], day["body"], day["cta"], day["utm"], day["whatsappScriptId"], " | ".join(day["expectedKpi"])])
+                writer.writerow([day["day"], day["date"] or "", day["time"], " | ".join(day["channel"]), day["audience"], day["level"], day["funnelStage"], day["objective"], day["assetId"], day["body"], day["cta"], day["utm"], day["whatsappScriptId"], " | ".join(day["expectedKpi"])])
         self.register(calendar_csv, "week1-calendar-csv", "publication-calendar", "Calendrier CSV exploitable")
 
         calendar_pages: list[Image.Image] = []
         for day in calendar["days"]:
-            image = self.render_card(1240, 1754, f'{day["day"]} · {day["date"]} · {day["time"]}', day["objective"], day["body"], " · ".join(day["channel"]), day["cta"], f'Calendrier {day["day"]}')
+            date_label = day["date"] or "DATE À AUTORISER"
+            image = self.render_card(1240, 1754, f'{day["day"]} · {date_label} · {day["time"]}', day["objective"], day["body"], " · ".join(day["channel"]), day["cta"], f'Calendrier {day["day"]}')
             calendar_pages.append(image)
         calendar_pdf = calendar_dir / "week-one-calendar.pdf"
         calendar_pages[0].save(
@@ -504,7 +531,9 @@ class KitRenderer:
             "schemaVersion": "1.0.0",
             "version": VERSION,
             "campaignId": "pre-rentree-2026",
-            "editionDate": "2026-07-20",
+            "editionDate": self.content["editionDate"],
+            "launchDate": self.launch_date,
+            "launchDateStatus": self.launch_date_status,
             "sourceContent": "content/pre-rentree-2026/week-one-campaign.fr.json",
             "commercialContract": ".artifacts/pre-rentree-2026/commercial-contract.snapshot.json",
             "publicationStatus": "AWAITING_HUMAN_VALIDATIONS",
@@ -542,13 +571,20 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--content", required=True, type=Path)
     parser.add_argument("--commercial", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("--launch-date", default=None)
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
     repo_root = Path(__file__).resolve().parents[2]
-    renderer = KitRenderer(repo_root, args.content.resolve(), args.commercial.resolve(), args.output.resolve())
+    renderer = KitRenderer(
+        repo_root,
+        args.content.resolve(),
+        args.commercial.resolve(),
+        args.output.resolve(),
+        args.launch_date or None,
+    )
     renderer.render()
 
 

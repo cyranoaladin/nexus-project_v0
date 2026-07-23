@@ -65,6 +65,9 @@ function augmentWithPhysicalException(sbom, { packageJson, lockPackage, exceptio
   const policyProperties = [
     { name: 'nexus:npm-tree-status', value: exception.type },
     { name: 'nexus:artifact-allowed', value: String(exception.artifactAllowed) },
+    { name: 'nexus:exception-owner', value: exception.owner },
+    { name: 'nexus:exception-approved-on', value: exception.approvedOn },
+    { name: 'nexus:exception-review-by', value: exception.reviewBy },
     { name: 'nexus:exception-expires-on', value: exception.expiresOn },
   ];
   if (exception.upstreamIssue) {

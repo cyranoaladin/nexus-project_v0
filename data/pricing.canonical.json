@@ -1,5 +1,5 @@
 {
-  "version": "2026-2027.4",
+  "version": "2026-2027.5",
   "_note": "SOURCE DE VÉRITÉ UNIQUE des prix, effectifs, acomptes et échéanciers Nexus Réussite. Aucun montant TND ne doit être codé en dur dans les composants ou pages. Toute modification doit repasser le validateur pricing-canonical-validator.test.ts. Après modification, régénérer les extraits client : node scripts/generate-pricing-client-data.js",
   "currency": "TND",
   "rules": {

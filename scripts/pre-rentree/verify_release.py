@@ -104,8 +104,15 @@ def build_review_manifest(artifact_root: Path, repo_root: Path) -> dict[str, Any
     artifact_root = Path(artifact_root).resolve()
     repo_root = Path(repo_root).resolve()
     _validate_final_report(artifact_root)
-    snapshot_path = repo_root / "generated/pre-rentree-2026/publication.snapshot.json"
+    snapshot_path = repo_root / ".artifacts/pre-rentree-2026/publication.snapshot.json"
     snapshot = _json(snapshot_path)
+    repository_sha = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=repo_root, check=True, capture_output=True, text=True,
+    ).stdout.strip()
+    if repository_sha != snapshot["repositoryCommitSha"]:
+        raise ValueError(
+            "Snapshot repositoryCommitSha does not identify the checked-out repository commit"
+        )
     excluded = {
         "REVIEW/AUDIT/review-manifest.json",
         "REVIEW/AUDIT/owner-approval.template.json",
@@ -126,10 +133,10 @@ def build_review_manifest(artifact_root: Path, repo_root: Path) -> dict[str, Any
         "schemaVersion": "1.0.0",
         "campaignId": snapshot["campaign"]["id"],
         "documentPackageVersion": snapshot["document"]["documentPackageVersion"],
-        "repoSha": subprocess.run(
-            ["git", "rev-parse", "HEAD"], cwd=repo_root, check=True, capture_output=True, text=True,
-        ).stdout.strip(),
-        "sourceRepoSha": snapshot["sourceRepoSha"],
+        "repoSha": repository_sha,
+        "sourceAnchorSha": snapshot["sourceAnchorSha"],
+        "repositoryCommitSha": snapshot["repositoryCommitSha"],
+        "sourceSetSha256": snapshot["sourceSetSha256"],
         "snapshotSha256": _sha256(snapshot_path),
         "generatorSha256": _sha256(SCRIPT_DIR / "generate_documents.py"),
         "approvalSchemaSha256": _sha256(APPROVAL_SCHEMA),

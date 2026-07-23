@@ -57,8 +57,9 @@
         }
       ],
       "groupSubjectRoomAssignments": {
-        "status": "to_confirm",
-        "publicRule": "Ne pas inventer les affectations de groupes, matières, enseignants ou salles."
+        "status": "subject_and_room_confirmed_teachers_pending",
+        "confirmedBy": "decisions.scheduleGridFinal",
+        "publicRule": "Les affectations matière/salle/créneau sont désormais actées par la direction (voir scheduleGridFinal). Les noms d'enseignants restent à confirmer et ne figurent dans aucun support public."
       }
     },
     "visualIdentity": {
@@ -149,6 +150,101 @@
         }
       ],
       "commercialRule": "Les composantes A, B et C constituent ensemble le parcours cible approuvé. Les supports publics ne peuvent annoncer B et C comme prestations garanties qu'après validation opérationnelle de leurs gates."
+    },
+    "svtTeacherRoles": {
+      "status": "approved_with_pending_assignment",
+      "decision": "abstract_roles_until_named",
+      "reference": "D1",
+      "roles": {
+        "SVT_TEACHER_A": { "level": "PREMIERE", "assignedName": null },
+        "SVT_TEACHER_B": { "level": "TERMINALE", "assignedName": null }
+      },
+      "nameInjectionPoints": [
+        "data/campaigns/pre-rentree-2026.json → teacherRoles.SVT_TEACHER_A (Première) : renseigner le nom et passer assigned:true lors de l'affectation",
+        "data/campaigns/pre-rentree-2026.json → teacherRoles.SVT_TEACHER_B (Terminale) : idem",
+        "Aucun support public n'expose le nom : les rôles restent abstraits côté contenus/PDF/SEO."
+      ],
+      "publicRule": "Aucun nom, diplôme ou statut enseignant ne figure dans un support public tant que l'affectation n'est pas validée. Aucune mention de rémunération enseignant nulle part.",
+      "owner": "direction",
+      "decidedAt": "2026-07-22T19:15:59Z"
+    },
+    "svtProgramValidation": {
+      "status": "draft_until_owner_validation",
+      "decision": "svt_programs_watermarked_draft",
+      "reference": "D2",
+      "scope": ["premiere-svt", "terminale-svt"],
+      "publicRule": "Les programmes SVT (Première, Terminale) restent en DRAFT filigrané tant que la direction pédagogique ne les a pas validés (gate pedagogical_program_validation).",
+      "owner": "direction",
+      "decidedAt": "2026-07-22T19:15:59Z"
+    },
+    "mathsProgramConformity2026": {
+      "status": "proposed_pending_validation",
+      "decision": "align_maths_seconde_premiere_on_BO_2026_hebdo14",
+      "reference": "A (audit conformité)",
+      "officialSource": "BO n°14 du 2 avril 2026 (MENE2602914A Seconde, MENE2602917A spécialité Première)",
+      "appliesTo": ["seconde-mathematiques", "premiere-mathematiques"],
+      "terminaleUnchanged": "Programme maths Terminale inchangé (application rentrée 2027-2028).",
+      "proposedChanges": {
+        "seconde-mathematiques": [
+          "CONSERVER statistique descriptive et valeur absolue, déjà présentes en 2019",
+          "ÉTENDRE aux séries continues regroupées en classes (histogramme, fréquences cumulées)",
+          "AJOUTER le croisement de deux variables qualitatives et les fréquences conditionnelles",
+          "AJOUTER probabilités conditionnelles et arbres pondérés",
+          "NE PAS présenter le second degré ou la modélisation quadratique comme une nouveauté de Seconde"
+        ],
+        "premiere-mathematiques": [
+          "CONSERVER second degré, discriminant et fonction exponentielle, déjà présents en 2019 et maintenus en 2026",
+          "NE PAS annoncer l'étude des fonctions sinus/cosinus, retirée de Première en 2026 ; conserver seulement le cercle trigonométrique et les valeurs remarquables si nécessaire",
+          "AJOUTER à l'objectif + FAQ la mention de l'épreuve anticipée de maths de fin de Première (fait, pas une promesse)"
+        ]
+      },
+      "publicRule": "Ces corrections sont des PROPOSITIONS. Les modules maths Seconde/Première ne doivent pas être publiés comme validés conformité 2026 tant que la direction pédagogique n'a pas approuvé (statut -> approved_for_publication). Détail: CONFORMITE_PROGRAMMES.md.",
+      "owner": "direction",
+      "decidedAt": "2026-07-23T00:00:00Z"
+    },
+    "subjectSelectionCap": {
+      "status": "approved_for_publication",
+      "decision": "cap_four_subjects",
+      "reference": "D3",
+      "maxSubjectsPerPack": 4,
+      "availableSubjectsPremiereTerminale": 5,
+      "publicWording": "1 à 4 matières au choix parmi 5",
+      "publicRule": "Aucun pack 5 matières. La sélection est plafonnée à 4 matières ; la SVT est la 5e matière disponible en Première et Terminale uniquement.",
+      "owner": "direction",
+      "decidedAt": "2026-07-22T19:15:59Z"
+    },
+    "scheduleGridFinal": {
+      "status": "approved_for_publication",
+      "decision": "svt_daytime_placement_with_single_permutation",
+      "reference": "D4-final",
+      "supersedes": "toutes versions antérieures de D4",
+      "eveningBlockE": "refused_definitively",
+      "roomConventionSalle1MathsNsiOnly": "lifted",
+      "authorizedPermutationWeek2": "1ère NSI : bloc B/salle-1 → bloc D/salle-1",
+      "svtPlacements": {
+        "SVT_TERMINALE": "Semaine 2, bloc B, salle-1",
+        "SVT_PREMIERE": "Semaine 2, bloc C, salle-2"
+      },
+      "week2TargetGrid": {
+        "A": { "salle-1": "LIBRE", "salle-2": "PREMIERE/PHYSIQUE_CHIMIE" },
+        "B": { "salle-1": "TERMINALE/SVT", "salle-2": "SECONDE/PHYSIQUE_CHIMIE" },
+        "C": { "salle-1": "TERMINALE/NSI", "salle-2": "PREMIERE/SVT" },
+        "D": { "salle-1": "PREMIERE/NSI", "salle-2": "TERMINALE/PHYSIQUE_CHIMIE" }
+      },
+      "week1": "unchanged",
+      "referenceGrid": "data/campaigns/pre-rentree-2026.json",
+      "knownCrossBranchItem": "Résolu le 2026-07-23 : le créneau informatique de Seconde est supprimé ; le bloc A/salle-1 de la semaine 2 reste libre.",
+      "terminaleLoadNote": "Un Terminale prenant NSI+PC+SVT cumule blocs B+C+D = 6h/jour (plafond dailyLoadValid = 6h, accepté au maximum). Décision de charge éventuelle : assumer 6h ou plafonner à 2 matières scientifiques/jour.",
+      "owner": "direction",
+      "decidedAt": "2026-07-22T19:15:59Z"
+    },
+    "deploymentAuthorization": {
+      "status": "locked",
+      "decision": "no_deploy_without_written_go",
+      "reference": "D5",
+      "publicRule": "Aucun merge, aucun déploiement, aucune régénération de site en production sans GO écrit de la direction.",
+      "owner": "direction",
+      "decidedAt": "2026-07-22T19:15:59Z"
     }
   },
   "remainingReleaseGates": [

@@ -74,11 +74,11 @@ Lien : https://wa.me/21699192829?text=Bonjour%2C%20pouvez-vous%20v%C3%A9rifier%2
 
 ## 10-reservation-acompte
 
-Bonjour, je souhaite faire vérifier le parcours [niveau/matière] et connaître les étapes de réservation.
+Bonjour, je souhaite recevoir le programme, les horaires et le tarif pour [niveau/matière].
 
-CTA : Faire vérifier mon parcours
+CTA : Demander les informations
 
-Lien : https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20faire%20v%C3%A9rifier%20le%20parcours%20%5Bniveau/mati%C3%A8re%5D%20et%20conna%C3%AEtre%20les%20%C3%A9tapes%20de%20r%C3%A9servation.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_10_acompte
+Lien : https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le%20programme%2C%20les%20horaires%20et%20le%20tarif%20pour%20%5Bniveau/mati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_10_information
 
 ## 11-checklist-parent
 
@@ -90,11 +90,11 @@ Lien : https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20%
 
 ## 12-rappel-avant-stage
 
-Bonjour, je souhaite vérifier s'il existe un groupe adapté pour [niveau] en [matière] avant le 17 août.
+Bonjour, je souhaite recevoir le programme et les horaires pour [niveau] en [matière] avant le 17 août.
 
-CTA : Vérifier mon groupe aujourd'hui
+CTA : Demander les informations
 
-Lien : https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20v%C3%A9rifier%20s%27il%20existe%20un%20groupe%20adapt%C3%A9%20pour%20%5Bniveau%5D%20en%20%5Bmati%C3%A8re%5D%20avant%20le%2017%20ao%C3%BBt.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_12_rappel
+Lien : https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le%20programme%20et%20les%20horaires%20pour%20%5Bniveau%5D%20en%20%5Bmati%C3%A8re%5D%20avant%20le%2017%20ao%C3%BBt.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_12_rappel
 
 ## 13-demarrage
 
@@ -114,11 +114,11 @@ Lien : https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le
 
 ## 02-entree-3e
 
-Bonjour, mon enfant entre en 3e et souhaite travailler [Mathématiques/Français]. Pouvez-vous confirmer le parcours ?
+Bonjour, mon enfant entre en 3e et souhaite travailler [Mathématiques/Français]. Pouvez-vous transmettre le programme et les horaires ?
 
 CTA : Choisir Mathématiques ou Français
 
-Lien : https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%203e%20et%20souhaite%20travailler%20%5BMath%C3%A9matiques/Fran%C3%A7ais%5D.%20Pouvez-vous%20confirmer%20le%20parcours%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dcarousel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dcarousel_02_3e
+Lien : https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%203e%20et%20souhaite%20travailler%20%5BMath%C3%A9matiques/Fran%C3%A7ais%5D.%20Pouvez-vous%20transmettre%20le%20programme%20et%20les%20horaires%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dcarousel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dcarousel_02_3e
 
 ## 03-entree-seconde
 
@@ -162,11 +162,11 @@ Lien : https://wa.me/21699192829?text=Bonjour%2C%20pouvez-vous%20m%27envoyer%20l
 
 ## 08-reservation
 
-Bonjour, je souhaite vérifier puis réserver le parcours [niveau/matière]. Quelles sont les étapes ?
+Bonjour, je souhaite recevoir le programme, les horaires et le tarif pour [niveau/matière].
 
-CTA : Commencer la vérification sur WhatsApp
+CTA : Demander les informations sur WhatsApp
 
-Lien : https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20v%C3%A9rifier%20puis%20r%C3%A9server%20le%20parcours%20%5Bniveau/mati%C3%A8re%5D.%20Quelles%20sont%20les%20%C3%A9tapes%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dcarousel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dcarousel_08_reservation
+Lien : https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le%20programme%2C%20les%20horaires%20et%20le%20tarif%20pour%20%5Bniveau/mati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dcarousel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dcarousel_08_information
 
 ## 01-decouverte
 
@@ -250,11 +250,11 @@ Lien : https://wa.me/21699192829?text=Bonjour%2C%20j%27ai%20une%20question%20sur
 
 ## 11-reservation
 
-Bonjour, je souhaite vérifier le parcours puis connaître les étapes de réservation.
+Bonjour, je souhaite recevoir le programme, les horaires et le tarif du parcours.
 
-CTA : Commencer la vérification
+CTA : Demander les informations
 
-Lien : https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20v%C3%A9rifier%20le%20parcours%20puis%20conna%C3%AEtre%20les%20%C3%A9tapes%20de%20r%C3%A9servation.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_11_reservation
+Lien : https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le%20programme%2C%20les%20horaires%20et%20le%20tarif%20du%20parcours.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_11_information
 
 ## 12-demarrage
 
@@ -282,8 +282,8 @@ Lien : https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20%
 
 ## 03-reservation
 
-Bonjour, je souhaite vérifier puis réserver le parcours [niveau/matière].
+Bonjour, je souhaite recevoir le programme, les horaires et le tarif pour [niveau/matière].
 
-CTA : Commencer la vérification sur WhatsApp
+CTA : Demander les informations sur WhatsApp
 
-Lien : https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20v%C3%A9rifier%20puis%20r%C3%A9server%20le%20parcours%20%5Bniveau/mati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dreel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dreel_03_reservation
+Lien : https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le%20programme%2C%20les%20horaires%20et%20le%20tarif%20pour%20%5Bniveau/mati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dreel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dreel_03_information

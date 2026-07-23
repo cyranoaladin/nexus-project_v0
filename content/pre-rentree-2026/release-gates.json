@@ -1,0 +1,144 @@
+{
+  "schemaVersion": "1.0.0",
+  "campaignId": "pre-rentree-2026",
+  "releaseStatus": "READY_FOR_REVIEW",
+  "requiredPublicStatus": "PUBLIC_READY",
+  "assessedAt": "2026-07-23",
+  "gates": [
+    {
+      "id": "pedagogical_validation",
+      "value": false,
+      "evidence": [
+        "CONFORMITE_PROGRAMMES.md",
+        "content/pre-rentree-2026/modules.json",
+        "content/pre-rentree-2026/publication-decisions.owner.json"
+      ],
+      "owner": "Direction pédagogique",
+      "validatedAt": null
+    },
+    {
+      "id": "teacher_assignments",
+      "value": false,
+      "evidence": [
+        "data/campaigns/pre-rentree-2026.json#/teacherRoles",
+        "data/campaigns/pre-rentree-2026.json#/operationalGates/teacherAssignmentsValidated"
+      ],
+      "owner": "Direction pédagogique et opérations",
+      "validatedAt": null
+    },
+    {
+      "id": "rooms",
+      "value": false,
+      "evidence": [
+        "data/campaigns/pre-rentree-2026.json#/schedule",
+        "data/campaigns/pre-rentree-2026.json#/operationalGates/roomAssignmentsValidated"
+      ],
+      "owner": "Direction des opérations",
+      "validatedAt": null
+    },
+    {
+      "id": "capacity",
+      "value": true,
+      "evidence": [
+        "data/campaigns/pre-rentree-2026.json#/capacityByOffer",
+        "content/pre-rentree-2026/offers.json",
+        "__tests__/campaigns/pre-rentree-2026-pricing.test.ts"
+      ],
+      "owner": "Direction Nexus Réussite",
+      "validatedAt": "2026-07-23"
+    },
+    {
+      "id": "qualifications",
+      "value": false,
+      "evidence": [
+        "content/pre-rentree-2026/publication-decisions.owner.json#/remainingReleaseGates",
+        "ARBITRAGE_ENSEIGNANTS.md"
+      ],
+      "owner": "Direction pédagogique",
+      "validatedAt": null
+    },
+    {
+      "id": "tariffs",
+      "value": true,
+      "evidence": [
+        "data/pricing.canonical.json",
+        "lib/pricing.ts",
+        "__tests__/campaigns/pre-rentree-2026-pricing.test.ts"
+      ],
+      "owner": "Direction Nexus Réussite",
+      "validatedAt": "2026-07-23"
+    },
+    {
+      "id": "payment_receipt",
+      "value": false,
+      "evidence": [
+        "content/pre-rentree-2026/residual-debt.fr.json#/items/DEBT-PRE2026-PAYMENT-METHOD",
+        "content/pre-rentree-2026/operations.fr.json"
+      ],
+      "owner": "Direction des opérations",
+      "validatedAt": null
+    },
+    {
+      "id": "cancellation_refund",
+      "value": false,
+      "evidence": [
+        "content/pre-rentree-2026/publication-decisions.owner.json#/remainingReleaseGates/cancellation_and_refund_terms",
+        "docs/campaigns/pre-rentree-2026/DECISIONS-REQUIRED.md"
+      ],
+      "owner": "Direction et conseil juridique",
+      "validatedAt": null
+    },
+    {
+      "id": "privacy_retention",
+      "value": false,
+      "evidence": [
+        "content/pre-rentree-2026/publication-decisions.owner.json#/remainingReleaseGates/privacy_notice_and_data_retention",
+        "docs/campaigns/pre-rentree-2026/PARCOURS360-CAPABILITY-MATRIX.md"
+      ],
+      "owner": "Responsable confidentialité",
+      "validatedAt": null
+    },
+    {
+      "id": "downloads",
+      "value": false,
+      "evidence": [
+        "assets/campaigns/pre-rentree-2026/documents-final/manifest.json",
+        "assets/campaigns/pre-rentree-2026/release-inventory.json",
+        "assets/campaigns/pre-rentree-2026/review/QA-REPORT.md"
+      ],
+      "owner": "Responsable qualité documentaire",
+      "validatedAt": null
+    },
+    {
+      "id": "contact_channels_forms",
+      "value": false,
+      "evidence": [
+        "data/campaigns/pre-rentree-2026.json#/contact",
+        "__tests__/campaigns/pre-rentree-2026-release-gate.test.ts",
+        "tests/e2e/pre-rentree-2026.spec.ts"
+      ],
+      "owner": "Responsable communication et technique",
+      "validatedAt": null
+    },
+    {
+      "id": "manuals_annual_discount",
+      "value": false,
+      "evidence": [
+        "content/pre-rentree-2026/residual-debt.fr.json#/items/DEBT-PRE2026-MANUAL-BENEFIT",
+        "content/pre-rentree-2026/residual-debt.fr.json#/items/DEBT-PRE2026-ANNUAL-DISCOUNT"
+      ],
+      "owner": "Direction commerciale",
+      "validatedAt": null
+    },
+    {
+      "id": "publication_authorization",
+      "value": false,
+      "evidence": [
+        "content/pre-rentree-2026/publication-decisions.owner.json#/ownerDecisionsComplete",
+        "docs/campaigns/pre-rentree-2026/OWNER-REVIEW-CHECKLIST.md"
+      ],
+      "owner": "Propriétaire Nexus Réussite",
+      "validatedAt": null
+    }
+  ]
+}

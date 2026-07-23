@@ -126,7 +126,7 @@ def package_documents(artifact_root: Path, output: Path, repo_root: Path) -> dic
     if not public.is_dir() or not review.is_dir():
         raise FileNotFoundError("Audited PUBLIC and REVIEW directories are required")
 
-    snapshot_path = repo_root / "generated/pre-rentree-2026/publication.snapshot.json"
+    snapshot_path = repo_root / ".artifacts/pre-rentree-2026/publication.snapshot.json"
     snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
     edition = date.fromisoformat(snapshot["document"]["documentEditionDate"])
     parent_path = output / PARENT_PACKAGE

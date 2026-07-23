@@ -22,7 +22,11 @@ import {
   formatEntryClassList,
 } from './presentation';
 import { getPreRentreeCampaign } from './campaign-source';
-import { getPreRentreePublicSurfaceDTO } from './public-surface';
+import {
+  compilePreRentreeReviewSurfaceDTO,
+  getPreRentreePublicSurfaceDTO,
+  type PreRentreePublicSurfaceDTO,
+} from './public-surface';
 
 export { getPreRentreeCampaign } from './campaign-source';
 
@@ -30,13 +34,13 @@ export { getPreRentreeCampaign } from './campaign-source';
  * Get the validated campaign manifest.
  * Server-only — never import from client components.
  */
-/** Get the 14 module programs with their 70 sessions. */
+/** Get the 15 module programs with their 75 sessions. */
 export function getPreRentreeModules() {
   return PreRentreeModulesSchema.parse(modulesData).modules;
 }
 
 /**
- * Get the schedule expanded to all 70 individual sessions.
+ * Get the schedule expanded to all 75 individual sessions.
  */
 export function getPreRentreeSchedule() {
   const campaign = getPreRentreeCampaign();
@@ -199,7 +203,7 @@ export function getPreRentreeLandingDTO() {
   const organization = {
     educators: [],
     rooms: [
-      { label: 'Salle 1', details: 'Mathématiques / NSI / SNT' },
+      { label: 'Salle 1', details: 'Mathématiques, NSI et SVT' },
       { label: 'Salle 2', details: 'Français, Philosophie, Physique-Chimie et SVT' },
     ],
   };
@@ -253,8 +257,7 @@ export function getPreRentreeLandingDTO() {
   };
 }
 
-export function getPreRentreeHomepageSpotlightDTO(): PreRentreeHomepageSpotlightDTO {
-  const dto = getPreRentreePublicSurfaceDTO();
+function buildPreRentreeHomepageSpotlightDTO(dto: PreRentreePublicSurfaceDTO): PreRentreeHomepageSpotlightDTO {
   const publicOffers = dto.offers;
   const start = new Date(`${dto.startDate}T12:00:00+01:00`);
   const day = new Intl.DateTimeFormat('fr-TN', { day: 'numeric', timeZone: 'Africa/Tunis' }).format(start);
@@ -294,4 +297,13 @@ export function getPreRentreeHomepageSpotlightDTO(): PreRentreeHomepageSpotlight
     secondaryCtaLabel: 'Voir les offres',
     secondaryCtaPath: `${dto.canonicalPath}#offres-pre-rentree`,
   };
+}
+
+export function compilePreRentreeReviewHomepageSpotlightDTO(): PreRentreeHomepageSpotlightDTO {
+  return buildPreRentreeHomepageSpotlightDTO(compilePreRentreeReviewSurfaceDTO());
+}
+
+export function getPreRentreeHomepageSpotlightDTO(): PreRentreeHomepageSpotlightDTO | null {
+  const dto = getPreRentreePublicSurfaceDTO();
+  return dto ? buildPreRentreeHomepageSpotlightDTO(dto) : null;
 }

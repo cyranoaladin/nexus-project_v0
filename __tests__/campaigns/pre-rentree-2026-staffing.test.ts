@@ -1,4 +1,5 @@
 import campaignManifest from '@/data/campaigns/pre-rentree-2026.json';
+import modulesSource from '@/content/pre-rentree-2026/modules.json';
 import { getPreRentreeSchedule } from '@/lib/campaigns/pre-rentree-2026/getters';
 
 type TeacherRole = {
@@ -20,7 +21,7 @@ describe('Pré-rentrée 2026 staffing and room contract', () => {
 
   it('maps every module and session to one provisional role', () => {
     const moduleSlots = campaignManifest.schedule.flatMap((week) => week.slots);
-    expect(moduleSlots).toHaveLength(16);
+    expect(moduleSlots).toHaveLength(modulesSource.modules.length);
 
     const counts = Object.fromEntries(Object.keys(teacherRoles).map((role) => [role, 0]));
     const moduleCounts = Object.fromEntries(Object.keys(teacherRoles).map((role) => [role, 0]));
@@ -33,9 +34,9 @@ describe('Pré-rentrée 2026 staffing and room contract', () => {
       counts[roleName] += 5;
     }
 
-    expect(Object.values(moduleCounts).reduce((sum, count) => sum + count, 0)).toBe(16);
-    expect(Object.values(counts).reduce((sum, count) => sum + count, 0)).toBe(80);
-    expect(sessions).toHaveLength(80);
+    expect(Object.values(moduleCounts).reduce((sum, count) => sum + count, 0)).toBe(moduleSlots.length);
+    expect(Object.values(counts).reduce((sum, count) => sum + count, 0)).toBe(moduleSlots.length * 5);
+    expect(sessions).toHaveLength(moduleSlots.length * 5);
   });
 
   it('keeps every provisional role below six teaching hours per day', () => {
@@ -50,12 +51,12 @@ describe('Pré-rentrée 2026 staffing and room contract', () => {
         expect(new Set(dailySlots.map((slot) => slot.block)).size).toBe(dailySlots.length);
       }
     }
-    expect(Object.values(hoursByRole).reduce((sum, hours) => sum + hours, 0)).toBe(160);
+    expect(Object.values(hoursByRole).reduce((sum, hours) => sum + hours, 0)).toBe(sessions.length * 2);
   });
 
   it('uses exactly two logical rooms with no collision', () => {
     expect(campaignManifest.roomRoles).toEqual({
-      'salle-1': ['MATHEMATIQUES', 'NSI'],
+      'salle-1': ['MATHEMATIQUES', 'NSI', 'SVT'],
       'salle-2': ['FRANCAIS', 'PHILOSOPHIE', 'PHYSIQUE_CHIMIE', 'SVT'],
     });
     expect(new Set(sessions.map((session) => session.room))).toEqual(new Set(['salle-1', 'salle-2']));

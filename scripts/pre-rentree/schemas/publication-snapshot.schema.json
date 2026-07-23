@@ -12,11 +12,14 @@
           "type": "string",
           "pattern": "^[a-f0-9]{64}$"
         },
-        "sourceRepoSha": {
+        "sourceAnchorSha": {
           "type": "string",
           "pattern": "^[a-f0-9]{40}$"
         },
-        "sourceCommitDate": {
+        "repositoryCommitSha": {
+          "$ref": "#/definitions/PublicationSnapshot/properties/sourceAnchorSha"
+        },
+        "repositoryCommitDate": {
           "type": "string",
           "format": "date-time"
         },
@@ -27,7 +30,7 @@
         "provenance": {
           "type": "object",
           "properties": {
-            "campaign": {
+            "sourceAnchor": {
               "type": "object",
               "properties": {
                 "path": {
@@ -49,44 +52,48 @@
               ],
               "additionalProperties": false
             },
+            "campaign": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
+            },
             "modules": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "pricing": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "legal": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "contact": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "parentGuide": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "pedagogyFramework": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "offers": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "capabilities": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "manuals": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "communication": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "whatsapp": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "operations": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             }
           },
           "required": [
+            "sourceAnchor",
             "campaign",
             "modules",
             "pricing",
@@ -300,7 +307,8 @@
                   "FRANCAIS",
                   "NSI",
                   "PHYSIQUE_CHIMIE",
-                  "PHILOSOPHIE"
+                  "PHILOSOPHIE",
+                  "SVT"
                 ]
               },
               "label": {
@@ -337,8 +345,8 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 5,
-          "maxItems": 5
+          "minItems": 6,
+          "maxItems": 6
         },
         "blocks": {
           "type": "array",
@@ -518,8 +526,8 @@
                 ],
                 "additionalProperties": false
               },
-              "minItems": 70,
-              "maxItems": 70
+              "minItems": 75,
+              "maxItems": 75
             }
           },
           "required": [
@@ -622,6 +630,21 @@
                 "type": "string",
                 "minLength": 1
               },
+              "publicationStatus": {
+                "type": "string",
+                "enum": [
+                  "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION",
+                  "DRAFT_PENDING_QUALIFIED_TEACHER_VALIDATION"
+                ]
+              },
+              "objective": {
+                "type": "string",
+                "minLength": 1
+              },
+              "equipment": {
+                "type": "string",
+                "minLength": 1
+              },
               "level": {
                 "$ref": "#/definitions/PublicationSnapshot/properties/levels/items/properties/id"
               },
@@ -715,8 +738,8 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 14,
-          "maxItems": 14
+          "minItems": 15,
+          "maxItems": 15
         },
         "pedagogy": {
           "type": "object",
@@ -888,8 +911,8 @@
                 ],
                 "additionalProperties": false
               },
-              "minItems": 14,
-              "maxItems": 14
+              "minItems": 15,
+              "maxItems": 15
             },
             "quickAssessments": {
               "type": "array",
@@ -946,8 +969,8 @@
                 ],
                 "additionalProperties": false
               },
-              "minItems": 70,
-              "maxItems": 70
+              "minItems": 75,
+              "maxItems": 75
             },
             "sessionDeliverables": {
               "type": "array",
@@ -1006,8 +1029,8 @@
                 ],
                 "additionalProperties": false
               },
-              "minItems": 70,
-              "maxItems": 70
+              "minItems": 75,
+              "maxItems": 75
             }
           },
           "required": [
@@ -1070,11 +1093,12 @@
                         "PHYSIQUE_CHIMIE",
                         "NSI",
                         "FRANCAIS",
-                        "PHILOSOPHIE"
+                        "PHILOSOPHIE",
+                        "SVT"
                       ]
                     },
                     "minItems": 1,
-                    "maxItems": 4
+                    "maxItems": 5
                   },
                   "pricing": {
                     "type": "object",
@@ -1223,8 +1247,8 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 14,
-          "maxItems": 14
+          "minItems": 13,
+          "maxItems": 13
         },
         "capabilities": {
           "type": "object",
@@ -2662,8 +2686,9 @@
       "required": [
         "schemaVersion",
         "sourceSetSha256",
-        "sourceRepoSha",
-        "sourceCommitDate",
+        "sourceAnchorSha",
+        "repositoryCommitSha",
+        "repositoryCommitDate",
         "snapshotBuiltAt",
         "provenance",
         "campaign",

@@ -17,6 +17,13 @@ export const CampaignStatus = z.enum([
 
 export type CampaignStatus = z.infer<typeof CampaignStatus>;
 
+export const CampaignReleaseStatus = z.enum([
+  'INTERNAL_DRAFT',
+  'READY_FOR_REVIEW',
+  'READY_FOR_OWNER_GO',
+  'PUBLIC_READY',
+]);
+
 const TimeSlot = z.object({
   id: z.string(),
   startTime: z.string().regex(/^\d{2}:\d{2}$/),
@@ -51,7 +58,7 @@ const Subject = z.object({
 const ScheduleSlot = z.object({
   level: EntryLevelCode,
   subject: z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'PHILOSOPHIE', 'SVT']),
-  block: z.enum(['A', 'B', 'C', 'D', 'E']),
+  block: z.enum(['A', 'B', 'C', 'D']),
   room: z.string(),
   teacherRole: z.string().min(1),
 }).strict();
@@ -146,7 +153,7 @@ const CampaignContent = z.object({
   faq: z.array(z.object({
     question: z.string().min(1),
     answer: z.string().min(1),
-  })).length(16),
+  })).length(18),
 });
 
 const SeoContract = z.object({
@@ -160,6 +167,7 @@ export const PreRentreeCampaignManifestSchema = z.object({
   campaignId: z.literal(PRE_RENTREE_2026_NAVIGATION.campaignId),
   version: z.string(),
   status: CampaignStatus,
+  releaseStatus: CampaignReleaseStatus,
   canonicalPath: z.literal(PRE_RENTREE_2026_NAVIGATION.path),
   shortPath: z.literal('/pre-rentree'),
   timezone: z.literal('Africa/Tunis'),
@@ -171,7 +179,7 @@ export const PreRentreeCampaignManifestSchema = z.object({
   levels: z.array(Level).length(4),
   entryLevelSemantics: LevelSemantics,
   subjects: z.array(Subject).length(6),
-  blocks: z.array(TimeSlot).length(5),
+  blocks: z.array(TimeSlot).length(4),
   schedule: z.array(WeekSchedule).length(2),
   roomRoles: z.record(z.array(z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'PHILOSOPHIE', 'SVT'])).min(1)),
   teacherRoles: z.record(z.object({
@@ -217,6 +225,9 @@ const ModuleSession = z.object({
 
 const CampaignModule = z.object({
   id: z.string().min(1),
+  publicationStatus: z.enum(['PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION', 'DRAFT_PENDING_QUALIFIED_TEACHER_VALIDATION']).optional(),
+  objective: z.string().min(1).optional(),
+  equipment: z.string().min(1).optional(),
   level: EntryLevelCode,
   subjectId: z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'PHILOSOPHIE', 'SVT']),
   subject: z.string().min(1),
@@ -231,7 +242,7 @@ const CampaignModule = z.object({
 export const PreRentreeModulesSchema = z.object({
   version: z.string().min(1),
   generatedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  modules: z.array(CampaignModule).length(16),
+  modules: z.array(CampaignModule).length(15),
 });
 
 export type PreRentreeCampaignModule = z.infer<typeof CampaignModule>;

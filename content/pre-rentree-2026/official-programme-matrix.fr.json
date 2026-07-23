@@ -53,13 +53,6 @@
       "applicationNote": "Le cadrage des œuvres 2026-2027 complète le programme de Première."
     },
     {
-      "officialProgrammeId": "BO2019-LYCEE-SNT-SECONDE",
-      "title": "Programme de sciences numériques et technologie de Seconde",
-      "url": "https://sti.eduscol.education.fr/textes/programme-denseignement-en-snt",
-      "publisher": "Ministère de l'Éducation nationale",
-      "applicationNote": "Référence pédagogique interne uniquement : SNT est exclue de l'offre publique Seconde Pré-rentrée 2026."
-    },
-    {
       "officialProgrammeId": "BO2019-LYCEE-PC-SECONDE",
       "title": "Programme de physique-chimie de Seconde",
       "url": "https://eduscol.education.fr/document/22663/download",
@@ -130,8 +123,8 @@
       "officialProgrammeId": "BO2026-LYCEE-MATHS-SECONDE",
       "applicationSchoolYear": "2026-2027",
       "nexusSessionNumbers": [1, 2, 3, 4, 5],
-      "alignmentSummary": "Installer calcul algébrique, fonctions, géométrie, probabilités et raisonnement conformément au nouveau programme de Seconde.",
-      "publicOfferEligible": true
+      "alignmentSummary": "PROPOSITION : priorités de calcul algébrique, fonctions, géométrie, statistiques continues et croisées, puis probabilités conditionnelles selon le programme 2026.",
+      "publicOfferEligible": false
     },
     {
       "moduleId": "seconde-francais",
@@ -142,16 +135,6 @@
       "nexusSessionNumbers": [1, 2, 3, 4, 5],
       "alignmentSummary": "Préparer lecture analytique, culture littéraire, expression écrite et maîtrise de la langue au lycée.",
       "publicOfferEligible": true
-    },
-    {
-      "moduleId": "seconde-informatique-snt",
-      "level": "SECONDE",
-      "subject": "Sciences numériques et technologie",
-      "officialProgrammeId": "BO2019-LYCEE-SNT-SECONDE",
-      "applicationSchoolYear": "2026-2027",
-      "nexusSessionNumbers": [1, 2, 3, 4, 5],
-      "alignmentSummary": "Référence interne aux thèmes SNT et à l'algorithmique ; ce module ne peut pas être publié dans l'offre Seconde 2026.",
-      "publicOfferEligible": false
     },
     {
       "moduleId": "seconde-physique-chimie",
@@ -170,8 +153,8 @@
       "officialProgrammeId": "BO2026-LYCEE-MATHS-PREMIERE",
       "applicationSchoolYear": "2026-2027",
       "nexusSessionNumbers": [1, 2, 3, 4, 5],
-      "alignmentSummary": "Préparer algèbre, analyse, suites, géométrie, probabilités et algorithmique du nouveau programme de Première.",
-      "publicOfferEligible": true
+      "alignmentSummary": "PROPOSITION : second degré et discriminant, suites, exponentielle, dérivation, probabilités conditionnelles et méthodes de l'épreuve anticipée ; fonctions sinus/cosinus non annoncées.",
+      "publicOfferEligible": false
     },
     {
       "moduleId": "premiere-francais-eaf",
@@ -250,8 +233,8 @@
       "officialProgrammeId": "BO2019-LYCEE-SVT-PREMIERE",
       "applicationSchoolYear": "2026-2027",
       "nexusSessionNumbers": [1, 2, 3, 4, 5],
-      "alignmentSummary": "Installer méthodes et concepts fondamentaux de SVT pour l'entrée en Première : documents, raisonnement et vocabulaire scientifique.",
-      "publicOfferEligible": true
+      "alignmentSummary": "DRAFT : priorités réparties sur les trois thèmes officiels du BO 2019 ; validation d'un enseignant SVT qualifié requise.",
+      "publicOfferEligible": false
     },
     {
       "moduleId": "terminale-svt",
@@ -260,8 +243,8 @@
       "officialProgrammeId": "BO2019-LYCEE-SVT-TERMINALE",
       "applicationSchoolYear": "2026-2027",
       "nexusSessionNumbers": [1, 2, 3, 4, 5],
-      "alignmentSummary": "Réactiver méthodes et raisonnement SVT pour l'entrée en Terminale : documents, modélisation et argumentation scientifique.",
-      "publicOfferEligible": true
+      "alignmentSummary": "DRAFT : priorités réparties sur les trois thèmes officiels du BO 2019, dont une séance dédiée au corps humain et à la santé ; validation d'un enseignant SVT qualifié requise.",
+      "publicOfferEligible": false
     }
   ]
 }

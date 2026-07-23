@@ -32,7 +32,16 @@ import {
   type PublicationSnapshot,
 } from './publication-snapshot-schema';
 
-type CompileOptions = { repoRoot: string; sourceRepoSha: string };
+type CompileOptions = { repoRoot: string; repositoryCommitSha: string };
+
+const SourceAnchorDocumentSchema = z.object({
+  schemaVersion: z.literal('1.0.0'),
+  campaignId: z.literal('pre-rentree-2026'),
+  sourceAnchorSha: z.string().regex(/^[a-f0-9]{40}$/),
+  declaredByRole: z.literal('PROJECT_OWNER'),
+  declaredAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  purpose: z.string().min(1),
+}).strict();
 
 function readSource(repoRoot: string, path: string) {
   const absolutePath = resolve(repoRoot, path);
@@ -98,6 +107,7 @@ function parseApprovedTerms(path: string, content: string) {
 
 export function compileCanonicalPublication(options: CompileOptions): PublicationSnapshot {
   const repoRoot = resolve(options.repoRoot);
+  const sourceAnchorSource = readSource(repoRoot, 'content/pre-rentree-2026/source-anchor.owner.json');
   const campaignSource = readSource(repoRoot, 'data/campaigns/pre-rentree-2026.json');
   const modulesSource = readSource(repoRoot, 'content/pre-rentree-2026/modules.json');
   const pricingSource = readSource(repoRoot, 'data/pricing.canonical.json');
@@ -111,6 +121,9 @@ export function compileCanonicalPublication(options: CompileOptions): Publicatio
   const whatsappSource = readSource(repoRoot, 'content/pre-rentree-2026/whatsapp.fr.json');
   const operationsSource = readSource(repoRoot, 'content/pre-rentree-2026/operations.fr.json');
 
+  const sourceAnchor = SourceAnchorDocumentSchema.parse(
+    JSON.parse(sourceAnchorSource.bytes.toString('utf8')),
+  );
   const campaign = PreRentreeCampaignManifestSchema.parse(JSON.parse(campaignSource.bytes.toString('utf8')));
   const modulesDocument = PreRentreeModulesSchema.parse(JSON.parse(modulesSource.bytes.toString('utf8')));
   const pricingDocument = JSON.parse(pricingSource.bytes.toString('utf8')) as {
@@ -160,7 +173,25 @@ export function compileCanonicalPublication(options: CompileOptions): Publicatio
         legalApprovalReference: null,
         privacyNoticeComplete: false,
       };
-  const commitDate = execFileSync('git', ['show', '-s', '--format=%cI', options.sourceRepoSha], {
+  execFileSync('git', ['cat-file', '-e', `${options.repositoryCommitSha}^{commit}`], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+  execFileSync('git', [
+    'merge-base',
+    '--is-ancestor',
+    sourceAnchor.sourceAnchorSha,
+    options.repositoryCommitSha,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+  const repositoryCommitDate = execFileSync('git', [
+    'show',
+    '-s',
+    '--format=%cI',
+    options.repositoryCommitSha,
+  ], {
     cwd: repoRoot,
     encoding: 'utf8',
   }).trim();
@@ -170,6 +201,7 @@ export function compileCanonicalPublication(options: CompileOptions): Publicatio
     return { id, path, sha256: source.sha256 };
   };
   const sourceSetSha256 = createHash('sha256').update(JSON.stringify([
+    ['content/pre-rentree-2026/source-anchor.owner.json', sourceAnchorSource.sha256],
     ['content/pre-rentree-2026/capabilities.json', capabilitiesSource.sha256],
     ['content/pre-rentree-2026/communication.fr.json', communicationSource.sha256],
     ['content/pre-rentree-2026/manuals.registry.json', manualsSource.sha256],
@@ -222,10 +254,16 @@ export function compileCanonicalPublication(options: CompileOptions): Publicatio
   const snapshot = {
     schemaVersion: '1.0.0' as const,
     sourceSetSha256,
-    sourceRepoSha: options.sourceRepoSha,
-    sourceCommitDate: commitDate,
+    sourceAnchorSha: sourceAnchor.sourceAnchorSha,
+    repositoryCommitSha: options.repositoryCommitSha,
+    repositoryCommitDate,
     snapshotBuiltAt: parentGuide.snapshotBuiltAt,
     provenance: {
+      sourceAnchor: {
+        path: 'content/pre-rentree-2026/source-anchor.owner.json',
+        version: sourceAnchor.schemaVersion,
+        sha256: sourceAnchorSource.sha256,
+      },
       campaign: { path: 'data/campaigns/pre-rentree-2026.json', version: campaign.version, sha256: campaignSource.sha256 },
       modules: { path: 'content/pre-rentree-2026/modules.json', version: modulesDocument.version, sha256: modulesSource.sha256 },
       pricing: { path: 'data/pricing.canonical.json', version: pricingDocument.version, sha256: pricingSource.sha256 },

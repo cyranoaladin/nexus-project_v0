@@ -186,7 +186,7 @@ describe('Test Environment Safety', () => {
     if (dbUrl) {
       // Production URLs typically contain specific hostnames
       expect(dbUrl).not.toContain('nexusreussite.academy');
-      expect(dbUrl).not.toContain('88.99.254.59');
+      expect(dbUrl).not.toContain('<PROD_HOST>');
     }
   });
 

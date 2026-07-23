@@ -16,7 +16,7 @@ from generate_documents import (  # noqa: E402
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-SNAPSHOT = REPO_ROOT / "generated/pre-rentree-2026/publication.snapshot.json"
+SNAPSHOT = REPO_ROOT / ".artifacts/pre-rentree-2026/publication.snapshot.json"
 
 
 def sha256(path: Path) -> str:
@@ -94,7 +94,7 @@ def test_cli_is_independent_of_current_working_directory(tmp_path: Path):
             sys.executable,
             str(SCRIPT_DIR / "generate_documents.py"),
             "--snapshot",
-            "generated/pre-rentree-2026/publication.snapshot.json",
+            ".artifacts/pre-rentree-2026/publication.snapshot.json",
             "--output",
             str(output),
             "--skip-visual",

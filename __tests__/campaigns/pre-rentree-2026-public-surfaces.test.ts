@@ -1,6 +1,6 @@
-import { getPreRentreePublicSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
+import { compilePreRentreeReviewSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
 import { getCommercialPublicOffers } from '@/lib/campaigns/pre-rentree-2026/commercial-contract';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const expectedSubjects = {
@@ -27,7 +27,7 @@ describe('Pré-rentrée 2026 central public-surface adapter', () => {
   });
 
   it('publishes exactly the approved commercial offers and claims', () => {
-    const dto = getPreRentreePublicSurfaceDTO();
+    const dto = compilePreRentreeReviewSurfaceDTO();
     const canonical = getCommercialPublicOffers();
 
     expect(dto.offers).toHaveLength(13);
@@ -45,13 +45,13 @@ describe('Pré-rentrée 2026 central public-surface adapter', () => {
   });
 
   it('derives the only public subjects allowed at each level', () => {
-    const dto = getPreRentreePublicSurfaceDTO();
+    const dto = compilePreRentreeReviewSurfaceDTO();
     expect(dto.subjectIdsByLevel).toEqual(expectedSubjects);
     expect(JSON.stringify(dto)).not.toMatch(/SNT/i);
   });
 
   it('hides services and advantages without approved offer-level evidence', () => {
-    const dto = getPreRentreePublicSurfaceDTO();
+    const dto = compilePreRentreeReviewSurfaceDTO();
     const publicCopy = JSON.stringify({
       method: dto.method,
       capabilities: dto.publicCapabilities,
@@ -73,17 +73,24 @@ describe('Pré-rentrée 2026 central public-surface adapter', () => {
   });
 
   it('keeps an unvalidated campaign page out of search indexes', () => {
-    const dto = getPreRentreePublicSurfaceDTO();
+    const dto = compilePreRentreeReviewSurfaceDTO();
     expect(dto.publication).toEqual({ sourceStatus: 'DRAFT', indexable: false });
   });
 
+  it('retires the obsolete standalone JPO page and its middleware exception', () => {
+    expect(existsSync(join(process.cwd(), 'portes_ouvertes.html'))).toBe(false);
+    const middleware = readFileSync(join(process.cwd(), 'middleware.ts'), 'utf8');
+    expect(middleware).not.toContain('portes_ouvertes');
+  });
+
   it('provides complete safe FAQ answers and the canonical contact', () => {
-    const dto = getPreRentreePublicSurfaceDTO();
+    const dto = compilePreRentreeReviewSurfaceDTO();
     expect(dto.faq.length).toBeGreaterThanOrEqual(6);
     expect(dto.faq.every((item) => item.question.length > 20 && item.answer.length > 60)).toBe(true);
     expect(dto.contact.whatsappDisplay).toBe('99 192 829');
     expect(dto.contact.whatsappMessage).toContain('pré-rentrée 2026');
     expect(dto.reservation.depositPercentage).toBe(30);
-    expect(dto.reservation.rule).toMatch(/sans acompte ne réserve pas la place/i);
+    expect(dto.reservation.enabled).toBe(false);
+    expect(dto.reservation.rule).toMatch(/demande d.information sans paiement/i);
   });
 });

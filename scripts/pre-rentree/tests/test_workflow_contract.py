@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 
@@ -18,14 +19,20 @@ def test_document_workflow_is_read_only_reproducible_and_uploads_two_packages():
     assert "retention-days: 14" in text
     assert "github.event_name" in text and "github.ref" in text
     assert "- main" in text
-    pinned_actions = (
-        "actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd",
-        "actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444",
-        "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
-        "actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f",
+    repository_sha_expression = "${{ github.event.pull_request.head.sha || github.sha }}"
+    assert f"PRE_RENTREE_REPOSITORY_COMMIT_SHA: {repository_sha_expression}" in text
+    assert f"ref: {repository_sha_expression}" in text
+    pinned_actions = re.findall(
+        r"uses:\s+(actions/(?:checkout|setup-node|setup-python|upload-artifact))@([0-9a-f]{40})\s+#\s+v(\d+)\.",
+        text,
     )
-    for action in pinned_actions:
-        assert action in text
+    assert {action for action, _, _ in pinned_actions} == {
+        "actions/checkout",
+        "actions/setup-node",
+        "actions/setup-python",
+        "actions/upload-artifact",
+    }
+    assert all(int(major) >= 7 for _, _, major in pinned_actions)
     assert not any(f"actions/{name}@v" in text for name in ("checkout", "setup-node", "setup-python", "upload-artifact"))
     assert "deploy" not in text.casefold()
     assert "release" not in text.casefold()

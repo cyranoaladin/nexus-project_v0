@@ -12,7 +12,7 @@
 |---|---|
 | HEAD | `69f0e1435a07a96495b8c918dd8c4b4b56cf69b2` |
 | Worktree | propre |
-| PM2 | `nexus-prod` online |
+| PM2 | `<PROCESS_NAME>` online |
 | Health | `api_health=200` |
 | Rate-limit env | `REDIS_URL=present`, Upstash missing/missing, `RATE_LIMIT_DISABLE_1=absent` |
 | Runtime P1-A-bis | non actif |

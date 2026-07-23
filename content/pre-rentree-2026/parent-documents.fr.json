@@ -31,9 +31,9 @@
           "bullets": ["Objectifs explicites", "Cinq séances organisées", "Entraînement et correction en séance", "Priorités de travail observées pendant le stage"]
         },
         {
-          "heading": "Choisir puis réserver",
-          "paragraphs": ["La famille indique le niveau, la ou les matières recherchées et le statut scolaire de l'élève. Nexus vérifie ensuite qu'une offre correspond au besoin et qu'un groupe adapté peut être proposé.", "Une demande d'information ne réserve pas de place. La réservation devient effective après confirmation du parcours et réception de l'acompte correspondant à trente pour cent du montant validé."],
-          "bullets": ["Écrire sur WhatsApp", "Préciser niveau et matière", "Recevoir une proposition claire", "Verser l'acompte pour confirmer la réservation"]
+          "heading": "Choisir puis demander les informations",
+          "paragraphs": ["La famille indique le niveau, la ou les matières recherchées et le statut scolaire de l'élève. Nexus vérifie ensuite qu'une offre correspond au besoin et qu'un groupe adapté peut être proposé.", "La demande reste informative : Nexus transmet le programme, les horaires disponibles et les repères tarifaires. Aucun paiement n'est demandé et aucune place n'est bloquée à ce stade."],
+          "bullets": ["Écrire sur WhatsApp", "Préciser niveau et matière", "Recevoir une proposition claire", "Comparer les informations en famille"]
         }
       ]
     },
@@ -41,7 +41,7 @@
       "documentId": "guide-parent",
       "title": "Guide parent — bien choisir sa pré-rentrée",
       "subtitle": "Les repères concrets pour choisir un parcours cohérent avec le niveau et les priorités de votre enfant",
-      "purpose": "Aider les parents à comprendre le format, poser les bonnes questions et finaliser une inscription sans ambiguïté.",
+      "purpose": "Aider les parents à comprendre le format, poser les bonnes questions et préparer une demande d'information sans ambiguïté.",
       "audience": "Parents d'élèves entrant en 3e, Seconde, Première ou Terminale.",
       "offerIds": ["pre2026-3e-mathematiques", "pre2026-3e-francais", "pre2026-seconde-mathematiques", "pre2026-seconde-physique-chimie", "pre2026-seconde-francais", "pre2026-premiere-pack-1", "pre2026-premiere-pack-2", "pre2026-premiere-pack-3", "pre2026-premiere-pack-4", "pre2026-terminale-pack-1", "pre2026-terminale-pack-2", "pre2026-terminale-pack-3", "pre2026-terminale-pack-4"],
       "proofIds": ["PRF-PRE2026-DATES-VENUE", "PRF-PRE2026-WHATSAPP", "PRF-PRE2026-DEPOSIT-30", "PRF-PRE2026-FIVE-SESSIONS", "PRF-PRE2026-STRUCTURED-SESSIONS"],
@@ -55,12 +55,12 @@
         {
           "heading": "Lire une offre Nexus",
           "paragraphs": ["Chaque ligne tarifaire correspond à un format précis : nombre de matières, nombre total d'heures, cinq séances par matière, effectif minimal et maximal, acompte et solde. Les matières autorisées dépendent du niveau.", "Les éléments inclus sont ceux annoncés noir sur blanc. Un service numérique, un suivi parent régulier ou un accompagnement annuel ne doit pas être supposé inclus lorsqu'il n'apparaît pas dans la proposition transmise."],
-          "bullets": ["Vérifier la matière et le niveau", "Vérifier le nombre d'heures", "Lire inclusions et exclusions", "Contrôler le montant de l'acompte avant paiement"]
+          "bullets": ["Vérifier la matière et le niveau", "Vérifier le nombre d'heures", "Lire inclusions et exclusions", "Contrôler l'acompte et le solde indiqués"]
         },
         {
           "heading": "Avant de confirmer",
-          "paragraphs": ["Demandez le parcours écrit correspondant au profil de l'élève. Il doit préciser la matière ou le nombre de matières, le tarif, l'acompte et le lieu. Les horaires sont communiqués dans l'échange de confirmation.", "La place n'est réservée qu'après validation du parcours et réception de l'acompte. Conservez le message de confirmation et la preuve du paiement communiquée selon la modalité indiquée par Nexus."],
-          "bullets": ["Parcours validé", "Coordonnées parent minimales", "Acompte reçu", "Confirmation de réservation conservée"]
+          "paragraphs": ["Demandez le parcours écrit correspondant au profil de l'élève. Il doit préciser la matière ou le nombre de matières, le tarif, l'acompte et le lieu. Les horaires sont communiqués lorsqu'ils sont validés.", "Conservez ce récapitulatif pour comparer les informations en famille. Il ne bloque aucune place et aucun paiement n'est demandé tant que les conditions applicables ne sont pas validées."],
+          "bullets": ["Parcours proposé", "Coordonnées parent minimales", "Repères tarifaires", "Demande informative"]
         }
       ]
     },
@@ -77,7 +77,7 @@
         {
           "heading": "Deux priorités possibles",
           "paragraphs": ["En mathématiques, le parcours vise à réactiver les automatismes essentiels, structurer la résolution de problèmes et préparer les attendus de la rentrée.", "En français, le travail porte sur les bases de langue, la lecture et la compréhension, puis la construction d'une réponse rédigée plus claire."],
-          "bullets": ["Mathématiques", "Français", "Une inscription par matière", "Cinq séances de deux heures"]
+          "bullets": ["Mathématiques", "Français", "Un parcours par matière", "Cinq séances de deux heures"]
         },
         {
           "heading": "Un groupe réellement limité",
@@ -85,8 +85,8 @@
           "bullets": ["Objectifs annoncés", "Travail guidé", "Exercices en séance", "Correction expliquée"]
         },
         {
-          "heading": "Réserver le parcours",
-          "paragraphs": ["Indiquez sur WhatsApp le nom du parent, le prénom de l'élève, l'entrée en 3e et la matière souhaitée. Nexus vérifie le groupe adapté avant d'envoyer la confirmation commerciale.", "La demande seule ne réserve pas la place. L'acompte représente trente pour cent du tarif validé et confirme la réservation après réception."],
+          "heading": "Demander les informations",
+          "paragraphs": ["Indiquez sur WhatsApp le nom du parent, le prénom de l'élève, l'entrée en 3e et la matière souhaitée. Nexus vérifie le groupe adapté avant d'envoyer une réponse écrite.", "La réponse précise le programme, les horaires disponibles, le tarif, l'acompte et le solde. La demande ne bloque aucune place et reste sans paiement."],
           "bullets": ["Niveau : entrée en 3e", "Matière choisie", "Centre de Mutuelleville", "Démarrage à partir du 17 août"]
         }
       ]
@@ -113,7 +113,7 @@
         },
         {
           "heading": "Demande et confirmation",
-          "paragraphs": ["Dans le premier message, précisez l'entrée en Seconde, la matière prioritaire et l'établissement ou le statut scolaire. Ces informations suffisent pour une première qualification et évitent de collecter des données inutiles.", "Nexus transmet le parcours et les informations de réservation. L'acompte de trente pour cent doit être reçu pour que la place soit réservée."],
+          "paragraphs": ["Dans le premier message, précisez l'entrée en Seconde, la matière prioritaire et l'établissement ou le statut scolaire. Ces informations suffisent pour une première qualification et évitent de collecter des données inutiles.", "Nexus transmet le parcours, les horaires disponibles et les repères tarifaires. La demande reste informative, sans paiement ni blocage de place."],
           "bullets": ["Message de qualification", "Vérification du groupe", "Proposition commerciale", "Confirmation après acompte"]
         }
       ]
@@ -121,8 +121,8 @@
     {
       "documentId": "fiche-premiere",
       "title": "Entrée en Première — fiche parcours",
-      "subtitle": "Un parcours de une à quatre matières, choisi selon les priorités de l'élève",
-      "purpose": "Expliquer les packs canoniques de Première et les matières réellement disponibles.",
+      "subtitle": "Un parcours de 1 à 4 matières au choix parmi 5, selon les priorités de l'élève",
+      "purpose": "Expliquer les packs proposés en Première et les matières réellement disponibles.",
       "audience": "Élèves entrant en Première et candidats libres lorsque le parcours est compatible.",
       "offerIds": ["pre2026-premiere-pack-1", "pre2026-premiere-pack-2", "pre2026-premiere-pack-3", "pre2026-premiere-pack-4"],
       "proofIds": ["PRF-PRE2026-DATES-VENUE", "PRF-PRE2026-WHATSAPP", "PRF-PRE2026-DEPOSIT-30", "PRF-PRE2026-PREMIUM-PACKS", "PRF-PRE2026-FIVE-SESSIONS", "PRF-PRE2026-STRUCTURED-SESSIONS"],
@@ -130,7 +130,7 @@
       "sections": [
         {
           "heading": "Choisir les matières utiles",
-          "paragraphs": ["Le parcours Première se compose de une à quatre matières parmi celles autorisées pour ce niveau. Le choix doit tenir compte des spécialités, du parcours de français et des prérequis à consolider.", "Chaque matière ajoute dix heures de travail, organisées en cinq séances. Le tarif et l'acompte sont calculés par pack, sans addition manuelle de prix dispersés."],
+          "paragraphs": ["Le parcours Première se compose de 1 à 4 matières au choix parmi les cinq autorisées pour ce niveau (Mathématiques, Physique-Chimie, NSI, Français, SVT). Le choix doit tenir compte des spécialités, du parcours de français et des prérequis à consolider.", "Chaque matière ajoute dix heures de travail, organisées en cinq séances. Le tarif et l'acompte sont calculés par pack, sans addition manuelle de prix dispersés."],
           "bullets": ["Mathématiques", "Physique-chimie", "NSI", "Français"]
         },
         {
@@ -140,7 +140,7 @@
         },
         {
           "heading": "Construire la demande",
-          "paragraphs": ["Indiquez les matières envisagées et, pour un candidat libre, les épreuves préparées. Nexus vérifie la compatibilité avant de confirmer le pack et son organisation.", "La proposition précise le nombre de matières, le volume total, le tarif, l'acompte et le solde. La réservation n'est acquise qu'après réception de l'acompte."],
+          "paragraphs": ["Indiquez les matières envisagées et, pour un candidat libre, les épreuves préparées. Nexus vérifie la compatibilité avant de présenter le pack et son organisation.", "La proposition précise le nombre de matières, le volume total, le tarif, l'acompte et le solde. Elle reste informative et ne bloque aucune place."],
           "bullets": ["Liste des matières", "Statut scolaire", "Pack proposé", "Confirmation écrite"]
         }
       ]
@@ -149,7 +149,7 @@
       "documentId": "fiche-terminale",
       "title": "Entrée en Terminale — fiche parcours",
       "subtitle": "Cibler les prérequis et reprendre une méthode de travail avant l'année du baccalauréat",
-      "purpose": "Expliquer les packs canoniques de Terminale sans promesse de résultat scolaire.",
+      "purpose": "Expliquer les packs proposés en Terminale sans promesse de résultat scolaire.",
       "audience": "Élèves entrant en Terminale et candidats libres lorsque le parcours est compatible.",
       "offerIds": ["pre2026-terminale-pack-1", "pre2026-terminale-pack-2", "pre2026-terminale-pack-3", "pre2026-terminale-pack-4"],
       "proofIds": ["PRF-PRE2026-DATES-VENUE", "PRF-PRE2026-WHATSAPP", "PRF-PRE2026-DEPOSIT-30", "PRF-PRE2026-PREMIUM-PACKS", "PRF-PRE2026-FIVE-SESSIONS", "PRF-PRE2026-STRUCTURED-SESSIONS"],
@@ -157,7 +157,7 @@
       "sections": [
         {
           "heading": "Prioriser avant une année exigeante",
-          "paragraphs": ["La pré-rentrée n'anticipe pas toute l'année de Terminale. Elle aide à reprendre les prérequis, retrouver des automatismes et installer une méthode de travail avant les premiers chapitres.", "Le parcours peut comporter de une à quatre matières autorisées pour la Terminale. Une priorité bien définie rend les dix heures de chaque matière plus cohérentes."],
+          "paragraphs": ["La pré-rentrée n'anticipe pas toute l'année de Terminale. Elle aide à reprendre les prérequis, retrouver des automatismes et installer une méthode de travail avant les premiers chapitres.", "Le parcours peut comporter de 1 à 4 matières au choix parmi les cinq autorisées pour la Terminale (Mathématiques, Physique-Chimie, NSI, Philosophie, SVT). Une priorité bien définie rend les dix heures de chaque matière plus cohérentes."],
           "bullets": ["Mathématiques", "Physique-chimie", "NSI", "Philosophie"]
         },
         {
@@ -167,8 +167,8 @@
         },
         {
           "heading": "Valider la composition du pack",
-          "paragraphs": ["Le message de départ précise les matières, les spécialités et le statut scolaire. Pour un candidat libre, Nexus confirme d'abord que le parcours collectif correspond aux épreuves préparées.", "Après qualification, la famille reçoit le pack applicable. La place est réservée lorsque le parcours est validé et que l'acompte de trente pour cent est reçu."],
-          "bullets": ["Matières confirmées", "Pack canonique", "Acompte calculé", "Réservation confirmée"]
+          "paragraphs": ["Le message de départ précise les matières, les spécialités et le statut scolaire. Pour un candidat libre, Nexus vérifie d'abord que le parcours collectif correspond aux épreuves préparées.", "Après qualification, la famille reçoit le pack applicable, son organisation et ses repères tarifaires. Cette étape reste une demande d'information sans paiement."],
+          "bullets": ["Matières vérifiées", "Pack applicable", "Acompte calculé", "Demande informative"]
         }
       ]
     },
@@ -189,13 +189,13 @@
         },
         {
           "heading": "Premium : Première et Terminale",
-          "paragraphs": ["Premium correspond aux niveaux d'entrée en Première et Terminale. La famille choisit un pack de une à quatre matières parmi celles autorisées pour le niveau.", "La capacité Premium est plus resserrée. Le prix, le volume et l'acompte sont dérivés du pack choisi, ce qui permet une proposition commerciale lisible."],
-          "bullets": ["Une à quatre matières", "Dix heures par matière", "Pack tarifaire canonique", "Effectif Premium limité"]
+          "paragraphs": ["Premium correspond aux niveaux d'entrée en Première et Terminale. La famille choisit un pack de 1 à 4 matières au choix parmi les cinq autorisées pour le niveau (SVT incluse en Première et Terminale).", "La capacité Premium est plus resserrée. Le prix, le volume et l'acompte sont dérivés du pack choisi, ce qui permet une proposition commerciale lisible."],
+          "bullets": ["1 à 4 matières au choix parmi 5", "Dix heures par matière", "Pack tarifaire applicable", "Effectif Premium limité"]
         },
         {
           "heading": "Le point commun : la structure",
           "paragraphs": ["Les deux cadres reposent sur cinq séances par matière, des objectifs annoncés, un entraînement et une correction. La différence ne constitue pas un jugement de valeur sur l'élève : elle adapte l'offre au niveau et au nombre de matières.", "Le bon choix est celui qui correspond au niveau d'entrée et aux priorités réelles. Nexus peut aider à le formuler au cours d'un échange bref sur WhatsApp."],
-          "bullets": ["Même exigence de clarté", "Organisation par objectifs", "Entraînement réel", "Réservation par acompte"]
+          "bullets": ["Même exigence de clarté", "Organisation par objectifs", "Entraînement réel", "Demande d'information sur WhatsApp"]
         }
       ]
     },
@@ -221,8 +221,8 @@
         },
         {
           "heading": "Distinct du stage",
-          "paragraphs": ["Les services numériques, le suivi parent régulier et l'accompagnement annuel sont distincts lorsqu'ils ne sont pas explicitement inclus. Leur existence dans l'écosystème Nexus ne suffit pas à les ajouter au stage.", "La proposition reçue sur WhatsApp reste le document de référence pour le parcours choisi. En cas de doute, demandez une reformulation écrite avant de verser l'acompte."],
-          "bullets": ["Pas d'inclusion implicite", "Pas de promesse de résultat", "Pas d'accompagnement annuel automatique", "Confirmation écrite avant paiement"]
+          "paragraphs": ["Les services numériques, le suivi parent régulier et l'accompagnement annuel sont distincts lorsqu'ils ne sont pas explicitement inclus. Leur existence dans l'écosystème Nexus ne suffit pas à les ajouter au stage.", "La proposition reçue sur WhatsApp reste le document de référence pour le parcours choisi. En cas de doute, demandez une reformulation écrite avant tout engagement."],
+          "bullets": ["Pas d'inclusion implicite", "Pas de promesse de résultat", "Pas d'accompagnement annuel automatique", "Confirmation écrite avant engagement"]
         }
       ]
     },
@@ -248,8 +248,8 @@
         },
         {
           "heading": "Un prix et un acompte lisibles",
-          "paragraphs": ["Le montant est dérivé du niveau ou du pack canonique. L'acompte correspond à trente pour cent et le solde complète exactement le prix validé.", "Avant toute confirmation, Nexus indique le parcours choisi, son volume, son prix, l'acompte et le solde. La famille peut ainsi décider sur une base claire."],
-          "bullets": ["Tarif canonique", "Acompte exact", "Solde annoncé", "Aucune réservation sans acompte"]
+          "paragraphs": ["Le montant dépend du niveau ou du pack choisi. L'acompte correspond à trente pour cent et le solde complète exactement le prix validé.", "Avant toute confirmation, Nexus indique le parcours choisi, son volume, son prix, l'acompte et le solde. La famille peut ainsi décider sur une base claire."],
+          "bullets": ["Tarif applicable", "Acompte exact", "Solde annoncé", "Aucune place bloquée"]
         }
       ]
     },
@@ -270,22 +270,22 @@
         },
         {
           "heading": "Comment choisir la matière ?",
-          "paragraphs": ["Commencez par le niveau d'entrée et la priorité principale. Les matières disponibles sont limitées par niveau ; Nexus ne propose pas une matière lorsqu'elle n'appartient pas à l'offre canonique.", "En Première et Terminale, le nombre de matières détermine le pack. Pour un candidat libre, la compatibilité du parcours est vérifiée avant confirmation."],
+          "paragraphs": ["Commencez par le niveau d'entrée et la priorité principale. Les matières disponibles sont limitées par niveau ; Nexus ne propose pas une matière lorsqu'elle n'appartient pas à l'offre prévue pour ce niveau.", "En Première et Terminale, le nombre de matières détermine le pack. Pour un candidat libre, la compatibilité du parcours est vérifiée avant confirmation."],
           "bullets": ["Niveau d'entrée", "Matière prioritaire", "Statut scolaire", "Pack si plusieurs matières"]
         },
         {
           "heading": "Le premier message réserve-t-il une place ?",
-          "paragraphs": ["Non. Le premier message ouvre une demande d'information et permet de qualifier le besoin. La place n'est pas réservée tant que le parcours n'est pas confirmé et que l'acompte n'a pas été reçu.", "L'acompte représente trente pour cent du montant validé. Le message de confirmation récapitule l'offre, l'acompte, le solde et les informations pratiques disponibles."],
-          "bullets": ["Demande d'information", "Qualification", "Proposition", "Acompte puis confirmation"]
+          "paragraphs": ["Non. Le premier message ouvre une demande d'information et permet de qualifier le besoin. Il ne bloque aucune place et ne déclenche aucun paiement.", "La réponse récapitule l'offre, le tarif, l'acompte, le solde et les informations pratiques disponibles afin que la famille puisse les comparer."],
+          "bullets": ["Demande d'information", "Qualification", "Proposition", "Repères tarifaires"]
         }
       ]
     },
     {
       "documentId": "procedure-inscription",
       "title": "Procédure d'inscription",
-      "subtitle": "De la première demande à la confirmation de réservation",
+      "subtitle": "De la première demande aux informations utiles",
       "purpose": "Donner une procédure courte, actionnable et respectueuse de la minimisation des données.",
-      "audience": "Familles prêtes à demander ou confirmer un parcours.",
+      "audience": "Familles souhaitant recevoir les informations d'un parcours.",
       "offerIds": ["pre2026-3e-mathematiques", "pre2026-seconde-mathematiques", "pre2026-premiere-pack-1", "pre2026-terminale-pack-1"],
       "proofIds": ["PRF-PRE2026-WHATSAPP", "PRF-PRE2026-DEPOSIT-30"],
       "cta": "Démarrer la demande sur WhatsApp",
@@ -297,40 +297,40 @@
         },
         {
           "heading": "2. Recevoir la proposition",
-          "paragraphs": ["Nexus vérifie la matière, le niveau, le pack éventuel et la cohérence du groupe. La réponse précise le format, le volume, le tarif, l'acompte et le solde.", "Si aucune offre approuvée ne correspond au besoin, la demande n'est pas transformée artificiellement en réservation. Une autre orientation peut être proposée séparément."],
+          "paragraphs": ["Nexus vérifie la matière, le niveau, le pack éventuel et la cohérence du groupe. La réponse précise le format, le volume, le tarif, l'acompte et le solde.", "Si aucune offre approuvée ne correspond au besoin, Nexus le signale clairement. Une autre orientation peut être proposée séparément."],
           "bullets": ["Offre compatible", "Matières exactes", "Tarif et acompte", "Informations pratiques"]
         },
         {
-          "heading": "3. Confirmer la réservation",
-          "paragraphs": ["Suivez la modalité de paiement communiquée dans l'échange validé. La réservation devient effective lorsque l'acompte est reçu et rapproché de la demande.", "Conservez le message de confirmation. Il sert de récapitulatif pour le niveau, la matière ou le pack, le lieu et les informations transmises avant le stage."],
-          "bullets": ["Parcours accepté", "Acompte reçu", "Confirmation envoyée", "Message conservé"]
+          "heading": "3. Relire les informations",
+          "paragraphs": ["Vérifiez le niveau, la matière ou le pack, le volume, le lieu, le tarif, l'acompte et le solde indiqués. Cette réponse ne déclenche aucun paiement et ne bloque aucune place.", "Conservez le message comme récapitulatif des informations disponibles et posez toute question utile avant une décision ultérieure."],
+          "bullets": ["Parcours proposé", "Repères tarifaires", "Questions possibles", "Message conservé"]
         }
       ]
     },
     {
       "documentId": "conditions-reservation-acompte",
-      "title": "Conditions de réservation et d'acompte",
-      "subtitle": "Les règles commerciales approuvées pour confirmer une place",
-      "purpose": "Distinguer clairement une demande, une proposition et une réservation confirmée.",
-      "audience": "Parents ayant reçu ou demandé une proposition de parcours.",
+      "title": "Tarifs et demande d'information",
+      "subtitle": "Comprendre la grille sans activer une réservation",
+      "purpose": "Distinguer clairement les montants tarifaires d'un parcours de réservation non activé.",
+      "audience": "Parents souhaitant comprendre la grille tarifaire.",
       "offerIds": ["pre2026-3e-mathematiques", "pre2026-seconde-mathematiques", "pre2026-premiere-pack-1", "pre2026-terminale-pack-1"],
       "proofIds": ["PRF-PRE2026-DEPOSIT-30", "PRF-PRE2026-WHATSAPP"],
-      "cta": "Recevoir le montant exact de l'acompte",
+      "cta": "Demander la grille tarifaire",
       "sections": [
         {
-          "heading": "La demande n'est pas une réservation",
-          "paragraphs": ["Un message, une demande de programme ou une demande de disponibilité ne bloque pas une place. Cette étape permet uniquement de qualifier le besoin et de vérifier l'offre applicable.", "La proposition devient réservable lorsqu'elle identifie clairement le niveau, la matière ou le pack, le volume, le prix et l'acompte."],
-          "bullets": ["Demande reçue", "Besoin qualifié", "Offre proposée", "Aucune place bloquée à ce stade"]
+          "heading": "La demande reste informative",
+          "paragraphs": ["Un message, une demande de programme ou une question sur les horaires ne bloque pas une place. Cette étape sert uniquement à comprendre le besoin et l'offre applicable.", "Le niveau, la matière ou le pack, le volume, le prix, l'acompte et le solde peuvent être expliqués sans ouvrir une réservation."],
+          "bullets": ["Demande reçue", "Besoin compris", "Grille expliquée", "Aucune place bloquée"]
         },
         {
-          "heading": "L'acompte confirme la place",
-          "paragraphs": ["L'acompte correspond à trente pour cent du prix validé. Il est calculé depuis la même source commerciale que le tarif, afin d'éviter un montant incohérent.", "La réservation est confirmée après réception et rapprochement de l'acompte avec la demande. Le solde correspond au reste du prix annoncé."],
-          "bullets": ["Acompte de trente pour cent", "Montant communiqué par Nexus", "Réception vérifiée", "Confirmation écrite"]
+          "heading": "Les montants restent tarifaires",
+          "paragraphs": ["L'acompte correspond à trente pour cent du prix affiché et le solde complète exactement ce prix. Ces montants sont calculés depuis la même source commerciale.", "Ils n'autorisent pas une collecte : paiement, reçu, rapprochement, annulation et remboursement doivent être validés avant activation d'une réservation."],
+          "bullets": ["Prix affiché", "Acompte de trente pour cent", "Solde exact", "Aucun paiement activé"]
         },
         {
-          "heading": "Ce document ne remplace pas les conditions particulières",
-          "paragraphs": ["Les seules règles présentées ici sont celles qui ont été approuvées pour la campagne : taux d'acompte et absence de réservation sans acompte. Toute autre condition applicable doit être communiquée avant paiement.", "En l'absence d'une condition écrite, ne supposez pas une politique d'annulation, de report ou de remboursement. Demandez la condition applicable à votre proposition avant de confirmer."],
-          "bullets": ["Lire la proposition", "Demander les conditions applicables", "Vérifier le montant", "Conserver la confirmation"]
+          "heading": "Ce document n'est pas contractuel",
+          "paragraphs": ["La grille ne remplace pas des conditions contractuelles approuvées. Tant qu'elles manquent, Nexus limite le parcours à une demande d'information sans paiement.", "Aucune politique d'annulation, de report ou de remboursement ne doit être supposée à partir de cette présentation."],
+          "bullets": ["Lire la grille", "Poser ses questions", "Vérifier le montant", "Attendre les validations"]
         }
       ]
     },
@@ -346,7 +346,7 @@
       "sections": [
         {
           "heading": "Le stage reste un parcours autonome",
-          "paragraphs": ["S'inscrire au stage n'inscrit pas automatiquement l'élève à une formule annuelle. Le stage possède son propre volume, son prix, ses inclusions et sa règle de réservation.", "Cette séparation permet à la famille d'évaluer l'expérience et de décider ensuite si un accompagnement plus long correspond au besoin."],
+          "paragraphs": ["Participer au stage n'inscrit pas automatiquement l'élève à une formule annuelle. Le stage possède son propre volume, son prix et ses inclusions.", "Cette séparation permet à la famille d'évaluer l'expérience et de décider ensuite si un accompagnement plus long correspond au besoin."],
           "bullets": ["Aucun engagement annuel automatique", "Aucune inclusion implicite", "Décision séparée", "Proposition écrite nécessaire"]
         },
         {

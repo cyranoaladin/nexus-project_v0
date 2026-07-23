@@ -10,6 +10,15 @@ set -e  # Exit on error
 
 echo "🚀 Setting up E2E database..."
 
+if docker compose version > /dev/null 2>&1; then
+  COMPOSE=(docker compose)
+elif docker-compose version > /dev/null 2>&1; then
+  COMPOSE=(docker-compose)
+else
+  echo "❌ Docker Compose is not available."
+  exit 1
+fi
+
 # Check if docker is running
 if ! docker info > /dev/null 2>&1; then
   echo "❌ Docker is not running. Please start Docker and try again."
@@ -18,22 +27,22 @@ fi
 
 # Stop and remove existing E2E container if it exists
 echo "🧹 Cleaning up existing E2E container..."
-docker-compose -f docker-compose.e2e.yml down -v 2>/dev/null || true
+"${COMPOSE[@]}" -f docker-compose.e2e.yml down -v 2>/dev/null || true
 
 # Start only PostgreSQL container (app/playwright are started by test run)
 echo "🐘 Starting PostgreSQL E2E container..."
-docker-compose -f docker-compose.e2e.yml up -d postgres-e2e
+"${COMPOSE[@]}" -f docker-compose.e2e.yml up -d postgres-e2e
 
 # Wait for PostgreSQL to be ready
 echo "⏳ Waiting for database to be ready..."
 RETRIES=30
 COUNT=0
 
-until docker-compose -f docker-compose.e2e.yml exec -T postgres-e2e pg_isready -U postgres -d nexus_e2e > /dev/null 2>&1; do
+until "${COMPOSE[@]}" -f docker-compose.e2e.yml exec -T postgres-e2e pg_isready -U postgres -d nexus_e2e > /dev/null 2>&1; do
   COUNT=$((COUNT + 1))
   if [ $COUNT -ge $RETRIES ]; then
     echo "❌ Database failed to start after $RETRIES attempts"
-    docker-compose -f docker-compose.e2e.yml logs postgres-e2e
+    "${COMPOSE[@]}" -f docker-compose.e2e.yml logs postgres-e2e
     exit 1
   fi
   echo "  Attempt $COUNT/$RETRIES..."

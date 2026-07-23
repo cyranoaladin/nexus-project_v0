@@ -196,7 +196,7 @@ pm2 save
 ```
 
 Résultats :
-- `nexus-prod` : online.
+- `<PROCESS_NAME>` : online.
 - Port applicatif : `127.0.0.1:3001`.
 - Pas de retour à `0.0.0.0:3001`.
 
@@ -230,7 +230,7 @@ Rollback prévu uniquement en cas d'échec critique :
 git reset --hard 5c1f6c031
 npm run build
 pm2 startOrReload ecosystem.config.js --env production --update-env
-pm2 status nexus-prod --no-color
+pm2 status <PROCESS_NAME> --no-color
 curl -sI https://nexusreussite.academy/ | sed -n "1,12p"
 curl -sI http://127.0.0.1:3001/api/health | sed -n "1,12p"
 ```

@@ -72,6 +72,72 @@ describe('Pré-rentrée stage configurator', () => {
     expect(screen.getByText('(nouvel onglet)')).toHaveClass('sr-only');
   });
 
+  async function goToPremiereSubjects(user: ReturnType<typeof userEvent.setup>) {
+    await user.click(screen.getByRole('radio', { name: 'Entrée en Première' }));
+    await user.click(screen.getByRole('button', { name: 'Continuer' }));
+    await user.click(screen.getByRole('radio', { name: 'Voie générale' }));
+    await user.click(screen.getByRole('radio', { name: 'Maths EDS' }));
+    await user.click(screen.getByRole('radio', { name: 'EAF voie générale' }));
+    await user.click(screen.getByRole('radio', { name: 'NSI et Physique-Chimie envisagées' }));
+    await user.click(screen.getByRole('button', { name: 'Continuer' }));
+  }
+
+  const checkedCount = () =>
+    screen.getAllByRole('checkbox').filter((cb) => (cb as HTMLInputElement).checked).length;
+
+  it('caps subject selection at four and never crashes on the 5th (D3 regression)', async () => {
+    const user = userEvent.setup();
+    renderConfigurator();
+    await goToPremiereSubjects(user);
+
+    const checkboxes = screen.getAllByRole('checkbox');
+    expect(checkboxes).toHaveLength(5);
+
+    // Tenter de sélectionner les 5 matières (si buildSelectionSummary était appelé avec 5,
+    // il lèverait "Missing canonical campaign pack" et ferait planter le rendu).
+    for (let i = 0; i < 5; i += 1) {
+      await user.click(screen.getAllByRole('checkbox')[i]);
+    }
+
+    // La 5e est refusée : plafond à 4, message d'aide affiché, aucune erreur levée.
+    expect(checkedCount()).toBe(4);
+    expect(screen.getByRole('status')).toHaveTextContent('4 matières maximum');
+    expect(document.body.textContent).not.toContain('Missing canonical campaign pack');
+    // Le configurateur reste fonctionnel (bouton résumé actif avec 4 matières).
+    expect(screen.getByRole('button', { name: /Voir mon résumé/i })).toBeEnabled();
+  });
+
+  it('re-allows the blocked subject after removing one at the cap (ajout/retrait)', async () => {
+    const user = userEvent.setup();
+    renderConfigurator();
+    await goToPremiereSubjects(user);
+
+    const checkboxes = screen.getAllByRole('checkbox');
+    for (let i = 0; i < 4; i += 1) await user.click(checkboxes[i]);
+    expect(checkedCount()).toBe(4);
+
+    await user.click(checkboxes[4]); // refusé au plafond
+    expect(checkedCount()).toBe(4);
+    expect(screen.getByRole('status')).toBeInTheDocument();
+
+    await user.click(checkboxes[0]); // on libère une place
+    expect(checkedCount()).toBe(3);
+    await user.click(checkboxes[4]); // la 5e devient sélectionnable
+    expect(checkedCount()).toBe(4);
+    expect((checkboxes[4] as HTMLInputElement).checked).toBe(true);
+    expect((checkboxes[0] as HTMLInputElement).checked).toBe(false);
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+
+  it('keeps "Voir mon résumé" disabled with zero subjects', async () => {
+    const user = userEvent.setup();
+    renderConfigurator();
+    await goToPremiereSubjects(user);
+
+    expect(checkedCount()).toBe(0);
+    expect(screen.getByRole('button', { name: /Voir mon résumé/i })).toBeDisabled();
+  });
+
   it('links to a level-specific program without nesting an action inside the choice label', async () => {
     const user = userEvent.setup();
     renderConfigurator();
@@ -89,7 +155,7 @@ describe('Pré-rentrée stage configurator', () => {
     expect(link.closest('label')).toBeNull();
   });
 
-  it('skips EDS profiles for Seconde and shows four level-specific subjects', async () => {
+  it('skips EDS profiles for Seconde and shows only the three approved subjects', async () => {
     const user = userEvent.setup();
     renderConfigurator();
 
@@ -97,14 +163,11 @@ describe('Pré-rentrée stage configurator', () => {
     await user.click(screen.getByRole('button', { name: 'Continuer' }));
 
     expect(screen.queryByText(/EDS NSI Seconde/i)).not.toBeInTheDocument();
-    expect(screen.getByRole('checkbox', { name: /Initiation informatique, algorithmique et SNT/i })).toBeInTheDocument();
-    expect(screen.getByText(dto.modules.find(
-      (campaignModule) => campaignModule.level === 'SECONDE' && campaignModule.subjectId === 'NSI',
-    )?.subtitle ?? '')).toBeInTheDocument();
-    expect(screen.getAllByRole('checkbox')).toHaveLength(4);
+    expect(screen.queryByRole('checkbox', { name: /SNT|initiation informatique/i })).not.toBeInTheDocument();
+    expect(screen.getAllByRole('checkbox')).toHaveLength(3);
   });
 
-  it('uses the four centralized subject themes in choices and summary', async () => {
+  it('uses the three approved Seconde subject themes in choices and summary', async () => {
     const user = userEvent.setup();
     const { container } = render(
       <StageConfigurator
@@ -121,9 +184,10 @@ describe('Pré-rentrée stage configurator', () => {
     await user.click(screen.getByRole('radio', { name: 'Entrée en Seconde' }));
     await user.click(screen.getByRole('button', { name: 'Continuer' }));
 
-    for (const family of ['MATHEMATIQUES', 'FRANCAIS', 'NSI_SNT', 'PHYSIQUE_CHIMIE']) {
+    for (const family of ['MATHEMATIQUES', 'FRANCAIS', 'PHYSIQUE_CHIMIE']) {
       expect(container.querySelector(`[data-subject-family="${family}"]`)).toBeInTheDocument();
     }
+    expect(container.querySelector('[data-subject-family="NSI"]')).not.toBeInTheDocument();
     await user.click(screen.getByRole('checkbox', { name: /Mathématiques/i }));
     expect(container.querySelectorAll('[data-subject-family="MATHEMATIQUES"]').length).toBeGreaterThanOrEqual(2);
   });

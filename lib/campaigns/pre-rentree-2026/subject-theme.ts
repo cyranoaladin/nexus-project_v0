@@ -1,7 +1,7 @@
 export type SubjectFamily =
   | 'MATHEMATIQUES'
   | 'FRANCAIS'
-  | 'NSI_SNT'
+  | 'NSI'
   | 'PHYSIQUE_CHIMIE'
   | 'PHILOSOPHIE'
   | 'SVT';
@@ -38,9 +38,9 @@ export const SUBJECT_THEMES: Readonly<Record<SubjectFamily, SubjectTheme>> = {
     markerClass: 'bg-rose-800 text-white',
     printClass: 'print:border-slate-500 print:bg-white print:text-black',
   },
-  NSI_SNT: {
-    family: 'NSI_SNT',
-    label: 'NSI / SNT',
+  NSI: {
+    family: 'NSI',
+    label: 'NSI',
     marker: '</>',
     surfaceClass: 'bg-violet-50',
     borderClass: 'border-violet-300',
@@ -83,7 +83,7 @@ export const SUBJECT_THEMES: Readonly<Record<SubjectFamily, SubjectTheme>> = {
 export function getSubjectFamily(subjectId: string): SubjectFamily {
   if (subjectId === 'MATHEMATIQUES') return 'MATHEMATIQUES';
   if (subjectId === 'FRANCAIS') return 'FRANCAIS';
-  if (subjectId === 'NSI') return 'NSI_SNT';
+  if (subjectId === 'NSI') return 'NSI';
   if (subjectId === 'PHILOSOPHIE') return 'PHILOSOPHIE';
   if (subjectId === 'SVT') return 'SVT';
   return 'PHYSIQUE_CHIMIE';

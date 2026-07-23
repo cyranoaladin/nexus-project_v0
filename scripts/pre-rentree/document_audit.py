@@ -517,7 +517,7 @@ def build_document_manifest(
     package_root = Path(package_root).resolve()
     script_dir = Path(__file__).resolve().parent
     repo_root = script_dir.parents[1]
-    snapshot_path = Path(snapshot_path or repo_root / "generated/pre-rentree-2026/publication.snapshot.json").resolve()
+    snapshot_path = Path(snapshot_path or repo_root / ".artifacts/pre-rentree-2026/publication.snapshot.json").resolve()
     generator_path = Path(generator_path or script_dir / "generate_documents.py").resolve()
     if not generator_path.is_file():
         generator_path = script_dir / "document_renderer.py"
@@ -529,17 +529,24 @@ def build_document_manifest(
         "WEASYPRINT_VERSION": weasyprint.__version__,
         "QPDF_VERSION": subprocess.run(["qpdf", "--version"], check=True, capture_output=True, text=True).stdout.splitlines()[0],
     }
+    repository_sha = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=repo_root, check=True, capture_output=True, text=True,
+    ).stdout.strip()
+    if repository_sha != snapshot["repositoryCommitSha"]:
+        raise ValueError(
+            "Snapshot repositoryCommitSha does not identify the checked-out repository commit"
+        )
     manifest = {
-        "REPO_SHA": subprocess.run(
-            ["git", "rev-parse", "HEAD"], cwd=repo_root, check=True, capture_output=True, text=True,
-        ).stdout.strip(),
-        "SOURCE_REPO_SHA": snapshot["sourceRepoSha"],
+        "REPO_SHA": repository_sha,
+        "SOURCE_ANCHOR_SHA": snapshot["sourceAnchorSha"],
+        "REPOSITORY_COMMIT_SHA": snapshot["repositoryCommitSha"],
+        "SOURCE_SET_SHA256": snapshot["sourceSetSha256"],
         "SNAPSHOT_SHA256": _sha256(snapshot_path),
         "GENERATOR_SHA256": _sha256(generator_path),
         "FONT_IDENTIFIERS": sorted({font for record in pdf_records for font in record["FONT_IDENTIFIERS"]}),
         **tool_versions,
         "QR_TARGET": snapshot["document"]["qrTarget"],
-        "SOURCE_COMMIT_DATE": snapshot["sourceCommitDate"],
+        "REPOSITORY_COMMIT_DATE": snapshot["repositoryCommitDate"],
         "SNAPSHOT_BUILT_AT": snapshot["snapshotBuiltAt"],
         "DOCUMENT_EDITION_DATE": snapshot["document"]["documentEditionDate"],
         "DOCUMENTS_BUILT_AT": datetime.now(timezone.utc).isoformat(timespec="seconds"),

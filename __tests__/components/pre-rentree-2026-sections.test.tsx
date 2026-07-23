@@ -42,7 +42,7 @@ describe('Pré-rentrée landing sections', () => {
     expect(within(legend).getAllByRole('listitem')).toHaveLength(6);
     expect(within(legend).getByText('Mathématiques')).toBeInTheDocument();
     expect(within(legend).getByText('Français / Expression')).toBeInTheDocument();
-    expect(within(legend).getByText('NSI / SNT')).toBeInTheDocument();
+    expect(within(legend).getByText('NSI')).toBeInTheDocument();
     expect(within(legend).getByText('Physique-Chimie')).toBeInTheDocument();
     expect(within(legend).getByText('SVT')).toBeInTheDocument();
     expect(within(legend).getByText('Philosophie')).toBeInTheDocument();
@@ -51,11 +51,11 @@ describe('Pré-rentrée landing sections', () => {
     await user.click(screen.getByRole('tab', { name: 'Entrée en Seconde' }));
     const table = screen.getByRole('table', { name: 'Planning — Entrée en Seconde' });
     expect(within(table).getAllByRole('columnheader')).toHaveLength(6);
-    expect(within(table).getAllByRole('row')).toHaveLength(5);
+    expect(within(table).getAllByRole('row')).toHaveLength(4);
     expect(within(table).getByRole('columnheader', { name: 'Matière' })).toHaveAttribute('scope', 'col');
-    expect(within(table).getAllByRole('rowheader')).toHaveLength(4);
-    expect(within(table).getAllByText('5 séances · 10 h')).toHaveLength(4);
-    expect(within(table).getAllByText(/du lundi au vendredi/i)).toHaveLength(4);
+    expect(within(table).getAllByRole('rowheader')).toHaveLength(3);
+    expect(within(table).getAllByText('5 séances · 10 h')).toHaveLength(3);
+    expect(within(table).getAllByText(/du lundi au vendredi/i)).toHaveLength(3);
 
     const levelTab = screen.getByRole('tab', { name: 'Par classe de rentrée' });
     const weekTab = screen.getByRole('tab', { name: 'Emploi du temps par semaine' });
@@ -65,24 +65,48 @@ describe('Pré-rentrée landing sections', () => {
     expect(weekTab).toHaveAttribute('aria-selected', 'true');
   });
 
-  it('renders both weekly timetables with five blocks and two rooms', async () => {
+  it('server-renders the three level timetables in the initial DOM (D1 — SEO/a11y)', () => {
+    // Sans aucun clic : les grilles Seconde, Première ET Terminale sont montées (forceMount),
+    // donc présentes pour un crawler, un lecteur d'écran et un navigateur sans JS.
+    renderSchedule();
+    const captions = Array.from(document.querySelectorAll('table caption')).map((c) => c.textContent);
+    expect(captions).toEqual(
+      expect.arrayContaining([
+        'Planning — Entrée en Seconde',
+        'Planning — Entrée en Première',
+        'Planning — Entrée en Terminale',
+      ]),
+    );
+  });
+
+  it('does not leak the Radix forceMount control prop to the DOM', () => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    renderSchedule();
+
+    const messages = consoleError.mock.calls.flat().map(String).join('\n');
+    consoleError.mockRestore();
+    expect(messages).not.toMatch(/forceMount/i);
+  });
+
+  it('renders both weekly timetables with four blocks and two rooms', async () => {
     const user = userEvent.setup();
     renderSchedule();
     await user.click(screen.getByRole('tab', { name: 'Emploi du temps par semaine' }));
 
     expect(screen.getByRole('tab', { name: 'Semaine 1 · 17–21 août' })).toHaveAttribute('aria-selected', 'true');
     const weekOne = screen.getByRole('table', { name: 'Emploi du temps — Semaine 1 · 17–21 août' });
-    expect(within(weekOne).getAllByRole('row')).toHaveLength(6);
+    expect(within(weekOne).getAllByRole('row')).toHaveLength(5);
     expect(within(weekOne).getByRole('columnheader', { name: 'Salle 1' })).toBeInTheDocument();
     expect(within(weekOne).getByRole('columnheader', { name: 'Salle 2' })).toBeInTheDocument();
-    expect(within(weekOne).queryAllByText('Libre')).toHaveLength(1);
+    expect(within(weekOne).queryAllByText('Libre')).toHaveLength(0);
     expect(within(weekOne).getByText('Français — préparation à l’EAF')).toBeInTheDocument();
 
     await user.click(screen.getByRole('tab', { name: 'Semaine 2 · 24–28 août' }));
     const weekTwo = screen.getByRole('table', { name: 'Emploi du temps — Semaine 2 · 24–28 août' });
-    expect(within(weekTwo).getAllByRole('row')).toHaveLength(6);
-    expect(within(weekTwo).getAllByText('Libre')).toHaveLength(3);
-    expect(within(weekTwo).getByText('Initiation informatique, algorithmique et SNT')).toBeInTheDocument();
+    expect(within(weekTwo).getAllByRole('row')).toHaveLength(5);
+    expect(within(weekTwo).getAllByText('Libre')).toHaveLength(1);
+    expect(within(weekTwo).queryByText(/SNT|initiation informatique/i)).not.toBeInTheDocument();
     expect(within(weekTwo).getAllByText('Physique-Chimie')).toHaveLength(3);
   });
 
@@ -90,7 +114,7 @@ describe('Pré-rentrée landing sections', () => {
     renderSchedule();
     const organization = screen.getByRole('region', { name: 'Organisation pédagogique' });
     expect(within(organization).queryAllByTestId('teacher-role')).toHaveLength(0);
-    expect(within(organization).getByText(/Salle 1.*Mathématiques.*NSI.*SNT/i)).toBeInTheDocument();
+    expect(within(organization).getByText(/Salle 1.*Mathématiques.*NSI.*SVT/i)).toBeInTheDocument();
     expect(within(organization).getByText(/Salle 2.*Français.*Physique-Chimie/i)).toBeInTheDocument();
     expect(organization.textContent).not.toMatch(/MATHS_NSI_SNT_TEACHER|FRENCH_TEACHER|PHYSICS_CHEMISTRY_TEACHER/);
     expect(organization.textContent).not.toMatch(/60\s*h|30\s*h/);
@@ -127,6 +151,21 @@ describe('Pré-rentrée landing sections', () => {
     expect(screen.getByText(firstModule?.quickAssessment ?? '')).toBeInTheDocument();
     expect(screen.getByText(firstModule?.sessions[0]?.method ?? '')).toBeInTheDocument();
     expect(screen.getByText(firstModule?.sessions[0]?.deliverable ?? '')).toBeInTheDocument();
+  });
+
+  it.each([
+    ['planning', () => renderSchedule()],
+    ['programmes', () => render(
+      <ProgramsSection modules={dto.modules} levels={dto.levels} subjects={dto.subjects} />,
+    )],
+  ])('offers planning, level programmes, tariffs and flyer downloads in %s', (_section, renderSection) => {
+    renderSection();
+    expect(screen.getByRole('link', { name: /Planning et informations pratiques.*PDF/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Programme détaillé — Entrée en Seconde.*PDF/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Programme détaillé — Entrée en Première.*PDF/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Programme détaillé — Entrée en Terminale.*PDF/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Tarifs et conditions financières.*PDF/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /flyer 1 page.*PDF/i })).toBeInTheDocument();
   });
 
   it('opens the level-specific module targeted by the configurator hash', () => {
@@ -197,11 +236,11 @@ describe('Pré-rentrée landing sections', () => {
     }
   });
 
-  it('renders all sixteen contract FAQ items as accessible accordions', async () => {
+  it('renders all eighteen contract FAQ items as accessible accordions', async () => {
     const user = userEvent.setup();
     render(<CampaignFAQ items={dto.content.faq} />);
     const buttons = screen.getAllByRole('button');
-    expect(buttons).toHaveLength(16);
+    expect(buttons).toHaveLength(18);
     await user.click(buttons[0]);
     expect(buttons[0]).toHaveAttribute('aria-expanded', 'true');
   });

@@ -1,9 +1,12 @@
 import { expect, test, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import fs from 'node:fs';
+import releaseGateMatrix from '@/content/pre-rentree-2026/release-gates.json';
 
 const CAMPAIGN_PATH = '/stages/pre-rentree-2026';
 const EVIDENCE_DIR = '/tmp/nexus-pre-rentree-2026-final-integrated-release';
+const CAMPAIGN_IS_PUBLIC_READY = releaseGateMatrix.releaseStatus === 'PUBLIC_READY'
+  && releaseGateMatrix.gates.every(({ value }) => value);
 
 async function openConfigurator(page: Page, level: 'Seconde' | 'Première' | 'Terminale') {
   await page.goto(CAMPAIGN_PATH);
@@ -61,6 +64,7 @@ async function captureSection(page: Page, selector: string, path: string) {
   }
 }
 
+if (CAMPAIGN_IS_PUBLIC_READY) {
 test.describe('Landing Pré-rentrée 2026', () => {
   test('sert la route canonique, redirige la route courte et expose le SEO exact', async ({ page, request }) => {
     const canonical = await page.goto(CAMPAIGN_PATH);
@@ -400,3 +404,53 @@ test.describe('Landing Pré-rentrée 2026', () => {
     await captureSection(page, '#programmes', `${EVIDENCE_DIR}/programmes-synchronises.png`);
   });
 });
+} else {
+test.describe('Gate public Pré-rentrée 2026', () => {
+  test('masque les routes HTML, la route courte et les téléchargements avec noindex', async ({ request }) => {
+    for (const path of [
+      '/pre-rentree',
+      CAMPAIGN_PATH,
+      '/documents/pre-rentree-2026/Planning_PreRentree2026.pdf',
+    ]) {
+      const response = await request.get(path, { maxRedirects: 0 });
+      expect(response.status(), path).toBe(404);
+      expect(response.headers()['x-robots-tag'], path).toBe('noindex, nofollow, noarchive');
+    }
+  });
+
+  test('masque les API de détail et de préinscription avant toute validation de payload', async ({ request }) => {
+    const detail = await request.get('/api/stages/pre-rentree-2026');
+    expect(detail.status()).toBe(404);
+    expect(await detail.json()).toEqual({ error: 'Stage introuvable' });
+
+    const registration = await request.post('/api/stages/pre-rentree-2026/inscrire', {
+      data: {},
+    });
+    expect(registration.status()).toBe(404);
+    expect(await registration.json()).toEqual({ error: 'Stage introuvable' });
+  });
+
+  test('retire la campagne des surfaces publiques et de la liste API', async ({ page, request }) => {
+    for (const source of ['/', '/stages', '/offres']) {
+      const response = await page.goto(source);
+      expect(response?.status(), source).toBe(200);
+      await expect(page.locator(`a[href="${CAMPAIGN_PATH}"]`), source).toHaveCount(0);
+    }
+
+    const stages = await request.get('/api/stages');
+    expect(stages.status()).toBe(200);
+    expect(await stages.text()).not.toContain('pre-rentree-2026');
+  });
+
+  test('retire la campagne du sitemap et ignore son préremplissage bilan', async ({ page, request }) => {
+    const sitemap = await request.get('/sitemap.xml');
+    expect(sitemap.status()).toBe(200);
+    expect(await sitemap.text()).not.toContain(CAMPAIGN_PATH);
+
+    const bilan = await page.goto('/bilan-gratuit?programme=pre-rentree-2026&pack=PACK_4&niveau=TERMINALE');
+    expect(bilan?.status()).toBe(200);
+    await expect(page.getByText(/Préremplissage modifiable · Pré-rentrée 2026/)).toHaveCount(0);
+    await expect(page.getByText(/Offre repérée.*4 matières/)).toHaveCount(0);
+  });
+});
+}

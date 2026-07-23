@@ -97,11 +97,11 @@ export function MobileStickyBar() {
     >
       <div className="flex items-center gap-3 border-t border-lux-line bg-lux-white px-4 py-3 lux-shadow">
         <Link
-          href="/stages/pre-rentree-2026"
+          href="/bilan-gratuit"
           className="lux-cta-reserve flex-1 rounded-lg px-4 py-3 text-center text-sm font-semibold"
           tabIndex={0}
         >
-          Pré-rentrée 2026 — Voir les stages
+          Demander un bilan gratuit
         </Link>
         <a
           href={buildWhatsAppUrl()}

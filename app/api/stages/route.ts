@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { listPublicStages } from '@/lib/stages/public';
+import { filterPreRentreeFromPublicStages } from '@/lib/campaigns/pre-rentree-2026/release-gate';
 
 const querySchema = z.object({
   open: z.string().optional(),
@@ -25,7 +26,7 @@ export async function GET(req: NextRequest) {
       subject: parsed.data.subject,
     });
 
-    return NextResponse.json({ stages });
+    return NextResponse.json({ stages: filterPreRentreeFromPublicStages(stages) });
   } catch (error) {
     console.error('[GET /api/stages]', error instanceof Error ? error.message : 'unknown');
     return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });

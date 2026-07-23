@@ -5,13 +5,13 @@
 | Promesse | Offre | Preuve requise | Artefact | Responsable | Prête | Approuvée | Canaux autorisés |
 | --- | --- | --- | --- | --- | :---: | :---: | --- |
 | Petit groupe | Fondations/Premium | capacité et cohérence planning | campagne + snapshot | Exploitation | oui | non | REVIEW |
-| Positionnement | Fondations/Premium | test, corrigé, barème, dry-run | 14 tests de revue | Pédagogie | oui | non | REVIEW |
+| Positionnement | Fondations/Premium | test, corrigé, barème, dry-run | 15 tests de revue | Pédagogie | oui | non | REVIEW |
 | Diagnostic par domaines | Premium | scoring et workflow | capacité en attente | Pédagogie | non | non | aucun |
 | Personnalisation | Premium | profil, règles, relecture | capacité en attente | Pédagogie | non | non | aucun |
-| Exercices progressifs | Fondations/Premium | progression des cinq séances | 14 programmes | Pédagogie | oui | non | REVIEW |
+| Exercices progressifs | Fondations/Premium | progression des cinq séances | 15 programmes | Pédagogie | oui | non | REVIEW |
 | Corrections explicites | Fondations/Premium | corrigés et critères | tests et évaluations de revue | Pédagogie | oui | non | REVIEW |
-| Livrables | Fondations/Premium | fichier matériel par séance | 70 fiches de revue | Pédagogie | oui | non | REVIEW |
-| Évaluations rapides | Fondations/Premium | activité, corrigé, critère | 70 fiches de revue | Pédagogie | oui | non | REVIEW |
+| Livrables | Fondations/Premium | fichier matériel par séance | 75 fiches de revue | Pédagogie | oui | non | REVIEW |
+| Évaluations rapides | Fondations/Premium | activité, corrigé, critère | 75 fiches de revue | Pédagogie | oui | non | REVIEW |
 | Bilan Fondations | Fondations | modèle, saisie, relecture, dry-run | capacité en attente | Pédagogie | non | non | aucun |
 | Bilans et plan d’action | Premium | cinq documents et workflow | capacités en attente | Pédagogie | non | non | aucun |
 | Manuel offert | Premium Maths/NSI | BAT, approbation, stock | registre quatre manuels | Édition | non | non | aucun |

@@ -321,7 +321,7 @@ Alaeddine, voici vos **ordres de marche** pour les 60 prochaines minutes. **Ne d
 
 ```bash
 # Connexion au serveur
-ssh root@88.99.254.59
+ssh root@<PROD_HOST>
 
 # Créer dossier backups si inexistant
 mkdir -p /srv/nexus-next-app/backups
@@ -342,7 +342,7 @@ gzip /srv/nexus-next-app/backups/backup_pre_assessment_*.sql
 
 ### ⚡ Étape B : Déploiement "Zero-Downtime" (15 min)
 
-Lancez les commandes suivantes sur votre serveur (88.99.254.59) :
+Lancez les commandes suivantes sur votre serveur (<PROD_HOST>) :
 
 ```bash
 # 1. Pull du code

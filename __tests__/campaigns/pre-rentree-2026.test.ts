@@ -34,8 +34,8 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       expect(campaignManifest.subjects).toHaveLength(6);
     });
 
-    it('has exactly 5 time blocks', () => {
-      expect(campaignManifest.blocks).toHaveLength(5);
+    it('has exactly 4 time blocks', () => {
+      expect(campaignManifest.blocks).toHaveLength(4);
     });
 
     it('has exactly 2 weeks', () => {
@@ -46,8 +46,8 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
   describe('Modules', () => {
     const modules = (modulesData as any).modules;
 
-    it('has exactly 16 modules', () => {
-      expect(modules).toHaveLength(16);
+    it('has exactly 15 modules after excluding SNT in Seconde', () => {
+      expect(modules).toHaveLength(15);
     });
 
     it('each module has exactly 5 sessions', () => {
@@ -56,18 +56,18 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       }
     });
 
-    it('total sessions = 80', () => {
+    it('total sessions = 75', () => {
       const total = modules.reduce((sum: number, m: any) => sum + m.sessions.length, 0);
-      expect(total).toBe(80);
+      expect(total).toBe(75);
     });
 
-    it('has 4 modules per level except Première and Terminale with SVT', () => {
+    it('keeps the approved number of modules per level', () => {
       const byLevel = { TROISIEME: 0, SECONDE: 0, PREMIERE: 0, TERMINALE: 0 };
       for (const mod of modules) {
         byLevel[mod.level as keyof typeof byLevel]++;
       }
       expect(byLevel.TROISIEME).toBe(2);
-      expect(byLevel.SECONDE).toBe(4);
+      expect(byLevel.SECONDE).toBe(3);
       expect(byLevel.PREMIERE).toBe(5);
       expect(byLevel.TERMINALE).toBe(5);
     });
@@ -81,20 +81,14 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       }
     });
 
-    it('never uses "NSI EDS Seconde" or "EDS NSI Seconde"', () => {
-      for (const mod of modules) {
-        if (mod.level === 'SECONDE' && mod.subject.includes('nformatique')) {
-          expect(mod.title).not.toMatch(/NSI.*EDS|EDS.*NSI/i);
-        }
-      }
-    });
-
-    it('Seconde informatique uses "Initiation informatique" terminology', () => {
-      const secInfo = modules.find(
-        (m: any) => m.level === 'SECONDE' && (m.subject.includes('nformatique') || m.subject.includes('SNT'))
+    it('excludes every Seconde SNT or initiation-informatique module', () => {
+      const publicSecondeText = JSON.stringify(
+        modules.filter((module: any) => module.level === 'SECONDE'),
       );
-      expect(secInfo).toBeDefined();
-      expect(secInfo.title).toMatch(/[Ii]nitiation.*informatique|algorithmique.*SNT/i);
+      expect(publicSecondeText).not.toMatch(/SNT|initiation informatique/i);
+      expect(modules.some((module: any) => (
+        module.level === 'SECONDE' && module.subjectId === 'NSI'
+      ))).toBe(false);
     });
   });
 
@@ -212,8 +206,8 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
   describe('Terminology guards', () => {
     it('manifest subject labels respect pedagogy rules', () => {
       const nsi = campaignManifest.subjects.find(s => s.id === 'NSI');
-      expect(nsi?.labelByLevel?.SECONDE).toContain('Initiation');
-      expect(nsi?.labelByLevel?.SECONDE).not.toContain('EDS');
+      expect(nsi?.levels).toEqual(['PREMIERE', 'TERMINALE']);
+      expect(nsi?.labelByLevel).toBeUndefined();
     });
 
     it('replaces Terminale French with Philosophy', () => {

@@ -7,7 +7,7 @@ import { getRules } from '@/lib/pricing-client';
 
 function getReassuranceItems(groupMax: number): string[] {
   return [
-  'Enseignants agrégés & certifiés',
+  'Enseignants expérimentés',
   `Groupes de ${groupMax} max`,
   'Cellule Cyclades',
   ];
@@ -36,7 +36,7 @@ export function HeroSection() {
 
             {/* Description */}
             <p className="max-w-lg text-base leading-relaxed text-lux-on-dark-muted font-dm-sans">
-              Un cadre structurant pensé pour les familles&nbsp;: enseignants agrégés et certifiés,
+              Un cadre structurant pensé pour les familles&nbsp;: enseignants expérimentés, en exercice dans le système français,
               groupes de {groupMax}, bacs blancs sur grilles officielles, et la plateforme ARIA.
             </p>
 

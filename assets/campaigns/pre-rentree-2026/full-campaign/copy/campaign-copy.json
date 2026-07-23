@@ -4,7 +4,6 @@
   "campaignId": "pre-rentree-2026",
   "locale": "fr-TN",
   "timezone": "Africa/Tunis",
-  "campaignStart": "2026-07-20",
   "stageStart": "2026-08-17",
   "contact": {
     "whatsappDisplay": "99 192 829",
@@ -36,7 +35,6 @@
       "cta": "Recevoir le programme sur WhatsApp",
       "assetId": "full-post-01-annonce-generale",
       "altText": "Affiche annonçant les stages de pré-rentrée Nexus Réussite dès le 17 août à Mutuelleville pour les niveaux 3e à Terminale.",
-      "publicationDate": "2026-07-20",
       "publicationTime": "19:00",
       "utm": {
         "source": "meta",
@@ -52,6 +50,9 @@
       "offerIds": [],
       "pricingDisclosure": null,
       "whatsappPrefill": "Bonjour Nexus Réussite, je souhaite recevoir le programme de pré-rentrée 2026 pour le niveau [niveau] en [matière].",
+      "publicationDayOffset": 0,
+      "publicationDay": "J1",
+      "publicationDate": null,
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%20Nexus%20R%C3%A9ussite%2C%20je%20souhaite%20recevoir%20le%20programme%20de%20pr%C3%A9-rentr%C3%A9e%202026%20pour%20le%20niveau%20%5Bniveau%5D%20en%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_01_annonce"
     },
@@ -74,7 +75,6 @@
       "cta": "Vérifier la matière et les horaires",
       "assetId": "full-post-02-entree-3e",
       "altText": "Visuel de l'offre d'entrée en 3e en Mathématiques ou Français, dix heures par matière et groupe de quatre à six élèves.",
-      "publicationDate": "2026-07-22",
       "publicationTime": "19:00",
       "utm": {
         "source": "meta",
@@ -93,6 +93,9 @@
       ],
       "pricingDisclosure": "TROISIEME",
       "whatsappPrefill": "Bonjour, mon enfant entre en 3e et nous recherchons le stage de [Mathématiques/Français]. Pouvez-vous confirmer les horaires ?",
+      "publicationDayOffset": 2,
+      "publicationDay": "J3",
+      "publicationDate": null,
       "pricingLine": "3e : 350 TND / matière · acompte 105 TND",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%203e%20et%20nous%20recherchons%20le%20stage%20de%20%5BMath%C3%A9matiques/Fran%C3%A7ais%5D.%20Pouvez-vous%20confirmer%20les%20horaires%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_02_3e"
     },
@@ -109,13 +112,12 @@
         "SECONDE"
       ],
       "funnelStage": "CONSIDERATION",
-      "objective": "Présenter les matières canoniques disponibles en Seconde",
+      "objective": "Présenter les matières disponibles en Seconde",
       "hook": "L'entrée en Seconde demande des fondamentaux solides et une méthode plus autonome.",
       "body": "En Seconde, les stages sont proposés en Mathématiques, Physique-Chimie ou Français. Chaque matière représente cinq séances de deux heures, en groupe de quatre à six élèves. L'élève reprend les notions utiles, s'entraîne et apprend à relire une correction pour construire une méthode réutilisable.",
       "cta": "Choisir la matière sur WhatsApp",
       "assetId": "full-post-03-entree-seconde",
       "altText": "Visuel de l'offre d'entrée en Seconde en Mathématiques, Physique-Chimie ou Français, avec cinq séances et effectif limité.",
-      "publicationDate": "2026-07-24",
       "publicationTime": "19:00",
       "utm": {
         "source": "meta",
@@ -135,6 +137,9 @@
       ],
       "pricingDisclosure": "SECONDE",
       "whatsappPrefill": "Bonjour, mon enfant entre en Seconde et souhaite travailler [matière]. Pouvez-vous nous conseiller le parcours adapté ?",
+      "publicationDayOffset": 4,
+      "publicationDay": "J5",
+      "publicationDate": null,
       "pricingLine": "Seconde : 400 TND / matière · acompte 120 TND",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20Seconde%20et%20souhaite%20travailler%20%5Bmati%C3%A8re%5D.%20Pouvez-vous%20nous%20conseiller%20le%20parcours%20adapt%C3%A9%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_03_seconde"
     },
@@ -157,7 +162,6 @@
       "cta": "Composer le parcours de Première",
       "assetId": "full-post-04-entree-premiere",
       "altText": "Visuel présentant les parcours Premium d'entrée en Première, de une à quatre matières selon les choix de l'élève.",
-      "publicationDate": "2026-07-27",
       "publicationTime": "19:00",
       "utm": {
         "source": "meta",
@@ -178,6 +182,9 @@
       ],
       "pricingDisclosure": "PREMIERE",
       "whatsappPrefill": "Bonjour, mon enfant entre en Première avec les spécialités [spécialités]. Quelles matières de pré-rentrée sont disponibles ?",
+      "publicationDayOffset": 7,
+      "publicationDay": "J8",
+      "publicationDate": null,
       "pricingLine": "Première : 1 mat. 480 TND · 2 mat. 900 TND · 3 mat. 1 350 TND · 4 mat. 1 800 TND",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20Premi%C3%A8re%20avec%20les%20sp%C3%A9cialit%C3%A9s%20%5Bsp%C3%A9cialit%C3%A9s%5D.%20Quelles%20mati%C3%A8res%20de%20pr%C3%A9-rentr%C3%A9e%20sont%20disponibles%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_04_premiere"
     },
@@ -201,7 +208,6 @@
       "cta": "Vérifier le parcours de Terminale",
       "assetId": "full-post-05-entree-terminale",
       "altText": "Visuel présentant les parcours Premium d'entrée en Terminale, de une à quatre matières et cinq séances par matière.",
-      "publicationDate": "2026-07-29",
       "publicationTime": "19:00",
       "utm": {
         "source": "meta",
@@ -222,6 +228,9 @@
       ],
       "pricingDisclosure": "TERMINALE",
       "whatsappPrefill": "Bonjour, mon enfant entre en Terminale et souhaite préparer [matières]. Pouvez-vous vérifier le parcours disponible ?",
+      "publicationDayOffset": 9,
+      "publicationDay": "J10",
+      "publicationDate": null,
       "pricingLine": "Terminale : 1 mat. 480 TND · 2 mat. 900 TND · 3 mat. 1 350 TND · 4 mat. 1 800 TND",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20Terminale%20et%20souhaite%20pr%C3%A9parer%20%5Bmati%C3%A8res%5D.%20Pouvez-vous%20v%C3%A9rifier%20le%20parcours%20disponible%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_05_terminale"
     },
@@ -245,7 +254,6 @@
       "cta": "Découvrir l'organisation des séances",
       "assetId": "full-post-06-methode-nexus",
       "altText": "Visuel expliquant la méthode Nexus en trois temps : objectif annoncé, entraînement actif et correction pédagogique.",
-      "publicationDate": "2026-07-31",
       "publicationTime": "19:00",
       "utm": {
         "source": "meta",
@@ -260,6 +268,9 @@
       "offerIds": [],
       "pricingDisclosure": null,
       "whatsappPrefill": "Bonjour, je souhaite comprendre l'organisation pédagogique des stages de pré-rentrée pour le niveau [niveau].",
+      "publicationDayOffset": 11,
+      "publicationDay": "J12",
+      "publicationDate": null,
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20comprendre%20l%27organisation%20p%C3%A9dagogique%20des%20stages%20de%20pr%C3%A9-rentr%C3%A9e%20pour%20le%20niveau%20%5Bniveau%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_06_methode"
     },
@@ -282,7 +293,6 @@
       "cta": "Recevoir le détail du parcours",
       "assetId": "full-post-07-valeur-tarif",
       "altText": "Visuel invitant à comparer le contenu réel du stage : cinq séances, objectifs, entraînement, correction et effectif défini.",
-      "publicationDate": "2026-08-03",
       "publicationTime": "19:00",
       "utm": {
         "source": "meta",
@@ -297,6 +307,9 @@
       "offerIds": [],
       "pricingDisclosure": "ALL",
       "whatsappPrefill": "Bonjour, pouvez-vous m'envoyer le détail du contenu et le tarif du parcours [niveau/matière] ?",
+      "publicationDayOffset": 14,
+      "publicationDay": "J15",
+      "publicationDate": null,
       "pricingLine": "3e : 350 TND / matière · acompte 105 TND\nSeconde : 400 TND / matière · acompte 120 TND\nPremium : 1 mat. 480 TND · 2 mat. 900 TND · 3 mat. 1 350 TND · 4 mat. 1 800 TND",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20pouvez-vous%20m%27envoyer%20le%20d%C3%A9tail%20du%20contenu%20et%20le%20tarif%20du%20parcours%20%5Bniveau/mati%C3%A8re%5D%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_07_valeur"
     },
@@ -319,7 +332,6 @@
       "cta": "Demander le programme de la matière",
       "assetId": "full-post-08-dix-heures",
       "altText": "Visuel présentant les dix heures du stage comme cinq séances progressives de réactivation, compréhension, entraînement, correction et consolidation.",
-      "publicationDate": "2026-08-05",
       "publicationTime": "19:00",
       "utm": {
         "source": "meta",
@@ -334,6 +346,9 @@
       "offerIds": [],
       "pricingDisclosure": null,
       "whatsappPrefill": "Bonjour, je souhaite recevoir le programme des cinq séances en [matière] pour une entrée en [niveau].",
+      "publicationDayOffset": 16,
+      "publicationDay": "J17",
+      "publicationDate": null,
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le%20programme%20des%20cinq%20s%C3%A9ances%20en%20%5Bmati%C3%A8re%5D%20pour%20une%20entr%C3%A9e%20en%20%5Bniveau%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_08_10h"
     },
@@ -356,7 +371,6 @@
       "cta": "Vérifier la disponibilité du groupe",
       "assetId": "full-post-09-effectifs-limites",
       "altText": "Visuel expliquant les effectifs des groupes Fondations de quatre à six élèves et Premium de trois à cinq élèves.",
-      "publicationDate": "2026-08-07",
       "publicationTime": "19:00",
       "utm": {
         "source": "meta",
@@ -372,13 +386,16 @@
       "offerIds": [],
       "pricingDisclosure": null,
       "whatsappPrefill": "Bonjour, pouvez-vous vérifier la disponibilité du groupe [niveau/matière] et me confirmer son effectif ?",
+      "publicationDayOffset": 18,
+      "publicationDay": "J19",
+      "publicationDate": null,
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20pouvez-vous%20v%C3%A9rifier%20la%20disponibilit%C3%A9%20du%20groupe%20%5Bniveau/mati%C3%A8re%5D%20et%20me%20confirmer%20son%20effectif%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_09_effectifs"
     },
     {
       "id": "10-reservation-acompte",
       "audience": [
-        "Parents prêts à réserver un parcours"
+        "Parents souhaitant recevoir les informations du stage"
       ],
       "channel": [
         "Facebook",
@@ -388,30 +405,31 @@
       "level": [
         "ALL"
       ],
-      "funnelStage": "CONVERSION",
-      "objective": "Expliquer précisément la règle de réservation",
-      "hook": "Une demande d'information ouvre la conversation ; l'acompte confirme la réservation.",
-      "body": "Après échange sur le niveau, la matière et le parcours, Nexus Réussite confirme les conditions applicables. L'acompte représente trente pour cent du tarif total. Une demande envoyée sans acompte ne réserve pas la place. Cette règle distingue clairement la prise d'information de l'inscription confirmée.",
-      "cta": "Faire vérifier mon parcours",
+      "funnelStage": "CONSIDERATION",
+      "objective": "Expliquer précisément la demande d'information",
+      "hook": "Une demande d'information permet de recevoir le programme, les horaires et la grille tarifaire.",
+      "body": "Écrivez le niveau et la matière recherchée. Nexus Réussite peut alors transmettre les objectifs, les horaires et le tarif correspondant. Aucun paiement n'est demandé et aucune place n'est bloquée tant que les conditions contractuelles, le reçu et le rapprochement ne sont pas validés.",
+      "cta": "Demander les informations",
       "assetId": "full-post-10-reservation-acompte",
-      "altText": "Visuel expliquant qu'une demande ne réserve pas une place et que la réservation est confirmée après validation et acompte de trente pour cent.",
-      "publicationDate": "2026-08-10",
+      "altText": "Visuel invitant les familles à demander le programme, les horaires et la grille tarifaire sans paiement.",
       "publicationTime": "19:00",
       "utm": {
         "source": "meta",
         "medium": "social_organic",
         "campaign": "pre_rentree_2026",
-        "content": "post_10_acompte"
+        "content": "post_10_information"
       },
       "proofIds": [
-        "PRF-PRE2026-DEPOSIT-30",
         "PRF-PRE2026-WHATSAPP"
       ],
       "offerIds": [],
       "pricingDisclosure": null,
-      "whatsappPrefill": "Bonjour, je souhaite faire vérifier le parcours [niveau/matière] et connaître les étapes de réservation.",
+      "whatsappPrefill": "Bonjour, je souhaite recevoir le programme, les horaires et le tarif pour [niveau/matière].",
+      "publicationDayOffset": 21,
+      "publicationDay": "J22",
+      "publicationDate": null,
       "pricingLine": "",
-      "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20faire%20v%C3%A9rifier%20le%20parcours%20%5Bniveau/mati%C3%A8re%5D%20et%20conna%C3%AEtre%20les%20%C3%A9tapes%20de%20r%C3%A9servation.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_10_acompte"
+      "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le%20programme%2C%20les%20horaires%20et%20le%20tarif%20pour%20%5Bniveau/mati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_10_information"
     },
     {
       "id": "11-checklist-parent",
@@ -433,7 +451,6 @@
       "cta": "Préparer ma demande sur WhatsApp",
       "assetId": "full-post-11-checklist-parent",
       "altText": "Checklist parent avec trois informations à préparer : classe d'entrée, matière recherchée et priorité de travail pour la rentrée.",
-      "publicationDate": "2026-08-12",
       "publicationTime": "19:00",
       "utm": {
         "source": "meta",
@@ -448,13 +465,16 @@
       "offerIds": [],
       "pricingDisclosure": null,
       "whatsappPrefill": "Bonjour, mon enfant entre en [niveau]. Nous cherchons [matière] pour reprendre en priorité [besoin].",
+      "publicationDayOffset": 23,
+      "publicationDay": "J24",
+      "publicationDate": null,
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20%5Bniveau%5D.%20Nous%20cherchons%20%5Bmati%C3%A8re%5D%20pour%20reprendre%20en%20priorit%C3%A9%20%5Bbesoin%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_11_checklist"
     },
     {
       "id": "12-rappel-avant-stage",
       "audience": [
-        "Familles ayant manifesté un intérêt sans réservation confirmée"
+        "Familles ayant manifesté un intérêt"
       ],
       "channel": [
         "Facebook",
@@ -464,14 +484,13 @@
       "level": [
         "ALL"
       ],
-      "funnelStage": "CONVERSION",
-      "objective": "Inviter à vérifier les groupes avant le démarrage",
-      "hook": "Le stage commence le 17 août : vérifiez maintenant le parcours réellement adapté.",
-      "body": "Les stages de pré-rentrée débutent à Mutuelleville. Les matières varient selon la classe d'entrée et les effectifs sont limités par parcours. Écrivez le niveau et la matière recherchée sur WhatsApp : l'équipe vérifiera le format, les conditions et la disponibilité avant toute confirmation de réservation.",
-      "cta": "Vérifier mon groupe aujourd'hui",
+      "funnelStage": "CONSIDERATION",
+      "objective": "Inviter à demander les informations avant le démarrage",
+      "hook": "Le stage commence le 17 août : demandez le programme correspondant au niveau recherché.",
+      "body": "Les stages de pré-rentrée débutent à Mutuelleville. Les matières varient selon la classe d'entrée et les effectifs sont limités par parcours. Écrivez le niveau et la matière recherchée sur WhatsApp : l'équipe transmettra le format, les horaires et la grille tarifaire disponibles.",
+      "cta": "Demander les informations",
       "assetId": "full-post-12-rappel-avant-stage",
-      "altText": "Visuel de rappel avant le stage invitant les familles à vérifier le niveau, la matière et la disponibilité du groupe sur WhatsApp.",
-      "publicationDate": "2026-08-15",
+      "altText": "Visuel de rappel avant le stage invitant les familles à demander le programme et les horaires sur WhatsApp.",
       "publicationTime": "11:00",
       "utm": {
         "source": "meta",
@@ -481,14 +500,16 @@
       },
       "proofIds": [
         "PRF-PRE2026-DATES-VENUE",
-        "PRF-PRE2026-WHATSAPP",
-        "PRF-PRE2026-DEPOSIT-30"
+        "PRF-PRE2026-WHATSAPP"
       ],
       "offerIds": [],
       "pricingDisclosure": null,
-      "whatsappPrefill": "Bonjour, je souhaite vérifier s'il existe un groupe adapté pour [niveau] en [matière] avant le 17 août.",
+      "whatsappPrefill": "Bonjour, je souhaite recevoir le programme et les horaires pour [niveau] en [matière] avant le 17 août.",
+      "publicationDayOffset": 26,
+      "publicationDay": "J27",
+      "publicationDate": null,
       "pricingLine": "",
-      "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20v%C3%A9rifier%20s%27il%20existe%20un%20groupe%20adapt%C3%A9%20pour%20%5Bniveau%5D%20en%20%5Bmati%C3%A8re%5D%20avant%20le%2017%20ao%C3%BBt.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_12_rappel"
+      "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le%20programme%20et%20les%20horaires%20pour%20%5Bniveau%5D%20en%20%5Bmati%C3%A8re%5D%20avant%20le%2017%20ao%C3%BBt.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_12_rappel"
     },
     {
       "id": "13-demarrage",
@@ -511,7 +532,6 @@
       "cta": "Demander une dernière vérification",
       "assetId": "full-post-13-demarrage",
       "altText": "Visuel annonçant le démarrage des stages de pré-rentrée à Mutuelleville et invitant à vérifier les dernières disponibilités par niveau.",
-      "publicationDate": "2026-08-17",
       "publicationTime": "08:00",
       "utm": {
         "source": "meta",
@@ -527,6 +547,9 @@
       "offerIds": [],
       "pricingDisclosure": null,
       "whatsappPrefill": "Bonjour, je souhaite vérifier une dernière disponibilité pour [niveau] en [matière].",
+      "publicationDayOffset": 28,
+      "publicationDay": "J29",
+      "publicationDate": null,
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20v%C3%A9rifier%20une%20derni%C3%A8re%20disponibilit%C3%A9%20pour%20%5Bniveau%5D%20en%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_13_demarrage"
     }
@@ -551,7 +574,6 @@
       "cta": "Recevoir le programme sur WhatsApp",
       "assetId": "full-carousel-01-methode",
       "altText": "Carrousel de cinq slides expliquant la progression pédagogique des stages Nexus Réussite.",
-      "publicationDate": "2026-07-21",
       "utm": {
         "source": "meta",
         "medium": "carousel_organic",
@@ -617,6 +639,9 @@
           ]
         }
       ],
+      "publicationDayOffset": 1,
+      "publicationDay": "J2",
+      "publicationDate": null,
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le%20programme%20des%20cinq%20s%C3%A9ances%20pour%20%5Bniveau%5D%20en%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dcarousel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dcarousel_01_methode"
     },
@@ -635,11 +660,10 @@
       "funnelStage": "CONSIDERATION",
       "objective": "Présenter le parcours 3e de façon complète",
       "hook": "Entrée en 3e : deux matières, un cadre précis et cinq séances par matière.",
-      "body": "Ce carrousel détaille l'offre d'entrée en 3e : Mathématiques ou Français, dix heures par matière, groupe de quatre à six élèves, progression structurée et réservation après validation du parcours. Le tarif exact est injecté depuis la source commerciale canonique.",
+      "body": "Ce carrousel détaille l'offre d'entrée en 3e : Mathématiques ou Français, dix heures par matière, groupe de quatre à six élèves et progression structurée. Le tarif exact correspond à la grille approuvée.",
       "cta": "Choisir Mathématiques ou Français",
       "assetId": "full-carousel-02-entree-3e",
-      "altText": "Carrousel présentant l'offre d'entrée en 3e en Mathématiques ou Français, son format, son effectif et la réservation.",
-      "publicationDate": "2026-07-23",
+      "altText": "Carrousel présentant l'offre d'entrée en 3e en Mathématiques ou Français, son format et son effectif.",
       "utm": {
         "source": "meta",
         "medium": "carousel_organic",
@@ -648,15 +672,14 @@
       },
       "proofIds": [
         "PRF-PRE2026-3E-350-APPROVED",
-        "PRF-PRE2026-FIVE-SESSIONS",
-        "PRF-PRE2026-DEPOSIT-30"
+        "PRF-PRE2026-FIVE-SESSIONS"
       ],
       "offerIds": [
         "pre2026-3e-mathematiques",
         "pre2026-3e-francais"
       ],
       "pricingDisclosure": "TROISIEME",
-      "whatsappPrefill": "Bonjour, mon enfant entre en 3e et souhaite travailler [Mathématiques/Français]. Pouvez-vous confirmer le parcours ?",
+      "whatsappPrefill": "Bonjour, mon enfant entre en 3e et souhaite travailler [Mathématiques/Français]. Pouvez-vous transmettre le programme et les horaires ?",
       "slides": [
         {
           "id": "01",
@@ -700,19 +723,21 @@
         },
         {
           "id": "05",
-          "eyebrow": "TARIF & RÉSERVATION",
+          "eyebrow": "TARIF",
           "title": "Un parcours transparent",
-          "body": "Le tarif canonique est affiché ici. La réservation est confirmée après acompte.",
-          "altText": "Slide finale avec tarif dérivé de la source canonique et règle d'acompte.",
+          "body": "Le tarif applicable est affiché ici. Demandez les informations sans paiement.",
+          "altText": "Slide finale avec le tarif correspondant à l'offre.",
           "proofIds": [
-            "PRF-PRE2026-3E-350-APPROVED",
-            "PRF-PRE2026-DEPOSIT-30"
+            "PRF-PRE2026-3E-350-APPROVED"
           ],
           "pricingDisclosure": "TROISIEME"
         }
       ],
+      "publicationDayOffset": 3,
+      "publicationDay": "J4",
+      "publicationDate": null,
       "pricingLine": "3e : 350 TND / matière · acompte 105 TND",
-      "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%203e%20et%20souhaite%20travailler%20%5BMath%C3%A9matiques/Fran%C3%A7ais%5D.%20Pouvez-vous%20confirmer%20le%20parcours%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dcarousel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dcarousel_02_3e"
+      "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%203e%20et%20souhaite%20travailler%20%5BMath%C3%A9matiques/Fran%C3%A7ais%5D.%20Pouvez-vous%20transmettre%20le%20programme%20et%20les%20horaires%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dcarousel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dcarousel_02_3e"
     },
     {
       "id": "03-entree-seconde",
@@ -729,11 +754,10 @@
       "funnelStage": "CONSIDERATION",
       "objective": "Présenter sans ambiguïté les trois matières de Seconde",
       "hook": "En Seconde, trois matières sont proposées pour préparer une rentrée plus autonome.",
-      "body": "Ce carrousel présente uniquement les matières canoniques de Seconde : Mathématiques, Physique-Chimie et Français. Chaque parcours comprend cinq séances de deux heures en groupe de quatre à six élèves, avec entraînement et correction organisés.",
+      "body": "Ce carrousel présente uniquement les matières disponibles en Seconde : Mathématiques, Physique-Chimie et Français. Chaque parcours comprend cinq séances de deux heures en groupe de quatre à six élèves, avec entraînement et correction organisés.",
       "cta": "Vérifier la matière de Seconde",
       "assetId": "full-carousel-03-entree-seconde",
       "altText": "Carrousel présentant les trois matières proposées en Seconde, le format de dix heures et l'effectif du groupe.",
-      "publicationDate": "2026-07-25",
       "utm": {
         "source": "meta",
         "medium": "carousel_organic",
@@ -798,8 +822,8 @@
           "id": "05",
           "eyebrow": "PASSER À L'ACTION",
           "title": "Choisissez la matière",
-          "body": "Consultez le tarif canonique, puis écrivez-nous pour vérifier le groupe.",
-          "altText": "Slide finale avec tarif canonique et invitation à vérifier le groupe.",
+          "body": "Consultez le tarif applicable, puis écrivez-nous pour vérifier le groupe.",
+          "altText": "Slide finale avec le tarif et une invitation à vérifier le groupe.",
           "proofIds": [
             "PRF-PRE2026-SECONDE-400",
             "PRF-PRE2026-WHATSAPP"
@@ -807,6 +831,9 @@
           "pricingDisclosure": "SECONDE"
         }
       ],
+      "publicationDayOffset": 5,
+      "publicationDay": "J6",
+      "publicationDate": null,
       "pricingLine": "Seconde : 400 TND / matière · acompte 120 TND",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20Seconde%20et%20cherche%20le%20stage%20de%20%5Bmati%C3%A8re%5D.%20Pouvez-vous%20confirmer%20le%20programme%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dcarousel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dcarousel_03_seconde"
     },
@@ -825,11 +852,10 @@
       "funnelStage": "CONSIDERATION",
       "objective": "Aider à composer un pack Première cohérent",
       "hook": "En Première, le parcours se construit autour des matières réellement suivies.",
-      "body": "Ce carrousel aide les familles à sélectionner de une à quatre matières parmi les propositions canoniques d'entrée en Première. Il explique le format Premium, l'organisation en cinq séances par matière et la nécessité de vérifier le profil scolaire avant confirmation.",
+      "body": "Ce carrousel aide les familles à sélectionner de une à quatre matières parmi les propositions disponibles en Première. Il explique le format Premium, l'organisation en cinq séances par matière et la nécessité de vérifier le profil scolaire avant confirmation.",
       "cta": "Composer un pack Première",
       "assetId": "full-carousel-04-premiere",
       "altText": "Carrousel aidant les familles à composer un parcours Premium d'entrée en Première selon les matières disponibles.",
-      "publicationDate": "2026-07-28",
       "utm": {
         "source": "meta",
         "medium": "carousel_organic",
@@ -863,7 +889,7 @@
           "id": "02",
           "eyebrow": "1 À 4 MATIÈRES",
           "title": "Un pack adapté au profil",
-          "body": "La composition dépend du niveau et des matières canoniquement disponibles.",
+          "body": "La composition dépend du niveau et des matières autorisées pour ce niveau.",
           "altText": "Slide présentant les packs de une à quatre matières.",
           "proofIds": [
             "PRF-PRE2026-PREMIUM-PACKS"
@@ -891,10 +917,10 @@
         },
         {
           "id": "05",
-          "eyebrow": "PACKS CANONIQUES",
+          "eyebrow": "PACKS 1 À 4 MATIÈRES",
           "title": "Vérifiez votre combinaison",
           "body": "Les tarifs de une à quatre matières sont dérivés du référentiel commercial.",
-          "altText": "Slide finale avec les tarifs canoniques des packs Première.",
+          "altText": "Slide finale avec les tarifs des packs Première.",
           "proofIds": [
             "PRF-PRE2026-PREMIUM-PACKS",
             "PRF-PRE2026-WHATSAPP"
@@ -902,6 +928,9 @@
           "pricingDisclosure": "PREMIERE"
         }
       ],
+      "publicationDayOffset": 8,
+      "publicationDay": "J9",
+      "publicationDate": null,
       "pricingLine": "Première : 1 mat. 480 TND · 2 mat. 900 TND · 3 mat. 1 350 TND · 4 mat. 1 800 TND",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20Premi%C3%A8re%20avec%20%5Bsp%C3%A9cialit%C3%A9s%5D.%20Nous%20souhaitons%20composer%20un%20parcours%20de%20%5Bnombre%5D%20mati%C3%A8re%28s%29.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dcarousel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dcarousel_04_premiere"
     },
@@ -921,11 +950,10 @@
       "funnelStage": "CONSIDERATION",
       "objective": "Aider à hiérarchiser le parcours Terminale",
       "hook": "En Terminale, mieux vaut choisir des priorités précises que multiplier les objectifs.",
-      "body": "Ce carrousel guide la composition d'un parcours d'entrée en Terminale de une à quatre matières selon l'offre canonique. Chaque matière comprend dix heures en cinq séances et le groupe Premium accueille de trois à cinq élèves.",
+      "body": "Ce carrousel guide la composition d'un parcours d'entrée en Terminale de une à quatre matières selon les matières disponibles. Chaque matière comprend dix heures en cinq séances et le groupe Premium accueille de trois à cinq élèves.",
       "cta": "Construire le parcours Terminale",
       "assetId": "full-carousel-05-terminale",
       "altText": "Carrousel guidant la composition d'un parcours Premium d'entrée en Terminale selon les matières disponibles.",
-      "publicationDate": "2026-07-30",
       "utm": {
         "source": "meta",
         "medium": "carousel_organic",
@@ -989,8 +1017,8 @@
           "id": "05",
           "eyebrow": "VÉRIFIER",
           "title": "Confirmez les matières",
-          "body": "Consultez les packs canoniques et indiquez le profil scolaire sur WhatsApp.",
-          "altText": "Slide finale avec tarifs canoniques et CTA WhatsApp.",
+          "body": "Consultez les packs de une à quatre matières et indiquez le profil scolaire sur WhatsApp.",
+          "altText": "Slide finale avec les tarifs des packs et le CTA WhatsApp.",
           "proofIds": [
             "PRF-PRE2026-PREMIUM-PACKS",
             "PRF-PRE2026-WHATSAPP"
@@ -998,6 +1026,9 @@
           "pricingDisclosure": "TERMINALE"
         }
       ],
+      "publicationDayOffset": 10,
+      "publicationDay": "J11",
+      "publicationDate": null,
       "pricingLine": "Terminale : 1 mat. 480 TND · 2 mat. 900 TND · 3 mat. 1 350 TND · 4 mat. 1 800 TND",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20Terminale%20avec%20%5Bsp%C3%A9cialit%C3%A9s/options%5D.%20Nous%20souhaitons%20v%C3%A9rifier%20les%20mati%C3%A8res%20disponibles.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dcarousel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dcarousel_05_terminale"
     },
@@ -1020,7 +1051,6 @@
       "cta": "Préparer ma demande en quatre étapes",
       "assetId": "full-carousel-06-choisir-parcours",
       "altText": "Carrousel en cinq slides aidant les parents à choisir un parcours selon le niveau, la matière et la priorité.",
-      "publicationDate": "2026-08-02",
       "utm": {
         "source": "meta",
         "medium": "carousel_organic",
@@ -1079,13 +1109,16 @@
           "id": "05",
           "eyebrow": "4 · WHATSAPP",
           "title": "Envoyez votre demande",
-          "body": "Nexus vérifie le parcours, le tarif canonique et les conditions applicables.",
+          "body": "Nexus vérifie le parcours, le tarif et les conditions applicables.",
           "altText": "Slide finale invitant à envoyer la demande sur WhatsApp.",
           "proofIds": [
             "PRF-PRE2026-WHATSAPP"
           ]
         }
       ],
+      "publicationDayOffset": 13,
+      "publicationDay": "J14",
+      "publicationDate": null,
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20%5Bniveau%5D%2C%20souhaite%20travailler%20%5Bmati%C3%A8re%5D%20et%20sa%20priorit%C3%A9%20est%20%5Bbesoin%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dcarousel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dcarousel_06_choisir"
     },
@@ -1108,7 +1141,6 @@
       "cta": "Demander le détail et le tarif",
       "assetId": "full-carousel-07-valeur",
       "altText": "Carrousel expliquant la valeur du stage par ses séances, ses objectifs, son entraînement, sa correction et son effectif.",
-      "publicationDate": "2026-08-06",
       "utm": {
         "source": "meta",
         "medium": "carousel_organic",
@@ -1166,10 +1198,10 @@
         },
         {
           "id": "05",
-          "eyebrow": "TARIFS CANONIQUES",
+          "eyebrow": "TARIFS PAR NIVEAU",
           "title": "Choisissez selon le besoin",
           "body": "Consultez les montants dérivés du référentiel, puis demandez conseil.",
-          "altText": "Slide finale présentant les tarifs canoniques et le CTA conseil.",
+          "altText": "Slide finale présentant les tarifs par niveau et le CTA conseil.",
           "proofIds": [
             "PRF-PRE2026-3E-350-APPROVED",
             "PRF-PRE2026-SECONDE-400",
@@ -1178,13 +1210,16 @@
           "pricingDisclosure": "ALL"
         }
       ],
+      "publicationDayOffset": 17,
+      "publicationDay": "J18",
+      "publicationDate": null,
       "pricingLine": "3e : 350 TND / matière · acompte 105 TND\nSeconde : 400 TND / matière · acompte 120 TND\nPremium : 1 mat. 480 TND · 2 mat. 900 TND · 3 mat. 1 350 TND · 4 mat. 1 800 TND",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20pouvez-vous%20m%27envoyer%20le%20d%C3%A9tail%20inclus%20et%20le%20tarif%20du%20parcours%20%5Bniveau/mati%C3%A8re%5D%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dcarousel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dcarousel_07_valeur"
     },
     {
       "id": "08-reservation",
       "audience": [
-        "Parents prêts à confirmer une inscription"
+        "Parents souhaitant comparer un parcours"
       ],
       "channel": [
         "Facebook",
@@ -1193,36 +1228,34 @@
       "level": [
         "ALL"
       ],
-      "funnelStage": "CONVERSION",
-      "objective": "Expliquer le parcours de la demande à la réservation",
-      "hook": "Demander, vérifier, confirmer : trois étapes simples avant le début du stage.",
-      "body": "Ce carrousel présente la réservation sans ambiguïté : la famille indique le niveau et la matière, Nexus vérifie le parcours et transmet les conditions, puis l'acompte de trente pour cent confirme la réservation. Une demande seule ne réserve pas la place.",
-      "cta": "Commencer la vérification sur WhatsApp",
+      "funnelStage": "CONSIDERATION",
+      "objective": "Expliquer la demande d'information",
+      "hook": "Demander, recevoir, comparer : trois étapes simples pour s'informer.",
+      "body": "La famille indique le niveau et la matière ; Nexus transmet le programme, les horaires et la grille tarifaire disponibles. Aucun paiement n'est demandé et aucune place n'est bloquée à ce stade.",
+      "cta": "Demander les informations sur WhatsApp",
       "assetId": "full-carousel-08-reservation",
-      "altText": "Carrousel expliquant les étapes de réservation et la règle de l'acompte de trente pour cent.",
-      "publicationDate": "2026-08-11",
+      "altText": "Carrousel expliquant comment demander le programme, les horaires et la grille tarifaire sans paiement.",
       "utm": {
         "source": "meta",
         "medium": "carousel_organic",
         "campaign": "pre_rentree_2026",
-        "content": "carousel_08_reservation"
+        "content": "carousel_08_information"
       },
       "proofIds": [
-        "PRF-PRE2026-DEPOSIT-30",
         "PRF-PRE2026-WHATSAPP"
       ],
       "offerIds": [],
       "pricingDisclosure": null,
-      "whatsappPrefill": "Bonjour, je souhaite vérifier puis réserver le parcours [niveau/matière]. Quelles sont les étapes ?",
+      "whatsappPrefill": "Bonjour, je souhaite recevoir le programme, les horaires et le tarif pour [niveau/matière].",
       "slides": [
         {
           "id": "01",
-          "eyebrow": "RÉSERVER",
+          "eyebrow": "S'INFORMER",
           "title": "Trois étapes claires",
-          "body": "La prise d'information et la réservation confirmée sont deux moments distincts.",
-          "altText": "Ouverture sur les trois étapes de réservation.",
+          "body": "Une demande d'information suffit pour recevoir les éléments utiles.",
+          "altText": "Ouverture sur les trois étapes de la demande d'information.",
           "proofIds": [
-            "PRF-PRE2026-DEPOSIT-30"
+            "PRF-PRE2026-WHATSAPP"
           ]
         },
         {
@@ -1237,22 +1270,22 @@
         },
         {
           "id": "03",
-          "eyebrow": "2 · VÉRIFIER",
-          "title": "Parcours et conditions",
-          "body": "Nexus confirme le format, le tarif et les conditions applicables.",
-          "altText": "Slide sur la vérification du parcours et des conditions.",
+          "eyebrow": "2 · RECEVOIR",
+          "title": "Programme, horaires, tarif",
+          "body": "Nexus transmet les informations disponibles pour le parcours.",
+          "altText": "Slide sur la réception du programme, des horaires et du tarif.",
           "proofIds": [
-            "PRF-PRE2026-DEPOSIT-30"
+            "PRF-PRE2026-WHATSAPP"
           ]
         },
         {
           "id": "04",
-          "eyebrow": "3 · CONFIRMER",
-          "title": "Acompte de trente pour cent",
-          "body": "La réception de l'acompte confirme la réservation de la place.",
-          "altText": "Slide sur la confirmation par acompte.",
+          "eyebrow": "3 · COMPARER",
+          "title": "Aucun paiement",
+          "body": "La demande d'information ne bloque aucune place et n'engage aucun règlement.",
+          "altText": "Slide précisant que la demande d'information est sans paiement.",
           "proofIds": [
-            "PRF-PRE2026-DEPOSIT-30"
+            "PRF-PRE2026-WHATSAPP"
           ]
         },
         {
@@ -1260,14 +1293,17 @@
           "eyebrow": "WHATSAPP",
           "title": "Commencez la vérification",
           "body": "Écrivez au 99 192 829 avec le niveau et la matière recherchée.",
-          "altText": "Slide finale avec le numéro WhatsApp canonique.",
+          "altText": "Slide finale avec le numéro WhatsApp public.",
           "proofIds": [
             "PRF-PRE2026-WHATSAPP"
           ]
         }
       ],
+      "publicationDayOffset": 22,
+      "publicationDay": "J23",
+      "publicationDate": null,
       "pricingLine": "",
-      "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20v%C3%A9rifier%20puis%20r%C3%A9server%20le%20parcours%20%5Bniveau/mati%C3%A8re%5D.%20Quelles%20sont%20les%20%C3%A9tapes%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dcarousel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dcarousel_08_reservation"
+      "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le%20programme%2C%20les%20horaires%20et%20le%20tarif%20pour%20%5Bniveau/mati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dcarousel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dcarousel_08_information"
     }
   ],
   "stories": [
@@ -1291,7 +1327,6 @@
       "cta": "Répondre avec le niveau",
       "assetId": "full-story-01-decouverte",
       "altText": "Séquence Story de découverte des stages de pré-rentrée, du format et du lieu à Mutuelleville.",
-      "publicationDate": "2026-07-20",
       "utm": {
         "source": "meta",
         "medium": "story_organic",
@@ -1343,6 +1378,9 @@
           ]
         }
       ],
+      "publicationDayOffset": 0,
+      "publicationDay": "J1",
+      "publicationDate": null,
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20%5Bniveau%5D%20et%20je%20souhaite%20d%C3%A9couvrir%20le%20stage.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_01_decouverte"
     },
@@ -1366,7 +1404,6 @@
       "cta": "Choisir la matière",
       "assetId": "full-story-02-entree-3e",
       "altText": "Séquence Story présentant les matières, l'effectif et la demande WhatsApp pour l'entrée en 3e.",
-      "publicationDate": "2026-07-22",
       "utm": {
         "source": "meta",
         "medium": "story_organic",
@@ -1411,12 +1448,12 @@
         },
         {
           "id": "03",
-          "eyebrow": "TARIF CANONIQUE",
+          "eyebrow": "TARIF 3E",
           "text": "Le montant du parcours est affiché ici. Écrivez-nous pour vérifier les horaires.",
           "interaction": "Lien WhatsApp",
           "durationSeconds": 7,
           "cta": "Vérifier",
-          "altText": "Story affichant le tarif canonique 3e et le CTA WhatsApp.",
+          "altText": "Story affichant le tarif 3e et le CTA WhatsApp.",
           "proofIds": [
             "PRF-PRE2026-3E-350-APPROVED",
             "PRF-PRE2026-WHATSAPP"
@@ -1424,6 +1461,9 @@
           "pricingDisclosure": "TROISIEME"
         }
       ],
+      "publicationDayOffset": 2,
+      "publicationDay": "J3",
+      "publicationDate": null,
       "pricingLine": "3e : 350 TND / matière · acompte 105 TND",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%203e%20et%20souhaite%20travailler%20%5BMath%C3%A9matiques/Fran%C3%A7ais%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_02_3e"
     },
@@ -1447,7 +1487,6 @@
       "cta": "Indiquer la matière",
       "assetId": "full-story-03-entree-seconde",
       "altText": "Séquence Story présentant les trois matières et l'effectif proposés à l'entrée en Seconde.",
-      "publicationDate": "2026-07-24",
       "utm": {
         "source": "meta",
         "medium": "story_organic",
@@ -1494,11 +1533,11 @@
         {
           "id": "03",
           "eyebrow": "4 À 6 ÉLÈVES",
-          "text": "Le tarif canonique est affiché ici. Vérifiez le parcours sur WhatsApp.",
+          "text": "Le tarif Seconde est affiché ici. Vérifiez le parcours sur WhatsApp.",
           "interaction": "Lien WhatsApp",
           "durationSeconds": 7,
           "cta": "Vérifier",
-          "altText": "Story avec effectif et tarif canonique de Seconde.",
+          "altText": "Story avec effectif et tarif de Seconde.",
           "proofIds": [
             "PRF-PRE2026-SECONDE-400",
             "PRF-PRE2026-WHATSAPP"
@@ -1506,6 +1545,9 @@
           "pricingDisclosure": "SECONDE"
         }
       ],
+      "publicationDayOffset": 4,
+      "publicationDay": "J5",
+      "publicationDate": null,
       "pricingLine": "Seconde : 400 TND / matière · acompte 120 TND",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20Seconde%20et%20souhaite%20travailler%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_03_seconde"
     },
@@ -1529,7 +1571,6 @@
       "cta": "Envoyer les spécialités",
       "assetId": "full-story-04-premiere",
       "altText": "Séquence Story sur les packs Première, le groupe Premium et la vérification des spécialités.",
-      "publicationDate": "2026-07-27",
       "utm": {
         "source": "meta",
         "medium": "story_organic",
@@ -1587,6 +1628,9 @@
           ]
         }
       ],
+      "publicationDayOffset": 7,
+      "publicationDay": "J8",
+      "publicationDate": null,
       "pricingLine": "Première : 1 mat. 480 TND · 2 mat. 900 TND · 3 mat. 1 350 TND · 4 mat. 1 800 TND",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20Premi%C3%A8re%20avec%20%5Bsp%C3%A9cialit%C3%A9s%5D.%20Quelles%20mati%C3%A8res%20sont%20disponibles%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_04_premiere"
     },
@@ -1610,7 +1654,6 @@
       "cta": "Indiquer les priorités",
       "assetId": "full-story-05-terminale",
       "altText": "Séquence Story aidant les élèves de Terminale à hiérarchiser leurs matières avant de composer un pack.",
-      "publicationDate": "2026-07-29",
       "utm": {
         "source": "meta",
         "medium": "story_organic",
@@ -1667,6 +1710,9 @@
           ]
         }
       ],
+      "publicationDayOffset": 9,
+      "publicationDay": "J10",
+      "publicationDate": null,
       "pricingLine": "Terminale : 1 mat. 480 TND · 2 mat. 900 TND · 3 mat. 1 350 TND · 4 mat. 1 800 TND",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20Terminale%20et%20ses%20priorit%C3%A9s%20sont%20%5Bmati%C3%A8res%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_05_terminale"
     },
@@ -1690,7 +1736,6 @@
       "cta": "Recevoir le programme",
       "assetId": "full-story-06-methode",
       "altText": "Séquence Story expliquant les trois temps de la méthode Nexus : objectif, entraînement et correction.",
-      "publicationDate": "2026-07-31",
       "utm": {
         "source": "meta",
         "medium": "story_organic",
@@ -1740,6 +1785,9 @@
           ]
         }
       ],
+      "publicationDayOffset": 11,
+      "publicationDay": "J12",
+      "publicationDate": null,
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le%20programme%20p%C3%A9dagogique%20pour%20%5Bniveau/mati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_06_methode"
     },
@@ -1763,7 +1811,6 @@
       "cta": "Voir le déroulé",
       "assetId": "full-story-07-dix-heures",
       "altText": "Séquence Story expliquant l'utilisation progressive des dix heures de chaque matière.",
-      "publicationDate": "2026-08-04",
       "utm": {
         "source": "meta",
         "medium": "story_organic",
@@ -1814,6 +1861,9 @@
           ]
         }
       ],
+      "publicationDayOffset": 15,
+      "publicationDay": "J16",
+      "publicationDate": null,
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20pouvez-vous%20m%27envoyer%20le%20d%C3%A9roul%C3%A9%20des%20cinq%20s%C3%A9ances%20en%20%5Bmati%C3%A8re%5D%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_07_10h"
     },
@@ -1833,11 +1883,10 @@
       "funnelStage": "CONSIDERATION",
       "objective": "Présenter les tarifs dérivés du référentiel sans duplication",
       "hook": "Les tarifs varient selon le niveau et le nombre de matières du parcours.",
-      "body": "Cette séquence affiche les montants compilés depuis la source canonique pour la 3e, la Seconde, la Première et la Terminale, puis dirige vers le parcours de qualification.",
+      "body": "Cette séquence affiche les montants validés pour la 3e, la Seconde, la Première et la Terminale, puis dirige vers le parcours de qualification.",
       "cta": "Vérifier mon tarif",
       "assetId": "full-story-08-tarifs",
-      "altText": "Séquence Story présentant les tarifs canoniques par niveau et invitant à vérifier le parcours.",
-      "publicationDate": "2026-08-06",
+      "altText": "Séquence Story présentant les tarifs par niveau et invitant à vérifier le parcours.",
       "utm": {
         "source": "meta",
         "medium": "story_organic",
@@ -1856,7 +1905,7 @@
         {
           "id": "01",
           "eyebrow": "3e",
-          "text": "Mathématiques ou Français : tarif canonique par matière affiché ici.",
+          "text": "Mathématiques ou Français : tarif applicable par matière affiché ici.",
           "interaction": "Sondage : Maths / Français",
           "durationSeconds": 6,
           "cta": "Voir Seconde",
@@ -1869,7 +1918,7 @@
         {
           "id": "02",
           "eyebrow": "SECONDE",
-          "text": "Trois matières disponibles : tarif canonique par matière affiché ici.",
+          "text": "Trois matières disponibles : tarif applicable par matière affiché ici.",
           "interaction": "Question : matière ?",
           "durationSeconds": 6,
           "cta": "Voir Premium",
@@ -1882,7 +1931,7 @@
         {
           "id": "03",
           "eyebrow": "PREMIUM",
-          "text": "Première et Terminale : packs canoniques de une à quatre matières.",
+          "text": "Première et Terminale : packs de une à quatre matières.",
           "interaction": "Lien WhatsApp",
           "durationSeconds": 7,
           "cta": "Vérifier",
@@ -1894,6 +1943,9 @@
           "pricingDisclosure": "PREMIUM"
         }
       ],
+      "publicationDayOffset": 17,
+      "publicationDay": "J18",
+      "publicationDate": null,
       "pricingLine": "3e : 350 TND / matière · acompte 105 TND\nSeconde : 400 TND / matière · acompte 120 TND\nPremium : 1 mat. 480 TND · 2 mat. 900 TND · 3 mat. 1 350 TND · 4 mat. 1 800 TND",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20v%C3%A9rifier%20le%20tarif%20du%20parcours%20%5Bniveau%5D%20pour%20%5Bnombre%5D%20mati%C3%A8re%28s%29.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_08_tarifs"
     },
@@ -1917,7 +1969,6 @@
       "cta": "Vérifier le groupe",
       "assetId": "full-story-09-effectifs",
       "altText": "Séquence Story distinguant les effectifs Fondations et Premium et invitant à vérifier un groupe.",
-      "publicationDate": "2026-08-08",
       "utm": {
         "source": "meta",
         "medium": "story_organic",
@@ -1970,6 +2021,9 @@
           ]
         }
       ],
+      "publicationDayOffset": 19,
+      "publicationDay": "J20",
+      "publicationDate": null,
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20pouvez-vous%20v%C3%A9rifier%20l%27effectif%20et%20la%20disponibilit%C3%A9%20du%20groupe%20%5Bniveau/mati%C3%A8re%5D%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_09_effectifs"
     },
@@ -1993,7 +2047,6 @@
       "cta": "Poser ma question",
       "assetId": "full-story-10-questions",
       "altText": "Séquence Story répondant aux questions de date, lieu et choix du parcours.",
-      "publicationDate": "2026-08-10",
       "utm": {
         "source": "meta",
         "medium": "story_organic",
@@ -2044,13 +2097,16 @@
           ]
         }
       ],
+      "publicationDayOffset": 21,
+      "publicationDay": "J22",
+      "publicationDate": null,
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20j%27ai%20une%20question%20sur%20le%20stage%20pour%20%5Bniveau%5D%20en%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_10_questions"
     },
     {
       "id": "11-reservation",
       "audience": [
-        "Parents prêts à réserver"
+        "Parents souhaitant s'informer"
       ],
       "channel": [
         "Instagram Story",
@@ -2060,67 +2116,67 @@
       "level": [
         "ALL"
       ],
-      "funnelStage": "CONVERSION",
-      "objective": "Expliquer la confirmation par acompte",
-      "hook": "Une demande renseigne ; un acompte confirme la réservation.",
-      "body": "Cette séquence sépare clairement la demande d'information, la validation du parcours et la confirmation par acompte de trente pour cent du tarif total.",
-      "cta": "Commencer la vérification",
+      "funnelStage": "CONSIDERATION",
+      "objective": "Expliquer la demande d'information",
+      "hook": "Une demande suffit pour recevoir le programme, les horaires et le tarif.",
+      "body": "Cette séquence présente les informations à transmettre et les éléments envoyés en retour, sans paiement ni blocage de place.",
+      "cta": "Demander les informations",
       "assetId": "full-story-11-reservation",
-      "altText": "Séquence Story expliquant la demande, la validation du parcours et la confirmation par acompte.",
-      "publicationDate": "2026-08-12",
+      "altText": "Séquence Story expliquant la demande d'information sans paiement.",
       "utm": {
         "source": "meta",
         "medium": "story_organic",
         "campaign": "pre_rentree_2026",
-        "content": "story_11_reservation"
+        "content": "story_11_information"
       },
       "proofIds": [
-        "PRF-PRE2026-DEPOSIT-30",
         "PRF-PRE2026-WHATSAPP"
       ],
       "offerIds": [],
-      "whatsappPrefill": "Bonjour, je souhaite vérifier le parcours puis connaître les étapes de réservation.",
+      "whatsappPrefill": "Bonjour, je souhaite recevoir le programme, les horaires et le tarif du parcours.",
       "frames": [
         {
           "id": "01",
           "eyebrow": "1 · DEMANDE",
-          "text": "Écrivez niveau, matière et besoin : aucune place n'est encore réservée.",
+          "text": "Écrivez le niveau, la matière et le besoin.",
           "interaction": "Sondage : compris / question",
           "durationSeconds": 6,
           "cta": "Étape 2",
           "altText": "Story sur la demande d'information.",
           "proofIds": [
-            "PRF-PRE2026-DEPOSIT-30"
+            "PRF-PRE2026-WHATSAPP"
           ]
         },
         {
           "id": "02",
-          "eyebrow": "2 · VALIDATION",
-          "text": "Nexus confirme le parcours, le tarif et les conditions applicables.",
+          "eyebrow": "2 · RÉPONSE",
+          "text": "Nexus transmet le programme, les horaires et le tarif disponibles.",
           "interaction": "Curseur : clarté",
           "durationSeconds": 6,
           "cta": "Étape 3",
-          "altText": "Story sur la validation du parcours.",
+          "altText": "Story sur les informations transmises.",
           "proofIds": [
-            "PRF-PRE2026-DEPOSIT-30"
+            "PRF-PRE2026-WHATSAPP"
           ]
         },
         {
           "id": "03",
-          "eyebrow": "3 · ACOMPTE",
-          "text": "Trente pour cent du tarif total confirment la réservation.",
+          "eyebrow": "3 · COMPARAISON",
+          "text": "La demande reste sans paiement et ne bloque aucune place.",
           "interaction": "Lien WhatsApp",
           "durationSeconds": 7,
-          "cta": "Vérifier",
-          "altText": "Story sur la confirmation par acompte.",
+          "cta": "Demander",
+          "altText": "Story précisant que la demande est sans paiement.",
           "proofIds": [
-            "PRF-PRE2026-DEPOSIT-30",
             "PRF-PRE2026-WHATSAPP"
           ]
         }
       ],
+      "publicationDayOffset": 23,
+      "publicationDay": "J24",
+      "publicationDate": null,
       "pricingLine": "",
-      "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20v%C3%A9rifier%20le%20parcours%20puis%20conna%C3%AEtre%20les%20%C3%A9tapes%20de%20r%C3%A9servation.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_11_reservation"
+      "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le%20programme%2C%20les%20horaires%20et%20le%20tarif%20du%20parcours.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_11_information"
     },
     {
       "id": "12-demarrage",
@@ -2142,7 +2198,6 @@
       "cta": "Faire une dernière vérification",
       "assetId": "full-story-12-demarrage",
       "altText": "Séquence Story de rappel avant le démarrage des stages le 17 août à Mutuelleville.",
-      "publicationDate": "2026-08-15",
       "utm": {
         "source": "meta",
         "medium": "story_organic",
@@ -2183,18 +2238,20 @@
         },
         {
           "id": "03",
-          "eyebrow": "RÉSERVATION",
-          "text": "La place est confirmée après validation et acompte de trente pour cent.",
+          "eyebrow": "INFORMATIONS",
+          "text": "Recevez le programme, les horaires et le tarif sans paiement.",
           "interaction": "Lien WhatsApp",
           "durationSeconds": 7,
           "cta": "Écrire",
-          "altText": "Story rappelant la règle de réservation.",
+          "altText": "Story invitant à demander les informations du stage.",
           "proofIds": [
-            "PRF-PRE2026-DEPOSIT-30",
             "PRF-PRE2026-WHATSAPP"
           ]
         }
       ],
+      "publicationDayOffset": 26,
+      "publicationDay": "J27",
+      "publicationDate": null,
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20une%20derni%C3%A8re%20v%C3%A9rification%20pour%20%5Bniveau%5D%20en%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_12_demarrage"
     }
@@ -2220,7 +2277,6 @@
       "cta": "Recevoir le programme sur WhatsApp",
       "assetId": "full-reel-01-methode",
       "altText": "Reel motion design de trente secondes expliquant la méthode des stages Nexus Réussite et le démarrage le 17 août.",
-      "publicationDate": "2026-07-26",
       "utm": {
         "source": "meta",
         "medium": "reel_organic",
@@ -2299,6 +2355,9 @@
         "Musique facultative choisie dans la bibliothèque Meta au moment de publier"
       ],
       "motionDesignAlternative": "Version principale entièrement réalisable sans tournage : aplats bleu, rouge et ivoire, typographie animée, icônes géométriques et logo officiel. Aucun média tiers n'est incorporé.",
+      "publicationDayOffset": 6,
+      "publicationDay": "J7",
+      "publicationDate": null,
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le%20programme%20des%20cinq%20s%C3%A9ances%20pour%20%5Bniveau%5D%20en%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dreel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dreel_01_methode"
     },
@@ -2322,7 +2381,6 @@
       "cta": "Envoyer niveau, matière et priorité",
       "assetId": "full-reel-02-choisir-parcours",
       "altText": "Reel de trente secondes expliquant comment choisir un parcours de pré-rentrée avec le niveau, la matière et la priorité.",
-      "publicationDate": "2026-08-02",
       "utm": {
         "source": "meta",
         "medium": "reel_organic",
@@ -2402,13 +2460,16 @@
         "Musique facultative issue de la bibliothèque Meta"
       ],
       "motionDesignAlternative": "Motion design pur avec cartes typographiques de niveau, matière et priorité. Le montage final ne requiert ni tournage, ni photographie, ni licence média externe.",
+      "publicationDayOffset": 13,
+      "publicationDay": "J14",
+      "publicationDate": null,
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20%5Bniveau%5D%2C%20souhaite%20travailler%20%5Bmati%C3%A8re%5D%20et%20sa%20priorit%C3%A9%20est%20%5Bbesoin%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dreel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dreel_02_choisir"
     },
     {
       "id": "03-reservation",
       "audience": [
-        "Parents prêts à confirmer une inscription"
+        "Parents souhaitant s'informer"
       ],
       "channel": [
         "Instagram Reels",
@@ -2418,35 +2479,33 @@
       "level": [
         "ALL"
       ],
-      "funnelStage": "CONVERSION",
-      "objective": "Expliquer sans ambiguïté la réservation et l'acompte",
-      "hook": "Une conversation ne réserve pas encore la place : voici les trois étapes.",
-      "body": "Ce Reel décrit la demande, la validation du parcours et la confirmation après acompte de trente pour cent. Il ne prétend pas afficher la disponibilité en temps réel et dirige la famille vers un échange WhatsApp vérifiable.",
-      "cta": "Commencer la vérification sur WhatsApp",
+      "funnelStage": "CONSIDERATION",
+      "objective": "Expliquer sans ambiguïté la demande d'information",
+      "hook": "Programme, horaires, tarifs : voici comment recevoir les informations utiles.",
+      "body": "Ce Reel décrit la demande sur WhatsApp et les informations transmises en retour. Il précise qu'aucun paiement n'est demandé et dirige la famille vers un échange vérifiable.",
+      "cta": "Demander les informations sur WhatsApp",
       "assetId": "full-reel-03-reservation",
-      "altText": "Reel de trente secondes présentant les trois étapes de réservation et l'acompte de trente pour cent.",
-      "publicationDate": "2026-08-13",
+      "altText": "Reel de trente secondes présentant les étapes d'une demande d'information sans paiement.",
       "utm": {
         "source": "meta",
         "medium": "reel_organic",
         "campaign": "pre_rentree_2026",
-        "content": "reel_03_reservation"
+        "content": "reel_03_information"
       },
       "proofIds": [
-        "PRF-PRE2026-DEPOSIT-30",
         "PRF-PRE2026-WHATSAPP",
         "PRF-PRE2026-DATES-VENUE"
       ],
       "offerIds": [],
-      "whatsappPrefill": "Bonjour, je souhaite vérifier puis réserver le parcours [niveau/matière].",
+      "whatsappPrefill": "Bonjour, je souhaite recevoir le programme, les horaires et le tarif pour [niveau/matière].",
       "durationSeconds": 30,
-      "voiceOver": "Comment réserver le stage ? Première étape : envoyez le niveau, la matière et le besoin sur WhatsApp. Deuxième étape : Nexus vérifie le parcours, le tarif et les conditions applicables. Troisième étape : l'acompte de trente pour cent confirme la réservation. Une demande seule ne réserve pas la place. Les stages commencent dès le 17 août à Mutuelleville. Commencez la vérification sur WhatsApp.",
+      "voiceOver": "Comment recevoir les informations du stage ? Première étape : envoyez le niveau, la matière et le besoin sur WhatsApp. Deuxième étape : Nexus transmet le programme, les horaires et le tarif disponibles. Troisième étape : comparez ces éléments en famille. Aucun paiement n'est demandé et aucune place n'est bloquée. Les stages commencent dès le 17 août à Mutuelleville. Demandez les informations sur WhatsApp.",
       "timeline": [
         {
           "start": 0,
           "end": 5,
           "visual": "Une question se transforme en parcours à trois étapes.",
-          "overlay": "Comment réserver ?",
+          "overlay": "Comment s'informer ?",
           "transition": "Trait rouge animé"
         },
         {
@@ -2460,21 +2519,21 @@
           "start": 10,
           "end": 15,
           "visual": "Une carte parcours reçoit une coche de vérification.",
-          "overlay": "2 · Vérifier parcours et conditions",
+          "overlay": "2 · Recevoir les informations",
           "transition": "Rotation courte"
         },
         {
           "start": 15,
           "end": 20,
-          "visual": "Un cercle de progression s'arrête à trente pour cent.",
-          "overlay": "3 · Régler l'acompte",
+          "visual": "Trois cartes montrent programme, horaires et tarif.",
+          "overlay": "3 · Comparer en famille",
           "transition": "Progression circulaire"
         },
         {
           "start": 20,
           "end": 25,
-          "visual": "Deux étiquettes se séparent : demande et réservation.",
-          "overlay": "Demande ≠ place réservée",
+          "visual": "Une étiquette indique le statut de la demande.",
+          "overlay": "Aucun paiement",
           "transition": "Séparation horizontale"
         },
         {
@@ -2486,10 +2545,10 @@
         }
       ],
       "cover": {
-        "eyebrow": "RÉSERVATION",
-        "title": "Trois étapes, une règle claire",
-        "subtitle": "La place est confirmée après acompte",
-        "altText": "Couverture du Reel expliquant les étapes de réservation."
+        "eyebrow": "INFORMATIONS",
+        "title": "Trois étapes simples",
+        "subtitle": "Programme, horaires et tarifs",
+        "altText": "Couverture du Reel expliquant la demande d'information."
       },
       "safeZones": {
         "top": 250,
@@ -2504,10 +2563,15 @@
         "Musique facultative issue de la bibliothèque Meta"
       ],
       "motionDesignAlternative": "Motion design typographique en trois étapes avec formes géométriques et logo officiel. Aucune image de personne, aucun tournage et aucun média externe ne sont nécessaires.",
+      "publicationDayOffset": 24,
+      "publicationDay": "J25",
+      "publicationDate": null,
       "pricingLine": "",
-      "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20v%C3%A9rifier%20puis%20r%C3%A9server%20le%20parcours%20%5Bniveau/mati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dreel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dreel_03_reservation"
+      "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le%20programme%2C%20les%20horaires%20et%20le%20tarif%20pour%20%5Bniveau/mati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dreel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dreel_03_information"
     }
   ],
+  "launchDate": null,
+  "launchDateStatus": "PENDING_OWNER_AUTHORIZATION",
   "pricing": {
     "TROISIEME": "3e : 350 TND / matière · acompte 105 TND",
     "SECONDE": "Seconde : 400 TND / matière · acompte 120 TND",

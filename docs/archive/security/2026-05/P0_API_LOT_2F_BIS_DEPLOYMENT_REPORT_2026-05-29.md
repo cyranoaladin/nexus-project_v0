@@ -23,7 +23,7 @@
 - Branche : `main`
 - HEAD avant : `dd1e519b`
 - Git : worktree propre
-- PM2 : `nexus-prod` online
+- PM2 : `<PROCESS_NAME>` online
 - Port : applicatif sur `127.0.0.1:3001`
 - Health before :
   - `site=200`
@@ -38,7 +38,7 @@
 - `npm run typecheck` : OK
 - Tests ciblés Lot 2F-bis : 5 suites, 35 tests OK
 - `NODE_ENV=production npm run build` : OK, `BUILD_EXIT=0`
-- PM2 reload : `nexus-prod` online après reload
+- PM2 reload : `<PROCESS_NAME>` online après reload
 
 ## Smoke tests
 - `site=200`

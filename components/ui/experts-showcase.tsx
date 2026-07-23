@@ -19,10 +19,10 @@ interface Expert {
 const experts: Expert[] = [
   {
     pseudonyme: "Axiom",
-    titre: "Mentor Agrégés et Certifiés en Mathématiques",
+    titre: "Enseignant expérimenté en Mathématiques",
     citation: "La véritable élégance mathématique ne réside pas dans la complexité des calculs, mais dans la pureté du raisonnement. Je vous apprends à construire cette élégance.",
     competences: [
-      "Professeur Agrégés et Certifiés de Mathématiques",
+      "En exercice dans le système français",
       "Spécialiste de l'algèbre abstraite",
       "+20 ans d'expérience en classes préparatoires"
     ],
@@ -32,10 +32,10 @@ const experts: Expert[] = [
   },
   {
     pseudonyme: "Vector",
-    titre: "Coach Certifié en Mathématiques Appliquées",
+    titre: "Enseignant expérimenté en Mathématiques appliquées",
     citation: "Un problème de Bac est un jeu avec des règles précises. Je ne vous apprends pas seulement à jouer, je vous apprends à gagner en anticipant chaque coup.",
     competences: [
-      "Professeur Certifié (CAPES) de Mathématiques",
+      "En exercice dans le système français",
       "Spécialiste de la méthodologie des épreuves",
       "Expert en statistiques et probabilités"
     ],
@@ -48,7 +48,7 @@ const experts: Expert[] = [
     titre: "Spécialiste en Physique-Chimie Expérimentale",
     citation: "La science est un dialogue avec la nature. Pour comprendre ses lois, il faut apprendre à lui poser les bonnes questions, paillasse à la main.",
     competences: [
-      "Professeur Certifié de Physique-Chimie",
+      "En exercice dans le système français",
       "Responsable de laboratoire et des épreuves ECE",
       "Expertise en chimie organique"
     ],
@@ -61,7 +61,7 @@ const experts: Expert[] = [
     titre: "Spécialiste des Épreuves Écrites de Français",
     citation: "Chaque texte est une énigme. Je vous donne les clés pour la déchiffrer, analyser sa structure, et révéler sa richesse dans une argumentation claire et structurée.",
     competences: [
-      "Professeure Certifiée de Lettres Modernes",
+      "En exercice dans le système français",
       "Correctrice des épreuves écrites du Bac",
       "Spécialiste de la méthodologie"
     ],

@@ -4,7 +4,7 @@ Ce guide détaille les étapes pour déployer le nouveau module d'évaluation "B
 
 ## 📋 Prérequis
 
-- Accès SSH au serveur de production (88.99.254.59)
+- Accès SSH au serveur de production (<PROD_HOST>)
 - Accès à la base de données PostgreSQL (port 5433)
 - Docker et Docker Compose installés
 - Node.js 18+ et npm
@@ -15,7 +15,7 @@ Ce guide détaille les étapes pour déployer le nouveau module d'évaluation "B
 ### 1.1 Connexion au Serveur
 
 ```bash
-ssh root@88.99.254.59
+ssh root@<PROD_HOST>
 cd /srv/nexus-next-app
 ```
 

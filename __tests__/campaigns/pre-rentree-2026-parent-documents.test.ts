@@ -64,5 +64,9 @@ describe('Pré-rentrée 2026 parent document sources', () => {
     expect(publicCopy).not.toMatch(/SNT/i);
     expect(publicCopy).not.toMatch(/manuel offert|remise annuelle|réduction annuelle|10\s*%/i);
     expect(publicCopy).not.toMatch(/garanti|garantie de résultat|places très limitées/i);
+    expect(publicCopy).not.toMatch(/\bcanoniqu(?:e|es|ement)\b/i);
+    expect(publicCopy).not.toMatch(
+      /verser l'acompte|réception de l'acompte|acompte reçu|modalité de paiement|preuve du paiement|confirmer la réservation|réservation devient effective|réservation n'est acquise|place est réservée|place n'est réservée qu'après/i,
+    );
   });
 });

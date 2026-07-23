@@ -64,8 +64,8 @@ PÉRIMÈTRE 1 — Repo local + GitHub :
 3. Installer le pre-commit hook : `cp scripts/pre-commit-hook.sh .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit`
 4. Vérifier : `git log --all --full-history --oneline -- nginx/ssl/privkey.pem | wc -l` == 0
 
-PÉRIMÈTRE 2 — Serveur prod 88.99.254.59, répertoire /opt/nexus/ :
-5. SSH root@88.99.254.59 → cd /opt/nexus
+PÉRIMÈTRE 2 — Serveur prod <PROD_HOST>, répertoire /opt/nexus/ :
+5. SSH root@<PROD_HOST> → cd /opt/nexus
 6. `git fetch origin && git reset --hard origin/main` (après force-push du step 2)
 7. `rm -f nginx/ssl/privkey.pem nginx/ssl/fullchain.pem`
 8. Vérifier : `ls /opt/nexus/nginx/ssl/` → vide ou absent

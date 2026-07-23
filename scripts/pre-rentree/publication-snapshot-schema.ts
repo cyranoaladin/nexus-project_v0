@@ -9,6 +9,7 @@ import {
 } from '@/lib/campaigns/pre-rentree-2026/content-schema';
 
 const Sha256 = z.string().regex(/^[a-f0-9]{64}$/);
+const GitCommitSha = z.string().regex(/^[a-f0-9]{40}$/);
 const IsoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const Time = z.string().regex(/^\d{2}:\d{2}$/);
 const EntryLevel = z.enum(['TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE']);
@@ -36,6 +37,9 @@ const ModuleSessionSchema = z.object({
 
 const ModuleSchema = z.object({
   id: z.string().min(1),
+  publicationStatus: z.enum(['PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION', 'DRAFT_PENDING_QUALIFIED_TEACHER_VALIDATION']).optional(),
+  objective: z.string().min(1).optional(),
+  equipment: z.string().min(1).optional(),
   level: EntryLevel,
   subjectId: SubjectId,
   subject: z.string().min(1),
@@ -68,7 +72,7 @@ const ScheduleSessionSchema = z.object({
   level: EntryLevel,
   subjectId: SubjectId,
   subjectLabel: z.string().min(1),
-  blockId: z.enum(['A', 'B', 'C', 'D', 'E']),
+  blockId: z.enum(['A', 'B', 'C', 'D']),
   startTime: Time,
   endTime: Time,
   roomLabel: z.string().min(1),
@@ -84,7 +88,7 @@ const ScheduleWeekSchema = z.object({
     level: EntryLevel,
     subjectId: SubjectId,
     subjectLabel: z.string().min(1),
-    blockId: z.enum(['A', 'B', 'C', 'D', 'E']),
+    blockId: z.enum(['A', 'B', 'C', 'D']),
     startTime: Time,
     endTime: Time,
     roomLabel: z.string().min(1),
@@ -195,10 +199,12 @@ export const ParentGuideContentSchema = z.object({
 export const PublicationSnapshotSchema = z.object({
   schemaVersion: z.literal('1.0.0'),
   sourceSetSha256: Sha256,
-  sourceRepoSha: z.string().regex(/^[a-f0-9]{40}$/),
-  sourceCommitDate: z.string().datetime({ offset: true }),
+  sourceAnchorSha: GitCommitSha,
+  repositoryCommitSha: GitCommitSha,
+  repositoryCommitDate: z.string().datetime({ offset: true }),
   snapshotBuiltAt: z.string().datetime({ offset: true }),
   provenance: z.object({
+    sourceAnchor: SourceProvenanceSchema,
     campaign: SourceProvenanceSchema,
     modules: SourceProvenanceSchema,
     pricing: SourceProvenanceSchema,
@@ -249,18 +255,18 @@ export const PublicationSnapshotSchema = z.object({
     abbreviation: z.string().min(1),
     color: z.string().regex(/^#[A-Fa-f0-9]{6}$/),
   }).strict()).length(6),
-  blocks: z.array(z.object({ id: z.enum(['A', 'B', 'C', 'D', 'E']), startTime: Time, endTime: Time }).strict()).length(5),
+  blocks: z.array(z.object({ id: z.enum(['A', 'B', 'C', 'D']), startTime: Time, endTime: Time }).strict()).length(4),
   schedule: z.object({
     weeks: z.array(ScheduleWeekSchema).length(2),
-    sessions: z.array(ScheduleSessionSchema).length(80),
+    sessions: z.array(ScheduleSessionSchema).length(75),
   }).strict(),
   academicProfiles: z.record(z.unknown()),
   packs: z.array(PackSchema).length(4),
-  modules: z.array(ModuleSchema).length(16),
+  modules: z.array(ModuleSchema).length(15),
   pedagogy: z.object({
-    positioningTests: z.array(PositioningTestSchema).length(16),
-    quickAssessments: z.array(QuickAssessmentSchema).length(80),
-    sessionDeliverables: z.array(SessionDeliverableSchema).length(80),
+    positioningTests: z.array(PositioningTestSchema).length(15),
+    quickAssessments: z.array(QuickAssessmentSchema).length(75),
+    sessionDeliverables: z.array(SessionDeliverableSchema).length(75),
   }).strict(),
   offers: PreRentreeOffersSchema,
   offerPricing: z.array(z.object({
@@ -272,7 +278,7 @@ export const PublicationSnapshotSchema = z.object({
     deposit: z.number().int().positive(),
     balance: z.number().int().positive(),
     pricePerHour: z.number().positive(),
-  }).strict()).length(14),
+  }).strict()).length(13),
   capabilities: PreRentreeCapabilitiesSchema,
   manuals: PreRentreeManualsRegistrySchema,
   communication: PreRentreeCommunicationSchema,

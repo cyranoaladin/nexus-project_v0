@@ -31,7 +31,7 @@
 ## Déploiement production
 - Statut : commit de déploiement propre préparé depuis le HEAD production `f1bfbcc3f8d737cabedfbbd353c317cbf2d50292`.
 - Stratégie : cherry-pick du commit minimal STMG uniquement, pas de cherry-pick de la pointe complète `integration/stmg-go-live-20260530`.
-- Préflight attendu : production propre, PM2 `nexus-prod` online, site/API OK.
+- Préflight attendu : production propre, PM2 `<PROCESS_NAME>` online, site/API OK.
 - HEAD avant : à renseigner au déploiement.
 - HEAD après : à renseigner au déploiement.
 - Backup : à renseigner au déploiement.
@@ -39,7 +39,7 @@
 
 ## Rollback
 - Revenir au HEAD sauvegardé dans le backup de déploiement :
-  `git reset --hard <HEAD_BEFORE> && npm ci --prefer-offline && NODE_ENV=production npm run build && pm2 reload nexus-prod --update-env`.
+  `git reset --hard <HEAD_BEFORE> && npm ci --prefer-offline && NODE_ENV=production npm run build && pm2 reload <PROCESS_NAME> --update-env`.
 
 ## Garanties
 - Pas de modification Prisma.

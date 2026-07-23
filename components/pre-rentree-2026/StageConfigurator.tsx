@@ -28,6 +28,9 @@ import { getSubjectTheme } from '@/lib/campaigns/pre-rentree-2026/subject-theme'
 import { SubjectBadge } from './SubjectBadge';
 import { useCampaignExperience } from './CampaignExperienceContext';
 
+/** Plafond commercial (D3) : les packs canoniques vont de 1 à 4 matières, aucun pack 5 matières. */
+const MAX_SUBJECTS_PER_PACK = 4;
+
 interface ProfileOption {
   id: string;
   label: string;
@@ -210,6 +213,7 @@ export default function StageConfigurator({
   const [level, setLevel] = useState<EntryLevelCode | null>(null);
   const [profile, setProfile] = useState<AcademicProfileSelection>({});
   const [subjectIds, setSubjectIds] = useState<string[]>([]);
+  const [subjectCapNotice, setSubjectCapNotice] = useState(false);
   const [mobileSummaryOpen, setMobileSummaryOpen] = useState(false);
   const { setConfiguredEntryLevel } = useCampaignExperience();
 
@@ -254,7 +258,15 @@ export default function StageConfigurator({
   }
 
   function toggleSubject(subjectId: string) {
-    const next = subjectIds.includes(subjectId)
+    const isRemoving = subjectIds.includes(subjectId);
+    // Plafond à 4 matières (D3) : aucun pack au-delà de 4, la 5e (SVT) reste sélectionnable
+    // en échange d'une autre. Empêche buildSelectionSummary de lever "Missing canonical pack".
+    if (!isRemoving && subjectIds.length >= MAX_SUBJECTS_PER_PACK) {
+      setSubjectCapNotice(true);
+      return;
+    }
+    setSubjectCapNotice(false);
+    const next = isRemoving
       ? subjectIds.filter((id) => id !== subjectId)
       : [...subjectIds, subjectId];
     setSubjectIds(next);
@@ -364,6 +376,11 @@ export default function StageConfigurator({
                     );
                   })}
                 </div>
+                {subjectCapNotice && (
+                  <p role="status" aria-live="polite" className="mt-3 text-sm font-medium text-lux-gold-deep">
+                    4 matières maximum — retirez une matière pour en ajouter une autre.
+                  </p>
+                )}
                 <div className="mt-6 flex justify-between gap-3"><button type="button" className={`${buttonClass} border border-lux-line`} onClick={() => continueTo(getPreviousConfiguratorStep(step, level))}>Retour</button><button type="button" className={`${buttonClass} lux-cta-reserve disabled:opacity-50`} disabled={subjectIds.length === 0} onClick={() => continueTo(4)}>Voir mon résumé</button></div>
               </fieldset>
             )}

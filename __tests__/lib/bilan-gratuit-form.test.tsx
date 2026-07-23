@@ -56,7 +56,7 @@ describe('BilanGratuitPage', () => {
     expect(screen.queryByLabelText(/mot de passe/i)).not.toBeInTheDocument();
   });
 
-  it('prefills a validated Pré-rentrée selection while keeping fields editable', async () => {
+  it('ignores Pré-rentrée query parameters while the public release gate is closed', async () => {
     await renderPage({
       programme: 'pre-rentree-2026',
       pack: 'PACK_2',
@@ -69,46 +69,26 @@ describe('BilanGratuitPage', () => {
       price: '1',
     });
 
-    expect(screen.getByText(/Contexte repéré.*Pré-rentrée 2026/i)).toBeInTheDocument();
-    expect(screen.getByText(/Offre repérée.*Pré-Rentrée 2026.*2 matières/i)).toBeInTheDocument();
-    expect(screen.getByText('Classe de rentrée : Entrée en Première')).toBeInTheDocument();
-    expect(screen.getByLabelText('Classe de rentrée')).toHaveValue('premiere');
-    expect(screen.getByLabelText('Mathématiques')).toBeChecked();
-    expect(screen.getByLabelText('Français')).toBeChecked();
-    expect(screen.getByText(/Profil pédagogique.*Voie générale, Maths EDS, EAF voie générale/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Contexte repéré.*Pré-rentrée 2026/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Offre repérée.*Pré-Rentrée 2026/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Classe de rentrée/i)).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Classe')).toHaveValue('');
+    expect(screen.getByLabelText('Mathématiques')).not.toBeChecked();
+    expect(screen.getByLabelText('Français')).not.toBeChecked();
+    expect(screen.queryByText(/Profil pédagogique/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/1 TND/)).not.toBeInTheDocument();
-
-    fillInput('parentFirstName', 'Jean');
-    fillInput('parentLastName', 'Dupont');
-    fillInput('parentEmail', 'jean.dupont@example.com');
-    fillInput('parentPhone', '+21699192829');
-    fillInput('studentFirstName', 'Marie');
-    fillInput('studentSchool', 'Lycée Victor Hugo');
-    fillInput('objectives', 'Préparer sérieusement la rentrée scolaire');
-    await userEvent.click(screen.getByRole('checkbox', { name: /j.*accepte/i }));
-    await userEvent.click(screen.getByRole('button', { name: /demander mon bilan stratégique gratuit/i }));
-
-    await waitFor(() => {
-      const request = mockFetch.mock.calls[0]?.[1];
-      const payload = JSON.parse(String(request?.body)) as Record<string, unknown>;
-      expect(payload).toMatchObject({
-        campaignContext: {
-          programme: 'pre-rentree-2026',
-          packCode: 'PACK_2',
-          level: 'PREMIERE',
-          subjectIds: ['MATHEMATIQUES', 'FRANCAIS'],
-          profile: {
-            voie: 'GENERALE',
-            mathsProfile: 'MATHS_EDS',
-            eafProfile: 'EAF_GENERALE',
-            premiereSpecialtyPlan: 'NSI_PHYSIQUE_CHIMIE',
-          },
-        },
-      });
-    });
   });
 
-  it('recalculates the campaign pack after a parent removes a prefilled subject', async () => {
+  it('suppresses direct legacy Pré-rentrée offer identifiers while the gate is closed', async () => {
+    await renderPage({
+      offer: 'pre2026-foundations-3e-subject',
+    });
+
+    expect(screen.queryByText(/offre repérée/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Pré.?rentrée 2026/i)).not.toBeInTheDocument();
+  });
+
+  it('never submits injected campaign context while the public gate is closed', async () => {
     const user = userEvent.setup();
     await renderPage({
       programme: 'pre-rentree-2026',
@@ -128,44 +108,8 @@ describe('BilanGratuitPage', () => {
     fillInput('studentFirstName', 'Marie');
     fillInput('studentSchool', 'Lycée Victor Hugo');
     fillInput('objectives', 'Préparer sérieusement la rentrée scolaire');
-    await user.click(screen.getByLabelText('Français'));
-    await user.click(screen.getByRole('checkbox', { name: /j.*accepte/i }));
-    await user.click(screen.getByRole('button', { name: /demander mon bilan stratégique gratuit/i }));
-
-    await waitFor(() => {
-      const request = mockFetch.mock.calls[0]?.[1];
-      const payload = JSON.parse(String(request?.body)) as Record<string, unknown>;
-      expect(payload).toMatchObject({
-        campaignContext: {
-          packCode: 'PACK_1',
-          level: 'PREMIERE',
-          subjectIds: ['MATHEMATIQUES'],
-        },
-      });
-    });
-  });
-
-  it('omits the campaign context after a parent changes the entry class', async () => {
-    const user = userEvent.setup();
-    await renderPage({
-      programme: 'pre-rentree-2026',
-      pack: 'PACK_2',
-      niveau: 'PREMIERE',
-      matieres: 'MATHEMATIQUES,FRANCAIS',
-      voie: 'GENERALE',
-      profil_maths: 'MATHS_EDS',
-      profil_eaf: 'EAF_GENERALE',
-      projet_specialites: 'NSI_PHYSIQUE_CHIMIE',
-    });
-
-    fillInput('parentFirstName', 'Jean');
-    fillInput('parentLastName', 'Dupont');
-    fillInput('parentEmail', 'jean.dupont@example.com');
-    fillInput('parentPhone', '+21699192829');
-    fillInput('studentFirstName', 'Marie');
-    fillInput('studentSchool', 'Lycée Victor Hugo');
-    fillInput('objectives', 'Préparer sérieusement la rentrée scolaire');
-    fireEvent.change(screen.getByLabelText('Classe de rentrée'), { target: { value: 'terminale' } });
+    fireEvent.change(screen.getByLabelText('Classe'), { target: { value: 'terminale' } });
+    await user.click(screen.getByLabelText('Mathématiques'));
     await user.click(screen.getByRole('checkbox', { name: /j.*accepte/i }));
     await user.click(screen.getByRole('button', { name: /demander mon bilan stratégique gratuit/i }));
 

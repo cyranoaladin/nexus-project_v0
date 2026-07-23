@@ -30,7 +30,7 @@
 - Branche : `main`
 - HEAD avant : `802acb91`
 - Git : worktree propre
-- PM2 : `nexus-prod` online
+- PM2 : `<PROCESS_NAME>` online
 - Port : app sur `127.0.0.1:3001`, Nginx sur `80/443`
 - Health before :
   - `site=200`
@@ -41,7 +41,7 @@
 - typecheck : OK
 - tests ciblés P1-A : OK, 9 suites / 50 tests
 - build : OK, `BUILD_EXIT=0`
-- PM2 reload : OK, `nexus-prod` online après reload
+- PM2 reload : OK, `<PROCESS_NAME>` online après reload
 
 ## Smoke tests
 - `site` : 200

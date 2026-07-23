@@ -74,7 +74,7 @@
       "title":"Organisation des deux semaines",
       "blocks":[
         {"id":"semaine-une","kind":"EVIDENCED_TEXT","text":"La semaine du 17 au 21 août regroupe Mathématiques, Français et Philosophie selon le niveau.","evidenceRefs":["/schedule/weeks/0"]},
-        {"id":"semaine-deux","kind":"EVIDENCED_TEXT","text":"La semaine du 24 au 28 août regroupe informatique/SNT/NSI et Physique-Chimie.","evidenceRefs":["/schedule/weeks/1"]},
+        {"id":"semaine-deux","kind":"EVIDENCED_TEXT","text":"La semaine du 24 au 28 août regroupe NSI, Physique-Chimie et SVT selon le niveau.","evidenceRefs":["/schedule/weeks/1"]},
         {"id":"planning-brouillon","kind":"EVIDENCED_TEXT","text":"Le planning est un brouillon de revue tant que les affectations de salles et d’enseignants ne sont pas validées.","evidenceRefs":["/campaign/operationalGates"]},
         {"id":"planning-detail","kind":"DYNAMIC_REFERENCE","sourceRef":"/schedule"}
       ]
@@ -90,13 +90,13 @@
     },
     {
       "id":"reservation",
-      "title":"De la demande d’information à la réservation",
+      "title":"Demander une information",
       "blocks":[
         {"id":"reservation-etapes","kind":"EVIDENCED_PROCEDURE","steps":[
           {"text":"La famille demande le programme ou un conseil, sans paiement ni réservation.","evidenceRefs":["/content/practical/preRegistrationNotice"]},
           {"text":"Nexus qualifie le niveau, les matières, le profil, le planning et la cohérence du groupe.","evidenceRefs":["/academicProfiles","/campaign/operationalGates"]},
-          {"text":"Nexus transmet une proposition de parcours avec prix, acompte, solde et conditions applicables.","evidenceRefs":["/offers","/packs","/legal"]},
-          {"text":"Après validation du parcours et réception de l’acompte exact, l’inscription est confirmée et la place réservée.","evidenceRefs":["/content/practical/noOnlinePaymentNotice","/offers/depositRate"]}
+          {"text":"Nexus peut transmettre le programme, la grille tarifaire et les informations validées disponibles.","evidenceRefs":["/offers","/packs"]},
+          {"text":"Aucune réservation ni collecte de paiement n’est activée tant que les conditions contractuelles, le reçu et le rapprochement ne sont pas validés.","evidenceRefs":["/content/practical/noOnlinePaymentNotice","/legal"]}
         ]},
         {"id":"conditions-manquantes","kind":"EVIDENCED_TEXT","text":"Les règles d’annulation, d’absence, de report, de remboursement et l’échéance contractuelle du solde restent exclues tant qu’une version juridique approuvée manque.","evidenceRefs":["/legal"]}
       ]
@@ -115,7 +115,7 @@
       "blocks":[
         {"id":"materiel","kind":"DYNAMIC_REFERENCE","sourceRef":"/content/practical/materialsBySubject"},
         {"id":"physique","kind":"EVIDENCED_TEXT","text":"Les séances de Physique-Chimie sont théoriques et méthodologiques ; aucune activité de laboratoire n’est annoncée.","evidenceRefs":["/content/practical/materialsBySubject/PHYSIQUE_CHIMIE"]},
-        {"id":"informatique","kind":"EVIDENCED_TEXT","text":"Un ordinateur portable est demandé pour NSI/SNT ; les postes de secours sont disponibles en nombre limité.","evidenceRefs":["/content/practical/materialsBySubject/NSI"]}
+        {"id":"informatique","kind":"EVIDENCED_TEXT","text":"Un ordinateur portable est demandé pour les modules NSI ; les postes de secours sont disponibles en nombre limité.","evidenceRefs":["/content/practical/materialsBySubject/NSI"]}
       ]
     },
     {

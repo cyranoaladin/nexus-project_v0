@@ -5,8 +5,8 @@
 | Élément | Fait confirmé | Niveau |
 |---|---|---|
 | Hôte | `korrigo` | CONFIRMED_PRODUCTION |
-| Application | dépôt `/var/www/nexus-project_v0`, `main`, commit `1b8219b1cfcfe63354d8cb4035645143e27e5a43`, état suivi propre | CONFIRMED_PRODUCTION |
-| Next.js | PM2 `nexus-prod`, cluster, online ; Node 20.20, npm 10.8 | CONFIRMED_PRODUCTION |
+| Application | dépôt `<APP_DIR>`, `main`, commit `1b8219b1cfcfe63354d8cb4035645143e27e5a43`, état suivi propre | CONFIRMED_PRODUCTION |
+| Next.js | PM2 `<PROCESS_NAME>`, cluster, online ; Node 20.20, npm 10.8 | CONFIRMED_PRODUCTION |
 | Redémarrages | PM2 affichait 102 restarts et ~14 jours d'uptime | CONFIRMED_PRODUCTION, cause inconnue |
 | PostgreSQL | conteneur `nexus-postgres-db`, healthy, bind loopback `5435` | CONFIRMED_PRODUCTION |
 | RAG | Chroma 1.1.1, Ollama 0.3.13 et ingestor healthy en conteneurs ; ports loopback 8000/11434/18001 | CONFIRMED_PRODUCTION |

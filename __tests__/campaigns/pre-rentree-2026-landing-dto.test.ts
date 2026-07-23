@@ -21,7 +21,7 @@ describe('Pré-rentrée 2026 landing DTO', () => {
       'Deux semaines pour préparer sérieusement la rentrée',
     );
     expect(dto.content.method).toHaveLength(4);
-    expect(dto.content.faq).toHaveLength(16);
+    expect(dto.content.faq).toHaveLength(18);
     expect(dto.content.practical.preRegistrationNotice).toContain('ne réserve pas une place');
     expect(dto.content.practical.preRegistrationNotice).toContain('ne forme pas un contrat');
     expect(dto.seo.canonical).toBe('/stages/pre-rentree-2026');
@@ -29,7 +29,7 @@ describe('Pré-rentrée 2026 landing DTO', () => {
       FONDATIONS: { minPerCohort: 4, maxPerCohort: 6 },
       PREMIUM: { minPerCohort: 3, maxPerCohort: 5 },
     });
-    expect(dto.blocks).toHaveLength(5);
+    expect(dto.blocks).toHaveLength(4);
     expect(dto.content.hero.subtitle).toContain(
       'Nexus Fondations en 3e et Seconde',
     );
@@ -39,10 +39,10 @@ describe('Pré-rentrée 2026 landing DTO', () => {
     expect(dto.publicStatus).toBe('Campagne en préparation');
     expect(dto).not.toHaveProperty('status');
     expect(dto.scheduleWeeks).toHaveLength(2);
-    expect(dto.scheduleWeeks.flatMap((week) => week.slots)).toHaveLength(16);
+    expect(dto.scheduleWeeks.flatMap((week) => week.slots)).toHaveLength(15);
     expect(dto.organization.educators).toHaveLength(0);
     expect(dto.organization.rooms).toEqual([
-      { label: 'Salle 1', details: 'Mathématiques / NSI / SNT' },
+      { label: 'Salle 1', details: 'Mathématiques, NSI et SVT' },
       { label: 'Salle 2', details: 'Français, Philosophie, Physique-Chimie et SVT' },
     ]);
     expect(JSON.stringify(dto.organization)).not.toMatch(
@@ -78,7 +78,10 @@ describe('Pré-rentrée 2026 landing DTO', () => {
   it('keeps all pedagogical fields for every module session', () => {
     const { modules } = getPreRentreeLandingDTO();
 
-    expect(modules).toHaveLength(16);
+    expect(modules).toHaveLength(15);
+    expect(modules.some((module) => (
+      module.level === 'SECONDE' && module.subjectId === 'NSI'
+    ))).toBe(false);
     for (const campaignModule of modules) {
       expect(campaignModule.prerequisites.length).toBeGreaterThan(0);
       expect(campaignModule.differentiation.length).toBeGreaterThan(0);

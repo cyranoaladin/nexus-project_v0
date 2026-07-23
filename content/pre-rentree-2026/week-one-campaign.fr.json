@@ -27,7 +27,11 @@
   },
   "mainPublication": {
     "assetId": "week1-main-portrait",
-    "audience": ["Parents d'élèves du système français en Tunisie", "Élèves de 3e à Terminale", "Candidats libres selon le parcours"],
+    "audience": [
+      "Parents d'élèves du système français en Tunisie",
+      "Élèves de 3e à Terminale",
+      "Candidats libres selon le parcours"
+    ],
     "funnelStage": "DISCOVERY",
     "objective": "Obtenir une conversation WhatsApp qualifiée sur le niveau et la matière",
     "hooks": [
@@ -40,10 +44,10 @@
       "Vérifier le parcours adapté"
     ],
     "facebook": {
-      "body": "La rentrée ne se prépare pas en accumulant des heures au hasard. Elle se prépare avec un objectif clair pour chaque séance, un groupe réellement limité et un travail qui permet à l'élève de comprendre ce qu'il sait déjà faire et ce qu'il doit encore consolider. Du 17 août 2026 à Mutuelleville, Nexus Réussite propose des stages de pré-rentrée pour les élèves entrant en 3e, Seconde, Première ou Terminale. Chaque matière représente dix heures organisées en cinq séances de deux heures. En 3e, les parcours concernent les Mathématiques et le Français. En Seconde, ils concernent les Mathématiques, la Physique-Chimie et le Français. En Première et Terminale, les matières disponibles dépendent du niveau et du parcours choisi. Les séances articulent objectifs annoncés, entraînement et correction. Les effectifs sont limités à six élèves en Fondations et cinq en Premium. Pour connaître le programme, les horaires compatibles et le montant correspondant au parcours de votre enfant, écrivez-nous sur WhatsApp. Une demande seule ne réserve pas une place : la réservation devient effective après validation du parcours et règlement de l'acompte de 30 %."
+      "body": "La rentrée ne se prépare pas en accumulant des heures au hasard. Elle se prépare avec un objectif clair pour chaque séance, un groupe réellement limité et un travail qui permet à l'élève de comprendre ce qu'il sait déjà faire et ce qu'il doit encore consolider. Du 17 août 2026 à Mutuelleville, Nexus Réussite propose des stages de pré-rentrée pour les élèves entrant en 3e, Seconde, Première ou Terminale. Chaque matière représente dix heures organisées en cinq séances de deux heures. En 3e, les parcours concernent les Mathématiques et le Français. En Seconde, ils concernent les Mathématiques, la Physique-Chimie et le Français. En Première et Terminale, les matières disponibles dépendent du niveau et du parcours choisi. Les séances articulent objectifs annoncés, entraînement et correction. Les effectifs sont limités à six élèves en Fondations et cinq en Premium. Pour recevoir le programme, les horaires et le tarif correspondant au parcours de votre enfant, écrivez-nous sur WhatsApp. Cette demande reste sans paiement et ne bloque aucune place."
     },
     "instagram": {
-      "body": "Préparer la rentrée, ce n'est pas seulement ajouter des heures de cours. C'est savoir quoi reprendre, dans quel ordre et avec quelle méthode. Dès le 17 août à Mutuelleville, les stages Nexus Réussite proposent cinq séances de deux heures par matière, en effectifs limités. 3e : Mathématiques ou Français. Seconde : Mathématiques, Physique-Chimie ou Français. Première et Terminale : parcours de une à quatre matières selon le niveau. Objectifs clairs, entraînement et correction structurent les dix heures. Écrivez-nous sur WhatsApp pour recevoir le programme et vérifier le parcours adapté. La place est réservée après validation et acompte de 30 %."
+      "body": "Préparer la rentrée, ce n'est pas seulement ajouter des heures de cours. C'est savoir quoi reprendre, dans quel ordre et avec quelle méthode. Dès le 17 août à Mutuelleville, les stages Nexus Réussite proposent cinq séances de deux heures par matière, en effectifs limités. 3e : Mathématiques ou Français. Seconde : Mathématiques, Physique-Chimie ou Français. Première et Terminale : parcours de une à quatre matières selon le niveau. Objectifs clairs, entraînement et correction structurent les dix heures. Écrivez-nous sur WhatsApp pour recevoir le programme, les horaires et le tarif. Aucun paiement n'est demandé à ce stade."
     },
     "metaAds": {
       "body": "Dès le 17 août à Mutuelleville : dix heures structurées par matière, cinq séances et des effectifs limités pour préparer la rentrée de la 3e à la Terminale. Recevez le programme et vérifiez le parcours adapté sur WhatsApp."
@@ -52,7 +56,14 @@
       "body": "Nexus Réussite organise ses stages de pré-rentrée dès le 17 août à Mutuelleville. Chaque matière comprend cinq séances de deux heures, avec des objectifs annoncés, de l'entraînement et une correction structurée. Les parcours sont proposés de la 3e à la Terminale selon les matières disponibles. Pour recevoir le programme et vérifier le groupe adapté, contactez le 99 192 829 sur WhatsApp."
     },
     "pricingDisclosure": "ALL_APPROVED_OFFERS",
-    "hashtags": ["#NexusReussite", "#PreRentree2026", "#SoutienScolaireTunis", "#SystemeFrancais", "#Mutuelleville", "#MethodedeTravail"],
+    "hashtags": [
+      "#NexusReussite",
+      "#PreRentree2026",
+      "#SoutienScolaireTunis",
+      "#SystemeFrancais",
+      "#Mutuelleville",
+      "#MethodedeTravail"
+    ],
     "altText": "Affiche Nexus Réussite annonçant les stages de pré-rentrée 2026 dès le 17 août à Mutuelleville pour les niveaux 3e, Seconde, Première et Terminale, avec effectifs limités et contact WhatsApp 99 192 829.",
     "whatsappPrefill": "Bonjour Nexus Réussite, je souhaite recevoir le programme de pré-rentrée 2026. Mon enfant entre en [niveau] et nous cherchons un accompagnement en [matière]. Pouvez-vous m'indiquer le parcours et les horaires adaptés ?",
     "utm": {
@@ -61,7 +72,16 @@
       "campaign": "pre_rentree_2026",
       "content": "week1_main"
     },
-    "proofIds": ["PRF-PRE2026-DATES-VENUE", "PRF-PRE2026-WHATSAPP", "PRF-PRE2026-DEPOSIT-30", "PRF-PRE2026-3E-350-APPROVED", "PRF-PRE2026-SECONDE-400", "PRF-PRE2026-PREMIUM-PACKS", "PRF-PRE2026-FIVE-SESSIONS", "PRF-PRE2026-STRUCTURED-SESSIONS"]
+    "proofIds": [
+      "PRF-PRE2026-DATES-VENUE",
+      "PRF-PRE2026-WHATSAPP",
+      "PRF-PRE2026-DEPOSIT-30",
+      "PRF-PRE2026-3E-350-APPROVED",
+      "PRF-PRE2026-SECONDE-400",
+      "PRF-PRE2026-PREMIUM-PACKS",
+      "PRF-PRE2026-FIVE-SESSIONS",
+      "PRF-PRE2026-STRUCTURED-SESSIONS"
+    ]
   },
   "carousel": {
     "assetId": "week1-carousel",
@@ -82,7 +102,9 @@
         "body": "Cinq séances permettent d'avancer par étapes : réactiver, comprendre, appliquer, corriger et consolider.",
         "eyebrow": "PROGRESSER",
         "altText": "Slide expliquant l'organisation de dix heures en cinq étapes progressives.",
-        "proofIds": ["PRF-PRE2026-FIVE-SESSIONS"]
+        "proofIds": [
+          "PRF-PRE2026-FIVE-SESSIONS"
+        ]
       },
       {
         "id": "03",
@@ -90,7 +112,9 @@
         "body": "Un objectif annoncé, un temps d'entraînement et une correction pour rendre chaque séance lisible.",
         "eyebrow": "COMPRENDRE",
         "altText": "Slide présentant les trois temps de la méthode Nexus : objectif, entraînement et correction.",
-        "proofIds": ["PRF-PRE2026-STRUCTURED-SESSIONS"]
+        "proofIds": [
+          "PRF-PRE2026-STRUCTURED-SESSIONS"
+        ]
       },
       {
         "id": "04",
@@ -99,7 +123,10 @@
         "eyebrow": "FONDATIONS",
         "pricingDisclosure": "TROISIEME",
         "altText": "Slide présentant l'offre d'entrée en 3e en Mathématiques ou Français, dix heures par matière et groupe de quatre à six élèves.",
-        "proofIds": ["PRF-PRE2026-3E-350-APPROVED", "PRF-PRE2026-FIVE-SESSIONS"]
+        "proofIds": [
+          "PRF-PRE2026-3E-350-APPROVED",
+          "PRF-PRE2026-FIVE-SESSIONS"
+        ]
       },
       {
         "id": "05",
@@ -108,7 +135,10 @@
         "eyebrow": "FONDATIONS",
         "pricingDisclosure": "SECONDE",
         "altText": "Slide présentant l'offre d'entrée en Seconde en Mathématiques, Physique-Chimie ou Français, dix heures par matière et groupe de quatre à six élèves.",
-        "proofIds": ["PRF-PRE2026-SECONDE-400", "PRF-PRE2026-FIVE-SESSIONS"]
+        "proofIds": [
+          "PRF-PRE2026-SECONDE-400",
+          "PRF-PRE2026-FIVE-SESSIONS"
+        ]
       },
       {
         "id": "06",
@@ -117,7 +147,10 @@
         "eyebrow": "PREMIUM",
         "pricingDisclosure": "PREMIUM",
         "altText": "Slide présentant les parcours Première et Terminale de une à quatre matières avec groupes de trois à cinq élèves.",
-        "proofIds": ["PRF-PRE2026-PREMIUM-PACKS", "PRF-PRE2026-FIVE-SESSIONS"]
+        "proofIds": [
+          "PRF-PRE2026-PREMIUM-PACKS",
+          "PRF-PRE2026-FIVE-SESSIONS"
+        ]
       },
       {
         "id": "07",
@@ -125,15 +158,20 @@
         "body": "Des objectifs annoncés, cinq séances par matière, de l'entraînement et une correction organisée.",
         "eyebrow": "CONCRET",
         "altText": "Slide listant les éléments inclus : objectifs, cinq séances, entraînement et correction.",
-        "proofIds": ["PRF-PRE2026-FIVE-SESSIONS", "PRF-PRE2026-STRUCTURED-SESSIONS"]
+        "proofIds": [
+          "PRF-PRE2026-FIVE-SESSIONS",
+          "PRF-PRE2026-STRUCTURED-SESSIONS"
+        ]
       },
       {
         "id": "08",
         "title": "Trouvons le bon parcours",
-        "body": "Indiquez le niveau et les matières sur WhatsApp. La réservation est confirmée après validation du parcours et acompte de 30 %.",
+        "body": "Indiquez le niveau et les matières sur WhatsApp pour recevoir le programme, les horaires et le tarif. La demande reste sans paiement.",
         "eyebrow": "99 192 829",
-        "altText": "Slide finale invitant les parents à contacter Nexus Réussite sur WhatsApp et expliquant la réservation par acompte.",
-        "proofIds": ["PRF-PRE2026-WHATSAPP", "PRF-PRE2026-DEPOSIT-30"]
+        "altText": "Slide finale invitant les parents à demander les informations sur WhatsApp sans paiement.",
+        "proofIds": [
+          "PRF-PRE2026-WHATSAPP"
+        ]
       }
     ]
   },
@@ -151,7 +189,9 @@
             "durationSeconds": 6,
             "cta": "Découvrir les niveaux",
             "altText": "Story annonçant les stages dès le 17 août et interrogeant les parents sur la préparation de la rentrée.",
-            "proofIds": ["PRF-PRE2026-DATES-VENUE"]
+            "proofIds": [
+              "PRF-PRE2026-DATES-VENUE"
+            ]
           },
           {
             "id": "decouverte-02",
@@ -161,7 +201,9 @@
             "durationSeconds": 6,
             "cta": "Voir la méthode",
             "altText": "Story présentant dix heures par matière en cinq séances pour les niveaux 3e à Terminale.",
-            "proofIds": ["PRF-PRE2026-FIVE-SESSIONS"]
+            "proofIds": [
+              "PRF-PRE2026-FIVE-SESSIONS"
+            ]
           },
           {
             "id": "decouverte-03",
@@ -171,7 +213,9 @@
             "durationSeconds": 7,
             "cta": "Répondre sur WhatsApp",
             "altText": "Story indiquant le lieu à Mutuelleville, les effectifs limités et invitant à préciser le niveau.",
-            "proofIds": ["PRF-PRE2026-DATES-VENUE"]
+            "proofIds": [
+              "PRF-PRE2026-DATES-VENUE"
+            ]
           }
         ]
       },
@@ -187,7 +231,9 @@
             "durationSeconds": 6,
             "cta": "Voir l'étape suivante",
             "altText": "Story expliquant que chaque séance commence par un objectif clair.",
-            "proofIds": ["PRF-PRE2026-STRUCTURED-SESSIONS"]
+            "proofIds": [
+              "PRF-PRE2026-STRUCTURED-SESSIONS"
+            ]
           },
           {
             "id": "methode-02",
@@ -197,7 +243,9 @@
             "durationSeconds": 6,
             "cta": "Voir la correction",
             "altText": "Story présentant l'entraînement actif et le travail en groupe limité.",
-            "proofIds": ["PRF-PRE2026-STRUCTURED-SESSIONS"]
+            "proofIds": [
+              "PRF-PRE2026-STRUCTURED-SESSIONS"
+            ]
           },
           {
             "id": "methode-03",
@@ -207,13 +255,15 @@
             "durationSeconds": 7,
             "cta": "Demander le programme",
             "altText": "Story expliquant le rôle de la correction pour comprendre l'erreur et mémoriser une méthode.",
-            "proofIds": ["PRF-PRE2026-STRUCTURED-SESSIONS"]
+            "proofIds": [
+              "PRF-PRE2026-STRUCTURED-SESSIONS"
+            ]
           }
         ]
       },
       {
         "id": "offres",
-        "title": "Niveaux, tarifs et réservation",
+        "title": "Niveaux, programmes et tarifs",
         "frames": [
           {
             "id": "offres-01",
@@ -224,7 +274,9 @@
             "durationSeconds": 7,
             "cta": "Choisir la matière",
             "altText": "Story présentant les matières et le format de l'offre d'entrée en 3e.",
-            "proofIds": ["PRF-PRE2026-3E-350-APPROVED"]
+            "proofIds": [
+              "PRF-PRE2026-3E-350-APPROVED"
+            ]
           },
           {
             "id": "offres-02",
@@ -235,17 +287,22 @@
             "durationSeconds": 7,
             "cta": "Vérifier le parcours",
             "altText": "Story présentant les parcours de la Seconde à la Terminale selon le niveau et les matières proposées.",
-            "proofIds": ["PRF-PRE2026-SECONDE-400", "PRF-PRE2026-PREMIUM-PACKS"]
+            "proofIds": [
+              "PRF-PRE2026-SECONDE-400",
+              "PRF-PRE2026-PREMIUM-PACKS"
+            ]
           },
           {
             "id": "offres-03",
-            "eyebrow": "RÉSERVER",
-            "text": "Écrivez le niveau et la matière au 99 192 829. La place est réservée après validation et acompte de 30 %.",
+            "eyebrow": "S'INFORMER",
+            "text": "Écrivez le niveau et la matière au 99 192 829 pour recevoir le programme, les horaires et le tarif.",
             "interaction": "Lien : ouvrir WhatsApp",
             "durationSeconds": 8,
             "cta": "Écrire sur WhatsApp",
-            "altText": "Story finale avec le numéro WhatsApp et la règle de réservation après acompte.",
-            "proofIds": ["PRF-PRE2026-WHATSAPP", "PRF-PRE2026-DEPOSIT-30"]
+            "altText": "Story finale avec le numéro WhatsApp pour demander les informations du stage.",
+            "proofIds": [
+              "PRF-PRE2026-WHATSAPP"
+            ]
           }
         ]
       }
@@ -324,18 +381,30 @@
     },
     "caption": "Dix heures deviennent utiles quand chaque séance répond à une question précise : que faut-il reprendre, comment s'entraîner et comment comprendre l'erreur ? Découvrez les stages de pré-rentrée Nexus Réussite dès le 17 août à Mutuelleville. Écrivez-nous sur WhatsApp avec le niveau et la matière recherchée.",
     "cta": "Recevoir le programme sur WhatsApp",
-    "mediaNeeded": ["Logo Nexus Réussite", "Polices DMSans et Fraunces sous licence OFL", "Icônes vectorielles dessinées dans le renderer", "Aplats et formes aux couleurs Nexus"],
+    "mediaNeeded": [
+      "Logo Nexus Réussite",
+      "Polices DMSans et Fraunces sous licence OFL",
+      "Icônes vectorielles dessinées dans le renderer",
+      "Aplats et formes aux couleurs Nexus"
+    ],
     "motionDesignAlternative": "Version entièrement réalisable avec typographie, formes vectorielles, icônes et logo ; aucune photo, aucun tournage et aucun droit à l'image requis.",
-    "proofIds": ["PRF-PRE2026-DATES-VENUE", "PRF-PRE2026-WHATSAPP", "PRF-PRE2026-FIVE-SESSIONS", "PRF-PRE2026-STRUCTURED-SESSIONS"]
+    "proofIds": [
+      "PRF-PRE2026-DATES-VENUE",
+      "PRF-PRE2026-WHATSAPP",
+      "PRF-PRE2026-FIVE-SESSIONS",
+      "PRF-PRE2026-STRUCTURED-SESSIONS"
+    ]
   },
   "calendar": {
     "timezone": "Africa/Tunis",
     "days": [
       {
         "day": "J1",
-        "date": "2026-07-20",
         "time": "19:00",
-        "channel": ["Facebook", "Instagram"],
+        "channel": [
+          "Facebook",
+          "Instagram"
+        ],
         "audience": "Parents d'élèves de 3e à Terminale",
         "level": "TOUS",
         "funnelStage": "DISCOVERY",
@@ -345,13 +414,21 @@
         "cta": "Recevoir le programme sur WhatsApp",
         "utm": "utm_source=meta&utm_medium=social_organic&utm_campaign=pre_rentree_2026&utm_content=j1_annonce",
         "whatsappScriptId": "wa-week1-discovery",
-        "expectedKpi": ["portée", "clics WhatsApp", "conversations initiées"]
+        "expectedKpi": [
+          "portée",
+          "clics WhatsApp",
+          "conversations initiées"
+        ],
+        "publicationDayOffset": 0
       },
       {
         "day": "J2",
-        "date": "2026-07-21",
         "time": "19:00",
-        "channel": ["Facebook", "Instagram", "Story"],
+        "channel": [
+          "Facebook",
+          "Instagram",
+          "Story"
+        ],
         "audience": "Parents d'élèves entrant en 3e ou Seconde",
         "level": "TROISIEME_SECONDE",
         "funnelStage": "CONSIDERATION",
@@ -361,13 +438,20 @@
         "cta": "Vérifier le groupe adapté",
         "utm": "utm_source=meta&utm_medium=social_organic&utm_campaign=pre_rentree_2026&utm_content=j2_fondations",
         "whatsappScriptId": "wa-week1-foundations",
-        "expectedKpi": ["enregistrements", "clics WhatsApp", "demandes par matière"]
+        "expectedKpi": [
+          "enregistrements",
+          "clics WhatsApp",
+          "demandes par matière"
+        ],
+        "publicationDayOffset": 1
       },
       {
         "day": "J3",
-        "date": "2026-07-22",
         "time": "19:30",
-        "channel": ["Facebook", "Instagram"],
+        "channel": [
+          "Facebook",
+          "Instagram"
+        ],
         "audience": "Parents et élèves entrant en Première ou Terminale",
         "level": "PREMIERE_TERMINALE",
         "funnelStage": "CONSIDERATION",
@@ -377,13 +461,21 @@
         "cta": "Composer le parcours sur WhatsApp",
         "utm": "utm_source=meta&utm_medium=social_organic&utm_campaign=pre_rentree_2026&utm_content=j3_premium",
         "whatsappScriptId": "wa-week1-premium",
-        "expectedKpi": ["enregistrements", "clics WhatsApp", "demandes de parcours"]
+        "expectedKpi": [
+          "enregistrements",
+          "clics WhatsApp",
+          "demandes de parcours"
+        ],
+        "publicationDayOffset": 2
       },
       {
         "day": "J4",
-        "date": "2026-07-23",
         "time": "18:30",
-        "channel": ["Instagram Reel", "Facebook Reel", "Story"],
+        "channel": [
+          "Instagram Reel",
+          "Facebook Reel",
+          "Story"
+        ],
         "audience": "Parents comparant plusieurs solutions de préparation",
         "level": "TOUS",
         "funnelStage": "EDUCATION",
@@ -393,13 +485,20 @@
         "cta": "Demander le programme détaillé",
         "utm": "utm_source=meta&utm_medium=reel&utm_campaign=pre_rentree_2026&utm_content=j4_methode",
         "whatsappScriptId": "wa-week1-method",
-        "expectedKpi": ["vues à 50 %", "vues complètes", "clics WhatsApp"]
+        "expectedKpi": [
+          "vues à 50 %",
+          "vues complètes",
+          "clics WhatsApp"
+        ],
+        "publicationDayOffset": 3
       },
       {
         "day": "J5",
-        "date": "2026-07-24",
         "time": "19:00",
-        "channel": ["Facebook", "Instagram"],
+        "channel": [
+          "Facebook",
+          "Instagram"
+        ],
         "audience": "Parents ayant consulté les tarifs",
         "level": "TOUS",
         "funnelStage": "OBJECTION",
@@ -409,13 +508,21 @@
         "cta": "Comparer le parcours adapté",
         "utm": "utm_source=meta&utm_medium=social_organic&utm_campaign=pre_rentree_2026&utm_content=j5_valeur",
         "whatsappScriptId": "wa-week1-price",
-        "expectedKpi": ["temps de lecture", "enregistrements", "conversations qualifiées"]
+        "expectedKpi": [
+          "temps de lecture",
+          "enregistrements",
+          "conversations qualifiées"
+        ],
+        "publicationDayOffset": 4
       },
       {
         "day": "J6",
-        "date": "2026-07-25",
         "time": "11:00",
-        "channel": ["Instagram", "Story", "WhatsApp Status"],
+        "channel": [
+          "Instagram",
+          "Story",
+          "WhatsApp Status"
+        ],
         "audience": "Parents souhaitant comprendre le contenu pédagogique",
         "level": "TOUS",
         "funnelStage": "PROOF",
@@ -425,23 +532,36 @@
         "cta": "Recevoir le programme de la matière",
         "utm": "utm_source=meta&utm_medium=story&utm_campaign=pre_rentree_2026&utm_content=j6_preuve_pedagogique",
         "whatsappScriptId": "wa-week1-proof",
-        "expectedKpi": ["réponses Story", "clics WhatsApp", "demandes de programme"]
+        "expectedKpi": [
+          "réponses Story",
+          "clics WhatsApp",
+          "demandes de programme"
+        ],
+        "publicationDayOffset": 5
       },
       {
         "day": "J7",
-        "date": "2026-07-26",
         "time": "18:00",
-        "channel": ["Facebook", "Instagram", "Story", "WhatsApp Status"],
+        "channel": [
+          "Facebook",
+          "Instagram",
+          "Story",
+          "WhatsApp Status"
+        ],
         "audience": "Parents ayant interagi pendant la semaine",
         "level": "TOUS",
-        "funnelStage": "CONVERSION",
-        "objective": "Rappeler les effectifs et expliquer la réservation",
+        "funnelStage": "CONSIDERATION",
+        "objective": "Rappeler les effectifs et inviter à demander les informations",
         "assetId": "week1-carousel-slide-08",
-        "body": "Les effectifs sont limités par groupe. Une conversation permet de vérifier le parcours ; la réservation devient effective après validation et acompte de 30 %.",
-        "cta": "Vérifier le parcours sur WhatsApp",
-        "utm": "utm_source=meta&utm_medium=social_organic&utm_campaign=pre_rentree_2026&utm_content=j7_reservation",
+        "body": "Les effectifs sont limités par groupe. Une conversation permet de recevoir le programme, les horaires et le tarif sans paiement.",
+        "cta": "Demander les informations sur WhatsApp",
+        "utm": "utm_source=meta&utm_medium=social_organic&utm_campaign=pre_rentree_2026&utm_content=j7_information",
         "whatsappScriptId": "wa-week1-reservation",
-        "expectedKpi": ["clics WhatsApp", "parcours validés", "acomptes attendus"]
+        "expectedKpi": [
+          "clics WhatsApp",
+          "demandes d'information qualifiées"
+        ],
+        "publicationDayOffset": 6
       }
     ]
   },
@@ -472,7 +592,9 @@
     },
     {
       "id": "wa-week1-reservation",
-      "text": "Bonjour, je souhaite vérifier la disponibilité et les étapes de réservation pour [niveau] en [matière]."
+      "text": "Bonjour, je souhaite recevoir le programme, les horaires et le tarif pour [niveau] en [matière]."
     }
-  ]
+  ],
+  "launchDate": null,
+  "launchDateStatus": "PENDING_OWNER_AUTHORIZATION"
 }

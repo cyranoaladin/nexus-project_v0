@@ -27,8 +27,8 @@ Date : 2026-05-28
 ```bash
 git status --short
 git log --oneline -3
-pm2 status nexus-prod --no-color
-pm2 describe nexus-prod --no-color
+pm2 status <PROCESS_NAME> --no-color
+pm2 describe <PROCESS_NAME> --no-color
 ss -ltnp | grep -E ':3001|:3000|:80|:443'
 ufw status verbose
 curl -sI http://127.0.0.1:3001/api/health
@@ -40,7 +40,7 @@ curl -sI https://nexusreussite.academy/
 ```bash
 pm2 save
 pm2 jlist > /root/nexus-backups/p0-002-20260528223728/pm2-jlist-before.json
-pm2 describe nexus-prod --no-color > /root/nexus-backups/p0-002-20260528223728/pm2-describe-before.txt
+pm2 describe <PROCESS_NAME> --no-color > /root/nexus-backups/p0-002-20260528223728/pm2-describe-before.txt
 ss -ltnp > /root/nexus-backups/p0-002-20260528223728/ss-before.txt
 pm2 startOrReload ecosystem.config.js --env production --update-env
 pm2 save
@@ -79,7 +79,7 @@ systemctl reload nginx
 | Test | Résultat |
 |---|---|
 | Git prod | propre |
-| PM2 `nexus-prod` | online |
+| PM2 `<PROCESS_NAME>` | online |
 | Port app | `127.0.0.1:3001` |
 | `nginx -t` | OK |
 | Site public | `200` |
@@ -96,7 +96,7 @@ systemctl reload nginx
 
 ## Risques résiduels
 
-- Les artefacts sensibles existent encore physiquement dans `/var/www/nexus-project_v0` (`.env`, `.git`, `.next/standalone/.env`, `.next/standalone/.git`). Ils sont désormais protégés par reverse proxy + règles Nginx, mais une migration vers un artefact runtime minimal reste nécessaire.
+- Les artefacts sensibles existent encore physiquement dans `<APP_DIR>` (`.env`, `.git`, `.next/standalone/.env`, `.next/standalone/.git`). Ils sont désormais protégés par reverse proxy + règles Nginx, mais une migration vers un artefact runtime minimal reste nécessaire.
 - P0-004 reste ouvert : les routes API dynamiques sensibles doivent être auditées route par route.
 - P1 reste ouvert : CSP, CORS, Permissions-Policy Jitsi, rate limiting, logs sans PII, backup/restore, monitoring et worker NPC.
 - Les logs PM2 récents contiennent encore des erreurs connues `Failed to find Server Action "x"` liées aux onglets ouverts sur d'anciens déploiements; pas traité dans ce lot.

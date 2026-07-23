@@ -26,4 +26,4 @@ Bonjour, pouvez-vous m'envoyer les objectifs du programme de pré-rentrée en [m
 
 ## wa-week1-reservation
 
-Bonjour, je souhaite vérifier la disponibilité et les étapes de réservation pour [niveau] en [matière].
+Bonjour, je souhaite recevoir le programme, les horaires et le tarif pour [niveau] en [matière].
