@@ -30,8 +30,8 @@
       "format": "CSV",
       "width": null,
       "height": null,
-      "bytes": 27710,
-      "sha256": "bbb7f73fd1e2c4c3b6034ec908fb0908232b6a1e483a1837df5f3baf12c6f3f9",
+      "bytes": 27654,
+      "sha256": "ac4b3a5954a2c0fe9c1bb3204e1e4fc60084dab6111b5d484a8458090a2ad56f",
       "altText": "Calendrier CSV exploitable"
     },
     {
@@ -41,8 +41,8 @@
       "format": "JSON",
       "width": null,
       "height": null,
-      "bytes": 92434,
-      "sha256": "dfc8f84b9bbccc18929fb0de68eba52a052f8fef6b655f8c7418b2bd156bca18",
+      "bytes": 92326,
+      "sha256": "d3d8f8c3de81b342f95140cb2b59d30f2456be110440f68e50df41d8385f683f",
       "altText": "Calendrier complet jusqu'au démarrage"
     },
     {
@@ -52,8 +52,8 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 5961360,
-      "sha256": "03faf765a35f7e09b02722ece07bb78f4fc94d73de53d51b13a9178701810fdf",
+      "bytes": 5950487,
+      "sha256": "1317c3ab08ec111396f230f90b3a04880aaac7684704c69f446f7ed854caacff",
       "altText": "Calendrier PDF complet jusqu'au démarrage"
     },
     {
@@ -184,8 +184,8 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 385428,
-      "sha256": "b4fad26b43ab37e202846bb7162fe8e35ba06691b7fc49059ccf8a85de2e94da",
+      "bytes": 385513,
+      "sha256": "00fc27e734b5e3e4acf36903201ce85bda8637319747b730eb9617094f1ab866",
       "altText": "Carrousel présentant l'offre d'entrée en 3e en Mathématiques ou Français, son format et son effectif."
     },
     {
@@ -283,9 +283,9 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 83586,
-      "sha256": "885b53d56e9de56e2ed8bfb9968a817054e77f72e7a7ffe5b0c628f58f1e291b",
-      "altText": "Slide finale avec le tarif dérivé de la source canonique."
+      "bytes": 83409,
+      "sha256": "f0ed2417c94ebb7ebc10c03fbde1a0c83f3d5285d6b2a0ecc8e690f540e6cf1c",
+      "altText": "Slide finale avec le tarif correspondant à l'offre."
     },
     {
       "assetId": "full-carousel-02-entree-3e-slide-05-webp",
@@ -294,9 +294,9 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 48770,
-      "sha256": "b4a7bd56329e8888dda60b1dba291fb7832dc7ff1d452e6e4a940f0cd3f4bcf6",
-      "altText": "Slide finale avec le tarif dérivé de la source canonique."
+      "bytes": 48898,
+      "sha256": "4b17abf6164628a5306874f5f4529f3c72b344c73279a5198f93677d50692f7c",
+      "altText": "Slide finale avec le tarif correspondant à l'offre."
     },
     {
       "assetId": "full-carousel-03-entree-seconde-pdf",
@@ -305,8 +305,8 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 388650,
-      "sha256": "7b555d7090acb687d5fb9437fd53c50bf254d305c4ea275607715e2bc22f0180",
+      "bytes": 388883,
+      "sha256": "6bd161f7e0a9cf957d1c53529fa0c461ae857a0dfa33a14282718191c42593cd",
       "altText": "Carrousel présentant les trois matières proposées en Seconde, le format de dix heures et l'effectif du groupe."
     },
     {
@@ -404,9 +404,9 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 83310,
-      "sha256": "c827bf50caa356208abc9a9e0cfe4892ea464092bb7623a12b91a78c55125464",
-      "altText": "Slide finale avec tarif canonique et invitation à vérifier le groupe."
+      "bytes": 83146,
+      "sha256": "5e8b380201fc02e7982a24ff9c21be1e70252cdbe850e562b357072dacdab16d",
+      "altText": "Slide finale avec le tarif et une invitation à vérifier le groupe."
     },
     {
       "assetId": "full-carousel-03-entree-seconde-slide-05-webp",
@@ -415,9 +415,9 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 49620,
-      "sha256": "9e8d971f26c37980a48e74f3cabbbba9721211a2ffa692970ebae5ec08875acb",
-      "altText": "Slide finale avec tarif canonique et invitation à vérifier le groupe."
+      "bytes": 49794,
+      "sha256": "d6612efa6583dc66628c7c61dd0c156848f7268fb7ab463159959ef293b004ad",
+      "altText": "Slide finale avec le tarif et une invitation à vérifier le groupe."
     },
     {
       "assetId": "full-carousel-04-premiere-pdf",
@@ -426,8 +426,8 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 399127,
-      "sha256": "6492b74d62c263596a233568086923231f68313f942444feb6e6de083078cb1a",
+      "bytes": 398713,
+      "sha256": "98a3d3d4fa958f0aaed9f09fe30233df03f9971017a6686dae15357e022f4a73",
       "altText": "Carrousel aidant les familles à composer un parcours Premium d'entrée en Première selon les matières disponibles."
     },
     {
@@ -459,8 +459,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 73237,
-      "sha256": "a877c30c770d3f0f5a607924a2bf672ddcbd8802e4582c4106087b3d76adab8d",
+      "bytes": 72574,
+      "sha256": "4f515e4e30ec7fa92adc5cb358011c38b4d3795756b91c1bbb4f186a14bedfa3",
       "altText": "Slide présentant les packs de une à quatre matières."
     },
     {
@@ -470,8 +470,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 40812,
-      "sha256": "cd80bfba7ecb72d2b92871972c3e8da6459bf7c16694041fdb0ebd2309d2bf14",
+      "bytes": 40518,
+      "sha256": "62a407afdc9727649bd401943455a9eb73b8027a93f3ad6b09b74751d9c840f0",
       "altText": "Slide présentant les packs de une à quatre matières."
     },
     {
@@ -525,9 +525,9 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 92256,
-      "sha256": "b25ae18c63a364af986bb06505b9b7dd21d121abe5a18679d7659c1ecc511f5b",
-      "altText": "Slide finale avec les tarifs canoniques des packs Première."
+      "bytes": 91964,
+      "sha256": "34293e7b6b2dc18bbdfb5adbca9ece7ff90ae527b90f19f157f6f26b8c17ff75",
+      "altText": "Slide finale avec les tarifs des packs Première."
     },
     {
       "assetId": "full-carousel-04-premiere-slide-05-webp",
@@ -536,9 +536,9 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 57516,
-      "sha256": "48dcb74a7f9c909eb3c90416261125a79384cade6ae692e9351ab71910393342",
-      "altText": "Slide finale avec les tarifs canoniques des packs Première."
+      "bytes": 57530,
+      "sha256": "5b784bd8a463a8258e37aec1a0867592ed143d0523a56eff05adb59d552b56ca",
+      "altText": "Slide finale avec les tarifs des packs Première."
     },
     {
       "assetId": "full-carousel-05-terminale-pdf",
@@ -547,8 +547,8 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 392260,
-      "sha256": "589e4b7b8cb458bfed10774cc54389575d5940f9eed21452f1a433b93e420fdd",
+      "bytes": 394648,
+      "sha256": "ccaa82dc255eb95d42ee66d16cefeea6a3ff9e935380adad3298abd91fb5824d",
       "altText": "Carrousel guidant la composition d'un parcours Premium d'entrée en Terminale selon les matières disponibles."
     },
     {
@@ -646,9 +646,9 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 92184,
-      "sha256": "857cfb6a1c888546127a39363d8ba8c1b92f0b42ebbd8e767a426aebc72b2828",
-      "altText": "Slide finale avec tarifs canoniques et CTA WhatsApp."
+      "bytes": 94385,
+      "sha256": "81e8de1036253b0be295fcd2d4a35353b2969cf2f7a7c6a445d1cb74c3793242",
+      "altText": "Slide finale avec les tarifs des packs et le CTA WhatsApp."
     },
     {
       "assetId": "full-carousel-05-terminale-slide-05-webp",
@@ -657,9 +657,9 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 54112,
-      "sha256": "c63e5e8e8c1f4842a007d132576b08a3d701d890a8c34d62b3b9cee8191726c9",
-      "altText": "Slide finale avec tarifs canoniques et CTA WhatsApp."
+      "bytes": 56050,
+      "sha256": "d6677b2223cf8618530de793e6b7daafa12ee68dd7569c6d6609777de81e43f6",
+      "altText": "Slide finale avec les tarifs des packs et le CTA WhatsApp."
     },
     {
       "assetId": "full-carousel-06-choisir-parcours-pdf",
@@ -668,8 +668,8 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 377252,
-      "sha256": "66c05d29d30f4618a7def85f47b292c421499839c000eb1200807099ccd0188f",
+      "bytes": 375257,
+      "sha256": "0fb6452841ae02148442c384ff0a079b89851981240b05b583c4914770583bdb",
       "altText": "Carrousel en cinq slides aidant les parents à choisir un parcours selon le niveau, la matière et la priorité."
     },
     {
@@ -767,8 +767,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 75945,
-      "sha256": "17871989ae2bcde1bcdf68696f193c27edef4313072eb6a12a5fd0fc51b4f452",
+      "bytes": 74189,
+      "sha256": "32738067814f7deb9e154703e1bea3246f7e0b9b406045000c4e9607411c4b15",
       "altText": "Slide finale invitant à envoyer la demande sur WhatsApp."
     },
     {
@@ -778,8 +778,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 42940,
-      "sha256": "6133495bb33431e7e93578bed5333789b161b2e7ae60ed7b9f94e39ecd6b286b",
+      "bytes": 41276,
+      "sha256": "0009601f0e2f2c31231aec0e96c47d508586ce28e35a67ec14fd9f61c59718c4",
       "altText": "Slide finale invitant à envoyer la demande sur WhatsApp."
     },
     {
@@ -789,8 +789,8 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 407537,
-      "sha256": "11f1916b99ced5015530e4c1c1f6d6a5077e5fc5a1f999f8fffe6e209a6ca48b",
+      "bytes": 407113,
+      "sha256": "3ab7c4c116b86bbd0874ac97f3849c39919291f45ffc4e24e8860dd734834327",
       "altText": "Carrousel expliquant la valeur du stage par ses séances, ses objectifs, son entraînement, sa correction et son effectif."
     },
     {
@@ -888,9 +888,9 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 107680,
-      "sha256": "c46b694f33e26a9d52114b58a710ecab370568fc9f906787c04e1f7c7f86aeb7",
-      "altText": "Slide finale présentant les tarifs canoniques et le CTA conseil."
+      "bytes": 106752,
+      "sha256": "1022e7b656cdb31de0e4a6e4db21bec7bda563c274eb8a2a3e0c38c019f3ee02",
+      "altText": "Slide finale présentant les tarifs par niveau et le CTA conseil."
     },
     {
       "assetId": "full-carousel-07-valeur-slide-05-webp",
@@ -899,9 +899,9 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 69386,
-      "sha256": "590ba97c37fbc41a326470718ad8ffbb5c802090fd91e8bd7a5f9d0ddc5ec03c",
-      "altText": "Slide finale présentant les tarifs canoniques et le CTA conseil."
+      "bytes": 69000,
+      "sha256": "bb098c78784258ffd22addc5cf6b6520ffa3869cd535f28206b615c84f51ef26",
+      "altText": "Slide finale présentant les tarifs par niveau et le CTA conseil."
     },
     {
       "assetId": "full-carousel-08-reservation-pdf",
@@ -1011,7 +1011,7 @@
       "height": 1350,
       "bytes": 76987,
       "sha256": "262570ff3b4d4c02076b8d0ab35bde968d3062118221805b953e58b38ed9e205",
-      "altText": "Slide finale avec le numéro WhatsApp canonique."
+      "altText": "Slide finale avec le numéro WhatsApp public."
     },
     {
       "assetId": "full-carousel-08-reservation-slide-05-webp",
@@ -1022,7 +1022,7 @@
       "height": 1350,
       "bytes": 42544,
       "sha256": "b6d9025921adcf0666eb28be5017e7d6d0547740a9f28c154a82227b943596be",
-      "altText": "Slide finale avec le numéro WhatsApp canonique."
+      "altText": "Slide finale avec le numéro WhatsApp public."
     },
     {
       "assetId": "full-campaign-copy-json",
@@ -1031,8 +1031,8 @@
       "format": "JSON",
       "width": null,
       "height": null,
-      "bytes": 112232,
-      "sha256": "aece65e3c6365e8cb1ec8e95493c14c9e591b50ec430ea8cd435fef02715d119",
+      "bytes": 112124,
+      "sha256": "053b4436e1e90d12e586ee2fd0f0d981481d210b8772118f29c61039cb454654",
       "altText": "Copies éditoriales complètes de la campagne"
     },
     {
@@ -1889,9 +1889,9 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396565,
-      "sha256": "4b25b28acc80627e8417e34d4fe0b66a03091403b7b65cc0632f1b34f5a83e7e",
-      "altText": "Slide finale avec le tarif dérivé de la source canonique."
+      "bytes": 396564,
+      "sha256": "92890e84b2e83a69c93220a17cc2f6c7fdf5c9421d89f95ea1632e96d7e0fd2e",
+      "altText": "Slide finale avec le tarif correspondant à l'offre."
     },
     {
       "assetId": "full-carousel-03-entree-seconde-slide-01-source",
@@ -1944,9 +1944,9 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396596,
-      "sha256": "5de9d52f5edf947481677201184f06e8118cf760a9c206e4198cde1cc05ead52",
-      "altText": "Slide finale avec tarif canonique et invitation à vérifier le groupe."
+      "bytes": 396594,
+      "sha256": "3a728c826bda637c6ef5c87a23a361e70314b4be299946175401f6bacfb31f86",
+      "altText": "Slide finale avec le tarif et une invitation à vérifier le groupe."
     },
     {
       "assetId": "full-carousel-04-premiere-slide-01-source",
@@ -1966,8 +1966,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396483,
-      "sha256": "38782749f739dfc555f1fb275bbab271cb56af6b7af93233f2e7adc58a823ad1",
+      "bytes": 396484,
+      "sha256": "4d6a8f98541878d0ace84c472c633d97a5badcb7d8e7020b1c876f3943e321dd",
       "altText": "Slide présentant les packs de une à quatre matières."
     },
     {
@@ -1999,9 +1999,9 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396660,
-      "sha256": "bfc48141c780035feb44fdaee21af7a372b57998b8517183b0c22b94d40f8a12",
-      "altText": "Slide finale avec les tarifs canoniques des packs Première."
+      "bytes": 396655,
+      "sha256": "1d3b0fc201ec3dc3cd335ce8283008603f509cf227734a007e9710c67abf9abf",
+      "altText": "Slide finale avec les tarifs des packs Première."
     },
     {
       "assetId": "full-carousel-05-terminale-slide-01-source",
@@ -2054,9 +2054,9 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396635,
-      "sha256": "470cc1018a2ce6aba9e0a4e6dfd9920f3c6e58a00f611cc9279bd839a2d97d94",
-      "altText": "Slide finale avec tarifs canoniques et CTA WhatsApp."
+      "bytes": 396657,
+      "sha256": "9dd6f4830a19a256464499844b07bc63352f95dbda61acd4d95cac61d3974222",
+      "altText": "Slide finale avec les tarifs des packs et le CTA WhatsApp."
     },
     {
       "assetId": "full-carousel-06-choisir-parcours-slide-01-source",
@@ -2109,8 +2109,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396493,
-      "sha256": "aa8f757e1c9036c0d1d43e1f0bfb2fb3f06ffdb50afbd28a1c4e0b81424c288b",
+      "bytes": 396483,
+      "sha256": "ec4ea6c1a90ad42479c25175e8962c863b589b65ece96b194d4b05df72f93a1d",
       "altText": "Slide finale invitant à envoyer la demande sur WhatsApp."
     },
     {
@@ -2165,8 +2165,8 @@
       "width": 1080,
       "height": 1350,
       "bytes": 396812,
-      "sha256": "6254353da26d32e85389031e429f8c5f908f38acb94f6101bcc0d367fcf35f67",
-      "altText": "Slide finale présentant les tarifs canoniques et le CTA conseil."
+      "sha256": "e426f28ef17686cbe4ea4c12b2a00f8feea7558ffcec397badd5b12101530a2d",
+      "altText": "Slide finale présentant les tarifs par niveau et le CTA conseil."
     },
     {
       "assetId": "full-carousel-08-reservation-slide-01-source",
@@ -2219,9 +2219,9 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396472,
-      "sha256": "b17472256ba044e68177e496a690179a9369a7c974e666ce70e80e5624065156",
-      "altText": "Slide finale avec le numéro WhatsApp canonique."
+      "bytes": 396469,
+      "sha256": "9dd32968deea0dcc28c37f7260b9b396f5020ea474d4e97a23b4565d01aeda9d",
+      "altText": "Slide finale avec le numéro WhatsApp public."
     },
     {
       "assetId": "full-post-01-annonce-generale-source",
@@ -2659,9 +2659,9 @@
       "format": "SVG",
       "width": 1080,
       "height": 1920,
-      "bytes": 396681,
-      "sha256": "36371c71d4b08a6cf6365fa05598cef23cc2b2731865f451bcd95525b2955756",
-      "altText": "Story affichant le tarif canonique 3e et le CTA WhatsApp."
+      "bytes": 396664,
+      "sha256": "ce7b61f6737f20eb2ed43e4bb5d25803b10762449f471cb984b2262633de2573",
+      "altText": "Story affichant le tarif 3e et le CTA WhatsApp."
     },
     {
       "assetId": "full-story-03-entree-seconde-01-source",
@@ -2692,9 +2692,9 @@
       "format": "SVG",
       "width": 1080,
       "height": 1920,
-      "bytes": 396641,
-      "sha256": "a6d24758137c7b9f921cb6a4f6da2a1926a051b27debd9dd0bf3086dbd71a324",
-      "altText": "Story avec effectif et tarif canonique de Seconde."
+      "bytes": 396629,
+      "sha256": "47889d38054ae5df10e9feeeeb53aa03ebcccbc6fb42e079696bc2c19325e667",
+      "altText": "Story avec effectif et tarif de Seconde."
     },
     {
       "assetId": "full-story-04-premiere-01-source",
@@ -2835,8 +2835,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1920,
-      "bytes": 396626,
-      "sha256": "004547ecb9be910063337dfc57840e75700dd5af89ee3a3e792c4da6ed89f321",
+      "bytes": 396627,
+      "sha256": "a605e8d23a1cf02aea75f56586150cda39f71d8cf57edd9393850bcb9aafcc8d",
       "altText": "Story tarifaire pour l'entrée en 3e."
     },
     {
@@ -2846,8 +2846,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1920,
-      "bytes": 396635,
-      "sha256": "514d01b279f512f7f8af937501c45897d7c925b0e9c0bde09df116622bbbd4b5",
+      "bytes": 396636,
+      "sha256": "eb04f1bc35def221ec6cb550f7ef772ca59b2f2182ce8155a83594acac5d3a96",
       "altText": "Story tarifaire pour l'entrée en Seconde."
     },
     {
@@ -2857,8 +2857,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1920,
-      "bytes": 396702,
-      "sha256": "a3f22833949dd08b968561894822ddc0e529a39d3abdfcf79c80f118ec841dde",
+      "bytes": 396691,
+      "sha256": "5379f9b592f11159fd23f6d4ab11cce5d5f6eb48df223e900cad035846ab5233",
       "altText": "Story tarifaire pour les packs Première et Terminale."
     },
     {
@@ -3110,9 +3110,9 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 109382,
-      "sha256": "cab82c1dbe956ca4faa6e3cf8437298e77d85799eefe3650fef2ec281b873ad5",
-      "altText": "Story affichant le tarif canonique 3e et le CTA WhatsApp."
+      "bytes": 107856,
+      "sha256": "3a33282bd4693790379d5745f1baf90a25aa096c78461cc717595398ae78eee7",
+      "altText": "Story affichant le tarif 3e et le CTA WhatsApp."
     },
     {
       "assetId": "full-story-02-entree-3e-03-webp",
@@ -3121,9 +3121,9 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 66496,
-      "sha256": "39cfad907cf1e08cdf8dc33e885f750252c27b7b3d83754b2978610e2e464e65",
-      "altText": "Story affichant le tarif canonique 3e et le CTA WhatsApp."
+      "bytes": 65136,
+      "sha256": "ce3e7a1cd7dc0b459d3246a3e63b6e4d8f64ce72a02c444908b87cdc7ed11de6",
+      "altText": "Story affichant le tarif 3e et le CTA WhatsApp."
     },
     {
       "assetId": "full-story-03-entree-seconde-01-png",
@@ -3176,9 +3176,9 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 110861,
-      "sha256": "113a5a7b09d5960216c1f9ec9e92a9da92523d8567e02fd4e0b5c7c5b17c191d",
-      "altText": "Story avec effectif et tarif canonique de Seconde."
+      "bytes": 111257,
+      "sha256": "8eb88086cc3730808c5c09b9469bc6a80142a73cb31de0eafe4e5528a4e76e66",
+      "altText": "Story avec effectif et tarif de Seconde."
     },
     {
       "assetId": "full-story-03-entree-seconde-03-webp",
@@ -3187,9 +3187,9 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 68398,
-      "sha256": "c043c114f256a69032cf065b52333c95d4bb4ab874e43e29115b5e9b4641842e",
-      "altText": "Story avec effectif et tarif canonique de Seconde."
+      "bytes": 68268,
+      "sha256": "7faa567ca4dc91ff0850d6b6041292e597b4513b14f868e9018cc2f323fe2ad0",
+      "altText": "Story avec effectif et tarif de Seconde."
     },
     {
       "assetId": "full-story-04-premiere-01-png",
@@ -3462,8 +3462,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 109309,
-      "sha256": "243cdde5a6edebc595aec5e58169e8fc88c8ae8aded7ff45a3cc8f01a7370c06",
+      "bytes": 109581,
+      "sha256": "e04922c02a0d7fa49d81b546768d677a79ad6cfbbd42b87df8cae57121ee6bf9",
       "altText": "Story tarifaire pour l'entrée en 3e."
     },
     {
@@ -3473,8 +3473,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 65070,
-      "sha256": "bc6504236fd7b8b2d21cc852c7ca99ac80ec956a915f32f6673d65ae9028f5d5",
+      "bytes": 65172,
+      "sha256": "07476512c6daea9e802318f51528d8c8ab762c9bc8d15f9c81b1e47019600d8d",
       "altText": "Story tarifaire pour l'entrée en 3e."
     },
     {
@@ -3484,8 +3484,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 108224,
-      "sha256": "f557d13a3353cd72fd439a11bfd256f8f4547cdc0c3ad06a11521ab6b705e4f4",
+      "bytes": 107821,
+      "sha256": "dcea75966ee56469c780bffd471090a050bf3c06d36813e5a9b3f55cfceb8a67",
       "altText": "Story tarifaire pour l'entrée en Seconde."
     },
     {
@@ -3495,8 +3495,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 65430,
-      "sha256": "3e2cfc50a9c01338d7691af0479ad6d83f2a53704c8c5fe6b57e6faef1e63949",
+      "bytes": 65694,
+      "sha256": "d7a70d21b399eb2f99bcbf640dae01de74ad09d936762de0cd9f34e8d71e8f85",
       "altText": "Story tarifaire pour l'entrée en Seconde."
     },
     {
@@ -3506,8 +3506,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 113118,
-      "sha256": "b3fbcaeab93dd36c2cf9e52f389292ef079bfab18f7ad8b211233808393509a8",
+      "bytes": 111462,
+      "sha256": "2310093706dc915718b902b16362d9a67bf8ec3467f4f415e0cb96d77e0ccc2e",
       "altText": "Story tarifaire pour les packs Première et Terminale."
     },
     {
@@ -3517,8 +3517,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 68326,
-      "sha256": "4ec54f9636a63a3be7c38efad8d3bcc62372f0d33f0134aaffc7279eabc948c7",
+      "bytes": 66520,
+      "sha256": "7f48a1ebbbd1561539560ab60578c09e23d754e975bacc6e6b3bf889fe8445df",
       "altText": "Story tarifaire pour les packs Première et Terminale."
     },
     {
@@ -3792,8 +3792,8 @@
       "format": "PNG",
       "width": 1068,
       "height": 1488,
-      "bytes": 759839,
-      "sha256": "c42f4cc06bb2cca8fba67082f47399d6cb4d4cd4517b4d48a2660c29d850fb29",
+      "bytes": 758203,
+      "sha256": "7dc1f3508582a516b185735497df3f2a478513a7405103cccd9be27c454f9836",
       "altText": "Planche de contrôle calendar"
     },
     {
@@ -3803,8 +3803,8 @@
       "format": "PNG",
       "width": 1044,
       "height": 2080,
-      "bytes": 457406,
-      "sha256": "1321a3f40d4a2567ceaf842773ed3f90ad9bcdc5c7ca045751971ab8d9364683",
+      "bytes": 457472,
+      "sha256": "bc8da37d127b3f839c316231c74383dcca59ccdf4e4cc07c5651d823fdf52922",
       "altText": "Planche de contrôle carousels"
     },
     {
@@ -3836,8 +3836,8 @@
       "format": "PNG",
       "width": 1068,
       "height": 1818,
-      "bytes": 317802,
-      "sha256": "2c78b951d24c267ec6eb3c59cf3c119a887289a629282bc5e9ee44bf9ae1962e",
+      "bytes": 317126,
+      "sha256": "056285e420e58024321f3fa7f5a4a778d5087d4d88d72dedde76dfa32f74b8be",
       "altText": "Planche de contrôle stories"
     }
   ]

@@ -3,7 +3,7 @@
   "campaignId": "pre-rentree-2026",
   "branch": "feat/svt-integration-clean",
   "pullRequest": 74,
-  "repositoryCommitSha": "b106a89ac523b35c88ffe62cb0db246012bf5778",
+  "repositoryCommitSha": "93459dcc78687c4bb3e5a81f471d6ce34bc68d78",
   "releaseStatus": "READY_FOR_REVIEW",
   "verdict": "BLOCKED",
   "lots": [
@@ -45,8 +45,8 @@
   ],
   "summary": {
     "fileCount": 317,
-    "totalBytes": 41752249,
-    "aggregateSha256": "4839751b9508c4cb40650ed8786c8c73c4f5fce5190496a2f9a61c4008512660"
+    "totalBytes": 41732162,
+    "aggregateSha256": "38e564e9614d095b379ad2f8786482913711cdfeacb2ecc97009aa0f7e38f760"
   },
   "reviewOnlySummary": {
     "fileCount": 159,
@@ -619,7 +619,7 @@
         {
           "path": "assets/campaigns/pre-rentree-2026/parent-documents/manifest.json",
           "bytes": 29762,
-          "sha256": "85c084e5b4e753eb28172508fd95ed38aabc59d96b6e5dbfaa85866df1975408"
+          "sha256": "09fb12543ee1aec10f2c343d290056e8d04ea106eb941680740921d8f93056d8"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/parent-documents/pdf/accompagnements-annuels.pdf",
@@ -628,58 +628,58 @@
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/parent-documents/pdf/brochure-generale.pdf",
-          "bytes": 307169,
-          "sha256": "c5894d37d8797e436b44d4da691d9a3dcafce48a431db890e5d565206516403d"
+          "bytes": 307319,
+          "sha256": "2994f16e832e489f9105f6bdc810ac8daadcda0c51ceb5b585cbd6609f85cd83"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/parent-documents/pdf/comparatif-fondations-premium.pdf",
-          "bytes": 303619,
-          "sha256": "60928a034e4d03bb9e9d2f6319d98a10ad7ce6f5879a3bd61c6c47ac9f206625"
+          "bytes": 303561,
+          "sha256": "8169806f5308468cc6a58ff7ce7b30036d6bea999cb8edd5ba38740e017bb2d3"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/parent-documents/pdf/conditions-reservation-acompte.pdf",
-          "bytes": 301090,
-          "sha256": "95bce491ea7ce3c423c9352876e3d31ec4218f2c98ed21084ab06e43ce7c3d0f"
+          "bytes": 301085,
+          "sha256": "adf2b94ac8b7baaf748f639849a38ef6e74654805be7c6d08a41ac57afd28a01"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/parent-documents/pdf/faq-commerciale.pdf",
-          "bytes": 303846,
-          "sha256": "14c11ca3bb7886867c2b2b39741e34954877ecf9ac8339db900a7b12fa6d456e"
+          "bytes": 303780,
+          "sha256": "751e8ed76ee75f097f14eac07dc01a51215f60c103dcab53f6b565acfc9b47a7"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/parent-documents/pdf/fiche-3e.pdf",
-          "bytes": 301964,
-          "sha256": "ee55c86873498737e1f7d3f1a80896401bffc4caec5dc4e54bb0b2c1e451e989"
+          "bytes": 301689,
+          "sha256": "3e76a5558db29129e307edc1e48ef0a5f1ef84be096c4eea063e6cf2786d2f5b"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/parent-documents/pdf/fiche-premiere.pdf",
-          "bytes": 303624,
-          "sha256": "6f5c53d55fc2005f3b7e9970ef33ba2893d54fa0f493200cfa7d0a94cc0f4da1"
+          "bytes": 303616,
+          "sha256": "cd1ce284e644cd5d9db1bbc95315aa7b32f730ae341f5dbd285de6bf72334882"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/parent-documents/pdf/fiche-seconde.pdf",
-          "bytes": 302525,
-          "sha256": "b226012b0927b6aa8e7397f17ee97096cdfcbc3eaaf343e0d5841f219925fc47"
+          "bytes": 302517,
+          "sha256": "54feae082dadba010e65c7f69bb192a6f4dd5e9173c5925830a735be35881b94"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/parent-documents/pdf/fiche-terminale.pdf",
-          "bytes": 303866,
-          "sha256": "bd82f6bc733a2a9e46395a53247eaa6ed3ac8ef96270fd4159cf4c8609ca0b55"
+          "bytes": 303832,
+          "sha256": "b1e75865356cdcb6cc64246a4364e8955d862543aa18dd734c54d834b71c37cb"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/parent-documents/pdf/guide-parent.pdf",
-          "bytes": 305472,
-          "sha256": "98fe9cf8b37f87f0a312a077355906c719ad9de84c8891801db18c1c65fd5d35"
+          "bytes": 305380,
+          "sha256": "2e59c855820d21ea9c75cf154ffa56344db386a87c99d8016d3cc878b59600c1"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/parent-documents/pdf/inclusions-options-exclusions.pdf",
-          "bytes": 302477,
-          "sha256": "21f977a6f8b4f5092ed0404c8191034b8117eb3103380fbee8ea1cc9312f24f0"
+          "bytes": 302469,
+          "sha256": "ac1621456d6aca0082ddc3ccf2553197abb254789e2ed4fcd3d712be3958c71d"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/parent-documents/pdf/justification-tarifaire.pdf",
-          "bytes": 303737,
-          "sha256": "34b93bb324bd38852f57410b2bd8b1fcc95d55f9380c1a14dd4cfc1dabe981a4"
+          "bytes": 303726,
+          "sha256": "dceddf2779781d2e72a65e12b2490a6c008f697920f2f3659941eea3e001b65a"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/parent-documents/pdf/passerelle-stage-annuel.pdf",
@@ -688,8 +688,8 @@
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/parent-documents/pdf/procedure-inscription.pdf",
-          "bytes": 302572,
-          "sha256": "cd5df1090f6f881a3e5b6542f5088417fc0f0ff1f596fbc22155a866ef85a25e"
+          "bytes": 302002,
+          "sha256": "08f5096f42b4ba397f9c7563b8ad59a7ac704e54ca15d5441f65247db5263d99"
         }
       ]
     },
@@ -755,18 +755,18 @@
       "files": [
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/calendar/full-campaign-calendar.csv",
-          "bytes": 27710,
-          "sha256": "bbb7f73fd1e2c4c3b6034ec908fb0908232b6a1e483a1837df5f3baf12c6f3f9"
+          "bytes": 27654,
+          "sha256": "ac4b3a5954a2c0fe9c1bb3204e1e4fc60084dab6111b5d484a8458090a2ad56f"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/calendar/full-campaign-calendar.json",
-          "bytes": 92434,
-          "sha256": "dfc8f84b9bbccc18929fb0de68eba52a052f8fef6b655f8c7418b2bd156bca18"
+          "bytes": 92326,
+          "sha256": "d3d8f8c3de81b342f95140cb2b59d30f2456be110440f68e50df41d8385f683f"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/calendar/full-campaign-calendar.pdf",
-          "bytes": 5961360,
-          "sha256": "03faf765a35f7e09b02722ece07bb78f4fc94d73de53d51b13a9178701810fdf"
+          "bytes": 5950487,
+          "sha256": "1317c3ab08ec111396f230f90b3a04880aaac7684704c69f446f7ed854caacff"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/01-methode/01-methode.pdf",
@@ -825,8 +825,8 @@
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/02-entree-3e/02-entree-3e.pdf",
-          "bytes": 385428,
-          "sha256": "b4fad26b43ab37e202846bb7162fe8e35ba06691b7fc49059ccf8a85de2e94da"
+          "bytes": 385513,
+          "sha256": "00fc27e734b5e3e4acf36903201ce85bda8637319747b730eb9617094f1ab866"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/02-entree-3e/slide-01.png",
@@ -870,18 +870,18 @@
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/02-entree-3e/slide-05.png",
-          "bytes": 83586,
-          "sha256": "885b53d56e9de56e2ed8bfb9968a817054e77f72e7a7ffe5b0c628f58f1e291b"
+          "bytes": 83409,
+          "sha256": "f0ed2417c94ebb7ebc10c03fbde1a0c83f3d5285d6b2a0ecc8e690f540e6cf1c"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/02-entree-3e/slide-05.webp",
-          "bytes": 48770,
-          "sha256": "b4a7bd56329e8888dda60b1dba291fb7832dc7ff1d452e6e4a940f0cd3f4bcf6"
+          "bytes": 48898,
+          "sha256": "4b17abf6164628a5306874f5f4529f3c72b344c73279a5198f93677d50692f7c"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/03-entree-seconde/03-entree-seconde.pdf",
-          "bytes": 388650,
-          "sha256": "7b555d7090acb687d5fb9437fd53c50bf254d305c4ea275607715e2bc22f0180"
+          "bytes": 388883,
+          "sha256": "6bd161f7e0a9cf957d1c53529fa0c461ae857a0dfa33a14282718191c42593cd"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/03-entree-seconde/slide-01.png",
@@ -925,18 +925,18 @@
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/03-entree-seconde/slide-05.png",
-          "bytes": 83310,
-          "sha256": "c827bf50caa356208abc9a9e0cfe4892ea464092bb7623a12b91a78c55125464"
+          "bytes": 83146,
+          "sha256": "5e8b380201fc02e7982a24ff9c21be1e70252cdbe850e562b357072dacdab16d"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/03-entree-seconde/slide-05.webp",
-          "bytes": 49620,
-          "sha256": "9e8d971f26c37980a48e74f3cabbbba9721211a2ffa692970ebae5ec08875acb"
+          "bytes": 49794,
+          "sha256": "d6612efa6583dc66628c7c61dd0c156848f7268fb7ab463159959ef293b004ad"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/04-premiere/04-premiere.pdf",
-          "bytes": 399127,
-          "sha256": "6492b74d62c263596a233568086923231f68313f942444feb6e6de083078cb1a"
+          "bytes": 398713,
+          "sha256": "98a3d3d4fa958f0aaed9f09fe30233df03f9971017a6686dae15357e022f4a73"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/04-premiere/slide-01.png",
@@ -950,13 +950,13 @@
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/04-premiere/slide-02.png",
-          "bytes": 73237,
-          "sha256": "a877c30c770d3f0f5a607924a2bf672ddcbd8802e4582c4106087b3d76adab8d"
+          "bytes": 72574,
+          "sha256": "4f515e4e30ec7fa92adc5cb358011c38b4d3795756b91c1bbb4f186a14bedfa3"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/04-premiere/slide-02.webp",
-          "bytes": 40812,
-          "sha256": "cd80bfba7ecb72d2b92871972c3e8da6459bf7c16694041fdb0ebd2309d2bf14"
+          "bytes": 40518,
+          "sha256": "62a407afdc9727649bd401943455a9eb73b8027a93f3ad6b09b74751d9c840f0"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/04-premiere/slide-03.png",
@@ -980,18 +980,18 @@
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/04-premiere/slide-05.png",
-          "bytes": 92256,
-          "sha256": "b25ae18c63a364af986bb06505b9b7dd21d121abe5a18679d7659c1ecc511f5b"
+          "bytes": 91964,
+          "sha256": "34293e7b6b2dc18bbdfb5adbca9ece7ff90ae527b90f19f157f6f26b8c17ff75"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/04-premiere/slide-05.webp",
-          "bytes": 57516,
-          "sha256": "48dcb74a7f9c909eb3c90416261125a79384cade6ae692e9351ab71910393342"
+          "bytes": 57530,
+          "sha256": "5b784bd8a463a8258e37aec1a0867592ed143d0523a56eff05adb59d552b56ca"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/05-terminale/05-terminale.pdf",
-          "bytes": 392260,
-          "sha256": "589e4b7b8cb458bfed10774cc54389575d5940f9eed21452f1a433b93e420fdd"
+          "bytes": 394648,
+          "sha256": "ccaa82dc255eb95d42ee66d16cefeea6a3ff9e935380adad3298abd91fb5824d"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/05-terminale/slide-01.png",
@@ -1035,18 +1035,18 @@
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/05-terminale/slide-05.png",
-          "bytes": 92184,
-          "sha256": "857cfb6a1c888546127a39363d8ba8c1b92f0b42ebbd8e767a426aebc72b2828"
+          "bytes": 94385,
+          "sha256": "81e8de1036253b0be295fcd2d4a35353b2969cf2f7a7c6a445d1cb74c3793242"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/05-terminale/slide-05.webp",
-          "bytes": 54112,
-          "sha256": "c63e5e8e8c1f4842a007d132576b08a3d701d890a8c34d62b3b9cee8191726c9"
+          "bytes": 56050,
+          "sha256": "d6677b2223cf8618530de793e6b7daafa12ee68dd7569c6d6609777de81e43f6"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/06-choisir-parcours/06-choisir-parcours.pdf",
-          "bytes": 377252,
-          "sha256": "66c05d29d30f4618a7def85f47b292c421499839c000eb1200807099ccd0188f"
+          "bytes": 375257,
+          "sha256": "0fb6452841ae02148442c384ff0a079b89851981240b05b583c4914770583bdb"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/06-choisir-parcours/slide-01.png",
@@ -1090,18 +1090,18 @@
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/06-choisir-parcours/slide-05.png",
-          "bytes": 75945,
-          "sha256": "17871989ae2bcde1bcdf68696f193c27edef4313072eb6a12a5fd0fc51b4f452"
+          "bytes": 74189,
+          "sha256": "32738067814f7deb9e154703e1bea3246f7e0b9b406045000c4e9607411c4b15"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/06-choisir-parcours/slide-05.webp",
-          "bytes": 42940,
-          "sha256": "6133495bb33431e7e93578bed5333789b161b2e7ae60ed7b9f94e39ecd6b286b"
+          "bytes": 41276,
+          "sha256": "0009601f0e2f2c31231aec0e96c47d508586ce28e35a67ec14fd9f61c59718c4"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/07-valeur/07-valeur.pdf",
-          "bytes": 407537,
-          "sha256": "11f1916b99ced5015530e4c1c1f6d6a5077e5fc5a1f999f8fffe6e209a6ca48b"
+          "bytes": 407113,
+          "sha256": "3ab7c4c116b86bbd0874ac97f3849c39919291f45ffc4e24e8860dd734834327"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/07-valeur/slide-01.png",
@@ -1145,13 +1145,13 @@
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/07-valeur/slide-05.png",
-          "bytes": 107680,
-          "sha256": "c46b694f33e26a9d52114b58a710ecab370568fc9f906787c04e1f7c7f86aeb7"
+          "bytes": 106752,
+          "sha256": "1022e7b656cdb31de0e4a6e4db21bec7bda563c274eb8a2a3e0c38c019f3ee02"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/07-valeur/slide-05.webp",
-          "bytes": 69386,
-          "sha256": "590ba97c37fbc41a326470718ad8ffbb5c802090fd91e8bd7a5f9d0ddc5ec03c"
+          "bytes": 69000,
+          "sha256": "bb098c78784258ffd22addc5cf6b6520ffa3869cd535f28206b615c84f51ef26"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/carousels/08-reservation/08-reservation.pdf",
@@ -1210,8 +1210,8 @@
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/copy/campaign-copy.json",
-          "bytes": 112232,
-          "sha256": "aece65e3c6365e8cb1ec8e95493c14c9e591b50ec430ea8cd435fef02715d119"
+          "bytes": 112124,
+          "sha256": "053b4436e1e90d12e586ee2fd0f0d981481d210b8772118f29c61039cb454654"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/copy/whatsapp-variants.md",
@@ -1220,8 +1220,8 @@
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/manifest.json",
-          "bytes": 143465,
-          "sha256": "93e18cdff108e81d0fb55b949ac49c5f8e25bcc2ed2115c399ec79341a990487"
+          "bytes": 143351,
+          "sha256": "98e45aa04e0bd3d5f7f564a5fb35360f4651c39eb953be757b99b97dfbf2fb1c"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/publications/01-annonce-generale.png",
@@ -1585,13 +1585,13 @@
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/stories/02-entree-3e/frame-03.png",
-          "bytes": 109382,
-          "sha256": "cab82c1dbe956ca4faa6e3cf8437298e77d85799eefe3650fef2ec281b873ad5"
+          "bytes": 107856,
+          "sha256": "3a33282bd4693790379d5745f1baf90a25aa096c78461cc717595398ae78eee7"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/stories/02-entree-3e/frame-03.webp",
-          "bytes": 66496,
-          "sha256": "39cfad907cf1e08cdf8dc33e885f750252c27b7b3d83754b2978610e2e464e65"
+          "bytes": 65136,
+          "sha256": "ce3e7a1cd7dc0b459d3246a3e63b6e4d8f64ce72a02c444908b87cdc7ed11de6"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/stories/03-entree-seconde/frame-01.png",
@@ -1615,13 +1615,13 @@
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/stories/03-entree-seconde/frame-03.png",
-          "bytes": 110861,
-          "sha256": "113a5a7b09d5960216c1f9ec9e92a9da92523d8567e02fd4e0b5c7c5b17c191d"
+          "bytes": 111257,
+          "sha256": "8eb88086cc3730808c5c09b9469bc6a80142a73cb31de0eafe4e5528a4e76e66"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/stories/03-entree-seconde/frame-03.webp",
-          "bytes": 68398,
-          "sha256": "c043c114f256a69032cf065b52333c95d4bb4ab874e43e29115b5e9b4641842e"
+          "bytes": 68268,
+          "sha256": "7faa567ca4dc91ff0850d6b6041292e597b4513b14f868e9018cc2f323fe2ad0"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/stories/04-premiere/frame-01.png",
@@ -1745,33 +1745,33 @@
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/stories/08-tarifs/frame-01.png",
-          "bytes": 109309,
-          "sha256": "243cdde5a6edebc595aec5e58169e8fc88c8ae8aded7ff45a3cc8f01a7370c06"
+          "bytes": 109581,
+          "sha256": "e04922c02a0d7fa49d81b546768d677a79ad6cfbbd42b87df8cae57121ee6bf9"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/stories/08-tarifs/frame-01.webp",
-          "bytes": 65070,
-          "sha256": "bc6504236fd7b8b2d21cc852c7ca99ac80ec956a915f32f6673d65ae9028f5d5"
+          "bytes": 65172,
+          "sha256": "07476512c6daea9e802318f51528d8c8ab762c9bc8d15f9c81b1e47019600d8d"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/stories/08-tarifs/frame-02.png",
-          "bytes": 108224,
-          "sha256": "f557d13a3353cd72fd439a11bfd256f8f4547cdc0c3ad06a11521ab6b705e4f4"
+          "bytes": 107821,
+          "sha256": "dcea75966ee56469c780bffd471090a050bf3c06d36813e5a9b3f55cfceb8a67"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/stories/08-tarifs/frame-02.webp",
-          "bytes": 65430,
-          "sha256": "3e2cfc50a9c01338d7691af0479ad6d83f2a53704c8c5fe6b57e6faef1e63949"
+          "bytes": 65694,
+          "sha256": "d7a70d21b399eb2f99bcbf640dae01de74ad09d936762de0cd9f34e8d71e8f85"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/stories/08-tarifs/frame-03.png",
-          "bytes": 113118,
-          "sha256": "b3fbcaeab93dd36c2cf9e52f389292ef079bfab18f7ad8b211233808393509a8"
+          "bytes": 111462,
+          "sha256": "2310093706dc915718b902b16362d9a67bf8ec3467f4f415e0cb96d77e0ccc2e"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/stories/08-tarifs/frame-03.webp",
-          "bytes": 68326,
-          "sha256": "4ec54f9636a63a3be7c38efad8d3bcc62372f0d33f0134aaffc7279eabc948c7"
+          "bytes": 66520,
+          "sha256": "7f48a1ebbbd1561539560ab60578c09e23d754e975bacc6e6b3bf889fe8445df"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/full-campaign/stories/09-effectifs/frame-01.png",
