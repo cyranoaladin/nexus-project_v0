@@ -482,14 +482,14 @@
       "pages": [
         {
           "page": 1,
-          "textCharacters": 1526,
+          "textCharacters": 1460,
           "blank": false,
           "width": 1240,
           "height": 1755
         },
         {
           "page": 2,
-          "textCharacters": 1043,
+          "textCharacters": 877,
           "blank": false,
           "width": 1240,
           "height": 1755
@@ -524,7 +524,7 @@
       "pages": [
         {
           "page": 1,
-          "textCharacters": 1901,
+          "textCharacters": 1876,
           "blank": false,
           "width": 1240,
           "height": 1755

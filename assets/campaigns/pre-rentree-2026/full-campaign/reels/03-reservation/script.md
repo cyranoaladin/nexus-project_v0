@@ -1,18 +1,18 @@
-# Reel — Une conversation ne réserve pas encore la place : voici les trois étapes.
+# Reel — Programme, horaires, tarifs : voici comment recevoir les informations utiles.
 
 Durée : 30 secondes · Format : 1080 × 1920 · Version : 2026-full-campaign-v1
 
 ## Voix off intégrale
 
-Comment réserver le stage ? Première étape : envoyez le niveau, la matière et le besoin sur WhatsApp. Deuxième étape : Nexus vérifie le parcours, le tarif et les conditions applicables. Troisième étape : l'acompte de trente pour cent confirme la réservation. Une demande seule ne réserve pas la place. Les stages commencent dès le 17 août à Mutuelleville. Commencez la vérification sur WhatsApp.
+Comment recevoir les informations du stage ? Première étape : envoyez le niveau, la matière et le besoin sur WhatsApp. Deuxième étape : Nexus transmet le programme, les horaires et le tarif disponibles. Troisième étape : comparez ces éléments en famille. Aucun paiement n'est demandé et aucune place n'est bloquée. Les stages commencent dès le 17 août à Mutuelleville. Demandez les informations sur WhatsApp.
 
 ## Découpage seconde par seconde
 
 ### 0–5 s
 
 Plan : Une question se transforme en parcours à trois étapes.
-Voix off : Comment réserver le stage ?
-Texte incrusté : Comment réserver ?
+Voix off : Comment recevoir les informations du stage ?
+Texte incrusté : Comment s'informer ?
 Transition : Trait rouge animé
 Montage : conserver les textes dans les zones sûres et synchroniser l'apparition sur la voix.
 
@@ -27,31 +27,31 @@ Montage : conserver les textes dans les zones sûres et synchroniser l'apparitio
 ### 10–15 s
 
 Plan : Une carte parcours reçoit une coche de vérification.
-Voix off : Deuxième étape : Nexus vérifie le parcours, le tarif et les conditions applicables.
-Texte incrusté : 2 · Vérifier parcours et conditions
+Voix off : Deuxième étape : Nexus transmet le programme, les horaires et le tarif disponibles.
+Texte incrusté : 2 · Recevoir les informations
 Transition : Rotation courte
 Montage : conserver les textes dans les zones sûres et synchroniser l'apparition sur la voix.
 
 ### 15–20 s
 
-Plan : Un cercle de progression s'arrête à trente pour cent.
-Voix off : Troisième étape : l'acompte de trente pour cent confirme la réservation.
-Texte incrusté : 3 · Régler l'acompte
+Plan : Trois cartes montrent programme, horaires et tarif.
+Voix off : Troisième étape : comparez ces éléments en famille.
+Texte incrusté : 3 · Comparer en famille
 Transition : Progression circulaire
 Montage : conserver les textes dans les zones sûres et synchroniser l'apparition sur la voix.
 
 ### 20–25 s
 
-Plan : Deux étiquettes se séparent : demande et réservation.
-Voix off : Une demande seule ne réserve pas la place.
-Texte incrusté : Demande ≠ place réservée
+Plan : Une étiquette indique le statut de la demande.
+Voix off : Aucun paiement n'est demandé et aucune place n'est bloquée.
+Texte incrusté : Aucun paiement
 Transition : Séparation horizontale
 Montage : conserver les textes dans les zones sûres et synchroniser l'apparition sur la voix.
 
 ### 25–30 s
 
 Plan : Logo, date, lieu et CTA WhatsApp.
-Voix off : Les stages commencent dès le 17 août à Mutuelleville. Commencez la vérification sur WhatsApp.
+Voix off : Les stages commencent dès le 17 août à Mutuelleville. Demandez les informations sur WhatsApp.
 Texte incrusté : Dès le 17 août · Mutuelleville · 99 192 829
 Transition : Fondu de sortie
 Montage : conserver les textes dans les zones sûres et synchroniser l'apparition sur la voix.
@@ -73,6 +73,6 @@ Motion design typographique en trois étapes avec formes géométriques et logo 
 
 ## Légende
 
-Ce Reel décrit la demande, la validation du parcours et la confirmation après acompte de trente pour cent. Il ne prétend pas afficher la disponibilité en temps réel et dirige la famille vers un échange WhatsApp vérifiable.
+Ce Reel décrit la demande sur WhatsApp et les informations transmises en retour. Il précise qu'aucun paiement n'est demandé et dirige la famille vers un échange vérifiable.
 
-CTA : Commencer la vérification sur WhatsApp
+CTA : Demander les informations sur WhatsApp

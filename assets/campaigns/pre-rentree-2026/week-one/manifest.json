@@ -3,6 +3,8 @@
   "version": "2026-week-one-v1",
   "campaignId": "pre-rentree-2026",
   "editionDate": "2026-07-20",
+  "launchDate": null,
+  "launchDateStatus": "PENDING_OWNER_AUTHORIZATION",
   "sourceContent": "content/pre-rentree-2026/week-one-campaign.fr.json",
   "commercialContract": ".artifacts/pre-rentree-2026/commercial-contract.snapshot.json",
   "publicationStatus": "AWAITING_HUMAN_VALIDATIONS",
@@ -30,8 +32,8 @@
       "format": "CSV",
       "width": null,
       "height": null,
-      "bytes": 3771,
-      "sha256": "dd9cc4e9634e7ee7c01a48680250e53964e0b1daa32a72081ac1a1ef6526e76a",
+      "bytes": 3677,
+      "sha256": "aae804516aaf152ef0bf2b0f58cab8beed16e757d547ef6f74c54c0bc37776f7",
       "altText": "Calendrier CSV exploitable"
     },
     {
@@ -41,8 +43,8 @@
       "format": "JSON",
       "width": null,
       "height": null,
-      "bytes": 8838,
-      "sha256": "a04658be90c0aae23478c09bd7b188ee51617e98961af60a0e33d4b667dcb8bc",
+      "bytes": 8961,
+      "sha256": "4a8cc8a8aef25c3df919d33658adda69ad15e23ce27d76633aa34697ed5d50cc",
       "altText": "Calendrier de publication de la première semaine"
     },
     {
@@ -52,8 +54,8 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 911643,
-      "sha256": "a856ea5ab9d3815022fa01e1c5c366e9046fa15310ff3c7a92a271a57ca84dd5",
+      "bytes": 923196,
+      "sha256": "773c25ab8f1bda44255864be59fbccbe095df713b2ade1c855c5214f65253ef5",
       "altText": "Calendrier PDF de sept jours"
     },
     {
@@ -63,8 +65,8 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 664662,
-      "sha256": "d67d5dd244ac54e237ad0422286495c16e38272ea606228c4064f63f839b8a4a",
+      "bytes": 665204,
+      "sha256": "9e58b46b545b7a4e52c6c8aa1729185da481bcfe7e9a2397fd10e75e309f47a2",
       "altText": "Dix heures ne valent pas seulement par leur durée. Elles deviennent utiles quand elles suivent une progression lisible : reprendre, comprendre, s'entraîner, corriger et repartir avec des priorités claires. Parcourez les offres par niveau, puis écrivez-nous sur WhatsApp pour vérifier le parcours adapté à votre enfant."
     },
     {
@@ -228,9 +230,9 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 87724,
-      "sha256": "160f4c75f69f4cfe75b79671c240a735dc4779218f3403fe4ebb49a3fce29b63",
-      "altText": "Slide finale invitant les parents à contacter Nexus Réussite sur WhatsApp et expliquant la réservation par acompte."
+      "bytes": 85466,
+      "sha256": "c32f8afcda5c59046ad161972f7b2df8f46453e11392a39a98d158f424f54473",
+      "altText": "Slide finale invitant les parents à demander les informations sur WhatsApp sans paiement."
     },
     {
       "assetId": "week1-carousel-slide-08-webp",
@@ -239,9 +241,9 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 52066,
-      "sha256": "8ae0b734c6f7f5ed829d2d8ffa16d1971bdf7a94246b357a7081f8c3ace2ecf7",
-      "altText": "Slide finale invitant les parents à contacter Nexus Réussite sur WhatsApp et expliquant la réservation par acompte."
+      "bytes": 52358,
+      "sha256": "d3d39db10cdd52e63d5f551f97c44b9ea21a1bac103e644a669c3c2bda9c4ded",
+      "altText": "Slide finale invitant les parents à demander les informations sur WhatsApp sans paiement."
     },
     {
       "assetId": "week1-publication-copy-json",
@@ -250,8 +252,8 @@
       "format": "JSON",
       "width": null,
       "height": null,
-      "bytes": 5231,
-      "sha256": "6cb101af9dcef8f17b394d5bfc81af8d76531b5ce134ce4c340fa20a1b6b25d7",
+      "bytes": 5104,
+      "sha256": "d3c3c310928a5b91d4e5cf9dc4b4ea31a1f9c2128ef8789c3fda6c5f745b8a90",
       "altText": "Affiche Nexus Réussite annonçant les stages de pré-rentrée 2026 dès le 17 août à Mutuelleville pour les niveaux 3e, Seconde, Première et Terminale, avec effectifs limités et contact WhatsApp 99 192 829."
     },
     {
@@ -261,8 +263,8 @@
       "format": "MARKDOWN",
       "width": null,
       "height": null,
-      "bytes": 3950,
-      "sha256": "168b56c6939059f28a4f85bf12caa2f9ca01fc4e1abe3ab21e032b43b2efa903",
+      "bytes": 3823,
+      "sha256": "107ad2bdd4d0481177c624776b8acfcfff890efe52d01918476fc8dc4e5bee51",
       "altText": "Affiche Nexus Réussite annonçant les stages de pré-rentrée 2026 dès le 17 août à Mutuelleville pour les niveaux 3e, Seconde, Première et Terminale, avec effectifs limités et contact WhatsApp 99 192 829."
     },
     {
@@ -272,8 +274,8 @@
       "format": "MARKDOWN",
       "width": null,
       "height": null,
-      "bytes": 1023,
-      "sha256": "e44be50901bde3f834fddab3d1e97d99b0126e8b0574a5b52b85f2664466a7b1",
+      "bytes": 1012,
+      "sha256": "d6f2055edaf7e7136f2a7e0e1a725126dbebd8e7421b039569cf32868294e862",
       "altText": "Scripts WhatsApp liés aux CTA"
     },
     {
@@ -393,8 +395,8 @@
       "format": "TEXT",
       "width": null,
       "height": null,
-      "bytes": 1046,
-      "sha256": "fa8a49c2fce07110c7fe0d89d10dd089dcce9929ade0e8a307de7ca31c64d355",
+      "bytes": 871,
+      "sha256": "b84e94ecf5e73013f3548a29b199151cefdebbb980cfacfebd47f0427359b0c3",
       "altText": "Liste de montage déterministe du Reel"
     },
     {
@@ -504,7 +506,7 @@
       "width": null,
       "height": null,
       "bytes": 339085,
-      "sha256": "1496bb9b140206456f53745471d48819d209dd199c6fd26c65be9161f911f945",
+      "sha256": "beb5a5085be349c063d0748f4f3af4cbbc3263a54f4ad7b04bbf840268105f36",
       "altText": "Reel motion design de trente secondes"
     },
     {
@@ -525,8 +527,8 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 526318,
-      "sha256": "1d2ecd7bc911740c3256cd3787d2e42da0447ed7a8fe6bb3ed4ab2e94dd50bea",
+      "bytes": 526294,
+      "sha256": "9795166b25e1a8e2506f9371e079882d34f1d0f4c683efac8aeb4e9ff3378201",
       "altText": "Storyboard complet du Reel"
     },
     {
@@ -613,9 +615,9 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396640,
-      "sha256": "c3593d9ab445401a422b4b61657bb153622f5aad3fffaef5a6e22ee891a686d0",
-      "altText": "Slide finale invitant les parents à contacter Nexus Réussite sur WhatsApp et expliquant la réservation par acompte."
+      "bytes": 396616,
+      "sha256": "23c3cd5a6905cbf417cfa9be362fb42c04569d29d801faa7a63ba10fa23b7345",
+      "altText": "Slide finale invitant les parents à demander les informations sur WhatsApp sans paiement."
     },
     {
       "assetId": "week1-main-landscape-source",
@@ -745,8 +747,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1920,
-      "bytes": 396619,
-      "sha256": "4f6171758a8e4117fd4c14ccc1f888e358c9ae3b6e7ffba0473f99047c0d84e0",
+      "bytes": 396617,
+      "sha256": "46f619ef39cdd4704948f151e66871b6834d9f9ecaf6749b4977413198e540ba",
       "altText": "Story présentant les matières et le format de l'offre d'entrée en 3e."
     },
     {
@@ -756,8 +758,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1920,
-      "bytes": 396727,
-      "sha256": "efd9f40a13ee6bcf477ee59a6abd2c7eefcf72a8f355a94ed8115321b246ba2d",
+      "bytes": 396725,
+      "sha256": "2329db13896683097a21a5ea569422fab1474110893c1128ecbb9170bf44254e",
       "altText": "Story présentant les parcours de la Seconde à la Terminale selon le niveau et les matières proposées."
     },
     {
@@ -767,9 +769,9 @@
       "format": "SVG",
       "width": 1080,
       "height": 1920,
-      "bytes": 396596,
-      "sha256": "9a0b8b45b9f3aa4b60d3988ec02c5f7ac734ac515fab7de428693a645379f441",
-      "altText": "Story finale avec le numéro WhatsApp et la règle de réservation après acompte."
+      "bytes": 396587,
+      "sha256": "608888e7ca230389a65ea438d5559dc17111408e99e3f943349e68db62a09620",
+      "altText": "Story finale avec le numéro WhatsApp pour demander les informations du stage."
     },
     {
       "assetId": "week1-story-decouverte-01-png",
@@ -910,8 +912,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 92862,
-      "sha256": "1df0a016a05c16c14f483fbeb6453b75f8c346d5a8028562aa552bfc069791d3",
+      "bytes": 94566,
+      "sha256": "346f4622deea87038db5304a398aceb36fa6b8bbb3e7a0206209d896efd08066",
       "altText": "Story présentant les matières et le format de l'offre d'entrée en 3e."
     },
     {
@@ -921,8 +923,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 49604,
-      "sha256": "0765c1f0c7ecf240f64929714844519bb16db84e2355203605eff20ba4eaefe8",
+      "bytes": 50218,
+      "sha256": "edf1ec8b22e90cb8fe9029396a3e2ffb07446cefa019d2ed5e95926ba8817e96",
       "altText": "Story présentant les matières et le format de l'offre d'entrée en 3e."
     },
     {
@@ -932,8 +934,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 101483,
-      "sha256": "2365b61118efad68d1a98664a626bb9b5f5d50693954ae0d21715e1746205d08",
+      "bytes": 103233,
+      "sha256": "f80d5c0121a76814e8946331f4e6ce71dc7f34851744f3f20d08a89e7504857f",
       "altText": "Story présentant les parcours de la Seconde à la Terminale selon le niveau et les matières proposées."
     },
     {
@@ -943,8 +945,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 57244,
-      "sha256": "709562ddd9deedc9a71aa29063e15c6f645d52a1b350071fbd7cba90ec130c6b",
+      "bytes": 57834,
+      "sha256": "f58cc186bfab1dcf6449e460be0e035cd38f2c2451a406a83e3b95560f114ae2",
       "altText": "Story présentant les parcours de la Seconde à la Terminale selon le niveau et les matières proposées."
     },
     {
@@ -954,9 +956,9 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 88308,
-      "sha256": "ab5e0b412b25dba8efce3497d330314756b6ce80e844fd225c0d555e5ca0a873",
-      "altText": "Story finale avec le numéro WhatsApp et la règle de réservation après acompte."
+      "bytes": 88460,
+      "sha256": "07c10f8c8df54bf6a2c21ecac900b74c7db26692922b1d08eba068b407f917a3",
+      "altText": "Story finale avec le numéro WhatsApp pour demander les informations du stage."
     },
     {
       "assetId": "week1-story-offres-03-webp",
@@ -965,9 +967,9 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 48968,
-      "sha256": "d86e639342f989c2ddfe87d4a332b0dffe0b624fca7db73abf55610c79530255",
-      "altText": "Story finale avec le numéro WhatsApp et la règle de réservation après acompte."
+      "bytes": 47824,
+      "sha256": "9a6af64dea88682d25276b6977db00f3ab7e0be3ea81df4a40ab3c6f11f0dc13",
+      "altText": "Story finale avec le numéro WhatsApp pour demander les informations du stage."
     },
     {
       "assetId": "week1-review-calendar",
@@ -976,8 +978,8 @@
       "format": "PNG",
       "width": 1110,
       "height": 788,
-      "bytes": 234533,
-      "sha256": "a504423d830478e76cc903fb133d4b557838980ef697e8ee4d2d235f4faa4c7f",
+      "bytes": 237224,
+      "sha256": "5d8b9ee1dffee4d0df0849649ce06c8d330fca4412eb3126c69cd8b32aead39d",
       "altText": "Planche de contrôle calendar"
     },
     {
@@ -987,8 +989,8 @@
       "format": "PNG",
       "width": 1110,
       "height": 710,
-      "bytes": 168089,
-      "sha256": "ea6bcbea043731d221de28174854b630701b0e695cb9970aa3928786c61617f8",
+      "bytes": 168388,
+      "sha256": "43d54cc2ab828c9744fa7f5a7755360136caaa98396902fc7b8b22c73574c835",
       "altText": "Planche de contrôle carousel"
     },
     {
@@ -1020,8 +1022,8 @@
       "format": "PNG",
       "width": 840,
       "height": 1431,
-      "bytes": 156783,
-      "sha256": "bbdd6cf2066fd4e212f4cdc3a92f9baaf389751f4b25b5bc2bc1e6e9d7785012",
+      "bytes": 156486,
+      "sha256": "8dab91e700c4ef14ef401050f1eacc2733ed221af18f6eabe830fb77f54ff42a",
       "altText": "Planche de contrôle stories"
     }
   ]

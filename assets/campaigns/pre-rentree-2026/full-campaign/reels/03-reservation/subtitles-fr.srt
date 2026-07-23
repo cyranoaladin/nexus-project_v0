@@ -1,6 +1,6 @@
 1
 00:00:00,000 --> 00:00:05,000
-Comment réserver le stage ?
+Comment recevoir les informations du stage ?
 
 2
 00:00:05,000 --> 00:00:10,000
@@ -8,16 +8,16 @@ Première étape : envoyez le niveau, la matière et le besoin sur WhatsApp.
 
 3
 00:00:10,000 --> 00:00:15,000
-Deuxième étape : Nexus vérifie le parcours, le tarif et les conditions applicables.
+Deuxième étape : Nexus transmet le programme, les horaires et le tarif disponibles.
 
 4
 00:00:15,000 --> 00:00:20,000
-Troisième étape : l'acompte de trente pour cent confirme la réservation.
+Troisième étape : comparez ces éléments en famille.
 
 5
 00:00:20,000 --> 00:00:25,000
-Une demande seule ne réserve pas la place.
+Aucun paiement n'est demandé et aucune place n'est bloquée.
 
 6
 00:00:25,000 --> 00:00:30,000
-Les stages commencent dès le 17 août à Mutuelleville. Commencez la vérification sur WhatsApp.
+Les stages commencent dès le 17 août à Mutuelleville. Demandez les informations sur WhatsApp.

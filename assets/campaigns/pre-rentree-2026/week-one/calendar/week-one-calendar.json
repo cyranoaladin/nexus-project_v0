@@ -3,7 +3,6 @@
   "days": [
     {
       "day": "J1",
-      "date": "2026-07-20",
       "time": "19:00",
       "channel": [
         "Facebook",
@@ -23,11 +22,12 @@
         "clics WhatsApp",
         "conversations initiées"
       ],
+      "publicationDayOffset": 0,
+      "date": null,
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%20Nexus%20R%C3%A9ussite%2C%20je%20souhaite%20recevoir%20le%20programme%20de%20pr%C3%A9-rentr%C3%A9e.%20Mon%20enfant%20entre%20en%20%5Bniveau%5D%20et%20s%27int%C3%A9resse%20%C3%A0%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dj1_annonce"
     },
     {
       "day": "J2",
-      "date": "2026-07-21",
       "time": "19:00",
       "channel": [
         "Facebook",
@@ -48,11 +48,12 @@
         "clics WhatsApp",
         "demandes par matière"
       ],
+      "publicationDayOffset": 1,
+      "date": null,
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20%5B3e/Seconde%5D.%20Je%20souhaite%20v%C3%A9rifier%20les%20horaires%20et%20le%20groupe%20pour%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dj2_fondations"
     },
     {
       "day": "J3",
-      "date": "2026-07-22",
       "time": "19:30",
       "channel": [
         "Facebook",
@@ -72,11 +73,12 @@
         "clics WhatsApp",
         "demandes de parcours"
       ],
+      "publicationDayOffset": 2,
+      "date": null,
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20%5BPremi%C3%A8re/Terminale%5D.%20Nous%20envisageons%20%5Bnombre%5D%20mati%C3%A8re%28s%29%20%3A%20%5Bmati%C3%A8res%5D.%20Pouvez-vous%20nous%20orienter%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dj3_premium"
     },
     {
       "day": "J4",
-      "date": "2026-07-23",
       "time": "18:30",
       "channel": [
         "Instagram Reel",
@@ -97,11 +99,12 @@
         "vues complètes",
         "clics WhatsApp"
       ],
+      "publicationDayOffset": 3,
+      "date": null,
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20comprendre%20le%20programme%20des%20cinq%20s%C3%A9ances%20en%20%5Bmati%C3%A8re%5D%20pour%20une%20entr%C3%A9e%20en%20%5Bniveau%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dreel%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dj4_methode"
     },
     {
       "day": "J5",
-      "date": "2026-07-24",
       "time": "19:00",
       "channel": [
         "Facebook",
@@ -121,11 +124,12 @@
         "enregistrements",
         "conversations qualifiées"
       ],
+      "publicationDayOffset": 4,
+      "date": null,
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20comparer%20le%20contenu%20et%20le%20tarif%20du%20parcours%20adapt%C3%A9%20%C3%A0%20une%20entr%C3%A9e%20en%20%5Bniveau%5D%2C%20mati%C3%A8re%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dj5_valeur"
     },
     {
       "day": "J6",
-      "date": "2026-07-25",
       "time": "11:00",
       "channel": [
         "Instagram",
@@ -146,11 +150,12 @@
         "clics WhatsApp",
         "demandes de programme"
       ],
+      "publicationDayOffset": 5,
+      "date": null,
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20pouvez-vous%20m%27envoyer%20les%20objectifs%20du%20programme%20de%20pr%C3%A9-rentr%C3%A9e%20en%20%5Bmati%C3%A8re%5D%20pour%20le%20niveau%20%5Bniveau%5D%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dj6_preuve_pedagogique"
     },
     {
       "day": "J7",
-      "date": "2026-07-26",
       "time": "18:00",
       "channel": [
         "Facebook",
@@ -160,19 +165,20 @@
       ],
       "audience": "Parents ayant interagi pendant la semaine",
       "level": "TOUS",
-      "funnelStage": "CONVERSION",
-      "objective": "Rappeler les effectifs et expliquer la réservation",
+      "funnelStage": "CONSIDERATION",
+      "objective": "Rappeler les effectifs et inviter à demander les informations",
       "assetId": "week1-carousel-slide-08",
-      "body": "Les effectifs sont limités par groupe. Une conversation permet de vérifier le parcours ; la réservation devient effective après validation et acompte de 30 %.",
-      "cta": "Vérifier le parcours sur WhatsApp",
-      "utm": "utm_source=meta&utm_medium=social_organic&utm_campaign=pre_rentree_2026&utm_content=j7_reservation",
+      "body": "Les effectifs sont limités par groupe. Une conversation permet de recevoir le programme, les horaires et le tarif sans paiement.",
+      "cta": "Demander les informations sur WhatsApp",
+      "utm": "utm_source=meta&utm_medium=social_organic&utm_campaign=pre_rentree_2026&utm_content=j7_information",
       "whatsappScriptId": "wa-week1-reservation",
       "expectedKpi": [
         "clics WhatsApp",
-        "parcours validés",
-        "acomptes attendus"
+        "demandes d'information qualifiées"
       ],
-      "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20v%C3%A9rifier%20la%20disponibilit%C3%A9%20et%20les%20%C3%A9tapes%20de%20r%C3%A9servation%20pour%20%5Bniveau%5D%20en%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dj7_reservation"
+      "publicationDayOffset": 6,
+      "date": null,
+      "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le%20programme%2C%20les%20horaires%20et%20le%20tarif%20pour%20%5Bniveau%5D%20en%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dj7_information"
     }
   ]
 }

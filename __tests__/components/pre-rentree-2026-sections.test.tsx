@@ -153,6 +153,21 @@ describe('Pré-rentrée landing sections', () => {
     expect(screen.getByText(firstModule?.sessions[0]?.deliverable ?? '')).toBeInTheDocument();
   });
 
+  it.each([
+    ['planning', () => renderSchedule()],
+    ['programmes', () => render(
+      <ProgramsSection modules={dto.modules} levels={dto.levels} subjects={dto.subjects} />,
+    )],
+  ])('offers planning, level programmes, tariffs and flyer downloads in %s', (_section, renderSection) => {
+    renderSection();
+    expect(screen.getByRole('link', { name: /Planning et informations pratiques.*PDF/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Programme détaillé — Entrée en Seconde.*PDF/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Programme détaillé — Entrée en Première.*PDF/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Programme détaillé — Entrée en Terminale.*PDF/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Tarifs et conditions financières.*PDF/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /flyer 1 page.*PDF/i })).toBeInTheDocument();
+  });
+
   it('opens the level-specific module targeted by the configurator hash', () => {
     render(<ProgramsSection modules={dto.modules} levels={dto.levels} subjects={dto.subjects} />);
 
