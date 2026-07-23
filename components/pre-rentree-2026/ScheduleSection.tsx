@@ -9,6 +9,7 @@ import {
   formatWeekRange,
 } from '@/lib/campaigns/pre-rentree-2026/presentation';
 import { SUBJECT_THEMES } from '@/lib/campaigns/pre-rentree-2026/subject-theme';
+import { PRE_RENTREE_DOCUMENTS } from '@/lib/campaigns/pre-rentree-2026/documents';
 import type {
   LandingLevel,
   LandingScheduleSlot,
@@ -314,7 +315,6 @@ export function ScheduleSection({
   const initialLevel = levels[0]?.id ?? 'SECONDE';
   const [level, setLevel] = useState<EntryLevelCode>(initialLevel);
   const [week, setWeek] = useState(String(scheduleWeeks[0]?.week ?? 1));
-  const rows = useMemo(() => moduleRows(schedule, subjects, level), [schedule, subjects, level]);
 
   useEffect(() => {
     if (configuredEntryLevel) setLevel(configuredEntryLevel);
@@ -341,19 +341,41 @@ export function ScheduleSection({
           </TabsList>
 
           <TabsContent value="by-level" className="mt-7">
-            <Tabs value={level} onValueChange={(value) => setLevel(value as EntryLevelCode)}>
-              <TabsList aria-label="Classe de rentrée affichée" className="grid h-auto min-h-11 w-full grid-cols-1 justify-start gap-1 border border-lux-line bg-lux-paper p-1 sm:inline-flex sm:w-auto">
-                {levels.map((option) => (
-                  <TabsTrigger key={option.id} value={option.id} aria-label={option.label} className="min-h-11">{option.label}</TabsTrigger>
-                ))}
-              </TabsList>
+            {/* Onglets par niveau : tous les panneaux sont MONTÉS côté serveur (masqués en CSS via `hidden`),
+                pour un crawler, un lecteur d'écran et un navigateur sans JS (D1). */}
+            <div role="tablist" aria-label="Classe de rentrée affichée" className="grid h-auto min-h-11 w-full grid-cols-1 justify-start gap-1 border border-lux-line bg-lux-paper p-1 sm:inline-flex sm:w-auto">
               {levels.map((option) => (
-                <TabsContent key={option.id} value={option.id} className="mt-0">
-                  <LevelDesktopTable rows={rows} levelLabel={option.label} />
-                  <LevelMobileCards rows={rows} />
-                </TabsContent>
+                <button
+                  key={option.id}
+                  type="button"
+                  role="tab"
+                  id={`level-tab-${option.id}`}
+                  aria-selected={level === option.id}
+                  aria-controls={`level-panel-${option.id}`}
+                  aria-label={option.label}
+                  onClick={() => setLevel(option.id)}
+                  className={cn('min-h-11 rounded px-3 py-1.5 text-sm', level === option.id ? 'bg-white font-semibold text-lux-ink shadow-sm' : 'text-lux-slate')}
+                >
+                  {option.label}
+                </button>
               ))}
-            </Tabs>
+            </div>
+            {levels.map((option) => {
+              const levelRows = moduleRows(schedule, subjects, option.id);
+              return (
+                <div
+                  key={option.id}
+                  role="tabpanel"
+                  id={`level-panel-${option.id}`}
+                  aria-labelledby={`level-tab-${option.id}`}
+                  hidden={level !== option.id}
+                  className="mt-0"
+                >
+                  <LevelDesktopTable rows={levelRows} levelLabel={option.label} />
+                  <LevelMobileCards rows={levelRows} />
+                </div>
+              );
+            })}
           </TabsContent>
 
           <TabsContent value="by-week" className="mt-7">
@@ -366,7 +388,7 @@ export function ScheduleSection({
                 ))}
               </TabsList>
               {scheduleWeeks.map((option) => (
-                <TabsContent key={option.week} value={String(option.week)} className="mt-0">
+                <TabsContent key={option.week} value={String(option.week)} forceMount className="mt-0 data-[state=inactive]:hidden">
                   <WeekDesktopTable week={option} blocks={blocks} levels={levels} subjects={subjects} />
                   <WeekMobileList week={option} blocks={blocks} levels={levels} subjects={subjects} />
                 </TabsContent>
@@ -376,6 +398,20 @@ export function ScheduleSection({
         </Tabs>
 
         <Organization organization={organization} />
+
+        <div className="mt-10">
+          <h3 className="font-fraunces text-xl text-lux-ink">Documents à télécharger</h3>
+          <p className="mt-1 text-sm text-lux-slate">Le planning complet et les programmes détaillés, à emporter.</p>
+          <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+            {PRE_RENTREE_DOCUMENTS.map((doc) => (
+              <li key={doc.href}>
+                <a href={doc.href} download className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-lux-gold-deep underline">
+                  {doc.label} <span className="text-xs font-normal text-lux-slate">(PDF · {doc.size})</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </section>
   );

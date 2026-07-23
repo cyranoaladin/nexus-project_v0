@@ -65,6 +65,20 @@ describe('Pré-rentrée landing sections', () => {
     expect(weekTab).toHaveAttribute('aria-selected', 'true');
   });
 
+  it('server-renders the three level timetables in the initial DOM (D1 — SEO/a11y)', () => {
+    // Sans aucun clic : les grilles Seconde, Première ET Terminale sont montées (forceMount),
+    // donc présentes pour un crawler, un lecteur d'écran et un navigateur sans JS.
+    renderSchedule();
+    const captions = Array.from(document.querySelectorAll('table caption')).map((c) => c.textContent);
+    expect(captions).toEqual(
+      expect.arrayContaining([
+        'Planning — Entrée en Seconde',
+        'Planning — Entrée en Première',
+        'Planning — Entrée en Terminale',
+      ]),
+    );
+  });
+
   it('renders both weekly timetables with four blocks and two rooms', async () => {
     const user = userEvent.setup();
     renderSchedule();
