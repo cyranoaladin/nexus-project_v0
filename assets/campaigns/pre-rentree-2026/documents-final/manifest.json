@@ -1,0 +1,351 @@
+{
+  "schemaVersion": "1.0.0",
+  "campaignId": "pre-rentree-2026",
+  "purpose": "REVIEW_ONLY",
+  "pdfCount": 9,
+  "pageCount": 28,
+  "documents": [
+    {
+      "fileName": "NexusReussite_PreRentree2026_DossierAccueil_PRINT.pdf",
+      "bytes": 432688,
+      "sizeLabel": "422 Ko",
+      "sha256": "033c1eadb421a9f8d7a95c7caaad60f94b8875659efe3f18a95b17be3c514ad6",
+      "pageCount": 4,
+      "publicDownloadCandidate": false,
+      "publicationStatus": "REVIEW_NON_CONTRACTUAL"
+    },
+    {
+      "fileName": "NexusReussite_PreRentree2026_FlyerEssentiel.pdf",
+      "bytes": 411559,
+      "sizeLabel": "401 Ko",
+      "sha256": "3e1f740f7169479dca9ec8fb67254cf554e28b3f8759947279c1f811996892c2",
+      "pageCount": 1,
+      "publicDownloadCandidate": true,
+      "publicationStatus": "REVIEW_NON_CONTRACTUAL"
+    },
+    {
+      "fileName": "NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf",
+      "bytes": 469254,
+      "sizeLabel": "458 Ko",
+      "sha256": "a9daa016c84e2c337b1e9a716120e2f9af728b27275611a4d2e9b74eb782976e",
+      "pageCount": 4,
+      "publicDownloadCandidate": true,
+      "publicationStatus": "REVIEW_NON_CONTRACTUAL"
+    },
+    {
+      "fileName": "NexusReussite_PreRentree2026_Programme_Premiere.pdf",
+      "bytes": 457656,
+      "sizeLabel": "446 Ko",
+      "sha256": "78033adcdb3dc6af5f73714c1c1b63c97b8e8174ccd096996db8079fcb88ef2b",
+      "pageCount": 5,
+      "publicDownloadCandidate": true,
+      "publicationStatus": "REVIEW_NON_CONTRACTUAL"
+    },
+    {
+      "fileName": "NexusReussite_PreRentree2026_Programme_SVT_Première_DRAFT.pdf",
+      "bytes": 445633,
+      "sizeLabel": "435 Ko",
+      "sha256": "46ff09e6bedd4733b78a6e95bb2df4f63b9e869b03f3e544ca500a4b0bf282b7",
+      "pageCount": 2,
+      "publicDownloadCandidate": false,
+      "publicationStatus": "DRAFT_PENDING_QUALIFIED_TEACHER_VALIDATION"
+    },
+    {
+      "fileName": "NexusReussite_PreRentree2026_Programme_SVT_Terminale_DRAFT.pdf",
+      "bytes": 445426,
+      "sizeLabel": "434 Ko",
+      "sha256": "e0c51f2c84736f6955408ae0f00fa8dc03c84f4ef9780d9abb2f9730de00d408",
+      "pageCount": 2,
+      "publicDownloadCandidate": false,
+      "publicationStatus": "DRAFT_PENDING_QUALIFIED_TEACHER_VALIDATION"
+    },
+    {
+      "fileName": "NexusReussite_PreRentree2026_Programme_Seconde.pdf",
+      "bytes": 454040,
+      "sizeLabel": "443 Ko",
+      "sha256": "9e987b6546672493cde3c24c78f0a93b133a503c31d82555d622de14a74e751b",
+      "pageCount": 4,
+      "publicDownloadCandidate": true,
+      "publicationStatus": "REVIEW_NON_CONTRACTUAL"
+    },
+    {
+      "fileName": "NexusReussite_PreRentree2026_Programme_Terminale.pdf",
+      "bytes": 457167,
+      "sizeLabel": "446 Ko",
+      "sha256": "2d06c91f3d921ecbf4413e042667b2340ae833fc54e6d1837be68308da95c65c",
+      "pageCount": 5,
+      "publicDownloadCandidate": true,
+      "publicationStatus": "REVIEW_NON_CONTRACTUAL"
+    },
+    {
+      "fileName": "NexusReussite_PreRentree2026_Tarifs.pdf",
+      "bytes": 447303,
+      "sizeLabel": "436 Ko",
+      "sha256": "7314e64e8f853af7ed8360f208a054c91c5ac2c7629a5d19a5624eb242107419",
+      "pageCount": 1,
+      "publicDownloadCandidate": true,
+      "publicationStatus": "REVIEW_NON_CONTRACTUAL"
+    }
+  ],
+  "contactSheet": {
+    "path": "visual-review/documents-final-contact-sheet.png",
+    "width": 1200,
+    "height": 3010,
+    "bytes": 1118811,
+    "sha256": "5e25337272da9625f7f7d6ad2fe9c4feecf38e86585be3adc78912765f9ba4e8"
+  },
+  "pages": [
+    {
+      "pdf": "NexusReussite_PreRentree2026_DossierAccueil_PRINT.pdf",
+      "page": 1,
+      "path": "rendered/NexusReussite_PreRentree2026_DossierAccueil_PRINT/page-01.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 67944,
+      "sha256": "7a674e26e43065d1421f7b316b47c02b86b5d7d933a3ce7db63975e8192c4d18"
+    },
+    {
+      "pdf": "NexusReussite_PreRentree2026_DossierAccueil_PRINT.pdf",
+      "page": 2,
+      "path": "rendered/NexusReussite_PreRentree2026_DossierAccueil_PRINT/page-02.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 68044,
+      "sha256": "0619f63d62949622ea13ae241bb7d5e2825d42286de016b2ea8db126da54f475"
+    },
+    {
+      "pdf": "NexusReussite_PreRentree2026_DossierAccueil_PRINT.pdf",
+      "page": 3,
+      "path": "rendered/NexusReussite_PreRentree2026_DossierAccueil_PRINT/page-03.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 88466,
+      "sha256": "7e3b237aafc708eb8a213b9c57bc13ed3fe20945585bdbaec358b8486dd12f8f"
+    },
+    {
+      "pdf": "NexusReussite_PreRentree2026_DossierAccueil_PRINT.pdf",
+      "page": 4,
+      "path": "rendered/NexusReussite_PreRentree2026_DossierAccueil_PRINT/page-04.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 47939,
+      "sha256": "e03847c0debf5c6960b23ad32e1ce0bf5a921c2711b3d2eede3984c90caec1bc"
+    },
+    {
+      "pdf": "NexusReussite_PreRentree2026_FlyerEssentiel.pdf",
+      "page": 1,
+      "path": "rendered/NexusReussite_PreRentree2026_FlyerEssentiel/page-01.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 99664,
+      "sha256": "e346abe47702703cda6aaa0a87047c0632adec738f49137983db084d780ab043"
+    },
+    {
+      "pdf": "NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf",
+      "page": 1,
+      "path": "rendered/NexusReussite_PreRentree2026_Planning_InfosPratiques/page-01.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 51731,
+      "sha256": "4d3771eb48c6d5a53c9cd1f0c4851d6177a02c36cc6487b9acedb23c4f89ea77"
+    },
+    {
+      "pdf": "NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf",
+      "page": 2,
+      "path": "rendered/NexusReussite_PreRentree2026_Planning_InfosPratiques/page-02.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 150594,
+      "sha256": "ca06faa26f37fedd0ae689c5edd10cf47bf41a6fb6cbc4057bdf76e9d7d75c42"
+    },
+    {
+      "pdf": "NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf",
+      "page": 3,
+      "path": "rendered/NexusReussite_PreRentree2026_Planning_InfosPratiques/page-03.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 138151,
+      "sha256": "f22b00d2012b570fbe074247c1ec31a677b3c0bbd678b8e1127699ebb80e3523"
+    },
+    {
+      "pdf": "NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf",
+      "page": 4,
+      "path": "rendered/NexusReussite_PreRentree2026_Planning_InfosPratiques/page-04.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 56318,
+      "sha256": "b13bd0b7776128260004018d8027e0c1fcc28c9eb1afca3547463f33cb6b6ed7"
+    },
+    {
+      "pdf": "NexusReussite_PreRentree2026_Programme_Premiere.pdf",
+      "page": 1,
+      "path": "rendered/NexusReussite_PreRentree2026_Programme_Premiere/page-01.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 52438,
+      "sha256": "1c47c942fbf4b2218e1f6b13e39250b003a041d27bad5e53452a64d1469017ab"
+    },
+    {
+      "pdf": "NexusReussite_PreRentree2026_Programme_Premiere.pdf",
+      "page": 2,
+      "path": "rendered/NexusReussite_PreRentree2026_Programme_Premiere/page-02.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 163363,
+      "sha256": "5f42724cd8adfc23c0018c5034603d5b6719099205da7973d89ebf537e0dd94a"
+    },
+    {
+      "pdf": "NexusReussite_PreRentree2026_Programme_Premiere.pdf",
+      "page": 3,
+      "path": "rendered/NexusReussite_PreRentree2026_Programme_Premiere/page-03.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 130401,
+      "sha256": "9a54436e2bc76280e2e60f71aa6f3ed55d23fe29cd4cca3fc7a00e3f55123de7"
+    },
+    {
+      "pdf": "NexusReussite_PreRentree2026_Programme_Premiere.pdf",
+      "page": 4,
+      "path": "rendered/NexusReussite_PreRentree2026_Programme_Premiere/page-04.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 209581,
+      "sha256": "4bfbce6f58e78b924068fc1d8a350256cf0c2656fbd456b4181e7446fa71ad9a"
+    },
+    {
+      "pdf": "NexusReussite_PreRentree2026_Programme_Premiere.pdf",
+      "page": 5,
+      "path": "rendered/NexusReussite_PreRentree2026_Programme_Premiere/page-05.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 35125,
+      "sha256": "6cf6400f6657558b7063c3286b1cb78ff8770a6f24aabd00d3ed1d117658f514"
+    },
+    {
+      "pdf": "NexusReussite_PreRentree2026_Programme_SVT_Première_DRAFT.pdf",
+      "page": 1,
+      "path": "rendered/NexusReussite_PreRentree2026_Programme_SVT_Première_DRAFT/page-01.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 71490,
+      "sha256": "b1cb8a264f5bfb4d334175f96fa0b73b291d83c4de65b8b89fd8ccd104121693"
+    },
+    {
+      "pdf": "NexusReussite_PreRentree2026_Programme_SVT_Première_DRAFT.pdf",
+      "page": 2,
+      "path": "rendered/NexusReussite_PreRentree2026_Programme_SVT_Première_DRAFT/page-02.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 149521,
+      "sha256": "8c060b0892882d138e365e55e2116137ba3c1e0cec2c42b53f5bd624df4f4355"
+    },
+    {
+      "pdf": "NexusReussite_PreRentree2026_Programme_SVT_Terminale_DRAFT.pdf",
+      "page": 1,
+      "path": "rendered/NexusReussite_PreRentree2026_Programme_SVT_Terminale_DRAFT/page-01.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 71568,
+      "sha256": "117131fb19768b6be75b700a3b969a6a8e1a6c6aa98f07b81fe62f681b9bfbef"
+    },
+    {
+      "pdf": "NexusReussite_PreRentree2026_Programme_SVT_Terminale_DRAFT.pdf",
+      "page": 2,
+      "path": "rendered/NexusReussite_PreRentree2026_Programme_SVT_Terminale_DRAFT/page-02.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 141057,
+      "sha256": "2f1c074c1deeb5ed554f7d87f9a4ae2ed2c16fece6548af1bcffb7d5b5567504"
+    },
+    {
+      "pdf": "NexusReussite_PreRentree2026_Programme_Seconde.pdf",
+      "page": 1,
+      "path": "rendered/NexusReussite_PreRentree2026_Programme_Seconde/page-01.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 52837,
+      "sha256": "3bd61e25e26129658a3cda57c5cade1de24f070219db8c7519ce53753445749b"
+    },
+    {
+      "pdf": "NexusReussite_PreRentree2026_Programme_Seconde.pdf",
+      "page": 2,
+      "path": "rendered/NexusReussite_PreRentree2026_Programme_Seconde/page-02.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 184684,
+      "sha256": "26f4101f9bc3e98e00768c8560d377aa17e63a37f47a48bea6bbc5cd4b0d0566"
+    },
+    {
+      "pdf": "NexusReussite_PreRentree2026_Programme_Seconde.pdf",
+      "page": 3,
+      "path": "rendered/NexusReussite_PreRentree2026_Programme_Seconde/page-03.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 129931,
+      "sha256": "fdd2f46cec33bd5d481986004a35a82561a7387ace42215e6f9fb8d5aec1283c"
+    },
+    {
+      "pdf": "NexusReussite_PreRentree2026_Programme_Seconde.pdf",
+      "page": 4,
+      "path": "rendered/NexusReussite_PreRentree2026_Programme_Seconde/page-04.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 135658,
+      "sha256": "237f6c931ed4be136142a7dc35e508abcad1a69f6ccd4964b9078a8d87f4fc91"
+    },
+    {
+      "pdf": "NexusReussite_PreRentree2026_Programme_Terminale.pdf",
+      "page": 1,
+      "path": "rendered/NexusReussite_PreRentree2026_Programme_Terminale/page-01.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 52513,
+      "sha256": "2d31a80a321405bb9c11457e70a78a16434e6b61186543768c7085fc8cb96621"
+    },
+    {
+      "pdf": "NexusReussite_PreRentree2026_Programme_Terminale.pdf",
+      "page": 2,
+      "path": "rendered/NexusReussite_PreRentree2026_Programme_Terminale/page-02.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 177515,
+      "sha256": "c724e6db9b1207667c055647c4b58b5b23c35718ec19b94e8aa4ff29e231bbac"
+    },
+    {
+      "pdf": "NexusReussite_PreRentree2026_Programme_Terminale.pdf",
+      "page": 3,
+      "path": "rendered/NexusReussite_PreRentree2026_Programme_Terminale/page-03.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 85699,
+      "sha256": "9996ab6849401b5dbb894951d9d8065c8a8ae3e79a8caad41adc26751f6e71be"
+    },
+    {
+      "pdf": "NexusReussite_PreRentree2026_Programme_Terminale.pdf",
+      "page": 4,
+      "path": "rendered/NexusReussite_PreRentree2026_Programme_Terminale/page-04.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 188047,
+      "sha256": "445e4b3b1ecf141a02dd7e4f14e2a5e07b131343e37bd2853c24205986192c95"
+    },
+    {
+      "pdf": "NexusReussite_PreRentree2026_Programme_Terminale.pdf",
+      "page": 5,
+      "path": "rendered/NexusReussite_PreRentree2026_Programme_Terminale/page-05.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 76744,
+      "sha256": "41ec8ba46be1df69e7d3b6589e7f6c67ec1cc6f47aa0b606f29049513ac04f83"
+    },
+    {
+      "pdf": "NexusReussite_PreRentree2026_Tarifs.pdf",
+      "page": 1,
+      "path": "rendered/NexusReussite_PreRentree2026_Tarifs/page-01.png",
+      "width": 893,
+      "height": 1263,
+      "bytes": 153060,
+      "sha256": "3d3eff27585df66cf26eca622e0489d7c8af0e3a1c643fb45ec620cdd48aafc6"
+    }
+  ]
+}

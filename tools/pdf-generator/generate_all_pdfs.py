@@ -46,6 +46,7 @@ SVT_DRAFT = _DECISIONS.get("svtProgramValidation", {}).get("status") == "draft_u
 ENSEIGNANT_STATUT_COMMERCIAL = "enseignants certifiés ou agrégés de l'Éducation nationale française, en exercice"
 # Formulation actuellement publiée (sans affirmation de statut non prouvée) :
 ENSEIGNANT_STATUT_PUBLIE = "enseignants expérimentés, en exercice dans le système français"
+REVIEW_NOTICE = "DOCUMENT DE REVUE — NON CONTRACTUEL"
 
 
 def format_tnd(amount):
@@ -296,6 +297,9 @@ def make_cover(title, subtitle=""):
             Stages de pré-rentrée · 17–28 août 2026<br>
             Mutuelleville, Tunis
         </div>
+        <div style="margin-top:16px; color:#8F1D1D; font-size:9pt; font-weight:800; letter-spacing:.4px;">
+            {REVIEW_NOTICE}
+        </div>
         <div class="cover-band">
             Fondations : 4 à 6 élèves · Premium : 3 à 5 élèves · 10&nbsp;h par matière · À partir de {format_tnd(STARTING_PRICE)}&nbsp;TND<br>
             <a href="https://nexusreussite.academy/stages/pre-rentree-2026" style="color:#C9A227; font-size:9pt;">nexusreussite.academy/stages/pre-rentree-2026</a>
@@ -450,6 +454,43 @@ PROGRAMMES = {
     },
 }
 
+# The canonical module document supersedes the historical inline catalogue
+# above. Keeping the adapter close to the legacy renderer makes the generated
+# PDFs consume the same sessions as the site and the documentary snapshot.
+def canonical_programmes():
+    level_ids = {
+        "Seconde": "SECONDE",
+        "Première": "PREMIERE",
+        "Terminale": "TERMINALE",
+    }
+    return {
+        label: {
+            "matières": [
+                {
+                    "name": module["subject"],
+                    "subtitle": module["subtitle"],
+                    "objective": module.get("objective"),
+                    "publicationStatus": module.get("publicationStatus"),
+                    "sessions": [
+                        (
+                            f'{session["number"]}. {session["title"]}',
+                            session["objective"],
+                            ", ".join(session["topics"]),
+                            session["deliverable"],
+                        )
+                        for session in module["sessions"]
+                    ],
+                }
+                for module in _MODULES
+                if module["level"] == level_id and module["subjectId"] != "SVT"
+            ],
+        }
+        for label, level_id in level_ids.items()
+    }
+
+
+PROGRAMMES = canonical_programmes()
+
 
 def make_programme_body(level_name, data):
     """Generate HTML body for a programme PDF."""
@@ -463,12 +504,24 @@ def make_programme_body(level_name, data):
     body += make_header(header_title)
     body += f'<div class="intro">{intro_text}</div>'
 
-    for i, (mat_name, mat_sub, sessions) in enumerate(data["matières"]):
+    for i, subject in enumerate(data["matières"]):
         if i > 0 and i % 2 == 0:
             body += f'<div class="page-break"></div>{make_header(header_title)}'
 
+        mat_name = subject["name"]
+        mat_sub = subject["subtitle"]
+        sessions = subject["sessions"]
+        if subject["publicationStatus"] == "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION":
+            body += (
+                '<div style="border:2px solid #BE2828; color:#8F1D1D; background:#FFF4F4; '
+                'padding:8px 10px; margin:0 0 10px; font-weight:800; text-align:center;">'
+                'PROPOSITION — MODULE À VALIDER PAR LA DIRECTION PÉDAGOGIQUE'
+                '</div>'
+            )
         subtitle = f" — {mat_sub}" if mat_sub else ""
         body += f"<h2>{mat_name}{subtitle}</h2>"
+        if subject["objective"]:
+            body += f'<p style="font-size:9pt; margin:-4px 0 8px; line-height:1.45;">{subject["objective"]}</p>'
         body += """<table class="programme">
         <thead><tr>
             <th>Séance</th>
@@ -634,6 +687,7 @@ def make_tarifs_body():
     body += f'<img src="{LOGO_SLOGAN}" alt="Nexus Réussite" style="width:55mm; margin-bottom:10px;"><br>'
     body += '<h1 style="color:#071A3A; font-size:18pt; margin-bottom:4px;">Tarifs et conditions financières</h1>'
     body += '<p style="color:#071A3A; font-size:10pt; font-weight:600;">Stages de pré-rentrée · 17–28 août 2026 · Mutuelleville, Tunis</p>'
+    body += f'<p style="color:#8F1D1D; font-size:9pt; font-weight:800; margin-top:5px;">{REVIEW_NOTICE}</p>'
     body += '</div><hr style="border:none; border-top:2px solid #C9A227; margin:10px 0 14px 0;">'
 
     body += '<p style="font-size:9.5pt; margin-bottom:14px; font-style:italic; color:#555;">Des tarifs publics, nets, en dinars. Vous savez exactement ce que vous payez — avant de réserver.</p>'
@@ -702,7 +756,8 @@ def make_dossier_accueil_body():
     <div style="text-align:center; margin-bottom:20px;">
         <img src="{LOGO_SLOGAN}" alt="Nexus Réussite" style="width:55mm; margin-bottom:12px;"><br>
         <h1 style="color:#071A3A; font-size:18pt; margin-bottom:4px;">Dossier d'accueil famille</h1>
-        <p style="color:#071A3A; font-size:10.5pt; font-weight:600;">Stages de pré-rentrée 2026 · À remettre lors de l'inscription au centre</p>
+        <p style="color:#071A3A; font-size:10.5pt; font-weight:600;">Stages de pré-rentrée 2026</p>
+        <p style="color:#8F1D1D; font-size:9pt; font-weight:800; margin-top:5px;">{REVIEW_NOTICE}</p>
     </div>
     <hr style="border:none; border-top:2px solid #333; margin:12px 0;">
     <p style="font-size:10.5pt; line-height:1.7; margin-bottom:20px;"><strong>Madame, Monsieur,</strong><br><br>
@@ -816,6 +871,58 @@ def make_dossier_accueil_body():
     return body
 
 
+def make_flyer_body():
+    """One-page review flyer derived from canonical campaign and pricing data."""
+    foundation_by_level = {
+        item["level"]: item
+        for item in PRE_RENTREE_FOUNDATIONS
+    }
+    premium_prices = " · ".join(
+        f'{pack["subjects_count"]} mat. : {format_tnd(pack["price_per_student"])} TND'
+        for pack in PRE_RENTREE_PACKS
+    )
+    subjects_by_level = {
+        level["id"]: [
+            subject["label"]
+            for subject in CAMPAIGN["subjects"]
+            if level["id"] in subject["levels"]
+        ]
+        for level in CAMPAIGN["levels"]
+    }
+
+    body = f"""
+    <div style="text-align:center; margin-bottom:14px;">
+        <img src="{LOGO_SLOGAN}" alt="Nexus Réussite" style="width:52mm; margin-bottom:8px;"><br>
+        <h1 style="color:#071A3A; font-size:20pt; margin-bottom:4px;">Stages de pré-rentrée 2026</h1>
+        <p style="font-size:11pt; font-weight:700;">17–28 août · Mutuelleville, Tunis</p>
+        <p style="color:#8F1D1D; font-size:9pt; font-weight:800; margin-top:5px;">{REVIEW_NOTICE}</p>
+    </div>
+    <div class="intro"><strong>5 séances de 2 h par matière.</strong> Des priorités, prérequis et méthodes
+    sélectionnés pour préparer la rentrée, avec objectifs annoncés, entraînement et correction explicite.</div>
+    <h2>Niveaux et matières</h2>
+    <table><tbody>
+        <tr><td><strong>Entrée en 3e</strong></td><td>{", ".join(subjects_by_level["TROISIEME"])}</td></tr>
+        <tr><td><strong>Entrée en Seconde</strong></td><td>{", ".join(subjects_by_level["SECONDE"])}</td></tr>
+        <tr><td><strong>Entrée en Première</strong></td><td>{", ".join(subjects_by_level["PREMIERE"])}</td></tr>
+        <tr><td><strong>Entrée en Terminale</strong></td><td>{", ".join(subjects_by_level["TERMINALE"])}</td></tr>
+    </tbody></table>
+    <h2>Effectifs et tarifs</h2>
+    <p style="font-size:9.5pt; line-height:1.7;">
+        <strong>Fondations :</strong> 4 à 6 élèves, maximum 6 ·
+        3e : {format_tnd(foundation_by_level["TROISIEME"]["price_per_student"])} TND / matière ·
+        Seconde : {format_tnd(foundation_by_level["SECONDE"]["price_per_student"])} TND / matière.<br>
+        <strong>Premium :</strong> 3 à 5 élèves, maximum 5 · {premium_prices}.
+    </p>
+    <h2>Demander les informations</h2>
+    <p style="font-size:9.5pt; line-height:1.7;">Indiquez le niveau et la matière sur WhatsApp.
+    Aucun paiement n'est demandé et aucune place n'est bloquée à ce stade.</p>
+    <p style="font-size:11pt; color:#071A3A; font-weight:800; margin-top:10px;">
+        +216 99 19 28 29 · contact@nexusreussite.academy
+    </p>
+    """
+    return body
+
+
 # ─── DOSSIER ACCUEIL EXTRA CSS ────────────────────────────────────────────────
 
 DOSSIER_CSS = """
@@ -858,6 +965,14 @@ h2 {
 
 TARIFS_CSS = """
 /* No cover page - single/double page document */
+@page { margin: 9mm 13mm 10mm 13mm; }
+body { font-size: 8.5pt; line-height: 1.32; }
+h2 { font-size: 11pt; margin-bottom: 5px; }
+table { margin-bottom: 7px; }
+thead th { padding: 3px 4px; font-size: 7.5pt; }
+tbody td { padding: 3px 4px; font-size: 8pt; }
+.check-list li { font-size: 8.5pt; margin-bottom: 2px; }
+.page-footer { bottom: -5mm; }
 """
 
 
@@ -912,5 +1027,11 @@ if __name__ == "__main__":
     html = wrap_html(body, "Nexus Réussite — Dossier d'accueil famille — Pré-rentrée 2026", DOSSIER_CSS)
     generate_pdf(html, "NexusReussite_PreRentree2026_DossierAccueil_PRINT.pdf",
                  "Nexus Réussite — Dossier d'accueil famille — Pré-rentrée 2026")
+
+    # 8. Flyer essentiel
+    body = make_flyer_body()
+    html = wrap_html(body, "Nexus Réussite — Flyer essentiel — Pré-rentrée 2026")
+    generate_pdf(html, "NexusReussite_PreRentree2026_FlyerEssentiel.pdf",
+                 "Nexus Réussite — Flyer essentiel — Pré-rentrée 2026")
 
     print("\n✓ Production terminée")

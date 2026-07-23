@@ -10,7 +10,8 @@
       "PRF-PRE2026-FIVE-SESSIONS",
       "PRF-PRE2026-STRUCTURED-SESSIONS"
     ],
-    "publicationDate": "2026-07-20"
+    "publicationDay": "J1",
+    "publicationDate": null
   },
   {
     "family": "publications",
@@ -23,7 +24,8 @@
       "PRF-PRE2026-FIVE-SESSIONS",
       "PRF-PRE2026-STRUCTURED-SESSIONS"
     ],
-    "publicationDate": "2026-07-22"
+    "publicationDay": "J3",
+    "publicationDate": null
   },
   {
     "family": "publications",
@@ -36,7 +38,8 @@
       "PRF-PRE2026-FIVE-SESSIONS",
       "PRF-PRE2026-STRUCTURED-SESSIONS"
     ],
-    "publicationDate": "2026-07-24"
+    "publicationDay": "J5",
+    "publicationDate": null
   },
   {
     "family": "publications",
@@ -49,7 +52,8 @@
       "PRF-PRE2026-FIVE-SESSIONS",
       "PRF-PRE2026-STRUCTURED-SESSIONS"
     ],
-    "publicationDate": "2026-07-27"
+    "publicationDay": "J8",
+    "publicationDate": null
   },
   {
     "family": "publications",
@@ -62,7 +66,8 @@
       "PRF-PRE2026-FIVE-SESSIONS",
       "PRF-PRE2026-STRUCTURED-SESSIONS"
     ],
-    "publicationDate": "2026-07-29"
+    "publicationDay": "J10",
+    "publicationDate": null
   },
   {
     "family": "publications",
@@ -74,7 +79,8 @@
       "PRF-PRE2026-STRUCTURED-SESSIONS",
       "PRF-PRE2026-FIVE-SESSIONS"
     ],
-    "publicationDate": "2026-07-31"
+    "publicationDay": "J12",
+    "publicationDate": null
   },
   {
     "family": "publications",
@@ -86,7 +92,8 @@
       "PRF-PRE2026-FIVE-SESSIONS",
       "PRF-PRE2026-STRUCTURED-SESSIONS"
     ],
-    "publicationDate": "2026-08-03"
+    "publicationDay": "J15",
+    "publicationDate": null
   },
   {
     "family": "publications",
@@ -98,7 +105,8 @@
       "PRF-PRE2026-FIVE-SESSIONS",
       "PRF-PRE2026-STRUCTURED-SESSIONS"
     ],
-    "publicationDate": "2026-08-05"
+    "publicationDay": "J17",
+    "publicationDate": null
   },
   {
     "family": "publications",
@@ -111,7 +119,8 @@
       "PRF-PRE2026-SECONDE-400",
       "PRF-PRE2026-PREMIUM-PACKS"
     ],
-    "publicationDate": "2026-08-07"
+    "publicationDay": "J19",
+    "publicationDate": null
   },
   {
     "family": "publications",
@@ -120,10 +129,10 @@
     "owner": "Responsable communication Nexus Réussite",
     "status": "READY_FOR_OWNER_REVIEW",
     "proofIds": [
-      "PRF-PRE2026-DEPOSIT-30",
       "PRF-PRE2026-WHATSAPP"
     ],
-    "publicationDate": "2026-08-10"
+    "publicationDay": "J22",
+    "publicationDate": null
   },
   {
     "family": "publications",
@@ -135,7 +144,8 @@
       "PRF-PRE2026-WHATSAPP",
       "PRF-PRE2026-DATES-VENUE"
     ],
-    "publicationDate": "2026-08-12"
+    "publicationDay": "J24",
+    "publicationDate": null
   },
   {
     "family": "publications",
@@ -145,10 +155,10 @@
     "status": "READY_FOR_OWNER_REVIEW",
     "proofIds": [
       "PRF-PRE2026-DATES-VENUE",
-      "PRF-PRE2026-WHATSAPP",
-      "PRF-PRE2026-DEPOSIT-30"
+      "PRF-PRE2026-WHATSAPP"
     ],
-    "publicationDate": "2026-08-15"
+    "publicationDay": "J27",
+    "publicationDate": null
   },
   {
     "family": "publications",
@@ -161,7 +171,8 @@
       "PRF-PRE2026-WHATSAPP",
       "PRF-PRE2026-FIVE-SESSIONS"
     ],
-    "publicationDate": "2026-08-17"
+    "publicationDay": "J29",
+    "publicationDate": null
   },
   {
     "family": "carousels",
@@ -173,7 +184,8 @@
       "PRF-PRE2026-FIVE-SESSIONS",
       "PRF-PRE2026-STRUCTURED-SESSIONS"
     ],
-    "publicationDate": "2026-07-21"
+    "publicationDay": "J2",
+    "publicationDate": null
   },
   {
     "family": "carousels",
@@ -183,10 +195,10 @@
     "status": "READY_FOR_OWNER_REVIEW",
     "proofIds": [
       "PRF-PRE2026-3E-350-APPROVED",
-      "PRF-PRE2026-FIVE-SESSIONS",
-      "PRF-PRE2026-DEPOSIT-30"
+      "PRF-PRE2026-FIVE-SESSIONS"
     ],
-    "publicationDate": "2026-07-23"
+    "publicationDay": "J4",
+    "publicationDate": null
   },
   {
     "family": "carousels",
@@ -199,7 +211,8 @@
       "PRF-PRE2026-FIVE-SESSIONS",
       "PRF-PRE2026-STRUCTURED-SESSIONS"
     ],
-    "publicationDate": "2026-07-25"
+    "publicationDay": "J6",
+    "publicationDate": null
   },
   {
     "family": "carousels",
@@ -211,7 +224,8 @@
       "PRF-PRE2026-PREMIUM-PACKS",
       "PRF-PRE2026-FIVE-SESSIONS"
     ],
-    "publicationDate": "2026-07-28"
+    "publicationDay": "J9",
+    "publicationDate": null
   },
   {
     "family": "carousels",
@@ -223,7 +237,8 @@
       "PRF-PRE2026-PREMIUM-PACKS",
       "PRF-PRE2026-FIVE-SESSIONS"
     ],
-    "publicationDate": "2026-07-30"
+    "publicationDay": "J11",
+    "publicationDate": null
   },
   {
     "family": "carousels",
@@ -235,7 +250,8 @@
       "PRF-PRE2026-WHATSAPP",
       "PRF-PRE2026-DATES-VENUE"
     ],
-    "publicationDate": "2026-08-02"
+    "publicationDay": "J14",
+    "publicationDate": null
   },
   {
     "family": "carousels",
@@ -248,7 +264,8 @@
       "PRF-PRE2026-STRUCTURED-SESSIONS",
       "PRF-PRE2026-PREMIUM-PACKS"
     ],
-    "publicationDate": "2026-08-06"
+    "publicationDay": "J18",
+    "publicationDate": null
   },
   {
     "family": "carousels",
@@ -257,10 +274,10 @@
     "owner": "Responsable communication Nexus Réussite",
     "status": "READY_FOR_OWNER_REVIEW",
     "proofIds": [
-      "PRF-PRE2026-DEPOSIT-30",
       "PRF-PRE2026-WHATSAPP"
     ],
-    "publicationDate": "2026-08-11"
+    "publicationDay": "J23",
+    "publicationDate": null
   },
   {
     "family": "stories",
@@ -272,7 +289,8 @@
       "PRF-PRE2026-DATES-VENUE",
       "PRF-PRE2026-FIVE-SESSIONS"
     ],
-    "publicationDate": "2026-07-20"
+    "publicationDay": "J1",
+    "publicationDate": null
   },
   {
     "family": "stories",
@@ -284,7 +302,8 @@
       "PRF-PRE2026-3E-350-APPROVED",
       "PRF-PRE2026-WHATSAPP"
     ],
-    "publicationDate": "2026-07-22"
+    "publicationDay": "J3",
+    "publicationDate": null
   },
   {
     "family": "stories",
@@ -296,7 +315,8 @@
       "PRF-PRE2026-SECONDE-400",
       "PRF-PRE2026-WHATSAPP"
     ],
-    "publicationDate": "2026-07-24"
+    "publicationDay": "J5",
+    "publicationDate": null
   },
   {
     "family": "stories",
@@ -308,7 +328,8 @@
       "PRF-PRE2026-PREMIUM-PACKS",
       "PRF-PRE2026-WHATSAPP"
     ],
-    "publicationDate": "2026-07-27"
+    "publicationDay": "J8",
+    "publicationDate": null
   },
   {
     "family": "stories",
@@ -320,7 +341,8 @@
       "PRF-PRE2026-PREMIUM-PACKS",
       "PRF-PRE2026-WHATSAPP"
     ],
-    "publicationDate": "2026-07-29"
+    "publicationDay": "J10",
+    "publicationDate": null
   },
   {
     "family": "stories",
@@ -331,7 +353,8 @@
     "proofIds": [
       "PRF-PRE2026-STRUCTURED-SESSIONS"
     ],
-    "publicationDate": "2026-07-31"
+    "publicationDay": "J12",
+    "publicationDate": null
   },
   {
     "family": "stories",
@@ -343,7 +366,8 @@
       "PRF-PRE2026-FIVE-SESSIONS",
       "PRF-PRE2026-STRUCTURED-SESSIONS"
     ],
-    "publicationDate": "2026-08-04"
+    "publicationDay": "J16",
+    "publicationDate": null
   },
   {
     "family": "stories",
@@ -356,7 +380,8 @@
       "PRF-PRE2026-SECONDE-400",
       "PRF-PRE2026-PREMIUM-PACKS"
     ],
-    "publicationDate": "2026-08-06"
+    "publicationDay": "J18",
+    "publicationDate": null
   },
   {
     "family": "stories",
@@ -369,7 +394,8 @@
       "PRF-PRE2026-SECONDE-400",
       "PRF-PRE2026-PREMIUM-PACKS"
     ],
-    "publicationDate": "2026-08-08"
+    "publicationDay": "J20",
+    "publicationDate": null
   },
   {
     "family": "stories",
@@ -381,7 +407,8 @@
       "PRF-PRE2026-DATES-VENUE",
       "PRF-PRE2026-WHATSAPP"
     ],
-    "publicationDate": "2026-08-10"
+    "publicationDay": "J22",
+    "publicationDate": null
   },
   {
     "family": "stories",
@@ -390,10 +417,10 @@
     "owner": "Responsable communication Nexus Réussite",
     "status": "READY_FOR_OWNER_REVIEW",
     "proofIds": [
-      "PRF-PRE2026-DEPOSIT-30",
       "PRF-PRE2026-WHATSAPP"
     ],
-    "publicationDate": "2026-08-12"
+    "publicationDay": "J24",
+    "publicationDate": null
   },
   {
     "family": "stories",
@@ -406,7 +433,8 @@
       "PRF-PRE2026-WHATSAPP",
       "PRF-PRE2026-DEPOSIT-30"
     ],
-    "publicationDate": "2026-08-15"
+    "publicationDay": "J27",
+    "publicationDate": null
   },
   {
     "family": "reels",
@@ -419,7 +447,8 @@
       "PRF-PRE2026-STRUCTURED-SESSIONS",
       "PRF-PRE2026-DATES-VENUE"
     ],
-    "publicationDate": "2026-07-26"
+    "publicationDay": "J7",
+    "publicationDate": null
   },
   {
     "family": "reels",
@@ -433,7 +462,8 @@
       "PRF-PRE2026-3E-350-APPROVED",
       "PRF-PRE2026-SECONDE-400"
     ],
-    "publicationDate": "2026-08-02"
+    "publicationDay": "J14",
+    "publicationDate": null
   },
   {
     "family": "reels",
@@ -442,10 +472,10 @@
     "owner": "Responsable communication Nexus Réussite",
     "status": "READY_FOR_OWNER_REVIEW",
     "proofIds": [
-      "PRF-PRE2026-DEPOSIT-30",
       "PRF-PRE2026-WHATSAPP",
       "PRF-PRE2026-DATES-VENUE"
     ],
-    "publicationDate": "2026-08-13"
+    "publicationDay": "J25",
+    "publicationDate": null
   }
 ]

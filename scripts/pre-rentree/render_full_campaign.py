@@ -21,19 +21,41 @@ from PIL import Image
 from pypdf import PdfWriter
 from pypdf.generic import ArrayObject, ByteStringObject
 
+from campaign_calendar import resolve_publication_date
 from render_week_one_kit import Asset, KitRenderer
 
 
 VERSION = "2026-full-campaign-v1"
-FIXED_PDF_DATE = "D:20260720000000+01'00'"
+FIXED_PDF_DATE = "D:20000101000000Z"
 PUBLIC_STATUS = "READY_FOR_OWNER_REVIEW"
 META = "Dès le 17 août · Nexus Réussite, Mutuelleville"
 
 
 class FullCampaignRenderer(KitRenderer):
-    def __init__(self, repo_root: Path, content_path: Path, commercial_path: Path, output: Path):
+    def __init__(
+        self,
+        repo_root: Path,
+        content_path: Path,
+        commercial_path: Path,
+        output: Path,
+        launch_date: str | None = None,
+    ):
         self.repo_root = repo_root
         self.content = json.loads(content_path.read_text(encoding="utf-8"))
+        configured_launch_date = self.content.get("launchDate")
+        if launch_date and configured_launch_date and launch_date != configured_launch_date:
+            raise ValueError("CLI launch date conflicts with the content launch date")
+        self.launch_date = launch_date or configured_launch_date
+        self.launch_date_status = (
+            "OWNER_AUTHORIZED"
+            if self.launch_date
+            else self.content["launchDateStatus"]
+        )
+        for item in self.all_items:
+            item.update(resolve_publication_date(
+                self.launch_date,
+                item["publicationDayOffset"],
+            ))
         self.commercial = json.loads(commercial_path.read_text(encoding="utf-8"))
         self.output = output
         self.assets: list[Asset] = []
@@ -293,7 +315,7 @@ class FullCampaignRenderer(KitRenderer):
             "-filter_complex", ";".join(filters), "-map", f"[{previous}]", "-map", f"{len(frame_paths)}:a",
             "-c:v", "libx264", "-preset", "medium", "-crf", "20", "-pix_fmt", "yuv420p",
             "-c:a", "aac", "-b:a", "128k", "-t", str(reel["durationSeconds"]), "-movflags", "+faststart",
-            "-map_metadata", "-1", "-metadata", "creation_time=2026-07-20T00:00:00Z", output.name,
+            "-map_metadata", "-1", "-metadata", "creation_time=2000-01-01T00:00:00Z", output.name,
         ])
         subprocess.run(command, check=True, cwd=output.parent)
         return concat
@@ -363,6 +385,7 @@ class FullCampaignRenderer(KitRenderer):
                     "owner": item.pop("owner"),
                     "status": item.pop("status"),
                     "proofIds": item["proofIds"],
+                    "publicationDay": item["publicationDay"],
                     "publicationDate": item["publicationDate"],
                 })
                 item["pricingLine"] = self._pricing_text(item.get("pricingDisclosure"))
@@ -387,7 +410,7 @@ class FullCampaignRenderer(KitRenderer):
 
         calendar_internal = sorted(
             [dict(item, family=family) for family in ("publications", "carousels", "stories", "reels") for item in self.content[family]],
-            key=lambda item: (item["publicationDate"], item["family"], item["id"]),
+            key=lambda item: (item["publicationDayOffset"], item["family"], item["id"]),
         )
         calendar = []
         for item in calendar_internal:
@@ -401,10 +424,10 @@ class FullCampaignRenderer(KitRenderer):
         calendar_csv = calendar_dir / "full-campaign-calendar.csv"
         with calendar_csv.open("w", encoding="utf-8", newline="") as handle:
             writer = csv.writer(handle, lineterminator="\n")
-            writer.writerow(["date", "heure", "famille", "id", "canal", "audience", "niveau", "tunnel", "objectif", "assetId", "texte", "CTA", "UTM", "réponseWhatsApp", "KPI"])
+            writer.writerow(["jour", "date", "heure", "famille", "id", "canal", "audience", "niveau", "tunnel", "objectif", "assetId", "texte", "CTA", "UTM", "réponseWhatsApp", "KPI"])
             for item in calendar:
                 writer.writerow([
-                    item["publicationDate"], item.get("publicationTime", "19:00"), item["family"], item["id"], " | ".join(item["channel"]), " | ".join(item["audience"]),
+                    item["publicationDay"], item["publicationDate"] or "", item.get("publicationTime", "19:00"), item["family"], item["id"], " | ".join(item["channel"]), " | ".join(item["audience"]),
                     " | ".join(item["level"]), item["funnelStage"], item["objective"], item["assetId"], item["body"], item["cta"],
                     "&".join(f"utm_{key}={value}" for key, value in item["utm"].items()), item["whatsappPrefill"], self._expected_kpi(item["funnelStage"]),
                 ])
@@ -412,7 +435,8 @@ class FullCampaignRenderer(KitRenderer):
 
         pages = []
         for item in calendar:
-            page = self.render_card(1240, 1754, f"{item['publicationDate']} · {item['family'].upper()}", item["hook"], self._visual_excerpt(item["body"], 2), " · ".join(item["channel"]), item["cta"], f"Calendrier {item['id']}")
+            date_label = item["publicationDate"] or "DATE À AUTORISER"
+            page = self.render_card(1240, 1754, f"{item['publicationDay']} · {date_label} · {item['family'].upper()}", item["hook"], self._visual_excerpt(item["body"], 2), " · ".join(item["channel"]), item["cta"], f"Calendrier {item['id']}")
             pages.append(page)
         pdf = calendar_dir / "full-campaign-calendar.pdf"
         pages[0].save(pdf, "PDF", save_all=True, append_images=pages[1:], resolution=150, title="Calendrier complet Pré-rentrée 2026", creationDate=FIXED_PDF_DATE, modDate=FIXED_PDF_DATE)
@@ -531,6 +555,8 @@ class FullCampaignRenderer(KitRenderer):
             "version": VERSION,
             "campaignId": self.content["campaignId"],
             "status": PUBLIC_STATUS,
+            "launchDate": self.launch_date,
+            "launchDateStatus": self.launch_date_status,
             "sourceVersion": self.content["version"],
             "commercialContractVersion": self.commercial["version"],
             "inventory": {"publications": 13, "carousels": 8, "carouselSlides": 40, "storySequences": 12, "storyFrames": 36, "reels": 3},
@@ -565,6 +591,7 @@ def main() -> int:
     parser.add_argument("--content", type=Path, required=True)
     parser.add_argument("--commercial", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--launch-date", default=None)
     args = parser.parse_args()
     repo_root = Path(__file__).resolve().parents[2]
     renderer = FullCampaignRenderer(
@@ -572,6 +599,7 @@ def main() -> int:
         args.content if args.content.is_absolute() else repo_root / args.content,
         args.commercial if args.commercial.is_absolute() else repo_root / args.commercial,
         args.output if args.output.is_absolute() else repo_root / args.output,
+        args.launch_date or None,
     )
     manifest = renderer.render()
     print(json.dumps({"status": "READY", "assets": len(manifest["assets"]), **manifest["inventory"]}))
