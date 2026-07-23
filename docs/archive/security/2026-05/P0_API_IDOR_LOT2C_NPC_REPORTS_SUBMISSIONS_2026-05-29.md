@@ -192,7 +192,7 @@ Commandes et validations :
 - Tests ciblés Lot 2C serveur : 9 suites, 104 tests OK.
 - `npm run build` serveur : OK.
 - `pm2 startOrReload ecosystem.config.js --env production --update-env` : OK.
-- PM2 `nexus-prod` : online.
+- PM2 `<PROCESS_NAME>` : online.
 - Port applicatif : `127.0.0.1:3001`.
 - Public smoke : `/`, `/offres`, `/stages` en 200; `/dashboard/eleve` sans auth en 307.
 - `/api/health` local : 200.

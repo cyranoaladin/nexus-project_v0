@@ -4,7 +4,7 @@
 
 **Goal:** Make the mobile homepage convert faster for parents of candidats libres and double-cursus students by putting the risk, proof, and WhatsApp CTA in the first mobile screen.
 
-**Architecture:** Keep the current static-home architecture: `app/page.tsx` reads `Nexus_Reussite_Accueil.html` and injects its CSS, body, and script. Implement the mobile landing behavior primarily inside the HTML/CSS file, with Playwright tests validating mobile conversion criteria. Deploy only the changed homepage assets to the production app on `root@88.99.254.59`.
+**Architecture:** Keep the current static-home architecture: `app/page.tsx` reads `Nexus_Reussite_Accueil.html` and injects its CSS, body, and script. Implement the mobile landing behavior primarily inside the HTML/CSS file, with Playwright tests validating mobile conversion criteria. Deploy only the changed homepage assets to the production app on `root@<PROD_HOST>`.
 
 **Tech Stack:** Next.js 15, static HTML injection, CSS media queries, vanilla JS interactions, Playwright e2e.
 
@@ -335,29 +335,29 @@ Skip this commit if no files changed since the previous commits.
 - [ ] **Step 1: Check remote state**
 
 ```bash
-ssh root@88.99.254.59 'cd /var/www/nexus-project_v0 && git status --short && pm2 list | grep nexus-prod'
+ssh root@<PROD_HOST> 'cd <APP_DIR> && git status --short && pm2 list | grep <PROCESS_NAME>'
 ```
 
-Expected: remote has `nexus-prod` online. Note unrelated dirty files and do not overwrite them.
+Expected: remote has `<PROCESS_NAME>` online. Note unrelated dirty files and do not overwrite them.
 
 - [ ] **Step 2: Backup remote homepage source**
 
 ```bash
-ssh root@88.99.254.59 'cd /var/www/nexus-project_v0 && cp Nexus_Reussite_Accueil.html Nexus_Reussite_Accueil.html.bak-20260607-mobile'
+ssh root@<PROD_HOST> 'cd <APP_DIR> && cp Nexus_Reussite_Accueil.html Nexus_Reussite_Accueil.html.bak-20260607-mobile'
 ```
 
 - [ ] **Step 3: Copy only changed homepage/test files**
 
 ```bash
-rsync -av Nexus_Reussite_Accueil.html root@88.99.254.59:/var/www/nexus-project_v0/Nexus_Reussite_Accueil.html
-rsync -av e2e/pages-public-homepage-mobile.spec.ts root@88.99.254.59:/var/www/nexus-project_v0/e2e/pages-public-homepage-mobile.spec.ts
-rsync -av e2e/pages-public-homepage.spec.ts root@88.99.254.59:/var/www/nexus-project_v0/e2e/pages-public-homepage.spec.ts
+rsync -av Nexus_Reussite_Accueil.html root@<PROD_HOST>:<APP_DIR>/Nexus_Reussite_Accueil.html
+rsync -av e2e/pages-public-homepage-mobile.spec.ts root@<PROD_HOST>:<APP_DIR>/e2e/pages-public-homepage-mobile.spec.ts
+rsync -av e2e/pages-public-homepage.spec.ts root@<PROD_HOST>:<APP_DIR>/e2e/pages-public-homepage.spec.ts
 ```
 
 - [ ] **Step 4: Build on remote**
 
 ```bash
-ssh root@88.99.254.59 'cd /var/www/nexus-project_v0 && npm run build'
+ssh root@<PROD_HOST> 'cd <APP_DIR> && npm run build'
 ```
 
 Expected: build succeeds.
@@ -365,7 +365,7 @@ Expected: build succeeds.
 - [ ] **Step 5: Restart production process**
 
 ```bash
-ssh root@88.99.254.59 'pm2 restart nexus-prod && pm2 save'
+ssh root@<PROD_HOST> 'pm2 restart <PROCESS_NAME> && pm2 save'
 ```
 
 - [ ] **Step 6: Verify production mobile**

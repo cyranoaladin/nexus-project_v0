@@ -69,9 +69,9 @@ async function fileHash(path) {
 console.log(`\nverify-standalone-artifact\nbuildDir: ${buildDir}\n`);
 
 // ── Refuse to run against active production release ──
-const prodSymlink = '/var/www/nexus-project_v0';
+const prodSymlink = process.env.NEXUS_ACTIVE_RELEASE_PATH;
 try {
-  const prodReal = await realpath(prodSymlink).catch(() => null);
+  const prodReal = prodSymlink ? await realpath(prodSymlink).catch(() => null) : null;
   const buildReal = await realpath(buildDir);
   if (prodReal && buildReal === prodReal) {
     fail('Refusing to run against the active production release');

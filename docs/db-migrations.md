@@ -70,7 +70,7 @@ npx prisma migrate deploy
 
 ### Pré-requis
 
-- Accès SSH au serveur `88.99.254.59`
+- Accès SSH au serveur `<PROD_HOST>`
 - Container `nexus-postgres-db` running (port 5435)
 - Backup récent de la DB prod (cf. procédure de reset ci-dessus)
 
@@ -126,8 +126,8 @@ npm run test:unit
 ### Étape 4 — Déployer en prod
 
 ```bash
-# Sur le serveur (88.99.254.59)
-ssh root@88.99.254.59
+# Sur le serveur (<PROD_HOST>)
+ssh root@<PROD_HOST>
 
 # Backup avant migration
 docker exec nexus-postgres-db pg_dump -U nexus_admin nexus_prod > /root/backups/pre_baseline_$(date +%Y%m%d_%H%M%S).sql

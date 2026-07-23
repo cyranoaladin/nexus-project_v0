@@ -22,7 +22,7 @@
 - Rollback disque : `git reset --hard 69f0e1435a07a96495b8c918dd8c4b4b56cf69b2`.
 - `npm ci --prefer-offline` : execute apres rollback pour resynchroniser `node_modules` avec le HEAD P1-A.
 - Health apres rollback : `api_health_after_disk_rollback=200`.
-- PM2 : `nexus-prod` online.
+- PM2 : `<PROCESS_NAME>` online.
 - Reload execute : non.
 - Etat final production : disque revenu sur `69f0e143`, runtime conserve et health OK.
 

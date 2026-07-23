@@ -6,15 +6,15 @@ Le 11 juillet 2026 :
 
 | Élément | Valeur |
 |---|---|
-| Hôte applicatif | chemin `/var/www/nexus-project_v0` |
+| Hôte applicatif | chemin `<APP_DIR>` |
 | Branche | `main` |
 | HEAD | `1b8219b1cfcfe63354d8cb4035645143e27e5a43` |
 | Origine | `git@github.com:cyranoaladin/nexus-project_v0.git` |
 | État suivi | 0 modification |
 | Non suivis | 0 fichier |
-| PM2 | `nexus-prod`, online, cluster, PID observé 1518444, 102 redémarrages |
+| PM2 | `<PROCESS_NAME>`, online, cluster, PID observé 1518444, 102 redémarrages |
 | Exécutable | `.next/standalone/server.js` |
-| Répertoire PM2 | `/var/www/nexus-project_v0` |
+| Répertoire PM2 | `<APP_DIR>` |
 
 Le reflog indique un reset vers `origin/main` le 27 juin 2026 à 09:15:17 +02. `.next/BUILD_ID` est daté 09:16:35 +02 et le processus PM2 a démarré vers 09:17:06 +02. La fenêtre de déploiement est donc **inférée** au 27 juin vers 09:15–09:17 +02. Il n'existe pas, dans les preuves lues, d'enregistrement de release plus précis ou d'identité d'opérateur : `UNKNOWN_PRODUCTION_FACT`.
 

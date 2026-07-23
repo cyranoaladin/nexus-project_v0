@@ -10,7 +10,7 @@ Les audits réalisés sont non destructifs. Aucun secret n'a été affiché; les
 
 ## Périmètre audité
 
-- Production : `/var/www/nexus-project_v0`
+- Production : `<APP_DIR>`
 - Domaine : `https://nexusreussite.academy`
 - Nginx : `/etc/nginx/sites-enabled/nexusreussite.academy`
 - Application : Next.js via PM2 sur port `3001`
@@ -23,7 +23,7 @@ Les audits réalisés sont non destructifs. Aucun secret n'a été affiché; les
 |---|---|
 | Serveur | `korrigo` |
 | Utilisateur audit | `root` |
-| Répertoire prod | `/var/www/nexus-project_v0` |
+| Répertoire prod | `<APP_DIR>` |
 | Branche prod | `main` |
 | HEAD prod | `a4a8e88b` |
 | Git prod | propre au moment de l'audit initial |
@@ -42,10 +42,10 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
 - Priorité : P0
 - Risque : présence de `.env`, `.git`, `.next/standalone/.env`, `.next/standalone/.git`, `docker-compose.prod.yml` et `prisma/schema.prisma` dans le répertoire applicatif de production. Même si Nginx proxifie correctement aujourd'hui, un mauvais `root` ou une règle Nginx future pourrait exposer secrets, historique Git ou schéma DB.
 - Preuve :
-  - Commande : `ls` contrôlé dans `/var/www/nexus-project_v0` par noms uniquement.
+  - Commande : `ls` contrôlé dans `<APP_DIR>` par noms uniquement.
   - Résultat : `.env` présent, `.git` présent, `.github` présent, `.next/standalone/.env` présent, `.next/standalone/.git` présent.
   - Commande : `nginx -T | grep -nE 'server_name|root |alias |proxy_pass|location|try_files|deny all|\\.git|\\.env|3001'`.
-  - Résultat : le vhost Nexus proxifie vers `http://127.0.0.1:3001`; aucun `root /var/www/nexus-project_v0` observé.
+  - Résultat : le vhost Nexus proxifie vers `http://127.0.0.1:3001`; aucun `root <APP_DIR>` observé.
   - Commande : `curl -skI` sur `/.env`, `/.git/config`, `/.next/standalone/.env`, `/docker-compose.prod.yml`, `/prisma/schema.prisma`.
   - Résultat : HTTP `404` pour tous les chemins testés, sans contenu sensible affiché.
 - Action :
@@ -77,7 +77,7 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - `/root/nexus-backups/p0-001-20260528223857/nginx-T-before.txt`
 - Rollback :
   - Restaurer `/root/nexus-backups/p0-001-20260528223857/nexusreussite.academy.before` vers `/etc/nginx/sites-enabled/nexusreussite.academy`, exécuter `nginx -t`, puis `systemctl reload nginx`.
-- Statut : corrigé côté Nginx le 2026-05-28. Risque résiduel accepté temporairement : les artefacts sensibles existent encore physiquement dans `/var/www/nexus-project_v0`; la migration vers un artefact runtime minimal reste à planifier hors P0 infra immédiat.
+- Statut : corrigé côté Nginx le 2026-05-28. Risque résiduel accepté temporairement : les artefacts sensibles existent encore physiquement dans `<APP_DIR>`; la migration vers un artefact runtime minimal reste à planifier hors P0 infra immédiat.
 - Propriétaire proposé : DevOps.
 
 ### P0-002 — Port applicatif 3001 bind sur toutes interfaces
@@ -169,7 +169,7 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - Tests ciblés API sécurité : 7 suites, 57 tests OK sur serveur.
   - `npm run build` : OK.
 - Validation production après reload :
-  - PM2 `nexus-prod` : online.
+  - PM2 `<PROCESS_NAME>` : online.
   - Port applicatif : `127.0.0.1:3001`.
   - `site` : 200.
   - `dashboard_no_auth` : 307.
@@ -211,7 +211,7 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - `npm run test:unit -- --runInBand` : 443 suites, 5888 tests OK.
   - `npm run test:integration -- --runInBand` : non relancé, DB test `127.0.0.1:5435` indisponible.
 - Validation production :
-  - PM2 `nexus-prod` online après reload applicatif contrôlé.
+  - PM2 `<PROCESS_NAME>` online après reload applicatif contrôlé.
   - Port applicatif maintenu sur `127.0.0.1:3001`, sans retour à `0.0.0.0:3001`.
   - Smoke public : `/`, `/offres`, `/stages` en 200; `/dashboard/eleve` sans auth en 307.
   - Santé locale : `/api/health` en 200.
@@ -260,7 +260,7 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - `node scripts/security/audit-api-guards.mjs` : inventaire régénéré, 164 routes.
   - `npm run test:integration -- --runInBand` : non lancé, DB test `127.0.0.1:5435` fermée.
 - Validation production :
-  - PM2 `nexus-prod` online après reload applicatif contrôlé.
+  - PM2 `<PROCESS_NAME>` online après reload applicatif contrôlé.
   - Port applicatif maintenu sur `127.0.0.1:3001`.
   - Smoke public : `/`, `/offres`, `/stages` en 200; `/dashboard/eleve` sans auth en 307.
   - Santé locale : `/api/health` en 200.
@@ -307,7 +307,7 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - typecheck serveur : OK;
   - tests ciblés Lot 2C serveur : 9 suites, 104 tests OK;
   - build serveur : OK;
-  - PM2 `nexus-prod` online;
+  - PM2 `<PROCESS_NAME>` online;
   - port : `127.0.0.1:3001`;
   - smoke routes NPC sans auth : 401/405, jamais 200;
   - path traversal `/api/npc/files/*` : aucun 200;
@@ -357,7 +357,7 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - tests ciblés serveur demandés : 2 suites, 13 tests OK;
   - tests ciblés serveur complémentaires Lot 2D : 2 suites, 8 tests OK;
   - build serveur : OK (`BUILD_EXIT=0`);
-  - PM2 `nexus-prod` online après reload;
+  - PM2 `<PROCESS_NAME>` online après reload;
   - port : `127.0.0.1:3001`;
   - smoke public : `site=200`, `dashboard_no_auth=307`, `api_health=200`;
   - smoke sans auth : `aria_no_auth=405`, `messages_no_auth=405`;
@@ -428,7 +428,7 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - backup : `/root/nexus-backups/deploy-p0-004-lot2f-stages-20260529195031`;
   - HEAD avant : `9e00e27cecdc22b6aa82264ee293e6ef873501f4`;
   - HEAD après : `6237a6be3c8c166eab425e5faac61bd8996d565f`;
-  - PM2 : `nexus-prod` online après reload.
+  - PM2 : `<PROCESS_NAME>` online après reload.
 - Routes :
   - `app/api/stages/[stageSlug]/inscrire/route.ts`
   - `app/api/stages/[stageSlug]/reservations/route.ts`
@@ -467,7 +467,7 @@ Commandes utilisées : `pwd`, `hostname`, `date -Is`, `whoami`, `git rev-parse -
   - backup : `/root/nexus-backups/deploy-p0-004-lot2g-bilans-reports-20260529203030`;
   - HEAD avant : `6237a6be3c8c166eab425e5faac61bd8996d565f`;
   - HEAD après : `dd1e519b661e581555f92fedf1f2c414be726f15`;
-  - PM2 : `nexus-prod` online après reload.
+  - PM2 : `<PROCESS_NAME>` online après reload.
 - Routes :
   - `app/api/parent/bilans/[id]/pdf/route.ts`
   - `app/api/coach/sessions/[sessionId]/report/route.ts`

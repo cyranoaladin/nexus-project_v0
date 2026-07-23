@@ -21,7 +21,7 @@ This deployment plan outlines the non-destructive deployment of P0 security hard
 ## Pre-Deployment Checklist
 
 ### Infrastructure
-- [ ] Verify production server access: root@88.99.254.59
+- [ ] Verify production server access: root@<PROD_HOST>
 - [ ] Verify SSH key authentication works
 - [ ] Verify Docker Compose is installed
 - [ ] Verify nexus-app and nexus-postgres containers are healthy
@@ -71,7 +71,7 @@ npm test -- __tests__/config/deploy-contract.test.ts
 ### Step 2: Backup Production (SSH into server)
 
 ```bash
-ssh root@88.99.254.59
+ssh root@<PROD_HOST>
 
 cd /opt/nexus
 
@@ -137,7 +137,7 @@ ls -la nginx/ssl/
 ### Immediate Rollback (if deployment fails)
 
 ```bash
-ssh root@88.99.254.59
+ssh root@<PROD_HOST>
 cd /opt/nexus
 
 # Restore previous commit

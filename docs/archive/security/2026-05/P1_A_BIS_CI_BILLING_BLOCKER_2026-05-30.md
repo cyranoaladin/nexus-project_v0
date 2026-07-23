@@ -11,7 +11,7 @@
 
 ## État production
 - HEAD : `69f0e1435a07a96495b8c918dd8c4b4b56cf69b2`.
-- PM2 : `nexus-prod` online.
+- PM2 : `<PROCESS_NAME>` online.
 - Health : `api_health=200`.
 - Configuration rate-limit : `REDIS_URL=present`, Upstash missing/missing, `RATE_LIMIT_DISABLE_1=absent`.
 - Divergence disque/runtime : non, rollback disque effectué vers le dernier runtime validé.

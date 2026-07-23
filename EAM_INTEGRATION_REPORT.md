@@ -2,8 +2,8 @@
 # Généré le : 28 mai 2026 17:45
 
 ## Source canonique
-- Répertoire prod : `/var/www/nexus-project_v0`
-- PM2 process : `nexus-prod` → port `3001`
+- Répertoire prod : `<APP_DIR>`
+- PM2 process : `<PROCESS_NAME>` → port `3001`
 - Nginx : `nexusreussite.academy` → `127.0.0.1:3001`
 - Runtime : Next.js standalone via PM2
 
@@ -25,7 +25,7 @@
 ## Nettoyage disque
 - Archives : `/opt/archives/nexus-backups/`
 - Archives créées et vérifiées : 3 archives, environ `646M`
-- Supprimé après archivage : `/opt/nexus`, `/opt/nexus_pre_realign_20260527_181712`, `/var/www/nexus-project_v0_pre_realign_20260527_181712`
+- Supprimé après archivage : `/opt/nexus`, `/opt/nexus_pre_realign_20260527_181712`, `<APP_DIR>_pre_realign_20260527_181712`
 - Gain net observé : environ `11G`
 - Volumes Docker : non touchés
 
@@ -44,7 +44,7 @@
 ## Validations Phase 4
 - TypeScript : `0` erreur TS
 - Build production : exit `0`
-- PM2 reload : OK, `nexus-prod` online
+- PM2 reload : OK, `<PROCESS_NAME>` online
 - HTTPS prod : HTTP `200`
 - API EAM sans auth : HTTP `401`
 - DB EAM : `1` ligne
@@ -97,7 +97,7 @@
 - TypeScript : `0` erreur.
 - Build production : exit `0`.
 - Off-limits serveur : intacts.
-- PM2 : `nexus-prod` online après reload.
+- PM2 : `<PROCESS_NAME>` online après reload.
 - HTTPS prod : HTTP `200`.
 - Dashboard sans auth : HTTP `307`.
 - API EAM sans auth : HTTP `401`.

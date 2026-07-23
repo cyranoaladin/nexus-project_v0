@@ -10,25 +10,16 @@ Le script `scripts/deploy-production.sh` contenait `docker compose down --volume
 - Ajouté garde-fou: requiert `CONFIRM_DANGEROUS_DEPLOY=yes`
 - **NE PAS UTILISER EN PRODUCTION**
 
-### Script SAFE
-Utiliser `scripts/deploy-production-safe.sh` à la place.
+### Scripts publics neutralisés
 
-**Safeguards:**
-- Refuse de s'exécuter si le repo est sale
-- Affiche le commit courant
-- Requiert `CONFIRM_PRODUCTION_DEPLOY=yes`
-- Vérifie qu'un backup DB récent existe
-- Utilise `git pull --ff-only` (pas de merge forcé)
-- Build uniquement `nexus-app` (pas de postgres restart)
-- **JAMAIS** `docker compose down`
-- **JAMAIS** `--volumes`
-- Healthcheck automatique
-- Instructions de rollback
+Les helpers `scripts/deploy-production-safe.sh`, `scripts/deploy-git-pull.sh`,
+`scripts/test-ssh-connection.sh` et `scripts/ops/backup-db.sh` sont désormais
+des garde-fous qui échouent volontairement. L'ancienne topologie Docker ne
+correspond pas au runtime standalone observé et ne doit pas être réactivée.
 
-**Usage:**
-```bash
-CONFIRM_PRODUCTION_DEPLOY=yes ./scripts/deploy-production-safe.sh
-```
+Le déploiement et le rollback relèvent d'un runbook privé, contrôlé par le
+propriétaire et testé en staging. Le présent document ne constitue pas une
+autorisation ni une procédure opératoire.
 
 ### Contrat de sécurité
 Test contractuel: `__tests__/config/deploy-contract.test.ts`

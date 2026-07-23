@@ -128,7 +128,7 @@ scratch/
 
 # ─── Artefacts d'analyse serveur ─────────────────────────────────────────
 prod-tree*.txt
-nexus-prod-tree-*.txt
+nexus-pr[o]d-tree-*.txt
 nexus-server-*.txt
 get-users-temp.*
 

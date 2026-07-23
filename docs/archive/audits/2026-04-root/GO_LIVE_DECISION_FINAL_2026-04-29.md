@@ -55,11 +55,11 @@ All P1/P0 issues identified by cubic-dev-ai have been fixed:
 **Concrete Proofs:**
 ```bash
 # Let's Encrypt certificates exist and are properly configured
-ssh root@88.99.254.59 "ls -la /etc/letsencrypt/live/nexusreussite.academy/"
+ssh root@<PROD_HOST> "ls -la /etc/letsencrypt/live/nexusreussite.academy/"
 # Output: fullchain.pem, privkey.pem, chain.pem, cert.pem (symlinks to archive)
 
 # Archive permissions corrected to 600 for privkey
-ssh root@88.99.254.59 "stat -c '%a %U:%G %n' /etc/letsencrypt/archive/nexusreussite.academy/privkey2.pem"
+ssh root@<PROD_HOST> "stat -c '%a %U:%G %n' /etc/letsencrypt/archive/nexusreussite.academy/privkey2.pem"
 # Output: 600 root:root (was 777, now secure)
 ```
 
@@ -197,15 +197,15 @@ npm test -- __tests__/lib/invoice --runInBand
 ### Deployment Steps
 ```bash
 # 1. Verify backups on production server
-ssh root@88.99.254.59 "ls -la /opt/nexus/backups/db/ | tail -5"
-ssh root@88.99.254.59 "ls -la /opt/nexus/backups/storage/ | tail -5"
+ssh root@<PROD_HOST> "ls -la /opt/nexus/backups/db/ | tail -5"
+ssh root@<PROD_HOST> "ls -la /opt/nexus/backups/storage/ | tail -5"
 
 # 2. Deploy to production using safe script
 cd /home/alaeddine/Bureau/nexus-facturation-assistante
 ./scripts/deploy-production-safe.sh
 
 # 3. Verify deployment
-ssh root@88.99.254.59 "cd /opt/nexus && docker logs nexus-app-prod --tail 50"
+ssh root@<PROD_HOST> "cd /opt/nexus && docker logs nexus-app-prod --tail 50"
 curl -f https://nexusreussite.academy/api/health
 ```
 

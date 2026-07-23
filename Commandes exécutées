@@ -3,4 +3,4 @@ git status -sb
 git log --oneline -5
 git log origin/main --oneline -5
 git clean -nd
-ssh root@88.99.254.59 'cd /var/www/nexus-project_v0 && git status -sb && git log --oneline -5 && git clean -nd'
+ssh root@<PROD_HOST> 'cd <APP_DIR> && git status -sb && git log --oneline -5 && git clean -nd'

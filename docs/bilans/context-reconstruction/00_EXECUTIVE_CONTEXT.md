@@ -36,7 +36,7 @@ Les modèles psychométriques avancés ne doivent pas être revendiqués sans ba
 
 ## Production prouvée en lecture seule
 
-Le 11 juillet 2026, la production observée sur `korrigo` utilisait le commit `1b8219b1cfcfe63354d8cb4035645143e27e5a43` de `main`. Next.js fonctionnait sous PM2 (`nexus-prod`, cluster, port applicatif documenté 3001), tandis que PostgreSQL, ChromaDB, Ollama et l'ingestor fonctionnaient en conteneurs. Aucun worker canonique de rapports, aucun répertoire de rapports Nexus durable et aucun service NPC actif n'ont été observés. Redis existe sur l'hôte, sans preuve qu'il soit consommé par cette chaîne.
+Le 11 juillet 2026, la production observée sur `korrigo` utilisait le commit `1b8219b1cfcfe63354d8cb4035645143e27e5a43` de `main`. Next.js fonctionnait sous PM2 (`<PROCESS_NAME>`, cluster, port applicatif documenté 3001), tandis que PostgreSQL, ChromaDB, Ollama et l'ingestor fonctionnaient en conteneurs. Aucun worker canonique de rapports, aucun répertoire de rapports Nexus durable et aucun service NPC actif n'ont été observés. Redis existe sur l'hôte, sans preuve qu'il soit consommé par cette chaîne.
 
 Backups restaurables, stockage objet Nexus, configuration de secrets, commit exact des services RAG, dimensions d'embedding actives, corpus réellement indexé, scheduler et rollback testé restent `UNKNOWN_PRODUCTION_FACT`.
 
