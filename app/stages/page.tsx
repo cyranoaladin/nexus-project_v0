@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getStageCalendar, getStageFormat, isFormatPriceValidated, getPacks, getRules } from '@/lib/pricing';
 import Stages2026Page from './Stages2026Page';
 import { getPreRentreePublicSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
+import { PRE_RENTREE_2026_NAVIGATION } from '@/lib/campaigns/pre-rentree-2026/navigation';
 
 export const metadata: Metadata = {
   title: 'Stages 2026/2027 | Nexus Réussite',
@@ -31,8 +32,11 @@ export default function StagesPage() {
         };
       })()
     : undefined;
+  const publicCalendar = campaign
+    ? calendar
+    : calendar.filter((entry) => entry.id !== PRE_RENTREE_2026_NAVIGATION.campaignId);
 
-  const formatIds = [...new Set(calendar.map((entry) => entry.format_id))]
+  const formatIds = [...new Set(publicCalendar.map((entry) => entry.format_id))]
     .filter((id): id is string => typeof id === 'string');
   const formatMap: Record<string, { format: NonNullable<ReturnType<typeof getStageFormat>>; priceValidated: boolean }> = {};
   for (const id of formatIds) {
@@ -43,7 +47,7 @@ export default function StagesPage() {
   }
 
   return <Stages2026Page
-    calendar={calendar}
+    calendar={publicCalendar}
     rules={rules}
     passIntensifs={passIntensifs}
     formatMap={formatMap}

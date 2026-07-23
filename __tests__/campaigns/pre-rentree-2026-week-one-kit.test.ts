@@ -66,8 +66,12 @@ describe('Pré-rentrée 2026 week-one campaign kit', () => {
 
     expect(days).toHaveLength(7);
     expect(days.map((day: { day: string }) => day.day)).toEqual(['J1', 'J2', 'J3', 'J4', 'J5', 'J6', 'J7']);
+    expect(source.launchDate).toBeNull();
+    expect(source.launchDateStatus).toBe('PENDING_OWNER_AUTHORIZATION');
+    expect(days.map((day: { publicationDayOffset: number }) => day.publicationDayOffset)).toEqual([0, 1, 2, 3, 4, 5, 6]);
     expect(days.every((day: Record<string, unknown>) => (
-      day.date && day.time && day.channel && day.audience && day.level
+      day.date === undefined && Number.isInteger(day.publicationDayOffset)
+      && day.time && day.channel && day.audience && day.level
       && day.funnelStage && day.objective && day.assetId && day.body
       && day.cta && day.utm && day.whatsappScriptId && day.expectedKpi
     ))).toBe(true);

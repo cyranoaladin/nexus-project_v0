@@ -38,13 +38,12 @@ describe('CorporateNavbar', () => {
     });
   });
 
-  it('exposes distinct direct campaign actions on desktop and mobile', () => {
+  it('does not expose the gated Pré-rentrée campaign from permanent navigation', () => {
     render(<CorporateNavbar />);
 
-    expect(screen.getByTestId('pre-rentree-nav-desktop')).toHaveAttribute('href', '/stages/pre-rentree-2026');
-    expect(screen.getByTestId('pre-rentree-nav-mobile')).toHaveAttribute('href', '/stages/pre-rentree-2026');
-    expect(screen.getByTestId('pre-rentree-nav-desktop')).toHaveAccessibleName('Pré-rentrée 2026');
-    expect(screen.getByTestId('pre-rentree-nav-mobile')).toHaveAccessibleName('Pré-rentrée 2026');
+    expect(screen.queryByTestId('pre-rentree-nav-desktop')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('pre-rentree-nav-mobile')).not.toBeInTheDocument();
+    expect(document.querySelector('a[href="/stages/pre-rentree-2026"]')).toBeNull();
   });
 
   it('keeps Connexion available inside the mobile menu', async () => {

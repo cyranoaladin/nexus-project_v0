@@ -17,7 +17,7 @@ const requiredFields = [
   'cta',
   'assetId',
   'altText',
-  'publicationDate',
+  'publicationDayOffset',
   'utm',
   'proofIds',
   'owner',
@@ -92,10 +92,17 @@ describe('Pré-rentrée 2026 full campaign source', () => {
     expect(publicCopy).not.toMatch(/\b(?:350|400|900|1700|2400|3000)\s*TND\b/i);
   });
 
-  it('schedules all content no later than the stage start', () => {
+  it('keeps publication timing relative until the launch date is authorized', () => {
     const source = JSON.parse(readFileSync(sourcePath, 'utf8'));
     const items = [...source.publications, ...source.carousels, ...source.stories, ...source.reels];
 
-    expect(items.every((item) => item.publicationDate >= '2026-07-20' && item.publicationDate <= '2026-08-17')).toBe(true);
+    expect(source.launchDate).toBeNull();
+    expect(source.launchDateStatus).toBe('PENDING_OWNER_AUTHORIZATION');
+    expect(items.every((item) => (
+      Number.isInteger(item.publicationDayOffset)
+      && item.publicationDayOffset >= 0
+      && item.publicationDayOffset <= 28
+      && item.publicationDate === undefined
+    ))).toBe(true);
   });
 });
