@@ -84,13 +84,15 @@ def test_complete_parent_guide_contains_every_required_family_section():
         level["id"] for level in SNAPSHOT["levels"]
     }
     module_nodes = guide.select("article.program-module[data-module-id]")
-    assert len(module_nodes) == 14
+    expected_module_count = len(SNAPSHOT["modules"])
+    expected_session_count = sum(len(module["sessions"]) for module in SNAPSHOT["modules"])
+    assert len(module_nodes) == expected_module_count
     assert {node.get("data-module-id") for node in module_nodes} == {
         module["id"] for module in SNAPSHOT["modules"]
     }
     sessions = guide.select("article.session-card[data-session-number]")
-    assert len(sessions) == 70
-    assert len({(node.get("data-module-id"), node.get("data-session-number")) for node in sessions}) == 70
+    assert len(sessions) == expected_session_count
+    assert len({(node.get("data-module-id"), node.get("data-session-number")) for node in sessions}) == expected_session_count
     procedure = guide.select("#reservation ol.procedure > li")
     assert len(procedure) == 4
     assert all(item.get("data-source-path") for item in procedure)
@@ -215,9 +217,11 @@ def test_family_surfaces_hide_release_jargon_and_unapproved_promises():
     documents = render_public_documents(SNAPSHOT)
     visible = "\n".join(normalized_text(document.html) for document in documents.values())
     blocked_visible_terms = (
-        "canonical", "canonique", "snapshot", "manifest", "campaignid", "sourcereposha",
+        "canonical", "snapshot", "manifest", "campaignid", "sourcereposha",
         "non public", "draft", "owner approval", "legal approval", "commit", "branch", "sha",
-        "v5-canonical", "tarifs canoniques", "oral filmé", "release candidate",
+        "v5-canonical", "tarif canonique", "tarifs canoniques", "pack canonique",
+        "packs canoniques", "source canonique", "offre canonique", "matières canoniques",
+        "oral filmé", "release candidate",
         "résultats garantis", "progression garantie", "rattrapage garanti", "séance de laboratoire",
         "quatre documents personnalisés",
     )

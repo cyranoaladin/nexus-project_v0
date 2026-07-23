@@ -25,13 +25,16 @@ def review_build(tmp_path_factory: pytest.TempPathFactory) -> Path:
 
 def test_materializes_all_pedagogy_review_artifacts(review_build: Path):
     pedagogy = review_build / "REVIEW/PEDAGOGY"
-    assert len(list((pedagogy / "POSITIONING_TESTS").glob("*.html"))) == 14
-    assert len(list((pedagogy / "QUICK_ASSESSMENTS").glob("*.html"))) == 70
-    assert len(list((pedagogy / "SESSION_DELIVERABLES").glob("*.html"))) == 70
+    snapshot = json.loads(SNAPSHOT.read_text(encoding="utf-8"))
+    expected_module_count = len(snapshot["modules"])
+    expected_session_count = sum(len(module["sessions"]) for module in snapshot["modules"])
+    assert len(list((pedagogy / "POSITIONING_TESTS").glob("*.html"))) == expected_module_count
+    assert len(list((pedagogy / "QUICK_ASSESSMENTS").glob("*.html"))) == expected_session_count
+    assert len(list((pedagogy / "SESSION_DELIVERABLES").glob("*.html"))) == expected_session_count
     manifest = json.loads((pedagogy / "pedagogy-artifact-manifest.json").read_text(encoding="utf-8"))
-    assert manifest["POSITIONING_TEST_COUNT"] == 14
-    assert manifest["QUICK_ASSESSMENT_COUNT"] == 70
-    assert manifest["SESSION_DELIVERABLE_COUNT"] == 70
+    assert manifest["POSITIONING_TEST_COUNT"] == expected_module_count
+    assert manifest["QUICK_ASSESSMENT_COUNT"] == expected_session_count
+    assert manifest["SESSION_DELIVERABLE_COUNT"] == expected_session_count
     assert manifest["CONTAINS_REAL_PII"] is False
 
 

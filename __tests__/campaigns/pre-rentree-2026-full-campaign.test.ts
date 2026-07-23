@@ -90,6 +90,7 @@ describe('Pré-rentrée 2026 full campaign source', () => {
     expect(publicCopy).not.toMatch(/manuel offert|remise annuelle|réduction annuelle|10\s*%/i);
     expect(publicCopy).not.toMatch(/garantie de résultat|places très limitées/i);
     expect(publicCopy).not.toMatch(/\b(?:350|400|900|1700|2400|3000)\s*TND\b/i);
+    expect(publicCopy).not.toMatch(/\bcanoniqu(?:e|es|ement)\b/i);
   });
 
   it('keeps publication timing relative until the launch date is authorized', () => {
