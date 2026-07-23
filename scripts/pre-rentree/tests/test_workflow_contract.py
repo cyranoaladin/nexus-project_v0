@@ -19,6 +19,9 @@ def test_document_workflow_is_read_only_reproducible_and_uploads_two_packages():
     assert "retention-days: 14" in text
     assert "github.event_name" in text and "github.ref" in text
     assert "- main" in text
+    repository_sha_expression = "${{ github.event.pull_request.head.sha || github.sha }}"
+    assert f"PRE_RENTREE_REPOSITORY_COMMIT_SHA: {repository_sha_expression}" in text
+    assert f"ref: {repository_sha_expression}" in text
     pinned_actions = re.findall(
         r"uses:\s+(actions/(?:checkout|setup-node|setup-python|upload-artifact))@([0-9a-f]{40})\s+#\s+v(\d+)\.",
         text,
