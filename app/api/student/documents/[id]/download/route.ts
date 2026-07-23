@@ -1,11 +1,18 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { readFile } from 'fs/promises';
-import path from 'path';
+import { createReadStream } from 'fs';
+import { Readable } from 'stream';
 import { UserRole } from '@prisma/client';
 import { requireRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
+import { getDocumentStorageRoot, LEGACY_STORAGE_PREFIX } from '@/lib/documents/storage-root';
+import {
+  openSecureDocument,
+  SecureFileAccessError,
+  safeContentType,
+  safeFilename,
+} from '@/lib/documents/secure-file-access';
 
 export async function GET(
   _req: NextRequest,
@@ -20,7 +27,7 @@ export async function GET(
   const doc = await prisma.userDocument.findFirst({
     where: {
       id,
-      userId: session.user.id, // strict ownership — prevents access to other students' docs
+      userId: session.user.id, // strict ownership
     },
     select: {
       id: true,
@@ -34,25 +41,40 @@ export async function GET(
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 
+  let secureDoc;
   try {
-    // localPath is an absolute path outside the public directory (secure storage)
-    const resolvedPath = path.resolve(doc.localPath);
-    const buffer = await readFile(resolvedPath);
+    const storageRoot = getDocumentStorageRoot();
+    secureDoc = await openSecureDocument(storageRoot, doc.localPath, {
+      legacyPrefixToStrip: LEGACY_STORAGE_PREFIX,
+    });
+  } catch (err) {
+    if (err instanceof SecureFileAccessError) {
+      console.error('[student/documents/download] containment check failed', {
+        documentId: id,
+        code: err.code,
+      });
+      return NextResponse.json({ error: 'File unavailable' }, { status: 404 });
+    }
+    console.error('[student/documents/download] unexpected error', { documentId: id });
+    return NextResponse.json({ error: 'File unavailable' }, { status: 500 });
+  }
 
-    const safeName = encodeURIComponent(doc.originalName).replace(/['"]/g, '');
+  try {
+    const stream = secureDoc.handle.createReadStream();
+    const webStream = Readable.toWeb(stream) as ReadableStream;
 
-    return new NextResponse(buffer, {
+    return new NextResponse(webStream, {
       headers: {
-        'Content-Type': doc.mimeType ?? 'application/octet-stream',
-        'Content-Disposition': `attachment; filename="${safeName}"`,
+        'Content-Type': safeContentType(doc.mimeType),
+        'Content-Disposition': `attachment; filename="${safeFilename(doc.originalName)}"`,
+        'Content-Length': secureDoc.sizeBytes.toString(),
+        'X-Content-Type-Options': 'nosniff',
         'Cache-Control': 'private, no-store',
       },
     });
-  } catch (err) {
-    const code = err instanceof Error && 'code' in err
-      ? String((err as NodeJS.ErrnoException).code)
-      : 'UNKNOWN';
-    console.error('[documents/download] file read failed', { documentId: id, code });
+  } catch {
+    await secureDoc.handle.close().catch(() => {});
+    console.error('[student/documents/download] stream error', { documentId: id });
     return NextResponse.json({ error: 'File unavailable' }, { status: 500 });
   }
 }

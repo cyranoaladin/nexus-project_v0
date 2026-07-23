@@ -6,10 +6,10 @@ import { createId } from '@paralleldrive/cuid2';
 import path from 'path';
 import { mkdir, writeFile } from 'fs/promises';
 import { serializeError } from '@/lib/utils/serialize-error';
-import { getDocumentStorageRoot } from '@/lib/documents/storage-root';
+import { getDocumentStorageRoot, toRelativeStoragePath } from '@/lib/documents/storage-root';
 import { z } from 'zod';
 
-const STORAGE_ROOT = getDocumentStorageRoot();
+function getStorageRoot() { return getDocumentStorageRoot(); }
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 const ALLOWED_UPLOAD_MIME_TYPES = new Set([
   'application/pdf',
@@ -85,11 +85,11 @@ export async function POST(request: NextRequest) {
     const secureFilename = `${uniqueId}${fileExt}`;
     // Using path.join ensures we stick to the OS separator, 
     // and combined with uniqueId prevents directory traversal like ../../
-    const localPath = path.join(STORAGE_ROOT, secureFilename);
+    const localPath = path.join(getStorageRoot(), secureFilename);
     const originalName = sanitizeOriginalName(file.name);
 
     // Ensure directory exists
-    await mkdir(STORAGE_ROOT, { recursive: true });
+    await mkdir(getStorageRoot(), { recursive: true });
 
     // Write file to disk
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
         originalName,
         mimeType: file.type,
         sizeBytes: file.size,
-        localPath: localPath,
+        localPath: toRelativeStoragePath(localPath),
         userId: userId,
         uploadedById: session.user.id,
       },
