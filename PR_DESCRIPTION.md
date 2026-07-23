@@ -20,6 +20,12 @@ Intègre la SVT (Première et Terminale) à la campagne pré-rentrée 2026 : off
 ## Preuves
 228/229 tests verts (le rouge = pin de provenance couplé à `origin/main`, dette N-2, orthogonal). `tsc` propre. Interdits PDF : aucun. Poids < 2 Mo.
 
+## Audit direction (A–D)
+- **A. Conformité BO 2026** : `CONFORMITE_PROGRAMMES.md` (Maths Seconde/Première vs BO n°14 du 2/4/2026, SVT vs BO 2019). Corrections maths = **propositions scellées non publiées** (`mathsProgramConformity2026`). Français Première : aucune œuvre nommée ✅.
+- **B. « certifiés/agrégés »** : `ARBITRAGE_ENSEIGNANTS.md`, 2 options en attente d'arbitrage (formulation conservée désactivée).
+- **C. Dépôt** : cible `cyranoaladin/nexus-project_v0` validée (ancêtre commun `e137009e8`) ; push sur **branche neuve**, zéro force.
+- **D. Plannings** : 3 grilles rendues côté serveur (D1), liens de téléchargement PDF (D2), test cohérence croisée JSON↔PDF (D3), aucun nom réel exposé (D5).
+
 ## Dettes bloquantes avant GO (voir `DEBTS.md`)
 - B-1 noms enseignants SVT · B-2 levée DRAFT D2 · B-6 calculatrice SVT.
 
