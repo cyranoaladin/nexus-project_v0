@@ -4,7 +4,7 @@
 
 - PR : #74.
 - Branche : `feat/svt-integration-clean`.
-- SHA source de l'inventaire : `0264261bbf1a8d6de01eeae01691479a50f4fbf8`.
+- SHA source de l'inventaire : `b106a89ac523b35c88ffe62cb0db246012bf5778`.
 - Campagne : 15 modules, 75 séances, exactement 5 séances par module.
 - SVT : Première et Terminale uniquement, documents DRAFT jusqu'à validation humaine.
 - Seconde : aucune SNT ni initiation informatique.
