@@ -29,6 +29,9 @@ describe('runtime SBOM policy augmentation', () => {
         version: '1.11.2',
         artifactAllowed: false,
         upstreamIssue: 'npm/cli#8128',
+        owner: 'SECURITY_OWNER',
+        approvedOn: '2026-07-23',
+        reviewBy: '2026-09-15',
         expiresOn: '2026-09-30',
       },
     });
@@ -49,6 +52,9 @@ describe('runtime SBOM policy augmentation', () => {
     expect(result.components[0].properties).toEqual(expect.arrayContaining([
       { name: 'nexus:npm-tree-status', value: 'extraneous' },
       { name: 'nexus:artifact-allowed', value: 'false' },
+      { name: 'nexus:exception-owner', value: 'SECURITY_OWNER' },
+      { name: 'nexus:exception-approved-on', value: '2026-07-23' },
+      { name: 'nexus:exception-review-by', value: '2026-09-15' },
     ]));
     expect(result.annotations[0].text).toContain('must not enter the production artifact');
     expect(result.annotations[0].subjects).toEqual([result.components[0]['bom-ref']]);
@@ -73,6 +79,9 @@ describe('runtime SBOM policy augmentation', () => {
         name: '@emnapi/runtime',
         version: '1.11.2',
         artifactAllowed: false,
+        owner: 'SECURITY_OWNER',
+        approvedOn: '2026-07-23',
+        reviewBy: '2026-09-15',
         expiresOn: '2026-09-30',
       },
     });

@@ -15,7 +15,7 @@ jobs:
       DATABASE_PASSWORD: test_password_change_in_real_prod
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Start Postgres (Docker Compose)
         run: |
