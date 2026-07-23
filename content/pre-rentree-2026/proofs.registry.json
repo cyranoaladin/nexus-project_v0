@@ -36,7 +36,7 @@
     },
     {
       "proofId": "PRF-PRE2026-3E-350-APPROVED",
-      "claim": "En 3e, une matière de 10 heures coûte 350 TND dans un groupe de 4 à 5 élèves.",
+      "claim": "En 3e, une matière de 10 heures coûte 350 TND dans un groupe de 4 à 6 élèves.",
       "evidenceType": "OWNER_PRICING_EXCEPTION",
       "sourceRef": "data/pricing.canonical.json#/pre_rentree_foundations/0/commercial_exception",
       "status": "APPROVED",
@@ -46,7 +46,7 @@
     },
     {
       "proofId": "PRF-PRE2026-SECONDE-400",
-      "claim": "En Seconde, une matière de 10 heures coûte 400 TND dans un groupe de 4 à 5 élèves.",
+      "claim": "En Seconde, une matière de 10 heures coûte 400 TND dans un groupe de 4 à 6 élèves.",
       "evidenceType": "CANONICAL_PRICING",
       "sourceRef": "data/pricing.canonical.json#/pre_rentree_foundations/1",
       "status": "APPROVED",

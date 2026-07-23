@@ -11,7 +11,7 @@ describe('Pré-rentrée practical information', () => {
     if (!materialsBySubject) return;
 
     expect(materialsBySubject.NSI.description).toBe(
-      'Pour les modules NSI/SNT, l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire.',
+      'Pour les modules NSI de Première et Terminale, l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire.',
     );
     expect(materialsBySubject.PHYSIQUE_CHIMIE.description).toContain(
       'théorique et méthodologique',

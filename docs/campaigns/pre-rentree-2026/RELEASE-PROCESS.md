@@ -10,7 +10,7 @@ Les sorties sont préparées dans un répertoire temporaire, puis remplacent ato
 
 - Guide Parents et dix annexes en PDF/HTML ;
 - trois visuels sociaux de revue et leurs textes alternatifs ;
-- 14 tests de positionnement, 70 évaluations rapides et 70 livrables matérialisés ;
+- 15 tests de positionnement, 75 évaluations rapides et 75 livrables matérialisés ;
 - kit WhatsApp (24 scripts) et kit Facebook/Instagram/Reels ;
 - CRM vierge, onze gabarits anonymes et modèle économique XLSX à hypothèses non inventées ;
 - audits PDF, HTML, accessibilité, visuel, sécurité et reproductibilité ;

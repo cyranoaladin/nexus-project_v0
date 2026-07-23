@@ -1,6 +1,6 @@
 {
   "campaignId": "pre-rentree-2026",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "status": "DRAFT",
   "canonicalPath": "/stages/pre-rentree-2026",
   "shortPath": "/pre-rentree",
@@ -69,13 +69,9 @@
       "id": "NSI",
       "label": "NSI",
       "levels": [
-        "SECONDE",
         "PREMIERE",
         "TERMINALE"
-      ],
-      "labelByLevel": {
-        "SECONDE": "Initiation informatique, algorithmique et SNT"
-      }
+      ]
     },
     {
       "id": "FRANCAIS",
@@ -198,13 +194,6 @@
       "weekStart": "2026-08-24",
       "weekEnd": "2026-08-28",
       "slots": [
-        {
-          "level": "SECONDE",
-          "subject": "NSI",
-          "block": "A",
-          "room": "salle-1",
-          "teacherRole": "COMPUTER_SCIENCE_TEACHER_A"
-        },
         {
           "level": "PREMIERE",
           "subject": "PHYSIQUE_CHIMIE",
@@ -498,8 +487,8 @@
           "description": "Un cahier et une trousse complète."
         },
         "NSI": {
-          "label": "NSI/SNT",
-          "description": "Pour les modules NSI/SNT, l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire."
+          "label": "NSI",
+          "description": "Pour les modules NSI de Première et Terminale, l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire."
         },
         "PHYSIQUE_CHIMIE": {
           "label": "Physique-Chimie",
@@ -531,8 +520,8 @@
         "answer": "La campagne s'étend sur deux semaines. Chaque matière est organisée sur une semaine avec cinq séances de deux heures ; la présence dépend donc des matières choisies."
       },
       {
-        "question": "Quelle est la différence entre SNT et NSI pour une entrée en Seconde ?",
-        "answer": "Pour une entrée en Seconde, le module est une initiation à l'informatique, à l'algorithmique et à la SNT. Il ne s'agit pas d'un enseignement de spécialité NSI."
+        "question": "Quelles matières sont proposées pour une entrée en Seconde ?",
+        "answer": "Pour une entrée en Seconde, Nexus Fondations propose Mathématiques, Français et Physique-Chimie. Chaque matière comprend cinq séances de deux heures et peut être choisie séparément."
       },
       {
         "question": "Comment choisir le profil de Mathématiques pour une entrée en Première ?",
@@ -576,7 +565,7 @@
       },
       {
         "question": "Quel matériel faut-il apporter ?",
-        "answer": "Un cahier, une trousse complète et une calculatrice sont utiles selon les matières. Pour les modules NSI/SNT, l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire. En Physique-Chimie, les séances sont théoriques et méthodologiques ; aucune activité pratique en laboratoire n’est annoncée."
+        "answer": "Un cahier, une trousse complète et une calculatrice sont utiles selon les matières. Pour les modules NSI de Première et Terminale, l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire. En Physique-Chimie, les séances sont théoriques et méthodologiques ; aucune activité pratique en laboratoire n’est annoncée."
       },
       {
         "question": "Que faire si le groupe demandé est complet ?",
@@ -625,7 +614,7 @@
     "showPricing": true,
     "showSchedule": true,
     "showPrograms": true,
-    "enablePreRegistration": true,
+    "enablePreRegistration": false,
     "showAvailability": false,
     "enablePayment": false
   },

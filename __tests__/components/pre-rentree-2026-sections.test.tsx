@@ -42,7 +42,7 @@ describe('Pré-rentrée landing sections', () => {
     expect(within(legend).getAllByRole('listitem')).toHaveLength(6);
     expect(within(legend).getByText('Mathématiques')).toBeInTheDocument();
     expect(within(legend).getByText('Français / Expression')).toBeInTheDocument();
-    expect(within(legend).getByText('NSI / SNT')).toBeInTheDocument();
+    expect(within(legend).getByText('NSI')).toBeInTheDocument();
     expect(within(legend).getByText('Physique-Chimie')).toBeInTheDocument();
     expect(within(legend).getByText('SVT')).toBeInTheDocument();
     expect(within(legend).getByText('Philosophie')).toBeInTheDocument();
@@ -51,11 +51,11 @@ describe('Pré-rentrée landing sections', () => {
     await user.click(screen.getByRole('tab', { name: 'Entrée en Seconde' }));
     const table = screen.getByRole('table', { name: 'Planning — Entrée en Seconde' });
     expect(within(table).getAllByRole('columnheader')).toHaveLength(6);
-    expect(within(table).getAllByRole('row')).toHaveLength(5);
+    expect(within(table).getAllByRole('row')).toHaveLength(4);
     expect(within(table).getByRole('columnheader', { name: 'Matière' })).toHaveAttribute('scope', 'col');
-    expect(within(table).getAllByRole('rowheader')).toHaveLength(4);
-    expect(within(table).getAllByText('5 séances · 10 h')).toHaveLength(4);
-    expect(within(table).getAllByText(/du lundi au vendredi/i)).toHaveLength(4);
+    expect(within(table).getAllByRole('rowheader')).toHaveLength(3);
+    expect(within(table).getAllByText('5 séances · 10 h')).toHaveLength(3);
+    expect(within(table).getAllByText(/du lundi au vendredi/i)).toHaveLength(3);
 
     const levelTab = screen.getByRole('tab', { name: 'Par classe de rentrée' });
     const weekTab = screen.getByRole('tab', { name: 'Emploi du temps par semaine' });
@@ -105,8 +105,8 @@ describe('Pré-rentrée landing sections', () => {
     await user.click(screen.getByRole('tab', { name: 'Semaine 2 · 24–28 août' }));
     const weekTwo = screen.getByRole('table', { name: 'Emploi du temps — Semaine 2 · 24–28 août' });
     expect(within(weekTwo).getAllByRole('row')).toHaveLength(5);
-    expect(within(weekTwo).queryAllByText('Libre')).toHaveLength(0);
-    expect(within(weekTwo).getByText('Initiation informatique, algorithmique et SNT')).toBeInTheDocument();
+    expect(within(weekTwo).getAllByText('Libre')).toHaveLength(1);
+    expect(within(weekTwo).queryByText(/SNT|initiation informatique/i)).not.toBeInTheDocument();
     expect(within(weekTwo).getAllByText('Physique-Chimie')).toHaveLength(3);
   });
 

@@ -16,7 +16,7 @@ import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
 const dto = getPreRentreeLandingDTO();
 
 describe('Pré-rentrée configurator logic', () => {
-  it('builds all 48 level and subject configurations from DTO facts', () => {
+  it('builds all 70 approved level and subject configurations from DTO facts', () => {
     let configurationCount = 0;
     for (const level of dto.levels) {
       const availableSubjects = dto.subjects.filter((subject) =>
@@ -103,7 +103,7 @@ describe('Pré-rentrée configurator logic', () => {
         configurationCount += 1;
       }
     }
-    expect(configurationCount).toBe(78);
+    expect(configurationCount).toBe(70);
   });
 
   it('skips the profile step for both Fondations levels', () => {

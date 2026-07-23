@@ -93,9 +93,9 @@ export const PreRentreePedagogyFrameworkSchema = z.object({
   quickAssessmentDurationMinutes: z.number().int().min(5).max(10),
   moduleCodes: z.array(z.object({
     moduleId: z.string().min(1),
-    code: z.string().regex(/^POS-(?:3|2|1|T)-(?:MATH|FR|PC|SNT|NSI|PHILO|SVT)$/),
+    code: z.string().regex(/^POS-(?:3|2|1|T)-(?:MATH|FR|PC|NSI|PHILO|SVT)$/),
     material: z.string().min(1),
-  }).strict()).length(16),
+  }).strict()).length(15),
   subjectPatterns: z.object({
     MATHEMATIQUES: PedagogyPatternSchema,
     PHYSIQUE_CHIMIE: PedagogyPatternSchema,

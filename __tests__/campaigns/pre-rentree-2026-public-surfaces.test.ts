@@ -1,6 +1,6 @@
 import { getPreRentreePublicSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
 import { getCommercialPublicOffers } from '@/lib/campaigns/pre-rentree-2026/commercial-contract';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const expectedSubjects = {
@@ -75,6 +75,12 @@ describe('Pré-rentrée 2026 central public-surface adapter', () => {
   it('keeps an unvalidated campaign page out of search indexes', () => {
     const dto = getPreRentreePublicSurfaceDTO();
     expect(dto.publication).toEqual({ sourceStatus: 'DRAFT', indexable: false });
+  });
+
+  it('retires the obsolete standalone JPO page and its middleware exception', () => {
+    expect(existsSync(join(process.cwd(), 'portes_ouvertes.html'))).toBe(false);
+    const middleware = readFileSync(join(process.cwd(), 'middleware.ts'), 'utf8');
+    expect(middleware).not.toContain('portes_ouvertes');
   });
 
   it('provides complete safe FAQ answers and the canonical contact', () => {

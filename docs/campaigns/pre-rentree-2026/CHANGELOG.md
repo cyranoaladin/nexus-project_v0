@@ -1,5 +1,13 @@
 # Journal des changements
 
+## 6.0.0-rc.4 — 23 juillet 2026
+
+- supprime l’initiation informatique/SNT de l’offre, des modules et du planning de Seconde ;
+- porte la campagne à 15 modules et 75 séances après l’intégration de la SVT en Première et Terminale ;
+- restaure la capacité Fondations à 4–6 élèves, maximum 6, sans modifier le plafond Premium de 5 ;
+- dérive les acomptes et soldes des PDF depuis le pricing canonique, notamment 144 + 336 = 480 TND et 405 + 945 = 1 350 TND ;
+- maintient la demande d’information sans paiement et retire les promesses de positionnement personnalisé et de bilan parent non validées.
+
 ## 6.0.0-rc.3 — 20 juillet 2026
 
 - supprime la page d’en-tête vide avant les couvertures de la brochure et de l’Essentiel ;

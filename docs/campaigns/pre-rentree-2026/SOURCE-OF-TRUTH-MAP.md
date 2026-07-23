@@ -2,13 +2,13 @@
 
 | Information | Source et champ | Propriétaire métier | Version | Consommateurs | Contrôle |
 | --- | --- | --- | --- | --- | --- |
-| Dates, pause, lieu, statuts | `data/campaigns/pre-rentree-2026.json` | Campagne | `2.0.2` | site, snapshot, documents | schéma et tests de dates |
-| Quatre niveaux et cinq familles de matières | même source, `levels`, `subjects` | Pédagogie | `2.0.2` | site, Guide, planning | compte et intégrité des références |
-| Quatorze créneaux, salles et gates | même source, `blocks`, `schedule`, `operationalGates` | Exploitation | `2.0.2` | planning REVIEW | 70 séances, conflits et blocage de publication |
-| Capacités Fondations/Premium | même source, `capacityByOffer` | Direction | `2.0.2` | site, documents, économie | 4–6 et 3–5 |
-| Demande, qualification, réservation | même source, `content`, `cta` | Direction | `2.0.2` | Guide, FAQ, site | vocabulaire et absence de paiement public |
-| Quatorze modules et soixante-dix séances | `content/pre-rentree-2026/modules.json` | Pédagogie | `2026-pre-rentree-v2` | Guide, programmes, artefacts pédagogiques | égalité champ par champ |
-| Tests, évaluations et livrables | `pedagogy-framework.fr.json` + modules | Pédagogie | `1.0.0` | artefact de revue | 14 / 70 / 70 et cohérence |
+| Dates, pause, lieu, statuts | `data/campaigns/pre-rentree-2026.json` | Campagne | `2.0.3` | site, snapshot, documents | schéma et tests de dates |
+| Quatre niveaux et six familles de matières | même source, `levels`, `subjects` | Pédagogie | `2.0.3` | site, Guide, planning | compte et intégrité des références |
+| Quinze créneaux, salles et gates | même source, `blocks`, `schedule`, `operationalGates` | Exploitation | `2.0.3` | planning REVIEW | 75 séances, conflits et blocage de publication |
+| Capacités Fondations/Premium | même source, `capacityByOffer` | Direction | `2.0.3` | site, documents, économie | 4–6 et 3–5 |
+| Demande, qualification, réservation | même source, `content`, `cta` | Direction | `2.0.3` | Guide, FAQ, site | vocabulaire et absence de paiement public |
+| Quinze modules et soixante-quinze séances | `content/pre-rentree-2026/modules.json` | Pédagogie | `2026-pre-rentree-v3-no-snt` | Guide, programmes, artefacts pédagogiques | égalité champ par champ |
+| Tests, évaluations et livrables | `pedagogy-framework.fr.json` + modules | Pédagogie | `1.0.0` | artefact de revue | 15 / 75 / 75 et cohérence |
 | Tarifs Fondations et Premium | `data/pricing.canonical.json` | Tarification | `2026-2027.3` | calculateur, Guide, XLSX | acompte exact à 30 % |
 | Matrice des offres | `content/pre-rentree-2026/offers.json` | Direction | `1.0.0` | site, snapshot, docs | niveaux, matières, services, capacité |
 | Capacités opérationnelles | `content/pre-rentree-2026/capabilities.json` | Opérations | `1.0.0` | gates de promesses | engagement public exige six états valides |

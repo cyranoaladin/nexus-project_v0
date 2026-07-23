@@ -53,7 +53,7 @@ const CommercialContractSourceSchema = z.object({
       context.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['offers', index, 'subjects'],
-        message: 'NSI/SNT is not an approved Seconde subject.',
+        message: 'NSI is not an approved Seconde subject.',
       });
     }
     if (offer.pricingKind === 'PREMIUM_PACK' && offer.subjectCount === undefined) {

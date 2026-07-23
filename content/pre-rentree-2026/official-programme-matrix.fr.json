@@ -53,13 +53,6 @@
       "applicationNote": "Le cadrage des œuvres 2026-2027 complète le programme de Première."
     },
     {
-      "officialProgrammeId": "BO2019-LYCEE-SNT-SECONDE",
-      "title": "Programme de sciences numériques et technologie de Seconde",
-      "url": "https://sti.eduscol.education.fr/textes/programme-denseignement-en-snt",
-      "publisher": "Ministère de l'Éducation nationale",
-      "applicationNote": "Référence pédagogique interne uniquement : SNT est exclue de l'offre publique Seconde Pré-rentrée 2026."
-    },
-    {
       "officialProgrammeId": "BO2019-LYCEE-PC-SECONDE",
       "title": "Programme de physique-chimie de Seconde",
       "url": "https://eduscol.education.fr/document/22663/download",
@@ -142,16 +135,6 @@
       "nexusSessionNumbers": [1, 2, 3, 4, 5],
       "alignmentSummary": "Préparer lecture analytique, culture littéraire, expression écrite et maîtrise de la langue au lycée.",
       "publicOfferEligible": true
-    },
-    {
-      "moduleId": "seconde-informatique-snt",
-      "level": "SECONDE",
-      "subject": "Sciences numériques et technologie",
-      "officialProgrammeId": "BO2019-LYCEE-SNT-SECONDE",
-      "applicationSchoolYear": "2026-2027",
-      "nexusSessionNumbers": [1, 2, 3, 4, 5],
-      "alignmentSummary": "Référence interne aux thèmes SNT et à l'algorithmique ; ce module ne peut pas être publié dans l'offre Seconde 2026.",
-      "publicOfferEligible": false
     },
     {
       "moduleId": "seconde-physique-chimie",

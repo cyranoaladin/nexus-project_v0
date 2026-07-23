@@ -95,19 +95,19 @@
       {
         "id": "04",
         "title": "Entrée en 3e",
-        "body": "Mathématiques ou Français · 10 h par matière · groupe de 4 à 5 élèves.",
+        "body": "Mathématiques ou Français · 10 h par matière · groupe de 4 à 6 élèves.",
         "eyebrow": "FONDATIONS",
         "pricingDisclosure": "TROISIEME",
-        "altText": "Slide présentant l'offre d'entrée en 3e en Mathématiques ou Français, dix heures par matière et groupe de quatre à cinq élèves.",
+        "altText": "Slide présentant l'offre d'entrée en 3e en Mathématiques ou Français, dix heures par matière et groupe de quatre à six élèves.",
         "proofIds": ["PRF-PRE2026-3E-350-APPROVED", "PRF-PRE2026-FIVE-SESSIONS"]
       },
       {
         "id": "05",
         "title": "Entrée en Seconde",
-        "body": "Mathématiques, Physique-Chimie ou Français · 10 h par matière · groupe de 4 à 5 élèves.",
+        "body": "Mathématiques, Physique-Chimie ou Français · 10 h par matière · groupe de 4 à 6 élèves.",
         "eyebrow": "FONDATIONS",
         "pricingDisclosure": "SECONDE",
-        "altText": "Slide présentant l'offre d'entrée en Seconde en Mathématiques, Physique-Chimie ou Français, dix heures par matière et groupe de quatre à cinq élèves.",
+        "altText": "Slide présentant l'offre d'entrée en Seconde en Mathématiques, Physique-Chimie ou Français, dix heures par matière et groupe de quatre à six élèves.",
         "proofIds": ["PRF-PRE2026-SECONDE-400", "PRF-PRE2026-FIVE-SESSIONS"]
       },
       {
@@ -218,7 +218,7 @@
           {
             "id": "offres-01",
             "eyebrow": "ENTRÉE EN 3e",
-            "text": "Mathématiques ou Français · 10 h par matière · groupe de 4 à 5 élèves.",
+            "text": "Mathématiques ou Français · 10 h par matière · groupe de 4 à 6 élèves.",
             "pricingDisclosure": "TROISIEME",
             "interaction": "Sondage : Mathématiques / Français",
             "durationSeconds": 7,

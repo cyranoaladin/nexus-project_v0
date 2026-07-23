@@ -28,7 +28,7 @@ Source exécutable : `content/pre-rentree-2026/capabilities.json`. Statut : `6.0
 | Stockage conforme | oui | non | non | non | non | non |
 | Processus de confidentialité | oui | non | non | non | non | non |
 
-Les quatorze tests de positionnement, soixante-dix évaluations rapides et soixante-dix livrables sont matériellement générés dans l’artefact de revue. Cela prouve leur implémentation documentaire, pas leur capacité de production nominative. Aucun service Premium 360 renforcé n’est un engagement public tant que `OPERATIONALLY_READY`, `OWNER_APPROVED` et `PUBLICLY_COMMITTED` restent faux.
+Les quinze tests de positionnement, soixante-quinze évaluations rapides et soixante-quinze livrables sont matériellement générés dans l’artefact de revue. Cela prouve leur implémentation documentaire, pas leur capacité de production nominative. Aucun service Premium 360 renforcé n’est un engagement public tant que `OPERATIONALLY_READY`, `OWNER_APPROVED` et `PUBLICLY_COMMITTED` restent faux.
 
 ```text
 OWNER_REVIEW=PENDING

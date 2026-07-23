@@ -1,5 +1,5 @@
 {
-  "version": "2026-pre-rentree-v2-svt",
+  "version": "2026-pre-rentree-v3-no-snt",
   "generatedAt": "2026-07-20",
   "resourcePolicy": {
     "generatedDefaultStatus": "DRAFT",
@@ -320,84 +320,6 @@
       ]
     },
     {
-      "id": "seconde-informatique-snt",
-      "level": "SECONDE",
-      "subjectId": "NSI",
-      "subject": "Informatique (SNT)",
-      "title": "Initiation informatique, algorithmique et SNT",
-      "subtitle": "Entrée en Seconde — découvrir la pensée algorithmique, la SNT et les bases de la programmation Python",
-      "prerequisites": "Aucun prérequis informatique ou NSI ; les usages numériques courants acquis au collège suffisent.",
-      "differentiation": "Défis progressifs et extensions facultatives pour les élèves déjà familiers avec le code.",
-      "quickAssessment": "Programme court à exécuter, expliquer ou corriger en fin de séance.",
-      "sessions": [
-        {
-          "number": 1,
-          "title": "Découverte algorithmique et pensée computationnelle",
-          "objective": "Comprendre ce qu'est un algorithme et décomposer un problème en étapes",
-          "topics": [
-            "Notion d'algorithme dans la vie quotidienne",
-            "Décomposition d'un problème en sous-problèmes",
-            "Pseudo-code et organigrammes",
-            "Premiers pas dans l'environnement Python"
-          ],
-          "method": "Activités débranchées puis découverte de l'éditeur Python",
-          "deliverable": "Premier programme Python fonctionnel commenté"
-        },
-        {
-          "number": 2,
-          "title": "Variables, types et structures conditionnelles",
-          "objective": "Manipuler variables et conditions pour créer des programmes interactifs",
-          "topics": [
-            "Variables : affectation, types (int, float, str, bool)",
-            "Entrées/sorties (input, print)",
-            "Structures conditionnelles (if/elif/else)",
-            "Opérateurs de comparaison et logiques"
-          ],
-          "method": "Exercices progressifs avec validation par exécution",
-          "deliverable": "Mini-programme interactif (quiz ou calculatrice simple)"
-        },
-        {
-          "number": 3,
-          "title": "Boucles et itérations",
-          "objective": "Utiliser les boucles for et while pour automatiser des traitements",
-          "topics": [
-            "Boucle for et fonction range()",
-            "Boucle while et condition d'arrêt",
-            "Accumulateurs et compteurs",
-            "Boucles imbriquées simples"
-          ],
-          "method": "Exercices guidés et pratique autonome avec défis progressifs",
-          "deliverable": "Programme utilisant des boucles (table de multiplication, motifs)"
-        },
-        {
-          "number": 4,
-          "title": "Représentation des données et web",
-          "objective": "Comprendre comment les données sont représentées et circulant sur le web",
-          "topics": [
-            "Représentation binaire et encodage des caractères",
-            "Formats de données (texte, image, son)",
-            "Architecture web : client, serveur, URL",
-            "HTML de base et notion de page web"
-          ],
-          "method": "Démonstrations interactives et manipulation de fichiers",
-          "deliverable": "Mini page HTML personnelle créée et comprise"
-        },
-        {
-          "number": 5,
-          "title": "Projet intégrateur : mini-programme Python",
-          "objective": "Réaliser un petit projet mobilisant l'ensemble des notions vues",
-          "topics": [
-            "Cahier des charges d'un mini-projet",
-            "Structuration du code (fonctions simples)",
-            "Test et débogage",
-            "Présentation et documentation du code"
-          ],
-          "method": "Pédagogie par projet avec accompagnement individualisé",
-          "deliverable": "Programme Python finalisé et documenté (jeu ou utilitaire)"
-        }
-      ]
-    },
-    {
       "id": "seconde-physique-chimie",
       "level": "SECONDE",
       "subjectId": "PHYSIQUE_CHIMIE",
@@ -638,7 +560,7 @@
       "subject": "NSI",
       "title": "NSI — Entrée en Première",
       "subtitle": "Entrée en Première — commencer l’EDS NSI par l’algorithmique, Python et les concepts fondamentaux",
-      "prerequisites": "Aucun prérequis NSI ou Python obligatoire ; les repères éventuellement découverts en SNT en Seconde sont repris depuis les fondamentaux.",
+      "prerequisites": "Aucun prérequis NSI ou Python obligatoire ; les repères numériques éventuellement acquis au collège ou en Seconde sont repris depuis les fondamentaux.",
       "differentiation": "Exercices à difficulté progressive et défis d'approfondissement pour les profils avancés.",
       "quickAssessment": "Fonction Python ou raisonnement algorithmique court testé en fin de séance.",
       "sessions": [

@@ -6,7 +6,7 @@ import type { PreRentreePack } from '@/lib/pricing';
 const SUBJECT_PUBLICATION_STYLE = {
   MATHEMATIQUES: { abbreviation: 'MATHS', color: '#1B64B0' },
   FRANCAIS: { abbreviation: 'FR', color: '#8A2743' },
-  NSI: { abbreviation: 'NSI/SNT', color: '#6F42C1' },
+  NSI: { abbreviation: 'NSI', color: '#6F42C1' },
   PHYSIQUE_CHIMIE: { abbreviation: 'PC', color: '#16847A' },
   PHILOSOPHIE: { abbreviation: 'PHILO', color: '#8A5A28' },
   SVT: { abbreviation: 'SVT', color: '#047857' },

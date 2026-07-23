@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "version": "2026-pedagogy-framework-v1",
+  "version": "2026-pedagogy-framework-v2",
   "locale": "fr-TN",
   "positioningDurationMinutes": 45,
   "quickAssessmentDurationMinutes": 8,
@@ -29,11 +29,6 @@
       "moduleId": "seconde-francais",
       "code": "POS-2-FR",
       "material": "Feuille de sujet, brouillon et trousse"
-    },
-    {
-      "moduleId": "seconde-informatique-snt",
-      "code": "POS-2-SNT",
-      "material": "Feuille de sujet et ordinateur avec Python 3 si disponible"
     },
     {
       "moduleId": "premiere-mathematiques",

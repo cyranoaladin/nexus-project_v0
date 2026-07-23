@@ -225,14 +225,14 @@
         "SVT_PREMIERE": "Semaine 2, bloc C, salle-2"
       },
       "week2TargetGrid": {
-        "A": { "salle-1": "SECONDE/NSI", "salle-2": "PREMIERE/PHYSIQUE_CHIMIE" },
+        "A": { "salle-1": "LIBRE", "salle-2": "PREMIERE/PHYSIQUE_CHIMIE" },
         "B": { "salle-1": "TERMINALE/SVT", "salle-2": "SECONDE/PHYSIQUE_CHIMIE" },
         "C": { "salle-1": "TERMINALE/NSI", "salle-2": "PREMIERE/SVT" },
         "D": { "salle-1": "PREMIERE/NSI", "salle-2": "TERMINALE/PHYSIQUE_CHIMIE" }
       },
       "week1": "unchanged",
       "referenceGrid": "data/campaigns/pre-rentree-2026.json",
-      "knownCrossBranchItem": "La présence de NSI/SNT en Seconde reste à réconcilier avec decisions.secondeSubjects (hors périmètre de cette branche ; traité sur la branche JPO).",
+      "knownCrossBranchItem": "Résolu le 2026-07-23 : le créneau informatique de Seconde est supprimé ; le bloc A/salle-1 de la semaine 2 reste libre.",
       "terminaleLoadNote": "Un Terminale prenant NSI+PC+SVT cumule blocs B+C+D = 6h/jour (plafond dailyLoadValid = 6h, accepté au maximum). Décision de charge éventuelle : assumer 6h ou plafonner à 2 matières scientifiques/jour.",
       "owner": "direction",
       "decidedAt": "2026-07-22T19:15:59Z"
