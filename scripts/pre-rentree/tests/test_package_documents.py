@@ -21,7 +21,7 @@ def _sha(path: Path) -> str:
 
 def _fixture(root: Path) -> Path:
     artifact = root / "artifact"
-    snapshot = json.loads((REPO_ROOT / "generated/pre-rentree-2026/publication.snapshot.json").read_text(encoding="utf-8"))
+    snapshot = json.loads((REPO_ROOT / ".artifacts/pre-rentree-2026/publication.snapshot.json").read_text(encoding="utf-8"))
     public = artifact / "PUBLIC"
     for name in snapshot["document"]["outputs"]["publicPdf"].values():
         (public / name).parent.mkdir(parents=True, exist_ok=True)

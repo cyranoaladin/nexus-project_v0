@@ -9,6 +9,7 @@ import {
 } from '@/lib/campaigns/pre-rentree-2026/content-schema';
 
 const Sha256 = z.string().regex(/^[a-f0-9]{64}$/);
+const GitCommitSha = z.string().regex(/^[a-f0-9]{40}$/);
 const IsoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const Time = z.string().regex(/^\d{2}:\d{2}$/);
 const EntryLevel = z.enum(['TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE']);
@@ -195,10 +196,12 @@ export const ParentGuideContentSchema = z.object({
 export const PublicationSnapshotSchema = z.object({
   schemaVersion: z.literal('1.0.0'),
   sourceSetSha256: Sha256,
-  sourceRepoSha: z.string().regex(/^[a-f0-9]{40}$/),
-  sourceCommitDate: z.string().datetime({ offset: true }),
+  sourceAnchorSha: GitCommitSha,
+  repositoryCommitSha: GitCommitSha,
+  repositoryCommitDate: z.string().datetime({ offset: true }),
   snapshotBuiltAt: z.string().datetime({ offset: true }),
   provenance: z.object({
+    sourceAnchor: SourceProvenanceSchema,
     campaign: SourceProvenanceSchema,
     modules: SourceProvenanceSchema,
     pricing: SourceProvenanceSchema,

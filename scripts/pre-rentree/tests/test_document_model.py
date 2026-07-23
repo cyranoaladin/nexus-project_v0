@@ -19,14 +19,19 @@ from document_model import (  # noqa: E402
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-SNAPSHOT_PATH = REPO_ROOT / "generated/pre-rentree-2026/publication.snapshot.json"
+SNAPSHOT_PATH = REPO_ROOT / ".artifacts/pre-rentree-2026/publication.snapshot.json"
 SCHEMA_PATH = REPO_ROOT / "scripts/pre-rentree/schemas/publication-snapshot.schema.json"
 
 
 def test_loads_the_canonical_snapshot_against_the_portable_schema():
     snapshot = load_snapshot(SNAPSHOT_PATH, SCHEMA_PATH)
-    assert snapshot["sourceRepoSha"] == "a1192c8dccf8eaa6ae223265a3bc9ceb56a6fff0"
-    assert len(snapshot["modules"]) == 14
+    modules_source = json.loads(
+        (REPO_ROOT / "content/pre-rentree-2026/modules.json").read_text(encoding="utf-8")
+    )
+    assert len(snapshot["sourceAnchorSha"]) == 40
+    assert len(snapshot["repositoryCommitSha"]) == 40
+    assert len(snapshot["sourceSetSha256"]) == 64
+    assert snapshot["modules"] == modules_source["modules"]
 
 
 def test_rejects_an_incomplete_snapshot(tmp_path: Path):

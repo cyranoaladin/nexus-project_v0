@@ -22,7 +22,7 @@ from document_renderer import render_public_pdfs, write_public_html  # noqa: E40
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-SNAPSHOT_PATH = REPO_ROOT / "generated/pre-rentree-2026/publication.snapshot.json"
+SNAPSHOT_PATH = REPO_ROOT / ".artifacts/pre-rentree-2026/publication.snapshot.json"
 SCHEMA_PATH = REPO_ROOT / "scripts/pre-rentree/schemas/publication-snapshot.schema.json"
 SNAPSHOT = load_snapshot(SNAPSHOT_PATH, SCHEMA_PATH)
 
@@ -108,11 +108,13 @@ def test_content_gates_are_computed_from_rendered_documents(package: Path):
         "QR_LINK_MISMATCH_COUNT",
     )
     assert {key: report[key] for key in expected_zero} == {key: 0 for key in expected_zero}
-    assert report["MODULE_COUNT"] == 14
-    assert report["SESSION_COUNT"] == 70
-    assert report["POSITIONING_TEST_COUNT"] == 14
-    assert report["QUICK_ASSESSMENT_COUNT"] == 70
-    assert report["SESSION_DELIVERABLE_COUNT"] == 70
+    expected_module_count = len(SNAPSHOT["modules"])
+    expected_session_count = sum(len(module["sessions"]) for module in SNAPSHOT["modules"])
+    assert report["MODULE_COUNT"] == expected_module_count
+    assert report["SESSION_COUNT"] == expected_session_count
+    assert report["POSITIONING_TEST_COUNT"] == len(SNAPSHOT["pedagogy"]["positioningTests"])
+    assert report["QUICK_ASSESSMENT_COUNT"] == len(SNAPSHOT["pedagogy"]["quickAssessments"])
+    assert report["SESSION_DELIVERABLE_COUNT"] == len(SNAPSHOT["pedagogy"]["sessionDeliverables"])
     assert report["DEPOSIT_ROUNDING_ERROR_COUNT"] == 0
     assert report["CONTRACTUAL_DOSSIER_PUBLICATION_BLOCKED"] is True
     assert [report[f"PRICE_{index}"] for index in range(1, 5)] == [480, 900, 1350, 1800]
@@ -127,7 +129,10 @@ def test_build_manifest_records_every_public_pdf(package: Path, tmp_path: Path):
 
     assert manifest_path.is_file()
     assert len(manifest["REPO_SHA"]) == 40
-    assert manifest["SOURCE_REPO_SHA"] == SNAPSHOT["sourceRepoSha"]
+    assert manifest["SOURCE_ANCHOR_SHA"] == SNAPSHOT["sourceAnchorSha"]
+    assert manifest["REPOSITORY_COMMIT_SHA"] == SNAPSHOT["repositoryCommitSha"]
+    assert manifest["SOURCE_SET_SHA256"] == SNAPSHOT["sourceSetSha256"]
+    assert manifest["REPO_SHA"] == manifest["REPOSITORY_COMMIT_SHA"]
     assert manifest["CREATED_AT"] == manifest["DOCUMENTS_BUILT_AT"]
     assert manifest["ASSISTANT_VISUAL_REVIEW_AT"] is None
     assert manifest["OWNER_REVIEWED_AT"] is None
