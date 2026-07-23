@@ -20,6 +20,17 @@
 - Formulation matériel SVT validée dans les sources : « Calculatrice scientifique simple recommandée, non obligatoire sauf consigne de l'enseignant. »
 - Les anciennes cibles et commandes d'exploitation ont été neutralisées dans l'arbre courant ; les helpers publics échouent volontairement.
 
+## Arbitrages résolus
+
+### B-7 — Grille tarifaire · **RÉSOLU** (décision direction, grille production 2026-07-20 confirmée)
+
+Statut : **RÉSOLU**. La grille tarifaire de référence est la **grille production** enregistrée par la décision propriétaire `d0ce22411` (« docs(pre-rentree): enregistrer les décisions propriétaire 2026 », 2026-07-22) et confirmée par la direction. Toute grille alternative — notamment la variante « 3-5 / 140 » — est **périmée et interdite**.
+
+- **Premium** (`pre_rentree_packs`, 1 à 4 matières) : groupe 3 à 5 (`group_max: 5`), prix 480 / 900 / 1350 / 1800 TND, acompte **30 % exact** (144 / 270 / 405 / 540).
+- **Fondations** (`pre_rentree_foundations`, entrée 3e / Seconde) : groupe 4 à 6 (`group_max: 6`), prix 350 / 400 TND, acompte 30 % (105 / 120), sous `commercial_exception PRE2026-3E-350` approuvée le 2026-07-20 par `DIRECTION_NEXUS_REUSSITE`.
+
+Source de vérité : `data/pricing.canonical.json`. Cohérence vérifiée : page, configurateur et FAQ lisent les prix depuis le canonique (aucun montant codé en dur, aucune fuite de la grille périmée). Le gate humain « tarifs » reste validé. Traçé aussi dans `content/pre-rentree-2026/publication-decisions.owner.json` → `decisions.pricingGrid`.
+
 ## P0 humains encore ouverts
 
 | Référence | Gate | État | Preuve de sortie attendue | Responsable |
