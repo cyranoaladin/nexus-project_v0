@@ -3,7 +3,7 @@
   "campaignId": "pre-rentree-2026",
   "branch": "feat/svt-integration-clean",
   "pullRequest": 74,
-  "repositoryCommitSha": "93459dcc78687c4bb3e5a81f471d6ce34bc68d78",
+  "repositoryCommitSha": "25ce6e3d90039f74fb896afbab6310335bf63746",
   "releaseStatus": "READY_FOR_REVIEW",
   "verdict": "BLOCKED",
   "lots": [
