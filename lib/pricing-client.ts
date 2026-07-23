@@ -20,6 +20,8 @@ import stageCalendarMini from '@/data/stage-calendar-client.json';
 
 export const PRICING_RULES = clientData.rules as unknown as Rules;
 export const PRICING_REPERES = clientData.reperes_tarifaires;
+export const PRICING_ANNUAL_OFFER_SUMMARIES = clientData.annual_offer_summaries;
+export type AnnualOfferPricingSummary = (typeof PRICING_ANNUAL_OFFER_SUMMARIES)[number];
 
 // ── Client-safe accessors ──
 
@@ -29,6 +31,10 @@ export function getRules(): Rules {
 
 export function getReperes(): typeof PRICING_REPERES {
   return PRICING_REPERES;
+}
+
+export function getAnnualOfferPricing(id: string): AnnualOfferPricingSummary | undefined {
+  return PRICING_ANNUAL_OFFER_SUMMARIES.find((offer) => offer.id === id);
 }
 
 export function getNextStage(referenceDate?: Date): { title: string; dates_display: string; date_start: string } | null {

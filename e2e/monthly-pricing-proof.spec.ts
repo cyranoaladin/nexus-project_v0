@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { getAnnualOffer } from '@/lib/pricing';
+import { getAnnualOfferPricing } from '@/lib/pricing-client';
 
 const VIEWPORTS = [
   { name: 'mobile', width: 375, height: 812 },
@@ -16,7 +16,7 @@ const CARD_SCREENSHOTS = [
 ];
 
 function annualOffer(id: string) {
-  const offer = getAnnualOffer(id);
+  const offer = getAnnualOfferPricing(id);
   if (!offer) {
     throw new Error(`Missing annual offer ${id}`);
   }
