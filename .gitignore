@@ -129,6 +129,9 @@ scratch/
 # ─── Artefacts d'analyse serveur ─────────────────────────────────────────
 prod-tree*.txt
 nexus-pr[o]d-tree-*.txt
+
+# Local output of the legacy PDF generator; reviewed copies live under assets/.
+tools/pdf-generator/output/
 nexus-server-*.txt
 get-users-temp.*
 
