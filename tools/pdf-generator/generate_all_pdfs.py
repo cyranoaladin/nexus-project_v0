@@ -41,10 +41,11 @@ _DECISIONS = json.loads((REPO_ROOT / "content" / "pre-rentree-2026" / "publicati
 # decisions.svtProgramValidation.status à "approved_for_publication" dans publication-decisions.owner.json.
 SVT_DRAFT = _DECISIONS.get("svtProgramValidation", {}).get("status") == "draft_until_owner_validation"
 
-# Variante commerciale DÉSACTIVÉE (arbitrage direction en attente — voir ARBITRAGE_ENSEIGNANTS.md).
-# NE PAS réactiver sans lever le gate teacher_qualification_evidence.
+# Mention de STATUT collectif autorisée sur les supports commerciaux (décision direction R4,
+# 2026-07-23 — voir publication-decisions.owner.json → decisions.teacherStatusStatement).
+# Distincte de l'anonymat nominatif (noms interdits en public) : elle ne nomme personne.
 ENSEIGNANT_STATUT_COMMERCIAL = "enseignants certifiés ou agrégés de l'Éducation nationale française, en exercice"
-# Formulation actuellement publiée (sans affirmation de statut non prouvée) :
+# Variante prudente conservée pour les surfaces non commerciales (hors périmètre R4) :
 ENSEIGNANT_STATUT_PUBLIE = "enseignants expérimentés, en exercice dans le système français"
 REVIEW_NOTICE = "DOCUMENT DE REVUE — NON CONTRACTUEL"
 
@@ -712,8 +713,8 @@ def make_tarifs_body():
     <p style="font-size:7.5pt; color:#666; font-style:italic; margin-bottom:14px;">Tarifs Premium par élève, pour les matières approuvées du niveau. Non cumulables avec la Carte Nexus et les remises automatiques.</p>"""
 
     body += "<h2>Ce que le tarif comprend</h2>"
-    body += """<ul class="check-list" style="margin-bottom:14px;">
-        <li>5 séances de 2 h par matière avec des <strong>enseignants expérimentés, en exercice dans le système français</strong></li>
+    body += f"""<ul class="check-list" style="margin-bottom:14px;">
+        <li>5 séances de 2 h par matière avec des <strong>{ENSEIGNANT_STATUT_COMMERCIAL}</strong></li>
         <li>Premium : groupe de <strong>3 à 5 élèves, maximum 5</strong></li>
         <li><strong>Tous les supports fournis</strong> : fiches de méthode, exercices corrigés, sujets d'entraînement</li>
         <li>Un <strong>livrable par séance</strong> que l'élève conserve</li>
@@ -735,7 +736,7 @@ def make_tarifs_body():
     </p></div>"""
 
     body += "<h2>Le tarif en perspective</h2>"
-    body += '<p style="font-size:9.5pt; line-height:1.6; margin-bottom:14px;">Le tarif Premium correspond à 10 heures par matière, en groupe de 3 à 5 élèves, maximum 5. Il comprend un programme écrit séance par séance, des entraînements progressifs, des corrections explicites et les supports du stage.</p>'
+    body += f'<p style="font-size:9.5pt; line-height:1.6; margin-bottom:14px;">À <strong>45–48 TND de l\'heure par élève</strong>, le stage se situe dans la même zone tarifaire horaire qu\'un cours particulier classique du marché. La différence n\'est pas le prix de l\'heure — c\'est ce qu\'elle contient : un <strong>{ENSEIGNANT_STATUT_COMMERCIAL}</strong>, un programme écrit séance par séance, un groupe de 3 à 5 pour maintenir l\'attention individuelle, et des supports conçus pour le stage.</p>'
 
     body += f"""<p style="font-size:9pt; margin-top:14px; line-height:1.7; border-top:1px solid #E0E0E0; padding-top:8px;">
         Téléphone / WhatsApp : <a href="tel:+21699192829">+216 99 19 28 29</a> ·
