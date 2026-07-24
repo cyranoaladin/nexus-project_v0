@@ -89,8 +89,8 @@
     {
       "decisionId": "DEC-PRE2026-SECONDE-SNT",
       "subject": "Communication publique SNT en Seconde",
-      "status": "OPEN_INCLUDED",
-      "publicEffect": "VISIBLE",
+      "status": "APPROVED",
+      "publicEffect": "PUBLIC",
       "responsibleRole": "DIRECTION_NEXUS_REUSSITE",
       "decidedAt": "2026-07-23",
       "nextReviewAt": null,
