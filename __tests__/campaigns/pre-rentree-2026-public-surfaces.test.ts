@@ -3,11 +3,22 @@ import { getCommercialPublicOffers } from '@/lib/campaigns/pre-rentree-2026/comm
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+// NOTE (pré-rentrée 2026, modèle fenêtres + week-end v2) : le planning et le catalogue de
+// modules (data/campaigns/pre-rentree-2026.json, content/pre-rentree-2026/modules.json,
+// offers.json) sont alignés sur la nouvelle grille — Seconde n'a plus de séance NSI/SNT ni
+// Physique-Chimie, Terminale a Maths expertes au lieu de Philosophie.
+// content/pre-rentree-2026/commercial-contract.fr.json a été réconcilié pour Terminale
+// (Philosophie → Maths expertes, purge complète 2026-07-24) : Philosophie n'existe plus
+// nulle part dans le périmètre stages. Il vend en revanche ENCORE "pre2026-seconde-
+// physique-chimie" / "pre2026-seconde-informatique-snt" (2 SKU déjà approuvés par la
+// direction) — retirer des offres déjà approuvées est une décision commerciale distincte,
+// qui dépasse la purge Philosophie : ce test documente l'état RÉEL de ce point résiduel
+// (Seconde uniquement) plutôt que de trancher seul. Voir SEPARATION_STAGES_ANNUEL.md.
 const expectedSubjects = {
   TROISIEME: ['FRANCAIS', 'MATHEMATIQUES'],
   SECONDE: ['FRANCAIS', 'MATHEMATIQUES', 'NSI', 'PHYSIQUE_CHIMIE'],
   PREMIERE: ['FRANCAIS', 'MATHEMATIQUES', 'NSI', 'PHYSIQUE_CHIMIE', 'SVT'],
-  TERMINALE: ['MATHEMATIQUES', 'NSI', 'PHILOSOPHIE', 'PHYSIQUE_CHIMIE', 'SVT'],
+  TERMINALE: ['MATHEMATIQUES', 'MATHS_EXPERTES', 'NSI', 'PHYSIQUE_CHIMIE', 'SVT'],
 };
 
 describe('Pré-rentrée 2026 central public-surface adapter', () => {
@@ -49,8 +60,11 @@ describe('Pré-rentrée 2026 central public-surface adapter', () => {
     expect(dto.subjectIdsByLevel).toEqual(expectedSubjects);
     const secondeSubjects = dto.levels.find((level) => level.id === 'SECONDE')!.subjects;
     const secondeInformatique = secondeSubjects.find((subject) => subject.id === 'NSI');
-    expect(secondeInformatique?.label).toBe('Initiation informatique, algorithmique et SNT');
-    // SNT is a legitimate public Seconde label (distinct from the NSI specialty); it must not be blanket-banned.
+    // Le labelByLevel SNT dédié a été retiré de campaign.subjects (Seconde n'a plus de
+    // module NSI/SNT dans data/campaigns/pre-rentree-2026.json) : le libellé retombe sur
+    // le générique "NSI" tant que commercial-contract.fr.json vend encore cette offre
+    // (voir la note en tête de fichier).
+    expect(secondeInformatique?.label).toBe('NSI');
   });
 
   it('hides services and advantages without approved offer-level evidence', () => {

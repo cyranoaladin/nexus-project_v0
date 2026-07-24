@@ -45,8 +45,10 @@ describe('Pré-rentrée homepage spotlight DTO', () => {
         chipLabel: 'dès le 17 août',
       },
       entryClassesLabel: 'Entrée en 3e, Seconde, Première ou Terminale',
-      subjectFamiliesLabel: 'Mathématiques · Physique-Chimie · Français · NSI · Philosophie · SVT',
-      capacityLabel: 'Fondations : 4 à 6 élèves · Premium : 3 à 5 élèves',
+      // Philosophie purgée du catalogue pré-rentrée (2026-07-24) ; Maths expertes apparaît
+      // désormais, commercial-contract.fr.json (offres Terminale) ayant été réconcilié.
+      subjectFamiliesLabel: 'Mathématiques · Physique-Chimie · Français · NSI · SVT · Mathématiques expertes',
+      capacityLabel: 'Fondations : 3 à 6 élèves · Premium : 3 à 5 élèves',
       volumeLabel: '10 h par matière',
       venueLabel: 'Mutuelleville',
       editorialLine: 'Reprendre les fondamentaux. Structurer sa méthode. Aborder la rentrée avec confiance.',

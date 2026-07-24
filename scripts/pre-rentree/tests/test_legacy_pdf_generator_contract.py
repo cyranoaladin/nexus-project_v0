@@ -36,8 +36,11 @@ def test_tariff_pdf_rows_are_derived_from_canonical_pricing():
 
 
 def test_legacy_pdf_bodies_scope_r2_snt_module_and_r4_teacher_statut():
-    """R2 (décision direction 2026-07-23) : le module informatique de Seconde
-    (initiation informatique, algorithmique et SNT) est légitime sur le programme.
+    """R2 (décision direction 2026-07-23) a restauré le module informatique de Seconde
+    (SNT/NSI) — décision SUPERSEDED le 2026-07-24 par la nouvelle grille fenêtres +
+    week-end : Seconde n'offre plus que Maths + Français (aucune séance NSI/SNT/PC),
+    conformément à la matrice niveaux/matières explicitement redéfinie et au retrait du
+    module `seconde-informatique-snt` de modules.json (14 modules, cf. SEPARATION_STAGES_ANNUEL.md).
     R4 (décision direction 2026-07-23) : la mention de STATUT collectif
     (« enseignants certifiés ou agrégés de l'Éducation nationale française, en exercice »)
     est autorisée sur les supports COMMERCIAUX (Tarifs) uniquement ; elle ne nomme
@@ -49,8 +52,10 @@ def test_legacy_pdf_bodies_scope_r2_snt_module_and_r4_teacher_statut():
     tarifs = generator.make_tarifs_body()
     dossier = generator.make_dossier_accueil_body()
 
-    # R2 — le module SNT/NSI de Seconde est restauré sur le programme détaillé.
-    assert "snt" in programme.casefold()
+    # R2 superseded (2026-07-24) — Seconde n'a plus de module informatique/SNT.
+    # (note : pas de recherche de sous-chaîne "nsi" ici, elle matcherait le mot
+    # français courant "ainsi" et donnerait un faux positif)
+    assert "snt" not in programme.casefold()
 
     # R4 — la mention de statut est portée par le support commercial (Tarifs) uniquement.
     assert generator.ENSEIGNANT_STATUT_COMMERCIAL in tarifs
@@ -71,7 +76,7 @@ def test_capacity_labels_match_foundations_and_premium_contracts():
     generator = load_generator()
     planning = generator.make_planning_body()
 
-    assert "Fondations (3e et Seconde) : 4 à 6 élèves, maximum 6" in planning
+    assert "Fondations (3e et Seconde) : 3 à 6 élèves, maximum 6" in planning
     assert "Premium (Première et Terminale) : 3 à 5 élèves, maximum 5" in planning
 
 
@@ -97,8 +102,9 @@ def test_final_pdf_exports_match_the_active_generator_contract():
     combined = "\n".join(text_by_name.values()).casefold()
     assert "bilan écrit" not in combined
 
-    # R2 (2026-07-23) — le module informatique/SNT de Seconde est restauré sur le programme détaillé.
-    assert "snt" in text_by_name["NexusReussite_PreRentree2026_Programme_Seconde.pdf"].casefold()
+    # R2 superseded (2026-07-24) — Seconde n'offre plus que Maths + Français (nouvelle grille
+    # fenêtres + week-end) ; le module informatique/SNT a été retiré de modules.json.
+    assert "snt" not in text_by_name["NexusReussite_PreRentree2026_Programme_Seconde.pdf"].casefold()
 
     # R4 (2026-07-23) — la mention de statut collectif est portée par le support commercial (Tarifs)
     # uniquement ; elle ne doit pas fuiter sur les documents non commerciaux (planning, dossier, programmes).
@@ -109,7 +115,7 @@ def test_final_pdf_exports_match_the_active_generator_contract():
             continue
         assert "enseignants certifiés" not in text.casefold()
         assert "enseignants agrégés" not in text.casefold()
-    assert "fondations : 4 à 6 élèves" in combined
+    assert "fondations : 3 à 6 élèves" in combined
     assert "premium : 3 à 5 élèves" in combined
     assert "proposition — module à valider par la direction pédagogique" in (
         text_by_name["NexusReussite_PreRentree2026_Programme_Seconde.pdf"].casefold()

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date
+from itertools import groupby
 from typing import Any, Iterable
 
 from document_model import amount_html, claim_by_id, escape_text, safe_url
@@ -278,19 +279,19 @@ def _level_profile(snapshot: dict[str, Any], level_id: str) -> str:
 
 def _level_schedule(snapshot: dict[str, Any], level_id: str) -> str:
     rows = []
-    for week_index, week in enumerate(snapshot["schedule"]["weeks"]):
-        for slot in week["slots"]:
+    for window_index, window in enumerate(snapshot["schedule"]["windows"]):
+        for slot in window["slots"]:
             if slot["level"] != level_id:
                 continue
             rows.append(
-                f'<tr class="subject-{escape_text(slot["subjectId"])}" data-source-path="/schedule/weeks/{week_index}/slots">'
+                f'<tr class="subject-{escape_text(slot["subjectId"])}" data-source-path="/schedule/windows/{window_index}/slots">'
                 f'<th scope="row">{_subject_badge(snapshot, slot["subjectId"], level_id)}</th>'
-                f'<td>{escape_text(week["label"])}</td><td>{escape_text(slot["startTime"])}–{escape_text(slot["endTime"])}</td>'
+                f'<td>{escape_text(window["label"])}</td><td>{escape_text(slot["startTime"])}–{escape_text(slot["endTime"])}</td>'
                 f'<td>{escape_text(slot["roomLabel"])}</td></tr>'
             )
     return f"""
     <table class="schedule-table"><caption>Planning du niveau — sous réserve de validation des affectations</caption><thead><tr>
-      <th scope="col">Matière</th><th scope="col">Semaine</th><th scope="col">Horaire</th><th scope="col">Salle</th>
+      <th scope="col">Matière</th><th scope="col">Fenêtre</th><th scope="col">Horaire</th><th scope="col">Salle</th>
     </tr></thead><tbody>{''.join(rows)}</tbody></table>"""
 
 
@@ -340,16 +341,52 @@ def _level_guides(snapshot: dict[str, Any]) -> str:
     return f'<section id="catalogue" class="programs-section"><h2>{escape_text(_guide_section(snapshot, "catalogue")["title"])}</h2>{"".join(rendered)}</section>'
 
 
+def _room_planning(snapshot: dict[str, Any]) -> str:
+    rows = []
+    for window_index, window in enumerate(snapshot["schedule"]["windows"]):
+        for slot in window["slots"]:
+            rows.append(
+                f'<tr class="subject-{escape_text(slot["subjectId"])}" data-source-path="/schedule/windows/{window_index}/slots">'
+                f'<td>{escape_text(window["label"])}</td><td>{escape_text(slot["roomLabel"])}</td>'
+                f'<td>{escape_text(slot["startTime"])}–{escape_text(slot["endTime"])}</td>'
+                f'<th scope="row">{_subject_badge(snapshot, slot["subjectId"], slot["level"])}</th></tr>'
+            )
+    return f"""
+    <table class="schedule-table"><caption>Planning par fenêtre et par salle — sous réserve de validation des affectations</caption><thead><tr>
+      <th scope="col">Fenêtre</th><th scope="col">Salle</th><th scope="col">Horaire</th><th scope="col">Matière</th>
+    </tr></thead><tbody>{''.join(rows)}</tbody></table>"""
+
+
+def _day_by_day_planning(snapshot: dict[str, Any]) -> str:
+    sessions = sorted(snapshot["schedule"]["sessions"], key=lambda s: (s["date"], s["startTime"]))
+    days: list[str] = []
+    for day, group in groupby(sessions, key=lambda s: s["date"]):
+        rows = "".join(
+            f'<tr class="subject-{escape_text(session["subjectId"])}" data-source-path="/schedule/sessions">'
+            f'<td>{escape_text(session["startTime"])}–{escape_text(session["endTime"])}</td>'
+            f'<td>{escape_text(session["roomLabel"])}</td>'
+            f'<th scope="row">{_subject_badge(snapshot, session["subjectId"], session["level"])}</th></tr>'
+            for session in group
+        )
+        days.append(f"""
+        <article class="day-card"><h3>{escape_text(_format_date(day, year=False))}</h3>
+          <table class="schedule-table"><thead><tr>
+            <th scope="col">Horaire</th><th scope="col">Salle</th><th scope="col">Matière</th>
+          </tr></thead><tbody>{rows}</tbody></table>
+        </article>""")
+    return f'<div class="day-grid">{"".join(days)}</div>'
+
+
 def _global_planning(snapshot: dict[str, Any]) -> str:
-    weeks = []
-    for week_index, week in enumerate(snapshot["schedule"]["weeks"]):
+    windows = []
+    for window_index, window in enumerate(snapshot["schedule"]["windows"]):
         subjects = []
-        for subject_id in dict.fromkeys(slot["subjectId"] for slot in week["slots"]):
+        for subject_id in dict.fromkeys(slot["subjectId"] for slot in window["slots"]):
             subject = next(item for item in snapshot["subjects"] if item["id"] == subject_id)
             subjects.append(
-                f'<li class="subject-{escape_text(subject_id)}" data-source-path="/schedule/weeks/{week_index}"><span class="subject-code">{escape_text(subject["abbreviation"])}</span> {escape_text(subject["label"])}</li>'
+                f'<li class="subject-{escape_text(subject_id)}" data-source-path="/schedule/windows/{window_index}"><span class="subject-code">{escape_text(subject["abbreviation"])}</span> {escape_text(subject["label"])}</li>'
             )
-        weeks.append(f'<article class="week-card"><h3>{escape_text(week["label"])}</h3><ul>{"".join(subjects)}</ul></article>')
+        windows.append(f'<article class="window-card"><h3>{escape_text(window["label"])}</h3><ul>{"".join(subjects)}</ul></article>')
     detailed = "".join(
         f'<section><h3>{escape_text(level["label"])}</h3>{_level_schedule(snapshot, level["id"])}</section>'
         for level in snapshot["levels"]
@@ -358,11 +395,17 @@ def _global_planning(snapshot: dict[str, Any]) -> str:
     validated = gates["roomAssignmentsValidated"] and gates["teacherAssignmentsValidated"]
     status = "Planning validé" if validated else "Planning de revue — affectations finales non validées"
     return f"""
-    <section id="planning" class="page-section"><p class="section-kicker">Deux semaines complémentaires</p>
+    <section id="planning" class="page-section"><p class="section-kicker">Fenêtres et week-end</p>
       <h2>{escape_text(_guide_section(snapshot, 'planning')['title'])}</h2>
       <p class="planning-status" role="note">{escape_text(status)}</p>
-      {_evidenced_text(snapshot, 'planning', 'semaine-une')}{_evidenced_text(snapshot, 'planning', 'semaine-deux')}
-      <div class="week-grid">{''.join(weeks)}</div><div class="detailed-schedules">{detailed}</div>
+      {_evidenced_text(snapshot, 'planning', 'semaine-une')}{_evidenced_text(snapshot, 'planning', 'semaine-deux')}{_evidenced_text(snapshot, 'planning', 'fenetre-terminale')}
+      <div class="window-grid">{''.join(windows)}</div>
+      <h3>Vue par niveau</h3>
+      <div class="detailed-schedules">{detailed}</div>
+      <h3>Vue par fenêtre et par salle</h3>
+      {_room_planning(snapshot)}
+      <h3>Vue par jour</h3>
+      {_day_by_day_planning(snapshot)}
       <p class="notice" data-source-path="/content/practical/groupCompositionNotice">{escape_text(snapshot['content']['practical']['groupCompositionNotice'])}</p>
     </section>"""
 

@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { EntryLevelCode } from './schema';
 
 export const OfferRange = z.enum(['FONDATIONS', 'PREMIUM']);
-const SubjectId = z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'PHILOSOPHIE', 'SVT']);
+const SubjectId = z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'SVT', 'MATHS_EXPERTES']);
 
 export const PreRentreeOffersSchema = z.object({
   schemaVersion: z.literal('1.0.0'),
@@ -93,16 +93,16 @@ export const PreRentreePedagogyFrameworkSchema = z.object({
   quickAssessmentDurationMinutes: z.number().int().min(5).max(10),
   moduleCodes: z.array(z.object({
     moduleId: z.string().min(1),
-    code: z.string().regex(/^POS-(?:3|2|1|T)-(?:MATH|FR|PC|SNT|NSI|PHILO|SVT)$/),
+    code: z.string().regex(/^POS-(?:3|2|1|T)-(?:MATH|FR|PC|SNT|NSI|PHILO|SVT|MATHEXP)$/),
     material: z.string().min(1),
-  }).strict()).length(16),
+  }).strict()).length(14),
   subjectPatterns: z.object({
     MATHEMATIQUES: PedagogyPatternSchema,
     PHYSIQUE_CHIMIE: PedagogyPatternSchema,
     NSI: PedagogyPatternSchema,
     FRANCAIS: PedagogyPatternSchema,
-    PHILOSOPHIE: PedagogyPatternSchema,
     SVT: PedagogyPatternSchema,
+    MATHS_EXPERTES: PedagogyPatternSchema,
   }).strict(),
   rubric: z.object({
     ACQUIS: z.string().min(1),

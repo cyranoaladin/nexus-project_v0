@@ -26,8 +26,8 @@ SUBJECT_LABELS = {
     "PHYSIQUE_CHIMIE": "Physique-Chimie",
     "NSI": "NSI",
     "FRANCAIS": "Français",
-    "PHILOSOPHIE": "Philosophie",
     "SVT": "SVT",
+    "MATHS_EXPERTES": "Mathématiques expertes",
 }
 
 

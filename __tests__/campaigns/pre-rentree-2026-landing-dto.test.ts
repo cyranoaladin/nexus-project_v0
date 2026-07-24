@@ -26,7 +26,7 @@ describe('Pré-rentrée 2026 landing DTO', () => {
     expect(dto.content.practical.preRegistrationNotice).toContain('ne forme pas un contrat');
     expect(dto.seo.canonical).toBe('/stages/pre-rentree-2026');
     expect(dto.capacityByOffer).toEqual({
-      FONDATIONS: { minPerCohort: 4, maxPerCohort: 6 },
+      FONDATIONS: { minPerCohort: 3, maxPerCohort: 6 },
       PREMIUM: { minPerCohort: 3, maxPerCohort: 5 },
     });
     expect(dto.blocks).toHaveLength(4);
@@ -38,12 +38,12 @@ describe('Pré-rentrée 2026 landing DTO', () => {
     expect(JSON.stringify(dto.packs)).not.toContain('pre2026-pack-');
     expect(dto.publicStatus).toBe('Campagne en préparation');
     expect(dto).not.toHaveProperty('status');
-    expect(dto.scheduleWeeks).toHaveLength(2);
-    expect(dto.scheduleWeeks.flatMap((week) => week.slots)).toHaveLength(16);
+    expect(dto.scheduleWindows).toHaveLength(3);
+    expect(dto.scheduleWindows.flatMap((window) => window.slots)).toHaveLength(14);
     expect(dto.organization.educators).toHaveLength(0);
     expect(dto.organization.rooms).toEqual([
-      { label: 'Salle 1', details: 'Mathématiques, NSI, SNT et SVT' },
-      { label: 'Salle 2', details: 'Français, Philosophie, Physique-Chimie et SVT' },
+      { label: 'Salle 1', details: 'Mathématiques, NSI et Maths expertes' },
+      { label: 'Salle 2', details: 'Français, Physique-Chimie et SVT' },
     ]);
     expect(JSON.stringify(dto.organization)).not.toMatch(
       /MATHS_NSI_SNT_TEACHER|FRENCH_TEACHER|PHYSICS_CHEMISTRY_TEACHER|teacherRole|roomRole/,
@@ -78,10 +78,7 @@ describe('Pré-rentrée 2026 landing DTO', () => {
   it('keeps all pedagogical fields for every module session', () => {
     const { modules } = getPreRentreeLandingDTO();
 
-    expect(modules).toHaveLength(16);
-    expect(modules.some((module) => (
-      module.level === 'SECONDE' && module.subjectId === 'NSI' && module.id === 'seconde-informatique-snt'
-    ))).toBe(true);
+    expect(modules).toHaveLength(14);
     for (const campaignModule of modules) {
       expect(campaignModule.prerequisites.length).toBeGreaterThan(0);
       expect(campaignModule.differentiation.length).toBeGreaterThan(0);

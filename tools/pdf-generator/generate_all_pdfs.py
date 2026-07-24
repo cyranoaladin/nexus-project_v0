@@ -27,11 +27,30 @@ STARTING_PRICE = min(
     for offer in (*PRE_RENTREE_FOUNDATIONS, *PRE_RENTREE_PACKS)
 )
 _BLOCK_TIMES = {b["id"]: (b["startTime"], b["endTime"]) for b in CAMPAIGN["blocks"]}
+# Modèle fenêtres + week-end (v2) : le planning n'est plus "2 semaines lun-ven" mais 3
+# fenêtres à dates explicites (une d'entre elles couvrant le week-end). SCHEDULE regroupe
+# les créneaux par fenêtre (slots, non datés) ; SCHEDULE_DAYS les expanse par date réelle.
 SCHEDULE = []
-for _wk in CAMPAIGN["schedule"]:
-    for _s in _wk["slots"]:
+SCHEDULE_DAYS = []
+for _win in CAMPAIGN["schedule"]:
+    for _s in _win["slots"]:
         _st, _et = _BLOCK_TIMES[_s["block"]]
-        SCHEDULE.append({**_s, "week": _wk["week"], "startTime": _st, "endTime": _et})
+        SCHEDULE.append({
+            **_s,
+            "windowId": _win["windowId"],
+            "windowLabel": _win["windowLabel"],
+            "startTime": _st,
+            "endTime": _et,
+        })
+        for _day in _win["days"]:
+            SCHEDULE_DAYS.append({
+                **_s,
+                "date": _day,
+                "windowId": _win["windowId"],
+                "windowLabel": _win["windowLabel"],
+                "startTime": _st,
+                "endTime": _et,
+            })
 
 # SVT programmes = données du dépôt (modules.json). Filigrane DRAFT piloté par la décision D2.
 _MODULES = json.loads((REPO_ROOT / "content" / "pre-rentree-2026" / "modules.json").read_text(encoding="utf-8"))["modules"]
@@ -302,7 +321,7 @@ def make_cover(title, subtitle=""):
             {REVIEW_NOTICE}
         </div>
         <div class="cover-band">
-            Fondations : 4 à 6 élèves · Premium : 3 à 5 élèves · 10&nbsp;h par matière · À partir de {format_tnd(STARTING_PRICE)}&nbsp;TND<br>
+            Fondations : 3 à 6 élèves · Premium : 3 à 5 élèves · 10&nbsp;h par matière · À partir de {format_tnd(STARTING_PRICE)}&nbsp;TND<br>
             <a href="https://nexusreussite.academy/stages/pre-rentree-2026" style="color:#C9A227; font-size:9pt;">nexusreussite.academy/stages/pre-rentree-2026</a>
         </div>
     </div>
@@ -547,8 +566,8 @@ def make_planning_body():
             'MATHEMATIQUES': 'Mathématiques',
             'FRANCAIS': 'Français',
             'PHYSIQUE_CHIMIE': 'Physique-Chimie',
-            'PHILOSOPHIE': 'Philosophie',
             'SVT': 'SVT',
+            'MATHS_EXPERTES': 'Mathématiques expertes',
         }
         if subject_key in base:
             return base[subject_key]
@@ -558,67 +577,73 @@ def make_planning_body():
 
     subject_map = None  # use subject_label() instead
 
+    def format_day(date_str):
+        from datetime import date as _date
+        months = ('janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août',
+                  'septembre', 'octobre', 'novembre', 'décembre')
+        weekdays = ('lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche')
+        parsed = _date.fromisoformat(date_str)
+        return f"{weekdays[parsed.weekday()]} {parsed.day} {months[parsed.month - 1]}"
+
     body = make_cover("Planning et informations pratiques")
 
     # Page 1: Repères généraux
     body += make_header(header_title)
     body += "<h2>Repères généraux</h2>"
-    body += """<table>
+    block_times_str = " · ".join(
+        f"{b} : {_BLOCK_TIMES[b][0]}–{_BLOCK_TIMES[b][1]}" for b in ('A', 'B', 'C', 'D')
+    )
+    body += f"""<table>
     <tbody>
-        <tr><td style="width:25%; font-weight:700; color:#071A3A">Dates</td><td>Du lundi 17 au vendredi 28 août 2026 — <em>aucun cours les 22 et 23 août</em></td></tr>
+        <tr><td style="width:25%; font-weight:700; color:#071A3A">Dates</td><td>Du lundi 17 au vendredi 28 août 2026, y compris le week-end du 22-23 août (SVT/Physique-Chimie Première)</td></tr>
         <tr><td style="font-weight:700; color:#071A3A">Lieu</td><td>Centre Nexus Réussite, Mutuelleville, Tunis</td></tr>
         <tr><td style="font-weight:700; color:#071A3A">Public</td><td>Élèves entrant en 3e, Seconde, Première ou Terminale (rentrée 2026-2027)</td></tr>
         <tr><td style="font-weight:700; color:#071A3A">Format</td><td>5 séances de 2 h par matière · 10 h par matière · matières proposées selon le niveau</td></tr>
-        <tr><td style="font-weight:700; color:#071A3A">Effectif</td><td>Fondations (3e et Seconde) : 4 à 6 élèves, maximum 6 · Premium (Première et Terminale) : 3 à 5 élèves, maximum 5</td></tr>
-        <tr><td style="font-weight:700; color:#071A3A">Blocs horaires</td><td>A : 08:30–10:30 · B : 10:45–12:45 · C : 13:30–15:30 · D : 15:45–17:45</td></tr>
+        <tr><td style="font-weight:700; color:#071A3A">Effectif</td><td>Fondations (3e et Seconde) : 3 à 6 élèves, maximum 6 · Premium (Première et Terminale) : 3 à 5 élèves, maximum 5</td></tr>
+        <tr><td style="font-weight:700; color:#071A3A">Blocs horaires</td><td>{block_times_str}</td></tr>
     </tbody></table>"""
 
-    # Planning per level
+    # Vue par niveau
     for level_key, level_label in [('TROISIEME', '3e'), ('SECONDE', 'Seconde'), ('PREMIERE', 'Première'), ('TERMINALE', 'Terminale')]:
         slots = [s for s in SCHEDULE if s['level'] == level_key]
-        slots.sort(key=lambda s: (s['week'], ['A','B','C','D'].index(s['block'])))
-
-        # For Seconde: show day details; for others: same structure
-        week1 = [s for s in slots if s['week'] == 1]
-        week2 = [s for s in slots if s['week'] == 2]
-
-        days_w1 = "Lun 17 → Ven 21 août"
-        days_w2 = "Lun 24 → Ven 28 août"
+        slots.sort(key=lambda s: (s['windowId'], ['A', 'B', 'C', 'D'].index(s['block'])))
 
         body += f"<h2>Planning — Entrée en {level_label}</h2>"
         body += """<table>
         <thead><tr>
-            <th>Matière</th><th>Semaine</th><th>Jours</th><th>Créneau</th><th>Salle</th>
+            <th>Matière</th><th>Fenêtre</th><th>Créneau</th><th>Salle</th>
         </tr></thead><tbody>"""
 
-        for s in week1:
+        for s in slots:
             sn = subject_label(s['subject'], level_key)
-            body += f"<tr><td>{sn}</td><td>Semaine 1</td><td>{days_w1}</td><td>{s['startTime']}–{s['endTime']} (bloc {s['block']})</td><td>{s['room'].replace('salle-', 'Salle ')}</td></tr>"
-        for s in week2:
-            sn = subject_label(s['subject'], level_key)
-            body += f"<tr><td>{sn}</td><td>Semaine 2</td><td>{days_w2}</td><td>{s['startTime']}–{s['endTime']} (bloc {s['block']})</td><td>{s['room'].replace('salle-', 'Salle ')}</td></tr>"
+            body += f"<tr><td>{sn}</td><td>{s['windowLabel']}</td><td>{s['startTime']}–{s['endTime']} (bloc {s['block']})</td><td>{s['room'].replace('salle-', 'Salle ')}</td></tr>"
 
         body += "</tbody></table>"
 
-    # Vue par semaine/salle
+    # Vue par fenêtre et par salle
     body += '<div class="page-break"></div>'
     body += make_header(header_title)
-    body += "<h2>Vue par semaine et par salle</h2>"
+    body += "<h2>Vue par fenêtre et par salle</h2>"
 
-    for week_num, week_label, days_label in [(1, "Semaine 1", "Lun 17 → Ven 21 août"), (2, "Semaine 2", "Lun 24 → Ven 28 août")]:
-        body += f"<h3>{week_label} — {days_label}</h3>"
-        week_slots = [s for s in SCHEDULE if s['week'] == week_num]
-        week_slots.sort(key=lambda s: ['A','B','C','D'].index(s['block']))
+    seen_windows = []
+    for s in SCHEDULE:
+        if s['windowId'] not in seen_windows:
+            seen_windows.append(s['windowId'])
+
+    for window_id in seen_windows:
+        window_slots = [s for s in SCHEDULE if s['windowId'] == window_id]
+        window_label = window_slots[0]['windowLabel']
+        body += f"<h3>{window_label}</h3>"
+        window_slots.sort(key=lambda s: ['A', 'B', 'C', 'D'].index(s['block']))
 
         body += """<table>
         <thead><tr><th>Bloc</th><th>Horaire</th><th>Salle 1</th><th>Salle 2</th></tr></thead><tbody>"""
 
-        blocks_in_week = sorted(set(s['block'] for s in week_slots), key=lambda b: ['A','B','C','D'].index(b))
-        block_times = {'A': '08:30–10:30', 'B': '10:45–12:45', 'C': '13:30–15:30', 'D': '15:45–17:45'}
+        blocks_in_window = sorted(set(s['block'] for s in window_slots), key=lambda b: ['A', 'B', 'C', 'D'].index(b))
 
-        for block in blocks_in_week:
-            salle1 = [s for s in week_slots if s['block'] == block and s['room'] == 'salle-1']
-            salle2 = [s for s in week_slots if s['block'] == block and s['room'] == 'salle-2']
+        for block in blocks_in_window:
+            salle1 = [s for s in window_slots if s['block'] == block and s['room'] == 'salle-1']
+            salle2 = [s for s in window_slots if s['block'] == block and s['room'] == 'salle-2']
 
             def cell_content(slots_list):
                 if not slots_list:
@@ -630,8 +655,32 @@ def make_planning_body():
                     parts.append(f"{ln} — {sn}")
                 return "<br>".join(parts)
 
-            body += f"<tr><td style='font-weight:700'>Bloc {block}</td><td>{block_times[block]}</td><td>{cell_content(salle1)}</td><td>{cell_content(salle2)}</td></tr>"
+            start, end = _BLOCK_TIMES[block]
+            body += f"<tr><td style='font-weight:700'>Bloc {block}</td><td>{start}–{end}</td><td>{cell_content(salle1)}</td><td>{cell_content(salle2)}</td></tr>"
 
+        body += "</tbody></table>"
+
+    # Vue par jour
+    body += '<div class="page-break"></div>'
+    body += make_header(header_title)
+    body += "<h2>Vue par jour</h2>"
+
+    seen_dates = []
+    for s in SCHEDULE_DAYS:
+        if s['date'] not in seen_dates:
+            seen_dates.append(s['date'])
+    seen_dates.sort()
+
+    for date_str in seen_dates:
+        day_slots = [s for s in SCHEDULE_DAYS if s['date'] == date_str]
+        day_slots.sort(key=lambda s: ['A', 'B', 'C', 'D'].index(s['block']))
+        body += f"<h3>{format_day(date_str)}</h3>"
+        body += """<table>
+        <thead><tr><th>Horaire</th><th>Salle</th><th>Niveau</th><th>Matière</th></tr></thead><tbody>"""
+        for s in day_slots:
+            ln = level_map[s['level']]
+            sn = subject_label(s['subject'], s['level'])
+            body += f"<tr><td>{s['startTime']}–{s['endTime']}</td><td>{s['room'].replace('salle-', 'Salle ')}</td><td>{ln}</td><td>{sn}</td></tr>"
         body += "</tbody></table>"
 
     # Organisation pédagogique
@@ -646,16 +695,18 @@ def make_planning_body():
     <thead><tr><th>Matière</th><th>Matériel</th></tr></thead>
     <tbody>
         <tr><td>Mathématiques</td><td>Cahier, trousse complète, calculatrice</td></tr>
+        <tr><td>Mathématiques expertes</td><td>Cahier, trousse complète, calculatrice</td></tr>
         <tr><td>Français</td><td>Cahier, trousse complète</td></tr>
         <tr><td>NSI</td><td><strong>Ordinateur portable personnel</strong> (deux postes de secours disponibles — prévenir Nexus avant le stage si nécessaire)</td></tr>
         <tr><td>Physique-Chimie</td><td>Cahier, trousse complète, calculatrice — accompagnement théorique et méthodologique ; pas de séance de laboratoire</td></tr>
+        <tr><td>SVT</td><td>Cahier, trousse complète, calculatrice scientifique simple recommandée (non obligatoire sauf consigne de l'enseignant)</td></tr>
     </tbody></table>
     <p style="font-size:9.5pt; margin-bottom:12px;"><strong>Les supports de travail sont fournis par Nexus</strong> (fiches, exercices, sujets).</p>"""
 
     # Ouverture des groupes
     body += "<h2>Ouverture des groupes</h2>"
     body += """<ol style="font-size:9.5pt; padding-left:18px; margin-bottom:12px; line-height:1.6;">
-        <li>Fondations : ouverture à partir de <strong>4 élèves</strong>, <strong>6 élèves maximum</strong>.</li>
+        <li>Fondations : ouverture à partir de <strong>3 élèves</strong>, <strong>6 élèves maximum</strong>.</li>
         <li>Premium : ouverture à partir de <strong>3 élèves</strong>, <strong>5 élèves maximum</strong>.</li>
         <li>L'ouverture, le créneau, la salle et l'affectation pédagogique doivent être confirmés avant publication.</li>
         <li>Tant que les conditions de paiement, reçu, annulation et remboursement ne sont pas validées, le parcours reste une <strong>demande d'information sans paiement</strong>.</li>
@@ -909,7 +960,7 @@ def make_flyer_body():
     </tbody></table>
     <h2>Effectifs et tarifs</h2>
     <p style="font-size:9.5pt; line-height:1.7;">
-        <strong>Fondations :</strong> 4 à 6 élèves, maximum 6 ·
+        <strong>Fondations :</strong> 3 à 6 élèves, maximum 6 ·
         3e : {format_tnd(foundation_by_level["TROISIEME"]["price_per_student"])} TND / matière ·
         Seconde : {format_tnd(foundation_by_level["SECONDE"]["price_per_student"])} TND / matière.<br>
         <strong>Premium :</strong> 3 à 5 élèves, maximum 5 · {premium_prices}.

@@ -22,8 +22,9 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
     it('has correct dates', () => {
       expect(campaignManifest.startDate).toBe('2026-08-17');
       expect(campaignManifest.endDate).toBe('2026-08-28');
-      expect(campaignManifest.noClassDates).toContain('2026-08-22');
-      expect(campaignManifest.noClassDates).toContain('2026-08-23');
+      // Modèle fenêtres + week-end (v2) : plus de pause le week-end, les séances
+      // SVT/PC de Première couvrent le samedi et le dimanche (22-23 août).
+      expect(campaignManifest.noClassDates).toEqual([]);
     });
 
     it('has exactly 4 levels', () => {
@@ -38,16 +39,16 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       expect(campaignManifest.blocks).toHaveLength(4);
     });
 
-    it('has exactly 2 weeks', () => {
-      expect(campaignManifest.schedule).toHaveLength(2);
+    it('has exactly 3 windows (fenêtre 1, week-end + début fenêtre 2, fenêtre 2)', () => {
+      expect(campaignManifest.schedule).toHaveLength(3);
     });
   });
 
   describe('Modules', () => {
     const modules = (modulesData as any).modules;
 
-    it('has exactly 16 modules including the Seconde informatics/SNT module', () => {
-      expect(modules).toHaveLength(16);
+    it('has exactly 14 modules (2+2+5+5 par niveau, sans Seconde SNT/PC ni Terminale Philosophie)', () => {
+      expect(modules).toHaveLength(14);
     });
 
     it('each module has exactly 5 sessions', () => {
@@ -56,9 +57,9 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       }
     });
 
-    it('total sessions = 80', () => {
+    it('total sessions = 70', () => {
       const total = modules.reduce((sum: number, m: any) => sum + m.sessions.length, 0);
-      expect(total).toBe(80);
+      expect(total).toBe(70);
     });
 
     it('keeps the approved number of modules per level', () => {
@@ -67,7 +68,7 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
         byLevel[mod.level as keyof typeof byLevel]++;
       }
       expect(byLevel.TROISIEME).toBe(2);
-      expect(byLevel.SECONDE).toBe(4);
+      expect(byLevel.SECONDE).toBe(2);
       expect(byLevel.PREMIERE).toBe(5);
       expect(byLevel.TERMINALE).toBe(5);
     });
@@ -81,13 +82,10 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       }
     });
 
-    it('includes the Seconde informatics/SNT module (subjectId NSI, distinct from Première/Terminale NSI specialty)', () => {
-      const secondeInformatique = modules.find((module: any) => module.id === 'seconde-informatique-snt');
-      expect(secondeInformatique).toBeDefined();
-      expect(secondeInformatique?.level).toBe('SECONDE');
-      expect(secondeInformatique?.subjectId).toBe('NSI');
-      expect(secondeInformatique?.subject).toBe('Informatique (SNT)');
-      expect(secondeInformatique?.title).toMatch(/Initiation informatique, algorithmique et SNT/);
+    it('does not offer NSI, Physique-Chimie or Philosophie module content for Seconde (retiré au profit de Maths+Français uniquement)', () => {
+      expect(modules.find((module: any) => module.id === 'seconde-informatique-snt')).toBeUndefined();
+      expect(modules.find((module: any) => module.id === 'seconde-physique-chimie')).toBeUndefined();
+      expect(modules.find((module: any) => module.id === 'terminale-philosophie')).toBeUndefined();
     });
   });
 
@@ -116,15 +114,19 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       }
     });
 
-    it('no level has more than 3 blocks per day (6h max)', () => {
+    it('no level has more than 4 distinct blocks per day (8h max, ex. Terminale en fenêtre 2)', () => {
       for (const week of schedule) {
-        const blocksPerLevel: Record<string, number> = {};
+        const blocksPerLevel: Record<string, Set<string>> = {};
         for (const slot of week.slots) {
-          blocksPerLevel[slot.level] = (blocksPerLevel[slot.level] || 0) + 1;
+          const set = blocksPerLevel[slot.level] ?? new Set<string>();
+          set.add(slot.block);
+          blocksPerLevel[slot.level] = set;
         }
-        for (const [, count] of Object.entries(blocksPerLevel)) {
-          // Per day: max 3 blocks = 6h (each block is 2h) to accommodate the optional SVT evening block
-          expect(count).toBeLessThanOrEqual(3);
+        for (const [, blockSet] of Object.entries(blocksPerLevel)) {
+          // Par jour : max 4 blocs distincts = 8h (chaque bloc dure 2h). La Terminale en
+          // fenêtre 2 atteint 4 blocs/jour (A, B, C, D) — le bloc C porte 2 séances
+          // simultanées (NSI en salle 1, SVT en salle 2), d'où l'incompatibilité de choix.
+          expect(blockSet.size).toBeLessThanOrEqual(4);
         }
       }
     });
@@ -144,7 +146,7 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       }
     });
 
-    it('each declared teacher role stays at or below 6h/day', () => {
+    it('each declared teacher role stays at or below its own maxHoursPerDay', () => {
       for (const week of schedule) {
         for (const [roleId, role] of Object.entries(campaignManifest.teacherRoles)) {
           const roleBlocks = week.slots.filter((slot) => slot.teacherRole === roleId);
@@ -203,18 +205,16 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
   });
 
   describe('Terminology guards', () => {
-    it('manifest subject labels respect pedagogy rules', () => {
+    it('manifest subject labels respect pedagogy rules (NSI réservé à Première/Terminale, pas de Seconde)', () => {
       const nsi = campaignManifest.subjects.find(s => s.id === 'NSI');
-      expect(nsi?.levels).toEqual(['SECONDE', 'PREMIERE', 'TERMINALE']);
-      expect(nsi?.labelByLevel).toEqual({
-        SECONDE: 'Initiation informatique, algorithmique et SNT',
-      });
+      expect(nsi?.levels).toEqual(['PREMIERE', 'TERMINALE']);
     });
 
-    it('replaces Terminale French with Philosophy', () => {
+    it('Terminale n’offre ni Français ni Philosophie, et propose Maths expertes à la place', () => {
       const fr = campaignManifest.subjects.find(s => s.id === 'FRANCAIS');
       expect(fr?.levels).not.toContain('TERMINALE');
-      expect(campaignManifest.subjects.find(s => s.id === 'PHILOSOPHIE')?.levels).toEqual(['TERMINALE']);
+      expect(campaignManifest.subjects.find(s => s.id === 'PHILOSOPHIE')).toBeUndefined();
+      expect(campaignManifest.subjects.find(s => s.id === 'MATHS_EXPERTES')?.levels).toEqual(['TERMINALE']);
     });
   });
 

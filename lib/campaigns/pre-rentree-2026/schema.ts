@@ -1,6 +1,15 @@
 import { z } from 'zod';
 import { PRE_RENTREE_2026_NAVIGATION } from './navigation';
 
+/**
+ * Seuil d'ouverture de groupe UNIQUE pour tous les stages de pré-rentrée 2026, toutes
+ * offres et tous niveaux confondus (Fondations comme Premium) : un stage ouvre à partir
+ * de ce nombre d'inscrits, sans exception ni valeur dupliquée par matière/niveau.
+ * Référencé partout au lieu d'être ré-écrit (data/campaigns, offers.json,
+ * pricing.canonical.json, PDF Planning, sélecteur) pour rester une source unique.
+ */
+export const PRE_RENTREE_MIN_COHORT_OPENING = 3;
+
 /** Stable internal codes for the pupil's entry class in school year 2026-2027. */
 export const ENTRY_LEVEL_IDS = ['TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE'] as const;
 export const EntryLevelCode = z.enum(ENTRY_LEVEL_IDS);
@@ -49,7 +58,7 @@ const LevelSemantics = z.object({
 }).strict();
 
 const Subject = z.object({
-  id: z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'PHILOSOPHIE', 'SVT']),
+  id: z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'SVT', 'MATHS_EXPERTES']),
   label: z.string(),
   levels: z.array(EntryLevelCode),
   labelByLevel: z.record(z.string()).optional(),
@@ -57,17 +66,16 @@ const Subject = z.object({
 
 const ScheduleSlot = z.object({
   level: EntryLevelCode,
-  subject: z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'PHILOSOPHIE', 'SVT']),
+  subject: z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'SVT', 'MATHS_EXPERTES']),
   block: z.enum(['A', 'B', 'C', 'D']),
   room: z.string(),
   teacherRole: z.string().min(1),
 }).strict();
 
-const WeekSchedule = z.object({
-  week: z.number().int().min(1).max(2),
-  weekLabel: z.string(),
-  weekStart: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  weekEnd: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+const ScheduleWindow = z.object({
+  windowId: z.string().min(1),
+  windowLabel: z.string(),
+  days: z.array(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).min(1),
   slots: z.array(ScheduleSlot),
 });
 
@@ -78,8 +86,8 @@ const Venue = z.object({
 });
 
 const CapacityByOffer = z.object({
-  FONDATIONS: z.object({ minPerCohort: z.literal(4), maxPerCohort: z.literal(6) }).strict(),
-  PREMIUM: z.object({ minPerCohort: z.literal(3), maxPerCohort: z.literal(5) }).strict(),
+  FONDATIONS: z.object({ minPerCohort: z.literal(PRE_RENTREE_MIN_COHORT_OPENING), maxPerCohort: z.literal(6) }).strict(),
+  PREMIUM: z.object({ minPerCohort: z.literal(PRE_RENTREE_MIN_COHORT_OPENING), maxPerCohort: z.literal(5) }).strict(),
 }).strict();
 
 const Contact = z.object({
@@ -140,8 +148,8 @@ const CampaignContent = z.object({
       FRANCAIS: z.object({ label: z.string().min(1), description: z.string().min(1) }),
       NSI: z.object({ label: z.string().min(1), description: z.string().min(1) }),
       PHYSIQUE_CHIMIE: z.object({ label: z.string().min(1), description: z.string().min(1) }),
-      PHILOSOPHIE: z.object({ label: z.string().min(1), description: z.string().min(1) }),
       SVT: z.object({ label: z.string().min(1), description: z.string().min(1) }),
+      MATHS_EXPERTES: z.object({ label: z.string().min(1), description: z.string().min(1) }),
     }).strict(),
     preRegistrationNotice: z.string().min(1),
     noOnlinePaymentNotice: z.string().min(1),
@@ -173,18 +181,18 @@ export const PreRentreeCampaignManifestSchema = z.object({
   timezone: z.literal('Africa/Tunis'),
   startDate: z.literal('2026-08-17'),
   endDate: z.literal('2026-08-28'),
-  noClassDates: z.array(z.string()).min(2),
+  noClassDates: z.array(z.string()),
   decisionDeadline: z.string(),
   venue: Venue,
   levels: z.array(Level).length(4),
   entryLevelSemantics: LevelSemantics,
   subjects: z.array(Subject).length(6),
   blocks: z.array(TimeSlot).length(4),
-  schedule: z.array(WeekSchedule).length(2),
-  roomRoles: z.record(z.array(z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'PHILOSOPHIE', 'SVT'])).min(1)),
+  schedule: z.array(ScheduleWindow).length(3),
+  roomRoles: z.record(z.array(z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'SVT', 'MATHS_EXPERTES'])).min(1)),
   teacherRoles: z.record(z.object({
-    subjects: z.array(z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'PHILOSOPHIE', 'SVT'])).min(1),
-    maxHoursPerDay: z.literal(6),
+    subjects: z.array(z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'SVT', 'MATHS_EXPERTES'])).min(1),
+    maxHoursPerDay: z.number().int().min(1).max(8),
     assigned: z.boolean(),
   }).strict()),
   capacityByOffer: CapacityByOffer,
@@ -193,6 +201,7 @@ export const PreRentreeCampaignManifestSchema = z.object({
     teacherAssignmentsValidated: z.boolean(),
     noTeacherConflict: z.boolean(),
     noRoomConflict: z.boolean(),
+    noLevelConflict: z.boolean(),
     dailyLoadValid: z.boolean(),
   }).strict(),
   packProductIds: z.array(z.string()).length(4),
@@ -229,7 +238,7 @@ const CampaignModule = z.object({
   objective: z.string().min(1).optional(),
   equipment: z.string().min(1).optional(),
   level: EntryLevelCode,
-  subjectId: z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'PHILOSOPHIE', 'SVT']),
+  subjectId: z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'SVT', 'MATHS_EXPERTES']),
   subject: z.string().min(1),
   title: z.string().min(1),
   subtitle: z.string().min(1),
@@ -242,7 +251,7 @@ const CampaignModule = z.object({
 export const PreRentreeModulesSchema = z.object({
   version: z.string().min(1),
   generatedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  modules: z.array(CampaignModule).length(16),
+  modules: z.array(CampaignModule).length(14),
 });
 
 export type PreRentreeCampaignModule = z.infer<typeof CampaignModule>;

@@ -13,6 +13,8 @@ jest.mock('@/lib/analytics', () => ({
   track: {
     preRentreeScheduleViewed: jest.fn(),
     preRentreeProgramViewed: jest.fn(),
+    preRentreeLevelSelected: jest.fn(),
+    preRentreeSubjectSelected: jest.fn(),
   },
 }));
 
@@ -22,12 +24,15 @@ function renderSchedule() {
   return render(
     <ScheduleSection
       schedule={dto.schedule}
-      scheduleWeeks={dto.scheduleWeeks}
+      scheduleWindows={dto.scheduleWindows}
       levels={dto.levels}
       subjects={dto.subjects}
       blocks={dto.blocks}
       organization={dto.organization}
       operationalGates={dto.operationalGates}
+      offerOptions={dto.offerOptions}
+      subjectIncompatibilities={dto.subjectIncompatibilities}
+      capacityByOffer={dto.capacityByOffer}
     />,
   );
 }
@@ -45,17 +50,19 @@ describe('Pré-rentrée landing sections', () => {
     expect(within(legend).getByText('NSI')).toBeInTheDocument();
     expect(within(legend).getByText('Physique-Chimie')).toBeInTheDocument();
     expect(within(legend).getByText('SVT')).toBeInTheDocument();
-    expect(within(legend).getByText('Philosophie')).toBeInTheDocument();
+    expect(within(legend).getByText('Mathématiques expertes')).toBeInTheDocument();
+    expect(within(legend).queryByText('Philosophie')).not.toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Par classe de rentrée' })).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByRole('tab', { name: 'Entrée en 3e' })).toHaveAttribute('aria-selected', 'true');
     await user.click(screen.getByRole('tab', { name: 'Entrée en Seconde' }));
     const table = screen.getByRole('table', { name: 'Planning — Entrée en Seconde' });
     expect(within(table).getAllByRole('columnheader')).toHaveLength(6);
-    expect(within(table).getAllByRole('row')).toHaveLength(5);
+    // Seconde n'a plus que Maths + Français (grille fenêtres + week-end v2) : 1 ligne d'en-tête + 2 lignes.
+    expect(within(table).getAllByRole('row')).toHaveLength(3);
     expect(within(table).getByRole('columnheader', { name: 'Matière' })).toHaveAttribute('scope', 'col');
-    expect(within(table).getAllByRole('rowheader')).toHaveLength(4);
-    expect(within(table).getAllByText('5 séances · 10 h')).toHaveLength(4);
-    expect(within(table).getAllByText(/du lundi au vendredi/i)).toHaveLength(4);
+    expect(within(table).getAllByRole('rowheader')).toHaveLength(2);
+    expect(within(table).getAllByText('5 séances · 10 h')).toHaveLength(2);
+    expect(within(table).getAllByText(/du lundi \d+ au vendredi \d+/i)).toHaveLength(2);
 
     const levelTab = screen.getByRole('tab', { name: 'Par classe de rentrée' });
     const weekTab = screen.getByRole('tab', { name: 'Emploi du temps par semaine' });
@@ -89,32 +96,36 @@ describe('Pré-rentrée landing sections', () => {
     expect(messages).not.toMatch(/forceMount/i);
   });
 
-  it('renders both weekly timetables with four blocks and two rooms', async () => {
+  it('renders the three window timetables with four blocks and two rooms', async () => {
     const user = userEvent.setup();
     renderSchedule();
     await user.click(screen.getByRole('tab', { name: 'Emploi du temps par semaine' }));
 
-    expect(screen.getByRole('tab', { name: 'Semaine 1 · 17–21 août' })).toHaveAttribute('aria-selected', 'true');
-    const weekOne = screen.getByRole('table', { name: 'Emploi du temps — Semaine 1 · 17–21 août' });
-    expect(within(weekOne).getAllByRole('row')).toHaveLength(5);
-    expect(within(weekOne).getByRole('columnheader', { name: 'Salle 1' })).toBeInTheDocument();
-    expect(within(weekOne).getByRole('columnheader', { name: 'Salle 2' })).toBeInTheDocument();
-    expect(within(weekOne).queryAllByText('Libre')).toHaveLength(0);
-    expect(within(weekOne).getByText('Français — préparation à l’EAF')).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Fenêtre 1 — 17 au 21 août' })).toHaveAttribute('aria-selected', 'true');
+    const windowOne = screen.getByRole('table', { name: 'Emploi du temps — Fenêtre 1 — 17 au 21 août' });
+    expect(within(windowOne).getAllByRole('row')).toHaveLength(5);
+    expect(within(windowOne).getByRole('columnheader', { name: 'Salle 1' })).toBeInTheDocument();
+    expect(within(windowOne).getByRole('columnheader', { name: 'Salle 2' })).toBeInTheDocument();
+    // Bloc D / salle 2 est libre en fenêtre 1 (seul le NSI Première occupe le bloc D, en salle 1).
+    expect(within(windowOne).queryAllByText('Libre')).toHaveLength(1);
+    expect(within(windowOne).getByText('Français — préparation à l’EAF')).toBeInTheDocument();
 
-    await user.click(screen.getByRole('tab', { name: 'Semaine 2 · 24–28 août' }));
-    const weekTwo = screen.getByRole('table', { name: 'Emploi du temps — Semaine 2 · 24–28 août' });
-    expect(within(weekTwo).getAllByRole('row')).toHaveLength(5);
-    expect(within(weekTwo).queryAllByText('Libre')).toHaveLength(0);
-    expect(within(weekTwo).getByText(/SNT|initiation informatique/i)).toBeInTheDocument();
-    expect(within(weekTwo).getAllByText('Physique-Chimie')).toHaveLength(3);
+    await user.click(screen.getByRole('tab', { name: 'Fenêtre 2 — 24 au 28 août (Terminale)' }));
+    const windowTwo = screen.getByRole('table', { name: 'Emploi du temps — Fenêtre 2 — 24 au 28 août (Terminale)' });
+    expect(within(windowTwo).getAllByRole('row')).toHaveLength(5);
+    // Salle 1/bloc D et salle 2/blocs A,B sont libres (PC Tle a été déplacé au bloc D salle 2
+    // pour ne pas entrer en conflit avec la SVT/PC Première de la fenêtre week-end).
+    expect(within(windowTwo).queryAllByText('Libre')).toHaveLength(3);
+    expect(within(windowTwo).getByText('Mathématiques expertes')).toBeInTheDocument();
+    expect(within(windowTwo).getByText('Physique-Chimie')).toBeInTheDocument();
+    expect(within(windowTwo).getAllByText('SVT').length).toBeGreaterThan(0);
   });
 
   it('keeps teacher assignments out of the public surface until validation', () => {
     renderSchedule();
     const organization = screen.getByRole('region', { name: 'Organisation pédagogique' });
     expect(within(organization).queryAllByTestId('teacher-role')).toHaveLength(0);
-    expect(within(organization).getByText(/Salle 1.*Mathématiques.*NSI.*SVT/i)).toBeInTheDocument();
+    expect(within(organization).getByText(/Salle 1.*Mathématiques.*NSI.*Maths expertes/i)).toBeInTheDocument();
     expect(within(organization).getByText(/Salle 2.*Français.*Physique-Chimie/i)).toBeInTheDocument();
     expect(organization.textContent).not.toMatch(/MATHS_NSI_SNT_TEACHER|FRENCH_TEACHER|PHYSICS_CHEMISTRY_TEACHER/);
     expect(organization.textContent).not.toMatch(/60\s*h|30\s*h/);

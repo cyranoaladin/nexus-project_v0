@@ -136,7 +136,7 @@
       },
       "status": "CONFIRMED",
       "source": "data/pricing.canonical.json#/pre_rentree_foundations",
-      "publicWording": "Fondations : groupe de 4 à 6 élèves.",
+      "publicWording": "Fondations : groupe de 3 à 6 élèves.",
       "internalNote": "Le groupe n'ouvre pas en dessous du seuil canonique."
     },
     {
@@ -328,7 +328,7 @@
       },
       "status": "CONFIRMED",
       "source": "data/pricing.canonical.json#/pre_rentree_foundations; content/pre-rentree-2026/commercial-contract.fr.json#/offers/0-4",
-      "publicWording": "Fondations — entrée en 3e et en Seconde : inscription par matière, 10 heures, 5 séances de 2 heures, groupe de 4 à 6 élèves.",
+      "publicWording": "Fondations — entrée en 3e et en Seconde : inscription par matière, 10 heures, 5 séances de 2 heures, groupe de 3 à 6 élèves.",
       "internalNote": "Aucune remise multimatières."
     },
     {
@@ -779,7 +779,7 @@
       "value": "Quelle différence entre Fondations et Premium ?",
       "status": "CONFIRMED",
       "source": "content/pre-rentree-2026/offers.json#/levels",
-      "publicWording": "Fondations concerne la 3e et la Seconde, avec une inscription par matière et des groupes de 4 à 6. Premium concerne la Première et la Terminale, avec des packs de 1 à 4 matières et des groupes de 3 à 5.",
+      "publicWording": "Fondations concerne la 3e et la Seconde, avec une inscription par matière et des groupes de 3 à 6. Premium concerne la Première et la Terminale, avec des packs de 1 à 4 matières et des groupes de 3 à 5.",
       "internalNote": "Différence de niveau, de modèle tarifaire et de capacité ; ne pas hiérarchiser les élèves."
     },
     {
@@ -787,7 +787,7 @@
       "value": "À partir de combien d'élèves un groupe ouvre-t-il ?",
       "status": "CONFIRMED",
       "source": "data/pricing.canonical.json#/pre_rentree_foundations; data/pricing.canonical.json#/pre_rentree_packs",
-      "publicWording": "Fondations ouvre à partir de 4 élèves ; Premium à partir de 3 élèves.",
+      "publicWording": "Fondations ouvre à partir de 3 élèves ; Premium à partir de 3 élèves.",
       "internalNote": ""
     },
     {
@@ -957,7 +957,7 @@
       "value": "Mon enfant a besoin d'individuel.",
       "status": "CONFIRMED",
       "source": "data/pricing.canonical.json#/pre_rentree_foundations; data/pricing.canonical.json#/pre_rentree_packs",
-      "publicWording": "Le stage est collectif en groupe réduit, pas individuel. Fondations accueille 4 à 6 élèves et Premium 3 à 5. Si ce cadre ne correspond pas au besoin, nous le disons clairement.",
+      "publicWording": "Le stage est collectif en groupe réduit, pas individuel. Fondations accueille 3 à 6 élèves et Premium 3 à 5. Si ce cadre ne correspond pas au besoin, nous le disons clairement.",
       "internalNote": "Ne pas survendre l'individualisation."
     },
     {

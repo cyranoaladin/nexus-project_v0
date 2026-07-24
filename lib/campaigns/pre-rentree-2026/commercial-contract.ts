@@ -13,8 +13,8 @@ const SubjectSchema = z.enum([
   'PHYSIQUE_CHIMIE',
   'NSI',
   'FRANCAIS',
-  'PHILOSOPHIE',
   'SVT',
+  'MATHS_EXPERTES',
 ]);
 
 const OfferSourceSchema = z.object({

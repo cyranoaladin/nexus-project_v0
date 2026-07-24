@@ -59,7 +59,7 @@ export interface LandingScheduleSlot {
   startTime: string;
   endTime: string;
   room: string;
-  week: number;
+  windowId: string;
   sessionNumber: number;
 }
 
@@ -70,11 +70,10 @@ export interface LandingModuleSlot {
   room: string;
 }
 
-export interface LandingScheduleWeek {
-  week: number;
-  weekLabel: string;
-  weekStart: string;
-  weekEnd: string;
+export interface LandingScheduleWindow {
+  windowId: string;
+  windowLabel: string;
+  days: string[];
   slots: LandingModuleSlot[];
 }
 
@@ -95,7 +94,7 @@ export interface ScheduleSummaryLine {
   dates: string[];
   startTime: string;
   endTime: string;
-  week: number;
+  windowId: string;
 }
 
 export interface SelectionSummary {
@@ -312,7 +311,7 @@ export function buildSelectionSummary(input: {
       dates: [...new Set(slots.map((slot) => slot.date))].sort(),
       startTime: first.startTime,
       endTime: first.endTime,
-      week: first.week,
+      windowId: first.windowId,
     };
   });
   const dates = [...new Set(scheduleLines.flatMap((line) => line.dates))].sort();

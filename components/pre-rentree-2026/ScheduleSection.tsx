@@ -12,14 +12,17 @@ import { SUBJECT_THEMES } from '@/lib/campaigns/pre-rentree-2026/subject-theme';
 import { PRE_RENTREE_DOCUMENTS } from '@/lib/campaigns/pre-rentree-2026/documents';
 import type {
   LandingLevel,
+  LandingPack,
   LandingScheduleSlot,
-  LandingScheduleWeek,
+  LandingScheduleWindow,
   LandingSubject,
   LandingPublicOrganization,
 } from '@/lib/campaigns/pre-rentree-2026/configurator';
 import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
+import type { SubjectIncompatibility } from '@/lib/campaigns/pre-rentree-2026/incompatibilities';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SubjectBadge } from './SubjectBadge';
+import { StagePlanningSelector } from './StagePlanningSelector';
 import { useCampaignExperience } from './CampaignExperienceContext';
 
 interface Block {
@@ -31,7 +34,7 @@ interface Block {
 interface ModuleRow {
   subjectId: string;
   label: string;
-  week: number;
+  windowLabel: string;
   dates: string[];
   startTime: string;
   endTime: string;
@@ -63,6 +66,7 @@ function roomLabel(room: string): string {
 function moduleRows(
   schedule: readonly LandingScheduleSlot[],
   subjects: readonly LandingSubject[],
+  windows: readonly LandingScheduleWindow[],
   level: EntryLevelCode,
 ): ModuleRow[] {
   const subjectIds = [...new Set(
@@ -73,10 +77,11 @@ function moduleRows(
       .filter((slot) => slot.level === level && slot.subject === subjectId)
       .sort((left, right) => left.date.localeCompare(right.date));
     const first = slots[0];
+    const windowLabel = windows.find((candidate) => candidate.windowId === first?.windowId)?.windowLabel ?? '';
     return {
       subjectId,
       label: subjectLabel(subjects, subjectId, level),
-      week: first?.week ?? 0,
+      windowLabel,
       dates: slots.map((slot) => slot.date),
       startTime: first?.startTime ?? '',
       endTime: first?.endTime ?? '',
@@ -107,7 +112,7 @@ function LevelDesktopTable({ rows, levelLabel }: { rows: ModuleRow[]; levelLabel
         <caption className="sr-only">Planning — {levelLabel}</caption>
         <thead className="bg-lux-paper text-lux-ink">
           <tr>
-            {['Matière', 'Semaine', 'Dates', 'Créneau', 'Salle', 'Volume'].map((heading, index) => (
+            {['Matière', 'Fenêtre', 'Dates', 'Créneau', 'Salle', 'Volume'].map((heading, index) => (
               <th key={heading} scope="col" className={cn('px-3 py-4 font-semibold', index === 0 ? 'w-[29%]' : '')}>{heading}</th>
             ))}
           </tr>
@@ -118,10 +123,10 @@ function LevelDesktopTable({ rows, levelLabel }: { rows: ModuleRow[]; levelLabel
               <th scope="row" className="px-3 py-4 font-normal">
                 <SubjectBadge subjectId={row.subjectId} label={row.label} />
               </th>
-              <td className="px-3 py-4 font-semibold text-lux-ink">Semaine {row.week}</td>
+              <td className="px-3 py-4 font-semibold text-lux-ink">{row.windowLabel}</td>
               <td className="px-3 py-4 text-lux-slate" title={formatDetailedDates(row.dates)}>
                 <span className="block font-medium text-lux-ink">{formatWeekRange(row.dates[0] ?? '', row.dates.at(-1) ?? '')}</span>
-                <span className="mt-1 block text-xs">du lundi au vendredi</span>
+                <span className="mt-1 block text-xs">{formatPresenceRange(row.dates)}</span>
               </td>
               <td className="px-3 py-4 font-medium text-lux-ink">{row.startTime}–{row.endTime}</td>
               <td className="px-3 py-4 text-lux-slate">{roomLabel(row.room)}</td>
@@ -141,11 +146,11 @@ function LevelMobileCards({ rows }: { rows: ModuleRow[] }) {
         <article
           key={row.subjectId}
           className="min-w-0 rounded-2xl border border-lux-line bg-white p-4"
-          aria-label={`${row.label}, semaine ${row.week}`}
+          aria-label={`${row.label}, ${row.windowLabel}`}
         >
           <SubjectBadge subjectId={row.subjectId} label={row.label} />
           <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
-            <div><dt className="text-xs text-lux-slate">Semaine</dt><dd className="font-medium text-lux-ink">Semaine {row.week}</dd></div>
+            <div><dt className="text-xs text-lux-slate">Fenêtre</dt><dd className="font-medium text-lux-ink">{row.windowLabel}</dd></div>
             <div><dt className="text-xs text-lux-slate">Salle</dt><dd className="font-medium text-lux-ink">{roomLabel(row.room)}</dd></div>
             <div className="col-span-2"><dt className="text-xs text-lux-slate">Présence</dt><dd className="font-medium text-lux-ink" title={formatDetailedDates(row.dates)}>{formatPresenceRange(row.dates)}</dd></div>
             <div><dt className="text-xs text-lux-slate">Créneau</dt><dd className="font-medium text-lux-ink">{row.startTime}–{row.endTime}</dd></div>
@@ -163,7 +168,7 @@ function OccupiedCell({
   levels,
   subjects,
 }: {
-  slot: LandingScheduleWeek['slots'][number] | undefined;
+  slot: LandingScheduleWindow['slots'][number] | undefined;
   block: Block;
   levels: readonly LandingLevel[];
   subjects: readonly LandingSubject[];
@@ -181,22 +186,21 @@ function OccupiedCell({
   );
 }
 
-function WeekDesktopTable({
-  week,
+function WindowDesktopTable({
+  window,
   blocks,
   levels,
   subjects,
 }: {
-  week: LandingScheduleWeek;
+  window: LandingScheduleWindow;
   blocks: readonly Block[];
   levels: readonly LandingLevel[];
   subjects: readonly LandingSubject[];
 }) {
-  const label = `Semaine ${week.week} · ${formatWeekRange(week.weekStart, week.weekEnd)}`;
   return (
     <div className="mt-6 hidden overflow-hidden rounded-2xl border border-lux-line bg-white sm:block">
       <table className="w-full table-fixed border-collapse text-left">
-        <caption className="sr-only">Emploi du temps — {label}</caption>
+        <caption className="sr-only">Emploi du temps — {window.windowLabel}</caption>
         <thead className="bg-lux-paper text-lux-ink">
           <tr>
             <th scope="col" className="w-[22%] px-4 py-4 font-semibold">Créneau</th>
@@ -214,7 +218,7 @@ function WeekDesktopTable({
               {['salle-1', 'salle-2'].map((room) => (
                 <td key={room} className="px-4 py-4" aria-label={`${roomLabel(room)}, bloc ${block.id}`}>
                   <OccupiedCell
-                    slot={week.slots.find((slot) => slot.block === block.id && slot.room === room)}
+                    slot={window.slots.find((slot) => slot.block === block.id && slot.room === room)}
                     block={block}
                     levels={levels}
                     subjects={subjects}
@@ -229,13 +233,13 @@ function WeekDesktopTable({
   );
 }
 
-function WeekMobileList({
-  week,
+function WindowMobileList({
+  window,
   blocks,
   levels,
   subjects,
 }: {
-  week: LandingScheduleWeek;
+  window: LandingScheduleWindow;
   blocks: readonly Block[];
   levels: readonly LandingLevel[];
   subjects: readonly LandingSubject[];
@@ -250,7 +254,7 @@ function WeekMobileList({
               <div key={room} className="min-w-0 rounded-xl bg-lux-paper p-3">
                 <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-lux-slate">{roomLabel(room)}</p>
                 <OccupiedCell
-                  slot={week.slots.find((slot) => slot.block === block.id && slot.room === room)}
+                  slot={window.slots.find((slot) => slot.block === block.id && slot.room === room)}
                   block={block}
                   levels={levels}
                   subjects={subjects}
@@ -290,15 +294,18 @@ function Organization({ organization }: { organization: LandingPublicOrganizatio
 
 export function ScheduleSection({
   schedule,
-  scheduleWeeks,
+  scheduleWindows,
   levels,
   subjects,
   blocks,
   organization,
   operationalGates,
+  offerOptions,
+  subjectIncompatibilities,
+  capacityByOffer,
 }: {
   schedule: LandingScheduleSlot[];
-  scheduleWeeks: LandingScheduleWeek[];
+  scheduleWindows: LandingScheduleWindow[];
   levels: LandingLevel[];
   subjects: LandingSubject[];
   blocks: Block[];
@@ -308,13 +315,17 @@ export function ScheduleSection({
     teacherAssignmentsValidated: boolean;
     noTeacherConflict: boolean;
     noRoomConflict: boolean;
+    noLevelConflict: boolean;
     dailyLoadValid: boolean;
   };
+  offerOptions: LandingPack[];
+  subjectIncompatibilities: SubjectIncompatibility[];
+  capacityByOffer: Record<'FONDATIONS' | 'PREMIUM', { minPerCohort: number; maxPerCohort: number }>;
 }) {
   const { configuredEntryLevel } = useCampaignExperience();
   const initialLevel = levels[0]?.id ?? 'SECONDE';
   const [level, setLevel] = useState<EntryLevelCode>(initialLevel);
-  const [week, setWeek] = useState(String(scheduleWeeks[0]?.week ?? 1));
+  const [windowId, setWindowId] = useState(scheduleWindows[0]?.windowId ?? '');
 
   useEffect(() => {
     if (configuredEntryLevel) setLevel(configuredEntryLevel);
@@ -329,6 +340,16 @@ export function ScheduleSection({
           <p role="note" className="mt-5 rounded-xl border border-lux-gold/40 bg-lux-gold/10 p-4 text-sm text-lux-ink">Planning de revue : les affectations finales des salles et des enseignants ne sont pas encore validées.</p>
         )}
         <SubjectLegend />
+
+        <StagePlanningSelector
+          levels={levels}
+          subjects={subjects}
+          schedule={schedule}
+          offerOptions={offerOptions}
+          incompatibilities={subjectIncompatibilities}
+          capacityByOffer={capacityByOffer}
+          planningPdfHref={PRE_RENTREE_DOCUMENTS.find((doc) => doc.kind === 'planning')?.href}
+        />
 
         <Tabs
           defaultValue="by-level"
@@ -361,7 +382,7 @@ export function ScheduleSection({
               ))}
             </div>
             {levels.map((option) => {
-              const levelRows = moduleRows(schedule, subjects, option.id);
+              const levelRows = moduleRows(schedule, subjects, scheduleWindows, option.id);
               return (
                 <div
                   key={option.id}
@@ -379,18 +400,18 @@ export function ScheduleSection({
           </TabsContent>
 
           <TabsContent value="by-week" className="mt-7">
-            <Tabs value={week} onValueChange={setWeek}>
-              <TabsList aria-label="Semaine affichée" className="grid h-auto min-h-11 w-full grid-cols-1 justify-start gap-1 border border-lux-line bg-lux-paper p-1 sm:inline-flex sm:w-auto">
-                {scheduleWeeks.map((option) => (
-                  <TabsTrigger key={option.week} value={String(option.week)} aria-label={`Semaine ${option.week} · ${formatWeekRange(option.weekStart, option.weekEnd)}`} className="min-h-11">
-                    Semaine {option.week} · {formatWeekRange(option.weekStart, option.weekEnd)}
+            <Tabs value={windowId} onValueChange={setWindowId}>
+              <TabsList aria-label="Fenêtre affichée" className="grid h-auto min-h-11 w-full grid-cols-1 justify-start gap-1 border border-lux-line bg-lux-paper p-1 sm:inline-flex sm:w-auto">
+                {scheduleWindows.map((option) => (
+                  <TabsTrigger key={option.windowId} value={option.windowId} aria-label={option.windowLabel} className="min-h-11">
+                    {option.windowLabel}
                   </TabsTrigger>
                 ))}
               </TabsList>
-              {scheduleWeeks.map((option) => (
-                <TabsContent key={option.week} value={String(option.week)} forceMount className="mt-0 data-[state=inactive]:hidden">
-                  <WeekDesktopTable week={option} blocks={blocks} levels={levels} subjects={subjects} />
-                  <WeekMobileList week={option} blocks={blocks} levels={levels} subjects={subjects} />
+              {scheduleWindows.map((option) => (
+                <TabsContent key={option.windowId} value={option.windowId} forceMount className="mt-0 data-[state=inactive]:hidden">
+                  <WindowDesktopTable window={option} blocks={blocks} levels={levels} subjects={subjects} />
+                  <WindowMobileList window={option} blocks={blocks} levels={levels} subjects={subjects} />
                 </TabsContent>
               ))}
             </Tabs>

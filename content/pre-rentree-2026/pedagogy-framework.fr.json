@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "version": "2026-pedagogy-framework-v3",
+  "version": "2026-pedagogy-framework-v4",
   "locale": "fr-TN",
   "positioningDurationMinutes": 45,
   "quickAssessmentDurationMinutes": 8,
@@ -21,19 +21,9 @@
       "material": "Feuille de sujet, brouillon, trousse et calculatrice usuelle"
     },
     {
-      "moduleId": "seconde-physique-chimie",
-      "code": "POS-2-PC",
-      "material": "Feuille de sujet, brouillon, trousse et calculatrice usuelle"
-    },
-    {
       "moduleId": "seconde-francais",
       "code": "POS-2-FR",
       "material": "Feuille de sujet, brouillon et trousse"
-    },
-    {
-      "moduleId": "seconde-informatique-snt",
-      "code": "POS-2-SNT",
-      "material": "Feuille de sujet et ordinateur avec Python 3 si disponible"
     },
     {
       "moduleId": "premiere-mathematiques",
@@ -61,6 +51,11 @@
       "material": "Feuille de sujet, brouillon, trousse et calculatrice usuelle"
     },
     {
+      "moduleId": "terminale-maths-expertes",
+      "code": "POS-T-MATHEXP",
+      "material": "Feuille de sujet, brouillon, trousse et calculatrice usuelle"
+    },
+    {
       "moduleId": "terminale-physique-chimie",
       "code": "POS-T-PC",
       "material": "Feuille de sujet, brouillon, trousse et calculatrice usuelle"
@@ -69,11 +64,6 @@
       "moduleId": "terminale-nsi",
       "code": "POS-T-NSI",
       "material": "Feuille de sujet et ordinateur avec Python 3"
-    },
-    {
-      "moduleId": "terminale-philosophie",
-      "code": "POS-T-PHILO",
-      "material": "Feuille de sujet, brouillon et trousse"
     },
     {
       "moduleId": "premiere-svt",
@@ -127,16 +117,6 @@
         "Consigne partiellement traitée"
       ]
     },
-    "PHILOSOPHIE": {
-      "taskLead": "Rédigez un paragraphe argumenté qui montre que vous savez",
-      "correctionLead": "La réponse doit définir les termes, formuler un problème, développer un argument et mobiliser",
-      "errorTypes": [
-        "Opinion sans argument",
-        "Terme non défini",
-        "Exemple non analysé",
-        "Paraphrase ou plan descriptif"
-      ]
-    },
     "SVT": {
       "taskLead": "À partir d’un document scientifique ou d’un schéma, montrez que vous savez",
       "correctionLead": "La réponse doit utiliser les données, mobiliser le vocabulaire SVT, structurer un raisonnement et formuler une conclusion explicite",
@@ -145,6 +125,16 @@
         "Vocabulaire imprécis",
         "Raisonnement non structuré",
         "Conclusion absente ou non justifiée"
+      ]
+    },
+    "MATHS_EXPERTES": {
+      "taskLead": "Résolvez le problème en justifiant chaque étape du raisonnement",
+      "correctionLead": "La réponse doit mobiliser la notion travaillée, justifier chaque étape et vérifier la cohérence du résultat obtenu",
+      "errorTypes": [
+        "Étape de calcul non justifiée",
+        "Notion mal mobilisée",
+        "Résultat non vérifié",
+        "Rédaction incomplète"
       ]
     }
   },

@@ -16,7 +16,7 @@ import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
 const dto = getPreRentreeLandingDTO();
 
 describe('Pré-rentrée configurator logic', () => {
-  it('builds all 78 approved level and subject configurations from DTO facts', () => {
+  it('builds all 66 approved level and subject configurations from DTO facts', () => {
     let configurationCount = 0;
     for (const level of dto.levels) {
       const availableSubjects = dto.subjects.filter((subject) =>
@@ -69,7 +69,7 @@ describe('Pré-rentrée configurator logic', () => {
         );
         expect(summary.scheduleLines).toHaveLength(subjectIds.length);
         expect(summary.scheduleLines.every((line) => line.dates.length === 5)).toBe(true);
-        expect(summary.scheduleLines.every((line) => line.startTime && line.endTime && line.week)).toBe(true);
+        expect(summary.scheduleLines.every((line) => line.startTime && line.endTime && line.windowId)).toBe(true);
         expect(summary.pack?.price).toBe(pack?.price);
         expect(summary.pack?.deposit).toBe(pack?.deposit);
         expect(summary.pack?.balance).toBe(pack?.balance);
@@ -103,7 +103,7 @@ describe('Pré-rentrée configurator logic', () => {
         configurationCount += 1;
       }
     }
-    expect(configurationCount).toBe(78);
+    expect(configurationCount).toBe(66);
   });
 
   it('skips the profile step for both Fondations levels', () => {
@@ -197,7 +197,7 @@ describe('Pré-rentrée configurator logic', () => {
   });
 
   it('builds a 40-hour summary from DTO schedule and pack data', () => {
-    const subjects = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'PHILOSOPHIE'];
+    const subjects = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'MATHS_EXPERTES'];
     const summary = buildSelectionSummary({
       level: 'TERMINALE',
       profile: { mathsOption: 'AUCUNE' },
@@ -211,7 +211,10 @@ describe('Pré-rentrée configurator logic', () => {
     expect(summary.pack?.code).toBe('PACK_4');
     expect(summary.totalHours).toBe(40);
     expect(summary.sessionCount).toBe(20);
-    expect(summary.dates).toHaveLength(10);
+    // Modèle fenêtres + week-end (v2) : toutes les matières Terminale tombent dans la
+    // même fenêtre 2 (24-28 août) — 5 dates partagées, pas 10 (contrairement à
+    // l'ancien modèle 2-semaines où les matières Terminale étaient réparties).
+    expect(summary.dates).toHaveLength(5);
     expect(summary.scheduleLines).toHaveLength(4);
     expect(summary.scheduleLines[0]?.dates).toHaveLength(5);
   });

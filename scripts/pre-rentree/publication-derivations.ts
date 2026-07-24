@@ -8,8 +8,8 @@ const SUBJECT_PUBLICATION_STYLE = {
   FRANCAIS: { abbreviation: 'FR', color: '#8A2743' },
   NSI: { abbreviation: 'NSI', color: '#6F42C1' },
   PHYSIQUE_CHIMIE: { abbreviation: 'PC', color: '#16847A' },
-  PHILOSOPHIE: { abbreviation: 'PHILO', color: '#8A5A28' },
   SVT: { abbreviation: 'SVT', color: '#047857' },
+  MATHS_EXPERTES: { abbreviation: 'EXPERTES', color: '#B45309' },
 } as const;
 
 const PUBLIC_ROOM_LABELS: Record<string, string> = {
@@ -43,7 +43,7 @@ export function deriveSchedule(campaign: PreRentreeCampaignManifest) {
   const counters = new Map<string, number>();
   const sessions: Array<{
     date: string;
-    week: number;
+    windowId: string;
     level: PreRentreeCampaignManifest['levels'][number]['id'];
     subjectId: PreRentreeCampaignManifest['subjects'][number]['id'];
     subjectLabel: string;
@@ -54,12 +54,11 @@ export function deriveSchedule(campaign: PreRentreeCampaignManifest) {
     sessionNumber: number;
   }> = [];
 
-  const weeks = campaign.schedule.map((week) => ({
-    week: week.week,
-    label: week.weekLabel,
-    startDate: week.weekStart,
-    endDate: week.weekEnd,
-    slots: week.slots.map((slot) => {
+  const windows = campaign.schedule.map((window) => ({
+    windowId: window.windowId,
+    label: window.windowLabel,
+    days: window.days,
+    slots: window.slots.map((slot) => {
       const block = blocks.get(slot.block);
       if (!block) throw new Error(`Unknown campaign block: ${slot.block}`);
       const roomLabel = PUBLIC_ROOM_LABELS[slot.room];
@@ -76,15 +75,9 @@ export function deriveSchedule(campaign: PreRentreeCampaignManifest) {
     }),
   }));
 
-  for (const week of campaign.schedule) {
-    const start = new Date(`${week.weekStart}T12:00:00Z`);
-    for (let day = 0; day < 5; day += 1) {
-      const date = new Date(start);
-      date.setUTCDate(start.getUTCDate() + day);
-      const dateValue = date.toISOString().slice(0, 10);
-      if (campaign.noClassDates.includes(dateValue)) continue;
-
-      for (const slot of week.slots) {
+  for (const window of campaign.schedule) {
+    for (const dateValue of window.days) {
+      for (const slot of window.slots) {
         const block = blocks.get(slot.block);
         const roomLabel = PUBLIC_ROOM_LABELS[slot.room];
         if (!block || !roomLabel) throw new Error('Invalid canonical schedule reference');
@@ -93,7 +86,7 @@ export function deriveSchedule(campaign: PreRentreeCampaignManifest) {
         counters.set(key, sessionNumber);
         sessions.push({
           date: dateValue,
-          week: week.week,
+          windowId: window.windowId,
           level: slot.level,
           subjectId: slot.subject,
           subjectLabel: publicSubjectLabel(campaign, slot.subject, slot.level),
@@ -107,7 +100,7 @@ export function deriveSchedule(campaign: PreRentreeCampaignManifest) {
     }
   }
 
-  return { weeks, sessions };
+  return { windows, sessions };
 }
 
 export function derivePacks(packs: PreRentreePack[]) {

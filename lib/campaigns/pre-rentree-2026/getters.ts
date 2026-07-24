@@ -27,6 +27,7 @@ import {
   getPreRentreePublicSurfaceDTO,
   type PreRentreePublicSurfaceDTO,
 } from './public-surface';
+import { computeSubjectIncompatibilities } from './incompatibilities';
 
 export { getPreRentreeCampaign } from './campaign-source';
 
@@ -34,13 +35,15 @@ export { getPreRentreeCampaign } from './campaign-source';
  * Get the validated campaign manifest.
  * Server-only — never import from client components.
  */
-/** Get the 16 module programs with their 80 sessions. */
+/** Get the 17 module programs with their 85 sessions. */
 export function getPreRentreeModules() {
   return PreRentreeModulesSchema.parse(modulesData).modules;
 }
 
 /**
- * Get the schedule expanded to all 80 individual sessions.
+ * Get the schedule expanded to all 70 individual sessions across the 3 windows
+ * (fenêtre 1, week-end + début fenêtre 2, fenêtre 2). Each window carries an
+ * explicit list of dates (`days`), which may include Saturday/Sunday.
  */
 export function getPreRentreeSchedule() {
   const campaign = getPreRentreeCampaign();
@@ -52,20 +55,13 @@ export function getPreRentreeSchedule() {
     startTime: string;
     endTime: string;
     room: string;
-    week: number;
+    windowId: string;
     sessionNumber: number;
   }> = [];
 
-  for (const weekSchedule of campaign.schedule) {
-    const weekStart = new Date(weekSchedule.weekStart);
-    for (let day = 0; day < 5; day++) {
-      const date = new Date(weekStart);
-      date.setDate(weekStart.getDate() + day);
-      const dateStr = date.toISOString().split('T')[0];
-
-      if (campaign.noClassDates.includes(dateStr)) continue;
-
-      for (const slot of weekSchedule.slots) {
+  for (const window of campaign.schedule) {
+    for (const dateStr of window.days) {
+      for (const slot of window.slots) {
         const block = campaign.blocks.find((candidate) => candidate.id === slot.block);
         if (!block) {
           throw new Error(`Unknown campaign block: ${slot.block}`);
@@ -78,7 +74,7 @@ export function getPreRentreeSchedule() {
           startTime: block.startTime,
           endTime: block.endTime,
           room: slot.room,
-          week: weekSchedule.week,
+          windowId: window.windowId,
           sessionNumber: sessions.filter(
             s => s.level === slot.level && s.subject === slot.subject
           ).length + 1,
@@ -195,16 +191,16 @@ export function getPreRentreeLandingDTO() {
     !campaign.roomRoles['salle-1']?.includes('MATHEMATIQUES') ||
     !campaign.roomRoles['salle-1']?.includes('NSI') ||
     !campaign.roomRoles['salle-2']?.includes('FRANCAIS') ||
-    !campaign.roomRoles['salle-2']?.includes('PHILOSOPHIE') ||
-    !campaign.roomRoles['salle-2']?.includes('PHYSIQUE_CHIMIE')
+    !campaign.roomRoles['salle-2']?.includes('PHYSIQUE_CHIMIE') ||
+    !campaign.roomRoles['salle-2']?.includes('SVT')
   ) {
     throw new Error('Unexpected Pré-rentrée room contract');
   }
   const organization = {
     educators: [],
     rooms: [
-      { label: 'Salle 1', details: 'Mathématiques, NSI, SNT et SVT' },
-      { label: 'Salle 2', details: 'Français, Philosophie, Physique-Chimie et SVT' },
+      { label: 'Salle 1', details: 'Mathématiques, NSI et Maths expertes' },
+      { label: 'Salle 2', details: 'Français, Physique-Chimie et SVT' },
     ],
   };
 
@@ -228,7 +224,7 @@ export function getPreRentreeLandingDTO() {
     levels: campaign.levels,
     subjects,
     blocks: campaign.blocks,
-    scheduleWeeks: campaign.schedule,
+    scheduleWindows: campaign.schedule,
     organization,
     capacityByOffer: campaign.capacityByOffer,
     operationalGates: campaign.operationalGates,
@@ -245,6 +241,7 @@ export function getPreRentreeLandingDTO() {
       depositPercentage: pricingRules.payment.deposit_pct_stage,
     },
     schedule,
+    subjectIncompatibilities: computeSubjectIncompatibilities(schedule),
     modules,
     content: campaign.content,
     seo: campaign.seo,
@@ -271,7 +268,7 @@ function buildPreRentreeHomepageSpotlightDTO(dto: PreRentreePublicSurfaceDTO): P
     accessibleLabel: `À partir du ${day} ${month} ${year}.`,
     chipLabel: `dès le ${day} ${month}`,
   };
-  const subjectOrder = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'FRANCAIS', 'NSI', 'PHILOSOPHIE', 'SVT'];
+  const subjectOrder = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'FRANCAIS', 'NSI', 'SVT', 'MATHS_EXPERTES'];
   const availableSubjectIds = new Set<string>(publicOffers.flatMap((offer) => offer.subjects));
   const subjectFamilies = subjectOrder.filter((subjectId) => availableSubjectIds.has(subjectId)).map((subjectId) => {
     const subject = campaign.subjects.find((candidate) => candidate.id === subjectId);
