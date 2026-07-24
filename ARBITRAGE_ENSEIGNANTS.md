@@ -28,7 +28,9 @@ Elle reste désactivée dans le générateur et n'est injectée dans aucun suppo
 
 ## Décision direction — R4 (2026-07-23)
 
-**Option 1 retenue sur les supports commerciaux de la campagne pré-rentrée (Tarifs, Flyer, Planning).** La mention **« enseignants certifiés ou agrégés de l'Éducation nationale française, en exercice »** est **rétablie** : c'est le différenciateur central de Nexus, revendiqué par la direction, qui assume la responsabilité de la preuve.
+**Option 1 retenue sur le support commercial de vente (Tarifs).** La mention **« enseignants certifiés ou agrégés de l'Éducation nationale française, en exercice »** est **rétablie** : c'est le différenciateur central de Nexus, revendiqué par la direction, qui assume la responsabilité de la preuve.
+
+Le **Planning** (document opérationnel : salles, créneaux, organisation) garde la formulation prudente « enseignants expérimentés, en exercice dans le système français ». Le **Flyer** ne porte aucune mention de statut (format factuel minimal ; il ne l'a jamais portée historiquement — son absence n'est pas une régression).
 
 Distinction actée (corrige la confusion d'origine) :
 - Le **STATUT** certifié/agrégé est une **qualification collective** de l'équipe. Il ne nomme personne → compatible avec l'anonymat nominatif maintenu.

@@ -35,22 +35,36 @@ def test_tariff_pdf_rows_are_derived_from_canonical_pricing():
         assert all(f"{value:,}".replace(",", "&#8239;") in html for value in values)
 
 
-def test_legacy_pdf_bodies_exclude_unapproved_public_claims_and_seconde_snt():
+def test_legacy_pdf_bodies_scope_r2_snt_module_and_r4_teacher_statut():
+    """R2 (décision direction 2026-07-23) : le module informatique de Seconde
+    (initiation informatique, algorithmique et SNT) est légitime sur le programme.
+    R4 (décision direction 2026-07-23) : la mention de STATUT collectif
+    (« enseignants certifiés ou agrégés de l'Éducation nationale française, en exercice »)
+    est autorisée sur les supports COMMERCIAUX (Tarifs) uniquement ; elle ne nomme
+    personne, distincte de l'anonymat nominatif (noms toujours interdits en public).
+    Les composantes gated (bilan écrit remis aux parents) restent hors contrat public."""
     generator = load_generator()
-    bodies = [
-        generator.make_programme_body("Seconde", generator.PROGRAMMES["Seconde"]),
-        generator.make_planning_body(),
-        generator.make_tarifs_body(),
-        generator.make_dossier_accueil_body(),
-    ]
-    public_text = "\n".join(bodies).casefold()
+    programme = generator.make_programme_body("Seconde", generator.PROGRAMMES["Seconde"])
+    planning = generator.make_planning_body()
+    tarifs = generator.make_tarifs_body()
+    dossier = generator.make_dossier_accueil_body()
 
-    assert "snt" not in public_text
-    assert "bilan écrit remis aux parents" not in public_text
-    assert "bilan individualisé écrit remis aux parents" not in public_text
-    assert "enseignants certifiés" not in public_text
-    assert "enseignants agrégés" not in public_text
-    assert "bilan écrit" not in public_text
+    # R2 — le module SNT/NSI de Seconde est restauré sur le programme détaillé.
+    assert "snt" in programme.casefold()
+
+    # R4 — la mention de statut est portée par le support commercial (Tarifs) uniquement.
+    assert generator.ENSEIGNANT_STATUT_COMMERCIAL in tarifs
+    for non_commercial in (programme, planning, dossier):
+        assert "enseignants certifiés" not in non_commercial.casefold()
+        assert "enseignants agrégés" not in non_commercial.casefold()
+    # Le planning (non commercial) garde la formulation prudente publiée.
+    assert "enseignants expérimentés" in planning.casefold()
+
+    # Les composantes gated (bilan écrit remis aux parents) restent hors contrat public.
+    for body in (programme, planning, tarifs, dossier):
+        assert "bilan écrit remis aux parents" not in body.casefold()
+        assert "bilan individualisé écrit remis aux parents" not in body.casefold()
+        assert "bilan écrit" not in body.casefold()
 
 
 def test_capacity_labels_match_foundations_and_premium_contracts():
@@ -81,11 +95,20 @@ def test_final_pdf_exports_match_the_active_generator_contract():
             text_by_name[path.name] = "\n".join(page.get_text() for page in document)
 
     combined = "\n".join(text_by_name.values()).casefold()
-    assert "snt" not in combined
-    assert "initiation informatique" not in combined
-    assert "enseignants certifiés" not in combined
-    assert "enseignants agrégés" not in combined
     assert "bilan écrit" not in combined
+
+    # R2 (2026-07-23) — le module informatique/SNT de Seconde est restauré sur le programme détaillé.
+    assert "snt" in text_by_name["NexusReussite_PreRentree2026_Programme_Seconde.pdf"].casefold()
+
+    # R4 (2026-07-23) — la mention de statut collectif est portée par le support commercial (Tarifs)
+    # uniquement ; elle ne doit pas fuiter sur les documents non commerciaux (planning, dossier, programmes).
+    tarifs_text = text_by_name["NexusReussite_PreRentree2026_Tarifs.pdf"].casefold()
+    assert "enseignants certifiés" in tarifs_text or "enseignants agrégés" in tarifs_text
+    for name, text in text_by_name.items():
+        if name == "NexusReussite_PreRentree2026_Tarifs.pdf":
+            continue
+        assert "enseignants certifiés" not in text.casefold()
+        assert "enseignants agrégés" not in text.casefold()
     assert "fondations : 4 à 6 élèves" in combined
     assert "premium : 3 à 5 élèves" in combined
     assert "proposition — module à valider par la direction pédagogique" in (
