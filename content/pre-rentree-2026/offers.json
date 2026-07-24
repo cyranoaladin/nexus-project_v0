@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "version": "2026-offers-v2",
+  "version": "2026-offers-v3",
   "campaignId": "pre-rentree-2026",
   "depositRate": 0.3,
   "levels": [
@@ -42,7 +42,8 @@
       "subjects": [
         "MATHEMATIQUES",
         "PHYSIQUE_CHIMIE",
-        "FRANCAIS"
+        "FRANCAIS",
+        "NSI"
       ],
       "pricing": {
         "model": "PER_SUBJECT",
@@ -50,7 +51,7 @@
           "pre2026-foundations-seconde-subject"
         ],
         "multiSubjectDiscount": false,
-        "maximumSubjects": 3
+        "maximumSubjects": 4
       },
       "capacity": {
         "min": 4,

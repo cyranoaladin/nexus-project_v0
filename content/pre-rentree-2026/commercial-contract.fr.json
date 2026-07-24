@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "version": "2026-pre-rentree-commercial-v2",
+  "version": "2026-pre-rentree-commercial-v3",
   "campaignId": "pre-rentree-2026",
   "locale": "fr-TN",
   "validationDate": "2026-07-20",
@@ -250,6 +250,54 @@
       ],
       "validatedAt": "2026-07-20",
       "lastRevisedAt": "2026-07-20"
+    },
+    {
+      "offerId": "pre2026-seconde-informatique-snt",
+      "pricingId": "pre2026-foundations-seconde-subject",
+      "pricingKind": "FOUNDATIONS",
+      "level": "SECONDE",
+      "subjects": [
+        "NSI"
+      ],
+      "audience": [
+        "Élèves entrant en Seconde dans le système français en Tunisie"
+      ],
+      "objectives": [
+        "Découvrir la pensée algorithmique et la programmation Python",
+        "S'approprier les notions SNT de Seconde",
+        "Préparer le raisonnement numérique du lycée"
+      ],
+      "included": [
+        "Cinq séances structurées de deux heures",
+        "Objectifs annoncés",
+        "Entraînement et correction en séance"
+      ],
+      "optional": [],
+      "excluded": [
+        "Suivi parent régulier",
+        "Accompagnement annuel"
+      ],
+      "supports": [
+        "Consignes et exercices utilisés pendant les séances"
+      ],
+      "followUp": [
+        "Orientation vers les priorités de travail observées pendant le stage"
+      ],
+      "cta": "Écrire sur WhatsApp pour vérifier le groupe adapté",
+      "proofIds": [
+        "PRF-PRE2026-DATES-VENUE",
+        "PRF-PRE2026-WHATSAPP",
+        "PRF-PRE2026-DEPOSIT-30",
+        "PRF-PRE2026-SECONDE-400",
+        "PRF-PRE2026-FIVE-SESSIONS",
+        "PRF-PRE2026-STRUCTURED-SESSIONS"
+      ],
+      "publicStatus": "APPROVED",
+      "approvers": [
+        "DIRECTION_NEXUS_REUSSITE"
+      ],
+      "validatedAt": "2026-07-23",
+      "lastRevisedAt": "2026-07-23"
     },
     {
       "offerId": "pre2026-premiere-pack-1",

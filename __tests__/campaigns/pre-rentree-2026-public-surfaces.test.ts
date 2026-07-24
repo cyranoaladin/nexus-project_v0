@@ -5,7 +5,7 @@ import { join } from 'node:path';
 
 const expectedSubjects = {
   TROISIEME: ['FRANCAIS', 'MATHEMATIQUES'],
-  SECONDE: ['FRANCAIS', 'MATHEMATIQUES', 'PHYSIQUE_CHIMIE'],
+  SECONDE: ['FRANCAIS', 'MATHEMATIQUES', 'NSI', 'PHYSIQUE_CHIMIE'],
   PREMIERE: ['FRANCAIS', 'MATHEMATIQUES', 'NSI', 'PHYSIQUE_CHIMIE', 'SVT'],
   TERMINALE: ['MATHEMATIQUES', 'NSI', 'PHILOSOPHIE', 'PHYSIQUE_CHIMIE', 'SVT'],
 };
@@ -30,7 +30,7 @@ describe('Pré-rentrée 2026 central public-surface adapter', () => {
     const dto = compilePreRentreeReviewSurfaceDTO();
     const canonical = getCommercialPublicOffers();
 
-    expect(dto.offers).toHaveLength(13);
+    expect(dto.offers).toHaveLength(14);
     expect(dto.offers.map((offer) => offer.offerId)).toEqual(canonical.map((offer) => offer.offerId));
     for (const offer of dto.offers) {
       const source = canonical.find((item) => item.offerId === offer.offerId);
@@ -47,7 +47,10 @@ describe('Pré-rentrée 2026 central public-surface adapter', () => {
   it('derives the only public subjects allowed at each level', () => {
     const dto = compilePreRentreeReviewSurfaceDTO();
     expect(dto.subjectIdsByLevel).toEqual(expectedSubjects);
-    expect(JSON.stringify(dto)).not.toMatch(/SNT/i);
+    const secondeSubjects = dto.levels.find((level) => level.id === 'SECONDE')!.subjects;
+    const secondeInformatique = secondeSubjects.find((subject) => subject.id === 'NSI');
+    expect(secondeInformatique?.label).toBe('Initiation informatique, algorithmique et SNT');
+    // SNT is a legitimate public Seconde label (distinct from the NSI specialty); it must not be blanket-banned.
   });
 
   it('hides services and advantages without approved offer-level evidence', () => {

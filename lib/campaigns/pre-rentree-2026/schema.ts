@@ -153,7 +153,7 @@ const CampaignContent = z.object({
   faq: z.array(z.object({
     question: z.string().min(1),
     answer: z.string().min(1),
-  })).length(18),
+  })).length(19),
 });
 
 const SeoContract = z.object({
@@ -242,7 +242,7 @@ const CampaignModule = z.object({
 export const PreRentreeModulesSchema = z.object({
   version: z.string().min(1),
   generatedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  modules: z.array(CampaignModule).length(15),
+  modules: z.array(CampaignModule).length(16),
 });
 
 export type PreRentreeCampaignModule = z.infer<typeof CampaignModule>;

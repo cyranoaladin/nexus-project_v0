@@ -1,5 +1,5 @@
 {
-  "version": "2026-official-programme-matrix-v1",
+  "version": "2026-official-programme-matrix-v2",
   "schoolYear": "2026-2027",
   "scope": "Référentiel interne d'alignement des modules Nexus de pré-rentrée ; il ne constitue pas une autorisation de publication commerciale.",
   "officialSources": [
@@ -88,6 +88,13 @@
       "applicationNote": "Programme en vigueur pour l'année scolaire 2026-2027."
     },
     {
+      "officialProgrammeId": "BO2019-LYCEE-SNT-SECONDE",
+      "title": "Programme de sciences numériques et technologie (SNT) de Seconde",
+      "url": "https://sti.eduscol.education.fr/textes/programme-denseignement-en-snt",
+      "publisher": "Ministère de l'Éducation nationale",
+      "applicationNote": "Référence pédagogique du module d'initiation informatique / algorithmique / SNT de Seconde ; programme SNT en vigueur pour l'année scolaire 2026-2027."
+    },
+    {
       "officialProgrammeId": "BO2020-LYCEE-PHILOSOPHIE-TERMINALE",
       "title": "Programme de philosophie de Terminale générale",
       "url": "https://www.education.gouv.fr/au-bo-special-du-13-fevrier-2020-programmes-d-enseignement-de-terminale-generale-et-technologique-289717",
@@ -134,6 +141,16 @@
       "applicationSchoolYear": "2026-2027",
       "nexusSessionNumbers": [1, 2, 3, 4, 5],
       "alignmentSummary": "Préparer lecture analytique, culture littéraire, expression écrite et maîtrise de la langue au lycée.",
+      "publicOfferEligible": true
+    },
+    {
+      "moduleId": "seconde-informatique-snt",
+      "level": "SECONDE",
+      "subject": "Sciences numériques et technologie",
+      "officialProgrammeId": "BO2019-LYCEE-SNT-SECONDE",
+      "applicationSchoolYear": "2026-2027",
+      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "alignmentSummary": "Initiation à la pensée algorithmique, à la SNT et aux bases de Python, alignée sur le programme SNT de Seconde ; distincte de la spécialité NSI de Première et Terminale.",
       "publicOfferEligible": true
     },
     {

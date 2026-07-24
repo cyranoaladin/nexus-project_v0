@@ -1,6 +1,6 @@
 {
   "campaignId": "pre-rentree-2026",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "status": "DRAFT",
   "releaseStatus": "READY_FOR_REVIEW",
   "canonicalPath": "/stages/pre-rentree-2026",
@@ -70,9 +70,13 @@
       "id": "NSI",
       "label": "NSI",
       "levels": [
+        "SECONDE",
         "PREMIERE",
         "TERMINALE"
-      ]
+      ],
+      "labelByLevel": {
+        "SECONDE": "Initiation informatique, algorithmique et SNT"
+      }
     },
     {
       "id": "FRANCAIS",
@@ -195,6 +199,13 @@
       "weekStart": "2026-08-24",
       "weekEnd": "2026-08-28",
       "slots": [
+        {
+          "level": "SECONDE",
+          "subject": "NSI",
+          "block": "A",
+          "room": "salle-1",
+          "teacherRole": "COMPUTER_SCIENCE_TEACHER_A"
+        },
         {
           "level": "PREMIERE",
           "subject": "PHYSIQUE_CHIMIE",
@@ -488,8 +499,8 @@
           "description": "Un cahier et une trousse complète."
         },
         "NSI": {
-          "label": "NSI",
-          "description": "Pour les modules NSI de Première et Terminale, l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire."
+          "label": "Informatique (NSI / SNT)",
+          "description": "Pour les modules d’informatique — initiation / algorithmique / SNT en Seconde, NSI en Première et Terminale — l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire."
         },
         "PHYSIQUE_CHIMIE": {
           "label": "Physique-Chimie",
@@ -522,7 +533,11 @@
       },
       {
         "question": "Quelles matières sont proposées pour une entrée en Seconde ?",
-        "answer": "Pour une entrée en Seconde, Nexus Fondations propose Mathématiques, Français et Physique-Chimie. Chaque matière comprend cinq séances de deux heures et peut être choisie séparément."
+        "answer": "Pour une entrée en Seconde, Nexus Fondations propose Mathématiques, Français, Physique-Chimie et une initiation à l'informatique, à l'algorithmique et à la SNT. Chaque matière comprend cinq séances de deux heures et peut être choisie séparément."
+      },
+      {
+        "question": "Quelle est la différence entre l'initiation informatique / SNT de Seconde et la NSI ?",
+        "answer": "Pour une entrée en Seconde, le module est une initiation à l'informatique, à l'algorithmique et à la SNT (sciences numériques et technologie) : il ne s'agit pas de la spécialité NSI. La NSI (numérique et sciences informatiques) est proposée en Première et en Terminale uniquement."
       },
       {
         "question": "Comment choisir le profil de Mathématiques pour une entrée en Première ?",
@@ -570,7 +585,7 @@
       },
       {
         "question": "Quel matériel faut-il apporter ?",
-        "answer": "Un cahier et une trousse complète sont utiles dans toutes les matières. En SVT : calculatrice scientifique simple recommandée, non obligatoire sauf consigne de l'enseignant. Pour les modules NSI de Première et Terminale, l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire. En Physique-Chimie, les séances sont théoriques et méthodologiques ; aucune activité pratique en laboratoire n’est annoncée."
+        "answer": "Un cahier et une trousse complète sont utiles dans toutes les matières. En SVT : calculatrice scientifique simple recommandée, non obligatoire sauf consigne de l'enseignant. Pour les modules d’informatique — initiation / algorithmique / SNT en Seconde, NSI en Première et Terminale — l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire. En Physique-Chimie, les séances sont théoriques et méthodologiques ; aucune activité pratique en laboratoire n’est annoncée."
       },
       {
         "question": "Que faire si le groupe demandé est complet ?",

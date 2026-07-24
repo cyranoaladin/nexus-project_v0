@@ -103,7 +103,8 @@ class FullCampaignRenderer(KitRenderer):
         public_text = json.dumps(
             [self.content[family] for family in expected], ensure_ascii=False
         ).lower()
-        for forbidden in ("snt", "manuel offert", "remise annuelle", "places très limitées"):
+        # "snt" retiré de la liste : matière Seconde légitime depuis R2 (décision direction 2026-07-23).
+        for forbidden in ("manuel offert", "remise annuelle", "places très limitées"):
             if forbidden in public_text:
                 raise ValueError(f"Forbidden public term: {forbidden}")
 

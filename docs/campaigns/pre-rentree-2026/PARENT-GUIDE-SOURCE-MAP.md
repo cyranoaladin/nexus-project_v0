@@ -22,4 +22,4 @@
 | FAQ | `/content/faq` | aucune politique juridique inventée |
 | Contact | `/contact`, `/cta`, `/document/qrTarget` | QR vérifié contre l’URL canonique |
 
-Chaque bloc factuel de `parent-guide.fr.json` porte des références validées à la compilation. Le Guide contient quinze modules et soixante-quinze séances.
+Chaque bloc factuel de `parent-guide.fr.json` porte des références validées à la compilation. Le Guide contient seize modules et quatre-vingts séances.

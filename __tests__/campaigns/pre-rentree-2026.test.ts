@@ -46,8 +46,8 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
   describe('Modules', () => {
     const modules = (modulesData as any).modules;
 
-    it('has exactly 15 modules after excluding SNT in Seconde', () => {
-      expect(modules).toHaveLength(15);
+    it('has exactly 16 modules including the Seconde informatics/SNT module', () => {
+      expect(modules).toHaveLength(16);
     });
 
     it('each module has exactly 5 sessions', () => {
@@ -56,9 +56,9 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       }
     });
 
-    it('total sessions = 75', () => {
+    it('total sessions = 80', () => {
       const total = modules.reduce((sum: number, m: any) => sum + m.sessions.length, 0);
-      expect(total).toBe(75);
+      expect(total).toBe(80);
     });
 
     it('keeps the approved number of modules per level', () => {
@@ -67,7 +67,7 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
         byLevel[mod.level as keyof typeof byLevel]++;
       }
       expect(byLevel.TROISIEME).toBe(2);
-      expect(byLevel.SECONDE).toBe(3);
+      expect(byLevel.SECONDE).toBe(4);
       expect(byLevel.PREMIERE).toBe(5);
       expect(byLevel.TERMINALE).toBe(5);
     });
@@ -81,14 +81,13 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       }
     });
 
-    it('excludes every Seconde SNT or initiation-informatique module', () => {
-      const publicSecondeText = JSON.stringify(
-        modules.filter((module: any) => module.level === 'SECONDE'),
-      );
-      expect(publicSecondeText).not.toMatch(/SNT|initiation informatique/i);
-      expect(modules.some((module: any) => (
-        module.level === 'SECONDE' && module.subjectId === 'NSI'
-      ))).toBe(false);
+    it('includes the Seconde informatics/SNT module (subjectId NSI, distinct from Première/Terminale NSI specialty)', () => {
+      const secondeInformatique = modules.find((module: any) => module.id === 'seconde-informatique-snt');
+      expect(secondeInformatique).toBeDefined();
+      expect(secondeInformatique?.level).toBe('SECONDE');
+      expect(secondeInformatique?.subjectId).toBe('NSI');
+      expect(secondeInformatique?.subject).toBe('Informatique (SNT)');
+      expect(secondeInformatique?.title).toMatch(/Initiation informatique, algorithmique et SNT/);
     });
   });
 
@@ -206,8 +205,10 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
   describe('Terminology guards', () => {
     it('manifest subject labels respect pedagogy rules', () => {
       const nsi = campaignManifest.subjects.find(s => s.id === 'NSI');
-      expect(nsi?.levels).toEqual(['PREMIERE', 'TERMINALE']);
-      expect(nsi?.labelByLevel).toBeUndefined();
+      expect(nsi?.levels).toEqual(['SECONDE', 'PREMIERE', 'TERMINALE']);
+      expect(nsi?.labelByLevel).toEqual({
+        SECONDE: 'Initiation informatique, algorithmique et SNT',
+      });
     });
 
     it('replaces Terminale French with Philosophy', () => {

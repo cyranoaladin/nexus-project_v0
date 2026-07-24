@@ -34,13 +34,13 @@ export { getPreRentreeCampaign } from './campaign-source';
  * Get the validated campaign manifest.
  * Server-only — never import from client components.
  */
-/** Get the 15 module programs with their 75 sessions. */
+/** Get the 16 module programs with their 80 sessions. */
 export function getPreRentreeModules() {
   return PreRentreeModulesSchema.parse(modulesData).modules;
 }
 
 /**
- * Get the schedule expanded to all 75 individual sessions.
+ * Get the schedule expanded to all 80 individual sessions.
  */
 export function getPreRentreeSchedule() {
   const campaign = getPreRentreeCampaign();
@@ -203,7 +203,7 @@ export function getPreRentreeLandingDTO() {
   const organization = {
     educators: [],
     rooms: [
-      { label: 'Salle 1', details: 'Mathématiques, NSI et SVT' },
+      { label: 'Salle 1', details: 'Mathématiques, NSI, SNT et SVT' },
       { label: 'Salle 2', details: 'Français, Philosophie, Physique-Chimie et SVT' },
     ],
   };
@@ -259,6 +259,7 @@ export function getPreRentreeLandingDTO() {
 
 function buildPreRentreeHomepageSpotlightDTO(dto: PreRentreePublicSurfaceDTO): PreRentreeHomepageSpotlightDTO {
   const publicOffers = dto.offers;
+  const campaign = getPreRentreeCampaign();
   const start = new Date(`${dto.startDate}T12:00:00+01:00`);
   const day = new Intl.DateTimeFormat('fr-TN', { day: 'numeric', timeZone: 'Africa/Tunis' }).format(start);
   const month = new Intl.DateTimeFormat('fr-TN', { month: 'long', timeZone: 'Africa/Tunis' }).format(start);
@@ -273,7 +274,7 @@ function buildPreRentreeHomepageSpotlightDTO(dto: PreRentreePublicSurfaceDTO): P
   const subjectOrder = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'FRANCAIS', 'NSI', 'PHILOSOPHIE', 'SVT'];
   const availableSubjectIds = new Set<string>(publicOffers.flatMap((offer) => offer.subjects));
   const subjectFamilies = subjectOrder.filter((subjectId) => availableSubjectIds.has(subjectId)).map((subjectId) => {
-    const subject = dto.levels.flatMap((level) => level.subjects).find((candidate) => candidate.id === subjectId);
+    const subject = campaign.subjects.find((candidate) => candidate.id === subjectId);
     if (!subject) throw new Error(`Missing Pré-rentrée subject: ${subjectId}`);
     return subject.label;
   });

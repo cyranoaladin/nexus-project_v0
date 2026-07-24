@@ -33,6 +33,19 @@ function uniqueSorted<T extends string>(values: T[]): T[] {
 }
 
 /**
+ * Resolve the public label of a subject for a given level. Uses the campaign's
+ * per-level label when present (e.g. Seconde NSI is branded "Initiation
+ * informatique, algorithmique et SNT", distinct from the NSI specialty of
+ * Première/Terminale), falling back to the generic subject label otherwise.
+ */
+function subjectLabelFor(campaign: ReturnType<typeof getPreRentreeCampaign>, level: LevelId, subject: SubjectId): string {
+  const campaignSubject = campaign.subjects.find((entry) => entry.id === subject) as
+    | { labelByLevel?: Partial<Record<LevelId, string>> }
+    | undefined;
+  return campaignSubject?.labelByLevel?.[level] ?? SUBJECT_LABELS[subject];
+}
+
+/**
  * Single fail-closed adapter for every public Pré-rentrée surface.
  * It deliberately exposes only approved offers and approved proof references.
  */
@@ -53,7 +66,7 @@ export function compilePreRentreeReviewSurfaceDTO() {
       level: offer.level,
       levelLabel: LEVEL_LABELS[offer.level],
       subjects: offer.subjects,
-      subjectLabels: offer.subjects.map((subject) => SUBJECT_LABELS[subject]),
+      subjectLabels: offer.subjects.map((subject) => subjectLabelFor(campaign, offer.level, subject)),
       subjectCount: offer.subjectCount ?? 1,
       audience: offer.audience,
       hours: offer.hours,
@@ -91,7 +104,7 @@ export function compilePreRentreeReviewSurfaceDTO() {
     label: LEVEL_LABELS[level],
     subjects: subjectIdsByLevel[level].map((subject) => ({
       id: subject,
-      label: SUBJECT_LABELS[subject],
+      label: subjectLabelFor(campaign, level, subject),
     })),
   }));
   const firstDate = new Intl.DateTimeFormat('fr-TN', {
@@ -159,7 +172,7 @@ export function compilePreRentreeReviewSurfaceDTO() {
       },
       {
         question: 'Quelles matières sont proposées pour une entrée en Seconde ?',
-        answer: `Les matières publiées pour une entrée en Seconde sont ${subjectIdsByLevel.SECONDE.map((subject) => SUBJECT_LABELS[subject]).join(', ')}. La sélection est contrôlée par le référentiel de l’offre avant affichage.`,
+        answer: `Les matières publiées pour une entrée en Seconde sont ${subjectIdsByLevel.SECONDE.map((subject) => subjectLabelFor(campaign, 'SECONDE', subject)).join(', ')}. La sélection est contrôlée par le référentiel de l’offre avant affichage.`,
       },
       {
         question: 'Que comprennent les dix heures par matière ?',

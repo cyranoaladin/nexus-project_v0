@@ -34,12 +34,12 @@ describe('Pré-rentrée 2026 canonical public page', () => {
       'href',
       expect.stringContaining('wa.me/21699192829'),
     );
-    expect(container.textContent).not.toMatch(/Gate|REVIEW|blocked|owner|placeholder|SNT/i);
+    expect(container.textContent).not.toMatch(/Gate|REVIEW|blocked|owner|placeholder/i);
     expect(container.textContent).not.toMatch(/ARIA|Cyclades|manuel offert|remise annuelle|enseignant qualifié|bilan parent/i);
     expect(screen.queryByRole('heading', { name: /planning|emplois du temps|programmes détaillés/i })).not.toBeInTheDocument();
   });
 
-  it('renders all thirteen canonical offers with price, deposit, inclusions and exclusions', () => {
+  it('renders all fourteen canonical offers with price, deposit, inclusions and exclusions', () => {
     const dto = compilePreRentreeReviewSurfaceDTO();
     render(<PreRentree2026Page />);
     const catalogue = document.querySelector<HTMLElement>('#offres-pre-rentree');
