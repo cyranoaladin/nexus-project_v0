@@ -1,8 +1,14 @@
 # Journal des changements
 
+## 6.0.0-rc.5 — 23 juillet 2026
+
+- rétablit le module « initiation informatique / algorithmique / SNT » en Seconde (décision direction R2) : la campagne porte à **16 modules et 80 séances**, l'offre Seconde revient à quatre matières, le créneau semaine 2 / bloc A / salle 1 est restauré ;
+- le module SNT de Seconde (subjectId NSI, label public SNT) reste distinct de la spécialité NSI de Première et Terminale ;
+- autorise la mention collective « enseignants certifiés ou agrégés de l'Éducation nationale française, en exercice » sur les supports commerciaux (décision direction R4), distincte de l'anonymat nominatif maintenu.
+
 ## 6.0.0-rc.4 — 23 juillet 2026
 
-- supprime l’initiation informatique/SNT de l’offre, des modules et du planning de Seconde ;
+- supprime l’initiation informatique/SNT de l’offre, des modules et du planning de Seconde (revertée en rc.5 — décision direction R2) ;
 - porte la campagne à 15 modules et 75 séances après l’intégration de la SVT en Première et Terminale ;
 - restaure la capacité Fondations à 4–6 élèves, maximum 6, sans modifier le plafond Premium de 5 ;
 - dérive les acomptes et soldes des PDF depuis le pricing canonique, notamment 144 + 336 = 480 TND et 405 + 945 = 1 350 TND ;

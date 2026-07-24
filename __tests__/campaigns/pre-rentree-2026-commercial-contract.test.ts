@@ -72,8 +72,8 @@ describe('Pré-rentrée 2026 canonical commercial publication contract', () => {
       'MATHEMATIQUES',
       'PHYSIQUE_CHIMIE',
       'FRANCAIS',
+      'NSI',
     ]));
-    expect(allPublicText).not.toMatch(/SNT/i);
     expect(allPublicText).not.toMatch(/manuel offert|remise annuelle|réduction annuelle|10\s*%/i);
     expect(offers.every((offer) => offer.proofIds.length > 0 && offer.publiclyEligible)).toBe(true);
   });
@@ -84,6 +84,6 @@ describe('Pré-rentrée 2026 canonical commercial publication contract', () => {
 
     expect(decisions.get('DEC-PRE2026-MANUAL-BENEFIT')).toMatchObject({ status: 'PENDING' });
     expect(decisions.get('DEC-PRE2026-ANNUAL-DISCOUNT')).toMatchObject({ status: 'PENDING' });
-    expect(decisions.get('DEC-PRE2026-SECONDE-SNT')).toMatchObject({ status: 'CLOSED_EXCLUDED' });
+    expect(decisions.get('DEC-PRE2026-SECONDE-SNT')).toMatchObject({ status: 'APPROVED' });
   });
 });

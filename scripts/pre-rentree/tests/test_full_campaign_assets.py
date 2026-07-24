@@ -56,7 +56,7 @@ def test_full_campaign_public_exports_have_no_forbidden_terms():
         "review",
         "blocked",
         "placeholder",
-        "snt",
+        # "snt" retiré : matière Seconde légitime depuis R2 (décision direction 2026-07-23).
         "manuel offert",
         "remise annuelle",
         "places très limitées",

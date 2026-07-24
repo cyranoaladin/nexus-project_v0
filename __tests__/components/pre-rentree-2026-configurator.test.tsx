@@ -155,7 +155,7 @@ describe('Pré-rentrée stage configurator', () => {
     expect(link.closest('label')).toBeNull();
   });
 
-  it('skips EDS profiles for Seconde and shows only the three approved subjects', async () => {
+  it('skips EDS profiles for Seconde and shows the four approved subjects', async () => {
     const user = userEvent.setup();
     renderConfigurator();
 
@@ -163,11 +163,11 @@ describe('Pré-rentrée stage configurator', () => {
     await user.click(screen.getByRole('button', { name: 'Continuer' }));
 
     expect(screen.queryByText(/EDS NSI Seconde/i)).not.toBeInTheDocument();
-    expect(screen.queryByRole('checkbox', { name: /SNT|initiation informatique/i })).not.toBeInTheDocument();
-    expect(screen.getAllByRole('checkbox')).toHaveLength(3);
+    expect(screen.getByRole('checkbox', { name: /SNT|initiation informatique/i })).toBeInTheDocument();
+    expect(screen.getAllByRole('checkbox')).toHaveLength(4);
   });
 
-  it('uses the three approved Seconde subject themes in choices and summary', async () => {
+  it('uses the four approved Seconde subject themes in choices and summary', async () => {
     const user = userEvent.setup();
     const { container } = render(
       <StageConfigurator
@@ -184,10 +184,9 @@ describe('Pré-rentrée stage configurator', () => {
     await user.click(screen.getByRole('radio', { name: 'Entrée en Seconde' }));
     await user.click(screen.getByRole('button', { name: 'Continuer' }));
 
-    for (const family of ['MATHEMATIQUES', 'FRANCAIS', 'PHYSIQUE_CHIMIE']) {
+    for (const family of ['MATHEMATIQUES', 'FRANCAIS', 'PHYSIQUE_CHIMIE', 'NSI']) {
       expect(container.querySelector(`[data-subject-family="${family}"]`)).toBeInTheDocument();
     }
-    expect(container.querySelector('[data-subject-family="NSI"]')).not.toBeInTheDocument();
     await user.click(screen.getByRole('checkbox', { name: /Mathématiques/i }));
     expect(container.querySelectorAll('[data-subject-family="MATHEMATIQUES"]').length).toBeGreaterThanOrEqual(2);
   });

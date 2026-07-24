@@ -49,8 +49,8 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
       snapshot.sourceAnchorSha,
       snapshot.repositoryCommitSha,
     ], { cwd: root })).not.toThrow();
-    expect(snapshot.provenance.campaign.version).toBe('2.0.3');
-    expect(snapshot.provenance.modules.version).toBe('2026-pre-rentree-v3-no-snt');
+    expect(snapshot.provenance.campaign.version).toBe('2.0.4');
+    expect(snapshot.provenance.modules.version).toBe('2026-pre-rentree-v4-svt-snt');
     expect(snapshot.provenance.pricing.version).toBe('2026-2027.5');
     expect(snapshot.provenance.parentGuide.version).toBe('2026-parent-guide-fr-v4');
     expect(Object.values(snapshot.provenance).every((source) => /^[a-f0-9]{64}$/.test(source.sha256))).toBe(true);
@@ -144,11 +144,11 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     const snapshot = compilePublicationSnapshot({ repoRoot: root, repositoryCommitSha });
 
     expect(snapshot.modules).toEqual(canonical.modules);
-    expect(snapshot.modules).toHaveLength(15);
-    expect(snapshot.modules.flatMap((module) => module.sessions)).toHaveLength(75);
+    expect(snapshot.modules).toHaveLength(16);
+    expect(snapshot.modules.flatMap((module) => module.sessions)).toHaveLength(80);
   });
 
-  it('materializes fifteen positioning tests, seventy-five quick assessments and deliverables', () => {
+  it('materializes sixteen positioning tests, eighty quick assessments and deliverables', () => {
     const snapshot = compilePublicationSnapshot({ repoRoot: root, repositoryCommitSha }) as unknown as {
       pedagogy?: {
         positioningTests: Array<{
@@ -162,17 +162,17 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
       };
     };
 
-    expect(snapshot.pedagogy?.positioningTests).toHaveLength(15);
-    expect(snapshot.pedagogy?.positioningTests.flatMap((test) => test.questions)).toHaveLength(75);
+    expect(snapshot.pedagogy?.positioningTests).toHaveLength(16);
+    expect(snapshot.pedagogy?.positioningTests.flatMap((test) => test.questions)).toHaveLength(80);
     expect(snapshot.pedagogy?.positioningTests.every((test) => (
       test.questions.every((question) => question.prompt && question.correction && question.points > 0) &&
       Object.keys(test.rubric).length === 3 &&
       /^SAMPLE-ANON-/.test(test.anonymousSample.sampleId)
     ))).toBe(true);
-    expect(snapshot.pedagogy?.quickAssessments).toHaveLength(75);
-    expect(snapshot.pedagogy?.sessionDeliverables).toHaveLength(75);
-    expect(new Set(snapshot.pedagogy?.quickAssessments.map((item) => item.sessionRef)).size).toBe(75);
-    expect(new Set(snapshot.pedagogy?.sessionDeliverables.map((item) => item.sessionRef)).size).toBe(75);
+    expect(snapshot.pedagogy?.quickAssessments).toHaveLength(80);
+    expect(snapshot.pedagogy?.sessionDeliverables).toHaveLength(80);
+    expect(new Set(snapshot.pedagogy?.quickAssessments.map((item) => item.sessionRef)).size).toBe(80);
+    expect(new Set(snapshot.pedagogy?.sessionDeliverables.map((item) => item.sessionRef)).size).toBe(80);
     expect(snapshot.pedagogy?.sessionDeliverables.every((item) => (
       item.instructions.length >= 3 && item.expectedEvidence.length >= 2 && item.selfCheck.length >= 3
     ))).toBe(true);
@@ -181,7 +181,7 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
   it('expands the canonical schedule to seventy-five dated sessions', () => {
     const snapshot = compilePublicationSnapshot({ repoRoot: root, repositoryCommitSha });
 
-    expect(snapshot.schedule.sessions).toHaveLength(75);
+    expect(snapshot.schedule.sessions).toHaveLength(80);
     expect(snapshot.schedule.sessions[0]).toMatchObject({
       date: '2026-08-17',
       level: 'TROISIEME',
@@ -226,6 +226,7 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
       ['SECONDE', 1, 400, 120, 280],
       ['SECONDE', 2, 800, 240, 560],
       ['SECONDE', 3, 1200, 360, 840],
+      ['SECONDE', 4, 1600, 480, 1120],
     ]);
     expect(snapshot.offerPricing.every((item) => item.deposit === item.price * 0.3)).toBe(true);
   });

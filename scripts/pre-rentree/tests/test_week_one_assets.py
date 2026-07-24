@@ -57,7 +57,8 @@ def test_expected_visual_inventory_is_complete():
 
 
 def test_public_text_exports_do_not_leak_internal_or_hidden_claims():
-    forbidden = ("gate", "review", "blocked", "owner", "placeholder", "snt", "manuel offert", "remise annuelle")
+    # "snt" retiré : matière Seconde légitime depuis R2 (décision direction 2026-07-23).
+    forbidden = ("gate", "review", "blocked", "owner", "placeholder", "manuel offert", "remise annuelle")
     for relative in [
         "copy/publication-copy.json",
         "calendar/week-one-calendar.json",
