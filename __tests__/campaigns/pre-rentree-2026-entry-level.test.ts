@@ -78,8 +78,8 @@ describe('Pré-rentrée 2026 entry-level invariant', () => {
     const secondeMaths = modulesData.modules.find((candidate) => candidate.id === 'seconde-mathematiques');
     const premiereFrench = modulesData.modules.find((candidate) => candidate.id === 'premiere-francais-eaf');
     const terminaleMaths = modulesData.modules.find((candidate) => candidate.id === 'terminale-mathematiques');
-    const terminalePhilosophy = modulesData.modules.find(
-      (candidate) => candidate.id === 'terminale-philosophie',
+    const terminaleMathsExpertes = modulesData.modules.find(
+      (candidate) => candidate.id === 'terminale-maths-expertes',
     );
 
     expect(JSON.stringify(secondeMaths)).toMatch(/proportionnalité/i);
@@ -88,7 +88,10 @@ describe('Pré-rentrée 2026 entry-level invariant', () => {
     expect(terminaleMaths?.differentiation).toMatch(
       /Maths expertes et Maths complémentaires sont des options/i,
     );
-    expect(terminalePhilosophy?.title).toBe('Philosophie — Entrée en Terminale');
+    // Philosophie n'est plus une matière du stage pré-rentrée (retirée au profit de
+    // Maths expertes, en cohérence avec la nouvelle grille fenêtres + week-end).
+    expect(modulesData.modules.find((candidate) => candidate.id === 'terminale-philosophie')).toBeUndefined();
+    expect(terminaleMathsExpertes?.title).toBe('Mathématiques expertes — Entrée en Terminale');
   });
 
   it('targets retained specialties for Terminale NSI and Physics-Chemistry', () => {

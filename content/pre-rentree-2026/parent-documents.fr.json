@@ -157,8 +157,8 @@
       "sections": [
         {
           "heading": "Prioriser avant une année exigeante",
-          "paragraphs": ["La pré-rentrée n'anticipe pas toute l'année de Terminale. Elle aide à reprendre les prérequis, retrouver des automatismes et installer une méthode de travail avant les premiers chapitres.", "Le parcours peut comporter de 1 à 4 matières au choix parmi les cinq autorisées pour la Terminale (Mathématiques, Physique-Chimie, NSI, Philosophie, SVT). Une priorité bien définie rend les dix heures de chaque matière plus cohérentes."],
-          "bullets": ["Mathématiques", "Physique-chimie", "NSI", "Philosophie"]
+          "paragraphs": ["La pré-rentrée n'anticipe pas toute l'année de Terminale. Elle aide à reprendre les prérequis, retrouver des automatismes et installer une méthode de travail avant les premiers chapitres.", "Le parcours peut comporter de 1 à 4 matières au choix parmi les cinq autorisées pour la Terminale (Mathématiques, Physique-Chimie, NSI, SVT, Mathématiques expertes). Une priorité bien définie rend les dix heures de chaque matière plus cohérentes."],
+          "bullets": ["Mathématiques", "Physique-chimie", "NSI", "Mathématiques expertes"]
         },
         {
           "heading": "Ce que comprend le pack",

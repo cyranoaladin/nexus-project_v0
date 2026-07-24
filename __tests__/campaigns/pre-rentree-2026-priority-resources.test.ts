@@ -10,13 +10,12 @@ const priorityIds = [
   'troisieme-mathematiques',
   'troisieme-francais',
   'seconde-mathematiques',
-  'seconde-physique-chimie',
   'premiere-mathematiques',
   'terminale-mathematiques',
 ];
 
 describe('Pré-rentrée 2026 priority pedagogical resources', () => {
-  it('provides the six priority modules and the official-programme matrix', () => {
+  it('provides the five priority modules and the official-programme matrix', () => {
     expect(existsSync(resourcePath)).toBe(true);
     expect(existsSync(matrixPath)).toBe(true);
     const source = JSON.parse(readFileSync(resourcePath, 'utf8'));
@@ -83,7 +82,6 @@ describe('Pré-rentrée 2026 priority pedagogical resources', () => {
     expect(row('seconde-mathematiques').officialProgrammeId).toBe('BO2026-LYCEE-MATHS-SECONDE');
     expect(row('premiere-mathematiques').officialProgrammeId).toBe('BO2026-LYCEE-MATHS-PREMIERE');
     expect(row('terminale-mathematiques').officialProgrammeId).toBe('BO2019-LYCEE-MATHS-TERMINALE');
-    expect(row('seconde-informatique-snt').officialProgrammeId).toBe('BO2019-LYCEE-SNT-SECONDE');
-    expect(matrix.rows.some((item: { moduleId: string }) => /seconde.*(?:snt|informatique)/i.test(item.moduleId))).toBe(true);
+    expect(row('terminale-maths-expertes').officialProgrammeId).toBe('BO2019-LYCEE-MATHEXP-TERMINALE');
   });
 });

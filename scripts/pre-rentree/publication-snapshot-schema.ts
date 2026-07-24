@@ -7,13 +7,14 @@ import {
   PreRentreeOperationsSchema,
   PreRentreeWhatsAppSchema,
 } from '@/lib/campaigns/pre-rentree-2026/content-schema';
+import { PRE_RENTREE_MIN_COHORT_OPENING } from '@/lib/campaigns/pre-rentree-2026/schema';
 
 const Sha256 = z.string().regex(/^[a-f0-9]{64}$/);
 const GitCommitSha = z.string().regex(/^[a-f0-9]{40}$/);
 const IsoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const Time = z.string().regex(/^\d{2}:\d{2}$/);
 const EntryLevel = z.enum(['TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE']);
-const SubjectId = z.enum(['MATHEMATIQUES', 'FRANCAIS', 'NSI', 'PHYSIQUE_CHIMIE', 'PHILOSOPHIE', 'SVT']);
+const SubjectId = z.enum(['MATHEMATIQUES', 'FRANCAIS', 'NSI', 'PHYSIQUE_CHIMIE', 'SVT', 'MATHS_EXPERTES']);
 
 const SourceEvidenceSchema = z.object({
   path: z.string().min(1),
@@ -68,7 +69,7 @@ const PackSchema = z.object({
 
 const ScheduleSessionSchema = z.object({
   date: IsoDate,
-  week: z.number().int().min(1).max(2),
+  windowId: z.string().min(1),
   level: EntryLevel,
   subjectId: SubjectId,
   subjectLabel: z.string().min(1),
@@ -79,11 +80,10 @@ const ScheduleSessionSchema = z.object({
   sessionNumber: z.number().int().min(1).max(5),
 }).strict();
 
-const ScheduleWeekSchema = z.object({
-  week: z.number().int().min(1).max(2),
+const ScheduleWindowSchema = z.object({
+  windowId: z.string().min(1),
   label: z.string().min(1),
-  startDate: IsoDate,
-  endDate: IsoDate,
+  days: z.array(IsoDate).min(1),
   slots: z.array(z.object({
     level: EntryLevel,
     subjectId: SubjectId,
@@ -235,14 +235,15 @@ export const PublicationSnapshotSchema = z.object({
       city: z.string().min(1),
     }).strict(),
     capacityByOffer: z.object({
-      FONDATIONS: z.object({ min: z.literal(4), max: z.literal(6) }).strict(),
-      PREMIUM: z.object({ min: z.literal(3), max: z.literal(5) }).strict(),
+      FONDATIONS: z.object({ min: z.literal(PRE_RENTREE_MIN_COHORT_OPENING), max: z.literal(6) }).strict(),
+      PREMIUM: z.object({ min: z.literal(PRE_RENTREE_MIN_COHORT_OPENING), max: z.literal(5) }).strict(),
     }).strict(),
     operationalGates: z.object({
       roomAssignmentsValidated: z.boolean(),
       teacherAssignmentsValidated: z.boolean(),
       noTeacherConflict: z.boolean(),
       noRoomConflict: z.boolean(),
+      noLevelConflict: z.boolean(),
       dailyLoadValid: z.boolean(),
     }).strict(),
   }).strict(),
@@ -257,16 +258,16 @@ export const PublicationSnapshotSchema = z.object({
   }).strict()).length(6),
   blocks: z.array(z.object({ id: z.enum(['A', 'B', 'C', 'D']), startTime: Time, endTime: Time }).strict()).length(4),
   schedule: z.object({
-    weeks: z.array(ScheduleWeekSchema).length(2),
-    sessions: z.array(ScheduleSessionSchema).length(80),
+    windows: z.array(ScheduleWindowSchema).length(3),
+    sessions: z.array(ScheduleSessionSchema).length(70),
   }).strict(),
   academicProfiles: z.record(z.unknown()),
   packs: z.array(PackSchema).length(4),
-  modules: z.array(ModuleSchema).length(16),
+  modules: z.array(ModuleSchema).length(14),
   pedagogy: z.object({
-    positioningTests: z.array(PositioningTestSchema).length(16),
-    quickAssessments: z.array(QuickAssessmentSchema).length(80),
-    sessionDeliverables: z.array(SessionDeliverableSchema).length(80),
+    positioningTests: z.array(PositioningTestSchema).length(14),
+    quickAssessments: z.array(QuickAssessmentSchema).length(70),
+    sessionDeliverables: z.array(SessionDeliverableSchema).length(70),
   }).strict(),
   offers: PreRentreeOffersSchema,
   offerPricing: z.array(z.object({
@@ -278,7 +279,7 @@ export const PublicationSnapshotSchema = z.object({
     deposit: z.number().int().positive(),
     balance: z.number().int().positive(),
     pricePerHour: z.number().positive(),
-  }).strict()).length(14),
+  }).strict()).length(12),
   capabilities: PreRentreeCapabilitiesSchema,
   manuals: PreRentreeManualsRegistrySchema,
   communication: PreRentreeCommunicationSchema,

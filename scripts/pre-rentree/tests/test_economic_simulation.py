@@ -111,4 +111,6 @@ def test_economic_simulation_calculates_validated_costs_and_break_even(tmp_path:
     assert first["supportCost"] == 20
     assert first["marketingAcquisitionCost"] == 116
     assert first["grossMargin"] == 623.7
-    assert first["breakEvenStudents"] == 4
+    # Seuil d'ouverture unifié à 3 (arbitrage direction 2026-07-24) : group_min_open
+    # de pre2026-foundations-3e-subject passe de 4 à 3, donc breakEvenStudents aussi.
+    assert first["breakEvenStudents"] == 3

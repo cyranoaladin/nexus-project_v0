@@ -68,7 +68,7 @@ describe('Pré-rentrée stage configurator', () => {
     expect(screen.getByText(/validation du groupe par l'équipe Nexus/i)).toBeInTheDocument();
 
     expect(screen.getByRole('link', { name: /Demander ce parcours sur WhatsApp/i })).toHaveAttribute('href', expect.stringContaining('wa.me'));
-    expect(screen.getByText('Du lundi 17 au vendredi 21 août · 13:30–15:30')).toBeInTheDocument();
+    expect(screen.getByText('Du lundi 17 au vendredi 21 août · 14:15–16:15')).toBeInTheDocument();
     expect(screen.getByText('(nouvel onglet)')).toHaveClass('sr-only');
   });
 
@@ -155,19 +155,21 @@ describe('Pré-rentrée stage configurator', () => {
     expect(link.closest('label')).toBeNull();
   });
 
-  it('skips EDS profiles for Seconde and shows the four approved subjects', async () => {
+  it('skips EDS profiles for Seconde and shows the two approved subjects (Maths, Français)', async () => {
     const user = userEvent.setup();
     renderConfigurator();
 
     await user.click(screen.getByRole('radio', { name: 'Entrée en Seconde' }));
     await user.click(screen.getByRole('button', { name: 'Continuer' }));
 
+    // Modèle fenêtres + week-end (v2) : Seconde n'offre plus que Maths + Français
+    // (NSI/SNT et Physique-Chimie retirés du catalogue Seconde).
     expect(screen.queryByText(/EDS NSI Seconde/i)).not.toBeInTheDocument();
-    expect(screen.getByRole('checkbox', { name: /SNT|initiation informatique/i })).toBeInTheDocument();
-    expect(screen.getAllByRole('checkbox')).toHaveLength(4);
+    expect(screen.queryByRole('checkbox', { name: /SNT|initiation informatique/i })).not.toBeInTheDocument();
+    expect(screen.getAllByRole('checkbox')).toHaveLength(2);
   });
 
-  it('uses the four approved Seconde subject themes in choices and summary', async () => {
+  it('uses the two approved Seconde subject themes in choices and summary', async () => {
     const user = userEvent.setup();
     const { container } = render(
       <StageConfigurator
@@ -184,9 +186,11 @@ describe('Pré-rentrée stage configurator', () => {
     await user.click(screen.getByRole('radio', { name: 'Entrée en Seconde' }));
     await user.click(screen.getByRole('button', { name: 'Continuer' }));
 
-    for (const family of ['MATHEMATIQUES', 'FRANCAIS', 'PHYSIQUE_CHIMIE', 'NSI']) {
+    for (const family of ['MATHEMATIQUES', 'FRANCAIS']) {
       expect(container.querySelector(`[data-subject-family="${family}"]`)).toBeInTheDocument();
     }
+    expect(container.querySelector('[data-subject-family="PHYSIQUE_CHIMIE"]')).not.toBeInTheDocument();
+    expect(container.querySelector('[data-subject-family="NSI"]')).not.toBeInTheDocument();
     await user.click(screen.getByRole('checkbox', { name: /Mathématiques/i }));
     expect(container.querySelectorAll('[data-subject-family="MATHEMATIQUES"]').length).toBeGreaterThanOrEqual(2);
   });

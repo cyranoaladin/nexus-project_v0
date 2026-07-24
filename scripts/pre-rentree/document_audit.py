@@ -421,10 +421,10 @@ def build_content_gate_report(
     planning_text = _normalized(html_text["planning"])
     schedule_mismatches = sum(
         any(_normalized(value) not in planning_text for value in (
-            week["label"], slot["subjectLabel"], slot["startTime"], slot["endTime"], slot["roomLabel"],
+            window["label"], slot["subjectLabel"], slot["startTime"], slot["endTime"], slot["roomLabel"],
         ))
-        for week in snapshot["schedule"]["weeks"]
-        for slot in week["slots"]
+        for window in snapshot["schedule"]["windows"]
+        for slot in window["slots"]
     )
     contact_mismatches = sum(
         any(value not in text for value in (

@@ -30,12 +30,12 @@ describe('Pré-rentrée 2026 director contract', () => {
     expect(offers.levels).toHaveLength(4);
     expect(offers.levels.map((offer) => [offer.level, offer.range, offer.subjects.length])).toEqual([
       ['TROISIEME', 'FONDATIONS', 2],
-      ['SECONDE', 'FONDATIONS', 4],
+      ['SECONDE', 'FONDATIONS', 2],
       ['PREMIERE', 'PREMIUM', 5],
       ['TERMINALE', 'PREMIUM', 5],
     ]);
     expect(offers.levels.slice(0, 2).every((offer) => (
-      offer.pricing.model === 'PER_SUBJECT' && offer.capacity.min === 4 && offer.capacity.max === 6
+      offer.pricing.model === 'PER_SUBJECT' && offer.capacity.min === 3 && offer.capacity.max === 6
     ))).toBe(true);
     expect(offers.levels.slice(2).every((offer) => (
       offer.pricing.model === 'PACK_BY_SUBJECT_COUNT' && offer.capacity.min === 3 && offer.capacity.max === 5
@@ -54,7 +54,7 @@ describe('Pré-rentrée 2026 director contract', () => {
     ))).toBe(true);
   });
 
-  it('publishes four entry levels, sixteen modules and eighty sessions', () => {
+  it('publishes four entry levels, fourteen modules and seventy sessions', () => {
     const campaign = readJson<{
       levels: Array<{ id: string }>;
       subjects: Array<{ id: string; levels: string[] }>;
@@ -69,21 +69,18 @@ describe('Pré-rentrée 2026 director contract', () => {
       'PREMIERE',
       'TERMINALE',
     ]);
-    expect(modules).toHaveLength(16);
-    expect(modules.flatMap((module) => module.sessions)).toHaveLength(80);
+    expect(modules).toHaveLength(14);
+    expect(modules.flatMap((module) => module.sessions)).toHaveLength(70);
     expect(modules.every((module) => module.sessions.length === 5)).toBe(true);
     expect(modules).toContainEqual(expect.objectContaining({
-      id: 'seconde-informatique-snt',
-      level: 'SECONDE',
-      subjectId: 'NSI',
-    }));
-    expect(modules).toContainEqual(expect.objectContaining({
-      id: 'terminale-philosophie',
-      subjectId: 'PHILOSOPHIE',
+      id: 'terminale-maths-expertes',
+      level: 'TERMINALE',
+      subjectId: 'MATHS_EXPERTES',
     }));
     expect(modules.some((module) => (
       module.level === 'TERMINALE' && module.subjectId === 'FRANCAIS'
     ))).toBe(false);
+    expect(modules.some((module) => module.level === 'SECONDE' && module.subjectId !== 'MATHEMATIQUES' && module.subjectId !== 'FRANCAIS')).toBe(false);
   });
 
   it('uses exact thirty-percent deposits for every Premium pack', () => {

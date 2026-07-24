@@ -21,7 +21,7 @@ describe('PreRentreeCampaignSpotlight', () => {
     const { container } = render(<HomePage />);
 
     expect(screen.queryByRole('heading', { name: 'Stages de pré-rentrée 2026' })).not.toBeInTheDocument();
-    expect(screen.queryByText('Fondations : 4 à 6 élèves · Premium : 3 à 5 élèves')).not.toBeInTheDocument();
+    expect(screen.queryByText('Fondations : 3 à 6 élèves · Premium : 3 à 5 élèves')).not.toBeInTheDocument();
     expect(container.querySelector('a[href="/stages/pre-rentree-2026"]')).toBeNull();
     expect(container.querySelector('a[href^="/stages/pre-rentree-2026#"]')).toBeNull();
   });

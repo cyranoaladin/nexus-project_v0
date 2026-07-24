@@ -69,10 +69,10 @@
       "funnelStage": "CONSIDERATION",
       "objective": "Présenter clairement les deux matières disponibles en 3e",
       "hook": "En 3e, consolider les bases aide à retrouver un rythme de travail clair.",
-      "body": "Le parcours d'entrée en 3e est proposé en Mathématiques ou en Français. Chaque matière comprend dix heures organisées en cinq séances, dans un groupe de quatre à six élèves. Le travail suit des objectifs explicites, des exercices progressifs et une correction qui aide l'élève à comprendre ses erreurs.",
+      "body": "Le parcours d'entrée en 3e est proposé en Mathématiques ou en Français. Chaque matière comprend dix heures organisées en cinq séances, dans un groupe de trois à six élèves. Le travail suit des objectifs explicites, des exercices progressifs et une correction qui aide l'élève à comprendre ses erreurs.",
       "cta": "Vérifier la matière et les horaires",
       "assetId": "full-post-02-entree-3e",
-      "altText": "Visuel de l'offre d'entrée en 3e en Mathématiques ou Français, dix heures par matière et groupe de quatre à six élèves.",
+      "altText": "Visuel de l'offre d'entrée en 3e en Mathématiques ou Français, dix heures par matière et groupe de trois à six élèves.",
       "publicationTime": "19:00",
       "utm": {
         "source": "meta",
@@ -110,7 +110,7 @@
       "funnelStage": "CONSIDERATION",
       "objective": "Présenter les matières disponibles en Seconde",
       "hook": "L'entrée en Seconde demande des fondamentaux solides et une méthode plus autonome.",
-      "body": "En Seconde, les stages sont proposés en Mathématiques, Physique-Chimie ou Français. Chaque matière représente cinq séances de deux heures, en groupe de quatre à six élèves. L'élève reprend les notions utiles, s'entraîne et apprend à relire une correction pour construire une méthode réutilisable.",
+      "body": "En Seconde, les stages sont proposés en Mathématiques, Physique-Chimie ou Français. Chaque matière représente cinq séances de deux heures, en groupe de trois à six élèves. L'élève reprend les notions utiles, s'entraîne et apprend à relire une correction pour construire une méthode réutilisable.",
       "cta": "Choisir la matière sur WhatsApp",
       "assetId": "full-post-03-entree-seconde",
       "altText": "Visuel de l'offre d'entrée en Seconde en Mathématiques, Physique-Chimie ou Français, avec cinq séances et effectif limité.",
@@ -351,10 +351,10 @@
       "funnelStage": "CONSIDERATION",
       "objective": "Expliquer les capacités réelles sans créer de fausse urgence",
       "hook": "Un effectif défini aide l'enseignant à faire travailler chaque élève dans le temps prévu.",
-      "body": "Les groupes Fondations accueillent de quatre à six élèves et les groupes Premium de trois à cinq élèves. Ces capacités sont liées au parcours proposé. Elles permettent d'organiser les exercices, les échanges et la correction dans un cadre clair, sans promettre une disponibilité qui n'aurait pas été vérifiée.",
+      "body": "Les groupes Fondations accueillent de trois à six élèves et les groupes Premium de trois à cinq élèves. Ces capacités sont liées au parcours proposé. Elles permettent d'organiser les exercices, les échanges et la correction dans un cadre clair, sans promettre une disponibilité qui n'aurait pas été vérifiée.",
       "cta": "Vérifier la disponibilité du groupe",
       "assetId": "full-post-09-effectifs-limites",
-      "altText": "Visuel expliquant les effectifs des groupes Fondations de quatre à six élèves et Premium de trois à cinq élèves.",
+      "altText": "Visuel expliquant les effectifs des groupes Fondations de trois à six élèves et Premium de trois à cinq élèves.",
       "publicationTime": "19:00",
       "utm": {
         "source": "meta",
@@ -632,7 +632,7 @@
       "funnelStage": "CONSIDERATION",
       "objective": "Présenter le parcours 3e de façon complète",
       "hook": "Entrée en 3e : deux matières, un cadre précis et cinq séances par matière.",
-      "body": "Ce carrousel détaille l'offre d'entrée en 3e : Mathématiques ou Français, dix heures par matière, groupe de quatre à six élèves et progression structurée. Le tarif exact correspond à la grille approuvée.",
+      "body": "Ce carrousel détaille l'offre d'entrée en 3e : Mathématiques ou Français, dix heures par matière, groupe de trois à six élèves et progression structurée. Le tarif exact correspond à la grille approuvée.",
       "cta": "Choisir Mathématiques ou Français",
       "assetId": "full-carousel-02-entree-3e",
       "altText": "Carrousel présentant l'offre d'entrée en 3e en Mathématiques ou Français, son format et son effectif.",
@@ -688,9 +688,9 @@
         {
           "id": "04",
           "eyebrow": "GROUPE",
-          "title": "De quatre à six élèves",
+          "title": "De trois à six élèves",
           "body": "L'effectif est défini pour le parcours Fondations d'entrée en 3e.",
-          "altText": "Slide indiquant un groupe de quatre à six élèves en 3e.",
+          "altText": "Slide indiquant un groupe de trois à six élèves en 3e.",
           "proofIds": [
             "PRF-PRE2026-3E-350-APPROVED"
           ]
@@ -724,7 +724,7 @@
       "funnelStage": "CONSIDERATION",
       "objective": "Présenter sans ambiguïté les trois matières de Seconde",
       "hook": "En Seconde, trois matières sont proposées pour préparer une rentrée plus autonome.",
-      "body": "Ce carrousel présente uniquement les matières disponibles en Seconde : Mathématiques, Physique-Chimie et Français. Chaque parcours comprend cinq séances de deux heures en groupe de quatre à six élèves, avec entraînement et correction organisés.",
+      "body": "Ce carrousel présente uniquement les matières disponibles en Seconde : Mathématiques, Physique-Chimie et Français. Chaque parcours comprend cinq séances de deux heures en groupe de trois à six élèves, avec entraînement et correction organisés.",
       "cta": "Vérifier la matière de Seconde",
       "assetId": "full-carousel-03-entree-seconde",
       "altText": "Carrousel présentant les trois matières proposées en Seconde, le format de dix heures et l'effectif du groupe.",
@@ -783,9 +783,9 @@
         {
           "id": "04",
           "eyebrow": "EFFECTIF",
-          "title": "De quatre à six élèves",
+          "title": "De trois à six élèves",
           "body": "Le format Fondations fixe une capacité claire pour chaque groupe.",
-          "altText": "Slide indiquant un effectif de quatre à six élèves en Seconde.",
+          "altText": "Slide indiquant un effectif de trois à six élèves en Seconde.",
           "proofIds": [
             "PRF-PRE2026-SECONDE-400"
           ]
@@ -1356,7 +1356,7 @@
       "funnelStage": "CONSIDERATION",
       "objective": "Qualifier la matière recherchée en 3e",
       "hook": "Entrée en 3e : Mathématiques ou Français, selon le besoin prioritaire.",
-      "body": "Cette séquence présente les deux matières disponibles, le groupe de quatre à six élèves et le CTA qui permet de vérifier les horaires et le tarif du parcours choisi.",
+      "body": "Cette séquence présente les deux matières disponibles, le groupe de trois à six élèves et le CTA qui permet de vérifier les horaires et le tarif du parcours choisi.",
       "cta": "Choisir la matière",
       "assetId": "full-story-02-entree-3e",
       "altText": "Séquence Story présentant les matières, l'effectif et la demande WhatsApp pour l'entrée en 3e.",
@@ -1437,7 +1437,7 @@
       "funnelStage": "CONSIDERATION",
       "objective": "Qualifier la matière recherchée en Seconde",
       "hook": "Entrée en Seconde : trois matières pour reprendre les bases utiles au lycée.",
-      "body": "Cette séquence présente Mathématiques, Physique-Chimie et Français, rappelle le groupe de quatre à six élèves et dirige vers WhatsApp pour vérifier le programme exact.",
+      "body": "Cette séquence présente Mathématiques, Physique-Chimie et Français, rappelle le groupe de trois à six élèves et dirige vers WhatsApp pour vérifier le programme exact.",
       "cta": "Indiquer la matière",
       "assetId": "full-story-03-entree-seconde",
       "altText": "Séquence Story présentant les trois matières et l'effectif proposés à l'entrée en Seconde.",
@@ -1907,7 +1907,7 @@
       "funnelStage": "CONSIDERATION",
       "objective": "Expliquer les deux capacités de groupe",
       "hook": "Effectifs limités signifie une capacité définie pour chaque parcours.",
-      "body": "Cette séquence distingue les groupes Fondations de quatre à six élèves et Premium de trois à cinq élèves, puis invite à vérifier la disponibilité sans créer de fausse urgence.",
+      "body": "Cette séquence distingue les groupes Fondations de trois à six élèves et Premium de trois à cinq élèves, puis invite à vérifier la disponibilité sans créer de fausse urgence.",
       "cta": "Vérifier le groupe",
       "assetId": "full-story-09-effectifs",
       "altText": "Séquence Story distinguant les effectifs Fondations et Premium et invitant à vérifier un groupe.",
@@ -1930,7 +1930,7 @@
         {
           "id": "01",
           "eyebrow": "FONDATIONS",
-          "text": "En 3e et Seconde : groupes de quatre à six élèves.",
+          "text": "En 3e et Seconde : groupes de trois à six élèves.",
           "interaction": "Curseur : cadre clair",
           "durationSeconds": 6,
           "cta": "Voir Premium",

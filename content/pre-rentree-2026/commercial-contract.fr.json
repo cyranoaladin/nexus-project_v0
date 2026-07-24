@@ -524,8 +524,8 @@
         "MATHEMATIQUES",
         "PHYSIQUE_CHIMIE",
         "NSI",
-        "PHILOSOPHIE",
-        "SVT"
+        "SVT",
+        "MATHS_EXPERTES"
       ],
       "subjectCount": 1,
       "audience": [
@@ -578,8 +578,8 @@
         "MATHEMATIQUES",
         "PHYSIQUE_CHIMIE",
         "NSI",
-        "PHILOSOPHIE",
-        "SVT"
+        "SVT",
+        "MATHS_EXPERTES"
       ],
       "subjectCount": 2,
       "audience": [
@@ -632,8 +632,8 @@
         "MATHEMATIQUES",
         "PHYSIQUE_CHIMIE",
         "NSI",
-        "PHILOSOPHIE",
-        "SVT"
+        "SVT",
+        "MATHS_EXPERTES"
       ],
       "subjectCount": 3,
       "audience": [
@@ -686,8 +686,8 @@
         "MATHEMATIQUES",
         "PHYSIQUE_CHIMIE",
         "NSI",
-        "PHILOSOPHIE",
-        "SVT"
+        "SVT",
+        "MATHS_EXPERTES"
       ],
       "subjectCount": 4,
       "audience": [

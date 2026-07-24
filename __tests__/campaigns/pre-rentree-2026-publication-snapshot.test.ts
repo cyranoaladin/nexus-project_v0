@@ -50,7 +50,7 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
       snapshot.repositoryCommitSha,
     ], { cwd: root })).not.toThrow();
     expect(snapshot.provenance.campaign.version).toBe('2.0.4');
-    expect(snapshot.provenance.modules.version).toBe('2026-pre-rentree-v4-svt-snt');
+    expect(snapshot.provenance.modules.version).toBe('2026-pre-rentree-v5-planning-windows');
     expect(snapshot.provenance.pricing.version).toBe('2026-2027.5');
     expect(snapshot.provenance.parentGuide.version).toBe('2026-parent-guide-fr-v4');
     expect(Object.values(snapshot.provenance).every((source) => /^[a-f0-9]{64}$/.test(source.sha256))).toBe(true);
@@ -137,18 +137,18 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     expect(unavailable.every((item) => item.publiclyCommitted === false)).toBe(true);
   });
 
-  it('copies all fifteen canonical modules and seventy-five sessions without editorial drift', () => {
+  it('copies all fourteen canonical modules and seventy sessions without editorial drift', () => {
     const canonical = JSON.parse(
       readFileSync(join(root, 'content/pre-rentree-2026/modules.json'), 'utf8'),
     );
     const snapshot = compilePublicationSnapshot({ repoRoot: root, repositoryCommitSha });
 
     expect(snapshot.modules).toEqual(canonical.modules);
-    expect(snapshot.modules).toHaveLength(16);
-    expect(snapshot.modules.flatMap((module) => module.sessions)).toHaveLength(80);
+    expect(snapshot.modules).toHaveLength(14);
+    expect(snapshot.modules.flatMap((module) => module.sessions)).toHaveLength(70);
   });
 
-  it('materializes sixteen positioning tests, eighty quick assessments and deliverables', () => {
+  it('materializes fourteen positioning tests, seventy quick assessments and deliverables', () => {
     const snapshot = compilePublicationSnapshot({ repoRoot: root, repositoryCommitSha }) as unknown as {
       pedagogy?: {
         positioningTests: Array<{
@@ -162,39 +162,39 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
       };
     };
 
-    expect(snapshot.pedagogy?.positioningTests).toHaveLength(16);
-    expect(snapshot.pedagogy?.positioningTests.flatMap((test) => test.questions)).toHaveLength(80);
+    expect(snapshot.pedagogy?.positioningTests).toHaveLength(14);
+    expect(snapshot.pedagogy?.positioningTests.flatMap((test) => test.questions)).toHaveLength(70);
     expect(snapshot.pedagogy?.positioningTests.every((test) => (
       test.questions.every((question) => question.prompt && question.correction && question.points > 0) &&
       Object.keys(test.rubric).length === 3 &&
       /^SAMPLE-ANON-/.test(test.anonymousSample.sampleId)
     ))).toBe(true);
-    expect(snapshot.pedagogy?.quickAssessments).toHaveLength(80);
-    expect(snapshot.pedagogy?.sessionDeliverables).toHaveLength(80);
-    expect(new Set(snapshot.pedagogy?.quickAssessments.map((item) => item.sessionRef)).size).toBe(80);
-    expect(new Set(snapshot.pedagogy?.sessionDeliverables.map((item) => item.sessionRef)).size).toBe(80);
+    expect(snapshot.pedagogy?.quickAssessments).toHaveLength(70);
+    expect(snapshot.pedagogy?.sessionDeliverables).toHaveLength(70);
+    expect(new Set(snapshot.pedagogy?.quickAssessments.map((item) => item.sessionRef)).size).toBe(70);
+    expect(new Set(snapshot.pedagogy?.sessionDeliverables.map((item) => item.sessionRef)).size).toBe(70);
     expect(snapshot.pedagogy?.sessionDeliverables.every((item) => (
       item.instructions.length >= 3 && item.expectedEvidence.length >= 2 && item.selfCheck.length >= 3
     ))).toBe(true);
   });
 
-  it('expands the canonical schedule to seventy-five dated sessions', () => {
+  it('expands the canonical schedule to seventy dated sessions', () => {
     const snapshot = compilePublicationSnapshot({ repoRoot: root, repositoryCommitSha });
 
-    expect(snapshot.schedule.sessions).toHaveLength(80);
+    expect(snapshot.schedule.sessions).toHaveLength(70);
     expect(snapshot.schedule.sessions[0]).toMatchObject({
       date: '2026-08-17',
       level: 'TROISIEME',
       subjectId: 'MATHEMATIQUES',
       blockId: 'A',
-      startTime: '08:30',
-      endTime: '10:30',
+      startTime: '09:00',
+      endTime: '11:00',
       roomLabel: 'Salle 1',
       sessionNumber: 1,
     });
     expect(snapshot.schedule.sessions.at(-1)).toMatchObject({
       date: '2026-08-28',
-      level: 'PREMIERE',
+      level: 'TERMINALE',
       subjectId: 'SVT',
       blockId: 'C',
       sessionNumber: 5,
@@ -225,8 +225,6 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
       ['TROISIEME', 2, 700, 210, 490],
       ['SECONDE', 1, 400, 120, 280],
       ['SECONDE', 2, 800, 240, 560],
-      ['SECONDE', 3, 1200, 360, 840],
-      ['SECONDE', 4, 1600, 480, 1120],
     ]);
     expect(snapshot.offerPricing.every((item) => item.deposit === item.price * 0.3)).toBe(true);
   });

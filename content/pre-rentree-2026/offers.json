@@ -21,7 +21,7 @@
         "maximumSubjects": 2
       },
       "capacity": {
-        "min": 4,
+        "min": 3,
         "max": 6
       },
       "serviceCapabilityIds": [
@@ -41,9 +41,7 @@
       "signature": "Reprendre les bases. Installer la méthode. Réussir le passage.",
       "subjects": [
         "MATHEMATIQUES",
-        "PHYSIQUE_CHIMIE",
-        "FRANCAIS",
-        "NSI"
+        "FRANCAIS"
       ],
       "pricing": {
         "model": "PER_SUBJECT",
@@ -51,10 +49,10 @@
           "pre2026-foundations-seconde-subject"
         ],
         "multiSubjectDiscount": false,
-        "maximumSubjects": 4
+        "maximumSubjects": 2
       },
       "capacity": {
-        "min": 4,
+        "min": 3,
         "max": 6
       },
       "serviceCapabilityIds": [
@@ -117,7 +115,7 @@
         "MATHEMATIQUES",
         "PHYSIQUE_CHIMIE",
         "NSI",
-        "PHILOSOPHIE",
+        "MATHS_EXPERTES",
         "SVT"
       ],
       "pricing": {

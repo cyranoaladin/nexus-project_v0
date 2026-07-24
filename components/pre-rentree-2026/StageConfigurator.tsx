@@ -370,7 +370,7 @@ export default function StageConfigurator({
                             : `${theme.borderClass} ${theme.surfaceClass}`,
                         )}
                       >
-                        <label className="flex cursor-pointer items-start gap-3"><input className="mt-1 h-4 w-4 accent-lux-gold" type="checkbox" checked={selected} onChange={() => toggleSubject(subject.id)} /><span><SubjectBadge subjectId={subject.id} label={label} /><span className="mt-2 block text-sm text-lux-slate">{subject.summaryByLevel[level]}</span><span className="mt-2 block text-sm text-lux-slate">{slots.length} séances · {hours} heures</span>{first && <span className="block text-sm text-lux-slate">Semaine {first.week} · {first.startTime}–{first.endTime}</span>}</span></label>
+                        <label className="flex cursor-pointer items-start gap-3"><input className="mt-1 h-4 w-4 accent-lux-gold" type="checkbox" checked={selected} onChange={() => toggleSubject(subject.id)} /><span><SubjectBadge subjectId={subject.id} label={label} /><span className="mt-2 block text-sm text-lux-slate">{subject.summaryByLevel[level]}</span><span className="mt-2 block text-sm text-lux-slate">{slots.length} séances · {hours} heures</span>{first && <span className="block text-sm text-lux-slate">{first.startTime}–{first.endTime}</span>}</span></label>
                         <a className="mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-lux-gold-deep underline" href={`#programme-${subject.moduleIdsByLevel[level]}`}>Consulter le programme</a>
                       </article>
                     );

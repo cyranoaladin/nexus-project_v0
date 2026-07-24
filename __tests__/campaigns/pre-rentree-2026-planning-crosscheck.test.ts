@@ -15,7 +15,7 @@ const PDF = join(
 );
 
 type Slot = { level: string; subject: string; block: string; room: string };
-type Week = { week: number; slots: Slot[] };
+type Window = { windowId: string; days: string[]; slots: Slot[] };
 
 const blockTimes = new Map(
   (manifest.blocks as Array<{ id: string; startTime: string; endTime: string }>).map((b) => [
@@ -35,26 +35,25 @@ maybe('Pré-rentrée 2026 — cohérence créneaux JSON ↔ PDF Planning (D3)', 
 
   it('chaque créneau du JSON scellé apparaît dans le PDF Planning', () => {
     const missing: string[] = [];
-    for (const week of manifest.schedule as unknown as Week[]) {
-      for (const slot of week.slots) {
+    for (const window of manifest.schedule as unknown as Window[]) {
+      for (const slot of window.slots) {
         const needle = blockTimes.get(slot.block)!;
         if (!text.includes(needle)) {
-          missing.push(`S${week.week} ${slot.level}/${slot.subject} ${slot.block} ${needle}`);
+          missing.push(`${window.windowId} ${slot.level}/${slot.subject} ${slot.block} ${needle}`);
         }
       }
     }
     expect(missing).toEqual([]);
   });
 
-  it('le PDF ne contient aucun horaire du soir (bloc E supprimé, D4-final)', () => {
-    expect(text).not.toContain('18:00');
-    expect(text).not.toContain('20:00');
+  it('le PDF ne contient aucun horaire du soir (pas de bloc après 18:30)', () => {
+    expect(text).not.toContain('19:');
+    expect(text).not.toContain('20:');
   });
 
   it('la SVT figure au planning en Première et Terminale', () => {
     expect(text).toMatch(/SVT/);
-    // Placement scellé : SVT Terminale bloc B/salle-1, SVT Première bloc C/salle-2.
-    const svt = (manifest.schedule as unknown as Week[]).flatMap((w) => w.slots).filter((s) => s.subject === 'SVT');
+    const svt = (manifest.schedule as unknown as Window[]).flatMap((w) => w.slots).filter((s) => s.subject === 'SVT');
     expect(new Set(svt.map((s) => s.level))).toEqual(new Set(['PREMIERE', 'TERMINALE']));
   });
 });

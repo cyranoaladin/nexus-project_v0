@@ -1,67 +1,31 @@
-# GO-LIVE CHECKLIST — Pré-rentrée 2026 (SVT)
+# GO-LIVE CHECKLIST — Pré-rentrée 2026
 
-**Branche :** `feat/svt-integration-final-v2` · **Ancre R1 :** commit `5c580fd62` · **SHA du GO :** = tip de la branche au moment du GO (`git rev-parse HEAD`) · **Statut release :** `BLOCKED` (fail-closed)
-**Règle :** aucun merge / déploiement / diffusion sans le gate **#11** (GO écrit propriétaire rattaché au SHA).
-Coche chaque gate. « DÉFAUT » = recommandation prête, tu confirmes. « REQUIERT » = décision/preuve direction bloquante.
-
----
-
-### □ 1. Grille tarifaire — **PRÊT** ✅ (déjà scellé R1)
-- **DÉFAUT :** grille **production 20/07** — Premium 3-5 (480/900/1350/1800, acompte 30 % = 144/270/405/540) · Fondations 4-6 (350/400, commercial_exception PRE2026-3E-350).
-- **Action one-shot :** *aucune* — scellé (DEBTS `B-7` RÉSOLU + `owner.json → decisions.pricingGrid`). Data conforme, tests 42/42.
-- **Bloquant direction :** ❌ aucun. **Prêt.**
-
-### □ 2. Enseignant SVT — **BLOQUANT** (B-1 / B-1bis / B-2)
-- **REQUIERT :** nom + qualification vérifiée pour SVT Première **et** Terminale.
-- **Action one-shot (au GO) :** renseigner `data/campaigns/pre-rentree-2026.json → teacherRoles.SVT_TEACHER_A/B` (name + `assigned:true`) ; passer `owner.json → svtProgramValidation.status` à `approved` ; **lever le watermark DRAFT** des 2 PDF SVT ; régénérer snapshot + PDF (`scripts/pre-rentree/generate_documents.py`).
-- **Bloquant direction :** ✅ affectation + preuve de qualification. **Prêt côté technique** (rôles abstraits injectables).
-
-### □ 3. Validation Maths Seconde/Première (conformité BO 2026) — **BLOQUANT** (M-1)
-- **REQUIERT :** relecture écrite d'un agrégé/direction des modules révisés (BO n°14 du 2 avril 2026).
-- **Action one-shot :** passer `owner.json → mathsProgramConformity2026.status` de `proposed_pending_validation` → `approved_for_publication` ; retirer la mention « proposition » des modules.
-- **Bloquant direction :** ✅ relecture agrégé. **Prêt côté technique** (propositions scellées, cf. `CONFORMITE_PROGRAMMES.md`).
-
-### □ 4. Salles — **PRÊT** ✅ (O-1)
-- **DÉFAUT :** 2 salles, affichage rôles **abstraits** (aucun nom réel). Grille D4 actée (`scheduleGridFinal`).
-- **Action one-shot :** *rien* (déjà approuvé pour publication).
-- **Bloquant direction :** ❌ aucun, sauf si tu veux valider les capacités par créneau. **Prêt.**
-
-### □ 5. Paiement / reçu / remboursement / confidentialité — **BLOQUANT** (O-2 / J-1 / J-2)
-- **REQUIERT :** confirmation que l'encaissement, le rapprochement, le reçu, les CGV annulation/remboursement et la notice confidentialité sont testés et approuvés.
-- **Action one-shot :** passer `owner.json → remainingReleaseGates` (`cancellation_and_refund_terms`, `privacy_notice_and_data_retention`) à `confirmed` ; **activer les pages légales** correspondantes.
-- **Bloquant direction :** ✅ process + conseil juridique. **Prêt côté technique** (pages légales existantes, à dé-gater).
-
-### □ 6. Validation téléchargements PDF — **BLOQUANT** (Q-1)
-- **REQUIERT :** ton **OK visuel** sur les 6 documents (manifestes, poids, checksums, E2E verts).
-- **Action one-shot :** **exposer les 6 liens publics** (retirer le fail-closed sur les helpers de téléchargement) ; ⚠️ dépend du gate #2 (les 2 PDF SVT restent DRAFT tant que #2 n'est pas levé).
-- **Bloquant direction :** ✅ OK visuel. **Prêt côté technique** (kits/PDF régénérés).
-
-### □ 7. Téléphone / WhatsApp / formulaires — **BLOQUANT léger** (Q-2)
-- **REQUIERT :** test bout-en-bout des parcours de contact (sans collecte excessive).
-- **Action one-shot :** *rien* (rien à activer ; juste valider le test).
-- **Bloquant direction :** ✅ test E2E réussi. **Prêt côté technique.**
-
-### □ 8. Manuels / remise annuelle — **BLOQUANT** (C-1)
-- **REQUIERT :** décision : conditions, stock, éligibilité, non-cumul.
-- **Action one-shot :** **afficher** (renseigner + activer le bloc) **ou masquer** (avantages restent cachés — défaut actuel).
-- **Bloquant direction :** ✅ décision commerciale. **Défaut : masqué** jusqu'à décision.
-
-### □ 9. Revue marketing + date de lancement — **BLOQUANT** (C-2)
-- **REQUIERT :** **ta date de lancement écrite** (J1…J29 en sont dérivés) + revue marketing.
-- **Action one-shot :** fixer la date propriétaire ; **planifier `PUBLIC_READY`** (le calendrier campagne 17→28 août est déjà en data ; C-2 = date de mise en ligne publique).
-- **Bloquant direction :** ✅ date + revue. **Prêt côté technique.**
-
-### □ 10. Runbook / rollback staging — **BLOQUANT** (P1)
-- **REQUIERT :** dry-run staging daté ; runbook privé hors dépôt public.
-- **Action one-shot :** **valider le runbook** après exercice staging (aucune cible staging fournie à ce jour → à provisionner).
-- **Bloquant direction :** ✅ dry-run staging. **Non prêt** (cible staging manquante).
-
-### □ 11. GO écrit propriétaire rattaché au SHA — **DERNIER VERROU** (D-5)
-- **REQUIERT :** GO **écrit, daté, rattaché au **SHA exact du tip** de `feat/svt-integration-final-v2` au moment du GO (après clôture des gates 2/3/5/…).
-- **Action one-shot :** passer `owner.json → deploymentAuthorization.status` `locked` → `released` ; `ownerDecisionsComplete: true` ; `releaseStatus: "REVIEW"` → `PUBLIC_READY` ; **alors seulement** merge/déploiement autorisés.
-- **Bloquant direction :** ✅ **ce gate débloque tout.** Tant qu'il est ouvert : fail-closed total.
+**Branche :** `feat/pre-rentree-planning-scheduler` · **Statut release :** `BLOCKED` (fail-closed)
+**Règle :** aucun merge / déploiement / diffusion sans le GO écrit propriétaire rattaché au SHA (voir bloc EN ATTENTE, point e).
+Mise à jour : 2026-07-24. Deux blocs nets, comme demandé : tout ce qui est technique et validé par les tests est dans PRÊT ; **seules** les décisions qui nécessitent un humain (direction) restent en attente.
 
 ---
 
-**Synthèse — ce qui reste bloquant côté DIRECTION :** #2 (enseignant SVT), #3 (relecture Maths), #5 (paiement/légal), #6 (OK visuel PDF), #7 (test contact), #8 (décision manuels), #9 (date lancement), #10 (dry-run staging), #11 (GO SHA).
-**Ce qui est PRÊT / non bloquant :** #1 (grille R1 scellée), #4 (salles/rôles abstraits). Tout le technique des autres gates est en place ; il n'attend qu'une décision/preuve direction pour être dé-gaté par l'action one-shot indiquée.
+## ✅ PRÊT (technique, validé par tests)
+
+1. **Planning sans conflit** — grille fenêtres + week-end (dates explicites, samedi/dimanche), conflit salle 2/bloc A résolu (PC Terminale → bloc D). 4 gates opérationnels (noTeacherConflict, noRoomConflict, noLevelConflict, dailyLoadValid) + complétude (14 modules × 5 séances = 70) + disponibilité Terminale (aucune séance avant le 24 août) verts — `pre-rentree-2026-schedule-gates.test.ts`.
+2. **Sélecteur de planning parents** — `StagePlanningSelector` intégré à `ScheduleSection` : niveau → matières → planning chronologique → détection de conflit non bloquante → récap → pré-inscription. Rendu serveur, a11y (ARIA, clavier), mobile-first. Captures desktop + mobile vérifiées sur les 4 états (vide, 1 matière, plusieurs, conflit).
+3. **Étanchéité stages/annuel** — preuve complète dans `SEPARATION_STAGES_ANNUEL.md` (matières par niveau, tarifs cloisonnés par clé JSON, planning borné 17-28 août, vocabulaire croisé sans fusion, aucun import transverse composant). `SUBJECT_THEMES` confirmé spécifique aux stages (grep des imports).
+4. **Philosophie purgée intégralement** — zéro occurrence résiduelle dans le code, les schémas Zod, les données, le PDF et les scripts (grep exhaustif à l'appui). Maths expertes strictement limitée à la Terminale (test dédié + garde-fou permanent anti-régression contre toute réintroduction future d'une matière hors grille).
+5. **Anonymat total** — 4 rôles enseignants strictement abstraits (A/C/D/E), `assigned: false`, aucun nom propre nulle part (test anti-noms).
+6. **Seuil d'ouverture unique à 3** — constante unique `PRE_RENTREE_MIN_COHORT_OPENING`, aucune valeur dupliquée par offre/niveau/matière : `data/campaigns/pre-rentree-2026.json`, `schema.ts`, `offers.json`, `pricing.canonical.json` (`group_min_open` + `commercial_exception` PRE2026-3E-350 mis à jour), PDF, contenus marketing (WhatsApp, communication, JPO). Tests dédiés verts.
+7. **Fichier d'incompatibilités** — calculé depuis la grille (date + bloc réels, pas seulement la lettre de bloc), jamais saisi à la main. Tests dédiés verts.
+8. **PDF régénérés** — 9 documents, migration `weeks → windows` sur les deux pipelines (`scripts/pre-rentree/document_templates.py` et `tools/pdf-generator/generate_all_pdfs.py`), vues par niveau / fenêtre-salle / jour. Crosscheck JSON↔PDF et cohérence sélecteur↔PDF verts.
+9. **Salles** — 2 salles, rôles abstraits, grille actée.
+
+## ⏳ EN ATTENTE DIRECTION (les SEULES lignes bloquant le GO)
+
+a. **Validation pédagogique Maths Seconde + Première**, conformité BO n°14 du 2 avril 2026 — relecture écrite d'un agrégé/direction.
+b. **Validation contenus SVT** (Première + Terminale) — validation pédagogique + qualification enseignant si affectation nominative envisagée ; lève le watermark DRAFT des 2 PDF SVT.
+c. **Validation contenus 3e** (Mathématiques, Français) — relecture pédagogique écrite, même exigence que (a).
+d. **Date de mise en ligne** — date de lancement écrite du propriétaire (`releaseStatus` → `PUBLIC_READY`).
+e. **GO écrit rattaché au SHA** — autorisation écrite, datée, rattachée au SHA exact du tip de la branche au moment du GO. **Ce point débloque le merge/déploiement.**
+
+---
+
+**Dette hors GO (Seconde, non bloquante pour ce chantier planning/sélecteur) :** `content/pre-rentree-2026/commercial-contract.fr.json` vend encore Physique-Chimie et Informatique-SNT pour la Seconde (2 SKU déjà approuvés le 2026-07-20), alors que la grille de stage n'a que Maths + Français pour ce niveau. Prouvé et isolé par `pre-rentree-2026-full-coherence.test.ts` (3 niveaux sur 4 verts, seul Seconde rouge). Décision commerciale distincte (retirer des offres déjà approuvées) — voir `DEBTS.md` #6.

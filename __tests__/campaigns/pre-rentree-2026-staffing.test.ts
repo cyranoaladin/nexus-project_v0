@@ -13,7 +13,9 @@ describe('Pré-rentrée 2026 staffing and room contract', () => {
   const sessions = getPreRentreeSchedule();
 
   it('declares only non-personal, unassigned teacher roles for REVIEW', () => {
-    expect(Object.keys(teacherRoles)).toHaveLength(11);
+    // Modèle fenêtres + week-end (v2) : 4 rôles abstraits A/C/D/E (un seul enseignant
+    // Maths/NSI, un Français, un Physique-Chimie, un SVT), plus de granularité par niveau.
+    expect(Object.keys(teacherRoles)).toHaveLength(4);
     expect(Object.keys(teacherRoles).every((role) => /^[A-Z_]+(?:_A|_B)?$/.test(role))).toBe(true);
     expect(Object.values(teacherRoles).every((role) => role.assigned === false)).toBe(true);
     expect(campaignManifest.operationalGates.teacherAssignmentsValidated).toBe(false);
@@ -56,8 +58,8 @@ describe('Pré-rentrée 2026 staffing and room contract', () => {
 
   it('uses exactly two logical rooms with no collision', () => {
     expect(campaignManifest.roomRoles).toEqual({
-      'salle-1': ['MATHEMATIQUES', 'NSI', 'SVT'],
-      'salle-2': ['FRANCAIS', 'PHILOSOPHIE', 'PHYSIQUE_CHIMIE', 'SVT'],
+      'salle-1': ['MATHEMATIQUES', 'NSI', 'MATHS_EXPERTES'],
+      'salle-2': ['FRANCAIS', 'PHYSIQUE_CHIMIE', 'SVT'],
     });
     expect(new Set(sessions.map((session) => session.room))).toEqual(new Set(['salle-1', 'salle-2']));
     const occupied = sessions.map((session) => `${session.date}-${session.block}-${session.room}`);

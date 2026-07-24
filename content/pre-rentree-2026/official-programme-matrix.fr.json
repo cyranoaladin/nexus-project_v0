@@ -95,9 +95,9 @@
       "applicationNote": "Référence pédagogique du module d'initiation informatique / algorithmique / SNT de Seconde ; programme SNT en vigueur pour l'année scolaire 2026-2027."
     },
     {
-      "officialProgrammeId": "BO2020-LYCEE-PHILOSOPHIE-TERMINALE",
-      "title": "Programme de philosophie de Terminale générale",
-      "url": "https://www.education.gouv.fr/au-bo-special-du-13-fevrier-2020-programmes-d-enseignement-de-terminale-generale-et-technologique-289717",
+      "officialProgrammeId": "BO2019-LYCEE-MATHEXP-TERMINALE",
+      "title": "Programme de mathématiques expertes de Terminale générale",
+      "url": "https://eduscol.education.fr/document/22201/download",
       "publisher": "Ministère de l'Éducation nationale",
       "applicationNote": "Programme en vigueur pour l'année scolaire 2026-2027."
     }
@@ -109,7 +109,13 @@
       "subject": "Mathématiques",
       "officialProgrammeId": "BO2020-CYCLE4-MATHS",
       "applicationSchoolYear": "2026-2027",
-      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "nexusSessionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
       "alignmentSummary": "Consolider nombres, calcul littéral, fonctions, géométrie et résolution de problèmes attendus au cycle 4 avant l'entrée en 3e.",
       "publicOfferEligible": true
     },
@@ -119,7 +125,13 @@
       "subject": "Français",
       "officialProgrammeId": "BO2020-CYCLE4-FRANCAIS",
       "applicationSchoolYear": "2026-2027",
-      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "nexusSessionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
       "alignmentSummary": "Renforcer compréhension, interprétation, grammaire, orthographe et écriture argumentée attendues au cycle 4.",
       "publicOfferEligible": true
     },
@@ -129,7 +141,13 @@
       "subject": "Mathématiques",
       "officialProgrammeId": "BO2026-LYCEE-MATHS-SECONDE",
       "applicationSchoolYear": "2026-2027",
-      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "nexusSessionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
       "alignmentSummary": "PROPOSITION : priorités de calcul algébrique, fonctions, géométrie, statistiques continues et croisées, puis probabilités conditionnelles selon le programme 2026.",
       "publicOfferEligible": false
     },
@@ -139,28 +157,14 @@
       "subject": "Français",
       "officialProgrammeId": "BO2019-LYCEE-FRANCAIS-SECONDE",
       "applicationSchoolYear": "2026-2027",
-      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "nexusSessionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
       "alignmentSummary": "Préparer lecture analytique, culture littéraire, expression écrite et maîtrise de la langue au lycée.",
-      "publicOfferEligible": true
-    },
-    {
-      "moduleId": "seconde-informatique-snt",
-      "level": "SECONDE",
-      "subject": "Sciences numériques et technologie",
-      "officialProgrammeId": "BO2019-LYCEE-SNT-SECONDE",
-      "applicationSchoolYear": "2026-2027",
-      "nexusSessionNumbers": [1, 2, 3, 4, 5],
-      "alignmentSummary": "Initiation à la pensée algorithmique, à la SNT et aux bases de Python, alignée sur le programme SNT de Seconde ; distincte de la spécialité NSI de Première et Terminale.",
-      "publicOfferEligible": true
-    },
-    {
-      "moduleId": "seconde-physique-chimie",
-      "level": "SECONDE",
-      "subject": "Physique-Chimie",
-      "officialProgrammeId": "BO2019-LYCEE-PC-SECONDE",
-      "applicationSchoolYear": "2026-2027",
-      "nexusSessionNumbers": [1, 2, 3, 4, 5],
-      "alignmentSummary": "Sécuriser mesures, unités, modèles de la matière, mouvement, énergie et démarche scientifique avant la Seconde.",
       "publicOfferEligible": true
     },
     {
@@ -169,7 +173,13 @@
       "subject": "Mathématiques",
       "officialProgrammeId": "BO2026-LYCEE-MATHS-PREMIERE",
       "applicationSchoolYear": "2026-2027",
-      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "nexusSessionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
       "alignmentSummary": "PROPOSITION : second degré et discriminant, suites, exponentielle, dérivation, probabilités conditionnelles et méthodes de l'épreuve anticipée ; fonctions sinus/cosinus non annoncées.",
       "publicOfferEligible": false
     },
@@ -179,7 +189,13 @@
       "subject": "Français",
       "officialProgrammeId": "BO2019-LYCEE-FRANCAIS-PREMIERE",
       "applicationSchoolYear": "2026-2027",
-      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "nexusSessionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
       "alignmentSummary": "Structurer analyse, dissertation, commentaire, oral et appropriation des œuvres inscrites au programme 2026-2027.",
       "publicOfferEligible": true
     },
@@ -189,7 +205,13 @@
       "subject": "NSI",
       "officialProgrammeId": "BO2019-LYCEE-NSI-PREMIERE",
       "applicationSchoolYear": "2026-2027",
-      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "nexusSessionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
       "alignmentSummary": "Introduire représentation des données, algorithmique, programmation, architectures et interaction homme-machine.",
       "publicOfferEligible": true
     },
@@ -199,7 +221,13 @@
       "subject": "Physique-Chimie",
       "officialProgrammeId": "BO2019-LYCEE-PC-PREMIERE",
       "applicationSchoolYear": "2026-2027",
-      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "nexusSessionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
       "alignmentSummary": "Consolider quantités de matière, transformations, mouvement, interactions, énergie, ondes et démarche expérimentale.",
       "publicOfferEligible": true
     },
@@ -209,18 +237,14 @@
       "subject": "Mathématiques",
       "officialProgrammeId": "BO2019-LYCEE-MATHS-TERMINALE",
       "applicationSchoolYear": "2026-2027",
-      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "nexusSessionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
       "alignmentSummary": "Réactiver dérivation, suites, probabilités, géométrie et raisonnement nécessaires au programme de Terminale encore applicable.",
-      "publicOfferEligible": true
-    },
-    {
-      "moduleId": "terminale-philosophie",
-      "level": "TERMINALE",
-      "subject": "Philosophie",
-      "officialProgrammeId": "BO2020-LYCEE-PHILOSOPHIE-TERMINALE",
-      "applicationSchoolYear": "2026-2027",
-      "nexusSessionNumbers": [1, 2, 3, 4, 5],
-      "alignmentSummary": "Installer problématisation, conceptualisation, argumentation et lecture philosophique à partir des notions du programme.",
       "publicOfferEligible": true
     },
     {
@@ -229,7 +253,13 @@
       "subject": "NSI",
       "officialProgrammeId": "BO2019-LYCEE-NSI-TERMINALE",
       "applicationSchoolYear": "2026-2027",
-      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "nexusSessionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
       "alignmentSummary": "Réactiver structures de données, bases de données, architectures, réseaux et conception d'algorithmes avant la Terminale.",
       "publicOfferEligible": true
     },
@@ -239,7 +269,13 @@
       "subject": "Physique-Chimie",
       "officialProgrammeId": "BO2019-LYCEE-PC-TERMINALE",
       "applicationSchoolYear": "2026-2027",
-      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "nexusSessionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
       "alignmentSummary": "Réactiver transformations, mécanique, énergie, ondes, signaux et méthodes quantitatives nécessaires au programme de Terminale.",
       "publicOfferEligible": true
     },
@@ -249,7 +285,13 @@
       "subject": "SVT",
       "officialProgrammeId": "BO2019-LYCEE-SVT-PREMIERE",
       "applicationSchoolYear": "2026-2027",
-      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "nexusSessionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
       "alignmentSummary": "DRAFT : priorités réparties sur les trois thèmes officiels du BO 2019 ; validation d'un enseignant SVT qualifié requise.",
       "publicOfferEligible": false
     },
@@ -259,8 +301,30 @@
       "subject": "SVT",
       "officialProgrammeId": "BO2019-LYCEE-SVT-TERMINALE",
       "applicationSchoolYear": "2026-2027",
-      "nexusSessionNumbers": [1, 2, 3, 4, 5],
+      "nexusSessionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
       "alignmentSummary": "DRAFT : priorités réparties sur les trois thèmes officiels du BO 2019, dont une séance dédiée au corps humain et à la santé ; validation d'un enseignant SVT qualifié requise.",
+      "publicOfferEligible": false
+    },
+    {
+      "moduleId": "terminale-maths-expertes",
+      "level": "TERMINALE",
+      "subject": "Mathématiques expertes",
+      "officialProgrammeId": "BO2019-LYCEE-MATHEXP-TERMINALE",
+      "applicationSchoolYear": "2026-2027",
+      "nexusSessionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "alignmentSummary": "PROPOSITION : arithmétique, congruences, nombres complexes approfondis, matrices et graphes, selon le programme de la spécialité Maths expertes.",
       "publicOfferEligible": false
     }
   ]

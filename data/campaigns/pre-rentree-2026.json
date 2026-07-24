@@ -8,10 +8,7 @@
   "timezone": "Africa/Tunis",
   "startDate": "2026-08-17",
   "endDate": "2026-08-28",
-  "noClassDates": [
-    "2026-08-22",
-    "2026-08-23"
-  ],
+  "noClassDates": [],
   "decisionDeadline": "2026-08-10T18:00:00+01:00",
   "venue": {
     "name": "Nexus Réussite — Mutuelleville",
@@ -61,7 +58,6 @@
       "id": "PHYSIQUE_CHIMIE",
       "label": "Physique-Chimie",
       "levels": [
-        "SECONDE",
         "PREMIERE",
         "TERMINALE"
       ]
@@ -70,13 +66,9 @@
       "id": "NSI",
       "label": "NSI",
       "levels": [
-        "SECONDE",
         "PREMIERE",
         "TERMINALE"
-      ],
-      "labelByLevel": {
-        "SECONDE": "Initiation informatique, algorithmique et SNT"
-      }
+      ]
     },
     {
       "id": "FRANCAIS",
@@ -91,17 +83,17 @@
       }
     },
     {
-      "id": "PHILOSOPHIE",
-      "label": "Philosophie",
-      "levels": [
-        "TERMINALE"
-      ]
-    },
-    {
       "id": "SVT",
       "label": "SVT",
       "levels": [
         "PREMIERE",
+        "TERMINALE"
+      ]
+    },
+    {
+      "id": "MATHS_EXPERTES",
+      "label": "Mathématiques expertes",
+      "levels": [
         "TERMINALE"
       ]
     }
@@ -109,151 +101,160 @@
   "blocks": [
     {
       "id": "A",
-      "startTime": "08:30",
-      "endTime": "10:30"
+      "startTime": "09:00",
+      "endTime": "11:00"
     },
     {
       "id": "B",
-      "startTime": "10:45",
-      "endTime": "12:45"
+      "startTime": "11:15",
+      "endTime": "13:15"
     },
     {
       "id": "C",
-      "startTime": "13:30",
-      "endTime": "15:30"
+      "startTime": "14:15",
+      "endTime": "16:15"
     },
     {
       "id": "D",
-      "startTime": "15:45",
-      "endTime": "17:45"
+      "startTime": "16:30",
+      "endTime": "18:30"
     }
   ],
   "schedule": [
     {
-      "week": 1,
-      "weekLabel": "Semaine 1 — 17 au 21 août",
-      "weekStart": "2026-08-17",
-      "weekEnd": "2026-08-21",
+      "windowId": "fenetre-1",
+      "windowLabel": "Fenêtre 1 — 17 au 21 août",
+      "days": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21"
+      ],
       "slots": [
         {
           "level": "TROISIEME",
           "subject": "MATHEMATIQUES",
           "block": "A",
           "room": "salle-1",
-          "teacherRole": "MATHS_TEACHER_A"
+          "teacherRole": "TEACHER_A_MATHS_NSI"
         },
         {
           "level": "SECONDE",
           "subject": "FRANCAIS",
           "block": "A",
           "room": "salle-2",
-          "teacherRole": "FRENCH_TEACHER_A"
+          "teacherRole": "TEACHER_C_FRANCAIS"
         },
         {
           "level": "SECONDE",
           "subject": "MATHEMATIQUES",
           "block": "B",
           "room": "salle-1",
-          "teacherRole": "MATHS_TEACHER_A"
+          "teacherRole": "TEACHER_A_MATHS_NSI"
+        },
+        {
+          "level": "PREMIERE",
+          "subject": "FRANCAIS",
+          "block": "B",
+          "room": "salle-2",
+          "teacherRole": "TEACHER_C_FRANCAIS"
+        },
+        {
+          "level": "PREMIERE",
+          "subject": "MATHEMATIQUES",
+          "block": "C",
+          "room": "salle-1",
+          "teacherRole": "TEACHER_A_MATHS_NSI"
         },
         {
           "level": "TROISIEME",
           "subject": "FRANCAIS",
-          "block": "B",
+          "block": "C",
           "room": "salle-2",
-          "teacherRole": "FRENCH_TEACHER_A"
+          "teacherRole": "TEACHER_C_FRANCAIS"
         },
         {
           "level": "PREMIERE",
-          "subject": "MATHEMATIQUES",
-          "block": "C",
-          "room": "salle-1",
-          "teacherRole": "MATHS_TEACHER_B"
-        },
-        {
-          "level": "TERMINALE",
-          "subject": "PHILOSOPHIE",
-          "block": "C",
-          "room": "salle-2",
-          "teacherRole": "PHILOSOPHY_TEACHER"
-        },
-        {
-          "level": "TERMINALE",
-          "subject": "MATHEMATIQUES",
+          "subject": "NSI",
           "block": "D",
           "room": "salle-1",
-          "teacherRole": "MATHS_TEACHER_B"
-        },
-        {
-          "level": "PREMIERE",
-          "subject": "FRANCAIS",
-          "block": "D",
-          "room": "salle-2",
-          "teacherRole": "FRENCH_TEACHER_B"
+          "teacherRole": "TEACHER_A_MATHS_NSI"
         }
       ]
     },
     {
-      "week": 2,
-      "weekLabel": "Semaine 2 — 24 au 28 août",
-      "weekStart": "2026-08-24",
-      "weekEnd": "2026-08-28",
+      "windowId": "weekend-debut-fenetre-2",
+      "windowLabel": "Week-end et début de la fenêtre 2 — 22 au 26 août",
+      "days": [
+        "2026-08-22",
+        "2026-08-23",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26"
+      ],
       "slots": [
         {
-          "level": "SECONDE",
-          "subject": "NSI",
-          "block": "A",
-          "room": "salle-1",
-          "teacherRole": "COMPUTER_SCIENCE_TEACHER_A"
-        },
-        {
           "level": "PREMIERE",
-          "subject": "PHYSIQUE_CHIMIE",
+          "subject": "SVT",
           "block": "A",
           "room": "salle-2",
-          "teacherRole": "PHYSICS_CHEMISTRY_TEACHER_A"
+          "teacherRole": "TEACHER_E_SVT"
         },
         {
           "level": "PREMIERE",
-          "subject": "NSI",
-          "block": "D",
-          "room": "salle-1",
-          "teacherRole": "COMPUTER_SCIENCE_TEACHER_A"
-        },
-        {
-          "level": "SECONDE",
           "subject": "PHYSIQUE_CHIMIE",
           "block": "B",
           "room": "salle-2",
-          "teacherRole": "PHYSICS_CHEMISTRY_TEACHER_A"
+          "teacherRole": "TEACHER_D_PHYSIQUE_CHIMIE"
+        }
+      ]
+    },
+    {
+      "windowId": "fenetre-2",
+      "windowLabel": "Fenêtre 2 — 24 au 28 août (Terminale)",
+      "days": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "slots": [
+        {
+          "level": "TERMINALE",
+          "subject": "MATHEMATIQUES",
+          "block": "A",
+          "room": "salle-1",
+          "teacherRole": "TEACHER_A_MATHS_NSI"
+        },
+        {
+          "level": "TERMINALE",
+          "subject": "PHYSIQUE_CHIMIE",
+          "block": "D",
+          "room": "salle-2",
+          "teacherRole": "TEACHER_D_PHYSIQUE_CHIMIE"
+        },
+        {
+          "level": "TERMINALE",
+          "subject": "MATHS_EXPERTES",
+          "block": "B",
+          "room": "salle-1",
+          "teacherRole": "TEACHER_A_MATHS_NSI"
         },
         {
           "level": "TERMINALE",
           "subject": "NSI",
           "block": "C",
           "room": "salle-1",
-          "teacherRole": "COMPUTER_SCIENCE_TEACHER_B"
+          "teacherRole": "TEACHER_A_MATHS_NSI"
         },
         {
           "level": "TERMINALE",
-          "subject": "PHYSIQUE_CHIMIE",
-          "block": "D",
-          "room": "salle-2",
-          "teacherRole": "PHYSICS_CHEMISTRY_TEACHER_B"
-        },
-        {
-          "level": "TERMINALE",
-          "subject": "SVT",
-          "block": "B",
-          "room": "salle-1",
-          "teacherRole": "SVT_TEACHER_B"
-        },
-        {
-          "level": "PREMIERE",
           "subject": "SVT",
           "block": "C",
           "room": "salle-2",
-          "teacherRole": "SVT_TEACHER_A"
+          "teacherRole": "TEACHER_E_SVT"
         }
       ]
     }
@@ -262,97 +263,49 @@
     "salle-1": [
       "MATHEMATIQUES",
       "NSI",
-      "SVT"
+      "MATHS_EXPERTES"
     ],
     "salle-2": [
       "FRANCAIS",
-      "PHILOSOPHIE",
       "PHYSIQUE_CHIMIE",
       "SVT"
     ]
   },
   "teacherRoles": {
-    "MATHS_TEACHER_A": {
+    "TEACHER_A_MATHS_NSI": {
       "subjects": [
-        "MATHEMATIQUES"
+        "MATHEMATIQUES",
+        "NSI",
+        "MATHS_EXPERTES"
       ],
-      "maxHoursPerDay": 6,
+      "maxHoursPerDay": 8,
       "assigned": false
     },
-    "MATHS_TEACHER_B": {
-      "subjects": [
-        "MATHEMATIQUES"
-      ],
-      "maxHoursPerDay": 6,
-      "assigned": false
-    },
-    "FRENCH_TEACHER_A": {
+    "TEACHER_C_FRANCAIS": {
       "subjects": [
         "FRANCAIS"
       ],
       "maxHoursPerDay": 6,
       "assigned": false
     },
-    "FRENCH_TEACHER_B": {
-      "subjects": [
-        "FRANCAIS"
-      ],
-      "maxHoursPerDay": 6,
-      "assigned": false
-    },
-    "PHILOSOPHY_TEACHER": {
-      "subjects": [
-        "PHILOSOPHIE"
-      ],
-      "maxHoursPerDay": 6,
-      "assigned": false
-    },
-    "COMPUTER_SCIENCE_TEACHER_A": {
-      "subjects": [
-        "NSI"
-      ],
-      "maxHoursPerDay": 6,
-      "assigned": false
-    },
-    "COMPUTER_SCIENCE_TEACHER_B": {
-      "subjects": [
-        "NSI"
-      ],
-      "maxHoursPerDay": 6,
-      "assigned": false
-    },
-    "PHYSICS_CHEMISTRY_TEACHER_A": {
+    "TEACHER_D_PHYSIQUE_CHIMIE": {
       "subjects": [
         "PHYSIQUE_CHIMIE"
       ],
-      "maxHoursPerDay": 6,
+      "maxHoursPerDay": 4,
       "assigned": false
     },
-    "PHYSICS_CHEMISTRY_TEACHER_B": {
-      "subjects": [
-        "PHYSIQUE_CHIMIE"
-      ],
-      "maxHoursPerDay": 6,
-      "assigned": false
-    },
-    "SVT_TEACHER_A": {
+    "TEACHER_E_SVT": {
       "subjects": [
         "SVT"
       ],
-      "maxHoursPerDay": 6,
-      "assigned": false
-    },
-    "SVT_TEACHER_B": {
-      "subjects": [
-        "SVT"
-      ],
-      "maxHoursPerDay": 6,
+      "maxHoursPerDay": 4,
       "assigned": false
     }
   },
   "capacityByOffer": {
     "FONDATIONS": {
-      "minPerCohort": 4,
+      "minPerCohort": 3,
       "maxPerCohort": 6
     },
     "PREMIUM": {
@@ -365,6 +318,7 @@
     "teacherAssignmentsValidated": false,
     "noTeacherConflict": true,
     "noRoomConflict": true,
+    "noLevelConflict": true,
     "dailyLoadValid": true
   },
   "packProductIds": [
@@ -499,20 +453,20 @@
           "description": "Un cahier et une trousse complète."
         },
         "NSI": {
-          "label": "Informatique (NSI / SNT)",
-          "description": "Pour les modules d’informatique — initiation / algorithmique / SNT en Seconde, NSI en Première et Terminale — l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire."
+          "label": "NSI",
+          "description": "Pour le module NSI (Première, Terminale), l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire."
         },
         "PHYSIQUE_CHIMIE": {
           "label": "Physique-Chimie",
           "description": "Un cahier, une trousse complète et une calculatrice. L’accompagnement est théorique et méthodologique : analyse de données expérimentales, étude de protocoles, simulation et raisonnement scientifique. Aucune activité pratique en laboratoire n’est annoncée."
         },
-        "PHILOSOPHIE": {
-          "label": "Philosophie",
-          "description": "Un cahier, une trousse complète et, si possible, un classeur pour organiser les notions, méthodes et entraînements."
-        },
         "SVT": {
           "label": "SVT",
           "description": "Un cahier, une trousse complète et une calculatrice. Les séances sont centrées sur la lecture de documents scientifiques, la méthode et la résolution de problèmes."
+        },
+        "MATHS_EXPERTES": {
+          "label": "Mathématiques expertes",
+          "description": "Un cahier, une trousse complète et une calculatrice scientifique."
         }
       },
       "preRegistrationNotice": "La demande d’information est transmise sans paiement. Elle ne réserve pas une place et ne forme pas un contrat. Après qualification pédagogique, Nexus transmet une proposition de parcours et les conditions applicables.",
@@ -533,11 +487,7 @@
       },
       {
         "question": "Quelles matières sont proposées pour une entrée en Seconde ?",
-        "answer": "Pour une entrée en Seconde, Nexus Fondations propose Mathématiques, Français, Physique-Chimie et une initiation à l'informatique, à l'algorithmique et à la SNT. Chaque matière comprend cinq séances de deux heures et peut être choisie séparément."
-      },
-      {
-        "question": "Quelle est la différence entre l'initiation informatique / SNT de Seconde et la NSI ?",
-        "answer": "Pour une entrée en Seconde, le module est une initiation à l'informatique, à l'algorithmique et à la SNT (sciences numériques et technologie) : il ne s'agit pas de la spécialité NSI. La NSI (numérique et sciences informatiques) est proposée en Première et en Terminale uniquement."
+        "answer": "Pour une entrée en Seconde, Nexus Fondations propose Mathématiques et Français. Chaque matière comprend cinq séances de deux heures et peut être choisie séparément."
       },
       {
         "question": "Comment choisir le profil de Mathématiques pour une entrée en Première ?",
@@ -554,6 +504,10 @@
       {
         "question": "Quelles options de Mathématiques sont prévues pour une entrée en Terminale ?",
         "answer": "Le formulaire distingue l'absence d'option, Maths expertes et Maths complémentaires pour la classe de rentrée. La spécialité Mathématiques conservée est déclarée séparément."
+      },
+      {
+        "question": "Le stage de pré-rentrée propose-t-il un module Maths expertes en Terminale ?",
+        "answer": "Oui. Pour l'entrée en Terminale, Maths expertes est proposée comme matière de stage à part entière, en plus des Mathématiques, du NSI, de la Physique-Chimie et de la SVT. Le Français n'est pas proposé au niveau Terminale."
       },
       {
         "question": "La SVT est-elle proposée, et à quels niveaux ?",
@@ -585,7 +539,7 @@
       },
       {
         "question": "Quel matériel faut-il apporter ?",
-        "answer": "Un cahier et une trousse complète sont utiles dans toutes les matières. En SVT : calculatrice scientifique simple recommandée, non obligatoire sauf consigne de l'enseignant. Pour les modules d’informatique — initiation / algorithmique / SNT en Seconde, NSI en Première et Terminale — l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire. En Physique-Chimie, les séances sont théoriques et méthodologiques ; aucune activité pratique en laboratoire n’est annoncée."
+        "answer": "Un cahier et une trousse complète sont utiles dans toutes les matières. En SVT : calculatrice scientifique simple recommandée, non obligatoire sauf consigne de l'enseignant. Pour le module NSI (Première, Terminale), l’élève apporte un ordinateur portable. Deux postes de secours sont disponibles en nombre limité ; contactez Nexus avant le stage si nécessaire. En Physique-Chimie, les séances sont théoriques et méthodologiques ; aucune activité pratique en laboratoire n’est annoncée."
       },
       {
         "question": "Que faire si le groupe demandé est complet ?",

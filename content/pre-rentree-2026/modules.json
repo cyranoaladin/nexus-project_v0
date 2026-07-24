@@ -1,5 +1,5 @@
 {
-  "version": "2026-pre-rentree-v4-svt-snt",
+  "version": "2026-pre-rentree-v5-planning-windows",
   "generatedAt": "2026-07-20",
   "resourcePolicy": {
     "generatedDefaultStatus": "DRAFT",
@@ -319,162 +319,6 @@
           ],
           "method": "Travail progressif sur un extrait : du brouillon à la rédaction",
           "deliverable": "Modèle de brouillon commentaire avec étapes clés"
-        }
-      ]
-    },
-    {
-      "id": "seconde-informatique-snt",
-      "level": "SECONDE",
-      "subjectId": "NSI",
-      "subject": "Informatique (SNT)",
-      "title": "Initiation informatique, algorithmique et SNT",
-      "subtitle": "Entrée en Seconde — découvrir la pensée algorithmique, la SNT et les bases de la programmation Python",
-      "prerequisites": "Aucun prérequis informatique ou NSI ; les usages numériques courants acquis au collège suffisent.",
-      "differentiation": "Défis progressifs et extensions facultatives pour les élèves déjà familiers avec le code.",
-      "quickAssessment": "Programme court à exécuter, expliquer ou corriger en fin de séance.",
-      "sessions": [
-        {
-          "number": 1,
-          "title": "Découverte algorithmique et pensée computationnelle",
-          "objective": "Comprendre ce qu'est un algorithme et décomposer un problème en étapes",
-          "topics": [
-            "Notion d'algorithme dans la vie quotidienne",
-            "Décomposition d'un problème en sous-problèmes",
-            "Pseudo-code et organigrammes",
-            "Premiers pas dans l'environnement Python"
-          ],
-          "method": "Activités débranchées puis découverte de l'éditeur Python",
-          "deliverable": "Premier programme Python fonctionnel commenté"
-        },
-        {
-          "number": 2,
-          "title": "Variables, types et structures conditionnelles",
-          "objective": "Manipuler variables et conditions pour créer des programmes interactifs",
-          "topics": [
-            "Variables : affectation, types (int, float, str, bool)",
-            "Entrées/sorties (input, print)",
-            "Structures conditionnelles (if/elif/else)",
-            "Opérateurs de comparaison et logiques"
-          ],
-          "method": "Exercices progressifs avec validation par exécution",
-          "deliverable": "Mini-programme interactif (quiz ou calculatrice simple)"
-        },
-        {
-          "number": 3,
-          "title": "Boucles et itérations",
-          "objective": "Utiliser les boucles for et while pour automatiser des traitements",
-          "topics": [
-            "Boucle for et fonction range()",
-            "Boucle while et condition d'arrêt",
-            "Accumulateurs et compteurs",
-            "Boucles imbriquées simples"
-          ],
-          "method": "Exercices guidés et pratique autonome avec défis progressifs",
-          "deliverable": "Programme utilisant des boucles (table de multiplication, motifs)"
-        },
-        {
-          "number": 4,
-          "title": "Représentation des données et web",
-          "objective": "Comprendre comment les données sont représentées et circulant sur le web",
-          "topics": [
-            "Représentation binaire et encodage des caractères",
-            "Formats de données (texte, image, son)",
-            "Architecture web : client, serveur, URL",
-            "HTML de base et notion de page web"
-          ],
-          "method": "Démonstrations interactives et manipulation de fichiers",
-          "deliverable": "Mini page HTML personnelle créée et comprise"
-        },
-        {
-          "number": 5,
-          "title": "Projet intégrateur : mini-programme Python",
-          "objective": "Réaliser un petit projet mobilisant l'ensemble des notions vues",
-          "topics": [
-            "Cahier des charges d'un mini-projet",
-            "Structuration du code (fonctions simples)",
-            "Test et débogage",
-            "Présentation et documentation du code"
-          ],
-          "method": "Pédagogie par projet avec accompagnement individualisé",
-          "deliverable": "Programme Python finalisé et documenté (jeu ou utilitaire)"
-        }
-      ]
-    },
-    {
-      "id": "seconde-physique-chimie",
-      "level": "SECONDE",
-      "subjectId": "PHYSIQUE_CHIMIE",
-      "subject": "Physique-Chimie",
-      "title": "Physique-Chimie — Entrée en Seconde",
-      "subtitle": "Entrée en Seconde — consolider unités, grandeurs et raisonnement scientifique avant les méthodes du lycée",
-      "prerequisites": "Les notions scientifiques et les outils de calcul travaillés en Troisième et au collège.",
-      "differentiation": "Données, schémas et niveaux de guidage adaptés aux acquis diagnostiqués.",
-      "quickAssessment": "Question scientifique courte avec justification des unités et de la démarche.",
-      "sessions": [
-        {
-          "number": 1,
-          "title": "Grandeurs, unités et conversions",
-          "objective": "Maîtriser les unités du SI, les préfixes et les conversions essentielles",
-          "topics": [
-            "Système international d'unités (SI)",
-            "Préfixes et puissances de 10",
-            "Conversions d'unités courantes",
-            "Chiffres significatifs et ordre de grandeur"
-          ],
-          "method": "Exercices systématiques avec progression de difficulté",
-          "deliverable": "Fiche réflexe unités et conversions avec tableau synthétique"
-        },
-        {
-          "number": 2,
-          "title": "Constitution de la matière : atomes et molécules",
-          "objective": "Décrire la structure de l'atome et comprendre la formation des molécules",
-          "topics": [
-            "Structure de l'atome (noyau, électrons, notation)",
-            "Tableau périodique simplifié et familles chimiques",
-            "Liaison covalente et formules de Lewis simples",
-            "Molécules courantes et nomenclature de base"
-          ],
-          "method": "Modélisation avec schémas et exercices d'application directe",
-          "deliverable": "Carte mémo atomes-molécules avec schémas de Lewis essentiels"
-        },
-        {
-          "number": 3,
-          "title": "Forces et introduction au mouvement",
-          "objective": "Identifier les forces et décrire qualitativement un mouvement",
-          "topics": [
-            "Notion de force et effets sur un objet",
-            "Poids, réaction du support, tension d'un fil",
-            "Diagramme objets-interactions",
-            "Description d'un mouvement (trajectoire, vitesse)"
-          ],
-          "method": "Exercices guidés avec schématisation systématique des forces",
-          "deliverable": "Méthode de construction d'un diagramme de forces"
-        },
-        {
-          "number": 4,
-          "title": "Calcul scientifique et exploitation de mesures",
-          "objective": "Utiliser les outils mathématiques pour exploiter des résultats expérimentaux",
-          "topics": [
-            "Proportionnalité et formules littérales",
-            "Lecture et tracé de graphiques",
-            "Exploitation d'un graphique (pente, ordonnée à l'origine)",
-            "Incertitudes et précision de mesure"
-          ],
-          "method": "Travail sur données expérimentales réelles avec analyse guidée",
-          "deliverable": "Fiche méthode exploitation de graphiques et formules"
-        },
-        {
-          "number": 5,
-          "title": "Démarche expérimentale et résolution de problèmes",
-          "objective": "Appliquer la démarche scientifique complète sur un problème concret",
-          "topics": [
-            "Étapes de la démarche expérimentale",
-            "Formulation d'hypothèses et protocole",
-            "Rédaction d'un compte-rendu scientifique",
-            "Entraînement sur exercice type devoir"
-          ],
-          "method": "Mise en situation expérimentale simulée puis rédaction encadrée",
-          "deliverable": "Modèle de rédaction scientifique structurée"
         }
       ]
     },
@@ -871,80 +715,81 @@
       ]
     },
     {
-      "id": "terminale-philosophie",
+      "id": "terminale-maths-expertes",
+      "publicationStatus": "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION",
       "level": "TERMINALE",
-      "subjectId": "PHILOSOPHIE",
-      "subject": "Philosophie",
-      "title": "Philosophie — Entrée en Terminale",
-      "subtitle": "Nexus Premium — découvrir les exigences de la dissertation et de l'explication de texte en Terminale",
-      "prerequisites": "Les compétences d’argumentation et de lecture acquises en Première ; aucun cours préalable de philosophie n'est requis.",
-      "differentiation": "Questions, exemples et niveaux d'étayage adaptés à la maîtrise de l'argumentation et de l'expression écrite.",
-      "quickAssessment": "Une problématisation, un argument ou une étape d'explication est rédigé puis corrigé en fin de séance.",
+      "subjectId": "MATHS_EXPERTES",
+      "subject": "Mathématiques expertes",
+      "title": "Mathématiques expertes — Entrée en Terminale",
+      "subtitle": "PROPOSITION — priorités, prérequis et méthodes sélectionnés pour préparer la rentrée en spécialité Maths expertes",
+      "prerequisites": "Les acquis de Première en spécialité Mathématiques : suites, fonctions, probabilités et raisonnement.",
+      "differentiation": "Exercices différenciés selon l'aisance calculatoire et l'aisance avec le raisonnement abstrait.",
+      "quickAssessment": "Exercice de synthèse court analysé selon la démarche, le calcul et la rédaction.",
       "sessions": [
         {
           "number": 1,
-          "title": "Comprendre une notion et problématiser une question",
-          "objective": "Distinguer opinion, question et problème philosophique à partir d'une notion",
+          "title": "Arithmétique : divisibilité et nombres premiers",
+          "objective": "Manipuler divisibilité, division euclidienne et nombres premiers",
           "topics": [
-            "Notion, distinction conceptuelle et définition",
-            "Présupposés d'une question",
-            "Tension et formulation d'un problème",
-            "Construction d'une introduction"
+            "Divisibilité dans l'ensemble des entiers relatifs",
+            "Division euclidienne et algorithme d'Euclide",
+            "Nombres premiers et décomposition en facteurs premiers",
+            "PGCD et théorème de Bézout"
           ],
-          "method": "Analyse collective de questions puis ateliers de reformulation et de problématisation",
-          "deliverable": "Fiche méthode de problématisation et introduction corrigée"
+          "method": "Cours structuré puis exercices d'application avec corrigés détaillés",
+          "deliverable": "Fiche méthode arithmétique avec exemples résolus"
         },
         {
           "number": 2,
-          "title": "Analyser un sujet et construire une dissertation",
-          "objective": "Délimiter un sujet et élaborer un plan qui répond progressivement au problème",
+          "title": "Congruences et applications",
+          "objective": "Utiliser les congruences pour résoudre des problèmes arithmétiques",
           "topics": [
-            "Analyse des termes du sujet",
-            "Types de sujets",
-            "Progression du raisonnement",
-            "Plan détaillé et transitions"
+            "Définition et propriétés des congruences",
+            "Équations de congruence",
+            "Petit théorème de Fermat",
+            "Applications aux critères de divisibilité"
           ],
-          "method": "Décomposition guidée de sujets puis construction comparée de plans",
-          "deliverable": "Plan détaillé de dissertation avec transitions rédigées"
+          "method": "Exercices guidés avec complexité progressive",
+          "deliverable": "Tableau récapitulatif des propriétés des congruences"
         },
         {
           "number": 3,
-          "title": "Organiser une argumentation et mobiliser des exemples",
-          "objective": "Rédiger un développement précis qui articule argument, objection et exemple",
+          "title": "Nombres complexes approfondis",
+          "objective": "Utiliser la forme trigonométrique et les applications géométriques des complexes",
           "topics": [
-            "Thèse et argument",
-            "Objection et réponse",
-            "Exemple analysé",
-            "Connecteurs et précision de l'expression"
+            "Forme trigonométrique et exponentielle",
+            "Racines n-ièmes d'un nombre complexe",
+            "Applications à la géométrie plane",
+            "Transformations du plan complexe"
           ],
-          "method": "Analyse de paragraphes modèles puis rédaction et révision critériée",
-          "deliverable": "Développement argumenté annoté avec banque d'exemples"
+          "method": "Démonstrations guidées puis exercices types Bac",
+          "deliverable": "Formulaire complexes approfondis avec méthodes de résolution"
         },
         {
           "number": 4,
-          "title": "Expliquer un texte philosophique",
-          "objective": "Dégager le problème, la thèse et les étapes de l'argumentation d'un texte",
+          "title": "Matrices et systèmes linéaires",
+          "objective": "Manipuler les matrices et résoudre des systèmes par le calcul matriciel",
           "topics": [
-            "Question et thèse du texte",
-            "Structure argumentative",
-            "Explication précise d'un passage",
-            "Évitement de la paraphrase"
+            "Opérations sur les matrices",
+            "Matrice inverse et déterminant",
+            "Résolution de systèmes linéaires",
+            "Suites définies par une relation matricielle"
           ],
-          "method": "Lecture linéaire guidée puis rédaction d'une étape d'explication",
-          "deliverable": "Carte argumentative du texte et passage expliqué"
+          "method": "Exercices progressifs avec vérification par le calcul",
+          "deliverable": "Fiche méthode calcul matriciel avec exemples résolus"
         },
         {
           "number": 5,
-          "title": "Entraînement type bac et correction méthodique",
-          "objective": "Choisir une démarche, produire un devoir partiel et utiliser une grille de correction",
+          "title": "Graphes : notions et parcours",
+          "objective": "Modéliser une situation par un graphe et déterminer un plus court chemin",
           "topics": [
-            "Choix entre dissertation et explication",
-            "Gestion du temps",
-            "Cohérence du raisonnement",
-            "Relecture et amélioration"
+            "Vocabulaire des graphes et matrice d'adjacence",
+            "Chaînes, cycles et connexité",
+            "Algorithme du plus court chemin",
+            "Synthèse et bilan de la spécialité"
           ],
-          "method": "Entraînement chronométré puis correction collective et reprise individuelle",
-          "deliverable": "Copie d'entraînement corrigée et plan personnel de progrès"
+          "method": "Modélisation guidée puis problèmes contextualisés",
+          "deliverable": "Méthode complète de modélisation par un graphe"
         }
       ]
     },
