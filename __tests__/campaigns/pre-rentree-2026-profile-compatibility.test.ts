@@ -5,10 +5,13 @@ import {
 } from '@/lib/campaigns/pre-rentree-2026/configurator';
 import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
 
-const subjects = ['MATHEMATIQUES', 'FRANCAIS', 'NSI', 'PHYSIQUE_CHIMIE'];
+// SVT is commercialized in Première exactly like NSI/Physique-Chimie (offers.json)
+// and must be included in this exhaustive fuzz universe — its earlier absence here
+// mirrored the real product gap fixed in configurator.ts (see SCHEDULE-UX-AUDIT.md).
+const subjects = ['MATHEMATIQUES', 'FRANCAIS', 'NSI', 'PHYSIQUE_CHIMIE', 'SVT'];
 
 function subjectCombinations(): string[][] {
-  return Array.from({ length: 15 }, (_, maskIndex) => {
+  return Array.from({ length: (1 << subjects.length) - 1 }, (_, maskIndex) => {
     const mask = maskIndex + 1;
     return subjects.filter((_, index) => (mask & (1 << index)) !== 0);
   });
@@ -55,10 +58,39 @@ describe('Pré-rentrée profile × subject compatibility', () => {
       { voie: 'GENERALE', mathsProfile: 'MATHS_EDS', eafProfile: 'EAF_GENERALE', premiereSpecialtyPlan: 'NSI' },
       ['PHYSIQUE_CHIMIE'],
     ],
+    [
+      'PREMIERE',
+      { voie: 'GENERALE', mathsProfile: 'MATHS_EDS', eafProfile: 'EAF_GENERALE', premiereSpecialtyPlan: 'AUCUNE_NSI_PC' },
+      ['SVT'],
+    ],
+    [
+      'PREMIERE',
+      { voie: 'GENERALE', mathsProfile: 'MATHS_EDS', eafProfile: 'EAF_GENERALE', premiereSpecialtyPlan: 'NSI_PHYSIQUE_CHIMIE' },
+      ['SVT'],
+    ],
     ['TERMINALE', { retainedSpecialties: [], mathsOption: 'AUCUNE' }, ['NSI']],
     ['TERMINALE', { retainedSpecialties: [], mathsOption: 'AUCUNE' }, ['PHYSIQUE_CHIMIE']],
+    ['TERMINALE', { retainedSpecialties: ['NSI'], mathsOption: 'AUCUNE' }, ['SVT']],
   ] as Array<[EntryLevelCode, AcademicProfileSelection, string[]]>)('%s sends a non-declared specialty to pedagogical review', (level, profile, selectedSubjects) => {
     expect(classifyProfileSubjectCompatibility(level, profile, selectedSubjects).status).toBe(
+      'REQUIRES_PEDAGOGICAL_REVIEW',
+    );
+  });
+
+  it.each([
+    [
+      'PREMIERE',
+      { voie: 'GENERALE', mathsProfile: 'MATHS_EDS', eafProfile: 'EAF_GENERALE', premiereSpecialtyPlan: 'SVT' },
+      ['SVT'],
+    ],
+    [
+      'PREMIERE',
+      { voie: 'GENERALE', mathsProfile: 'MATHS_EDS', eafProfile: 'EAF_GENERALE', premiereSpecialtyPlan: 'NSI_PHYSIQUE_CHIMIE_SVT' },
+      ['NSI', 'PHYSIQUE_CHIMIE', 'SVT'],
+    ],
+    ['TERMINALE', { retainedSpecialties: ['SVT'], mathsOption: 'AUCUNE' }, ['SVT']],
+  ] as Array<[EntryLevelCode, AcademicProfileSelection, string[]]>)('%s does not send a correctly declared SVT selection to review', (level, profile, selectedSubjects) => {
+    expect(classifyProfileSubjectCompatibility(level, profile, selectedSubjects).status).not.toBe(
       'REQUIRES_PEDAGOGICAL_REVIEW',
     );
   });
@@ -85,13 +117,23 @@ describe('Pré-rentrée profile × subject compatibility', () => {
       ...(['GENERALE', 'TECHNOLOGIQUE'] as const).flatMap((voie) =>
         (['MATHS_EDS', 'MATHS_HORS_EDS'] as const).flatMap((mathsProfile) =>
           (['EAF_GENERALE', 'EAF_TECHNOLOGIQUE'] as const).flatMap((eafProfile) =>
-            (['AUCUNE_NSI_PC', 'NSI', 'PHYSIQUE_CHIMIE', 'NSI_PHYSIQUE_CHIMIE'] as const).map(
+            ([
+              'AUCUNE_NSI_PC', 'NSI', 'PHYSIQUE_CHIMIE', 'SVT',
+              'NSI_PHYSIQUE_CHIMIE', 'NSI_SVT', 'PHYSIQUE_CHIMIE_SVT', 'NSI_PHYSIQUE_CHIMIE_SVT',
+            ] as const).map(
               (premiereSpecialtyPlan) => ['PREMIERE', { voie, mathsProfile, eafProfile, premiereSpecialtyPlan }],
             ),
           ),
         ),
       ),
-      ...[[], ['MATHEMATIQUES'], ['NSI'], ['PHYSIQUE_CHIMIE'], ['MATHEMATIQUES', 'NSI'], ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE'], ['NSI', 'PHYSIQUE_CHIMIE']].flatMap(
+      // Every 0/1/2-sized subset of the 4 retainable Terminale specialties (max 2
+      // retained is the real rule — 3+ is intentionally excluded, same as before SVT
+      // was added): C(4,0)+C(4,1)+C(4,2) = 1+4+6 = 11 combinations.
+      ...[
+        [], ['MATHEMATIQUES'], ['NSI'], ['PHYSIQUE_CHIMIE'], ['SVT'],
+        ['MATHEMATIQUES', 'NSI'], ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE'], ['MATHEMATIQUES', 'SVT'],
+        ['NSI', 'PHYSIQUE_CHIMIE'], ['NSI', 'SVT'], ['PHYSIQUE_CHIMIE', 'SVT'],
+      ].flatMap(
         (retainedSpecialties) => (['AUCUNE', 'MATHS_EXPERTES', 'MATHS_COMPLEMENTAIRES'] as const).map(
           (mathsOption) => ['TERMINALE', { retainedSpecialties, mathsOption }],
         ),
@@ -114,6 +156,9 @@ describe('Pré-rentrée profile × subject compatibility', () => {
       }
     }
 
-    expect(cases).toBe(810);
+    // 1 (Seconde) + 2*2*2*8 (Première: voie×mathsProfile×eafProfile×8 plans) + 11*3
+    // (Terminale: 11 retained-specialty combos × 3 mathsOption) = 98 profiles,
+    // × 31 subject combinations (2^5 - 1 for the 5 real subjects) = 3038.
+    expect(cases).toBe(3038);
   });
 });

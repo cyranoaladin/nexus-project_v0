@@ -364,7 +364,7 @@
       "specialtyPlans": [
         {
           "id": "AUCUNE_NSI_PC",
-          "label": "Ni NSI ni Physique-Chimie envisagée"
+          "label": "Ni NSI, ni Physique-Chimie, ni SVT envisagée"
         },
         {
           "id": "NSI",
@@ -375,8 +375,24 @@
           "label": "Physique-Chimie envisagée"
         },
         {
+          "id": "SVT",
+          "label": "SVT envisagée"
+        },
+        {
           "id": "NSI_PHYSIQUE_CHIMIE",
           "label": "NSI et Physique-Chimie envisagées"
+        },
+        {
+          "id": "NSI_SVT",
+          "label": "NSI et SVT envisagées"
+        },
+        {
+          "id": "PHYSIQUE_CHIMIE_SVT",
+          "label": "Physique-Chimie et SVT envisagées"
+        },
+        {
+          "id": "NSI_PHYSIQUE_CHIMIE_SVT",
+          "label": "NSI, Physique-Chimie et SVT envisagées"
         }
       ]
     },
