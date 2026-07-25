@@ -328,14 +328,14 @@
     {
       "id": "premiere-mathematiques",
       "publicationStatus": "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION",
-      "objective": "Sélectionner des priorités, prérequis et méthodes pour préparer la rentrée et l'épreuve terminale anticipée de mathématiques passée en fin de Première, sans promesse de résultat ni couverture du programme annuel.",
+      "objective": "Sélectionner des priorités, prérequis et méthodes pour préparer la rentrée en spécialité Mathématiques et l'épreuve terminale anticipée de spécialité passée en fin de Première, sans promesse de résultat ni couverture du programme annuel.",
       "level": "PREMIERE",
       "subjectId": "MATHEMATIQUES",
       "subject": "Mathématiques",
       "title": "Mathématiques — Entrée en Première",
-      "subtitle": "PROPOSITION — priorités, prérequis et méthodes sélectionnés pour préparer la rentrée de Première",
+      "subtitle": "PROPOSITION — priorités, prérequis et méthodes sélectionnés pour préparer la rentrée en spécialité Mathématiques de Première",
       "prerequisites": "Les acquis de Seconde en fonctions, calcul littéral et probabilités.",
-      "differentiation": "Activités et niveau d'exigence adaptés au profil Maths EDS ou hors EDS après validation pédagogique.",
+      "differentiation": "Activités et niveau d'exigence adaptés aux élèves entrant en spécialité Mathématiques.",
       "quickAssessment": "Exercice type ciblé, corrigé avec une grille de méthode et de rédaction.",
       "sessions": [
         {
@@ -379,29 +379,29 @@
         },
         {
           "number": 4,
-          "title": "Probabilités conditionnelles",
-          "objective": "Calculer des probabilités conditionnelles et utiliser un arbre pondéré",
+          "title": "Produit scalaire et géométrie",
+          "objective": "Calculer un produit scalaire et l'utiliser pour résoudre des problèmes de géométrie du plan",
           "topics": [
-            "Probabilité conditionnelle : définition et notation",
-            "Arbres de probabilités pondérés",
-            "Formule des probabilités totales",
-            "Indépendance de deux événements"
+            "Produit scalaire : définition, expressions et propriétés",
+            "Norme d'un vecteur et projection orthogonale",
+            "Orthogonalité et applications (angles, distances)",
+            "Géométrie repérée : équations de droites et de cercles"
           ],
-          "method": "Résolution de problèmes concrets avec modélisation par arbre",
-          "deliverable": "Fiche méthode probabilités conditionnelles avec schémas types"
+          "method": "Exercices guidés progressifs avec figures codées et démonstrations à compléter",
+          "deliverable": "Formulaire produit scalaire avec méthodes de résolution géométrique"
         },
         {
           "number": 5,
-          "title": "Automatismes et méthode de l'épreuve anticipée",
-          "objective": "Se familiariser avec la structure et les méthodes utiles à l'épreuve terminale anticipée de mathématiques de fin de Première",
+          "title": "Trigonométrie et méthode de l'épreuve anticipée",
+          "objective": "Maîtriser le cercle trigonométrique et les fonctions sinus et cosinus, et se familiariser avec la méthode de l'épreuve terminale anticipée de mathématiques de spécialité",
           "topics": [
-            "Automatismes sans calculatrice",
-            "Lecture d'énoncé et choix d'une stratégie",
-            "Rédaction d'un raisonnement et contrôle des résultats",
-            "Exercices indépendants sur les priorités du module"
+            "Cercle trigonométrique, radians et angles orientés",
+            "Fonctions cosinus et sinus : valeurs remarquables et courbes",
+            "Automatismes de calcul sans calculatrice",
+            "Méthode de l'épreuve anticipée de spécialité : lecture d'énoncé, rédaction, contrôle des résultats"
           ],
-          "method": "Entraînement méthodologique sur des formats officiels, sans promesse de résultat",
-          "deliverable": "Grille de méthode pour l'épreuve anticipée"
+          "method": "Alternance construction sur le cercle trigonométrique et entraînement méthodologique sur formats officiels, sans promesse de résultat",
+          "deliverable": "Fiche trigonométrie et grille de méthode pour l'épreuve anticipée de spécialité"
         }
       ]
     },

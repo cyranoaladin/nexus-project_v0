@@ -90,7 +90,11 @@ def test_math_programmes_are_rendered_from_canonical_review_modules():
     assert "probabilités conditionnelles" in seconde
     assert "PROPOSITION — MODULE À VALIDER PAR LA DIRECTION PÉDAGOGIQUE" in premiere
     assert "épreuve terminale anticipée de mathématiques" in premiere
-    assert "fonctions sinus et cosinus" not in premiere.casefold()
+    # Recentrage spécialité (direction, 2026-07-25) : produit scalaire + trigonométrie remplacent
+    # les probabilités conditionnelles / automatismes génériques des séances 4-5.
+    assert "produit scalaire" in premiere.casefold()
+    assert "trigonométrie" in premiere.casefold() or "cercle trigonométrique" in premiere.casefold()
+    assert "probabilités conditionnelles" not in premiere.casefold()
 
 
 def test_troisieme_programme_pdf_exists_and_is_rendered_from_canonical_modules():
