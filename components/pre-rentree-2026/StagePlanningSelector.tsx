@@ -26,8 +26,6 @@ const LEVEL_RANGE: Record<EntryLevelCode, 'FONDATIONS' | 'PREMIUM'> = {
   TERMINALE: 'PREMIUM',
 };
 
-const HOURS_PER_SUBJECT = 10;
-
 function subjectLabelForLevel(subject: LandingSubject, level: EntryLevelCode): string {
   return subject.labelByLevel?.[level] ?? subject.label;
 }
@@ -124,11 +122,11 @@ export function StagePlanningSelector({
   }, [level, selectedSubjects, incompatibilities]);
 
   const dates = useMemo(() => [...new Set(selectedSlots.map((slot) => slot.date))].sort(), [selectedSlots]);
-  const totalHours = selectedSubjects.length * HOURS_PER_SUBJECT;
   const range = level ? LEVEL_RANGE[level] : null;
   const capacity = range ? capacityByOffer[range] : null;
 
   const pack = level ? selectPackBySubjectCount(offerOptions, selectedSubjects.length, level) : null;
+  const totalHours = pack?.totalHours ?? 0;
   const bilanHref = level && pack
     ? buildBilanUrl({ packCode: pack.code, level, subjectIds: selectedSubjects, profile: {} })
     : null;
