@@ -1,0 +1,27 @@
+{
+  "description": "S2 — cohortes alternatives, dates INCHANGEES (17-21, 22-26, 24-28 aout). Analyse : ajouter les 3 cohortes Terminale (NSI2, PC2, SVT2) tient dans les 4 blocs x 2 salles de la fenetre 24-28 SANS extension de date (verifie : 8 entrees pour 8 creneaux). Mais la fenetre 'weekend-debut-fenetre-2' (22-26) et la fenetre Terminale (24-28) SE CHEVAUCHENT sur 24-25-26 aout, et partagent le role TEACHER_D_PHYSIQUE_CHIMIE (Premiere PC en semaine 22-26, Terminale PC cohortes 1+2 en semaine 24-28) : sur les 3 jours communs, ce professeur ne peut pas etre a la fois en Premiere PC (bloc B) et Terminale PC cohorte 2 (bloc B egalement) au meme moment -> CONFLIT ENSEIGNANT REEL, non trivialement resoluble sans deplacer au moins une des deux fenetres.",
+  "verdict": "INFEASIBLE_WITHOUT_WINDOW_RESTRUCTURING",
+  "conflict": {
+    "teacherRole": "TEACHER_D_PHYSIQUE_CHIMIE",
+    "overlappingDates": [
+      "2026-08-24",
+      "2026-08-25",
+      "2026-08-26"
+    ],
+    "conflictingAssignments": [
+      {
+        "level": "PREMIERE",
+        "subject": "PHYSIQUE_CHIMIE",
+        "window": "weekend-debut-fenetre-2",
+        "block": "B"
+      },
+      {
+        "level": "TERMINALE",
+        "subject": "PHYSIQUE_CHIMIE",
+        "cohort": 2,
+        "window": "fenetre-2",
+        "block": "B"
+      }
+    ]
+  }
+}
