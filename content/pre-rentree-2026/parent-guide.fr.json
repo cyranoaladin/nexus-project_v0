@@ -129,7 +129,7 @@
       "title":"Demander le programme ou un conseil",
       "blocks":[
         {"id":"contact-source","kind":"DYNAMIC_REFERENCE","sourceRef":"/contact"},
-        {"id":"cta-final","kind":"EVIDENCED_TEXT","text":"Demander un parcours ou un conseil.","evidenceRefs":["/cta"]}
+        {"id":"cta-final","kind":"EVIDENCED_TEXT","text":"Demander une information.","evidenceRefs":["/cta"]}
       ]
     }
   ]

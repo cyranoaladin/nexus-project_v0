@@ -42,4 +42,4 @@ Aucun paquet privé n’est produit. La CI téléverse les ZIP pendant 14 jours,
 
 Le manifest lie la revue aux SHA-256. Toute modification rend une décision antérieure obsolète. Seuls le schéma, un template vide et le vérificateur d’approbation sont versionnés ; Codex ne crée ni identité ni décision humaine.
 
-Passer de REVIEW à RELEASE exige les revues propriétaire, juridique et confidentialité, la validation des affectations, et les gates opérationnels des promesses retenues. La publication documentaire et le déploiement du site restent deux actions séparées et manuelles.
+Pour `PUBLIC_INFORMATIONAL_RELEASE`, les gates juridiques, de confidentialité, d'affectation et de transaction peuvent être `NOT_APPLICABLE` ou `MITIGATED_BY_SCOPE` uniquement si les capacités et promesses correspondantes sont réellement absentes. Toute activation ultérieure les rouvre. Le GO propriétaire, la publication documentaire et le déploiement du site restent des actions traçables séparément.

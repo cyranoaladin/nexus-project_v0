@@ -46,6 +46,9 @@ def render_review(pdf_directory: Path, public_directory: Path) -> dict:
     pdf_directory = pdf_directory.resolve()
     public_directory = public_directory.resolve()
     public_directory.mkdir(parents=True, exist_ok=True)
+    for existing_pdf in public_directory.glob("*.pdf"):
+        if existing_pdf.name not in PUBLIC_DOCUMENT_FILENAMES:
+            existing_pdf.unlink()
     rendered_root = pdf_directory / "rendered"
     visual_review_root = pdf_directory / "visual-review"
     for target in (rendered_root, visual_review_root):
@@ -70,7 +73,11 @@ def render_review(pdf_directory: Path, public_directory: Path) -> dict:
                 "publicationStatus": (
                     "DRAFT_PENDING_QUALIFIED_TEACHER_VALIDATION"
                     if "_SVT_" in pdf_path.name and SVT_STILL_DRAFT
-                    else "REVIEW_NON_CONTRACTUAL"
+                    else (
+                        "PUBLIC_FINAL"
+                        if pdf_path.name in PUBLIC_DOCUMENT_FILENAMES
+                        else "INTERNAL_REVIEW"
+                    )
                 ),
             })
             for page_number, page in enumerate(document, start=1):

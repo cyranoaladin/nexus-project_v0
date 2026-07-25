@@ -105,6 +105,7 @@ export default function PreRentree2026Page() {
           <div className="mt-10 flex flex-col gap-3 sm:flex-row">
             <a href="#offres-pre-rentree" className="lux-cta-reserve inline-flex min-h-11 items-center justify-center rounded-lg px-6 py-3 text-sm font-semibold">Voir les offres et tarifs</a>
             <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center justify-center rounded-lg border border-lux-line/50 px-6 py-3 text-sm font-semibold text-lux-on-dark">WhatsApp {dto.contact.whatsappDisplay}</a>
+            <a href={dto.contact.phoneHref} className="inline-flex min-h-11 items-center justify-center rounded-lg border border-lux-line/50 px-6 py-3 text-sm font-semibold text-lux-on-dark">Appeler {dto.contact.phoneDisplay}</a>
           </div>
         </div>
       </section>
@@ -148,6 +149,7 @@ export default function PreRentree2026Page() {
             <h2 className="font-fraunces text-2xl text-lux-ink">Demander le bon parcours</h2>
             <p className="mt-4 text-sm leading-6 text-lux-slate">Indiquez la classe de rentrée, la ou les matières recherchées et le statut scolaire. L’équipe vérifie ensuite l’offre applicable.</p>
             <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="lux-cta-reserve mt-6 inline-flex min-h-11 items-center justify-center rounded-lg px-5 py-3 text-sm font-semibold">Écrire au {dto.contact.whatsappDisplay}</a>
+            <a href={dto.contact.phoneHref} className="mt-3 inline-flex min-h-11 items-center justify-center rounded-lg border border-lux-line px-5 py-3 text-sm font-semibold text-lux-ink">Appeler {dto.contact.phoneDisplay}</a>
           </article>
         </div>
       </section>

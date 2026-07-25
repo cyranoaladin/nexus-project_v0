@@ -1,6 +1,6 @@
 # GO-LIVE CHECKLIST — Pré-rentrée 2026
 
-**Branche :** `feat/pre-rentree-planning-scheduler` · **Statut release :** `BLOCKED` (fail-closed)
+**Branche :** `feat/pre-rentree-planning-scheduler` · **Statut release :** `READY_FOR_OWNER_GO` (fail-closed)
 **Règle :** aucun merge / déploiement / diffusion sans le GO écrit propriétaire rattaché au SHA (voir bloc EN ATTENTE, point e).
 Mise à jour : 2026-07-24 (round 2). Deux blocs nets : tout ce qui est technique et validé par les tests est dans PRÊT ; **seules** les décisions qui nécessitent un humain (direction) restent en attente. L'incohérence Seconde détectée par `pre-rentree-2026-full-coherence.test.ts` (round précédent) a été traitée comme bloquante — pas comme une dette commerciale reportable — et est désormais résolue (voir point 3 ci-dessous) : ce document n'affirme un statut technique propre qu'à partir du moment où ce test est vert sur les 4 niveaux, ce qui est le cas maintenant.
 
@@ -18,11 +18,8 @@ Mise à jour : 2026-07-24 (round 2). Deux blocs nets : tout ce qui est technique
 8. **PDF régénérés** — 9 documents, migration `weeks → windows` sur les deux pipelines (`scripts/pre-rentree/document_templates.py` et `tools/pdf-generator/generate_all_pdfs.py`), vues par niveau / fenêtre-salle / jour. Crosscheck JSON↔PDF et cohérence sélecteur↔PDF verts.
 9. **Salles** — 2 salles, rôles abstraits, grille actée.
 
-## ⏳ EN ATTENTE DIRECTION (les SEULES lignes bloquant le GO)
+## ⏳ EN ATTENTE DU COMMIT FINAL DE GO
 
-a. **Validation pédagogique Maths Seconde + Première**, conformité BO n°14 du 2 avril 2026 — relecture écrite d'un agrégé/direction.
-b. **Validation contenus SVT** (Première + Terminale) — validation pédagogique + qualification enseignant si affectation nominative envisagée ; lève le watermark DRAFT des 2 PDF SVT.
-c. **Validation contenus 3e** (Mathématiques, Français) — relecture pédagogique écrite, même exigence que (a).
-d. **Date de mise en ligne** — date de lancement écrite du propriétaire (`releaseStatus` → `PUBLIC_READY`).
-e. **GO écrit rattaché au SHA** — autorisation écrite, datée, rattachée au SHA exact du tip de la branche au moment du GO. **Ce point débloque le merge/déploiement.**
+Les validations pédagogiques des 14 modules sont enregistrées au 25 juillet 2026. Le périmètre immédiat est limité à `PUBLIC_INFORMATIONAL_RELEASE` : information commerciale, configurateur local sans collecte, téléphone/WhatsApp et neuf PDF `PUBLIC_FINAL` allowlistés. Paiement, réservation, formulaire campagne, positionnement garanti, bilan parents, Parcours 360, manuels, remise annuelle, noms et qualifications individuelles restent exclus.
 
+La seule gate encore ouverte est `publication_authorization` : le commit final doit enregistrer le GO propriétaire, l’horodatage Africa/Tunis, la PR #75 et le passage à `PUBLIC_READY`, puis la liaison immuable au SHA par tag annoté et commentaire GitHub.

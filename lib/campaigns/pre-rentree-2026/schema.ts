@@ -17,6 +17,7 @@ export type EntryLevelCode = z.infer<typeof EntryLevelCode>;
 
 export const CampaignStatus = z.enum([
   'DRAFT',
+  'PUBLIC_INFORMATIONAL',
   'PRE_REGISTRATION_OPEN',
   'REGISTRATION_OPEN',
   'FULL',

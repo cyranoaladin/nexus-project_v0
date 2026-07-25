@@ -3,13 +3,13 @@
   "campaignId": "pre-rentree-2026",
   "branch": "feat/pre-rentree-planning-scheduler",
   "pullRequest": 75,
-  "repositoryCommitSha": "dc6ea02ebe9f8eec02e8fc35ee0a6fdc1f94bafc",
+  "repositoryCommitSha": "d1096f5e697537a13987920b2e930dd2532eda43",
   "provenance": {
     "repositoryCommitShaRole": "BUILD_INPUT_NOT_FINAL_RELEASE_BINDING",
     "finalReleaseBinding": "ANNOTATED_GO_TAG_AND_GITHUB_PR_COMMENT"
   },
-  "releaseStatus": "READY_FOR_REVIEW",
-  "verdict": "BLOCKED",
+  "releaseStatus": "READY_FOR_OWNER_GO",
+  "verdict": "READY_FOR_OWNER_GO",
   "lots": [
     {
       "lot": 1,
@@ -48,13 +48,13 @@
     }
   ],
   "summary": {
-    "fileCount": 318,
-    "totalBytes": 42126593,
-    "aggregateSha256": "5fb9826b61ddd6da6401fe7176fcd7e5709340f385684e8a46c7a821846c7b0b"
+    "fileCount": 316,
+    "totalBytes": 41559991,
+    "aggregateSha256": "dcc08883465fd01da19ae86432c41a4f45745f517cecac78066e27b1e5d5aeb5"
   },
   "reviewOnlySummary": {
     "fileCount": 159,
-    "totalBytes": 33043014
+    "totalBytes": 33049432
   },
   "publicKitPolicy": {
     "excludedPathParts": [
@@ -72,111 +72,10 @@
   },
   "openReleaseGates": [
     {
-      "id": "pedagogical_validation",
-      "value": false,
-      "evidence": [
-        "CONFORMITE_PROGRAMMES.md",
-        "content/pre-rentree-2026/modules.json",
-        "content/pre-rentree-2026/publication-decisions.owner.json"
-      ],
-      "owner": "Direction pédagogique",
-      "validatedAt": null
-    },
-    {
-      "id": "teacher_assignments",
-      "value": false,
-      "evidence": [
-        "data/campaigns/pre-rentree-2026.json#/teacherRoles",
-        "data/campaigns/pre-rentree-2026.json#/operationalGates/teacherAssignmentsValidated"
-      ],
-      "owner": "Direction pédagogique et opérations",
-      "validatedAt": null
-    },
-    {
-      "id": "rooms",
-      "value": false,
-      "evidence": [
-        "data/campaigns/pre-rentree-2026.json#/schedule",
-        "data/campaigns/pre-rentree-2026.json#/operationalGates/roomAssignmentsValidated"
-      ],
-      "owner": "Direction des opérations",
-      "validatedAt": null
-    },
-    {
-      "id": "qualifications",
-      "value": false,
-      "evidence": [
-        "content/pre-rentree-2026/publication-decisions.owner.json#/remainingReleaseGates",
-        "ARBITRAGE_ENSEIGNANTS.md"
-      ],
-      "owner": "Direction pédagogique",
-      "validatedAt": null
-    },
-    {
-      "id": "payment_receipt",
-      "value": false,
-      "evidence": [
-        "content/pre-rentree-2026/residual-debt.fr.json#/items/DEBT-PRE2026-PAYMENT-METHOD",
-        "content/pre-rentree-2026/operations.fr.json"
-      ],
-      "owner": "Direction des opérations",
-      "validatedAt": null
-    },
-    {
-      "id": "cancellation_refund",
-      "value": false,
-      "evidence": [
-        "content/pre-rentree-2026/publication-decisions.owner.json#/remainingReleaseGates/cancellation_and_refund_terms",
-        "docs/campaigns/pre-rentree-2026/DECISIONS-REQUIRED.md"
-      ],
-      "owner": "Direction et conseil juridique",
-      "validatedAt": null
-    },
-    {
-      "id": "privacy_retention",
-      "value": false,
-      "evidence": [
-        "content/pre-rentree-2026/publication-decisions.owner.json#/remainingReleaseGates/privacy_notice_and_data_retention",
-        "docs/campaigns/pre-rentree-2026/PARCOURS360-CAPABILITY-MATRIX.md"
-      ],
-      "owner": "Responsable confidentialité",
-      "validatedAt": null
-    },
-    {
-      "id": "downloads",
-      "value": false,
-      "evidence": [
-        "assets/campaigns/pre-rentree-2026/documents-final/manifest.json",
-        "assets/campaigns/pre-rentree-2026/release-inventory.json",
-        "assets/campaigns/pre-rentree-2026/review/QA-REPORT.md"
-      ],
-      "owner": "Responsable qualité documentaire",
-      "validatedAt": null
-    },
-    {
-      "id": "contact_channels_forms",
-      "value": false,
-      "evidence": [
-        "data/campaigns/pre-rentree-2026.json#/contact",
-        "__tests__/campaigns/pre-rentree-2026-release-gate.test.ts",
-        "tests/e2e/pre-rentree-2026.spec.ts"
-      ],
-      "owner": "Responsable communication et technique",
-      "validatedAt": null
-    },
-    {
-      "id": "manuals_annual_discount",
-      "value": false,
-      "evidence": [
-        "content/pre-rentree-2026/residual-debt.fr.json#/items/DEBT-PRE2026-MANUAL-BENEFIT",
-        "content/pre-rentree-2026/residual-debt.fr.json#/items/DEBT-PRE2026-ANNUAL-DISCOUNT"
-      ],
-      "owner": "Direction commerciale",
-      "validatedAt": null
-    },
-    {
       "id": "publication_authorization",
+      "status": "OPEN",
       "value": false,
+      "resolution": "En attente du commit atomique final qui enregistre le GO propriétaire, son horodatage Africa/Tunis et la liaison immuable au SHA.",
       "evidence": [
         "content/pre-rentree-2026/publication-decisions.owner.json#/ownerDecisionsComplete",
         "docs/campaigns/pre-rentree-2026/OWNER-REVIEW-CHECKLIST.md"
@@ -207,46 +106,6 @@
       "reason": "Éligibilité, période, non-cumul, plafond, plancher et preuve d'usage restent à approuver."
     },
     {
-      "decisionId": "DEC-PRE2026-LEGAL-SIGNOFF",
-      "subject": "Validation juridique des documents commerciaux",
-      "status": "PENDING",
-      "publicEffect": "PACKAGE_REVIEW",
-      "responsibleRole": "LEGAL_REVIEWER",
-      "decidedAt": null,
-      "nextReviewAt": "2026-07-31",
-      "reason": "Les conditions de réservation et d'acompte nécessitent une validation juridique finale."
-    },
-    {
-      "decisionId": "DEC-PRE2026-PEDAGOGY-SIGNOFF",
-      "subject": "Validation humaine des ressources pédagogiques",
-      "status": "PENDING",
-      "publicEffect": "RESOURCES_DRAFT",
-      "responsibleRole": "PEDAGOGICAL_VALIDATOR",
-      "decidedAt": null,
-      "nextReviewAt": "2026-08-03",
-      "reason": "Les ressources générées doivent être relues matière par matière."
-    },
-    {
-      "decisionId": "DEC-PRE2026-ECONOMIC-INPUTS",
-      "subject": "Validation des hypothèses de coûts de la Pré-rentrée",
-      "status": "PENDING",
-      "publicEffect": "PACKAGE_REVIEW",
-      "responsibleRole": "DIRECTION_NEXUS_REUSSITE",
-      "decidedAt": null,
-      "nextReviewAt": "2026-07-31",
-      "reason": "La rémunération enseignante, la préparation, la correction, les supports, l'acquisition, les coûts fixes et la fiscalité doivent être validés avant de calculer la marge ou le seuil de rentabilité."
-    },
-    {
-      "decisionId": "DEC-PRE2026-PAYMENT-METHOD",
-      "subject": "Modalité opérationnelle de règlement de l'acompte",
-      "status": "PENDING",
-      "publicEffect": "PACKAGE_REVIEW",
-      "responsibleRole": "OPERATIONS_NEXUS_REUSSITE",
-      "decidedAt": null,
-      "nextReviewAt": "2026-07-24",
-      "reason": "Le canal ou lien de paiement, le rapprochement du règlement et le justificatif à remettre doivent être confirmés avant l'ouverture des réservations. Le parcours WhatsApp reste générique et n'expose aucune donnée bancaire."
-    },
-    {
       "decisionId": "DEC-PRE2026-CAMPAIGN-OWNER-SIGNOFF",
       "subject": "Bon à publier de la campagne et des créations",
       "status": "PENDING",
@@ -269,8 +128,8 @@
         },
         {
           "path": "content/pre-rentree-2026/proofs.registry.json",
-          "bytes": 7635,
-          "sha256": "ef81d9dbbdf5fe5ae1c846f828913723afca1d6151cabfe00eed160113a0b3e8"
+          "bytes": 7604,
+          "sha256": "ab3f6e3f05dbee7e7bce8c471c77a77d5dacf29bb854561a75fbc1bb2c689928"
         }
       ]
     },
@@ -702,59 +561,49 @@
       "visibility": "PUBLIC_CANDIDATE",
       "files": [
         {
-          "path": "assets/campaigns/pre-rentree-2026/documents-final/NexusReussite_PreRentree2026_DossierAccueil_PRINT.pdf",
-          "bytes": 432946,
-          "sha256": "c9c5b0b7bc8ed05bfc2f2f684843f12f25b050b6bb1e5f8e1248845b57845c47"
-        },
-        {
           "path": "assets/campaigns/pre-rentree-2026/documents-final/NexusReussite_PreRentree2026_FlyerEssentiel.pdf",
-          "bytes": 411554,
-          "sha256": "856e7b5195d0b1b53ed4734d8197fbcd6f854c95bf3e21fe5735bc325ca6a139"
+          "bytes": 410383,
+          "sha256": "c0b66147e7be003c7f24b3e819059db84e09d295316400e58e4d9027905f91f2"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/documents-final/NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf",
-          "bytes": 463677,
-          "sha256": "288fe1970e281a6d8497390c0a6bad847094dccae55193f1446e60bd61990984"
+          "bytes": 448961,
+          "sha256": "f8579595843a56da316fa652fe3973c10b62055cc717f7b20f63c816065d38dc"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/documents-final/NexusReussite_PreRentree2026_Programme_3e.pdf",
-          "bytes": 447944,
-          "sha256": "2511d0e975ae8c136dda2f40285c391baa3dbd9bea1cff18826e7bb33c43e5eb"
+          "bytes": 433228,
+          "sha256": "e52367511d04777042ace7032dfdb8ffb1c8b0b7fab9393870ef6e4304b03d0b"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/documents-final/NexusReussite_PreRentree2026_Programme_Premiere.pdf",
-          "bytes": 457103,
-          "sha256": "cd7296bd2be5b7fee29819645ab54723a553ae03f9550ac8c1c4e2be660864a6"
+          "bytes": 442390,
+          "sha256": "540f6b1e3fa59a975f0bb0ee3d7b7780bdd3703c8638501d8b38840ef6e336a4"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/documents-final/NexusReussite_PreRentree2026_Programme_SVT_Première.pdf",
-          "bytes": 443360,
-          "sha256": "64cb3dab96bab8ca766042ec98c973947ab22354165117f62cca19e5883658f3"
+          "bytes": 428644,
+          "sha256": "ef47fb6e7f91f6f09bef282ef579ddf9d569650cc575fca6257638c571f4b018"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/documents-final/NexusReussite_PreRentree2026_Programme_SVT_Terminale.pdf",
-          "bytes": 443227,
-          "sha256": "14e7226f7f10f229ace17869aae3b08cff14619e72a7d0df89396e1b7a16ad1b"
+          "bytes": 428510,
+          "sha256": "f4de056be7146f2308731a83ef65eab49576912989328fb9997f3d2c9ca20e45"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/documents-final/NexusReussite_PreRentree2026_Programme_Seconde.pdf",
-          "bytes": 448758,
-          "sha256": "ac6ab060248965704c7621cd15f725ccc75b676da74174359b86a63e75e2c435"
+          "bytes": 434045,
+          "sha256": "3c67b10eb77cffceb1aca30d0f92eb575442d3a0b52e4961f08031f7c7089f17"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/documents-final/NexusReussite_PreRentree2026_Programme_Terminale.pdf",
-          "bytes": 457032,
-          "sha256": "a33a49fd0fd869e5965b2171c2bc038a9db9845fb4ae1fe2177785b4451a468f"
+          "bytes": 442318,
+          "sha256": "6411ee2df4ce5c96892d8cbe16887d1abceee3af500a03c898f7e10ad9a83b34"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/documents-final/NexusReussite_PreRentree2026_Tarifs.pdf",
-          "bytes": 447670,
-          "sha256": "63a5d709921248e99224e2ddb3e6563613011f899b34cc873a5fe0e832bdbfc1"
-        },
-        {
-          "path": "assets/campaigns/pre-rentree-2026/documents-final/manifest.json",
-          "bytes": 14747,
-          "sha256": "5d6dd169f155fdf7d3223969d8d39cb9dece1be85cb6ee586d40db7ba529b76d"
+          "bytes": 432937,
+          "sha256": "a2c6ca5c913da9491707ab596eee293b8c7a9ef24c32d73ab2ea3a2aa8a0ef13"
         }
       ]
     },
@@ -2693,13 +2542,13 @@
       "files": [
         {
           "path": "content/pre-rentree-2026/release-gates.json",
-          "bytes": 4545,
-          "sha256": "25b4ff523dd8a41e508374ffab86f9237396a4675912b76b57e834e80f61ffe6"
+          "bytes": 7255,
+          "sha256": "cae81ed1ec489d14fcbbc58ca958bf8e8f5e3a219acba4cafbd9f979e60bb062"
         },
         {
           "path": "content/pre-rentree-2026/residual-debt.fr.json",
-          "bytes": 8080,
-          "sha256": "8fed5b518fa97d231637bce5e1c1e5fa70e53b3143c1dc164593844e8dfcaaeb"
+          "bytes": 11819,
+          "sha256": "0e160d28550ae8a366a1b84e5b052f4d6bf901a109d5f5042fa72cf79681dc16"
         }
       ]
     }
