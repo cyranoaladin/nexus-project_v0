@@ -48,7 +48,15 @@ components/pre-rentree-2026/StagePlanningSelector.tsx lib/campaigns/pre-rentree-
   **Documenté comme dette P1 dans `DEBTS.md`** plutôt que fusionné à chaud : consolider deux moteurs
   de rendu HTML/CSS indépendants dépasse le périmètre d'un correctif atomique et risquerait la
   chaîne de gouvernance reproductible (`pre-rentree:ci`). Nom « legacy » signalé comme trompeur
-  (c'est le pipeline de production actif) mais non renommé (hors périmètre du correctif).
+  (c'est le pipeline de production actif).
+  **Décision direction (2026-07-25) : garder les deux pipelines, dette confirmée ouverte, consolidation
+  reportée post-go-live.** Ambiguïté de nommage résolue **sans renommage** (option la moins risqueuse,
+  telle que demandée) : renommer `pre-rentree:legacy-pdfs` aurait touché `package.json`, le nom du
+  fichier pytest `test_legacy_pdf_generator_contract.py`, et 3 mentions markdown — dont une archive
+  historique figée (`archive/pre-rentree-2026/pdf-2026-07-24-pre-r2-r4/README.md`) qu'il aurait été
+  incorrect de réviser rétroactivement. À la place, un commentaire d'en-tête explicite a été ajouté
+  dans les deux fichiers Python, précisant sans ambiguïté lequel est production-publique et lequel
+  est revue-gouvernance, quel que soit celui ouvert en premier.
 
 ---
 
@@ -57,14 +65,17 @@ components/pre-rentree-2026/StagePlanningSelector.tsx lib/campaigns/pre-rentree-
 | Élément | Statut | Preuve | Action |
 |---|---|---|---|
 | `ARCHIVE_DIR = TOOL_DIR / "archive"` (`generate_all_pdfs.py`) | Constante jamais utilisée, pointe vers un dossier inexistant | `grep -n ARCHIVE_DIR` → 1 seule occurrence (la définition) ; `ls tools/pdf-generator/archive` → n'existe pas | **Supprimée** (zéro doute, zéro risque). Commit de cette session. |
-| `content/pre-rentree-2026/jpo-2026/master.fr.json` (dossier entier) | Orphelin confirmé, contient encore 6 mentions de Philosophie | `grep -rln "jpo-2026/master"` sur tout le dépôt (hors `.artifacts`) → **aucun résultat**. Déjà signalé dans une session antérieure (`SEPARATION_STAGES_ANNUEL.md`). | **Non supprimé — doute réel.** Contenu d'une campagne JPO distincte pouvant redevenir active. Nécessite votre OK avant suppression. |
+| `content/pre-rentree-2026/jpo-2026/master.fr.json` (dossier entier) + `assets/campaigns/pre-rentree-2026/review/jpo-2026/` (30 fichiers générés, même résidu Philosophie trouvé au moment de l'exécution) | Orphelins confirmés (zéro référence dans le code après nouvelle vérification), contenaient encore des mentions de Philosophie | `grep -rln "jpo-2026/master\|review/jpo-2026"` sur tout le dépôt (hors `.artifacts`) → **aucun résultat** avant suppression | **SUPPRIMÉS — décision direction 2026-07-25.** Grep philosophie sur le périmètre pré-rentrée re-exécuté après suppression : ne restent que le commentaire de purge, la mention factuelle du Bac Philo dans `parent-guide.fr.json`, les assertions de test qui prouvent l'absence, et `content/pre-rentree-2026/COORDINATION_JPO.md` (doc de coordination historique, non consommé par le code, non nommé dans la décision — laissé en l'état, signalé). |
 | `content/pre-rentree-2026/publication-decisions.owner.json → decisions.scheduleGridFinal` (champs `week1`, `week2TargetGrid`, `authorizedPermutationWeek2`, placements « Semaine 2 ») | Décrit un modèle « semaine 1/2 » obsolète, remplacé par le modèle fenêtres + week-end | `grep -rln "scheduleGridFinal\|week2TargetGrid"` dans `lib/`, `scripts/`, `tools/` → **aucun résultat** (jamais lu par le code) | **Non modifié — registre de décisions scellé.** C'est un historique d'audit, pas du code exécutable ; le champ `knownCrossBranchItem` a déjà été annoté « SUPERSEDED » lors d'un commit antérieur. Signalé pour information, pas d'action supplémentaire proposée (rouvrir un registre de décisions direction n'est pas à ma main). |
-| Philosophie (code/données/PDF) | **Zéro résidu fonctionnel** | `grep -rniE "philosophie"` sur le périmètre entier → seules occurrences : (a) commentaire expliquant la purge, (b) `parent-guide.fr.json` (mention factuelle du Bac Philo *futur*, pas une matière de stage — exception documentée), (c) le fichier orphelin jpo-2026 ci-dessus | Aucune action : déjà purgée, exceptions déjà documentées dans `SEPARATION_STAGES_ANNUEL.md`. |
+| Philosophie (code/données/PDF) | **Zéro résidu fonctionnel** | `grep -rniE "philosophie"` sur le périmètre pré-rentrée (re-exécuté après suppression de jpo-2026) → seules occurrences : (a) commentaire expliquant la purge, (b) `parent-guide.fr.json` (mention factuelle du Bac Philo *futur*, pas une matière de stage — exception documentée), (c) assertions de test prouvant l'absence, (d) `COORDINATION_JPO.md` (doc historique non consommé) | Aucune action supplémentaire : purge complète, exceptions documentées dans `SEPARATION_STAGES_ANNUEL.md`. |
 | SKU Seconde retirés (Physique-Chimie, Informatique-SNT) | **Zéro résidu** | `grep -rn "pre2026-seconde-physique-chimie\|pre2026-seconde-informatique-snt\|seconde-informatique-snt"` sur le périmètre + données → aucun résultat hors `DEBTS.md`/`SEPARATION_STAGES_ANNUEL.md` (historique, attendu) | Aucune action. |
 | Modèle « weeks » (pré-migration « windows ») | **Zéro résidu de code**, 1 résidu de donnée (`scheduleGridFinal.week1`, ci-dessus) | `grep -rn "weekLabel\|weekStart\|weekEnd\|'week1'\|'week2'"` sur code + données → un seul résultat (le champ de décision déjà traité ci-dessus) | Aucune action supplémentaire. |
 
-**Aucune suppression risquée effectuée sans validation.** Seul l'élément à zéro doute (`ARCHIVE_DIR`)
-a été retiré ; les deux éléments avec un doute réel sont listés, pas supprimés.
+**Aucune suppression risquée effectuée sans validation.** `ARCHIVE_DIR` (zéro doute) a été retiré
+directement ; jpo-2026 (doute réel, campagne distincte pouvant redevenir active) a été listé,
+signalé, puis supprimé **après validation explicite de la direction** — jamais tranché seul. Le
+registre de décisions scellé (`scheduleGridFinal`) reste non modifié : ce n'est pas du code mort au
+sens fonctionnel, c'est un historique d'audit hors de ma juridiction.
 
 ---
 
@@ -134,7 +145,10 @@ Tests:       6 passed, 6 total
 | `a734117c3` | 2 imports morts pré-existants supprimés (hygiène lint) |
 | `2f631fcde` | Documentation de la dette « deux pipelines PDF » dans DEBTS.md |
 | `12d39b0fd` | Suppression `ARCHIVE_DIR` mort |
-| *(ce commit)* | `HARDCODING_AUDIT.md` + `AUDIT_QUALITE_FINAL.md` |
+| `a54d56f27` | `HARDCODING_AUDIT.md` + `AUDIT_QUALITE_FINAL.md` (rapport initial) |
+| `fe1f05c0c` | Suppression jpo-2026 (source + artefact généré), décision direction |
+| `203f7c965` | Clarification en-tête des deux pipelines PDF (production vs. gouvernance), décision direction |
+| *(ce commit)* | Mise à jour DEBTS.md + AUDIT_QUALITE_FINAL.md §C suite aux décisions direction |
 
 ---
 
