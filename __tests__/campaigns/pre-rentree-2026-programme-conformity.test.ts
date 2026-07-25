@@ -12,6 +12,14 @@ const moduleById = (id: string) => {
 };
 
 describe('Pré-rentrée 2026 official-programme conformity proposals', () => {
+  it('keeps every officialProgrammeId referenced in rows[] defined in officialSources[] (referential completeness)', () => {
+    const definedIds = new Set(programmeMatrix.officialSources.map((source) => source.officialProgrammeId));
+    const missing = programmeMatrix.rows
+      .filter((row) => !definedIds.has(row.officialProgrammeId))
+      .map((row) => ({ moduleId: row.moduleId, officialProgrammeId: row.officialProgrammeId }));
+    expect(missing).toEqual([]);
+  });
+
   it('keeps revised Maths modules non-public until pedagogical validation', () => {
     expect(() => PreRentreeModulesSchema.parse(modulesSource)).not.toThrow();
 
