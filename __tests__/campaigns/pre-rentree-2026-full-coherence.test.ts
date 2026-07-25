@@ -32,19 +32,19 @@ import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
 const DOCUMENTS_FINAL = join(process.cwd(), 'assets/campaigns/pre-rentree-2026/documents-final');
 const PDF = join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf');
 
-// SVT est délibérément publié dans un PDF DRAFT séparé par niveau (filigrane tant que le
-// gate B-2 n'est pas levé), jamais dans le Programme principal (canonical_programmes()
-// exclut subjectId === 'SVT') : les deux PDF sont donc combinés pour couvrir toute la grille.
+// SVT est publié dans un PDF Programme séparé par niveau, jamais dans le Programme principal
+// (canonical_programmes() exclut subjectId === 'SVT') : les deux PDF sont donc combinés pour
+// couvrir toute la grille. Validé par la direction le 2026-07-25 (plus de suffixe _DRAFT).
 const PROGRAMME_PDFS_BY_LEVEL: Record<EntryLevelCode, string[]> = {
   TROISIEME: [join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_3e.pdf')],
   SECONDE: [join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_Seconde.pdf')],
   PREMIERE: [
     join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_Premiere.pdf'),
-    join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_SVT_Première_DRAFT.pdf'),
+    join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_SVT_Première.pdf'),
   ],
   TERMINALE: [
     join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_Terminale.pdf'),
-    join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_SVT_Terminale_DRAFT.pdf'),
+    join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_SVT_Terminale.pdf'),
   ],
 };
 

@@ -636,7 +636,8 @@
                 "type": "string",
                 "enum": [
                   "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION",
-                  "DRAFT_PENDING_QUALIFIED_TEACHER_VALIDATION"
+                  "DRAFT_PENDING_QUALIFIED_TEACHER_VALIDATION",
+                  "VALIDATED"
                 ]
               },
               "objective": {

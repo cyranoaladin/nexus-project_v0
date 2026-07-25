@@ -85,10 +85,12 @@ def test_math_programmes_are_rendered_from_canonical_review_modules():
     seconde = generator.make_programme_body("Seconde", generator.PROGRAMMES["Seconde"])
     premiere = generator.make_programme_body("Première", generator.PROGRAMMES["Première"])
 
-    assert "PROPOSITION — MODULE À VALIDER PAR LA DIRECTION PÉDAGOGIQUE" in seconde
+    # Tous les modules sont VALIDATED (levée des statuts, direction, 2026-07-25) : le bandeau
+    # "PROPOSITION — MODULE À VALIDER..." ne doit plus jamais apparaître.
+    assert "PROPOSITION — MODULE À VALIDER PAR LA DIRECTION PÉDAGOGIQUE" not in seconde
     assert "Série continue regroupée en classes" in seconde
     assert "probabilités conditionnelles" in seconde
-    assert "PROPOSITION — MODULE À VALIDER PAR LA DIRECTION PÉDAGOGIQUE" in premiere
+    assert "PROPOSITION — MODULE À VALIDER PAR LA DIRECTION PÉDAGOGIQUE" not in premiere
     assert "épreuve terminale anticipée de mathématiques" in premiere
     # Recentrage spécialité (direction, 2026-07-25) : produit scalaire + trigonométrie remplacent
     # les probabilités conditionnelles / automatismes génériques des séances 4-5.
@@ -108,9 +110,8 @@ def test_troisieme_programme_pdf_exists_and_is_rendered_from_canonical_modules()
     assert "Mathématiques" in troisieme
     assert "Français" in troisieme
     assert "Méthodologie DNB et sujet d'entraînement" in troisieme
-    # Les deux modules 3e portent PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION (homogénéisation
-    # des statuts, 2026-07-25) : le bandeau de validation doit apparaître.
-    assert "PROPOSITION — MODULE À VALIDER PAR LA DIRECTION PÉDAGOGIQUE" in troisieme
+    # Tous les modules sont VALIDATED (levée des statuts, direction, 2026-07-25).
+    assert "PROPOSITION — MODULE À VALIDER PAR LA DIRECTION PÉDAGOGIQUE" not in troisieme
 
 
 def test_final_pdf_exports_match_the_active_generator_contract():
@@ -137,14 +138,12 @@ def test_final_pdf_exports_match_the_active_generator_contract():
         assert "enseignants agrégés" not in text.casefold()
     assert "fondations : 3 à 6 élèves" in combined
     assert "premium : 3 à 5 élèves" in combined
-    assert "proposition — module à valider par la direction pédagogique" in (
-        text_by_name["NexusReussite_PreRentree2026_Programme_Seconde.pdf"].casefold()
-    )
-    assert all(
-        "document de revue — non contractuel" in text.casefold()
-        or "_draft.pdf" in name.casefold()
-        for name, text in text_by_name.items()
-    )
+    # Tous les modules sont VALIDATED (levée des statuts, direction, 2026-07-25) : plus aucun
+    # bandeau PROPOSITION ni filigrane/suffixe _DRAFT nulle part.
+    assert "proposition — module à valider par la direction pédagogique" not in combined
+    assert "document de travail" not in combined
+    assert not any("_draft" in name.casefold() for name in text_by_name)
+    assert all("document de revue — non contractuel" in text.casefold() for text in text_by_name.values())
 
 
 def test_every_final_pdf_has_complete_review_renders_and_contact_sheet():
@@ -178,7 +177,10 @@ def test_public_download_copies_and_weight_manifest_match_final_pdfs():
         item for item in manifest["documents"]
         if item["publicDownloadCandidate"]
     ]
-    assert len(public_records) == 7
+    # 9 documents publics : Planning, Programme 3e/Seconde/Première/Terminale, Programme SVT
+    # Première/Terminale (désormais validés, plus DRAFT), Tarifs, FlyerEssentiel. DossierAccueil
+    # reste interne (impression uniquement, jamais dans PUBLIC_DOCUMENT_FILENAMES).
+    assert len(public_records) == 9
     for item in public_records:
         final_path = DOCUMENTS_FINAL / item["fileName"]
         public_path = PUBLIC_DOCUMENTS / item["fileName"]

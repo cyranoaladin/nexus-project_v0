@@ -9,7 +9,7 @@
   "modules": [
     {
       "id": "troisieme-mathematiques",
-      "publicationStatus": "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION",
+      "publicationStatus": "VALIDATED",
       "level": "TROISIEME",
       "subjectId": "MATHEMATIQUES",
       "subject": "Mathématiques",
@@ -88,7 +88,7 @@
     },
     {
       "id": "troisieme-francais",
-      "publicationStatus": "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION",
+      "publicationStatus": "VALIDATED",
       "level": "TROISIEME",
       "subjectId": "FRANCAIS",
       "subject": "Français",
@@ -167,13 +167,13 @@
     },
     {
       "id": "seconde-mathematiques",
-      "publicationStatus": "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION",
+      "publicationStatus": "VALIDATED",
       "objective": "Sélectionner des priorités, prérequis et méthodes pour préparer la rentrée de Seconde selon le programme de mathématiques applicable en 2026-2027, sans prétendre couvrir le programme annuel.",
       "level": "SECONDE",
       "subjectId": "MATHEMATIQUES",
       "subject": "Mathématiques",
       "title": "Mathématiques — Entrée en Seconde",
-      "subtitle": "PROPOSITION — priorités, prérequis et méthodes sélectionnés pour préparer la rentrée de Seconde",
+      "subtitle": "Priorités, prérequis et méthodes sélectionnés pour préparer la rentrée de Seconde",
       "prerequisites": "Les acquis de Troisième et du collège ; un diagnostic en début de module précise les priorités.",
       "differentiation": "Exercices à paliers et aides graduées selon la maîtrise du calcul et de la rédaction.",
       "quickAssessment": "Exercice court de calcul et de raisonnement corrigé à la fin de chaque séance.",
@@ -248,7 +248,7 @@
     },
     {
       "id": "seconde-francais",
-      "publicationStatus": "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION",
+      "publicationStatus": "VALIDATED",
       "level": "SECONDE",
       "subjectId": "FRANCAIS",
       "subject": "Français",
@@ -327,13 +327,13 @@
     },
     {
       "id": "premiere-mathematiques",
-      "publicationStatus": "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION",
+      "publicationStatus": "VALIDATED",
       "objective": "Sélectionner des priorités, prérequis et méthodes pour préparer la rentrée en spécialité Mathématiques et l'épreuve terminale anticipée de spécialité passée en fin de Première, sans promesse de résultat ni couverture du programme annuel.",
       "level": "PREMIERE",
       "subjectId": "MATHEMATIQUES",
       "subject": "Mathématiques",
       "title": "Mathématiques — Entrée en Première",
-      "subtitle": "PROPOSITION — priorités, prérequis et méthodes sélectionnés pour préparer la rentrée en spécialité Mathématiques de Première",
+      "subtitle": "Priorités, prérequis et méthodes sélectionnés pour préparer la rentrée en spécialité Mathématiques de Première",
       "prerequisites": "Les acquis de Seconde en fonctions, calcul littéral et probabilités.",
       "differentiation": "Activités et niveau d'exigence adaptés aux élèves entrant en spécialité Mathématiques.",
       "quickAssessment": "Exercice type ciblé, corrigé avec une grille de méthode et de rédaction.",
@@ -407,7 +407,7 @@
     },
     {
       "id": "premiere-francais-eaf",
-      "publicationStatus": "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION",
+      "publicationStatus": "VALIDATED",
       "level": "PREMIERE",
       "subjectId": "FRANCAIS",
       "subject": "Français (EAF)",
@@ -486,7 +486,7 @@
     },
     {
       "id": "premiere-nsi",
-      "publicationStatus": "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION",
+      "publicationStatus": "VALIDATED",
       "level": "PREMIERE",
       "subjectId": "NSI",
       "subject": "NSI",
@@ -565,7 +565,7 @@
     },
     {
       "id": "premiere-physique-chimie",
-      "publicationStatus": "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION",
+      "publicationStatus": "VALIDATED",
       "level": "PREMIERE",
       "subjectId": "PHYSIQUE_CHIMIE",
       "subject": "Physique-Chimie",
@@ -644,7 +644,7 @@
     },
     {
       "id": "terminale-mathematiques",
-      "publicationStatus": "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION",
+      "publicationStatus": "VALIDATED",
       "level": "TERMINALE",
       "subjectId": "MATHEMATIQUES",
       "subject": "Mathématiques",
@@ -723,12 +723,12 @@
     },
     {
       "id": "terminale-maths-expertes",
-      "publicationStatus": "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION",
+      "publicationStatus": "VALIDATED",
       "level": "TERMINALE",
       "subjectId": "MATHS_EXPERTES",
       "subject": "Mathématiques expertes",
       "title": "Mathématiques expertes — Entrée en Terminale",
-      "subtitle": "PROPOSITION — priorités, prérequis et méthodes sélectionnés pour préparer la rentrée en spécialité Maths expertes",
+      "subtitle": "Priorités, prérequis et méthodes sélectionnés pour préparer la rentrée en spécialité Maths expertes",
       "prerequisites": "Les acquis de Première en spécialité Mathématiques : suites, fonctions, probabilités et raisonnement.",
       "differentiation": "Exercices différenciés selon l'aisance calculatoire et l'aisance avec le raisonnement abstrait.",
       "quickAssessment": "Exercice de synthèse court analysé selon la démarche, le calcul et la rédaction.",
@@ -802,7 +802,7 @@
     },
     {
       "id": "terminale-nsi",
-      "publicationStatus": "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION",
+      "publicationStatus": "VALIDATED",
       "level": "TERMINALE",
       "subjectId": "NSI",
       "subject": "NSI",
@@ -881,7 +881,7 @@
     },
     {
       "id": "terminale-physique-chimie",
-      "publicationStatus": "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION",
+      "publicationStatus": "VALIDATED",
       "level": "TERMINALE",
       "subjectId": "PHYSIQUE_CHIMIE",
       "subject": "Physique-Chimie",
@@ -960,7 +960,7 @@
     },
     {
       "id": "premiere-svt",
-      "publicationStatus": "DRAFT_PENDING_QUALIFIED_TEACHER_VALIDATION",
+      "publicationStatus": "VALIDATED",
       "objective": "Sélectionner des priorités et méthodes dans les trois thèmes officiels du programme de spécialité SVT de Première ; validation d'un enseignant SVT qualifié requise avant publication.",
       "equipment": "Calculatrice scientifique simple recommandée, non obligatoire sauf consigne de l'enseignant.",
       "level": "PREMIERE",
@@ -1041,7 +1041,7 @@
     },
     {
       "id": "terminale-svt",
-      "publicationStatus": "DRAFT_PENDING_QUALIFIED_TEACHER_VALIDATION",
+      "publicationStatus": "VALIDATED",
       "objective": "Sélectionner des priorités et méthodes dans les trois thèmes officiels du programme de spécialité SVT de Terminale ; validation d'un enseignant SVT qualifié requise avant publication.",
       "equipment": "Calculatrice scientifique simple recommandée, non obligatoire sauf consigne de l'enseignant.",
       "level": "TERMINALE",

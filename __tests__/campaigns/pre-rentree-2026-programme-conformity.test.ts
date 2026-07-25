@@ -20,12 +20,12 @@ describe('Pré-rentrée 2026 official-programme conformity proposals', () => {
     expect(missing).toEqual([]);
   });
 
-  it('keeps revised Maths modules non-public until pedagogical validation', () => {
+  it('validates revised Maths modules for publication (levée des statuts, direction, 2026-07-25)', () => {
     expect(() => PreRentreeModulesSchema.parse(modulesSource)).not.toThrow();
 
     for (const id of ['seconde-mathematiques', 'premiere-mathematiques']) {
-      expect(moduleById(id).publicationStatus).toBe('PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION');
-      expect(programmeMatrix.rows.find((row) => row.moduleId === id)?.publicOfferEligible).toBe(false);
+      expect(moduleById(id).publicationStatus).toBe('VALIDATED');
+      expect(programmeMatrix.rows.find((row) => row.moduleId === id)?.publicOfferEligible).toBe(true);
     }
   });
 
@@ -54,17 +54,30 @@ describe('Pré-rentrée 2026 official-programme conformity proposals', () => {
     expect(copy).not.toMatch(/probabilités conditionnelles/i);
   });
 
-  it('keeps both SVT modules in DRAFT with three-theme coverage and exact equipment wording', () => {
+  it('validates both SVT modules (levée du DRAFT, direction, 2026-07-25) with three-theme coverage and exact equipment wording', () => {
     const expectedEquipment = "Calculatrice scientifique simple recommandée, non obligatoire sauf consigne de l'enseignant.";
     for (const id of ['premiere-svt', 'terminale-svt']) {
       const module = moduleById(id);
-      expect(module.publicationStatus).toBe('DRAFT_PENDING_QUALIFIED_TEACHER_VALIDATION');
+      expect(module.publicationStatus).toBe('VALIDATED');
       expect(module.equipment).toBe(expectedEquipment);
-      expect(programmeMatrix.rows.find((row) => row.moduleId === id)?.publicOfferEligible).toBe(false);
+      expect(programmeMatrix.rows.find((row) => row.moduleId === id)?.publicOfferEligible).toBe(true);
       expect(JSON.stringify(module.sessions)).toMatch(/Terre|génétique|géologique/i);
       expect(JSON.stringify(module.sessions)).toMatch(/écosystème|climat|plantes/i);
       expect(JSON.stringify(module.sessions)).toMatch(/santé|immunité|mouvement|stress/i);
     }
+  });
+
+  it('SVT deliverables/methods now match their session title (livrables réalignés, direction, 2026-07-25)', () => {
+    const premiereSvt = moduleById('premiere-svt');
+    const terminaleSvt = moduleById('terminale-svt');
+    const s = (mod: typeof premiereSvt, number: number) => mod.sessions.find((session) => session.number === number)!;
+
+    expect(s(premiereSvt, 2).deliverable).toMatch(/structure du globe|tectonique/i);
+    expect(s(premiereSvt, 3).method).toMatch(/écosystème/i);
+    expect(s(premiereSvt, 3).deliverable).toMatch(/écosystème/i);
+    expect(s(premiereSvt, 4).deliverable).toMatch(/immunitaire|immunité/i);
+    expect(s(terminaleSvt, 2).deliverable).toMatch(/chronologie|datation/i);
+    expect(s(terminaleSvt, 4).deliverable).toMatch(/mouvement|ATP|stress/i);
   });
 
   it('states the official anticipated Maths exam in the FAQ without a result promise', () => {
