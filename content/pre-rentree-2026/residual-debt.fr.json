@@ -217,18 +217,32 @@
       "exitCriteria": "Réduction progressive puis suppression du budget.",
       "status": "OPEN_BACKLOG",
       "scopeDecision": "Dette technique préexistante non élargie par la release."
+    },
+    {
+      "debtId": "DEBT-REPO-DEPENDENCY-INTEGRITY",
+      "priority": "P1",
+      "category": "SECURITY",
+      "decisionId": null,
+      "description": "Le check requis GitHub « Dependency Integrity » (npm audit --audit-level=high) est rouge : 36 vulnérabilités high, toutes remontant à brace-expansion <=5.0.7 (GHSA-mh99-v99m-4gvg). Confirmé indépendamment le 2026-07-25 (npm audit, npm audit fix --dry-run).",
+      "owner": "ENGINEERING_NEXUS_REUSSITE",
+      "dueAt": "2026-09-30",
+      "derogation": "Aucun contournement (pas de baisse de seuil, pas de --force, pas d'override global) ; npm audit --omit=dev --audit-level=high reste à 0 vulnérabilité en production.",
+      "exitCriteria": "Une chaîne officielle compatible (eslint/jest/@cyclonedx) publie brace-expansion >=5.x sans rupture majeure ; audit complet et check GitHub repassent au vert.",
+      "status": "OPEN",
+      "reopenCriteria": "Sans objet tant que non résolu ; ce debt bloque déjà le merge via le check requis GitHub, indépendamment du GO propriétaire.",
+      "scopeDecision": "Bloque le merge (check CI requis) ; ne bloque pas la préparation de la release informationnelle."
     }
   ],
   "summary": {
     "openForPublishedScope": {
       "P0": 1,
-      "P1": 0,
+      "P1": 1,
       "P2": 0
     },
     "deferredBacklog": {
       "P1": 10,
       "P2": 1
     },
-    "resolved": 4
+    "resolved": 3
   }
 }

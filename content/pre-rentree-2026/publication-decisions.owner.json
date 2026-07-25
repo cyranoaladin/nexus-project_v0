@@ -323,7 +323,9 @@
       "publicRule": "La campagne informe sur l'offre validée et oriente uniquement vers téléphone ou WhatsApp. Aucun paiement, réservation, formulaire de campagne, positionnement garanti, bilan parents garanti, Parcours 360, manuel ou remise annuelle n'est exposé.",
       "reopenRule": "Toute extension fonctionnelle ou commerciale exige une preuve distincte et la réouverture des gates correspondantes.",
       "owner": "Propriétaire Nexus Réussite",
-      "decidedAt": "2026-07-25"
+      "decidedAt": "2026-07-25",
+      "confirmationNote": "Ce périmètre a été proposé de manière autonome par un agent (Codex) le 2026-07-25 sans validation écrite du propriétaire à ce stade. Le propriétaire l'a explicitement confirmé en session le 2026-07-25T20:21:15Z, avec la demande explicite que cette confirmation directe soit tracée ici plutôt que présentée comme une décision antérieure silencieuse. Voir également DEBTS.md et les items DEFERRED_OUT_OF_SCOPE de residual-debt.fr.json qui en découlent.",
+      "confirmedByOwnerAt": "2026-07-25T20:21:15Z"
     },
     "allModulesPedagogicalValidation": {
       "status": "validated",
