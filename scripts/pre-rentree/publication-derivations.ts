@@ -210,7 +210,7 @@ export function derivePublicationMode(campaign: PreRentreeCampaignManifest) {
   if (campaign.featureFlags.enablePayment) {
     throw new Error('The public campaign page cannot collect payment');
   }
-  if (campaign.status === 'DRAFT') return 'REVIEW' as const;
+  if (campaign.status === 'DRAFT' || campaign.status === 'PUBLIC_INFORMATIONAL') return 'REVIEW' as const;
   if (campaign.status === 'REGISTRATION_OPEN') return 'RELEASE' as const;
   throw new Error(`Unsupported publication state: ${campaign.status}`);
 }

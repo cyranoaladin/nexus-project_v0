@@ -27,6 +27,8 @@ const GeneratedDocumentListSchema = z.array(z.object({
   publicationStatus: z.enum([
     'DRAFT_PENDING_QUALIFIED_TEACHER_VALIDATION',
     'REVIEW_NON_CONTRACTUAL',
+    'PUBLIC_FINAL',
+    'INTERNAL_REVIEW',
   ]),
 }).strict());
 

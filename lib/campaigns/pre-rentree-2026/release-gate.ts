@@ -30,6 +30,12 @@ export const PRE_RENTREE_REQUIRED_GATE_IDS = [
 ] as const;
 
 const PreRentreeReleaseGateId = z.enum(PRE_RENTREE_REQUIRED_GATE_IDS);
+const PreRentreeReleaseGateResolutionStatus = z.enum([
+  'VALIDATED',
+  'MITIGATED_BY_SCOPE',
+  'NOT_APPLICABLE',
+  'OPEN',
+]);
 
 const PreRentreeReleaseGateMatrixSchema = z.object({
   schemaVersion: z.literal('1.0.0'),
@@ -39,7 +45,9 @@ const PreRentreeReleaseGateMatrixSchema = z.object({
   assessedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   gates: z.array(z.object({
     id: PreRentreeReleaseGateId,
+    status: PreRentreeReleaseGateResolutionStatus,
     value: z.boolean(),
+    resolution: z.string().min(1),
     evidence: z.array(z.string().min(1)).min(1),
     owner: z.string().min(1),
     validatedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
@@ -56,11 +64,18 @@ const PreRentreeReleaseGateMatrixSchema = z.object({
   }
 
   matrix.gates.forEach((gate, index) => {
+    if (gate.value !== (gate.status !== 'OPEN')) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['gates', index, 'value'],
+        message: 'A gate value must be true exactly when its resolution status is not OPEN.',
+      });
+    }
     if (gate.value !== (gate.validatedAt !== null)) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['gates', index, 'validatedAt'],
-        message: 'A satisfied gate requires a validation date; an open gate must not have one.',
+        message: 'A resolved gate requires a date; an open gate must not have one.',
       });
     }
   });
@@ -105,4 +120,8 @@ export function filterPreRentreeFromPublicStages<T extends { slug: string }>(sta
 
 export function canExposePublicStageSlug(stageSlug: string): boolean {
   return stageSlug !== 'pre-rentree-2026' || getPreRentreeReleaseGate().isPublicReady;
+}
+
+export function canAcceptPreRentreeCampaignSubmission(): boolean {
+  return false;
 }

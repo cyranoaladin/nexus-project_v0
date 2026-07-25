@@ -299,7 +299,7 @@ export const PublicationSnapshotSchema = z.object({
     price: z.literal('Prix'),
   }).strict(),
   cta: z.object({
-    primary: z.literal('Demander un parcours ou un conseil'),
+    primary: z.literal('Demander une information'),
     whatsapp: z.string().min(1),
     bilanLabel: z.string().min(1),
     bilanPath: z.string().startsWith('/'),

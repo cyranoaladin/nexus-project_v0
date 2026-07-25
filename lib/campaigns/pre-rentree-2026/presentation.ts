@@ -35,6 +35,7 @@ export function formatCampaignStatus(status: string): string {
     CLOSED: 'Inscriptions closes',
     ARCHIVED: 'Campagne terminée',
     DRAFT: 'Campagne en préparation',
+    PUBLIC_INFORMATIONAL: 'Informations disponibles',
   };
   return labels[status] ?? 'Statut indisponible';
 }

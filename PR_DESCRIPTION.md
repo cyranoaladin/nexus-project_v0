@@ -2,7 +2,7 @@
 
 ## Statut
 
-**BLOCKED — READY_FOR_REVIEW uniquement.** Cette PR ne doit être ni fusionnée, ni déployée, ni publiée tant que les gates humains listés ci-dessous ne sont pas clos. `PUBLIC_READY` exige un GO écrit du propriétaire.
+**READY_FOR_OWNER_GO — périmètre `PUBLIC_INFORMATIONAL_RELEASE`.** Toutes les gates du périmètre publié sont prouvées ou neutralisées par absence de capacité. La seule gate encore ouverte avant le commit final est `publication_authorization`.
 
 ## Corrections P0
 
@@ -45,18 +45,17 @@ des tests d'état, le run complet a produit `207 passed`.
 Les workflows GitHub doivent encore être observés sur le SHA poussé avant toute
 montée de statut.
 
-## Gates humains ouverts
+## Périmètre immédiat
 
-- Revue pédagogique Maths.
-- Revue pédagogique SVT qualifiée et levée des DRAFT.
-- Affectations, disponibilités, qualifications, salles et capacités opérationnelles.
-- Revue marketing/commerciale et date de lancement.
-- Paiement, reçu, CGV, annulation/remboursement.
-- Confidentialité et rétention.
-- Validation des téléchargements, téléphones, WhatsApp et formulaires.
-- Conditions manuels/remise annuelle.
-- Autorisation écrite de publication par le propriétaire.
-- Runbook privé et rollback staging testés.
+- Page d'information, grille validée, configurateur local sans collecte.
+- Contact téléphone et WhatsApp.
+- Neuf PDF `PUBLIC_FINAL` explicitement allowlistés.
+- Aucun paiement, réservation, reçu, formulaire campagne, positionnement garanti, bilan parents, Parcours 360, manuel ou remise annuelle.
+- Aucun nom ou qualification individuelle d'enseignant.
+
+## Gate restante
+
+- Autorisation propriétaire écrite rattachée au SHA final (`publication_authorization`).
 
 ## Relectures demandées
 
@@ -69,4 +68,4 @@ montée de statut.
 
 ## Interdictions
 
-Aucun merge, aucun déploiement, aucun envoi famille et aucune activation de préinscription ne sont autorisés par cette PR.
+Aucune activation de paiement, réservation, formulaire campagne ou capacité exclue n'est autorisée par cette PR. Le déploiement reste conditionné à un mécanisme privé déterministe vérifié après merge.

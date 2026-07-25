@@ -2,7 +2,7 @@
   "schemaVersion": "1.0.0",
   "version": "2026-pre-rentree-proofs-v1",
   "campaignId": "pre-rentree-2026",
-  "lastRevisedAt": "2026-07-20",
+  "lastRevisedAt": "2026-07-25",
   "proofs": [
     {
       "proofId": "PRF-PRE2026-DATES-VENUE",
@@ -119,42 +119,42 @@
     {
       "decisionId": "DEC-PRE2026-LEGAL-SIGNOFF",
       "subject": "Validation juridique des documents commerciaux",
-      "status": "PENDING",
-      "publicEffect": "PACKAGE_REVIEW",
+      "status": "CLOSED_EXCLUDED",
+      "publicEffect": "HIDDEN",
       "responsibleRole": "LEGAL_REVIEWER",
-      "decidedAt": null,
-      "nextReviewAt": "2026-07-31",
-      "reason": "Les conditions de réservation et d'acompte nécessitent une validation juridique finale."
+      "decidedAt": "2026-07-25",
+      "nextReviewAt": null,
+      "reason": "Aucun avis juridique n'est revendiqué : réservation, encaissement et nouvelles conditions contractuelles sont exclus de PUBLIC_INFORMATIONAL_RELEASE."
     },
     {
       "decisionId": "DEC-PRE2026-PEDAGOGY-SIGNOFF",
       "subject": "Validation humaine des ressources pédagogiques",
-      "status": "PENDING",
-      "publicEffect": "RESOURCES_DRAFT",
+      "status": "APPROVED",
+      "publicEffect": "PUBLIC",
       "responsibleRole": "PEDAGOGICAL_VALIDATOR",
-      "decidedAt": null,
-      "nextReviewAt": "2026-08-03",
-      "reason": "Les ressources générées doivent être relues matière par matière."
+      "decidedAt": "2026-07-25",
+      "nextReviewAt": null,
+      "reason": "Les 14 modules sont validés par la direction ; les corrections et la conformité BO sont enregistrées dans publication-decisions.owner.json."
     },
     {
       "decisionId": "DEC-PRE2026-ECONOMIC-INPUTS",
       "subject": "Validation des hypothèses de coûts de la Pré-rentrée",
-      "status": "PENDING",
-      "publicEffect": "PACKAGE_REVIEW",
+      "status": "CLOSED_EXCLUDED",
+      "publicEffect": "HIDDEN",
       "responsibleRole": "DIRECTION_NEXUS_REUSSITE",
-      "decidedAt": null,
-      "nextReviewAt": "2026-07-31",
-      "reason": "La rémunération enseignante, la préparation, la correction, les supports, l'acquisition, les coûts fixes et la fiscalité doivent être validés avant de calculer la marge ou le seuil de rentabilité."
+      "decidedAt": "2026-07-25",
+      "nextReviewAt": null,
+      "reason": "Les hypothèses économiques internes et toute promesse de marge sont exclues de la publication informative."
     },
     {
       "decisionId": "DEC-PRE2026-PAYMENT-METHOD",
       "subject": "Modalité opérationnelle de règlement de l'acompte",
-      "status": "PENDING",
-      "publicEffect": "PACKAGE_REVIEW",
+      "status": "CLOSED_EXCLUDED",
+      "publicEffect": "HIDDEN",
       "responsibleRole": "OPERATIONS_NEXUS_REUSSITE",
-      "decidedAt": null,
-      "nextReviewAt": "2026-07-24",
-      "reason": "Le canal ou lien de paiement, le rapprochement du règlement et le justificatif à remettre doivent être confirmés avant l'ouverture des réservations. Le parcours WhatsApp reste générique et n'expose aucune donnée bancaire."
+      "decidedAt": "2026-07-25",
+      "nextReviewAt": null,
+      "reason": "Paiement, rapprochement, reçu et réservation sont exclus de PUBLIC_INFORMATIONAL_RELEASE ; le parcours WhatsApp reste une demande d'information sans donnée bancaire."
     },
     {
       "decisionId": "DEC-PRE2026-CAMPAIGN-OWNER-SIGNOFF",

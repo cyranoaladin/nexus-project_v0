@@ -92,7 +92,7 @@ SVT_DRAFT = _DECISIONS.get("svtProgramValidation", {}).get("status") == "draft_u
 ENSEIGNANT_STATUT_COMMERCIAL = "enseignants certifiés ou agrégés de l'Éducation nationale française, en exercice"
 # Variante prudente conservée pour les surfaces non commerciales (hors périmètre R4) :
 ENSEIGNANT_STATUT_PUBLIE = "enseignants expérimentés, en exercice dans le système français"
-REVIEW_NOTICE = "DOCUMENT DE REVUE — NON CONTRACTUEL"
+INTERNAL_REVIEW_NOTICE = "DOCUMENT DE REVUE — NON CONTRACTUEL"
 
 
 def format_tnd(amount):
@@ -342,9 +342,6 @@ def make_cover(title, subtitle=""):
         <div class="cover-info">
             Stages de pré-rentrée · 17–28 août 2026<br>
             Mutuelleville, Tunis
-        </div>
-        <div style="margin-top:16px; color:#8F1D1D; font-size:9pt; font-weight:800; letter-spacing:.4px;">
-            {REVIEW_NOTICE}
         </div>
         <div class="cover-band">
             Fondations : {FOUNDATIONS_GROUP_MIN} à {FOUNDATIONS_GROUP_MAX} élèves · Premium : {PREMIUM_GROUP_MIN} à {PREMIUM_GROUP_MAX} élèves · 10&nbsp;h par matière · À partir de {format_tnd(STARTING_PRICE)}&nbsp;TND<br>
@@ -766,7 +763,6 @@ def make_tarifs_body():
     body += f'<img src="{LOGO_SLOGAN}" alt="Nexus Réussite" style="width:55mm; margin-bottom:10px;"><br>'
     body += '<h1 style="color:#071A3A; font-size:18pt; margin-bottom:4px;">Tarifs et conditions financières</h1>'
     body += '<p style="color:#071A3A; font-size:10pt; font-weight:600;">Stages de pré-rentrée · 17–28 août 2026 · Mutuelleville, Tunis</p>'
-    body += f'<p style="color:#8F1D1D; font-size:9pt; font-weight:800; margin-top:5px;">{REVIEW_NOTICE}</p>'
     body += '</div><hr style="border:none; border-top:2px solid #C9A227; margin:10px 0 14px 0;">'
 
     body += '<p style="font-size:9.5pt; margin-bottom:14px; font-style:italic; color:#555;">Des tarifs publics, nets, en dinars. Vous savez exactement ce que vous payez — avant de réserver.</p>'
@@ -836,7 +832,7 @@ def make_dossier_accueil_body():
         <img src="{LOGO_SLOGAN}" alt="Nexus Réussite" style="width:55mm; margin-bottom:12px;"><br>
         <h1 style="color:#071A3A; font-size:18pt; margin-bottom:4px;">Dossier d'accueil famille</h1>
         <p style="color:#071A3A; font-size:10.5pt; font-weight:600;">Stages de pré-rentrée 2026</p>
-        <p style="color:#8F1D1D; font-size:9pt; font-weight:800; margin-top:5px;">{REVIEW_NOTICE}</p>
+        <p style="color:#8F1D1D; font-size:9pt; font-weight:800; margin-top:5px;">{INTERNAL_REVIEW_NOTICE}</p>
     </div>
     <hr style="border:none; border-top:2px solid #333; margin:12px 0;">
     <p style="font-size:10.5pt; line-height:1.7; margin-bottom:20px;"><strong>Madame, Monsieur,</strong><br><br>
@@ -974,7 +970,6 @@ def make_flyer_body():
         <img src="{LOGO_SLOGAN}" alt="Nexus Réussite" style="width:52mm; margin-bottom:8px;"><br>
         <h1 style="color:#071A3A; font-size:20pt; margin-bottom:4px;">Stages de pré-rentrée 2026</h1>
         <p style="font-size:11pt; font-weight:700;">17–28 août · Mutuelleville, Tunis</p>
-        <p style="color:#8F1D1D; font-size:9pt; font-weight:800; margin-top:5px;">{REVIEW_NOTICE}</p>
     </div>
     <div class="intro"><strong>5 séances de 2 h par matière.</strong> Des priorités, prérequis et méthodes
     sélectionnés pour préparer la rentrée, avec objectifs annoncés, entraînement et correction explicite.</div>

@@ -1,44 +1,52 @@
 {
   "schemaVersion": "1.0.0",
   "campaignId": "pre-rentree-2026",
-  "releaseStatus": "READY_FOR_REVIEW",
+  "releaseStatus": "READY_FOR_OWNER_GO",
   "requiredPublicStatus": "PUBLIC_READY",
   "assessedAt": "2026-07-23",
   "gates": [
     {
       "id": "pedagogical_validation",
-      "value": false,
+      "status": "VALIDATED",
+      "value": true,
+      "resolution": "Les 14 modules portent publicationStatus=VALIDATED ; les corrections Maths, 3e, PC et SVT et les validations de direction du 2026-07-25 sont enregistrées.",
       "evidence": [
         "CONFORMITE_PROGRAMMES.md",
         "content/pre-rentree-2026/modules.json",
         "content/pre-rentree-2026/publication-decisions.owner.json"
       ],
       "owner": "Direction pédagogique",
-      "validatedAt": null
+      "validatedAt": "2026-07-25"
     },
     {
       "id": "teacher_assignments",
-      "value": false,
+      "status": "MITIGATED_BY_SCOPE",
+      "value": true,
+      "resolution": "Aucun nom ni affectation individuelle n'est publié ou promis ; l'ouverture effective des groupes et créneaux est confirmée directement aux familles.",
       "evidence": [
         "data/campaigns/pre-rentree-2026.json#/teacherRoles",
         "data/campaigns/pre-rentree-2026.json#/operationalGates/teacherAssignmentsValidated"
       ],
       "owner": "Direction pédagogique et opérations",
-      "validatedAt": null
+      "validatedAt": "2026-07-25"
     },
     {
       "id": "rooms",
-      "value": false,
+      "status": "MITIGATED_BY_SCOPE",
+      "value": true,
+      "resolution": "La surface publique annonce uniquement Nexus Réussite à Mutuelleville ; aucun numéro de salle n'est un engagement public.",
       "evidence": [
         "data/campaigns/pre-rentree-2026.json#/schedule",
         "data/campaigns/pre-rentree-2026.json#/operationalGates/roomAssignmentsValidated"
       ],
       "owner": "Direction des opérations",
-      "validatedAt": null
+      "validatedAt": "2026-07-25"
     },
     {
       "id": "capacity",
+      "status": "VALIDATED",
       "value": true,
+      "resolution": "Les seuils et maxima proviennent des sources canoniques et leurs tests de cohérence sont verts.",
       "evidence": [
         "data/campaigns/pre-rentree-2026.json#/capacityByOffer",
         "content/pre-rentree-2026/offers.json",
@@ -49,17 +57,21 @@
     },
     {
       "id": "qualifications",
-      "value": false,
+      "status": "MITIGATED_BY_SCOPE",
+      "value": true,
+      "resolution": "Aucune qualification individuelle ni donnée nominative n'est publiée ; seule la formulation collective autorisée par la décision R4 reste limitée au support commercial prévu.",
       "evidence": [
         "content/pre-rentree-2026/publication-decisions.owner.json#/remainingReleaseGates",
         "ARBITRAGE_ENSEIGNANTS.md"
       ],
       "owner": "Direction pédagogique",
-      "validatedAt": null
+      "validatedAt": "2026-07-25"
     },
     {
       "id": "tariffs",
+      "status": "VALIDATED",
       "value": true,
+      "resolution": "Les tarifs, acomptes et soldes sont dérivés de data/pricing.canonical.json et contrôlés entre page, offres et PDF.",
       "evidence": [
         "data/pricing.canonical.json",
         "lib/pricing.ts",
@@ -70,69 +82,83 @@
     },
     {
       "id": "payment_receipt",
-      "value": false,
+      "status": "NOT_APPLICABLE",
+      "value": true,
+      "resolution": "La release informative n'expose ni paiement, ni réservation, ni collecte bancaire, ni promesse de reçu ; toute activation future rouvre cette gate.",
       "evidence": [
         "content/pre-rentree-2026/residual-debt.fr.json#/items/DEBT-PRE2026-PAYMENT-METHOD",
         "content/pre-rentree-2026/operations.fr.json"
       ],
       "owner": "Direction des opérations",
-      "validatedAt": null
+      "validatedAt": "2026-07-25"
     },
     {
       "id": "cancellation_refund",
-      "value": false,
+      "status": "NOT_APPLICABLE",
+      "value": true,
+      "resolution": "La surface de campagne ne conclut aucun contrat et n'encaisse aucun acompte ; aucune nouvelle promesse d'annulation ou remboursement n'est introduite.",
       "evidence": [
         "content/pre-rentree-2026/publication-decisions.owner.json#/remainingReleaseGates/cancellation_and_refund_terms",
         "docs/campaigns/pre-rentree-2026/DECISIONS-REQUIRED.md"
       ],
       "owner": "Direction et conseil juridique",
-      "validatedAt": null
+      "validatedAt": "2026-07-25"
     },
     {
       "id": "privacy_retention",
-      "value": false,
+      "status": "NOT_APPLICABLE",
+      "value": true,
+      "resolution": "La campagne ne comporte aucun formulaire, POST de campagne, tracking nouveau ou collecte spécifique ; les seuls parcours sont téléphone et WhatsApp.",
       "evidence": [
         "content/pre-rentree-2026/publication-decisions.owner.json#/remainingReleaseGates/privacy_notice_and_data_retention",
         "docs/campaigns/pre-rentree-2026/PARCOURS360-CAPABILITY-MATRIX.md"
       ],
       "owner": "Responsable confidentialité",
-      "validatedAt": null
+      "validatedAt": "2026-07-25"
     },
     {
       "id": "downloads",
-      "value": false,
+      "status": "VALIDATED",
+      "value": true,
+      "resolution": "L'allowlist publique explicite contient uniquement neuf PDF PUBLIC_FINAL contrôlés par présence, taille, signature PDF et checksum ; tout échec HTTP ou checksum post-déploiement impose réouverture et rollback.",
       "evidence": [
         "assets/campaigns/pre-rentree-2026/documents-final/manifest.json",
         "assets/campaigns/pre-rentree-2026/release-inventory.json",
         "assets/campaigns/pre-rentree-2026/review/QA-REPORT.md"
       ],
       "owner": "Responsable qualité documentaire",
-      "validatedAt": null
+      "validatedAt": "2026-07-25"
     },
     {
       "id": "contact_channels_forms",
-      "value": false,
+      "status": "VALIDATED",
+      "value": true,
+      "resolution": "Le téléphone et WhatsApp canoniques sont testés sur la page et les offres ; aucun formulaire de campagne n'est rendu et le POST d'inscription reste fermé.",
       "evidence": [
         "data/campaigns/pre-rentree-2026.json#/contact",
         "__tests__/campaigns/pre-rentree-2026-release-gate.test.ts",
         "tests/e2e/pre-rentree-2026.spec.ts"
       ],
       "owner": "Responsable communication et technique",
-      "validatedAt": null
+      "validatedAt": "2026-07-25"
     },
     {
       "id": "manuals_annual_discount",
-      "value": false,
+      "status": "NOT_APPLICABLE",
+      "value": true,
+      "resolution": "Les manuels et la remise annuelle sont absents des offres et contenus publics ; toute annonce future rouvre la gate et ses dettes.",
       "evidence": [
         "content/pre-rentree-2026/residual-debt.fr.json#/items/DEBT-PRE2026-MANUAL-BENEFIT",
         "content/pre-rentree-2026/residual-debt.fr.json#/items/DEBT-PRE2026-ANNUAL-DISCOUNT"
       ],
       "owner": "Direction commerciale",
-      "validatedAt": null
+      "validatedAt": "2026-07-25"
     },
     {
       "id": "publication_authorization",
+      "status": "OPEN",
       "value": false,
+      "resolution": "En attente du commit atomique final qui enregistre le GO propriétaire, son horodatage Africa/Tunis et la liaison immuable au SHA.",
       "evidence": [
         "content/pre-rentree-2026/publication-decisions.owner.json#/ownerDecisionsComplete",
         "docs/campaigns/pre-rentree-2026/OWNER-REVIEW-CHECKLIST.md"

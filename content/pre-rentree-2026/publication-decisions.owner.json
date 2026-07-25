@@ -4,8 +4,27 @@
   "documentPurpose": "Registre des arbitrages validés par le propriétaire avant production et publication.",
   "approvedAt": "2026-07-22",
   "approvedByRole": "project_owner",
-  "releaseStatus": "REVIEW",
+  "releaseStatus": "READY_FOR_OWNER_GO",
   "ownerDecisionsComplete": false,
+  "releaseScope": {
+    "code": "PUBLIC_INFORMATIONAL_RELEASE",
+    "publicCapabilities": [
+      "Page d'information commerciale /stages/pre-rentree-2026 et raccourci /pre-rentree",
+      "Configurateur local sans collecte ni réservation",
+      "Contact direct par téléphone et WhatsApp",
+      "PDF explicitement allowlistés avec statut PUBLIC_FINAL"
+    ],
+    "excludedCapabilities": [
+      "Paiement, collecte bancaire, réservation et reçu automatique",
+      "Formulaire de campagne et collecte de données personnelles",
+      "Positionnement initial et bilan parents garantis",
+      "Parcours 360 non opérationnel",
+      "Manuels et remise annuelle",
+      "Noms, initiales et qualifications individuelles d'enseignants",
+      "Tout PDF DRAFT, PROPOSITION, REVIEW ou document non allowlisté"
+    ],
+    "reopenRule": "Toute activation d'une capacité exclue rouvre les gates et dettes correspondantes avant publication."
+  },
   "repositoryPolicy": {
     "allSourcesInsideCanonicalRepository": true,
     "allGeneratedDocumentsInsideCanonicalRepository": true,
@@ -276,7 +295,7 @@
       },
       "foundations": {
         "packs": "pre_rentree_foundations",
-        "group_min_open": 4,
+        "group_min_open": 3,
         "group_max": 6,
         "prices_tnd": [350, 400],
         "deposit_pct": 30,
@@ -290,12 +309,21 @@
       "decidedAt": "2026-07-20T00:00:00Z"
     },
     "deploymentAuthorization": {
-      "status": "locked",
-      "decision": "no_deploy_without_written_go",
+      "status": "ready_for_owner_go",
+      "decision": "informational_scope_only_until_written_go_commit",
       "reference": "D5",
       "publicRule": "Aucun merge, aucun déploiement, aucune régénération de site en production sans GO écrit de la direction.",
       "owner": "direction",
       "decidedAt": "2026-07-22T19:15:59Z"
+    },
+    "publicInformationalScope": {
+      "status": "approved_for_release_preparation",
+      "decision": "constrain_launch_to_public_information_and_direct_contact",
+      "scope": "PUBLIC_INFORMATIONAL_RELEASE",
+      "publicRule": "La campagne informe sur l'offre validée et oriente uniquement vers téléphone ou WhatsApp. Aucun paiement, réservation, formulaire de campagne, positionnement garanti, bilan parents garanti, Parcours 360, manuel ou remise annuelle n'est exposé.",
+      "reopenRule": "Toute extension fonctionnelle ou commerciale exige une preuve distincte et la réouverture des gates correspondantes.",
+      "owner": "Propriétaire Nexus Réussite",
+      "decidedAt": "2026-07-25"
     },
     "allModulesPedagogicalValidation": {
       "status": "validated",
@@ -308,33 +336,9 @@
   },
   "remainingReleaseGates": [
     {
-      "id": "pedagogical_program_validation",
-      "status": "to_confirm"
-    },
-    {
-      "id": "teacher_assignments",
-      "status": "to_confirm"
-    },
-    {
-      "id": "teacher_qualification_evidence",
-      "status": "to_confirm",
-      "scope": "Porte sur la preuve d'affectation INDIVIDUELLE documentée. Ne bloque PAS la mention collective « certifiés ou agrégés » autorisée sur les supports commerciaux (voir decisions.teacherStatusStatement, R4)."
-    },
-    {
-      "id": "cancellation_and_refund_terms",
-      "status": "to_confirm"
-    },
-    {
-      "id": "privacy_notice_and_data_retention",
-      "status": "to_confirm"
-    },
-    {
-      "id": "positioning_workflow",
-      "status": "to_implement_and_validate"
-    },
-    {
-      "id": "parent_report_workflow",
-      "status": "to_implement_and_validate"
+      "id": "publication_authorization",
+      "status": "OPEN",
+      "scope": "Le commit final de GO doit enregistrer l'horodatage Africa/Tunis et passer releaseStatus à PUBLIC_READY."
     }
   ]
 }

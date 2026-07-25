@@ -3,6 +3,7 @@ import 'server-only';
 import { compileCommercialPublicationContract } from './commercial-contract';
 import { getPreRentreeCampaign } from './campaign-source';
 import { getWhatsAppDisplayNumber } from '@/lib/whatsapp';
+import { LEGAL } from '@/lib/legal';
 import { getPreRentreeReleaseGate } from './release-gate';
 
 const SUBJECT_LABELS = {
@@ -150,6 +151,8 @@ export function compilePreRentreeReviewSurfaceDTO() {
     contact: {
       whatsappDisplay: getWhatsAppDisplayNumber(),
       whatsappMessage: 'Bonjour, je souhaite des informations sur les stages de pré-rentrée 2026.',
+      phoneDisplay: LEGAL.contact.phone,
+      phoneHref: `tel:${LEGAL.contact.phoneRaw}`,
     },
     publication: {
       sourceStatus: campaign.status,

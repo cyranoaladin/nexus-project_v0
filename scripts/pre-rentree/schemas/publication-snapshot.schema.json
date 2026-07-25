@@ -2148,7 +2148,7 @@
           "properties": {
             "primary": {
               "type": "string",
-              "const": "Demander un parcours ou un conseil"
+              "const": "Demander une information"
             },
             "whatsapp": {
               "type": "string",

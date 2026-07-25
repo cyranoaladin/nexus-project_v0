@@ -2,19 +2,23 @@
   "schemaVersion": "1.0.0",
   "campaignId": "pre-rentree-2026",
   "assessedAt": "2026-07-23",
-  "verdict": "BLOCKED",
+  "verdict": "READY_FOR_OWNER_GO",
   "rule": "Tout P0 restant bloque PUBLIC_READY ; un feu vert technique ne vaut pas GO commercial.",
   "items": [
     {
       "debtId": "DEBT-PRE2026-PAYMENT-METHOD",
-      "priority": "P0",
+      "priority": "P1",
       "category": "OPERATIONS",
       "decisionId": "DEC-PRE2026-PAYMENT-METHOD",
       "description": "Le paiement, le rapprochement et le reçu ne sont pas démontrés de bout en bout.",
       "owner": "OPERATIONS_NEXUS_REUSSITE",
       "dueAt": "2026-07-31",
       "derogation": "Aucune réservation ni collecte bancaire ; le parcours public reste une demande d'information.",
-      "exitCriteria": "Parcours documenté, testé et approuvé avec preuve de reçu."
+      "exitCriteria": "Parcours documenté, testé et approuvé avec preuve de reçu.",
+      "status": "DEFERRED_OUT_OF_SCOPE",
+      "scopeDecision": "NOT_APPLICABLE à PUBLIC_INFORMATIONAL_RELEASE.",
+      "resolutionNote": "Paiement, réservation, collecte bancaire et reçu automatique absents de la surface publiée.",
+      "reopenCriteria": "Réouvrir avant tout bouton, endpoint ou parcours de paiement ou réservation propre à la campagne."
     },
     {
       "debtId": "DEBT-PRE2026-PEDAGOGY-MATHS",
@@ -28,7 +32,8 @@
       "exitCriteria": "Validation écrite notion par notion, signée et datée.",
       "status": "RESOLVED",
       "resolvedAt": "2026-07-25",
-      "resolutionNote": "Contenu corrigé, conformité BO vérifiée, statut VALIDATED, filigrane retiré"
+      "resolutionNote": "Contenu corrigé, conformité BO vérifiée, statut VALIDATED, filigrane retiré",
+      "reopenCriteria": "Réouvrir si le contenu, la source BO ou le statut de publication de ces modules change."
     },
     {
       "debtId": "DEBT-PRE2026-PEDAGOGY-SVT",
@@ -42,51 +47,68 @@
       "exitCriteria": "Validation explicite d'un enseignant SVT qualifié, identité et date enregistrées.",
       "status": "RESOLVED",
       "resolvedAt": "2026-07-25",
-      "resolutionNote": "Contenu corrigé, conformité BO vérifiée, statut VALIDATED, filigrane retiré"
+      "resolutionNote": "Contenu corrigé, conformité BO vérifiée, statut VALIDATED, filigrane retiré",
+      "reopenCriteria": "Réouvrir si le contenu SVT change ou si un PDF SVT perd son statut PUBLIC_FINAL."
     },
     {
       "debtId": "DEBT-PRE2026-STAFFING",
-      "priority": "P0",
+      "priority": "P1",
       "category": "OPERATIONS",
       "decisionId": "DEC-PRE2026-STAFFING",
       "description": "Affectations, disponibilités et qualifications ne sont pas confirmées pour chaque matière et créneau.",
       "owner": "DIRECTION_PEDAGOGIQUE_ET_OPERATIONS",
       "dueAt": "2026-08-03",
       "derogation": "Aucun nom réel ni statut certifié/agrégé n'est publié.",
-      "exitCriteria": "Matrice interne complète et preuves de qualification contrôlées."
+      "exitCriteria": "Matrice interne complète et preuves de qualification contrôlées.",
+      "status": "DEFERRED_OUT_OF_SCOPE",
+      "scopeDecision": "MITIGATED_BY_SCOPE pour la release informative.",
+      "resolutionNote": "Aucun nom, aucune qualification individuelle et aucune affectation finalisée ne sont publiés ; l'ouverture effective est confirmée directement.",
+      "reopenCriteria": "Réouvrir avant de publier un nom, une qualification individuelle ou une affectation enseignant/créneau."
     },
     {
       "debtId": "DEBT-PRE2026-ROOMS",
-      "priority": "P0",
+      "priority": "P1",
       "category": "OPERATIONS",
       "decisionId": "DEC-PRE2026-ROOMS",
       "description": "Les salles de la grille ne sont pas validées opérationnellement.",
       "owner": "DIRECTION_OPERATIONS",
       "dueAt": "2026-08-03",
       "derogation": "Le gate serveur empêche leur exposition publique.",
-      "exitCriteria": "Salle, capacité et disponibilité confirmées pour chaque bloc."
+      "exitCriteria": "Salle, capacité et disponibilité confirmées pour chaque bloc.",
+      "status": "DEFERRED_OUT_OF_SCOPE",
+      "scopeDecision": "MITIGATED_BY_SCOPE pour la release informative.",
+      "resolutionNote": "Seul le lieu général Nexus Réussite, Mutuelleville, Tunis est un engagement public ; aucun numéro de salle n'est publié.",
+      "reopenCriteria": "Réouvrir avant de publier ou garantir une salle précise."
     },
     {
       "debtId": "DEBT-PRE2026-LEGAL",
-      "priority": "P0",
+      "priority": "P1",
       "category": "LEGAL",
       "decisionId": "DEC-PRE2026-LEGAL-SIGNOFF",
       "description": "CGV, annulation et remboursement attendent la validation juridique.",
       "owner": "LEGAL_REVIEWER",
       "dueAt": "2026-07-31",
       "derogation": "Documents non contractuels et réservation désactivée.",
-      "exitCriteria": "Avis juridique enregistré et documents régénérés."
+      "exitCriteria": "Avis juridique enregistré et documents régénérés.",
+      "status": "DEFERRED_OUT_OF_SCOPE",
+      "scopeDecision": "NOT_APPLICABLE au parcours informatif sans contrat ni encaissement.",
+      "resolutionNote": "Aucune validation juridique n'est revendiquée et aucune nouvelle promesse d'annulation ou remboursement n'est publiée.",
+      "reopenCriteria": "Réouvrir avant toute réservation, contractualisation ou promesse spécifique d'annulation/remboursement."
     },
     {
       "debtId": "DEBT-PRE2026-PRIVACY",
-      "priority": "P0",
+      "priority": "P1",
       "category": "PRIVACY",
       "decisionId": "DEC-PRE2026-PRIVACY",
       "description": "Finalités, minimisation, rétention et droits des familles ne sont pas validés.",
       "owner": "RESPONSABLE_CONFIDENTIALITE",
       "dueAt": "2026-07-31",
       "derogation": "Préinscription désactivée ; aucun élargissement de collecte.",
-      "exitCriteria": "Notice et durées validées, parcours formulaires retesté."
+      "exitCriteria": "Notice et durées validées, parcours formulaires retesté.",
+      "status": "DEFERRED_OUT_OF_SCOPE",
+      "scopeDecision": "NOT_APPLICABLE à la surface sans formulaire ni collecte spécifique.",
+      "resolutionNote": "Aucun POST de campagne, formulaire ou tracking nouveau ; contact externe direct par téléphone ou WhatsApp uniquement.",
+      "reopenCriteria": "Réouvrir avant toute collecte de données propre à la campagne."
     },
     {
       "debtId": "DEBT-PRE2026-LAUNCH-SIGNOFF",
@@ -97,7 +119,9 @@
       "owner": "OWNER_NEXUS_REUSSITE",
       "dueAt": "2026-08-03",
       "derogation": "Calendriers relatifs J1 à J29 et releaseStatus READY_FOR_REVIEW.",
-      "exitCriteria": "Date et GO écrits rattachés au SHA exact après toutes les revues."
+      "exitCriteria": "Date et GO écrits rattachés au SHA exact après toutes les revues.",
+      "status": "OPEN",
+      "reopenCriteria": "Sans objet tant que le GO final n'est pas committé ; ensuite réouvrir si le SHA approuvé change."
     },
     {
       "debtId": "DEBT-PRE2026-DOWNLOADS-CONTACT",
@@ -108,7 +132,11 @@
       "owner": "QUALITY_COMMUNICATION_TECHNIQUE",
       "dueAt": "2026-08-03",
       "derogation": "Gate serveur fermé.",
-      "exitCriteria": "E2E, liens, poids, checksums et parcours de contact verts."
+      "exitCriteria": "E2E, liens, poids, checksums et parcours de contact verts.",
+      "status": "RESOLVED",
+      "resolvedAt": "2026-07-25",
+      "resolutionNote": "Allowlist de neuf PDF PUBLIC_FINAL, signature et checksums locaux, téléphone et WhatsApp canoniques, formulaire campagne absent.",
+      "reopenCriteria": "Réouvrir et rollbacker si un contrôle HTTP, MIME, signature, checksum ou CTA échoue après déploiement."
     },
     {
       "debtId": "DEBT-PRE2026-MANUAL-BENEFIT",
@@ -119,7 +147,10 @@
       "owner": "DIRECTION_NEXUS_REUSSITE",
       "dueAt": "2026-08-07",
       "derogation": "Avantage masqué.",
-      "exitCriteria": "BAT, droits, stock, remise, éligibilité et traçabilité approuvés."
+      "exitCriteria": "BAT, droits, stock, remise, éligibilité et traçabilité approuvés.",
+      "status": "DEFERRED_OUT_OF_SCOPE",
+      "scopeDecision": "NOT_APPLICABLE à PUBLIC_INFORMATIONAL_RELEASE.",
+      "reopenCriteria": "Réouvrir avant toute annonce ou inclusion de manuel."
     },
     {
       "debtId": "DEBT-PRE2026-ANNUAL-DISCOUNT",
@@ -130,7 +161,10 @@
       "owner": "DIRECTION_NEXUS_REUSSITE",
       "dueAt": "2026-08-07",
       "derogation": "Avantage masqué.",
-      "exitCriteria": "Éligibilité, période, non-cumul, plafond et preuve d'usage approuvés."
+      "exitCriteria": "Éligibilité, période, non-cumul, plafond et preuve d'usage approuvés.",
+      "status": "DEFERRED_OUT_OF_SCOPE",
+      "scopeDecision": "NOT_APPLICABLE à PUBLIC_INFORMATIONAL_RELEASE.",
+      "reopenCriteria": "Réouvrir avant toute annonce ou application de remise annuelle."
     },
     {
       "debtId": "DEBT-REPO-RECONCILIATION",
@@ -141,7 +175,9 @@
       "owner": "ENGINEERING_OWNER",
       "dueAt": "2026-09-30",
       "derogation": "nexus-project_v0 reste la source de release de cette campagne.",
-      "exitCriteria": "ADR, stratégie d'historique et migration validées."
+      "exitCriteria": "ADR, stratégie d'historique et migration validées.",
+      "status": "OPEN_BACKLOG",
+      "scopeDecision": "Hors périmètre de la release de campagne."
     },
     {
       "debtId": "DEBT-INFRA-PRIVATE-RUNBOOK",
@@ -152,7 +188,9 @@
       "owner": "OPERATIONS_OWNER",
       "dueAt": "2026-08-07",
       "derogation": "Tous les helpers publics de production échouent volontairement.",
-      "exitCriteria": "Runbook privé approuvé et rollback staging exécuté avec preuve."
+      "exitCriteria": "Runbook privé approuvé et rollback staging exécuté avec preuve.",
+      "status": "OPEN_BACKLOG",
+      "scopeDecision": "N'empêche pas le merge ; bloque le déploiement si aucun mécanisme privé déterministe n'est établi après fusion."
     },
     {
       "debtId": "DEBT-INFRA-GIT-HISTORY",
@@ -163,7 +201,9 @@
       "owner": "SECURITY_OWNER",
       "dueAt": "2026-09-30",
       "derogation": "Aucune réécriture ni force-push n'est autorisé dans cette mission.",
-      "exitCriteria": "Décision propriétaire et purge d'historique coordonnée séparément."
+      "exitCriteria": "Décision propriétaire et purge d'historique coordonnée séparément.",
+      "status": "OPEN_BACKLOG",
+      "scopeDecision": "Hors périmètre de cette release ; aucune réécriture d'historique autorisée."
     },
     {
       "debtId": "DEBT-REPO-LEGACY-LINT-WARNINGS",
@@ -174,12 +214,21 @@
       "owner": "ENGINEERING_NEXUS_REUSSITE",
       "dueAt": "2026-09-30",
       "derogation": "Le lint reste bloquant sur toute erreur et le budget n'est pas relevé.",
-      "exitCriteria": "Réduction progressive puis suppression du budget."
+      "exitCriteria": "Réduction progressive puis suppression du budget.",
+      "status": "OPEN_BACKLOG",
+      "scopeDecision": "Dette technique préexistante non élargie par la release."
     }
   ],
   "summary": {
-    "P0": 9,
-    "P1": 5,
-    "P2": 1
+    "openForPublishedScope": {
+      "P0": 1,
+      "P1": 0,
+      "P2": 0
+    },
+    "deferredBacklog": {
+      "P1": 10,
+      "P2": 1
+    },
+    "resolved": 4
   }
 }

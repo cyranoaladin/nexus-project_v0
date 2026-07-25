@@ -71,6 +71,26 @@ def files_for(
     ]
 
 
+def public_document_targets(root: Path) -> list[str]:
+    document_root = root / "assets/campaigns/pre-rentree-2026/documents-final"
+    manifest = json.loads((document_root / "manifest.json").read_text(encoding="utf-8"))
+    targets = []
+    forbidden_markers = ("DRAFT", "PROPOSAL", "PROPOSITION", "REVIEW")
+    for document in manifest["documents"]:
+        if not document["publicDownloadCandidate"]:
+            continue
+        if document["publicationStatus"] != "PUBLIC_FINAL":
+            raise RuntimeError(
+                f'Public download is not PUBLIC_FINAL: {document["fileName"]}'
+            )
+        if any(marker in document["fileName"].upper() for marker in forbidden_markers):
+            raise RuntimeError(f'Forbidden public document marker: {document["fileName"]}')
+        targets.append((document_root / document["fileName"]).relative_to(root).as_posix())
+    if not targets:
+        raise RuntimeError("The public PDF allowlist is empty")
+    return targets
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", type=Path, default=Path.cwd())
@@ -105,7 +125,7 @@ def main() -> None:
         ("week-one", ["assets/campaigns/pre-rentree-2026/week-one"], "PUBLIC_CANDIDATE"),
         ("whatsapp", ["content/pre-rentree-2026/whatsapp-conversion.fr.json", "content/pre-rentree-2026/whatsapp.fr.json"], "INTERNAL_SOURCE"),
         ("parent-documents", ["assets/campaigns/pre-rentree-2026/parent-documents"], "PUBLIC_CANDIDATE"),
-        ("documents-final", ["assets/campaigns/pre-rentree-2026/documents-final"], "PUBLIC_CANDIDATE"),
+        ("documents-final", public_document_targets(root), "PUBLIC_CANDIDATE"),
         ("full-campaign", ["assets/campaigns/pre-rentree-2026/full-campaign"], "PUBLIC_CANDIDATE"),
         ("priority-resources", ["assets/pedagogy/pre-rentree-2026/priority-resources"], "INTERNAL_REVIEW"),
         ("public-journey-qa", ["assets/qa/pre-rentree-2026/public-journey"], "INTERNAL_REVIEW"),
@@ -153,6 +173,16 @@ def main() -> None:
     remaining = [decision for decision in proof_registry["decisions"] if decision["status"] == "PENDING"]
     release_gates = json.loads((root / "content/pre-rentree-2026/release-gates.json").read_text(encoding="utf-8"))
     open_release_gates = [gate for gate in release_gates["gates"] if not gate["value"]]
+    open_gate_ids = {gate["id"] for gate in open_release_gates}
+    if not open_release_gates and release_gates["releaseStatus"] == "PUBLIC_READY":
+        verdict = "PUBLIC_READY"
+    elif (
+        open_gate_ids == {"publication_authorization"}
+        and release_gates["releaseStatus"] == "READY_FOR_OWNER_GO"
+    ):
+        verdict = "READY_FOR_OWNER_GO"
+    else:
+        verdict = "BLOCKED"
     inventory = {
         "schemaVersion": "1.0.0",
         "campaignId": "pre-rentree-2026",
@@ -164,7 +194,7 @@ def main() -> None:
             "finalReleaseBinding": "ANNOTATED_GO_TAG_AND_GITHUB_PR_COMMENT",
         },
         "releaseStatus": release_gates["releaseStatus"],
-        "verdict": "BLOCKED" if open_release_gates else "READY_FOR_OWNER_GO",
+        "verdict": verdict,
         "lots": lots,
         "summary": {
             "fileCount": len(public_files),
