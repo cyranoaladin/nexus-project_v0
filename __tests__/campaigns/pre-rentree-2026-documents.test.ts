@@ -18,6 +18,7 @@ describe('Pré-rentrée 2026 downloadable document contract', () => {
       const fileName = basename(document.href);
       const generated = candidateByName.get(fileName);
       expect(generated).toBeDefined();
+      expect(generated?.publicationStatus).toBe('PUBLIC_FINAL');
       expect(document.size).toBe(generated?.sizeLabel);
 
       const assetBytes = readFileSync(join(
@@ -30,6 +31,7 @@ describe('Pré-rentrée 2026 downloadable document contract', () => {
         'public/documents/pre-rentree-2026',
         fileName,
       ));
+      expect(publicBytes.subarray(0, 5).toString('ascii')).toBe('%PDF-');
       expect(createHash('sha256').update(publicBytes).digest('hex')).toBe(
         createHash('sha256').update(assetBytes).digest('hex'),
       );

@@ -14,13 +14,13 @@ import {
 import { getPublicPreRentreeDocuments } from '@/lib/campaigns/pre-rentree-2026/documents';
 
 describe('Pré-rentrée 2026 single public release gate', () => {
-  it('fails closed until the owner sets PUBLIC_READY explicitly', () => {
+  it('fails closed at READY_FOR_OWNER_GO until the owner GO commit sets PUBLIC_READY', () => {
     const gate = getPreRentreeReleaseGate();
-    expect(gate.releaseStatus).toBe('READY_FOR_REVIEW');
+    expect(gate.releaseStatus).toBe('READY_FOR_OWNER_GO');
     expect(gate.requiredPublicStatus).toBe('PUBLIC_READY');
     expect(gate.isPublicReady).toBe(false);
     expect(gate.gates.map(({ id }) => id)).toEqual(PRE_RENTREE_REQUIRED_GATE_IDS);
-    expect(gate.unmetGateIds).toContain('publication_authorization');
+    expect(gate.unmetGateIds).toEqual(['publication_authorization']);
     expect(getPreRentreePublicSurfaceDTO()).toBeNull();
     expect(getPublicPreRentreeDocuments()).toEqual([]);
     expect(compilePreRentreeReviewSurfaceDTO().offers.length).toBeGreaterThan(0);
@@ -31,6 +31,8 @@ describe('Pré-rentrée 2026 single public release gate', () => {
     for (const item of gate.gates) {
       expect(item.evidence.length).toBeGreaterThan(0);
       expect(item.owner.length).toBeGreaterThan(0);
+      expect(item.resolution.length).toBeGreaterThan(0);
+      expect(item.value).toBe(item.status !== 'OPEN');
       if (item.value) {
         expect(item.validatedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       } else {
@@ -77,7 +79,16 @@ describe('Pré-rentrée 2026 single public release gate', () => {
     ];
     for (const file of files) {
       const source = readFileSync(join(process.cwd(), file), 'utf8');
-      expect(source).toMatch(/PreRentreeReleaseGate|PreRentreeProtectedPublicPath|PreRentreeFromPublicStages/);
+      expect(source).toMatch(/PreRentreeReleaseGate|PreRentreeProtectedPublicPath|PreRentreeFromPublicStages|canAcceptPreRentreeCampaignSubmission/);
     }
+  });
+
+  it('keeps the campaign registration POST unavailable in informational scope', () => {
+    const route = readFileSync(
+      join(process.cwd(), 'app/api/stages/[stageSlug]/inscrire/route.ts'),
+      'utf8',
+    );
+    expect(route).toContain('canAcceptPreRentreeCampaignSubmission');
+    expect(route).not.toMatch(/stageSlug === 'pre-rentree-2026' && !getPreRentreeReleaseGate\(\)\.isPublicReady/);
   });
 });

@@ -36,7 +36,7 @@ describe('Pré-rentrée 2026 landing DTO', () => {
     expect(dto.content.hero.subtitle).not.toMatch(/NSI en Seconde|EDS NSI/i);
     expect(dto.packs.map((pack) => pack.code)).toEqual(['PACK_1', 'PACK_2', 'PACK_3', 'PACK_4']);
     expect(JSON.stringify(dto.packs)).not.toContain('pre2026-pack-');
-    expect(dto.publicStatus).toBe('Campagne en préparation');
+    expect(dto.publicStatus).toBe('Informations disponibles');
     expect(dto).not.toHaveProperty('status');
     expect(dto.scheduleWindows).toHaveLength(3);
     expect(dto.scheduleWindows.flatMap((window) => window.slots)).toHaveLength(14);

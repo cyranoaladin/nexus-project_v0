@@ -33,7 +33,7 @@ def test_release_inventory_covers_all_seven_lots_and_final_assets(tmp_path: Path
     inventory = json.loads(output.read_text(encoding="utf-8"))
 
     assert inventory["campaignId"] == "pre-rentree-2026"
-    assert inventory["verdict"] == "BLOCKED"
+    assert inventory["verdict"] == "READY_FOR_OWNER_GO"
     assert inventory["branch"] == "feat/pre-rentree-planning-scheduler"
     assert inventory["pullRequest"] == 75
     assert inventory["repositoryCommitSha"] == head
@@ -63,6 +63,21 @@ def test_release_inventory_covers_all_seven_lots_and_final_assets(tmp_path: Path
             assert (REPO_ROOT / item["path"]).is_file()
             assert not forbidden_parts.intersection(Path(item["path"]).parts)
             assert not Path(item["path"]).name.startswith("qa-report")
+    document_group = next(group for group in public_groups if group["id"] == "documents-final")
+    manifest = json.loads(
+        (REPO_ROOT / "assets/campaigns/pre-rentree-2026/documents-final/manifest.json")
+        .read_text(encoding="utf-8")
+    )
+    expected_public_pdfs = {
+        item["fileName"]
+        for item in manifest["documents"]
+        if item["publicDownloadCandidate"] and item["publicationStatus"] == "PUBLIC_FINAL"
+    }
+    assert {Path(item["path"]).name for item in document_group["files"]} == expected_public_pdfs
+    assert all(
+        not any(marker in Path(item["path"]).name.upper() for marker in ("DRAFT", "PROPOSAL", "PROPOSITION", "REVIEW"))
+        for item in document_group["files"]
+    )
 
 
 def test_release_inventory_derives_pull_request_from_explicit_environment(tmp_path: Path):

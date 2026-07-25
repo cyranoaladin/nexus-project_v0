@@ -84,9 +84,9 @@ describe('Pré-rentrée 2026 central public-surface adapter', () => {
     expect(publicCopy).not.toMatch(/Gate|REVIEW|blocked|owner|placeholder/i);
   });
 
-  it('keeps an unvalidated campaign page out of search indexes', () => {
+  it('marks the informational campaign content as indexable once the release gate opens', () => {
     const dto = compilePreRentreeReviewSurfaceDTO();
-    expect(dto.publication).toEqual({ sourceStatus: 'DRAFT', indexable: false });
+    expect(dto.publication).toEqual({ sourceStatus: 'PUBLIC_INFORMATIONAL', indexable: true });
   });
 
   it('retires the obsolete standalone JPO page and its middleware exception', () => {
@@ -101,6 +101,8 @@ describe('Pré-rentrée 2026 central public-surface adapter', () => {
     expect(dto.faq.every((item) => item.question.length > 20 && item.answer.length > 60)).toBe(true);
     expect(dto.contact.whatsappDisplay).toBe('99 192 829');
     expect(dto.contact.whatsappMessage).toContain('pré-rentrée 2026');
+    expect(dto.contact.phoneDisplay).toBe('+216 99 19 28 29');
+    expect(dto.contact.phoneHref).toBe('tel:+21699192829');
     expect(dto.reservation.depositPercentage).toBe(30);
     expect(dto.reservation.enabled).toBe(false);
     expect(dto.reservation.rule).toMatch(/demande d.information sans paiement/i);
