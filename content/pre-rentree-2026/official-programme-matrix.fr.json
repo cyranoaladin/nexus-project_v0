@@ -50,7 +50,7 @@
       "title": "Programme de français de Première et œuvres 2026-2027",
       "url": "https://www.education.gouv.fr/bo/2025/Hebdo30/MENE2518792N",
       "publisher": "Ministère de l'Éducation nationale",
-      "applicationNote": "Le cadrage des œuvres 2026-2027 complète le programme de Première."
+      "applicationNote": "Le cadrage des œuvres 2026-2027 complète le programme de Première. Référence vérifiée en vigueur le 2026-07-25 : c'est bien le programme national d'œuvres pour l'année scolaire 2026-2027 (note de service du 4 juillet 2025, publiée au BO n°30 du 2025), aucune note ultérieure ne le remplace à ce jour."
     },
     {
       "officialProgrammeId": "BO2019-LYCEE-PC-SECONDE",
@@ -76,16 +76,16 @@
     {
       "officialProgrammeId": "BO2019-LYCEE-NSI-PREMIERE",
       "title": "Programme de numérique et sciences informatiques de Première",
-      "url": "https://eduscol.education.fr/cid59678/presentation-isn.html",
+      "url": "https://eduscol.education.gouv.fr/5823/programmes-et-ressources-en-numerique-et-sciences-informatiques-voie-g",
       "publisher": "Ministère de l'Éducation nationale",
-      "applicationNote": "Programme en vigueur pour l'année scolaire 2026-2027."
+      "applicationNote": "URL corrigée le 2026-07-25 : l'ancienne page (cid59678/presentation-isn.html) pointait vers ISN, la spécialité pré-2019 remplacée par NSI, devenue obsolète. Programme en vigueur pour l'année scolaire 2026-2027."
     },
     {
       "officialProgrammeId": "BO2019-LYCEE-NSI-TERMINALE",
       "title": "Programme de numérique et sciences informatiques de Terminale",
-      "url": "https://eduscol.education.fr/cid59678/presentation-isn.html",
+      "url": "https://eduscol.education.gouv.fr/5823/programmes-et-ressources-en-numerique-et-sciences-informatiques-voie-g",
       "publisher": "Ministère de l'Éducation nationale",
-      "applicationNote": "Programme en vigueur pour l'année scolaire 2026-2027."
+      "applicationNote": "URL corrigée le 2026-07-25 : l'ancienne page (cid59678/presentation-isn.html) pointait vers ISN, la spécialité pré-2019 remplacée par NSI, devenue obsolète. Programme en vigueur pour l'année scolaire 2026-2027."
     },
     {
       "officialProgrammeId": "BO2019-LYCEE-SNT-SECONDE",
