@@ -256,3 +256,26 @@ def test_dossier_pdf_is_structurally_valid(filename):
 def test_no_standalone_svt_pdf_in_final_parent_set():
     names = {p.name for p in DOCUMENTS_FINAL.glob("*.pdf")}
     assert not any("SVT" in name for name in names)
+
+
+# ── Idle-time compatibility text invariants ─────────────────────────────────
+
+def test_pdf_never_claims_compatible_alongside_a_long_idle_pair(data: PreRentreeData, dossiers):
+    from itinerary import compute_itinerary
+
+    for level, dossier in dossiers.items():
+        html = generate_level_dossiers.build_dossier_html(dossier, data)
+        dated_sessions = data.dated_slots_for_level(level)
+        subjects = list(dossier.subjects)
+        for i in range(len(subjects)):
+            for j in range(i + 1, len(subjects)):
+                report = compute_itinerary(level, [subjects[i], subjects[j]], dated_sessions)
+                if report.status == "LONG_IDLE":
+                    # The exact minute value for this pair must be printed, and the
+                    # dossier must never claim a blanket "toutes les autres combinaisons
+                    # sont compatibles" statement that would contradict it.
+                    assert f"{report.max_idle_minutes} minutes d'attente" in html, (
+                        f"{level}: {subjects[i]}+{subjects[j]} is LONG_IDLE but its exact "
+                        "wait time is not printed in the dossier"
+                    )
+        assert "toutes les autres combinaisons" not in html.casefold()

@@ -103,6 +103,36 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
     // Le planning reste affiché (non bloquant) : les deux matières sont toujours cochées.
     expect(screen.getByRole('checkbox', { name: 'NSI' })).toBeChecked();
     expect(screen.getByRole('checkbox', { name: 'SVT' })).toBeChecked();
+    // Un itinéraire SIMULTANEOUS (physiquement impossible) désactive le CTA — jamais présenté comme confirmé.
+    expect(screen.getByRole('link', { name: /Pré-inscrire/i })).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('attente longue (Terminale Mathématiques + Physique-Chimie, 330 min) : avertit sans bloquer le CTA', async () => {
+    const user = userEvent.setup();
+    renderSelector();
+
+    await user.selectOptions(screen.getByLabelText('Classe de rentrée'), 'TERMINALE');
+    await user.click(screen.getByRole('checkbox', { name: 'Mathématiques' }));
+    await user.click(screen.getByRole('checkbox', { name: 'Physique-Chimie' }));
+
+    const alert = screen.getByRole('alert');
+    expect(within(alert).getByText(/330 minutes/)).toBeInTheDocument();
+    // Jamais présenté comme "compatible" : pas de badge "Parcours compact".
+    expect(screen.queryByText(/Parcours compact/i)).not.toBeInTheDocument();
+    // Non bloquant : le CTA reste actif pour ce cas non simultané (juste inconfortable).
+    expect(screen.getByRole('link', { name: /Pré-inscrire/i })).not.toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('parcours compact (Seconde Français + Mathématiques, 15 min) : badge positif, CTA actif', async () => {
+    const user = userEvent.setup();
+    renderSelector();
+
+    await user.selectOptions(screen.getByLabelText('Classe de rentrée'), 'SECONDE');
+    await user.click(screen.getByRole('checkbox', { name: 'Français' }));
+    await user.click(screen.getByRole('checkbox', { name: 'Mathématiques' }));
+
+    expect(screen.getByText(/Parcours compact.*15 min/i)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Pré-inscrire/i })).not.toHaveAttribute('aria-disabled', 'true');
   });
 
   it('changer de niveau réinitialise la sélection de matières', async () => {

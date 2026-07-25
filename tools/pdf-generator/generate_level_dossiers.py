@@ -22,6 +22,7 @@ from pathlib import Path
 from weasyprint import HTML
 
 from dossier_design import DESIGN_CSS
+from itinerary import MAX_STUDENT_IDLE_MINUTES, compute_itinerary
 from pre_rentree_data import (
     CONTACT_EMAIL,
     CONTACT_PHONE_DISPLAY,
@@ -163,23 +164,52 @@ def planning_page(dossier: LevelDossierData, data: PreRentreeData) -> str:
             f'(10 h au total)<br>{windows_desc}</div></div>'
         )
 
-    # "Peut-on combiner ces matières ?"
+    # "Peut-on combiner ces matières ?" — statut réel par paire (jamais réduit à un
+    # booléen "incompatible" : deux matières peuvent ne pas se chevaucher tout en
+    # imposant une attente de plusieurs heures, voir SCHEDULE-UX-AUDIT.md).
     body += '<h3 class="subsection-title">Peut-on combiner ces matières ?</h3>'
-    if dossier.incompatibilities:
-        pairs_html = "".join(
-            f"<li>{_subject_label(i.subject_a)} et {_subject_label(i.subject_b)} : "
-            "créneaux simultanés, ces deux matières ne peuvent pas être suivies en même temps.</li>"
-            for i in dossier.incompatibilities
-        )
+    dated_sessions = data.dated_slots_for_level(dossier.level)
+    simultaneous_pairs = []
+    long_idle_pairs = []
+    compact_pairs = []
+    subjects = list(dossier.subjects)
+    for idx_a in range(len(subjects)):
+        for idx_b in range(idx_a + 1, len(subjects)):
+            pair = (subjects[idx_a], subjects[idx_b])
+            report = compute_itinerary(dossier.level, pair, dated_sessions)
+            if report.status == "SIMULTANEOUS":
+                simultaneous_pairs.append(pair)
+            elif report.status == "LONG_IDLE":
+                long_idle_pairs.append((pair, report.max_idle_minutes))
+            elif report.status == "COMPACT":
+                compact_pairs.append((pair, report.max_idle_minutes))
+
+    if simultaneous_pairs or long_idle_pairs:
+        parts = ['<div class="combo-note" style="border-color:#8F1D1D;">']
+        if simultaneous_pairs:
+            parts.append('<strong>Créneaux simultanés (à ne jamais combiner) :</strong><ul style="margin:6px 0 10px 16px; font-size:9pt; line-height:1.6;">')
+            for a, b in simultaneous_pairs:
+                parts.append(f"<li>{_subject_label(a)} et {_subject_label(b)} : même créneau, un élève ne peut suivre qu'une seule des deux.</li>")
+            parts.append("</ul>")
+        if long_idle_pairs:
+            parts.append(f'<strong>Attente supérieure à {MAX_STUDENT_IDLE_MINUTES} minutes le même jour :</strong><ul style="margin:6px 0 10px 16px; font-size:9pt; line-height:1.6;">')
+            for (a, b), idle_minutes in long_idle_pairs:
+                parts.append(f"<li>{_subject_label(a)} et {_subject_label(b)} : {idle_minutes} minutes d'attente entre les deux séances.</li>")
+            parts.append("</ul>")
+        if compact_pairs:
+            compact_desc = ", ".join(f"{_subject_label(a)} + {_subject_label(b)}" for (a, b), _ in compact_pairs)
+            parts.append(f"<span style='color:#1E5F4B; font-weight:600;'>Combinaisons compactes (≤ {MAX_STUDENT_IDLE_MINUTES} min) : {compact_desc}.</span>")
+        parts.append("</div>")
+        body += "".join(parts)
+    elif compact_pairs:
         body += (
-            '<div class="combo-note"><strong>Attention aux créneaux simultanés :</strong>'
-            f'<ul style="margin:6px 0 0 16px; font-size:9pt; line-height:1.6;">{pairs_html}</ul>'
-            "Les autres combinaisons de matières proposées pour ce niveau ne se chevauchent pas dans la grille.</div>"
+            f'<div class="combo-note ok">Toutes les combinaisons de deux matières proposées pour ce niveau sont '
+            f"compactes : aucune attente supérieure à {MAX_STUDENT_IDLE_MINUTES} minutes le même jour.</div>"
         )
     else:
         body += (
-            '<div class="combo-note ok">Pour ce niveau, aucune des matières proposées ne partage de créneau : '
-            "toutes les combinaisons de matières disponibles sont compatibles dans la grille actuelle.</div>"
+            '<div class="combo-note ok">Pour ce niveau, les matières proposées ne partagent jamais la même journée : '
+            "aucune attente n'est générée par leur combinaison.</div>"
         )
 
     if data.tier_for_level(dossier.level) == "premium":
