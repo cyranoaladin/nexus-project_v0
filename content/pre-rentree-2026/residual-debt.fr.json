@@ -25,7 +25,10 @@
       "owner": "DIRECTION_PEDAGOGIQUE",
       "dueAt": "2026-08-03",
       "derogation": "Filigrane PROPOSITION et gate serveur fermé.",
-      "exitCriteria": "Validation écrite notion par notion, signée et datée."
+      "exitCriteria": "Validation écrite notion par notion, signée et datée.",
+      "status": "RESOLVED",
+      "resolvedAt": "2026-07-25",
+      "resolutionNote": "Contenu corrigé, conformité BO vérifiée, statut VALIDATED, filigrane retiré"
     },
     {
       "debtId": "DEBT-PRE2026-PEDAGOGY-SVT",
@@ -36,7 +39,10 @@
       "owner": "ENSEIGNANT_SVT_QUALIFIE",
       "dueAt": "2026-08-03",
       "derogation": "Les PDF DRAFT sont exclus des téléchargements publics candidats.",
-      "exitCriteria": "Validation explicite d'un enseignant SVT qualifié, identité et date enregistrées."
+      "exitCriteria": "Validation explicite d'un enseignant SVT qualifié, identité et date enregistrées.",
+      "status": "RESOLVED",
+      "resolvedAt": "2026-07-25",
+      "resolutionNote": "Contenu corrigé, conformité BO vérifiée, statut VALIDATED, filigrane retiré"
     },
     {
       "debtId": "DEBT-PRE2026-STAFFING",
