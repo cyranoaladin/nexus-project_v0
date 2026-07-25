@@ -2,7 +2,7 @@
   "version": "2026-pre-rentree-v5-planning-windows",
   "generatedAt": "2026-07-20",
   "resourcePolicy": {
-    "generatedDefaultStatus": "DRAFT",
+    "generatedDefaultStatus": "HUMAN_VALIDATION_REQUIRED",
     "classroomReadyRequiresHumanValidation": true,
     "promotionRule": "Un fichier généré ne devient jamais CLASSROOM_READY sans contenu spécifique, corrigé, barème et validation pédagogique nominative."
   },
