@@ -69,7 +69,9 @@ describe('Pré-rentrée 2026 landing DTO', () => {
     expect(academicProfiles.PREMIERE.voies).toHaveLength(2);
     expect(academicProfiles.PREMIERE.mathsProfiles).toHaveLength(2);
     expect(academicProfiles.PREMIERE.eafProfiles).toHaveLength(2);
-    expect(academicProfiles.PREMIERE.specialtyPlans).toHaveLength(4);
+    // 8 plans: every combination of {NSI, Physique-Chimie, SVT} declared or not
+    // (2^3), since all 3 are commercialized Première subjects (offers.json).
+    expect(academicProfiles.PREMIERE.specialtyPlans).toHaveLength(8);
     expect(academicProfiles.TERMINALE.retainedSpecialties.maxSelections).toBe(2);
     expect(academicProfiles.TERMINALE.mathsOptions).toHaveLength(3);
     expect(JSON.stringify(academicProfiles.SECONDE)).not.toMatch(/EDS.*NSI|NSI.*EDS/i);

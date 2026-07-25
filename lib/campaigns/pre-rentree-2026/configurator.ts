@@ -162,11 +162,28 @@ export function isAcademicProfileComplete(
 }
 
 function premierePlansSubject(plan: string | undefined, subject: string): boolean {
+  // SVT is commercialized in Première exactly like NSI/Physique-Chimie (see
+  // content/pre-rentree-2026/offers.json) and must be gated the same way — a
+  // profile plan that omits SVT must not silently declare an SVT selection
+  // compatible (fixed 2026, see SCHEDULE-UX-AUDIT.md §Première profile gap).
   if (subject === 'NSI') {
-    return plan === 'NSI' || plan === 'NSI_PHYSIQUE_CHIMIE';
+    return plan === 'NSI' || plan === 'NSI_PHYSIQUE_CHIMIE' || plan === 'NSI_SVT' || plan === 'NSI_PHYSIQUE_CHIMIE_SVT';
   }
   if (subject === 'PHYSIQUE_CHIMIE') {
-    return plan === 'PHYSIQUE_CHIMIE' || plan === 'NSI_PHYSIQUE_CHIMIE';
+    return (
+      plan === 'PHYSIQUE_CHIMIE' ||
+      plan === 'NSI_PHYSIQUE_CHIMIE' ||
+      plan === 'PHYSIQUE_CHIMIE_SVT' ||
+      plan === 'NSI_PHYSIQUE_CHIMIE_SVT'
+    );
+  }
+  if (subject === 'SVT') {
+    return (
+      plan === 'SVT' ||
+      plan === 'NSI_SVT' ||
+      plan === 'PHYSIQUE_CHIMIE_SVT' ||
+      plan === 'NSI_PHYSIQUE_CHIMIE_SVT'
+    );
   }
   return true;
 }
@@ -192,7 +209,7 @@ export function classifyProfileSubjectCompatibility(
     if (
       subjectIds.some(
         (subject) =>
-          (subject === 'NSI' || subject === 'PHYSIQUE_CHIMIE') &&
+          (subject === 'NSI' || subject === 'PHYSIQUE_CHIMIE' || subject === 'SVT') &&
           !premierePlansSubject(profile.premiereSpecialtyPlan, subject),
       )
     ) {
@@ -227,7 +244,8 @@ export function classifyProfileSubjectCompatibility(
     }
     if (
       (subjectIds.includes('NSI') && !retained.includes('NSI')) ||
-      (subjectIds.includes('PHYSIQUE_CHIMIE') && !retained.includes('PHYSIQUE_CHIMIE'))
+      (subjectIds.includes('PHYSIQUE_CHIMIE') && !retained.includes('PHYSIQUE_CHIMIE')) ||
+      (subjectIds.includes('SVT') && !retained.includes('SVT'))
     ) {
       return {
         status: 'REQUIRES_PEDAGOGICAL_REVIEW',

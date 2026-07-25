@@ -118,7 +118,7 @@ const AcademicProfiles = z.object({
     voies: z.array(ProfileOption).length(2),
     mathsProfiles: z.array(ProfileOption).length(2),
     eafProfiles: z.array(ProfileOption).length(2),
-    specialtyPlans: z.array(ProfileOption).length(4),
+    specialtyPlans: z.array(ProfileOption).length(8),
   }),
   TERMINALE: z.object({
     retainedSpecialties: z.object({
