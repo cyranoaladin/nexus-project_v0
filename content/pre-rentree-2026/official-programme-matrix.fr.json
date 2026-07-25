@@ -100,6 +100,20 @@
       "url": "https://eduscol.education.fr/document/22201/download",
       "publisher": "Ministère de l'Éducation nationale",
       "applicationNote": "Programme en vigueur pour l'année scolaire 2026-2027."
+    },
+    {
+      "officialProgrammeId": "BO2019-LYCEE-SVT-PREMIERE",
+      "title": "Programme de sciences de la vie et de la Terre (spécialité) de Première générale",
+      "url": "https://www.education.gouv.fr/au-bo-special-du-22-janvier-2019-programmes-d-enseignement-du-lycee-general-et-technologique-455475",
+      "publisher": "Ministère de l'Éducation nationale",
+      "applicationNote": "Programme en vigueur pour l'année scolaire 2026-2027. Publié au BO spécial n°1 du 22 janvier 2019 (programmes de Première), et non au BO spécial n°8 du 25 juillet 2019 qui ne couvre que la Terminale."
+    },
+    {
+      "officialProgrammeId": "BO2019-LYCEE-SVT-TERMINALE",
+      "title": "Programme de sciences de la vie et de la Terre (spécialité) de Terminale générale",
+      "url": "https://www.education.gouv.fr/bo/19/Special8/MENE1921252A.htm",
+      "publisher": "Ministère de l'Éducation nationale",
+      "applicationNote": "Programme en vigueur pour l'année scolaire 2026-2027. Publié au BO spécial n°8 du 25 juillet 2019 (programmes de Terminale)."
     }
   ],
   "rows": [
