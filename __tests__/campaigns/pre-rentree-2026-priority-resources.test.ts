@@ -22,9 +22,9 @@ describe('Pré-rentrée 2026 priority pedagogical resources', () => {
     expect(source.modules.map((module: { moduleId: string }) => module.moduleId)).toEqual(priorityIds);
   });
 
-  it('keeps generated generic resources in DRAFT by policy', () => {
+  it('keeps generated generic resources behind human validation without a public draft marker', () => {
     const modules = JSON.parse(readFileSync(modulesPath, 'utf8'));
-    expect(modules.resourcePolicy.generatedDefaultStatus).toBe('DRAFT');
+    expect(modules.resourcePolicy.generatedDefaultStatus).toBe('HUMAN_VALIDATION_REQUIRED');
     expect(modules.resourcePolicy.classroomReadyRequiresHumanValidation).toBe(true);
   });
 
