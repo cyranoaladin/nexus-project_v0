@@ -1,0 +1,5 @@
+{
+  "description": "S4 — fin de campagne maintenue au 28 aout ; ressources supplementaires (salle, enseignant, site, duplication de cohorte) autorisees analytiquement.",
+  "verdict": "NOT_FULLY_SOLVED_THIS_SESSION",
+  "note": "Le chantier S3 (restructuration de fenetres + extension a 31 aout) resout deja la contrainte Terminale (5 matieres/4 blocs) et Premiere (3 matieres/4 blocs) SANS salle ni enseignant supplementaire (seulement des cohortes alternatives des enseignants EXISTANTS a d'autres horaires). Un scenario S4 strict (fin au 28 aout imperative) demanderait de resoudre le meme probleme de chevauchement identifie en S2 SANS pouvoir deplacer les fenetres dans le temps : cela necessite soit une salle supplementaire (pour dedoubler physiquement un bloc), soit un second enseignant par role en conflit (TEACHER_D_PHYSIQUE_CHIMIE et potentiellement TEACHER_A_MATHS_NSI aux heures de pointe), quantification precise non chiffree dans cette session — recommande comme prochaine etape si le propriétaire n'autorise pas le decalage au 31 aout."
+}
