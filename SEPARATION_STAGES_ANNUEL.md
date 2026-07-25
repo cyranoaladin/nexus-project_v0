@@ -57,6 +57,49 @@ Tests qui échouent si Philo ou une matière hors grille apparaît, par niveau :
 - describe *« garde-fou permanent »* (nouveau, 2026-07-24) : vérifie chaque matière affichée contre une **liste fermée** des seules matières de stage légitimes, indépendamment de la grille — conçu pour détecter toute réintroduction future d'une matière hors grille, Philosophie ou autre.
 - `__tests__/campaigns/pre-rentree-2026-full-coherence.test.ts` → étend la comparaison à 5 sources (grille JSON, incompatibilités, sélecteur, PDF, page publique) — voir §6.
 
+## 1bis. Traçabilité des 2 SKU Seconde retirés (Physique-Chimie, Informatique-SNT)
+
+**Question posée :** les 2 offres retirées de `commercial-contract.fr.json` étaient-elles des SKU de STAGE erronés (désynchronisés de la grille), ou des SKU d'ACCOMPAGNEMENT ANNUEL ayant fuité dans le contrat de campagne stage ?
+
+**Définition d'origine** (`git show 2a84b9412:content/pre-rentree-2026/commercial-contract.fr.json`, avant retrait) :
+
+```json
+{
+  "offerId": "pre2026-seconde-physique-chimie",
+  "pricingId": "pre2026-foundations-seconde-subject",
+  "level": "SECONDE",
+  "subjects": ["PHYSIQUE_CHIMIE"],
+  "excluded": ["Services numériques", "Suivi parent régulier", "Accompagnement annuel"],
+  "proofIds": ["PRF-PRE2026-DATES-VENUE", "PRF-PRE2026-WHATSAPP", "PRF-PRE2026-DEPOSIT-30",
+               "PRF-PRE2026-SECONDE-400", "PRF-PRE2026-FIVE-SESSIONS", "PRF-PRE2026-STRUCTURED-SESSIONS"],
+  "validatedAt": "2026-07-20"
+}
+{
+  "offerId": "pre2026-seconde-informatique-snt",
+  "pricingId": "pre2026-foundations-seconde-subject",
+  "level": "SECONDE",
+  "subjects": ["NSI"],
+  "excluded": ["Suivi parent régulier", "Accompagnement annuel"],
+  "proofIds": ["PRF-PRE2026-DATES-VENUE", "PRF-PRE2026-WHATSAPP", "PRF-PRE2026-DEPOSIT-30",
+               "PRF-PRE2026-SECONDE-400", "PRF-PRE2026-FIVE-SESSIONS", "PRF-PRE2026-STRUCTURED-SESSIONS"],
+  "validatedAt": "2026-07-23"
+}
+```
+
+**Correction de précision** : les 2 offres n'ont pas été approuvées à la même date. Physique-Chimie a été validée le **2026-07-20**, dans le même lot que Mathématiques et Français (3 matières Seconde d'origine). Informatique-SNT a été validée séparément le **2026-07-23** (R2, réintégration a posteriori). Les deux partagent néanmoins le même statut structurel vis-à-vis de l'étanchéité.
+
+**Verdict, preuve à l'appui — SKU de STAGE, PAS une fuite annuelle :**
+
+| Critère | Valeur observée | Conclusion |
+|---|---|---|
+| `offerId` | `pre2026-seconde-*` | Préfixe `pre2026-` : jamais utilisé par un identifiant annuel (§2) |
+| `pricingId` | `pre2026-foundations-seconde-subject` | Vit sous la clé top-level `pre_rentree_foundations` de `pricing.canonical.json`, cloisonnée des clés annuelles (`offers`, `subscription_tiers`, `packs`, `coaching` — §2) |
+| `campaignId` (fichier entier) | `"pre-rentree-2026"` (`z.literal`) | Le schéma Zod verrouille tout le fichier `commercial-contract.fr.json` à cette seule campagne — aucun SKU annuel ne peut structurellement y figurer |
+| `proofIds` | `PRF-PRE2026-*` uniquement | Registre de preuves fermé, scindé par campagne (`proofs.registry.json`) |
+| `excluded` | Liste explicitement **« Accompagnement annuel »** et **« Suivi parent régulier »** | Marqueur de disclaimer stage → annuel déjà présent (cf. §4), pas un artefact annuel |
+
+**Conclusion : ce sont des SKU de STAGE authentiques, structurellement et nominalement rattachés à la campagne pré-rentrée 2026 à chaque niveau (offerId, pricingId, campaignId, proofIds). Aucune fuite annuel→stage.** Le défaut réel était un **désalignement interne au périmètre stage** : le catalogue commercial (`commercial-contract.fr.json`) reflétait une version antérieure de la grille de stage (celle du 23/07, R2, 4 matières Seconde) et n'avait pas été resynchronisé après la redéfinition de la grille le 24/07 (2 matières). Puisque la cause n'est pas une fuite annuelle, le garde-fou conditionnel « anti-fuite annuelle » n'est pas requis pour ce cas précis — mais le défaut réel (désynchronisation catalogue commercial ↔ grille de stage) est désormais couvert de façon permanente par `pre-rentree-2026-full-coherence.test.ts`, étendu au §6 pour comparer explicitement `offers.json` et `commercial-contract.fr.json` en plus des 5 surfaces déjà vérifiées — voir §6.
+
 ## 2. Tarifs — deux sources distinctes, jamais mélangées
 
 `data/pricing.canonical.json` contient des tableaux top-level **cloisonnés par nom** :
