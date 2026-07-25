@@ -616,16 +616,16 @@
         },
         {
           "number": 4,
-          "title": "Énergie mécanique et conservation",
-          "objective": "Appliquer le principe de conservation de l'énergie mécanique",
+          "title": "Aspects énergétiques : travail, énergie et transferts",
+          "objective": "Établir des bilans d'énergie et relier le travail d'une force aux variations d'énergie",
           "topics": [
-            "Énergie cinétique et théorème de l'énergie cinétique",
-            "Énergie potentielle de pesanteur",
-            "Énergie mécanique et conservation",
-            "Transferts d'énergie et frottements"
+            "Travail d'une force et puissance",
+            "Énergies cinétique, potentielle et énergie mécanique",
+            "Aspects énergétiques des phénomènes électriques (puissance, effet Joule)",
+            "Transferts, conversions et conservation de l'énergie"
           ],
-          "method": "Résolution de problèmes avec bilan énergétique schématisé",
-          "deliverable": "Méthode de résolution par bilan énergétique avec exemples"
+          "method": "Bilans énergétiques schématisés sur des situations mécaniques et électriques",
+          "deliverable": "Méthode de résolution par bilan énergétique (mécanique et électrique)"
         },
         {
           "number": 5,
