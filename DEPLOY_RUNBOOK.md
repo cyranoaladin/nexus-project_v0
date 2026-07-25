@@ -2,7 +2,7 @@
 
 Ce dépôt public ne contient ni cible d'infrastructure, ni identité SSH, ni chemin serveur, ni nom de processus, ni commande de bascule ou de rollback.
 
-## Statut de la PR #74
+## Statut de la PR #75
 
 - Aucun déploiement n'est autorisé depuis cette branche.
 - Les scripts publics de déploiement, de diagnostic SSH et de sauvegarde échouent volontairement.

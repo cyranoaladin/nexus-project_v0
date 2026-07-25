@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import subprocess
 from pathlib import Path
 
@@ -75,9 +76,23 @@ def main() -> None:
     parser.add_argument("--repo-root", type=Path, default=Path.cwd())
     parser.add_argument("--output", type=Path, default=Path("assets/campaigns/pre-rentree-2026/release-inventory.json"))
     parser.add_argument("--branch", required=True)
-    parser.add_argument("--pull-request", type=int, required=True)
+    parser.add_argument("--pull-request", type=int)
     parser.add_argument("--repository-commit-sha", required=True)
     args = parser.parse_args()
+    pull_request = args.pull_request
+    if pull_request is None:
+        raw_pull_request = os.environ.get("PRE_RENTREE_PULL_REQUEST")
+        if raw_pull_request is None:
+            parser.error(
+                "--pull-request or PRE_RENTREE_PULL_REQUEST is required; "
+                "release provenance cannot be inferred safely"
+            )
+        try:
+            pull_request = int(raw_pull_request)
+        except ValueError:
+            parser.error("PRE_RENTREE_PULL_REQUEST must be a positive integer")
+    if pull_request < 1:
+        parser.error("pull request number must be a positive integer")
     root = args.repo_root.resolve()
     output = args.output if args.output.is_absolute() else root / args.output
     subprocess.run(
@@ -142,8 +157,12 @@ def main() -> None:
         "schemaVersion": "1.0.0",
         "campaignId": "pre-rentree-2026",
         "branch": args.branch,
-        "pullRequest": args.pull_request,
+        "pullRequest": pull_request,
         "repositoryCommitSha": args.repository_commit_sha,
+        "provenance": {
+            "repositoryCommitShaRole": "BUILD_INPUT_NOT_FINAL_RELEASE_BINDING",
+            "finalReleaseBinding": "ANNOTATED_GO_TAG_AND_GITHUB_PR_COMMENT",
+        },
         "releaseStatus": release_gates["releaseStatus"],
         "verdict": "BLOCKED" if open_release_gates else "READY_FOR_OWNER_GO",
         "lots": lots,
