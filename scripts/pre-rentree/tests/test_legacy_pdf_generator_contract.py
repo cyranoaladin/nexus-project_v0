@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import sys
 from pathlib import Path
 
 import fitz
@@ -7,6 +8,7 @@ import fitz
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 GENERATOR_PATH = REPO_ROOT / "tools/pdf-generator/generate_all_pdfs.py"
+PDF_GENERATOR_DIR = REPO_ROOT / "tools/pdf-generator"
 PRICING_PATH = REPO_ROOT / "data/pricing.canonical.json"
 DOCUMENTS_FINAL = REPO_ROOT / "assets/campaigns/pre-rentree-2026/documents-final"
 PUBLIC_DOCUMENTS = REPO_ROOT / "public/documents/pre-rentree-2026"
@@ -18,6 +20,26 @@ def load_generator():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def load_dossiers_module():
+    """The per-level dossier body (planning + every subject's programme, SVT included
+    as an ordinary chapter) now lives in generate_level_dossiers.py, backed by
+    pre_rentree_data.py — see tools/pdf-generator/generate_level_dossiers.py."""
+    if str(PDF_GENERATOR_DIR) not in sys.path:
+        sys.path.insert(0, str(PDF_GENERATOR_DIR))
+    import generate_level_dossiers
+    import pre_rentree_data
+    importlib.reload(pre_rentree_data)
+    importlib.reload(generate_level_dossiers)
+    return generate_level_dossiers, pre_rentree_data
+
+
+def dossier_html_for_level(level_code: str) -> str:
+    dossiers_module, data_module = load_dossiers_module()
+    data = data_module.PreRentreeData()
+    dossier = data.level_dossier(level_code)
+    return dossiers_module.build_dossier_html(dossier, data)
 
 
 def test_tariff_pdf_rows_are_derived_from_canonical_pricing():
@@ -47,7 +69,7 @@ def test_legacy_pdf_bodies_scope_r2_snt_module_and_r4_teacher_statut():
     personne, distincte de l'anonymat nominatif (noms toujours interdits en public).
     Les composantes gated (bilan écrit remis aux parents) restent hors contrat public."""
     generator = load_generator()
-    programme = generator.make_programme_body("Seconde", generator.PROGRAMMES["Seconde"])
+    programme = dossier_html_for_level("SECONDE")
     planning = generator.make_planning_body()
     tarifs = generator.make_tarifs_body()
     dossier = generator.make_dossier_accueil_body()
@@ -81,17 +103,16 @@ def test_capacity_labels_match_foundations_and_premium_contracts():
 
 
 def test_math_programmes_are_rendered_from_canonical_review_modules():
-    generator = load_generator()
-    seconde = generator.make_programme_body("Seconde", generator.PROGRAMMES["Seconde"])
-    premiere = generator.make_programme_body("Première", generator.PROGRAMMES["Première"])
+    seconde = dossier_html_for_level("SECONDE")
+    premiere = dossier_html_for_level("PREMIERE")
 
-    # Tous les modules sont VALIDATED (levée des statuts, direction, 2026-07-25) : le bandeau
-    # "PROPOSITION — MODULE À VALIDER..." ne doit plus jamais apparaître.
-    assert "PROPOSITION — MODULE À VALIDER PAR LA DIRECTION PÉDAGOGIQUE" not in seconde
+    # Tous les modules sont VALIDATED (levée des statuts, direction, 2026-07-25) : aucun badge
+    # "en cours de validation pédagogique" ne doit apparaître.
+    assert "en cours de validation pédagogique" not in seconde.casefold()
     assert "Série continue regroupée en classes" in seconde
-    assert "probabilités conditionnelles" in seconde
-    assert "PROPOSITION — MODULE À VALIDER PAR LA DIRECTION PÉDAGOGIQUE" not in premiere
-    assert "épreuve terminale anticipée de mathématiques" in premiere
+    assert "probabilité conditionnelle" in seconde.casefold()
+    assert "en cours de validation pédagogique" not in premiere.casefold()
+    assert "épreuve terminale anticipée" in premiere.casefold()
     # Recentrage spécialité (direction, 2026-07-25) : produit scalaire + trigonométrie remplacent
     # les probabilités conditionnelles / automatismes génériques des séances 4-5.
     assert "produit scalaire" in premiere.casefold()
@@ -102,16 +123,18 @@ def test_math_programmes_are_rendered_from_canonical_review_modules():
 def test_troisieme_programme_pdf_exists_and_is_rendered_from_canonical_modules():
     """Toutes les matières 3e (Mathématiques, Français) doivent avoir un programme
     détaillé exportable au même titre que Seconde/Première/Terminale — un niveau
-    entièrement vendu et planifié ne peut pas être privé de son PDF programme."""
-    generator = load_generator()
-    assert "3e" in generator.PROGRAMMES
-    troisieme = generator.make_programme_body("3e", generator.PROGRAMMES["3e"])
+    entièrement vendu et planifié ne peut pas être privé de son dossier."""
+    _, data_module = load_dossiers_module()
+    data = data_module.PreRentreeData()
+    dossier = data.level_dossier("TROISIEME")
+    assert dossier.gaps == ()
+    troisieme = dossier_html_for_level("TROISIEME")
 
     assert "Mathématiques" in troisieme
     assert "Français" in troisieme
     assert "Méthodologie DNB et sujet d'entraînement" in troisieme
     # Tous les modules sont VALIDATED (levée des statuts, direction, 2026-07-25).
-    assert "PROPOSITION — MODULE À VALIDER PAR LA DIRECTION PÉDAGOGIQUE" not in troisieme
+    assert "en cours de validation pédagogique" not in troisieme.casefold()
 
 
 def test_final_pdf_exports_match_the_active_generator_contract():
@@ -192,10 +215,10 @@ def test_public_download_copies_and_weight_manifest_match_final_pdfs():
         item for item in manifest["documents"]
         if item["publicDownloadCandidate"]
     ]
-    # 9 documents publics : Planning, Programme 3e/Seconde/Première/Terminale, Programme SVT
-    # Première/Terminale (désormais validés, plus DRAFT), Tarifs, FlyerEssentiel. DossierAccueil
-    # reste interne (impression uniquement, jamais dans PUBLIC_DOCUMENT_FILENAMES).
-    assert len(public_records) == 9
+    # 7 documents publics : Planning, Programme (dossier complet) 3e/Seconde/Première/Terminale
+    # — SVT est désormais un chapitre de ces dossiers, plus un PDF séparé —, Tarifs, FlyerEssentiel.
+    # DossierAccueil reste interne (impression uniquement, jamais dans PUBLIC_DOCUMENT_FILENAMES).
+    assert len(public_records) == 7
     for item in public_records:
         assert item["publicationStatus"] == "PUBLIC_FINAL"
         final_path = DOCUMENTS_FINAL / item["fileName"]

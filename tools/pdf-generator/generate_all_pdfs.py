@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
-"""Generate all 10 Nexus Réussite pre-rentrée 2026 PDFs.
+"""Generate the 8 Nexus Réussite pre-rentrée 2026 parent PDFs.
+
+Orchestrator only: the 4 canonical per-level "dossier complet parents" PDFs
+(3e, Seconde, Première, Terminale — one per entry level, each consolidating
+planning + every subject's detailed programme, SVT included as an ordinary
+chapter rather than a separate file) are delegated to generate_level_dossiers.py,
+itself backed by pre_rentree_data.py (canonical data) and dossier_design.py
+(design system). This file only still builds the 4 shared documents that are
+not level-specific: Planning_InfosPratiques, Tarifs, DossierAccueil_PRINT and
+FlyerEssentiel.
 
 ROLE (documented 2026-07-25, quality audit §B — two PDF pipelines coexist by design,
 not by accident; see DEBTS.md for the full rationale):
@@ -78,14 +87,6 @@ for _win in CAMPAIGN["schedule"]:
                 "endTime": _et,
             })
 
-# SVT programmes = données du dépôt (modules.json). Filigrane DRAFT piloté par la décision D2.
-_MODULES = json.loads((REPO_ROOT / "content" / "pre-rentree-2026" / "modules.json").read_text(encoding="utf-8"))["modules"]
-SVT_MODULES = {m["level"]: m for m in _MODULES if m["subjectId"] == "SVT"}
-_DECISIONS = json.loads((REPO_ROOT / "content" / "pre-rentree-2026" / "publication-decisions.owner.json").read_text(encoding="utf-8"))["decisions"]
-# DRAFT tant que D2 n'est pas levée. Pour régénérer sans filigrane: passer
-# decisions.svtProgramValidation.status à "approved_for_publication" dans publication-decisions.owner.json.
-SVT_DRAFT = _DECISIONS.get("svtProgramValidation", {}).get("status") == "draft_until_owner_validation"
-
 # Mention de STATUT collectif autorisée sur les supports commerciaux (décision direction R4,
 # 2026-07-23 — voir publication-decisions.owner.json → decisions.teacherStatusStatement).
 # Distincte de l'anonymat nominatif (noms interdits en public) : elle ne nomme personne.
@@ -113,45 +114,6 @@ def premium_pack_rows():
         }
         for pack in PRE_RENTREE_PACKS
     ]
-
-DRAFT_CSS = """
-.draft-watermark {
-    position: fixed;
-    top: 45%;
-    left: 0;
-    width: 100%;
-    text-align: center;
-    transform: rotate(-30deg);
-    font-size: 62pt;
-    font-weight: 800;
-    color: rgba(190, 40, 40, 0.14);
-    letter-spacing: 6px;
-    z-index: 9999;
-}
-"""
-
-
-def make_svt_programme_body(level_label, module):
-    """Programme SVT mono-matière depuis les données du dépôt (extraction fidèle)."""
-    header_title = f"Programme SVT · Entrée en {level_label}"
-    body = make_cover("Programme détaillé — SVT", f"Entrée en {level_label}")
-    if SVT_DRAFT:
-        body += '<div class="draft-watermark">DOCUMENT DE TRAVAIL</div>'
-        body += ('<p style="color:#BE2828; font-weight:700; text-align:center; margin:0 0 10px;">'
-                 'DOCUMENT DE TRAVAIL — programme SVT en attente de validation pédagogique (décision D2).</p>')
-    body += make_header(header_title)
-    body += (f'<h2>{module["title"]}</h2>'
-             f'<p class="intro">{module["subtitle"]}</p>')
-    body += """<table class="programme"><thead><tr>
-        <th>Séance</th><th>Objectif</th><th>Notions clés</th><th>Livrable</th>
-    </tr></thead><tbody>"""
-    for s in module["sessions"]:
-        seance = f'{s["number"]}. {s["title"]}'
-        notions = ", ".join(s["topics"])
-        body += (f"<tr><td>{seance}</td><td>{s['objective']}</td>"
-                 f"<td>{notions}</td><td>{s['deliverable']}</td></tr>")
-    body += "</tbody></table>"
-    return body
 
 # ─── Shared CSS ───────────────────────────────────────────────────────────────
 
@@ -400,184 +362,6 @@ def generate_pdf(html_content, filename, title):
     size = os.path.getsize(OUT_DIR / filename)
     print(f"  {filename}: {size // 1024} Ko")
     return filename
-
-
-# ─── Programme docs (1, 2, 3) ─────────────────────────────────────────────────
-
-PROGRAMMES = {
-    "Seconde": {
-        "lines": (9, 50),  # from doc1
-        "matières": [
-            ("Mathématiques", "consolider la Troisième, découvrir les attentes du lycée", [
-                ("1. Calcul et calcul littéral", "Consolider calcul numérique, développement, factorisation", "Identités remarquables, fractions, puissances, proportionnalité, équations produit-nul", "Fiche méthode calcul littéral avec exemples résolus"),
-                ("2. Fonctions : lecture graphique", "Lire et interpréter une courbe, maîtriser le vocabulaire", "Image, antécédent, variations, extremums, fonctions de référence", "Carte mentale du vocabulaire des fonctions"),
-                ("3. Équations et inéquations", "Résoudre et mettre en équation des problèmes", "1er degré, inéquations sur un axe, systèmes 2×2, modélisation", "Fiche réflexe résolution"),
-                ("4. Géométrie repérée et vecteurs", "Se repérer dans le plan", "Repère orthonormé, distance, milieu, coordonnées de vecteurs, colinéarité", "Formulaire géométrie repérée annoté"),
-                ("5. Rédaction et méthodologie", "Structurer un raisonnement, rédiger proprement", "Démonstration, connecteurs logiques, gestion du temps, sujet type", "Grille d'auto-évaluation de la rédaction"),
-            ]),
-            ("Français", "compréhension, expression, argumentation", [
-                ("1. Le paragraphe argumenté", "Rédiger un paragraphe clair avec exemples", "Structure argument-exemple-analyse, connecteurs, registres", "Fiche méthode avec modèles"),
-                ("2. Analyse de texte littéraire", "Identifier les procédés, formuler une interprétation", "Champs lexicaux, figures de style, registres, structure", "Boîte à outils des procédés littéraires"),
-                ("3. Convaincre et persuader", "Mobiliser les stratégies argumentatives", "Thèse/arguments/exemples, concession, réfutation", "Plan-type d'un développement argumenté"),
-                ("4. Grammaire de l'expression", "Maîtriser les outils grammaticaux du lycée", "Subordonnées, temps verbaux, accords complexes, ponctuation", "Mémo grammaire lycée"),
-                ("5. Initiation au commentaire", "Comprendre la méthode du commentaire composé", "Paraphrase vs analyse, axe de lecture, intro/conclusion", "Modèle de brouillon commentaire"),
-            ]),
-            ("Physique-Chimie", "unités, matière et raisonnement scientifique", [
-                ("1. Grandeurs et conversions", "Maîtriser les unités SI et les conversions", "Préfixes, puissances de 10, chiffres significatifs, ordres de grandeur", "Fiche réflexe unités et conversions"),
-                ("2. Atomes et molécules", "Décrire la structure de la matière", "Atome, tableau périodique, liaison covalente, Lewis", "Carte mémo atomes-molécules"),
-                ("3. Forces et mouvement", "Identifier les forces, décrire un mouvement", "Poids, réaction, tension, diagramme objets-interactions, trajectoire", "Méthode du diagramme de forces"),
-                ("4. Exploitation de mesures", "Utiliser les maths pour exploiter l'expérience", "Formules littérales, graphiques, pente, incertitudes", "Fiche méthode graphiques et formules"),
-                ("5. Démarche expérimentale", "Appliquer la démarche scientifique complète", "Hypothèses, protocole, compte-rendu, exercice type devoir", "Modèle de rédaction scientifique"),
-            ]),
-        ]
-    },
-    "Première": {
-        "matières": [
-            ("Mathématiques (préparation à la spécialité)", "sécuriser les fondations de la Seconde", [
-                ("1. Calcul algébrique et second degré", "Automatiser le calcul, découvrir la forme canonique", "Factorisation, équations/inéquations, forme canonique, racines", "Fiche méthode second degré"),
-                ("2. Fonctions de référence et variations", "Consolider l'étude qualitative des fonctions", "Fonctions carré/inverse/racine, variations, taux d'accroissement", "Formulaire fonctions de référence"),
-                ("3. Vers la dérivation", "Préparer le concept central de Première", "Taux de variation, sécante/tangente (approche graphique), nombre dérivé (intuition)", "Fiche introduction à la dérivation"),
-                ("4. Suites numériques : premiers pas", "Découvrir les modes de génération", "Suite explicite et par récurrence, arithmétique/géométrique (initiation), calculs de termes", "Fiche réflexe suites"),
-                ("5. Probabilités et méthodologie", "Consolider les probabilités et la rédaction", "Arbres, tableaux, probabilités conditionnelles (initiation), sujet type", "Grille de rédaction mathématique Première"),
-            ]),
-            ("Français", "cap sur l'EAF (voies générale et technologique)", [
-                ("1. L'année de l'EAF : cartographie", "Comprendre les épreuves et les attendus", "Écrit (commentaire, dissertation, contraction-essai en techno), oral, œuvres au programme", "Carte des épreuves EAF et calendrier de travail"),
-                ("2. La lecture linéaire", "Poser la méthode de l'explication orale", "Mouvement du texte, procédés, interprétation, formulation", "Modèle de lecture linéaire pas à pas"),
-                ("3. Le commentaire littéraire", "Construire un plan à partir du texte", "Axes, sous-parties, citations intégrées, intro/conclusion", "Plan-type de commentaire réutilisable"),
-                ("4. La dissertation sur œuvre", "Problématiser et argumenter à partir d'une œuvre", "Analyse du sujet, thèse, exemples précis, transitions", "Méthode de la dissertation en 6 étapes"),
-                ("5. Grammaire et question de langue", "Préparer la question de grammaire de l'oral", "Subordonnées, négation, interrogation, analyse syntaxique", "Mémo grammaire de l'oral EAF"),
-            ]),
-            ("NSI Première", "bases solides pour démarrer la spécialité", [
-                ("1. Python : remise à niveau active", "Consolider variables, conditions, boucles", "Types de base, if/for/while, entrées-sorties, traçage d'exécution", "Batterie d'exercices corrigés commentés"),
-                ("2. Fonctions", "Structurer un programme en fonctions", "Définition, paramètres, return, portée des variables, tests simples", "Fiche méthode « écrire une fonction propre »"),
-                ("3. Listes et parcours", "Manipuler la structure de données centrale", "Création, indexation, slicing, parcours, construction par compréhension (initiation)", "Programmes types sur les listes"),
-                ("4. Représentation des données", "Comprendre le binaire et les encodages", "Base 2/16, entiers, booléens et logique, encodage des caractères", "Fiche conversions et représentations"),
-                ("5. Mini-projet algorithmique", "Résoudre un problème complet en autonomie guidée", "Recherche dans une liste, maximum/minimum, moyenne, documentation", "Projet Python documenté et testé"),
-            ]),
-            ("Physique-Chimie", "consolider la Seconde, anticiper la Première", [
-                ("1. Outils du chimiste", "Fiabiliser grandeurs et calculs de chimie", "Masse molaire, quantité de matière (mole), concentrations, dilution", "Fiche réflexe quantité de matière"),
-                ("2. Transformations chimiques", "Décrire et ajuster une transformation", "Équation de réaction, ajustement, réactif limitant (initiation)", "Méthode du bilan de matière"),
-                ("3. Mouvement et interactions", "Consolider forces et mouvement", "Vitesse, vecteur vitesse (initiation), principe d'inertie, modélisation d'une action", "Fiche mécanique de transition"),
-                ("4. Signaux et ondes", "Consolider les signaux de Seconde", "Signal sonore, période/fréquence, spectre, propagation", "Carte mémo ondes et signaux"),
-                ("5. Méthodologie de l'épreuve", "Rédiger un exercice de physique-chimie complet", "Analyse d'énoncé, formules littérales d'abord, unités, sujet type", "Modèle de rédaction scientifique Première"),
-            ]),
-        ]
-    },
-    "Terminale": {
-        "matières": [
-            ("Mathématiques (spécialité)", "verrouiller la Première avant l'année décisive", [
-                ("1. Dérivation : maîtrise complète", "Automatiser le calcul de dérivées et leurs usages", "Formules et opérations, tangentes, variations, signe de f'", "Formulaire dérivation + exercices types"),
-                ("2. Fonction exponentielle", "Consolider LA fonction de Première", "Propriétés algébriques, équations/inéquations, exp et dérivation", "Fiche réflexe exponentielle"),
-                ("3. Suites : vers les limites", "Consolider les suites et préparer la récurrence", "Arithmétiques/géométriques, sens de variation, comportement à l'infini (approche), notation Σ (initiation)", "Fiche suites de transition"),
-                ("4. Probabilités conditionnelles", "Fiabiliser un chapitre à fort rendement bac", "Arbres pondérés, formule des probabilités totales, indépendance, variables aléatoires", "Méthode des arbres + exercices bac"),
-                ("5. Trigonométrie, produit scalaire et méthodo", "Boucler les outils géométriques et la rédaction", "Cercle trigonométrique, produit scalaire (bilan), sujet type bac chronométré", "Plan de travail personnalisé pour la Terminale"),
-            ]),
-            ("Français / Expression et oral", "écrire et parler au niveau Terminale", [
-                ("1. Argumentation écrite de niveau Terminale", "Structurer une réflexion exigeante", "Problématisation, plan dialectique et progressif, exemples précis", "Méthode de la réflexion argumentée (propédeutique philo)"),
-                ("2. Synthèse et reformulation", "Comprendre, condenser, restituer", "Idées essentielles, hiérarchisation, reformulation fidèle", "Fiche méthode synthèse de documents"),
-                ("3. Prise de parole structurée", "Poser voix, posture et plan à l'oral", "Accroche, annonce du plan, transitions orales, gestion du temps", "Grille d'auto-évaluation de l'oral"),
-                ("4. Vers le Grand Oral", "Comprendre l'épreuve et amorcer une question", "Format et attentes du jury, choix des questions, lien avec les spécialités", "Canevas de construction d'une question de Grand Oral"),
-                ("5. Entraînement oral filmé/évalué", "S'exercer en conditions avec retour individuel", "Passage individuel, feedback structuré, axes de progrès", "Bilan oral individualisé écrit"),
-            ]),
-            ("NSI Terminale", "consolider la Première NSI", [
-                ("1. Python avancé : fonctions et tests", "Fiabiliser l'écriture de code structuré", "Fonctions, assertions, jeux de tests, documentation", "Gabarit de fonction testée et documentée"),
-                ("2. Structures : listes, tuples, dictionnaires", "Choisir la bonne structure de données", "Parcours, dictionnaires clé-valeur, tableaux de tableaux, traitement de données", "Fiche comparative des structures"),
-                ("3. Algorithmes de référence", "Consolider les algorithmes de Première", "Recherche séquentielle et dichotomique, tris (insertion, sélection), coût (initiation)", "Fiches algorithmes avec invariants"),
-                ("4. Récursivité : première approche", "Préparer un pilier de la Terminale", "Principe, cas de base, appels récursifs simples, pile d'appels (intuition)", "Fiche récursivité avec exemples gradués"),
-                ("5. Mini-projet de synthèse", "Mobiliser structures et algorithmes", "Projet guidé (traitement de données ou jeu), découpage en fonctions, tests", "Projet documenté + plan de travail Terminale"),
-            ]),
-            ("Physique-Chimie", "verrouiller la Première", [
-                ("1. Chimie des solutions", "Fiabiliser les calculs de chimie", "Quantité de matière, avancement, tableau d'avancement, titrage (initiation)", "Méthode du tableau d'avancement"),
-                ("2. Mécanique", "Consolider mouvement et forces", "Vecteurs vitesse et accélération (approche), lois de Newton (bilan Première)", "Fiche mécanique de transition Terminale"),
-                ("3. Énergie", "Consolider les bilans énergétiques", "Énergie cinétique/potentielle/mécanique, travail d'une force, conservation", "Carte des chaînes énergétiques"),
-                ("4. Ondes et signaux", "Consolider les ondes mécaniques", "Célérité, période, longueur d'onde, phénomènes ondulatoires", "Formulaire ondes"),
-                ("5. Méthodologie type bac", "Rédiger un exercice complet en conditions", "Analyse, résolution littérale, application numérique, unités, sujet type", "Modèle de rédaction + plan de travail Terminale"),
-            ]),
-        ]
-    },
-}
-
-# The canonical module document supersedes the historical inline catalogue
-# above. Keeping the adapter close to the legacy renderer makes the generated
-# PDFs consume the same sessions as the site and the documentary snapshot.
-def canonical_programmes():
-    level_ids = {
-        "3e": "TROISIEME",
-        "Seconde": "SECONDE",
-        "Première": "PREMIERE",
-        "Terminale": "TERMINALE",
-    }
-    return {
-        label: {
-            "matières": [
-                {
-                    "name": module["subject"],
-                    "subtitle": module["subtitle"],
-                    "objective": module.get("objective"),
-                    "publicationStatus": module.get("publicationStatus"),
-                    "sessions": [
-                        (
-                            f'{session["number"]}. {session["title"]}',
-                            session["objective"],
-                            ", ".join(session["topics"]),
-                            session["deliverable"],
-                        )
-                        for session in module["sessions"]
-                    ],
-                }
-                for module in _MODULES
-                if module["level"] == level_id and module["subjectId"] != "SVT"
-            ],
-        }
-        for label, level_id in level_ids.items()
-    }
-
-
-PROGRAMMES = canonical_programmes()
-
-
-def make_programme_body(level_name, data):
-    """Generate HTML body for a programme PDF."""
-    header_title = f"Programme · Entrée en {level_name}"
-    intro_text = ("Chaque séance suit le même cadre : un objectif annoncé, des notions travaillées, "
-                  "une méthode active, un entraînement progressif et une correction explicite. "
-                  "Ces priorités, prérequis et méthodes sont sélectionnés pour préparer la rentrée ; "
-                  "le stage ne prétend pas couvrir le programme annuel.")
-
-    body = make_cover(f"Programme détaillé", f"Entrée en {level_name}")
-    body += make_header(header_title)
-    body += f'<div class="intro">{intro_text}</div>'
-
-    for i, subject in enumerate(data["matières"]):
-        if i > 0 and i % 2 == 0:
-            body += f'<div class="page-break"></div>{make_header(header_title)}'
-
-        mat_name = subject["name"]
-        mat_sub = subject["subtitle"]
-        sessions = subject["sessions"]
-        if subject["publicationStatus"] == "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION":
-            body += (
-                '<div style="border:2px solid #BE2828; color:#8F1D1D; background:#FFF4F4; '
-                'padding:8px 10px; margin:0 0 10px; font-weight:800; text-align:center;">'
-                'PROPOSITION — MODULE À VALIDER PAR LA DIRECTION PÉDAGOGIQUE'
-                '</div>'
-            )
-        subtitle = f" — {mat_sub}" if mat_sub else ""
-        body += f"<h2>{mat_name}{subtitle}</h2>"
-        if subject["objective"]:
-            body += f'<p style="font-size:9pt; margin:-4px 0 8px; line-height:1.45;">{subject["objective"]}</p>'
-        body += """<table class="programme">
-        <thead><tr>
-            <th>Séance</th>
-            <th>Objectif</th>
-            <th>Notions clés</th>
-            <th>Livrable</th>
-        </tr></thead><tbody>"""
-        for seance, objectif, notions, livrable in sessions:
-            body += f"<tr><td>{seance}</td><td>{objectif}</td><td>{notions}</td><td>{livrable}</td></tr>"
-        body += "</tbody></table>"
-
-    return body
 
 
 def make_planning_body():
@@ -1053,42 +837,16 @@ tbody td { padding: 3px 4px; font-size: 8pt; }
 # ─── Main ─────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    print("=== Production des 10 PDF ===\n")
+    print("=== Production des PDF ===\n")
 
-    # 0. Programme 3e
-    body = make_programme_body("3e", PROGRAMMES["3e"])
-    html = wrap_html(body, "Nexus Réussite — Programme 3e — Pré-rentrée 2026")
-    generate_pdf(html, "NexusReussite_PreRentree2026_Programme_3e.pdf",
-                 "Nexus Réussite — Programme détaillé — Entrée en 3e — Pré-rentrée 2026")
-
-    # 1. Programme Seconde
-    body = make_programme_body("Seconde", PROGRAMMES["Seconde"])
-    html = wrap_html(body, "Nexus Réussite — Programme Seconde — Pré-rentrée 2026")
-    generate_pdf(html, "NexusReussite_PreRentree2026_Programme_Seconde.pdf",
-                 "Nexus Réussite — Programme détaillé — Entrée en Seconde — Pré-rentrée 2026")
-
-    # 2. Programme Première
-    body = make_programme_body("Première", PROGRAMMES["Première"])
-    html = wrap_html(body, "Nexus Réussite — Programme Première — Pré-rentrée 2026")
-    generate_pdf(html, "NexusReussite_PreRentree2026_Programme_Premiere.pdf",
-                 "Nexus Réussite — Programme détaillé — Entrée en Première — Pré-rentrée 2026")
-
-    # 3. Programme Terminale
-    body = make_programme_body("Terminale", PROGRAMMES["Terminale"])
-    html = wrap_html(body, "Nexus Réussite — Programme Terminale — Pré-rentrée 2026")
-    generate_pdf(html, "NexusReussite_PreRentree2026_Programme_Terminale.pdf",
-                 "Nexus Réussite — Programme détaillé — Entrée en Terminale — Pré-rentrée 2026")
-
-    # 3bis. Programmes SVT (Première, Terminale) — DRAFT tant que D2 non levée
-    for _lvl_key, _lvl_label in [("PREMIERE", "Première"), ("TERMINALE", "Terminale")]:
-        _mod = SVT_MODULES.get(_lvl_key)
-        if not _mod:
-            continue
-        body = make_svt_programme_body(_lvl_label, _mod)
-        html = wrap_html(body, f"Nexus Réussite — Programme SVT {_lvl_label} — Pré-rentrée 2026", DRAFT_CSS)
-        _suffix = "_DRAFT" if SVT_DRAFT else ""
-        generate_pdf(html, f"NexusReussite_PreRentree2026_Programme_SVT_{_lvl_label}{_suffix}.pdf",
-                     f"Nexus Réussite — Programme détaillé — SVT — Entrée en {_lvl_label} — Pré-rentrée 2026")
+    # 0-3. Les 4 dossiers complets parents (un par niveau : 3e, Seconde, Première,
+    # Terminale) sont générés par le module dédié generate_level_dossiers.py, seule
+    # source de la mise en page des programmes détaillés — voir son docstring pour
+    # le détail. Ce module ne contient plus de catalogue de programmes : toutes les
+    # matières (y compris SVT, désormais un chapitre de son dossier de niveau plutôt
+    # qu'un PDF séparé) sont dérivées de content/pre-rentree-2026/modules.json.
+    import generate_level_dossiers
+    generate_level_dossiers.generate_all_level_dossiers()
 
     # 4. Planning
     body = make_planning_body()
