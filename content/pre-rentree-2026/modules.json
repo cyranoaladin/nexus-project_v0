@@ -9,6 +9,7 @@
   "modules": [
     {
       "id": "troisieme-mathematiques",
+      "publicationStatus": "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION",
       "level": "TROISIEME",
       "subjectId": "MATHEMATIQUES",
       "subject": "Mathématiques",
@@ -87,6 +88,7 @@
     },
     {
       "id": "troisieme-francais",
+      "publicationStatus": "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION",
       "level": "TROISIEME",
       "subjectId": "FRANCAIS",
       "subject": "Français",
@@ -246,6 +248,7 @@
     },
     {
       "id": "seconde-francais",
+      "publicationStatus": "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION",
       "level": "SECONDE",
       "subjectId": "FRANCAIS",
       "subject": "Français",
@@ -404,6 +407,7 @@
     },
     {
       "id": "premiere-francais-eaf",
+      "publicationStatus": "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION",
       "level": "PREMIERE",
       "subjectId": "FRANCAIS",
       "subject": "Français (EAF)",
@@ -482,6 +486,7 @@
     },
     {
       "id": "premiere-nsi",
+      "publicationStatus": "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION",
       "level": "PREMIERE",
       "subjectId": "NSI",
       "subject": "NSI",
@@ -560,6 +565,7 @@
     },
     {
       "id": "premiere-physique-chimie",
+      "publicationStatus": "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION",
       "level": "PREMIERE",
       "subjectId": "PHYSIQUE_CHIMIE",
       "subject": "Physique-Chimie",
@@ -638,6 +644,7 @@
     },
     {
       "id": "terminale-mathematiques",
+      "publicationStatus": "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION",
       "level": "TERMINALE",
       "subjectId": "MATHEMATIQUES",
       "subject": "Mathématiques",
@@ -795,6 +802,7 @@
     },
     {
       "id": "terminale-nsi",
+      "publicationStatus": "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION",
       "level": "TERMINALE",
       "subjectId": "NSI",
       "subject": "NSI",
@@ -873,6 +881,7 @@
     },
     {
       "id": "terminale-physique-chimie",
+      "publicationStatus": "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION",
       "level": "TERMINALE",
       "subjectId": "PHYSIQUE_CHIMIE",
       "subject": "Physique-Chimie",
