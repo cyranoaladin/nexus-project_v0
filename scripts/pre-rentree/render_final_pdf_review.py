@@ -7,21 +7,15 @@ import argparse
 import hashlib
 import json
 import shutil
+import sys
 from pathlib import Path
 
 import fitz
 from PIL import Image, ImageDraw, ImageFont
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-# Statut réel dérivé de la MÊME source canonique que le générateur (jamais du nom de fichier
-# PDF) : content/pre-rentree-2026/publication-decisions.owner.json -> decisions.svtProgramValidation.
-# Un heuristique par sous-chaîne "_SVT_" dans le nom de fichier laisserait les 2 PDF SVT marqués
-# DRAFT indéfiniment après validation, puisque le nom contient toujours "_SVT_" (seul le suffixe
-# "_DRAFT" disparaît une fois validé, cf. tools/pdf-generator/generate_all_pdfs.py::SVT_DRAFT).
-_OWNER_DECISIONS = json.loads(
-    (REPO_ROOT / "content" / "pre-rentree-2026" / "publication-decisions.owner.json").read_text(encoding="utf-8")
-)["decisions"]
-SVT_STILL_DRAFT = _OWNER_DECISIONS.get("svtProgramValidation", {}).get("status") == "draft_until_owner_validation"
+sys.path.insert(0, str(REPO_ROOT / "tools" / "pdf-generator"))
+from pre_rentree_data import LEVEL_ORDER, PreRentreeData  # noqa: E402
 
 PUBLIC_DOCUMENT_FILENAMES = {
     "NexusReussite_PreRentree2026_FlyerEssentiel.pdf",
@@ -31,9 +25,35 @@ PUBLIC_DOCUMENT_FILENAMES = {
     "NexusReussite_PreRentree2026_Programme_Seconde.pdf",
     "NexusReussite_PreRentree2026_Programme_Terminale.pdf",
     "NexusReussite_PreRentree2026_Tarifs.pdf",
-    "NexusReussite_PreRentree2026_Programme_SVT_Première.pdf",
-    "NexusReussite_PreRentree2026_Programme_SVT_Terminale.pdf",
 }
+
+# Historic public filenames use "Premiere"/"3e" without the accent (see
+# tools/pdf-generator/generate_level_dossiers.py::generate_dossier_pdf).
+_FILENAME_BY_LEVEL = {"3e": "TROISIEME", "Seconde": "SECONDE", "Premiere": "PREMIERE", "Terminale": "TERMINALE"}
+
+
+def _level_dossier_public_status() -> dict[str, bool]:
+    """Derive per-level dossier PUBLIC/REVIEW status from the SAME canonical source
+    the generator itself uses (modules.json publicationStatus + gap detection) —
+    never from a filename heuristic, so it generalizes beyond SVT to any subject."""
+    data = PreRentreeData(REPO_ROOT)
+    is_public_by_filename_level = {}
+    for filename_level, level_code in _FILENAME_BY_LEVEL.items():
+        assert level_code in LEVEL_ORDER
+        is_public_by_filename_level[filename_level] = data.level_dossier(level_code).is_public
+    return is_public_by_filename_level
+
+
+DOSSIER_PUBLIC_STATUS = _level_dossier_public_status()
+
+
+def _document_status(filename: str) -> str:
+    prefix = "NexusReussite_PreRentree2026_Programme_"
+    if filename.startswith(prefix):
+        filename_level = filename[len(prefix):-len(".pdf")]
+        if filename_level in DOSSIER_PUBLIC_STATUS:
+            return "PUBLIC_FINAL" if DOSSIER_PUBLIC_STATUS[filename_level] else "REVIEW_PENDING_PEDAGOGICAL_VALIDATION"
+    return "PUBLIC_FINAL" if filename in PUBLIC_DOCUMENT_FILENAMES else "INTERNAL_REVIEW"
 
 
 def sha256(path: Path) -> str:
@@ -70,15 +90,7 @@ def render_review(pdf_directory: Path, public_directory: Path) -> dict:
                 "sha256": sha256(pdf_path),
                 "pageCount": document.page_count,
                 "publicDownloadCandidate": pdf_path.name in PUBLIC_DOCUMENT_FILENAMES,
-                "publicationStatus": (
-                    "DRAFT_PENDING_QUALIFIED_TEACHER_VALIDATION"
-                    if "_SVT_" in pdf_path.name and SVT_STILL_DRAFT
-                    else (
-                        "PUBLIC_FINAL"
-                        if pdf_path.name in PUBLIC_DOCUMENT_FILENAMES
-                        else "INTERNAL_REVIEW"
-                    )
-                ),
+                "publicationStatus": _document_status(pdf_path.name),
             })
             for page_number, page in enumerate(document, start=1):
                 pixmap = page.get_pixmap(matrix=fitz.Matrix(1.5, 1.5), alpha=False)
