@@ -43,9 +43,9 @@
     },
     {
       "fileName": "NexusReussite_PreRentree2026_Programme_Premiere.pdf",
-      "bytes": 457978,
+      "bytes": 458237,
       "sizeLabel": "447 Ko",
-      "sha256": "1f120ae51c0c30024bc6e1a096f962faf266465b7a6915f66c339b62a427791e",
+      "sha256": "6a1b6665567837109973ba9a47bb57301d0b85bdccf871511d74dd9d8e415ee3",
       "pageCount": 5,
       "publicDownloadCandidate": true,
       "publicationStatus": "REVIEW_NON_CONTRACTUAL"
@@ -100,8 +100,8 @@
     "path": "visual-review/documents-final-contact-sheet.png",
     "width": 1200,
     "height": 3870,
-    "bytes": 1299503,
-    "sha256": "631cefa060f34bd8cfe22f530f08e31dda234ad9aca88bc7cd85e1940adb2c8d"
+    "bytes": 1306847,
+    "sha256": "c8ce2be1737916c6f4239fcac4d120b759230c46567ca36574c55a6b21b31518"
   },
   "pages": [
     {
@@ -254,8 +254,8 @@
       "path": "rendered/NexusReussite_PreRentree2026_Programme_Premiere/page-02.png",
       "width": 893,
       "height": 1263,
-      "bytes": 168379,
-      "sha256": "a621748df174a2fd360521c2971404701da4a67e478a40b9e5da433cdff12232"
+      "bytes": 187008,
+      "sha256": "19010a638595a87ad8635268a0694be2ecf1222a636d406da45248fc27ca140e"
     },
     {
       "pdf": "NexusReussite_PreRentree2026_Programme_Premiere.pdf",

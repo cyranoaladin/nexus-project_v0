@@ -26,10 +26,10 @@
     },
     {
       "officialProgrammeId": "BO2026-LYCEE-MATHS-PREMIERE",
-      "title": "Programme de mathématiques de Première applicable à partir de 2026-2027",
-      "url": "https://www.education.gouv.fr/sites/default/files/document/boenjs_14_ok.pdf-515480.pdf",
+      "title": "Programme d'enseignement de spécialité de mathématiques de la classe de première de la voie générale",
+      "url": "https://www.education.gouv.fr/bo/2026/Hebdo14/MENE2602917A",
       "publisher": "Ministère de l'Éducation nationale",
-      "applicationNote": "Application en Première à la rentrée 2026."
+      "applicationNote": "Programme de spécialité (et non du tronc commun de mathématiques intégré à l'enseignement scientifique, ni du programme de la voie technologique — le BO n°14 du 2 avril 2026 publie ces trois textes séparément). Application en Première à la rentrée 2026."
     },
     {
       "officialProgrammeId": "BO2019-LYCEE-MATHS-TERMINALE",
@@ -194,7 +194,7 @@
         4,
         5
       ],
-      "alignmentSummary": "PROPOSITION : second degré et discriminant, suites, exponentielle, dérivation, probabilités conditionnelles et méthodes de l'épreuve anticipée ; fonctions sinus/cosinus non annoncées.",
+      "alignmentSummary": "PROPOSITION : fondations de la spécialité Mathématiques — second degré et discriminant, suites, exponentielle, dérivation, produit scalaire et trigonométrie ; priorités de pré-rentrée, non exhaustif du programme annuel.",
       "publicOfferEligible": false
     },
     {

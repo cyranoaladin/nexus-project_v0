@@ -38,13 +38,20 @@ describe('Pré-rentrée 2026 official-programme conformity proposals', () => {
     expect(copy).not.toMatch(/discriminant/i);
   });
 
-  it('keeps discriminant and exponential in Première but not sinus/cosinus functions', () => {
+  it('keeps discriminant, exponential, produit scalaire and trigonométrie in Première spécialité (recentrage 2026-07-25)', () => {
+    // Correction pédagogique validée direction (2026-07-25) : le module premiere-mathematiques
+    // vise la spécialité Mathématiques (Nexus ne propose que l'EDS spé en Première), pas le
+    // tronc commun. Séance 4 (ex. probabilités conditionnelles) -> produit scalaire ; séance 5
+    // (ex. automatismes génériques) -> trigonométrie + méthode épreuve anticipée de spécialité.
     const module = moduleById('premiere-mathematiques');
     const copy = JSON.stringify(module);
     expect(copy).toMatch(/discriminant/i);
     expect(copy).toMatch(/fonction exponentielle/i);
-    expect(copy).toMatch(/épreuve terminale anticipée/i);
-    expect(copy).not.toMatch(/fonctions? (?:sinus|cosinus)|sinus.cosinus/i);
+    expect(copy).toMatch(/épreuve.*anticipée.*spécialité|épreuve terminale anticipée/i);
+    expect(copy).toMatch(/produit scalaire/i);
+    expect(copy).toMatch(/trigonométrie|cercle trigonométrique/i);
+    expect(copy).toMatch(/fonctions cosinus et sinus|cosinus.*sinus/i);
+    expect(copy).not.toMatch(/probabilités conditionnelles/i);
   });
 
   it('keeps both SVT modules in DRAFT with three-theme coverage and exact equipment wording', () => {
