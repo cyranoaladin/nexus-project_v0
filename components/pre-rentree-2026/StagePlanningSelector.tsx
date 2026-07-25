@@ -5,7 +5,6 @@ import { cn } from '@/lib/utils';
 import { track } from '@/lib/analytics';
 import {
   formatDetailedDates,
-  formatPresenceRange,
   formatWeekRange,
 } from '@/lib/campaigns/pre-rentree-2026/presentation';
 import { areSubjectsIncompatible, type SubjectIncompatibility } from '@/lib/campaigns/pre-rentree-2026/incompatibilities';
