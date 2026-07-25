@@ -63,7 +63,7 @@ describe('Pré-rentrée stage configurator', () => {
     expect(screen.getByText(`${pack?.price.toLocaleString('fr-TN')} TND`)).toBeInTheDocument();
     expect(screen.getByText(`Acompte : ${pack?.deposit.toLocaleString('fr-TN')} TND`)).toBeInTheDocument();
     expect(screen.getByText(`Solde : ${pack?.balance.toLocaleString('fr-TN')} TND`)).toBeInTheDocument();
-    expect(screen.getAllByText('Campagne en préparation').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Informations disponibles').length).toBeGreaterThan(0);
     expect(document.body.textContent).not.toContain('PRE_REGISTRATION_OPEN');
     expect(screen.getByText(/validation du groupe par l'équipe Nexus/i)).toBeInTheDocument();
 
@@ -256,7 +256,7 @@ describe('Pré-rentrée stage configurator', () => {
     await user.click(screen.getByRole('radio', { name: 'Entrée en Seconde' }));
     await user.click(screen.getByRole('button', { name: 'Continuer' }));
     await user.click(screen.getByRole('checkbox', { name: /Mathématiques/i }));
-    expect(screen.getByText('Campagne en préparation')).toBeInTheDocument();
+    expect(screen.getByText('Informations disponibles')).toBeInTheDocument();
     expect(document.body.textContent).not.toContain('Statut de campagne');
   });
 });

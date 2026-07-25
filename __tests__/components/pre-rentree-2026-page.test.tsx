@@ -62,7 +62,7 @@ describe('Pré-rentrée 2026 canonical public page', () => {
     expect(metadata.description).toBe(dto.seo.description);
     expect(metadata.alternates?.canonical).toBe(dto.seo.canonical);
     expect(metadata.openGraph).toEqual(expect.objectContaining({ url: dto.seo.canonical }));
-    expect(metadata.robots).toEqual({ index: false, follow: false, nocache: true });
+    expect(metadata.robots).toEqual({ index: true, follow: true });
   });
 
   it('renders aligned FAQ and offer structured data without availability claims', () => {

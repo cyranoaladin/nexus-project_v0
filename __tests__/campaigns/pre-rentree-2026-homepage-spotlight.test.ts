@@ -36,7 +36,7 @@ describe('Pré-rentrée homepage spotlight DTO', () => {
       ariaLabel: 'Campagne Pré-rentrée 2026',
       title: 'Stages de pré-rentrée 2026',
       primaryCtaLabel: 'Découvrir la Pré-rentrée 2026',
-      publicStatus: 'Campagne en préparation',
+      publicStatus: 'Informations disponibles',
       date: {
         days: '17',
         month: 'AOÛT',

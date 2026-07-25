@@ -233,7 +233,7 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     const snapshot = compilePublicationSnapshot({ repoRoot: root, repositoryCommitSha });
 
     expect(snapshot.campaign.publicationMode).toBe('REVIEW');
-    expect(snapshot.cta.primary).toBe('Demander un parcours ou un conseil');
+    expect(snapshot.cta.primary).toBe('Demander une information');
     expect(snapshot.legal.status).toBe('MISSING_APPROVED_COMMERCIAL_TERMS');
     expect(snapshot.legal.contractualDossierPublicationBlocked).toBe(true);
     expect(snapshot.legal.termsVersion).toBeNull();

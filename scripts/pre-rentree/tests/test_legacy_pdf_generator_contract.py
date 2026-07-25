@@ -143,7 +143,22 @@ def test_final_pdf_exports_match_the_active_generator_contract():
     assert "proposition — module à valider par la direction pédagogique" not in combined
     assert "document de travail" not in combined
     assert not any("_draft" in name.casefold() for name in text_by_name)
-    assert all("document de revue — non contractuel" in text.casefold() for text in text_by_name.values())
+    manifest = json.loads(
+        (DOCUMENTS_FINAL / "manifest.json").read_text(encoding="utf-8")
+    )
+    public_names = {
+        item["fileName"]
+        for item in manifest["documents"]
+        if item["publicDownloadCandidate"]
+    }
+    for name in public_names:
+        public_text = text_by_name[name].casefold()
+        assert "document de revue" not in public_text
+        assert "non contractuel" not in public_text
+        assert "draft" not in public_text
+        assert "proposition —" not in public_text
+        assert "document de travail" not in public_text
+        assert "à valider" not in public_text
 
 
 def test_every_final_pdf_has_complete_review_renders_and_contact_sheet():
@@ -182,8 +197,10 @@ def test_public_download_copies_and_weight_manifest_match_final_pdfs():
     # reste interne (impression uniquement, jamais dans PUBLIC_DOCUMENT_FILENAMES).
     assert len(public_records) == 9
     for item in public_records:
+        assert item["publicationStatus"] == "PUBLIC_FINAL"
         final_path = DOCUMENTS_FINAL / item["fileName"]
         public_path = PUBLIC_DOCUMENTS / item["fileName"]
+        assert public_path.read_bytes().startswith(b"%PDF-")
         assert public_path.read_bytes() == final_path.read_bytes()
         assert item["bytes"] == final_path.stat().st_size
         assert item["sizeLabel"] == f'{final_path.stat().st_size // 1024} Ko'
