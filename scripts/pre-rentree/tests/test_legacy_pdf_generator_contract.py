@@ -93,6 +93,22 @@ def test_math_programmes_are_rendered_from_canonical_review_modules():
     assert "fonctions sinus et cosinus" not in premiere.casefold()
 
 
+def test_troisieme_programme_pdf_exists_and_is_rendered_from_canonical_modules():
+    """Toutes les matières 3e (Mathématiques, Français) doivent avoir un programme
+    détaillé exportable au même titre que Seconde/Première/Terminale — un niveau
+    entièrement vendu et planifié ne peut pas être privé de son PDF programme."""
+    generator = load_generator()
+    assert "3e" in generator.PROGRAMMES
+    troisieme = generator.make_programme_body("3e", generator.PROGRAMMES["3e"])
+
+    assert "Mathématiques" in troisieme
+    assert "Français" in troisieme
+    assert "Méthodologie DNB et sujet d'entraînement" in troisieme
+    # Les deux modules 3e portent PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION (homogénéisation
+    # des statuts, 2026-07-25) : le bandeau de validation doit apparaître.
+    assert "PROPOSITION — MODULE À VALIDER PAR LA DIRECTION PÉDAGOGIQUE" in troisieme
+
+
 def test_final_pdf_exports_match_the_active_generator_contract():
     text_by_name = {}
     for path in DOCUMENTS_FINAL.glob("*.pdf"):
@@ -158,7 +174,7 @@ def test_public_download_copies_and_weight_manifest_match_final_pdfs():
         item for item in manifest["documents"]
         if item["publicDownloadCandidate"]
     ]
-    assert len(public_records) == 6
+    assert len(public_records) == 7
     for item in public_records:
         final_path = DOCUMENTS_FINAL / item["fileName"]
         public_path = PUBLIC_DOCUMENTS / item["fileName"]

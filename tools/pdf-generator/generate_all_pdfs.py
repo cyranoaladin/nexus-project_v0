@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate all 7 Nexus Réussite pre-rentrée 2026 PDFs."""
+"""Generate all 10 Nexus Réussite pre-rentrée 2026 PDFs."""
 
 import json
 import os
@@ -26,6 +26,19 @@ STARTING_PRICE = min(
     offer["price_per_student"]
     for offer in (*PRE_RENTREE_FOUNDATIONS, *PRE_RENTREE_PACKS)
 )
+
+
+def _uniform_group_bounds(offers):
+    """Group min/max is uniform across every offer in a tier; fail loudly if it ever
+    diverges rather than silently displaying a stale hardcoded '3 à 6'/'3 à 5' text."""
+    mins = {offer["group_min_open"] for offer in offers}
+    maxes = {offer["group_max"] for offer in offers}
+    assert len(mins) == 1 and len(maxes) == 1, (mins, maxes)
+    return mins.pop(), maxes.pop()
+
+
+FOUNDATIONS_GROUP_MIN, FOUNDATIONS_GROUP_MAX = _uniform_group_bounds(PRE_RENTREE_FOUNDATIONS)
+PREMIUM_GROUP_MIN, PREMIUM_GROUP_MAX = _uniform_group_bounds(PRE_RENTREE_PACKS)
 _BLOCK_TIMES = {b["id"]: (b["startTime"], b["endTime"]) for b in CAMPAIGN["blocks"]}
 # Modèle fenêtres + week-end (v2) : le planning n'est plus "2 semaines lun-ven" mais 3
 # fenêtres à dates explicites (une d'entre elles couvrant le week-end). SCHEDULE regroupe
@@ -321,7 +334,7 @@ def make_cover(title, subtitle=""):
             {REVIEW_NOTICE}
         </div>
         <div class="cover-band">
-            Fondations : 3 à 6 élèves · Premium : 3 à 5 élèves · 10&nbsp;h par matière · À partir de {format_tnd(STARTING_PRICE)}&nbsp;TND<br>
+            Fondations : {FOUNDATIONS_GROUP_MIN} à {FOUNDATIONS_GROUP_MAX} élèves · Premium : {PREMIUM_GROUP_MIN} à {PREMIUM_GROUP_MAX} élèves · 10&nbsp;h par matière · À partir de {format_tnd(STARTING_PRICE)}&nbsp;TND<br>
             <a href="https://nexusreussite.academy/stages/pre-rentree-2026" style="color:#C9A227; font-size:9pt;">nexusreussite.academy/stages/pre-rentree-2026</a>
         </div>
     </div>
@@ -479,6 +492,7 @@ PROGRAMMES = {
 # PDFs consume the same sessions as the site and the documentary snapshot.
 def canonical_programmes():
     level_ids = {
+        "3e": "TROISIEME",
         "Seconde": "SECONDE",
         "Première": "PREMIERE",
         "Terminale": "TERMINALE",
@@ -599,7 +613,7 @@ def make_planning_body():
         <tr><td style="font-weight:700; color:#071A3A">Lieu</td><td>Centre Nexus Réussite, Mutuelleville, Tunis</td></tr>
         <tr><td style="font-weight:700; color:#071A3A">Public</td><td>Élèves entrant en 3e, Seconde, Première ou Terminale (rentrée 2026-2027)</td></tr>
         <tr><td style="font-weight:700; color:#071A3A">Format</td><td>5 séances de 2 h par matière · 10 h par matière · matières proposées selon le niveau</td></tr>
-        <tr><td style="font-weight:700; color:#071A3A">Effectif</td><td>Fondations (3e et Seconde) : 3 à 6 élèves, maximum 6 · Premium (Première et Terminale) : 3 à 5 élèves, maximum 5</td></tr>
+        <tr><td style="font-weight:700; color:#071A3A">Effectif</td><td>Fondations (3e et Seconde) : {FOUNDATIONS_GROUP_MIN} à {FOUNDATIONS_GROUP_MAX} élèves, maximum {FOUNDATIONS_GROUP_MAX} · Premium (Première et Terminale) : {PREMIUM_GROUP_MIN} à {PREMIUM_GROUP_MAX} élèves, maximum {PREMIUM_GROUP_MAX}</td></tr>
         <tr><td style="font-weight:700; color:#071A3A">Blocs horaires</td><td>{block_times_str}</td></tr>
     </tbody></table>"""
 
@@ -766,7 +780,7 @@ def make_tarifs_body():
     body += "<h2>Ce que le tarif comprend</h2>"
     body += f"""<ul class="check-list" style="margin-bottom:14px;">
         <li>5 séances de 2 h par matière avec des <strong>{ENSEIGNANT_STATUT_COMMERCIAL}</strong></li>
-        <li>Premium : groupe de <strong>3 à 5 élèves, maximum 5</strong></li>
+        <li>Premium : groupe de <strong>{PREMIUM_GROUP_MIN} à {PREMIUM_GROUP_MAX} élèves, maximum {PREMIUM_GROUP_MAX}</strong></li>
         <li><strong>Tous les supports fournis</strong> : fiches de méthode, exercices corrigés, sujets d'entraînement</li>
         <li>Un <strong>livrable par séance</strong> que l'élève conserve</li>
     </ul>"""
@@ -787,7 +801,7 @@ def make_tarifs_body():
     </p></div>"""
 
     body += "<h2>Le tarif en perspective</h2>"
-    body += f'<p style="font-size:9.5pt; line-height:1.6; margin-bottom:14px;">À <strong>45–48 TND de l\'heure par élève</strong>, le stage se situe dans la même zone tarifaire horaire qu\'un cours particulier classique du marché. La différence n\'est pas le prix de l\'heure — c\'est ce qu\'elle contient : un <strong>{ENSEIGNANT_STATUT_COMMERCIAL}</strong>, un programme écrit séance par séance, un groupe de 3 à 5 pour maintenir l\'attention individuelle, et des supports conçus pour le stage.</p>'
+    body += f'<p style="font-size:9.5pt; line-height:1.6; margin-bottom:14px;">À <strong>45–48 TND de l\'heure par élève</strong>, le stage se situe dans la même zone tarifaire horaire qu\'un cours particulier classique du marché. La différence n\'est pas le prix de l\'heure — c\'est ce qu\'elle contient : un <strong>{ENSEIGNANT_STATUT_COMMERCIAL}</strong>, un programme écrit séance par séance, un groupe de {PREMIUM_GROUP_MIN} à {PREMIUM_GROUP_MAX} pour maintenir l\'attention individuelle, et des supports conçus pour le stage.</p>'
 
     body += f"""<p style="font-size:9pt; margin-top:14px; line-height:1.7; border-top:1px solid #E0E0E0; padding-top:8px;">
         Téléphone / WhatsApp : <a href="tel:+21699192829">+216 99 19 28 29</a> ·
@@ -899,7 +913,7 @@ def make_dossier_accueil_body():
     body += """<table class="form-table">
     <tbody>
         <tr><td style="width:25%; font-weight:700; color:#071A3A; padding:6px;">Lieu</td><td style="padding:6px;">Centre Nexus Réussite, Mutuelleville, Tunis</td></tr>
-        <tr><td style="font-weight:700; color:#071A3A; padding:6px;">Dates</td><td style="padding:6px;">Du 17 au 28 août 2026 (pas de cours les 22 et 23 août)</td></tr>
+        <tr><td style="font-weight:700; color:#071A3A; padding:6px;">Dates</td><td style="padding:6px;">Du 17 au 28 août 2026, y compris le week-end du 22-23 août (SVT et Physique-Chimie Première uniquement)</td></tr>
         <tr><td style="font-weight:700; color:#071A3A; padding:6px;">Arrivée</td><td style="padding:6px;">10 minutes avant le début du créneau</td></tr>
         <tr><td style="font-weight:700; color:#071A3A; padding:6px;">Matériel</td><td style="padding:6px;">Cahier et trousse pour toutes les matières ; calculatrice pour Mathématiques et Physique-Chimie ; <strong>ordinateur portable pour NSI</strong> (nous prévenir si besoin d'un poste de secours)</td></tr>
         <tr><td style="font-weight:700; color:#071A3A; padding:6px;">Supports</td><td style="padding:6px;">Toutes les fiches et exercices sont fournis par Nexus</td></tr>
@@ -960,10 +974,10 @@ def make_flyer_body():
     </tbody></table>
     <h2>Effectifs et tarifs</h2>
     <p style="font-size:9.5pt; line-height:1.7;">
-        <strong>Fondations :</strong> 3 à 6 élèves, maximum 6 ·
+        <strong>Fondations :</strong> {FOUNDATIONS_GROUP_MIN} à {FOUNDATIONS_GROUP_MAX} élèves, maximum {FOUNDATIONS_GROUP_MAX} ·
         3e : {format_tnd(foundation_by_level["TROISIEME"]["price_per_student"])} TND / matière ·
         Seconde : {format_tnd(foundation_by_level["SECONDE"]["price_per_student"])} TND / matière.<br>
-        <strong>Premium :</strong> 3 à 5 élèves, maximum 5 · {premium_prices}.
+        <strong>Premium :</strong> {PREMIUM_GROUP_MIN} à {PREMIUM_GROUP_MAX} élèves, maximum {PREMIUM_GROUP_MAX} · {premium_prices}.
     </p>
     <h2>Demander les informations</h2>
     <p style="font-size:9.5pt; line-height:1.7;">Indiquez le niveau et la matière sur WhatsApp.
@@ -1031,7 +1045,13 @@ tbody td { padding: 3px 4px; font-size: 8pt; }
 # ─── Main ─────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    print("=== Production des 6 PDF restants ===\n")
+    print("=== Production des 10 PDF ===\n")
+
+    # 0. Programme 3e
+    body = make_programme_body("3e", PROGRAMMES["3e"])
+    html = wrap_html(body, "Nexus Réussite — Programme 3e — Pré-rentrée 2026")
+    generate_pdf(html, "NexusReussite_PreRentree2026_Programme_3e.pdf",
+                 "Nexus Réussite — Programme détaillé — Entrée en 3e — Pré-rentrée 2026")
 
     # 1. Programme Seconde
     body = make_programme_body("Seconde", PROGRAMMES["Seconde"])
