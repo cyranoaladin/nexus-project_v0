@@ -21,16 +21,32 @@ import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
+import pricingCanonical from '@/data/pricing.canonical.json';
+import campaignSource from '@/data/campaigns/pre-rentree-2026.json';
 import { getCommercialPublicOffers } from '@/lib/campaigns/pre-rentree-2026/commercial-contract';
 import { getPreRentreeLandingDTO, getPreRentreeSchedule } from '@/lib/campaigns/pre-rentree-2026/getters';
 import { computeSubjectIncompatibilities } from '@/lib/campaigns/pre-rentree-2026/incompatibilities';
 import { compilePreRentreeReviewSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
 import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
 
-const PDF = join(
-  process.cwd(),
-  'assets/campaigns/pre-rentree-2026/documents-final/NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf',
-);
+const DOCUMENTS_FINAL = join(process.cwd(), 'assets/campaigns/pre-rentree-2026/documents-final');
+const PDF = join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf');
+
+// SVT est délibérément publié dans un PDF DRAFT séparé par niveau (filigrane tant que le
+// gate B-2 n'est pas levé), jamais dans le Programme principal (canonical_programmes()
+// exclut subjectId === 'SVT') : les deux PDF sont donc combinés pour couvrir toute la grille.
+const PROGRAMME_PDFS_BY_LEVEL: Record<EntryLevelCode, string[]> = {
+  TROISIEME: [join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_3e.pdf')],
+  SECONDE: [join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_Seconde.pdf')],
+  PREMIERE: [
+    join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_Premiere.pdf'),
+    join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_SVT_Première_DRAFT.pdf'),
+  ],
+  TERMINALE: [
+    join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_Terminale.pdf'),
+    join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_SVT_Terminale_DRAFT.pdf'),
+  ],
+};
 
 const GENERIC_LABEL: Record<string, string> = {
   MATHEMATIQUES: 'Mathématiques',
@@ -107,6 +123,46 @@ maybe('Pré-rentrée 2026 — cohérence intégrale par niveau (JSON / catalogue
       // 7) Page publique : subjectIdsByLevel du DTO public-surface (ce que /stages/pre-rentree-2026 affiche).
       const pageSubjects = new Set(pageDto.subjectIdsByLevel[level]);
       expect(pageSubjects).toEqual(gridSubjects);
+
+      // 8) PDF Programme du niveau : chaque matière de la grille apparaît dans SON PROPRE
+      // document (pas seulement dans le Planning global) — c'est ce type de trou qui avait
+      // laissé Programme_3e.pdf absent du pipeline pendant tout le chantier.
+      const programmePdfPaths = PROGRAMME_PDFS_BY_LEVEL[level].filter((path) => existsSync(path));
+      if (programmePdfPaths.length > 0) {
+        const programmeText = programmePdfPaths
+          .map((path) => execFileSync('pdftotext', ['-layout', path, '-'], { encoding: 'utf8' }))
+          .join('\n');
+        for (const subjectId of gridSubjects) {
+          expect(programmeText).toContain(GENERIC_LABEL[subjectId]);
+        }
+      }
     },
   );
+
+  it('salles : chaque créneau de la grille est affecté à une salle autorisée pour sa matière (campaign.roomRoles)', () => {
+    const roomRoles = campaignSource.roomRoles as Record<string, readonly string[]>;
+    const violations: Array<{ windowId: string; level: string; subject: string; room: string }> = [];
+    for (const window of campaignSource.schedule) {
+      for (const slot of window.slots) {
+        const allowed = roomRoles[slot.room] ?? [];
+        if (!allowed.includes(slot.subject)) {
+          violations.push({ windowId: window.windowId, level: slot.level, subject: slot.subject, room: slot.room });
+        }
+      }
+    }
+    expect(violations).toEqual([]);
+  });
+
+  it('tarifs : chaque offre commerciale (price/deposit/balance) correspond exactement au produit canonique référencé par pricingId, pour les 12 offres', () => {
+    const foundationsById = new Map(pricingCanonical.pre_rentree_foundations.map((product) => [product.id, product]));
+    const packsById = new Map(pricingCanonical.pre_rentree_packs.map((product) => [product.id, product]));
+    expect(commercialOffers.length).toBeGreaterThan(0);
+    for (const offer of commercialOffers) {
+      const product = foundationsById.get(offer.pricingId) ?? packsById.get(offer.pricingId);
+      if (!product) throw new Error(`pricingId inconnu : ${offer.pricingId} (offre ${offer.offerId})`);
+      expect(offer.price).toBe(product!.price_per_student);
+      expect(offer.deposit).toBe(product!.payment.deposit);
+      expect(offer.balance).toBe(product!.payment.solde);
+    }
+  });
 });
