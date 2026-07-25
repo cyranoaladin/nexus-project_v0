@@ -7,7 +7,8 @@ import {
   formatDetailedDates,
   formatWeekRange,
 } from '@/lib/campaigns/pre-rentree-2026/presentation';
-import { areSubjectsIncompatible, type SubjectIncompatibility } from '@/lib/campaigns/pre-rentree-2026/incompatibilities';
+import type { SubjectIncompatibility } from '@/lib/campaigns/pre-rentree-2026/incompatibilities';
+import { computeItinerary, MAX_STUDENT_IDLE_MINUTES } from '@/lib/campaigns/pre-rentree-2026/itinerary';
 import { buildBilanUrl, selectPackBySubjectCount } from '@/lib/campaigns/pre-rentree-2026/configurator';
 import type {
   LandingLevel,
@@ -105,20 +106,15 @@ export function StagePlanningSelector({
       .map(([date, entries]) => ({ date, entries }));
   }, [selectedSlots, subjects, level]);
 
-  const conflicts = useMemo(() => {
-    if (!level || selectedSubjects.length < 2) return [];
-    const pairs: Array<[string, string]> = [];
-    for (let i = 0; i < selectedSubjects.length; i += 1) {
-      for (let j = i + 1; j < selectedSubjects.length; j += 1) {
-        const subjectA = selectedSubjects[i]!;
-        const subjectB = selectedSubjects[j]!;
-        if (areSubjectsIncompatible(incompatibilities, level, subjectA, subjectB)) {
-          pairs.push([subjectA, subjectB]);
-        }
-      }
-    }
-    return pairs;
-  }, [level, selectedSubjects, incompatibilities]);
+  const itineraryReport = useMemo(() => {
+    if (!level || selectedSubjects.length < 2) return null;
+    return computeItinerary(level, selectedSubjects, schedule);
+  }, [level, selectedSubjects, schedule]);
+
+  // Only a genuinely impossible (SIMULTANEOUS) itinerary blocks the CTA — a
+  // LONG_IDLE selection is inconvenient but not impossible, so it stays a
+  // visible warning rather than a hard stop (see SCHEDULE-UX-AUDIT.md).
+  const blockingConflict = itineraryReport?.status === 'SIMULTANEOUS';
 
   const dates = useMemo(() => [...new Set(selectedSlots.map((slot) => slot.date))].sort(), [selectedSlots]);
   const range = level ? LEVEL_RANGE[level] : null;
@@ -194,19 +190,35 @@ export function StagePlanningSelector({
             </p>
           )}
 
-          {conflicts.length > 0 && (
-            <div role="alert" className="mb-4 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950">
-              {conflicts.map(([subjectA, subjectB]) => {
+          {itineraryReport?.status === 'SIMULTANEOUS' && itineraryReport.firstConflict && (
+            <div role="alert" className="mb-4 rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-950">
+              {(() => {
+                const { subjectA, subjectB } = itineraryReport.firstConflict;
                 const labelA = subjects.find((candidate) => candidate.id === subjectA);
                 const labelB = subjects.find((candidate) => candidate.id === subjectB);
                 const a = labelA && level ? subjectLabelForLevel(labelA, level) : subjectA;
                 const b = labelB && level ? subjectLabelForLevel(labelB, level) : subjectB;
                 return (
-                  <p key={`${subjectA}-${subjectB}`}>
+                  <p>
                     <strong>{a}</strong> et <strong>{b}</strong> ont lieu au même créneau — un élève ne peut pas suivre les deux. Choisissez l’une ou l’autre.
                   </p>
                 );
-              })}
+              })()}
+            </div>
+          )}
+
+          {itineraryReport?.status === 'LONG_IDLE' && (
+            <div role="alert" className="mb-4 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950">
+              <p>
+                Cette combinaison impose une attente de <strong>{itineraryReport.maxIdleMinutes} minutes</strong> entre deux séances
+                le même jour (au-delà des {MAX_STUDENT_IDLE_MINUTES} minutes visées). Le parcours reste possible, mais n’est pas compact.
+              </p>
+            </div>
+          )}
+
+          {itineraryReport?.status === 'COMPACT' && (
+            <div role="status" className="mb-4 rounded-xl border border-emerald-300 bg-emerald-50 p-3 text-xs font-semibold text-emerald-950">
+              Parcours compact — attente maximale {itineraryReport.maxIdleMinutes} min
             </div>
           )}
 
@@ -246,11 +258,11 @@ export function StagePlanningSelector({
                   href={bilanHref}
                   className={cn(
                     'mt-4 inline-flex min-h-11 items-center justify-center rounded-xl px-5 py-2.5 text-sm font-semibold text-white',
-                    conflicts.length > 0 ? 'bg-lux-slate' : 'bg-lux-gold-deep',
+                    blockingConflict ? 'bg-lux-slate' : 'bg-lux-gold-deep',
                   )}
-                  aria-disabled={conflicts.length > 0}
+                  aria-disabled={blockingConflict}
                   onClick={(event) => {
-                    if (conflicts.length > 0) event.preventDefault();
+                    if (blockingConflict) event.preventDefault();
                   }}
                 >
                   Pré-inscrire sur ces créneaux
