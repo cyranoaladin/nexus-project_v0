@@ -172,9 +172,9 @@ describe('Pré-rentrée landing sections', () => {
   ])('offers planning, level programmes, tariffs and flyer downloads in %s', (_section, renderSection) => {
     renderSection();
     expect(screen.getByRole('link', { name: /Planning et informations pratiques.*PDF/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Programme détaillé — Entrée en Seconde.*PDF/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Programme détaillé — Entrée en Première.*PDF/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Programme détaillé — Entrée en Terminale.*PDF/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Télécharger le dossier complet — Entrée en Seconde.*PDF/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Télécharger le dossier complet — Entrée en Première.*PDF/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Télécharger le dossier complet — Entrée en Terminale.*PDF/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Tarifs et conditions financières.*PDF/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /flyer 1 page.*PDF/i })).toBeInTheDocument();
   });

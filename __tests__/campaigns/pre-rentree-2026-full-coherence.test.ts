@@ -32,20 +32,15 @@ import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
 const DOCUMENTS_FINAL = join(process.cwd(), 'assets/campaigns/pre-rentree-2026/documents-final');
 const PDF = join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf');
 
-// SVT est publié dans un PDF Programme séparé par niveau, jamais dans le Programme principal
-// (canonical_programmes() exclut subjectId === 'SVT') : les deux PDF sont donc combinés pour
-// couvrir toute la grille. Validé par la direction le 2026-07-25 (plus de suffixe _DRAFT).
+// Depuis la refonte du 2026-07-25 (tools/pdf-generator/generate_level_dossiers.py), chaque
+// Programme_{niveau}.pdf est un dossier complet parents consolidant le planning et TOUTES les
+// matières du niveau (SVT incluse comme chapitre ordinaire en Première/Terminale, plus de PDF
+// SVT séparé) : un seul fichier par niveau suffit à couvrir toute la grille.
 const PROGRAMME_PDFS_BY_LEVEL: Record<EntryLevelCode, string[]> = {
   TROISIEME: [join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_3e.pdf')],
   SECONDE: [join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_Seconde.pdf')],
-  PREMIERE: [
-    join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_Premiere.pdf'),
-    join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_SVT_Première.pdf'),
-  ],
-  TERMINALE: [
-    join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_Terminale.pdf'),
-    join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_SVT_Terminale.pdf'),
-  ],
+  PREMIERE: [join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_Premiere.pdf')],
+  TERMINALE: [join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_Terminale.pdf')],
 };
 
 const GENERIC_LABEL: Record<string, string> = {

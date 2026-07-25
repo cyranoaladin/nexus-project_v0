@@ -5,8 +5,10 @@ import { getPreRentreeReleaseGate } from './release-gate';
 
 /**
  * Documents PDF téléchargeables de la campagne pré-rentrée 2026 (servis depuis /public).
- * Les programmes SVT sont validés (decisions.svtProgramValidation.status = validated_by_direction,
- * 2026-07-25) et listés ci-dessous comme tout autre programme.
+ * Depuis la refonte éditoriale du 2026-07-25 (tools/pdf-generator/generate_level_dossiers.py),
+ * chaque Programme_{niveau}.pdf est un dossier complet parents consolidant planning + programme
+ * de chaque matière du niveau (SVT incluse comme chapitre ordinaire en Première/Terminale) — il
+ * n'existe plus de PDF SVT autonome (voir l'archive dans documents-final/archive/).
  */
 export type PreRentreeDocument = {
   href: string;
@@ -25,8 +27,7 @@ const GeneratedDocumentListSchema = z.array(z.object({
   pageCount: z.number().int().positive(),
   publicDownloadCandidate: z.boolean(),
   publicationStatus: z.enum([
-    'DRAFT_PENDING_QUALIFIED_TEACHER_VALIDATION',
-    'REVIEW_NON_CONTRACTUAL',
+    'REVIEW_PENDING_PEDAGOGICAL_VALIDATION',
     'PUBLIC_FINAL',
     'INTERNAL_REVIEW',
   ]),
@@ -54,38 +55,26 @@ export const PRE_RENTREE_DOCUMENTS: readonly PreRentreeDocument[] = [
   },
   {
     href: `${BASE}/NexusReussite_PreRentree2026_Programme_3e.pdf`,
-    label: 'Programme détaillé — Entrée en 3e',
+    label: 'Télécharger le dossier complet — Entrée en 3e',
     size: generatedSize('NexusReussite_PreRentree2026_Programme_3e.pdf'),
     kind: 'programme',
   },
   {
     href: `${BASE}/NexusReussite_PreRentree2026_Programme_Seconde.pdf`,
-    label: 'Programme détaillé — Entrée en Seconde',
+    label: 'Télécharger le dossier complet — Entrée en Seconde',
     size: generatedSize('NexusReussite_PreRentree2026_Programme_Seconde.pdf'),
     kind: 'programme',
   },
   {
     href: `${BASE}/NexusReussite_PreRentree2026_Programme_Premiere.pdf`,
-    label: 'Programme détaillé — Entrée en Première',
+    label: 'Télécharger le dossier complet — Entrée en Première',
     size: generatedSize('NexusReussite_PreRentree2026_Programme_Premiere.pdf'),
     kind: 'programme',
   },
   {
-    href: `${BASE}/NexusReussite_PreRentree2026_Programme_SVT_Première.pdf`,
-    label: 'Programme détaillé — SVT, entrée en Première',
-    size: generatedSize('NexusReussite_PreRentree2026_Programme_SVT_Première.pdf'),
-    kind: 'programme',
-  },
-  {
     href: `${BASE}/NexusReussite_PreRentree2026_Programme_Terminale.pdf`,
-    label: 'Programme détaillé — Entrée en Terminale',
+    label: 'Télécharger le dossier complet — Entrée en Terminale',
     size: generatedSize('NexusReussite_PreRentree2026_Programme_Terminale.pdf'),
-    kind: 'programme',
-  },
-  {
-    href: `${BASE}/NexusReussite_PreRentree2026_Programme_SVT_Terminale.pdf`,
-    label: 'Programme détaillé — SVT, entrée en Terminale',
-    size: generatedSize('NexusReussite_PreRentree2026_Programme_SVT_Terminale.pdf'),
     kind: 'programme',
   },
   {
