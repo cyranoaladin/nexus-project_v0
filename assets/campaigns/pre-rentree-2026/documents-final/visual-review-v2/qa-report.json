@@ -2,7 +2,7 @@
   "dossiers": [
     {
       "fileName": "NexusReussite_PreRentree2026_Programme_3e.pdf",
-      "bytes": 454460,
+      "bytes": 454712,
       "qpdfCheckPassed": true,
       "pageCount": 9,
       "overflowBlocks": 0,
@@ -43,7 +43,7 @@
     },
     {
       "fileName": "NexusReussite_PreRentree2026_Programme_Seconde.pdf",
-      "bytes": 456643,
+      "bytes": 456632,
       "qpdfCheckPassed": true,
       "pageCount": 9,
       "overflowBlocks": 0,
@@ -85,7 +85,7 @@
     },
     {
       "fileName": "NexusReussite_PreRentree2026_Programme_Premiere.pdf",
-      "bytes": 479688,
+      "bytes": 484037,
       "qpdfCheckPassed": true,
       "pageCount": 15,
       "overflowBlocks": 0,
@@ -99,6 +99,7 @@
         "HAPLPK+DM-Sans",
         "HECSQX+DM-Sans",
         "JYUNAY+DM-Sans",
+        "KVZRKM+DM-Sans-Semi-Bold",
         "LKZUBL+Fraunces-Semi-Bold",
         "LLHCPG+DM-Sans",
         "LPEJKQ+DM-Sans",
@@ -126,7 +127,7 @@
     },
     {
       "fileName": "NexusReussite_PreRentree2026_Programme_Terminale.pdf",
-      "bytes": 478964,
+      "bytes": 483460,
       "qpdfCheckPassed": true,
       "pageCount": 15,
       "overflowBlocks": 0,
@@ -140,6 +141,7 @@
         "HAPLPK+DM-Sans",
         "HECSQX+DM-Sans",
         "JYUNAY+DM-Sans",
+        "KVZRKM+DM-Sans-Semi-Bold",
         "LKZUBL+Fraunces-Semi-Bold",
         "LLHCPG+DM-Sans",
         "LPEJKQ+DM-Sans",
