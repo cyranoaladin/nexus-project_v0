@@ -16,6 +16,7 @@ from PIL import Image, ImageDraw, ImageFont
 PUBLIC_DOCUMENT_FILENAMES = {
     "NexusReussite_PreRentree2026_FlyerEssentiel.pdf",
     "NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf",
+    "NexusReussite_PreRentree2026_Programme_3e.pdf",
     "NexusReussite_PreRentree2026_Programme_Premiere.pdf",
     "NexusReussite_PreRentree2026_Programme_Seconde.pdf",
     "NexusReussite_PreRentree2026_Programme_Terminale.pdf",
