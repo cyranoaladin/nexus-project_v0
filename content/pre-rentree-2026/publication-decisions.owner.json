@@ -16,23 +16,23 @@
   "decisions": {
     "secondeSubjects": {
       "status": "approved_for_publication",
-      "decision": "include_informatics_snt",
-      "reference": "R2 (décision direction 2026-07-23)",
-      "supersedes": "Décision antérieure exclude_snt — retrait involontaire du module « Initiation informatique, algorithmique et SNT » en Seconde, propagé par le commit 66feafed0. La direction rétablit la matière : la retirer ampute l'offre Seconde d'un quart.",
+      "decision": "mathematiques_francais_only",
+      "reference": "Arbitrage direction définitif, 2026-07-24 (tranche le conflit avec R2)",
+      "supersedes": "R2 (décision direction 2026-07-23, decision include_informatics_snt) — la direction avait alors réintégré le module « Initiation informatique, algorithmique et SNT » en Seconde, portant l'offre à quatre matières. Le 2026-07-24, la direction a fourni une nouvelle grille de stage (fenêtres + week-end), désignée explicitement comme source de vérité, redéfinissant Seconde à Maths + Français uniquement. Avant retrait, vérifié que les 2 offres litigieuses (Physique-Chimie, Informatique/SNT) partageaient le même pricingId (pre2026-foundations-seconde-subject) que les offres Maths/Français conservées dans content/pre-rentree-2026/commercial-contract.fr.json : il s'agissait de SKU de STAGE authentiques (désalignés avec la nouvelle grille), pas d'une contamination depuis l'accompagnement annuel. Voir SEPARATION_STAGES_ANNUEL.md §1 et DEBTS.md § R2 pour le détail complet.",
       "subjects": [
         "Mathématiques",
+        "Français"
+      ],
+      "excludedSubjects": [
         "Physique-Chimie",
-        "Français",
         "Initiation informatique / algorithmique / SNT"
       ],
-      "excludedSubjects": [],
       "levelLabels": {
-        "SECONDE": "Initiation informatique / algorithmique / SNT",
         "PREMIERE_TERMINALE": "NSI"
       },
-      "publicRule": "L'entrée en Seconde propose quatre matières, dont « initiation informatique / algorithmique / SNT » (module de 5 séances, subjectId NSI, label public SNT). En Première et Terminale, l'informatique est la spécialité « NSI » : les deux intitulés sont distincts et ne doivent jamais être confondus.",
+      "publicRule": "L'entrée en Seconde ne propose que deux matières : Mathématiques et Français. Aucune autre matière (Physique-Chimie, Informatique/SNT) n'est vendue ni communiquée pour ce niveau dans le périmètre stage pré-rentrée 2026. En Première et Terminale, l'informatique reste la spécialité « NSI », sans rapport avec cette décision.",
       "owner": "direction",
-      "decidedAt": "2026-07-23T00:00:00Z"
+      "decidedAt": "2026-07-24T00:00:00Z"
     },
     "calendar": {
       "status": "approved_for_publication",
@@ -252,7 +252,7 @@
       },
       "week1": "unchanged",
       "referenceGrid": "data/campaigns/pre-rentree-2026.json",
-      "knownCrossBranchItem": "Rétabli le 2026-07-23 (R2) : le créneau « initiation informatique / algorithmique / SNT » de Seconde est restauré en semaine 2, bloc A/salle-1 (subject NSI, teacherRole COMPUTER_SCIENCE_TEACHER_A). Ce créneau ne relève pas de la spécialité NSI Première/Terminale.",
+      "knownCrossBranchItem": "SUPERSEDED le 2026-07-24 (voir decisions.secondeSubjects) : le créneau « initiation informatique / algorithmique / SNT » de Seconde, rétabli le 2026-07-23 (R2) en semaine 2 bloc A/salle-1, a été retiré de la grille de stage (Seconde = Maths + Français uniquement). Section conservée pour l'historique de la topologie de salles, sans effet sur le périmètre matières actuel.",
       "terminaleLoadNote": "Un Terminale prenant NSI+PC+SVT cumule blocs B+C+D = 6h/jour (plafond dailyLoadValid = 6h, accepté au maximum). Décision de charge éventuelle : assumer 6h ou plafonner à 2 matières scientifiques/jour.",
       "owner": "direction",
       "decidedAt": "2026-07-22T19:15:59Z"
