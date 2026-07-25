@@ -3,7 +3,7 @@
   "campaignId": "pre-rentree-2026",
   "status": "REVIEW_INPUTS_REQUIRED",
   "inventory": {
-    "simulationRows": 52,
+    "simulationRows": 48,
     "assets": 9
   },
   "qa": {
@@ -15,23 +15,23 @@
   "assets": [
     {
       "path": "economic-simulation.csv",
-      "bytes": 7336,
-      "sha256": "9ff944f66a165514ae6b30cc344ae246fe1c97d39dcb21a0002e5a31beccd45f"
+      "bytes": 6728,
+      "sha256": "7346ef887cc6b8018088e5e504a3f89122501f6211af91f4f5818d37a8b630cc"
     },
     {
       "path": "economic-simulation.html",
-      "bytes": 19276,
-      "sha256": "7b34374c040ec772d73d1a91f4dca3cff6e27b5031f85e0564f65a14db5a20be"
+      "bytes": 18152,
+      "sha256": "1d025721de8ed609049960b6cfcd814013597a1b202bac2fbd7c565a9f29f66a"
     },
     {
       "path": "economic-simulation.json",
-      "bytes": 47089,
-      "sha256": "19e80d262cc498b2be02816c62a64692bd03485128ff94593d828438d5a53892"
+      "bytes": 43737,
+      "sha256": "d59f36ccece543ef0feb35733e48dab25ff7df40c6c712de4eb6f570f8eaa041"
     },
     {
       "path": "economic-simulation.pdf",
-      "bytes": 36550,
-      "sha256": "89524ba744e6943f056c980dc89aceb84e0c39eca68e8d53c4fa0cd71cc9ab12"
+      "bytes": 35335,
+      "sha256": "9c4b014ad0da05c7ae6cca5c7612a9f7769ece0eddb88895fee68ff14b893d46"
     },
     {
       "path": "rendered/page-01.png",
@@ -42,29 +42,29 @@
     },
     {
       "path": "rendered/page-02.png",
-      "bytes": 129749,
-      "sha256": "a44c9613f3f35c447c00dcd9e00f9f398799ba7e6e199dcc2a7768c3b4e73345",
+      "bytes": 128931,
+      "sha256": "698d65b8ebafaa6ae06ac850498aa8f17e810a37aa1ac248c59737e9365e8118",
       "width": 1137,
       "height": 804
     },
     {
       "path": "rendered/page-03.png",
-      "bytes": 131520,
-      "sha256": "7c16efb18c1a59876a5981f741b4d54aa9a6528b8b01c0347173714760e22a42",
+      "bytes": 132586,
+      "sha256": "b8f1ad618b84e64a6043ab834dde9549e12a0a2d220e8a5519d9615f731131c7",
       "width": 1137,
       "height": 804
     },
     {
       "path": "rendered/page-04.png",
-      "bytes": 73579,
-      "sha256": "6718672e49fd84241f6bd81426a99916e5817674186db584a01e9edec9a4583c",
+      "bytes": 52000,
+      "sha256": "af5a6228856e31ad6d796418b99274accd32c905b024f0084d07fb709d476af9",
       "width": 1137,
       "height": 804
     },
     {
       "path": "visual-review/contact-sheet.png",
-      "bytes": 307385,
-      "sha256": "19b08a1817a66dae007746037377e3814aa5e15fd20ce5a3c301006a23fce691",
+      "bytes": 302745,
+      "sha256": "469b1b6325e928952052a08496bb608a9e7607aa70e89f9c6f73b989b9d56db4",
       "width": 1088,
       "height": 830
     }

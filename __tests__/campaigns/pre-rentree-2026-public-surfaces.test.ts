@@ -5,18 +5,18 @@ import { join } from 'node:path';
 
 // NOTE (pré-rentrée 2026, modèle fenêtres + week-end v2) : le planning et le catalogue de
 // modules (data/campaigns/pre-rentree-2026.json, content/pre-rentree-2026/modules.json,
-// offers.json) sont alignés sur la nouvelle grille — Seconde n'a plus de séance NSI/SNT ni
+// offers.json) sont alignés sur la grille — Seconde n'a plus de séance NSI/SNT ni
 // Physique-Chimie, Terminale a Maths expertes au lieu de Philosophie.
-// content/pre-rentree-2026/commercial-contract.fr.json a été réconcilié pour Terminale
-// (Philosophie → Maths expertes, purge complète 2026-07-24) : Philosophie n'existe plus
-// nulle part dans le périmètre stages. Il vend en revanche ENCORE "pre2026-seconde-
-// physique-chimie" / "pre2026-seconde-informatique-snt" (2 SKU déjà approuvés par la
-// direction) — retirer des offres déjà approuvées est une décision commerciale distincte,
-// qui dépasse la purge Philosophie : ce test documente l'état RÉEL de ce point résiduel
-// (Seconde uniquement) plutôt que de trancher seul. Voir SEPARATION_STAGES_ANNUEL.md.
+// Arbitrage direction du 2026-07-24 (définitif) : pour les stages de pré-rentrée, la
+// Seconde = Mathématiques + Français uniquement (grille du 24/07 fait foi).
+// content/pre-rentree-2026/commercial-contract.fr.json a été réconcilié en conséquence :
+// les 2 SKU Seconde Physique-Chimie / Informatique-SNT (approuvés le 2026-07-20) ont été
+// retirés après vérification qu'il s'agissait bien de SKU de STAGE (même pricingId
+// pre2026-foundations-seconde-subject que Maths/Français) et non d'une contamination
+// annuelle. Voir SEPARATION_STAGES_ANNUEL.md et DEBTS.md.
 const expectedSubjects = {
   TROISIEME: ['FRANCAIS', 'MATHEMATIQUES'],
-  SECONDE: ['FRANCAIS', 'MATHEMATIQUES', 'NSI', 'PHYSIQUE_CHIMIE'],
+  SECONDE: ['FRANCAIS', 'MATHEMATIQUES'],
   PREMIERE: ['FRANCAIS', 'MATHEMATIQUES', 'NSI', 'PHYSIQUE_CHIMIE', 'SVT'],
   TERMINALE: ['MATHEMATIQUES', 'MATHS_EXPERTES', 'NSI', 'PHYSIQUE_CHIMIE', 'SVT'],
 };
@@ -41,7 +41,7 @@ describe('Pré-rentrée 2026 central public-surface adapter', () => {
     const dto = compilePreRentreeReviewSurfaceDTO();
     const canonical = getCommercialPublicOffers();
 
-    expect(dto.offers).toHaveLength(14);
+    expect(dto.offers).toHaveLength(12);
     expect(dto.offers.map((offer) => offer.offerId)).toEqual(canonical.map((offer) => offer.offerId));
     for (const offer of dto.offers) {
       const source = canonical.find((item) => item.offerId === offer.offerId);
@@ -59,12 +59,7 @@ describe('Pré-rentrée 2026 central public-surface adapter', () => {
     const dto = compilePreRentreeReviewSurfaceDTO();
     expect(dto.subjectIdsByLevel).toEqual(expectedSubjects);
     const secondeSubjects = dto.levels.find((level) => level.id === 'SECONDE')!.subjects;
-    const secondeInformatique = secondeSubjects.find((subject) => subject.id === 'NSI');
-    // Le labelByLevel SNT dédié a été retiré de campaign.subjects (Seconde n'a plus de
-    // module NSI/SNT dans data/campaigns/pre-rentree-2026.json) : le libellé retombe sur
-    // le générique "NSI" tant que commercial-contract.fr.json vend encore cette offre
-    // (voir la note en tête de fichier).
-    expect(secondeInformatique?.label).toBe('NSI');
+    expect(secondeSubjects.map((subject) => subject.id).sort()).toEqual(['FRANCAIS', 'MATHEMATIQUES']);
   });
 
   it('hides services and advantages without approved offer-level evidence', () => {

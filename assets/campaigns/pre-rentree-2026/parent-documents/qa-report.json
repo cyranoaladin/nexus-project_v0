@@ -9,7 +9,7 @@
   "documents": [
     {
       "documentId": "brochure-generale",
-      "pageCount": 3,
+      "pageCount": 2,
       "pages": [
         {
           "page": 1,
@@ -20,14 +20,7 @@
         },
         {
           "page": 2,
-          "textCharacters": 1792,
-          "blank": false,
-          "width": 1240,
-          "height": 1755
-        },
-        {
-          "page": 3,
-          "textCharacters": 1240,
+          "textCharacters": 2934,
           "blank": false,
           "width": 1240,
           "height": 1755
@@ -69,7 +62,7 @@
         },
         {
           "page": 2,
-          "textCharacters": 2897,
+          "textCharacters": 2843,
           "blank": false,
           "width": 1240,
           "height": 1755
@@ -146,7 +139,7 @@
       "pages": [
         {
           "page": 1,
-          "textCharacters": 1486,
+          "textCharacters": 1296,
           "blank": false,
           "width": 1240,
           "height": 1755
@@ -230,7 +223,7 @@
       "pages": [
         {
           "page": 1,
-          "textCharacters": 1767,
+          "textCharacters": 1833,
           "blank": false,
           "width": 1240,
           "height": 1755
@@ -398,7 +391,7 @@
       "pages": [
         {
           "page": 1,
-          "textCharacters": 1562,
+          "textCharacters": 1573,
           "blank": false,
           "width": 1240,
           "height": 1755
@@ -440,7 +433,7 @@
       "pages": [
         {
           "page": 1,
-          "textCharacters": 1529,
+          "textCharacters": 1540,
           "blank": false,
           "width": 1240,
           "height": 1755
@@ -482,7 +475,7 @@
       "pages": [
         {
           "page": 1,
-          "textCharacters": 1460,
+          "textCharacters": 1471,
           "blank": false,
           "width": 1240,
           "height": 1755

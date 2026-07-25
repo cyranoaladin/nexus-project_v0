@@ -16,7 +16,7 @@
       "subtitle": "Reprendre les fondamentaux, structurer sa méthode et aborder la rentrée avec confiance",
       "purpose": "Donner aux familles une vue complète des parcours de pré-rentrée disponibles à Mutuelleville dès le 17 août 2026.",
       "audience": "Parents et élèves du système français en Tunisie, ainsi que candidats libres lorsque le parcours le permet.",
-      "offerIds": ["pre2026-3e-mathematiques", "pre2026-3e-francais", "pre2026-seconde-mathematiques", "pre2026-seconde-physique-chimie", "pre2026-seconde-francais", "pre2026-premiere-pack-1", "pre2026-premiere-pack-2", "pre2026-premiere-pack-3", "pre2026-premiere-pack-4", "pre2026-terminale-pack-1", "pre2026-terminale-pack-2", "pre2026-terminale-pack-3", "pre2026-terminale-pack-4"],
+      "offerIds": ["pre2026-3e-mathematiques", "pre2026-3e-francais", "pre2026-seconde-mathematiques", "pre2026-seconde-francais", "pre2026-premiere-pack-1", "pre2026-premiere-pack-2", "pre2026-premiere-pack-3", "pre2026-premiere-pack-4", "pre2026-terminale-pack-1", "pre2026-terminale-pack-2", "pre2026-terminale-pack-3", "pre2026-terminale-pack-4"],
       "proofIds": ["PRF-PRE2026-DATES-VENUE", "PRF-PRE2026-WHATSAPP", "PRF-PRE2026-DEPOSIT-30", "PRF-PRE2026-3E-350-APPROVED", "PRF-PRE2026-SECONDE-400", "PRF-PRE2026-PREMIUM-PACKS", "PRF-PRE2026-FIVE-SESSIONS", "PRF-PRE2026-STRUCTURED-SESSIONS"],
       "cta": "Recevoir le parcours adapté sur WhatsApp",
       "sections": [
@@ -43,7 +43,7 @@
       "subtitle": "Les repères concrets pour choisir un parcours cohérent avec le niveau et les priorités de votre enfant",
       "purpose": "Aider les parents à comprendre le format, poser les bonnes questions et préparer une demande d'information sans ambiguïté.",
       "audience": "Parents d'élèves entrant en 3e, Seconde, Première ou Terminale.",
-      "offerIds": ["pre2026-3e-mathematiques", "pre2026-3e-francais", "pre2026-seconde-mathematiques", "pre2026-seconde-physique-chimie", "pre2026-seconde-francais", "pre2026-premiere-pack-1", "pre2026-premiere-pack-2", "pre2026-premiere-pack-3", "pre2026-premiere-pack-4", "pre2026-terminale-pack-1", "pre2026-terminale-pack-2", "pre2026-terminale-pack-3", "pre2026-terminale-pack-4"],
+      "offerIds": ["pre2026-3e-mathematiques", "pre2026-3e-francais", "pre2026-seconde-mathematiques", "pre2026-seconde-francais", "pre2026-premiere-pack-1", "pre2026-premiere-pack-2", "pre2026-premiere-pack-3", "pre2026-premiere-pack-4", "pre2026-terminale-pack-1", "pre2026-terminale-pack-2", "pre2026-terminale-pack-3", "pre2026-terminale-pack-4"],
       "proofIds": ["PRF-PRE2026-DATES-VENUE", "PRF-PRE2026-WHATSAPP", "PRF-PRE2026-DEPOSIT-30", "PRF-PRE2026-FIVE-SESSIONS", "PRF-PRE2026-STRUCTURED-SESSIONS"],
       "cta": "Échanger avec Nexus sur WhatsApp",
       "sections": [
@@ -94,17 +94,17 @@
     {
       "documentId": "fiche-seconde",
       "title": "Entrée en Seconde — fiche parcours",
-      "subtitle": "Mathématiques, physique-chimie ou français, selon la priorité de rentrée",
-      "purpose": "Présenter les trois matières disponibles et la transition méthodologique vers le lycée.",
+      "subtitle": "Mathématiques ou français, selon la priorité de rentrée",
+      "purpose": "Présenter les deux matières disponibles et la transition méthodologique vers le lycée.",
       "audience": "Familles d'élèves entrant en Seconde dans le système français en Tunisie.",
-      "offerIds": ["pre2026-seconde-mathematiques", "pre2026-seconde-physique-chimie", "pre2026-seconde-francais"],
+      "offerIds": ["pre2026-seconde-mathematiques", "pre2026-seconde-francais"],
       "proofIds": ["PRF-PRE2026-DATES-VENUE", "PRF-PRE2026-WHATSAPP", "PRF-PRE2026-DEPOSIT-30", "PRF-PRE2026-SECONDE-400", "PRF-PRE2026-FIVE-SESSIONS", "PRF-PRE2026-STRUCTURED-SESSIONS"],
       "cta": "Choisir la priorité Seconde sur WhatsApp",
       "sections": [
         {
           "heading": "Préparer le passage au lycée",
-          "paragraphs": ["L'entrée en Seconde change le rythme, le niveau de rédaction attendu et la place accordée à la méthode. Le stage aide l'élève à remettre en route les acquis utiles avant les premiers chapitres.", "Le choix de matière doit correspondre à une priorité réelle. Mathématiques, physique-chimie et français sont les seules matières proposées dans ce parcours Seconde."],
-          "bullets": ["Mathématiques : fondamentaux et rédaction", "Physique-chimie : unités et raisonnement scientifique", "Français : analyse et expression", "Cinq séances par matière"]
+          "paragraphs": ["L'entrée en Seconde change le rythme, le niveau de rédaction attendu et la place accordée à la méthode. Le stage aide l'élève à remettre en route les acquis utiles avant les premiers chapitres.", "Le choix de matière doit correspondre à une priorité réelle. Mathématiques et français sont les seules matières proposées dans ce parcours Seconde."],
+          "bullets": ["Mathématiques : fondamentaux et rédaction", "Français : analyse et expression", "Cinq séances par matière"]
         },
         {
           "heading": "La méthode pendant les séances",

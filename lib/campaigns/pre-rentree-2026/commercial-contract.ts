@@ -46,7 +46,7 @@ const CommercialContractSourceSchema = z.object({
   locale: z.literal('fr-TN'),
   validationDate: z.string().date(),
   lastRevisedAt: z.string().date(),
-  offers: z.array(OfferSourceSchema).length(14),
+  offers: z.array(OfferSourceSchema).length(12),
 }).strict().superRefine((source, context) => {
   for (const [index, offer] of source.offers.entries()) {
     if (offer.pricingKind === 'PREMIUM_PACK' && offer.subjectCount === undefined) {

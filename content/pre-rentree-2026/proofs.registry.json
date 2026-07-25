@@ -89,12 +89,12 @@
     {
       "decisionId": "DEC-PRE2026-SECONDE-SNT",
       "subject": "Communication publique SNT en Seconde",
-      "status": "APPROVED",
-      "publicEffect": "PUBLIC",
+      "status": "CLOSED_EXCLUDED",
+      "publicEffect": "HIDDEN",
       "responsibleRole": "DIRECTION_NEXUS_REUSSITE",
       "decidedAt": "2026-07-23",
       "nextReviewAt": null,
-      "reason": "R2 — La direction réintègre le module « initiation informatique / algorithmique / SNT » (5 séances, subjectId NSI, label public SNT) dans l'offre Seconde. Distinct de la spécialité NSI de Première/Terminale."
+      "reason": "R2 (23/07) — la direction avait réintégré le module « initiation informatique / algorithmique / SNT » (5 séances, subjectId NSI, label public SNT) dans l'offre Seconde. SUPERSEDED le 24/07 par un arbitrage direction définitif : pour les stages de pré-rentrée, Seconde = Mathématiques + Français uniquement (grille du 24/07 fait foi). Le module SNT et l'offre Physique-Chimie sont retirés du périmètre public Seconde. Distinct de la spécialité NSI de Première/Terminale, qui reste inchangée."
     },
     {
       "decisionId": "DEC-PRE2026-MANUAL-BENEFIT",
