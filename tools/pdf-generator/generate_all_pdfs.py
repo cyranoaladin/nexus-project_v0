@@ -10,7 +10,6 @@ TOOL_DIR = Path(__file__).parent
 REPO_ROOT = TOOL_DIR.parent.parent
 OUT_DIR = TOOL_DIR / "output"
 OUT_DIR.mkdir(exist_ok=True)
-ARCHIVE_DIR = TOOL_DIR / "archive"
 # Official charte logo (sealed visualIdentity)
 LOGO_SLOGAN = str(REPO_ROOT / "public" / "images" / "logo_slogan_nexus_x3.png")
 LOGO_COMPACT = str(REPO_ROOT / "public" / "images" / "logo_slogan_nexus_x3.png")
