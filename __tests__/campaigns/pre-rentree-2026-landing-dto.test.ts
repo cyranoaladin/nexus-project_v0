@@ -42,7 +42,7 @@ describe('Pré-rentrée 2026 landing DTO', () => {
     expect(dto.scheduleWindows.flatMap((window) => window.slots)).toHaveLength(14);
     expect(dto.organization.educators).toHaveLength(0);
     expect(dto.organization.rooms).toEqual([
-      { label: 'Salle 1', details: 'Mathématiques, NSI et Maths expertes' },
+      { label: 'Salle 1', details: 'Mathématiques, NSI et Mathématiques expertes' },
       { label: 'Salle 2', details: 'Français, Physique-Chimie et SVT' },
     ]);
     expect(JSON.stringify(dto.organization)).not.toMatch(

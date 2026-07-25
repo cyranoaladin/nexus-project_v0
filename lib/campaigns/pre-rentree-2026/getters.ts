@@ -196,11 +196,16 @@ export function getPreRentreeLandingDTO() {
   ) {
     throw new Error('Unexpected Pré-rentrée room contract');
   }
+  const subjectLabelById = new Map(campaign.subjects.map((subject) => [subject.id, subject.label]));
+  const roomDetails = (room: 'salle-1' | 'salle-2'): string => {
+    const labels = campaign.roomRoles[room]!.map((subjectId) => subjectLabelById.get(subjectId) ?? subjectId);
+    return labels.length > 1 ? `${labels.slice(0, -1).join(', ')} et ${labels.at(-1)}` : (labels[0] ?? '');
+  };
   const organization = {
     educators: [],
     rooms: [
-      { label: 'Salle 1', details: 'Mathématiques, NSI et Maths expertes' },
-      { label: 'Salle 2', details: 'Français, Physique-Chimie et SVT' },
+      { label: 'Salle 1', details: roomDetails('salle-1') },
+      { label: 'Salle 2', details: roomDetails('salle-2') },
     ],
   };
 
