@@ -1,71 +1,93 @@
-# Pré-rentrée 2026 — release candidate sous gates
+# Pré-rentrée 2026 — release informative sous gates
 
 ## Statut
 
-**READY_FOR_OWNER_GO — périmètre `PUBLIC_INFORMATIONAL_RELEASE`.** Toutes les gates du périmètre publié sont prouvées ou neutralisées par absence de capacité. La seule gate encore ouverte avant le commit final est `publication_authorization`.
+**RELEASE BLOQUÉE AVANT GO — `Dependency Integrity` rouge.**
 
-## Corrections P0
+La campagne est maintenue à `releaseStatus=READY_FOR_OWNER_GO` et la PR reste
+en draft. Le passage à `PUBLIC_READY`, le commentaire de GO, le tag, la sortie
+du draft et le merge sont interdits tant que l'audit npm complet n'est pas
+vert.
 
-- Next.js corrigé et actions GitHub épinglées pour Node 24.
-- Provenance reproductible : `sourceAnchorSha`, `repositoryCommitSha`, `sourceSetSha256`.
-- Fondations 4–6 (max 6), Premium 3–5 (max 5).
-- SNT/initiation informatique supprimée de la Seconde ; NSI conservée en Première et Terminale.
-- Tarifs dérivés du référentiel canonique : 480 = 144 + 336 ; 1 350 = 405 + 945.
-- Promesses non validées masquées ; formulation publique enseignants prudente.
-- Gate serveur unique sur site, API, téléchargements, SEO, métadonnées et préinscription.
-- Modules Maths proposés pour validation sur les BO 2019/2026 ; SVT maintenue en DRAFT.
-- Trois grilles présentes dans le HTML initial ; téléchargements explicites dans Planning et Programmes.
-- Kit marketing/documentaire régénéré avec calendrier relatif à une date de lancement non encore autorisée.
-- Détails d'infrastructure neutralisés dans l'arbre courant ; scripts d'exploitation publics fail-closed.
+## Corrections de cette branche
 
-## Preuves locales acquises
+- Les sept commits pédagogiques locaux sont préservés, avec les quatorze
+  modules en statut `VALIDATED` et les dettes Maths/SVT clôturées sans
+  suppression de leur historique.
+- `next-auth` est porté à `5.0.0-beta.32`,
+  `@auth/prisma-adapter` à `2.11.3` et l'unique
+  `@auth/core` installé à `0.41.3`.
+- Le script d'inventaire dérive désormais explicitement la PR et la branche ;
+  aucune retombée silencieuse vers la PR #74 ou #75 n'est possible.
+- L'inventaire actif identifie la PR #75 et la branche
+  `feat/pre-rentree-planning-scheduler`. Le rattachement final au SHA doit être
+  assuré par le tag annoté et le commentaire GitHub après tous les checks
+  verts, sans boucle de commit auto-référente.
+- Le périmètre est limité à `PUBLIC_INFORMATIONAL_RELEASE` : information,
+  grille, tarifs, sélecteur local, téléphone, WhatsApp et neuf PDF
+  `PUBLIC_FINAL`.
+- Paiement, réservation, reçu, formulaire campagne, positionnement garanti,
+  bilan parents, Parcours 360, manuel, remise annuelle et données nominatives
+  d'enseignants sont exclus.
+- L'allowlist publique contient exactement neuf PDF. Tous passent les contrôles
+  de taille, checksum, type MIME `application/pdf` et signature `%PDF-`.
+- Le grep brut des contenus destinés à être publiés ne trouve aucun
+  `DRAFT`, `PROPOSAL`, `PROPOSITION`, `DOCUMENT DE TRAVAIL` ou `à valider`.
 
-- Checkout propre contrôlé au SHA `2b6abaa9a5f35aefdba42e55d41db5310a50c5b7`.
-- `npm ci` : 1 272 paquets installés.
-- `npm audit --omit=dev --audit-level=high` : 0 vulnérabilité.
-- `npm run lint` : code 0, aucune erreur ; avertissements historiques inchangés.
-- `npm run typecheck` : code 0.
-- Tests unitaires complets : 575 suites et 7 025 tests réussis ; 1 suite et 4 tests déjà ignorés ; 7 snapshots réussis.
-- Pipeline documentaire : 40 suites / 256 tests TypeScript et 96 tests Python réussis ; sécurité, build, audit, package et verify verts.
-- Reproductibilité : 33 fichiers documentaires comparés, 0 divergence.
-- Build production Next.js 15.5.21 : 144 pages statiques, validation standalone réussie, 534 fichiers statiques source/standalone identiques.
-- E2E final au SHA `25ce6e3d90039f74fb896afbab6310335bf63746` : 207 tests réussis en 5,3 min.
-- `npm run security:repo` : clés privées, topologie publique et secrets Telegram — vert.
-- Documents : 9 PDF / 28 pages rasterisées ; 6 téléchargements publics candidats synchronisés par SHA-256.
-- Planning : JSON ↔ PDF contrôlé ; quatre invariants de grille verts.
-- Package parents : 33 fichiers, 4 974 356 octets, SHA-256 `4e222d50691d84731048f0b60619849674f0bbea50abfa6bc373e976c251f616`.
-- Package revue : 312 fichiers, 42 837 326 octets, SHA-256 `8a83313f12ee82ba5cf11828a7a1ff76788dbb1ef7b905fb4d3de5426896aefa`.
+## Gates de campagne
 
-Le premier run Python a échoué uniquement parce que Chromium n'était pas
-visible depuis le clone propre ; la suite complète a été relancée avec le
-cache Playwright explicite et a produit `96 passed`, sans skip ni waiver.
-Le premier run E2E a identifié huit assertions obsolètes ; après correction
-des tests d'état, le run complet a produit `207 passed`.
+- `VALIDATED` : `pedagogical_validation`, `capacity`, `tariffs`, `downloads`,
+  `contact_channels_forms`.
+- `MITIGATED_BY_SCOPE` : `teacher_assignments`, `rooms`, `qualifications`.
+- `NOT_APPLICABLE` : `payment_receipt`, `cancellation_refund`,
+  `privacy_retention`, `manuals_annual_discount`.
+- `OPEN` : `publication_authorization`, volontairement laissée ouverte jusqu'au
+  commit final de GO.
 
-Les workflows GitHub doivent encore être observés sur le SHA poussé avant toute
-montée de statut.
+Les anciennes sorties documentaires internes conservent honnêtement
+`LEGAL_REVIEW=PENDING`, `PRIVACY_REVIEW=PENDING` et
+`PRIVATE_CONTRACTUAL_PACKAGE=BLOCKED`. Elles ne constituent ni l'allowlist
+publique ni une validation juridique.
 
-## Périmètre immédiat
+## Vérifications locales sous la version CI
 
-- Page d'information, grille validée, configurateur local sans collecte.
-- Contact téléphone et WhatsApp.
-- Neuf PDF `PUBLIC_FINAL` explicitement allowlistés.
-- Aucun paiement, réservation, reçu, formulaire campagne, positionnement garanti, bilan parents, Parcours 360, manuel ou remise annuelle.
-- Aucun nom ou qualification individuelle d'enseignant.
+Environnement : Node `22.23.1`, npm `10.9.8`.
 
-## Gate restante
+- `npm ci` : succès.
+- Arbre npm officiel : succès avec les seules exceptions optionnelles npm déjà
+  documentées.
+- `npm audit --omit=dev --audit-level=high` : succès, 0 vulnérabilité.
+- `npm audit --audit-level=high` : **échec, 36 impacts high, 0 critical**.
+- `npm run pre-rentree:ci` : succès ; 45 suites / 307 tests TypeScript et
+  100 tests Python.
+- Reproductibilité documentaire : 33 fichiers, 0 divergence.
+- Tests unitaires complets : 580 suites réussies, 1 ignorée ; 7 076 tests
+  réussis, 4 ignorés.
+- Tests d'intégration : 11 suites, 125 tests réussis.
+- `npm run lint` : succès, avertissements historiques sous le seuil configuré.
+- `npm run typecheck` : succès.
+- `npm run build` : succès ; 144 pages, 534 fichiers statiques concordants,
+  artefact standalone valide.
 
-- Autorisation propriétaire écrite rattachée au SHA final (`publication_authorization`).
+## Blocage de sécurité restant
 
-## Relectures demandées
+L'avis npm courant vise `brace-expansion <=5.0.7`. Les versions corrigées
+officielles sont disponibles sur la ligne 5.x (`5.0.8`), mais pas sur les
+lignes compatibles 1.x (`1.1.16`) et 2.x (`2.1.2`) encore requises
+transitivement par les toolchains officielles ESLint/Jest/CycloneDX. Un
+override global vers 5.x casse l'API attendue par les anciennes lignes ; les
+changements majeurs proposés par `npm audit fix --force` sont incompatibles et
+ne résolvent pas proprement l'arbre.
 
-- [ ] Direction pédagogique Maths
-- [ ] Enseignant SVT qualifié
-- [ ] Marketing/commercial
-- [ ] Juridique/confidentialité
-- [ ] Technique/sécurité
-- [ ] Propriétaire — GO publication rattaché au SHA exact
+Aucune exception, baisse du seuil d'audit, substitution non officielle ou
+contournement de check n'est ajouté.
 
-## Interdictions
+## Conditions de reprise
 
-Aucune activation de paiement, réservation, formulaire campagne ou capacité exclue n'est autorisée par cette PR. Le déploiement reste conditionné à un mécanisme privé déterministe vérifié après merge.
+1. Disposer de versions parentes officielles compatibles qui éliminent toutes
+   les instances vulnérables.
+2. Réinstaller avec le lockfile et obtenir zéro vulnérabilité high/critical sur
+   l'audit de production et l'audit complet.
+3. Relancer la chaîne locale et les workflows GitHub.
+4. Seulement alors : commit `PUBLIC_READY`, tag/commentaire de GO, sortie du
+   draft, merge et déploiement du SHA fusionné.
