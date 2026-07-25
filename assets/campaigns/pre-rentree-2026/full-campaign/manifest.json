@@ -6,7 +6,7 @@
   "launchDate": null,
   "launchDateStatus": "PENDING_OWNER_AUTHORIZATION",
   "sourceVersion": "2026-full-campaign-v1",
-  "commercialContractVersion": "2026-pre-rentree-commercial-v2",
+  "commercialContractVersion": "2026-pre-rentree-commercial-v3",
   "inventory": {
     "publications": 13,
     "carousels": 8,
@@ -30,8 +30,8 @@
       "format": "CSV",
       "width": null,
       "height": null,
-      "bytes": 27654,
-      "sha256": "ac4b3a5954a2c0fe9c1bb3204e1e4fc60084dab6111b5d484a8458090a2ad56f",
+      "bytes": 27594,
+      "sha256": "b20f47641e9b8d3249f316fa0b12d84f82e09604632e4d81720249ab9ce95f59",
       "altText": "Calendrier CSV exploitable"
     },
     {
@@ -41,8 +41,8 @@
       "format": "JSON",
       "width": null,
       "height": null,
-      "bytes": 92326,
-      "sha256": "d3d8f8c3de81b342f95140cb2b59d30f2456be110440f68e50df41d8385f683f",
+      "bytes": 92061,
+      "sha256": "d5bcc0fc0c9c3dd94c9013a051a7853f0584b1202756cffdb5aecdfebc6c57d1",
       "altText": "Calendrier complet jusqu'au démarrage"
     },
     {
@@ -52,8 +52,8 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 5950487,
-      "sha256": "1317c3ab08ec111396f230f90b3a04880aaac7684704c69f446f7ed854caacff",
+      "bytes": 5933360,
+      "sha256": "c7025dff4d24f30db07c82a1f2c7272664e5ea5c6cd7bf867f11b401f8616762",
       "altText": "Calendrier PDF complet jusqu'au démarrage"
     },
     {
@@ -184,8 +184,8 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 385513,
-      "sha256": "00fc27e734b5e3e4acf36903201ce85bda8637319747b730eb9617094f1ab866",
+      "bytes": 385015,
+      "sha256": "41f09fef9ec8fcf7f4518fd4eb742b8b6c7a19ccf8d84d339af465e59d598ea3",
       "altText": "Carrousel présentant l'offre d'entrée en 3e en Mathématiques ou Français, son format et son effectif."
     },
     {
@@ -261,9 +261,9 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 66738,
-      "sha256": "4a6a041ccb724a4e14118f1f2659f86355d2c1aeb2ea013f43239ed1e8966c91",
-      "altText": "Slide indiquant un groupe de quatre à six élèves en 3e."
+      "bytes": 65071,
+      "sha256": "7cb1b12ce47463b259d7bafd875362fadd6f0027ffdb9aad094a0683e3da4150",
+      "altText": "Slide indiquant un groupe de trois à six élèves en 3e."
     },
     {
       "assetId": "full-carousel-02-entree-3e-slide-04-webp",
@@ -272,9 +272,9 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 36254,
-      "sha256": "060cec4406703c0802b88e1049be4fdab254c5b41c9ef43dc8045bbfd172d3a6",
-      "altText": "Slide indiquant un groupe de quatre à six élèves en 3e."
+      "bytes": 35786,
+      "sha256": "4172ba06bdda5485c8477651d7256104ca26d4a8d5e08ee761de7ea5b3bcf7aa",
+      "altText": "Slide indiquant un groupe de trois à six élèves en 3e."
     },
     {
       "assetId": "full-carousel-02-entree-3e-slide-05-png",
@@ -305,9 +305,9 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 388883,
-      "sha256": "6bd161f7e0a9cf957d1c53529fa0c461ae857a0dfa33a14282718191c42593cd",
-      "altText": "Carrousel présentant les trois matières proposées en Seconde, le format de dix heures et l'effectif du groupe."
+      "bytes": 384822,
+      "sha256": "595d38548a972822851c0152d72e1e055ce95dc646bd7fb193664f5a8abea073",
+      "altText": "Carrousel présentant les deux matières proposées en Seconde, le format de dix heures et l'effectif du groupe."
     },
     {
       "assetId": "full-carousel-03-entree-seconde-slide-01-png",
@@ -338,9 +338,9 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 74472,
-      "sha256": "7b8455ee528c114adc2a4847ce9e3de14516f82688eb42c42ff9b89b84e7b9c8",
-      "altText": "Slide listant Mathématiques, Physique-Chimie et Français en Seconde."
+      "bytes": 71539,
+      "sha256": "015db76c550e0ba149484299a54a7ed2533f2657f23d6040fd8b96157f9bdb8c",
+      "altText": "Slide listant Mathématiques et Français en Seconde."
     },
     {
       "assetId": "full-carousel-03-entree-seconde-slide-02-webp",
@@ -349,9 +349,9 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 40682,
-      "sha256": "daabbd305bdb4933c5175d38d2e303dc58e9bb72cac036989ab1b8a8c7e0d3da",
-      "altText": "Slide listant Mathématiques, Physique-Chimie et Français en Seconde."
+      "bytes": 37590,
+      "sha256": "392475cd1ab57183d19b417d957b070d0b1c19c20e10020af26e17b0739de0f3",
+      "altText": "Slide listant Mathématiques et Français en Seconde."
     },
     {
       "assetId": "full-carousel-03-entree-seconde-slide-03-png",
@@ -382,9 +382,9 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 68436,
-      "sha256": "8575649418da737724eb937a61e0af73a54a229a386ba9f73b6366a5453be8fc",
-      "altText": "Slide indiquant un effectif de quatre à six élèves en Seconde."
+      "bytes": 66661,
+      "sha256": "12d1ed7f077efcf066c6b1afb57716474c88f21126676f0e1dc1708608eec616",
+      "altText": "Slide indiquant un effectif de trois à six élèves en Seconde."
     },
     {
       "assetId": "full-carousel-03-entree-seconde-slide-04-webp",
@@ -393,9 +393,9 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 36678,
-      "sha256": "9844a22b0832ca89ea1793aa9edf0306411245270f476018f26b60f467e2897e",
-      "altText": "Slide indiquant un effectif de quatre à six élèves en Seconde."
+      "bytes": 36198,
+      "sha256": "720e3eee612fed37ebdf6bacf0ddcb30a5f9199bc59e3fc9b7b54a4b9ca8d9b9",
+      "altText": "Slide indiquant un effectif de trois à six élèves en Seconde."
     },
     {
       "assetId": "full-carousel-03-entree-seconde-slide-05-png",
@@ -1031,8 +1031,8 @@
       "format": "JSON",
       "width": null,
       "height": null,
-      "bytes": 112124,
-      "sha256": "053b4436e1e90d12e586ee2fd0f0d981481d210b8772118f29c61039cb454654",
+      "bytes": 111853,
+      "sha256": "0795c636b9b04351eb8dcd6bf4f3b7b2b2c1cebbb531df2e95183481ec1b8392",
       "altText": "Copies éditoriales complètes de la campagne"
     },
     {
@@ -1088,7 +1088,7 @@
       "height": 1350,
       "bytes": 92956,
       "sha256": "cdefda370c8767fcf41b3f9c520223e905cb064301e78fe69e8ac80e98d7455a",
-      "altText": "Visuel de l'offre d'entrée en 3e en Mathématiques ou Français, dix heures par matière et groupe de quatre à six élèves."
+      "altText": "Visuel de l'offre d'entrée en 3e en Mathématiques ou Français, dix heures par matière et groupe de trois à six élèves."
     },
     {
       "assetId": "full-post-02-entree-3e-webp",
@@ -1099,7 +1099,7 @@
       "height": 1350,
       "bytes": 59510,
       "sha256": "cb466359956ffcf75c4ddb5757a2e9d31433d7b6ac2ea79e95acadfba602b047",
-      "altText": "Visuel de l'offre d'entrée en 3e en Mathématiques ou Français, dix heures par matière et groupe de quatre à six élèves."
+      "altText": "Visuel de l'offre d'entrée en 3e en Mathématiques ou Français, dix heures par matière et groupe de trois à six élèves."
     },
     {
       "assetId": "full-post-03-entree-seconde-png",
@@ -1108,9 +1108,9 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 96493,
-      "sha256": "6b8c278a0c35cf5432cfe10652f1d42ca81527822b045c40cd4f754e63112163",
-      "altText": "Visuel de l'offre d'entrée en Seconde en Mathématiques, Physique-Chimie ou Français, avec cinq séances et effectif limité."
+      "bytes": 94313,
+      "sha256": "8643bfec36235a31faed796a4137b1dd2fc7734a365560aab8fbf04da8eeee25",
+      "altText": "Visuel de l'offre d'entrée en Seconde en Mathématiques ou Français, avec cinq séances et effectif limité."
     },
     {
       "assetId": "full-post-03-entree-seconde-webp",
@@ -1119,9 +1119,9 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 64552,
-      "sha256": "f44c5e6bd074729756ea070626e5d24b2e36f2fb62dc080fff08a1ea4701526b",
-      "altText": "Visuel de l'offre d'entrée en Seconde en Mathématiques, Physique-Chimie ou Français, avec cinq séances et effectif limité."
+      "bytes": 61670,
+      "sha256": "cae8c78fee33db2819c779a9fedb0da529a0426c18c8c4e373e8867bc43dc2ab",
+      "altText": "Visuel de l'offre d'entrée en Seconde en Mathématiques ou Français, avec cinq séances et effectif limité."
     },
     {
       "assetId": "full-post-04-entree-premiere-png",
@@ -1240,9 +1240,9 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 91835,
-      "sha256": "8a9c1d4c8ca796e6dec8dfa92020628afd02e5a4d20aefdb89eff7d8ad14ab44",
-      "altText": "Visuel expliquant les effectifs des groupes Fondations de quatre à six élèves et Premium de trois à cinq élèves."
+      "bytes": 91544,
+      "sha256": "13eb8efc51cb032234eda927ced4d10522e528670073c98e69f0a236e68c060b",
+      "altText": "Visuel expliquant les effectifs des groupes Fondations de trois à six élèves et Premium de trois à cinq élèves."
     },
     {
       "assetId": "full-post-09-effectifs-limites-webp",
@@ -1251,9 +1251,9 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 59826,
-      "sha256": "2611fe00e4f64e74259649535376cd1cec501eca8fdd261107d84e6e57e47dd2",
-      "altText": "Visuel expliquant les effectifs des groupes Fondations de quatre à six élèves et Premium de trois à cinq élèves."
+      "bytes": 59398,
+      "sha256": "d4fe37bb6620551ba11ebdc69948b26b49bff102e263432f59776da457824a5a",
+      "altText": "Visuel expliquant les effectifs des groupes Fondations de trois à six élèves et Premium de trois à cinq élèves."
     },
     {
       "assetId": "full-post-10-reservation-acompte-png",
@@ -1878,9 +1878,9 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396477,
-      "sha256": "2f8774077faca7aa5d8c87ce0a40af4f9c3625861a63fc434e6c11f15cd5daab",
-      "altText": "Slide indiquant un groupe de quatre à six élèves en 3e."
+      "bytes": 396475,
+      "sha256": "b3e52dba4f33d28abf9503fc782cf490fe26b632ec92dfdf74132dc8e7e12d1b",
+      "altText": "Slide indiquant un groupe de trois à six élèves en 3e."
     },
     {
       "assetId": "full-carousel-02-entree-3e-slide-05-source",
@@ -1911,9 +1911,9 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396495,
-      "sha256": "8b9bdc394be319bccadec04821cc779869312bb0e46c784a96ad7306fd392206",
-      "altText": "Slide listant Mathématiques, Physique-Chimie et Français en Seconde."
+      "bytes": 396460,
+      "sha256": "cad71aa3184092d78d6da4daff5b0abbccf98e8821fb334025c5aa1c5a59ebe4",
+      "altText": "Slide listant Mathématiques et Français en Seconde."
     },
     {
       "assetId": "full-carousel-03-entree-seconde-slide-03-source",
@@ -1933,9 +1933,9 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396475,
-      "sha256": "5ab33306bd719b9c747f7ec4473736123a9fc4ac1628a112ab6d6fb49cc61e55",
-      "altText": "Slide indiquant un effectif de quatre à six élèves en Seconde."
+      "bytes": 396473,
+      "sha256": "0a63f95ba004f31f36486962a7eb57a2fbed56b3e821cb8f34c7e07af585164a",
+      "altText": "Slide indiquant un effectif de trois à six élèves en Seconde."
     },
     {
       "assetId": "full-carousel-03-entree-seconde-slide-05-source",
@@ -2241,9 +2241,9 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396742,
-      "sha256": "cf60404dff5752d2847ed3c68b5efa808dbf18b41c2875b2cff07cd8492247b8",
-      "altText": "Visuel de l'offre d'entrée en 3e en Mathématiques ou Français, dix heures par matière et groupe de quatre à six élèves."
+      "bytes": 396741,
+      "sha256": "5a5bff30af7e75e3a04f49423bae39a6f95222d9aaed33e52d168bca53f0193c",
+      "altText": "Visuel de l'offre d'entrée en 3e en Mathématiques ou Français, dix heures par matière et groupe de trois à six élèves."
     },
     {
       "assetId": "full-post-03-entree-seconde-source",
@@ -2252,9 +2252,9 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396756,
-      "sha256": "af302939b1156475a44db1d5ec7ec37a049a4f259608c0eec8bc705c73ab0565",
-      "altText": "Visuel de l'offre d'entrée en Seconde en Mathématiques, Physique-Chimie ou Français, avec cinq séances et effectif limité."
+      "bytes": 396722,
+      "sha256": "8d6940fcf2a7fc088436c944c37c0b044390e81a31cb12e8f35b8cbecf7e935b",
+      "altText": "Visuel de l'offre d'entrée en Seconde en Mathématiques ou Français, avec cinq séances et effectif limité."
     },
     {
       "assetId": "full-post-04-entree-premiere-source",
@@ -2318,9 +2318,9 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396709,
-      "sha256": "39d780e70c175870f6f0409da246c41fb394ec301f0e2f28220a7e364d01583d",
-      "altText": "Visuel expliquant les effectifs des groupes Fondations de quatre à six élèves et Premium de trois à cinq élèves."
+      "bytes": 396707,
+      "sha256": "865240213e33b838b03f6c0f41808e2805195b7e85f5e3b264d6861858f0fa2e",
+      "altText": "Visuel expliquant les effectifs des groupes Fondations de trois à six élèves et Premium de trois à cinq élèves."
     },
     {
       "assetId": "full-post-10-reservation-acompte-source",
@@ -2649,7 +2649,7 @@
       "width": 1080,
       "height": 1920,
       "bytes": 396608,
-      "sha256": "7f22eb621813764f1125d3c3f03268aafae333961596ea19f85a197f19c02091",
+      "sha256": "e94f8921ca2ed30f6675dc330238cdd0d6dd23339b6d7762a3e79ed0183bf332",
       "altText": "Story présentant l'effectif et les cinq séances en 3e."
     },
     {
@@ -2670,9 +2670,9 @@
       "format": "SVG",
       "width": 1080,
       "height": 1920,
-      "bytes": 396555,
-      "sha256": "e8021fdfa9b64253ace2fd555f3eb888c0b74c8e6257c58297b69477c2b1d298",
-      "altText": "Story listant les trois matières de Seconde."
+      "bytes": 396502,
+      "sha256": "98bc2aa17388c4963a7079a17ce29ddf8aea600eab66bd412777e1ff24c2ec78",
+      "altText": "Story listant les deux matières de Seconde."
     },
     {
       "assetId": "full-story-03-entree-seconde-02-source",
@@ -2681,8 +2681,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1920,
-      "bytes": 396569,
-      "sha256": "bb5080dbdd4445319ec493eb3bc360b4fc4d4fd592f94fce83a1ee1cdcd8bc4e",
+      "bytes": 396568,
+      "sha256": "cec92f51bd17646e1f41eb677a1aee790b6f8bdfe4393838e9ec1309d5ee43af",
       "altText": "Story expliquant le format de cinq séances."
     },
     {
@@ -2692,8 +2692,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1920,
-      "bytes": 396629,
-      "sha256": "47889d38054ae5df10e9feeeeb53aa03ebcccbc6fb42e079696bc2c19325e667",
+      "bytes": 396628,
+      "sha256": "02528c1f6eb0bed7bf0fbe6facf1a7e143b543b5700007f79239a976d3844b76",
       "altText": "Story avec effectif et tarif de Seconde."
     },
     {
@@ -2868,8 +2868,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1920,
-      "bytes": 396527,
-      "sha256": "1dea040aa13846ae3821094ec5bd46191d75355b16e498dbad190e4e709ec2ac",
+      "bytes": 396526,
+      "sha256": "edb88188dc2a0675fab3ac4178c45552c1b4e562619e70bee367f52596ff7fbd",
       "altText": "Story sur l'effectif Fondations."
     },
     {
@@ -3088,8 +3088,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 100959,
-      "sha256": "71431ab89e16cfaeaa3e33206a688d514db0477f6c03863f2cf12ebf426abd14",
+      "bytes": 101244,
+      "sha256": "5d006eb4645bb03170b8c7fa9de10b3785736154eed35b832a618daa8cf5b226",
       "altText": "Story présentant l'effectif et les cinq séances en 3e."
     },
     {
@@ -3099,8 +3099,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 60136,
-      "sha256": "0f998371e076ad8a068f88afe23809e9703cfe7ff31a860dfd6ea6d4231347ac",
+      "bytes": 60158,
+      "sha256": "f834d551529646aafae71750efe8f7e94c6c1ab806a1dde49ff061218e60ade0",
       "altText": "Story présentant l'effectif et les cinq séances en 3e."
     },
     {
@@ -3132,9 +3132,9 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 101464,
-      "sha256": "00ae4194f3e093f49d986f557e35d6104faefa3eecf11b1cb6852165a2f97596",
-      "altText": "Story listant les trois matières de Seconde."
+      "bytes": 100138,
+      "sha256": "f114253540af6b2abe97752806bd8e66db4ced54569d238fa49add80809771b2",
+      "altText": "Story listant les deux matières de Seconde."
     },
     {
       "assetId": "full-story-03-entree-seconde-01-webp",
@@ -3143,9 +3143,9 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 61394,
-      "sha256": "6049f93ece52b0d198c5590ca97ac0826ab789f6e2e60c2603a70be7cdf40eb6",
-      "altText": "Story listant les trois matières de Seconde."
+      "bytes": 58662,
+      "sha256": "237edd3d2fd5d2cabbffe7cdb687289baed782adbc87e3475e7f124f46b6c269",
+      "altText": "Story listant les deux matières de Seconde."
     },
     {
       "assetId": "full-story-03-entree-seconde-02-png",
@@ -3154,8 +3154,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 101148,
-      "sha256": "7a798e22930a9e9bc79e041416e28199fd87bf63669a412f779a574ca2baa825",
+      "bytes": 103865,
+      "sha256": "dcc44d5f85eb14789ba9434d5ab7504c3a26445e361e1fc8f4f546130659ce0b",
       "altText": "Story expliquant le format de cinq séances."
     },
     {
@@ -3165,8 +3165,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 62466,
-      "sha256": "86640452ff8e97e1d843ae16bf5210893ac23480517c7d2183f0beaf64beaf94",
+      "bytes": 62384,
+      "sha256": "2d91063739028305c192850fae3459b4f5c039783816a14c7d478630e7f57677",
       "altText": "Story expliquant le format de cinq séances."
     },
     {
@@ -3176,8 +3176,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 111257,
-      "sha256": "8eb88086cc3730808c5c09b9469bc6a80142a73cb31de0eafe4e5528a4e76e66",
+      "bytes": 114202,
+      "sha256": "8ea68f0460e4a645b8b4a4b3f6d18dc7bbe849de716baec2f47a3b812c2fc98e",
       "altText": "Story avec effectif et tarif de Seconde."
     },
     {
@@ -3187,8 +3187,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 68268,
-      "sha256": "7faa567ca4dc91ff0850d6b6041292e597b4513b14f868e9018cc2f323fe2ad0",
+      "bytes": 68124,
+      "sha256": "5ded0d75d50c1666e4ef399ec6251920ce8a8e9446c491a90135e3a4e9d94a8d",
       "altText": "Story avec effectif et tarif de Seconde."
     },
     {
@@ -3528,8 +3528,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 102517,
-      "sha256": "7217739c46c173df0481456014fa26d4df6544771464070cf3fe8a7b06c15783",
+      "bytes": 102261,
+      "sha256": "304fbeb4125da52787e1e796981d3c61dcde9868518ed6e29e12b45c07a49dd8",
       "altText": "Story sur l'effectif Fondations."
     },
     {
@@ -3539,8 +3539,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 57990,
-      "sha256": "891dcd41ed255564eede415e9647e0d5a6883eec7071ac57d1d65ad201ae0c45",
+      "bytes": 57732,
+      "sha256": "f88b3493c1c1c1bed9bc4279e13d8a90a0e9c98e1c758cb55712b7f2da9ad706",
       "altText": "Story sur l'effectif Fondations."
     },
     {
@@ -3792,8 +3792,8 @@
       "format": "PNG",
       "width": 1068,
       "height": 1488,
-      "bytes": 758203,
-      "sha256": "7dc1f3508582a516b185735497df3f2a478513a7405103cccd9be27c454f9836",
+      "bytes": 755343,
+      "sha256": "850631f4e907560c640f108aa115b603f8c3504cc76b43292c1fca0e527f3a40",
       "altText": "Planche de contrôle calendar"
     },
     {
@@ -3803,8 +3803,8 @@
       "format": "PNG",
       "width": 1044,
       "height": 2080,
-      "bytes": 457472,
-      "sha256": "bc8da37d127b3f839c316231c74383dcca59ccdf4e4cc07c5651d823fdf52922",
+      "bytes": 455815,
+      "sha256": "b8ac7bce44ed2e3b3bd9be1f873ed49d76ab2722cf5b593dc53845d3d34e54d1",
       "altText": "Planche de contrôle carousels"
     },
     {
@@ -3814,8 +3814,8 @@
       "format": "PNG",
       "width": 1000,
       "height": 1252,
-      "bytes": 332241,
-      "sha256": "c86af530783860bc14344ffd96229eaba3774a46365322007b1142603794f4ec",
+      "bytes": 330836,
+      "sha256": "edf8d44e39712cb67af51e7e5b29178bed75a204b3bf67e48e86ecf69ebc8725",
       "altText": "Planche de contrôle publications"
     },
     {
@@ -3836,8 +3836,8 @@
       "format": "PNG",
       "width": 1068,
       "height": 1818,
-      "bytes": 317126,
-      "sha256": "056285e420e58024321f3fa7f5a4a778d5087d4d88d72dedde76dfa32f74b8be",
+      "bytes": 316138,
+      "sha256": "14e3b244f24a0b2e84f0cdbaf8332110e42232c6183260355179eeec78b0278e",
       "altText": "Planche de contrôle stories"
     }
   ]

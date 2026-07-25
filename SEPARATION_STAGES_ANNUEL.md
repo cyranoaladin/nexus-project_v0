@@ -125,7 +125,9 @@ grep -rln "subject-theme\|SUBJECT_THEMES\|getSubjectTheme\|getSubjectFamily" --i
 
 `__tests__/campaigns/pre-rentree-2026-full-coherence.test.ts` compare, pour chaque niveau, les matières entre 5 sources : grille JSON, fichier d'incompatibilités, sélecteur front, PDF Planning, page publique.
 
-**Mise à jour 2026-07-24 (post-purge Philosophie) :** `commercial-contract.fr.json` a été réconcilié pour Terminale (Philosophie → Maths expertes dans les 4 packs). **3e, Première et Terminale sont désormais entièrement verts (5/5 sources concordantes).** Seul **Seconde** reste divergent : `commercial-contract.fr.json` vend encore Physique-Chimie et Informatique-SNT pour Seconde (2 SKU déjà approuvés par la direction le 2026-07-20, `pre2026-seconde-physique-chimie` / `pre2026-seconde-informatique-snt`), alors que la grille de stage n'a que Maths + Français. Ce n'est pas un mélange stage/annuel — c'est un désalignement interne au périmètre stage (retirer des offres déjà approuvées est une décision commerciale distincte), documenté comme gate direction (`GO_LIVE_CHECKLIST.md`, gate #12).
+**Mise à jour 2026-07-24 (post-purge Philosophie) :** `commercial-contract.fr.json` a été réconcilié pour Terminale (Philosophie → Maths expertes dans les 4 packs). **3e, Première et Terminale sont entièrement verts (5/5 sources concordantes).** Seul **Seconde** restait alors divergent : `commercial-contract.fr.json` vendait encore Physique-Chimie et Informatique-SNT pour Seconde (2 SKU approuvés par la direction le 2026-07-20, `pre2026-seconde-physique-chimie` / `pre2026-seconde-informatique-snt`), alors que la grille de stage n'a que Maths + Français.
+
+**Résolution du 2026-07-24 (arbitrage direction définitif) :** ce désalignement Seconde n'était **pas** un mélange stage/annuel, mais une incohérence interne au périmètre stage — et donc bloquante par nature (une incohérence d'étanchéité stages, pas une dette commerciale reportable). Avant tout retrait, vérification effectuée que les 2 offres litigieuses partageaient le même `pricingId` (`pre2026-foundations-seconde-subject`) que les offres Maths/Français conservées, confirmant qu'il s'agissait bien de **SKU de stage** (et non d'une contamination annuelle qui aurait fuité dans le contrat de campagne). La direction a tranché : pour les stages de pré-rentrée, **Seconde = Mathématiques + Français uniquement**, la grille du 24/07 faisant foi. Les 2 offres ont été retirées de `commercial-contract.fr.json` (14 → 12 offres) ainsi que toutes les références dérivées (`parent-documents.fr.json`, `full-campaign.fr.json`, assets générés, tests). **Seconde est désormais vert (5/5 sources concordantes)** — voir DEBTS.md § R2 pour l'historique complet de l'arbitrage.
 
 ---
 
@@ -139,6 +141,6 @@ grep -rln "subject-theme\|SUBJECT_THEMES\|getSubjectTheme\|getSubjectFamily" --i
 | Vocabulaire croisé | ✅ | §4, disclaimers explicites, aucune fusion |
 | Imports composants | ✅ | §5, aucun import transverse |
 | Philosophie | ✅ | Purge complète — zéro occurrence résiduelle dans le code/data/PDF |
-| Cohérence interne (grille↔sélecteur↔PDF↔page) | ⚠️ partielle (Seconde uniquement) | §6 — 3e/Première/Terminale verts ; écart résiduel isolé à `commercial-contract.fr.json` côté Seconde (gate direction #12), sans rapport avec l'annuel |
+| Cohérence interne (grille↔sélecteur↔PDF↔page) | ✅ | §6 — 4/4 niveaux verts, `pre-rentree-2026-full-coherence.test.ts` au vert |
 
-**Aucun mélange stage ↔ annuel détecté.** Le seul écart restant concerne uniquement le niveau Seconde côté offre publique (2 SKU déjà approuvés), déjà signalé et non traité sans confirmation direction.
+**Aucun mélange stage ↔ annuel détecté.** L'écart Seconde (offre publique) a été résolu par arbitrage direction du 2026-07-24 : voir §6 et `DEBTS.md`.
