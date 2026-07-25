@@ -13,7 +13,7 @@ describe('Pré-rentrée 2026 downloadable document contract', () => {
         .map((document) => [document.fileName, document]),
     );
 
-    expect(PRE_RENTREE_DOCUMENTS).toHaveLength(6);
+    expect(PRE_RENTREE_DOCUMENTS).toHaveLength(9);
     for (const document of PRE_RENTREE_DOCUMENTS) {
       const fileName = basename(document.href);
       const generated = candidateByName.get(fileName);
@@ -36,9 +36,14 @@ describe('Pré-rentrée 2026 downloadable document contract', () => {
     }
   });
 
-  it('keeps SVT drafts and the family intake form out of public downloads', () => {
+  it('includes validated SVT programmes but keeps the internal family intake form out of public downloads', () => {
+    // SVT validé par la direction le 2026-07-25 (decisions.svtProgramValidation.status =
+    // validated_by_direction) : les programmes SVT sont désormais des téléchargements publics
+    // comme les autres, sans suffixe _DRAFT. Seul le dossier d'accueil (impression interne)
+    // reste hors téléchargement public.
     const publicNames = PRE_RENTREE_DOCUMENTS.map(({ href }) => basename(href));
-    expect(publicNames.every((name) => !name.includes('SVT'))).toBe(true);
+    expect(publicNames.filter((name) => name.includes('SVT'))).toHaveLength(2);
+    expect(publicNames.every((name) => !name.includes('_DRAFT'))).toBe(true);
     expect(publicNames.every((name) => !name.includes('DossierAccueil'))).toBe(true);
   });
 });

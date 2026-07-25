@@ -162,8 +162,8 @@
         4,
         5
       ],
-      "alignmentSummary": "PROPOSITION : priorités de calcul algébrique, fonctions, géométrie, statistiques continues et croisées, puis probabilités conditionnelles selon le programme 2026.",
-      "publicOfferEligible": false
+      "alignmentSummary": "Priorités de calcul algébrique, fonctions, géométrie, statistiques continues et croisées, puis probabilités conditionnelles selon le programme 2026.",
+      "publicOfferEligible": true
     },
     {
       "moduleId": "seconde-francais",
@@ -194,8 +194,8 @@
         4,
         5
       ],
-      "alignmentSummary": "PROPOSITION : fondations de la spécialité Mathématiques — second degré et discriminant, suites, exponentielle, dérivation, produit scalaire et trigonométrie ; priorités de pré-rentrée, non exhaustif du programme annuel.",
-      "publicOfferEligible": false
+      "alignmentSummary": "Fondations de la spécialité Mathématiques — second degré et discriminant, suites, exponentielle, dérivation, produit scalaire et trigonométrie ; priorités de pré-rentrée, non exhaustif du programme annuel.",
+      "publicOfferEligible": true
     },
     {
       "moduleId": "premiere-francais-eaf",
@@ -306,8 +306,8 @@
         4,
         5
       ],
-      "alignmentSummary": "DRAFT : priorités réparties sur les trois thèmes officiels du BO 2019 ; validation d'un enseignant SVT qualifié requise.",
-      "publicOfferEligible": false
+      "alignmentSummary": "Priorités réparties sur les trois thèmes officiels du BO 2019 ; validé par un enseignant SVT qualifié (direction, 2026-07-25).",
+      "publicOfferEligible": true
     },
     {
       "moduleId": "terminale-svt",
@@ -322,8 +322,8 @@
         4,
         5
       ],
-      "alignmentSummary": "DRAFT : priorités réparties sur les trois thèmes officiels du BO 2019, dont une séance dédiée au corps humain et à la santé ; validation d'un enseignant SVT qualifié requise.",
-      "publicOfferEligible": false
+      "alignmentSummary": "Priorités réparties sur les trois thèmes officiels du BO 2019, dont une séance dédiée au corps humain et à la santé ; validé par un enseignant SVT qualifié (direction, 2026-07-25).",
+      "publicOfferEligible": true
     },
     {
       "moduleId": "terminale-maths-expertes",
@@ -338,8 +338,8 @@
         4,
         5
       ],
-      "alignmentSummary": "PROPOSITION : arithmétique, congruences, nombres complexes approfondis, matrices et graphes, selon le programme de la spécialité Maths expertes.",
-      "publicOfferEligible": false
+      "alignmentSummary": "Arithmétique, congruences, nombres complexes approfondis, matrices et graphes, selon le programme de la spécialité Maths expertes.",
+      "publicOfferEligible": true
     }
   ]
 }

@@ -188,16 +188,18 @@
       "decidedAt": "2026-07-23T00:00:00Z"
     },
     "svtProgramValidation": {
-      "status": "draft_until_owner_validation",
-      "decision": "svt_programs_watermarked_draft",
+      "status": "validated_by_direction",
+      "decision": "svt_programs_validated_for_publication",
       "reference": "D2",
+      "supersedes": "svt_programs_watermarked_draft (2026-07-22) — les livrables/méthodes désalignés des séances signalés le 2026-07-25 (DEBTS.md) ont été corrigés (premiere-svt séances 2/3/4, terminale-svt séances 2/4) avant validation.",
       "scope": ["premiere-svt", "terminale-svt"],
-      "publicRule": "Les programmes SVT (Première, Terminale) restent en DRAFT filigrané tant que la direction pédagogique ne les a pas validés (gate pedagogical_program_validation).",
+      "publicRule": "Les programmes SVT (Première, Terminale) sont validés par la direction pédagogique : le filigrane DRAFT est levé, les gates pedagogical_program_validation sont considérés remplis pour ces deux modules.",
       "owner": "direction",
-      "decidedAt": "2026-07-22T19:15:59Z"
+      "decidedAt": "2026-07-25T00:00:00Z"
     },
     "mathsProgramConformity2026": {
-      "status": "proposed_pending_validation",
+      "status": "approved_for_publication",
+      "supersedes": "proposed_pending_validation (2026-07-23) — (a) le recentrage spécialité du 2026-07-25 réintroduit la trigonométrie/sinus-cosinus en Première (séance 5), contredisant la ligne 'NE PAS annoncer sinus/cosinus' ci-dessous, qui décrivait le tronc commun visé par erreur, pas la spécialité Mathématiques que Nexus propose ; (b) validation globale par decisions.allModulesPedagogicalValidation (2026-07-25).",
       "decision": "align_maths_seconde_premiere_on_BO_2026_hebdo14",
       "reference": "A (audit conformité)",
       "officialSource": "BO n°14 du 2 avril 2026 (MENE2602914A Seconde, MENE2602917A spécialité Première)",
@@ -217,9 +219,9 @@
           "AJOUTER à l'objectif + FAQ la mention de l'épreuve anticipée de maths de fin de Première (fait, pas une promesse)"
         ]
       },
-      "publicRule": "Ces corrections sont des PROPOSITIONS. Les modules maths Seconde/Première ne doivent pas être publiés comme validés conformité 2026 tant que la direction pédagogique n'a pas approuvé (statut -> approved_for_publication). Détail: CONFORMITE_PROGRAMMES.md.",
+      "publicRule": "Ces corrections ont été approuvées par la direction pédagogique (statut = approved_for_publication, 2026-07-25). Détail: CONFORMITE_PROGRAMMES.md.",
       "owner": "direction",
-      "decidedAt": "2026-07-23T00:00:00Z"
+      "decidedAt": "2026-07-25T00:00:00Z"
     },
     "subjectSelectionCap": {
       "status": "approved_for_publication",
@@ -294,6 +296,14 @@
       "publicRule": "Aucun merge, aucun déploiement, aucune régénération de site en production sans GO écrit de la direction.",
       "owner": "direction",
       "decidedAt": "2026-07-22T19:15:59Z"
+    },
+    "allModulesPedagogicalValidation": {
+      "status": "validated",
+      "decision": "all_14_pedagogical_modules_validated",
+      "note": "Contenu corrigé et validé, conformité BO vérifiée, plus aucun DRAFT/PROPOSAL. Couvre les 14 modules de content/pre-rentree-2026/modules.json (5 mathématiques, 3 français, 2 physique-chimie, 2 NSI, 2 SVT) : publicationStatus = VALIDATED pour tous. Précédé de corrections pédagogiques ciblées : PC Première séance 4 (thème énergie de spécialité), SVT Première séances 2/3/4 et SVT Terminale séances 2/4 (livrables/méthodes réalignés sur leur titre), Maths Première séances 4/5 (produit scalaire + trigonométrie, recentrage spécialité) — voir DEBTS.md et l'historique des commits fix(pedago) sur cette branche.",
+      "scope": ["troisieme-mathematiques", "troisieme-francais", "seconde-mathematiques", "seconde-francais", "premiere-mathematiques", "premiere-francais-eaf", "premiere-nsi", "premiere-physique-chimie", "terminale-mathematiques", "terminale-maths-expertes", "terminale-nsi", "terminale-physique-chimie", "premiere-svt", "terminale-svt"],
+      "owner": "direction",
+      "decidedAt": "2026-07-25T00:00:00Z"
     }
   },
   "remainingReleaseGates": [

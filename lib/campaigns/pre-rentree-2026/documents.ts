@@ -5,7 +5,8 @@ import { getPreRentreeReleaseGate } from './release-gate';
 
 /**
  * Documents PDF téléchargeables de la campagne pré-rentrée 2026 (servis depuis /public).
- * Les programmes SVT (DRAFT tant que D2 non levée) ne sont volontairement PAS listés ici.
+ * Les programmes SVT sont validés (decisions.svtProgramValidation.status = validated_by_direction,
+ * 2026-07-25) et listés ci-dessous comme tout autre programme.
  */
 export type PreRentreeDocument = {
   href: string;
@@ -50,6 +51,12 @@ export const PRE_RENTREE_DOCUMENTS: readonly PreRentreeDocument[] = [
     kind: 'planning',
   },
   {
+    href: `${BASE}/NexusReussite_PreRentree2026_Programme_3e.pdf`,
+    label: 'Programme détaillé — Entrée en 3e',
+    size: generatedSize('NexusReussite_PreRentree2026_Programme_3e.pdf'),
+    kind: 'programme',
+  },
+  {
     href: `${BASE}/NexusReussite_PreRentree2026_Programme_Seconde.pdf`,
     label: 'Programme détaillé — Entrée en Seconde',
     size: generatedSize('NexusReussite_PreRentree2026_Programme_Seconde.pdf'),
@@ -62,9 +69,21 @@ export const PRE_RENTREE_DOCUMENTS: readonly PreRentreeDocument[] = [
     kind: 'programme',
   },
   {
+    href: `${BASE}/NexusReussite_PreRentree2026_Programme_SVT_Première.pdf`,
+    label: 'Programme détaillé — SVT, entrée en Première',
+    size: generatedSize('NexusReussite_PreRentree2026_Programme_SVT_Première.pdf'),
+    kind: 'programme',
+  },
+  {
     href: `${BASE}/NexusReussite_PreRentree2026_Programme_Terminale.pdf`,
     label: 'Programme détaillé — Entrée en Terminale',
     size: generatedSize('NexusReussite_PreRentree2026_Programme_Terminale.pdf'),
+    kind: 'programme',
+  },
+  {
+    href: `${BASE}/NexusReussite_PreRentree2026_Programme_SVT_Terminale.pdf`,
+    label: 'Programme détaillé — SVT, entrée en Terminale',
+    size: generatedSize('NexusReussite_PreRentree2026_Programme_SVT_Terminale.pdf'),
     kind: 'programme',
   },
   {

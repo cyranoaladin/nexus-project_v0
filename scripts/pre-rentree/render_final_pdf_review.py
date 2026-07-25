@@ -12,6 +12,16 @@ from pathlib import Path
 import fitz
 from PIL import Image, ImageDraw, ImageFont
 
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+# Statut réel dérivé de la MÊME source canonique que le générateur (jamais du nom de fichier
+# PDF) : content/pre-rentree-2026/publication-decisions.owner.json -> decisions.svtProgramValidation.
+# Un heuristique par sous-chaîne "_SVT_" dans le nom de fichier laisserait les 2 PDF SVT marqués
+# DRAFT indéfiniment après validation, puisque le nom contient toujours "_SVT_" (seul le suffixe
+# "_DRAFT" disparaît une fois validé, cf. tools/pdf-generator/generate_all_pdfs.py::SVT_DRAFT).
+_OWNER_DECISIONS = json.loads(
+    (REPO_ROOT / "content" / "pre-rentree-2026" / "publication-decisions.owner.json").read_text(encoding="utf-8")
+)["decisions"]
+SVT_STILL_DRAFT = _OWNER_DECISIONS.get("svtProgramValidation", {}).get("status") == "draft_until_owner_validation"
 
 PUBLIC_DOCUMENT_FILENAMES = {
     "NexusReussite_PreRentree2026_FlyerEssentiel.pdf",
@@ -21,6 +31,8 @@ PUBLIC_DOCUMENT_FILENAMES = {
     "NexusReussite_PreRentree2026_Programme_Seconde.pdf",
     "NexusReussite_PreRentree2026_Programme_Terminale.pdf",
     "NexusReussite_PreRentree2026_Tarifs.pdf",
+    "NexusReussite_PreRentree2026_Programme_SVT_Première.pdf",
+    "NexusReussite_PreRentree2026_Programme_SVT_Terminale.pdf",
 }
 
 
@@ -57,7 +69,7 @@ def render_review(pdf_directory: Path, public_directory: Path) -> dict:
                 "publicDownloadCandidate": pdf_path.name in PUBLIC_DOCUMENT_FILENAMES,
                 "publicationStatus": (
                     "DRAFT_PENDING_QUALIFIED_TEACHER_VALIDATION"
-                    if "_SVT_" in pdf_path.name
+                    if "_SVT_" in pdf_path.name and SVT_STILL_DRAFT
                     else "REVIEW_NON_CONTRACTUAL"
                 ),
             })
