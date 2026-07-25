@@ -56,7 +56,7 @@ Le module **« initiation informatique / algorithmique / SNT »** (`seconde-info
 |---|---|---:|---|---|
 | B-1 | Affectations enseignants | ❌ | Affectation et disponibilité confirmées pour chaque matière et créneau, conservées hors supports publics | Direction pédagogique et opérations |
 | B-1 bis | Qualifications (affectation individuelle) | ❌ | Contrôle **individuel** documenté par enseignant affecté. NB : distinct de la **mention collective** « certifiés/agrégés » qui, elle, est **autorisée** sur les supports commerciaux (R4, preuve sous responsabilité direction) — ce gate ne la bloque pas. | Direction pédagogique |
-| B-2 | Validation SVT | ❌ | Validation écrite d'un enseignant SVT qualifié ; les deux PDF restent DRAFT jusque-là | Direction pédagogique |
+| B-2 | Validation SVT | ❌ | Validation écrite d'un enseignant SVT qualifié ; les deux PDF restent DRAFT jusque-là. **Le contenu doit en outre être réécrit avant validation — voir constat de désalignement séances/livrables ci-dessous.** | Direction pédagogique |
 | M-1 | Validation Maths Seconde/Première (BO n°14 du 2 avril 2026) | ❌ | Revue écrite des modules Maths Seconde et Première révisés | Direction pédagogique |
 | M-1 bis | Validation contenu 3e (nouveau, 2026-07-24) | ❌ | Revue écrite des modules 3e (Mathématiques, Français), même exigence que M-1 | Direction pédagogique |
 | O-1 | Salles | ✅ RÉSOLU | 2 salles, rôles abstraits, grille actée pour publication (`GO_LIVE_CHECKLIST.md` #4) | — |
@@ -70,6 +70,20 @@ Le module **« initiation informatique / algorithmique / SNT »** (`seconde-info
 | D-5 | Autorisation de publication | ❌ | GO écrit, daté, rattaché au SHA exact | Propriétaire |
 
 Les seuls gates humains actuellement validés sont la capacité et les tarifs.
+
+### SVT (Première, Terminale) — Constat de désalignement séances/livrables (2026-07-25, audit contenu direction)
+
+L'audit de contenu du 2026-07-25 (`AUDIT_CONTENU_MODULES.md`) a révélé que, dans `content/pre-rentree-2026/modules.json`, plusieurs livrables et méthodes des séances SVT ne correspondent pas à l'intitulé de leur propre séance. Exemples relevés (module `premiere-svt`) :
+
+- Séance 2 « Dynamique interne de la Terre » → livrable « Carte méthode énergie et métabolisme » (sans rapport avec le titre).
+- Séance 3 « Écosystèmes et services environnementaux » → méthode « petits problèmes d'hérédité », livrable « Fiche de synthèse génétique » (thématiques génétique, pas écosystèmes).
+- Séance 4 « Variation génétique, santé et immunité » → livrable « Fiche écologie et interactions » (thématique écologie, pas immunité).
+
+Le même type de désalignement existe dans `terminale-svt` (ex. séance 2 « À la recherche du passé géologique » → livrable « Fiche métabolisme et énergie » ; séance 4 « Mouvement, énergie et stress » → livrable « Fiche patrimoine génétique »).
+
+**Cause probable** : les champs `method`/`deliverable` de plusieurs séances SVT semblent avoir été copiés/décalés depuis un autre jeu de séances (vocabulaire de génétique/métabolisme réapparaissant sur des séances de géologie, écologie ou immunité), plutôt que rédigés pour l'intitulé réel de chaque séance.
+
+**Décision explicite : ce contenu n'est PAS corrigé ici.** La correction du contenu pédagogique SVT relève d'un enseignant SVT qualifié, pas d'une intervention technique. Les deux modules restent `DRAFT_PENDING_QUALIFIED_TEACHER_VALIDATION` dans `modules.json`, et le filigrane « DOCUMENT DE TRAVAIL » reste actif sur les 2 PDF SVT (`decisions.svtProgramValidation.status = "draft_until_owner_validation"` dans `publication-decisions.owner.json`, inchangé). **Le contenu SVT DOIT être réécrit par un spécialiste SVT avant toute levée du DRAFT** — cette réécriture est une condition supplémentaire du gate B-2, pas seulement une signature de validation.
 
 ~~R2-bis — Seconde : retrait de 2 SKU déjà approuvés (Physique-Chimie/Informatique-SNT)~~ — n'est plus un gate ouvert. **TRANCHÉ le 2026-07-24** par arbitrage direction définitif (Seconde stage = Maths + Français uniquement, grille du 24/07 fait foi) ; voir R2 ci-dessus pour le détail et la preuve technique.
 
