@@ -1,5 +1,19 @@
 #!/usr/bin/env python3
-"""Generate all 10 Nexus Réussite pre-rentrée 2026 PDFs."""
+"""Generate all 10 Nexus Réussite pre-rentrée 2026 PDFs.
+
+ROLE (documented 2026-07-25, quality audit §B — two PDF pipelines coexist by design,
+not by accident; see DEBTS.md for the full rationale):
+This is the ACTIVE PRODUCTION / PUBLIC-DISTRIBUTION pipeline. Its output
+(assets/campaigns/pre-rentree-2026/documents-final/ -> public/documents/pre-rentree-2026/)
+is what parents actually download. Invoked via `npm run pre-rentree:legacy-pdfs`
+— despite the "legacy" name in that npm alias, this is NOT a deprecated/dead
+pipeline; do not remove it or treat generate_documents.py as its replacement.
+The SEPARATE governance/reproducibility review pipeline (hash-bound manifest,
+owner-approval workflow, chained into `npm run pre-rentree:ci`) is
+scripts/pre-rentree/document_templates.py via generate_documents.py
+(`npm run pre-rentree:build`) — its output (.artifacts/pre-rentree-2026/build/)
+is an internal review package, never served publicly.
+"""
 
 import json
 import os

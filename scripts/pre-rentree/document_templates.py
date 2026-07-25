@@ -1,4 +1,18 @@
-"""Accessible review-document HTML rendered only from the canonical snapshot."""
+"""Accessible review-document HTML rendered only from the canonical snapshot.
+
+ROLE (documented 2026-07-25, quality audit §B — two PDF pipelines coexist by design,
+not by accident; see DEBTS.md for the full rationale):
+This is the GOVERNANCE / REPRODUCIBILITY REVIEW pipeline. Consumed by
+generate_documents.py -> `npm run pre-rentree:build`, chained into
+`npm run pre-rentree:ci` (build -> audit -> package -> verify). Its output
+(.artifacts/pre-rentree-2026/build/) is a hash-bound, owner-approval-tracked
+review package — NOT what parents download.
+The pipeline that produces the actual PUBLIC-FACING PDFs served to families
+(assets/campaigns/pre-rentree-2026/documents-final/ -> public/documents/pre-rentree-2026/)
+is tools/pdf-generator/generate_all_pdfs.py (`npm run pre-rentree:legacy-pdfs`).
+Despite the "legacy" name in that script's npm alias, it is the ACTIVE PRODUCTION
+pipeline, not a deprecated one — do not treat it as safe to remove.
+"""
 
 from __future__ import annotations
 
