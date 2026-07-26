@@ -6,7 +6,7 @@
   "branch": "release/pre-rentree-2026-public-ready",
   "pullRequest": 79,
   "baselineSha": "a0db57a7bc4db25b8d163d92c2ed3e95b65da961",
-  "repositoryCommitSha": "b37007d4a6477d52ccef9b8ce7eb1f98c38a6c68",
+  "repositoryCommitSha": "03dc9ba14cb87f7eea4832b5b2adcfb06387b6cd",
   "provenance": {
     "repositoryCommitShaRole": "BUILD_INPUT_NOT_FINAL_RELEASE_BINDING",
     "finalReleaseBinding": "ANNOTATED_GO_TAG_AND_GITHUB_PR_COMMENT"
@@ -586,43 +586,53 @@
       "order": 113,
       "commitSha": "b37007d4a6477d52ccef9b8ce7eb1f98c38a6c68",
       "subject": "fix(pre-rentree): remove host fonts from public PDFs"
+    },
+    {
+      "order": 114,
+      "commitSha": "472c381d65540ecf9118381e32bdd4a3f104d85e",
+      "subject": "chore(pre-rentree): refresh PDF release inventory"
+    },
+    {
+      "order": 115,
+      "commitSha": "03dc9ba14cb87f7eea4832b5b2adcfb06387b6cd",
+      "subject": "fix(pre-rentree): stabilize public PDF asset identities"
     }
   ],
   "publicDocuments": [
     {
       "fileName": "NexusReussite_PreRentree2026_FlyerEssentiel.pdf",
-      "sha256": "843ae9208e5fdd8704d8798239030b0d4c620b84167d3d6ebeaae450955ad3f9",
-      "bytes": 411010
+      "sha256": "dbe7747faa3f29c4a5e9afaa5c5d166b002b2fc2efa15e6776ddf57e7fb774ee",
+      "bytes": 374384
     },
     {
       "fileName": "NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf",
-      "sha256": "ada8d7c4f43c1ee09e6844444b571c13be852640d48a030ae44fb46a0c6a06f9",
-      "bytes": 449758
+      "sha256": "1649a63cf87ce804b1b3f1f49064d7cad6aebd1e850633d9a8c1f276231669e8",
+      "bytes": 400682
     },
     {
       "fileName": "NexusReussite_PreRentree2026_Programme_3e.pdf",
-      "sha256": "a489acd9e7fac2c23b139fbf69737be1a2e569b4496ce7d2754aa8295a7a032c",
-      "bytes": 454132
+      "sha256": "c004c690b1f7f95caff744de1bf33571216fe1720cdc2e2da182e33ce63fb063",
+      "bytes": 454225
     },
     {
       "fileName": "NexusReussite_PreRentree2026_Programme_Premiere.pdf",
-      "sha256": "bec8842ea84cbbaf2e20d53722d1f3fbc6d9fef04e553421e5ddc117aacc4864",
-      "bytes": 480240
+      "sha256": "698ac439b0053d0856e8f761fa0ec9bb4a582a48360362363673325f803238a6",
+      "bytes": 480323
     },
     {
       "fileName": "NexusReussite_PreRentree2026_Programme_Seconde.pdf",
-      "sha256": "fad6a08fe5d72c753baf25710d78f4d94c1c0099cc6020eb5dd27b15016b5506",
-      "bytes": 455145
+      "sha256": "70860d84b90952bf36eb8271357f085e1961af6c96d085d1f623fd84af184b6a",
+      "bytes": 455237
     },
     {
       "fileName": "NexusReussite_PreRentree2026_Programme_Terminale.pdf",
-      "sha256": "127efa521ed2d4554d60979631b319413edc4b564fc3f2cd0c9e8be8b6aba47c",
-      "bytes": 479535
+      "sha256": "0ff028dcf69a8cc2683c6beb5f95fb525d66873d3067012822e1dd473708e366",
+      "bytes": 479602
     },
     {
       "fileName": "NexusReussite_PreRentree2026_Tarifs.pdf",
-      "sha256": "f8795ba19c264080eb46f04a0085ab32a4066843ec60f9f720b60b8ba71aa04b",
-      "bytes": 431032
+      "sha256": "6eb60b8b53341c0b59a0d0acfacbee66c7fdb45063b6a3730c9a5cdf96b5b7c3",
+      "bytes": 381947
     }
   ],
   "publicSocialAssets": [
@@ -876,8 +886,8 @@
   },
   "summary": {
     "fileCount": 35,
-    "totalBytes": 12634367,
-    "aggregateSha256": "ae0197156507322d61b1a16b465c34b4e232e9838d504745cc5d8089e4b6cd91"
+    "totalBytes": 12499915,
+    "aggregateSha256": "2ba5d72f3ec124fbd0e04da1190a7e73480885ae3fae8d24196b501707c8b6ff"
   },
   "reviewOnlySummary": {
     "fileCount": 673,
@@ -1754,38 +1764,38 @@
       "files": [
         {
           "path": "assets/campaigns/pre-rentree-2026/documents-final/NexusReussite_PreRentree2026_FlyerEssentiel.pdf",
-          "bytes": 411010,
-          "sha256": "843ae9208e5fdd8704d8798239030b0d4c620b84167d3d6ebeaae450955ad3f9"
+          "bytes": 374384,
+          "sha256": "dbe7747faa3f29c4a5e9afaa5c5d166b002b2fc2efa15e6776ddf57e7fb774ee"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/documents-final/NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf",
-          "bytes": 449758,
-          "sha256": "ada8d7c4f43c1ee09e6844444b571c13be852640d48a030ae44fb46a0c6a06f9"
+          "bytes": 400682,
+          "sha256": "1649a63cf87ce804b1b3f1f49064d7cad6aebd1e850633d9a8c1f276231669e8"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/documents-final/NexusReussite_PreRentree2026_Programme_3e.pdf",
-          "bytes": 454132,
-          "sha256": "a489acd9e7fac2c23b139fbf69737be1a2e569b4496ce7d2754aa8295a7a032c"
+          "bytes": 454225,
+          "sha256": "c004c690b1f7f95caff744de1bf33571216fe1720cdc2e2da182e33ce63fb063"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/documents-final/NexusReussite_PreRentree2026_Programme_Premiere.pdf",
-          "bytes": 480240,
-          "sha256": "bec8842ea84cbbaf2e20d53722d1f3fbc6d9fef04e553421e5ddc117aacc4864"
+          "bytes": 480323,
+          "sha256": "698ac439b0053d0856e8f761fa0ec9bb4a582a48360362363673325f803238a6"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/documents-final/NexusReussite_PreRentree2026_Programme_Seconde.pdf",
-          "bytes": 455145,
-          "sha256": "fad6a08fe5d72c753baf25710d78f4d94c1c0099cc6020eb5dd27b15016b5506"
+          "bytes": 455237,
+          "sha256": "70860d84b90952bf36eb8271357f085e1961af6c96d085d1f623fd84af184b6a"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/documents-final/NexusReussite_PreRentree2026_Programme_Terminale.pdf",
-          "bytes": 479535,
-          "sha256": "127efa521ed2d4554d60979631b319413edc4b564fc3f2cd0c9e8be8b6aba47c"
+          "bytes": 479602,
+          "sha256": "0ff028dcf69a8cc2683c6beb5f95fb525d66873d3067012822e1dd473708e366"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/documents-final/NexusReussite_PreRentree2026_Tarifs.pdf",
-          "bytes": 431032,
-          "sha256": "f8795ba19c264080eb46f04a0085ab32a4066843ec60f9f720b60b8ba71aa04b"
+          "bytes": 381947,
+          "sha256": "6eb60b8b53341c0b59a0d0acfacbee66c7fdb45063b6a3730c9a5cdf96b5b7c3"
         }
       ]
     },
