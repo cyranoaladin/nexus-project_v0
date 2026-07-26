@@ -74,9 +74,23 @@ jobs:
       - name: Install Python dependencies
         run: python -m pip install -r scripts/pre-rentree/requirements.lock
 
+      - name: Build pinned public PDF environment
+        run: |
+          docker build \
+            --file tools/pdf-generator/Dockerfile \
+            --tag nexus-pre-rentree-public-pdf:2.1.0 \
+            .
+
       - name: Build public PDFs served to families
         run: |
-          npm run pre-rentree:public-pdfs
+          docker run --rm \
+            --env PRE_RENTREE_REPOSITORY_COMMIT_SHA \
+            --env PYTHONDONTWRITEBYTECODE \
+            --env SOURCE_DATE_EPOCH \
+            --volume "$PWD:/workspace" \
+            --workdir /workspace \
+            nexus-pre-rentree-public-pdf:2.1.0 \
+            npm run pre-rentree:public-pdfs
           npm run pre-rentree:public-pdfs:verify
           git diff --exit-code
           test -z "$(git status --short)"
