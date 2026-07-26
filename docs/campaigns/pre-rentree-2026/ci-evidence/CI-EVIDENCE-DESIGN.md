@@ -63,12 +63,12 @@ stacked evidence pull request actually runs the workflow.
 The baseline no-database reproduction produced four failed suites and sixteen
 failed tests:
 
-| Suite | Tests | Protected Bilan territory | Evidence job |
+| Suite | DB-dependent failures | Protected Bilan territory | Evidence job |
 | --- | ---: | --- | --- |
 | `__tests__/integration/activate-student.real.test.ts` | 2 | No | Included |
 | `__tests__/integration/predict-ownership.real.test.ts` | 5 | No | Included |
 | `__tests__/security/idor-real.test.ts` | 3 | No | Included |
-| `__tests__/lib/bilan/bilan-schema.real.test.ts` | 6 | Yes | Excluded |
+| `__tests__/lib/bilan/bilan-schema.real.test.ts` | 6 of 9 assertions | Yes | Excluded |
 
 The dedicated PostgreSQL job runs the three non-protected suites (10 tests)
 against an ephemeral `pgvector/pgvector:pg16` service after

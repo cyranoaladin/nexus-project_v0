@@ -24,7 +24,8 @@ __tests__/security/idor-real.test.ts                       3 tests
 Expected total: 3 suites / 10 tests.
 
 The fourth locally reproduced suite,
-`__tests__/lib/bilan/bilan-schema.real.test.ts` (6 tests), is explicitly
+`__tests__/lib/bilan/bilan-schema.real.test.ts` (9 assertions, including the 6
+database-dependent failures observed without `DATABASE_URL`), is explicitly
 excluded because it belongs to protected Bilan territory. No Bilan test or
 fixture is modified or executed by the dedicated job.
 
