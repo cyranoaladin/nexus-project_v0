@@ -1,0 +1,1410 @@
+{
+  "searchedSubsetsBySize": {
+    "0": [
+      {
+        "duplicatedSubjects": [],
+        "candidatesChecked": 7920,
+        "bestScore": {
+          "simultaneousCombos": 1,
+          "longIdleCombos": 4,
+          "totalIdleMinutes": 915,
+          "salle3BlocksUsed": 0
+        },
+        "isFullyCompliant": false,
+        "assignment": [
+          {
+            "subject": "MATHEMATIQUES",
+            "cohort": 0,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "B",
+            "room": "salle-1"
+          },
+          {
+            "subject": "MATHS_EXPERTES",
+            "cohort": 0,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "C",
+            "room": "salle-1"
+          },
+          {
+            "subject": "PHYSIQUE_CHIMIE",
+            "cohort": 0,
+            "teacherRole": "TEACHER_D_PHYSIQUE_CHIMIE",
+            "block": "C",
+            "room": "salle-2"
+          },
+          {
+            "subject": "NSI",
+            "cohort": 0,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "A",
+            "room": "salle-1"
+          },
+          {
+            "subject": "SVT",
+            "cohort": 0,
+            "teacherRole": "TEACHER_E_SVT",
+            "block": "D",
+            "room": "salle-1"
+          }
+        ],
+        "comboResults": [
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "NSI"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "SVT"
+            ],
+            "status": "LONG_IDLE",
+            "maxIdleMinutes": 195
+          },
+          {
+            "combo": [
+              "NSI",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "LONG_IDLE",
+            "maxIdleMinutes": 195
+          },
+          {
+            "combo": [
+              "NSI",
+              "SVT"
+            ],
+            "status": "LONG_IDLE",
+            "maxIdleMinutes": 330
+          },
+          {
+            "combo": [
+              "PHYSIQUE_CHIMIE",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES",
+              "NSI"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "SIMULTANEOUS",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "PHYSIQUE_CHIMIE",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "NSI",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "NSI",
+              "SVT"
+            ],
+            "status": "LONG_IDLE",
+            "maxIdleMinutes": 195
+          }
+        ]
+      }
+    ],
+    "1": [
+      {
+        "duplicatedSubjects": [
+          "NSI"
+        ],
+        "candidatesChecked": 11520,
+        "bestScore": {
+          "simultaneousCombos": 0,
+          "longIdleCombos": 2,
+          "totalIdleMinutes": 390,
+          "salle3BlocksUsed": 0
+        },
+        "isFullyCompliant": false,
+        "assignment": [
+          {
+            "subject": "MATHEMATIQUES",
+            "cohort": 0,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "B",
+            "room": "salle-1"
+          },
+          {
+            "subject": "MATHS_EXPERTES",
+            "cohort": 0,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "A",
+            "room": "salle-1"
+          },
+          {
+            "subject": "NSI",
+            "cohort": 0,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "C",
+            "room": "salle-1"
+          },
+          {
+            "subject": "PHYSIQUE_CHIMIE",
+            "cohort": 0,
+            "teacherRole": "TEACHER_D_PHYSIQUE_CHIMIE",
+            "block": "C",
+            "room": "salle-2"
+          },
+          {
+            "subject": "NSI",
+            "cohort": 1,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "D",
+            "room": "salle-1"
+          },
+          {
+            "subject": "SVT",
+            "cohort": 0,
+            "teacherRole": "TEACHER_E_SVT",
+            "block": "D",
+            "room": "salle-2"
+          }
+        ],
+        "comboResults": [
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "NSI"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "SVT"
+            ],
+            "status": "LONG_IDLE",
+            "maxIdleMinutes": 195
+          },
+          {
+            "combo": [
+              "NSI",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "NSI",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "PHYSIQUE_CHIMIE",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES",
+              "NSI"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES",
+              "SVT"
+            ],
+            "status": "LONG_IDLE",
+            "maxIdleMinutes": 195
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "PHYSIQUE_CHIMIE",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "NSI",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "NSI",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          }
+        ]
+      },
+      {
+        "duplicatedSubjects": [
+          "PHYSIQUE_CHIMIE"
+        ],
+        "candidatesChecked": 27072,
+        "bestScore": {
+          "simultaneousCombos": 0,
+          "longIdleCombos": 2,
+          "totalIdleMinutes": 390,
+          "salle3BlocksUsed": 0
+        },
+        "isFullyCompliant": false,
+        "assignment": [
+          {
+            "subject": "MATHEMATIQUES",
+            "cohort": 0,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "B",
+            "room": "salle-1"
+          },
+          {
+            "subject": "MATHS_EXPERTES",
+            "cohort": 0,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "A",
+            "room": "salle-1"
+          },
+          {
+            "subject": "NSI",
+            "cohort": 0,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "C",
+            "room": "salle-1"
+          },
+          {
+            "subject": "PHYSIQUE_CHIMIE",
+            "cohort": 0,
+            "teacherRole": "TEACHER_D_PHYSIQUE_CHIMIE",
+            "block": "C",
+            "room": "salle-2"
+          },
+          {
+            "subject": "PHYSIQUE_CHIMIE",
+            "cohort": 1,
+            "teacherRole": "TEACHER_D_PHYSIQUE_CHIMIE",
+            "block": "D",
+            "room": "salle-1"
+          },
+          {
+            "subject": "SVT",
+            "cohort": 0,
+            "teacherRole": "TEACHER_E_SVT",
+            "block": "D",
+            "room": "salle-2"
+          }
+        ],
+        "comboResults": [
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "NSI"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "SVT"
+            ],
+            "status": "LONG_IDLE",
+            "maxIdleMinutes": 195
+          },
+          {
+            "combo": [
+              "NSI",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "NSI",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "PHYSIQUE_CHIMIE",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES",
+              "NSI"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES",
+              "SVT"
+            ],
+            "status": "LONG_IDLE",
+            "maxIdleMinutes": 195
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "PHYSIQUE_CHIMIE",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "NSI",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "NSI",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          }
+        ]
+      },
+      {
+        "duplicatedSubjects": [
+          "SVT"
+        ],
+        "candidatesChecked": 27072,
+        "bestScore": {
+          "simultaneousCombos": 0,
+          "longIdleCombos": 2,
+          "totalIdleMinutes": 390,
+          "salle3BlocksUsed": 0
+        },
+        "isFullyCompliant": false,
+        "assignment": [
+          {
+            "subject": "MATHEMATIQUES",
+            "cohort": 0,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "B",
+            "room": "salle-1"
+          },
+          {
+            "subject": "MATHS_EXPERTES",
+            "cohort": 0,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "A",
+            "room": "salle-1"
+          },
+          {
+            "subject": "NSI",
+            "cohort": 0,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "C",
+            "room": "salle-1"
+          },
+          {
+            "subject": "SVT",
+            "cohort": 0,
+            "teacherRole": "TEACHER_E_SVT",
+            "block": "C",
+            "room": "salle-2"
+          },
+          {
+            "subject": "PHYSIQUE_CHIMIE",
+            "cohort": 0,
+            "teacherRole": "TEACHER_D_PHYSIQUE_CHIMIE",
+            "block": "D",
+            "room": "salle-1"
+          },
+          {
+            "subject": "SVT",
+            "cohort": 1,
+            "teacherRole": "TEACHER_E_SVT",
+            "block": "D",
+            "room": "salle-2"
+          }
+        ],
+        "comboResults": [
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "NSI"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "LONG_IDLE",
+            "maxIdleMinutes": 195
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "NSI",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "NSI",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "PHYSIQUE_CHIMIE",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES",
+              "NSI"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "LONG_IDLE",
+            "maxIdleMinutes": 195
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "PHYSIQUE_CHIMIE",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "NSI",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "NSI",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          }
+        ]
+      }
+    ],
+    "2": [
+      {
+        "duplicatedSubjects": [
+          "NSI",
+          "PHYSIQUE_CHIMIE"
+        ],
+        "candidatesChecked": 31104,
+        "bestScore": {
+          "simultaneousCombos": 0,
+          "longIdleCombos": 0,
+          "totalIdleMinutes": 0,
+          "salle3BlocksUsed": 1
+        },
+        "isFullyCompliant": true,
+        "assignment": [
+          {
+            "subject": "MATHEMATIQUES",
+            "cohort": 0,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "B",
+            "room": "salle-1"
+          },
+          {
+            "subject": "MATHS_EXPERTES",
+            "cohort": 0,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "A",
+            "room": "salle-1"
+          },
+          {
+            "subject": "NSI",
+            "cohort": 0,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "C",
+            "room": "salle-1"
+          },
+          {
+            "subject": "PHYSIQUE_CHIMIE",
+            "cohort": 0,
+            "teacherRole": "TEACHER_D_PHYSIQUE_CHIMIE",
+            "block": "C",
+            "room": "salle-2"
+          },
+          {
+            "subject": "SVT",
+            "cohort": 0,
+            "teacherRole": "TEACHER_E_SVT",
+            "block": "C",
+            "room": "salle-3"
+          },
+          {
+            "subject": "NSI",
+            "cohort": 1,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "D",
+            "room": "salle-1"
+          },
+          {
+            "subject": "PHYSIQUE_CHIMIE",
+            "cohort": 1,
+            "teacherRole": "TEACHER_D_PHYSIQUE_CHIMIE",
+            "block": "D",
+            "room": "salle-2"
+          }
+        ],
+        "comboResults": [
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "NSI"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "NSI",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "NSI",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "PHYSIQUE_CHIMIE",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES",
+              "NSI"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "PHYSIQUE_CHIMIE",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "NSI",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "NSI",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          }
+        ]
+      },
+      {
+        "duplicatedSubjects": [
+          "NSI",
+          "SVT"
+        ],
+        "candidatesChecked": 31104,
+        "bestScore": {
+          "simultaneousCombos": 0,
+          "longIdleCombos": 0,
+          "totalIdleMinutes": 0,
+          "salle3BlocksUsed": 1
+        },
+        "isFullyCompliant": true,
+        "assignment": [
+          {
+            "subject": "MATHEMATIQUES",
+            "cohort": 0,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "B",
+            "room": "salle-1"
+          },
+          {
+            "subject": "MATHS_EXPERTES",
+            "cohort": 0,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "A",
+            "room": "salle-1"
+          },
+          {
+            "subject": "NSI",
+            "cohort": 0,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "C",
+            "room": "salle-1"
+          },
+          {
+            "subject": "PHYSIQUE_CHIMIE",
+            "cohort": 0,
+            "teacherRole": "TEACHER_D_PHYSIQUE_CHIMIE",
+            "block": "C",
+            "room": "salle-2"
+          },
+          {
+            "subject": "SVT",
+            "cohort": 0,
+            "teacherRole": "TEACHER_E_SVT",
+            "block": "C",
+            "room": "salle-3"
+          },
+          {
+            "subject": "NSI",
+            "cohort": 1,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "D",
+            "room": "salle-1"
+          },
+          {
+            "subject": "SVT",
+            "cohort": 1,
+            "teacherRole": "TEACHER_E_SVT",
+            "block": "D",
+            "room": "salle-2"
+          }
+        ],
+        "comboResults": [
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "NSI"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "NSI",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "NSI",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "PHYSIQUE_CHIMIE",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES",
+              "NSI"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "PHYSIQUE_CHIMIE",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "NSI",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "NSI",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          }
+        ]
+      },
+      {
+        "duplicatedSubjects": [
+          "PHYSIQUE_CHIMIE",
+          "SVT"
+        ],
+        "candidatesChecked": 69120,
+        "bestScore": {
+          "simultaneousCombos": 0,
+          "longIdleCombos": 0,
+          "totalIdleMinutes": 0,
+          "salle3BlocksUsed": 1
+        },
+        "isFullyCompliant": true,
+        "assignment": [
+          {
+            "subject": "MATHEMATIQUES",
+            "cohort": 0,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "B",
+            "room": "salle-1"
+          },
+          {
+            "subject": "MATHS_EXPERTES",
+            "cohort": 0,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "A",
+            "room": "salle-1"
+          },
+          {
+            "subject": "NSI",
+            "cohort": 0,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "C",
+            "room": "salle-1"
+          },
+          {
+            "subject": "PHYSIQUE_CHIMIE",
+            "cohort": 0,
+            "teacherRole": "TEACHER_D_PHYSIQUE_CHIMIE",
+            "block": "C",
+            "room": "salle-2"
+          },
+          {
+            "subject": "SVT",
+            "cohort": 0,
+            "teacherRole": "TEACHER_E_SVT",
+            "block": "C",
+            "room": "salle-3"
+          },
+          {
+            "subject": "PHYSIQUE_CHIMIE",
+            "cohort": 1,
+            "teacherRole": "TEACHER_D_PHYSIQUE_CHIMIE",
+            "block": "D",
+            "room": "salle-1"
+          },
+          {
+            "subject": "SVT",
+            "cohort": 1,
+            "teacherRole": "TEACHER_E_SVT",
+            "block": "D",
+            "room": "salle-2"
+          }
+        ],
+        "comboResults": [
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "NSI"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "NSI",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "NSI",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "PHYSIQUE_CHIMIE",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES",
+              "NSI"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "PHYSIQUE_CHIMIE",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "NSI",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "NSI",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          }
+        ]
+      }
+    ],
+    "3": [
+      {
+        "duplicatedSubjects": [
+          "NSI",
+          "PHYSIQUE_CHIMIE",
+          "SVT"
+        ],
+        "candidatesChecked": 55296,
+        "bestScore": {
+          "simultaneousCombos": 0,
+          "longIdleCombos": 0,
+          "totalIdleMinutes": 0,
+          "salle3BlocksUsed": 1
+        },
+        "isFullyCompliant": true,
+        "assignment": [
+          {
+            "subject": "MATHEMATIQUES",
+            "cohort": 0,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "B",
+            "room": "salle-1"
+          },
+          {
+            "subject": "SVT",
+            "cohort": 0,
+            "teacherRole": "TEACHER_E_SVT",
+            "block": "B",
+            "room": "salle-2"
+          },
+          {
+            "subject": "MATHS_EXPERTES",
+            "cohort": 0,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "A",
+            "room": "salle-1"
+          },
+          {
+            "subject": "PHYSIQUE_CHIMIE",
+            "cohort": 0,
+            "teacherRole": "TEACHER_D_PHYSIQUE_CHIMIE",
+            "block": "A",
+            "room": "salle-2"
+          },
+          {
+            "subject": "NSI",
+            "cohort": 0,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "C",
+            "room": "salle-1"
+          },
+          {
+            "subject": "PHYSIQUE_CHIMIE",
+            "cohort": 1,
+            "teacherRole": "TEACHER_D_PHYSIQUE_CHIMIE",
+            "block": "C",
+            "room": "salle-2"
+          },
+          {
+            "subject": "SVT",
+            "cohort": 1,
+            "teacherRole": "TEACHER_E_SVT",
+            "block": "C",
+            "room": "salle-3"
+          },
+          {
+            "subject": "NSI",
+            "cohort": 1,
+            "teacherRole": "TEACHER_A_MATHS_NSI",
+            "block": "D",
+            "room": "salle-1"
+          }
+        ],
+        "comboResults": [
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "NSI"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "NSI",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "NSI",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "PHYSIQUE_CHIMIE",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 15
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES",
+              "NSI"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "MATHS_EXPERTES",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "PHYSIQUE_CHIMIE",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "NSI",
+              "PHYSIQUE_CHIMIE"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          },
+          {
+            "combo": [
+              "MATHEMATIQUES",
+              "NSI",
+              "SVT"
+            ],
+            "status": "COMPACT",
+            "maxIdleMinutes": 60
+          }
+        ]
+      }
+    ]
+  },
+  "provenMinimumAdditionalCohorts": 2,
+  "compliantSubsetsAtMinimum": [
+    [
+      "NSI",
+      "PHYSIQUE_CHIMIE"
+    ],
+    [
+      "NSI",
+      "SVT"
+    ],
+    [
+      "PHYSIQUE_CHIMIE",
+      "SVT"
+    ]
+  ]
+}
