@@ -104,3 +104,12 @@ def test_calendar_uses_the_owner_authorized_launch_date():
 def test_calendar_csv_uses_repository_safe_line_endings():
     calendar_csv = (KIT / "calendar/week-one-calendar.csv").read_bytes()
     assert b"\r\n" not in calendar_csv
+
+
+def test_reel_concat_source_is_checkout_independent():
+    concat = (KIT / "reel/frames.concat.txt").read_text(encoding="utf-8")
+    file_lines = [line for line in concat.splitlines() if line.startswith("file ")]
+    assert file_lines
+    assert all(line.startswith("file 'frames/") for line in file_lines)
+    assert "/home/" not in concat
+    assert "/workspace/" not in concat
