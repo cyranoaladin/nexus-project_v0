@@ -16,6 +16,7 @@ publicationStatus values and gap detection), never by a local flag.
 
 from __future__ import annotations
 
+import hashlib
 import os
 from pathlib import Path
 
@@ -37,12 +38,13 @@ from pre_rentree_data import (
     PreRentreeData,
     format_tnd,
 )
+from stable_assets import fetch_public_pdf_asset, public_pdf_asset_url
 
 TOOL_DIR = Path(__file__).parent
 REPO_ROOT = TOOL_DIR.parent.parent
 OUT_DIR = TOOL_DIR / "output"
 OUT_DIR.mkdir(exist_ok=True)
-LOGO = str((REPO_ROOT / "public" / "images" / "logo_slogan_nexus_x3.png").resolve())
+LOGO = public_pdf_asset_url("logo_slogan_nexus_x3.png")
 
 _BLOCK_ORDER = ("A", "B", "C", "D")
 # 2026-07-20T00:00:00Z. FontTools uses SOURCE_DATE_EPOCH when it writes
@@ -440,13 +442,20 @@ def generate_dossier_pdf(dossier: LevelDossierData, data: PreRentreeData) -> str
     filename = f"NexusReussite_PreRentree2026_Programme_{filename_level}.pdf"
 
     html_content = build_dossier_html(dossier, data)
-    document = HTML(string=html_content, base_url=str(OUT_DIR))
+    document = HTML(
+        string=html_content,
+        base_url="nexus-public-pdf:",
+        url_fetcher=fetch_public_pdf_asset,
+    )
     doc = document.render()
     doc.metadata.title = f"Nexus Réussite — Dossier complet parents — Entrée en {dossier.level_label} — Pré-rentrée 2026"
     doc.metadata.authors = ["Nexus Réussite"]
     doc.metadata.description = f"Dossier complet parents — Stage de pré-rentrée 2026 — Entrée en {dossier.level_label}"
     doc.metadata.keywords = ["pré-rentrée 2026", "Nexus Réussite", dossier.level_label]
-    doc.write_pdf(str(OUT_DIR / filename))
+    doc.write_pdf(
+        str(OUT_DIR / filename),
+        pdf_identifier=hashlib.sha256(f"pre-rentree-2026:{filename}".encode()).digest(),
+    )
     size = os.path.getsize(OUT_DIR / filename)
     print(f"  {filename}: {size // 1024} Ko ({len(doc.pages)} pages, {'PUBLIC' if dossier.is_public else 'REVIEW'})")
     return filename

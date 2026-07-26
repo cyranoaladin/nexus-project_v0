@@ -8,10 +8,7 @@ small markers/underlines on subject chapters, never as full-page backgrounds,
 so the institutional charter stays dominant.
 """
 
-from pathlib import Path
-
-REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-_FONT_DIR = REPO_ROOT / "app" / "fonts"
+from stable_assets import public_pdf_asset_url
 
 NAVY = "#071A3A"
 NAVY_SECONDARY = "#0E2547"
@@ -25,11 +22,10 @@ RED_ALERT = "#8F1D1D"
 
 
 def _font_face(family: str, filename: str) -> str:
-    path = (_FONT_DIR / filename).resolve()
     return f"""
 @font-face {{
     font-family: '{family}';
-    src: url('file://{path}') format('woff2');
+    src: url('{public_pdf_asset_url(filename)}') format('woff2');
     font-weight: 100 900;
     font-style: normal;
 }}
@@ -37,22 +33,22 @@ def _font_face(family: str, filename: str) -> str:
 
 
 DESIGN_CSS = f"""
-{_font_face('Fraunces', 'Fraunces-Variable.woff2')}
-{_font_face('DM Sans', 'DMSans-Variable.woff2')}
+{_font_face('Nexus Fraunces', 'Fraunces-Variable.woff2')}
+{_font_face('Nexus DM Sans', 'DMSans-Variable.woff2')}
 
 @page {{
     size: A4 portrait;
     margin: 16mm 18mm 18mm 18mm;
     @bottom-center {{
         content: "Page " counter(page) " / " counter(pages);
-        font-family: 'DM Sans', sans-serif;
+        font-family: 'Nexus DM Sans';
         font-size: 7.5pt;
         color: {TEXT_SECONDARY};
     }}
 }}
 * {{ margin: 0; padding: 0; box-sizing: border-box; }}
 body {{
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Nexus DM Sans';
     color: #1A2333;
     font-size: 10.5pt;
     line-height: 1.45;
@@ -60,7 +56,7 @@ body {{
 }}
 a {{ color: {NAVY}; text-decoration: none; }}
 p, li {{ orphans: 3; widows: 3; }}
-h1, h2, h3 {{ font-family: 'Fraunces', serif; break-after: avoid; }}
+h1, h2, h3 {{ font-family: 'Nexus Fraunces'; break-after: avoid; }}
 
 /* ── Cover ─────────────────────────────────────────────────────────── */
 .dossier-cover {{
@@ -75,7 +71,7 @@ h1, h2, h3 {{ font-family: 'Fraunces', serif; break-after: avoid; }}
 }}
 .dossier-cover img.logo {{ width: 55mm; margin-bottom: 26px; }}
 .dossier-cover .eyebrow {{
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Nexus DM Sans';
     letter-spacing: 2px;
     text-transform: uppercase;
     font-size: 9pt;
@@ -263,7 +259,7 @@ p.lede {{
     margin-bottom: 6px;
 }}
 .session-card .session-number {{
-    font-family: 'Fraunces', serif;
+    font-family: 'Nexus Fraunces';
     font-size: 13pt;
     font-weight: 600;
     color: var(--accent, {NAVY});
@@ -305,7 +301,7 @@ table.practical td:first-child {{ width: 28%; font-weight: 700; color: {NAVY}; }
     break-inside: avoid;
 }}
 .cta-block a {{ color: {GOLD}; font-weight: 700; }}
-.cta-block .cta-title {{ font-family: 'Fraunces', serif; font-size: 13pt; margin-bottom: 6px; }}
+.cta-block .cta-title {{ font-family: 'Nexus Fraunces'; font-size: 13pt; margin-bottom: 6px; }}
 .cta-block .cta-line {{ font-size: 9.5pt; line-height: 1.6; }}
 
 .dossier-footer {{

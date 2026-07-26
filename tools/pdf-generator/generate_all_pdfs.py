@@ -24,21 +24,23 @@ scripts/pre-rentree/document_templates.py via generate_documents.py
 is an internal review package, never served publicly.
 """
 
+import hashlib
 import json
 import os
 from pathlib import Path
 from weasyprint import HTML
+from stable_assets import fetch_public_pdf_asset, public_pdf_asset_url
 
 TOOL_DIR = Path(__file__).parent
 REPO_ROOT = TOOL_DIR.parent.parent
 OUT_DIR = TOOL_DIR / "output"
 OUT_DIR.mkdir(exist_ok=True)
 # Official charte logo (sealed visualIdentity)
-LOGO_SLOGAN = str(REPO_ROOT / "public" / "images" / "logo_slogan_nexus_x3.png")
-LOGO_COMPACT = str(REPO_ROOT / "public" / "images" / "logo_slogan_nexus_x3.png")
+LOGO_SLOGAN = public_pdf_asset_url("logo_slogan_nexus_x3.png")
+LOGO_COMPACT = LOGO_SLOGAN
 _qr = TOOL_DIR / "qr_stage.png"
 QR_CODE = str(_qr) if _qr.exists() else ""
-INTER_FONT_URI = (REPO_ROOT / "app" / "fonts" / "Inter-Variable.woff2").resolve().as_uri()
+INTER_FONT_URI = public_pdf_asset_url("Inter-Variable.woff2")
 
 # Horaires read EXCLUSIVELY from the sealed campaign JSON (D4-final) — never from .md.
 CAMPAIGN = json.loads((REPO_ROOT / "data" / "campaigns" / "pre-rentree-2026.json").read_text(encoding="utf-8"))
@@ -121,13 +123,13 @@ def premium_pack_rows():
 
 COMMON_CSS = """
 @font-face {
-    font-family: 'Inter';
+    font-family: 'Nexus Inter';
     src: url('__INTER_FONT_URI__') format('woff2');
     font-weight: 100 900;
     font-style: normal;
 }
 @font-face {
-    font-family: 'Inter';
+    font-family: 'Nexus Inter';
     src: url('__INTER_FONT_URI__') format('woff2');
     font-weight: 100 900;
     font-style: italic;
@@ -141,7 +143,7 @@ COMMON_CSS = """
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Nexus Inter';
     color: #1A1A1A;
     font-size: 10pt;
     line-height: 1.5;
@@ -372,12 +374,19 @@ def wrap_html(body, title, extra_css=""):
 
 def generate_pdf(html_content, filename, title):
     """Generate PDF with metadata."""
-    html = HTML(string=html_content, base_url=str(OUT_DIR))
+    html = HTML(
+        string=html_content,
+        base_url="nexus-public-pdf:",
+        url_fetcher=fetch_public_pdf_asset,
+    )
     doc = html.render()
     doc.metadata.title = title
     doc.metadata.authors = ["Nexus Réussite"]
     doc.metadata.description = "Stages de pré-rentrée 2026"
-    doc.write_pdf(str(OUT_DIR / filename))
+    doc.write_pdf(
+        str(OUT_DIR / filename),
+        pdf_identifier=hashlib.sha256(f"pre-rentree-2026:{filename}".encode()).digest(),
+    )
     size = os.path.getsize(OUT_DIR / filename)
     print(f"  {filename}: {size // 1024} Ko")
     return filename
