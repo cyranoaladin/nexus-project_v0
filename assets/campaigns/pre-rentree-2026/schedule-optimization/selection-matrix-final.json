@@ -1,0 +1,2043 @@
+{
+  "schemaVersion": "1.0.0",
+  "source": {
+    "campaignVersion": "2.1.0",
+    "timezone": "Africa/Tunis",
+    "startDate": "2026-08-17",
+    "endDate": "2026-08-28",
+    "maxSubjects": 4,
+    "studentSessionsPerSubject": 5,
+    "studentHoursPerSubject": 10
+  },
+  "summary": {
+    "combinationCount": 66,
+    "actionableCount": 57,
+    "blockedCount": 9,
+    "statusCounts": {
+      "COMPACT": 37,
+      "LONG_IDLE": 6,
+      "NO_SHARED_DAY": 20,
+      "SIMULTANEOUS": 3
+    },
+    "maximumActionableIdleMinutes": 60
+  },
+  "rows": [
+    {
+      "level": "TROISIEME",
+      "subjects": [
+        "FRANCAIS"
+      ],
+      "subjectCount": 1,
+      "status": "NO_SHARED_DAY",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "FRANCAIS": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "124ce2ef45eae4e6d811e2f2ca4f1b503b1a9a7076186367e44e75cac3ffc5d2",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TROISIEME",
+      "subjects": [
+        "MATHEMATIQUES"
+      ],
+      "subjectCount": 1,
+      "status": "NO_SHARED_DAY",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "ff3bb114dca1aa058faee5056b5d0f3e2b0cb95a63c7b3f712bf9c39b92d3963",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TROISIEME",
+      "subjects": [
+        "MATHEMATIQUES",
+        "FRANCAIS"
+      ],
+      "subjectCount": 2,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 15,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "FRANCAIS": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "4f90aecdc5c9e90386a7e598b6ef1d9e83e6215ddde3f55dc6849a0a0bbadbc6",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "SECONDE",
+      "subjects": [
+        "FRANCAIS"
+      ],
+      "subjectCount": 1,
+      "status": "NO_SHARED_DAY",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "FRANCAIS": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "ffc96d4f82c64d5482daeb8acdded447418db21f735198cec2f75294b3d7b57a",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "SECONDE",
+      "subjects": [
+        "MATHEMATIQUES"
+      ],
+      "subjectCount": 1,
+      "status": "NO_SHARED_DAY",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "d302d0a1c1ef958bec75e7dd4c3d77c612d5f1422fc8a908cdd0b75c2a98c11f",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "SECONDE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "FRANCAIS"
+      ],
+      "subjectCount": 2,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 15,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "FRANCAIS": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "71260c7537f001989bbfe6c92adb34600d4f82629f08549f6c01f679af4bd021",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "FRANCAIS"
+      ],
+      "subjectCount": 1,
+      "status": "NO_SHARED_DAY",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-22",
+        "2026-08-23",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "FRANCAIS": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "165381bc84ab02c6376b9c50b46b82c5784874e5b33f7500d418a20495a73378",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "MATHEMATIQUES"
+      ],
+      "subjectCount": 1,
+      "status": "NO_SHARED_DAY",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "8ca4816604d2631b1c8ca73eb9d7375890dbe26f5a6b03afb0e159d1b4075530",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "NSI"
+      ],
+      "subjectCount": 1,
+      "status": "NO_SHARED_DAY",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "NSI": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "c08250b8a9da40cda6fddecd863f540162fa15d28b67deb4ffdefb68c600e7b7",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "PHYSIQUE_CHIMIE"
+      ],
+      "subjectCount": 1,
+      "status": "NO_SHARED_DAY",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-22",
+        "2026-08-23",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "PHYSIQUE_CHIMIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "e52798911026ff26ccff31c553b15949e1540c551ab80ced273e32453cd4899c",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "SVT"
+      ],
+      "subjectCount": 1,
+      "status": "NO_SHARED_DAY",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21"
+      ],
+      "cohortBySubject": {
+        "SVT": "premiere-svt-a"
+      },
+      "sessionCountBySubject": {
+        "SVT": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "1fda8553dbdb13e790a04eb2597c950d2022d471471c31b437c9a29cbed3e0c9",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "FRANCAIS",
+        "SVT"
+      ],
+      "subjectCount": 2,
+      "status": "NO_SHARED_DAY",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-22",
+        "2026-08-23",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26"
+      ],
+      "cohortBySubject": {
+        "SVT": "premiere-svt-a"
+      },
+      "sessionCountBySubject": {
+        "FRANCAIS": 5,
+        "SVT": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "871a9b52db9daa55afd78e522f2232e1ee63f334ffcb87ad05a9ab0234d3254a",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "FRANCAIS"
+      ],
+      "subjectCount": 2,
+      "status": "NO_SHARED_DAY",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-22",
+        "2026-08-23",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "FRANCAIS": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "508f5745f8929432b08ff9d8e5b7e6221e10b88f8d3fe73c829d3295db5b7f78",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "NSI"
+      ],
+      "subjectCount": 2,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "NSI": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "7c2ed3f08b0bdb9f46fe9752bc63d7fdd9d96ede611eb37dc6fcc357feeaff1f",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "PHYSIQUE_CHIMIE"
+      ],
+      "subjectCount": 2,
+      "status": "NO_SHARED_DAY",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-22",
+        "2026-08-23",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "PHYSIQUE_CHIMIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "36f1021a55a27a1852e3b6ae918117529ce3fde3ef9e878c9c72dd4cfbd48b83",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "SVT"
+      ],
+      "subjectCount": 2,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 15,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21"
+      ],
+      "cohortBySubject": {
+        "SVT": "premiere-svt-a"
+      },
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "SVT": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "4084b462aa50b97a873e3432123b0edbf993e78febd964b27a4ce1233f5ea617",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "NSI",
+        "FRANCAIS"
+      ],
+      "subjectCount": 2,
+      "status": "NO_SHARED_DAY",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-22",
+        "2026-08-23",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "NSI": 5,
+        "FRANCAIS": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "0e604e706b9a5db283bbf36e26290a6c5323744808635c86325f278335aa1ad7",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "NSI",
+        "SVT"
+      ],
+      "subjectCount": 2,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 15,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21"
+      ],
+      "cohortBySubject": {
+        "SVT": "premiere-svt-d"
+      },
+      "sessionCountBySubject": {
+        "NSI": 5,
+        "SVT": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "3b30b41f527c28c1ffe230491d0228ae17eaff86ef7676b69969d0b74b2d618e",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "PHYSIQUE_CHIMIE",
+        "FRANCAIS"
+      ],
+      "subjectCount": 2,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 15,
+      "dates": [
+        "2026-08-22",
+        "2026-08-23",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "PHYSIQUE_CHIMIE": 5,
+        "FRANCAIS": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "a99ddfe99bee447bd53c9fcfcf472ed0ed93be660550c8bc5187c0e13453d5b5",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "PHYSIQUE_CHIMIE",
+        "NSI"
+      ],
+      "subjectCount": 2,
+      "status": "NO_SHARED_DAY",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-22",
+        "2026-08-23",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "PHYSIQUE_CHIMIE": 5,
+        "NSI": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "7ce765db98c588dead7263a1b61ad7daa575b8771e4976be3bc7a67587a4b6d0",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "PHYSIQUE_CHIMIE",
+        "SVT"
+      ],
+      "subjectCount": 2,
+      "status": "NO_SHARED_DAY",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-22",
+        "2026-08-23",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26"
+      ],
+      "cohortBySubject": {
+        "SVT": "premiere-svt-a"
+      },
+      "sessionCountBySubject": {
+        "PHYSIQUE_CHIMIE": 5,
+        "SVT": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "eba62a1e6d38090a9a1d5135c864f84d4f0828b6911b12282ff8ba03ce98a97f",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "FRANCAIS",
+        "SVT"
+      ],
+      "subjectCount": 3,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 15,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-22",
+        "2026-08-23",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26"
+      ],
+      "cohortBySubject": {
+        "SVT": "premiere-svt-a"
+      },
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "FRANCAIS": 5,
+        "SVT": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "6f93a5e36e878738867a6b4a9d9aa67f5008fcd07c9f13af1d3cdb36e93585e8",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "NSI",
+        "FRANCAIS"
+      ],
+      "subjectCount": 3,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-22",
+        "2026-08-23",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "NSI": 5,
+        "FRANCAIS": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "a30cc150ddebae0023c2fae4bceecf595dffb38772b9dc838093be89340f1e59",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "NSI",
+        "SVT"
+      ],
+      "subjectCount": 3,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21"
+      ],
+      "cohortBySubject": {
+        "SVT": "premiere-svt-a"
+      },
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "NSI": 5,
+        "SVT": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "2b01233662c9306cc28e4c1d6615e1141845b8ca12358c2c40e114723175bfc0",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "PHYSIQUE_CHIMIE",
+        "FRANCAIS"
+      ],
+      "subjectCount": 3,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 15,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-22",
+        "2026-08-23",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "PHYSIQUE_CHIMIE": 5,
+        "FRANCAIS": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "2cba292b9c87de501652440f7c1c0ede7b187cd13733954cfe9a177e028a8460",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "PHYSIQUE_CHIMIE",
+        "NSI"
+      ],
+      "subjectCount": 3,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-22",
+        "2026-08-23",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "PHYSIQUE_CHIMIE": 5,
+        "NSI": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "fc7b32f5a150d9898e13f7d510f7e8c5434929a1104d1ff0e063727efb10f107",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "PHYSIQUE_CHIMIE",
+        "SVT"
+      ],
+      "subjectCount": 3,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 15,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-22",
+        "2026-08-23",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26"
+      ],
+      "cohortBySubject": {
+        "SVT": "premiere-svt-a"
+      },
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "PHYSIQUE_CHIMIE": 5,
+        "SVT": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "8ebc8576d121d17a95f44789f93ffcdac10ad38936f0dea5596b9bdb82898fc6",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "NSI",
+        "FRANCAIS",
+        "SVT"
+      ],
+      "subjectCount": 3,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 15,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-22",
+        "2026-08-23",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26"
+      ],
+      "cohortBySubject": {
+        "SVT": "premiere-svt-d"
+      },
+      "sessionCountBySubject": {
+        "NSI": 5,
+        "FRANCAIS": 5,
+        "SVT": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "f21946142b36450873bca7169f16d1a6110270c55a42c56857172ee5ed2bb5c3",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "PHYSIQUE_CHIMIE",
+        "FRANCAIS",
+        "SVT"
+      ],
+      "subjectCount": 3,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 15,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-22",
+        "2026-08-23",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26"
+      ],
+      "cohortBySubject": {
+        "SVT": "premiere-svt-a"
+      },
+      "sessionCountBySubject": {
+        "PHYSIQUE_CHIMIE": 5,
+        "FRANCAIS": 5,
+        "SVT": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "bbfc7d85ed7bad3098a55a8437f2428136cc4baca463204ada82d1debcc2e9c9",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "PHYSIQUE_CHIMIE",
+        "NSI",
+        "FRANCAIS"
+      ],
+      "subjectCount": 3,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 15,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-22",
+        "2026-08-23",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "PHYSIQUE_CHIMIE": 5,
+        "NSI": 5,
+        "FRANCAIS": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "0b0c5ffe18efafd823bbd1e4fae5c3c539786f84de789edb4353dc45a150852f",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "PHYSIQUE_CHIMIE",
+        "NSI",
+        "SVT"
+      ],
+      "subjectCount": 3,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 15,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-22",
+        "2026-08-23",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26"
+      ],
+      "cohortBySubject": {
+        "SVT": "premiere-svt-d"
+      },
+      "sessionCountBySubject": {
+        "PHYSIQUE_CHIMIE": 5,
+        "NSI": 5,
+        "SVT": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "295f57f86c752da8ad0c29f948020d1ac9330169f1fdb4cfd9d03d2fc40c8826",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "NSI",
+        "FRANCAIS",
+        "SVT"
+      ],
+      "subjectCount": 4,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-22",
+        "2026-08-23",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26"
+      ],
+      "cohortBySubject": {
+        "SVT": "premiere-svt-a"
+      },
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "NSI": 5,
+        "FRANCAIS": 5,
+        "SVT": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "1151be90ab0e9ecc6f4b46f33e52380de46228f82e8005cb2fa64ae442ccdd1f",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "PHYSIQUE_CHIMIE",
+        "FRANCAIS",
+        "SVT"
+      ],
+      "subjectCount": 4,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 15,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-22",
+        "2026-08-23",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26"
+      ],
+      "cohortBySubject": {
+        "SVT": "premiere-svt-a"
+      },
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "PHYSIQUE_CHIMIE": 5,
+        "FRANCAIS": 5,
+        "SVT": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "47a59ea75b342d6cd07e0e9346c318c8074e28ce203fb3f9450df406f2be5988",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "PHYSIQUE_CHIMIE",
+        "NSI",
+        "FRANCAIS"
+      ],
+      "subjectCount": 4,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-22",
+        "2026-08-23",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "PHYSIQUE_CHIMIE": 5,
+        "NSI": 5,
+        "FRANCAIS": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "1037914ada039b5b2c431b83e084dc31f19a1b52195c0f55335e85c72d6d57b0",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "PHYSIQUE_CHIMIE",
+        "NSI",
+        "SVT"
+      ],
+      "subjectCount": 4,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-22",
+        "2026-08-23",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26"
+      ],
+      "cohortBySubject": {
+        "SVT": "premiere-svt-a"
+      },
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "PHYSIQUE_CHIMIE": 5,
+        "NSI": 5,
+        "SVT": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "c11b14a8fba8a55975b159f9e66a083da55201d3859641036cd6fb4018512193",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "PREMIERE",
+      "subjects": [
+        "PHYSIQUE_CHIMIE",
+        "NSI",
+        "FRANCAIS",
+        "SVT"
+      ],
+      "subjectCount": 4,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 15,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-22",
+        "2026-08-23",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26"
+      ],
+      "cohortBySubject": {
+        "SVT": "premiere-svt-d"
+      },
+      "sessionCountBySubject": {
+        "PHYSIQUE_CHIMIE": 5,
+        "NSI": 5,
+        "FRANCAIS": 5,
+        "SVT": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "5c7088993d037fc92ae7745bd3c152b5f6419caa97c033d03e288fc991f8f540",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "MATHEMATIQUES"
+      ],
+      "subjectCount": 1,
+      "status": "NO_SHARED_DAY",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "4a02205b0f960163827582e2de009bbf28dad3f5931018df19089676c97a4aeb",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "MATHS_EXPERTES"
+      ],
+      "subjectCount": 1,
+      "status": "NO_SHARED_DAY",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "MATHS_EXPERTES": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "020c463f4774065fffe48c9a6508181c6e47dd5149b8e247737ad839077947d1",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "NSI"
+      ],
+      "subjectCount": 1,
+      "status": "NO_SHARED_DAY",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "NSI": "terminale-nsi-c"
+      },
+      "sessionCountBySubject": {
+        "NSI": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "ab2ff703e385cfb4050d1fb64d1e83d048819fdceeeed6a2fe7497ef9d69644a",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "PHYSIQUE_CHIMIE"
+      ],
+      "subjectCount": 1,
+      "status": "NO_SHARED_DAY",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "PHYSIQUE_CHIMIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "cc4bdfc707aca8267148edca5bf2e857ba664f81d18d2b36a332c886de47ca8a",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "SVT"
+      ],
+      "subjectCount": 1,
+      "status": "NO_SHARED_DAY",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "SVT": "terminale-svt-c"
+      },
+      "sessionCountBySubject": {
+        "SVT": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "3eace394dd09dc47cbd5a071cc65f7e37cbe8d550adde73fbc736c4932933ec7",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "MATHS_EXPERTES"
+      ],
+      "subjectCount": 2,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 15,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "MATHS_EXPERTES": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "3fd0332c4793d0cf854434634a226b6a23ee497b87f86e72ee7b4efda413b920",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "NSI"
+      ],
+      "subjectCount": 2,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "NSI": "terminale-nsi-c"
+      },
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "NSI": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "c857c8a924517d377b4b2c31e3f94778f4e8c8b660d8874d84d8577011d6d210",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "PHYSIQUE_CHIMIE"
+      ],
+      "subjectCount": 2,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "PHYSIQUE_CHIMIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "b13249be35830c18eaeec7f58e28e5f2224786162f10345e2172f015b4c16172",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "SVT"
+      ],
+      "subjectCount": 2,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "SVT": "terminale-svt-c"
+      },
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "SVT": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "a85f88e4e008aa09d99e94b3147d325f0ba40fefa5bb5174618115d77cec1231",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "NSI",
+        "MATHS_EXPERTES"
+      ],
+      "subjectCount": 2,
+      "status": "LONG_IDLE",
+      "actionable": false,
+      "explanation": "Attente maximale de 195 minutes.",
+      "maxIdleMinutes": 195,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "NSI": "terminale-nsi-c"
+      },
+      "sessionCountBySubject": {
+        "NSI": 5,
+        "MATHS_EXPERTES": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "c69c0a465a2ce317da8e62597e9171dba3f42038e7ca7b5a113bbf9fea67dadf",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "NSI",
+        "SVT"
+      ],
+      "subjectCount": 2,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 15,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "NSI": "terminale-nsi-d",
+        "SVT": "terminale-svt-c"
+      },
+      "sessionCountBySubject": {
+        "NSI": 5,
+        "SVT": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "a932395e88863faa51c9901ee349de867436d54c9e763f0f3acef1a01e2ff75b",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "PHYSIQUE_CHIMIE",
+        "MATHS_EXPERTES"
+      ],
+      "subjectCount": 2,
+      "status": "LONG_IDLE",
+      "actionable": false,
+      "explanation": "Attente maximale de 195 minutes.",
+      "maxIdleMinutes": 195,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "PHYSIQUE_CHIMIE": 5,
+        "MATHS_EXPERTES": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "533c047d35ab8ead6239df602e577dc5ee2b06ee58b85b02fb68688db27331c7",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "PHYSIQUE_CHIMIE",
+        "NSI"
+      ],
+      "subjectCount": 2,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 15,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "NSI": "terminale-nsi-d"
+      },
+      "sessionCountBySubject": {
+        "PHYSIQUE_CHIMIE": 5,
+        "NSI": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "cf4e675cfe5d95f2218961c8a0013313d5d72ee34003af46591322cdfaa59245",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "PHYSIQUE_CHIMIE",
+        "SVT"
+      ],
+      "subjectCount": 2,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 15,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "SVT": "terminale-svt-d"
+      },
+      "sessionCountBySubject": {
+        "PHYSIQUE_CHIMIE": 5,
+        "SVT": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "bdc057decbde80fecb6893f710e0e56a48e04081825708e209f836b8b9de1149",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "SVT",
+        "MATHS_EXPERTES"
+      ],
+      "subjectCount": 2,
+      "status": "LONG_IDLE",
+      "actionable": false,
+      "explanation": "Attente maximale de 195 minutes.",
+      "maxIdleMinutes": 195,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "SVT": "terminale-svt-c"
+      },
+      "sessionCountBySubject": {
+        "SVT": 5,
+        "MATHS_EXPERTES": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "295d02aa43c96a5234c6dcd5e024f865ffee631e11ef633c722d1e86e68a36bf",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "NSI",
+        "MATHS_EXPERTES"
+      ],
+      "subjectCount": 3,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "NSI": "terminale-nsi-c"
+      },
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "NSI": 5,
+        "MATHS_EXPERTES": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "9aff9a8c397a75a99f54554ccb54645651056d4927246f552a36e6c977d91384",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "NSI",
+        "SVT"
+      ],
+      "subjectCount": 3,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "NSI": "terminale-nsi-d",
+        "SVT": "terminale-svt-c"
+      },
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "NSI": 5,
+        "SVT": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "fdf1e5eaa95fb935e06fb581eab2c0ae09d0211a53d414898f2dcb5c34eaaedd",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "PHYSIQUE_CHIMIE",
+        "MATHS_EXPERTES"
+      ],
+      "subjectCount": 3,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "PHYSIQUE_CHIMIE": 5,
+        "MATHS_EXPERTES": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "f1e9dce4950a7c893824478d2a58788cb2e13666b203c8eccf77435bdb02e3f9",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "PHYSIQUE_CHIMIE",
+        "NSI"
+      ],
+      "subjectCount": 3,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "NSI": "terminale-nsi-d"
+      },
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "PHYSIQUE_CHIMIE": 5,
+        "NSI": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "7697968dd95903d05a09410aa9f56e85a76dbed9a96d6a7df1c237ba232b02ae",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "PHYSIQUE_CHIMIE",
+        "SVT"
+      ],
+      "subjectCount": 3,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "SVT": "terminale-svt-d"
+      },
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "PHYSIQUE_CHIMIE": 5,
+        "SVT": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "203cdf9ede7dc034281d7c411f2f508efcfaa338195be9737fe3ac358856f0ef",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "SVT",
+        "MATHS_EXPERTES"
+      ],
+      "subjectCount": 3,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "SVT": "terminale-svt-c"
+      },
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "SVT": 5,
+        "MATHS_EXPERTES": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "39b9b25abf19c0c899c22a1f9b7cb36159d92d43699745efefc0f3bd51782a38",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "NSI",
+        "SVT",
+        "MATHS_EXPERTES"
+      ],
+      "subjectCount": 3,
+      "status": "LONG_IDLE",
+      "actionable": false,
+      "explanation": "Attente maximale de 195 minutes.",
+      "maxIdleMinutes": 195,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "NSI": "terminale-nsi-d",
+        "SVT": "terminale-svt-c"
+      },
+      "sessionCountBySubject": {
+        "NSI": 5,
+        "SVT": 5,
+        "MATHS_EXPERTES": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "4fabcc7cca83ff9241760d22cea13b62f6ed0294fddae48afcecf6b6d887792b",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "PHYSIQUE_CHIMIE",
+        "NSI",
+        "MATHS_EXPERTES"
+      ],
+      "subjectCount": 3,
+      "status": "LONG_IDLE",
+      "actionable": false,
+      "explanation": "Attente maximale de 195 minutes.",
+      "maxIdleMinutes": 195,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "NSI": "terminale-nsi-d"
+      },
+      "sessionCountBySubject": {
+        "PHYSIQUE_CHIMIE": 5,
+        "NSI": 5,
+        "MATHS_EXPERTES": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "883a16801322a12daf02e7a50f5365689d9d8cb0aeb1a59b35e11075ed7d75d8",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "PHYSIQUE_CHIMIE",
+        "NSI",
+        "SVT"
+      ],
+      "subjectCount": 3,
+      "status": "SIMULTANEOUS",
+      "actionable": false,
+      "explanation": "Conflit horaire : parcours non actionnable.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "NSI": "terminale-nsi-c",
+        "SVT": "terminale-svt-c"
+      },
+      "sessionCountBySubject": {
+        "PHYSIQUE_CHIMIE": 5,
+        "NSI": 5,
+        "SVT": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "20d4cc916f82975e90568919b5b158d76fd5df18d4c59f66062917731d9d0cd4",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "PHYSIQUE_CHIMIE",
+        "SVT",
+        "MATHS_EXPERTES"
+      ],
+      "subjectCount": 3,
+      "status": "LONG_IDLE",
+      "actionable": false,
+      "explanation": "Attente maximale de 195 minutes.",
+      "maxIdleMinutes": 195,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "SVT": "terminale-svt-d"
+      },
+      "sessionCountBySubject": {
+        "PHYSIQUE_CHIMIE": 5,
+        "SVT": 5,
+        "MATHS_EXPERTES": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "d890df8be2bbaff1bd29bb70909d14471e6d5b129a52b9cf0ec8bd60c264fa03",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "NSI",
+        "SVT",
+        "MATHS_EXPERTES"
+      ],
+      "subjectCount": 4,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "NSI": "terminale-nsi-d",
+        "SVT": "terminale-svt-c"
+      },
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "NSI": 5,
+        "SVT": 5,
+        "MATHS_EXPERTES": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "9c811562ae8afd2d9cce8a6a8aad650d4370edbe31c381c126d8bd1f7363abf2",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "PHYSIQUE_CHIMIE",
+        "NSI",
+        "MATHS_EXPERTES"
+      ],
+      "subjectCount": 4,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "NSI": "terminale-nsi-d"
+      },
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "PHYSIQUE_CHIMIE": 5,
+        "NSI": 5,
+        "MATHS_EXPERTES": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "4e0b8884686c656d7d8d9f79c625b30c66ae98413f917d5fe0f41155e8a8532e",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "PHYSIQUE_CHIMIE",
+        "NSI",
+        "SVT"
+      ],
+      "subjectCount": 4,
+      "status": "SIMULTANEOUS",
+      "actionable": false,
+      "explanation": "Conflit horaire : parcours non actionnable.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "NSI": "terminale-nsi-c",
+        "SVT": "terminale-svt-c"
+      },
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "PHYSIQUE_CHIMIE": 5,
+        "NSI": 5,
+        "SVT": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "1e5ac7d36a23f617ecf40273876dc17a3ecf13385e77e04a7cc5bbb4fbecf514",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "PHYSIQUE_CHIMIE",
+        "SVT",
+        "MATHS_EXPERTES"
+      ],
+      "subjectCount": 4,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "SVT": "terminale-svt-d"
+      },
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "PHYSIQUE_CHIMIE": 5,
+        "SVT": 5,
+        "MATHS_EXPERTES": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "7b57f9c9dd6d73c85a0c1c3bf2240f8c7d57df804c048b46145616d8ca41b84a",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "PHYSIQUE_CHIMIE",
+        "NSI",
+        "SVT",
+        "MATHS_EXPERTES"
+      ],
+      "subjectCount": 4,
+      "status": "SIMULTANEOUS",
+      "actionable": false,
+      "explanation": "Conflit horaire : parcours non actionnable.",
+      "maxIdleMinutes": 195,
+      "dates": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "NSI": "terminale-nsi-c",
+        "SVT": "terminale-svt-c"
+      },
+      "sessionCountBySubject": {
+        "PHYSIQUE_CHIMIE": 5,
+        "NSI": 5,
+        "SVT": 5,
+        "MATHS_EXPERTES": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "08fc4ddd111f2baee3f75f6c1e8de8f182213bfc73a69205d6b2bdc1881eb6ca",
+      "whatsappNumber": "21699192829"
+    }
+  ]
+}
