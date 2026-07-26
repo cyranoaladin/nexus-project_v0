@@ -131,7 +131,7 @@
       "description": "La date de lancement du 26 juillet 2026 est enregistrée ; le GO de publication lié au SHA final reste interdit avant la fin des contrôles.",
       "owner": "OWNER_NEXUS_REUSSITE",
       "dueAt": "2026-08-03",
-      "derogation": "Calendriers datés en Africa/Tunis, actifs en release candidate et releaseStatus READY_FOR_OWNER_GO.",
+      "derogation": "Calendriers datés en Africa/Tunis, actifs selon le releaseStatus canonique contrôlé par la gate serveur.",
       "exitCriteria": "Date et GO écrits rattachés au SHA exact après toutes les revues.",
       "status": "OPEN",
       "reopenCriteria": "Sans objet tant que le GO final n'est pas committé ; ensuite réouvrir si le SHA approuvé change."

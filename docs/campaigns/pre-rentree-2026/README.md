@@ -3,7 +3,7 @@
 ## Statut
 
 ```text
-RELEASE_STATUS=READY_FOR_OWNER_GO
+RELEASE_STATUS=SEE data/campaigns/pre-rentree-2026.json
 CAMPAIGN_VERSION=2.1.0
 PEDAGOGICAL_MODULES=14
 PEDAGOGICAL_SESSION_TEMPLATES=70
@@ -14,16 +14,16 @@ STUDENT_HOURS_PER_SUBJECT=10
 PUBLIC_PDF_COUNT=7
 ROOM_ASSIGNMENTS_VALIDATED=false
 TEACHER_ASSIGNMENTS_VALIDATED=false
-MERGE=NOT_PERFORMED
-DEPLOYMENT=NOT_PERFORMED
-PUBLIC_DISTRIBUTION=NOT_AUTHORIZED
+MERGE=SEE PR #79
+DEPLOYMENT=SEE FINAL-GO-LIVE-REPORT
+PUBLIC_DISTRIBUTION=CONTROLLED_BY_RELEASE_GATE
 ```
 
 Le candidat comprend quatre niveaux, 14 modules pédagogiques et 70 séances
 modèles. Ses 17 cohortes produisent 85 occurrences calendaires, sans augmenter
 le volume suivi par un élève : une matière reste composée de cinq séances et
-dix heures. La publication reste fail-closed jusqu'au commit de GO
-`PUBLIC_READY`.
+dix heures. La publication est fail-closed tant que les sources canoniques ne
+portent pas simultanément `PUBLIC_READY` et toutes les gates résolues.
 
 ## Sources
 

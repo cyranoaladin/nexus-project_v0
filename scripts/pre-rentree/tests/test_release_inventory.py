@@ -38,11 +38,15 @@ def test_release_inventory_covers_all_seven_lots_and_final_assets(tmp_path: Path
         head,
     ], check=True)
     inventory = json.loads(output.read_text(encoding="utf-8"))
+    release_gates = json.loads(
+        (REPO_ROOT / "content/pre-rentree-2026/release-gates.json")
+        .read_text(encoding="utf-8")
+    )
 
     assert inventory["campaignId"] == "pre-rentree-2026"
     assert inventory["campaignVersion"] == "2.1.0"
     assert inventory["launchDate"] == "2026-07-26"
-    assert inventory["verdict"] == "READY_FOR_OWNER_GO"
+    assert inventory["verdict"] == release_gates["releaseStatus"]
     assert inventory["branch"] == "release/pre-rentree-2026-public-ready"
     assert inventory["pullRequest"] == 999
     assert inventory["baselineSha"] == baseline

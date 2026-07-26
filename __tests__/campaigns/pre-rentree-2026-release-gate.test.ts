@@ -14,16 +14,24 @@ import {
 import { getPublicPreRentreeDocuments } from '@/lib/campaigns/pre-rentree-2026/documents';
 
 describe('Pré-rentrée 2026 single public release gate', () => {
-  it('fails closed at READY_FOR_OWNER_GO until the owner GO commit sets PUBLIC_READY', () => {
+  it('exposes public surfaces exactly when the canonical owner gate is PUBLIC_READY', () => {
     const gate = getPreRentreeReleaseGate();
-    expect(gate.releaseStatus).toBe('READY_FOR_OWNER_GO');
     expect(gate.requiredPublicStatus).toBe('PUBLIC_READY');
-    expect(gate.isPublicReady).toBe(false);
     expect(gate.gates.map(({ id }) => id)).toEqual(PRE_RENTREE_REQUIRED_GATE_IDS);
-    expect(gate.unmetGateIds).toEqual(['publication_authorization']);
-    expect(getPreRentreePublicSurfaceDTO()).toBeNull();
-    expect(getPublicPreRentreeDocuments()).toEqual([]);
     expect(compilePreRentreeReviewSurfaceDTO().offers.length).toBeGreaterThan(0);
+
+    if (gate.releaseStatus === 'PUBLIC_READY') {
+      expect(gate.isPublicReady).toBe(true);
+      expect(gate.unmetGateIds).toEqual([]);
+      expect(getPreRentreePublicSurfaceDTO()).not.toBeNull();
+      expect(getPublicPreRentreeDocuments()).toHaveLength(7);
+    } else {
+      expect(gate.releaseStatus).toBe('READY_FOR_OWNER_GO');
+      expect(gate.isPublicReady).toBe(false);
+      expect(gate.unmetGateIds).toEqual(['publication_authorization']);
+      expect(getPreRentreePublicSurfaceDTO()).toBeNull();
+      expect(getPublicPreRentreeDocuments()).toEqual([]);
+    }
   });
 
   it('requires dated evidence for every satisfied release gate', () => {
