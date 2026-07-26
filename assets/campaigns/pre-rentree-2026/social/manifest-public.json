@@ -1,0 +1,256 @@
+{
+  "schemaVersion": "1.0.0",
+  "campaignId": "pre-rentree-2026",
+  "campaignVersion": "2.1.0",
+  "launchDate": "2026-07-26",
+  "campaignDates": "17–28 août 2026",
+  "purpose": "PUBLIC_RELEASE_CANDIDATE",
+  "publicationStatus": "PUBLIC_RELEASE_CANDIDATE",
+  "whatsapp": "99 192 829",
+  "venue": "Mutuelleville",
+  "assets": [
+    {
+      "path": "PUBLIC/feed/principal.png",
+      "role": "feed-main",
+      "source": "assets/campaigns/pre-rentree-2026/week-one/main/main-portrait.png",
+      "bytes": 94954,
+      "sha256": "cebeb0ad3f8c2725ed9fa4ce33a279b922d0f833928b68ffa1ee8d7620c3e97d",
+      "width": 1080,
+      "height": 1350
+    },
+    {
+      "path": "PUBLIC/feed/entree-3e.png",
+      "role": "feed-level",
+      "source": "assets/campaigns/pre-rentree-2026/full-campaign/publications/02-entree-3e.png",
+      "bytes": 99260,
+      "sha256": "f7a9ef01d184e66b6887787586b6d52a51e0d7fcd59d2607de40606fd6b5d637",
+      "width": 1080,
+      "height": 1350
+    },
+    {
+      "path": "PUBLIC/feed/entree-seconde.png",
+      "role": "feed-level",
+      "source": "assets/campaigns/pre-rentree-2026/full-campaign/publications/03-entree-seconde.png",
+      "bytes": 100607,
+      "sha256": "074871ed8e5dac0f8e803bf2a36522db2d0af15b41c11251a342f509a9e98832",
+      "width": 1080,
+      "height": 1350
+    },
+    {
+      "path": "PUBLIC/feed/entree-premiere.png",
+      "role": "feed-level",
+      "source": "assets/campaigns/pre-rentree-2026/full-campaign/publications/04-entree-premiere.png",
+      "bytes": 120914,
+      "sha256": "2a1aa817eddd514e181bf9bf490a4f27af0d64c280a6df9b8462832663df03a7",
+      "width": 1080,
+      "height": 1350
+    },
+    {
+      "path": "PUBLIC/feed/entree-terminale.png",
+      "role": "feed-level",
+      "source": "assets/campaigns/pre-rentree-2026/full-campaign/publications/05-entree-terminale.png",
+      "bytes": 116568,
+      "sha256": "be12d0abf2d600a6b6ddc8239ab6b4f69a88e3792159dfe6b51df4f21377c0b5",
+      "width": 1080,
+      "height": 1350
+    },
+    {
+      "path": "PUBLIC/story/principale.png",
+      "role": "story-main",
+      "source": "assets/campaigns/pre-rentree-2026/week-one/main/main-story.png",
+      "bytes": 99689,
+      "sha256": "28c3d924514bff707fffbcb7b1abfebac64a70331f3380fc70578c59b971b7cc",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "path": "PUBLIC/story/entree-3e.png",
+      "role": "story-level",
+      "source": "assets/campaigns/pre-rentree-2026/full-campaign/stories/02-entree-3e/frame-01.png",
+      "bytes": 101263,
+      "sha256": "f7bd45c55fe14e9889fa752cb1ab5d10cb1bd5ff823b728f243d01369f1ed3a2",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "path": "PUBLIC/story/entree-seconde.png",
+      "role": "story-level",
+      "source": "assets/campaigns/pre-rentree-2026/full-campaign/stories/03-entree-seconde/frame-01.png",
+      "bytes": 105262,
+      "sha256": "f3e3f5355eefd680d317941a8ed80d53ddf8170e196a43afbfe339fbae048c19",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "path": "PUBLIC/story/entree-premiere.png",
+      "role": "story-level",
+      "source": "assets/campaigns/pre-rentree-2026/full-campaign/stories/04-premiere/frame-01.png",
+      "bytes": 113693,
+      "sha256": "421379469eb0f5d4abbe15f3abc5dbdf0a76a453a7ebe797e08b2c2b6cfa9a49",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "path": "PUBLIC/story/entree-terminale.png",
+      "role": "story-level",
+      "source": "assets/campaigns/pre-rentree-2026/full-campaign/stories/05-terminale/frame-01.png",
+      "bytes": 97850,
+      "sha256": "03116c5911959ed8bf1a1dc843404d065906afd4bced26040065216a737be49f",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "path": "PUBLIC/calendrier/calendrier.csv",
+      "role": "public-campaign-support",
+      "source": "generated-campaign-output",
+      "bytes": 28039,
+      "sha256": "c5d9a54bb1badbba9faa654ab765a0cf701d9950fefeaaf4f136b6c2a7767428",
+      "width": null,
+      "height": null
+    },
+    {
+      "path": "PUBLIC/calendrier/calendrier.json",
+      "role": "public-campaign-support",
+      "source": "generated-campaign-output",
+      "bytes": 93334,
+      "sha256": "1a5edb8d374f4b36cb3c78fa8725dfdfc8058e25c783fb149538e97f2474384f",
+      "width": null,
+      "height": null
+    },
+    {
+      "path": "PUBLIC/calendrier/calendrier.pdf",
+      "role": "public-campaign-support",
+      "source": "generated-campaign-output",
+      "bytes": 6296524,
+      "sha256": "1025d67b328534af59117a4458002153584fcc31dbf877a08d3856b8ba11196d",
+      "width": null,
+      "height": null
+    },
+    {
+      "path": "PUBLIC/carrousel/carousel-pre-rentree-2026.pdf",
+      "role": "public-campaign-support",
+      "source": "generated-campaign-output",
+      "bytes": 735030,
+      "sha256": "e77c8fd2a3d7ced9e3f382a6fea68ef5df367dfa9533edc7b0c1ae24f1e64018",
+      "width": null,
+      "height": null
+    },
+    {
+      "path": "PUBLIC/carrousel/slide-01.png",
+      "role": "public-campaign-support",
+      "source": "generated-campaign-output",
+      "bytes": 86543,
+      "sha256": "f5646ddea5008d94c9fe006d76902a60effb37281d1eb025a8adc46dd541cd99",
+      "width": 1080,
+      "height": 1350
+    },
+    {
+      "path": "PUBLIC/carrousel/slide-02.png",
+      "role": "public-campaign-support",
+      "source": "generated-campaign-output",
+      "bytes": 87029,
+      "sha256": "bc9709c627eded7536c4d228fec955b523c26c7f1d5b437577d935052e898196",
+      "width": 1080,
+      "height": 1350
+    },
+    {
+      "path": "PUBLIC/carrousel/slide-03.png",
+      "role": "public-campaign-support",
+      "source": "generated-campaign-output",
+      "bytes": 76325,
+      "sha256": "9f61fb9dd5f45c8360dd06da507bdeb041aaf51e187b2ea8e27ec602ca8a8720",
+      "width": 1080,
+      "height": 1350
+    },
+    {
+      "path": "PUBLIC/carrousel/slide-04.png",
+      "role": "public-campaign-support",
+      "source": "generated-campaign-output",
+      "bytes": 77735,
+      "sha256": "cdcd7b6440f326841b7cbbd8b37c7a0497d9f533e3d7de10501f787046cf1fff",
+      "width": 1080,
+      "height": 1350
+    },
+    {
+      "path": "PUBLIC/carrousel/slide-05.png",
+      "role": "public-campaign-support",
+      "source": "generated-campaign-output",
+      "bytes": 81186,
+      "sha256": "86ec5ad7415cdbde6a3b1def3055b3f35a6ca6259182a486a360a2c5f77e3353",
+      "width": 1080,
+      "height": 1350
+    },
+    {
+      "path": "PUBLIC/carrousel/slide-06.png",
+      "role": "public-campaign-support",
+      "source": "generated-campaign-output",
+      "bytes": 88344,
+      "sha256": "491ebe05ee38c912a7e02c5a5ee16a7cd5917da27f65fe77f6cc38d81f68d62e",
+      "width": 1080,
+      "height": 1350
+    },
+    {
+      "path": "PUBLIC/carrousel/slide-07.png",
+      "role": "public-campaign-support",
+      "source": "generated-campaign-output",
+      "bytes": 78603,
+      "sha256": "8b719dc6b9659ea7a1f73f668f990e186f836724f891e592d04d9b23de42ffe1",
+      "width": 1080,
+      "height": 1350
+    },
+    {
+      "path": "PUBLIC/carrousel/slide-08.png",
+      "role": "public-campaign-support",
+      "source": "generated-campaign-output",
+      "bytes": 90184,
+      "sha256": "af9f561954ba6e65710c265b4761a31abbff9759dbd5ab94e6d1c98544f408a7",
+      "width": 1080,
+      "height": 1350
+    },
+    {
+      "path": "PUBLIC/reel/couverture.png",
+      "role": "public-campaign-support",
+      "source": "generated-campaign-output",
+      "bytes": 83495,
+      "sha256": "b7eb8d80decada1729a9108809b61a95dcd0502d53be36cd97fae917c7c45c48",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "path": "PUBLIC/reel/pre-rentree-2026.mp4",
+      "role": "public-campaign-support",
+      "source": "generated-campaign-output",
+      "bytes": 367427,
+      "sha256": "93600508bfc5f2e244cfe766bfed9b4515b85a4a9e895026353132a97c84829b",
+      "width": null,
+      "height": null
+    },
+    {
+      "path": "PUBLIC/reel/sous-titres-fr.srt",
+      "role": "public-campaign-support",
+      "source": "generated-campaign-output",
+      "bytes": 679,
+      "sha256": "a73627577f57029f2423ee7f511c376f547a3d8d0b1cda8bf8b6825757fd343c",
+      "width": null,
+      "height": null
+    },
+    {
+      "path": "PUBLIC/textes/campagne.json",
+      "role": "public-campaign-support",
+      "source": "generated-campaign-output",
+      "bytes": 113152,
+      "sha256": "92b6c55ba10427ac3193b04ff2155ef849c9efbd045f407d19020fb9e8ef1276",
+      "width": null,
+      "height": null
+    },
+    {
+      "path": "PUBLIC/textes/whatsapp.md",
+      "role": "public-campaign-support",
+      "source": "generated-campaign-output",
+      "bytes": 17597,
+      "sha256": "42a54c0a1e2e913cb47f38738f9bd9d2864834d66fa8061298dc5d53421c0775",
+      "width": null,
+      "height": null
+    }
+  ]
+}
