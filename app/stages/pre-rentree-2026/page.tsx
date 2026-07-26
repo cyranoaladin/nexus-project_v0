@@ -5,6 +5,9 @@ import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { CampaignFAQ } from '@/components/pre-rentree-2026/CampaignFAQ';
 import { CampaignPageTracker } from '@/components/pre-rentree-2026/CampaignPageTracker';
 import { CanonicalOfferCatalogue } from '@/components/pre-rentree-2026/CanonicalOfferCatalogue';
+import { CampaignExperienceProvider } from '@/components/pre-rentree-2026/CampaignExperienceContext';
+import { ProgramsSection } from '@/components/pre-rentree-2026/ProgramsSection';
+import { ScheduleSection } from '@/components/pre-rentree-2026/ScheduleSection';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { getPreRentreePublicSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
 import { getPreRentreeReleaseGate } from '@/lib/campaigns/pre-rentree-2026/release-gate';
@@ -104,7 +107,7 @@ export default function PreRentree2026Page() {
           </ul>
           <div className="mt-10 flex flex-col gap-3 sm:flex-row">
             <a href="#offres-pre-rentree" className="lux-cta-reserve inline-flex min-h-11 items-center justify-center rounded-lg px-6 py-3 text-sm font-semibold">Voir les offres et tarifs</a>
-            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center justify-center rounded-lg border border-lux-line/50 px-6 py-3 text-sm font-semibold text-lux-on-dark">WhatsApp {dto.contact.whatsappDisplay}</a>
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center justify-center rounded-lg border border-lux-line/50 px-6 py-3 text-center text-sm font-semibold text-lux-on-dark">Demander les informations et vérifier les disponibilités</a>
             <a href={dto.contact.phoneHref} className="inline-flex min-h-11 items-center justify-center rounded-lg border border-lux-line/50 px-6 py-3 text-sm font-semibold text-lux-on-dark">Appeler {dto.contact.phoneDisplay}</a>
           </div>
         </div>
@@ -128,6 +131,19 @@ export default function PreRentree2026Page() {
         <CanonicalOfferCatalogue data={dto} />
       </div>
 
+      <CampaignExperienceProvider>
+        <ScheduleSection
+          schedule={dto.planning.schedule}
+          scheduleWindows={dto.planning.scheduleWindows}
+          levels={dto.planning.levels}
+          subjects={dto.planning.subjects}
+          blocks={dto.planning.blocks}
+          organization={dto.planning.organization}
+          roomsPubliclyConfirmed={dto.planning.roomsPubliclyConfirmed}
+          offerOptions={dto.planning.offerOptions}
+          capacityByOffer={dto.planning.capacityByOffer}
+        />
+
       <section className="bg-lux-ink px-4 py-14 md:px-6 md:py-20" aria-labelledby="method-heading">
         <div className="mx-auto max-w-6xl">
           <h2 id="method-heading" className="font-fraunces text-3xl text-lux-on-dark md:text-4xl">Ce qui distingue les dix heures Nexus</h2>
@@ -137,6 +153,15 @@ export default function PreRentree2026Page() {
           </ol>
         </div>
       </section>
+
+        <ProgramsSection
+          modules={dto.programs}
+          levels={dto.planning.levels}
+          documents={dto.documents}
+        />
+      </CampaignExperienceProvider>
+
+      <CampaignFAQ items={[...dto.faq]} />
 
       <section className="bg-white px-4 py-14 md:px-6 md:py-20" aria-labelledby="reservation-heading">
         <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-2">
@@ -148,13 +173,12 @@ export default function PreRentree2026Page() {
           <article className="rounded-2xl border border-lux-line bg-lux-paper p-6">
             <h2 className="font-fraunces text-2xl text-lux-ink">Demander le bon parcours</h2>
             <p className="mt-4 text-sm leading-6 text-lux-slate">Indiquez la classe de rentrée, la ou les matières recherchées et le statut scolaire. L’équipe vérifie ensuite l’offre applicable.</p>
-            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="lux-cta-reserve mt-6 inline-flex min-h-11 items-center justify-center rounded-lg px-5 py-3 text-sm font-semibold">Écrire au {dto.contact.whatsappDisplay}</a>
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="lux-cta-reserve mt-6 inline-flex min-h-11 items-center justify-center rounded-lg px-5 py-3 text-center text-sm font-semibold">Demander les informations et vérifier les disponibilités</a>
             <a href={dto.contact.phoneHref} className="mt-3 inline-flex min-h-11 items-center justify-center rounded-lg border border-lux-line px-5 py-3 text-sm font-semibold text-lux-ink">Appeler {dto.contact.phoneDisplay}</a>
           </article>
         </div>
       </section>
 
-      <CampaignFAQ items={[...dto.faq]} />
       <CorporateFooter />
     </main>
   );

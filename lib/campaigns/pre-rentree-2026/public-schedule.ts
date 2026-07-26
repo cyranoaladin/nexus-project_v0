@@ -1,9 +1,46 @@
 import type {
   LandingScheduleSlot,
-  LandingScheduleWindow,
   LandingSubject,
 } from './configurator';
 import type { EntryLevelCode } from './schema';
+
+export type PublicScheduleSubject = Pick<
+  LandingSubject,
+  'id' | 'label' | 'levels' | 'labelByLevel'
+>;
+
+export type PublicScheduleSlot = Pick<
+  LandingScheduleSlot,
+  | 'date'
+  | 'level'
+  | 'subject'
+  | 'block'
+  | 'startTime'
+  | 'endTime'
+  | 'windowId'
+  | 'cohortId'
+  | 'isPrimary'
+> & {
+  room?: string;
+};
+
+export type PublicScheduleWindow = {
+  windowId: string;
+  windowLabel: string;
+  days: string[];
+  slots: Array<{
+    level: EntryLevelCode;
+    subject: string;
+    block: string;
+    room?: string;
+  }>;
+};
+
+export type PublicPlanningPack = {
+  level?: EntryLevelCode;
+  subjectsCount: number;
+  totalHours: number;
+};
 
 export const PRE_RENTREE_PUBLIC_METRICS = {
   pedagogicalModuleCount: 14,
@@ -31,7 +68,7 @@ export type PublicSubjectScheduleRow = {
 };
 
 function subjectLabel(
-  subjects: readonly LandingSubject[],
+  subjects: readonly PublicScheduleSubject[],
   subjectId: string,
   level: EntryLevelCode,
 ): string {
@@ -51,9 +88,9 @@ export function buildPublicSubjectScheduleRows({
   level,
   exposeRooms,
 }: {
-  schedule: readonly LandingScheduleSlot[];
-  subjects: readonly LandingSubject[];
-  windows: readonly LandingScheduleWindow[];
+  schedule: readonly PublicScheduleSlot[];
+  subjects: readonly PublicScheduleSubject[];
+  windows: readonly PublicScheduleWindow[];
   level: EntryLevelCode;
   exposeRooms: boolean;
 }): PublicSubjectScheduleRow[] {

@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { toPreRentreeEntryLevel, track } from '@/lib/analytics';
-import type { LandingLevel, LandingSubject } from '@/lib/campaigns/pre-rentree-2026/configurator';
+import type { LandingLevel } from '@/lib/campaigns/pre-rentree-2026/configurator';
 import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
-import { PRE_RENTREE_DOCUMENTS } from '@/lib/campaigns/pre-rentree-2026/documents';
+import type { PreRentreeDocument } from '@/lib/campaigns/pre-rentree-2026/documents';
 import { cn } from '@/lib/utils';
 import { getSubjectTheme } from '@/lib/campaigns/pre-rentree-2026/subject-theme';
 import { SubjectBadge } from './SubjectBadge';
@@ -23,7 +23,15 @@ interface CampaignModule {
   sessions: Array<{ number: number; title: string; objective: string; topics: string[]; method: string; deliverable: string }>;
 }
 
-export function ProgramsSection({ modules, levels }: { modules: CampaignModule[]; levels: LandingLevel[]; subjects: LandingSubject[] }) {
+export function ProgramsSection({
+  modules,
+  levels,
+  documents,
+}: {
+  modules: CampaignModule[];
+  levels: LandingLevel[];
+  documents: readonly PreRentreeDocument[];
+}) {
   const { configuredEntryLevel } = useCampaignExperience();
   const [level, setLevel] = useState(levels[0]?.id ?? 'SECONDE');
   const [openModule, setOpenModule] = useState<string | null>(null);
@@ -87,7 +95,7 @@ export function ProgramsSection({ modules, levels }: { modules: CampaignModule[]
           <h3 className="font-fraunces text-xl text-lux-ink">Documents à télécharger</h3>
           <p className="mt-1 text-sm text-lux-slate">Planning, programmes par niveau, tarifs et flyer essentiel.</p>
           <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-            {PRE_RENTREE_DOCUMENTS.map((doc) => (
+            {documents.map((doc) => (
               <li key={doc.href}>
                 <a href={doc.href} download className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-lux-gold-deep underline">
                   {doc.label} <span className="text-xs font-normal text-lux-slate">(PDF · {doc.size})</span>

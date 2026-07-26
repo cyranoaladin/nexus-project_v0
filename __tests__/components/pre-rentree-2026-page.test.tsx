@@ -30,7 +30,9 @@ describe('Pré-rentrée 2026 canonical public page', () => {
 
     expect(screen.getByRole('heading', { level: 1, name: dto.title })).toBeInTheDocument();
     expect(screen.getByText(dto.promise)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: `WhatsApp ${dto.contact.whatsappDisplay}` })).toHaveAttribute(
+    expect(screen.getAllByRole('link', {
+      name: 'Demander les informations et vérifier les disponibilités',
+    })[0]).toHaveAttribute(
       'href',
       expect.stringContaining('wa.me/21699192829'),
     );

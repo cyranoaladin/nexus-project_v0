@@ -1,10 +1,20 @@
 import 'server-only';
 
+import modulesData from '@/content/pre-rentree-2026/modules.json';
 import { compileCommercialPublicationContract } from './commercial-contract';
 import { getPreRentreeCampaign } from './campaign-source';
 import { getWhatsAppDisplayNumber } from '@/lib/whatsapp';
 import { LEGAL } from '@/lib/legal';
 import { getPreRentreeReleaseGate } from './release-gate';
+import { PreRentreeModulesSchema } from './schema';
+import { PRE_RENTREE_DOCUMENTS } from './documents';
+import {
+  PRE_RENTREE_PUBLIC_METRICS,
+  type PublicPlanningPack,
+  type PublicScheduleSlot,
+  type PublicScheduleSubject,
+  type PublicScheduleWindow,
+} from './public-schedule';
 
 const SUBJECT_LABELS = {
   MATHEMATIQUES: 'Mathématiques',
@@ -116,6 +126,72 @@ export function compilePreRentreeReviewSurfaceDTO() {
   }).format(new Date(`${campaign.startDate}T12:00:00+01:00`));
   const foundationExamples = offers.filter((offer) => offer.pricingKind === 'FOUNDATIONS');
   const premiumExamples = offers.filter((offer) => offer.pricingKind === 'PREMIUM_PACK');
+  const roomsPubliclyConfirmed = campaign.operationalGates.roomAssignmentsValidated;
+  const blockById = new Map(campaign.blocks.map((block) => [block.id, block]));
+  const schedule: PublicScheduleSlot[] = campaign.schedule.flatMap((window) => (
+    window.days.flatMap((date) => window.slots.map((slot) => {
+      const block = blockById.get(slot.block);
+      if (!block) throw new Error(`Unknown public schedule block: ${slot.block}`);
+      return {
+        date,
+        level: slot.level,
+        subject: slot.subject,
+        block: slot.block,
+        startTime: block.startTime,
+        endTime: block.endTime,
+        windowId: window.windowId,
+        ...(slot.cohortId ? { cohortId: `creneau-${slot.block.toLowerCase()}` } : {}),
+        ...(slot.isPrimary !== undefined ? { isPrimary: slot.isPrimary } : {}),
+        ...(roomsPubliclyConfirmed ? { room: slot.room } : {}),
+      };
+    }))
+  ));
+  const scheduleWindows: PublicScheduleWindow[] = campaign.schedule.map((window) => ({
+    windowId: window.windowId,
+    windowLabel: window.windowLabel,
+    days: [...window.days],
+    slots: window.slots.map((slot) => ({
+      level: slot.level,
+      subject: slot.subject,
+      block: slot.block,
+      ...(roomsPubliclyConfirmed ? { room: slot.room } : {}),
+    })),
+  }));
+  const publicSubjects: PublicScheduleSubject[] = campaign.subjects.map((subject) => ({
+    id: subject.id,
+    label: subject.label,
+    levels: [...subject.levels],
+    ...(subject.labelByLevel ? { labelByLevel: { ...subject.labelByLevel } } : {}),
+  }));
+  const publicModules = PreRentreeModulesSchema.parse(modulesData).modules.map((campaignModule) => ({
+    id: campaignModule.id,
+    level: campaignModule.level,
+    subjectId: campaignModule.subjectId,
+    subject: campaignModule.subject,
+    title: campaignModule.title,
+    subtitle: campaignModule.subtitle,
+    prerequisites: campaignModule.prerequisites,
+    differentiation: campaignModule.differentiation,
+    quickAssessment: campaignModule.quickAssessment,
+    sessions: campaignModule.sessions.map((session) => ({
+      number: session.number,
+      title: session.title,
+      objective: session.objective,
+      topics: [...session.topics],
+      method: session.method,
+      deliverable: session.deliverable,
+    })),
+  }));
+  const offerOptionsByKey = new Map<string, PublicPlanningPack>();
+  for (const offer of offers) {
+    const key = `${offer.level}:${offer.subjectCount}`;
+    if (offerOptionsByKey.has(key)) continue;
+    offerOptionsByKey.set(key, {
+      level: offer.level,
+      subjectsCount: offer.subjectCount,
+      totalHours: offer.hours,
+    });
+  }
 
   return {
     schemaVersion: '1.0.0',
@@ -135,6 +211,36 @@ export function compilePreRentreeReviewSurfaceDTO() {
     approvedProofIds,
     publicCapabilities: [] as string[],
     publicManuals: [] as string[],
+    planning: {
+      metrics: PRE_RENTREE_PUBLIC_METRICS,
+      roomsPubliclyConfirmed,
+      blocks: campaign.blocks.map((block) => ({
+        id: block.id,
+        startTime: block.startTime,
+        endTime: block.endTime,
+      })),
+      levels: campaign.levels.map((level) => ({ id: level.id, label: level.label })),
+      subjects: publicSubjects,
+      schedule,
+      scheduleWindows,
+      organization: {
+        rooms: roomsPubliclyConfirmed
+          ? [...new Set(campaign.schedule.flatMap((window) => window.slots.map((slot) => slot.room)))]
+            .sort()
+            .map((_room, index) => ({
+              label: `Salle ${index + 1}`,
+              details: 'Affectation publique confirmée pour ce stage',
+            }))
+          : [],
+      },
+      capacityByOffer: {
+        FONDATIONS: { ...campaign.capacityByOffer.FONDATIONS },
+        PREMIUM: { ...campaign.capacityByOffer.PREMIUM },
+      },
+      offerOptions: [...offerOptionsByKey.values()],
+    },
+    programs: publicModules,
+    documents: PRE_RENTREE_DOCUMENTS.map((document) => ({ ...document })),
     method: [
       'Un groupe dont la capacité est annoncée pour chaque offre',
       'Cinq séances structurées par matière',
