@@ -6,6 +6,10 @@
 - regroupe les cohortes alternatives par matière sans doubler les cinq séances ni les dix heures suivies par l’élève ;
 - limite le sélecteur à quatre matières et réserve l’action publique aux parcours structurellement compacts, sous réserve de disponibilité ;
 - publie un DTO planning sanitizé, sept PDF allowlistés et une campagne sociale datée avec familles `PUBLIC` et `REVIEW` séparées ;
+- qualifie par test paramétré les 66 combinaisons publiques d'une à quatre matières : 57 parcours actionnables et 9 incompatibilités explicitement bloquées ;
+- met à jour la seule lignée officielle `brace-expansion@5` vers `5.0.8`, conserve le raw audit des lignées 1.x/2.x et ajoute une validation d'exception exacte, bornée et fail-closed ;
+- prouve l'absence de `brace-expansion` dans l'artefact standalone et dans le SBOM runtime ;
+- rend la source Reel reproductible sans chemin absolu de checkout ;
 - conserve `releaseStatus=READY_FOR_OWNER_GO` et la gate `publication_authorization` ouverte jusqu’au GO lié au SHA validé.
 
 ## 6.0.0-rc.5 — 23 juillet 2026
