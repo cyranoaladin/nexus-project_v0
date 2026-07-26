@@ -23,7 +23,19 @@ describe('Pré-rentrée 2026 staffing and room contract', () => {
 
   it('maps every module and session to one provisional role', () => {
     const moduleSlots = campaignManifest.schedule.flatMap((week) => week.slots);
-    expect(moduleSlots).toHaveLength(modulesSource.modules.length);
+    // 14 modules -> 14 distinct (level, subject) pairs, but 3 of them (Première
+    // SVT, Terminale NSI, Terminale SVT) carry 2 cohort slots each instead of 1
+    // (SCHEDULE-S5 alternative cohorts) -> 14 + 3 extra = 17 total slots, never
+    // counted as extra modules.
+    const slotsByModulePair = new Map<string, number>();
+    for (const slot of moduleSlots) {
+      const key = `${slot.level}/${slot.subject}`;
+      slotsByModulePair.set(key, (slotsByModulePair.get(key) ?? 0) + 1);
+    }
+    expect(slotsByModulePair.size).toBe(modulesSource.modules.length);
+    const pairsWithTwoCohorts = [...slotsByModulePair.values()].filter((count) => count === 2);
+    expect(pairsWithTwoCohorts).toHaveLength(3);
+    expect(moduleSlots).toHaveLength(modulesSource.modules.length + pairsWithTwoCohorts.length);
 
     const counts = Object.fromEntries(Object.keys(teacherRoles).map((role) => [role, 0]));
     const moduleCounts = Object.fromEntries(Object.keys(teacherRoles).map((role) => [role, 0]));
@@ -56,12 +68,16 @@ describe('Pré-rentrée 2026 staffing and room contract', () => {
     expect(Object.values(hoursByRole).reduce((sum, hours) => sum + hours, 0)).toBe(sessions.length * 2);
   });
 
-  it('uses exactly two logical rooms with no collision', () => {
+  it('uses two logical rooms plus the exceptional salle-3 (bloc C only), with no collision', () => {
+    // salle-3 (SCHEDULE-S5 owner decision) is scoped to SVT only, bloc C only —
+    // not a third permanent room, see SCHEDULE-S5-DECISION.md.
     expect(campaignManifest.roomRoles).toEqual({
       'salle-1': ['MATHEMATIQUES', 'NSI', 'MATHS_EXPERTES'],
       'salle-2': ['FRANCAIS', 'PHYSIQUE_CHIMIE', 'SVT'],
+      'salle-3': ['SVT'],
     });
-    expect(new Set(sessions.map((session) => session.room))).toEqual(new Set(['salle-1', 'salle-2']));
+    expect(new Set(sessions.map((session) => session.room))).toEqual(new Set(['salle-1', 'salle-2', 'salle-3']));
+    expect(sessions.every((session) => session.room !== 'salle-3' || session.block === 'C')).toBe(true);
     const occupied = sessions.map((session) => `${session.date}-${session.block}-${session.room}`);
     expect(new Set(occupied).size).toBe(occupied.length);
   });

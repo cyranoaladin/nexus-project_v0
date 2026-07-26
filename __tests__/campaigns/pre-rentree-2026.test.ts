@@ -101,15 +101,28 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       }
     });
 
-    it('max 2 rooms per block', () => {
+    it('max 2 rooms per block, except bloc C which may use the exceptional salle-3 (SCHEDULE-S5 owner decision)', () => {
+      // salle-3 is authorized exceptionally, scoped to bloc C only (14:15-16:15) —
+      // any other block using a 3rd room would be an unauthorized expansion.
       for (const week of schedule) {
         const roomsPerBlock: Record<string, Set<string>> = {};
         for (const slot of week.slots) {
           if (!roomsPerBlock[slot.block]) roomsPerBlock[slot.block] = new Set();
           roomsPerBlock[slot.block].add(slot.room);
         }
-        for (const [, rooms] of Object.entries(roomsPerBlock)) {
-          expect(rooms.size).toBeLessThanOrEqual(2);
+        for (const [block, rooms] of Object.entries(roomsPerBlock)) {
+          const cap = block === 'C' ? 3 : 2;
+          expect(rooms.size).toBeLessThanOrEqual(cap);
+        }
+      }
+    });
+
+    it('salle-3 is never used outside bloc C', () => {
+      for (const week of schedule) {
+        for (const slot of week.slots) {
+          if (slot.room === 'salle-3') {
+            expect(slot.block).toBe('C');
+          }
         }
       }
     });

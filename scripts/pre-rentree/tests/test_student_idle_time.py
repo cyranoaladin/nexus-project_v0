@@ -1,8 +1,19 @@
-"""Reproduces and verifies the idle-time baseline from
-docs/campaigns/pre-rentree-2026/SCHEDULE-UX-AUDIT.md, computed directly from
+"""Reproduces and verifies the idle-time behaviour of the S5 schedule (3 rooms
++ week-end, end date kept at 28 août), computed directly from
 data/campaigns/pre-rentree-2026.json — mirrors
 __tests__/campaigns/pre-rentree-2026-student-idle-time.test.ts so drift between
-the TS and Python engines is caught by CI on both sides.
+the TS and Python engines is caught by CI on both sides. Superseded the
+original S0 baseline (see docs/campaigns/pre-rentree-2026/SCHEDULE-UX-AUDIT.md)
+after the schedule was restructured by the UX-optimization (PR #77) and S5
+three-rooms missions.
+
+Some subjects now have two alternative cohorts (Première SVT, Terminale NSI,
+Terminale SVT — see cohort_id in pre_rentree_data.ScheduledSlot). Any
+combination touching one of those subjects MUST go through assign_itinerary
+(which picks, per subject, the single best cohort) rather than
+compute_itinerary directly on the raw schedule: compute_itinerary alone would
+incorrectly merge both cohorts' sessions into one itinerary, which no real
+student ever attends.
 """
 
 from __future__ import annotations
@@ -17,7 +28,12 @@ PDF_GENERATOR_DIR = REPO_ROOT / "tools" / "pdf-generator"
 if str(PDF_GENERATOR_DIR) not in sys.path:
     sys.path.insert(0, str(PDF_GENERATOR_DIR))
 
-from itinerary import MAX_STUDENT_IDLE_MINUTES, compute_itinerary, enumerate_selections  # noqa: E402
+from itinerary import (  # noqa: E402
+    MAX_STUDENT_IDLE_MINUTES,
+    assign_itinerary,
+    compute_itinerary,
+    enumerate_selections,
+)
 from pre_rentree_data import PreRentreeData  # noqa: E402
 
 
@@ -52,14 +68,15 @@ def test_block_to_block_gaps():
     assert gap("A", "D") == 330
 
 
-def test_troisieme_maths_francais_non_conforme(all_sessions):
-    report = compute_itinerary("TROISIEME", ["MATHEMATIQUES", "FRANCAIS"], all_sessions)
-    assert report.status == "LONG_IDLE"
-    assert report.max_idle_minutes == 195
+def test_troisieme_maths_francais_conforme(all_sessions):
+    # Improved by the UX optimization (PR #77): was LONG_IDLE 195min in the S0 baseline.
+    report = assign_itinerary("TROISIEME", ["MATHEMATIQUES", "FRANCAIS"], all_sessions).itinerary
+    assert report.status == "COMPACT"
+    assert report.max_idle_minutes == 15
 
 
 def test_seconde_francais_maths_conforme(all_sessions):
-    report = compute_itinerary("SECONDE", ["FRANCAIS", "MATHEMATIQUES"], all_sessions)
+    report = assign_itinerary("SECONDE", ["FRANCAIS", "MATHEMATIQUES"], all_sessions).itinerary
     assert report.status == "COMPACT"
     assert report.max_idle_minutes == 15
 
@@ -67,20 +84,42 @@ def test_seconde_francais_maths_conforme(all_sessions):
 @pytest.mark.parametrize(
     ("subjects", "expected_status", "expected_idle"),
     [
-        (["FRANCAIS", "MATHEMATIQUES"], "COMPACT", 60),
-        (["MATHEMATIQUES", "NSI"], "COMPACT", 15),
-        (["FRANCAIS", "NSI"], "LONG_IDLE", 195),
+        # Français a été relogé en fenêtre semaine week-end (22-26 août) : plus aucune
+        # journée commune avec Mathématiques/NSI (fenêtre 1, 17-21 août).
+        (["FRANCAIS", "MATHEMATIQUES"], "NO_SHARED_DAY", None),
+        (["MATHEMATIQUES", "NSI"], "COMPACT", 60),
+        (["FRANCAIS", "NSI"], "NO_SHARED_DAY", None),
         (["FRANCAIS", "MATHEMATIQUES", "NSI"], "COMPACT", 60),
     ],
 )
 def test_premiere_fenetre1(all_sessions, subjects, expected_status, expected_idle):
-    report = compute_itinerary("PREMIERE", subjects, all_sessions)
+    report = assign_itinerary("PREMIERE", subjects, all_sessions).itinerary
     assert report.status == expected_status
-    assert report.max_idle_minutes == expected_idle
+    if expected_idle is not None:
+        assert report.max_idle_minutes == expected_idle
 
 
-def test_premiere_fenetre2_svt_pc(all_sessions):
-    report = compute_itinerary("PREMIERE", ["SVT", "PHYSIQUE_CHIMIE"], all_sessions)
+def test_premiere_svt_pc_no_shared_day(all_sessions):
+    # SVT (fenêtre 1, cohortes a/d) et Physique-Chimie (fenêtre semaine week-end)
+    # ne partagent plus jamais de date depuis la restructuration S5.
+    report = assign_itinerary("PREMIERE", ["SVT", "PHYSIQUE_CHIMIE"], all_sessions).itinerary
+    assert report.status == "NO_SHARED_DAY"
+
+
+def test_premiere_maths_svt_conforme_via_cohort(all_sessions):
+    assignment = assign_itinerary("PREMIERE", ["MATHEMATIQUES", "SVT"], all_sessions)
+    assert assignment.itinerary.status == "COMPACT"
+    assert assignment.itinerary.max_idle_minutes == 15
+
+
+def test_premiere_nsi_svt_conforme_via_cohort(all_sessions):
+    assignment = assign_itinerary("PREMIERE", ["NSI", "SVT"], all_sessions)
+    assert assignment.itinerary.status == "COMPACT"
+    assert assignment.itinerary.max_idle_minutes == 15
+
+
+def test_premiere_francais_pc_conforme(all_sessions):
+    report = assign_itinerary("PREMIERE", ["FRANCAIS", "PHYSIQUE_CHIMIE"], all_sessions).itinerary
     assert report.status == "COMPACT"
     assert report.max_idle_minutes == 15
 
@@ -89,36 +128,76 @@ def test_premiere_fenetre2_svt_pc(all_sessions):
     ("subjects", "expected_status", "expected_idle"),
     [
         (["MATHEMATIQUES", "MATHS_EXPERTES"], "COMPACT", 15),
-        (["MATHEMATIQUES", "NSI"], "LONG_IDLE", 195),
-        (["MATHEMATIQUES", "SVT"], "LONG_IDLE", 195),
-        (["MATHEMATIQUES", "PHYSIQUE_CHIMIE"], "LONG_IDLE", 330),
-        (["MATHS_EXPERTES", "NSI"], "COMPACT", 60),
-        (["MATHS_EXPERTES", "SVT"], "COMPACT", 60),
+        (["MATHEMATIQUES", "NSI"], "COMPACT", 60),
+        (["MATHEMATIQUES", "SVT"], "COMPACT", 60),
+        (["MATHEMATIQUES", "PHYSIQUE_CHIMIE"], "COMPACT", 60),
+        (["MATHS_EXPERTES", "NSI"], "LONG_IDLE", 195),
+        (["MATHS_EXPERTES", "SVT"], "LONG_IDLE", 195),
         (["MATHS_EXPERTES", "PHYSIQUE_CHIMIE"], "LONG_IDLE", 195),
-        (["NSI", "SVT"], "SIMULTANEOUS", None),
+        (["NSI", "SVT"], "COMPACT", 15),
         (["NSI", "PHYSIQUE_CHIMIE"], "COMPACT", 15),
         (["SVT", "PHYSIQUE_CHIMIE"], "COMPACT", 15),
     ],
 )
 def test_terminale_fenetre_24_28(all_sessions, subjects, expected_status, expected_idle):
-    report = compute_itinerary("TERMINALE", subjects, all_sessions)
+    report = assign_itinerary("TERMINALE", subjects, all_sessions).itinerary
     assert report.status == expected_status
     if expected_idle is not None:
         assert report.max_idle_minutes == expected_idle
 
 
-def test_bcd_compact_bd_alone_not(all_sessions):
-    bcd = compute_itinerary("PREMIERE", ["FRANCAIS", "MATHEMATIQUES", "NSI"], all_sessions)
-    assert bcd.status == "COMPACT"
-    bd = compute_itinerary("PREMIERE", ["FRANCAIS", "NSI"], all_sessions)
-    assert bd.status == "LONG_IDLE"
+def test_terminale_nsi_pc_svt_unavoidable_simultaneous(all_sessions):
+    # Pigeonhole: Physique-Chimie is single-cohort at bloc C. To avoid it, both NSI
+    # and SVT would have to use bloc D — but then they collide with each other.
+    # Documented, accepted residual limit of S5 (3 salles), not a bug.
+    assignment = assign_itinerary("TERMINALE", ["NSI", "PHYSIQUE_CHIMIE", "SVT"], all_sessions)
+    assert assignment.itinerary.status == "SIMULTANEOUS"
+    assert assignment.itinerary.first_conflict is not None
+    assert assignment.itinerary.first_conflict.reason == "SIMULTANEOUS"
+
+
+def test_terminale_maths_expertes_nsi_triple_compact(all_sessions):
+    assignment = assign_itinerary("TERMINALE", ["MATHEMATIQUES", "MATHS_EXPERTES", "NSI"], all_sessions)
+    assert assignment.itinerary.status == "COMPACT"
+    assert assignment.itinerary.max_idle_minutes == 60
+
+
+def test_cohort_never_combines_both_alternatives_into_one_itinerary(all_sessions):
+    assignment = assign_itinerary("TERMINALE", ["NSI", "SVT"], all_sessions)
+    assert len(assignment.sessions_by_subject["NSI"]) == 5
+    assert len(assignment.sessions_by_subject["SVT"]) == 5
+
+
+def test_assign_itinerary_is_deterministic_for_multi_cohort_selection(all_sessions):
+    first = assign_itinerary("TERMINALE", ["NSI", "SVT"], all_sessions)
+    second = assign_itinerary("TERMINALE", ["NSI", "SVT"], all_sessions)
+    assert first.cohort_by_subject == second.cohort_by_subject
+    assert first.itinerary == second.itinerary
+
+
+def test_single_cohort_subject_has_no_cohort_choice(all_sessions):
+    assignment = assign_itinerary("TERMINALE", ["MATHEMATIQUES", "PHYSIQUE_CHIMIE"], all_sessions)
+    assert assignment.cohort_by_subject["MATHEMATIQUES"] is None
+    assert assignment.cohort_by_subject["PHYSIQUE_CHIMIE"] is None
+
+
+def test_assign_itinerary_raises_on_missing_subject(all_sessions):
+    with pytest.raises(ValueError, match="Missing campaign schedule"):
+        assign_itinerary("TERMINALE", ["SVT", "GEOGRAPHIE_INEXISTANTE"], all_sessions)
+
+
+def test_extra_session_filling_gap_turns_long_idle_into_compact(all_sessions):
+    pair = assign_itinerary("TERMINALE", ["MATHS_EXPERTES", "NSI"], all_sessions).itinerary
+    assert pair.status == "LONG_IDLE"
+    triple = assign_itinerary("TERMINALE", ["MATHEMATIQUES", "MATHS_EXPERTES", "NSI"], all_sessions).itinerary
+    assert triple.status == "COMPACT"
 
 
 def test_never_reports_simultaneous_as_compact(all_sessions):
-    report = compute_itinerary("TERMINALE", ["NSI", "SVT"], all_sessions)
-    assert report.status == "SIMULTANEOUS"
-    assert report.first_conflict is not None
-    assert report.first_conflict.reason == "SIMULTANEOUS"
+    assignment = assign_itinerary("TERMINALE", ["NSI", "PHYSIQUE_CHIMIE", "SVT"], all_sessions)
+    assert assignment.itinerary.status == "SIMULTANEOUS"
+    assert assignment.itinerary.first_conflict is not None
+    assert assignment.itinerary.first_conflict.reason == "SIMULTANEOUS"
 
 
 def test_no_shared_day_for_never_coinciding_subjects(all_sessions):
@@ -138,9 +217,9 @@ def test_max_idle_constant():
     assert MAX_STUDENT_IDLE_MINUTES == 60
 
 
-def test_deterministic_assignment(all_sessions):
-    first = compute_itinerary("TERMINALE", ["MATHEMATIQUES", "NSI"], all_sessions)
-    second = compute_itinerary("TERMINALE", ["MATHEMATIQUES", "NSI"], all_sessions)
+def test_deterministic_assignment_single_cohort(all_sessions):
+    first = compute_itinerary("TERMINALE", ["MATHEMATIQUES", "MATHS_EXPERTES"], all_sessions)
+    second = compute_itinerary("TERMINALE", ["MATHEMATIQUES", "MATHS_EXPERTES"], all_sessions)
     assert first == second
 
 

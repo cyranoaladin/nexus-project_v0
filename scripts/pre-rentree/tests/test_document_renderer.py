@@ -51,7 +51,10 @@ def test_renders_exact_eleven_html_and_pdf_output_names(tmp_path: Path):
 
     guide = pdf["parentGuide"]
     reader = PdfReader(str(guide))
-    assert 24 <= len(reader.pages) <= 56
+    # Upper bound raised from 56 to 60 after SCHEDULE-S5 (3 salles + week-end): the
+    # planning section now renders 85 dated sessions (17 cohorts) instead of 70 (14
+    # modules), a genuine content increase, not a regression — measured at 57 pages.
+    assert 24 <= len(reader.pages) <= 60
     text = "\n".join(page.extract_text() or "" for page in reader.pages)
     assert len(re.findall(r"Séance\s+[1-5]", text)) >= 70
 

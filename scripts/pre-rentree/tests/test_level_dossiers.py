@@ -121,7 +121,8 @@ def test_planning_dates_times_rooms_match_canonical_schedule(data: PreRentreeDat
         for slot in dossier.slots:
             start, end = block_times[slot.block]
             assert (slot.start_time, slot.end_time) == (start, end)
-            assert slot.room in ("salle-1", "salle-2")
+            # salle-3 is the exceptional S5 third room (Terminale, bloc C only, SVT cohort).
+            assert slot.room in ("salle-1", "salle-2", "salle-3")
 
 
 def test_hourly_volume_is_five_sessions_of_two_hours_per_subject(dossiers):
@@ -154,7 +155,13 @@ def test_pricing_shown_matches_canonical_pricing(data: PreRentreeData, dossiers)
 # ── 8: incompatibilities from repo computation ──────────────────────────────
 
 def test_incompatibilities_are_computed_not_invented(data: PreRentreeData, dossiers):
-    # Terminale: NSI (bloc C) and SVT (bloc B) share fenêtre 2 week-end dates -> incompatible.
+    # incompatibilities_for_level() is a coarse (date, level, block) clash detector —
+    # it does NOT know about alternative cohorts, so it still flags NSI/SVT/Physique-Chimie
+    # as pairwise clashing at Terminale (they do share a block letter, cohort for cohort).
+    # This dead-data field is unused by the actual PDF output (planning_page() uses
+    # assign_itinerary, which correctly proves NSI+SVT can be COMPACT via cohort choice —
+    # see test_pdf_never_claims_compatible_alongside_a_long_idle_pair below); this test only
+    # guards that the coarse function still runs off real schedule data, not invented pairs.
     terminale_pairs = {
         frozenset((i.subject_a, i.subject_b)) for i in dossiers["TERMINALE"].incompatibilities
     }
@@ -261,7 +268,11 @@ def test_no_standalone_svt_pdf_in_final_parent_set():
 # ── Idle-time compatibility text invariants ─────────────────────────────────
 
 def test_pdf_never_claims_compatible_alongside_a_long_idle_pair(data: PreRentreeData, dossiers):
-    from itinerary import compute_itinerary
+    # Uses assign_itinerary, exactly like generate_level_dossiers.planning_page(), so
+    # that subjects with two alternative cohorts (Première SVT, Terminale NSI/SVT) are
+    # evaluated on the single best cohort a family would actually be assigned — never
+    # both cohorts merged into one impossible itinerary.
+    from itinerary import assign_itinerary
 
     for level, dossier in dossiers.items():
         html = generate_level_dossiers.build_dossier_html(dossier, data)
@@ -269,7 +280,7 @@ def test_pdf_never_claims_compatible_alongside_a_long_idle_pair(data: PreRentree
         subjects = list(dossier.subjects)
         for i in range(len(subjects)):
             for j in range(i + 1, len(subjects)):
-                report = compute_itinerary(level, [subjects[i], subjects[j]], dated_sessions)
+                report = assign_itinerary(level, [subjects[i], subjects[j]], dated_sessions).itinerary
                 if report.status == "LONG_IDLE":
                     # The exact minute value for this pair must be printed, and the
                     # dossier must never claim a blanket "toutes les autres combinaisons
