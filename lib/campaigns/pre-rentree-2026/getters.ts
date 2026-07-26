@@ -57,6 +57,9 @@ export function getPreRentreeSchedule() {
     room: string;
     windowId: string;
     sessionNumber: number;
+    cohortId?: string;
+    alternativeGroupId?: string;
+    isPrimary?: boolean;
   }> = [];
 
   for (const window of campaign.schedule) {
@@ -75,9 +78,15 @@ export function getPreRentreeSchedule() {
           endTime: block.endTime,
           room: slot.room,
           windowId: window.windowId,
+          // A subject with multiple cohorts (cohortId set) gets its own 1-5
+          // numbering per cohort, never mixed with another cohort's sessions —
+          // otherwise a 2-cohort subject would wrongly look like 10 séances.
           sessionNumber: sessions.filter(
-            s => s.level === slot.level && s.subject === slot.subject
+            (s) => s.level === slot.level && s.subject === slot.subject && s.cohortId === slot.cohortId
           ).length + 1,
+          cohortId: slot.cohortId,
+          alternativeGroupId: slot.alternativeGroupId,
+          isPrimary: slot.isPrimary,
         });
       }
     }

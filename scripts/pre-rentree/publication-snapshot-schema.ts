@@ -78,6 +78,10 @@ const ScheduleSessionSchema = z.object({
   endTime: Time,
   roomLabel: z.string().min(1),
   sessionNumber: z.number().int().min(1).max(5),
+  // Present only for subjects with more than one alternative cohort (SCHEDULE-S5),
+  // e.g. Première SVT, Terminale NSI, Terminale SVT. Absence means a single/primary
+  // cohort — same backward-compatible convention as ScheduleSlot in schema.ts.
+  cohortId: z.string().min(1).optional(),
 }).strict();
 
 const ScheduleWindowSchema = z.object({
@@ -92,6 +96,7 @@ const ScheduleWindowSchema = z.object({
     startTime: Time,
     endTime: Time,
     roomLabel: z.string().min(1),
+    cohortId: z.string().min(1).optional(),
   }).strict()).min(1),
 }).strict();
 
@@ -259,7 +264,10 @@ export const PublicationSnapshotSchema = z.object({
   blocks: z.array(z.object({ id: z.enum(['A', 'B', 'C', 'D']), startTime: Time, endTime: Time }).strict()).length(4),
   schedule: z.object({
     windows: z.array(ScheduleWindowSchema).length(3),
-    sessions: z.array(ScheduleSessionSchema).length(70),
+    // 17 opérational cohorts x 5 sessions = 85 (SCHEDULE-S5: 14 unique pedagogical
+    // modules, but 3 of them — Première SVT, Terminale NSI, Terminale SVT — have 2
+    // alternative cohorts each = 14 + 3 = 17 cohorts).
+    sessions: z.array(ScheduleSessionSchema).length(85),
   }).strict(),
   academicProfiles: z.record(z.unknown()),
   packs: z.array(PackSchema).length(4),
