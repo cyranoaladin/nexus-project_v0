@@ -110,8 +110,9 @@ describe('PR #79 complete CI evidence workflow', () => {
       .join('\n');
 
     expect(commands).toContain(
-      "--testPathIgnorePatterns='__tests__/lib/bilan/'",
+      "--testPathIgnorePatterns='/__tests__/lib/bilan/'",
     );
+    expect(commands).not.toContain('npm run test:db-integration');
   });
 
   test('verifies frozen public documents without regenerating them', () => {
