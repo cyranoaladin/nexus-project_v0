@@ -6,7 +6,7 @@
   "branch": "release/pre-rentree-2026-public-ready",
   "pullRequest": 79,
   "baselineSha": "a0db57a7bc4db25b8d163d92c2ed3e95b65da961",
-  "repositoryCommitSha": "03dc9ba14cb87f7eea4832b5b2adcfb06387b6cd",
+  "repositoryCommitSha": "d794a296e4dcbf6f8a249f5722660e8550ca3a89",
   "provenance": {
     "repositoryCommitShaRole": "BUILD_INPUT_NOT_FINAL_RELEASE_BINDING",
     "finalReleaseBinding": "ANNOTATED_GO_TAG_AND_GITHUB_PR_COMMENT"
@@ -596,43 +596,78 @@
       "order": 115,
       "commitSha": "03dc9ba14cb87f7eea4832b5b2adcfb06387b6cd",
       "subject": "fix(pre-rentree): stabilize public PDF asset identities"
+    },
+    {
+      "order": 116,
+      "commitSha": "8ac59e8d0e0cbc61c64e44d1432e02422c5747dd",
+      "subject": "chore(pre-rentree): bind stable PDFs to release inventory"
+    },
+    {
+      "order": 117,
+      "commitSha": "2d43bc314fe7929a96b7512c849b0e4bd99605a6",
+      "subject": "chore(ci): pin public PDF Python runtime"
+    },
+    {
+      "order": 118,
+      "commitSha": "19c5a6ddae35efad55c5152bdb6a6e57587e4aed",
+      "subject": "fix(ci): use Ubuntu runtime for public PDF bytes"
+    },
+    {
+      "order": 119,
+      "commitSha": "ad3e59bb18801e5bef43717f3148aad13e9522af",
+      "subject": "fix(ci): pin reproducible public PDF environment"
+    },
+    {
+      "order": 120,
+      "commitSha": "d857160381b26b82ff52901cbdc8d8062975cbba",
+      "subject": "chore(pre-rentree): refresh PDFs from pinned environment"
+    },
+    {
+      "order": 121,
+      "commitSha": "82b2a86f071dd93ed68b2926935639172e55972b",
+      "subject": "Merge pull request #82 from cyranoaladin/ci/pr79-complete-release-evidence-v3"
+    },
+    {
+      "order": 122,
+      "commitSha": "d794a296e4dcbf6f8a249f5722660e8550ca3a89",
+      "subject": "test(pre-rentree): prepare public-ready gate transition"
     }
   ],
   "publicDocuments": [
     {
       "fileName": "NexusReussite_PreRentree2026_FlyerEssentiel.pdf",
-      "sha256": "dbe7747faa3f29c4a5e9afaa5c5d166b002b2fc2efa15e6776ddf57e7fb774ee",
-      "bytes": 374384
+      "sha256": "23982831e443a460a9ee1bcb62428422852465b32b7bbe3c17f2031cbfe80011",
+      "bytes": 374388
     },
     {
       "fileName": "NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf",
-      "sha256": "1649a63cf87ce804b1b3f1f49064d7cad6aebd1e850633d9a8c1f276231669e8",
-      "bytes": 400682
+      "sha256": "9c43713b8312f3b58b3cd9d0782f103ab81833d468516a624b0a6c4ad3bde391",
+      "bytes": 400683
     },
     {
       "fileName": "NexusReussite_PreRentree2026_Programme_3e.pdf",
-      "sha256": "c004c690b1f7f95caff744de1bf33571216fe1720cdc2e2da182e33ce63fb063",
-      "bytes": 454225
+      "sha256": "0c513bf1ab4749af949cc73dd92c060e6b80461655a26525e7171236beb2d308",
+      "bytes": 454275
     },
     {
       "fileName": "NexusReussite_PreRentree2026_Programme_Premiere.pdf",
-      "sha256": "698ac439b0053d0856e8f761fa0ec9bb4a582a48360362363673325f803238a6",
-      "bytes": 480323
+      "sha256": "37630e3b46a21dfeab3f67c7e6d73561ad5247001cdaee9b9db752de51adc39a",
+      "bytes": 480390
     },
     {
       "fileName": "NexusReussite_PreRentree2026_Programme_Seconde.pdf",
-      "sha256": "70860d84b90952bf36eb8271357f085e1961af6c96d085d1f623fd84af184b6a",
-      "bytes": 455237
+      "sha256": "9ed2e25ea7efffa3751c69d142b9160f6d9ea1e86cd6cadb562cd7a787e644e4",
+      "bytes": 455288
     },
     {
       "fileName": "NexusReussite_PreRentree2026_Programme_Terminale.pdf",
-      "sha256": "0ff028dcf69a8cc2683c6beb5f95fb525d66873d3067012822e1dd473708e366",
-      "bytes": 479602
+      "sha256": "a54fb50043d69f01b3c6c9a9512cd27083ca53a6ed57da0667968f5af8657a06",
+      "bytes": 479666
     },
     {
       "fileName": "NexusReussite_PreRentree2026_Tarifs.pdf",
-      "sha256": "6eb60b8b53341c0b59a0d0acfacbee66c7fdb45063b6a3730c9a5cdf96b5b7c3",
-      "bytes": 381947
+      "sha256": "c29ae203cb4501544a68e6f37cdd727864a8df2fad8a5675f4d30c92b6e9530c",
+      "bytes": 381946
     }
   ],
   "publicSocialAssets": [
@@ -886,12 +921,12 @@
   },
   "summary": {
     "fileCount": 35,
-    "totalBytes": 12499915,
-    "aggregateSha256": "2ba5d72f3ec124fbd0e04da1190a7e73480885ae3fae8d24196b501707c8b6ff"
+    "totalBytes": 12500151,
+    "aggregateSha256": "2c5a664257015fc55a119e95fbc983b16889fae4a410b37c42f02a11ae42a916"
   },
   "reviewOnlySummary": {
     "fileCount": 673,
-    "totalBytes": 149132148
+    "totalBytes": 149131413
   },
   "publicKitPolicy": {
     "excludedPathParts": [
@@ -1142,7 +1177,7 @@
         {
           "path": "assets/campaigns/pre-rentree-2026/week-one/manifest.json",
           "bytes": 40275,
-          "sha256": "467f971c3c137a198a1fc6240fb8dda50cd7df7590b3cd6f9e21d5b2866eb4d1"
+          "sha256": "2e6ec66569bf34fc3605308e24b0707980f421a03012839d5e329b3f70d1c898"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/week-one/reel/frames/frame-01.png",
@@ -1176,8 +1211,8 @@
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/week-one/reel/frames.concat.txt",
-          "bytes": 997,
-          "sha256": "1bcd0dc5cee1570e80fea462ed7403d2b007798fa4e82be4934cbb27c5f1137b"
+          "bytes": 255,
+          "sha256": "aeff3083ef4d82d9940aa190e3abd62c6fc3edb409d5d3082c1cbf2445de897f"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/week-one/reel/reel-cover.png",
@@ -1764,38 +1799,38 @@
       "files": [
         {
           "path": "assets/campaigns/pre-rentree-2026/documents-final/NexusReussite_PreRentree2026_FlyerEssentiel.pdf",
-          "bytes": 374384,
-          "sha256": "dbe7747faa3f29c4a5e9afaa5c5d166b002b2fc2efa15e6776ddf57e7fb774ee"
+          "bytes": 374388,
+          "sha256": "23982831e443a460a9ee1bcb62428422852465b32b7bbe3c17f2031cbfe80011"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/documents-final/NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf",
-          "bytes": 400682,
-          "sha256": "1649a63cf87ce804b1b3f1f49064d7cad6aebd1e850633d9a8c1f276231669e8"
+          "bytes": 400683,
+          "sha256": "9c43713b8312f3b58b3cd9d0782f103ab81833d468516a624b0a6c4ad3bde391"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/documents-final/NexusReussite_PreRentree2026_Programme_3e.pdf",
-          "bytes": 454225,
-          "sha256": "c004c690b1f7f95caff744de1bf33571216fe1720cdc2e2da182e33ce63fb063"
+          "bytes": 454275,
+          "sha256": "0c513bf1ab4749af949cc73dd92c060e6b80461655a26525e7171236beb2d308"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/documents-final/NexusReussite_PreRentree2026_Programme_Premiere.pdf",
-          "bytes": 480323,
-          "sha256": "698ac439b0053d0856e8f761fa0ec9bb4a582a48360362363673325f803238a6"
+          "bytes": 480390,
+          "sha256": "37630e3b46a21dfeab3f67c7e6d73561ad5247001cdaee9b9db752de51adc39a"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/documents-final/NexusReussite_PreRentree2026_Programme_Seconde.pdf",
-          "bytes": 455237,
-          "sha256": "70860d84b90952bf36eb8271357f085e1961af6c96d085d1f623fd84af184b6a"
+          "bytes": 455288,
+          "sha256": "9ed2e25ea7efffa3751c69d142b9160f6d9ea1e86cd6cadb562cd7a787e644e4"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/documents-final/NexusReussite_PreRentree2026_Programme_Terminale.pdf",
-          "bytes": 479602,
-          "sha256": "0ff028dcf69a8cc2683c6beb5f95fb525d66873d3067012822e1dd473708e366"
+          "bytes": 479666,
+          "sha256": "a54fb50043d69f01b3c6c9a9512cd27083ca53a6ed57da0667968f5af8657a06"
         },
         {
           "path": "assets/campaigns/pre-rentree-2026/documents-final/NexusReussite_PreRentree2026_Tarifs.pdf",
-          "bytes": 381947,
-          "sha256": "6eb60b8b53341c0b59a0d0acfacbee66c7fdb45063b6a3730c9a5cdf96b5b7c3"
+          "bytes": 381946,
+          "sha256": "c29ae203cb4501544a68e6f37cdd727864a8df2fad8a5675f4d30c92b6e9530c"
         }
       ]
     },
@@ -4561,8 +4596,8 @@
         },
         {
           "path": "content/pre-rentree-2026/residual-debt.fr.json",
-          "bytes": 14343,
-          "sha256": "6d736d31836b8f2284a710fd4982c1f9b56ceed0cdf66c6b69792dcc7d8c10e0"
+          "bytes": 14350,
+          "sha256": "387f226193284d031b40c6090be858a554af2dbdd38db3757bc7a4c9a5e4d2b0"
         }
       ]
     }
