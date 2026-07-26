@@ -20,6 +20,10 @@ import type {
 } from '@/lib/campaigns/pre-rentree-2026/configurator';
 import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
 import type { SubjectIncompatibility } from '@/lib/campaigns/pre-rentree-2026/incompatibilities';
+import {
+  buildPublicSubjectScheduleRows,
+  type PublicSubjectScheduleRow,
+} from '@/lib/campaigns/pre-rentree-2026/public-schedule';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SubjectBadge } from './SubjectBadge';
 import { StagePlanningSelector } from './StagePlanningSelector';
@@ -29,18 +33,6 @@ interface Block {
   id: string;
   startTime: string;
   endTime: string;
-}
-
-interface ModuleRow {
-  subjectId: string;
-  label: string;
-  windowLabel: string;
-  dates: string[];
-  startTime: string;
-  endTime: string;
-  room: string;
-  sessionCount: number;
-  hours: number;
 }
 
 function durationHours(start: string, end: string): number {
@@ -63,35 +55,6 @@ function roomLabel(room: string): string {
   return number ? `Salle ${number}` : room;
 }
 
-function moduleRows(
-  schedule: readonly LandingScheduleSlot[],
-  subjects: readonly LandingSubject[],
-  windows: readonly LandingScheduleWindow[],
-  level: EntryLevelCode,
-): ModuleRow[] {
-  const subjectIds = [...new Set(
-    schedule.filter((slot) => slot.level === level).map((slot) => slot.subject),
-  )];
-  return subjectIds.map((subjectId) => {
-    const slots = schedule
-      .filter((slot) => slot.level === level && slot.subject === subjectId)
-      .sort((left, right) => left.date.localeCompare(right.date));
-    const first = slots[0];
-    const windowLabel = windows.find((candidate) => candidate.windowId === first?.windowId)?.windowLabel ?? '';
-    return {
-      subjectId,
-      label: subjectLabel(subjects, subjectId, level),
-      windowLabel,
-      dates: slots.map((slot) => slot.date),
-      startTime: first?.startTime ?? '',
-      endTime: first?.endTime ?? '',
-      room: first?.room ?? '',
-      sessionCount: slots.length,
-      hours: first ? durationHours(first.startTime, first.endTime) * slots.length : 0,
-    };
-  });
-}
-
 function SubjectLegend() {
   return (
     <ul aria-label="Légende des matières" className="mt-6 grid grid-cols-2 gap-x-4 gap-y-2 sm:flex sm:flex-wrap sm:gap-3">
@@ -105,32 +68,56 @@ function SubjectLegend() {
   );
 }
 
-function LevelDesktopTable({ rows, levelLabel }: { rows: ModuleRow[]; levelLabel: string }) {
+function CohortDetails({ row }: { row: PublicSubjectScheduleRow }) {
+  return (
+    <div>
+      {row.cohorts.length > 1 && (
+        <p className="mb-2 font-medium text-lux-ink">Deux créneaux possibles selon les autres matières :</p>
+      )}
+      <ul className="space-y-2">
+        {row.cohorts.map((cohort) => (
+          <li key={cohort.cohortId ?? 'primary'} className="text-lux-slate">
+            <span className="font-semibold text-lux-ink">
+              {cohort.label} · {cohort.startTime}–{cohort.endTime}
+            </span>
+            <span
+              className="mt-1 block text-xs"
+              title={formatDetailedDates(cohort.dates)}
+            >
+              {formatWeekRange(cohort.dates[0] ?? '', cohort.dates.at(-1) ?? '')}
+              {' · '}
+              {formatPresenceRange(cohort.dates)}
+              {cohort.room ? ` · ${roomLabel(cohort.room)}` : ''}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function LevelDesktopTable({ rows, levelLabel }: { rows: PublicSubjectScheduleRow[]; levelLabel: string }) {
   return (
     <div className="mt-6 hidden overflow-hidden rounded-2xl border border-lux-line bg-white sm:block">
       <table className="w-full table-fixed border-collapse text-left text-sm">
         <caption className="sr-only">Planning — {levelLabel}</caption>
         <thead className="bg-lux-paper text-lux-ink">
           <tr>
-            {['Matière', 'Fenêtre', 'Dates', 'Créneau', 'Salle', 'Volume'].map((heading, index) => (
-              <th key={heading} scope="col" className={cn('px-3 py-4 font-semibold', index === 0 ? 'w-[29%]' : '')}>{heading}</th>
+            {['Matière', 'Volume', 'Créneaux proposés'].map((heading, index) => (
+              <th key={heading} scope="col" className={cn('px-4 py-4 font-semibold', index === 0 ? 'w-[27%]' : index === 1 ? 'w-[25%]' : '')}>{heading}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           {rows.map((row) => (
             <tr key={row.subjectId} className="border-t border-lux-line align-top">
-              <th scope="row" className="px-3 py-4 font-normal">
+              <th scope="row" className="px-4 py-4 font-normal">
                 <SubjectBadge subjectId={row.subjectId} label={row.label} />
               </th>
-              <td className="px-3 py-4 font-semibold text-lux-ink">{row.windowLabel}</td>
-              <td className="px-3 py-4 text-lux-slate" title={formatDetailedDates(row.dates)}>
-                <span className="block font-medium text-lux-ink">{formatWeekRange(row.dates[0] ?? '', row.dates.at(-1) ?? '')}</span>
-                <span className="mt-1 block text-xs">{formatPresenceRange(row.dates)}</span>
+              <td className="px-4 py-4 font-medium text-lux-ink">
+                {row.studentSessionCount} séances · {row.studentHours} h par élève
               </td>
-              <td className="px-3 py-4 font-medium text-lux-ink">{row.startTime}–{row.endTime}</td>
-              <td className="px-3 py-4 text-lux-slate">{roomLabel(row.room)}</td>
-              <td className="px-3 py-4 font-medium text-lux-ink">{row.sessionCount} séances · {row.hours} h</td>
+              <td className="px-4 py-4 text-sm"><CohortDetails row={row} /></td>
             </tr>
           ))}
         </tbody>
@@ -139,23 +126,20 @@ function LevelDesktopTable({ rows, levelLabel }: { rows: ModuleRow[]; levelLabel
   );
 }
 
-function LevelMobileCards({ rows }: { rows: ModuleRow[] }) {
+function LevelMobileCards({ rows }: { rows: PublicSubjectScheduleRow[] }) {
   return (
     <div className="mt-5 grid gap-3 sm:hidden">
       {rows.map((row) => (
         <article
           key={row.subjectId}
           className="min-w-0 rounded-2xl border border-lux-line bg-white p-4"
-          aria-label={`${row.label}, ${row.windowLabel}`}
+          aria-label={row.label}
         >
           <SubjectBadge subjectId={row.subjectId} label={row.label} />
-          <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
-            <div><dt className="text-xs text-lux-slate">Fenêtre</dt><dd className="font-medium text-lux-ink">{row.windowLabel}</dd></div>
-            <div><dt className="text-xs text-lux-slate">Salle</dt><dd className="font-medium text-lux-ink">{roomLabel(row.room)}</dd></div>
-            <div className="col-span-2"><dt className="text-xs text-lux-slate">Présence</dt><dd className="font-medium text-lux-ink" title={formatDetailedDates(row.dates)}>{formatPresenceRange(row.dates)}</dd></div>
-            <div><dt className="text-xs text-lux-slate">Créneau</dt><dd className="font-medium text-lux-ink">{row.startTime}–{row.endTime}</dd></div>
-            <div><dt className="text-xs text-lux-slate">Volume</dt><dd className="font-medium text-lux-ink">{row.sessionCount} séances · {row.hours} h</dd></div>
-          </dl>
+          <p className="mt-3 text-sm font-semibold text-lux-ink">
+            {row.studentSessionCount} séances · {row.studentHours} h par élève
+          </p>
+          <div className="mt-3 text-sm"><CohortDetails row={row} /></div>
         </article>
       ))}
     </div>
@@ -186,16 +170,47 @@ function OccupiedCell({
   );
 }
 
+function ProposedGroups({
+  slots,
+  block,
+  levels,
+  subjects,
+}: {
+  slots: LandingScheduleWindow['slots'];
+  block: Block;
+  levels: readonly LandingLevel[];
+  subjects: readonly LandingSubject[];
+}) {
+  if (slots.length === 0) {
+    return <span className="text-sm font-medium text-lux-slate">Aucun groupe sur ce créneau</span>;
+  }
+  return (
+    <div className="grid gap-3 md:grid-cols-2">
+      {slots.map((slot) => (
+        <OccupiedCell
+          key={`${slot.level}-${slot.subject}-${slot.room}`}
+          slot={slot}
+          block={block}
+          levels={levels}
+          subjects={subjects}
+        />
+      ))}
+    </div>
+  );
+}
+
 function WindowDesktopTable({
   window,
   blocks,
   levels,
   subjects,
+  exposeRooms,
 }: {
   window: LandingScheduleWindow;
   blocks: readonly Block[];
   levels: readonly LandingLevel[];
   subjects: readonly LandingSubject[];
+  exposeRooms: boolean;
 }) {
   // Always show the 2 standing rooms; add any extra room (e.g. the
   // exceptional salle-3, SCHEDULE-S5) only for the window that actually uses
@@ -213,11 +228,13 @@ function WindowDesktopTable({
         <thead className="bg-lux-paper text-lux-ink">
           <tr>
             <th scope="col" className="w-[22%] px-4 py-4 font-semibold">Créneau</th>
-            {rooms.map((room) => (
-              <th key={room} scope="col" style={{ width: columnWidth }} className="px-4 py-4 font-semibold">
-                {roomLabel(room)}
-              </th>
-            ))}
+            {exposeRooms
+              ? rooms.map((room) => (
+                <th key={room} scope="col" style={{ width: columnWidth }} className="px-4 py-4 font-semibold">
+                  {roomLabel(room)}
+                </th>
+              ))
+              : <th scope="col" className="px-4 py-4 font-semibold">Groupes proposés</th>}
           </tr>
         </thead>
         <tbody>
@@ -227,16 +244,27 @@ function WindowDesktopTable({
                 <span className="block font-semibold">Bloc {block.id}</span>
                 <span className="mt-1 block text-sm font-normal text-lux-slate">{block.startTime}–{block.endTime}</span>
               </th>
-              {rooms.map((room) => (
-                <td key={room} className="px-4 py-4" aria-label={`${roomLabel(room)}, bloc ${block.id}`}>
-                  <OccupiedCell
-                    slot={window.slots.find((slot) => slot.block === block.id && slot.room === room)}
-                    block={block}
-                    levels={levels}
-                    subjects={subjects}
-                  />
-                </td>
-              ))}
+              {exposeRooms
+                ? rooms.map((room) => (
+                  <td key={room} className="px-4 py-4" aria-label={`${roomLabel(room)}, bloc ${block.id}`}>
+                    <OccupiedCell
+                      slot={window.slots.find((slot) => slot.block === block.id && slot.room === room)}
+                      block={block}
+                      levels={levels}
+                      subjects={subjects}
+                    />
+                  </td>
+                ))
+                : (
+                  <td className="px-4 py-4">
+                    <ProposedGroups
+                      slots={window.slots.filter((slot) => slot.block === block.id)}
+                      block={block}
+                      levels={levels}
+                      subjects={subjects}
+                    />
+                  </td>
+                )}
             </tr>
           ))}
         </tbody>
@@ -250,11 +278,13 @@ function WindowMobileList({
   blocks,
   levels,
   subjects,
+  exposeRooms,
 }: {
   window: LandingScheduleWindow;
   blocks: readonly Block[];
   levels: readonly LandingLevel[];
   subjects: readonly LandingSubject[];
+  exposeRooms: boolean;
 }) {
   const extraRooms = [...new Set(window.slots.map((slot) => slot.room))]
     .filter((room) => room !== 'salle-1' && room !== 'salle-2')
@@ -267,17 +297,28 @@ function WindowMobileList({
         <article key={block.id} className="min-w-0 rounded-2xl border border-lux-line bg-white p-4">
           <h4 className="font-semibold text-lux-ink">Bloc {block.id} · {block.startTime}–{block.endTime}</h4>
           <div className="mt-3 grid gap-3">
-            {rooms.map((room) => (
-              <div key={room} className="min-w-0 rounded-xl bg-lux-paper p-3">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-lux-slate">{roomLabel(room)}</p>
-                <OccupiedCell
-                  slot={window.slots.find((slot) => slot.block === block.id && slot.room === room)}
-                  block={block}
-                  levels={levels}
-                  subjects={subjects}
-                />
-              </div>
-            ))}
+            {exposeRooms
+              ? rooms.map((room) => (
+                <div key={room} className="min-w-0 rounded-xl bg-lux-paper p-3">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-lux-slate">{roomLabel(room)}</p>
+                  <OccupiedCell
+                    slot={window.slots.find((slot) => slot.block === block.id && slot.room === room)}
+                    block={block}
+                    levels={levels}
+                    subjects={subjects}
+                  />
+                </div>
+              ))
+              : (
+                <div className="min-w-0 rounded-xl bg-lux-paper p-3">
+                  <ProposedGroups
+                    slots={window.slots.filter((slot) => slot.block === block.id)}
+                    block={block}
+                    levels={levels}
+                    subjects={subjects}
+                  />
+                </div>
+              )}
           </div>
         </article>
       ))}
@@ -285,23 +326,25 @@ function WindowMobileList({
   );
 }
 
-function Organization({ organization }: { organization: LandingPublicOrganization }) {
+function Organization({
+  organization,
+  exposeRooms,
+}: {
+  organization: LandingPublicOrganization;
+  exposeRooms: boolean;
+}) {
   return (
     <section className="mt-12 border-t border-lux-line pt-8" aria-labelledby="organization-heading">
       <h3 id="organization-heading" className="font-fraunces text-2xl text-lux-ink">Organisation pédagogique</h3>
-      <div className="mt-5 grid gap-4 lg:grid-cols-3">
-        {organization.educators.map((educator) => (
-          <article key={educator.title} data-testid="teacher-role" className="rounded-2xl border border-lux-line bg-lux-paper p-5">
-            <h4 className="font-semibold text-lux-ink">{educator.title}</h4>
-            <ul className="mt-3 space-y-1 text-sm text-lux-slate">
-              {educator.details.map((detail) => <li key={detail}>{detail}</li>)}
-            </ul>
-          </article>
-        ))}
-      </div>
       <div className="mt-4 rounded-2xl border border-lux-line bg-white p-5 text-sm text-lux-slate">
-        <p className="font-semibold text-lux-ink">Deux salles pédagogiques</p>
-        {organization.rooms.map((room) => (
+        <p className="font-semibold text-lux-ink">
+          Deux salles permanentes et une troisième salle temporaire
+        </p>
+        <p className="mt-2">
+          La troisième salle temporaire est utilisée uniquement au bloc C en Terminale du 24 au 28 août 2026.
+          Sa capacité minimale reste compatible avec le format Premium ; aucune promesse de laboratoire n’est formulée.
+        </p>
+        {exposeRooms && organization.rooms.map((room) => (
           <p key={room.label} className="mt-1">{room.label} · {room.details}</p>
         ))}
       </div>
@@ -352,9 +395,11 @@ export function ScheduleSection({
     <section className="bg-white px-4 py-14 md:py-20" aria-labelledby="schedule-heading">
       <div className="mx-auto max-w-6xl">
         <h2 id="schedule-heading" className="font-fraunces text-3xl text-lux-ink md:text-4xl">Planning et emplois du temps</h2>
-        <p className="mt-3 max-w-3xl text-lux-slate">Consultez les créneaux par classe de rentrée ou visualisez l’occupation des deux salles sur chaque semaine.</p>
+        <p className="mt-3 max-w-3xl text-lux-slate">Consultez les créneaux par classe de rentrée ou visualisez les groupes proposés sur chaque semaine.</p>
         {(!operationalGates.roomAssignmentsValidated || !operationalGates.teacherAssignmentsValidated) && (
-          <p role="note" className="mt-5 rounded-xl border border-lux-gold/40 bg-lux-gold/10 p-4 text-sm text-lux-ink">Planning de revue : les affectations finales des salles et des enseignants ne sont pas encore validées.</p>
+          <p role="note" className="mt-5 rounded-xl border border-lux-gold/40 bg-lux-gold/10 p-4 text-sm text-lux-ink">
+            Les créneaux sont proposés à titre informatif. Les affectations finales sont confirmées directement aux familles.
+          </p>
         )}
         <SubjectLegend />
 
@@ -399,7 +444,13 @@ export function ScheduleSection({
               ))}
             </div>
             {levels.map((option) => {
-              const levelRows = moduleRows(schedule, subjects, scheduleWindows, option.id);
+              const levelRows = buildPublicSubjectScheduleRows({
+                schedule,
+                subjects,
+                windows: scheduleWindows,
+                level: option.id,
+                exposeRooms: operationalGates.roomAssignmentsValidated,
+              });
               return (
                 <div
                   key={option.id}
@@ -427,15 +478,30 @@ export function ScheduleSection({
               </TabsList>
               {scheduleWindows.map((option) => (
                 <TabsContent key={option.windowId} value={option.windowId} forceMount className="mt-0 data-[state=inactive]:hidden">
-                  <WindowDesktopTable window={option} blocks={blocks} levels={levels} subjects={subjects} />
-                  <WindowMobileList window={option} blocks={blocks} levels={levels} subjects={subjects} />
+                  <WindowDesktopTable
+                    window={option}
+                    blocks={blocks}
+                    levels={levels}
+                    subjects={subjects}
+                    exposeRooms={operationalGates.roomAssignmentsValidated}
+                  />
+                  <WindowMobileList
+                    window={option}
+                    blocks={blocks}
+                    levels={levels}
+                    subjects={subjects}
+                    exposeRooms={operationalGates.roomAssignmentsValidated}
+                  />
                 </TabsContent>
               ))}
             </Tabs>
           </TabsContent>
         </Tabs>
 
-        <Organization organization={organization} />
+        <Organization
+          organization={organization}
+          exposeRooms={operationalGates.roomAssignmentsValidated}
+        />
 
         <div className="mt-10">
           <h3 className="font-fraunces text-xl text-lux-ink">Documents à télécharger</h3>

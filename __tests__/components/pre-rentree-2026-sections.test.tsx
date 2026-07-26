@@ -56,12 +56,12 @@ describe('Pré-rentrée landing sections', () => {
     expect(screen.getByRole('tab', { name: 'Entrée en 3e' })).toHaveAttribute('aria-selected', 'true');
     await user.click(screen.getByRole('tab', { name: 'Entrée en Seconde' }));
     const table = screen.getByRole('table', { name: 'Planning — Entrée en Seconde' });
-    expect(within(table).getAllByRole('columnheader')).toHaveLength(6);
+    expect(within(table).getAllByRole('columnheader')).toHaveLength(3);
     // Seconde n'a plus que Maths + Français (grille fenêtres + week-end v2) : 1 ligne d'en-tête + 2 lignes.
     expect(within(table).getAllByRole('row')).toHaveLength(3);
     expect(within(table).getByRole('columnheader', { name: 'Matière' })).toHaveAttribute('scope', 'col');
     expect(within(table).getAllByRole('rowheader')).toHaveLength(2);
-    expect(within(table).getAllByText('5 séances · 10 h')).toHaveLength(2);
+    expect(within(table).getAllByText('5 séances · 10 h par élève')).toHaveLength(2);
     expect(within(table).getAllByText(/du lundi \d+ au vendredi \d+/i)).toHaveLength(2);
 
     const levelTab = screen.getByRole('tab', { name: 'Par classe de rentrée' });
@@ -118,7 +118,7 @@ describe('Pré-rentrée landing sections', () => {
     expect(messages).not.toMatch(/forceMount/i);
   });
 
-  it('renders the three window timetables with four blocks and two rooms', async () => {
+  it('renders the three window timetables without exposing unvalidated room numbers', async () => {
     const user = userEvent.setup();
     renderSchedule();
     await user.click(screen.getByRole('tab', { name: 'Emploi du temps par semaine' }));
@@ -126,11 +126,8 @@ describe('Pré-rentrée landing sections', () => {
     expect(screen.getByRole('tab', { name: 'Fenêtre 1 — 17 au 21 août' })).toHaveAttribute('aria-selected', 'true');
     const windowOne = screen.getByRole('table', { name: 'Emploi du temps — Fenêtre 1 — 17 au 21 août' });
     expect(within(windowOne).getAllByRole('row')).toHaveLength(5);
-    expect(within(windowOne).getByRole('columnheader', { name: 'Salle 1' })).toBeInTheDocument();
-    expect(within(windowOne).getByRole('columnheader', { name: 'Salle 2' })).toBeInTheDocument();
-    expect(within(windowOne).queryByRole('columnheader', { name: 'Salle 3' })).not.toBeInTheDocument();
-    // Fenêtre 1 (S5) est entièrement occupée sur ses 2 salles : 4 blocs x 2 salles = 8 créneaux, 0 libre.
-    expect(within(windowOne).queryAllByText('Libre')).toHaveLength(0);
+    expect(within(windowOne).getByRole('columnheader', { name: 'Groupes proposés' })).toBeInTheDocument();
+    expect(windowOne.textContent).not.toMatch(/Salle\s+\d/i);
     // Le Français Première (préparation à l'EAF) est désormais dans la fenêtre week-end, plus en fenêtre 1.
     expect(within(windowOne).queryByText('Français — préparation à l’EAF')).not.toBeInTheDocument();
     expect(within(windowOne).getAllByText('SVT').length).toBeGreaterThan(0);
@@ -138,10 +135,7 @@ describe('Pré-rentrée landing sections', () => {
     await user.click(screen.getByRole('tab', { name: 'Fenêtre 2 — 24 au 28 août (Terminale)' }));
     const windowTwo = screen.getByRole('table', { name: 'Emploi du temps — Fenêtre 2 — 24 au 28 août (Terminale)' });
     expect(within(windowTwo).getAllByRole('row')).toHaveLength(5);
-    expect(within(windowTwo).getByRole('columnheader', { name: 'Salle 3' })).toBeInTheDocument();
-    // Bloc A/B n'occupent que la salle 1 (Maths expertes, Maths) ; salle 2 et salle 3 y sont libres.
-    // Bloc C occupe les 3 salles (NSI, Physique-Chimie, SVT) ; bloc D occupe salle 1 et 2 (NSI, SVT), salle 3 libre.
-    expect(within(windowTwo).queryAllByText('Libre')).toHaveLength(5);
+    expect(windowTwo.textContent).not.toMatch(/Salle\s+\d/i);
     expect(within(windowTwo).getByText('Mathématiques expertes')).toBeInTheDocument();
     expect(within(windowTwo).getByText('Physique-Chimie')).toBeInTheDocument();
     expect(within(windowTwo).getAllByText('SVT').length).toBeGreaterThan(0);
