@@ -33,6 +33,7 @@ describe('production standalone artifact audit', () => {
   it.each([
     'node_modules/@emnapi/runtime/package.json',
     'node_modules/@img/sharp-wasm32/package.json',
+    'node_modules/brace-expansion/package.json',
   ])('rejects forbidden package: %s', (file) => {
     const result = runAudit(['server.js', file]);
     expect(result.status).not.toBe(0);
