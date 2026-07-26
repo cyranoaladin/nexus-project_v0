@@ -1,5 +1,6 @@
 import type { EntryLevelCode } from './schema';
 import { PRE_RENTREE_2026_NAVIGATION } from './navigation';
+import { assignItinerary } from './itinerary';
 
 export interface AcademicProfileSelection {
   voie?: string;
@@ -61,6 +62,12 @@ export interface LandingScheduleSlot {
   room: string;
   windowId: string;
   sessionNumber: number;
+  /** Present only for a subject offered in more than one alternative cohort
+   * (e.g. Première SVT, Terminale NSI/SVT) — absent means the single implicit
+   * primary cohort, exactly as before this field existed. */
+  cohortId?: string;
+  alternativeGroupId?: string;
+  isPrimary?: boolean;
 }
 
 export interface LandingModuleSlot {
@@ -255,6 +262,20 @@ export function classifyProfileSubjectCompatibility(
       };
     }
     if (subjectIds.includes('MATHEMATIQUES')) {
+      if (profile.mathsOption === 'MATHS_COMPLEMENTAIRES') {
+        // Confirmed pedagogical gap (SCHEDULE-S5 audit): the module's 5 sessions
+        // (limites, suites récurrentes, géométrie dans l'espace...) are written
+        // for the spécialité EDS track, not the lighter Mathématiques
+        // complémentaires programme — no differentiated complémentaires content
+        // actually exists yet. Do not claim a differentiation that isn't real;
+        // route to pedagogical review instead of silently approving it.
+        return {
+          status: 'REQUIRES_PEDAGOGICAL_REVIEW',
+          messages: [
+            'Le contenu du module Mathématiques cible la spécialité EDS ; Mathématiques complémentaires nécessite une validation pédagogique distincte avant confirmation.',
+          ],
+        };
+      }
       return {
         status: 'COMPATIBLE_WITH_DIFFERENTIATION',
         messages: ['Le module de Mathématiques est différencié selon la spécialité et l’option déclarées.'],
@@ -314,15 +335,20 @@ export function buildSelectionSummary(input: {
     if (!subject) throw new Error(`Unknown campaign subject: ${id}`);
     return subject;
   });
+  // A subject with more than one alternative cohort (see itinerary.ts) must
+  // resolve to exactly one cohort's 5 sessions here — never the raw union of
+  // every cohort, which would look like 10 séances for one matière.
+  const assignment = input.subjectIds.length > 0
+    ? assignItinerary(input.level, input.subjectIds, input.schedule)
+    : null;
   const scheduleLines = selectedSubjects.map((subject) => {
-    const slots = input.schedule.filter(
-      (slot) => slot.level === input.level && slot.subject === subject.id,
-    );
+    const slots = assignment ? assignment.sessionsBySubject[subject.id] ?? [] : [];
     if (slots.length !== 5) {
       throw new Error(`Missing campaign schedule for ${input.level}/${subject.id}`);
     }
     const first = slots[0];
     if (!first) throw new Error(`Missing campaign schedule for ${input.level}/${subject.id}`);
+    if (!first.windowId) throw new Error(`Missing windowId for ${input.level}/${subject.id}`);
     return {
       subjectId: subject.id,
       subjectLabel: subjectLabel(subject, input.level),

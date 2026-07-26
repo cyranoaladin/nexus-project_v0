@@ -51,6 +51,19 @@
       "reopenCriteria": "Réouvrir si le contenu SVT change ou si un PDF SVT perd son statut PUBLIC_FINAL."
     },
     {
+      "debtId": "DEBT-PRE2026-PEDAGOGY-MATHS-COMPLEMENTAIRES",
+      "priority": "P2",
+      "category": "PEDAGOGY",
+      "decisionId": null,
+      "description": "Le module terminale-mathematiques (5 séances : limites/continuité, dérivation avancée, suites récurrentes/convergence, probabilités loi binomiale, géométrie dans l'espace) cible le programme de la spécialité EDS Mathématiques ; ces notions ne relèvent pas du programme officiel de Mathématiques complémentaires (2h/semaine). Trouvé lors de l'audit de planning S4/S5 (2026-07-26), pas une régression de cette branche.",
+      "owner": "DIRECTION_PEDAGOGIQUE",
+      "dueAt": null,
+      "derogation": "classifyProfileSubjectCompatibility() route désormais ce cas vers REQUIRES_PEDAGOGICAL_REVIEW au lieu d'afficher COMPATIBLE_WITH_DIFFERENTIATION (aucune différenciation réelle n'existe pour ce profil).",
+      "exitCriteria": "Un contenu de séances distinct et validé pour Mathématiques complémentaires est écrit, ou la direction confirme explicitement que le module actuel convient tel quel.",
+      "status": "OPEN",
+      "reopenCriteria": "Sans objet tant qu'ouvert."
+    },
+    {
       "debtId": "DEBT-PRE2026-STAFFING",
       "priority": "P1",
       "category": "OPERATIONS",
@@ -237,7 +250,7 @@
     "openForPublishedScope": {
       "P0": 1,
       "P1": 1,
-      "P2": 0
+      "P2": 1
     },
     "deferredBacklog": {
       "P1": 10,
