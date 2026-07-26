@@ -1,0 +1,870 @@
+{
+  "schemaVersion": "1.0.0",
+  "campaignId": "pre-rentree-2026",
+  "purpose": "CONTROLLED_PUBLIC_CANDIDATE_QA",
+  "sourceSha": "b51a2bfcd48a4bab9d907a4f77149879b16f1898",
+  "releaseGateOverride": "TEMPORARY_PUBLIC_READY_OUTSIDE_GIT",
+  "route": "/stages/pre-rentree-2026",
+  "capturedAt": "2026-07-26",
+  "timezone": "Africa/Tunis",
+  "reports": [
+    {
+      "viewport": {
+        "name": "mobile-390",
+        "width": 390,
+        "height": 844
+      },
+      "httpStatus": 200,
+      "screenshot": "mobile-390.png",
+      "consoleErrors": [],
+      "inspection": {
+        "title": "Stages de pré-rentrée 2026 à Mutuelleville | Nexus Réussite",
+        "h1": [
+          "Stages de pré-rentrée 2026"
+        ],
+        "headings": [
+          "Stages de pré-rentrée 2026",
+          "Matières disponibles selon le niveau",
+          "Entrée en 3e",
+          "Entrée en Seconde",
+          "Entrée en Première",
+          "Entrée en Terminale",
+          "Choisir une offre par niveau",
+          "Entrée en 3e",
+          "Entrée en Seconde",
+          "Entrée en Première",
+          "Entrée en Terminale",
+          "Planning et emplois du temps",
+          "Composez votre planning",
+          "Organisation pédagogique",
+          "Ce qui distingue les dix heures Nexus",
+          "Programmes détaillés",
+          "MMathématiquesMathématiques — Entrée en 3eNexus Fondations — consolider les acquis de 4e et préparer progressivement les attendus du DNB+",
+          "FFrançaisFrançais — Entrée en 3eNexus Fondations — consolider la langue, la lecture et l'écriture pour préparer la classe de 3e et le DNB+",
+          "Documents à télécharger",
+          "Questions fréquentes",
+          "Demande d'information",
+          "Demander le bon parcours",
+          "Exploration",
+          "Préparations",
+          "Coordonnées"
+        ],
+        "ctas": [
+          {
+            "label": "Aller au contenu principal",
+            "href": "#main-content"
+          },
+          {
+            "label": "Bilan gratuit",
+            "href": "/bilan-gratuit"
+          },
+          {
+            "label": "Offres & tarifs",
+            "href": "/offres"
+          },
+          {
+            "label": "Trouver ma formule",
+            "href": "/recommandation"
+          },
+          {
+            "label": "Bilan gratuit",
+            "href": "/bilan-gratuit"
+          },
+          {
+            "label": "Stages intensifs",
+            "href": "/stages"
+          },
+          {
+            "label": "Plateforme ARIA",
+            "href": "/plateforme-aria"
+          },
+          {
+            "label": "Accompagnement scolaire",
+            "href": "/accompagnement-scolaire"
+          },
+          {
+            "label": "Ressources",
+            "href": "/ressources"
+          },
+          {
+            "label": "Préparation bac français",
+            "href": "/preparation-bac-francais-tunis"
+          },
+          {
+            "label": "Candidat libre",
+            "href": "/candidat-libre-bac-francais"
+          },
+          {
+            "label": "Réussir l’EAF",
+            "href": "/reussir-eaf"
+          },
+          {
+            "label": "Grand Oral",
+            "href": "/grand-oral"
+          },
+          {
+            "label": "Contact",
+            "href": "/contact"
+          },
+          {
+            "label": "Notre Centre",
+            "href": "/notre-centre"
+          },
+          {
+            "label": "Se connecter",
+            "href": "/auth/signin"
+          },
+          {
+            "label": "Demander un bilan",
+            "href": "/bilan-gratuit"
+          },
+          {
+            "label": "Voir les offres et tarifs",
+            "href": "#offres-pre-rentree"
+          },
+          {
+            "label": "Demander les informations et vérifier les disponibilités",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20les%20stages%20de%20pr%C3%A9-rentr%C3%A9e%202026."
+          },
+          {
+            "label": "Appeler +216 99 19 28 29",
+            "href": "tel:+21699192829"
+          },
+          {
+            "label": "Écrire sur WhatsApp pour vérifier le groupe adapté — Entrée en 3e, Mathématiques (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%203e%2C%20Math%C3%A9matiques."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour vérifier le groupe adapté — Entrée en 3e, Français (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%203e%2C%20Fran%C3%A7ais."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour vérifier le groupe adapté — Entrée en Seconde, Mathématiques (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Seconde%2C%20Math%C3%A9matiques."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour vérifier le groupe adapté — Entrée en Seconde, Français (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Seconde%2C%20Fran%C3%A7ais."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour choisir la matière — Entrée en Première, 1 matière au choix (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Premi%C3%A8re%2C%201%20mati%C3%A8re."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour choisir les matières — Entrée en Première, 2 matières au choix (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Premi%C3%A8re%2C%202%20mati%C3%A8res."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour choisir les matières — Entrée en Première, 3 matières au choix (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Premi%C3%A8re%2C%203%20mati%C3%A8res."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour choisir les matières — Entrée en Première, 4 matières au choix (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Premi%C3%A8re%2C%204%20mati%C3%A8res."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour choisir la matière — Entrée en Terminale, 1 matière au choix (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Terminale%2C%201%20mati%C3%A8re."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour choisir les matières — Entrée en Terminale, 2 matières au choix (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Terminale%2C%202%20mati%C3%A8res."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour choisir les matières — Entrée en Terminale, 3 matières au choix (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Terminale%2C%203%20mati%C3%A8res."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour choisir les matières — Entrée en Terminale, 4 matières au choix (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Terminale%2C%204%20mati%C3%A8res."
+          },
+          {
+            "label": "Planning et informations pratiques (PDF · 439 Ko)",
+            "href": "/documents/pre-rentree-2026/NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf"
+          },
+          {
+            "label": "Télécharger le dossier complet — Entrée en 3e (PDF · 443 Ko)",
+            "href": "/documents/pre-rentree-2026/NexusReussite_PreRentree2026_Programme_3e.pdf"
+          },
+          {
+            "label": "Télécharger le dossier complet — Entrée en Seconde (PDF · 446 Ko)",
+            "href": "/documents/pre-rentree-2026/NexusReussite_PreRentree2026_Programme_Seconde.pdf"
+          },
+          {
+            "label": "Télécharger le dossier complet — Entrée en Première (PDF · 468 Ko)",
+            "href": "/documents/pre-rentree-2026/NexusReussite_PreRentree2026_Programme_Premiere.pdf"
+          },
+          {
+            "label": "Télécharger le dossier complet — Entrée en Terminale (PDF · 467 Ko)",
+            "href": "/documents/pre-rentree-2026/NexusReussite_PreRentree2026_Programme_Terminale.pdf"
+          },
+          {
+            "label": "Tarifs et conditions financières (PDF · 421 Ko)",
+            "href": "/documents/pre-rentree-2026/NexusReussite_PreRentree2026_Tarifs.pdf"
+          },
+          {
+            "label": "L'essentiel (flyer 1 page) (PDF · 401 Ko)",
+            "href": "/documents/pre-rentree-2026/NexusReussite_PreRentree2026_FlyerEssentiel.pdf"
+          },
+          {
+            "label": "Demander les informations et vérifier les disponibilités",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20les%20stages%20de%20pr%C3%A9-rentr%C3%A9e%202026."
+          },
+          {
+            "label": "Appeler +216 99 19 28 29",
+            "href": "tel:+21699192829"
+          },
+          {
+            "label": "Accueil",
+            "href": "/"
+          },
+          {
+            "label": "Accompagnement Scolaire",
+            "href": "/accompagnement-scolaire"
+          },
+          {
+            "label": "Offres",
+            "href": "/offres"
+          },
+          {
+            "label": "Stages",
+            "href": "/stages"
+          },
+          {
+            "label": "Plateforme ARIA",
+            "href": "/plateforme-aria"
+          },
+          {
+            "label": "Ressources",
+            "href": "/ressources"
+          },
+          {
+            "label": "Notre Équipe",
+            "href": "/equipe"
+          },
+          {
+            "label": "Notre Centre",
+            "href": "/notre-centre"
+          },
+          {
+            "label": "Espace Famille",
+            "href": "/famille"
+          },
+          {
+            "label": "Bilan Gratuit",
+            "href": "/bilan-gratuit"
+          },
+          {
+            "label": "Contact",
+            "href": "/contact"
+          },
+          {
+            "label": "Préparation bac français",
+            "href": "/preparation-bac-francais-tunis"
+          },
+          {
+            "label": "Candidat libre",
+            "href": "/candidat-libre-bac-francais"
+          },
+          {
+            "label": "Réussir l’EAF",
+            "href": "/reussir-eaf"
+          },
+          {
+            "label": "Grand Oral",
+            "href": "/grand-oral"
+          },
+          {
+            "label": "Mentions Légales",
+            "href": "/mentions-legales"
+          },
+          {
+            "label": "Conditions Générales",
+            "href": "/conditions-generales"
+          },
+          {
+            "label": "Contact",
+            "href": "/contact"
+          }
+        ],
+        "viewportWidth": 390,
+        "documentWidth": 390,
+        "horizontalOverflow": false
+      },
+      "seriousOrCriticalViolations": [],
+      "contrastViolations": []
+    },
+    {
+      "viewport": {
+        "name": "tablette-768",
+        "width": 768,
+        "height": 1024
+      },
+      "httpStatus": 200,
+      "screenshot": "tablette-768.png",
+      "consoleErrors": [],
+      "inspection": {
+        "title": "Stages de pré-rentrée 2026 à Mutuelleville | Nexus Réussite",
+        "h1": [
+          "Stages de pré-rentrée 2026"
+        ],
+        "headings": [
+          "Stages de pré-rentrée 2026",
+          "Matières disponibles selon le niveau",
+          "Entrée en 3e",
+          "Entrée en Seconde",
+          "Entrée en Première",
+          "Entrée en Terminale",
+          "Choisir une offre par niveau",
+          "Entrée en 3e",
+          "Entrée en Seconde",
+          "Entrée en Première",
+          "Entrée en Terminale",
+          "Planning et emplois du temps",
+          "Composez votre planning",
+          "Organisation pédagogique",
+          "Ce qui distingue les dix heures Nexus",
+          "Programmes détaillés",
+          "MMathématiquesMathématiques — Entrée en 3eNexus Fondations — consolider les acquis de 4e et préparer progressivement les attendus du DNB+",
+          "FFrançaisFrançais — Entrée en 3eNexus Fondations — consolider la langue, la lecture et l'écriture pour préparer la classe de 3e et le DNB+",
+          "Documents à télécharger",
+          "Questions fréquentes",
+          "Demande d'information",
+          "Demander le bon parcours",
+          "Exploration",
+          "Préparations",
+          "Coordonnées"
+        ],
+        "ctas": [
+          {
+            "label": "Aller au contenu principal",
+            "href": "#main-content"
+          },
+          {
+            "label": "Bilan gratuit",
+            "href": "/bilan-gratuit"
+          },
+          {
+            "label": "Offres & tarifs",
+            "href": "/offres"
+          },
+          {
+            "label": "Trouver ma formule",
+            "href": "/recommandation"
+          },
+          {
+            "label": "Bilan gratuit",
+            "href": "/bilan-gratuit"
+          },
+          {
+            "label": "Stages intensifs",
+            "href": "/stages"
+          },
+          {
+            "label": "Plateforme ARIA",
+            "href": "/plateforme-aria"
+          },
+          {
+            "label": "Accompagnement scolaire",
+            "href": "/accompagnement-scolaire"
+          },
+          {
+            "label": "Ressources",
+            "href": "/ressources"
+          },
+          {
+            "label": "Préparation bac français",
+            "href": "/preparation-bac-francais-tunis"
+          },
+          {
+            "label": "Candidat libre",
+            "href": "/candidat-libre-bac-francais"
+          },
+          {
+            "label": "Réussir l’EAF",
+            "href": "/reussir-eaf"
+          },
+          {
+            "label": "Grand Oral",
+            "href": "/grand-oral"
+          },
+          {
+            "label": "Contact",
+            "href": "/contact"
+          },
+          {
+            "label": "Notre Centre",
+            "href": "/notre-centre"
+          },
+          {
+            "label": "Se connecter",
+            "href": "/auth/signin"
+          },
+          {
+            "label": "Demander un bilan",
+            "href": "/bilan-gratuit"
+          },
+          {
+            "label": "Voir les offres et tarifs",
+            "href": "#offres-pre-rentree"
+          },
+          {
+            "label": "Demander les informations et vérifier les disponibilités",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20les%20stages%20de%20pr%C3%A9-rentr%C3%A9e%202026."
+          },
+          {
+            "label": "Appeler +216 99 19 28 29",
+            "href": "tel:+21699192829"
+          },
+          {
+            "label": "Écrire sur WhatsApp pour vérifier le groupe adapté — Entrée en 3e, Mathématiques (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%203e%2C%20Math%C3%A9matiques."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour vérifier le groupe adapté — Entrée en 3e, Français (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%203e%2C%20Fran%C3%A7ais."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour vérifier le groupe adapté — Entrée en Seconde, Mathématiques (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Seconde%2C%20Math%C3%A9matiques."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour vérifier le groupe adapté — Entrée en Seconde, Français (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Seconde%2C%20Fran%C3%A7ais."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour choisir la matière — Entrée en Première, 1 matière au choix (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Premi%C3%A8re%2C%201%20mati%C3%A8re."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour choisir les matières — Entrée en Première, 2 matières au choix (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Premi%C3%A8re%2C%202%20mati%C3%A8res."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour choisir les matières — Entrée en Première, 3 matières au choix (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Premi%C3%A8re%2C%203%20mati%C3%A8res."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour choisir les matières — Entrée en Première, 4 matières au choix (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Premi%C3%A8re%2C%204%20mati%C3%A8res."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour choisir la matière — Entrée en Terminale, 1 matière au choix (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Terminale%2C%201%20mati%C3%A8re."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour choisir les matières — Entrée en Terminale, 2 matières au choix (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Terminale%2C%202%20mati%C3%A8res."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour choisir les matières — Entrée en Terminale, 3 matières au choix (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Terminale%2C%203%20mati%C3%A8res."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour choisir les matières — Entrée en Terminale, 4 matières au choix (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Terminale%2C%204%20mati%C3%A8res."
+          },
+          {
+            "label": "Planning et informations pratiques (PDF · 439 Ko)",
+            "href": "/documents/pre-rentree-2026/NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf"
+          },
+          {
+            "label": "Télécharger le dossier complet — Entrée en 3e (PDF · 443 Ko)",
+            "href": "/documents/pre-rentree-2026/NexusReussite_PreRentree2026_Programme_3e.pdf"
+          },
+          {
+            "label": "Télécharger le dossier complet — Entrée en Seconde (PDF · 446 Ko)",
+            "href": "/documents/pre-rentree-2026/NexusReussite_PreRentree2026_Programme_Seconde.pdf"
+          },
+          {
+            "label": "Télécharger le dossier complet — Entrée en Première (PDF · 468 Ko)",
+            "href": "/documents/pre-rentree-2026/NexusReussite_PreRentree2026_Programme_Premiere.pdf"
+          },
+          {
+            "label": "Télécharger le dossier complet — Entrée en Terminale (PDF · 467 Ko)",
+            "href": "/documents/pre-rentree-2026/NexusReussite_PreRentree2026_Programme_Terminale.pdf"
+          },
+          {
+            "label": "Tarifs et conditions financières (PDF · 421 Ko)",
+            "href": "/documents/pre-rentree-2026/NexusReussite_PreRentree2026_Tarifs.pdf"
+          },
+          {
+            "label": "L'essentiel (flyer 1 page) (PDF · 401 Ko)",
+            "href": "/documents/pre-rentree-2026/NexusReussite_PreRentree2026_FlyerEssentiel.pdf"
+          },
+          {
+            "label": "Demander les informations et vérifier les disponibilités",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20les%20stages%20de%20pr%C3%A9-rentr%C3%A9e%202026."
+          },
+          {
+            "label": "Appeler +216 99 19 28 29",
+            "href": "tel:+21699192829"
+          },
+          {
+            "label": "Accueil",
+            "href": "/"
+          },
+          {
+            "label": "Accompagnement Scolaire",
+            "href": "/accompagnement-scolaire"
+          },
+          {
+            "label": "Offres",
+            "href": "/offres"
+          },
+          {
+            "label": "Stages",
+            "href": "/stages"
+          },
+          {
+            "label": "Plateforme ARIA",
+            "href": "/plateforme-aria"
+          },
+          {
+            "label": "Ressources",
+            "href": "/ressources"
+          },
+          {
+            "label": "Notre Équipe",
+            "href": "/equipe"
+          },
+          {
+            "label": "Notre Centre",
+            "href": "/notre-centre"
+          },
+          {
+            "label": "Espace Famille",
+            "href": "/famille"
+          },
+          {
+            "label": "Bilan Gratuit",
+            "href": "/bilan-gratuit"
+          },
+          {
+            "label": "Contact",
+            "href": "/contact"
+          },
+          {
+            "label": "Préparation bac français",
+            "href": "/preparation-bac-francais-tunis"
+          },
+          {
+            "label": "Candidat libre",
+            "href": "/candidat-libre-bac-francais"
+          },
+          {
+            "label": "Réussir l’EAF",
+            "href": "/reussir-eaf"
+          },
+          {
+            "label": "Grand Oral",
+            "href": "/grand-oral"
+          },
+          {
+            "label": "Mentions Légales",
+            "href": "/mentions-legales"
+          },
+          {
+            "label": "Conditions Générales",
+            "href": "/conditions-generales"
+          },
+          {
+            "label": "Contact",
+            "href": "/contact"
+          }
+        ],
+        "viewportWidth": 768,
+        "documentWidth": 768,
+        "horizontalOverflow": false
+      },
+      "seriousOrCriticalViolations": [],
+      "contrastViolations": []
+    },
+    {
+      "viewport": {
+        "name": "desktop-1440",
+        "width": 1440,
+        "height": 1000
+      },
+      "httpStatus": 200,
+      "screenshot": "desktop-1440.png",
+      "consoleErrors": [],
+      "inspection": {
+        "title": "Stages de pré-rentrée 2026 à Mutuelleville | Nexus Réussite",
+        "h1": [
+          "Stages de pré-rentrée 2026"
+        ],
+        "headings": [
+          "Stages de pré-rentrée 2026",
+          "Matières disponibles selon le niveau",
+          "Entrée en 3e",
+          "Entrée en Seconde",
+          "Entrée en Première",
+          "Entrée en Terminale",
+          "Choisir une offre par niveau",
+          "Entrée en 3e",
+          "Entrée en Seconde",
+          "Entrée en Première",
+          "Entrée en Terminale",
+          "Planning et emplois du temps",
+          "Composez votre planning",
+          "Organisation pédagogique",
+          "Ce qui distingue les dix heures Nexus",
+          "Programmes détaillés",
+          "MMathématiquesMathématiques — Entrée en 3eNexus Fondations — consolider les acquis de 4e et préparer progressivement les attendus du DNB+",
+          "FFrançaisFrançais — Entrée en 3eNexus Fondations — consolider la langue, la lecture et l'écriture pour préparer la classe de 3e et le DNB+",
+          "Documents à télécharger",
+          "Questions fréquentes",
+          "Demande d'information",
+          "Demander le bon parcours",
+          "Exploration",
+          "Préparations",
+          "Coordonnées"
+        ],
+        "ctas": [
+          {
+            "label": "Aller au contenu principal",
+            "href": "#main-content"
+          },
+          {
+            "label": "Bilan gratuit",
+            "href": "/bilan-gratuit"
+          },
+          {
+            "label": "Offres & tarifs",
+            "href": "/offres"
+          },
+          {
+            "label": "Trouver ma formule",
+            "href": "/recommandation"
+          },
+          {
+            "label": "Bilan gratuit",
+            "href": "/bilan-gratuit"
+          },
+          {
+            "label": "Stages intensifs",
+            "href": "/stages"
+          },
+          {
+            "label": "Plateforme ARIA",
+            "href": "/plateforme-aria"
+          },
+          {
+            "label": "Accompagnement scolaire",
+            "href": "/accompagnement-scolaire"
+          },
+          {
+            "label": "Ressources",
+            "href": "/ressources"
+          },
+          {
+            "label": "Préparation bac français",
+            "href": "/preparation-bac-francais-tunis"
+          },
+          {
+            "label": "Candidat libre",
+            "href": "/candidat-libre-bac-francais"
+          },
+          {
+            "label": "Réussir l’EAF",
+            "href": "/reussir-eaf"
+          },
+          {
+            "label": "Grand Oral",
+            "href": "/grand-oral"
+          },
+          {
+            "label": "Contact",
+            "href": "/contact"
+          },
+          {
+            "label": "Notre Centre",
+            "href": "/notre-centre"
+          },
+          {
+            "label": "Se connecter",
+            "href": "/auth/signin"
+          },
+          {
+            "label": "Demander un bilan",
+            "href": "/bilan-gratuit"
+          },
+          {
+            "label": "Voir les offres et tarifs",
+            "href": "#offres-pre-rentree"
+          },
+          {
+            "label": "Demander les informations et vérifier les disponibilités",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20les%20stages%20de%20pr%C3%A9-rentr%C3%A9e%202026."
+          },
+          {
+            "label": "Appeler +216 99 19 28 29",
+            "href": "tel:+21699192829"
+          },
+          {
+            "label": "Écrire sur WhatsApp pour vérifier le groupe adapté — Entrée en 3e, Mathématiques (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%203e%2C%20Math%C3%A9matiques."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour vérifier le groupe adapté — Entrée en 3e, Français (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%203e%2C%20Fran%C3%A7ais."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour vérifier le groupe adapté — Entrée en Seconde, Mathématiques (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Seconde%2C%20Math%C3%A9matiques."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour vérifier le groupe adapté — Entrée en Seconde, Français (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Seconde%2C%20Fran%C3%A7ais."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour choisir la matière — Entrée en Première, 1 matière au choix (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Premi%C3%A8re%2C%201%20mati%C3%A8re."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour choisir les matières — Entrée en Première, 2 matières au choix (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Premi%C3%A8re%2C%202%20mati%C3%A8res."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour choisir les matières — Entrée en Première, 3 matières au choix (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Premi%C3%A8re%2C%203%20mati%C3%A8res."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour choisir les matières — Entrée en Première, 4 matières au choix (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Premi%C3%A8re%2C%204%20mati%C3%A8res."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour choisir la matière — Entrée en Terminale, 1 matière au choix (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Terminale%2C%201%20mati%C3%A8re."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour choisir les matières — Entrée en Terminale, 2 matières au choix (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Terminale%2C%202%20mati%C3%A8res."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour choisir les matières — Entrée en Terminale, 3 matières au choix (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Terminale%2C%203%20mati%C3%A8res."
+          },
+          {
+            "label": "Écrire sur WhatsApp pour choisir les matières — Entrée en Terminale, 4 matières au choix (nouvel onglet)",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20la%20pr%C3%A9-rentr%C3%A9e%202026%20%3A%20Entr%C3%A9e%20en%20Terminale%2C%204%20mati%C3%A8res."
+          },
+          {
+            "label": "Planning et informations pratiques (PDF · 439 Ko)",
+            "href": "/documents/pre-rentree-2026/NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf"
+          },
+          {
+            "label": "Télécharger le dossier complet — Entrée en 3e (PDF · 443 Ko)",
+            "href": "/documents/pre-rentree-2026/NexusReussite_PreRentree2026_Programme_3e.pdf"
+          },
+          {
+            "label": "Télécharger le dossier complet — Entrée en Seconde (PDF · 446 Ko)",
+            "href": "/documents/pre-rentree-2026/NexusReussite_PreRentree2026_Programme_Seconde.pdf"
+          },
+          {
+            "label": "Télécharger le dossier complet — Entrée en Première (PDF · 468 Ko)",
+            "href": "/documents/pre-rentree-2026/NexusReussite_PreRentree2026_Programme_Premiere.pdf"
+          },
+          {
+            "label": "Télécharger le dossier complet — Entrée en Terminale (PDF · 467 Ko)",
+            "href": "/documents/pre-rentree-2026/NexusReussite_PreRentree2026_Programme_Terminale.pdf"
+          },
+          {
+            "label": "Tarifs et conditions financières (PDF · 421 Ko)",
+            "href": "/documents/pre-rentree-2026/NexusReussite_PreRentree2026_Tarifs.pdf"
+          },
+          {
+            "label": "L'essentiel (flyer 1 page) (PDF · 401 Ko)",
+            "href": "/documents/pre-rentree-2026/NexusReussite_PreRentree2026_FlyerEssentiel.pdf"
+          },
+          {
+            "label": "Demander les informations et vérifier les disponibilités",
+            "href": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20des%20informations%20sur%20les%20stages%20de%20pr%C3%A9-rentr%C3%A9e%202026."
+          },
+          {
+            "label": "Appeler +216 99 19 28 29",
+            "href": "tel:+21699192829"
+          },
+          {
+            "label": "Accueil",
+            "href": "/"
+          },
+          {
+            "label": "Accompagnement Scolaire",
+            "href": "/accompagnement-scolaire"
+          },
+          {
+            "label": "Offres",
+            "href": "/offres"
+          },
+          {
+            "label": "Stages",
+            "href": "/stages"
+          },
+          {
+            "label": "Plateforme ARIA",
+            "href": "/plateforme-aria"
+          },
+          {
+            "label": "Ressources",
+            "href": "/ressources"
+          },
+          {
+            "label": "Notre Équipe",
+            "href": "/equipe"
+          },
+          {
+            "label": "Notre Centre",
+            "href": "/notre-centre"
+          },
+          {
+            "label": "Espace Famille",
+            "href": "/famille"
+          },
+          {
+            "label": "Bilan Gratuit",
+            "href": "/bilan-gratuit"
+          },
+          {
+            "label": "Contact",
+            "href": "/contact"
+          },
+          {
+            "label": "Préparation bac français",
+            "href": "/preparation-bac-francais-tunis"
+          },
+          {
+            "label": "Candidat libre",
+            "href": "/candidat-libre-bac-francais"
+          },
+          {
+            "label": "Réussir l’EAF",
+            "href": "/reussir-eaf"
+          },
+          {
+            "label": "Grand Oral",
+            "href": "/grand-oral"
+          },
+          {
+            "label": "Mentions Légales",
+            "href": "/mentions-legales"
+          },
+          {
+            "label": "Conditions Générales",
+            "href": "/conditions-generales"
+          },
+          {
+            "label": "Contact",
+            "href": "/contact"
+          }
+        ],
+        "viewportWidth": 1440,
+        "documentWidth": 1440,
+        "horizontalOverflow": false
+      },
+      "seriousOrCriticalViolations": [],
+      "contrastViolations": []
+    }
+  ]
+}
