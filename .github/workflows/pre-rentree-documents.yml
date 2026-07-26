@@ -14,6 +14,9 @@ on:
       - "components/marketing/PreRentreeCampaignSpotlight.tsx"
       - "__tests__/**/*pre-rentree-2026*"
       - "scripts/pre-rentree/**"
+      - "tools/pdf-generator/**"
+      - "assets/campaigns/pre-rentree-2026/documents-final/**"
+      - "public/documents/pre-rentree-2026/**"
       - "generated/pre-rentree-2026/**"
       - "docs/campaigns/pre-rentree-2026/**"
       - "package.json"
@@ -72,7 +75,14 @@ jobs:
       - name: Install Python dependencies
         run: python -m pip install -r scripts/pre-rentree/requirements.lock
 
-      - name: Build and verify documents
+      - name: Build public PDFs served to families
+        run: |
+          npm run pre-rentree:public-pdfs
+          npm run pre-rentree:public-pdfs:verify
+          git diff --exit-code
+          test -z "$(git status --short)"
+
+      - name: Build and verify governance packages
         run: npm run pre-rentree:ci
 
       - name: Confirm generated snapshot and worktree are unchanged

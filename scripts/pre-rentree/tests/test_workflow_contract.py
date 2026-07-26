@@ -14,6 +14,10 @@ def test_document_workflow_is_read_only_reproducible_and_uploads_two_packages():
     assert "npm ci" in text
     assert "requirements.lock" in text
     assert "npm run pre-rentree:ci" in text
+    assert "npm run pre-rentree:public-pdfs" in text
+    assert "npm run pre-rentree:public-pdfs:verify" in text
+    assert "git diff --exit-code" in text
+    assert 'test -z "$(git status --short)"' in text
     assert "pre-rentree-2026-parent-package" in text
     assert "pre-rentree-2026-owner-review-package" in text
     assert "retention-days: 14" in text
