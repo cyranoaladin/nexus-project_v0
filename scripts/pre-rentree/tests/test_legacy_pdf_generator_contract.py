@@ -16,6 +16,8 @@ PUBLIC_DOCUMENTS = REPO_ROOT / "public/documents/pre-rentree-2026"
 
 
 def load_generator():
+    if str(PDF_GENERATOR_DIR) not in sys.path:
+        sys.path.insert(0, str(PDF_GENERATOR_DIR))
     spec = importlib.util.spec_from_file_location("legacy_pdf_generator", GENERATOR_PATH)
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
@@ -45,7 +47,6 @@ def dossier_html_for_level(level_code: str) -> str:
 
 def test_public_level_pdf_rendering_is_byte_reproducible(tmp_path, monkeypatch):
     dossiers_module, data_module = load_dossiers_module()
-    monkeypatch.setattr(dossiers_module, "OUT_DIR", tmp_path)
     monkeypatch.delenv("SOURCE_DATE_EPOCH", raising=False)
 
     dossiers_module.configure_reproducible_pdf_environment()
@@ -53,10 +54,18 @@ def test_public_level_pdf_rendering_is_byte_reproducible(tmp_path, monkeypatch):
 
     data = data_module.PreRentreeData()
     dossier = data.level_dossier("TROISIEME")
+    first_dir = tmp_path / "first-checkout-path"
+    second_dir = tmp_path / "a-different-checkout-path"
+    first_dir.mkdir()
+    second_dir.mkdir()
+
+    monkeypatch.setattr(dossiers_module, "OUT_DIR", first_dir)
     filename = dossiers_module.generate_dossier_pdf(dossier, data)
-    first = hashlib.sha256((tmp_path / filename).read_bytes()).hexdigest()
+    first = hashlib.sha256((first_dir / filename).read_bytes()).hexdigest()
+
+    monkeypatch.setattr(dossiers_module, "OUT_DIR", second_dir)
     filename = dossiers_module.generate_dossier_pdf(dossier, data)
-    second = hashlib.sha256((tmp_path / filename).read_bytes()).hexdigest()
+    second = hashlib.sha256((second_dir / filename).read_bytes()).hexdigest()
 
     assert first == second
 
@@ -74,7 +83,12 @@ def test_public_pdf_generators_do_not_depend_on_host_fonts():
 
     assert "@font-face" in generator.COMMON_CSS
     assert "Inter-Variable.woff2" in generator.COMMON_CSS
-    assert "file://" in generator.COMMON_CSS
+    assert "nexus-public-pdf:" in generator.COMMON_CSS
+    assert "file://" not in generator.COMMON_CSS
+    assert "nexus-public-pdf:" in dossier_design.DESIGN_CSS
+    assert "file://" not in dossier_design.DESIGN_CSS
+    assert generator.LOGO_SLOGAN.startswith("nexus-public-pdf:")
+    assert dossiers_module.LOGO.startswith("nexus-public-pdf:")
     assert "\\2714" not in generator.COMMON_CSS
     assert "\\2714" not in dossier_design.DESIGN_CSS
     data = data_module.PreRentreeData()
