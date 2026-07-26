@@ -56,17 +56,14 @@ jobs:
           node-version: "22.23.1"
           cache: npm
 
-      - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        with:
-          # Public PDF bytes are release artifacts. Pin the patch version so the
-          # stdlib compression/runtime cannot drift beneath the clean-tree gate.
-          python-version: "3.12.3"
-          cache: pip
-          cache-dependency-path: scripts/pre-rentree/requirements.lock
-
       - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install --yes poppler-utils qpdf fonts-dejavu-core
+        run: sudo apt-get update && sudo apt-get install --yes python3-venv poppler-utils qpdf fonts-dejavu-core
+
+      - name: Create Ubuntu PDF Python environment
+        run: |
+          test "$(/usr/bin/python3 --version)" = "Python 3.12.3"
+          /usr/bin/python3 -m venv "$RUNNER_TEMP/pre-rentree-python"
+          echo "$RUNNER_TEMP/pre-rentree-python/bin" >> "$GITHUB_PATH"
 
       - name: Install Node dependencies
         run: npm ci
