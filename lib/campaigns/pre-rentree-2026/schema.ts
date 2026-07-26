@@ -71,6 +71,15 @@ const ScheduleSlot = z.object({
   block: z.enum(['A', 'B', 'C', 'D']),
   room: z.string(),
   teacherRole: z.string().min(1),
+  // Additive, backward-compatible cohort fields (SCHEDULE-S5 mission): a slot
+  // without cohortId is an implicit single primary cohort, exactly as before.
+  // When a (level, subject) has more than one slot in the same window, each
+  // must carry a distinct cohortId within the same alternativeGroupId so the
+  // assignment engine (itinerary.ts/.py) can pick the best one per family
+  // instead of double-counting the subject as attended twice.
+  cohortId: z.string().min(1).optional(),
+  alternativeGroupId: z.string().min(1).optional(),
+  isPrimary: z.boolean().optional(),
 }).strict();
 
 const ScheduleWindow = z.object({

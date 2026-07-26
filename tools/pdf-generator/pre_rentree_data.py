@@ -132,6 +132,8 @@ class ScheduledSlot:
     start_time: str
     end_time: str
     date: Optional[str] = None
+    cohort_id: Optional[str] = None
+    is_primary: Optional[bool] = None
 
 
 @dataclass(frozen=True)
@@ -216,6 +218,8 @@ class PreRentreeData:
                     window_label=window["windowLabel"],
                     start_time=start,
                     end_time=end,
+                    cohort_id=raw_slot.get("cohortId"),
+                    is_primary=raw_slot.get("isPrimary"),
                 )
                 slots.append(base)
                 for day in window["days"]:
@@ -224,6 +228,7 @@ class PreRentreeData:
                             level=base.level, subject=base.subject, block=base.block, room=base.room,
                             window_id=base.window_id, window_label=base.window_label,
                             start_time=start, end_time=end, date=day,
+                            cohort_id=base.cohort_id, is_primary=base.is_primary,
                         )
                     )
         return tuple(slots), tuple(dated)

@@ -15,6 +15,9 @@ const SUBJECT_PUBLICATION_STYLE = {
 const PUBLIC_ROOM_LABELS: Record<string, string> = {
   'salle-1': 'Salle 1',
   'salle-2': 'Salle 2',
+  // Exceptional S5 third room (Terminale, bloc C only, SVT cohort) — see
+  // SCHEDULE-S5-THREE-ROOMS-DECISION.md.
+  'salle-3': 'Salle 3',
 };
 
 export function publicSubjectLabel(
@@ -52,6 +55,7 @@ export function deriveSchedule(campaign: PreRentreeCampaignManifest) {
     endTime: string;
     roomLabel: string;
     sessionNumber: number;
+    cohortId?: string;
   }> = [];
 
   const windows = campaign.schedule.map((window) => ({
@@ -71,6 +75,7 @@ export function deriveSchedule(campaign: PreRentreeCampaignManifest) {
         startTime: block.startTime,
         endTime: block.endTime,
         roomLabel,
+        ...(slot.cohortId ? { cohortId: slot.cohortId } : {}),
       };
     }),
   }));
@@ -81,7 +86,10 @@ export function deriveSchedule(campaign: PreRentreeCampaignManifest) {
         const block = blocks.get(slot.block);
         const roomLabel = PUBLIC_ROOM_LABELS[slot.room];
         if (!block || !roomLabel) throw new Error('Invalid canonical schedule reference');
-        const key = `${slot.level}:${slot.subject}`;
+        // Keyed by cohortId (when present) so that a subject with two alternative
+        // cohorts (e.g. Terminale NSI) numbers each cohort's own 5 sessions 1-5,
+        // never merging both cohorts into one 1-10 count.
+        const key = `${slot.level}:${slot.subject}:${slot.cohortId ?? ''}`;
         const sessionNumber = (counters.get(key) ?? 0) + 1;
         counters.set(key, sessionNumber);
         sessions.push({
@@ -95,6 +103,7 @@ export function deriveSchedule(campaign: PreRentreeCampaignManifest) {
           endTime: block.endTime,
           roomLabel,
           sessionNumber,
+          ...(slot.cohortId ? { cohortId: slot.cohortId } : {}),
         });
       }
     }
