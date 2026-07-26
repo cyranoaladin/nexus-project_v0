@@ -19,12 +19,14 @@ dans une archive temporaire hors Git. La branche reste fail-closed avec
 - preuve machine :
   `assets/qa/pre-rentree-2026/final-public-candidate/browser-inspection.json`
 - statut revue technique : `VALIDATED`
-- validation humaine propriétaire : `PENDING`
+- validation humaine propriétaire : `APPROVED` pour le manifeste
+  `93f29e08c6f0294f8ecee443896d12646ba3fa6d598218bebbc0cc22679fa219`
 - publication autorisée : `NO`
 
-La validation humaine n'est pas fabriquée : elle devra être enregistrée par le
-propriétaire après résolution de Dependency Integrity et avant tout commit de
-GO.
+L'approbation propriétaire est enregistrée dans l'espace owner-controlled et
+lie les sept PDF, 59 pages et 27 assets sociaux au SHA produit de la PR #79.
+Elle ne vaut pas GO de publication et doit être revalidée si le manifeste ou
+le contenu produit change.
 
 ## Page publique
 
@@ -107,12 +109,13 @@ les tests anti-régression suivants :
 - aucune association Seconde / Physique-Chimie ;
 - WhatsApp `99 192 829` et Mutuelleville présents.
 
-## Risques restants
+## Gates de release distincts
 
-- validation humaine propriétaire non enregistrée ;
-- audit npm complet rouge sur `brace-expansion` transitif ;
-- checks GitHub de la PR finale non encore exécutés à la date de cette revue ;
-- runbook privé et preuve de rollback absents des espaces accessibles.
+- le raw audit npm complet reste visible sur `brace-expansion` transitif ;
+- l'exception propriétaire est exacte, temporaire et fail-closed ;
+- le runbook privé, le dry-run de rollback et le health pré-déploiement sont
+  liés par empreintes hors Git ;
+- le GO final reste interdit avant la CI du SHA final.
 
 ## Rollback
 
