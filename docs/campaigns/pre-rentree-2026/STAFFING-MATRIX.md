@@ -8,14 +8,13 @@ Cette matrice publique de gouvernance ne contient aucun nom. Les affectations r�
 | `troisieme-francais` | 3e | Français | À affecter | À affecter | À vérifier | À valider | 2 h | Validateur à affecter | Validateur à affecter |
 | `seconde-mathematiques` | Seconde | Mathématiques | À affecter | À affecter | À vérifier | À valider | 2 h | Validateur à affecter | Validateur à affecter |
 | `seconde-francais` | Seconde | Français | À affecter | À affecter | À vérifier | À valider | 2 h | Validateur à affecter | Validateur à affecter |
-| `seconde-physique-chimie` | Seconde | Physique-Chimie | À affecter | À affecter | À vérifier | À valider | 2 h | Validateur à affecter | Validateur à affecter |
 | `premiere-mathematiques` | Première | Mathématiques | À affecter | À affecter | À vérifier | À valider | 2 h | Validateur à affecter | Validateur à affecter |
 | `premiere-francais-eaf` | Première | Français/EAF | À affecter | À affecter | À vérifier | À valider | 2 h | Validateur à affecter | Validateur à affecter |
 | `premiere-nsi` | Première | NSI | À affecter | À affecter | À vérifier | À valider | 2 h | Validateur à affecter | Validateur à affecter |
 | `premiere-physique-chimie` | Première | Physique-Chimie | À affecter | À affecter | À vérifier | À valider | 2 h | Validateur à affecter | Validateur à affecter |
 | `premiere-svt` | Première | SVT | À affecter | À affecter | À vérifier | À valider | 2 h | Validateur à affecter | Validateur à affecter |
 | `terminale-mathematiques` | Terminale | Mathématiques | À affecter | À affecter | À vérifier | À valider | 2 h | Validateur à affecter | Validateur à affecter |
-| `terminale-philosophie` | Terminale | Philosophie | À affecter | À affecter | À vérifier | À valider | 2 h | Validateur à affecter | Validateur à affecter |
+| `terminale-maths-expertes` | Terminale | Mathématiques expertes | À affecter | À affecter | À vérifier | À valider | 2 h | Validateur à affecter | Validateur à affecter |
 | `terminale-nsi` | Terminale | NSI | À affecter | À affecter | À vérifier | À valider | 2 h | Validateur à affecter | Validateur à affecter |
 | `terminale-physique-chimie` | Terminale | Physique-Chimie | À affecter | À affecter | À vérifier | À valider | 2 h | Validateur à affecter | Validateur à affecter |
 | `terminale-svt` | Terminale | SVT | À affecter | À affecter | À vérifier | À valider | 2 h | Validateur à affecter | Validateur à affecter |
@@ -30,4 +29,6 @@ DAILY_LOAD_VALID=true
 
 Les trois derniers contrôles portent uniquement sur le planning socle et ne valent pas validation d’affectation. Une personne ne pourra pas dépasser la charge recommandée de six heures d’enseignement par jour.
 
-Cas de charge élève à confirmer par la direction : en semaine 2, la grille Terminale enchaîne les blocs B, C et D, soit 6 h consécutives par jour (SVT, NSI puis Physique-Chimie). Cette charge ne constitue pas une affectation d’un même enseignant.
+Les cohortes alternatives sont des options de créneau et non des modules
+supplémentaires. La matrice contient exactement les 14 modules pédagogiques du
+contrat canonique.

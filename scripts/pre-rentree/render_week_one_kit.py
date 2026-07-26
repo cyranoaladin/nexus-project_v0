@@ -582,8 +582,10 @@ class KitRenderer:
         concat = output.parent / "frames.concat.txt"
         lines: list[str] = []
         for path, segment in zip(frame_paths, reel["timeline"], strict=True):
-            lines.extend([f"file '{path.as_posix()}'", f'duration {segment["end"] - segment["start"]}'])
-        lines.append(f"file '{frame_paths[-1].as_posix()}'")
+            relative_path = path.relative_to(output.parent).as_posix()
+            lines.extend([f"file '{relative_path}'", f'duration {segment["end"] - segment["start"]}'])
+        final_relative_path = frame_paths[-1].relative_to(output.parent).as_posix()
+        lines.append(f"file '{final_relative_path}'")
         concat.write_text("\n".join(lines) + "\n", encoding="utf-8")
         self.register(concat, "week1-reel-concat-source", "editable-video-source", "Liste de montage déterministe du Reel")
 
