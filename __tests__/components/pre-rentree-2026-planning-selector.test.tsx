@@ -21,7 +21,6 @@ function renderSelector() {
       subjects={dto.subjects}
       schedule={dto.schedule}
       offerOptions={dto.offerOptions}
-      incompatibilities={dto.subjectIncompatibilities}
       capacityByOffer={dto.capacityByOffer}
       planningPdfHref="/documents/pre-rentree-2026/planning.pdf"
     />,
@@ -166,7 +165,6 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
         subjects={dto.subjects}
         schedule={syntheticSchedule}
         offerOptions={dto.offerOptions}
-        incompatibilities={dto.subjectIncompatibilities}
         capacityByOffer={dto.capacityByOffer}
         planningPdfHref="/documents/pre-rentree-2026/planning.pdf"
       />,

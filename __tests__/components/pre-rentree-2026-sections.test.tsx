@@ -7,6 +7,7 @@ import { ProgramsSection } from '@/components/pre-rentree-2026/ProgramsSection';
 import { PricingSection } from '@/components/pre-rentree-2026/PricingSection';
 import { CampaignFAQ } from '@/components/pre-rentree-2026/CampaignFAQ';
 import { PracticalInformation } from '@/components/pre-rentree-2026/PracticalInformation';
+import { PRE_RENTREE_DOCUMENTS } from '@/lib/campaigns/pre-rentree-2026/documents';
 
 jest.mock('@/lib/analytics', () => ({
   toPreRentreeEntryLevel: (level: string) => level.toLowerCase(),
@@ -29,9 +30,8 @@ function renderSchedule() {
       subjects={dto.subjects}
       blocks={dto.blocks}
       organization={dto.organization}
-      operationalGates={dto.operationalGates}
+      roomsPubliclyConfirmed={dto.operationalGates.roomAssignmentsValidated}
       offerOptions={dto.offerOptions}
-      subjectIncompatibilities={dto.subjectIncompatibilities}
       capacityByOffer={dto.capacityByOffer}
     />,
   );
@@ -173,7 +173,7 @@ describe('Pré-rentrée landing sections', () => {
 
   it('renders complete module content one accordion at a time', async () => {
     const user = userEvent.setup();
-    render(<ProgramsSection modules={dto.modules} levels={dto.levels} subjects={dto.subjects} />);
+    render(<ProgramsSection modules={dto.modules} levels={dto.levels} documents={PRE_RENTREE_DOCUMENTS} />);
 
     const firstModule = dto.modules.find((candidate) => candidate.level === 'TROISIEME');
     const trigger = screen.getByRole('button', { name: new RegExp(firstModule?.title ?? '') });
@@ -186,14 +186,11 @@ describe('Pré-rentrée landing sections', () => {
     expect(screen.getByText(firstModule?.sessions[0]?.deliverable ?? '')).toBeInTheDocument();
   });
 
-  it.each([
-    ['planning', () => renderSchedule()],
-    ['programmes', () => render(
-      <ProgramsSection modules={dto.modules} levels={dto.levels} subjects={dto.subjects} />,
-    )],
-  ])('offers planning, level programmes, tariffs and flyer downloads in %s', (_section, renderSection) => {
-    renderSection();
+  it('offers exactly seven planning, level programme, tariff and flyer downloads in programmes', () => {
+    render(<ProgramsSection modules={dto.modules} levels={dto.levels} documents={PRE_RENTREE_DOCUMENTS} />);
+    expect(screen.getAllByRole('link', { name: /PDF/i })).toHaveLength(7);
     expect(screen.getByRole('link', { name: /Planning et informations pratiques.*PDF/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Télécharger le dossier complet — Entrée en 3e.*PDF/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Télécharger le dossier complet — Entrée en Seconde.*PDF/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Télécharger le dossier complet — Entrée en Première.*PDF/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Télécharger le dossier complet — Entrée en Terminale.*PDF/i })).toBeInTheDocument();
@@ -201,8 +198,13 @@ describe('Pré-rentrée landing sections', () => {
     expect(screen.getByRole('link', { name: /flyer 1 page.*PDF/i })).toBeInTheDocument();
   });
 
+  it('does not duplicate document links inside the planning section', () => {
+    renderSchedule();
+    expect(screen.queryByRole('link', { name: /PDF/i })).not.toBeInTheDocument();
+  });
+
   it('opens the level-specific module targeted by the configurator hash', () => {
-    render(<ProgramsSection modules={dto.modules} levels={dto.levels} subjects={dto.subjects} />);
+    render(<ProgramsSection modules={dto.modules} levels={dto.levels} documents={PRE_RENTREE_DOCUMENTS} />);
 
     window.location.hash = '#programme-premiere-mathematiques';
     fireEvent(window, new HashChangeEvent('hashchange'));
@@ -218,7 +220,7 @@ describe('Pré-rentrée landing sections', () => {
   });
 
   it.each(dto.modules)('opens %s from a canonical program hash', async (campaignModule) => {
-    render(<ProgramsSection modules={dto.modules} levels={dto.levels} subjects={dto.subjects} />);
+    render(<ProgramsSection modules={dto.modules} levels={dto.levels} documents={PRE_RENTREE_DOCUMENTS} />);
     window.location.hash = `#programme-${campaignModule.id}`;
     fireEvent(window, new HashChangeEvent('hashchange'));
 
@@ -240,7 +242,7 @@ describe('Pré-rentrée landing sections', () => {
     if (!campaignModule) throw new Error('Module Terminale Physique-Chimie absent');
 
     window.location.hash = `#programme-${campaignModule.id}`;
-    render(<ProgramsSection modules={dto.modules} levels={dto.levels} subjects={dto.subjects} />);
+    render(<ProgramsSection modules={dto.modules} levels={dto.levels} documents={PRE_RENTREE_DOCUMENTS} />);
     fireEvent(window, new HashChangeEvent('hashchange'));
 
     await waitFor(() => {

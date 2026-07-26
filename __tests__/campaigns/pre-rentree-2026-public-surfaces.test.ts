@@ -62,6 +62,30 @@ describe('Pré-rentrée 2026 central public-surface adapter', () => {
     expect(secondeSubjects.map((subject) => subject.id).sort()).toEqual(['FRANCAIS', 'MATHEMATIQUES']);
   });
 
+  it('exposes a sanitized planning/program/document DTO with canonical counts', () => {
+    const dto = compilePreRentreeReviewSurfaceDTO();
+    expect(dto.planning.metrics).toEqual({
+      pedagogicalModuleCount: 14,
+      pedagogicalSessionTemplateCount: 70,
+      operationalCohortCount: 17,
+      scheduledSessionOccurrenceCount: 85,
+      studentSessionsPerSubject: 5,
+      studentHoursPerSubject: 10,
+    });
+    expect(dto.planning.schedule).toHaveLength(85);
+    expect(dto.programs).toHaveLength(14);
+    expect(dto.documents).toHaveLength(7);
+    expect(dto.planning.roomsPubliclyConfirmed).toBe(false);
+    expect(dto.planning.schedule.every((slot) => slot.room === undefined)).toBe(true);
+    expect(dto.planning.scheduleWindows.every(
+      (window) => window.slots.every((slot) => slot.room === undefined),
+    )).toBe(true);
+    const publicPlanningPayload = JSON.stringify(dto.planning);
+    expect(publicPlanningPayload).not.toMatch(
+      /teacherRole|TEACHER_|alternativeGroupId|publication_authorization|roomAssignmentsValidated|salle-\d/i,
+    );
+  });
+
   it('hides services and advantages without approved offer-level evidence', () => {
     const dto = compilePreRentreeReviewSurfaceDTO();
     const publicCopy = JSON.stringify({

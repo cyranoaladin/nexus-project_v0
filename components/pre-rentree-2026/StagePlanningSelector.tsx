@@ -7,7 +7,6 @@ import {
   formatDetailedDates,
   formatWeekRange,
 } from '@/lib/campaigns/pre-rentree-2026/presentation';
-import type { SubjectIncompatibility } from '@/lib/campaigns/pre-rentree-2026/incompatibilities';
 import {
   assignItinerary,
   MAX_STUDENT_IDLE_MINUTES,
@@ -15,15 +14,16 @@ import {
 } from '@/lib/campaigns/pre-rentree-2026/itinerary';
 import {
   MAX_SUBJECTS_PER_PACK,
-  selectPackBySubjectCount,
   type PublicPlanningAvailability,
 } from '@/lib/campaigns/pre-rentree-2026/configurator';
 import type {
   LandingLevel,
-  LandingPack,
-  LandingScheduleSlot,
-  LandingSubject,
 } from '@/lib/campaigns/pre-rentree-2026/configurator';
+import type {
+  PublicPlanningPack,
+  PublicScheduleSlot,
+  PublicScheduleSubject,
+} from '@/lib/campaigns/pre-rentree-2026/public-schedule';
 import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { SubjectBadge } from './SubjectBadge';
@@ -35,7 +35,7 @@ const LEVEL_RANGE: Record<EntryLevelCode, 'FONDATIONS' | 'PREMIUM'> = {
   TERMINALE: 'PREMIUM',
 };
 
-function subjectLabelForLevel(subject: LandingSubject, level: EntryLevelCode): string {
+function subjectLabelForLevel(subject: PublicScheduleSubject, level: EntryLevelCode): string {
   return subject.labelByLevel?.[level] ?? subject.label;
 }
 
@@ -56,16 +56,14 @@ export function StagePlanningSelector({
   subjects,
   schedule,
   offerOptions,
-  incompatibilities,
   capacityByOffer,
   planningPdfHref,
   exposeRooms = false,
 }: {
   levels: readonly LandingLevel[];
-  subjects: readonly LandingSubject[];
-  schedule: readonly LandingScheduleSlot[];
-  offerOptions: readonly LandingPack[];
-  incompatibilities: readonly SubjectIncompatibility[];
+  subjects: readonly PublicScheduleSubject[];
+  schedule: readonly PublicScheduleSlot[];
+  offerOptions: readonly PublicPlanningPack[];
   capacityByOffer: Record<'FONDATIONS' | 'PREMIUM', { minPerCohort: number; maxPerCohort: number }>;
   planningPdfHref?: string;
   exposeRooms?: boolean;
@@ -147,7 +145,12 @@ export function StagePlanningSelector({
   const range = level ? LEVEL_RANGE[level] : null;
   const capacity = range ? capacityByOffer[range] : null;
 
-  const pack = level ? selectPackBySubjectCount(offerOptions, selectedSubjects.length, level) : null;
+  const pack = level
+    ? offerOptions.find((option) => (
+      (!option.level || option.level === level)
+      && option.subjectsCount === selectedSubjects.length
+    )) ?? null
+    : null;
   const totalHours = pack?.totalHours ?? 0;
   const publicAvailability: PublicPlanningAvailability = {
     structuralStatus: itineraryIsConfirmable ? 'STRUCTURALLY_COMPACT' : null,

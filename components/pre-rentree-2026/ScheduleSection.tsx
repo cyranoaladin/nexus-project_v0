@@ -9,19 +9,16 @@ import {
   formatWeekRange,
 } from '@/lib/campaigns/pre-rentree-2026/presentation';
 import { SUBJECT_THEMES } from '@/lib/campaigns/pre-rentree-2026/subject-theme';
-import { PRE_RENTREE_DOCUMENTS } from '@/lib/campaigns/pre-rentree-2026/documents';
 import type {
   LandingLevel,
-  LandingPack,
-  LandingScheduleSlot,
-  LandingScheduleWindow,
-  LandingSubject,
-  LandingPublicOrganization,
 } from '@/lib/campaigns/pre-rentree-2026/configurator';
 import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
-import type { SubjectIncompatibility } from '@/lib/campaigns/pre-rentree-2026/incompatibilities';
 import {
   buildPublicSubjectScheduleRows,
+  type PublicPlanningPack,
+  type PublicScheduleSlot,
+  type PublicScheduleSubject,
+  type PublicScheduleWindow,
   type PublicSubjectScheduleRow,
 } from '@/lib/campaigns/pre-rentree-2026/public-schedule';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -41,7 +38,7 @@ function durationHours(start: string, end: string): number {
   return (endHour * 60 + endMinute - startHour * 60 - startMinute) / 60;
 }
 
-function subjectLabel(subjects: readonly LandingSubject[], id: string, level: EntryLevelCode): string {
+function subjectLabel(subjects: readonly PublicScheduleSubject[], id: string, level: EntryLevelCode): string {
   const subject = subjects.find((candidate) => candidate.id === id);
   return subject?.labelByLevel?.[level] ?? subject?.label ?? id;
 }
@@ -152,10 +149,10 @@ function OccupiedCell({
   levels,
   subjects,
 }: {
-  slot: LandingScheduleWindow['slots'][number] | undefined;
+  slot: PublicScheduleWindow['slots'][number] | undefined;
   block: Block;
   levels: readonly LandingLevel[];
-  subjects: readonly LandingSubject[];
+  subjects: readonly PublicScheduleSubject[];
 }) {
   if (!slot) {
     return <span className="text-sm font-medium text-lux-slate">Libre</span>;
@@ -176,10 +173,10 @@ function ProposedGroups({
   levels,
   subjects,
 }: {
-  slots: LandingScheduleWindow['slots'];
+  slots: PublicScheduleWindow['slots'];
   block: Block;
   levels: readonly LandingLevel[];
-  subjects: readonly LandingSubject[];
+  subjects: readonly PublicScheduleSubject[];
 }) {
   if (slots.length === 0) {
     return <span className="text-sm font-medium text-lux-slate">Aucun groupe sur ce créneau</span>;
@@ -188,7 +185,7 @@ function ProposedGroups({
     <div className="grid gap-3 md:grid-cols-2">
       {slots.map((slot) => (
         <OccupiedCell
-          key={`${slot.level}-${slot.subject}-${slot.room}`}
+          key={`${slot.level}-${slot.subject}-${slot.block}`}
           slot={slot}
           block={block}
           levels={levels}
@@ -206,16 +203,17 @@ function WindowDesktopTable({
   subjects,
   exposeRooms,
 }: {
-  window: LandingScheduleWindow;
+  window: PublicScheduleWindow;
   blocks: readonly Block[];
   levels: readonly LandingLevel[];
-  subjects: readonly LandingSubject[];
+  subjects: readonly PublicScheduleSubject[];
   exposeRooms: boolean;
 }) {
   // Always show the 2 standing rooms; add any extra room (e.g. the
   // exceptional salle-3, SCHEDULE-S5) only for the window that actually uses
   // it — never a permanently-displayed 3rd column across every window.
   const extraRooms = [...new Set(window.slots.map((slot) => slot.room))]
+    .filter((room): room is string => Boolean(room))
     .filter((room) => room !== 'salle-1' && room !== 'salle-2')
     .sort();
   const rooms = ['salle-1', 'salle-2', ...extraRooms];
@@ -280,13 +278,14 @@ function WindowMobileList({
   subjects,
   exposeRooms,
 }: {
-  window: LandingScheduleWindow;
+  window: PublicScheduleWindow;
   blocks: readonly Block[];
   levels: readonly LandingLevel[];
-  subjects: readonly LandingSubject[];
+  subjects: readonly PublicScheduleSubject[];
   exposeRooms: boolean;
 }) {
   const extraRooms = [...new Set(window.slots.map((slot) => slot.room))]
+    .filter((room): room is string => Boolean(room))
     .filter((room) => room !== 'salle-1' && room !== 'salle-2')
     .sort();
   const rooms = ['salle-1', 'salle-2', ...extraRooms];
@@ -330,7 +329,7 @@ function Organization({
   organization,
   exposeRooms,
 }: {
-  organization: LandingPublicOrganization;
+  organization: { rooms: readonly { label: string; details: string }[] };
   exposeRooms: boolean;
 }) {
   return (
@@ -359,27 +358,18 @@ export function ScheduleSection({
   subjects,
   blocks,
   organization,
-  operationalGates,
+  roomsPubliclyConfirmed,
   offerOptions,
-  subjectIncompatibilities,
   capacityByOffer,
 }: {
-  schedule: LandingScheduleSlot[];
-  scheduleWindows: LandingScheduleWindow[];
-  levels: LandingLevel[];
-  subjects: LandingSubject[];
-  blocks: Block[];
-  organization: LandingPublicOrganization;
-  operationalGates: {
-    roomAssignmentsValidated: boolean;
-    teacherAssignmentsValidated: boolean;
-    noTeacherConflict: boolean;
-    noRoomConflict: boolean;
-    noLevelConflict: boolean;
-    dailyLoadValid: boolean;
-  };
-  offerOptions: LandingPack[];
-  subjectIncompatibilities: SubjectIncompatibility[];
+  schedule: readonly PublicScheduleSlot[];
+  scheduleWindows: readonly PublicScheduleWindow[];
+  levels: readonly LandingLevel[];
+  subjects: readonly PublicScheduleSubject[];
+  blocks: readonly Block[];
+  organization: { rooms: readonly { label: string; details: string }[] };
+  roomsPubliclyConfirmed: boolean;
+  offerOptions: readonly PublicPlanningPack[];
   capacityByOffer: Record<'FONDATIONS' | 'PREMIUM', { minPerCohort: number; maxPerCohort: number }>;
 }) {
   const { configuredEntryLevel } = useCampaignExperience();
@@ -392,11 +382,11 @@ export function ScheduleSection({
   }, [configuredEntryLevel]);
 
   return (
-    <section className="bg-white px-4 py-14 md:py-20" aria-labelledby="schedule-heading">
+    <section id="planning" className="scroll-mt-24 bg-white px-4 py-14 md:py-20" aria-labelledby="schedule-heading">
       <div className="mx-auto max-w-6xl">
         <h2 id="schedule-heading" className="font-fraunces text-3xl text-lux-ink md:text-4xl">Planning et emplois du temps</h2>
         <p className="mt-3 max-w-3xl text-lux-slate">Consultez les créneaux par classe de rentrée ou visualisez les groupes proposés sur chaque semaine.</p>
-        {(!operationalGates.roomAssignmentsValidated || !operationalGates.teacherAssignmentsValidated) && (
+        {!roomsPubliclyConfirmed && (
           <p role="note" className="mt-5 rounded-xl border border-lux-gold/40 bg-lux-gold/10 p-4 text-sm text-lux-ink">
             Les créneaux sont proposés à titre informatif. Les affectations finales sont confirmées directement aux familles.
           </p>
@@ -408,10 +398,8 @@ export function ScheduleSection({
           subjects={subjects}
           schedule={schedule}
           offerOptions={offerOptions}
-          incompatibilities={subjectIncompatibilities}
           capacityByOffer={capacityByOffer}
-          planningPdfHref={PRE_RENTREE_DOCUMENTS.find((doc) => doc.kind === 'planning')?.href}
-          exposeRooms={operationalGates.roomAssignmentsValidated}
+          exposeRooms={roomsPubliclyConfirmed}
         />
 
         <Tabs
@@ -450,7 +438,7 @@ export function ScheduleSection({
                 subjects,
                 windows: scheduleWindows,
                 level: option.id,
-                exposeRooms: operationalGates.roomAssignmentsValidated,
+                exposeRooms: roomsPubliclyConfirmed,
               });
               return (
                 <div
@@ -484,14 +472,14 @@ export function ScheduleSection({
                     blocks={blocks}
                     levels={levels}
                     subjects={subjects}
-                    exposeRooms={operationalGates.roomAssignmentsValidated}
+                    exposeRooms={roomsPubliclyConfirmed}
                   />
                   <WindowMobileList
                     window={option}
                     blocks={blocks}
                     levels={levels}
                     subjects={subjects}
-                    exposeRooms={operationalGates.roomAssignmentsValidated}
+                    exposeRooms={roomsPubliclyConfirmed}
                   />
                 </TabsContent>
               ))}
@@ -501,22 +489,9 @@ export function ScheduleSection({
 
         <Organization
           organization={organization}
-          exposeRooms={operationalGates.roomAssignmentsValidated}
+          exposeRooms={roomsPubliclyConfirmed}
         />
 
-        <div className="mt-10">
-          <h3 className="font-fraunces text-xl text-lux-ink">Documents à télécharger</h3>
-          <p className="mt-1 text-sm text-lux-slate">Le planning complet et les programmes détaillés, à emporter.</p>
-          <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-            {PRE_RENTREE_DOCUMENTS.map((doc) => (
-              <li key={doc.href}>
-                <a href={doc.href} download className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-lux-gold-deep underline">
-                  {doc.label} <span className="text-xs font-normal text-lux-slate">(PDF · {doc.size})</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
       </div>
     </section>
   );
