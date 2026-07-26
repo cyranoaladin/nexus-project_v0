@@ -14,9 +14,9 @@ ROLE (documented 2026-07-25, quality audit §B — two PDF pipelines coexist by 
 not by accident; see DEBTS.md for the full rationale):
 This is the ACTIVE PRODUCTION / PUBLIC-DISTRIBUTION pipeline. Its output
 (assets/campaigns/pre-rentree-2026/documents-final/ -> public/documents/pre-rentree-2026/)
-is what parents actually download. Invoked via `npm run pre-rentree:legacy-pdfs`
-— despite the "legacy" name in that npm alias, this is NOT a deprecated/dead
-pipeline; do not remove it or treat generate_documents.py as its replacement.
+is what parents actually download. Invoked via `npm run pre-rentree:public-pdfs`.
+The old `pre-rentree:legacy-pdfs` command is only a deprecated compatibility
+alias; do not treat generate_documents.py as the public pipeline replacement.
 The SEPARATE governance/reproducibility review pipeline (hash-bound manifest,
 owner-approval workflow, chained into `npm run pre-rentree:ci`) is
 scripts/pre-rentree/document_templates.py via generate_documents.py
@@ -48,6 +48,7 @@ STARTING_PRICE = min(
     offer["price_per_student"]
     for offer in (*PRE_RENTREE_FOUNDATIONS, *PRE_RENTREE_PACKS)
 )
+ROOM_ASSIGNMENTS_PUBLIC = CAMPAIGN["operationalGates"]["roomAssignmentsValidated"]
 
 
 def _uniform_group_bounds(offers):
@@ -417,21 +418,30 @@ def make_planning_body():
         slots.sort(key=lambda s: (s['windowId'], ['A', 'B', 'C', 'D'].index(s['block'])))
 
         body += f"<h2>Planning — Entrée en {level_label}</h2>"
-        body += """<table>
+        room_heading = "<th>Salle</th>" if ROOM_ASSIGNMENTS_PUBLIC else ""
+        body += f"""<table>
         <thead><tr>
-            <th>Matière</th><th>Fenêtre</th><th>Créneau</th><th>Salle</th>
+            <th>Matière</th><th>Fenêtre</th><th>Créneau</th>{room_heading}
         </tr></thead><tbody>"""
 
         for s in slots:
             sn = subject_label(s['subject'], level_key)
-            body += f"<tr><td>{sn}</td><td>{s['windowLabel']}</td><td>{s['startTime']}–{s['endTime']} (bloc {s['block']})</td><td>{s['room'].replace('salle-', 'Salle ')}</td></tr>"
+            room_cell = (
+                f"<td>{s['room'].replace('salle-', 'Salle ')}</td>"
+                if ROOM_ASSIGNMENTS_PUBLIC else ""
+            )
+            body += (
+                f"<tr><td>{sn}</td><td>{s['windowLabel']}</td>"
+                f"<td>{s['startTime']}–{s['endTime']} (bloc {s['block']})</td>{room_cell}</tr>"
+            )
 
         body += "</tbody></table>"
 
-    # Vue par fenêtre et par salle
+    # Vue par fenêtre. Les numéros de salle ne sont rendus que lorsque le gate
+    # opérationnel autorise explicitement leur publication.
     body += '<div class="page-break"></div>'
     body += make_header(header_title)
-    body += "<h2>Vue par fenêtre et par salle</h2>"
+    body += "<h2>Vue par fenêtre</h2>"
 
     seen_windows = []
     for s in SCHEDULE:
@@ -444,15 +454,16 @@ def make_planning_body():
         body += f"<h3>{window_label}</h3>"
         window_slots.sort(key=lambda s: ['A', 'B', 'C', 'D'].index(s['block']))
 
-        body += """<table>
-        <thead><tr><th>Bloc</th><th>Horaire</th><th>Salle 1</th><th>Salle 2</th></tr></thead><tbody>"""
+        rooms = sorted({s["room"] for s in window_slots})
+        room_headings = "".join(
+            f"<th>{room.replace('salle-', 'Salle ')}</th>" for room in rooms
+        ) if ROOM_ASSIGNMENTS_PUBLIC else "<th>Groupes proposés</th>"
+        body += f"""<table>
+        <thead><tr><th>Bloc</th><th>Horaire</th>{room_headings}</tr></thead><tbody>"""
 
         blocks_in_window = sorted(set(s['block'] for s in window_slots), key=lambda b: ['A', 'B', 'C', 'D'].index(b))
 
         for block in blocks_in_window:
-            salle1 = [s for s in window_slots if s['block'] == block and s['room'] == 'salle-1']
-            salle2 = [s for s in window_slots if s['block'] == block and s['room'] == 'salle-2']
-
             def cell_content(slots_list):
                 if not slots_list:
                     return "—"
@@ -464,7 +475,17 @@ def make_planning_body():
                 return "<br>".join(parts)
 
             start, end = _BLOCK_TIMES[block]
-            body += f"<tr><td style='font-weight:700'>Bloc {block}</td><td>{start}–{end}</td><td>{cell_content(salle1)}</td><td>{cell_content(salle2)}</td></tr>"
+            if ROOM_ASSIGNMENTS_PUBLIC:
+                group_cells = "".join(
+                    f"<td>{cell_content([s for s in window_slots if s['block'] == block and s['room'] == room])}</td>"
+                    for room in rooms
+                )
+            else:
+                group_cells = f"<td>{cell_content([s for s in window_slots if s['block'] == block])}</td>"
+            body += (
+                f"<tr><td style='font-weight:700'>Bloc {block}</td>"
+                f"<td>{start}–{end}</td>{group_cells}</tr>"
+            )
 
         body += "</tbody></table>"
 
@@ -483,19 +504,27 @@ def make_planning_body():
         day_slots = [s for s in SCHEDULE_DAYS if s['date'] == date_str]
         day_slots.sort(key=lambda s: ['A', 'B', 'C', 'D'].index(s['block']))
         body += f"<h3>{format_day(date_str)}</h3>"
-        body += """<table>
-        <thead><tr><th>Horaire</th><th>Salle</th><th>Niveau</th><th>Matière</th></tr></thead><tbody>"""
+        room_heading = "<th>Salle</th>" if ROOM_ASSIGNMENTS_PUBLIC else ""
+        body += f"""<table>
+        <thead><tr><th>Horaire</th>{room_heading}<th>Niveau</th><th>Matière</th></tr></thead><tbody>"""
         for s in day_slots:
             ln = level_map[s['level']]
             sn = subject_label(s['subject'], s['level'])
-            body += f"<tr><td>{s['startTime']}–{s['endTime']}</td><td>{s['room'].replace('salle-', 'Salle ')}</td><td>{ln}</td><td>{sn}</td></tr>"
+            room_cell = (
+                f"<td>{s['room'].replace('salle-', 'Salle ')}</td>"
+                if ROOM_ASSIGNMENTS_PUBLIC else ""
+            )
+            body += (
+                f"<tr><td>{s['startTime']}–{s['endTime']}</td>{room_cell}"
+                f"<td>{ln}</td><td>{sn}</td></tr>"
+            )
         body += "</tbody></table>"
 
     # Organisation pédagogique
     body += "<h2>Organisation pédagogique</h2>"
     body += (f"<p style='font-size:9.5pt; margin-bottom:12px;'>{ENSEIGNANT_STATUT_PUBLIE.capitalize()}. "
-             "Les affectations par matière et créneau sont contrôlées en interne avant toute autorisation de publication ; "
-             "aucun nom ni code de rôle interne n'est publié.</p>")
+             "Les affectations définitives sont confirmées directement aux familles ; "
+             "aucun nom d'enseignant n'est publié.</p>")
 
     # Matériel
     body += "<h2>Matériel à apporter</h2>"
@@ -516,7 +545,7 @@ def make_planning_body():
     body += """<ol style="font-size:9.5pt; padding-left:18px; margin-bottom:12px; line-height:1.6;">
         <li>Fondations : ouverture à partir de <strong>3 élèves</strong>, <strong>6 élèves maximum</strong>.</li>
         <li>Premium : ouverture à partir de <strong>3 élèves</strong>, <strong>5 élèves maximum</strong>.</li>
-        <li>L'ouverture, le créneau, la salle et l'affectation pédagogique doivent être confirmés avant publication.</li>
+        <li>L'ouverture du groupe, le créneau et l'affectation pédagogique sont confirmés directement aux familles.</li>
         <li>Tant que les conditions de paiement, reçu, annulation et remboursement ne sont pas validées, le parcours reste une <strong>demande d'information sans paiement</strong>.</li>
     </ol>"""
 
@@ -529,7 +558,7 @@ def make_planning_body():
     </ol>"""
 
     # Contact
-    body += "<h2>Contact</h2>"
+    body += "<h2>Demander les informations et vérifier les disponibilités</h2>"
     body += f"""<p style="font-size:9.5pt; line-height:1.8;">
         Téléphone / WhatsApp : <a href="tel:+21699192829">+216 99 19 28 29</a><br>
         Email : <a href="mailto:contact@nexusreussite.academy">contact@nexusreussite.academy</a><br>
@@ -549,7 +578,7 @@ def make_tarifs_body():
     body += '<p style="color:#071A3A; font-size:10pt; font-weight:600;">Stages de pré-rentrée · 17–28 août 2026 · Mutuelleville, Tunis</p>'
     body += '</div><hr style="border:none; border-top:2px solid #C9A227; margin:10px 0 14px 0;">'
 
-    body += '<p style="font-size:9.5pt; margin-bottom:14px; font-style:italic; color:#555;">Des tarifs publics, nets, en dinars. Vous savez exactement ce que vous payez — avant de réserver.</p>'
+    body += '<p style="font-size:9.5pt; margin-bottom:14px; font-style:italic; color:#555;">Des tarifs publics, nets, en dinars, pour comparer clairement les parcours proposés.</p>'
 
     body += "<h2>Grille tarifaire</h2>"
     body += """<table>
@@ -582,21 +611,22 @@ def make_tarifs_body():
     body += """<ol style="font-size:9.5pt; padding-left:18px; margin-bottom:14px; line-height:1.6;">
         <li>Le site propose uniquement une <strong>demande d'information sans paiement</strong>.</li>
         <li>Les montants d'acompte et de solde ci-dessus sont issus de la grille tarifaire canonique.</li>
-        <li>Les modalités de paiement, de reçu, d'annulation et de remboursement doivent être validées avant activation d'une réservation.</li>
+        <li>Les conditions applicables sont communiquées à la famille avant toute confirmation contractuelle.</li>
     </ol>"""
 
     body += '<div style="break-inside:avoid;">'
-    body += "<h2>Avant toute réservation</h2>"
+    body += "<h2>Avant toute confirmation</h2>"
     body += """<p style="font-size:9.5pt; line-height:1.6; margin-bottom:14px;">
-        L'ouverture du groupe, le créneau, la salle, l'affectation pédagogique et les conditions contractuelles
+        L'ouverture du groupe, le créneau, l'affectation pédagogique et les conditions contractuelles
         doivent être confirmés. En attendant, aucune demande d'information ne bloque une place et aucun paiement
         n'est demandé en ligne.
     </p></div>"""
 
-    body += "<h2>Le tarif en perspective</h2>"
-    body += f'<p style="font-size:9.5pt; line-height:1.6; margin-bottom:14px;">À <strong>45–48 TND de l\'heure par élève</strong>, le stage se situe dans la même zone tarifaire horaire qu\'un cours particulier classique du marché. La différence n\'est pas le prix de l\'heure — c\'est ce qu\'elle contient : un <strong>{ENSEIGNANT_STATUT_COMMERCIAL}</strong>, un programme écrit séance par séance, un groupe de {PREMIUM_GROUP_MIN} à {PREMIUM_GROUP_MAX} pour maintenir l\'attention individuelle, et des supports conçus pour le stage.</p>'
+    body += "<h2>Ce que structure le tarif</h2>"
+    body += '<p style="font-size:9.5pt; line-height:1.6; margin-bottom:14px;">Le tarif correspond à un parcours structuré de cinq séances, en groupe réduit, avec programmes, exercices, corrections et supports préparés pour le stage.</p>'
 
     body += f"""<p style="font-size:9pt; margin-top:14px; line-height:1.7; border-top:1px solid #E0E0E0; padding-top:8px;">
+        <strong>Demander les informations et vérifier les disponibilités</strong><br>
         Téléphone / WhatsApp : <a href="tel:+21699192829">+216 99 19 28 29</a> ·
         Email : <a href="mailto:contact@nexusreussite.academy">contact@nexusreussite.academy</a> ·
         Site : <a href="https://nexusreussite.academy/stages/pre-rentree-2026">nexusreussite.academy/stages/pre-rentree-2026</a>
@@ -771,11 +801,13 @@ def make_flyer_body():
         Seconde : {format_tnd(foundation_by_level["SECONDE"]["price_per_student"])} TND / matière.<br>
         <strong>Premium :</strong> {PREMIUM_GROUP_MIN} à {PREMIUM_GROUP_MAX} élèves, maximum {PREMIUM_GROUP_MAX} · {premium_prices}.
     </p>
-    <h2>Demander les informations</h2>
+    <h2>Demander les informations et vérifier les disponibilités</h2>
     <p style="font-size:9.5pt; line-height:1.7;">Indiquez le niveau et la matière sur WhatsApp.
     Aucun paiement n'est demandé et aucune place n'est bloquée à ce stade.</p>
     <p style="font-size:11pt; color:#071A3A; font-weight:800; margin-top:10px;">
-        +216 99 19 28 29 · contact@nexusreussite.academy
+        <a href="tel:+21699192829">+216 99 19 28 29</a> ·
+        <a href="mailto:contact@nexusreussite.academy">contact@nexusreussite.academy</a> ·
+        <a href="https://nexusreussite.academy/stages/pre-rentree-2026">Voir le programme</a>
     </p>
     """
     return body

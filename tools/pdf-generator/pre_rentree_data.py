@@ -178,6 +178,7 @@ class PreRentreeData:
         decisions_doc = self._load_json("content/pre-rentree-2026/publication-decisions.owner.json")
         self.decisions = decisions_doc["decisions"]
         self.release_status = decisions_doc.get("releaseStatus")
+        self.room_assignments_public = self.campaign["operationalGates"]["roomAssignmentsValidated"]
 
         self.foundations = tuple(self.pricing["pre_rentree_foundations"])
         self.premium_packs = tuple(self.pricing["pre_rentree_packs"])

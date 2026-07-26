@@ -267,7 +267,7 @@ def test_no_standalone_svt_pdf_in_final_parent_set():
 
 # ── Idle-time compatibility text invariants ─────────────────────────────────
 
-def test_pdf_never_claims_compatible_alongside_a_long_idle_pair(data: PreRentreeData, dossiers):
+def test_pdf_only_presents_profile_valid_combinations_as_public_itineraries(data: PreRentreeData, dossiers):
     # Uses assign_itinerary, exactly like generate_level_dossiers.planning_page(), so
     # that subjects with two alternative cohorts (Première SVT, Terminale NSI/SVT) are
     # evaluated on the single best cohort a family would actually be assigned — never
@@ -282,11 +282,14 @@ def test_pdf_never_claims_compatible_alongside_a_long_idle_pair(data: PreRentree
             for j in range(i + 1, len(subjects)):
                 report = assign_itinerary(level, [subjects[i], subjects[j]], dated_sessions).itinerary
                 if report.status == "LONG_IDLE":
-                    # The exact minute value for this pair must be printed, and the
-                    # dossier must never claim a blanket "toutes les autres combinaisons
-                    # sont compatibles" statement that would contradict it.
-                    assert f"{report.max_idle_minutes} minutes d'attente" in html, (
-                        f"{level}: {subjects[i]}+{subjects[j]} is LONG_IDLE but its exact "
-                        "wait time is not printed in the dossier"
-                    )
+                    pair = {subjects[i], subjects[j]}
+                    # In S5 the only remaining long-idle pairs omit the required
+                    # Mathématiques specialty while selecting Mathématiques
+                    # expertes. They are invalid profiles, not parent itineraries.
+                    assert "MATHS_EXPERTES" in pair
+                    assert "MATHEMATIQUES" not in pair
+                    assert f"{report.max_idle_minutes} minutes d'attente" not in html
         assert "toutes les autres combinaisons" not in html.casefold()
+    assert "Mathématiques expertes est proposée uniquement aux élèves qui suivent aussi la spécialité Mathématiques" in (
+        generate_level_dossiers.build_dossier_html(dossiers["TERMINALE"], data)
+    )

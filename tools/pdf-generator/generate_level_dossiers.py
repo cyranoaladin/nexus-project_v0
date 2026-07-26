@@ -153,8 +153,11 @@ def planning_page(dossier: LevelDossierData, data: PreRentreeData) -> str:
         slots = by_subject.get(subject_id, [])
         accent = _accent(subject_id)
         windows_desc = "; ".join(
-            f'{s.window_label} · {s.start_time}–{s.end_time} (bloc {s.block}) · '
-            f'{s.room.replace("salle-", "Salle ")}'
+            f'{s.window_label} · {s.start_time}–{s.end_time} (bloc {s.block})'
+            + (
+                f' · {s.room.replace("salle-", "Salle ")}'
+                if data.room_assignments_public else ""
+            )
             for s in slots
         )
         body += (
@@ -180,6 +183,11 @@ def planning_page(dossier: LevelDossierData, data: PreRentreeData) -> str:
     for idx_a in range(len(subjects)):
         for idx_b in range(idx_a + 1, len(subjects)):
             pair = (subjects[idx_a], subjects[idx_b])
+            # Mathématiques expertes n'est jamais un choix autonome : le profil
+            # Terminale doit aussi retenir Mathématiques. Une paire qui omet la
+            # spécialité Mathématiques n'est donc pas un parcours public normal.
+            if "MATHS_EXPERTES" in pair and "MATHEMATIQUES" not in pair:
+                continue
             report = assign_itinerary(dossier.level, pair, dated_sessions).itinerary
             if report.status == "SIMULTANEOUS":
                 simultaneous_pairs.append(pair)
@@ -214,6 +222,13 @@ def planning_page(dossier: LevelDossierData, data: PreRentreeData) -> str:
         body += (
             '<div class="combo-note ok">Pour ce niveau, les matières proposées ne partagent jamais la même journée : '
             "aucune attente n'est générée par leur combinaison.</div>"
+        )
+
+    if dossier.level == "TERMINALE":
+        body += (
+            '<p style="font-size:9pt; color:#5A6B82; margin-top:6px;">'
+            "Mathématiques expertes est proposée uniquement aux élèves qui suivent aussi la spécialité "
+            "Mathématiques ; le parcours est calculé avec ces deux matières.</p>"
         )
 
     if data.tier_for_level(dossier.level) == "premium":
@@ -351,7 +366,7 @@ def practical_info_page(dossier: LevelDossierData, data: PreRentreeData) -> str:
 
     body += f"""
     <div class="cta-block">
-        <div class="cta-title">Demander des informations et les disponibilités</div>
+        <div class="cta-title">Demander les informations et vérifier les disponibilités</div>
         <div class="cta-line">Indiquez la classe de rentrée et la ou les matières recherchées.
         L'équipe vérifie la compatibilité et transmet le programme, les horaires et la grille tarifaire.</div>
         <div class="cta-line" style="margin-top:8px;">
