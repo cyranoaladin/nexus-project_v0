@@ -1,0 +1,134 @@
+{
+  "level": "TERMINALE",
+  "maxStudentIdleMinutes": 60,
+  "combos": [
+    {
+      "combo": [
+        "MATHEMATIQUES",
+        "NSI"
+      ],
+      "status": "COMPACT",
+      "maxIdleMinutes": 60,
+      "compliant": true
+    },
+    {
+      "combo": [
+        "MATHEMATIQUES",
+        "PHYSIQUE_CHIMIE"
+      ],
+      "status": "COMPACT",
+      "maxIdleMinutes": 60,
+      "compliant": true
+    },
+    {
+      "combo": [
+        "MATHEMATIQUES",
+        "SVT"
+      ],
+      "status": "COMPACT",
+      "maxIdleMinutes": 60,
+      "compliant": true
+    },
+    {
+      "combo": [
+        "NSI",
+        "PHYSIQUE_CHIMIE"
+      ],
+      "status": "COMPACT",
+      "maxIdleMinutes": 15,
+      "compliant": true
+    },
+    {
+      "combo": [
+        "NSI",
+        "SVT"
+      ],
+      "status": "COMPACT",
+      "maxIdleMinutes": 15,
+      "compliant": true
+    },
+    {
+      "combo": [
+        "PHYSIQUE_CHIMIE",
+        "SVT"
+      ],
+      "status": "COMPACT",
+      "maxIdleMinutes": 15,
+      "compliant": true
+    },
+    {
+      "combo": [
+        "MATHEMATIQUES",
+        "MATHS_EXPERTES"
+      ],
+      "status": "COMPACT",
+      "maxIdleMinutes": 15,
+      "compliant": true
+    },
+    {
+      "combo": [
+        "MATHEMATIQUES",
+        "MATHS_EXPERTES",
+        "NSI"
+      ],
+      "status": "COMPACT",
+      "maxIdleMinutes": 60,
+      "compliant": true
+    },
+    {
+      "combo": [
+        "MATHEMATIQUES",
+        "MATHS_EXPERTES",
+        "PHYSIQUE_CHIMIE"
+      ],
+      "status": "COMPACT",
+      "maxIdleMinutes": 60,
+      "compliant": true
+    },
+    {
+      "combo": [
+        "MATHEMATIQUES",
+        "MATHS_EXPERTES",
+        "SVT"
+      ],
+      "status": "COMPACT",
+      "maxIdleMinutes": 60,
+      "compliant": true
+    },
+    {
+      "combo": [
+        "MATHEMATIQUES",
+        "PHYSIQUE_CHIMIE",
+        "SVT"
+      ],
+      "status": "COMPACT",
+      "maxIdleMinutes": 60,
+      "compliant": true
+    },
+    {
+      "combo": [
+        "MATHEMATIQUES",
+        "NSI",
+        "PHYSIQUE_CHIMIE"
+      ],
+      "status": "COMPACT",
+      "maxIdleMinutes": 60,
+      "compliant": true
+    },
+    {
+      "combo": [
+        "MATHEMATIQUES",
+        "NSI",
+        "SVT"
+      ],
+      "status": "COMPACT",
+      "maxIdleMinutes": 60,
+      "compliant": true
+    }
+  ],
+  "allCompliant": true,
+  "roomConflicts": [],
+  "teacherConflicts": [],
+  "zeroRoomConflicts": true,
+  "zeroTeacherConflicts": true
+}

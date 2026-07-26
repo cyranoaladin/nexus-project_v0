@@ -1,15 +1,22 @@
-# Rapport d'optimisation du planning — scénarios S0 à S4
+# Rapport d'optimisation du planning — scénarios S0 à S5
 
 Compagnon de `SCHEDULE-UX-AUDIT.md`. Ce rapport documente les scénarios de refonte du **planning
-canonique lui-même** (dates, blocs, salles, cohortes) — aucun n'a été appliqué aux données
-canoniques : la mission exige une décision propriétaire explicite avant toute modification de ce
-type (voir §7).
+canonique lui-même** (dates, blocs, salles, cohortes). **S5 est implémenté dans la grille
+canonique** (`data/campaigns/pre-rentree-2026.json`) depuis cette mission — voir
+`SCHEDULE-S5-THREE-ROOMS-DECISION.md` pour la décision propriétaire qui l'autorise et
+`SCHEDULE-S5-IMPLEMENTATION-REPORT.md` pour le détail de l'implémentation. S1 à S4 restent des
+scénarios documentés à titre historique (§7bis) : S3 est désormais un repli obsolète, dominé par
+S5 sur la date de fin (28 août au lieu de 31) et le coût en heures (+30 h au lieu de +40 h).
 
 Tous les fichiers de données de ce rapport sont dans
-`assets/campaigns/pre-rentree-2026/schedule-optimization/` : `baseline.json`, `scenario-s{1,2,3,4}.json`,
-`s0-s1-solver-output.json`, `scenario-s3-verification.json`, `selection-matrix.csv`,
-`teacher-load.csv`, `room-occupancy.csv`, `student-itineraries.csv`, ainsi que les scripts
-`solver.py` et `verify_s3_reference.py` qui les ont produits (ré-exécutables, déterministes).
+`assets/campaigns/pre-rentree-2026/schedule-optimization/` : `baseline.json`, `scenario-s{1,2,3,4,5}.json`,
+`s0-s1-solver-output.json`, `scenario-s3-verification.json`, `scenario-s5-verification.json`,
+`scenario-s5-solver-output.json`, `scenario-s5-premiere-solver-output.json`, `selection-matrix.csv`,
+`teacher-load.csv`, `room-occupancy.csv`, `student-itineraries.csv` (S0-S4) et leurs équivalents
+`*-s5.csv` plus `cohort-assignment-s5.csv` (S5), ainsi que les scripts `solver.py`,
+`verify_s3_reference.py`, `solver_s5.py`, `solver_s5_premiere.py` (preuve du minimum de cohortes)
+et `export_s5.py` (export des CSV/JSON S5 depuis la grille canonique réelle) qui les ont produits
+(ré-exécutables, déterministes).
 
 ## S0 — planning actuel (baseline)
 
@@ -100,26 +107,70 @@ minimale n'a pas été chiffrée dans cette session (le chantier S3 apporte déj
 complète sans ressource nouvelle, seulement un décalage de date) — recommandé comme prochaine
 étape si le propriétaire écarte explicitement l'option des 3 jours supplémentaires.
 
-## 7. Décision propriétaire requise
+## S5 — 3 salles + week-end, fin maintenue au 28 août (implémenté)
 
-Aucun scénario au-delà de S0/S1 (qui ne change ni dates ni ressources ni cohortes) n'a été
-appliqué aux données canoniques. Pour aller plus loin :
+Scénario autorisé par la direction (décision propriétaire — voir
+`SCHEDULE-S5-THREE-ROOMS-DECISION.md`) : `salle-3` (Terminale, bloc C uniquement, 24-28 août) plus
+les cours samedi 22 et dimanche 23 août déjà présents dans `weekend-debut-fenetre-2`. Recherche
+**exhaustive** (`solver_s5.py` pour la Terminale, `solver_s5_premiere.py` pour la Première),
+jamais heuristique.
 
-- **S1 (3e améliorable, permutation gratuite)** peut être appliqué sans aucun coût nouveau — mais
-  reste un changement du planning canonique publié et affiché aux familles, donc soumis à la même
-  règle de décision propriétaire que tout changement de grille.
-- **S3 (solution complète, +3 jours, +4 cohortes, +40 h)** est vérifiée conforme mais change la
-  date de fin de campagne — décision propriétaire obligatoire, non prise dans cette mission.
-- **S4 (ressources supplémentaires, 28 août maintenu)** n'a pas de solution chiffrée dans cette
-  session.
+**Terminale — minimum de cohortes prouvé :**
 
-## 8. Modèle de données — cohortes (additif, pas encore peuplé)
+| Cohortes dupliquées | Candidats testés | Conforme (0 simultané, 0 attente >60 min) |
+|---|---:|---|
+| 0 (baseline S5, sans dédoublement) | 7 920 | Non — 1 simultané, 4 paires longues, 915 min |
+| 1 (NSI seule, PC seule, ou SVT seule) | 11 520 – 27 072 selon la matière | Non, dans les 3 cas |
+| **2 — {NSI, SVT}, {NSI, PC} ou {PC, SVT}** | 31 104 – 69 120 selon la paire | **Oui, les 3 paires** |
+| 3 (NSI + PC + SVT) | 55 296 | Oui (mais non minimal) |
 
-`ScheduledSlot`/`LevelDossierData` dans `pre_rentree_data.py` restent à une seule cohorte par
-(niveau, matière), fidèle à la grille canonique actuelle. Les champs `cohortId`,
-`alternativeGroupId`, etc. mentionnés par la mission n'ont pas été ajoutés à la grille de
-production dans cette session : aucun scénario ci-dessus n'a été autorisé pour implémentation, donc
-aucune cohorte alternative n'existe réellement à modéliser. Le statut `REQUIRES_ALTERNATIVE_COHORT`
-du moteur d'itinéraire (voir `itinerary.ts`) reste réservé pour le jour où S2/S3 (ou une variante)
-sera explicitement autorisé et où des cohortes alternatives existeront réellement dans
-`data/campaigns/pre-rentree-2026.json`.
+Le minimum prouvé est **2 cohortes supplémentaires** pour la Terminale ; 3 paires atteignent ce
+minimum à égalité. La grille canonique retient **{NSI, SVT}** (une des 3 solutions prouvées
+optimales, pas un choix arbitraire non vérifié) : NSI et SVT gardent leur cohorte primaire au bloc
+C (salles 1 et 3) et ajoutent une cohorte au bloc D (salles 1 et 2) ; Physique-Chimie reste à
+cohorte unique, bloc C salle 2. `salle3BlocksUsed = 1` dans les 3 solutions optimales : la 3e salle
+n'est jamais nécessaire à plus d'un bloc, conformément à la décision propriétaire.
+
+**Première — SVT :** sans cohorte alternative, le meilleur score atteignable est `(0 simultané, 1
+paire longue, 195 min)` — non conforme. Avec 2 cohortes SVT (bloc A et bloc D, fenêtre 1), le score
+optimal est `(0, 0, 0)` — entièrement conforme. La duplication de la Première SVT est donc **prouvée
+nécessaire et suffisante**, pas une précaution.
+
+**13 combinaisons requises, toutes vérifiées `COMPACT` (max 60 min, jamais `SIMULTANEOUS`)** avec
+l'affectation retenue — y compris les 3 combinaisons « Mathématiques complémentaires » qui
+réutilisent le créneau `MATHEMATIQUES` de la spécialité (un écart pédagogique distinct est
+consigné séparément, voir `DEBT-PRE2026-PEDAGOGY-MATHS-COMPLEMENTAIRES` dans
+`residual-debt.fr.json` — jamais maquillé en problème de planning).
+
+**Coût total S5 vs S3 :** fin de campagne maintenue au 28 août (S3 : 31 août, +3 jours), +3
+cohortes / +30 h d'enseignement (S3 : +4 cohortes / +40 h), 0 enseignant supplémentaire, 1 salle
+temporaire (`salle-3`, bloc C uniquement). **S5 domine S3** sur les deux axes que la direction a
+identifiés comme prioritaires (date de fin, volume d'heures supplémentaires) : S3 devient un
+scénario de repli historique, non appliqué.
+
+## 7. Décision propriétaire — historique S1/S3/S4 (S5 tranche le sujet)
+
+Cette section documente l'état de la décision **avant** l'autorisation S5 (§ précédente), conservée
+pour traçabilité :
+
+- **S1 (3e améliorable, permutation gratuite)** — son bénéfice (3e Mathématiques+Français, 195 →
+  15 min) est intégré dans la grille S5 implémentée.
+- **S3 (+3 jours, +4 cohortes, +40 h)** — vérifié conforme mais dominé par S5 sur la date de fin et
+  le coût ; devient un repli historique, non appliqué.
+- **S4 (ressources supplémentaires, 28 août maintenu)** — sans solution chiffrée dans la mission
+  précédente ; S5 est la quantification demandée (3ᵉ salle + week-end, 2 cohortes Terminale + 1
+  cohorte Première).
+
+## 8. Modèle de données — cohortes (additif, implémenté par S5)
+
+`ScheduledSlot` (schema.ts, `pre_rentree_data.py`) porte désormais `cohortId`/`alternativeGroupId`/
+`isPrimary` de façon additive : une entrée sans `cohortId` reste lisible comme cohorte unique (
+Mathématiques, Maths expertes, Physique-Chimie, Français, NSI/SVT hors Terminale/Première SVT).
+17 cohortes opérationnelles existent pour 14 modules pédagogiques uniques (3 matières à 2
+cohortes : Première SVT, Terminale NSI, Terminale SVT) = 85 séances calendrier au total
+(17 × 5) — mais toujours 5 séances / 10 h suivies par un élève pour une matière donnée, jamais 10
+(voir `assignItinerary()` dans `itinerary.ts` / `assign_itinerary()` dans `itinerary.py`, qui
+choisit une seule cohorte par matière et ne les combine jamais). Le statut
+`REQUIRES_ALTERNATIVE_COHORT` du moteur d'itinéraire reste réservé/inatteignable : l'affectation
+automatique choisit déjà la meilleure cohorte, elle n'a jamais besoin de signaler qu'un changement
+serait utile.
