@@ -148,7 +148,7 @@
       "exitCriteria": "E2E, liens, poids, checksums et parcours de contact verts.",
       "status": "RESOLVED",
       "resolvedAt": "2026-07-25",
-      "resolutionNote": "Allowlist de neuf PDF PUBLIC_FINAL, signature et checksums locaux, téléphone et WhatsApp canoniques, formulaire campagne absent.",
+      "resolutionNote": "Allowlist de sept PDF PUBLIC_FINAL, signature et checksums locaux, téléphone et WhatsApp canoniques, formulaire campagne absent ; le dossier d'accueil imprimable reste INTERNAL_REVIEW.",
       "reopenCriteria": "Réouvrir et rollbacker si un contrôle HTTP, MIME, signature, checksum ou CTA échoue après déploiement."
     },
     {

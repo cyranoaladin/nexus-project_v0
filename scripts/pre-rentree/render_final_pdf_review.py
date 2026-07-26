@@ -130,10 +130,10 @@ def render_review(pdf_directory: Path, public_directory: Path) -> dict:
 
     contact_sheet = visual_review_root / "documents-final-contact-sheet.png"
     sheet.save(contact_sheet, format="PNG", optimize=True)
-    manifest = {
+    review_manifest = {
         "schemaVersion": "1.0.0",
         "campaignId": "pre-rentree-2026",
-        "purpose": "REVIEW_ONLY",
+        "purpose": "INTERNAL_REVIEW",
         "pdfCount": len(list(pdf_directory.glob("*.pdf"))),
         "pageCount": len(page_records),
         "documents": document_records,
@@ -148,11 +148,32 @@ def render_review(pdf_directory: Path, public_directory: Path) -> dict:
     }
     manifest_path = visual_review_root / "manifest.json"
     manifest_path.write_text(
-        json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
+        json.dumps(review_manifest, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
+    public_documents = [
+        document for document in document_records
+        if document["publicDownloadCandidate"]
+    ]
+    public_file_names = {
+        document["fileName"] for document in public_documents
+    }
+    public_manifest = {
+        "schemaVersion": "1.0.0",
+        "campaignId": "pre-rentree-2026",
+        "purpose": "PUBLIC_RELEASE_CANDIDATE",
+        "pdfCount": len(public_documents),
+        "internalPdfCount": len(document_records) - len(public_documents),
+        "pageCount": sum(document["pageCount"] for document in public_documents),
+        "documents": document_records,
+        "publicFiles": sorted(public_file_names),
+        "checksums": {
+            document["fileName"]: document["sha256"]
+            for document in public_documents
+        },
+    }
     (pdf_directory / "manifest.json").write_text(
-        json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
+        json.dumps(public_manifest, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
     for document in document_records:
@@ -161,7 +182,7 @@ def render_review(pdf_directory: Path, public_directory: Path) -> dict:
                 pdf_directory / document["fileName"],
                 public_directory / document["fileName"],
             )
-    return manifest
+    return public_manifest
 
 
 def main() -> None:
@@ -171,7 +192,7 @@ def main() -> None:
     args = parser.parse_args()
     manifest = render_review(args.pdf_directory, args.public_directory)
     print(json.dumps({
-        "status": "REVIEW_RENDERED",
+        "status": "PUBLIC_PDFS_RENDERED",
         "pdfCount": manifest["pdfCount"],
         "pageCount": manifest["pageCount"],
     }))

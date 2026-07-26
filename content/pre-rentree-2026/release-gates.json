@@ -120,7 +120,7 @@
       "id": "downloads",
       "status": "VALIDATED",
       "value": true,
-      "resolution": "L'allowlist publique explicite contient uniquement neuf PDF PUBLIC_FINAL contrôlés par présence, taille, signature PDF et checksum ; tout échec HTTP ou checksum post-déploiement impose réouverture et rollback.",
+      "resolution": "L'allowlist publique explicite contient uniquement sept PDF PUBLIC_FINAL contrôlés par présence, taille, signature PDF, MIME, contenu extractible, polices, liens et checksum ; le dossier d'accueil imprimable reste INTERNAL_REVIEW. Tout échec HTTP ou checksum post-déploiement impose réouverture et rollback.",
       "evidence": [
         "assets/campaigns/pre-rentree-2026/documents-final/manifest.json",
         "assets/campaigns/pre-rentree-2026/release-inventory.json",

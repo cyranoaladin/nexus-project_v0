@@ -56,6 +56,34 @@ def test_tariff_pdf_rows_are_derived_from_canonical_pricing():
         assert pack["payment"]["deposit"] + pack["payment"]["solde"] == pack["price_per_student"]
         assert all(f"{value:,}".replace(",", "&#8239;") in html for value in values)
 
+    normalized = html.casefold()
+    assert "même zone tarifaire" not in normalized
+    assert "cours particulier classique du marché" not in normalized
+    assert "avant de réserver" not in normalized
+    assert "avant toute réservation" not in normalized
+    assert (
+        "le tarif correspond à un parcours structuré de cinq séances, en groupe "
+        "réduit, avec programmes, exercices, corrections et supports préparés pour le stage."
+    ) in normalized
+
+
+def test_public_pdf_html_hides_unvalidated_room_numbers_and_uses_availability_ctas():
+    generator = load_generator()
+    planning = generator.make_planning_body()
+    flyer = generator.make_flyer_body()
+    seconde = dossier_html_for_level("SECONDE")
+
+    assert generator.CAMPAIGN["operationalGates"]["roomAssignmentsValidated"] is False
+    for body in (planning, flyer, seconde):
+        assert "Salle 1" not in body
+        assert "Salle 2" not in body
+        assert "Salle 3" not in body
+        assert "pré-inscrire" not in body.casefold()
+        assert "programme et inscription" not in body.casefold()
+    assert "Demander les informations et vérifier les disponibilités" in planning
+    assert "Demander les informations et vérifier les disponibilités" in flyer
+    assert "Demander les informations et vérifier les disponibilités" in seconde
+
 
 def test_legacy_pdf_bodies_scope_r2_snt_module_and_r4_teacher_statut():
     """R2 (décision direction 2026-07-23) a restauré le module informatique de Seconde
