@@ -1,0 +1,33 @@
+{
+  "scenarioId": "S5",
+  "label": "3 salles + week-end, fin maintenue au 28 août",
+  "endDate": "2026-08-28",
+  "rooms": [
+    "salle-1",
+    "salle-2",
+    "salle-3"
+  ],
+  "extraRoom": "salle-3",
+  "extraRoomBlocks": [
+    "C"
+  ],
+  "additionalCohorts": [
+    {
+      "level": "PREMIERE",
+      "subject": "SVT"
+    },
+    {
+      "level": "TERMINALE",
+      "subject": "NSI"
+    },
+    {
+      "level": "TERMINALE",
+      "subject": "SVT"
+    }
+  ],
+  "totalCohorts": 17,
+  "totalSessions": 85,
+  "maxStudentIdleMinutes": 60,
+  "newTeachers": 0,
+  "supersedes": "S3 (fin au 31 août, +4 cohortes, +40h) — repli historique, non appliqué"
+}
