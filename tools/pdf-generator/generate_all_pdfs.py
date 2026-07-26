@@ -38,6 +38,7 @@ LOGO_SLOGAN = str(REPO_ROOT / "public" / "images" / "logo_slogan_nexus_x3.png")
 LOGO_COMPACT = str(REPO_ROOT / "public" / "images" / "logo_slogan_nexus_x3.png")
 _qr = TOOL_DIR / "qr_stage.png"
 QR_CODE = str(_qr) if _qr.exists() else ""
+INTER_FONT_URI = (REPO_ROOT / "app" / "fonts" / "Inter-Variable.woff2").resolve().as_uri()
 
 # Horaires read EXCLUSIVELY from the sealed campaign JSON (D4-final) — never from .md.
 CAMPAIGN = json.loads((REPO_ROOT / "data" / "campaigns" / "pre-rentree-2026.json").read_text(encoding="utf-8"))
@@ -119,6 +120,18 @@ def premium_pack_rows():
 # ─── Shared CSS ───────────────────────────────────────────────────────────────
 
 COMMON_CSS = """
+@font-face {
+    font-family: 'Inter';
+    src: url('__INTER_FONT_URI__') format('woff2');
+    font-weight: 100 900;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Inter';
+    src: url('__INTER_FONT_URI__') format('woff2');
+    font-weight: 100 900;
+    font-style: italic;
+}
 @page {
     size: A4 portrait;
     margin: 18mm 20mm 18mm 20mm;
@@ -269,11 +282,16 @@ table { break-inside: auto; }
     font-size: 9.5pt;
 }
 .check-list li::before {
-    content: "\\2714";
+    content: "";
     position: absolute;
-    left: 0;
+    left: 1px;
+    top: 0.28em;
+    width: 6px;
+    height: 3px;
     color: #C9A227;
-    font-weight: 700;
+    border-left: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(-45deg);
 }
 
 /* Intro block */
@@ -293,7 +311,7 @@ table.programme tbody td:first-child { font-weight: 600; width: 14%; }
 table.programme tbody td:nth-child(2) { width: 26%; }
 table.programme tbody td:nth-child(3) { width: 35%; }
 table.programme tbody td:nth-child(4) { width: 25%; }
-"""
+""".replace("__INTER_FONT_URI__", INTER_FONT_URI)
 
 
 def make_cover(title, subtitle=""):

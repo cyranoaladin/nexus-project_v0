@@ -328,10 +328,15 @@ table.practical td:first-child {{ width: 28%; font-weight: 700; color: {NAVY}; }
     font-size: 9.5pt;
 }}
 .check-list li::before {{
-    content: "\\2714";
+    content: "";
     position: absolute;
-    left: 0;
+    left: 1px;
+    top: 0.28em;
+    width: 6px;
+    height: 3px;
     color: {GOLD_DEEP};
-    font-weight: 700;
+    border-left: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(-45deg);
 }}
 """

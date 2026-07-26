@@ -67,6 +67,11 @@ def _marker(subject_id: str) -> str:
     return SUBJECT_MARKERS.get(subject_id, subject_id[:2])
 
 
+def _pdf_safe_symbols(value: str) -> str:
+    """Use repository-font glyphs only while preserving mathematical meaning."""
+    return value.replace("≤", "&lt;=")
+
+
 def _header(level_label: str) -> str:
     return f"""
     <div class="page-header">
@@ -218,7 +223,7 @@ def planning_page(dossier: LevelDossierData, data: PreRentreeData) -> str:
             parts.append("</ul>")
         if compact_pairs:
             compact_desc = ", ".join(f"{_subject_label(a)} + {_subject_label(b)}" for (a, b), _ in compact_pairs)
-            parts.append(f"<span style='color:#1E5F4B; font-weight:600;'>Combinaisons compactes (≤ {MAX_STUDENT_IDLE_MINUTES} min) : {compact_desc}.</span>")
+            parts.append(f"<span style='color:#1E5F4B; font-weight:600;'>Combinaisons compactes (&lt;= {MAX_STUDENT_IDLE_MINUTES} min) : {compact_desc}.</span>")
         parts.append("</div>")
         body += "".join(parts)
     elif compact_pairs:
@@ -280,7 +285,7 @@ def organisation_page(dossier: LevelDossierData) -> str:
 
 def _session_card(session, accent: str) -> str:
     method_row = (
-        f'<div class="session-row"><span class="k">Méthode</span><span class="v">{session.method}</span></div>'
+        f'<div class="session-row"><span class="k">Méthode</span><span class="v">{_pdf_safe_symbols(session.method)}</span></div>'
         if session.method else ""
     )
     return f"""
@@ -289,10 +294,10 @@ def _session_card(session, accent: str) -> str:
             <span class="session-number" style="color:{accent}">{session.number}</span>
             <span class="session-title">{session.title}</span>
         </div>
-        <div class="session-row"><span class="k">Objectif</span><span class="v">{session.objective}</span></div>
-        <div class="session-row"><span class="k">Notions clés</span><span class="v">{", ".join(session.topics)}</span></div>
+        <div class="session-row"><span class="k">Objectif</span><span class="v">{_pdf_safe_symbols(session.objective)}</span></div>
+        <div class="session-row"><span class="k">Notions clés</span><span class="v">{_pdf_safe_symbols(", ".join(session.topics))}</span></div>
         {method_row}
-        <div class="session-row"><span class="k">Livrable</span><span class="v">{session.deliverable}</span></div>
+        <div class="session-row"><span class="k">Livrable</span><span class="v">{_pdf_safe_symbols(session.deliverable)}</span></div>
     </div>
     """
 

@@ -61,6 +61,31 @@ def test_public_level_pdf_rendering_is_byte_reproducible(tmp_path, monkeypatch):
     assert first == second
 
 
+def test_public_pdf_generators_do_not_depend_on_host_fonts():
+    """Public PDFs must not inherit fonts or glyph bytes from the host.
+
+    GitHub Actions intentionally regenerates the files and requires a clean tree.
+    A system-font fallback would therefore make the served PDF bytes differ
+    between a developer machine and CI.
+    """
+    generator = load_generator()
+    dossiers_module, data_module = load_dossiers_module()
+    import dossier_design
+
+    assert "@font-face" in generator.COMMON_CSS
+    assert "Inter-Variable.woff2" in generator.COMMON_CSS
+    assert "file://" in generator.COMMON_CSS
+    assert "\\2714" not in generator.COMMON_CSS
+    assert "\\2714" not in dossier_design.DESIGN_CSS
+    data = data_module.PreRentreeData()
+    seconde_html = dossiers_module.build_dossier_html(
+        data.level_dossier("SECONDE"),
+        data,
+    )
+    assert "≤" not in seconde_html
+    assert "&lt;=" in seconde_html
+
+
 def test_tariff_pdf_rows_are_derived_from_canonical_pricing():
     generator = load_generator()
     pricing = json.loads(PRICING_PATH.read_text(encoding="utf-8"))
