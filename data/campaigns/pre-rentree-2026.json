@@ -140,46 +140,59 @@
           "teacherRole": "TEACHER_A_MATHS_NSI"
         },
         {
-          "level": "SECONDE",
-          "subject": "FRANCAIS",
+          "level": "PREMIERE",
+          "subject": "SVT",
           "block": "A",
           "room": "salle-2",
-          "teacherRole": "TEACHER_C_FRANCAIS"
-        },
-        {
-          "level": "SECONDE",
-          "subject": "MATHEMATIQUES",
-          "block": "B",
-          "room": "salle-1",
-          "teacherRole": "TEACHER_A_MATHS_NSI"
-        },
-        {
-          "level": "PREMIERE",
-          "subject": "FRANCAIS",
-          "block": "B",
-          "room": "salle-2",
-          "teacherRole": "TEACHER_C_FRANCAIS"
+          "teacherRole": "TEACHER_E_SVT",
+          "cohortId": "premiere-svt-a",
+          "alternativeGroupId": "premiere-svt",
+          "isPrimary": true
         },
         {
           "level": "PREMIERE",
           "subject": "MATHEMATIQUES",
-          "block": "C",
+          "block": "B",
           "room": "salle-1",
           "teacherRole": "TEACHER_A_MATHS_NSI"
         },
         {
           "level": "TROISIEME",
           "subject": "FRANCAIS",
-          "block": "C",
+          "block": "B",
           "room": "salle-2",
           "teacherRole": "TEACHER_C_FRANCAIS"
         },
         {
           "level": "PREMIERE",
           "subject": "NSI",
+          "block": "C",
+          "room": "salle-1",
+          "teacherRole": "TEACHER_A_MATHS_NSI"
+        },
+        {
+          "level": "SECONDE",
+          "subject": "FRANCAIS",
+          "block": "C",
+          "room": "salle-2",
+          "teacherRole": "TEACHER_C_FRANCAIS"
+        },
+        {
+          "level": "SECONDE",
+          "subject": "MATHEMATIQUES",
           "block": "D",
           "room": "salle-1",
           "teacherRole": "TEACHER_A_MATHS_NSI"
+        },
+        {
+          "level": "PREMIERE",
+          "subject": "SVT",
+          "block": "D",
+          "room": "salle-2",
+          "teacherRole": "TEACHER_E_SVT",
+          "cohortId": "premiere-svt-d",
+          "alternativeGroupId": "premiere-svt",
+          "isPrimary": false
         }
       ]
     },
@@ -196,10 +209,10 @@
       "slots": [
         {
           "level": "PREMIERE",
-          "subject": "SVT",
+          "subject": "FRANCAIS",
           "block": "A",
           "room": "salle-2",
-          "teacherRole": "TEACHER_E_SVT"
+          "teacherRole": "TEACHER_C_FRANCAIS"
         },
         {
           "level": "PREMIERE",
@@ -223,21 +236,14 @@
       "slots": [
         {
           "level": "TERMINALE",
-          "subject": "MATHEMATIQUES",
+          "subject": "MATHS_EXPERTES",
           "block": "A",
           "room": "salle-1",
           "teacherRole": "TEACHER_A_MATHS_NSI"
         },
         {
           "level": "TERMINALE",
-          "subject": "PHYSIQUE_CHIMIE",
-          "block": "D",
-          "room": "salle-2",
-          "teacherRole": "TEACHER_D_PHYSIQUE_CHIMIE"
-        },
-        {
-          "level": "TERMINALE",
-          "subject": "MATHS_EXPERTES",
+          "subject": "MATHEMATIQUES",
           "block": "B",
           "room": "salle-1",
           "teacherRole": "TEACHER_A_MATHS_NSI"
@@ -247,14 +253,47 @@
           "subject": "NSI",
           "block": "C",
           "room": "salle-1",
-          "teacherRole": "TEACHER_A_MATHS_NSI"
+          "teacherRole": "TEACHER_A_MATHS_NSI",
+          "cohortId": "terminale-nsi-c",
+          "alternativeGroupId": "terminale-nsi",
+          "isPrimary": true
+        },
+        {
+          "level": "TERMINALE",
+          "subject": "PHYSIQUE_CHIMIE",
+          "block": "C",
+          "room": "salle-2",
+          "teacherRole": "TEACHER_D_PHYSIQUE_CHIMIE"
         },
         {
           "level": "TERMINALE",
           "subject": "SVT",
           "block": "C",
+          "room": "salle-3",
+          "teacherRole": "TEACHER_E_SVT",
+          "cohortId": "terminale-svt-c",
+          "alternativeGroupId": "terminale-svt",
+          "isPrimary": true
+        },
+        {
+          "level": "TERMINALE",
+          "subject": "NSI",
+          "block": "D",
+          "room": "salle-1",
+          "teacherRole": "TEACHER_A_MATHS_NSI",
+          "cohortId": "terminale-nsi-d",
+          "alternativeGroupId": "terminale-nsi",
+          "isPrimary": false
+        },
+        {
+          "level": "TERMINALE",
+          "subject": "SVT",
+          "block": "D",
           "room": "salle-2",
-          "teacherRole": "TEACHER_E_SVT"
+          "teacherRole": "TEACHER_E_SVT",
+          "cohortId": "terminale-svt-d",
+          "alternativeGroupId": "terminale-svt",
+          "isPrimary": false
         }
       ]
     }
@@ -268,6 +307,9 @@
     "salle-2": [
       "FRANCAIS",
       "PHYSIQUE_CHIMIE",
+      "SVT"
+    ],
+    "salle-3": [
       "SVT"
     ]
   },
@@ -413,6 +455,10 @@
           {
             "id": "NSI",
             "label": "NSI"
+          },
+          {
+            "id": "SVT",
+            "label": "SVT"
           }
         ]
       },
