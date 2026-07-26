@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexusreussite.academy/schemas/pre-rentree-2026-dev-tooling-exception.schema.json",
+  "title": "Nexus Réussite temporary development-tooling exception",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "decisionId",
+    "decision",
+    "repository",
+    "pullRequest",
+    "stageProductSha",
+    "ciEvidenceSha",
+    "advisoryId",
+    "severity",
+    "affectedPackage",
+    "affectedVersions",
+    "exactDependencyPaths",
+    "runtimeExposure",
+    "runtimeSbomExposure",
+    "productionAuditResult",
+    "fullAuditResult",
+    "publicInputReachability",
+    "ciInputReachability",
+    "compensatingControls",
+    "ownerName",
+    "securityApproverName",
+    "securityResponsibilityAssumption",
+    "approvedAt",
+    "expiresAt",
+    "monitoringIssue",
+    "upstreamTracking",
+    "automaticRevocationConditions",
+    "residualRiskAcknowledgement",
+    "signatureMethod",
+    "signature"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.1.0" },
+    "decisionId": { "type": "string", "minLength": 1, "maxLength": 160 },
+    "decision": {
+      "const": "APPROVE_TIME_BOUND_DEV_TOOLING_EXCEPTION"
+    },
+    "repository": { "const": "cyranoaladin/nexus-project_v0" },
+    "pullRequest": { "const": 79 },
+    "stageProductSha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "ciEvidenceSha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "advisoryId": { "const": "GHSA-mh99-v99m-4gvg" },
+    "severity": { "const": "HIGH" },
+    "affectedPackage": { "const": "brace-expansion" },
+    "affectedVersions": { "const": "<=5.0.7" },
+    "exactDependencyPaths": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^node_modules/(?:[^/]+/node_modules/)*brace-expansion$"
+      }
+    },
+    "runtimeExposure": { "const": "ABSENT" },
+    "runtimeSbomExposure": { "const": "ABSENT" },
+    "productionAuditResult": { "const": "ZERO_HIGH_CRITICAL" },
+    "fullAuditResult": { "const": "36_HIGH_NO_CRITICAL" },
+    "publicInputReachability": { "const": "NOT_REACHABLE" },
+    "ciInputReachability": {
+      "const": "TRUSTED_REPOSITORY_INPUT_ONLY"
+    },
+    "compensatingControls": {
+      "type": "array",
+      "minItems": 4,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "ownerName": { "type": "string", "minLength": 1, "maxLength": 160 },
+    "securityApproverName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160
+    },
+    "securityResponsibilityAssumption": { "const": true },
+    "approvedAt": { "type": "string", "minLength": 20 },
+    "expiresAt": { "type": "string", "minLength": 20 },
+    "monitoringIssue": {
+      "const": "https://github.com/cyranoaladin/nexus-project_v0/issues/83"
+    },
+    "upstreamTracking": {
+      "type": "array",
+      "minItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^https://"
+      }
+    },
+    "automaticRevocationConditions": {
+      "type": "array",
+      "minItems": 8,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "residualRiskAcknowledgement": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 2000
+    },
+    "signatureMethod": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "signature": { "type": "string", "minLength": 1, "maxLength": 2000 }
+  }
+}
