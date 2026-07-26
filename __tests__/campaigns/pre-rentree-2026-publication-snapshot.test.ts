@@ -178,10 +178,12 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     ))).toBe(true);
   });
 
-  it('expands the canonical schedule to seventy dated sessions', () => {
+  it('expands the canonical schedule to eighty-five dated sessions (17 cohorts x 5)', () => {
     const snapshot = compilePublicationSnapshot({ repoRoot: root, repositoryCommitSha });
 
-    expect(snapshot.schedule.sessions).toHaveLength(70);
+    // 14 unique pedagogical modules, but 3 of them (Première SVT, Terminale NSI,
+    // Terminale SVT) have 2 alternative cohorts each (SCHEDULE-S5) = 17 cohorts.
+    expect(snapshot.schedule.sessions).toHaveLength(85);
     expect(snapshot.schedule.sessions[0]).toMatchObject({
       date: '2026-08-17',
       level: 'TROISIEME',
@@ -196,9 +198,23 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
       date: '2026-08-28',
       level: 'TERMINALE',
       subjectId: 'SVT',
-      blockId: 'C',
+      blockId: 'D',
+      roomLabel: 'Salle 2',
       sessionNumber: 5,
+      cohortId: 'terminale-svt-d',
     });
+    // Every session belonging to a subject with alternative cohorts carries a
+    // cohortId; a subject with a single cohort never does.
+    const svtCohorts = new Set(
+      snapshot.schedule.sessions
+        .filter((session) => session.level === 'TERMINALE' && session.subjectId === 'SVT')
+        .map((session) => session.cohortId),
+    );
+    expect(svtCohorts).toEqual(new Set(['terminale-svt-c', 'terminale-svt-d']));
+    const mathsSessions = snapshot.schedule.sessions.filter(
+      (session) => session.level === 'TERMINALE' && session.subjectId === 'MATHEMATIQUES',
+    );
+    expect(mathsSessions.every((session) => session.cohortId === undefined)).toBe(true);
   });
 
   it('selects the four canonical packs with exact amounts and neutral deposit labels', () => {

@@ -39,7 +39,9 @@ describe('Pré-rentrée 2026 landing DTO', () => {
     expect(dto.publicStatus).toBe('Informations disponibles');
     expect(dto).not.toHaveProperty('status');
     expect(dto.scheduleWindows).toHaveLength(3);
-    expect(dto.scheduleWindows.flatMap((window) => window.slots)).toHaveLength(14);
+    // 14 modules -> 17 slots since SCHEDULE-S5 adds an alternative cohort each
+    // for Première SVT, Terminale NSI and Terminale SVT (see SCHEDULE-S5-DECISION.md).
+    expect(dto.scheduleWindows.flatMap((window) => window.slots)).toHaveLength(17);
     expect(dto.organization.educators).toHaveLength(0);
     expect(dto.organization.rooms).toEqual([
       { label: 'Salle 1', details: 'Mathématiques, NSI et Mathématiques expertes' },

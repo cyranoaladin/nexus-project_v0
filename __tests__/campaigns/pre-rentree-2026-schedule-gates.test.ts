@@ -13,7 +13,7 @@ import pricingData from '@/data/pricing.canonical.json';
 import offersData from '@/content/pre-rentree-2026/offers.json';
 import { PRE_RENTREE_MIN_COHORT_OPENING } from '@/lib/campaigns/pre-rentree-2026/schema';
 
-type Slot = { level: string; subject: string; block: string; room: string; teacherRole: string };
+type Slot = { level: string; subject: string; block: string; room: string; teacherRole: string; cohortId?: string };
 type Window = { windowId: string; windowLabel: string; days: string[]; slots: Slot[] };
 
 type Session = {
@@ -24,6 +24,7 @@ type Session = {
   block: string;
   room: string;
   teacherRole: string;
+  cohortId?: string;
 };
 
 const windows = manifest.schedule as unknown as Window[];
@@ -49,6 +50,7 @@ function expandSessions(): Session[] {
           block: slot.block,
           room: slot.room,
           teacherRole: slot.teacherRole,
+          cohortId: slot.cohortId,
         });
       }
     }
@@ -106,32 +108,31 @@ describe('Pré-rentrée 2026 — grille fenêtres + week-end : gates opérationn
     expect(violations).toEqual([]);
   });
 
-  it('GATE noLevelConflict : une même matière d’un niveau n’est jamais dédoublée sur 2 salles/blocs simultanés', () => {
-    // Distinct des "incompatibilités" (V1.5) : ici on vérifie l'intégrité des données
-    // (pas de double affectation redondante de la MÊME matière), pas l'absence de
-    // matières différentes au même bloc — un niveau peut légitimement avoir 2 matières
-    // différentes au même bloc dans 2 salles différentes (ex. Terminale bloc A/C) :
-    // c'est une incompatibilité de choix pour l'élève, pas une erreur de données.
-    const byLevelSubjectDay = new Map<string, Session[]>();
+  it('GATE noLevelConflict : une même matière d’un niveau n’a jamais 2 séances au même bloc le même jour (les cohortes alternatives sont à des blocs distincts)', () => {
+    // Depuis SCHEDULE-S5 (cohortes alternatives), un (niveau, matière) peut
+    // légitimement avoir 2 séances le même jour — une par cohorte — mais jamais
+    // au MÊME bloc (sinon un élève de cette cohorte serait dédoublé). Distinct
+    // des "incompatibilités" (V1.5) : un niveau peut légitimement avoir 2
+    // matières différentes au même bloc dans 2 salles différentes.
+    const byLevelSubjectDayBlock = new Map<string, Session[]>();
     for (const session of sessions) {
-      const key = `${session.level}__${session.subject}__${session.date}`;
-      const list = byLevelSubjectDay.get(key) ?? [];
+      const key = `${session.level}__${session.subject}__${session.date}__${session.block}`;
+      const list = byLevelSubjectDayBlock.get(key) ?? [];
       list.push(session);
-      byLevelSubjectDay.set(key, list);
+      byLevelSubjectDayBlock.set(key, list);
     }
-    const violations = [...byLevelSubjectDay.entries()].filter(([, list]) => list.length > 1);
+    const violations = [...byLevelSubjectDayBlock.entries()].filter(([, list]) => list.length > 1);
     expect(violations).toEqual([]);
   });
 
-  it('GATE noLevelConflict : après résolution du conflit salle 2/bloc A (24-25-26 août), seul le bloc C reste une incompatibilité Terminale (NSI/SVT) ; PC Tle a été déplacé au bloc D', () => {
-    // Résolution actée (arbitrage utilisateur) : la salle 2 sur 24-25-26 août devait loger
-    // 4 modules simultanés (SVT 1re @A, PC 1re @B, PC Tle, SVT Tle) sur 4 blocs disponibles.
-    // PC Tle a été déplacé du bloc A vers le bloc D (seul bloc salle-2 libre sur toute la
-    // fenêtre 2), ce qui supprime le conflit de salle SANS toucher SVT 1re/PC 1re/SVT Tle.
-    // Conséquence pédagogique : Maths Tle (bloc A) et PC Tle (bloc D) ne sont plus au même
-    // bloc — un même élève de Terminale peut désormais cumuler les deux. Seule
-    // l'incompatibilité NSI/SVT (bloc C) subsiste, exactement comme demandé au brief
-    // ("Tle NSI+SVT incompatibles (bloc C)").
+  it('GATE noLevelConflict : Terminale — SCHEDULE-S5 layout, seule l’incompatibilité NSI/SVT au bloc C subsiste', () => {
+    // Layout S5 (salle-3 exceptionnelle, bloc C, + cohortes NSI/SVT alternatives) :
+    // A = Maths expertes seule ; B = Mathématiques seule ; C = NSI(cohorte C) +
+    // Physique-Chimie + SVT(cohorte C, salle-3) ; D = NSI(cohorte D) + SVT(cohorte D).
+    // Un élève NSI+SVT ne peut choisir que des cohortes qui partagent un bloc
+    // (C+C ou D+D) ou des blocs différents (C+D ou D+C) — au moins une paire de
+    // cohortes reste simultanée par construction (5 matières/cohortes sur 4
+    // blocs, argument des tiroirs prouvé par solveur, voir SCHEDULE-S5-DECISION.md).
     const terminaleByBlockDay = new Map<string, Set<string>>();
     for (const session of sessions.filter((s) => s.level === 'TERMINALE')) {
       const key = `${session.block}__${session.date}`;
@@ -143,14 +144,10 @@ describe('Pré-rentrée 2026 — grille fenêtres + week-end : gates opérationn
       .filter(([key]) => key.startsWith(`${blockId}__`))
       .map(([, subjects]) => subjects);
 
-    // Bloc A : Maths Tle seule (plus de PC Tle) → aucune incompatibilité.
-    expect(subjectsAtBlock('A').every((subjects) => subjects.size === 1 && subjects.has('MATHEMATIQUES'))).toBe(true);
-    // Bloc B : Maths expertes Tle seule → aucune incompatibilité.
-    expect(subjectsAtBlock('B').every((subjects) => subjects.size === 1 && subjects.has('MATHS_EXPERTES'))).toBe(true);
-    // Bloc C : NSI + SVT simultanés → incompatibilité confirmée (demandée au brief).
-    expect(subjectsAtBlock('C').every((subjects) => subjects.has('NSI') && subjects.has('SVT'))).toBe(true);
-    // Bloc D : PC Tle seule (nouvel emplacement) → aucune incompatibilité.
-    expect(subjectsAtBlock('D').every((subjects) => subjects.size === 1 && subjects.has('PHYSIQUE_CHIMIE'))).toBe(true);
+    expect(subjectsAtBlock('A').every((subjects) => subjects.size === 1 && subjects.has('MATHS_EXPERTES'))).toBe(true);
+    expect(subjectsAtBlock('B').every((subjects) => subjects.size === 1 && subjects.has('MATHEMATIQUES'))).toBe(true);
+    expect(subjectsAtBlock('C').every((subjects) => subjects.has('NSI') && subjects.has('PHYSIQUE_CHIMIE') && subjects.has('SVT'))).toBe(true);
+    expect(subjectsAtBlock('D').every((subjects) => subjects.has('NSI') && subjects.has('SVT') && !subjects.has('PHYSIQUE_CHIMIE'))).toBe(true);
   });
 
   it('GATE dailyLoadValid : le rôle A (Maths/NSI) ne dépasse jamais 4 blocs par jour', () => {
@@ -180,30 +177,33 @@ describe('Pré-rentrée 2026 — grille fenêtres + week-end : gates opérationn
 });
 
 describe('Pré-rentrée 2026 — complétude des modules (5 séances, 5 jours consécutifs)', () => {
-  it('chaque module (niveau/matière) a exactement 5 séances', () => {
-    const byModule = new Map<string, Session[]>();
+  it('chaque cohorte (niveau/matière/cohortId) a exactement 5 séances', () => {
+    // Depuis SCHEDULE-S5, une même matière peut avoir 2 cohortes (cohortId
+    // distinct) — chacune doit compter exactement 5 séances, jamais 10 mélangées.
+    const byCohort = new Map<string, Session[]>();
     for (const session of sessions) {
-      const key = `${session.level}/${session.subject}`;
-      const list = byModule.get(key) ?? [];
+      const key = `${session.level}/${session.subject}/${session.cohortId ?? 'primary'}`;
+      const list = byCohort.get(key) ?? [];
       list.push(session);
-      byModule.set(key, list);
+      byCohort.set(key, list);
     }
-    const wrongCount = [...byModule.entries()].filter(([, list]) => list.length !== 5);
+    const wrongCount = [...byCohort.entries()].filter(([, list]) => list.length !== 5);
     expect(wrongCount).toEqual([]);
-    // 14 modules attendus : 7 (fenêtre 1) + 2 (week-end/début F2) + 5 (fenêtre 2).
-    expect(byModule.size).toBe(14);
+    // 14 modules (11 à cohorte unique + 3 à 2 cohortes : Première SVT, Terminale
+    // NSI, Terminale SVT) = 11 + 6 = 17 cohortes opérationnelles au total.
+    expect(byCohort.size).toBe(17);
   });
 
-  it('les 5 séances de chaque module tombent sur 5 jours consécutifs (calendrier)', () => {
-    const byModule = new Map<string, Session[]>();
+  it('les 5 séances de chaque cohorte tombent sur 5 jours consécutifs (calendrier)', () => {
+    const byCohort = new Map<string, Session[]>();
     for (const session of sessions) {
-      const key = `${session.level}/${session.subject}`;
-      const list = byModule.get(key) ?? [];
+      const key = `${session.level}/${session.subject}/${session.cohortId ?? 'primary'}`;
+      const list = byCohort.get(key) ?? [];
       list.push(session);
-      byModule.set(key, list);
+      byCohort.set(key, list);
     }
     const nonConsecutive: string[] = [];
-    for (const [key, list] of byModule) {
+    for (const [key, list] of byCohort) {
       const dates = list.map((s) => new Date(`${s.date}T12:00:00Z`).getTime()).sort((a, b) => a - b);
       for (let i = 1; i < dates.length; i += 1) {
         const diffDays = (dates[i] - dates[i - 1]) / (24 * 60 * 60 * 1000);
@@ -216,8 +216,8 @@ describe('Pré-rentrée 2026 — complétude des modules (5 séances, 5 jours co
     expect(nonConsecutive).toEqual([]);
   });
 
-  it('total des séances calendrier = 70 (14 modules × 5 jours)', () => {
-    expect(sessions.length).toBe(70);
+  it('total des séances calendrier = 85 (17 cohortes × 5 jours)', () => {
+    expect(sessions.length).toBe(85);
   });
 });
 

@@ -3,6 +3,7 @@ import {
   isAcademicProfileComplete,
   type AcademicProfileSelection,
 } from '@/lib/campaigns/pre-rentree-2026/configurator';
+import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
 import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
 
 // SVT is commercialized in Première exactly like NSI/Physique-Chimie (offers.json)
@@ -95,6 +96,25 @@ describe('Pré-rentrée profile × subject compatibility', () => {
     );
   });
 
+  it.each([
+    [['PHYSIQUE_CHIMIE', 'SVT']],
+    [['NSI', 'PHYSIQUE_CHIMIE']],
+    [['NSI', 'SVT']],
+  ] as Array<[string[]]>)(
+    'TERMINALE Maths complémentaires + Mathématiques + %p requires pedagogical review (module content targets the spécialité EDS track, not complémentaires)',
+    (retained) => {
+      const profile: AcademicProfileSelection = { retainedSpecialties: retained, mathsOption: 'MATHS_COMPLEMENTAIRES' };
+      const result = classifyProfileSubjectCompatibility('TERMINALE', profile, ['MATHEMATIQUES', ...retained]);
+      expect(result.status).toBe('REQUIRES_PEDAGOGICAL_REVIEW');
+    },
+  );
+
+  it('TERMINALE Maths complémentaires without selecting Mathématiques stays compatible (no mismatched content shown)', () => {
+    const profile: AcademicProfileSelection = { retainedSpecialties: ['NSI', 'PHYSIQUE_CHIMIE'], mathsOption: 'MATHS_COMPLEMENTAIRES' };
+    const result = classifyProfileSubjectCompatibility('TERMINALE', profile, ['NSI', 'PHYSIQUE_CHIMIE']);
+    expect(result.status).not.toBe('REQUIRES_PEDAGOGICAL_REVIEW');
+  });
+
   it('requires the complete declared profile before subject selection', () => {
     expect(isAcademicProfileComplete('SECONDE', {})).toBe(true);
     expect(isAcademicProfileComplete('PREMIERE', {
@@ -160,5 +180,22 @@ describe('Pré-rentrée profile × subject compatibility', () => {
     // (Terminale: 11 retained-specialty combos × 3 mathsOption) = 98 profiles,
     // × 31 subject combinations (2^5 - 1 for the 5 real subjects) = 3038.
     expect(cases).toBe(3038);
+  });
+
+  it('keeps the Terminale retained-specialty UI options in sync with what the compatibility check actually gates', () => {
+    // Regression for the exact gap found in S4/S5 audit: the code checked
+    // retained.includes('SVT') but the campaign JSON's selectable options list
+    // never offered SVT as a checkbox, so a real user could never produce a
+    // profile the code claimed to support. Every subject the check gates via
+    // retainedSpecialties (NSI, PHYSIQUE_CHIMIE, SVT — not MATHEMATIQUES, which
+    // uses the separate mathsOption field) must be a selectable option.
+    const { academicProfiles } = getPreRentreeLandingDTO();
+    const optionIds = new Set(
+      academicProfiles.TERMINALE.retainedSpecialties.options.map((option: { id: string }) => option.id),
+    );
+    const gatedByRetainedSpecialties = ['NSI', 'PHYSIQUE_CHIMIE', 'SVT'];
+    for (const subject of gatedByRetainedSpecialties) {
+      expect(optionIds.has(subject)).toBe(true);
+    }
   });
 });

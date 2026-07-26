@@ -106,16 +106,20 @@ describe('Pré-rentrée landing sections', () => {
     expect(within(windowOne).getAllByRole('row')).toHaveLength(5);
     expect(within(windowOne).getByRole('columnheader', { name: 'Salle 1' })).toBeInTheDocument();
     expect(within(windowOne).getByRole('columnheader', { name: 'Salle 2' })).toBeInTheDocument();
-    // Bloc D / salle 2 est libre en fenêtre 1 (seul le NSI Première occupe le bloc D, en salle 1).
-    expect(within(windowOne).queryAllByText('Libre')).toHaveLength(1);
-    expect(within(windowOne).getByText('Français — préparation à l’EAF')).toBeInTheDocument();
+    expect(within(windowOne).queryByRole('columnheader', { name: 'Salle 3' })).not.toBeInTheDocument();
+    // Fenêtre 1 (S5) est entièrement occupée sur ses 2 salles : 4 blocs x 2 salles = 8 créneaux, 0 libre.
+    expect(within(windowOne).queryAllByText('Libre')).toHaveLength(0);
+    // Le Français Première (préparation à l'EAF) est désormais dans la fenêtre week-end, plus en fenêtre 1.
+    expect(within(windowOne).queryByText('Français — préparation à l’EAF')).not.toBeInTheDocument();
+    expect(within(windowOne).getAllByText('SVT').length).toBeGreaterThan(0);
 
     await user.click(screen.getByRole('tab', { name: 'Fenêtre 2 — 24 au 28 août (Terminale)' }));
     const windowTwo = screen.getByRole('table', { name: 'Emploi du temps — Fenêtre 2 — 24 au 28 août (Terminale)' });
     expect(within(windowTwo).getAllByRole('row')).toHaveLength(5);
-    // Salle 1/bloc D et salle 2/blocs A,B sont libres (PC Tle a été déplacé au bloc D salle 2
-    // pour ne pas entrer en conflit avec la SVT/PC Première de la fenêtre week-end).
-    expect(within(windowTwo).queryAllByText('Libre')).toHaveLength(3);
+    expect(within(windowTwo).getByRole('columnheader', { name: 'Salle 3' })).toBeInTheDocument();
+    // Bloc A/B n'occupent que la salle 1 (Maths expertes, Maths) ; salle 2 et salle 3 y sont libres.
+    // Bloc C occupe les 3 salles (NSI, Physique-Chimie, SVT) ; bloc D occupe salle 1 et 2 (NSI, SVT), salle 3 libre.
+    expect(within(windowTwo).queryAllByText('Libre')).toHaveLength(5);
     expect(within(windowTwo).getByText('Mathématiques expertes')).toBeInTheDocument();
     expect(within(windowTwo).getByText('Physique-Chimie')).toBeInTheDocument();
     expect(within(windowTwo).getAllByText('SVT').length).toBeGreaterThan(0);

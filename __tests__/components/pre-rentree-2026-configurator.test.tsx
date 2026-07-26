@@ -68,7 +68,10 @@ describe('Pré-rentrée stage configurator', () => {
     expect(screen.getByText(/validation du groupe par l'équipe Nexus/i)).toBeInTheDocument();
 
     expect(screen.getByRole('link', { name: /Demander ce parcours sur WhatsApp/i })).toHaveAttribute('href', expect.stringContaining('wa.me'));
-    expect(screen.getByText('Du lundi 17 au vendredi 21 août · 14:15–16:15')).toBeInTheDocument();
+    // Mathématiques (fenêtre 1, bloc B) and Français — préparation à l'EAF (fenêtre
+    // semaine week-end, bloc A) are on different windows since the S5 restructure.
+    expect(screen.getByText('Du lundi 17 au vendredi 21 août · 11:15–13:15')).toBeInTheDocument();
+    expect(screen.getByText('Du samedi 22 au mercredi 26 août · 09:00–11:00')).toBeInTheDocument();
     expect(screen.getByText('(nouvel onglet)')).toHaveClass('sr-only');
   });
 

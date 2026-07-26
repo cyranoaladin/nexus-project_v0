@@ -88,7 +88,7 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
     expect(screen.getByText('20 h')).toBeInTheDocument();
   });
 
-  it('conflit détecté : NSI et SVT en Terminale (bloc C) affichent un message clair et non bloquant', async () => {
+  it('SCHEDULE-S5 : NSI + SVT en Terminale sont désormais compacts (cohortes alternatives, plus de simultanéité forcée)', async () => {
     const user = userEvent.setup();
     renderSelector();
 
@@ -96,18 +96,37 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
     await user.click(screen.getByRole('checkbox', { name: 'NSI' }));
     await user.click(screen.getByRole('checkbox', { name: 'SVT' }));
 
+    // L'assignation choisit la cohorte NSI/SVT qui rend le parcours compact —
+    // ce n'est plus un conflit (voir SCHEDULE-S5-DECISION.md).
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByText(/Parcours compact/i)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Pré-inscrire/i })).not.toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('conflit détecté : NSI + Physique-Chimie + SVT ensemble en Terminale (3 matières, 2 blocs seulement disponibles) reste simultané et non bloquant', async () => {
+    // Les 3 matières scientifiques ne peuvent pas toutes être compactes ensemble :
+    // NSI et SVT n'ont que 2 blocs disponibles (C, D) et Physique-Chimie est fixée
+    // au bloc C — argument des tiroirs prouvé par solveur (SCHEDULE-S5-DECISION.md).
+    // Un parcours réel ne retient de toute façon jamais les 3 (max 2 spécialités
+    // conservées) ; ce test couvre la branche SIMULTANEOUS du moteur d'affectation.
+    const user = userEvent.setup();
+    renderSelector();
+
+    await user.selectOptions(screen.getByLabelText('Classe de rentrée'), 'TERMINALE');
+    await user.click(screen.getByRole('checkbox', { name: 'NSI' }));
+    await user.click(screen.getByRole('checkbox', { name: 'Physique-Chimie' }));
+    await user.click(screen.getByRole('checkbox', { name: 'SVT' }));
+
     const alert = screen.getByRole('alert');
     expect(within(alert).getByText(/même créneau/i)).toBeInTheDocument();
-    expect(within(alert).getByText('NSI')).toBeInTheDocument();
-    expect(within(alert).getByText('SVT')).toBeInTheDocument();
-    // Le planning reste affiché (non bloquant) : les deux matières sont toujours cochées.
+    // Le planning reste affiché (non bloquant) : les 3 matières restent cochées.
     expect(screen.getByRole('checkbox', { name: 'NSI' })).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: 'Physique-Chimie' })).toBeChecked();
     expect(screen.getByRole('checkbox', { name: 'SVT' })).toBeChecked();
-    // Un itinéraire SIMULTANEOUS (physiquement impossible) désactive le CTA — jamais présenté comme confirmé.
     expect(screen.getByRole('link', { name: /Pré-inscrire/i })).toHaveAttribute('aria-disabled', 'true');
   });
 
-  it('attente longue (Terminale Mathématiques + Physique-Chimie, 330 min) : avertit sans bloquer le CTA', async () => {
+  it('SCHEDULE-S5 : Mathématiques + Physique-Chimie en Terminale sont désormais compacts (60 min, était 330 min avant S5)', async () => {
     const user = userEvent.setup();
     renderSelector();
 
@@ -115,11 +134,42 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
     await user.click(screen.getByRole('checkbox', { name: 'Mathématiques' }));
     await user.click(screen.getByRole('checkbox', { name: 'Physique-Chimie' }));
 
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByText(/Parcours compact.*60 min/i)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Pré-inscrire/i })).not.toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('attente longue : avertit sans bloquer le CTA (données synthétiques — plus aucun cas réel ne dépasse 60 min après S5)', async () => {
+    // Après SCHEDULE-S5, aucune sélection réelle ne reste LONG_IDLE (voir les 2
+    // tests ci-dessus) — cette branche du composant reste testée avec un planning
+    // synthétique pour ne jamais devenir du code mort non couvert.
+    const user = userEvent.setup();
+    const syntheticSchedule = dto.schedule.map((slot) =>
+      slot.level === 'TERMINALE' && slot.subject === 'MATHEMATIQUES'
+        ? { ...slot, block: 'A', startTime: '09:00', endTime: '11:00' }
+        : slot.level === 'TERMINALE' && slot.subject === 'PHYSIQUE_CHIMIE'
+          ? { ...slot, block: 'D', startTime: '16:30', endTime: '18:30' }
+          : slot,
+    );
+    render(
+      <StagePlanningSelector
+        levels={dto.levels}
+        subjects={dto.subjects}
+        schedule={syntheticSchedule}
+        offerOptions={dto.offerOptions}
+        incompatibilities={dto.subjectIncompatibilities}
+        capacityByOffer={dto.capacityByOffer}
+        planningPdfHref="/documents/pre-rentree-2026/planning.pdf"
+      />,
+    );
+
+    await user.selectOptions(screen.getByLabelText('Classe de rentrée'), 'TERMINALE');
+    await user.click(screen.getByRole('checkbox', { name: 'Mathématiques' }));
+    await user.click(screen.getByRole('checkbox', { name: 'Physique-Chimie' }));
+
     const alert = screen.getByRole('alert');
     expect(within(alert).getByText(/330 minutes/)).toBeInTheDocument();
-    // Jamais présenté comme "compatible" : pas de badge "Parcours compact".
     expect(screen.queryByText(/Parcours compact/i)).not.toBeInTheDocument();
-    // Non bloquant : le CTA reste actif pour ce cas non simultané (juste inconfortable).
     expect(screen.getByRole('link', { name: /Pré-inscrire/i })).not.toHaveAttribute('aria-disabled', 'true');
   });
 
