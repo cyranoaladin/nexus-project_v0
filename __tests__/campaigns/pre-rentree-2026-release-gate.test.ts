@@ -66,14 +66,16 @@ describe('Pré-rentrée 2026 single public release gate', () => {
     expect(isPreRentreeProtectedPublicPath('/api/stages')).toBe(false);
   });
 
-  it('filters the campaign from public stage-list API results while closed', () => {
+  it('filters the campaign from public stage-list results exactly while closed', () => {
     const stages = [
       { slug: 'pre-rentree-2026', title: 'Pré-rentrée' },
       { slug: 'toussaint-2026', title: 'Toussaint' },
     ];
-    expect(filterPreRentreeFromPublicStages(stages)).toEqual([
-      { slug: 'toussaint-2026', title: 'Toussaint' },
-    ]);
+    expect(filterPreRentreeFromPublicStages(stages)).toEqual(
+      getPreRentreeReleaseGate().isPublicReady
+        ? stages
+        : [{ slug: 'toussaint-2026', title: 'Toussaint' }],
+    );
   });
 
   it('wires middleware, metadata, SEO and public APIs to the gate', () => {
@@ -98,5 +100,15 @@ describe('Pré-rentrée 2026 single public release gate', () => {
     );
     expect(route).toContain('canAcceptPreRentreeCampaignSubmission');
     expect(route).not.toMatch(/stageSlug === 'pre-rentree-2026' && !getPreRentreeReleaseGate\(\)\.isPublicReady/);
+  });
+
+  it('keeps the generic campaign registration page unavailable in informational scope', () => {
+    const page = readFileSync(
+      join(process.cwd(), 'app/stages/[stageSlug]/inscription/page.tsx'),
+      'utf8',
+    );
+    expect(page).toContain('canAcceptPreRentreeCampaignSubmission');
+    expect(page).toMatch(/stageSlug === 'pre-rentree-2026'/);
+    expect(page).toContain('notFound()');
   });
 });

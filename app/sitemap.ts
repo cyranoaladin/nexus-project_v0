@@ -154,7 +154,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       select: { slug: true, updatedAt: true },
     });
     stageEntries = stages.flatMap((stage) => {
-      if (stage.slug === 'pre-rentree-2026' && !preRentree?.publication.indexable) return [];
+      // The canonical campaign route is already emitted above when public.
+      // Its informational scope never exposes the generic registration page.
+      if (stage.slug === 'pre-rentree-2026') return [];
       return [
       {
         url: `${BASE_URL}/stages/${stage.slug}`,
