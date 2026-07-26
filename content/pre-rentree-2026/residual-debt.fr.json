@@ -1,8 +1,8 @@
 {
   "schemaVersion": "1.0.0",
   "campaignId": "pre-rentree-2026",
-  "assessedAt": "2026-07-23",
-  "verdict": "READY_FOR_OWNER_GO",
+  "assessedAt": "2026-07-26",
+  "verdict": "PUBLIC_READY",
   "rule": "Tout P0 restant bloque PUBLIC_READY ; un feu vert technique ne vaut pas GO commercial.",
   "items": [
     {

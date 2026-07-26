@@ -11,8 +11,8 @@
     "repositoryCommitShaRole": "BUILD_INPUT_NOT_FINAL_RELEASE_BINDING",
     "finalReleaseBinding": "ANNOTATED_GO_TAG_AND_GITHUB_PR_COMMENT"
   },
-  "releaseStatus": "READY_FOR_OWNER_GO",
-  "verdict": "READY_FOR_OWNER_GO",
+  "releaseStatus": "PUBLIC_READY",
+  "verdict": "PUBLIC_READY",
   "releaseMetrics": {
     "pedagogicalModuleCount": 14,
     "pedagogicalSessionTemplateCount": 70,
@@ -916,7 +916,7 @@
     }
   ],
   "githubChecks": {
-    "statusAtBuild": "PENDING_REMOTE_VALIDATION",
+    "statusAtBuild": "FINAL_SHA_PENDING_REMOTE_VALIDATION",
     "authoritativeBinding": "FINAL_PR_STATUS_CHECK_ROLLUP_AND_GO_COMMENT"
   },
   "summary": {

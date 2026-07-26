@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
   "campaignId": "pre-rentree-2026",
-  "releaseStatus": "READY_FOR_OWNER_GO",
+  "releaseStatus": "PUBLIC_READY",
   "requiredPublicStatus": "PUBLIC_READY",
   "assessedAt": "2026-07-26",
   "gates": [
@@ -160,15 +160,15 @@
     },
     {
       "id": "publication_authorization",
-      "status": "OPEN",
-      "value": false,
-      "resolution": "En attente du commit atomique final qui enregistre le GO propriétaire, son horodatage Africa/Tunis et la liaison immuable au SHA.",
+      "status": "VALIDATED",
+      "value": true,
+      "resolution": "GO propriétaire conditionnel enregistré le 2026-07-26 à 21:41:15 Africa/Tunis ; la liaison au SHA exact est portée par le binding privé, le tag annoté et le commentaire de traçabilité de la PR #79.",
       "evidence": [
         "content/pre-rentree-2026/publication-decisions.owner.json#/ownerDecisionsComplete",
         "docs/campaigns/pre-rentree-2026/OWNER-REVIEW-CHECKLIST.md"
       ],
       "owner": "Propriétaire Nexus Réussite",
-      "validatedAt": null
+      "validatedAt": "2026-07-26"
     }
   ]
 }
