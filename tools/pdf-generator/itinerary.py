@@ -131,6 +131,90 @@ def compute_itinerary(level: str, subjects: Sequence[str], all_sessions: Sequenc
     )
 
 
+@dataclass(frozen=True)
+class AssignmentResult:
+    level: str
+    subjects: tuple
+    cohort_by_subject: dict  # subject -> chosen cohort_id (None when single/primary cohort)
+    sessions_by_subject: dict  # subject -> tuple[ScheduledSlot, ...] (always the 5 sessions of the chosen cohort)
+    itinerary: ItineraryReport
+
+
+def _cohort_groups(subject: str, sessions: Sequence[ScheduledSlot]) -> list[dict]:
+    by_subject = [s for s in sessions if s.subject == subject]
+    groups: dict[Optional[str], list[ScheduledSlot]] = {}
+    for session in by_subject:
+        groups.setdefault(session.cohort_id, []).append(session)
+    return [
+        {
+            "cohort_id": cohort_id,
+            "is_primary": sess[0].is_primary if sess[0].is_primary is not None else True,
+            "sessions": sess,
+        }
+        for cohort_id, sess in groups.items()
+    ]
+
+
+def assign_itinerary(level: str, subjects: Sequence[str], all_sessions: Sequence[ScheduledSlot]) -> AssignmentResult:
+    """Python mirror of assignItinerary() in itinerary.ts — picks, for every
+    selected subject that has more than one cohort, the single cohort that
+    minimizes (in order) simultaneity, long idle time, total idle time, then
+    prefers primary cohorts. Never combines two cohorts of the same subject
+    into one itinerary: the caller always gets exactly 5 sessions per subject.
+    """
+    subjects = tuple(subjects)
+    level_sessions = [s for s in all_sessions if s.level == level]
+    options_per_subject = [_cohort_groups(subject, level_sessions) for subject in subjects]
+
+    for i, options in enumerate(options_per_subject):
+        if not options:
+            raise ValueError(f"Missing campaign schedule for {level}/{subjects[i]}")
+
+    def rank(report: ItineraryReport, penalty: int) -> tuple:
+        return (
+            1 if report.status == "SIMULTANEOUS" else 0,
+            1 if report.status == "LONG_IDLE" else 0,
+            report.max_idle_minutes,
+            penalty,
+        )
+
+    best_report: Optional[ItineraryReport] = None
+    best_choice: Optional[list[dict]] = None
+    best_rank: Optional[tuple] = None
+
+    total_combinations = 1
+    for options in options_per_subject:
+        total_combinations *= len(options)
+
+    for combo in range(total_combinations):
+        remainder = combo
+        choice = []
+        for options in options_per_subject:
+            idx = remainder % len(options)
+            remainder //= len(options)
+            choice.append(options[idx])
+        chosen_sessions = [s for c in choice for s in c["sessions"]]
+        report = compute_itinerary(level, subjects, chosen_sessions)
+        penalty = sum(1 for c in choice if not c["is_primary"])
+        candidate_rank = rank(report, penalty)
+        if best_rank is None or candidate_rank < best_rank:
+            best_report, best_choice, best_rank = report, choice, candidate_rank
+
+    cohort_by_subject = {}
+    sessions_by_subject = {}
+    for subject, chosen in zip(subjects, best_choice):
+        cohort_by_subject[subject] = chosen["cohort_id"]
+        sessions_by_subject[subject] = tuple(chosen["sessions"])
+
+    return AssignmentResult(
+        level=level,
+        subjects=subjects,
+        cohort_by_subject=cohort_by_subject,
+        sessions_by_subject=sessions_by_subject,
+        itinerary=best_report,
+    )
+
+
 def enumerate_selections(subjects: Sequence[str], max_size: int) -> list[tuple]:
     """All non-empty subsets of `subjects` up to `max_size`, smallest first."""
     subjects = tuple(subjects)
