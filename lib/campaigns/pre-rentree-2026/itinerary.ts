@@ -42,6 +42,9 @@ export interface ItinerarySession {
   startTime: string;
   endTime: string;
   room?: string;
+  windowId?: string;
+  cohortId?: string;
+  isPrimary?: boolean;
 }
 
 export interface DayItinerary {
@@ -184,6 +187,109 @@ export function enumerateSelections(subjects: readonly string[], maxSize: number
     if (selection.length <= maxSize) results.push(selection);
   }
   return results.sort((a, b) => a.length - b.length || a.join(',').localeCompare(b.join(',')));
+}
+
+export interface AssignmentResult {
+  level: EntryLevelCode;
+  subjects: readonly string[];
+  /** subject -> chosen cohortId (undefined when the subject has a single/primary cohort) */
+  cohortBySubject: Record<string, string | undefined>;
+  /** subject -> that cohort's 5 sessions */
+  sessionsBySubject: Record<string, ItinerarySession[]>;
+  itinerary: ItineraryReport;
+}
+
+function cohortGroups(subject: string, sessions: readonly ItinerarySession[]): Array<{ cohortId: string | undefined; isPrimary: boolean; sessions: ItinerarySession[] }> {
+  const bySubject = sessions.filter((s) => s.subject === subject);
+  const groups = new Map<string | undefined, ItinerarySession[]>();
+  for (const session of bySubject) {
+    const list = groups.get(session.cohortId) ?? [];
+    list.push(session);
+    groups.set(session.cohortId, list);
+  }
+  return [...groups.entries()].map(([cohortId, sess]) => ({
+    cohortId,
+    isPrimary: sess[0]?.isPrimary ?? true,
+    sessions: sess,
+  }));
+}
+
+/**
+ * The itinerary ASSIGNMENT engine (as opposed to computeItinerary, which
+ * scores one already-fixed set of sessions): given a level and the subjects a
+ * family actually selected, and every session available for this level
+ * (including every alternative cohort), tries every combination of cohort
+ * choices and returns the one minimizing, in order: simultaneity, long idle
+ * time, total idle time, then a determinstic preference for primary cohorts
+ * and cohort id order (never a random/unstable pick).
+ *
+ * A subject with only one cohort (no cohortId, or a single cohortId group)
+ * has nothing to choose — this degrades to exactly the old single-cohort
+ * behaviour. Never selects more than one cohort per subject: the caller
+ * always gets exactly 5 sessions per selected subject, never 10.
+ */
+export function assignItinerary(
+  level: EntryLevelCode,
+  subjects: readonly string[],
+  allSessions: readonly ItinerarySession[],
+): AssignmentResult {
+  const levelSessions = allSessions.filter((s) => s.level === level);
+  const optionsPerSubject = subjects.map((subject) => cohortGroups(subject, levelSessions));
+
+  optionsPerSubject.forEach((options, i) => {
+    if (options.length === 0) {
+      throw new Error(`Missing campaign schedule for ${level}/${subjects[i]}`);
+    }
+  });
+
+  const rank = (r: ItineraryReport, penalty: number): [number, number, number, number] => [
+    r.status === 'SIMULTANEOUS' ? 1 : 0,
+    r.status === 'LONG_IDLE' ? 1 : 0,
+    r.maxIdleMinutes,
+    penalty,
+  ];
+  const lexLess = (a: readonly number[], b: readonly number[]): boolean => {
+    for (let i = 0; i < a.length; i += 1) {
+      if (a[i]! !== b[i]!) return a[i]! < b[i]!;
+    }
+    return false;
+  };
+
+  let best: { report: ItineraryReport; choice: typeof optionsPerSubject[number][number][]; rank: [number, number, number, number] } | null = null;
+
+  const totalCombinations = optionsPerSubject.reduce((acc, opts) => acc * opts.length, 1);
+  for (let combo = 0; combo < totalCombinations; combo += 1) {
+    let remainder = combo;
+    const choice: typeof optionsPerSubject[number][number][] = [];
+    for (let i = 0; i < optionsPerSubject.length; i += 1) {
+      const options = optionsPerSubject[i]!;
+      const idx = remainder % options.length;
+      remainder = Math.floor(remainder / options.length);
+      choice.push(options[idx]!);
+    }
+    const chosenSessions = choice.flatMap((c) => c.sessions);
+    const report = computeItinerary(level, subjects, chosenSessions);
+    const penalty = choice.filter((c) => !c.isPrimary).length;
+    const candidateRank = rank(report, penalty);
+    if (!best || lexLess(candidateRank, best.rank)) {
+      best = { report, choice, rank: candidateRank };
+    }
+  }
+
+  const cohortBySubject: Record<string, string | undefined> = {};
+  const sessionsBySubject: Record<string, ItinerarySession[]> = {};
+  subjects.forEach((subject, i) => {
+    cohortBySubject[subject] = best!.choice[i]!.cohortId;
+    sessionsBySubject[subject] = best!.choice[i]!.sessions;
+  });
+
+  return {
+    level,
+    subjects,
+    cohortBySubject,
+    sessionsBySubject,
+    itinerary: best!.report,
+  };
 }
 
 export function itineraryStatusLabel(status: ItineraryStatus): string {
