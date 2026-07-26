@@ -109,7 +109,7 @@ describe('Pré-rentrée 2026 director contract', () => {
     ))).toBe(true);
   });
 
-  it('keeps campaign governance documentation aligned with sixteen modules and eighty sessions', () => {
+  it('keeps active governance documentation aligned with the 14/70/17/85 taxonomy', () => {
     const documentation = [
       'docs/campaigns/pre-rentree-2026/README.md',
       'docs/campaigns/pre-rentree-2026/SOURCE-OF-TRUTH-MAP.md',
@@ -119,10 +119,13 @@ describe('Pré-rentrée 2026 director contract', () => {
       'docs/campaigns/pre-rentree-2026/STAFFING-MATRIX.md',
     ].map((path) => readFileSync(join(root, path), 'utf8')).join('\n');
 
-    expect(documentation).toMatch(/16 modules|seize modules/i);
-    expect(documentation).toMatch(/80 séances|quatre-vingts séances/i);
-    expect(documentation).not.toMatch(/12 modules|douze modules|60 séances|soixante séances/i);
-    expect(documentation).toContain('OWNER_REVIEW=PENDING');
+    expect(documentation).toMatch(/14 modules|quatorze modules/i);
+    expect(documentation).toMatch(/70 séances|soixante-dix séances/i);
+    expect(documentation).toMatch(/17 cohortes|dix-sept cohortes/i);
+    expect(documentation).toMatch(/85 occurrences|quatre-vingt-cinq occurrences/i);
+    expect(documentation).not.toMatch(
+      /12 modules|douze modules|16 modules|seize modules|60 séances|soixante séances|80 séances|quatre-vingts séances/i,
+    );
     expect(documentation).toContain('TEACHER_ASSIGNMENTS_VALIDATED=false');
   });
 });

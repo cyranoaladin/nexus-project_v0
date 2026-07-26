@@ -8,6 +8,9 @@ import {
   formatWeekRange,
 } from '@/lib/campaigns/pre-rentree-2026/presentation';
 import {
+  buildStageAvailabilityMessage,
+} from '@/lib/campaigns/pre-rentree-2026/availability-message';
+import {
   assignItinerary,
   MAX_STUDENT_IDLE_MINUTES,
   type ItineraryStatus,
@@ -158,33 +161,14 @@ export function StagePlanningSelector({
   };
   const availabilityMessage = useMemo(() => {
     if (!level || !assignment || !pack || !itineraryReport) return null;
-    const levelLabel = levels.find((candidate) => candidate.id === level)?.label ?? level;
-    const subjectLines = selectedSubjects.map((subjectId) => {
-      const subject = subjects.find((candidate) => candidate.id === subjectId);
-      const label = subject ? subjectLabelForLevel(subject, level) : subjectId;
-      const sessions = assignment.sessionsBySubject[subjectId] ?? [];
-      const first = sessions[0];
-      const subjectDates = [...new Set(sessions.map((session) => session.date))].sort();
-      return [
-        `- ${label}`,
-        `  Dates : ${subjectDates.map((date) => formatDetailedDates([date])).join(', ')}`,
-        `  Horaire : ${first ? `${first.startTime}–${first.endTime}` : 'à confirmer'}`,
-        `  Cohorte proposée : ${first ? `créneau ${first.block}` : 'à confirmer'}`,
-      ].join('\n');
+    return buildStageAvailabilityMessage({
+      level,
+      levels,
+      subjects,
+      selectedSubjectIds: selectedSubjects,
+      assignment,
+      totalHours: pack.totalHours,
     });
-    return [
-      'Bonjour Nexus Réussite,',
-      'Je souhaite demander les informations et vérifier les disponibilités pour la pré-rentrée 2026.',
-      '',
-      `Niveau : ${levelLabel}`,
-      'Profil : à confirmer lors de l’échange',
-      `Matières (${selectedSubjects.length}) :`,
-      ...subjectLines,
-      `Volume : ${pack.totalHours} heures`,
-      `Attente maximale : ${itineraryReport.maxIdleMinutes} minutes`,
-      '',
-      'Itinéraire proposé sous réserve de places disponibles.',
-    ].join('\n');
   }, [assignment, itineraryReport, level, levels, pack, selectedSubjects, subjects]);
   const availabilityHref = availabilityMessage
     ? buildWhatsAppUrl(availabilityMessage, { exactMessage: true })

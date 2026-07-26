@@ -1,4 +1,4 @@
-# Blocage Dependency Integrity — Pré-rentrée 2026
+# Qualification Dependency Integrity — Pré-rentrée 2026
 
 ## Date
 
@@ -13,9 +13,10 @@ npm audit --omit=dev --audit-level=high
 npm audit --audit-level=high
 ```
 
-L'analyse a été menée depuis un clone de release isolé, avec Node.js
-`v22.21.0`, npm `10.9.8` et le registre npm public. Aucun override, patch de
-package tiers, abaissement de seuil ou waiver n'a été appliqué au dépôt.
+L'analyse a été rejouée depuis un clone de release isolé, avec Node.js
+`v22.21.0`, npm `10.9.8` et le registre npm public. Aucun override
+incompatible, fork, patch de package tiers ou abaissement de seuil n'est
+appliqué.
 
 ## Résultats sur la branche
 
@@ -26,14 +27,12 @@ package tiers, abaissement de seuil ou waiver n'a été appliqué au dépôt.
 
 Les lignées vulnérables sont transitives :
 
-- ESLint 8 et ses plugins utilisent `minimatch@3` /
+- ESLint 8 utilise `minimatch@3` /
   `brace-expansion@1.1.16` ;
-- Jest 29 utilise `glob@7` / `minimatch@3` /
-  `brace-expansion@1.1.16` ;
-- CycloneDX 6 utilise `glob@10` / `minimatch@9` /
+- CycloneDX 6 utilise `node-gyp` / `cacache` / `glob@10` / `minimatch@9` /
   `brace-expansion@2.1.2` ;
-- TypeScript-ESLint utilise `minimatch@10.2.5` /
-  `brace-expansion@5.0.7`.
+- TypeScript-ESLint utilise désormais `minimatch@10.2.5` /
+  `brace-expansion@5.0.8`, version corrigée.
 
 ## Expérience de mise à niveau officielle
 
@@ -77,25 +76,33 @@ compatible avec la toolchain du dépôt :
   `https://eslint.org/docs/latest/use/migrate-to-10.0.0` ;
 - versions et peer dependencies : registre npm interrogé avec `npm view`.
 
-## Décision
+## Dispositif de décision bornée
 
 Aucune combinaison officielle, publiée et compatible n'a été trouvée au
-2026-07-26 pour rendre l'audit complet vert sans contourner les règles de
-sécurité.
+2026-07-26 pour rendre l'audit complet vert sans migration majeure hors
+périmètre. La lignée 5.x est corrigée officiellement ; les lignées 1.x et 2.x
+n'ont pas de backport publié.
 
-Conséquences :
+Le dépôt conserve le raw audit rouge et permet uniquement une décision
+propriétaire privée, validée contre un schéma strict :
 
-- aucune modification de `package.json`, `package-lock.json`, workflow ou
-  script de sécurité n'est commise ;
-- `publication_authorization` reste ouverte ;
-- `releaseStatus` ne passe pas à `PUBLIC_READY` ;
-- aucun tag de GO n'est créé ;
-- aucun merge ni déploiement n'est autorisé.
+- advisory exact `GHSA-mh99-v99m-4gvg` ;
+- deux chemins de dépendances exacts ;
+- audit production à zéro high/critical ;
+- zéro critical dans l'audit complet ;
+- absence dans le SBOM et l'artefact runtime ;
+- SHA produit et preuve CI exacts ;
+- issue de remédiation et expiration au plus à quatorze jours ;
+- révocation automatique en cas de dérive de SHA, nouvel advisory, présence
+  runtime, entrée publique atteignable ou contrôle manquant.
 
-Verdict sécurité : **RELEASE BLOQUÉE PAR DEPENDENCY INTEGRITY**.
+Le workflow ne transforme jamais l'audit brut en vert. Il archive les deux
+rapports et n'accepte l'advisory de développement que si l'entrée privée
+schema-validée satisfait tous les contrôles. Sans cette entrée exacte, le job
+échoue.
 
 ## Condition de reprise
 
-Rejouer l'expérience lorsque Next/ESLint, Jest et leurs plugins auront publié
-des arbres transitifs utilisant une version corrigée de `brace-expansion`, puis
-exécuter la totalité des gates de la release sans waiver.
+L'issue GitHub `#83` suit la suppression des deux lignées historiques.
+L'exception, si elle est activée par le propriétaire, expire automatiquement
+et doit être retirée dès publication d'un arbre officiel corrigé.

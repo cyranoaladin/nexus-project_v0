@@ -1,5 +1,9 @@
 # Audit visuel et technique des PDF parents — état avant refonte
 
+> Archive de baseline avant refonte. Cet inventaire de dix fichiers n'est pas
+> l'allowlist publique 2.1.0. La release active contient exactement sept PDF
+> publics totalisant 59 pages ; voir `FINAL-RELEASE-QA.md`.
+
 **Contexte** : branche `feat/pre-rentree-2026-parent-pdf-redesign`, créée depuis un worktree isolé
 `/home/alaeddine/Bureau/nexus-wt-pre-rentree-parent-pdf-redesign`, branchée sur
 `BASELINE_SHA = 202cd06fd3aff7762820a5953d60deaad6835283` (branche
