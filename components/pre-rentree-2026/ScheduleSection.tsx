@@ -197,6 +197,15 @@ function WindowDesktopTable({
   levels: readonly LandingLevel[];
   subjects: readonly LandingSubject[];
 }) {
+  // Always show the 2 standing rooms; add any extra room (e.g. the
+  // exceptional salle-3, SCHEDULE-S5) only for the window that actually uses
+  // it — never a permanently-displayed 3rd column across every window.
+  const extraRooms = [...new Set(window.slots.map((slot) => slot.room))]
+    .filter((room) => room !== 'salle-1' && room !== 'salle-2')
+    .sort();
+  const rooms = ['salle-1', 'salle-2', ...extraRooms];
+  const columnWidth = `${Math.floor(78 / rooms.length)}%`;
+
   return (
     <div className="mt-6 hidden overflow-hidden rounded-2xl border border-lux-line bg-white sm:block">
       <table className="w-full table-fixed border-collapse text-left">
@@ -204,8 +213,11 @@ function WindowDesktopTable({
         <thead className="bg-lux-paper text-lux-ink">
           <tr>
             <th scope="col" className="w-[22%] px-4 py-4 font-semibold">Créneau</th>
-            <th scope="col" className="w-[39%] px-4 py-4 font-semibold">Salle 1</th>
-            <th scope="col" className="w-[39%] px-4 py-4 font-semibold">Salle 2</th>
+            {rooms.map((room) => (
+              <th key={room} scope="col" style={{ width: columnWidth }} className="px-4 py-4 font-semibold">
+                {roomLabel(room)}
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
@@ -215,7 +227,7 @@ function WindowDesktopTable({
                 <span className="block font-semibold">Bloc {block.id}</span>
                 <span className="mt-1 block text-sm font-normal text-lux-slate">{block.startTime}–{block.endTime}</span>
               </th>
-              {['salle-1', 'salle-2'].map((room) => (
+              {rooms.map((room) => (
                 <td key={room} className="px-4 py-4" aria-label={`${roomLabel(room)}, bloc ${block.id}`}>
                   <OccupiedCell
                     slot={window.slots.find((slot) => slot.block === block.id && slot.room === room)}
@@ -244,13 +256,18 @@ function WindowMobileList({
   levels: readonly LandingLevel[];
   subjects: readonly LandingSubject[];
 }) {
+  const extraRooms = [...new Set(window.slots.map((slot) => slot.room))]
+    .filter((room) => room !== 'salle-1' && room !== 'salle-2')
+    .sort();
+  const rooms = ['salle-1', 'salle-2', ...extraRooms];
+
   return (
     <div className="mt-5 grid gap-3 sm:hidden">
       {blocks.map((block) => (
         <article key={block.id} className="min-w-0 rounded-2xl border border-lux-line bg-white p-4">
           <h4 className="font-semibold text-lux-ink">Bloc {block.id} · {block.startTime}–{block.endTime}</h4>
           <div className="mt-3 grid gap-3">
-            {['salle-1', 'salle-2'].map((room) => (
+            {rooms.map((room) => (
               <div key={room} className="min-w-0 rounded-xl bg-lux-paper p-3">
                 <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-lux-slate">{roomLabel(room)}</p>
                 <OccupiedCell

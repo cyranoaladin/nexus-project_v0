@@ -22,7 +22,7 @@ from pathlib import Path
 from weasyprint import HTML
 
 from dossier_design import DESIGN_CSS
-from itinerary import MAX_STUDENT_IDLE_MINUTES, compute_itinerary
+from itinerary import MAX_STUDENT_IDLE_MINUTES, assign_itinerary
 from pre_rentree_data import (
     CONTACT_EMAIL,
     CONTACT_PHONE_DISPLAY,
@@ -166,7 +166,11 @@ def planning_page(dossier: LevelDossierData, data: PreRentreeData) -> str:
 
     # "Peut-on combiner ces matières ?" — statut réel par paire (jamais réduit à un
     # booléen "incompatible" : deux matières peuvent ne pas se chevaucher tout en
-    # imposant une attente de plusieurs heures, voir SCHEDULE-UX-AUDIT.md).
+    # imposant une attente de plusieurs heures, voir SCHEDULE-UX-AUDIT.md). Uses
+    # assign_itinerary (not compute_itinerary directly) so that subjects with two
+    # alternative cohorts (Première SVT, Terminale NSI/SVT) are evaluated on the
+    # single best cohort a family would actually be assigned — never both cohorts
+    # merged into one impossible itinerary.
     body += '<h3 class="subsection-title">Peut-on combiner ces matières ?</h3>'
     dated_sessions = data.dated_slots_for_level(dossier.level)
     simultaneous_pairs = []
@@ -176,7 +180,7 @@ def planning_page(dossier: LevelDossierData, data: PreRentreeData) -> str:
     for idx_a in range(len(subjects)):
         for idx_b in range(idx_a + 1, len(subjects)):
             pair = (subjects[idx_a], subjects[idx_b])
-            report = compute_itinerary(dossier.level, pair, dated_sessions)
+            report = assign_itinerary(dossier.level, pair, dated_sessions).itinerary
             if report.status == "SIMULTANEOUS":
                 simultaneous_pairs.append(pair)
             elif report.status == "LONG_IDLE":

@@ -8,7 +8,7 @@ import {
   formatWeekRange,
 } from '@/lib/campaigns/pre-rentree-2026/presentation';
 import type { SubjectIncompatibility } from '@/lib/campaigns/pre-rentree-2026/incompatibilities';
-import { computeItinerary, MAX_STUDENT_IDLE_MINUTES } from '@/lib/campaigns/pre-rentree-2026/itinerary';
+import { assignItinerary, MAX_STUDENT_IDLE_MINUTES } from '@/lib/campaigns/pre-rentree-2026/itinerary';
 import { buildBilanUrl, selectPackBySubjectCount } from '@/lib/campaigns/pre-rentree-2026/configurator';
 import type {
   LandingLevel,
@@ -84,13 +84,22 @@ export function StagePlanningSelector({
     });
   }
 
+  // A subject can have more than one alternative cohort (SCHEDULE-S5) — the
+  // assignment engine resolves each selected subject to exactly ONE cohort's
+  // 5 sessions (the one minimizing idle time), never the raw union of every
+  // cohort, which would otherwise display a subject twice on the same day.
+  const assignment = useMemo(() => {
+    if (!level || selectedSubjects.length === 0) return null;
+    return assignItinerary(level, selectedSubjects, schedule);
+  }, [level, selectedSubjects, schedule]);
+
   const selectedSlots = useMemo(() => {
-    if (!level) return [];
-    return schedule
-      .filter((slot) => slot.level === level && selectedSubjects.includes(slot.subject))
+    if (!assignment) return [];
+    return Object.values(assignment.sessionsBySubject)
+      .flat()
       .slice()
       .sort((left, right) => (left.date === right.date ? left.startTime.localeCompare(right.startTime) : left.date.localeCompare(right.date)));
-  }, [schedule, level, selectedSubjects]);
+  }, [assignment]);
 
   const dayGroups = useMemo<DayGroup[]>(() => {
     const byDate = new Map<string, DayGroup['entries']>();
@@ -98,7 +107,7 @@ export function StagePlanningSelector({
       const subject = subjects.find((candidate) => candidate.id === slot.subject);
       const label = subject && level ? subjectLabelForLevel(subject, level) : slot.subject;
       const entries = byDate.get(slot.date) ?? [];
-      entries.push({ subjectId: slot.subject, label, startTime: slot.startTime, endTime: slot.endTime, room: slot.room });
+      entries.push({ subjectId: slot.subject, label, startTime: slot.startTime, endTime: slot.endTime, room: slot.room ?? '' });
       byDate.set(slot.date, entries);
     }
     return [...byDate.entries()]
@@ -107,9 +116,9 @@ export function StagePlanningSelector({
   }, [selectedSlots, subjects, level]);
 
   const itineraryReport = useMemo(() => {
-    if (!level || selectedSubjects.length < 2) return null;
-    return computeItinerary(level, selectedSubjects, schedule);
-  }, [level, selectedSubjects, schedule]);
+    if (!assignment || selectedSubjects.length < 2) return null;
+    return assignment.itinerary;
+  }, [assignment, selectedSubjects.length]);
 
   // Only a genuinely impossible (SIMULTANEOUS) itinerary blocks the CTA — a
   // LONG_IDLE selection is inconvenient but not impossible, so it stays a
