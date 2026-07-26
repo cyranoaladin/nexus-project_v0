@@ -51,6 +51,18 @@ export interface LandingPack {
   range?: 'FONDATIONS' | 'PREMIUM';
 }
 
+export const MAX_SUBJECTS_PER_PACK = 4;
+
+export type PublicCapacityStatus =
+  | 'STRUCTURALLY_COMPACT'
+  | 'CAPACITY_TO_CONFIRM'
+  | 'CONFIRMED';
+
+export interface PublicPlanningAvailability {
+  structuralStatus: 'STRUCTURALLY_COMPACT' | null;
+  capacityStatus: Exclude<PublicCapacityStatus, 'STRUCTURALLY_COMPACT'>;
+}
+
 export interface LandingScheduleSlot {
   date: string;
   /** Stable code for the 2026-2027 entry class. */
