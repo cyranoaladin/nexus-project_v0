@@ -2,10 +2,10 @@
   "schemaVersion": "1.0.0",
   "campaignId": "pre-rentree-2026",
   "documentPurpose": "Registre des arbitrages validés par le propriétaire avant production et publication.",
-  "approvedAt": "2026-07-22",
+  "approvedAt": "2026-07-26T21:41:15+01:00",
   "approvedByRole": "project_owner",
-  "releaseStatus": "READY_FOR_OWNER_GO",
-  "ownerDecisionsComplete": false,
+  "releaseStatus": "PUBLIC_READY",
+  "ownerDecisionsComplete": true,
   "releaseScope": {
     "code": "PUBLIC_INFORMATIONAL_RELEASE",
     "publicCapabilities": [
@@ -309,15 +309,15 @@
       "decidedAt": "2026-07-20T00:00:00Z"
     },
     "deploymentAuthorization": {
-      "status": "ready_for_owner_go",
-      "decision": "informational_scope_only_until_written_go_commit",
+      "status": "approved_for_publication",
+      "decision": "public_informational_release_authorized_after_sha_bound_go",
       "reference": "D5",
-      "publicRule": "Aucun merge, aucun déploiement, aucune régénération de site en production sans GO écrit de la direction.",
+      "publicRule": "Le GO vaut uniquement pour le SHA exact lié dans le binding privé, le tag annoté et la PR #79 ; tout changement ultérieur rouvre les gates.",
       "owner": "direction",
-      "decidedAt": "2026-07-22T19:15:59Z"
+      "decidedAt": "2026-07-26T21:41:15+01:00"
     },
     "publicInformationalScope": {
-      "status": "approved_for_release_preparation",
+      "status": "approved_for_publication",
       "decision": "constrain_launch_to_public_information_and_direct_contact",
       "scope": "PUBLIC_INFORMATIONAL_RELEASE",
       "publicRule": "La campagne informe sur l'offre validée et oriente uniquement vers téléphone ou WhatsApp. Aucun paiement, réservation, formulaire de campagne, positionnement garanti, bilan parents garanti, Parcours 360, manuel ou remise annuelle n'est exposé.",
@@ -336,11 +336,5 @@
       "decidedAt": "2026-07-25T00:00:00Z"
     }
   },
-  "remainingReleaseGates": [
-    {
-      "id": "publication_authorization",
-      "status": "OPEN",
-      "scope": "Le commit final de GO doit enregistrer l'horodatage Africa/Tunis et passer releaseStatus à PUBLIC_READY."
-    }
-  ]
+  "remainingReleaseGates": []
 }
