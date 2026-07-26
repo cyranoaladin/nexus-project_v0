@@ -8,8 +8,16 @@ import {
   formatWeekRange,
 } from '@/lib/campaigns/pre-rentree-2026/presentation';
 import type { SubjectIncompatibility } from '@/lib/campaigns/pre-rentree-2026/incompatibilities';
-import { assignItinerary, MAX_STUDENT_IDLE_MINUTES } from '@/lib/campaigns/pre-rentree-2026/itinerary';
-import { buildBilanUrl, selectPackBySubjectCount } from '@/lib/campaigns/pre-rentree-2026/configurator';
+import {
+  assignItinerary,
+  MAX_STUDENT_IDLE_MINUTES,
+  type ItineraryStatus,
+} from '@/lib/campaigns/pre-rentree-2026/itinerary';
+import {
+  MAX_SUBJECTS_PER_PACK,
+  selectPackBySubjectCount,
+  type PublicPlanningAvailability,
+} from '@/lib/campaigns/pre-rentree-2026/configurator';
 import type {
   LandingLevel,
   LandingPack,
@@ -17,6 +25,7 @@ import type {
   LandingSubject,
 } from '@/lib/campaigns/pre-rentree-2026/configurator';
 import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
+import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { SubjectBadge } from './SubjectBadge';
 
 const LEVEL_RANGE: Record<EntryLevelCode, 'FONDATIONS' | 'PREMIUM'> = {
@@ -40,6 +49,8 @@ interface DayGroup {
   entries: Array<{ subjectId: string; label: string; startTime: string; endTime: string; room: string }>;
 }
 
+const CONFIRMABLE_ITINERARY_STATUSES = new Set<ItineraryStatus>(['COMPACT', 'NO_SHARED_DAY']);
+
 export function StagePlanningSelector({
   levels,
   subjects,
@@ -48,6 +59,7 @@ export function StagePlanningSelector({
   incompatibilities,
   capacityByOffer,
   planningPdfHref,
+  exposeRooms = false,
 }: {
   levels: readonly LandingLevel[];
   subjects: readonly LandingSubject[];
@@ -56,9 +68,11 @@ export function StagePlanningSelector({
   incompatibilities: readonly SubjectIncompatibility[];
   capacityByOffer: Record<'FONDATIONS' | 'PREMIUM', { minPerCohort: number; maxPerCohort: number }>;
   planningPdfHref?: string;
+  exposeRooms?: boolean;
 }) {
   const [level, setLevel] = useState<EntryLevelCode | null>(null);
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
+  const [selectionLimitMessage, setSelectionLimitMessage] = useState<string | null>(null);
   const levelSelectId = useId();
 
   const availableSubjects = useMemo(
@@ -69,14 +83,22 @@ export function StagePlanningSelector({
   function handleLevelChange(nextLevel: EntryLevelCode) {
     setLevel(nextLevel);
     setSelectedSubjects([]);
+    setSelectionLimitMessage(null);
     track.preRentreeLevelSelected(nextLevel.toLowerCase() as never);
   }
 
   function toggleSubject(subjectId: string) {
     setSelectedSubjects((current) => {
-      const next = current.includes(subjectId)
-        ? current.filter((id) => id !== subjectId)
-        : [...current, subjectId];
+      if (current.includes(subjectId)) {
+        setSelectionLimitMessage(null);
+        return current.filter((id) => id !== subjectId);
+      }
+      if (current.length >= MAX_SUBJECTS_PER_PACK) {
+        setSelectionLimitMessage('4 matières maximum — retirez une matière pour en ajouter une autre.');
+        return current;
+      }
+      const next = [...current, subjectId];
+      setSelectionLimitMessage(null);
       if (level && !current.includes(subjectId)) {
         track.preRentreeSubjectSelected(level.toLowerCase() as never, subjectId, next.length);
       }
@@ -115,15 +137,11 @@ export function StagePlanningSelector({
       .map(([date, entries]) => ({ date, entries }));
   }, [selectedSlots, subjects, level]);
 
-  const itineraryReport = useMemo(() => {
-    if (!assignment || selectedSubjects.length < 2) return null;
-    return assignment.itinerary;
-  }, [assignment, selectedSubjects.length]);
-
-  // Only a genuinely impossible (SIMULTANEOUS) itinerary blocks the CTA — a
-  // LONG_IDLE selection is inconvenient but not impossible, so it stays a
-  // visible warning rather than a hard stop (see SCHEDULE-UX-AUDIT.md).
-  const blockingConflict = itineraryReport?.status === 'SIMULTANEOUS';
+  const itineraryReport = assignment?.itinerary ?? null;
+  const itineraryIsConfirmable = itineraryReport
+    ? CONFIRMABLE_ITINERARY_STATUSES.has(itineraryReport.status)
+    : false;
+  const blockingConflict = !itineraryIsConfirmable;
 
   const dates = useMemo(() => [...new Set(selectedSlots.map((slot) => slot.date))].sort(), [selectedSlots]);
   const range = level ? LEVEL_RANGE[level] : null;
@@ -131,8 +149,42 @@ export function StagePlanningSelector({
 
   const pack = level ? selectPackBySubjectCount(offerOptions, selectedSubjects.length, level) : null;
   const totalHours = pack?.totalHours ?? 0;
-  const bilanHref = level && pack
-    ? buildBilanUrl({ packCode: pack.code, level, subjectIds: selectedSubjects, profile: {} })
+  const publicAvailability: PublicPlanningAvailability = {
+    structuralStatus: itineraryIsConfirmable ? 'STRUCTURALLY_COMPACT' : null,
+    capacityStatus: 'CAPACITY_TO_CONFIRM',
+  };
+  const availabilityMessage = useMemo(() => {
+    if (!level || !assignment || !pack || !itineraryReport) return null;
+    const levelLabel = levels.find((candidate) => candidate.id === level)?.label ?? level;
+    const subjectLines = selectedSubjects.map((subjectId) => {
+      const subject = subjects.find((candidate) => candidate.id === subjectId);
+      const label = subject ? subjectLabelForLevel(subject, level) : subjectId;
+      const sessions = assignment.sessionsBySubject[subjectId] ?? [];
+      const first = sessions[0];
+      const subjectDates = [...new Set(sessions.map((session) => session.date))].sort();
+      return [
+        `- ${label}`,
+        `  Dates : ${subjectDates.map((date) => formatDetailedDates([date])).join(', ')}`,
+        `  Horaire : ${first ? `${first.startTime}–${first.endTime}` : 'à confirmer'}`,
+        `  Cohorte proposée : ${first ? `créneau ${first.block}` : 'à confirmer'}`,
+      ].join('\n');
+    });
+    return [
+      'Bonjour Nexus Réussite,',
+      'Je souhaite demander les informations et vérifier les disponibilités pour la pré-rentrée 2026.',
+      '',
+      `Niveau : ${levelLabel}`,
+      'Profil : à confirmer lors de l’échange',
+      `Matières (${selectedSubjects.length}) :`,
+      ...subjectLines,
+      `Volume : ${pack.totalHours} heures`,
+      `Attente maximale : ${itineraryReport.maxIdleMinutes} minutes`,
+      '',
+      'Itinéraire proposé sous réserve de places disponibles.',
+    ].join('\n');
+  }, [assignment, itineraryReport, level, levels, pack, selectedSubjects, subjects]);
+  const availabilityHref = availabilityMessage
+    ? buildWhatsAppUrl(availabilityMessage, { exactMessage: true })
     : null;
 
   return (
@@ -199,7 +251,13 @@ export function StagePlanningSelector({
             </p>
           )}
 
-          {itineraryReport?.status === 'SIMULTANEOUS' && itineraryReport.firstConflict && (
+          {selectionLimitMessage && (
+            <div role="alert" className="mb-4 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950">
+              {selectionLimitMessage}
+            </div>
+          )}
+
+          {!selectionLimitMessage && itineraryReport?.status === 'SIMULTANEOUS' && itineraryReport.firstConflict && (
             <div role="alert" className="mb-4 rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-950">
               {(() => {
                 const { subjectA, subjectB } = itineraryReport.firstConflict;
@@ -216,12 +274,22 @@ export function StagePlanningSelector({
             </div>
           )}
 
-          {itineraryReport?.status === 'LONG_IDLE' && (
+          {!selectionLimitMessage && itineraryReport?.status === 'LONG_IDLE' && (
             <div role="alert" className="mb-4 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950">
               <p>
                 Cette combinaison impose une attente de <strong>{itineraryReport.maxIdleMinutes} minutes</strong> entre deux séances
-                le même jour (au-delà des {MAX_STUDENT_IDLE_MINUTES} minutes visées). Le parcours reste possible, mais n’est pas compact.
+                le même jour (au-delà des {MAX_STUDENT_IDLE_MINUTES} minutes visées). La demande de ce parcours reste désactivée :
+                retirez une matière ou demandez un conseil personnalisé.
               </p>
+            </div>
+          )}
+
+          {!selectionLimitMessage && (
+            itineraryReport?.status === 'REQUIRES_ALTERNATIVE_COHORT'
+            || itineraryReport?.status === 'REQUIRES_MANUAL_REVIEW'
+          ) && (
+            <div role="alert" className="mb-4 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950">
+              Ce parcours nécessite une autre cohorte ou une vérification manuelle. La demande de ce parcours reste désactivée.
             </div>
           )}
 
@@ -243,7 +311,10 @@ export function StagePlanningSelector({
                       {group.entries.map((entry) => (
                         <li key={`${group.date}-${entry.subjectId}`} className="flex flex-wrap items-center gap-2">
                           <SubjectBadge subjectId={entry.subjectId} label={entry.label} />
-                          <span className="text-sm text-lux-slate">{entry.startTime}–{entry.endTime} · {roomLabel(entry.room)}</span>
+                          <span className="text-sm text-lux-slate">
+                            {entry.startTime}–{entry.endTime}
+                            {exposeRooms ? ` · ${roomLabel(entry.room)}` : ''}
+                          </span>
                         </li>
                       ))}
                     </ul>
@@ -255,16 +326,23 @@ export function StagePlanningSelector({
                 <div><dt className="text-xs text-lux-slate">Matières</dt><dd className="font-semibold text-lux-ink">{selectedSubjects.length}</dd></div>
                 <div><dt className="text-xs text-lux-slate">Volume</dt><dd className="font-semibold text-lux-ink">{totalHours} h</dd></div>
                 <div className="col-span-2"><dt className="text-xs text-lux-slate">Dates concernées</dt><dd className="font-semibold text-lux-ink">{dates.length > 0 ? formatWeekRange(dates[0]!, dates.at(-1)!) : '—'}</dd></div>
-                {capacity && (
+                {capacity && publicAvailability.capacityStatus === 'CAPACITY_TO_CONFIRM' && (
                   <p className="col-span-2 text-xs text-lux-slate sm:col-span-4">
-                    Groupe de {capacity.minPerCohort} à {capacity.maxPerCohort} élèves, ouverture à partir de {capacity.minPerCohort} inscrits.
+                    Capacité à confirmer · groupe prévu de {capacity.minPerCohort} à {capacity.maxPerCohort} élèves,
+                    ouverture à partir de {capacity.minPerCohort} participants.
                   </p>
                 )}
               </dl>
 
-              {bilanHref && (
+              {publicAvailability.structuralStatus && (
+                <p className="mt-4 text-sm font-medium text-lux-ink">
+                  Itinéraire compact proposé, sous réserve de disponibilité dans les groupes.
+                </p>
+              )}
+
+              {availabilityHref && (
                 <a
-                  href={bilanHref}
+                  href={availabilityHref}
                   className={cn(
                     'mt-4 inline-flex min-h-11 items-center justify-center rounded-xl px-5 py-2.5 text-sm font-semibold text-white',
                     blockingConflict ? 'bg-lux-slate' : 'bg-lux-gold-deep',
@@ -274,7 +352,7 @@ export function StagePlanningSelector({
                     if (blockingConflict) event.preventDefault();
                   }}
                 >
-                  Pré-inscrire sur ces créneaux
+                  Demander la disponibilité de ce parcours
                 </a>
               )}
             </>

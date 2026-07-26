@@ -411,6 +411,7 @@ export function ScheduleSection({
           incompatibilities={subjectIncompatibilities}
           capacityByOffer={capacityByOffer}
           planningPdfHref={PRE_RENTREE_DOCUMENTS.find((doc) => doc.kind === 'planning')?.href}
+          exposeRooms={operationalGates.roomAssignmentsValidated}
         />
 
         <Tabs

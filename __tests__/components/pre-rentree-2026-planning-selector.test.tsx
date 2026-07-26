@@ -74,6 +74,12 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
     expect(within(recap).getByText('1')).toBeInTheDocument();
     expect(within(recap).getByText('10 h')).toBeInTheDocument();
     expect(screen.getByText(/capacité à confirmer/i)).toBeInTheDocument();
+    expect(screen.getByText(
+      'Itinéraire compact proposé, sous réserve de disponibilité dans les groupes.',
+    )).toBeInTheDocument();
+    expect(screen.getByRole('link', {
+      name: 'Demander la disponibilité de ce parcours',
+    })).not.toHaveAttribute('aria-disabled', 'true');
   });
 
   it('plusieurs matières compatibles : aucun message de conflit, récap mis à jour', async () => {
