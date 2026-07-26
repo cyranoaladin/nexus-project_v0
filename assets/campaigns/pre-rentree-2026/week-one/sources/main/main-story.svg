@@ -5,6 +5,17 @@
   <rect x="84" y="230" width="520" height="72" rx="24" fill="#0B1F3A"/><text x="112" y="278" fill="white" font-family="DM Sans, sans-serif" font-size="28" font-weight="700">3E · SECONDE · PREMIÈRE · TERMINALE</text>
   <text x="84" y="360" fill="#0B1F3A" font-family="Fraunces, serif" font-size="72" font-weight="650"><tspan x="84" dy="1.12em">Stages de pré-rentrée 2026</tspan></text>
   <text x="84" y="498" fill="#172033" font-family="DM Sans, sans-serif" font-size="34"><tspan x="84" dy="1.35em">3e · Seconde · Première · Terminale 5 séances de</tspan><tspan x="84" dy="1.35em">2 h par matière</tspan></text>
+  <rect x="84" y="820" width="912" height="610" rx="28" fill="#F7F2E8" stroke="#D8C8A8" stroke-width="2"/>
+  <text x="116" y="880" fill="#0B1F3A" font-family="DM Sans, sans-serif" font-size="30" font-weight="700">LA MÉTHODE NEXUS</text>
+  <rect x="108" y="920" width="864" height="130" rx="22" fill="#0B1F3A"/>
+  <text x="144" y="1004" fill="#FFD9D9" font-family="Fraunces, serif" font-size="44" font-weight="700">1</text>
+  <text x="220" y="999" fill="white" font-family="DM Sans, sans-serif" font-size="32" font-weight="700">OBJECTIF ANNONCÉ</text>
+  <rect x="108" y="1075" width="864" height="130" rx="22" fill="#0B1F3A"/>
+  <text x="144" y="1159" fill="#FFD9D9" font-family="Fraunces, serif" font-size="44" font-weight="700">2</text>
+  <text x="220" y="1154" fill="white" font-family="DM Sans, sans-serif" font-size="32" font-weight="700">ENTRAÎNEMENT GUIDÉ</text>
+  <rect x="108" y="1230" width="864" height="130" rx="22" fill="#0B1F3A"/>
+  <text x="144" y="1314" fill="#FFD9D9" font-family="Fraunces, serif" font-size="44" font-weight="700">3</text>
+  <text x="220" y="1309" fill="white" font-family="DM Sans, sans-serif" font-size="32" font-weight="700">CORRECTION EXPLICITE</text>
   <rect x="0" y="1730" width="1080" height="190" fill="#0B1F3A"/>
   <text x="84" y="1800" fill="white" font-family="DM Sans, sans-serif" font-size="28">17–28 août 2026 · Nexus Réussite, Mutuelleville</text>
   <text x="84" y="1858" fill="#FFD9D9" font-family="DM Sans, sans-serif" font-size="30" font-weight="700">Programme et disponibilités · WhatsApp 99 192 829</text>

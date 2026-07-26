@@ -208,7 +208,19 @@ class KitRenderer:
         logo.thumbnail((size, size), Image.Resampling.LANCZOS)
         image.paste(logo, (x, y), logo)
 
-    def render_card(self, width: int, height: int, eyebrow: str, title: str, body: str, meta: str, cta: str, alt_text: str) -> Image.Image:
+    def render_card(
+        self,
+        width: int,
+        height: int,
+        eyebrow: str,
+        title: str,
+        body: str,
+        meta: str,
+        cta: str,
+        alt_text: str,
+        *,
+        feature_panel: bool = False,
+    ) -> Image.Image:
         image, draw = self.base_canvas(width, height)
         margin = max(56, int(width * 0.075))
         if height / width < 0.75 or height <= 700:
@@ -246,7 +258,57 @@ class KitRenderer:
         footer_y = height - footer_h
         if y > footer_y - 32:
             raise ValueError(f"Text overflow for '{title}' at {width}x{height}")
-        if footer_y - y > 180:
+        if feature_panel and height / width >= 1.6:
+            panel_y = max(y + 64, int(height * 0.42))
+            panel_bottom = footer_y - 96
+            panel_height = panel_bottom - panel_y
+            if panel_height < 520:
+                raise ValueError(f"Feature panel overflow for '{title}' at {width}x{height}")
+            draw.rounded_rectangle(
+                (margin, panel_y, width - margin, panel_bottom),
+                radius=28,
+                fill=IVORY,
+                outline="#D8C8A8",
+                width=2,
+            )
+            panel_title = self.font(max(24, int(width * 0.028)))
+            draw.text(
+                (margin + 32, panel_y + 28),
+                "LA MÉTHODE NEXUS",
+                font=panel_title,
+                fill=BLUE,
+            )
+            steps = (
+                ("1", "OBJECTIF ANNONCÉ"),
+                ("2", "ENTRAÎNEMENT GUIDÉ"),
+                ("3", "CORRECTION EXPLICITE"),
+            )
+            card_top = panel_y + 94
+            card_gap = 20
+            card_height = (panel_height - 126 - 2 * card_gap) // 3
+            step_number_font = self.font(max(30, int(width * 0.038)), serif=True)
+            step_label_font = self.font(max(24, int(width * 0.03)))
+            for index, (number, label) in enumerate(steps):
+                top = card_top + index * (card_height + card_gap)
+                bottom = top + card_height
+                draw.rounded_rectangle(
+                    (margin + 24, top, width - margin - 24, bottom),
+                    radius=22,
+                    fill=BLUE,
+                )
+                draw.text(
+                    (margin + 54, top + (card_height - self.line_height(step_number_font)) // 2),
+                    number,
+                    font=step_number_font,
+                    fill="#FFD9D9",
+                )
+                draw.text(
+                    (margin + 128, top + (card_height - self.line_height(step_label_font)) // 2),
+                    label,
+                    font=step_label_font,
+                    fill=WHITE,
+                )
+        elif footer_y - y > 180:
             method_font, method_lines = self.fit_font(
                 draw,
                 "OBJECTIF  ·  ENTRAÎNEMENT  ·  CORRECTION",
@@ -285,20 +347,48 @@ class KitRenderer:
         self.draw_lines(draw, cta_lines, (margin, footer_y + footer_h // 2), cta_font, "#FFD9D9", spacing=8)
         return image
 
-    def svg_source(self, path: Path, width: int, height: int, eyebrow: str, title: str, body: str, meta: str, cta: str, asset_id: str, alt_text: str) -> None:
+    def svg_source(
+        self,
+        path: Path,
+        width: int,
+        height: int,
+        eyebrow: str,
+        title: str,
+        body: str,
+        meta: str,
+        cta: str,
+        asset_id: str,
+        alt_text: str,
+        *,
+        feature_panel: bool = False,
+    ) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         logo_data = base64.b64encode(self.logo_path.read_bytes()).decode("ascii")
         title_lines = self._simple_svg_lines(title, 27)
         body_lines = self._simple_svg_lines(body, 48)
         title_tspans = "".join(f'<tspan x="84" dy="1.12em">{html.escape(line)}</tspan>' for line in title_lines)
         body_tspans = "".join(f'<tspan x="84" dy="1.35em">{html.escape(line)}</tspan>' for line in body_lines)
+        feature_panel_markup = ""
+        if feature_panel and height / width >= 1.6:
+            feature_panel_markup = f'''
+  <rect x="84" y="820" width="{width - 168}" height="610" rx="28" fill="{IVORY}" stroke="#D8C8A8" stroke-width="2"/>
+  <text x="116" y="880" fill="{BLUE}" font-family="DM Sans, sans-serif" font-size="30" font-weight="700">LA MÉTHODE NEXUS</text>
+  <rect x="108" y="920" width="{width - 216}" height="130" rx="22" fill="{BLUE}"/>
+  <text x="144" y="1004" fill="#FFD9D9" font-family="Fraunces, serif" font-size="44" font-weight="700">1</text>
+  <text x="220" y="999" fill="white" font-family="DM Sans, sans-serif" font-size="32" font-weight="700">OBJECTIF ANNONCÉ</text>
+  <rect x="108" y="1075" width="{width - 216}" height="130" rx="22" fill="{BLUE}"/>
+  <text x="144" y="1159" fill="#FFD9D9" font-family="Fraunces, serif" font-size="44" font-weight="700">2</text>
+  <text x="220" y="1154" fill="white" font-family="DM Sans, sans-serif" font-size="32" font-weight="700">ENTRAÎNEMENT GUIDÉ</text>
+  <rect x="108" y="1230" width="{width - 216}" height="130" rx="22" fill="{BLUE}"/>
+  <text x="144" y="1314" fill="#FFD9D9" font-family="Fraunces, serif" font-size="44" font-weight="700">3</text>
+  <text x="220" y="1309" fill="white" font-family="DM Sans, sans-serif" font-size="32" font-weight="700">CORRECTION EXPLICITE</text>'''
         svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" role="img" aria-label="{html.escape(alt_text)}">
   <rect width="{width}" height="{height}" fill="{PAPER}"/><rect width="14" height="{height}" fill="{RED}"/>
   <circle cx="{int(width * .88)}" cy="{int(height * .08)}" r="{int(width * .24)}" fill="{IVORY}"/>
   <image href="data:image/png;base64,{logo_data}" x="84" y="72" width="124" height="124" preserveAspectRatio="xMidYMid meet"/>
   <rect x="84" y="230" width="520" height="72" rx="24" fill="{BLUE}"/><text x="112" y="278" fill="white" font-family="DM Sans, sans-serif" font-size="28" font-weight="700">{html.escape(eyebrow.upper())}</text>
   <text x="84" y="360" fill="{BLUE}" font-family="Fraunces, serif" font-size="72" font-weight="650">{title_tspans}</text>
-  <text x="84" y="{420 + len(title_lines) * 78}" fill="{INK}" font-family="DM Sans, sans-serif" font-size="34">{body_tspans}</text>
+  <text x="84" y="{420 + len(title_lines) * 78}" fill="{INK}" font-family="DM Sans, sans-serif" font-size="34">{body_tspans}</text>{feature_panel_markup}
   <rect x="0" y="{height - 190}" width="{width}" height="190" fill="{BLUE}"/>
   <text x="84" y="{height - 120}" fill="white" font-family="DM Sans, sans-serif" font-size="28">{html.escape(meta)}</text>
   <text x="84" y="{height - 62}" fill="#FFD9D9" font-family="DM Sans, sans-serif" font-size="30" font-weight="700">{html.escape(cta)}</text>
@@ -347,9 +437,32 @@ class KitRenderer:
         for name, width, height, title, body in variants:
             meta = f'17–28 août 2026 · {self.content["contact"]["venue"]}'
             cta = f'Programme et disponibilités · WhatsApp {self.content["contact"]["whatsappDisplay"]}'
-            image = self.render_card(width, height, creative["levels"], title, body, meta, cta, alt)
+            feature_panel = name == "story"
+            image = self.render_card(
+                width,
+                height,
+                creative["levels"],
+                title,
+                body,
+                meta,
+                cta,
+                alt,
+                feature_panel=feature_panel,
+            )
             source = self.output / "sources" / "main" / f"main-{name}.svg"
-            self.svg_source(source, width, height, creative["levels"], title, body, meta, cta, f"week1-main-{name}-source", alt)
+            self.svg_source(
+                source,
+                width,
+                height,
+                creative["levels"],
+                title,
+                body,
+                meta,
+                cta,
+                f"week1-main-{name}-source",
+                alt,
+                feature_panel=feature_panel,
+            )
             self.save_raster_pair(image, self.output / "main" / f"main-{name}", f"week1-main-{name}", "main-visual", alt)
             images.append(image)
         return images

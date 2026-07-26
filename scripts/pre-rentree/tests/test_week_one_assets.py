@@ -56,6 +56,24 @@ def test_expected_visual_inventory_is_complete():
     assert len([item for item in ids if item.startswith("week1-story-") and item.endswith("-png")]) == 9
 
 
+def test_main_story_uses_the_central_safe_zone_instead_of_leaving_a_large_void():
+    with Image.open(KIT / "main/main-story.png") as image:
+        story = image.convert("RGB")
+
+    assert story.size == (1080, 1920)
+    central_rows_with_content = 0
+    for y in range(700, 1450):
+        dark_pixels = sum(
+            1
+            for x in range(story.width)
+            if sum(story.getpixel((x, y))) < 520
+        )
+        if dark_pixels >= 50:
+            central_rows_with_content += 1
+
+    assert central_rows_with_content >= 300
+
+
 def test_public_text_exports_do_not_leak_internal_or_hidden_claims():
     # "snt" retiré : matière Seconde légitime depuis R2 (décision direction 2026-07-23).
     forbidden = ("gate", "review", "blocked", "owner", "placeholder", "manuel offert", "remise annuelle")
