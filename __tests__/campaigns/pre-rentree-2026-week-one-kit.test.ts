@@ -96,6 +96,14 @@ describe('Pré-rentrée 2026 week-one campaign kit', () => {
     expect(publicCopy).not.toMatch(/Programme et inscription|Pré-inscrire|Réserver|Payer/i);
   });
 
+  it('derives every explicit subject list from the canonical campaign contract', () => {
+    const sourceText = readFileSync(sourcePath, 'utf8');
+
+    expect(sourceText).toContain('{{subjects.TROISIEME}}');
+    expect(sourceText).toContain('{{subjects.SECONDE}}');
+    expect(sourceText).not.toMatch(/Seconde[^.]{0,160}Physique[- ]?Chimie|Physique[- ]?Chimie[^.]{0,160}Seconde/i);
+  });
+
   it('references a generated manifest and all primary deliverables', () => {
     const expected = [
       'manifest.json',

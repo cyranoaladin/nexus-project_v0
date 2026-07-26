@@ -10,11 +10,11 @@ Lien : https://wa.me/21699192829?text=Bonjour%20Nexus%20R%C3%A9ussite%2C%20je%20
 
 ## 02-entree-3e
 
-Bonjour, mon enfant entre en 3e et nous recherchons le stage de [Mathématiques/Français]. Pouvez-vous confirmer les horaires ?
+Bonjour, mon enfant entre en 3e et nous recherchons le stage dans l'une des matières publiées pour ce niveau. Pouvez-vous confirmer les horaires ?
 
 CTA : Vérifier la matière et les horaires
 
-Lien : https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%203e%20et%20nous%20recherchons%20le%20stage%20de%20%5BMath%C3%A9matiques/Fran%C3%A7ais%5D.%20Pouvez-vous%20confirmer%20les%20horaires%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_02_3e
+Lien : https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%203e%20et%20nous%20recherchons%20le%20stage%20dans%20l%27une%20des%20mati%C3%A8res%20publi%C3%A9es%20pour%20ce%20niveau.%20Pouvez-vous%20confirmer%20les%20horaires%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_02_3e
 
 ## 03-entree-seconde
 
@@ -72,7 +72,7 @@ CTA : Vérifier la disponibilité du groupe
 
 Lien : https://wa.me/21699192829?text=Bonjour%2C%20pouvez-vous%20v%C3%A9rifier%20la%20disponibilit%C3%A9%20du%20groupe%20%5Bniveau/mati%C3%A8re%5D%20et%20me%20confirmer%20son%20effectif%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_09_effectifs
 
-## 10-reservation-acompte
+## 10-demande-information
 
 Bonjour, je souhaite recevoir le programme, les horaires et le tarif pour [niveau/matière].
 
@@ -114,11 +114,11 @@ Lien : https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le
 
 ## 02-entree-3e
 
-Bonjour, mon enfant entre en 3e et souhaite travailler [Mathématiques/Français]. Pouvez-vous transmettre le programme et les horaires ?
+Bonjour, mon enfant entre en 3e et souhaite travailler [matière]. Pouvez-vous transmettre le programme et les horaires ?
 
-CTA : Choisir Mathématiques ou Français
+CTA : Vérifier la matière disponible
 
-Lien : https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%203e%20et%20souhaite%20travailler%20%5BMath%C3%A9matiques/Fran%C3%A7ais%5D.%20Pouvez-vous%20transmettre%20le%20programme%20et%20les%20horaires%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dcarousel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dcarousel_02_3e
+Lien : https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%203e%20et%20souhaite%20travailler%20%5Bmati%C3%A8re%5D.%20Pouvez-vous%20transmettre%20le%20programme%20et%20les%20horaires%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dcarousel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dcarousel_02_3e
 
 ## 03-entree-seconde
 
@@ -160,7 +160,7 @@ CTA : Demander le détail et le tarif
 
 Lien : https://wa.me/21699192829?text=Bonjour%2C%20pouvez-vous%20m%27envoyer%20le%20d%C3%A9tail%20inclus%20et%20le%20tarif%20du%20parcours%20%5Bniveau/mati%C3%A8re%5D%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dcarousel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dcarousel_07_valeur
 
-## 08-reservation
+## 08-disponibilites
 
 Bonjour, je souhaite recevoir le programme, les horaires et le tarif pour [niveau/matière].
 
@@ -178,11 +178,11 @@ Lien : https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20%
 
 ## 02-entree-3e
 
-Bonjour, mon enfant entre en 3e et souhaite travailler [Mathématiques/Français].
+Bonjour, mon enfant entre en 3e et souhaite travailler [matière].
 
 CTA : Choisir la matière
 
-Lien : https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%203e%20et%20souhaite%20travailler%20%5BMath%C3%A9matiques/Fran%C3%A7ais%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_02_3e
+Lien : https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%203e%20et%20souhaite%20travailler%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_02_3e
 
 ## 03-entree-seconde
 
@@ -248,7 +248,7 @@ CTA : Poser ma question
 
 Lien : https://wa.me/21699192829?text=Bonjour%2C%20j%27ai%20une%20question%20sur%20le%20stage%20pour%20%5Bniveau%5D%20en%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_10_questions
 
-## 11-reservation
+## 11-demande-information
 
 Bonjour, je souhaite recevoir le programme, les horaires et le tarif du parcours.
 
@@ -280,7 +280,7 @@ CTA : Envoyer niveau, matière et priorité
 
 Lien : https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20%5Bniveau%5D%2C%20souhaite%20travailler%20%5Bmati%C3%A8re%5D%20et%20sa%20priorit%C3%A9%20est%20%5Bbesoin%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dreel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dreel_02_choisir
 
-## 03-reservation
+## 03-demande-information
 
 Bonjour, je souhaite recevoir le programme, les horaires et le tarif pour [niveau/matière].
 

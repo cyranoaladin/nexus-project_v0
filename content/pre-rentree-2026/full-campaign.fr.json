@@ -69,10 +69,10 @@
       "funnelStage": "CONSIDERATION",
       "objective": "Présenter clairement les deux matières disponibles en 3e",
       "hook": "En 3e, consolider les bases aide à retrouver un rythme de travail clair.",
-      "body": "Le parcours d'entrée en 3e est proposé en Mathématiques ou en Français. Chaque matière comprend dix heures organisées en cinq séances, dans un groupe de trois à six élèves. Le travail suit des objectifs explicites, des exercices progressifs et une correction qui aide l'élève à comprendre ses erreurs.",
+      "body": "Le parcours d'entrée en 3e est proposé en {{subjects.TROISIEME}}. Chaque matière comprend dix heures organisées en cinq séances, dans un groupe de trois à six élèves. Le travail suit des objectifs explicites, des exercices progressifs et une correction qui aide l'élève à comprendre ses erreurs.",
       "cta": "Vérifier la matière et les horaires",
       "assetId": "full-post-02-entree-3e",
-      "altText": "Visuel de l'offre d'entrée en 3e en Mathématiques ou Français, dix heures par matière et groupe de trois à six élèves.",
+      "altText": "Visuel de l'offre d'entrée en 3e en {{subjects.TROISIEME}}, dix heures par matière et groupe de trois à six élèves.",
       "publicationTime": "19:00",
       "utm": {
         "source": "meta",
@@ -90,7 +90,7 @@
         "pre2026-3e-francais"
       ],
       "pricingDisclosure": "TROISIEME",
-      "whatsappPrefill": "Bonjour, mon enfant entre en 3e et nous recherchons le stage de [Mathématiques/Français]. Pouvez-vous confirmer les horaires ?",
+      "whatsappPrefill": "Bonjour, mon enfant entre en 3e et nous recherchons le stage dans l'une des matières publiées pour ce niveau. Pouvez-vous confirmer les horaires ?",
       "owner": "Responsable communication Nexus Réussite",
       "status": "READY_FOR_OWNER_REVIEW",
       "publicationDayOffset": 2
@@ -110,10 +110,10 @@
       "funnelStage": "CONSIDERATION",
       "objective": "Présenter les matières disponibles en Seconde",
       "hook": "L'entrée en Seconde demande des fondamentaux solides et une méthode plus autonome.",
-      "body": "En Seconde, les stages sont proposés en Mathématiques ou Français. Chaque matière représente cinq séances de deux heures, en groupe de trois à six élèves. L'élève reprend les notions utiles, s'entraîne et apprend à relire une correction pour construire une méthode réutilisable.",
+      "body": "En Seconde, les stages sont proposés en {{subjects.SECONDE}}. Chaque matière représente cinq séances de deux heures, en groupe de trois à six élèves. L'élève reprend les notions utiles, s'entraîne et apprend à relire une correction pour construire une méthode réutilisable.",
       "cta": "Choisir la matière sur WhatsApp",
       "assetId": "full-post-03-entree-seconde",
-      "altText": "Visuel de l'offre d'entrée en Seconde en Mathématiques ou Français, avec cinq séances et effectif limité.",
+      "altText": "Visuel de l'offre d'entrée en Seconde en {{subjects.SECONDE}}, avec cinq séances et effectif limité.",
       "publicationTime": "19:00",
       "utm": {
         "source": "meta",
@@ -151,10 +151,10 @@
       "funnelStage": "CONSIDERATION",
       "objective": "Orienter les familles de Première vers les matières autorisées",
       "hook": "En Première, le bon parcours dépend des spécialités et des priorités de l'élève.",
-      "body": "Les parcours d'entrée en Première réunissent une à quatre matières parmi les propositions réellement disponibles pour ce niveau. Chaque matière comprend dix heures en cinq séances. Le format Premium accueille de trois à cinq élèves afin d'organiser un travail progressif, ciblé et cohérent avec les choix de l'élève.",
+      "body": "Les parcours d'entrée en Première réunissent une à quatre matières parmi {{subjects.PREMIERE}}. Chaque matière comprend dix heures en cinq séances. Le format Premium accueille de trois à cinq élèves afin d'organiser un travail progressif, ciblé et cohérent avec les choix de l'élève.",
       "cta": "Composer le parcours de Première",
       "assetId": "full-post-04-entree-premiere",
-      "altText": "Visuel présentant les parcours Premium d'entrée en Première, de une à quatre matières selon les choix de l'élève.",
+      "altText": "Visuel présentant les parcours Premium d'entrée en Première parmi {{subjects.PREMIERE}}, de une à quatre matières selon les choix de l'élève.",
       "publicationTime": "19:00",
       "utm": {
         "source": "meta",
@@ -195,10 +195,10 @@
       "funnelStage": "CONSIDERATION",
       "objective": "Orienter les familles de Terminale vers un parcours cohérent",
       "hook": "En Terminale, préparer la rentrée signifie hiérarchiser les priorités sans se disperser.",
-      "body": "Les parcours d'entrée en Terminale associent une à quatre matières parmi celles prévues pour le niveau. Les dix heures de chaque matière sont réparties en cinq séances. En groupe Premium de trois à cinq élèves, le travail privilégie les objectifs utiles, l'entraînement et une correction structurée.",
+      "body": "Les parcours d'entrée en Terminale associent une à quatre matières parmi {{subjects.TERMINALE}}. Les dix heures de chaque matière sont réparties en cinq séances. En groupe Premium de trois à cinq élèves, le travail privilégie les objectifs utiles, l'entraînement et une correction structurée.",
       "cta": "Vérifier le parcours de Terminale",
       "assetId": "full-post-05-entree-terminale",
-      "altText": "Visuel présentant les parcours Premium d'entrée en Terminale, de une à quatre matières et cinq séances par matière.",
+      "altText": "Visuel présentant les parcours Premium d'entrée en Terminale parmi {{subjects.TERMINALE}}, de une à quatre matières et cinq séances par matière.",
       "publicationTime": "19:00",
       "utm": {
         "source": "meta",
@@ -374,7 +374,7 @@
       "publicationDayOffset": 18
     },
     {
-      "id": "10-reservation-acompte",
+      "id": "10-demande-information",
       "audience": [
         "Parents souhaitant recevoir les informations du stage"
       ],
@@ -391,7 +391,7 @@
       "hook": "Une demande d'information permet de recevoir le programme, les horaires et la grille tarifaire.",
       "body": "Écrivez le niveau et la matière recherchée. Nexus Réussite peut alors transmettre les objectifs, les horaires et le tarif correspondant. Aucun paiement n'est demandé et aucune place n'est bloquée tant que les conditions contractuelles, le reçu et le rapprochement ne sont pas validés.",
       "cta": "Demander les informations",
-      "assetId": "full-post-10-reservation-acompte",
+      "assetId": "full-post-10-demande-information",
       "altText": "Visuel invitant les familles à demander le programme, les horaires et la grille tarifaire sans paiement.",
       "publicationTime": "19:00",
       "utm": {
@@ -631,10 +631,10 @@
       "funnelStage": "CONSIDERATION",
       "objective": "Présenter le parcours 3e de façon complète",
       "hook": "Entrée en 3e : deux matières, un cadre précis et cinq séances par matière.",
-      "body": "Ce carrousel détaille l'offre d'entrée en 3e : Mathématiques ou Français, dix heures par matière, groupe de trois à six élèves et progression structurée. Le tarif exact correspond à la grille approuvée.",
-      "cta": "Choisir Mathématiques ou Français",
+      "body": "Ce carrousel détaille l'offre d'entrée en 3e : {{subjects.TROISIEME}}, dix heures par matière, groupe de trois à six élèves et progression structurée. Le tarif exact correspond à la grille approuvée.",
+      "cta": "Vérifier la matière disponible",
       "assetId": "full-carousel-02-entree-3e",
-      "altText": "Carrousel présentant l'offre d'entrée en 3e en Mathématiques ou Français, son format et son effectif.",
+      "altText": "Carrousel présentant l'offre d'entrée en 3e en {{subjects.TROISIEME}}, son format et son effectif.",
       "utm": {
         "source": "meta",
         "medium": "carousel_organic",
@@ -650,7 +650,7 @@
         "pre2026-3e-francais"
       ],
       "pricingDisclosure": "TROISIEME",
-      "whatsappPrefill": "Bonjour, mon enfant entre en 3e et souhaite travailler [Mathématiques/Français]. Pouvez-vous transmettre le programme et les horaires ?",
+      "whatsappPrefill": "Bonjour, mon enfant entre en 3e et souhaite travailler [matière]. Pouvez-vous transmettre le programme et les horaires ?",
       "owner": "Responsable communication Nexus Réussite",
       "status": "READY_FOR_OWNER_REVIEW",
       "slides": [
@@ -667,7 +667,7 @@
         {
           "id": "02",
           "eyebrow": "MATIÈRES",
-          "title": "Mathématiques ou Français",
+          "title": "{{subjects.TROISIEME}}",
           "body": "Chaque matière correspond à un parcours distinct de dix heures.",
           "altText": "Slide indiquant les deux matières disponibles en 3e.",
           "proofIds": [
@@ -723,7 +723,7 @@
       "funnelStage": "CONSIDERATION",
       "objective": "Présenter sans ambiguïté les deux matières de Seconde",
       "hook": "En Seconde, deux matières sont proposées pour préparer une rentrée plus autonome.",
-      "body": "Ce carrousel présente uniquement les matières disponibles en Seconde : Mathématiques et Français. Chaque parcours comprend cinq séances de deux heures en groupe de trois à six élèves, avec entraînement et correction organisés.",
+      "body": "Ce carrousel présente uniquement les matières disponibles en Seconde : {{subjects.SECONDE}}. Chaque parcours comprend cinq séances de deux heures en groupe de trois à six élèves, avec entraînement et correction organisés.",
       "cta": "Vérifier la matière de Seconde",
       "assetId": "full-carousel-03-entree-seconde",
       "altText": "Carrousel présentant les deux matières proposées en Seconde, le format de dix heures et l'effectif du groupe.",
@@ -761,8 +761,8 @@
           "id": "02",
           "eyebrow": "MATIÈRES",
           "title": "Deux parcours disponibles",
-          "body": "Mathématiques ou Français selon le besoin de l'élève.",
-          "altText": "Slide listant Mathématiques et Français en Seconde.",
+          "body": "{{subjects.SECONDE}} selon le besoin de l'élève.",
+          "altText": "Slide listant {{subjects.SECONDE}} en Seconde.",
           "proofIds": [
             "PRF-PRE2026-SECONDE-400"
           ]
@@ -1175,7 +1175,7 @@
       "publicationDayOffset": 17
     },
     {
-      "id": "08-reservation",
+      "id": "08-disponibilites",
       "audience": [
         "Parents souhaitant comparer un parcours"
       ],
@@ -1191,7 +1191,7 @@
       "hook": "Demander, recevoir, comparer : trois étapes simples pour s'informer.",
       "body": "La famille indique le niveau et la matière ; Nexus transmet le programme, les horaires et la grille tarifaire disponibles. Aucun paiement n'est demandé et aucune place n'est bloquée à ce stade.",
       "cta": "Demander les informations sur WhatsApp",
-      "assetId": "full-carousel-08-reservation",
+      "assetId": "full-carousel-08-disponibilites",
       "altText": "Carrousel expliquant comment demander le programme, les horaires et la grille tarifaire sans paiement.",
       "utm": {
         "source": "meta",
@@ -1353,7 +1353,7 @@
       ],
       "funnelStage": "CONSIDERATION",
       "objective": "Qualifier la matière recherchée en 3e",
-      "hook": "Entrée en 3e : Mathématiques ou Français, selon le besoin prioritaire.",
+      "hook": "Entrée en 3e : {{subjects.TROISIEME}}, selon le besoin prioritaire.",
       "body": "Cette séquence présente les deux matières disponibles, le groupe de trois à six élèves et le CTA qui permet de vérifier les horaires et le tarif du parcours choisi.",
       "cta": "Choisir la matière",
       "assetId": "full-story-02-entree-3e",
@@ -1373,7 +1373,7 @@
         "pre2026-3e-francais"
       ],
       "pricingDisclosure": "TROISIEME",
-      "whatsappPrefill": "Bonjour, mon enfant entre en 3e et souhaite travailler [Mathématiques/Français].",
+      "whatsappPrefill": "Bonjour, mon enfant entre en 3e et souhaite travailler [matière].",
       "owner": "Responsable communication Nexus Réussite",
       "status": "READY_FOR_OWNER_REVIEW",
       "frames": [
@@ -1435,7 +1435,7 @@
       "funnelStage": "CONSIDERATION",
       "objective": "Qualifier la matière recherchée en Seconde",
       "hook": "Entrée en Seconde : deux matières pour reprendre les bases utiles au lycée.",
-      "body": "Cette séquence présente Mathématiques et Français, rappelle le groupe de trois à six élèves et dirige vers WhatsApp pour vérifier le programme exact.",
+      "body": "Cette séquence présente {{subjects.SECONDE}}, rappelle le groupe de trois à six élèves et dirige vers WhatsApp pour vérifier le programme exact.",
       "cta": "Indiquer la matière",
       "assetId": "full-story-03-entree-seconde",
       "altText": "Séquence Story présentant les deux matières et l'effectif proposés à l'entrée en Seconde.",
@@ -1461,7 +1461,7 @@
         {
           "id": "01",
           "eyebrow": "ENTRÉE EN SECONDE",
-          "text": "Mathématiques ou Français : quelle priorité ?",
+          "text": "{{subjects.SECONDE}} : quelle priorité ?",
           "interaction": "Quiz à deux choix",
           "durationSeconds": 6,
           "cta": "Choisir",
@@ -1848,7 +1848,7 @@
         {
           "id": "01",
           "eyebrow": "3e",
-          "text": "Mathématiques ou Français : tarif applicable par matière affiché ici.",
+          "text": "{{subjects.SECONDE}} : tarif applicable par matière affiché ici.",
           "interaction": "Sondage : Maths / Français",
           "durationSeconds": 6,
           "cta": "Voir Seconde",
@@ -2039,7 +2039,7 @@
       "publicationDayOffset": 21
     },
     {
-      "id": "11-reservation",
+      "id": "11-demande-information",
       "audience": [
         "Parents souhaitant s'informer"
       ],
@@ -2056,7 +2056,7 @@
       "hook": "Une demande suffit pour recevoir le programme, les horaires et le tarif.",
       "body": "Cette séquence présente les informations à transmettre et les éléments envoyés en retour, sans paiement ni blocage de place.",
       "cta": "Demander les informations",
-      "assetId": "full-story-11-reservation",
+      "assetId": "full-story-11-demande-information",
       "altText": "Séquence Story expliquant la demande d'information sans paiement.",
       "utm": {
         "source": "meta",
@@ -2394,7 +2394,7 @@
       "publicationDayOffset": 13
     },
     {
-      "id": "03-reservation",
+      "id": "03-demande-information",
       "audience": [
         "Parents souhaitant s'informer"
       ],
@@ -2411,7 +2411,7 @@
       "hook": "Programme, horaires, tarifs : voici comment recevoir les informations utiles.",
       "body": "Ce Reel décrit la demande sur WhatsApp et les informations transmises en retour. Il précise qu'aucun paiement n'est demandé et dirige la famille vers un échange vérifiable.",
       "cta": "Demander les informations sur WhatsApp",
-      "assetId": "full-reel-03-reservation",
+      "assetId": "full-reel-03-demande-information",
       "altText": "Reel de trente secondes présentant les étapes d'une demande d'information sans paiement.",
       "utm": {
         "source": "meta",
@@ -2495,6 +2495,6 @@
       "publicationDayOffset": 24
     }
   ],
-  "launchDate": null,
-  "launchDateStatus": "PENDING_OWNER_AUTHORIZATION"
+  "launchDate": "2026-07-26",
+  "launchDateStatus": "SCHEDULED"
 }

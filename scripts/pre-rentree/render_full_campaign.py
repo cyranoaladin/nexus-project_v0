@@ -27,8 +27,8 @@ from render_week_one_kit import Asset, KitRenderer
 
 VERSION = "2026-full-campaign-v1"
 FIXED_PDF_DATE = "D:20000101000000Z"
-PUBLIC_STATUS = "READY_FOR_OWNER_REVIEW"
-META = "Dès le 17 août · Nexus Réussite, Mutuelleville"
+PUBLIC_STATUS = "PUBLIC_RELEASE_CANDIDATE"
+META = "17–28 août 2026 · Nexus Réussite, Mutuelleville"
 
 
 class FullCampaignRenderer(KitRenderer):
@@ -42,15 +42,25 @@ class FullCampaignRenderer(KitRenderer):
     ):
         self.repo_root = repo_root
         self.content = json.loads(content_path.read_text(encoding="utf-8"))
+        self.campaign = json.loads(
+            (repo_root / "data" / "campaigns" / "pre-rentree-2026.json").read_text(encoding="utf-8")
+        )
+        self.subjects_by_level = self._canonical_subjects_by_level()
+        self.content = self._resolve_subject_tokens(self.content)
+        publication_times = {
+            "publications": "19:00",
+            "carousels": "19:30",
+            "stories": "10:00",
+            "reels": "18:30",
+        }
+        for family, default_time in publication_times.items():
+            for item in self.content[family]:
+                item.setdefault("publicationTime", default_time)
         configured_launch_date = self.content.get("launchDate")
         if launch_date and configured_launch_date and launch_date != configured_launch_date:
             raise ValueError("CLI launch date conflicts with the content launch date")
         self.launch_date = launch_date or configured_launch_date
-        self.launch_date_status = (
-            "OWNER_AUTHORIZED"
-            if self.launch_date
-            else self.content["launchDateStatus"]
-        )
+        self.launch_date_status = self.content["launchDateStatus"]
         for item in self.all_items:
             item.update(resolve_publication_date(
                 self.launch_date,
@@ -103,10 +113,22 @@ class FullCampaignRenderer(KitRenderer):
         public_text = json.dumps(
             [self.content[family] for family in expected], ensure_ascii=False
         ).lower()
-        # "snt" retiré de la liste : matière Seconde légitime depuis R2 (décision direction 2026-07-23).
-        for forbidden in ("manuel offert", "remise annuelle", "places très limitées"):
+        for forbidden in (
+            "manuel offert",
+            "remise annuelle",
+            "places très limitées",
+            "programme et inscription",
+            "pré-inscrire",
+            "réserver",
+            "payer",
+        ):
             if forbidden in public_text:
                 raise ValueError(f"Forbidden public term: {forbidden}")
+        if "seconde" in public_text and (
+            "seconde, physique-chimie" in public_text
+            or "physique-chimie en seconde" in public_text
+        ):
+            raise ValueError("Physique-Chimie cannot be advertised for Seconde")
 
     @property
     def all_items(self) -> list[dict[str, Any]]:
@@ -164,7 +186,7 @@ class FullCampaignRenderer(KitRenderer):
             "07-valeur-tarif": "Comparer le contenu réel du stage",
             "08-dix-heures": "Cinq séances pour avancer par étapes",
             "09-effectifs-limites": "Un effectif défini pour chaque parcours",
-            "10-reservation-acompte": "Demander le programme et la grille",
+            "10-demande-information": "Demander le programme et la grille",
             "11-checklist-parent": "Trois informations pour commencer",
             "12-rappel-avant-stage": "Le stage commence le 17 août",
             "13-demarrage": "Les stages commencent aujourd'hui",

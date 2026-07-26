@@ -2,9 +2,9 @@
   "schemaVersion": "1.0.0",
   "version": "2026-full-campaign-v1",
   "campaignId": "pre-rentree-2026",
-  "status": "READY_FOR_OWNER_REVIEW",
-  "launchDate": null,
-  "launchDateStatus": "PENDING_OWNER_AUTHORIZATION",
+  "status": "PUBLIC_RELEASE_CANDIDATE",
+  "launchDate": "2026-07-26",
+  "launchDateStatus": "SCHEDULED",
   "sourceVersion": "2026-full-campaign-v1",
   "commercialContractVersion": "2026-pre-rentree-commercial-v3",
   "inventory": {
@@ -30,8 +30,8 @@
       "format": "CSV",
       "width": null,
       "height": null,
-      "bytes": 27594,
-      "sha256": "b20f47641e9b8d3249f316fa0b12d84f82e09604632e4d81720249ab9ce95f59",
+      "bytes": 28039,
+      "sha256": "c5d9a54bb1badbba9faa654ab765a0cf701d9950fefeaaf4f136b6c2a7767428",
       "altText": "Calendrier CSV exploitable"
     },
     {
@@ -41,8 +41,8 @@
       "format": "JSON",
       "width": null,
       "height": null,
-      "bytes": 92061,
-      "sha256": "d5bcc0fc0c9c3dd94c9013a051a7853f0584b1202756cffdb5aecdfebc6c57d1",
+      "bytes": 93334,
+      "sha256": "1a5edb8d374f4b36cb3c78fa8725dfdfc8058e25c783fb149538e97f2474384f",
       "altText": "Calendrier complet jusqu'au démarrage"
     },
     {
@@ -52,8 +52,8 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 5933360,
-      "sha256": "c7025dff4d24f30db07c82a1f2c7272664e5ea5c6cd7bf867f11b401f8616762",
+      "bytes": 6296524,
+      "sha256": "1025d67b328534af59117a4458002153584fcc31dbf877a08d3856b8ba11196d",
       "altText": "Calendrier PDF complet jusqu'au démarrage"
     },
     {
@@ -63,8 +63,8 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 378945,
-      "sha256": "6708a8905930249532d549e333c8839f439a004abc3ab23cfd87e1568231895f",
+      "bytes": 427319,
+      "sha256": "b1406416677ff2bd94f951e5434bd4b7e2931e85462891711721ceeb75cd8916",
       "altText": "Carrousel de cinq slides expliquant la progression pédagogique des stages Nexus Réussite."
     },
     {
@@ -74,8 +74,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 75215,
-      "sha256": "959ea4d8b9d061a7ae716afbceae9aa2edf0bee8bcc8faf9dcd87a30f08801ad",
+      "bytes": 81874,
+      "sha256": "6e8b69de99a3ec3a34f9bfa93252901e9ad98006e888e978a3a3ccaa25ad4808",
       "altText": "Ouverture du carrousel sur l'organisation progressive des dix heures."
     },
     {
@@ -85,8 +85,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 40888,
-      "sha256": "648aa0fc3e8d6232397b939dbc5cfde904a4a7abf926f102fa38918dc88aece9",
+      "bytes": 46952,
+      "sha256": "da0d241fb2041822f383a6ddeb5bd9d1e45cbd288c20ee26fb0161eea917ec7b",
       "altText": "Ouverture du carrousel sur l'organisation progressive des dix heures."
     },
     {
@@ -96,8 +96,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 69257,
-      "sha256": "eaf01cd74428573885898d8fb697c1106f6ac74a98d4bab1642c8d03401ea57f",
+      "bytes": 75971,
+      "sha256": "54d097bbdea949af1fa3f726abade191214b9fe7bd22736293dfc1af92f6949b",
       "altText": "Slide sur l'identification du point prioritaire à reprendre."
     },
     {
@@ -107,8 +107,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 39466,
-      "sha256": "ff67124dab792fa866ab0abe598bd699978c34e428851f0ab03ed5865de8fc9a",
+      "bytes": 45658,
+      "sha256": "3d0d47604251afd9c9a4776c5a31a246ccca0554cea66b60093eadff5b809eb5",
       "altText": "Slide sur l'identification du point prioritaire à reprendre."
     },
     {
@@ -118,8 +118,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 74348,
-      "sha256": "55d4567846f904c04f6990d7357fdc0860d61aec0b524402ec347825450529d6",
+      "bytes": 81028,
+      "sha256": "bad2d9fff19914caca86c5303e45299e94b2532e540ea4b5def882492e719eb4",
       "altText": "Slide sur le rôle de l'entraînement actif avant la correction."
     },
     {
@@ -129,8 +129,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 42144,
-      "sha256": "de5811a2fd2a98ee3bac16543daaada0f827ac9894fa0a4c95c64e918a3afb48",
+      "bytes": 48528,
+      "sha256": "41171af862461de02e4c71b31b1258199461237c51660ad5d435cb1fd3881ab9",
       "altText": "Slide sur le rôle de l'entraînement actif avant la correction."
     },
     {
@@ -140,8 +140,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 67919,
-      "sha256": "ba9b86443936990c0c0f7790eee72f6557c30f83dbd94c48d56d531adab7b1f2",
+      "bytes": 74671,
+      "sha256": "6d6fab28982cf7b98dcfe5928d076acaad3b10aabcecbd6ff57ba112aafb2e82",
       "altText": "Slide sur l'utilisation pédagogique de la correction."
     },
     {
@@ -151,8 +151,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 37984,
-      "sha256": "bbdc8f11500b97c403976cfc48293051808d019c5215b36e2f8cd631b2e00cd9",
+      "bytes": 44436,
+      "sha256": "b9d4e6ca8732ba30f36ecf1203dea93407ce78532b6f45bb0389e8d0220061f3",
       "altText": "Slide sur l'utilisation pédagogique de la correction."
     },
     {
@@ -162,8 +162,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 76683,
-      "sha256": "100ca6821d60644fced06134f7304d89e4090a9afe2f9662a381bf152054734c",
+      "bytes": 83300,
+      "sha256": "7df43a612478d66f120474feab284920d33c4bbbd085fe4de6eef4340c3a555d",
       "altText": "Slide finale invitant à demander le programme sur WhatsApp."
     },
     {
@@ -173,8 +173,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 42152,
-      "sha256": "6343440f43c7953ec339d603dc837bd3789570fe89f9d4324a5fefbebccc31a3",
+      "bytes": 48322,
+      "sha256": "bdd834594b9892e74407c081967b045fd0316d01ac7105b47beb07059805eafd",
       "altText": "Slide finale invitant à demander le programme sur WhatsApp."
     },
     {
@@ -184,9 +184,9 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 385015,
-      "sha256": "41f09fef9ec8fcf7f4518fd4eb742b8b6c7a19ccf8d84d339af465e59d598ea3",
-      "altText": "Carrousel présentant l'offre d'entrée en 3e en Mathématiques ou Français, son format et son effectif."
+      "bytes": 433851,
+      "sha256": "32d7543a91c6be9507a5d6c7c9bfa618220981faa2f84ebf75de02cf1be97ab3",
+      "altText": "Carrousel présentant l'offre d'entrée en 3e en Mathématiques et Français, son format et son effectif."
     },
     {
       "assetId": "full-carousel-02-entree-3e-slide-01-png",
@@ -195,8 +195,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 71737,
-      "sha256": "4a8b7a5c0b24fb8b4a9248cc7498185ecf1de639957567601365602786b923d1",
+      "bytes": 78443,
+      "sha256": "cc7bb681a930b69d3c4e850fbb6ea720b949d85aa954c27be5a0cddc37bd18b4",
       "altText": "Ouverture du carrousel consacré à l'entrée en 3e."
     },
     {
@@ -206,8 +206,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 41052,
-      "sha256": "242a7c26c6dc81c273771d273313c1cd5e7f0b85be172fcc2b99c1201604767b",
+      "bytes": 47138,
+      "sha256": "de68a54896483e7f47246ef50f49a6ee9b9ed41f4e266a176069009111ec0ec7",
       "altText": "Ouverture du carrousel consacré à l'entrée en 3e."
     },
     {
@@ -217,8 +217,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 74368,
-      "sha256": "2540146054470d18681a9f68d6a848af4b17caf6268565cd1a3ea2aaa37f5d00",
+      "bytes": 79898,
+      "sha256": "b469304a7668003747e096ff3ee5b17b3777515ba779380c5622bc84f343b8fb",
       "altText": "Slide indiquant les deux matières disponibles en 3e."
     },
     {
@@ -228,8 +228,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 40284,
-      "sha256": "ab334d2b94282c59d67bf87df438e6e04f767c1be36eb73efe64e33d299b664d",
+      "bytes": 46404,
+      "sha256": "31f60265fe722da828d21ba79483d06856fbd2707eb0749a2ff49e6fc59d18b2",
       "altText": "Slide indiquant les deux matières disponibles en 3e."
     },
     {
@@ -239,8 +239,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 73936,
-      "sha256": "79e3dc43e22c9d2d7eab9ef06920e126a48d72b2a5b4de4d1f9aba8405679d6c",
+      "bytes": 80607,
+      "sha256": "3e207173a5ab9cadf257f68d6de16013e73828d0356569c1e4866cd51bcd0f1d",
       "altText": "Slide présentant les cinq séances de deux heures."
     },
     {
@@ -250,8 +250,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 41646,
-      "sha256": "3455928b0c21e86cdc98f56980cff0c573b05bab7cc84a89c809de37be1dacce",
+      "bytes": 47990,
+      "sha256": "63f376d01cb1c6800770c3c7a98243cab126fa902a24048ec07a564e1c7c2498",
       "altText": "Slide présentant les cinq séances de deux heures."
     },
     {
@@ -261,8 +261,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 65071,
-      "sha256": "7cb1b12ce47463b259d7bafd875362fadd6f0027ffdb9aad094a0683e3da4150",
+      "bytes": 71803,
+      "sha256": "c196f7ce0f17a4dd9919f58d4f5053c341f2770079b88f17e10eefe58384aa90",
       "altText": "Slide indiquant un groupe de trois à six élèves en 3e."
     },
     {
@@ -272,8 +272,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 35786,
-      "sha256": "4172ba06bdda5485c8477651d7256104ca26d4a8d5e08ee761de7ea5b3bcf7aa",
+      "bytes": 42196,
+      "sha256": "425eae2e46585a57164fca2881723de5969661652f43196849d920da6591351a",
       "altText": "Slide indiquant un groupe de trois à six élèves en 3e."
     },
     {
@@ -283,8 +283,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 83409,
-      "sha256": "f0ed2417c94ebb7ebc10c03fbde1a0c83f3d5285d6b2a0ecc8e690f540e6cf1c",
+      "bytes": 90031,
+      "sha256": "71f62ea481941c31863593a64cbe83477f31f7ce0e2a30e9ee6452eb572b3202",
       "altText": "Slide finale avec le tarif correspondant à l'offre."
     },
     {
@@ -294,8 +294,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 48898,
-      "sha256": "4b17abf6164628a5306874f5f4529f3c72b344c73279a5198f93677d50692f7c",
+      "bytes": 55160,
+      "sha256": "af7ca7ee921f91627a747851bf731bd505fe03af79bc90c45a41522564d6288a",
       "altText": "Slide finale avec le tarif correspondant à l'offre."
     },
     {
@@ -305,8 +305,8 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 384822,
-      "sha256": "595d38548a972822851c0152d72e1e055ce95dc646bd7fb193664f5a8abea073",
+      "bytes": 432733,
+      "sha256": "7420718704098efbf01f3b61b6975970a39ea324ccf5fc7923a1ab8af6483f2d",
       "altText": "Carrousel présentant les deux matières proposées en Seconde, le format de dix heures et l'effectif du groupe."
     },
     {
@@ -316,8 +316,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 78040,
-      "sha256": "d8a00bd7d6ae605505f6d8ab1aedfebdb0ea0c9bb9b6b03899364582adccab49",
+      "bytes": 84706,
+      "sha256": "8f07d71d63a1f61d85165f2125b2cfc898f2b450c1f9dc5655e332198a34b9bb",
       "altText": "Ouverture du carrousel sur l'entrée en Seconde."
     },
     {
@@ -327,8 +327,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 44486,
-      "sha256": "368ab4f129aad9d273efe3a053fd1c105ab9bf2c07d55d33a61c589f56e21b0d",
+      "bytes": 50930,
+      "sha256": "186b6c4500a3eb8c3b693ffecbcdca7d9da08cde03bffe051e10aadd52e0c8ec",
       "altText": "Ouverture du carrousel sur l'entrée en Seconde."
     },
     {
@@ -338,8 +338,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 71539,
-      "sha256": "015db76c550e0ba149484299a54a7ed2533f2657f23d6040fd8b96157f9bdb8c",
+      "bytes": 78223,
+      "sha256": "8265a9cd05524661e1384f4a3781116719a63dae5f5f9a8b030b6b37759948a4",
       "altText": "Slide listant Mathématiques et Français en Seconde."
     },
     {
@@ -349,8 +349,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 37590,
-      "sha256": "392475cd1ab57183d19b417d957b070d0b1c19c20e10020af26e17b0739de0f3",
+      "bytes": 43974,
+      "sha256": "c12ce8c0fc99272a5a7bb7c66e46ba9d99a64dc60a886e9d1447ca2dd4e2865a",
       "altText": "Slide listant Mathématiques et Français en Seconde."
     },
     {
@@ -360,8 +360,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 72830,
-      "sha256": "2b9cac58bc0d7f39a4bd85fd8103f68383fb00e445bd32eb5e8fa64d8489b286",
+      "bytes": 79497,
+      "sha256": "09af64ba78ad4cbd9df348612c4250bc8cd468fa6d7b7f8e97ee49677f99e12f",
       "altText": "Slide sur l'organisation des dix heures en cinq séances."
     },
     {
@@ -371,8 +371,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 40680,
-      "sha256": "8ecaedf41a9135734316b2a3e6486322b51d81a3a803901fd40503856134e4af",
+      "bytes": 46836,
+      "sha256": "3012c3e6f4ec174b4f465a03e0286ddf5a940f8cafacf88ca024fd9e2d84a094",
       "altText": "Slide sur l'organisation des dix heures en cinq séances."
     },
     {
@@ -382,8 +382,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 66661,
-      "sha256": "12d1ed7f077efcf066c6b1afb57716474c88f21126676f0e1dc1708608eec616",
+      "bytes": 73457,
+      "sha256": "5633e661bf8f50d7a9335f9c22fd107c7dbf0e760158242e4f0045af4ec5f805",
       "altText": "Slide indiquant un effectif de trois à six élèves en Seconde."
     },
     {
@@ -393,8 +393,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 36198,
-      "sha256": "720e3eee612fed37ebdf6bacf0ddcb30a5f9199bc59e3fc9b7b54a4b9ca8d9b9",
+      "bytes": 42642,
+      "sha256": "d353e772fcb4bd2a49b77c337b699c63f5bc2d5af34a637c478a673e773193f6",
       "altText": "Slide indiquant un effectif de trois à six élèves en Seconde."
     },
     {
@@ -404,8 +404,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 83146,
-      "sha256": "5e8b380201fc02e7982a24ff9c21be1e70252cdbe850e562b357072dacdab16d",
+      "bytes": 89733,
+      "sha256": "82b1133d6b08a1719512a30a9abe3b2c8e049f1ccb5ca0c660ea1facce44b050",
       "altText": "Slide finale avec le tarif et une invitation à vérifier le groupe."
     },
     {
@@ -415,8 +415,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 49794,
-      "sha256": "d6612efa6583dc66628c7c61dd0c156848f7268fb7ab463159959ef293b004ad",
+      "bytes": 56194,
+      "sha256": "8f9ad69f96d5167a8a6068d9966e739b8c1a05f926e5b657070aa57200cd1b08",
       "altText": "Slide finale avec le tarif et une invitation à vérifier le groupe."
     },
     {
@@ -426,8 +426,8 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 398713,
-      "sha256": "98a3d3d4fa958f0aaed9f09fe30233df03f9971017a6686dae15357e022f4a73",
+      "bytes": 447185,
+      "sha256": "ba57a5103cfd1ae338a93f313430b1323d7c8b4ebfc1b9ad5ce9088d078397da",
       "altText": "Carrousel aidant les familles à composer un parcours Premium d'entrée en Première selon les matières disponibles."
     },
     {
@@ -437,8 +437,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 69697,
-      "sha256": "8d15ff44a761e22031bc3903eb276cf2c47543c98ec6c5d2edae2b480d2eb035",
+      "bytes": 76519,
+      "sha256": "15035a1ca74c8fb025c208a43528bab41068278232ff2d291799f35396738942",
       "altText": "Ouverture sur la sélection des priorités en Première."
     },
     {
@@ -448,8 +448,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 42118,
-      "sha256": "e9d599bcec865f7ce7d096aac8d2220986f0b10f6f76647516012eacb1963be2",
+      "bytes": 48304,
+      "sha256": "36e747522afc81fd79bd2bbb432f61558c83a299fee26d419960254752c5a192",
       "altText": "Ouverture sur la sélection des priorités en Première."
     },
     {
@@ -459,8 +459,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 72574,
-      "sha256": "4f515e4e30ec7fa92adc5cb358011c38b4d3795756b91c1bbb4f186a14bedfa3",
+      "bytes": 79258,
+      "sha256": "110f66f358413496203c24fdd41d356fde1afa7514c4d636685c7c5863ef24d8",
       "altText": "Slide présentant les packs de une à quatre matières."
     },
     {
@@ -470,8 +470,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 40518,
-      "sha256": "62a407afdc9727649bd401943455a9eb73b8027a93f3ad6b09b74751d9c840f0",
+      "bytes": 46808,
+      "sha256": "dc47669a4a7ed428d130dd2a9b8bc9cf4e26c1b1c342343171ded4eb9f926888",
       "altText": "Slide présentant les packs de une à quatre matières."
     },
     {
@@ -481,8 +481,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 72912,
-      "sha256": "150fdb1a7e4cf6104ae41637391a1c13fec270b0d9ea4abb8dee21ce366d3d7f",
+      "bytes": 79579,
+      "sha256": "500b964deb49501fc0cd20aad5117dd125c0a3590ade642c29b6e05aafbaaca7",
       "altText": "Slide présentant cinq séances par matière."
     },
     {
@@ -492,8 +492,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 42506,
-      "sha256": "5c178ea53d054a84f0f04761d1a77cef618506836908f8530b10a4def0861a4d",
+      "bytes": 48670,
+      "sha256": "d769927f854b7b9887b8b0b9133ee5d2941b61651122e2bd5970c1337df508bb",
       "altText": "Slide présentant cinq séances par matière."
     },
     {
@@ -503,8 +503,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 69679,
-      "sha256": "cadf9c673840016a68cdb2eb828faba87a661022565083e8ada3a4f2c6bd52b1",
+      "bytes": 76469,
+      "sha256": "4a86c58cd927325399a4c91fde516a61f62a51af108f212486911bb7903d6145",
       "altText": "Slide indiquant un groupe Premium de trois à cinq élèves."
     },
     {
@@ -514,8 +514,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 37812,
-      "sha256": "72f4593704822d0fb759fba2d5601964ede4b058c8a4e9b6ff5bc09cb26642c5",
+      "bytes": 44292,
+      "sha256": "3ce561a0c12ed3caafdfe1d1c2fc4ee5e5125fe41d791d93162179397fb90c88",
       "altText": "Slide indiquant un groupe Premium de trois à cinq élèves."
     },
     {
@@ -525,8 +525,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 91964,
-      "sha256": "34293e7b6b2dc18bbdfb5adbca9ece7ff90ae527b90f19f157f6f26b8c17ff75",
+      "bytes": 98741,
+      "sha256": "a0cbbbc90815936ffb00fe6d1f9685678ae22747a8ffb39eb044be9e1156d32c",
       "altText": "Slide finale avec les tarifs des packs Première."
     },
     {
@@ -536,8 +536,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 57530,
-      "sha256": "5b784bd8a463a8258e37aec1a0867592ed143d0523a56eff05adb59d552b56ca",
+      "bytes": 63784,
+      "sha256": "ffb6986231bfcb2c3bed39216977fe2ebfbe972584f8b87710d3e7b5e159df52",
       "altText": "Slide finale avec les tarifs des packs Première."
     },
     {
@@ -547,8 +547,8 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 394648,
-      "sha256": "ccaa82dc255eb95d42ee66d16cefeea6a3ff9e935380adad3298abd91fb5824d",
+      "bytes": 443145,
+      "sha256": "bf814dc4d471b35d9b85fca41eaae7d4abe5dac2a6c2ff3453c9d4a32b6acacd",
       "altText": "Carrousel guidant la composition d'un parcours Premium d'entrée en Terminale selon les matières disponibles."
     },
     {
@@ -558,8 +558,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 70666,
-      "sha256": "607089edaa2f8739686b58f8ecca51335a0e6d5e4b5a1d6b3408798f678956d7",
+      "bytes": 77420,
+      "sha256": "fefed6349fb53eb1114f4ddce2c011dc7657bc48d536366f6a8d8ed8db779fae",
       "altText": "Ouverture sur la hiérarchisation des priorités en Terminale."
     },
     {
@@ -569,8 +569,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 41680,
-      "sha256": "bfa6546911b5fa10ef76b76e3213e3e405a849a4ec5098041d77897de99d68df",
+      "bytes": 47866,
+      "sha256": "5da6e13d33ae2ac8d97c83da1090fc1195c53ff227ca53effe754de05eddb889",
       "altText": "Ouverture sur la hiérarchisation des priorités en Terminale."
     },
     {
@@ -580,8 +580,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 71828,
-      "sha256": "f752944365024d3c10a5df69046f99736a30b516caced12b64547b05d244aa5e",
+      "bytes": 78518,
+      "sha256": "01085918eba8214a80a2633363a5bfc7d1a0f318c62dec077d514bbafca42d20",
       "altText": "Slide présentant les parcours de une à quatre matières."
     },
     {
@@ -591,8 +591,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 40364,
-      "sha256": "5adfa390f90bc8cd376b1e222662522b667ebb94ce085d471cacd878d3367811",
+      "bytes": 46516,
+      "sha256": "de2670e9c5d69bef83ced0a9c92c6b14409962319149b3a559e15a321fb4fa56",
       "altText": "Slide présentant les parcours de une à quatre matières."
     },
     {
@@ -602,8 +602,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 72557,
-      "sha256": "2e36313e46055b85949f9d1c3fa4b6bb858b356038efb9d74e99666ed5261641",
+      "bytes": 79220,
+      "sha256": "1b6abd1ee74a8c0bb08908e50058aa9ac2f0c4c5f86e70ebbf436598b93af1a0",
       "altText": "Slide présentant les cinq séances par matière."
     },
     {
@@ -613,8 +613,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 39946,
-      "sha256": "1f35a4af6d77dd496b1e45b0292ee795d515144e405d4c6c422e87ee941358a5",
+      "bytes": 46302,
+      "sha256": "561e8d472a3fdf1344d6099b95d371fe8fbf9f2f3c8dbce018eef32bbb4520b4",
       "altText": "Slide présentant les cinq séances par matière."
     },
     {
@@ -624,8 +624,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 70144,
-      "sha256": "738351e18f26ba6a0460e4f868348be69e1212c01a10c9e448b26b5d7b7b142e",
+      "bytes": 76937,
+      "sha256": "c4998f98e4f4d431ef58545749326476cd788667c342e0f6af7f82afa5e90122",
       "altText": "Slide indiquant l'effectif du groupe Premium."
     },
     {
@@ -635,8 +635,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 36852,
-      "sha256": "edbe34afc67bda763540d7837b8d50328fd13f1e52a4f88d78b548129dfa6625",
+      "bytes": 43298,
+      "sha256": "9f5f5289b48c8543e40d204ae5b0cd87861fdd5be4f5d365ab00f35482c72797",
       "altText": "Slide indiquant l'effectif du groupe Premium."
     },
     {
@@ -646,8 +646,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 94385,
-      "sha256": "81e8de1036253b0be295fcd2d4a35353b2969cf2f7a7c6a445d1cb74c3793242",
+      "bytes": 101061,
+      "sha256": "aa7747769d8c94590f76df8b85526bfd6439386d0d22afacf058f6acd8358436",
       "altText": "Slide finale avec les tarifs des packs et le CTA WhatsApp."
     },
     {
@@ -657,8 +657,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 56050,
-      "sha256": "d6677b2223cf8618530de793e6b7daafa12ee68dd7569c6d6609777de81e43f6",
+      "bytes": 62288,
+      "sha256": "fb14e7640edea14e78fc75d7f74deaf296c5831393ffdb745d262bd1b8f6086e",
       "altText": "Slide finale avec les tarifs des packs et le CTA WhatsApp."
     },
     {
@@ -668,8 +668,8 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 375257,
-      "sha256": "0fb6452841ae02148442c384ff0a079b89851981240b05b583c4914770583bdb",
+      "bytes": 424045,
+      "sha256": "fcf964bd3e8ccd23373ed2700daf1fa4608249a4e5d60e40f77d1a96ec8271fc",
       "altText": "Carrousel en cinq slides aidant les parents à choisir un parcours selon le niveau, la matière et la priorité."
     },
     {
@@ -679,8 +679,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 73866,
-      "sha256": "1cbb9d9e83745f4d6c70933732ea3ebdad26195152f48dba8da42b314a67bdce",
+      "bytes": 80563,
+      "sha256": "f25ddb1abf6dc6c1ed28f29625b6c8e603694f6a8a30c0fd423f335e6211e944",
       "altText": "Ouverture sur le choix du parcours."
     },
     {
@@ -690,8 +690,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 39748,
-      "sha256": "114dd7f3d08be483a0d76ff1474e6eaf6598d3fdeb1c1a5a64f82d9c36e24cf3",
+      "bytes": 46170,
+      "sha256": "c747deb790282771c111b897f9c513de2b5258c30f3d1f2c8304b87364a01f36",
       "altText": "Ouverture sur le choix du parcours."
     },
     {
@@ -701,8 +701,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 70054,
-      "sha256": "ff3b8dbcfa609b6e3c790ece53af6074df538004424131893701909f9915c0c5",
+      "bytes": 76821,
+      "sha256": "ae5b939eb795fb2f8c8f77c760b394db81c6fa29243fd39c4ab7e89f4cb91210",
       "altText": "Slide demandant la classe d'entrée de l'élève."
     },
     {
@@ -712,8 +712,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 38610,
-      "sha256": "c39c976dbc1061f2ea0794ef52d47ce68fb37033bfbc48f3c4ddaedc2ffde60e",
+      "bytes": 44804,
+      "sha256": "2da1475a9bc6809dbf2222181ac66c77dffcb9dc449a416bba52e834bd2144e1",
       "altText": "Slide demandant la classe d'entrée de l'élève."
     },
     {
@@ -723,8 +723,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 67685,
-      "sha256": "90d73947a80fcbcbdfe6ae01ef5bc0f139e643f119878063256828c8e2905234",
+      "bytes": 74448,
+      "sha256": "06dc348777e0da7e9aec9184cb33dafd4244a2e00e452c9281b2a59179cb76a4",
       "altText": "Slide demandant la matière prioritaire."
     },
     {
@@ -734,8 +734,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 38382,
-      "sha256": "611d99aaa2d79dccf185394b5b4f3771b376466ddd67b412b275c7942cb1fa30",
+      "bytes": 44868,
+      "sha256": "4b9b5995920f00b7b1d1159e4a275d311f0205565a046a16e9307e5bc1b0f36a",
       "altText": "Slide demandant la matière prioritaire."
     },
     {
@@ -745,8 +745,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 74708,
-      "sha256": "62da2f8cc7fd07f651edeb60ed07ca2f9af5ce82cbb6fadf6d10685d028b479a",
+      "bytes": 81406,
+      "sha256": "c182efa379475c0f9d9f9af69b5079152ebf46646b86199555cfd51f30ee40a5",
       "altText": "Slide invitant à décrire le besoin de l'élève."
     },
     {
@@ -756,8 +756,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 41646,
-      "sha256": "09f1790b2e657ded10e65b97d0205fbc9cc4a1778e67434ca8f7b96c56671891",
+      "bytes": 47712,
+      "sha256": "0b60ad17ca153aabee39f7530738b2d55dc1c7c836d9c859d622f02cffdadbe2",
       "altText": "Slide invitant à décrire le besoin de l'élève."
     },
     {
@@ -767,8 +767,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 74189,
-      "sha256": "32738067814f7deb9e154703e1bea3246f7e0b9b406045000c4e9607411c4b15",
+      "bytes": 80808,
+      "sha256": "87a455d512b96229016ada68ef911dbe77f91bf8e058b0b5afb3cfd3d32a0cfc",
       "altText": "Slide finale invitant à envoyer la demande sur WhatsApp."
     },
     {
@@ -778,8 +778,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 41276,
-      "sha256": "0009601f0e2f2c31231aec0e96c47d508586ce28e35a67ec14fd9f61c59718c4",
+      "bytes": 47260,
+      "sha256": "696508294aac394fa8301e084b8f2987d8b51209c40b240f24f94ae19d90fc29",
       "altText": "Slide finale invitant à envoyer la demande sur WhatsApp."
     },
     {
@@ -789,8 +789,8 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 407113,
-      "sha256": "3ab7c4c116b86bbd0874ac97f3849c39919291f45ffc4e24e8860dd734834327",
+      "bytes": 455674,
+      "sha256": "41024caca9530f634b516078f1c931653b13db17eb77a07619c8af4ae244cef4",
       "altText": "Carrousel expliquant la valeur du stage par ses séances, ses objectifs, son entraînement, sa correction et son effectif."
     },
     {
@@ -800,8 +800,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 77650,
-      "sha256": "d32c9efc510603f752d9025bfefd48374383fd61b5aebb08ab916a1e4091c9a2",
+      "bytes": 84232,
+      "sha256": "02c8e2493b65bcfa6118ce5016458b863a30f70495a9f3582be4a7c6964ea716",
       "altText": "Ouverture sur les critères de comparaison d'un stage."
     },
     {
@@ -811,8 +811,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 42206,
-      "sha256": "39b1d3f7885245a3dc299e844b0114a0cd8fd3db7f0989d305a59f78a66e2f28",
+      "bytes": 48280,
+      "sha256": "c0ab845bcc6e2c2a3e3d8743d5affd93afd189990f3def36fdc8cbde200fcb47",
       "altText": "Ouverture sur les critères de comparaison d'un stage."
     },
     {
@@ -822,8 +822,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 69926,
-      "sha256": "080d367bcdbd797e0964a4388674ef02877bd70fcf39b11c7bad20c642c935e3",
+      "bytes": 76681,
+      "sha256": "bdaf78d3683b3bf84bbaeeffb01aabe40c142a4d1f18955c549f2592bad13bbd",
       "altText": "Slide sur les cinq séances incluses."
     },
     {
@@ -833,8 +833,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 36916,
-      "sha256": "35ffac80af21aa716de6bb8f13e9fdc6b723e856dc8122f6515ac0b0acf90b58",
+      "bytes": 43136,
+      "sha256": "de284fb1f6e9f90bfb4f261640c961eaaf251404bd60ecdacbddd59af42552b5",
       "altText": "Slide sur les cinq séances incluses."
     },
     {
@@ -844,8 +844,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 71647,
-      "sha256": "3e0f8f80257c8192fdf0e03efa86039878c583685e7c827e4e7504da97a264fa",
+      "bytes": 78337,
+      "sha256": "66e19a90856aefccdf44a6622155f24cc8973faa04ad850270d7364451d263d8",
       "altText": "Slide sur les objectifs et l'entraînement inclus."
     },
     {
@@ -855,8 +855,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 40252,
-      "sha256": "5a9b9955a806a2c7b05a699fdd2b327150106cd803952fc75367a21c08a0b50b",
+      "bytes": 46426,
+      "sha256": "3e6de9aeb5a346d929b18a9f603f215f4822d040e0f6516b28430121186a6142",
       "altText": "Slide sur les objectifs et l'entraînement inclus."
     },
     {
@@ -866,8 +866,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 66261,
-      "sha256": "c6575e931ec9f4c9d0ef58a4ad6649e032cc86528576d6d5ff41e8820f3c77cd",
+      "bytes": 73034,
+      "sha256": "39500f560b146dde398d5f8fd36c5d015e01e049836565d814aaa0ad3659e5bf",
       "altText": "Slide sur la correction pédagogique incluse."
     },
     {
@@ -877,8 +877,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 36764,
-      "sha256": "dbe7a339d74ebbd32db115b4f2fdfeae628a013dab5850ead9a991afcbf4a000",
+      "bytes": 43266,
+      "sha256": "aa873542013b9147dac1118e930d6b206e7dbbd6128be87d924d2ed7491fb239",
       "altText": "Slide sur la correction pédagogique incluse."
     },
     {
@@ -888,8 +888,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 106752,
-      "sha256": "1022e7b656cdb31de0e4a6e4db21bec7bda563c274eb8a2a3e0c38c019f3ee02",
+      "bytes": 113378,
+      "sha256": "dce86c2e52d0bd7cd57cff1fdfe1f45ab1bc1b81f8493a122d15402af49abc1f",
       "altText": "Slide finale présentant les tarifs par niveau et le CTA conseil."
     },
     {
@@ -899,129 +899,129 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 69000,
-      "sha256": "bb098c78784258ffd22addc5cf6b6520ffa3869cd535f28206b615c84f51ef26",
+      "bytes": 75292,
+      "sha256": "d7261fb97a199f9dc601324968bbc225e0de1aa0ffddc6aa51bf7f3d2eb9bfef",
       "altText": "Slide finale présentant les tarifs par niveau et le CTA conseil."
     },
     {
-      "assetId": "full-carousel-08-reservation-pdf",
-      "path": "carousels/08-reservation/08-reservation.pdf",
+      "assetId": "full-carousel-08-disponibilites-pdf",
+      "path": "carousels/08-disponibilites/08-disponibilites.pdf",
       "role": "carousel-document",
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 367307,
-      "sha256": "60800b41f8e5190f250e07779bab49eb2fadc1b05c5247e57c5d5e46cd62a62c",
+      "bytes": 415549,
+      "sha256": "3b6d0ff63cbe250e0f6bae9536e273f7b7dd718b9960d10d19ad807ec170f856",
       "altText": "Carrousel expliquant comment demander le programme, les horaires et la grille tarifaire sans paiement."
     },
     {
-      "assetId": "full-carousel-08-reservation-slide-01-png",
-      "path": "carousels/08-reservation/slide-01.png",
+      "assetId": "full-carousel-08-disponibilites-slide-01-png",
+      "path": "carousels/08-disponibilites/slide-01.png",
       "role": "carousel-slide",
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 65102,
-      "sha256": "282c0855738b9aee951c6c0760428b23193bcc49c2292d06145c446004faaced",
+      "bytes": 71833,
+      "sha256": "02f272a798a1001248344ac55060d8d73da8546b777d9a7e537c232621c2199a",
       "altText": "Ouverture sur les trois étapes de la demande d'information."
     },
     {
-      "assetId": "full-carousel-08-reservation-slide-01-webp",
-      "path": "carousels/08-reservation/slide-01.webp",
+      "assetId": "full-carousel-08-disponibilites-slide-01-webp",
+      "path": "carousels/08-disponibilites/slide-01.webp",
       "role": "carousel-slide",
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 36536,
-      "sha256": "7ba44cf59bf050e5e21d348caaf0309e67e753fbe21bd621193af0e04d7b3ee8",
+      "bytes": 43010,
+      "sha256": "97367274860c19afc1cda14af7f3c58d67d4b8f95e6d4261b87807ef75d3f13c",
       "altText": "Ouverture sur les trois étapes de la demande d'information."
     },
     {
-      "assetId": "full-carousel-08-reservation-slide-02-png",
-      "path": "carousels/08-reservation/slide-02.png",
+      "assetId": "full-carousel-08-disponibilites-slide-02-png",
+      "path": "carousels/08-disponibilites/slide-02.png",
       "role": "carousel-slide",
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 71495,
-      "sha256": "cb62b311a014fb1cb002b618834d45ea4e16d3539d41a57d2ec1a544133a5a67",
+      "bytes": 78191,
+      "sha256": "65438844591c825381bfba40176c620ee4bd09ac2338cd124aee2661d7160802",
       "altText": "Slide sur les informations nécessaires à la demande."
     },
     {
-      "assetId": "full-carousel-08-reservation-slide-02-webp",
-      "path": "carousels/08-reservation/slide-02.webp",
+      "assetId": "full-carousel-08-disponibilites-slide-02-webp",
+      "path": "carousels/08-disponibilites/slide-02.webp",
       "role": "carousel-slide",
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 39206,
-      "sha256": "60e1103e2b80a7a9a069a85e07a2676dcafdf0071f4178543db7288eb9852f72",
+      "bytes": 45592,
+      "sha256": "0a4e1c4cd758365c850738b40e4f7dcf8ea9998efa1502e320aae4926136da88",
       "altText": "Slide sur les informations nécessaires à la demande."
     },
     {
-      "assetId": "full-carousel-08-reservation-slide-03-png",
-      "path": "carousels/08-reservation/slide-03.png",
+      "assetId": "full-carousel-08-disponibilites-slide-03-png",
+      "path": "carousels/08-disponibilites/slide-03.png",
       "role": "carousel-slide",
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 72786,
-      "sha256": "e77bcba7708017d746a83d1ba1dd8cbcadefe9edd330864949e09955659078e4",
+      "bytes": 79453,
+      "sha256": "d940f3be1beae6c79c5c890d8f360d60d08f102c6a132a9eec3354b2811f6037",
       "altText": "Slide sur la réception du programme, des horaires et du tarif."
     },
     {
-      "assetId": "full-carousel-08-reservation-slide-03-webp",
-      "path": "carousels/08-reservation/slide-03.webp",
+      "assetId": "full-carousel-08-disponibilites-slide-03-webp",
+      "path": "carousels/08-disponibilites/slide-03.webp",
       "role": "carousel-slide",
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 39654,
-      "sha256": "80a1e9538e5b81b5fb00c008b350383246cc7eb0629d469ea490c24c458c696e",
+      "bytes": 45806,
+      "sha256": "90c2c6bb6b0e07844120fcc27df9187f3e4d610c0d808558c6799aee7f88054d",
       "altText": "Slide sur la réception du programme, des horaires et du tarif."
     },
     {
-      "assetId": "full-carousel-08-reservation-slide-04-png",
-      "path": "carousels/08-reservation/slide-04.png",
+      "assetId": "full-carousel-08-disponibilites-slide-04-png",
+      "path": "carousels/08-disponibilites/slide-04.png",
       "role": "carousel-slide",
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 64532,
-      "sha256": "e2f57b4183077f7fa579c7851beb4d653658e8fac30a9b3d00d85e7a77974e6e",
+      "bytes": 71236,
+      "sha256": "e4c27a717a83b7c76d1ef941a5908193f64586b39291fb044606cc4f558e60fa",
       "altText": "Slide précisant que la demande d'information est sans paiement."
     },
     {
-      "assetId": "full-carousel-08-reservation-slide-04-webp",
-      "path": "carousels/08-reservation/slide-04.webp",
+      "assetId": "full-carousel-08-disponibilites-slide-04-webp",
+      "path": "carousels/08-disponibilites/slide-04.webp",
       "role": "carousel-slide",
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 36922,
-      "sha256": "c632f0717004bd0bdf561a8f3be22d16be287195631b6668214032bc684b582e",
+      "bytes": 43394,
+      "sha256": "06b4a5fd876d94e3fdb534ccf42e4ca08b63cfa9c8da6980359ee8ef99dcc8c8",
       "altText": "Slide précisant que la demande d'information est sans paiement."
     },
     {
-      "assetId": "full-carousel-08-reservation-slide-05-png",
-      "path": "carousels/08-reservation/slide-05.png",
+      "assetId": "full-carousel-08-disponibilites-slide-05-png",
+      "path": "carousels/08-disponibilites/slide-05.png",
       "role": "carousel-slide",
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 76987,
-      "sha256": "262570ff3b4d4c02076b8d0ab35bde968d3062118221805b953e58b38ed9e205",
+      "bytes": 83663,
+      "sha256": "918d86ad30cc5ea09ce6f7263405f39835c8b783674742fd8383cd143fae0304",
       "altText": "Slide finale avec le numéro WhatsApp public."
     },
     {
-      "assetId": "full-carousel-08-reservation-slide-05-webp",
-      "path": "carousels/08-reservation/slide-05.webp",
+      "assetId": "full-carousel-08-disponibilites-slide-05-webp",
+      "path": "carousels/08-disponibilites/slide-05.webp",
       "role": "carousel-slide",
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 42544,
-      "sha256": "b6d9025921adcf0666eb28be5017e7d6d0547740a9f28c154a82227b943596be",
+      "bytes": 48636,
+      "sha256": "20e985183aad214bf0c3d3b851e5197f9f486c7cb5281a401c54a620c145c35e",
       "altText": "Slide finale avec le numéro WhatsApp public."
     },
     {
@@ -1031,8 +1031,8 @@
       "format": "JSON",
       "width": null,
       "height": null,
-      "bytes": 111853,
-      "sha256": "0795c636b9b04351eb8dcd6bf4f3b7b2b2c1cebbb531df2e95183481ec1b8392",
+      "bytes": 113152,
+      "sha256": "92b6c55ba10427ac3193b04ff2155ef849c9efbd045f407d19020fb9e8ef1276",
       "altText": "Copies éditoriales complètes de la campagne"
     },
     {
@@ -1042,8 +1042,8 @@
       "format": "MARKDOWN",
       "width": null,
       "height": null,
-      "bytes": 17603,
-      "sha256": "f98433f2e28ab82e2d45ceeb9d0ec6529b38fb1d2292aa09f296a6163a47bb89",
+      "bytes": 17597,
+      "sha256": "42a54c0a1e2e913cb47f38738f9bd9d2864834d66fa8061298dc5d53421c0775",
       "altText": "Déclinaisons WhatsApp de chaque contenu"
     },
     {
@@ -1053,8 +1053,8 @@
       "format": "JSON",
       "width": null,
       "height": null,
-      "bytes": 13250,
-      "sha256": "6d3a4522d4e243acb5b7464e6f6a69704bb56abfc9a4219912289c4cd6d4457d",
+      "bytes": 13576,
+      "sha256": "7a23eafd4e1430f98bb45347d337fbb146ea0c78e142394813ce40694cd08579",
       "altText": "Responsables, statuts et preuves des contenus"
     },
     {
@@ -1064,8 +1064,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 97601,
-      "sha256": "b6d761baf8a50feff9d7f7ed498475721a8bcaae4904f0b0ab1fa6f9e2fdfad7",
+      "bytes": 104292,
+      "sha256": "e079a8ff54d2435f29a10d32af6a2a50e24e12bcec512f11aa536024bf5d6899",
       "altText": "Affiche annonçant les stages de pré-rentrée Nexus Réussite dès le 17 août à Mutuelleville pour les niveaux 3e à Terminale."
     },
     {
@@ -1075,8 +1075,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 67608,
-      "sha256": "3091317dbb17f8816c5835ff4439815b86b79306127c56a3400c8b121246e0f0",
+      "bytes": 74116,
+      "sha256": "8d043432409408d08cef7937a0d60f5b9f0674b325945e66be11284d16b06fa3",
       "altText": "Affiche annonçant les stages de pré-rentrée Nexus Réussite dès le 17 août à Mutuelleville pour les niveaux 3e à Terminale."
     },
     {
@@ -1086,9 +1086,9 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 92956,
-      "sha256": "cdefda370c8767fcf41b3f9c520223e905cb064301e78fe69e8ac80e98d7455a",
-      "altText": "Visuel de l'offre d'entrée en 3e en Mathématiques ou Français, dix heures par matière et groupe de trois à six élèves."
+      "bytes": 99260,
+      "sha256": "f7a9ef01d184e66b6887787586b6d52a51e0d7fcd59d2607de40606fd6b5d637",
+      "altText": "Visuel de l'offre d'entrée en 3e en Mathématiques et Français, dix heures par matière et groupe de trois à six élèves."
     },
     {
       "assetId": "full-post-02-entree-3e-webp",
@@ -1097,9 +1097,9 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 59510,
-      "sha256": "cb466359956ffcf75c4ddb5757a2e9d31433d7b6ac2ea79e95acadfba602b047",
-      "altText": "Visuel de l'offre d'entrée en 3e en Mathématiques ou Français, dix heures par matière et groupe de trois à six élèves."
+      "bytes": 65132,
+      "sha256": "f3e8bc80803239ead29a41757b3ce2f486500a5898ad2dcb9167ce37f5ec095a",
+      "altText": "Visuel de l'offre d'entrée en 3e en Mathématiques et Français, dix heures par matière et groupe de trois à six élèves."
     },
     {
       "assetId": "full-post-03-entree-seconde-png",
@@ -1108,9 +1108,9 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 94313,
-      "sha256": "8643bfec36235a31faed796a4137b1dd2fc7734a365560aab8fbf04da8eeee25",
-      "altText": "Visuel de l'offre d'entrée en Seconde en Mathématiques ou Français, avec cinq séances et effectif limité."
+      "bytes": 100607,
+      "sha256": "074871ed8e5dac0f8e803bf2a36522db2d0af15b41c11251a342f509a9e98832",
+      "altText": "Visuel de l'offre d'entrée en Seconde en Mathématiques et Français, avec cinq séances et effectif limité."
     },
     {
       "assetId": "full-post-03-entree-seconde-webp",
@@ -1119,9 +1119,9 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 61670,
-      "sha256": "cae8c78fee33db2819c779a9fedb0da529a0426c18c8c4e373e8867bc43dc2ab",
-      "altText": "Visuel de l'offre d'entrée en Seconde en Mathématiques ou Français, avec cinq séances et effectif limité."
+      "bytes": 67840,
+      "sha256": "9124d8b2447c8dc3f640ba6e5cef4255de01a8ac46baee54bc296e8da42bcd9d",
+      "altText": "Visuel de l'offre d'entrée en Seconde en Mathématiques et Français, avec cinq séances et effectif limité."
     },
     {
       "assetId": "full-post-04-entree-premiere-png",
@@ -1130,9 +1130,9 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 107613,
-      "sha256": "926981d8681ebcf463f77430c2c9dfbf0d85c7c25dbc0cc1a113b6319fde6539",
-      "altText": "Visuel présentant les parcours Premium d'entrée en Première, de une à quatre matières selon les choix de l'élève."
+      "bytes": 120914,
+      "sha256": "2a1aa817eddd514e181bf9bf490a4f27af0d64c280a6df9b8462832663df03a7",
+      "altText": "Visuel présentant les parcours Premium d'entrée en Première parmi Mathématiques, Physique-Chimie, NSI, Français — préparation à l’EAF et SVT, de une à quatre matières selon les choix de l'élève."
     },
     {
       "assetId": "full-post-04-entree-premiere-webp",
@@ -1141,9 +1141,9 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 71210,
-      "sha256": "59c67c342076de7a4b227300f2b42e49a24988476040033e93c5e1fff4b2b1be",
-      "altText": "Visuel présentant les parcours Premium d'entrée en Première, de une à quatre matières selon les choix de l'élève."
+      "bytes": 79384,
+      "sha256": "9c3665fdf8fabbfcb6fe2ca7d24d534cbc051106aa748bddb619fc05ce78f8ac",
+      "altText": "Visuel présentant les parcours Premium d'entrée en Première parmi Mathématiques, Physique-Chimie, NSI, Français — préparation à l’EAF et SVT, de une à quatre matières selon les choix de l'élève."
     },
     {
       "assetId": "full-post-05-entree-terminale-png",
@@ -1152,9 +1152,9 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 101044,
-      "sha256": "174e290aed7f9e7e526a06709d5d0e4613e7a7062f22ea15f46803f9e2dabe91",
-      "altText": "Visuel présentant les parcours Premium d'entrée en Terminale, de une à quatre matières et cinq séances par matière."
+      "bytes": 116568,
+      "sha256": "be12d0abf2d600a6b6ddc8239ab6b4f69a88e3792159dfe6b51df4f21377c0b5",
+      "altText": "Visuel présentant les parcours Premium d'entrée en Terminale parmi Mathématiques, Physique-Chimie, NSI, SVT et Mathématiques expertes, de une à quatre matières et cinq séances par matière."
     },
     {
       "assetId": "full-post-05-entree-terminale-webp",
@@ -1163,9 +1163,9 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 66930,
-      "sha256": "33c8ee8064390dc44ad7a62586fa5fff418af2671a34361988f73bc534166da1",
-      "altText": "Visuel présentant les parcours Premium d'entrée en Terminale, de une à quatre matières et cinq séances par matière."
+      "bytes": 79510,
+      "sha256": "44587b52497c17345f210d1d2f028fa20e8cd0f6b2e282bfc012cbd55af20ab4",
+      "altText": "Visuel présentant les parcours Premium d'entrée en Terminale parmi Mathématiques, Physique-Chimie, NSI, SVT et Mathématiques expertes, de une à quatre matières et cinq séances par matière."
     },
     {
       "assetId": "full-post-06-methode-nexus-png",
@@ -1174,8 +1174,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 97431,
-      "sha256": "e28d8a1c1a45d346a717d9f46699f0830788e07ec5043b13b6b475db8027000a",
+      "bytes": 104107,
+      "sha256": "9889ee34eed10b1443a0f5611a4955210e404a1194b1f0008ce6d2ee857d6156",
       "altText": "Visuel expliquant la méthode Nexus en trois temps : objectif annoncé, entraînement actif et correction pédagogique."
     },
     {
@@ -1185,8 +1185,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 64974,
-      "sha256": "745af976e5af542e3343096b3d8b5624cee72622a9953c574b7d2eb03b0cbba0",
+      "bytes": 71176,
+      "sha256": "cd1e1bbc35a4a0ea1f52fb990f9da457204f821aa5593f46a5beebf797d1c9a6",
       "altText": "Visuel expliquant la méthode Nexus en trois temps : objectif annoncé, entraînement actif et correction pédagogique."
     },
     {
@@ -1196,8 +1196,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 131466,
-      "sha256": "ad2d602286f94edd8f110f6811a54b9fecbcb0dbc39ca96201a04c065791f5b5",
+      "bytes": 137891,
+      "sha256": "9442fe1b49001f4f9d449db35ce515dd8e39291dbedcefa3873fc6c6afb83805",
       "altText": "Visuel invitant à comparer le contenu réel du stage : cinq séances, objectifs, entraînement, correction et effectif défini."
     },
     {
@@ -1207,8 +1207,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 93494,
-      "sha256": "47a1300225c3a6d825bda8b6396590174aa0f3ba488b42ba6af628b1b7ee29d8",
+      "bytes": 99954,
+      "sha256": "26e19d62bd20d579d5383cd82ed1fed88d842a6eba7d687a7b5a1f2da7ca94e0",
       "altText": "Visuel invitant à comparer le contenu réel du stage : cinq séances, objectifs, entraînement, correction et effectif défini."
     },
     {
@@ -1218,8 +1218,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 86910,
-      "sha256": "da8e920d23a9f62b8c3b17490aabe1737a44370f23506c4b421ee1a684b1dc36",
+      "bytes": 93525,
+      "sha256": "1be1063858306618099b0f0a95dba0cd6c8006b69c14622f829ca659fdffee3f",
       "altText": "Visuel présentant les dix heures du stage comme cinq séances progressives de réactivation, compréhension, entraînement, correction et consolidation."
     },
     {
@@ -1229,8 +1229,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 55762,
-      "sha256": "eb5d878284a65b4ae730ef6cebf463db39cc2468711c19cd38a2be5ee75950e2",
+      "bytes": 61972,
+      "sha256": "e1da6e3fad153af6c04ee3dd04411c2da5a1283f03b6c81f0286b047e241773c",
       "altText": "Visuel présentant les dix heures du stage comme cinq séances progressives de réactivation, compréhension, entraînement, correction et consolidation."
     },
     {
@@ -1240,8 +1240,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 91544,
-      "sha256": "13eb8efc51cb032234eda927ced4d10522e528670073c98e69f0a236e68c060b",
+      "bytes": 98257,
+      "sha256": "0f7ef11a0d73eaf66772cd2692343c04aa76bae5cf1649aaaeaab88d9b47120f",
       "altText": "Visuel expliquant les effectifs des groupes Fondations de trois à six élèves et Premium de trois à cinq élèves."
     },
     {
@@ -1251,30 +1251,30 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 59398,
-      "sha256": "d4fe37bb6620551ba11ebdc69948b26b49bff102e263432f59776da457824a5a",
+      "bytes": 65614,
+      "sha256": "9bab837e9638b7315b456ff81eebeebc2148510833f500375bd322c24a1f92bf",
       "altText": "Visuel expliquant les effectifs des groupes Fondations de trois à six élèves et Premium de trois à cinq élèves."
     },
     {
-      "assetId": "full-post-10-reservation-acompte-png",
-      "path": "publications/10-reservation-acompte.png",
+      "assetId": "full-post-10-demande-information-png",
+      "path": "publications/10-demande-information.png",
       "role": "publication-visual",
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 73147,
-      "sha256": "655b1885e72088ee6ff9c19b6f0833b93aef390101fba03a40aa6d8721417651",
+      "bytes": 79790,
+      "sha256": "bd2b28db66a3e913df46b8c1a6275b41846aa80f713c4ef2e65c9df8c49c30d1",
       "altText": "Visuel invitant les familles à demander le programme, les horaires et la grille tarifaire sans paiement."
     },
     {
-      "assetId": "full-post-10-reservation-acompte-webp",
-      "path": "publications/10-reservation-acompte.webp",
+      "assetId": "full-post-10-demande-information-webp",
+      "path": "publications/10-demande-information.webp",
       "role": "publication-visual",
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 45662,
-      "sha256": "8c9d86a6570d786d628d3d4b3dbae66c129d91bd900a72ec9cac877ff99b2c47",
+      "bytes": 52192,
+      "sha256": "332217bb942d3bd36e636eb3acc702988efc6e3717b976e634f34f757c5a1ce9",
       "altText": "Visuel invitant les familles à demander le programme, les horaires et la grille tarifaire sans paiement."
     },
     {
@@ -1284,8 +1284,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 91286,
-      "sha256": "d993c9569ff26d6c0e6b8b9c90eb8e8b415aec3fbc6c21ff4575bc197f41a4bb",
+      "bytes": 97968,
+      "sha256": "2e334a5a8e6314d7ea5ebbfe885560e393b7a9d685c4a2e7a970d0c6f32c492a",
       "altText": "Checklist parent avec trois informations à préparer : classe d'entrée, matière recherchée et priorité de travail pour la rentrée."
     },
     {
@@ -1295,8 +1295,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 63992,
-      "sha256": "302d97b7e1565d3ca98034f7b4d8d5f286a269e937d25b2aee4cac7fe2910259",
+      "bytes": 70216,
+      "sha256": "31b8debc66535f69fc27f39109a2ce0ebd473f9bcec6a346edb0cf459120680a",
       "altText": "Checklist parent avec trois informations à préparer : classe d'entrée, matière recherchée et priorité de travail pour la rentrée."
     },
     {
@@ -1306,8 +1306,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 75823,
-      "sha256": "91af386bc4b95976d401d4b2109781e0304ef7db5d95937c16804d5ed0ee85f4",
+      "bytes": 82392,
+      "sha256": "c45ce7286208058e82217efdb91e0ac4b51b5a0b59c4d560b623308fbf7cd804",
       "altText": "Visuel de rappel avant le stage invitant les familles à demander le programme et les horaires sur WhatsApp."
     },
     {
@@ -1317,8 +1317,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 44842,
-      "sha256": "d5f760937c9a1cc36685730eec3f22ea6da8ee93b046b9263b4acd40f35ca2a9",
+      "bytes": 51262,
+      "sha256": "c4df0ae3b081a58799b4b47974ae73011e4ab0fbf1efc00814a70da8da18cdce",
       "altText": "Visuel de rappel avant le stage invitant les familles à demander le programme et les horaires sur WhatsApp."
     },
     {
@@ -1328,8 +1328,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 83101,
-      "sha256": "956fe19223ebc646838593f80560a87c11d06bd1072066ba2c8f685503617e97",
+      "bytes": 89812,
+      "sha256": "19e000c56257a9d9f1468eeb562ec681649ea1d40aecd35b3b257541fbb9bf67",
       "altText": "Visuel annonçant le démarrage des stages de pré-rentrée à Mutuelleville et invitant à vérifier les dernières disponibilités par niveau."
     },
     {
@@ -1339,8 +1339,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 51358,
-      "sha256": "aefe3bb61b26154f67f01882e999537d13c1584624f3a897c4232dd2fe3a7a3f",
+      "bytes": 57862,
+      "sha256": "2b505f6198b1c65685d76d0886f42a262f025343666a72917f0d5f326064d8c9",
       "altText": "Visuel annonçant le démarrage des stages de pré-rentrée à Mutuelleville et invitant à vérifier les dernières disponibilités par niveau."
     },
     {
@@ -1361,8 +1361,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 83634,
-      "sha256": "30e2283716b51b932e5b85d1408bb09409978c0ba3389deb59a29edc17a84d10",
+      "bytes": 90487,
+      "sha256": "07afb474cbe22335c86289a2d5aaee2dbd83e937e10999f44b7b8ec4af1625c3",
       "altText": "Couverture du Reel sur l'organisation des dix heures de stage."
     },
     {
@@ -1372,8 +1372,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 44628,
-      "sha256": "6569cbc2b8464cfdafc85e521e6fb2050da1ba5f9ec6e39c9be2050f3f8f0bf3",
+      "bytes": 50964,
+      "sha256": "7378008747732776579071e03f5a9fa336be1318edab10280cc60d2871ba5451",
       "altText": "Couverture du Reel sur l'organisation des dix heures de stage."
     },
     {
@@ -1394,8 +1394,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 94939,
-      "sha256": "c316a9cb27b14b1a1284d265f8b4501de2f9de1b9a955415cda6f622bf898633",
+      "bytes": 100039,
+      "sha256": "b61094fae32803ec254fef6e3d774a8fa99c3976ac28c6bb1219c1ab381afef5",
       "altText": "Plan 1 : 10 h = 5 séances × 2 h"
     },
     {
@@ -1405,8 +1405,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 92993,
-      "sha256": "25cc25c2fb46e1092cfc00894e9e3e9962c0cc01346166238290bc57e369c1c4",
+      "bytes": 98087,
+      "sha256": "d39263ae7caa5a6159ec0e67daa24f48ca5ffc7ca50debe078cf439e11ec4b8e",
       "altText": "Plan 2 : 1 · Un objectif clair"
     },
     {
@@ -1416,8 +1416,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 93888,
-      "sha256": "ab088d56a619da84b881c31ae8db51997e13ae762979061f043f182185aebefe",
+      "bytes": 98978,
+      "sha256": "e33bcec2836b65ff2af72a419f50f415403055e634b0f1f517f89a2dbdbfa4e7",
       "altText": "Plan 3 : 2 · Chercher et s'entraîner"
     },
     {
@@ -1427,8 +1427,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 95942,
-      "sha256": "078d83f9d3372b27cdf26c4432b7186f10a63b955860629689f67f2e3b2ba5d3",
+      "bytes": 101032,
+      "sha256": "133876c797e7cb165ab00e4d28d8bb7f998202b9c62ec2733bbaaf4941429338",
       "altText": "Plan 4 : 3 · Comprendre la correction"
     },
     {
@@ -1438,8 +1438,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 94869,
-      "sha256": "9e109f647f10e64b8cce82b2df2dc6a055c967237df162ff2d4b4368ab131908",
+      "bytes": 99968,
+      "sha256": "72f8ec555168835bda083370725b2e6f52e9bda28818cacbaea10e20819fdcb9",
       "altText": "Plan 5 : Une méthode réutilisable"
     },
     {
@@ -1449,8 +1449,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 99550,
-      "sha256": "b5dfef597c96beeb303938814555ff4c0224ba5f65189b5ce298f84a19824e8d",
+      "bytes": 104653,
+      "sha256": "0cdf8eea23015dcb6f7770856304e7e3e0cd3086725dbf8770f7b2c317cf7927",
       "altText": "Plan 6 : Dès le 17 août · Mutuelleville · 99 192 829"
     },
     {
@@ -1460,8 +1460,8 @@
       "format": "MP4",
       "width": null,
       "height": null,
-      "bytes": 550481,
-      "sha256": "3133270d2d9cd6021b0a4f7232dbf3fe57aa07ce448caf84562f4629605d735e",
+      "bytes": 586832,
+      "sha256": "e738ce6f9748b0860fd568db1a9e999d242b507040c367253ac53ed76d36bb45",
       "altText": "Reel motion design de trente secondes expliquant la méthode des stages Nexus Réussite et le démarrage le 17 août."
     },
     {
@@ -1482,8 +1482,8 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 636517,
-      "sha256": "78c2590be5ab2abb582e84659224b6a18f2c11a77649a7e3aee93cdfa959f674",
+      "bytes": 693081,
+      "sha256": "7970cc9856a5b7467696a33e3b51d8f5e6106ce6edb2b32e062976e3e94b47e1",
       "altText": "Reel motion design de trente secondes expliquant la méthode des stages Nexus Réussite et le démarrage le 17 août."
     },
     {
@@ -1504,8 +1504,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 78777,
-      "sha256": "f78d99e76b36a4b57bf089f39ce7a04307404fdd1a773174f763e9a2d6e57a35",
+      "bytes": 85405,
+      "sha256": "9b71e5f5c38a79fde55c89da2154fe58e5426f81b1daa46d9117ab1ea10cde21",
       "altText": "Couverture du Reel sur les trois informations pour choisir un parcours."
     },
     {
@@ -1515,8 +1515,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 40790,
-      "sha256": "8486df516507a729bfb8ef904ea074ea6f5d7d2648ebd6cd1dfc012f0fe9f0e6",
+      "bytes": 47104,
+      "sha256": "19625a496e25fd5e528e667526471da06bb6ec4dafd2bdcdf97a77713dc0427e",
       "altText": "Couverture du Reel sur les trois informations pour choisir un parcours."
     },
     {
@@ -1537,8 +1537,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 93756,
-      "sha256": "b084ce7dfb43fef7d19518aae949a64b0c32a22bdc00b65ab47e53da9fea4708",
+      "bytes": 98850,
+      "sha256": "cde2e75cfa030645ab6def7f6f528d824595835ccc9f618a6eaad1f33d3dbcf7",
       "altText": "Plan 1 : Quel parcours choisir ?"
     },
     {
@@ -1548,8 +1548,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 92408,
-      "sha256": "e6b89be788e98e99664f4de683887555a953cc95e7974d62787e49528a836ec9",
+      "bytes": 97502,
+      "sha256": "d728bf04a337d74c0985aab5247f8676f91854380ccd981c4463241f1b27b9b7",
       "altText": "Plan 2 : 1 · La classe d'entrée"
     },
     {
@@ -1559,8 +1559,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 93607,
-      "sha256": "4d2ceb3e2b9a347739bef13d02f65961f367a44525b94f164e687e7d04dad1a5",
+      "bytes": 98698,
+      "sha256": "f4dd8c771867bc24c630ce78e4ce0dfcc2969729d12435d939f0d31e4d19fcb9",
       "altText": "Plan 3 : 2 · La matière prioritaire"
     },
     {
@@ -1570,8 +1570,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 94017,
-      "sha256": "0f290a5a403b5ee845fed3fc4b21c185969aec77aa707e91cddba398caf74935",
+      "bytes": 99109,
+      "sha256": "3653b9325cac44717db1f9e8a858ad24223380f997f0ea6ddff2a13d274663a4",
       "altText": "Plan 4 : 3 · Le besoin à reprendre"
     },
     {
@@ -1581,8 +1581,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 93909,
-      "sha256": "bad0305267c2dcb284e3b5975bb12d227f0fda1eae676ce65915e2b555379d6d",
+      "bytes": 98999,
+      "sha256": "3f0e6f1d19f278c9c95c24eb1198dcfa16e4faccf2ada7b1822d550d6cbb7789",
       "altText": "Plan 5 : Nexus vérifie l'offre disponible"
     },
     {
@@ -1592,8 +1592,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 98215,
-      "sha256": "f03c0d5cba75a175bba0203d1323fb0335d50ff3ce6a160f9be22964429c4f26",
+      "bytes": 103315,
+      "sha256": "3fb50e4e3c8a95e9e53a3fa4229cac7b19077f17a84249176960f18bc263098e",
       "altText": "Plan 6 : Niveau + matière + priorité · 99 192 829"
     },
     {
@@ -1603,8 +1603,8 @@
       "format": "MP4",
       "width": null,
       "height": null,
-      "bytes": 537478,
-      "sha256": "f33e4c7604c24a51556412d3982a6084b5c0e0bc293f8f509fc8d0a09ea2aeef",
+      "bytes": 570483,
+      "sha256": "fce9304e3d454a75a71754966e6e19d646baa6b50ac7c4b654745cdfe5471a31",
       "altText": "Reel de trente secondes expliquant comment choisir un parcours de pré-rentrée avec le niveau, la matière et la priorité."
     },
     {
@@ -1625,8 +1625,8 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 634542,
-      "sha256": "6bcb5b27b8fc31ee74dff51442bb6e769944f1b7452035bbbefb3c82217ac5b3",
+      "bytes": 691252,
+      "sha256": "070b238d367a21484b214fc7bf0cc26bd2ad464cb22b2887a6813a925f21919f",
       "altText": "Reel de trente secondes expliquant comment choisir un parcours de pré-rentrée avec le niveau, la matière et la priorité."
     },
     {
@@ -1641,30 +1641,30 @@
       "altText": "Reel de trente secondes expliquant comment choisir un parcours de pré-rentrée avec le niveau, la matière et la priorité."
     },
     {
-      "assetId": "full-reel-03-reservation-cover-png",
-      "path": "reels/03-reservation/cover.png",
+      "assetId": "full-reel-03-demande-information-cover-png",
+      "path": "reels/03-demande-information/cover.png",
       "role": "reel-cover",
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 71280,
-      "sha256": "ce21a3dedb8d2c2926fac3ced6358ddf0eea55e87f9a6113aa5ca96a95015480",
+      "bytes": 78169,
+      "sha256": "ef000a6d436da40f6e94ef64e3ce3d3b2d1caf33c7902263e7d71ce2338d19c5",
       "altText": "Couverture du Reel expliquant la demande d'information."
     },
     {
-      "assetId": "full-reel-03-reservation-cover-webp",
-      "path": "reels/03-reservation/cover.webp",
+      "assetId": "full-reel-03-demande-information-cover-webp",
+      "path": "reels/03-demande-information/cover.webp",
       "role": "reel-cover",
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 37018,
-      "sha256": "6db7eb3e3f3a62095be2bbf5a14a638bfef84c97c8c92475f503fa48d892409b",
+      "bytes": 43674,
+      "sha256": "8e06154be8c1324a94ccc804398d56a1305d23e9b7c29461b9c43011a37e177c",
       "altText": "Couverture du Reel expliquant la demande d'information."
     },
     {
-      "assetId": "full-reel-03-reservation-concat-source",
-      "path": "reels/03-reservation/frames.concat.txt",
+      "assetId": "full-reel-03-demande-information-concat-source",
+      "path": "reels/03-demande-information/frames.concat.txt",
       "role": "editable-video-source",
       "format": "TEXT",
       "width": null,
@@ -1674,85 +1674,85 @@
       "altText": "Reel de trente secondes présentant les étapes d'une demande d'information sans paiement."
     },
     {
-      "assetId": "full-reel-03-reservation-frame-01-png",
-      "path": "reels/03-reservation/frames/frame-01.png",
+      "assetId": "full-reel-03-demande-information-frame-01-png",
+      "path": "reels/03-demande-information/frames/frame-01.png",
       "role": "reel-frame",
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 100914,
-      "sha256": "9dd0098a687c3b6b5067d6d4d4d16ff9ded02220ead6cae05bc5049110cc0cbf",
+      "bytes": 105995,
+      "sha256": "11e5708dd251bcc59c06bffcd43b7fa67919fb2419cdfc3928fae734db4fbe0f",
       "altText": "Plan 1 : Comment s'informer ?"
     },
     {
-      "assetId": "full-reel-03-reservation-frame-02-png",
-      "path": "reels/03-reservation/frames/frame-02.png",
+      "assetId": "full-reel-03-demande-information-frame-02-png",
+      "path": "reels/03-demande-information/frames/frame-02.png",
       "role": "reel-frame",
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 101970,
-      "sha256": "52057d5e067c57b145adf11eac5e3c247f24eca63b1a0baf90a91cb41afc2f80",
+      "bytes": 107111,
+      "sha256": "98d84ff8b6e06848939516a092b5a51c47850372f237b6774a8efc1dbcb1ea76",
       "altText": "Plan 2 : 1 · Envoyer la demande"
     },
     {
-      "assetId": "full-reel-03-reservation-frame-03-png",
-      "path": "reels/03-reservation/frames/frame-03.png",
+      "assetId": "full-reel-03-demande-information-frame-03-png",
+      "path": "reels/03-demande-information/frames/frame-03.png",
       "role": "reel-frame",
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 103295,
-      "sha256": "e9015228e47b09ac749081e09bc5df3f3ee75e07b7dddaec955983c49e3aa9f3",
+      "bytes": 108416,
+      "sha256": "c0d08e9cf30c2374668350be81b7e914715861170d0c81278da76580c5a1198a",
       "altText": "Plan 3 : 2 · Recevoir les informations"
     },
     {
-      "assetId": "full-reel-03-reservation-frame-04-png",
-      "path": "reels/03-reservation/frames/frame-04.png",
+      "assetId": "full-reel-03-demande-information-frame-04-png",
+      "path": "reels/03-demande-information/frames/frame-04.png",
       "role": "reel-frame",
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 101934,
-      "sha256": "dd6cf2cc19c289c0122b827a4f2d33888c378e3c2a53a8656dd98e7a0512ec26",
+      "bytes": 107076,
+      "sha256": "eecd092c3127448301a9cdecb936ba2f01b467c8b701b512dec9f59db67e1a97",
       "altText": "Plan 4 : 3 · Comparer en famille"
     },
     {
-      "assetId": "full-reel-03-reservation-frame-05-png",
-      "path": "reels/03-reservation/frames/frame-05.png",
+      "assetId": "full-reel-03-demande-information-frame-05-png",
+      "path": "reels/03-demande-information/frames/frame-05.png",
       "role": "reel-frame",
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 99439,
-      "sha256": "7b7ebcb7757e9498a6a2a57f8a7ec5de8f0bf00aeb201c6ac6c26fd9f5125256",
+      "bytes": 104537,
+      "sha256": "f8009619f7c7fd9ef9370da576d2582f5d2a649e7ce0b0eb11c40c9d0a03d778",
       "altText": "Plan 5 : Aucun paiement"
     },
     {
-      "assetId": "full-reel-03-reservation-frame-06-png",
-      "path": "reels/03-reservation/frames/frame-06.png",
+      "assetId": "full-reel-03-demande-information-frame-06-png",
+      "path": "reels/03-demande-information/frames/frame-06.png",
       "role": "reel-frame",
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 106583,
-      "sha256": "18b587a8444c10dfe8e6a41fe1c0f4dce057fb9b0efadfdab578a326c5f432f9",
+      "bytes": 111619,
+      "sha256": "062846f023d23b0a19a326f599f7e5573106870281a2847894726879bbd87789",
       "altText": "Plan 6 : Dès le 17 août · Mutuelleville · 99 192 829"
     },
     {
-      "assetId": "full-reel-03-reservation-video",
-      "path": "reels/03-reservation/motion-design.mp4",
+      "assetId": "full-reel-03-demande-information-video",
+      "path": "reels/03-demande-information/motion-design.mp4",
       "role": "motion-design-video",
       "format": "MP4",
       "width": null,
       "height": null,
-      "bytes": 541420,
-      "sha256": "5b374223fcdbbdfeb82d7c8c2eb15c601ccbc592542998a8bd448af664793e97",
+      "bytes": 576326,
+      "sha256": "3de54a2c323548cc9f981b06f1fb58d426714dd7e9c7307baa51a34fad422a0d",
       "altText": "Reel de trente secondes présentant les étapes d'une demande d'information sans paiement."
     },
     {
-      "assetId": "full-reel-03-reservation-script",
-      "path": "reels/03-reservation/script.md",
+      "assetId": "full-reel-03-demande-information-script",
+      "path": "reels/03-demande-information/script.md",
       "role": "editable-reel-script",
       "format": "MARKDOWN",
       "width": null,
@@ -1762,19 +1762,19 @@
       "altText": "Reel de trente secondes présentant les étapes d'une demande d'information sans paiement."
     },
     {
-      "assetId": "full-reel-03-reservation-storyboard",
-      "path": "reels/03-reservation/storyboard.pdf",
+      "assetId": "full-reel-03-demande-information-storyboard",
+      "path": "reels/03-demande-information/storyboard.pdf",
       "role": "storyboard",
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 659214,
-      "sha256": "6cb8cd49338f3be8440f13ac63c6b9a41b43248bfefdb16996940e4ea9b58a84",
+      "bytes": 716229,
+      "sha256": "b69dddffeeb29f3badcca6f5d029a9ca2698b7aa46c2fd3ac38c97195d5fd699",
       "altText": "Reel de trente secondes présentant les étapes d'une demande d'information sans paiement."
     },
     {
-      "assetId": "full-reel-03-reservation-srt",
-      "path": "reels/03-reservation/subtitles-fr.srt",
+      "assetId": "full-reel-03-demande-information-srt",
+      "path": "reels/03-demande-information/subtitles-fr.srt",
       "role": "subtitles",
       "format": "SRT",
       "width": null,
@@ -1790,8 +1790,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396527,
-      "sha256": "14f7fdf621e98a43822b640fdadac6cb40b1a8507fd1845461ccd1bccd620f93",
+      "bytes": 396529,
+      "sha256": "d67ad421d04ea307a83d05e28adf06244c04e8578e678957c4555dbf9e70af95",
       "altText": "Ouverture du carrousel sur l'organisation progressive des dix heures."
     },
     {
@@ -1801,8 +1801,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396524,
-      "sha256": "70548d0cd145db016dc457025f0174ec6eaead1f5355119f03abfe1e1d3e2492",
+      "bytes": 396526,
+      "sha256": "c0cab59b987c955d44c019cd2fb2db74aa9f2779c3d1ede0b42b91f1e649c86a",
       "altText": "Slide sur l'identification du point prioritaire à reprendre."
     },
     {
@@ -1812,8 +1812,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396529,
-      "sha256": "f4a0e040d756fa13f838581b89ec7280c2560511145e7855489e4705780f4401",
+      "bytes": 396531,
+      "sha256": "f325356bbd5c6216ea77028ba1e1d0e4d9d555221332a0109a28e11f606fdaa6",
       "altText": "Slide sur le rôle de l'entraînement actif avant la correction."
     },
     {
@@ -1823,8 +1823,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396492,
-      "sha256": "0e58d797e284fe3e419422835288aac43767b6333de7dd08b539d2807939fbc7",
+      "bytes": 396494,
+      "sha256": "921be177c92288d596bbd77b9f08a6ca2a60e84f2aec85296a1f96003d292a41",
       "altText": "Slide sur l'utilisation pédagogique de la correction."
     },
     {
@@ -1834,8 +1834,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396491,
-      "sha256": "d866e146ef2fd606f8aa3eb326f0b4b27a313e1509ea5eda8e97a80c857005d9",
+      "bytes": 396493,
+      "sha256": "03552cb7399221733016f677497e3dd0ff3b4b015b5a063ebe65042aae00f35d",
       "altText": "Slide finale invitant à demander le programme sur WhatsApp."
     },
     {
@@ -1845,8 +1845,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396481,
-      "sha256": "5a87f679cf354c76c95ca871a4e17e08369a6cea3ce04461518d489884287073",
+      "bytes": 396483,
+      "sha256": "41dc87e5b97a6007044b263b56df193ace332b25e3641e3166264bf95eb41460",
       "altText": "Ouverture du carrousel consacré à l'entrée en 3e."
     },
     {
@@ -1856,8 +1856,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396465,
-      "sha256": "0c6f20ad011e80b9bad52ddd0241d46b7e917f3910efa01cdc0b62c27d4d7d4a",
+      "bytes": 396467,
+      "sha256": "70c66972ee0340f8d7305087b9af25789c399547d502bf97628a46877e37eff6",
       "altText": "Slide indiquant les deux matières disponibles en 3e."
     },
     {
@@ -1867,8 +1867,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396485,
-      "sha256": "dacae189411f86c75fc9e8ea59b0ba744f32193ed7dad5565738906a061ff4ca",
+      "bytes": 396487,
+      "sha256": "cf22593bb29ebeb0120d9acb2bfbed791326d3d62192556f975a378a36bd471d",
       "altText": "Slide présentant les cinq séances de deux heures."
     },
     {
@@ -1878,8 +1878,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396475,
-      "sha256": "b3e52dba4f33d28abf9503fc782cf490fe26b632ec92dfdf74132dc8e7e12d1b",
+      "bytes": 396477,
+      "sha256": "498eed4c0243768c450cb8b40da636ad67b14fcf736423532dd2c30ebd87dac9",
       "altText": "Slide indiquant un groupe de trois à six élèves en 3e."
     },
     {
@@ -1889,8 +1889,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396564,
-      "sha256": "92890e84b2e83a69c93220a17cc2f6c7fdf5c9421d89f95ea1632e96d7e0fd2e",
+      "bytes": 396566,
+      "sha256": "561e5e4aa4396c9dff328154098f193fecc0c21e00953f0ae1693b5d580db059",
       "altText": "Slide finale avec le tarif correspondant à l'offre."
     },
     {
@@ -1900,8 +1900,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396523,
-      "sha256": "67d324cf5673acaac1b761996b7c61edbfb22b8586bfdc437f4e6e3ccbc1bba3",
+      "bytes": 396525,
+      "sha256": "5e4337b765ab5e57fa9bf59766f4e293c61576f78e4ee02daa58731f06adbf28",
       "altText": "Ouverture du carrousel sur l'entrée en Seconde."
     },
     {
@@ -1911,8 +1911,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396460,
-      "sha256": "cad71aa3184092d78d6da4daff5b0abbccf98e8821fb334025c5aa1c5a59ebe4",
+      "bytes": 396462,
+      "sha256": "c5d923b13dc74e1c60c94e9de3988530b80c06704ea189c7d4aa7b9175b52226",
       "altText": "Slide listant Mathématiques et Français en Seconde."
     },
     {
@@ -1922,8 +1922,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396485,
-      "sha256": "3fa4242f2d9f53527477d6cad6b84012cb41a6c17a0f74318c91c9f0468b6ca7",
+      "bytes": 396487,
+      "sha256": "2a43187faf30faa956ae1b7cb77e292cd5e398b4d324101f49ce10f8656413d2",
       "altText": "Slide sur l'organisation des dix heures en cinq séances."
     },
     {
@@ -1933,8 +1933,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396473,
-      "sha256": "0a63f95ba004f31f36486962a7eb57a2fbed56b3e821cb8f34c7e07af585164a",
+      "bytes": 396475,
+      "sha256": "88488fb5a97beea91846b5ef62a1c2ef1f2db8f9058266b2c62bdbcb8300c869",
       "altText": "Slide indiquant un effectif de trois à six élèves en Seconde."
     },
     {
@@ -1944,8 +1944,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396594,
-      "sha256": "3a728c826bda637c6ef5c87a23a361e70314b4be299946175401f6bacfb31f86",
+      "bytes": 396596,
+      "sha256": "4ff21ff09702dacec9990b648e36089cb4749245cbc3276caeeb819e6031b995",
       "altText": "Slide finale avec le tarif et une invitation à vérifier le groupe."
     },
     {
@@ -1955,8 +1955,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396493,
-      "sha256": "307cd2a74df0e7db86634cd579048eeb315abeec48f7e6f588ce5ea62d92ab13",
+      "bytes": 396495,
+      "sha256": "38b81eebef012846d6a4e1a7f5ef09a738dfa42686b92afa19d2af8e665bc428",
       "altText": "Ouverture sur la sélection des priorités en Première."
     },
     {
@@ -1966,8 +1966,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396484,
-      "sha256": "4d6a8f98541878d0ace84c472c633d97a5badcb7d8e7020b1c876f3943e321dd",
+      "bytes": 396486,
+      "sha256": "b24d7e273f500a21a830da8233ac3ad72bbb02467bc81d67eb85c3ac793b937a",
       "altText": "Slide présentant les packs de une à quatre matières."
     },
     {
@@ -1977,8 +1977,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396478,
-      "sha256": "edc20b7459d2864b8379613b8ae695de7a8c0fa764637c1f418f34ca5aa977e7",
+      "bytes": 396480,
+      "sha256": "9dc71a2424fc2616bcbde125c4b4da7411ba103d8c36ff692b94cf478ec2521f",
       "altText": "Slide présentant cinq séances par matière."
     },
     {
@@ -1988,8 +1988,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396486,
-      "sha256": "51f4c12d0b1cbe310dad1f3c53e7e1debfa76738dcf4c9483b80b11474276554",
+      "bytes": 396488,
+      "sha256": "68d6528d43b61fee28f990b13c276c26e499ca68a902670d3ea5b6f3dc50853a",
       "altText": "Slide indiquant un groupe Premium de trois à cinq élèves."
     },
     {
@@ -1999,8 +1999,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396655,
-      "sha256": "1d3b0fc201ec3dc3cd335ce8283008603f509cf227734a007e9710c67abf9abf",
+      "bytes": 396657,
+      "sha256": "a25fd427b08962c4f8692f20dcf5aebff782820fdef0387a8ce2b62f797606f5",
       "altText": "Slide finale avec les tarifs des packs Première."
     },
     {
@@ -2010,8 +2010,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396494,
-      "sha256": "cb52f8e7d3ecf287f50df72e66b87e07843fc8a1dd706ed538f728a8c7dcf065",
+      "bytes": 396496,
+      "sha256": "fbb706ef1ab1a384897ff625bc8c1cba3c029f539d1df3553e7655eb1be06c85",
       "altText": "Ouverture sur la hiérarchisation des priorités en Terminale."
     },
     {
@@ -2021,8 +2021,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396489,
-      "sha256": "3aaf3f50a6c938cb440f45aa4174d73052fbc7e8caefeaad02647701285dc07e",
+      "bytes": 396491,
+      "sha256": "2cd5bc038684ad18a9d136e3a5b3881fd1126c3dfa11f1c7b88711f853016acf",
       "altText": "Slide présentant les parcours de une à quatre matières."
     },
     {
@@ -2032,8 +2032,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396474,
-      "sha256": "1de9b321af35ae914ed1596e420145f728361fb91074118767f8f5117175bb5e",
+      "bytes": 396476,
+      "sha256": "a5b77dcc0bdb9745f657e336e064843fff55a6beb4c82d88e0c28e31d3a8d1c0",
       "altText": "Slide présentant les cinq séances par matière."
     },
     {
@@ -2043,8 +2043,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396466,
-      "sha256": "b045a2ba26427401487e3538e276605701500837fe2daf2014f729f6de1675cc",
+      "bytes": 396468,
+      "sha256": "d603c08ff3456dd667ce312617f1cb7238a397a18e7b560afe542cc31597e522",
       "altText": "Slide indiquant l'effectif du groupe Premium."
     },
     {
@@ -2054,8 +2054,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396657,
-      "sha256": "9dd6f4830a19a256464499844b07bc63352f95dbda61acd4d95cac61d3974222",
+      "bytes": 396659,
+      "sha256": "885b5be0cdf1faaca53a619f031dde83ac8e2486ad81e15b2e85e08086a7772a",
       "altText": "Slide finale avec les tarifs des packs et le CTA WhatsApp."
     },
     {
@@ -2065,8 +2065,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396446,
-      "sha256": "c641acba788abb161c077562bf5858ec42685f13d36c36b9af2477e691041188",
+      "bytes": 396448,
+      "sha256": "8223af2694cc311ab23f37867b4a5c82dcedffdcdf76269135f7f68b59e2999f",
       "altText": "Ouverture sur le choix du parcours."
     },
     {
@@ -2076,8 +2076,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396488,
-      "sha256": "ecf68fe27d6d89d41beb6d88562fc11c667918396aa37e46b976331f06e5a553",
+      "bytes": 396490,
+      "sha256": "3e3c2b30d4b42262921b56cf029349342cd35608988eb65ca10204af25d3a2f4",
       "altText": "Slide demandant la classe d'entrée de l'élève."
     },
     {
@@ -2087,8 +2087,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396470,
-      "sha256": "59a7c09b502ee140ad1f4ee7e7f80f009ba93777f487979b5449a5b9b2ea2494",
+      "bytes": 396472,
+      "sha256": "22c9057334d24cda445c9ed1b983e19b7868443b26f36e1ed713b4e8090dd776",
       "altText": "Slide demandant la matière prioritaire."
     },
     {
@@ -2098,8 +2098,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396518,
-      "sha256": "6e8ab539aa051aadc309de5a653f745023011b12803748d4d6107f9c9afc4de8",
+      "bytes": 396520,
+      "sha256": "d0856db615f514b86d36665dc872d32fb940548dd92f4e8703781af06b7befc0",
       "altText": "Slide invitant à décrire le besoin de l'élève."
     },
     {
@@ -2109,8 +2109,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396483,
-      "sha256": "ec4ea6c1a90ad42479c25175e8962c863b589b65ece96b194d4b05df72f93a1d",
+      "bytes": 396485,
+      "sha256": "dd51c667d38858df475fc5feda199b3cd5f00da94ebfda9b31bb885f2c8d62d9",
       "altText": "Slide finale invitant à envoyer la demande sur WhatsApp."
     },
     {
@@ -2120,8 +2120,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396494,
-      "sha256": "2d018ccae4bad00946d69e3ba12d37909fa639f36c10855003f14f3ac95da3c0",
+      "bytes": 396496,
+      "sha256": "410ecd160e875798c2416ab446f4c9a93e8b04b9d02396dc3bdf80ab8a1cd22a",
       "altText": "Ouverture sur les critères de comparaison d'un stage."
     },
     {
@@ -2131,8 +2131,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396441,
-      "sha256": "cb7a46dbe1fe601123a4c836aa6b1b692c3e0c055932975dd3fe82a061f65d49",
+      "bytes": 396443,
+      "sha256": "65167b655c7ce3b5f04a75dcaaf7881f5957f9f226ddd29fce2bfae12c960ab9",
       "altText": "Slide sur les cinq séances incluses."
     },
     {
@@ -2142,8 +2142,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396472,
-      "sha256": "6d2153daa97843fb31f88ea05837ca7992ec0e4ec5f39c55a17ad99f77c64f39",
+      "bytes": 396474,
+      "sha256": "7488840162fd91aec29d6c9f75f501ce766d07e7e4102443f35358dfd39da96c",
       "altText": "Slide sur les objectifs et l'entraînement inclus."
     },
     {
@@ -2153,8 +2153,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396456,
-      "sha256": "2466d2f37de6a751ff1a1d1b9056644fa38d7ab1b198e124352388fe99f7e7ae",
+      "bytes": 396458,
+      "sha256": "e17271ed6d548abb3e94e1202f9be71e3dbb8e1db3d0fea112f3e7ace589b2d6",
       "altText": "Slide sur la correction pédagogique incluse."
     },
     {
@@ -2164,63 +2164,63 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396812,
-      "sha256": "e426f28ef17686cbe4ea4c12b2a00f8feea7558ffcec397badd5b12101530a2d",
+      "bytes": 396814,
+      "sha256": "a765b8ed813f3e540d1f01a86e9aaf6bd59822739e06e3911928eb801e345041",
       "altText": "Slide finale présentant les tarifs par niveau et le CTA conseil."
     },
     {
-      "assetId": "full-carousel-08-reservation-slide-01-source",
-      "path": "sources/carousels/08-reservation/slide-01.svg",
+      "assetId": "full-carousel-08-disponibilites-slide-01-source",
+      "path": "sources/carousels/08-disponibilites/slide-01.svg",
       "role": "editable-source",
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396486,
-      "sha256": "08ad67f2367f47f316ffa70650819784510b72d4f26cf2a9e32112cff4d42020",
+      "bytes": 396488,
+      "sha256": "674d0f7bf9bba4e51f4c92edda1ab6a0b66ab3aa8afd332b557d9503bfe8655a",
       "altText": "Ouverture sur les trois étapes de la demande d'information."
     },
     {
-      "assetId": "full-carousel-08-reservation-slide-02-source",
-      "path": "sources/carousels/08-reservation/slide-02.svg",
+      "assetId": "full-carousel-08-disponibilites-slide-02-source",
+      "path": "sources/carousels/08-disponibilites/slide-02.svg",
+      "role": "editable-source",
+      "format": "SVG",
+      "width": 1080,
+      "height": 1350,
+      "bytes": 396478,
+      "sha256": "e28673c6e26478063987df58cd0493fd96f6695018b01f3ddaa7372378ac279a",
+      "altText": "Slide sur les informations nécessaires à la demande."
+    },
+    {
+      "assetId": "full-carousel-08-disponibilites-slide-03-source",
+      "path": "sources/carousels/08-disponibilites/slide-03.svg",
       "role": "editable-source",
       "format": "SVG",
       "width": 1080,
       "height": 1350,
       "bytes": 396476,
-      "sha256": "863a79a46d5c6869f8b5347e7acb2cfcef781ac04d9b2528796019330b6c4a7e",
-      "altText": "Slide sur les informations nécessaires à la demande."
-    },
-    {
-      "assetId": "full-carousel-08-reservation-slide-03-source",
-      "path": "sources/carousels/08-reservation/slide-03.svg",
-      "role": "editable-source",
-      "format": "SVG",
-      "width": 1080,
-      "height": 1350,
-      "bytes": 396474,
-      "sha256": "b63d39321645a5e8d5325df8b7a6757b258b80bd9d1c46b53029b5750b928e38",
+      "sha256": "576c56cf4552e0c89d3aa3b07917301c6cb7b07b667f0e784833512c137e0934",
       "altText": "Slide sur la réception du programme, des horaires et du tarif."
     },
     {
-      "assetId": "full-carousel-08-reservation-slide-04-source",
-      "path": "sources/carousels/08-reservation/slide-04.svg",
+      "assetId": "full-carousel-08-disponibilites-slide-04-source",
+      "path": "sources/carousels/08-disponibilites/slide-04.svg",
       "role": "editable-source",
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396494,
-      "sha256": "aee35f93af2f96f77b4005ed6016245685fd37de2325b8fea874f5d8cf37dcdd",
+      "bytes": 396496,
+      "sha256": "88b59203ac2c035c6572457dc538ca8fd306c1efe8931f4df9e39fa6da0576fe",
       "altText": "Slide précisant que la demande d'information est sans paiement."
     },
     {
-      "assetId": "full-carousel-08-reservation-slide-05-source",
-      "path": "sources/carousels/08-reservation/slide-05.svg",
+      "assetId": "full-carousel-08-disponibilites-slide-05-source",
+      "path": "sources/carousels/08-disponibilites/slide-05.svg",
       "role": "editable-source",
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396469,
-      "sha256": "9dd32968deea0dcc28c37f7260b9b396f5020ea474d4e97a23b4565d01aeda9d",
+      "bytes": 396471,
+      "sha256": "4f2a99e2f744d85f5baaeae568ed61a664c284cb3fc8aa95ec192a4b2d87126c",
       "altText": "Slide finale avec le numéro WhatsApp public."
     },
     {
@@ -2230,8 +2230,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396732,
-      "sha256": "2f60837ddb822682f7a3ab9cda467e3355834a297f47c671b27dabe793dfe9cd",
+      "bytes": 396734,
+      "sha256": "15cf6703e204197c2eddcd7a1c07788c622f2495beca0fec540614c9515222b3",
       "altText": "Affiche annonçant les stages de pré-rentrée Nexus Réussite dès le 17 août à Mutuelleville pour les niveaux 3e à Terminale."
     },
     {
@@ -2241,9 +2241,9 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396741,
-      "sha256": "5a5bff30af7e75e3a04f49423bae39a6f95222d9aaed33e52d168bca53f0193c",
-      "altText": "Visuel de l'offre d'entrée en 3e en Mathématiques ou Français, dix heures par matière et groupe de trois à six élèves."
+      "bytes": 396740,
+      "sha256": "3d8321b23927e2fb2b45d6f945f387b0627e97278712d60ab4d818461358f866",
+      "altText": "Visuel de l'offre d'entrée en 3e en Mathématiques et Français, dix heures par matière et groupe de trois à six élèves."
     },
     {
       "assetId": "full-post-03-entree-seconde-source",
@@ -2252,9 +2252,9 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396722,
-      "sha256": "8d6940fcf2a7fc088436c944c37c0b044390e81a31cb12e8f35b8cbecf7e935b",
-      "altText": "Visuel de l'offre d'entrée en Seconde en Mathématiques ou Français, avec cinq séances et effectif limité."
+      "bytes": 396724,
+      "sha256": "309dbc49e51d8dfe42d857d6d801c7a90780506a19192ae98be02b2e5ac00832",
+      "altText": "Visuel de l'offre d'entrée en Seconde en Mathématiques et Français, avec cinq séances et effectif limité."
     },
     {
       "assetId": "full-post-04-entree-premiere-source",
@@ -2263,9 +2263,9 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396897,
-      "sha256": "5973ef04e6d8199d2919090f93b4e855f9355348acab52885e9bdb69fc177c00",
-      "altText": "Visuel présentant les parcours Premium d'entrée en Première, de une à quatre matières selon les choix de l'élève."
+      "bytes": 397015,
+      "sha256": "e1940a216a6bf0fa0cb8e4d6caa3cf8a691c1de93f08b250c06247d4c1afd543",
+      "altText": "Visuel présentant les parcours Premium d'entrée en Première parmi Mathématiques, Physique-Chimie, NSI, Français — préparation à l’EAF et SVT, de une à quatre matières selon les choix de l'élève."
     },
     {
       "assetId": "full-post-05-entree-terminale-source",
@@ -2274,9 +2274,9 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396836,
-      "sha256": "ffc28ed30b55377ac6754fa86e4193c9252066cd88086b20fa3a22e7423856c9",
-      "altText": "Visuel présentant les parcours Premium d'entrée en Terminale, de une à quatre matières et cinq séances par matière."
+      "bytes": 396984,
+      "sha256": "75aedb8d59b9ff67d4ba4a987e63e5164c6ec7ec7786dddcf64d812fd71a48a6",
+      "altText": "Visuel présentant les parcours Premium d'entrée en Terminale parmi Mathématiques, Physique-Chimie, NSI, SVT et Mathématiques expertes, de une à quatre matières et cinq séances par matière."
     },
     {
       "assetId": "full-post-06-methode-nexus-source",
@@ -2285,8 +2285,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396753,
-      "sha256": "f5c7c152ede6f51d999bffa07d058075a23252c5984aa6a37c39baff2c4f61d8",
+      "bytes": 396755,
+      "sha256": "7b0b5bc5b02e3e5bac1b1ce1c4a06fd3a0b10391909bdde22d02a1a71c90e6d4",
       "altText": "Visuel expliquant la méthode Nexus en trois temps : objectif annoncé, entraînement actif et correction pédagogique."
     },
     {
@@ -2296,8 +2296,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 397171,
-      "sha256": "035ac9bc1b10b56887a78ba56fa8cff8f7d176a4dd4eed0c3dfd5cfb8cdcbfa4",
+      "bytes": 397173,
+      "sha256": "c28aa4eda651f1e2a1ba342b5ecd6a1a6598d1ddf1f1920c06fc370a5648bdbb",
       "altText": "Visuel invitant à comparer le contenu réel du stage : cinq séances, objectifs, entraînement, correction et effectif défini."
     },
     {
@@ -2307,8 +2307,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396681,
-      "sha256": "fe7c8fc303f8673aee84154c20f1934f6082bce2479ba8c2de989317cd303756",
+      "bytes": 396683,
+      "sha256": "00dd33cee8894d1b28d2250888aa6e079a6844f2ab7d5e366a1afd3a3a048c37",
       "altText": "Visuel présentant les dix heures du stage comme cinq séances progressives de réactivation, compréhension, entraînement, correction et consolidation."
     },
     {
@@ -2318,19 +2318,19 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396707,
-      "sha256": "865240213e33b838b03f6c0f41808e2805195b7e85f5e3b264d6861858f0fa2e",
+      "bytes": 396709,
+      "sha256": "4922b18881e76cb0b35193f80c1c5002ce8d5be7944c9ee727796bd3d616aa34",
       "altText": "Visuel expliquant les effectifs des groupes Fondations de trois à six élèves et Premium de trois à cinq élèves."
     },
     {
-      "assetId": "full-post-10-reservation-acompte-source",
-      "path": "sources/publications/10-reservation-acompte.svg",
+      "assetId": "full-post-10-demande-information-source",
+      "path": "sources/publications/10-demande-information.svg",
       "role": "editable-source",
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396548,
-      "sha256": "c0b5953eea300ef6aa39fa700b669b77d4f041db4961a8855db75724ec74d101",
+      "bytes": 396550,
+      "sha256": "919840eb8c8686d6bf4dbc25371a519556743736ed3563db0def08e77a762ca5",
       "altText": "Visuel invitant les familles à demander le programme, les horaires et la grille tarifaire sans paiement."
     },
     {
@@ -2340,8 +2340,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396810,
-      "sha256": "df669073b2c72e35dc81deb8d78f32fa99d3dd7831ae9e9f1cd28e56169179dd",
+      "bytes": 396812,
+      "sha256": "7cba341a018dc57096e3cec8104945ac62d1df5eba6ba88560d669e4d145289e",
       "altText": "Checklist parent avec trois informations à préparer : classe d'entrée, matière recherchée et priorité de travail pour la rentrée."
     },
     {
@@ -2351,8 +2351,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396588,
-      "sha256": "b06afd096d07880a96361192e5056ad9ddc3e3cdd8d37db00b6637e81823b1ab",
+      "bytes": 396590,
+      "sha256": "da4bbdf162dc32dbc47571df2c1f38f84619160053f9cfb474bc7fe7ecc435ff",
       "altText": "Visuel de rappel avant le stage invitant les familles à demander le programme et les horaires sur WhatsApp."
     },
     {
@@ -2362,8 +2362,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396661,
-      "sha256": "61fa18238abfee2d06792cd8aae062a6fea5cca26c55b6407718602fad29d0c2",
+      "bytes": 396663,
+      "sha256": "27fc6a5b91314964b88a723d39f4a6854566f18c911f23bb367708787a6856d0",
       "altText": "Visuel annonçant le démarrage des stages de pré-rentrée à Mutuelleville et invitant à vérifier les dernières disponibilités par niveau."
     },
     {
@@ -2373,8 +2373,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1920,
-      "bytes": 396490,
-      "sha256": "65d4eb452fbc849e1dd8f8c5bc94eeb1cea865311d68516628edd80af9e6000b",
+      "bytes": 396492,
+      "sha256": "ed20402cf0cdf2d05af723531e99f2616aa8b7b6897fdfa0f06f76d8fa11296d",
       "altText": "Couverture du Reel sur l'organisation des dix heures de stage."
     },
     {
@@ -2450,8 +2450,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1920,
-      "bytes": 396478,
-      "sha256": "68a6aa0907f08ba3080af853c49e5608612f61286ebc382d400b108abef0b322",
+      "bytes": 396480,
+      "sha256": "6e34f630c4babb94c76d729a3bec36babf7d5dc4d2baca444c636983c4df76e3",
       "altText": "Couverture du Reel sur les trois informations pour choisir un parcours."
     },
     {
@@ -2521,19 +2521,19 @@
       "altText": "Plan 6 : Niveau + matière + priorité · 99 192 829"
     },
     {
-      "assetId": "full-reel-03-reservation-cover-source",
-      "path": "sources/reels/03-reservation/cover.svg",
+      "assetId": "full-reel-03-demande-information-cover-source",
+      "path": "sources/reels/03-demande-information/cover.svg",
       "role": "editable-source",
       "format": "SVG",
       "width": 1080,
       "height": 1920,
-      "bytes": 396414,
-      "sha256": "c4134127dc4601ee57d63298bc81c2e724d8f16a0ad7a71b5ab2b57ff4d84011",
+      "bytes": 396416,
+      "sha256": "9d97ec755f4549fafed4c699226804f89f92172e696a5f81050b3ab585b7e498",
       "altText": "Couverture du Reel expliquant la demande d'information."
     },
     {
-      "assetId": "full-reel-03-reservation-frame-01-source",
-      "path": "sources/reels/03-reservation/frame-01.svg",
+      "assetId": "full-reel-03-demande-information-frame-01-source",
+      "path": "sources/reels/03-demande-information/frame-01.svg",
       "role": "editable-source",
       "format": "SVG",
       "width": 1080,
@@ -2543,8 +2543,8 @@
       "altText": "Plan 1 : Comment s'informer ?"
     },
     {
-      "assetId": "full-reel-03-reservation-frame-02-source",
-      "path": "sources/reels/03-reservation/frame-02.svg",
+      "assetId": "full-reel-03-demande-information-frame-02-source",
+      "path": "sources/reels/03-demande-information/frame-02.svg",
       "role": "editable-source",
       "format": "SVG",
       "width": 1080,
@@ -2554,8 +2554,8 @@
       "altText": "Plan 2 : 1 · Envoyer la demande"
     },
     {
-      "assetId": "full-reel-03-reservation-frame-03-source",
-      "path": "sources/reels/03-reservation/frame-03.svg",
+      "assetId": "full-reel-03-demande-information-frame-03-source",
+      "path": "sources/reels/03-demande-information/frame-03.svg",
       "role": "editable-source",
       "format": "SVG",
       "width": 1080,
@@ -2565,8 +2565,8 @@
       "altText": "Plan 3 : 2 · Recevoir les informations"
     },
     {
-      "assetId": "full-reel-03-reservation-frame-04-source",
-      "path": "sources/reels/03-reservation/frame-04.svg",
+      "assetId": "full-reel-03-demande-information-frame-04-source",
+      "path": "sources/reels/03-demande-information/frame-04.svg",
       "role": "editable-source",
       "format": "SVG",
       "width": 1080,
@@ -2576,8 +2576,8 @@
       "altText": "Plan 4 : 3 · Comparer en famille"
     },
     {
-      "assetId": "full-reel-03-reservation-frame-05-source",
-      "path": "sources/reels/03-reservation/frame-05.svg",
+      "assetId": "full-reel-03-demande-information-frame-05-source",
+      "path": "sources/reels/03-demande-information/frame-05.svg",
       "role": "editable-source",
       "format": "SVG",
       "width": 1080,
@@ -2587,8 +2587,8 @@
       "altText": "Plan 5 : Aucun paiement"
     },
     {
-      "assetId": "full-reel-03-reservation-frame-06-source",
-      "path": "sources/reels/03-reservation/frame-06.svg",
+      "assetId": "full-reel-03-demande-information-frame-06-source",
+      "path": "sources/reels/03-demande-information/frame-06.svg",
       "role": "editable-source",
       "format": "SVG",
       "width": 1080,
@@ -2638,7 +2638,7 @@
       "width": 1080,
       "height": 1920,
       "bytes": 396585,
-      "sha256": "c48e799727391a14affd49ecc8617ec942fe2c44e5f165d010579e06d90c4222",
+      "sha256": "563ea2e4f3aea58dbd6c6be44c3870ac7a576c4686079aaf6345eba01b795361",
       "altText": "Story demandant la matière prioritaire en 3e."
     },
     {
@@ -2649,7 +2649,7 @@
       "width": 1080,
       "height": 1920,
       "bytes": 396608,
-      "sha256": "e94f8921ca2ed30f6675dc330238cdd0d6dd23339b6d7762a3e79ed0183bf332",
+      "sha256": "6c3dc793f2e01a5e4c07724ca7ce361d1d81ba18fc98438429e3a71b5f5c8264",
       "altText": "Story présentant l'effectif et les cinq séances en 3e."
     },
     {
@@ -2660,7 +2660,7 @@
       "width": 1080,
       "height": 1920,
       "bytes": 396664,
-      "sha256": "ce7b61f6737f20eb2ed43e4bb5d25803b10762449f471cb984b2262633de2573",
+      "sha256": "b036b86921cb3639c450f99e188a1230c38b2c0e23c493c402245dd3b239d968",
       "altText": "Story affichant le tarif 3e et le CTA WhatsApp."
     },
     {
@@ -2671,7 +2671,7 @@
       "width": 1080,
       "height": 1920,
       "bytes": 396502,
-      "sha256": "98bc2aa17388c4963a7079a17ce29ddf8aea600eab66bd412777e1ff24c2ec78",
+      "sha256": "51d3e50f85ce31bc968c9515f8e47199bfb9070d3df42c298b9fbd2b657076cd",
       "altText": "Story listant les deux matières de Seconde."
     },
     {
@@ -2836,7 +2836,7 @@
       "width": 1080,
       "height": 1920,
       "bytes": 396627,
-      "sha256": "a605e8d23a1cf02aea75f56586150cda39f71d8cf57edd9393850bcb9aafcc8d",
+      "sha256": "50cb928e3ccb88c5939b14bf29f27878db351ba9ab8d384335a3956792fdf4a2",
       "altText": "Story tarifaire pour l'entrée en 3e."
     },
     {
@@ -2928,8 +2928,8 @@
       "altText": "Story listant les informations utiles à envoyer."
     },
     {
-      "assetId": "full-story-11-reservation-01-source",
-      "path": "sources/stories/11-reservation/frame-01.svg",
+      "assetId": "full-story-11-demande-information-01-source",
+      "path": "sources/stories/11-demande-information/frame-01.svg",
       "role": "editable-source",
       "format": "SVG",
       "width": 1080,
@@ -2939,8 +2939,8 @@
       "altText": "Story sur la demande d'information."
     },
     {
-      "assetId": "full-story-11-reservation-02-source",
-      "path": "sources/stories/11-reservation/frame-02.svg",
+      "assetId": "full-story-11-demande-information-02-source",
+      "path": "sources/stories/11-demande-information/frame-02.svg",
       "role": "editable-source",
       "format": "SVG",
       "width": 1080,
@@ -2950,8 +2950,8 @@
       "altText": "Story sur les informations transmises."
     },
     {
-      "assetId": "full-story-11-reservation-03-source",
-      "path": "sources/stories/11-reservation/frame-03.svg",
+      "assetId": "full-story-11-demande-information-03-source",
+      "path": "sources/stories/11-demande-information/frame-03.svg",
       "role": "editable-source",
       "format": "SVG",
       "width": 1080,
@@ -3000,8 +3000,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 95312,
-      "sha256": "8ae6987af12f6b7c956d1bfc9394795a0a82f21db2fb085ebad72dc6bd5adf11",
+      "bytes": 100409,
+      "sha256": "24879373714c024f71430f275ece96b5538a32568c8057c2960c3bebab3631f6",
       "altText": "Story annonçant les stages dès le 17 août."
     },
     {
@@ -3011,8 +3011,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 57290,
-      "sha256": "28d6a5d212b35e5746d33a05b74b29be261e15a74cf46bd01fe7e8b93f3c4e7d",
+      "bytes": 63358,
+      "sha256": "974db102f279a1ef4225bc90d1fe54ef9b4d5e019b8a2836994a6eb179748fa9",
       "altText": "Story annonçant les stages dès le 17 août."
     },
     {
@@ -3022,8 +3022,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 95673,
-      "sha256": "58723b7851362b8d02338ec3932b1488a06711cbe5c77dddbf5790e4ec54825a",
+      "bytes": 100776,
+      "sha256": "52fccd3db8c642906ed4481ce5290f20b34cf4dd76cb24f1d59732746dca1d1e",
       "altText": "Story présentant cinq séances par matière."
     },
     {
@@ -3033,8 +3033,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 57884,
-      "sha256": "25815fcb32b5138b807e8552f7b83cb57706d6b223b7cf373757083de39c69b2",
+      "bytes": 63712,
+      "sha256": "3594555bf0f39e303cd2444897d692bc3c547ca5af83805098e5bce628338866",
       "altText": "Story présentant cinq séances par matière."
     },
     {
@@ -3044,8 +3044,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 92467,
-      "sha256": "8722d3383e91bbfa524be4c8e6e288cfc740dff3902bf49c6d15a7f2aeed57c8",
+      "bytes": 97564,
+      "sha256": "7a9030c43b21d8504f3d381f0f8ecd2e813900dd513a572a501ddb26e770bbdb",
       "altText": "Story demandant la classe d'entrée et indiquant Mutuelleville."
     },
     {
@@ -3055,8 +3055,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 55222,
-      "sha256": "dad21567ace422079a7deeadd380127d00cb628e937ddd9288564431fe9a55ed",
+      "bytes": 61428,
+      "sha256": "36cfa8f2dbda338b2495e5529e8902de10ac13b39424ced2678e0a3adf73320b",
       "altText": "Story demandant la classe d'entrée et indiquant Mutuelleville."
     },
     {
@@ -3066,8 +3066,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 97104,
-      "sha256": "8712237db7cc88013eec2b199cf66e3ff73bf3976dfaec093056de2ec1003568",
+      "bytes": 101263,
+      "sha256": "f7bd45c55fe14e9889fa752cb1ab5d10cb1bd5ff823b728f243d01369f1ed3a2",
       "altText": "Story demandant la matière prioritaire en 3e."
     },
     {
@@ -3077,8 +3077,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 58484,
-      "sha256": "7b945ef5f5528cb8bd62a3abd87ee9c357d96ac255839b8cc9da37b22d79e39b",
+      "bytes": 64350,
+      "sha256": "6bfe6856f2da74205b06b2d86c8c2c8dda54128e9cb388229e9306ce7a709724",
       "altText": "Story demandant la matière prioritaire en 3e."
     },
     {
@@ -3088,8 +3088,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 101244,
-      "sha256": "5d006eb4645bb03170b8c7fa9de10b3785736154eed35b832a618daa8cf5b226",
+      "bytes": 105104,
+      "sha256": "fea2a98110a215a45e275230ccadfc3c8fcd624dc65cf2bd7600315162db6663",
       "altText": "Story présentant l'effectif et les cinq séances en 3e."
     },
     {
@@ -3099,8 +3099,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 60158,
-      "sha256": "f834d551529646aafae71750efe8f7e94c6c1ab806a1dde49ff061218e60ade0",
+      "bytes": 65988,
+      "sha256": "0e4a645340605fa9c38fd47b9b880fb4bd7795accfb886d030b893eae80ad4e8",
       "altText": "Story présentant l'effectif et les cinq séances en 3e."
     },
     {
@@ -3110,8 +3110,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 107856,
-      "sha256": "3a33282bd4693790379d5745f1baf90a25aa096c78461cc717595398ae78eee7",
+      "bytes": 111758,
+      "sha256": "674db900e57c0b1e60f9cbbb0033952351d5b51ead1fe6b6eaac66e583f1adeb",
       "altText": "Story affichant le tarif 3e et le CTA WhatsApp."
     },
     {
@@ -3121,8 +3121,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 65136,
-      "sha256": "ce3e7a1cd7dc0b459d3246a3e63b6e4d8f64ce72a02c444908b87cdc7ed11de6",
+      "bytes": 71098,
+      "sha256": "26ca4330aae79afdf831de08ce141861f3926f053df14a3ce039f14adcf4267e",
       "altText": "Story affichant le tarif 3e et le CTA WhatsApp."
     },
     {
@@ -3132,8 +3132,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 100138,
-      "sha256": "f114253540af6b2abe97752806bd8e66db4ced54569d238fa49add80809771b2",
+      "bytes": 105262,
+      "sha256": "f3e3f5355eefd680d317941a8ed80d53ddf8170e196a43afbfe339fbae048c19",
       "altText": "Story listant les deux matières de Seconde."
     },
     {
@@ -3143,8 +3143,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 58662,
-      "sha256": "237edd3d2fd5d2cabbffe7cdb687289baed782adbc87e3475e7f124f46b6c269",
+      "bytes": 64088,
+      "sha256": "b37f0e5c8e64c4bd3c562de54059a2434c665325e52db690746aefa5ef8dae5f",
       "altText": "Story listant les deux matières de Seconde."
     },
     {
@@ -3154,8 +3154,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 103865,
-      "sha256": "dcc44d5f85eb14789ba9434d5ab7504c3a26445e361e1fc8f4f546130659ce0b",
+      "bytes": 108992,
+      "sha256": "5301552238a964f1a514a2a014a8a029c2d140273debeb2232e3206c434c7ff2",
       "altText": "Story expliquant le format de cinq séances."
     },
     {
@@ -3165,8 +3165,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 62384,
-      "sha256": "2d91063739028305c192850fae3459b4f5c039783816a14c7d478630e7f57677",
+      "bytes": 68256,
+      "sha256": "42e79ddfae09d4ac435b7f1149cb613d3519f8776b97206509fe34717dc29d81",
       "altText": "Story expliquant le format de cinq séances."
     },
     {
@@ -3176,8 +3176,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 114202,
-      "sha256": "8ea68f0460e4a645b8b4a4b3f6d18dc7bbe849de716baec2f47a3b812c2fc98e",
+      "bytes": 118660,
+      "sha256": "097634f9b017daa48e9c34fcdbf62ee933feda637890d352559329a996c019c0",
       "altText": "Story avec effectif et tarif de Seconde."
     },
     {
@@ -3187,8 +3187,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 68124,
-      "sha256": "5ded0d75d50c1666e4ef399ec6251920ce8a8e9446c491a90135e3a4e9d94a8d",
+      "bytes": 74160,
+      "sha256": "61d775191a945913f735e50cdc7b17685747aa178376fa2afe0e88383ee46af7",
       "altText": "Story avec effectif et tarif de Seconde."
     },
     {
@@ -3198,8 +3198,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 108848,
-      "sha256": "cdfe10bac9a98e98cc23594decf82dfb5ef827ea292907ef85420a7e914ba7e1",
+      "bytes": 113693,
+      "sha256": "421379469eb0f5d4abbe15f3abc5dbdf0a76a453a7ebe797e08b2c2b6cfa9a49",
       "altText": "Story présentant les packs Première."
     },
     {
@@ -3209,8 +3209,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 65486,
-      "sha256": "82fe6e546d6db61a6a60553c3870251cc38c70c89fd389663119c2edcc327d65",
+      "bytes": 70832,
+      "sha256": "101c71940e80348844e5fba5fbd4f88f52323cf63f275afc198e697e5539ce64",
       "altText": "Story présentant les packs Première."
     },
     {
@@ -3220,8 +3220,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 108202,
-      "sha256": "ab96a2ad229315b7e151e7b6ad239d1004f6e4fbd56f784c3b814dbdc24c2e76",
+      "bytes": 113217,
+      "sha256": "df24b3769eea913727a1ee555a3db0eb95f5bdbc2ab82780822e826b90b91773",
       "altText": "Story présentant l'effectif Premium et les séances."
     },
     {
@@ -3231,8 +3231,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 64866,
-      "sha256": "d3c9d8a4693f5a713bf1fa8147eb4418f15d0cabbb19172f4225c914acd9da3c",
+      "bytes": 70540,
+      "sha256": "c964aa468574a05517309a0d7580bb5d6bde2439205f5354c73b633a792dc5ae",
       "altText": "Story présentant l'effectif Premium et les séances."
     },
     {
@@ -3242,8 +3242,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 113203,
-      "sha256": "c5e8b6ee8de9730c8d32a0aebc83d65486f02b9fdfe1ce85a921ece7ec0da4d0",
+      "bytes": 118094,
+      "sha256": "751d704b86729f3e3af9d59e44edff8e6b2a93bcbb15f435de22a8a03c8a4031",
       "altText": "Story demandant les spécialités pour vérifier le parcours."
     },
     {
@@ -3253,8 +3253,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 68052,
-      "sha256": "0561daaf41f523b70a9bc07700cd1a0746076edf00327440e903435a11112195",
+      "bytes": 73452,
+      "sha256": "cc48ad2c87b97a266990ab2c9086db70b987034e0ee094e18d8b47e301b41cfa",
       "altText": "Story demandant les spécialités pour vérifier le parcours."
     },
     {
@@ -3264,8 +3264,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 92759,
-      "sha256": "733c8c19f15937c6f346bd3bea3710784a20e1fc5688f23112f314be028885d3",
+      "bytes": 97850,
+      "sha256": "03116c5911959ed8bf1a1dc843404d065906afd4bced26040065216a737be49f",
       "altText": "Story demandant la priorité en Terminale."
     },
     {
@@ -3275,8 +3275,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 57576,
-      "sha256": "7658864d51852788a17dc4d70e57099de9871c430d2e1822a0b798683b03f651",
+      "bytes": 63362,
+      "sha256": "384764f085c7b2e00e664a0a9aef7352b73bd2215e5e3b3a5f9cf062ecc79357",
       "altText": "Story demandant la priorité en Terminale."
     },
     {
@@ -3286,8 +3286,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 97412,
-      "sha256": "7fbc50cf7f1d6aa177d601f3258c16d58bd91502b1b8f71a2115c43cff674767",
+      "bytes": 102512,
+      "sha256": "682925a582f76a45df89fceaba70c128bcd34112c1b21e6bdd5d9630fd5764f7",
       "altText": "Story présentant les packs Terminale."
     },
     {
@@ -3297,8 +3297,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 58680,
-      "sha256": "c95b73b1bbc9ad274575ed0243ceeb590a8f1dd90ffd4db3a20c785a7730d409",
+      "bytes": 64548,
+      "sha256": "609ed4a43cedb3f4a94c7fce5b4e3e911b60a96aaad3eb0f686e26c0a4c9866d",
       "altText": "Story présentant les packs Terminale."
     },
     {
@@ -3308,8 +3308,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 92590,
-      "sha256": "34d370731168b86aae60f9aa0ba56be12c21cc166336135bf810888392a01dd8",
+      "bytes": 97691,
+      "sha256": "d71558ae1a80b20ca3d7879711fc8bb53032f0bb6214a809d48a401772e4770e",
       "altText": "Story invitant à vérifier le parcours Terminale."
     },
     {
@@ -3319,8 +3319,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 56978,
-      "sha256": "36b335a6b0d5ed43e4756523269b83c67191db3d119940f5a5e3fa3275710030",
+      "bytes": 62962,
+      "sha256": "611b0887a1d3d7d0bf5c5a9aa07881f0eae7ae96e877eaf462af849f840bffda",
       "altText": "Story invitant à vérifier le parcours Terminale."
     },
     {
@@ -3330,8 +3330,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 96016,
-      "sha256": "0b0eeafb9c531e531ea7ddc7b65b960d7d2d2d34806e4a21c9fcda7f7ef2287a",
+      "bytes": 101106,
+      "sha256": "d983711386d738b323d739a769e4ff6f84ffb8169faf4243bf56ffbaa6d84d13",
       "altText": "Story sur l'objectif annoncé."
     },
     {
@@ -3341,8 +3341,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 56792,
-      "sha256": "5efe457e0c1b1e3ec75d1ae2afedb58903be4f2dc7a438c84d486473fb3cc963",
+      "bytes": 62202,
+      "sha256": "a8d373f8f8bfa4862d05f818d2092a6d4518031756f3025c4f45ef03889e7a9a",
       "altText": "Story sur l'objectif annoncé."
     },
     {
@@ -3352,8 +3352,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 96285,
-      "sha256": "b041d3ba787d3d05ab4e7113b2288cf3f11933ba278fb4b8ea1d3f9a39b78042",
+      "bytes": 101379,
+      "sha256": "b4eed2a21a2d1502ba80a255e11900b12cc1d4c987cf2c5f2365b24fed01a8ae",
       "altText": "Story sur l'entraînement actif."
     },
     {
@@ -3363,8 +3363,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 59058,
-      "sha256": "d9403a7dbd6e6c7c2d7834ad409b7bb4fd4af7cb64aef3df82a44d0873a70f31",
+      "bytes": 64594,
+      "sha256": "b9030c5fa90312abf13e010f12a982b9b9185647f5e34df79415ced8b227a9b5",
       "altText": "Story sur l'entraînement actif."
     },
     {
@@ -3374,8 +3374,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 97794,
-      "sha256": "11d6f7f7e0893cf25729b3d9bfd6032659402f76be4eae415d7d5391331b54cd",
+      "bytes": 102897,
+      "sha256": "a506224a02c31d90739cf1c517f0c87dac6cea1e2f91fb7854b9eca5ba2bfe53",
       "altText": "Story sur la correction pédagogique."
     },
     {
@@ -3385,8 +3385,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 58288,
-      "sha256": "320c953cdfa2384374f7a24beac216eedfd75af95db34c3bd96e02d0035336fe",
+      "bytes": 63888,
+      "sha256": "0612c5099b8f7d7da7c0df3245e9e3a9a75a8167ac6584cb16c76241a3327d4b",
       "altText": "Story sur la correction pédagogique."
     },
     {
@@ -3396,8 +3396,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 97386,
-      "sha256": "4b21d571106881f7128d76f9400e5c63116675ff14c2f7cc1d36c52efeb511f5",
+      "bytes": 102481,
+      "sha256": "4e96a89d40ad17fde34b2237d9a201cc745a3b80837e625ad328cd770abbb16f",
       "altText": "Story présentant la répartition des dix heures."
     },
     {
@@ -3407,8 +3407,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 58002,
-      "sha256": "eccf15090a7b6d29e364a6f1055cfb5316f6a5b38c83fdab33a9fe8bf19363e3",
+      "bytes": 63632,
+      "sha256": "ed583a98a85ff7990fa316cf2378748c422e6a6d4347ad6206988664ca4ef102",
       "altText": "Story présentant la répartition des dix heures."
     },
     {
@@ -3418,8 +3418,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 100990,
-      "sha256": "7157b044e173eeed829fad29da64136300830cf7fae920d2f8c790dc2c83857b",
+      "bytes": 106129,
+      "sha256": "9b1dabf643e200a3ba459c932f679f28b9de03535e84fc20fc75661a18b81e64",
       "altText": "Story listant cinq étapes de progression."
     },
     {
@@ -3429,8 +3429,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 59290,
-      "sha256": "0a795876b8e1abc75e38837f6b0033faf0b461d500a623b9143437df9c995935",
+      "bytes": 65134,
+      "sha256": "15c9288e8c272608948636fd883b0368c3bdbb81c39e1434d0565a21345652d8",
       "altText": "Story listant cinq étapes de progression."
     },
     {
@@ -3440,8 +3440,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 98538,
-      "sha256": "e6b7d37f444fe9fea4539a27aa531d9d6a7f2b95d7b98b2aec8f6b815c1732f6",
+      "bytes": 103633,
+      "sha256": "7c6efdecee747be88d8f9009af174dd629ed8cdc368cc2503c7f73c43cb4bb1b",
       "altText": "Story invitant à demander le programme."
     },
     {
@@ -3451,8 +3451,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 57962,
-      "sha256": "ce78e9496944dc4386089a247e63d52176cbaddd758eec2551d008c068498927",
+      "bytes": 63818,
+      "sha256": "e65ab07e9587bdeebbdb29b2d3c44e2821976ece820ec5e9cb979ceef66c34ba",
       "altText": "Story invitant à demander le programme."
     },
     {
@@ -3462,8 +3462,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 109581,
-      "sha256": "e04922c02a0d7fa49d81b546768d677a79ad6cfbbd42b87df8cae57121ee6bf9",
+      "bytes": 113892,
+      "sha256": "a1318ec64a307b90d97c0277fd2cef293b11a10c7464e5ff100ee2fff99823a7",
       "altText": "Story tarifaire pour l'entrée en 3e."
     },
     {
@@ -3473,8 +3473,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 65172,
-      "sha256": "07476512c6daea9e802318f51528d8c8ab762c9bc8d15f9c81b1e47019600d8d",
+      "bytes": 71092,
+      "sha256": "d96856eb7d5d626aa15e607b9f6f0e0342b5e12589deb683ac207bae0df86e01",
       "altText": "Story tarifaire pour l'entrée en 3e."
     },
     {
@@ -3484,8 +3484,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 107821,
-      "sha256": "dcea75966ee56469c780bffd471090a050bf3c06d36813e5a9b3f55cfceb8a67",
+      "bytes": 112776,
+      "sha256": "663db3d3cea4a1cba71b1c287167783f9c7baba3ad65bb6eede23906aa3647f8",
       "altText": "Story tarifaire pour l'entrée en Seconde."
     },
     {
@@ -3495,8 +3495,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 65694,
-      "sha256": "d7a70d21b399eb2f99bcbf640dae01de74ad09d936762de0cd9f34e8d71e8f85",
+      "bytes": 71600,
+      "sha256": "85bcad2dd018bbc60002f752660fb552b1aa7070ee6195402664963ea5a1d9d5",
       "altText": "Story tarifaire pour l'entrée en Seconde."
     },
     {
@@ -3506,8 +3506,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 111462,
-      "sha256": "2310093706dc915718b902b16362d9a67bf8ec3467f4f415e0cb96d77e0ccc2e",
+      "bytes": 116248,
+      "sha256": "975abb3a856e3bf2b8f9ebaa945066d0c5d582f034973eb7134c665dd3a4d53b",
       "altText": "Story tarifaire pour les packs Première et Terminale."
     },
     {
@@ -3517,8 +3517,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 66520,
-      "sha256": "7f48a1ebbbd1561539560ab60578c09e23d754e975bacc6e6b3bf889fe8445df",
+      "bytes": 72358,
+      "sha256": "4ec40eaf163d18e711d4f3bf79560682432fbd99536d7200ebe168ffaa5cb743",
       "altText": "Story tarifaire pour les packs Première et Terminale."
     },
     {
@@ -3528,8 +3528,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 102261,
-      "sha256": "304fbeb4125da52787e1e796981d3c61dcde9868518ed6e29e12b45c07a49dd8",
+      "bytes": 107425,
+      "sha256": "b4bdfebfcb898cc8ee9454bebdf9cc8e3cad94c46e0c56102cced68a35ed4a48",
       "altText": "Story sur l'effectif Fondations."
     },
     {
@@ -3539,8 +3539,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 57732,
-      "sha256": "f88b3493c1c1c1bed9bc4279e13d8a90a0e9c98e1c758cb55712b7f2da9ad706",
+      "bytes": 63232,
+      "sha256": "30d36c3f2a149d751dd9cfc83b340ef20699d2d6646a9eb23de65c6600900330",
       "altText": "Story sur l'effectif Fondations."
     },
     {
@@ -3550,8 +3550,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 101743,
-      "sha256": "cff73dff796a8de5375e655d47163bf7b1216db457b4c185a88a26defe6e616e",
+      "bytes": 106876,
+      "sha256": "2d3e4fd1fd3b39f7ee57550d25d38e8953835ad2cf9141ca41c458326bf0b20c",
       "altText": "Story sur l'effectif Premium."
     },
     {
@@ -3561,8 +3561,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 57118,
-      "sha256": "d4d4e443c919e59a382b56947469e1a6b2f2b9fb92df65a6e39b04d2328cf5fe",
+      "bytes": 63048,
+      "sha256": "57d581e2c17d96892e6224d9dd5e878b233eef32871de451a73311a23ed0933c",
       "altText": "Story sur l'effectif Premium."
     },
     {
@@ -3572,8 +3572,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 101775,
-      "sha256": "0ae2edd2874eb28281adeb6470ed75cb72800feb4d6842834e29bfa5c541ccd0",
+      "bytes": 106917,
+      "sha256": "12d4f55db734c9d68771de51c03b263befeb292f7ee7ee64d93fe0c657eb71d4",
       "altText": "Story invitant à vérifier la disponibilité."
     },
     {
@@ -3583,8 +3583,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 58054,
-      "sha256": "3b141b8b89e099f7f85c3da246bd71c8aa8a793630160b1c8b00aa50652b9dd9",
+      "bytes": 64076,
+      "sha256": "d540e877e8a921abe787b76c3205c6443f01c0757f743ca784d111593a821279",
       "altText": "Story invitant à vérifier la disponibilité."
     },
     {
@@ -3594,8 +3594,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 93906,
-      "sha256": "1ec4a2ec8ddcbe83738d23ece8a14cc67650601ef25aa6c92b99a08c48060382",
+      "bytes": 99009,
+      "sha256": "183009228a495e2e2c4d1701d9ecbb38cd3b7bf844bca63e56b7cf124e874554",
       "altText": "Story rappelant la date de démarrage."
     },
     {
@@ -3605,8 +3605,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 51778,
-      "sha256": "39d2f3958a974b75b94eab9639317e2702eb0db32684c6690d9a20c381dcd537",
+      "bytes": 57326,
+      "sha256": "f515057658b67d83a6b71465249a6d94b7d475a345aaeb448ae58d73064e2b56",
       "altText": "Story rappelant la date de démarrage."
     },
     {
@@ -3616,8 +3616,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 93739,
-      "sha256": "78a3999aebe4fda61e44898a5b899f6acde8827279e064a2d07f7575b8c6cb25",
+      "bytes": 98837,
+      "sha256": "809d0c11695cc6d7cb960bae183f46e787f57416e2d218860b8823891d147e7e",
       "altText": "Story indiquant le centre de Mutuelleville."
     },
     {
@@ -3627,8 +3627,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 52978,
-      "sha256": "6f0ee356bdb2855f1cfe5caec617ef5736c310a4c064f672fb98e31a0bb5cd71",
+      "bytes": 58516,
+      "sha256": "918cdfd24381be4d7902b666b089154161236842994b39ebc2d520d1f5110bcc",
       "altText": "Story indiquant le centre de Mutuelleville."
     },
     {
@@ -3638,8 +3638,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 93654,
-      "sha256": "2015b2afeb22adc44aefff57c5acfd85b81aafcfab5d8a7d150ce2139162429e",
+      "bytes": 98748,
+      "sha256": "0a7e8280bd80f819af30f0383a2fdf6194bc3a705ae84ea3f0b8eb4a5816345b",
       "altText": "Story listant les informations utiles à envoyer."
     },
     {
@@ -3649,74 +3649,74 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 53850,
-      "sha256": "1f518a9077914b2267148665b05b655dd930c0f9d14af5c22cee4aa6381d41a0",
+      "bytes": 59920,
+      "sha256": "9affa1e62a03d35b49fbd0446704a377180eec6ea73d5591c0c241cda7445dbe",
       "altText": "Story listant les informations utiles à envoyer."
     },
     {
-      "assetId": "full-story-11-reservation-01-png",
-      "path": "stories/11-reservation/frame-01.png",
+      "assetId": "full-story-11-demande-information-01-png",
+      "path": "stories/11-demande-information/frame-01.png",
       "role": "story-frame",
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 95443,
-      "sha256": "52d959e3fb18bdbcd652b868c3d9409c006cc794a7a05519ffc2054618e98591",
+      "bytes": 100531,
+      "sha256": "ac11864e75d7bfa620fc924872d4ae92c49aedf4777d07a2db1eca226e29d1f1",
       "altText": "Story sur la demande d'information."
     },
     {
-      "assetId": "full-story-11-reservation-01-webp",
-      "path": "stories/11-reservation/frame-01.webp",
+      "assetId": "full-story-11-demande-information-01-webp",
+      "path": "stories/11-demande-information/frame-01.webp",
       "role": "story-frame",
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 56126,
-      "sha256": "4a191d54134856c5a656de1f2023af2ce3b477974d72552111c8a71edf33c82e",
+      "bytes": 61612,
+      "sha256": "3f51c042e17664523169ef38b3fcd85ef5e7184e006c94579669ad7a6c6eb0e2",
       "altText": "Story sur la demande d'information."
     },
     {
-      "assetId": "full-story-11-reservation-02-png",
-      "path": "stories/11-reservation/frame-02.png",
+      "assetId": "full-story-11-demande-information-02-png",
+      "path": "stories/11-demande-information/frame-02.png",
       "role": "story-frame",
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 98115,
-      "sha256": "66d2eabec46c9abf80f21a20377abdccd6818946d237ee4a999aadd65d34a52d",
+      "bytes": 103207,
+      "sha256": "aefec10a06955995c6cbcd2dfa22fc25fa7e2bbca4ea2aa0f9a83d547106b29a",
       "altText": "Story sur les informations transmises."
     },
     {
-      "assetId": "full-story-11-reservation-02-webp",
-      "path": "stories/11-reservation/frame-02.webp",
+      "assetId": "full-story-11-demande-information-02-webp",
+      "path": "stories/11-demande-information/frame-02.webp",
       "role": "story-frame",
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 57898,
-      "sha256": "b6785a94fd590d52b07415a570da8eb590878c5ae44dfc183f89134a290b3112",
+      "bytes": 63816,
+      "sha256": "18e64f3b568e078bbe2a156e731020f715d9d300a6095ec5fc399745ac5ee72f",
       "altText": "Story sur les informations transmises."
     },
     {
-      "assetId": "full-story-11-reservation-03-png",
-      "path": "stories/11-reservation/frame-03.png",
+      "assetId": "full-story-11-demande-information-03-png",
+      "path": "stories/11-demande-information/frame-03.png",
       "role": "story-frame",
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 98195,
-      "sha256": "4a204595b5969ad55a045ec77bc003b4c7f35fb639c9f5e646f55a969bb98937",
+      "bytes": 103291,
+      "sha256": "09e6b2eed141105342c12e4316d9d6be855e676919677e3379434410f1641573",
       "altText": "Story précisant que la demande est sans paiement."
     },
     {
-      "assetId": "full-story-11-reservation-03-webp",
-      "path": "stories/11-reservation/frame-03.webp",
+      "assetId": "full-story-11-demande-information-03-webp",
+      "path": "stories/11-demande-information/frame-03.webp",
       "role": "story-frame",
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 58730,
-      "sha256": "f3bdb79616bb8abb170ae8bf600e4b41dba29d55cd3c9c09d15b05a3f4ab03a7",
+      "bytes": 64570,
+      "sha256": "da3f109ebb18a0415873abfc7310a7fbb204256ef88856f0454b5c5773193120",
       "altText": "Story précisant que la demande est sans paiement."
     },
     {
@@ -3726,8 +3726,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 102938,
-      "sha256": "165601932b4dafe71fa83dace58eefea0e5f5da4fc3dd175e86897012aff8d47",
+      "bytes": 108089,
+      "sha256": "c07434cf53c64c24ae328af67d3e0b83318c8bb548d5bf7d36a5c64c9f685caf",
       "altText": "Story rappelant le démarrage le 17 août."
     },
     {
@@ -3737,8 +3737,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 56562,
-      "sha256": "e22dc64fecc11c10c0da339ea9bb3d4b9a44cfb6e67cce20894a54ee36058947",
+      "bytes": 62014,
+      "sha256": "4955f413346390869a596b513f7a85ca728c3d79883fb3df2b20c069570a509d",
       "altText": "Story rappelant le démarrage le 17 août."
     },
     {
@@ -3748,8 +3748,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 109136,
-      "sha256": "8a54e9f7c4f21c8ab79dcc394ea0e644295f51a5aba8a3f5a3112f4fc3b28517",
+      "bytes": 114194,
+      "sha256": "9f44b646f35f0aaeabc4cc527304ebf6fb90dfa7bf4fe8675e6ced9bd10a2d29",
       "altText": "Story demandant le niveau et la matière."
     },
     {
@@ -3759,8 +3759,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 59534,
-      "sha256": "d39321d26d6823c5049ddc7275aa6a69f79a046b7c359b0d41f92811c4d6c16e",
+      "bytes": 65416,
+      "sha256": "267cd67627910e2ea0fa8499ab8a976ff7b4d51b04435cef7fc9abb78a97cc7d",
       "altText": "Story demandant le niveau et la matière."
     },
     {
@@ -3770,8 +3770,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 105936,
-      "sha256": "db01b1b0bd578033f6bac08651a0cf8b98b481ab180b9e2bb7dd44a9c1f08e50",
+      "bytes": 111017,
+      "sha256": "072eda31944dc20e1b554e81d7bdf027a0a87fc0b59aaae2abed8fc156174ea3",
       "altText": "Story invitant à demander les informations du stage."
     },
     {
@@ -3781,8 +3781,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 58882,
-      "sha256": "aff7ecc35bf13654b569c62a5bdc91abc2365d5c935f66aa6f8f60393c3763c2",
+      "bytes": 64654,
+      "sha256": "900a785552d12072ce065051dd04463b67a0b49a891f3eda93b5e0505b8649a5",
       "altText": "Story invitant à demander les informations du stage."
     },
     {
@@ -3792,8 +3792,8 @@
       "format": "PNG",
       "width": 1068,
       "height": 1488,
-      "bytes": 755343,
-      "sha256": "850631f4e907560c640f108aa115b603f8c3504cc76b43292c1fca0e527f3a40",
+      "bytes": 793485,
+      "sha256": "6085aaf0547cf57f90bba6a6ae1afe4be8596507a3548d5c8b136c34fc0e206c",
       "altText": "Planche de contrôle calendar"
     },
     {
@@ -3803,8 +3803,8 @@
       "format": "PNG",
       "width": 1044,
       "height": 2080,
-      "bytes": 455815,
-      "sha256": "b8ac7bce44ed2e3b3bd9be1f873ed49d76ab2722cf5b593dc53845d3d34e54d1",
+      "bytes": 507077,
+      "sha256": "59570c9768b01b8ede3aa22f35e232d9ffa1d7175f30a792c38c5dcc7523bc5e",
       "altText": "Planche de contrôle carousels"
     },
     {
@@ -3814,8 +3814,8 @@
       "format": "PNG",
       "width": 1000,
       "height": 1252,
-      "bytes": 330836,
-      "sha256": "edf8d44e39712cb67af51e7e5b29178bed75a204b3bf67e48e86ecf69ebc8725",
+      "bytes": 369101,
+      "sha256": "e131cbb8cfc82b0df96995d946a50ad14f38a0d362b01923aa88638b754fda11",
       "altText": "Planche de contrôle publications"
     },
     {
@@ -3825,8 +3825,8 @@
       "format": "PNG",
       "width": 1068,
       "height": 921,
-      "bytes": 107675,
-      "sha256": "edbf89aa3b52f86b5fdf5b9645d53a6eddf036e1689ba972f6c45bbad8409d41",
+      "bytes": 113731,
+      "sha256": "ef78207cab1ad6a4b69ad630818c251a27c7584f6ceeb88fec3f39cda7549e04",
       "altText": "Planche de contrôle reels"
     },
     {
@@ -3836,8 +3836,8 @@
       "format": "PNG",
       "width": 1068,
       "height": 1818,
-      "bytes": 316138,
-      "sha256": "14e3b244f24a0b2e84f0cdbaf8332110e42232c6183260355179eeec78b0278e",
+      "bytes": 346708,
+      "sha256": "b0886ea65219f5e9ddb4a351a2338534381417e4f7db3a9276b9f9db2f6ea2de",
       "altText": "Planche de contrôle stories"
     }
   ]
