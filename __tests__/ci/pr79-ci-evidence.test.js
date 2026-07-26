@@ -58,6 +58,62 @@ describe('PR #79 complete CI evidence workflow', () => {
     expect(runCommands).not.toMatch(/--audit-level=(?:low|moderate)/);
   });
 
+  test('accepts only the schema-validated exact exception while preserving raw audits', () => {
+    const gate = workflow.jobs['dependency-integrity'];
+    const source = jobSource(gate);
+    const runCommands = gate.steps
+      .filter((step) => typeof step.run === 'string')
+      .map((step) => step.run)
+      .join('\n');
+
+    expect(runCommands).toContain(
+      'scripts/security/validate-dev-tooling-exception.mjs',
+    );
+    expect(runCommands).toContain('--mode npm');
+    expect(runCommands).toContain('--production-audit');
+    expect(runCommands).toContain('--runtime-sbom');
+    expect(source).toContain('PRE_RENTREE_DEV_TOOLING_EXCEPTION_JSON');
+    expect(source).toContain('npm-audit-production.json');
+    expect(source).toContain('npm-audit-full.json');
+    expect(
+      gate.steps.find((step) => step.name === 'Upload dependency evidence').if,
+    ).toBe('always()');
+    expect(runCommands).not.toMatch(/exit\s+0\s*(?:#.*)?$/m);
+  });
+
+  test('keeps OSV blocking unless the same exact exception validates', () => {
+    const security = workflow.jobs.security;
+    const source = jobSource(security);
+    const runCommands = security.steps
+      .filter((step) => typeof step.run === 'string')
+      .map((step) => step.run)
+      .join('\n');
+
+    expect(runCommands).toContain(
+      'scripts/security/validate-dev-tooling-exception.mjs',
+    );
+    expect(runCommands).toContain('--mode osv');
+    expect(source).toContain('PRE_RENTREE_DEV_TOOLING_EXCEPTION_JSON');
+    expect(source).toContain('osv-report.json');
+    expect(
+      security.steps.find((step) => step.name === 'Upload OSV report').if,
+    ).toBe('always()');
+  });
+
+  test('audits traces and the exact standalone artifact before upload', () => {
+    const build = workflow.jobs.build;
+    const commands = build.steps
+      .filter((step) => typeof step.run === 'string')
+      .map((step) => step.run)
+      .join('\n');
+
+    expect(commands).toContain('npm run artifact:traces');
+    expect(commands).toContain('npm run artifact:audit');
+    expect(commands.indexOf('npm run artifact:audit')).toBeLessThan(
+      commands.indexOf('node .next/standalone/server.js'),
+    );
+  });
+
   test('makes CI Success fail closed for every required result', () => {
     const aggregate = workflow.jobs['ci-success'];
     const aggregateSource = jobSource(aggregate);
