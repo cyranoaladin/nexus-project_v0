@@ -128,10 +128,10 @@
       "priority": "P0",
       "category": "GOVERNANCE",
       "decisionId": "DEC-PRE2026-CAMPAIGN-OWNER-SIGNOFF",
-      "description": "La date de lancement et le GO de publication ne sont pas autorisés.",
+      "description": "La date de lancement du 26 juillet 2026 est enregistrée ; le GO de publication lié au SHA final reste interdit avant la fin des contrôles.",
       "owner": "OWNER_NEXUS_REUSSITE",
       "dueAt": "2026-08-03",
-      "derogation": "Calendriers relatifs J1 à J29 et releaseStatus READY_FOR_REVIEW.",
+      "derogation": "Calendriers datés en Africa/Tunis, actifs en release candidate et releaseStatus READY_FOR_OWNER_GO.",
       "exitCriteria": "Date et GO écrits rattachés au SHA exact après toutes les revues.",
       "status": "OPEN",
       "reopenCriteria": "Sans objet tant que le GO final n'est pas committé ; ensuite réouvrir si le SHA approuvé change."

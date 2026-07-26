@@ -14,17 +14,6 @@ from pathlib import Path
 PUBLIC_EXCLUDED_PARTS = {"sources", "internal", "visual-review", "rendered"}
 PUBLIC_EXCLUDED_NAMES = {"qa-report.json", "qa-report.md", "frames.concat.txt"}
 
-LOT_SUBJECTS = [
-    (1, "fix(pre-rentree): establish canonical commercial publication contract"),
-    (2, "feat(pre-rentree): deliver complete week-one campaign kit"),
-    (3, "feat(pre-rentree): complete WhatsApp conversion journey"),
-    (4, "feat(pre-rentree): deliver parent conversion documentation"),
-    (5, "feat(pre-rentree): complete full multichannel campaign"),
-    (6, "feat(pre-rentree): add classroom-ready priority resources"),
-    (7, "fix(pre-rentree): align public journey with canonical offer claims"),
-]
-
-
 def digest(path: Path) -> str:
     value = hashlib.sha256()
     with path.open("rb") as handle:
@@ -33,15 +22,33 @@ def digest(path: Path) -> str:
     return value.hexdigest()
 
 
-def commit_for_subject(root: Path, subject: str) -> str:
-    output = subprocess.check_output(
-        ["git", "log", "--all", "--format=%H%x00%s"], cwd=root, text=True
+def release_commits(root: Path, baseline_sha: str, head_sha: str) -> list[dict]:
+    subprocess.run(
+        ["git", "merge-base", "--is-ancestor", baseline_sha, head_sha],
+        cwd=root,
+        check=True,
     )
-    for line in output.splitlines():
-        sha, _, candidate = line.partition("\x00")
-        if candidate == subject:
-            return sha
-    raise RuntimeError(f"Missing lot commit: {subject}")
+    output = subprocess.check_output(
+        [
+            "git",
+            "log",
+            "--first-parent",
+            "--reverse",
+            "--format=%H%x00%s",
+            f"{baseline_sha}..{head_sha}",
+        ],
+        cwd=root,
+        text=True,
+    )
+    commits = []
+    for index, line in enumerate(output.splitlines(), start=1):
+        sha, separator, subject = line.partition("\x00")
+        if not separator:
+            raise RuntimeError(f"Invalid git log line: {line}")
+        commits.append({"order": index, "commitSha": sha, "subject": subject})
+    if not commits:
+        raise RuntimeError("Release inventory cannot contain an empty commit range")
+    return commits
 
 
 def files_for(
@@ -97,6 +104,7 @@ def main() -> None:
     parser.add_argument("--output", type=Path, default=Path("assets/campaigns/pre-rentree-2026/release-inventory.json"))
     parser.add_argument("--branch", required=True)
     parser.add_argument("--pull-request", type=int)
+    parser.add_argument("--baseline-sha")
     parser.add_argument("--repository-commit-sha", required=True)
     args = parser.parse_args()
     pull_request = args.pull_request
@@ -113,6 +121,12 @@ def main() -> None:
             parser.error("PRE_RENTREE_PULL_REQUEST must be a positive integer")
     if pull_request < 1:
         parser.error("pull request number must be a positive integer")
+    baseline_sha = args.baseline_sha or os.environ.get("PRE_RENTREE_BASELINE_SHA")
+    if not baseline_sha:
+        parser.error(
+            "--baseline-sha or PRE_RENTREE_BASELINE_SHA is required; "
+            "release ancestry cannot be inferred safely"
+        )
     root = args.repo_root.resolve()
     output = args.output if args.output.is_absolute() else root / args.output
     subprocess.run(
@@ -120,13 +134,34 @@ def main() -> None:
         cwd=root,
         check=True,
     )
+    subprocess.run(
+        ["git", "cat-file", "-e", f"{baseline_sha}^{{commit}}"],
+        cwd=root,
+        check=True,
+    )
     groups_spec = [
         ("commercial-contract", ["content/pre-rentree-2026/commercial-contract.fr.json", "content/pre-rentree-2026/proofs.registry.json"], "INTERNAL_SOURCE"),
-        ("week-one", ["assets/campaigns/pre-rentree-2026/week-one"], "PUBLIC_CANDIDATE"),
+        ("week-one", ["assets/campaigns/pre-rentree-2026/week-one"], "INTERNAL_REVIEW"),
         ("whatsapp", ["content/pre-rentree-2026/whatsapp-conversion.fr.json", "content/pre-rentree-2026/whatsapp.fr.json"], "INTERNAL_SOURCE"),
-        ("parent-documents", ["assets/campaigns/pre-rentree-2026/parent-documents"], "PUBLIC_CANDIDATE"),
+        ("parent-documents", ["assets/campaigns/pre-rentree-2026/parent-documents"], "INTERNAL_REVIEW"),
         ("documents-final", public_document_targets(root), "PUBLIC_CANDIDATE"),
-        ("full-campaign", ["assets/campaigns/pre-rentree-2026/full-campaign"], "PUBLIC_CANDIDATE"),
+        ("full-campaign", ["assets/campaigns/pre-rentree-2026/full-campaign"], "INTERNAL_REVIEW"),
+        (
+            "public-social",
+            [
+                "assets/campaigns/pre-rentree-2026/social/PUBLIC",
+                "assets/campaigns/pre-rentree-2026/social/manifest-public.json",
+            ],
+            "PUBLIC_CANDIDATE",
+        ),
+        (
+            "social-review",
+            [
+                "assets/campaigns/pre-rentree-2026/social/REVIEW",
+                "assets/campaigns/pre-rentree-2026/social/manifest-review.json",
+            ],
+            "INTERNAL_REVIEW",
+        ),
         ("priority-resources", ["assets/pedagogy/pre-rentree-2026/priority-resources"], "INTERNAL_REVIEW"),
         ("public-journey-qa", ["assets/qa/pre-rentree-2026/public-journey"], "INTERNAL_REVIEW"),
         ("economic-simulation", ["assets/operations/pre-rentree-2026/economic-simulation"], "INTERNAL_REVIEW"),
@@ -165,10 +200,7 @@ def main() -> None:
     aggregate = hashlib.sha256()
     for item in public_files:
         aggregate.update(f'{item["path"]}\0{item["sha256"]}\0'.encode())
-    lots = [
-        {"lot": lot, "commitSha": commit_for_subject(root, subject), "subject": subject}
-        for lot, subject in LOT_SUBJECTS
-    ]
+    commits = release_commits(root, baseline_sha, args.repository_commit_sha)
     proof_registry = json.loads((root / "content/pre-rentree-2026/proofs.registry.json").read_text(encoding="utf-8"))
     remaining = [decision for decision in proof_registry["decisions"] if decision["status"] == "PENDING"]
     release_gates = json.loads((root / "content/pre-rentree-2026/release-gates.json").read_text(encoding="utf-8"))
@@ -183,11 +215,46 @@ def main() -> None:
         verdict = "READY_FOR_OWNER_GO"
     else:
         verdict = "BLOCKED"
+    campaign = json.loads(
+        (root / "data/campaigns/pre-rentree-2026.json").read_text(encoding="utf-8")
+    )
+    public_document_manifest = json.loads(
+        (
+            root
+            / "assets"
+            / "campaigns"
+            / "pre-rentree-2026"
+            / "documents-final"
+            / "manifest.json"
+        ).read_text(encoding="utf-8")
+    )
+    public_documents = [
+        {
+            "fileName": document["fileName"],
+            "sha256": document["sha256"],
+            "bytes": document["bytes"],
+        }
+        for document in public_document_manifest["documents"]
+        if document["publicDownloadCandidate"]
+    ]
+    social_manifest = json.loads(
+        (
+            root
+            / "assets"
+            / "campaigns"
+            / "pre-rentree-2026"
+            / "social"
+            / "manifest-public.json"
+        ).read_text(encoding="utf-8")
+    )
     inventory = {
         "schemaVersion": "1.0.0",
         "campaignId": "pre-rentree-2026",
+        "campaignVersion": campaign["version"],
+        "launchDate": social_manifest["launchDate"],
         "branch": args.branch,
         "pullRequest": pull_request,
+        "baselineSha": baseline_sha,
         "repositoryCommitSha": args.repository_commit_sha,
         "provenance": {
             "repositoryCommitShaRole": "BUILD_INPUT_NOT_FINAL_RELEASE_BINDING",
@@ -195,7 +262,21 @@ def main() -> None:
         },
         "releaseStatus": release_gates["releaseStatus"],
         "verdict": verdict,
-        "lots": lots,
+        "releaseMetrics": {
+            "pedagogicalModuleCount": 14,
+            "pedagogicalSessionTemplateCount": 70,
+            "operationalCohortCount": 17,
+            "scheduledSessionOccurrenceCount": 85,
+            "studentSessionsPerSubject": 5,
+            "studentHoursPerSubject": 10,
+        },
+        "commits": commits,
+        "publicDocuments": public_documents,
+        "publicSocialAssets": social_manifest["assets"],
+        "githubChecks": {
+            "statusAtBuild": "PENDING_REMOTE_VALIDATION",
+            "authoritativeBinding": "FINAL_PR_STATUS_CHECK_ROLLUP_AND_GO_COMMENT",
+        },
         "summary": {
             "fileCount": len(public_files),
             "totalBytes": sum(item["bytes"] for item in public_files),

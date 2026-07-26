@@ -16,6 +16,11 @@ def test_release_inventory_covers_all_seven_lots_and_final_assets(tmp_path: Path
         cwd=REPO_ROOT,
         text=True,
     ).strip()
+    baseline = subprocess.check_output(
+        ["git", "rev-parse", "HEAD^"],
+        cwd=REPO_ROOT,
+        text=True,
+    ).strip()
     subprocess.run([
         sys.executable,
         str(SCRIPT),
@@ -24,26 +29,39 @@ def test_release_inventory_covers_all_seven_lots_and_final_assets(tmp_path: Path
         "--output",
         str(output),
         "--branch",
-        "feat/pre-rentree-planning-scheduler",
+        "release/pre-rentree-2026-public-ready",
         "--pull-request",
-        "75",
+        "999",
+        "--baseline-sha",
+        baseline,
         "--repository-commit-sha",
         head,
     ], check=True)
     inventory = json.loads(output.read_text(encoding="utf-8"))
 
     assert inventory["campaignId"] == "pre-rentree-2026"
+    assert inventory["campaignVersion"] == "2.1.0"
+    assert inventory["launchDate"] == "2026-07-26"
     assert inventory["verdict"] == "READY_FOR_OWNER_GO"
-    assert inventory["branch"] == "feat/pre-rentree-planning-scheduler"
-    assert inventory["pullRequest"] == 75
+    assert inventory["branch"] == "release/pre-rentree-2026-public-ready"
+    assert inventory["pullRequest"] == 999
+    assert inventory["baselineSha"] == baseline
     assert inventory["repositoryCommitSha"] == head
     assert inventory["provenance"] == {
         "repositoryCommitShaRole": "BUILD_INPUT_NOT_FINAL_RELEASE_BINDING",
         "finalReleaseBinding": "ANNOTATED_GO_TAG_AND_GITHUB_PR_COMMENT",
     }
-    assert [lot["lot"] for lot in inventory["lots"]] == list(range(1, 8))
-    assert all(len(lot["commitSha"]) == 40 for lot in inventory["lots"])
-    assert inventory["summary"]["fileCount"] > 300
+    assert inventory["commits"]
+    assert all(len(commit["commitSha"]) == 40 for commit in inventory["commits"])
+    assert inventory["releaseMetrics"] == {
+        "pedagogicalModuleCount": 14,
+        "pedagogicalSessionTemplateCount": 70,
+        "operationalCohortCount": 17,
+        "scheduledSessionOccurrenceCount": 85,
+        "studentSessionsPerSubject": 5,
+        "studentHoursPerSubject": 10,
+    }
+    assert inventory["summary"]["fileCount"] > 20
     assert inventory["summary"]["totalBytes"] > 1_000_000
     assert inventory["summary"]["aggregateSha256"]
     public_groups = [
@@ -51,12 +69,7 @@ def test_release_inventory_covers_all_seven_lots_and_final_assets(tmp_path: Path
         if group["visibility"] == "PUBLIC_CANDIDATE"
     ]
     groups = {group["id"] for group in public_groups}
-    assert {
-        "week-one",
-        "parent-documents",
-        "full-campaign",
-        "documents-final",
-    }.issubset(groups)
+    assert groups == {"documents-final", "public-social"}
     forbidden_parts = {"sources", "internal", "visual-review", "rendered"}
     for group in public_groups:
         for item in group["files"]:
@@ -74,6 +87,9 @@ def test_release_inventory_covers_all_seven_lots_and_final_assets(tmp_path: Path
         if item["publicDownloadCandidate"] and item["publicationStatus"] == "PUBLIC_FINAL"
     }
     assert {Path(item["path"]).name for item in document_group["files"]} == expected_public_pdfs
+    assert len(inventory["publicDocuments"]) == 7
+    assert inventory["publicSocialAssets"]
+    assert inventory["githubChecks"]["statusAtBuild"] == "PENDING_REMOTE_VALIDATION"
     assert all(
         not any(marker in Path(item["path"]).name.upper() for marker in ("DRAFT", "PROPOSAL", "PROPOSITION", "REVIEW"))
         for item in document_group["files"]
@@ -87,8 +103,14 @@ def test_release_inventory_derives_pull_request_from_explicit_environment(tmp_pa
         cwd=REPO_ROOT,
         text=True,
     ).strip()
+    baseline = subprocess.check_output(
+        ["git", "rev-parse", "HEAD^"],
+        cwd=REPO_ROOT,
+        text=True,
+    ).strip()
     env = os.environ.copy()
-    env["PRE_RENTREE_PULL_REQUEST"] = "75"
+    env["PRE_RENTREE_PULL_REQUEST"] = "999"
+    env["PRE_RENTREE_BASELINE_SHA"] = baseline
 
     subprocess.run([
         sys.executable,
@@ -98,18 +120,24 @@ def test_release_inventory_derives_pull_request_from_explicit_environment(tmp_pa
         "--output",
         str(output),
         "--branch",
-        "feat/pre-rentree-planning-scheduler",
+        "release/pre-rentree-2026-public-ready",
         "--repository-commit-sha",
         head,
     ], check=True, env=env)
 
     inventory = json.loads(output.read_text(encoding="utf-8"))
-    assert inventory["pullRequest"] == 75
+    assert inventory["pullRequest"] == 999
+    assert inventory["baselineSha"] == baseline
 
 
 def test_release_inventory_fails_closed_without_pull_request(tmp_path: Path):
     env = os.environ.copy()
     env.pop("PRE_RENTREE_PULL_REQUEST", None)
+    env["PRE_RENTREE_BASELINE_SHA"] = subprocess.check_output(
+        ["git", "rev-parse", "HEAD^"],
+        cwd=REPO_ROOT,
+        text=True,
+    ).strip()
     result = subprocess.run([
         sys.executable,
         str(SCRIPT),
@@ -131,6 +159,31 @@ def test_release_inventory_fails_closed_without_pull_request(tmp_path: Path):
     assert "PRE_RENTREE_PULL_REQUEST" in result.stderr
 
 
+def test_release_inventory_fails_closed_without_baseline(tmp_path: Path):
+    env = os.environ.copy()
+    env["PRE_RENTREE_PULL_REQUEST"] = "999"
+    env.pop("PRE_RENTREE_BASELINE_SHA", None)
+    result = subprocess.run([
+        sys.executable,
+        str(SCRIPT),
+        "--repo-root",
+        str(REPO_ROOT),
+        "--output",
+        str(tmp_path / "release-inventory.json"),
+        "--branch",
+        "release/pre-rentree-2026-public-ready",
+        "--repository-commit-sha",
+        subprocess.check_output(
+            ["git", "rev-parse", "HEAD"],
+            cwd=REPO_ROOT,
+            text=True,
+        ).strip(),
+    ], capture_output=True, text=True, env=env)
+
+    assert result.returncode != 0
+    assert "PRE_RENTREE_BASELINE_SHA" in result.stderr
+
+
 def test_active_package_script_has_no_hardcoded_pull_request():
     package = json.loads((REPO_ROOT / "package.json").read_text(encoding="utf-8"))
     command = package["scripts"]["pre-rentree:release-inventory"]
@@ -139,3 +192,4 @@ def test_active_package_script_has_no_hardcoded_pull_request():
     assert "--pull-request 75" not in command
     assert "PRE_RENTREE_PULL_REQUEST" in command
     assert "PRE_RENTREE_BRANCH" in command
+    assert "PRE_RENTREE_BASELINE_SHA" in command

@@ -49,7 +49,7 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
       snapshot.sourceAnchorSha,
       snapshot.repositoryCommitSha,
     ], { cwd: root })).not.toThrow();
-    expect(snapshot.provenance.campaign.version).toBe('2.0.4');
+    expect(snapshot.provenance.campaign.version).toBe('2.1.0');
     expect(snapshot.provenance.modules.version).toBe('2026-pre-rentree-v5-planning-windows');
     expect(snapshot.provenance.pricing.version).toBe('2026-2027.5');
     expect(snapshot.provenance.parentGuide.version).toBe('2026-parent-guide-fr-v4');
