@@ -1,5 +1,9 @@
 # Audit final de reproduction — release publique Pré-rentrée 2026
 
+> Audit avant/après conservé comme preuve de reproduction. Les constats de la
+> colonne baseline ne décrivent pas l'état actif ; la qualification courante
+> est enregistrée dans `FINAL-GO-LIVE-QUALIFICATION.md`.
+
 ## Date
 
 2026-07-26, Africa/Tunis.

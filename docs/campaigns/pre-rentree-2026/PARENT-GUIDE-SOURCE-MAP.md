@@ -10,16 +10,18 @@
 | Parcours Fondations | `/offers/levels/0`, `/offers/levels/1`, `/capabilities` | aucun bilan promis sans gate public |
 | Parcours Premium 360 | `/offers/levels/2`, `/offers/levels/3`, `/capabilities` | aucun document nominatif promis |
 | Entrée en 3e | `/levels/0`, modules et planning `TROISIEME` | deux modules, dix séances |
-| Entrée en Seconde | `/levels/1`, modules et planning `SECONDE` | Mathématiques, Français et Physique-Chimie uniquement |
-| Entrée en Première | `/levels/2`, profils, modules et planning `PREMIERE` | EAF et profils Maths distingués |
-| Entrée en Terminale | `/levels/3`, profils, modules et planning `TERMINALE` | Philosophie ; aucun module Français |
-| Quinze programmes | `/modules` | cinq séances, objectifs, notions, méthodes et livrables sans omission |
-| Planning | `/schedule`, `/campaign/operationalGates` | visible en REVIEW avec avertissement jusqu’aux affectations |
+| Entrée en Seconde | `/levels/1`, modules et planning `SECONDE` | Mathématiques et Français uniquement |
+| Entrée en Première | `/levels/2`, profils, modules et planning `PREMIERE` | Mathématiques, Français EAF, NSI, Physique-Chimie et SVT |
+| Entrée en Terminale | `/levels/3`, profils, modules et planning `TERMINALE` | Mathématiques, Mathématiques expertes, NSI, Physique-Chimie et SVT |
+| Quatorze programmes | `/modules` | cinq séances, objectifs, notions, méthodes et livrables sans omission |
+| Planning | `/schedule`, `/campaign/operationalGates` | cohortes alternatives sans double comptage ; disponibilité à confirmer |
 | Tarifs et acompte | `/offerPricing`, `/offers/depositRate` | 30 % exact, aucun ancien arrondi |
-| Réservation | `/content/practical`, `/approvedPublicClaims`, `/legal` | paiement seulement après parcours et conditions |
+| Demande d'information | `/content/practical`, `/approvedPublicClaims`, `/legal` | aucune réservation, aucun paiement et aucune place garantie sur la surface publique |
 | Manuels | `/manuals` | section supprimée de la surface publiable tant que les gates sont faux |
 | Informations pratiques | `/campaign/venue`, `/contact`, `/content/practical` | Physique-Chimie théorique et méthodologique |
 | FAQ | `/content/faq` | aucune politique juridique inventée |
 | Contact | `/contact`, `/cta`, `/document/qrTarget` | QR vérifié contre l’URL canonique |
 
-Chaque bloc factuel de `parent-guide.fr.json` porte des références validées à la compilation. Le Guide contient seize modules et quatre-vingts séances.
+Chaque bloc factuel de `parent-guide.fr.json` porte des références validées à
+la compilation. Le contrat actif contient 14 modules pédagogiques, 70 séances
+modèles, 17 cohortes opérationnelles et 85 occurrences calendaires.
