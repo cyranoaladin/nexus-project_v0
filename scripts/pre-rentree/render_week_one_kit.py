@@ -32,6 +32,7 @@ MUTED = "#536072"
 WHITE = "#FFFFFF"
 VERSION = "2026-week-one-v1"
 FIXED_PDF_DATE = "D:20000101000000Z"
+SUBJECT_TOKEN_RE = re.compile(r"\{\{subjects\.(TROISIEME|SECONDE|PREMIERE|TERMINALE)\}\}")
 
 
 @dataclass
@@ -55,15 +56,16 @@ class KitRenderer:
     ):
         self.repo_root = repo_root
         self.content = json.loads(content_path.read_text(encoding="utf-8"))
+        self.campaign = json.loads(
+            (repo_root / "data" / "campaigns" / "pre-rentree-2026.json").read_text(encoding="utf-8")
+        )
+        self.subjects_by_level = self._canonical_subjects_by_level()
+        self.content = self._resolve_subject_tokens(self.content)
         configured_launch_date = self.content.get("launchDate")
         if launch_date and configured_launch_date and launch_date != configured_launch_date:
             raise ValueError("CLI launch date conflicts with the content launch date")
         self.launch_date = launch_date or configured_launch_date
-        self.launch_date_status = (
-            "OWNER_AUTHORIZED"
-            if self.launch_date
-            else self.content["launchDateStatus"]
-        )
+        self.launch_date_status = self.content["launchDateStatus"]
         for day in self.content["calendar"]["days"]:
             resolved = resolve_publication_date(
                 self.launch_date,
@@ -86,6 +88,35 @@ class KitRenderer:
         self.font_dir = Path(self._font_tmp.name)
         self._prepare_fonts()
         self.pricing = self._pricing_summary()
+
+    def _canonical_subjects_by_level(self) -> dict[str, list[str]]:
+        levels = [level["id"] for level in self.campaign["levels"]]
+        return {
+            level: [
+                subject.get("labelByLevel", {}).get(level, subject["label"])
+                for subject in self.campaign["subjects"]
+                if level in subject["levels"]
+            ]
+            for level in levels
+        }
+
+    @staticmethod
+    def _join_subjects(subjects: list[str]) -> str:
+        if len(subjects) < 2:
+            return subjects[0] if subjects else ""
+        return f"{', '.join(subjects[:-1])} et {subjects[-1]}"
+
+    def _resolve_subject_tokens(self, value: Any) -> Any:
+        if isinstance(value, dict):
+            return {key: self._resolve_subject_tokens(item) for key, item in value.items()}
+        if isinstance(value, list):
+            return [self._resolve_subject_tokens(item) for item in value]
+        if not isinstance(value, str):
+            return value
+        return SUBJECT_TOKEN_RE.sub(
+            lambda match: self._join_subjects(self.subjects_by_level[match.group(1)]),
+            value,
+        )
 
     def _prepare_fonts(self) -> None:
         for source_name, output_name in [
@@ -215,6 +246,38 @@ class KitRenderer:
         footer_y = height - footer_h
         if y > footer_y - 32:
             raise ValueError(f"Text overflow for '{title}' at {width}x{height}")
+        if footer_y - y > 180:
+            method_font, method_lines = self.fit_font(
+                draw,
+                "OBJECTIF  ·  ENTRAÎNEMENT  ·  CORRECTION",
+                width - 2 * margin - 48,
+                2,
+                max(22, int(width * 0.027)),
+                18,
+            )
+            method_height = self.line_height(method_font, spacing=8) * len(method_lines)
+            method_y = max(y + 42, y + (footer_y - y - method_height) // 2)
+            method_y = min(method_y, footer_y - method_height - 42)
+            draw.rounded_rectangle(
+                (
+                    margin,
+                    method_y - 20,
+                    width - margin,
+                    method_y + method_height + 20,
+                ),
+                radius=20,
+                fill=IVORY,
+                outline="#D8C8A8",
+                width=2,
+            )
+            self.draw_lines(
+                draw,
+                method_lines,
+                (margin + 24, method_y),
+                method_font,
+                BLUE,
+                spacing=8,
+            )
         draw.rectangle((0, footer_y, width, height), fill=BLUE)
         meta_font, meta_lines = self.fit_font(draw, meta, width - 2 * margin, 2, max(24, int(width * 0.027)), 20)
         self.draw_lines(draw, meta_lines, (margin, footer_y + 24), meta_font, WHITE, spacing=8)
@@ -274,16 +337,16 @@ class KitRenderer:
         creative = self.content["creativeDirection"]
         alt = self.content["mainPublication"]["altText"]
         variants = [
-            ("portrait", 1080, 1350, creative["headline"], f'{creative["promise"]}\n5 séances × 2 h par matière · Effectifs limités'),
-            ("square", 1080, 1080, creative["headline"], "Fondamentaux, méthode et confiance avant la rentrée.\n5 séances × 2 h par matière"),
-            ("landscape", 1200, 628, "Pré-rentrée 2026", "Cinq séances structurées par matière, dès le 17 août."),
-            ("story", 1080, 1920, creative["headline"], f'{creative["promise"]}\n5 séances × 2 h · Effectifs limités selon le parcours'),
-            ("thumbnail", 600, 600, "Pré-rentrée 2026", "Dès le 17 août · Mutuelleville"),
+            ("portrait", 1080, 1350, creative["headline"], f'{creative["levels"]}\n5 séances de 2 h par matière'),
+            ("square", 1080, 1080, creative["headline"], f'{creative["levels"]}\n5 séances de 2 h par matière'),
+            ("landscape", 1200, 628, "Pré-rentrée 2026", "3e à Terminale · 5 séances de 2 h par matière"),
+            ("story", 1080, 1920, creative["headline"], f'{creative["levels"]}\n5 séances de 2 h par matière'),
+            ("thumbnail", 600, 600, "Pré-rentrée 2026", "3e à Terminale · 17–28 août"),
         ]
         images: list[Image.Image] = []
         for name, width, height, title, body in variants:
-            meta = f'{self.content["contact"]["startLabel"]} · {self.content["contact"]["venue"]}'
-            cta = f'WhatsApp {self.content["contact"]["whatsappDisplay"]}'
+            meta = f'17–28 août 2026 · {self.content["contact"]["venue"]}'
+            cta = f'Programme et disponibilités · WhatsApp {self.content["contact"]["whatsappDisplay"]}'
             image = self.render_card(width, height, creative["levels"], title, body, meta, cta, alt)
             source = self.output / "sources" / "main" / f"main-{name}.svg"
             self.svg_source(source, width, height, creative["levels"], title, body, meta, cta, f"week1-main-{name}-source", alt)
@@ -536,7 +599,7 @@ class KitRenderer:
             "launchDateStatus": self.launch_date_status,
             "sourceContent": "content/pre-rentree-2026/week-one-campaign.fr.json",
             "commercialContract": ".artifacts/pre-rentree-2026/commercial-contract.snapshot.json",
-            "publicationStatus": "AWAITING_HUMAN_VALIDATIONS",
+            "publicationStatus": "PUBLIC_RELEASE_CANDIDATE",
             "rights": {
                 "photography": "Aucune photographie ni image d'élève utilisée.",
                 "logo": "Logo officiel Nexus Réussite présent dans le dépôt.",

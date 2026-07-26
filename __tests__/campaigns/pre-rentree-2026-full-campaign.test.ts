@@ -93,17 +93,34 @@ describe('Pré-rentrée 2026 full campaign source', () => {
     expect(publicCopy).not.toMatch(/\bcanoniqu(?:e|es|ement)\b/i);
   });
 
-  it('keeps publication timing relative until the launch date is authorized', () => {
+  it('uses the owner-authorized launch date for every generated publication', () => {
     const source = JSON.parse(readFileSync(sourcePath, 'utf8'));
     const items = [...source.publications, ...source.carousels, ...source.stories, ...source.reels];
 
-    expect(source.launchDate).toBeNull();
-    expect(source.launchDateStatus).toBe('PENDING_OWNER_AUTHORIZATION');
+    expect(source.launchDate).toBe('2026-07-26');
+    expect(source.launchDateStatus).toBe('SCHEDULED');
     expect(items.every((item) => (
       Number.isInteger(item.publicationDayOffset)
       && item.publicationDayOffset >= 0
       && item.publicationDayOffset <= 28
       && item.publicationDate === undefined
     ))).toBe(true);
+  });
+
+  it('uses canonical subject tokens and no reservation or payment CTA', () => {
+    const sourceText = readFileSync(sourcePath, 'utf8');
+    const source = JSON.parse(sourceText);
+    const publicCopy = JSON.stringify([
+      source.publications,
+      source.carousels,
+      source.stories,
+      source.reels,
+    ]);
+
+    expect(sourceText).toContain('{{subjects.SECONDE}}');
+    expect(sourceText).toContain('{{subjects.PREMIERE}}');
+    expect(sourceText).toContain('{{subjects.TERMINALE}}');
+    expect(publicCopy).not.toMatch(/Programme et inscription|Pré-inscrire|\bRéserver\b|\bPayer\b/i);
+    expect(publicCopy).not.toMatch(/reservation/i);
   });
 });

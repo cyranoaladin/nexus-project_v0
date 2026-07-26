@@ -22,8 +22,8 @@
         "clics WhatsApp",
         "conversations initiées"
       ],
+      "date": "2026-07-26",
       "publicationDayOffset": 0,
-      "date": null,
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%20Nexus%20R%C3%A9ussite%2C%20je%20souhaite%20recevoir%20le%20programme%20de%20pr%C3%A9-rentr%C3%A9e.%20Mon%20enfant%20entre%20en%20%5Bniveau%5D%20et%20s%27int%C3%A9resse%20%C3%A0%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dj1_annonce"
     },
     {
@@ -39,7 +39,7 @@
       "funnelStage": "CONSIDERATION",
       "objective": "Présenter les matières, les groupes et les tarifs Fondations",
       "assetId": "week1-carousel-slide-04",
-      "body": "Mathématiques et Français en 3e ; Mathématiques, Physique-Chimie et Français en Seconde. Dix heures par matière.",
+      "body": "Mathématiques et Français en 3e ; Mathématiques et Français en Seconde. Dix heures par matière.",
       "cta": "Vérifier le groupe adapté",
       "utm": "utm_source=meta&utm_medium=social_organic&utm_campaign=pre_rentree_2026&utm_content=j2_fondations",
       "whatsappScriptId": "wa-week1-foundations",
@@ -48,8 +48,8 @@
         "clics WhatsApp",
         "demandes par matière"
       ],
+      "date": "2026-07-27",
       "publicationDayOffset": 1,
-      "date": null,
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20%5B3e/Seconde%5D.%20Je%20souhaite%20v%C3%A9rifier%20les%20horaires%20et%20le%20groupe%20pour%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dj2_fondations"
     },
     {
@@ -73,8 +73,8 @@
         "clics WhatsApp",
         "demandes de parcours"
       ],
+      "date": "2026-07-28",
       "publicationDayOffset": 2,
-      "date": null,
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20%5BPremi%C3%A8re/Terminale%5D.%20Nous%20envisageons%20%5Bnombre%5D%20mati%C3%A8re%28s%29%20%3A%20%5Bmati%C3%A8res%5D.%20Pouvez-vous%20nous%20orienter%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dj3_premium"
     },
     {
@@ -99,8 +99,8 @@
         "vues complètes",
         "clics WhatsApp"
       ],
+      "date": "2026-07-29",
       "publicationDayOffset": 3,
-      "date": null,
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20comprendre%20le%20programme%20des%20cinq%20s%C3%A9ances%20en%20%5Bmati%C3%A8re%5D%20pour%20une%20entr%C3%A9e%20en%20%5Bniveau%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dreel%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dj4_methode"
     },
     {
@@ -124,8 +124,8 @@
         "enregistrements",
         "conversations qualifiées"
       ],
+      "date": "2026-07-30",
       "publicationDayOffset": 4,
-      "date": null,
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20comparer%20le%20contenu%20et%20le%20tarif%20du%20parcours%20adapt%C3%A9%20%C3%A0%20une%20entr%C3%A9e%20en%20%5Bniveau%5D%2C%20mati%C3%A8re%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dj5_valeur"
     },
     {
@@ -150,8 +150,8 @@
         "clics WhatsApp",
         "demandes de programme"
       ],
+      "date": "2026-07-31",
       "publicationDayOffset": 5,
-      "date": null,
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20pouvez-vous%20m%27envoyer%20les%20objectifs%20du%20programme%20de%20pr%C3%A9-rentr%C3%A9e%20en%20%5Bmati%C3%A8re%5D%20pour%20le%20niveau%20%5Bniveau%5D%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dj6_preuve_pedagogique"
     },
     {
@@ -171,13 +171,13 @@
       "body": "Les effectifs sont limités par groupe. Une conversation permet de recevoir le programme, les horaires et le tarif sans paiement.",
       "cta": "Demander les informations sur WhatsApp",
       "utm": "utm_source=meta&utm_medium=social_organic&utm_campaign=pre_rentree_2026&utm_content=j7_information",
-      "whatsappScriptId": "wa-week1-reservation",
+      "whatsappScriptId": "wa-week1-availability",
       "expectedKpi": [
         "clics WhatsApp",
         "demandes d'information qualifiées"
       ],
+      "date": "2026-08-01",
       "publicationDayOffset": 6,
-      "date": null,
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le%20programme%2C%20les%20horaires%20et%20le%20tarif%20pour%20%5Bniveau%5D%20en%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dj7_information"
     }
   ]

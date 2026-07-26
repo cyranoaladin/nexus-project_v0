@@ -24,6 +24,6 @@ Bonjour, je souhaite comparer le contenu et le tarif du parcours adapté à une 
 
 Bonjour, pouvez-vous m'envoyer les objectifs du programme de pré-rentrée en [matière] pour le niveau [niveau] ?
 
-## wa-week1-reservation
+## wa-week1-availability
 
 Bonjour, je souhaite recevoir le programme, les horaires et le tarif pour [niveau] en [matière].

@@ -52,7 +52,7 @@
       "whatsappPrefill": "Bonjour Nexus Réussite, je souhaite recevoir le programme de pré-rentrée 2026 pour le niveau [niveau] en [matière].",
       "publicationDayOffset": 0,
       "publicationDay": "J1",
-      "publicationDate": null,
+      "publicationDate": "2026-07-26",
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%20Nexus%20R%C3%A9ussite%2C%20je%20souhaite%20recevoir%20le%20programme%20de%20pr%C3%A9-rentr%C3%A9e%202026%20pour%20le%20niveau%20%5Bniveau%5D%20en%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_01_annonce"
     },
@@ -71,10 +71,10 @@
       "funnelStage": "CONSIDERATION",
       "objective": "Présenter clairement les deux matières disponibles en 3e",
       "hook": "En 3e, consolider les bases aide à retrouver un rythme de travail clair.",
-      "body": "Le parcours d'entrée en 3e est proposé en Mathématiques ou en Français. Chaque matière comprend dix heures organisées en cinq séances, dans un groupe de trois à six élèves. Le travail suit des objectifs explicites, des exercices progressifs et une correction qui aide l'élève à comprendre ses erreurs.",
+      "body": "Le parcours d'entrée en 3e est proposé en Mathématiques et Français. Chaque matière comprend dix heures organisées en cinq séances, dans un groupe de trois à six élèves. Le travail suit des objectifs explicites, des exercices progressifs et une correction qui aide l'élève à comprendre ses erreurs.",
       "cta": "Vérifier la matière et les horaires",
       "assetId": "full-post-02-entree-3e",
-      "altText": "Visuel de l'offre d'entrée en 3e en Mathématiques ou Français, dix heures par matière et groupe de trois à six élèves.",
+      "altText": "Visuel de l'offre d'entrée en 3e en Mathématiques et Français, dix heures par matière et groupe de trois à six élèves.",
       "publicationTime": "19:00",
       "utm": {
         "source": "meta",
@@ -92,12 +92,12 @@
         "pre2026-3e-francais"
       ],
       "pricingDisclosure": "TROISIEME",
-      "whatsappPrefill": "Bonjour, mon enfant entre en 3e et nous recherchons le stage de [Mathématiques/Français]. Pouvez-vous confirmer les horaires ?",
+      "whatsappPrefill": "Bonjour, mon enfant entre en 3e et nous recherchons le stage dans l'une des matières publiées pour ce niveau. Pouvez-vous confirmer les horaires ?",
       "publicationDayOffset": 2,
       "publicationDay": "J3",
-      "publicationDate": null,
+      "publicationDate": "2026-07-28",
       "pricingLine": "3e : 350 TND / matière · acompte 105 TND",
-      "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%203e%20et%20nous%20recherchons%20le%20stage%20de%20%5BMath%C3%A9matiques/Fran%C3%A7ais%5D.%20Pouvez-vous%20confirmer%20les%20horaires%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_02_3e"
+      "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%203e%20et%20nous%20recherchons%20le%20stage%20dans%20l%27une%20des%20mati%C3%A8res%20publi%C3%A9es%20pour%20ce%20niveau.%20Pouvez-vous%20confirmer%20les%20horaires%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_02_3e"
     },
     {
       "id": "03-entree-seconde",
@@ -114,10 +114,10 @@
       "funnelStage": "CONSIDERATION",
       "objective": "Présenter les matières disponibles en Seconde",
       "hook": "L'entrée en Seconde demande des fondamentaux solides et une méthode plus autonome.",
-      "body": "En Seconde, les stages sont proposés en Mathématiques ou Français. Chaque matière représente cinq séances de deux heures, en groupe de trois à six élèves. L'élève reprend les notions utiles, s'entraîne et apprend à relire une correction pour construire une méthode réutilisable.",
+      "body": "En Seconde, les stages sont proposés en Mathématiques et Français. Chaque matière représente cinq séances de deux heures, en groupe de trois à six élèves. L'élève reprend les notions utiles, s'entraîne et apprend à relire une correction pour construire une méthode réutilisable.",
       "cta": "Choisir la matière sur WhatsApp",
       "assetId": "full-post-03-entree-seconde",
-      "altText": "Visuel de l'offre d'entrée en Seconde en Mathématiques ou Français, avec cinq séances et effectif limité.",
+      "altText": "Visuel de l'offre d'entrée en Seconde en Mathématiques et Français, avec cinq séances et effectif limité.",
       "publicationTime": "19:00",
       "utm": {
         "source": "meta",
@@ -138,7 +138,7 @@
       "whatsappPrefill": "Bonjour, mon enfant entre en Seconde et souhaite travailler [matière]. Pouvez-vous nous conseiller le parcours adapté ?",
       "publicationDayOffset": 4,
       "publicationDay": "J5",
-      "publicationDate": null,
+      "publicationDate": "2026-07-30",
       "pricingLine": "Seconde : 400 TND / matière · acompte 120 TND",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20Seconde%20et%20souhaite%20travailler%20%5Bmati%C3%A8re%5D.%20Pouvez-vous%20nous%20conseiller%20le%20parcours%20adapt%C3%A9%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_03_seconde"
     },
@@ -157,10 +157,10 @@
       "funnelStage": "CONSIDERATION",
       "objective": "Orienter les familles de Première vers les matières autorisées",
       "hook": "En Première, le bon parcours dépend des spécialités et des priorités de l'élève.",
-      "body": "Les parcours d'entrée en Première réunissent une à quatre matières parmi les propositions réellement disponibles pour ce niveau. Chaque matière comprend dix heures en cinq séances. Le format Premium accueille de trois à cinq élèves afin d'organiser un travail progressif, ciblé et cohérent avec les choix de l'élève.",
+      "body": "Les parcours d'entrée en Première réunissent une à quatre matières parmi Mathématiques, Physique-Chimie, NSI, Français — préparation à l’EAF et SVT. Chaque matière comprend dix heures en cinq séances. Le format Premium accueille de trois à cinq élèves afin d'organiser un travail progressif, ciblé et cohérent avec les choix de l'élève.",
       "cta": "Composer le parcours de Première",
       "assetId": "full-post-04-entree-premiere",
-      "altText": "Visuel présentant les parcours Premium d'entrée en Première, de une à quatre matières selon les choix de l'élève.",
+      "altText": "Visuel présentant les parcours Premium d'entrée en Première parmi Mathématiques, Physique-Chimie, NSI, Français — préparation à l’EAF et SVT, de une à quatre matières selon les choix de l'élève.",
       "publicationTime": "19:00",
       "utm": {
         "source": "meta",
@@ -183,7 +183,7 @@
       "whatsappPrefill": "Bonjour, mon enfant entre en Première avec les spécialités [spécialités]. Quelles matières de pré-rentrée sont disponibles ?",
       "publicationDayOffset": 7,
       "publicationDay": "J8",
-      "publicationDate": null,
+      "publicationDate": "2026-08-02",
       "pricingLine": "Première : 1 mat. 480 TND · 2 mat. 900 TND · 3 mat. 1 350 TND · 4 mat. 1 800 TND",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20Premi%C3%A8re%20avec%20les%20sp%C3%A9cialit%C3%A9s%20%5Bsp%C3%A9cialit%C3%A9s%5D.%20Quelles%20mati%C3%A8res%20de%20pr%C3%A9-rentr%C3%A9e%20sont%20disponibles%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_04_premiere"
     },
@@ -203,10 +203,10 @@
       "funnelStage": "CONSIDERATION",
       "objective": "Orienter les familles de Terminale vers un parcours cohérent",
       "hook": "En Terminale, préparer la rentrée signifie hiérarchiser les priorités sans se disperser.",
-      "body": "Les parcours d'entrée en Terminale associent une à quatre matières parmi celles prévues pour le niveau. Les dix heures de chaque matière sont réparties en cinq séances. En groupe Premium de trois à cinq élèves, le travail privilégie les objectifs utiles, l'entraînement et une correction structurée.",
+      "body": "Les parcours d'entrée en Terminale associent une à quatre matières parmi Mathématiques, Physique-Chimie, NSI, SVT et Mathématiques expertes. Les dix heures de chaque matière sont réparties en cinq séances. En groupe Premium de trois à cinq élèves, le travail privilégie les objectifs utiles, l'entraînement et une correction structurée.",
       "cta": "Vérifier le parcours de Terminale",
       "assetId": "full-post-05-entree-terminale",
-      "altText": "Visuel présentant les parcours Premium d'entrée en Terminale, de une à quatre matières et cinq séances par matière.",
+      "altText": "Visuel présentant les parcours Premium d'entrée en Terminale parmi Mathématiques, Physique-Chimie, NSI, SVT et Mathématiques expertes, de une à quatre matières et cinq séances par matière.",
       "publicationTime": "19:00",
       "utm": {
         "source": "meta",
@@ -229,7 +229,7 @@
       "whatsappPrefill": "Bonjour, mon enfant entre en Terminale et souhaite préparer [matières]. Pouvez-vous vérifier le parcours disponible ?",
       "publicationDayOffset": 9,
       "publicationDay": "J10",
-      "publicationDate": null,
+      "publicationDate": "2026-08-04",
       "pricingLine": "Terminale : 1 mat. 480 TND · 2 mat. 900 TND · 3 mat. 1 350 TND · 4 mat. 1 800 TND",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20Terminale%20et%20souhaite%20pr%C3%A9parer%20%5Bmati%C3%A8res%5D.%20Pouvez-vous%20v%C3%A9rifier%20le%20parcours%20disponible%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_05_terminale"
     },
@@ -269,7 +269,7 @@
       "whatsappPrefill": "Bonjour, je souhaite comprendre l'organisation pédagogique des stages de pré-rentrée pour le niveau [niveau].",
       "publicationDayOffset": 11,
       "publicationDay": "J12",
-      "publicationDate": null,
+      "publicationDate": "2026-08-06",
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20comprendre%20l%27organisation%20p%C3%A9dagogique%20des%20stages%20de%20pr%C3%A9-rentr%C3%A9e%20pour%20le%20niveau%20%5Bniveau%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_06_methode"
     },
@@ -308,7 +308,7 @@
       "whatsappPrefill": "Bonjour, pouvez-vous m'envoyer le détail du contenu et le tarif du parcours [niveau/matière] ?",
       "publicationDayOffset": 14,
       "publicationDay": "J15",
-      "publicationDate": null,
+      "publicationDate": "2026-08-09",
       "pricingLine": "3e : 350 TND / matière · acompte 105 TND\nSeconde : 400 TND / matière · acompte 120 TND\nPremium : 1 mat. 480 TND · 2 mat. 900 TND · 3 mat. 1 350 TND · 4 mat. 1 800 TND",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20pouvez-vous%20m%27envoyer%20le%20d%C3%A9tail%20du%20contenu%20et%20le%20tarif%20du%20parcours%20%5Bniveau/mati%C3%A8re%5D%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_07_valeur"
     },
@@ -347,7 +347,7 @@
       "whatsappPrefill": "Bonjour, je souhaite recevoir le programme des cinq séances en [matière] pour une entrée en [niveau].",
       "publicationDayOffset": 16,
       "publicationDay": "J17",
-      "publicationDate": null,
+      "publicationDate": "2026-08-11",
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le%20programme%20des%20cinq%20s%C3%A9ances%20en%20%5Bmati%C3%A8re%5D%20pour%20une%20entr%C3%A9e%20en%20%5Bniveau%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_08_10h"
     },
@@ -387,12 +387,12 @@
       "whatsappPrefill": "Bonjour, pouvez-vous vérifier la disponibilité du groupe [niveau/matière] et me confirmer son effectif ?",
       "publicationDayOffset": 18,
       "publicationDay": "J19",
-      "publicationDate": null,
+      "publicationDate": "2026-08-13",
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20pouvez-vous%20v%C3%A9rifier%20la%20disponibilit%C3%A9%20du%20groupe%20%5Bniveau/mati%C3%A8re%5D%20et%20me%20confirmer%20son%20effectif%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_09_effectifs"
     },
     {
-      "id": "10-reservation-acompte",
+      "id": "10-demande-information",
       "audience": [
         "Parents souhaitant recevoir les informations du stage"
       ],
@@ -409,7 +409,7 @@
       "hook": "Une demande d'information permet de recevoir le programme, les horaires et la grille tarifaire.",
       "body": "Écrivez le niveau et la matière recherchée. Nexus Réussite peut alors transmettre les objectifs, les horaires et le tarif correspondant. Aucun paiement n'est demandé et aucune place n'est bloquée tant que les conditions contractuelles, le reçu et le rapprochement ne sont pas validés.",
       "cta": "Demander les informations",
-      "assetId": "full-post-10-reservation-acompte",
+      "assetId": "full-post-10-demande-information",
       "altText": "Visuel invitant les familles à demander le programme, les horaires et la grille tarifaire sans paiement.",
       "publicationTime": "19:00",
       "utm": {
@@ -426,7 +426,7 @@
       "whatsappPrefill": "Bonjour, je souhaite recevoir le programme, les horaires et le tarif pour [niveau/matière].",
       "publicationDayOffset": 21,
       "publicationDay": "J22",
-      "publicationDate": null,
+      "publicationDate": "2026-08-16",
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le%20programme%2C%20les%20horaires%20et%20le%20tarif%20pour%20%5Bniveau/mati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_10_information"
     },
@@ -466,7 +466,7 @@
       "whatsappPrefill": "Bonjour, mon enfant entre en [niveau]. Nous cherchons [matière] pour reprendre en priorité [besoin].",
       "publicationDayOffset": 23,
       "publicationDay": "J24",
-      "publicationDate": null,
+      "publicationDate": "2026-08-18",
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20%5Bniveau%5D.%20Nous%20cherchons%20%5Bmati%C3%A8re%5D%20pour%20reprendre%20en%20priorit%C3%A9%20%5Bbesoin%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_11_checklist"
     },
@@ -506,7 +506,7 @@
       "whatsappPrefill": "Bonjour, je souhaite recevoir le programme et les horaires pour [niveau] en [matière] avant le 17 août.",
       "publicationDayOffset": 26,
       "publicationDay": "J27",
-      "publicationDate": null,
+      "publicationDate": "2026-08-21",
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le%20programme%20et%20les%20horaires%20pour%20%5Bniveau%5D%20en%20%5Bmati%C3%A8re%5D%20avant%20le%2017%20ao%C3%BBt.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_12_rappel"
     },
@@ -548,7 +548,7 @@
       "whatsappPrefill": "Bonjour, je souhaite vérifier une dernière disponibilité pour [niveau] en [matière].",
       "publicationDayOffset": 28,
       "publicationDay": "J29",
-      "publicationDate": null,
+      "publicationDate": "2026-08-23",
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20v%C3%A9rifier%20une%20derni%C3%A8re%20disponibilit%C3%A9%20pour%20%5Bniveau%5D%20en%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dsocial_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dpost_13_demarrage"
     }
@@ -639,8 +639,9 @@
         }
       ],
       "publicationDayOffset": 1,
+      "publicationTime": "19:30",
       "publicationDay": "J2",
-      "publicationDate": null,
+      "publicationDate": "2026-07-27",
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le%20programme%20des%20cinq%20s%C3%A9ances%20pour%20%5Bniveau%5D%20en%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dcarousel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dcarousel_01_methode"
     },
@@ -659,10 +660,10 @@
       "funnelStage": "CONSIDERATION",
       "objective": "Présenter le parcours 3e de façon complète",
       "hook": "Entrée en 3e : deux matières, un cadre précis et cinq séances par matière.",
-      "body": "Ce carrousel détaille l'offre d'entrée en 3e : Mathématiques ou Français, dix heures par matière, groupe de trois à six élèves et progression structurée. Le tarif exact correspond à la grille approuvée.",
-      "cta": "Choisir Mathématiques ou Français",
+      "body": "Ce carrousel détaille l'offre d'entrée en 3e : Mathématiques et Français, dix heures par matière, groupe de trois à six élèves et progression structurée. Le tarif exact correspond à la grille approuvée.",
+      "cta": "Vérifier la matière disponible",
       "assetId": "full-carousel-02-entree-3e",
-      "altText": "Carrousel présentant l'offre d'entrée en 3e en Mathématiques ou Français, son format et son effectif.",
+      "altText": "Carrousel présentant l'offre d'entrée en 3e en Mathématiques et Français, son format et son effectif.",
       "utm": {
         "source": "meta",
         "medium": "carousel_organic",
@@ -678,7 +679,7 @@
         "pre2026-3e-francais"
       ],
       "pricingDisclosure": "TROISIEME",
-      "whatsappPrefill": "Bonjour, mon enfant entre en 3e et souhaite travailler [Mathématiques/Français]. Pouvez-vous transmettre le programme et les horaires ?",
+      "whatsappPrefill": "Bonjour, mon enfant entre en 3e et souhaite travailler [matière]. Pouvez-vous transmettre le programme et les horaires ?",
       "slides": [
         {
           "id": "01",
@@ -693,7 +694,7 @@
         {
           "id": "02",
           "eyebrow": "MATIÈRES",
-          "title": "Mathématiques ou Français",
+          "title": "Mathématiques et Français",
           "body": "Chaque matière correspond à un parcours distinct de dix heures.",
           "altText": "Slide indiquant les deux matières disponibles en 3e.",
           "proofIds": [
@@ -733,10 +734,11 @@
         }
       ],
       "publicationDayOffset": 3,
+      "publicationTime": "19:30",
       "publicationDay": "J4",
-      "publicationDate": null,
+      "publicationDate": "2026-07-29",
       "pricingLine": "3e : 350 TND / matière · acompte 105 TND",
-      "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%203e%20et%20souhaite%20travailler%20%5BMath%C3%A9matiques/Fran%C3%A7ais%5D.%20Pouvez-vous%20transmettre%20le%20programme%20et%20les%20horaires%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dcarousel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dcarousel_02_3e"
+      "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%203e%20et%20souhaite%20travailler%20%5Bmati%C3%A8re%5D.%20Pouvez-vous%20transmettre%20le%20programme%20et%20les%20horaires%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dcarousel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dcarousel_02_3e"
     },
     {
       "id": "03-entree-seconde",
@@ -789,7 +791,7 @@
           "id": "02",
           "eyebrow": "MATIÈRES",
           "title": "Deux parcours disponibles",
-          "body": "Mathématiques ou Français selon le besoin de l'élève.",
+          "body": "Mathématiques et Français selon le besoin de l'élève.",
           "altText": "Slide listant Mathématiques et Français en Seconde.",
           "proofIds": [
             "PRF-PRE2026-SECONDE-400"
@@ -830,8 +832,9 @@
         }
       ],
       "publicationDayOffset": 5,
+      "publicationTime": "19:30",
       "publicationDay": "J6",
-      "publicationDate": null,
+      "publicationDate": "2026-07-31",
       "pricingLine": "Seconde : 400 TND / matière · acompte 120 TND",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20Seconde%20et%20cherche%20le%20stage%20de%20%5Bmati%C3%A8re%5D.%20Pouvez-vous%20confirmer%20le%20programme%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dcarousel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dcarousel_03_seconde"
     },
@@ -927,8 +930,9 @@
         }
       ],
       "publicationDayOffset": 8,
+      "publicationTime": "19:30",
       "publicationDay": "J9",
-      "publicationDate": null,
+      "publicationDate": "2026-08-03",
       "pricingLine": "Première : 1 mat. 480 TND · 2 mat. 900 TND · 3 mat. 1 350 TND · 4 mat. 1 800 TND",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20Premi%C3%A8re%20avec%20%5Bsp%C3%A9cialit%C3%A9s%5D.%20Nous%20souhaitons%20composer%20un%20parcours%20de%20%5Bnombre%5D%20mati%C3%A8re%28s%29.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dcarousel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dcarousel_04_premiere"
     },
@@ -1025,8 +1029,9 @@
         }
       ],
       "publicationDayOffset": 10,
+      "publicationTime": "19:30",
       "publicationDay": "J11",
-      "publicationDate": null,
+      "publicationDate": "2026-08-05",
       "pricingLine": "Terminale : 1 mat. 480 TND · 2 mat. 900 TND · 3 mat. 1 350 TND · 4 mat. 1 800 TND",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20Terminale%20avec%20%5Bsp%C3%A9cialit%C3%A9s/options%5D.%20Nous%20souhaitons%20v%C3%A9rifier%20les%20mati%C3%A8res%20disponibles.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dcarousel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dcarousel_05_terminale"
     },
@@ -1115,8 +1120,9 @@
         }
       ],
       "publicationDayOffset": 13,
+      "publicationTime": "19:30",
       "publicationDay": "J14",
-      "publicationDate": null,
+      "publicationDate": "2026-08-08",
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20%5Bniveau%5D%2C%20souhaite%20travailler%20%5Bmati%C3%A8re%5D%20et%20sa%20priorit%C3%A9%20est%20%5Bbesoin%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dcarousel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dcarousel_06_choisir"
     },
@@ -1209,13 +1215,14 @@
         }
       ],
       "publicationDayOffset": 17,
+      "publicationTime": "19:30",
       "publicationDay": "J18",
-      "publicationDate": null,
+      "publicationDate": "2026-08-12",
       "pricingLine": "3e : 350 TND / matière · acompte 105 TND\nSeconde : 400 TND / matière · acompte 120 TND\nPremium : 1 mat. 480 TND · 2 mat. 900 TND · 3 mat. 1 350 TND · 4 mat. 1 800 TND",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20pouvez-vous%20m%27envoyer%20le%20d%C3%A9tail%20inclus%20et%20le%20tarif%20du%20parcours%20%5Bniveau/mati%C3%A8re%5D%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dcarousel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dcarousel_07_valeur"
     },
     {
-      "id": "08-reservation",
+      "id": "08-disponibilites",
       "audience": [
         "Parents souhaitant comparer un parcours"
       ],
@@ -1231,7 +1238,7 @@
       "hook": "Demander, recevoir, comparer : trois étapes simples pour s'informer.",
       "body": "La famille indique le niveau et la matière ; Nexus transmet le programme, les horaires et la grille tarifaire disponibles. Aucun paiement n'est demandé et aucune place n'est bloquée à ce stade.",
       "cta": "Demander les informations sur WhatsApp",
-      "assetId": "full-carousel-08-reservation",
+      "assetId": "full-carousel-08-disponibilites",
       "altText": "Carrousel expliquant comment demander le programme, les horaires et la grille tarifaire sans paiement.",
       "utm": {
         "source": "meta",
@@ -1298,8 +1305,9 @@
         }
       ],
       "publicationDayOffset": 22,
+      "publicationTime": "19:30",
       "publicationDay": "J23",
-      "publicationDate": null,
+      "publicationDate": "2026-08-17",
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le%20programme%2C%20les%20horaires%20et%20le%20tarif%20pour%20%5Bniveau/mati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dcarousel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dcarousel_08_information"
     }
@@ -1377,8 +1385,9 @@
         }
       ],
       "publicationDayOffset": 0,
+      "publicationTime": "10:00",
       "publicationDay": "J1",
-      "publicationDate": null,
+      "publicationDate": "2026-07-26",
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20%5Bniveau%5D%20et%20je%20souhaite%20d%C3%A9couvrir%20le%20stage.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_01_decouverte"
     },
@@ -1397,7 +1406,7 @@
       ],
       "funnelStage": "CONSIDERATION",
       "objective": "Qualifier la matière recherchée en 3e",
-      "hook": "Entrée en 3e : Mathématiques ou Français, selon le besoin prioritaire.",
+      "hook": "Entrée en 3e : Mathématiques et Français, selon le besoin prioritaire.",
       "body": "Cette séquence présente les deux matières disponibles, le groupe de trois à six élèves et le CTA qui permet de vérifier les horaires et le tarif du parcours choisi.",
       "cta": "Choisir la matière",
       "assetId": "full-story-02-entree-3e",
@@ -1417,7 +1426,7 @@
         "pre2026-3e-francais"
       ],
       "pricingDisclosure": "TROISIEME",
-      "whatsappPrefill": "Bonjour, mon enfant entre en 3e et souhaite travailler [Mathématiques/Français].",
+      "whatsappPrefill": "Bonjour, mon enfant entre en 3e et souhaite travailler [matière].",
       "frames": [
         {
           "id": "01",
@@ -1460,10 +1469,11 @@
         }
       ],
       "publicationDayOffset": 2,
+      "publicationTime": "10:00",
       "publicationDay": "J3",
-      "publicationDate": null,
+      "publicationDate": "2026-07-28",
       "pricingLine": "3e : 350 TND / matière · acompte 105 TND",
-      "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%203e%20et%20souhaite%20travailler%20%5BMath%C3%A9matiques/Fran%C3%A7ais%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_02_3e"
+      "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%203e%20et%20souhaite%20travailler%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_02_3e"
     },
     {
       "id": "03-entree-seconde",
@@ -1505,7 +1515,7 @@
         {
           "id": "01",
           "eyebrow": "ENTRÉE EN SECONDE",
-          "text": "Mathématiques ou Français : quelle priorité ?",
+          "text": "Mathématiques et Français : quelle priorité ?",
           "interaction": "Quiz à deux choix",
           "durationSeconds": 6,
           "cta": "Choisir",
@@ -1543,8 +1553,9 @@
         }
       ],
       "publicationDayOffset": 4,
+      "publicationTime": "10:00",
       "publicationDay": "J5",
-      "publicationDate": null,
+      "publicationDate": "2026-07-30",
       "pricingLine": "Seconde : 400 TND / matière · acompte 120 TND",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20Seconde%20et%20souhaite%20travailler%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_03_seconde"
     },
@@ -1626,8 +1637,9 @@
         }
       ],
       "publicationDayOffset": 7,
+      "publicationTime": "10:00",
       "publicationDay": "J8",
-      "publicationDate": null,
+      "publicationDate": "2026-08-02",
       "pricingLine": "Première : 1 mat. 480 TND · 2 mat. 900 TND · 3 mat. 1 350 TND · 4 mat. 1 800 TND",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20Premi%C3%A8re%20avec%20%5Bsp%C3%A9cialit%C3%A9s%5D.%20Quelles%20mati%C3%A8res%20sont%20disponibles%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_04_premiere"
     },
@@ -1708,8 +1720,9 @@
         }
       ],
       "publicationDayOffset": 9,
+      "publicationTime": "10:00",
       "publicationDay": "J10",
-      "publicationDate": null,
+      "publicationDate": "2026-08-04",
       "pricingLine": "Terminale : 1 mat. 480 TND · 2 mat. 900 TND · 3 mat. 1 350 TND · 4 mat. 1 800 TND",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20Terminale%20et%20ses%20priorit%C3%A9s%20sont%20%5Bmati%C3%A8res%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_05_terminale"
     },
@@ -1783,8 +1796,9 @@
         }
       ],
       "publicationDayOffset": 11,
+      "publicationTime": "10:00",
       "publicationDay": "J12",
-      "publicationDate": null,
+      "publicationDate": "2026-08-06",
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le%20programme%20p%C3%A9dagogique%20pour%20%5Bniveau/mati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_06_methode"
     },
@@ -1859,8 +1873,9 @@
         }
       ],
       "publicationDayOffset": 15,
+      "publicationTime": "10:00",
       "publicationDay": "J16",
-      "publicationDate": null,
+      "publicationDate": "2026-08-10",
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20pouvez-vous%20m%27envoyer%20le%20d%C3%A9roul%C3%A9%20des%20cinq%20s%C3%A9ances%20en%20%5Bmati%C3%A8re%5D%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_07_10h"
     },
@@ -1902,7 +1917,7 @@
         {
           "id": "01",
           "eyebrow": "3e",
-          "text": "Mathématiques ou Français : tarif applicable par matière affiché ici.",
+          "text": "Mathématiques et Français : tarif applicable par matière affiché ici.",
           "interaction": "Sondage : Maths / Français",
           "durationSeconds": 6,
           "cta": "Voir Seconde",
@@ -1941,8 +1956,9 @@
         }
       ],
       "publicationDayOffset": 17,
+      "publicationTime": "10:00",
       "publicationDay": "J18",
-      "publicationDate": null,
+      "publicationDate": "2026-08-12",
       "pricingLine": "3e : 350 TND / matière · acompte 105 TND\nSeconde : 400 TND / matière · acompte 120 TND\nPremium : 1 mat. 480 TND · 2 mat. 900 TND · 3 mat. 1 350 TND · 4 mat. 1 800 TND",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20v%C3%A9rifier%20le%20tarif%20du%20parcours%20%5Bniveau%5D%20pour%20%5Bnombre%5D%20mati%C3%A8re%28s%29.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_08_tarifs"
     },
@@ -2019,8 +2035,9 @@
         }
       ],
       "publicationDayOffset": 19,
+      "publicationTime": "10:00",
       "publicationDay": "J20",
-      "publicationDate": null,
+      "publicationDate": "2026-08-14",
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20pouvez-vous%20v%C3%A9rifier%20l%27effectif%20et%20la%20disponibilit%C3%A9%20du%20groupe%20%5Bniveau/mati%C3%A8re%5D%20%3F%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_09_effectifs"
     },
@@ -2095,13 +2112,14 @@
         }
       ],
       "publicationDayOffset": 21,
+      "publicationTime": "10:00",
       "publicationDay": "J22",
-      "publicationDate": null,
+      "publicationDate": "2026-08-16",
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20j%27ai%20une%20question%20sur%20le%20stage%20pour%20%5Bniveau%5D%20en%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_10_questions"
     },
     {
-      "id": "11-reservation",
+      "id": "11-demande-information",
       "audience": [
         "Parents souhaitant s'informer"
       ],
@@ -2118,7 +2136,7 @@
       "hook": "Une demande suffit pour recevoir le programme, les horaires et le tarif.",
       "body": "Cette séquence présente les informations à transmettre et les éléments envoyés en retour, sans paiement ni blocage de place.",
       "cta": "Demander les informations",
-      "assetId": "full-story-11-reservation",
+      "assetId": "full-story-11-demande-information",
       "altText": "Séquence Story expliquant la demande d'information sans paiement.",
       "utm": {
         "source": "meta",
@@ -2170,8 +2188,9 @@
         }
       ],
       "publicationDayOffset": 23,
+      "publicationTime": "10:00",
       "publicationDay": "J24",
-      "publicationDate": null,
+      "publicationDate": "2026-08-18",
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le%20programme%2C%20les%20horaires%20et%20le%20tarif%20du%20parcours.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_11_information"
     },
@@ -2247,8 +2266,9 @@
         }
       ],
       "publicationDayOffset": 26,
+      "publicationTime": "10:00",
       "publicationDay": "J27",
-      "publicationDate": null,
+      "publicationDate": "2026-08-21",
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20une%20derni%C3%A8re%20v%C3%A9rification%20pour%20%5Bniveau%5D%20en%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dstory_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dstory_12_demarrage"
     }
@@ -2353,8 +2373,9 @@
       ],
       "motionDesignAlternative": "Version principale entièrement réalisable sans tournage : aplats bleu, rouge et ivoire, typographie animée, icônes géométriques et logo officiel. Aucun média tiers n'est incorporé.",
       "publicationDayOffset": 6,
+      "publicationTime": "18:30",
       "publicationDay": "J7",
-      "publicationDate": null,
+      "publicationDate": "2026-08-01",
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le%20programme%20des%20cinq%20s%C3%A9ances%20pour%20%5Bniveau%5D%20en%20%5Bmati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dreel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dreel_01_methode"
     },
@@ -2458,13 +2479,14 @@
       ],
       "motionDesignAlternative": "Motion design pur avec cartes typographiques de niveau, matière et priorité. Le montage final ne requiert ni tournage, ni photographie, ni licence média externe.",
       "publicationDayOffset": 13,
+      "publicationTime": "18:30",
       "publicationDay": "J14",
-      "publicationDate": null,
+      "publicationDate": "2026-08-08",
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20mon%20enfant%20entre%20en%20%5Bniveau%5D%2C%20souhaite%20travailler%20%5Bmati%C3%A8re%5D%20et%20sa%20priorit%C3%A9%20est%20%5Bbesoin%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dreel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dreel_02_choisir"
     },
     {
-      "id": "03-reservation",
+      "id": "03-demande-information",
       "audience": [
         "Parents souhaitant s'informer"
       ],
@@ -2481,7 +2503,7 @@
       "hook": "Programme, horaires, tarifs : voici comment recevoir les informations utiles.",
       "body": "Ce Reel décrit la demande sur WhatsApp et les informations transmises en retour. Il précise qu'aucun paiement n'est demandé et dirige la famille vers un échange vérifiable.",
       "cta": "Demander les informations sur WhatsApp",
-      "assetId": "full-reel-03-reservation",
+      "assetId": "full-reel-03-demande-information",
       "altText": "Reel de trente secondes présentant les étapes d'une demande d'information sans paiement.",
       "utm": {
         "source": "meta",
@@ -2561,14 +2583,15 @@
       ],
       "motionDesignAlternative": "Motion design typographique en trois étapes avec formes géométriques et logo officiel. Aucune image de personne, aucun tournage et aucun média externe ne sont nécessaires.",
       "publicationDayOffset": 24,
+      "publicationTime": "18:30",
       "publicationDay": "J25",
-      "publicationDate": null,
+      "publicationDate": "2026-08-19",
       "pricingLine": "",
       "whatsappUrl": "https://wa.me/21699192829?text=Bonjour%2C%20je%20souhaite%20recevoir%20le%20programme%2C%20les%20horaires%20et%20le%20tarif%20pour%20%5Bniveau/mati%C3%A8re%5D.%0A%0AR%C3%A9f%C3%A9rence%20%3A%20utm_source%3Dmeta%26utm_medium%3Dreel_organic%26utm_campaign%3Dpre_rentree_2026%26utm_content%3Dreel_03_information"
     }
   ],
-  "launchDate": null,
-  "launchDateStatus": "PENDING_OWNER_AUTHORIZATION",
+  "launchDate": "2026-07-26",
+  "launchDateStatus": "SCHEDULED",
   "pricing": {
     "TROISIEME": "3e : 350 TND / matière · acompte 105 TND",
     "SECONDE": "Seconde : 400 TND / matière · acompte 120 TND",

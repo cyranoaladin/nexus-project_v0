@@ -13,8 +13,8 @@ def test_manifest_files_exist_and_match_sha256():
     manifest = json.loads((KIT / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["campaignId"] == "pre-rentree-2026"
     assert manifest["version"] == "2026-week-one-v1"
-    assert manifest["launchDate"] is None
-    assert manifest["launchDateStatus"] == "PENDING_OWNER_AUTHORIZATION"
+    assert manifest["launchDate"] == "2026-07-26"
+    assert manifest["launchDateStatus"] == "SCHEDULED"
     assert len(manifest["assets"]) >= 50
     for asset in manifest["assets"]:
         path = KIT / asset["path"]
@@ -69,10 +69,18 @@ def test_public_text_exports_do_not_leak_internal_or_hidden_claims():
         assert all(term not in text for term in forbidden), relative
 
 
-def test_calendar_is_relative_until_the_owner_authorizes_launch():
+def test_calendar_uses_the_owner_authorized_launch_date():
     calendar = json.loads((KIT / "calendar/week-one-calendar.json").read_text(encoding="utf-8"))
     assert [day["day"] for day in calendar["days"]] == [f"J{index}" for index in range(1, 8)]
-    assert all(day["date"] is None for day in calendar["days"])
+    assert [day["date"] for day in calendar["days"]] == [
+        "2026-07-26",
+        "2026-07-27",
+        "2026-07-28",
+        "2026-07-29",
+        "2026-07-30",
+        "2026-07-31",
+        "2026-08-01",
+    ]
 
 
 def test_calendar_csv_uses_repository_safe_line_endings():

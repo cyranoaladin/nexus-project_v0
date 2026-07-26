@@ -53,6 +53,37 @@ function readSource(repoRoot: string, path: string) {
   };
 }
 
+function resolveCanonicalSubjectTokens<T>(
+  value: T,
+  campaign: z.infer<typeof PreRentreeCampaignManifestSchema>,
+): T {
+  const labelsByLevel = new Map(campaign.levels.map((level) => {
+    const labels = campaign.subjects
+      .filter((subject) => subject.levels.includes(level.id))
+      .map((subject) => subject.labelByLevel?.[level.id] ?? subject.label);
+    const joined = labels.length < 2
+      ? (labels[0] ?? '')
+      : `${labels.slice(0, -1).join(', ')} et ${labels.at(-1)}`;
+    return [level.id, joined];
+  }));
+  const replace = (current: unknown): unknown => {
+    if (Array.isArray(current)) return current.map(replace);
+    if (current && typeof current === 'object') {
+      return Object.fromEntries(
+        Object.entries(current as Record<string, unknown>).map(([key, item]) => [key, replace(item)]),
+      );
+    }
+    if (typeof current !== 'string') return current;
+    return current.replace(
+      /\{\{subjects\.(TROISIEME|SECONDE|PREMIERE|TERMINALE)\}\}/g,
+      (_, level: string) => labelsByLevel.get(
+        level as (typeof campaign.levels)[number]['id'],
+      ) ?? '',
+    );
+  };
+  return replace(value) as T;
+}
+
 function pointerExists(value: unknown, pointer: string): boolean {
   if (pointer === '') return true;
   if (!pointer.startsWith('/')) return false;
@@ -145,7 +176,10 @@ export function compileCanonicalPublication(options: CompileOptions): Publicatio
     JSON.parse(manualsSource.bytes.toString('utf8')),
   );
   const communication = PreRentreeCommunicationSchema.parse(
-    JSON.parse(communicationSource.bytes.toString('utf8')),
+    resolveCanonicalSubjectTokens(
+      JSON.parse(communicationSource.bytes.toString('utf8')),
+      campaign,
+    ),
   );
   const whatsapp = PreRentreeWhatsAppSchema.parse(
     JSON.parse(whatsappSource.bytes.toString('utf8')),
