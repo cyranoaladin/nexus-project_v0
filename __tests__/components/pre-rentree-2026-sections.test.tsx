@@ -86,6 +86,28 @@ describe('Pré-rentrée landing sections', () => {
     );
   });
 
+  it.each([
+    ['Entrée en Première', 'SVT'],
+    ['Entrée en Terminale', 'NSI'],
+    ['Entrée en Terminale', 'SVT'],
+  ])(
+    'affiche %s %s comme une matière unique de 5 séances et 10 h malgré ses deux cohortes',
+    async (levelLabel, subjectLabel) => {
+      const user = userEvent.setup();
+      renderSchedule();
+      await user.click(screen.getByRole('tab', { name: levelLabel }));
+      const table = screen.getByRole('table', { name: `Planning — ${levelLabel}` });
+      const row = within(table).getAllByRole('row').find((candidate) => (
+        within(candidate).queryByRole('rowheader')?.textContent?.includes(subjectLabel)
+      ));
+
+      expect(row).toBeDefined();
+      expect(row).toHaveTextContent('5 séances · 10 h par élève');
+      expect(row).toHaveTextContent(/Deux créneaux possibles/i);
+      expect(row).not.toHaveTextContent('10 séances · 20 h');
+    },
+  );
+
   it('does not leak the Radix forceMount control prop to the DOM', () => {
     const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -125,12 +147,14 @@ describe('Pré-rentrée landing sections', () => {
     expect(within(windowTwo).getAllByText('SVT').length).toBeGreaterThan(0);
   });
 
-  it('keeps teacher assignments out of the public surface until validation', () => {
+  it('keeps teacher assignments and unvalidated room numbers out of the public surface', () => {
     renderSchedule();
     const organization = screen.getByRole('region', { name: 'Organisation pédagogique' });
     expect(within(organization).queryAllByTestId('teacher-role')).toHaveLength(0);
-    expect(within(organization).getByText(/Salle 1.*Mathématiques.*NSI.*Mathématiques expertes/i)).toBeInTheDocument();
-    expect(within(organization).getByText(/Salle 2.*Français.*Physique-Chimie/i)).toBeInTheDocument();
+    expect(organization).toHaveTextContent(/deux salles permanentes/i);
+    expect(organization).toHaveTextContent(/une troisième salle temporaire/i);
+    expect(organization).toHaveTextContent(/bloc C.*Terminale.*24 au 28 août/i);
+    expect(organization.textContent).not.toMatch(/Salle\s+\d/i);
     expect(organization.textContent).not.toMatch(/MATHS_NSI_SNT_TEACHER|FRENCH_TEACHER|PHYSICS_CHEMISTRY_TEACHER/);
     expect(organization.textContent).not.toMatch(/60\s*h|30\s*h/);
   });
