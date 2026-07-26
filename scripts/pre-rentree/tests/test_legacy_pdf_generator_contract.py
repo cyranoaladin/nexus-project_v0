@@ -1,4 +1,5 @@
 import importlib.util
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -40,6 +41,24 @@ def dossier_html_for_level(level_code: str) -> str:
     data = data_module.PreRentreeData()
     dossier = data.level_dossier(level_code)
     return dossiers_module.build_dossier_html(dossier, data)
+
+
+def test_public_level_pdf_rendering_is_byte_reproducible(tmp_path, monkeypatch):
+    dossiers_module, data_module = load_dossiers_module()
+    monkeypatch.setattr(dossiers_module, "OUT_DIR", tmp_path)
+    monkeypatch.delenv("SOURCE_DATE_EPOCH", raising=False)
+
+    dossiers_module.configure_reproducible_pdf_environment()
+    assert dossiers_module.PUBLIC_PDF_SOURCE_DATE_EPOCH == "1784505600"
+
+    data = data_module.PreRentreeData()
+    dossier = data.level_dossier("TROISIEME")
+    filename = dossiers_module.generate_dossier_pdf(dossier, data)
+    first = hashlib.sha256((tmp_path / filename).read_bytes()).hexdigest()
+    filename = dossiers_module.generate_dossier_pdf(dossier, data)
+    second = hashlib.sha256((tmp_path / filename).read_bytes()).hexdigest()
+
+    assert first == second
 
 
 def test_tariff_pdf_rows_are_derived_from_canonical_pricing():

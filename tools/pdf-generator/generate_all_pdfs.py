@@ -878,6 +878,7 @@ if __name__ == "__main__":
     # matières (y compris SVT, désormais un chapitre de son dossier de niveau plutôt
     # qu'un PDF séparé) sont dérivées de content/pre-rentree-2026/modules.json.
     import generate_level_dossiers
+    generate_level_dossiers.configure_reproducible_pdf_environment()
     generate_level_dossiers.generate_all_level_dossiers()
 
     # 4. Planning
