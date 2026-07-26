@@ -3,7 +3,7 @@
   "campaignId": "pre-rentree-2026",
   "releaseStatus": "READY_FOR_OWNER_GO",
   "requiredPublicStatus": "PUBLIC_READY",
-  "assessedAt": "2026-07-23",
+  "assessedAt": "2026-07-26",
   "gates": [
     {
       "id": "pedagogical_validation",
@@ -34,13 +34,15 @@
       "id": "rooms",
       "status": "MITIGATED_BY_SCOPE",
       "value": true,
-      "resolution": "La surface publique annonce uniquement Nexus Réussite à Mutuelleville ; aucun numéro de salle n'est un engagement public.",
+      "resolution": "Deux salles permanentes et une troisième salle temporaire limitée au bloc C Terminale du 24 au 28 août sont enregistrées en interne. La gate d'affectation restant fausse, le DTO, le site et les sept PDF publics ne publient aucun numéro de salle.",
       "evidence": [
         "data/campaigns/pre-rentree-2026.json#/schedule",
-        "data/campaigns/pre-rentree-2026.json#/operationalGates/roomAssignmentsValidated"
+        "data/campaigns/pre-rentree-2026.json#/operationalGates/roomAssignmentsValidated",
+        "__tests__/campaigns/pre-rentree-2026-public-schedule.test.ts",
+        "scripts/pre-rentree/verify_public_pdfs.py"
       ],
       "owner": "Direction des opérations",
-      "validatedAt": "2026-07-25"
+      "validatedAt": "2026-07-26"
     },
     {
       "id": "capacity",
@@ -123,24 +125,26 @@
       "resolution": "L'allowlist publique explicite contient uniquement sept PDF PUBLIC_FINAL contrôlés par présence, taille, signature PDF, MIME, contenu extractible, polices, liens et checksum ; le dossier d'accueil imprimable reste INTERNAL_REVIEW. Tout échec HTTP ou checksum post-déploiement impose réouverture et rollback.",
       "evidence": [
         "assets/campaigns/pre-rentree-2026/documents-final/manifest.json",
-        "assets/campaigns/pre-rentree-2026/release-inventory.json",
-        "assets/campaigns/pre-rentree-2026/review/QA-REPORT.md"
+        "scripts/pre-rentree/verify_public_pdfs.py",
+        "__tests__/campaigns/pre-rentree-2026-final-public-release.test.ts"
       ],
       "owner": "Responsable qualité documentaire",
-      "validatedAt": "2026-07-25"
+      "validatedAt": "2026-07-26"
     },
     {
       "id": "contact_channels_forms",
       "status": "VALIDATED",
       "value": true,
-      "resolution": "Le téléphone et WhatsApp canoniques sont testés sur la page et les offres ; aucun formulaire de campagne n'est rendu et le POST d'inscription reste fermé.",
+      "resolution": "Le téléphone et WhatsApp canoniques sont testés sur la page, les offres et les actifs sociaux datés ; le DTO public reste sanitizé, aucun formulaire de campagne n'est rendu et le POST d'inscription reste fermé.",
       "evidence": [
         "data/campaigns/pre-rentree-2026.json#/contact",
         "__tests__/campaigns/pre-rentree-2026-release-gate.test.ts",
-        "tests/e2e/pre-rentree-2026.spec.ts"
+        "tests/e2e/pre-rentree-2026.spec.ts",
+        "assets/campaigns/pre-rentree-2026/social/manifest-public.json",
+        "__tests__/campaigns/pre-rentree-2026-public-social-release.test.ts"
       ],
       "owner": "Responsable communication et technique",
-      "validatedAt": "2026-07-25"
+      "validatedAt": "2026-07-26"
     },
     {
       "id": "manuals_annual_discount",

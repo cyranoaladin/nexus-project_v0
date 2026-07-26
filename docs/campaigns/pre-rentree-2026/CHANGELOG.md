@@ -1,5 +1,13 @@
 # Journal des changements
 
+## 2.1.0 — 26 juillet 2026
+
+- distingue explicitement 14 modules pédagogiques, 70 séances modèles, 17 cohortes opérationnelles et 85 occurrences calendaires ;
+- regroupe les cohortes alternatives par matière sans doubler les cinq séances ni les dix heures suivies par l’élève ;
+- limite le sélecteur à quatre matières et réserve l’action publique aux parcours structurellement compacts, sous réserve de disponibilité ;
+- publie un DTO planning sanitizé, sept PDF allowlistés et une campagne sociale datée avec familles `PUBLIC` et `REVIEW` séparées ;
+- conserve `releaseStatus=READY_FOR_OWNER_GO` et la gate `publication_authorization` ouverte jusqu’au GO lié au SHA validé.
+
 ## 6.0.0-rc.5 — 23 juillet 2026
 
 - rétablit le module « initiation informatique / algorithmique / SNT » en Seconde (décision direction R2) : la campagne porte à **16 modules et 80 séances**, l'offre Seconde revient à quatre matières, le créneau semaine 2 / bloc A / salle 1 est restauré ;
