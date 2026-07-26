@@ -35,15 +35,15 @@ export { getPreRentreeCampaign } from './campaign-source';
  * Get the validated campaign manifest.
  * Server-only — never import from client components.
  */
-/** Get the 17 module programs with their 85 sessions. */
+/** Get the 14 pedagogical modules with their 70 session templates. */
 export function getPreRentreeModules() {
   return PreRentreeModulesSchema.parse(modulesData).modules;
 }
 
 /**
- * Get the schedule expanded to all 70 individual sessions across the 3 windows
- * (fenêtre 1, week-end + début fenêtre 2, fenêtre 2). Each window carries an
- * explicit list of dates (`days`), which may include Saturday/Sunday.
+ * Get the schedule expanded to 85 scheduled occurrences across 17 operational
+ * cohorts and 3 windows. Each cohort represents five occurrences of one
+ * pedagogical module; an alternative cohort does not double the pupil volume.
  */
 export function getPreRentreeSchedule() {
   const campaign = getPreRentreeCampaign();
