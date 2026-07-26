@@ -45,6 +45,14 @@ OUT_DIR.mkdir(exist_ok=True)
 LOGO = str((REPO_ROOT / "public" / "images" / "logo_slogan_nexus_x3.png").resolve())
 
 _BLOCK_ORDER = ("A", "B", "C", "D")
+# 2026-07-20T00:00:00Z. FontTools uses SOURCE_DATE_EPOCH when it writes
+# subsetted font metadata. Without this fixed value, byte-identical HTML
+# produces a different public PDF checksum at every invocation.
+PUBLIC_PDF_SOURCE_DATE_EPOCH = "1784505600"
+
+
+def configure_reproducible_pdf_environment() -> None:
+    os.environ["SOURCE_DATE_EPOCH"] = PUBLIC_PDF_SOURCE_DATE_EPOCH
 
 
 def _subject_label(subject_id: str) -> str:
@@ -456,6 +464,7 @@ def generate_all_level_dossiers(data: PreRentreeData = None) -> list:
 
 
 if __name__ == "__main__":
+    configure_reproducible_pdf_environment()
     print("=== Production des 4 dossiers complets parents ===\n")
     generate_all_level_dossiers()
     print("\n✓ Production terminée")
