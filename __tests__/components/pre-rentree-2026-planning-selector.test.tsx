@@ -60,7 +60,7 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
     expect(screen.getByRole('checkbox', { name: 'Mathématiques expertes' })).toBeInTheDocument();
   });
 
-  it('une matière cochée : recompose le planning chronologique avec date, horaire et salle', async () => {
+  it('une matière cochée : recompose le planning chronologique sans exposer une salle non validée', async () => {
     const user = userEvent.setup();
     renderSelector();
 
@@ -69,10 +69,11 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
 
     expect(screen.getByText(/17 août/)).toBeInTheDocument();
     expect(screen.getAllByText(/09:00–11:00/).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Salle 1/).length).toBeGreaterThan(0);
+    expect(document.body.textContent).not.toMatch(/Salle\s+\d/i);
     const recap = screen.getByText('Matières').closest('dl') as HTMLElement;
     expect(within(recap).getByText('1')).toBeInTheDocument();
     expect(within(recap).getByText('10 h')).toBeInTheDocument();
+    expect(screen.getByText(/capacité à confirmer/i)).toBeInTheDocument();
   });
 
   it('plusieurs matières compatibles : aucun message de conflit, récap mis à jour', async () => {
@@ -100,10 +101,12 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
     // ce n'est plus un conflit (voir SCHEDULE-S5-DECISION.md).
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(screen.getByText(/Parcours compact/i)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Pré-inscrire/i })).not.toHaveAttribute('aria-disabled', 'true');
+    const availability = screen.getByRole('link', { name: 'Demander la disponibilité de ce parcours' });
+    expect(availability).not.toHaveAttribute('aria-disabled', 'true');
+    expect(availability).toHaveAttribute('href', expect.stringMatching(/^https:\/\/wa\.me\/21699192829\?text=/));
   });
 
-  it('conflit détecté : NSI + Physique-Chimie + SVT ensemble en Terminale (3 matières, 2 blocs seulement disponibles) reste simultané et non bloquant', async () => {
+  it('conflit détecté : NSI + Physique-Chimie + SVT ensemble en Terminale bloque la demande comme parcours confirmé', async () => {
     // Les 3 matières scientifiques ne peuvent pas toutes être compactes ensemble :
     // NSI et SVT n'ont que 2 blocs disponibles (C, D) et Physique-Chimie est fixée
     // au bloc C — argument des tiroirs prouvé par solveur (SCHEDULE-S5-DECISION.md).
@@ -123,7 +126,7 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
     expect(screen.getByRole('checkbox', { name: 'NSI' })).toBeChecked();
     expect(screen.getByRole('checkbox', { name: 'Physique-Chimie' })).toBeChecked();
     expect(screen.getByRole('checkbox', { name: 'SVT' })).toBeChecked();
-    expect(screen.getByRole('link', { name: /Pré-inscrire/i })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('link', { name: 'Demander la disponibilité de ce parcours' })).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('SCHEDULE-S5 : Mathématiques + Physique-Chimie en Terminale sont désormais compacts (60 min, était 330 min avant S5)', async () => {
@@ -136,10 +139,10 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(screen.getByText(/Parcours compact.*60 min/i)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Pré-inscrire/i })).not.toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('link', { name: 'Demander la disponibilité de ce parcours' })).not.toHaveAttribute('aria-disabled', 'true');
   });
 
-  it('attente longue : avertit sans bloquer le CTA (données synthétiques — plus aucun cas réel ne dépasse 60 min après S5)', async () => {
+  it('attente longue : avertit et bloque le CTA comme parcours confirmé', async () => {
     // Après SCHEDULE-S5, aucune sélection réelle ne reste LONG_IDLE (voir les 2
     // tests ci-dessus) — cette branche du composant reste testée avec un planning
     // synthétique pour ne jamais devenir du code mort non couvert.
@@ -170,7 +173,7 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
     const alert = screen.getByRole('alert');
     expect(within(alert).getByText(/330 minutes/)).toBeInTheDocument();
     expect(screen.queryByText(/Parcours compact/i)).not.toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Pré-inscrire/i })).not.toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('link', { name: 'Demander la disponibilité de ce parcours' })).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('parcours compact (Seconde Français + Mathématiques, 15 min) : badge positif, CTA actif', async () => {
@@ -182,7 +185,33 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
     await user.click(screen.getByRole('checkbox', { name: 'Mathématiques' }));
 
     expect(screen.getByText(/Parcours compact.*15 min/i)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Pré-inscrire/i })).not.toHaveAttribute('aria-disabled', 'true');
+    const availability = screen.getByRole('link', { name: 'Demander la disponibilité de ce parcours' });
+    expect(availability).not.toHaveAttribute('aria-disabled', 'true');
+    const message = decodeURIComponent(new URL(availability.getAttribute('href') ?? '').searchParams.get('text') ?? '');
+    expect(message).toContain('Entrée en Seconde');
+    expect(message).toContain('Français');
+    expect(message).toContain('Mathématiques');
+    expect(message).toContain('15 minutes');
+    expect(message).toContain('sous réserve de places disponibles');
+  });
+
+  it('limite le pack à quatre matières et explique pourquoi la cinquième reste décochée', async () => {
+    const user = userEvent.setup();
+    renderSelector();
+
+    await user.selectOptions(screen.getByLabelText('Classe de rentrée'), 'TERMINALE');
+    const checkboxes = screen.getAllByRole('checkbox');
+    expect(checkboxes).toHaveLength(5);
+    for (let index = 0; index < 4; index += 1) {
+      await user.click(checkboxes[index]!);
+    }
+    await user.click(checkboxes[4]!);
+
+    expect(checkboxes[4]).not.toBeChecked();
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      '4 matières maximum — retirez une matière pour en ajouter une autre.',
+    );
+    expect(screen.getByText('Matières').closest('dl')).toHaveTextContent('4');
   });
 
   it('changer de niveau réinitialise la sélection de matières', async () => {

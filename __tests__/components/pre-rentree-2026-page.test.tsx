@@ -24,7 +24,7 @@ describe('Pré-rentrée 2026 canonical public page', () => {
     expect(track.preRentreePageView).toHaveBeenCalledTimes(1);
   });
 
-  it('renders only approved commercial content and the canonical WhatsApp CTA', () => {
+  it('renders the complete sanitized parent journey and the canonical WhatsApp CTA', () => {
     const dto = compilePreRentreeReviewSurfaceDTO();
     const { container } = render(<PreRentree2026Page />);
 
@@ -36,7 +36,13 @@ describe('Pré-rentrée 2026 canonical public page', () => {
     );
     expect(container.textContent).not.toMatch(/Gate|REVIEW|blocked|owner|placeholder/i);
     expect(container.textContent).not.toMatch(/ARIA|Cyclades|manuel offert|remise annuelle|enseignant qualifié|bilan parent/i);
-    expect(screen.queryByRole('heading', { name: /planning|emplois du temps|programmes détaillés/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Planning et emplois du temps' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Programmes détaillés/i })).toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: /PDF/i })).toHaveLength(7);
+    expect(container.textContent).not.toMatch(/teacherRole|TEACHER_|salle-\d|publication_authorization/i);
+    expect(container.querySelector('#offres-pre-rentree')).toBeInTheDocument();
+    expect(container.querySelector('#planning')).toBeInTheDocument();
+    expect(container.querySelector('#programmes')).toBeInTheDocument();
   });
 
   it('renders all fourteen canonical offers with price, deposit, inclusions and exclusions', () => {
