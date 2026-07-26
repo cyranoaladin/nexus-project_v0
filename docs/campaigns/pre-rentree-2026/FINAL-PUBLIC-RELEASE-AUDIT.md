@@ -85,3 +85,33 @@ est bien contenue dans la tête #78.
 `releaseStatus` et `publication_authorization` ne doivent pas être modifiés
 avant que les corrections, la CI, la QA visuelle, le runbook privé et le
 rollback soient réellement validés.
+
+## État post-correction
+
+| # | État | Preuve après correction |
+|---|---|---|
+| 1 | corrigé | le DTO public regroupe les cohortes alternatives sous une matière unique ; Première SVT, Terminale NSI et Terminale SVT restent à 5 séances / 10 h |
+| 2 | corrigé | deux salles permanentes et une troisième temporaire sont expliquées ; aucun numéro n'est publié tant que l'affectation reste non validée |
+| 3 | corrigé | plafond à quatre matières, message explicite, statuts bloquants et CTA de disponibilité |
+| 4 | corrigé | page canonique complète, vérifiée dans un candidat contrôlé |
+| 5 | corrigé | sources et rendus dérivés sans Physique-Chimie en Seconde |
+| 6 | corrigé | familles `PUBLIC` sans filigrane et `REVIEW` avec filigrane ; CTA informatifs |
+| 7 | corrigé | calendrier daté à partir du 2026-07-26, Africa/Tunis |
+| 8 | corrigé | allowlist de sept PDF ; dossier d'accueil interne exclu |
+| 9 | corrigé | manifestes public et revue séparés, sans statut contradictoire |
+| 10 | partiel | ancien inventaire PR #75 supprimé ; inventaire final à générer après création de la PR finale |
+| 11 | corrigé | campagne version 2.1.0 |
+| 12 | corrigé | taxonomie 14 / 70 / 17 / 85 nommée et testée |
+| 13 | corrigé | workflow public PDF régénère et vérifie les fichiers servis depuis `public/` |
+| 14 | corrigé | comparaison marché et formulation « avant de réserver » supprimées |
+| 15 | corrigé | gate salles alignée avec l'absence de numéros sur le site et dans les PDF |
+| 16 | technique validé | visuels PUBLIC lisibles, CTA et WhatsApp présents, Story principale rééquilibrée ; validation humaine propriétaire encore en attente |
+
+## Bloquants après correction
+
+1. `npm audit --audit-level=high` reste rouge sur les dépendances de tooling.
+2. Les checks GitHub de la PR finale doivent encore être exécutés.
+3. Le runbook privé réel et la preuve de rollback ne sont pas accessibles.
+4. La validation humaine propriétaire de campagne n'est pas enregistrée.
+
+La release reste fail-closed et aucun GO ne peut être enregistré.
