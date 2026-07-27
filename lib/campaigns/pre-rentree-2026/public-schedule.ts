@@ -51,11 +51,14 @@ export type PublicPlanningPack = {
   price: number;
 };
 
+// 17 modules = 14 historical + 4e Mathématiques, 4e Français, Terminale
+// Philosophie. 20 cohorts = those 17 modules + the 3 alternative cohorts
+// (Première SVT, Terminale NSI, Terminale SVT), each scheduled over 5 days.
+// scripts/validate-stage-planning.ts recomputes all four from the live data and
+// fails on any drift, so these are a declared expectation, not a second source.
 export const PRE_RENTREE_PUBLIC_METRICS = {
-  pedagogicalModuleCount: 14,
-  pedagogicalSessionTemplateCount: 70,
-  // 17 historical cohorts + 3 new Fenêtre-1 groups (4e Français, 4e Maths, Tle Philosophie).
-  // Module count stays at 14 until §5 writes the three pedagogical modules.
+  pedagogicalModuleCount: 17,
+  pedagogicalSessionTemplateCount: 85,
   operationalCohortCount: 20,
   scheduledSessionOccurrenceCount: 100,
   studentSessionsPerSubject: 5,

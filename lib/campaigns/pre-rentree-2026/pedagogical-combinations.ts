@@ -9,23 +9,16 @@ import { enumerateSelections } from './itinerary';
  * addendum Section E — supersedes the earlier brute-force "1 to 4 of
  * anything" enumeration, which produced pedagogically impossible baskets).
  *
- * MATHS_EXPERTES and (once introduced) PHILOSOPHIE are never counted as
- * specialties: Maths expertes is an option layered on top of the
- * Mathématiques specialty (R5), and Philosophie is compulsory common core in
- * Terminale, orthogonal to specialty choice.
+ * MATHS_EXPERTES and PHILOSOPHIE are never counted as specialties: Maths
+ * expertes is an option layered on top of the Mathématiques specialty (R5),
+ * and Philosophie is compulsory common core in Terminale, orthogonal to
+ * specialty choice — always selectable, and sellable on its own.
  */
 const TERMINALE_SPECIALTIES = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'SVT'] as const;
 const MAXIMUM_TERMINALE_SPECIALTIES = 2;
 
 const PREMIERE_SPECIALTIES = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'SVT'] as const;
 const MAXIMUM_PREMIERE_SPECIALTIES = 3;
-
-/** Subjects that are never counted against the level's specialty cap. */
-const NON_SPECIALTY_SUBJECTS_BY_LEVEL: Partial<Record<EntryLevelCode, readonly string[]>> = {
-  // Philosophie = tronc commun Terminale : toujours sélectionnable, jamais une spécialité.
-  TERMINALE: ['MATHS_EXPERTES', 'PHILOSOPHIE'],
-  PREMIERE: ['FRANCAIS'],
-};
 
 /** R5: Mathématiques expertes is only ever offered alongside Mathématiques. */
 export function requiresMathematiquesForExpertes(subjectIds: readonly string[]): boolean {
@@ -35,9 +28,9 @@ export function requiresMathematiquesForExpertes(subjectIds: readonly string[]):
 
 /**
  * Whether a subject selection at `level` describes a combination a real
- * family could actually order (Section E). Fondations levels (3e, Seconde,
- * and — once introduced — 4e) have no specialty system, so every non-empty
- * subset of the level's subjects is valid.
+ * family could actually order (Section E). Fondations levels (4e, 3e,
+ * Seconde) have no specialty system, so every non-empty subset of the level's
+ * subjects is valid.
  */
 export function isPedagogicallyValidSelection(level: EntryLevelCode, subjectIds: readonly string[]): boolean {
   if (new Set(subjectIds).size !== subjectIds.length) return false;
@@ -51,7 +44,7 @@ export function isPedagogicallyValidSelection(level: EntryLevelCode, subjectIds:
     const specialtyCount = subjectIds.filter((id) => (PREMIERE_SPECIALTIES as readonly string[]).includes(id)).length;
     return specialtyCount <= MAXIMUM_PREMIERE_SPECIALTIES;
   }
-  // Fondations (TROISIEME, SECONDE, and 4e once introduced): no specialty cap.
+  // Fondations (QUATRIEME, TROISIEME, SECONDE): no specialty cap.
   return true;
 }
 
@@ -67,5 +60,3 @@ export function enumeratePedagogicalSelections(
   return enumerateSelections(availableSubjectIds, maxTotal)
     .filter((selection) => isPedagogicallyValidSelection(level, selection));
 }
-
-export { NON_SPECIALTY_SUBJECTS_BY_LEVEL };
