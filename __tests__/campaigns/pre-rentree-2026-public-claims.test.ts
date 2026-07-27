@@ -14,11 +14,11 @@ describe('Pré-rentrée public service and CTA claims', () => {
     });
 
     expect(dto.method).toEqual([
-      'Un groupe dont la capacité est annoncée pour chaque offre',
-      'Cinq séances structurées par matière',
-      'Des objectifs annoncés',
-      'De l’entraînement et de la correction en séance',
-      'Des consignes et exercices utilisés pendant les séances',
+      'Faire un point rapide sur les acquis',
+      'Reprendre les notions essentielles',
+      'S’entraîner avec des exercices progressifs',
+      'Comprendre les corrections et les méthodes',
+      'Repartir avec des repères clairs pour la rentrée',
     ]);
     expect(publicCopy).not.toMatch(/bilan|espace parent actif|ARIA incluse|Cyclades|coaching individuel|suivi annuel|cours d'urgence|rattrapage garanti|priorité de réservation/i);
   });
@@ -27,7 +27,7 @@ describe('Pré-rentrée public service and CTA claims', () => {
     const dto = compilePreRentreeReviewSurfaceDTO();
     expect(dto.reservation.depositPercentage).toBe(30);
     expect(dto.reservation.enabled).toBe(false);
-    expect(dto.reservation.rule).toMatch(/demande d.information sans paiement/i);
+    expect(dto.reservation.rule).toMatch(/n.engage aucun paiement/i);
     expect(dto.faq.find((item) => /réserver ou payer/i.test(item.question))?.answer).toMatch(/aucune réservation ni collecte de paiement/i);
   });
 
@@ -41,7 +41,7 @@ describe('Pré-rentrée public service and CTA claims', () => {
 
     expect(source).toContain('offer.cta');
     expect(source).toContain('buildWhatsAppUrl');
-    expect(source).toContain('Voir les offres');
+    expect(source).toContain('Construire mon planning');
     expect(source).toContain('WhatsApp');
     expect(source).not.toMatch(/bilan-gratuit|>\s*Payer|ClicToPay/i);
   });
