@@ -199,22 +199,25 @@ export const PreRentreeCampaignManifestSchema = z.object({
   subjects: z.array(Subject).length(6),
   blocks: z.array(TimeSlot).length(4),
   schedule: z.array(ScheduleWindow).length(3),
-  // Rooms: 3 permanent rooms (salle-1/2/3) as of the 4e/Philosophie capacity
-  // arbitrage (owner decision D1: 3rd room + 2nd maths teacher). There is no
-  // "temporary room" concept in the data model — that framing only ever
-  // existed in editorial copy (already removed from the public page).
-  roomRoles: z.record(z.array(z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'SVT', 'MATHS_EXPERTES'])).min(1)),
+  // Rooms: 3 permanent, banalized, interchangeable rooms — no subject
+  // compatibility, no "temporary room" concept. The only room constraint is
+  // structural (validator R2): at most 3 concurrent groups per (window,
+  // block), i.e. never more groups than physical rooms exist.
+  rooms: z.array(z.string().min(1)).length(3),
   // Teacher roles: TEACHER_A_MATHS_NSI remains the sole lycée (Seconde/
   // Première/Terminale) maths+NSI+maths-expertes teacher. TEACHER_B_MATHS_
   // COLLEGE is a second, distinct maths teacher scoped to the collège level
   // (4e) only — it must never be assigned a lycée-level slot, so the "one
   // maths/NSI teacher" invariant at lycée levels still holds. TEACHER_C_
-  // FRANCAIS is intended to also cover Philosophie once introduced (Terminale
-  // module, Lot 2 of the 4e/Philosophie mission) — its `subjects` list isn't
-  // widened yet because PHILOSOPHIE isn't a Subject enum value until then.
+  // FRANCAIS covers Français (4e/3e/2de/1re) AND Philosophie (Terminale) —
+  // sole Lettres/Philosophie teacher.
+  // maxHoursPerDay is informative only (validator R3 reports load, never
+  // blocks on it) — kept optional rather than removed so any role that does
+  // want to declare a real-world cap still can, without the field being load
+  // -bearing for validation.
   teacherRoles: z.record(z.object({
     subjects: z.array(z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'SVT', 'MATHS_EXPERTES'])).min(1),
-    maxHoursPerDay: z.number().int().min(1).max(8),
+    maxHoursPerDay: z.number().int().min(1).max(12).optional(),
     assigned: z.boolean(),
   }).strict()),
   capacityByOffer: CapacityByOffer,

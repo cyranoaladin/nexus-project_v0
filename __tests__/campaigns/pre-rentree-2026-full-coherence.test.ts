@@ -138,15 +138,30 @@ maybe('Pré-rentrée 2026 — cohérence intégrale par niveau (JSON / catalogue
     },
   );
 
-  it('salles : chaque créneau de la grille est affecté à une salle autorisée pour sa matière (campaign.roomRoles)', () => {
-    const roomRoles = campaignSource.roomRoles as Record<string, readonly string[]>;
+  it('salles : banalisées — chaque créneau référence une salle connue, sans compatibilité matière (campaign.rooms)', () => {
+    const rooms = campaignSource.rooms as readonly string[];
+    expect(rooms).toHaveLength(3);
     const violations: Array<{ windowId: string; level: string; subject: string; room: string }> = [];
     for (const window of campaignSource.schedule) {
       for (const slot of window.slots) {
-        const allowed = roomRoles[slot.room] ?? [];
-        if (!allowed.includes(slot.subject)) {
+        if (!rooms.includes(slot.room)) {
           violations.push({ windowId: window.windowId, level: slot.level, subject: slot.subject, room: slot.room });
         }
+      }
+    }
+    expect(violations).toEqual([]);
+  });
+
+  it('salles : au plus 3 groupes simultanés par (fenêtre, bloc) — jamais plus de salles que de groupes', () => {
+    const violations: string[] = [];
+    for (const window of campaignSource.schedule) {
+      const countByBlock = new Map<string, number>();
+      for (const slot of window.slots) {
+        const key = `${window.windowId}/${slot.block}`;
+        countByBlock.set(key, (countByBlock.get(key) ?? 0) + 1);
+      }
+      for (const [key, count] of countByBlock) {
+        if (count > 3) violations.push(`${key}: ${count} groupes simultanés`);
       }
     }
     expect(violations).toEqual([]);

@@ -159,11 +159,13 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       }
     });
 
-    it('each declared teacher role stays at or below its own maxHoursPerDay', () => {
+    it('each declared teacher role never covers two groups in the same (window, block) — R1, blocking; hourly load is informative only, never a ceiling', () => {
+      // maxHoursPerDay n'est plus une règle bloquante (mission consolidée §0.2) :
+      // le validateur calcule et rapporte la charge, il n'échoue jamais dessus.
       for (const week of schedule) {
-        for (const [roleId, role] of Object.entries(campaignManifest.teacherRoles)) {
+        for (const roleId of Object.keys(campaignManifest.teacherRoles)) {
           const roleBlocks = week.slots.filter((slot) => slot.teacherRole === roleId);
-          expect(roleBlocks.length * 2).toBeLessThanOrEqual(role.maxHoursPerDay);
+          expect(new Set(roleBlocks.map((slot) => slot.block)).size).toBe(roleBlocks.length);
         }
       }
     });
