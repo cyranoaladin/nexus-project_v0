@@ -325,9 +325,9 @@ function WindowMobileList({
   );
 }
 
-// Room/space organization details (room count, temporary rooms, block-level
-// capacity notes) are internal operational information and are never
-// rendered on the public page. When rooms are publicly confirmed
+// Room/space organization details (3 banalized, permanent, interchangeable
+// rooms; block-level capacity notes) are internal operational information
+// and are never rendered on the public page. When rooms are publicly confirmed
 // (`exposeRooms`), the confirmed room labels are already shown inline in the
 // schedule tables/cards above — no separate "Organisation pédagogique"
 // section is needed.

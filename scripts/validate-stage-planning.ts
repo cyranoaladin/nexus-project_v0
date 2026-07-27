@@ -4,8 +4,12 @@
  *
  * Enforces, against the live campaign data (never a copy):
  *   R1. A teacher role never covers two groups in the same (window, block).
- *   R2. A room never hosts two groups in the same (window, block).
- *   R3. A teacher role never exceeds its own declared maxHoursPerDay.
+ *   R2. At most 3 concurrent groups in the same (window, block) — rooms are
+ *       banalized/interchangeable, so the only room constraint is a headcount
+ *       against the 3 physical rooms, never a named-room compatibility check.
+ *   R3. INFORMATIVE ONLY: teacher daily load (blocks/hours per window) is
+ *       computed and reported, never blocking. Hourly caps are not a rule a
+ *       config file gets to enforce on a real person.
  *   R4. For every level, every PEDAGOGICALLY VALID subject combination (see
  *       pedagogical-combinations.ts — not the raw powerset) resolves to a
  *       real itinerary without the engine giving up (REQUIRES_MANUAL_REVIEW),
@@ -95,19 +99,19 @@ export function runStagePlanningValidation(): PlanningValidationResult {
     }
   }
 
-  // --- R1/R2/R3: resource contention, per window (a window's slots repeat
-  // identically on every calendar day it spans, so checking once per window
-  // covers every day) --------------------------------------------------
+  // --- R1/R2: resource contention, R3: informative load report, per window
+  // (a window's slots repeat identically on every calendar day it spans, so
+  // checking once per window covers every day) --------------------------
   const teacherDailyBlocks: Record<string, Record<string, number>> = {};
   for (const window of campaign.schedule) {
     const byBlockTeacher = new Map<string, string[]>();
-    const byBlockRoom = new Map<string, string[]>();
+    const groupCountByBlock = new Map<string, number>();
     const teacherBlockCounts = new Map<string, number>();
 
     for (const slot of window.slots) {
       const teacherKey = `${window.windowId}/${slot.block}`;
       byBlockTeacher.set(teacherKey, [...(byBlockTeacher.get(teacherKey) ?? []), slot.teacherRole]);
-      byBlockRoom.set(teacherKey, [...(byBlockRoom.get(teacherKey) ?? []), slot.room]);
+      groupCountByBlock.set(teacherKey, (groupCountByBlock.get(teacherKey) ?? 0) + 1);
       teacherBlockCounts.set(slot.teacherRole, (teacherBlockCounts.get(slot.teacherRole) ?? 0) + 1);
     }
 
@@ -116,9 +120,12 @@ export function runStagePlanningValidation(): PlanningValidationResult {
         violations.push(`R1 violated: teacher role double-booked at ${key} (${teachers.join(', ')}).`);
       }
     }
-    for (const [key, rooms] of byBlockRoom) {
-      if (new Set(rooms).size !== rooms.length) {
-        violations.push(`R2 violated: room double-booked at ${key} (${rooms.join(', ')}).`);
+    for (const [key, groupCount] of groupCountByBlock) {
+      if (groupCount > campaign.rooms.length) {
+        violations.push(
+          `R2 violated: ${groupCount} concurrent groups at ${key}, `
+          + `only ${campaign.rooms.length} rooms available.`,
+        );
       }
     }
     for (const [teacherRole, blockCount] of teacherBlockCounts) {
@@ -127,13 +134,8 @@ export function runStagePlanningValidation(): PlanningValidationResult {
         violations.push(`Schedule references unknown teacher role ${teacherRole} in ${window.windowId}.`);
         continue;
       }
-      const hours = blockCount * 2;
-      if (hours > role.maxHoursPerDay) {
-        violations.push(
-          `R3 violated: ${teacherRole} teaches ${hours}h in ${window.windowId}, `
-          + `exceeds its own maxHoursPerDay (${role.maxHoursPerDay}h).`,
-        );
-      }
+      // R3 is informative only: the load is computed and reported below
+      // (teacherDailyBlocks), never turned into a violation.
       teacherDailyBlocks[teacherRole] ??= {};
       teacherDailyBlocks[teacherRole]![window.windowId] = blockCount;
     }

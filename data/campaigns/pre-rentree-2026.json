@@ -298,21 +298,7 @@
       ]
     }
   ],
-  "roomRoles": {
-    "salle-1": [
-      "MATHEMATIQUES",
-      "NSI",
-      "MATHS_EXPERTES"
-    ],
-    "salle-2": [
-      "FRANCAIS",
-      "PHYSIQUE_CHIMIE",
-      "SVT"
-    ],
-    "salle-3": [
-      "SVT"
-    ]
-  },
+  "rooms": ["salle-1", "salle-2", "salle-3"],
   "teacherRoles": {
     "TEACHER_A_MATHS_NSI": {
       "subjects": [

@@ -44,10 +44,10 @@ describe('Pré-rentrée 2026 campaign source', () => {
     // 14 modules -> 17 slots since SCHEDULE-S5 adds an alternative cohort each
     // for Première SVT, Terminale NSI and Terminale SVT (see SCHEDULE-S5-DECISION.md).
     expect(campaign.schedule.flatMap((window) => window.slots)).toHaveLength(17);
-    // Room roles resolve to the expected subject sets (the rendered room labels
-    // themselves are covered by the live ScheduleSection tests).
-    expect(campaign.roomRoles['salle-1']).toEqual(['MATHEMATIQUES', 'NSI', 'MATHS_EXPERTES']);
-    expect(campaign.roomRoles['salle-2']).toEqual(['FRANCAIS', 'PHYSIQUE_CHIMIE', 'SVT']);
+    // Rooms are banalized/interchangeable (no subject compatibility table) —
+    // just 3 permanent room identifiers (the rendered room labels themselves
+    // are covered by the live ScheduleSection tests).
+    expect(campaign.rooms).toEqual(['salle-1', 'salle-2', 'salle-3']);
   });
 
   it('uses the canonical pedagogical address in the campaign source', () => {
