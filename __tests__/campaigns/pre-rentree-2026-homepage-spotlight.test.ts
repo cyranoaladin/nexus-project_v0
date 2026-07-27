@@ -51,7 +51,7 @@ describe('Pré-rentrée homepage spotlight DTO', () => {
       capacityLabel: 'Fondations : 3 à 6 élèves · Premium : 3 à 5 élèves',
       volumeLabel: '10 h par matière',
       venueLabel: 'Mutuelleville',
-      editorialLine: 'Reprendre les fondamentaux. Structurer sa méthode. Aborder la rentrée avec confiance.',
+      editorialLine: 'Des stages intensifs en petits groupes pour reprendre les notions essentielles, retrouver une méthode de travail efficace et démarrer l’année avec confiance.',
       campaignPath: '/stages/pre-rentree-2026',
       secondaryCtaLabel: 'Voir les offres',
       secondaryCtaPath: '/stages/pre-rentree-2026#offres-pre-rentree',
