@@ -13,6 +13,7 @@ import {
   formatEntryClassList,
 } from './presentation';
 import { getPreRentreeCampaign } from './campaign-source';
+import { getPreRentreeCompactCapacityLabel } from './offer-options';
 import {
   compilePreRentreeReviewSurfaceDTO,
   getPreRentreePublicSurfaceDTO,
@@ -149,16 +150,13 @@ function buildPreRentreeHomepageSpotlightDTO(dto: PreRentreePublicSurfaceDTO): P
     accessibleLabel: `À partir du ${day} ${month} ${year}.`,
     chipLabel: `dès le ${day} ${month}`,
   };
-  const subjectOrder = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'FRANCAIS', 'NSI', 'SVT', 'MATHS_EXPERTES'];
+  const subjectOrder = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'FRANCAIS', 'NSI', 'SVT', 'MATHS_EXPERTES', 'PHILOSOPHIE'];
   const availableSubjectIds = new Set<string>(publicOffers.flatMap((offer) => offer.subjects));
   const subjectFamilies = subjectOrder.filter((subjectId) => availableSubjectIds.has(subjectId)).map((subjectId) => {
     const subject = campaign.subjects.find((candidate) => candidate.id === subjectId);
     if (!subject) throw new Error(`Missing Pré-rentrée subject: ${subjectId}`);
     return subject.label;
   });
-  const foundations = publicOffers.filter((offer) => offer.pricingKind === 'FOUNDATIONS');
-  const premium = publicOffers.filter((offer) => offer.pricingKind === 'PREMIUM_PACK');
-
   return {
     campaignId: dto.campaignId,
     ariaLabel: `Campagne Pré-rentrée ${date.year}`,
@@ -168,7 +166,7 @@ function buildPreRentreeHomepageSpotlightDTO(dto: PreRentreePublicSurfaceDTO): P
     date,
     entryClassesLabel: formatEntryClassList(dto.levels.map((level) => level.label)),
     subjectFamiliesLabel: subjectFamilies.join(' · '),
-    capacityLabel: `Fondations : ${Math.min(...foundations.map((offer) => offer.groupMin))} à ${Math.max(...foundations.map((offer) => offer.groupMax))} élèves · Premium : ${Math.min(...premium.map((offer) => offer.groupMin))} à ${Math.max(...premium.map((offer) => offer.groupMax))} élèves`,
+    capacityLabel: getPreRentreeCompactCapacityLabel(),
     volumeLabel: `${Math.min(...publicOffers.map((offer) => offer.hours / (offer.subjectCount ?? 1)))} h par matière`,
     venueLabel: dto.venueNeighborhood,
     editorialLine: dto.promise,
