@@ -36,7 +36,7 @@ describe('Pré-rentrée 2026 public presentation contracts', () => {
       .toBe('Du lundi 17 au vendredi 21 août');
   });
 
-  it('defines exactly six accessible subject families, strictly limited to stage subjects (no Philosophie)', () => {
+  it('defines exactly seven accessible subject families, strictly limited to stage subjects', () => {
     expect(Object.keys(SUBJECT_THEMES)).toEqual([
       'MATHEMATIQUES',
       'FRANCAIS',
@@ -44,8 +44,8 @@ describe('Pré-rentrée 2026 public presentation contracts', () => {
       'PHYSIQUE_CHIMIE',
       'SVT',
       'MATHS_EXPERTES',
+      'PHILOSOPHIE',
     ]);
-    expect(Object.keys(SUBJECT_THEMES)).not.toContain('PHILOSOPHIE');
     for (const theme of Object.values(SUBJECT_THEMES)) {
       expect(theme.label).toEqual(expect.any(String));
       expect(theme.marker).toEqual(expect.any(String));
@@ -54,6 +54,12 @@ describe('Pré-rentrée 2026 public presentation contracts', () => {
       expect(theme.textClass).toMatch(/text-/);
       expect(theme.printClass).toMatch(/print:/);
     }
+    // Violet reste réservé à ARIA (NSI l'utilise déjà, antérieur à cette
+    // règle, hors périmètre) : toute NOUVELLE famille doit l'éviter.
+    expect(SUBJECT_THEMES.PHILOSOPHIE.surfaceClass).not.toMatch(/violet/);
+    expect(SUBJECT_THEMES.PHILOSOPHIE.borderClass).not.toMatch(/violet/);
+    expect(SUBJECT_THEMES.PHILOSOPHIE.textClass).not.toMatch(/violet/);
+    expect(SUBJECT_THEMES.PHILOSOPHIE.markerClass).not.toMatch(/violet/);
   });
 
   it('maps French/Expression and NSI variants to their families', () => {

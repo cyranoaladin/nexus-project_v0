@@ -37,7 +37,8 @@ export type PublicScheduleWindow = {
 };
 
 export type PublicPlanningPack = {
-  level?: EntryLevelCode;
+  level: EntryLevelCode;
+  range: 'FONDATIONS' | 'PREMIUM';
   subjectsCount: number;
   totalHours: number;
   /**
@@ -49,6 +50,14 @@ export type PublicPlanningPack = {
    * linear with count).
    */
   price: number;
+  deposit: number;
+  balance: number;
+  /**
+   * How the price above was built. The composer uses it to phrase the amount
+   * ("n x tarif unitaire" for Fondations, the pack price for Premium) — it
+   * never re-derives the amount itself.
+   */
+  pricingModel: 'PER_SUBJECT' | 'PACK_BY_SUBJECT_COUNT';
 };
 
 // 17 modules = 14 historical + 4e Mathématiques, 4e Français, Terminale

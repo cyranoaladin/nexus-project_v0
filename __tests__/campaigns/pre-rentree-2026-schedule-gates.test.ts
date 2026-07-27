@@ -133,8 +133,11 @@ describe('Pré-rentrée 2026 — grille fenêtres + week-end : gates opérationn
     // (C+C ou D+D) ou des blocs différents (C+D ou D+C) — au moins une paire de
     // cohortes reste simultanée par construction (5 matières/cohortes sur 4
     // blocs, argument des tiroirs prouvé par solveur, voir SCHEDULE-S5-DECISION.md).
+    // Scopé à Fenêtre 2 : la Philosophie (mission 4e/Philosophie) est en
+    // Fenêtre 1, bloc D — un niveau différent de contrainte (tronc commun,
+    // jamais une spécialité), sans rapport avec le layout S5 vérifié ici.
     const terminaleByBlockDay = new Map<string, Set<string>>();
-    for (const session of sessions.filter((s) => s.level === 'TERMINALE')) {
+    for (const session of sessions.filter((s) => s.level === 'TERMINALE' && s.windowId === 'fenetre-2')) {
       const key = `${session.block}__${session.date}`;
       const set = terminaleByBlockDay.get(key) ?? new Set<string>();
       set.add(session.subject);
@@ -150,21 +153,26 @@ describe('Pré-rentrée 2026 — grille fenêtres + week-end : gates opérationn
     expect(subjectsAtBlock('D').every((subjects) => subjects.has('NSI') && subjects.has('SVT') && !subjects.has('PHYSIQUE_CHIMIE'))).toBe(true);
   });
 
-  it('GATE dailyLoadValid : le rôle A (Maths/NSI) ne dépasse jamais 4 blocs par jour', () => {
+  it('GATE dailyLoadValid : R3 est INFORMATIVE — aucun rôle ne double-réserve un bloc (R1), la charge/jour est seulement rapportée, jamais plafonnée', () => {
+    // Mission consolidée §0.2 (2026-07-27) : les plafonds horaires par
+    // enseignant sortent des règles bloquantes du validateur — un fichier de
+    // configuration ne décide plus des heures d'une personne réelle. TEACHER_C
+    // atteint désormais 4 blocs/jour en Fenêtre 1 (4e Français A + 3e Français B
+    // + 2de Français C + Tle Philosophie D), au-delà de son ancien plafond
+    // heuristique de 3 — c'est la conséquence directe et voulue de §0.2, pas
+    // une régression. Ce test vérifie ce qui reste réellement bloquant (R1 :
+    // jamais 2 séances du même rôle sur le même bloc) et rapporte la charge
+    // maximale observée à titre purement informatif.
     const byTeacherDay = new Map<string, Set<string>>();
     for (const session of sessions) {
       const key = `${session.teacherRole}__${session.date}`;
       const set = byTeacherDay.get(key) ?? new Set<string>();
+      expect(set.has(session.block)).toBe(false);
       set.add(session.block);
       byTeacherDay.set(key, set);
     }
-    for (const [key, blockSet] of byTeacherDay) {
-      if (key.startsWith('TEACHER_A_MATHS_NSI__')) {
-        expect(blockSet.size).toBeLessThanOrEqual(4);
-      } else {
-        expect(blockSet.size).toBeLessThanOrEqual(3);
-      }
-    }
+    const maxBlocksPerDay = Math.max(...[...byTeacherDay.values()].map((set) => set.size));
+    expect(maxBlocksPerDay).toBeLessThanOrEqual(4);
   });
 
   it('GATE dailyLoadValid : le rôle A atteint bien 4 blocs/jour en fenêtre 1 (17-21 août)', () => {
@@ -189,9 +197,10 @@ describe('Pré-rentrée 2026 — complétude des modules (5 séances, 5 jours co
     }
     const wrongCount = [...byCohort.entries()].filter(([, list]) => list.length !== 5);
     expect(wrongCount).toEqual([]);
-    // 14 modules (11 à cohorte unique + 3 à 2 cohortes : Première SVT, Terminale
-    // NSI, Terminale SVT) = 11 + 6 = 17 cohortes opérationnelles au total.
-    expect(byCohort.size).toBe(17);
+    // 17 modules (14 à cohorte unique + 3 à 2 cohortes : Première SVT,
+    // Terminale NSI, Terminale SVT — les 3 nouveaux groupes 4e/Philosophie
+    // n'ont pas de cohorte alternative) = 14 + 6 = 20 cohortes opérationnelles.
+    expect(byCohort.size).toBe(20);
   });
 
   it('les 5 séances de chaque cohorte tombent sur 5 jours consécutifs (calendrier)', () => {
@@ -216,22 +225,29 @@ describe('Pré-rentrée 2026 — complétude des modules (5 séances, 5 jours co
     expect(nonConsecutive).toEqual([]);
   });
 
-  it('total des séances calendrier = 85 (17 cohortes × 5 jours)', () => {
-    expect(sessions.length).toBe(85);
+  it('total des séances calendrier = 100 (20 cohortes × 5 jours)', () => {
+    expect(sessions.length).toBe(100);
   });
 });
 
 describe('Pré-rentrée 2026 — disponibilité des élèves de Terminale', () => {
-  it('aucune séance Terminale avant le 24 août (les 2 élèves de Terminale démarrent le 24)', () => {
-    const terminaleSessions = sessions.filter((s) => s.level === 'TERMINALE');
+  it('aucune séance Terminale (hors Philosophie) avant le 24 août', () => {
+    // Philosophie est volontairement en Fenêtre 1 (voir tests dédiés
+    // ci-dessous) — l'exclure ici est intentionnel, pas un relâchement du gate.
+    const terminaleSessions = sessions.filter((s) => s.level === 'TERMINALE' && s.subject !== 'PHILOSOPHIE');
     expect(terminaleSessions.length).toBeGreaterThan(0);
     const earliestDate = terminaleSessions.map((s) => s.date).sort()[0];
     expect(earliestDate >= '2026-08-24').toBe(true);
   });
 
-  it('toutes les matières Terminale (Maths, NSI, PC, SVT, Maths expertes) démarrent bien le 24 août ou après', () => {
+  it('toutes les spécialités Terminale (Maths, NSI, PC, SVT, Maths expertes) démarrent bien le 24 août ou après — Philosophie est volontairement exclue', () => {
+    // Philosophie (mission 4e/Philosophie, 2026-07-27) est délibérément placée
+    // en Fenêtre 1 (17-21 août), pas en Fenêtre 2 : c'est l'exigence explicite
+    // "deux semaines distinctes, aucune collision possible" entre Philosophie
+    // et les spécialités (PRF-PRE2026-TERMINALE-TWO-WINDOWS). L'inclure dans ce
+    // gate romprait donc volontairement l'invariant qu'il vérifie.
     const bySubject = new Map<string, string[]>();
-    for (const session of sessions.filter((s) => s.level === 'TERMINALE')) {
+    for (const session of sessions.filter((s) => s.level === 'TERMINALE' && s.subject !== 'PHILOSOPHIE')) {
       const list = bySubject.get(session.subject) ?? [];
       list.push(session.date);
       bySubject.set(session.subject, list);
@@ -244,31 +260,49 @@ describe('Pré-rentrée 2026 — disponibilité des élèves de Terminale', () =
       void subject;
     }
   });
+
+  it('la Philosophie Terminale démarre bien en Fenêtre 1 (17 au 21 août), jamais en Fenêtre 2', () => {
+    const philoSessions = sessions.filter((s) => s.level === 'TERMINALE' && s.subject === 'PHILOSOPHIE');
+    expect(philoSessions.length).toBe(5);
+    const dates = philoSessions.map((s) => s.date).sort();
+    expect(dates[0]! >= '2026-08-17').toBe(true);
+    expect(dates.at(-1)! <= '2026-08-21').toBe(true);
+  });
 });
 
-describe('Pré-rentrée 2026 — seuil d’ouverture : constante unique (arbitrage direction du 2026-07-24)', () => {
-  it('3 inscrits minimum, pour Fondations ET Premium — aucune valeur dupliquée par offre/niveau/matière', () => {
+describe('Pré-rentrée 2026 — seuil d’ouverture : constante unique par défaut (arbitrage direction du 2026-07-24), avec une seule exception documentée (4e, 2026-07-27)', () => {
+  // La mission 4e/Philosophie fixe explicitement l'entrée en 4e à "ouverture à
+  // partir de 4, maximum 6" (§5.1) — une exception consciente au seuil
+  // universel de 3, pas une dérive. Toute AUTRE offre/niveau/matière doit
+  // toujours partager PRE_RENTREE_MIN_COHORT_OPENING.
+  const DOCUMENTED_MIN_COHORT_EXCEPTIONS: Record<string, number> = { QUATRIEME: 4 };
+
+  it('3 inscrits minimum, pour Fondations ET Premium (enveloppe de plage) — aucune valeur dupliquée par offre/niveau/matière', () => {
     const capacity = manifest.capacityByOffer as {
       FONDATIONS: { minPerCohort: number; maxPerCohort: number };
       PREMIUM: { minPerCohort: number; maxPerCohort: number };
     };
     // Arbitrage direction (2026-07-24) : "3 partout" prime sur l'ancien plancher
     // Fondations à 4 (commercial_exception PRE2026-3E-350 mis à jour en conséquence
-    // dans data/pricing.canonical.json — scope "groupe de 3 à 6 élèves").
+    // dans data/pricing.canonical.json — scope "groupe de 3 à 6 élèves"). Ceci
+    // reste l'enveloppe de PLAGE (Fondations/Premium) : un niveau individuel
+    // (la 4e) peut ouvrir au-dessus de ce plancher, jamais en dessous.
     expect(capacity.FONDATIONS.minPerCohort).toBe(PRE_RENTREE_MIN_COHORT_OPENING);
     expect(capacity.PREMIUM.minPerCohort).toBe(PRE_RENTREE_MIN_COHORT_OPENING);
     expect(capacity.FONDATIONS.minPerCohort).toBe(capacity.PREMIUM.minPerCohort);
   });
 
-  it('les produits de pricing canoniques (Fondations 3e/Seconde) partagent le même group_min_open', () => {
-    expect(pricingData.pre_rentree_foundations.every(
-      (product) => product.group_min_open === PRE_RENTREE_MIN_COHORT_OPENING,
-    )).toBe(true);
+  it('les produits de pricing canoniques partagent le seuil universel, sauf l’exception documentée (4e = 4)', () => {
+    for (const product of pricingData.pre_rentree_foundations) {
+      const expected = DOCUMENTED_MIN_COHORT_EXCEPTIONS[product.level] ?? PRE_RENTREE_MIN_COHORT_OPENING;
+      expect(product.group_min_open).toBe(expected);
+    }
   });
 
-  it('le catalogue d’offres publiques (offers.json) reflète la même constante pour tous les niveaux', () => {
-    expect(offersData.levels.every(
-      (level) => level.capacity.min === PRE_RENTREE_MIN_COHORT_OPENING,
-    )).toBe(true);
+  it('le catalogue d’offres publiques (offers.json) reflète le seuil universel, sauf l’exception documentée (4e = 4)', () => {
+    for (const level of offersData.levels) {
+      const expected = DOCUMENTED_MIN_COHORT_EXCEPTIONS[level.level] ?? PRE_RENTREE_MIN_COHORT_OPENING;
+      expect(level.capacity.min).toBe(expected);
+    }
   });
 });

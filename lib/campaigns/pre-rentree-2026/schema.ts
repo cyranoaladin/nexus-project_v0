@@ -117,9 +117,15 @@ const Venue = z.object({
   neighborhood: z.string(),
 });
 
+/**
+ * Range-level cohort bounds. Operational envelope only — NOT a display
+ * source: publishing "Fondations : 3 à 6 élèves" became false when the 4e
+ * opened at 4. Every public surface reads the level's own capacity from
+ * offers.json (see offer-options.ts getPreRentreeLevelCapacities).
+ */
 const CapacityByOffer = z.object({
-  FONDATIONS: z.object({ minPerCohort: z.literal(PRE_RENTREE_MIN_COHORT_OPENING), maxPerCohort: z.literal(6) }).strict(),
-  PREMIUM: z.object({ minPerCohort: z.literal(PRE_RENTREE_MIN_COHORT_OPENING), maxPerCohort: z.literal(5) }).strict(),
+  FONDATIONS: z.object({ minPerCohort: z.number().int().min(PRE_RENTREE_MIN_COHORT_OPENING), maxPerCohort: z.literal(6) }).strict(),
+  PREMIUM: z.object({ minPerCohort: z.number().int().min(PRE_RENTREE_MIN_COHORT_OPENING), maxPerCohort: z.literal(5) }).strict(),
 }).strict();
 
 const Contact = z.object({
@@ -169,6 +175,18 @@ const CampaignContent = z.object({
     h1: z.string().min(1),
     subtitle: z.string().min(1),
   }),
+  // The strings the public page renders. They used to be literals inside
+  // public-surface.ts, which put editorial text in code and froze the level
+  // list in two more places. Like the FAQ, they may carry `{{placeholder}}`
+  // tokens resolved against campaign-facts.ts.
+  publicPage: z.object({
+    title: z.string().min(1),
+    promise: z.string().min(1),
+    audience: z.string().min(1),
+    seoTitle: z.string().min(1),
+    seoDescription: z.string().min(1),
+    heroHighlights: z.array(z.string().min(1)).min(1),
+  }).strict(),
   method: z.array(z.object({
     title: z.string().min(1),
     description: z.string().min(1),
@@ -197,15 +215,15 @@ const CampaignContent = z.object({
   // published: true are compiled into the site's FAQ (public-surface.ts
   // filters on this flag rather than re-declaring a parallel hardcoded list).
   // `answer` may contain `{{placeholder}}` tokens resolved at compile time
-  // against live derived facts (dates, subject lists, price ranges) — see
-  // resolveFaqTemplate in public-surface.ts. A published entry's static text
-  // must never freeze a number that is meant to stay derived.
+  // against live derived facts (dates, subject lists, price/effectif ranges)
+  // — see campaign-facts.ts. A published entry's static text must never
+  // freeze a number that is meant to stay derived.
   faq: z.array(z.object({
     id: z.string().min(1),
     question: z.string().min(1),
     answer: z.string().min(1),
     published: z.boolean(),
-  })).length(24),
+  })).min(1),
 });
 
 const SeoContract = z.object({

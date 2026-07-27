@@ -1,8 +1,7 @@
 import { z } from 'zod';
-import { EntryLevelCode } from './schema';
+import { ENTRY_LEVEL_IDS, EntryLevelCode, SUBJECT_IDS, SubjectCode } from './schema';
 
 export const OfferRange = z.enum(['FONDATIONS', 'PREMIUM']);
-const SubjectId = z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'SVT', 'MATHS_EXPERTES']);
 
 export const PreRentreeOffersSchema = z.object({
   schemaVersion: z.literal('1.0.0'),
@@ -13,19 +12,22 @@ export const PreRentreeOffersSchema = z.object({
     level: EntryLevelCode,
     range: OfferRange,
     signature: z.string().min(1),
-    subjects: z.array(SubjectId).min(1).max(5),
+    subjects: z.array(SubjectCode).min(1).max(SUBJECT_IDS.length),
     pricing: z.object({
       model: z.enum(['PER_SUBJECT', 'PACK_BY_SUBJECT_COUNT']),
       productIds: z.array(z.string().min(1)).min(1).max(4),
       multiSubjectDiscount: z.boolean(),
       maximumSubjects: z.number().int().min(1).max(4),
     }).strict(),
+    // Declared per level, not per range: the 4e opens at 4 while the other
+    // Fondations levels open at 3, so no surface may infer an effectif from
+    // the range alone.
     capacity: z.object({
       min: z.number().int().min(3).max(4),
       max: z.number().int().min(5).max(6),
     }).strict(),
     serviceCapabilityIds: z.array(z.string().min(1)).min(1),
-  }).strict()).length(4),
+  }).strict()).length(ENTRY_LEVEL_IDS.length),
 }).strict();
 
 const ManualSchema = z.object({
@@ -93,9 +95,9 @@ export const PreRentreePedagogyFrameworkSchema = z.object({
   quickAssessmentDurationMinutes: z.number().int().min(5).max(10),
   moduleCodes: z.array(z.object({
     moduleId: z.string().min(1),
-    code: z.string().regex(/^POS-(?:3|2|1|T)-(?:MATH|FR|PC|SNT|NSI|PHILO|SVT|MATHEXP)$/),
+    code: z.string().regex(/^POS-(?:4|3|2|1|T)-(?:MATH|FR|PC|SNT|NSI|PHILO|SVT|MATHEXP)$/),
     material: z.string().min(1),
-  }).strict()).length(14),
+  }).strict()).length(17),
   subjectPatterns: z.object({
     MATHEMATIQUES: PedagogyPatternSchema,
     PHYSIQUE_CHIMIE: PedagogyPatternSchema,
@@ -103,6 +105,7 @@ export const PreRentreePedagogyFrameworkSchema = z.object({
     FRANCAIS: PedagogyPatternSchema,
     SVT: PedagogyPatternSchema,
     MATHS_EXPERTES: PedagogyPatternSchema,
+    PHILOSOPHIE: PedagogyPatternSchema,
   }).strict(),
   rubric: z.object({
     ACQUIS: z.string().min(1),

@@ -44,7 +44,7 @@ describe('Pré-rentrée homepage spotlight DTO', () => {
         accessibleLabel: 'À partir du 17 août 2026.',
         chipLabel: 'dès le 17 août',
       },
-      entryClassesLabel: 'Entrée en 3e, Seconde, Première ou Terminale',
+      entryClassesLabel: 'Entrée en 4e, 3e, Seconde, Première ou Terminale',
       // Philosophie purgée du catalogue pré-rentrée (2026-07-24) ; Maths expertes apparaît
       // désormais, commercial-contract.fr.json (offres Terminale) ayant été réconcilié.
       subjectFamiliesLabel: 'Mathématiques · Physique-Chimie · Français · NSI · SVT · Mathématiques expertes',

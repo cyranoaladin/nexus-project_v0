@@ -6,7 +6,7 @@ import { join } from 'node:path';
 // NOTE (pré-rentrée 2026, modèle fenêtres + week-end v2) : le planning et le catalogue de
 // modules (data/campaigns/pre-rentree-2026.json, content/pre-rentree-2026/modules.json,
 // offers.json) sont alignés sur la grille — Seconde n'a plus de séance NSI/SNT ni
-// Physique-Chimie, Terminale a Maths expertes au lieu de Philosophie.
+// Physique-Chimie.
 // Arbitrage direction du 2026-07-24 (définitif) : pour les stages de pré-rentrée, la
 // Seconde = Mathématiques + Français uniquement (grille du 24/07 fait foi).
 // content/pre-rentree-2026/commercial-contract.fr.json a été réconcilié en conséquence :
@@ -14,11 +14,15 @@ import { join } from 'node:path';
 // retirés après vérification qu'il s'agissait bien de SKU de STAGE (même pricingId
 // pre2026-foundations-seconde-subject que Maths/Français) et non d'une contamination
 // annuelle. Voir SEPARATION_STAGES_ANNUEL.md et DEBTS.md.
+// Mission 4e/Philosophie (2026-07-27) : QUATRIEME (Maths+Français) s'ajoute, et
+// Philosophie rejoint le pool Terminale aux côtés de Maths expertes (tronc
+// commun, jamais une spécialité — voir pedagogical-combinations.ts).
 const expectedSubjects = {
+  QUATRIEME: ['FRANCAIS', 'MATHEMATIQUES'],
   TROISIEME: ['FRANCAIS', 'MATHEMATIQUES'],
   SECONDE: ['FRANCAIS', 'MATHEMATIQUES'],
   PREMIERE: ['FRANCAIS', 'MATHEMATIQUES', 'NSI', 'PHYSIQUE_CHIMIE', 'SVT'],
-  TERMINALE: ['MATHEMATIQUES', 'MATHS_EXPERTES', 'NSI', 'PHYSIQUE_CHIMIE', 'SVT'],
+  TERMINALE: ['MATHEMATIQUES', 'MATHS_EXPERTES', 'NSI', 'PHILOSOPHIE', 'PHYSIQUE_CHIMIE', 'SVT'],
 };
 
 describe('Pré-rentrée 2026 central public-surface adapter', () => {
@@ -41,7 +45,7 @@ describe('Pré-rentrée 2026 central public-surface adapter', () => {
     const dto = compilePreRentreeReviewSurfaceDTO();
     const canonical = getCommercialPublicOffers();
 
-    expect(dto.offers).toHaveLength(12);
+    expect(dto.offers).toHaveLength(14);
     expect(dto.offers.map((offer) => offer.offerId)).toEqual(canonical.map((offer) => offer.offerId));
     for (const offer of dto.offers) {
       const source = canonical.find((item) => item.offerId === offer.offerId);
@@ -65,16 +69,16 @@ describe('Pré-rentrée 2026 central public-surface adapter', () => {
   it('exposes a sanitized planning/program/document DTO with canonical counts', () => {
     const dto = compilePreRentreeReviewSurfaceDTO();
     expect(dto.planning.metrics).toEqual({
-      pedagogicalModuleCount: 14,
-      pedagogicalSessionTemplateCount: 70,
+      pedagogicalModuleCount: 17,
+      pedagogicalSessionTemplateCount: 85,
       operationalCohortCount: 20,
       scheduledSessionOccurrenceCount: 100,
       studentSessionsPerSubject: 5,
       studentHoursPerSubject: 10,
     });
     expect(dto.planning.schedule).toHaveLength(100);
-    expect(dto.programs).toHaveLength(14);
-    expect(dto.documents).toHaveLength(7);
+    expect(dto.programs).toHaveLength(17);
+    expect(dto.documents).toHaveLength(8);
     expect(dto.planning.roomsPubliclyConfirmed).toBe(false);
     expect(dto.planning.schedule.every((slot) => slot.room === undefined)).toBe(true);
     expect(dto.planning.scheduleWindows.every(

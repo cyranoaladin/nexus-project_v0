@@ -1,17 +1,13 @@
 import 'server-only';
 
 import modulesData from '@/content/pre-rentree-2026/modules.json';
-import offersData from '@/content/pre-rentree-2026/offers.json';
-import { getPreRentreeFoundationsProducts, getPreRentreePacks } from '@/lib/pricing';
+import { getPreRentreePacks } from '@/lib/pricing';
 import {
   PreRentreeModulesSchema,
 } from './schema';
 import type { EntryLevelCode } from './schema';
 import type { PreRentreeHomepageSpotlightDTO } from './homepage-spotlight';
 import type { LandingPack, LandingSubject } from './configurator';
-import {
-  PreRentreeOffersSchema,
-} from './content-schema';
 import {
   formatCampaignStatus,
   formatEntryClassList,
@@ -25,7 +21,7 @@ import {
 
 export { getPreRentreeCampaign } from './campaign-source';
 
-/** Get the 14 pedagogical modules with their 70 session templates. */
+/** Get the 17 pedagogical modules with their 85 session templates. */
 export function getPreRentreeModules() {
   return PreRentreeModulesSchema.parse(modulesData).modules;
 }
@@ -33,7 +29,7 @@ export function getPreRentreeModules() {
 /**
  * Campaign subjects enriched with a per-level pedagogical summary and module
  * id (LandingSubject contract — consumed by lib/campaigns/pre-rentree-2026/
- * configurator.ts and the StageConfigurator component).
+ * configurator.ts and StagePlanningSelector).
  */
 export function getPreRentreeEnrichedSubjects(): LandingSubject[] {
   const campaign = getPreRentreeCampaign();
@@ -137,50 +133,7 @@ export function getPreRentreePackOptions() {
   }));
 }
 
-export function getPreRentreeOfferOptions(): LandingPack[] {
-  const offers = PreRentreeOffersSchema.parse(offersData);
-  const options: LandingPack[] = [];
-  for (const offer of offers.levels) {
-    if (offer.pricing.model === 'PER_SUBJECT') {
-      const [unit] = getPreRentreeFoundationsProducts(offer.pricing.productIds);
-      if (!unit || unit.level !== offer.level) {
-        throw new Error(`Missing Fondations pricing product for ${offer.level}`);
-      }
-      for (let count = 1; count <= offer.pricing.maximumSubjects; count += 1) {
-        options.push({
-          code: `PACK_${count}` as LandingPack['code'],
-          level: offer.level,
-          range: offer.range,
-          subjectsCount: count,
-          totalHours: unit.hours_per_subject * count,
-          price: unit.price_per_student * count,
-          deposit: unit.payment.deposit * count,
-          balance: unit.payment.solde * count,
-          pricePerHour: unit.price_per_student_hour,
-          groupMinOpen: unit.group_min_open,
-          groupMax: unit.group_max,
-        });
-      }
-      continue;
-    }
-    for (const pack of getPreRentreePacks(offer.pricing.productIds)) {
-      options.push({
-        code: `PACK_${pack.subjects_count}` as LandingPack['code'],
-        level: offer.level,
-        range: offer.range,
-        subjectsCount: pack.subjects_count,
-        totalHours: pack.total_hours,
-        price: pack.price_per_student,
-        deposit: pack.payment.deposit,
-        balance: pack.payment.solde,
-        pricePerHour: pack.price_per_student_hour,
-        groupMinOpen: pack.group_min_open,
-        groupMax: pack.group_max,
-      });
-    }
-  }
-  return options;
-}
+export { getPreRentreeOfferOptions } from './offer-options';
 
 function buildPreRentreeHomepageSpotlightDTO(dto: PreRentreePublicSurfaceDTO): PreRentreeHomepageSpotlightDTO {
   const publicOffers = dto.offers;

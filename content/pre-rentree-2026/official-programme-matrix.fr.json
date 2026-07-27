@@ -114,9 +114,48 @@
       "url": "https://www.education.gouv.fr/bo/19/Special8/MENE1921252A.htm",
       "publisher": "Ministère de l'Éducation nationale",
       "applicationNote": "Programme en vigueur pour l'année scolaire 2026-2027. Publié au BO spécial n°8 du 25 juillet 2019 (programmes de Terminale)."
+    },
+    {
+      "officialProgrammeId": "BO2019-LYCEE-PHILO-TERMINALE",
+      "title": "Programme de philosophie de la classe terminale générale",
+      "url": "https://www.education.gouv.fr/au-bo-special-du-22-janvier-2019-programmes-d-enseignement-du-lycee-general-et-technologique-455475",
+      "publisher": "Ministère de l'Éducation nationale",
+      "applicationNote": "Programme en vigueur pour l'année scolaire 2026-2027. Publié au BO spécial n°8 du 25 juillet 2019 (programmes de Terminale) — référence à vérifier précisément par un enseignant de philosophie qualifié avant toute validation pédagogique (cf. modules.json)."
     }
   ],
   "rows": [
+    {
+      "moduleId": "quatrieme-mathematiques",
+      "level": "QUATRIEME",
+      "subject": "Mathématiques",
+      "officialProgrammeId": "BO2020-CYCLE4-MATHS",
+      "applicationSchoolYear": "2026-2027",
+      "nexusSessionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "alignmentSummary": "Consolider les acquis de 5e en nombres, calcul littéral, géométrie et proportionnalité, et installer les attendus de 4e du cycle 4.",
+      "publicOfferEligible": true
+    },
+    {
+      "moduleId": "quatrieme-francais",
+      "level": "QUATRIEME",
+      "subject": "Français",
+      "officialProgrammeId": "BO2020-CYCLE4-FRANCAIS",
+      "applicationSchoolYear": "2026-2027",
+      "nexusSessionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "alignmentSummary": "Consolider les acquis de 5e en compréhension, grammaire, orthographe et rédaction, et installer les attendus de 4e du cycle 4.",
+      "publicOfferEligible": true
+    },
     {
       "moduleId": "troisieme-mathematiques",
       "level": "TROISIEME",
@@ -339,6 +378,22 @@
         5
       ],
       "alignmentSummary": "Arithmétique, congruences, nombres complexes approfondis, matrices et graphes, selon le programme de la spécialité Maths expertes.",
+      "publicOfferEligible": true
+    },
+    {
+      "moduleId": "terminale-philosophie",
+      "level": "TERMINALE",
+      "subject": "Philosophie",
+      "officialProgrammeId": "BO2019-LYCEE-PHILO-TERMINALE",
+      "applicationSchoolYear": "2026-2027",
+      "nexusSessionNumbers": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "alignmentSummary": "Découverte de la discipline (question philosophique, notion), lecture de texte, problématisation, méthode de la dissertation et de l'explication de texte — deux méthodes écrites du programme de Terminale.",
       "publicOfferEligible": true
     }
   ]

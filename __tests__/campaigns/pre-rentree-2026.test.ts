@@ -27,12 +27,12 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       expect(campaignManifest.noClassDates).toEqual([]);
     });
 
-    it('has exactly 4 levels', () => {
-      expect(campaignManifest.levels).toHaveLength(4);
+    it('has exactly 5 levels', () => {
+      expect(campaignManifest.levels).toHaveLength(5);
     });
 
-    it('has exactly 6 subject families', () => {
-      expect(campaignManifest.subjects).toHaveLength(6);
+    it('has exactly 7 subject families', () => {
+      expect(campaignManifest.subjects).toHaveLength(7);
     });
 
     it('has exactly 4 time blocks', () => {
@@ -47,8 +47,8 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
   describe('Modules', () => {
     const modules = (modulesData as any).modules;
 
-    it('has exactly 14 modules (2+2+5+5 par niveau, sans Seconde SNT/PC ni Terminale Philosophie)', () => {
-      expect(modules).toHaveLength(14);
+    it('has exactly 17 modules (2+2+2+5+6 par niveau, sans Seconde SNT/PC)', () => {
+      expect(modules).toHaveLength(17);
     });
 
     it('each module has exactly 5 sessions', () => {
@@ -57,20 +57,22 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       }
     });
 
-    it('total sessions = 70', () => {
+    it('total sessions = 85', () => {
       const total = modules.reduce((sum: number, m: any) => sum + m.sessions.length, 0);
-      expect(total).toBe(70);
+      expect(total).toBe(85);
     });
 
     it('keeps the approved number of modules per level', () => {
-      const byLevel = { TROISIEME: 0, SECONDE: 0, PREMIERE: 0, TERMINALE: 0 };
+      const byLevel = { QUATRIEME: 0, TROISIEME: 0, SECONDE: 0, PREMIERE: 0, TERMINALE: 0 };
       for (const mod of modules) {
         byLevel[mod.level as keyof typeof byLevel]++;
       }
+      expect(byLevel.QUATRIEME).toBe(2);
       expect(byLevel.TROISIEME).toBe(2);
       expect(byLevel.SECONDE).toBe(2);
       expect(byLevel.PREMIERE).toBe(5);
-      expect(byLevel.TERMINALE).toBe(5);
+      // 6, pas 5 : Philosophie s'ajoute au pool Terminale (mission 4e/Philosophie).
+      expect(byLevel.TERMINALE).toBe(6);
     });
 
     it('never uses "EAF Terminale"', () => {
@@ -82,10 +84,17 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       }
     });
 
-    it('does not offer NSI, Physique-Chimie or Philosophie module content for Seconde (retiré au profit de Maths+Français uniquement)', () => {
+    it('does not offer NSI or Physique-Chimie module content for Seconde (retiré au profit de Maths+Français uniquement)', () => {
       expect(modules.find((module: any) => module.id === 'seconde-informatique-snt')).toBeUndefined();
       expect(modules.find((module: any) => module.id === 'seconde-physique-chimie')).toBeUndefined();
-      expect(modules.find((module: any) => module.id === 'terminale-philosophie')).toBeUndefined();
+    });
+
+    it('offers a Philosophie module for Terminale (mission 4e/Philosophie, 2026-07-27)', () => {
+      const philosophie = modules.find((module: any) => module.id === 'terminale-philosophie');
+      expect(philosophie).toBeDefined();
+      expect(philosophie.level).toBe('TERMINALE');
+      expect(philosophie.subjectId).toBe('PHILOSOPHIE');
+      expect(philosophie.sessions).toHaveLength(5);
     });
   });
 
@@ -101,28 +110,19 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       }
     });
 
-    it('max 2 rooms per block, except bloc C which may use the exceptional salle-3 (SCHEDULE-S5 owner decision)', () => {
-      // salle-3 is authorized exceptionally, scoped to bloc C only (14:15-16:15) —
-      // any other block using a 3rd room would be an unauthorized expansion.
+    it('max 3 rooms per block — salles banalisées et interchangeables (mission consolidée §0.3, 2026-07-27)', () => {
+      // §0.3 supersede le modèle SCHEDULE-S5 : salle-3 n'est plus scopée au
+      // bloc C, les 3 salles sont permanentes et interchangeables, sans table
+      // de compatibilité salle -> matière. La seule contrainte de salle est un
+      // comptage : jamais plus de groupes simultanés que de salles physiques.
       for (const week of schedule) {
         const roomsPerBlock: Record<string, Set<string>> = {};
         for (const slot of week.slots) {
           if (!roomsPerBlock[slot.block]) roomsPerBlock[slot.block] = new Set();
           roomsPerBlock[slot.block].add(slot.room);
         }
-        for (const [block, rooms] of Object.entries(roomsPerBlock)) {
-          const cap = block === 'C' ? 3 : 2;
-          expect(rooms.size).toBeLessThanOrEqual(cap);
-        }
-      }
-    });
-
-    it('salle-3 is never used outside bloc C', () => {
-      for (const week of schedule) {
-        for (const slot of week.slots) {
-          if (slot.room === 'salle-3') {
-            expect(slot.block).toBe('C');
-          }
+        for (const [, rooms] of Object.entries(roomsPerBlock)) {
+          expect(rooms.size).toBeLessThanOrEqual(3);
         }
       }
     });
@@ -225,10 +225,13 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       expect(nsi?.levels).toEqual(['PREMIERE', 'TERMINALE']);
     });
 
-    it('Terminale n’offre ni Français ni Philosophie, et propose Maths expertes à la place', () => {
+    it('Terminale n’offre pas Français, mais propose Maths expertes et Philosophie', () => {
       const fr = campaignManifest.subjects.find(s => s.id === 'FRANCAIS');
       expect(fr?.levels).not.toContain('TERMINALE');
-      expect(campaignManifest.subjects.find(s => s.id === 'PHILOSOPHIE')).toBeUndefined();
+      // Philosophie (mission 4e/Philosophie, 2026-07-27) : matière tronc commun
+      // de Terminale, jamais comptée comme spécialité (voir
+      // pedagogical-combinations.ts), toujours proposée à côté de Maths expertes.
+      expect(campaignManifest.subjects.find(s => s.id === 'PHILOSOPHIE')?.levels).toEqual(['TERMINALE']);
       expect(campaignManifest.subjects.find(s => s.id === 'MATHS_EXPERTES')?.levels).toEqual(['TERMINALE']);
     });
   });
