@@ -11,7 +11,7 @@ import { PRE_RENTREE_2026_NAVIGATION } from './navigation';
 export const PRE_RENTREE_MIN_COHORT_OPENING = 3;
 
 /** Stable internal codes for the pupil's entry class in school year 2026-2027. */
-export const ENTRY_LEVEL_IDS = ['TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE'] as const;
+export const ENTRY_LEVEL_IDS = ['QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE'] as const;
 export const EntryLevelCode = z.enum(ENTRY_LEVEL_IDS);
 export type EntryLevelCode = z.infer<typeof EntryLevelCode>;
 
@@ -41,6 +41,7 @@ const TimeSlot = z.object({
 });
 
 const Level = z.discriminatedUnion('id', [
+  z.object({ id: z.literal('QUATRIEME'), label: z.literal('Entrée en 4e') }),
   z.object({ id: z.literal('TROISIEME'), label: z.literal('Entrée en 3e') }),
   z.object({ id: z.literal('SECONDE'), label: z.literal('Entrée en Seconde') }),
   z.object({ id: z.literal('PREMIERE'), label: z.literal('Entrée en Première') }),
@@ -51,6 +52,7 @@ const LevelSemantics = z.object({
   kind: z.literal('ENTRY_LEVEL'),
   schoolYear: z.literal('2026-2027'),
   currentToEntry: z.object({
+    CINQUIEME: z.literal('QUATRIEME'),
     QUATRIEME: z.literal('TROISIEME'),
     TROISIEME: z.literal('SECONDE'),
     SECONDE: z.literal('PREMIERE'),
@@ -59,7 +61,7 @@ const LevelSemantics = z.object({
 }).strict();
 
 const Subject = z.object({
-  id: z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'SVT', 'MATHS_EXPERTES']),
+  id: z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'SVT', 'MATHS_EXPERTES', 'PHILOSOPHIE']),
   label: z.string(),
   levels: z.array(EntryLevelCode),
   labelByLevel: z.record(z.string()).optional(),
@@ -67,7 +69,7 @@ const Subject = z.object({
 
 const ScheduleSlot = z.object({
   level: EntryLevelCode,
-  subject: z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'SVT', 'MATHS_EXPERTES']),
+  subject: z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'SVT', 'MATHS_EXPERTES', 'PHILOSOPHIE']),
   block: z.enum(['A', 'B', 'C', 'D']),
   room: z.string(),
   teacherRole: z.string().min(1),
@@ -121,6 +123,7 @@ const ProfileOption = z.object({
 });
 
 const AcademicProfiles = z.object({
+  QUATRIEME: z.object({}).strict(),
   TROISIEME: z.object({}).strict(),
   SECONDE: z.object({}).strict(),
   PREMIERE: z.object({
@@ -160,6 +163,7 @@ const CampaignContent = z.object({
       PHYSIQUE_CHIMIE: z.object({ label: z.string().min(1), description: z.string().min(1) }),
       SVT: z.object({ label: z.string().min(1), description: z.string().min(1) }),
       MATHS_EXPERTES: z.object({ label: z.string().min(1), description: z.string().min(1) }),
+      PHILOSOPHIE: z.object({ label: z.string().min(1), description: z.string().min(1) }),
     }).strict(),
     preRegistrationNotice: z.string().min(1),
     noOnlinePaymentNotice: z.string().min(1),
@@ -204,9 +208,9 @@ export const PreRentreeCampaignManifestSchema = z.object({
   noClassDates: z.array(z.string()),
   decisionDeadline: z.string(),
   venue: Venue,
-  levels: z.array(Level).length(4),
+  levels: z.array(Level).length(5),
   entryLevelSemantics: LevelSemantics,
-  subjects: z.array(Subject).length(6),
+  subjects: z.array(Subject).length(7),
   blocks: z.array(TimeSlot).length(4),
   schedule: z.array(ScheduleWindow).length(3),
   // Rooms: 3 permanent, banalized, interchangeable rooms — no subject
