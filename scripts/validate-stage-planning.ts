@@ -17,7 +17,7 @@
  *       the 60-minute idle cap (contract check on itinerary.ts itself).
  *   R5. Mathématiques expertes is never offered without Mathématiques.
  *   Volume: every module has exactly 5 sessions of exactly 2 hours; the
- *   canonical 14/70/17/85 taxonomy (public-schedule.ts) matches the live data.
+ *   canonical 14/70/20/100 taxonomy (public-schedule.ts) matches the live data.
  *
  * Exits non-zero on any violation. Run directly (`tsx --conditions=react-server
  * scripts/validate-stage-planning.ts`) or via `npm run pre-rentree:validate-planning`.
