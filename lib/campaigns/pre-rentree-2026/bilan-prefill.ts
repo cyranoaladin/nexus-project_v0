@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { ENTRY_LEVEL_IDS } from './schema';
 import { classifyProfileSubjectCompatibility } from './configurator';
 import { PRE_RENTREE_2026_NAVIGATION } from './navigation';
+import { canPrefillBilanGratuitFromPreRentree } from './release-gate';
 
 type SearchValue = string | string[] | undefined;
 export type CampaignSearchParams = Record<string, SearchValue>;
@@ -128,6 +129,7 @@ export function synchronizePreRentreeCampaignContext({
   studentGrade: string;
   subjects: readonly string[];
 }): PreRentreeBilanPrefill | null {
+  if (!canPrefillBilanGratuitFromPreRentree()) return null;
   if (!campaignContext) return null;
 
   const level = toEntryLevel(studentGrade);
@@ -169,6 +171,7 @@ function optionalAllowed(value: SearchValue, allowed: ReadonlySet<string>): stri
 export function parsePreRentreeBilanPrefill(
   params: CampaignSearchParams | undefined,
 ): PreRentreeBilanPrefill | null {
+  if (!canPrefillBilanGratuitFromPreRentree()) return null;
   if (!params || scalar(params.programme) !== PRE_RENTREE_2026_NAVIGATION.campaignId) return null;
   const packCode = scalar(params.pack);
   const level = scalar(params.niveau);

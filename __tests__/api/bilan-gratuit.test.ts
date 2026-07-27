@@ -140,7 +140,12 @@ describe('/api/bilan-gratuit', () => {
     );
   });
 
-  it('persists a campaign lead rebuilt from the submitted grade and subjects', async () => {
+  it('never persists a campaign lead from a submitted campaignContext (Stage/Bilan boundary fail-closed)', async () => {
+    // The Pré-rentrée Stage/Bilan integration is fail-closed
+    // (canPrefillBilanGratuitFromPreRentree), independent from the Stage's
+    // PUBLIC_READY status. A crafted or replayed campaignContext in the POST
+    // body must never create a ContactLead server-side, even though the
+    // shape is otherwise valid.
     const userCreate = jest.fn()
       .mockResolvedValueOnce({
         id: 'parent-123',
@@ -184,15 +189,11 @@ describe('/api/bilan-gratuit', () => {
         },
       },
     }));
+    const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(contactLeadCreate).toHaveBeenCalledWith({
-      data: expect.objectContaining({
-        source: 'pre-rentree-2026',
-        interest: 'PACK_2 · PREMIERE · MATHEMATIQUES, FRANCAIS',
-        profile: expect.stringContaining('MATHS_EDS'),
-      }),
-    });
+    expect(body.success).toBe(true);
+    expect(contactLeadCreate).not.toHaveBeenCalled();
   });
 
   it('ignores an injected parentPassword and still creates inactive accounts', async () => {
