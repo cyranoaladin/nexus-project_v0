@@ -15,6 +15,7 @@ import {
 import type { StageFormat } from '@/lib/pricing';
 import type { ButtonHTMLAttributes } from 'react';
 import { getPreRentreeCampaign } from '@/lib/campaigns/pre-rentree-2026/getters';
+import { getPreRentreeCompactCapacityLabel } from '@/lib/campaigns/pre-rentree-2026/offer-options';
 
 // Mock layout components for full-page rendering
 jest.mock('@/components/layout/CorporateNavbar', () => ({
@@ -53,7 +54,7 @@ function buildStagesProps() {
     subtitle: campaignSource.content.hero.subtitle,
     levels: campaignSource.levels.map((level) => level.label),
     subjects: campaignSource.subjects.map((subject) => subject.label),
-    capacityLabel: `Fondations : ${campaignSource.capacityByOffer.FONDATIONS.minPerCohort} à ${campaignSource.capacityByOffer.FONDATIONS.maxPerCohort} élèves · Premium : ${campaignSource.capacityByOffer.PREMIUM.minPerCohort} à ${campaignSource.capacityByOffer.PREMIUM.maxPerCohort} élèves`,
+    capacityLabel: getPreRentreeCompactCapacityLabel(),
   };
   return { calendar, rules, passIntensifs, formatMap, campaign };
 }

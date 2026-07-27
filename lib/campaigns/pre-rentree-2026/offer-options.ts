@@ -1,5 +1,6 @@
 import offersData from '@/content/pre-rentree-2026/offers.json';
 import { getPreRentreeFoundationsProducts, getPreRentreePacks } from '@/lib/pricing';
+import { getPreRentreeCampaign } from './campaign-source';
 import { PreRentreeOffersSchema } from './content-schema';
 import type { LandingPack } from './configurator';
 import type { EntryLevelCode } from './schema';
@@ -87,4 +88,36 @@ export function getPreRentreeLevelCapacities(): PreRentreeLevelCapacity[] {
     maxPerCohort: offer.capacity.max,
     maximumSubjects: offer.pricing.maximumSubjects,
   }));
+}
+
+/**
+ * A single compact line summarizing every level's effectif — for surfaces too
+ * small to list a full per-level table (homepage spotlight, /stages card).
+ * Groups levels that happen to share the exact same (min, max) so the label
+ * stays short, but never collapses to a single "Fondations : X à Y" figure:
+ * the 4e's 4-student floor is genuinely different from 3e/Seconde's 3, and a
+ * single blended number would misstate one of them (mission §6.3).
+ */
+export function getPreRentreeCompactCapacityLabel(): string {
+  const campaign = getPreRentreeCampaign();
+  // Short form ("4e", "Seconde") for this compact badge only — the full
+  // "Entrée en X" label is for headings, not a dense grouped capacity line.
+  const levelLabelById = new Map(
+    campaign.levels.map((level) => [level.id, level.label.replace(/^Entrée en /, '')]),
+  );
+  const capacities = getPreRentreeLevelCapacities();
+
+  const groups = new Map<string, { min: number; max: number; labels: string[] }>();
+  for (const capacity of capacities) {
+    const key = `${capacity.minPerCohort}-${capacity.maxPerCohort}`;
+    const group = groups.get(key) ?? { min: capacity.minPerCohort, max: capacity.maxPerCohort, labels: [] };
+    const label = levelLabelById.get(capacity.level);
+    if (!label) throw new Error(`Missing Pré-rentrée level label: ${capacity.level}`);
+    group.labels.push(label);
+    groups.set(key, group);
+  }
+
+  return [...groups.values()]
+    .map((group) => `${group.labels.join('/')} : ${group.min} à ${group.max} élèves`)
+    .join(' · ');
 }

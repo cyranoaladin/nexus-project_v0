@@ -3,6 +3,7 @@ import { getStageCalendar, getStageFormat, isFormatPriceValidated, getPacks, get
 import Stages2026Page from './Stages2026Page';
 import { getPreRentreePublicSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
 import { PRE_RENTREE_2026_NAVIGATION } from '@/lib/campaigns/pre-rentree-2026/navigation';
+import { getPreRentreeCompactCapacityLabel } from '@/lib/campaigns/pre-rentree-2026/offer-options';
 
 export const metadata: Metadata = {
   title: 'Stages 2026/2027 | Nexus Réussite',
@@ -19,8 +20,6 @@ export default function StagesPage() {
   const campaignCard = campaign
     ? (() => {
         const subjectLabels = [...new Set(campaign.levels.flatMap((level) => level.subjects.map((subject) => subject.label)))];
-        const foundations = campaign.offers.filter((offer) => offer.pricingKind === 'FOUNDATIONS');
-        const premium = campaign.offers.filter((offer) => offer.pricingKind === 'PREMIUM_PACK');
         return {
           id: campaign.campaignId,
           path: campaign.canonicalPath,
@@ -28,7 +27,7 @@ export default function StagesPage() {
           subtitle: campaign.promise,
           levels: campaign.levels.map((level) => level.label),
           subjects: subjectLabels,
-          capacityLabel: `Fondations : ${Math.min(...foundations.map((offer) => offer.groupMin))} à ${Math.max(...foundations.map((offer) => offer.groupMax))} élèves · Premium : ${Math.min(...premium.map((offer) => offer.groupMin))} à ${Math.max(...premium.map((offer) => offer.groupMax))} élèves`,
+          capacityLabel: getPreRentreeCompactCapacityLabel(),
         };
       })()
     : undefined;
