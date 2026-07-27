@@ -190,7 +190,30 @@ export function compilePreRentreeReviewSurfaceDTO() {
       level: offer.level,
       subjectsCount: offer.subjectCount,
       totalHours: offer.hours,
+      price: offer.price,
     });
+  }
+  // Fondations levels are billed per subject (pricingKind FOUNDATIONS): the
+  // commercial contract only ever declares ONE offer per level (subjectCount
+  // defaults to 1), never a distinct entry per selected-subject-count like
+  // Premium packs do. Without this, selecting 2+ subjects at a Fondations
+  // level found no matching offerOptions entry and silently showed "Volume
+  // 0 h" — this synthesizes the missing counts by multiplying the per-subject
+  // unit price/hours, never a flat/discounted rate.
+  for (const level of levels) {
+    const unitOffer = offers.find((offer) => offer.level === level.id && offer.pricingKind === 'FOUNDATIONS');
+    if (!unitOffer) continue;
+    const levelSubjectCount = subjectIdsByLevel[level.id].length;
+    for (let count = 2; count <= Math.min(levelSubjectCount, 4); count += 1) {
+      const key = `${level.id}:${count}`;
+      if (offerOptionsByKey.has(key)) continue;
+      offerOptionsByKey.set(key, {
+        level: level.id,
+        subjectsCount: count,
+        totalHours: unitOffer.hours * count,
+        price: unitOffer.price * count,
+      });
+    }
   }
 
   return {
