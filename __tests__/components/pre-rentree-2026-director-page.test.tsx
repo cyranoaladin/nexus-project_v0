@@ -36,7 +36,7 @@ describe('Pré-rentrée 2026 director landing contract', () => {
     const { container } = render(<PreRentree2026Page />);
     expect(screen.getAllByText(/WhatsApp|Écrire sur WhatsApp/i).length).toBeGreaterThan(0);
     expect(container.querySelector('a[href*="/bilan-gratuit"]')).toBeNull();
-    expect(container.textContent).toMatch(/demande d'information/i);
+    expect(container.textContent).toMatch(/demander une information|demande d'information/i);
     expect(container.textContent).toMatch(/sans paiement|aucun paiement/i);
   });
 });

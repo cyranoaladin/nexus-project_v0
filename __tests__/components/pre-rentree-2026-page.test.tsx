@@ -31,15 +31,15 @@ describe('Pré-rentrée 2026 canonical public page', () => {
     expect(screen.getByRole('heading', { level: 1, name: dto.title })).toBeInTheDocument();
     expect(screen.getByText(dto.promise)).toBeInTheDocument();
     expect(screen.getAllByRole('link', {
-      name: 'Demander les informations et vérifier les disponibilités',
+      name: 'Échanger sur WhatsApp',
     })[0]).toHaveAttribute(
       'href',
       expect.stringContaining('wa.me/21699192829'),
     );
     expect(container.textContent).not.toMatch(/Gate|REVIEW|blocked|owner|placeholder/i);
     expect(container.textContent).not.toMatch(/ARIA|Cyclades|manuel offert|remise annuelle|enseignant qualifié|bilan parent/i);
-    expect(screen.getByRole('heading', { name: 'Planning et emplois du temps' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /Programmes détaillés/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Trouvez le planning adapté' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Découvrez le programme de chaque matière/i })).toBeInTheDocument();
     expect(screen.getAllByRole('link', { name: /PDF/i })).toHaveLength(7);
     expect(container.textContent).not.toMatch(/teacherRole|TEACHER_|salle-\d|publication_authorization/i);
     expect(container.querySelector('#offres-pre-rentree')).toBeInTheDocument();
@@ -47,15 +47,16 @@ describe('Pré-rentrée 2026 canonical public page', () => {
     expect(container.querySelector('#programmes')).toBeInTheDocument();
   });
 
-  it('renders all fourteen canonical offers with price, deposit, inclusions and exclusions', () => {
+  it('renders all fourteen canonical offers with price, deposit and a capped list of concrete benefits', () => {
     const dto = compilePreRentreeReviewSurfaceDTO();
     render(<PreRentree2026Page />);
     const catalogue = document.querySelector<HTMLElement>('#offres-pre-rentree');
     if (!catalogue) throw new Error('Canonical offer catalogue missing');
 
     expect(within(catalogue).getAllByRole('article')).toHaveLength(dto.offers.length);
-    expect(within(catalogue).getAllByRole('heading', { name: 'Inclus' })).toHaveLength(dto.offers.length);
-    expect(within(catalogue).getAllByRole('heading', { name: 'Non inclus' })).toHaveLength(dto.offers.length);
+    expect(within(catalogue).getAllByRole('heading', { name: 'Le stage comprend' })).toHaveLength(dto.offers.length);
+    expect(within(catalogue).queryAllByRole('heading', { name: 'Non inclus' })).toHaveLength(0);
+    expect(within(catalogue).queryAllByRole('heading', { name: 'Inclus' })).toHaveLength(0);
     for (const offer of dto.offers) {
       expect(catalogue.textContent?.replace(/\s/g, '')).toContain(`${offer.price}TND`);
       expect(catalogue.textContent?.replace(/\s/g, '')).toContain(`${offer.deposit}TND`);

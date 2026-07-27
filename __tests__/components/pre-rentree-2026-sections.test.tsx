@@ -42,7 +42,7 @@ describe('Pré-rentrée landing sections', () => {
     const user = userEvent.setup();
     renderSchedule();
 
-    expect(screen.getByRole('heading', { name: 'Planning et emplois du temps' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Trouvez le planning adapté' })).toBeInTheDocument();
     const legend = screen.getByRole('list', { name: 'Légende des matières' });
     expect(within(legend).getAllByRole('listitem')).toHaveLength(6);
     expect(within(legend).getByText('Mathématiques')).toBeInTheDocument();
@@ -141,16 +141,14 @@ describe('Pré-rentrée landing sections', () => {
     expect(within(windowTwo).getAllByText('SVT').length).toBeGreaterThan(0);
   });
 
-  it('keeps teacher assignments and unvalidated room numbers out of the public surface', () => {
-    renderSchedule();
-    const organization = screen.getByRole('region', { name: 'Organisation pédagogique' });
-    expect(within(organization).queryAllByTestId('teacher-role')).toHaveLength(0);
-    expect(organization).toHaveTextContent(/deux salles permanentes/i);
-    expect(organization).toHaveTextContent(/une troisième salle temporaire/i);
-    expect(organization).toHaveTextContent(/bloc C.*Terminale.*24 au 28 août/i);
-    expect(organization.textContent).not.toMatch(/Salle\s+\d/i);
-    expect(organization.textContent).not.toMatch(/MATHS_NSI_SNT_TEACHER|FRENCH_TEACHER|PHYSICS_CHEMISTRY_TEACHER/);
-    expect(organization.textContent).not.toMatch(/60\s*h|30\s*h/);
+  it('keeps teacher assignments, unvalidated room numbers and internal room organization out of the public surface', () => {
+    const { container } = renderSchedule();
+    expect(screen.queryByRole('region', { name: 'Organisation pédagogique' })).not.toBeInTheDocument();
+    expect(container.textContent).not.toMatch(/deux salles permanentes|salle temporaire|bloc C.*Terminale|capacité minimale|promesse de laboratoire/i);
+    expect(container.querySelectorAll('[data-testid="teacher-role"]')).toHaveLength(0);
+    expect(container.textContent).not.toMatch(/Salle\s+\d/i);
+    expect(container.textContent).not.toMatch(/MATHS_NSI_SNT_TEACHER|FRENCH_TEACHER|PHYSICS_CHEMISTRY_TEACHER/);
+    expect(container.textContent).not.toMatch(/60\s*h|30\s*h/);
   });
 
   it('formats the public deadline and canonical venue without duplication', () => {
