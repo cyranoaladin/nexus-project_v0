@@ -8,6 +8,164 @@
   },
   "modules": [
     {
+      "id": "quatrieme-mathematiques",
+      "publicationStatus": "VALIDATED",
+      "level": "QUATRIEME",
+      "subjectId": "MATHEMATIQUES",
+      "subject": "Mathématiques",
+      "title": "Mathématiques — Entrée en 4e",
+      "subtitle": "Nexus Fondations — consolider les acquis de 5e et installer les attendus de 4e",
+      "prerequisites": "Les acquis de 5e en calcul, calcul littéral, géométrie et proportionnalité ; le test flash précise les priorités.",
+      "differentiation": "Exercices organisés en trois paliers, aides graduées et défis de consolidation selon le test flash.",
+      "quickAssessment": "Une activité de cinq à dix minutes vérifie le domaine travaillé à la fin de chaque séance.",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Nombres relatifs, fractions et puissances",
+          "objective": "Sécuriser le calcul avec les nombres relatifs et les fractions, puis découvrir les puissances et l’écriture scientifique",
+          "topics": [
+            "Nombres relatifs",
+            "Fractions et opérations",
+            "Puissances d’un nombre",
+            "Écriture scientifique"
+          ],
+          "method": "Test flash de priorisation puis exercices à paliers avec verbalisation des stratégies",
+          "deliverable": "Fiche réflexe « relatifs, fractions, puissances » avec série corrigée"
+        },
+        {
+          "number": 2,
+          "title": "Calcul littéral et équations du premier degré",
+          "objective": "Développer, réduire une expression et résoudre une équation du premier degré",
+          "topics": [
+            "Développement et distributivité",
+            "Réduction d’une expression",
+            "Équations du premier degré",
+            "Mise en équation d’un énoncé"
+          ],
+          "method": "Exemples guidés, entraînement progressif puis problème contextualisé",
+          "deliverable": "Carte méthode « calcul littéral » et équation entièrement corrigée"
+        },
+        {
+          "number": 3,
+          "title": "Pythagore, réciproque, agrandissement et réduction",
+          "objective": "Choisir entre le théorème de Pythagore et sa réciproque, et raisonner sur un agrandissement ou une réduction",
+          "topics": [
+            "Théorème de Pythagore",
+            "Réciproque de Pythagore",
+            "Agrandissement et réduction",
+            "Rédaction d’un raisonnement géométrique"
+          ],
+          "method": "Tri de situations, schémas codés et raisonnements à compléter puis autonomes",
+          "deliverable": "Fiche de choix « Pythagore ou réciproque » avec deux raisonnements corrigés"
+        },
+        {
+          "number": 4,
+          "title": "Proportionnalité, pourcentages et vitesses",
+          "objective": "Reconnaître une situation de proportionnalité et traiter pourcentages et vitesses dans un problème",
+          "topics": [
+            "Reconnaître la proportionnalité",
+            "Quatrième proportionnelle",
+            "Pourcentages",
+            "Vitesse, distance et durée"
+          ],
+          "method": "Lecture de tableaux, procédures comparées puis problèmes courts de modélisation",
+          "deliverable": "Fiche des procédures de proportionnalité et problème de synthèse corrigé"
+        },
+        {
+          "number": 5,
+          "title": "Statistiques, premières probabilités et synthèse",
+          "objective": "Traiter une série de données et évaluer la probabilité d’un événement simple, puis consolider les priorités du stage",
+          "topics": [
+            "Effectifs et fréquences",
+            "Moyenne et étendue",
+            "Vocabulaire des probabilités",
+            "Probabilité d’un événement simple"
+          ],
+          "method": "Exercices de lecture de données puis entraînement transversal et correction critériée",
+          "deliverable": "Fiche « données et probabilités » corrigée et grille personnelle de vigilance"
+        }
+      ]
+    },
+    {
+      "id": "quatrieme-francais",
+      "publicationStatus": "VALIDATED",
+      "level": "QUATRIEME",
+      "subjectId": "FRANCAIS",
+      "subject": "Français",
+      "title": "Français — Entrée en 4e",
+      "subtitle": "Nexus Fondations — consolider la langue, la lecture et l’écriture pour aborder la classe de 4e",
+      "prerequisites": "Les acquis de 5e en compréhension, grammaire, orthographe et rédaction ; le test flash précise les besoins.",
+      "differentiation": "Textes, aides de rédaction et exercices de langue proposés en trois paliers de difficulté.",
+      "quickAssessment": "Une consigne courte de lecture, langue ou écriture vérifie l’objectif de chaque séance.",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Comprendre et interpréter un texte",
+          "objective": "Prélever des indices, formuler une interprétation et la justifier par le texte",
+          "topics": [
+            "Repérage des informations",
+            "Implicite",
+            "Citation et justification",
+            "Réponse rédigée"
+          ],
+          "method": "Test flash de priorisation puis lecture active et questions graduées",
+          "deliverable": "Grille de lecture active et réponses corrigées"
+        },
+        {
+          "number": 2,
+          "title": "Grammaire de la phrase : classes, fonctions, propositions",
+          "objective": "Analyser une phrase en identifiant classes, fonctions et propositions",
+          "topics": [
+            "Classes grammaticales",
+            "Fonctions dans la phrase",
+            "Phrase simple et phrase complexe",
+            "Propositions et subordination"
+          ],
+          "method": "Manipulations de phrases, tri raisonné puis analyse guidée",
+          "deliverable": "Fiche d’analyse de la phrase et exercices corrigés"
+        },
+        {
+          "number": 3,
+          "title": "Accords et conjugaison des temps du récit",
+          "objective": "Appliquer les accords et conjuguer correctement les temps du récit dans une réécriture",
+          "topics": [
+            "Accords dans le groupe nominal",
+            "Accord sujet-verbe",
+            "Passé simple et imparfait",
+            "Homophones grammaticaux"
+          ],
+          "method": "Dictée négociée, classement des erreurs et réécriture commentée",
+          "deliverable": "Grille personnelle de relecture et réécriture corrigée"
+        },
+        {
+          "number": 4,
+          "title": "Récit, description et point de vue",
+          "objective": "Construire un récit ou une description en tenant un point de vue cohérent",
+          "topics": [
+            "Schéma narratif",
+            "Description et champ lexical",
+            "Point de vue du narrateur",
+            "Temps et repères du récit"
+          ],
+          "method": "Analyse d’extraits modèles puis écriture guidée par étapes",
+          "deliverable": "Court récit descriptif annoté et fiche « points de vue »"
+        },
+        {
+          "number": 5,
+          "title": "Expression écrite construite en paragraphes",
+          "objective": "Organiser un texte en paragraphes cohérents, du plan à la relecture",
+          "topics": [
+            "Analyse du sujet",
+            "Recherche d’idées et plan",
+            "Paragraphe et connecteurs",
+            "Relecture et enrichissement"
+          ],
+          "method": "Plan guidé, rédaction par étapes puis révision avec grille critériée",
+          "deliverable": "Production rédigée annotée et trois priorités de rentrée"
+        }
+      ]
+    },
+    {
       "id": "troisieme-mathematiques",
       "publicationStatus": "VALIDATED",
       "level": "TROISIEME",
@@ -1117,6 +1275,87 @@
           ],
           "method": "Sujet d’entraînement chronométré puis correction critériée",
           "deliverable": "Sujet SVT corrigé et plan d’action rentrée"
+        }
+      ]
+    },
+    {
+      "id": "terminale-philosophie",
+      "publicationStatus": "VALIDATED",
+      "objective": "Découvrir une discipline nouvelle et installer les deux méthodes écrites du programme de Philosophie de Terminale ; validation d’un enseignant de Philosophie qualifié requise avant publication.",
+      "equipment": "Un cahier et une trousse complète ; aucun ouvrage à acheter avant le stage.",
+      "level": "TERMINALE",
+      "subjectId": "PHILOSOPHIE",
+      "subject": "Philosophie",
+      "title": "Philosophie — Entrée en Terminale",
+      "subtitle": "Nexus Premium — découvrir une discipline nouvelle et installer ses deux méthodes écrites",
+      "prerequisites": "Aucun prérequis : la Philosophie est une discipline nouvelle, jamais étudiée avant la Terminale. Le stage part de zéro et n’attend aucune connaissance préalable.",
+      "differentiation": "Textes courts et consignes d’écriture proposés en trois paliers, avec aides graduées sur l’analyse et la rédaction.",
+      "quickAssessment": "Une consigne courte d’analyse ou de rédaction vérifie l’objectif de chaque séance.",
+      "sessions": [
+        {
+          "number": 1,
+          "title": "Qu’est-ce qu’une question philosophique ? Qu’est-ce qu’une notion ?",
+          "objective": "Distinguer une question philosophique d’une question d’opinion et comprendre ce qu’est une notion",
+          "topics": [
+            "Question philosophique et question d’opinion",
+            "Notion et exemple",
+            "Distinguer, définir, illustrer",
+            "Vocabulaire de départ"
+          ],
+          "method": "Confrontation de questions, tri raisonné puis premières définitions écrites",
+          "deliverable": "Fiche « question philosophique et notion » avec trois définitions rédigées"
+        },
+        {
+          "number": 2,
+          "title": "Lire et rendre compte d’un texte philosophique court",
+          "objective": "Dégager la thèse, les étapes et les exemples d’un texte philosophique bref",
+          "topics": [
+            "Thèse de l’auteur",
+            "Étapes de l’argumentation",
+            "Rôle des exemples",
+            "Reformulation fidèle"
+          ],
+          "method": "Lecture accompagnée, repérage des articulations puis compte rendu guidé",
+          "deliverable": "Compte rendu rédigé d’un texte court, corrigé et annoté"
+        },
+        {
+          "number": 3,
+          "title": "Construire une problématique",
+          "objective": "Transformer un sujet en problème, en dégageant une tension entre deux réponses possibles",
+          "topics": [
+            "Analyse des termes du sujet",
+            "Présupposés",
+            "Tension et enjeu",
+            "Formulation du problème"
+          ],
+          "method": "Analyse de sujets, formulation collective puis rédaction individuelle de problématiques",
+          "deliverable": "Trois problématiques rédigées à partir de trois sujets, corrigées"
+        },
+        {
+          "number": 4,
+          "title": "Méthode de la dissertation",
+          "objective": "Analyser un sujet, bâtir un plan en trois moments et rédiger les transitions",
+          "topics": [
+            "Analyse du sujet",
+            "Construction du plan",
+            "Argument et exemple",
+            "Transitions"
+          ],
+          "method": "Modèle commenté, construction guidée puis plan détaillé rédigé individuellement",
+          "deliverable": "Plan détaillé de dissertation avec transitions rédigées, corrigé"
+        },
+        {
+          "number": 5,
+          "title": "Méthode de l’explication de texte",
+          "objective": "Conduire l’explication d’un texte et rédiger intégralement une introduction et un paragraphe argumenté",
+          "topics": [
+            "Structure de l’explication",
+            "Introduction : thème, thèse, problème, annonce",
+            "Élucidation des termes",
+            "Paragraphe argumenté"
+          ],
+          "method": "Explication guidée puis rédaction complète en temps limité et correction critériée",
+          "deliverable": "Introduction et paragraphe argumenté entièrement rédigés et corrigés"
         }
       ]
     }

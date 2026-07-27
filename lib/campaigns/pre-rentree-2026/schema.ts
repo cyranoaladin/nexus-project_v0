@@ -2,11 +2,13 @@ import { z } from 'zod';
 import { PRE_RENTREE_2026_NAVIGATION } from './navigation';
 
 /**
- * Seuil d'ouverture de groupe UNIQUE pour tous les stages de pré-rentrée 2026, toutes
- * offres et tous niveaux confondus (Fondations comme Premium) : un stage ouvre à partir
- * de ce nombre d'inscrits, sans exception ni valeur dupliquée par matière/niveau.
- * Référencé partout au lieu d'être ré-écrit (data/campaigns, offers.json,
- * pricing.canonical.json, PDF Planning, sélecteur) pour rester une source unique.
+ * Seuil d'ouverture de groupe le PLUS BAS de la campagne, toutes offres et tous
+ * niveaux confondus. Ce n'est plus une valeur unique applicable partout : depuis
+ * l'ouverture de l'entrée en 4e, le seuil est déclaré PAR NIVEAU dans
+ * offers.json (`capacity.min`) et dans pricing.canonical.json
+ * (`group_min_open`). La 4e ouvre à 4, les autres niveaux à 3.
+ * Cette borne ne sert donc plus qu'aux garde-fous « aucun niveau n'ouvre en
+ * dessous de ce seuil » ; tout AFFICHAGE d'effectif se lit par niveau.
  */
 export const PRE_RENTREE_MIN_COHORT_OPENING = 3;
 
@@ -14,6 +16,24 @@ export const PRE_RENTREE_MIN_COHORT_OPENING = 3;
 export const ENTRY_LEVEL_IDS = ['QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE'] as const;
 export const EntryLevelCode = z.enum(ENTRY_LEVEL_IDS);
 export type EntryLevelCode = z.infer<typeof EntryLevelCode>;
+
+/**
+ * The closed set of subject families the campaign can ever reference. Declared
+ * once and reused by every schema below (campaign subjects, schedule slots,
+ * teacher roles, pedagogical modules) — the list had already drifted between
+ * those four copies, so a new subject must not have to be added in four places.
+ */
+export const SUBJECT_IDS = [
+  'MATHEMATIQUES',
+  'PHYSIQUE_CHIMIE',
+  'NSI',
+  'FRANCAIS',
+  'SVT',
+  'MATHS_EXPERTES',
+  'PHILOSOPHIE',
+] as const;
+export const SubjectCode = z.enum(SUBJECT_IDS);
+export type SubjectCode = z.infer<typeof SubjectCode>;
 
 export const CampaignStatus = z.enum([
   'DRAFT',
@@ -61,7 +81,7 @@ const LevelSemantics = z.object({
 }).strict();
 
 const Subject = z.object({
-  id: z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'SVT', 'MATHS_EXPERTES', 'PHILOSOPHIE']),
+  id: SubjectCode,
   label: z.string(),
   levels: z.array(EntryLevelCode),
   labelByLevel: z.record(z.string()).optional(),
@@ -69,7 +89,7 @@ const Subject = z.object({
 
 const ScheduleSlot = z.object({
   level: EntryLevelCode,
-  subject: z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'SVT', 'MATHS_EXPERTES', 'PHILOSOPHIE']),
+  subject: SubjectCode,
   block: z.enum(['A', 'B', 'C', 'D']),
   room: z.string(),
   teacherRole: z.string().min(1),
@@ -230,7 +250,7 @@ export const PreRentreeCampaignManifestSchema = z.object({
   // want to declare a real-world cap still can, without the field being load
   // -bearing for validation.
   teacherRoles: z.record(z.object({
-    subjects: z.array(z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'SVT', 'MATHS_EXPERTES', 'PHILOSOPHIE'])).min(1),
+    subjects: z.array(SubjectCode).min(1),
     maxHoursPerDay: z.number().int().min(1).max(12).optional(),
     assigned: z.boolean(),
   }).strict()),
@@ -277,7 +297,7 @@ const CampaignModule = z.object({
   objective: z.string().min(1).optional(),
   equipment: z.string().min(1).optional(),
   level: EntryLevelCode,
-  subjectId: z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'SVT', 'MATHS_EXPERTES']),
+  subjectId: SubjectCode,
   subject: z.string().min(1),
   title: z.string().min(1),
   subtitle: z.string().min(1),
@@ -290,7 +310,7 @@ const CampaignModule = z.object({
 export const PreRentreeModulesSchema = z.object({
   version: z.string().min(1),
   generatedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  modules: z.array(CampaignModule).length(14),
+  modules: z.array(CampaignModule).length(17),
 });
 
 export type PreRentreeCampaignModule = z.infer<typeof CampaignModule>;
