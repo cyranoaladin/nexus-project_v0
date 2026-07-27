@@ -44,11 +44,13 @@ describe('Pré-rentrée homepage spotlight DTO', () => {
         accessibleLabel: 'À partir du 17 août 2026.',
         chipLabel: 'dès le 17 août',
       },
-      entryClassesLabel: 'Entrée en 3e, Seconde, Première ou Terminale',
+      entryClassesLabel: 'Entrée en 4e, 3e, Seconde, Première ou Terminale',
       // Philosophie purgée du catalogue pré-rentrée (2026-07-24) ; Maths expertes apparaît
       // désormais, commercial-contract.fr.json (offres Terminale) ayant été réconcilié.
-      subjectFamiliesLabel: 'Mathématiques · Physique-Chimie · Français · NSI · SVT · Mathématiques expertes',
-      capacityLabel: 'Fondations : 3 à 6 élèves · Premium : 3 à 5 élèves',
+      subjectFamiliesLabel: 'Mathématiques · Physique-Chimie · Français · NSI · SVT · Mathématiques expertes · Philosophie',
+      // Per-level, never a blended "Fondations : X à Y" (mission §6.3) — the 4e's
+      // 4-student floor genuinely differs from 3e/Seconde's 3.
+      capacityLabel: '4e : 4 à 6 élèves · 3e/Seconde : 3 à 6 élèves · Première/Terminale : 3 à 5 élèves',
       volumeLabel: '10 h par matière',
       venueLabel: 'Mutuelleville',
       editorialLine: 'Des stages intensifs en petits groupes pour reprendre les notions essentielles, retrouver une méthode de travail efficace et démarrer l’année avec confiance.',

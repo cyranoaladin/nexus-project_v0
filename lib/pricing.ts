@@ -215,14 +215,16 @@ export interface PreRentreeFoundationsProduct {
   id: string;
   title: string;
   edition_id: string;
-  level: 'TROISIEME' | 'SECONDE';
+  level: 'QUATRIEME' | 'TROISIEME' | 'SECONDE';
   subjects_count: 1;
   hours_per_subject: 10;
   total_hours: 10;
   sessions_per_subject: 5;
   session_duration_h: 2;
   group_max: 6;
-  group_min_open: 4;
+  // 4 for QUATRIEME (documented exception, mission 4e/Philosophie §5.1), 3 for
+  // TROISIEME/SECONDE — never a single literal.
+  group_min_open: number;
   price_per_student: number;
   price_per_student_hour: number;
   floor_type: string;

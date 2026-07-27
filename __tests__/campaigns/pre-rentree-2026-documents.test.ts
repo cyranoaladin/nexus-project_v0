@@ -13,7 +13,7 @@ describe('Pré-rentrée 2026 downloadable document contract', () => {
         .map((document) => [document.fileName, document]),
     );
 
-    expect(PRE_RENTREE_DOCUMENTS).toHaveLength(7);
+    expect(PRE_RENTREE_DOCUMENTS).toHaveLength(8);
     for (const document of PRE_RENTREE_DOCUMENTS) {
       const fileName = basename(document.href);
       const generated = candidateByName.get(fileName);

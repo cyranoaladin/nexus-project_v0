@@ -2,15 +2,16 @@
 // components/pre-rentree-2026/* — jamais par l'accompagnement annuel). Les familles
 // couvrent exactement les matières réellement programmées dans la grille de stage
 // (data/campaigns/pre-rentree-2026.json) : Maths, Français, NSI, Physique-Chimie,
-// SVT, Maths expertes (Terminale uniquement). Philosophie n'existe dans AUCUN stage
-// pré-rentrée et n'a donc pas sa place ici (cf. SEPARATION_STAGES_ANNUEL.md).
+// SVT, Maths expertes (Terminale uniquement), Philosophie (Terminale uniquement,
+// depuis la mission 4e/Philosophie du 2026-07-27).
 export type SubjectFamily =
   | 'MATHEMATIQUES'
   | 'FRANCAIS'
   | 'NSI'
   | 'PHYSIQUE_CHIMIE'
   | 'SVT'
-  | 'MATHS_EXPERTES';
+  | 'MATHS_EXPERTES'
+  | 'PHILOSOPHIE';
 
 export interface SubjectTheme {
   family: SubjectFamily;
@@ -84,6 +85,19 @@ export const SUBJECT_THEMES: Readonly<Record<SubjectFamily, SubjectTheme>> = {
     markerClass: 'bg-indigo-800 text-white',
     printClass: 'print:border-slate-500 print:bg-white print:text-black',
   },
+  // Amber — sober, distinct from every other family, never violet (reserved
+  // for ARIA elsewhere in the charter; NSI's existing violet predates that
+  // rule and is out of scope here).
+  PHILOSOPHIE: {
+    family: 'PHILOSOPHIE',
+    label: 'Philosophie',
+    marker: 'PHILO',
+    surfaceClass: 'bg-amber-50',
+    borderClass: 'border-amber-300',
+    textClass: 'text-amber-950',
+    markerClass: 'bg-amber-800 text-white',
+    printClass: 'print:border-slate-500 print:bg-white print:text-black',
+  },
 };
 
 export function getSubjectFamily(subjectId: string): SubjectFamily {
@@ -92,6 +106,7 @@ export function getSubjectFamily(subjectId: string): SubjectFamily {
   if (subjectId === 'NSI') return 'NSI';
   if (subjectId === 'SVT') return 'SVT';
   if (subjectId === 'MATHS_EXPERTES') return 'MATHS_EXPERTES';
+  if (subjectId === 'PHILOSOPHIE') return 'PHILOSOPHIE';
   return 'PHYSIQUE_CHIMIE';
 }
 

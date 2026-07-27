@@ -31,13 +31,6 @@ import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { SubjectBadge } from './SubjectBadge';
 
-const LEVEL_RANGE: Record<EntryLevelCode, 'FONDATIONS' | 'PREMIUM'> = {
-  TROISIEME: 'FONDATIONS',
-  SECONDE: 'FONDATIONS',
-  PREMIERE: 'PREMIUM',
-  TERMINALE: 'PREMIUM',
-};
-
 function subjectLabelForLevel(subject: PublicScheduleSubject, level: EntryLevelCode): string {
   return subject.labelByLevel?.[level] ?? subject.label;
 }
@@ -59,7 +52,7 @@ export function StagePlanningSelector({
   subjects,
   schedule,
   offerOptions,
-  capacityByOffer,
+  capacityByLevel,
   planningPdfHref,
   exposeRooms = false,
 }: {
@@ -67,7 +60,7 @@ export function StagePlanningSelector({
   subjects: readonly PublicScheduleSubject[];
   schedule: readonly PublicScheduleSlot[];
   offerOptions: readonly PublicPlanningPack[];
-  capacityByOffer: Record<'FONDATIONS' | 'PREMIUM', { minPerCohort: number; maxPerCohort: number }>;
+  capacityByLevel: Record<EntryLevelCode, { minPerCohort: number; maxPerCohort: number }>;
   planningPdfHref?: string;
   exposeRooms?: boolean;
 }) {
@@ -145,12 +138,11 @@ export function StagePlanningSelector({
   const blockingConflict = !itineraryIsConfirmable;
 
   const dates = useMemo(() => [...new Set(selectedSlots.map((slot) => slot.date))].sort(), [selectedSlots]);
-  const range = level ? LEVEL_RANGE[level] : null;
-  const capacity = range ? capacityByOffer[range] : null;
+  const capacity = level ? capacityByLevel[level] : null;
 
   const pack = level
     ? offerOptions.find((option) => (
-      (!option.level || option.level === level)
+      option.level === level
       && option.subjectsCount === selectedSubjects.length
     )) ?? null
     : null;
@@ -312,6 +304,16 @@ export function StagePlanningSelector({
               <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 rounded-xl border border-lux-line bg-white p-4 text-sm sm:grid-cols-4">
                 <div><dt className="text-xs text-lux-slate">Matières</dt><dd className="font-semibold text-lux-ink">{selectedSubjects.length}</dd></div>
                 <div><dt className="text-xs text-lux-slate">Volume</dt><dd className="font-semibold text-lux-ink">{totalHours} h</dd></div>
+                {pack && (
+                  <div>
+                    <dt className="text-xs text-lux-slate">Tarif</dt>
+                    <dd className="font-semibold text-lux-ink">
+                      {pack.pricingModel === 'PER_SUBJECT' && pack.subjectsCount > 1
+                        ? `${pack.subjectsCount} × ${(pack.price / pack.subjectsCount).toLocaleString('fr-TN')} TND = ${pack.price.toLocaleString('fr-TN')} TND`
+                        : `${pack.price.toLocaleString('fr-TN')} TND`}
+                    </dd>
+                  </div>
+                )}
                 <div className="col-span-2"><dt className="text-xs text-lux-slate">Dates concernées</dt><dd className="font-semibold text-lux-ink">{dates.length > 0 ? formatWeekRange(dates[0]!, dates.at(-1)!) : '—'}</dd></div>
                 {capacity && publicAvailability.capacityStatus === 'CAPACITY_TO_CONFIRM' && (
                   <p className="col-span-2 text-xs text-lux-slate sm:col-span-4">

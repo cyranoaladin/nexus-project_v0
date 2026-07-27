@@ -19,8 +19,8 @@ DEPLOYMENT=SEE FINAL-GO-LIVE-REPORT
 PUBLIC_DISTRIBUTION=CONTROLLED_BY_RELEASE_GATE
 ```
 
-Le candidat comprend quatre niveaux, 14 modules pédagogiques et 70 séances
-modèles. Ses 17 cohortes produisent 85 occurrences calendaires, sans augmenter
+Le candidat comprend cinq niveaux, 17 modules pédagogiques et 85 séances
+modèles. Ses 20 cohortes produisent 100 occurrences calendaires, sans augmenter
 le volume suivi par un élève : une matière reste composée de cinq séances et
 dix heures. La publication est fail-closed tant que les sources canoniques ne
 portent pas simultanément `PUBLIC_READY` et toutes les gates résolues.

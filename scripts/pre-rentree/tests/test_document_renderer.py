@@ -51,12 +51,12 @@ def test_renders_exact_eleven_html_and_pdf_output_names(tmp_path: Path):
 
     guide = pdf["parentGuide"]
     reader = PdfReader(str(guide))
-    # Upper bound raised from 56 to 60 after SCHEDULE-S5 (3 salles + week-end): the
-    # planning section now renders 85 dated sessions (17 cohorts) instead of 70 (14
-    # modules), a genuine content increase, not a regression — measured at 57 pages.
-    assert 24 <= len(reader.pages) <= 60
+    # Upper bound raised from 60 to 70 after the 4e/Philosophie mission: the
+    # planning section now renders 100 dated sessions (20 cohorts) instead of 85
+    # (17 cohorts), a genuine content increase, not a regression — measured at 67 pages.
+    assert 24 <= len(reader.pages) <= 70
     text = "\n".join(page.extract_text() or "" for page in reader.pages)
-    assert len(re.findall(r"Séance\s+[1-5]", text)) >= 70
+    assert len(re.findall(r"Séance\s+[1-5]", text)) >= 85
 
 
 def test_pdf_has_a4_pages_metadata_language_fonts_links_and_extractable_text(tmp_path: Path):

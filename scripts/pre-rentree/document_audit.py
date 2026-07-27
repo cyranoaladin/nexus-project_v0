@@ -370,6 +370,7 @@ def build_content_gate_report(
     session_method_mismatches = 0
     session_deliverable_mismatches = 0
     level_to_key = {
+        "QUATRIEME": "programQuatrieme",
         "TROISIEME": "programTroisieme",
         "SECONDE": "programSeconde",
         "PREMIERE": "programPremiere",

@@ -14,7 +14,8 @@ import {
 } from '@/lib/pricing';
 import type { StageFormat } from '@/lib/pricing';
 import type { ButtonHTMLAttributes } from 'react';
-import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
+import { getPreRentreeCampaign } from '@/lib/campaigns/pre-rentree-2026/getters';
+import { getPreRentreeCompactCapacityLabel } from '@/lib/campaigns/pre-rentree-2026/offer-options';
 
 // Mock layout components for full-page rendering
 jest.mock('@/components/layout/CorporateNavbar', () => ({
@@ -45,15 +46,15 @@ function buildStagesProps() {
       formatMap[id] = { format, priceValidated: isFormatPriceValidated(format) };
     }
   }
-  const campaignDto = getPreRentreeLandingDTO();
+  const campaignSource = getPreRentreeCampaign();
   const campaign = {
-    id: campaignDto.campaign.id,
-    path: campaignDto.campaign.canonicalPath,
-    eyebrow: campaignDto.content.hero.eyebrow,
-    subtitle: campaignDto.content.hero.subtitle,
-    levels: campaignDto.levels.map((level) => level.label),
-    subjects: campaignDto.subjects.map((subject) => subject.label),
-    capacityLabel: `Fondations : ${campaignDto.capacityByOffer.FONDATIONS.minPerCohort} à ${campaignDto.capacityByOffer.FONDATIONS.maxPerCohort} élèves · Premium : ${campaignDto.capacityByOffer.PREMIUM.minPerCohort} à ${campaignDto.capacityByOffer.PREMIUM.maxPerCohort} élèves`,
+    id: campaignSource.campaignId,
+    path: campaignSource.canonicalPath,
+    eyebrow: campaignSource.content.hero.eyebrow,
+    subtitle: campaignSource.content.hero.subtitle,
+    levels: campaignSource.levels.map((level) => level.label),
+    subjects: campaignSource.subjects.map((subject) => subject.label),
+    capacityLabel: getPreRentreeCompactCapacityLabel(),
   };
   return { calendar, rules, passIntensifs, formatMap, campaign };
 }

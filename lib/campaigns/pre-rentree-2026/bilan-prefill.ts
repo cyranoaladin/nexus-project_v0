@@ -1,13 +1,11 @@
 import { z } from 'zod';
-import { ENTRY_LEVEL_IDS } from './schema';
+import { ENTRY_LEVEL_IDS, SUBJECT_IDS } from './schema';
 import { classifyProfileSubjectCompatibility } from './configurator';
 import { PRE_RENTREE_2026_NAVIGATION } from './navigation';
 import { canPrefillBilanGratuitFromPreRentree } from './release-gate';
 
 type SearchValue = string | string[] | undefined;
 export type CampaignSearchParams = Record<string, SearchValue>;
-
-const SUBJECT_IDS = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'SVT', 'MATHS_EXPERTES'] as const;
 const PACK_CODES = [
   'PACK_1',
   'PACK_2',

@@ -9,7 +9,9 @@ import {
   enumerateSelections,
 } from '../../lib/campaigns/pre-rentree-2026/itinerary';
 import {
-  getPreRentreeLandingDTO,
+  getPreRentreeCampaign,
+  getPreRentreeSchedule,
+  getPreRentreeOfferOptions,
 } from '../../lib/campaigns/pre-rentree-2026/getters';
 import type {
   EntryLevelCode,
@@ -21,7 +23,14 @@ const output = resolve(
     ? process.argv[outputArgumentIndex + 1]!
     : 'assets/campaigns/pre-rentree-2026/schedule-optimization/selection-matrix-final.json',
 );
-const dto = getPreRentreeLandingDTO();
+const campaign = getPreRentreeCampaign();
+const dto = {
+  campaign,
+  levels: campaign.levels,
+  subjects: campaign.subjects,
+  schedule: getPreRentreeSchedule(),
+  offerOptions: getPreRentreeOfferOptions(),
+};
 const levels = [
   'TROISIEME',
   'SECONDE',

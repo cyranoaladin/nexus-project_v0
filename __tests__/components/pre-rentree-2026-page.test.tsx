@@ -40,7 +40,7 @@ describe('Pré-rentrée 2026 canonical public page', () => {
     expect(container.textContent).not.toMatch(/ARIA|Cyclades|manuel offert|remise annuelle|enseignant qualifié|bilan parent/i);
     expect(screen.getByRole('heading', { name: 'Trouvez le planning adapté' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /Découvrez le programme de chaque matière/i })).toBeInTheDocument();
-    expect(screen.getAllByRole('link', { name: /PDF/i })).toHaveLength(7);
+    expect(screen.getAllByRole('link', { name: /PDF/i })).toHaveLength(8);
     expect(container.textContent).not.toMatch(/teacherRole|TEACHER_|salle-\d|publication_authorization/i);
     expect(container.querySelector('#offres-pre-rentree')).toBeInTheDocument();
     expect(container.querySelector('#planning')).toBeInTheDocument();

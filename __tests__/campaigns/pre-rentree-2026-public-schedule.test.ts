@@ -1,18 +1,23 @@
-import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
+import { getPreRentreeCampaign, getPreRentreeSchedule } from '@/lib/campaigns/pre-rentree-2026/getters';
 import {
   PRE_RENTREE_PUBLIC_METRICS,
   buildPublicSubjectScheduleRows,
 } from '@/lib/campaigns/pre-rentree-2026/public-schedule';
 
-const dto = getPreRentreeLandingDTO();
+const campaign = getPreRentreeCampaign();
+const dto = {
+  schedule: getPreRentreeSchedule(),
+  subjects: campaign.subjects,
+  scheduleWindows: campaign.schedule,
+};
 
 describe('Pré-rentrée 2026 public schedule model', () => {
-  it('uses the canonical 14/70/17/85 taxonomy', () => {
+  it('uses the canonical 17/85/20/100 taxonomy', () => {
     expect(PRE_RENTREE_PUBLIC_METRICS).toEqual({
-      pedagogicalModuleCount: 14,
-      pedagogicalSessionTemplateCount: 70,
-      operationalCohortCount: 17,
-      scheduledSessionOccurrenceCount: 85,
+      pedagogicalModuleCount: 17,
+      pedagogicalSessionTemplateCount: 85,
+      operationalCohortCount: 20,
+      scheduledSessionOccurrenceCount: 100,
       studentSessionsPerSubject: 5,
       studentHoursPerSubject: 10,
     });

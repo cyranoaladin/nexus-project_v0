@@ -2,7 +2,8 @@ import '@testing-library/jest-dom';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { StagePlanningSelector } from '@/components/pre-rentree-2026/StagePlanningSelector';
-import { getPreRentreeLandingDTO, getPreRentreeSchedule } from '@/lib/campaigns/pre-rentree-2026/getters';
+import { getPreRentreeCampaign, getPreRentreeSchedule } from '@/lib/campaigns/pre-rentree-2026/getters';
+import { compilePreRentreeReviewSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
 import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
 
 jest.mock('@/lib/analytics', () => ({
@@ -12,7 +13,15 @@ jest.mock('@/lib/analytics', () => ({
   },
 }));
 
-const dto = getPreRentreeLandingDTO();
+const campaign = getPreRentreeCampaign();
+const surfaceDto = compilePreRentreeReviewSurfaceDTO();
+const dto = {
+  levels: campaign.levels,
+  subjects: campaign.subjects,
+  capacityByLevel: surfaceDto.planning.capacityByLevel,
+  schedule: surfaceDto.planning.schedule,
+  offerOptions: surfaceDto.planning.offerOptions,
+};
 
 function renderSelector() {
   return render(
@@ -21,7 +30,7 @@ function renderSelector() {
       subjects={dto.subjects}
       schedule={dto.schedule}
       offerOptions={dto.offerOptions}
-      capacityByOffer={dto.capacityByOffer}
+      capacityByLevel={dto.capacityByLevel}
       planningPdfHref="/documents/pre-rentree-2026/planning.pdf"
     />,
   );
@@ -81,6 +90,22 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
     })).not.toHaveAttribute('aria-disabled', 'true');
   });
 
+  it.each(['TROISIEME', 'SECONDE'] as const)(
+    'Fondations %s, 2 matières (Maths + Français) : volume 20 h — non-régression du bug « Volume 0 h »',
+    async (level) => {
+      const user = userEvent.setup();
+      renderSelector();
+
+      await user.selectOptions(screen.getByLabelText('Classe de rentrée'), level);
+      await user.click(screen.getByRole('checkbox', { name: 'Mathématiques' }));
+      await user.click(screen.getByRole('checkbox', { name: 'Français' }));
+
+      const recap = screen.getByText('Matières').closest('dl') as HTMLElement;
+      expect(within(recap).getByText('2')).toBeInTheDocument();
+      expect(within(recap).getByText('20 h')).toBeInTheDocument();
+    },
+  );
+
   it('plusieurs matières compatibles : aucun message de conflit, récap mis à jour', async () => {
     const user = userEvent.setup();
     renderSelector();
@@ -92,6 +117,20 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(screen.getByText('2')).toBeInTheDocument();
     expect(screen.getByText('20 h')).toBeInTheDocument();
+  });
+
+  it('Premium Terminale, 1 à 4 matières : volume 10/20/30/40 h', async () => {
+    const user = userEvent.setup();
+    renderSelector();
+
+    await user.selectOptions(screen.getByLabelText('Classe de rentrée'), 'TERMINALE');
+    const subjectsInOrder = ['Mathématiques', 'Physique-Chimie', 'NSI', 'SVT'];
+
+    for (const [index, subjectLabel] of subjectsInOrder.entries()) {
+      await user.click(screen.getByRole('checkbox', { name: subjectLabel }));
+      const recap = screen.getByText('Matières').closest('dl') as HTMLElement;
+      expect(within(recap).getByText(`${(index + 1) * 10} h`)).toBeInTheDocument();
+    }
   });
 
   it('SCHEDULE-S5 : NSI + SVT en Terminale sont désormais compacts (cohortes alternatives, plus de simultanéité forcée)', async () => {
@@ -165,7 +204,7 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
         subjects={dto.subjects}
         schedule={syntheticSchedule}
         offerOptions={dto.offerOptions}
-        capacityByOffer={dto.capacityByOffer}
+        capacityByLevel={dto.capacityByLevel}
         planningPdfHref="/documents/pre-rentree-2026/planning.pdf"
       />,
     );
@@ -205,7 +244,7 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
 
     await user.selectOptions(screen.getByLabelText('Classe de rentrée'), 'TERMINALE');
     const checkboxes = screen.getAllByRole('checkbox');
-    expect(checkboxes).toHaveLength(5);
+    expect(checkboxes).toHaveLength(6);
     for (let index = 0; index < 4; index += 1) {
       await user.click(checkboxes[index]!);
     }
@@ -253,7 +292,7 @@ describe('Pré-rentrée 2026 — étanchéité stages/annuel : le sélecteur n�
     return subject?.labelByLevel?.[level] ?? subject?.label ?? subjectId;
   }
 
-  it.each(['TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE'] as EntryLevelCode[])(
+  it.each(['QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE'] as EntryLevelCode[])(
     'le sélecteur de stage n’affiche, pour %s, que les matières réellement programmées dans la grille de pré-rentrée (source : getPreRentreeSchedule, pas SUBJECT_THEMES)',
     async (level) => {
       const user = userEvent.setup();
@@ -269,18 +308,14 @@ describe('Pré-rentrée 2026 — étanchéité stages/annuel : le sélecteur n�
 
       expect(expectedSubjects.size).toBeGreaterThan(0);
       expect([...shownLabels].sort()).toEqual(expectedLabels);
-      // Philosophie n'existe dans AUCUN stage de pré-rentrée : jamais dans la liste attendue,
-      // et donc jamais affichée, quel que soit le niveau.
-      expect(expectedSubjects.has('PHILOSOPHIE')).toBe(false);
-      expect(shownLabels).not.toContain('Philosophie');
     },
   );
 
-  it('Mathématiques expertes n’est proposable qu’en Terminale (jamais 3e, Seconde ou Première)', async () => {
+  it('Mathématiques expertes n’est proposable qu’en Terminale (jamais 4e, 3e, Seconde ou Première)', async () => {
     const user = userEvent.setup();
     renderSelector();
 
-    for (const level of ['TROISIEME', 'SECONDE', 'PREMIERE'] as EntryLevelCode[]) {
+    for (const level of ['QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE'] as EntryLevelCode[]) {
       await user.selectOptions(screen.getByLabelText('Classe de rentrée'), level);
       expect(screen.queryByRole('checkbox', { name: 'Mathématiques expertes' })).not.toBeInTheDocument();
     }
@@ -288,28 +323,32 @@ describe('Pré-rentrée 2026 — étanchéité stages/annuel : le sélecteur n�
     expect(screen.getByRole('checkbox', { name: 'Mathématiques expertes' })).toBeInTheDocument();
   });
 
-  it('Philosophie n’apparaît jamais, sous aucune forme, dans le sélecteur (aucun niveau)', async () => {
+  it('Philosophie n’est proposable qu’en Terminale (jamais 4e, 3e, Seconde ou Première) — tronc commun, jamais une spécialité', async () => {
     const user = userEvent.setup();
     renderSelector();
-    for (const level of ['TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE'] as EntryLevelCode[]) {
+
+    for (const level of ['QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE'] as EntryLevelCode[]) {
       await user.selectOptions(screen.getByLabelText('Classe de rentrée'), level);
       expect(screen.queryByText(/philosophie/i)).not.toBeInTheDocument();
     }
+    await user.selectOptions(screen.getByLabelText('Classe de rentrée'), 'TERMINALE');
+    expect(screen.getByRole('checkbox', { name: 'Philosophie' })).toBeInTheDocument();
   });
 });
 
 /**
- * GARDE-FOU DE NON-RÉGRESSION PERMANENT (2026-07-24).
+ * GARDE-FOU DE NON-RÉGRESSION PERMANENT (2026-07-24, liste étendue 2026-07-27
+ * pour la mission 4e/Philosophie).
  *
  * Objectif : empêcher toute réintroduction future — accidentelle ou non — d'une
- * matière hors grille de stage dans le sélecteur (Philosophie ou toute autre),
- * pour n'importe quel niveau. Contrairement aux tests ci-dessus (qui comparent le
- * sélecteur à la grille datée), celui-ci vérifie le sélecteur contre une LISTE
- * FERMÉE des seules matières qu'un stage de pré-rentrée peut légitimement
- * proposer. Si ce test casse un jour, c'est le signal qu'une matière nouvelle a
- * été ajoutée quelque part (SUBJECT_THEMES, campaign.subjects, commercial-contract)
- * sans passer par une révision explicite de cette liste — donc sans décision
- * consciente sur l'étanchéité stages/annuel.
+ * matière hors grille de stage dans le sélecteur, pour n'importe quel niveau.
+ * Contrairement aux tests ci-dessus (qui comparent le sélecteur à la grille
+ * datée), celui-ci vérifie le sélecteur contre une LISTE FERMÉE des seules
+ * matières qu'un stage de pré-rentrée peut légitimement proposer. Si ce test
+ * casse un jour, c'est le signal qu'une matière nouvelle a été ajoutée quelque
+ * part (SUBJECT_THEMES, campaign.subjects, commercial-contract) sans passer par
+ * une révision explicite de cette liste — donc sans décision consciente sur
+ * l'étanchéité stages/annuel.
  */
 describe('Pré-rentrée 2026 — garde-fou permanent : aucune matière hors grille de stage, pour aucun niveau', () => {
   const ALLOWED_STAGE_SUBJECT_LABELS = new Set([
@@ -320,9 +359,10 @@ describe('Pré-rentrée 2026 — garde-fou permanent : aucune matière hors gril
     'Physique-Chimie',
     'SVT',
     'Mathématiques expertes',
+    'Philosophie',
   ]);
 
-  it.each(['TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE'] as EntryLevelCode[])(
+  it.each(['QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE'] as EntryLevelCode[])(
     'niveau %s : chaque matière affichée appartient à la liste fermée des matières de stage autorisées',
     async (level) => {
       const user = userEvent.setup();

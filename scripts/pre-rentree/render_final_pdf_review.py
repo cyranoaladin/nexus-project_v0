@@ -20,6 +20,7 @@ from pre_rentree_data import LEVEL_ORDER, PreRentreeData  # noqa: E402
 PUBLIC_DOCUMENT_FILENAMES = {
     "NexusReussite_PreRentree2026_FlyerEssentiel.pdf",
     "NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf",
+    "NexusReussite_PreRentree2026_Programme_4e.pdf",
     "NexusReussite_PreRentree2026_Programme_3e.pdf",
     "NexusReussite_PreRentree2026_Programme_Premiere.pdf",
     "NexusReussite_PreRentree2026_Programme_Seconde.pdf",
@@ -29,7 +30,13 @@ PUBLIC_DOCUMENT_FILENAMES = {
 
 # Historic public filenames use "Premiere"/"3e" without the accent (see
 # tools/pdf-generator/generate_level_dossiers.py::generate_dossier_pdf).
-_FILENAME_BY_LEVEL = {"3e": "TROISIEME", "Seconde": "SECONDE", "Premiere": "PREMIERE", "Terminale": "TERMINALE"}
+_FILENAME_BY_LEVEL = {
+    "4e": "QUATRIEME",
+    "3e": "TROISIEME",
+    "Seconde": "SECONDE",
+    "Premiere": "PREMIERE",
+    "Terminale": "TERMINALE",
+}
 
 
 def _level_dossier_public_status() -> dict[str, bool]:
