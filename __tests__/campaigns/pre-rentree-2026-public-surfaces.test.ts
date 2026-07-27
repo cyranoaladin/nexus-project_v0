@@ -129,6 +129,6 @@ describe('Pré-rentrée 2026 central public-surface adapter', () => {
     expect(dto.contact.phoneHref).toBe('tel:+21699192829');
     expect(dto.reservation.depositPercentage).toBe(30);
     expect(dto.reservation.enabled).toBe(false);
-    expect(dto.reservation.rule).toMatch(/demande d.information sans paiement/i);
+    expect(dto.reservation.rule).toMatch(/n.engage aucun paiement/i);
   });
 });

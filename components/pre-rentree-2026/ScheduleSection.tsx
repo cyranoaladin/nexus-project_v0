@@ -325,30 +325,17 @@ function WindowMobileList({
   );
 }
 
-function Organization({
-  organization,
-  exposeRooms,
-}: {
+// Room/space organization details (room count, temporary rooms, block-level
+// capacity notes) are internal operational information and are never
+// rendered on the public page. When rooms are publicly confirmed
+// (`exposeRooms`), the confirmed room labels are already shown inline in the
+// schedule tables/cards above — no separate "Organisation pédagogique"
+// section is needed.
+function Organization(_props: {
   organization: { rooms: readonly { label: string; details: string }[] };
   exposeRooms: boolean;
 }) {
-  return (
-    <section className="mt-12 border-t border-lux-line pt-8" aria-labelledby="organization-heading">
-      <h3 id="organization-heading" className="font-fraunces text-2xl text-lux-ink">Organisation pédagogique</h3>
-      <div className="mt-4 rounded-2xl border border-lux-line bg-white p-5 text-sm text-lux-slate">
-        <p className="font-semibold text-lux-ink">
-          Deux salles permanentes et une troisième salle temporaire
-        </p>
-        <p className="mt-2">
-          La troisième salle temporaire est utilisée uniquement au bloc C en Terminale du 24 au 28 août 2026.
-          Sa capacité minimale reste compatible avec le format Premium ; aucune promesse de laboratoire n’est formulée.
-        </p>
-        {exposeRooms && organization.rooms.map((room) => (
-          <p key={room.label} className="mt-1">{room.label} · {room.details}</p>
-        ))}
-      </div>
-    </section>
-  );
+  return null;
 }
 
 export function ScheduleSection({
@@ -384,11 +371,11 @@ export function ScheduleSection({
   return (
     <section id="planning" className="scroll-mt-24 bg-white px-4 py-14 md:py-20" aria-labelledby="schedule-heading">
       <div className="mx-auto max-w-6xl">
-        <h2 id="schedule-heading" className="font-fraunces text-3xl text-lux-ink md:text-4xl">Planning et emplois du temps</h2>
-        <p className="mt-3 max-w-3xl text-lux-slate">Consultez les créneaux par classe de rentrée ou visualisez les groupes proposés sur chaque semaine.</p>
+        <h2 id="schedule-heading" className="font-fraunces text-3xl text-lux-ink md:text-4xl">Trouvez le planning adapté</h2>
+        <p className="mt-3 max-w-3xl text-lux-slate">Sélectionnez la classe de rentrée et les matières souhaitées. Le configurateur affiche les créneaux compatibles et vous aide à construire un parcours sans chevauchement.</p>
         {!roomsPubliclyConfirmed && (
           <p role="note" className="mt-5 rounded-xl border border-lux-gold/40 bg-lux-gold/10 p-4 text-sm text-lux-ink">
-            Les créneaux sont proposés à titre informatif. Les affectations finales sont confirmées directement aux familles.
+            La disponibilité du groupe est confirmée par notre équipe lors de votre demande.
           </p>
         )}
         <SubjectLegend />
