@@ -79,9 +79,6 @@ const MIGRATED_PUBLIC_COMPONENTS = [
   'components/stages/PublicStageCard.tsx',
   'components/pre-rentree-2026/CampaignFAQ.tsx',
   'components/pre-rentree-2026/CampaignPageTracker.tsx',
-  'components/pre-rentree-2026/FinalCampaignCTA.tsx',
-  'components/pre-rentree-2026/NexusMethodSection.tsx',
-  'components/pre-rentree-2026/PreRentreeHero.tsx',
   'components/pre-rentree-2026/ProgramsSection.tsx',
   'components/pre-rentree-2026/ScheduleSection.tsx',
 ];
