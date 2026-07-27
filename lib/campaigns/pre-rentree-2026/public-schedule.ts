@@ -40,6 +40,15 @@ export type PublicPlanningPack = {
   level?: EntryLevelCode;
   subjectsCount: number;
   totalHours: number;
+  /**
+   * Total price in TND for exactly `subjectsCount` selected subjects at this
+   * level. For a PER_SUBJECT (Fondations) level this is the per-subject unit
+   * price multiplied by `subjectsCount` — never a flat/discounted pack rate.
+   * For a PACK_BY_SUBJECT_COUNT (Premium) level, this is the actual
+   * commercial pack price for that exact subject count (not necessarily
+   * linear with count).
+   */
+  price: number;
 };
 
 export const PRE_RENTREE_PUBLIC_METRICS = {

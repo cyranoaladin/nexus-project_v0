@@ -312,6 +312,7 @@ export function StagePlanningSelector({
               <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 rounded-xl border border-lux-line bg-white p-4 text-sm sm:grid-cols-4">
                 <div><dt className="text-xs text-lux-slate">Matières</dt><dd className="font-semibold text-lux-ink">{selectedSubjects.length}</dd></div>
                 <div><dt className="text-xs text-lux-slate">Volume</dt><dd className="font-semibold text-lux-ink">{totalHours} h</dd></div>
+                {pack && <div><dt className="text-xs text-lux-slate">Tarif</dt><dd className="font-semibold text-lux-ink">{pack.price.toLocaleString('fr-TN')} TND</dd></div>}
                 <div className="col-span-2"><dt className="text-xs text-lux-slate">Dates concernées</dt><dd className="font-semibold text-lux-ink">{dates.length > 0 ? formatWeekRange(dates[0]!, dates.at(-1)!) : '—'}</dd></div>
                 {capacity && publicAvailability.capacityStatus === 'CAPACITY_TO_CONFIRM' && (
                   <p className="col-span-2 text-xs text-lux-slate sm:col-span-4">
