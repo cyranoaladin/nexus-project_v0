@@ -116,7 +116,10 @@ function BilanHero({
 export default async function BilanGratuitPage({ searchParams }: BilanGratuitPageProps) {
   const params = await searchParams;
   const preRentreePublic = getPreRentreeReleaseGate().isPublicReady;
-  const preRentreePrefill = preRentreePublic ? parsePreRentreeBilanPrefill(params) : null;
+  // Deliberately NOT gated on preRentreePublic: the Bilan prefill integration
+  // is fail-closed in its own adapter (canPrefillBilanGratuitFromPreRentree),
+  // independent from the Stage's public release status.
+  const preRentreePrefill = parsePreRentreeBilanPrefill(params);
   const rawProgramme = typeof params?.programme === 'string' ? params.programme : null;
   const programme = preRentreePrefill?.programme ?? (rawProgramme === 'pre-rentree-2026' ? null : rawProgramme);
   const rawLegacyOffer = typeof params?.offer === 'string' ? params.offer : null;

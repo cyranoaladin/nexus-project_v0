@@ -125,3 +125,16 @@ export function canExposePublicStageSlug(stageSlug: string): boolean {
 export function canAcceptPreRentreeCampaignSubmission(): boolean {
   return false;
 }
+
+/**
+ * Whether /bilan-gratuit may read Pré-rentrée query params to prefill the
+ * funnel (grade, subjects, pedagogical profile) or attach a campaignContext
+ * to the submission. Deliberately independent from `isPublicReady`: the
+ * Stage going public must never, by itself, change the standalone Bilan
+ * funnel's behaviour (owner decision, 2026-07-27 — Stage/Bilan boundary).
+ * Stays fail-closed until the Bilan workstream explicitly re-enables this
+ * integration.
+ */
+export function canPrefillBilanGratuitFromPreRentree(): boolean {
+  return false;
+}

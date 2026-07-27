@@ -1,3 +1,12 @@
+// This file exhaustively tests the configurator/URL round-trip logic in
+// isolation, independent from the Bilan integration's real (fail-closed)
+// release posture — see pre-rentree-2026-stage-bilan-boundary.test.ts for
+// that contract, tested WITHOUT this mock.
+jest.mock('@/lib/campaigns/pre-rentree-2026/release-gate', () => ({
+  ...jest.requireActual('@/lib/campaigns/pre-rentree-2026/release-gate'),
+  canPrefillBilanGratuitFromPreRentree: () => true,
+}));
+
 import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
 import {
   buildBilanUrl,
