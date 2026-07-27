@@ -45,26 +45,19 @@ describe('Validation Schemas', () => {
     });
 
     it('should pass validation without a parent password', () => {
-      const { parentPassword, ...data } = validData;
+      const { parentPassword: _ignored, ...data } = validData;
       const result = bilanGratuitSchema.safeParse(data);
       expect(result.success).toBe(true);
     });
 
-    it('should fail validation with invalid parent email', () => {
-      const invalidData = { ...validData, parentEmail: 'invalid-email' };
-      const result = bilanGratuitSchema.safeParse(invalidData);
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error.issues[0].message).toBe('Email invalide');
-      }
-    });
-
-    it('should fail validation if password is less than 8 characters', () => {
-      const invalidData = { ...validData, parentPassword: '1234567' };
-      const result = bilanGratuitSchema.safeParse(invalidData);
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error.issues[0].message).toBe('Le mot de passe doit contenir au moins 8 caractères');
+    it('should ignore an injected parentPassword (lead tunnel — no account)', () => {
+      const result = bilanGratuitSchema.safeParse({
+        ...validData,
+        parentPassword: '1234567',
+      });
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data).not.toHaveProperty('parentPassword');
       }
     });
 

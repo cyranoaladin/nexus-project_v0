@@ -143,6 +143,13 @@ enum ContactLeadStatus {
   QUALIFIED
   ENROLLED
   LOST
+  // Pipeline commercial bilan gratuit (lib/campaigns a son propre statut CRM séparé — ne pas confondre)
+  NOUVEAU
+  QUALIFIE
+  RDV_FIXE
+  BILAN_FAIT
+  CONVERTI
+  PERDU
 }
 
 // Modèle Utilisateur principal
@@ -1235,6 +1242,17 @@ model ContactLead {
   notes     String?           @db.Text
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
+
+  // Champs bilan gratuit (lead qualifiable — pas de compte créé à ce stade)
+  studentFirstName String?
+  gradeLevel       String? // Valeur brute du select "Classe" (pas l'enum GradeLevel — cf. bilan-gratuit)
+  establishment    String?
+  subjects         String[] @default([])
+  mainNeed         String?  @db.Text
+  message          String?  @db.Text
+  offerCode        String?
+  campaignContext  Json?
+  consentAt        DateTime?
 
   @@index([email])
   @@index([status])

@@ -70,11 +70,11 @@ export default function ConfirmationPage() {
             <CardContent className="p-6 md:p-8">
               <div className="flex items-center gap-3">
                 <Mail className="h-5 w-5 text-lux-gold" />
-                <h2 className="text-2xl font-fraunces text-lux-ink">Vérifiez votre boîte email</h2>
+                <h2 className="text-2xl font-fraunces text-lux-ink">Prochaine étape</h2>
               </div>
               <p className="mt-4 text-sm leading-6 text-lux-slate">
-                Un email de confirmation a été envoyé avec les prochaines étapes de prise en charge.
-                Si vous ne le trouvez pas, pensez à vérifier vos spams.
+                Notre équipe pédagogique analyse votre demande et vous recontacte sous 24&nbsp;h
+                (téléphone, WhatsApp ou email) pour préciser le bilan et les priorités de votre enfant.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link href="/offres" className="lux-cta-reserve rounded-lg px-6 py-3.5 text-sm font-semibold">

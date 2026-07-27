@@ -34,7 +34,7 @@ describe('BilanGratuitPage', () => {
     global.fetch = mockFetch as unknown as typeof fetch;
     mockFetch.mockResolvedValue({
       ok: true,
-      json: async () => ({ success: true, parentId: 'parent-1', studentId: 'student-1' }),
+      json: async () => ({ success: true, leadId: 'lead-1' }),
     });
   });
 

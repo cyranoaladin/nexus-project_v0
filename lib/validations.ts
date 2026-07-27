@@ -15,14 +15,13 @@ const Subject = {
   SES: 'SES'
 } as const;
 
-// Validation pour l'inscription (Bilan Gratuit)
+// Validation pour la demande de bilan gratuit (lead CRM — pas de création de compte)
 export const bilanGratuitSchema = z.object({
   // Informations Parent
   parentFirstName: z.string().min(2, 'Le prénom doit contenir au moins 2 caractères'),
   parentLastName: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
   parentEmail: z.string().email('Email invalide'),
   parentPhone: z.string().min(8, 'Numéro de téléphone invalide'),
-  parentPassword: z.string().min(8, 'Le mot de passe doit contenir au moins 8 caractères').optional(),
 
   // Informations Élève
   studentFirstName: z.string().min(2, 'Le prénom doit contenir au moins 2 caractères'),
@@ -40,6 +39,9 @@ export const bilanGratuitSchema = z.object({
   // Préférences
   preferredModality: z.enum(['online', 'presentiel', 'hybride']).optional(),
   availability: z.string().optional(),
+
+  // Contexte commercial optionnel (offre / campagne)
+  offerId: z.string().min(1).max(120).optional(),
 
   // Consentements
   acceptTerms: z.boolean().refine(val => val === true, 'Vous devez accepter les conditions'),

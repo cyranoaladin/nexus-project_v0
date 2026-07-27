@@ -172,7 +172,7 @@ export function BilanStrategiqueClient({
         throw new Error(result.error || result.details || 'Une erreur est survenue');
       }
 
-      track.bilanSuccess(result.parentId);
+      track.bilanSuccess(result.leadId);
       router.push('/bilan-gratuit/confirmation');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Une erreur est survenue';
