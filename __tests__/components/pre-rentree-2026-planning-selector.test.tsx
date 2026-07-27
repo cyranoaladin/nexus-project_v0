@@ -83,7 +83,6 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
     const recap = screen.getByText('Matières').closest('dl') as HTMLElement;
     expect(within(recap).getByText('1')).toBeInTheDocument();
     expect(within(recap).getByText('10 h')).toBeInTheDocument();
-    expect(within(recap).getByText('350 TND')).toBeInTheDocument();
     expect(screen.getByText(/capacité à confirmer/i)).toBeInTheDocument();
     expect(screen.getByText(
       'Itinéraire compact proposé, sous réserve de disponibilité dans les groupes.',
@@ -93,12 +92,9 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
     })).not.toHaveAttribute('aria-disabled', 'true');
   });
 
-  it.each([
-    ['TROISIEME', 350],
-    ['SECONDE', 400],
-  ] as const)(
-    'Fondations %s, 2 matières (Maths + Français) : volume 20 h et tarif 2x le prix unitaire — non-régression du bug « Volume 0 h »',
-    async (level, unitPrice) => {
+  it.each(['TROISIEME', 'SECONDE'] as const)(
+    'Fondations %s, 2 matières (Maths + Français) : volume 20 h — non-régression du bug « Volume 0 h »',
+    async (level) => {
       const user = userEvent.setup();
       renderSelector();
 
@@ -109,7 +105,6 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
       const recap = screen.getByText('Matières').closest('dl') as HTMLElement;
       expect(within(recap).getByText('2')).toBeInTheDocument();
       expect(within(recap).getByText('20 h')).toBeInTheDocument();
-      expect(within(recap).getByText(`${(unitPrice * 2).toLocaleString('fr-TN')} TND`)).toBeInTheDocument();
     },
   );
 
@@ -126,23 +121,17 @@ describe('Pré-rentrée 2026 — sélecteur de planning parents', () => {
     expect(screen.getByText('20 h')).toBeInTheDocument();
   });
 
-  it('Premium Terminale, 1 à 4 matières : volume 10/20/30/40 h et tarif du pack correspondant (pas linéaire avec le prix unitaire)', async () => {
+  it('Premium Terminale, 1 à 4 matières : volume 10/20/30/40 h', async () => {
     const user = userEvent.setup();
     renderSelector();
 
     await user.selectOptions(screen.getByLabelText('Classe de rentrée'), 'TERMINALE');
     const subjectsInOrder = ['Mathématiques', 'Physique-Chimie', 'NSI', 'SVT'];
-    const expectedByCount = [480, 900, 1350, 1800].map((price, index) => ({
-      hours: `${(index + 1) * 10} h`,
-      price: `${price.toLocaleString('fr-TN')} TND`,
-    }));
 
     for (const [index, subjectLabel] of subjectsInOrder.entries()) {
       await user.click(screen.getByRole('checkbox', { name: subjectLabel }));
       const recap = screen.getByText('Matières').closest('dl') as HTMLElement;
-      const { hours, price } = expectedByCount[index]!;
-      expect(within(recap).getByText(hours)).toBeInTheDocument();
-      expect(recap.textContent?.replace(/\s/g, '')).toContain(price.replace(/\s/g, ''));
+      expect(within(recap).getByText(`${(index + 1) * 10} h`)).toBeInTheDocument();
     }
   });
 

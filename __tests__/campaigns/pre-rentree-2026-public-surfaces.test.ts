@@ -108,6 +108,30 @@ describe('Pré-rentrée 2026 central public-surface adapter', () => {
     expect(publicCopy).not.toMatch(/Gate|REVIEW|blocked|owner|placeholder/i);
   });
 
+  it('synthesizes Fondations offerOptions for every subject count — non-régression du bug « Volume 0 h »', () => {
+    // Le contrat commercial ne déclare qu'UNE seule offre par niveau Fondations
+    // (subjectCount implicite = 1) : sans synthèse, sélectionner 2+ matières en
+    // 3e/Seconde ne trouvait aucune entrée d'offre et affichait "Volume 0 h".
+    const dto = compilePreRentreeReviewSurfaceDTO();
+    const unitByLevel: Record<string, { hours: number; price: number }> = {};
+    for (const offer of dto.offers) {
+      if (offer.level === 'TROISIEME' || offer.level === 'SECONDE') {
+        unitByLevel[offer.level] = { hours: offer.hours, price: offer.price };
+      }
+    }
+    expect(Object.keys(unitByLevel).sort()).toEqual(['SECONDE', 'TROISIEME']);
+
+    for (const level of ['TROISIEME', 'SECONDE'] as const) {
+      const unit = unitByLevel[level]!;
+      const twoSubjectsOption = dto.planning.offerOptions.find(
+        (option) => option.level === level && option.subjectsCount === 2,
+      );
+      expect(twoSubjectsOption).toBeDefined();
+      expect(twoSubjectsOption?.totalHours).toBe(unit.hours * 2);
+      expect(twoSubjectsOption?.price).toBe(unit.price * 2);
+    }
+  });
+
   it('marks the informational campaign content as indexable once the release gate opens', () => {
     const dto = compilePreRentreeReviewSurfaceDTO();
     expect(dto.publication).toEqual({ sourceStatus: 'PUBLIC_INFORMATIONAL', indexable: true });
