@@ -23,7 +23,7 @@ interface ReleaseGateDocument {
 }
 
 describe('Pré-rentrée final public release gates', () => {
-  it('uses campaign version 2.1.0 and an exact seven-document public allowlist', () => {
+  it('uses campaign version 2.1.0 and an exact eight-document public allowlist', () => {
     const campaign = JSON.parse(
       readFileSync(join(root, 'data/campaigns/pre-rentree-2026.json'), 'utf8'),
     ) as { version: string };
@@ -47,13 +47,13 @@ describe('Pré-rentrée final public release gates', () => {
     );
 
     expect(campaign.version).toBe('2.1.0');
-    expect(publicDocuments).toHaveLength(7);
+    expect(publicDocuments).toHaveLength(8);
     expect(publicDocuments.every((document) => document.publicationStatus === 'PUBLIC_FINAL')).toBe(true);
     expect(internalDocuments).toHaveLength(1);
     expect(internalDocuments[0]?.publicationStatus).toBe('INTERNAL_REVIEW');
     expect(documentManifest.purpose).toBe('PUBLIC_RELEASE_CANDIDATE');
     expect(gates.gates.find((gate) => gate.id === 'downloads')?.resolution).toMatch(
-      /sept PDF PUBLIC_FINAL/i,
+      /huit PDF PUBLIC_FINAL/i,
     );
   });
 

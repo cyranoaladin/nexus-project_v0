@@ -13,8 +13,8 @@ const Sha256 = z.string().regex(/^[a-f0-9]{64}$/);
 const GitCommitSha = z.string().regex(/^[a-f0-9]{40}$/);
 const IsoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const Time = z.string().regex(/^\d{2}:\d{2}$/);
-const EntryLevel = z.enum(['TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE']);
-const SubjectId = z.enum(['MATHEMATIQUES', 'FRANCAIS', 'NSI', 'PHYSIQUE_CHIMIE', 'SVT', 'MATHS_EXPERTES']);
+const EntryLevel = z.enum(['QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE']);
+const SubjectId = z.enum(['MATHEMATIQUES', 'FRANCAIS', 'NSI', 'PHYSIQUE_CHIMIE', 'SVT', 'MATHS_EXPERTES', 'PHILOSOPHIE']);
 
 const SourceEvidenceSchema = z.object({
   path: z.string().min(1),
@@ -252,7 +252,7 @@ export const PublicationSnapshotSchema = z.object({
       dailyLoadValid: z.boolean(),
     }).strict(),
   }).strict(),
-  levels: z.array(z.object({ id: EntryLevel, label: z.string().min(1) }).strict()).length(4),
+  levels: z.array(z.object({ id: EntryLevel, label: z.string().min(1) }).strict()).length(5),
   subjects: z.array(z.object({
     id: SubjectId,
     label: z.string().min(1),
@@ -260,22 +260,22 @@ export const PublicationSnapshotSchema = z.object({
     publicLabelByLevel: z.record(z.string()),
     abbreviation: z.string().min(1),
     color: z.string().regex(/^#[A-Fa-f0-9]{6}$/),
-  }).strict()).length(6),
+  }).strict()).length(7),
   blocks: z.array(z.object({ id: z.enum(['A', 'B', 'C', 'D']), startTime: Time, endTime: Time }).strict()).length(4),
   schedule: z.object({
     windows: z.array(ScheduleWindowSchema).length(3),
-    // 20 operational cohorts x 5 sessions = 100 (SCHEDULE-S5: 14 unique pedagogical
-    // modules, but 3 of them — Première SVT, Terminale NSI, Terminale SVT — have 2
-    // alternative cohorts each = 14 + 3 = 17 cohorts).
+    // 20 operational cohorts x 5 sessions = 100 (17 unique pedagogical modules,
+    // but 3 of them — Première SVT, Terminale NSI, Terminale SVT — have 2
+    // alternative cohorts each = 17 + 3 = 20 cohorts).
     sessions: z.array(ScheduleSessionSchema).length(100),
   }).strict(),
   academicProfiles: z.record(z.unknown()),
   packs: z.array(PackSchema).length(4),
-  modules: z.array(ModuleSchema).length(14),
+  modules: z.array(ModuleSchema).length(17),
   pedagogy: z.object({
-    positioningTests: z.array(PositioningTestSchema).length(14),
-    quickAssessments: z.array(QuickAssessmentSchema).length(70),
-    sessionDeliverables: z.array(SessionDeliverableSchema).length(70),
+    positioningTests: z.array(PositioningTestSchema).length(17),
+    quickAssessments: z.array(QuickAssessmentSchema).length(85),
+    sessionDeliverables: z.array(SessionDeliverableSchema).length(85),
   }).strict(),
   offers: PreRentreeOffersSchema,
   offerPricing: z.array(z.object({
@@ -287,7 +287,7 @@ export const PublicationSnapshotSchema = z.object({
     deposit: z.number().int().positive(),
     balance: z.number().int().positive(),
     pricePerHour: z.number().positive(),
-  }).strict()).length(12),
+  }).strict()).length(14),
   capabilities: PreRentreeCapabilitiesSchema,
   manuals: PreRentreeManualsRegistrySchema,
   communication: PreRentreeCommunicationSchema,

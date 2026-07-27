@@ -218,6 +218,18 @@ def main() -> None:
     campaign = json.loads(
         (root / "data/campaigns/pre-rentree-2026.json").read_text(encoding="utf-8")
     )
+    pedagogy_modules = json.loads(
+        (root / "content/pre-rentree-2026/modules.json").read_text(encoding="utf-8")
+    )["modules"]
+    scheduled_slots = [slot for window in campaign["schedule"] for slot in window["slots"]]
+    release_metrics = {
+        "pedagogicalModuleCount": len(pedagogy_modules),
+        "pedagogicalSessionTemplateCount": sum(len(module["sessions"]) for module in pedagogy_modules),
+        "operationalCohortCount": len(scheduled_slots),
+        "scheduledSessionOccurrenceCount": len(scheduled_slots) * 5,
+        "studentSessionsPerSubject": 5,
+        "studentHoursPerSubject": 10,
+    }
     public_document_manifest = json.loads(
         (
             root
@@ -262,14 +274,7 @@ def main() -> None:
         },
         "releaseStatus": release_gates["releaseStatus"],
         "verdict": verdict,
-        "releaseMetrics": {
-            "pedagogicalModuleCount": 14,
-            "pedagogicalSessionTemplateCount": 70,
-            "operationalCohortCount": 17,
-            "scheduledSessionOccurrenceCount": 85,
-            "studentSessionsPerSubject": 5,
-            "studentHoursPerSubject": 10,
-        },
+        "releaseMetrics": release_metrics,
         "commits": commits,
         "publicDocuments": public_documents,
         "publicSocialAssets": social_manifest["assets"],

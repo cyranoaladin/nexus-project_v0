@@ -184,7 +184,11 @@ def test_capacity_labels_match_foundations_and_premium_contracts():
     generator = load_generator()
     planning = generator.make_planning_body()
 
-    assert "Fondations (3e et Seconde) : 3 à 6 élèves, maximum 6" in planning
+    # Effectifs affichés PAR NIVEAU (mission 4e/Philosophie §6.3) : la 4e ouvre à
+    # 4, 3e et Seconde à 3 — plus de plage générique "Fondations : 3 à 6".
+    assert "Entrée en 4e : 4 à 6 élèves" in planning
+    assert "Entrée en 3e : 3 à 6 élèves" in planning
+    assert "Entrée en Seconde : 3 à 6 élèves" in planning
     assert "Premium (Première et Terminale) : 3 à 5 élèves, maximum 5" in planning
 
 
@@ -301,10 +305,10 @@ def test_public_download_copies_and_weight_manifest_match_final_pdfs():
         item for item in manifest["documents"]
         if item["publicDownloadCandidate"]
     ]
-    # 7 documents publics : Planning, Programme (dossier complet) 3e/Seconde/Première/Terminale
+    # 8 documents publics : Planning, Programme (dossier complet) 4e/3e/Seconde/Première/Terminale
     # — SVT est désormais un chapitre de ces dossiers, plus un PDF séparé —, Tarifs, FlyerEssentiel.
     # DossierAccueil reste interne (impression uniquement, jamais dans PUBLIC_DOCUMENT_FILENAMES).
-    assert len(public_records) == 7
+    assert len(public_records) == 8
     for item in public_records:
         assert item["publicationStatus"] == "PUBLIC_FINAL"
         final_path = DOCUMENTS_FINAL / item["fileName"]

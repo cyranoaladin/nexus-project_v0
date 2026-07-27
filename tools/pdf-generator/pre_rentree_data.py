@@ -29,12 +29,13 @@ CONTACT_SITE = "nexusreussite.academy/stages/pre-rentree-2026"
 CONTACT_SITE_URL = "https://nexusreussite.academy/stages/pre-rentree-2026"
 
 LEVEL_LABELS = {
+    "QUATRIEME": "4e",
     "TROISIEME": "3e",
     "SECONDE": "Seconde",
     "PREMIERE": "Première",
     "TERMINALE": "Terminale",
 }
-LEVEL_ORDER = ("TROISIEME", "SECONDE", "PREMIERE", "TERMINALE")
+LEVEL_ORDER = ("QUATRIEME", "TROISIEME", "SECONDE", "PREMIERE", "TERMINALE")
 
 SUBJECT_LABELS = {
     "MATHEMATIQUES": "Mathématiques",
@@ -43,11 +44,13 @@ SUBJECT_LABELS = {
     "PHYSIQUE_CHIMIE": "Physique-Chimie",
     "SVT": "SVT",
     "MATHS_EXPERTES": "Mathématiques expertes",
+    "PHILOSOPHIE": "Philosophie",
 }
 
 # Accent colours derived from lib/campaigns/pre-rentree-2026/subject-theme.ts
 # (its Tailwind *-800 shades), used only as small per-subject markers — never
 # as a substitute for the institutional navy/gold/ivory charter (Phase 3).
+# Philosophie uses amber, matching the TS side — never violet (reserved ARIA).
 SUBJECT_ACCENTS = {
     "MATHEMATIQUES": "#1E3A8A",
     "FRANCAIS": "#9F1239",
@@ -55,6 +58,7 @@ SUBJECT_ACCENTS = {
     "PHYSIQUE_CHIMIE": "#115E59",
     "SVT": "#065F46",
     "MATHS_EXPERTES": "#3730A3",
+    "PHILOSOPHIE": "#92400E",
 }
 SUBJECT_MARKERS = {
     "MATHEMATIQUES": "M",
@@ -63,6 +67,7 @@ SUBJECT_MARKERS = {
     "PHYSIQUE_CHIMIE": "PC",
     "SVT": "SVT",
     "MATHS_EXPERTES": "M+",
+    "PHILOSOPHIE": "PHILO",
 }
 
 _MONTHS_FR = ("janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août",
@@ -169,7 +174,11 @@ class PreRentreeData:
 
         self.foundations = tuple(self.pricing["pre_rentree_foundations"])
         self.premium_packs = tuple(self.pricing["pre_rentree_packs"])
-        self.foundations_group_min, self.foundations_group_max = self._uniform_group_bounds(self.foundations)
+        # Premium's group bounds are genuinely uniform across levels (no
+        # per-level exception there). Fondations is NOT: the 4e opens at 4,
+        # not the 3 shared by 3e/Seconde (mission 4e/Philosophie §5.1) — so
+        # Fondations bounds are read per level via group_bounds_for_level(),
+        # never asserted uniform.
         self.premium_group_min, self.premium_group_max = self._uniform_group_bounds(self.premium_packs)
         self.starting_price = min(
             offer["price_per_student"] for offer in (*self.foundations, *self.premium_packs)
@@ -346,4 +355,13 @@ class PreRentreeData:
         return None
 
     def tier_for_level(self, level: str) -> str:
-        return "foundations" if level in ("TROISIEME", "SECONDE") else "premium"
+        return "foundations" if level in ("QUATRIEME", "TROISIEME", "SECONDE") else "premium"
+
+    def group_bounds_for_level(self, level: str) -> tuple:
+        """Group size bounds for one level — never a tier-wide value. The 4e
+        opens at 4, not the 3 shared by 3e/Seconde (mission 4e/Philosophie
+        §5.1); Premium remains uniform across Première/Terminale."""
+        if self.tier_for_level(level) == "foundations":
+            offer = next(o for o in self.foundations if o["level"] == level)
+            return offer["group_min_open"], offer["group_max"]
+        return self.premium_group_min, self.premium_group_max

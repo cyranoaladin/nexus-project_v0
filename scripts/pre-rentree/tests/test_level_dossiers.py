@@ -61,10 +61,10 @@ def dossiers(data: PreRentreeData):
     return {level: data.level_dossier(level) for level in LEVEL_ORDER}
 
 
-# ── 1-2-3: shape of the 4 dossiers ──────────────────────────────────────────
+# ── 1-2-3: shape of the 5 dossiers ──────────────────────────────────────────
 
-def test_exactly_four_level_dossiers(dossiers):
-    assert set(dossiers.keys()) == {"TROISIEME", "SECONDE", "PREMIERE", "TERMINALE"}
+def test_exactly_five_level_dossiers(dossiers):
+    assert set(dossiers.keys()) == {"QUATRIEME", "TROISIEME", "SECONDE", "PREMIERE", "TERMINALE"}
 
 
 def test_each_dossier_matches_its_planned_subjects_exactly(data: PreRentreeData, dossiers):
@@ -142,9 +142,10 @@ def test_pricing_shown_matches_canonical_pricing(data: PreRentreeData, dossiers)
         if tier == "foundations":
             offers = [o for o in data.foundations if o["level"] == level]
             assert offers, f"No foundations offer for {level}"
+            expected_min, expected_max = data.group_bounds_for_level(level)
             for offer in offers:
-                assert offer["group_min_open"] == data.foundations_group_min
-                assert offer["group_max"] == data.foundations_group_max
+                assert offer["group_min_open"] == expected_min
+                assert offer["group_max"] == expected_max
         else:
             assert len(data.premium_packs) > 0
             for offer in data.premium_packs:

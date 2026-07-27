@@ -10,6 +10,8 @@ const SUBJECT_PUBLICATION_STYLE = {
   PHYSIQUE_CHIMIE: { abbreviation: 'PC', color: '#16847A' },
   SVT: { abbreviation: 'SVT', color: '#047857' },
   MATHS_EXPERTES: { abbreviation: 'EXPERTES', color: '#B45309' },
+  // Amber — sober, distinct, never violet (reserved for ARIA elsewhere).
+  PHILOSOPHIE: { abbreviation: 'PHILO', color: '#92400E' },
 } as const;
 
 const PUBLIC_ROOM_LABELS: Record<string, string> = {

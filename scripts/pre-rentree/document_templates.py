@@ -609,6 +609,7 @@ def render_public_documents(snapshot: dict[str, Any]) -> dict[str, HtmlDocument]
         _essential(snapshot, names["essential"]),
         _comparison(snapshot, names["comparison"]),
         _pricing_annex(snapshot, names["pricingReservation"]),
+        _program_annex(snapshot, "QUATRIEME", names["programQuatrieme"]),
         _program_annex(snapshot, "TROISIEME", names["programTroisieme"]),
         _program_annex(snapshot, "SECONDE", names["programSeconde"]),
         _program_annex(snapshot, "PREMIERE", names["programPremiere"]),

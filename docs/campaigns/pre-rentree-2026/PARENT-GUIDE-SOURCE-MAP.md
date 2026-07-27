@@ -23,5 +23,5 @@
 | Contact | `/contact`, `/cta`, `/document/qrTarget` | QR vérifié contre l’URL canonique |
 
 Chaque bloc factuel de `parent-guide.fr.json` porte des références validées à
-la compilation. Le contrat actif contient 14 modules pédagogiques, 70 séances
-modèles, 17 cohortes opérationnelles et 85 occurrences calendaires.
+la compilation. Le contrat actif contient 17 modules pédagogiques, 85 séances
+modèles, 20 cohortes opérationnelles et 100 occurrences calendaires.
