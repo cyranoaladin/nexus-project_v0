@@ -17,7 +17,46 @@ interface PublicCampaignManifest {
   };
 }
 
+interface ReleaseGateDocument {
+  releaseStatus: string;
+  gates: Array<{ id: string; resolution: string }>;
+}
+
 describe('Pré-rentrée final public release gates', () => {
+  it('uses campaign version 2.1.0 and an exact seven-document public allowlist', () => {
+    const campaign = JSON.parse(
+      readFileSync(join(root, 'data/campaigns/pre-rentree-2026.json'), 'utf8'),
+    ) as { version: string };
+    const gates = JSON.parse(
+      readFileSync(join(root, 'content/pre-rentree-2026/release-gates.json'), 'utf8'),
+    ) as ReleaseGateDocument;
+    const documentManifest = JSON.parse(
+      readFileSync(
+        join(root, 'assets/campaigns/pre-rentree-2026/documents-final/manifest.json'),
+        'utf8',
+      ),
+    ) as {
+      purpose: string;
+      documents: Array<{ publicDownloadCandidate: boolean; publicationStatus: string }>;
+    };
+    const publicDocuments = documentManifest.documents.filter(
+      (document) => document.publicDownloadCandidate,
+    );
+    const internalDocuments = documentManifest.documents.filter(
+      (document) => !document.publicDownloadCandidate,
+    );
+
+    expect(campaign.version).toBe('2.1.0');
+    expect(publicDocuments).toHaveLength(7);
+    expect(publicDocuments.every((document) => document.publicationStatus === 'PUBLIC_FINAL')).toBe(true);
+    expect(internalDocuments).toHaveLength(1);
+    expect(internalDocuments[0]?.publicationStatus).toBe('INTERNAL_REVIEW');
+    expect(documentManifest.purpose).toBe('PUBLIC_RELEASE_CANDIDATE');
+    expect(gates.gates.find((gate) => gate.id === 'downloads')?.resolution).toMatch(
+      /sept PDF PUBLIC_FINAL/i,
+    );
+  });
+
   it('scans public source files without leaking internal campaign tokens or copied business facts', () => {
     expect(() => execFileSync(process.execPath, [auditScript, '--source'], {
       cwd: root,

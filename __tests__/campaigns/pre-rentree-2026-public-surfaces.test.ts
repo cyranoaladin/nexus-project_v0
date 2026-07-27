@@ -1,13 +1,24 @@
-import { getPreRentreePublicSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
+import { compilePreRentreeReviewSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
 import { getCommercialPublicOffers } from '@/lib/campaigns/pre-rentree-2026/commercial-contract';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+// NOTE (pré-rentrée 2026, modèle fenêtres + week-end v2) : le planning et le catalogue de
+// modules (data/campaigns/pre-rentree-2026.json, content/pre-rentree-2026/modules.json,
+// offers.json) sont alignés sur la grille — Seconde n'a plus de séance NSI/SNT ni
+// Physique-Chimie, Terminale a Maths expertes au lieu de Philosophie.
+// Arbitrage direction du 2026-07-24 (définitif) : pour les stages de pré-rentrée, la
+// Seconde = Mathématiques + Français uniquement (grille du 24/07 fait foi).
+// content/pre-rentree-2026/commercial-contract.fr.json a été réconcilié en conséquence :
+// les 2 SKU Seconde Physique-Chimie / Informatique-SNT (approuvés le 2026-07-20) ont été
+// retirés après vérification qu'il s'agissait bien de SKU de STAGE (même pricingId
+// pre2026-foundations-seconde-subject que Maths/Français) et non d'une contamination
+// annuelle. Voir SEPARATION_STAGES_ANNUEL.md et DEBTS.md.
 const expectedSubjects = {
   TROISIEME: ['FRANCAIS', 'MATHEMATIQUES'],
-  SECONDE: ['FRANCAIS', 'MATHEMATIQUES', 'PHYSIQUE_CHIMIE'],
+  SECONDE: ['FRANCAIS', 'MATHEMATIQUES'],
   PREMIERE: ['FRANCAIS', 'MATHEMATIQUES', 'NSI', 'PHYSIQUE_CHIMIE', 'SVT'],
-  TERMINALE: ['MATHEMATIQUES', 'NSI', 'PHILOSOPHIE', 'PHYSIQUE_CHIMIE', 'SVT'],
+  TERMINALE: ['MATHEMATIQUES', 'MATHS_EXPERTES', 'NSI', 'PHYSIQUE_CHIMIE', 'SVT'],
 };
 
 describe('Pré-rentrée 2026 central public-surface adapter', () => {
@@ -27,10 +38,10 @@ describe('Pré-rentrée 2026 central public-surface adapter', () => {
   });
 
   it('publishes exactly the approved commercial offers and claims', () => {
-    const dto = getPreRentreePublicSurfaceDTO();
+    const dto = compilePreRentreeReviewSurfaceDTO();
     const canonical = getCommercialPublicOffers();
 
-    expect(dto.offers).toHaveLength(13);
+    expect(dto.offers).toHaveLength(12);
     expect(dto.offers.map((offer) => offer.offerId)).toEqual(canonical.map((offer) => offer.offerId));
     for (const offer of dto.offers) {
       const source = canonical.find((item) => item.offerId === offer.offerId);
@@ -45,13 +56,38 @@ describe('Pré-rentrée 2026 central public-surface adapter', () => {
   });
 
   it('derives the only public subjects allowed at each level', () => {
-    const dto = getPreRentreePublicSurfaceDTO();
+    const dto = compilePreRentreeReviewSurfaceDTO();
     expect(dto.subjectIdsByLevel).toEqual(expectedSubjects);
-    expect(JSON.stringify(dto)).not.toMatch(/SNT/i);
+    const secondeSubjects = dto.levels.find((level) => level.id === 'SECONDE')!.subjects;
+    expect(secondeSubjects.map((subject) => subject.id).sort()).toEqual(['FRANCAIS', 'MATHEMATIQUES']);
+  });
+
+  it('exposes a sanitized planning/program/document DTO with canonical counts', () => {
+    const dto = compilePreRentreeReviewSurfaceDTO();
+    expect(dto.planning.metrics).toEqual({
+      pedagogicalModuleCount: 14,
+      pedagogicalSessionTemplateCount: 70,
+      operationalCohortCount: 17,
+      scheduledSessionOccurrenceCount: 85,
+      studentSessionsPerSubject: 5,
+      studentHoursPerSubject: 10,
+    });
+    expect(dto.planning.schedule).toHaveLength(85);
+    expect(dto.programs).toHaveLength(14);
+    expect(dto.documents).toHaveLength(7);
+    expect(dto.planning.roomsPubliclyConfirmed).toBe(false);
+    expect(dto.planning.schedule.every((slot) => slot.room === undefined)).toBe(true);
+    expect(dto.planning.scheduleWindows.every(
+      (window) => window.slots.every((slot) => slot.room === undefined),
+    )).toBe(true);
+    const publicPlanningPayload = JSON.stringify(dto.planning);
+    expect(publicPlanningPayload).not.toMatch(
+      /teacherRole|TEACHER_|alternativeGroupId|publication_authorization|roomAssignmentsValidated|salle-\d/i,
+    );
   });
 
   it('hides services and advantages without approved offer-level evidence', () => {
-    const dto = getPreRentreePublicSurfaceDTO();
+    const dto = compilePreRentreeReviewSurfaceDTO();
     const publicCopy = JSON.stringify({
       method: dto.method,
       capabilities: dto.publicCapabilities,
@@ -72,18 +108,27 @@ describe('Pré-rentrée 2026 central public-surface adapter', () => {
     expect(publicCopy).not.toMatch(/Gate|REVIEW|blocked|owner|placeholder/i);
   });
 
-  it('keeps an unvalidated campaign page out of search indexes', () => {
-    const dto = getPreRentreePublicSurfaceDTO();
-    expect(dto.publication).toEqual({ sourceStatus: 'DRAFT', indexable: false });
+  it('marks the informational campaign content as indexable once the release gate opens', () => {
+    const dto = compilePreRentreeReviewSurfaceDTO();
+    expect(dto.publication).toEqual({ sourceStatus: 'PUBLIC_INFORMATIONAL', indexable: true });
+  });
+
+  it('retires the obsolete standalone JPO page and its middleware exception', () => {
+    expect(existsSync(join(process.cwd(), 'portes_ouvertes.html'))).toBe(false);
+    const middleware = readFileSync(join(process.cwd(), 'middleware.ts'), 'utf8');
+    expect(middleware).not.toContain('portes_ouvertes');
   });
 
   it('provides complete safe FAQ answers and the canonical contact', () => {
-    const dto = getPreRentreePublicSurfaceDTO();
+    const dto = compilePreRentreeReviewSurfaceDTO();
     expect(dto.faq.length).toBeGreaterThanOrEqual(6);
     expect(dto.faq.every((item) => item.question.length > 20 && item.answer.length > 60)).toBe(true);
     expect(dto.contact.whatsappDisplay).toBe('99 192 829');
     expect(dto.contact.whatsappMessage).toContain('pré-rentrée 2026');
+    expect(dto.contact.phoneDisplay).toBe('+216 99 19 28 29');
+    expect(dto.contact.phoneHref).toBe('tel:+21699192829');
     expect(dto.reservation.depositPercentage).toBe(30);
-    expect(dto.reservation.rule).toMatch(/sans acompte ne réserve pas la place/i);
+    expect(dto.reservation.enabled).toBe(false);
+    expect(dto.reservation.rule).toMatch(/demande d.information sans paiement/i);
   });
 });

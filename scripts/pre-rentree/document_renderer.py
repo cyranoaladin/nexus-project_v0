@@ -153,7 +153,7 @@ def render_public_pdfs(
             destination = output_dir / pdf_name
             temporary = destination.with_name(f".{destination.name}.tmp-{os.getpid()}")
             identifier = hashlib.sha256(
-                f'{snapshot["sourceRepoSha"]}:{snapshot["document"]["documentPackageVersion"]}:{pdf_name}'.encode("utf-8"),
+                f'{snapshot["repositoryCommitSha"]}:{snapshot["document"]["documentPackageVersion"]}:{pdf_name}'.encode("utf-8"),
             ).digest()
             stable_html, fetcher = _stable_pdf_html(html_path, package_root)
             HTML(string=stable_html, base_url="nexus-document:", url_fetcher=fetcher).write_pdf(

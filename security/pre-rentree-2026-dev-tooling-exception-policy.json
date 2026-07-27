@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "1.0.0",
+  "policyId": "pre-rentree-2026-dev-tooling-ghsa-mh99",
+  "repository": "cyranoaladin/nexus-project_v0",
+  "pullRequest": 79,
+  "advisoryId": "GHSA-mh99-v99m-4gvg",
+  "severity": "HIGH",
+  "affectedPackage": "brace-expansion",
+  "affectedVersions": "<=5.0.7",
+  "maximumExpiry": "2026-08-31T23:59:59+01:00",
+  "maximumDurationDays": 14,
+  "expectedHighImpactCount": 36,
+  "requiredRuntimeExposure": "ABSENT",
+  "remediationIssue": "https://github.com/cyranoaladin/nexus-project_v0/issues/83",
+  "requiredCompensatingControls": [
+    "RAW_AUDIT_ARCHIVED",
+    "RUNTIME_SBOM_VERIFIED",
+    "STANDALONE_ARTIFACT_VERIFIED",
+    "CI_JOB_HAS_NO_PRODUCTION_SECRETS"
+  ],
+  "requiredRevocationConditions": [
+    "OFFICIAL_FIX_AVAILABLE",
+    "NPM_TREE_CHANGED",
+    "BOUND_SHA_CHANGED",
+    "ADDITIONAL_ADVISORY_DETECTED",
+    "RUNTIME_PRESENCE_DETECTED",
+    "CRITICAL_SEVERITY_DETECTED",
+    "PUBLIC_INPUT_REACHABLE",
+    "COMPENSATING_CONTROL_MISSING"
+  ]
+}

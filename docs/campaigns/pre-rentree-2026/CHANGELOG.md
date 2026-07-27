@@ -1,5 +1,31 @@
 # Journal des changements
 
+## 2.1.0 — 26 juillet 2026
+
+- distingue explicitement 14 modules pédagogiques, 70 séances modèles, 17 cohortes opérationnelles et 85 occurrences calendaires ;
+- regroupe les cohortes alternatives par matière sans doubler les cinq séances ni les dix heures suivies par l’élève ;
+- limite le sélecteur à quatre matières et réserve l’action publique aux parcours structurellement compacts, sous réserve de disponibilité ;
+- publie un DTO planning sanitizé, sept PDF allowlistés et une campagne sociale datée avec familles `PUBLIC` et `REVIEW` séparées ;
+- qualifie par test paramétré les 66 combinaisons publiques d'une à quatre matières : 57 parcours actionnables et 9 incompatibilités explicitement bloquées ;
+- met à jour la seule lignée officielle `brace-expansion@5` vers `5.0.8`, conserve le raw audit des lignées 1.x/2.x et ajoute une validation d'exception exacte, bornée et fail-closed ;
+- prouve l'absence de `brace-expansion` dans l'artefact standalone et dans le SBOM runtime ;
+- rend la source Reel reproductible sans chemin absolu de checkout ;
+- conserve `releaseStatus=READY_FOR_OWNER_GO` et la gate `publication_authorization` ouverte jusqu’au GO lié au SHA validé.
+
+## 6.0.0-rc.5 — 23 juillet 2026
+
+- rétablit le module « initiation informatique / algorithmique / SNT » en Seconde (décision direction R2) : la campagne porte à **16 modules et 80 séances**, l'offre Seconde revient à quatre matières, le créneau semaine 2 / bloc A / salle 1 est restauré ;
+- le module SNT de Seconde (subjectId NSI, label public SNT) reste distinct de la spécialité NSI de Première et Terminale ;
+- autorise la mention collective « enseignants certifiés ou agrégés de l'Éducation nationale française, en exercice » sur les supports commerciaux (décision direction R4), distincte de l'anonymat nominatif maintenu.
+
+## 6.0.0-rc.4 — 23 juillet 2026
+
+- supprime l’initiation informatique/SNT de l’offre, des modules et du planning de Seconde (revertée en rc.5 — décision direction R2) ;
+- porte la campagne à 15 modules et 75 séances après l’intégration de la SVT en Première et Terminale ;
+- restaure la capacité Fondations à 4–6 élèves, maximum 6, sans modifier le plafond Premium de 5 ;
+- dérive les acomptes et soldes des PDF depuis le pricing canonique, notamment 144 + 336 = 480 TND et 405 + 945 = 1 350 TND ;
+- maintient la demande d’information sans paiement et retire les promesses de positionnement personnalisé et de bilan parent non validées.
+
 ## 6.0.0-rc.3 — 20 juillet 2026
 
 - supprime la page d’en-tête vide avant les couvertures de la brochure et de l’Essentiel ;

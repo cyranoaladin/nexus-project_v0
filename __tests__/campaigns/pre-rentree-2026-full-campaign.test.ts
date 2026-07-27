@@ -17,7 +17,7 @@ const requiredFields = [
   'cta',
   'assetId',
   'altText',
-  'publicationDate',
+  'publicationDayOffset',
   'utm',
   'proofIds',
   'owner',
@@ -90,12 +90,37 @@ describe('Pré-rentrée 2026 full campaign source', () => {
     expect(publicCopy).not.toMatch(/manuel offert|remise annuelle|réduction annuelle|10\s*%/i);
     expect(publicCopy).not.toMatch(/garantie de résultat|places très limitées/i);
     expect(publicCopy).not.toMatch(/\b(?:350|400|900|1700|2400|3000)\s*TND\b/i);
+    expect(publicCopy).not.toMatch(/\bcanoniqu(?:e|es|ement)\b/i);
   });
 
-  it('schedules all content no later than the stage start', () => {
+  it('uses the owner-authorized launch date for every generated publication', () => {
     const source = JSON.parse(readFileSync(sourcePath, 'utf8'));
     const items = [...source.publications, ...source.carousels, ...source.stories, ...source.reels];
 
-    expect(items.every((item) => item.publicationDate >= '2026-07-20' && item.publicationDate <= '2026-08-17')).toBe(true);
+    expect(source.launchDate).toBe('2026-07-26');
+    expect(source.launchDateStatus).toBe('SCHEDULED');
+    expect(items.every((item) => (
+      Number.isInteger(item.publicationDayOffset)
+      && item.publicationDayOffset >= 0
+      && item.publicationDayOffset <= 28
+      && item.publicationDate === undefined
+    ))).toBe(true);
+  });
+
+  it('uses canonical subject tokens and no reservation or payment CTA', () => {
+    const sourceText = readFileSync(sourcePath, 'utf8');
+    const source = JSON.parse(sourceText);
+    const publicCopy = JSON.stringify([
+      source.publications,
+      source.carousels,
+      source.stories,
+      source.reels,
+    ]);
+
+    expect(sourceText).toContain('{{subjects.SECONDE}}');
+    expect(sourceText).toContain('{{subjects.PREMIERE}}');
+    expect(sourceText).toContain('{{subjects.TERMINALE}}');
+    expect(publicCopy).not.toMatch(/Programme et inscription|Pré-inscrire|\bRéserver\b|\bPayer\b/i);
+    expect(publicCopy).not.toMatch(/reservation/i);
   });
 });

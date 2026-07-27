@@ -3,9 +3,11 @@
   "version": "2026-week-one-v1",
   "campaignId": "pre-rentree-2026",
   "editionDate": "2026-07-20",
+  "launchDate": "2026-07-26",
+  "launchDateStatus": "SCHEDULED",
   "sourceContent": "content/pre-rentree-2026/week-one-campaign.fr.json",
   "commercialContract": ".artifacts/pre-rentree-2026/commercial-contract.snapshot.json",
-  "publicationStatus": "AWAITING_HUMAN_VALIDATIONS",
+  "publicationStatus": "PUBLIC_RELEASE_CANDIDATE",
   "rights": {
     "photography": "Aucune photographie ni image d'élève utilisée.",
     "logo": "Logo officiel Nexus Réussite présent dans le dépôt.",
@@ -30,8 +32,8 @@
       "format": "CSV",
       "width": null,
       "height": null,
-      "bytes": 3771,
-      "sha256": "dd9cc4e9634e7ee7c01a48680250e53964e0b1daa32a72081ac1a1ef6526e76a",
+      "bytes": 3729,
+      "sha256": "938e3b6bcdeebcf7a0aa94f4aeb3523e8962c9a69b8bedccec50f4717560233f",
       "altText": "Calendrier CSV exploitable"
     },
     {
@@ -41,8 +43,8 @@
       "format": "JSON",
       "width": null,
       "height": null,
-      "bytes": 8838,
-      "sha256": "a04658be90c0aae23478c09bd7b188ee51617e98961af60a0e33d4b667dcb8bc",
+      "bytes": 9001,
+      "sha256": "038e8bee638e1decf30fbd182671665e58c4182a935926064aa882c1dac08617",
       "altText": "Calendrier de publication de la première semaine"
     },
     {
@@ -52,8 +54,8 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 911643,
-      "sha256": "a856ea5ab9d3815022fa01e1c5c366e9046fa15310ff3c7a92a271a57ca84dd5",
+      "bytes": 976769,
+      "sha256": "e538bdfb2fe09e56fd45f321fa9ae624b10c52f2264e557543727e72670aa745",
       "altText": "Calendrier PDF de sept jours"
     },
     {
@@ -63,8 +65,8 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 664662,
-      "sha256": "d67d5dd244ac54e237ad0422286495c16e38272ea606228c4064f63f839b8a4a",
+      "bytes": 735030,
+      "sha256": "e77c8fd2a3d7ced9e3f382a6fea68ef5df367dfa9533edc7b0c1ae24f1e64018",
       "altText": "Dix heures ne valent pas seulement par leur durée. Elles deviennent utiles quand elles suivent une progression lisible : reprendre, comprendre, s'entraîner, corriger et repartir avec des priorités claires. Parcourez les offres par niveau, puis écrivez-nous sur WhatsApp pour vérifier le parcours adapté à votre enfant."
     },
     {
@@ -74,8 +76,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 81530,
-      "sha256": "b2aa51b4cccbe16a5b8bd0f6bafb67edef249ac0202444e0c9e06728b267cde4",
+      "bytes": 86543,
+      "sha256": "f5646ddea5008d94c9fe006d76902a60effb37281d1eb025a8adc46dd541cd99",
       "altText": "Slide d'ouverture sur l'intérêt de préparer la rentrée avant les premiers contrôles."
     },
     {
@@ -85,8 +87,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 50014,
-      "sha256": "bd14fcc3a68388502a47ba63c6881206a61997f1b2e1dad9f10313360b7e49b2",
+      "bytes": 55944,
+      "sha256": "1201c38c06defc0e16e1a55583a9821e2b5bf44c5634cc04642c346948fe5ec1",
       "altText": "Slide d'ouverture sur l'intérêt de préparer la rentrée avant les premiers contrôles."
     },
     {
@@ -96,8 +98,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 82026,
-      "sha256": "463890f27e080d07cef8e56394b2ba32eac91a0dc892b8c7dbe48cb8c464699c",
+      "bytes": 87029,
+      "sha256": "bc9709c627eded7536c4d228fec955b523c26c7f1d5b437577d935052e898196",
       "altText": "Slide expliquant l'organisation de dix heures en cinq étapes progressives."
     },
     {
@@ -107,8 +109,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 49602,
-      "sha256": "e8e19d9d73ac262580ead2fb8eae9882212514d0a7a0c0a34e283a6ff67454cf",
+      "bytes": 55100,
+      "sha256": "b263ed2a258be77ad433df4948027a58901f6e80c771b6d04c2614251afd99b5",
       "altText": "Slide expliquant l'organisation de dix heures en cinq étapes progressives."
     },
     {
@@ -118,8 +120,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 71505,
-      "sha256": "71807d494c05827ba590e8b36812e3450df4b5607105ccb3a7abad236a73ef8f",
+      "bytes": 76325,
+      "sha256": "9f61fb9dd5f45c8360dd06da507bdeb041aaf51e187b2ea8e27ec602ca8a8720",
       "altText": "Slide présentant les trois temps de la méthode Nexus : objectif, entraînement et correction."
     },
     {
@@ -129,8 +131,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 40324,
-      "sha256": "79bbe75a5bb33642e988c69d82fe81f9fe63f6449557e30f863ede209ce701f9",
+      "bytes": 46180,
+      "sha256": "3621e5da88f18e83b0d71f96ac6c2b3e2ac332c7038ef3b3c1a714fea02a6cd3",
       "altText": "Slide présentant les trois temps de la méthode Nexus : objectif, entraînement et correction."
     },
     {
@@ -140,9 +142,9 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 72659,
-      "sha256": "32be3b5cb1be9e720d24c26bfbca253faf995f6a3b74b1a197d05e08d9c67212",
-      "altText": "Slide présentant l'offre d'entrée en 3e en Mathématiques ou Français, dix heures par matière et groupe de quatre à six élèves."
+      "bytes": 77735,
+      "sha256": "cdcd7b6440f326841b7cbbd8b37c7a0497d9f533e3d7de10501f787046cf1fff",
+      "altText": "Slide présentant l'offre d'entrée en 3e en Mathématiques et Français, dix heures par matière et groupe de trois à six élèves."
     },
     {
       "assetId": "week1-carousel-slide-04-webp",
@@ -151,9 +153,9 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 39878,
-      "sha256": "6cf88c00e8d9e15796ab021632f33dea76764e3ed77ae63dbd71db93d71dffb3",
-      "altText": "Slide présentant l'offre d'entrée en 3e en Mathématiques ou Français, dix heures par matière et groupe de quatre à six élèves."
+      "bytes": 46060,
+      "sha256": "638a50b2444cc34533db1bff6e5088da76ac52aeea7701d872d69687b2694dcd",
+      "altText": "Slide présentant l'offre d'entrée en 3e en Mathématiques et Français, dix heures par matière et groupe de trois à six élèves."
     },
     {
       "assetId": "week1-carousel-slide-05-png",
@@ -162,9 +164,9 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 79519,
-      "sha256": "13810af7cd2eff9f9ac714d5863866e27065053aa7c88fcd5502071a576af043",
-      "altText": "Slide présentant l'offre d'entrée en Seconde en Mathématiques, Physique-Chimie ou Français, dix heures par matière et groupe de quatre à six élèves."
+      "bytes": 81186,
+      "sha256": "86ec5ad7415cdbde6a3b1def3055b3f35a6ca6259182a486a360a2c5f77e3353",
+      "altText": "Slide présentant l'offre d'entrée en Seconde en Mathématiques et Français, dix heures par matière et groupe de trois à six élèves."
     },
     {
       "assetId": "week1-carousel-slide-05-webp",
@@ -173,9 +175,9 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 44974,
-      "sha256": "dcf0c18508ff427045ad871ae2300de18356882bdb3664da2fc7824dc7d8475d",
-      "altText": "Slide présentant l'offre d'entrée en Seconde en Mathématiques, Physique-Chimie ou Français, dix heures par matière et groupe de quatre à six élèves."
+      "bytes": 48924,
+      "sha256": "609fd4e98849c9cf220dea71083c3309c77724ddf69807f4dea4378e2c99a7bd",
+      "altText": "Slide présentant l'offre d'entrée en Seconde en Mathématiques et Français, dix heures par matière et groupe de trois à six élèves."
     },
     {
       "assetId": "week1-carousel-slide-06-png",
@@ -184,8 +186,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 83301,
-      "sha256": "fc8cc34d646d20d307af505085387da4d0ed8e0de27a9af70ce1ebc3d7e17e7a",
+      "bytes": 88344,
+      "sha256": "491ebe05ee38c912a7e02c5a5ee16a7cd5917da27f65fe77f6cc38d81f68d62e",
       "altText": "Slide présentant les parcours Première et Terminale de une à quatre matières avec groupes de trois à cinq élèves."
     },
     {
@@ -195,8 +197,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 54250,
-      "sha256": "0995c7c103e3587a9540f8697a7f2e4197b61b4f1a90cd65e0238e62f4df551b",
+      "bytes": 59672,
+      "sha256": "93db5ccc535a54c9a601c3a75450b14170db22312992975d5d5e47f37c829e9c",
       "altText": "Slide présentant les parcours Première et Terminale de une à quatre matières avec groupes de trois à cinq élèves."
     },
     {
@@ -206,8 +208,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 73820,
-      "sha256": "8afaae7173082d6e062c7b130a705938c9d2cd7ba10eadcec3f7ec9cb5be8968",
+      "bytes": 78603,
+      "sha256": "8b719dc6b9659ea7a1f73f668f990e186f836724f891e592d04d9b23de42ffe1",
       "altText": "Slide listant les éléments inclus : objectifs, cinq séances, entraînement et correction."
     },
     {
@@ -217,8 +219,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 44616,
-      "sha256": "3f1cc835eb48c7ba64a962a23f2b2ed09c30db16eb04f78ecdd209db11f6bd52",
+      "bytes": 50084,
+      "sha256": "ac06e65427c0844d8cf91bcef87f0c257b77a407dc7ce51fa309ec7438fbc230",
       "altText": "Slide listant les éléments inclus : objectifs, cinq séances, entraînement et correction."
     },
     {
@@ -228,9 +230,9 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 87724,
-      "sha256": "160f4c75f69f4cfe75b79671c240a735dc4779218f3403fe4ebb49a3fce29b63",
-      "altText": "Slide finale invitant les parents à contacter Nexus Réussite sur WhatsApp et expliquant la réservation par acompte."
+      "bytes": 90184,
+      "sha256": "af9f561954ba6e65710c265b4761a31abbff9759dbd5ab94e6d1c98544f408a7",
+      "altText": "Slide finale invitant les parents à demander les informations sur WhatsApp sans paiement."
     },
     {
       "assetId": "week1-carousel-slide-08-webp",
@@ -239,9 +241,9 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 52066,
-      "sha256": "8ae0b734c6f7f5ed829d2d8ffa16d1971bdf7a94246b357a7081f8c3ace2ecf7",
-      "altText": "Slide finale invitant les parents à contacter Nexus Réussite sur WhatsApp et expliquant la réservation par acompte."
+      "bytes": 57788,
+      "sha256": "4c207a0dde883c26ca4c728bde73fa02a9b630e5e8db9a337030aa2b8c0cb7ee",
+      "altText": "Slide finale invitant les parents à demander les informations sur WhatsApp sans paiement."
     },
     {
       "assetId": "week1-publication-copy-json",
@@ -250,8 +252,8 @@
       "format": "JSON",
       "width": null,
       "height": null,
-      "bytes": 5231,
-      "sha256": "6cb101af9dcef8f17b394d5bfc81af8d76531b5ce134ce4c340fa20a1b6b25d7",
+      "bytes": 5053,
+      "sha256": "3858d01ad9a886155d72a925519d31beec0c18ffc32446a28824005284cab2a6",
       "altText": "Affiche Nexus Réussite annonçant les stages de pré-rentrée 2026 dès le 17 août à Mutuelleville pour les niveaux 3e, Seconde, Première et Terminale, avec effectifs limités et contact WhatsApp 99 192 829."
     },
     {
@@ -261,8 +263,8 @@
       "format": "MARKDOWN",
       "width": null,
       "height": null,
-      "bytes": 3950,
-      "sha256": "168b56c6939059f28a4f85bf12caa2f9ca01fc4e1abe3ab21e032b43b2efa903",
+      "bytes": 3772,
+      "sha256": "7f995662d116c95a90856f74c4174be6422883bd14aa7814a4b3b95aafa3f843",
       "altText": "Affiche Nexus Réussite annonçant les stages de pré-rentrée 2026 dès le 17 août à Mutuelleville pour les niveaux 3e, Seconde, Première et Terminale, avec effectifs limités et contact WhatsApp 99 192 829."
     },
     {
@@ -272,8 +274,8 @@
       "format": "MARKDOWN",
       "width": null,
       "height": null,
-      "bytes": 1023,
-      "sha256": "e44be50901bde3f834fddab3d1e97d99b0126e8b0574a5b52b85f2664466a7b1",
+      "bytes": 1013,
+      "sha256": "503fba13f9988f4570b12e6384a45c4ae27dc94c9c62d61bd5d91605bcaddbc6",
       "altText": "Scripts WhatsApp liés aux CTA"
     },
     {
@@ -283,8 +285,8 @@
       "format": "PNG",
       "width": 1200,
       "height": 628,
-      "bytes": 47474,
-      "sha256": "cb64fe472304032daa7b051e0c544587d196d990d22efe9889c96f47bcafaa0c",
+      "bytes": 51226,
+      "sha256": "b573173ced7a5a6dcc084a6fff656fcfedbe6c294a64275d1646d7c549e970a7",
       "altText": "Affiche Nexus Réussite annonçant les stages de pré-rentrée 2026 dès le 17 août à Mutuelleville pour les niveaux 3e, Seconde, Première et Terminale, avec effectifs limités et contact WhatsApp 99 192 829."
     },
     {
@@ -294,8 +296,8 @@
       "format": "WEBP",
       "width": 1200,
       "height": 628,
-      "bytes": 28334,
-      "sha256": "b3b03829a17e584b783003d43fd73a82f26fea81c87235dd9ca1e2dad923363b",
+      "bytes": 30398,
+      "sha256": "483510aa4e893f981e7b35e59f836e6f6fdf95010748fcdbcba48d43f87c7f0d",
       "altText": "Affiche Nexus Réussite annonçant les stages de pré-rentrée 2026 dès le 17 août à Mutuelleville pour les niveaux 3e, Seconde, Première et Terminale, avec effectifs limités et contact WhatsApp 99 192 829."
     },
     {
@@ -305,8 +307,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1350,
-      "bytes": 94937,
-      "sha256": "855623d75d1d5beb284bf108e5ff4aad4a9728c270aef789f069f28ed5cc4136",
+      "bytes": 94954,
+      "sha256": "cebeb0ad3f8c2725ed9fa4ce33a279b922d0f833928b68ffa1ee8d7620c3e97d",
       "altText": "Affiche Nexus Réussite annonçant les stages de pré-rentrée 2026 dès le 17 août à Mutuelleville pour les niveaux 3e, Seconde, Première et Terminale, avec effectifs limités et contact WhatsApp 99 192 829."
     },
     {
@@ -316,8 +318,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1350,
-      "bytes": 58970,
-      "sha256": "5a6128159b7bceb918f5968dcba7ad4a07ea1de6c95d181e413d5f18855fd6b7",
+      "bytes": 57572,
+      "sha256": "4cb6897b6384b0f6a48bba6ac2194cbf4fee011004fdd8fccb59dc0ec1281d99",
       "altText": "Affiche Nexus Réussite annonçant les stages de pré-rentrée 2026 dès le 17 août à Mutuelleville pour les niveaux 3e, Seconde, Première et Terminale, avec effectifs limités et contact WhatsApp 99 192 829."
     },
     {
@@ -327,8 +329,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1080,
-      "bytes": 83363,
-      "sha256": "a120ec7eb73f4fecfc26ea2ac4f303044491347ce82669ea87afd82674de2c6a",
+      "bytes": 91496,
+      "sha256": "30d18b3052eaefb21f2fd61aaeab505a8dfec71c496413121df0ef78b72dcbae",
       "altText": "Affiche Nexus Réussite annonçant les stages de pré-rentrée 2026 dès le 17 août à Mutuelleville pour les niveaux 3e, Seconde, Première et Terminale, avec effectifs limités et contact WhatsApp 99 192 829."
     },
     {
@@ -338,8 +340,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1080,
-      "bytes": 50808,
-      "sha256": "cf0f4c3f8a3ac41beee6244293bbe1338f806632943910dc9084bfb05b183304",
+      "bytes": 57568,
+      "sha256": "107c18c72dac48ecfee17a6231d4767a555874a2e9aaa76f2ddba53617c47431",
       "altText": "Affiche Nexus Réussite annonçant les stages de pré-rentrée 2026 dès le 17 août à Mutuelleville pour les niveaux 3e, Seconde, Première et Terminale, avec effectifs limités et contact WhatsApp 99 192 829."
     },
     {
@@ -349,8 +351,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 99831,
-      "sha256": "2da21f49fa7f99f57478a606e270d7dffe0f160d63c1c1ff822cda2aea5796bd",
+      "bytes": 113208,
+      "sha256": "b001a66416a2c6ef7abfa111ae7ffb1623c3196fde1a15d8d1ff8a1595637f7f",
       "altText": "Affiche Nexus Réussite annonçant les stages de pré-rentrée 2026 dès le 17 août à Mutuelleville pour les niveaux 3e, Seconde, Première et Terminale, avec effectifs limités et contact WhatsApp 99 192 829."
     },
     {
@@ -360,8 +362,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 60132,
-      "sha256": "15f488c8d9f5edb56cd370b600ed8462a58ebce0900906198117f7a9ac25f55c",
+      "bytes": 68738,
+      "sha256": "7eed3a0a3b3657ac9740d46071cfd62d47029379485254dbafbda933c608762c",
       "altText": "Affiche Nexus Réussite annonçant les stages de pré-rentrée 2026 dès le 17 août à Mutuelleville pour les niveaux 3e, Seconde, Première et Terminale, avec effectifs limités et contact WhatsApp 99 192 829."
     },
     {
@@ -371,8 +373,8 @@
       "format": "PNG",
       "width": 600,
       "height": 600,
-      "bytes": 43274,
-      "sha256": "f025e362b2f8045605d7238235261980402806f594709f44ea812bd4d7ac0ee6",
+      "bytes": 42459,
+      "sha256": "aedc671f18f75665e50e0fbc0420d30c52e82ee7ae3466af5e6ae1ef75906bc4",
       "altText": "Affiche Nexus Réussite annonçant les stages de pré-rentrée 2026 dès le 17 août à Mutuelleville pour les niveaux 3e, Seconde, Première et Terminale, avec effectifs limités et contact WhatsApp 99 192 829."
     },
     {
@@ -382,8 +384,8 @@
       "format": "WEBP",
       "width": 600,
       "height": 600,
-      "bytes": 24288,
-      "sha256": "bc28589b26f02450dc43f73d22d340db2e5e6d2b225ada0d40dc50cd39485a44",
+      "bytes": 23236,
+      "sha256": "6e6aa15daf8038f75e613053d82a7bd1d91608a6d7ffd3c9f47818aa79e2c7ed",
       "altText": "Affiche Nexus Réussite annonçant les stages de pré-rentrée 2026 dès le 17 août à Mutuelleville pour les niveaux 3e, Seconde, Première et Terminale, avec effectifs limités et contact WhatsApp 99 192 829."
     },
     {
@@ -393,8 +395,8 @@
       "format": "TEXT",
       "width": null,
       "height": null,
-      "bytes": 1046,
-      "sha256": "fa8a49c2fce07110c7fe0d89d10dd089dcce9929ade0e8a307de7ca31c64d355",
+      "bytes": 255,
+      "sha256": "aeff3083ef4d82d9940aa190e3abd62c6fc3edb409d5d3082c1cbf2445de897f",
       "altText": "Liste de montage déterministe du Reel"
     },
     {
@@ -404,8 +406,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 82708,
-      "sha256": "d1bdc4e5e9d5ba1c6aa63cdfbbf84d3e5fcf773a4f05f8cbf46ef3a5e5b33b16",
+      "bytes": 87385,
+      "sha256": "cf8ec8dba068225c72b1a9ffce832b1042f4a94628ea779bd0f3e7825441fc98",
       "altText": "Plan 1 du Reel : 10 h, oui. Mais avec quel cap ?"
     },
     {
@@ -415,8 +417,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 78471,
-      "sha256": "9a50775e5ef304b15ed86f561b2505ea67cd29aaad8e3676bfbd234a3aabd7ef",
+      "bytes": 82880,
+      "sha256": "38aa999320cacff945d781731b9f0218fd944758a2fae1d41e90f44754d5b3d2",
       "altText": "Plan 2 du Reel : 5 séances × 2 h"
     },
     {
@@ -426,8 +428,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 78225,
-      "sha256": "c58e617e841c70ee3133916705e0f9615e232e783ed83b368d0b0e26330e3cd6",
+      "bytes": 82853,
+      "sha256": "0b56e0e48a4ef9c3001f52c2c1f26d9502dd17f674dbca13cdb8b3f807473931",
       "altText": "Plan 3 du Reel : Objectif · Entraînement · Correction"
     },
     {
@@ -437,8 +439,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 80643,
-      "sha256": "7c1f0ae15dc9a0d6cea28203a005e984700c1e4901a98b782cd4c09c04a1ad52",
+      "bytes": 85322,
+      "sha256": "a18b0e7f8a830d741eafba00962ecd0c649563782e5d16aeaff4356cff0dfb33",
       "altText": "Plan 4 du Reel : 3e & Seconde · effectifs limités"
     },
     {
@@ -448,8 +450,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 78266,
-      "sha256": "e09a3951a7ecf5c35444bc4b79dc1d2d8bf6bf30c72681c204adb0bfad79731b",
+      "bytes": 82804,
+      "sha256": "b9e621e763f5a33129eb0f201517f37435f2a7b004920f6ce7db16ce8524972f",
       "altText": "Plan 5 du Reel : Première & Terminale · effectifs limités"
     },
     {
@@ -459,8 +461,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 84392,
-      "sha256": "850efd0d3c3ff156da199156d4ba2e47645085223dec0f8c864a962eb02f79a3",
+      "bytes": 89479,
+      "sha256": "499f813bfe7be8f58f1e5b4df1ebb7cb6ee00bff539ab5bc30af32b42c3c558f",
       "altText": "Plan 6 du Reel : Dès le 17 août · WhatsApp 99 192 829"
     },
     {
@@ -470,8 +472,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 78996,
-      "sha256": "69713af35a3de7085dedef4701f6986d4e29e125523b9f8ab6f17122b94033cf",
+      "bytes": 83495,
+      "sha256": "b7eb8d80decada1729a9108809b61a95dcd0502d53be36cd97fae917c7c45c48",
       "altText": "10 h, mais surtout une méthode"
     },
     {
@@ -481,8 +483,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 40694,
-      "sha256": "cf6a92458ed534fd17086b98aa43a2d1e3f8c5d1540e46823e8bf9900734693d",
+      "bytes": 46410,
+      "sha256": "235d5f9136f38a18bffa3d7c4642a8087704197250658d72c9e5bffa275e5b78",
       "altText": "10 h, mais surtout une méthode"
     },
     {
@@ -503,8 +505,8 @@
       "format": "MP4",
       "width": null,
       "height": null,
-      "bytes": 339085,
-      "sha256": "1496bb9b140206456f53745471d48819d209dd199c6fd26c65be9161f911f945",
+      "bytes": 367427,
+      "sha256": "93600508bfc5f2e244cfe766bfed9b4515b85a4a9e895026353132a97c84829b",
       "altText": "Reel motion design de trente secondes"
     },
     {
@@ -525,8 +527,8 @@
       "format": "PDF",
       "width": null,
       "height": null,
-      "bytes": 526318,
-      "sha256": "1d2ecd7bc911740c3256cd3787d2e42da0447ed7a8fe6bb3ed4ab2e94dd50bea",
+      "bytes": 581114,
+      "sha256": "ce2031ce4e0d5810ea332945bd8533a5f23fa424e4199593c829c5b49032ae60",
       "altText": "Storyboard complet du Reel"
     },
     {
@@ -569,9 +571,9 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396627,
-      "sha256": "4cd618958500e3b3c851b928a0310dfb519e236217ab92be6c4f5ad33361a88d",
-      "altText": "Slide présentant l'offre d'entrée en 3e en Mathématiques ou Français, dix heures par matière et groupe de quatre à six élèves."
+      "bytes": 396626,
+      "sha256": "cb20897284c0f0b56440467f1a6df3f1982d657b846f9479c535e5deca975489",
+      "altText": "Slide présentant l'offre d'entrée en 3e en Mathématiques et Français, dix heures par matière et groupe de trois à six élèves."
     },
     {
       "assetId": "week1-carousel-slide-05-source",
@@ -580,9 +582,9 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396671,
-      "sha256": "2086150fa497296b55eec189c14d3feac1dde5a55e7c1ad3909d7d8893904739",
-      "altText": "Slide présentant l'offre d'entrée en Seconde en Mathématiques, Physique-Chimie ou Français, dix heures par matière et groupe de quatre à six élèves."
+      "bytes": 396636,
+      "sha256": "e1b6d8056a219dd9b69a8ac8f070378ff608389dc0969a36bf3570555c3dde04",
+      "altText": "Slide présentant l'offre d'entrée en Seconde en Mathématiques et Français, dix heures par matière et groupe de trois à six élèves."
     },
     {
       "assetId": "week1-carousel-slide-06-source",
@@ -613,9 +615,9 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396640,
-      "sha256": "c3593d9ab445401a422b4b61657bb153622f5aad3fffaef5a6e22ee891a686d0",
-      "altText": "Slide finale invitant les parents à contacter Nexus Réussite sur WhatsApp et expliquant la réservation par acompte."
+      "bytes": 396616,
+      "sha256": "23c3cd5a6905cbf417cfa9be362fb42c04569d29d801faa7a63ba10fa23b7345",
+      "altText": "Slide finale invitant les parents à demander les informations sur WhatsApp sans paiement."
     },
     {
       "assetId": "week1-main-landscape-source",
@@ -624,8 +626,8 @@
       "format": "SVG",
       "width": 1200,
       "height": 628,
-      "bytes": 396649,
-      "sha256": "768d7d3dc3b82d934e531149afe22a14696712064624eaa2afacd144cb80a783",
+      "bytes": 396636,
+      "sha256": "ddbb154c81e75f015cb4db7607b8559e6cefdd4e85d9122ee5f721b02df276ea",
       "altText": "Affiche Nexus Réussite annonçant les stages de pré-rentrée 2026 dès le 17 août à Mutuelleville pour les niveaux 3e, Seconde, Première et Terminale, avec effectifs limités et contact WhatsApp 99 192 829."
     },
     {
@@ -635,8 +637,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1350,
-      "bytes": 396781,
-      "sha256": "398aaeecdab21e71601cc0679c83c98f309c31dd8b2a5a54cba22e056bfdb999",
+      "bytes": 396707,
+      "sha256": "22238adf5487d435f166efc91c7f5aded6d123b1036feeccdbdeb6659e71a476",
       "altText": "Affiche Nexus Réussite annonçant les stages de pré-rentrée 2026 dès le 17 août à Mutuelleville pour les niveaux 3e, Seconde, Première et Terminale, avec effectifs limités et contact WhatsApp 99 192 829."
     },
     {
@@ -646,8 +648,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1080,
-      "bytes": 396690,
-      "sha256": "82351c642447f2ff8461318840833e2dff38a12c3b6589a94642a86353b4ee50",
+      "bytes": 396704,
+      "sha256": "91cc314fefe1e02e439bb0ad3157ad589e00d1c7f7d4cb7b8898dd4967c7abe9",
       "altText": "Affiche Nexus Réussite annonçant les stages de pré-rentrée 2026 dès le 17 août à Mutuelleville pour les niveaux 3e, Seconde, Première et Terminale, avec effectifs limités et contact WhatsApp 99 192 829."
     },
     {
@@ -657,8 +659,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1920,
-      "bytes": 396819,
-      "sha256": "dee94dcccc9fe1b8404db518a0a71dccc67544fc3eae775d7e373fbb49d47b5d",
+      "bytes": 397900,
+      "sha256": "e8e39469f4a64bf7597899bfae4b0664d582c463a07692967429e1a321e3f87b",
       "altText": "Affiche Nexus Réussite annonçant les stages de pré-rentrée 2026 dès le 17 août à Mutuelleville pour les niveaux 3e, Seconde, Première et Terminale, avec effectifs limités et contact WhatsApp 99 192 829."
     },
     {
@@ -668,8 +670,8 @@
       "format": "SVG",
       "width": 600,
       "height": 600,
-      "bytes": 396586,
-      "sha256": "a4bb64402a59764a323c6fcd7e63a7e03bbe9415240ebff81614b39db256bb81",
+      "bytes": 396614,
+      "sha256": "b8161c856207887585ef2a21f45e75a2e8e30dc90283fc774c45a37c6a2dcf80",
       "altText": "Affiche Nexus Réussite annonçant les stages de pré-rentrée 2026 dès le 17 août à Mutuelleville pour les niveaux 3e, Seconde, Première et Terminale, avec effectifs limités et contact WhatsApp 99 192 829."
     },
     {
@@ -745,8 +747,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1920,
-      "bytes": 396619,
-      "sha256": "4f6171758a8e4117fd4c14ccc1f888e358c9ae3b6e7ffba0473f99047c0d84e0",
+      "bytes": 396611,
+      "sha256": "14c085e2fbea268daec2ee9993c1ffb31e326c69d15feeab9086dcd975269165",
       "altText": "Story présentant les matières et le format de l'offre d'entrée en 3e."
     },
     {
@@ -756,8 +758,8 @@
       "format": "SVG",
       "width": 1080,
       "height": 1920,
-      "bytes": 396727,
-      "sha256": "efd9f40a13ee6bcf477ee59a6abd2c7eefcf72a8f355a94ed8115321b246ba2d",
+      "bytes": 396725,
+      "sha256": "2329db13896683097a21a5ea569422fab1474110893c1128ecbb9170bf44254e",
       "altText": "Story présentant les parcours de la Seconde à la Terminale selon le niveau et les matières proposées."
     },
     {
@@ -767,9 +769,9 @@
       "format": "SVG",
       "width": 1080,
       "height": 1920,
-      "bytes": 396596,
-      "sha256": "9a0b8b45b9f3aa4b60d3988ec02c5f7ac734ac515fab7de428693a645379f441",
-      "altText": "Story finale avec le numéro WhatsApp et la règle de réservation après acompte."
+      "bytes": 396587,
+      "sha256": "608888e7ca230389a65ea438d5559dc17111408e99e3f943349e68db62a09620",
+      "altText": "Story finale avec le numéro WhatsApp pour demander les informations du stage."
     },
     {
       "assetId": "week1-story-decouverte-01-png",
@@ -778,8 +780,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 77655,
-      "sha256": "18b3d6e400d7635466d363bc33ca5c27dac284e576523a875fc2ed8d78e3c39a",
+      "bytes": 82480,
+      "sha256": "0e6c0c9f6f106081d174a157bfa42b2b25d5d497c75a658697deb0b37961111d",
       "altText": "Story annonçant les stages dès le 17 août et interrogeant les parents sur la préparation de la rentrée."
     },
     {
@@ -789,8 +791,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 39404,
-      "sha256": "88cff1e4ce00c619d4820ed091c949ccb5b904941c799495b25cea91f295c3fe",
+      "bytes": 45518,
+      "sha256": "70ea06990a60f0184f4bc4a20d2a06a585d628e4e54fb658cc60471cdcd572b7",
       "altText": "Story annonçant les stages dès le 17 août et interrogeant les parents sur la préparation de la rentrée."
     },
     {
@@ -800,8 +802,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 78526,
-      "sha256": "4d95286c03e2bec7446659f08dd6c01d2ecbcab7b290158a9e9a37dab3c271f2",
+      "bytes": 83035,
+      "sha256": "c9e4e44fcae46cfae8d717668eafce48e021e8aa6c4b0c1cdb987021e3192a01",
       "altText": "Story présentant dix heures par matière en cinq séances pour les niveaux 3e à Terminale."
     },
     {
@@ -811,8 +813,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 40536,
-      "sha256": "57dc70a0758856b8d21431c01621f9d62ba4f63428b63fd7eb0a750a503b6580",
+      "bytes": 46676,
+      "sha256": "771936c9b4b293a575a06cffd65ba512c880797c47b0cfa6909fc1dbc19dc6e7",
       "altText": "Story présentant dix heures par matière en cinq séances pour les niveaux 3e à Terminale."
     },
     {
@@ -822,8 +824,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 79774,
-      "sha256": "db381d347bb4d14d16096e2d498d304fa6ba7b6322ee83ce0695e68b7646c0f5",
+      "bytes": 84313,
+      "sha256": "9f74547ef16f496894790d95f9c18407de84481dccac5098694562521a29968c",
       "altText": "Story indiquant le lieu à Mutuelleville, les effectifs limités et invitant à préciser le niveau."
     },
     {
@@ -833,8 +835,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 42570,
-      "sha256": "25c2272e5c4cddd5dacfe56f76babb2c3512dba59e2d4e99c6769858965d8133",
+      "bytes": 48702,
+      "sha256": "b0cb721af42c3cf1fb2e52c4429159401b0e81adc66d45c9e2dd1142477cce66",
       "altText": "Story indiquant le lieu à Mutuelleville, les effectifs limités et invitant à préciser le niveau."
     },
     {
@@ -844,8 +846,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 79762,
-      "sha256": "70a2dca37663040ae35455fb67f0bebd5748200be450c8959f2dcee1c1e41fdf",
+      "bytes": 84200,
+      "sha256": "224d377c04cbb0c075ef132b4573a3bca0afd88f5fb96f64f5deba031b3c0bd4",
       "altText": "Story expliquant que chaque séance commence par un objectif clair."
     },
     {
@@ -855,8 +857,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 41992,
-      "sha256": "a5ab0bc7f4ce774e4d0e92a4c75a757bf2957a7442672d56913e667138306c8f",
+      "bytes": 48164,
+      "sha256": "019158bfbd360d1fb0c4084ed8b81bb33f2b422f2ee3450b90066b3e0a9c3076",
       "altText": "Story expliquant que chaque séance commence par un objectif clair."
     },
     {
@@ -866,8 +868,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 76686,
-      "sha256": "7e662f983e97884553b24d0c2aec0778c1aab64d5f1cd6f200ad70661ac935fd",
+      "bytes": 81113,
+      "sha256": "f559f06daf3f8568d12dc5a830599358cdf75e3fc168221e5299fc6be2a3f761",
       "altText": "Story présentant l'entraînement actif et le travail en groupe limité."
     },
     {
@@ -877,8 +879,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 40898,
-      "sha256": "f24bcc822f3445292121787def1da5671c8d460dcf62e474d1c659ef9118a27d",
+      "bytes": 47164,
+      "sha256": "3e05f2139929736bdf1b15910ac265a34124b14ab55fafef58f3effe2aec1ab7",
       "altText": "Story présentant l'entraînement actif et le travail en groupe limité."
     },
     {
@@ -888,8 +890,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 80486,
-      "sha256": "5eac40402a2ead5cb0a06ba8626bf8213c54c15d04e081aa1ae6673721d2c30c",
+      "bytes": 84880,
+      "sha256": "878d7297257da700f0eb0a6f54e568aafa666600cef2c7836d03417e21c2d4a5",
       "altText": "Story expliquant le rôle de la correction pour comprendre l'erreur et mémoriser une méthode."
     },
     {
@@ -899,8 +901,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 44638,
-      "sha256": "15b571f1b13e0ac02cbd40011ca4d037cca26769c4ba5df7e6d395e84619a6be",
+      "bytes": 50894,
+      "sha256": "31a88f1c52ce7c11d73bc984a96a24e086566afd49eaa4b1fbe97bddc0c9a157",
       "altText": "Story expliquant le rôle de la correction pour comprendre l'erreur et mémoriser une méthode."
     },
     {
@@ -910,8 +912,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 92862,
-      "sha256": "1df0a016a05c16c14f483fbeb6453b75f8c346d5a8028562aa552bfc069791d3",
+      "bytes": 97833,
+      "sha256": "77c147bd121f97a35d8db9888eb835a6e2f2012250eb21ddbc75a46351469e1c",
       "altText": "Story présentant les matières et le format de l'offre d'entrée en 3e."
     },
     {
@@ -921,8 +923,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 49604,
-      "sha256": "0765c1f0c7ecf240f64929714844519bb16db84e2355203605eff20ba4eaefe8",
+      "bytes": 54892,
+      "sha256": "6f0fe87803b6d35e34f50dc56c8267b0120776e97abb3c524e8b36b4a4bd07dd",
       "altText": "Story présentant les matières et le format de l'offre d'entrée en 3e."
     },
     {
@@ -932,8 +934,8 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 101483,
-      "sha256": "2365b61118efad68d1a98664a626bb9b5f5d50693954ae0d21715e1746205d08",
+      "bytes": 108368,
+      "sha256": "db839bbb234529ac6b128d56aac4d098660ac22215abdbf6286a34b3166db9aa",
       "altText": "Story présentant les parcours de la Seconde à la Terminale selon le niveau et les matières proposées."
     },
     {
@@ -943,8 +945,8 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 57244,
-      "sha256": "709562ddd9deedc9a71aa29063e15c6f645d52a1b350071fbd7cba90ec130c6b",
+      "bytes": 63850,
+      "sha256": "33f2f03849e94a0209f38214cd6560a9c4f4d590e51703c3815114a546cdefd9",
       "altText": "Story présentant les parcours de la Seconde à la Terminale selon le niveau et les matières proposées."
     },
     {
@@ -954,9 +956,9 @@
       "format": "PNG",
       "width": 1080,
       "height": 1920,
-      "bytes": 88308,
-      "sha256": "ab5e0b412b25dba8efce3497d330314756b6ce80e844fd225c0d555e5ca0a873",
-      "altText": "Story finale avec le numéro WhatsApp et la règle de réservation après acompte."
+      "bytes": 93579,
+      "sha256": "5a1ab07e26ef353663932c8c6f5dd410b267c8623a4d9db1361838471fd814d6",
+      "altText": "Story finale avec le numéro WhatsApp pour demander les informations du stage."
     },
     {
       "assetId": "week1-story-offres-03-webp",
@@ -965,9 +967,9 @@
       "format": "WEBP",
       "width": 1080,
       "height": 1920,
-      "bytes": 48968,
-      "sha256": "d86e639342f989c2ddfe87d4a332b0dffe0b624fca7db73abf55610c79530255",
-      "altText": "Story finale avec le numéro WhatsApp et la règle de réservation après acompte."
+      "bytes": 53484,
+      "sha256": "2e0ccebd8f1ba6ea65b24e168229df98554c8d4cf46abe71954f75ad31be38d8",
+      "altText": "Story finale avec le numéro WhatsApp pour demander les informations du stage."
     },
     {
       "assetId": "week1-review-calendar",
@@ -976,8 +978,8 @@
       "format": "PNG",
       "width": 1110,
       "height": 788,
-      "bytes": 234533,
-      "sha256": "a504423d830478e76cc903fb133d4b557838980ef697e8ee4d2d235f4faa4c7f",
+      "bytes": 250211,
+      "sha256": "8efbe5a19ee8b20d0e4ea3336cd0c168599ec5bb7878f7dae1f4222efafd2152",
       "altText": "Planche de contrôle calendar"
     },
     {
@@ -987,8 +989,8 @@
       "format": "PNG",
       "width": 1110,
       "height": 710,
-      "bytes": 168089,
-      "sha256": "ea6bcbea043731d221de28174854b630701b0e695cb9970aa3928786c61617f8",
+      "bytes": 189448,
+      "sha256": "efd7dc48214ab9f4079f11c80dd9e776dcff4ab0ecfa43742613d6fb3cdb4738",
       "altText": "Planche de contrôle carousel"
     },
     {
@@ -998,8 +1000,8 @@
       "format": "PNG",
       "width": 1020,
       "height": 1176,
-      "bytes": 173369,
-      "sha256": "247f20b7555ad785fd6c80c00a97b6946e3db88d971d4c6cb6f5287ad2da60a9",
+      "bytes": 186622,
+      "sha256": "7eb51320c45b571ccaa3e36c8e33a2b5871f3aec0d1441b3bf2c0f2d7fd703b4",
       "altText": "Planche de contrôle main"
     },
     {
@@ -1009,8 +1011,8 @@
       "format": "PNG",
       "width": 840,
       "height": 964,
-      "bytes": 82859,
-      "sha256": "797626ab6f7e3a2bdf5b590b43bf43a2f6fea19f437d29e90e2f267a6c70650f",
+      "bytes": 90122,
+      "sha256": "30bfe209dfd8dbcf5cb0a68cd3655b0c5d1d2e435803e096903be999396b690e",
       "altText": "Planche de contrôle reel"
     },
     {
@@ -1020,8 +1022,8 @@
       "format": "PNG",
       "width": 840,
       "height": 1431,
-      "bytes": 156783,
-      "sha256": "bbdd6cf2066fd4e212f4cdc3a92f9baaf389751f4b25b5bc2bc1e6e9d7785012",
+      "bytes": 174157,
+      "sha256": "7fde91bca357b7d521c3edad7de7da1bcdb21302e9b88d6db5fd809b7b354885",
       "altText": "Planche de contrôle stories"
     }
   ]

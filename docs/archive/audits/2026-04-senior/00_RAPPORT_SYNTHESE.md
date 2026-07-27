@@ -12,7 +12,7 @@
 | F1 | `nginx/ssl/privkey.pem` — clé SSL privée dans l'historique git (8 commits GitHub + 3 commits serveur prod `/opt/nexus/`) | **P0** | Usurpation TLS `nexusreussite.academy` | S | LOT 0 |
 | F2 | `parent.json` / `student.json` — tokens de session NextAuth (JWE) dans 28 et 6 commits git | **P0** | Replay de session utilisateurs test | S | LOT 0 |
 | F3 | `.env.production` contient `SMTP_PASSWORD`, `NEXTAUTH_SECRET`, `RAG_API_TOKEN` en clair sur disque local (non commité mais exposé) | **P0** | Compromission email + session forge + RAG | S | LOT 0 |
-| F4 | Serveur 88.99.254.59 identifié : prod tourne sur Docker depuis `/var/www/nexus-project_v0/`, 5 commits derrière `main` | **P0** | Déploiement de correctifs sécurité bloqué | S | LOT 0 |
+| F4 | Serveur <PROD_HOST> identifié : prod tourne sur Docker depuis `<APP_DIR>/`, 5 commits derrière `main` | **P0** | Déploiement de correctifs sécurité bloqué | S | LOT 0 |
 | F5 | `/dashboard/eleve` et `/programme/maths-1ere` sont deux cockpits distincts sans contrat unifié | **P1** | Divergence produit, données incohérentes selon la porte d’entrée | M | LOT 2 |
 | F6 | `/api/student/dashboard` calcule `nextSession`, `credits`, `badges` mais `app/dashboard/eleve/page.tsx` ne les rend pas | **P1** | Données serveurs perdues, cockpit élève incomplet | M | LOT 2 |
 | F7 | Progression Première en double écriture : Zustand local + API Supabase + fallback direct navigateur → Supabase | **P1** | Risque de divergence d’état et de perte de progression | L | LOT 5 |
@@ -118,8 +118,8 @@ Les blocages immédiats : secrets (LOT 0), IDOR coach/bilans (LOT 3) et IDOR act
 **Repo authoritative :** `cyranoaladin/nexus-project_v0`
 
 **Déploiement prod :**
-- Serveur : 88.99.254.59
-- Container : `nexus-app-prod` (Docker Compose depuis `/var/www/nexus-project_v0/`)
+- Serveur : <PROD_HOST>
+- Container : `nexus-app-prod` (Docker Compose depuis `<APP_DIR>/`)
 - HEAD prod : `ba756884` (5 commits derrière `main`)
 - DB : PostgreSQL 16 avec pgvector (`nexus-postgres-prod`)
 - RAG stack : ChromaDB + Ollama (sur le même serveur)

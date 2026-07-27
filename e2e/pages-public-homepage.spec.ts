@@ -1,5 +1,10 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import releaseGateMatrix from '@/content/pre-rentree-2026/release-gates.json';
+
+const CAMPAIGN_PATH = '/stages/pre-rentree-2026';
+const CAMPAIGN_IS_PUBLIC_READY = releaseGateMatrix.releaseStatus === 'PUBLIC_READY'
+  && releaseGateMatrix.gates.every(({ value }) => value);
 
 test.describe('Homepage (/) - Landing Nexus Reussite', () => {
   test.beforeEach(async ({ page }) => {
@@ -46,10 +51,11 @@ test.describe('Homepage (/) - Landing Nexus Reussite', () => {
     await expect(page.locator('section a[href="/offres"]').first()).toBeVisible();
   });
 
-  test('10 sections principales dans <main>, dont la campagne Pré-rentrée', async ({ page }) => {
+  test('le nombre de sections principales reflète le gate de publication', async ({ page }) => {
     const sections = page.locator('main > section');
-    await expect(sections).toHaveCount(10);
-    await expect(page.getByRole('region', { name: 'Campagne Pré-rentrée 2026' })).toBeVisible();
+    await expect(sections).toHaveCount(CAMPAIGN_IS_PUBLIC_READY ? 10 : 9);
+    await expect(page.getByRole('region', { name: 'Campagne Pré-rentrée 2026' }))
+      .toHaveCount(CAMPAIGN_IS_PUBLIC_READY ? 1 : 0);
   });
 
   test('2 WA links at load, 3 visible after scroll (+ bubble), MobileStickyBar in DOM but hidden', async ({ page }) => {
@@ -100,6 +106,7 @@ test.describe('Homepage (/) - Landing Nexus Reussite', () => {
     }
   });
 
+  if (CAMPAIGN_IS_PUBLIC_READY) {
   test('place le spotlight avant le hero et entièrement dans le premier viewport desktop', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto('/');
@@ -236,6 +243,60 @@ test.describe('Homepage (/) - Landing Nexus Reussite', () => {
       expect(JSON.stringify(clickEvent)).not.toMatch(/email|phone|telephone|school|user_id|url|text/i);
     }
   });
+  } else {
+  test('retire tous les liens et entrées de navigation de la campagne fermée', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto('/');
+    await expect(page.locator(`a[href^="${CAMPAIGN_PATH}"]`)).toHaveCount(0);
+    await expect(page.getByTestId('pre-rentree-nav-desktop')).toHaveCount(0);
+
+    await page.setViewportSize({ width: 320, height: 800 });
+    await page.goto('/');
+    await expect(page.getByTestId('pre-rentree-nav-mobile')).toHaveCount(0);
+    await page.getByRole('button', { name: 'Ouvrir le menu' }).click();
+    const menu = page.getByRole('dialog', { name: 'Menu principal' });
+    await expect(menu.locator(`a[href^="${CAMPAIGN_PATH}"]`)).toHaveCount(0);
+    await expect(menu.getByRole('link', { name: /Se connecter/i })).toHaveAttribute('href', '/auth/signin');
+  });
+
+  test('n’émet aucun événement analytics de campagne tant que le gate est fermé', async ({ page }) => {
+    await page.addInitScript(() => {
+      const analyticsWindow = window as unknown as {
+        gtag: (...args: unknown[]) => void;
+        __campaignEvents: unknown[][];
+      };
+      analyticsWindow.__campaignEvents = [];
+      Object.defineProperty(analyticsWindow, 'gtag', {
+        configurable: false,
+        writable: false,
+        value: (...args: unknown[]) => analyticsWindow.__campaignEvents.push(args),
+      });
+    });
+    await page.goto('/?campaign-analytics-test=closed');
+    await expect(page.getByTestId('pre-rentree-home-spotlight')).toHaveCount(0);
+
+    const events = await page.evaluate(() => (window as unknown as { __campaignEvents: unknown[][] }).__campaignEvents);
+    expect(events.filter((event) => String(event[1] ?? '').startsWith('pre_rentree_'))).toEqual([]);
+    expect(JSON.stringify(events)).not.toMatch(/email|phone|telephone|school|user_id|parent_id|student_id/i);
+  });
+
+  test('reste accessible au clavier, avec Axe et au zoom 200 % sans la campagne', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.setViewportSize({ width: 720, height: 500 });
+    await page.goto('/');
+    const primary = page.locator('section a[href="/recommandation"]').first();
+    await primary.focus();
+    await expect(primary).toBeFocused();
+
+    const results = await new AxeBuilder({ page }).include('main').analyze();
+    expect(results.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact ?? ''))).toEqual([]);
+
+    const client = await page.context().newCDPSession(page);
+    await client.send('Emulation.setPageScaleFactor', { pageScaleFactor: 2 });
+    await expect(primary).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+  }
 
   test('conserve le routeur permanent avec Troisième et Candidat libre', async ({ page }) => {
     const router = page.getByText('Mon enfant est en…').locator('..');

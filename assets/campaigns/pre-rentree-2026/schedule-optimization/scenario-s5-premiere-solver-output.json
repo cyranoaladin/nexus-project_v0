@@ -1,0 +1,22 @@
+[
+  {
+    "duplicateSvt": false,
+    "candidatesChecked": 9216,
+    "bestScore": [
+      0,
+      1,
+      195
+    ],
+    "compliant": false
+  },
+  {
+    "duplicateSvt": true,
+    "candidatesChecked": 9216,
+    "bestScore": [
+      0,
+      0,
+      0
+    ],
+    "compliant": true
+  }
+]

@@ -1,0 +1,7 @@
+level,subject,cohortId,isPrimary,block,room,teacherRole
+PREMIERE,SVT,premiere-svt-a,True,A,salle-2,TEACHER_E_SVT
+PREMIERE,SVT,premiere-svt-d,False,D,salle-2,TEACHER_E_SVT
+TERMINALE,NSI,terminale-nsi-c,True,C,salle-1,TEACHER_A_MATHS_NSI
+TERMINALE,SVT,terminale-svt-c,True,C,salle-3,TEACHER_E_SVT
+TERMINALE,NSI,terminale-nsi-d,False,D,salle-1,TEACHER_A_MATHS_NSI
+TERMINALE,SVT,terminale-svt-d,False,D,salle-2,TEACHER_E_SVT

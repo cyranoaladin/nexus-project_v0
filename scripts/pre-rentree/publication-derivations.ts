@@ -6,15 +6,18 @@ import type { PreRentreePack } from '@/lib/pricing';
 const SUBJECT_PUBLICATION_STYLE = {
   MATHEMATIQUES: { abbreviation: 'MATHS', color: '#1B64B0' },
   FRANCAIS: { abbreviation: 'FR', color: '#8A2743' },
-  NSI: { abbreviation: 'NSI/SNT', color: '#6F42C1' },
+  NSI: { abbreviation: 'NSI', color: '#6F42C1' },
   PHYSIQUE_CHIMIE: { abbreviation: 'PC', color: '#16847A' },
-  PHILOSOPHIE: { abbreviation: 'PHILO', color: '#8A5A28' },
   SVT: { abbreviation: 'SVT', color: '#047857' },
+  MATHS_EXPERTES: { abbreviation: 'EXPERTES', color: '#B45309' },
 } as const;
 
 const PUBLIC_ROOM_LABELS: Record<string, string> = {
   'salle-1': 'Salle 1',
   'salle-2': 'Salle 2',
+  // Exceptional S5 third room (Terminale, bloc C only, SVT cohort) — see
+  // SCHEDULE-S5-THREE-ROOMS-DECISION.md.
+  'salle-3': 'Salle 3',
 };
 
 export function publicSubjectLabel(
@@ -43,7 +46,7 @@ export function deriveSchedule(campaign: PreRentreeCampaignManifest) {
   const counters = new Map<string, number>();
   const sessions: Array<{
     date: string;
-    week: number;
+    windowId: string;
     level: PreRentreeCampaignManifest['levels'][number]['id'];
     subjectId: PreRentreeCampaignManifest['subjects'][number]['id'];
     subjectLabel: string;
@@ -52,14 +55,14 @@ export function deriveSchedule(campaign: PreRentreeCampaignManifest) {
     endTime: string;
     roomLabel: string;
     sessionNumber: number;
+    cohortId?: string;
   }> = [];
 
-  const weeks = campaign.schedule.map((week) => ({
-    week: week.week,
-    label: week.weekLabel,
-    startDate: week.weekStart,
-    endDate: week.weekEnd,
-    slots: week.slots.map((slot) => {
+  const windows = campaign.schedule.map((window) => ({
+    windowId: window.windowId,
+    label: window.windowLabel,
+    days: window.days,
+    slots: window.slots.map((slot) => {
       const block = blocks.get(slot.block);
       if (!block) throw new Error(`Unknown campaign block: ${slot.block}`);
       const roomLabel = PUBLIC_ROOM_LABELS[slot.room];
@@ -72,28 +75,26 @@ export function deriveSchedule(campaign: PreRentreeCampaignManifest) {
         startTime: block.startTime,
         endTime: block.endTime,
         roomLabel,
+        ...(slot.cohortId ? { cohortId: slot.cohortId } : {}),
       };
     }),
   }));
 
-  for (const week of campaign.schedule) {
-    const start = new Date(`${week.weekStart}T12:00:00Z`);
-    for (let day = 0; day < 5; day += 1) {
-      const date = new Date(start);
-      date.setUTCDate(start.getUTCDate() + day);
-      const dateValue = date.toISOString().slice(0, 10);
-      if (campaign.noClassDates.includes(dateValue)) continue;
-
-      for (const slot of week.slots) {
+  for (const window of campaign.schedule) {
+    for (const dateValue of window.days) {
+      for (const slot of window.slots) {
         const block = blocks.get(slot.block);
         const roomLabel = PUBLIC_ROOM_LABELS[slot.room];
         if (!block || !roomLabel) throw new Error('Invalid canonical schedule reference');
-        const key = `${slot.level}:${slot.subject}`;
+        // Keyed by cohortId (when present) so that a subject with two alternative
+        // cohorts (e.g. Terminale NSI) numbers each cohort's own 5 sessions 1-5,
+        // never merging both cohorts into one 1-10 count.
+        const key = `${slot.level}:${slot.subject}:${slot.cohortId ?? ''}`;
         const sessionNumber = (counters.get(key) ?? 0) + 1;
         counters.set(key, sessionNumber);
         sessions.push({
           date: dateValue,
-          week: week.week,
+          windowId: window.windowId,
           level: slot.level,
           subjectId: slot.subject,
           subjectLabel: publicSubjectLabel(campaign, slot.subject, slot.level),
@@ -102,12 +103,13 @@ export function deriveSchedule(campaign: PreRentreeCampaignManifest) {
           endTime: block.endTime,
           roomLabel,
           sessionNumber,
+          ...(slot.cohortId ? { cohortId: slot.cohortId } : {}),
         });
       }
     }
   }
 
-  return { weeks, sessions };
+  return { windows, sessions };
 }
 
 export function derivePacks(packs: PreRentreePack[]) {
@@ -217,7 +219,7 @@ export function derivePublicationMode(campaign: PreRentreeCampaignManifest) {
   if (campaign.featureFlags.enablePayment) {
     throw new Error('The public campaign page cannot collect payment');
   }
-  if (campaign.status === 'DRAFT') return 'REVIEW' as const;
+  if (campaign.status === 'DRAFT' || campaign.status === 'PUBLIC_INFORMATIONAL') return 'REVIEW' as const;
   if (campaign.status === 'REGISTRATION_OPEN') return 'RELEASE' as const;
   throw new Error(`Unsupported publication state: ${campaign.status}`);
 }

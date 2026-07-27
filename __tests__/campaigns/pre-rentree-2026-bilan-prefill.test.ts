@@ -1,3 +1,14 @@
+// This file tests the PARSING/VALIDATION logic of the adapter in isolation.
+// The real production entry points are fail-closed (canPrefillBilanGratuitFromPreRentree
+// returns false, independent from the Stage's PUBLIC_READY status — see
+// pre-rentree-2026-stage-bilan-boundary.test.ts for that contract, tested
+// WITHOUT this mock). Mocking the gate here lets us keep asserting the parser
+// itself still validates/rejects correctly if the integration is ever re-enabled.
+jest.mock('@/lib/campaigns/pre-rentree-2026/release-gate', () => ({
+  ...jest.requireActual('@/lib/campaigns/pre-rentree-2026/release-gate'),
+  canPrefillBilanGratuitFromPreRentree: () => true,
+}));
+
 import * as bilanPrefill from '@/lib/campaigns/pre-rentree-2026/bilan-prefill';
 import { parsePreRentreeBilanPrefill } from '@/lib/campaigns/pre-rentree-2026/bilan-prefill';
 import { resolveSelectedOfferContext } from '@/app/bilan-gratuit/selected-offer';

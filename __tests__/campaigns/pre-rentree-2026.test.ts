@@ -22,8 +22,9 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
     it('has correct dates', () => {
       expect(campaignManifest.startDate).toBe('2026-08-17');
       expect(campaignManifest.endDate).toBe('2026-08-28');
-      expect(campaignManifest.noClassDates).toContain('2026-08-22');
-      expect(campaignManifest.noClassDates).toContain('2026-08-23');
+      // Modèle fenêtres + week-end (v2) : plus de pause le week-end, les séances
+      // SVT/PC de Première couvrent le samedi et le dimanche (22-23 août).
+      expect(campaignManifest.noClassDates).toEqual([]);
     });
 
     it('has exactly 4 levels', () => {
@@ -34,20 +35,20 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       expect(campaignManifest.subjects).toHaveLength(6);
     });
 
-    it('has exactly 5 time blocks', () => {
-      expect(campaignManifest.blocks).toHaveLength(5);
+    it('has exactly 4 time blocks', () => {
+      expect(campaignManifest.blocks).toHaveLength(4);
     });
 
-    it('has exactly 2 weeks', () => {
-      expect(campaignManifest.schedule).toHaveLength(2);
+    it('has exactly 3 windows (fenêtre 1, week-end + début fenêtre 2, fenêtre 2)', () => {
+      expect(campaignManifest.schedule).toHaveLength(3);
     });
   });
 
   describe('Modules', () => {
     const modules = (modulesData as any).modules;
 
-    it('has exactly 16 modules', () => {
-      expect(modules).toHaveLength(16);
+    it('has exactly 14 modules (2+2+5+5 par niveau, sans Seconde SNT/PC ni Terminale Philosophie)', () => {
+      expect(modules).toHaveLength(14);
     });
 
     it('each module has exactly 5 sessions', () => {
@@ -56,18 +57,18 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       }
     });
 
-    it('total sessions = 80', () => {
+    it('total sessions = 70', () => {
       const total = modules.reduce((sum: number, m: any) => sum + m.sessions.length, 0);
-      expect(total).toBe(80);
+      expect(total).toBe(70);
     });
 
-    it('has 4 modules per level except Première and Terminale with SVT', () => {
+    it('keeps the approved number of modules per level', () => {
       const byLevel = { TROISIEME: 0, SECONDE: 0, PREMIERE: 0, TERMINALE: 0 };
       for (const mod of modules) {
         byLevel[mod.level as keyof typeof byLevel]++;
       }
       expect(byLevel.TROISIEME).toBe(2);
-      expect(byLevel.SECONDE).toBe(4);
+      expect(byLevel.SECONDE).toBe(2);
       expect(byLevel.PREMIERE).toBe(5);
       expect(byLevel.TERMINALE).toBe(5);
     });
@@ -81,20 +82,10 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       }
     });
 
-    it('never uses "NSI EDS Seconde" or "EDS NSI Seconde"', () => {
-      for (const mod of modules) {
-        if (mod.level === 'SECONDE' && mod.subject.includes('nformatique')) {
-          expect(mod.title).not.toMatch(/NSI.*EDS|EDS.*NSI/i);
-        }
-      }
-    });
-
-    it('Seconde informatique uses "Initiation informatique" terminology', () => {
-      const secInfo = modules.find(
-        (m: any) => m.level === 'SECONDE' && (m.subject.includes('nformatique') || m.subject.includes('SNT'))
-      );
-      expect(secInfo).toBeDefined();
-      expect(secInfo.title).toMatch(/[Ii]nitiation.*informatique|algorithmique.*SNT/i);
+    it('does not offer NSI, Physique-Chimie or Philosophie module content for Seconde (retiré au profit de Maths+Français uniquement)', () => {
+      expect(modules.find((module: any) => module.id === 'seconde-informatique-snt')).toBeUndefined();
+      expect(modules.find((module: any) => module.id === 'seconde-physique-chimie')).toBeUndefined();
+      expect(modules.find((module: any) => module.id === 'terminale-philosophie')).toBeUndefined();
     });
   });
 
@@ -110,28 +101,45 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       }
     });
 
-    it('max 2 rooms per block', () => {
+    it('max 2 rooms per block, except bloc C which may use the exceptional salle-3 (SCHEDULE-S5 owner decision)', () => {
+      // salle-3 is authorized exceptionally, scoped to bloc C only (14:15-16:15) —
+      // any other block using a 3rd room would be an unauthorized expansion.
       for (const week of schedule) {
         const roomsPerBlock: Record<string, Set<string>> = {};
         for (const slot of week.slots) {
           if (!roomsPerBlock[slot.block]) roomsPerBlock[slot.block] = new Set();
           roomsPerBlock[slot.block].add(slot.room);
         }
-        for (const [, rooms] of Object.entries(roomsPerBlock)) {
-          expect(rooms.size).toBeLessThanOrEqual(2);
+        for (const [block, rooms] of Object.entries(roomsPerBlock)) {
+          const cap = block === 'C' ? 3 : 2;
+          expect(rooms.size).toBeLessThanOrEqual(cap);
         }
       }
     });
 
-    it('no level has more than 3 blocks per day (6h max)', () => {
+    it('salle-3 is never used outside bloc C', () => {
       for (const week of schedule) {
-        const blocksPerLevel: Record<string, number> = {};
         for (const slot of week.slots) {
-          blocksPerLevel[slot.level] = (blocksPerLevel[slot.level] || 0) + 1;
+          if (slot.room === 'salle-3') {
+            expect(slot.block).toBe('C');
+          }
         }
-        for (const [, count] of Object.entries(blocksPerLevel)) {
-          // Per day: max 3 blocks = 6h (each block is 2h) to accommodate the optional SVT evening block
-          expect(count).toBeLessThanOrEqual(3);
+      }
+    });
+
+    it('no level has more than 4 distinct blocks per day (8h max, ex. Terminale en fenêtre 2)', () => {
+      for (const week of schedule) {
+        const blocksPerLevel: Record<string, Set<string>> = {};
+        for (const slot of week.slots) {
+          const set = blocksPerLevel[slot.level] ?? new Set<string>();
+          set.add(slot.block);
+          blocksPerLevel[slot.level] = set;
+        }
+        for (const [, blockSet] of Object.entries(blocksPerLevel)) {
+          // Par jour : max 4 blocs distincts = 8h (chaque bloc dure 2h). La Terminale en
+          // fenêtre 2 atteint 4 blocs/jour (A, B, C, D) — le bloc C porte 2 séances
+          // simultanées (NSI en salle 1, SVT en salle 2), d'où l'incompatibilité de choix.
+          expect(blockSet.size).toBeLessThanOrEqual(4);
         }
       }
     });
@@ -151,7 +159,7 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
       }
     });
 
-    it('each declared teacher role stays at or below 6h/day', () => {
+    it('each declared teacher role stays at or below its own maxHoursPerDay', () => {
       for (const week of schedule) {
         for (const [roleId, role] of Object.entries(campaignManifest.teacherRoles)) {
           const roleBlocks = week.slots.filter((slot) => slot.teacherRole === roleId);
@@ -210,16 +218,16 @@ describe('Pre-Rentrée 2026 Campaign Contract', () => {
   });
 
   describe('Terminology guards', () => {
-    it('manifest subject labels respect pedagogy rules', () => {
+    it('manifest subject labels respect pedagogy rules (NSI réservé à Première/Terminale, pas de Seconde)', () => {
       const nsi = campaignManifest.subjects.find(s => s.id === 'NSI');
-      expect(nsi?.labelByLevel?.SECONDE).toContain('Initiation');
-      expect(nsi?.labelByLevel?.SECONDE).not.toContain('EDS');
+      expect(nsi?.levels).toEqual(['PREMIERE', 'TERMINALE']);
     });
 
-    it('replaces Terminale French with Philosophy', () => {
+    it('Terminale n’offre ni Français ni Philosophie, et propose Maths expertes à la place', () => {
       const fr = campaignManifest.subjects.find(s => s.id === 'FRANCAIS');
       expect(fr?.levels).not.toContain('TERMINALE');
-      expect(campaignManifest.subjects.find(s => s.id === 'PHILOSOPHIE')?.levels).toEqual(['TERMINALE']);
+      expect(campaignManifest.subjects.find(s => s.id === 'PHILOSOPHIE')).toBeUndefined();
+      expect(campaignManifest.subjects.find(s => s.id === 'MATHS_EXPERTES')?.levels).toEqual(['TERMINALE']);
     });
   });
 

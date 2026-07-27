@@ -8,7 +8,6 @@ const nextConfig = {
   outputFileTracingRoot: process.cwd(),
   outputFileTracingIncludes: {
     '/': [
-      './Nexus_Reussite_Accueil.html',
       './src/static-pages/assistante-devis-v3/**/*',
     ],
   },

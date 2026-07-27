@@ -13,7 +13,7 @@ const faqs = [
   },
   {
     question: "L'IA ARIA peut-elle remplacer un professeur ?",
-    answer: "Non, ARIA est un outil complémentaire qui aide à la révision selon formule, mais ne remplace pas l'expertise humaine. Nos professeurs agrégés et certifiés restent au cœur de notre pédagogie pour l'accompagnement personnalisé et les cours en présentiel."
+    answer: "Non, ARIA est un outil complémentaire qui aide à la révision selon la formule, mais ne remplace pas l'expertise humaine. Nos enseignants expérimentés, en exercice dans le système français, restent au cœur de l'accompagnement en présentiel."
   },
   {
     question: "Quel engagement Nexus prend-il ?",

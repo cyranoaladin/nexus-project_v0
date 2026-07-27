@@ -1,10 +1,16 @@
+// Référentiel SPÉCIFIQUE aux stages de pré-rentrée (n'est importé que par
+// components/pre-rentree-2026/* — jamais par l'accompagnement annuel). Les familles
+// couvrent exactement les matières réellement programmées dans la grille de stage
+// (data/campaigns/pre-rentree-2026.json) : Maths, Français, NSI, Physique-Chimie,
+// SVT, Maths expertes (Terminale uniquement). Philosophie n'existe dans AUCUN stage
+// pré-rentrée et n'a donc pas sa place ici (cf. SEPARATION_STAGES_ANNUEL.md).
 export type SubjectFamily =
   | 'MATHEMATIQUES'
   | 'FRANCAIS'
-  | 'NSI_SNT'
+  | 'NSI'
   | 'PHYSIQUE_CHIMIE'
-  | 'PHILOSOPHIE'
-  | 'SVT';
+  | 'SVT'
+  | 'MATHS_EXPERTES';
 
 export interface SubjectTheme {
   family: SubjectFamily;
@@ -38,9 +44,9 @@ export const SUBJECT_THEMES: Readonly<Record<SubjectFamily, SubjectTheme>> = {
     markerClass: 'bg-rose-800 text-white',
     printClass: 'print:border-slate-500 print:bg-white print:text-black',
   },
-  NSI_SNT: {
-    family: 'NSI_SNT',
-    label: 'NSI / SNT',
+  NSI: {
+    family: 'NSI',
+    label: 'NSI',
     marker: '</>',
     surfaceClass: 'bg-violet-50',
     borderClass: 'border-violet-300',
@@ -68,14 +74,14 @@ export const SUBJECT_THEMES: Readonly<Record<SubjectFamily, SubjectTheme>> = {
     markerClass: 'bg-emerald-800 text-white',
     printClass: 'print:border-slate-500 print:bg-white print:text-black',
   },
-  PHILOSOPHIE: {
-    family: 'PHILOSOPHIE',
-    label: 'Philosophie',
-    marker: 'Φ',
-    surfaceClass: 'bg-amber-50',
-    borderClass: 'border-amber-300',
-    textClass: 'text-amber-950',
-    markerClass: 'bg-amber-800 text-white',
+  MATHS_EXPERTES: {
+    family: 'MATHS_EXPERTES',
+    label: 'Mathématiques expertes',
+    marker: 'M+',
+    surfaceClass: 'bg-indigo-50',
+    borderClass: 'border-indigo-300',
+    textClass: 'text-indigo-950',
+    markerClass: 'bg-indigo-800 text-white',
     printClass: 'print:border-slate-500 print:bg-white print:text-black',
   },
 };
@@ -83,9 +89,9 @@ export const SUBJECT_THEMES: Readonly<Record<SubjectFamily, SubjectTheme>> = {
 export function getSubjectFamily(subjectId: string): SubjectFamily {
   if (subjectId === 'MATHEMATIQUES') return 'MATHEMATIQUES';
   if (subjectId === 'FRANCAIS') return 'FRANCAIS';
-  if (subjectId === 'NSI') return 'NSI_SNT';
-  if (subjectId === 'PHILOSOPHIE') return 'PHILOSOPHIE';
+  if (subjectId === 'NSI') return 'NSI';
   if (subjectId === 'SVT') return 'SVT';
+  if (subjectId === 'MATHS_EXPERTES') return 'MATHS_EXPERTES';
   return 'PHYSIQUE_CHIMIE';
 }
 

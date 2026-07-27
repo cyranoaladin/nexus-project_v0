@@ -256,7 +256,7 @@ FATAL: database "nexus_admin" does not exist
 
 | Service | Image | Status | Ports | Health |
 |---------|-------|--------|-------|--------|
-| `nexus-app` | nexus-prod:latest | Running | 3000 (interne) | ✅ |
+| `nexus-app` | <PROCESS_NAME>:latest | Running | 3000 (interne) | ✅ |
 | `nexus-postgres-prod` | postgres:15 | Running | 5432 (interne) | ✅ |
 | `nexus-nginx-prod` | nginx:alpine | Running | 80, 443 | ✅ |
 
@@ -670,9 +670,9 @@ git log --oneline -10
 
 ### Audit Production
 ```bash
-ssh root@88.99.254.59 'cd /opt/nexus && git rev-parse HEAD && git status -sb && git log --oneline -5'
-ssh root@88.99.254.59 'docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"'
-ssh root@88.99.254.59 'docker compose -f docker-compose.prod.yml ps'
+ssh root@<PROD_HOST> 'cd /opt/nexus && git rev-parse HEAD && git status -sb && git log --oneline -5'
+ssh root@<PROD_HOST> 'docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"'
+ssh root@<PROD_HOST> 'docker compose -f docker-compose.prod.yml ps'
 ```
 
 ### Audit Code

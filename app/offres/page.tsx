@@ -342,9 +342,11 @@ export default function OffresPage() {
         dataCategories={MEGA_STAGES.join(',')}
       />
 
-      <div id="offres-pre-rentree" className="scroll-mt-24" {...filterSectionAttrs('intensifs')}>
-        <CanonicalOfferCatalogue data={preRentree} heading="Pré-rentrée 2026 — offres et tarifs" />
-      </div>
+      {preRentree && (
+        <div id="offres-pre-rentree" className="scroll-mt-24" {...filterSectionAttrs('intensifs')}>
+          <CanonicalOfferCatalogue data={preRentree} heading="Pré-rentrée 2026 — offres et tarifs" />
+        </div>
+      )}
 
       {/* Les Intensifs — bg white */}
       <section
@@ -361,9 +363,11 @@ export default function OffresPage() {
             <p className="mt-3 text-sm text-lux-slate">
               {stageEditions.length} éditions par an, {stageFormats.length} formats. Groupes de {rules.group_max} max.
             </p>
-            <Link href={preRentree.canonicalPath} className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-lux-gold-deep underline">
-              Découvrir la Pré-rentrée 2026 <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
+            {preRentree && (
+              <Link href={preRentree.canonicalPath} className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-lux-gold-deep underline">
+                Découvrir la Pré-rentrée 2026 <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            )}
           </div>
 
           {/* Formats grid */}
@@ -551,10 +555,12 @@ export default function OffresPage() {
         </div>
       </section>
 
-      <FAQAccordion
-        items={[...preRentree.faq]}
-        title="Questions sur la Pré-rentrée 2026"
-      />
+      {preRentree && (
+        <FAQAccordion
+          items={[...preRentree.faq]}
+          title="Questions sur la Pré-rentrée 2026"
+        />
+      )}
 
       {/* CTA */}
       <section className="bg-lux-ink py-16 px-4 md:px-6">

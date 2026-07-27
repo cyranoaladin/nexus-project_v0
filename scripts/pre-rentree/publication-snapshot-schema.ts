@@ -7,12 +7,14 @@ import {
   PreRentreeOperationsSchema,
   PreRentreeWhatsAppSchema,
 } from '@/lib/campaigns/pre-rentree-2026/content-schema';
+import { PRE_RENTREE_MIN_COHORT_OPENING } from '@/lib/campaigns/pre-rentree-2026/schema';
 
 const Sha256 = z.string().regex(/^[a-f0-9]{64}$/);
+const GitCommitSha = z.string().regex(/^[a-f0-9]{40}$/);
 const IsoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const Time = z.string().regex(/^\d{2}:\d{2}$/);
 const EntryLevel = z.enum(['TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE']);
-const SubjectId = z.enum(['MATHEMATIQUES', 'FRANCAIS', 'NSI', 'PHYSIQUE_CHIMIE', 'PHILOSOPHIE', 'SVT']);
+const SubjectId = z.enum(['MATHEMATIQUES', 'FRANCAIS', 'NSI', 'PHYSIQUE_CHIMIE', 'SVT', 'MATHS_EXPERTES']);
 
 const SourceEvidenceSchema = z.object({
   path: z.string().min(1),
@@ -36,6 +38,9 @@ const ModuleSessionSchema = z.object({
 
 const ModuleSchema = z.object({
   id: z.string().min(1),
+  publicationStatus: z.enum(['PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION', 'DRAFT_PENDING_QUALIFIED_TEACHER_VALIDATION', 'VALIDATED']).optional(),
+  objective: z.string().min(1).optional(),
+  equipment: z.string().min(1).optional(),
   level: EntryLevel,
   subjectId: SubjectId,
   subject: z.string().min(1),
@@ -64,30 +69,34 @@ const PackSchema = z.object({
 
 const ScheduleSessionSchema = z.object({
   date: IsoDate,
-  week: z.number().int().min(1).max(2),
+  windowId: z.string().min(1),
   level: EntryLevel,
   subjectId: SubjectId,
   subjectLabel: z.string().min(1),
-  blockId: z.enum(['A', 'B', 'C', 'D', 'E']),
+  blockId: z.enum(['A', 'B', 'C', 'D']),
   startTime: Time,
   endTime: Time,
   roomLabel: z.string().min(1),
   sessionNumber: z.number().int().min(1).max(5),
+  // Present only for subjects with more than one alternative cohort (SCHEDULE-S5),
+  // e.g. Première SVT, Terminale NSI, Terminale SVT. Absence means a single/primary
+  // cohort — same backward-compatible convention as ScheduleSlot in schema.ts.
+  cohortId: z.string().min(1).optional(),
 }).strict();
 
-const ScheduleWeekSchema = z.object({
-  week: z.number().int().min(1).max(2),
+const ScheduleWindowSchema = z.object({
+  windowId: z.string().min(1),
   label: z.string().min(1),
-  startDate: IsoDate,
-  endDate: IsoDate,
+  days: z.array(IsoDate).min(1),
   slots: z.array(z.object({
     level: EntryLevel,
     subjectId: SubjectId,
     subjectLabel: z.string().min(1),
-    blockId: z.enum(['A', 'B', 'C', 'D', 'E']),
+    blockId: z.enum(['A', 'B', 'C', 'D']),
     startTime: Time,
     endTime: Time,
     roomLabel: z.string().min(1),
+    cohortId: z.string().min(1).optional(),
   }).strict()).min(1),
 }).strict();
 
@@ -195,10 +204,12 @@ export const ParentGuideContentSchema = z.object({
 export const PublicationSnapshotSchema = z.object({
   schemaVersion: z.literal('1.0.0'),
   sourceSetSha256: Sha256,
-  sourceRepoSha: z.string().regex(/^[a-f0-9]{40}$/),
-  sourceCommitDate: z.string().datetime({ offset: true }),
+  sourceAnchorSha: GitCommitSha,
+  repositoryCommitSha: GitCommitSha,
+  repositoryCommitDate: z.string().datetime({ offset: true }),
   snapshotBuiltAt: z.string().datetime({ offset: true }),
   provenance: z.object({
+    sourceAnchor: SourceProvenanceSchema,
     campaign: SourceProvenanceSchema,
     modules: SourceProvenanceSchema,
     pricing: SourceProvenanceSchema,
@@ -229,14 +240,15 @@ export const PublicationSnapshotSchema = z.object({
       city: z.string().min(1),
     }).strict(),
     capacityByOffer: z.object({
-      FONDATIONS: z.object({ min: z.literal(4), max: z.literal(6) }).strict(),
-      PREMIUM: z.object({ min: z.literal(3), max: z.literal(5) }).strict(),
+      FONDATIONS: z.object({ min: z.literal(PRE_RENTREE_MIN_COHORT_OPENING), max: z.literal(6) }).strict(),
+      PREMIUM: z.object({ min: z.literal(PRE_RENTREE_MIN_COHORT_OPENING), max: z.literal(5) }).strict(),
     }).strict(),
     operationalGates: z.object({
       roomAssignmentsValidated: z.boolean(),
       teacherAssignmentsValidated: z.boolean(),
       noTeacherConflict: z.boolean(),
       noRoomConflict: z.boolean(),
+      noLevelConflict: z.boolean(),
       dailyLoadValid: z.boolean(),
     }).strict(),
   }).strict(),
@@ -249,18 +261,21 @@ export const PublicationSnapshotSchema = z.object({
     abbreviation: z.string().min(1),
     color: z.string().regex(/^#[A-Fa-f0-9]{6}$/),
   }).strict()).length(6),
-  blocks: z.array(z.object({ id: z.enum(['A', 'B', 'C', 'D', 'E']), startTime: Time, endTime: Time }).strict()).length(5),
+  blocks: z.array(z.object({ id: z.enum(['A', 'B', 'C', 'D']), startTime: Time, endTime: Time }).strict()).length(4),
   schedule: z.object({
-    weeks: z.array(ScheduleWeekSchema).length(2),
-    sessions: z.array(ScheduleSessionSchema).length(80),
+    windows: z.array(ScheduleWindowSchema).length(3),
+    // 17 opérational cohorts x 5 sessions = 85 (SCHEDULE-S5: 14 unique pedagogical
+    // modules, but 3 of them — Première SVT, Terminale NSI, Terminale SVT — have 2
+    // alternative cohorts each = 14 + 3 = 17 cohorts).
+    sessions: z.array(ScheduleSessionSchema).length(85),
   }).strict(),
   academicProfiles: z.record(z.unknown()),
   packs: z.array(PackSchema).length(4),
-  modules: z.array(ModuleSchema).length(16),
+  modules: z.array(ModuleSchema).length(14),
   pedagogy: z.object({
-    positioningTests: z.array(PositioningTestSchema).length(16),
-    quickAssessments: z.array(QuickAssessmentSchema).length(80),
-    sessionDeliverables: z.array(SessionDeliverableSchema).length(80),
+    positioningTests: z.array(PositioningTestSchema).length(14),
+    quickAssessments: z.array(QuickAssessmentSchema).length(70),
+    sessionDeliverables: z.array(SessionDeliverableSchema).length(70),
   }).strict(),
   offers: PreRentreeOffersSchema,
   offerPricing: z.array(z.object({
@@ -272,7 +287,7 @@ export const PublicationSnapshotSchema = z.object({
     deposit: z.number().int().positive(),
     balance: z.number().int().positive(),
     pricePerHour: z.number().positive(),
-  }).strict()).length(14),
+  }).strict()).length(12),
   capabilities: PreRentreeCapabilitiesSchema,
   manuals: PreRentreeManualsRegistrySchema,
   communication: PreRentreeCommunicationSchema,
@@ -292,7 +307,7 @@ export const PublicationSnapshotSchema = z.object({
     price: z.literal('Prix'),
   }).strict(),
   cta: z.object({
-    primary: z.literal('Demander un parcours ou un conseil'),
+    primary: z.literal('Demander une information'),
     whatsapp: z.string().min(1),
     bilanLabel: z.string().min(1),
     bilanPath: z.string().startsWith('/'),

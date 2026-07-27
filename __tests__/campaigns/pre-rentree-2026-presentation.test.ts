@@ -36,15 +36,16 @@ describe('Pré-rentrée 2026 public presentation contracts', () => {
       .toBe('Du lundi 17 au vendredi 21 août');
   });
 
-  it('defines exactly six accessible subject families from one source', () => {
+  it('defines exactly six accessible subject families, strictly limited to stage subjects (no Philosophie)', () => {
     expect(Object.keys(SUBJECT_THEMES)).toEqual([
       'MATHEMATIQUES',
       'FRANCAIS',
-      'NSI_SNT',
+      'NSI',
       'PHYSIQUE_CHIMIE',
       'SVT',
-      'PHILOSOPHIE',
+      'MATHS_EXPERTES',
     ]);
+    expect(Object.keys(SUBJECT_THEMES)).not.toContain('PHILOSOPHIE');
     for (const theme of Object.values(SUBJECT_THEMES)) {
       expect(theme.label).toEqual(expect.any(String));
       expect(theme.marker).toEqual(expect.any(String));
@@ -55,13 +56,13 @@ describe('Pré-rentrée 2026 public presentation contracts', () => {
     }
   });
 
-  it('maps every French/Expression and NSI/SNT variant to its family', () => {
+  it('maps French/Expression and NSI variants to their families', () => {
     expect(getSubjectTheme('FRANCAIS', 'Français')).toBe(SUBJECT_THEMES.FRANCAIS);
     expect(getSubjectTheme('FRANCAIS', 'Français — EAF')).toBe(SUBJECT_THEMES.FRANCAIS);
     expect(getSubjectTheme('FRANCAIS', 'Expression écrite, argumentation et maîtrise de l’oral'))
       .toBe(SUBJECT_THEMES.FRANCAIS);
-    expect(getSubjectTheme('NSI', 'NSI')).toBe(SUBJECT_THEMES.NSI_SNT);
-    expect(getSubjectTheme('NSI', 'Initiation informatique, algorithmique et SNT'))
-      .toBe(SUBJECT_THEMES.NSI_SNT);
+    expect(getSubjectTheme('NSI', 'NSI')).toBe(SUBJECT_THEMES.NSI);
+    expect(getSubjectTheme('NSI', 'Numérique et sciences informatiques'))
+      .toBe(SUBJECT_THEMES.NSI);
   });
 });

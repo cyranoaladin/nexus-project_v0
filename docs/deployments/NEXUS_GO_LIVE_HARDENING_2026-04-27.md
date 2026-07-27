@@ -17,7 +17,7 @@ les actions d'urgence effectuées, et les correctifs de pérennisation appliqué
 | Branch | `main` |
 | Origin | `github.com:cyranoaladin/nexus-project_v0` |
 | URL prod | `https://nexusreussite.academy` |
-| Serveur | `88.99.254.59` |
+| Serveur | `<PROD_HOST>` |
 | Répertoire prod | `/opt/nexus` |
 
 ---
@@ -100,7 +100,7 @@ Plus aucune intervention manuelle requise après un redémarrage.
 ## 4. Procédure de redéploiement app (sans toucher la DB)
 
 ```bash
-ssh root@88.99.254.59
+ssh root@<PROD_HOST>
 cd /opt/nexus
 
 # 1. Récupérer les dernières modifications
@@ -132,7 +132,7 @@ car cela recréerait `nexus-postgres-prod` depuis zéro (perte des données si l
 ## 5. Appliquer une migration Prisma en prod
 
 ```bash
-ssh root@88.99.254.59
+ssh root@<PROD_HOST>
 cd /opt/nexus
 
 # Méthode 1 : Via le service migrate du Compose (recommandé)
@@ -181,7 +181,7 @@ docker logs nexus-app-prod --tail 50 2>&1 | grep -iE "error|prisma|fatal"
 ## 7. Procédure de rollback
 
 ```bash
-ssh root@88.99.254.59
+ssh root@<PROD_HOST>
 cd /opt/nexus
 
 # Rollback sur un commit précis

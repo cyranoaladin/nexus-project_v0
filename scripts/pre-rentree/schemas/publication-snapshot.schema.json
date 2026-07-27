@@ -12,11 +12,14 @@
           "type": "string",
           "pattern": "^[a-f0-9]{64}$"
         },
-        "sourceRepoSha": {
+        "sourceAnchorSha": {
           "type": "string",
           "pattern": "^[a-f0-9]{40}$"
         },
-        "sourceCommitDate": {
+        "repositoryCommitSha": {
+          "$ref": "#/definitions/PublicationSnapshot/properties/sourceAnchorSha"
+        },
+        "repositoryCommitDate": {
           "type": "string",
           "format": "date-time"
         },
@@ -27,7 +30,7 @@
         "provenance": {
           "type": "object",
           "properties": {
-            "campaign": {
+            "sourceAnchor": {
               "type": "object",
               "properties": {
                 "path": {
@@ -49,44 +52,48 @@
               ],
               "additionalProperties": false
             },
+            "campaign": {
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
+            },
             "modules": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "pricing": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "legal": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "contact": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "parentGuide": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "pedagogyFramework": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "offers": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "capabilities": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "manuals": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "communication": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "whatsapp": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             },
             "operations": {
-              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/campaign"
+              "$ref": "#/definitions/PublicationSnapshot/properties/provenance/properties/sourceAnchor"
             }
           },
           "required": [
+            "sourceAnchor",
             "campaign",
             "modules",
             "pricing",
@@ -177,7 +184,7 @@
                   "properties": {
                     "min": {
                       "type": "number",
-                      "const": 4
+                      "const": 3
                     },
                     "max": {
                       "type": "number",
@@ -230,6 +237,9 @@
                 "noRoomConflict": {
                   "type": "boolean"
                 },
+                "noLevelConflict": {
+                  "type": "boolean"
+                },
                 "dailyLoadValid": {
                   "type": "boolean"
                 }
@@ -239,6 +249,7 @@
                 "teacherAssignmentsValidated",
                 "noTeacherConflict",
                 "noRoomConflict",
+                "noLevelConflict",
                 "dailyLoadValid"
               ],
               "additionalProperties": false
@@ -300,7 +311,8 @@
                   "FRANCAIS",
                   "NSI",
                   "PHYSIQUE_CHIMIE",
-                  "PHILOSOPHIE"
+                  "SVT",
+                  "MATHS_EXPERTES"
                 ]
               },
               "label": {
@@ -337,8 +349,8 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 5,
-          "maxItems": 5
+          "minItems": 6,
+          "maxItems": 6
         },
         "blocks": {
           "type": "array",
@@ -375,25 +387,25 @@
         "schedule": {
           "type": "object",
           "properties": {
-            "weeks": {
+            "windows": {
               "type": "array",
               "items": {
                 "type": "object",
                 "properties": {
-                  "week": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 2
+                  "windowId": {
+                    "type": "string",
+                    "minLength": 1
                   },
                   "label": {
                     "type": "string",
                     "minLength": 1
                   },
-                  "startDate": {
-                    "$ref": "#/definitions/PublicationSnapshot/properties/campaign/properties/startDate"
-                  },
-                  "endDate": {
-                    "$ref": "#/definitions/PublicationSnapshot/properties/campaign/properties/startDate"
+                  "days": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/definitions/PublicationSnapshot/properties/campaign/properties/startDate"
+                    },
+                    "minItems": 1
                   },
                   "slots": {
                     "type": "array",
@@ -428,6 +440,10 @@
                         "roomLabel": {
                           "type": "string",
                           "minLength": 1
+                        },
+                        "cohortId": {
+                          "type": "string",
+                          "minLength": 1
                         }
                       },
                       "required": [
@@ -445,16 +461,15 @@
                   }
                 },
                 "required": [
-                  "week",
+                  "windowId",
                   "label",
-                  "startDate",
-                  "endDate",
+                  "days",
                   "slots"
                 ],
                 "additionalProperties": false
               },
-              "minItems": 2,
-              "maxItems": 2
+              "minItems": 3,
+              "maxItems": 3
             },
             "sessions": {
               "type": "array",
@@ -464,10 +479,9 @@
                   "date": {
                     "$ref": "#/definitions/PublicationSnapshot/properties/campaign/properties/startDate"
                   },
-                  "week": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 2
+                  "windowId": {
+                    "type": "string",
+                    "minLength": 1
                   },
                   "level": {
                     "$ref": "#/definitions/PublicationSnapshot/properties/levels/items/properties/id"
@@ -502,11 +516,15 @@
                     "type": "integer",
                     "minimum": 1,
                     "maximum": 5
+                  },
+                  "cohortId": {
+                    "type": "string",
+                    "minLength": 1
                   }
                 },
                 "required": [
                   "date",
-                  "week",
+                  "windowId",
                   "level",
                   "subjectId",
                   "subjectLabel",
@@ -518,12 +536,12 @@
                 ],
                 "additionalProperties": false
               },
-              "minItems": 70,
-              "maxItems": 70
+              "minItems": 85,
+              "maxItems": 85
             }
           },
           "required": [
-            "weeks",
+            "windows",
             "sessions"
           ],
           "additionalProperties": false
@@ -619,6 +637,22 @@
             "type": "object",
             "properties": {
               "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "publicationStatus": {
+                "type": "string",
+                "enum": [
+                  "PROPOSAL_PENDING_PEDAGOGICAL_VALIDATION",
+                  "DRAFT_PENDING_QUALIFIED_TEACHER_VALIDATION",
+                  "VALIDATED"
+                ]
+              },
+              "objective": {
+                "type": "string",
+                "minLength": 1
+              },
+              "equipment": {
                 "type": "string",
                 "minLength": 1
               },
@@ -1070,11 +1104,12 @@
                         "PHYSIQUE_CHIMIE",
                         "NSI",
                         "FRANCAIS",
-                        "PHILOSOPHIE"
+                        "SVT",
+                        "MATHS_EXPERTES"
                       ]
                     },
                     "minItems": 1,
-                    "maxItems": 4
+                    "maxItems": 5
                   },
                   "pricing": {
                     "type": "object",
@@ -1223,8 +1258,8 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 14,
-          "maxItems": 14
+          "minItems": 12,
+          "maxItems": 12
         },
         "capabilities": {
           "type": "object",
@@ -2121,7 +2156,7 @@
           "properties": {
             "primary": {
               "type": "string",
-              "const": "Demander un parcours ou un conseil"
+              "const": "Demander une information"
             },
             "whatsapp": {
               "type": "string",
@@ -2662,8 +2697,9 @@
       "required": [
         "schemaVersion",
         "sourceSetSha256",
-        "sourceRepoSha",
-        "sourceCommitDate",
+        "sourceAnchorSha",
+        "repositoryCommitSha",
+        "repositoryCommitDate",
         "snapshotBuiltAt",
         "provenance",
         "campaign",

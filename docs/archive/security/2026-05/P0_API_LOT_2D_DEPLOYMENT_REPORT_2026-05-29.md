@@ -28,7 +28,7 @@
 - Branche : `main`
 - HEAD avant : `6d7677ba`
 - Git : worktree propre avant pull
-- PM2 : `nexus-prod` online
+- PM2 : `<PROCESS_NAME>` online
 - Port applicatif : `127.0.0.1:3001`
 - Health before :
   - `site`: `200`
@@ -58,8 +58,8 @@
   - Résultat : 2 suites, 8 tests OK.
 - Warnings connus : mocks dupliqués Jest dans `.next/standalone`, non traités dans ce lot.
 - Build : `NODE_ENV=production npm run build` OK, `BUILD_EXIT=0`.
-- PM2 reload : `pm2 reload nexus-prod --update-env`
-- PM2 après reload : `nexus-prod` online.
+- PM2 reload : `pm2 reload <PROCESS_NAME> --update-env`
+- PM2 après reload : `<PROCESS_NAME>` online.
 
 ## Smoke tests
 - `site` : `200`
@@ -75,12 +75,12 @@
   - `GET /api/messages/send` : `405`
   - `GET /api/aria/conversations` : `401`
   - `GET /api/aria/chat` : `405`
-- Logs filtrés : aucune nouvelle erreur critique applicative détectée; sortie limitée à l'en-tête du fichier `nexus-prod-error-19.log`.
+- Logs filtrés : aucune nouvelle erreur critique applicative détectée; sortie limitée à l'en-tête du fichier `<PROCESS_NAME>-error-19.log`.
 
 ## Backup
 - Répertoire : `/root/nexus-backups/deploy-p0-004-lot2d-navbar-20260529102234`
 - HEAD avant : `6d7677ba6c5fd5f6bccc276e5c27290b5b79c5af`
-- Rollback prévu : `git reset --hard 6d7677ba6c5fd5f6bccc276e5c27290b5b79c5af`, `npm run typecheck`, build production, puis `pm2 reload nexus-prod --update-env`.
+- Rollback prévu : `git reset --hard 6d7677ba6c5fd5f6bccc276e5c27290b5b79c5af`, `npm run typecheck`, build production, puis `pm2 reload <PROCESS_NAME> --update-env`.
 - Rollback exécuté : non.
 
 ## Verdict

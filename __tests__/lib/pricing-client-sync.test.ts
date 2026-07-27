@@ -4,7 +4,13 @@
  *
  * If this test fails, run: node scripts/generate-pricing-client-data.js
  */
-import { PRICING_RULES, PRICING_REPERES, getNextStage } from '@/lib/pricing-client';
+import {
+  PRICING_ANNUAL_OFFER_SUMMARIES,
+  PRICING_RULES,
+  PRICING_REPERES,
+  getAnnualOfferPricing,
+  getNextStage,
+} from '@/lib/pricing-client';
 import pricingData from '@/data/pricing.canonical.json';
 import clientDataGenerated from '@/data/pricing-client-data.generated.json';
 
@@ -16,6 +22,14 @@ const canonical = pricingData as Record<string, unknown> & {
   operational_aria_addons: Record<string, unknown>;
   operational_special_packs: Record<string, unknown>;
   operational_credit_costs: Record<string, number>;
+  offers: Array<{
+    id: string;
+    price_annual: number;
+    deposit: number | null;
+    n_installments: number | null;
+    installment_amount: number | null;
+    last_installment: number | null;
+  }>;
 };
 
 const generated = clientDataGenerated as Record<string, unknown>;
@@ -56,6 +70,25 @@ describe('pricing-client sync — operational catalog', () => {
 
   it('operational_credit_costs matches canonical', () => {
     expect(generated.operational_credit_costs).toEqual(canonical.operational_credit_costs);
+  });
+});
+
+describe('pricing-client sync — annual offer pricing', () => {
+  it('exposes only canonical payment fields for every annual offer', () => {
+    const expected = canonical.offers.map((offer) => ({
+      id: offer.id,
+      price_annual: offer.price_annual,
+      deposit: offer.deposit,
+      n_installments: offer.n_installments,
+      installment_amount: offer.installment_amount,
+      last_installment: offer.last_installment,
+    }));
+
+    expect(PRICING_ANNUAL_OFFER_SUMMARIES).toEqual(expected);
+    for (const offer of expected) {
+      expect(getAnnualOfferPricing(offer.id)).toEqual(offer);
+    }
+    expect(getAnnualOfferPricing('missing-offer')).toBeUndefined();
   });
 });
 

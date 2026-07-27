@@ -2,11 +2,12 @@ import { z } from 'zod';
 import { ENTRY_LEVEL_IDS } from './schema';
 import { classifyProfileSubjectCompatibility } from './configurator';
 import { PRE_RENTREE_2026_NAVIGATION } from './navigation';
+import { canPrefillBilanGratuitFromPreRentree } from './release-gate';
 
 type SearchValue = string | string[] | undefined;
 export type CampaignSearchParams = Record<string, SearchValue>;
 
-const SUBJECT_IDS = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'PHILOSOPHIE', 'SVT'] as const;
+const SUBJECT_IDS = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'SVT', 'MATHS_EXPERTES'] as const;
 const PACK_CODES = [
   'PACK_1',
   'PACK_2',
@@ -20,7 +21,11 @@ const PREMIERE_SPECIALTY_PLAN_IDS = [
   'AUCUNE_NSI_PC',
   'NSI',
   'PHYSIQUE_CHIMIE',
+  'SVT',
   'NSI_PHYSIQUE_CHIMIE',
+  'NSI_SVT',
+  'PHYSIQUE_CHIMIE_SVT',
+  'NSI_PHYSIQUE_CHIMIE_SVT',
 ] as const;
 const TERMINALE_SPECIALTY_IDS = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'SVT'] as const;
 const TERMINALE_MATHS_OPTION_IDS = [
@@ -124,6 +129,7 @@ export function synchronizePreRentreeCampaignContext({
   studentGrade: string;
   subjects: readonly string[];
 }): PreRentreeBilanPrefill | null {
+  if (!canPrefillBilanGratuitFromPreRentree()) return null;
   if (!campaignContext) return null;
 
   const level = toEntryLevel(studentGrade);
@@ -165,6 +171,7 @@ function optionalAllowed(value: SearchValue, allowed: ReadonlySet<string>): stri
 export function parsePreRentreeBilanPrefill(
   params: CampaignSearchParams | undefined,
 ): PreRentreeBilanPrefill | null {
+  if (!canPrefillBilanGratuitFromPreRentree()) return null;
   if (!params || scalar(params.programme) !== PRE_RENTREE_2026_NAVIGATION.campaignId) return null;
   const packCode = scalar(params.pack);
   const level = scalar(params.niveau);

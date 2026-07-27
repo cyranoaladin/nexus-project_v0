@@ -54,6 +54,248 @@
     "stagesBase": "dès 420 TND",
     "parrainage": "150 à 300 TND"
   },
+  "annual_offer_summaries": [
+    {
+      "id": "term-spe-simple",
+      "price_annual": 3900,
+      "deposit": 1170,
+      "n_installments": 9,
+      "installment_amount": 300,
+      "last_installment": 330
+    },
+    {
+      "id": "term-duo",
+      "price_annual": 7175,
+      "deposit": 2150,
+      "n_installments": 9,
+      "installment_amount": 560,
+      "last_installment": 545
+    },
+    {
+      "id": "term-excellence",
+      "price_annual": 9594,
+      "deposit": 2880,
+      "n_installments": 9,
+      "installment_amount": 750,
+      "last_installment": 714
+    },
+    {
+      "id": "1re-eaf",
+      "price_annual": 3000,
+      "deposit": 900,
+      "n_installments": 9,
+      "installment_amount": 233,
+      "last_installment": 236
+    },
+    {
+      "id": "1re-maths-antic",
+      "price_annual": 3000,
+      "deposit": 900,
+      "n_installments": 9,
+      "installment_amount": 233,
+      "last_installment": 236
+    },
+    {
+      "id": "1re-double-secu",
+      "price_annual": 5400,
+      "deposit": 1620,
+      "n_installments": 9,
+      "installment_amount": 420,
+      "last_installment": 420
+    },
+    {
+      "id": "1re-sciences",
+      "price_annual": 5900,
+      "deposit": 1770,
+      "n_installments": 9,
+      "installment_amount": 460,
+      "last_installment": 450
+    },
+    {
+      "id": "2nde-maths",
+      "price_annual": 2700,
+      "deposit": 810,
+      "n_installments": 9,
+      "installment_amount": 210,
+      "last_installment": 210
+    },
+    {
+      "id": "2nde-sciences",
+      "price_annual": 5400,
+      "deposit": 1620,
+      "n_installments": 9,
+      "installment_amount": 420,
+      "last_installment": 420
+    },
+    {
+      "id": "2nde-coaching",
+      "price_annual": 450,
+      "deposit": null,
+      "n_installments": null,
+      "installment_amount": null,
+      "last_installment": null
+    },
+    {
+      "id": "brevet-maths",
+      "price_annual": 2400,
+      "deposit": 720,
+      "n_installments": 9,
+      "installment_amount": 186,
+      "last_installment": 192
+    },
+    {
+      "id": "brevet-complet",
+      "price_annual": 4800,
+      "deposit": 1440,
+      "n_installments": 9,
+      "installment_amount": 373,
+      "last_installment": 376
+    },
+    {
+      "id": "1re-libre-essentiel",
+      "price_annual": 1900,
+      "deposit": 570,
+      "n_installments": 9,
+      "installment_amount": 150,
+      "last_installment": 130
+    },
+    {
+      "id": "1re-libre-accomp",
+      "price_annual": 4900,
+      "deposit": 1470,
+      "n_installments": 9,
+      "installment_amount": 380,
+      "last_installment": 390
+    },
+    {
+      "id": "term-libre-online",
+      "price_annual": 2900,
+      "deposit": 870,
+      "n_installments": 9,
+      "installment_amount": 225,
+      "last_installment": 230
+    },
+    {
+      "id": "term-libre-mixte",
+      "price_annual": 7900,
+      "deposit": 2370,
+      "n_installments": 9,
+      "installment_amount": 614,
+      "last_installment": 618
+    },
+    {
+      "id": "term-libre-premium",
+      "price_annual": 9900,
+      "deposit": 2970,
+      "n_installments": 9,
+      "installment_amount": 770,
+      "last_installment": 770
+    },
+    {
+      "id": "plateforme-autonomie",
+      "price_annual": 590,
+      "deposit": null,
+      "n_installments": null,
+      "installment_amount": null,
+      "last_installment": null
+    },
+    {
+      "id": "plateforme-suivi",
+      "price_annual": 1490,
+      "deposit": null,
+      "n_installments": null,
+      "installment_amount": null,
+      "last_installment": null
+    },
+    {
+      "id": "plateforme-accomp",
+      "price_annual": 2900,
+      "deposit": null,
+      "n_installments": null,
+      "installment_amount": null,
+      "last_installment": null
+    },
+    {
+      "id": "term-svt",
+      "price_annual": 3900,
+      "deposit": 1170,
+      "n_installments": 9,
+      "installment_amount": 300,
+      "last_installment": 330
+    },
+    {
+      "id": "term-ses",
+      "price_annual": 3900,
+      "deposit": 1170,
+      "n_installments": 9,
+      "installment_amount": 300,
+      "last_installment": 330
+    },
+    {
+      "id": "term-hg-emc",
+      "price_annual": 3900,
+      "deposit": 1170,
+      "n_installments": 9,
+      "installment_amount": 300,
+      "last_installment": 330
+    },
+    {
+      "id": "1re-svt",
+      "price_annual": 3000,
+      "deposit": 900,
+      "n_installments": 9,
+      "installment_amount": 233,
+      "last_installment": 236
+    },
+    {
+      "id": "1re-ses",
+      "price_annual": 3000,
+      "deposit": 900,
+      "n_installments": 9,
+      "installment_amount": 233,
+      "last_installment": 236
+    },
+    {
+      "id": "1re-hg-emc",
+      "price_annual": 3000,
+      "deposit": 900,
+      "n_installments": 9,
+      "installment_amount": 233,
+      "last_installment": 236
+    },
+    {
+      "id": "2nde-svt",
+      "price_annual": 2700,
+      "deposit": 810,
+      "n_installments": 9,
+      "installment_amount": 210,
+      "last_installment": 210
+    },
+    {
+      "id": "2nde-ses",
+      "price_annual": 2700,
+      "deposit": 810,
+      "n_installments": 9,
+      "installment_amount": 210,
+      "last_installment": 210
+    },
+    {
+      "id": "2nde-hg-emc",
+      "price_annual": 2700,
+      "deposit": 810,
+      "n_installments": 9,
+      "installment_amount": 210,
+      "last_installment": 210
+    },
+    {
+      "id": "brevet-hg-emc",
+      "price_annual": 2400,
+      "deposit": 720,
+      "n_installments": 9,
+      "installment_amount": 186,
+      "last_installment": 192
+    }
+  ],
   "operational_subscription_plans": {
     "ACCES_PLATEFORME": {
       "name": "ACCÈS PLATEFORME",

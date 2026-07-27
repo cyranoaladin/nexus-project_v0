@@ -28,14 +28,14 @@ La clé privée SSL (`nginx/ssl/privkey.pem`) a été trackée dans le dépôt G
 ## PROCÉDURE DE ROTATION SSL EN PRODUCTION
 
 ### Pré-requis
-- Accès SSH au serveur (88.99.254.59)
+- Accès SSH au serveur (<PROD_HOST>)
 - Accès admin Let's Encrypt ou fournisseur SSL
 - Backup DB et storage effectués
 - Fenêtre de maintenance planifiée
 
 ### Étape 1: Backup des certificats actuels
 ```bash
-ssh root@88.99.254.59 '
+ssh root@<PROD_HOST> '
 set -e
 cd /opt/nexus
 mkdir -p backups/ssl-$(date +%Y%m%d)
@@ -48,7 +48,7 @@ ls -lah backups/ssl-$(date +%Y%m%d)/
 
 **Option A: Let's Encrypt (recommandé)**
 ```bash
-ssh root@88.99.254.59 '
+ssh root@<PROD_HOST> '
 set -e
 cd /opt/nexus
 # Arrêter nginx temporairement
@@ -72,7 +72,7 @@ chmod 644 nginx/ssl/fullchain.pem
 
 ### Étape 3: Vérification des permissions
 ```bash
-ssh root@88.99.254.59 '
+ssh root@<PROD_HOST> '
 set -e
 cd /opt/nexus
 ls -lah nginx/ssl/
@@ -84,7 +84,7 @@ ls -lah nginx/ssl/
 
 ### Étape 4: Reload Nginx
 ```bash
-ssh root@88.99.254.59 '
+ssh root@<PROD_HOST> '
 set -e
 cd /opt/nexus
 docker compose -f docker-compose.prod.yml restart nginx

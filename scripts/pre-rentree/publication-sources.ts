@@ -32,7 +32,16 @@ import {
   type PublicationSnapshot,
 } from './publication-snapshot-schema';
 
-type CompileOptions = { repoRoot: string; sourceRepoSha: string };
+type CompileOptions = { repoRoot: string; repositoryCommitSha: string };
+
+const SourceAnchorDocumentSchema = z.object({
+  schemaVersion: z.literal('1.0.0'),
+  campaignId: z.literal('pre-rentree-2026'),
+  sourceAnchorSha: z.string().regex(/^[a-f0-9]{40}$/),
+  declaredByRole: z.literal('PROJECT_OWNER'),
+  declaredAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  purpose: z.string().min(1),
+}).strict();
 
 function readSource(repoRoot: string, path: string) {
   const absolutePath = resolve(repoRoot, path);
@@ -42,6 +51,37 @@ function readSource(repoRoot: string, path: string) {
     bytes,
     sha256: createHash('sha256').update(bytes).digest('hex'),
   };
+}
+
+function resolveCanonicalSubjectTokens<T>(
+  value: T,
+  campaign: z.infer<typeof PreRentreeCampaignManifestSchema>,
+): T {
+  const labelsByLevel = new Map(campaign.levels.map((level) => {
+    const labels = campaign.subjects
+      .filter((subject) => subject.levels.includes(level.id))
+      .map((subject) => subject.labelByLevel?.[level.id] ?? subject.label);
+    const joined = labels.length < 2
+      ? (labels[0] ?? '')
+      : `${labels.slice(0, -1).join(', ')} et ${labels.at(-1)}`;
+    return [level.id, joined];
+  }));
+  const replace = (current: unknown): unknown => {
+    if (Array.isArray(current)) return current.map(replace);
+    if (current && typeof current === 'object') {
+      return Object.fromEntries(
+        Object.entries(current as Record<string, unknown>).map(([key, item]) => [key, replace(item)]),
+      );
+    }
+    if (typeof current !== 'string') return current;
+    return current.replace(
+      /\{\{subjects\.(TROISIEME|SECONDE|PREMIERE|TERMINALE)\}\}/g,
+      (_, level: string) => labelsByLevel.get(
+        level as (typeof campaign.levels)[number]['id'],
+      ) ?? '',
+    );
+  };
+  return replace(value) as T;
 }
 
 function pointerExists(value: unknown, pointer: string): boolean {
@@ -98,6 +138,7 @@ function parseApprovedTerms(path: string, content: string) {
 
 export function compileCanonicalPublication(options: CompileOptions): PublicationSnapshot {
   const repoRoot = resolve(options.repoRoot);
+  const sourceAnchorSource = readSource(repoRoot, 'content/pre-rentree-2026/source-anchor.owner.json');
   const campaignSource = readSource(repoRoot, 'data/campaigns/pre-rentree-2026.json');
   const modulesSource = readSource(repoRoot, 'content/pre-rentree-2026/modules.json');
   const pricingSource = readSource(repoRoot, 'data/pricing.canonical.json');
@@ -111,6 +152,9 @@ export function compileCanonicalPublication(options: CompileOptions): Publicatio
   const whatsappSource = readSource(repoRoot, 'content/pre-rentree-2026/whatsapp.fr.json');
   const operationsSource = readSource(repoRoot, 'content/pre-rentree-2026/operations.fr.json');
 
+  const sourceAnchor = SourceAnchorDocumentSchema.parse(
+    JSON.parse(sourceAnchorSource.bytes.toString('utf8')),
+  );
   const campaign = PreRentreeCampaignManifestSchema.parse(JSON.parse(campaignSource.bytes.toString('utf8')));
   const modulesDocument = PreRentreeModulesSchema.parse(JSON.parse(modulesSource.bytes.toString('utf8')));
   const pricingDocument = JSON.parse(pricingSource.bytes.toString('utf8')) as {
@@ -132,7 +176,10 @@ export function compileCanonicalPublication(options: CompileOptions): Publicatio
     JSON.parse(manualsSource.bytes.toString('utf8')),
   );
   const communication = PreRentreeCommunicationSchema.parse(
-    JSON.parse(communicationSource.bytes.toString('utf8')),
+    resolveCanonicalSubjectTokens(
+      JSON.parse(communicationSource.bytes.toString('utf8')),
+      campaign,
+    ),
   );
   const whatsapp = PreRentreeWhatsAppSchema.parse(
     JSON.parse(whatsappSource.bytes.toString('utf8')),
@@ -160,7 +207,25 @@ export function compileCanonicalPublication(options: CompileOptions): Publicatio
         legalApprovalReference: null,
         privacyNoticeComplete: false,
       };
-  const commitDate = execFileSync('git', ['show', '-s', '--format=%cI', options.sourceRepoSha], {
+  execFileSync('git', ['cat-file', '-e', `${options.repositoryCommitSha}^{commit}`], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+  execFileSync('git', [
+    'merge-base',
+    '--is-ancestor',
+    sourceAnchor.sourceAnchorSha,
+    options.repositoryCommitSha,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+  const repositoryCommitDate = execFileSync('git', [
+    'show',
+    '-s',
+    '--format=%cI',
+    options.repositoryCommitSha,
+  ], {
     cwd: repoRoot,
     encoding: 'utf8',
   }).trim();
@@ -170,6 +235,7 @@ export function compileCanonicalPublication(options: CompileOptions): Publicatio
     return { id, path, sha256: source.sha256 };
   };
   const sourceSetSha256 = createHash('sha256').update(JSON.stringify([
+    ['content/pre-rentree-2026/source-anchor.owner.json', sourceAnchorSource.sha256],
     ['content/pre-rentree-2026/capabilities.json', capabilitiesSource.sha256],
     ['content/pre-rentree-2026/communication.fr.json', communicationSource.sha256],
     ['content/pre-rentree-2026/manuals.registry.json', manualsSource.sha256],
@@ -222,10 +288,16 @@ export function compileCanonicalPublication(options: CompileOptions): Publicatio
   const snapshot = {
     schemaVersion: '1.0.0' as const,
     sourceSetSha256,
-    sourceRepoSha: options.sourceRepoSha,
-    sourceCommitDate: commitDate,
+    sourceAnchorSha: sourceAnchor.sourceAnchorSha,
+    repositoryCommitSha: options.repositoryCommitSha,
+    repositoryCommitDate,
     snapshotBuiltAt: parentGuide.snapshotBuiltAt,
     provenance: {
+      sourceAnchor: {
+        path: 'content/pre-rentree-2026/source-anchor.owner.json',
+        version: sourceAnchor.schemaVersion,
+        sha256: sourceAnchorSource.sha256,
+      },
       campaign: { path: 'data/campaigns/pre-rentree-2026.json', version: campaign.version, sha256: campaignSource.sha256 },
       modules: { path: 'content/pre-rentree-2026/modules.json', version: modulesDocument.version, sha256: modulesSource.sha256 },
       pricing: { path: 'data/pricing.canonical.json', version: pricingDocument.version, sha256: pricingSource.sha256 },

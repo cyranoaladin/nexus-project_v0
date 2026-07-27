@@ -1,0 +1,23 @@
+1
+00:00:00,000 --> 00:00:04,000
+Dix heures de cours ne suffisent pas si l'élève ne sait pas ce qu'il doit reprendre.
+
+2
+00:00:04,000 --> 00:00:09,000
+Chez Nexus Réussite, chaque matière est organisée en cinq séances de deux heures.
+
+3
+00:00:09,000 --> 00:00:14,000
+Un objectif clair, un temps pour chercher, puis une correction qui aide à comprendre l'erreur.
+
+4
+00:00:14,000 --> 00:00:20,000
+En 3e et en Seconde, les effectifs sont limités.
+
+5
+00:00:20,000 --> 00:00:25,000
+En Première et Terminale, les effectifs sont également limités.
+
+6
+00:00:25,000 --> 00:00:30,000
+Dès le 17 août à Mutuelleville, écrivez-nous sur WhatsApp pour trouver le parcours adapté.

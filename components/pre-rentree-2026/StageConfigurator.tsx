@@ -28,6 +28,9 @@ import { getSubjectTheme } from '@/lib/campaigns/pre-rentree-2026/subject-theme'
 import { SubjectBadge } from './SubjectBadge';
 import { useCampaignExperience } from './CampaignExperienceContext';
 
+/** Plafond commercial (D3) : les packs canoniques vont de 1 à 4 matières, aucun pack 5 matières. */
+const MAX_SUBJECTS_PER_PACK = 4;
+
 interface ProfileOption {
   id: string;
   label: string;
@@ -210,6 +213,7 @@ export default function StageConfigurator({
   const [level, setLevel] = useState<EntryLevelCode | null>(null);
   const [profile, setProfile] = useState<AcademicProfileSelection>({});
   const [subjectIds, setSubjectIds] = useState<string[]>([]);
+  const [subjectCapNotice, setSubjectCapNotice] = useState(false);
   const [mobileSummaryOpen, setMobileSummaryOpen] = useState(false);
   const { setConfiguredEntryLevel } = useCampaignExperience();
 
@@ -254,7 +258,15 @@ export default function StageConfigurator({
   }
 
   function toggleSubject(subjectId: string) {
-    const next = subjectIds.includes(subjectId)
+    const isRemoving = subjectIds.includes(subjectId);
+    // Plafond à 4 matières (D3) : aucun pack au-delà de 4, la 5e (SVT) reste sélectionnable
+    // en échange d'une autre. Empêche buildSelectionSummary de lever "Missing canonical pack".
+    if (!isRemoving && subjectIds.length >= MAX_SUBJECTS_PER_PACK) {
+      setSubjectCapNotice(true);
+      return;
+    }
+    setSubjectCapNotice(false);
+    const next = isRemoving
       ? subjectIds.filter((id) => id !== subjectId)
       : [...subjectIds, subjectId];
     setSubjectIds(next);
@@ -358,12 +370,17 @@ export default function StageConfigurator({
                             : `${theme.borderClass} ${theme.surfaceClass}`,
                         )}
                       >
-                        <label className="flex cursor-pointer items-start gap-3"><input className="mt-1 h-4 w-4 accent-lux-gold" type="checkbox" checked={selected} onChange={() => toggleSubject(subject.id)} /><span><SubjectBadge subjectId={subject.id} label={label} /><span className="mt-2 block text-sm text-lux-slate">{subject.summaryByLevel[level]}</span><span className="mt-2 block text-sm text-lux-slate">{slots.length} séances · {hours} heures</span>{first && <span className="block text-sm text-lux-slate">Semaine {first.week} · {first.startTime}–{first.endTime}</span>}</span></label>
+                        <label className="flex cursor-pointer items-start gap-3"><input className="mt-1 h-4 w-4 accent-lux-gold" type="checkbox" checked={selected} onChange={() => toggleSubject(subject.id)} /><span><SubjectBadge subjectId={subject.id} label={label} /><span className="mt-2 block text-sm text-lux-slate">{subject.summaryByLevel[level]}</span><span className="mt-2 block text-sm text-lux-slate">{slots.length} séances · {hours} heures</span>{first && <span className="block text-sm text-lux-slate">{first.startTime}–{first.endTime}</span>}</span></label>
                         <a className="mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-lux-gold-deep underline" href={`#programme-${subject.moduleIdsByLevel[level]}`}>Consulter le programme</a>
                       </article>
                     );
                   })}
                 </div>
+                {subjectCapNotice && (
+                  <p role="status" aria-live="polite" className="mt-3 text-sm font-medium text-lux-gold-deep">
+                    4 matières maximum — retirez une matière pour en ajouter une autre.
+                  </p>
+                )}
                 <div className="mt-6 flex justify-between gap-3"><button type="button" className={`${buttonClass} border border-lux-line`} onClick={() => continueTo(getPreviousConfiguratorStep(step, level))}>Retour</button><button type="button" className={`${buttonClass} lux-cta-reserve disabled:opacity-50`} disabled={subjectIds.length === 0} onClick={() => continueTo(4)}>Voir mon résumé</button></div>
               </fieldset>
             )}

@@ -6,20 +6,20 @@ Date : 2026-05-28 10:51 CET
 
 - Statut final : déploiement production effectué, rechargé et vérifié.
 - URL : https://nexusreussite.academy
-- Serveur : `root@88.99.254.59`
-- Projet production : `/var/www/nexus-project_v0`
+- Serveur : `root@<PROD_HOST>`
+- Projet production : `<APP_DIR>`
 - Go-live ready : OUI.
 
 Critères bloquants validés : français accentué, rendu mathématique KaTeX, workflow dashboard restructuré, build OK, E2E authentifié OK, persistance quiz/checklist vérifiée après rechargement, logs sans erreur EAM.
 
 ## 2. Stack production détectée
 
-- Runtime : PM2 `nexus-prod`
-- Script : `/var/www/nexus-project_v0/.next/standalone/server.js`
+- Runtime : PM2 `<PROCESS_NAME>`
+- Script : `<APP_DIR>/.next/standalone/server.js`
 - Port applicatif : `3001`
 - Proxy : Nginx vers `127.0.0.1:3001`
 - DB : PostgreSQL, conteneur `nexus-postgres-db`
-- Mode de déploiement utilisé : `rsync` ciblé des fichiers EAM modifiés, puis `npm test`, `npm run typecheck`, `npm run build`, `pm2 reload nexus-prod --update-env`
+- Mode de déploiement utilisé : `rsync` ciblé des fichiers EAM modifiés, puis `npm test`, `npm run typecheck`, `npm run build`, `pm2 reload <PROCESS_NAME> --update-env`
 - Sauvegarde avant transfert : `/root/deploy-backups/nexus-eam-finish-20260528-113305`
 
 ## 3. Corrections effectuées
@@ -72,7 +72,7 @@ Contrôle off-limits : aucun fichier off-limits n’a été transféré ni modif
 - Serveur `npm test -- --runTestsByPath __tests__/eam-progress-core.test.ts` : OK, 7 tests passés.
 - Serveur `npm run typecheck` : OK.
 - Serveur `npm run build` : OK.
-- Reload : `pm2 reload nexus-prod --update-env` : OK.
+- Reload : `pm2 reload <PROCESS_NAME> --update-env` : OK.
 - E2E production : `npx playwright test e2e/eam-premiere-student.spec.ts --project=chromium --retries=0 --trace=off` : OK, 1 test passé.
 - Smoke HTTP accueil : `200`.
 - Smoke dashboard sans session : `307` vers `/auth/signin`, puis page signin `200`.
@@ -108,7 +108,7 @@ Contrôle off-limits : aucun fichier off-limits n’a été transféré ni modif
 - Rollback applicatif prudent :
   1. Restaurer les fichiers sauvegardés ou revenir au commit précédent selon la stratégie Git décidée.
   2. Rebuild : `npm run build`.
-  3. Reload : `pm2 reload nexus-prod --update-env`.
+  3. Reload : `pm2 reload <PROCESS_NAME> --update-env`.
 - DB : ne pas supprimer `eam_progress` sans validation explicite, car elle contient maintenant une progression élève réelle.
 
 ## 10. Conclusion
@@ -154,7 +154,7 @@ Tests exécutés :
 - Serveur `npm test -- --runTestsByPath __tests__/eam-progress-core.test.ts` : OK, 10 tests passés.
 - Serveur `npm run typecheck` : OK.
 - Serveur `npm run build` : OK.
-- Reload : `pm2 reload nexus-prod --update-env` : OK.
+- Reload : `pm2 reload <PROCESS_NAME> --update-env` : OK.
 - E2E read-only production `e2e/eam-premiere-responsive-readonly.spec.ts` : OK, 1 test passé.
 - Viewports anti-overflow validés : `1024x600`, `1280x720`, `768x1024`, `390x844`.
 - Test mutationnel `e2e/eam-premiere-student.spec.ts` : protégé par `ALLOW_EAM_MUTATION_E2E=true`, skipped par défaut.
@@ -165,7 +165,7 @@ Vérifications production :
 - Dashboard sans session : redirection signin attendue.
 - `/dashboard/eleve/eam` sans session : redirection signin attendue.
 - Logs PM2 : aucune erreur EAM/Prisma/NextAuth détectée ; log RAG `ingestor` préexistant et non lié.
-- PM2 `nexus-prod` : online.
+- PM2 `<PROCESS_NAME>` : online.
 
 Observation données :
 
@@ -216,7 +216,7 @@ Tests exécutés :
 - Serveur `npm test -- --runTestsByPath __tests__/eam-mock-exam.test.ts` : OK, 4 tests passés.
 - Serveur `npm run typecheck` : OK.
 - Serveur `npm run build` : OK.
-- Reload : `pm2 reload nexus-prod --update-env` : OK.
+- Reload : `pm2 reload <PROCESS_NAME> --update-env` : OK.
 - E2E read-only production `e2e/eam-premiere-responsive-readonly.spec.ts` : OK, 1 test passé.
 
 Protection des données :
@@ -232,7 +232,7 @@ Protection des données :
 
 Logs :
 
-- PM2 `nexus-prod` : online, `unstable restarts = 0`.
+- PM2 `<PROCESS_NAME>` : online, `unstable restarts = 0`.
 - Pas d’erreur EAM/Prisma détectée.
 - Warnings/logs non liés EAM observés : RAG `ingestor`, anciennes erreurs Auth/CredentialsSignin et Server Action issues de requêtes hors sujet blanc.
 
@@ -253,7 +253,7 @@ Date : 2026-05-28 13:24 CET
 - Serveur `npm test -- --runTestsByPath __tests__/eam-progress-core.test.ts` : OK, 10 tests passés.
 - Serveur `npm run typecheck` : OK.
 - Serveur `npm run build` : OK.
-- Reload : `pm2 reload nexus-prod --update-env` : OK.
+- Reload : `pm2 reload <PROCESS_NAME> --update-env` : OK.
 - E2E read-only production : OK, 1 test passé.
 - Hash `checks` avant/après E2E : inchangé.
 - Hash `quiz` avant/après E2E : inchangé.

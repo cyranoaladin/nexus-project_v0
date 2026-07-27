@@ -12,8 +12,8 @@ Preuve directe : étiquette Docker Compose sur le conteneur en production.
 
 ```
 com.docker.compose.project: nexus-project_v0
-com.docker.compose.project.config_files: /var/www/nexus-project_v0/docker-compose.prod.yml
-com.docker.compose.project.working_dir: /var/www/nexus-project_v0
+com.docker.compose.project.config_files: <APP_DIR>/docker-compose.prod.yml
+com.docker.compose.project.working_dir: <APP_DIR>
 ```
 
 Le conteneur `nexus-app-prod` (image `nexus-project_v0-nexus-app`) tourne depuis 3h au moment de l'audit et répond sur `nexusreussite.academy` (HTTP 200 confirmé).
@@ -31,11 +31,11 @@ Le conteneur `nexus-app-prod` (image `nexus-project_v0-nexus-app`) tourne depuis
 
 Les deux repos sont **divergents** : le commit `8f029664` (HEAD de `nexus-reussite-app`) est absent de l'historique de `nexus-project_v0` (`git cat-file -e 8f029664e4fc` → fatal). Ils ont le même `package.json` name (`nexus-reussite-app` v1.0.0), ce qui confirme la filiation mais pas la lignée git partagée.
 
-### 2.2 Instances sur le serveur 88.99.254.59
+### 2.2 Instances sur le serveur <PROD_HOST>
 
 | Chemin | Type | Git remote | HEAD serveur | Rôle |
 |--------|------|-----------|-------------|------|
-| `/var/www/nexus-project_v0/` | Déploiement Docker (non-git) | — | — | **Source du conteneur prod** |
+| `<APP_DIR>/` | Déploiement Docker (non-git) | — | — | **Source du conteneur prod** |
 | `/opt/nexus/` | Clone git | `nexus-project_v0.git` | `ba756884` | Clone de maintenance |
 | `/opt/eaf/releases/20260413_002758/` | Release EAF | — | `.git_sha = unknown` | **Codebase distincte, non déployée** |
 
@@ -58,13 +58,13 @@ Les deux repos sont **divergents** : le commit `8f029664` (HEAD de `nexus-reussi
 ## 3. Infrastructure de production actuelle
 
 ```
-nexusreussite.academy (88.99.254.59)
+nexusreussite.academy (<PROD_HOST>)
     │
     └── Nginx (reverse proxy)
             │
             ├── Port 3001 → nexus-app-prod (Docker)
             │       Image: nexus-project_v0-nexus-app
-            │       Source: /var/www/nexus-project_v0/docker-compose.prod.yml
+            │       Source: <APP_DIR>/docker-compose.prod.yml
             │       DB: nexus-postgres-prod (pgvector/pg15)
             │
             └── Autres projets sur le même serveur :
@@ -87,7 +87,7 @@ nexusreussite.academy (88.99.254.59)
 | Local (`nexus-project_v0`) | `00d54e9a` (2026-04-19) |
 | GitHub (`nexus-project_v0`) | `00d54e9a` ← **en sync** |
 | Serveur `/opt/nexus/` | `ba756884` (5 commits de retard) |
-| `/var/www/nexus-project_v0/` | Non-git, construit depuis un état antérieur |
+| `<APP_DIR>/` | Non-git, construit depuis un état antérieur |
 
 Le déploiement en production est en retard de **minimum 5 commits** par rapport à l'état local. Les commits manquants incluent potentiellement des correctifs de sécurité (à vérifier manuellement sur le serveur).
 

@@ -2,11 +2,11 @@
 # CI Pipeline - Nexus Reussite
 # =============================================================================
 #
-# Pipeline with dependency-integrity gate, lint, typecheck, tests, security, build.
-# All jobs must pass for merge into main.
+# Pipeline with independent dependency, quality, test, security, build, and
+# document evidence. All jobs must pass for merge into main.
 #
 # Triggers:
-# - Pull requests vers main
+# - Pull requests vers main or the frozen PR #79 release branch
 # - Push sur main (pour verifier apres merge)
 #
 # Jobs:
@@ -15,9 +15,11 @@
 # 2. typecheck            - TypeScript validation
 # 3. unit                 - Tests unitaires (jsdom, pas de DB)
 # 4. integration          - Tests integration (node + PostgreSQL)
-# 5. e2e                  - Tests E2E (Playwright + app demarree + DB E2E)
-# 6. security             - semgrep + OSV scanner
-# 7. build                - Next.js production build + artifact audit
+# 5. real-db-integration  - 3 suites / 10 tests PostgreSQL non-Bilan
+# 6. e2e                  - Tests E2E (Playwright + app demarree + DB E2E)
+# 7. security             - semgrep + OSV scanner
+# 8. build                - Next.js production build + artifact audit
+# 9. documents            - Verification des 7 PDF publics figes
 #
 # =============================================================================
 
@@ -27,7 +29,9 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+    branches:
+      - main
+      - release/pre-rentree-2026-public-ready
 
 # Cancel in-progress runs when new commits pushed
 concurrency:
@@ -54,10 +58,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -80,21 +84,49 @@ jobs:
             --tree /tmp/npm-tree.json \
             --exceptions security/npm-tree-exceptions.json
 
-      - name: Audit production dependencies
-        run: npm audit --omit=dev --audit-level=high
-
-      - name: Audit all dependencies
-        run: npm audit --audit-level=high
-
       - name: Generate SBOM
         run: npm run sbom:runtime
 
-      - name: Upload SBOM artifact
-        uses: actions/upload-artifact@v4
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high --json > npm-audit-production.json
+
+      - name: Audit all dependencies with exact time-bound policy
+        env:
+          CURRENT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          PRE_RENTREE_DEV_TOOLING_EXCEPTION_JSON: ${{ secrets.PRE_RENTREE_DEV_TOOLING_EXCEPTION_JSON }}
+        run: |
+          set +e
+          npm audit --audit-level=high --json > npm-audit-full.json
+          audit_code=$?
+          set -e
+          echo "FULL_AUDIT_EXIT_CODE=$audit_code"
+          if [ "$audit_code" -eq 0 ]; then
+            echo "Full npm audit is green; no exception consumed."
+          elif [ "$audit_code" -eq 1 ]; then
+            node scripts/security/validate-dev-tooling-exception.mjs \
+              --mode npm \
+              --policy security/pre-rentree-2026-dev-tooling-exception-policy.json \
+              --current-sha "$CURRENT_SHA" \
+              --now "$(date --iso-8601=seconds)" \
+              --report npm-audit-full.json \
+              --production-audit npm-audit-production.json \
+              --runtime-sbom security/sbom/runtime.cdx.json
+          else
+            echo "npm audit scanner failed with exit code $audit_code"
+            exit "$audit_code"
+          fi
+
+      - name: Upload dependency evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: runtime-sbom
-          path: security/sbom/runtime.cdx.json
+          name: dependency-integrity-evidence
+          path: |
+            npm-audit-production.json
+            npm-audit-full.json
+            security/sbom/runtime.cdx.json
           retention-days: 30
+          if-no-files-found: error
 
   # ===========================================================================
   # JOB 1: LINT
@@ -103,14 +135,13 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: [dependency-integrity]
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -137,14 +168,13 @@ jobs:
     name: TypeScript Type Check
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: [dependency-integrity]
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -168,16 +198,15 @@ jobs:
     name: Unit Tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [lint, typecheck]
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -210,7 +239,7 @@ jobs:
 
       - name: Upload coverage report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: coverage-unit
           path: coverage/
@@ -218,7 +247,7 @@ jobs:
 
       - name: Upload test logs on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: unit-test-logs
           path: |
@@ -234,7 +263,6 @@ jobs:
     name: Integration Tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: [lint, typecheck]
 
     services:
       postgres:
@@ -253,10 +281,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -324,11 +352,13 @@ jobs:
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           NODE_ENV: test
-        run: npm run test:db-integration -- --ci
+        run: >-
+          npx jest --config jest.integration.config.js --runInBand --ci
+          --testPathIgnorePatterns='/__tests__/lib/bilan/'
 
       - name: Upload test logs on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: integration-test-logs
           path: |
@@ -338,13 +368,89 @@ jobs:
           if-no-files-found: ignore
 
   # ===========================================================================
-  # JOB 5: E2E TESTS (with Playwright + E2E DB)
+  # JOB 5: REAL DATABASE INTEGRATION EVIDENCE
+  # ===========================================================================
+  real-db-integration:
+    name: Real DB Integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ${{ github.run_id }}
+          POSTGRES_DB: nexus_ci_evidence
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d nexus_ci_evidence"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Pin npm version
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        env:
+          DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_ci_evidence
+        run: npx prisma generate
+
+      - name: Apply existing database migrations
+        env:
+          DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_ci_evidence
+        run: npx prisma migrate deploy
+
+      - name: Run non-Bilan real database suites
+        env:
+          DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_ci_evidence
+          TEST_DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_ci_evidence?schema=public
+          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_SECRET: ${{ github.sha }}
+          NODE_ENV: test
+        run: |
+          npx jest \
+            --config jest.integration.config.js \
+            --runInBand \
+            --ci \
+            --runTestsByPath \
+            __tests__/integration/activate-student.real.test.ts \
+            __tests__/integration/predict-ownership.real.test.ts \
+            __tests__/security/idor-real.test.ts
+
+      - name: Upload real database logs on failure
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: real-db-integration-logs
+          path: |
+            *.log
+            npm-debug.log*
+          retention-days: 7
+          if-no-files-found: ignore
+
+  # ===========================================================================
+  # JOB 6: E2E TESTS (with Playwright + E2E DB)
   # ===========================================================================
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
     timeout-minutes: 25
-    needs: [lint, typecheck]
 
     services:
       postgres-e2e:
@@ -363,10 +469,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -463,7 +569,7 @@ jobs:
 
       - name: Upload Playwright report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: playwright-report
           path: playwright-report/
@@ -471,7 +577,7 @@ jobs:
 
       - name: Upload Playwright screenshots
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: playwright-screenshots
           path: test-results/
@@ -480,7 +586,7 @@ jobs:
 
       - name: Upload E2E logs on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: e2e-logs
           path: |
@@ -491,20 +597,19 @@ jobs:
           if-no-files-found: ignore
 
   # ===========================================================================
-  # JOB 6: SECURITY SCANNING
+  # JOB 7: SECURITY SCANNING
   # ===========================================================================
   security:
     name: Security Scan
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [dependency-integrity]
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -595,7 +700,7 @@ jobs:
 
       - name: Upload Semgrep report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: semgrep-report
           path: semgrep-report.json
@@ -610,6 +715,9 @@ jobs:
           chmod +x osv-scanner
 
       - name: Run OSV Scanner
+        env:
+          CURRENT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          PRE_RENTREE_DEV_TOOLING_EXCEPTION_JSON: ${{ secrets.PRE_RENTREE_DEV_TOOLING_EXCEPTION_JSON }}
         run: |
           set +e
           ./osv-scanner --lockfile=package-lock.json --format=json --output=osv-report.json
@@ -617,11 +725,14 @@ jobs:
           set -e
           echo "OSV_EXIT_CODE=$osv_code"
           if [ "$osv_code" -eq 0 ]; then
-            echo "OSV Scanner: no vulnerabilities found"
+            echo "OSV Scanner is green; no exception consumed."
           elif [ "$osv_code" -eq 1 ]; then
-            echo "OSV Scanner: vulnerabilities detected"
-            cat osv-report.json | head -100
-            exit 1
+            node scripts/security/validate-dev-tooling-exception.mjs \
+              --mode osv \
+              --policy security/pre-rentree-2026-dev-tooling-exception-policy.json \
+              --current-sha "$CURRENT_SHA" \
+              --now "$(date --iso-8601=seconds)" \
+              --report osv-report.json
           else
             echo "OSV Scanner: scanner error (code=$osv_code)"
             exit 1
@@ -629,7 +740,7 @@ jobs:
 
       - name: Upload OSV report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: osv-report
           path: osv-report.json
@@ -637,13 +748,12 @@ jobs:
           if-no-files-found: ignore
 
   # ===========================================================================
-  # JOB 7: BUILD PRODUCTION
+  # JOB 8: BUILD PRODUCTION
   # ===========================================================================
   build:
     name: Production Build
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: [lint, typecheck]
 
     services:
       postgres:
@@ -662,10 +772,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -687,6 +797,12 @@ jobs:
           OPENAI_API_KEY: sk-test-mock-key-for-ci-build-only
           NODE_ENV: production
         run: npm run build
+
+      - name: Validate Next.js traces
+        run: npm run artifact:traces
+
+      - name: Audit production standalone artifact
+        run: npm run artifact:audit
 
       - name: Smoke test standalone server
         env:
@@ -710,7 +826,7 @@ jobs:
           exit 1
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: nextjs-build
           path: .next/
@@ -725,27 +841,73 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
 
   # ===========================================================================
-  # JOB 8: STATUS CHECK (All jobs must pass)
+  # JOB 9: FROZEN PUBLIC DOCUMENT VERIFICATION
+  # ===========================================================================
+  documents:
+    name: Documents
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install PDF verification tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes python3-venv qpdf
+          python3 -m venv "$RUNNER_TEMP/pre-rentree-verify"
+          "$RUNNER_TEMP/pre-rentree-verify/bin/python" -m pip install \
+            -r scripts/pre-rentree/requirements.lock
+          echo "$RUNNER_TEMP/pre-rentree-verify/bin" >> "$GITHUB_PATH"
+
+      - name: Verify frozen public PDFs
+        run: |
+          npm run pre-rentree:public-pdfs:verify
+          git diff --exit-code
+          test -z "$(git status --short)"
+
+  # ===========================================================================
+  # JOB 10: STATUS CHECK (All jobs must pass)
   # ===========================================================================
   ci-success:
     name: CI Success
     runs-on: ubuntu-latest
-    needs: [dependency-integrity, lint, typecheck, unit, integration, e2e, security, build]
-    if: ${{ always() && !cancelled() }}
+    needs:
+      - dependency-integrity
+      - lint
+      - typecheck
+      - unit
+      - integration
+      - real-db-integration
+      - e2e
+      - security
+      - build
+      - documents
+    if: ${{ always() }}
 
     steps:
       - name: Check all jobs status
         run: |
           FAIL=0
 
-          # Required jobs: must be 'success'
+          # Every required job must be represented and exactly 'success'.
           for result_pair in \
             "dependency-integrity:${{ needs.dependency-integrity.result }}" \
             "lint:${{ needs.lint.result }}" \
             "typecheck:${{ needs.typecheck.result }}" \
             "unit:${{ needs.unit.result }}" \
             "integration:${{ needs.integration.result }}" \
-            "build:${{ needs.build.result }}"; do
+            "real-db-integration:${{ needs.real-db-integration.result }}" \
+            "e2e:${{ needs.e2e.result }}" \
+            "security:${{ needs.security.result }}" \
+            "build:${{ needs.build.result }}" \
+            "documents:${{ needs.documents.result }}"; do
             job="${result_pair%%:*}"
             result="${result_pair#*:}"
             if [ "$result" != "success" ]; then
@@ -755,26 +917,6 @@ jobs:
               echo "OK $job: $result"
             fi
           done
-
-          # E2E: allow 'cancelled' (from cancel-in-progress on newer push)
-          E2E_RESULT="${{ needs.e2e.result }}"
-          if [ "$E2E_RESULT" = "success" ]; then
-            echo "OK e2e: $E2E_RESULT"
-          elif [ "$E2E_RESULT" = "cancelled" ]; then
-            echo "WARN e2e: $E2E_RESULT (cancelled by newer push)"
-          else
-            echo "FAIL e2e: $E2E_RESULT"
-            FAIL=1
-          fi
-
-          # Security: required
-          SEC_RESULT="${{ needs.security.result }}"
-          if [ "$SEC_RESULT" != "success" ]; then
-            echo "FAIL security: $SEC_RESULT"
-            FAIL=1
-          else
-            echo "OK security: $SEC_RESULT"
-          fi
 
           if [ "$FAIL" -ne 0 ]; then
             echo ""

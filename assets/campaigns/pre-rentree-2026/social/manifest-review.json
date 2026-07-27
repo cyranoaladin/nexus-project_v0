@@ -1,0 +1,126 @@
+{
+  "schemaVersion": "1.0.0",
+  "campaignId": "pre-rentree-2026",
+  "campaignVersion": "2.1.0",
+  "purpose": "INTERNAL_REVIEW",
+  "watermark": "DOCUMENT DE REVUE — DIFFUSION INTERDITE",
+  "assets": [
+    {
+      "path": "REVIEW/contact-sheets/campagne-sociale.pdf",
+      "role": "internal-review",
+      "source": "PUBLIC/contact-sheets/campagne-sociale.pdf",
+      "bytes": 184265,
+      "sha256": "e5c6cd325826ad44fe9c270493a80fd21c1fbeea8f949acc629718f274b11ce5",
+      "width": null,
+      "height": null
+    },
+    {
+      "path": "REVIEW/contact-sheets/feed.png",
+      "role": "internal-review",
+      "source": "PUBLIC/contact-sheets/feed.png",
+      "bytes": 251374,
+      "sha256": "6585be5b14f96ca56270d435bef89425e29f37e4d87d2000976283a97ebb8818",
+      "width": 1020,
+      "height": 860
+    },
+    {
+      "path": "REVIEW/contact-sheets/story.png",
+      "role": "internal-review",
+      "source": "PUBLIC/contact-sheets/story.png",
+      "bytes": 170122,
+      "sha256": "bac77b3fef7fa8b42bf96e7ed531abb1d7471c0c7647dfcfa61b01171da4ce84",
+      "width": 780,
+      "height": 892
+    },
+    {
+      "path": "REVIEW/feed/entree-3e.png",
+      "role": "internal-review",
+      "source": "PUBLIC/feed/entree-3e.png",
+      "bytes": 106243,
+      "sha256": "77153ebad153da348bd85c7a34047f2bc6a037aa526a95e6375fb841bde370de",
+      "width": 1080,
+      "height": 1350
+    },
+    {
+      "path": "REVIEW/feed/entree-premiere.png",
+      "role": "internal-review",
+      "source": "PUBLIC/feed/entree-premiere.png",
+      "bytes": 127713,
+      "sha256": "1dd67b9a56acb18cf0ea16d6e9f09617d523d5cb5f8ab682c59b188a8521fd73",
+      "width": 1080,
+      "height": 1350
+    },
+    {
+      "path": "REVIEW/feed/entree-seconde.png",
+      "role": "internal-review",
+      "source": "PUBLIC/feed/entree-seconde.png",
+      "bytes": 107591,
+      "sha256": "5cccf5061ce36eef654a828f43b567903675dbee933c77144bd6071f1fdd1261",
+      "width": 1080,
+      "height": 1350
+    },
+    {
+      "path": "REVIEW/feed/entree-terminale.png",
+      "role": "internal-review",
+      "source": "PUBLIC/feed/entree-terminale.png",
+      "bytes": 123719,
+      "sha256": "2dcdd977ad428c00f168da3fbffe7725ab55cf628b12f0bf36e9ec47a89476a2",
+      "width": 1080,
+      "height": 1350
+    },
+    {
+      "path": "REVIEW/feed/principal.png",
+      "role": "internal-review",
+      "source": "PUBLIC/feed/principal.png",
+      "bytes": 101923,
+      "sha256": "0dfcfb41edea348f216e06e17d0d1abf4e562d52fac959bd746a1b146553f5fe",
+      "width": 1080,
+      "height": 1350
+    },
+    {
+      "path": "REVIEW/story/entree-3e.png",
+      "role": "internal-review",
+      "source": "PUBLIC/story/entree-3e.png",
+      "bytes": 108476,
+      "sha256": "8ebe75146a52337f1f98d8d2f06e8dce94a72ad040870e4e897b093d74c59e66",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "path": "REVIEW/story/entree-premiere.png",
+      "role": "internal-review",
+      "source": "PUBLIC/story/entree-premiere.png",
+      "bytes": 120544,
+      "sha256": "b9bf6c5649f03e04bceaa20b8b5658bd328cc05910995bfd6124e2bf43a98dc1",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "path": "REVIEW/story/entree-seconde.png",
+      "role": "internal-review",
+      "source": "PUBLIC/story/entree-seconde.png",
+      "bytes": 112415,
+      "sha256": "600ba435d56559f802cda848b91e1c92e82ffec0c13b668bfb4054ae7ec0a229",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "path": "REVIEW/story/entree-terminale.png",
+      "role": "internal-review",
+      "source": "PUBLIC/story/entree-terminale.png",
+      "bytes": 105034,
+      "sha256": "9ddd444c87ed7aac41c1b88fa02375a35c0a7dbef35f2ef0176bf00be0a4814b",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "path": "REVIEW/story/principale.png",
+      "role": "internal-review",
+      "source": "PUBLIC/story/principale.png",
+      "bytes": 119974,
+      "sha256": "47db857464e163c96c809de895e87c2754a827f856651db6ff7f371631c2a571",
+      "width": 1080,
+      "height": 1920
+    }
+  ]
+}

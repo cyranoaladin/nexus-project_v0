@@ -19,7 +19,8 @@ const path = require('node:path');
 
 const root = path.resolve(process.argv[2] ?? '.next/standalone');
 
-const forbiddenPackagePattern = /(^|\/)node_modules\/(?:@emnapi\/runtime|@img\/sharp-wasm32)(\/|$)/;
+const forbiddenPackagePattern =
+  /(^|\/)node_modules\/(?:@emnapi\/runtime|@img\/sharp-wasm32|brace-expansion)(\/|$)/;
 
 // Directories forbidden in standalone artifact (BLOCKING).
 const forbiddenDirs = new Set([

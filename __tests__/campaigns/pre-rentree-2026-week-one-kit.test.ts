@@ -60,14 +60,18 @@ describe('Pré-rentrée 2026 week-one campaign kit', () => {
     expect(reel.caption.length).toBeGreaterThan(150);
   });
 
-  it('defines a complete seven-day calendar with no unsupported testimonial', () => {
+  it('defines a dated seven-day calendar with no unsupported testimonial', () => {
     const source = JSON.parse(readFileSync(sourcePath, 'utf8'));
     const days = source.calendar.days;
 
     expect(days).toHaveLength(7);
     expect(days.map((day: { day: string }) => day.day)).toEqual(['J1', 'J2', 'J3', 'J4', 'J5', 'J6', 'J7']);
+    expect(source.launchDate).toBe('2026-07-26');
+    expect(source.launchDateStatus).toBe('SCHEDULED');
+    expect(days.map((day: { publicationDayOffset: number }) => day.publicationDayOffset)).toEqual([0, 1, 2, 3, 4, 5, 6]);
     expect(days.every((day: Record<string, unknown>) => (
-      day.date && day.time && day.channel && day.audience && day.level
+      /^\d{4}-\d{2}-\d{2}$/.test(day.date as string) && Number.isInteger(day.publicationDayOffset)
+      && day.time && day.channel && day.audience && day.level
       && day.funnelStage && day.objective && day.assetId && day.body
       && day.cta && day.utm && day.whatsappScriptId && day.expectedKpi
     ))).toBe(true);
@@ -86,8 +90,18 @@ describe('Pré-rentrée 2026 week-one campaign kit', () => {
 
     expect(publicCopy).not.toMatch(/\b(?:Gate|REVIEW|blocked|owner|placeholder)\b/i);
     expect(publicCopy).not.toMatch(/SNT/i);
+    expect(publicCopy).not.toMatch(/Seconde[^.]{0,160}Physique[- ]?Chimie|Physique[- ]?Chimie[^.]{0,160}Seconde/i);
     expect(publicCopy).not.toMatch(/manuel offert|remise annuelle|réduction annuelle|10\s*%/i);
     expect(publicCopy).not.toMatch(/garanti|garantie de résultat|places très limitées/i);
+    expect(publicCopy).not.toMatch(/Programme et inscription|Pré-inscrire|Réserver|Payer/i);
+  });
+
+  it('derives every explicit subject list from the canonical campaign contract', () => {
+    const sourceText = readFileSync(sourcePath, 'utf8');
+
+    expect(sourceText).toContain('{{subjects.TROISIEME}}');
+    expect(sourceText).toContain('{{subjects.SECONDE}}');
+    expect(sourceText).not.toMatch(/Seconde[^.]{0,160}Physique[- ]?Chimie|Physique[- ]?Chimie[^.]{0,160}Seconde/i);
   });
 
   it('references a generated manifest and all primary deliverables', () => {

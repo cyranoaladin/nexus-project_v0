@@ -1,5 +1,6 @@
 import type { EntryLevelCode } from './schema';
 import { PRE_RENTREE_2026_NAVIGATION } from './navigation';
+import { assignItinerary } from './itinerary';
 
 export interface AcademicProfileSelection {
   voie?: string;
@@ -50,6 +51,18 @@ export interface LandingPack {
   range?: 'FONDATIONS' | 'PREMIUM';
 }
 
+export const MAX_SUBJECTS_PER_PACK = 4;
+
+export type PublicCapacityStatus =
+  | 'STRUCTURALLY_COMPACT'
+  | 'CAPACITY_TO_CONFIRM'
+  | 'CONFIRMED';
+
+export interface PublicPlanningAvailability {
+  structuralStatus: 'STRUCTURALLY_COMPACT' | null;
+  capacityStatus: Exclude<PublicCapacityStatus, 'STRUCTURALLY_COMPACT'>;
+}
+
 export interface LandingScheduleSlot {
   date: string;
   /** Stable code for the 2026-2027 entry class. */
@@ -59,8 +72,14 @@ export interface LandingScheduleSlot {
   startTime: string;
   endTime: string;
   room: string;
-  week: number;
+  windowId: string;
   sessionNumber: number;
+  /** Present only for a subject offered in more than one alternative cohort
+   * (e.g. Première SVT, Terminale NSI/SVT) — absent means the single implicit
+   * primary cohort, exactly as before this field existed. */
+  cohortId?: string;
+  alternativeGroupId?: string;
+  isPrimary?: boolean;
 }
 
 export interface LandingModuleSlot {
@@ -70,11 +89,10 @@ export interface LandingModuleSlot {
   room: string;
 }
 
-export interface LandingScheduleWeek {
-  week: number;
-  weekLabel: string;
-  weekStart: string;
-  weekEnd: string;
+export interface LandingScheduleWindow {
+  windowId: string;
+  windowLabel: string;
+  days: string[];
   slots: LandingModuleSlot[];
 }
 
@@ -95,7 +113,7 @@ export interface ScheduleSummaryLine {
   dates: string[];
   startTime: string;
   endTime: string;
-  week: number;
+  windowId: string;
 }
 
 export interface SelectionSummary {
@@ -163,11 +181,28 @@ export function isAcademicProfileComplete(
 }
 
 function premierePlansSubject(plan: string | undefined, subject: string): boolean {
+  // SVT is commercialized in Première exactly like NSI/Physique-Chimie (see
+  // content/pre-rentree-2026/offers.json) and must be gated the same way — a
+  // profile plan that omits SVT must not silently declare an SVT selection
+  // compatible (fixed 2026, see SCHEDULE-UX-AUDIT.md §Première profile gap).
   if (subject === 'NSI') {
-    return plan === 'NSI' || plan === 'NSI_PHYSIQUE_CHIMIE';
+    return plan === 'NSI' || plan === 'NSI_PHYSIQUE_CHIMIE' || plan === 'NSI_SVT' || plan === 'NSI_PHYSIQUE_CHIMIE_SVT';
   }
   if (subject === 'PHYSIQUE_CHIMIE') {
-    return plan === 'PHYSIQUE_CHIMIE' || plan === 'NSI_PHYSIQUE_CHIMIE';
+    return (
+      plan === 'PHYSIQUE_CHIMIE' ||
+      plan === 'NSI_PHYSIQUE_CHIMIE' ||
+      plan === 'PHYSIQUE_CHIMIE_SVT' ||
+      plan === 'NSI_PHYSIQUE_CHIMIE_SVT'
+    );
+  }
+  if (subject === 'SVT') {
+    return (
+      plan === 'SVT' ||
+      plan === 'NSI_SVT' ||
+      plan === 'PHYSIQUE_CHIMIE_SVT' ||
+      plan === 'NSI_PHYSIQUE_CHIMIE_SVT'
+    );
   }
   return true;
 }
@@ -193,7 +228,7 @@ export function classifyProfileSubjectCompatibility(
     if (
       subjectIds.some(
         (subject) =>
-          (subject === 'NSI' || subject === 'PHYSIQUE_CHIMIE') &&
+          (subject === 'NSI' || subject === 'PHYSIQUE_CHIMIE' || subject === 'SVT') &&
           !premierePlansSubject(profile.premiereSpecialtyPlan, subject),
       )
     ) {
@@ -228,7 +263,8 @@ export function classifyProfileSubjectCompatibility(
     }
     if (
       (subjectIds.includes('NSI') && !retained.includes('NSI')) ||
-      (subjectIds.includes('PHYSIQUE_CHIMIE') && !retained.includes('PHYSIQUE_CHIMIE'))
+      (subjectIds.includes('PHYSIQUE_CHIMIE') && !retained.includes('PHYSIQUE_CHIMIE')) ||
+      (subjectIds.includes('SVT') && !retained.includes('SVT'))
     ) {
       return {
         status: 'REQUIRES_PEDAGOGICAL_REVIEW',
@@ -238,6 +274,20 @@ export function classifyProfileSubjectCompatibility(
       };
     }
     if (subjectIds.includes('MATHEMATIQUES')) {
+      if (profile.mathsOption === 'MATHS_COMPLEMENTAIRES') {
+        // Confirmed pedagogical gap (SCHEDULE-S5 audit): the module's 5 sessions
+        // (limites, suites récurrentes, géométrie dans l'espace...) are written
+        // for the spécialité EDS track, not the lighter Mathématiques
+        // complémentaires programme — no differentiated complémentaires content
+        // actually exists yet. Do not claim a differentiation that isn't real;
+        // route to pedagogical review instead of silently approving it.
+        return {
+          status: 'REQUIRES_PEDAGOGICAL_REVIEW',
+          messages: [
+            'Le contenu du module Mathématiques cible la spécialité EDS ; Mathématiques complémentaires nécessite une validation pédagogique distincte avant confirmation.',
+          ],
+        };
+      }
       return {
         status: 'COMPATIBLE_WITH_DIFFERENTIATION',
         messages: ['Le module de Mathématiques est différencié selon la spécialité et l’option déclarées.'],
@@ -297,22 +347,27 @@ export function buildSelectionSummary(input: {
     if (!subject) throw new Error(`Unknown campaign subject: ${id}`);
     return subject;
   });
+  // A subject with more than one alternative cohort (see itinerary.ts) must
+  // resolve to exactly one cohort's 5 sessions here — never the raw union of
+  // every cohort, which would look like 10 séances for one matière.
+  const assignment = input.subjectIds.length > 0
+    ? assignItinerary(input.level, input.subjectIds, input.schedule)
+    : null;
   const scheduleLines = selectedSubjects.map((subject) => {
-    const slots = input.schedule.filter(
-      (slot) => slot.level === input.level && slot.subject === subject.id,
-    );
+    const slots = assignment ? assignment.sessionsBySubject[subject.id] ?? [] : [];
     if (slots.length !== 5) {
       throw new Error(`Missing campaign schedule for ${input.level}/${subject.id}`);
     }
     const first = slots[0];
     if (!first) throw new Error(`Missing campaign schedule for ${input.level}/${subject.id}`);
+    if (!first.windowId) throw new Error(`Missing windowId for ${input.level}/${subject.id}`);
     return {
       subjectId: subject.id,
       subjectLabel: subjectLabel(subject, input.level),
       dates: [...new Set(slots.map((slot) => slot.date))].sort(),
       startTime: first.startTime,
       endTime: first.endTime,
-      week: first.week,
+      windowId: first.windowId,
     };
   });
   const dates = [...new Set(scheduleLines.flatMap((line) => line.dates))].sort();

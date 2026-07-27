@@ -9,7 +9,7 @@
   "documents": [
     {
       "documentId": "brochure-generale",
-      "pageCount": 3,
+      "pageCount": 2,
       "pages": [
         {
           "page": 1,
@@ -20,14 +20,7 @@
         },
         {
           "page": 2,
-          "textCharacters": 1752,
-          "blank": false,
-          "width": 1240,
-          "height": 1755
-        },
-        {
-          "page": 3,
-          "textCharacters": 1243,
+          "textCharacters": 2934,
           "blank": false,
           "width": 1240,
           "height": 1755
@@ -62,14 +55,14 @@
       "pages": [
         {
           "page": 1,
-          "textCharacters": 1177,
+          "textCharacters": 1186,
           "blank": false,
           "width": 1240,
           "height": 1755
         },
         {
           "page": 2,
-          "textCharacters": 2892,
+          "textCharacters": 2843,
           "blank": false,
           "width": 1240,
           "height": 1755
@@ -104,14 +97,14 @@
       "pages": [
         {
           "page": 1,
-          "textCharacters": 1225,
+          "textCharacters": 1221,
           "blank": false,
           "width": 1240,
           "height": 1755
         },
         {
           "page": 2,
-          "textCharacters": 981,
+          "textCharacters": 987,
           "blank": false,
           "width": 1240,
           "height": 1755
@@ -146,14 +139,14 @@
       "pages": [
         {
           "page": 1,
-          "textCharacters": 1486,
+          "textCharacters": 1296,
           "blank": false,
           "width": 1240,
           "height": 1755
         },
         {
           "page": 2,
-          "textCharacters": 1075,
+          "textCharacters": 1079,
           "blank": false,
           "width": 1240,
           "height": 1755
@@ -188,14 +181,14 @@
       "pages": [
         {
           "page": 1,
-          "textCharacters": 1644,
+          "textCharacters": 1722,
           "blank": false,
           "width": 1240,
           "height": 1755
         },
         {
           "page": 2,
-          "textCharacters": 1000,
+          "textCharacters": 988,
           "blank": false,
           "width": 1240,
           "height": 1755
@@ -230,7 +223,7 @@
       "pages": [
         {
           "page": 1,
-          "textCharacters": 1676,
+          "textCharacters": 1833,
           "blank": false,
           "width": 1240,
           "height": 1755
@@ -272,14 +265,14 @@
       "pages": [
         {
           "page": 1,
-          "textCharacters": 1855,
+          "textCharacters": 1875,
           "blank": false,
           "width": 1240,
           "height": 1755
         },
         {
           "page": 2,
-          "textCharacters": 1020,
+          "textCharacters": 1085,
           "blank": false,
           "width": 1240,
           "height": 1755
@@ -314,14 +307,14 @@
       "pages": [
         {
           "page": 1,
-          "textCharacters": 1438,
+          "textCharacters": 1443,
           "blank": false,
           "width": 1240,
           "height": 1755
         },
         {
           "page": 2,
-          "textCharacters": 1052,
+          "textCharacters": 1050,
           "blank": false,
           "width": 1240,
           "height": 1755
@@ -356,14 +349,14 @@
       "pages": [
         {
           "page": 1,
-          "textCharacters": 1840,
+          "textCharacters": 1860,
           "blank": false,
           "width": 1240,
           "height": 1755
         },
         {
           "page": 2,
-          "textCharacters": 1004,
+          "textCharacters": 987,
           "blank": false,
           "width": 1240,
           "height": 1755
@@ -398,14 +391,14 @@
       "pages": [
         {
           "page": 1,
-          "textCharacters": 1552,
+          "textCharacters": 1573,
           "blank": false,
           "width": 1240,
           "height": 1755
         },
         {
           "page": 2,
-          "textCharacters": 1002,
+          "textCharacters": 939,
           "blank": false,
           "width": 1240,
           "height": 1755
@@ -440,14 +433,14 @@
       "pages": [
         {
           "page": 1,
-          "textCharacters": 1520,
+          "textCharacters": 1540,
           "blank": false,
           "width": 1240,
           "height": 1755
         },
         {
           "page": 2,
-          "textCharacters": 901,
+          "textCharacters": 862,
           "blank": false,
           "width": 1240,
           "height": 1755
@@ -482,14 +475,14 @@
       "pages": [
         {
           "page": 1,
-          "textCharacters": 1516,
+          "textCharacters": 1471,
           "blank": false,
           "width": 1240,
           "height": 1755
         },
         {
           "page": 2,
-          "textCharacters": 1043,
+          "textCharacters": 875,
           "blank": false,
           "width": 1240,
           "height": 1755
@@ -524,7 +517,7 @@
       "pages": [
         {
           "page": 1,
-          "textCharacters": 1901,
+          "textCharacters": 1876,
           "blank": false,
           "width": 1240,
           "height": 1755
