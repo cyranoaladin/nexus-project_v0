@@ -13,9 +13,11 @@ describe('Pré-rentrée 2026 staffing and room contract', () => {
   const sessions = getPreRentreeSchedule();
 
   it('declares only non-personal, unassigned teacher roles for REVIEW', () => {
-    // Modèle fenêtres + week-end (v2) : 4 rôles abstraits A/C/D/E (un seul enseignant
-    // Maths/NSI, un Français, un Physique-Chimie, un SVT), plus de granularité par niveau.
-    expect(Object.keys(teacherRoles)).toHaveLength(4);
+    // Modèle fenêtres + week-end (v2), étendu pour la 4e (arbitrage D1 : 3e salle +
+    // 2e prof maths) : 5 rôles abstraits A/B/C/D/E (deux enseignants de
+    // Mathématiques — lycée et collège distincts —, un Français, un
+    // Physique-Chimie, un SVT), plus de granularité par niveau.
+    expect(Object.keys(teacherRoles)).toHaveLength(5);
     expect(Object.keys(teacherRoles).every((role) => /^[A-Z_]+(?:_A|_B)?$/.test(role))).toBe(true);
     expect(Object.values(teacherRoles).every((role) => role.assigned === false)).toBe(true);
     expect(campaignManifest.operationalGates.teacherAssignmentsValidated).toBe(false);

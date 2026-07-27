@@ -323,6 +323,13 @@
       "maxHoursPerDay": 8,
       "assigned": false
     },
+    "TEACHER_B_MATHS_COLLEGE": {
+      "subjects": [
+        "MATHEMATIQUES"
+      ],
+      "maxHoursPerDay": 8,
+      "assigned": false
+    },
     "TEACHER_C_FRANCAIS": {
       "subjects": [
         "FRANCAIS"
