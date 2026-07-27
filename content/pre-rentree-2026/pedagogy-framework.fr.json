@@ -6,6 +6,16 @@
   "quickAssessmentDurationMinutes": 8,
   "moduleCodes": [
     {
+      "moduleId": "quatrieme-mathematiques",
+      "code": "POS-4-MATH",
+      "material": "Feuille de sujet, brouillon, trousse et calculatrice usuelle"
+    },
+    {
+      "moduleId": "quatrieme-francais",
+      "code": "POS-4-FR",
+      "material": "Feuille de sujet, brouillon, trousse et dictionnaire non autorisé"
+    },
+    {
       "moduleId": "troisieme-mathematiques",
       "code": "POS-3-MATH",
       "material": "Feuille de sujet, brouillon, trousse et calculatrice usuelle"
@@ -74,6 +84,11 @@
       "moduleId": "terminale-svt",
       "code": "POS-T-SVT",
       "material": "Feuille de sujet, brouillon, trousse et calculatrice usuelle"
+    },
+    {
+      "moduleId": "terminale-philosophie",
+      "code": "POS-T-PHILO",
+      "material": "Feuille de sujet et brouillon ; aucun ouvrage à apporter"
     }
   ],
   "subjectPatterns": {
@@ -134,6 +149,16 @@
         "Étape de calcul non justifiée",
         "Notion mal mobilisée",
         "Résultat non vérifié",
+        "Rédaction incomplète"
+      ]
+    },
+    "PHILOSOPHIE": {
+      "taskLead": "À partir de la notion ou du texte proposé, rédigez une réponse qui montre que vous savez",
+      "correctionLead": "La réponse doit définir les termes, construire une argumentation cohérente, s’appuyer sur un exemple et mobiliser",
+      "errorTypes": [
+        "Terme non défini",
+        "Argumentation non structurée",
+        "Exemple absent ou hors sujet",
         "Rédaction incomplète"
       ]
     }

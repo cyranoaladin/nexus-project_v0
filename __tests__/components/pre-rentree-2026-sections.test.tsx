@@ -1,13 +1,16 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
+import {
+  getPreRentreeCampaign,
+  getPreRentreeSchedule,
+  getPreRentreeModules,
+} from '@/lib/campaigns/pre-rentree-2026/getters';
 import { ScheduleSection } from '@/components/pre-rentree-2026/ScheduleSection';
 import { ProgramsSection } from '@/components/pre-rentree-2026/ProgramsSection';
-import { PricingSection } from '@/components/pre-rentree-2026/PricingSection';
 import { CampaignFAQ } from '@/components/pre-rentree-2026/CampaignFAQ';
-import { PracticalInformation } from '@/components/pre-rentree-2026/PracticalInformation';
 import { PRE_RENTREE_DOCUMENTS } from '@/lib/campaigns/pre-rentree-2026/documents';
+import { compilePreRentreeReviewSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
 
 jest.mock('@/lib/analytics', () => ({
   toPreRentreeEntryLevel: (level: string) => level.toLowerCase(),
@@ -19,7 +22,20 @@ jest.mock('@/lib/analytics', () => ({
   },
 }));
 
-const dto = getPreRentreeLandingDTO();
+const campaign = getPreRentreeCampaign();
+const surfaceDto = compilePreRentreeReviewSurfaceDTO();
+const dto = {
+  levels: campaign.levels,
+  subjects: campaign.subjects,
+  blocks: campaign.blocks,
+  scheduleWindows: campaign.schedule,
+  capacityByLevel: surfaceDto.planning.capacityByLevel,
+  operationalGates: campaign.operationalGates,
+  content: campaign.content,
+  schedule: getPreRentreeSchedule(),
+  offerOptions: surfaceDto.planning.offerOptions,
+  modules: getPreRentreeModules(),
+};
 
 function renderSchedule() {
   return render(
@@ -29,10 +45,10 @@ function renderSchedule() {
       levels={dto.levels}
       subjects={dto.subjects}
       blocks={dto.blocks}
-      organization={dto.organization}
+      organization={{ rooms: [] }}
       roomsPubliclyConfirmed={dto.operationalGates.roomAssignmentsValidated}
       offerOptions={dto.offerOptions}
-      capacityByOffer={dto.capacityByOffer}
+      capacityByLevel={dto.capacityByLevel}
     />,
   );
 }
@@ -44,16 +60,20 @@ describe('Pré-rentrée landing sections', () => {
 
     expect(screen.getByRole('heading', { name: 'Trouvez le planning adapté' })).toBeInTheDocument();
     const legend = screen.getByRole('list', { name: 'Légende des matières' });
-    expect(within(legend).getAllByRole('listitem')).toHaveLength(6);
+    expect(within(legend).getAllByRole('listitem')).toHaveLength(7);
     expect(within(legend).getByText('Mathématiques')).toBeInTheDocument();
     expect(within(legend).getByText('Français / Expression')).toBeInTheDocument();
     expect(within(legend).getByText('NSI')).toBeInTheDocument();
     expect(within(legend).getByText('Physique-Chimie')).toBeInTheDocument();
     expect(within(legend).getByText('SVT')).toBeInTheDocument();
     expect(within(legend).getByText('Mathématiques expertes')).toBeInTheDocument();
-    expect(within(legend).queryByText('Philosophie')).not.toBeInTheDocument();
+    // Philosophie (mission 4e/Philosophie, 2026-07-27) apparaît désormais dans
+    // la légende, avec un jeton ambre distinct — jamais violet (réservé ARIA).
+    expect(within(legend).getByText('Philosophie')).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Par classe de rentrée' })).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByRole('tab', { name: 'Entrée en 3e' })).toHaveAttribute('aria-selected', 'true');
+    // Entrée en 4e est désormais le premier niveau (mission 4e/Philosophie),
+    // donc le premier onglet actif par défaut.
+    expect(screen.getByRole('tab', { name: 'Entrée en 4e' })).toHaveAttribute('aria-selected', 'true');
     await user.click(screen.getByRole('tab', { name: 'Entrée en Seconde' }));
     const table = screen.getByRole('table', { name: 'Planning — Entrée en Seconde' });
     expect(within(table).getAllByRole('columnheader')).toHaveLength(3);
@@ -151,29 +171,14 @@ describe('Pré-rentrée landing sections', () => {
     expect(container.textContent).not.toMatch(/60\s*h|30\s*h/);
   });
 
-  it('formats the public deadline and canonical venue without duplication', () => {
-    render(
-      <PracticalInformation
-        campaign={dto.campaign}
-        blocks={dto.blocks}
-        capacityByOffer={dto.capacityByOffer}
-        pack={dto.packs.find((pack) => pack.subjectsCount === 1)}
-        depositPercentage={dto.pricingRules.depositPercentage}
-        content={dto.content.practical}
-        cgvPath={dto.legalRefs.cgv}
-      />,
-    );
-    expect(screen.getByText('Nexus Réussite — Mutuelleville, Tunis')).toBeInTheDocument();
-    expect(document.body.textContent).not.toContain('Mutuelleville · Mutuelleville');
-    expect(screen.getByText(/Décision le 10 août 2026 à 18 h 00/)).toBeInTheDocument();
-    expect(document.body.textContent).not.toMatch(/06:00 PM|PM|AM/);
-  });
-
   it('renders complete module content one accordion at a time', async () => {
     const user = userEvent.setup();
     render(<ProgramsSection modules={dto.modules} levels={dto.levels} documents={PRE_RENTREE_DOCUMENTS} />);
 
     const firstModule = dto.modules.find((candidate) => candidate.level === 'TROISIEME');
+    // Entrée en 4e est désormais le premier niveau (mission 4e/Philosophie) —
+    // sélectionner explicitement l'onglet 3e avant de chercher son contenu.
+    await user.click(screen.getByRole('tab', { name: 'Entrée en 3e' }));
     const trigger = screen.getByRole('button', { name: new RegExp(firstModule?.title ?? '') });
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
     await user.click(trigger);
@@ -186,7 +191,7 @@ describe('Pré-rentrée landing sections', () => {
 
   it('offers exactly seven planning, level programme, tariff and flyer downloads in programmes', () => {
     render(<ProgramsSection modules={dto.modules} levels={dto.levels} documents={PRE_RENTREE_DOCUMENTS} />);
-    expect(screen.getAllByRole('link', { name: /PDF/i })).toHaveLength(7);
+    expect(screen.getAllByRole('link', { name: /PDF/i })).toHaveLength(8);
     expect(screen.getByRole('link', { name: /Planning et informations pratiques.*PDF/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Télécharger le dossier complet — Entrée en 3e.*PDF/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Télécharger le dossier complet — Entrée en Seconde.*PDF/i })).toBeInTheDocument();
@@ -252,28 +257,13 @@ describe('Pré-rentrée landing sections', () => {
     });
   });
 
-  it('renders four canonical packs with hourly price, deposit and balance', () => {
-    const { container } = render(
-      <PricingSection
-        packs={dto.offerOptions}
-        levels={dto.levels}
-        depositPercentage={dto.pricingRules.depositPercentage}
-        campaignYear={dto.campaign.startDate.slice(0, 4)}
-      />,
-    );
-    expect(screen.getByRole('heading', { name: /Nexus Fondations · Entrée en 3e/i })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /Nexus Premium · Première et Terminale/i })).toBeInTheDocument();
-    for (const pack of dto.offerOptions) {
-      expect(container.textContent?.replace(/\s/g, '')).toContain(`${pack.price}TND`);
-      expect(screen.getAllByText(`${pack.pricePerHour.toLocaleString('fr-TN')} TND/h`).length).toBeGreaterThan(0);
-    }
-  });
-
-  it('renders all eighteen contract FAQ items as accessible accordions', async () => {
+  it('renders exactly the published FAQ items as accessible accordions (never the reserved entries)', async () => {
     const user = userEvent.setup();
-    render(<CampaignFAQ items={dto.content.faq} />);
+    const publicFaq = compilePreRentreeReviewSurfaceDTO().faq;
+    render(<CampaignFAQ items={publicFaq} />);
     const buttons = screen.getAllByRole('button');
-    expect(buttons).toHaveLength(19);
+    expect(buttons).toHaveLength(publicFaq.length);
+    expect(campaign.content.faq.filter((entry) => entry.published)).toHaveLength(publicFaq.length);
     await user.click(buttons[0]);
     expect(buttons[0]).toHaveAttribute('aria-expanded', 'true');
   });

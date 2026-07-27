@@ -143,14 +143,14 @@ export default function PreRentree2026Page() {
           organization={dto.planning.organization}
           roomsPubliclyConfirmed={dto.planning.roomsPubliclyConfirmed}
           offerOptions={dto.planning.offerOptions}
-          capacityByOffer={dto.planning.capacityByOffer}
+          capacityByLevel={dto.planning.capacityByLevel}
         />
 
       <section className="bg-lux-ink px-4 py-14 md:px-6 md:py-20" aria-labelledby="method-heading">
         <div className="mx-auto max-w-6xl">
           <h2 id="method-heading" className="font-fraunces text-3xl text-lux-on-dark md:text-4xl">Une méthode structurée pour progresser en cinq séances</h2>
-          <ol className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            {dto.method.map((item, index) => <li key={item} className="rounded-xl border border-white/15 bg-white/5 p-4 text-sm text-lux-on-dark"><span className="mb-2 block font-fraunces text-2xl text-lux-gold-wash">{index + 1}</span>{item}</li>)}
+          <ol className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {dto.method.map((step, index) => <li key={step.title} className="rounded-xl border border-white/15 bg-white/5 p-4 text-sm text-lux-on-dark"><span className="mb-2 block font-fraunces text-2xl text-lux-gold-wash">{index + 1}</span><span className="block font-semibold">{step.title}</span><span className="mt-1 block text-lux-on-dark/80">{step.description}</span></li>)}
           </ol>
         </div>
       </section>

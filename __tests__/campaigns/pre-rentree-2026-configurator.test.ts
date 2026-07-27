@@ -7,7 +7,13 @@ jest.mock('@/lib/campaigns/pre-rentree-2026/release-gate', () => ({
   canPrefillBilanGratuitFromPreRentree: () => true,
 }));
 
-import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
+import {
+  getPreRentreeCampaign,
+  getPreRentreeSchedule,
+  getPreRentreeOfferOptions,
+  getPreRentreePackOptions,
+  getPreRentreeEnrichedSubjects,
+} from '@/lib/campaigns/pre-rentree-2026/getters';
 import {
   buildBilanUrl,
   buildSelectionSummary,
@@ -22,10 +28,18 @@ import {
 import { parsePreRentreeBilanPrefill } from '@/lib/campaigns/pre-rentree-2026/bilan-prefill';
 import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
 
-const dto = getPreRentreeLandingDTO();
+const campaign = getPreRentreeCampaign();
+const dto = {
+  levels: campaign.levels,
+  subjects: getPreRentreeEnrichedSubjects(),
+  schedule: getPreRentreeSchedule(),
+  offerOptions: getPreRentreeOfferOptions(),
+  packs: getPreRentreePackOptions(),
+  academicProfiles: campaign.academicProfiles,
+};
 
 describe('Pré-rentrée configurator logic', () => {
-  it('builds all 66 approved level and subject configurations from DTO facts', () => {
+  it('builds all 95 approved level and subject configurations from DTO facts', () => {
     let configurationCount = 0;
     for (const level of dto.levels) {
       const availableSubjects = dto.subjects.filter((subject) =>
@@ -115,7 +129,9 @@ describe('Pré-rentrée configurator logic', () => {
         configurationCount += 1;
       }
     }
-    expect(configurationCount).toBe(66);
+    // 95 = 3 (4e) + 3 (3e) + 3 (2de) + 30 (1re) + 56 (Tle, 6 matières dont
+    // Philosophie : C(6,1)+C(6,2)+C(6,3)+C(6,4) = 6+15+20+15).
+    expect(configurationCount).toBe(95);
   });
 
   it('skips the profile step for both Fondations levels', () => {

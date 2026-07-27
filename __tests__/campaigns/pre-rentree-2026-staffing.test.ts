@@ -4,7 +4,7 @@ import { getPreRentreeSchedule } from '@/lib/campaigns/pre-rentree-2026/getters'
 
 type TeacherRole = {
   subjects: string[];
-  maxHoursPerDay: number;
+  maxHoursPerDay?: number;
   assigned: boolean;
 };
 
@@ -13,9 +13,11 @@ describe('Pré-rentrée 2026 staffing and room contract', () => {
   const sessions = getPreRentreeSchedule();
 
   it('declares only non-personal, unassigned teacher roles for REVIEW', () => {
-    // Modèle fenêtres + week-end (v2) : 4 rôles abstraits A/C/D/E (un seul enseignant
-    // Maths/NSI, un Français, un Physique-Chimie, un SVT), plus de granularité par niveau.
-    expect(Object.keys(teacherRoles)).toHaveLength(4);
+    // Modèle fenêtres + week-end (v2), étendu pour la 4e (arbitrage D1 : 3e salle +
+    // 2e prof maths) : 5 rôles abstraits A/B/C/D/E (deux enseignants de
+    // Mathématiques — lycée et collège distincts —, un Français, un
+    // Physique-Chimie, un SVT), plus de granularité par niveau.
+    expect(Object.keys(teacherRoles)).toHaveLength(5);
     expect(Object.keys(teacherRoles).every((role) => /^[A-Z_]+(?:_A|_B)?$/.test(role))).toBe(true);
     expect(Object.values(teacherRoles).every((role) => role.assigned === false)).toBe(true);
     expect(campaignManifest.operationalGates.teacherAssignmentsValidated).toBe(false);
@@ -53,32 +55,40 @@ describe('Pré-rentrée 2026 staffing and room contract', () => {
     expect(sessions).toHaveLength(moduleSlots.length * 5);
   });
 
-  it('keeps every provisional role below six teaching hours per day', () => {
+  it('never double-books a teacher role on the same (window, block) — R1, blocking; daily load is reported, never a ceiling — R3, informative', () => {
+    // maxHoursPerDay is informative only (mission consolidée §0.2) : le
+    // validateur (scripts/validate-stage-planning.ts) calcule et rapporte la
+    // charge mais n'échoue jamais dessus. Ce test vérifie ce qui reste
+    // bloquant (R1 : jamais deux groupes pour un même rôle sur le même bloc)
+    // et calcule la charge à titre purement informatif (aucune assertion de
+    // plafond).
     const hoursByRole: Record<string, number> = {};
-    for (const [roleName, role] of Object.entries(teacherRoles)) {
+    for (const roleName of Object.keys(teacherRoles)) {
       const roleSlots = campaignManifest.schedule.flatMap((week) => week.slots)
         .filter((slot) => slot.teacherRole === roleName);
       hoursByRole[roleName] = roleSlots.length * 5 * 2;
       for (const week of campaignManifest.schedule) {
         const dailySlots = week.slots.filter((slot) => slot.teacherRole === roleName);
-        expect(dailySlots.length * 2).toBeLessThanOrEqual(role.maxHoursPerDay);
         expect(new Set(dailySlots.map((slot) => slot.block)).size).toBe(dailySlots.length);
       }
     }
     expect(Object.values(hoursByRole).reduce((sum, hours) => sum + hours, 0)).toBe(sessions.length * 2);
   });
 
-  it('uses two logical rooms plus the exceptional salle-3 (bloc C only), with no collision', () => {
-    // salle-3 (SCHEDULE-S5 owner decision) is scoped to SVT only, bloc C only —
-    // not a third permanent room, see SCHEDULE-S5-DECISION.md.
-    expect(campaignManifest.roomRoles).toEqual({
-      'salle-1': ['MATHEMATIQUES', 'NSI', 'MATHS_EXPERTES'],
-      'salle-2': ['FRANCAIS', 'PHYSIQUE_CHIMIE', 'SVT'],
-      'salle-3': ['SVT'],
-    });
+  it('uses 3 banalized, interchangeable rooms — no subject compatibility, at most 3 concurrent groups per (window, block)', () => {
+    expect(campaignManifest.rooms).toEqual(['salle-1', 'salle-2', 'salle-3']);
     expect(new Set(sessions.map((session) => session.room))).toEqual(new Set(['salle-1', 'salle-2', 'salle-3']));
-    expect(sessions.every((session) => session.room !== 'salle-3' || session.block === 'C')).toBe(true);
     const occupied = sessions.map((session) => `${session.date}-${session.block}-${session.room}`);
     expect(new Set(occupied).size).toBe(occupied.length);
+    const countByWindowBlock = new Map<string, number>();
+    for (const week of campaignManifest.schedule) {
+      for (const slot of week.slots) {
+        const key = `${week.windowId}/${slot.block}`;
+        countByWindowBlock.set(key, (countByWindowBlock.get(key) ?? 0) + 1);
+      }
+    }
+    for (const count of countByWindowBlock.values()) {
+      expect(count).toBeLessThanOrEqual(3);
+    }
   });
 });

@@ -5,6 +5,37 @@
   "depositRate": 0.3,
   "levels": [
     {
+      "level": "QUATRIEME",
+      "range": "FONDATIONS",
+      "signature": "Reprendre les bases. Installer la méthode. Réussir le passage.",
+      "subjects": [
+        "MATHEMATIQUES",
+        "FRANCAIS"
+      ],
+      "pricing": {
+        "model": "PER_SUBJECT",
+        "productIds": [
+          "pre2026-foundations-4e-subject"
+        ],
+        "multiSubjectDiscount": false,
+        "maximumSubjects": 2
+      },
+      "capacity": {
+        "min": 4,
+        "max": 6
+      },
+      "serviceCapabilityIds": [
+        "questionnaire-scolaire-court",
+        "test-flash",
+        "objectifs-seance",
+        "livrables-seance",
+        "evaluations-rapides",
+        "adaptation-par-paliers",
+        "bilan-fondations",
+        "priorites-rentree"
+      ]
+    },
+    {
       "level": "TROISIEME",
       "range": "FONDATIONS",
       "signature": "Reprendre les bases. Installer la méthode. Réussir le passage.",
@@ -116,7 +147,8 @@
         "PHYSIQUE_CHIMIE",
         "NSI",
         "MATHS_EXPERTES",
-        "SVT"
+        "SVT",
+        "PHILOSOPHIE"
       ],
       "pricing": {
         "model": "PACK_BY_SUBJECT_COUNT",

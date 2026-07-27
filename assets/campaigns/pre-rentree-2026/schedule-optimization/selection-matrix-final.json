@@ -10,14 +10,14 @@
     "studentHoursPerSubject": 10
   },
   "summary": {
-    "combinationCount": 66,
-    "actionableCount": 57,
-    "blockedCount": 9,
+    "combinationCount": 92,
+    "actionableCount": 76,
+    "blockedCount": 16,
     "statusCounts": {
-      "COMPACT": 37,
-      "LONG_IDLE": 6,
-      "NO_SHARED_DAY": 20,
-      "SIMULTANEOUS": 3
+      "COMPACT": 50,
+      "LONG_IDLE": 12,
+      "NO_SHARED_DAY": 26,
+      "SIMULTANEOUS": 4
     },
     "maximumActionableIdleMinutes": 60
   },
@@ -1226,6 +1226,31 @@
     {
       "level": "TERMINALE",
       "subjects": [
+        "PHILOSOPHIE"
+      ],
+      "subjectCount": 1,
+      "status": "NO_SHARED_DAY",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "PHILOSOPHIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "0092f583d0f44062fa3d4513c3aab2dd50ce3e19854ac4b1a68a51eb4c427182",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
         "PHYSIQUE_CHIMIE"
       ],
       "subjectCount": 1,
@@ -1335,6 +1360,38 @@
       "level": "TERMINALE",
       "subjects": [
         "MATHEMATIQUES",
+        "PHILOSOPHIE"
+      ],
+      "subjectCount": 2,
+      "status": "NO_SHARED_DAY",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "PHILOSOPHIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "7bddff067621f143383ba5065152c10536ac38dc9a8e4f0482f9f5503fc2651c",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "MATHEMATIQUES",
         "PHYSIQUE_CHIMIE"
       ],
       "subjectCount": 2,
@@ -1390,6 +1447,38 @@
     {
       "level": "TERMINALE",
       "subjects": [
+        "MATHS_EXPERTES",
+        "PHILOSOPHIE"
+      ],
+      "subjectCount": 2,
+      "status": "NO_SHARED_DAY",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "MATHS_EXPERTES": 5,
+        "PHILOSOPHIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "e8841c676ffe05b1c668ad48a7c97e69f985e73847f09dd4af5b3b35d7a52cb3",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
         "NSI",
         "MATHS_EXPERTES"
       ],
@@ -1414,6 +1503,40 @@
       },
       "studentHoursPerSubject": 10,
       "availabilityMessageSha256": "c69c0a465a2ce317da8e62597e9171dba3f42038e7ca7b5a113bbf9fea67dadf",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "NSI",
+        "PHILOSOPHIE"
+      ],
+      "subjectCount": 2,
+      "status": "NO_SHARED_DAY",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "NSI": "terminale-nsi-c"
+      },
+      "sessionCountBySubject": {
+        "NSI": 5,
+        "PHILOSOPHIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "4dba236b9b4152301bdba39b833ae47f00bcbf26636e940736f58380f66d1c11",
       "whatsappNumber": "21699192829"
     },
     {
@@ -1506,6 +1629,38 @@
       "level": "TERMINALE",
       "subjects": [
         "PHYSIQUE_CHIMIE",
+        "PHILOSOPHIE"
+      ],
+      "subjectCount": 2,
+      "status": "NO_SHARED_DAY",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "PHYSIQUE_CHIMIE": 5,
+        "PHILOSOPHIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "8ba5c1cebcfec2b2acdc34609fed1f29b7f731482cbe26022a55ffd042aa3c0d",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "PHYSIQUE_CHIMIE",
         "SVT"
       ],
       "subjectCount": 2,
@@ -1563,6 +1718,74 @@
     {
       "level": "TERMINALE",
       "subjects": [
+        "SVT",
+        "PHILOSOPHIE"
+      ],
+      "subjectCount": 2,
+      "status": "NO_SHARED_DAY",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "SVT": "terminale-svt-c"
+      },
+      "sessionCountBySubject": {
+        "SVT": 5,
+        "PHILOSOPHIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "00680b993f754b53b6423f504fb5943320fcdf69dfbec6270bed1c41fe0fa2bb",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "MATHS_EXPERTES",
+        "PHILOSOPHIE"
+      ],
+      "subjectCount": 3,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 15,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "MATHS_EXPERTES": 5,
+        "PHILOSOPHIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "e731851134c7f4186ffffd80c9592b8f2954b6d2c10455238c46ecf69a7a8fe5",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
         "MATHEMATIQUES",
         "NSI",
         "MATHS_EXPERTES"
@@ -1589,6 +1812,42 @@
       },
       "studentHoursPerSubject": 10,
       "availabilityMessageSha256": "9aff9a8c397a75a99f54554ccb54645651056d4927246f552a36e6c977d91384",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "NSI",
+        "PHILOSOPHIE"
+      ],
+      "subjectCount": 3,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "NSI": "terminale-nsi-c"
+      },
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "NSI": 5,
+        "PHILOSOPHIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "9c5e8dc42e6bf65681699579d879b1f478b403096dbda6911305e017f4afaa07",
       "whatsappNumber": "21699192829"
     },
     {
@@ -1688,6 +1947,40 @@
       "subjects": [
         "MATHEMATIQUES",
         "PHYSIQUE_CHIMIE",
+        "PHILOSOPHIE"
+      ],
+      "subjectCount": 3,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "PHYSIQUE_CHIMIE": 5,
+        "PHILOSOPHIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "013fe3e338b6c467b44d4f4390103f5fc3f1aacafca0e04dba5fa44e9437fa7b",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "PHYSIQUE_CHIMIE",
         "SVT"
       ],
       "subjectCount": 3,
@@ -1748,6 +2041,78 @@
     {
       "level": "TERMINALE",
       "subjects": [
+        "MATHEMATIQUES",
+        "SVT",
+        "PHILOSOPHIE"
+      ],
+      "subjectCount": 3,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "SVT": "terminale-svt-c"
+      },
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "SVT": 5,
+        "PHILOSOPHIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "688c60cf0f22239eadee8b350ff44d488f956a49e259580d8b8eeb3c1fc8da2b",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "NSI",
+        "MATHS_EXPERTES",
+        "PHILOSOPHIE"
+      ],
+      "subjectCount": 3,
+      "status": "LONG_IDLE",
+      "actionable": false,
+      "explanation": "Attente maximale de 195 minutes.",
+      "maxIdleMinutes": 195,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "NSI": "terminale-nsi-c"
+      },
+      "sessionCountBySubject": {
+        "NSI": 5,
+        "MATHS_EXPERTES": 5,
+        "PHILOSOPHIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "945ed1018552710af03a5429f92617af0ed96778f8af7e93131ac1f625cc9d51",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
         "NSI",
         "SVT",
         "MATHS_EXPERTES"
@@ -1780,6 +2145,77 @@
     {
       "level": "TERMINALE",
       "subjects": [
+        "NSI",
+        "SVT",
+        "PHILOSOPHIE"
+      ],
+      "subjectCount": 3,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 15,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "NSI": "terminale-nsi-d",
+        "SVT": "terminale-svt-c"
+      },
+      "sessionCountBySubject": {
+        "NSI": 5,
+        "SVT": 5,
+        "PHILOSOPHIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "1fb9ff288d328e71632b981cfd470769c91566de4767d838b190c07b464e7041",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "PHYSIQUE_CHIMIE",
+        "MATHS_EXPERTES",
+        "PHILOSOPHIE"
+      ],
+      "subjectCount": 3,
+      "status": "LONG_IDLE",
+      "actionable": false,
+      "explanation": "Attente maximale de 195 minutes.",
+      "maxIdleMinutes": 195,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "PHYSIQUE_CHIMIE": 5,
+        "MATHS_EXPERTES": 5,
+        "PHILOSOPHIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "74ccd3305c7e006fdda17e987b05c88148a811b4a16ef7808216d3a007478dab",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
         "PHYSIQUE_CHIMIE",
         "NSI",
         "MATHS_EXPERTES"
@@ -1806,6 +2242,42 @@
       },
       "studentHoursPerSubject": 10,
       "availabilityMessageSha256": "883a16801322a12daf02e7a50f5365689d9d8cb0aeb1a59b35e11075ed7d75d8",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "PHYSIQUE_CHIMIE",
+        "NSI",
+        "PHILOSOPHIE"
+      ],
+      "subjectCount": 3,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 15,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "NSI": "terminale-nsi-d"
+      },
+      "sessionCountBySubject": {
+        "PHYSIQUE_CHIMIE": 5,
+        "NSI": 5,
+        "PHILOSOPHIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "b0c08d0d04e1d5c408848e394706a12c8a2aa3d8161532d2cb5f25d6f123c3cb",
       "whatsappNumber": "21699192829"
     },
     {
@@ -1874,6 +2346,116 @@
     {
       "level": "TERMINALE",
       "subjects": [
+        "PHYSIQUE_CHIMIE",
+        "SVT",
+        "PHILOSOPHIE"
+      ],
+      "subjectCount": 3,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 15,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "SVT": "terminale-svt-d"
+      },
+      "sessionCountBySubject": {
+        "PHYSIQUE_CHIMIE": 5,
+        "SVT": 5,
+        "PHILOSOPHIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "b281c96a587ff454ead9db9e5a06341f6ab9df5cebab5a475c562f44c5e1f3c6",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "SVT",
+        "MATHS_EXPERTES",
+        "PHILOSOPHIE"
+      ],
+      "subjectCount": 3,
+      "status": "LONG_IDLE",
+      "actionable": false,
+      "explanation": "Attente maximale de 195 minutes.",
+      "maxIdleMinutes": 195,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "SVT": "terminale-svt-c"
+      },
+      "sessionCountBySubject": {
+        "SVT": 5,
+        "MATHS_EXPERTES": 5,
+        "PHILOSOPHIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "580839176ad84f379d5515f7425532dcaf23d78966883ca34a179a4d3187be89",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "NSI",
+        "MATHS_EXPERTES",
+        "PHILOSOPHIE"
+      ],
+      "subjectCount": 4,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "NSI": "terminale-nsi-c"
+      },
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "NSI": 5,
+        "MATHS_EXPERTES": 5,
+        "PHILOSOPHIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "26b3ca01734d9bcdfce08520f0129e5710f8869fb19c779176fc46c4697bb627",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
         "MATHEMATIQUES",
         "NSI",
         "SVT",
@@ -1909,6 +2491,81 @@
       "level": "TERMINALE",
       "subjects": [
         "MATHEMATIQUES",
+        "NSI",
+        "SVT",
+        "PHILOSOPHIE"
+      ],
+      "subjectCount": 4,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "NSI": "terminale-nsi-d",
+        "SVT": "terminale-svt-c"
+      },
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "NSI": 5,
+        "SVT": 5,
+        "PHILOSOPHIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "ebfa4ddf3b36f26d0776faa64e46cfeed6d3c4009837b15db343f4ea624d015a",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "PHYSIQUE_CHIMIE",
+        "MATHS_EXPERTES",
+        "PHILOSOPHIE"
+      ],
+      "subjectCount": 4,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {},
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "PHYSIQUE_CHIMIE": 5,
+        "MATHS_EXPERTES": 5,
+        "PHILOSOPHIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "8b454a36e404f78467ec50acfe548f0793bfe4cfd32362c07e88a611cfcd1636",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "MATHEMATIQUES",
         "PHYSIQUE_CHIMIE",
         "NSI",
         "MATHS_EXPERTES"
@@ -1936,6 +2593,44 @@
       },
       "studentHoursPerSubject": 10,
       "availabilityMessageSha256": "4e0b8884686c656d7d8d9f79c625b30c66ae98413f917d5fe0f41155e8a8532e",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "PHYSIQUE_CHIMIE",
+        "NSI",
+        "PHILOSOPHIE"
+      ],
+      "subjectCount": 4,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "NSI": "terminale-nsi-d"
+      },
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "PHYSIQUE_CHIMIE": 5,
+        "NSI": 5,
+        "PHILOSOPHIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "0c1016c3588d569ee7899cbac2e283ae25fa01eeefc306e70281de890938c756",
       "whatsappNumber": "21699192829"
     },
     {
@@ -2008,6 +2703,159 @@
     {
       "level": "TERMINALE",
       "subjects": [
+        "MATHEMATIQUES",
+        "PHYSIQUE_CHIMIE",
+        "SVT",
+        "PHILOSOPHIE"
+      ],
+      "subjectCount": 4,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "SVT": "terminale-svt-d"
+      },
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "PHYSIQUE_CHIMIE": 5,
+        "SVT": 5,
+        "PHILOSOPHIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "733003bd8c1b506dfcd506fb7a3705e53e3e808409fd518c0015513231ca60af",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "MATHEMATIQUES",
+        "SVT",
+        "MATHS_EXPERTES",
+        "PHILOSOPHIE"
+      ],
+      "subjectCount": 4,
+      "status": "COMPACT",
+      "actionable": true,
+      "explanation": "Itinéraire structurel proposé, sous réserve de disponibilité.",
+      "maxIdleMinutes": 60,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "SVT": "terminale-svt-c"
+      },
+      "sessionCountBySubject": {
+        "MATHEMATIQUES": 5,
+        "SVT": 5,
+        "MATHS_EXPERTES": 5,
+        "PHILOSOPHIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "684e7de6759d10d601571b4146f9b7aea59fb8840a39e60eb21398ced131d608",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "NSI",
+        "SVT",
+        "MATHS_EXPERTES",
+        "PHILOSOPHIE"
+      ],
+      "subjectCount": 4,
+      "status": "LONG_IDLE",
+      "actionable": false,
+      "explanation": "Attente maximale de 195 minutes.",
+      "maxIdleMinutes": 195,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "NSI": "terminale-nsi-d",
+        "SVT": "terminale-svt-c"
+      },
+      "sessionCountBySubject": {
+        "NSI": 5,
+        "SVT": 5,
+        "MATHS_EXPERTES": 5,
+        "PHILOSOPHIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "84d943de5a9df81075e80d48c1972daf2b2b82f40897d7f9f1aee04f0928d49a",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "PHYSIQUE_CHIMIE",
+        "NSI",
+        "MATHS_EXPERTES",
+        "PHILOSOPHIE"
+      ],
+      "subjectCount": 4,
+      "status": "LONG_IDLE",
+      "actionable": false,
+      "explanation": "Attente maximale de 195 minutes.",
+      "maxIdleMinutes": 195,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "NSI": "terminale-nsi-d"
+      },
+      "sessionCountBySubject": {
+        "PHYSIQUE_CHIMIE": 5,
+        "NSI": 5,
+        "MATHS_EXPERTES": 5,
+        "PHILOSOPHIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "3ff81c8e1ce708b9c091729471e965e0e06ce723357f5031b1f6fc7aa0dec599",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
         "PHYSIQUE_CHIMIE",
         "NSI",
         "SVT",
@@ -2037,6 +2885,83 @@
       },
       "studentHoursPerSubject": 10,
       "availabilityMessageSha256": "08fc4ddd111f2baee3f75f6c1e8de8f182213bfc73a69205d6b2bdc1881eb6ca",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "PHYSIQUE_CHIMIE",
+        "NSI",
+        "SVT",
+        "PHILOSOPHIE"
+      ],
+      "subjectCount": 4,
+      "status": "SIMULTANEOUS",
+      "actionable": false,
+      "explanation": "Conflit horaire : parcours non actionnable.",
+      "maxIdleMinutes": 0,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "NSI": "terminale-nsi-c",
+        "SVT": "terminale-svt-c"
+      },
+      "sessionCountBySubject": {
+        "PHYSIQUE_CHIMIE": 5,
+        "NSI": 5,
+        "SVT": 5,
+        "PHILOSOPHIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "f852959454ed3ac00a61d4b952d06b05caa49e5f86601f549139a4125c977da1",
+      "whatsappNumber": "21699192829"
+    },
+    {
+      "level": "TERMINALE",
+      "subjects": [
+        "PHYSIQUE_CHIMIE",
+        "SVT",
+        "MATHS_EXPERTES",
+        "PHILOSOPHIE"
+      ],
+      "subjectCount": 4,
+      "status": "LONG_IDLE",
+      "actionable": false,
+      "explanation": "Attente maximale de 195 minutes.",
+      "maxIdleMinutes": 195,
+      "dates": [
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "cohortBySubject": {
+        "SVT": "terminale-svt-d"
+      },
+      "sessionCountBySubject": {
+        "PHYSIQUE_CHIMIE": 5,
+        "SVT": 5,
+        "MATHS_EXPERTES": 5,
+        "PHILOSOPHIE": 5
+      },
+      "studentHoursPerSubject": 10,
+      "availabilityMessageSha256": "2e4decd8223d3c96a4b21a40f7d8cf5a6f8432e5ad568788477f2cbb80a564e7",
       "whatsappNumber": "21699192829"
     }
   ]

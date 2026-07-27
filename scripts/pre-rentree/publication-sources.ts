@@ -75,7 +75,7 @@ function resolveCanonicalSubjectTokens<T>(
     }
     if (typeof current !== 'string') return current;
     return current.replace(
-      /\{\{subjects\.(TROISIEME|SECONDE|PREMIERE|TERMINALE)\}\}/g,
+      /\{\{subjects\.(QUATRIEME|TROISIEME|SECONDE|PREMIERE|TERMINALE)\}\}/g,
       (_, level: string) => labelsByLevel.get(
         level as (typeof campaign.levels)[number]['id'],
       ) ?? '',
@@ -254,7 +254,7 @@ export function compileCanonicalPublication(options: CompileOptions): Publicatio
   );
   const offerPricing = offers.levels.flatMap((offer) => {
     if (offer.range === 'FONDATIONS') {
-      if (offer.level !== 'TROISIEME' && offer.level !== 'SECONDE') {
+      if (offer.level !== 'QUATRIEME' && offer.level !== 'TROISIEME' && offer.level !== 'SECONDE') {
         throw new Error(`Fondations offer cannot target ${offer.level}`);
       }
       const product = foundationProductByLevel.get(offer.level);
@@ -437,6 +437,7 @@ export function compileCanonicalPublication(options: CompileOptions): Publicatio
           essential: 'NexusReussite_PreRentree2026_Essentiel.pdf',
           comparison: 'NexusReussite_PreRentree2026_Fondations_vs_Premium.pdf',
           pricingReservation: 'NexusReussite_PreRentree2026_Tarifs_Reservation.pdf',
+          programQuatrieme: 'Programme_Entree_4e.pdf',
           programTroisieme: 'Programme_Entree_3e.pdf',
           programSeconde: 'Programme_Entree_Seconde.pdf',
           programPremiere: 'Programme_Entree_Premiere.pdf',
@@ -450,6 +451,7 @@ export function compileCanonicalPublication(options: CompileOptions): Publicatio
           essential: 'NexusReussite_PreRentree2026_Essentiel.html',
           comparison: 'NexusReussite_PreRentree2026_Fondations_vs_Premium.html',
           pricingReservation: 'NexusReussite_PreRentree2026_Tarifs_Reservation.html',
+          programQuatrieme: 'Programme_Entree_4e.html',
           programTroisieme: 'Programme_Entree_3e.html',
           programSeconde: 'Programme_Entree_Seconde.html',
           programPremiere: 'Programme_Entree_Premiere.html',

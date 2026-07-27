@@ -1,11 +1,117 @@
 {
   "schemaVersion": "1.0.0",
-  "version": "2026-pre-rentree-commercial-v3",
+  "version": "2026-pre-rentree-commercial-v4",
   "campaignId": "pre-rentree-2026",
   "locale": "fr-TN",
   "validationDate": "2026-07-20",
-  "lastRevisedAt": "2026-07-22",
+  "lastRevisedAt": "2026-07-27",
   "offers": [
+    {
+      "offerId": "pre2026-4e-mathematiques",
+      "pricingId": "pre2026-foundations-4e-subject",
+      "pricingKind": "FOUNDATIONS",
+      "level": "QUATRIEME",
+      "subjects": [
+        "MATHEMATIQUES"
+      ],
+      "audience": [
+        "Élèves entrant en 4e dans le système français en Tunisie"
+      ],
+      "objectives": [
+        "Consolider les acquis de 5e en calcul",
+        "Installer le calcul littéral et les équations",
+        "Préparer les attendus de la rentrée"
+      ],
+      "included": [
+        "Cinq séances structurées de deux heures",
+        "Progression claire sur les notions clés",
+        "Entraînement et correction en séance"
+      ],
+      "optional": [],
+      "excluded": [
+        "Services numériques",
+        "Suivi parent régulier",
+        "Accompagnement annuel"
+      ],
+      "supports": [
+        "Consignes et exercices utilisés pendant les séances"
+      ],
+      "followUp": [
+        "Orientation vers les priorités de travail observées pendant le stage"
+      ],
+      "cta": "Écrire sur WhatsApp pour vérifier le groupe adapté",
+      "proofIds": [
+        "PRF-PRE2026-DATES-VENUE",
+        "PRF-PRE2026-WHATSAPP",
+        "PRF-PRE2026-DEPOSIT-30",
+        "PRF-PRE2026-4E-350-APPROVED",
+        "PRF-PRE2026-4E-COHORT-4-6",
+        "PRF-PRE2026-4E-VOLUME",
+        "PRF-PRE2026-4E-MODULE-CONTENT",
+        "PRF-PRE2026-4E-MATERIEL",
+        "PRF-PRE2026-FIVE-SESSIONS",
+        "PRF-PRE2026-STRUCTURED-SESSIONS"
+      ],
+      "publicStatus": "APPROVED",
+      "approvers": [
+        "DIRECTION_NEXUS_REUSSITE"
+      ],
+      "validatedAt": "2026-07-27",
+      "lastRevisedAt": "2026-07-27"
+    },
+    {
+      "offerId": "pre2026-4e-francais",
+      "pricingId": "pre2026-foundations-4e-subject",
+      "pricingKind": "FOUNDATIONS",
+      "level": "QUATRIEME",
+      "subjects": [
+        "FRANCAIS"
+      ],
+      "audience": [
+        "Élèves entrant en 4e dans le système français en Tunisie"
+      ],
+      "objectives": [
+        "Consolider la compréhension et l’interprétation",
+        "Structurer la langue et l’expression écrite",
+        "Préparer les attendus de la rentrée"
+      ],
+      "included": [
+        "Cinq séances structurées de deux heures",
+        "Progression claire sur les notions clés",
+        "Entraînement et correction en séance"
+      ],
+      "optional": [],
+      "excluded": [
+        "Services numériques",
+        "Suivi parent régulier",
+        "Accompagnement annuel"
+      ],
+      "supports": [
+        "Consignes et exercices utilisés pendant les séances"
+      ],
+      "followUp": [
+        "Orientation vers les priorités de travail observées pendant le stage"
+      ],
+      "cta": "Écrire sur WhatsApp pour vérifier le groupe adapté",
+      "proofIds": [
+        "PRF-PRE2026-DATES-VENUE",
+        "PRF-PRE2026-WHATSAPP",
+        "PRF-PRE2026-DEPOSIT-30",
+        "PRF-PRE2026-4E-350-APPROVED",
+        "PRF-PRE2026-4E-COHORT-4-6",
+        "PRF-PRE2026-4E-VOLUME",
+        "PRF-PRE2026-4E-MODULE-CONTENT",
+        "PRF-PRE2026-4E-MATERIEL",
+        "PRF-PRE2026-FIVE-SESSIONS",
+        "PRF-PRE2026-STRUCTURED-SESSIONS"
+      ],
+      "publicStatus": "APPROVED",
+      "approvers": [
+        "DIRECTION_NEXUS_REUSSITE"
+      ],
+      "validatedAt": "2026-07-27",
+      "lastRevisedAt": "2026-07-27"
+    },
     {
       "offerId": "pre2026-3e-mathematiques",
       "pricingId": "pre2026-foundations-3e-subject",
@@ -428,7 +534,8 @@
         "PHYSIQUE_CHIMIE",
         "NSI",
         "SVT",
-        "MATHS_EXPERTES"
+        "MATHS_EXPERTES",
+        "PHILOSOPHIE"
       ],
       "subjectCount": 1,
       "audience": [
@@ -463,14 +570,20 @@
         "PRF-PRE2026-DEPOSIT-30",
         "PRF-PRE2026-PREMIUM-PACKS",
         "PRF-PRE2026-FIVE-SESSIONS",
-        "PRF-PRE2026-STRUCTURED-SESSIONS"
+        "PRF-PRE2026-STRUCTURED-SESSIONS",
+        "PRF-PRE2026-PHILO-NO-PREREQUISITE",
+        "PRF-PRE2026-PHILO-MODULE-CONTENT",
+        "PRF-PRE2026-PHILO-VOLUME",
+        "PRF-PRE2026-PHILO-MATERIEL",
+        "PRF-PRE2026-TERMINALE-TWO-WINDOWS",
+        "PRF-PRE2026-TERMINALE-POOL-SIX"
       ],
       "publicStatus": "APPROVED",
       "approvers": [
         "DIRECTION_NEXUS_REUSSITE"
       ],
       "validatedAt": "2026-07-20",
-      "lastRevisedAt": "2026-07-20"
+      "lastRevisedAt": "2026-07-27"
     },
     {
       "offerId": "pre2026-terminale-pack-2",
@@ -482,7 +595,8 @@
         "PHYSIQUE_CHIMIE",
         "NSI",
         "SVT",
-        "MATHS_EXPERTES"
+        "MATHS_EXPERTES",
+        "PHILOSOPHIE"
       ],
       "subjectCount": 2,
       "audience": [
@@ -517,14 +631,20 @@
         "PRF-PRE2026-DEPOSIT-30",
         "PRF-PRE2026-PREMIUM-PACKS",
         "PRF-PRE2026-FIVE-SESSIONS",
-        "PRF-PRE2026-STRUCTURED-SESSIONS"
+        "PRF-PRE2026-STRUCTURED-SESSIONS",
+        "PRF-PRE2026-PHILO-NO-PREREQUISITE",
+        "PRF-PRE2026-PHILO-MODULE-CONTENT",
+        "PRF-PRE2026-PHILO-VOLUME",
+        "PRF-PRE2026-PHILO-MATERIEL",
+        "PRF-PRE2026-TERMINALE-TWO-WINDOWS",
+        "PRF-PRE2026-TERMINALE-POOL-SIX"
       ],
       "publicStatus": "APPROVED",
       "approvers": [
         "DIRECTION_NEXUS_REUSSITE"
       ],
       "validatedAt": "2026-07-20",
-      "lastRevisedAt": "2026-07-20"
+      "lastRevisedAt": "2026-07-27"
     },
     {
       "offerId": "pre2026-terminale-pack-3",
@@ -536,7 +656,8 @@
         "PHYSIQUE_CHIMIE",
         "NSI",
         "SVT",
-        "MATHS_EXPERTES"
+        "MATHS_EXPERTES",
+        "PHILOSOPHIE"
       ],
       "subjectCount": 3,
       "audience": [
@@ -571,14 +692,20 @@
         "PRF-PRE2026-DEPOSIT-30",
         "PRF-PRE2026-PREMIUM-PACKS",
         "PRF-PRE2026-FIVE-SESSIONS",
-        "PRF-PRE2026-STRUCTURED-SESSIONS"
+        "PRF-PRE2026-STRUCTURED-SESSIONS",
+        "PRF-PRE2026-PHILO-NO-PREREQUISITE",
+        "PRF-PRE2026-PHILO-MODULE-CONTENT",
+        "PRF-PRE2026-PHILO-VOLUME",
+        "PRF-PRE2026-PHILO-MATERIEL",
+        "PRF-PRE2026-TERMINALE-TWO-WINDOWS",
+        "PRF-PRE2026-TERMINALE-POOL-SIX"
       ],
       "publicStatus": "APPROVED",
       "approvers": [
         "DIRECTION_NEXUS_REUSSITE"
       ],
       "validatedAt": "2026-07-20",
-      "lastRevisedAt": "2026-07-20"
+      "lastRevisedAt": "2026-07-27"
     },
     {
       "offerId": "pre2026-terminale-pack-4",
@@ -590,7 +717,8 @@
         "PHYSIQUE_CHIMIE",
         "NSI",
         "SVT",
-        "MATHS_EXPERTES"
+        "MATHS_EXPERTES",
+        "PHILOSOPHIE"
       ],
       "subjectCount": 4,
       "audience": [
@@ -625,14 +753,20 @@
         "PRF-PRE2026-DEPOSIT-30",
         "PRF-PRE2026-PREMIUM-PACKS",
         "PRF-PRE2026-FIVE-SESSIONS",
-        "PRF-PRE2026-STRUCTURED-SESSIONS"
+        "PRF-PRE2026-STRUCTURED-SESSIONS",
+        "PRF-PRE2026-PHILO-NO-PREREQUISITE",
+        "PRF-PRE2026-PHILO-MODULE-CONTENT",
+        "PRF-PRE2026-PHILO-VOLUME",
+        "PRF-PRE2026-PHILO-MATERIEL",
+        "PRF-PRE2026-TERMINALE-TWO-WINDOWS",
+        "PRF-PRE2026-TERMINALE-POOL-SIX"
       ],
       "publicStatus": "APPROVED",
       "approvers": [
         "DIRECTION_NEXUS_REUSSITE"
       ],
       "validatedAt": "2026-07-20",
-      "lastRevisedAt": "2026-07-20"
+      "lastRevisedAt": "2026-07-27"
     }
   ]
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fail-closed verification of the seven Pré-rentrée PDFs served from /public."""
+"""Fail-closed verification of the eight Pré-rentrée PDFs served from /public."""
 
 from __future__ import annotations
 
@@ -16,6 +16,7 @@ import fitz
 EXPECTED_PUBLIC_FILES = {
     "NexusReussite_PreRentree2026_FlyerEssentiel.pdf",
     "NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf",
+    "NexusReussite_PreRentree2026_Programme_4e.pdf",
     "NexusReussite_PreRentree2026_Programme_3e.pdf",
     "NexusReussite_PreRentree2026_Programme_Premiere.pdf",
     "NexusReussite_PreRentree2026_Programme_Seconde.pdf",
@@ -115,7 +116,7 @@ def verify(pdf_directory: Path, public_directory: Path) -> dict:
     manifest_path = pdf_directory / "manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     require(manifest["purpose"] == "PUBLIC_RELEASE_CANDIDATE", "public manifest purpose mismatch")
-    require(manifest["pdfCount"] == 7, "public manifest must announce seven PDFs")
+    require(manifest["pdfCount"] == 8, "public manifest must announce eight PDFs")
     records = {record["fileName"]: record for record in manifest["documents"]}
     public_records = {
         name for name, record in records.items()

@@ -54,6 +54,12 @@ export const PRE_RENTREE_DOCUMENTS: readonly PreRentreeDocument[] = [
     kind: 'planning',
   },
   {
+    href: `${BASE}/NexusReussite_PreRentree2026_Programme_4e.pdf`,
+    label: 'Télécharger le dossier complet — Entrée en 4e',
+    size: generatedSize('NexusReussite_PreRentree2026_Programme_4e.pdf'),
+    kind: 'programme',
+  },
+  {
     href: `${BASE}/NexusReussite_PreRentree2026_Programme_3e.pdf`,
     label: 'Télécharger le dossier complet — Entrée en 3e',
     size: generatedSize('NexusReussite_PreRentree2026_Programme_3e.pdf'),

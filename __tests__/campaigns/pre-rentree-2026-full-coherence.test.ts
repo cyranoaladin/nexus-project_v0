@@ -24,7 +24,9 @@ import { join } from 'node:path';
 import pricingCanonical from '@/data/pricing.canonical.json';
 import campaignSource from '@/data/campaigns/pre-rentree-2026.json';
 import { getCommercialPublicOffers } from '@/lib/campaigns/pre-rentree-2026/commercial-contract';
-import { getPreRentreeLandingDTO, getPreRentreeSchedule } from '@/lib/campaigns/pre-rentree-2026/getters';
+import { getPreRentreeCampaign, getPreRentreeSchedule } from '@/lib/campaigns/pre-rentree-2026/getters';
+import offersData from '@/content/pre-rentree-2026/offers.json';
+import { PreRentreeOffersSchema } from '@/lib/campaigns/pre-rentree-2026/content-schema';
 import { computeSubjectIncompatibilities } from '@/lib/campaigns/pre-rentree-2026/incompatibilities';
 import { compilePreRentreeReviewSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
 import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
@@ -37,6 +39,7 @@ const PDF = join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Planning_InfosPr
 // matières du niveau (SVT incluse comme chapitre ordinaire en Première/Terminale, plus de PDF
 // SVT séparé) : un seul fichier par niveau suffit à couvrir toute la grille.
 const PROGRAMME_PDFS_BY_LEVEL: Record<EntryLevelCode, string[]> = {
+  QUATRIEME: [join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_4e.pdf')],
   TROISIEME: [join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_3e.pdf')],
   SECONDE: [join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_Seconde.pdf')],
   PREMIERE: [join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_Premiere.pdf')],
@@ -50,15 +53,18 @@ const GENERIC_LABEL: Record<string, string> = {
   PHYSIQUE_CHIMIE: 'Physique-Chimie',
   SVT: 'SVT',
   MATHS_EXPERTES: 'Mathématiques expertes',
+  PHILOSOPHIE: 'Philosophie',
 };
 
-const LEVELS: EntryLevelCode[] = ['TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE'];
+const LEVELS: EntryLevelCode[] = ['QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE'];
 
 const maybe = existsSync(PDF) ? describe : describe.skip;
 
 maybe('Pré-rentrée 2026 — cohérence intégrale par niveau (JSON / catalogue / contrat commercial / sélecteur / PDF / page)', () => {
   const schedule = getPreRentreeSchedule();
-  const dto = getPreRentreeLandingDTO();
+  const campaign = getPreRentreeCampaign();
+  const offers = PreRentreeOffersSchema.parse(offersData);
+  const dto = { offers: offers.levels, subjects: campaign.subjects };
   const incompatibilities = computeSubjectIncompatibilities(schedule);
   const pageDto = compilePreRentreeReviewSurfaceDTO();
   const commercialOffers = getCommercialPublicOffers();
@@ -123,24 +129,23 @@ maybe('Pré-rentrée 2026 — cohérence intégrale par niveau (JSON / catalogue
       // document (pas seulement dans le Planning global) — c'est ce type de trou qui avait
       // laissé Programme_3e.pdf absent du pipeline pendant tout le chantier.
       const programmePdfPaths = PROGRAMME_PDFS_BY_LEVEL[level].filter((path) => existsSync(path));
-      if (programmePdfPaths.length > 0) {
-        const programmeText = programmePdfPaths
-          .map((path) => execFileSync('pdftotext', ['-layout', path, '-'], { encoding: 'utf8' }))
-          .join('\n');
-        for (const subjectId of gridSubjects) {
-          expect(programmeText).toContain(GENERIC_LABEL[subjectId]);
-        }
+      expect(programmePdfPaths.length).toBeGreaterThan(0);
+      const programmeText = programmePdfPaths
+        .map((path) => execFileSync('pdftotext', ['-layout', path, '-'], { encoding: 'utf8' }))
+        .join('\n');
+      for (const subjectId of gridSubjects) {
+        expect(programmeText).toContain(GENERIC_LABEL[subjectId]);
       }
     },
   );
 
-  it('salles : chaque créneau de la grille est affecté à une salle autorisée pour sa matière (campaign.roomRoles)', () => {
-    const roomRoles = campaignSource.roomRoles as Record<string, readonly string[]>;
+  it('salles : banalisées — chaque créneau référence une salle connue, sans compatibilité matière (campaign.rooms)', () => {
+    const rooms = campaignSource.rooms as readonly string[];
+    expect(rooms).toHaveLength(3);
     const violations: Array<{ windowId: string; level: string; subject: string; room: string }> = [];
     for (const window of campaignSource.schedule) {
       for (const slot of window.slots) {
-        const allowed = roomRoles[slot.room] ?? [];
-        if (!allowed.includes(slot.subject)) {
+        if (!rooms.includes(slot.room)) {
           violations.push({ windowId: window.windowId, level: slot.level, subject: slot.subject, room: slot.room });
         }
       }
@@ -148,10 +153,25 @@ maybe('Pré-rentrée 2026 — cohérence intégrale par niveau (JSON / catalogue
     expect(violations).toEqual([]);
   });
 
-  it('tarifs : chaque offre commerciale (price/deposit/balance) correspond exactement au produit canonique référencé par pricingId, pour les 12 offres', () => {
+  it('salles : au plus 3 groupes simultanés par (fenêtre, bloc) — jamais plus de salles que de groupes', () => {
+    const violations: string[] = [];
+    for (const window of campaignSource.schedule) {
+      const countByBlock = new Map<string, number>();
+      for (const slot of window.slots) {
+        const key = `${window.windowId}/${slot.block}`;
+        countByBlock.set(key, (countByBlock.get(key) ?? 0) + 1);
+      }
+      for (const [key, count] of countByBlock) {
+        if (count > 3) violations.push(`${key}: ${count} groupes simultanés`);
+      }
+    }
+    expect(violations).toEqual([]);
+  });
+
+  it('tarifs : chaque offre commerciale (price/deposit/balance) correspond exactement au produit canonique référencé par pricingId, pour les 14 offres', () => {
     const foundationsById = new Map(pricingCanonical.pre_rentree_foundations.map((product) => [product.id, product]));
     const packsById = new Map(pricingCanonical.pre_rentree_packs.map((product) => [product.id, product]));
-    expect(commercialOffers.length).toBeGreaterThan(0);
+    expect(commercialOffers).toHaveLength(14);
     for (const offer of commercialOffers) {
       const product = foundationsById.get(offer.pricingId) ?? packsById.get(offer.pricingId);
       if (!product) throw new Error(`pricingId inconnu : ${offer.pricingId} (offre ${offer.offerId})`);

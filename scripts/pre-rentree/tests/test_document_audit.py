@@ -138,7 +138,7 @@ def test_build_manifest_records_every_public_pdf(package: Path, tmp_path: Path):
     assert manifest["OWNER_REVIEWED_AT"] is None
     assert manifest["LEGAL_REVIEWED_AT"] is None
     assert manifest["PRIVACY_REVIEWED_AT"] is None
-    assert len(manifest["PDF_FILES"]) == 11
+    assert len(manifest["PDF_FILES"]) == 12
     assert all(len(record["PDF_SHA256"]) == 64 for record in manifest["PDF_FILES"])
     assert all(record["PUBLIC_OR_PRIVATE"] == "PUBLIC" for record in manifest["PDF_FILES"])
     assert manifest["ALL_PDF_SHA256_RECORDED"] is True

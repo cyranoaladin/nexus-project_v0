@@ -16,6 +16,7 @@ from weasyprint import HTML
 
 
 LEVEL_LABELS = {
+    "QUATRIEME": "Entrée en 4e",
     "TROISIEME": "Entrée en 3e",
     "SECONDE": "Entrée en Seconde",
     "PREMIERE": "Entrée en Première",
@@ -28,6 +29,7 @@ SUBJECT_LABELS = {
     "FRANCAIS": "Français",
     "SVT": "SVT",
     "MATHS_EXPERTES": "Mathématiques expertes",
+    "PHILOSOPHIE": "Philosophie",
 }
 
 

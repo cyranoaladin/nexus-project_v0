@@ -116,14 +116,13 @@ def cover_page(dossier: LevelDossierData, data: PreRentreeData) -> str:
 
 def snapshot_page(dossier: LevelDossierData, data: PreRentreeData) -> str:
     tier = data.tier_for_level(dossier.level)
+    group_min, group_max = data.group_bounds_for_level(dossier.level)
     if tier == "foundations":
-        group_min, group_max = data.foundations_group_min, data.foundations_group_max
         offers = [o for o in data.foundations if o["level"] == dossier.level]
         price_line = " · ".join(
             f'{o["subjects_count"]} matière : {format_tnd(o["price_per_student"])} TND' for o in offers
         )
     else:
-        group_min, group_max = data.premium_group_min, data.premium_group_max
         price_line = " · ".join(
             f'{o["subjects_count"]} mat. : {format_tnd(o["price_per_student"])} TND' for o in data.premium_packs
         )
@@ -180,6 +179,21 @@ def planning_page(dossier: LevelDossierData, data: PreRentreeData) -> str:
             f'<div class="marker">{_marker(subject_id)}</div>'
             f'<div class="details"><strong>{_subject_label(subject_id)}</strong> — 5 séances de 2 h '
             f'(10 h au total)<br>{windows_desc}</div></div>'
+        )
+
+    # Mission 4e/Philosophie §3 : la séparation Philosophie / spécialités entre
+    # les deux fenêtres doit être EXPLICITE — un parent doit le comprendre sans
+    # le déduire des seuls libellés de fenêtre affichés ci-dessus.
+    if dossier.level == "TERMINALE" and "PHILOSOPHIE" in dossier.subjects:
+        body += (
+            '<p class="callout" style="margin-top:12px; padding:10px 14px; '
+            'border-left:3px solid var(--lux-gold, #B8860B); background:#FAF7F0; '
+            'font-size:9.5pt; line-height:1.6;">'
+            '<strong>La Philosophie se déroule pendant une semaine distincte de vos spécialités.</strong> '
+            'Elle a lieu du 17 au 21 août (Fenêtre 1) ; les spécialités (Mathématiques, Physique-Chimie, '
+            'NSI, SVT, Mathématiques expertes) ont lieu du 24 au 28 août (Fenêtre 2). '
+            'Ce sont deux semaines différentes : aucun chevauchement n’est possible entre la Philosophie '
+            'et les spécialités choisies.</p>'
         )
 
     # "Peut-on combiner ces matières ?" — statut réel par paire (jamais réduit à un
@@ -370,9 +384,7 @@ def practical_info_page(dossier: LevelDossierData, data: PreRentreeData) -> str:
     body += "</tbody></table>"
 
     body += '<h3 class="subsection-title">Ouverture des groupes</h3>'
-    tier = data.tier_for_level(dossier.level)
-    gmin, gmax = (data.foundations_group_min, data.foundations_group_max) if tier == "foundations" \
-        else (data.premium_group_min, data.premium_group_max)
+    gmin, gmax = data.group_bounds_for_level(dossier.level)
     body += (
         f'<p style="font-size:9.5pt; line-height:1.6; margin-bottom:12px;">Ouverture à partir de '
         f"<strong>{gmin} élèves</strong>, <strong>{gmax} élèves maximum</strong>. L'ouverture, le créneau, la salle "
@@ -437,7 +449,7 @@ def build_dossier_html(dossier: LevelDossierData, data: PreRentreeData) -> str:
 def generate_dossier_pdf(dossier: LevelDossierData, data: PreRentreeData) -> str:
     # Historic public filenames use "Premiere"/"3e" without the accent; keep them stable.
     filename_level = {
-        "3e": "3e", "Seconde": "Seconde", "Première": "Premiere", "Terminale": "Terminale",
+        "4e": "4e", "3e": "3e", "Seconde": "Seconde", "Première": "Premiere", "Terminale": "Terminale",
     }[dossier.level_label]
     filename = f"NexusReussite_PreRentree2026_Programme_{filename_level}.pdf"
 

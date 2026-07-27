@@ -12,7 +12,8 @@ jest.mock('@/lib/campaigns/pre-rentree-2026/release-gate', () => ({
 import * as bilanPrefill from '@/lib/campaigns/pre-rentree-2026/bilan-prefill';
 import { parsePreRentreeBilanPrefill } from '@/lib/campaigns/pre-rentree-2026/bilan-prefill';
 import { resolveSelectedOfferContext } from '@/app/bilan-gratuit/selected-offer';
-import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
+import { getPreRentreeCampaign } from '@/lib/campaigns/pre-rentree-2026/getters';
+import { getPreRentreePacks } from '@/lib/pricing';
 
 describe('Pré-rentrée bilan prefill parser', () => {
   it('accepts only normalized campaign identifiers', () => {
@@ -69,13 +70,14 @@ describe('Pré-rentrée bilan prefill parser', () => {
   });
 
   it('resolves the selected pack price only from the canonical catalogue', () => {
-    const pack = getPreRentreeLandingDTO().packs[1];
+    const campaign = getPreRentreeCampaign();
+    const pack = getPreRentreePacks(campaign.packProductIds)[1];
     expect(resolveSelectedOfferContext('PACK_2')).toEqual({
       id: 'PACK_2',
       title: expect.stringContaining('Pré-Rentrée 2026'),
-      price: pack.price,
-      deposit: pack.deposit,
-      solde: pack.balance,
+      price: pack.price_per_student,
+      deposit: pack.payment.deposit,
+      solde: pack.payment.solde,
     });
   });
 

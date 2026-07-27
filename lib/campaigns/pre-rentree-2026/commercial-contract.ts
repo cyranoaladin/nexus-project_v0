@@ -7,22 +7,14 @@ import {
   getPreRentreePacks,
   getRules,
 } from '@/lib/pricing';
-
-const SubjectSchema = z.enum([
-  'MATHEMATIQUES',
-  'PHYSIQUE_CHIMIE',
-  'NSI',
-  'FRANCAIS',
-  'SVT',
-  'MATHS_EXPERTES',
-]);
+import { EntryLevelCode, SUBJECT_IDS, SubjectCode } from './schema';
 
 const OfferSourceSchema = z.object({
   offerId: z.string().min(1),
   pricingId: z.string().min(1),
   pricingKind: z.enum(['FOUNDATIONS', 'PREMIUM_PACK']),
-  level: z.enum(['TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE']),
-  subjects: z.array(SubjectSchema).min(1).max(5),
+  level: EntryLevelCode,
+  subjects: z.array(SubjectCode).min(1).max(SUBJECT_IDS.length),
   subjectCount: z.number().int().min(1).max(4).optional(),
   audience: z.array(z.string().min(1)).min(1),
   objectives: z.array(z.string().min(1)).min(1),
@@ -46,7 +38,9 @@ const CommercialContractSourceSchema = z.object({
   locale: z.literal('fr-TN'),
   validationDate: z.string().date(),
   lastRevisedAt: z.string().date(),
-  offers: z.array(OfferSourceSchema).length(12),
+  // 14 = 6 Fondations per-subject offers (4e, 3e, Seconde x Maths/Français)
+  // + 8 Premium packs (Première and Terminale x 1-4 matières).
+  offers: z.array(OfferSourceSchema).length(14),
 }).strict().superRefine((source, context) => {
   for (const [index, offer] of source.offers.entries()) {
     if (offer.pricingKind === 'PREMIUM_PACK' && offer.subjectCount === undefined) {

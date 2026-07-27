@@ -7,11 +7,21 @@ import {
 import {
   buildStageAvailabilityMessage,
 } from '@/lib/campaigns/pre-rentree-2026/availability-message';
-import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
+import {
+  getPreRentreeCampaign,
+  getPreRentreeSchedule,
+  getPreRentreeOfferOptions,
+} from '@/lib/campaigns/pre-rentree-2026/getters';
 import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 
-const dto = getPreRentreeLandingDTO();
+const campaign = getPreRentreeCampaign();
+const dto = {
+  levels: campaign.levels,
+  subjects: campaign.subjects,
+  schedule: getPreRentreeSchedule(),
+  offerOptions: getPreRentreeOfferOptions(),
+};
 const levels = [
   'TROISIEME',
   'SECONDE',
@@ -92,7 +102,10 @@ describe('Pré-rentrée 2026 — exhaustive public itinerary matrix', () => {
       }
     }
 
-    expect(combinationCount).toBe(66);
+    // 92, pas 66 : Terminale passe de 5 à 6 matières (Philosophie s'ajoute au
+    // pool) — C(6,1..4) = 6+15+20+15 = 56 au lieu de C(5,1..4) = 30 pour ce
+    // niveau seul ; 3e/Seconde/Première inchangés (3+3+30). 3+3+30+56 = 92.
+    expect(combinationCount).toBe(92);
     expect(actionableCount).toBeGreaterThan(0);
     expect(actionableCount).toBeLessThanOrEqual(combinationCount);
   });
@@ -108,8 +121,8 @@ describe('Pré-rentrée 2026 — exhaustive public itinerary matrix', () => {
       ),
     );
     expect(matrix.schemaVersion).toBe('1.0.0');
-    expect(matrix.summary.combinationCount).toBe(66);
-    expect(matrix.rows).toHaveLength(66);
+    expect(matrix.summary.combinationCount).toBe(92);
+    expect(matrix.rows).toHaveLength(92);
     expect(
       matrix.rows.every(
         (row: { actionable: boolean; status: string; maxIdleMinutes: number }) =>

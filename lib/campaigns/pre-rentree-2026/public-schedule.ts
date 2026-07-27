@@ -37,16 +37,39 @@ export type PublicScheduleWindow = {
 };
 
 export type PublicPlanningPack = {
-  level?: EntryLevelCode;
+  level: EntryLevelCode;
+  range: 'FONDATIONS' | 'PREMIUM';
   subjectsCount: number;
   totalHours: number;
+  /**
+   * Total price in TND for exactly `subjectsCount` selected subjects at this
+   * level. For a PER_SUBJECT (Fondations) level this is the per-subject unit
+   * price multiplied by `subjectsCount` — never a flat/discounted pack rate.
+   * For a PACK_BY_SUBJECT_COUNT (Premium) level, this is the actual
+   * commercial pack price for that exact subject count (not necessarily
+   * linear with count).
+   */
+  price: number;
+  deposit: number;
+  balance: number;
+  /**
+   * How the price above was built. The composer uses it to phrase the amount
+   * ("n x tarif unitaire" for Fondations, the pack price for Premium) — it
+   * never re-derives the amount itself.
+   */
+  pricingModel: 'PER_SUBJECT' | 'PACK_BY_SUBJECT_COUNT';
 };
 
+// 17 modules = 14 historical + 4e Mathématiques, 4e Français, Terminale
+// Philosophie. 20 cohorts = those 17 modules + the 3 alternative cohorts
+// (Première SVT, Terminale NSI, Terminale SVT), each scheduled over 5 days.
+// scripts/validate-stage-planning.ts recomputes all four from the live data and
+// fails on any drift, so these are a declared expectation, not a second source.
 export const PRE_RENTREE_PUBLIC_METRICS = {
-  pedagogicalModuleCount: 14,
-  pedagogicalSessionTemplateCount: 70,
-  operationalCohortCount: 17,
-  scheduledSessionOccurrenceCount: 85,
+  pedagogicalModuleCount: 17,
+  pedagogicalSessionTemplateCount: 85,
+  operationalCohortCount: 20,
+  scheduledSessionOccurrenceCount: 100,
   studentSessionsPerSubject: 5,
   studentHoursPerSubject: 10,
 } as const;
