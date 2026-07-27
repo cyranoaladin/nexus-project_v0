@@ -48,8 +48,12 @@ describe('bilanGratuitSchema', () => {
     expect(bilanGratuitSchema.safeParse({ ...validData, parentEmail: 'not-email' }).success).toBe(false);
   });
 
-  it('should reject short password', () => {
-    expect(bilanGratuitSchema.safeParse({ ...validData, parentPassword: '123' }).success).toBe(false);
+  it('should ignore an injected short parentPassword (lead tunnel — no account)', () => {
+    const result = bilanGratuitSchema.safeParse({ ...validData, parentPassword: '123' });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data).not.toHaveProperty('parentPassword');
+    }
   });
 
   it('should reject empty subjects array', () => {

@@ -61,6 +61,15 @@ describe('Validation Schemas', () => {
       }
     });
 
+    it('should fail validation with invalid parent email', () => {
+      const invalidData = { ...validData, parentEmail: 'invalid-email' };
+      const result = bilanGratuitSchema.safeParse(invalidData);
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe('Email invalide');
+      }
+    });
+
     it('should fail validation with short parent firstName', () => {
       const invalidData = { ...validData, parentFirstName: 'J' };
       const result = bilanGratuitSchema.safeParse(invalidData);
