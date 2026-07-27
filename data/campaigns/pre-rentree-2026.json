@@ -17,6 +17,10 @@
   },
   "levels": [
     {
+      "id": "QUATRIEME",
+      "label": "Entrée en 4e"
+    },
+    {
       "id": "TROISIEME",
       "label": "Entrée en 3e"
     },
@@ -37,6 +41,7 @@
     "kind": "ENTRY_LEVEL",
     "schoolYear": "2026-2027",
     "currentToEntry": {
+      "CINQUIEME": "QUATRIEME",
       "QUATRIEME": "TROISIEME",
       "TROISIEME": "SECONDE",
       "SECONDE": "PREMIERE",
@@ -48,6 +53,7 @@
       "id": "MATHEMATIQUES",
       "label": "Mathématiques",
       "levels": [
+        "QUATRIEME",
         "TROISIEME",
         "SECONDE",
         "PREMIERE",
@@ -74,6 +80,7 @@
       "id": "FRANCAIS",
       "label": "Français",
       "levels": [
+        "QUATRIEME",
         "TROISIEME",
         "SECONDE",
         "PREMIERE"
@@ -93,6 +100,13 @@
     {
       "id": "MATHS_EXPERTES",
       "label": "Mathématiques expertes",
+      "levels": [
+        "TERMINALE"
+      ]
+    },
+    {
+      "id": "PHILOSOPHIE",
+      "label": "Philosophie",
       "levels": [
         "TERMINALE"
       ]
@@ -150,6 +164,13 @@
           "isPrimary": true
         },
         {
+          "level": "QUATRIEME",
+          "subject": "FRANCAIS",
+          "block": "A",
+          "room": "salle-3",
+          "teacherRole": "TEACHER_C_FRANCAIS"
+        },
+        {
           "level": "PREMIERE",
           "subject": "MATHEMATIQUES",
           "block": "B",
@@ -162,6 +183,13 @@
           "block": "B",
           "room": "salle-2",
           "teacherRole": "TEACHER_C_FRANCAIS"
+        },
+        {
+          "level": "QUATRIEME",
+          "subject": "MATHEMATIQUES",
+          "block": "B",
+          "room": "salle-3",
+          "teacherRole": "TEACHER_B_MATHS_COLLEGE"
         },
         {
           "level": "PREMIERE",
@@ -193,6 +221,13 @@
           "cohortId": "premiere-svt-d",
           "alternativeGroupId": "premiere-svt",
           "isPrimary": false
+        },
+        {
+          "level": "TERMINALE",
+          "subject": "PHILOSOPHIE",
+          "block": "D",
+          "room": "salle-3",
+          "teacherRole": "TEACHER_C_FRANCAIS"
         }
       ]
     },
@@ -322,7 +357,8 @@
     },
     "TEACHER_C_FRANCAIS": {
       "subjects": [
-        "FRANCAIS"
+        "FRANCAIS",
+        "PHILOSOPHIE"
       ],
       "maxHoursPerDay": 6,
       "assigned": false
@@ -367,6 +403,7 @@
     "pre2026-pack-4"
   ],
   "academicProfiles": {
+    "QUATRIEME": {},
     "TROISIEME": {},
     "SECONDE": {},
     "PREMIERE": {
@@ -526,6 +563,10 @@
         "MATHS_EXPERTES": {
           "label": "Mathématiques expertes",
           "description": "Un cahier, une trousse complète et une calculatrice scientifique."
+        },
+        "PHILOSOPHIE": {
+          "label": "Philosophie",
+          "description": "Un cahier et une trousse complète."
         }
       },
       "preRegistrationNotice": "La demande d’information est transmise sans paiement. Elle ne réserve pas une place et ne forme pas un contrat. Après qualification pédagogique, Nexus transmet une proposition de parcours et les conditions applicables.",

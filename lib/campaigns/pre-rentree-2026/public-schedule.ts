@@ -54,8 +54,10 @@ export type PublicPlanningPack = {
 export const PRE_RENTREE_PUBLIC_METRICS = {
   pedagogicalModuleCount: 14,
   pedagogicalSessionTemplateCount: 70,
-  operationalCohortCount: 17,
-  scheduledSessionOccurrenceCount: 85,
+  // 17 historical cohorts + 3 new Fenêtre-1 groups (4e Français, 4e Maths, Tle Philosophie).
+  // Module count stays at 14 until §5 writes the three pedagogical modules.
+  operationalCohortCount: 20,
+  scheduledSessionOccurrenceCount: 100,
   studentSessionsPerSubject: 5,
   studentHoursPerSubject: 10,
 } as const;

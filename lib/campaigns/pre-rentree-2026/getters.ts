@@ -62,7 +62,7 @@ export function getPreRentreeEnrichedSubjects(): LandingSubject[] {
 }
 
 /**
- * Get the schedule expanded to 85 scheduled occurrences across 17 operational
+ * Get the schedule expanded to 100 scheduled occurrences across 20 operational
  * cohorts and 3 windows. Each cohort represents five occurrences of one
  * pedagogical module; an alternative cohort does not double the pupil volume.
  */

@@ -67,12 +67,12 @@ describe('Pré-rentrée 2026 central public-surface adapter', () => {
     expect(dto.planning.metrics).toEqual({
       pedagogicalModuleCount: 14,
       pedagogicalSessionTemplateCount: 70,
-      operationalCohortCount: 17,
-      scheduledSessionOccurrenceCount: 85,
+      operationalCohortCount: 20,
+      scheduledSessionOccurrenceCount: 100,
       studentSessionsPerSubject: 5,
       studentHoursPerSubject: 10,
     });
-    expect(dto.planning.schedule).toHaveLength(85);
+    expect(dto.planning.schedule).toHaveLength(100);
     expect(dto.programs).toHaveLength(14);
     expect(dto.documents).toHaveLength(7);
     expect(dto.planning.roomsPubliclyConfirmed).toBe(false);

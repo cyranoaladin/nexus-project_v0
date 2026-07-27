@@ -22,7 +22,8 @@ const MAXIMUM_PREMIERE_SPECIALTIES = 3;
 
 /** Subjects that are never counted against the level's specialty cap. */
 const NON_SPECIALTY_SUBJECTS_BY_LEVEL: Partial<Record<EntryLevelCode, readonly string[]>> = {
-  TERMINALE: ['MATHS_EXPERTES'],
+  // Philosophie = tronc commun Terminale : toujours sélectionnable, jamais une spécialité.
+  TERMINALE: ['MATHS_EXPERTES', 'PHILOSOPHIE'],
   PREMIERE: ['FRANCAIS'],
 };
 

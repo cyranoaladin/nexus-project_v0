@@ -536,8 +536,8 @@
                 ],
                 "additionalProperties": false
               },
-              "minItems": 85,
-              "maxItems": 85
+              "minItems": 100,
+              "maxItems": 100
             }
           },
           "required": [

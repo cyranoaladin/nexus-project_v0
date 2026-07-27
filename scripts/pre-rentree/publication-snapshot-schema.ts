@@ -264,10 +264,10 @@ export const PublicationSnapshotSchema = z.object({
   blocks: z.array(z.object({ id: z.enum(['A', 'B', 'C', 'D']), startTime: Time, endTime: Time }).strict()).length(4),
   schedule: z.object({
     windows: z.array(ScheduleWindowSchema).length(3),
-    // 17 opérational cohorts x 5 sessions = 85 (SCHEDULE-S5: 14 unique pedagogical
+    // 20 operational cohorts x 5 sessions = 100 (SCHEDULE-S5: 14 unique pedagogical
     // modules, but 3 of them — Première SVT, Terminale NSI, Terminale SVT — have 2
     // alternative cohorts each = 14 + 3 = 17 cohorts).
-    sessions: z.array(ScheduleSessionSchema).length(85),
+    sessions: z.array(ScheduleSessionSchema).length(100),
   }).strict(),
   academicProfiles: z.record(z.unknown()),
   packs: z.array(PackSchema).length(4),
