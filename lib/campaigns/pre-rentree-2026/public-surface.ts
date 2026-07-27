@@ -198,8 +198,8 @@ export function compilePreRentreeReviewSurfaceDTO() {
     version: '2026-public-surface-v1',
     campaignId: campaign.campaignId,
     canonicalPath: campaign.canonicalPath,
-    title: 'Stages de pré-rentrée 2026',
-    promise: 'Reprendre les fondamentaux. Structurer sa méthode. Aborder la rentrée avec confiance.',
+    title: 'Préparez la rentrée avec des bases solides',
+    promise: 'Des stages intensifs en petits groupes pour reprendre les notions essentielles, retrouver une méthode de travail efficace et démarrer l’année avec confiance.',
     startDate: campaign.startDate,
     startLabel: `Dès le ${firstDate}`,
     venue: campaign.venue.name,
@@ -242,17 +242,17 @@ export function compilePreRentreeReviewSurfaceDTO() {
     programs: publicModules,
     documents: PRE_RENTREE_DOCUMENTS.map((document) => ({ ...document })),
     method: [
-      'Un groupe dont la capacité est annoncée pour chaque offre',
-      'Cinq séances structurées par matière',
-      'Des objectifs annoncés',
-      'De l’entraînement et de la correction en séance',
-      'Des consignes et exercices utilisés pendant les séances',
+      'Faire un point rapide sur les acquis',
+      'Reprendre les notions essentielles',
+      'S’entraîner avec des exercices progressifs',
+      'Comprendre les corrections et les méthodes',
+      'Repartir avec des repères clairs pour la rentrée',
     ],
     reservation: {
       enabled: false,
       depositPercentage: 30,
-      rule: 'Le parcours public est limité à une demande d’information sans paiement.',
-      explanation: 'Les acomptes et soldes affichés proviennent de la grille tarifaire, mais aucune réservation ni collecte de paiement ne peut être activée avant validation des conditions contractuelles, du reçu et du rapprochement.',
+      rule: 'La demande en ligne n’engage aucun paiement.',
+      explanation: 'Indiquez la classe de rentrée et les matières souhaitées. Notre équipe vous confirme les créneaux disponibles et vous guide vers la formule adaptée.',
     },
     contact: {
       whatsappDisplay: getWhatsAppDisplayNumber(),
@@ -273,7 +273,7 @@ export function compilePreRentreeReviewSurfaceDTO() {
     faq: [
       {
         question: 'À qui s’adressent les stages de pré-rentrée 2026 ?',
-        answer: 'Les offres s’adressent aux élèves du système français en Tunisie et aux candidats libres, selon le niveau et les matières réellement disponibles dans le référentiel commercial.',
+        answer: 'Les offres s’adressent aux élèves du système français en Tunisie et aux candidats libres, selon le niveau et les matières proposées.',
       },
       {
         question: 'Quand et où commence la pré-rentrée Nexus ?',
@@ -281,11 +281,11 @@ export function compilePreRentreeReviewSurfaceDTO() {
       },
       {
         question: 'Quelles matières sont proposées pour une entrée en Seconde ?',
-        answer: `Les matières publiées pour une entrée en Seconde sont ${subjectIdsByLevel.SECONDE.map((subject) => subjectLabelFor(campaign, 'SECONDE', subject)).join(', ')}. La sélection est contrôlée par le référentiel de l’offre avant affichage.`,
+        answer: `Les matières proposées pour une entrée en Seconde sont ${subjectIdsByLevel.SECONDE.map((subject) => subjectLabelFor(campaign, 'SECONDE', subject)).join(', ')}.`,
       },
       {
         question: 'Que comprennent les dix heures par matière ?',
-        answer: 'Chaque matière comprend cinq séances structurées de deux heures, avec objectifs annoncés, entraînement et correction en séance, ainsi que les consignes et exercices utilisés pendant le stage.',
+        answer: 'Chaque matière comprend cinq séances structurées de deux heures, avec un objectif clair à chaque séance, de l’entraînement et de la correction, ainsi que les consignes et exercices utilisés pendant le stage.',
       },
       {
         question: 'Quels sont les effectifs des groupes ?',
@@ -293,11 +293,11 @@ export function compilePreRentreeReviewSurfaceDTO() {
       },
       {
         question: 'Puis-je réserver ou payer depuis le site ?',
-        answer: 'Non. Le site permet uniquement de demander une information. Les montants d’acompte et de solde sont des éléments de la grille tarifaire ; aucune réservation ni collecte de paiement n’est activée tant que les conditions contractuelles et opérationnelles ne sont pas validées.',
+        answer: 'Non. Le site permet uniquement de demander une information. Les montants d’acompte et de solde correspondent à la grille tarifaire, mais aucune réservation ni collecte de paiement n’est activée en ligne : notre équipe vous recontacte pour finaliser l’inscription.',
       },
       {
         question: 'Comment connaître le tarif exact du parcours ?',
-        answer: `Les tarifs sont affichés offre par offre et proviennent du référentiel tarifaire canonique. À titre de repère, les offres publiées vont de ${formatAmount(Math.min(...offers.map((offer) => offer.price)))} à ${formatAmount(Math.max(...offers.map((offer) => offer.price)))} selon le niveau et le nombre de matières.`,
+        answer: `Les tarifs sont affichés offre par offre. À titre de repère, les offres publiées vont de ${formatAmount(Math.min(...offers.map((offer) => offer.price)))} à ${formatAmount(Math.max(...offers.map((offer) => offer.price)))} selon le niveau et le nombre de matières.`,
       },
     ],
   } as const;

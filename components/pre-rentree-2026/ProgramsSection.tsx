@@ -77,8 +77,8 @@ export function ProgramsSection({
   return (
     <section id="programmes" className="scroll-mt-24 bg-lux-paper px-4 py-14 md:py-20" aria-labelledby="programs-heading">
       <div className="mx-auto max-w-6xl">
-        <h2 id="programs-heading" className="font-fraunces text-3xl text-lux-ink md:text-4xl">Programmes détaillés</h2>
-        <p className="mt-3 max-w-3xl text-lux-slate">Consultez un module à la fois pour garder une lecture claire des objectifs et des cinq séances.</p>
+        <h2 id="programs-heading" className="font-fraunces text-3xl text-lux-ink md:text-4xl">Découvrez le programme de chaque matière</h2>
+        <p className="mt-3 max-w-3xl text-lux-slate">Pour chaque module, consultez les objectifs, les notions travaillées et le déroulé des cinq séances.</p>
         <div className="mt-6 flex flex-wrap gap-2" role="tablist" aria-label="Filtrer les programmes par classe de rentrée">
           {levels.map((option, index) => <button key={option.id} ref={(element) => { tabsRef.current[index] = element; }} id={`program-level-${option.id}`} role="tab" aria-selected={level === option.id} aria-controls="program-list" tabIndex={level === option.id ? 0 : -1} onKeyDown={(event) => handleLevelKeys(event, index)} onClick={() => { setLevel(option.id); setOpenModule(null); }} className={`min-h-11 rounded-lg px-4 py-2 text-sm font-semibold ${level === option.id ? 'bg-lux-ink text-lux-ivory' : 'border border-lux-line bg-white text-lux-ink'}`}>{option.label}</button>)}
         </div>

@@ -21,7 +21,7 @@ function contactMessage(offer: PublicOffer): string {
 
 export function CanonicalOfferCatalogue({
   data,
-  heading = 'Choisir une offre par niveau',
+  heading = 'Choisissez le nombre de matières',
 }: {
   data: PreRentreePublicSurfaceDTO;
   heading?: string;
@@ -29,10 +29,10 @@ export function CanonicalOfferCatalogue({
   return (
     <section className="bg-lux-paper px-4 py-14 md:px-6 md:py-20" aria-labelledby="canonical-offers-heading">
       <div className="mx-auto max-w-6xl">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-lux-gold-deep">Tarifs issus du référentiel canonique</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-lux-gold-deep">Formules et tarifs</p>
         <h2 id="canonical-offers-heading" className="mt-3 font-fraunces text-3xl text-lux-ink md:text-4xl">{heading}</h2>
         <p className="mt-3 max-w-3xl text-lux-slate">
-          Chaque carte précise les matières autorisées, le volume, l’effectif, les éléments inclus et ce qui ne l’est pas. Aucun service numérique ou annuel n’est ajouté par défaut.
+          Chaque matière comprend 10 heures d’accompagnement réparties en cinq séances de deux heures. Sélectionnez le niveau puis la formule adaptée.
         </p>
 
         <div className="mt-10 space-y-12">
@@ -69,18 +69,9 @@ export function CanonicalOfferCatalogue({
                           <div><dt className="text-lux-slate">Acompte 30 %</dt><dd className="font-semibold text-lux-ink"><Amount value={offer.deposit} /></dd></div>
                           <div><dt className="text-lux-slate">Solde</dt><dd className="font-semibold text-lux-ink"><Amount value={offer.balance} /></dd></div>
                         </dl>
-                        <div className="mt-5 grid gap-4 text-sm">
-                          <div>
-                            <h5 className="font-semibold text-lux-ink">Inclus</h5>
-                            <ul className="mt-2 list-disc space-y-1 pl-5 text-lux-slate">{offer.included.map((item) => <li key={item}>{item}</li>)}</ul>
-                          </div>
-                          {offer.optional.length > 0 && (
-                            <div><h5 className="font-semibold text-lux-ink">En option</h5><ul className="mt-2 list-disc space-y-1 pl-5 text-lux-slate">{offer.optional.map((item) => <li key={item}>{item}</li>)}</ul></div>
-                          )}
-                          <div>
-                            <h5 className="font-semibold text-lux-ink">Non inclus</h5>
-                            <ul className="mt-2 list-disc space-y-1 pl-5 text-lux-slate">{offer.excluded.map((item) => <li key={item}>{item}</li>)}</ul>
-                          </div>
+                        <div className="mt-5 text-sm">
+                          <h5 className="font-semibold text-lux-ink">Le stage comprend</h5>
+                          <ul className="mt-2 list-disc space-y-1 pl-5 text-lux-slate">{offer.included.slice(0, 3).map((item) => <li key={item}>{item}</li>)}</ul>
                         </div>
                         <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="lux-cta-reserve mt-auto inline-flex min-h-11 items-center justify-center rounded-lg px-4 py-3 text-center text-sm font-semibold">
                           {offer.cta} <span className="sr-only">— {level.label}, {offerTitle(offer)} (nouvel onglet)</span>
