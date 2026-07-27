@@ -1,6 +1,6 @@
 import campaignManifest from '@/data/campaigns/pre-rentree-2026.json';
 import modulesData from '@/content/pre-rentree-2026/modules.json';
-import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
+import { getPreRentreeCampaign } from '@/lib/campaigns/pre-rentree-2026/getters';
 import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
 
 const entryLabels = {
@@ -28,21 +28,21 @@ describe('Pré-rentrée 2026 entry-level invariant', () => {
         PREMIERE: 'TERMINALE',
       },
     });
-    expect(getPreRentreeLandingDTO().campaign.entryLevelSemantics.kind).toBe('ENTRY_LEVEL');
+    expect(getPreRentreeCampaign().entryLevelSemantics.kind).toBe('ENTRY_LEVEL');
   });
 
   it('keeps hero, SEO, FAQ and practical information explicit', () => {
-    const dto = getPreRentreeLandingDTO();
-    expect(dto.content.hero.subtitle).toContain(
+    const campaign = getPreRentreeCampaign();
+    expect(campaign.content.hero.subtitle).toContain(
       'élèves entrant en 3e, Seconde, Première ou Terminale',
     );
-    expect(dto.seo.description).toContain(
+    expect(campaign.seo.description).toContain(
       'élèves entrant en 3e, Seconde, Première ou Terminale',
     );
-    expect(dto.content.practical.audience).toContain(
+    expect(campaign.content.practical.audience).toContain(
       'élèves entrant en 3e, Seconde, Première ou Terminale',
     );
-    expect(JSON.stringify(dto.content.faq)).toContain('entrant en 3e, Seconde, Première ou Terminale');
+    expect(JSON.stringify(campaign.content.faq)).toContain('entrant en 3e, Seconde, Première ou Terminale');
   });
 
   it('presents every module as preparation for its entry class', () => {

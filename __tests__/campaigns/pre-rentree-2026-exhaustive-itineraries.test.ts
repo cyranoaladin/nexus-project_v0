@@ -7,11 +7,21 @@ import {
 import {
   buildStageAvailabilityMessage,
 } from '@/lib/campaigns/pre-rentree-2026/availability-message';
-import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
+import {
+  getPreRentreeCampaign,
+  getPreRentreeSchedule,
+  getPreRentreeOfferOptions,
+} from '@/lib/campaigns/pre-rentree-2026/getters';
 import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 
-const dto = getPreRentreeLandingDTO();
+const campaign = getPreRentreeCampaign();
+const dto = {
+  levels: campaign.levels,
+  subjects: campaign.subjects,
+  schedule: getPreRentreeSchedule(),
+  offerOptions: getPreRentreeOfferOptions(),
+};
 const levels = [
   'TROISIEME',
   'SECONDE',

@@ -14,7 +14,7 @@ import {
   type SelectedOfferContext,
 } from './selected-offer';
 import { parsePreRentreeBilanPrefill, type CampaignSearchParams } from '@/lib/campaigns/pre-rentree-2026/bilan-prefill';
-import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
+import { getPreRentreeCampaign } from '@/lib/campaigns/pre-rentree-2026/campaign-source';
 import { formatAcademicProfile } from '@/lib/campaigns/pre-rentree-2026/configurator';
 import { getPreRentreeReleaseGate } from '@/lib/campaigns/pre-rentree-2026/release-gate';
 
@@ -129,14 +129,17 @@ export default async function BilanGratuitPage({ searchParams }: BilanGratuitPag
   const offerId = preRentreePrefill?.packCode ?? legacyOffer;
   const programmeLabel = resolveProgrammeLabel(programme);
   const selectedOffer = resolveSelectedOfferContext(offerId);
-  const campaignDto = preRentreePrefill ? getPreRentreeLandingDTO() : null;
-  const profileLabels = campaignDto ? Object.fromEntries([
-    ...campaignDto.academicProfiles.PREMIERE.voies,
-    ...campaignDto.academicProfiles.PREMIERE.mathsProfiles,
-    ...campaignDto.academicProfiles.PREMIERE.eafProfiles,
-    ...campaignDto.academicProfiles.PREMIERE.specialtyPlans,
-    ...campaignDto.academicProfiles.TERMINALE.retainedSpecialties.options,
-    ...campaignDto.academicProfiles.TERMINALE.mathsOptions,
+  // Only the academic profile labels and level labels are needed here — read
+  // directly from the validated campaign source rather than the full landing
+  // DTO (which also derives schedule/pack/module data this page never uses).
+  const campaign = preRentreePrefill ? getPreRentreeCampaign() : null;
+  const profileLabels = campaign ? Object.fromEntries([
+    ...campaign.academicProfiles.PREMIERE.voies,
+    ...campaign.academicProfiles.PREMIERE.mathsProfiles,
+    ...campaign.academicProfiles.PREMIERE.eafProfiles,
+    ...campaign.academicProfiles.PREMIERE.specialtyPlans,
+    ...campaign.academicProfiles.TERMINALE.retainedSpecialties.options,
+    ...campaign.academicProfiles.TERMINALE.mathsOptions,
   ].map((option) => [option.id, option.label])) : {};
 
   return (
@@ -150,7 +153,7 @@ export default async function BilanGratuitPage({ searchParams }: BilanGratuitPag
           studentGrade: preRentreePrefill.level.toLowerCase(),
           subjects: preRentreePrefill.subjectIds,
           contextLabel: programmeLabel ?? 'Pré-rentrée 2026',
-          entryLevelLabel: campaignDto?.levels.find(
+          entryLevelLabel: campaign?.levels.find(
             (level) => level.id === preRentreePrefill.level,
           )?.label ?? preRentreePrefill.level,
           profileLabel: formatAcademicProfile(preRentreePrefill.profile, profileLabels),

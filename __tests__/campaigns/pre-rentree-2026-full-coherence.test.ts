@@ -24,7 +24,9 @@ import { join } from 'node:path';
 import pricingCanonical from '@/data/pricing.canonical.json';
 import campaignSource from '@/data/campaigns/pre-rentree-2026.json';
 import { getCommercialPublicOffers } from '@/lib/campaigns/pre-rentree-2026/commercial-contract';
-import { getPreRentreeLandingDTO, getPreRentreeSchedule } from '@/lib/campaigns/pre-rentree-2026/getters';
+import { getPreRentreeCampaign, getPreRentreeSchedule } from '@/lib/campaigns/pre-rentree-2026/getters';
+import offersData from '@/content/pre-rentree-2026/offers.json';
+import { PreRentreeOffersSchema } from '@/lib/campaigns/pre-rentree-2026/content-schema';
 import { computeSubjectIncompatibilities } from '@/lib/campaigns/pre-rentree-2026/incompatibilities';
 import { compilePreRentreeReviewSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
 import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
@@ -58,7 +60,9 @@ const maybe = existsSync(PDF) ? describe : describe.skip;
 
 maybe('Pré-rentrée 2026 — cohérence intégrale par niveau (JSON / catalogue / contrat commercial / sélecteur / PDF / page)', () => {
   const schedule = getPreRentreeSchedule();
-  const dto = getPreRentreeLandingDTO();
+  const campaign = getPreRentreeCampaign();
+  const offers = PreRentreeOffersSchema.parse(offersData);
+  const dto = { offers: offers.levels, subjects: campaign.subjects };
   const incompatibilities = computeSubjectIncompatibilities(schedule);
   const pageDto = compilePreRentreeReviewSurfaceDTO();
   const commercialOffers = getCommercialPublicOffers();

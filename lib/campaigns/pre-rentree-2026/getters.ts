@@ -2,19 +2,14 @@ import 'server-only';
 
 import modulesData from '@/content/pre-rentree-2026/modules.json';
 import offersData from '@/content/pre-rentree-2026/offers.json';
-import capabilitiesData from '@/content/pre-rentree-2026/capabilities.json';
-import manualsData from '@/content/pre-rentree-2026/manuals.registry.json';
-import { getPreRentreeFoundationsProducts, getPreRentreePacks, getRules } from '@/lib/pricing';
-import { LEGAL } from '@/lib/legal';
+import { getPreRentreeFoundationsProducts, getPreRentreePacks } from '@/lib/pricing';
 import {
   PreRentreeModulesSchema,
 } from './schema';
 import type { EntryLevelCode } from './schema';
 import type { PreRentreeHomepageSpotlightDTO } from './homepage-spotlight';
-import type { LandingPack } from './configurator';
+import type { LandingPack, LandingSubject } from './configurator';
 import {
-  PreRentreeCapabilitiesSchema,
-  PreRentreeManualsRegistrySchema,
   PreRentreeOffersSchema,
 } from './content-schema';
 import {
@@ -27,17 +22,43 @@ import {
   getPreRentreePublicSurfaceDTO,
   type PreRentreePublicSurfaceDTO,
 } from './public-surface';
-import { computeSubjectIncompatibilities } from './incompatibilities';
 
 export { getPreRentreeCampaign } from './campaign-source';
 
-/**
- * Get the validated campaign manifest.
- * Server-only — never import from client components.
- */
 /** Get the 14 pedagogical modules with their 70 session templates. */
 export function getPreRentreeModules() {
   return PreRentreeModulesSchema.parse(modulesData).modules;
+}
+
+/**
+ * Campaign subjects enriched with a per-level pedagogical summary and module
+ * id (LandingSubject contract — consumed by lib/campaigns/pre-rentree-2026/
+ * configurator.ts and the StageConfigurator component).
+ */
+export function getPreRentreeEnrichedSubjects(): LandingSubject[] {
+  const campaign = getPreRentreeCampaign();
+  const modules = getPreRentreeModules();
+  return campaign.subjects.map((subject) => {
+    const subjectModules = subject.levels.map((level) => {
+      const campaignModule = modules.find(
+        (module) => module.level === level && module.subjectId === subject.id,
+      );
+      if (!campaignModule) {
+        throw new Error(`Missing campaign module for ${level}/${subject.id}`);
+      }
+      return [level, campaignModule] as const;
+    });
+
+    return {
+      ...subject,
+      summaryByLevel: Object.fromEntries(
+        subjectModules.map(([level, campaignModule]) => [level, campaignModule.subtitle]),
+      ),
+      moduleIdsByLevel: Object.fromEntries(
+        subjectModules.map(([level, campaignModule]) => [level, campaignModule.id]),
+      ),
+    };
+  });
 }
 
 /**
@@ -159,113 +180,6 @@ export function getPreRentreeOfferOptions(): LandingPack[] {
     }
   }
   return options;
-}
-
-/**
- * Get the full landing page DTO.
- * Combines manifest + modules + pricing into a single server-rendered payload.
- */
-export function getPreRentreeLandingDTO() {
-  const campaign = getPreRentreeCampaign();
-  const modules = getPreRentreeModules();
-  const schedule = getPreRentreeSchedule();
-  const packs = getPreRentreePackOptions();
-  const offerOptions = getPreRentreeOfferOptions();
-  const offers = PreRentreeOffersSchema.parse(offersData);
-  const capabilities = PreRentreeCapabilitiesSchema.parse(capabilitiesData);
-  const manuals = PreRentreeManualsRegistrySchema.parse(manualsData);
-  const pricingRules = getRules();
-  const subjects = campaign.subjects.map((subject) => {
-    const subjectModules = subject.levels.map((level) => {
-      const campaignModule = modules.find(
-        (module) => module.level === level && module.subjectId === subject.id,
-      );
-      if (!campaignModule) {
-        throw new Error(`Missing campaign module for ${level}/${subject.id}`);
-      }
-      return [level, campaignModule] as const;
-    });
-
-    return {
-      ...subject,
-      summaryByLevel: Object.fromEntries(
-        subjectModules.map(([level, campaignModule]) => [level, campaignModule.subtitle]),
-      ),
-      moduleIdsByLevel: Object.fromEntries(
-        subjectModules.map(([level, campaignModule]) => [level, campaignModule.id]),
-      ),
-    };
-  });
-  if (
-    !campaign.roomRoles['salle-1']?.includes('MATHEMATIQUES') ||
-    !campaign.roomRoles['salle-1']?.includes('NSI') ||
-    !campaign.roomRoles['salle-2']?.includes('FRANCAIS') ||
-    !campaign.roomRoles['salle-2']?.includes('PHYSIQUE_CHIMIE') ||
-    !campaign.roomRoles['salle-2']?.includes('SVT')
-  ) {
-    throw new Error('Unexpected Pré-rentrée room contract');
-  }
-  const subjectLabelById = new Map(campaign.subjects.map((subject) => [subject.id, subject.label]));
-  const roomDetails = (room: 'salle-1' | 'salle-2'): string => {
-    const labels = campaign.roomRoles[room]!.map((subjectId) => subjectLabelById.get(subjectId) ?? subjectId);
-    return labels.length > 1 ? `${labels.slice(0, -1).join(', ')} et ${labels.at(-1)}` : (labels[0] ?? '');
-  };
-  const organization = {
-    educators: [],
-    rooms: [
-      { label: 'Salle 1', details: roomDetails('salle-1') },
-      { label: 'Salle 2', details: roomDetails('salle-2') },
-    ],
-  };
-
-  return {
-    campaign: {
-      id: campaign.campaignId,
-      version: campaign.version,
-      entryLevelSemantics: campaign.entryLevelSemantics,
-      canonicalPath: campaign.canonicalPath,
-      timezone: campaign.timezone,
-      startDate: campaign.startDate,
-      endDate: campaign.endDate,
-      noClassDates: campaign.noClassDates,
-      decisionDeadline: campaign.decisionDeadline,
-      venue: {
-        name: `${LEGAL.entity.tradeName} — ${LEGAL.addresses.pedagogique.neighborhood}`,
-        neighborhood: LEGAL.addresses.pedagogique.neighborhood,
-        city: LEGAL.addresses.pedagogique.city,
-      },
-    },
-    levels: campaign.levels,
-    subjects,
-    blocks: campaign.blocks,
-    scheduleWindows: campaign.schedule,
-    organization,
-    capacityByOffer: campaign.capacityByOffer,
-    operationalGates: campaign.operationalGates,
-    academicProfiles: campaign.academicProfiles,
-    packs,
-    offerOptions,
-    offers: offers.levels,
-    capabilities: capabilities.capabilities,
-    manuals: manuals.manuals.map((manual) => ({
-      ...manual,
-      publiclyAdvertisable: manual.printReady && manual.ownerApproved && manual.stockReady,
-    })),
-    pricingRules: {
-      depositPercentage: pricingRules.payment.deposit_pct_stage,
-    },
-    schedule,
-    subjectIncompatibilities: computeSubjectIncompatibilities(schedule),
-    modules,
-    content: campaign.content,
-    seo: campaign.seo,
-    cta: campaign.cta,
-    contact: campaign.contact,
-    featureFlags: campaign.featureFlags,
-    legalRefs: campaign.legalRefs,
-    publicStatus: formatCampaignStatus(campaign.status),
-    publicationMode: campaign.status === 'DRAFT' ? 'REVIEW' as const : 'RELEASE' as const,
-  };
 }
 
 function buildPreRentreeHomepageSpotlightDTO(dto: PreRentreePublicSurfaceDTO): PreRentreeHomepageSpotlightDTO {

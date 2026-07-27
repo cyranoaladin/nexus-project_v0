@@ -7,7 +7,13 @@ jest.mock('@/lib/campaigns/pre-rentree-2026/release-gate', () => ({
   canPrefillBilanGratuitFromPreRentree: () => true,
 }));
 
-import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
+import {
+  getPreRentreeCampaign,
+  getPreRentreeSchedule,
+  getPreRentreeOfferOptions,
+  getPreRentreePackOptions,
+  getPreRentreeEnrichedSubjects,
+} from '@/lib/campaigns/pre-rentree-2026/getters';
 import {
   buildBilanUrl,
   buildSelectionSummary,
@@ -22,7 +28,15 @@ import {
 import { parsePreRentreeBilanPrefill } from '@/lib/campaigns/pre-rentree-2026/bilan-prefill';
 import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
 
-const dto = getPreRentreeLandingDTO();
+const campaign = getPreRentreeCampaign();
+const dto = {
+  levels: campaign.levels,
+  subjects: getPreRentreeEnrichedSubjects(),
+  schedule: getPreRentreeSchedule(),
+  offerOptions: getPreRentreeOfferOptions(),
+  packs: getPreRentreePackOptions(),
+  academicProfiles: campaign.academicProfiles,
+};
 
 describe('Pré-rentrée configurator logic', () => {
   it('builds all 66 approved level and subject configurations from DTO facts', () => {

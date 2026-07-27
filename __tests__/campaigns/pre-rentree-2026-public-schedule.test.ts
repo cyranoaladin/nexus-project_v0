@@ -1,10 +1,15 @@
-import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
+import { getPreRentreeCampaign, getPreRentreeSchedule } from '@/lib/campaigns/pre-rentree-2026/getters';
 import {
   PRE_RENTREE_PUBLIC_METRICS,
   buildPublicSubjectScheduleRows,
 } from '@/lib/campaigns/pre-rentree-2026/public-schedule';
 
-const dto = getPreRentreeLandingDTO();
+const campaign = getPreRentreeCampaign();
+const dto = {
+  schedule: getPreRentreeSchedule(),
+  subjects: campaign.subjects,
+  scheduleWindows: campaign.schedule,
+};
 
 describe('Pré-rentrée 2026 public schedule model', () => {
   it('uses the canonical 14/70/17/85 taxonomy', () => {

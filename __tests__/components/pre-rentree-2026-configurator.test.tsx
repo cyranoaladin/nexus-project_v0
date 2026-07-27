@@ -2,7 +2,13 @@ import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import StageConfigurator from '@/components/pre-rentree-2026/StageConfigurator';
-import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
+import {
+  getPreRentreeCampaign,
+  getPreRentreeSchedule,
+  getPreRentreeOfferOptions,
+  getPreRentreeEnrichedSubjects,
+} from '@/lib/campaigns/pre-rentree-2026/getters';
+import { formatCampaignStatus } from '@/lib/campaigns/pre-rentree-2026/presentation';
 import { track } from '@/lib/analytics';
 
 jest.mock('@/lib/analytics', () => ({
@@ -18,7 +24,16 @@ jest.mock('@/lib/analytics', () => ({
   },
 }));
 
-const dto = getPreRentreeLandingDTO();
+const campaign = getPreRentreeCampaign();
+const dto = {
+  levels: campaign.levels,
+  subjects: getPreRentreeEnrichedSubjects(),
+  academicProfiles: campaign.academicProfiles,
+  content: campaign.content,
+  schedule: getPreRentreeSchedule(),
+  offerOptions: getPreRentreeOfferOptions(),
+  publicStatus: formatCampaignStatus(campaign.status),
+};
 
 function renderConfigurator() {
   render(
