@@ -199,7 +199,19 @@ export const PreRentreeCampaignManifestSchema = z.object({
   subjects: z.array(Subject).length(6),
   blocks: z.array(TimeSlot).length(4),
   schedule: z.array(ScheduleWindow).length(3),
+  // Rooms: 3 permanent rooms (salle-1/2/3) as of the 4e/Philosophie capacity
+  // arbitrage (owner decision D1: 3rd room + 2nd maths teacher). There is no
+  // "temporary room" concept in the data model — that framing only ever
+  // existed in editorial copy (already removed from the public page).
   roomRoles: z.record(z.array(z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'SVT', 'MATHS_EXPERTES'])).min(1)),
+  // Teacher roles: TEACHER_A_MATHS_NSI remains the sole lycée (Seconde/
+  // Première/Terminale) maths+NSI+maths-expertes teacher. TEACHER_B_MATHS_
+  // COLLEGE is a second, distinct maths teacher scoped to the collège level
+  // (4e) only — it must never be assigned a lycée-level slot, so the "one
+  // maths/NSI teacher" invariant at lycée levels still holds. TEACHER_C_
+  // FRANCAIS is intended to also cover Philosophie once introduced (Terminale
+  // module, Lot 2 of the 4e/Philosophie mission) — its `subjects` list isn't
+  // widened yet because PHILOSOPHIE isn't a Subject enum value until then.
   teacherRoles: z.record(z.object({
     subjects: z.array(z.enum(['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'FRANCAIS', 'SVT', 'MATHS_EXPERTES'])).min(1),
     maxHoursPerDay: z.number().int().min(1).max(8),

@@ -1,6 +1,6 @@
 /**
  * Anonymat total des enseignants (Volet 1 + Volet 2) : les intervenants n'apparaissent
- * jamais nommément, uniquement via des rôles abstraits (A/C/D/E) ou des libellés
+ * jamais nommément, uniquement via des rôles abstraits (A/B/C/D/E) ou des libellés
  * génériques ("Enseignant de Mathématiques", etc.).
  */
 import campaignManifest from '@/data/campaigns/pre-rentree-2026.json';
@@ -17,10 +17,11 @@ function assertNoNames(label: string, payload: unknown) {
 }
 
 describe('Pré-rentrée 2026 — anonymat des enseignants (aucun nom propre)', () => {
-  it('les 4 rôles enseignants sont strictement abstraits (A/C/D/E), jamais assignés', () => {
+  it('les 5 rôles enseignants sont strictement abstraits (A/B/C/D/E), jamais assignés', () => {
     const teacherRoles = campaignManifest.teacherRoles as Record<string, { assigned: boolean }>;
     expect(Object.keys(teacherRoles).sort()).toEqual([
       'TEACHER_A_MATHS_NSI',
+      'TEACHER_B_MATHS_COLLEGE',
       'TEACHER_C_FRANCAIS',
       'TEACHER_D_PHYSIQUE_CHIMIE',
       'TEACHER_E_SVT',
