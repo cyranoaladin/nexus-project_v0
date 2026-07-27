@@ -2095,16 +2095,24 @@
               "items": {
                 "type": "object",
                 "properties": {
+                  "id": {
+                    "type": "string"
+                  },
                   "question": {
                     "type": "string"
                   },
                   "answer": {
                     "type": "string"
+                  },
+                  "published": {
+                    "type": "boolean"
                   }
                 },
                 "required": [
+                  "id",
                   "question",
-                  "answer"
+                  "answer",
+                  "published"
                 ],
                 "additionalProperties": false
               }

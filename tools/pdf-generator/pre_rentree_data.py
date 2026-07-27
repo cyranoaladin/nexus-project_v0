@@ -65,19 +65,6 @@ SUBJECT_MARKERS = {
     "MATHS_EXPERTES": "M+",
 }
 
-# Materials fallback for subjects without a per-module `equipment` field in
-# modules.json (only the 2 SVT modules currently carry one). Mirrors the table
-# already published in NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf
-# and content/pre-rentree-2026/parent-guide.fr.json.
-_MATERIALS_FALLBACK = {
-    "MATHEMATIQUES": "Cahier, trousse complète, calculatrice",
-    "MATHS_EXPERTES": "Cahier, trousse complète, calculatrice",
-    "FRANCAIS": "Cahier, trousse complète",
-    "NSI": "Ordinateur portable personnel (deux postes de secours disponibles — prévenir Nexus avant le stage si nécessaire)",
-    "PHYSIQUE_CHIMIE": "Cahier, trousse complète, calculatrice — accompagnement théorique et méthodologique ; pas de séance de laboratoire",
-    "SVT": "Cahier, trousse complète, calculatrice scientifique simple recommandée (non obligatoire sauf consigne de l'enseignant)",
-}
-
 _MONTHS_FR = ("janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août",
               "septembre", "octobre", "novembre", "décembre")
 _WEEKDAYS_FR = ("lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche")
@@ -337,7 +324,14 @@ class PreRentreeData:
     def materials_for_subject(self, subject_id: str, module: Optional[SubjectModule]) -> str:
         if module is not None and module.equipment:
             return module.equipment
-        return _MATERIALS_FALLBACK.get(subject_id, "Cahier et trousse complète")
+        # Single source: campaign.content.practical.materialsBySubject (the
+        # same field public-surface.ts reads on the TypeScript side) — no
+        # hardcoded fallback duplicated here to drift out of sync with it.
+        materials_by_subject = self.campaign["content"]["practical"]["materialsBySubject"]
+        entry = materials_by_subject.get(subject_id)
+        if entry is None:
+            return "Cahier et trousse complète"
+        return entry["description"]
 
     def pricing_offer_for_level(self, level: str, subjects_count: int):
         """Return the canonical pricing row for a (level, subjects_count) pair."""
