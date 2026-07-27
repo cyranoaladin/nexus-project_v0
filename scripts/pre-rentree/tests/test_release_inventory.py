@@ -58,10 +58,10 @@ def test_release_inventory_covers_all_seven_lots_and_final_assets(tmp_path: Path
     assert inventory["commits"]
     assert all(len(commit["commitSha"]) == 40 for commit in inventory["commits"])
     assert inventory["releaseMetrics"] == {
-        "pedagogicalModuleCount": 14,
-        "pedagogicalSessionTemplateCount": 70,
-        "operationalCohortCount": 17,
-        "scheduledSessionOccurrenceCount": 85,
+        "pedagogicalModuleCount": 17,
+        "pedagogicalSessionTemplateCount": 85,
+        "operationalCohortCount": 20,
+        "scheduledSessionOccurrenceCount": 100,
         "studentSessionsPerSubject": 5,
         "studentHoursPerSubject": 10,
     }
@@ -91,7 +91,7 @@ def test_release_inventory_covers_all_seven_lots_and_final_assets(tmp_path: Path
         if item["publicDownloadCandidate"] and item["publicationStatus"] == "PUBLIC_FINAL"
     }
     assert {Path(item["path"]).name for item in document_group["files"]} == expected_public_pdfs
-    assert len(inventory["publicDocuments"]) == 7
+    assert len(inventory["publicDocuments"]) == 8
     assert inventory["publicSocialAssets"]
     assert inventory["githubChecks"]["statusAtBuild"] == "PENDING_REMOTE_VALIDATION"
     assert all(

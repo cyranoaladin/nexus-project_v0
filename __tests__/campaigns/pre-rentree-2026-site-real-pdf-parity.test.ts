@@ -37,6 +37,8 @@
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 import { compilePreRentreeReviewSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
+import { getPreRentreeCampaign } from '@/lib/campaigns/pre-rentree-2026/getters';
+import { getPreRentreeLevelCapacities } from '@/lib/campaigns/pre-rentree-2026/offer-options';
 
 const DOCUMENTS_FINAL = join(process.cwd(), 'assets/campaigns/pre-rentree-2026/documents-final');
 const PLANNING_PDF = join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf');
@@ -61,15 +63,32 @@ function containsStandaloneNumber(text: string, needle: string): boolean {
 describe('Pré-rentrée 2026 — parity between the site and the REAL public PDFs (facts only)', () => {
   const dto = compilePreRentreeReviewSurfaceDTO();
 
-  it('agrees on the Fondations/Premium effectif ranges (Planning_InfosPratiques.pdf)', () => {
+  it('agrees on per-level Fondations effectifs (§7 regeneration landed — 4e opens at 4, 3e/Seconde at 3)', () => {
+    // §6.3 requires effectifs shown PER LEVEL everywhere, never a generic
+    // "Fondations : X à Y" — the 4e's 4-student floor made that range false
+    // for 3e/Seconde. Both the site (getPreRentreeLevelCapacities) and the
+    // regenerated PDF (foundations_effectifs_par_niveau in generate_all_pdfs.py)
+    // now derive this from the same offers.json — assert genuine parity.
     const text = pdfText(PLANNING_PDF);
-    const { FONDATIONS, PREMIUM } = dto.planning.capacityByOffer;
-    expect(text).toContain(
-      `Fondations (3e et Seconde) : ${FONDATIONS.minPerCohort} à ${FONDATIONS.maxPerCohort} élèves, maximum ${FONDATIONS.maxPerCohort}`,
+    const levelLabels: Record<string, string> = {
+      QUATRIEME: '4e',
+      TROISIEME: '3e',
+      SECONDE: 'Seconde',
+    };
+    const foundationsCapacities = getPreRentreeLevelCapacities().filter(
+      (capacity) => capacity.range === 'FONDATIONS',
     );
+    expect(foundationsCapacities).toHaveLength(3);
+    for (const capacity of foundationsCapacities) {
+      expect(text).toContain(
+        `Entrée en ${levelLabels[capacity.level]} : ${capacity.minPerCohort} à ${capacity.maxPerCohort} élèves`,
+      );
+    }
+    const { PREMIUM } = getPreRentreeCampaign().capacityByOffer;
     expect(text).toContain(
       `Premium (Première et Terminale) : ${PREMIUM.minPerCohort} à ${PREMIUM.maxPerCohort} élèves, maximum ${PREMIUM.maxPerCohort}`,
     );
+    expect(text).toContain('4e');
   });
 
   it('agrees on the starting price (Planning_InfosPratiques.pdf)', () => {
@@ -89,12 +108,10 @@ describe('Pré-rentrée 2026 — parity between the site and the REAL public PDF
     );
   });
 
-  it('agrees on the Premium pack ceiling (Programme_Terminale.pdf)', () => {
+  it('agrees on the Terminale subject pool size (§7 regeneration landed — Philosophie grew the pool from 5 to 6)', () => {
     const text = pdfText(TERMINALE_PDF);
-    const terminaleSubjectCount = dto.subjectIdsByLevel.TERMINALE.length;
-    expect(text).toContain(
-      `Le pack Premium permet de choisir jusqu'à 4 matières parmi les ${terminaleSubjectCount} proposées pour ce niveau.`,
-    );
+    expect(dto.subjectIdsByLevel.TERMINALE.length).toBe(6);
+    expect(text).toContain("Le pack Premium permet de choisir jusqu'à 4 matières parmi les 6 proposées pour ce niveau.");
   });
 
   it('KNOWN GAP (tracked, not introduced by this mission): Tarifs.pdf omits the 4 Fondations per-subject prices entirely', () => {

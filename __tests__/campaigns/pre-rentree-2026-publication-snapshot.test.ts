@@ -137,18 +137,18 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     expect(unavailable.every((item) => item.publiclyCommitted === false)).toBe(true);
   });
 
-  it('copies all fourteen canonical modules and seventy sessions without editorial drift', () => {
+  it('copies all seventeen canonical modules and eighty-five sessions without editorial drift', () => {
     const canonical = JSON.parse(
       readFileSync(join(root, 'content/pre-rentree-2026/modules.json'), 'utf8'),
     );
     const snapshot = compilePublicationSnapshot({ repoRoot: root, repositoryCommitSha });
 
     expect(snapshot.modules).toEqual(canonical.modules);
-    expect(snapshot.modules).toHaveLength(14);
-    expect(snapshot.modules.flatMap((module) => module.sessions)).toHaveLength(70);
+    expect(snapshot.modules).toHaveLength(17);
+    expect(snapshot.modules.flatMap((module) => module.sessions)).toHaveLength(85);
   });
 
-  it('materializes fourteen positioning tests, seventy quick assessments and deliverables', () => {
+  it('materializes seventeen positioning tests, eighty-five quick assessments and deliverables', () => {
     const snapshot = compilePublicationSnapshot({ repoRoot: root, repositoryCommitSha }) as unknown as {
       pedagogy?: {
         positioningTests: Array<{
@@ -162,28 +162,28 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
       };
     };
 
-    expect(snapshot.pedagogy?.positioningTests).toHaveLength(14);
-    expect(snapshot.pedagogy?.positioningTests.flatMap((test) => test.questions)).toHaveLength(70);
+    expect(snapshot.pedagogy?.positioningTests).toHaveLength(17);
+    expect(snapshot.pedagogy?.positioningTests.flatMap((test) => test.questions)).toHaveLength(85);
     expect(snapshot.pedagogy?.positioningTests.every((test) => (
       test.questions.every((question) => question.prompt && question.correction && question.points > 0) &&
       Object.keys(test.rubric).length === 3 &&
       /^SAMPLE-ANON-/.test(test.anonymousSample.sampleId)
     ))).toBe(true);
-    expect(snapshot.pedagogy?.quickAssessments).toHaveLength(70);
-    expect(snapshot.pedagogy?.sessionDeliverables).toHaveLength(70);
-    expect(new Set(snapshot.pedagogy?.quickAssessments.map((item) => item.sessionRef)).size).toBe(70);
-    expect(new Set(snapshot.pedagogy?.sessionDeliverables.map((item) => item.sessionRef)).size).toBe(70);
+    expect(snapshot.pedagogy?.quickAssessments).toHaveLength(85);
+    expect(snapshot.pedagogy?.sessionDeliverables).toHaveLength(85);
+    expect(new Set(snapshot.pedagogy?.quickAssessments.map((item) => item.sessionRef)).size).toBe(85);
+    expect(new Set(snapshot.pedagogy?.sessionDeliverables.map((item) => item.sessionRef)).size).toBe(85);
     expect(snapshot.pedagogy?.sessionDeliverables.every((item) => (
       item.instructions.length >= 3 && item.expectedEvidence.length >= 2 && item.selfCheck.length >= 3
     ))).toBe(true);
   });
 
-  it('expands the canonical schedule to eighty-five dated sessions (17 cohorts x 5)', () => {
+  it('expands the canonical schedule to one hundred dated sessions (20 cohorts x 5)', () => {
     const snapshot = compilePublicationSnapshot({ repoRoot: root, repositoryCommitSha });
 
-    // 14 unique pedagogical modules, but 3 of them (Première SVT, Terminale NSI,
-    // Terminale SVT) have 2 alternative cohorts each (SCHEDULE-S5) = 17 cohorts.
-    expect(snapshot.schedule.sessions).toHaveLength(85);
+    // 17 unique pedagogical modules, but 3 of them (Première SVT, Terminale NSI,
+    // Terminale SVT) have 2 alternative cohorts each (SCHEDULE-S5) = 20 cohorts.
+    expect(snapshot.schedule.sessions).toHaveLength(100);
     expect(snapshot.schedule.sessions[0]).toMatchObject({
       date: '2026-08-17',
       level: 'TROISIEME',
@@ -237,6 +237,8 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     expect(snapshot.offerPricing.filter((item) => item.range === 'FONDATIONS').map((item) => [
       item.level, item.subjectCount, item.price, item.deposit, item.balance,
     ])).toEqual([
+      ['QUATRIEME', 1, 350, 105, 245],
+      ['QUATRIEME', 2, 700, 210, 490],
       ['TROISIEME', 1, 350, 105, 245],
       ['TROISIEME', 2, 700, 210, 490],
       ['SECONDE', 1, 400, 120, 280],
@@ -284,6 +286,7 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
       'NexusReussite_PreRentree2026_Essentiel.pdf',
       'NexusReussite_PreRentree2026_Fondations_vs_Premium.pdf',
       'NexusReussite_PreRentree2026_Tarifs_Reservation.pdf',
+      'Programme_Entree_4e.pdf',
       'Programme_Entree_3e.pdf',
       'Programme_Entree_Seconde.pdf',
       'Programme_Entree_Premiere.pdf',

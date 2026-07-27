@@ -30,8 +30,10 @@ SUBJECTS = {
     "NSI": "NSI",
     "SVT": "SVT",
     "MATHS_EXPERTES": "Mathématiques expertes",
+    "PHILOSOPHIE": "Philosophie",
 }
 LEVELS = {
+    "QUATRIEME": "Entrée en 4e",
     "TROISIEME": "Entrée en 3e",
     "SECONDE": "Entrée en Seconde",
     "PREMIERE": "Entrée en Première",

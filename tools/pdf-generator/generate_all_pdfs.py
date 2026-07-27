@@ -55,16 +55,31 @@ ROOM_ASSIGNMENTS_PUBLIC = CAMPAIGN["operationalGates"]["roomAssignmentsValidated
 
 
 def _uniform_group_bounds(offers):
-    """Group min/max is uniform across every offer in a tier; fail loudly if it ever
-    diverges rather than silently displaying a stale hardcoded '3 à 6'/'3 à 5' text."""
-    mins = {offer["group_min_open"] for offer in offers}
+    """Group max is uniform across every offer in a tier; group min is NOT for
+    Fondations since the 4e opens at 4, not the 3 shared by 3e/Seconde (mission
+    4e/Philosophie §5.1, a documented exception, not a drift). Returns the
+    aggregate (lowest min, highest max) across the tier — a true statement,
+    never a claim that every level shares the same floor. Per-level figures
+    are read via FOUNDATIONS_LEVEL_LABELS / group_min_open on each offer."""
     maxes = {offer["group_max"] for offer in offers}
-    assert len(mins) == 1 and len(maxes) == 1, (mins, maxes)
-    return mins.pop(), maxes.pop()
+    assert len(maxes) == 1, maxes
+    mins = {offer["group_min_open"] for offer in offers}
+    return min(mins), maxes.pop()
 
 
 FOUNDATIONS_GROUP_MIN, FOUNDATIONS_GROUP_MAX = _uniform_group_bounds(PRE_RENTREE_FOUNDATIONS)
 PREMIUM_GROUP_MIN, PREMIUM_GROUP_MAX = _uniform_group_bounds(PRE_RENTREE_PACKS)
+_FOUNDATIONS_LEVEL_LABELS = {'QUATRIEME': '4e', 'TROISIEME': '3e', 'SECONDE': 'Seconde'}
+
+
+def foundations_effectifs_par_niveau() -> str:
+    """Per-level Fondations effectif line — never a single generic range
+    (mission §6.3: "Fondations : 3 à 6" became false once the 4e opened at 4)."""
+    parts = []
+    for offer in PRE_RENTREE_FOUNDATIONS:
+        label = _FOUNDATIONS_LEVEL_LABELS.get(offer["level"], offer["level"])
+        parts.append(f'Entrée en {label} : {offer["group_min_open"]} à {offer["group_max"]} élèves')
+    return " · ".join(parts)
 _BLOCK_TIMES = {b["id"]: (b["startTime"], b["endTime"]) for b in CAMPAIGN["blocks"]}
 # Modèle fenêtres + week-end (v2) : le planning n'est plus "2 semaines lun-ven" mais 3
 # fenêtres à dates explicites (une d'entre elles couvrant le week-end). SCHEDULE regroupe
@@ -396,7 +411,7 @@ def make_planning_body():
     """Generate HTML body for the planning PDF."""
     header_title = "Planning et informations pratiques"
 
-    level_map = {'TROISIEME': '3e', 'SECONDE': 'Seconde', 'PREMIERE': 'Première', 'TERMINALE': 'Terminale'}
+    level_map = {'QUATRIEME': '4e', 'TROISIEME': '3e', 'SECONDE': 'Seconde', 'PREMIERE': 'Première', 'TERMINALE': 'Terminale'}
     def subject_label(subject_key, level_key):
         base = {
             'MATHEMATIQUES': 'Mathématiques',
@@ -404,6 +419,7 @@ def make_planning_body():
             'PHYSIQUE_CHIMIE': 'Physique-Chimie',
             'SVT': 'SVT',
             'MATHS_EXPERTES': 'Mathématiques expertes',
+            'PHILOSOPHIE': 'Philosophie',
         }
         if subject_key in base:
             return base[subject_key]
@@ -433,14 +449,14 @@ def make_planning_body():
     <tbody>
         <tr><td style="width:25%; font-weight:700; color:#071A3A">Dates</td><td>Du lundi 17 au vendredi 28 août 2026, y compris le week-end du 22-23 août (SVT/Physique-Chimie Première)</td></tr>
         <tr><td style="font-weight:700; color:#071A3A">Lieu</td><td>Centre Nexus Réussite, Mutuelleville, Tunis</td></tr>
-        <tr><td style="font-weight:700; color:#071A3A">Public</td><td>Élèves entrant en 3e, Seconde, Première ou Terminale (rentrée 2026-2027)</td></tr>
+        <tr><td style="font-weight:700; color:#071A3A">Public</td><td>Élèves entrant en 4e, 3e, Seconde, Première ou Terminale (rentrée 2026-2027)</td></tr>
         <tr><td style="font-weight:700; color:#071A3A">Format</td><td>5 séances de 2 h par matière · 10 h par matière · matières proposées selon le niveau</td></tr>
-        <tr><td style="font-weight:700; color:#071A3A">Effectif</td><td>Fondations (3e et Seconde) : {FOUNDATIONS_GROUP_MIN} à {FOUNDATIONS_GROUP_MAX} élèves, maximum {FOUNDATIONS_GROUP_MAX} · Premium (Première et Terminale) : {PREMIUM_GROUP_MIN} à {PREMIUM_GROUP_MAX} élèves, maximum {PREMIUM_GROUP_MAX}</td></tr>
+        <tr><td style="font-weight:700; color:#071A3A">Effectif</td><td>Fondations ({foundations_effectifs_par_niveau()}) · Premium (Première et Terminale) : {PREMIUM_GROUP_MIN} à {PREMIUM_GROUP_MAX} élèves, maximum {PREMIUM_GROUP_MAX}</td></tr>
         <tr><td style="font-weight:700; color:#071A3A">Blocs horaires</td><td>{block_times_str}</td></tr>
     </tbody></table>"""
 
     # Vue par niveau
-    for level_key, level_label in [('TROISIEME', '3e'), ('SECONDE', 'Seconde'), ('PREMIERE', 'Première'), ('TERMINALE', 'Terminale')]:
+    for level_key, level_label in [('QUATRIEME', '4e'), ('TROISIEME', '3e'), ('SECONDE', 'Seconde'), ('PREMIERE', 'Première'), ('TERMINALE', 'Terminale')]:
         slots = [s for s in SCHEDULE if s['level'] == level_key]
         slots.sort(key=lambda s: (s['windowId'], ['A', 'B', 'C', 'D'].index(s['block'])))
 
@@ -816,6 +832,7 @@ def make_flyer_body():
     sélectionnés pour préparer la rentrée, avec objectifs annoncés, entraînement et correction explicite.</div>
     <h2>Niveaux et matières</h2>
     <table><tbody>
+        <tr><td><strong>Entrée en 4e</strong></td><td>{", ".join(subjects_by_level["QUATRIEME"])}</td></tr>
         <tr><td><strong>Entrée en 3e</strong></td><td>{", ".join(subjects_by_level["TROISIEME"])}</td></tr>
         <tr><td><strong>Entrée en Seconde</strong></td><td>{", ".join(subjects_by_level["SECONDE"])}</td></tr>
         <tr><td><strong>Entrée en Première</strong></td><td>{", ".join(subjects_by_level["PREMIERE"])}</td></tr>
@@ -823,7 +840,8 @@ def make_flyer_body():
     </tbody></table>
     <h2>Effectifs et tarifs</h2>
     <p style="font-size:9.5pt; line-height:1.7;">
-        <strong>Fondations :</strong> {FOUNDATIONS_GROUP_MIN} à {FOUNDATIONS_GROUP_MAX} élèves, maximum {FOUNDATIONS_GROUP_MAX} ·
+        <strong>Fondations</strong> ({foundations_effectifs_par_niveau()}) ·
+        4e : {format_tnd(foundation_by_level["QUATRIEME"]["price_per_student"])} TND / matière ·
         3e : {format_tnd(foundation_by_level["TROISIEME"]["price_per_student"])} TND / matière ·
         Seconde : {format_tnd(foundation_by_level["SECONDE"]["price_per_student"])} TND / matière.<br>
         <strong>Premium :</strong> {PREMIUM_GROUP_MIN} à {PREMIUM_GROUP_MAX} élèves, maximum {PREMIUM_GROUP_MAX} · {premium_prices}.

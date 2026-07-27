@@ -23,10 +23,10 @@ def normalized_text(markup: str) -> str:
     return " ".join(BeautifulSoup(markup, "html.parser").get_text(" ").split())
 
 
-def test_renders_the_eleven_accessible_review_html_documents():
+def test_renders_the_twelve_accessible_review_html_documents():
     documents = render_public_documents(SNAPSHOT)
     assert set(documents) == set(SNAPSHOT["document"]["outputs"]["publicHtml"].values())
-    assert len(documents) == 11
+    assert len(documents) == 12
     for filename, document in documents.items():
         soup = BeautifulSoup(document.html, "html.parser")
         assert soup.html and soup.html.get("lang") == "fr"
@@ -184,7 +184,9 @@ def test_public_html_contains_exact_prices_and_safe_pre_registration_copy_only()
         documents[SNAPSHOT["document"]["outputs"]["publicHtml"]["pricingReservation"]].html,
         "html.parser",
     )
-    assert len(pricing.select("table.tariffs-table")) == 3
+    # 3 Fondations levels (4e, 3e, Seconde) + 1 Premium table (one per Fondations
+    # level, derived from offers.json — never a hardcoded 2-level assumption).
+    assert len(pricing.select("table.tariffs-table")) == 4
     assert all(row.get("data-source-path") == "/offerPricing" for row in pricing.select("table.tariffs-table tbody tr"))
 
 

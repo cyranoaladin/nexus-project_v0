@@ -39,6 +39,7 @@ const PDF = join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Planning_InfosPr
 // matières du niveau (SVT incluse comme chapitre ordinaire en Première/Terminale, plus de PDF
 // SVT séparé) : un seul fichier par niveau suffit à couvrir toute la grille.
 const PROGRAMME_PDFS_BY_LEVEL: Record<EntryLevelCode, string[]> = {
+  QUATRIEME: [join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_4e.pdf')],
   TROISIEME: [join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_3e.pdf')],
   SECONDE: [join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_Seconde.pdf')],
   PREMIERE: [join(DOCUMENTS_FINAL, 'NexusReussite_PreRentree2026_Programme_Premiere.pdf')],
@@ -52,9 +53,10 @@ const GENERIC_LABEL: Record<string, string> = {
   PHYSIQUE_CHIMIE: 'Physique-Chimie',
   SVT: 'SVT',
   MATHS_EXPERTES: 'Mathématiques expertes',
+  PHILOSOPHIE: 'Philosophie',
 };
 
-const LEVELS: EntryLevelCode[] = ['TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE'];
+const LEVELS: EntryLevelCode[] = ['QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE'];
 
 const maybe = existsSync(PDF) ? describe : describe.skip;
 
@@ -127,13 +129,12 @@ maybe('Pré-rentrée 2026 — cohérence intégrale par niveau (JSON / catalogue
       // document (pas seulement dans le Planning global) — c'est ce type de trou qui avait
       // laissé Programme_3e.pdf absent du pipeline pendant tout le chantier.
       const programmePdfPaths = PROGRAMME_PDFS_BY_LEVEL[level].filter((path) => existsSync(path));
-      if (programmePdfPaths.length > 0) {
-        const programmeText = programmePdfPaths
-          .map((path) => execFileSync('pdftotext', ['-layout', path, '-'], { encoding: 'utf8' }))
-          .join('\n');
-        for (const subjectId of gridSubjects) {
-          expect(programmeText).toContain(GENERIC_LABEL[subjectId]);
-        }
+      expect(programmePdfPaths.length).toBeGreaterThan(0);
+      const programmeText = programmePdfPaths
+        .map((path) => execFileSync('pdftotext', ['-layout', path, '-'], { encoding: 'utf8' }))
+        .join('\n');
+      for (const subjectId of gridSubjects) {
+        expect(programmeText).toContain(GENERIC_LABEL[subjectId]);
       }
     },
   );
@@ -167,10 +168,10 @@ maybe('Pré-rentrée 2026 — cohérence intégrale par niveau (JSON / catalogue
     expect(violations).toEqual([]);
   });
 
-  it('tarifs : chaque offre commerciale (price/deposit/balance) correspond exactement au produit canonique référencé par pricingId, pour les 12 offres', () => {
+  it('tarifs : chaque offre commerciale (price/deposit/balance) correspond exactement au produit canonique référencé par pricingId, pour les 14 offres', () => {
     const foundationsById = new Map(pricingCanonical.pre_rentree_foundations.map((product) => [product.id, product]));
     const packsById = new Map(pricingCanonical.pre_rentree_packs.map((product) => [product.id, product]));
-    expect(commercialOffers.length).toBeGreaterThan(0);
+    expect(commercialOffers).toHaveLength(14);
     for (const offer of commercialOffers) {
       const product = foundationsById.get(offer.pricingId) ?? packsById.get(offer.pricingId);
       if (!product) throw new Error(`pricingId inconnu : ${offer.pricingId} (offre ${offer.offerId})`);

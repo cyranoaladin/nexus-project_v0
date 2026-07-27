@@ -279,6 +279,7 @@
               "id": {
                 "type": "string",
                 "enum": [
+                  "QUATRIEME",
                   "TROISIEME",
                   "SECONDE",
                   "PREMIERE",
@@ -296,8 +297,8 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 4,
-          "maxItems": 4
+          "minItems": 5,
+          "maxItems": 5
         },
         "subjects": {
           "type": "array",
@@ -312,7 +313,8 @@
                   "NSI",
                   "PHYSIQUE_CHIMIE",
                   "SVT",
-                  "MATHS_EXPERTES"
+                  "MATHS_EXPERTES",
+                  "PHILOSOPHIE"
                 ]
               },
               "label": {
@@ -349,8 +351,8 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 6,
-          "maxItems": 6
+          "minItems": 7,
+          "maxItems": 7
         },
         "blocks": {
           "type": "array",
@@ -749,8 +751,8 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 14,
-          "maxItems": 14
+          "minItems": 17,
+          "maxItems": 17
         },
         "pedagogy": {
           "type": "object",
@@ -922,8 +924,8 @@
                 ],
                 "additionalProperties": false
               },
-              "minItems": 14,
-              "maxItems": 14
+              "minItems": 17,
+              "maxItems": 17
             },
             "quickAssessments": {
               "type": "array",
@@ -980,8 +982,8 @@
                 ],
                 "additionalProperties": false
               },
-              "minItems": 70,
-              "maxItems": 70
+              "minItems": 85,
+              "maxItems": 85
             },
             "sessionDeliverables": {
               "type": "array",
@@ -1040,8 +1042,8 @@
                 ],
                 "additionalProperties": false
               },
-              "minItems": 70,
-              "maxItems": 70
+              "minItems": 85,
+              "maxItems": 85
             }
           },
           "required": [
@@ -1078,6 +1080,7 @@
                   "level": {
                     "type": "string",
                     "enum": [
+                      "QUATRIEME",
                       "TROISIEME",
                       "SECONDE",
                       "PREMIERE",
@@ -1105,11 +1108,12 @@
                         "NSI",
                         "FRANCAIS",
                         "SVT",
-                        "MATHS_EXPERTES"
+                        "MATHS_EXPERTES",
+                        "PHILOSOPHIE"
                       ]
                     },
                     "minItems": 1,
-                    "maxItems": 5
+                    "maxItems": 7
                   },
                   "pricing": {
                     "type": "object",
@@ -1187,8 +1191,8 @@
                 ],
                 "additionalProperties": false
               },
-              "minItems": 4,
-              "maxItems": 4
+              "minItems": 5,
+              "maxItems": 5
             }
           },
           "required": [
@@ -1258,8 +1262,8 @@
             ],
             "additionalProperties": false
           },
-          "minItems": 12,
-          "maxItems": 12
+          "minItems": 14,
+          "maxItems": 14
         },
         "capabilities": {
           "type": "object",

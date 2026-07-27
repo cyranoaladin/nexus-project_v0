@@ -2,78 +2,87 @@
   "schemaVersion": "1.0.0",
   "campaignId": "pre-rentree-2026",
   "purpose": "PUBLIC_RELEASE_CANDIDATE",
-  "pdfCount": 7,
+  "pdfCount": 8,
   "internalPdfCount": 1,
-  "pageCount": 59,
+  "pageCount": 70,
   "documents": [
     {
       "fileName": "NexusReussite_PreRentree2026_DossierAccueil_PRINT.pdf",
-      "bytes": 383983,
+      "bytes": 383984,
       "sizeLabel": "374 Ko",
-      "sha256": "1d47f9fb02fe24f053de206e8a0febbb479ed9930b0533c92d3a607b7d4e057c",
+      "sha256": "05002133b530ff00e34d30686f269ed224db3488979b38b4dd1e2450f93dc2d1",
       "pageCount": 4,
       "publicDownloadCandidate": false,
       "publicationStatus": "INTERNAL_REVIEW"
     },
     {
       "fileName": "NexusReussite_PreRentree2026_FlyerEssentiel.pdf",
-      "bytes": 374388,
+      "bytes": 374751,
       "sizeLabel": "365 Ko",
-      "sha256": "23982831e443a460a9ee1bcb62428422852465b32b7bbe3c17f2031cbfe80011",
+      "sha256": "1af60cfca401b1a373695a0bd5884160f7157f3724dfdc32cd4ec286249c9390",
       "pageCount": 1,
       "publicDownloadCandidate": true,
       "publicationStatus": "PUBLIC_FINAL"
     },
     {
       "fileName": "NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf",
-      "bytes": 400683,
-      "sizeLabel": "391 Ko",
-      "sha256": "9c43713b8312f3b58b3cd9d0782f103ab81833d468516a624b0a6c4ad3bde391",
+      "bytes": 401888,
+      "sizeLabel": "392 Ko",
+      "sha256": "4f9ecf0d1c87d4d158d81f2fb89aac3d1040df2010544e137eeb2ce186798549",
       "pageCount": 9,
       "publicDownloadCandidate": true,
       "publicationStatus": "PUBLIC_FINAL"
     },
     {
       "fileName": "NexusReussite_PreRentree2026_Programme_3e.pdf",
-      "bytes": 454275,
+      "bytes": 454306,
       "sizeLabel": "443 Ko",
-      "sha256": "0c513bf1ab4749af949cc73dd92c060e6b80461655a26525e7171236beb2d308",
+      "sha256": "2287c3d3f8aebc36f5cfb08f8567631c7de356b4794efc94476ef80b40c57869",
+      "pageCount": 9,
+      "publicDownloadCandidate": true,
+      "publicationStatus": "PUBLIC_FINAL"
+    },
+    {
+      "fileName": "NexusReussite_PreRentree2026_Programme_4e.pdf",
+      "bytes": 454724,
+      "sizeLabel": "444 Ko",
+      "sha256": "d808d022622a842934d1ce23e6ba749c6b7e5bb8bd01020f7c20a86461549bf6",
       "pageCount": 9,
       "publicDownloadCandidate": true,
       "publicationStatus": "PUBLIC_FINAL"
     },
     {
       "fileName": "NexusReussite_PreRentree2026_Programme_Premiere.pdf",
-      "bytes": 480390,
-      "sizeLabel": "469 Ko",
-      "sha256": "37630e3b46a21dfeab3f67c7e6d73561ad5247001cdaee9b9db752de51adc39a",
+      "bytes": 481295,
+      "sizeLabel": "470 Ko",
+      "sha256": "18aaa522b7427cc65c45818ff2c334c67b7a4644a55dce66ceb33b0b76c21024",
       "pageCount": 15,
       "publicDownloadCandidate": true,
       "publicationStatus": "PUBLIC_FINAL"
     },
     {
       "fileName": "NexusReussite_PreRentree2026_Programme_Seconde.pdf",
-      "bytes": 455288,
+      "bytes": 455306,
       "sizeLabel": "444 Ko",
-      "sha256": "9ed2e25ea7efffa3751c69d142b9160f6d9ea1e86cd6cadb562cd7a787e644e4",
+      "sha256": "99ce036fa6d8baa05a186d2bf54f92740f40470780373701b4174f8457a8daa8",
       "pageCount": 9,
       "publicDownloadCandidate": true,
       "publicationStatus": "PUBLIC_FINAL"
     },
     {
       "fileName": "NexusReussite_PreRentree2026_Programme_Terminale.pdf",
-      "bytes": 479666,
-      "sizeLabel": "468 Ko",
-      "sha256": "a54fb50043d69f01b3c6c9a9512cd27083ca53a6ed57da0667968f5af8657a06",
-      "pageCount": 15,
+      "bytes": 489009,
+      "sizeLabel": "477 Ko",
+      "sha256": "a9aafc0cf7b5daaffc32f2ba7bd80e1e0632e5df6c2a41dd2d63d38f8b1ed6ad",
+      "pageCount": 17,
       "publicDownloadCandidate": true,
       "publicationStatus": "PUBLIC_FINAL"
     },
     {
       "fileName": "NexusReussite_PreRentree2026_Tarifs.pdf",
-      "bytes": 381946,
+      "bytes": 381947,
       "sizeLabel": "372 Ko",
-      "sha256": "c29ae203cb4501544a68e6f37cdd727864a8df2fad8a5675f4d30c92b6e9530c",
+      "sha256": "6eb60b8b53341c0b59a0d0acfacbee66c7fdb45063b6a3730c9a5cdf96b5b7c3",
       "pageCount": 1,
       "publicDownloadCandidate": true,
       "publicationStatus": "PUBLIC_FINAL"
@@ -83,18 +92,20 @@
     "NexusReussite_PreRentree2026_FlyerEssentiel.pdf",
     "NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf",
     "NexusReussite_PreRentree2026_Programme_3e.pdf",
+    "NexusReussite_PreRentree2026_Programme_4e.pdf",
     "NexusReussite_PreRentree2026_Programme_Premiere.pdf",
     "NexusReussite_PreRentree2026_Programme_Seconde.pdf",
     "NexusReussite_PreRentree2026_Programme_Terminale.pdf",
     "NexusReussite_PreRentree2026_Tarifs.pdf"
   ],
   "checksums": {
-    "NexusReussite_PreRentree2026_FlyerEssentiel.pdf": "23982831e443a460a9ee1bcb62428422852465b32b7bbe3c17f2031cbfe80011",
-    "NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf": "9c43713b8312f3b58b3cd9d0782f103ab81833d468516a624b0a6c4ad3bde391",
-    "NexusReussite_PreRentree2026_Programme_3e.pdf": "0c513bf1ab4749af949cc73dd92c060e6b80461655a26525e7171236beb2d308",
-    "NexusReussite_PreRentree2026_Programme_Premiere.pdf": "37630e3b46a21dfeab3f67c7e6d73561ad5247001cdaee9b9db752de51adc39a",
-    "NexusReussite_PreRentree2026_Programme_Seconde.pdf": "9ed2e25ea7efffa3751c69d142b9160f6d9ea1e86cd6cadb562cd7a787e644e4",
-    "NexusReussite_PreRentree2026_Programme_Terminale.pdf": "a54fb50043d69f01b3c6c9a9512cd27083ca53a6ed57da0667968f5af8657a06",
-    "NexusReussite_PreRentree2026_Tarifs.pdf": "c29ae203cb4501544a68e6f37cdd727864a8df2fad8a5675f4d30c92b6e9530c"
+    "NexusReussite_PreRentree2026_FlyerEssentiel.pdf": "1af60cfca401b1a373695a0bd5884160f7157f3724dfdc32cd4ec286249c9390",
+    "NexusReussite_PreRentree2026_Planning_InfosPratiques.pdf": "4f9ecf0d1c87d4d158d81f2fb89aac3d1040df2010544e137eeb2ce186798549",
+    "NexusReussite_PreRentree2026_Programme_3e.pdf": "2287c3d3f8aebc36f5cfb08f8567631c7de356b4794efc94476ef80b40c57869",
+    "NexusReussite_PreRentree2026_Programme_4e.pdf": "d808d022622a842934d1ce23e6ba749c6b7e5bb8bd01020f7c20a86461549bf6",
+    "NexusReussite_PreRentree2026_Programme_Premiere.pdf": "18aaa522b7427cc65c45818ff2c334c67b7a4644a55dce66ceb33b0b76c21024",
+    "NexusReussite_PreRentree2026_Programme_Seconde.pdf": "99ce036fa6d8baa05a186d2bf54f92740f40470780373701b4174f8457a8daa8",
+    "NexusReussite_PreRentree2026_Programme_Terminale.pdf": "a9aafc0cf7b5daaffc32f2ba7bd80e1e0632e5df6c2a41dd2d63d38f8b1ed6ad",
+    "NexusReussite_PreRentree2026_Tarifs.pdf": "6eb60b8b53341c0b59a0d0acfacbee66c7fdb45063b6a3730c9a5cdf96b5b7c3"
   }
 }
