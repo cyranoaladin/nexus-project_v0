@@ -1,6 +1,7 @@
 # Matrice de capacité Fondations / Premium 360
 
-Source exécutable : `content/pre-rentree-2026/capabilities.json`. Statut : `6.0.0-rc.3`, 20 juillet 2026.
+Source exécutable : `content/pre-rentree-2026/capabilities.json`. Campagne
+`2.1.0`, 26 juillet 2026.
 
 | Capacité | DESIGNED | IMPLEMENTED | TESTED | OPERATIONALLY_READY | OWNER_APPROVED | PUBLICLY_COMMITTED |
 | --- | :---: | :---: | :---: | :---: | :---: | :---: |
@@ -28,10 +29,14 @@ Source exécutable : `content/pre-rentree-2026/capabilities.json`. Statut : `6.0
 | Stockage conforme | oui | non | non | non | non | non |
 | Processus de confidentialité | oui | non | non | non | non | non |
 
-Les quatorze tests de positionnement, soixante-dix évaluations rapides et soixante-dix livrables sont matériellement générés dans l’artefact de revue. Cela prouve leur implémentation documentaire, pas leur capacité de production nominative. Aucun service Premium 360 renforcé n’est un engagement public tant que `OPERATIONALLY_READY`, `OWNER_APPROVED` et `PUBLICLY_COMMITTED` restent faux.
+Les 14 modules et 70 séances modèles sont matériellement générés dans
+l’artefact de revue. Cela prouve leur implémentation documentaire, pas une
+capacité nominative ni une réservation. Aucun service Premium 360 renforcé
+n’est un engagement public tant que `OPERATIONALLY_READY`, `OWNER_APPROVED` et
+`PUBLICLY_COMMITTED` restent faux.
 
 ```text
-OWNER_REVIEW=PENDING
+CAMPAIGN_MANIFEST_OWNER_REVIEW=APPROVED_PRIVATE
 LEGAL_REVIEW=PENDING
 PRIVACY_REVIEW=PENDING
 TEACHER_ASSIGNMENTS_VALIDATED=false

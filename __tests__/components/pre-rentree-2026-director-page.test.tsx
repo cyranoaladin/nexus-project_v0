@@ -2,7 +2,7 @@ import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 
 import PreRentree2026Page from '@/app/stages/pre-rentree-2026/page';
-import { getPreRentreePublicSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
+import { compilePreRentreeReviewSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
 
 jest.mock('@/lib/analytics', () => ({
   toPreRentreeEntryLevel: (level: string) => level.toLowerCase(),
@@ -10,10 +10,13 @@ jest.mock('@/lib/analytics', () => ({
 }));
 jest.mock('@/components/layout/CorporateNavbar', () => ({ CorporateNavbar: () => <nav>Navigation</nav> }));
 jest.mock('@/components/layout/CorporateFooter', () => ({ CorporateFooter: () => <footer>Pied de page</footer> }));
+jest.mock('@/lib/campaigns/pre-rentree-2026/release-gate', () => ({
+  getPreRentreeReleaseGate: () => ({ releaseStatus: 'PUBLIC_READY', isPublicReady: true }),
+}));
 
 describe('Pré-rentrée 2026 director landing contract', () => {
   it('presents four entry levels, canonical offers and exact deposits without internal operations', () => {
-    const dto = getPreRentreePublicSurfaceDTO();
+    const dto = compilePreRentreeReviewSurfaceDTO();
     const { container } = render(<PreRentree2026Page />);
 
     for (const level of dto.levels) {
@@ -33,7 +36,7 @@ describe('Pré-rentrée 2026 director landing contract', () => {
     const { container } = render(<PreRentree2026Page />);
     expect(screen.getAllByText(/WhatsApp|Écrire sur WhatsApp/i).length).toBeGreaterThan(0);
     expect(container.querySelector('a[href*="/bilan-gratuit"]')).toBeNull();
-    expect(container.textContent).toMatch(/acompte.*30\s*%/i);
-    expect(container.textContent).toMatch(/ne réserve pas la place/i);
+    expect(container.textContent).toMatch(/demande d'information/i);
+    expect(container.textContent).toMatch(/sans paiement|aucun paiement/i);
   });
 });

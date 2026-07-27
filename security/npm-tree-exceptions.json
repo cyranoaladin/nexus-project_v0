@@ -3,38 +3,6 @@
   "exceptions": [
     {
       "type": "extraneous",
-      "name": "@emnapi/core",
-      "version": "1.10.0",
-      "path": "node_modules/@emnapi/core",
-      "reason": "sharp optional WASM dependency materialization",
-      "upstreamIssue": "npm/cli#8128",
-      "platform": {
-        "node": "22.23.1",
-        "npm": "10.9.8",
-        "os": "linux",
-        "arch": "x64"
-      },
-      "artifactAllowed": false,
-      "expiresOn": "2026-09-30"
-    },
-    {
-      "type": "extraneous",
-      "name": "@emnapi/wasi-threads",
-      "version": "1.2.1",
-      "path": "node_modules/@emnapi/wasi-threads",
-      "reason": "sharp optional WASM dependency materialization",
-      "upstreamIssue": "npm/cli#8128",
-      "platform": {
-        "node": "22.23.1",
-        "npm": "10.9.8",
-        "os": "linux",
-        "arch": "x64"
-      },
-      "artifactAllowed": false,
-      "expiresOn": "2026-09-30"
-    },
-    {
-      "type": "extraneous",
       "name": "@img/sharp-wasm32",
       "version": "0.35.3",
       "path": "node_modules/@img/sharp-wasm32",
@@ -47,38 +15,9 @@
         "arch": "x64"
       },
       "artifactAllowed": false,
-      "expiresOn": "2026-09-30"
-    },
-    {
-      "type": "extraneous",
-      "name": "@napi-rs/wasm-runtime",
-      "version": "1.1.6",
-      "path": "node_modules/@napi-rs/wasm-runtime",
-      "reason": "sharp optional WASM runtime materialization",
-      "upstreamIssue": "npm/cli#8128",
-      "platform": {
-        "node": "22.23.1",
-        "npm": "10.9.8",
-        "os": "linux",
-        "arch": "x64"
-      },
-      "artifactAllowed": false,
-      "expiresOn": "2026-09-30"
-    },
-    {
-      "type": "extraneous",
-      "name": "@tybys/wasm-util",
-      "version": "0.10.3",
-      "path": "node_modules/@tybys/wasm-util",
-      "reason": "sharp optional WASM utility materialization",
-      "upstreamIssue": "npm/cli#8128",
-      "platform": {
-        "node": "22.23.1",
-        "npm": "10.9.8",
-        "os": "linux",
-        "arch": "x64"
-      },
-      "artifactAllowed": false,
+      "owner": "SECURITY_TECHNICAL_OWNER",
+      "approvedOn": "2026-07-23",
+      "reviewBy": "2026-09-15",
       "expiresOn": "2026-09-30"
     },
     {
@@ -95,6 +34,9 @@
         "arch": "x64"
       },
       "artifactAllowed": false,
+      "owner": "SECURITY_TECHNICAL_OWNER",
+      "approvedOn": "2026-07-23",
+      "reviewBy": "2026-09-15",
       "expiresOn": "2026-09-30"
     }
   ]

@@ -1,14 +1,15 @@
 {
-  "version": "2026-pre-rentree-v2-svt",
+  "version": "2026-pre-rentree-v5-planning-windows",
   "generatedAt": "2026-07-20",
   "resourcePolicy": {
-    "generatedDefaultStatus": "DRAFT",
+    "generatedDefaultStatus": "HUMAN_VALIDATION_REQUIRED",
     "classroomReadyRequiresHumanValidation": true,
     "promotionRule": "Un fichier généré ne devient jamais CLASSROOM_READY sans contenu spécifique, corrigé, barème et validation pédagogique nominative."
   },
   "modules": [
     {
       "id": "troisieme-mathematiques",
+      "publicationStatus": "VALIDATED",
       "level": "TROISIEME",
       "subjectId": "MATHEMATIQUES",
       "subject": "Mathématiques",
@@ -87,6 +88,7 @@
     },
     {
       "id": "troisieme-francais",
+      "publicationStatus": "VALIDATED",
       "level": "TROISIEME",
       "subjectId": "FRANCAIS",
       "subject": "Français",
@@ -165,37 +167,40 @@
     },
     {
       "id": "seconde-mathematiques",
+      "publicationStatus": "VALIDATED",
+      "objective": "Sélectionner des priorités, prérequis et méthodes pour préparer la rentrée de Seconde selon le programme de mathématiques applicable en 2026-2027, sans prétendre couvrir le programme annuel.",
       "level": "SECONDE",
       "subjectId": "MATHEMATIQUES",
       "subject": "Mathématiques",
       "title": "Mathématiques — Entrée en Seconde",
-      "subtitle": "Entrée en Seconde — consolider les acquis de Troisième et découvrir progressivement les attentes du lycée",
+      "subtitle": "Priorités, prérequis et méthodes sélectionnés pour préparer la rentrée de Seconde",
       "prerequisites": "Les acquis de Troisième et du collège ; un diagnostic en début de module précise les priorités.",
       "differentiation": "Exercices à paliers et aides graduées selon la maîtrise du calcul et de la rédaction.",
       "quickAssessment": "Exercice court de calcul et de raisonnement corrigé à la fin de chaque séance.",
       "sessions": [
         {
           "number": 1,
-          "title": "Calcul, proportionnalité et calcul littéral",
-          "objective": "Consolider le calcul numérique, la proportionnalité, le développement et la factorisation",
+          "title": "Nombres réels, valeur absolue et calcul littéral",
+          "objective": "Consolider le calcul littéral et interpréter la valeur absolue comme une distance",
           "topics": [
             "Développement et réduction d'expressions",
             "Factorisation par facteur commun et identités remarquables",
-            "Fractions, puissances et proportionnalité",
-            "Résolution d'équations produit-nul"
+            "Fractions, proportions et proportionnalité comme prérequis de Troisième",
+            "Intervalles de réels et représentation sur une droite",
+            "Valeur absolue, distance et inéquations de la forme |x − a| ≤ r"
           ],
           "method": "Exercices guidés progressifs avec correction commentée",
           "deliverable": "Fiche méthode calcul littéral avec exemples types résolus"
         },
         {
           "number": 2,
-          "title": "Fonctions : lecture graphique et vocabulaire",
-          "objective": "Savoir lire et interpréter une courbe, maîtriser le vocabulaire des fonctions",
+          "title": "Fonctions : représentations, variations et modélisation",
+          "objective": "Lire, représenter et utiliser des fonctions pour modéliser des situations simples",
           "topics": [
             "Image, antécédent, lecture graphique",
             "Tableau de variations et sens de variation",
             "Extremums et intervalles",
-            "Fonctions de référence (carré, inverse, affine)"
+            "Fonctions de référence : valeur absolue, carré, inverse et affine"
           ],
           "method": "Alternance lecture graphique interactive et exercices d'application",
           "deliverable": "Carte mentale du vocabulaire des fonctions avec exemples graphiques"
@@ -203,12 +208,12 @@
         {
           "number": 3,
           "title": "Équations, inéquations et résolution de problèmes",
-          "objective": "Résoudre des équations et inéquations du premier et second degré simples",
+          "objective": "Résoudre des équations et inéquations à partir d'une forme adaptée",
           "topics": [
             "Équations du premier degré et mise en équation",
             "Inéquations et représentation sur un axe",
-            "Systèmes de deux équations à deux inconnues",
-            "Problèmes concrets modélisés par des équations"
+            "Signe d'un produit ou d'un quotient",
+            "Problèmes concrets modélisés par une équation ou une inéquation"
           ],
           "method": "Méthode pas-à-pas avec problèmes contextualisés",
           "deliverable": "Fiche réflexe résolution d'équations et d'inéquations"
@@ -228,21 +233,22 @@
         },
         {
           "number": 5,
-          "title": "Rédaction mathématique et méthodologie d'épreuve",
-          "objective": "Structurer un raisonnement et rédiger proprement une solution",
+          "title": "Statistiques et probabilités",
+          "objective": "Lire des données continues ou croisées et mobiliser une probabilité conditionnelle simple",
           "topics": [
-            "Rédaction d'une démonstration",
-            "Connecteurs logiques et justification",
-            "Gestion du temps en devoir surveillé",
-            "Entraînement sur sujet type avec correction détaillée"
+            "Série continue regroupée en classes : histogramme et fréquences cumulées",
+            "Deux variables qualitatives : tableau croisé et fréquences conditionnelles",
+            "Probabilité conditionnelle et arbre pondéré",
+            "Interprétation critique d'indicateurs et rédaction d'une conclusion"
           ],
-          "method": "Pratique autonome sur sujet complet avec auto-évaluation guidée",
-          "deliverable": "Grille d'auto-évaluation de la rédaction mathématique"
+          "method": "Étude d'un jeu de données puis problèmes de probabilités avec arbre",
+          "deliverable": "Fiche méthode statistiques continues, tableaux croisés et probabilités conditionnelles"
         }
       ]
     },
     {
       "id": "seconde-francais",
+      "publicationStatus": "VALIDATED",
       "level": "SECONDE",
       "subjectId": "FRANCAIS",
       "subject": "Français",
@@ -296,7 +302,7 @@
           "title": "Grammaire au service de l'expression",
           "objective": "Maîtriser les outils grammaticaux essentiels pour le lycée",
           "topics": [
-            "Proposition subordonnée et types de phrases complexes",
+            "Subordination et types de phrases complexes",
             "Valeurs des temps verbaux",
             "Accords complexes (participe passé, relatif)",
             "Ponctuation expressive et stylistique"
@@ -320,204 +326,50 @@
       ]
     },
     {
-      "id": "seconde-informatique-snt",
-      "level": "SECONDE",
-      "subjectId": "NSI",
-      "subject": "Informatique (SNT)",
-      "title": "Initiation informatique, algorithmique et SNT",
-      "subtitle": "Entrée en Seconde — découvrir la pensée algorithmique, la SNT et les bases de la programmation Python",
-      "prerequisites": "Aucun prérequis informatique ou NSI ; les usages numériques courants acquis au collège suffisent.",
-      "differentiation": "Défis progressifs et extensions facultatives pour les élèves déjà familiers avec le code.",
-      "quickAssessment": "Programme court à exécuter, expliquer ou corriger en fin de séance.",
-      "sessions": [
-        {
-          "number": 1,
-          "title": "Découverte algorithmique et pensée computationnelle",
-          "objective": "Comprendre ce qu'est un algorithme et décomposer un problème en étapes",
-          "topics": [
-            "Notion d'algorithme dans la vie quotidienne",
-            "Décomposition d'un problème en sous-problèmes",
-            "Pseudo-code et organigrammes",
-            "Premiers pas dans l'environnement Python"
-          ],
-          "method": "Activités débranchées puis découverte de l'éditeur Python",
-          "deliverable": "Premier programme Python fonctionnel commenté"
-        },
-        {
-          "number": 2,
-          "title": "Variables, types et structures conditionnelles",
-          "objective": "Manipuler variables et conditions pour créer des programmes interactifs",
-          "topics": [
-            "Variables : affectation, types (int, float, str, bool)",
-            "Entrées/sorties (input, print)",
-            "Structures conditionnelles (if/elif/else)",
-            "Opérateurs de comparaison et logiques"
-          ],
-          "method": "Exercices progressifs avec validation par exécution",
-          "deliverable": "Mini-programme interactif (quiz ou calculatrice simple)"
-        },
-        {
-          "number": 3,
-          "title": "Boucles et itérations",
-          "objective": "Utiliser les boucles for et while pour automatiser des traitements",
-          "topics": [
-            "Boucle for et fonction range()",
-            "Boucle while et condition d'arrêt",
-            "Accumulateurs et compteurs",
-            "Boucles imbriquées simples"
-          ],
-          "method": "Exercices guidés et pratique autonome avec défis progressifs",
-          "deliverable": "Programme utilisant des boucles (table de multiplication, motifs)"
-        },
-        {
-          "number": 4,
-          "title": "Représentation des données et web",
-          "objective": "Comprendre comment les données sont représentées et circulant sur le web",
-          "topics": [
-            "Représentation binaire et encodage des caractères",
-            "Formats de données (texte, image, son)",
-            "Architecture web : client, serveur, URL",
-            "HTML de base et notion de page web"
-          ],
-          "method": "Démonstrations interactives et manipulation de fichiers",
-          "deliverable": "Mini page HTML personnelle créée et comprise"
-        },
-        {
-          "number": 5,
-          "title": "Projet intégrateur : mini-programme Python",
-          "objective": "Réaliser un petit projet mobilisant l'ensemble des notions vues",
-          "topics": [
-            "Cahier des charges d'un mini-projet",
-            "Structuration du code (fonctions simples)",
-            "Test et débogage",
-            "Présentation et documentation du code"
-          ],
-          "method": "Pédagogie par projet avec accompagnement individualisé",
-          "deliverable": "Programme Python finalisé et documenté (jeu ou utilitaire)"
-        }
-      ]
-    },
-    {
-      "id": "seconde-physique-chimie",
-      "level": "SECONDE",
-      "subjectId": "PHYSIQUE_CHIMIE",
-      "subject": "Physique-Chimie",
-      "title": "Physique-Chimie — Entrée en Seconde",
-      "subtitle": "Entrée en Seconde — consolider unités, grandeurs et raisonnement scientifique avant les méthodes du lycée",
-      "prerequisites": "Les notions scientifiques et les outils de calcul travaillés en Troisième et au collège.",
-      "differentiation": "Données, schémas et niveaux de guidage adaptés aux acquis diagnostiqués.",
-      "quickAssessment": "Question scientifique courte avec justification des unités et de la démarche.",
-      "sessions": [
-        {
-          "number": 1,
-          "title": "Grandeurs, unités et conversions",
-          "objective": "Maîtriser les unités du SI, les préfixes et les conversions essentielles",
-          "topics": [
-            "Système international d'unités (SI)",
-            "Préfixes et puissances de 10",
-            "Conversions d'unités courantes",
-            "Chiffres significatifs et ordre de grandeur"
-          ],
-          "method": "Exercices systématiques avec progression de difficulté",
-          "deliverable": "Fiche réflexe unités et conversions avec tableau synthétique"
-        },
-        {
-          "number": 2,
-          "title": "Constitution de la matière : atomes et molécules",
-          "objective": "Décrire la structure de l'atome et comprendre la formation des molécules",
-          "topics": [
-            "Structure de l'atome (noyau, électrons, notation)",
-            "Tableau périodique simplifié et familles chimiques",
-            "Liaison covalente et formules de Lewis simples",
-            "Molécules courantes et nomenclature de base"
-          ],
-          "method": "Modélisation avec schémas et exercices d'application directe",
-          "deliverable": "Carte mémo atomes-molécules avec schémas de Lewis essentiels"
-        },
-        {
-          "number": 3,
-          "title": "Forces et introduction au mouvement",
-          "objective": "Identifier les forces et décrire qualitativement un mouvement",
-          "topics": [
-            "Notion de force et effets sur un objet",
-            "Poids, réaction du support, tension d'un fil",
-            "Diagramme objets-interactions",
-            "Description d'un mouvement (trajectoire, vitesse)"
-          ],
-          "method": "Exercices guidés avec schématisation systématique des forces",
-          "deliverable": "Méthode de construction d'un diagramme de forces"
-        },
-        {
-          "number": 4,
-          "title": "Calcul scientifique et exploitation de mesures",
-          "objective": "Utiliser les outils mathématiques pour exploiter des résultats expérimentaux",
-          "topics": [
-            "Proportionnalité et formules littérales",
-            "Lecture et tracé de graphiques",
-            "Exploitation d'un graphique (pente, ordonnée à l'origine)",
-            "Incertitudes et précision de mesure"
-          ],
-          "method": "Travail sur données expérimentales réelles avec analyse guidée",
-          "deliverable": "Fiche méthode exploitation de graphiques et formules"
-        },
-        {
-          "number": 5,
-          "title": "Démarche expérimentale et résolution de problèmes",
-          "objective": "Appliquer la démarche scientifique complète sur un problème concret",
-          "topics": [
-            "Étapes de la démarche expérimentale",
-            "Formulation d'hypothèses et protocole",
-            "Rédaction d'un compte-rendu scientifique",
-            "Entraînement sur exercice type devoir"
-          ],
-          "method": "Mise en situation expérimentale simulée puis rédaction encadrée",
-          "deliverable": "Modèle de rédaction scientifique structurée"
-        }
-      ]
-    },
-    {
       "id": "premiere-mathematiques",
+      "publicationStatus": "VALIDATED",
+      "objective": "Sélectionner des priorités, prérequis et méthodes pour préparer la rentrée en spécialité Mathématiques et l'épreuve terminale anticipée de spécialité passée en fin de Première, sans promesse de résultat ni couverture du programme annuel.",
       "level": "PREMIERE",
       "subjectId": "MATHEMATIQUES",
       "subject": "Mathématiques",
       "title": "Mathématiques — Entrée en Première",
-      "subtitle": "Entrée en Première — consolider les acquis de Seconde et découvrir suites, dérivation et probabilités selon le profil déclaré",
+      "subtitle": "Priorités, prérequis et méthodes sélectionnés pour préparer la rentrée en spécialité Mathématiques de Première",
       "prerequisites": "Les acquis de Seconde en fonctions, calcul littéral et probabilités.",
-      "differentiation": "Activités et niveau d'exigence adaptés au profil Maths EDS ou hors EDS après validation pédagogique.",
+      "differentiation": "Activités et niveau d'exigence adaptés aux élèves entrant en spécialité Mathématiques.",
       "quickAssessment": "Exercice type ciblé, corrigé avec une grille de méthode et de rédaction.",
       "sessions": [
         {
           "number": 1,
-          "title": "Suites arithmétiques et géométriques",
-          "objective": "Reconnaître, modéliser et calculer avec les suites arithmétiques et géométriques",
+          "title": "Second degré et discriminant",
+          "objective": "Choisir une forme adaptée d'un polynôme du second degré et résoudre une équation",
           "topics": [
-            "Définition explicite et par récurrence",
-            "Suite arithmétique : raison, terme général, somme",
-            "Suite géométrique : raison, terme général, somme",
-            "Modélisation de situations concrètes par des suites"
+            "Formes développée, factorisée et canonique",
+            "Racines, somme et produit des racines",
+            "Discriminant, factorisation éventuelle et résolution",
+            "Signe et problème d'optimisation"
           ],
-          "method": "Cours dialogué puis exercices d'application avec difficulté croissante",
-          "deliverable": "Fiche formulaire suites avec arbre décisionnel de reconnaissance"
+          "method": "Choix de forme puis résolution de problèmes à difficulté croissante",
+          "deliverable": "Fiche méthode second degré et discriminant"
         },
         {
           "number": 2,
-          "title": "Nombre dérivé et tangente",
-          "objective": "Calculer un nombre dérivé et déterminer l'équation d'une tangente",
+          "title": "Suites et évolution exponentielle",
+          "objective": "Distinguer modèles discrets et continus d'évolution",
           "topics": [
-            "Taux de variation et passage à la limite",
-            "Nombre dérivé en un point",
-            "Équation de la tangente",
-            "Interprétation graphique de la dérivée"
+            "Suites arithmétiques et géométriques",
+            "Définition explicite et par récurrence",
+            "Fonction exponentielle : propriétés, signe et variations",
+            "Modélisation d'une croissance ou décroissance"
           ],
-          "method": "Approche graphique puis formalisation avec exercices types",
-          "deliverable": "Méthode pas-à-pas pour déterminer une équation de tangente"
+          "method": "Comparaison de modèles à partir de tableaux, graphes et formules",
+          "deliverable": "Fiche repère suites et fonction exponentielle"
         },
         {
           "number": 3,
-          "title": "Dérivation et étude de fonctions",
-          "objective": "Dériver les fonctions usuelles et dresser un tableau de variations",
+          "title": "Dérivation, tangente et variations",
+          "objective": "Interpréter un nombre dérivé et exploiter le signe d'une dérivée",
           "topics": [
-            "Dérivées des fonctions de référence",
+            "Taux de variation, nombre dérivé et tangente",
             "Opérations sur les dérivées (somme, produit, quotient)",
             "Signe de la dérivée et variations",
             "Tableau de variations complet"
@@ -527,34 +379,35 @@
         },
         {
           "number": 4,
-          "title": "Probabilités conditionnelles",
-          "objective": "Calculer des probabilités conditionnelles et utiliser un arbre pondéré",
+          "title": "Produit scalaire et géométrie",
+          "objective": "Calculer un produit scalaire et l'utiliser pour résoudre des problèmes de géométrie du plan",
           "topics": [
-            "Probabilité conditionnelle : définition et notation",
-            "Arbres de probabilités pondérés",
-            "Formule des probabilités totales",
-            "Indépendance de deux événements"
+            "Produit scalaire : définition, expressions et propriétés",
+            "Norme d'un vecteur et projection orthogonale",
+            "Orthogonalité et applications (angles, distances)",
+            "Géométrie repérée : équations de droites et de cercles"
           ],
-          "method": "Résolution de problèmes concrets avec modélisation par arbre",
-          "deliverable": "Fiche méthode probabilités conditionnelles avec schémas types"
+          "method": "Exercices guidés progressifs avec figures codées et démonstrations à compléter",
+          "deliverable": "Formulaire produit scalaire avec méthodes de résolution géométrique"
         },
         {
           "number": 5,
-          "title": "Rédaction et stratégie d'épreuve",
-          "objective": "Rédiger efficacement et gérer son temps sur un sujet de mathématiques",
+          "title": "Trigonométrie et méthode de l'épreuve anticipée",
+          "objective": "Maîtriser le cercle trigonométrique et les fonctions sinus et cosinus, et se familiariser avec la méthode de l'épreuve terminale anticipée de mathématiques de spécialité",
           "topics": [
-            "Rédaction rigoureuse d'une démonstration",
-            "Lecture d'énoncé et identification des attendus",
-            "Stratégie de résolution et gestion du temps",
-            "Entraînement sur sujet type Bac"
+            "Cercle trigonométrique, radians et angles orientés",
+            "Fonctions cosinus et sinus : valeurs remarquables et courbes",
+            "Automatismes de calcul sans calculatrice",
+            "Méthode de l'épreuve anticipée de spécialité : lecture d'énoncé, rédaction, contrôle des résultats"
           ],
-          "method": "Sujet chronométré suivi d'une correction détaillée et personnalisée",
-          "deliverable": "Copie corrigée annotée avec grille de compétences évaluées"
+          "method": "Alternance construction sur le cercle trigonométrique et entraînement méthodologique sur formats officiels, sans promesse de résultat",
+          "deliverable": "Fiche trigonométrie et grille de méthode pour l'épreuve anticipée de spécialité"
         }
       ]
     },
     {
       "id": "premiere-francais-eaf",
+      "publicationStatus": "VALIDATED",
       "level": "PREMIERE",
       "subjectId": "FRANCAIS",
       "subject": "Français (EAF)",
@@ -633,12 +486,13 @@
     },
     {
       "id": "premiere-nsi",
+      "publicationStatus": "VALIDATED",
       "level": "PREMIERE",
       "subjectId": "NSI",
       "subject": "NSI",
       "title": "NSI — Entrée en Première",
       "subtitle": "Entrée en Première — commencer l’EDS NSI par l’algorithmique, Python et les concepts fondamentaux",
-      "prerequisites": "Aucun prérequis NSI ou Python obligatoire ; les repères éventuellement découverts en SNT en Seconde sont repris depuis les fondamentaux.",
+      "prerequisites": "Aucun prérequis NSI ou Python obligatoire ; les repères numériques éventuellement acquis au collège ou en Seconde sont repris depuis les fondamentaux.",
       "differentiation": "Exercices à difficulté progressive et défis d'approfondissement pour les profils avancés.",
       "quickAssessment": "Fonction Python ou raisonnement algorithmique court testé en fin de séance.",
       "sessions": [
@@ -711,6 +565,7 @@
     },
     {
       "id": "premiere-physique-chimie",
+      "publicationStatus": "VALIDATED",
       "level": "PREMIERE",
       "subjectId": "PHYSIQUE_CHIMIE",
       "subject": "Physique-Chimie",
@@ -761,16 +616,16 @@
         },
         {
           "number": 4,
-          "title": "Énergie mécanique et conservation",
-          "objective": "Appliquer le principe de conservation de l'énergie mécanique",
+          "title": "Aspects énergétiques : travail, énergie et transferts",
+          "objective": "Établir des bilans d'énergie et relier le travail d'une force aux variations d'énergie",
           "topics": [
-            "Énergie cinétique et théorème de l'énergie cinétique",
-            "Énergie potentielle de pesanteur",
-            "Énergie mécanique et conservation",
-            "Transferts d'énergie et frottements"
+            "Travail d'une force et puissance",
+            "Énergies cinétique, potentielle et énergie mécanique",
+            "Aspects énergétiques des phénomènes électriques (puissance, effet Joule)",
+            "Transferts, conversions et conservation de l'énergie"
           ],
-          "method": "Résolution de problèmes avec bilan énergétique schématisé",
-          "deliverable": "Méthode de résolution par bilan énergétique avec exemples"
+          "method": "Bilans énergétiques schématisés sur des situations mécaniques et électriques",
+          "deliverable": "Méthode de résolution par bilan énergétique (mécanique et électrique)"
         },
         {
           "number": 5,
@@ -789,6 +644,7 @@
     },
     {
       "id": "terminale-mathematiques",
+      "publicationStatus": "VALIDATED",
       "level": "TERMINALE",
       "subjectId": "MATHEMATIQUES",
       "subject": "Mathématiques",
@@ -866,85 +722,87 @@
       ]
     },
     {
-      "id": "terminale-philosophie",
+      "id": "terminale-maths-expertes",
+      "publicationStatus": "VALIDATED",
       "level": "TERMINALE",
-      "subjectId": "PHILOSOPHIE",
-      "subject": "Philosophie",
-      "title": "Philosophie — Entrée en Terminale",
-      "subtitle": "Nexus Premium — découvrir les exigences de la dissertation et de l'explication de texte en Terminale",
-      "prerequisites": "Les compétences d’argumentation et de lecture acquises en Première ; aucun cours préalable de philosophie n'est requis.",
-      "differentiation": "Questions, exemples et niveaux d'étayage adaptés à la maîtrise de l'argumentation et de l'expression écrite.",
-      "quickAssessment": "Une problématisation, un argument ou une étape d'explication est rédigé puis corrigé en fin de séance.",
+      "subjectId": "MATHS_EXPERTES",
+      "subject": "Mathématiques expertes",
+      "title": "Mathématiques expertes — Entrée en Terminale",
+      "subtitle": "Priorités, prérequis et méthodes sélectionnés pour préparer la rentrée en spécialité Maths expertes",
+      "prerequisites": "Les acquis de Première en spécialité Mathématiques : suites, fonctions, probabilités et raisonnement.",
+      "differentiation": "Exercices différenciés selon l'aisance calculatoire et l'aisance avec le raisonnement abstrait.",
+      "quickAssessment": "Exercice de synthèse court analysé selon la démarche, le calcul et la rédaction.",
       "sessions": [
         {
           "number": 1,
-          "title": "Comprendre une notion et problématiser une question",
-          "objective": "Distinguer opinion, question et problème philosophique à partir d'une notion",
+          "title": "Arithmétique : divisibilité et nombres premiers",
+          "objective": "Manipuler divisibilité, division euclidienne et nombres premiers",
           "topics": [
-            "Notion, distinction conceptuelle et définition",
-            "Présupposés d'une question",
-            "Tension et formulation d'un problème",
-            "Construction d'une introduction"
+            "Divisibilité dans l'ensemble des entiers relatifs",
+            "Division euclidienne et algorithme d'Euclide",
+            "Nombres premiers et décomposition en facteurs premiers",
+            "PGCD et théorème de Bézout"
           ],
-          "method": "Analyse collective de questions puis ateliers de reformulation et de problématisation",
-          "deliverable": "Fiche méthode de problématisation et introduction corrigée"
+          "method": "Cours structuré puis exercices d'application avec corrigés détaillés",
+          "deliverable": "Fiche méthode arithmétique avec exemples résolus"
         },
         {
           "number": 2,
-          "title": "Analyser un sujet et construire une dissertation",
-          "objective": "Délimiter un sujet et élaborer un plan qui répond progressivement au problème",
+          "title": "Congruences et applications",
+          "objective": "Utiliser les congruences pour résoudre des problèmes arithmétiques",
           "topics": [
-            "Analyse des termes du sujet",
-            "Types de sujets",
-            "Progression du raisonnement",
-            "Plan détaillé et transitions"
+            "Définition et propriétés des congruences",
+            "Équations de congruence",
+            "Petit théorème de Fermat",
+            "Applications aux critères de divisibilité"
           ],
-          "method": "Décomposition guidée de sujets puis construction comparée de plans",
-          "deliverable": "Plan détaillé de dissertation avec transitions rédigées"
+          "method": "Exercices guidés avec complexité progressive",
+          "deliverable": "Tableau récapitulatif des propriétés des congruences"
         },
         {
           "number": 3,
-          "title": "Organiser une argumentation et mobiliser des exemples",
-          "objective": "Rédiger un développement précis qui articule argument, objection et exemple",
+          "title": "Nombres complexes approfondis",
+          "objective": "Utiliser la forme trigonométrique et les applications géométriques des complexes",
           "topics": [
-            "Thèse et argument",
-            "Objection et réponse",
-            "Exemple analysé",
-            "Connecteurs et précision de l'expression"
+            "Forme trigonométrique et exponentielle",
+            "Racines n-ièmes d'un nombre complexe",
+            "Applications à la géométrie plane",
+            "Transformations du plan complexe"
           ],
-          "method": "Analyse de paragraphes modèles puis rédaction et révision critériée",
-          "deliverable": "Développement argumenté annoté avec banque d'exemples"
+          "method": "Démonstrations guidées puis exercices types Bac",
+          "deliverable": "Formulaire complexes approfondis avec méthodes de résolution"
         },
         {
           "number": 4,
-          "title": "Expliquer un texte philosophique",
-          "objective": "Dégager le problème, la thèse et les étapes de l'argumentation d'un texte",
+          "title": "Matrices et systèmes linéaires",
+          "objective": "Manipuler les matrices et résoudre des systèmes par le calcul matriciel",
           "topics": [
-            "Question et thèse du texte",
-            "Structure argumentative",
-            "Explication précise d'un passage",
-            "Évitement de la paraphrase"
+            "Opérations sur les matrices",
+            "Matrice inverse et déterminant",
+            "Résolution de systèmes linéaires",
+            "Suites définies par une relation matricielle"
           ],
-          "method": "Lecture linéaire guidée puis rédaction d'une étape d'explication",
-          "deliverable": "Carte argumentative du texte et passage expliqué"
+          "method": "Exercices progressifs avec vérification par le calcul",
+          "deliverable": "Fiche méthode calcul matriciel avec exemples résolus"
         },
         {
           "number": 5,
-          "title": "Entraînement type bac et correction méthodique",
-          "objective": "Choisir une démarche, produire un devoir partiel et utiliser une grille de correction",
+          "title": "Graphes : notions et parcours",
+          "objective": "Modéliser une situation par un graphe et déterminer un plus court chemin",
           "topics": [
-            "Choix entre dissertation et explication",
-            "Gestion du temps",
-            "Cohérence du raisonnement",
-            "Relecture et amélioration"
+            "Vocabulaire des graphes et matrice d'adjacence",
+            "Chaînes, cycles et connexité",
+            "Algorithme du plus court chemin",
+            "Synthèse et bilan de la spécialité"
           ],
-          "method": "Entraînement chronométré puis correction collective et reprise individuelle",
-          "deliverable": "Copie d'entraînement corrigée et plan personnel de progrès"
+          "method": "Modélisation guidée puis problèmes contextualisés",
+          "deliverable": "Méthode complète de modélisation par un graphe"
         }
       ]
     },
     {
       "id": "terminale-nsi",
+      "publicationStatus": "VALIDATED",
       "level": "TERMINALE",
       "subjectId": "NSI",
       "subject": "NSI",
@@ -1023,6 +881,7 @@
     },
     {
       "id": "terminale-physique-chimie",
+      "publicationStatus": "VALIDATED",
       "level": "TERMINALE",
       "subjectId": "PHYSIQUE_CHIMIE",
       "subject": "Physique-Chimie",
@@ -1101,6 +960,9 @@
     },
     {
       "id": "premiere-svt",
+      "publicationStatus": "VALIDATED",
+      "objective": "Sélectionner des priorités et méthodes dans les trois thèmes officiels du programme de spécialité SVT de Première ; validation d'un enseignant SVT qualifié requise avant publication.",
+      "equipment": "Calculatrice scientifique simple recommandée, non obligatoire sauf consigne de l'enseignant.",
       "level": "PREMIERE",
       "subjectId": "SVT",
       "subject": "SVT",
@@ -1112,60 +974,60 @@
       "sessions": [
         {
           "number": 1,
-          "title": "Organisation du vivant et cellule",
-          "objective": "Réactiver la structure cellulaire, la notion de niveau d’organisation et les méthodes d’observation",
+          "title": "Transmission, expression et variation du patrimoine génétique",
+          "objective": "Réactiver les liens entre ADN, division cellulaire, expression et variation génétique",
           "topics": [
-            "Cellule procaryote/eucaryote",
-            "Organisation des organismes",
-            "Observation et schémas",
-            "Vocabulaire de la biologie"
+            "Mitose, réplication et stabilité du génome",
+            "Expression du patrimoine génétique",
+            "Mutations et diversité génétique",
+            "Lecture de documents et schémas"
           ],
           "method": "Test flash puis lecture de documents et schémas à compléter",
           "deliverable": "Fiche réflexe cellule et organisation du vivant"
         },
         {
           "number": 2,
-          "title": "Métabolisme et énergie",
-          "objective": "Relier les échanges énergétiques et les transformations de la matière dans les êtres vivants",
+          "title": "Dynamique interne de la Terre",
+          "objective": "Relier observations géologiques et modèle de la dynamique terrestre",
           "topics": [
-            "Photosynthèse et respiration",
-            "Matière et énergie",
-            "Croissance et reproduction",
-            "Notion de cycle biogéochimique"
+            "Structure du globe",
+            "Mobilité des plaques",
+            "Zones de divergence et de convergence",
+            "Construction d'un modèle à partir de données"
           ],
           "method": "Exemples guidés et exercices de lecture de cycles et de schémas",
-          "deliverable": "Carte méthode énergie et métabolisme"
+          "deliverable": "Schéma-bilan de la structure du globe et de la tectonique des plaques"
         },
         {
           "number": 3,
-          "title": "Génétique et expression du patrimoine génétique",
-          "objective": "Réactiver la notion de gène, d’ADN, de transcription-traduction et d’hérédité simple",
+          "title": "Écosystèmes et services environnementaux",
+          "objective": "Analyser le fonctionnement d'un écosystème et les effets d'une action humaine",
           "topics": [
-            "ADN, gène, chromosome",
-            "Transcription et traduction",
-            "Hérédité mendélienne",
-            "Mutations et variation"
+            "Interactions et flux dans un écosystème",
+            "Dynamique et résilience",
+            "Services écosystémiques",
+            "Gestion et impacts des activités humaines"
           ],
-          "method": "Schémas commentés et petits problèmes d’hérédité",
-          "deliverable": "Fiche de synthèse génétique avec exercices corrigés"
+          "method": "Schémas de flux et études de cas d'écosystèmes",
+          "deliverable": "Fiche de synthèse écosystèmes et services environnementaux"
         },
         {
           "number": 4,
-          "title": "Écologie et interactions",
-          "objective": "Relier les interactions entre organismes et les grands équilibres écologiques",
+          "title": "Variation génétique, santé et immunité",
+          "objective": "Relier variation génétique et fonctionnement du système immunitaire à des enjeux de santé",
           "topics": [
-            "Réseaux trophiques",
-            "Flux de matière et énergie",
-            "Cycles biogéochimiques",
-            "Relations durables et action humaine"
+            "Variation génétique et santé",
+            "Immunité innée et adaptative",
+            "Mémoire immunitaire",
+            "Argumentation à partir de données"
           ],
           "method": "Lecture de documents puis construction de réseaux et de cycles",
-          "deliverable": "Fiche écologie et interactions corrigée"
+          "deliverable": "Schéma-bilan de la réponse immunitaire"
         },
         {
           "number": 5,
-          "title": "Méthodologie et sujet d’entraînement",
-          "objective": "Organiser son temps, lire un document scientifique et rédiger une réponse argumentée",
+          "title": "Méthodes transversales sur les trois thèmes officiels",
+          "objective": "Lire des documents et rédiger une réponse argumentée mobilisant les trois thèmes",
           "topics": [
             "Lecture de documents SVT",
             "Gestion du temps",
@@ -1179,6 +1041,9 @@
     },
     {
       "id": "terminale-svt",
+      "publicationStatus": "VALIDATED",
+      "objective": "Sélectionner des priorités et méthodes dans les trois thèmes officiels du programme de spécialité SVT de Terminale ; validation d'un enseignant SVT qualifié requise avant publication.",
+      "equipment": "Calculatrice scientifique simple recommandée, non obligatoire sauf consigne de l'enseignant.",
       "level": "TERMINALE",
       "subjectId": "SVT",
       "subject": "SVT",
@@ -1203,47 +1068,47 @@
         },
         {
           "number": 2,
-          "title": "Énergie et métabolisme",
-          "objective": "Relier les conversions d’énergie, la croissance et l’homéostasie dans les organismes",
+          "title": "À la recherche du passé géologique",
+          "objective": "Mobiliser chronologie et indices géologiques pour reconstituer une histoire",
           "topics": [
-            "Respiration et photosynthèse",
-            "Transferts d’énergie",
-            "Homéostasie",
-            "Signalisation cellulaire"
+            "Chronologie relative",
+            "Datation absolue",
+            "Traces du passé tectonique",
+            "Lecture de cartes et documents géologiques"
           ],
           "method": "Lecture de schémas et exercices de raisonnement",
-          "deliverable": "Fiche métabolisme et énergie corrigée"
+          "deliverable": "Fiche de méthode : chronologie relative et datation absolue"
         },
         {
           "number": 3,
-          "title": "Écologie et interactions durables",
-          "objective": "Analyser les interactions, les flux et les pressions anthropiques à l’échelle des écosystèmes",
+          "title": "Plantes, climat et enjeux contemporains",
+          "objective": "Relier fonctionnement des plantes, domestication et compréhension des climats",
           "topics": [
-            "Réseaux trophiques et flux",
-            "Dynamiques de populations",
-            "Biodiversité et pressions",
-            "Durabilité des actions"
+            "Organisation fonctionnelle des plantes",
+            "Reproduction et domestication",
+            "Reconstitution et évolution des climats",
+            "Argumentation sur les actions possibles"
           ],
           "method": "Lecture de documents et construction d’arguments",
           "deliverable": "Fiche écologie et durabilité corrigée"
         },
         {
           "number": 4,
-          "title": "Patrimoine génétique et reproduction",
-          "objective": "Consolider les mécanismes de reproduction, de transmission et d’expression du génome",
+          "title": "Mouvement, énergie et stress",
+          "objective": "Relier système nerveux, muscle, apport d'énergie et réponse au stress",
           "topics": [
-            "Mitose et méiose",
-            "Fécondation",
-            "Transmission chromosomique",
-            "Expression génique"
+            "Commande du mouvement",
+            "Contraction musculaire",
+            "ATP et apport d'énergie",
+            "Réponse au stress et régulation"
           ],
           "method": "Comparaison de schémas et problèmes de transmission",
-          "deliverable": "Fiche patrimoine génétique corrigée"
+          "deliverable": "Fiche-bilan : commande du mouvement, ATP et réponse au stress"
         },
         {
           "number": 5,
-          "title": "Bilan et sujet d’entraînement",
-          "objective": "Organiser ses connaissances et traiter un sujet type de spécialité SVT",
+          "title": "Méthodes transversales sur les trois thèmes officiels",
+          "objective": "Organiser ses connaissances et traiter un exercice mobilisant plusieurs thèmes",
           "topics": [
             "Lecture de documents complexes",
             "Raisonnement à plusieurs niveaux",

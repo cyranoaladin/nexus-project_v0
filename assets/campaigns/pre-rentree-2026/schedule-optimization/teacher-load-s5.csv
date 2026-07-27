@@ -1,0 +1,9 @@
+windowId,teacherRole,blocksUsed,hours
+fenetre-1,TEACHER_A_MATHS_NSI,4,8
+fenetre-1,TEACHER_C_FRANCAIS,2,4
+fenetre-1,TEACHER_E_SVT,2,4
+weekend-debut-fenetre-2,TEACHER_C_FRANCAIS,1,2
+weekend-debut-fenetre-2,TEACHER_D_PHYSIQUE_CHIMIE,1,2
+fenetre-2,TEACHER_A_MATHS_NSI,4,8
+fenetre-2,TEACHER_D_PHYSIQUE_CHIMIE,1,2
+fenetre-2,TEACHER_E_SVT,2,4

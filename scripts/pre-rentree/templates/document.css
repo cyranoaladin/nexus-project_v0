@@ -30,7 +30,8 @@
   --francais: #84253f;
   --nsi: #6741b4;
   --pc: #14776f;
-  --philo: #7a4f21;
+  --svt: #047857;
+  --maths-expertes: #b45309;
 }
 
 @page {
@@ -153,12 +154,12 @@ section, article, table, details { break-inside: auto; }
 .toc { break-before: auto; }
 .toc ol { columns: 2; column-gap: 12mm; list-style: decimal-leading-zero; padding-left: 8mm; }
 .toc li { break-inside: avoid; margin: 0 0 4mm; padding-left: 2mm; }
-.fact-grid, .material-grid, .week-grid {
+.fact-grid, .material-grid, .window-grid, .day-grid {
   display: grid;
   gap: 4mm;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
-.fact-card, .material-card, .week-card {
+.fact-card, .material-card, .window-card, .day-card {
   border: 1px solid var(--rule);
   break-inside: avoid;
   padding: 4mm;
@@ -205,7 +206,8 @@ section, article, table, details { break-inside: auto; }
 .subject-FRANCAIS { --subject-color: var(--francais); }
 .subject-NSI { --subject-color: var(--nsi); }
 .subject-PHYSIQUE_CHIMIE { --subject-color: var(--pc); }
-.subject-PHILOSOPHIE { --subject-color: var(--philo); }
+.subject-SVT { --subject-color: var(--svt); }
+.subject-MATHS_EXPERTES { --subject-color: var(--maths-expertes); }
 .program-module > h3 { font-family: "Nexus Serif", serif; font-size: 21pt; }
 .module-subtitle { color: var(--muted); font-size: 11pt; }
 .program-meta { display: grid; gap: 3mm; grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -284,7 +286,7 @@ details p { margin-bottom: 0; }
   .document-header img { grid-column: 1 / -1; }
   .cover { margin: -20px -20px 0; min-height: auto; padding: 56px 24px; }
   .cover h1 { font-size: 2.4rem; }
-  .cover-action, .contact-grid, .fact-grid, .material-grid, .week-grid,
+  .cover-action, .contact-grid, .fact-grid, .material-grid, .window-grid, .day-grid,
   .program-meta, .session-card header, .session-card dl > div, .why-list { grid-template-columns: 1fr; }
   .final-contact > *, .contact-grid > * { min-width: 0; }
   .contact-grid a { overflow-wrap: anywhere; }

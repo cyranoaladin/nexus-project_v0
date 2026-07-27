@@ -1,3 +1,12 @@
+// This file exhaustively tests the configurator/URL round-trip logic in
+// isolation, independent from the Bilan integration's real (fail-closed)
+// release posture — see pre-rentree-2026-stage-bilan-boundary.test.ts for
+// that contract, tested WITHOUT this mock.
+jest.mock('@/lib/campaigns/pre-rentree-2026/release-gate', () => ({
+  ...jest.requireActual('@/lib/campaigns/pre-rentree-2026/release-gate'),
+  canPrefillBilanGratuitFromPreRentree: () => true,
+}));
+
 import { getPreRentreeLandingDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
 import {
   buildBilanUrl,
@@ -16,7 +25,7 @@ import type { EntryLevelCode } from '@/lib/campaigns/pre-rentree-2026/schema';
 const dto = getPreRentreeLandingDTO();
 
 describe('Pré-rentrée configurator logic', () => {
-  it('builds all 48 level and subject configurations from DTO facts', () => {
+  it('builds all 66 approved level and subject configurations from DTO facts', () => {
     let configurationCount = 0;
     for (const level of dto.levels) {
       const availableSubjects = dto.subjects.filter((subject) =>
@@ -62,14 +71,17 @@ describe('Pré-rentrée configurator logic', () => {
         expect(summary.subjectIds).toEqual(subjectIds);
         expect(summary.subjectLabels).toHaveLength(subjectIds.length);
         expect(summary.totalHours).toBe(pack?.totalHours);
-        expect(summary.sessionCount).toBe(selectedSlots.length);
+        // A subject can have more than one alternative cohort (SCHEDULE-S5) —
+        // selectedSlots (raw filter across every cohort) can be 10 for such a
+        // subject, but the assignment engine always resolves to exactly one
+        // cohort per subject: 5 séances followed, never selectedSlots.length.
         expect(summary.sessionCount).toBe(subjectIds.length * 5);
         expect(summary.dates).toEqual(
           [...new Set(selectedSlots.map((slot) => slot.date))].sort(),
         );
         expect(summary.scheduleLines).toHaveLength(subjectIds.length);
         expect(summary.scheduleLines.every((line) => line.dates.length === 5)).toBe(true);
-        expect(summary.scheduleLines.every((line) => line.startTime && line.endTime && line.week)).toBe(true);
+        expect(summary.scheduleLines.every((line) => line.startTime && line.endTime && line.windowId)).toBe(true);
         expect(summary.pack?.price).toBe(pack?.price);
         expect(summary.pack?.deposit).toBe(pack?.deposit);
         expect(summary.pack?.balance).toBe(pack?.balance);
@@ -103,7 +115,7 @@ describe('Pré-rentrée configurator logic', () => {
         configurationCount += 1;
       }
     }
-    expect(configurationCount).toBe(78);
+    expect(configurationCount).toBe(66);
   });
 
   it('skips the profile step for both Fondations levels', () => {
@@ -197,7 +209,7 @@ describe('Pré-rentrée configurator logic', () => {
   });
 
   it('builds a 40-hour summary from DTO schedule and pack data', () => {
-    const subjects = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'PHILOSOPHIE'];
+    const subjects = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'NSI', 'MATHS_EXPERTES'];
     const summary = buildSelectionSummary({
       level: 'TERMINALE',
       profile: { mathsOption: 'AUCUNE' },
@@ -211,9 +223,43 @@ describe('Pré-rentrée configurator logic', () => {
     expect(summary.pack?.code).toBe('PACK_4');
     expect(summary.totalHours).toBe(40);
     expect(summary.sessionCount).toBe(20);
-    expect(summary.dates).toHaveLength(10);
+    // Modèle fenêtres + week-end (v2) : toutes les matières Terminale tombent dans la
+    // même fenêtre 2 (24-28 août) — 5 dates partagées, pas 10 (contrairement à
+    // l'ancien modèle 2-semaines où les matières Terminale étaient réparties).
+    expect(summary.dates).toHaveLength(5);
     expect(summary.scheduleLines).toHaveLength(4);
     expect(summary.scheduleLines[0]?.dates).toHaveLength(5);
+  });
+
+  it('never doubles the price, hours or session count for a subject with two alternative cohorts', () => {
+    // Terminale NSI has 2 cohorts (terminale-nsi-c, terminale-nsi-d) in the S5
+    // schedule. A family picks ONE subject, never a subject multiplied by its
+    // cohort count: 1 subject must still price/count as exactly 1, never 2.
+    const oneSubjectWithCohorts = buildSelectionSummary({
+      level: 'TERMINALE',
+      profile: { mathsOption: 'AUCUNE' },
+      subjectIds: ['NSI'],
+      levels: dto.levels,
+      subjects: dto.subjects,
+      packs: dto.offerOptions,
+      schedule: dto.schedule,
+    });
+    const oneSubjectWithoutCohorts = buildSelectionSummary({
+      level: 'TERMINALE',
+      profile: { mathsOption: 'AUCUNE' },
+      subjectIds: ['MATHEMATIQUES'],
+      levels: dto.levels,
+      subjects: dto.subjects,
+      packs: dto.offerOptions,
+      schedule: dto.schedule,
+    });
+    expect(oneSubjectWithCohorts.pack?.code).toBe(oneSubjectWithoutCohorts.pack?.code);
+    expect(oneSubjectWithCohorts.totalHours).toBe(oneSubjectWithoutCohorts.totalHours);
+    expect(oneSubjectWithCohorts.sessionCount).toBe(oneSubjectWithoutCohorts.sessionCount);
+    expect(oneSubjectWithCohorts.sessionCount).toBe(5);
+    expect(oneSubjectWithCohorts.totalHours).toBe(10);
+    expect(oneSubjectWithCohorts.scheduleLines).toHaveLength(1);
+    expect(oneSubjectWithCohorts.scheduleLines[0]?.dates).toHaveLength(5);
   });
 
   it('uses DTO labels for the parent-facing academic profile', () => {

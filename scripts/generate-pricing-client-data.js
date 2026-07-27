@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Extracts client-safe subsets from pricing.canonical.json:
- *   - data/pricing-client-data.generated.json  (rules + reperes_tarifaires)
+ *   - data/pricing-client-data.generated.json  (rules + repères + payment summaries)
  *   - data/stage-calendar-client.json          (minimal stage calendar)
  *
  * Run after editing pricing.canonical.json:
@@ -14,10 +14,11 @@ const canonical = JSON.parse(
   fs.readFileSync(path.join(__dirname, '..', 'data', 'pricing.canonical.json'), 'utf-8'),
 );
 
-// 1. Rules + repères + operational catalog
+// 1. Rules + repères + operational catalog + minimal annual payment summaries
 const clientDataKeys = [
   'rules',
   'reperes_tarifaires',
+  'offers',
   'operational_subscription_plans',
   'operational_aria_addons',
   'operational_special_packs',
@@ -32,6 +33,14 @@ for (const key of clientDataKeys) {
 const clientData = {
   rules: canonical.rules,
   reperes_tarifaires: canonical.reperes_tarifaires,
+  annual_offer_summaries: canonical.offers.map((offer) => ({
+    id: offer.id,
+    price_annual: offer.price_annual,
+    deposit: offer.deposit,
+    n_installments: offer.n_installments,
+    installment_amount: offer.installment_amount,
+    last_installment: offer.last_installment,
+  })),
   operational_subscription_plans: canonical.operational_subscription_plans,
   operational_aria_addons: canonical.operational_aria_addons,
   operational_special_packs: canonical.operational_special_packs,

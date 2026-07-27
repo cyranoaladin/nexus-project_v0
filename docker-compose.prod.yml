@@ -63,6 +63,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.prod
+      args:
+        - RELEASE_SHA=${RELEASE_SHA:-0000000000000000000000000000000000000000}
     container_name: nexus-app-prod
     restart: unless-stopped
     environment:

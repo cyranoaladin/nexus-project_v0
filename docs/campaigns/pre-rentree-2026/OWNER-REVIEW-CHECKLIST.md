@@ -2,13 +2,22 @@
 
 Cette checklist est un processus public de gouvernance ; elle n’est pas une preuve d’approbation.
 
-- [ ] Lire le Guide Parents PDF et HTML.
-- [ ] Vérifier les quatorze modules et soixante-dix séances avec l’équipe pédagogique.
-- [ ] Vérifier planning, capacités, tarifs, acompte et solde.
-- [ ] Vérifier la séquence demande d’information, qualification, proposition, réservation et paiement.
-- [ ] Contrôler les rasters, la planche de contact et les captures bureau/mobile.
-- [ ] Confirmer que les engagements Parcours 360 restent limités aux capacités opérationnelles.
-- [ ] Examiner les versions niveaux de gris et les visuels sociaux.
-- [ ] Enregistrer une décision humaine liée au SHA-256 exact du manifest, sans modifier le modèle généré.
+- [x] Lire les sept PDF publics et leurs 59 pages.
+- [x] Vérifier les quatorze modules et soixante-dix séances.
+- [x] Vérifier planning, capacités, tarifs, acompte et solde.
+- [x] Vérifier que la surface publique reste une demande d'information et de
+  disponibilité, sans réservation ni paiement.
+- [x] Contrôler les rasters, la planche de contact et les captures
+  bureau/mobile.
+- [x] Confirmer que les engagements renforcés restent limités aux capacités
+  réellement exposées.
+- [x] Examiner les cinq feeds, cinq stories, le carrousel, le Reel et les
+  sous-titres publics.
+- [x] Enregistrer une décision humaine liée au SHA-256 exact du manifeste.
 
-Une décision propriétaire ne débloque pas le dossier contractuel tant que les revues juridique et confidentialité sont en attente.
+Approbation privée : `APPROVED`, 26 juillet 2026. Empreinte du manifeste :
+`93f29e08c6f0294f8ecee443896d12646ba3fa6d598218bebbc0cc22679fa219`.
+
+Cette décision couvre uniquement la release publique informative. Elle
+n'autorise ni paiement, ni réservation contractuelle, ni activation d'un
+dossier nominatif.

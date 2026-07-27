@@ -21,7 +21,6 @@ services:
   # ─── 1. PostgreSQL (ephemeral, tmpfs) ─────────────────────────────────────
   postgres-e2e:
     image: pgvector/pgvector:pg15
-    container_name: nexus-postgres-e2e
     restart: "no"
     environment:
       POSTGRES_USER: postgres
@@ -46,7 +45,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.e2e
-    container_name: nexus-app-e2e
     restart: "no"
     depends_on:
       postgres-e2e:
@@ -84,7 +82,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.playwright
-    container_name: nexus-playwright-e2e
     restart: "no"
     depends_on:
       app-e2e:
@@ -108,4 +105,3 @@ volumes:
 networks:
   e2e-network:
     driver: bridge
-    name: nexus-e2e-network

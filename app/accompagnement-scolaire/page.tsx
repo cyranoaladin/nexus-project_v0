@@ -29,15 +29,17 @@ export default function AccompagnementScolairePage() {
 
       <section className="bg-lux-paper px-4 py-14 md:px-6 md:py-20" aria-labelledby="parcours-heading">
         <div className="mx-auto max-w-6xl">
-          <h2 id="parcours-heading" className="font-fraunces text-3xl text-lux-ink">Trois portes d’entrée</h2>
+          <h2 id="parcours-heading" className="font-fraunces text-3xl text-lux-ink">Portes d’entrée</h2>
           <div className="mt-8 grid gap-5 lg:grid-cols-3">
-            <article className="rounded-2xl border border-lux-line bg-white p-6 lux-shadow">
-              <p className="text-xs font-semibold uppercase tracking-wide text-lux-gold-deep">{preRentree.startLabel}</p>
-              <h3 className="mt-2 font-fraunces text-2xl text-lux-ink">Pré-rentrée</h3>
-              <p className="mt-3 text-sm leading-6 text-lux-slate">{preRentree.promise}</p>
-              <p className="mt-4 text-sm font-semibold text-lux-ink">{preRentree.offers.length} offres publiées · capacités et tarifs affichés offre par offre.</p>
-              <Link href={preRentree.canonicalPath} className="mt-6 inline-flex min-h-11 items-center text-sm font-semibold text-lux-gold-deep underline">Voir la Pré-rentrée <ArrowRight className="ml-2 h-4 w-4" /></Link>
-            </article>
+            {preRentree && (
+              <article className="rounded-2xl border border-lux-line bg-white p-6 lux-shadow">
+                <p className="text-xs font-semibold uppercase tracking-wide text-lux-gold-deep">{preRentree.startLabel}</p>
+                <h3 className="mt-2 font-fraunces text-2xl text-lux-ink">Pré-rentrée</h3>
+                <p className="mt-3 text-sm leading-6 text-lux-slate">{preRentree.promise}</p>
+                <p className="mt-4 text-sm font-semibold text-lux-ink">{preRentree.offers.length} offres publiées · capacités et tarifs affichés offre par offre.</p>
+                <Link href={preRentree.canonicalPath} className="mt-6 inline-flex min-h-11 items-center text-sm font-semibold text-lux-gold-deep underline">Voir la Pré-rentrée <ArrowRight className="ml-2 h-4 w-4" /></Link>
+              </article>
+            )}
             <article className="rounded-2xl border border-lux-line bg-white p-6 lux-shadow">
               <p className="text-xs font-semibold uppercase tracking-wide text-lux-gold-deep">Pendant l’année</p>
               <h3 className="mt-2 font-fraunces text-2xl text-lux-ink">Parcours annuels</h3>
@@ -54,7 +56,7 @@ export default function AccompagnementScolairePage() {
         </div>
       </section>
 
-      <section className="bg-white px-4 py-14 md:px-6 md:py-20" aria-labelledby="pre-rentree-levels-heading">
+      {preRentree && <section className="bg-white px-4 py-14 md:px-6 md:py-20" aria-labelledby="pre-rentree-levels-heading">
         <div className="mx-auto max-w-6xl">
           <h2 id="pre-rentree-levels-heading" className="font-fraunces text-3xl text-lux-ink">Pré-rentrée : matières vérifiées par niveau</h2>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -71,7 +73,7 @@ export default function AccompagnementScolairePage() {
             <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="lux-cta-reserve mt-5 inline-flex min-h-11 items-center rounded-lg px-5 py-3 text-sm font-semibold">WhatsApp {preRentree.contact.whatsappDisplay}</a>
           </div>
         </div>
-      </section>
+      </section>}
 
       <CorporateFooter />
     </main>

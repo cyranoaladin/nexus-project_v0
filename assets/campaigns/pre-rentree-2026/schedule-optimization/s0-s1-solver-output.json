@@ -1,0 +1,401 @@
+{
+  "maxStudentIdleMinutes": 60,
+  "s0_baseline": {
+    "fenetre-1": {
+      "window": "fenetre-1",
+      "score": {
+        "simultaneousPairs": 0,
+        "longIdlePairs": 2,
+        "totalIdleMinutes": 390
+      },
+      "details": [
+        {
+          "level": "TROISIEME",
+          "subjectA": "FRANCAIS",
+          "subjectB": "MATHEMATIQUES",
+          "status": "LONG_IDLE",
+          "maxIdleMinutes": 195
+        },
+        {
+          "level": "SECONDE",
+          "subjectA": "FRANCAIS",
+          "subjectB": "MATHEMATIQUES",
+          "status": "COMPACT",
+          "maxIdleMinutes": 15
+        },
+        {
+          "level": "PREMIERE",
+          "subjectA": "FRANCAIS",
+          "subjectB": "MATHEMATIQUES",
+          "status": "COMPACT",
+          "maxIdleMinutes": 60
+        },
+        {
+          "level": "PREMIERE",
+          "subjectA": "FRANCAIS",
+          "subjectB": "NSI",
+          "status": "LONG_IDLE",
+          "maxIdleMinutes": 195
+        },
+        {
+          "level": "PREMIERE",
+          "subjectA": "MATHEMATIQUES",
+          "subjectB": "NSI",
+          "status": "COMPACT",
+          "maxIdleMinutes": 15
+        }
+      ]
+    },
+    "weekend-debut-fenetre-2": {
+      "window": "weekend-debut-fenetre-2",
+      "score": {
+        "simultaneousPairs": 0,
+        "longIdlePairs": 0,
+        "totalIdleMinutes": 0
+      },
+      "details": [
+        {
+          "level": "PREMIERE",
+          "subjectA": "PHYSIQUE_CHIMIE",
+          "subjectB": "SVT",
+          "status": "COMPACT",
+          "maxIdleMinutes": 15
+        }
+      ]
+    },
+    "fenetre-2": {
+      "window": "fenetre-2",
+      "score": {
+        "simultaneousPairs": 1,
+        "longIdlePairs": 4,
+        "totalIdleMinutes": 915
+      },
+      "details": [
+        {
+          "level": "TERMINALE",
+          "subjectA": "MATHEMATIQUES",
+          "subjectB": "MATHS_EXPERTES",
+          "status": "COMPACT",
+          "maxIdleMinutes": 15
+        },
+        {
+          "level": "TERMINALE",
+          "subjectA": "MATHEMATIQUES",
+          "subjectB": "NSI",
+          "status": "LONG_IDLE",
+          "maxIdleMinutes": 195
+        },
+        {
+          "level": "TERMINALE",
+          "subjectA": "MATHEMATIQUES",
+          "subjectB": "PHYSIQUE_CHIMIE",
+          "status": "LONG_IDLE",
+          "maxIdleMinutes": 330
+        },
+        {
+          "level": "TERMINALE",
+          "subjectA": "MATHEMATIQUES",
+          "subjectB": "SVT",
+          "status": "LONG_IDLE",
+          "maxIdleMinutes": 195
+        },
+        {
+          "level": "TERMINALE",
+          "subjectA": "MATHS_EXPERTES",
+          "subjectB": "NSI",
+          "status": "COMPACT",
+          "maxIdleMinutes": 60
+        },
+        {
+          "level": "TERMINALE",
+          "subjectA": "MATHS_EXPERTES",
+          "subjectB": "PHYSIQUE_CHIMIE",
+          "status": "LONG_IDLE",
+          "maxIdleMinutes": 195
+        },
+        {
+          "level": "TERMINALE",
+          "subjectA": "MATHS_EXPERTES",
+          "subjectB": "SVT",
+          "status": "COMPACT",
+          "maxIdleMinutes": 60
+        },
+        {
+          "level": "TERMINALE",
+          "subjectA": "NSI",
+          "subjectB": "PHYSIQUE_CHIMIE",
+          "status": "COMPACT",
+          "maxIdleMinutes": 15
+        },
+        {
+          "level": "TERMINALE",
+          "subjectA": "NSI",
+          "subjectB": "SVT",
+          "status": "SIMULTANEOUS",
+          "maxIdleMinutes": 0
+        },
+        {
+          "level": "TERMINALE",
+          "subjectA": "PHYSIQUE_CHIMIE",
+          "subjectB": "SVT",
+          "status": "COMPACT",
+          "maxIdleMinutes": 15
+        }
+      ]
+    }
+  },
+  "s1_optimum": {
+    "fenetre-1": {
+      "window": "fenetre-1",
+      "entries": 7,
+      "candidatesChecked": 9216,
+      "bestScore": {
+        "simultaneousPairs": 0,
+        "longIdlePairs": 1,
+        "totalIdleMinutes": 195
+      },
+      "bestAssignment": [
+        {
+          "level": "TROISIEME",
+          "subject": "MATHEMATIQUES",
+          "teacherRole": "TEACHER_A_MATHS_NSI",
+          "block": "A",
+          "room": "salle-1"
+        },
+        {
+          "level": "PREMIERE",
+          "subject": "MATHEMATIQUES",
+          "teacherRole": "TEACHER_A_MATHS_NSI",
+          "block": "B",
+          "room": "salle-1"
+        },
+        {
+          "level": "TROISIEME",
+          "subject": "FRANCAIS",
+          "teacherRole": "TEACHER_C_FRANCAIS",
+          "block": "B",
+          "room": "salle-2"
+        },
+        {
+          "level": "SECONDE",
+          "subject": "MATHEMATIQUES",
+          "teacherRole": "TEACHER_A_MATHS_NSI",
+          "block": "C",
+          "room": "salle-1"
+        },
+        {
+          "level": "PREMIERE",
+          "subject": "FRANCAIS",
+          "teacherRole": "TEACHER_C_FRANCAIS",
+          "block": "C",
+          "room": "salle-2"
+        },
+        {
+          "level": "PREMIERE",
+          "subject": "NSI",
+          "teacherRole": "TEACHER_A_MATHS_NSI",
+          "block": "D",
+          "room": "salle-1"
+        },
+        {
+          "level": "SECONDE",
+          "subject": "FRANCAIS",
+          "teacherRole": "TEACHER_C_FRANCAIS",
+          "block": "D",
+          "room": "salle-2"
+        }
+      ],
+      "bestDetails": [
+        {
+          "level": "TROISIEME",
+          "subjectA": "FRANCAIS",
+          "subjectB": "MATHEMATIQUES",
+          "status": "COMPACT",
+          "maxIdleMinutes": 15
+        },
+        {
+          "level": "SECONDE",
+          "subjectA": "FRANCAIS",
+          "subjectB": "MATHEMATIQUES",
+          "status": "COMPACT",
+          "maxIdleMinutes": 15
+        },
+        {
+          "level": "PREMIERE",
+          "subjectA": "FRANCAIS",
+          "subjectB": "MATHEMATIQUES",
+          "status": "COMPACT",
+          "maxIdleMinutes": 60
+        },
+        {
+          "level": "PREMIERE",
+          "subjectA": "FRANCAIS",
+          "subjectB": "NSI",
+          "status": "COMPACT",
+          "maxIdleMinutes": 15
+        },
+        {
+          "level": "PREMIERE",
+          "subjectA": "MATHEMATIQUES",
+          "subjectB": "NSI",
+          "status": "LONG_IDLE",
+          "maxIdleMinutes": 195
+        }
+      ]
+    },
+    "weekend-debut-fenetre-2": {
+      "window": "weekend-debut-fenetre-2",
+      "entries": 2,
+      "candidatesChecked": 56,
+      "bestScore": {
+        "simultaneousPairs": 0,
+        "longIdlePairs": 0,
+        "totalIdleMinutes": 0
+      },
+      "bestAssignment": [
+        {
+          "level": "PREMIERE",
+          "subject": "SVT",
+          "teacherRole": "TEACHER_E_SVT",
+          "block": "A",
+          "room": "salle-1"
+        },
+        {
+          "level": "PREMIERE",
+          "subject": "PHYSIQUE_CHIMIE",
+          "teacherRole": "TEACHER_D_PHYSIQUE_CHIMIE",
+          "block": "B",
+          "room": "salle-1"
+        }
+      ],
+      "bestDetails": [
+        {
+          "level": "PREMIERE",
+          "subjectA": "PHYSIQUE_CHIMIE",
+          "subjectB": "SVT",
+          "status": "COMPACT",
+          "maxIdleMinutes": 15
+        }
+      ]
+    },
+    "fenetre-2": {
+      "window": "fenetre-2",
+      "entries": 5,
+      "candidatesChecked": 3840,
+      "bestScore": {
+        "simultaneousPairs": 1,
+        "longIdlePairs": 4,
+        "totalIdleMinutes": 915
+      },
+      "bestAssignment": [
+        {
+          "level": "TERMINALE",
+          "subject": "MATHEMATIQUES",
+          "teacherRole": "TEACHER_A_MATHS_NSI",
+          "block": "A",
+          "room": "salle-1"
+        },
+        {
+          "level": "TERMINALE",
+          "subject": "MATHS_EXPERTES",
+          "teacherRole": "TEACHER_A_MATHS_NSI",
+          "block": "B",
+          "room": "salle-1"
+        },
+        {
+          "level": "TERMINALE",
+          "subject": "PHYSIQUE_CHIMIE",
+          "teacherRole": "TEACHER_D_PHYSIQUE_CHIMIE",
+          "block": "B",
+          "room": "salle-2"
+        },
+        {
+          "level": "TERMINALE",
+          "subject": "NSI",
+          "teacherRole": "TEACHER_A_MATHS_NSI",
+          "block": "C",
+          "room": "salle-1"
+        },
+        {
+          "level": "TERMINALE",
+          "subject": "SVT",
+          "teacherRole": "TEACHER_E_SVT",
+          "block": "D",
+          "room": "salle-1"
+        }
+      ],
+      "bestDetails": [
+        {
+          "level": "TERMINALE",
+          "subjectA": "MATHEMATIQUES",
+          "subjectB": "MATHS_EXPERTES",
+          "status": "COMPACT",
+          "maxIdleMinutes": 15
+        },
+        {
+          "level": "TERMINALE",
+          "subjectA": "MATHEMATIQUES",
+          "subjectB": "NSI",
+          "status": "LONG_IDLE",
+          "maxIdleMinutes": 195
+        },
+        {
+          "level": "TERMINALE",
+          "subjectA": "MATHEMATIQUES",
+          "subjectB": "PHYSIQUE_CHIMIE",
+          "status": "COMPACT",
+          "maxIdleMinutes": 15
+        },
+        {
+          "level": "TERMINALE",
+          "subjectA": "MATHEMATIQUES",
+          "subjectB": "SVT",
+          "status": "LONG_IDLE",
+          "maxIdleMinutes": 330
+        },
+        {
+          "level": "TERMINALE",
+          "subjectA": "MATHS_EXPERTES",
+          "subjectB": "NSI",
+          "status": "COMPACT",
+          "maxIdleMinutes": 60
+        },
+        {
+          "level": "TERMINALE",
+          "subjectA": "MATHS_EXPERTES",
+          "subjectB": "PHYSIQUE_CHIMIE",
+          "status": "SIMULTANEOUS",
+          "maxIdleMinutes": 0
+        },
+        {
+          "level": "TERMINALE",
+          "subjectA": "MATHS_EXPERTES",
+          "subjectB": "SVT",
+          "status": "LONG_IDLE",
+          "maxIdleMinutes": 195
+        },
+        {
+          "level": "TERMINALE",
+          "subjectA": "NSI",
+          "subjectB": "PHYSIQUE_CHIMIE",
+          "status": "COMPACT",
+          "maxIdleMinutes": 60
+        },
+        {
+          "level": "TERMINALE",
+          "subjectA": "NSI",
+          "subjectB": "SVT",
+          "status": "COMPACT",
+          "maxIdleMinutes": 15
+        },
+        {
+          "level": "TERMINALE",
+          "subjectA": "PHYSIQUE_CHIMIE",
+          "subjectB": "SVT",
+          "status": "LONG_IDLE",
+          "maxIdleMinutes": 195
+        }
+      ]
+    }
+  }
+}

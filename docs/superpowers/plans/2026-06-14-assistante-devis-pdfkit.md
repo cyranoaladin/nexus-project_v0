@@ -45,9 +45,9 @@
 ### Task 4: Verification and deployment
 
 **Files:**
-- Deploy modified files to `/var/www/nexus-project_v0`.
+- Deploy modified files to `<APP_DIR>`.
 
 - [ ] Run targeted Jest tests locally and on the server.
 - [ ] Run `npm run build` locally and on the server.
-- [ ] Reload `nexus-prod`.
+- [ ] Reload `<PROCESS_NAME>`.
 - [ ] Run Playwright E2E against production: authenticate as assistante, generate a quote, download the PDF, inspect page count and size.

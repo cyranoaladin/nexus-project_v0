@@ -35,10 +35,10 @@ describe('Pré-rentrée 2026 canonical commercial publication contract', () => {
       deposit: 105,
       hours: 10,
       sessions: 5,
-      groupMin: 4,
+      groupMin: 3,
       groupMax: 6,
     });
-    expect(byId.get('pre2026-seconde-physique-chimie')).toMatchObject({ price: 400, deposit: 120 });
+    expect(byId.get('pre2026-seconde-mathematiques')).toMatchObject({ price: 400, deposit: 120 });
     expect(byId.get('pre2026-premiere-pack-1')).toMatchObject({ price: 480, deposit: 144, groupMax: 5 });
     expect(byId.get('pre2026-terminale-pack-4')).toMatchObject({ price: 1800, deposit: 540, groupMax: 5 });
   });
@@ -70,10 +70,8 @@ describe('Pré-rentrée 2026 canonical commercial publication contract', () => {
 
     expect(new Set(secondeSubjects)).toEqual(new Set([
       'MATHEMATIQUES',
-      'PHYSIQUE_CHIMIE',
       'FRANCAIS',
     ]));
-    expect(allPublicText).not.toMatch(/SNT/i);
     expect(allPublicText).not.toMatch(/manuel offert|remise annuelle|réduction annuelle|10\s*%/i);
     expect(offers.every((offer) => offer.proofIds.length > 0 && offer.publiclyEligible)).toBe(true);
   });

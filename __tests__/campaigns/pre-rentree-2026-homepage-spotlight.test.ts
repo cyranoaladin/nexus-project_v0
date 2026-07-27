@@ -26,7 +26,7 @@ interface HomepageSpotlightContract {
 
 describe('Pré-rentrée homepage spotlight DTO', () => {
   it('derives the complete public spotlight contract from canonical campaign data', () => {
-    const getter = Reflect.get(campaignGetters, 'getPreRentreeHomepageSpotlightDTO');
+    const getter = Reflect.get(campaignGetters, 'compilePreRentreeReviewHomepageSpotlightDTO');
     expect(typeof getter).toBe('function');
     if (typeof getter !== 'function') return;
 
@@ -36,7 +36,7 @@ describe('Pré-rentrée homepage spotlight DTO', () => {
       ariaLabel: 'Campagne Pré-rentrée 2026',
       title: 'Stages de pré-rentrée 2026',
       primaryCtaLabel: 'Découvrir la Pré-rentrée 2026',
-      publicStatus: 'Campagne en préparation',
+      publicStatus: 'Informations disponibles',
       date: {
         days: '17',
         month: 'AOÛT',
@@ -45,8 +45,10 @@ describe('Pré-rentrée homepage spotlight DTO', () => {
         chipLabel: 'dès le 17 août',
       },
       entryClassesLabel: 'Entrée en 3e, Seconde, Première ou Terminale',
-      subjectFamiliesLabel: 'Mathématiques · Physique-Chimie · Français · NSI · Philosophie · SVT',
-      capacityLabel: 'Fondations : 4 à 6 élèves · Premium : 3 à 5 élèves',
+      // Philosophie purgée du catalogue pré-rentrée (2026-07-24) ; Maths expertes apparaît
+      // désormais, commercial-contract.fr.json (offres Terminale) ayant été réconcilié.
+      subjectFamiliesLabel: 'Mathématiques · Physique-Chimie · Français · NSI · SVT · Mathématiques expertes',
+      capacityLabel: 'Fondations : 3 à 6 élèves · Premium : 3 à 5 élèves',
       volumeLabel: '10 h par matière',
       venueLabel: 'Mutuelleville',
       editorialLine: 'Reprendre les fondamentaux. Structurer sa méthode. Aborder la rentrée avec confiance.',

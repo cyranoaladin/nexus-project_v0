@@ -5,6 +5,7 @@ import { relative, resolve } from 'node:path';
 
 const scanRoot = resolve(process.argv[2] ?? process.cwd());
 const ignoredDirectories = new Set([
+  '.artifacts',
   '.git',
   'node_modules',
   'coverage',

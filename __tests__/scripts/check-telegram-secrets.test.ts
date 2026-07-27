@@ -77,6 +77,21 @@ describe('Telegram secret scanner', () => {
     expect(result.status).toBe(0);
   });
 
+  it('ignores disposable build checkouts under .artifacts', () => {
+    const artifactDirectory = join(root, '.artifacts', 'clean-checkout', '.next', 'server');
+    const bundledServerCall = [
+      'https://api.telegram.org/',
+      'bot${process.env.TELEGRAM_BOT_TOKEN}',
+      '/sendMessage',
+    ].join('');
+    mkdirSync(artifactDirectory, { recursive: true });
+    writeFileSync(join(artifactDirectory, 'route.js'), `const url = \`${bundledServerCall}\`;\n`);
+
+    const result = runScanner(root);
+
+    expect(result.status).toBe(0);
+  });
+
   it('continues to reject credentials in browser chunks', () => {
     const staticDirectory = join(root, '.next', 'static', 'chunks');
     const syntheticToken = `${'12345678'}:${'A'.repeat(35)}`;

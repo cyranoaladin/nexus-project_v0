@@ -13,8 +13,8 @@ const SubjectSchema = z.enum([
   'PHYSIQUE_CHIMIE',
   'NSI',
   'FRANCAIS',
-  'PHILOSOPHIE',
   'SVT',
+  'MATHS_EXPERTES',
 ]);
 
 const OfferSourceSchema = z.object({
@@ -46,16 +46,9 @@ const CommercialContractSourceSchema = z.object({
   locale: z.literal('fr-TN'),
   validationDate: z.string().date(),
   lastRevisedAt: z.string().date(),
-  offers: z.array(OfferSourceSchema).length(13),
+  offers: z.array(OfferSourceSchema).length(12),
 }).strict().superRefine((source, context) => {
   for (const [index, offer] of source.offers.entries()) {
-    if (offer.level === 'SECONDE' && offer.subjects.some((subject) => subject === 'NSI')) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['offers', index, 'subjects'],
-        message: 'NSI/SNT is not an approved Seconde subject.',
-      });
-    }
     if (offer.pricingKind === 'PREMIUM_PACK' && offer.subjectCount === undefined) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
@@ -127,8 +120,7 @@ export function compileCommercialPublicationContract() {
     if (!product) throw new Error(`Unknown canonical pricingId: ${offer.pricingId}`);
 
     const publiclyEligible = offer.publicStatus === 'APPROVED'
-      && offer.proofIds.every((proofId) => proofById.get(proofId)?.status === 'APPROVED')
-      && !(offer.level === 'SECONDE' && offer.subjects.includes('NSI'));
+      && offer.proofIds.every((proofId) => proofById.get(proofId)?.status === 'APPROVED');
 
     return {
       ...offer,

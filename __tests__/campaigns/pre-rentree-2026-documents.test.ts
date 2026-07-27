@@ -1,0 +1,52 @@
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { basename, join } from 'node:path';
+
+import documentManifest from '@/assets/campaigns/pre-rentree-2026/documents-final/manifest.json';
+import { PRE_RENTREE_DOCUMENTS } from '@/lib/campaigns/pre-rentree-2026/documents';
+
+describe('Pré-rentrée 2026 downloadable document contract', () => {
+  it('derives displayed weights from the generated document manifest', () => {
+    const candidateByName = new Map(
+      documentManifest.documents
+        .filter(({ publicDownloadCandidate }) => publicDownloadCandidate)
+        .map((document) => [document.fileName, document]),
+    );
+
+    expect(PRE_RENTREE_DOCUMENTS).toHaveLength(7);
+    for (const document of PRE_RENTREE_DOCUMENTS) {
+      const fileName = basename(document.href);
+      const generated = candidateByName.get(fileName);
+      expect(generated).toBeDefined();
+      expect(generated?.publicationStatus).toBe('PUBLIC_FINAL');
+      expect(document.size).toBe(generated?.sizeLabel);
+
+      const assetBytes = readFileSync(join(
+        process.cwd(),
+        'assets/campaigns/pre-rentree-2026/documents-final',
+        fileName,
+      ));
+      const publicBytes = readFileSync(join(
+        process.cwd(),
+        'public/documents/pre-rentree-2026',
+        fileName,
+      ));
+      expect(publicBytes.subarray(0, 5).toString('ascii')).toBe('%PDF-');
+      expect(createHash('sha256').update(publicBytes).digest('hex')).toBe(
+        createHash('sha256').update(assetBytes).digest('hex'),
+      );
+    }
+  });
+
+  it('folds SVT into the level dossiers instead of a standalone PDF, and keeps the internal family intake form out of public downloads', () => {
+    // Refonte du 2026-07-25 (tools/pdf-generator/generate_level_dossiers.py) : SVT n'est plus un
+    // PDF séparé mais un chapitre ordinaire de NexusReussite_PreRentree2026_Programme_{Premiere,
+    // Terminale}.pdf (voir __tests__/campaigns/pre-rentree-2026-full-coherence.test.ts pour la
+    // vérification que le texte SVT apparaît bien dans ces dossiers). Seul le dossier d'accueil
+    // (impression interne) reste hors téléchargement public.
+    const publicNames = PRE_RENTREE_DOCUMENTS.map(({ href }) => basename(href));
+    expect(publicNames.some((name) => name.includes('SVT'))).toBe(false);
+    expect(publicNames.every((name) => !name.includes('_DRAFT'))).toBe(true);
+    expect(publicNames.every((name) => !name.includes('DossierAccueil'))).toBe(true);
+  });
+});

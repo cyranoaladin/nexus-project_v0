@@ -12,7 +12,7 @@
 ## Matrice des flux
 | Flux | État | Dossier/branche/worktree | Bloquant | Prochaine action | Priorité |
 |---|---|---|---|---|---|
-| Production | stable P1-A | `/var/www/nexus-project_v0` | aucun immédiat | ne pas toucher | P0 hygiene |
+| Production | stable P1-A | `<APP_DIR>` | aucun immédiat | ne pas toucher | P0 hygiene |
 | P1-A-bis Redis | prêt local, non déployé | `/home/alaeddine/Bureau/nexus-deploy-clean-p1a-bis` | CI billing/actions | résoudre CI puis déployer depuis zéro | P1 |
 | STMG dashboard | en cours local | repo principal dirty | chantiers non suivis et config test locale | feature branch dédiée | P1/P2 |
 | Prisma/TOTP | diff schema non migré | repo principal | bloque QA et ne doit pas être mélangé | décision migration/revert dans lot DB séparé | P1 |
@@ -22,7 +22,7 @@
 ## Production
 - HEAD : `69f0e1435a07a96495b8c918dd8c4b4b56cf69b2`.
 - Worktree : propre.
-- PM2 : `nexus-prod` online.
+- PM2 : `<PROCESS_NAME>` online.
 - Health : `api_health=200`.
 - Rate-limit : `REDIS_URL=present`, Upstash missing/missing, `RATE_LIMIT_DISABLE_1=absent`.
 - Runtime actif : P1-A, pas P1-A-bis.

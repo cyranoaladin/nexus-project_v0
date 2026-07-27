@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'nexus-prod',
+      name: process.env.PM2_APP_NAME || 'nexus-app',
       script: '.next/standalone/server.js',
       instances: 1,
       autorestart: true,

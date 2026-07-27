@@ -146,7 +146,7 @@ function PricingReperesSection() {
 
 function getVerifiableItems(groupMax: number): string[] {
   return [
-  'Enseignants agrégés et certifiés, spécialistes de l’épreuve',
+  'Enseignants expérimentés, en exercice dans le système français',
   'Corrections sur grilles officielles du baccalauréat et bacs blancs',
   `Groupes de ${groupMax} élèves maximum — suivi individualisé`,
   'Transparence tarifaire : tous les prix publics, en TND',
@@ -206,7 +206,7 @@ function getFaqItems(rules: { group_max: number; group_min_open: Record<string, 
   {
     question: 'Qui sont les enseignants ?',
     answer:
-      'Nos enseignants sont agrégés et certifiés de l’enseignement français à l’étranger, spécialistes de chaque épreuve du baccalauréat. Ils connaissent les grilles de correction officielles et les attentes des jurys.',
+      'Nos enseignants sont expérimentés et en exercice dans le système français. L’affectation à une matière dépend des compétences et disponibilités contrôlées pour le parcours concerné.',
   },
   {
     question: 'Comment fonctionne l’échéancier de paiement ?',

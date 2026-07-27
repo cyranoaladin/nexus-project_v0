@@ -17,7 +17,9 @@ def test_full_campaign_manifest_files_exist_and_match_sha256():
     manifest = load_manifest()
     assert manifest["campaignId"] == "pre-rentree-2026"
     assert manifest["version"] == "2026-full-campaign-v1"
-    assert manifest["status"] == "READY_FOR_OWNER_REVIEW"
+    assert manifest["status"] == "PUBLIC_RELEASE_CANDIDATE"
+    assert manifest["launchDate"] == "2026-07-26"
+    assert manifest["launchDateStatus"] == "SCHEDULED"
     assert len(manifest["assets"]) >= 300
     for asset in manifest["assets"]:
         path = KIT / asset["path"]
@@ -54,7 +56,7 @@ def test_full_campaign_public_exports_have_no_forbidden_terms():
         "review",
         "blocked",
         "placeholder",
-        "snt",
+        # "snt" retiré : matière Seconde légitime depuis R2 (décision direction 2026-07-23).
         "manuel offert",
         "remise annuelle",
         "places très limitées",
@@ -77,3 +79,13 @@ def test_full_campaign_quality_report_has_no_p0():
     assert report["contrastFailures"] == 0
     assert report["brokenReferenceCount"] == 0
     assert report["minimumContrastRatio"] >= 4.5
+
+
+def test_full_campaign_calendar_uses_owner_authorized_dates_and_times():
+    calendar = json.loads(
+        (KIT / "calendar/full-campaign-calendar.json").read_text(encoding="utf-8")
+    )
+    assert calendar
+    assert all(item["publicationDay"].startswith("J") for item in calendar)
+    assert all(item["publicationDate"] for item in calendar)
+    assert all(item["publicationTime"] for item in calendar)

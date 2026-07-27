@@ -22,7 +22,12 @@ import {
   formatEntryClassList,
 } from './presentation';
 import { getPreRentreeCampaign } from './campaign-source';
-import { getPreRentreePublicSurfaceDTO } from './public-surface';
+import {
+  compilePreRentreeReviewSurfaceDTO,
+  getPreRentreePublicSurfaceDTO,
+  type PreRentreePublicSurfaceDTO,
+} from './public-surface';
+import { computeSubjectIncompatibilities } from './incompatibilities';
 
 export { getPreRentreeCampaign } from './campaign-source';
 
@@ -30,13 +35,15 @@ export { getPreRentreeCampaign } from './campaign-source';
  * Get the validated campaign manifest.
  * Server-only — never import from client components.
  */
-/** Get the 14 module programs with their 70 sessions. */
+/** Get the 14 pedagogical modules with their 70 session templates. */
 export function getPreRentreeModules() {
   return PreRentreeModulesSchema.parse(modulesData).modules;
 }
 
 /**
- * Get the schedule expanded to all 70 individual sessions.
+ * Get the schedule expanded to 85 scheduled occurrences across 17 operational
+ * cohorts and 3 windows. Each cohort represents five occurrences of one
+ * pedagogical module; an alternative cohort does not double the pupil volume.
  */
 export function getPreRentreeSchedule() {
   const campaign = getPreRentreeCampaign();
@@ -48,20 +55,16 @@ export function getPreRentreeSchedule() {
     startTime: string;
     endTime: string;
     room: string;
-    week: number;
+    windowId: string;
     sessionNumber: number;
+    cohortId?: string;
+    alternativeGroupId?: string;
+    isPrimary?: boolean;
   }> = [];
 
-  for (const weekSchedule of campaign.schedule) {
-    const weekStart = new Date(weekSchedule.weekStart);
-    for (let day = 0; day < 5; day++) {
-      const date = new Date(weekStart);
-      date.setDate(weekStart.getDate() + day);
-      const dateStr = date.toISOString().split('T')[0];
-
-      if (campaign.noClassDates.includes(dateStr)) continue;
-
-      for (const slot of weekSchedule.slots) {
+  for (const window of campaign.schedule) {
+    for (const dateStr of window.days) {
+      for (const slot of window.slots) {
         const block = campaign.blocks.find((candidate) => candidate.id === slot.block);
         if (!block) {
           throw new Error(`Unknown campaign block: ${slot.block}`);
@@ -74,10 +77,16 @@ export function getPreRentreeSchedule() {
           startTime: block.startTime,
           endTime: block.endTime,
           room: slot.room,
-          week: weekSchedule.week,
+          windowId: window.windowId,
+          // A subject with multiple cohorts (cohortId set) gets its own 1-5
+          // numbering per cohort, never mixed with another cohort's sessions —
+          // otherwise a 2-cohort subject would wrongly look like 10 séances.
           sessionNumber: sessions.filter(
-            s => s.level === slot.level && s.subject === slot.subject
+            (s) => s.level === slot.level && s.subject === slot.subject && s.cohortId === slot.cohortId
           ).length + 1,
+          cohortId: slot.cohortId,
+          alternativeGroupId: slot.alternativeGroupId,
+          isPrimary: slot.isPrimary,
         });
       }
     }
@@ -191,16 +200,21 @@ export function getPreRentreeLandingDTO() {
     !campaign.roomRoles['salle-1']?.includes('MATHEMATIQUES') ||
     !campaign.roomRoles['salle-1']?.includes('NSI') ||
     !campaign.roomRoles['salle-2']?.includes('FRANCAIS') ||
-    !campaign.roomRoles['salle-2']?.includes('PHILOSOPHIE') ||
-    !campaign.roomRoles['salle-2']?.includes('PHYSIQUE_CHIMIE')
+    !campaign.roomRoles['salle-2']?.includes('PHYSIQUE_CHIMIE') ||
+    !campaign.roomRoles['salle-2']?.includes('SVT')
   ) {
     throw new Error('Unexpected Pré-rentrée room contract');
   }
+  const subjectLabelById = new Map(campaign.subjects.map((subject) => [subject.id, subject.label]));
+  const roomDetails = (room: 'salle-1' | 'salle-2'): string => {
+    const labels = campaign.roomRoles[room]!.map((subjectId) => subjectLabelById.get(subjectId) ?? subjectId);
+    return labels.length > 1 ? `${labels.slice(0, -1).join(', ')} et ${labels.at(-1)}` : (labels[0] ?? '');
+  };
   const organization = {
     educators: [],
     rooms: [
-      { label: 'Salle 1', details: 'Mathématiques / NSI / SNT' },
-      { label: 'Salle 2', details: 'Français, Philosophie, Physique-Chimie et SVT' },
+      { label: 'Salle 1', details: roomDetails('salle-1') },
+      { label: 'Salle 2', details: roomDetails('salle-2') },
     ],
   };
 
@@ -224,7 +238,7 @@ export function getPreRentreeLandingDTO() {
     levels: campaign.levels,
     subjects,
     blocks: campaign.blocks,
-    scheduleWeeks: campaign.schedule,
+    scheduleWindows: campaign.schedule,
     organization,
     capacityByOffer: campaign.capacityByOffer,
     operationalGates: campaign.operationalGates,
@@ -241,6 +255,7 @@ export function getPreRentreeLandingDTO() {
       depositPercentage: pricingRules.payment.deposit_pct_stage,
     },
     schedule,
+    subjectIncompatibilities: computeSubjectIncompatibilities(schedule),
     modules,
     content: campaign.content,
     seo: campaign.seo,
@@ -253,9 +268,9 @@ export function getPreRentreeLandingDTO() {
   };
 }
 
-export function getPreRentreeHomepageSpotlightDTO(): PreRentreeHomepageSpotlightDTO {
-  const dto = getPreRentreePublicSurfaceDTO();
+function buildPreRentreeHomepageSpotlightDTO(dto: PreRentreePublicSurfaceDTO): PreRentreeHomepageSpotlightDTO {
   const publicOffers = dto.offers;
+  const campaign = getPreRentreeCampaign();
   const start = new Date(`${dto.startDate}T12:00:00+01:00`);
   const day = new Intl.DateTimeFormat('fr-TN', { day: 'numeric', timeZone: 'Africa/Tunis' }).format(start);
   const month = new Intl.DateTimeFormat('fr-TN', { month: 'long', timeZone: 'Africa/Tunis' }).format(start);
@@ -267,10 +282,10 @@ export function getPreRentreeHomepageSpotlightDTO(): PreRentreeHomepageSpotlight
     accessibleLabel: `À partir du ${day} ${month} ${year}.`,
     chipLabel: `dès le ${day} ${month}`,
   };
-  const subjectOrder = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'FRANCAIS', 'NSI', 'PHILOSOPHIE', 'SVT'];
+  const subjectOrder = ['MATHEMATIQUES', 'PHYSIQUE_CHIMIE', 'FRANCAIS', 'NSI', 'SVT', 'MATHS_EXPERTES'];
   const availableSubjectIds = new Set<string>(publicOffers.flatMap((offer) => offer.subjects));
   const subjectFamilies = subjectOrder.filter((subjectId) => availableSubjectIds.has(subjectId)).map((subjectId) => {
-    const subject = dto.levels.flatMap((level) => level.subjects).find((candidate) => candidate.id === subjectId);
+    const subject = campaign.subjects.find((candidate) => candidate.id === subjectId);
     if (!subject) throw new Error(`Missing Pré-rentrée subject: ${subjectId}`);
     return subject.label;
   });
@@ -294,4 +309,13 @@ export function getPreRentreeHomepageSpotlightDTO(): PreRentreeHomepageSpotlight
     secondaryCtaLabel: 'Voir les offres',
     secondaryCtaPath: `${dto.canonicalPath}#offres-pre-rentree`,
   };
+}
+
+export function compilePreRentreeReviewHomepageSpotlightDTO(): PreRentreeHomepageSpotlightDTO {
+  return buildPreRentreeHomepageSpotlightDTO(compilePreRentreeReviewSurfaceDTO());
+}
+
+export function getPreRentreeHomepageSpotlightDTO(): PreRentreeHomepageSpotlightDTO | null {
+  const dto = getPreRentreePublicSurfaceDTO();
+  return dto ? buildPreRentreeHomepageSpotlightDTO(dto) : null;
 }

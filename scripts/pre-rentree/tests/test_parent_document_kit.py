@@ -103,7 +103,7 @@ def test_public_outputs_exclude_internal_and_unapproved_claims():
         "blocked",
         "owner",
         "placeholder",
-        "snt",
+        # "snt" retiré : matière Seconde légitime depuis R2 (décision direction 2026-07-23).
         "manuel offert",
         "remise annuelle",
         "réduction annuelle",

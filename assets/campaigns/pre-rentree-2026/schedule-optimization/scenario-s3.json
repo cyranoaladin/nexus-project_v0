@@ -1,0 +1,105 @@
+{
+  "description": "S3 — extension de fin de campagne 28->31 aout, restructuration des fenetres pour eliminer le chevauchement identifie en S2, +4 cohortes alternatives (Francais Premiere, NSI/PC/SVT Terminale). Verifie independamment (voir verify_s3_reference.py) : 0 conflit salle/enseignant, 12/12 combinaisons de matieres testees <= 60 min (COMPACT ou NO_SHARED_DAY), tallies enseignants conformes aux valeurs annoncees dans la mission.",
+  "verdict": "VERIFIED_COMPLIANT",
+  "verification": {
+    "windows": {
+      "fenetre-1-S3": {
+        "conflicts": [],
+        "teacherHours": {
+          "TEACHER_A_MATHS_NSI": 8,
+          "TEACHER_C_FRANCAIS": 4
+        }
+      },
+      "fenetre-2-S3": {
+        "conflicts": [],
+        "teacherHours": {
+          "TEACHER_C_FRANCAIS": 4,
+          "TEACHER_D_PHYSIQUE_CHIMIE": 2,
+          "TEACHER_E_SVT": 2
+        }
+      },
+      "fenetre-3-S3": {
+        "conflicts": [],
+        "teacherHours": {
+          "TEACHER_A_MATHS_NSI": 8,
+          "TEACHER_D_PHYSIQUE_CHIMIE": 4,
+          "TEACHER_E_SVT": 4
+        }
+      }
+    },
+    "claimedPairChecks": [
+      {
+        "label": "Première fenêtre 1 — Maths(B) + NSI(C)",
+        "computedStatus": "COMPACT",
+        "computedMaxIdleMinutes": 60,
+        "satisfiesSixtyMinuteRule": true
+      },
+      {
+        "label": "Première fenêtre 1+2 — Français (fenêtre 2) + Mathématiques (fenêtre 1): different dates",
+        "computedStatus": "NO_SHARED_DAY",
+        "computedMaxIdleMinutes": 0,
+        "satisfiesSixtyMinuteRule": true
+      },
+      {
+        "label": "Maths + NSI: NSI(A, cohorte 1) + Maths(B)",
+        "computedStatus": "COMPACT",
+        "computedMaxIdleMinutes": 15,
+        "satisfiesSixtyMinuteRule": true
+      },
+      {
+        "label": "Maths + PC: PC(A, cohorte 1) + Maths(B)",
+        "computedStatus": "COMPACT",
+        "computedMaxIdleMinutes": 15,
+        "satisfiesSixtyMinuteRule": true
+      },
+      {
+        "label": "Maths + SVT: Maths(B) + SVT(C, cohorte 1)",
+        "computedStatus": "COMPACT",
+        "computedMaxIdleMinutes": 60,
+        "satisfiesSixtyMinuteRule": true
+      },
+      {
+        "label": "NSI + PC: NSI(A, cohorte 1) + PC(B, cohorte 2)",
+        "computedStatus": "COMPACT",
+        "computedMaxIdleMinutes": 15,
+        "satisfiesSixtyMinuteRule": true
+      },
+      {
+        "label": "PC + SVT: PC(B, cohorte 2) + SVT(C, cohorte 1)",
+        "computedStatus": "COMPACT",
+        "computedMaxIdleMinutes": 60,
+        "satisfiesSixtyMinuteRule": true
+      },
+      {
+        "label": "NSI + SVT: SVT(C, cohorte 1) + NSI(D, cohorte 2)",
+        "computedStatus": "COMPACT",
+        "computedMaxIdleMinutes": 15,
+        "satisfiesSixtyMinuteRule": true
+      },
+      {
+        "label": "Maths + Maths expertes: Maths(B) + MathsExpertes(C)",
+        "computedStatus": "COMPACT",
+        "computedMaxIdleMinutes": 60,
+        "satisfiesSixtyMinuteRule": true
+      },
+      {
+        "label": "Maths + Maths expertes + NSI: Maths(B) + MathsExpertes(C) + NSI(D, cohorte 2)",
+        "computedStatus": "COMPACT",
+        "computedMaxIdleMinutes": 60,
+        "satisfiesSixtyMinuteRule": true
+      },
+      {
+        "label": "Maths + Maths expertes + PC: PC(A, cohorte 1) + Maths(B) + MathsExpertes(C)",
+        "computedStatus": "COMPACT",
+        "computedMaxIdleMinutes": 60,
+        "satisfiesSixtyMinuteRule": true
+      },
+      {
+        "label": "Maths + Maths expertes + SVT: Maths(B) + MathsExpertes(C) + SVT(D, cohorte 2)",
+        "computedStatus": "COMPACT",
+        "computedMaxIdleMinutes": 60,
+        "satisfiesSixtyMinuteRule": true
+      }
+    ]
+  }
+}

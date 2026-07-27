@@ -216,7 +216,7 @@ pm2 save
 - `npm run typecheck` : OK.
 - Tests ciblés Lot 2B : 7 suites, 93 tests OK.
 - `npm run build` : OK.
-- PM2 `nexus-prod` : online.
+- PM2 `<PROCESS_NAME>` : online.
 - Port applicatif : `127.0.0.1:3001`.
 - Smoke public : `site:200`, `offres:200`, `stages:200`, `dashboard_no_auth:307`.
 - Santé locale : `api_health:200`.

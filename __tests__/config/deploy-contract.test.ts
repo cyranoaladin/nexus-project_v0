@@ -12,15 +12,17 @@ describe('production deployment contract', () => {
     const previousPort = process.env.PORT;
     const previousNextAuthUrl = process.env.NEXTAUTH_URL;
     const previousTrustHost = process.env.AUTH_TRUST_HOST;
+    const previousAppName = process.env.PM2_APP_NAME;
 
     try {
       delete process.env.PORT;
       delete process.env.NEXTAUTH_URL;
       delete process.env.AUTH_TRUST_HOST;
+      delete process.env.PM2_APP_NAME;
 
       jest.resetModules();
       const ecosystem = require(path.join(rootDir, 'ecosystem.config.js'));
-      const app = ecosystem.apps.find((entry: { name: string }) => entry.name === 'nexus-prod');
+      const app = ecosystem.apps.find((entry: { name: string }) => entry.name === 'nexus-app');
 
       expect(app).toBeDefined();
       expect(app.env.PORT).toBe(3001);
@@ -33,6 +35,8 @@ describe('production deployment contract', () => {
       else process.env.NEXTAUTH_URL = previousNextAuthUrl;
       if (previousTrustHost === undefined) delete process.env.AUTH_TRUST_HOST;
       else process.env.AUTH_TRUST_HOST = previousTrustHost;
+      if (previousAppName === undefined) delete process.env.PM2_APP_NAME;
+      else process.env.PM2_APP_NAME = previousAppName;
     }
   });
 
@@ -57,14 +61,21 @@ describe('production deployment contract', () => {
     expect(verifier).toContain('validate-npm-tree.js');
   });
 
-  it('keeps the git-pull deploy helper aligned with the real production host and systemd service', () => {
-    const deployScript = read('scripts/deploy-git-pull.sh');
+  it('keeps public deployment helpers fail-closed and free of topology', () => {
+    for (const scriptPath of [
+      'scripts/deploy-git-pull.sh',
+      'scripts/deploy-production-safe.sh',
+      'scripts/test-ssh-connection.sh',
+      'scripts/ops/backup-db.sh',
+    ]) {
+      const deployScript = read(scriptPath);
 
-    expect(deployScript).toContain('REMOTE_HOST="root@88.99.254.59"');
-    expect(deployScript).toContain('REMOTE_DIR="/opt/nexus"');
-    expect(deployScript).toContain('systemctl restart nexus-app');
-    expect(deployScript).toContain('git checkout main');
-    expect(deployScript).toContain('git pull origin main');
+      expect(deployScript).toContain('exit 1');
+      expect(deployScript).not.toContain('ssh ');
+      expect(deployScript).not.toContain('git pull');
+      expect(deployScript).not.toContain('systemctl');
+      expect(deployScript).not.toContain('docker compose');
+    }
   });
 
   it('forbids destructive docker commands in active production scripts', () => {

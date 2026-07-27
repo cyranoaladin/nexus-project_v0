@@ -21,8 +21,8 @@ describe('SMTP transport dependency boundary', () => {
     expect(pkg.dependencies?.nodemailer).toBeUndefined();
     expect(pkg.devDependencies?.nodemailer).toBeUndefined();
     expect(pkg.dependencies?.nodemailer9).toBe('npm:nodemailer@9.0.3');
-    expect(pkg.dependencies?.['next-auth']).toBe('5.0.0-beta.31');
-    expect(pkg.dependencies?.['@auth/prisma-adapter']).toBe('2.11.2');
+    expect(pkg.dependencies?.['next-auth']).toBe('5.0.0-beta.32');
+    expect(pkg.dependencies?.['@auth/prisma-adapter']).toBe('2.11.3');
 
     for (const modulePath of smtpModules) {
       const source = fs.readFileSync(path.join(projectRoot, modulePath), 'utf8');

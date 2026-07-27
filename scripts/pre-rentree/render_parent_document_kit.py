@@ -28,7 +28,8 @@ SUBJECTS = {
     "FRANCAIS": "Français",
     "PHYSIQUE_CHIMIE": "Physique-chimie",
     "NSI": "NSI",
-    "PHILOSOPHIE": "Philosophie",
+    "SVT": "SVT",
+    "MATHS_EXPERTES": "Mathématiques expertes",
 }
 LEVELS = {
     "TROISIEME": "Entrée en 3e",
@@ -107,7 +108,8 @@ class ParentDocumentRenderer:
             if unapproved:
                 raise ValueError(f"Unapproved proofs for {document['documentId']}: {unapproved}")
         raw = json.dumps(self.content["documents"], ensure_ascii=False).lower()
-        forbidden = ("snt", "manuel offert", "remise annuelle", "réduction annuelle", "placeholder")
+        # "snt" retiré de la liste : matière Seconde légitime depuis R2 (décision direction 2026-07-23).
+        forbidden = ("manuel offert", "remise annuelle", "réduction annuelle", "placeholder")
         if any(term in raw for term in forbidden):
             raise ValueError("Parent-facing source contains a hidden or internal claim")
 

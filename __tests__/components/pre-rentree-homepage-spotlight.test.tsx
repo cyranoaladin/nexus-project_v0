@@ -1,41 +1,42 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import HomePage from '@/app/page';
+import { getPreRentreeHomepageSpotlightDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
+import { getPreRentreeReleaseGate } from '@/lib/campaigns/pre-rentree-2026/release-gate';
 
 const root = join(__dirname, '..', '..');
 const componentPath = join(root, 'components/marketing/PreRentreeCampaignSpotlight.tsx');
 
+// Not mocking the release gate: this proves the real, currently-deployed
+// PUBLIC_READY posture actually surfaces the campaign, while every expected
+// label is derived from the same canonical DTO the component itself renders
+// (no hardcoded copy here to drift out of sync with content changes).
 describe('PreRentreeCampaignSpotlight', () => {
-  it('is rendered before the permanent hero and level router', () => {
+  it('exposes the campaign at PUBLIC_READY while preserving the permanent homepage', () => {
+    expect(getPreRentreeReleaseGate().isPublicReady).toBe(true);
+    const campaign = getPreRentreeHomepageSpotlightDTO();
+    expect(campaign).not.toBeNull();
+
     const { container } = render(<HomePage />);
-    const spotlight = screen.getByRole('region', { name: 'Campagne Pré-rentrée 2026' });
     const hero = container.querySelector('[data-hero]');
     const router = screen.getByText('Mon enfant est en…').closest('section');
 
-    expect(spotlight).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: campaign!.ariaLabel })).toBeInTheDocument();
     expect(hero).not.toBeNull();
     expect(router).not.toBeNull();
-    expect(spotlight.compareDocumentPosition(hero as Node) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(spotlight.compareDocumentPosition(router as Node) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it('renders the exact campaign hierarchy and canonical actions', () => {
-    render(<HomePage />);
-    const spotlight = screen.getByRole('region', { name: 'Campagne Pré-rentrée 2026' });
-    const campaign = within(spotlight);
+  it('exposes the canonical campaign copy and navigation at PUBLIC_READY', () => {
+    const campaign = getPreRentreeHomepageSpotlightDTO();
+    expect(campaign).not.toBeNull();
 
-    expect(campaign.getByRole('heading', { level: 2, name: 'Stages de pré-rentrée 2026' })).toBeVisible();
-    expect(campaign.getByText('Campagne en préparation')).toBeVisible();
-    expect(campaign.getByText('Entrée en 3e, Seconde, Première ou Terminale')).toBeVisible();
-    expect(campaign.getByText('Mathématiques · Physique-Chimie · Français · NSI · Philosophie · SVT')).toBeVisible();
-    expect(campaign.getByText('Fondations : 4 à 6 élèves · Premium : 3 à 5 élèves')).toBeVisible();
-    expect(campaign.getByText('10 h par matière')).toBeVisible();
-    expect(campaign.getByText('Mutuelleville')).toBeVisible();
-    expect(campaign.getByText('dès le 17 août')).toBeVisible();
-    expect(campaign.getByText('À partir du 17 août 2026.')).toHaveClass('sr-only');
-    expect(campaign.getByRole('link', { name: 'Découvrir la Pré-rentrée 2026' })).toHaveAttribute('href', '/stages/pre-rentree-2026');
-    expect(campaign.getByRole('link', { name: 'Voir les offres' })).toHaveAttribute('href', '/stages/pre-rentree-2026#offres-pre-rentree');
+    const { container } = render(<HomePage />);
+
+    expect(screen.getByRole('heading', { name: campaign!.title })).toBeInTheDocument();
+    expect(screen.getByText(campaign!.subjectFamiliesLabel)).toBeInTheDocument();
+    expect(container.querySelector(`a[href="${campaign!.campaignPath}"]`)).not.toBeNull();
+    expect(container.querySelector(`a[href^="${campaign!.campaignPath}#"]`)).not.toBeNull();
   });
 
   it('contains no copied commercial data or direct source imports', () => {

@@ -21,29 +21,31 @@ describe('Pré-rentrée 2026 landing DTO', () => {
       'Deux semaines pour préparer sérieusement la rentrée',
     );
     expect(dto.content.method).toHaveLength(4);
-    expect(dto.content.faq).toHaveLength(16);
+    expect(dto.content.faq).toHaveLength(19);
     expect(dto.content.practical.preRegistrationNotice).toContain('ne réserve pas une place');
     expect(dto.content.practical.preRegistrationNotice).toContain('ne forme pas un contrat');
     expect(dto.seo.canonical).toBe('/stages/pre-rentree-2026');
     expect(dto.capacityByOffer).toEqual({
-      FONDATIONS: { minPerCohort: 4, maxPerCohort: 6 },
+      FONDATIONS: { minPerCohort: 3, maxPerCohort: 6 },
       PREMIUM: { minPerCohort: 3, maxPerCohort: 5 },
     });
-    expect(dto.blocks).toHaveLength(5);
+    expect(dto.blocks).toHaveLength(4);
     expect(dto.content.hero.subtitle).toContain(
       'Nexus Fondations en 3e et Seconde',
     );
     expect(dto.content.hero.subtitle).not.toMatch(/NSI en Seconde|EDS NSI/i);
     expect(dto.packs.map((pack) => pack.code)).toEqual(['PACK_1', 'PACK_2', 'PACK_3', 'PACK_4']);
     expect(JSON.stringify(dto.packs)).not.toContain('pre2026-pack-');
-    expect(dto.publicStatus).toBe('Campagne en préparation');
+    expect(dto.publicStatus).toBe('Informations disponibles');
     expect(dto).not.toHaveProperty('status');
-    expect(dto.scheduleWeeks).toHaveLength(2);
-    expect(dto.scheduleWeeks.flatMap((week) => week.slots)).toHaveLength(16);
+    expect(dto.scheduleWindows).toHaveLength(3);
+    // 14 modules -> 17 slots since SCHEDULE-S5 adds an alternative cohort each
+    // for Première SVT, Terminale NSI and Terminale SVT (see SCHEDULE-S5-DECISION.md).
+    expect(dto.scheduleWindows.flatMap((window) => window.slots)).toHaveLength(17);
     expect(dto.organization.educators).toHaveLength(0);
     expect(dto.organization.rooms).toEqual([
-      { label: 'Salle 1', details: 'Mathématiques / NSI / SNT' },
-      { label: 'Salle 2', details: 'Français, Philosophie, Physique-Chimie et SVT' },
+      { label: 'Salle 1', details: 'Mathématiques, NSI et Mathématiques expertes' },
+      { label: 'Salle 2', details: 'Français, Physique-Chimie et SVT' },
     ]);
     expect(JSON.stringify(dto.organization)).not.toMatch(
       /MATHS_NSI_SNT_TEACHER|FRENCH_TEACHER|PHYSICS_CHEMISTRY_TEACHER|teacherRole|roomRole/,
@@ -69,7 +71,9 @@ describe('Pré-rentrée 2026 landing DTO', () => {
     expect(academicProfiles.PREMIERE.voies).toHaveLength(2);
     expect(academicProfiles.PREMIERE.mathsProfiles).toHaveLength(2);
     expect(academicProfiles.PREMIERE.eafProfiles).toHaveLength(2);
-    expect(academicProfiles.PREMIERE.specialtyPlans).toHaveLength(4);
+    // 8 plans: every combination of {NSI, Physique-Chimie, SVT} declared or not
+    // (2^3), since all 3 are commercialized Première subjects (offers.json).
+    expect(academicProfiles.PREMIERE.specialtyPlans).toHaveLength(8);
     expect(academicProfiles.TERMINALE.retainedSpecialties.maxSelections).toBe(2);
     expect(academicProfiles.TERMINALE.mathsOptions).toHaveLength(3);
     expect(JSON.stringify(academicProfiles.SECONDE)).not.toMatch(/EDS.*NSI|NSI.*EDS/i);
@@ -78,7 +82,7 @@ describe('Pré-rentrée 2026 landing DTO', () => {
   it('keeps all pedagogical fields for every module session', () => {
     const { modules } = getPreRentreeLandingDTO();
 
-    expect(modules).toHaveLength(16);
+    expect(modules).toHaveLength(14);
     for (const campaignModule of modules) {
       expect(campaignModule.prerequisites.length).toBeGreaterThan(0);
       expect(campaignModule.differentiation.length).toBeGreaterThan(0);

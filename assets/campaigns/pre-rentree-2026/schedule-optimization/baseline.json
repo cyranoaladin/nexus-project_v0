@@ -1,0 +1,148 @@
+{
+  "description": "S0 — current (baseline) schedule, per-window idle-time violations.",
+  "maxStudentIdleMinutes": 60,
+  "windows": {
+    "fenetre-1": {
+      "window": "fenetre-1",
+      "score": {
+        "simultaneousPairs": 0,
+        "longIdlePairs": 2,
+        "totalIdleMinutes": 390
+      },
+      "details": [
+        {
+          "level": "TROISIEME",
+          "subjectA": "FRANCAIS",
+          "subjectB": "MATHEMATIQUES",
+          "status": "LONG_IDLE",
+          "maxIdleMinutes": 195
+        },
+        {
+          "level": "SECONDE",
+          "subjectA": "FRANCAIS",
+          "subjectB": "MATHEMATIQUES",
+          "status": "COMPACT",
+          "maxIdleMinutes": 15
+        },
+        {
+          "level": "PREMIERE",
+          "subjectA": "FRANCAIS",
+          "subjectB": "MATHEMATIQUES",
+          "status": "COMPACT",
+          "maxIdleMinutes": 60
+        },
+        {
+          "level": "PREMIERE",
+          "subjectA": "FRANCAIS",
+          "subjectB": "NSI",
+          "status": "LONG_IDLE",
+          "maxIdleMinutes": 195
+        },
+        {
+          "level": "PREMIERE",
+          "subjectA": "MATHEMATIQUES",
+          "subjectB": "NSI",
+          "status": "COMPACT",
+          "maxIdleMinutes": 15
+        }
+      ]
+    },
+    "weekend-debut-fenetre-2": {
+      "window": "weekend-debut-fenetre-2",
+      "score": {
+        "simultaneousPairs": 0,
+        "longIdlePairs": 0,
+        "totalIdleMinutes": 0
+      },
+      "details": [
+        {
+          "level": "PREMIERE",
+          "subjectA": "PHYSIQUE_CHIMIE",
+          "subjectB": "SVT",
+          "status": "COMPACT",
+          "maxIdleMinutes": 15
+        }
+      ]
+    },
+    "fenetre-2": {
+      "window": "fenetre-2",
+      "score": {
+        "simultaneousPairs": 1,
+        "longIdlePairs": 4,
+        "totalIdleMinutes": 915
+      },
+      "details": [
+        {
+          "level": "TERMINALE",
+          "subjectA": "MATHEMATIQUES",
+          "subjectB": "MATHS_EXPERTES",
+          "status": "COMPACT",
+          "maxIdleMinutes": 15
+        },
+        {
+          "level": "TERMINALE",
+          "subjectA": "MATHEMATIQUES",
+          "subjectB": "NSI",
+          "status": "LONG_IDLE",
+          "maxIdleMinutes": 195
+        },
+        {
+          "level": "TERMINALE",
+          "subjectA": "MATHEMATIQUES",
+          "subjectB": "PHYSIQUE_CHIMIE",
+          "status": "LONG_IDLE",
+          "maxIdleMinutes": 330
+        },
+        {
+          "level": "TERMINALE",
+          "subjectA": "MATHEMATIQUES",
+          "subjectB": "SVT",
+          "status": "LONG_IDLE",
+          "maxIdleMinutes": 195
+        },
+        {
+          "level": "TERMINALE",
+          "subjectA": "MATHS_EXPERTES",
+          "subjectB": "NSI",
+          "status": "COMPACT",
+          "maxIdleMinutes": 60
+        },
+        {
+          "level": "TERMINALE",
+          "subjectA": "MATHS_EXPERTES",
+          "subjectB": "PHYSIQUE_CHIMIE",
+          "status": "LONG_IDLE",
+          "maxIdleMinutes": 195
+        },
+        {
+          "level": "TERMINALE",
+          "subjectA": "MATHS_EXPERTES",
+          "subjectB": "SVT",
+          "status": "COMPACT",
+          "maxIdleMinutes": 60
+        },
+        {
+          "level": "TERMINALE",
+          "subjectA": "NSI",
+          "subjectB": "PHYSIQUE_CHIMIE",
+          "status": "COMPACT",
+          "maxIdleMinutes": 15
+        },
+        {
+          "level": "TERMINALE",
+          "subjectA": "NSI",
+          "subjectB": "SVT",
+          "status": "SIMULTANEOUS",
+          "maxIdleMinutes": 0
+        },
+        {
+          "level": "TERMINALE",
+          "subjectA": "PHYSIQUE_CHIMIE",
+          "subjectB": "SVT",
+          "status": "COMPACT",
+          "maxIdleMinutes": 15
+        }
+      ]
+    }
+  }
+}
