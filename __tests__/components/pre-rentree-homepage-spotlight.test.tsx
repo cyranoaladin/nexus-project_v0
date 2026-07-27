@@ -2,28 +2,41 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { render, screen } from '@testing-library/react';
 import HomePage from '@/app/page';
+import { getPreRentreeHomepageSpotlightDTO } from '@/lib/campaigns/pre-rentree-2026/getters';
+import { getPreRentreeReleaseGate } from '@/lib/campaigns/pre-rentree-2026/release-gate';
 
 const root = join(__dirname, '..', '..');
 const componentPath = join(root, 'components/marketing/PreRentreeCampaignSpotlight.tsx');
 
+// Not mocking the release gate: this proves the real, currently-deployed
+// PUBLIC_READY posture actually surfaces the campaign, while every expected
+// label is derived from the same canonical DTO the component itself renders
+// (no hardcoded copy here to drift out of sync with content changes).
 describe('PreRentreeCampaignSpotlight', () => {
-  it('keeps the campaign absent until PUBLIC_READY while preserving the permanent homepage', () => {
+  it('exposes the campaign at PUBLIC_READY while preserving the permanent homepage', () => {
+    expect(getPreRentreeReleaseGate().isPublicReady).toBe(true);
+    const campaign = getPreRentreeHomepageSpotlightDTO();
+    expect(campaign).not.toBeNull();
+
     const { container } = render(<HomePage />);
     const hero = container.querySelector('[data-hero]');
     const router = screen.getByText('Mon enfant est en…').closest('section');
 
-    expect(screen.queryByRole('region', { name: 'Campagne Pré-rentrée 2026' })).not.toBeInTheDocument();
+    expect(screen.getByRole('region', { name: campaign!.ariaLabel })).toBeInTheDocument();
     expect(hero).not.toBeNull();
     expect(router).not.toBeNull();
   });
 
-  it('does not expose campaign copy or navigation while owner gates are open', () => {
+  it('exposes the canonical campaign copy and navigation at PUBLIC_READY', () => {
+    const campaign = getPreRentreeHomepageSpotlightDTO();
+    expect(campaign).not.toBeNull();
+
     const { container } = render(<HomePage />);
 
-    expect(screen.queryByRole('heading', { name: 'Stages de pré-rentrée 2026' })).not.toBeInTheDocument();
-    expect(screen.queryByText('Fondations : 3 à 6 élèves · Premium : 3 à 5 élèves')).not.toBeInTheDocument();
-    expect(container.querySelector('a[href="/stages/pre-rentree-2026"]')).toBeNull();
-    expect(container.querySelector('a[href^="/stages/pre-rentree-2026#"]')).toBeNull();
+    expect(screen.getByRole('heading', { name: campaign!.title })).toBeInTheDocument();
+    expect(screen.getByText(campaign!.subjectFamiliesLabel)).toBeInTheDocument();
+    expect(container.querySelector(`a[href="${campaign!.campaignPath}"]`)).not.toBeNull();
+    expect(container.querySelector(`a[href^="${campaign!.campaignPath}#"]`)).not.toBeNull();
   });
 
   it('contains no copied commercial data or direct source imports', () => {
